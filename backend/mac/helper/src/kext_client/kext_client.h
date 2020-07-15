@@ -2,7 +2,7 @@
 #define KextClient_h
 
 #include <thread>
-#include "KextMonitor.h"
+#include "kext_monitor.h"
 
 typedef std::function<bool(const std::string&, std::string&, bool&)> CheckAppCallback;
 

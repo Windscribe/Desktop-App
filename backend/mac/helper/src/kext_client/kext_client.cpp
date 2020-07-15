@@ -1,5 +1,5 @@
-#include "KextClient.h"
-#include "Logger.h"
+#include "kext_client.h"
+#include "logger.h"
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <arpa/inet.h>

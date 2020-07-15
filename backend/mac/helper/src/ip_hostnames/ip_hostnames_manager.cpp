@@ -1,5 +1,5 @@
-#include "IpHostnamesManager.h"
-#include "Logger.h"
+#include "ip_hostnames_manager.h"
+#include "logger.h"
 
 IpHostnamesManager::IpHostnamesManager(): isEnabled_(false), isExcludeMode_(true)
 {

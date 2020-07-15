@@ -1,6 +1,6 @@
-#include "SplitTunneling.h"
-#include "Utils.h"
-#include "Logger.h"
+#include "split_tunneling.h"
+#include "utils.h"
+#include "logger.h"
 
 SplitTunneling::SplitTunneling(): isExclude_(false),
     kextClient_(std::bind(&SplitTunneling::verifyApp, this, std::placeholders::_1,
