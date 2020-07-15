@@ -7,21 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		000B36D324B8C39300717275 /* BoundRoute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D124B8C39300717275 /* BoundRoute.cpp */; };
-		000B36D624B8CB1500717275 /* Routes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D524B8CB1500717275 /* Routes.cpp */; };
-		001EE78624B89075004624BE /* KextClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78224B89075004624BE /* KextClient.cpp */; };
-		001EE78724B89075004624BE /* KextMonitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78424B89075004624BE /* KextMonitor.cpp */; };
-		001EE79024B890DF004624BE /* SplitTunneling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78B24B890DE004624BE /* SplitTunneling.cpp */; };
-		001EE79524B893D1004624BE /* RoutesManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE79324B893D1004624BE /* RoutesManager.cpp */; };
-		001F82D724BCF2A80081515F /* IpRoutes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001F82D524BCF2A80081515F /* IpRoutes.cpp */; };
-		001F82D824BCF2A80081515F /* IpHostnamesManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001F82D624BCF2A80081515F /* IpHostnamesManager.cpp */; };
-		00AB62AE249142610085A20F /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00AB62AC249142610085A20F /* Utils.cpp */; };
-		00EBAA04247D254400C86F6F /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EBAA02247D254400C86F6F /* Logger.cpp */; };
-		840B29571D6BBE88007D9519 /* Server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B29551D6BBE88007D9519 /* Server.cpp */; };
-		843077AD1DE3AE26002405EA /* ExecuteCmd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 843077AB1DE3AE26002405EA /* ExecuteCmd.cpp */; };
-		8434C1081FD5B99C00B7030D /* KeychainUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8434C1071FD5B99C00B7030D /* KeychainUtils.mm */; };
+		000B36D324B8C39300717275 /* bound_route.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D124B8C39300717275 /* bound_route.cpp */; };
+		000B36D624B8CB1500717275 /* routes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D524B8CB1500717275 /* routes.cpp */; };
+		001EE78624B89075004624BE /* kext_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78224B89075004624BE /* kext_client.cpp */; };
+		001EE78724B89075004624BE /* kext_monitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78424B89075004624BE /* kext_monitor.cpp */; };
+		001EE79024B890DF004624BE /* split_tunneling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78B24B890DE004624BE /* split_tunneling.cpp */; };
+		001EE79524B893D1004624BE /* routes_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE79324B893D1004624BE /* routes_manager.cpp */; };
+		001F82D724BCF2A80081515F /* ip_routes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001F82D524BCF2A80081515F /* ip_routes.cpp */; };
+		001F82D824BCF2A80081515F /* ip_hostnames_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001F82D624BCF2A80081515F /* ip_hostnames_manager.cpp */; };
+		00AB62AE249142610085A20F /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00AB62AC249142610085A20F /* utils.cpp */; };
+		00EBAA04247D254400C86F6F /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EBAA02247D254400C86F6F /* logger.cpp */; };
+		840B29571D6BBE88007D9519 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B29551D6BBE88007D9519 /* server.cpp */; };
+		843077AD1DE3AE26002405EA /* execute_cmd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 843077AB1DE3AE26002405EA /* execute_cmd.cpp */; };
+		8434C1081FD5B99C00B7030D /* keychain_utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8434C1071FD5B99C00B7030D /* keychain_utils.mm */; };
 		8434C10D1FD5BA1400B7030D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8434C10C1FD5BA1400B7030D /* Security.framework */; };
-		84DA0AED1B1D7ED000260E8F /* Helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84DA0AEC1B1D7ED000260E8F /* Helper.cpp */; };
+		84DA0AED1B1D7ED000260E8F /* helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84DA0AEC1B1D7ED000260E8F /* helper.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,40 +47,40 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		000B36D124B8C39300717275 /* BoundRoute.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoundRoute.cpp; sourceTree = "<group>"; };
-		000B36D224B8C39300717275 /* BoundRoute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundRoute.h; sourceTree = "<group>"; };
-		000B36D424B8CB1500717275 /* Routes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Routes.h; sourceTree = "<group>"; };
-		000B36D524B8CB1500717275 /* Routes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Routes.cpp; sourceTree = "<group>"; };
-		001EE77724B88F9B004624BE /* HelperCommandsSerialize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelperCommandsSerialize.h; sourceTree = "<group>"; };
-		001EE77824B88F9B004624BE /* HelperCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelperCommands.h; sourceTree = "<group>"; };
-		001EE78224B89075004624BE /* KextClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KextClient.cpp; sourceTree = "<group>"; };
-		001EE78324B89075004624BE /* KextMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KextMonitor.h; sourceTree = "<group>"; };
-		001EE78424B89075004624BE /* KextMonitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KextMonitor.cpp; sourceTree = "<group>"; };
-		001EE78524B89075004624BE /* KextClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KextClient.h; sourceTree = "<group>"; };
-		001EE78A24B890DE004624BE /* SplitTunneling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitTunneling.h; sourceTree = "<group>"; };
-		001EE78B24B890DE004624BE /* SplitTunneling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SplitTunneling.cpp; sourceTree = "<group>"; };
-		001EE79324B893D1004624BE /* RoutesManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RoutesManager.cpp; sourceTree = "<group>"; };
-		001EE79424B893D1004624BE /* RoutesManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoutesManager.h; sourceTree = "<group>"; };
-		001F82D324BCF2A80081515F /* IpHostnamesManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IpHostnamesManager.h; sourceTree = "<group>"; };
-		001F82D424BCF2A80081515F /* IpRoutes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IpRoutes.h; sourceTree = "<group>"; };
-		001F82D524BCF2A80081515F /* IpRoutes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IpRoutes.cpp; sourceTree = "<group>"; };
-		001F82D624BCF2A80081515F /* IpHostnamesManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IpHostnamesManager.cpp; sourceTree = "<group>"; };
-		00AB62AC249142610085A20F /* Utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
-		00AB62AD249142610085A20F /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
-		00EBAA02247D254400C86F6F /* Logger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Logger.cpp; sourceTree = "<group>"; };
-		00EBAA03247D254400C86F6F /* Logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
-		840B29551D6BBE88007D9519 /* Server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Server.cpp; sourceTree = "<group>"; };
-		840B29561D6BBE88007D9519 /* Server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Server.h; sourceTree = "<group>"; };
-		843077AB1DE3AE26002405EA /* ExecuteCmd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExecuteCmd.cpp; sourceTree = "<group>"; };
-		843077AC1DE3AE26002405EA /* ExecuteCmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExecuteCmd.h; sourceTree = "<group>"; };
-		8434C1061FD5B99C00B7030D /* KeychainUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainUtils.h; sourceTree = "<group>"; };
-		8434C1071FD5B99C00B7030D /* KeychainUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KeychainUtils.mm; sourceTree = "<group>"; };
+		000B36D124B8C39300717275 /* bound_route.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bound_route.cpp; sourceTree = "<group>"; };
+		000B36D224B8C39300717275 /* bound_route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bound_route.h; sourceTree = "<group>"; };
+		000B36D424B8CB1500717275 /* routes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = routes.h; sourceTree = "<group>"; };
+		000B36D524B8CB1500717275 /* routes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = routes.cpp; sourceTree = "<group>"; };
+		001EE77724B88F9B004624BE /* helper_commands_serialize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_commands_serialize.h; sourceTree = "<group>"; };
+		001EE77824B88F9B004624BE /* helper_commands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_commands.h; sourceTree = "<group>"; };
+		001EE78224B89075004624BE /* kext_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_client.cpp; sourceTree = "<group>"; };
+		001EE78324B89075004624BE /* kext_monitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kext_monitor.h; sourceTree = "<group>"; };
+		001EE78424B89075004624BE /* kext_monitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_monitor.cpp; sourceTree = "<group>"; };
+		001EE78524B89075004624BE /* kext_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kext_client.h; sourceTree = "<group>"; };
+		001EE78A24B890DE004624BE /* split_tunneling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = split_tunneling.h; sourceTree = "<group>"; };
+		001EE78B24B890DE004624BE /* split_tunneling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = split_tunneling.cpp; sourceTree = "<group>"; };
+		001EE79324B893D1004624BE /* routes_manager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = routes_manager.cpp; sourceTree = "<group>"; };
+		001EE79424B893D1004624BE /* routes_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = routes_manager.h; sourceTree = "<group>"; };
+		001F82D324BCF2A80081515F /* ip_hostnames_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ip_hostnames_manager.h; sourceTree = "<group>"; };
+		001F82D424BCF2A80081515F /* ip_routes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ip_routes.h; sourceTree = "<group>"; };
+		001F82D524BCF2A80081515F /* ip_routes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ip_routes.cpp; sourceTree = "<group>"; };
+		001F82D624BCF2A80081515F /* ip_hostnames_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ip_hostnames_manager.cpp; sourceTree = "<group>"; };
+		00AB62AC249142610085A20F /* utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
+		00AB62AD249142610085A20F /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
+		00EBAA02247D254400C86F6F /* logger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = logger.cpp; sourceTree = "<group>"; };
+		00EBAA03247D254400C86F6F /* logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = logger.h; sourceTree = "<group>"; };
+		840B29551D6BBE88007D9519 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
+		840B29561D6BBE88007D9519 /* server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = server.h; sourceTree = "<group>"; };
+		843077AB1DE3AE26002405EA /* execute_cmd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = execute_cmd.cpp; sourceTree = "<group>"; };
+		843077AC1DE3AE26002405EA /* execute_cmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = execute_cmd.h; sourceTree = "<group>"; };
+		8434C1061FD5B99C00B7030D /* keychain_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keychain_utils.h; sourceTree = "<group>"; };
+		8434C1071FD5B99C00B7030D /* keychain_utils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = keychain_utils.mm; sourceTree = "<group>"; };
 		8434C10A1FD5B9D800B7030D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		8434C10C1FD5BA1400B7030D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		84DA0AE31B1D7EB600260E8F /* com.windscribe.helper.macos */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.windscribe.helper.macos; sourceTree = BUILT_PRODUCTS_DIR; };
-		84DA0AEA1B1D7ED000260E8F /* OVPNHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "OVPNHelper-Info.plist"; sourceTree = "<group>"; };
-		84DA0AEB1B1D7ED000260E8F /* OVPNHelper-Launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "OVPNHelper-Launchd.plist"; sourceTree = "<group>"; };
-		84DA0AEC1B1D7ED000260E8F /* Helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Helper.cpp; sourceTree = "<group>"; };
+		84DA0AEA1B1D7ED000260E8F /* helper-info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "helper-info.plist"; sourceTree = "<group>"; };
+		84DA0AEB1B1D7ED000260E8F /* helper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "helper-launchd.plist"; sourceTree = "<group>"; };
+		84DA0AEC1B1D7ED000260E8F /* helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = helper.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,57 +95,57 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		001EE77624B88F52004624BE /* IPC */ = {
+		001EE77624B88F52004624BE /* ipc */ = {
 			isa = PBXGroup;
 			children = (
-				001EE77824B88F9B004624BE /* HelperCommands.h */,
-				001EE77724B88F9B004624BE /* HelperCommandsSerialize.h */,
+				001EE77824B88F9B004624BE /* helper_commands.h */,
+				001EE77724B88F9B004624BE /* helper_commands_serialize.h */,
 			);
-			path = IPC;
+			path = ipc;
 			sourceTree = "<group>";
 		};
-		001EE78124B89051004624BE /* KextClient */ = {
+		001EE78124B89051004624BE /* kext_client */ = {
 			isa = PBXGroup;
 			children = (
-				001EE78224B89075004624BE /* KextClient.cpp */,
-				001EE78524B89075004624BE /* KextClient.h */,
-				001EE78424B89075004624BE /* KextMonitor.cpp */,
-				001EE78324B89075004624BE /* KextMonitor.h */,
+				001EE78224B89075004624BE /* kext_client.cpp */,
+				001EE78524B89075004624BE /* kext_client.h */,
+				001EE78424B89075004624BE /* kext_monitor.cpp */,
+				001EE78324B89075004624BE /* kext_monitor.h */,
 			);
-			path = KextClient;
+			path = kext_client;
 			sourceTree = "<group>";
 		};
-		001EE78824B89096004624BE /* SplitTunneling */ = {
+		001EE78824B89096004624BE /* split_tunneling */ = {
 			isa = PBXGroup;
 			children = (
-				001EE78B24B890DE004624BE /* SplitTunneling.cpp */,
-				001EE78A24B890DE004624BE /* SplitTunneling.h */,
+				001EE78B24B890DE004624BE /* split_tunneling.cpp */,
+				001EE78A24B890DE004624BE /* split_tunneling.h */,
 			);
-			path = SplitTunneling;
+			path = split_tunneling;
 			sourceTree = "<group>";
 		};
-		001EE79224B893B2004624BE /* RoutesManager */ = {
+		001EE79224B893B2004624BE /* routes_manager */ = {
 			isa = PBXGroup;
 			children = (
-				000B36D524B8CB1500717275 /* Routes.cpp */,
-				000B36D424B8CB1500717275 /* Routes.h */,
-				000B36D124B8C39300717275 /* BoundRoute.cpp */,
-				000B36D224B8C39300717275 /* BoundRoute.h */,
-				001EE79324B893D1004624BE /* RoutesManager.cpp */,
-				001EE79424B893D1004624BE /* RoutesManager.h */,
+				000B36D524B8CB1500717275 /* routes.cpp */,
+				000B36D424B8CB1500717275 /* routes.h */,
+				000B36D124B8C39300717275 /* bound_route.cpp */,
+				000B36D224B8C39300717275 /* bound_route.h */,
+				001EE79324B893D1004624BE /* routes_manager.cpp */,
+				001EE79424B893D1004624BE /* routes_manager.h */,
 			);
-			path = RoutesManager;
+			path = routes_manager;
 			sourceTree = "<group>";
 		};
-		001F82D224BCEAAE0081515F /* IpHostnames */ = {
+		001F82D224BCEAAE0081515F /* ip_hostnames */ = {
 			isa = PBXGroup;
 			children = (
-				001F82D624BCF2A80081515F /* IpHostnamesManager.cpp */,
-				001F82D324BCF2A80081515F /* IpHostnamesManager.h */,
-				001F82D524BCF2A80081515F /* IpRoutes.cpp */,
-				001F82D424BCF2A80081515F /* IpRoutes.h */,
+				001F82D624BCF2A80081515F /* ip_hostnames_manager.cpp */,
+				001F82D324BCF2A80081515F /* ip_hostnames_manager.h */,
+				001F82D524BCF2A80081515F /* ip_routes.cpp */,
+				001F82D424BCF2A80081515F /* ip_routes.h */,
 			);
-			path = IpHostnames;
+			path = ip_hostnames;
 			sourceTree = "<group>";
 		};
 		842A44E71B14BFBC00F308E7 = {
@@ -177,24 +177,24 @@
 		84DA0AE41B1D7EB600260E8F /* src */ = {
 			isa = PBXGroup;
 			children = (
-				001F82D224BCEAAE0081515F /* IpHostnames */,
-				001EE79224B893B2004624BE /* RoutesManager */,
-				001EE78824B89096004624BE /* SplitTunneling */,
-				001EE78124B89051004624BE /* KextClient */,
-				001EE77624B88F52004624BE /* IPC */,
-				8434C1061FD5B99C00B7030D /* KeychainUtils.h */,
-				8434C1071FD5B99C00B7030D /* KeychainUtils.mm */,
-				843077AB1DE3AE26002405EA /* ExecuteCmd.cpp */,
-				843077AC1DE3AE26002405EA /* ExecuteCmd.h */,
-				840B29551D6BBE88007D9519 /* Server.cpp */,
-				840B29561D6BBE88007D9519 /* Server.h */,
-				84DA0AEA1B1D7ED000260E8F /* OVPNHelper-Info.plist */,
-				84DA0AEB1B1D7ED000260E8F /* OVPNHelper-Launchd.plist */,
-				84DA0AEC1B1D7ED000260E8F /* Helper.cpp */,
-				00EBAA02247D254400C86F6F /* Logger.cpp */,
-				00EBAA03247D254400C86F6F /* Logger.h */,
-				00AB62AC249142610085A20F /* Utils.cpp */,
-				00AB62AD249142610085A20F /* Utils.h */,
+				001F82D224BCEAAE0081515F /* ip_hostnames */,
+				001EE79224B893B2004624BE /* routes_manager */,
+				001EE78824B89096004624BE /* split_tunneling */,
+				001EE78124B89051004624BE /* kext_client */,
+				001EE77624B88F52004624BE /* ipc */,
+				8434C1061FD5B99C00B7030D /* keychain_utils.h */,
+				8434C1071FD5B99C00B7030D /* keychain_utils.mm */,
+				843077AB1DE3AE26002405EA /* execute_cmd.cpp */,
+				843077AC1DE3AE26002405EA /* execute_cmd.h */,
+				840B29551D6BBE88007D9519 /* server.cpp */,
+				840B29561D6BBE88007D9519 /* server.h */,
+				84DA0AEA1B1D7ED000260E8F /* helper-info.plist */,
+				84DA0AEB1B1D7ED000260E8F /* helper-launchd.plist */,
+				84DA0AEC1B1D7ED000260E8F /* helper.cpp */,
+				00EBAA02247D254400C86F6F /* logger.cpp */,
+				00EBAA03247D254400C86F6F /* logger.h */,
+				00AB62AC249142610085A20F /* utils.cpp */,
+				00AB62AD249142610085A20F /* utils.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -216,7 +216,7 @@
 			dependencies = (
 			);
 			name = com.windscribe.helper.macos;
-			productName = Helper;
+			productName = helper;
 			productReference = 84DA0AE31B1D7EB600260E8F /* com.windscribe.helper.macos */;
 			productType = "com.apple.product-type.tool";
 		};
@@ -260,20 +260,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				001EE78624B89075004624BE /* KextClient.cpp in Sources */,
-				000B36D324B8C39300717275 /* BoundRoute.cpp in Sources */,
-				00EBAA04247D254400C86F6F /* Logger.cpp in Sources */,
-				001EE78724B89075004624BE /* KextMonitor.cpp in Sources */,
-				843077AD1DE3AE26002405EA /* ExecuteCmd.cpp in Sources */,
-				00AB62AE249142610085A20F /* Utils.cpp in Sources */,
-				001EE79524B893D1004624BE /* RoutesManager.cpp in Sources */,
-				8434C1081FD5B99C00B7030D /* KeychainUtils.mm in Sources */,
-				840B29571D6BBE88007D9519 /* Server.cpp in Sources */,
-				001F82D824BCF2A80081515F /* IpHostnamesManager.cpp in Sources */,
-				000B36D624B8CB1500717275 /* Routes.cpp in Sources */,
-				84DA0AED1B1D7ED000260E8F /* Helper.cpp in Sources */,
-				001EE79024B890DF004624BE /* SplitTunneling.cpp in Sources */,
-				001F82D724BCF2A80081515F /* IpRoutes.cpp in Sources */,
+				001EE78624B89075004624BE /* kext_client.cpp in Sources */,
+				000B36D324B8C39300717275 /* bound_route.cpp in Sources */,
+				00EBAA04247D254400C86F6F /* logger.cpp in Sources */,
+				001EE78724B89075004624BE /* kext_monitor.cpp in Sources */,
+				843077AD1DE3AE26002405EA /* execute_cmd.cpp in Sources */,
+				00AB62AE249142610085A20F /* utils.cpp in Sources */,
+				001EE79524B893D1004624BE /* routes_manager.cpp in Sources */,
+				8434C1081FD5B99C00B7030D /* keychain_utils.mm in Sources */,
+				840B29571D6BBE88007D9519 /* server.cpp in Sources */,
+				001F82D824BCF2A80081515F /* ip_hostnames_manager.cpp in Sources */,
+				000B36D624B8CB1500717275 /* routes.cpp in Sources */,
+				84DA0AED1B1D7ED000260E8F /* helper.cpp in Sources */,
+				001EE79024B890DF004624BE /* split_tunneling.cpp in Sources */,
+				001F82D724BCF2A80081515F /* ip_routes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,11 +383,11 @@
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"Src/OVPNHelper-Info.plist",
+					"src/helper-info.plist",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"Src/OVPNHelper-Launchd.plist",
+					"src/helper-launchd.plist",
 					"-lboost_thread",
 					"-lboost_serialization",
 				);
@@ -417,11 +417,11 @@
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"Src/OVPNHelper-Info.plist",
+					"Src/helper-info.plist",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"Src/OVPNHelper-Launchd.plist",
+					"Src/helper-launchd.plist",
 					"-lboost_thread",
 					"-lboost_serialization",
 				);

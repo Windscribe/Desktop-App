@@ -17,7 +17,7 @@
                BlueprintIdentifier = "84DA0AE21B1D7EB600260E8F"
                BuildableName = "com.windscribe.helper.macos"
                BlueprintName = "com.windscribe.helper.macos"
-               ReferencedContainer = "container:Helper.xcodeproj">
+               ReferencedContainer = "container:helper.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,7 +46,7 @@
             BlueprintIdentifier = "84DA0AE21B1D7EB600260E8F"
             BuildableName = "com.windscribe.helper.macos"
             BlueprintName = "com.windscribe.helper.macos"
-            ReferencedContainer = "container:Helper.xcodeproj">
+            ReferencedContainer = "container:helper.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </LaunchAction>
@@ -62,7 +62,7 @@
             BlueprintIdentifier = "84DA0AE21B1D7EB600260E8F"
             BuildableName = "com.windscribe.helper.macos"
             BlueprintName = "com.windscribe.helper.macos"
-            ReferencedContainer = "container:Helper.xcodeproj">
+            ReferencedContainer = "container:helper.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
