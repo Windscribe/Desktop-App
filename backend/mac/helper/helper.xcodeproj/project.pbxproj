@@ -1,0 +1,458 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		000B36D324B8C39300717275 /* BoundRoute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D124B8C39300717275 /* BoundRoute.cpp */; };
+		000B36D624B8CB1500717275 /* Routes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D524B8CB1500717275 /* Routes.cpp */; };
+		001EE78624B89075004624BE /* KextClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78224B89075004624BE /* KextClient.cpp */; };
+		001EE78724B89075004624BE /* KextMonitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78424B89075004624BE /* KextMonitor.cpp */; };
+		001EE79024B890DF004624BE /* SplitTunneling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78B24B890DE004624BE /* SplitTunneling.cpp */; };
+		001EE79524B893D1004624BE /* RoutesManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE79324B893D1004624BE /* RoutesManager.cpp */; };
+		001F82D724BCF2A80081515F /* IpRoutes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001F82D524BCF2A80081515F /* IpRoutes.cpp */; };
+		001F82D824BCF2A80081515F /* IpHostnamesManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001F82D624BCF2A80081515F /* IpHostnamesManager.cpp */; };
+		00AB62AE249142610085A20F /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00AB62AC249142610085A20F /* Utils.cpp */; };
+		00EBAA04247D254400C86F6F /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EBAA02247D254400C86F6F /* Logger.cpp */; };
+		840B29571D6BBE88007D9519 /* Server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B29551D6BBE88007D9519 /* Server.cpp */; };
+		843077AD1DE3AE26002405EA /* ExecuteCmd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 843077AB1DE3AE26002405EA /* ExecuteCmd.cpp */; };
+		8434C1081FD5B99C00B7030D /* KeychainUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8434C1071FD5B99C00B7030D /* KeychainUtils.mm */; };
+		8434C10D1FD5BA1400B7030D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8434C10C1FD5BA1400B7030D /* Security.framework */; };
+		84DA0AED1B1D7ED000260E8F /* Helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84DA0AEC1B1D7ED000260E8F /* Helper.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		00561A2E24466FC600AD25ED /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84DA0AE11B1D7EB600260E8F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		000B36D124B8C39300717275 /* BoundRoute.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoundRoute.cpp; sourceTree = "<group>"; };
+		000B36D224B8C39300717275 /* BoundRoute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundRoute.h; sourceTree = "<group>"; };
+		000B36D424B8CB1500717275 /* Routes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Routes.h; sourceTree = "<group>"; };
+		000B36D524B8CB1500717275 /* Routes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Routes.cpp; sourceTree = "<group>"; };
+		001EE77724B88F9B004624BE /* HelperCommandsSerialize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelperCommandsSerialize.h; sourceTree = "<group>"; };
+		001EE77824B88F9B004624BE /* HelperCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelperCommands.h; sourceTree = "<group>"; };
+		001EE78224B89075004624BE /* KextClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KextClient.cpp; sourceTree = "<group>"; };
+		001EE78324B89075004624BE /* KextMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KextMonitor.h; sourceTree = "<group>"; };
+		001EE78424B89075004624BE /* KextMonitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KextMonitor.cpp; sourceTree = "<group>"; };
+		001EE78524B89075004624BE /* KextClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KextClient.h; sourceTree = "<group>"; };
+		001EE78A24B890DE004624BE /* SplitTunneling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitTunneling.h; sourceTree = "<group>"; };
+		001EE78B24B890DE004624BE /* SplitTunneling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SplitTunneling.cpp; sourceTree = "<group>"; };
+		001EE79324B893D1004624BE /* RoutesManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RoutesManager.cpp; sourceTree = "<group>"; };
+		001EE79424B893D1004624BE /* RoutesManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RoutesManager.h; sourceTree = "<group>"; };
+		001F82D324BCF2A80081515F /* IpHostnamesManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IpHostnamesManager.h; sourceTree = "<group>"; };
+		001F82D424BCF2A80081515F /* IpRoutes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IpRoutes.h; sourceTree = "<group>"; };
+		001F82D524BCF2A80081515F /* IpRoutes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IpRoutes.cpp; sourceTree = "<group>"; };
+		001F82D624BCF2A80081515F /* IpHostnamesManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IpHostnamesManager.cpp; sourceTree = "<group>"; };
+		00AB62AC249142610085A20F /* Utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
+		00AB62AD249142610085A20F /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		00EBAA02247D254400C86F6F /* Logger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Logger.cpp; sourceTree = "<group>"; };
+		00EBAA03247D254400C86F6F /* Logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
+		840B29551D6BBE88007D9519 /* Server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Server.cpp; sourceTree = "<group>"; };
+		840B29561D6BBE88007D9519 /* Server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Server.h; sourceTree = "<group>"; };
+		843077AB1DE3AE26002405EA /* ExecuteCmd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExecuteCmd.cpp; sourceTree = "<group>"; };
+		843077AC1DE3AE26002405EA /* ExecuteCmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExecuteCmd.h; sourceTree = "<group>"; };
+		8434C1061FD5B99C00B7030D /* KeychainUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainUtils.h; sourceTree = "<group>"; };
+		8434C1071FD5B99C00B7030D /* KeychainUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KeychainUtils.mm; sourceTree = "<group>"; };
+		8434C10A1FD5B9D800B7030D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		8434C10C1FD5BA1400B7030D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		84DA0AE31B1D7EB600260E8F /* com.windscribe.helper.macos */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.windscribe.helper.macos; sourceTree = BUILT_PRODUCTS_DIR; };
+		84DA0AEA1B1D7ED000260E8F /* OVPNHelper-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "OVPNHelper-Info.plist"; sourceTree = "<group>"; };
+		84DA0AEB1B1D7ED000260E8F /* OVPNHelper-Launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "OVPNHelper-Launchd.plist"; sourceTree = "<group>"; };
+		84DA0AEC1B1D7ED000260E8F /* Helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Helper.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		84DA0AE01B1D7EB600260E8F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8434C10D1FD5BA1400B7030D /* Security.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		001EE77624B88F52004624BE /* IPC */ = {
+			isa = PBXGroup;
+			children = (
+				001EE77824B88F9B004624BE /* HelperCommands.h */,
+				001EE77724B88F9B004624BE /* HelperCommandsSerialize.h */,
+			);
+			path = IPC;
+			sourceTree = "<group>";
+		};
+		001EE78124B89051004624BE /* KextClient */ = {
+			isa = PBXGroup;
+			children = (
+				001EE78224B89075004624BE /* KextClient.cpp */,
+				001EE78524B89075004624BE /* KextClient.h */,
+				001EE78424B89075004624BE /* KextMonitor.cpp */,
+				001EE78324B89075004624BE /* KextMonitor.h */,
+			);
+			path = KextClient;
+			sourceTree = "<group>";
+		};
+		001EE78824B89096004624BE /* SplitTunneling */ = {
+			isa = PBXGroup;
+			children = (
+				001EE78B24B890DE004624BE /* SplitTunneling.cpp */,
+				001EE78A24B890DE004624BE /* SplitTunneling.h */,
+			);
+			path = SplitTunneling;
+			sourceTree = "<group>";
+		};
+		001EE79224B893B2004624BE /* RoutesManager */ = {
+			isa = PBXGroup;
+			children = (
+				000B36D524B8CB1500717275 /* Routes.cpp */,
+				000B36D424B8CB1500717275 /* Routes.h */,
+				000B36D124B8C39300717275 /* BoundRoute.cpp */,
+				000B36D224B8C39300717275 /* BoundRoute.h */,
+				001EE79324B893D1004624BE /* RoutesManager.cpp */,
+				001EE79424B893D1004624BE /* RoutesManager.h */,
+			);
+			path = RoutesManager;
+			sourceTree = "<group>";
+		};
+		001F82D224BCEAAE0081515F /* IpHostnames */ = {
+			isa = PBXGroup;
+			children = (
+				001F82D624BCF2A80081515F /* IpHostnamesManager.cpp */,
+				001F82D324BCF2A80081515F /* IpHostnamesManager.h */,
+				001F82D524BCF2A80081515F /* IpRoutes.cpp */,
+				001F82D424BCF2A80081515F /* IpRoutes.h */,
+			);
+			path = IpHostnames;
+			sourceTree = "<group>";
+		};
+		842A44E71B14BFBC00F308E7 = {
+			isa = PBXGroup;
+			children = (
+				84DA0AE41B1D7EB600260E8F /* src */,
+				842A44F11B14BFBC00F308E7 /* Products */,
+				8434C1091FD5B9D800B7030D /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		842A44F11B14BFBC00F308E7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				84DA0AE31B1D7EB600260E8F /* com.windscribe.helper.macos */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8434C1091FD5B9D800B7030D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8434C10C1FD5BA1400B7030D /* Security.framework */,
+				8434C10A1FD5B9D800B7030D /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		84DA0AE41B1D7EB600260E8F /* src */ = {
+			isa = PBXGroup;
+			children = (
+				001F82D224BCEAAE0081515F /* IpHostnames */,
+				001EE79224B893B2004624BE /* RoutesManager */,
+				001EE78824B89096004624BE /* SplitTunneling */,
+				001EE78124B89051004624BE /* KextClient */,
+				001EE77624B88F52004624BE /* IPC */,
+				8434C1061FD5B99C00B7030D /* KeychainUtils.h */,
+				8434C1071FD5B99C00B7030D /* KeychainUtils.mm */,
+				843077AB1DE3AE26002405EA /* ExecuteCmd.cpp */,
+				843077AC1DE3AE26002405EA /* ExecuteCmd.h */,
+				840B29551D6BBE88007D9519 /* Server.cpp */,
+				840B29561D6BBE88007D9519 /* Server.h */,
+				84DA0AEA1B1D7ED000260E8F /* OVPNHelper-Info.plist */,
+				84DA0AEB1B1D7ED000260E8F /* OVPNHelper-Launchd.plist */,
+				84DA0AEC1B1D7ED000260E8F /* Helper.cpp */,
+				00EBAA02247D254400C86F6F /* Logger.cpp */,
+				00EBAA03247D254400C86F6F /* Logger.h */,
+				00AB62AC249142610085A20F /* Utils.cpp */,
+				00AB62AD249142610085A20F /* Utils.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		84DA0AE21B1D7EB600260E8F /* com.windscribe.helper.macos */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84DA0AE71B1D7EB600260E8F /* Build configuration list for PBXNativeTarget "com.windscribe.helper.macos" */;
+			buildPhases = (
+				84DA0ADF1B1D7EB600260E8F /* Sources */,
+				84DA0AE01B1D7EB600260E8F /* Frameworks */,
+				84DA0AE11B1D7EB600260E8F /* CopyFiles */,
+				00561A2E24466FC600AD25ED /* Embed Libraries */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = com.windscribe.helper.macos;
+			productName = Helper;
+			productReference = 84DA0AE31B1D7EB600260E8F /* com.windscribe.helper.macos */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		842A44E81B14BFBC00F308E7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = admin;
+				TargetAttributes = {
+					84DA0AE21B1D7EB600260E8F = {
+						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = GYZJYS7XUG;
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 842A44EB1B14BFBC00F308E7 /* Build configuration list for PBXProject "Helper" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				English,
+				en,
+				Base,
+			);
+			mainGroup = 842A44E71B14BFBC00F308E7;
+			productRefGroup = 842A44F11B14BFBC00F308E7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				84DA0AE21B1D7EB600260E8F /* com.windscribe.helper.macos */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		84DA0ADF1B1D7EB600260E8F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				001EE78624B89075004624BE /* KextClient.cpp in Sources */,
+				000B36D324B8C39300717275 /* BoundRoute.cpp in Sources */,
+				00EBAA04247D254400C86F6F /* Logger.cpp in Sources */,
+				001EE78724B89075004624BE /* KextMonitor.cpp in Sources */,
+				843077AD1DE3AE26002405EA /* ExecuteCmd.cpp in Sources */,
+				00AB62AE249142610085A20F /* Utils.cpp in Sources */,
+				001EE79524B893D1004624BE /* RoutesManager.cpp in Sources */,
+				8434C1081FD5B99C00B7030D /* KeychainUtils.mm in Sources */,
+				840B29571D6BBE88007D9519 /* Server.cpp in Sources */,
+				001F82D824BCF2A80081515F /* IpHostnamesManager.cpp in Sources */,
+				000B36D624B8CB1500717275 /* Routes.cpp in Sources */,
+				84DA0AED1B1D7ED000260E8F /* Helper.cpp in Sources */,
+				001EE79024B890DF004624BE /* SplitTunneling.cpp in Sources */,
+				001F82D724BCF2A80081515F /* IpRoutes.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		842A450B1B14BFBC00F308E7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: Alexey Azanov (35NMW3MET5)";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		842A450C1B14BFBC00F308E7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: Alexey Azanov (35NMW3MET5)";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		84DA0AE81B1D7EB600260E8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = GYZJYS7XUG;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					$HOME/LibsWindscribe/boost/include,
+				);
+				LIBRARY_SEARCH_PATHS = $HOME/LibsWindscribe/boost/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				OTHER_LDFLAGS = (
+					"-sectcreate",
+					__TEXT,
+					__info_plist,
+					"Src/OVPNHelper-Info.plist",
+					"-sectcreate",
+					__TEXT,
+					__launchd_plist,
+					"Src/OVPNHelper-Launchd.plist",
+					"-lboost_thread",
+					"-lboost_serialization",
+				);
+				PRODUCT_NAME = com.windscribe.helper.macos;
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Debug;
+		};
+		84DA0AE91B1D7EB600260E8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = GYZJYS7XUG;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					$HOME/LibsWindscribe/boost/include,
+				);
+				LIBRARY_SEARCH_PATHS = $HOME/LibsWindscribe/boost/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				OTHER_LDFLAGS = (
+					"-sectcreate",
+					__TEXT,
+					__info_plist,
+					"Src/OVPNHelper-Info.plist",
+					"-sectcreate",
+					__TEXT,
+					__launchd_plist,
+					"Src/OVPNHelper-Launchd.plist",
+					"-lboost_thread",
+					"-lboost_serialization",
+				);
+				PRODUCT_NAME = com.windscribe.helper.macos;
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		842A44EB1B14BFBC00F308E7 /* Build configuration list for PBXProject "Helper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				842A450B1B14BFBC00F308E7 /* Debug */,
+				842A450C1B14BFBC00F308E7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84DA0AE71B1D7EB600260E8F /* Build configuration list for PBXNativeTarget "com.windscribe.helper.macos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84DA0AE81B1D7EB600260E8F /* Debug */,
+				84DA0AE91B1D7EB600260E8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 842A44E81B14BFBC00F308E7 /* Project object */;
+}
