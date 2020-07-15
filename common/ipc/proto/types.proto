@@ -1,0 +1,516 @@
+syntax = "proto2";
+
+package ProtoTypes;
+
+enum ConnectStateType
+{
+    DISCONNECTED = 0;
+    CONNECTED = 1;
+    CONNECTING = 2;
+    DISCONNECTING = 3;
+}
+
+enum ClientId
+{
+  CLIENT_ID_GUI = 0;
+  CLIENT_ID_CLI = 1;
+}
+
+enum ConnectError
+{
+  // common
+  NO_CONNECT_ERROR = 0;
+  AUTH_ERROR = 1;
+  COULD_NOT_FETCH_CREDENTAILS = 2;
+  LOCATION_NOT_EXIST = 3;
+  LOCATION_NO_ACTIVE_NODES = 4;
+  CANT_RESOLVE_HOSTNAME = 5;
+  CONNECTION_BLOCKED = 6;
+  // openvpn
+  NO_OPENVPN_SOCKET = 7;
+  CANT_RUN_OPENVPN = 8;
+  CANNOT_ALLOCATE_TUN_TAP = 9;
+  NO_INSTALLED_TUN_TAP = 10;
+  ALL_TAP_IN_USE = 11;
+  CANNOT_CONNECT_TO_SERVICE_PIPE = 12;
+  CANNOT_WRITE_TO_SERVICE_PIPE = 13;
+  NO_AVAILABLE_PORT = 14;
+  PROXY_AUTH_ERROR = 15;
+  UDP_CANT_ASSIGN = 16; 
+  CONNECTED_ERROR = 17;
+  INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS = 18;
+  UDP_NO_BUFFER_SPACE = 19;
+  UDP_NETWORK_DOWN = 20;
+  TCP_ERROR = 21;
+  CANNOT_OPEN_CUSTOM_OVPN_CONFIG = 22;
+  // ikev2
+  IKEV_FAILED_TO_CONNECT = 23;
+  IKEV_NOT_FOUND_WIN = 24;
+  IKEV_FAILED_SET_ENTRY_WIN = 25;
+  IKEV_FAILED_MODIFY_HOSTS_WIN = 26;
+  IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC = 27;
+  IKEV_FAILED_SET_KEYCHAIN_MAC = 28;
+  IKEV_FAILED_START_MAC = 29;
+  IKEV_FAILED_LOAD_PREFERENCES_MAC = 30;
+  IKEV_FAILED_SAVE_PREFERENCES_MAC = 31;
+  // emergency
+  EMERGENCY_FAILED_CONNECT = 32;
+}
+
+enum DisconnectReason
+{
+  DISCONNECTED_ITSELF = 0;
+  DISCONNECTED_BY_USER = 1;
+  DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED = 2;
+  DISCONNECTED_WITH_ERROR = 3;
+}
+
+enum InitState
+{
+  INIT_CLEAN   = 0;
+  INIT_SUCCESS = 1;
+  INIT_HELPER_FAILED = 2;
+  INIT_BFE_SERVICE_NOT_STARTED = 3;
+  INIT_BFE_SERVICE_FAILED_TO_START = 4;
+}
+
+enum LoginState
+{
+  LOGIN_STATE_NOT_LOGGED = 0;
+  LOGIN_STATE_LOGGED = 1;
+  LOGIN_STATE_LOGGED_FROM_SETTINGS = 2;
+}
+
+enum LoginError
+{
+  LOGIN_ERROR_SUCCESS = 0;
+  LOGIN_ERROR_NO_API_CONNECTIVITY = 1;
+  LOGIN_ERROR_NO_CONNECTIVITY = 2;
+  LOGIN_ERROR_INCORRECT_JSON = 3;
+  LOGIN_ERROR_BAD_USERNAME = 4;
+  LOGIN_ERROR_PROXY_AUTH_NEED = 5;
+  LOGIN_ERROR_SSL_ERROR = 6;
+}
+
+enum LoginMessage
+{
+  LOGIN_MESSAGE_NONE = 0;
+  LOGIN_MESSAGE_TRYING_BACKUP1 = 1;
+  LOGIN_MESSAGE_TRYING_BACKUP2 = 2;
+}
+
+message ApiNotification
+{
+  optional int64 id = 1;
+  optional string title = 2;
+  optional string message = 3;
+  optional int64 date = 4;
+  optional int32 perm_free = 5;
+  optional int32 perm_pro = 6;
+  optional int32 popup = 7;
+}
+
+message Location
+{
+  optional int32 id = 1;              // this is server id from API, or -1 for best location, or -2 for custom ovpn configs location, or -3 for static ips location
+  optional string name = 2;           // not used if city_name is not empty, make sense only for top level location (country)
+  optional string city_id = 3;        // unique city_id in location. if used, then this is city level location
+  optional string city_name = 4;      
+  optional string country_code = 5;   // used for top level location
+  optional bool is_premium_only = 6;
+  optional bool is_disabled = 7;
+  optional bool is_p2p_supported = 8; // if false, then no p2p support
+  optional int32 pingTime = 9;    // -2 no ping info, -1 ping failed, other values ping time in ms
+  optional bool is_force_expand = 10;
+  optional bool is_show_premium_star_only = 11;
+
+  // used for static IP sublocation description
+  optional string static_ip_type = 12;
+  optional string static_ip = 13;
+  optional string static_ip_device_name = 14;
+}
+
+message LocationId
+{
+  optional int32 location_id = 1 [default = -100]; 
+  optional string city = 2;
+}
+
+message SessionStatus
+{
+  optional bool is_premium = 1;
+  optional int32 status = 2;     // 2 - disabled
+  optional int32 rebill = 3;
+  optional int32 billing_plan_id = 4;
+  optional string premium_expire_date = 5;
+  optional int64 traffic_used = 6;
+  optional int64 traffic_max = 7;
+  optional string username = 8;
+  optional string user_id = 9;
+  optional string email = 10;
+  optional int32 email_status = 11;
+  repeated string alc = 12;	// enabled locations for free users	
+}
+
+message CheckUpdateInfo
+{
+  optional bool is_available = 1;
+  optional string version = 2;
+  optional bool is_beta = 3;
+  optional int32 latest_build = 4;
+  optional string url = 5;
+  optional bool is_supported = 6;
+}
+
+message MyIpInfo
+{
+  optional string ip = 1;
+  optional bool is_disconnected_state = 2;
+}
+
+message PortMapItem
+{
+  optional Protocol protocol = 1;
+  optional string heading = 2;
+  optional string use = 3;
+  repeated uint32 ports = 4;
+  optional uint32 legacy_port = 5;
+}
+
+message ArrayPortMap
+{
+  repeated PortMapItem port_map_item = 1;
+}
+
+
+message LoginInfo
+{
+  optional bool is_saved_auth_hash_exists = 1 [default = false];
+  optional bool is_saved_api_settings_exists = 2 [default = false];
+  optional LoginState login_state = 3 [default = LOGIN_STATE_NOT_LOGGED];
+  optional LoginError login_error = 4 [default = LOGIN_ERROR_SUCCESS];
+  optional LoginMessage login_message = 5 [default = LOGIN_MESSAGE_NONE];
+
+  // valid only in logged state or if is_saved_auth_hash_exists true
+  optional string auth_hash = 6;
+}
+
+message ConnectState
+{
+  optional ConnectStateType connect_state_type = 1 [default = DISCONNECTED];
+  optional DisconnectReason disconnect_reason = 2 [default = DISCONNECTED_BY_USER];
+  optional ConnectError connect_error = 3 [default = NO_CONNECT_ERROR];   // use if disconnect_reason == DISCONNECTED_WITH_ERROR
+  optional LocationId location = 4;  // valid only for connecting/connected state
+}
+
+message ArrayApiNotification
+{
+  repeated ApiNotification api_notifications = 1;
+}
+
+message ArrayLocations
+{
+  repeated Location locations = 1;
+}
+
+enum Protocol
+{
+	PROTOCOL_IKEV2 = 0;
+	PROTOCOL_UDP = 1;
+	PROTOCOL_TCP = 2;
+	PROTOCOL_STUNNEL = 3;
+	PROTOCOL_WSTUNNEL = 4;
+}
+
+message ConnectionSettings
+{
+  optional bool is_automatic = 1 [default = true];
+  optional Protocol protocol = 2 [default = PROTOCOL_IKEV2];
+  optional uint32 port = 3 [default = 500];
+}
+
+message ApiResolution
+{
+  optional bool is_automatic = 1 [default = true];
+  optional string manual_ip = 2;
+}
+
+enum ProxyOption 
+{
+    PROXY_OPTION_NONE = 0;
+    PROXY_OPTION_AUTODETECT = 1;
+    PROXY_OPTION_HTTP = 2;
+    PROXY_OPTION_SOCKS = 3;
+} 
+
+message ProxySettings
+{
+  optional ProxyOption proxy_option = 1 [default = PROXY_OPTION_NONE];
+  optional string address = 2;
+  optional uint32 port = 3;
+  optional string username = 4;
+  optional string password = 5;
+}
+
+enum FirewallMode 
+{
+    FIREWALL_MODE_MANUAL = 0;
+    FIREWALL_MODE_AUTOMATIC = 1;
+    FIREWALL_MODE_ALWAYS_ON = 2;
+}
+
+enum FirewallWhen 
+{
+   FIREWALL_WHEN_BEFORE_CONNECTION = 0;
+   FIREWALL_WHEN_AFTER_CONNECTION = 1;
+}
+
+message FirewallSettings
+{
+  optional FirewallMode mode = 1 [default = FIREWALL_MODE_MANUAL];
+  optional FirewallWhen when = 2 [default = FIREWALL_WHEN_BEFORE_CONNECTION];
+}
+
+
+enum UpdateChannel 
+{
+  UPDATE_CHANNEL_RELEASE = 0;
+  UPDATE_CHANNEL_BETA = 1;
+  UPDATE_CHANNEL_GUINEA_PIG = 2;
+}
+
+message ShareSecureHotspot
+{
+  optional bool is_enabled = 1 [default = false];
+  optional string ssid = 2;
+  optional string password = 3;
+}
+
+enum ProxySharingMode
+{
+  PROXY_SHARING_HTTP = 0;
+  PROXY_SHARING_SOCKS = 1;
+}
+
+message ShareProxyGateway
+{
+  optional bool is_enabled = 1 [default = false];
+  optional ProxySharingMode proxy_sharing_mode = 2 [default = PROXY_SHARING_HTTP];
+}
+
+message PacketSize
+{
+  optional bool is_automatic = 1 [default = false];
+  optional int32 mss = 2 [default = -1]; 		// -1 not set
+}
+
+message MacAddrSpoofing
+{
+  optional bool is_enabled = 1 [default = false];
+  optional string mac_address = 2;
+  optional bool is_auto_rotate = 3 [default = false];
+  optional NetworkInterface selected_network_interface = 4;
+  optional NetworkInterfaces network_interfaces = 5;
+}
+
+enum DnsPolicy
+{
+   DNS_POLICY_OS_DEFAULT = 0;
+   DNS_POLICY_OPEN_DNS = 1;
+   DNS_POLICY_CLOUDFLARE = 2;
+   DNS_POLICY_GOOGLE = 3;
+}
+
+// engine settings, which can be changed by user from GUI
+message EngineSettings
+{
+  optional string language = 1 [default = "en"];
+  optional UpdateChannel update_channel = 2 [default = UPDATE_CHANNEL_RELEASE];
+  optional bool is_ignore_ssl_errors = 3 [default = false];
+  optional bool is_close_tcp_sockets = 4 [default = false];
+  optional bool is_allow_lan_traffic = 5 [default = false];
+  optional FirewallSettings firewall_settings = 6;
+  optional ConnectionSettings connection_settings = 7;
+  optional ApiResolution api_resolution = 8;
+  optional ProxySettings proxy_settings = 9;
+  // removed, don't use this fields numbers for new fields
+  //optional string openvpn_version = 10;
+  //optional ShareSecureHotspot share_secure_hotspot = 11;
+  //optional ShareProxyGateway share_proxy_gateway = 12;
+  //optional string advanced_parameters = 13;
+  optional PacketSize packet_size = 14;  
+  optional MacAddrSpoofing mac_addr_spoofing = 15;
+  optional DnsPolicy dns_policy = 16 [default = DNS_POLICY_OS_DEFAULT];
+  optional TapAdapterType tap_adapter = 17 [default = TAP_ADAPTER];
+  optional string customOvpnConfigsPath = 18;
+  optional bool is_keep_alive_enabled = 19 [default = false];
+}
+
+message ProxySharingInfo
+{
+   optional bool is_enabled = 1;
+   optional ProxySharingMode mode = 2;
+   optional string address = 3;
+   optional int32 users_count = 4;
+}
+
+message WifiSharingInfo
+{
+   optional bool is_enabled = 1;
+   optional string ssid = 2;
+   optional int32 users_count = 3;
+}
+
+enum TapAdapterType
+{
+   TAP_ADAPTER = 1;
+   WINTUN_ADAPTER = 2;
+}
+
+// engine internal states, persistent between the starts of the program
+message EnginePersistentState
+{
+}
+
+enum NetworkInterfaceType
+{
+  NETWORK_INTERFACE_NONE = 0;
+  NETWORK_INTERFACE_ETH = 1;
+  NETWORK_INTERFACE_WIFI = 2;
+  NETWORK_INTERFACE_PPP = 3;
+}
+
+enum NetworkTrustType
+{
+  NETWORK_SECURED = 0;
+  NETWORK_UNSECURED = 1;
+  NETWORK_FORGET = 2;
+}
+
+message NetworkInterface
+{
+    optional int32 interface_index = 1;
+    optional string interface_name = 2; 
+    optional string interface_guid = 3;
+    optional string network_or_ssid = 4;
+    optional NetworkInterfaceType interface_type = 5 [default = NETWORK_INTERFACE_NONE];
+    optional NetworkTrustType trust_type = 6 [default = NETWORK_SECURED];
+    optional bool active = 7 [default = false];
+    optional string friendly_name = 8;
+    optional bool requested = 9 [ default = false];
+    optional int32 metric = 10 [default = 100];
+    optional string physical_address = 11;
+    optional int32 mtu = 12 [default = 1500];
+    optional int32 state = 13;
+    optional int32 dw_type = 14 [default = 0];
+    optional string device_name = 15;
+    optional bool connector_present = 16;
+    optional bool end_point_interface = 17;
+}
+
+enum UserWarningType
+{
+  USER_WARNING_MAC_SPOOFING_FAILURE_HARD = 0;
+  USER_WARNING_MAC_SPOOFING_FAILURE_SOFT = 1;
+}
+
+// === GUI settings (use only in GUI-part) ================================
+enum OrderLocationType
+{
+  ORDER_LOCATION_BY_GEOGRAPHY = 0;
+  ORDER_LOCATION_BY_ALPHABETICALLY = 1;
+  ORDER_LOCATION_BY_LATENCY = 2;
+}
+
+enum LatencyDisplayType
+{
+  LATENCY_DISPLAY_BARS = 0;
+  LATENCY_DISPLAY_MS = 1;
+}
+
+message NetworkInterfaces
+{
+  repeated NetworkInterface networks = 1;
+}
+
+// TODO: rename users to use NetworkInterfaces instead
+message NetworkWhiteList
+{
+  repeated NetworkInterface networks = 1;
+}
+
+// gui settings, which can be changed by user
+message GuiSettings
+{
+  optional bool is_launch_on_startup = 1 [default = true];
+  optional bool is_auto_connect = 2 [default = false];
+  optional bool is_hide_from_dock = 3 [default = false];
+  optional bool is_show_notifications = 4 [default = false];
+  optional OrderLocationType order_location = 5 [default = ORDER_LOCATION_BY_GEOGRAPHY];
+  optional LatencyDisplayType latency_display = 6 [default = LATENCY_DISPLAY_BARS];
+  optional ShareSecureHotspot share_secure_hotspot = 7;
+  optional ShareProxyGateway share_proxy_gateway = 8;
+  optional SplitTunneling split_tunneling = 9;
+  optional bool is_docked_to_tray = 10 [default = false];
+  optional bool is_minimize_and_close_to_tray = 11 [default = false];
+}
+
+
+// gui internal states, persistent between the starts of the program
+message GuiPersistentState
+{
+  optional bool is_firewall_on = 1 [default = false];
+  optional int32 window_offs_x = 2;
+  optional int32 window_offs_y = 3;
+  optional int32 count_visible_locations = 4 [default = 7];
+  optional bool is_first_run = 5 [default = true];
+  optional bool is_ignore_cpu_usage_warnings = 6 [default = false];
+  optional LocationId lastLocation = 7;
+  optional string last_external_ip = 8 [default = "N/A"];
+  optional NetworkWhiteList network_white_list = 9;
+}
+
+enum SplitTunnelingAppType
+{
+    SPLIT_TUNNELING_APP_TYPE_USER = 0;
+    SPLIT_TUNNELING_APP_TYPE_SYSTEM = 1;
+}
+
+message SplitTunnelingApp
+{
+    optional SplitTunnelingAppType type = 1;
+    optional string name = 2;
+    optional string full_name = 3; // path + name
+    optional bool active = 4 [default = false];  
+}
+
+enum SplitTunnelingMode
+{
+    SPLIT_TUNNELING_MODE_EXCLUDE = 0;
+    SPLIT_TUNNELING_MODE_INCLUDE = 1;
+}
+
+enum SplitTunnelingNetworkRouteType
+{
+    SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP = 0;
+    SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME = 1;
+}
+
+message SplitTunnelingNetworkRoute
+{
+    optional SplitTunnelingNetworkRouteType type = 1 [default = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP];
+    optional string name = 2;
+}
+
+message SplitTunnelingSettings
+{
+    optional bool active = 1 [default = false];
+    optional SplitTunnelingMode mode = 2 [default = SPLIT_TUNNELING_MODE_EXCLUDE];
+}
+
+message SplitTunneling
+{
+    optional SplitTunnelingSettings settings = 1;
+    repeated SplitTunnelingApp apps = 2;
+    repeated SplitTunnelingNetworkRoute network_routes = 3;
+} 

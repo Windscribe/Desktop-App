@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<dict>
+		<key>identifier</key>
+		<string>Layout.81619C11-71CD-474E-B762-6F8CC9A0F167</string>
+		<key>options</key>
+		<dict>
+			<key>backgroundImageName</key>
+			<string>osx_install_background.tiff</string>
+			<key>fontSize</key>
+			<integer>12</integer>
+			<key>iconSize</key>
+			<integer>64</integer>
+			<key>layoutItems</key>
+			<array>
+				<dict>
+					<key>identifier</key>
+					<string>LayoutItem.B48A743D-2D24-4578-9014-F9B8635FFA95</string>
+					<key>name</key>
+					<string>${APP_BASENAME}.app</string>
+					<key>position</key>
+					<string>{176, 176}</string>
+					<key>type</key>
+					<string>application</string>
+				</dict>
+			</array>
+			<key>windowInsets</key>
+			<string>{0, 0}</string>
+			<key>windowOriginTopLeft</key>
+			<string>{100, 100}</string>
+		</dict>
+	</dict>
+	<key>documentCreator</key>
+	<string>DropDMG 3.5.10</string>
+	<key>documentType</key>
+	<string>com.c-command.DropDMG.Layout</string>
+	<key>formatVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

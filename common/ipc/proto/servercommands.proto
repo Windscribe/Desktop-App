@@ -1,0 +1,195 @@
+syntax = "proto2";
+import "types.proto";
+
+package IPCServerCommands;
+
+// reply on successfully auth command
+message AuthReply
+{
+}
+
+message EngineSettingsChanged
+{
+  optional ProtoTypes.EngineSettings engineSettings = 2;
+}
+
+message InitFinished
+{
+  optional ProtoTypes.InitState init_state = 1 [default = INIT_CLEAN];
+  optional ProtoTypes.EngineSettings engine_settings = 2;
+  repeated string available_openvpn_versions = 3;
+  optional bool is_wifi_sharing_supported = 4;
+  optional bool is_saved_auth_hash_exists = 5 [default = false];
+  optional bool is_saved_api_settings_exists = 6 [default = false];
+  // valid if is_saved_auth_hash_exists true
+  optional string auth_hash = 7;
+}
+
+message BfeEnableFinished
+{
+  optional ProtoTypes.InitState init_state = 1 [default = INIT_CLEAN];
+}
+
+message CleanupFinished
+{
+}
+
+message LoginFinished
+{
+   optional bool is_login_from_saved_settings = 1;
+   optional ProtoTypes.ArrayPortMap array_port_map = 2;
+   optional string auth_hash = 3;
+}
+
+message SignOutFinished
+{
+}
+
+
+message LoginStepMessage
+{
+   optional ProtoTypes.LoginMessage message = 1;
+}
+
+message LoginError
+{
+   optional ProtoTypes.LoginError error = 1;
+}
+
+message SessionStatusUpdated
+{
+   optional ProtoTypes.SessionStatus session_status = 1;
+}
+
+message NotificationsUpdated
+{
+   optional ProtoTypes.ArrayApiNotification array_notifications = 1;
+}
+
+message CheckUpdateInfoUpdated
+{
+   optional ProtoTypes.CheckUpdateInfo check_update_info = 1;
+}
+
+message MyIpUpdated
+{
+   optional ProtoTypes.MyIpInfo my_ip_info = 1;
+}
+
+
+message LocationsUpdated
+{
+   optional ProtoTypes.ArrayLocations array_locations = 1;
+}
+
+message StatisticsUpdated
+{
+  optional uint64 bytes_in = 1;
+  optional uint64 bytes_out = 2;
+  optional bool is_total_bytes = 3;             
+}
+
+message RequestCredentialsForOvpnConfig
+{
+}
+
+message ConnectStateChanged
+{
+   optional ProtoTypes.ConnectState connect_state = 1;
+}
+
+message EmergencyConnectStateChanged
+{
+   optional ProtoTypes.ConnectState emergency_connect_state = 1;
+}
+
+message DebugLogResult
+{
+  optional bool success = 1;              
+}
+
+message ConfirmEmailResult
+{
+  optional bool success = 1;              
+}
+
+message FirewallStateChanged
+{
+  optional bool is_firewall_enabled = 1;
+}
+
+message Ipv6StateInOS
+{
+  optional bool is_enabled = 1;
+}
+
+message LocationSpeedChanged
+{
+  optional int32 id = 1;              
+  optional string city_name = 2;      // if used, then this is city level location
+  optional int32 pingTime = 3;   
+}
+
+message NetworkChanged
+{
+  optional uint32 cmd_uid = 1;
+  optional ProtoTypes.NetworkInterface network_interface = 2;
+}
+
+message CustomOvpnConfigModeInitFinished
+{
+}
+
+message ProxySharingInfoChanged
+{
+   optional ProtoTypes.ProxySharingInfo proxy_sharing_info = 1;
+}
+
+message WifiSharingInfoChanged
+{
+   optional ProtoTypes.WifiSharingInfo wifi_sharing_info = 1;
+}
+
+message SessionDeleted
+{
+}
+
+message TestTunnelResult
+{
+   optional bool success = 1;
+}
+
+message LostConnectionToHelper
+{
+}
+
+message HighCpuUsage
+{
+   repeated string processes = 1;
+}
+
+// backend sends BackendPing command every 3 sec
+message BackendPing
+{
+}
+
+message UserWarning
+{
+  optional ProtoTypes.UserWarningType type = 1;
+}
+
+message InternetConnectivityChanged
+{
+  optional bool connectivity = 1;
+}
+
+message ProtocolPortChanged
+{
+  optional ProtoTypes.Protocol protocol = 1;
+  optional uint32 port = 2;
+}
+
+message PacketSizeDetectionState
+{
+  optional bool on = 1;
+}

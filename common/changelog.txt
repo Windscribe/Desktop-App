@@ -1,0 +1,71 @@
+* Added "docked" mode switch to preferences.
+* Fixed "Hide from dock" on Mac.
+* Added "Minimize and close to tray" on Windows.
+* Added system tray menu on Windows and Mac.
+* Fixed premium star display and disabled icon for free users.
+* Fixed connect ring wobble.
+* Removed user password plaintext from log.
+* Improved connectivity test algorithm.
+* URLs clickable in the "News Feed" window.
+* Increase width of clickable region of preferences tab control.
+* Advanced Parameters scroll bar not visible - fixed.
+* Fixed bottom info window not shown at startup.
+* First displayed notification is not marked as read - fixed.
+* Proxy settings fixes.
+* Fixed incorrect DPI scaling in Advanced Parameters window.
+* Updating connection bar on connect window - fixed.
+* Exclude LAN from "Force close all TCP sockets after connection".
+* Long combobox menus can go offscreen - fixed.
+* Free account ran out of data issue fixed.
+* Various tooltip problems fixed.
+* Hideable region of auto/manual widget hides during scaling change - fixed.
+* Locations items misalign during scaling - fixed.
+* Right-click context menu's don't scale with OS - fixed.
+* Network whitelist icon on app start changes the state with a delay - fixed.
+* Fixed Launcher "As Admin" issue.
+* Notification read flags don't get saved on reboot - fixed.
+* Added firewall button on login screen.
+* Added decimal accuracy to remaining data.
+* Split tunneling feature added for Mac.
+* Upgrade widget animation issue when collapsing locations list - fixed.
+* Added expanding animation for upgrade widget at the start of the program.
+* Password in proxy settings masked for security reasons.
+* Handling the app activate/deactivate events in GUI and send to engine (for prevent session status calls) - fixes.
+* The shadow on the background image of the installer has been removed.
+* CLI fixes, added symlink in /usr/local/bin so cli can be called from anywhere without full path.
+
+2.0.21 (08/05/2020)
+* Added binary signature verification
+* Updated connection state UI design
+* Updated order of logs sent to API
+* Mac installer UI fixes for dark mode
+* Added communication with browser
+* Improved communication between GUI/Engine/CLI
+* Fixed crash in CLI on closedown
+* Fixed crash on first run when no previously installed app
+* Made MSS detection not delay startup
+* Added feedback for MSS and log sending
+* Improved MAC spoofing warnings
+* Fixed custom config reseting between restarts
+* Hid Windows-only features on Mac
+* Fixed scaling of Split routing icons on Windows
+* Fixed connection button ring wobble
+* Fixed non-latin text
+* Fixed cli open locations drawing bug
+* Fixed split routing text disappearing
+* Improved install and build scripts for CI/CD
+
+2.0.20 (27/04/2020) - Since 2.0.19:
+* Mac feature parity with Windows (Doesn't include split routing, CLI):
+-> Network Whitelist
+-> MAC Spoofing
+-> Launch on startup
+-> Custom Installer
+* GUI fixes (Mac):
+-> Init, Login, LoggingIn, Locations and overlay screen sizing/positioning
+-> IP-address pixelation
+-> Shadow fixes
+-> Minimize/Close buttons
+* MSS/MTU detection (Mac & Win)
+* Added No flag, peru and panama flags (Mac & Win)
+

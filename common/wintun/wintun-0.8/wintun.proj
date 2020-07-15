@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: GPL-2.0
+
+  Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+
+  <!--
+    General Properties
+  -->
+  <Import Project="wintun.props" />
+  <Import Project="wintun.vcxproj.user" Condition="exists('wintun.vcxproj.user')" />
+
+  <Target Name="Build" DependsOnTargets="Driver-x86;Driver-amd64;Driver-arm64" />
+  <Target Name="MSM" DependsOnTargets="MSM-x86;MSM-amd64" />
+  <Target Name="Clean">
+    <RemoveDir Directories="x86\Release\" />
+    <RemoveDir Directories="amd64\Release\" />
+    <RemoveDir Directories="arm64\Release\" />
+    <RemoveDir Directories="$(SDVDir)" />
+    <RemoveDir Directories="$(DistributionDir)" />
+    <Delete Files="smvbuild.log;smvstats.txt;wintun.DVL.XML" />
+  </Target>
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+
+  <!--
+    Driver Building
+    Note: Use explicit Inputs/Outputs as WindowsDriver.Common.targets triggers driver re-packaging and signing on every invocation.
+  -->
+  <PropertyGroup>
+    <DriverInputs>atomic.h;undocumented.h;wintun.c;wintun.inf;wintun.props;wintun.rc;wintun.vcxproj;$(DriverInputs)</DriverInputs>
+  </PropertyGroup>
+  <Target Name="Driver-x86"
+    Outputs="x86\Release\wintun\wintun.sys;x86\Release\wintun\wintun.inf;x86\Release\wintun\wintun.cat"
+    Inputs="$(DriverInputs)">
+    <MSBuild Projects="wintun.vcxproj" Targets="Build" Properties="Configuration=Release;Platform=Win32" />
+  </Target>
+  <Target Name="Driver-amd64"
+    Outputs="amd64\Release\wintun\wintun.sys;amd64\Release\wintun\wintun.inf;amd64\Release\wintun\wintun.cat"
+    Inputs="$(DriverInputs)">
+    <MSBuild Projects="wintun.vcxproj" Targets="Build" Properties="Configuration=Release;Platform=x64" />
+  </Target>
+  <Target Name="Driver-arm64"
+    Outputs="arm64\Release\wintun\wintun.sys;arm64\Release\wintun\wintun.inf;arm64\Release\wintun\wintun.cat"
+    Inputs="$(DriverInputs)">
+    <MSBuild Projects="wintun.vcxproj" Targets="Build" Properties="Configuration=Release;Platform=ARM64" />
+  </Target>
+
+  <!--
+    Static Driver Verifier
+  -->
+  <Target Name="SDV" Outputs="$(SDVDir)SDV.DVL.xml;amd64\Release\vc.nativecodeanalysis.all.xml">
+    <MSBuild Projects="wintun.vcxproj" Targets="sdv" Properties="Inputs=/check:*;Configuration=Release;Platform=x64" />
+  </Target>
+  <Target Name="SDVView">
+    <MSBuild Projects="wintun.vcxproj" Targets="sdv" Properties="Inputs=/view;Configuration=Release;Platform=x64" />
+  </Target>
+
+  <!--
+    Driver Verification Log
+  -->
+  <Target Name="DVL" DependsOnTargets="SDV"
+    Outputs="wintun.DVL.XML"
+    Inputs="$(SDVDir)SDV.DVL.xml;amd64\Release\vc.nativecodeanalysis.all.xml">
+    <MSBuild Projects="wintun.vcxproj" Targets="dvl" Properties="Configuration=Release;Platform=x64" />
+  </Target>
+
+  <!--
+    MSM Building
+  -->
+  <Target Name="MSM-x86"
+    Outputs="$(DistributionDir)wintun-x86-$(WintunVersionStr).msm">
+    <MSBuild Projects="installer\installer.vcxproj" Targets="MSM" Properties="Configuration=Release;Platform=Win32" />
+  </Target>
+  <Target Name="MSM-amd64"
+    Outputs="$(DistributionDir)wintun-amd64-$(WintunVersionStr).msm">
+    <MSBuild Projects="installer\installer.vcxproj" Targets="MSM" Properties="Configuration=Release;Platform=x64" />
+  </Target>
+  <Target Name="MSM-ARM64"
+    Outputs="$(DistributionDir)wintun-arm64-$(WintunVersionStr).msm">
+    <MSBuild Projects="installer\installer.vcxproj" Targets="MSM" Properties="Configuration=Release;Platform=ARM64" />
+  </Target>
+</Project>

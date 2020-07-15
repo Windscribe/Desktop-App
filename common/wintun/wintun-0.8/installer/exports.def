@@ -1,0 +1,5 @@
+EXPORTS
+	InstallWintun
+	UninstallWintun
+	MsiEvaluate
+	MsiProcess
