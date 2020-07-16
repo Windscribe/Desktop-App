@@ -9,33 +9,33 @@
 /* Begin PBXBuildFile section */
 		000D3A9C24813C9800DC1B1D /* connections.h in Headers */ = {isa = PBXBuildFile; fileRef = 000D3A9A24813C9800DC1B1D /* connections.h */; };
 		000D3A9D24813C9800DC1B1D /* connections.c in Sources */ = {isa = PBXBuildFile; fileRef = 000D3A9B24813C9800DC1B1D /* connections.c */; };
-		00C7A8A62472B0B700DCEA10 /* WindscribeKext.c in Sources */ = {isa = PBXBuildFile; fileRef = 00C7A8A52472B0B700DCEA10 /* WindscribeKext.c */; };
-		00D5BEAA247E68AF00850C40 /* socketFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 00D5BEA8247E68AF00850C40 /* socketFilter.h */; };
-		00D5BEAB247E68AF00850C40 /* socketFilter.c in Sources */ = {isa = PBXBuildFile; fileRef = 00D5BEA9247E68AF00850C40 /* socketFilter.c */; };
+		00C7A8A62472B0B700DCEA10 /* windscribe_kext.c in Sources */ = {isa = PBXBuildFile; fileRef = 00C7A8A52472B0B700DCEA10 /* windscribe_kext.c */; };
+		00D5BEAA247E68AF00850C40 /* socket_filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 00D5BEA8247E68AF00850C40 /* socket_filter.h */; };
+		00D5BEAB247E68AF00850C40 /* socket_filter.c in Sources */ = {isa = PBXBuildFile; fileRef = 00D5BEA9247E68AF00850C40 /* socket_filter.c */; };
 		00DC7C3C247D44D6004EB68D /* mutexes.h in Headers */ = {isa = PBXBuildFile; fileRef = 00DC7C3A247D44D6004EB68D /* mutexes.h */; };
 		00DC7C3D247D44D6004EB68D /* mutexes.c in Sources */ = {isa = PBXBuildFile; fileRef = 00DC7C3B247D44D6004EB68D /* mutexes.c */; };
 		00EBA9F7247BF6C100C86F6F /* messaging.c in Sources */ = {isa = PBXBuildFile; fileRef = 00EBA9F5247BF6C000C86F6F /* messaging.c */; };
 		00EBA9F8247BF6C100C86F6F /* messaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EBA9F6247BF6C000C86F6F /* messaging.h */; };
 		00EBA9FB247BF7D300C86F6F /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EBA9F9247BF7D300C86F6F /* utils.h */; };
 		00EBA9FC247BF7D300C86F6F /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 00EBA9FA247BF7D300C86F6F /* utils.c */; };
-		00EBA9FE247BFF1100C86F6F /* WindscribeKext.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EBA9FD247BFF1100C86F6F /* WindscribeKext.h */; };
+		00EBA9FE247BFF1100C86F6F /* windscribe_kext.h in Headers */ = {isa = PBXBuildFile; fileRef = 00EBA9FD247BFF1100C86F6F /* windscribe_kext.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		000D3A9A24813C9800DC1B1D /* connections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = connections.h; sourceTree = "<group>"; };
 		000D3A9B24813C9800DC1B1D /* connections.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = connections.c; sourceTree = "<group>"; };
 		00C7A8A22472B0B700DCEA10 /* WindscribeKext.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WindscribeKext.kext; sourceTree = BUILT_PRODUCTS_DIR; };
-		00C7A8A52472B0B700DCEA10 /* WindscribeKext.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = WindscribeKext.c; sourceTree = "<group>"; };
-		00C7A8A72472B0B700DCEA10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		00D5BEA8247E68AF00850C40 /* socketFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = socketFilter.h; sourceTree = "<group>"; };
-		00D5BEA9247E68AF00850C40 /* socketFilter.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = socketFilter.c; sourceTree = "<group>"; };
+		00C7A8A52472B0B700DCEA10 /* windscribe_kext.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = windscribe_kext.c; sourceTree = "<group>"; };
+		00C7A8A72472B0B700DCEA10 /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
+		00D5BEA8247E68AF00850C40 /* socket_filter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = socket_filter.h; sourceTree = "<group>"; };
+		00D5BEA9247E68AF00850C40 /* socket_filter.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = socket_filter.c; sourceTree = "<group>"; };
 		00DC7C3A247D44D6004EB68D /* mutexes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mutexes.h; sourceTree = "<group>"; };
 		00DC7C3B247D44D6004EB68D /* mutexes.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mutexes.c; sourceTree = "<group>"; };
 		00EBA9F5247BF6C000C86F6F /* messaging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = messaging.c; sourceTree = "<group>"; };
 		00EBA9F6247BF6C000C86F6F /* messaging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = messaging.h; sourceTree = "<group>"; };
 		00EBA9F9247BF7D300C86F6F /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		00EBA9FA247BF7D300C86F6F /* utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utils.c; sourceTree = "<group>"; };
-		00EBA9FD247BFF1100C86F6F /* WindscribeKext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WindscribeKext.h; sourceTree = "<group>"; };
+		00EBA9FD247BFF1100C86F6F /* windscribe_kext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = windscribe_kext.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,7 +52,7 @@
 		00C7A8982472B0B700DCEA10 = {
 			isa = PBXGroup;
 			children = (
-				00C7A8A42472B0B700DCEA10 /* WindscribeKext */,
+				00C7A8A42472B0B700DCEA10 /* windscribe_kext */,
 				00C7A8A32472B0B700DCEA10 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,7 +65,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		00C7A8A42472B0B700DCEA10 /* WindscribeKext */ = {
+		00C7A8A42472B0B700DCEA10 /* windscribe_kext */ = {
 			isa = PBXGroup;
 			children = (
 				000D3A9B24813C9800DC1B1D /* connections.c */,
@@ -74,15 +74,15 @@
 				00EBA9F9247BF7D300C86F6F /* utils.h */,
 				00EBA9F5247BF6C000C86F6F /* messaging.c */,
 				00EBA9F6247BF6C000C86F6F /* messaging.h */,
-				00C7A8A52472B0B700DCEA10 /* WindscribeKext.c */,
-				00EBA9FD247BFF1100C86F6F /* WindscribeKext.h */,
-				00C7A8A72472B0B700DCEA10 /* Info.plist */,
+				00C7A8A52472B0B700DCEA10 /* windscribe_kext.c */,
+				00EBA9FD247BFF1100C86F6F /* windscribe_kext.h */,
+				00C7A8A72472B0B700DCEA10 /* info.plist */,
 				00DC7C3A247D44D6004EB68D /* mutexes.h */,
 				00DC7C3B247D44D6004EB68D /* mutexes.c */,
 				00D5BEA8247E68AF00850C40 /* socketFilter.h */,
 				00D5BEA9247E68AF00850C40 /* socketFilter.c */,
 			);
-			path = WindscribeKext;
+			path = windscribe_kext;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -95,18 +95,18 @@
 				00EBA9FB247BF7D300C86F6F /* utils.h in Headers */,
 				00EBA9F8247BF6C100C86F6F /* messaging.h in Headers */,
 				00DC7C3C247D44D6004EB68D /* mutexes.h in Headers */,
-				00EBA9FE247BFF1100C86F6F /* WindscribeKext.h in Headers */,
+				00EBA9FE247BFF1100C86F6F /* windscribe_kext.h in Headers */,
 				000D3A9C24813C9800DC1B1D /* connections.h in Headers */,
-				00D5BEAA247E68AF00850C40 /* socketFilter.h in Headers */,
+				00D5BEAA247E68AF00850C40 /* socket_filter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		00C7A8A12472B0B700DCEA10 /* WindscribeKext */ = {
+		00C7A8A12472B0B700DCEA10 /* windscribe_kext */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00C7A8AA2472B0B700DCEA10 /* Build configuration list for PBXNativeTarget "WindscribeKext" */;
+			buildConfigurationList = 00C7A8AA2472B0B700DCEA10 /* Build configuration list for PBXNativeTarget "windscribe_kext" */;
 			buildPhases = (
 				00C7A89D2472B0B700DCEA10 /* Headers */,
 				00C7A89E2472B0B700DCEA10 /* Sources */,
@@ -194,8 +194,8 @@
 				000D3A9D24813C9800DC1B1D /* connections.c in Sources */,
 				00DC7C3D247D44D6004EB68D /* mutexes.c in Sources */,
 				00EBA9F7247BF6C100C86F6F /* messaging.c in Sources */,
-				00C7A8A62472B0B700DCEA10 /* WindscribeKext.c in Sources */,
-				00D5BEAB247E68AF00850C40 /* socketFilter.c in Sources */,
+				00C7A8A62472B0B700DCEA10 /* windscribe_kext.c in Sources */,
+				00D5BEAB247E68AF00850C40 /* socket_filter.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,7 +318,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = WindscribeKext/Info.plist;
+				INFOPLIST_FILE = windscribe_kext/info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MODULE_NAME = com.WindscribeKext;
 				MODULE_START = WindscribeKext_start;
@@ -338,7 +338,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = WindscribeKext/Info.plist;
+				INFOPLIST_FILE = windscribe_kext/info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MODULE_NAME = com.WindscribeKext;
 				MODULE_START = WindscribeKext_start;
