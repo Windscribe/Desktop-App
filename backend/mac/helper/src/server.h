@@ -9,8 +9,8 @@
 #include <boost/thread.hpp>
 #include <list>
 
-#include "HelperCommands.h"
-#include "SplitTunneling.h"
+#include "helper_commands.h"
+#include "split_tunneling.h"
 
 typedef boost::shared_ptr<boost::asio::local::stream_protocol::socket> socket_ptr;
 

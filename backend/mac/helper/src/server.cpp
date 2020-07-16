@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "server.h"
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -12,10 +12,10 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
-#include "Logger.h"
-#include "ExecuteCmd.h"
-#include "KeychainUtils.h"
-#include "IPC/HelperCommandsSerialize.h"
+#include "logger.h"
+#include "execute_cmd.h"
+#include "keychain_utils.h"
+#include "ipc/helper_commands_serialize.h"
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 

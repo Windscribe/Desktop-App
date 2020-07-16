@@ -4,11 +4,11 @@
 #include <string>
 #include <mutex>
 #include <vector>
-#include "../KextClient/KextClient.h"
-#include "../RoutesManager/RoutesManager.h"
-#include "../IpHostnames/IpHostnamesManager.h"
-#include "Routes.h"
-#include "../IPC/HelperCommands.h"
+#include "../kext_client/kext_client.h"
+#include "../routes_manager/routes_manager.h"
+#include "../ip_hostnames/ip_hostnames_manager.h"
+#include "routes.h"
+#include "../ipc/helper_commands.h"
 
 class SplitTunneling
 {

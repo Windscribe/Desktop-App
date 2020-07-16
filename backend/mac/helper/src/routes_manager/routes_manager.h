@@ -1,9 +1,9 @@
 #ifndef RoutesManager_h
 #define RoutesManager_h
 
-#include "../IPC/HelperCommands.h"
-#include "BoundRoute.h"
-#include "Routes.h"
+#include "../ipc/helper_commands.h"
+#include "bound_route.h"
+#include "routes.h"
 
 // state-based route management, depends on parameters isConnected, isSplitTunnelActive,
 // exclusive/inclusive split tunneling mode

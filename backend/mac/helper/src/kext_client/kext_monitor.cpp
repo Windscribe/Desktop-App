@@ -1,6 +1,6 @@
-#include "KextMonitor.h"
-#include "Logger.h"
-#include "Utils.h"
+#include "kext_monitor.h"
+#include "logger.h"
+#include "utils.h"
 #include <thread>
 
 KextMonitor::KextMonitor() : isKextLoaded_(false)
