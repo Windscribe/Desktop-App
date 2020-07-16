@@ -1,6 +1,6 @@
-#include "socketFilter.h"
+#include "socket_filter.h"
 #include "utils.h"
-#include "WindscribeKext.h"
+#include "windscribe_kext.h"
 #include "messaging.h"
 #include "connections.h"
 

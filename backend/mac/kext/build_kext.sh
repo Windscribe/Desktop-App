@@ -14,7 +14,7 @@ pushd $KEXT_PROJECT_PATH
 
 xcodebuild -scheme WindscribeKext -configuration Release clean build || exit 1
 
-OUT_DIR=$(xcodebuild -project WindscribeKext.xcodeproj -showBuildSettings | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oEi "\/.*")
+OUT_DIR=$(xcodebuild -project windscribe_kext.xcodeproj -showBuildSettings | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oEi "\/.*")
 mkdir -p "$CUR_PATH/Binary"
 cp -a "${OUT_DIR}/WindscribeKext.kext" "$CUR_PATH/Binary/WindscribeKext.kext"
 

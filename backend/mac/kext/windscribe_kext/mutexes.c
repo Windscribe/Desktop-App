@@ -1,5 +1,5 @@
 #include "mutexes.h"
-#include "WindscribeKext.h"
+#include "windscribe_kext.h"
 #include <libkern/OSMalloc.h>
 //#include <mach/mach_types.h>
 //#include <sys/kern_control.h>

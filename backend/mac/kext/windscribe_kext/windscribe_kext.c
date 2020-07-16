@@ -5,11 +5,11 @@
 
 #include <netinet/kpi_ipfilter.h>
 
-#include "WindscribeKext.h"
+#include "windscribe_kext.h"
 #include "utils.h"
 #include "messaging.h"
 #include "mutexes.h"
-#include "socketFilter.h"
+#include "socket_filter.h"
 #include "connections.h"
 
 

@@ -8,7 +8,7 @@
 #include "mutexes.h"
 ///#include "conn_management.h"
 #include "utils.h"
-#include "WindscribeKext.h"
+#include "windscribe_kext.h"
 
 
 // {set,get}sockopt() option identifiers
