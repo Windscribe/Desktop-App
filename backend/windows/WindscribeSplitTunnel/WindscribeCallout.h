@@ -1,0 +1,20 @@
+#ifndef WINDSCRIBE_CALLOUT_H   
+#define WINDSCRIBE_CALLOUT_H
+
+#include <initguid.h>
+
+DEFINE_GUID(
+	WINDSCRIBE_CALLOUT_GUID,
+	0x5DF29179,
+	0x344E,
+	0x4F9C,
+	0xA4, 0x5D, 0xC3, 0x0F, 0x95, 0x9B, 0x01, 0x2D
+);
+
+
+typedef struct WINDSCRIBE_CALLOUT_DATA_
+{
+	UINT32 localIp;
+} WINDSCRIBE_CALLOUT_DATA;
+
+#endif
