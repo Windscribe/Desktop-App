@@ -2,7 +2,7 @@
 
 #include <QString>
 #include <QList>
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace MacUtils
 {

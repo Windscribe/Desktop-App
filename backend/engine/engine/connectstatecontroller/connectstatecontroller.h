@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QMutex>
-#include "Engine/Types/types.h"
+#include "engine/types/types.h"
 #include "iconnectstatecontroller.h"
 
 class ConnectStateController : public IConnectStateController

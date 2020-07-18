@@ -2,8 +2,8 @@
 #include <QTimer>
 #include <QThread>
 #include "nodeselectionalgorithm.h"
-#include "Utils/logger.h"
-#include "Utils/ipvalidation.h"
+#include "utils/logger.h"
+#include "utils/ipvalidation.h"
 
 PingManager::PingManager(QObject *parent, NodesSpeedRatings *nodesSpeedRating, NodesSpeedStore *nodesSpeedStore, IConnectStateController *stateController, INetworkStateManager *networkStateManager) : QObject(parent),
     isInitialized_(false),

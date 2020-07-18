@@ -8,7 +8,7 @@
 #include <QSet>
 #include "portmap.h"
 #include "servercredentials.h"
-#include "Utils/simplecrypt.h"
+#include "utils/simplecrypt.h"
 #include "serverlocation.h"
 #include "staticipslocation.h"
 

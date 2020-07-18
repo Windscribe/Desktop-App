@@ -1,5 +1,5 @@
 #include "detectlanrange.h"
-#include "VpnShare/SocketUtils/detectlocalip.h"
+#include "vpnshare/socketutils/detectlocalip.h"
 //#include <winsock2.h>
 //#include <iphlpapi.h>
 #ifdef Q_OS_WIN

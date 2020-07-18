@@ -1,9 +1,9 @@
 #include "pingnodescontroller.h"
-#include "../ConnectStateController/iconnectstatecontroller.h"
-#include "Utils/utils.h"
+#include "../connectstatecontroller/iconnectstatecontroller.h"
+#include "utils/utils.h"
 #include "failedpinglogcontroller.h"
 #include <QDebug>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 const int typeIdVectorPingNodeAndType = qRegisterMetaType< QVector<PingNodesController::PingNodeAndType> >("QVector<PingNodesController::PingNodeAndType>");
 

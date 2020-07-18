@@ -3,8 +3,8 @@
 
 #include <QDateTime>
 #include "imacaddresscontroller.h"
-#include "Engine/Helper/ihelper.h"
-#include "../NetworkDetectionManager/networkdetectionmanager_mac.h"
+#include "engine/helper/ihelper.h"
+#include "../networkdetectionmanager/networkdetectionmanager_mac.h"
 
 class MacAddressController_mac : public IMacAddressController
 {

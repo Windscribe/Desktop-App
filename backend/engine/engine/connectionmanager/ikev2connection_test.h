@@ -5,9 +5,9 @@
 #include <QMap>
 #include <QTimer>
 #include <QStateMachine>
-#include "Engine/Types/types.h"
-#include "IConnection.h"
-#include "Engine/Helper/ihelper.h"
+#include "engine/types/types.h"
+#include "iconnection.h"
+#include "engine/helper/ihelper.h"
 
 // mock ikev2 connection object for testing
 class IKEv2Connection_test : public IConnection

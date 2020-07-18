@@ -2,7 +2,7 @@
 #define GETAPIACCESSIPS_H
 
 #include <QObject>
-#include "Engine/ServerApi/serverapi.h"
+#include "engine/serverapi/serverapi.h"
 
 // make ApiAccessIps  request to random hardcoded IPs and return list of hosts or fail result
 class GetApiAccessIps : public QObject

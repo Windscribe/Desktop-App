@@ -199,7 +199,7 @@ OBJECTIVE_SOURCES += $$COMMON_PATH/utils/macutils.mm \
                      engine/proxy/autodetectproxy_mac.mm \
                      engine/connectionmanager/ikev2connection_mac.mm \
                      $$COMMON_PATH/exithandler_mac.mm \
-                     $$COMMON_PATH/utils/executablesignature/executablesignature_mac.mm
+                     $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm
 
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
 

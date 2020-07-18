@@ -1,6 +1,6 @@
 #include "httpproxywebanswer.h"
-#include "Utils/boost_includes.h"
-#include "Version/appversion.h"
+#include "utils/boost_includes.h"
+#include "version/appversion.h"
 
 namespace HttpProxyServer {
 

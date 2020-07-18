@@ -4,8 +4,8 @@
 #include <QDataStream>
 #include <QDebug>
 #include <QElapsedTimer>
-#include "Utils/logger.h"
-#include "Utils/utils.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
 
 const int typeIdApiNotifications = qRegisterMetaType<QSharedPointer<ApiNotifications> >("QSharedPointer<ApiNotifications>");
 

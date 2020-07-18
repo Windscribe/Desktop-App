@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
-#include "Engine/ServerApi/serverapi.h"
+#include "engine/serverapi/serverapi.h"
 
 class RefetchServerCredentialsHelper : public QObject
 {

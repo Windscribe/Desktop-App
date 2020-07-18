@@ -2,7 +2,7 @@
 #define SESSIONSTATUSTIMER_H
 
 #include <QObject>
-#include "ConnectStateController/iconnectstatecontroller.h"
+#include "connectstatecontroller/iconnectstatecontroller.h"
 
 class SessionStatusTimer : public QObject
 {

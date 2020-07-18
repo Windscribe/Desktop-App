@@ -2,7 +2,7 @@
 #define PROTOCOLTYPE_H
 
 #include <QString>
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 class ProtocolType
 {

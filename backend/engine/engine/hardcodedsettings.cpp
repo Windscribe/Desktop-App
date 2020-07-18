@@ -1,6 +1,6 @@
 #include "hardcodedsettings.h"
-#include "Utils/utils.h"
-#include "Version/windscribe_version.h"
+#include "utils/utils.h"
+#include "version/windscribe_version.h"
 #include <QDateTime>
 #include <QStringList>
 #include <QCryptographicHash>

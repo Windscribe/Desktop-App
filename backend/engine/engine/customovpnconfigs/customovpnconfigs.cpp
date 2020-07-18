@@ -1,8 +1,8 @@
 #include "customovpnconfigs.h"
 #include <QDir>
 #include <QStandardPaths>
-#include "Utils/logger.h"
-#include "Utils/ipvalidation.h"
+#include "utils/logger.h"
+#include "utils/ipvalidation.h"
 #include "parseovpnconfigline.h"
 
 CustomOvpnConfigs::CustomOvpnConfigs(QObject *parent) : QObject(parent), dirWatcher_(NULL)

@@ -2,8 +2,8 @@
 #define ICONNECTION_H
 
 #include <QThread>
-#include "Engine/Proxy/proxysettings.h"
-#include "Engine/Types/types.h"
+#include "engine/proxy/proxysettings.h"
+#include "engine/types/types.h"
 
 class IHelper;
 

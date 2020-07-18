@@ -1,15 +1,15 @@
 #include "engineserver.h"
-#include "Utils/utils.h"
-#include "Utils/logger.h"
-#include "IPC/server.h"
-#include "IPC/protobufcommand.h"
-#include "IPC/generated_proto/servercommands.pb.h"
-#include "IPC/generated_proto/clientcommands.pb.h"
-#include "Engine/openvpnversioncontroller.h"
+#include "utils/utils.h"
+#include "utils/logger.h"
+#include "ipc/server.h"
+#include "ipc/protobufcommand.h"
+#include "ipc/generated_proto/servercommands.pb.h"
+#include "ipc/generated_proto/clientcommands.pb.h"
+#include "engine/openvpnversioncontroller.h"
 #include <QDateTime>
 
 #ifdef Q_OS_WIN
-    #include "Engine/TapUtils/tapinstall_win.h"
+    #include "engine/taputils/tapinstall_win.h"
 #endif
 
 EngineServer::EngineServer(QObject *parent) : QObject(parent), server_(NULL), engine_(NULL), threadEngine_(NULL)

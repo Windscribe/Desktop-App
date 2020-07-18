@@ -1,7 +1,7 @@
 #include "socksproxyconnection.h"
 #include <QHostAddress>
 #include <QThread>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 namespace SocksProxyServer {
 

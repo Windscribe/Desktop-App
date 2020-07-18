@@ -2,13 +2,13 @@
 #define ENGINESETTINGS_H
 
 #include <QString>
-#include "Engine/Types/protocoltype.h"
-#include "Engine/Types/types.h"
-#include "Engine/Types/connectionsettings.h"
-#include "Engine/Types/dnsresolutionsettings.h"
-#include "Engine/Proxy/proxysettings.h"
-#include "IPC/command.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "engine/types/protocoltype.h"
+#include "engine/types/types.h"
+#include "engine/types/connectionsettings.h"
+#include "engine/types/dnsresolutionsettings.h"
+#include "engine/proxy/proxysettings.h"
+#include "ipc/command.h"
+#include "ipc/generated_proto/types.pb.h"
 
 class EngineSettings
 {

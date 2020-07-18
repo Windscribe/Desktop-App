@@ -1,32 +1,32 @@
 #include "engine.h"
-#include "Utils/utils.h"
-#include "Utils/logger.h"
-#include "Utils/mergelog.h"
+#include "utils/utils.h"
+#include "utils/logger.h"
+#include "utils/mergelog.h"
 #include "crossplatformobjectfactory.h"
-#include "ConnectionManager/connectionmanager.h"
-#include "ConnectionManager/finishactiveconnections.h"
-#include "Proxy/proxyservercontroller.h"
+#include "connectionmanager/connectionmanager.h"
+#include "connectionmanager/finishactiveconnections.h"
+#include "proxy/proxyservercontroller.h"
 #include "openvpnversioncontroller.h"
-#include "ConnectStateController/connectstatecontroller.h"
-#include "DnsResolver/dnsresolver.h"
+#include "connectstatecontroller/connectstatecontroller.h"
+#include "dnsresolver/dnsresolver.h"
 #include "openvpnversioncontroller.h"
-#include "Utils/extraconfig.h"
-#include "Utils/ipvalidation.h"
+#include "utils/extraconfig.h"
+#include "utils/ipvalidation.h"
 #include "getdeviceid.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <google/protobuf/util/message_differencer.h>
 
 #ifdef Q_OS_WIN
-    #include "Utils/bfecontroller_win.h"
-    #include "Engine/dnsinfo_win.h"
-    #include "Engine/TapUtils/checkadapterenable.h"
-    #include "Engine/TapUtils/tapinstall_win.h"
-    #include "Engine/adaptermetricscontroller_win.h"
+    #include "utils/bfecontroller_win.h"
+    #include "engine/dnsinfo_win.h"
+    #include "engine/taputils/checkadapterenable.h"
+    #include "engine/taputils/tapinstall_win.h"
+    #include "engine/adaptermetricscontroller_win.h"
 #elif defined Q_OS_MAC
     #include "ipv6controller_mac.h"
-    #include "Utils/macutils.h"
-    #include "NetworkStateManager/reachabilityevents.h"
+    #include "utils/macutils.h"
+    #include "networkstatemanager/reachabilityevents.h"
 #endif
 
 Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),

@@ -1,5 +1,5 @@
 #include "exithandler_mac.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #import <Cocoa/Cocoa.h>
 #include <objc/objc.h>
 #include <objc/message.h>

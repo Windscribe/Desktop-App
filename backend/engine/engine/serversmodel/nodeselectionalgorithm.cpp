@@ -1,6 +1,6 @@
 #include "nodeselectionalgorithm.h"
 #include <QEasingCurve>
-#include "Utils/utils.h"
+#include "utils/utils.h"
 
 const double NodeSelectionAlgorithm::WEIGHT_NODE = 0.25;
 const double NodeSelectionAlgorithm::WEIGHT_RATING = 0.25;

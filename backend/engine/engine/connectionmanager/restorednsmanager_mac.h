@@ -3,7 +3,7 @@
 
 #include <QVector>
 #include <QString>
-#include "Engine/Helper/ihelper.h"
+#include "engine/helper/ihelper.h"
 
 class RestoreDNSManager_mac
 {

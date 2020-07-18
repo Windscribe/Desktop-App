@@ -1,9 +1,9 @@
 #include "splittunnelingnetworkinfo.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <QFile>
 
 #ifdef Q_OS_MAC
-    #include "Utils/macutils.h"
+    #include "utils/macutils.h"
 #endif
 
 SplitTunnelingNetworkInfo::SplitTunnelingNetworkInfo()

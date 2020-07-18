@@ -1,7 +1,7 @@
 #ifndef FINISHACTIVECONNECTIONS_H
 #define FINISHACTIVECONNECTIONS_H
 
-#include "../Helper/ihelper.h"
+#include "../helper/ihelper.h"
 
 class FinishActiveConnections
 {

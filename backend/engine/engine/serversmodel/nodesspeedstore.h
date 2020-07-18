@@ -1,7 +1,7 @@
 #ifndef NODESSPEEDSTORE_H
 #define NODESSPEEDSTORE_H
 
-#include "Engine/Types/locationid.h"
+#include "engine/types/locationid.h"
 
 #include <QObject>
 #include <QHash>

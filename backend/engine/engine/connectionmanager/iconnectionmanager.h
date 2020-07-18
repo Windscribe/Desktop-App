@@ -2,10 +2,10 @@
 #define ICONNECTIONMANAGER_H
 
 #include <QObject>
-#include "Engine/CustomOvpnConfigs/customovpnauthcredentialsstorage.h"
+#include "engine/customovpnconfigs/customovpnauthcredentialsstorage.h"
 #include "automanualconnectioncontroller.h"
-#include "Engine/Types/types.h"
-#include "Engine/Types/protocoltype.h"
+#include "engine/types/types.h"
+#include "engine/types/protocoltype.h"
 
 class IHelper;
 class INetworkStateManager;

@@ -2,8 +2,8 @@
 
 #include <google/protobuf/util/message_differencer.h>
 
-#include "Utils/utils.h"
-#include "Utils/logger.h"
+#include "utils/utils.h"
+#include "utils/logger.h"
 
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::PacketSize");
 

@@ -1,10 +1,10 @@
-#include "ExecutableSignature_mac.h"
+#include "executable_signature_mac.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <unistd.h>
 #include <libproc.h>
 #include <string.h>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #import <Security/Security.h>
 #import <SystemConfiguration/SystemConfiguration.h>

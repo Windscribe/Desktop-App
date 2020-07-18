@@ -1,7 +1,7 @@
 #ifndef GETALLCONFIGSCONTROLLER_H
 #define GETALLCONFIGSCONTROLLER_H
 
-#include "Engine/ServerApi/serverapi.h"
+#include "engine/serverapi/serverapi.h"
 
 // helper class for LoginController
 class GetAllConfigsController : public QObject

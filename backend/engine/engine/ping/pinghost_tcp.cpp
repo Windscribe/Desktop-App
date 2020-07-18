@@ -1,7 +1,7 @@
 #include "pinghost_tcp.h"
 #include <QTcpSocket>
 #include <QTimer>
-#include "../ConnectStateController/iconnectstatecontroller.h"
+#include "../connectstatecontroller/iconnectstatecontroller.h"
 
 PingHost_TCP::PingHost_TCP(QObject *parent, IConnectStateController *stateController) : QObject(parent), connectStateController_(stateController), bProxyEnabled_(true)
 {

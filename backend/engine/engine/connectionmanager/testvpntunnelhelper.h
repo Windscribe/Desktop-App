@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <QMutex>
 #include <QHostInfo>
-#include "Engine/Types/types.h"
+#include "engine/types/types.h"
 
 class ServerAPI;
 

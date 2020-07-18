@@ -5,10 +5,10 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QMutex>
-#include "Engine/Helper/ihelper.h"
-#include "IConnection.h"
-#include "Engine/Proxy/proxysettings.h"
-#include "Utils/boost_includes.h"
+#include "engine/helper/ihelper.h"
+#include "iconnection.h"
+#include "engine/proxy/proxysettings.h"
+#include "utils/boost_includes.h"
 #include <atomic>
 
 class OpenVPNConnection : public IConnection

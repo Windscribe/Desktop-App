@@ -5,9 +5,9 @@
 #include <QObject>
 #include <QSet>
 #include "nodesspeedstore.h"
-#include "Engine/Ping/pinghost.h"
+#include "engine/ping/pinghost.h"
 #include "pinglog.h"
-#include "Engine/NetworkStateManager/inetworkstatemanager.h"
+#include "engine/networkstatemanager/inetworkstatemanager.h"
 
 class IConnectStateController;
 

@@ -2,36 +2,36 @@
 #define ENGINE_H
 
 #include <QObject>
-#include "Firewall/firewallexceptions.h"
-#include "LoginController/logincontroller.h"
-#include "Helper/ihelper.h"
-#include "Helper/initializehelper.h"
-#include "NetworkStateManager/inetworkstatemanager.h"
-#include "NetworkDetectionManager/inetworkdetectionmanager.h"
-#include "Firewall/firewallcontroller.h"
-#include "ServerApi/serverapi.h"
+#include "firewall/firewallexceptions.h"
+#include "logincontroller/logincontroller.h"
+#include "helper/ihelper.h"
+#include "helper/initializehelper.h"
+#include "networkstatemanager/inetworkstatemanager.h"
+#include "networkdetectionmanager/inetworkdetectionmanager.h"
+#include "firewall/firewallcontroller.h"
+#include "serverapi/serverapi.h"
 #include "serverlocationsapiwrapper.h"
-#include "ServersModel/serversmodel.h"
-#include "ConnectionManager/iconnectionmanager.h"
-#include "ConnectStateController/connectstatecontroller.h"
-#include "Engine/refetchservercredentialshelper.h"
-#include "Engine/ServersModel/nodesspeedratings.h"
-#include "Engine/VpnShare/vpnsharecontroller.h"
-#include "Engine/EmergencyController/emergencycontroller.h"
+#include "serversmodel/serversmodel.h"
+#include "connectionmanager/iconnectionmanager.h"
+#include "connectstatecontroller/connectstatecontroller.h"
+#include "engine/refetchservercredentialshelper.h"
+#include "engine/serversmodel/nodesspeedratings.h"
+#include "engine/vpnshare/vpnsharecontroller.h"
+#include "engine/emergencycontroller/emergencycontroller.h"
 #include "getmyipcontroller.h"
 #include "enginesettings.h"
 #include "sessionstatustimer.h"
-#include "Engine/CustomOvpnConfigs/customovpnconfigs.h"
-#include "Engine/CustomOvpnConfigs/customovpnauthcredentialsstorage.h"
+#include "engine/customovpnconfigs/customovpnconfigs.h"
+#include "engine/customovpnconfigs/customovpnauthcredentialsstorage.h"
 #include <atomic>
-#include "Engine/MacAddressController/imacaddresscontroller.h"
-#include "Engine/Ping/keepalivemanager.h"
+#include "engine/macaddresscontroller/imacaddresscontroller.h"
+#include "engine/ping/keepalivemanager.h"
 #include "packetsizecontroller.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
 #else
-    #include "Engine/SplitTunnelingNetworkInfo/splittunnelingnetworkinfo.h"
+    #include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.h"
 #endif
 
 // all the functionality of the connections, firewall, helper, etc

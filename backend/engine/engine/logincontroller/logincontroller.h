@@ -3,11 +3,11 @@
 
 #include <QElapsedTimer>
 #include <QObject>
-#include "Engine/ServerApi/serverapi.h"
+#include "engine/serverapi/serverapi.h"
 #include "getallconfigscontroller.h"
 #include "getapiaccessips.h"
-#include "Engine/Types/dnsresolutionsettings.h"
-#include "Engine/Types/loginsettings.h"
+#include "engine/types/dnsresolutionsettings.h"
+#include "engine/types/loginsettings.h"
 #include "../serverlocationsapiwrapper.h"
 
 //class IFirewallController;

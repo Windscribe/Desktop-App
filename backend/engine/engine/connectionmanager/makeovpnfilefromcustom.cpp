@@ -2,13 +2,13 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QDir>
-#include "Utils/extraconfig.h"
-#include "Utils/logger.h"
-#include "Engine/CustomOvpnConfigs/parseovpnconfigline.h"
+#include "utils/extraconfig.h"
+#include "utils/logger.h"
+#include "engine/customovpnconfigs/parseovpnconfigline.h"
 
 #ifdef Q_OS_MAC
-    #include "Utils/macutils.h"
-    #include "Engine/tempscripts_mac.h"
+    #include "utils/macutils.h"
+    #include "engine/tempscripts_mac.h"
 #endif
 
 MakeOVPNFileFromCustom::MakeOVPNFileFromCustom()

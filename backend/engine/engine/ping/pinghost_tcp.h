@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QQueue>
-#include "Engine/Proxy/proxysettings.h"
+#include "engine/proxy/proxysettings.h"
 
 class IConnectStateController;
 

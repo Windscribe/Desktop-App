@@ -7,13 +7,13 @@
 #include <QThread>
 #include <QUrl>
 #include <QUrlQuery>
-#include "Engine/NetworkStateManager/inetworkstatemanager.h"
-#include "Engine/hardcodedsettings.h"
-#include "Engine/openvpnversioncontroller.h"
-#include "Utils/logger.h"
-#include "Utils/utils.h"
-#include "Utils/ipvalidation.h"
-#include "Version/appversion.h"
+#include "engine/networkstatemanager/inetworkstatemanager.h"
+#include "engine/hardcodedsettings.h"
+#include "engine/openvpnversioncontroller.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
+#include "utils/ipvalidation.h"
+#include "version/appversion.h"
 #include "../tests/sessionandlocations_test.h"
 
 const int typeIdSessionStatus = qRegisterMetaType<QSharedPointer<SessionStatus>>("QSharedPointer<SessionStatus>");

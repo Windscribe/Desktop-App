@@ -1,7 +1,7 @@
 #include "dnscache.h"
 #include <QDateTime>
-#include "Utils/ipvalidation.h"
-#include "Engine/DnsResolver/dnsresolver.h"
+#include "utils/ipvalidation.h"
+#include "engine/dnsresolver/dnsresolver.h"
 
 DnsCache::DnsCache(QObject *parent) : QObject(parent)
 {

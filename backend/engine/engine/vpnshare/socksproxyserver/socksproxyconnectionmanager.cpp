@@ -1,5 +1,5 @@
 #include "socksproxyconnectionmanager.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #include <QThread>
 #include <QTimer>

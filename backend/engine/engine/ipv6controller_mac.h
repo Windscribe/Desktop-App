@@ -1,7 +1,7 @@
 #ifndef IPV6CONTROLLER_MAC_H
 #define IPV6CONTROLLER_MAC_H
 
-#include "Engine/Helper/ihelper.h"
+#include "engine/helper/ihelper.h"
 
 #include <QMap>
 

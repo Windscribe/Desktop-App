@@ -1,7 +1,7 @@
 #ifndef MAKEOVPNFILEFROMCUSTOM_H
 #define MAKEOVPNFILEFROMCUSTOM_H
 #include <QTemporaryFile>
-#include "Engine/Types/protocoltype.h"
+#include "engine/types/protocoltype.h"
 
 class MakeOVPNFileFromCustom
 {

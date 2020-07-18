@@ -3,7 +3,7 @@
 
 #include <QTimer>
 #include "iserversmodel.h"
-#include "Engine/NetworkStateManager/inetworkstatemanager.h"
+#include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "nodesspeedratings.h"
 #include "pingmanager.h"
 #include "resolvehostnamesforcustomovpn.h"

@@ -1,6 +1,6 @@
 #include "dnsresolver.h"
-#include "Engine/hardcodedsettings.h"
-#include "Utils/logger.h"
+#include "engine/hardcodedsettings.h"
+#include "utils/logger.h"
 
 #ifdef Q_OS_MAC
     #include <netinet/in.h>

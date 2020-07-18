@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QTimer>
-#include "Engine/Types/types.h"
-#include "Engine/Types/locationid.h"
+#include "engine/types/types.h"
+#include "engine/types/locationid.h"
 
 class IConnectStateController : public QObject
 {

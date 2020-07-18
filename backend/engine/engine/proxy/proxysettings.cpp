@@ -1,5 +1,5 @@
 #include "proxysettings.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 const int typeIdProxySettings = qRegisterMetaType<ProxySettings>("ProxySettings");
 

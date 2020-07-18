@@ -8,7 +8,7 @@
 #include <QMutex>
 #include "areslibraryinit.h"
 #include "ares.h"
-#include "Engine/Types/types.h"
+#include "engine/types/types.h"
 
 class DnsResolver : public QThread
 {

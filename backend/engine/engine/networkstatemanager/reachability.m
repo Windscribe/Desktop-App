@@ -13,7 +13,7 @@
 
 #import <CoreFoundation/CoreFoundation.h>
 
-#import "Reachability.h"
+#import "reachability.h"
 
 
 NSString *kReachabilityChangedNotification = @"kNetworkReachabilityChangedNotification";

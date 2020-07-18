@@ -1,5 +1,5 @@
 #include "reachabilityevents.h"
-#import "Reachability.h"
+#import "reachability.h"
 
 Reachability *g_Reachability = nil;
 ReachAbilityEvents *g_ReachabilityEvents = NULL;

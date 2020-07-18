@@ -4,9 +4,9 @@
 #include <QObject>
 #include <QLinkedList>
 #include <QTimer>
-#include "Engine/Types/apiinfo.h"
-#include "Engine/Types/portmap.h"
-#include "Engine/Proxy/proxysettings.h"
+#include "engine/types/apiinfo.h"
+#include "engine/types/portmap.h"
+#include "engine/proxy/proxysettings.h"
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
 

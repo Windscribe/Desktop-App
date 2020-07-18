@@ -1,7 +1,7 @@
 #include "pinghost_icmp_mac.h"
-#include "Utils/ipvalidation.h"
-#include "Utils/utils.h"
-#include "Utils/logger.h"
+#include "utils/ipvalidation.h"
+#include "utils/utils.h"
+#include "utils/logger.h"
 #include "icmp_header.h"
 #include "ipv4_header.h"
 

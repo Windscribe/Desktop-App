@@ -3,7 +3,7 @@
 #ifdef Q_OS_WIN
     #include "executable_signature_win.h"
 #else
-    #include "executable_signature_win.h"
+    #include "executable_signature_mac.h"
 #endif
 
 bool ExecutableSignature::isParentProcessGui()

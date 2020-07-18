@@ -2,7 +2,7 @@
 #define VPNSHARESETTINGS_H
 
 #include <QSettings>
-#include "Engine/Types/types.h"
+#include "engine/types/types.h"
 
 class VPNShareSettings
 {

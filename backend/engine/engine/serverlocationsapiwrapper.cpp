@@ -1,5 +1,5 @@
 #include "serverlocationsapiwrapper.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <limits>
 
 ServerLocationsApiWrapper::ServerLocationsApiWrapper(QObject *parent, NodesSpeedStore *nodesSpeedStore, ServerAPI *serverAPI) : QObject(parent),

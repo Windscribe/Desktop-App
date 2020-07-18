@@ -1,6 +1,6 @@
 #include "networkstatemanager_mac.h"
 
-#include "../NetworkStateManager/reachabilityevents.h"
+#include "../networkstatemanager/reachabilityevents.h"
 
 NetworkStateManager_mac::NetworkStateManager_mac(QObject *parent) : INetworkStateManager(parent), bLastNetworkInterfaceInitialized_(false)
 {

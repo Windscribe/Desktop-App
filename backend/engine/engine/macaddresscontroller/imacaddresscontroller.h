@@ -2,8 +2,8 @@
 #define IMACADDRESSCONTROLLER_H
 
 #include <QObject>
-#include "IPC/generated_proto/types.pb.h"
-#include "../NetworkStateManager/inetworkstatemanager.h"
+#include "ipc/generated_proto/types.pb.h"
+#include "../networkstatemanager/inetworkstatemanager.h"
 
 class IMacAddressController : public QObject
 {

@@ -3,10 +3,10 @@
 
 #include <QObject>
 #include <QMutex>
-#include "HttpProxyServer/httpproxyserver.h"
-#include "SocksProxyServer/socksproxyserver.h"
-#include "Engine/Helper/ihelper.h"
-#include "Engine/Types/types.h"
+#include "httpproxyserver/httpproxyserver.h"
+#include "socksproxyserver/socksproxyserver.h"
+#include "engine/helper/ihelper.h"
+#include "engine/types/types.h"
 
 #ifdef Q_OS_WIN
     #include "WifiSharing/wifisharing.h"

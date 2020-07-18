@@ -1,10 +1,10 @@
 #include "mutablelocationinfo.h"
 
 #include <QThread>
-#include "Utils/logger.h"
-#include "Utils/ipvalidation.h"
-#include "Utils/utils.h"
-#include "Engine/DnsResolver/dnsresolver.h"
+#include "utils/logger.h"
+#include "utils/ipvalidation.h"
+#include "utils/utils.h"
+#include "engine/dnsresolver/dnsresolver.h"
 
 MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name,
                                          const QVector<ServerNode> &nodes, int selectedNode,

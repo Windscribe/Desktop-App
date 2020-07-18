@@ -3,7 +3,7 @@
 
 #include <QElapsedTimer>
 #include <QObject>
-#include "Engine/Types/types.h"
+#include "engine/types/types.h"
 
 class IHelper;
 class INetworkStateManager;

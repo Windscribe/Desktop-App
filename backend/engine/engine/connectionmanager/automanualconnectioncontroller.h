@@ -1,9 +1,9 @@
 #ifndef AUTOMANUALCONNECTIONCONTROLLER_H
 #define AUTOMANUALCONNECTIONCONTROLLER_H
 
-#include "Engine/Types/apiinfo.h"
-#include "Engine/Types/connectionsettings.h"
-#include "Engine/ServersModel/mutablelocationinfo.h"
+#include "engine/types/apiinfo.h"
+#include "engine/types/connectionsettings.h"
+#include "engine/serversmodel/mutablelocationinfo.h"
 
 // helper class for ConnectionManager
 // manage automatic and manual connection mode

@@ -1,7 +1,7 @@
 #include "getapiaccessips.h"
-#include "Engine/hardcodedsettings.h"
-#include "Utils/logger.h"
-#include "Utils/utils.h"
+#include "engine/hardcodedsettings.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
 
 GetApiAccessIps::GetApiAccessIps(QObject *parent, ServerAPI *serverAPI) : QObject(parent),
     serverAPI_(serverAPI)

@@ -2,10 +2,10 @@
 
 #include <google/protobuf/util/message_differencer.h>
 #include <QRegularExpression>
-#include "../NetworkStateManager/reachabilityevents.h"
-#include "Utils/macutils.h"
-#include "Utils/utils.h"
-#include "Utils/logger.h"
+#include "../networkstatemanager/reachabilityevents.h"
+#include "utils/macutils.h"
+#include "utils/utils.h"
+#include "utils/logger.h"
 
 const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
 

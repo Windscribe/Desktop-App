@@ -3,7 +3,7 @@
 
 #include "logger.h"
 #import "macutils.h"
-#include "Utils/utils.h"
+#include "utils/utils.h"
 #include <QFile>
 #include <QProcess>
 #include <QDir>

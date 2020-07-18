@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <openssl/ssl.h>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <QStandardPaths>
 
 CurlNetworkManager::CurlNetworkManager(QObject *parent) : QThread(parent),

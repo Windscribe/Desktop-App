@@ -1,6 +1,6 @@
 #include "initializehelper.h"
-#include "Engine/Helper/ihelper.h"
-#include "Utils/logger.h"
+#include "engine/helper/ihelper.h"
+#include "utils/logger.h"
 
 #include <QTimer>
 

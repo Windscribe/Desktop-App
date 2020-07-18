@@ -5,8 +5,8 @@
 #include <QThread>
 #include <QWaitCondition>
 #include "ihelper.h"
-#include "Utils/boost_includes.h"
-#include "../Mac/Helper/src/IPC/HelperCommands.h"
+#include "utils/boost_includes.h"
+#include "../mac/helper/src/ipc/helper_commands.h"
 
 class Helper_mac : public IHelper
 {

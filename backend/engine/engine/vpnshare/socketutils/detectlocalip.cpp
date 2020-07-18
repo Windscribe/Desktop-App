@@ -1,5 +1,5 @@
 #include "detectlocalip.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #ifdef Q_OS_WIN
 #include <winsock2.h>

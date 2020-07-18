@@ -7,7 +7,7 @@
 #include "socksstructs.h"
 #include "socksproxyreadexactly.h"
 #include "socksproxyidentreqparser.h"
-#include "../SocketUtils/socketwriteall.h"
+#include "../socketutils/socketwriteall.h"
 #include "socksproxycommandparser.h"
 
 namespace SocksProxyServer {

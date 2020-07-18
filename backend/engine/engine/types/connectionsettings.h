@@ -3,8 +3,8 @@
 
 #include <QSettings>
 #include <QString>
-#include "Engine/Types/protocoltype.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "engine/types/protocoltype.h"
+#include "ipc/generated_proto/types.pb.h"
 
 struct ConnectionSettings
 {

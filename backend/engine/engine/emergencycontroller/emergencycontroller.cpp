@@ -1,16 +1,16 @@
 #include "emergencycontroller.h"
-#include "Utils/logger.h"
-#include "Utils/utils.h"
-#include "Engine/ConnectionManager/openvpnconnection.h"
-#include "Engine/hardcodedsettings.h"
-#include "Engine/DnsResolver/dnsresolver.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
+#include "engine/connectionmanager/openvpnconnection.h"
+#include "engine/hardcodedsettings.h"
+#include "engine/dnsresolver/dnsresolver.h"
 #include <QFile>
 #include <QCoreApplication>
 
 #include <random>
 
 #ifdef Q_OS_MAC
-    #include "Utils/macutils.h"
+    #include "utils/macutils.h"
 #endif
 
 EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QObject(parent),

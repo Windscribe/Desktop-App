@@ -1,18 +1,18 @@
 #include "crossplatformobjectfactory.h"
 
 #ifdef Q_OS_WIN
-    #include "Helper/helper_win.h"
-    #include "NetworkStateManager/networkstatemanager_win.h"
-    #include "NetworkDetectionManager/networkdetectionmanager_win.h"
-    #include "Firewall/firewallcontroller_win.h"
-    #include "MacAddressController/macaddresscontroller_win.h"
+    #include "helper/helper_win.h"
+    #include "networkstatemanager/networkstatemanager_win.h"
+    #include "networkdetectionmanager/networkdetectionmanager_win.h"
+    #include "firewall/firewallcontroller_win.h"
+    #include "macaddresscontroller/macaddresscontroller_win.h"
 
 #elif defined Q_OS_MAC
-    #include "Helper/helper_mac.h"
-    #include "NetworkStateManager/networkstatemanager_mac.h"
-    #include "NetworkDetectionManager/networkdetectionmanager_mac.h"
-    #include "Firewall/firewallcontroller_mac.h"
-    #include "MacAddressController/macaddresscontroller_mac.h"
+    #include "helper/helper_mac.h"
+    #include "networkstatemanager/networkstatemanager_mac.h"
+    #include "networkdetectionmanager/networkdetectionmanager_mac.h"
+    #include "firewall/firewallcontroller_mac.h"
+    #include "macaddresscontroller/macaddresscontroller_mac.h"
 #endif
 
 IHelper *CrossPlatformObjectFactory::createHelper(QObject *parent)

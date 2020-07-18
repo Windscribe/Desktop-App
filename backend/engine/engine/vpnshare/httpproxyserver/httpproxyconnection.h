@@ -6,7 +6,7 @@
 #include "httpproxyrequestparser.h"
 #include "httpproxywebanswerparser.h"
 #include "httpproxyreply.h"
-#include "../SocketUtils/socketwriteall.h"
+#include "../socketutils/socketwriteall.h"
 
 namespace HttpProxyServer {
 

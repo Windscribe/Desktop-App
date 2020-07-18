@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
-#include "IConnection.h"
+#include "iconnection.h"
 #include "networkextensionlog_mac.h"
 
 class IKEv2Connection_mac : public IConnection

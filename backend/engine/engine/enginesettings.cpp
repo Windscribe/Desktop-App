@@ -1,6 +1,6 @@
 #include "enginesettings.h"
-#include "IPC/protobufcommand.h"
-#include "IPC/generated_proto/servercommands.pb.h"
+#include "ipc/protobufcommand.h"
+#include "ipc/generated_proto/servercommands.pb.h"
 #include <google/protobuf/util/message_differencer.h>
 
 const int typeIdEngineSettings = qRegisterMetaType<EngineSettings>("EngineSettings");

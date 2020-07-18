@@ -1,9 +1,9 @@
 #include "restorednsmanager_mac.h"
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <QFile>
-#include "Engine/tempscripts_mac.h"
+#include "engine/tempscripts_mac.h"
 
 RestoreDNSManager_mac::RestoreDNSManager_mac(IHelper *helper) :
     helper_(helper)

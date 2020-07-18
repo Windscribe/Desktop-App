@@ -2,7 +2,7 @@
 #define TESTPINGNODECONTROLLER_H
 
 #include "pinglog.h"
-#include "../ConnectStateController/iconnectstatecontroller.h"
+#include "../connectstatecontroller/iconnectstatecontroller.h"
 
 class FakeStateController : public IConnectStateController
 {

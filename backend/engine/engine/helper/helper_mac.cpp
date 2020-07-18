@@ -1,5 +1,5 @@
 #include "helper_mac.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <QElapsedTimer>
 #include <QDir>
 #include <QFile>
@@ -7,12 +7,12 @@
 #include <QCoreApplication>
 #include <QThread>
 #include <QDateTime>
-#include "Utils/utils.h"
-#include "Engine/tempscripts_mac.h"
+#include "utils/utils.h"
+#include "engine/tempscripts_mac.h"
 #include "../openvpnversioncontroller.h"
 #include "installhelper_mac.h"
-#include "../Mac/Helper/src/IPC/HelperCommandsSerialize.h"
-#include "Engine/SplitTunnelingNetworkInfo/splittunnelingnetworkinfo.h"
+#include "../mac/helper/src/ipc/helper_commands_serialize.h"
+#include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.h"
 
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"

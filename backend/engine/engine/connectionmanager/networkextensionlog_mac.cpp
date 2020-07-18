@@ -6,7 +6,7 @@
 #include <QJsonParseError>
 #include <time.h>
 #include <xlocale.h>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 NetworkExtensionLog_mac::NetworkExtensionLog_mac(QObject *parent) : QObject(parent),
     isInitialTimestampInitialized_(false)

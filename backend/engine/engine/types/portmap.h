@@ -3,7 +3,7 @@
 
 #include <QVector>
 #include <qstring.h>
-#include "Engine/Types/protocoltype.h"
+#include "engine/types/protocoltype.h"
 
 struct PortItem
 {

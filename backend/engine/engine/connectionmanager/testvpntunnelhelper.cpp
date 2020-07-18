@@ -1,9 +1,9 @@
 #include "testvpntunnelhelper.h"
-#include "Engine/ServerApi/serverapi.h"
-#include "Utils/logger.h"
-#include "Engine/crossplatformobjectfactory.h"
-#include "Engine/DnsResolver/dnsresolver.h"
-#include "Utils/ipvalidation.h"
+#include "engine/serverapi/serverapi.h"
+#include "utils/logger.h"
+#include "engine/crossplatformobjectfactory.h"
+#include "engine/dnsresolver/dnsresolver.h"
+#include "utils/ipvalidation.h"
 
 quint64 TestVPNTunnelHelper::cmdId_ = 0;
 QMutex TestVPNTunnelHelper::mutexCmdId_;

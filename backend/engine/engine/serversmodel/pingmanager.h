@@ -6,13 +6,13 @@
 #include <QTcpSocket>
 #include <QTimer>
 #include <QElapsedTimer>
-#include "Engine/Types/apiinfo.h"
-#include "Engine/Types/locationid.h"
+#include "engine/types/apiinfo.h"
+#include "engine/types/locationid.h"
 #include "nodesspeedratings.h"
 #include "nodesspeedstore.h"
 #include "pingnodescontroller.h"
 #include "pinglog.h"
-#include "Engine/NetworkStateManager/inetworkstatemanager.h"
+#include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "pingtime.h"
 
 class PingManager : public QObject

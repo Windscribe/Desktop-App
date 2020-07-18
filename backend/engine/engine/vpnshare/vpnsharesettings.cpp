@@ -1,5 +1,5 @@
 #include "vpnsharesettings.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 bool operator!=(const VPNShareSettings& lhs, const VPNShareSettings& rhs)
 {

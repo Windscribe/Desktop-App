@@ -4,8 +4,8 @@
 #include <QObject>
 #include <QVector>
 
-#include "Engine/Types/locationid.h"
-#include "Engine/Types/servernode.h"
+#include "engine/types/locationid.h"
+#include "engine/types/servernode.h"
 
 // describe location info (nodes, selected item, iterate over nodes)
 // the location info can automatically changed (new nodes added, nodes ips changed, etc) if this location changed in ServersModel

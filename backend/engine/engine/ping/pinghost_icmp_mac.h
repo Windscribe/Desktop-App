@@ -2,8 +2,8 @@
 #define PINGHOST_ICMP_MAC_H
 
 #include <QObject>
-#include "Engine/ConnectStateController/iconnectstatecontroller.h"
-#include "Engine/Proxy/proxysettings.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
+#include "engine/proxy/proxysettings.h"
 #include <QQueue>
 #include <QMap>
 #include <QProcess>

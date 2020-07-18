@@ -1,7 +1,7 @@
 #include "testvpntunnel.h"
-#include "Engine/ServerApi/serverapi.h"
+#include "engine/serverapi/serverapi.h"
 #include "testvpntunnelhelper.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 
 TestVPNTunnel::TestVPNTunnel(QObject *parent, ServerAPI *serverAPI) : QObject(parent), bRunning_(false), testVPNTunnelHelper_(NULL),

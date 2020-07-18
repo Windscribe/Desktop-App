@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QQueue>
 #include <QTimer>
-#include "Engine/NetworkStateManager/inetworkstatemanager.h"
+#include "engine/networkstatemanager/inetworkstatemanager.h"
 
 class ServerAPI;
 

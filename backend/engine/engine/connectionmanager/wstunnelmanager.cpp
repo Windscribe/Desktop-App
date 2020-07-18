@@ -2,7 +2,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include "availableport.h"
 #include "utils/executable_signature/executable_signature.h"
 

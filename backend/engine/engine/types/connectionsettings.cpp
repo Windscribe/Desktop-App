@@ -1,5 +1,5 @@
 #include "connectionsettings.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 const int typeIdConnectionSettings = qRegisterMetaType<ConnectionSettings>("ConnectionSettings");
 

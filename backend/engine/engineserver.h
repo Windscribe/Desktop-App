@@ -3,10 +3,10 @@
 
 #include <QObject>
 #include <QHash>
-#include "IPC/iserver.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/iserver.h"
+#include "ipc/generated_proto/types.pb.h"
 #include "clientconnectiondescr.h"
-#include "Engine/engine.h"
+#include "engine/engine.h"
 
 class EngineServer : public QObject
 {

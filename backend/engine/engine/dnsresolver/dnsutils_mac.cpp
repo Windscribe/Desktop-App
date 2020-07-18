@@ -1,5 +1,5 @@
 #include "dnsutils.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #include <QProcess>
 

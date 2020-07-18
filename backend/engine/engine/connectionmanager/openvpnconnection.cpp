@@ -1,9 +1,9 @@
 #include "openvpnconnection.h"
-#include "Utils/logger.h"
-#include "Utils/utils.h"
-#include "Engine/Types/types.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
+#include "engine/types/types.h"
 #include "availableport.h"
-#include "Engine/openvpnversioncontroller.h"
+#include "engine/openvpnversioncontroller.h"
 
 OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent, helper),
     bStopThread_(false), currentState_(STATUS_DISCONNECTED)

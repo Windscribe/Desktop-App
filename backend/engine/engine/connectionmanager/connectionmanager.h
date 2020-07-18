@@ -10,10 +10,10 @@
 #include "makeovpnfilefromcustom.h"
 
 #include "iconnectionmanager.h"
-#include "IConnection.h"
-#include "Engine/NetworkStateManager/inetworkstatemanager.h"
+#include "iconnection.h"
+#include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "testvpntunnel.h"
-#include "Engine/Types/protocoltype.h"
+#include "engine/types/protocoltype.h"
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"

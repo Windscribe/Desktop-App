@@ -1,5 +1,5 @@
 #include "dnsresolutionsettings.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 DnsResolutionSettings::DnsResolutionSettings() : isInitialized_(false)
 {

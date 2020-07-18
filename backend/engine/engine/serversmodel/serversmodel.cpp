@@ -1,7 +1,7 @@
 #include "serversmodel.h"
 #include "nodeselectionalgorithm.h"
-#include "../ConnectStateController/iconnectstatecontroller.h"
-#include "Utils/utils.h"
+#include "../connectstatecontroller/iconnectstatecontroller.h"
+#include "utils/utils.h"
 #include <QThread>
 
 #include "testpingnodecontroller.h"

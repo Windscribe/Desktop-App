@@ -1,6 +1,6 @@
 #include "certmanager.h"
 #include <QFile>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 CertManager::CertManager()
 {

@@ -1,9 +1,9 @@
 #include "macaddresscontroller_mac.h"
 
 #include <google/protobuf/util/message_differencer.h>
-#include "Utils/utils.h"
-#include "Utils/logger.h"
-#include "Utils/macutils.h"
+#include "utils/utils.h"
+#include "utils/logger.h"
+#include "utils/macutils.h"
 
 const int MINIMUM_TIME_AUTO_SPOOF = 5000;
 const int typeIdMacAddrSpoofing = qRegisterMetaType<ProtoTypes::MacAddrSpoofing>("ProtoTypes::MacAddrSpoofing");

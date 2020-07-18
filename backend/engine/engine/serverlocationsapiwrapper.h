@@ -4,9 +4,9 @@
 #include <QObject>
 #include <QDataStream>
 #include <QHash>
-#include "ServersModel/nodesspeedstore.h"
-#include "Ping/pinghost.h"
-#include "ServerApi/serverapi.h"
+#include "serversmodel/nodesspeedstore.h"
+#include "ping/pinghost.h"
+#include "serverapi/serverapi.h"
 
 // describe detected BestLocation
 class BestLocationInfo

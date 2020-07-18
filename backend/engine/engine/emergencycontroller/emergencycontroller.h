@@ -3,13 +3,13 @@
 
 #include <QHostInfo>
 #include <QObject>
-#include "Engine/Helper/ihelper.h"
-#include "Engine/Types/types.h"
-#include "Engine/ConnectionManager/IConnection.h"
-#include "Engine/ConnectionManager/makeovpnfile.h"
+#include "engine/helper/ihelper.h"
+#include "engine/types/types.h"
+#include "engine/connectionmanager/iconnection.h"
+#include "engine/connectionmanager/makeovpnfile.h"
 
 #ifdef Q_OS_MAC
-    #include "Engine/ConnectionManager/restorednsmanager_mac.h"
+    #include "engine/connectionmanager/restorednsmanager_mac.h"
 #endif
 
 // for manage connection to Emergency Server

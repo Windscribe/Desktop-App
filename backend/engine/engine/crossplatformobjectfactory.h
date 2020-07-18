@@ -1,11 +1,11 @@
 #ifndef CROSSPLATFORMOBJECTFACTORY_H
 #define CROSSPLATFORMOBJECTFACTORY_H
 
-#include "Helper/ihelper.h"
-#include "NetworkStateManager/inetworkstatemanager.h"
-#include "NetworkDetectionManager/inetworkdetectionmanager.h"
-#include "Firewall/firewallcontroller.h"
-#include "MacAddressController/imacaddresscontroller.h"
+#include "helper/ihelper.h"
+#include "networkstatemanager/inetworkstatemanager.h"
+#include "networkdetectionmanager/inetworkdetectionmanager.h"
+#include "firewall/firewallcontroller.h"
+#include "macaddresscontroller/imacaddresscontroller.h"
 
 namespace CrossPlatformObjectFactory
 {

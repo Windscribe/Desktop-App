@@ -2,7 +2,7 @@
 #define NODESELECTIONALGORITHM_H
 
 #include <QVector>
-#include "Engine/Types/apiinfo.h"
+#include "engine/types/apiinfo.h"
 #include "nodesspeedratings.h"
 
 class NodeSelectionAlgorithm

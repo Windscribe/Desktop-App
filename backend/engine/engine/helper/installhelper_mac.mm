@@ -1,5 +1,5 @@
 #include "installhelper_mac.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #import <Foundation/Foundation.h>
 #import <ServiceManagement/ServiceManagement.h>

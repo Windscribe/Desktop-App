@@ -8,9 +8,9 @@
 #import <Foundation/Foundation.h>
 #include <QWaitCondition>
 
-#include "Utils/logger.h"
-#include "Utils/macutils.h"
-#include "Engine/Helper/ihelper.h"
+#include "utils/logger.h"
+#include "utils/macutils.h"
+#include "engine/helper/ihelper.h"
 
 #include <sys/sysctl.h>
 #include <netinet/in.h>

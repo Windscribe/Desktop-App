@@ -2,7 +2,7 @@
 #define INETWORKDETECTIONMANAGER_H
 
 #include <QObject>
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 class INetworkDetectionManager : public QObject
 {

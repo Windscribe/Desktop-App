@@ -1,5 +1,5 @@
 #include "uniqueiplist.h"
-#include "Utils/ipvalidation.h"
+#include "utils/ipvalidation.h"
 
 void UniqueIpList::add(const QString &ip)
 {

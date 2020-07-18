@@ -7,7 +7,7 @@
 #include <QMutex>
 #include "curlrequest.h"
 #include "certmanager.h"
-#include "Engine/Proxy/proxysettings.h"
+#include "engine/proxy/proxysettings.h"
 
 // comment, if no need log file from curl
 //#define MAKE_CURL_LOG_FILE      1

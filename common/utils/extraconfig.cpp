@@ -2,7 +2,7 @@
 
 #include <QFile>
 #include <QStandardPaths>
-#include "../Utils/logger.h"
+#include "../utils/logger.h"
 
 void ExtraConfig::writeConfig(const QString &cfg)
 {

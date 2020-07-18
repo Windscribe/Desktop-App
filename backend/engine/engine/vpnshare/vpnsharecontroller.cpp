@@ -1,8 +1,8 @@
 #include "vpnsharecontroller.h"
-#include "Utils/utils.h"
-#include "SocketUtils/detectlocalip.h"
+#include "utils/utils.h"
+#include "socketutils/detectlocalip.h"
 #include <QElapsedTimer>
-#include "Engine/ConnectionManager/availableport.h"
+#include "engine/connectionmanager/availableport.h"
 #include <QSettings>
 
 VpnShareController::VpnShareController(QObject *parent, IHelper *helper) : QObject(parent),

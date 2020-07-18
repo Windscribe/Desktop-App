@@ -1,8 +1,8 @@
 #include "httpproxyrequest.h"
 
-#include "Utils/logger.h"
-#include "Utils/boost_includes.h"
-#include "Version/appversion.h"
+#include "utils/logger.h"
+#include "utils/boost_includes.h"
+#include "version/appversion.h"
 
 #include <stdlib.h>
 

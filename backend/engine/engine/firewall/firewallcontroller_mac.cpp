@@ -1,8 +1,8 @@
 #include "firewallcontroller_mac.h"
 #include <QStandardPaths>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <QDir>
-#include "Engine/Helper/ihelper.h"
+#include "engine/helper/ihelper.h"
 
 FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper) : FirewallController(parent, helper)
 {

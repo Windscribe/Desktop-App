@@ -1,18 +1,18 @@
 #include "connectionmanager.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <QStandardPaths>
 #include <QThread>
 #include <QCoreApplication>
 #include <QDateTime>
 #include "openvpnconnection.h"
 
-#include "Utils/utils.h"
-#include "Engine/Types/types.h"
-#include "Engine/DnsResolver/dnsresolver.h"
+#include "utils/utils.h"
+#include "engine/types/types.h"
+#include "engine/dnsresolver/dnsresolver.h"
 
-#include "Engine/NetworkStateManager/inetworkstatemanager.h"
-#include "Utils/extraconfig.h"
-#include "Utils/ipvalidation.h"
+#include "engine/networkstatemanager/inetworkstatemanager.h"
+#include "utils/extraconfig.h"
+#include "utils/ipvalidation.h"
 
 #include "ikev2connection_test.h"
 
@@ -22,7 +22,7 @@
     #include "ikev2connection_win.h"
 #elif defined Q_OS_MAC
     #include "sleepevents_mac.h"
-    #include "Utils/macutils.h"
+    #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
 #endif
 

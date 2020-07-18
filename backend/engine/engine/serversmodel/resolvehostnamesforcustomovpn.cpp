@@ -1,6 +1,6 @@
 #include "resolvehostnamesforcustomovpn.h"
-#include "Utils/ipvalidation.h"
-#include "Utils/logger.h"
+#include "utils/ipvalidation.h"
+#include "utils/logger.h"
 
 ResolveHostnamesForCustomOvpn::ResolveHostnamesForCustomOvpn(QObject *parent) : QObject(parent),
     nextUniqueId_(0)

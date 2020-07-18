@@ -1,5 +1,5 @@
 #include "refetchservercredentialshelper.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 RefetchServerCredentialsHelper::RefetchServerCredentialsHelper(QObject *parent, const QString &authHash, ServerAPI *serverAPI) : QObject(parent),
     authHash_(authHash), serverAPI_(serverAPI), refetchServerCredentialsState_(0)

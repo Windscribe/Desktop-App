@@ -1,7 +1,7 @@
 #include "httpproxyconnection.h"
 #include <QThread>
 #include <QHostAddress>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 namespace HttpProxyServer {
 

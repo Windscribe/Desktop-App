@@ -1,12 +1,12 @@
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <QTimer>
 #include "logincontroller.h"
-#include "Engine/Helper/ihelper.h"
-#include "Engine/ServerApi/serverapi.h"
-#include "Utils/utils.h"
-#include "Engine/NetworkStateManager/inetworkstatemanager.h"
-#include "Engine/hardcodedsettings.h"
-#include "Engine/getdeviceid.h"
+#include "engine/helper/ihelper.h"
+#include "engine/serverapi/serverapi.h"
+#include "utils/utils.h"
+#include "engine/networkstatemanager/inetworkstatemanager.h"
+#include "engine/hardcodedsettings.h"
+#include "engine/getdeviceid.h"
 
 LoginController::LoginController(QObject *parent,  IHelper *helper, INetworkStateManager *networkStateManager, ServerAPI *serverAPI,
                                  ServerLocationsApiWrapper *serverLocationsApiWrapper, const QString &language, ProtocolType protocol) : QObject(parent),

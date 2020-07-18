@@ -1,5 +1,5 @@
 #include "automanualconnectioncontroller.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #include <QDataStream>
 

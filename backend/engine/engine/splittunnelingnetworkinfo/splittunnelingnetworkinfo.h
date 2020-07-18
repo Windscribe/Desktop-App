@@ -2,7 +2,7 @@
 #define SPLITTUNNELINGNETWORKINFO_H
 
 #include <QStringList>
-#include "Engine/Types/protocoltype.h"
+#include "engine/types/protocoltype.h"
 
 // Keep network info which need send to helper for split tunneling (currently used for Mac only)
 class SplitTunnelingNetworkInfo

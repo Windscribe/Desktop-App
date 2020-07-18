@@ -4,8 +4,8 @@
 #include <QSettings>
 #include <QString>
 #include <QNetworkProxy>
-#include "Engine/Types/types.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "engine/types/types.h"
+#include "ipc/generated_proto/types.pb.h"
 
 class ProxySettings
 {

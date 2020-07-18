@@ -2,8 +2,8 @@
 #define FIREWALLEXCEPTIONS_H
 
 #include <QSharedPointer>
-#include "Engine/Types/apiinfo.h"
-#include "Engine/Proxy/proxysettings.h"
+#include "engine/types/apiinfo.h"
+#include "engine/proxy/proxysettings.h"
 
 class FirewallExceptions
 {

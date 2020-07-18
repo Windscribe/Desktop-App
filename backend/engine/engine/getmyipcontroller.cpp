@@ -1,5 +1,5 @@
 #include "getmyipcontroller.h"
-#include "Engine/ServerApi/serverapi.h"
+#include "engine/serverapi/serverapi.h"
 #include <QTimer>
 
 GetMyIPController::GetMyIPController(QObject *parent, ServerAPI *serverAPI, INetworkStateManager *networkStateManager) : QObject(parent),

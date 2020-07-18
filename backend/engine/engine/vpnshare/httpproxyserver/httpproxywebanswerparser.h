@@ -1,7 +1,7 @@
 #ifndef HTTPPROXYWEBANSWERPARSER_H
 #define HTTPPROXYWEBANSWERPARSER_H
 
-#include "Utils/boost_includes.h"
+#include "utils/boost_includes.h"
 #include "httpproxywebanswer.h"
 #include "httpproxyrequestparser.h"
 
