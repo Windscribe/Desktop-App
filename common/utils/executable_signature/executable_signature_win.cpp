@@ -1,4 +1,4 @@
-#include "ExecutableSignature_win.h"
+#include "executable_signature_win.h"
 #include <tlhelp32.h>
 #include <psapi.h>
 #include <QCoreApplication>

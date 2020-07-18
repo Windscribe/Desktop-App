@@ -1,9 +1,9 @@
-#include "ExecutableSignature.h"
+#include "executable_signature.h"
 
 #ifdef Q_OS_WIN
-    #include "ExecutableSignature_win.h"
+    #include "executable_signature_win.h"
 #else
-    #include "ExecutableSignature_mac.h"
+    #include "executable_signature_win.h"
 #endif
 
 bool ExecutableSignature::isParentProcessGui()

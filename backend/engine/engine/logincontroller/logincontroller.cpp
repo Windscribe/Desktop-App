@@ -1,0 +1,412 @@
+#include "Utils/logger.h"
+#include <QTimer>
+#include "logincontroller.h"
+#include "Engine/Helper/ihelper.h"
+#include "Engine/ServerApi/serverapi.h"
+#include "Utils/utils.h"
+#include "Engine/NetworkStateManager/inetworkstatemanager.h"
+#include "Engine/hardcodedsettings.h"
+#include "Engine/getdeviceid.h"
+
+LoginController::LoginController(QObject *parent,  IHelper *helper, INetworkStateManager *networkStateManager, ServerAPI *serverAPI,
+                                 ServerLocationsApiWrapper *serverLocationsApiWrapper, const QString &language, ProtocolType protocol) : QObject(parent),
+    helper_(helper), serverAPI_(serverAPI), serverLocationsApiWrapper_(serverLocationsApiWrapper), getApiAccessIps_(NULL), networkStateManager_(networkStateManager), language_(language), protocol_(protocol), getAllConfigsController_(NULL),
+    readyForNetworkRequestsEmitted_(false)
+{
+    connect(serverAPI_, SIGNAL(loginAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, QString, uint)),
+                            SLOT(onLoginAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, QString, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QByteArray, uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QByteArray, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(serverCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, ProtocolType, uint)), SLOT(onServerCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, ProtocolType, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, uint)), SLOT(onSessionAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(portMapAnswer(SERVER_API_RET_CODE,QSharedPointer<PortMap>, uint)), SLOT(onPortMapAnswer(SERVER_API_RET_CODE,QSharedPointer<PortMap>, uint)), Qt::QueuedConnection);
+
+    connect(serverLocationsApiWrapper_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<QSharedPointer<ServerLocation> >,QStringList, uint)),
+                            SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<QSharedPointer<ServerLocation> >,QStringList, uint)), Qt::QueuedConnection);
+
+    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,QSharedPointer<StaticIpsLocation>, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,QSharedPointer<StaticIpsLocation>, uint)), Qt::QueuedConnection);
+
+    serverApiUserRole_ = serverAPI_->getAvailableUserRole();
+}
+
+LoginController::~LoginController()
+{
+}
+
+void LoginController::startLoginProcess(const LoginSettings &loginSettings, const DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState)
+{
+    if (loginSettings.isAuthHashLogin())
+    {
+         qCDebug(LOG_BASIC) << "Start login process with authHash, bFromConnectedToVPNState =" << bFromConnectedToVPNState;
+    }
+    else
+    {
+        qCDebug(LOG_BASIC) << "Start login process with username and password, bFromConnectedToVPNState =" << bFromConnectedToVPNState;
+    }
+
+    retCodesForLoginSteps_.clear();
+    loginSettings_ = loginSettings;
+
+    dnsResolutionSettings_ = dnsResolutionSettings;
+    bFromConnectedToVPNState_ = bFromConnectedToVPNState;
+
+    loginStep_ = LOGIN_STEP1;
+    readyForNetworkRequestsEmitted_ = false;
+
+    handleNetworkConnection();
+}
+
+void LoginController::onLoginAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, const QString &authHash, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        handleLoginOrSessionAnswer(retCode, sessionStatus, authHash);
+    }
+}
+
+void LoginController::onSessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        handleLoginOrSessionAnswer(retCode, sessionStatus, loginSettings_.authHash());
+    }
+}
+
+void LoginController::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector<QSharedPointer<ServerLocation> > serverLocations, QStringList forceDisconnectNodes, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        getAllConfigsController_->putServerLocationsAnswer(retCode, serverLocations, forceDisconnectNodes);
+    }
+}
+
+void LoginController::onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, ProtocolType protocol, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        if (protocol.isOpenVpnProtocol())
+        {
+            getAllConfigsController_->putServerCredentialsOpenVpnAnswer(retCode, radiusUsername, radiusPassword);
+        }
+        else if (protocol.isIkev2Protocol())
+        {
+            getAllConfigsController_->putServerCredentialsIkev2Answer(retCode, radiusUsername, radiusPassword);
+        }
+    }
+}
+
+void LoginController::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        getAllConfigsController_->putServerConfigsAnswer(retCode, config);
+    }
+}
+
+void LoginController::onPortMapAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<PortMap> portMap, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        getAllConfigsController_->putPortMapAnswer(retCode, portMap);
+    }
+}
+
+void LoginController::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        getAllConfigsController_->putStaticIpsAnswer(retCode, staticIpsLocation);
+    }
+}
+
+void LoginController::onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, const QStringList &hosts)
+{
+    qCDebug(LOG_BASIC) << "LoginController::onGetApiAccessIpsFinished, retCode=" << retCode << ", hosts=" << hosts;
+    if (retCode == SERVER_RETURN_SUCCESS)
+    {
+        if (hosts.count() > 0)
+        {
+            ipsForStep3_ = hosts;
+            //emit stepMessage(tr("Trying Backup Endpoints 2/2"));
+            emit stepMessage(LOGIN_MESSAGE_TRYING_BACKUP2);
+            makeLoginRequest(selectRandomIpForStep3());
+        }
+        else
+        {
+            emit finished(LOGIN_NO_API_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+        }
+    }
+    else if (retCode == SERVER_RETURN_PROXY_AUTH_FAILED)
+    {
+        emit finished(LOGIN_PROXY_AUTH_NEED, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+    }
+    else // failed
+    {
+        if (retCode == SERVER_RETURN_SSL_ERROR)
+        {
+            retCodesForLoginSteps_ << SERVER_RETURN_SSL_ERROR;
+        }
+
+        if (isAllSslErrors())
+        {
+            emit finished(LOGIN_SSL_ERROR, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+        }
+        else
+        {
+            emit finished(LOGIN_NO_API_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+        }
+    }
+}
+
+void LoginController::tryLoginAgain()
+{
+    if (!loginSettings_.isAuthHashLogin())
+    {
+        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), serverApiUserRole_, false);
+    }
+    else // AUTH_HASH
+    {
+        serverAPI_->session(loginSettings_.authHash(), serverApiUserRole_, false);
+    }
+}
+
+void LoginController::onAllConfigsReceived(SERVER_API_RET_CODE retCode)
+{
+    if (retCode == SERVER_RETURN_SUCCESS)
+    {
+        QSharedPointer<ApiInfo> apiInfo(new ApiInfo());
+        apiInfo->setForceDisconnectNodes(getAllConfigsController_->forceDisconnectNodes_);
+        apiInfo->setOvpnConfig(getAllConfigsController_->ovpnConfig_);
+        apiInfo->setServerCredentials(getAllConfigsController_->getServerCredentials());
+        apiInfo->setServerLocations(getAllConfigsController_->serverLocations_);
+        apiInfo->setPortMap(getAllConfigsController_->portMap_);
+        apiInfo->setStaticIpsLocation(getAllConfigsController_->staticIpsLocation_);
+        apiInfo->setSessionStatus(sessionStatus_);
+        apiInfo->setAuthHash(newAuthHash_);
+        emit finished(LOGIN_SUCCESS, apiInfo, bFromConnectedToVPNState_);
+    }
+    else if (retCode == SERVER_RETURN_NETWORK_ERROR || retCode == SERVER_RETURN_SSL_ERROR || retCode == SERVER_RETURN_INCORRECT_JSON)
+    {
+        // try again
+        /*if (loginElapsedTimer_.elapsed() > MAX_WAIT_LOGIN_TIMEOUT)
+        {*/
+             handleNextLoginAfterFail(retCode);
+        /*}
+        else
+        {
+            QTimer::singleShot(1000, this, SLOT(getAllConfigs()));
+        }*/
+    }
+    else
+    {
+        Q_ASSERT(false);
+    }
+}
+
+void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, const QString &authHash)
+{
+    if (retCode == SERVER_RETURN_SUCCESS)
+    {
+        if (!readyForNetworkRequestsEmitted_)
+        {
+            readyForNetworkRequestsEmitted_ = true;
+            emit readyForNetworkRequests();
+        }
+        sessionStatus_ = sessionStatus;
+        newAuthHash_ = authHash;
+        getAllConfigs();
+    }
+    else if (retCode == SERVER_RETURN_NETWORK_ERROR || retCode == SERVER_RETURN_INCORRECT_JSON || retCode == SERVER_RETURN_SSL_ERROR)
+    {
+        if (loginElapsedTimer_.elapsed() > MAX_WAIT_LOGIN_TIMEOUT)
+        {
+            handleNextLoginAfterFail(retCode);
+        }
+        else
+        {
+            QTimer::singleShot(1000, this, SLOT(tryLoginAgain()));
+        }
+    }
+    else if (retCode == SERVER_RETURN_BAD_USERNAME)
+    {
+        emit finished(LOGIN_BAD_USERNAME, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+    }
+    else if (retCode == SERVER_RETURN_PROXY_AUTH_FAILED)
+    {
+        emit finished(LOGIN_PROXY_AUTH_NEED, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+    }
+    else
+    {
+        Q_ASSERT(false);
+    }
+}
+
+void LoginController::makeLoginRequest(const QString &hostname)
+{
+    qCDebug(LOG_BASIC) << "Try login with hostname:" << hostname;
+    serverAPI_->setHostname(hostname);
+    loginElapsedTimer_.start();
+    if (!loginSettings_.isAuthHashLogin())
+    {
+        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), serverApiUserRole_, false);
+    }
+    else // AUTH_HASH
+    {
+        serverAPI_->session(loginSettings_.authHash(), serverApiUserRole_, false);
+    }
+}
+
+void LoginController::makeApiAccessRequest()
+{
+    Q_ASSERT(getApiAccessIps_ == NULL);
+    getApiAccessIps_ = new GetApiAccessIps(this, serverAPI_);
+    connect(getApiAccessIps_, SIGNAL(finished(SERVER_API_RET_CODE,QStringList)), SLOT(onGetApiAccessIpsFinished(SERVER_API_RET_CODE,QStringList)));
+    getApiAccessIps_->get();
+}
+
+QString LoginController::selectRandomIpForStep3()
+{
+    if (ipsForStep3_.count() > 0)
+    {
+        int randomInd = Utils::generateIntegerRandom(0, ipsForStep3_.count() - 1); // random number from 0 to ipsForStep3_.count() - 1
+        QString randIp = ipsForStep3_[randomInd];
+        ipsForStep3_.removeAt(randomInd);
+        return randIp;
+    }
+    else
+    {
+        return "";
+    }
+}
+
+bool LoginController::isAllSslErrors()
+{
+    bool bAllSslErrors = true;
+    Q_FOREACH(SERVER_API_RET_CODE rc, retCodesForLoginSteps_)
+    {
+        if (rc != SERVER_RETURN_SSL_ERROR)
+        {
+             bAllSslErrors = false;
+             break;
+        }
+    }
+    return bAllSslErrors;
+}
+
+void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
+{
+    if (dnsResolutionSettings_.getIsAutomatic())
+    {
+        if (loginStep_ == LOGIN_STEP1)
+        {
+            retCodesForLoginSteps_ << retCode;
+            loginStep_ = LOGIN_STEP2;
+            //emit stepMessage(tr("Trying Backup Endpoints 1/2"));
+            emit stepMessage(LOGIN_MESSAGE_TRYING_BACKUP1);
+            makeLoginRequest(HardcodedSettings::instance().generateRandomDomain("api."));
+        }
+        else if (loginStep_ == LOGIN_STEP2)
+        {
+            retCodesForLoginSteps_ << retCode;
+            loginStep_ = LOGIN_STEP3;
+            makeApiAccessRequest();
+        }
+        else if (loginStep_ == LOGIN_STEP3)
+        {
+            retCodesForLoginSteps_ << retCode;
+            QString nextHostIp = selectRandomIpForStep3();
+            if (!nextHostIp.isEmpty())
+            {
+                makeLoginRequest(nextHostIp);
+            }
+            else
+            {
+                if (isAllSslErrors())
+                {
+                    emit finished(LOGIN_SSL_ERROR, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+                }
+                else
+                {
+                    emit finished(LOGIN_NO_API_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+                }
+            }
+        }
+    }
+    else
+    {
+        if (retCode == SERVER_RETURN_SSL_ERROR)
+        {
+            emit finished(LOGIN_SSL_ERROR, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+        }
+        else
+        {
+            emit finished(LOGIN_NO_API_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+        }
+    }
+}
+
+void LoginController::getAllConfigs()
+{
+    SAFE_DELETE(getAllConfigsController_);
+    getAllConfigsController_ = new GetAllConfigsController(this);
+    connect(getAllConfigsController_, SIGNAL(allConfigsReceived(SERVER_API_RET_CODE)), SLOT(onAllConfigsReceived(SERVER_API_RET_CODE)));
+    serverAPI_->serverConfigs(newAuthHash_, serverApiUserRole_, false);
+
+    if (!loginSettings_.getServerCredentials().isInitialized())
+    {
+        serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP), false);
+        serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_IKEV2), false);
+    }
+    else
+    {
+        qCDebug(LOG_BASIC) << "Using saved server credentials";
+        getAllConfigsController_->putServerCredentialsOpenVpnAnswer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForOpenVpn(), loginSettings_.getServerCredentials().passwordForOpenVpn());
+        getAllConfigsController_->putServerCredentialsIkev2Answer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForIkev2(), loginSettings_.getServerCredentials().passwordForIkev2());
+    }
+
+    serverLocationsApiWrapper_->serverLocations(newAuthHash_, language_, serverApiUserRole_, false, sessionStatus_->getRevisionHash(), sessionStatus_->isPro(), protocol_, sessionStatus_->alc);
+    serverAPI_->portMap(newAuthHash_, serverApiUserRole_, false);
+    if (sessionStatus_->staticIps > 0)
+    {
+        serverAPI_->staticIps(newAuthHash_, GetDeviceId::instance().getDeviceId(), serverApiUserRole_, false);
+    }
+    else
+    {
+        getAllConfigsController_->putStaticIpsAnswer(SERVER_RETURN_SUCCESS, QSharedPointer<StaticIpsLocation>());
+    }
+}
+
+void LoginController::handleNetworkConnection()
+{
+    if (networkStateManager_->isOnline())
+    {
+        if (dnsResolutionSettings_.getIsAutomatic())
+        {
+            makeLoginRequest(HardcodedSettings::instance().serverApiUrl());
+        }
+        else
+        {
+            makeLoginRequest(dnsResolutionSettings_.getManualIp());
+        }
+    }
+    else
+    {
+        if (waitNetworkConnectivityElapsedTimer_.isValid())
+        {
+            if (waitNetworkConnectivityElapsedTimer_.elapsed() > MAX_WAIT_CONNECTIVITY_TIMEOUT)
+            {
+                qCDebug(LOG_BASIC) << "No internet connectivity";
+                emit finished(LOGIN_NO_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+            }
+            else
+            {
+                QTimer::singleShot(1000, this, SLOT(handleNetworkConnection()));
+            }
+        }
+        else
+        {
+            qCDebug(LOG_BASIC) << "No internet connectivity, waiting 20 sec";
+            waitNetworkConnectivityElapsedTimer_.start();
+            QTimer::singleShot(1000, this, SLOT(handleNetworkConnection()));
+        }
+    }
+}
