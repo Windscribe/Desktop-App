@@ -1,0 +1,335 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		003EA384242E7A2100DCF49A /* appdelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 003EA383242E7A2100DCF49A /* appdelegate.m */; };
+		003EA389242E7A2200DCF49A /* assets.xcassets in resources */ = {isa = PBXBuildFile; fileRef = 003EA388242E7A2200DCF49A /* assets.xcassets */; };
+		003EA38C242E7A2200DCF49A /* main.storyboard in resources */ = {isa = PBXBuildFile; fileRef = 003EA38A242E7A2200DCF49A /* main.storyboard */; };
+		003EA38F242E7A2200DCF49A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 003EA38E242E7A2200DCF49A /* main.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		003EA37F242E7A2100DCF49A /* WindscribeLauncher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WindscribeLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		003EA382242E7A2100DCF49A /* appdelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = appdelegate.h; sourceTree = "<group>"; };
+		003EA383242E7A2100DCF49A /* appdelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = appdelegate.m; sourceTree = "<group>"; };
+		003EA388242E7A2200DCF49A /* assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = assets.xcassets; sourceTree = "<group>"; };
+		003EA38B242E7A2200DCF49A /* base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = base; path = base.lproj/main.storyboard; sourceTree = "<group>"; };
+		003EA38D242E7A2200DCF49A /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
+		003EA38E242E7A2200DCF49A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		003EA390242E7A2200DCF49A /* windscribelauncher.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = windscribelauncher.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		003EA37C242E7A2100DCF49A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		003EA376242E7A2100DCF49A = {
+			isa = PBXGroup;
+			children = (
+				003EA381242E7A2100DCF49A /* WindscribeLauncher */,
+				003EA380242E7A2100DCF49A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		003EA380242E7A2100DCF49A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				003EA37F242E7A2100DCF49A /* WindscribeLauncher.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		003EA381242E7A2100DCF49A /* windscribelauncher */ = {
+			isa = PBXGroup;
+			children = (
+				003EA382242E7A2100DCF49A /* appdelegate.h */,
+				003EA383242E7A2100DCF49A /* appdelegate.m */,
+				003EA388242E7A2200DCF49A /* assets.xcassets */,
+				003EA38A242E7A2200DCF49A /* main.storyboard */,
+				003EA38D242E7A2200DCF49A /* info.plist */,
+				003EA38E242E7A2200DCF49A /* main.m */,
+				003EA390242E7A2200DCF49A /* windscribelauncher.entitlements */,
+			);
+			path = windscribelauncher;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		003EA37E242E7A2100DCF49A /* WindscribeLauncher */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 003EA393242E7A2200DCF49A /* Build configuration list for PBXNativeTarget "WindscribeLauncher" */;
+			buildPhases = (
+				003EA37B242E7A2100DCF49A /* sources */,
+				003EA37C242E7A2100DCF49A /* frameworks */,
+				003EA37D242E7A2100DCF49A /* resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WindscribeLauncher;
+			productName = WindscribeLauncher;
+			productReference = 003EA37F242E7A2100DCF49A /* WindscribeLauncher.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		003EA377242E7A2100DCF49A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1130;
+				ORGANIZATIONNAME = " Alexey";
+				TargetAttributes = {
+					003EA37E242E7A2100DCF49A = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 003EA37A242E7A2100DCF49A /* Build configuration list for PBXProject "WindscribeLauncher" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 003EA376242E7A2100DCF49A;
+			productRefGroup = 003EA380242E7A2100DCF49A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				003EA37E242E7A2100DCF49A /* WindscribeLauncher */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		003EA37D242E7A2100DCF49A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				003EA389242E7A2200DCF49A /* assets.xcassets in Resources */,
+				003EA38C242E7A2200DCF49A /* main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		003EA37B242E7A2100DCF49A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				003EA38F242E7A2200DCF49A /* main.m in Sources */,
+				003EA384242E7A2100DCF49A /* appdelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		003EA38A242E7A2200DCF49A /* main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				003EA38B242E7A2200DCF49A /* Base */,
+			);
+			name = main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		003EA391242E7A2200DCF49A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		003EA392242E7A2200DCF49A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		003EA394242E7A2200DCF49A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = windscribelauncher/windscribelauncher.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = GYZJYS7XUG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = windscribelauncher/info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.windscribe.launcher.macos;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		003EA395242E7A2200DCF49A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = windscribelauncher/windscribelauncher.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = GYZJYS7XUG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = windscribelauncher/info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.windscribe.launcher.macos;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		003EA37A242E7A2100DCF49A /* Build configuration list for PBXProject "WindscribeLauncher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				003EA391242E7A2200DCF49A /* Debug */,
+				003EA392242E7A2200DCF49A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		003EA393242E7A2200DCF49A /* Build configuration list for PBXNativeTarget "WindscribeLauncher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				003EA394242E7A2200DCF49A /* Debug */,
+				003EA395242E7A2200DCF49A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 003EA377242E7A2100DCF49A /* Project object */;
+}
