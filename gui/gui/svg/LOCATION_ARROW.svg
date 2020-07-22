@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>LOCATION_ARROW</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-590.000000, -565.000000)">
+        <g id="Page-1" transform="translate(598.000000, 573.000000) scale(1, -1) rotate(-90.000000) translate(-598.000000, -573.000000) translate(590.000000, 565.000000)" fill="#000000">
+            <path d="M5.3239,15.7129 C4.8919,15.3059 4.8919,14.6199 5.3239,14.2139 L11.9959,7.9999 L5.3239,1.7789 C4.8919,1.3729 4.8919,0.6869 5.3239,0.2799 C5.7209,-0.0931 6.3389,-0.0931 6.7359,0.2799 L14.9999,7.9999 L6.7359,15.7129 C6.3389,16.0859 5.7209,16.0859 5.3239,15.7129 Z" id="LOCATION_ARROW"></path>
+        </g>
+    </g>
+</svg>

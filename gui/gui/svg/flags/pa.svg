@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="16px" viewBox="0 0 32 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 61.2 (89653) - https://sketch.com -->
+    <title>Panama</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Panama" fill-rule="nonzero">
+            <rect id="Rectangle-4" fill="#FFFFFF" x="0" y="0" width="32" height="16"></rect>
+            <rect id="Rectangle-4-Copy" fill="#D21034" x="16" y="0" width="16" height="8"></rect>
+            <rect id="Rectangle-4-Copy-2" fill="#005293" x="0" y="8" width="16" height="8"></rect>
+            <polygon id="Path-3" fill="#005293" points="8 4.96 6.816 5.792 7.264 4.416 6.08 3.584 7.552 3.584 8 2.176 8.416 3.584 9.888 3.584 8.704 4.416 9.152 5.824"></polygon>
+            <polygon id="Path-3-Copy" fill="#D21034" points="24.512 12.96 23.328 13.792 23.776 12.416 22.592 11.584 24.064 11.584 24.512 10.176 24.928 11.584 26.4 11.584 25.216 12.416 25.664 13.824"></polygon>
+        </g>
+    </g>
+</svg>

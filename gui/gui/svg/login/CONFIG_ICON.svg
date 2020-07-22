@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>CONFIG_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="desktop_flow_01" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-750.000000, -1554.000000)">
+        <path d="M752,1554 L772,1554 C773.104569,1554 774,1554.89543 774,1556 L774,1576 C774,1577.10457 773.104569,1578 772,1578 L752,1578 C750.895431,1578 750,1577.10457 750,1576 L750,1556 C750,1554.89543 750.895431,1554 752,1554 Z M752,1556 L752,1576 L772,1576 L772,1556 L752,1556 Z M762,1565 L767,1565 L767,1567 L762,1567 L762,1565 Z M756.292893,1561.70711 L757.707107,1560.29289 L761.414214,1564 L757.707107,1567.70711 L756.292893,1566.29289 L758.585786,1564 L756.292893,1561.70711 Z" id="CONFIG_ICON" fill="#020D1C" fill-rule="nonzero"></path>
+    </g>
+</svg>

@@ -1,0 +1,78 @@
+#include "firewallturnoffbutton.h"
+
+#include <QPainter>
+#include "GraphicResources/fontmanager.h"
+#include "CommonGraphics/commongraphics.h"
+#include "dpiscalemanager.h"
+
+namespace LoginWindow {
+
+FirewallTurnOffButton::FirewallTurnOffButton(QString text, ScalableGraphicsObject *parent)
+                      : ClickableGraphicsObject(parent),
+                        width_(106), height_(24), font_descr_(12, false),
+                        text_(text), is_animating_(false), animation_()
+{
+    setFlag(GraphicsItemFlag::ItemIsMovable);
+    connect(&animation_, SIGNAL(valueChanged(QVariant)), SLOT(onPositionChanged(QVariant)));
+}
+
+QRectF FirewallTurnOffButton::boundingRect() const
+{
+    return QRectF(0, 0, width_ * G_SCALE, height_ * G_SCALE);
+}
+
+void FirewallTurnOffButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+{
+    if (!isVisible())
+        return;
+
+    const auto kRoundness = 8.0 * G_SCALE;
+    const auto rect = boundingRect();
+
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setBrush(QColor(85, 255, 138));
+    painter->drawRoundedRect(rect.adjusted(0, -kRoundness, 0, 0), kRoundness, kRoundness);
+
+    QFont *font = FontManager::instance().getFont(font_descr_);
+    painter->setFont(*font);
+    painter->setPen(Qt::black);
+    painter->drawText(rect.adjusted(0, -2 * G_SCALE, 0, 0), Qt::AlignCenter | Qt::AlignVCenter,
+                      tr(text_.toStdString().c_str()));
+}
+
+void FirewallTurnOffButton::setActive(bool active)
+{
+    setVisible(active);
+    setClickable(active);
+
+    if (active) {
+        setPos(x(), -boundingRect().height());
+        startAnAnimation<qreal>(animation_, y(), 0, ANIMATION_SPEED_SLOW);
+        is_animating_ = true;
+    } else {
+        setPos(x(), 0);
+        is_animating_ = false;
+    }
+}
+
+void FirewallTurnOffButton::animatedHide()
+{
+    setClickable(false);
+    startAnAnimation<qreal>(animation_, y(), -boundingRect().height(), ANIMATION_SPEED_FAST);
+    is_animating_ = true;
+}
+
+void FirewallTurnOffButton::onPositionChanged(QVariant position)
+{
+    if (!is_animating_)
+        return;
+
+    setPos(x(), position.toReal());
+
+    if (position == animation_.endValue()) {
+        setVisible(animation_.endValue() > animation_.startValue());
+        is_animating_ = false;
+    }
+}
+
+}  // namespace LoginWindow

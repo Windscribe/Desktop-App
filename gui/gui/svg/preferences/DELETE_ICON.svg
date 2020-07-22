@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>DELETE_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="ws-extension-ui-spec-sheet-copy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-558.000000, -1262.000000)">
+        <path d="M567,1264 L565,1264 L565,1276 L567,1276 L567,1264 Z M569.75,1264 L568.25,1276 L570.234436,1276 L571.734436,1264 L569.75,1264 Z M562.25,1264 L560.265564,1264 L561.765564,1276 L563.75,1276 L562.25,1264 Z M558,1262 L574,1262 L572,1278 L560,1278 L558,1262 Z" id="DELETE_ICON" fill="#FFFFFF" fill-rule="nonzero"></path>
+    </g>
+</svg>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>FRWRD_ARROW</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-592.000000, -470.000000)">
+        <g id="FRWRD_ARROW" transform="translate(592.000000, 470.000000)" fill="#FFFFFF">
+            <path d="M4.3239,15.7201214 C3.8919,15.3129344 3.8919,14.6266191 4.3239,14.2204325 L10.9959,8.00357661 L4.3239,1.7797175 C3.8919,1.3735309 3.8919,0.687215624 4.3239,0.28002857 C4.7209,-0.0931428568 5.3389,-0.0931428568 5.7359,0.28002857 L13.9999,8.00357661 L5.7359,15.7201214 C5.3389,16.0932929 4.7209,16.0932929 4.3239,15.7201214"></path>
+        </g>
+    </g>
+</svg>

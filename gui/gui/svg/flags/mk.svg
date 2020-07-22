@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg  viewBox="0 0 32 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>Macedonia</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Macedonia" fill-rule="nonzero">
+            <rect id="Rectangle-path" fill="#D20000" x="0" y="0" width="32" height="16"></rect>
+            <g id="Group" fill="#FFE600">
+                <path d="M0,0 L4.8,0 L16,7.71428571 L27.2,0 L32,0 L0,16 L4.8,16 L16,8.28571429 L27.2,16 L32,16 L0,0 Z M32,6.4 L32,9.6 L0,6.4 L0,9.6 L32,6.4 Z M14.4,0 L16,6.85714286 L17.6,0 L14.4,0 Z M14.4,16 L16,9.14285714 L17.6,16 L14.4,16 Z" id="Shape"></path>
+                <circle id="Oval" stroke="#D20000" cx="16" cy="8" r="2.57142857"></circle>
+            </g>
+        </g>
+    </g>
+</svg>

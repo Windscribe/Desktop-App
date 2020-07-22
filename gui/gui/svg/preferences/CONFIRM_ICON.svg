@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>CONFIRM_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="desktop_flow_04" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-1307.000000, -6724.000000)">
+        <g id="Group-37-Copy" transform="translate(1275.000000, 6724.000000)" fill="#55FF8A" fill-rule="nonzero">
+            <path d="M40,14 C43.3137085,14 46,11.3137085 46,8 C46,4.6862915 43.3137085,2 40,2 C36.6862915,2 34,4.6862915 34,8 C34,11.3137085 36.6862915,14 40,14 Z M40,16 C35.581722,16 32,12.418278 32,8 C32,3.581722 35.581722,0 40,0 C44.418278,0 48,3.581722 48,8 C48,12.418278 44.418278,16 40,16 Z M45.2928932,3.29289322 L46.7071068,4.70710678 L40,11.4142136 L36.2928932,7.70710678 L37.7071068,6.29289322 L40,8.58578644 L45.2928932,3.29289322 Z" id="CONFIRM_ICON"></path>
+        </g>
+    </g>
+</svg>

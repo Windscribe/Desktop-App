@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>folder_icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Install-settings" transform="translate(-460.000000, -323.000000)" fill="#FFFFFF" fill-rule="nonzero">
+            <g id="Group-47" transform="translate(158.000000, 153.000000)">
+                <g id="Group-61" transform="translate(0.000000, 170.000000)">
+                    <g id="Group-60">
+                        <g id="Group-58">
+                            <path d="M304,14 L316,14 L316,4 L309.336062,4 L307.207746,2 L304,2 L304,14 Z M303,-5.32907052e-15 L307.603873,-4.21884749e-15 C307.858339,-4.2655921e-15 308.103233,0.0970093131 308.288671,0.271266967 L310.128316,2 L317,2 C317.552285,2 318,2.44771525 318,3 L318,15 C318,15.5522847 317.552285,16 317,16 L303,16 C302.447715,16 302,15.5522847 302,15 L302,1 C302,0.44771525 302.447715,-5.22761746e-15 303,-5.32907052e-15 Z M303,6 L317,6 L317,8 L303,8 L303,6 Z" id="folder_icon"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,57 @@
+#ifndef SHADOWMANAGER_H
+#define SHADOWMANAGER_H
+
+#include <QObject>
+#include <QPixmap>
+
+// todo: maybe optimize for better speed
+class ShadowManager : public QObject
+{
+    Q_OBJECT
+public:
+    enum SHAPE_ID { SHAPE_ID_LOCATIONS, SHAPE_ID_CONNECT_WINDOW, SHAPE_ID_LOGIN_WINDOW, SHAPE_ID_PREFERENCES, SHAPE_ID_BOTTOM_INFO,
+                    SHAPE_ID_UPDATE_WIDGET, SHAPE_ID_INIT_WINDOW};
+
+    explicit ShadowManager(QObject *parent = nullptr);
+
+    void addPixmap(const QPixmap &pixmap, int x, int y, int id, bool isVisible);
+    void addRectangle(const QRect &rc, int id, bool isVisible);
+    void changeRectangleSize(int id, const QRect &newRc);
+    void changePixmapPos(int id, int x, int y);
+    void setVisible(int id, bool isVisible);
+    void setOpacity(int id, qreal opacity, bool withUpdateShadow);
+    void removeObject(int id);
+
+    bool isInShadowList(int id);
+
+    QPixmap &getCurrentShadowPixmap();
+    int getShadowMargin() const;
+
+    bool isNeedShadow();
+    void updateShadow();
+
+signals:
+    void shadowUpdated();
+
+private:
+    const int SHADOW_MARGIN = 30;
+    QPixmap currentShadow_;
+
+    struct ShadowObject
+    {
+        int id;
+        bool isVisible;
+        qreal opacity;
+        int posX;
+        int posY;
+        QPixmap pixmap;
+    };
+
+
+    QVector<ShadowObject> objects_;
+
+    QRect calcBoundingRect();
+    int findObjectIndById(int id);
+};
+
+#endif // SHADOWMANAGER_H

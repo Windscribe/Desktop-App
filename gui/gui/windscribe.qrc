@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>locations.dat</file>
+        <file>Resources/fonts/IBMPlexSans-Bold.ttf</file>
+        <file>Resources/fonts/IBMPlexSans-Regular.ttf</file>
+        <file>Resources/icons/icon_connected.ico</file>
+        <file>Resources/icons/icon_connecting.ico</file>
+        <file>Resources/icons/icon_disconnected.ico</file>
+    </qresource>
+</RCC>
