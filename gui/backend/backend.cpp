@@ -1,14 +1,14 @@
 #include "backend.h"
 
-#include "Utils/logger.h"
-#include "Utils/utils.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
 #include <google/protobuf/util/message_differencer.h>
-#include "IPC/connection.h"
-#include "IPC/protobufcommand.h"
-#include "IPC/generated_proto/clientcommands.pb.h"
-#include "IPC/generated_proto/types.pb.h"
-#include "Utils/utils.h"
-#include "Utils/ExecutableSignature/ExecutableSignature.h"
+#include "ipc/connection.h"
+#include "ipc/protobufcommand.h"
+#include "ipc/generated_proto/clientcommands.pb.h"
+#include "ipc/generated_proto/types.pb.h"
+#include "utils/utils.h"
+#include "utils/executable_signature/executable_signature.h"
 #include "persistentstate.h"
 #include <QCoreApplication>
 
