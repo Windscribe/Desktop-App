@@ -4,8 +4,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QAbstractTextDocumentLayout>
 #include <QCursor>
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
 
 namespace EmergencyConnectWindow {
 

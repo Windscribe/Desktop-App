@@ -1,7 +1,7 @@
 #include "shadowmanager.h"
 
 #include <QPainter>
-#include "Utils/makecustomshadow.h"
+#include "utils/makecustomshadow.h"
 
 extern qreal g_pixelRatio;
 

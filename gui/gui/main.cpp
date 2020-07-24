@@ -4,16 +4,16 @@
 #include <QWindow>
 #include <QMessageBox>
 #include "dpiscalemanager.h"
-#include "Utils/logger.h"
-#include "Utils/utils.h"
-#include "Application/windscribeapplication.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
+#include "application/windscribeapplication.h"
+#include "graphicresources/imageresourcessvg.h"
 
 #ifdef Q_OS_WIN
-    #include "Application/preventmultipleinstances_win.h"
-    #include "Utils/scaleutils_win.h"
+    #include "qpplication/preventmultipleinstances_win.h"
+    #include "utils/scaleutils_win.h"
 #else
-    #include "Utils/macutils.h"
+    #include "utils/macutils.h"
 #endif
 
 

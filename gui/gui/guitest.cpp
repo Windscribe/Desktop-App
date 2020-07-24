@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <QTimer>
-#include "Utils/utils.h"
+#include "utils/utils.h"
 
 GuiTest::GuiTest(QWidget *parent) : QObject(parent),
     mainWindow_(parent), curState_(CMD_ID_INITIALIZATION, false, false, false)

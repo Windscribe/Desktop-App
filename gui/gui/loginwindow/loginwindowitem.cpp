@@ -10,12 +10,12 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QDebug>
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
-#include "Utils/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"
-#include "Tooltips/tooltiptypes.h"
+#include "tooltips/tooltiptypes.h"
 
 namespace LoginWindow {
 

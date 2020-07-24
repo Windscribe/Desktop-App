@@ -1,8 +1,8 @@
 #include "proxysettingsitem.h"
 
 #include <QPainter>
-#include "GraphicResources/fontmanager.h"
-#include "Utils/protoenumtostring.h"
+#include "graphicresources/fontmanager.h"
+#include "utils/protoenumtostring.h"
 #include <google/protobuf/util/message_differencer.h>
 #include "dpiscalemanager.h"
 

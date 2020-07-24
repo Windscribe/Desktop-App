@@ -2,7 +2,7 @@
 #define AUTOMANUALSWITCHITEM_H
 
 #include "../baseitem.h"
-#include "CommonGraphics/textbutton.h"
+#include "commongraphics/textbutton.h"
 #include <QFont>
 #include <QVariantAnimation>
 

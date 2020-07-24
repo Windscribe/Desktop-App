@@ -1,7 +1,7 @@
 #ifndef IMAGEITEM_H
 #define IMAGEITEM_H
 
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/scalablegraphicsobject.h"
 
 class ImageItem : public ScalableGraphicsObject
 {

@@ -3,14 +3,14 @@
 
 #include "../basepage.h"
 #include "subpageitem.h"
-#include "../Backend/Preferences/preferences.h"
-#include "../Backend/Preferences/preferenceshelper.h"
+#include "../backend/preferences/preferences.h"
+#include "../backend/preferences/preferenceshelper.h"
 #include "firewallmodeitem.h"
 #include "connectionmodeitem.h"
 #include "packetsizeitem.h"
 #include "../checkboxitem.h"
 #include "macspoofingitem.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 #include "dnswhileconnecteditem.h"
 
 enum CONNECTION_SCREEN_TYPE { CONNECTION_SCREEN_HOME,

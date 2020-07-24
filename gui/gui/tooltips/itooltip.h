@@ -16,15 +16,15 @@ public:
     ITooltip(QWidget *parent = nullptr) : QWidget(parent) {}
     virtual ~ITooltip() {}
 
-    const int getWidth();
-    const int getHeight();
+    int getWidth() const;
+    int getHeight() const;
 
     TooltipShowState getShowState();
     void setShowState(TooltipShowState showState);
 
-    const int distanceFromOriginToTailTip();
-    const int additionalTailWidth();
-    const int additionalTailHeight();
+    int distanceFromOriginToTailTip() const;
+    int additionalTailWidth() const;
+    int additionalTailHeight() const;
 
     QPolygonF trianglePolygonLeft(int tailLeftPtX, int tailLeftPtY);
     QPolygonF trianglePolygonBottom(int tailLeftPtX, int tailLeftPtY);
@@ -42,10 +42,10 @@ protected:
     TooltipShowState showState_;
 
     void initWindowFlags();
-    const int leftTooltipMinY();
-    const int leftTooltipMaxY();
-    const int bottomTooltipMaxX();
-    const int bottomTooltipMinX();
+    int leftTooltipMinY() const;
+    int leftTooltipMaxY() const;
+    int bottomTooltipMaxX() const;
+    int bottomTooltipMinX() const;
 
 };
 

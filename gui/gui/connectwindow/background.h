@@ -4,8 +4,8 @@
 #include <QGraphicsObject>
 #include <QPropertyAnimation>
 #include <QTimer>
-#include "../Backend/Types/types.h"
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "../backend/types/types.h"
+#include "commongraphics/scalablegraphicsobject.h"
 
 namespace ConnectWindow {
 

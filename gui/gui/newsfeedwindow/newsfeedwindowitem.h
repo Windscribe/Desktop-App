@@ -2,11 +2,11 @@
 #define NEWSFEEDWINDOWITEM_H
 
 #include <QTextBrowser>
-#include "CommonGraphics/scalablegraphicsobject.h"
-#include "NewsFeedWindow/inewsfeedwindow.h"
-#include "CommonGraphics/iconbutton.h"
-#include "PreferencesWindow/escapebutton.h"
-#include "NewsFeedWindow/scrollablemessage.h"
+#include "commongraphics/scalablegraphicsobject.h"
+#include "newsfeedwindow/inewsfeedwindow.h"
+#include "commongraphics/iconbutton.h"
+#include "preferenceswindow/escapebutton.h"
+#include "newsfeedwindow/scrollablemessage.h"
 
 
 namespace NewsFeedWindow {

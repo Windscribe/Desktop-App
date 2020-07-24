@@ -5,8 +5,8 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QCursor>
-#include "GraphicResources/imageresourcessvg.h"
-#include "CommonGraphics/commongraphics.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 namespace LoginWindow {

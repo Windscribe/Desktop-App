@@ -2,7 +2,7 @@
 
 #include <QPainter>
 #include "languagecontroller.h"
-#include "Utils/protoenumtostring.h"
+#include "utils/protoenumtostring.h"
 
 namespace PreferencesWindow {
 

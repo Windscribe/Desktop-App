@@ -1,8 +1,8 @@
 #include "bottominfoitem.h"
 
 #include <QPainter>
-#include "CommonGraphics/commongraphics.h"
-#include "Utils/utils.h"
+#include "commongraphics/commongraphics.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 namespace SharingFeatures {

@@ -7,8 +7,8 @@
 #include <QScrollBar>
 #include <QLayout>
 #include <QCursor>
-#include "GraphicResources/fontmanager.h"
-#include "CommonGraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 #include <QFontMetrics>

@@ -1,7 +1,7 @@
 #include "multipleaccountdetection_mac.h"
 #include <QSettings>
 #include <QDataStream>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 // the name does not make sense for crypt
 const QString MultipleAccountDetection_mac::entryName_ = "locationData2";

@@ -2,11 +2,11 @@
 #define APIRESOLUTIONITEM_H
 
 #include "../baseitem.h"
-#include "../ConnectionWindow/automanualswitchitem.h"
+#include "../connectionwindow/automanualswitchitem.h"
 
 #include <QVariantAnimation>
 #include "../editboxitem.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

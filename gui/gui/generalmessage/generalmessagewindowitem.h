@@ -3,7 +3,7 @@
 
 #include <QGraphicsObject>
 #include "igeneralmessagewindow.h"
-#include "CommonGraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebuttondark.h"
 
 namespace GeneralMessage {
 

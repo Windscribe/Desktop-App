@@ -3,7 +3,7 @@
 
 #include <QList>
 #include <QString>
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace NetworkWhiteListShared
 {

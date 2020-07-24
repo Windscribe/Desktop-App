@@ -2,7 +2,7 @@
 
 #include <QPainter>
 #include <QGraphicsSceneEvent>
-#include "CommonGraphics/commongraphics.h"
+#include "commongraphics/commongraphics.h"
 
 #include "dpiscalemanager.h"
 

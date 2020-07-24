@@ -4,11 +4,11 @@
 #include "../baseitem.h"
 #include "../dividerline.h"
 #include "../comboboxitem.h"
-#include "CommonGraphics/checkboxbutton.h"
+#include "commongraphics/checkboxbutton.h"
 #include "proxyipaddressitem.h"
-#include "../Backend/Preferences/preferences.h"
-#include "../Backend/Preferences/preferenceshelper.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "../backend/preferences/preferences.h"
+#include "../backend/preferences/preferenceshelper.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

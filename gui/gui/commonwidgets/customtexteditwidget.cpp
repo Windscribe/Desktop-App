@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
-#include "CommonGraphics/commongraphics.h"
+#include "commongraphics/commongraphics.h"
 #include <QTextBlock>
 #include <QSizePolicy>
 #include "dpiscalemanager.h"

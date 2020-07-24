@@ -7,13 +7,13 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <qmath.h>
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "widgetlocationssizes.h"
-#include "CommonGraphics/commongraphics.h"
+#include "commongraphics/commongraphics.h"
 #include "cityitem.h"
 #include "staticipdeviceitem.h"
 #include "configfooteritem.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
 namespace GuiLocations {

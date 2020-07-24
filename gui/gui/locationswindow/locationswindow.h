@@ -2,7 +2,7 @@
 #define LOCATIONSWINDOW_H
 
 #include <QWidget>
-#include "WidgetLocations/locationstab.h"
+#include "widgetlocations/locationstab.h"
 
 class LocationsWindow : public QWidget
 {

@@ -1,9 +1,9 @@
 #include "firewallmodeitem.h"
 
 #include <QPainter>
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include <google/protobuf/util/message_differencer.h>
-#include "Utils/protoenumtostring.h"
+#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

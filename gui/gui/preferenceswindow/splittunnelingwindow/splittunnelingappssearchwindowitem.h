@@ -2,8 +2,8 @@
 #define SPLITTUNNELINGAPPSSEARCHWINDOWITEM_H
 
 #include "../basepage.h"
-#include "../Backend/Preferences/preferences.h"
-#include "../Backend/Preferences/preferenceshelper.h"
+#include "../backend/preferences/preferences.h"
+#include "../backend/preferences/preferenceshelper.h"
 #include "splittunnelingappssearchitem.h"
 
 namespace PreferencesWindow {

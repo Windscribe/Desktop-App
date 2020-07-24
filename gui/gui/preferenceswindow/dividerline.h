@@ -1,7 +1,7 @@
 #ifndef DIVIDERLINE_H
 #define DIVIDERLINE_H
 
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/scalablegraphicsobject.h"
 
 namespace PreferencesWindow {
 

@@ -4,9 +4,9 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QMouseEvent>
-#include "LoginWindow/blockableqlineedit.h"
-#include "PreferencesWindow/comboboxitem.h"
-#include "CommonWidgets/custommenuwidget.h"
+#include "loginwindow/blockableqlineedit.h"
+#include "preferenceswindow/comboboxitem.h"
+#include "commonwidgets/custommenuwidget.h"
 
 class CustomMenuLineEdit : public BlockableQLineEdit
 {

@@ -4,9 +4,9 @@
 #include <QFont>
 #include <QGraphicsObject>
 #include <QPropertyAnimation>
-#include "../Backend/backend.h"
-#include "CommonGraphics/clickablegraphicsobject.h"
-#include "CommonGraphics/imageitem.h"
+#include "../backend/backend.h"
+#include "commongraphics/clickablegraphicsobject.h"
+#include "commongraphics/imageitem.h"
 
 namespace ConnectWindow {
 

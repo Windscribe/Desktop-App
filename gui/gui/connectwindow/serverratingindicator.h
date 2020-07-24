@@ -2,9 +2,9 @@
 #define PINGBARBUTTON_H
 
 #include <QGraphicsObject>
-#include "../Backend/Types/types.h"
-#include "../Backend/Types/pingtime.h"
-#include "CommonGraphics/clickablegraphicsobject.h"
+#include "../backend/types/types.h"
+#include "../backend/types/pingtime.h"
+#include "commongraphics/clickablegraphicsobject.h"
 
 namespace ConnectWindow {
 

@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <QStyleOption>
 
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 
 namespace GuiLocations {
 

@@ -4,9 +4,9 @@
 #include <QMouseEvent>
 #include <QDesktopServices>
 #include <QUrl>
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
 namespace GuiLocations {

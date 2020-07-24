@@ -2,8 +2,8 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include "Utils/logger.h"
-#include "GraphicResources/fontmanager.h"
+#include "utils/logger.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

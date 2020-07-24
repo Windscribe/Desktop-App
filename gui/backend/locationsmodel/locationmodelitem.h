@@ -2,8 +2,8 @@
 #define LOCATIONMODELITEM_H
 
 #include <QVector>
-#include "../Types/pingtime.h"
-#include "../Types/locationid.h"
+#include "../types/pingtime.h"
+#include "../types/locationid.h"
 
 struct CityModelItem
 {

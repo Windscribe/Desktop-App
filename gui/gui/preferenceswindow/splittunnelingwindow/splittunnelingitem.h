@@ -3,7 +3,7 @@
 
 #include "../baseitem.h"
 #include "splittunnelingswitchitem.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

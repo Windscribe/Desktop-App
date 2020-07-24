@@ -1,6 +1,6 @@
 #include "numberspixmap.h"
-#include "GraphicResources/fontmanager.h"
-#include "Utils/utils.h"
+#include "graphicresources/fontmanager.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 #include <QPainter>
 

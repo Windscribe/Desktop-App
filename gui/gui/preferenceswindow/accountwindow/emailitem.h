@@ -3,7 +3,7 @@
 
 #include "../baseitem.h"
 #include "../dividerline.h"
-#include "CommonGraphics/textbutton.h"
+#include "commongraphics/textbutton.h"
 
 
 namespace PreferencesWindow {

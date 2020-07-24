@@ -3,8 +3,8 @@
 
 #include <QGraphicsProxyWidget>
 #include "../baseitem.h"
-#include "CommonGraphics/iconbutton.h"
-#include "CommonGraphics/custommenulineedit.h"
+#include "commongraphics/iconbutton.h"
+#include "commongraphics/custommenulineedit.h"
 
 namespace PreferencesWindow {
 

@@ -2,8 +2,8 @@
 #define CUSTOMMENUWIDGET_H
 
 #include <QMenu>
-#include "PreferencesWindow/comboboxitem.h"
-#include "GraphicResources/fontdescr.h"
+#include "preferenceswindow/comboboxitem.h"
+#include "graphicresources/fontdescr.h"
 
 class CustomMenuWidget : public QMenu
 {

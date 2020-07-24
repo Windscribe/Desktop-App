@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include "locationmodelitem.h"
-#include "../Types/locationid.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "../types/locationid.h"
+#include "ipc/generated_proto/types.pb.h"
 
 class BasicCitiesModel : public QObject
 {

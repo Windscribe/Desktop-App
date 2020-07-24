@@ -2,7 +2,7 @@
 
 #include <QPainter>
 #include "languagecontroller.h"
-#include "../Backend/Types/types.h"
+#include "../backend/types/types.h"
 
 namespace PreferencesWindow {
 

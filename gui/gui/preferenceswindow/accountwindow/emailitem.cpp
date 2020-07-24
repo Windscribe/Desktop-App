@@ -1,8 +1,8 @@
 #include "emailitem.h"
 
 #include <QPainter>
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

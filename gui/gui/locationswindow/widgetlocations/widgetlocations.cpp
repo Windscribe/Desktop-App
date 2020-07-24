@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <QScroller>
 #include <qmath.h>
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "widgetlocationssizes.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"

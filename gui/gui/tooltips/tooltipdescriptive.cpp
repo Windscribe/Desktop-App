@@ -1,8 +1,8 @@
 #include "tooltipdescriptive.h"
 
 #include <QPainter>
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 TooltipDescriptive::TooltipDescriptive(const TooltipInfo &info, QWidget *parent) : ITooltip(parent)
@@ -49,7 +49,7 @@ TooltipInfo TooltipDescriptive::toTooltipInfo()
     return ti;
 }
 
-void TooltipDescriptive::paintEvent(QPaintEvent *event)
+void TooltipDescriptive::paintEvent(QPaintEvent */*event*/)
 {
     QPainter painter(this);
     painter.setOpacity(OPACITY_OVERLAY_BACKGROUND);
@@ -107,7 +107,7 @@ void TooltipDescriptive::recalcHeight()
 
 }
 
-const int TooltipDescriptive::widthOfDescriptionLabel()
+int TooltipDescriptive::widthOfDescriptionLabel() const
 {
     return width_ - additionalTailWidth() - MARGIN_WIDTH* 2 * G_SCALE;
 }

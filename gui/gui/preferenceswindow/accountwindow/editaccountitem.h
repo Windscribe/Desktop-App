@@ -2,7 +2,7 @@
 #define EDITACCOUNTITEM_H
 
 #include "../baseitem.h"
-#include "CommonGraphics/iconbutton.h"
+#include "commongraphics/iconbutton.h"
 
 namespace PreferencesWindow {
 

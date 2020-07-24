@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QStringList>
-#include "Utils/simplecrypt.h"
+#include "utils/simplecrypt.h"
 
 class HardcodedSettings
 {

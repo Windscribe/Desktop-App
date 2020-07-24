@@ -3,9 +3,9 @@
 
 #include <QGraphicsObject>
 #include <QTimer>
-#include "CommonGraphics/iconbutton.h"
+#include "commongraphics/iconbutton.h"
 #include "../dividerline.h"
-#include "Tooltips/tooltiptypes.h"
+#include "tooltips/tooltiptypes.h"
 
 namespace PreferencesWindow {
 

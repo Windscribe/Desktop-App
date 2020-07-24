@@ -2,8 +2,8 @@
 #include <google/protobuf/util/message_differencer.h>
 #include "../persistentstate.h"
 #include "guisettingsfromver1.h"
-#include "Utils/extraconfig.h"
-#include "Utils/logger.h"
+#include "utils/extraconfig.h"
+#include "utils/logger.h"
 
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)

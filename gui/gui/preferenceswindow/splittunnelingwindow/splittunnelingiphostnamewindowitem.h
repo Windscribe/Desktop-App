@@ -1,9 +1,9 @@
 #ifndef SPLITTUNNELINGIPHOSTNAMEWINDOWITEM_H
 #define SPLITTUNNELINGIPHOSTNAMEWINDOWITEM_H
 
-#include "PreferencesWindow/basepage.h"
-#include "../Backend/Preferences/preferences.h"
-#include "../Backend/Preferences/preferenceshelper.h"
+#include "preferenceswindow/basepage.h"
+#include "../backend/preferences/preferences.h"
+#include "../backend/preferences/preferenceshelper.h"
 #include "splittunnelingipsandhostnamesitem.h"
 
 namespace PreferencesWindow {

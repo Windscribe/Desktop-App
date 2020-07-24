@@ -3,7 +3,7 @@
 
 #include <QAbstractButton>
 #include <QVariantAnimation>
-#include "CommonWidgets/iconbuttonwidget.h"
+#include "commonwidgets/iconbuttonwidget.h"
 
 class ConfigFooterInfo : public QAbstractButton
 {

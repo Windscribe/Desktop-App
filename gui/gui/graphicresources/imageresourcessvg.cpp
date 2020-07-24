@@ -5,9 +5,9 @@
 #include <QPainter>
 #include <QApplication>
 #include <QScreen>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include "dpiscalemanager.h"
-#include "Utils/widgetutils.h"
+#include "utils/widgetutils.h"
 
 ImageResourcesSvg::ImageResourcesSvg()
 {

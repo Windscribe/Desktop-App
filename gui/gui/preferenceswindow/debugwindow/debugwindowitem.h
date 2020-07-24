@@ -3,15 +3,15 @@
 
 #include <QTimer>
 #include "../basepage.h"
-#include "../ConnectionWindow/subpageitem.h"
+#include "../connectionwindow/subpageitem.h"
 #include "viewlogitem.h"
 #include "serverratingsitem.h"
 #include "../comboboxitem.h"
 #include "../checkboxitem.h"
-#include "../Backend/Preferences/preferences.h"
-#include "../Backend/Preferences/preferenceshelper.h"
+#include "../backend/preferences/preferences.h"
+#include "../backend/preferences/preferenceshelper.h"
 #include "apiresolutionitem.h"
-#include "Tooltips/tooltiptypes.h"
+#include "tooltips/tooltiptypes.h"
 
 
 enum DEBUG_SCREEN { DEBUG_SCREEN_HOME, DEBUG_SCREEN_ADVANCED_PARAMETERS };

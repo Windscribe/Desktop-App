@@ -6,7 +6,7 @@
 #include <QFont>
 #include <QColor>
 #include "clickablegraphicsobject.h"
-#include "GraphicResources/fontdescr.h"
+#include "graphicresources/fontdescr.h"
 
 namespace CommonGraphics {
 

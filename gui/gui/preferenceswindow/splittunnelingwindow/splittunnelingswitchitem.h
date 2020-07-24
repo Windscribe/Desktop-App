@@ -5,11 +5,11 @@
 #include "../baseitem.h"
 #include "../checkboxitem.h"
 #include "../comboboxitem.h"
-#include "../ConnectionWindow/subpageitem.h"
-#include "CommonGraphics/iconbutton.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "../connectionwindow/subpageitem.h"
+#include "commongraphics/iconbutton.h"
+#include "ipc/generated_proto/types.pb.h"
 
-#include "Tooltips/tooltiptypes.h"
+#include "tooltips/tooltiptypes.h"
 
 namespace PreferencesWindow {
 

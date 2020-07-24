@@ -2,7 +2,7 @@
 #define AUTOROTATEMACITEM_H
 
 #include "../baseitem.h"
-#include "CommonGraphics/checkboxbutton.h"
+#include "commongraphics/checkboxbutton.h"
 #include "../dividerline.h"
 
 #include <QFont>

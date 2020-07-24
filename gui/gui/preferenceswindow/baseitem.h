@@ -2,7 +2,7 @@
 #define BASEITEM_H
 
 #include <QGraphicsObject>
-#include "CommonGraphics/clickablegraphicsobject.h"
+#include "commongraphics/clickablegraphicsobject.h"
 
 namespace PreferencesWindow {
 

@@ -3,7 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include "CommonGraphics/clickablegraphicsobject.h"
+#include "commongraphics/clickablegraphicsobject.h"
 
 namespace ConnectWindow {
 

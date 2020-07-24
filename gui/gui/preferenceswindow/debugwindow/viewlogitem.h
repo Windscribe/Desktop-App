@@ -2,7 +2,7 @@
 #define VIEWLOGITEM_H
 
 #include "../baseitem.h"
-#include "CommonGraphics/iconbutton.h"
+#include "commongraphics/iconbutton.h"
 #include "../dividerline.h"
 
 namespace PreferencesWindow {

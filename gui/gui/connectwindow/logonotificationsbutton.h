@@ -3,7 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QFont>
-#include "CommonGraphics/iconbutton.h"
+#include "commongraphics/iconbutton.h"
 
 namespace ConnectWindow {
 

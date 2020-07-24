@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <QUrl>
 #include <QStyle>
-#include "Utils/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 
 extern double g_ui_scale;
 

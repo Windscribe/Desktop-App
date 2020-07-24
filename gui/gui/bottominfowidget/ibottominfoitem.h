@@ -2,8 +2,8 @@
 #define IBOTTOMINFOITEM_H
 
 #include <QGraphicsObject>
-#include "../Backend/Preferences/preferences.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "../backend/preferences/preferences.h"
+#include "ipc/generated_proto/types.pb.h"
 
 class IBottomInfoItem
 {

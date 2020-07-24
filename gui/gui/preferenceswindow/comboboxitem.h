@@ -4,9 +4,9 @@
 #include <QGraphicsProxyWidget>
 #include "baseitem.h"
 #include "dividerline.h"
-#include "CommonWidgets/combomenuwidget.h"
-#include "CommonGraphics/texticonbutton.h"
-#include "GraphicResources/fontdescr.h"
+#include "commonwidgets/combomenuwidget.h"
+#include "commongraphics/texticonbutton.h"
+#include "graphicresources/fontdescr.h"
 
 namespace PreferencesWindow {
 

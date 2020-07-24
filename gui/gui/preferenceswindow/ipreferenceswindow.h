@@ -2,9 +2,9 @@
 #define IPREFERENCESWINDOW_H
 
 #include <QGraphicsObject>
-#include "PreferencesWindow/PreferencesTab/ipreferencestabcontrol.h"
-#include "IPC/generated_proto/types.pb.h"
-#include "ConnectionWindow/connectionwindowitem.h"
+#include "preferenceswindow/preferencestab/ipreferencestabcontrol.h"
+#include "ipc/generated_proto/types.pb.h"
+#include "connectionwindow/connectionwindowitem.h"
 
 // abstract interface for preferences window
 class IPreferencesWindow

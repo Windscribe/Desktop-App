@@ -1,10 +1,10 @@
 #ifndef PERSISTENTSTATE_H
 #define PERSISTENTSTATE_H
 
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 #include <QSettings>
-#include "Types/locationid.h"
+#include "types/locationid.h"
 
 // gui internal states, persistent between the starts of the program
 class PersistentState

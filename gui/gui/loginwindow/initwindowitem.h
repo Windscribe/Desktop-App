@@ -4,7 +4,7 @@
 #include <QVariantAnimation>
 #include <QTimer>
 #include "iinitwindow.h"
-#include "CommonGraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebuttondark.h"
 
 namespace LoginWindow {
 

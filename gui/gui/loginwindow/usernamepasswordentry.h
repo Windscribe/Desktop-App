@@ -4,8 +4,8 @@
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include <QGraphicsProxyWidget>
-#include "CommonGraphics/custommenulineedit.h"
-#include "CommonGraphics/clickablegraphicsobject.h"
+#include "commongraphics/custommenulineedit.h"
+#include "commongraphics/clickablegraphicsobject.h"
 #include "blockableqlineedit.h"
 
 namespace LoginWindow {

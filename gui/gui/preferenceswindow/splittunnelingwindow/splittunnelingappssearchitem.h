@@ -4,7 +4,7 @@
 #include "../baseitem.h"
 #include "searchlineedititem.h"
 #include "appsearchitem.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

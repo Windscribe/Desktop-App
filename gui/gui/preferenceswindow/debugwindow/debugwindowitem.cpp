@@ -4,9 +4,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QMessageBox>
-#include "CommonGraphics/commongraphics.h"
+#include "commongraphics/commongraphics.h"
 #include "languagecontroller.h"
-#include "Utils/protoenumtostring.h"
+#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 
 extern QWidget *g_mainWindow;

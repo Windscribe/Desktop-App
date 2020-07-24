@@ -4,7 +4,7 @@
 #include <QObject>
 #include "cliapplication.h"
 
-#include "../Backend/backend.h"
+#include "../backend/backend.h"
 
 class BackendCommander : public QObject
 {

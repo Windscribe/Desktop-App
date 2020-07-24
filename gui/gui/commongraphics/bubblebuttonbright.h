@@ -7,7 +7,7 @@
 #include <QPropertyAnimation>
 #include <QFont>
 #include "clickablegraphicsobject.h"
-#include "GraphicResources/fontdescr.h"
+#include "graphicresources/fontdescr.h"
 
 namespace CommonGraphics {
 

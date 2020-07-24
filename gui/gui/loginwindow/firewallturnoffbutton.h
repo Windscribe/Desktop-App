@@ -3,8 +3,8 @@
 
 #include <QVariantAnimation>
 
-#include "CommonGraphics/clickablegraphicsobject.h"
-#include "GraphicResources/fontdescr.h"
+#include "commongraphics/clickablegraphicsobject.h"
+#include "graphicresources/fontdescr.h"
 
 namespace LoginWindow {
 

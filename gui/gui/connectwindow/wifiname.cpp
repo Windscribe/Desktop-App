@@ -1,8 +1,8 @@
 #include "wifiname.h"
 
 #include <QPainter>
-#include "GraphicResources/imageresourcessvg.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
 
 namespace ConnectWindow {
 

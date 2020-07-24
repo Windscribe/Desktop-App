@@ -1,7 +1,7 @@
 #ifndef CLICKABLEGRAPHICSOBJECT_H
 #define CLICKABLEGRAPHICSOBJECT_H
 
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/scalablegraphicsobject.h"
 
 class ClickableGraphicsObject : public ScalableGraphicsObject
 {

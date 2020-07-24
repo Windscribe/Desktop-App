@@ -1,7 +1,7 @@
 #include "textitem.h"
 
 #include <QPainter>
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

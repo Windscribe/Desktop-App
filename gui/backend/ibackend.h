@@ -2,12 +2,12 @@
 #define IBACKEND_H
 
 #include <QString>
-#include "Types/upgrademodetype.h"
-#include "LocationsModel/locationsmodel.h"
-#include "Preferences/preferenceshelper.h"
-#include "Preferences/preferences.h"
-#include "Preferences/accountinfo.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "types/upgrademodetype.h"
+#include "locationsmodel/locationsmodel.h"
+#include "preferences/preferenceshelper.h"
+#include "preferences/preferences.h"
+#include "preferences/accountinfo.h"
+#include "ipc/generated_proto/types.pb.h"
 
 // abstract interface for backend
 class IBackend

@@ -5,11 +5,11 @@
 #include "../baseitem.h"
 #include "../editboxitem.h"
 #include "../dividerline.h"
-#include "../Backend/Preferences/preferences.h"
-#include "CommonGraphics/checkboxbutton.h"
+#include "../backend/preferences/preferences.h"
+#include "commongraphics/checkboxbutton.h"
 #include "../editboxitem.h"
 #include <QVariantAnimation>
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

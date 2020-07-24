@@ -2,8 +2,8 @@
 #define PREFERENCES_H
 
 #include <QObject>
-#include "../Types/types.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "../types/types.h"
+#include "ipc/generated_proto/types.pb.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
 class Preferences : public QObject

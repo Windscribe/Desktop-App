@@ -1,5 +1,5 @@
 #include "hardcodedsettings.h"
-#include "Utils/utils.h"
+#include "utils/utils.h"
 #include <QDateTime>
 #include <QStringList>
 #include <QCryptographicHash>

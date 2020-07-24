@@ -4,11 +4,11 @@
 #include <QFont>
 #include <QTimer>
 #include <QVariantAnimation>
-#include "../Backend/Types/types.h"
-#include "CommonGraphics/scalablegraphicsobject.h"
-#include "../Backend/Preferences/preferences.h"
-#include "IPC/generated_proto/types.pb.h"
-#include "GraphicResources/fontdescr.h"
+#include "../backend/types/types.h"
+#include "commongraphics/scalablegraphicsobject.h"
+#include "../backend/preferences/preferences.h"
+#include "ipc/generated_proto/types.pb.h"
+#include "graphicresources/fontdescr.h"
 
 namespace ConnectWindow {
 

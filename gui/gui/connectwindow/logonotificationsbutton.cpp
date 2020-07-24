@@ -1,10 +1,10 @@
 #include "logonotificationsbutton.h"
 
 #include <QPainter>
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
-#include "CommonGraphics/commongraphics.h"
-#include "CommonGraphics/clickablegraphicsobject.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
+#include "commongraphics/clickablegraphicsobject.h"
 #include "dpiscalemanager.h"
 
 namespace ConnectWindow {

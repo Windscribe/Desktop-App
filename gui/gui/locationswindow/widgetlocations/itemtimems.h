@@ -2,7 +2,7 @@
 #define ITEMTIMEMS_H
 
 #include <QTextLayout>
-#include "../Backend/Types/pingtime.h"
+#include "../backend/types/pingtime.h"
 
 namespace GuiLocations {
 

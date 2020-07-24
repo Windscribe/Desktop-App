@@ -2,11 +2,11 @@
 #define DNSWHILECONNECTEDITEM_H
 
 #include "../baseitem.h"
-#include "../Backend/Preferences/preferences.h"
+#include "../backend/preferences/preferences.h"
 #include "../comboboxitem.h"
 #include "../editboxitem.h"
 #include "../dividerline.h"
-#include "Types/dnswhileconnectedtype.h"
+#include "types/dnswhileconnectedtype.h"
 
 #include <QVariantAnimation>
 

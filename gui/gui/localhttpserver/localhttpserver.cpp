@@ -1,5 +1,5 @@
 #include "localhttpserver.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #include <QApplication>
 

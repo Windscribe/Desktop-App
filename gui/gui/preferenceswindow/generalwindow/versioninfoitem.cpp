@@ -2,8 +2,8 @@
 
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
-#include "GraphicResources/fontmanager.h"
-#include "CommonGraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

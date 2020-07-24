@@ -2,9 +2,9 @@
 
 #include <QPainter>
 #include "../basepage.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include <time.h>
-#include "Utils/utils.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

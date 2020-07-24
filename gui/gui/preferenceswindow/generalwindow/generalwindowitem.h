@@ -5,9 +5,9 @@
 #include "../checkboxitem.h"
 #include "../comboboxitem.h"
 #include "versioninfoitem.h"
-#include "../Backend/Preferences/preferenceshelper.h"
-#include "../Backend/Preferences/preferences.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "../backend/preferences/preferenceshelper.h"
+#include "../backend/preferences/preferences.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

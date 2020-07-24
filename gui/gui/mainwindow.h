@@ -6,16 +6,16 @@
 #include <QWidgetAction>
 #include "mainwindowcontroller.h"
 
-#include "LocationsWindow/locationswindow.h"
-#include "../Backend/backend.h"
-#include "../Backend/notificationscontroller.h"
-#include "Log/logviewerwindow.h"
+#include "locationswindow/locationswindow.h"
+#include "../backend/backend.h"
+#include "../backend/notificationscontroller.h"
+#include "log/logviewerwindow.h"
 #include "loginattemptscontroller.h"
-#include "MultipleAccountDetection/imultipleaccountdetection.h"
+#include "multipleaccountdetection/imultipleaccountdetection.h"
 #include "blockconnect.h"
 #include "freetrafficnotificationcontroller.h"
-#include "GraphicResources/iconmanager.h"
-#include "LocalHttpServer/localhttpserver.h"
+#include "graphicresources/iconmanager.h"
+#include "localhttpserver/localhttpserver.h"
 #include "guitest.h"
 #include "locationstraymenuwidget.h"
 

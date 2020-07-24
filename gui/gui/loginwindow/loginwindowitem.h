@@ -8,13 +8,13 @@
 #include "iloginwindow.h"
 #include "loginyesnobutton.h"
 #include "usernamepasswordentry.h"
-#include "CommonGraphics/iconbutton.h"
+#include "commongraphics/iconbutton.h"
 #include "loginbutton.h"
 #include "firewallturnoffbutton.h"
-#include "CommonGraphics/textbutton.h"
+#include "commongraphics/textbutton.h"
 #include "iconhoverengagebutton.h"
-#include "CommonGraphics/scalablegraphicsobject.h"
-#include "Tooltips/tooltiptypes.h"
+#include "commongraphics/scalablegraphicsobject.h"
+#include "tooltips/tooltiptypes.h"
 
 namespace LoginWindow {
 

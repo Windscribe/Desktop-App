@@ -1,9 +1,9 @@
 #ifndef SPLITTUNNELINGAPPWINDOWITEM_H
 #define SPLITTUNNELINGAPPWINDOWITEM_H
 
-#include "PreferencesWindow/basepage.h"
-#include "../Backend/Preferences/preferences.h"
-#include "../Backend/Preferences/preferenceshelper.h"
+#include "preferenceswindow/basepage.h"
+#include "../backend/preferences/preferences.h"
+#include "../backend/preferences/preferenceshelper.h"
 #include "splittunnelingappsitem.h"
 #include "splittunnelingappssearchitem.h"
 

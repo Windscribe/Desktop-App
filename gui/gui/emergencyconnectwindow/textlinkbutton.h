@@ -6,7 +6,7 @@
 #include <QPropertyAnimation>
 #include <QFont>
 #include <QTextDocument>
-#include "CommonGraphics/clickablegraphicsobject.h"
+#include "commongraphics/clickablegraphicsobject.h"
 
 namespace EmergencyConnectWindow {
 

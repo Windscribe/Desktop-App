@@ -1,5 +1,5 @@
 #include "itemtimems.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 

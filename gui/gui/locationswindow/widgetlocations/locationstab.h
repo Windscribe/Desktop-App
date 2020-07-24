@@ -8,7 +8,7 @@
 #include <QTimer>
 #include "widgetlocations.h"
 #include "widgetcities.h"
-#include "../Backend/LocationsModel/locationsmodel.h"
+#include "../backend/locationsmodel/locationsmodel.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
 #include "staticipdeviceitem.h"

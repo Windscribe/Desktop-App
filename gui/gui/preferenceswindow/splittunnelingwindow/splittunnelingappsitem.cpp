@@ -1,15 +1,15 @@
 #include "splittunnelingappsitem.h"
 
 #include <QPainter>
-#include "GraphicResources/fontmanager.h"
-#include "CommonGraphics/commongraphics.h"
-#include "Utils/utils.h"
+#include "graphicresources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 #ifdef Q_OS_WIN
-    #include "Utils/winutils.h"
+    #include "utils/winutils.h"
 #else
-    #include "Utils/macutils.h"
+    #include "utils/macutils.h"
 #endif
 
 namespace PreferencesWindow {

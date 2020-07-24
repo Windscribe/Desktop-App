@@ -1,8 +1,8 @@
 #include "backendcommander.h"
 
-#include "../Backend/persistentstate.h"
-#include "Utils/utils.h"
-#include "Utils/logger.h"
+#include "../backend/persistentstate.h"
+#include "utils/utils.h"
+#include "utils/logger.h"
 
 BackendCommander::BackendCommander(CliCommand cmd, const QString &location) : QObject()
     , backend_(nullptr)

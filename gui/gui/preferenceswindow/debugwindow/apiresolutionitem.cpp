@@ -3,7 +3,7 @@
 #include <QPainter>
 #include <google/protobuf/util/message_differencer.h>
 #include "../dividerline.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

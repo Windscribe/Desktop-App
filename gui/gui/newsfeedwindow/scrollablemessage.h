@@ -5,7 +5,7 @@
 #include <QFont>
 #include <QTextBrowser>
 #include <QGraphicsProxyWidget>
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/scalablegraphicsobject.h"
 
 class ScrollableMessage : public ScalableGraphicsObject
 {

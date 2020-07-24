@@ -1,7 +1,7 @@
 #ifndef BOTTOMRESIZEITEM_H
 #define BOTTOMRESIZEITEM_H
 
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/scalablegraphicsobject.h"
 
 namespace PreferencesWindow {
 

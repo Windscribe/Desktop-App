@@ -2,8 +2,8 @@
 
 #include <QPainter>
 #include <QCursor>
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "commongraphics.h"
 #include "dpiscalemanager.h"
 

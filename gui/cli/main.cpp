@@ -5,8 +5,8 @@
 #include <iostream>
 #include "backendcommander.h"
 #include "cliapplication.h"
-#include "Utils/logger.h"
-#include "Utils/utils.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
 
 #ifdef Q_OS_WIN
     #include "Windows.h"

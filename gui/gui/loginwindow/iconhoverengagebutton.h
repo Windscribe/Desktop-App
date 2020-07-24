@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include <QGraphicsPixmapItem>
 #include <QVariantAnimation>
-#include "CommonGraphics/clickablegraphicsobject.h"
+#include "commongraphics/clickablegraphicsobject.h"
 
 namespace LoginWindow {
 

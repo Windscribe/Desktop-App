@@ -1,10 +1,10 @@
 #ifndef SCROLLAREAITEM_H
 #define SCROLLAREAITEM_H
 
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/scalablegraphicsobject.h"
 #include <QGraphicsSceneWheelEvent>
-#include "CommonGraphics/verticalscrollbar.h"
-#include "PreferencesWindow/basepage.h"
+#include "commongraphics/verticalscrollbar.h"
+#include "preferenceswindow/basepage.h"
 
 namespace PreferencesWindow {
 

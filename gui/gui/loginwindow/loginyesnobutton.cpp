@@ -3,9 +3,9 @@
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
 #include <QCursor>
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
-#include "CommonGraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 namespace LoginWindow {

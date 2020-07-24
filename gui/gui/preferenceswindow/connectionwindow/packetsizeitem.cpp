@@ -5,8 +5,8 @@
 #include <QGraphicsView>
 #include <google/protobuf/util/message_differencer.h>
 #include "../dividerline.h"
-#include "GraphicResources/fontmanager.h"
-#include "CommonGraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 #include <QDebug>

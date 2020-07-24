@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QHBoxLayout>
 #include "verticalscrollbarwidget.h"
-#include "CommonWidgets/iscrollablewidget.h"
+#include "commonwidgets/iscrollablewidget.h"
 
 class ScrollAreaWidget : public QWidget
 {

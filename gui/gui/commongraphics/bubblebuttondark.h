@@ -7,8 +7,8 @@
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QFont>
-#include "CommonGraphics/clickablegraphicsobject.h"
-#include "GraphicResources/fontdescr.h"
+#include "commongraphics/clickablegraphicsobject.h"
+#include "graphicresources/fontdescr.h"
 
 
 namespace CommonGraphics {

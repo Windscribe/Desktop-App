@@ -3,11 +3,11 @@
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
-#include "CommonGraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
-#include "Tooltips/tooltiptypes.h"
+#include "tooltips/tooltiptypes.h"
 
 namespace PreferencesWindow {
 

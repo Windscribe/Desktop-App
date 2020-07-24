@@ -3,9 +3,9 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include "Update/iupdatewindow.h"
-#include "CommonGraphics/bubblebuttonbright.h"
-#include "CommonGraphics/textbutton.h"
+#include "update/iupdatewindow.h"
+#include "commongraphics/bubblebuttonbright.h"
+#include "commongraphics/textbutton.h"
 
 namespace UpdateWindow {
 

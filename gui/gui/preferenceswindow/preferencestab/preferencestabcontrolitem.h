@@ -4,8 +4,8 @@
 #include <QGraphicsObject>
 #include <QTimer>
 #include "ipreferencestabcontrol.h"
-#include "CommonGraphics/iconbutton.h"
-#include "Tooltips/tooltiptypes.h"
+#include "commongraphics/iconbutton.h"
+#include "tooltips/tooltiptypes.h"
 
 namespace PreferencesWindow {
 

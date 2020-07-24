@@ -3,7 +3,7 @@
 
 #include <QFont>
 #include <QGraphicsObject>
-#include "CommonGraphics/texticonbutton.h"
+#include "commongraphics/texticonbutton.h"
 
 namespace ConnectWindow {
 

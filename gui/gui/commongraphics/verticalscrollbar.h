@@ -1,7 +1,7 @@
 #ifndef VERTICALSCROLLBAR_H
 #define VERTICALSCROLLBAR_H
 
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/scalablegraphicsobject.h"
 #include <QVariantAnimation>
 
 class VerticalScrollBar : public ScalableGraphicsObject

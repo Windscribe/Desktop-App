@@ -1,12 +1,12 @@
 #include "splittunnelingappssearchitem.h"
 
 #include <QFileInfo>
-#include "Utils/utils.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 #ifdef Q_OS_WIN
-    #include "Utils/winutils.h"
+    #include "utils/winutils.h"
 #else
-    #include "Utils/macutils.h"
+    #include "utils/macutils.h"
 #endif
 
 namespace PreferencesWindow {

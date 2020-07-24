@@ -5,28 +5,28 @@
 #include <QSequentialAnimationGroup>
 #include <QScreen>
 #include <QWindow>
-#include "LoginWindow/loginwindowitem.h"
-#include "LoginWindow/logginginwindowitem.h"
-#include "LoginWindow/initwindowitem.h"
-#include "EmergencyConnectWindow/emergencyconnectwindowitem.h"
-#include "ExternalConfig/externalconfigwindowitem.h"
-#include "UpdateApp/updateappitem.h"
-#include "ConnectWindow/connectwindowitem.h"
-#include "PreferencesWindow/preferenceswindowitem.h"
-#include "Update/updatewindowitem.h"
-#include "BottomInfoWidget/bottominfoitem.h"
-#include "NewsFeedWindow/newsfeedwindowitem.h"
-#include "GeneralMessage/generalmessagewindowitem.h"
-#include "GeneralMessage/generalmessagetwobuttonwindowitem.h"
-#include "Utils/utils.h"
+#include "loginwindow/loginwindowitem.h"
+#include "loginwindow/logginginwindowitem.h"
+#include "loginwindow/initwindowitem.h"
+#include "emergencyconnectwindow/emergencyconnectwindowitem.h"
+#include "externalconfig/externalconfigwindowitem.h"
+#include "updateapp/updateappitem.h"
+#include "connectwindow/connectwindowitem.h"
+#include "preferenceswindow/preferenceswindowitem.h"
+#include "update/updatewindowitem.h"
+#include "bottominfowidget/bottominfoitem.h"
+#include "newsfeedwindow/newsfeedwindowitem.h"
+#include "generalmessage/generalmessagewindowitem.h"
+#include "generalmessage/generalmessagetwobuttonwindowitem.h"
+#include "utils/utils.h"
 #include "mainwindow.h"
-#include "CommonGraphics/commongraphics.h"
-#include "../Backend/persistentstate.h"
+#include "commongraphics/commongraphics.h"
+#include "../backend/persistentstate.h"
 #include "dpiscalemanager.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #ifdef Q_OS_MAC
-    #include "Utils/macutils.h"
+    #include "utils/macutils.h"
 #endif
 
 MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *locationsWindow, PreferencesHelper *preferencesHelper,

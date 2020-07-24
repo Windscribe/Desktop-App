@@ -1,9 +1,9 @@
 #include "appincludeditem.h"
 
 #include <QPainter>
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
-#include "Utils/widgetutils.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "utils/widgetutils.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

@@ -1,7 +1,7 @@
 #include "serverratingindicator.h"
 
 #include <QPainter>
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/imageresourcessvg.h"
 
 namespace ConnectWindow {
 

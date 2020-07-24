@@ -2,7 +2,7 @@
 #define MIDDLEITEM_H
 
 #include <QFont>
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/scalablegraphicsobject.h"
 #include "ipaddressitem/ipaddressitem.h"
 
 namespace ConnectWindow {

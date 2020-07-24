@@ -3,10 +3,10 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include "CommonGraphics/bubblebuttondark.h"
-#include "CommonGraphics/iconbutton.h"
-#include "ExternalConfig/iexternalconfigwindow.h"
-#include "PreferencesWindow/escapebutton.h"
+#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/iconbutton.h"
+#include "externalconfig/iexternalconfigwindow.h"
+#include "preferenceswindow/escapebutton.h"
 
 namespace ExternalConfigWindow {
 

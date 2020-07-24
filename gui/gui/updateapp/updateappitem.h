@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include "iupdateappitem.h"
-#include "CommonGraphics/textbutton.h"
+#include "commongraphics/textbutton.h"
 
 namespace UpdateApp {
 

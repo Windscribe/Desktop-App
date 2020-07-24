@@ -3,12 +3,12 @@
 
 #include <QString>
 #include <QGraphicsObject>
-#include "../Backend/Types/pingtime.h"
-#include "../Backend/Types/types.h"
-#include "../Backend/Types/locationid.h"
-#include "../Backend/Preferences/preferences.h"
-#include "IPC/generated_proto/types.pb.h"
-#include "Tooltips/tooltiptypes.h"
+#include "../backend/types/pingtime.h"
+#include "../backend/types/types.h"
+#include "../backend/types/locationid.h"
+#include "../backend/preferences/preferences.h"
+#include "ipc/generated_proto/types.pb.h"
+#include "tooltips/tooltiptypes.h"
 
 // abstract interface for login window
 class IConnectWindow

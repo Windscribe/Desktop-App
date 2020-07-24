@@ -1,8 +1,8 @@
 #include "serverratingstooltip.h"
 
 #include <QPainter>
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 ServerRatingsTooltip::ServerRatingsTooltip(QWidget *parent) : ITooltip(parent)

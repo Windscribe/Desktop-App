@@ -6,8 +6,8 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <google/protobuf/util/message_differencer.h>
-#include "GraphicResources/fontmanager.h"
-#include "Utils/logger.h"
+#include "graphicresources/fontmanager.h"
+#include "utils/logger.h"
 #include "dpiscalemanager.h"
 
 

@@ -1,7 +1,7 @@
 #include "imageitem.h"
 
 #include <QPainter>
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/imageresourcessvg.h"
 
 ImageItem::ImageItem(const QString &imagePath, ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
   imagePath_(imagePath)

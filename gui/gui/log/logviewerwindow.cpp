@@ -5,8 +5,8 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QScrollBar>
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
 namespace LogViewer {

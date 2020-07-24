@@ -2,7 +2,7 @@
 
 #include <QPainter>
 #include "../dividerline.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "networkwhitelistshared.h"
 #include "dpiscalemanager.h"
 

@@ -5,7 +5,7 @@
 #include <QGraphicsProxyWidget>
 #include <QLineEdit>
 #include <QRegExpValidator>
-#include "CommonGraphics/iconbutton.h"
+#include "commongraphics/iconbutton.h"
 #include "../dividerline.h"
 
 namespace PreferencesWindow {

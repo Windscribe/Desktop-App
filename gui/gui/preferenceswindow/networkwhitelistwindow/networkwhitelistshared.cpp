@@ -1,6 +1,6 @@
 #include "networkwhitelistshared.h"
 
-#include "../Backend/persistentstate.h"
+#include "../backend/persistentstate.h"
 
 namespace NetworkWhiteListShared
 {

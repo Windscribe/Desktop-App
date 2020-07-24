@@ -4,10 +4,10 @@
 #include "../baseitem.h"
 #include "../checkboxitem.h"
 #include "../comboboxitem.h"
-#include "../Backend/Preferences/preferences.h"
+#include "../backend/preferences/preferences.h"
 #include "macaddressitem.h"
 #include "autorotatemacitem.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

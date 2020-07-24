@@ -2,7 +2,7 @@
 #define PLANITEM_H
 
 #include "../baseitem.h"
-#include "CommonGraphics/textbutton.h"
+#include "commongraphics/textbutton.h"
 #include "../dividerline.h"
 
 namespace PreferencesWindow {

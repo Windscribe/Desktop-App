@@ -1,8 +1,8 @@
 #include "iconbuttonwidget.h"
 
 #include <QPainter>
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
 namespace CommonWidgets {

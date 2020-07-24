@@ -3,12 +3,12 @@
 
 #include <QGraphicsObject>
 #include <QEvent>
-#include <EmergencyConnectWindow/iemergencyconnectwindow.h>
-#include "CommonGraphics/bubblebuttonbright.h"
-#include "CommonGraphics/bubblebuttondark.h"
-#include "CommonGraphics/iconbutton.h"
+#include "emergencyconnectwindow/iemergencyconnectwindow.h"
+#include "commongraphics/bubblebuttonbright.h"
+#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/iconbutton.h"
 #include "textlinkbutton.h"
-#include "PreferencesWindow/escapebutton.h"
+#include "preferenceswindow/escapebutton.h"
 
 namespace EmergencyConnectWindow {
 

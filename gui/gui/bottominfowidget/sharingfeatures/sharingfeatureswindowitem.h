@@ -5,9 +5,9 @@
 #include <QVariantAnimation>
 #include <QFont>
 #include "sharingfeature.h"
-#include "../Backend/Preferences/preferences.h"
-#include "PreferencesWindow/dividerline.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "../backend/preferences/preferences.h"
+#include "preferenceswindow/dividerline.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace SharingFeatures {
 

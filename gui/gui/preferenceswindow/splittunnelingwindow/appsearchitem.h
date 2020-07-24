@@ -3,8 +3,8 @@
 
 #include "../baseitem.h"
 #include "../dividerline.h"
-#include "CommonGraphics/iconbutton.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "commongraphics/iconbutton.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

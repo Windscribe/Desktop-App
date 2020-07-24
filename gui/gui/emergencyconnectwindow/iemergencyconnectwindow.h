@@ -2,8 +2,8 @@
 #define IEMERGENCYCONNECTWINDOW_H
 
 #include <QGraphicsObject>
-#include "../Backend/Types/types.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "../backend/types/types.h"
+#include "ipc/generated_proto/types.pb.h"
 
 class IEmergencyConnectWindow
 {

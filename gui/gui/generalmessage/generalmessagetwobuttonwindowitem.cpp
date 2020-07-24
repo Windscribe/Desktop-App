@@ -2,9 +2,9 @@
 
 #include <QPainter>
 #include <QKeyEvent>
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/imageresourcessvg.h"
-#include "GraphicResources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 

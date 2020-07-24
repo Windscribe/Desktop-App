@@ -4,7 +4,7 @@
 #include "tooltipbasic.h"
 #include "tooltipdescriptive.h"
 #include "dpiscalemanager.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #include <QDebug>
 

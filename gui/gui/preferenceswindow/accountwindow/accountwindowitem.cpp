@@ -4,8 +4,8 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QTextDocument>
-#include "Utils/hardcodedsettings.h"
-#include "GraphicResources/fontmanager.h"
+#include "utils/hardcodedsettings.h"
+#include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 

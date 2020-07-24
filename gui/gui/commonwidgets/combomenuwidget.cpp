@@ -3,9 +3,9 @@
 #include <QPainter>
 #include <QFocusEvent>
 #include <QFont>
-#include "CommonGraphics/commongraphics.h"
-#include "Utils/makecustomshadow.h"
-#include "GraphicResources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
+#include "utils/makecustomshadow.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 namespace CommonWidgets {

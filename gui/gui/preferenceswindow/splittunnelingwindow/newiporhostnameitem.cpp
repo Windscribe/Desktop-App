@@ -1,6 +1,6 @@
 #include "newiporhostnameitem.h"
 
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
 #include "../dividerline.h"
 #include "dpiscalemanager.h"

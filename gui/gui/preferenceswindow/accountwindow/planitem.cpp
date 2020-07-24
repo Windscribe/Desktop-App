@@ -1,9 +1,9 @@
 #include "planitem.h"
 
 #include <QPainter>
-#include "GraphicResources/fontmanager.h"
-#include "CommonGraphics/commongraphics.h"
-#include "Utils/utils.h"
+#include "graphicresources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

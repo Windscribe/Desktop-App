@@ -2,7 +2,7 @@
 #define LOGINATTEMPTSCONTROLLER_H
 
 #include <QObject>
-#include "LoginWindow/iloginwindow.h"
+#include "loginwindow/iloginwindow.h"
 
 class LoginAttemptsController
 {

@@ -1,7 +1,7 @@
 #include "languagecontroller.h"
 
 #include <QApplication>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 void LanguageController::setLanguage(const QString &language)
 {

@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include <QTimer>
 #include "background.h"
-#include "../Backend/backend.h"
+#include "../backend/backend.h"
 #include "connectbutton.h"
 #include "connectstateprotocolport.h"
 #include "locationsbutton.h"
@@ -13,9 +13,9 @@
 #include "middleitem.h"
 #include "firewallbutton.h"
 #include "iconnectwindow.h"
-#include "CommonGraphics/iconbutton.h"
-#include "CommonGraphics/textbutton.h"
-#include "CommonWidgets/iconbuttonwidget.h"
+#include "commongraphics/iconbutton.h"
+#include "commongraphics/textbutton.h"
+#include "commonwidgets/iconbuttonwidget.h"
 #include "logonotificationsbutton.h"
 
 namespace ConnectWindow {

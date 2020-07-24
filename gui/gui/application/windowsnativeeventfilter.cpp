@@ -1,11 +1,11 @@
 #include "windowsnativeeventfilter.h"
 #include "windscribeapplication.h"
 #include <QWidget>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 #ifdef Q_OS_WIN
-    #include <Windows.h>
-    #include "Utils/winutils.h"
+    #include <windows.h>
+    #include "utils/winutils.h"
 #endif
 
 WindowsNativeEventFilter::WindowsNativeEventFilter() : QAbstractNativeEventFilter()

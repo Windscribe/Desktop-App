@@ -1,11 +1,11 @@
 #include "preferenceswindowitem.h"
-#include "GraphicResources/imageresourcessvg.h"
-#include "PreferencesTab/preferencestabcontrolitem.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "preferencestab/preferencestabcontrolitem.h"
+#include "graphicresources/fontmanager.h"
 #include <QPainter>
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
-#include "Utils/utils.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 

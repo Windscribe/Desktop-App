@@ -4,8 +4,8 @@
 #include "../basepage.h"
 #include "securehotspotitem.h"
 #include "proxygatewayitem.h"
-#include "../Backend/Preferences/preferenceshelper.h"
-#include "../Backend/Preferences/preferences.h"
+#include "../backend/preferences/preferenceshelper.h"
+#include "../backend/preferences/preferences.h"
 
 namespace PreferencesWindow {
 

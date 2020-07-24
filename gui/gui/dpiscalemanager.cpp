@@ -2,7 +2,7 @@
 #include <QWidget>
 #include <QWindow>
 #include <QApplication>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 static QRect GetGeometryForScreen(const QScreen *screen)
 {

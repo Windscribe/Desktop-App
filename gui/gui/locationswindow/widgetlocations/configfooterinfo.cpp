@@ -3,9 +3,9 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QFileDialog>
-#include "GraphicResources/fontmanager.h"
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
 ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)

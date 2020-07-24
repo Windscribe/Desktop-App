@@ -6,25 +6,25 @@
 #include <QQueue>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
-#include "Utils/shadowmanager.h"
-#include "LocationsWindow/locationswindow.h"
-#include "LoginWindow/iloginwindow.h"
-#include "LoginWindow/ilogginginwindow.h"
-#include "LoginWindow/iinitwindow.h"
-#include "EmergencyConnectWindow/iemergencyconnectwindow.h"
-#include "ConnectWindow/iconnectwindow.h"
-#include "PreferencesWindow/ipreferenceswindow.h"
-#include "UpdateApp/iupdateappitem.h"
-#include "NewsFeedWindow/inewsfeedwindow.h"
-#include "Update/iupdatewindow.h"
-#include "ExternalConfig/iexternalconfigwindow.h"
-#include "BottomInfoWidget/ibottominfoitem.h"
-#include "GeneralMessage/igeneralmessagewindow.h"
-#include "GeneralMessage/igeneralmessagetwobuttonwindow.h"
-#include "Tooltips/tooltipcontroller.h"
+#include "utils/shadowmanager.h"
+#include "locationswindow/locationswindow.h"
+#include "loginwindow/iloginwindow.h"
+#include "loginwindow/ilogginginwindow.h"
+#include "loginwindow/iinitwindow.h"
+#include "emergencyconnectwindow/iemergencyconnectwindow.h"
+#include "connectwindow/iconnectwindow.h"
+#include "preferenceswindow/ipreferenceswindow.h"
+#include "updateapp/iupdateappitem.h"
+#include "newsfeedwindow/inewsfeedwindow.h"
+#include "update/iupdatewindow.h"
+#include "externalconfig/iexternalconfigwindow.h"
+#include "bottominfowidget/ibottominfoitem.h"
+#include "generalmessage/igeneralmessagewindow.h"
+#include "generalmessage/igeneralmessagetwobuttonwindow.h"
+#include "tooltips/tooltipcontroller.h"
 
-#include "../Backend/Preferences/preferenceshelper.h"
-#include "../Backend/Preferences/accountinfo.h"
+#include "../backend/preferences/preferenceshelper.h"
+#include "../backend/preferences/accountinfo.h"
 
 // Helper for MainWindow. Integrates all windows, controls the display of the current window, shadows, animations and transitions between windows
 class MainWindowController : public QObject

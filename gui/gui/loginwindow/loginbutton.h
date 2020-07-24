@@ -1,7 +1,7 @@
 #ifndef LOGINBUTTON_H
 #define LOGINBUTTON_H
 
-#include "CommonGraphics/clickablegraphicsobject.h"
+#include "commongraphics/clickablegraphicsobject.h"
 
 
 namespace LoginWindow {

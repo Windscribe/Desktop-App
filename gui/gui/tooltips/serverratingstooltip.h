@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QTimer>
-#include "CommonWidgets/iconbuttonwidget.h"
+#include "commonwidgets/iconbuttonwidget.h"
 #include "itooltip.h"
 
 enum ServerRatingState { SERVER_RATING_NONE, SERVER_RATING_GOOD, SERVER_RATING_BAD };

@@ -1,11 +1,11 @@
 #include "connectstateprotocolport.h"
-#include "GraphicResources/fontmanager.h"
-#include "Utils/protoenumtostring.h"
+#include "graphicresources/fontmanager.h"
+#include "utils/protoenumtostring.h"
 
 #include <QFontMetrics>
 #include <QPainter>
-#include "GraphicResources/imageresourcessvg.h"
-#include "CommonGraphics/commongraphics.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 

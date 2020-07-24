@@ -2,7 +2,7 @@
 #define NUMBERSPIXMAP_H
 
 #include <QFont>
-#include "GraphicResources/independentpixmap.h"
+#include "graphicresources/independentpixmap.h"
 
 
 class NumbersPixmap

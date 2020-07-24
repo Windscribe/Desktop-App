@@ -5,7 +5,7 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QCursor>
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
 #include <QDebug>

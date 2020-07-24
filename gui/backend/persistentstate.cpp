@@ -2,7 +2,7 @@
 
 #include <QRect>
 #include <QSettings>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 void PersistentState::load()
 {

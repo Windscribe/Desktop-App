@@ -2,9 +2,9 @@
 
 #include <QPainter>
 #include <QMessageBox>
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include <google/protobuf/util/message_differencer.h>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

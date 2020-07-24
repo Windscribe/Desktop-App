@@ -3,12 +3,12 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QCursor>
-#include "GraphicResources/imageresourcessvg.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QKeyEvent>
-#include "Utils/makecustomshadow.h"
+#include "utils/makecustomshadow.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 

@@ -5,8 +5,8 @@
 #include "../baseitem.h"
 #include "searchlineedititem.h"
 #include "appincludeditem.h"
-#include "PreferencesWindow/dividerline.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "preferenceswindow/dividerline.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

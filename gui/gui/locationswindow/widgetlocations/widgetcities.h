@@ -9,12 +9,12 @@
 #include <QAbstractScrollArea>
 #include <QEasingCurve>
 #include "icityitem.h"
-#include "../Backend/LocationsModel/basiccitiesmodel.h"
-#include "../Backend/LocationsModel/favoritelocationsstorage.h"
-#include "../Backend/Types/types.h"
+#include "../backend/locationsmodel/basiccitiesmodel.h"
+#include "../backend/locationsmodel/favoritelocationsstorage.h"
+#include "../backend/types/types.h"
 #include "iwidgetlocationsinfo.h"
 #include "backgroundpixmapanimation.h"
-#include "Tooltips/tooltiptypes.h"
+#include "tooltips/tooltiptypes.h"
 
 class FormConnect;
 

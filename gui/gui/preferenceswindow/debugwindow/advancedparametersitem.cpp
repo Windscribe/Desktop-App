@@ -3,10 +3,10 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
-#include "GraphicResources/imageresourcessvg.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
-#include "CommonGraphics/commongraphics.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

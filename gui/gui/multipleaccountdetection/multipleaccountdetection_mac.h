@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QDate>
-#include "Utils/simplecrypt.h"
+#include "utils/simplecrypt.h"
 #include "imultipleaccountdetection.h"
 
 class MultipleAccountDetection_mac : public IMultipleAccountDetection

@@ -1,8 +1,8 @@
 #include "tooltipbasic.h"
 
 #include <QPainter>
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/fontmanager.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 TooltipBasic::TooltipBasic(const TooltipInfo &info, QWidget *parent) : ITooltip(parent)
@@ -32,7 +32,7 @@ TooltipInfo TooltipBasic::toTooltipInfo()
     return ti;
 }
 
-void TooltipBasic::paintEvent(QPaintEvent *event)
+void TooltipBasic::paintEvent(QPaintEvent */*event*/)
 {
     QPainter painter(this);
     painter.setOpacity(OPACITY_OVERLAY_BACKGROUND);

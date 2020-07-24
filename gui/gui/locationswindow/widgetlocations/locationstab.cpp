@@ -1,11 +1,11 @@
 #include "locationstab.h"
 
 #include <QPainter>
-#include "GraphicResources/imageresourcessvg.h"
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
-#include "Tooltips/tooltiptypes.h"
+#include "tooltips/tooltiptypes.h"
 
 namespace GuiLocations {
 

@@ -1,7 +1,7 @@
 #ifndef VERTICALDIVIDERLINE_H
 #define VERTICALDIVIDERLINE_H
 
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/scalablegraphicsobject.h"
 
 namespace CommonGraphics {
 

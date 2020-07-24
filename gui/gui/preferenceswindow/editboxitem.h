@@ -4,8 +4,8 @@
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
 #include <QRegExpValidator>
-#include "CommonGraphics/iconbutton.h"
-#include "CommonGraphics/custommenulineedit.h"
+#include "commongraphics/iconbutton.h"
+#include "commongraphics/custommenulineedit.h"
 #include "dividerline.h"
 
 namespace PreferencesWindow {

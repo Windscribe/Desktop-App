@@ -1,14 +1,14 @@
 #ifndef ACCOUNTWINDOWITEM_H
 #define ACCOUNTWINDOWITEM_H
 
-#include "../Backend/Preferences/accountinfo.h"
+#include "../backend/preferences/accountinfo.h"
 #include "../basepage.h"
 #include "usernameitem.h"
 #include "emailitem.h"
 #include "planitem.h"
 #include "expiredateitem.h"
 #include "editaccountitem.h"
-#include "CommonGraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebuttondark.h"
 
 namespace PreferencesWindow {
 

@@ -1,13 +1,13 @@
 #include "generalwindowitem.h"
 
 #include "../dividerline.h"
-#include "Utils/protoenumtostring.h"
-#include "Utils/logger.h"
+#include "utils/protoenumtostring.h"
+#include "utils/logger.h"
 #include <QPainter>
 #include "languagecontroller.h"
 #include "../dividerline.h"
 #include "languagecontroller.h"
-#include "../../../Backend/persistentstate.h"
+#include "../../../backend/persistentstate.h"
 
 namespace PreferencesWindow {
 

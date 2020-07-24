@@ -1,7 +1,7 @@
 #include "guisettingsfromver1.h"
 
 #include <QSettings>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 ProtoTypes::GuiSettings GuiSettingsFromVer1::read()
 {

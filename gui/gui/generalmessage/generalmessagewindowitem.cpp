@@ -2,9 +2,9 @@
 
 #include <QPainter>
 #include <QKeyEvent>
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 
 namespace GeneralMessage {
 

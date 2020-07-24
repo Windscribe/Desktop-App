@@ -3,7 +3,7 @@
 #include <QPainter>
 #include <QStyleOption>
 #include "basepage.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 

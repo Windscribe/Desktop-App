@@ -4,9 +4,9 @@
 #include <QSvgRenderer>
 #include <QtGlobal>
 #include <QElapsedTimer>
-#include "GraphicResources/imageresourcessvg.h"
-#include "GraphicResources/fontmanager.h"
-#include "Utils/makecustomshadow.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
+#include "utils/makecustomshadow.h"
 #include "dpiscalemanager.h"
 
 namespace ConnectWindow {

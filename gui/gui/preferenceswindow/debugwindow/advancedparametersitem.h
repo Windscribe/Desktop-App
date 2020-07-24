@@ -4,10 +4,10 @@
 #include <QGraphicsProxyWidget>
 #include <QPlainTextEdit>
 #include "../baseitem.h"
-#include "CommonGraphics/bubblebuttonbright.h"
-#include "CommonGraphics/bubblebuttondark.h"
-#include "CommonWidgets/customtexteditwidget.h"
-#include "CommonWidgets/scrollareawidget.h"
+#include "commongraphics/bubblebuttonbright.h"
+#include "commongraphics/bubblebuttondark.h"
+#include "commonwidgets/customtexteditwidget.h"
+#include "commonwidgets/scrollareawidget.h"
 
 namespace PreferencesWindow {
 

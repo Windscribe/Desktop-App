@@ -2,11 +2,11 @@
 #define PROXYSETTINGSITEM_H
 
 #include "../baseitem.h"
-#include "../Backend/Preferences/preferences.h"
+#include "../backend/preferences/preferences.h"
 #include "../comboboxitem.h"
 #include "../editboxitem.h"
 #include "../dividerline.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 #include <QVariantAnimation>
 
 namespace PreferencesWindow {

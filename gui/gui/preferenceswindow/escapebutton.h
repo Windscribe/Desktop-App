@@ -2,8 +2,8 @@
 #define ESCAPEBUTTON_H
 
 #include <QGraphicsObject>
-#include "CommonGraphics/iconbutton.h"
-#include "CommonGraphics/scalablegraphicsobject.h"
+#include "commongraphics/iconbutton.h"
+#include "commongraphics/scalablegraphicsobject.h"
 
 namespace PreferencesWindow {
 

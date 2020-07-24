@@ -1,7 +1,7 @@
 #include "octetitem.h"
 
 #include <QTimer>
-#include "Utils/utils.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 OctetItem::OctetItem(QObject *parent, NumbersPixmap *numbersPixmap) : QObject(parent), numbersPixmap_(numbersPixmap)

@@ -3,8 +3,8 @@
 #include <QPainter>
 #include <QTimer>
 #include "../basepage.h"
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 

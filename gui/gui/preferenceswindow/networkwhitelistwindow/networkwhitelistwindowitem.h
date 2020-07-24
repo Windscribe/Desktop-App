@@ -2,12 +2,12 @@
 #define NETWORKWHITELISTWINDOWITEM_H
 
 #include "../basepage.h"
-#include "../Backend/Preferences/preferences.h"
-#include "../Backend/Preferences/preferenceshelper.h"
+#include "../backend/preferences/preferences.h"
+#include "../backend/preferences/preferenceshelper.h"
 #include "../checkboxitem.h"
-#include "PreferencesWindow/comboboxitem.h"
-#include "PreferencesWindow/textitem.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "preferenceswindow/comboboxitem.h"
+#include "preferenceswindow/textitem.h"
+#include "ipc/generated_proto/types.pb.h"
 #include "networklistitem.h"
 #include "currentnetworkitem.h"
 

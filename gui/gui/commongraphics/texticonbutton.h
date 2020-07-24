@@ -3,7 +3,7 @@
 
 #include <QVariantAnimation>
 #include <QGraphicsSceneHoverEvent>
-#include "GraphicResources/fontdescr.h"
+#include "graphicresources/fontdescr.h"
 #include "clickablegraphicsobject.h"
 
 namespace CommonGraphics {

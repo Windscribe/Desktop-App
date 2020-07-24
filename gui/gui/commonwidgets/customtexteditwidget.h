@@ -2,8 +2,8 @@
 #define CUSTOMTEXTEDITWIDGET_H
 
 #include <QPlainTextEdit>
-#include "CommonGraphics/custommenulineedit.h"
-#include "CommonWidgets/iscrollablewidget.h"
+#include "commongraphics/custommenulineedit.h"
+#include "commonwidgets/iscrollablewidget.h"
 
 class CustomTextEditWidget : public QPlainTextEdit, public IScrollableWidget
 {

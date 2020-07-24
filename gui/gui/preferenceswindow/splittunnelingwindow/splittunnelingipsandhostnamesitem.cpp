@@ -2,8 +2,8 @@
 
 #include <QPainter>
 #include <QMessageBox>
-#include "GraphicResources/fontmanager.h"
-#include "Utils/ipvalidation.h"
+#include "graphicresources/fontmanager.h"
+#include "utils/ipvalidation.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

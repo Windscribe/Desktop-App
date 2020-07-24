@@ -2,11 +2,11 @@
 
 #include <QPainter>
 #include <QTimer>
-#include "CommonGraphics/commongraphics.h"
-#include "GraphicResources/fontmanager.h"
-#include "GraphicResources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
-#include "Utils/utils.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 namespace UpgradeWidget {

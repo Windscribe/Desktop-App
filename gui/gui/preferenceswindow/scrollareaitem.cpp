@@ -1,7 +1,7 @@
 #include "scrollareaitem.h"
 
 #include <QPainter>
-#include <CommonGraphics/commongraphics.h>
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

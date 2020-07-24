@@ -4,8 +4,8 @@
 #include <QGraphicsObject>
 #include <QGraphicsPixmapItem>
 #include <QVariantAnimation>
-#include "CommonGraphics/commongraphics.h"
-#include "CommonGraphics/clickablegraphicsobject.h"
+#include "commongraphics/commongraphics.h"
+#include "commongraphics/clickablegraphicsobject.h"
 
 class IconButton : public ClickableGraphicsObject
 {

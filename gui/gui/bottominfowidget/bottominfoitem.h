@@ -3,8 +3,8 @@
 
 #include <QGraphicsObject>
 #include "ibottominfoitem.h"
-#include "SharingFeatures/sharingfeatureswindowitem.h"
-#include "UpgradeWidget/upgradewidgetitem.h"
+#include "sharingfeatures/sharingfeatureswindowitem.h"
+#include "upgradewidget/upgradewidgetitem.h"
 
 namespace SharingFeatures {
 

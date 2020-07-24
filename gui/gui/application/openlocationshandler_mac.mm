@@ -2,7 +2,7 @@
 
 #import <Cocoa/Cocoa.h>
 #include <AppKit/AppKit.h>
-#include "Utils/macutils.h"
+#include "utils/macutils.h"
 
 OpenLocationsHandler_mac * g_openLocationsHandler_mac = NULL;
 

@@ -30,12 +30,12 @@ private:
     const int MARGIN_HEIGHT = 8;
     const int TITLE_DESC_SPACING = 10;
 
-    const int leftTooltipMinY();
-    const int leftTooltipMaxY();
-    const int bottomTooltipMaxX();
-    const int bottomTooltipMinX();
+    int leftTooltipMinY() const;
+    int leftTooltipMaxY() const;
+    int bottomTooltipMaxX() const;
+    int bottomTooltipMinX() const;
 
-    const int widthOfDescriptionLabel();
+    int widthOfDescriptionLabel() const;
 
 };
 

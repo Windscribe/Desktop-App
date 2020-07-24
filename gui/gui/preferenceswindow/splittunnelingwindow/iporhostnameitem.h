@@ -2,9 +2,9 @@
 #define IPORHOSTNAMEITEM_H
 
 #include "../baseitem.h"
-#include "CommonGraphics/iconbutton.h"
+#include "commongraphics/iconbutton.h"
 #include "../dividerline.h"
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

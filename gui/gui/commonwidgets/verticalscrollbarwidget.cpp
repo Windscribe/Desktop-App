@@ -3,7 +3,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QtMath>
-#include "CommonGraphics/commongraphics.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 

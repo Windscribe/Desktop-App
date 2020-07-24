@@ -2,7 +2,7 @@
 
 #include <QWheelEvent>
 #include <QTimer>
-#include "CommonGraphics/commongraphics.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 #include <QPainter>

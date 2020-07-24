@@ -12,30 +12,30 @@
 #include <QScreen>
 #include <QWidgetAction>
 
-#include "Application/windscribeapplication.h"
-#include "CommonGraphics/commongraphics.h"
-#include "../Backend/persistentstate.h"
+#include "application/windscribeapplication.h"
+#include "commongraphics/commongraphics.h"
+#include "../backend/persistentstate.h"
 
-#include "Utils/hardcodedsettings.h"
-#include "Utils/utils.h"
-#include "Utils/logger.h"
-#include "Utils/mergelog.h"
+#include "utils/hardcodedsettings.h"
+#include "utils/utils.h"
+#include "utils/logger.h"
+#include "utils/mergelog.h"
 #include "languagecontroller.h"
-#include "MultipleAccountDetection/multipleaccountdetectionfactory.h"
-#include "Dialogs/dialoggetusernamepassword.h"
-#include "Dialogs/dialogmessagecpuusage.h"
+#include "multipleaccountdetection/multipleaccountdetectionfactory.h"
+#include "dialogs/dialoggetusernamepassword.h"
+#include "dialogs/dialogmessagecpuusage.h"
 
-#include "GraphicResources/imageresourcessvg.h"
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
-#include "LaunchOnStartup/launchonstartup.h"
+#include "launchonstartup/launchonstartup.h"
 
 #ifdef Q_OS_WIN
-    #include "Utils/winutils.h"
+    #include "utils/winutils.h"
     #include <windows.h>
 #else
-    #include "Utils/macutils.h"
-    #include "Utils/widgetutils_mac.h"
+    #include "utils/macutils.h"
+    #include "utils/widgetutils_mac.h"
 #endif
 
 QWidget *g_mainWindow = NULL;

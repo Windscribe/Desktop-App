@@ -3,7 +3,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QCursor>
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "commongraphics.h"
 #include "dpiscalemanager.h"
 

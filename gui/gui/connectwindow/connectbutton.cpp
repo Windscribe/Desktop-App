@@ -1,7 +1,7 @@
 #include "connectbutton.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
-#include "GraphicResources/imageresourcessvg.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
 namespace ConnectWindow {

@@ -1,6 +1,6 @@
 #include "custommenuwidget.h"
 
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
 CustomMenuWidget::CustomMenuWidget(QWidget *parent) : QMenu()

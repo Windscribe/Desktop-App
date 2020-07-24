@@ -2,7 +2,7 @@
 #define TYPES_H
 
 #include <QString>
-#include "IPC/generated_proto/types.pb.h"
+#include "ipc/generated_proto/types.pb.h"
 
 enum CONNECTION_ERROR { // common
                         AUTH_ERROR,

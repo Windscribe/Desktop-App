@@ -8,8 +8,8 @@
 #include <QElapsedTimer>
 #include <QTextLayout>
 #include "itemtimems.h"
-#include "../Backend/Types/pingtime.h"
-#include "../Backend/Types/locationid.h"
+#include "../backend/types/pingtime.h"
+#include "../backend/types/locationid.h"
 #include "citynode.h"
 
 namespace GuiLocations {

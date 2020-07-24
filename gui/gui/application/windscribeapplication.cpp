@@ -1,5 +1,5 @@
 #include "windscribeapplication.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <QAbstractEventDispatcher>
 
 #ifdef Q_OS_MAC

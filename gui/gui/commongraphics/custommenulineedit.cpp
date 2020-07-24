@@ -4,7 +4,7 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QStyle>
-#include "GraphicResources/fontmanager.h"
+#include "graphicresources/fontmanager.h"
 
 CustomMenuLineEdit::CustomMenuLineEdit(QWidget *parent) : BlockableQLineEdit (parent)
 {

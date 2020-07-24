@@ -2,12 +2,12 @@
 
 #include "dpiscalemanager.h"
 
-const int ITooltip::getWidth()
+int ITooltip::getWidth() const
 {
     return width_;
 }
 
-const int ITooltip::getHeight()
+int ITooltip::getHeight() const
 {
     return height_;
 }
@@ -22,7 +22,7 @@ void ITooltip::setShowState(TooltipShowState showState)
     showState_ = showState;
 }
 
-const int ITooltip::distanceFromOriginToTailTip()
+int ITooltip::distanceFromOriginToTailTip() const
 {
     int distance = 0;
     if (tailType_ == TOOLTIP_TAIL_LEFT)
@@ -43,14 +43,14 @@ const int ITooltip::distanceFromOriginToTailTip()
     return distance;
 }
 
-const int ITooltip::additionalTailWidth()
+int ITooltip::additionalTailWidth() const
 {
     int tailWidth = 0;
     if (tailType_ == TOOLTIP_TAIL_LEFT) tailWidth = TOOLTIP_TRIANGLE_WIDTH/2 * G_SCALE;
     return tailWidth;
 }
 
-const int ITooltip::additionalTailHeight()
+int ITooltip::additionalTailHeight() const
 {
     int tailHeight = 0;
     if (tailType_ == TOOLTIP_TAIL_BOTTOM) tailHeight = TOOLTIP_TRIANGLE_HEIGHT * G_SCALE;
@@ -113,22 +113,22 @@ void ITooltip::initWindowFlags()
     setAttribute(Qt::WA_TranslucentBackground, true);
 }
 
-const int ITooltip::leftTooltipMinY()
+int ITooltip::leftTooltipMinY() const
 {
     return TOOLTIP_OFFSET_ROUNDED_CORNER*G_SCALE + TOOLTIP_TRIANGLE_HEIGHT*G_SCALE;
 }
 
-const int ITooltip::leftTooltipMaxY()
+int ITooltip::leftTooltipMaxY() const
 {
     return height_ - TOOLTIP_TRIANGLE_HEIGHT*G_SCALE - TOOLTIP_OFFSET_ROUNDED_CORNER*G_SCALE;
 }
 
-const int ITooltip::bottomTooltipMaxX()
+int ITooltip::bottomTooltipMaxX() const
 {
     return width_ - TOOLTIP_TRIANGLE_WIDTH*G_SCALE - TOOLTIP_OFFSET_ROUNDED_CORNER*G_SCALE + additionalTailWidth();
 }
 
-const int ITooltip::bottomTooltipMinX()
+int ITooltip::bottomTooltipMinX() const
 {
     return TOOLTIP_OFFSET_ROUNDED_CORNER*G_SCALE + additionalTailWidth();
 }

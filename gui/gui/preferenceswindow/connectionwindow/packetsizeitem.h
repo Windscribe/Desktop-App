@@ -3,13 +3,13 @@
 
 #include <QTimer>
 #include "../baseitem.h"
-#include "../Backend/Preferences/preferences.h"
+#include "../backend/preferences/preferences.h"
 #include "automanualswitchitem.h"
 
 #include <QVariantAnimation>
 #include "msseditboxitem.h"
-#include "IPC/generated_proto/types.pb.h"
-#include "Tooltips/tooltiptypes.h"
+#include "ipc/generated_proto/types.pb.h"
+#include "tooltips/tooltiptypes.h"
 
 namespace PreferencesWindow {
 

@@ -1,7 +1,7 @@
 #include "networklistitem.h"
 
-#include "../Backend/Types/types.h"
-#include "../Backend/persistentstate.h"
+#include "../backend/types/types.h"
+#include "../backend/persistentstate.h"
 #include "networkwhitelistshared.h"
 
 namespace PreferencesWindow {

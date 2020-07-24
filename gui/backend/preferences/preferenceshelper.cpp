@@ -1,6 +1,6 @@
 #include "preferenceshelper.h"
-#include "Utils/languagesutil.h"
-#include "Version/appversion.h"
+#include "utils/languagesutil.h"
+#include "version/appversion.h"
 
 PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
     isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false)
