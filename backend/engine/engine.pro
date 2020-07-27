@@ -215,13 +215,13 @@ QMAKE_MAC_XCODE_SETTINGS += MY_ENTITLEMENTS
 #postbuild copy commands
 copy_resources.commands = $(COPY_DIR) $$PWD/mac/resources $$OUT_PWD/WindscribeEngine.app/Contents
 mkdir_launch_services.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
-copy_helper.commands = $(COPY_DIR) $$PWD/../../../client-desktop-installer/Mac/binaries/helper/com.windscribe.helper.macos $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
+copy_helper.commands = $(COPY_DIR) $$PWD/../../../client-desktop-installer/mac/binaries/helper/com.windscribe.helper.macos $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
 copy_profile.commands = $(COPY_DIR) $$PWD/../mac/provisioning_profile/embedded.provisionprofile $$OUT_PWD/WindscribeEngine.app/Contents
 mkdir_helpers.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Helpers
 copy_openvpn.commands = cp $$HOMEDIR/LibsWindscribe/openvpn_2_4_8/sbin/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_4_8
 copy_stunnel.commands = cp $$HOMEDIR/LibsWindscribe/stunnel/bin/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel
-copy_wstunnel.commands = cp $$PWD/../Mac/wstunnel/windscribewstunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewstunnel
-copy_kext.commands = $(COPY_DIR) $$PWD/../Mac/Kext/Binary/WindscribeKext.kext $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/WindscribeKext.kext
+copy_wstunnel.commands = cp $$PWD/../mac/wstunnel/windscribewstunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewstunnel
+copy_kext.commands = $(COPY_DIR) $$PWD/../mac/kext/Binary/WindscribeKext.kext $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/WindscribeKext.kext
 
 
 first.depends = $(first) copy_resources mkdir_launch_services copy_helper copy_profile mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_kext

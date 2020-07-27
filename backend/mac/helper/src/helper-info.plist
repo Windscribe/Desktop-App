@@ -16,8 +16,8 @@
 	<string>10.11</string>
 	<key>SMAuthorizedClients</key>
 	<array>
-		<string>identifier &quot;com.windscribe.installer.macos&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = GYZJYS7XUG</string>
 		<string>identifier &quot;com.windscribe.engine.macos&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = GYZJYS7XUG</string>
+		<string>identifier &quot;com.windscribe.installer.macos&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = GYZJYS7XUG</string>
 	</array>
 </dict>
 </plist>
