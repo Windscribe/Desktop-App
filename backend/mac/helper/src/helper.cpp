@@ -1,6 +1,6 @@
 #include <syslog.h>
-#include "Server.h"
-#include "Logger.h"
+#include "server.h"
+#include "logger.h"
 
 Server server;
 

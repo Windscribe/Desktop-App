@@ -213,10 +213,10 @@ MY_ENTITLEMENTS.value = $$PWD/mac/windscribe.entitlements
 QMAKE_MAC_XCODE_SETTINGS += MY_ENTITLEMENTS
 
 #postbuild copy commands
-copy_resources.commands = $(COPY_DIR) $$PWD/Mac/Resources $$OUT_PWD/WindscribeEngine.app/Contents
+copy_resources.commands = $(COPY_DIR) $$PWD/mac/resources $$OUT_PWD/WindscribeEngine.app/Contents
 mkdir_launch_services.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
-copy_helper.commands = $(COPY_DIR) $$PWD/../../client-desktop-installer/Mac/Binaries/Helper/com.windscribe.helper.macos $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
-copy_profile.commands = $(COPY_DIR) $$PWD/../Mac/ProvisioningProfile/embedded.provisionprofile $$OUT_PWD/WindscribeEngine.app/Contents
+copy_helper.commands = $(COPY_DIR) $$PWD/../../../client-desktop-installer/Mac/binaries/helper/com.windscribe.helper.macos $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
+copy_profile.commands = $(COPY_DIR) $$PWD/../mac/provisioning_profile/embedded.provisionprofile $$OUT_PWD/WindscribeEngine.app/Contents
 mkdir_helpers.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Helpers
 copy_openvpn.commands = cp $$HOMEDIR/LibsWindscribe/openvpn_2_4_8/sbin/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_4_8
 copy_stunnel.commands = cp $$HOMEDIR/LibsWindscribe/stunnel/bin/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel

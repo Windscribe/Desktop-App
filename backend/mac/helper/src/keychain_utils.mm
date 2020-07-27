@@ -33,7 +33,7 @@ NSArray *trustedApps()
     return apps;
 }
 
-bool KeyChainUtils::setUsernameAndPassword(const char *label, const char *serviceName, const char *description, const char *username, const char *password)
+bool setUsernameAndPassword(const char *label, const char *serviceName, const char *description, const char *username, const char *password)
 {
     // first try search existing keychain item
     NSMutableDictionary *searchDictionary = [[NSMutableDictionary alloc] init];

@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		003EA384242E7A2100DCF49A /* appdelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 003EA383242E7A2100DCF49A /* appdelegate.m */; };
-		003EA389242E7A2200DCF49A /* assets.xcassets in resources */ = {isa = PBXBuildFile; fileRef = 003EA388242E7A2200DCF49A /* assets.xcassets */; };
-		003EA38C242E7A2200DCF49A /* main.storyboard in resources */ = {isa = PBXBuildFile; fileRef = 003EA38A242E7A2200DCF49A /* main.storyboard */; };
+		003EA389242E7A2200DCF49A /* assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 003EA388242E7A2200DCF49A /* assets.xcassets */; };
+		003EA38C242E7A2200DCF49A /* main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 003EA38A242E7A2200DCF49A /* main.storyboard */; };
 		003EA38F242E7A2200DCF49A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 003EA38E242E7A2200DCF49A /* main.m */; };
 /* End PBXBuildFile section */
 
@@ -38,7 +38,7 @@
 		003EA376242E7A2100DCF49A = {
 			isa = PBXGroup;
 			children = (
-				003EA381242E7A2100DCF49A /* WindscribeLauncher */,
+				003EA381242E7A2100DCF49A /* windscribelauncher */,
 				003EA380242E7A2100DCF49A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -72,9 +72,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 003EA393242E7A2200DCF49A /* Build configuration list for PBXNativeTarget "WindscribeLauncher" */;
 			buildPhases = (
-				003EA37B242E7A2100DCF49A /* sources */,
-				003EA37C242E7A2100DCF49A /* frameworks */,
-				003EA37D242E7A2100DCF49A /* resources */,
+				003EA37B242E7A2100DCF49A /* Sources */,
+				003EA37C242E7A2100DCF49A /* Frameworks */,
+				003EA37D242E7A2100DCF49A /* Resources */,
 			);
 			buildRules = (
 			);
@@ -99,7 +99,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 003EA37A242E7A2100DCF49A /* Build configuration list for PBXProject "WindscribeLauncher" */;
+			buildConfigurationList = 003EA37A242E7A2100DCF49A /* Build configuration list for PBXProject "windscribelauncher" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -145,7 +145,7 @@
 		003EA38A242E7A2200DCF49A /* main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				003EA38B242E7A2200DCF49A /* Base */,
+				003EA38B242E7A2200DCF49A /* base */,
 			);
 			name = main.storyboard;
 			sourceTree = "<group>";
@@ -265,7 +265,7 @@
 		003EA394242E7A2200DCF49A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = appicon;
 				CODE_SIGN_ENTITLEMENTS = windscribelauncher/windscribelauncher.entitlements;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
@@ -288,7 +288,7 @@
 		003EA395242E7A2200DCF49A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = appicon;
 				CODE_SIGN_ENTITLEMENTS = windscribelauncher/windscribelauncher.entitlements;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
@@ -311,7 +311,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		003EA37A242E7A2100DCF49A /* Build configuration list for PBXProject "WindscribeLauncher" */ = {
+		003EA37A242E7A2100DCF49A /* Build configuration list for PBXProject "windscribelauncher" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				003EA391242E7A2200DCF49A /* Debug */,
