@@ -5,7 +5,9 @@
 
 namespace ConnectWindow {
 
-ServerRatingIndicator::ServerRatingIndicator(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent)
+ServerRatingIndicator::ServerRatingIndicator(ScalableGraphicsObject *parent)
+    : ClickableGraphicsObject(parent), width_(0), height_(0),
+      connectState_(ProtoTypes::DISCONNECTED), pingTime_(PingTime::PING_FAILED)
 {
     setClickable(true);
     updateDimensions();
