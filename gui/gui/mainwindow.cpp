@@ -421,7 +421,6 @@ bool MainWindow::event(QEvent *event)
     else if (event->type() == QEvent::WindowDeactivate)
     {
         // qDebug() << "WindowDeactivate";
-#ifdef Q_OS_MAC
         if (backend_->isInitFinished())
         {
             if (backend_->getPreferences()->isDockedToTray())
@@ -430,7 +429,7 @@ bool MainWindow::event(QEvent *event)
                 deactivateAndHide();
             }
         }
-#endif
+
         setBackendAppActiveState(false);
         activeState_ = false;
     }

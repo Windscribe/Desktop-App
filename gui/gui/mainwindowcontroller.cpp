@@ -2444,6 +2444,119 @@ int MainWindowController::preferencesShadowOffsetY()
     return 50 * G_SCALE;
 }
 
+#ifdef Q_OS_WIN
+MainWindowController::TaskbarLocation MainWindowController::primaryScreenTaskbarLocation_win()
+{
+    TaskbarLocation taskbarLocation = TASKBAR_HIDDEN;
+
+    // use system tray icon as anchor for primary screen since QGuiApplication::primaryScreen() doesn't update after app startup
+    QRect rcIcon = ((MainWindow*) mainWindow_)->trayIconRect();
+    QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
+    if (!screen)
+    {
+        qCDebug(LOG_BASIC) << "Couldn't find screen at system icon location";
+        return taskbarLocation;
+    }
+
+    QRect desktopAvailableRc = screen->availableGeometry();
+    QRect desktopScreenRc = screen->geometry();
+
+    // qDebug() << "Desktop Available: " << desktopAvailableRc;
+    // qDebug() << "Desktop Screen: "    << desktopScreenRc;
+
+    if (desktopAvailableRc.x() > desktopScreenRc.x())
+    {
+        taskbarLocation = TASKBAR_LEFT;
+    }
+    else if (desktopAvailableRc.y() > desktopScreenRc.y())
+    {
+        taskbarLocation = TASKBAR_TOP;
+    }
+    else if (desktopAvailableRc.width() < desktopScreenRc.width())
+    {
+        taskbarLocation = TASKBAR_RIGHT;
+    }
+    else if (desktopAvailableRc.height() < desktopScreenRc.height())
+    {
+        taskbarLocation = TASKBAR_BOTTOM;
+    }
+
+    return taskbarLocation;
+}
+
+QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadowSize, int widthWithShadow, int heightWithShadow)
+{
+    TaskbarLocation taskbarLocation = primaryScreenTaskbarLocation_win();
+    // qDebug() << "TaskbarLocation: " << taskbarLocation;
+
+    QRect rcIcon = ((MainWindow*) mainWindow_)->trayIconRect();
+    QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
+    QRect desktopAvailableRc = screen->availableGeometry();
+
+    QRect geo;
+    if (taskbarLocation == TASKBAR_TOP)
+    {
+        geo = QRect(rcIcon.left() + rcIcon.width()/2 - (widthWithShadow)/2,
+                    desktopAvailableRc.top() - shadowSize,
+                    widthWithShadow, heightWithShadow);
+
+        if (geo.right() > desktopAvailableRc.right())
+        {
+            geo.moveRight(desktopAvailableRc.right());
+        }
+    }
+    else if (taskbarLocation == TASKBAR_LEFT)
+    {
+        geo = QRect(desktopAvailableRc.left() - shadowSize,
+                    desktopAvailableRc.bottom() - heightWithShadow + shadowSize,
+                    widthWithShadow, heightWithShadow);
+    }
+    else if (taskbarLocation == TASKBAR_RIGHT)
+    {
+        geo = QRect(desktopAvailableRc.right() - width - shadowSize + 1*G_SCALE, // not sure why its off by 1 pixel
+                    desktopAvailableRc.bottom() - heightWithShadow + shadowSize,
+                    widthWithShadow, heightWithShadow);
+    }
+    else if (taskbarLocation == TASKBAR_BOTTOM)
+    {
+        geo = QRect(rcIcon.left() + rcIcon.width()/2 - widthWithShadow/2,
+                    desktopAvailableRc.bottom() - heightWithShadow + shadowSize,
+                    widthWithShadow, heightWithShadow);
+
+        if (geo.right() > desktopAvailableRc.right())
+        {
+            geo.moveRight(desktopAvailableRc.right());
+        }
+    }
+    else // TASKBAR_HIDDEN
+    {
+//        qDebug() << "Coundn't determine taskbar location -- putting app on primary screen bottom right";
+//        qDebug() << "Desktop Available: " << desktopAvailableRc;
+
+        // determine hidden taskbar location from tray icon
+        // BOTTOM and RIGHT use bottom-right corner
+        int posX = desktopAvailableRc.right() - widthWithShadow;
+        int posY = desktopAvailableRc.bottom() - heightWithShadow + shadowSize;
+        if (rcIcon.y() == 0) // TOP
+        {
+            posX = desktopAvailableRc.right() - widthWithShadow;
+            posY = -shadowSize;
+        }
+        else if (rcIcon.x() < desktopAvailableRc.width()/2) // LEFT
+        {
+            posX = 0;
+            posY = desktopAvailableRc.bottom() - heightWithShadow + shadowSize;
+        }
+
+        geo = QRect(posX, posY, widthWithShadow, heightWithShadow);
+    }
+
+    // qDebug() << "New GEO: " << geo;
+
+    return geo;
+}
+#endif
+
 // update main window geometry, view_ geometry, scene rect, depending current window, child item pos, etc...
 void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &height, int &addHeightToGeometry)
 {
@@ -2580,18 +2693,18 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
         QDesktopWidget *desktopWidget = QApplication::desktop();
         int screenNumber = desktopWidget->screenNumber(rcIcon.topLeft());
-        QRect desktopRc = desktopWidget->availableGeometry(screenNumber);
+        QRect desktopAvailableRc = desktopWidget->availableGeometry(screenNumber);
 
 #ifdef Q_OS_WIN
-        int SHADOW_OFFSET = 30 * G_SCALE;
-        geo = QRect(rcIcon.left() + rcIcon.width() / 2 - (width + shadowSize*2) / 2, desktopRc.bottom() - heightWithShadow + SHADOW_OFFSET, widthWithShadow, heightWithShadow);
+        geo = taskbarAwareDockedGeometry_win(width, shadowSize, widthWithShadow, heightWithShadow);
 #else
-        geo = QRect(rcIcon.left() + rcIcon.width() / 2 - (width + shadowSize*2) / 2, desktopRc.top(), widthWithShadow, heightWithShadow);
-#endif
-        if (geo.right() > desktopRc.right())
+        geo = QRect(rcIcon.left() + rcIcon.width() / 2 - (width + shadowSize*2) / 2, desktopAvailableRc.top(), widthWithShadow, heightWithShadow);
+
+        if (geo.right() > desktopAvailableRc.right())
         {
-            geo.moveRight(desktopRc.right());
+            geo.moveRight(desktopAvailableRc.right());
         }
+#endif
     }
 
     mainWindow_->setGeometry(geo);

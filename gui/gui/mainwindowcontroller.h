@@ -246,6 +246,12 @@ private:
     int initWindowInitHeight_;
 
     bool isDocked_;
+
+#ifdef Q_OS_WIN
+    enum TaskbarLocation { TASKBAR_HIDDEN, TASKBAR_BOTTOM, TASKBAR_LEFT, TASKBAR_RIGHT, TASKBAR_TOP };
+    TaskbarLocation primaryScreenTaskbarLocation_win();
+    QRect taskbarAwareDockedGeometry_win(int width, int shadowSize, int widthWithShadow, int heightWithShadow);
+#endif
 };
 
 #endif // MAINWINDOWCONTROLLER_H
