@@ -330,6 +330,7 @@ void LocationsTab::onClickFavoriteLocations()
 void LocationsTab::onWhiteLinePosChanged(const QVariant &value)
 {
     curWhiteLinePos_ = value.toInt();
+    update();
 }
 
 void LocationsTab::onAllLocationsHeightChanged(int oldHeight, int newHeight)
