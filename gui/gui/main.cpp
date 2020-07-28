@@ -10,7 +10,7 @@
 #include "graphicresources/imageresourcessvg.h"
 
 #ifdef Q_OS_WIN
-    #include "qpplication/preventmultipleinstances_win.h"
+    #include "application/preventmultipleinstances_win.h"
     #include "utils/scaleutils_win.h"
 #else
     #include "utils/macutils.h"
