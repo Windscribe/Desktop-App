@@ -14,6 +14,11 @@ DnsCache::~DnsCache()
 
 void DnsCache::resolve(const QString &hostname, bool bUseCustomDns, void *userData)
 {
+    resolve(hostname, -1, bUseCustomDns, userData);
+}
+
+void DnsCache::resolve(const QString &hostname, int cacheTimeout, bool bUseCustomDns, void *userData)
+{
     // if hostname this is IP then return immediatelly
     if (IpValidation::instance().isIp(hostname))
     {
@@ -22,18 +27,22 @@ void DnsCache::resolve(const QString &hostname, bool bUseCustomDns, void *userDa
         return;
     }
 
-    auto it = resolvedHosts_.find(hostname);
+    if (cacheTimeout < 0)
+        cacheTimeout = CACHE_TIMEOUT;
 
-    if (it != resolvedHosts_.end())
-    {
-        qint64 curTime = QDateTime::currentMSecsSinceEpoch();
-        if ((curTime - it.value().time) <= CACHE_TIMEOUT)
+    if (cacheTimeout > 0) {
+        auto it = resolvedHosts_.find(hostname);
+        if (it != resolvedHosts_.end())
         {
-            emit resolved(true, userData, it.value().ips);
-            return;
+            qint64 curTime = QDateTime::currentMSecsSinceEpoch();
+            if ((curTime - it.value().time) <= cacheTimeout)
+            {
+                emit resolved(true, userData, it.value().ips);
+                return;
+            }
         }
     }
-    
+
     PendingResolvingHosts prh;
     prh.hostname = hostname;
     prh.userData = userData;

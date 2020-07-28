@@ -25,19 +25,27 @@ const int typeIdStaticIps = qRegisterMetaType<QSharedPointer<StaticIpsLocation> 
 class ServerAPI::BaseRequest
 {
 public:
+    enum class HandlerType { NONE, DNS, CURL };
+    enum { DEFAULT_DNS_CACHING_TIMEOUT = -1, NO_DNS_CACHING = 0 };
+
     BaseRequest(const QString &hostname, int replyType, uint timeout, uint userRole)
         : isActive_(true), replyType_(replyType), timeout_(timeout), userRole_(userRole),
           startTime_(QDateTime::currentMSecsSinceEpoch()), hostname_(hostname),
-          curlRequest_(nullptr), isCurlRequestSubmitted_(false) {}
+          curlRequest_(nullptr), isCurlRequestSubmitted_(false), handlerType_(HandlerType::NONE) {}
     virtual ~BaseRequest() {
         if (!isCurlRequestSubmitted_)
             delete curlRequest_;
     }
+    virtual int getDnsCachingTimeout() const { return DEFAULT_DNS_CACHING_TIMEOUT; }
+
     void setActive(bool value) { isActive_ = value; }
     void setCurlRequestSubmitted(bool value) { isCurlRequestSubmitted_ = value; }
+    void setWaitingHandlerType(HandlerType type) { handlerType_ = type; }
 
     bool isActive() const { return isActive_; }
     bool isCurlRequestSubmitted() const { return isCurlRequestSubmitted_; }
+    bool isWaitingForDnsResponse() const { return handlerType_ == HandlerType::DNS; }
+    bool isWaitingForCurlResponse() const { return handlerType_ == HandlerType::CURL; }
     int getReplyType() const { return replyType_; }
     uint getTimeout() const { return timeout_; }
     uint getUserRole() const { return userRole_; }
@@ -61,6 +69,7 @@ private:
     QString hostname_;
     CurlRequest *curlRequest_;
     bool isCurlRequestSubmitted_;
+    HandlerType handlerType_;
 };
 
 namespace
@@ -248,6 +257,7 @@ public:
                 uint userRole)
         : ServerAPI::BaseRequest(hostname, replyType, timeout, userRole),
           commandId_(commandId) {}
+    int getDnsCachingTimeout() const override { return NO_DNS_CACHING; }
 
     quint64 getCommandId() const { return commandId_; }
 
@@ -392,8 +402,10 @@ void ServerAPI::setUseCustomDns(bool bUseCustomDns)
 
 void ServerAPI::submitDnsRequest(BaseRequest *request)
 {
-    if (request && request->isActive())
-        dnsCache_->resolve(hostname_, bUseCustomDns_, request);
+    if (request && request->isActive()) {
+        request->setWaitingHandlerType(BaseRequest::HandlerType::DNS);
+        dnsCache_->resolve(hostname_, request->getDnsCachingTimeout(), bUseCustomDns_, request);
+    }
 }
 
 void ServerAPI::submitCurlRequest(BaseRequest *request, CurlRequest::MethodType type,
@@ -405,6 +417,9 @@ void ServerAPI::submitCurlRequest(BaseRequest *request, CurlRequest::MethodType 
 
     auto *curl_request = request->getCurlRequest();
     Q_ASSERT(curl_request != nullptr);
+
+    // Make sure that cURL callback will be called on timeout.
+    request->setWaitingHandlerType(BaseRequest::HandlerType::CURL);
 
     const auto current_time = QDateTime::currentMSecsSinceEpoch();
     const auto delay = static_cast<uint>(current_time - request->getStartTime());
@@ -851,12 +866,16 @@ void ServerAPI::onDnsResolved(bool success, void *userData, const QStringList &i
     Q_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
 
     // If this request is active, call the corresponding handler.
+    Q_ASSERT(rd->isWaitingForDnsResponse());
     Q_ASSERT(handleDnsResolveFuncTable_[reply_type] != nullptr);
     if (handleDnsResolveFuncTable_[reply_type])
         (this->*handleDnsResolveFuncTable_[reply_type])(rd, success, ips);
 
+    if (rd->isWaitingForDnsResponse())
+        rd->setWaitingHandlerType(BaseRequest::HandlerType::NONE);
+
     // If there is no active curl request, we are done.
-    if (!rd->isCurlRequestSubmitted())
+    if (!rd->isWaitingForCurlResponse())
         rd->setActive(false);
 }
 
@@ -875,10 +894,14 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
 
      // If this request is active, call the corresponding handler.
     if (rd->isActive()) {
+        Q_ASSERT(rd->isWaitingForCurlResponse());
         Q_ASSERT(handleCurlReplyFuncTable_[reply_type] != nullptr);
         if (handleCurlReplyFuncTable_[reply_type])
             (this->*handleCurlReplyFuncTable_[reply_type])(rd, true);
     }
+
+    if (rd->isWaitingForCurlResponse())
+        rd->setWaitingHandlerType(BaseRequest::HandlerType::NONE);
 
     // We are done with this request.
     rd->setCurlRequestSubmitted(false);
@@ -896,11 +919,11 @@ void ServerAPI::handleRequestTimeout(BaseRequest *rd)
     const auto reply_type = rd->getReplyType();
     Q_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
 
-    if (rd->isCurlRequestSubmitted()) {
+    if (rd->isWaitingForCurlResponse()) {
         Q_ASSERT(handleCurlReplyFuncTable_[reply_type] != nullptr);
         if (handleCurlReplyFuncTable_[reply_type])
             (this->*handleCurlReplyFuncTable_[reply_type])(rd, false);
-    } else {
+    } else if (rd->isWaitingForDnsResponse()) {
         Q_ASSERT(handleDnsResolveFuncTable_[reply_type] != nullptr);
         if (handleDnsResolveFuncTable_[reply_type])
             (this->*handleDnsResolveFuncTable_[reply_type])(rd, false, QStringList());

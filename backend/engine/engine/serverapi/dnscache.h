@@ -13,7 +13,8 @@ public:
     explicit DnsCache(QObject *parent = 0);
     virtual ~DnsCache();
 
-    void resolve(const QString &hostname, bool bUseCustomDnsm, void *userData);
+    void resolve(const QString &hostname, bool bUseCustomDns, void *userData);
+    void resolve(const QString &hostname, int cacheTimeout, bool bUseCustomDns, void *userData);
 
 signals:
     void resolved(bool success, void *userData, const QStringList &ips);
