@@ -14,6 +14,7 @@ namespace PreferencesWindow {
 PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * parent) : ScalableGraphicsObject(parent)
     , loggedIn_(false)
     , curTab_(TAB_UNDEFINED)
+    , curInSubpage_(false)
 {
     height_ = 303;
     curLineStartPos_ = GENERAL_BUTTON_Y;
@@ -119,7 +120,7 @@ void PreferencesTabControlItem::setHeight(int newHeight)
 
 void PreferencesTabControlItem::changeToGeneral()
 {
-    if (curTab_ != TAB_GENERAL)
+    if (curTab_ != TAB_GENERAL || curInSubpage_)
     {
         clearStickySelectionOnAllTabs();
         fadeButtons(OPACITY_UNHOVER_ICON_STANDALONE, ANIMATION_SPEED_FAST);
@@ -136,7 +137,7 @@ void PreferencesTabControlItem::changeToGeneral()
 
 void PreferencesTabControlItem::changeToAccount()
 {
-    if (curTab_ != TAB_ACCOUNT)
+    if (curTab_ != TAB_ACCOUNT || curInSubpage_)
     {
         clearStickySelectionOnAllTabs();
         fadeButtons(OPACITY_UNHOVER_ICON_STANDALONE, ANIMATION_SPEED_FAST);
@@ -153,7 +154,7 @@ void PreferencesTabControlItem::changeToAccount()
 
 void PreferencesTabControlItem::changeToConnection()
 {
-    if (curTab_ != TAB_CONNECTION)
+    if (curTab_ != TAB_CONNECTION || curInSubpage_)
     {
         clearStickySelectionOnAllTabs();
         fadeButtons(OPACITY_UNHOVER_ICON_STANDALONE, ANIMATION_SPEED_FAST);
@@ -170,7 +171,7 @@ void PreferencesTabControlItem::changeToConnection()
 
 void PreferencesTabControlItem::changeToShare()
 {
-    if (curTab_ != TAB_SHARE)
+    if (curTab_ != TAB_SHARE || curInSubpage_)
     {
         clearStickySelectionOnAllTabs();
         fadeButtons(OPACITY_UNHOVER_ICON_STANDALONE, ANIMATION_SPEED_FAST);
@@ -187,7 +188,7 @@ void PreferencesTabControlItem::changeToShare()
 
 void PreferencesTabControlItem::changeToDebug()
 {
-    if (curTab_ != TAB_DEBUG)
+    if (curTab_ != TAB_DEBUG || curInSubpage_)
     {
         clearStickySelectionOnAllTabs();
         fadeButtons(OPACITY_UNHOVER_ICON_STANDALONE, ANIMATION_SPEED_FAST);
@@ -200,6 +201,11 @@ void PreferencesTabControlItem::changeToDebug()
         curTab_ = TAB_DEBUG;
         emit currentTabChanged(TAB_DEBUG);
     }
+}
+
+void PreferencesTabControlItem::setInSubpage(bool inSubpage)
+{
+    curInSubpage_ = inSubpage;
 }
 
 void PreferencesTabControlItem::setLoggedIn(bool loggedIn)

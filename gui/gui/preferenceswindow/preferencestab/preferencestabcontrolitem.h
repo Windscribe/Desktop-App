@@ -33,6 +33,7 @@ public:
     void changeToShare();
     void changeToDebug();
 
+    virtual void setInSubpage(bool inSubpage);
     virtual void setLoggedIn(bool loggedIn);
     virtual void updateScaling();
 
@@ -87,6 +88,7 @@ private:
     QVariantAnimation linePosAnimation_;
 
     PREFERENCES_TAB_TYPE curTab_;
+    bool curInSubpage_;
 
     void fadeButtons(double newOpacity, int animationSpeed);
 

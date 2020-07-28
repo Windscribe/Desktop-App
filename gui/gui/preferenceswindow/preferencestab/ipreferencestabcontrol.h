@@ -16,6 +16,7 @@ public:
     virtual PREFERENCES_TAB_TYPE currentTab() = 0;
     virtual void setCurrentTab(PREFERENCES_TAB_TYPE tab) = 0;
     virtual void setHeight(int height) = 0;
+    virtual void setInSubpage(bool mode) = 0;
     virtual void setLoggedIn(bool loggedIn) = 0;
     virtual void updateScaling() = 0;
 

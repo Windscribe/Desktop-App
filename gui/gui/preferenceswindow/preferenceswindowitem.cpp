@@ -609,6 +609,7 @@ void PreferencesWindowItem::keyPressEvent(QKeyEvent *event)
 void PreferencesWindowItem::setShowSubpageMode(bool isShowSubPage)
 {
     isShowSubPage_ = isShowSubPage;
+    tabControlItem_->setInSubpage(isShowSubPage);
 }
 
 QRectF PreferencesWindowItem::getBottomResizeArea()
