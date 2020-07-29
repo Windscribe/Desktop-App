@@ -34,7 +34,7 @@
     <CustomAction Id="EvaluateWintun" SuppressModularization="yes" BinaryKey="installer.dll" DllEntry="MsiEvaluate" Execute="immediate" />
     <CustomAction Id="ProcessWintun" SuppressModularization="yes" BinaryKey="installer.dll" DllEntry="MsiProcess" Execute="deferred" Impersonate="no" />
     <InstallExecuteSequence>
-      <Custom Action="EvaluateWintun" After="CostFinalize" />
+      <Custom Action="EvaluateWintun" Before="ProcessWintun" />
       <Custom Action="ProcessWintun" After="InstallFiles" />
     </InstallExecuteSequence>
 

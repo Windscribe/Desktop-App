@@ -29,20 +29,20 @@
     Note: Use explicit Inputs/Outputs as WindowsDriver.Common.targets triggers driver re-packaging and signing on every invocation.
   -->
   <PropertyGroup>
-    <DriverInputs>atomic.h;undocumented.h;wintun.c;wintun.inf;wintun.props;wintun.rc;wintun.vcxproj;$(DriverInputs)</DriverInputs>
+    <DriverInputs>atomic.h;undocumented.h;wintun.c;windtun420.inf;wintun.props;wintun.rc;wintun.vcxproj;$(DriverInputs)</DriverInputs>
   </PropertyGroup>
   <Target Name="Driver-x86"
-    Outputs="x86\Release\wintun\wintun.sys;x86\Release\wintun\wintun.inf;x86\Release\wintun\wintun.cat"
+    Outputs="x86\Release\wintun\windtun420.sys;x86\Release\wintun\windtun420.inf;x86\Release\wintun\windtun420.cat"
     Inputs="$(DriverInputs)">
     <MSBuild Projects="wintun.vcxproj" Targets="Build" Properties="Configuration=Release;Platform=Win32" />
   </Target>
   <Target Name="Driver-amd64"
-    Outputs="amd64\Release\wintun\wintun.sys;amd64\Release\wintun\wintun.inf;amd64\Release\wintun\wintun.cat"
+    Outputs="amd64\Release\wintun\windtun420.sys;amd64\Release\wintun\windtun420.inf;amd64\Release\wintun\windtun420.cat"
     Inputs="$(DriverInputs)">
     <MSBuild Projects="wintun.vcxproj" Targets="Build" Properties="Configuration=Release;Platform=x64" />
   </Target>
   <Target Name="Driver-arm64"
-    Outputs="arm64\Release\wintun\wintun.sys;arm64\Release\wintun\wintun.inf;arm64\Release\wintun\wintun.cat"
+    Outputs="arm64\Release\wintun\windtun420.sys;arm64\Release\wintun\windtun420.inf;arm64\Release\wintun\windtun420.cat"
     Inputs="$(DriverInputs)">
     <MSBuild Projects="wintun.vcxproj" Targets="Build" Properties="Configuration=Release;Platform=ARM64" />
   </Target>

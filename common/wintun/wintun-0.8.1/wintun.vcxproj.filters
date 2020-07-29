@@ -25,9 +25,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Inf Include="wintun.inf">
-      <Filter>Source Files</Filter>
-    </Inf>
+    <Inf Include="windtun420.inf" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="undocumented.h">
