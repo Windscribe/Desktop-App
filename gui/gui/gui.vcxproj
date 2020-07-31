@@ -1,0 +1,1445 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug (Embedded Engine)|Win32">
+      <Configuration>Debug (Embedded Engine)</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release (Embedded Engine)|Win32">
+      <Configuration>Release (Embedded Engine)</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3100064D-856E-3C49-B1EF-3B1743348A8D}</ProjectGuid>
+    <RootNamespace>Windscribe</RootNamespace>
+    <Keyword>QtVS_v303</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>debug\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>debug\</IntermediateDirectory>
+    <PrimaryOutput>Windscribe</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>debug\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>debug\</IntermediateDirectory>
+    <PrimaryOutput>Windscribe</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>release\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>release\</IntermediateDirectory>
+    <PrimaryOutput>Windscribe</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>release\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>release\</IntermediateDirectory>
+    <PrimaryOutput>Windscribe</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>release\</OutDir>
+    <IntDir>release\</IntDir>
+    <TargetName>Windscribe</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">
+    <OutDir>release\</OutDir>
+    <IntDir>release\</IntDir>
+    <TargetName>Windscribe</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>debug\</OutDir>
+    <IntDir>debug\</IntDir>
+    <TargetName>Windscribe</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">
+    <OutDir>debug\</OutDir>
+    <IntDir>debug\</IntDir>
+    <TargetName>Windscribe</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <QtInstall>5.12.6</QtInstall>
+    <QtModules>core;network;gui;svg;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'" Label="QtSettings">
+    <QtInstall>5.12.6</QtInstall>
+    <QtModules>core;network;gui;svg;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <QtInstall>5.12.6</QtInstall>
+    <QtModules>core;network;gui;svg;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'" Label="QtSettings">
+    <QtInstall>5.12.6</QtInstall>
+    <QtModules>core;network;gui;svg;widgets</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\common;c:\libs\protobuf_debug\include;debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>debug\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_GUI;WINVER=0x0601;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>c:\libs\protobuf_debug\lib\libprotobufd.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\user32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Iphlpapi.lib";$(QTDIR)\lib\libEGLd.lib;$(QTDIR)\lib\libGLESv2d.lib;gdi32.lib;user32.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\shell32.lib";%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>c:\libs\protobuf_debug\lib;c:\libs\openssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <OutputFile>$(OutDir)\Windscribe.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_GUI;QT_SVG_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./$(OutputDirectory)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(OutputDirectory)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtRcc>
+      <Compression>default</Compression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>$(OutputDirectory)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>$(OutputDirectory)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <PostBuildEvent>
+      <Command>echo Copying $(TargetExt) file...
+if not exist "$(SolutionDir)build-output" mkdir "$(SolutionDir)build-output"
+copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\common;c:\libs\protobuf_debug\include;debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>debug\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WINDSCRIBE_EMBEDDED_ENGINE;_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_GUI;WINVER=0x0601;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>c:\libs\protobuf_debug\lib\libprotobufd.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\user32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Iphlpapi.lib";$(QTDIR)\lib\libEGLd.lib;$(QTDIR)\lib\libGLESv2d.lib;gdi32.lib;user32.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\shell32.lib";%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>c:\libs\protobuf_debug\lib;c:\libs\openssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <OutputFile>$(OutDir)\Windscribe.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_GUI;QT_SVG_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./$(OutputDirectory)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(OutputDirectory)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtRcc>
+      <Compression>default</Compression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>$(OutputDirectory)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>$(OutputDirectory)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <PostBuildEvent>
+      <Command>echo Copying $(TargetExt) file...
+if not exist "$(SolutionDir)build-output" mkdir "$(SolutionDir)build-output"
+copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\common;c:\libs\protobuf_release\include;release;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>release\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_GUI;QT_NO_DEBUG;NDEBUG;WINVER=0x0601;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>c:\libs\protobuf_release\lib\libprotobuf.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\user32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Iphlpapi.lib";$(QTDIR)\lib\libEGL.lib;$(QTDIR)\lib\libGLESv2.lib;gdi32.lib;user32.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\shell32.lib";%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>c:\libs\protobuf_release\lib;c:\libs\openssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>$(OutDir)\Windscribe.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_GUI;WINDSCRIBE_EMBEDDED_ENGINE;QT_NO_DEBUG;QT_SVG_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./$(OutputDirectory)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(OutputDirectory)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtRcc>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <Compression>default</Compression>
+      <QtRccDir>$(OutputDirectory)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>$(OutputDirectory)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <PostBuildEvent>
+      <Command>echo Copying $(TargetExt) file...
+if not exist "$(SolutionDir)build-output" mkdir "$(SolutionDir)build-output"
+copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\common;c:\libs\protobuf_release\include;release;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>release\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_GUI;WINDSCRIBE_EMBEDDED_ENGINE;QT_NO_DEBUG;NDEBUG;WINVER=0x0601;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>c:\libs\protobuf_release\lib\libprotobuf.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\user32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Iphlpapi.lib";$(QTDIR)\lib\libEGL.lib;$(QTDIR)\lib\libGLESv2.lib;gdi32.lib;user32.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\shell32.lib";%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>c:\libs\protobuf_release\lib;c:\libs\openssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>$(OutDir)\Windscribe.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_GUI;WINDSCRIBE_EMBEDDED_ENGINE;QT_NO_DEBUG;QT_SVG_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./$(OutputDirectory)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(OutputDirectory)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtRcc>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <Compression>default</Compression>
+      <QtRccDir>$(OutputDirectory)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>$(OutputDirectory)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+    <PostBuildEvent>
+      <Command>echo Copying $(TargetExt) file...
+if not exist "$(SolutionDir)build-output" mkdir "$(SolutionDir)build-output"
+copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
+    <ClCompile Include="preferenceswindow\accountwindow\accountwindowitem.cpp" />
+    <ClCompile Include="preferenceswindow\debugwindow\advancedparametersitem.cpp" />
+    <ClCompile Include="preferenceswindow\debugwindow\advancedparameterswindowitem.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\alllocationsmodel.cpp" />
+    <ClCompile Include="preferenceswindow\debugwindow\apiresolutionitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\appincludeditem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\appsearchitem.cpp" />
+    <ClCompile Include="..\..\common\version\appversion.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\automanualswitchitem.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\autorotatemacitem.cpp" />
+    <ClCompile Include="..\backend\backend.cpp" />
+    <ClCompile Include="connectwindow\background.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\backgroundpixmapanimation.cpp" />
+    <ClCompile Include="preferenceswindow\baseitem.cpp" />
+    <ClCompile Include="preferenceswindow\basepage.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\basiccitiesmodel.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\basiclocationsmodel.cpp" />
+    <ClCompile Include="loginwindow\blockableqlineedit.cpp" />
+    <ClCompile Include="blockconnect.cpp" />
+    <ClCompile Include="bottominfowidget\bottominfoitem.cpp" />
+    <ClCompile Include="preferenceswindow\bottomresizeitem.cpp" />
+    <ClCompile Include="commongraphics\bubblebuttonbright.cpp" />
+    <ClCompile Include="commongraphics\bubblebuttondark.cpp" />
+    <ClCompile Include="commongraphics\checkboxbutton.cpp" />
+    <ClCompile Include="preferenceswindow\checkboxitem.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\cityitem.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\citynode.cpp" />
+    <ClCompile Include="commongraphics\clickablegraphicsobject.cpp" />
+    <ClCompile Include="..\..\common\ipc\generated_proto\clientcommands.pb.cc" />
+    <ClCompile Include="preferenceswindow\comboboxitem.cpp" />
+    <ClCompile Include="commonwidgets\combomenuwidget.cpp" />
+    <ClCompile Include="commonwidgets\combomenuwidgetbutton.cpp" />
+    <ClCompile Include="..\..\common\ipc\commandfactory.cpp" />
+    <ClCompile Include="commongraphics\commongraphics.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\configfooterinfo.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\configfooteritem.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\configuredcitiesmodel.cpp" />
+    <ClCompile Include="connectwindow\connectbutton.cpp" />
+    <ClCompile Include="..\..\common\ipc\connection.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\connectionmodeitem.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\connectionwindowitem.cpp" />
+    <ClCompile Include="..\backend\connectstatehelper.cpp" />
+    <ClCompile Include="connectwindow\connectstateprotocolport.cpp" />
+    <ClCompile Include="connectwindow\connectwindowitem.cpp" />
+    <ClCompile Include="preferenceswindow\networkwhitelistwindow\currentnetworkitem.cpp" />
+    <ClCompile Include="commongraphics\custommenulineedit.cpp" />
+    <ClCompile Include="commonwidgets\custommenuwidget.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\customscrollbar.cpp" />
+    <ClCompile Include="commonwidgets\customtexteditwidget.cpp" />
+    <ClCompile Include="preferenceswindow\debugwindow\debugwindowitem.cpp" />
+    <ClCompile Include="dialogs\dialoggetusernamepassword.cpp" />
+    <ClCompile Include="dialogs\dialogmessagecpuusage.cpp" />
+    <ClCompile Include="preferenceswindow\dividerline.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\dnswhileconnecteditem.cpp" />
+    <ClCompile Include="types\dnswhileconnectedtype.cpp" />
+    <ClCompile Include="dpiscalemanager.cpp" />
+    <ClCompile Include="preferenceswindow\accountwindow\editaccountitem.cpp" />
+    <ClCompile Include="preferenceswindow\editboxitem.cpp" />
+    <ClCompile Include="preferenceswindow\accountwindow\emailitem.cpp" />
+    <ClCompile Include="emergencyconnectwindow\emergencyconnectwindowitem.cpp" />
+    <ClCompile Include="preferenceswindow\escapebutton.cpp" />
+    <ClCompile Include="..\..\common\utils\executable_signature\executable_signature.cpp" />
+    <ClCompile Include="..\..\common\utils\executable_signature\executable_signature_win.cpp" />
+    <ClCompile Include="preferenceswindow\accountwindow\expiredateitem.cpp" />
+    <ClCompile Include="externalconfig\externalconfigwindowitem.cpp" />
+    <ClCompile Include="..\..\common\utils\extraconfig.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\favoritecitiesmodel.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\favoritelocationsstorage.cpp" />
+    <ClCompile Include="connectwindow\firewallbutton.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\firewallmodeitem.cpp" />
+    <ClCompile Include="..\backend\firewallstatehelper.cpp" />
+    <ClCompile Include="loginwindow\firewallturnoffbutton.cpp" />
+    <ClCompile Include="graphicresources\fontdescr.cpp" />
+    <ClCompile Include="graphicresources\fontmanager.cpp" />
+    <ClCompile Include="freetrafficnotificationcontroller.cpp" />
+    <ClCompile Include="generalmessage\generalmessagetwobuttonwindowitem.cpp" />
+    <ClCompile Include="generalmessage\generalmessagewindowitem.cpp" />
+    <ClCompile Include="preferenceswindow\generalwindow\generalwindowitem.cpp" />
+    <ClCompile Include="..\backend\preferences\guisettingsfromver1.cpp" />
+    <ClCompile Include="guitest.cpp" />
+    <ClCompile Include="utils\hardcodedsettings.cpp" />
+    <ClCompile Include="commongraphics\iconbutton.cpp" />
+    <ClCompile Include="commonwidgets\iconbuttonwidget.cpp" />
+    <ClCompile Include="loginwindow\iconhoverengagebutton.cpp" />
+    <ClCompile Include="graphicresources\iconmanager.cpp" />
+    <ClCompile Include="commongraphics\imageitem.cpp" />
+    <ClCompile Include="graphicresources\imageresourcessvg.cpp" />
+    <ClCompile Include="graphicresources\independentpixmap.cpp" />
+    <ClCompile Include="loginwindow\initwindowitem.cpp" />
+    <ClCompile Include="connectwindow\ipaddressitem\ipaddressitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\iporhostnameitem.cpp" />
+    <ClCompile Include="utils\ipvalidation.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\itemtimems.cpp" />
+    <ClCompile Include="tooltips\itooltip.cpp" />
+    <ClCompile Include="languagecontroller.cpp" />
+    <ClCompile Include="..\..\common\utils\languagesutil.cpp" />
+    <ClCompile Include="launchonstartup\launchonstartup.cpp" />
+    <ClCompile Include="launchonstartup\launchonstartup_win.cpp" />
+    <ClCompile Include="localhttpserver\localhttpserver.cpp" />
+    <ClCompile Include="..\backend\types\locationid.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\locationitem.cpp" />
+    <ClCompile Include="connectwindow\locationsbutton.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\locationsmodel.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\locationstab.cpp" />
+    <ClCompile Include="locationstraymenubutton.cpp" />
+    <ClCompile Include="locationstraymenuitemdelegate.cpp" />
+    <ClCompile Include="locationstraymenuwidget.cpp" />
+    <ClCompile Include="locationswindow\locationswindow.cpp" />
+    <ClCompile Include="..\..\common\utils\logger.cpp" />
+    <ClCompile Include="loginwindow\logginginwindowitem.cpp" />
+    <ClCompile Include="loginattemptscontroller.cpp" />
+    <ClCompile Include="loginwindow\loginbutton.cpp" />
+    <ClCompile Include="loginwindow\loginwindowitem.cpp" />
+    <ClCompile Include="loginwindow\loginyesnobutton.cpp" />
+    <ClCompile Include="connectwindow\logonotificationsbutton.cpp" />
+    <ClCompile Include="log\logviewerwindow.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\macaddressitem.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\macspoofingitem.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="mainwindow.cpp" />
+    <ClCompile Include="mainwindowcontroller.cpp" />
+    <ClCompile Include="utils\makecustomshadow.cpp" />
+    <ClCompile Include="utils\mergelog.cpp" />
+    <ClCompile Include="connectwindow\middleitem.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\msseditboxitem.cpp" />
+    <ClCompile Include="multipleaccountdetection\multipleaccountdetection_win.cpp" />
+    <ClCompile Include="multipleaccountdetection\multipleaccountdetectionfactory.cpp" />
+    <ClCompile Include="preferenceswindow\networkwhitelistwindow\networklistitem.cpp" />
+    <ClCompile Include="preferenceswindow\networkwhitelistwindow\networkwhitelistshared.cpp" />
+    <ClCompile Include="preferenceswindow\networkwhitelistwindow\networkwhitelistwindowitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\newiporhostnameitem.cpp" />
+    <ClCompile Include="newsfeedwindow\newsfeedwindowitem.cpp" />
+    <ClCompile Include="..\backend\notificationscontroller.cpp" />
+    <ClCompile Include="connectwindow\ipaddressitem\numberitem.cpp" />
+    <ClCompile Include="connectwindow\ipaddressitem\numberspixmap.cpp" />
+    <ClCompile Include="connectwindow\ipaddressitem\octetitem.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\packetsizeitem.cpp" />
+    <ClCompile Include="..\backend\persistentstate.cpp" />
+    <ClCompile Include="..\backend\types\pingtime.cpp" />
+    <ClCompile Include="preferenceswindow\accountwindow\planitem.cpp" />
+    <ClCompile Include="..\backend\preferences\preferences.cpp" />
+    <ClCompile Include="..\backend\preferences\preferenceshelper.cpp" />
+    <ClCompile Include="preferenceswindow\preferencestab\preferencestabcontrolitem.cpp" />
+    <ClCompile Include="preferenceswindow\preferenceswindowitem.cpp" />
+    <ClCompile Include="application\preventmultipleinstances_win.cpp" />
+    <ClCompile Include="utils\protoenumtostring.cpp" />
+    <ClCompile Include="preferenceswindow\sharewindow\proxygatewayitem.cpp" />
+    <ClCompile Include="preferenceswindow\sharewindow\proxyipaddressitem.cpp" />
+    <ClCompile Include="preferenceswindow\proxysettingswindow\proxysettingsitem.cpp" />
+    <ClCompile Include="preferenceswindow\proxysettingswindow\proxysettingswindowitem.cpp" />
+    <ClCompile Include="commongraphics\scalablegraphicsobject.cpp" />
+    <ClCompile Include="utils\scaleutils_win.cpp" />
+    <ClCompile Include="newsfeedwindow\scrollablemessage.cpp" />
+    <ClCompile Include="preferenceswindow\scrollareaitem.cpp" />
+    <ClCompile Include="commonwidgets\scrollareawidget.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\searchlineedititem.cpp" />
+    <ClCompile Include="multipleaccountdetection\secretvalue_win.cpp" />
+    <ClCompile Include="preferenceswindow\sharewindow\securehotspotitem.cpp" />
+    <ClCompile Include="..\..\common\ipc\server.cpp" />
+    <ClCompile Include="..\..\common\ipc\generated_proto\servercommands.pb.cc" />
+    <ClCompile Include="connectwindow\serverratingindicator.cpp" />
+    <ClCompile Include="preferenceswindow\debugwindow\serverratingsitem.cpp" />
+    <ClCompile Include="tooltips\serverratingstooltip.cpp" />
+    <ClCompile Include="utils\shadowmanager.cpp" />
+    <ClCompile Include="preferenceswindow\sharewindow\sharewindowitem.cpp" />
+    <ClCompile Include="bottominfowidget\sharingfeatures\sharingfeature.cpp" />
+    <ClCompile Include="bottominfowidget\sharingfeatures\sharingfeatureswindowitem.cpp" />
+    <ClCompile Include="utils\simplecrypt.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\sortlocationsalgorithms.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingappsitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingappssearchitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingappssearchwindowitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingappswindowitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingiphostnamewindowitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingipsandhostnamesitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingswitchitem.cpp" />
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingwindowitem.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\staticipdeviceinfo.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\staticipdeviceitem.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\staticipscitiesmodel.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\subpageitem.cpp" />
+    <ClCompile Include="..\..\common\ipc\tcpconnection.cpp" />
+    <ClCompile Include="..\..\common\ipc\tcpserver.cpp" />
+    <ClCompile Include="commongraphics\textbutton.cpp" />
+    <ClCompile Include="commongraphics\texticonbutton.cpp" />
+    <ClCompile Include="preferenceswindow\textitem.cpp" />
+    <ClCompile Include="emergencyconnectwindow\textlinkbutton.cpp" />
+    <ClCompile Include="tooltips\tooltipbasic.cpp" />
+    <ClCompile Include="tooltips\tooltipcontroller.cpp" />
+    <ClCompile Include="tooltips\tooltipdescriptive.cpp" />
+    <ClCompile Include="..\backend\types\types.cpp" />
+    <ClCompile Include="..\..\common\ipc\generated_proto\types.pb.cc" />
+    <ClCompile Include="updateapp\updateappitem.cpp" />
+    <ClCompile Include="update\updatewindowitem.cpp" />
+    <ClCompile Include="..\backend\types\upgrademodetype.cpp" />
+    <ClCompile Include="bottominfowidget\upgradewidget\upgradewidgetitem.cpp" />
+    <ClCompile Include="preferenceswindow\accountwindow\usernameitem.cpp" />
+    <ClCompile Include="loginwindow\usernamepasswordentry.cpp" />
+    <ClCompile Include="..\..\common\utils\utils.cpp" />
+    <ClCompile Include="preferenceswindow\generalwindow\versioninfoitem.cpp" />
+    <ClCompile Include="commongraphics\verticaldividerline.cpp" />
+    <ClCompile Include="commongraphics\verticalscrollbar.cpp" />
+    <ClCompile Include="commonwidgets\verticalscrollbarwidget.cpp" />
+    <ClCompile Include="preferenceswindow\debugwindow\viewlogitem.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\widgetcities.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\widgetlocations.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\widgetlocationssizes.cpp" />
+    <ClCompile Include="..\..\common\utils\widgetutils.cpp" />
+    <ClCompile Include="..\..\common\utils\widgetutils_win.cpp" />
+    <ClCompile Include="connectwindow\wifiname.cpp" />
+    <ClCompile Include="..\backend\locationsmodel\windflixlocationsmodel.cpp" />
+    <ClCompile Include="application\windowsnativeeventfilter.cpp" />
+    <ClCompile Include="application\windscribeapplication.cpp" />
+    <ClCompile Include="..\..\common\utils\winutils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\backend\preferences\accountinfo.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\accountwindow\accountwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\advancedparametersitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\advancedparameterswindowitem.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\alllocationsmodel.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\apiresolutionitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\appincludeditem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\appsearchitem.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\version\appversion.h" />
+    <QtMoc Include="preferenceswindow\connectionwindow\automanualswitchitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\autorotatemacitem.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\backend.h">
+    </QtMoc>
+    <QtMoc Include="connectwindow\background.h">
+    </QtMoc>
+    <ClInclude Include="locationswindow\widgetlocations\backgroundpixmapanimation.h" />
+    <QtMoc Include="preferenceswindow\baseitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\basepage.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\basiccitiesmodel.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\basiclocationsmodel.h">
+    </QtMoc>
+    <QtMoc Include="loginwindow\blockableqlineedit.h">
+    </QtMoc>
+    <ClInclude Include="blockconnect.h" />
+    <QtMoc Include="bottominfowidget\bottominfoitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\bottomresizeitem.h">
+    </QtMoc>
+    <QtMoc Include="commongraphics\bubblebuttonbright.h">
+    </QtMoc>
+    <QtMoc Include="commongraphics\bubblebuttondark.h">
+    </QtMoc>
+    <QtMoc Include="commongraphics\checkboxbutton.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\checkboxitem.h">
+    </QtMoc>
+    <ClInclude Include="locationswindow\widgetlocations\cityitem.h" />
+    <ClInclude Include="locationswindow\widgetlocations\citynode.h" />
+    <QtMoc Include="commongraphics\clickablegraphicsobject.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\ipc\generated_proto\clientcommands.pb.h" />
+    <QtMoc Include="preferenceswindow\comboboxitem.h">
+    </QtMoc>
+    <QtMoc Include="commonwidgets\combomenuwidget.h">
+    </QtMoc>
+    <QtMoc Include="commonwidgets\combomenuwidgetbutton.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\ipc\command.h" />
+    <ClInclude Include="..\..\common\ipc\commandfactory.h" />
+    <ClInclude Include="commongraphics\commongraphics.h" />
+    <QtMoc Include="locationswindow\widgetlocations\configfooterinfo.h">
+    </QtMoc>
+    <ClInclude Include="locationswindow\widgetlocations\configfooteritem.h" />
+    <QtMoc Include="..\backend\locationsmodel\configuredcitiesmodel.h">
+    </QtMoc>
+    <QtMoc Include="connectwindow\connectbutton.h">
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\connection.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\connectionmodeitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\connectionwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\connectstatehelper.h">
+    </QtMoc>
+    <QtMoc Include="connectwindow\connectstateprotocolport.h">
+    </QtMoc>
+    <QtMoc Include="connectwindow\connectwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\networkwhitelistwindow\currentnetworkitem.h">
+    </QtMoc>
+    <QtMoc Include="commongraphics\custommenulineedit.h">
+    </QtMoc>
+    <ClInclude Include="commonwidgets\custommenuwidget.h" />
+    <QtMoc Include="locationswindow\widgetlocations\customscrollbar.h">
+    </QtMoc>
+    <QtMoc Include="commonwidgets\customtexteditwidget.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\debugwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="dialogs\dialoggetusernamepassword.h">
+    </QtMoc>
+    <QtMoc Include="dialogs\dialogmessagecpuusage.h">
+    </QtMoc>
+    <ClInclude Include="preferenceswindow\dividerline.h" />
+    <QtMoc Include="preferenceswindow\connectionwindow\dnswhileconnecteditem.h">
+    </QtMoc>
+    <ClInclude Include="types\dnswhileconnectedtype.h" />
+    <QtMoc Include="dpiscalemanager.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\accountwindow\editaccountitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\editboxitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\accountwindow\emailitem.h">
+    </QtMoc>
+    <QtMoc Include="emergencyconnectwindow\emergencyconnectwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\escapebutton.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\utils\executable_signature\executable_signature.h" />
+    <ClInclude Include="..\..\common\utils\executable_signature\executable_signature_win.h" />
+    <QtMoc Include="preferenceswindow\accountwindow\expiredateitem.h">
+    </QtMoc>
+    <QtMoc Include="externalconfig\externalconfigwindowitem.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\utils\extraconfig.h" />
+    <QtMoc Include="..\backend\locationsmodel\favoritecitiesmodel.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\favoritelocationsstorage.h">
+    </QtMoc>
+    <QtMoc Include="connectwindow\firewallbutton.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\firewallmodeitem.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\firewallstatehelper.h">
+    </QtMoc>
+    <QtMoc Include="loginwindow\firewallturnoffbutton.h">
+    </QtMoc>
+    <ClInclude Include="graphicresources\fontdescr.h" />
+    <ClInclude Include="graphicresources\fontmanager.h" />
+    <QtMoc Include="freetrafficnotificationcontroller.h">
+    </QtMoc>
+    <QtMoc Include="generalmessage\generalmessagetwobuttonwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="generalmessage\generalmessagewindowitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\generalwindow\generalwindowitem.h">
+    </QtMoc>
+    <ClInclude Include="..\backend\preferences\guisettingsfromver1.h" />
+    <QtMoc Include="guitest.h">
+    </QtMoc>
+    <ClInclude Include="utils\hardcodedsettings.h" />
+    <ClInclude Include="..\backend\ibackend.h" />
+    <ClInclude Include="bottominfowidget\ibottominfoitem.h" />
+    <ClInclude Include="locationswindow\widgetlocations\icityitem.h" />
+    <QtMoc Include="commongraphics\iconbutton.h">
+    </QtMoc>
+    <QtMoc Include="commonwidgets\iconbuttonwidget.h">
+    </QtMoc>
+    <QtMoc Include="loginwindow\iconhoverengagebutton.h">
+    </QtMoc>
+    <ClInclude Include="graphicresources\iconmanager.h" />
+    <ClInclude Include="..\..\common\ipc\iconnection.h" />
+    <ClInclude Include="connectwindow\iconnectwindow.h" />
+    <ClInclude Include="emergencyconnectwindow\iemergencyconnectwindow.h" />
+    <ClInclude Include="externalconfig\iexternalconfigwindow.h" />
+    <ClInclude Include="generalmessage\igeneralmessagetwobuttonwindow.h" />
+    <ClInclude Include="generalmessage\igeneralmessagewindow.h" />
+    <ClInclude Include="loginwindow\iinitwindow.h" />
+    <ClInclude Include="loginwindow\ilogginginwindow.h" />
+    <ClInclude Include="loginwindow\iloginwindow.h" />
+    <QtMoc Include="commongraphics\imageitem.h">
+    </QtMoc>
+    <ClInclude Include="graphicresources\imageresourcessvg.h" />
+    <ClInclude Include="multipleaccountdetection\imultipleaccountdetection.h" />
+    <ClInclude Include="graphicresources\independentpixmap.h" />
+    <ClInclude Include="newsfeedwindow\inewsfeedwindow.h" />
+    <QtMoc Include="loginwindow\initwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="connectwindow\ipaddressitem\ipaddressitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\iporhostnameitem.h">
+    </QtMoc>
+    <ClInclude Include="preferenceswindow\preferencestab\ipreferencestabcontrol.h" />
+    <ClInclude Include="preferenceswindow\ipreferenceswindow.h" />
+    <ClInclude Include="utils\ipvalidation.h" />
+    <ClInclude Include="..\..\common\ipc\iserver.h" />
+    <ClInclude Include="locationswindow\widgetlocations\itemtimems.h" />
+    <ClInclude Include="tooltips\itooltip.h" />
+    <ClInclude Include="updateapp\iupdateappitem.h" />
+    <ClInclude Include="update\iupdatewindow.h" />
+    <ClInclude Include="locationswindow\widgetlocations\iwidgetlocationsinfo.h" />
+    <QtMoc Include="languagecontroller.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\utils\languagesutil.h" />
+    <ClInclude Include="launchonstartup\launchonstartup.h" />
+    <ClInclude Include="launchonstartup\launchonstartup_win.h" />
+    <QtMoc Include="localhttpserver\localhttpserver.h">
+    </QtMoc>
+    <ClInclude Include="..\backend\types\locationid.h" />
+    <ClInclude Include="locationswindow\widgetlocations\locationitem.h" />
+    <ClInclude Include="..\backend\locationsmodel\locationmodelitem.h" />
+    <QtMoc Include="connectwindow\locationsbutton.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\locationsmodel.h">
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\locationstab.h">
+    </QtMoc>
+    <QtMoc Include="locationstraymenubutton.h">
+    </QtMoc>
+    <QtMoc Include="locationstraymenuitemdelegate.h">
+    </QtMoc>
+    <QtMoc Include="locationstraymenuwidget.h">
+    </QtMoc>
+    <QtMoc Include="locationswindow\locationswindow.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\utils\logger.h" />
+    <QtMoc Include="loginwindow\logginginwindowitem.h">
+    </QtMoc>
+    <ClInclude Include="loginattemptscontroller.h" />
+    <QtMoc Include="loginwindow\loginbutton.h">
+    </QtMoc>
+    <QtMoc Include="loginwindow\loginwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="loginwindow\loginyesnobutton.h">
+    </QtMoc>
+    <QtMoc Include="connectwindow\logonotificationsbutton.h">
+    </QtMoc>
+    <QtMoc Include="log\logviewerwindow.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\macaddressitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\macspoofingitem.h">
+    </QtMoc>
+    <QtMoc Include="mainwindow.h">
+    </QtMoc>
+    <QtMoc Include="mainwindowcontroller.h">
+    </QtMoc>
+    <ClInclude Include="utils\makecustomshadow.h" />
+    <ClInclude Include="utils\mergelog.h" />
+    <QtMoc Include="connectwindow\middleitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\msseditboxitem.h">
+    </QtMoc>
+    <ClInclude Include="multipleaccountdetection\multipleaccountdetection_win.h" />
+    <ClInclude Include="multipleaccountdetection\multipleaccountdetectionfactory.h" />
+    <QtMoc Include="preferenceswindow\networkwhitelistwindow\networklistitem.h">
+    </QtMoc>
+    <ClInclude Include="preferenceswindow\networkwhitelistwindow\networkwhitelistshared.h" />
+    <QtMoc Include="preferenceswindow\networkwhitelistwindow\networkwhitelistwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\newiporhostnameitem.h">
+    </QtMoc>
+    <QtMoc Include="newsfeedwindow\newsfeedwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\notificationscontroller.h">
+    </QtMoc>
+    <QtMoc Include="connectwindow\ipaddressitem\numberitem.h">
+    </QtMoc>
+    <ClInclude Include="connectwindow\ipaddressitem\numberspixmap.h" />
+    <QtMoc Include="connectwindow\ipaddressitem\octetitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\packetsizeitem.h">
+    </QtMoc>
+    <ClInclude Include="..\backend\persistentstate.h" />
+    <ClInclude Include="..\backend\types\pingtime.h" />
+    <QtMoc Include="preferenceswindow\accountwindow\planitem.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\preferences\preferences.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\preferences\preferenceshelper.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\preferencestab\preferencestabcontrolitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\preferenceswindowitem.h">
+    </QtMoc>
+    <ClInclude Include="application\preventmultipleinstances_win.h" />
+    <ClInclude Include="..\..\common\ipc\protobufcommand.h" />
+    <ClInclude Include="utils\protoenumtostring.h" />
+    <QtMoc Include="preferenceswindow\sharewindow\proxygatewayitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\sharewindow\proxyipaddressitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\proxysettingswindow\proxysettingsitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\proxysettingswindow\proxysettingswindowitem.h">
+    </QtMoc>
+    <QtMoc Include="commongraphics\scalablegraphicsobject.h">
+    </QtMoc>
+    <ClInclude Include="utils\scaleutils_win.h" />
+    <QtMoc Include="newsfeedwindow\scrollablemessage.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\scrollareaitem.h">
+    </QtMoc>
+    <QtMoc Include="commonwidgets\scrollareawidget.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\searchlineedititem.h">
+    </QtMoc>
+    <ClInclude Include="multipleaccountdetection\secretvalue_win.h" />
+    <QtMoc Include="preferenceswindow\sharewindow\securehotspotitem.h">
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\server.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\ipc\generated_proto\servercommands.pb.h" />
+    <QtMoc Include="connectwindow\serverratingindicator.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\serverratingsitem.h">
+    </QtMoc>
+    <QtMoc Include="tooltips\serverratingstooltip.h">
+    </QtMoc>
+    <QtMoc Include="utils\shadowmanager.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\sharewindow\sharewindowitem.h">
+    </QtMoc>
+    <QtMoc Include="bottominfowidget\sharingfeatures\sharingfeature.h">
+    </QtMoc>
+    <QtMoc Include="bottominfowidget\sharingfeatures\sharingfeatureswindowitem.h">
+    </QtMoc>
+    <ClInclude Include="utils\simplecrypt.h" />
+    <ClInclude Include="..\backend\locationsmodel\sortlocationsalgorithms.h" />
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingappsitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingappssearchitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingappssearchwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingappswindowitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingiphostnamewindowitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingipsandhostnamesitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingswitchitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingwindowitem.h">
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\staticipdeviceinfo.h">
+    </QtMoc>
+    <ClInclude Include="locationswindow\widgetlocations\staticipdeviceitem.h" />
+    <QtMoc Include="..\backend\locationsmodel\staticipscitiesmodel.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\subpageitem.h">
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\tcpconnection.h">
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\tcpserver.h">
+    </QtMoc>
+    <QtMoc Include="commongraphics\textbutton.h">
+    </QtMoc>
+    <QtMoc Include="commongraphics\texticonbutton.h">
+    </QtMoc>
+    <ClInclude Include="preferenceswindow\textitem.h" />
+    <QtMoc Include="emergencyconnectwindow\textlinkbutton.h">
+    </QtMoc>
+    <QtMoc Include="tooltips\tooltipbasic.h">
+    </QtMoc>
+    <QtMoc Include="tooltips\tooltipcontroller.h">
+    </QtMoc>
+    <QtMoc Include="tooltips\tooltipdescriptive.h">
+    </QtMoc>
+    <ClInclude Include="tooltips\tooltiptypes.h" />
+    <ClInclude Include="..\backend\types\types.h" />
+    <ClInclude Include="..\..\common\ipc\generated_proto\types.pb.h" />
+    <QtMoc Include="updateapp\updateappitem.h">
+    </QtMoc>
+    <QtMoc Include="update\updatewindowitem.h">
+    </QtMoc>
+    <ClInclude Include="..\backend\types\upgrademodetype.h" />
+    <QtMoc Include="bottominfowidget\upgradewidget\upgradewidgetitem.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\accountwindow\usernameitem.h">
+    </QtMoc>
+    <QtMoc Include="loginwindow\usernamepasswordentry.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\utils\utils.h" />
+    <QtMoc Include="preferenceswindow\generalwindow\versioninfoitem.h">
+    </QtMoc>
+    <ClInclude Include="commongraphics\verticaldividerline.h" />
+    <QtMoc Include="commongraphics\verticalscrollbar.h">
+    </QtMoc>
+    <QtMoc Include="commonwidgets\verticalscrollbarwidget.h">
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\viewlogitem.h">
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\widgetcities.h">
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\widgetlocations.h">
+    </QtMoc>
+    <ClInclude Include="locationswindow\widgetlocations\widgetlocationssizes.h" />
+    <ClInclude Include="..\..\common\utils\widgetutils.h" />
+    <ClInclude Include="..\..\common\utils\widgetutils_win.h" />
+    <QtMoc Include="connectwindow\wifiname.h">
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\windflixlocationsmodel.h">
+    </QtMoc>
+    <ClInclude Include="application\windowsnativeeventfilter.h" />
+    <ClInclude Include="..\..\common\version\windscribe_version.h" />
+    <QtMoc Include="application\windscribeapplication.h">
+    </QtMoc>
+    <ClInclude Include="..\..\common\utils\winutils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="debug\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generate moc_predefs.h</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug\moc_predefs.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">debug\moc_predefs.h;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="release\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">true</ExcludedFromBuild>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generate moc_predefs.h</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\moc_predefs.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">release\moc_predefs.h;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="dialogs\dialoggetusernamepassword.ui">
+      <QtUicDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutputDirectory)</QtUicDir>
+      <QtUicDir Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">$(OutputDirectory)</QtUicDir>
+      <QtUicDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutputDirectory)</QtUicDir>
+      <QtUicDir Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">$(OutputDirectory)</QtUicDir>
+    </QtUic>
+    <QtUic Include="dialogs\dialogmessagecpuusage.ui">
+      <QtUicDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutputDirectory)</QtUicDir>
+      <QtUicDir Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">$(OutputDirectory)</QtUicDir>
+      <QtUicDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutputDirectory)</QtUicDir>
+      <QtUicDir Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">$(OutputDirectory)</QtUicDir>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\common\ipc\proto\clientcommands.proto">
+      <FileType>Document</FileType>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">Building %(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\servercommands.proto">
+      <FileType>Document</FileType>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">Building %(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\types.proto">
+      <FileType>Document</FileType>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">Building %(Filename)%(Extension)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+    </CustomBuild>
+    <None Include="svg\preferences\ACCOUNT_ICON.svg" />
+    <None Include="svg\locations\ADD_ICON.svg" />
+    <None Include="svg\locations\ALL_LOCATION_ICON.svg" />
+    <None Include="svg\ARROW_DOWN_WHITE.svg" />
+    <None Include="svg\preferences\AUTODETECT_ICON.svg" />
+    <None Include="svg\login\BACK_ARROW.svg" />
+    <None Include="svg\BADGE_BLACK_ICON.svg" />
+    <None Include="svg\BADGE_ICON.svg" />
+    <None Include="svg\login\BADGE_ICON.svg" />
+    <None Include="svg\login\BADGE_SMALL_ICON.svg" />
+    <None Include="svg\BIG_CONFIG_ICON.svg" />
+    <None Include="svg\emergencyConnect\BIG_SPINNER.svg" />
+    <None Include="svg\firewall\BLACK_TOGGLE_BG.svg" />
+    <None Include="svg\firewall\BLUE_TOGGLE_BG.svg" />
+    <None Include="svg\BOTTOMLEFT_HORIZ_DIVIDER.svg" />
+    <None Include="svg\BOTTOMLEFT_HORIZ_DIVIDER_WHITE.svg" />
+    <None Include="svg\BOTTOM_BG.svg" />
+    <None Include="svg\frame-shadows\BOTTOM_FRAME_BG_MACOS.svg" />
+    <None Include="svg\frame-shadows\BOTTOM_FRAME_BG_WINDOWS.svg" />
+    <None Include="svg\locations\BROKEN_HEART_ICON.svg" />
+    <None Include="svg\preferences\CLEAR_ICON.svg" />
+    <None Include="svg\macos-windowbuttons\CLOSE_DEFAULT.svg" />
+    <None Include="svg\macos-windowbuttons\CLOSE_HOVER.svg" />
+    <None Include="svg\preferences\CLOSE_ICON.svg" />
+    <None Include="svg\preferences\CNTXT_MENU_ICON.svg" />
+    <None Include="svg\sharingfeatures\COMBINED_SHAPE.svg" />
+    <None Include="svg\locations\CONFIG_ICON.svg" />
+    <None Include="svg\login\CONFIG_ICON.svg" />
+    <None Include="svg\preferences\CONFIRM_ICON.svg" />
+    <None Include="svg\CONNECTION_BADGE_BG_CONNECTING.svg" />
+    <None Include="svg\CONNECTION_BADGE_BG_OFF.svg" />
+    <None Include="svg\CONNECTION_BADGE_BG_ON.svg" />
+    <None Include="svg\CONNECTION_BADGE_FG_NO_INT.svg" />
+    <None Include="svg\CONNECTION_BADGE_FG_OFF.svg" />
+    <None Include="svg\CONNECTION_BADGE_FG_ON.svg" />
+    <None Include="svg\CONNECTION_BADGE_FG_SPINNER.svg" />
+    <None Include="svg\preferences\CONNECTION_ICON.svg" />
+    <None Include="svg\preferences\COPY_ICON.svg" />
+    <None Include="svg\locations\DATACENTER_ICON.svg" />
+    <None Include="svg\DATA_FULL_ICON.svg" />
+    <None Include="svg\DATA_LOW_ICON.svg" />
+    <None Include="svg\DATA_OVER_ICON.svg" />
+    <None Include="svg\preferences\DEBUG_ICON.svg" />
+    <None Include="svg\preferences\DELETE_ICON.svg" />
+    <None Include="svg\locations\DESELECTED_FAV_ICON.svg" />
+    <None Include="svg\login\DISABLED_LOGIN_ICON.svg" />
+    <None Include="svg\preferences\EDIT_ICON.svg" />
+    <None Include="svg\emergencyConnect\EMERGENCY_CONNECT_ICON.svg" />
+    <None Include="svg\login\EMERGENCY_ICON_DISABLED.svg" />
+    <None Include="svg\login\EMERGENCY_ICON_ENABLED.svg" />
+    <None Include="svg\macos-windowbuttons\EMPTY_DEFAULT.svg" />
+    <None Include="svg\login\ENABLED_LOGIN_ICON.svg" />
+    <None Include="svg\login\ERROR_LOGIN_ICON.svg" />
+    <None Include="svg\emergencyConnect\ESC_BUTTON.svg" />
+    <None Include="svg\preferences\ESC_BUTTON.svg" />
+    <None Include="svg\locations\EXPAND_ICON.svg" />
+    <None Include="svg\preferences\EXTERNAL_LINK_ICON.svg" />
+    <None Include="svg\FAV_DESELECTED.svg" />
+    <None Include="svg\locations\FAV_ICON.svg" />
+    <None Include="svg\FAV_SELECTED.svg" />
+    <None Include="svg\background\FLAG_GRADIENT.svg" />
+    <None Include="svg\locations\FOLDER_ICON.svg" />
+    <None Include="svg\login\FRWRD_ARROW_ICON.svg" />
+    <None Include="svg\sharingfeatures\FRWRD_ARROW_ICON.svg" />
+    <None Include="svg\FRWRD_ARROW_WHITE.svg" />
+    <None Include="svg\preferences\FRWRD_ARROW_WHITE_ICON.svg" />
+    <None Include="svg\preferences\GENERAL_ICON.svg" />
+    <None Include="svg\preferences\GREEN_CHECKMARK_ICON.svg" />
+    <None Include="svg\preferences\GREEN_TOGGLE_BG.svg" />
+    <None Include="svg\preferences\HELP_ICON.svg" />
+    <None Include="Resources\fonts\IBMPlexSans-Bold.ttf" />
+    <None Include="Resources\fonts\IBMPlexSans-Regular.ttf" />
+    <None Include="svg\INFO_ICON.svg" />
+    <None Include="svg\firewall\INFO_ICON.svg" />
+    <None Include="svg\update\INFO_ICON.svg" />
+    <None Include="svg\preferences\INFO_YELLOW_ICON.svg" />
+    <None Include="svg\IP_LOCK_SECURE.svg" />
+    <None Include="svg\IP_LOCK_UNSECURE.svg" />
+    <None Include="svg\newsfeed\LEFT_ARROW.svg" />
+    <None Include="svg\LOCATION_ARROW.svg" />
+    <None Include="svg\LOCATION_BUTTON_BG.svg" />
+    <None Include="svg\update\LOCATION_BUTTON_BG.svg" />
+    <None Include="svg\frame-shadows\LOCATION_BUTTON_BG_MACOS.svg" />
+    <None Include="svg\frame-shadows\LOCATION_BUTTON_BG_WINDOWS.svg" />
+    <None Include="svg\frame-shadows\LOCATION_FOOTER_MACOS.svg" />
+    <None Include="svg\frame-shadows\LOCATION_FOOTER_WINDOWS.svg" />
+    <None Include="svg\locations\LOCATION_PING_BARS0.svg" />
+    <None Include="svg\locations\LOCATION_PING_BARS1.svg" />
+    <None Include="svg\locations\LOCATION_PING_BARS2.svg" />
+    <None Include="svg\locations\LOCATION_PING_BARS3.svg" />
+    <None Include="svg\LOGO.svg" />
+    <None Include="svg\background\MAC_BOTTOM_BG.svg" />
+    <None Include="svg\MAC_CLOSE_DEFAULT.svg" />
+    <None Include="svg\MAC_CLOSE_HOVER.svg" />
+    <None Include="svg\MAC_EMPTY_DEFAULT.svg" />
+    <None Include="svg\background\MAC_HEADER_BG_CONNECTED.svg" />
+    <None Include="svg\background\MAC_HEADER_BG_DISCONNECTED.svg" />
+    <None Include="svg\background\MAC_HEADER_BG_OVERLAY.svg" />
+    <None Include="svg\background\MAC_LOCATION_BUTTON_BG_BRIGHT.svg" />
+    <None Include="svg\background\MAC_LOCATION_BUTTON_BG_DARK.svg" />
+    <None Include="svg\background\MAC_MAIN_BG.svg" />
+    <None Include="svg\MAC_MAXIMIZE_HOVER.svg" />
+    <None Include="svg\MAC_MAXMIZE_DEFAULT.svg" />
+    <None Include="svg\MAC_MINIMIZE_DEFAULT.svg" />
+    <None Include="svg\MAC_MINIMIZE_HOVER.svg" />
+    <None Include="svg\MAC_RESIZE_HOVER.svg" />
+    <None Include="svg\background\MAC_TOP_BG.svg" />
+    <None Include="svg\background\MAC_TOP_GRADIENT_BG_CONNECTED.svg" />
+    <None Include="svg\background\MAC_TOP_GRADIENT_BG_CONNECTING.svg" />
+    <None Include="svg\macos-windowbuttons\MAXIMIZE_DEFAULT.svg" />
+    <None Include="svg\macos-windowbuttons\MAXIMIZE_HOVER.svg" />
+    <None Include="svg\MENU_ICON.svg" />
+    <None Include="svg\MIDRIGHT_VERT_DIVIDER.svg" />
+    <None Include="svg\macos-windowbuttons\MINIMIZE_DEFAULT.svg" />
+    <None Include="svg\macos-windowbuttons\MINIMIZE_HOVER.svg" />
+    <None Include="svg\NETWORK_ETHERNET_SECURED.svg" />
+    <None Include="svg\NETWORK_ETHERNET_UNSECURED.svg" />
+    <None Include="svg\NETWORK_WIFI_SECURED.svg" />
+    <None Include="svg\NETWORK_WIFI_UNSECURED.svg" />
+    <None Include="svg\NOTIFICATION_ICON.svg" />
+    <None Include="svg\locations\NO_P2P_ICON.svg" />
+    <None Include="svg\flags\NoFlag.svg" />
+    <None Include="svg\ON_BUTTON.svg" />
+    <None Include="svg\PING_OFF_FULL.svg" />
+    <None Include="svg\PING_OFF_HALF.svg" />
+    <None Include="svg\PING_OFF_LOW.svg" />
+    <None Include="svg\PING_ON_FULL.svg" />
+    <None Include="svg\PING_ON_HALF.svg" />
+    <None Include="svg\PING_ON_LOW.svg" />
+    <None Include="svg\PROTOCOL_IKEV2.svg" />
+    <None Include="svg\PROTOCOL_STEALTH.svg" />
+    <None Include="svg\PROTOCOL_TCP.svg" />
+    <None Include="svg\PROTOCOL_UDP.svg" />
+    <None Include="svg\PROTOCOL_WSTUNNEL.svg" />
+    <None Include="svg\locations\PRO_CITY_STAR.svg" />
+    <None Include="svg\locations\PRO_REGION_STAR_DARK.svg" />
+    <None Include="svg\locations\PRO_REGION_STAR_LIGHT.svg" />
+    <None Include="svg\preferences\QUIT_ICON.svg" />
+    <None Include="svg\RATE_SPEED_BAD_OFF.svg" />
+    <None Include="svg\RATE_SPEED_BAD_ON.svg" />
+    <None Include="svg\RATE_SPEED_GOOD_OFF.svg" />
+    <None Include="svg\RATE_SPEED_GOOD_ON.svg" />
+    <None Include="svg\preferences\REFRESH_ICON.svg" />
+    <None Include="svg\RENEW_PRO_ICON.svg" />
+    <None Include="svg\macos-windowbuttons\RESIZE_HOVER.svg" />
+    <None Include="svg\locations\RES_IP_ICON.svg" />
+    <None Include="svg\newsfeed\RIGHT_ARROW.svg" />
+    <None Include="svg\RING_CONNECTED.svg" />
+    <None Include="svg\RING_CONNECTED_SPLIT_ROUTING.svg" />
+    <None Include="svg\RING_CONNECTING.svg" />
+    <None Include="svg\RING_NO_INTERNET.svg" />
+    <None Include="svg\sharingfeatures\SECURE_HOTSPOT_ICON.svg" />
+    <None Include="svg\locations\SELECTED_FAV_ICON.svg" />
+    <None Include="svg\preferences\SEND_LOG_ICON.svg" />
+    <None Include="svg\login\SETTINGS_ICON.svg" />
+    <None Include="svg\SHADOW.svg" />
+    <None Include="svg\sharingfeatures\SHARING_FEATURE_DIVIDER.svg" />
+    <None Include="svg\preferences\SHARING_ICON.svg" />
+    <None Include="svg\SHUTDOWN_ICON.svg" />
+    <None Include="svg\preferences\SIGN_OUT_ICON.svg" />
+    <None Include="svg\login\SPINNER.svg" />
+    <None Include="svg\SPLIT_TUNNELING_CONNECTED.svg" />
+    <None Include="svg\SPLIT_TUNNELING_CONNECTING.svg" />
+    <None Include="svg\SPLIT_TUNNELING_DISCONNECTED.svg" />
+    <None Include="svg\locations\STATIC_IP_ICON.svg" />
+    <None Include="svg\preferences\TOGGLE_BUTTON_BLACK.svg" />
+    <None Include="svg\firewall\TOGGLE_BUTTON_WHITE.svg" />
+    <None Include="svg\frame-shadows\TOP_FRAME_BG_MACOS.svg" />
+    <None Include="svg\frame-shadows\TOP_FRAME_BG_WINDOWS.svg" />
+    <None Include="svg\locations\TOP_ICON_DIVIDER.svg" />
+    <None Include="svg\update\TOP_LEFT_HEADER_BG.svg" />
+    <None Include="svg\locations\UNDER_CONSTRUCTION_ICON.svg" />
+    <None Include="svg\preferences\UNDO_ICON.svg" />
+    <None Include="svg\update\UPDATING_SPINNER.svg" />
+    <None Include="svg\sharingfeatures\USERS_ICON.svg" />
+    <None Include="svg\preferences\VIEW_LOG_ICON.svg" />
+    <None Include="svg\preferences\WHITE_CHECKMARK_ICON.svg" />
+    <None Include="svg\preferences\WHITE_QUESTION_MARK_ICON.svg" />
+    <None Include="svg\preferences\WHITE_TOGGLE_BG.svg" />
+    <None Include="svg\locations\WINDFLIX_ICON.svg" />
+    <None Include="svg\WINDOWS_CLOSE_ICON.svg" />
+    <None Include="svg\update\WINDOWS_MAIN.svg" />
+    <None Include="svg\WINDOWS_MINIMIZE_ICON.svg" />
+    <None Include="svg\background\WIN_BOTTOM_BG.svg" />
+    <None Include="svg\background\WIN_HEADER_BG_CONNECTED.svg" />
+    <None Include="svg\background\WIN_HEADER_BG_DISCONNECTED.svg" />
+    <None Include="svg\background\WIN_HEADER_BG_OVERLAY.svg" />
+    <None Include="svg\background\WIN_LOCATION_BUTTON_BG_BRIGHT.svg" />
+    <None Include="svg\background\WIN_LOCATION_BUTTON_BG_DARK.svg" />
+    <None Include="svg\background\WIN_MAIN_BG.svg" />
+    <None Include="svg\background\WIN_MASK_TOP_GRADIENT_CONNECTED.svg" />
+    <None Include="svg\background\WIN_TOP_BG.svg" />
+    <None Include="svg\background\WIN_TOP_GRADIENT_BG_CONNECTED.svg" />
+    <None Include="svg\background\WIN_TOP_GRADIENT_BG_CONNECTING.svg" />
+    <None Include="svg\flags\ae.svg" />
+    <None Include="svg\flags\al.svg" />
+    <None Include="svg\flags\aq.svg" />
+    <None Include="svg\flags\ar.svg" />
+    <None Include="svg\flags\at.svg" />
+    <None Include="svg\flags\au.svg" />
+    <None Include="svg\flags\az.svg" />
+    <None Include="svg\flags\ba.svg" />
+    <None Include="svg\flags\be.svg" />
+    <None Include="svg\flags\bg.svg" />
+    <None Include="svg\flags\br.svg" />
+    <None Include="svg\flags\ca.svg" />
+    <None Include="svg\flags\ch.svg" />
+    <None Include="svg\flags\co.svg" />
+    <None Include="svg\flags\cy.svg" />
+    <None Include="svg\flags\cz.svg" />
+    <None Include="svg\flags\de.svg" />
+    <None Include="svg\flags\dk.svg" />
+    <None Include="svg\flags\ee.svg" />
+    <None Include="svg\flags\es.svg" />
+    <None Include="svg\flags\fi.svg" />
+    <None Include="svg\flags\fr.svg" />
+    <None Include="svg\flags\gb.svg" />
+    <None Include="svg\flags\ge.svg" />
+    <None Include="svg\flags\gr.svg" />
+    <None Include="svg\flags\hk.svg" />
+    <None Include="svg\flags\hr.svg" />
+    <None Include="svg\flags\hu.svg" />
+    <None Include="Resources\icons\icon_connected.ico" />
+    <None Include="Resources\icons\icon_connecting.ico" />
+    <None Include="Resources\icons\icon_disconnected.ico" />
+    <None Include="svg\flags\id.svg" />
+    <None Include="svg\flags\ie.svg" />
+    <None Include="svg\flags\il.svg" />
+    <None Include="svg\flags\in.svg" />
+    <None Include="svg\flags\is.svg" />
+    <None Include="svg\flags\it.svg" />
+    <None Include="svg\flags\jp.svg" />
+    <None Include="svg\flags\kr.svg" />
+    <None Include="locations.dat" />
+    <None Include="svg\flags\lt.svg" />
+    <None Include="svg\flags\lu.svg" />
+    <None Include="svg\flags\lv.svg" />
+    <None Include="svg\flags\ly.svg" />
+    <None Include="svg\frame-shadows\macos-location-shadow-deselected.svg" />
+    <None Include="svg\frame-shadows\macos-location-shadow-selected.svg" />
+    <None Include="svg\frame-shadows\macos-login-shadow-deselected.svg" />
+    <None Include="svg\frame-shadows\macos-login-shadow-selected.svg" />
+    <None Include="svg\frame-shadows\macos-main-shadow-deselected.svg" />
+    <None Include="svg\frame-shadows\macos-main-shadow-selected.svg" />
+    <None Include="svg\flags\md.svg" />
+    <None Include="svg\flags\mk.svg" />
+    <None Include="svg\flags\mx.svg" />
+    <None Include="svg\flags\my.svg" />
+    <None Include="svg\flags\nl.svg" />
+    <None Include="svg\flags\no.svg" />
+    <None Include="svg\flags\nz.svg" />
+    <None Include="svg\flags\pa.svg" />
+    <None Include="svg\flags\pe.svg" />
+    <None Include="svg\flags\ph.svg" />
+    <None Include="svg\flags\pl.svg" />
+    <None Include="svg\flags\pt.svg" />
+    <None Include="svg\flags\ro.svg" />
+    <None Include="svg\flags\rs.svg" />
+    <None Include="svg\flags\ru.svg" />
+    <None Include="svg\flags\se.svg" />
+    <None Include="svg\flags\sg.svg" />
+    <None Include="svg\flags\si.svg" />
+    <None Include="svg\flags\sk.svg" />
+    <QtRcc Include="svg.qrc">
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">svg</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">svg</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">svg</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">svg</InitFuncName>
+    </QtRcc>
+    <None Include="svg\flags\th.svg" />
+    <None Include="svg\flags\tn.svg" />
+    <None Include="svg\flags\tr.svg" />
+    <None Include="svg\flags\tw.svg" />
+    <None Include="svg\flags\ua.svg" />
+    <None Include="svg\flags\us.svg" />
+    <None Include="svg\flags\vn.svg" />
+    <None Include="svg\frame-shadows\windows-location-shadow-deselected.svg" />
+    <None Include="svg\frame-shadows\windows-location-shadow-selected.svg" />
+    <None Include="svg\frame-shadows\windows-login-shadow-deselected.svg" />
+    <None Include="svg\frame-shadows\windows-login-shadow-selected.svg" />
+    <None Include="svg\frame-shadows\windows-main-shadow-deselected.svg" />
+    <None Include="svg\frame-shadows\windows-main-shadow-selected.svg" />
+    <QtRcc Include="windscribe.qrc">
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">windscribe</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">windscribe</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">windscribe</InitFuncName>
+      <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">windscribe</InitFuncName>
+    </QtRcc>
+    <None Include="svg\flags\za.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="gui.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

@@ -1,0 +1,2406 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Misc Files">
+      <UniqueIdentifier>{0530c825-f853-40a5-b632-fb9b45b97df8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc Files\Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Misc Files\Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="GUI Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Common Files">
+      <UniqueIdentifier>{f93e6b62-5337-46b1-8545-c7be039ecac6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend Files">
+      <UniqueIdentifier>{9f91a876-75e0-443d-ab1a-31de2d480622}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\application">
+      <UniqueIdentifier>{5e9fc95d-8b73-4c03-ba12-aa486e12bf96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\application\checkrunningapp">
+      <UniqueIdentifier>{132a0f1e-be20-4e37-8517-e06cfa5f94ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\bottominfowidget">
+      <UniqueIdentifier>{a6573c1a-1fb6-49d6-b5dd-b88842fe8c64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\bottominfowidget\upgradewidget">
+      <UniqueIdentifier>{cae54cdc-420e-4264-be5d-6e987d6e9327}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\bottominfowidget\sharingfeatures">
+      <UniqueIdentifier>{feace3c2-8406-4d30-9033-c4aa2909db48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\commongraphics">
+      <UniqueIdentifier>{fb261f5f-a34b-4017-bb03-20b406c74194}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\commonwidgets">
+      <UniqueIdentifier>{4f380148-c9aa-437b-b8e3-681049eae5a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\connectwindow">
+      <UniqueIdentifier>{62eed64e-5e1e-463f-82f0-f8d1ab6fead3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\dialogs">
+      <UniqueIdentifier>{d92b4191-0e57-44b6-ad1d-73a82cf259dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\emergencyconnectwindow">
+      <UniqueIdentifier>{2ab085a8-f813-44ad-be23-74f17870fcec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\externalconfig">
+      <UniqueIdentifier>{75b675b7-8abe-4ea0-9239-c7446d21e883}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\generalmessage">
+      <UniqueIdentifier>{b6bb4dae-a56c-4fe8-98f5-a4291a3a1d43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\graphicresources">
+      <UniqueIdentifier>{cad8f0d1-4917-443e-adfc-76e1cfb18c83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\launchonstartup">
+      <UniqueIdentifier>{9f39869f-bd01-476a-9065-c85716a3c73a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\localhttpserver">
+      <UniqueIdentifier>{73140ad4-18db-4cd5-9e70-0928fc4f6b97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\locationswindow">
+      <UniqueIdentifier>{872c65ae-575b-4523-8294-7016d4a1e305}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\locationswindow\widgetlocations">
+      <UniqueIdentifier>{96c6c297-4b6e-4f0f-9f76-571d2bd59af1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\log">
+      <UniqueIdentifier>{e55d10f0-5c3d-464b-b180-a43a05d507de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\loginwindow">
+      <UniqueIdentifier>{17c73bfc-6417-4e8a-8da0-d97e3783f732}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\multipleaccountdetection">
+      <UniqueIdentifier>{f5244080-b1bb-4179-9414-4819422ee41a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow">
+      <UniqueIdentifier>{b0c791bd-38ca-48b6-902e-e05becfcf169}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow\accountwindow">
+      <UniqueIdentifier>{1e4005b1-aaef-4b52-96c1-30fa3569141f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow\connectionwindow">
+      <UniqueIdentifier>{4cc4b2e4-236b-4ad9-bd34-8fea3fc372ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow\debugwindow">
+      <UniqueIdentifier>{17fe8a67-d6bf-4aaa-ade9-9caf6d7c3855}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow\generalwindow">
+      <UniqueIdentifier>{5fbc4413-4dc6-49dc-87bc-484ff5bd742a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow\networkwhitelistwindow">
+      <UniqueIdentifier>{d2aa0a18-2f80-4e23-b8e1-736b8f3835b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow\preferencestab">
+      <UniqueIdentifier>{a43c88a7-8903-4633-af89-1055838b55c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow\proxysettingswindow">
+      <UniqueIdentifier>{93ab042b-ded4-40bc-8dcc-7eb071f41a44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow\sharewindow">
+      <UniqueIdentifier>{58929c21-3be0-42a1-b608-c7b49d0018f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\preferenceswindow\splittunnelingwindow">
+      <UniqueIdentifier>{e9073c8e-58ca-4d71-9005-b63209fe6921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\newsfeedwindow">
+      <UniqueIdentifier>{1bd19059-b3ef-4528-9762-dfb9d0fe77c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\tooltips">
+      <UniqueIdentifier>{fbe0284f-8a02-424a-890f-2a7026dfe132}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\types">
+      <UniqueIdentifier>{c600641e-6fdb-4330-af54-b64eb1fe0813}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\update">
+      <UniqueIdentifier>{b2b3f553-fae1-4b7e-b3a1-0f675fe83806}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\updateapp">
+      <UniqueIdentifier>{5947ff41-ea4f-4dd6-8ba4-3c1ea0934fe7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\utils">
+      <UniqueIdentifier>{76292c3a-f631-41ab-b5e8-4de0537d2669}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend Files\preferences">
+      <UniqueIdentifier>{47842693-11bf-4f6d-9b06-5cea2da90702}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend Files\locationsmodel">
+      <UniqueIdentifier>{27823b9a-b3f5-4542-9b7a-f8c8b2c080ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend Files\types">
+      <UniqueIdentifier>{c7c6f294-4c82-409a-a8ef-bcf52aab4e10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\version">
+      <UniqueIdentifier>{c408d212-e7f6-4e67-b6f8-8289025e616d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\ipc">
+      <UniqueIdentifier>{0b432ae4-4bed-4ec2-aa76-34d62229959e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\ipc\generated_proto">
+      <UniqueIdentifier>{0e2b93b0-e155-4dca-ab4e-20135a4d5c35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\utils">
+      <UniqueIdentifier>{c4c301e1-4eab-4d96-9a3d-4e9d65eb1d9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\utils\executable_signature">
+      <UniqueIdentifier>{19a18011-0ee3-4f7a-9651-d827069c9f4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI Files\connectwindow\ipaddressitem">
+      <UniqueIdentifier>{43de5400-b01c-4f48-9e57-20a1e21a8419}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\ipc\proto">
+      <UniqueIdentifier>{18a680f0-d834-4334-9cac-e2c211028079}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dialogs\dialogmessagecpuusage.cpp">
+      <Filter>GUI Files\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="dialogs\dialoggetusernamepassword.cpp">
+      <Filter>GUI Files\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="localhttpserver\localhttpserver.cpp">
+      <Filter>GUI Files\localhttpserver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\preferences\accountinfo.cpp">
+      <Filter>Backend Files\preferences</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\accountwindow\accountwindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\debugwindow\advancedparametersitem.cpp">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\debugwindow\advancedparameterswindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\alllocationsmodel.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\debugwindow\apiresolutionitem.cpp">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\appincludeditem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\appsearchitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\version\appversion.cpp">
+      <Filter>Common Files\version</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\automanualswitchitem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\autorotatemacitem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\backend.cpp">
+      <Filter>Backend Files</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\background.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\backgroundpixmapanimation.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\baseitem.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\basepage.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\basiccitiesmodel.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\basiclocationsmodel.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\blockableqlineedit.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="bottominfowidget\bottominfoitem.cpp">
+      <Filter>GUI Files\bottominfowidget</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\bottomresizeitem.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\bubblebuttonbright.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\bubblebuttondark.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\checkboxbutton.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\checkboxitem.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\cityitem.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\citynode.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\clickablegraphicsobject.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\generated_proto\clientcommands.pb.cc">
+      <Filter>Common Files\ipc\generated_proto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\generated_proto\types.pb.cc">
+      <Filter>Common Files\ipc\generated_proto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\generated_proto\servercommands.pb.cc">
+      <Filter>Common Files\ipc\generated_proto</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\comboboxitem.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="commonwidgets\combomenuwidget.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="commonwidgets\combomenuwidgetbutton.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\commandfactory.cpp">
+      <Filter>Common Files\ipc</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\commongraphics.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\configfooterinfo.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\configfooteritem.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\configuredcitiesmodel.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\connection.cpp">
+      <Filter>Common Files\ipc</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\connectbutton.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\connectionmodeitem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\connectionwindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\connectstatehelper.cpp">
+      <Filter>Backend Files</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\connectstateprotocolport.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\connectwindowitem.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\networkwhitelistwindow\currentnetworkitem.cpp">
+      <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\custommenulineedit.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="commonwidgets\custommenuwidget.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\customscrollbar.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="commonwidgets\customtexteditwidget.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\debugwindow\debugwindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\dividerline.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\dnswhileconnecteditem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="types\dnswhileconnectedtype.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\accountwindow\editaccountitem.cpp">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\editboxitem.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\accountwindow\emailitem.cpp">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="emergencyconnectwindow\emergencyconnectwindowitem.cpp">
+      <Filter>GUI Files\emergencyconnectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\escapebutton.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\executable_signature\executable_signature.cpp">
+      <Filter>Common Files\utils\executable_signature</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\executable_signature\executable_signature_win.cpp">
+      <Filter>Common Files\utils\executable_signature</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\accountwindow\expiredateitem.cpp">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="externalconfig\externalconfigwindowitem.cpp">
+      <Filter>GUI Files\externalconfig</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\extraconfig.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\favoritecitiesmodel.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\favoritelocationsstorage.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\firewallbutton.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\firewallmodeitem.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\firewallturnoffbutton.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\firewallstatehelper.cpp">
+      <Filter>Backend Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphicresources\fontdescr.cpp">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClCompile>
+    <ClCompile Include="graphicresources\fontmanager.cpp">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClCompile>
+    <ClCompile Include="generalmessage\generalmessagetwobuttonwindowitem.cpp">
+      <Filter>GUI Files\generalmessage</Filter>
+    </ClCompile>
+    <ClCompile Include="generalmessage\generalmessagewindowitem.cpp">
+      <Filter>GUI Files\generalmessage</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\generalwindow\generalwindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\generalwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\preferences\guisettingsfromver1.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\hardcodedsettings.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\iconbutton.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="commonwidgets\iconbuttonwidget.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\iconhoverengagebutton.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="graphicresources\iconmanager.cpp">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\imageitem.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="graphicresources\imageresourcessvg.cpp">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClCompile>
+    <ClCompile Include="graphicresources\independentpixmap.cpp">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\initwindowitem.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\ipaddressitem\ipaddressitem.cpp">
+      <Filter>GUI Files\connectwindow\ipaddressitem</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\ipaddressitem\numberitem.cpp">
+      <Filter>GUI Files\connectwindow\ipaddressitem</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\ipaddressitem\numberspixmap.cpp">
+      <Filter>GUI Files\connectwindow\ipaddressitem</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\ipaddressitem\octetitem.cpp">
+      <Filter>GUI Files\connectwindow\ipaddressitem</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\iporhostnameitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\ipvalidation.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\itemtimems.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="tooltips\itooltip.cpp">
+      <Filter>GUI Files\tooltips</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\languagesutil.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="launchonstartup\launchonstartup_win.cpp">
+      <Filter>GUI Files\launchonstartup</Filter>
+    </ClCompile>
+    <ClCompile Include="launchonstartup\launchonstartup.cpp">
+      <Filter>GUI Files\launchonstartup</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\types\locationid.cpp">
+      <Filter>Backend Files\types</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\locationitem.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\locationsmodel.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\locationstab.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\locationsbutton.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\locationswindow.cpp">
+      <Filter>GUI Files\locationswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\logger.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\logginginwindowitem.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\loginbutton.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\loginwindowitem.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\loginyesnobutton.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\logonotificationsbutton.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="log\logviewerwindow.cpp">
+      <Filter>GUI Files\log</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\macaddressitem.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\macspoofingitem.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\makecustomshadow.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\mergelog.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\middleitem.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\msseditboxitem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="multipleaccountdetection\multipleaccountdetection_win.cpp">
+      <Filter>GUI Files\multipleaccountdetection</Filter>
+    </ClCompile>
+    <ClCompile Include="multipleaccountdetection\multipleaccountdetectionfactory.cpp">
+      <Filter>GUI Files\multipleaccountdetection</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\networkwhitelistwindow\networklistitem.cpp">
+      <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\networkwhitelistwindow\networkwhitelistshared.cpp">
+      <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\networkwhitelistwindow\networkwhitelistwindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\newiporhostnameitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="newsfeedwindow\newsfeedwindowitem.cpp">
+      <Filter>GUI Files\newsfeedwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\notificationscontroller.cpp">
+      <Filter>Backend Files</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\packetsizeitem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\persistentstate.cpp">
+      <Filter>Backend Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\types\pingtime.cpp">
+      <Filter>Backend Files\types</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\accountwindow\planitem.cpp">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\preferences\preferences.cpp">
+      <Filter>Backend Files\preferences</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\preferences\preferenceshelper.cpp">
+      <Filter>Backend Files\preferences</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\preferencestab\preferencestabcontrolitem.cpp">
+      <Filter>GUI Files\preferenceswindow\preferencestab</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\preferenceswindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="application\preventmultipleinstances_win.cpp">
+      <Filter>GUI Files\application</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\protoenumtostring.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\sharewindow\proxygatewayitem.cpp">
+      <Filter>GUI Files\preferenceswindow\sharewindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\sharewindow\proxyipaddressitem.cpp">
+      <Filter>GUI Files\preferenceswindow\sharewindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\proxysettingswindow\proxysettingsitem.cpp">
+      <Filter>GUI Files\preferenceswindow\proxysettingswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\proxysettingswindow\proxysettingswindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\proxysettingswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\scalablegraphicsobject.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\scaleutils_win.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="newsfeedwindow\scrollablemessage.cpp">
+      <Filter>GUI Files\newsfeedwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\scrollareaitem.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="commonwidgets\scrollareawidget.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\searchlineedititem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="multipleaccountdetection\secretvalue_win.cpp">
+      <Filter>GUI Files\multipleaccountdetection</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\sharewindow\securehotspotitem.cpp">
+      <Filter>GUI Files\preferenceswindow\sharewindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\server.cpp">
+      <Filter>Common Files\ipc</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\serverratingindicator.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\debugwindow\serverratingsitem.cpp">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="tooltips\serverratingstooltip.cpp">
+      <Filter>GUI Files\tooltips</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\shadowmanager.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\sharewindow\sharewindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\sharewindow</Filter>
+    </ClCompile>
+    <ClCompile Include="bottominfowidget\sharingfeatures\sharingfeature.cpp">
+      <Filter>GUI Files\bottominfowidget\sharingfeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="bottominfowidget\sharingfeatures\sharingfeatureswindowitem.cpp">
+      <Filter>GUI Files\bottominfowidget\sharingfeatures</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\simplecrypt.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\sortlocationsalgorithms.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingappsitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingappssearchitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingappssearchwindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingappswindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingiphostnamewindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingipsandhostnamesitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingswitchitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingwindowitem.cpp">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\staticipdeviceinfo.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\staticipdeviceitem.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\staticipscitiesmodel.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\subpageitem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\tcpconnection.cpp">
+      <Filter>Common Files\ipc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\tcpserver.cpp">
+      <Filter>Common Files\ipc</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\textbutton.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\texticonbutton.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\textitem.cpp">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClCompile>
+    <ClCompile Include="emergencyconnectwindow\textlinkbutton.cpp">
+      <Filter>GUI Files\emergencyconnectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="tooltips\tooltipbasic.cpp">
+      <Filter>GUI Files\tooltips</Filter>
+    </ClCompile>
+    <ClCompile Include="tooltips\tooltipcontroller.cpp">
+      <Filter>GUI Files\tooltips</Filter>
+    </ClCompile>
+    <ClCompile Include="tooltips\tooltipdescriptive.cpp">
+      <Filter>GUI Files\tooltips</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\types\types.cpp">
+      <Filter>Backend Files\types</Filter>
+    </ClCompile>
+    <ClCompile Include="updateapp\updateappitem.cpp">
+      <Filter>GUI Files\updateapp</Filter>
+    </ClCompile>
+    <ClCompile Include="update\updatewindowitem.cpp">
+      <Filter>GUI Files\update</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\types\upgrademodetype.cpp">
+      <Filter>Backend Files\types</Filter>
+    </ClCompile>
+    <ClCompile Include="bottominfowidget\upgradewidget\upgradewidgetitem.cpp">
+      <Filter>GUI Files\bottominfowidget\upgradewidget</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\accountwindow\usernameitem.cpp">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\usernamepasswordentry.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\utils.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\generalwindow\versioninfoitem.cpp">
+      <Filter>GUI Files\preferenceswindow\generalwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\verticaldividerline.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="commongraphics\verticalscrollbar.cpp">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="commonwidgets\verticalscrollbarwidget.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\debugwindow\viewlogitem.cpp">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\widgetcities.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\widgetlocations.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\widgetlocationssizes.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\widgetutils.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\widgetutils_win.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="connectwindow\wifiname.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\windflixlocationsmodel.cpp">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="application\windowsnativeeventfilter.cpp">
+      <Filter>GUI Files\application</Filter>
+    </ClCompile>
+    <ClCompile Include="application\windscribeapplication.cpp">
+      <Filter>GUI Files\application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\winutils.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="blockconnect.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dpiscalemanager.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="freetrafficnotificationcontroller.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="guitest.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="languagecontroller.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="locationstraymenubutton.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="locationstraymenuitemdelegate.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="locationstraymenuwidget.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="loginattemptscontroller.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mainwindow.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mainwindowcontroller.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="dialogs\dialoggetusernamepassword.h">
+      <Filter>GUI Files\dialogs</Filter>
+    </QtMoc>
+    <QtMoc Include="dialogs\dialogmessagecpuusage.h">
+      <Filter>GUI Files\dialogs</Filter>
+    </QtMoc>
+    <QtMoc Include="localhttpserver\localhttpserver.h">
+      <Filter>GUI Files\localhttpserver</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\preferences\accountinfo.h">
+      <Filter>Backend Files\preferences</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\accountwindow\accountwindowitem.h">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\advancedparametersitem.h">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\advancedparameterswindowitem.h">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\alllocationsmodel.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\apiresolutionitem.h">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\appincludeditem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\automanualswitchitem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\autorotatemacitem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\backend.h">
+      <Filter>Backend Files</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\baseitem.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\basepage.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\basiccitiesmodel.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\basiclocationsmodel.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="bottominfowidget\bottominfoitem.h">
+      <Filter>GUI Files\bottominfowidget</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\bottomresizeitem.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\bubblebuttonbright.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\bubblebuttondark.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\checkboxbutton.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <ClInclude Include="locationswindow\widgetlocations\cityitem.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <QtMoc Include="preferenceswindow\comboboxitem.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\combomenuwidgetbutton.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <ClInclude Include="..\..\common\ipc\commandfactory.h">
+      <Filter>Common Files\ipc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\command.h">
+      <Filter>Common Files\ipc</Filter>
+    </ClInclude>
+    <QtMoc Include="locationswindow\widgetlocations\configfooterinfo.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\configuredcitiesmodel.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\connection.h">
+      <Filter>Common Files\ipc</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\connectbutton.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\connectionwindowitem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\connectionmodeitem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\connectstatehelper.h">
+      <Filter>Backend Files</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\connectstateprotocolport.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\connectwindowitem.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\networkwhitelistwindow\currentnetworkitem.h">
+      <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\customscrollbar.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\customtexteditwidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\dnswhileconnecteditem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\accountwindow\editaccountitem.h">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\editboxitem.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\accountwindow\emailitem.h">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="emergencyconnectwindow\emergencyconnectwindowitem.h">
+      <Filter>GUI Files\emergencyconnectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\escapebutton.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\accountwindow\expiredateitem.h">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="externalconfig\externalconfigwindowitem.h">
+      <Filter>GUI Files\externalconfig</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\favoritecitiesmodel.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\favoritelocationsstorage.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\firewallbutton.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\firewallmodeitem.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\firewallturnoffbutton.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\firewallstatehelper.h">
+      <Filter>Backend Files</Filter>
+    </QtMoc>
+    <QtMoc Include="generalmessage\generalmessagetwobuttonwindowitem.h">
+      <Filter>GUI Files\generalmessage</Filter>
+    </QtMoc>
+    <QtMoc Include="generalmessage\generalmessagewindowitem.h">
+      <Filter>GUI Files\generalmessage</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\generalwindow\generalwindowitem.h">
+      <Filter>GUI Files\preferenceswindow\generalwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\iconbutton.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\iconbuttonwidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\iconhoverengagebutton.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\imageitem.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\initwindowitem.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\ipaddressitem\ipaddressitem.h">
+      <Filter>GUI Files\connectwindow\ipaddressitem</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\ipaddressitem\numberitem.h">
+      <Filter>GUI Files\connectwindow\ipaddressitem</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\ipaddressitem\octetitem.h">
+      <Filter>GUI Files\connectwindow\ipaddressitem</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\iporhostnameitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\locationsbutton.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\locationsmodel.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\locationstab.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\loginyesnobutton.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\loginbutton.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\loginwindowitem.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\logonotificationsbutton.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="log\logviewerwindow.h">
+      <Filter>GUI Files\log</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\macspoofingitem.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\macaddressitem.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <ClInclude Include="utils\makecustomshadow.h">
+      <Filter>GUI Files\utils</Filter>
+    </ClInclude>
+    <QtMoc Include="connectwindow\middleitem.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <ClInclude Include="multipleaccountdetection\multipleaccountdetectionfactory.h">
+      <Filter>GUI Files\multipleaccountdetection</Filter>
+    </ClInclude>
+    <QtMoc Include="preferenceswindow\networkwhitelistwindow\networkwhitelistwindowitem.h">
+      <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\newiporhostnameitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="newsfeedwindow\newsfeedwindowitem.h">
+      <Filter>GUI Files\newsfeedwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\notificationscontroller.h">
+      <Filter>Backend Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\backend\persistentstate.h">
+      <Filter>Backend Files</Filter>
+    </ClInclude>
+    <QtMoc Include="preferenceswindow\accountwindow\planitem.h">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\preferences\preferences.h">
+      <Filter>Backend Files\preferences</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\preferences\preferenceshelper.h">
+      <Filter>Backend Files\preferences</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\preferencestab\preferencestabcontrolitem.h">
+      <Filter>GUI Files\preferenceswindow\preferencestab</Filter>
+    </QtMoc>
+    <ClInclude Include="application\preventmultipleinstances_win.h">
+      <Filter>GUI Files\application</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\protoenumtostring.h">
+      <Filter>GUI Files\utils</Filter>
+    </ClInclude>
+    <QtMoc Include="preferenceswindow\sharewindow\proxygatewayitem.h">
+      <Filter>GUI Files\preferenceswindow\sharewindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\sharewindow\proxyipaddressitem.h">
+      <Filter>GUI Files\preferenceswindow\sharewindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\proxysettingswindow\proxysettingswindowitem.h">
+      <Filter>GUI Files\preferenceswindow\proxysettingswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\proxysettingswindow\proxysettingsitem.h">
+      <Filter>GUI Files\preferenceswindow\proxysettingswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="newsfeedwindow\scrollablemessage.h">
+      <Filter>GUI Files\newsfeedwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\scrollareaitem.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\scrollareawidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\sharewindow\securehotspotitem.h">
+      <Filter>GUI Files\preferenceswindow\sharewindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\server.h">
+      <Filter>Common Files\ipc</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\serverratingindicator.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\serverratingsitem.h">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="tooltips\serverratingstooltip.h">
+      <Filter>GUI Files\tooltips</Filter>
+    </QtMoc>
+    <QtMoc Include="utils\shadowmanager.h">
+      <Filter>GUI Files\utils</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\sharewindow\sharewindowitem.h">
+      <Filter>GUI Files\preferenceswindow\sharewindow</Filter>
+    </QtMoc>
+    <QtMoc Include="bottominfowidget\sharingfeatures\sharingfeature.h">
+      <Filter>GUI Files\bottominfowidget\sharingfeatures</Filter>
+    </QtMoc>
+    <ClInclude Include="utils\simplecrypt.h">
+      <Filter>GUI Files\utils</Filter>
+    </ClInclude>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingipsandhostnamesitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingappsitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingappssearchitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingappssearchwindowitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingappswindowitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingiphostnamewindowitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingwindowitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\splittunnelingswitchitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\staticipscitiesmodel.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\subpageitem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\tcpserver.h">
+      <Filter>Common Files\ipc</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\tcpconnection.h">
+      <Filter>Common Files\ipc</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\texticonbutton.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="emergencyconnectwindow\textlinkbutton.h">
+      <Filter>GUI Files\emergencyconnectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="tooltips\tooltipbasic.h">
+      <Filter>GUI Files\tooltips</Filter>
+    </QtMoc>
+    <QtMoc Include="tooltips\tooltipcontroller.h">
+      <Filter>GUI Files\tooltips</Filter>
+    </QtMoc>
+    <QtMoc Include="updateapp\updateappitem.h">
+      <Filter>GUI Files\updateapp</Filter>
+    </QtMoc>
+    <QtMoc Include="bottominfowidget\upgradewidget\upgradewidgetitem.h">
+      <Filter>GUI Files\bottominfowidget\upgradewidget</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\accountwindow\usernameitem.h">
+      <Filter>GUI Files\preferenceswindow\accountwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\verticalscrollbarwidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\viewlogitem.h">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\widgetcities.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <ClInclude Include="locationswindow\widgetlocations\widgetlocationssizes.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\widgetutils.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <QtMoc Include="connectwindow\wifiname.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <ClInclude Include="application\windowsnativeeventfilter.h">
+      <Filter>GUI Files\application</Filter>
+    </ClInclude>
+    <QtMoc Include="mainwindowcontroller.h">
+      <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="dpiscalemanager.h">
+      <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="freetrafficnotificationcontroller.h">
+      <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="guitest.h">
+      <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="languagecontroller.h">
+      <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="locationstraymenubutton.h">
+      <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="locationstraymenuitemdelegate.h">
+      <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="locationstraymenuwidget.h">
+      <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="mainwindow.h">
+      <Filter>GUI Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="debug\moc_predefs.h.cbt">
+      <Filter>Misc Files\Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="release\moc_predefs.h.cbt">
+      <Filter>Misc Files\Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\clientcommands.proto">
+      <Filter>Common Files\ipc\proto</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\servercommands.proto" />
+    <CustomBuild Include="..\..\common\ipc\proto\types.proto" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="dialogs\dialoggetusernamepassword.ui">
+      <Filter>GUI Files\dialogs</Filter>
+    </QtUic>
+    <QtUic Include="dialogs\dialogmessagecpuusage.ui">
+      <Filter>GUI Files\dialogs</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="svg\preferences\ACCOUNT_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\ADD_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\ALL_LOCATION_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\ARROW_DOWN_WHITE.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\AUTODETECT_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\BACK_ARROW.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\BADGE_BLACK_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\BADGE_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\BADGE_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\BADGE_SMALL_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\BIG_CONFIG_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\emergencyConnect\BIG_SPINNER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\firewall\BLACK_TOGGLE_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\firewall\BLUE_TOGGLE_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\BOTTOMLEFT_HORIZ_DIVIDER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\BOTTOMLEFT_HORIZ_DIVIDER_WHITE.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\BOTTOM_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\BOTTOM_FRAME_BG_MACOS.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\BOTTOM_FRAME_BG_WINDOWS.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\BROKEN_HEART_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\CLEAR_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\macos-windowbuttons\CLOSE_DEFAULT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\macos-windowbuttons\CLOSE_HOVER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\CLOSE_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\CNTXT_MENU_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\sharingfeatures\COMBINED_SHAPE.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\CONFIG_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\CONFIG_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\CONFIRM_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\CONNECTION_BADGE_BG_CONNECTING.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\CONNECTION_BADGE_BG_OFF.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\CONNECTION_BADGE_BG_ON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\CONNECTION_BADGE_FG_NO_INT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\CONNECTION_BADGE_FG_OFF.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\CONNECTION_BADGE_FG_ON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\CONNECTION_BADGE_FG_SPINNER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\CONNECTION_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\COPY_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\DATACENTER_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\DATA_FULL_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\DATA_LOW_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\DATA_OVER_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\DEBUG_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\DELETE_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\DESELECTED_FAV_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\DISABLED_LOGIN_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\EDIT_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\emergencyConnect\EMERGENCY_CONNECT_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\EMERGENCY_ICON_DISABLED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\EMERGENCY_ICON_ENABLED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\macos-windowbuttons\EMPTY_DEFAULT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\ENABLED_LOGIN_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\ERROR_LOGIN_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\emergencyConnect\ESC_BUTTON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\ESC_BUTTON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\EXPAND_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\EXTERNAL_LINK_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\FAV_DESELECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\FAV_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\FAV_SELECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\FLAG_GRADIENT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\FOLDER_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\FRWRD_ARROW_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\sharingfeatures\FRWRD_ARROW_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\FRWRD_ARROW_WHITE.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\FRWRD_ARROW_WHITE_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\GENERAL_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\GREEN_CHECKMARK_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\GREEN_TOGGLE_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\HELP_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="Resources\fonts\IBMPlexSans-Bold.ttf">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="Resources\fonts\IBMPlexSans-Regular.ttf">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\INFO_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\firewall\INFO_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\update\INFO_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\INFO_YELLOW_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\IP_LOCK_SECURE.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\IP_LOCK_UNSECURE.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\newsfeed\LEFT_ARROW.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\LOCATION_ARROW.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\LOCATION_BUTTON_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\update\LOCATION_BUTTON_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\LOCATION_BUTTON_BG_MACOS.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\LOCATION_BUTTON_BG_WINDOWS.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\LOCATION_FOOTER_MACOS.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\LOCATION_FOOTER_WINDOWS.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\LOCATION_PING_BARS0.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\LOCATION_PING_BARS1.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\LOCATION_PING_BARS2.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\LOCATION_PING_BARS3.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\LOGO.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_BOTTOM_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MAC_CLOSE_DEFAULT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MAC_CLOSE_HOVER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MAC_EMPTY_DEFAULT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_HEADER_BG_CONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_HEADER_BG_DISCONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_HEADER_BG_OVERLAY.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_LOCATION_BUTTON_BG_BRIGHT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_LOCATION_BUTTON_BG_DARK.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_MAIN_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MAC_MAXIMIZE_HOVER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MAC_MAXMIZE_DEFAULT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MAC_MINIMIZE_DEFAULT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MAC_MINIMIZE_HOVER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MAC_RESIZE_HOVER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_TOP_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_TOP_GRADIENT_BG_CONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\MAC_TOP_GRADIENT_BG_CONNECTING.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\macos-windowbuttons\MAXIMIZE_DEFAULT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\macos-windowbuttons\MAXIMIZE_HOVER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MENU_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\MIDRIGHT_VERT_DIVIDER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\macos-windowbuttons\MINIMIZE_DEFAULT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\macos-windowbuttons\MINIMIZE_HOVER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\NETWORK_ETHERNET_SECURED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\NETWORK_ETHERNET_UNSECURED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\NETWORK_WIFI_SECURED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\NETWORK_WIFI_UNSECURED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\NOTIFICATION_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\NO_P2P_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\NoFlag.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\ON_BUTTON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PING_OFF_FULL.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PING_OFF_HALF.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PING_OFF_LOW.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PING_ON_FULL.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PING_ON_HALF.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PING_ON_LOW.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PROTOCOL_IKEV2.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PROTOCOL_STEALTH.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PROTOCOL_TCP.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PROTOCOL_UDP.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\PROTOCOL_WSTUNNEL.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\PRO_CITY_STAR.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\PRO_REGION_STAR_DARK.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\PRO_REGION_STAR_LIGHT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\QUIT_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\RATE_SPEED_BAD_OFF.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\RATE_SPEED_BAD_ON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\RATE_SPEED_GOOD_OFF.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\RATE_SPEED_GOOD_ON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\REFRESH_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\RENEW_PRO_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\macos-windowbuttons\RESIZE_HOVER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\RES_IP_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\newsfeed\RIGHT_ARROW.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\RING_CONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\RING_CONNECTED_SPLIT_ROUTING.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\RING_CONNECTING.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\RING_NO_INTERNET.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\sharingfeatures\SECURE_HOTSPOT_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\SELECTED_FAV_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\SEND_LOG_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\SETTINGS_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\SHADOW.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\sharingfeatures\SHARING_FEATURE_DIVIDER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\SHARING_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\SHUTDOWN_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\SIGN_OUT_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\login\SPINNER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\SPLIT_TUNNELING_CONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\SPLIT_TUNNELING_CONNECTING.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\SPLIT_TUNNELING_DISCONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\STATIC_IP_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\TOGGLE_BUTTON_BLACK.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\firewall\TOGGLE_BUTTON_WHITE.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\TOP_FRAME_BG_MACOS.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\TOP_FRAME_BG_WINDOWS.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\TOP_ICON_DIVIDER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\update\TOP_LEFT_HEADER_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\UNDER_CONSTRUCTION_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\UNDO_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\update\UPDATING_SPINNER.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\sharingfeatures\USERS_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\VIEW_LOG_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\WHITE_CHECKMARK_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\WHITE_QUESTION_MARK_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\preferences\WHITE_TOGGLE_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\locations\WINDFLIX_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\WINDOWS_CLOSE_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\update\WINDOWS_MAIN.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\WINDOWS_MINIMIZE_ICON.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_BOTTOM_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_HEADER_BG_CONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_HEADER_BG_DISCONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_HEADER_BG_OVERLAY.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_LOCATION_BUTTON_BG_BRIGHT.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_LOCATION_BUTTON_BG_DARK.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_MAIN_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_MASK_TOP_GRADIENT_CONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_TOP_BG.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_TOP_GRADIENT_BG_CONNECTED.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\background\WIN_TOP_GRADIENT_BG_CONNECTING.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ae.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\al.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\aq.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ar.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\at.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\au.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\az.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ba.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\be.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\bg.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\br.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ca.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ch.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\co.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\cy.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\cz.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\de.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\dk.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ee.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\es.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\fi.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\fr.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\gb.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ge.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\gr.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\hk.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\hr.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\hu.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="Resources\icons\icon_connected.ico">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="Resources\icons\icon_connecting.ico">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="Resources\icons\icon_disconnected.ico">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\id.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ie.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\il.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\in.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\is.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\it.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\jp.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\kr.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="locations.dat">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\lt.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\lu.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\lv.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ly.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\macos-location-shadow-deselected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\macos-location-shadow-selected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\macos-login-shadow-deselected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\macos-login-shadow-selected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\macos-main-shadow-deselected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\macos-main-shadow-selected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\md.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\mk.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\mx.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\my.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\nl.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\no.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\nz.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\pa.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\pe.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ph.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\pl.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\pt.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ro.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\rs.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ru.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\se.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\sg.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\si.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\sk.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <QtRcc Include="svg.qrc">
+      <Filter>Misc Files\Resource Files</Filter>
+    </QtRcc>
+    <None Include="svg\flags\th.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\tn.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\tr.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\tw.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\ua.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\us.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\flags\vn.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\windows-location-shadow-deselected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\windows-location-shadow-selected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\windows-login-shadow-deselected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\windows-login-shadow-selected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\windows-main-shadow-deselected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <None Include="svg\frame-shadows\windows-main-shadow-selected.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+    <QtRcc Include="windscribe.qrc">
+      <Filter>Misc Files\Resource Files</Filter>
+    </QtRcc>
+    <None Include="svg\flags\za.svg">
+      <Filter>Misc Files\Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="gui.rc">
+      <Filter>Misc Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\appsearchitem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\background.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\blockableqlineedit.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\checkboxitem.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\clickablegraphicsobject.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\combomenuwidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\custommenulineedit.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\debugwindow\debugwindowitem.h">
+      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\locationswindow.h">
+      <Filter>GUI Files\locationswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\logginginwindowitem.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\msseditboxitem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\networkwhitelistwindow\networklistitem.h">
+      <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\packetsizeitem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\preferenceswindowitem.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\scalablegraphicsobject.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\splittunnelingwindow\searchlineedititem.h">
+      <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="bottominfowidget\sharingfeatures\sharingfeatureswindowitem.h">
+      <Filter>GUI Files\bottominfowidget\sharingfeatures</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\staticipdeviceinfo.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\textbutton.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="tooltips\tooltipdescriptive.h">
+      <Filter>GUI Files\tooltips</Filter>
+    </QtMoc>
+    <QtMoc Include="update\updatewindowitem.h">
+      <Filter>GUI Files\update</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\usernamepasswordentry.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\generalwindow\versioninfoitem.h">
+      <Filter>GUI Files\preferenceswindow\generalwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commongraphics\verticalscrollbar.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\widgetlocations.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\windflixlocationsmodel.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="application\windscribeapplication.h">
+      <Filter>GUI Files\application</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\common\version\appversion.h">
+      <Filter>Common Files\version</Filter>
+    </ClInclude>
+    <ClInclude Include="locationswindow\widgetlocations\backgroundpixmapanimation.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="locationswindow\widgetlocations\citynode.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\generated_proto\clientcommands.pb.h">
+      <Filter>Common Files\ipc\generated_proto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\generated_proto\types.pb.h">
+      <Filter>Common Files\ipc\generated_proto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\generated_proto\servercommands.pb.h">
+      <Filter>Common Files\ipc\generated_proto</Filter>
+    </ClInclude>
+    <ClInclude Include="commongraphics\commongraphics.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="locationswindow\widgetlocations\configfooteritem.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="commonwidgets\custommenuwidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="preferenceswindow\dividerline.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClInclude>
+    <ClInclude Include="types\dnswhileconnectedtype.h">
+      <Filter>GUI Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\executable_signature\executable_signature.h">
+      <Filter>Common Files\utils\executable_signature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\executable_signature\executable_signature_win.h">
+      <Filter>Common Files\utils\executable_signature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\extraconfig.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="graphicresources\fontdescr.h">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClInclude>
+    <ClInclude Include="graphicresources\fontmanager.h">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\preferences\guisettingsfromver1.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\hardcodedsettings.h">
+      <Filter>GUI Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\ibackend.h">
+      <Filter>Backend Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bottominfowidget\ibottominfoitem.h">
+      <Filter>GUI Files\bottominfowidget</Filter>
+    </ClInclude>
+    <ClInclude Include="locationswindow\widgetlocations\icityitem.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="graphicresources\iconmanager.h">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\iconnection.h">
+      <Filter>Common Files\ipc</Filter>
+    </ClInclude>
+    <ClInclude Include="connectwindow\iconnectwindow.h">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="emergencyconnectwindow\iemergencyconnectwindow.h">
+      <Filter>GUI Files\emergencyconnectwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="externalconfig\iexternalconfigwindow.h">
+      <Filter>GUI Files\externalconfig</Filter>
+    </ClInclude>
+    <ClInclude Include="generalmessage\igeneralmessagewindow.h">
+      <Filter>GUI Files\generalmessage</Filter>
+    </ClInclude>
+    <ClInclude Include="generalmessage\igeneralmessagetwobuttonwindow.h">
+      <Filter>GUI Files\generalmessage</Filter>
+    </ClInclude>
+    <ClInclude Include="loginwindow\iinitwindow.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="loginwindow\ilogginginwindow.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="loginwindow\iloginwindow.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="graphicresources\imageresourcessvg.h">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClInclude>
+    <ClInclude Include="multipleaccountdetection\imultipleaccountdetection.h">
+      <Filter>GUI Files\multipleaccountdetection</Filter>
+    </ClInclude>
+    <ClInclude Include="graphicresources\independentpixmap.h">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClInclude>
+    <ClInclude Include="newsfeedwindow\inewsfeedwindow.h">
+      <Filter>GUI Files\newsfeedwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="connectwindow\ipaddressitem\numberspixmap.h">
+      <Filter>GUI Files\connectwindow\ipaddressitem</Filter>
+    </ClInclude>
+    <ClInclude Include="preferenceswindow\preferencestab\ipreferencestabcontrol.h">
+      <Filter>GUI Files\preferenceswindow\preferencestab</Filter>
+    </ClInclude>
+    <ClInclude Include="preferenceswindow\ipreferenceswindow.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\ipvalidation.h">
+      <Filter>GUI Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\iserver.h">
+      <Filter>Common Files\ipc</Filter>
+    </ClInclude>
+    <ClInclude Include="locationswindow\widgetlocations\itemtimems.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="tooltips\itooltip.h">
+      <Filter>GUI Files\tooltips</Filter>
+    </ClInclude>
+    <ClInclude Include="updateapp\iupdateappitem.h">
+      <Filter>GUI Files\updateapp</Filter>
+    </ClInclude>
+    <ClInclude Include="update\iupdatewindow.h">
+      <Filter>GUI Files\update</Filter>
+    </ClInclude>
+    <ClInclude Include="locationswindow\widgetlocations\iwidgetlocationsinfo.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\languagesutil.h">
+      <Filter>GUI Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="launchonstartup\launchonstartup_win.h">
+      <Filter>GUI Files\launchonstartup</Filter>
+    </ClInclude>
+    <ClInclude Include="launchonstartup\launchonstartup.h">
+      <Filter>GUI Files\launchonstartup</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\types\locationid.h">
+      <Filter>Backend Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="locationswindow\widgetlocations\locationitem.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\locationsmodel\locationmodelitem.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\logger.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\mergelog.h">
+      <Filter>GUI Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="multipleaccountdetection\multipleaccountdetection_win.h">
+      <Filter>GUI Files\multipleaccountdetection</Filter>
+    </ClInclude>
+    <ClInclude Include="preferenceswindow\networkwhitelistwindow\networkwhitelistshared.h">
+      <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\types\pingtime.h">
+      <Filter>Backend Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\protobufcommand.h">
+      <Filter>Common Files\ipc</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\scaleutils_win.h">
+      <Filter>GUI Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="multipleaccountdetection\secretvalue_win.h">
+      <Filter>GUI Files\multipleaccountdetection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\locationsmodel\sortlocationsalgorithms.h">
+      <Filter>Backend Files\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="locationswindow\widgetlocations\staticipdeviceitem.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="preferenceswindow\textitem.h">
+      <Filter>GUI Files\preferenceswindow</Filter>
+    </ClInclude>
+    <ClInclude Include="tooltips\tooltiptypes.h">
+      <Filter>GUI Files\tooltips</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\types\types.h">
+      <Filter>Backend Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\types\upgrademodetype.h">
+      <Filter>Backend Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\utils.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="commongraphics\verticaldividerline.h">
+      <Filter>GUI Files\commongraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\widgetutils_win.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\version\windscribe_version.h">
+      <Filter>Common Files\version</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\winutils.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="blockconnect.h">
+      <Filter>GUI Files</Filter>
+    </ClInclude>
+    <ClInclude Include="loginattemptscontroller.h">
+      <Filter>GUI Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

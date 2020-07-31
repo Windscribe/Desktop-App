@@ -1,0 +1,355 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\backend\preferences\accountinfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\alllocationsmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\version\appversion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\backend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="backendcommander.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\basiccitiesmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\basiclocationsmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cliapplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\generated_proto\clientcommands.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\commandfactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\configuredcitiesmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\connection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\connectstatehelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\executable_signature\executable_signature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\executable_signature\executable_signature_win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\extraconfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\favoritecitiesmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\favoritelocationsstorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\firewallstatehelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\preferences\guisettingsfromver1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\languagesutil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\types\locationid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\locationsmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\notificationscontroller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\persistentstate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\types\pingtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\preferences\preferences.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\preferences\preferenceshelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\generated_proto\servercommands.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\sortlocationsalgorithms.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\staticipscitiesmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\tcpconnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\tcpserver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\types\types.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\generated_proto\types.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\types\upgrademodetype.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\locationsmodel\windflixlocationsmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\winutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\backend\preferences\accountinfo.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\alllocationsmodel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\..\common\version\appversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="..\backend\backend.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="backendcommander.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\basiccitiesmodel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\basiclocationsmodel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="cliapplication.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\..\common\ipc\generated_proto\clientcommands.pb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\command.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\commandfactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="..\backend\locationsmodel\configuredcitiesmodel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\connection.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\connectstatehelper.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\..\common\utils\executable_signature\executable_signature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\executable_signature\executable_signature_win.cpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\extraconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="..\backend\locationsmodel\favoritecitiesmodel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\locationsmodel\favoritelocationsstorage.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\firewallstatehelper.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\backend\preferences\guisettingsfromver1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\ibackend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\iconnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\iserver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\languagesutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\types\locationid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\locationsmodel\locationmodelitem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="..\backend\locationsmodel\locationsmodel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\..\common\utils\logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="..\backend\notificationscontroller.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\backend\persistentstate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\types\pingtime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="..\backend\preferences\preferences.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\backend\preferences\preferenceshelper.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\..\common\ipc\protobufcommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="..\..\common\ipc\server.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\..\common\ipc\generated_proto\servercommands.pb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\locationsmodel\sortlocationsalgorithms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="..\backend\locationsmodel\staticipscitiesmodel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\tcpconnection.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\common\ipc\tcpserver.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\backend\types\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\generated_proto\types.pb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\types\upgrademodetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <QtMoc Include="..\backend\locationsmodel\windflixlocationsmodel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="..\..\common\version\windscribe_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\winutils.cpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <CustomBuild Include="debug\moc_predefs.h.cbt">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="release\moc_predefs.h.cbt">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ItemGroup>
+</Project>
