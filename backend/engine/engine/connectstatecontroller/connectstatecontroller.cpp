@@ -1,12 +1,12 @@
 #include "connectstatecontroller.h"
 
 ConnectStateController::ConnectStateController(QObject *parent) : IConnectStateController(parent),
+    state_(CONNECT_STATE_DISCONNECTED),
+    prevState_(CONNECT_STATE_DISCONNECTED),
+    disconnectReason_(DISCONNECTED_ITSELF),
+    err_(NO_CONNECT_ERROR),
     mutex_(QMutex::Recursive)
 {
-    state_ = CONNECT_STATE_DISCONNECTED;
-    prevState_ = CONNECT_STATE_DISCONNECTED;;
-    err_ = NO_CONNECT_ERROR;
-    disconnectReason_ = DISCONNECTED_ITSELF;
 }
 
 void ConnectStateController::setConnectedState(const LocationID &location)

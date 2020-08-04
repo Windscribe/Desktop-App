@@ -9,7 +9,7 @@ quint64 TestVPNTunnelHelper::cmdId_ = 0;
 QMutex TestVPNTunnelHelper::mutexCmdId_;
 
 TestVPNTunnelHelper::TestVPNTunnelHelper(QObject *parent, ServerAPI *serverAPI) : QObject(parent), serverAPI_(serverAPI), state_(STATE_NONE),
-    bStopped_(false), testNum_(0)
+    sentPingCmdId_(0), bStopped_(false), testNum_(0)
 {
     connect(serverAPI_, SIGNAL(pingTestAnswer(SERVER_API_RET_CODE,QString)), SLOT(onPingTestAnswer(SERVER_API_RET_CODE,QString)), Qt::QueuedConnection);
 }

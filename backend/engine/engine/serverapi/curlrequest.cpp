@@ -1,6 +1,6 @@
 #include "curlrequest.h"
 
-CurlRequest::CurlRequest() : curlCode_(CURLE_FAILED_INIT)
+CurlRequest::CurlRequest() : curlCode_(CURLE_FAILED_INIT), methodType_(METHOD_GET), timeout_(0)
 {
 }
 

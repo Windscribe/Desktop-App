@@ -20,7 +20,7 @@ public:
     bool isSupportedIcs();
     bool startIcs();
     bool stopIcs();
-    bool changeIcsSettings(GUID &publicGuid, GUID &privateGuid);
+    bool changeIcsSettings(const GUID &publicGuid, const GUID &privateGuid);
 
     bool isUpdateIcsInProgress();
 
@@ -48,7 +48,7 @@ private:
     LAST_CMD_INFO lastCmdInfo_;
 
     QString guidToStr(const GUID &guid);
-    void executeNextUpdateIcsCmd(GUID &publicGuid, GUID &privateGuid);
+    void executeNextUpdateIcsCmd(const GUID &publicGuid, const GUID &privateGuid);
 
     static VOID CALLBACK waitEventCallback(PVOID lpParameter, BOOLEAN timerOrWaitFired);
 

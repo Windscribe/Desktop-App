@@ -76,7 +76,7 @@ QString Helper_mac::executeRootCommand(const QString &commandLine)
         {
             if (isHelperConnected())
             {
-                int ret = executeRootCommandImpl(commandLine, &bExecuted, log);
+                ret = executeRootCommandImpl(commandLine, &bExecuted, log);
                 if (ret == RET_SUCCESS)
                 {
                     return log;
@@ -613,7 +613,7 @@ bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QStr
         {
             if (isHelperConnected())
             {
-                int ret = setKeychainUsernamePasswordImpl(username, password, &bExecuted);
+                ret = setKeychainUsernamePasswordImpl(username, password, &bExecuted);
                 if (ret == RET_SUCCESS)
                 {
                     return bExecuted;

@@ -5,7 +5,7 @@ namespace SocksProxyServer {
 SocksProxyIdentReqParser::SocksProxyIdentReqParser() : state_(version_number_of_methods),
     bytesReaded_(0)
 {
-
+    memset(&ident_req_, 0, sizeof(ident_req_));
 }
 
 bool SocksProxyIdentReqParser::parse(const QByteArray &arr, quint32 &outParsed)

@@ -51,10 +51,10 @@ std::vector<std::wstring> getDnsServers()
             while (dnsServerAddress)
             {
                 const int BUF_LEN = 256;
-                WCHAR szBuf[BUF_LEN];
-                DWORD bufSize = BUF_LEN;
                 if (dnsServerAddress->Address.lpSockaddr->sa_family == AF_INET)
                 {
+                    WCHAR szBuf[BUF_LEN];
+                    DWORD bufSize = BUF_LEN;
                     int ret = WSAAddressToString(dnsServerAddress->Address.lpSockaddr, dnsServerAddress->Address.iSockaddrLength, NULL, szBuf, &bufSize);
                     if (ret == 0)  // ok
                     {

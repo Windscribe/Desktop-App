@@ -38,13 +38,16 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkS
 #ifdef Q_OS_MAC
     restoreDnsManager_(helper),
 #endif
+    bEmitAuthError_(false),
     makeOVPNFile_(NULL),
     makeOVPNFileFromCustom_(NULL),
     testVPNTunnel_(NULL),
     bNeedResetTap_(false),
     bIgnoreConnectionErrorsForOpenVpn_(false),
+    bWasSuccessfullyConnectionAttempt_(false),
     state_(STATE_DISCONNECTED),
     bLastIsOnline_(true),
+    currentConnectionDescr_(),
     mss_(-1)
 {
     connect(&timerReconnection_, SIGNAL(timeout()), SLOT(onTimerReconnection()));
@@ -230,7 +233,7 @@ void ConnectionManager::continueWithUsernameAndPassword(const QString &username,
     }
 }
 
-void ConnectionManager::continueWithPassword(const QString &password, bool bNeedReconnect)
+void ConnectionManager::continueWithPassword(const QString &password, bool /*bNeedReconnect*/)
 {
     Q_ASSERT(connector_ != NULL);
     if (connector_)
@@ -1015,7 +1018,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
     }
 }
 
-bool ConnectionManager::isCustomOvpnConfigCurrentConnection()
+bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const
 {
     return currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
 }
@@ -1026,7 +1029,7 @@ QString ConnectionManager::getCustomOvpnConfigFilePath()
     return currentConnectionDescr_.pathOvpnConfigFile;
 }
 
-bool ConnectionManager::isStaticIpsLocation()
+bool ConnectionManager::isStaticIpsLocation() const
 {
     return currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_STATIC_IPS;
 }

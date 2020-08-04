@@ -38,18 +38,27 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     serverLocationsApiWrapper_(NULL),
     connectionManager_(NULL),
     connectStateController_(NULL),
+    serverApiUserRole_(0),
     getMyIPController_(NULL),
     vpnShareController_(NULL),
     emergencyController_(NULL),
     customOvpnConfigs_(NULL),
     customOvpnAuthCredentialsStorage_(NULL),
+    networkDetectionManager_(NULL),
+    macAddressController_(NULL),
     keepAliveManager_(NULL),
+    packetSizeController_(NULL),
+#ifdef Q_OS_WIN
+    measurementCpuUsage_(NULL),
+#endif
     inititalizeHelper_(NULL),
     bInitialized_(false),
     loginController_(NULL),
+    loginState_(LOGIN_NONE),
     loginSettingsMutex_(QMutex::Recursive),
     checkUpdateTimer_(NULL),
     updateSessionStatusTimer_(NULL),
+    notificationsUpdateTimer_(NULL),
     nodesSpeedRatings_(NULL),
     serversModel_(NULL),
     nodesSpeedStore_(NULL),
@@ -60,6 +69,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     isNeedReconnectAfterRequestUsernameAndPassword_(false),
     online_(false),
     mss_(-1),
+    packetSizeControllerThread_(NULL),
     runningPacketDetection_(false)
 {
     connectStateController_ = new ConnectStateController(NULL);
@@ -2070,7 +2080,7 @@ void Engine::stopPacketDetection()
     QMetaObject::invokeMethod(this, "stopPacketDetectionImpl");
 }
 
-void Engine::onNetworkStateManagerStateChanged(bool isActive, const QString &networkInterface)
+void Engine::onNetworkStateManagerStateChanged(bool isActive, const QString & /*networkInterface*/)
 {
     if (!isActive && runningPacketDetection_)
     {
@@ -2125,7 +2135,7 @@ void Engine::updateServerConfigsImpl()
     }
 }
 
-void Engine::checkForceDisconnectNode(const QStringList &forceDisconnectNodes)
+void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes*/)
 {
     if (!connectionManager_->isDisconnected())
     {
@@ -2581,7 +2591,7 @@ void Engine::stopPacketDetectionImpl()
     packetSizeController_->earlyStop();
 }
 
-void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location)
+void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECTION_ERROR /*err*/, const LocationID & /*location*/)
 {
 #ifdef Q_OS_MAC
     if (helper_)
@@ -2591,6 +2601,8 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason
             helper_->sendConnectStatus(false, SplitTunnelingNetworkInfo());
         }
     }
+#else
+    Q_UNUSED(state);
 #endif
 }
 

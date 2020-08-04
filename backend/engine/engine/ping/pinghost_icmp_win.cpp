@@ -42,7 +42,7 @@ void PingHost_ICMP_win::clearPings()
     waitingPingsQueue_.clear();
 }
 
-void PingHost_ICMP_win::setProxySettings(const ProxySettings &proxySettings)
+void PingHost_ICMP_win::setProxySettings(const ProxySettings & /*proxySettings*/)
 {
     //todo
 }
@@ -62,9 +62,9 @@ bool PingHost_ICMP_win::hostAlreadyPingingOrInWaitingQueue(const QString &ip)
     return pingingHosts_.find(ip) != pingingHosts_.end() || waitingPingsQueue_.indexOf(ip) != -1;
 }
 
-VOID NTAPI PingHost_ICMP_win::icmpCallback(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG Reserved)
+VOID NTAPI PingHost_ICMP_win::icmpCallback(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG /*Reserved*/)
 {
-    USER_ARG *userArg = (USER_ARG *)ApcContext;
+    USER_ARG *userArg = static_cast<USER_ARG *>(ApcContext);
     QMutexLocker locker(&(userArg->this_->mutex_));
     int timeMs = -1;
     if (IoStatusBlock->Status == 0) // success

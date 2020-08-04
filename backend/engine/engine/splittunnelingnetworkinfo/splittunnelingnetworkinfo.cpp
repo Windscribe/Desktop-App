@@ -84,6 +84,8 @@ void SplitTunnelingNetworkInfo::setVpnAdapterName(const QString &vpnName)
 #ifdef Q_OS_MAC
     vpnAdapterName_ = vpnName;
     ikev2AdapterAddress_ = MacUtils::ipAddressByInterfaceName(vpnAdapterName_);
+#else
+    Q_UNUSED(vpnName);
 #endif
 }
 

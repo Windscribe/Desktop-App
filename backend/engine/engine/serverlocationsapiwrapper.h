@@ -12,12 +12,11 @@
 class BestLocationInfo
 {
 public:
-    BestLocationInfo()
+    BestLocationInfo() : isValid_(false), id_(0), pingTimeMs_(0)
     {
-        isValid_ = false;
     }
 
-    void set(int id, QString selectedHostName, int pingTimeMs)
+    void set(int id, const QString &selectedHostName, int pingTimeMs)
     {
         id_ = id;
         selectedHostName_ = selectedHostName;
@@ -141,7 +140,7 @@ private:
     PingHost *pingHost_;
     QHash<QString, int> pings_;
 
-    bool detectBestLocation(QVector<QSharedPointer<ServerLocation> > &serverLocations, int &outInd, int &outSelNodeInd, int &outTimeMs);
+    bool detectBestLocation(const QVector<QSharedPointer<ServerLocation> > &serverLocations, int &outInd, int &outSelNodeInd, int &outTimeMs);
     // return false, if no data available for all nodes
     bool averageLatencyForLocation(ServerLocation *sl, int &outAverageLatency, int &outMinLatency, int &outIndNodeWithMinLatency);
 

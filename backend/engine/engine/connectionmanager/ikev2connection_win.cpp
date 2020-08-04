@@ -15,8 +15,9 @@ bool IKEv2Connection_win::wanReinstalled_ = false;
 
 
 IKEv2Connection_win::IKEv2Connection_win(QObject *parent, IHelper *helper) : IConnection(parent, helper),
-    state_(STATE_DISCONNECTED), connHandle_(NULL), mutex_(QMutex::Recursive),
-    disconnectLogic_(this)
+    state_(STATE_DISCONNECTED), initialEnableIkev2Compression_(false),
+    isAutomaticConnectionMode_(false), connHandle_(NULL), mutex_(QMutex::Recursive),
+    disconnectLogic_(this), cntFailedConnectionAttempts_(0)
 {
     Q_ASSERT(this_ == NULL);
     this_ = this;
@@ -128,18 +129,16 @@ QVector<HRASCONN> IKEv2Connection_win::getActiveWindscribeConnections()
     return v;
 }
 
-void IKEv2Connection_win::continueWithUsernameAndPassword(const QString &username, const QString &password)
+void IKEv2Connection_win::continueWithUsernameAndPassword(const QString & /*username*/, const QString & /*password*/)
 {
     // nothing todo for ikev2
     Q_ASSERT(false);
-    Q_UNUSED(username);
 }
 
-void IKEv2Connection_win::continueWithPassword(const QString &password)
+void IKEv2Connection_win::continueWithPassword(const QString & /*password*/)
 {
     // nothing todo for ikev2
     Q_ASSERT(false);
-    Q_UNUSED(password);
 }
 
 void IKEv2Connection_win::onTimerControlConnection()

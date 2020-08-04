@@ -19,20 +19,20 @@ class IKEv2Connection_win : public IConnection
     Q_OBJECT
 public:
     explicit IKEv2Connection_win(QObject *parent, IHelper *helper);
-    virtual ~IKEv2Connection_win();
+    ~IKEv2Connection_win() override;
 
-    virtual void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const ProxySettings &proxySettings,
-                              bool isEnableIkev2Compression, bool isAutomaticConnectionMode);
-    virtual void startDisconnect();
-    virtual bool isDisconnected();
+    void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const ProxySettings &proxySettings,
+                      bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
+    void startDisconnect() override;
+    bool isDisconnected() override;
 
-    virtual QString getConnectedTapTunAdapterName();
+    QString getConnectedTapTunAdapterName() override;
 
     static void removeIkev2ConnectionFromOS();
     static QVector<HRASCONN> getActiveWindscribeConnections();
 
-    virtual void continueWithUsernameAndPassword(const QString &username, const QString &password);
-    virtual void continueWithPassword(const QString &password);
+    void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
+    void continueWithPassword(const QString &password) override;
 
 private slots:
     void onTimerControlConnection();

@@ -8,7 +8,9 @@
 class PingLog
 {
 public:
-    PingLog(const QString &filename);
+    explicit PingLog(const QString &filename);
+    PingLog(const PingLog &) = delete;
+    PingLog &operator=(const PingLog &) = delete;
     ~PingLog();
 
     void addLog(const QString &tag, const QString &str);

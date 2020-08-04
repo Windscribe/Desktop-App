@@ -3,17 +3,14 @@
 
 const int typeIdConnectionSettings = qRegisterMetaType<ConnectionSettings>("ConnectionSettings");
 
-ConnectionSettings::ConnectionSettings() : bInitialized_(false)
+ConnectionSettings::ConnectionSettings() : port_(0), bAutomatic_(false), bInitialized_(false)
 {
 
 }
 
 ConnectionSettings::ConnectionSettings(const ProtoTypes::ConnectionSettings &s)
+    : protocol_(s.protocol()), port_(s.port()), bAutomatic_(s.is_automatic()), bInitialized_(true)
 {
-    protocol_ = ProtocolType(s.protocol());
-    port_ = s.port();
-    bAutomatic_ = s.is_automatic();
-    bInitialized_ = true;
 }
 
 void ConnectionSettings::set(const ProtocolType &protocol, uint port, bool bAutomatic)

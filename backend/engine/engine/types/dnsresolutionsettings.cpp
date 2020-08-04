@@ -1,7 +1,7 @@
 #include "dnsresolutionsettings.h"
 #include "utils/logger.h"
 
-DnsResolutionSettings::DnsResolutionSettings() : isInitialized_(false)
+DnsResolutionSettings::DnsResolutionSettings() : isInitialized_(false), bAutomatic_(false)
 {
 }
 

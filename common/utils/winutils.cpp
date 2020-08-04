@@ -173,7 +173,7 @@ QString regGetLocalMachineRegistryValueSz(HKEY rootKey, QString keyPath, QString
         if(nError == ERROR_SUCCESS)
         {
             // TODO: make this better!
-            for (int i = 0; i < value_length; i++)
+            for (DWORD i = 0; i < value_length; i++)
             {
                 if (value[i] > 16)
                 {
@@ -226,9 +226,6 @@ QList<QString> enumerateSubkeyNames(HKEY rootKey, QString keyPath, bool wow64)
         FILETIME ftLastWriteTime;      // last write time
 
         DWORD i, retCode;
-
-        TCHAR  achValue[MAX_VALUE_NAME];
-        DWORD cchValue = MAX_VALUE_NAME;
 
         // HKEY hKey;
         // Get the class name and the value count.
@@ -379,7 +376,7 @@ QString WinUtils::regGetLocalMachineRegistryValueSz(QString keyPath, QString pro
         if(nError == ERROR_SUCCESS)
         {
             // TODO: make this better!
-            for (int i = 0; i < value_length; i++)
+            for (DWORD i = 0; i < value_length; i++)
             {
                 if (value[i] > 16)
                 {
@@ -517,25 +514,26 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
         *networkInterfaces.add_networks() = noInterfaceSelection;
     }
 
-    QList<IpAdapter> ipAdapters = getIpAdapterTable();
-    QList<AdapterAddress> adapterAddresses = getAdapterAddressesTable(); // TODO: invalid parameters passed to C runtime
+    const QList<IpAdapter> ipAdapters = getIpAdapterTable();
+    const QList<AdapterAddress> adapterAddresses = getAdapterAddressesTable(); // TODO: invalid parameters passed to C runtime
 
-    QList<IfTableRow> ifTable = getIfTable();
-    QList<IfTable2Row> ifTable2 = getIfTable2();
-    QList<IpForwardRow> ipForwardTable = getIpForwardTable();
+    const QList<IfTableRow> ifTable = getIfTable();
+    const QList<IfTable2Row> ifTable2 = getIfTable2();
+    const QList<IpForwardRow> ipForwardTable = getIpForwardTable();
 
-    foreach (IpAdapter ia, ipAdapters)  // IpAdapters holds list of live adapters
+    for (const IpAdapter &ia: ipAdapters)  // IpAdapters holds list of live adapters
     {
         ProtoTypes::NetworkInterface networkInterface;
         networkInterface.set_interface_index(ia.index);
         networkInterface.set_interface_guid(ia.guid.toStdString());
         networkInterface.set_physical_address(ia.physicalAddress.toStdString());
 
-        ProtoTypes::NetworkInterfaceType nicType;
+        ProtoTypes::NetworkInterfaceType nicType =
+            ProtoTypes::NetworkInterfaceType::NETWORK_INTERFACE_NONE;
 
-        foreach (IfTableRow itRow, ifTable)
+        for (const IfTableRow &itRow: ifTable)
         {
-            if (itRow.index == ia.index)
+            if (itRow.index == static_cast<int>(ia.index))
             {
                 nicType = (ProtoTypes::NetworkInterfaceType) itRow.type;
                 networkInterface.set_mtu(itRow.mtu);
@@ -552,7 +550,7 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
             }
         }
 
-        foreach (IfTable2Row it2Row, ifTable2)
+        for (const IfTable2Row &it2Row: ifTable2)
         {
             if (it2Row.index == ia.index)
             {
@@ -566,7 +564,7 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
             }
         }
 
-        foreach (IpForwardRow ipfRow, ipForwardTable)
+        for (const IpForwardRow &ipfRow: ipForwardTable)
         {
             if (ipfRow.index == ia.index)
             {
@@ -575,7 +573,7 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
             }
         }
 
-        foreach (AdapterAddress aa, adapterAddresses)
+        for (const AdapterAddress &aa: adapterAddresses)
         {
             if (aa.index == ia.index)
             {
@@ -599,25 +597,26 @@ IfTableRow WinUtils::lowestMetricNonWindscribeIfTableRow()
 {
     IfTableRow lowestMetricIfRow;
 
-    QList<IpForwardRow> fwdTable = getIpForwardTable();
-    QList<IpAdapter> ipAdapters = getIpAdapterTable();
+    const QList<IpForwardRow> fwdTable = getIpForwardTable();
+    const QList<IpAdapter> ipAdapters = getIpAdapterTable();
 
     int lowestIndex = Utils::noNetworkInterface().interface_index();
     int lowestMetric = 999999;
 
-    foreach (IpForwardRow row, fwdTable)
+    for (const IpForwardRow &row: fwdTable)
     {
-        foreach (IpAdapter ipAdapter, ipAdapters)
+        for (const IpAdapter &ipAdapter: ipAdapters)
         {
             if (ipAdapter.index == row.index)
             {
                 IfTableRow ifRow = ifRowByIndex(row.index);
                 if (ifRow.valid && ifRow.dwType != IF_TYPE_PPP && !ifRow.interfaceName.contains("Windscribe")) // filter Windscribe adapters
                 {
-                    if (row.metric < lowestMetric)
+                    const auto row_metric = static_cast<int>(row.metric);
+                    if (row_metric < lowestMetric)
                     {
                         lowestIndex =  static_cast<int>(row.index );
-                        lowestMetric = static_cast<int>(row.metric);
+                        lowestMetric = static_cast<int>(row_metric);
                         lowestMetricIfRow = ifRow;
                     }
                 }
@@ -726,9 +725,6 @@ QList<QString> WinUtils::interfaceSubkeys(QString keyPath)
         FILETIME ftLastWriteTime;      // last write time
 
         DWORD i, retCode;
-
-        TCHAR  achValue[MAX_VALUE_NAME];
-        DWORD cchValue = MAX_VALUE_NAME;
 
         // HKEY hKey;
         // Get the class name and the value count.
@@ -875,7 +871,7 @@ QList<IfTableRow> WinUtils::getIfTable()
             }
 
             QString physicalAddress = "";
-            for (int j = 0; j < pIfTable->table[i].dwPhysAddrLen; j++)
+            for (DWORD j = 0; j < pIfTable->table[i].dwPhysAddrLen; j++)
             {
                 physicalAddress.append(pIfTable->table[i].bPhysAddr[j]);
             }
@@ -936,11 +932,6 @@ QList<IpAdapter> WinUtils::getIpAdapterTable()
 
     PIP_ADAPTER_INFO pAdapter = NULL;
     DWORD dwRetVal = 0;
-    UINT i;
-
-    struct tm newtime;
-    char buffer[32];
-    errno_t error;
 
     ULONG ulOutBufLen = sizeof (IP_ADAPTER_INFO);
     PIP_ADAPTER_INFO pAdapterInfo = (IP_ADAPTER_INFO *) MALLOC(sizeof (IP_ADAPTER_INFO));
@@ -969,7 +960,7 @@ QList<IpAdapter> WinUtils::getIpAdapterTable()
         while (pAdapter)
         {
             QString physAddress = "";
-            for (int i = 0; i < pAdapter->AddressLength; i++)
+            for (UINT i = 0; i < pAdapter->AddressLength; i++)
             {
                 QString s = QString("%1").arg(pAdapter->Address[i], 0, 16);
 
@@ -1003,10 +994,7 @@ QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
 {
     QList<AdapterAddress> adapters;
 
-    DWORD dwSize = 0;
     DWORD dwRetVal = 0;
-
-    unsigned int i = 0;
 
     // Set the flags to pass to GetAdaptersAddresses
     ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
@@ -1021,11 +1009,6 @@ QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
     ULONG Iterations = 0;
 
     PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
-    PIP_ADAPTER_UNICAST_ADDRESS pUnicast = NULL;
-    PIP_ADAPTER_ANYCAST_ADDRESS pAnycast = NULL;
-    PIP_ADAPTER_MULTICAST_ADDRESS pMulticast = NULL;
-    IP_ADAPTER_DNS_SERVER_ADDRESS *pDnServer = NULL;
-    IP_ADAPTER_PREFIX *pPrefix = NULL;
 
     // Allocate a 15 KB buffer to start with.
     outBufLen = WORKING_BUFFER_SIZE;
@@ -1086,7 +1069,7 @@ QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
                     // Default language
                     (LPTSTR) & lpMsgBuf, 0, NULL))
             {
-                printf("\tError: %s", lpMsgBuf);
+                printf("\tError: %s", static_cast<char*>(lpMsgBuf));
                 LocalFree(lpMsgBuf);
 
                 if (pAddresses)
@@ -1304,10 +1287,9 @@ std::string readAllFromPipe(HANDLE hPipe)
     return csoutput;
 }
 
-QString WinUtils::executeBlockingCmd(QString cmd, const QString &params, int timeoutMs)
+QString WinUtils::executeBlockingCmd(QString cmd, const QString & /*params*/, int timeoutMs)
 {
     QString result = "";
-    int mpr;
 
     SECURITY_ATTRIBUTES sa;
     ZeroMemory(&sa,sizeof(sa));

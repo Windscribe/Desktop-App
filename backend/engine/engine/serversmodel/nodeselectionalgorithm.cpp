@@ -219,8 +219,6 @@ int NodeSelectionAlgorithm::selectRandomNodeBasedOnLatency(QVector<NodeInfo> &no
         p = probabilities;
         return getRandomEvent(probabilities);
     }
-
-    return 0;
 }
 
 void NodeSelectionAlgorithm::autoTest()

@@ -8,7 +8,7 @@ namespace SocksProxyServer {
 class SocksProxyReadExactly
 {
 public:
-    SocksProxyReadExactly(unsigned int length);
+    explicit SocksProxyReadExactly(unsigned int length);
 
     bool read(QByteArray &arr);
     QByteArray &getArr() { return arr_; }

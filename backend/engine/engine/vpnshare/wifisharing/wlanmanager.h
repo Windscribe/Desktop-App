@@ -29,6 +29,7 @@ signals:
 
 private:
     bool bDllFuncsLoaded_;
+    HMODULE dllHandle_;
     HANDLE wlanHandle_;
     DWORD serverVersion_;
     GUID interfaceGuid_;
@@ -46,7 +47,7 @@ private:
     QString WLAN_HOSTED_NETWORK_STATE_to_string(int state);
     QString WLAN_HOSTED_NETWORK_REASON_to_string(int reason);
     void updateHostedNetworkInterfaceGuid();
-    QString DOT11_MAC_ADDRESS_to_string(DOT11_MAC_ADDRESS &macAddress);
+    QString DOT11_MAC_ADDRESS_to_string(const DOT11_MAC_ADDRESS &macAddress);
 
     //wlan functions
     typedef DWORD WINAPI

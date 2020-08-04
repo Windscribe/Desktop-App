@@ -27,7 +27,7 @@ void CustomOvpnAuthCredentialsStorage::removeCredentials(const QString &ovpnFile
     hash_.remove(ovpnFileName);
 }
 
-void CustomOvpnAuthCredentialsStorage::removeUnusedCredentials(const QStringList &existingOvpnFileNames)
+void CustomOvpnAuthCredentialsStorage::removeUnusedCredentials(const QStringList & /*existingOvpnFileNames*/)
 {
     QMutexLocker locker(&mutex_);
 }

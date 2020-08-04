@@ -20,7 +20,7 @@ public:
 
     static WindscribeApplication * instance()
     {
-        return (WindscribeApplication *)qApp->instance();
+        return static_cast<WindscribeApplication *>(qApp->instance());
     }
 
     void setWasRestartOSFlag() { bWasRestartOS_ = true; }

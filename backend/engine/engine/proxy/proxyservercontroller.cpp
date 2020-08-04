@@ -12,12 +12,13 @@ bool ProxyServerController::updateProxySettings(const ProxySettings &proxySettin
 
     if (proxySettings.option() == PROXY_OPTION_AUTODETECT)
     {
-        bool bSuccess;
+        bool bSuccess = false;
 #ifdef Q_OS_WIN
         ProxySettings autoProxySettings = AutoDetectProxy_win::detect(bSuccess);
 #elif defined Q_OS_MAC
         ProxySettings autoProxySettings = AutoDetectProxy_mac::detect(bSuccess);
 #endif
+        // cppcheck-suppress knownConditionTrueFalse
         if (!bSuccess)
         {
             newProxySettings.setOption(PROXY_OPTION_NONE);

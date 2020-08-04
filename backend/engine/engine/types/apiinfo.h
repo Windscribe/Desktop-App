@@ -33,7 +33,8 @@ struct SessionStatus
     int staticIps;
     QSet<QString> staticIpsUpdateDevices;
 
-    SessionStatus() : isPremium(0), status(2), rebill(0), trafficUsed(0), trafficMax(0), emailStatus(0), staticIps(0) {}
+    SessionStatus() : isPremium(0), status(2), rebill(0), billingPlanId(0), trafficUsed(0),
+        trafficMax(0), emailStatus(0), staticIps(0) {}
 
     void writeToStream(QDataStream &stream);
     void readFromStream(QDataStream &stream, int revision);
@@ -63,7 +64,7 @@ private:
 class PrevSessionStatus
 {
 public:
-    PrevSessionStatus() : isInitialized_(false) {}
+    PrevSessionStatus() : isInitialized_(false), isPremium_(0), billingPlanId_(0), staticIps_(0) {}
 
     void set(int isPremium, int billingPlanId, const QString &revisionHash, const QStringList &alcList, int staticIps)
     {

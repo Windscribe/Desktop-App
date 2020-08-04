@@ -337,7 +337,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
 
         if (!curEngineSettings_.isEqual(setSettingsCmd->getProtoObj().enginesettings()))
         {
-            curEngineSettings_ = setSettingsCmd->getProtoObj().enginesettings();
+            curEngineSettings_ = EngineSettings(setSettingsCmd->getProtoObj().enginesettings());
             if (engine_)
             {
                 engine_->setSettings(curEngineSettings_);
@@ -694,7 +694,7 @@ void EngineServer::onEngineCheckUpdateUpdated(bool available, const QString &ver
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineMyIpUpdated(const QString &ip, bool success, bool isDisconnected)
+void EngineServer::onEngineMyIpUpdated(const QString &ip, bool /*success*/, bool isDisconnected)
 {
     // censor user IP for log
     if (isDisconnected)
@@ -943,7 +943,7 @@ void EngineServer::onEngineServersModelItemsUpdated(QSharedPointer<QVector<Model
 
         *cmd.getProtoObj().mutable_array_locations()->add_locations() = l;
 
-        Q_FOREACH(const ModelExchangeCityItem &ci, li.cities)
+        for (const ModelExchangeCityItem &ci: li.cities)
         {
             ProtoTypes::Location c;
             c.set_id(li.id);

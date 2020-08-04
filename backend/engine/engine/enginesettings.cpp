@@ -9,9 +9,8 @@ EngineSettings::EngineSettings()
 {
 }
 
-EngineSettings::EngineSettings(const ProtoTypes::EngineSettings &s)
+EngineSettings::EngineSettings(const ProtoTypes::EngineSettings &s) : engineSettings_(s)
 {
-    engineSettings_ = s;
 }
 
 void EngineSettings::saveToSettings()

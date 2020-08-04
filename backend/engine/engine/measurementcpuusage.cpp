@@ -3,7 +3,7 @@
 #include "Utils/logger.h"
 
 MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController) : QObject(parent),
-    helper_(helper)
+    helper_(helper), bEnabled_(false)
 {
     connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
@@ -43,7 +43,7 @@ void MeasurementCpuUsage::setEnabled(bool bEnabled)
     }
 }
 
-void MeasurementCpuUsage::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location)
+void MeasurementCpuUsage::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECTION_ERROR /*err*/, const LocationID & /*location*/)
 {
     if (bEnabled_)
     {
@@ -178,8 +178,8 @@ void MeasurementCpuUsage::onTimer()
                 qDebug() << "Process" << it.key() << " disconnected: " << disconnectedValues << "\t connected:" << value.doubleValue;*/
 
                 // calc for popup message
-                double marginValueInConnectedState = 80.0;   // 80 % CPU usage
-                double marginValueInDisconnectedState = 60.0;   // 60 % CPU usage
+                const double marginValueInConnectedState = 80.0;   // 80 % CPU usage
+                const double marginValueInDisconnectedState = 60.0;   // 60 % CPU usage
                 if (value.doubleValue > marginValueInConnectedState)
                 {
                     if (!it.value().cpuUsageInDisconnectedState[0].isValid && !it.value().cpuUsageInDisconnectedState[1].isValid)

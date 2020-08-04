@@ -3,7 +3,7 @@
 #include <QTimer>
 
 GetMyIPController::GetMyIPController(QObject *parent, ServerAPI *serverAPI, INetworkStateManager *networkStateManager) : QObject(parent),
-    serverAPI_(serverAPI), networkStateManager_(networkStateManager)
+    serverAPI_(serverAPI), networkStateManager_(networkStateManager), requestForTimerIsDisconnected_(false)
 {
     connect(serverAPI_, SIGNAL(myIPAnswer(QString,bool,bool,uint)), SLOT(onMyIpAnswer(QString,bool,bool,uint)), Qt::QueuedConnection);
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));

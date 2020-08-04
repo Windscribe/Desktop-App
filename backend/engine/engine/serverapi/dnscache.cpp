@@ -134,9 +134,9 @@ void DnsCache::checkForNewIps(const QString &ip)
     if (bNewIps)
     {
         QStringList ips;
-        Q_FOREACH(const QString &ip, resolvedIps_)
+        Q_FOREACH(const QString &resolved_ip, resolvedIps_)
         {
-            ips << ip;
+            ips << resolved_ip;
         }
         emit ipsInCachChanged(ips);
     }

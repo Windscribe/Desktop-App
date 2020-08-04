@@ -2,7 +2,8 @@
 #include "utils/logger.h"
 
 RefetchServerCredentialsHelper::RefetchServerCredentialsHelper(QObject *parent, const QString &authHash, ServerAPI *serverAPI) : QObject(parent),
-    authHash_(authHash), serverAPI_(serverAPI), refetchServerCredentialsState_(0)
+    authHash_(authHash), serverAPI_(serverAPI), refetchServerCredentialsState_(0),
+    isOpenVpnProtocolReceived_(false), isIkev2ProtocolReceived_(false)
 {
     connect(serverAPI_, SIGNAL(serverCredentialsAnswer(SERVER_API_RET_CODE,QString,QString,ProtocolType,uint)),
                         SLOT(onServerCredentialsAnswer(SERVER_API_RET_CODE,QString,QString,ProtocolType,uint)), Qt::QueuedConnection);

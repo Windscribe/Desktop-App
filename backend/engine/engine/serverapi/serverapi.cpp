@@ -2139,20 +2139,18 @@ void ServerAPI::handlePortMapCurl(BaseRequest *rd, bool success)
             portItem.heading = obj["heading"].toString();
             portItem.use = obj["use"].toString();
 
-            QJsonArray jsonPorts = obj["ports"].toArray();
-            Q_FOREACH(const QJsonValue &portValue, jsonPorts)
+            const QJsonArray jsonPorts = obj["ports"].toArray();
+            for (const QJsonValue &portValue: jsonPorts)
             {
                 QString strPort = portValue.toString();
                 portItem.ports << strPort.toUInt();
             }
 
-            QJsonArray jsonLegacyPorts = obj["legacy_ports"].toArray();
+            const QJsonArray jsonLegacyPorts = obj["legacy_ports"].toArray();
             Q_ASSERT(jsonLegacyPorts.count() < 2);
-            Q_FOREACH(const QJsonValue &legacyPortValue, jsonLegacyPorts)
-            {
-                QString strPort = legacyPortValue.toString();
+            if (jsonLegacyPorts.count() >= 1) {
+                QString strPort = jsonLegacyPorts[0].toString();
                 portItem.legacy_port = strPort.toUInt();
-                break;
             }
 
             portMap->items << portItem;
@@ -2406,8 +2404,8 @@ void ServerAPI::handleDebugLogCurl(BaseRequest *rd, bool success)
             return;
         }
 
-        int success = jsonData["success"].toInt();
-        emit debugLogAnswer(success == 1 ? SERVER_RETURN_SUCCESS : SERVER_RETURN_INCORRECT_JSON, userRole);
+        int is_success = jsonData["success"].toInt();
+        emit debugLogAnswer(is_success == 1 ? SERVER_RETURN_SUCCESS : SERVER_RETURN_INCORRECT_JSON, userRole);
     }
 }
 

@@ -9,12 +9,9 @@
 MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name,
                                          const QVector<ServerNode> &nodes, int selectedNode,
                                          const QString &dnsHostName)
-: QObject(NULL)
+    : QObject(nullptr), threadHandle_(QThread::currentThreadId()), locationId_(locationId),
+      name_(name), nodes_(nodes), dnsHostName_(dnsHostName)
 {
-    threadHandle_ = QThread::currentThreadId();
-    locationId_ = locationId;
-    name_ = name;
-    nodes_ = nodes;
     if (selectedNode == -1)
     {
         // select random node
@@ -24,7 +21,6 @@ MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QSt
         }
     }
     selectedNode_ = selectedNode;
-    dnsHostName_ = dnsHostName;
 
     QString strNodes;
     for (int i = 0; i < nodes_.count(); ++i)

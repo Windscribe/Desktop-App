@@ -9,16 +9,17 @@
 
 CurlNetworkManager::CurlNetworkManager(QObject *parent) : QThread(parent),
     bIgnoreSslErrors_(false), bNeedFinish_(false), bProxyEnabled_(true)
-{
 #ifdef Q_OS_MAC
-    certPath_ = QCoreApplication::applicationDirPath() + "/../Resources/cert.pem";
+    , certPath_(QCoreApplication::applicationDirPath() + "/../Resources/cert.pem")
 #endif
+{
     qCDebug(LOG_BASIC) << "Curl version:" << curl_version();
 
 #ifdef MAKE_CURL_LOG_FILE
     logFilePath_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     logFilePath_ += "/curl_log.txt";
     QFile::remove(logFilePath_);
+    logFile_ = nullptr;
 #endif
 
     start(LowPriority);
@@ -45,7 +46,7 @@ CURLcode sslctx_function(CURL *curl, void *sslctx, void *parm)
     X509_STORE *store = X509_STORE_new();
     SSL_CTX_set_cert_store((SSL_CTX *)sslctx, store);
 
-    CertManager *certManager = (CertManager *)parm;
+    CertManager *certManager = static_cast<CertManager *>(parm);
     for (int i = 0; i < certManager->count(); ++i)
     {
         X509_STORE_add_cert(store, certManager->getCert(i));

@@ -14,7 +14,7 @@ public:
     NetworkStateManager_win(QObject *parent, INetworkDetectionManager *networkDetectionManager);
     ~NetworkStateManager_win();
 
-    virtual bool isOnline();
+    bool isOnline() override;
     //void onlineStateChanged(bool connectivity);
 
 private slots:

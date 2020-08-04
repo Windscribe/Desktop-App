@@ -4,10 +4,9 @@
 #include <QStandardPaths>
 #include "utils/logger.h"
 
-CustomConfigsDirWatcher::CustomConfigsDirWatcher(QObject *parent, const QString &path) : QObject(parent)
+CustomConfigsDirWatcher::CustomConfigsDirWatcher(QObject *parent, const QString &path)
+    : QObject(parent), path_(path)
 {
-    path_ = path;
-
     dirWatcher_.addPath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     dirWatcher_.addPath(path_);
 
@@ -25,12 +24,12 @@ QString CustomConfigsDirWatcher::curDir() const
     return path_;
 }
 
-void CustomConfigsDirWatcher::onDirectoryChanged(const QString &path)
+void CustomConfigsDirWatcher::onDirectoryChanged(const QString & /*path*/)
 {
     checkFiles(true, false);
 }
 
-void CustomConfigsDirWatcher::onFileChanged(const QString &path)
+void CustomConfigsDirWatcher::onFileChanged(const QString & /*path*/)
 {
     checkFiles(true, true);
 }

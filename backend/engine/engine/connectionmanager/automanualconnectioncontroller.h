@@ -16,11 +16,11 @@ public:
 
     struct CurrentConnectionDescr
     {
-        CONNECTION_NODE_TYPE connectionNodeType;
+        CONNECTION_NODE_TYPE connectionNodeType = CONNECTION_NODE_ERROR;
 
         // fields for CONNECTION_NODE_DEFAULT
         QString ip;
-        uint port;
+        uint port = 0;
         ProtocolType protocol;
         QString hostname;
         QString dnsHostName;

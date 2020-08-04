@@ -24,10 +24,10 @@ public:
 
     void setSessionStatus(bool bFree);
 
-    virtual PingTime getPingTimeMsForLocation(const LocationID &locationId);
-    virtual void getNameAndCountryByLocationId(LocationID &locationId, QString &outName, QString &outCountry);
-    virtual bool isLocationForceExpand(LocationID locationId);
-    virtual QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(LocationID locationId);
+    PingTime getPingTimeMsForLocation(const LocationID &locationId) override;
+    void getNameAndCountryByLocationId(LocationID &locationId, QString &outName, QString &outCountry) override;
+    bool isLocationForceExpand(LocationID locationId) override;
+    QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(LocationID locationId) override;
     LocationID getLocationIdByName(const QString &location);
 
     QStringList getCitiesForLocationId(int locationId);
@@ -47,8 +47,6 @@ private:
     QVector<QSharedPointer<ServerLocation> > servers_;
     QMap<int, QSharedPointer<ServerLocation> > serversMap_;
     enum { COLUMNS_COUNT = 1 };
-
-    bool isInitialized_;
 
     bool bFreeSessionStatusInitialized_;
     bool bFreeSessionStatus_;

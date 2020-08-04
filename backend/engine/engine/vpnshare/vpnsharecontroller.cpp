@@ -177,6 +177,7 @@ QString VpnShareController::getCurrentCaption()
     wifiSharingStarted = wifiSharing_->isSharingStarted();
 #endif
 
+    // cppcheck-suppress knownConditionTrueFalse
     if (wifiSharingStarted)
     {
         QString s;

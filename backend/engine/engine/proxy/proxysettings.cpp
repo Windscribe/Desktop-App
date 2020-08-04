@@ -3,7 +3,7 @@
 
 const int typeIdProxySettings = qRegisterMetaType<ProxySettings>("ProxySettings");
 
-ProxySettings::ProxySettings(): option_(PROXY_OPTION_NONE)
+ProxySettings::ProxySettings(): option_(PROXY_OPTION_NONE), port_(0)
 {
 }
 

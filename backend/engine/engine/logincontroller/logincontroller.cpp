@@ -8,10 +8,14 @@
 #include "engine/hardcodedsettings.h"
 #include "engine/getdeviceid.h"
 
-LoginController::LoginController(QObject *parent,  IHelper *helper, INetworkStateManager *networkStateManager, ServerAPI *serverAPI,
-                                 ServerLocationsApiWrapper *serverLocationsApiWrapper, const QString &language, ProtocolType protocol) : QObject(parent),
-    helper_(helper), serverAPI_(serverAPI), serverLocationsApiWrapper_(serverLocationsApiWrapper), getApiAccessIps_(NULL), networkStateManager_(networkStateManager), language_(language), protocol_(protocol), getAllConfigsController_(NULL),
-    readyForNetworkRequestsEmitted_(false)
+LoginController::LoginController(QObject *parent,  IHelper *helper,
+                                 INetworkStateManager *networkStateManager, ServerAPI *serverAPI,
+                                 ServerLocationsApiWrapper *serverLocationsApiWrapper,
+                                 const QString &language, ProtocolType protocol) : QObject(parent),
+    helper_(helper), serverAPI_(serverAPI), serverLocationsApiWrapper_(serverLocationsApiWrapper),
+    getApiAccessIps_(NULL), networkStateManager_(networkStateManager), language_(language),
+    protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL),
+    loginStep_(LOGIN_STEP1), readyForNetworkRequestsEmitted_(false)
 {
     connect(serverAPI_, SIGNAL(loginAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, QString, uint)),
                             SLOT(onLoginAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, QString, uint)), Qt::QueuedConnection);

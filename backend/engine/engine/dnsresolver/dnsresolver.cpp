@@ -68,7 +68,7 @@ void DnsResolver::recreateDefaultDnsChannel()
 
         createOptionsForAresChannel(QStringList(), options, optmask);
 
-        int status = ares_init_options(&channelCustomDns_, &options, optmask);
+        status = ares_init_options(&channelCustomDns_, &options, optmask);
         if (status != ARES_SUCCESS)
         {
             qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
@@ -128,20 +128,19 @@ QHostInfo DnsResolver::lookupBlocked(const QString &hostname, bool bUseCustomDns
     ares_gethostbyname(channel, hostname.toStdString().c_str(), AF_INET, callbackForBlocked, &userArg);
 
     // process loop
-    int nfds, count;
-    fd_set readers, writers;
-    timeval tv, *tvp;
+    timeval tv;
     while (1)
     {
+        fd_set readers, writers;
         FD_ZERO(&readers);
         FD_ZERO(&writers);
-        nfds = ares_fds(channel, &readers, &writers);
+        int nfds = ares_fds(channel, &readers, &writers);
         if (nfds == 0)
         {
             break;
         }
-        tvp = ares_timeout(channel, NULL, &tv);
-        count = select(nfds, &readers, &writers, NULL, tvp);
+        timeval *tvp = ares_timeout(channel, NULL, &tv);
+        select(nfds, &readers, &writers, NULL, tvp);
         ares_process(channel, &readers, &writers);
     }
 
@@ -316,7 +315,7 @@ void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_op
 void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
 {
     Q_UNUSED(timeouts);
-    USER_ARG *userArg = (USER_ARG *)arg;
+    USER_ARG *userArg = static_cast<USER_ARG *>(arg);
     if (status != ARES_SUCCESS)
     {
         emit this_->resolved(userArg->hostname, QHostInfo(), userArg->userPointer, userArg->userId);
@@ -343,7 +342,7 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
 void DnsResolver::callbackForBlocked(void *arg, int status, int timeouts, hostent *host)
 {
     Q_UNUSED(timeouts);
-    USER_ARG_FOR_BLOCKED *userArg = (USER_ARG_FOR_BLOCKED *)arg;
+    USER_ARG_FOR_BLOCKED *userArg = static_cast<USER_ARG_FOR_BLOCKED *>(arg);
 
     if(status == ARES_SUCCESS)
     {

@@ -221,7 +221,7 @@ GUID stringToGuid(PCHAR str)
 {
     GUID guid;
     unsigned long p0;
-    int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
+    unsigned int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
 
     sscanf_s(str, "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
         &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10);

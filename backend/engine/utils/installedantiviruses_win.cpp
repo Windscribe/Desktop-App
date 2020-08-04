@@ -160,20 +160,20 @@ QList<InstalledAntiviruses_win::AntivirusInfo> InstalledAntiviruses_win::enumFie
     return listAv;
 }
 
-QString InstalledAntiviruses_win::makeStrFromList(const QList<InstalledAntiviruses_win::AntivirusInfo> &list)
+QString InstalledAntiviruses_win::makeStrFromList(const QList<InstalledAntiviruses_win::AntivirusInfo> &other_list)
 {
     QString ret = "(";
-    for (int i = 0; i < list.count(); ++i)
+    for (int i = 0; i < other_list.count(); ++i)
     {
-        if (list.at(i).bStateAvailable)
+        if (other_list.at(i).bStateAvailable)
         {
-            ret += "name = " + list.at(i).name + ", state = " + QString::number(list.at(i).state) + " [" + recognizeState(list.at(i).state) + "]";
+            ret += "name = " + other_list.at(i).name + ", state = " + QString::number(other_list.at(i).state) + " [" + recognizeState(other_list.at(i).state) + "]";
         }
         else
         {
-            ret += "name = " + list.at(i).name;
+            ret += "name = " + other_list.at(i).name;
         }
-        if (i != list.count() - 1)
+        if (i != other_list.count() - 1)
         {
             ret += "; ";
         }

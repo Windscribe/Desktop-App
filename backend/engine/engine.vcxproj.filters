@@ -562,6 +562,18 @@
     <ClCompile Include="..\..\common\utils\executable_signature\executable_signature_win.cpp">
       <Filter>Common Files\utils\executable_signature</Filter>
     </ClCompile>
+    <ClCompile Include="engine\helper\helper_mac.cpp">
+      <Filter>Engine Files\engine\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\networkstatemanager\networkstatemanager_mac.cpp">
+      <Filter>Engine Files\engine\networkstatemanager</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\firewall\firewallcontroller_mac.cpp">
+      <Filter>Engine Files\engine\firewall</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\networkdetectionmanager\networkdetectionmanager_mac.cpp">
+      <Filter>Engine Files\engine\networkdetectionmanager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qconsolelistener.h">
@@ -831,6 +843,21 @@
     <QtMoc Include="engineserver.h">
       <Filter>Engine Files</Filter>
     </QtMoc>
+    <QtMoc Include="engine\helper\helper_mac.h">
+      <Filter>Engine Files\engine\helper</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\networkstatemanager\networkstatemanager_mac.h">
+      <Filter>Engine Files\engine\networkstatemanager</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\firewall\firewallcontroller_mac.h">
+      <Filter>Engine Files\engine\firewall</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\connectionmanager\ikev2connection_mac.h">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\networkdetectionmanager\networkdetectionmanager_mac.h">
+      <Filter>Engine Files\engine\networkdetectionmanager</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -840,6 +867,12 @@
       <Filter>Misc Files\Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\common\ipc\proto\types.proto">
+      <Filter>Common Files\ipc\proto</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\clientcommands.proto">
+      <Filter>Common Files\ipc\proto</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\servercommands.proto">
       <Filter>Common Files\ipc\proto</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -856,11 +889,11 @@
     <QtRcc Include="engine.qrc">
       <Filter>Misc Files\Resource Files</Filter>
     </QtRcc>
-    <None Include="..\..\common\ipc\proto\clientcommands.proto">
-      <Filter>Common Files\ipc\proto</Filter>
+    <None Include="engine\connectionmanager\ikev2connection_mac.mm">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
     </None>
-    <None Include="..\..\common\ipc\proto\servercommands.proto">
-      <Filter>Common Files\ipc\proto</Filter>
+    <None Include="engine\connectionmanager\restorednsmanager_mac.mm">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -1093,6 +1126,12 @@
     </ClInclude>
     <ClInclude Include="..\..\common\utils\executable_signature\executable_signature_win.h">
       <Filter>Common Files\utils\executable_signature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\protobuf_utils.h">
+      <Filter>Common Files\ipc</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\connectionmanager\restorednsmanager_mac.h">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

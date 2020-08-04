@@ -6,15 +6,12 @@
 namespace SocksProxyServer {
 
 
-SocksProxyConnection::SocksProxyConnection(qintptr socketDescriptor, const QString &hostname, QObject *parent) : QObject(parent),
-    hostname_(hostname)
+SocksProxyConnection::SocksProxyConnection(qintptr socketDescriptor, const QString &hostname,
+                                           QObject *parent)
+    : QObject(parent), socket_(nullptr), socketExternal_(nullptr),
+    socketDescriptor_(socketDescriptor), hostname_(hostname), state_(READ_IDENT_REQ),
+    writeAllSocket_(0), writeAllSocketExternal_(0), bAlreadyClosedAndEmitFinished_(false)
 {
-    socket_ = NULL;
-    socketExternal_ = NULL;
-    socketDescriptor_ = socketDescriptor;
-    writeAllSocket_ = 0;
-    writeAllSocketExternal_ = 0;
-    bAlreadyClosedAndEmitFinished_ = false;
 }
 
 void SocksProxyConnection::start()

@@ -17,21 +17,21 @@ class OpenVPNConnection : public IConnection
 
 public:
     explicit OpenVPNConnection(QObject *parent, IHelper *helper);
-    virtual ~OpenVPNConnection();
+    ~OpenVPNConnection() override;
 
-    virtual void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
-                              const QString &username, const QString &password, const ProxySettings &proxySettings,
-                              bool isEnableIkev2Compression, bool isAutomaticConnectionMode);
-    virtual void startDisconnect();
-    virtual bool isDisconnected();
+    void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
+                      const QString &username, const QString &password, const ProxySettings &proxySettings,
+                      bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
+    void startDisconnect() override;
+    bool isDisconnected() override;
 
-    virtual QString getConnectedTapTunAdapterName();
+    QString getConnectedTapTunAdapterName() override;
 
-    virtual void continueWithUsernameAndPassword(const QString &username, const QString &password);
-    virtual void continueWithPassword(const QString &password);
+    void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
+    void continueWithPassword(const QString &password) override;
 
 protected:
-    virtual void run();
+    void run() override;
 
 private slots:
     void onKillControllerTimer();
@@ -51,12 +51,12 @@ private:
 
     enum CONNECTION_STATUS {STATUS_DISCONNECTED, STATUS_CONNECTING, STATUS_CONNECTED_TO_SOCKET, STATUS_CONNECTED};
     CONNECTION_STATUS currentState_;
-    QMutex mutexCurrentState_;
+    mutable QMutex mutexCurrentState_;
 
     void setCurrentState(CONNECTION_STATUS state);
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
     void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECTION_ERROR err);
-    CONNECTION_STATUS getCurrentState();
+    CONNECTION_STATUS getCurrentState() const;
     bool runOpenVPN(unsigned int port, const ProxySettings &proxySettings, unsigned long &outCmdId);
 
     struct StateVariables
@@ -96,6 +96,10 @@ private:
             bWasStateNotification = false;
             bWasSecondAttemptToStartOpenVpn = false;
             bFirstCalcStat = true;
+            prevBytesRcved = 0;
+            prevBytesXmited = 0;
+            lastCmdId = 0;
+            openVpnPort = 0;
             bWasSocketConnected = false;
             bNeedSendSigTerm = false;
             isAcceptSigTermCommand_ = false;

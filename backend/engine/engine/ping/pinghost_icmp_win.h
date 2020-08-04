@@ -41,7 +41,8 @@ private:
         LPVOID replyBuffer;
         DWORD replySize;
 
-        PingInfo() : replyBuffer(NULL) {}
+        PingInfo() : isFromDisconnectedState_(false), hIcmpFile(0), replyBuffer(NULL),
+                     replySize(0) {}
 
         ~PingInfo()
         {

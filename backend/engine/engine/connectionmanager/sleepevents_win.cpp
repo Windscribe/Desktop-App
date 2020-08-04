@@ -3,7 +3,7 @@
 
 SleepEvents_win *SleepEvents_win::this_ = NULL;
 
-SleepEvents_win::SleepEvents_win(QObject *parent) : ISleepEvents(parent)
+SleepEvents_win::SleepEvents_win(QObject *parent) : ISleepEvents(parent), hwnd_(0)
 {
     Q_ASSERT(this_ == NULL);
     this_ = this;

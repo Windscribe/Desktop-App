@@ -2,16 +2,12 @@
 
 const int typeIdLocationId = qRegisterMetaType<LocationID>("LocationID");
 
-LocationID::LocationID(int id, const QString &cityName)
+LocationID::LocationID(int id, const QString &cityName) : locationId_(id), city_(cityName)
 {
-    locationId_ = id;
-    city_ = cityName;
 }
 
-LocationID::LocationID(int id)
+LocationID::LocationID(int id) : locationId_(id), city_()
 {
-    locationId_ = id;
-    city_.clear();
 }
 
 QString LocationID::getHashString() const

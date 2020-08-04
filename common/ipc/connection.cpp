@@ -124,7 +124,7 @@ void Connection::onReadyRead()
     }
 }
 
-void Connection::onSocketError(QLocalSocket::LocalSocketError socketError)
+void Connection::onSocketError(QLocalSocket::LocalSocketError /*socketError*/)
 {
     emit stateChanged(CONNECTION_ERROR, this);
 }

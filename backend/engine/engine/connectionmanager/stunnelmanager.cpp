@@ -8,7 +8,8 @@
 
 
 
-StunnelManager::StunnelManager(QObject *parent) : QObject(parent), bProcessStarted_(false)
+StunnelManager::StunnelManager(QObject *parent) : QObject(parent), bProcessStarted_(false),
+                                                  portForStunnel_(0)
 {
     process_ = new QProcess(this);
     connect(process_, SIGNAL(finished(int)), SLOT(onStunnelProcessFinished()));

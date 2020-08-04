@@ -7,7 +7,7 @@
 #define WINDSCRIBE_UPDATE_ICS_EVENT_NAME L"Global\\WindscribeUpdateIcsEvent1034"
 
 IcsManager::IcsManager(QObject *parent, IHelper *helper) : QThread(parent), helper_(helper),
-    bNeedFinish_(false), isUpdateIcsCmdInProgress_(false)
+    bNeedFinish_(false), isUpdateIcsCmdInProgress_(false), cmdIdInProgress_(0), hWaitFunc_(0)
 {
     QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QDir dir(strPath);
@@ -105,7 +105,7 @@ bool IcsManager::stopIcs()
     }
 }
 
-bool IcsManager::changeIcsSettings(GUID &publicGuid, GUID &privateGuid)
+bool IcsManager::changeIcsSettings(const GUID &publicGuid, const GUID &privateGuid)
 {
     if (!helper_->isHelperConnected())
     {
@@ -145,7 +145,7 @@ QString IcsManager::guidToStr(const GUID &guid)
     return QString::fromStdWString(szBuf);
 }
 
-void IcsManager::executeNextUpdateIcsCmd(GUID &publicGuid, GUID &privateGuid)
+void IcsManager::executeNextUpdateIcsCmd(const GUID &publicGuid, const GUID &privateGuid)
 {
     ResetEvent(hEvent_);
 
@@ -171,7 +171,7 @@ void IcsManager::waitEventCallback(PVOID lpParameter, BOOLEAN timerOrWaitFired)
 {
     Q_UNUSED(timerOrWaitFired);
 
-    IcsManager *this_ = (IcsManager *)lpParameter;
+    IcsManager *this_ = static_cast<IcsManager *>(lpParameter);
     QMutexLocker locker(&this_->mutexCmdInProgress_);
     UnregisterWaitEx(this_->hWaitFunc_, NULL);
     QString logStr;

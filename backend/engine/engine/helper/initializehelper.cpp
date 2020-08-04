@@ -42,9 +42,9 @@ void InitializeHelper::onTimerControlHelper()
                 qCDebug(LOG_BASIC) << "Helper reinstalled";
                 helper_->startInstallHelper();
                 helperInitAttempts_++;
-                QTimer *timer = new QTimer(this);
-                connect(timer, SIGNAL(timeout()), SLOT(onTimerControlHelper()));
-                timer->start(10);
+                QTimer *newtimer = new QTimer(this);
+                connect(newtimer, SIGNAL(timeout()), SLOT(onTimerControlHelper()));
+                newtimer->start(10);
             }
             else
             {

@@ -156,10 +156,8 @@ void MacAddressController_win::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
     }
 }
 
-void MacAddressController_win::onNetworkChange(ProtoTypes::NetworkInterface networkInterface)
+void MacAddressController_win::onNetworkChange(ProtoTypes::NetworkInterface /*networkInterface*/)
 {
-    Q_UNUSED(networkInterface);
-
     // filter network events when adapters are being reset
     ProtoTypes::NetworkInterfaces networkInterfaces = Utils::currentNetworkInterfaces(true);
     for (int i = 0; i < networkInterfaces.networks_size(); i++)
@@ -188,14 +186,13 @@ void MacAddressController_win::onNetworkChange(ProtoTypes::NetworkInterface netw
 
     if (networksBeingUpdated_.isEmpty()) // done waiting for resets
     {
-        bool setSpoofing = false;
-
         ProtoTypes::MacAddrSpoofing updatedMacAddrSpoofing = macAddrSpoofing_;
         ProtoTypes::NetworkInterface currentNetwork = Utils::currentNetworkInterface();
 
         if (currentNetwork.interface_index() != lastNetworkInterface_.interface_index())
         {
             qCDebug(LOG_BASIC) << "Network change detected";
+            bool setSpoofing = false;
 
             if (!google::protobuf::util::MessageDifferencer::Equals(networkInterfaces, updatedMacAddrSpoofing.network_interfaces()))
             {

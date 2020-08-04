@@ -7,7 +7,8 @@
 #include "utils/executable_signature/executable_signature.h"
 
 
-WstunnelManager::WstunnelManager(QObject *parent) : QObject(parent), bProcessStarted_(false)
+WstunnelManager::WstunnelManager(QObject *parent) : QObject(parent), bProcessStarted_(false),
+                                                    bFirstMarketLineAfterStart_(false), port_(0)
 {
     process_ = new QProcess(this);
     connect(process_, SIGNAL(started()), SLOT(onProcessStarted()));
@@ -121,7 +122,7 @@ void WstunnelManager::onReadyReadStandardOutput()
     };
 }
 
-void WstunnelManager::onProcessErrorOccurred(QProcess::ProcessError error)
+void WstunnelManager::onProcessErrorOccurred(QProcess::ProcessError /*error*/)
 {
     qCDebug(LOG_WSTUNNEL) << "wstunnel process error:" << process_->errorString();
 }

@@ -26,7 +26,6 @@ void NetworkChangeWorkerThread::run()
 {
     HANDLE hEvents[3];
 
-    DWORD ret;
     HANDLE hand1 = NULL;
     HANDLE hand2 = NULL;
 
@@ -38,7 +37,7 @@ void NetworkChangeWorkerThread::run()
     {
         OVERLAPPED overlap1;
         overlap1.hEvent = hEvents[1];
-        ret = NotifyAddrChange(&hand1, &overlap1);
+        DWORD ret = NotifyAddrChange(&hand1, &overlap1);
         if (ret != ERROR_IO_PENDING)
         {
             break;

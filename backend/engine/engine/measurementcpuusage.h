@@ -17,7 +17,7 @@ public:
     void setEnabled(bool bEnabled);
 
 signals:
-    void detectionCpuUsageAfterConnected(const QStringList processesList);
+    void detectionCpuUsageAfterConnected(QStringList processesList);
 
 private slots:
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location);
@@ -33,7 +33,7 @@ private:
         bool isValid;
         double value;
 
-        UsageData() : isValid(false) {}
+        UsageData() : isValid(false), value(0) {}
     };
 
     struct CounterDescr

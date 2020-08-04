@@ -8,7 +8,7 @@ class GetAllConfigsController : public QObject
 {
     Q_OBJECT
 public:
-    GetAllConfigsController(QObject *parent);
+    explicit GetAllConfigsController(QObject *parent);
 
     void putServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector<QSharedPointer<ServerLocation> > serverLocations, const QStringList &forceDisconnectNodes);
     void putServerCredentialsOpenVpnAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword);

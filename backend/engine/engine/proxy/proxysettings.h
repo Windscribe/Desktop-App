@@ -11,7 +11,7 @@ class ProxySettings
 {
 public:
     ProxySettings();
-    ProxySettings(const ProtoTypes::ProxySettings &p);
+    explicit ProxySettings(const ProtoTypes::ProxySettings &p);
 
     void readFromSettings(QSettings &settings);
     void writeToSettings(QSettings &settings);

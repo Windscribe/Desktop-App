@@ -6,7 +6,10 @@
 #include <QJsonArray>
 #include "locationid.h"
 
-ServerLocation::ServerLocation() : isValid_(false)
+ServerLocation::ServerLocation() : id_(0), status_(0), premiumOnly_(0), p2p_(0),
+                                   forceExpand_(false), isValid_(false), bestLocationId_(0),
+                                   selectedNodeIndForBestLocation_(0), bestLocationPingTimeMs_(0),
+                                   type_(SERVER_LOCATION_DEFAULT)
 {
 }
 

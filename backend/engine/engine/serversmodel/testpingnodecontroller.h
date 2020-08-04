@@ -9,8 +9,8 @@ class FakeStateController : public IConnectStateController
     Q_OBJECT
 public:
     FakeStateController() : IConnectStateController(NULL) {}
-    virtual CONNECT_STATE currentState();
-    virtual CONNECT_STATE prevState();
+    CONNECT_STATE currentState() override;
+    CONNECT_STATE prevState() override;
 
 };
 

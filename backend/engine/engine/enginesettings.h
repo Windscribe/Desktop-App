@@ -14,7 +14,7 @@ class EngineSettings
 {
 public:
     EngineSettings();
-    EngineSettings(const ProtoTypes::EngineSettings &s);
+    explicit EngineSettings(const ProtoTypes::EngineSettings &s);
 
     void saveToSettings();
     void loadFromSettings();

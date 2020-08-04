@@ -9,17 +9,17 @@ class FirewallController_mac : public FirewallController
     Q_OBJECT
 public:
     explicit FirewallController_mac(QObject *parent, IHelper *helper);
-    virtual ~FirewallController_mac();
+    ~FirewallController_mac() override;
 
-    virtual bool firewallOn(const QString &ip, bool bAllowLanTraffic);
-    virtual bool firewallChange(const QString &ip, bool bAllowLanTraffic);
-    virtual bool firewallOff();
-    virtual bool firewallActualState();
+    bool firewallOn(const QString &ip, bool bAllowLanTraffic) override;
+    bool firewallChange(const QString &ip, bool bAllowLanTraffic) override;
+    bool firewallOff() override;
+    bool firewallActualState() override;
 
-    virtual bool whitelistPorts(const StaticIpPortsVector &ports);
-    virtual bool deleteWhitelistPorts();
+    bool whitelistPorts(const StaticIpPortsVector &ports) override;
+    bool deleteWhitelistPorts() override;
 
-    virtual void setInterfaceToSkip_mac(const QString &interfaceToSkip);
+    void setInterfaceToSkip_mac(const QString &interfaceToSkip) override;
 
 private:
     QString interfaceToSkip_;

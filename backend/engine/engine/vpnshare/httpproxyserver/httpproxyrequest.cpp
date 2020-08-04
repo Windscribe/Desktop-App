@@ -87,7 +87,7 @@ bool HttpProxyRequest::extractHostAndPort()
     return true;
 }
 
-bool HttpProxyRequest::isConnectMethod()
+bool HttpProxyRequest::isConnectMethod() const
 {
     return strcmp (method.c_str(), "CONNECT") == 0;
 }
@@ -269,7 +269,7 @@ int HttpProxyRequest::stripReturnPort(std::string &hostStr)
 {
     char *ptr1;
     char *ptr2;
-    int port;
+    int return_port;
 
     ptr1 = strrchr ((char *)hostStr.c_str(), ':');
     if (ptr1 == NULL)
@@ -285,14 +285,14 @@ int HttpProxyRequest::stripReturnPort(std::string &hostStr)
      }
 
      ptr1++;
-     if (sscanf (ptr1, "%d", &port) != 1)    // one conversion required
+     if (sscanf (ptr1, "%d", &return_port) != 1)    // one conversion required
      {
-         port = 0;
+         return_port = 0;
      }
 
      hostStr.erase(hostStr.rfind(':'));
 
-     return port;
+     return return_port;
 }
 
 bool HttpProxyRequest::shouldSkipHeader(const std::string &headerName)

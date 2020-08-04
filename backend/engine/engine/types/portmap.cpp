@@ -62,7 +62,7 @@ uint PortMap::getLegacyPort(const ProtocolType &connectionProtocol)
         }
     }
     Q_ASSERT(false);
-    return -1;
+    return ~0u;
 }
 
 void PortMap::writeToStream(QDataStream &stream)

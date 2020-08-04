@@ -10,8 +10,12 @@ SocksProxyCommandParser::SocksProxyCommandParser()
 
 void SocksProxyCommandParser::reset()
 {
+    memset(&cmd_, 0, sizeof(cmd_));
     state_ = first4bytes;
     bytesReaded_ = 0;
+    domainNameReaded_ = 0;
+    portReaded_ = 0;
+    addressReaded_ = 0;
 }
 
 TRI_BOOL SocksProxyCommandParser::parse(const QByteArray &arr, quint32 &outParsed)

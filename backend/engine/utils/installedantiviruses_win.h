@@ -21,12 +21,12 @@ private:
         bool bStateAvailable;
         PRODUCT_TYPE productType;
 
-        AntivirusInfo() : bStateAvailable(false) {}
+        AntivirusInfo() : state(0), bStateAvailable(false), productType(PT_SPYWARE) {}
     };
 
     static void getSecurityCenter(const wchar_t *path);
     static QList<AntivirusInfo> enumField(IWbemServices *pSvc, const char *request, PRODUCT_TYPE productType);
-    static QString makeStrFromList(const QList<AntivirusInfo> &list);
+    static QString makeStrFromList(const QList<AntivirusInfo> &other_list);
 
     static QList<AntivirusInfo> list;
 

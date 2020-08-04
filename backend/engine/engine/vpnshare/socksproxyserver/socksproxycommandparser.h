@@ -16,7 +16,7 @@ public:
     void reset();
     TRI_BOOL parse(const QByteArray &arr, quint32 &outParsed);
 
-    const socks5_req &cmd() { return cmd_; }
+    const socks5_req &cmd() const { return cmd_; }
 
 private:
     socks5_req cmd_;

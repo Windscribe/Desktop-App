@@ -41,7 +41,7 @@ bool TapInstall_win::installTap(const QString &subfolder)
     return WindscribeInstallHelper_win::executeInstallTapCmd(tapInstallUtil, infPath);
 }
 
-bool TapInstall_win::reinstallTap(TAP_TYPE tap)
+bool TapInstall_win::reinstallTap(TAP_TYPE /*tap*/)
 {
     /*TAP_TYPE curInstalledTap = detectInstalledTapDriver(false);
 

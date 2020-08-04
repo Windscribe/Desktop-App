@@ -14,83 +14,82 @@ class Helper_win : public IHelper
     Q_OBJECT
 public:
     explicit Helper_win(QObject *parent = NULL);
-    virtual ~Helper_win();
+    ~Helper_win() override;
 
-    virtual void startInstallHelper();
-    virtual QString executeRootCommand(const QString &commandLine);
-    virtual bool executeRootUnblockingCommand(const QString &commandLine, unsigned long &outCmdId, const QString &eventName);
-    virtual bool executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId);
-    virtual bool executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
-                                const QString &socksProxy, unsigned int socksPort,
-                                unsigned long &outCmdId);
+    void startInstallHelper() override;
+    QString executeRootCommand(const QString &commandLine) override;
+    bool executeRootUnblockingCommand(const QString &commandLine, unsigned long &outCmdId, const QString &eventName) override;
+    bool executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId) override;
+    bool executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
+                        const QString &socksProxy, unsigned int socksPort,
+                        unsigned long &outCmdId) override;
 
-    virtual bool executeTaskKill(const QString &executableName);
-    virtual bool executeResetTap(const QString &tapName);
-    virtual QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
-    virtual QString executeWmicEnable(const QString &adapterName);
-    virtual QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
-    virtual bool executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid,
-                                     unsigned long &outCmdId, const QString &eventName);
-    virtual bool executeChangeMtu(const QString &adapter, int mtu);
+    bool executeTaskKill(const QString &executableName) override;
+    bool executeResetTap(const QString &tapName) override;
+    QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber) override;
+    QString executeWmicEnable(const QString &adapterName) override;
+    QString executeWmicGetConfigManagerErrorCode(const QString &adapterName) override;
+    bool executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid,
+                          unsigned long &outCmdId, const QString &eventName) override;
+    bool executeChangeMtu(const QString &adapter, int mtu) override;
 
-    virtual bool clearDnsOnTap();
-    virtual QString enableBFE();
+    bool clearDnsOnTap() override;
+    QString enableBFE() override;
 
-    virtual void setIPv6EnabledInFirewall(bool b);
-    virtual void setIPv6EnabledInOS(bool b);
-    virtual bool IPv6StateInOS();
+    void setIPv6EnabledInFirewall(bool b) override;
+    void setIPv6EnabledInOS(bool b) override;
+    bool IPv6StateInOS() override;
 
-    virtual bool isHelperConnected();
-    virtual bool isFailedConnectToHelper();
+    bool isHelperConnected() override;
+    bool isFailedConnectToHelper() override;
 
-    virtual void setNeedFinish();
-    virtual QString getHelperVersion();
+    void setNeedFinish() override;
+    QString getHelperVersion() override;
 
-    virtual void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress);
-    virtual void enableFirewallOnBoot(bool bEnable);
+    void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress) override;
+    void enableFirewallOnBoot(bool bEnable) override;
 
-    virtual bool removeWindscribeUrlsFromHosts();
-    virtual bool addHosts(const QString &hosts);
-    virtual bool removeHosts();
+    bool removeWindscribeUrlsFromHosts() override;
+    bool addHosts(const QString &hosts) override;
+    bool removeHosts() override;
 
-    virtual bool reinstallHelper();
+    bool reinstallHelper() override;
 
-    virtual void closeAllTcpConnections(bool isKeepLocalSockets);
-    virtual QStringList getProcessesList();
+    void closeAllTcpConnections(bool isKeepLocalSockets) override;
+    QStringList getProcessesList() override;
 
-    virtual bool whitelistPorts(const QString &ports);
-    virtual bool deleteWhitelistPorts();
+    bool whitelistPorts(const QString &ports) override;
+    bool deleteWhitelistPorts() override;
 
-    virtual void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished);
-    virtual void clearUnblockingCmd(unsigned long cmdId);
+    void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
+    void clearUnblockingCmd(unsigned long cmdId) override;
 
-    virtual bool isSupportedICS();
+    bool isSupportedICS() override;
 
-    virtual QStringList getActiveNetworkInterfaces_mac();
-    virtual bool setKeychainUsernamePassword(const QString &username, const QString &password);
+    QStringList getActiveNetworkInterfaces_mac() override;
+    bool setKeychainUsernamePassword(const QString &username, const QString &password) override;
 
-    virtual void enableDnsLeaksProtection();
-    virtual void disableDnsLeaksProtection();
+    void enableDnsLeaksProtection() override;
+    void disableDnsLeaksProtection() override;
 
-    virtual bool reinstallWanIkev2();
-    virtual bool enableWanIkev2();
+    bool reinstallWanIkev2() override;
+    bool enableWanIkev2() override;
 
-    virtual bool setMacAddressRegistryValueSz(QString subkeyInterfaceName, QString value);
-    virtual bool removeMacAddressRegistryProperty(QString subkeyInterfaceName);
-    virtual bool resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp);
+    bool setMacAddressRegistryValueSz(QString subkeyInterfaceName, QString value) override;
+    bool removeMacAddressRegistryProperty(QString subkeyInterfaceName) override;
+    bool resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp) override;
 
-    virtual bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
-                                           const QStringList &files, const QStringList &ips,
-                                           const QStringList &hosts);
+    bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
+                                   const QStringList &files, const QStringList &ips,
+                                   const QStringList &hosts) override;
 
-    virtual bool addIKEv2DefaultRoute();
-    virtual bool removeWindscribeNetworkProfiles();
-    virtual void sendDefaultRoute(const QString &gatewayIp, const QString &interfaceName, const QString &interfaceIp);
-    virtual void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo &stni);
-    virtual bool setKextPath(const QString &kextPath);
+    bool addIKEv2DefaultRoute() override;
+    bool removeWindscribeNetworkProfiles() override;
+    void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo &stni) override;
+    bool setKextPath(const QString &kextPath) override;
 
 protected:
-    virtual void run();
+    void run() override;
 
 private:
     enum {MAX_WAIT_TIME_FOR_HELPER = 30000};

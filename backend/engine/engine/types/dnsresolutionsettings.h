@@ -8,7 +8,7 @@ class DnsResolutionSettings
 {
 public:
     DnsResolutionSettings();
-    DnsResolutionSettings(const ProtoTypes::ApiResolution &d);
+    explicit DnsResolutionSettings(const ProtoTypes::ApiResolution &d);
 
     void set(bool bAutomatic, const QString &manualIp);
 

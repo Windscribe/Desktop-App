@@ -18,6 +18,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
     #ifdef Q_OS_MAC
         restoreDnsManager_(helper),
     #endif
+    serverApiUserRole_(0),
     state_(STATE_DISCONNECTED),
     mss_(-1)
 {

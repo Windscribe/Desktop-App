@@ -3,45 +3,46 @@
 
 WlanManager::WlanManager(QObject *parent) : QObject(parent),
     bDllFuncsLoaded_(false),
-    wlanHandle_(NULL)
+    wlanHandle_(NULL),
+    serverVersion_(0)
 {
-    HMODULE hModule = LoadLibrary(L"wlanapi.dll");
-    if (hModule)
+    dllHandle_ = LoadLibrary(L"wlanapi.dll");
+    if (dllHandle_)
     {
-        WlanOpenHandle_f = (WlanOpenHandle_T *)GetProcAddress(hModule, "WlanOpenHandle");
+        WlanOpenHandle_f = (WlanOpenHandle_T *)GetProcAddress(dllHandle_, "WlanOpenHandle");
         if (!WlanOpenHandle_f) return;
 
-        WlanRegisterNotification_f = (WlanRegisterNotification_T *)GetProcAddress(hModule, "WlanRegisterNotification");
+        WlanRegisterNotification_f = (WlanRegisterNotification_T *)GetProcAddress(dllHandle_, "WlanRegisterNotification");
         if (!WlanRegisterNotification_f) return;
 
-        WlanHostedNetworkInitSettings_f = (WlanHostedNetworkInitSettings_T *)GetProcAddress(hModule, "WlanHostedNetworkInitSettings");
+        WlanHostedNetworkInitSettings_f = (WlanHostedNetworkInitSettings_T *)GetProcAddress(dllHandle_, "WlanHostedNetworkInitSettings");
         if (!WlanHostedNetworkInitSettings_f) return;
 
-        WlanHostedNetworkQueryStatus_f = (WlanHostedNetworkQueryStatus_T *)GetProcAddress(hModule, "WlanHostedNetworkQueryStatus");
+        WlanHostedNetworkQueryStatus_f = (WlanHostedNetworkQueryStatus_T *)GetProcAddress(dllHandle_, "WlanHostedNetworkQueryStatus");
         if (!WlanHostedNetworkQueryStatus_f) return;
 
-        WlanFreeMemory_f = (WlanFreeMemory_T *)GetProcAddress(hModule, "WlanFreeMemory");
+        WlanFreeMemory_f = (WlanFreeMemory_T *)GetProcAddress(dllHandle_, "WlanFreeMemory");
         if (!WlanFreeMemory_f) return;
 
-        WlanHostedNetworkQueryProperty_f = (WlanHostedNetworkQueryProperty_T *)GetProcAddress(hModule, "WlanHostedNetworkQueryProperty");
+        WlanHostedNetworkQueryProperty_f = (WlanHostedNetworkQueryProperty_T *)GetProcAddress(dllHandle_, "WlanHostedNetworkQueryProperty");
         if (!WlanHostedNetworkQueryProperty_f) return;
 
-        WlanCloseHandle_f = (WlanCloseHandle_T *)GetProcAddress(hModule, "WlanCloseHandle");
+        WlanCloseHandle_f = (WlanCloseHandle_T *)GetProcAddress(dllHandle_, "WlanCloseHandle");
         if (!WlanCloseHandle_f) return;
 
-        WlanHostedNetworkForceStop_f = (WlanHostedNetworkForceStop_T *)GetProcAddress(hModule, "WlanHostedNetworkForceStop");
+        WlanHostedNetworkForceStop_f = (WlanHostedNetworkForceStop_T *)GetProcAddress(dllHandle_, "WlanHostedNetworkForceStop");
         if (!WlanHostedNetworkForceStop_f) return;
 
-        WlanHostedNetworkStopUsing_f = (WlanHostedNetworkStopUsing_T *)GetProcAddress(hModule, "WlanHostedNetworkStopUsing");
+        WlanHostedNetworkStopUsing_f = (WlanHostedNetworkStopUsing_T *)GetProcAddress(dllHandle_, "WlanHostedNetworkStopUsing");
         if (!WlanHostedNetworkStopUsing_f) return;
 
-        WlanHostedNetworkSetProperty_f = (WlanHostedNetworkSetProperty_T *)GetProcAddress(hModule, "WlanHostedNetworkSetProperty");
+        WlanHostedNetworkSetProperty_f = (WlanHostedNetworkSetProperty_T *)GetProcAddress(dllHandle_, "WlanHostedNetworkSetProperty");
         if (!WlanHostedNetworkSetProperty_f) return;
 
-        WlanHostedNetworkSetSecondaryKey_f = (WlanHostedNetworkSetSecondaryKey_T *)GetProcAddress(hModule, "WlanHostedNetworkSetSecondaryKey");
+        WlanHostedNetworkSetSecondaryKey_f = (WlanHostedNetworkSetSecondaryKey_T *)GetProcAddress(dllHandle_, "WlanHostedNetworkSetSecondaryKey");
         if (!WlanHostedNetworkSetSecondaryKey_f) return;
 
-        WlanHostedNetworkStartUsing_f = (WlanHostedNetworkStartUsing_T *)GetProcAddress(hModule, "WlanHostedNetworkStartUsing");
+        WlanHostedNetworkStartUsing_f = (WlanHostedNetworkStartUsing_T *)GetProcAddress(dllHandle_, "WlanHostedNetworkStartUsing");
         if (!WlanHostedNetworkStartUsing_f) return;
 
         usersCounter_ = new ConnectedUsersCounter(this);
@@ -54,6 +55,9 @@ WlanManager::WlanManager(QObject *parent) : QObject(parent),
 WlanManager::~WlanManager()
 {
     deinit();
+
+    if (dllHandle_)
+        FreeLibrary(dllHandle_);
 }
 
 bool WlanManager::isSupported()
@@ -281,7 +285,7 @@ int WlanManager::getConnectedUsersCount()
 
 VOID WINAPI WlanManager::wlanNotificationCallback(PWLAN_NOTIFICATION_DATA pNotifData, PVOID pContext)
 {
-    WlanManager* this_ = (WlanManager *)pContext;
+    WlanManager* this_ = static_cast<WlanManager *>(pContext);
 
     if (!pNotifData)
     {
@@ -299,7 +303,7 @@ VOID WINAPI WlanManager::wlanNotificationCallback(PWLAN_NOTIFICATION_DATA pNotif
         }
         else if (stateChange->NewState == wlan_hosted_network_idle)
         {
-            WLAN_HOSTED_NETWORK_STATE_CHANGE *stateChange = (WLAN_HOSTED_NETWORK_STATE_CHANGE *)pNotifData->pData;
+            stateChange = (WLAN_HOSTED_NETWORK_STATE_CHANGE *)pNotifData->pData;
             // for recovery when goto from sleep mode
             if (stateChange->StateChangeReason == wlan_hosted_network_reason_interface_available)
             {
@@ -469,7 +473,7 @@ void WlanManager::updateHostedNetworkInterfaceGuid()
     WlanFreeMemory_f(pAPStatus);
 }
 
-QString WlanManager::DOT11_MAC_ADDRESS_to_string(DOT11_MAC_ADDRESS &macAddress)
+QString WlanManager::DOT11_MAC_ADDRESS_to_string(const DOT11_MAC_ADDRESS &macAddress)
 {
     char buf[128];
     sprintf(buf, "%02x%02x%02x%02x%02x%02x",

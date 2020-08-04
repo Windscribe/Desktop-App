@@ -29,6 +29,7 @@ INetworkStateManager *CrossPlatformObjectFactory::createNetworkStateManager(QObj
 #ifdef Q_OS_WIN
     return new NetworkStateManager_win(parent, networkDetectionManager);
 #elif defined Q_OS_MAC
+    Q_UNUSED(networkDetectionManager);
     return new NetworkStateManager_mac(parent);
 #endif
 }
@@ -52,9 +53,10 @@ INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionMana
 #endif
 }
 
-IMacAddressController *CrossPlatformObjectFactory::createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, IHelper *helper )
+IMacAddressController *CrossPlatformObjectFactory::createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, IHelper *helper)
 {
 #ifdef Q_OS_WIN
+    Q_UNUSED(helper);
     return new MacAddressController_win(parent, static_cast<NetworkDetectionManager_win*>(ndManager));
 #elif defined Q_OS_MAC
     return new MacAddressController_mac(parent, static_cast<NetworkDetectionManager_mac*>(ndManager), helper);

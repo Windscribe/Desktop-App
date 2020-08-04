@@ -53,13 +53,12 @@ X509 *CertManager::getCert(int ind)
 void CertManager::parseCertsBundle(QByteArray &arr)
 {
     QString s = arr;
-    int indStart, indEnd;
     int curOffs = 0;
 
     while (true)
     {
-        indStart = s.indexOf("-----BEGIN CERTIFICATE-----", curOffs);
-        indEnd = s.indexOf("-----END CERTIFICATE-----", indStart);
+        int indStart = s.indexOf("-----BEGIN CERTIFICATE-----", curOffs);
+        int indEnd = s.indexOf("-----END CERTIFICATE-----", indStart);
 
         if (indStart != -1 && indEnd != -1)
         {

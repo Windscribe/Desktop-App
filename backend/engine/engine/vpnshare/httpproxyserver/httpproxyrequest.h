@@ -11,6 +11,8 @@ namespace HttpProxyServer {
 class HttpProxyRequest
 {
 public:
+    HttpProxyRequest() : http_version_major(0), http_version_minor(0), port(0) {}
+
     std::string method;
     std::string uri;
     unsigned short http_version_major;
@@ -24,7 +26,7 @@ public:
     void debugToLog();
     bool extractHostAndPort();
 
-    bool isConnectMethod();
+    bool isConnectMethod() const;
     std::string getEstablishHttpConnectionMessage();
     long getContentLength();
     std::string processClientHeaders();

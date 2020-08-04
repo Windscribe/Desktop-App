@@ -9,7 +9,7 @@
 struct ConnectionSettings
 {
     ConnectionSettings();
-    ConnectionSettings(const ProtoTypes::ConnectionSettings &s);
+    explicit ConnectionSettings(const ProtoTypes::ConnectionSettings &s);
     void set(const ProtocolType &protocol, uint port, bool bAutomatic);
     void set(const ConnectionSettings &s);
 

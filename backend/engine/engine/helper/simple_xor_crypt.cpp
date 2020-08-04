@@ -1,7 +1,7 @@
 #include "simple_xor_crypt.h"
 
 
-std::string SimpleXorCrypt::encrypt(std::string &data, const std::string &key)
+std::string SimpleXorCrypt::encrypt(const std::string &data, const std::string &key)
 {
 	std::string xorstring = data; 
 	for (size_t i = 0; i < xorstring.size(); i++) 
@@ -11,7 +11,7 @@ std::string SimpleXorCrypt::encrypt(std::string &data, const std::string &key)
 	return xorstring;
 }
 
-std::string SimpleXorCrypt::decrypt(std::string &data, const std::string &key)
+std::string SimpleXorCrypt::decrypt(const std::string &data, const std::string &key)
 {
 	return encrypt(data, key);
 }

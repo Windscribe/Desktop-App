@@ -3,7 +3,9 @@
 
 #include <QDataStream>
 
-AutoManualConnectionController::AutoManualConnectionController() : failedIkev2Counter_(0), bStarted_(false)
+AutoManualConnectionController::AutoManualConnectionController() :
+    curAttempt_(0), failedIkev2Counter_(0), isFailedIkev2CounterAlreadyIncremented_(false),
+    failedManualModeCounter_(0), bIsAllFailed_(false), bStarted_(false)
 {
 }
 

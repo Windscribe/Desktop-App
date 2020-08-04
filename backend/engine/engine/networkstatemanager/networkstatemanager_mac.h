@@ -9,10 +9,10 @@ class NetworkStateManager_mac : public INetworkStateManager
 {
     Q_OBJECT
 public:
-    NetworkStateManager_mac(QObject *parent);
+    explicit NetworkStateManager_mac(QObject *parent);
     ~NetworkStateManager_mac();
 
-    virtual bool isOnline();
+    bool isOnline() override;
 
 private slots:
     void onNetworkStateChanged();

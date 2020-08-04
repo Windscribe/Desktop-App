@@ -49,6 +49,7 @@ void NodesSpeedStore::setNodeSpeed(const QString &nodeIp, PingTime timeMs, quint
 {
     QMutexLocker locker(&mutex_);
     PingData pd;
+    pd.isUsed_ = false;
     pd.timeMs_ = timeMs;
     pd.iteration_ = iteration;
     hash_[nodeIp] = pd;
@@ -136,6 +137,7 @@ void NodesSpeedStore::loadFromSettings()
     for (auto it = hashForLoad.begin(); it != hashForLoad.end(); ++it)
     {
         PingData pd;
+        pd.isUsed_ = false;
         pd.timeMs_ = it.value();
         pd.iteration_ = 0;
         hash_[it.key()] = pd;

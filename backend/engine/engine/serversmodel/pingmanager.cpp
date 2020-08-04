@@ -10,6 +10,9 @@ PingManager::PingManager(QObject *parent, NodesSpeedRatings *nodesSpeedRating, N
     nodesSpeedRating_(nodesSpeedRating),
     nodesSpeedStore_(nodesSpeedStore),
     mutex_(QMutex::Recursive),
+    isBestLocationDetermined_(false),
+    bestLocationId_(0),
+    selectedNodeIndForBestLocation_(0),
     pingNodesController_(NULL),
     stateController_(stateController),
     networkStateManager_(networkStateManager),
@@ -62,8 +65,8 @@ void PingManager::updateServers(QVector<QSharedPointer<ServerLocation> > &newSer
         else // not best location
         {
             // first handle cities (order is important, because root locations use city locations for calc average latency speed)
-            QStringList cities = sl->getCities();
-            Q_FOREACH(const QString &cityName, cities)
+            const QStringList cities = sl->getCities();
+            for (const QString &cityName: cities)
             {
                 LocationID cityLocationId(sl->getId(), cityName);
                 hashNames_[cityLocationId] = cityName;
@@ -81,7 +84,7 @@ void PingManager::updateServers(QVector<QSharedPointer<ServerLocation> > &newSer
             hashLocationsSpeedInfo_[locationId]->existThisLocation = true;
 
             // store all ips in list
-            Q_FOREACH(const ServerNode &sn, nodes)
+            for (const ServerNode &sn: qAsConst(nodes))
             {
                 PingNodesController::PingNodeAndType pn;
                 pn.ip = sn.getIpForPing();

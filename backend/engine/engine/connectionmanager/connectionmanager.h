@@ -29,31 +29,31 @@ class ConnectionManager : public IConnectionManager
 public:
     explicit ConnectionManager(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager,
                                ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
-    virtual ~ConnectionManager();
+    ~ConnectionManager() override;
 
-    virtual void clickConnect(const QByteArray &ovpnConfig, const ServerCredentials &serverCredentials,
-                              QSharedPointer<MutableLocationInfo> mli,
-                              const ConnectionSettings &connectionSettings, const PortMap &portMap, const ProxySettings &proxySettings,
-                              bool bEmitAuthError);
+    void clickConnect(const QByteArray &ovpnConfig, const ServerCredentials &serverCredentials,
+                      QSharedPointer<MutableLocationInfo> mli,
+                      const ConnectionSettings &connectionSettings, const PortMap &portMap, const ProxySettings &proxySettings,
+                      bool bEmitAuthError) override;
 
-    virtual void clickDisconnect();
-    virtual void blockingDisconnect();
-    virtual bool isDisconnected();
-    virtual QString getLastConnectedIp();
+    void clickDisconnect() override;
+    void blockingDisconnect() override;
+    bool isDisconnected() override;
+    QString getLastConnectedIp() override;
 
-    virtual QString getConnectedTapTunAdapter();
-    virtual void removeIkev2ConnectionFromOS();
+    QString getConnectedTapTunAdapter() override;
+    void removeIkev2ConnectionFromOS() override;
 
-    virtual void continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect);
-    virtual void continueWithPassword(const QString &password, bool bNeedReconnect);
+    void continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect) override;
+    void continueWithPassword(const QString &password, bool bNeedReconnect) override;
 
-    virtual bool isCustomOvpnConfigCurrentConnection();
-    virtual QString getCustomOvpnConfigFilePath();
+    bool isCustomOvpnConfigCurrentConnection() const override;
+    QString getCustomOvpnConfigFilePath() override;
 
-    virtual bool isStaticIpsLocation();
-    virtual StaticIpPortsVector getStatisIps();
+    bool isStaticIpsLocation() const override;
+    StaticIpPortsVector getStatisIps() override;
 
-    void setMss(int mss);
+    void setMss(int mss) override;
 
 private slots:
     void onConnectionConnected();

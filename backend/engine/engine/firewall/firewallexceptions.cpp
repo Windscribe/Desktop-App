@@ -58,13 +58,10 @@ void FirewallExceptions::setCustomOvpnIps(const QStringList &ips)
 
 void FirewallExceptions::setDnsPolicy(DNS_POLICY_TYPE dnsPolicy)
 {
-    if (dnsPolicyType_ != dnsPolicy)
-    {
-        dnsPolicyType_ = dnsPolicy;
-    }
+    dnsPolicyType_ = dnsPolicy;
 }
 
-void FirewallExceptions::setLocations(QVector<QSharedPointer<ServerLocation> > &serverLocations)
+void FirewallExceptions::setLocations(const QVector<QSharedPointer<ServerLocation> > &serverLocations)
 {
     locationsIPs_.clear();
     Q_FOREACH(QSharedPointer<ServerLocation> sl, serverLocations)

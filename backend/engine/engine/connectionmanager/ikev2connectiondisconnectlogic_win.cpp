@@ -4,7 +4,7 @@
 #include <QProcess>
 
 IKEv2ConnectionDisconnectLogic_win::IKEv2ConnectionDisconnectLogic_win(QObject *parent) : QThread(parent),
-    connHandle_(NULL)
+    cntRasHangUp_(0), connHandle_(NULL)
 {
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
 }

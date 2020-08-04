@@ -105,7 +105,7 @@ void OpenVPNConnection::setCurrentStateAndEmitError(OpenVPNConnection::CONNECTIO
     emit error(err);
 }
 
-OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState()
+OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
 {
     QMutexLocker locker(&mutexCurrentState_);
     return currentState_;
@@ -115,7 +115,7 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxy
 {
 #ifdef Q_OS_WIN
     QString httpProxy, socksProxy;
-    unsigned int httpPort, socksPort;
+    unsigned int httpPort = 0, socksPort = 0;
 
     if (proxySettings.option() == PROXY_OPTION_HTTP)
     {
@@ -542,8 +542,8 @@ void OpenVPNConnection::checkErrorAndContinue(boost::system::error_code &write_e
 
     if (stateVariables_.bNeedSendSigTerm && stateVariables_.isAcceptSigTermCommand_ && !stateVariables_.bSigTermSent)
     {
-        boost::system::error_code write_error;
-        boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
+        boost::system::error_code new_write_error;
+        boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), new_write_error);
         stateVariables_.bSigTermSent = true;
     }
 }

@@ -2,7 +2,8 @@
 
 #include <QDataStream>
 
-ServerNode::ServerNode() : isValid_(false), isCustomOvpnConfig_(false)
+ServerNode::ServerNode() : weight_(0), legacy_(0), forceDisconnect_(0), isValid_(false),
+                           isCustomOvpnConfig_(false)
 {
 
 }

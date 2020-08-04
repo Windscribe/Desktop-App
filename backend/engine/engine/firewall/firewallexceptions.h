@@ -18,7 +18,7 @@ public:
 
     void setDnsPolicy(DNS_POLICY_TYPE dnsPolicy);
 
-    void setLocations(QVector<QSharedPointer<ServerLocation> > &serverLocations);
+    void setLocations(const QVector<QSharedPointer<ServerLocation> > &serverLocations);
     void setStaticLocationIps(QSharedPointer<ServerLocation> &staticLocation);
     void clearStaticLocationIps();
     QString getIPAddressesForFirewall();

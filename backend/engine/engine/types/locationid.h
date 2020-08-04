@@ -15,7 +15,7 @@ public:
 
     LocationID() : locationId_(EMPTY_LOCATION) {}
     LocationID(int id, const QString &cityName);
-    LocationID(int id);
+    explicit LocationID(int id);
 
     LocationID& operator=(LocationID rhs)
     {

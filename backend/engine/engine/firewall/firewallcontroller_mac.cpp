@@ -195,6 +195,7 @@ bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTra
 
 
         QString reply = helper_->executeRootCommand("pfctl -v -f \"" + pfConfigFilePath + "\"");
+        Q_UNUSED(reply);
         //qCDebug(LOG_BASIC) << reply;
 
         helper_->executeRootCommand("pfctl -e");

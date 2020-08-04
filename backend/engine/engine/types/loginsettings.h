@@ -8,7 +8,7 @@ class LoginSettings
 {
 public:
     LoginSettings();
-    LoginSettings(const QString &authHash);
+    explicit LoginSettings(const QString &authHash);
     LoginSettings(const QString &username, const QString &password);
 
     bool isAuthHashLogin() const { return isAuthHashLogin_; }

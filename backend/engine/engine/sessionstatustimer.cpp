@@ -3,7 +3,7 @@
 #include <QDateTime>
 
 SessionStatusTimer::SessionStatusTimer(QObject *parent, IConnectStateController *connectStateController) : QObject(parent),
-    isStarted_(false), isApplicationActivated_(false), isConnected_(false), lastSignalEmitTimeMs_(0)
+    isStarted_(false), msec_(0), isApplicationActivated_(false), isConnected_(false), lastSignalEmitTimeMs_(0)
 {
     connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
@@ -80,7 +80,7 @@ void SessionStatusTimer::onTimer()
     }
 }
 
-void SessionStatusTimer::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location)
+void SessionStatusTimer::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECTION_ERROR /*err*/, const LocationID & /*location*/)
 {
     if (state == CONNECT_STATE_CONNECTED)
     {

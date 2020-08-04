@@ -7,14 +7,11 @@ namespace HttpProxyServer {
 
 
 HttpProxyConnection::HttpProxyConnection(qintptr socketDescriptor, const QString &hostname, QObject *parent) : QObject(parent),
-    hostname_(hostname)
+    socket_(nullptr), socketExternal_(nullptr), socketDescriptor_(socketDescriptor),
+    hostname_(hostname), state_(READ_CLIENT_REQUEST), writeAllSocket_(nullptr),
+    writeAllSocketExternal_(nullptr), httpError_(), bAlreadyClosedAndEmitFinished_(false)
 {
-    socket_ = NULL;
-    socketExternal_ = NULL;
-    socketDescriptor_ = socketDescriptor;
-    writeAllSocket_ = 0;
-    writeAllSocketExternal_ = 0;
-    bAlreadyClosedAndEmitFinished_ = false;
+    httpError_.status = HttpProxyReply::ok;
     //qDebug() << QThread::currentThreadId();
 }
 

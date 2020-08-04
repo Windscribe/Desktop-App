@@ -3,7 +3,7 @@
 #include <limits>
 
 ServerLocationsApiWrapper::ServerLocationsApiWrapper(QObject *parent, NodesSpeedStore *nodesSpeedStore, ServerAPI *serverAPI) : QObject(parent),
-    nodesSpeedStore_(nodesSpeedStore), serverAPI_(serverAPI)
+    nodesSpeedStore_(nodesSpeedStore), serverAPI_(serverAPI), userRole_(0)
 {
     connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<QSharedPointer<ServerLocation> >,QStringList, uint)),
                             SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<QSharedPointer<ServerLocation> >,QStringList, uint)), Qt::QueuedConnection);
@@ -43,8 +43,8 @@ void ServerLocationsApiWrapper::onServerLocationsAnswer(SERVER_API_RET_CODE retC
     QStringList allIps;
     Q_FOREACH(QSharedPointer<ServerLocation> sl, serverLocations)
     {
-        QVector<ServerNode> &nodes = sl->getNodes();
-        Q_FOREACH(const ServerNode &sn, nodes)
+        const QVector<ServerNode> &nodes = sl->getNodes();
+        for (const ServerNode &sn: nodes)
         {
             allIps << sn.getIpForPing();
         }
@@ -145,18 +145,18 @@ void ServerLocationsApiWrapper::onPingFinished(bool bSuccess, int timems, const 
 {
     Q_UNUSED(isFromDisconnectedState);
 
-    auto it = pings_.find(ip);
-    if (it != pings_.end())
+    auto ping_it = pings_.find(ip);
+    if (ping_it != pings_.end())
     {
         if (bSuccess)
         {
-            *it = timems;
+            *ping_it = timems;
             nodesSpeedStore_->setNodeSpeed(ip, timems, 0);
         }
         else
         {
             nodesSpeedStore_->setNodeSpeed(ip, PingTime::PING_FAILED, 0);
-            *it = PingTime::PING_FAILED;
+            *ping_it = PingTime::PING_FAILED;
         }
     }
     else
@@ -205,12 +205,12 @@ void ServerLocationsApiWrapper::onPingFinished(bool bSuccess, int timems, const 
     }
 }
 
-bool ServerLocationsApiWrapper::detectBestLocation(QVector<QSharedPointer<ServerLocation> > &serverLocations, int &outInd, int &outSelNodeInd, int &outTimeMs)
+bool ServerLocationsApiWrapper::detectBestLocation(const QVector<QSharedPointer<ServerLocation> > &serverLocations, int &outInd, int &outSelNodeInd, int &outTimeMs)
 {
     int minAverageLatency = INT_MAX;
-    int minAverageLatencyInd;
-    int minAverageLatencyIndNode;
-    int minNodeSpeed;
+    int minAverageLatencyInd = 0;
+    int minAverageLatencyIndNode = 0;
+    int minNodeSpeed = 0;
     bool isDetectedAtLeastOneLocation = false;
 
     int ind = 0;
@@ -248,7 +248,7 @@ bool ServerLocationsApiWrapper::detectBestLocation(QVector<QSharedPointer<Server
 
 bool ServerLocationsApiWrapper::averageLatencyForLocation(ServerLocation *sl, int &outAverageLatency, int &outMinLatency, int &outIndNodeWithMinLatency)
 {
-    QVector<ServerNode> &nodes = sl->getNodes();
+    const QVector<ServerNode> &nodes = sl->getNodes();
     int sum = 0;
     int cntNodesHavePingData = 0;
     outMinLatency = INT_MAX;

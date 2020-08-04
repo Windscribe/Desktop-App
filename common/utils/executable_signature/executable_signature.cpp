@@ -22,6 +22,7 @@ bool ExecutableSignature::isParentProcessGui()
 bool ExecutableSignature::verify(const QString &executablePath)
 {
 #ifdef QT_DEBUG
+    Q_UNUSED(executablePath);
     return true;
 #else
     #ifdef Q_OS_WIN

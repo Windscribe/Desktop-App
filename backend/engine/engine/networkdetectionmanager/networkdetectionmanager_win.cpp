@@ -3,9 +3,9 @@
 #include <google/protobuf/util/message_differencer.h>
 
 
-#include "Utils/winutils.h"
-#include "Utils/logger.h"
-#include "Utils/utils.h"
+#include "utils/winutils.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
 
 
 const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");

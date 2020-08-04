@@ -26,9 +26,9 @@
 // IKEV_FAILED_TO_CONNECT
 
 
-IKEv2Connection_test::IKEv2Connection_test(QObject *parent, IHelper *helper) : IConnection(parent, helper)
+IKEv2Connection_test::IKEv2Connection_test(QObject *parent, IHelper *helper)
+    : IConnection(parent, helper), isConnected_(false), stateMachine_(nullptr)
 {
-    stateMachine_ = NULL;
 }
 
 IKEv2Connection_test::~IKEv2Connection_test()
@@ -93,12 +93,6 @@ void IKEv2Connection_test::startDisconnect()
 bool IKEv2Connection_test::isDisconnected()
 {
     return !isConnected_;
-}
-
-QString IKEv2Connection_test::getConnectedTapAdapterName()
-{
-    //nothing todo for ikev2
-    return "";
 }
 
 void IKEv2Connection_test::removeIkev2ConnectionFromOS()

@@ -11,16 +11,16 @@ StaticIpsLocation::StaticIpsLocation()
 
 }
 
-bool StaticIpsLocation::initFromJson(QJsonObject &obj)
+bool StaticIpsLocation::initFromJson(QJsonObject &init_obj)
 {
-    if (!obj.contains("static_ips"))
+    if (!init_obj.contains("static_ips"))
     {
         return false;
     }
 
     bool bDeviceNameFetched = false;
 
-    QJsonArray jsonStaticIps = obj["static_ips"].toArray();
+    QJsonArray jsonStaticIps = init_obj["static_ips"].toArray();
     Q_FOREACH(const QJsonValue &value, jsonStaticIps)
     {
         StaticIpDescr sid;
@@ -62,8 +62,8 @@ bool StaticIpsLocation::initFromJson(QJsonObject &obj)
 
         if (obj.contains("ports"))
         {
-            QJsonArray jsonPorts = obj["ports"].toArray();
-            Q_FOREACH(const QJsonValue &valuePort, jsonPorts)
+            const QJsonArray jsonPorts = obj["ports"].toArray();
+            for (const QJsonValue &valuePort: jsonPorts)
             {
                 QJsonObject objPort = valuePort.toObject();
                 if (objPort.contains("ext_port") && objPort.contains("int_port"))

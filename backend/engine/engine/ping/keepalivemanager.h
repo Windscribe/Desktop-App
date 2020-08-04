@@ -38,7 +38,7 @@ private:
         bool bFailed_;
 
         IP_DESCR() : bFailed_(false) {}
-        IP_DESCR(QString ip): ip_(ip), bFailed_(false) {}
+        explicit IP_DESCR(QString ip): ip_(ip), bFailed_(false) {}
     };
 
     QVector<IP_DESCR> ips_;

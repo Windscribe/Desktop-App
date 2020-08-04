@@ -662,12 +662,6 @@ bool Helper_win::removeWindscribeNetworkProfiles()
     return mpr.exitCode;
 }
 
-void Helper_win::sendDefaultRoute(const QString &/*gatewayIp*/, const QString &/*interfaceName*/,
-                                  const QString &/*interfaceIp*/)
-{
-    // nothing todo for Windows
-}
-
 void Helper_win::sendConnectStatus(bool /*isConnected*/, const SplitTunnelingNetworkInfo &/*stni*/)
 {
     // nothing todo for Windows

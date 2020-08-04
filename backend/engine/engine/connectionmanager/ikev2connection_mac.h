@@ -11,18 +11,18 @@ class IKEv2Connection_mac : public IConnection
     Q_OBJECT
 public:
     explicit IKEv2Connection_mac(QObject *parent, IHelper *helper);
-    virtual ~IKEv2Connection_mac();
+    ~IKEv2Connection_mac() override;
 
     // config path for openvpn, url for ikev2
-    virtual void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
-                              const QString &username, const QString &password, const ProxySettings &proxySettings,
-                              bool isEnableIkev2Compression, bool isAutomaticConnectionMode);
-    virtual void startDisconnect();
-    virtual bool isDisconnected();
-    virtual QString getConnectedTapTunAdapterName();
+    void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
+                      const QString &username, const QString &password, const ProxySettings &proxySettings,
+                      bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
+    void startDisconnect() override;
+    bool isDisconnected() override;
+    QString getConnectedTapTunAdapterName() override;
 
-    virtual void continueWithUsernameAndPassword(const QString &username, const QString &password);
-    virtual void continueWithPassword(const QString &password);
+    void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
+    void continueWithPassword(const QString &password) override;
 
 
     static void removeIkev2ConnectionFromOS();

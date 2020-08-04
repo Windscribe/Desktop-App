@@ -11,9 +11,9 @@ public:
                          PROTOCOL_STUNNEL, PROTOCOL_WSTUNNEL };
 
     ProtocolType();
-    ProtocolType(PROTOCOL_TYPE protocol);
-    ProtocolType(const ProtoTypes::Protocol &p);
-    ProtocolType(const QString &strProtocol);
+    ProtocolType(PROTOCOL_TYPE protocol);  // cppcheck-suppress noExplicitConstructor
+    ProtocolType(const ProtoTypes::Protocol &p);  // cppcheck-suppress noExplicitConstructor
+    ProtocolType(const QString &strProtocol);  // cppcheck-suppress noExplicitConstructor
     PROTOCOL_TYPE getType() const;
     bool isInitialized() const;
     bool isOpenVpnProtocol() const;

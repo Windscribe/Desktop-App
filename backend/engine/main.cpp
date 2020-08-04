@@ -18,18 +18,19 @@
 #endif
 
 #ifdef Q_OS_MAC
-    void handler_sigterm(int signum)
+    void handler_sigterm(int /*signum*/)
     {
-        /*Q_UNUSED(signum);
+#if 0
         qCDebug(LOG_BASIC) << "SIGTERM signal received";
         if (g_MainWindow)
         {
             g_MainWindow->doClose(NULL, true);
-        }*/
+        }
+#endif
         exit(0);
     }
 #else
-    void handler_sigterm(int signum)
+    void handler_sigterm(int /*signum*/)
     {
         qCDebug(LOG_BASIC) << "SIGTERM signal receidved";
     }

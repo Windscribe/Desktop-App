@@ -27,7 +27,7 @@ private:
     struct SpeedRatingNode
     {
         QString hostname;
-        int     rating;
+        int     rating = 0;
     };
 
     QVector<SpeedRatingNode *> ratings_;

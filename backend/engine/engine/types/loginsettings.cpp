@@ -1,21 +1,16 @@
 #include "loginsettings.h"
 
-LoginSettings::LoginSettings()
+LoginSettings::LoginSettings() : isAuthHashLogin_(false)
 {
-    isAuthHashLogin_ = false;
 }
 
-LoginSettings::LoginSettings(const QString &authHash)
+LoginSettings::LoginSettings(const QString &authHash) : isAuthHashLogin_(true), authHash_(authHash)
 {
-    authHash_ = authHash;
-    isAuthHashLogin_ = true;
 }
 
 LoginSettings::LoginSettings(const QString &username, const QString &password)
+    : isAuthHashLogin_(false), username_(username), password_(password)
 {
-    username_ = username;
-    password_ = password;
-    isAuthHashLogin_ = false;
 }
 
 void LoginSettings::setServerCredentials(const ServerCredentials &serverCredentials)

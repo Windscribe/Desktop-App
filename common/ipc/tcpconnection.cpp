@@ -115,7 +115,7 @@ void TcpConnection::onReadyRead()
     }
 }
 
-void TcpConnection::onSocketError(QAbstractSocket::SocketError socketError)
+void TcpConnection::onSocketError(QAbstractSocket::SocketError /*socketError*/)
 {
     qCDebug(LOG_CONNECTION) << "Socket error:" << socket_->errorString();
     safeDeleteSocket();

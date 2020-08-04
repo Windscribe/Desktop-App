@@ -176,14 +176,10 @@ struct MessagePacketResult
     DWORD sizeOfAdditionalData;
     void *szAdditionalData;
 
-    MessagePacketResult()
+    MessagePacketResult() : id(0), success(false), exitCode(0), blockingCmdId(0),
+                            blockingCmdFinished(false), sizeOfAdditionalData(0),
+                            szAdditionalData(nullptr)
     {
-        success = false;
-        exitCode = 0;
-        blockingCmdId = 0;
-        blockingCmdFinished = false;
-        sizeOfAdditionalData = 0;
-        szAdditionalData = NULL;
     }
 
     void clear()

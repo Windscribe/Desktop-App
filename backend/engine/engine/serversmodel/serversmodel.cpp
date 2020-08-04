@@ -58,8 +58,8 @@ void ServersModel::updateServers(QVector< QSharedPointer<ServerLocation> > &newS
         emit locationInfoChanged(locationId, sl->getNodes(), sl->getDnsHostname());
 
         // cities
-        QStringList cities = sl->getCities();
-        Q_FOREACH(const QString &cityName, cities)
+        const QStringList cities = sl->getCities();
+        for (const QString &cityName: cities)
         {
             LocationID cityLocationId(sl->getId(), cityName);
             emit locationInfoChanged(cityLocationId, sl->getCityNodes(cityName), sl->getDnsHostname());
@@ -248,8 +248,8 @@ LocationID ServersModel::getLocationIdByName(const QString &location)
             return LocationID(slm->getId());
         }
 
-        QStringList cities = slm->getCities();
-        Q_FOREACH(const QString &cityName, cities)
+        const QStringList cities = slm->getCities();
+        for (const QString &cityName: cities)
         {
             if (cityName.compare(location, Qt::CaseInsensitive) == 0)
             {
