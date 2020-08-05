@@ -64,6 +64,8 @@ namespace MacUtils
     bool interfaceSpoofed(const QString &interfaceName);
 
     bool pingWithMtu(int mtu);
+    QString getLocalIP();
+
 
     // read DNS-servers for device name (now used for ipsec adapters for ikev2)
     // implemented with "scutil --dns" command

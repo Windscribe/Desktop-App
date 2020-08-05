@@ -1375,3 +1375,34 @@ bool WinUtils::pingWithMtu(int mtu)
     }
     return false;
 }
+
+QString WinUtils::getLocalIP()
+{
+    ULONG ulAdapterInfoSize = sizeof(IP_ADAPTER_INFO);
+    std::vector<unsigned char> pAdapterInfo(ulAdapterInfoSize);
+
+    if (GetAdaptersInfo((IP_ADAPTER_INFO *)&pAdapterInfo[0], &ulAdapterInfoSize) == ERROR_BUFFER_OVERFLOW) // out of buff
+    {
+        pAdapterInfo.resize(ulAdapterInfoSize);
+    }
+
+    if (GetAdaptersInfo((IP_ADAPTER_INFO *)&pAdapterInfo[0], &ulAdapterInfoSize) == ERROR_SUCCESS)
+    {
+        IP_ADAPTER_INFO *ai = (IP_ADAPTER_INFO *)&pAdapterInfo[0];
+
+        do
+        {
+            if ((ai->Type == MIB_IF_TYPE_ETHERNET) 	// If type is etherent
+                || (ai->Type == IF_TYPE_IEEE80211))   // radio
+            {
+                if (strstr(ai->Description, "Windscribe VPN") == 0 && strcmp(ai->IpAddressList.IpAddress.String, "0.0.0.0") != 0
+                    && strcmp(ai->GatewayList.IpAddress.String, "0.0.0.0") != 0)
+                {
+                    return ai->IpAddressList.IpAddress.String;
+                }
+            }
+            ai = ai->Next;
+        } while (ai);
+    }
+    return "";
+}

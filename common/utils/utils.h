@@ -43,5 +43,7 @@ namespace Utils {
     const ProtoTypes::NetworkInterfaces interfacesExceptOne(const ProtoTypes::NetworkInterfaces &interfaces, const ProtoTypes::NetworkInterface &exceptInterface);
 
     bool pingWithMtu(int mtu);
+    QString getLocalIP();
+
 }
 #endif // UTILS_H

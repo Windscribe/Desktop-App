@@ -1,6 +1,5 @@
 #include "vpnsharecontroller.h"
 #include "utils/utils.h"
-#include "socketutils/detectlocalip.h"
 #include <QElapsedTimer>
 #include "engine/connectionmanager/availableport.h"
 #include <QSettings>
@@ -105,11 +104,11 @@ QString VpnShareController::getProxySharingAddress()
     QMutexLocker locker(&mutex_);
     if (httpProxyServer_)
     {
-        return DetectLocalIP::getLocalIP() + ":" + QString::number(httpProxyServer_->serverPort());
+        return Utils::getLocalIP() + ":" + QString::number(httpProxyServer_->serverPort());
     }
     else if (socksProxyServer_)
     {
-        return DetectLocalIP::getLocalIP() + ":" + QString::number(socksProxyServer_->serverPort());
+        return Utils::getLocalIP() + ":" + QString::number(socksProxyServer_->serverPort());
     }
     Q_ASSERT(false);
     return "Unknown";

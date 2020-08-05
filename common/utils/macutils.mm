@@ -705,6 +705,23 @@ bool MacUtils::pingWithMtu(int mtu)
     return false;
 }
 
+QString MacUtils::getLocalIP()
+{
+    QString result;
+    FILE *file = popen("ifconfig "
+                       "| grep -E \"([0-9]{1,3}\\.){3}[0-9]{1,3}\" "
+                       "| grep -vE \"127\\.([0-9]{1,3}\\.){2}[0-9]{1,3}\" "
+                       "| awk '{ print $2 }' | cut -f2 -d: | head -n1", "r");
+    if (file) {
+        char line[4096] = {};
+        while (fgets(line, sizeof(line), file) != 0)
+            result.append(QString::fromLocal8Bit(line));
+        pclose(file);
+    }
+    return result.trimmed();
+}
+
+
 // TODO: use system APIs for this rather than relying on flaky and changeable system tools (in terms of their output format)
 void MacUtils::getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName)
 {

@@ -305,7 +305,6 @@ SOURCES += main.cpp \
     engine/vpnshare/vpnsharecontroller.cpp \
     engine/vpnshare/connecteduserscounter.cpp \
     engine/vpnshare/httpproxyserver/httpproxyreply.cpp \
-    engine/vpnshare/socketutils/detectlocalip.cpp \
     engine/connectstatecontroller/connectstatecontroller.cpp \
     engine/openvpnversioncontroller.cpp \
     engine/types/types.cpp \
@@ -324,7 +323,6 @@ SOURCES += main.cpp \
     engine/dnsresolver/areslibraryinit.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
-    engine/detectlanrange.cpp \
     engine/connectionmanager/ikev2connection_test.cpp \
     engine/types/serverlocation.cpp \
     engine/types/servernode.cpp \
@@ -437,7 +435,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/vpnshare/vpnsharecontroller.h \
     engine/vpnshare/connecteduserscounter.h \
     engine/vpnshare/httpproxyserver/httpproxyreply.h \
-    engine/vpnshare/socketutils/detectlocalip.h \
     engine/connectstatecontroller/iconnectstatecontroller.h \
     engine/connectstatecontroller/connectstatecontroller.h \
     engine/openvpnversioncontroller.h \
@@ -456,7 +453,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/dnsresolver/areslibraryinit.h \
     engine/dnsresolver/dnsresolver.h \
     engine/types/protocoltype.h \
-    engine/detectlanrange.h \
     engine/connectionmanager/ikev2connection_test.h \
     engine/types/serverlocation.h \
     engine/types/servernode.h \

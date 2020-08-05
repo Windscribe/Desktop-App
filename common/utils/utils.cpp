@@ -330,3 +330,12 @@ bool Utils::pingWithMtu(int mtu)
     return WinUtils::pingWithMtu(mtu);
 #endif
 }
+
+QString Utils::getLocalIP()
+{
+#ifdef Q_OS_MAC
+    return MacUtils::getLocalIP();
+#else
+    return WinUtils::getLocalIP();
+#endif
+}

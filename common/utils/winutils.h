@@ -56,7 +56,7 @@ namespace WinUtils
     QList<QString> singleHexChars();
 
     bool pingWithMtu(int mtu);
-
+    QString getLocalIP();
 }
 
 
