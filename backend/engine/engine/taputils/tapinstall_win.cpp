@@ -3,13 +3,13 @@
 #include <QDir>
 #include "Utils/logger.h"
 #include <QCoreApplication>
-#include "Engine/Helper/windscribeinstallhelper_win.h"
+#include "engine/helper/windscribeinstallhelper_win.h"
 #define PSAPI_VERSION 1
 #include <psapi.h>
 #include <shlwapi.h>
 #include <functional>
-#include "Utils/utils.h"
-#include "Utils/winutils.h"
+#include "utils/utils.h"
+#include "utils/winutils.h"
 
 bool TapInstall_win::installTap(const QString &subfolder)
 {
@@ -190,12 +190,12 @@ QVector<TapInstall_win::TAP_TYPE> TapInstall_win::detectInstalledTapDriver(bool 
                     qCDebug(LOG_BASIC) << "Detected TAP adapter";
                 }
             }
-            else if (baseName.compare("wintun.sys", Qt::CaseInsensitive) == 0)
+            else if (baseName.compare("windtun420.sys", Qt::CaseInsensitive) == 0)
             {
                 res << WIN_TUN;
                 if (bWithLog)
                 {
-                    qCDebug(LOG_BASIC) << "Detected Wintun adapter";
+                    qCDebug(LOG_BASIC) << "Detected windtun420 adapter";
                 }
             }
         }

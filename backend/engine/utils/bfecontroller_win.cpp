@@ -1,8 +1,8 @@
 #include "bfecontroller_win.h"
-#include "Engine/Helper/ihelper.h"
-#include "Utils/winutils.h"
+#include "engine/helper/ihelper.h"
+#include "utils/winutils.h"
 #include <windows.h>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <QCoreApplication>
 #include <QElapsedTimer>
 

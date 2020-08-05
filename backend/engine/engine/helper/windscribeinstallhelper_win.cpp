@@ -3,7 +3,7 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QDir>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <windows.h>
 #include <shellapi.h>
 #include "utils/executable_signature/executable_signature.h"

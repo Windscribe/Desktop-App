@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <Iphlpapi.h>
 #include <QByteArray>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
 void DnsInfo_win::outputDebugDnsInfo()
 {
