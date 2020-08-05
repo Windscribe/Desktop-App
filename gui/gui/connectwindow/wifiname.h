@@ -13,8 +13,8 @@ class WiFiName : public ScalableGraphicsObject
 public:
     explicit WiFiName(ScalableGraphicsObject *parent, const QString &wifiName);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     virtual void setClickable(bool clickable);
 
@@ -30,7 +30,7 @@ private:
     QFont fontTrust_;
 
     CommonGraphics::TextIconButton *trustButton_;
-    const int SPACE_BETWEEN_TEXT_AND_ARROW = 5;
+    static constexpr int SPACE_BETWEEN_TEXT_AND_ARROW = 5;
 
     int width_ = 320;
 };

@@ -5,18 +5,28 @@
 
 namespace GuiLocations {
 
+CityNode::CityNode() :
+    timeMs_(PingTime::PING_FAILED, false), bShowPremiumStarOnly_(false),
+    isCursorOverFavoriteIcon_(false),
+    isFavorite_(false),
+    isCursorOverCaption1Text_(false),
+    isDisabled_(false),
+    isCursorOverConnectionMeter_(false)
+{
+}
+
 CityNode::CityNode(const LocationID &locationId, const QString &cityName1ForShow, const QString &cityName2ForShow, const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly, bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType, bool isFavorite, bool isDisabled) :
     locationId_(locationId),
     countryCode_(countryCode),
     timeMs_(timeMs, isShowLatencyMs), bShowPremiumStarOnly_(bShowPremiumStarOnly),
     staticIp_(staticIp), staticIpType_(staticIpType),
+    isCursorOverFavoriteIcon_(false),
     isFavorite_(isFavorite),
     isCursorOverCaption1Text_(false),
     isDisabled_(isDisabled),
-    isCursorOverConnectionMeter_(false)
+    isCursorOverConnectionMeter_(false),
+    caption1FullText_(cityName1ForShow)
 {
-    caption1FullText_ = cityName1ForShow;
-
     QFont *font = FontManager::instance().getFont(16, true);
     QString shortenedCaption1Text = CommonGraphics::truncateText(cityName1ForShow, *font, 175);
 

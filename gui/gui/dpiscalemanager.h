@@ -48,7 +48,7 @@ private:
     explicit DpiScaleManager();
 
 private:
-    const int LOWEST_LDPI = 96;
+    static constexpr int LOWEST_LDPI = 96;
     double curScale_;
     int curDevicePixelRatio_;
     int curDPI_;

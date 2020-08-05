@@ -13,13 +13,13 @@ class IpOrHostnameItem : public BaseItem
     Q_OBJECT
 public:
     explicit IpOrHostnameItem(ProtoTypes::SplitTunnelingNetworkRoute route, ScalableGraphicsObject *parent);
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     QString getIpOrHostnameText();
     ProtoTypes::SplitTunnelingNetworkRoute getNetworkRoute();
 
-    void setSelected(bool selected);
-    virtual void updateScaling();
+    void setSelected(bool selected) override;
+    void updateScaling() override;
 
 signals:
     void deleteClicked();

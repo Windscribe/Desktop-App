@@ -40,7 +40,7 @@ private:
     QMutex mutex_;
     IConnectStateController *connectStateController_;
 
-    const int MAX_PARALLEL_PINGS = 10;
+    static constexpr int MAX_PARALLEL_PINGS = 10;
     QMap<QString, PingInfo *> pingingHosts_;
     QQueue<QString> waitingPingsQueue_;
 

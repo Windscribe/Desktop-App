@@ -18,9 +18,8 @@ public:
     explicit SharingFeaturesWindowItem(ScalableGraphicsObject * parent = nullptr);
 
     virtual QGraphicsObject *getGraphicsObject() { return this; }
-    virtual QRectF boundingRect() const;
-
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setSecureHotspotFeatures(bool isEnabled, const QString &ssid);
     void setSecureHotspotUsersCount(int usersCount);
@@ -44,7 +43,7 @@ public:
 
     void updateModedFeatures(SHARE_MODE mode);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void clickedProxy();
@@ -76,7 +75,7 @@ private:
 
     double curOpacity_;
 
-    const int WIDTH = 332;
+    static const int WIDTH = 332;
     int height_;
 
     const QString TEXT_SHARING_FEATURES = QT_TR_NOOP("Sharing Features");
@@ -93,14 +92,14 @@ private:
     QVariantAnimation hornPosYAnimation_;
     QVariantAnimation hornOpacityAnimation_;
 
-    const int HEADER_HEIGHT = 48;
+    static const int HEADER_HEIGHT = 48;
 
     int HORN_POS_Y_HIDDEN;
     int HORN_POS_Y_SHOWING;
 
-    const int LEFT_HORN_ORIGIN_X = 0;
-    const int HORN_WIDTH = 30;
-    const int HORN_HEIGHT = 30;
+    static const int LEFT_HORN_ORIGIN_X = 0;
+    static const int HORN_WIDTH = 30;
+    static const int HORN_HEIGHT = 30;
 
     void updatePositions();
 

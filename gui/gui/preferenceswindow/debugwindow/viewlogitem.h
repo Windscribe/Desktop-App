@@ -13,9 +13,9 @@ class ViewLogItem : public BaseItem
 public:
     explicit ViewLogItem(ScalableGraphicsObject *parent);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void viewButtonHoverEnter();

@@ -16,10 +16,10 @@ class ApiResolutionItem : public BaseItem
 public:
     explicit ApiResolutionItem(ScalableGraphicsObject *parent);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void setApiResolution(const ProtoTypes::ApiResolution &ar);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void apiResolutionChanged(const ProtoTypes::ApiResolution &ar);
@@ -30,8 +30,8 @@ private slots:
     void onExpandAnimationValueChanged(const QVariant &value);
 
 private:
-    const int COLLAPSED_HEIGHT = 50;
-    const int EXPANDED_HEIGHT = 50 + 43;
+    static constexpr int COLLAPSED_HEIGHT = 50;
+    static constexpr int EXPANDED_HEIGHT = 50 + 43;
 
     AutoManualSwitchItem *switchItem_;
     EditBoxItem *editBoxIP_;

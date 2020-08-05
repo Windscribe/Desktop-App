@@ -18,15 +18,15 @@ class SplitTunnelingSwitchItem : public BaseItem
     Q_OBJECT
 public:
     explicit SplitTunnelingSwitchItem(ScalableGraphicsObject *parent);
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setSettings(ProtoTypes::SplitTunnelingSettings settings);
-    void setClickable(bool clickable);
+    void setClickable(bool clickable) override;
 
     void setAppsCount(int count);
     void setIpsAndHostnamesCount(int count);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void settingsChanged(ProtoTypes::SplitTunnelingSettings settings);
@@ -53,8 +53,8 @@ private:
 
     QVariantAnimation expandEnimation_;
 
-    const int COLLAPSED_HEIGHT = 43;
-    const int EXPANDED_HEIGHT = COLLAPSED_HEIGHT + 43 + 43 + 43;
+    static constexpr int COLLAPSED_HEIGHT = 43;
+    static constexpr int EXPANDED_HEIGHT = COLLAPSED_HEIGHT + 43 + 43 + 43;
 
     void reloadModeComboBox();
     void updateActiveUI(bool checked);

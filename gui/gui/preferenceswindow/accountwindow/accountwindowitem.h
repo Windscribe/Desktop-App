@@ -22,7 +22,7 @@ public:
     void setLoggedIn(bool loggedIn);
     void setConfirmEmailResult(bool bSuccess);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 private slots:
     void onUsernameChanged(const QString &username);

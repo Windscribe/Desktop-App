@@ -96,7 +96,7 @@ void InitWindowItem::startWaitingAnimation()
     //showAbortTimer_.start();
 }
 
-void InitWindowItem::setClickable(bool clickable)
+void InitWindowItem::setClickable(bool /*clickable*/)
 {
     //abortButton_->setClickable(clickable);
 }

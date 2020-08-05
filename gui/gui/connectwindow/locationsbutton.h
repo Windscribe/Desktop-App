@@ -18,9 +18,9 @@ class LocationsButton : public ClickableGraphicsObject
 public:
     explicit LocationsButton(ScalableGraphicsObject *parent);
 
-    virtual QRectF boundingRect() const;
-    QPainterPath shape() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    QPainterPath shape() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     qreal arrowRotation() const { return arrowRotation_; }
     void setArrowRotation(qreal r);
@@ -29,7 +29,7 @@ public:
 
     void setTextColor(QColor color);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void arrowRotationChanged();

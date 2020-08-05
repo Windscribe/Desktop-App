@@ -34,6 +34,9 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     curWindow_(WINDOW_ID_UNITIALIZED),
     mainWindow_(parent),
     locationsWindow_(locationsWindow),
+    CLOSING_WINDSCRIBE(QT_TR_NOOP("Closing Windscribe")),
+    CLOSE_ACCEPT(QT_TR_NOOP("Yes")),
+    CLOSE_REJECT(QT_TR_NOOP("No")),
     locationListAnimationState_(LOCATION_LIST_ANIMATION_COLLAPSED),
     preferencesState_(PREFERENCES_STATE_COLLAPSED),
     isAtomicAnimationActive_(false),
@@ -45,10 +48,6 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     locationsShadowOpacity_(0.0),
     initWindowInitHeight_(WINDOW_HEIGHT)
 {
-    CLOSING_WINDSCRIBE = QT_TR_NOOP("Closing Windscribe");
-    CLOSE_ACCEPT = QT_TR_NOOP("Yes");
-    CLOSE_REJECT = QT_TR_NOOP("No");
-
 #ifdef Q_OS_WIN
     isDocked_ = false;
 #else
@@ -228,8 +227,8 @@ void MainWindowController::updateLocationsWindowAndTabGeometryStatic()
     if (shadowManager_->isInShadowList(ShadowManager::SHAPE_ID_UPDATE_WIDGET))
     {
         shadowManager_->removeObject(ShadowManager::SHAPE_ID_UPDATE_WIDGET);
-        QPixmap shadow = updateAppItem_->getCurrentPixmapShape();
-        shadowManager_->addPixmap(shadow, 0, 0, ShadowManager::SHAPE_ID_UPDATE_WIDGET, true);
+        QPixmap currentShadow = updateAppItem_->getCurrentPixmapShape();
+        shadowManager_->addPixmap(currentShadow, 0, 0, ShadowManager::SHAPE_ID_UPDATE_WIDGET, true);
     }
 
 
@@ -644,7 +643,7 @@ void MainWindowController::onRevealConnectAnimationGroupFinished()
     handleNextWindowChange();
 }
 
-void MainWindowController::onCollapseBottomInfoWindowAnimationValueChanged(const QVariant &value)
+void MainWindowController::onCollapseBottomInfoWindowAnimationValueChanged(const QVariant & /*value*/)
 {
     updateMainAndViewGeometry(false);
     invalidateShadow_mac();
@@ -2457,7 +2456,7 @@ MainWindowController::TaskbarLocation MainWindowController::primaryScreenTaskbar
     TaskbarLocation taskbarLocation = TASKBAR_HIDDEN;
 
     // use system tray icon as anchor for primary screen since QGuiApplication::primaryScreen() doesn't update after app startup
-    QRect rcIcon = ((MainWindow*) mainWindow_)->trayIconRect();
+    QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
     QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
     if (!screen)
     {
@@ -2496,7 +2495,7 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
     TaskbarLocation taskbarLocation = primaryScreenTaskbarLocation_win();
     // qDebug() << "TaskbarLocation: " << taskbarLocation;
 
-    QRect rcIcon = ((MainWindow*) mainWindow_)->trayIconRect();
+    QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
     QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
     QRect desktopAvailableRc = screen->availableGeometry();
 
@@ -2696,11 +2695,9 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     if (isDocked_)
     {
-        QRect rcIcon = ((MainWindow*) mainWindow_)->trayIconRect();
-
-        QDesktopWidget *desktopWidget = QApplication::desktop();
-        int screenNumber = desktopWidget->screenNumber(rcIcon.topLeft());
-        QRect desktopAvailableRc = desktopWidget->availableGeometry(screenNumber);
+        QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
+        QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
+        QRect desktopAvailableRc = screen->availableGeometry();
 
 #ifdef Q_OS_WIN
         geo = taskbarAwareDockedGeometry_win(width, shadowSize, widthWithShadow, heightWithShadow);

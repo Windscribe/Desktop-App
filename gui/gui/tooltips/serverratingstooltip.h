@@ -44,12 +44,12 @@ private:
     void recalcHeight();
     void updatePositions();
 
-    const int buttonHeight_ = 16;
-    const int buttonWidth_ = 16;
-    const int marginHeight_ = 8;
-    const int marginWidth_ = 10;
-    const int buttonButtonSpacing_ = 10;
-    const int textButtonSpacing_ = 10;
+    static constexpr int BUTTON_HEIGHT = 16;
+    static constexpr int BUTTON_WIDTH = 16;
+    static constexpr int MARGIN_HEIGHT = 8;
+    static constexpr int MARGIN_WIDTH = 10;
+    static constexpr int BUTTON_BUTTON_SPACING = 10;
+    static constexpr int TEXT_BUTTON_SPACING = 10;
 
     QFont font_;
     ServerRatingState state_;

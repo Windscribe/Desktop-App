@@ -12,13 +12,13 @@ class SplitTunnelingItem : public BaseItem
     Q_OBJECT
 public:
     explicit SplitTunnelingItem(ScalableGraphicsObject *parent);
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setSettings(ProtoTypes::SplitTunnelingSettings settings);
     void setAppsCount(int count);
     void setIpsAndHostnamesCount(int count);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void settingsChanged(ProtoTypes::SplitTunnelingSettings settings);

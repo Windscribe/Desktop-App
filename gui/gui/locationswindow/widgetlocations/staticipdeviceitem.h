@@ -8,7 +8,7 @@ class StaticIpDeviceItem : public ICityItem
 {
     Q_INTERFACES(ICityItem)
 public:
-    StaticIpDeviceItem(IWidgetLocationsInfo *widgetLocationsInfo);
+    explicit StaticIpDeviceItem(IWidgetLocationsInfo *widgetLocationsInfo);
 
     void setSelected(bool isSelected)                            override;
     bool isSelected()                                            override;

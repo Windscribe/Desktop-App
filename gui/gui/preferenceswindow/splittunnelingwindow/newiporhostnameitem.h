@@ -13,10 +13,10 @@ class NewIpOrHostnameItem : public BaseItem
     Q_OBJECT
 public:
     explicit NewIpOrHostnameItem(ScalableGraphicsObject *parent);
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setSelected(bool selected);
-    virtual void updateScaling();
+    void setSelected(bool selected) override;
+    void updateScaling() override;
 
 signals:
     void addNewIpOrHostnameClicked(QString ipOrHostname);

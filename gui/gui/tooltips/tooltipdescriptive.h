@@ -26,9 +26,9 @@ private:
 
     void recalcHeight();
 
-    const int MARGIN_WIDTH = 6;
-    const int MARGIN_HEIGHT = 8;
-    const int TITLE_DESC_SPACING = 10;
+    static constexpr int MARGIN_WIDTH = 6;
+    static constexpr int MARGIN_HEIGHT = 8;
+    static constexpr int TITLE_DESC_SPACING = 10;
 
     int leftTooltipMinY() const;
     int leftTooltipMaxY() const;

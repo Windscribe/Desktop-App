@@ -12,7 +12,7 @@ class AdvancedParametersWindowItem : public BasePage
 {
     Q_OBJECT
 public:
-    explicit AdvancedParametersWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
+    explicit AdvancedParametersWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
     QString caption();
     void setHeight(int newHeight);

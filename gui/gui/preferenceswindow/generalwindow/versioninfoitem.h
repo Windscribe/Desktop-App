@@ -12,9 +12,9 @@ class VersionInfoItem : public BaseItem
 public:
     explicit VersionInfoItem(ScalableGraphicsObject *parent, const QString &caption, const QString &value);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 private:
     QString strCaption_;

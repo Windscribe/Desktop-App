@@ -41,8 +41,8 @@ private slots:
     void onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
 
 private:
-    const int PING_TIMER_INTERVAL = 1000;
-    const int MAX_FAILED_PING_IN_ROW = 3;
+    static constexpr int PING_TIMER_INTERVAL = 1000;
+    static constexpr int MAX_FAILED_PING_IN_ROW = 3;
 
     struct PingNodeInfo
     {

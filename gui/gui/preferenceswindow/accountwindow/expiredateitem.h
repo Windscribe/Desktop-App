@@ -12,8 +12,8 @@ class ExpireDateItem : public BaseItem
 public:
     explicit ExpireDateItem(ScalableGraphicsObject *parent);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
-    virtual void updateScaling();
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+    void updateScaling() override;
 
 public:
     void setDate(const QString &date);

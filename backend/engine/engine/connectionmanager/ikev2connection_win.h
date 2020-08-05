@@ -59,7 +59,7 @@ private:
 
     HRASCONN connHandle_;
     QTimer timerControlConnection_;
-    const int CONTROL_TIMER_PERIOD = 1000;
+    static constexpr int CONTROL_TIMER_PERIOD = 1000;
     QMap<RASCONNSTATE, QString> mapConnStates_;
 
     QMutex mutex_;
@@ -67,8 +67,8 @@ private:
     IKEv2ConnectionDisconnectLogic_win disconnectLogic_;
 
     int cntFailedConnectionAttempts_;
-    const int MAX_FAILED_CONNECTION_ATTEMPTS = 4;
-    const int MAX_FAILED_CONNECTION_ATTEMPTS_FOR_AUTOMATIC_MODE = 3;
+    static constexpr int MAX_FAILED_CONNECTION_ATTEMPTS = 4;
+    static constexpr int MAX_FAILED_CONNECTION_ATTEMPTS_FOR_AUTOMATIC_MODE = 3;
 
     void doConnect();
     void rasDialFuncCallback(HRASCONN hrasconn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError);

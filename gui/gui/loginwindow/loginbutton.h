@@ -12,11 +12,10 @@ class LoginButton : public ClickableGraphicsObject
 public:
 
     explicit LoginButton(ScalableGraphicsObject * parent = nullptr);
-    virtual QRectF boundingRect() const;
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
-
-    virtual void setClickable(bool clickable);
+    void setClickable(bool clickable) override;
     void setError(bool error);
 
 private:

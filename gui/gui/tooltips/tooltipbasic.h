@@ -21,8 +21,8 @@ private:
     QFont font_;
     QString text_;
 
-    const int marginWidth_ = 10;
-    const int marginHeight_ = 8;
+    static constexpr int MARGIN_WIDTH = 10;
+    static constexpr int MARGIN_HEIGHT = 8;
 
     void recalcWidth();
     void recalcHeight();

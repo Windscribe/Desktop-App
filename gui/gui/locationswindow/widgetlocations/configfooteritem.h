@@ -9,7 +9,7 @@ class ConfigFooterItem : public ICityItem
 {
     Q_INTERFACES(ICityItem)
 public:
-    ConfigFooterItem(IWidgetLocationsInfo *widgetLocationsInfo);
+    explicit ConfigFooterItem(IWidgetLocationsInfo *widgetLocationsInfo);
     void setSelected(bool isSelected)                            override;
     bool isSelected()                                            override;
     LocationID getLocationId()                                   override;

@@ -180,7 +180,7 @@ private:
     bool bLastLoginWithAuthHash_;
 
     QElapsedTimer connectingTimer_;
-    const int MAX_CONNECTING_TIME = 10000;
+    static constexpr int MAX_CONNECTING_TIME = 10000;
 
     ProtoTypes::SessionStatus latestSessionStatus_;
     ProtoTypes::EngineSettings latestEngineSettings_;

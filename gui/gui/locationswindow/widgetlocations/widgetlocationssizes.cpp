@@ -29,13 +29,9 @@ double WidgetLocationsSizes::getScrollingSpeedKef()
     return scrollingSpeedKef_ * G_SCALE;
 }
 
-WidgetLocationsSizes::WidgetLocationsSizes()
+WidgetLocationsSizes::WidgetLocationsSizes() : itemHeight_(50), topOffset_(0), scrollBarWidth_(8),
+    scrollingSpeedKef_(0.07), backgroundColor_(0x03, 0x09, 0x1C)
 {
-    itemHeight_ = 50;
-    topOffset_ = 0;
-    scrollBarWidth_ = 8;
-    backgroundColor_ = QColor(0x03, 0x09, 0x1C);
-    scrollingSpeedKef_ = 0.07;
 }
 
 } // namespace GuiLocations

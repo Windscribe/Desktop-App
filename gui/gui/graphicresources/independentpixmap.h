@@ -12,7 +12,7 @@ class IndependentPixmap
 {
 public:
     // takes ownership over pixmap
-    IndependentPixmap(QPixmap *pixmap);
+    explicit IndependentPixmap(QPixmap *pixmap);
     virtual ~IndependentPixmap();
 
     int width() const;

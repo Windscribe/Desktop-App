@@ -2,7 +2,7 @@
 
 namespace GuiLocations {
 
-BackgroundPixmapAnimation::BackgroundPixmapAnimation() : isActive_(false)
+BackgroundPixmapAnimation::BackgroundPixmapAnimation() : isActive_(false), duration_(0)
 {
 
 }

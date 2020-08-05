@@ -17,13 +17,13 @@ class MssEditBoxItem : public ScalableGraphicsObject
 public:
     explicit MssEditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt, bool isDrawFullBottomDivider, const QString &additionalButtonIcon);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setText(const QString &text);
     void setValidator(QRegExpValidator *validator);
 
-    virtual void updateScaling();
+    void updateScaling() override;
     void setEditButtonClickable(bool clickable);
 
     void setAdditionalButtonBusyState(bool on);

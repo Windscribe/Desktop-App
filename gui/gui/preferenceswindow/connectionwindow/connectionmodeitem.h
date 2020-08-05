@@ -17,10 +17,10 @@ class ConnectionModeItem : public BaseItem
 public:
     explicit ConnectionModeItem(ScalableGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void setConnectionMode(const ProtoTypes::ConnectionSettings &cm);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 signals:
     void connectionlModeChanged(const ProtoTypes::ConnectionSettings &cm);
 
@@ -35,11 +35,11 @@ private slots:
     void onPortMapChanged();
 
 protected:
-    void hideOpenPopups();
+    void hideOpenPopups() override;
 
 private:
-    const int COLLAPSED_HEIGHT = 50;
-    const int EXPANDED_HEIGHT = 50 + 43 + 43;
+    static constexpr int COLLAPSED_HEIGHT = 50;
+    static constexpr int EXPANDED_HEIGHT = 50 + 43 + 43;
 
     PreferencesHelper *preferencesHelper_;
 

@@ -17,7 +17,7 @@ class NetworkWhiteListWindowItem : public BasePage
 {
     Q_OBJECT
 public:
-    explicit NetworkWhiteListWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
+    explicit NetworkWhiteListWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
     QString caption();
 
@@ -32,7 +32,7 @@ public:
     void updateDescription();
     void addNewlyFoundNetworks();
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void currentNetworkUpdated(ProtoTypes::NetworkInterface);

@@ -14,12 +14,12 @@ class MiddleItem : public ScalableGraphicsObject
 public:
     explicit MiddleItem(ScalableGraphicsObject *parent, const QString &ipAddress);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setTextColor(QColor color);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 public slots:
     void setIpAddress(const QString &ipAddress);

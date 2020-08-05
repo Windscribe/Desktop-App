@@ -13,18 +13,17 @@ namespace GuiLocations {
 
 
 StaticIPDeviceInfo::StaticIPDeviceInfo(QWidget *parent) : QWidget(parent)
+  , pressed_(false)
   , iconPath_("preferences/EXTERNAL_LINK_ICON")
   , addStaticTextWidth_(0)
   , addStaticTextHeight_(0)
   , deviceName_("")
+  , font_(*FontManager::instance().getFont(16, true))
   , curTextOpacity_(OPACITY_UNHOVER_TEXT)
   , curIconOpacity_(OPACITY_UNHOVER_ICON_TEXT)
 {
-    font_ = *FontManager::instance().getFont(16, true);
-
     connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextOpacityChange(QVariant)));
     connect(&iconOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onIconOpacityChange(QVariant)));
-
 }
 
 void StaticIPDeviceInfo::setDeviceName(QString deviceName)
@@ -35,7 +34,7 @@ void StaticIPDeviceInfo::setDeviceName(QString deviceName)
 
 QSize StaticIPDeviceInfo::sizeHint() const
 {
-    return QSize(WINDOW_WIDTH * G_SCALE, HEIGHT_ * G_SCALE);
+    return QSize(WINDOW_WIDTH * G_SCALE, HEIGHT * G_SCALE);
 }
 
 void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)

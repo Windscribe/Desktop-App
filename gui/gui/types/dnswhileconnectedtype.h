@@ -9,8 +9,8 @@ public:
     enum DNS_WHILE_CONNECTED_TYPE { ROBERT, CUSTOM };
 
     DNSWhileConnectedType();
-    DNSWhileConnectedType(DNS_WHILE_CONNECTED_TYPE type);
-    DNSWhileConnectedType(int type);
+    explicit DNSWhileConnectedType(DNS_WHILE_CONNECTED_TYPE type);
+    explicit DNSWhileConnectedType(int type);
 
     QString toString() const;
     DNS_WHILE_CONNECTED_TYPE type() const;

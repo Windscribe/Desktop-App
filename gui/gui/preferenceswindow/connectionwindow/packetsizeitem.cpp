@@ -13,8 +13,8 @@
 
 namespace PreferencesWindow {
 
-PacketSizeItem::PacketSizeItem(ScalableGraphicsObject *parent) : BaseItem(parent, 50)
-  // , isExpanded_(true)
+PacketSizeItem::PacketSizeItem(ScalableGraphicsObject *parent)
+    : BaseItem(parent, 50), isExpanded_(false)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 

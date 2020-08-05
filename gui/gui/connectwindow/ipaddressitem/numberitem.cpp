@@ -3,12 +3,13 @@
 #include <QTimer>
 #include <QEasingCurve>
 
-NumberItem::NumberItem(QObject *parent, NumbersPixmap *numbersPixmap) : QObject(parent), numbersPixmap_(numbersPixmap),
-    curNum_(0)
+NumberItem::NumberItem(QObject *parent, NumbersPixmap *numbersPixmap) : QObject(parent),
+    numbersPixmap_(numbersPixmap), curNum_(0), offs_(0), stopOffs_(0), stopAccelerationOffs_(0),
+    prev_offs_(0), curSpeed_(0), prevSpeed_(0), state_(0), TIME_ACCELERATION(0), acceleration_(0),
+    accelerationStopping_(0)
 {
     timer_ = new QTimer(this);
     connect(timer_, SIGNAL(timeout()), SLOT(onTimer()));
-    offs_ = 0;
 }
 
 void NumberItem::setNumber(int num)

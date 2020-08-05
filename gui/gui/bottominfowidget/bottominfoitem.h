@@ -14,28 +14,28 @@ class BottomInfoItem : public ScalableGraphicsObject, public IBottomInfoItem
 public:
     explicit BottomInfoItem(QGraphicsObject *parent = nullptr);
 
-    virtual QGraphicsObject * getGraphicsObject() { return this; }
-    virtual QRectF boundingRect() const ;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QGraphicsObject *getGraphicsObject() override { return this; }
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     // upgrade widget functions
-    virtual bool isUpgradeWidgetVisible() const ;
-    virtual void setDataRemaining(qint64 bytesUsed, qint64 bytesMax);
-    virtual void setDaysRemaining(int daysLeft);
-    virtual void setExtConfigMode(bool isExtConfigMode);
+    bool isUpgradeWidgetVisible() const override;
+    void setDataRemaining(qint64 bytesUsed, qint64 bytesMax) override;
+    void setDaysRemaining(int daysLeft) override;
+    void setExtConfigMode(bool isExtConfigMode) override;
 
     // sharing features widget functions
-    virtual bool isSharingFeatureVisible() const ;
+    bool isSharingFeatureVisible() const override;
 
-    virtual void setSecureHotspotFeatures(bool isEnabled, const QString &ssid);
-    virtual void setSecureHotspotUsersCount(int usersCount);
-    virtual void setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode);
-    virtual void setProxyGatewayUsersCount(int usersCount);
+    void setSecureHotspotFeatures(bool isEnabled, const QString &ssid) override;
+    void setSecureHotspotUsersCount(int usersCount) override;
+    void setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode) override;
+    void setProxyGatewayUsersCount(int usersCount) override;
 
-    virtual QPixmap getCurrentPixmapShape();
+    QPixmap getCurrentPixmapShape() override;
 
-    void setClickable(bool enabled);
-    virtual void updateScaling();
+    void setClickable(bool enabled) override;
+    void updateScaling() override;
 
 signals:
     void heightChanged(int newHeight);
@@ -65,15 +65,15 @@ private:
     void recalcHeight();
 
     // constants:
-    const int WIDTH_ = 332;
+    static constexpr int WIDTH_ = 332;
 
-    const int UPGRADE_POS_X_DEFAULT = 85;
-    const int UPGRADE_WIDTH_DEFAULT = 230;
-    const int UPGRADE_POS_Y_DEFAULT = 172;
+    static constexpr int UPGRADE_POS_X_DEFAULT = 85;
+    static constexpr int UPGRADE_WIDTH_DEFAULT = 230;
+    static constexpr int UPGRADE_POS_Y_DEFAULT = 172;
 
-    const int SHARING_UPGRADE_SPACE = 2;
-    const int UPGRADE_POS_X_WIDE = 4;
-    const int UPGRADE_WIDTH_EXPANDED = WIDTH_ - 8;
+    static constexpr int SHARING_UPGRADE_SPACE = 2;
+    static constexpr int UPGRADE_POS_X_WIDE = 4;
+    static constexpr int UPGRADE_WIDTH_EXPANDED = WIDTH_ - 8;
 
 };
 

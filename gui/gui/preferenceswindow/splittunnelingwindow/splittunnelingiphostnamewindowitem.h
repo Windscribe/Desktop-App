@@ -12,7 +12,7 @@ class SplitTunnelingIpsAndHostnamesWindowItem : public BasePage
 {
     Q_OBJECT
 public:
-    explicit SplitTunnelingIpsAndHostnamesWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
+    explicit SplitTunnelingIpsAndHostnamesWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
     QString caption();
     void setLoggedIn(bool loggedIn);

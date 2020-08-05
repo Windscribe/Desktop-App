@@ -89,7 +89,7 @@ QPixmap *WidgetUtils_win::extractWindowsAppProgramIcon(QString filePath)
     QDir assetDir(manifestLogoFileInfo.absoluteDir());
     QString logoFilter = manifestLogoFileInfo.completeBaseName(); // filename without extension
 
-    QPixmap *logoPixmap;
+    QPixmap *logoPixmap = nullptr;
     foreach (QFileInfo assetFile, assetDir.entryInfoList(QDir::Files))
     {
         if (assetFile.fileName().contains(logoFilter))

@@ -54,7 +54,7 @@ QStringList PreferencesHelper::getAvailableOpenVpnVersions()
     return availableOpenVpnVersions_;
 }
 
-QVector<ProtoTypes::TapAdapterType> PreferencesHelper::getAvailableTapAdapters(const QString &openVpnVersion)
+QVector<ProtoTypes::TapAdapterType> PreferencesHelper::getAvailableTapAdapters(const QString & /*openVpnVersion*/)
 {
     return QVector<ProtoTypes::TapAdapterType>() << ProtoTypes::TAP_ADAPTER << ProtoTypes::WINTUN_ADAPTER;
 }

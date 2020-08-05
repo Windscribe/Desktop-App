@@ -244,12 +244,6 @@
     <ClCompile Include="engine\customovpnconfigs\parseovpnconfigline.cpp">
       <Filter>Engine Files\engine\customovpnconfigs</Filter>
     </ClCompile>
-    <ClCompile Include="engine\detectlanrange.cpp">
-      <Filter>Engine Files\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\vpnshare\socketutils\detectlocalip.cpp">
-      <Filter>Engine Files\engine\vpnshare\socketutils</Filter>
-    </ClCompile>
     <ClCompile Include="engine\types\dnsresolutionsettings.cpp">
       <Filter>Engine Files\engine\types</Filter>
     </ClCompile>
@@ -633,9 +627,6 @@
     <ClInclude Include="engine\curlinitcontroller.h">
       <Filter>Engine Files\engine</Filter>
     </ClInclude>
-    <ClInclude Include="engine\detectlanrange.h">
-      <Filter>Engine Files\engine</Filter>
-    </ClInclude>
     <ClInclude Include="engine\dnsinfo_win.h">
       <Filter>Engine Files\engine</Filter>
     </ClInclude>
@@ -985,9 +976,6 @@
     </ClInclude>
     <ClInclude Include="engine\customovpnconfigs\customovpnauthcredentialsstorage.h">
       <Filter>Engine Files\engine\customovpnconfigs</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\vpnshare\socketutils\detectlocalip.h">
-      <Filter>Engine Files\engine\vpnshare\socketutils</Filter>
     </ClInclude>
     <ClInclude Include="engine\types\dnsresolutionsettings.h">
       <Filter>Engine Files\engine\types</Filter>

@@ -9,16 +9,16 @@ namespace PreferencesWindow {
 class TextItem : public BaseItem
 {
 public:
-    explicit TextItem(ScalableGraphicsObject *parent, QString text, int height);
+    TextItem(ScalableGraphicsObject *parent, QString text, int height);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setText(QString text);
-    virtual void updateScaling();
+    void updateScaling() override;
 
 private:
     QString text_;
-    int height_;
+    int local_height_;
 };
 
 }

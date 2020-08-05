@@ -14,16 +14,16 @@ class SearchLineEditItem : public BaseItem
     Q_OBJECT
 public:
     explicit SearchLineEditItem(ScalableGraphicsObject *parent);
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void hideButtons();
     void showButtons();
     QString getText();
 
     void setFocusOnSearchBar();
-    void setSelected(bool selected);
+    void setSelected(bool selected) override;
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void searchModeExited();
@@ -32,7 +32,7 @@ signals:
     void focusIn();
 
 protected:
-    void focusInEvent(QFocusEvent *event);
+    void focusInEvent(QFocusEvent *event) override;
 
 private slots:
     void onCancelClicked();

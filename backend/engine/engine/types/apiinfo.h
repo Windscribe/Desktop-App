@@ -219,7 +219,7 @@ private:
 
     // in revision 11
     // added premiumExpireDateStr in SessionStats
-    const int REVISION_VERSION = 11;
+    static constexpr int REVISION_VERSION = 11;
 
     QSharedPointer<SessionStatus> sessionStatus_;
 

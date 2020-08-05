@@ -94,7 +94,7 @@ void SearchLineEditItem::updateScaling()
     updatePositions();
 }
 
-void SearchLineEditItem::focusInEvent(QFocusEvent *event)
+void SearchLineEditItem::focusInEvent(QFocusEvent * /*event*/)
 {
     emit focusIn();
 }

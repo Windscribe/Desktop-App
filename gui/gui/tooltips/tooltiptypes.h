@@ -59,7 +59,9 @@ struct TooltipInfo {
     TooltipType type;
     int delay;
 
-    TooltipInfo(TooltipType type, TooltipId id) : id(id), type(type), delay(-1) { }
+    TooltipInfo(TooltipType type, TooltipId id)
+        : id(id), x(0), y(0), tailtype(TOOLTIP_TAIL_NONE), tailPosPercent(0), width(0), type(type),
+          delay(-1) {}
 };
 
 inline bool operator==(const TooltipInfo& lhs, const TooltipInfo& rhs)

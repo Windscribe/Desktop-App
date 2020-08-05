@@ -64,8 +64,8 @@ private:
     };
 
     QHash<QString, CounterDescr> counters_;
-    const int TIMER_INTERVAL_FOR_CONNECTING_MODE = 1000;
-    const int TIMER_INTERVAL_FOR_CONNECTED_MODE = 5000;
+    static constexpr int TIMER_INTERVAL_FOR_CONNECTING_MODE = 1000;
+    static constexpr int TIMER_INTERVAL_FOR_CONNECTED_MODE = 5000;
     QTimer timer_;
 
     void startInConnectingState();

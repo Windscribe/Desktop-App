@@ -43,7 +43,7 @@ public:
     QString getHashString() const;
 
 private:
-    const int EMPTY_LOCATION = -100;
+    static constexpr int EMPTY_LOCATION = -100;
     int locationId_;
     QString city_;
 };

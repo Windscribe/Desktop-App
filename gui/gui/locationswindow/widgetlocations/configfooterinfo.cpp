@@ -11,11 +11,10 @@
 ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
   , pressed_(false)
   , text_(tr("Add Config Location"))
+  , font_(*FontManager::instance().getFont(16, true))
+  , curTextOpacity_(0.5)
+  , curIconOpacity_(OPACITY_UNHOVER_ICON_TEXT)
 {
-    font_ = *FontManager::instance().getFont(16, true);
-    curTextOpacity_ = 0.5;
-    curIconOpacity_ = OPACITY_UNHOVER_ICON_TEXT;
-
     connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextOpacityChanged(QVariant)));
     connect(&iconOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onIconOpacityChanged(QVariant)));
 }

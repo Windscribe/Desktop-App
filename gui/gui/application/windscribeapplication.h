@@ -19,9 +19,9 @@ class WindscribeApplication : public QApplication
 public:
     explicit WindscribeApplication(int &argc, char **argv);
 
-    static WindscribeApplication * instance()
+    static WindscribeApplication *instance()
     {
-        return (WindscribeApplication *)qApp->instance();
+        return static_cast<WindscribeApplication *>(qApp->instance());
     }
 
     void onClickOnDock();

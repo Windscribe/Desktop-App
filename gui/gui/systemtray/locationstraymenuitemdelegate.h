@@ -13,9 +13,8 @@ public:
     void setFontForItems(const QFont &font);
 
 protected:
-    virtual void paint(QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index) const;
-    virtual QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
+    void paint(QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:
     QFont font_;

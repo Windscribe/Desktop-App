@@ -8,7 +8,7 @@ namespace GuiLocations {
 class CursorUpdateHelper
 {
 public:
-    CursorUpdateHelper(QWidget *widget);
+    explicit CursorUpdateHelper(QWidget *widget);
 
     void setForbiddenCursor();
     void setPointingHandCursor();

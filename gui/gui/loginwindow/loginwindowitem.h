@@ -25,37 +25,37 @@ class LoginWindowItem : public ScalableGraphicsObject, public ILoginWindow
 public:
     explicit LoginWindowItem(QGraphicsObject *parent = nullptr);
 
-    QGraphicsObject *getGraphicsObject();
-    virtual void setErrorMessage(ERROR_MESSAGE_TYPE errorMessage);
-    virtual void setEmergencyConnectState(bool isEmergencyConnected);
+    QGraphicsObject *getGraphicsObject() override;
+    void setErrorMessage(ERROR_MESSAGE_TYPE errorMessage) override;
+    void setEmergencyConnectState(bool isEmergencyConnected) override;
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void resetState();
+    void resetState() override;
 
-    void setClickable(bool enabled);
+    void setClickable(bool enabled) override;
     void updateEmergencyConnect();
 
     void hideUsernamePassword();
     void showUsernamePassword();
     void showYesNo();
 
-    void transitionToUsernameScreen();
-    void setFirewallTurnOffButtonVisibility(bool visible);
-    virtual void updateScaling();
+    void transitionToUsernameScreen() override;
+    void setFirewallTurnOffButtonVisibility(bool visible) override;
+    void updateScaling() override;
 
 public slots:
     void onTooltipButtonHoverLeave();
 
 signals:
-    void minimizeClick();
-    void closeClick();
-    void preferencesClick();
-    void emergencyConnectClick();
-    void externalConfigModeClick();
-    void loginClick(const QString &username, const QString &password);
-    void haveAccountYesClick();
+    void minimizeClick() override;
+    void closeClick() override;
+    void preferencesClick() override;
+    void emergencyConnectClick() override;
+    void externalConfigModeClick() override;
+    void loginClick(const QString &username, const QString &password) override;
+    void haveAccountYesClick() override;
     void showTooltip(TooltipInfo data);
     void hideTooltip(TooltipId id);
     void firewallTurnOffClick();
@@ -113,9 +113,9 @@ private slots:
     void updatePositions();
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    bool sceneEvent(QEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    bool sceneEvent(QEvent *event) override;
 
 private:
     void attemptLogin();
@@ -176,33 +176,33 @@ private:
 
     bool emergencyConnectOn_;
 
-    const int HEADER_HEIGHT               = 71;
+    static constexpr int HEADER_HEIGHT               = 71;
 
-    const int Y_COORD_YES_BUTTON          = 160;
-    const int Y_COORD_NO_BUTTON           = 210;
-    const int Y_COORD_YES_LINE            = 194;
-    const int Y_COORD_NO_LINE             = 244;
+    static constexpr int Y_COORD_YES_BUTTON          = 160;
+    static constexpr int Y_COORD_NO_BUTTON           = 210;
+    static constexpr int Y_COORD_YES_LINE            = 194;
+    static constexpr int Y_COORD_NO_LINE             = 244;
 
-    const int EMERGENCY_CONNECT_TEXT_WIDTH = 125;
-    const int EMERGENCY_CONNECT_TEXT_POS_Y = 282;
+    static constexpr int EMERGENCY_CONNECT_TEXT_WIDTH = 125;
+    static constexpr int EMERGENCY_CONNECT_TEXT_POS_Y = 282;
 
-    const int BADGE_HEIGHT_BIG     = 40;
-    const int BADGE_WIDTH_BIG      = 40;
+    static constexpr int BADGE_HEIGHT_BIG     = 40;
+    static constexpr int BADGE_WIDTH_BIG      = 40;
 
-    const int BADGE_SMALL_POS_X    = 45;
-    const int BADGE_SMALL_POS_Y    = 54;
+    static constexpr int BADGE_SMALL_POS_X    = 45;
+    static constexpr int BADGE_SMALL_POS_Y    = 54;
 
-    const int LOGIN_TEXT_HEIGHT    = 32;
+    static constexpr int LOGIN_TEXT_HEIGHT    = 32;
 
-    const int FORGOT_POS_Y_DEFAULT = 240;
-    const int FORGOT_POS_Y_ERROR   = 280;
+    static constexpr int FORGOT_POS_Y_DEFAULT = 240;
+    static constexpr int FORGOT_POS_Y_ERROR   = 280;
 
-    const double BADGE_SCALE_SMALL = 0.6;
-    const double BADGE_SCALE_LARGE = 1.0;
+    static constexpr double BADGE_SCALE_SMALL = 0.6;
+    static constexpr double BADGE_SCALE_LARGE = 1.0;
 
-    const int LINE_EDIT_POS_Y_INVISIBLE = -50;
-    const int USERNAME_POS_Y_VISIBLE = 92;
-    const int PASSWORD_POS_Y_VISIBLE = 164;
+    static constexpr int LINE_EDIT_POS_Y_INVISIBLE = -50;
+    static constexpr int USERNAME_POS_Y_VISIBLE = 92;
+    static constexpr int PASSWORD_POS_Y_VISIBLE = 164;
 
 };
 

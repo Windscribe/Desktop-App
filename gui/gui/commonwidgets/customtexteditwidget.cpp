@@ -285,8 +285,9 @@ int CustomTextEditWidget::lastVisibleLine()
 
 int CustomTextEditWidget::lineHeight()
 {
+#if 1
     return CommonGraphics::textHeight(font()) + 1;
-
+#else
     int result = 1;
     QTextDocument *doc = document();
     if (doc != nullptr)
@@ -300,6 +301,7 @@ int CustomTextEditWidget::lineHeight()
     }
 
     return result;
+#endif
 }
 
 void CustomTextEditWidget::updateScaling()

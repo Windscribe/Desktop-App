@@ -9,10 +9,8 @@
 namespace ConnectWindow {
 
 MiddleItem::MiddleItem(ScalableGraphicsObject *parent, const QString &ipAddress) : ScalableGraphicsObject(parent),
-    ipAddress_(ipAddress), isSecured_(false)
+    ipAddress_(ipAddress), isSecured_(false), curTextColor_(Qt::white)
 {
-    curTextColor_ = Qt::white;
-
     ipAddressItem_ = new IPAddressItem(this);
     connect(ipAddressItem_, SIGNAL(needUpdate()), SLOT(onUpdate()));
 

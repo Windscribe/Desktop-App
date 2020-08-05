@@ -14,10 +14,8 @@ QRectF BasePage::boundingRect() const
     return QRectF(0, 0, PAGE_WIDTH*G_SCALE, height_);
 }
 
-void BasePage::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void BasePage::paint(QPainter * /*painter*/, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
 }
 
 int BasePage::currentPosY() const

@@ -9,10 +9,8 @@
 namespace PreferencesWindow {
 
 AppIncludedItem::AppIncludedItem(ProtoTypes::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent) : BaseItem (parent, 50)
-    , appIcon_(iconPath)
+    , appIcon_(iconPath), app_(app)
 {
-    app_ = app;
-
     deleteButton_ = new IconButton(16, 16, "preferences/DELETE_ICON", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
     deleteButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     deleteButton_->setHoverOpacity(OPACITY_FULL);

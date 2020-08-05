@@ -20,10 +20,10 @@ class BubbleButtonDark : public ClickableGraphicsObject
     Q_PROPERTY(QColor fillColor READ fillColor WRITE setFillColor)
     Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
 public:
-    explicit BubbleButtonDark(ScalableGraphicsObject *parent, int width, int height, int arcWidth, int arcHeight);
+    BubbleButtonDark(ScalableGraphicsObject *parent, int width, int height, int arcWidth, int arcHeight);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void animateColorChange(QColor textColor, QColor outlineColor, int animationSpeed);
     void animateOpacityChange(double newOutlineOpacity, double newTextOpacity, int animationSpeed);
@@ -51,8 +51,8 @@ private slots:
     void onFillColorChanged(const QVariant &value);
 
 protected:
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 private:
     int width_ = 108;

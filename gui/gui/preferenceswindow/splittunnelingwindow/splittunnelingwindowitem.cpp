@@ -4,7 +4,7 @@
 
 namespace PreferencesWindow {
 
-SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : BasePage(parent)
+SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : BasePage(parent)
     , currentScreen_(SPLIT_TUNNEL_SCREEN_HOME)
     , preferences_(preferences)
 {

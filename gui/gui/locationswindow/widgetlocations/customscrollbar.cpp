@@ -9,8 +9,9 @@
 namespace GuiLocations {
 
 
-CustomScrollBar::CustomScrollBar(QWidget *parent, bool bIsHidden) : QScrollBar(Qt::Vertical, parent),
-    bIsHidden_(bIsHidden), isHover_(false), curOpacity_(UNHOVER_OPACITY)
+CustomScrollBar::CustomScrollBar(QWidget *parent, bool bIsHidden)
+    : QScrollBar(Qt::Vertical, parent), bIsHidden_(bIsHidden), isHover_(false),
+      curOpacity_(UNHOVER_OPACITY), startOpacity_(0), endOpacity_(0)
 {
     connect(&opacityTimer_, SIGNAL(timeout()), SLOT(onOpacityTimer()));
 }

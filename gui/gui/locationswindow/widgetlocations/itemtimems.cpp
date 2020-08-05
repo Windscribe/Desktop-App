@@ -5,10 +5,8 @@
 
 namespace GuiLocations {
 
-ItemTimeMs::ItemTimeMs(PingTime timeMs, bool bNeedCreateTextLayout)
+ItemTimeMs::ItemTimeMs(PingTime timeMs, bool bNeedCreateTextLayout) : timeMs_(timeMs)
 {
-    timeMs_ = timeMs;
-
     if (bNeedCreateTextLayout)
     {
         recreateTextLayoutIfNeed();

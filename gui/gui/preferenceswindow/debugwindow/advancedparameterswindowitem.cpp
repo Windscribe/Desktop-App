@@ -3,7 +3,7 @@
 
 namespace PreferencesWindow {
 
-AdvancedParametersWindowItem::AdvancedParametersWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : BasePage(parent)
+AdvancedParametersWindowItem::AdvancedParametersWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : BasePage(parent)
   , preferences_(preferences)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);

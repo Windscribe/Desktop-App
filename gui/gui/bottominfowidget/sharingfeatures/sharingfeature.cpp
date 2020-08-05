@@ -10,14 +10,10 @@
 
 namespace SharingFeatures {
 
-SharingFeature::SharingFeature(QString ssidOrProxyText, QString primaryIcon, ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent)
+SharingFeature::SharingFeature(QString ssidOrProxyText, QString primaryIcon, ScalableGraphicsObject *parent)
+    : ScalableGraphicsObject(parent), primaryIcon_(primaryIcon),
+    secondaryIcon_("sharingfeatures/USERS_ICON"), number_(0), rounded_(false), curDefaultOpacity_(0)
 {
-    primaryIcon_ = primaryIcon;
-    secondaryIcon_ = "sharingfeatures/USERS_ICON";
-
-    number_ = 0;    
-    rounded_ = false;
-
     textIconButton_ = new CommonGraphics::TextIconButton(SPACE_BETWEEN_TEXT_AND_ARROW, ssidOrProxyText, "sharingfeatures/FRWRD_ARROW_ICON", this, false);
     textIconButton_->setCursor(Qt::PointingHandCursor);
 

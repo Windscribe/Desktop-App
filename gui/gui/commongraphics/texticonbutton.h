@@ -13,9 +13,8 @@ class TextIconButton : public ClickableGraphicsObject
     Q_OBJECT
 public:
     TextIconButton(int spacerWidth, const QString text, const QString &imagePath, ScalableGraphicsObject *parent, bool bSetClickable);
-    virtual QRectF boundingRect() const;
-
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setFont(const FontDescr &fontDescr);
 
@@ -27,7 +26,7 @@ public:
     int getWidth();
     int getHeight();
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
     void setOpacityByFactor(double opacityFactor);
 
@@ -36,8 +35,8 @@ signals:
     void heightChanged(int newHeight);
 
 protected:
-    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 private slots:
     void onTextOpacityChanged(const QVariant &value);
@@ -64,10 +63,9 @@ private:
     QVariantAnimation textOpacityAnimation_;
     QVariantAnimation iconOpacityAnimation_;
 
-    const int MARGIN_X = 0;
-    const int MARGIN_Y = 0;
-
-    const int PIXMAP_WIDTH = 16;
+    static constexpr int MARGIN_X = 0;
+    static constexpr int MARGIN_Y = 0;
+    static constexpr int PIXMAP_WIDTH = 16;
 };
 
 }

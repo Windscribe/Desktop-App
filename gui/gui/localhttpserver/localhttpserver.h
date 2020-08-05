@@ -12,7 +12,7 @@ class LocalHttpServer : public QObject
     Q_OBJECT
 public:
     explicit LocalHttpServer(QObject *parent, const LocalHttpServerCallback &callbackCommand);
-    virtual ~LocalHttpServer();
+    ~LocalHttpServer() override;
 
     void startServer();
 

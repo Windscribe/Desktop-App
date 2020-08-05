@@ -42,7 +42,7 @@ private slots:
 private:
     int width_;
     int height_;
-    const int SCROLL_BAR_GAP = 2;
+    static constexpr int SCROLL_BAR_GAP = 2;
 
     int lastWidgetPos_;
     IScrollableWidget *centralWidget_;

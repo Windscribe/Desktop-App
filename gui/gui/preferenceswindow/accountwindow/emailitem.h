@@ -14,13 +14,13 @@ class EmailItem : public BaseItem
 public:
     explicit EmailItem(ScalableGraphicsObject *parent);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setEmail(const QString &email);
     void setNeedConfirmEmail(bool b);
     void setConfirmEmailResult(bool bSuccess);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void sendEmailClick();

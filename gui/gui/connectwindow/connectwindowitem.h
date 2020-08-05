@@ -27,36 +27,36 @@ class ConnectWindowItem : public ScalableGraphicsObject, public IConnectWindow
 public:
     explicit ConnectWindowItem(QGraphicsObject  *parent = nullptr);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual QGraphicsObject *getGraphicsObject();
+    QGraphicsObject *getGraphicsObject() override;
 
-    virtual void setClickable(bool isClickable);
+    void setClickable(bool isClickable) override;
 
-    virtual QRegion getMask();
-    virtual QPixmap getShadowPixmap();
+    QRegion getMask() override;
+    QPixmap getShadowPixmap() override;
 
-    virtual void setConnectionTimeAndData(QString connectionTime, QString dataTransferred);
-    virtual void setFirewallAlwaysOn(bool isFirewallAlwaysOn);
-    virtual void setFirewallBlock(bool isFirewallBlocked);
-    void setTestTunnelResult(bool success);
+    void setConnectionTimeAndData(QString connectionTime, QString dataTransferred) override;
+    void setFirewallAlwaysOn(bool isFirewallAlwaysOn) override;
+    void setFirewallBlock(bool isFirewallBlocked) override;
+    void setTestTunnelResult(bool success) override;
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 public slots:
-    virtual void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isFavorite);
-    virtual void updateLocationSpeed(LocationID id, PingTime speed);
-    virtual void updateConnectState(const ProtoTypes::ConnectState & newConnectState);
-    virtual void updateFirewallState(bool isFirewallEnabled);
-    virtual void updateLocationsState(bool isExpanded);
-    virtual void updateFavoriteState(LocationID id, bool isFavorite);
-    virtual void updateMyIp(const QString &ip);
-    virtual void updateNotificationsState(int totalMessages, int unread);
-    void updateNetworkState(ProtoTypes::NetworkInterface network);
-    void setSplitTunnelingState(bool on);
-    void setInternetConnectivity(bool connectivity);
-    void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port);
+    void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isFavorite) override;
+    void updateLocationSpeed(LocationID id, PingTime speed) override;
+    void updateConnectState(const ProtoTypes::ConnectState & newConnectState) override;
+    void updateFirewallState(bool isFirewallEnabled) override;
+    void updateLocationsState(bool isExpanded) override;
+    void updateFavoriteState(LocationID id, bool isFavorite) override;
+    void updateMyIp(const QString &ip) override;
+    void updateNotificationsState(int totalMessages, int unread) override;
+    void updateNetworkState(ProtoTypes::NetworkInterface network) override;
+    void setSplitTunnelingState(bool on) override;
+    void setInternetConnectivity(bool connectivity) override;
+    void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port) override;
 
     void onNetworkHoverEnter();
     void onNetworkHoverLeave();
@@ -70,17 +70,17 @@ public slots:
     void onServerRatingIndicatorHoverLeave();
 
 signals:
-    void minimizeClick();
-    void closeClick();
-    void preferencesClick();
-    void connectClick();
-    void firewallClick();
-    void locationsClick();
-    void notificationsClick();
+    void minimizeClick() override;
+    void closeClick() override;
+    void preferencesClick() override;
+    void connectClick() override;
+    void firewallClick() override;
+    void locationsClick() override;
+    void notificationsClick() override;
     void networkButtonClick();
     void splitTunnelingButtonClick();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId type);
+    void showTooltip(TooltipInfo info) override;
+    void hideTooltip(TooltipId type) override;
 
 private:
     IconButton *minimizeButton_;

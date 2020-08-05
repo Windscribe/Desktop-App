@@ -15,16 +15,16 @@ class UpdateAppItem : public ScalableGraphicsObject, public IUpdateAppItem
 public:
     explicit UpdateAppItem(QGraphicsObject *parent = nullptr);
 
-    virtual QGraphicsObject * getGraphicsObject();
+    QGraphicsObject *getGraphicsObject() override;
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void setVersionAvailable(const QString &versionNumber);
-    virtual void setProgress(int value); // from 0 to 100
+    void setVersionAvailable(const QString &versionNumber) override;
+    void setProgress(int value) override; // from 0 to 100
 
-    virtual QPixmap getCurrentPixmapShape();
-    virtual void updateScaling();
+    QPixmap getCurrentPixmapShape() override;
+    void updateScaling() override;
 
 signals:
     void updateClick();
@@ -49,8 +49,8 @@ private:
     bool inProgress_;
     QString curVersionText_;
 
-    const int WIDTH = 230;
-    const int HEIGHT = 20;
+    static constexpr int WIDTH = 230;
+    static constexpr int HEIGHT = 20;
 
     double curBackgroundOpacity_;
     double curVersionOpacity_;
@@ -66,7 +66,7 @@ private:
     int curProgressBarPos_;  //  0.0 -> 1.0
     QVariantAnimation progressBarPosChangeAnimation_;
 
-    const int VERSION_TEXT_HEIGHT = 14;
+    static constexpr int VERSION_TEXT_HEIGHT = 14;
 
     void updatePositions();
 };

@@ -43,7 +43,7 @@ private:
     bool isDisconnectClicked_;
     NetworkExtensionLog_mac networkExtensionLog_;
 
-    const int STATISTICS_UPDATE_PERIOD = 1000;
+    static constexpr int STATISTICS_UPDATE_PERIOD = 1000;
     QTimer statisticsTimer_;
     QString ipsecAdapterName_;
 

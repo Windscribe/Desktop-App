@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="1">
     <builddir>build-cppcheck</builddir>
+    <platform>Unspecified</platform>
     <analyze-all-vs-configs>false</analyze-all-vs-configs>
     <check-headers>true</check-headers>
     <check-unused-templates>false</check-unused-templates>
     <max-ctu-depth>10</max-ctu-depth>
     <paths>
         <dir name="backend/engine"/>
+        <dir name="gui/gui"/>
     </paths>
     <libraries>
         <library>boost</library>
@@ -25,5 +27,6 @@
         <suppression>redundantInitialization</suppression>
         <suppression>redundantAssignment</suppression>
         <suppression>constParameter</suppression>
+        <suppression>knownConditionTrueFalse</suppression>
     </suppressions>
 </project>

@@ -16,8 +16,8 @@ class SharingFeature : public ScalableGraphicsObject
 public:
     explicit SharingFeature(QString ssidOrProxyText, QString primaryIcon, ScalableGraphicsObject *parent = nullptr);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setText(QString text);
     void setPrimaryIcon(QString iconPath);
@@ -29,9 +29,9 @@ public:
 
     void setRounded(bool rounded);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
-    static const int HEIGHT = 48;
+    static constexpr int HEIGHT = 48;
 
 signals:
     void clicked();
@@ -50,15 +50,14 @@ private:
 
     bool rounded_;
 
-    const int WIDTH = 332;
+    static constexpr int WIDTH = 332;
 
-    const int DIVIDER_POS_X = 56;
-    const int SECONDARY_ICON_POS_X = DIVIDER_POS_X + 16;
-    const int USER_NUMBER_POS_X = SECONDARY_ICON_POS_X + 16 + 8;
+    static constexpr int DIVIDER_POS_X = 56;
+    static constexpr int SECONDARY_ICON_POS_X = DIVIDER_POS_X + 16;
+    static constexpr int USER_NUMBER_POS_X = SECONDARY_ICON_POS_X + 16 + 8;
+    static constexpr int SPACE_BETWEEN_TEXT_AND_ARROW = 3;
 
     double curDefaultOpacity_;
-
-    const int SPACE_BETWEEN_TEXT_AND_ARROW = 3;
 
     void updatePositions();
 

@@ -11,9 +11,9 @@ class MultipleAccountDetection_mac : public IMultipleAccountDetection
 public:
     MultipleAccountDetection_mac();
 
-    virtual void userBecomeExpired(const QString &username);
-    virtual bool entryIsPresent(QString &username);
-    virtual void removeEntry();
+    void userBecomeExpired(const QString &username) override;
+    bool entryIsPresent(QString &username) override;
+    void removeEntry() override;
 
 private:
     struct TEntry

@@ -24,7 +24,7 @@ public:
     int visibleItems();
     int itemHeight();
 
-    void addItem(QString text, const QVariant &data);
+    void addItem(QString text, const QVariant &item_data);
     void removeItem(int index);
     void clearItems();
 
@@ -38,7 +38,7 @@ public:
     void updateScaling();
 
 signals:
-    void itemClicked(QString text, QVariant data);
+    void itemClicked(QString text, QVariant item_data);
     void hidden();
     void requestScalingUpdate();
     void sizeChanged(int width, int height);
@@ -59,11 +59,11 @@ private slots:
 
 private:
     //QFont font_;
-    const int SPACER_SIZE = 7;
+    static constexpr int SPACER_SIZE = 7;
+    static constexpr int ROUNDED_CORNER = 7;
 
     // background
     QRect roundedBackgroundRect_;
-    const int roundedCorner_;
 
     VerticalScrollBarWidget *scrollBar_;
 
@@ -81,8 +81,8 @@ private:
     int sideMargin();
     int largestButtonWidth();
 
-    const int SHADOW_SIZE = 4;
-    const int STEP_SIZE = 38;
+    static constexpr int SHADOW_SIZE = 4;
+    static constexpr int STEP_SIZE = 38;
     int MAX_ITEMS_SHOWING = 5;
     int maxViewportHeight_ = MAX_ITEMS_SHOWING * STEP_SIZE;
 

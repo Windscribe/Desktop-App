@@ -15,7 +15,7 @@ class BubbleButtonBright : public ClickableGraphicsObject
 {
     Q_OBJECT
 public:
-    explicit BubbleButtonBright(ScalableGraphicsObject *parent, int width, int height, int arcWidth, int arcHeight);
+    BubbleButtonBright(ScalableGraphicsObject *parent, int width, int height, int arcWidth, int arcHeight);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;

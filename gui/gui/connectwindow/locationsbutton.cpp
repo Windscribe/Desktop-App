@@ -12,22 +12,17 @@
 namespace ConnectWindow {
 
 LocationsButton::LocationsButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent),
-    arrowRotation_(0), isExpanded_(false)
-{
-
-    curTextColor_ = Qt::white;
-
+    arrowRotation_(0), backgroundDarkOpacity_(OPACITY_FULL),
+    backgroundLightOpacity_(OPACITY_HIDDEN),
 #ifdef Q_OS_WIN
-    backgroundDark_ = "background/WIN_LOCATION_BUTTON_BG_DARK";
-    backgroundLight_ = "background/WIN_LOCATION_BUTTON_BG_BRIGHT";
+    backgroundDark_("background/WIN_LOCATION_BUTTON_BG_DARK"),
+    backgroundLight_("background/WIN_LOCATION_BUTTON_BG_BRIGHT"),
 #else
-    backgroundDark_ = "background/MAC_LOCATION_BUTTON_BG_DARK";
-    backgroundLight_ = "background/MAC_LOCATION_BUTTON_BG_BRIGHT";
+    backgroundDark_("background/MAC_LOCATION_BUTTON_BG_DARK"),
+    backgroundLight_("background/MAC_LOCATION_BUTTON_BG_BRIGHT"),
 #endif
-
-    backgroundDarkOpacity_ = OPACITY_FULL;
-    backgroundLightOpacity_ = OPACITY_HIDDEN;
-
+    curTextColor_(Qt::white), isExpanded_(false)
+{
     arrowItem_ = new ImageItem("ARROW_DOWN_WHITE", this);
     //arrowItem_->setTransformationMode(Qt::SmoothTransformation);
     arrowItem_->setOpacity(0.5);

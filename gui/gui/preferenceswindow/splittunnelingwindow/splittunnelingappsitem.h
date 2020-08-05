@@ -16,7 +16,7 @@ class SplitTunnelingAppsItem : public BaseItem
 public:
     explicit SplitTunnelingAppsItem(ScalableGraphicsObject *parent);
     ~SplitTunnelingAppsItem();
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     QList<ProtoTypes::SplitTunnelingApp> getApps();
     void setApps(QList<ProtoTypes::SplitTunnelingApp> processNames);
@@ -25,7 +25,7 @@ public:
     void attemptDelete(AppIncludedItem *appItem);
 
     void attemptAdd();
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void escape();
@@ -36,7 +36,7 @@ signals:
     void scrollToRect(QRect r);
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onAppDeleteClicked();

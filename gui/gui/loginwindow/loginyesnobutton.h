@@ -17,8 +17,8 @@ public:
 
     explicit LoginYesNoButton(QString text, ScalableGraphicsObject * parent = nullptr);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setText(QString text);
 
@@ -34,8 +34,8 @@ signals:
     void deactivated();
 
 protected:
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 private slots:
     void onTextHoverOpacityChanged(const QVariant &value);
@@ -58,8 +58,8 @@ private:
     int curTextPosX_;
     QVariantAnimation textPosXAnimation_;
 
-    const int MARGIN_UNHOVER_TEXT_PX = 16;
-    const int MARGIN_HOVER_TEXT_PX   = 24;
+    static constexpr int MARGIN_UNHOVER_TEXT_PX = 16;
+    static constexpr int MARGIN_HOVER_TEXT_PX   = 24;
 };
 
 } // namespace LoginWindow

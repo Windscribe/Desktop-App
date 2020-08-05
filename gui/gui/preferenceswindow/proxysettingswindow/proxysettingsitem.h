@@ -33,14 +33,14 @@ private slots:
     void onUsernameChanged(const QString &text);
     void onPasswordChanged(const QString &text);
 
-    void onLanguageChanged() override;
+    void onLanguageChanged();
 
 protected:
     void hideOpenPopups() override;
 
 private:
-    const int COLLAPSED_HEIGHT = 93;
-    const int EXPANDED_HEIGHT = 93 + 43 * 4;
+    static constexpr int COLLAPSED_HEIGHT = 93;
+    static constexpr int EXPANDED_HEIGHT = 93 + 43 * 4;
 
     ComboBoxItem *comboBoxProxyType_;
     QVariantAnimation expandEnimation_;

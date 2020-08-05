@@ -13,8 +13,8 @@ class LogoNotificationsButton : public ClickableGraphicsObject
 public:
     explicit LogoNotificationsButton(ScalableGraphicsObject * parent = nullptr);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setCountState(int countAll, int countUnread);
 
@@ -23,19 +23,19 @@ private slots:
     void onHoverLeave();
 
 private:
-    const int WIDTH = 140;
-    const int HEIGHT = 36;
+    static constexpr int WIDTH = 140;
+    static constexpr int HEIGHT = 36;
 
     QColor numberColor_;
     QColor backgroundFillColor_;
     QColor backgroundOutlineColor_;
 
-    const qreal OPACITY_ALL_READ = .24;
+    static constexpr qreal OPACITY_ALL_READ = .24;
     qreal curBackgroundOpacity_;
 
     QString numNotifications_;
 
-    const int MARGIN = 4;
+    static constexpr int MARGIN = 4;
 
     int unread_;
 };

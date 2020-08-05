@@ -13,8 +13,8 @@ class CheckBoxButton : public ClickableGraphicsObject
 public:
     explicit CheckBoxButton(ScalableGraphicsObject *parent = nullptr);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setState(bool isChecked);
     bool isChecked() const;
@@ -26,9 +26,9 @@ signals:
 
 
 protected:
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 private slots:
     void onOpacityChanged(const QVariant &value);

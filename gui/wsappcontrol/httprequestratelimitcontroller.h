@@ -10,9 +10,9 @@ public:
     bool isRightRequest();
 
 private:
-    const int PERIOD_MS = 1000;
-    const size_t MAX_REQUEST_PER_PERIOD = 3;
-	std::mutex mutex_;
+    static constexpr int PERIOD_MS = 1000;
+    static constexpr size_t MAX_REQUEST_PER_PERIOD = 3;
+    std::mutex mutex_;
     std::vector<int64_t > last3Times_;
 
     int64_t getCurTime();

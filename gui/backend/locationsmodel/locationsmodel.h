@@ -46,7 +46,7 @@ public:
     void setFreeSessionStatus(bool isFreeSessionStatus);
     void changeConnectionSpeed(LocationID id, PingTime speed);
 
-    LocationID getLocationIdByName(const QString &location);
+    LocationID getLocationIdByName(const QString &location) const;
 
 signals:
     void locationSpeedChanged(LocationID id, PingTime speed);

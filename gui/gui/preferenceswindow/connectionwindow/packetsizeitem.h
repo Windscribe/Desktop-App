@@ -19,11 +19,11 @@ class PacketSizeItem : public BaseItem
 public:
     explicit PacketSizeItem(ScalableGraphicsObject *parent);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void setPacketSize(const ProtoTypes::PacketSize &ps);
     void setPacketSizeDetectionState(bool on);
 
-    void updateScaling();
+    void updateScaling() override;
 
 signals:
     void packetSizeChanged(const ProtoTypes::PacketSize &ps);
@@ -40,8 +40,8 @@ private slots:
     void onAutoDetectAndGenerateHoverLeave();
 
 private:
-    const int COLLAPSED_HEIGHT = 50;
-    const int EXPANDED_HEIGHT = 50 + 43;
+    static constexpr int COLLAPSED_HEIGHT = 50;
+    static constexpr int EXPANDED_HEIGHT = 50 + 43;
 
     AutoManualSwitchItem *switchItem_;
     MssEditBoxItem *editBoxMSS_;

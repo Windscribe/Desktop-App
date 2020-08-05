@@ -45,7 +45,7 @@ private:
     IcsManager *icsManager_;
 
     QTimer timerForUpdateIcsDisconnected_;
-    const int DELAY_FOR_UPDATE_ICS_DISCONNECTED = 10000;
+    static constexpr int DELAY_FOR_UPDATE_ICS_DISCONNECTED = 10000;
 
     enum {STATE_CONNECTING_CONNECTED, STATE_DISCONNECTED};
     int sharingState_;

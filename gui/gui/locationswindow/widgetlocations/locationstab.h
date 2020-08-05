@@ -82,9 +82,9 @@ private:
     CurTabEnum curTab_;
     CurTabEnum tabPress_;
 
-    const int TOP_TAB_HEIGHT = 50;
-    const int ANIMATION_DURATION = 150;
-    const int WHITE_LINE_WIDTH = 18;
+    static constexpr int TOP_TAB_HEIGHT = 50;
+    static constexpr int ANIMATION_DURATION = 150;
+    static constexpr int WHITE_LINE_WIDTH = 18;
 
     QRect rcAllLocationsIcon_;
     QRect rcConfiguredLocationsIcon_;

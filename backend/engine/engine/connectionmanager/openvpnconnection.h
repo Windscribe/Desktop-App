@@ -37,8 +37,8 @@ private slots:
     void onKillControllerTimer();
 
 private:
-    const int DEFAULT_PORT = 9544;
-    const int MAX_WAIT_OPENVPN_ON_START = 20000;
+    static constexpr int DEFAULT_PORT = 9544;
+    static constexpr int MAX_WAIT_OPENVPN_ON_START = 20000;
 
     std::atomic<bool> bStopThread_;
 
@@ -110,7 +110,7 @@ private:
     QString tapAdapter_;
     QMutex tapAdapterMutex_;
 
-    const int KILL_TIMEOUT = 10000;
+    static constexpr int KILL_TIMEOUT = 10000;
     QTimer killControllerTimer_;
 
     void funcRunOpenVPN();

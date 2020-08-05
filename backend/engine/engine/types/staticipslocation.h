@@ -58,7 +58,7 @@ public:
     QSharedPointer<ServerLocation> makeServerLocation();
 
 private:
-    const int REVISION_VERSION = 1;
+    static constexpr int REVISION_VERSION = 1;
 
     QString deviceName_;
     QVector<StaticIpDescr> ips_;

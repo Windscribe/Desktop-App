@@ -29,14 +29,14 @@ private slots:
     void onFirewallWhenChanged(QVariant v);
     void onExpandAnimationValueChanged(const QVariant &value);
 
-    void onLanguageChanged() override;
+    void onLanguageChanged();
 
 protected:
     void hideOpenPopups() override;
 
 private:
-    const int COLLAPSED_HEIGHT = 50;
-    const int EXPANDED_HEIGHT = 131;
+    static constexpr int COLLAPSED_HEIGHT = 50;
+    static constexpr int EXPANDED_HEIGHT = 131;
 
     ComboBoxItem *comboBoxFirewallMode_;
     ComboBoxItem *comboBoxFirewallWhen_;

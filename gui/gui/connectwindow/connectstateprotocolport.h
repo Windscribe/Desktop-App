@@ -62,9 +62,9 @@ private:
     void recalcSize();
     void updateStateDisplay(ProtoTypes::ConnectState newConnectState);
 
-    const int badgeProtocolPadding = 10;
-    const int protocolSeparatorPadding = 7;
-    const int separatorPortPadding = 8;
+    static constexpr int badgeProtocolPadding = 10;
+    static constexpr int protocolSeparatorPadding = 7;
+    static constexpr int separatorPortPadding = 8;
 
     bool receivedTunnelTestResult_;
     QTimer protocolTestTunnelTimer_;

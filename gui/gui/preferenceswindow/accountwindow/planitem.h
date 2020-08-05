@@ -23,7 +23,7 @@ signals:
     void upgradeClicked();
 
 private slots:
-    void onLanguageChanged() override;
+    void onLanguageChanged();
 
 private:
     CommonGraphics::TextButton *textButton_;

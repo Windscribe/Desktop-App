@@ -9,12 +9,11 @@
 
 namespace UpdateApp {
 
-
-UpdateAppItem::UpdateAppItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent)
+UpdateAppItem::UpdateAppItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent),
+    inProgress_(false), curVersionText_(""), curBackgroundOpacity_(OPACITY_FULL),
+    curVersionOpacity_(OPACITY_FULL), curProgressBackgroundOpacity_(OPACITY_HIDDEN),
+    curProgressForegroundOpacity_(OPACITY_HIDDEN), curProgressBarPos_(0)
 {
-    inProgress_ = false;
-    curVersionText_ = "";
-
     QString updateText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "UPDATE");
     updateButton_ = new CommonGraphics::TextButton(updateText, FontDescr(11, true, 105, UPDATE_WIDGET_SPACING),
                                                    Qt::white, true, this, 15);
@@ -22,12 +21,6 @@ UpdateAppItem::UpdateAppItem(QGraphicsObject *parent) : ScalableGraphicsObject(p
     connect(updateButton_, SIGNAL(clicked()), SLOT(onUpdateClick()));
 
     updateButton_->animateShow(ANIMATION_SPEED_FAST);
-
-    curProgressBarPos_ = 0;
-    curBackgroundOpacity_ = OPACITY_FULL;
-    curVersionOpacity_ = OPACITY_FULL;
-    curProgressBackgroundOpacity_ = OPACITY_HIDDEN;
-    curProgressForegroundOpacity_ = OPACITY_HIDDEN;
 
     // Update button text-hover-button (hideable)
     connect(&backgroundOpacityAnimation_        , SIGNAL(valueChanged(QVariant)), this, SLOT(onBackgroundOpacityChanged(QVariant)));

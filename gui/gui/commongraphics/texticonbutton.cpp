@@ -11,17 +11,12 @@
 namespace CommonGraphics {
 
 TextIconButton::TextIconButton(int spacerWidth, const QString text, const QString &imagePath, ScalableGraphicsObject *parent, bool bSetClickable) : ClickableGraphicsObject(parent),
+    width_(0), height_(0), spacerWidth_(spacerWidth), iconPath_(imagePath), text_(text),
+    curTextOpacity_(OPACITY_UNHOVER_TEXT), curIconOpacity_(OPACITY_UNHOVER_ICON_TEXT_DARK),
     fontDescr_(16, true)
 {
-    iconPath_ = imagePath;
-    spacerWidth_ = spacerWidth;
-    text_ = text;
-
     recalcHeight();
     recalcWidth();
-
-    curTextOpacity_ = OPACITY_UNHOVER_TEXT;
-    curIconOpacity_ = OPACITY_UNHOVER_ICON_TEXT_DARK;
 
     connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextOpacityChanged(QVariant)));
     connect(&iconOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onIconOpacityChanged(QVariant)));
@@ -157,9 +152,8 @@ void TextIconButton::recalcWidth()
 void TextIconButton::recalcHeight()
 {
     QFont *font = FontManager::instance().getFont(fontDescr_);
-    int textHeight = CommonGraphics::textHeight(*font);
 
-    int newHeight = textHeight;
+    const int newHeight = CommonGraphics::textHeight(*font);
 
     if (newHeight != height_)
     {

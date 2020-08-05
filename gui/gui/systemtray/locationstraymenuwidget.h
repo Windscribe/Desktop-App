@@ -41,11 +41,11 @@ private:
     LocationsTrayMenuButton *upButton_;
     LocationsTrayMenuButton *downButton_;
 
-    const int VISIBLE_ITEMS_COUNT = 20;
-    const int USER_ROLE_ENABLED = Qt::UserRole + 1;
-    const int USER_ROLE_ID = Qt::UserRole + 2;
-    const int USER_ROLE_ORIGINAL_NAME = Qt::UserRole + 3;
-    const int USER_ROLE_IS_PREMIUM_ONLY = Qt::UserRole + 4;
+    static constexpr int VISIBLE_ITEMS_COUNT = 20;
+    static constexpr int USER_ROLE_ENABLED = Qt::UserRole + 1;
+    static constexpr int USER_ROLE_ID = Qt::UserRole + 2;
+    static constexpr int USER_ROLE_ORIGINAL_NAME = Qt::UserRole + 3;
+    static constexpr int USER_ROLE_IS_PREMIUM_ONLY = Qt::UserRole + 4;
 
     void updateButtonsState();
     void updateBackground_mac();

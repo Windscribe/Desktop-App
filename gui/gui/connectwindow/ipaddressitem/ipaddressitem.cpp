@@ -77,7 +77,7 @@ void IPAddressItem::draw(QPainter *painter, int x, int y)
     }
 }
 
-void IPAddressItem::setScale(double scale)
+void IPAddressItem::setScale(double /*scale*/)
 {
     numbersPixmap_.rescale();
 

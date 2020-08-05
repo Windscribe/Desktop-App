@@ -9,9 +9,9 @@ class MultipleAccountDetection_win : public IMultipleAccountDetection
 {
 public:
     MultipleAccountDetection_win();
-    virtual void userBecomeExpired(const QString &username);
-    virtual bool entryIsPresent(QString &username);
-    virtual void removeEntry();
+    void userBecomeExpired(const QString &username) override;
+    bool entryIsPresent(QString &username) override;
+    void removeEntry() override;
 
 private:
     SecretValue_win secretValue_;

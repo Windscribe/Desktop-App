@@ -29,7 +29,7 @@ private:
     QString     stunelExePath_;
     bool bProcessStarted_;
 
-    const unsigned int DEFAULT_PORT = 1194;
+    static constexpr unsigned int DEFAULT_PORT = 1194;
     unsigned int portForStunnel_;
 
     bool makeConfigFile(const QString &hostname, uint port);

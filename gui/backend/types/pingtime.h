@@ -6,7 +6,7 @@ class PingTime
 {
 public:
     PingTime();
-    PingTime(int timeMs);
+    PingTime(int timeMs);  // cppcheck-suppress noExplicitConstructor
 
     static int NO_PING_INFO;
     static int PING_FAILED;

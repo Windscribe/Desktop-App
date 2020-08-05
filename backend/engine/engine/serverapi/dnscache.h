@@ -31,7 +31,7 @@ private:
         QStringList ips;
     };
 
-    const int CACHE_TIMEOUT = 60000;        // 1 min
+    static constexpr int CACHE_TIMEOUT = 60000;        // 1 min
     QMap<QString, ResolvedHostInfo> resolvedHosts_;
     QSet<QString> resolvedIps_;
 

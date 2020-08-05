@@ -16,8 +16,8 @@ class TextButton : public ClickableGraphicsObject
 public:
     explicit TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent = nullptr, int addWidth = 0);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     double getOpacity();
     void quickSetOpacity(double opacity);
@@ -38,15 +38,15 @@ public:
     void setTextAlignment(int alignment);
 
 protected:
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 private slots:
     void onTextHoverOpacityChanged(const QVariant &value);
 
 private:
-    const int MARGIN_HEIGHT = 5;
+    static constexpr int MARGIN_HEIGHT = 5;
     QString text_;
     QColor color_;
     FontDescr fontDescr_;

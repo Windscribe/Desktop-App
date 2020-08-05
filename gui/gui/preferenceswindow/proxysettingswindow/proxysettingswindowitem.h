@@ -13,7 +13,7 @@ class ProxySettingsWindowItem : public BasePage
 {
     Q_OBJECT
 public:
-    explicit ProxySettingsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
+    explicit ProxySettingsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
     QString caption();
 

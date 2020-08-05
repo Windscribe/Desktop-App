@@ -112,7 +112,7 @@ void CurrentNetworkItem::updateReadableText()
     currentNetworkCombo_->setCurrentItem(currentTrust);
 }
 
-void CurrentNetworkItem::onTrustTypeChanged(const QVariant &value)
+void CurrentNetworkItem::onTrustTypeChanged(const QVariant & /*value*/)
 {
     ProtoTypes::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(currentNetworkCombo_->labelCaption());
     network.set_trust_type(static_cast<ProtoTypes::NetworkTrustType>(currentNetworkCombo_->currentItem().toInt()));

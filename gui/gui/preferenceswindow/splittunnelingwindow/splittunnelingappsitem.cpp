@@ -169,9 +169,9 @@ void SplitTunnelingAppsItem::attemptDelete(AppIncludedItem *appItem)
             drawItemsAndUpdateHeight();
 
             // select closest item for new selection
-            QList<ClickableGraphicsObject*> selectable = selectableObjects();
-            if (index >= selectable.length()) index--;
-            if (selectable.length() >= 0)
+            const QList<ClickableGraphicsObject*> &selectable = selectableObjects();
+            if (index >= selectable.length()) index = selectable.length() - 1;
+            if (index >= 0)
             {
                 selectable[index]->setSelected(index);
             }

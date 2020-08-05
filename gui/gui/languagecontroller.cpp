@@ -49,9 +49,8 @@ QString LanguageController::getLanguage() const
     return language_;
 }
 
-LanguageController::LanguageController()
+LanguageController::LanguageController() : language_("en")
 {
-    language_ = "en";
 }
 
 LanguageController::~LanguageController()

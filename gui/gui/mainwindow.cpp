@@ -1533,10 +1533,6 @@ void MainWindow::onBackendMyIpChanged(QString ip, bool isFromDisconnectedState)
     if (isFromDisconnectedState)
     {
         PersistentState::instance().setLastExternalIp(ip);
-    }
-
-    if (isFromDisconnectedState)
-    {
         updateTrayTooltip(tr("Disconnected") + "\n" + ip);
     }
     else

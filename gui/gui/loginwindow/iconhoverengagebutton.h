@@ -13,9 +13,8 @@ class IconHoverEngageButton : public ClickableGraphicsObject
     Q_OBJECT
 public:
     explicit IconHoverEngageButton(const QString &imagePathDisabled, const QString &imagePathEnabled, ScalableGraphicsObject * parent = nullptr);
-    virtual QRectF boundingRect() const;
-
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setActive(bool active);
     bool active();
@@ -35,8 +34,8 @@ private:
 
     double unhoverOpacity();
 
-    const int WIDTH = 24;
-    const int HEIGHT = 24;
+    static constexpr int WIDTH = 24;
+    static constexpr int HEIGHT = 24;
 
     bool active_;
 

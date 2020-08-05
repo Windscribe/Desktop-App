@@ -13,7 +13,9 @@ enum TooltipShowState {
 class ITooltip : public QWidget
 {
 public:
-    ITooltip(QWidget *parent = nullptr) : QWidget(parent) {}
+    explicit ITooltip(QWidget *parent = nullptr)
+        : QWidget(parent), id_(TOOLTIP_ID_NONE), width_(0), height_(0),
+          tailType_(TOOLTIP_TAIL_NONE), tailPosPercent_(0), showState_(TOOLTIP_SHOW_STATE_INIT) {}
     virtual ~ITooltip() {}
 
     int getWidth() const;

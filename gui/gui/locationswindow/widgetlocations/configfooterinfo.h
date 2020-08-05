@@ -33,7 +33,7 @@ private:
     bool pressed_;
     QString text_;
 
-    const int HEIGHT_ = 48;
+    static constexpr int HEIGHT_ = 48;
     QFont font_;
 
     double curTextOpacity_;

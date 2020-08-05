@@ -688,13 +688,8 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
 
     indSelected_ = -1;
 
-    bool isExistStaticIpsLocation = false;
     Q_FOREACH(const LocationModelItem *lmi, items)
     {
-        if (lmi->id == LocationID::STATIC_IPS_LOCATION_ID)
-        {
-            isExistStaticIpsLocation = true;
-        }
         QVector<CityNode> cities;
         for (int i = 0; i < lmi->cities.count(); ++i)
         {

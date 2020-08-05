@@ -13,7 +13,7 @@ class SplitTunnelingAppsSearchItem : public BaseItem
     Q_OBJECT
 public:
     explicit SplitTunnelingAppsSearchItem(ScalableGraphicsObject * parent);
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     QList<ProtoTypes::SplitTunnelingApp> getApps();
     void setApps(QList<ProtoTypes::SplitTunnelingApp> apps);
@@ -23,7 +23,7 @@ public:
     void toggleAppItemActive(AppSearchItem *item);
     void updateProgramList();
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void appsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps);
@@ -32,7 +32,7 @@ signals:
     void scrollToRect(QRect r);
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onSearchTextChanged(QString text);

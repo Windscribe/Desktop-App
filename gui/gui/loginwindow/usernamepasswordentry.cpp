@@ -10,21 +10,14 @@
 
 namespace LoginWindow {
 
-UsernamePasswordEntry::UsernamePasswordEntry(QString descriptionText, bool password, ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent)
+UsernamePasswordEntry::UsernamePasswordEntry(QString descriptionText, bool password, ScalableGraphicsObject *parent)
+    : ClickableGraphicsObject(parent), curDescriptionPosY_(DESCRIPTION_POS_CLICKED),
+      descriptionText_(descriptionText), curLinePos_(0),
+      curLineActiveColor_(FontManager::instance().getMidnightColor()),
+      height_(50), width_(WINDOW_WIDTH), active_(false), curDescriptionOpacity_(OPACITY_HIDDEN),
+      curLineEditOpacity_(OPACITY_HIDDEN), curBackgroundLineOpacity_(OPACITY_UNHOVER_DIVIDER),
+      curForgroundLineOpacity_(OPACITY_FULL)
 {
-    curLinePos_ = 0;
-    width_ = WINDOW_WIDTH;
-    height_ = 50;
-
-    descriptionText_ = descriptionText;
-    curDescriptionPosY_ = DESCRIPTION_POS_CLICKED;
-    curDescriptionOpacity_ = OPACITY_HIDDEN;
-
-    curLineActiveColor_ = FontManager::instance().getMidnightColor();
-    curBackgroundLineOpacity_ = OPACITY_UNHOVER_DIVIDER;
-    curForgroundLineOpacity_ = OPACITY_FULL;
-    curLineEditOpacity_ = OPACITY_HIDDEN;
-
     connect(&descriptionPosYAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onDescriptionPosYChanged(QVariant)));
     connect(&linePosAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLinePosChanged(QVariant)));
 

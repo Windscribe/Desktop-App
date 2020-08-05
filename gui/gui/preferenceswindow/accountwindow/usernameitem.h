@@ -14,10 +14,10 @@ class UsernameItem : public BaseItem
 public:
     explicit UsernameItem(ScalableGraphicsObject *parent);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setUsername(const QString &username);
-    virtual void updateScaling();
+    void updateScaling() override;
 
 private:
     QString username_;

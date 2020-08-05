@@ -17,12 +17,12 @@ class AdvancedParametersItem : public BaseItem
 public:
     explicit AdvancedParametersItem(ScalableGraphicsObject *parent);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setAdvancedParameters(const QString &advParams);
 
     void updateWidgetPositions();
-    void updateScaling();
+    void updateScaling() override;
 
 signals:
     void advancedParametersChanged(const QString &advParms);
@@ -49,11 +49,11 @@ private:
     CommonGraphics::BubbleButtonDark *clearButton_;
     CommonGraphics::BubbleButtonBright *saveButton_;
 
-    const int TEXT_MARGIN_WIDTH = 32;
-    const int TEXT_MARGIN_HEIGHT = 32;
+    static constexpr int TEXT_MARGIN_WIDTH = 32;
+    static constexpr int TEXT_MARGIN_HEIGHT = 32;
 
-    const int RECT_MARGIN_WIDTH = 16;
-    const int RECT_MARGIN_HEIGHT = 16;
+    static constexpr int RECT_MARGIN_WIDTH = 16;
+    static constexpr int RECT_MARGIN_HEIGHT = 16;
 
     QPropertyAnimation saveTextColorAnimation_;
     QVariantAnimation saveFillOpacityAnimation_;

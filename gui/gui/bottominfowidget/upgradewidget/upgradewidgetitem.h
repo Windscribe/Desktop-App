@@ -15,10 +15,10 @@ class UpgradeWidgetItem : public ScalableGraphicsObject
 public:
     explicit UpgradeWidgetItem(ScalableGraphicsObject *parent);
 
-    virtual QGraphicsObject * getGraphicsObject() { return this; }
-    virtual QRectF boundingRect() const;
+    virtual QGraphicsObject *getGraphicsObject() { return this; }
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
     void setClickable(bool enable);
     void setWidth(int newWidth);
     QPixmap getCurrentPixmapShape();
@@ -30,7 +30,7 @@ public:
     void animateShow();
     void animateHide();
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void buttonClick();
@@ -44,10 +44,10 @@ private slots:
     void onLanguageChanged();
 
 private:
-    const qint64 TEN_GB_IN_BYTES;
-    const int LEFT_TEXT_WITH_ICON_OFFSET = 32;
-    const int LEFT_TEXT_NO_ICON_OFFSET = 8;
-    const int VERSION_TEXT_HEIGHT = 14;
+    static constexpr qint64 TEN_GB_IN_BYTES = 10737418240;
+    static constexpr int LEFT_TEXT_WITH_ICON_OFFSET = 32;
+    static constexpr int LEFT_TEXT_NO_ICON_OFFSET = 8;
+    static constexpr int VERSION_TEXT_HEIGHT = 14;
 
     int daysLeft_;
     qint64 bytesUsed_;
@@ -62,7 +62,7 @@ private:
     QColor curDataRemainingColor_;
 
     int width_ = 230;
-    const int HEIGHT_ = 22;
+    static constexpr int HEIGHT_ = 22;
 
     CommonGraphics::TextButton *textButton_;
 

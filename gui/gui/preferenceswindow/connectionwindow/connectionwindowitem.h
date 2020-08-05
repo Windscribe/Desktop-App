@@ -27,7 +27,7 @@ public:
     explicit ConnectionWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
     QString caption();
-    void updateScaling();
+    void updateScaling() override;
 
     CONNECTION_SCREEN_TYPE getScreen();
     void setScreen(CONNECTION_SCREEN_TYPE subScreen);
@@ -69,7 +69,7 @@ private slots:
     void onLanguageChanged();
 
 protected:
-    void hideOpenPopups();
+    void hideOpenPopups() override;
 
 private:
     Preferences *preferences_;

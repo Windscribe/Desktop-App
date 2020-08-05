@@ -4,7 +4,7 @@
 #include <QApplication>
 #include "dpiscalemanager.h"
 
-LocationsTrayMenuItemDelegate::LocationsTrayMenuItemDelegate(QObject *parent)
+LocationsTrayMenuItemDelegate::LocationsTrayMenuItemDelegate(QObject *parent) : QItemDelegate(parent)
 {
     QStyleOptionMenuItem opt;
     QSize sz;

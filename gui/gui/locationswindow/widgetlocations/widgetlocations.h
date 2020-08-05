@@ -28,7 +28,7 @@ class WidgetLocations : public QAbstractScrollArea, public IWidgetLocationsInfo
 
 public:
     explicit WidgetLocations(QWidget *parent);
-    virtual ~WidgetLocations() override;
+    ~WidgetLocations() override;
 
     bool cursorInViewport() override;
     bool hasSelection() override;

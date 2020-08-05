@@ -29,7 +29,7 @@ private slots:
 private:
     bool isEnabled_;
     CONNECT_STATE curConnectState_;
-    const int KEEP_ALIVE_TIMEOUT = 10000;
+    static constexpr int KEEP_ALIVE_TIMEOUT = 10000;
     QTimer timer_;
 
     struct IP_DESCR

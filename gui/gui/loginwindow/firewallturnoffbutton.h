@@ -14,9 +14,9 @@ class FirewallTurnOffButton : public ClickableGraphicsObject
 
 public:
     explicit FirewallTurnOffButton(QString text, ScalableGraphicsObject *parent = nullptr);
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                       QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+               QWidget *widget = nullptr) override;
 
     int getWidth() const { return width_; }
     int getHeight() const { return height_; }

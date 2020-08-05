@@ -14,12 +14,14 @@ namespace GuiLocations {
 
 CityItem::CityItem(IWidgetLocationsInfo *widgetLocationsInfo, const LocationID &locationId, const QString &cityName1ForShow, const QString &cityName2ForShow, const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly,
                    bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType, bool isFavorite, bool isDisabled) :
+    cityNode_(locationId, cityName1ForShow, cityName2ForShow, countryCode, timeMs,
+              bShowPremiumStarOnly, isShowLatencyMs, staticIp, staticIpType, isFavorite,
+              isDisabled),
     isSelected_(false), isCursorOverConnectionMeter_(false),
     isCursorOverCaption1Text_(false),
     isCursorOverFavouriteIcon_(false),
     widgetLocationsInfo_(widgetLocationsInfo)
 {
-    cityNode_ = CityNode(locationId, cityName1ForShow, cityName2ForShow, countryCode, timeMs, bShowPremiumStarOnly, isShowLatencyMs, staticIp, staticIpType, isFavorite, isDisabled);
 }
 
 void CityItem::setSelected(bool isSelected)
@@ -297,7 +299,7 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
         }
         else
         {
-            IndependentPixmap *pingBarPixmap;
+            IndependentPixmap *pingBarPixmap = nullptr;
             if (cityNode.timeMs().toConnectionSpeed() == 0 || cityNode.isShowPremiumStar())
             {
                 pingBarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/LOCATION_PING_BARS0");
@@ -412,12 +414,12 @@ void CityItem::drawBottomLine(QPainter *painter, int left, int right, int bottom
         painter->drawLine(left, bottom, right, bottom);
         painter->drawLine(left, bottom - 1, right, bottom - 1);
 
-        if(whiteValue > 0.000001 )
+        if (whiteValue > 0.000001 )
         {
             int w = static_cast<int>((right - left) * whiteValue);
-            QPen pen(Qt::white);
-            pen.setWidth(1);
-            painter->setPen(pen);
+            QPen white_pen(Qt::white);
+            white_pen.setWidth(1);
+            painter->setPen(white_pen);
             painter->drawLine(left, bottom, left + w, bottom);
             painter->drawLine(left, bottom - 1, left + w, bottom - 1);
         }

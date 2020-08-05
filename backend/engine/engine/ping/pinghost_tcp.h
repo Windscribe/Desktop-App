@@ -45,7 +45,7 @@ private:
     };
 
     enum {PING_TIMEOUT = 2000};
-    const int MAX_PARALLEL_PINGS = 10;
+    static constexpr int MAX_PARALLEL_PINGS = 10;
 
     IConnectStateController *connectStateController_;
     ProxySettings proxySettings_;

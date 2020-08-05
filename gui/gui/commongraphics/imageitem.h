@@ -10,10 +10,10 @@ public:
 
     explicit ImageItem(const QString &imagePath, ScalableGraphicsObject * parent = nullptr);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 private:
     QString imagePath_;

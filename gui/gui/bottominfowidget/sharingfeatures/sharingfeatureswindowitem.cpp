@@ -11,27 +11,16 @@ namespace SharingFeatures {
 
 SharingFeaturesWindowItem::SharingFeaturesWindowItem(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
     isSecureHotspotEnabled_(false), isProxyGatewayEnabled_(false),
-    proxyGatewayMode_(ProtoTypes::PROXY_SHARING_HTTP)
+    proxyGatewayMode_(ProtoTypes::PROXY_SHARING_HTTP), mode_(SHARE_MODE_OFF),
+    curOpacity_(OPACITY_HIDDEN), height_(0), showingHorns_(false),
+    curHornOpacity_(OPACITY_HIDDEN), HORN_POS_Y_HIDDEN(height_ - 30),
+    HORN_POS_Y_SHOWING(height_)
 {
     headerText_ = TEXT_SHARING_FEATURES;
-
-    showingHorns_ = false;
-
-    height_ = 0;
-
-    HORN_POS_Y_HIDDEN = height_ - 30;
-    HORN_POS_Y_SHOWING = height_;
-
     curHornPosY_ = HORN_POS_Y_HIDDEN;
-
-    curHornOpacity_ = OPACITY_HIDDEN;
-
-    mode_ = SHARE_MODE_OFF;
 
     connect(&hornPosYAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onHornPosChanged(QVariant)));
     connect(&hornOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onHornOpacityChanged(QVariant)));
-
-    curOpacity_ = OPACITY_HIDDEN;
 
     hotspotFeature_ = new SharingFeature("", "sharingfeatures/SECURE_HOTSPOT_ICON", this);
     proxyFeature_ = new SharingFeature("", "sharingfeatures/COMBINED_SHAPE", this);
@@ -74,7 +63,7 @@ QPolygonF SharingFeaturesWindowItem::rightHornPolygon(int originX, int originY, 
     return poly;
 }
 
-void SharingFeaturesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void SharingFeaturesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     qreal initOpacity = painter->opacity();
 
@@ -155,27 +144,27 @@ void SharingFeaturesWindowItem::setProxyGatewayFeatures(bool isEnabled, ProtoTyp
     {
         isProxyGatewayEnabled_ = isEnabled;
 
-        SHARE_MODE mode = SHARE_MODE_OFF;
+        SHARE_MODE shareMode = SHARE_MODE_OFF;
         if (isProxyGatewayEnabled_)
         {
             if (isSecureHotspotEnabled_)
             {
-                mode = SHARE_MODE_BOTH;
+                shareMode = SHARE_MODE_BOTH;
             }
             else
             {
-                 mode = SHARE_MODE_PROXY;
+                shareMode = SHARE_MODE_PROXY;
             }
         }
         else
         {
             if (isSecureHotspotEnabled_)
             {
-                mode = SHARE_MODE_HOTSPOT;
+                shareMode = SHARE_MODE_HOTSPOT;
             }
         }
 
-        setMode(mode);
+        setMode(shareMode);
     }
 
     if (proxyGatewayMode_ != mode)

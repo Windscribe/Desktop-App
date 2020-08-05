@@ -35,24 +35,24 @@ class PreferencesWindowItem : public ScalableGraphicsObject, public IPreferences
     Q_INTERFACES(IPreferencesWindow)
 public:
     explicit PreferencesWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo);
-    virtual ~PreferencesWindowItem() override;
+    ~PreferencesWindowItem() override;
 
-    virtual QGraphicsObject *getGraphicsObject() override;
+    QGraphicsObject *getGraphicsObject() override;
 
-    virtual QRectF boundingRect() const override;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual int recommendedHeight() override;
-    virtual void setHeight(int height) override;
+    int recommendedHeight() override;
+    void setHeight(int height) override;
 
-    virtual void setCurrentTab(PREFERENCES_TAB_TYPE tab) override;
-    virtual void setCurrentTab(PREFERENCES_TAB_TYPE tab, CONNECTION_SCREEN_TYPE subpage ) override;
+    void setCurrentTab(PREFERENCES_TAB_TYPE tab) override;
+    void setCurrentTab(PREFERENCES_TAB_TYPE tab, CONNECTION_SCREEN_TYPE subpage ) override;
 
-    virtual void setScrollBarVisibility(bool on) override;
+    void setScrollBarVisibility(bool on) override;
 
-    virtual void setLoggedIn(bool loggedIn) override;
-    virtual void setConfirmEmailResult(bool bSuccess) override;
-    virtual void setDebugLogResult(bool bSuccess) override;
+    void setLoggedIn(bool loggedIn) override;
+    void setConfirmEmailResult(bool bSuccess) override;
+    void setDebugLogResult(bool bSuccess) override;
 
     void updateNetworkState(ProtoTypes::NetworkInterface network) override;
 
@@ -127,11 +127,11 @@ protected:
 private:
     void changeTab(PREFERENCES_TAB_TYPE tab);
 
-    const int BOTTOM_AREA_HEIGHT = 17;
-    const int MIN_HEIGHT = 502;
+    static constexpr int BOTTOM_AREA_HEIGHT = 17;
+    static constexpr int MIN_HEIGHT = 502;
 
-    const int bottomResizeOriginX_ = 167;
-    const int bottomResizeOffsetY_ = 13;
+    static constexpr int BOTTOM_RESIZE_ORIGIN_X = 167;
+    static constexpr int BOTTOM_RESIZE_OFFSET_Y = 13;
 
     BottomResizeItem *bottomResizeItem_;
     int curHeight_;

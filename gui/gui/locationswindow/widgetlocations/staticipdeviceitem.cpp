@@ -29,7 +29,7 @@ bool StaticIpDeviceItem::isSelected()
 
 LocationID StaticIpDeviceItem::getLocationId()
 {
-    return LocationID::RIBBON_ITEM_STATIC_IP;
+    return LocationID(LocationID::RIBBON_ITEM_STATIC_IP);
 }
 
 QString StaticIpDeviceItem::getCountryCode() const
@@ -148,17 +148,17 @@ bool StaticIpDeviceItem::isDisabled()
     return false;
 }
 
-int StaticIpDeviceItem::findCityInd(const LocationID &locationId)
+int StaticIpDeviceItem::findCityInd(const LocationID & /*locationId*/)
 {
     return 0;
 }
 
-void StaticIpDeviceItem::changeSpeedConnection(const LocationID &locationId, PingTime timeMs)
+void StaticIpDeviceItem::changeSpeedConnection(const LocationID & /*locationId*/, PingTime /*timeMs*/)
 {
     // do nothing
 }
 
-bool StaticIpDeviceItem::changeIsFavorite(const LocationID &locationId, bool isFavorite)
+bool StaticIpDeviceItem::changeIsFavorite(const LocationID & /*locationId*/, bool /*isFavorite*/)
 {
     return false;
 }

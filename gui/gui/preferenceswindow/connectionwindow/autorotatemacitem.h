@@ -15,10 +15,10 @@ class AutoRotateMacItem : public BaseItem
 public:
     explicit AutoRotateMacItem(ScalableGraphicsObject *parent);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setState(bool isChecked);
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void stateChanged(bool isChecked);

@@ -34,7 +34,7 @@ private slots:
     void onSSIDChanged(const QString &text);
     void onPasswordChanged(const QString &password);
 
-    void onLanguageChanged() override;
+    void onLanguageChanged();
 
 private:
     void updateCollapsedAndExpandedHeight();

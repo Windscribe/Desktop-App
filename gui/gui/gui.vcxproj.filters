@@ -161,6 +161,9 @@
     <Filter Include="Common Files\ipc\proto">
       <UniqueIdentifier>{18a680f0-d834-4334-9cac-e2c211028079}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI Files\systemtray">
+      <UniqueIdentifier>{06d59eb6-84e2-4696-9b27-b4d5fd7b0254}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dialogs\dialogmessagecpuusage.cpp">
@@ -790,15 +793,6 @@
     <ClCompile Include="languagecontroller.cpp">
       <Filter>GUI Files</Filter>
     </ClCompile>
-    <ClCompile Include="locationstraymenubutton.cpp">
-      <Filter>GUI Files</Filter>
-    </ClCompile>
-    <ClCompile Include="locationstraymenuitemdelegate.cpp">
-      <Filter>GUI Files</Filter>
-    </ClCompile>
-    <ClCompile Include="locationstraymenuwidget.cpp">
-      <Filter>GUI Files</Filter>
-    </ClCompile>
     <ClCompile Include="loginattemptscontroller.cpp">
       <Filter>GUI Files</Filter>
     </ClCompile>
@@ -810,6 +804,21 @@
     </ClCompile>
     <ClCompile Include="mainwindowcontroller.cpp">
       <Filter>GUI Files</Filter>
+    </ClCompile>
+    <ClCompile Include="systemtray\locationstraymenubutton.cpp">
+      <Filter>GUI Files\systemtray</Filter>
+    </ClCompile>
+    <ClCompile Include="systemtray\locationstraymenuitemdelegate.cpp">
+      <Filter>GUI Files\systemtray</Filter>
+    </ClCompile>
+    <ClCompile Include="systemtray\locationstraymenuwidget.cpp">
+      <Filter>GUI Files\systemtray</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\preferences\detectlanrange.cpp">
+      <Filter>Backend Files\preferences</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1224,17 +1233,17 @@
     <QtMoc Include="languagecontroller.h">
       <Filter>GUI Files</Filter>
     </QtMoc>
-    <QtMoc Include="locationstraymenubutton.h">
-      <Filter>GUI Files</Filter>
-    </QtMoc>
-    <QtMoc Include="locationstraymenuitemdelegate.h">
-      <Filter>GUI Files</Filter>
-    </QtMoc>
-    <QtMoc Include="locationstraymenuwidget.h">
-      <Filter>GUI Files</Filter>
-    </QtMoc>
     <QtMoc Include="mainwindow.h">
       <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="systemtray\locationstraymenubutton.h">
+      <Filter>GUI Files\systemtray</Filter>
+    </QtMoc>
+    <QtMoc Include="systemtray\locationstraymenuitemdelegate.h">
+      <Filter>GUI Files\systemtray</Filter>
+    </QtMoc>
+    <QtMoc Include="systemtray\locationstraymenuwidget.h">
+      <Filter>GUI Files\systemtray</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -1247,8 +1256,12 @@
     <CustomBuild Include="..\..\common\ipc\proto\clientcommands.proto">
       <Filter>Common Files\ipc\proto</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\common\ipc\proto\servercommands.proto" />
-    <CustomBuild Include="..\..\common\ipc\proto\types.proto" />
+    <CustomBuild Include="..\..\common\ipc\proto\servercommands.proto">
+      <Filter>Common Files\ipc\proto</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\types.proto">
+      <Filter>Common Files\ipc\proto</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="dialogs\dialoggetusernamepassword.ui">
@@ -2401,6 +2414,12 @@
     </ClInclude>
     <ClInclude Include="loginattemptscontroller.h">
       <Filter>GUI Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\backend\preferences\detectlanrange.h">
+      <Filter>Backend Files\preferences</Filter>
+    </ClInclude>
+    <ClInclude Include="locationswindow\widgetlocations\cursorupdatehelper.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

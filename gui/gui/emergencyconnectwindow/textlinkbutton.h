@@ -28,7 +28,7 @@ protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
-    void onLanguageChanged() override;
+    void onLanguageChanged();
 
 private slots:
     void onLinkOpacityChanged(const QVariant &value);
@@ -38,7 +38,7 @@ private:
     int width_;
     int height_;
 
-    const int LINK_TEXT_HEIGHT = 15;
+    static constexpr int LINK_TEXT_HEIGHT = 15;
 
     double curLinkOpacity_;
     double curTextOpacity_;

@@ -4,7 +4,7 @@
 
 namespace PreferencesWindow {
 
-ProxySettingsWindowItem::ProxySettingsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : BasePage(parent),
+ProxySettingsWindowItem::ProxySettingsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : BasePage(parent),
     preferences_(preferences)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);

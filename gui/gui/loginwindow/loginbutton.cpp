@@ -10,12 +10,9 @@
 
 namespace LoginWindow {
 
-LoginButton::LoginButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject (parent)
+LoginButton::LoginButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject (parent),
+    imagePath_("login/DISABLED_LOGIN_ICON"), width_(32), height_(32)
 {
-    width_ = 32;
-    height_ = 32;
-
-    imagePath_ = "login/DISABLED_LOGIN_ICON";
 }
 
 QRectF LoginButton::boundingRect() const

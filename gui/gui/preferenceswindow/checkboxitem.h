@@ -13,7 +13,7 @@ class CheckBoxItem : public BaseItem
 public:
     explicit CheckBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setState(bool isChecked);
     bool isChecked() const;
@@ -21,7 +21,7 @@ public:
     void setLineVisible(bool visible);
     QPointF getButtonScenePos() const;
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void stateChanged(bool isChecked);

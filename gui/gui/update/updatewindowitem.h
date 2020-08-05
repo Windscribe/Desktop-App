@@ -17,24 +17,24 @@ class UpdateWindowItem : public ScalableGraphicsObject, public IUpdateWindow
 public:
     explicit UpdateWindowItem(bool upgrade, ScalableGraphicsObject *parent = nullptr);
 
-    virtual QGraphicsObject *getGraphicsObject() { return this; }
+    QGraphicsObject *getGraphicsObject() override { return this; }
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void startAnimation();
-    void stopAnimation();
+    void startAnimation() override;
+    void stopAnimation() override;
 
-    void setVersion(QString version);
-    void setProgress(int progressPercent);
-    void changeToDownloadingScreen();
+    void setVersion(QString version) override;
+    void setProgress(int progressPercent) override;
+    void changeToDownloadingScreen() override;
 
 signals:
-    void acceptClick();
-    void cancelClick();
+    void acceptClick() override;
+    void cancelClick() override;
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onAcceptClick();
@@ -89,23 +89,23 @@ private:
     QString background_;
 
     // constants:
-    const int TITLE_POS_Y = 51;
+    static constexpr int TITLE_POS_Y = 51;
 
-    const int DESCRIPTION_WIDTH_MIN = 230;
-    const int DESCRIPTION_POS_Y = 102;
+    static constexpr int DESCRIPTION_WIDTH_MIN = 230;
+    static constexpr int DESCRIPTION_POS_Y = 102;
 
-    const int LOWER_DESCRIPTION_WIDTH_MIN = 168;
-    const int LOWER_DESCRIPTION_POS_Y = 184;
+    static constexpr int LOWER_DESCRIPTION_WIDTH_MIN = 168;
+    static constexpr int LOWER_DESCRIPTION_POS_Y = 184;
 
-    const int ACCEPT_BUTTON_POS_Y = 180;
-    const int CANCEL_BUTTON_POS_Y = 236;
+    static constexpr int ACCEPT_BUTTON_POS_Y = 180;
+    static constexpr int CANCEL_BUTTON_POS_Y = 236;
 
-    const int SPINNER_ROTATION_TARGET = 360;
+    static constexpr int SPINNER_ROTATION_TARGET = 360;
 
-    const int SPINNER_POS_X_OFFSET = 155;
-    const int SPINNER_POS_Y = 118;
-    const int SPINNER_HALF_WIDTH = 20;
-    const int SPINNER_HALF_HEIGHT = 20;
+    static constexpr int SPINNER_POS_X_OFFSET = 155;
+    static constexpr int SPINNER_POS_Y = 118;
+    static constexpr int SPINNER_HALF_WIDTH = 20;
+    static constexpr int SPINNER_HALF_HEIGHT = 20;
 };
 
 } // namespace

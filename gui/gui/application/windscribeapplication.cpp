@@ -7,12 +7,10 @@
 #include <objc/objc.h>
 #include <objc/message.h>
 
-bool dockClickHandler(id self, SEL _cmd,...)
+bool dockClickHandler(id /*self*/, SEL /*_cmd*/,...)
 {
-    Q_UNUSED(self)
-    Q_UNUSED(_cmd)
-   ((WindscribeApplication*)qApp)->onClickOnDock();
-     return true;
+    static_cast<WindscribeApplication*>(qApp)->onClickOnDock();
+    return true;
 }
 
 void setupDockClickHandler()
@@ -38,11 +36,9 @@ void setupDockClickHandler()
     }
 }
 
-bool focusLossHandler(id self, SEL _cmd,...)
+bool focusLossHandler(id /*self*/, SEL /*_cmd*/,...)
 {
-    Q_UNUSED(self)
-    Q_UNUSED(_cmd)
-   ((WindscribeApplication*)qApp)->onFocusLoss();
+   static_cast<WindscribeApplication*>(qApp)->onFocusLoss();
     return true;
 }
 

@@ -41,7 +41,7 @@ private:
     QElapsedTimer elapsed_;
     QElapsedTimer elapsedFrame_;
 
-    const int CNT_SCROLLING_NUMBERS_ON_ACCELERATION = 6;
+    static constexpr int CNT_SCROLLING_NUMBERS_ON_ACCELERATION = 6;
     int TIME_ACCELERATION;
     double acceleration_;
     double accelerationStopping_;

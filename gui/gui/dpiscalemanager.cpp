@@ -84,14 +84,15 @@ void DpiScaleManager::onScreenRemoved(QScreen *screen)
     emit screenConfigurationChanged(screens_);
 }
 
-DpiScaleManager::DpiScaleManager() : QObject(NULL)
+DpiScaleManager::DpiScaleManager() : QObject(nullptr), curDevicePixelRatio_(1),
+                                     curGeometry_(GetGeometryForScreen(qApp->primaryScreen())),
+                                     appCurScreen_(nullptr), mainWindow_(nullptr)
 {
-    curDevicePixelRatio_ = 1;
 #ifdef Q_OS_WIN
     curDPI_ = qApp->primaryScreen()->logicalDotsPerInch();
     curScale_ = (double)curDPI_ / (double)LOWEST_LDPI;
 #else
+    curDPI_ = 0;
     curScale_ = 1;
 #endif
-    curGeometry_ = GetGeometryForScreen(qApp->primaryScreen());
 }

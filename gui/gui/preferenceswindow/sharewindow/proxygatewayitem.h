@@ -35,7 +35,7 @@ private slots:
 
     void onProxyGatewayAddressChanged(const QString &address);
 
-    void onLanguageChanged() override;
+    void onLanguageChanged();
 
 protected:
     void hideOpenPopups() override;

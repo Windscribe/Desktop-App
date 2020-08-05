@@ -6,18 +6,16 @@
 
 #include "dpiscalemanager.h"
 
-VerticalScrollBar::VerticalScrollBar(int height, double barPortion, ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent)
+VerticalScrollBar::VerticalScrollBar(int height, double barPortion, ScalableGraphicsObject *parent)
+    : ScalableGraphicsObject(parent),
+      height_(height),
+      drawWidth_(SCROLL_WIDTH / 2),
+      drawWidthPosY_(static_cast<int>(SCROLL_WIDTH * 0.5 - drawWidth_ * 0.5)),
+      curBarPosY_(0),
+      curBarHeight_(static_cast<int>(height * barPortion)),
+      mouseHold_(false),
+      mouseOnClickY_(0)
 {
-    height_ = height;
-
-    drawWidth_ = SCROLL_WIDTH/2;
-    drawWidthPosY_ = static_cast<int>( (static_cast<double>( SCROLL_WIDTH )/ 2 - static_cast<double>(drawWidth_) / 2) );
-
-    curBarPosY_ = 0;
-    curBarHeight_ = static_cast<int>(height * barPortion);
-
-    mouseOnClickY_ = 0;
-
     connect(&barPosYAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onBarPosYChanged(QVariant)));
 }
 

@@ -15,6 +15,7 @@ VerticalScrollBarWidget::VerticalScrollBarWidget(int width, int height, QWidget 
     , drawWidth_(width/2 - 1)
     , curBarPosY_(0)
     , curBarHeight_(height)
+    , barPortion_(0)
     , stepSize_(1)
     , pressed_(false)
     , mouseOnClickY_(0)

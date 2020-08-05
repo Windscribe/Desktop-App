@@ -14,12 +14,8 @@ struct ComboBoxItemDescr
 {
     ComboBoxItemDescr() : isInitialized_(false) {}
 
-    ComboBoxItemDescr(const QString &caption, const QVariant &userValue)
-    {
-        caption_ = caption;
-        userValue_ = userValue;
-        isInitialized_ = true;
-    }
+    ComboBoxItemDescr(const QString &caption, const QVariant &userValue) :
+        caption_(caption), userValue_(userValue), isInitialized_(true) {}
 
     QString caption() const { Q_ASSERT(isInitialized_); return caption_; }
     QVariant userValue() const { Q_ASSERT(isInitialized_); return userValue_; }
@@ -44,9 +40,9 @@ class ComboBoxItem : public BaseItem
     Q_OBJECT
 public:
     explicit ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip, int height, QColor fillColor, int captionOffsX, bool bShowDividerLine, QString id = "");
-    virtual ~ComboBoxItem();
+    ~ComboBoxItem() override;
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     bool hasItems();
     void addItem(const QString &caption, const QVariant &userValue);
@@ -65,9 +61,9 @@ public:
 
     void setColorScheme(bool darkMode);
 
-    virtual void setClickable(bool clickable);
+    void setClickable(bool clickable) override;
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void currentItemChanged(QVariant value);

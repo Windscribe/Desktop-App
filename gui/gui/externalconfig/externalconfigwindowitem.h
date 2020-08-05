@@ -17,26 +17,25 @@ class ExternalConfigWindowItem : public ScalableGraphicsObject, public IExternal
 public:
     explicit ExternalConfigWindowItem(QGraphicsObject *parent = nullptr);
 
-    virtual QGraphicsObject *getGraphicsObject();
+    QGraphicsObject *getGraphicsObject() override;
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void setClickable(bool isClickable);
-    virtual void updateScaling();
+    void setClickable(bool isClickable) override;
+    void updateScaling() override;
 
     void setIcon(QString iconPath);
     void setButtonText(QString text);
 
 signals:
-    void buttonClick();
-    void escapeClick();
-
-    void minimizeClick();
-    void closeClick();
+    void buttonClick() override;
+    void escapeClick() override;
+    void minimizeClick() override;
+    void closeClick() override;
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onEscClicked();
@@ -60,14 +59,14 @@ private:
     QString curIconPath_;
 
     // constants:
-    const int ICON_POS_Y = 48;
+    static constexpr int ICON_POS_Y = 48;
 
-    const int TITLE_POS_Y = 104;
-    const int DESCRIPTION_POS_Y = 140;
-    const int DESCRIPTION_WIDTH_MIN = 218;
+    static constexpr int TITLE_POS_Y = 104;
+    static constexpr int DESCRIPTION_POS_Y = 140;
+    static constexpr int DESCRIPTION_WIDTH_MIN = 218;
 
-    const int CONNECT_BUTTON_POS_X = 122;
-    const int CONNECT_BUTTON_POS_Y = 218;
+    static constexpr int CONNECT_BUTTON_POS_X = 122;
+    static constexpr int CONNECT_BUTTON_POS_Y = 218;
 
     void updatePositions();
 };

@@ -16,9 +16,9 @@ public:
                                                const QString acceptText, const QString rejectText,
                                                QGraphicsObject *parent = nullptr);
 
-    virtual QGraphicsObject *getGraphicsObject() override { return this; }
-    virtual QRectF boundingRect() const override;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    QGraphicsObject *getGraphicsObject() override { return this; }
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setTitle(const QString title) override ;
     void setIcon(const QString icon)   override ;
@@ -57,15 +57,15 @@ private:
     QString titleShuttingDown_;
     QString icon_;
 
-    const int RECT_ICON_POS_Y = 48;
-    const int RECT_TITLE_POS_Y = 120;
-    const int RECT_ACCEPT_BUTTON_POS_Y = 172;
-    const int RECT_REJECT_BUTTON_POS_Y = 224;
+    static constexpr int RECT_ICON_POS_Y = 48;
+    static constexpr int RECT_TITLE_POS_Y = 120;
+    static constexpr int RECT_ACCEPT_BUTTON_POS_Y = 172;
+    static constexpr int RECT_REJECT_BUTTON_POS_Y = 224;
 
-    const int SHAPED_ICON_POS_Y = 58;
-    const int SHAPED_TITLE_POS_Y = 120;
-    const int SHAPED_ACCEPT_BUTTON_POS_Y = 167;
-    const int SHAPED_REJECT_BUTTON_POS_Y = 219;
+    static constexpr int SHAPED_ICON_POS_Y = 58;
+    static constexpr int SHAPED_TITLE_POS_Y = 120;
+    static constexpr int SHAPED_ACCEPT_BUTTON_POS_Y = 167;
+    static constexpr int SHAPED_REJECT_BUTTON_POS_Y = 219;
 
     int titlePosY_;
     int iconPosY_;
@@ -73,10 +73,10 @@ private:
     bool shapedToConnectWindow_;
     QString backgroundIcon_;
 
-    const int LOGO_POS_TOP = 25;
-    const int LOGO_POS_CENTER = 100;
-    const int ABORT_POS_Y = 225;
-    const int SPINNER_SPEED = 500;
+    static constexpr int LOGO_POS_TOP = 25;
+    static constexpr int LOGO_POS_CENTER = 100;
+    static constexpr int ABORT_POS_Y = 225;
+    static constexpr int SPINNER_SPEED = 500;
 
     bool isShutdownAnimationMode_;
     int curLogoPosY_;

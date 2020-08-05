@@ -114,7 +114,7 @@ void SplitTunnelingIpsAndHostnamesItem::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void SplitTunnelingIpsAndHostnamesItem::focusInEvent(QFocusEvent *event)
+void SplitTunnelingIpsAndHostnamesItem::focusInEvent(QFocusEvent * /*event*/)
 {
     ClickableGraphicsObject *selected = selectedObject();
     if (selected)

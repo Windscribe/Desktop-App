@@ -162,7 +162,7 @@ void ShadowManager::removeObject(int id)
     }
 }
 
-bool ShadowManager::isInShadowList(int id)
+bool ShadowManager::isInShadowList(int id) const
 {
     return findObjectIndById(id) != -1;
 }
@@ -182,7 +182,7 @@ int ShadowManager::getShadowMargin() const
 #endif
 }
 
-bool ShadowManager::isNeedShadow()
+bool ShadowManager::isNeedShadow() const
 {
 #ifdef Q_OS_WIN
     return true;
@@ -239,7 +239,7 @@ void ShadowManager::updateShadow()
 
 }
 
-int ShadowManager::findObjectIndById(int id)
+int ShadowManager::findObjectIndById(int id) const
 {
     for (int i = 0; i < objects_.count(); ++i)
     {

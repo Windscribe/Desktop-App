@@ -426,8 +426,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\customovpnconfigs\customconfigsdirwatcher.cpp" />
     <ClCompile Include="engine\customovpnconfigs\customovpnauthcredentialsstorage.cpp" />
     <ClCompile Include="engine\customovpnconfigs\customovpnconfigs.cpp" />
-    <ClCompile Include="engine\detectlanrange.cpp" />
-    <ClCompile Include="engine\vpnshare\socketutils\detectlocalip.cpp" />
     <ClCompile Include="engine\serverapi\dnscache.cpp" />
     <ClCompile Include="engine\dnsinfo_win.cpp" />
     <ClCompile Include="engine\types\dnsresolutionsettings.cpp" />
@@ -620,8 +618,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="engine\customovpnconfigs\customovpnauthcredentialsstorage.h" />
     <QtMoc Include="engine\customovpnconfigs\customovpnconfigs.h">
     </QtMoc>
-    <ClInclude Include="engine\detectlanrange.h" />
-    <ClInclude Include="engine\vpnshare\socketutils\detectlocalip.h" />
     <QtMoc Include="engine\serverapi\dnscache.h">
     </QtMoc>
     <ClInclude Include="engine\dnsinfo_win.h" />

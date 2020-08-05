@@ -12,9 +12,9 @@ class AppSearchItem : public BaseItem
 {
     Q_OBJECT
 public:
-    explicit AppSearchItem(ProtoTypes::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent);
+    AppSearchItem(ProtoTypes::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent);
     ~AppSearchItem();
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     QString getName();
     QString getFullName();
@@ -23,8 +23,8 @@ public:
 
     void updateIcons();
 
-    void setSelected(bool selected);
-    virtual void updateScaling();
+    void setSelected(bool selected) override;
+    void updateScaling() override;
 
 private slots:
     void onTextOpacityChanged(const QVariant &value);

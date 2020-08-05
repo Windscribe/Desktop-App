@@ -12,7 +12,6 @@
 namespace UpgradeWidget {
 
 UpgradeWidgetItem::UpgradeWidgetItem(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent)
-  , TEN_GB_IN_BYTES(10737418240)
   , daysLeft_(-1)
   , bytesUsed_(-1)
   , bytesMax_(-1)

@@ -172,19 +172,14 @@ void WidgetCities::updateListDisplay(QVector<CityModelItem*> items)
 
     int curInd = 0;
     Q_UNUSED(curInd);
-    int newTopInd = -1;
-    int allIndCounter = 0;
+    int newTopInd = -1;  // cppcheck-suppress variableScope
+    int allIndCounter = 0;  // cppcheck-suppress variableScope
 
     indSelected_ = -1;
 
     int indInVector = 0;
-    bool isExistStaticIpsLocation = false;
     Q_FOREACH(const CityModelItem *cmi, items)
     {
-        if (cmi->id == LocationID::STATIC_IPS_LOCATION_ID)
-        {
-            isExistStaticIpsLocation = true;
-        }
         CityItem *item = new CityItem(this, cmi->id, cmi->title1, cmi->title2, cmi->countryCode,
                                               cmi->pingTimeMs, cmi->bShowPremiumStarOnly, isShowLatencyInMs(), cmi->staticIp,
                                               cmi->staticIpType, cmi->isFavorite, cmi->isDisabled);
@@ -554,13 +549,11 @@ void WidgetCities::paintEvent(QPaintEvent *event)
     // empty list drawing items
     if (countVisibleItems() == 0)
     {
-        int textHeightOffsetFromIcon = 0;
         if (emptyListDisplayIcon_ != "")
         {
             // qDebug() << "Drawing Broken Heart";
             IndependentPixmap *brokenHeartPixmap = ImageResourcesSvg::instance().getIndependentPixmap(emptyListDisplayIcon_);
-            textHeightOffsetFromIcon = brokenHeartPixmap->height();
-            brokenHeartPixmap->draw(width()/2 - 16 *G_SCALE,
+             brokenHeartPixmap->draw(width()/2 - 16 *G_SCALE,
                                height()/2 - 32*G_SCALE, &painter);
         }
 
@@ -1047,8 +1040,7 @@ void WidgetCities::handleMouseMoveForTooltip()
                 }
                 else if (!bShowLatencyInMs_ && items_[indSelected_]->isCursorOverConnectionMeter())
                 {
-                    QPoint cursorPos = QCursor::pos();
-                    int ind = detectVisibleIndForCursorPos(cursorPos);
+                    int ind = detectVisibleIndForCursorPos(QCursor::pos());
                     int posY = viewportPosYOfIndex(ind, true);
                     QPoint pt = mapToGlobal(QPoint((width_ - 24) * G_SCALE, posY - 13*G_SCALE));
 

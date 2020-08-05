@@ -44,9 +44,9 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
 private:
-    const int BOTTOM_AREA_HEIGHT = 20;
-    const int MIN_VISIBLE_LOCATIONS = 3;
-    const int MAX_VISIBLE_LOCATIONS = 12;
+    static constexpr int BOTTOM_AREA_HEIGHT = 20;
+    static constexpr int MIN_VISIBLE_LOCATIONS = 3;
+    static constexpr int MAX_VISIBLE_LOCATIONS = 12;
 
     GuiLocations::LocationsTab *locationsTab_;
     int locationsTabHeight_;

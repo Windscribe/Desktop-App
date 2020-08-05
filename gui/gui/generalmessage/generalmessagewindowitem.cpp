@@ -47,7 +47,7 @@ QRectF GeneralMessageWindowItem::boundingRect() const
     return QRectF(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
-void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     qreal initialOpacity = painter->opacity();
 

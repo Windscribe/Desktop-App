@@ -97,7 +97,7 @@ private:
     int id_;   // id, on which can be found in ServerLocations list
     QString selectedHostName_;
     int pingTimeMs_;
-    const int BEST_LOCATION_SAVED_REVISION_NUMBER = 2;
+    static constexpr int BEST_LOCATION_SAVED_REVISION_NUMBER = 2;
 };
 
 // wrapper for serverLocations API call

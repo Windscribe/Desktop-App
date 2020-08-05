@@ -18,8 +18,8 @@ public:
 
     explicit UsernamePasswordEntry(QString descriptionText, bool password, ScalableGraphicsObject * parent = nullptr);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     bool isActive();
     void clearActiveState();
@@ -30,10 +30,10 @@ public:
 
     void setOpacityByFactor(double newOpacityFactor);
 
-    virtual void setClickable(bool clickable);
+    void setClickable(bool clickable) override;
 
     void setFocus();
-    virtual void updateScaling();
+    void updateScaling() override;
 
 public slots:
     void activate();
@@ -43,8 +43,8 @@ signals:
     void keyPressed(QKeyEvent *event);
 
 protected:
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
 
 private slots:
     void onDescriptionPosYChanged(const QVariant &value);
@@ -75,9 +75,9 @@ private:
 
     void drawBottomLine(QPainter *painter, int left, int right, int bottom, int whiteLinePos, QColor activeColor);
 
-    const int DESCRIPTION_POS_CLICKED   = 0;
-    const int DESCRIPTION_POS_UNCLICKED = 16;
-    const int DESCRIPTION_TEXT_HEIGHT   = 16;
+    static constexpr int DESCRIPTION_POS_CLICKED   = 0;
+    static constexpr int DESCRIPTION_POS_UNCLICKED = 16;
+    static constexpr int DESCRIPTION_TEXT_HEIGHT   = 16;
 };
 
 }

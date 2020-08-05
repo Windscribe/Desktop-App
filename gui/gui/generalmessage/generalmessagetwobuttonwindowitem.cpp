@@ -58,7 +58,7 @@ QRectF GeneralMessageTwoButtonWindowItem::boundingRect() const
     return QRect(0,0,WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE);
 }
 
-void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     // qreal initialOpacity = painter->opacity();
 

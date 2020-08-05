@@ -135,20 +135,20 @@ void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
     map_.clear();
     listWidget_->clear();
 
-    foreach (LocationModelItem *item, items)
+    for (const LocationModelItem *item: qAsConst(items))
     {
-        if (item->id == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+        if (item->id.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
         {
             continue;
         }
 
         QString itemName = item->title;
-        QVector<CityModelItem> cities = item->cities;
+        const QVector<CityModelItem> cities = item->cities;
 
         if (cities.count() > 0)
         {
             bool containsAtLeastOneNonProCity = false;
-            foreach (CityModelItem city, cities)
+            for (const CityModelItem &city: cities)
             {
                 if (!city.bShowPremiumStarOnly)
                 {
@@ -240,4 +240,3 @@ void LocationsTrayMenuWidget::updateBackground_mac()
     WidgetUtils_mac::setNeedsDisplayForWindow(this);
 #endif
 }
-

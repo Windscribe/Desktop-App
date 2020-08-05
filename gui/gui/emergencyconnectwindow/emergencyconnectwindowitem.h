@@ -20,29 +20,26 @@ class EmergencyConnectWindowItem : public ScalableGraphicsObject, public IEmerge
 public:
     explicit EmergencyConnectWindowItem(QGraphicsObject *parent = nullptr);
 
-    virtual QGraphicsObject *getGraphicsObject() { return this; }
+    QGraphicsObject *getGraphicsObject() override { return this; }
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void setState(ProtoTypes::ConnectState state);
-    virtual void setClickable(bool isClickable);
+    void setState(ProtoTypes::ConnectState state) override;
+    void setClickable(bool isClickable) override;
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
-    void minimizeClick();
-    void closeClick();
-
-    void escapeClick();
-
-    void connectClick();
-    void windscribeLinkClick();
-
-    void disconnectClick();
+    void minimizeClick() override;
+    void closeClick() override;
+    void escapeClick() override;
+    void connectClick() override;
+    void windscribeLinkClick() override;
+    void disconnectClick() override;
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onEscClicked();
@@ -113,23 +110,23 @@ private:
     IconButton *minimizeButton_;
 
     // constants:
-    const int ICON_POS_Y = 48;
+    static constexpr int ICON_POS_Y = 48;
 
-    const int TITLE_POS_Y = 104;
-    const int DESCRIPTION_POS_Y = 140;
-    const int DESCRIPTION_WIDTH_MIN = 218;
+    static constexpr int TITLE_POS_Y = 104;
+    static constexpr int DESCRIPTION_POS_Y = 140;
+    static constexpr int DESCRIPTION_WIDTH_MIN = 218;
 
-    const int LINK_TEXT_POS_Y = 281;
+    static constexpr int LINK_TEXT_POS_Y = 281;
 
-    const int CONNECTING_TEXT_POS_Y = 222;
-    const int CONNECTING_TEXT_HEIGHT = 20;
+    static constexpr int CONNECTING_TEXT_POS_Y = 222;
+    static constexpr int CONNECTING_TEXT_HEIGHT = 20;
 
-    const int SPINNER_POS_Y = 164;
+    static constexpr int SPINNER_POS_Y = 164;
 
-    const int CONNECT_BUTTON_POS_Y = 218;
-    const int DISCONNECT_BUTTON_POS_Y = 218;
+    static constexpr int CONNECT_BUTTON_POS_Y = 218;
+    static constexpr int DISCONNECT_BUTTON_POS_Y = 218;
 
-    const int TARGET_ROTATION = 360;
+    static constexpr int TARGET_ROTATION = 360;
 
     const QString CONNECTING_STRING = QT_TR_NOOP("Connecting...");
 

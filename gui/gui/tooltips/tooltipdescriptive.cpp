@@ -49,7 +49,7 @@ TooltipInfo TooltipDescriptive::toTooltipInfo()
     return ti;
 }
 
-void TooltipDescriptive::paintEvent(QPaintEvent */*event*/)
+void TooltipDescriptive::paintEvent(QPaintEvent * /*event*/)
 {
     QPainter painter(this);
     painter.setOpacity(OPACITY_OVERLAY_BACKGROUND);

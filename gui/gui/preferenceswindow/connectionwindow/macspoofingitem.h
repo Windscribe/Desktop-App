@@ -17,12 +17,12 @@ class MacSpoofingItem : public BaseItem
 public:
     explicit MacSpoofingItem(ScalableGraphicsObject *parent);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void setCurrentNetwork(const ProtoTypes::NetworkInterface &networkInterface);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 signals:
     void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void cycleMacAddressClick();
@@ -36,8 +36,8 @@ private slots:
     void onCycleMacAddressClick();
 
 private:
-    const int COLLAPSED_HEIGHT = 50;
-    const int EXPANDED_HEIGHT = 50 + 43 + 43 + 43;
+    static constexpr int COLLAPSED_HEIGHT = 50;
+    static constexpr int EXPANDED_HEIGHT = 50 + 43 + 43 + 43;
 
     CheckBoxItem *checkBoxEnable_;
     MacAddressItem *macAddressItem_;

@@ -10,10 +10,9 @@ namespace PreferencesWindow {
 
 AppSearchItem::AppSearchItem(ProtoTypes::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent) : BaseItem (parent, 50*G_SCALE)
     , textOpacity_(OPACITY_UNHOVER_TEXT)
+    , app_(app)
     , appIcon_(appIconPath)
 {
-    app_ = app;
-
     if (appIcon_ == "")
     {
         appIcon_ = "preferences/WHITE_QUESTION_MARK_ICON";

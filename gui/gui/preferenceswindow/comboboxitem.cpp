@@ -166,7 +166,7 @@ void ComboBoxItem::hideMenu()
     menu_->hide();
 }
 
-void ComboBoxItem::setColorScheme(bool darkMode)
+void ComboBoxItem::setColorScheme(bool /*darkMode*/)
 {
 
 }

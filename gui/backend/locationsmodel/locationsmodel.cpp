@@ -364,15 +364,15 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
 }
 
 // example of location string: NL, Toronto #1, etc
-LocationID LocationsModel::getLocationIdByName(const QString &location)
+LocationID LocationsModel::getLocationIdByName(const QString &location) const
 {
-    Q_FOREACH(LocationModelItem * lmi, locations_)
+    for (const LocationModelItem * lmi: locations_)
     {
         if (lmi->countryCode.compare(location, Qt::CaseInsensitive) == 0)
         {
             return LocationID(lmi->id);
         }
-        Q_FOREACH(const CityModelItem &city, lmi->cities)
+        for (const CityModelItem &city: lmi->cities)
         {
             if (city.title1.compare(location, Qt::CaseInsensitive) == 0)
             {

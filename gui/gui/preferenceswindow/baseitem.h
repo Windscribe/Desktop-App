@@ -11,7 +11,7 @@ class BaseItem : public ClickableGraphicsObject
     Q_OBJECT
 public:
     explicit BaseItem(ScalableGraphicsObject *parent, int height, QString id = "", bool clickable = false);
-    virtual QRectF boundingRect() const;
+    QRectF boundingRect() const override;
 
     void setHeight(int height);
 

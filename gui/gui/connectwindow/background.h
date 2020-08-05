@@ -18,8 +18,8 @@ class Background : public ScalableGraphicsObject
 public:
     explicit Background(ScalableGraphicsObject *parent);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState);
     void onLocationSelected(const QString &countryCode);
@@ -41,9 +41,9 @@ private slots:
      void onFlagOpacityChanged(const QVariant &value);
 
 private:
-    const int ANIMATION_DURATION = 600;
-    const int WIDTH = 332;
-    const int HEIGHT = 316;
+    static constexpr int ANIMATION_DURATION = 600;
+    static constexpr int WIDTH = 332;
+    static constexpr int HEIGHT = 316;
     qreal opacityConnecting_;
     qreal opacityConnected_;
     qreal opacityDisconnected_;

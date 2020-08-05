@@ -6,18 +6,13 @@
 
 namespace PreferencesWindow {
 
-TextItem::TextItem(ScalableGraphicsObject *parent, QString text, int height) : BaseItem(parent, height),
-  text_(text),
-  height_(height)
+TextItem::TextItem(ScalableGraphicsObject *parent, QString text, int height)
+    : BaseItem(parent, height), text_(text), local_height_(height)
 {
-
 }
 
-void TextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void TextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-
     qreal initOpacity = painter->opacity();
 
     painter->setPen(QColor(255, 255, 255));
@@ -35,7 +30,7 @@ void TextItem::setText(QString text)
 void TextItem::updateScaling()
 {
     BaseItem::updateScaling();
-    setHeight(height_*G_SCALE);
+    setHeight(local_height_*G_SCALE);
 }
 
 }

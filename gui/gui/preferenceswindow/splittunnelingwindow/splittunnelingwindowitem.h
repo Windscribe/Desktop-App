@@ -15,7 +15,7 @@ class SplitTunnelingWindowItem : public BasePage
 {
     Q_OBJECT
 public:
-    explicit SplitTunnelingWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
+    explicit SplitTunnelingWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
     QString caption();
 

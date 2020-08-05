@@ -2,7 +2,7 @@
 
 namespace PreferencesWindow {
 
-SplitTunnelingIpsAndHostnamesWindowItem::SplitTunnelingIpsAndHostnamesWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : BasePage(parent)
+SplitTunnelingIpsAndHostnamesWindowItem::SplitTunnelingIpsAndHostnamesWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : BasePage(parent)
     , preferences_(preferences)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);

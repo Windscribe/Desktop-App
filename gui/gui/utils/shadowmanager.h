@@ -22,19 +22,19 @@ public:
     void setOpacity(int id, qreal opacity, bool withUpdateShadow);
     void removeObject(int id);
 
-    bool isInShadowList(int id);
+    bool isInShadowList(int id) const;
 
     QPixmap &getCurrentShadowPixmap();
     int getShadowMargin() const;
 
-    bool isNeedShadow();
+    bool isNeedShadow() const;
     void updateShadow();
 
 signals:
     void shadowUpdated();
 
 private:
-    const int SHADOW_MARGIN = 30;
+    static constexpr int SHADOW_MARGIN = 30;
     QPixmap currentShadow_;
 
     struct ShadowObject
@@ -51,7 +51,7 @@ private:
     QVector<ShadowObject> objects_;
 
     QRect calcBoundingRect();
-    int findObjectIndById(int id);
+    int findObjectIndById(int id) const;
 };
 
 #endif // SHADOWMANAGER_H

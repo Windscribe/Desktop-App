@@ -7,7 +7,7 @@
 class ImageResourcesSvg
 {
 
-public:    
+public:
     static ImageResourcesSvg &instance()
     {
         static ImageResourcesSvg ir;

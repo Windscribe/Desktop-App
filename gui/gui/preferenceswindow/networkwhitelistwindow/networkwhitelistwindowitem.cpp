@@ -6,7 +6,7 @@
 
 namespace PreferencesWindow {
 
-NetworkWhiteListWindowItem::NetworkWhiteListWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : BasePage(parent),
+NetworkWhiteListWindowItem::NetworkWhiteListWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : BasePage(parent),
     preferences_(preferences)
 {
     textItem_ = new TextItem(this, tr(NO_NETWORKS_DETECTED.toStdString().c_str()), 50);

@@ -11,7 +11,7 @@ public:
 
     enum DefaultAction { UNDO, REDO, CUT, COPY, PASTE, DELETE, SELECT_ALL };
 
-    CustomMenuWidget(QWidget *parent = Q_NULLPTR);
+    CustomMenuWidget();
 
     void clearItems();
     void addItem(const QString &caption, const QVariant &userValue);

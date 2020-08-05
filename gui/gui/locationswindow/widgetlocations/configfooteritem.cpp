@@ -27,7 +27,7 @@ bool ConfigFooterItem::isSelected()
 
 LocationID ConfigFooterItem::getLocationId()
 {
-    return LocationID::RIBBON_ITEM_CONFIG;
+    return LocationID(LocationID::RIBBON_ITEM_CONFIG);
 }
 
 QString ConfigFooterItem::getCountryCode() const
@@ -137,17 +137,17 @@ bool ConfigFooterItem::isDisabled()
     return false;
 }
 
-int ConfigFooterItem::findCityInd(const LocationID &locationId)
+int ConfigFooterItem::findCityInd(const LocationID & /*locationId*/)
 {
     return 0;
 }
 
-void ConfigFooterItem::changeSpeedConnection(const LocationID &locationId, PingTime timeMs)
+void ConfigFooterItem::changeSpeedConnection(const LocationID & /*locationId*/, PingTime /*timeMs*/)
 {
     // do nothing
 }
 
-bool ConfigFooterItem::changeIsFavorite(const LocationID &locationId, bool isFavorite)
+bool ConfigFooterItem::changeIsFavorite(const LocationID & /*locationId*/, bool /*isFavorite*/)
 {
     return false;
 }

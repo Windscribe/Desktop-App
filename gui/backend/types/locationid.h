@@ -10,15 +10,15 @@ class LocationID
 {
 public:
 
-    static const int BEST_LOCATION_ID = -1;
-    static const int CUSTOM_OVPN_CONFIGS_LOCATION_ID = -2;
-    static const int STATIC_IPS_LOCATION_ID = -3;
-    static const int RIBBON_ITEM_STATIC_IP = -4;
-    static const int RIBBON_ITEM_CONFIG = -5;
+    static constexpr int BEST_LOCATION_ID = -1;
+    static constexpr int CUSTOM_OVPN_CONFIGS_LOCATION_ID = -2;
+    static constexpr int STATIC_IPS_LOCATION_ID = -3;
+    static constexpr int RIBBON_ITEM_STATIC_IP = -4;
+    static constexpr int RIBBON_ITEM_CONFIG = -5;
 
     LocationID() : locationId_(EMPTY_LOCATION) {}
     LocationID(int id, const QString &cityName);
-    LocationID(int id);
+    explicit LocationID(int id);
 
     LocationID& operator=(LocationID rhs)
     {
@@ -40,7 +40,7 @@ public:
     QString getHashString() const;
 
 private:
-    const int EMPTY_LOCATION = -100;
+    static constexpr int EMPTY_LOCATION = -100;
     int locationId_;
     QString city_;
 };

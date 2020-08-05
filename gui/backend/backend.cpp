@@ -519,7 +519,7 @@ void Backend::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
     }
 }
 
-void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection)
+void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /*connection*/)
 {
     QScopedPointer<IPC::Command> pCommand(command);
 
@@ -759,7 +759,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection *co
     }
 }
 
-void Backend::onConnectionStateChanged(int state, IPC::IConnection *connection)
+void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connection*/)
 {
     if (state == IPC::CONNECTION_CONNECTED)
     {

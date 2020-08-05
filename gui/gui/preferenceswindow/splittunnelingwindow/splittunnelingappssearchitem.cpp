@@ -118,14 +118,14 @@ void SplitTunnelingAppsSearchItem::onSearchTextChanged(QString text)
 void SplitTunnelingAppsSearchItem::toggleAppItemActive(AppSearchItem *item)
 {
     QString appName = item->getName();
-    ProtoTypes::SplitTunnelingApp *app = appByName(appName);
+    ProtoTypes::SplitTunnelingApp *existingApp = appByName(appName);
 
-    if (app) // USER or active system
+    if (existingApp) // USER or active system
     {
-        if (app->active())
+        if (existingApp->active())
         {
-            app->set_active(!app->active());
-            removeAppFromApps(*app);
+            existingApp->set_active(!existingApp->active());
+            removeAppFromApps(*existingApp);
         }
     }
     else // inactive SYSTEM pressed
@@ -362,7 +362,7 @@ QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsSearchItem::activeAndSyst
     foreach (ProtoTypes::SplitTunnelingApp systemApp, Utils::insertionSort(systemApps_))
     {
         bool found = false;
-        foreach(ProtoTypes::SplitTunnelingApp app, activeAndSystemApps)
+        for (const ProtoTypes::SplitTunnelingApp &app: qAsConst(activeAndSystemApps))
         {
             if (app.name() == systemApp.name())
             {

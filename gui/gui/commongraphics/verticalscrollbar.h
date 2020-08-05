@@ -8,12 +8,12 @@ class VerticalScrollBar : public ScalableGraphicsObject
 {
     Q_OBJECT
 public:
-    static const int SCROLL_WIDTH = 3; // clickable width
+    static constexpr int SCROLL_WIDTH = 3; // clickable width
 
     explicit VerticalScrollBar(int height, double barPortion, ScalableGraphicsObject *parent);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setHeight(int height, double barPortion);
 
@@ -27,9 +27,9 @@ private slots:
    void onBarPosYChanged(const QVariant &value);
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
 

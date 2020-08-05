@@ -12,8 +12,8 @@ class IPAddress : public QGraphicsObject
 public:
     explicit IPAddress(QGraphicsObject *parent, const QString &ipAddress);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setTextColor(QColor color);
     void setLockColorDark(bool dark);

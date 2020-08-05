@@ -35,8 +35,8 @@ void ServerRatingsTooltip::updateScaling()
     font_ = *FontManager::instance().getFont(12, false);
     recalcWidth();
     recalcHeight();
-    rateUpButton_->setGeometry(  0, 0, buttonWidth_*G_SCALE, buttonHeight_*G_SCALE);
-    rateDownButton_->setGeometry(0, 0, buttonWidth_*G_SCALE, buttonHeight_*G_SCALE);
+    rateUpButton_->setGeometry(0, 0, BUTTON_WIDTH*G_SCALE, BUTTON_HEIGHT*G_SCALE);
+    rateDownButton_->setGeometry(0, 0, BUTTON_WIDTH*G_SCALE, BUTTON_HEIGHT*G_SCALE);
     updatePositions();
 }
 
@@ -129,7 +129,7 @@ void ServerRatingsTooltip::onHoverTimerTick()
     }
 }
 
-void ServerRatingsTooltip::paintEvent(QPaintEvent *event)
+void ServerRatingsTooltip::paintEvent(QPaintEvent * /*event*/)
 {
     QPainter painter(this);
     painter.setOpacity(OPACITY_OVERLAY_BACKGROUND);
@@ -173,29 +173,29 @@ void ServerRatingsTooltip::paintEvent(QPaintEvent *event)
     painter.setPen(Qt::white);
     painter.setFont(font_);
     painter.setOpacity(OPACITY_FULL);
-    painter.drawText(marginWidth_*G_SCALE + additionalTailWidth(), 20*G_SCALE, translatedText());
+    painter.drawText(MARGIN_WIDTH*G_SCALE + additionalTailWidth(), 20*G_SCALE, translatedText());
 }
 
 void ServerRatingsTooltip::recalcWidth()
 {
     QFontMetrics fm(font_);
     int textWidthScaled = fm.width(translatedText());
-    int otherWidth = (marginWidth_*2 + textButtonSpacing_ + buttonButtonSpacing_ + buttonWidth_*2) * G_SCALE; // margins + spacing
+    int otherWidth = (MARGIN_WIDTH *2 + TEXT_BUTTON_SPACING + BUTTON_BUTTON_SPACING + BUTTON_WIDTH*2) * G_SCALE; // margins + spacing
     width_ = textWidthScaled + otherWidth + additionalTailWidth();
 }
 
 void ServerRatingsTooltip::recalcHeight()
 {
-    height_ = (marginHeight_*2 + buttonHeight_) * G_SCALE + additionalTailHeight();
+    height_ = (MARGIN_HEIGHT*2 + BUTTON_HEIGHT) * G_SCALE + additionalTailHeight();
 }
 
 void ServerRatingsTooltip::updatePositions()
 {
     QFontMetrics fm(font_);
     int textWidth = fm.width(translatedText());
-    int padding = marginWidth_*G_SCALE + textButtonSpacing_*G_SCALE + additionalTailWidth();
-    rateUpButton_->move(textWidth + padding, marginHeight_*G_SCALE);
-    rateDownButton_->move(textWidth + padding + buttonWidth_*G_SCALE + marginWidth_*G_SCALE, marginHeight_*G_SCALE);
+    int padding = MARGIN_WIDTH *G_SCALE + TEXT_BUTTON_SPACING*G_SCALE + additionalTailWidth();
+    rateUpButton_->move(textWidth + padding, MARGIN_HEIGHT*G_SCALE);
+    rateDownButton_->move(textWidth + padding + BUTTON_WIDTH*G_SCALE + MARGIN_WIDTH*G_SCALE, MARGIN_HEIGHT*G_SCALE);
 }
 
 const QString ServerRatingsTooltip::translatedText()

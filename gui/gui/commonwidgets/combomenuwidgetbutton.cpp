@@ -1,7 +1,8 @@
 #include "combomenuwidgetbutton.h"
 #include "dpiscalemanager.h"
 
-ComboMenuWidgetButton::ComboMenuWidgetButton(const QVariant &d) : QPushButton()
+ComboMenuWidgetButton::ComboMenuWidgetButton(const QVariant &d)
+    : QPushButton(), widthUnscaled_(0), heightUnscaled_(0)
 {
     QString styleSheet = "QPushButton:hover { background-color: rgb(220, 220, 220) }";
     styleSheet += "QPushButton:checked { background-color: rgb(220,220,220) }";

@@ -14,7 +14,7 @@ class CustomScrollBar : public QScrollBar
 public:
     explicit CustomScrollBar(QWidget *parent, bool bIsHidden);
 
-    static const int SCROLL_BAR_MARGIN = 3;
+    static constexpr int SCROLL_BAR_MARGIN = 3;
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
@@ -25,9 +25,9 @@ private slots:
     void onOpacityTimer();
 
 private:
-    const double HOVER_OPACITY = 1.0;
-    const double UNHOVER_OPACITY = 0.5;
-    const int OPACITY_DURATION = 250;
+    static constexpr double HOVER_OPACITY = 1.0;
+    static constexpr double UNHOVER_OPACITY = 0.5;
+    static constexpr int OPACITY_DURATION = 250;
 
     bool bIsHidden_;
     bool isHover_;

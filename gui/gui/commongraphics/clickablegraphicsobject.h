@@ -9,8 +9,8 @@ class ClickableGraphicsObject : public ScalableGraphicsObject
 public:
     explicit ClickableGraphicsObject(ScalableGraphicsObject *parent);
 
-    virtual QRectF boundingRect() const = 0;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) = 0;
+    QRectF boundingRect() const override = 0;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override = 0;
 
     virtual bool isClickable();
     virtual void setClickable(bool clickable); // TODO: split clickablehoverable into two independent functions
@@ -27,7 +27,7 @@ signals:
     void selectionChanged(bool selected);
 
 protected slots:
-    virtual void onLanguageChanged();
+    void onLanguageChanged();
 
 protected:
     bool selected_;
@@ -38,11 +38,11 @@ protected:
     bool pressed_;
     bool hovered_;
 
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
-    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 };
 

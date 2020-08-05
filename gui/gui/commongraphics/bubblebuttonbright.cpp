@@ -11,16 +11,11 @@
 namespace CommonGraphics {
 
 BubbleButtonBright::BubbleButtonBright(ScalableGraphicsObject *parent, int width, int height, int arcWidth, int arcHeight) : ClickableGraphicsObject(parent),
-     width_(width), height_(height), arcWidth_(arcWidth), arcHeight_(arcHeight), fontDescr_(16, false)
+    width_(width), height_(height), arcWidth_(arcWidth), arcHeight_(arcHeight), fontDescr_(16, false),
+    text_(QT_TR_NOOP("Disconnect")), curOutlineFillOpacity_(OPACITY_FULL), curTextOpacity_(OPACITY_FULL),
+    curFillColor_(FontManager::instance().getSeaGreenColor()),
+    curTextColor_(FontManager::instance().getMidnightColor())
 {
-    curOutlineFillOpacity_ = OPACITY_FULL;
-    curTextOpacity_ = OPACITY_FULL;
-
-    curFillColor_ = FontManager::instance().getSeaGreenColor();
-    curTextColor_ = FontManager::instance().getMidnightColor();
-
-    text_ = QT_TR_NOOP("Disconnect");
-
     connect(&outlineOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOutlineOpacityChanged(QVariant)));
     connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextOpacityChanged(QVariant)));
 

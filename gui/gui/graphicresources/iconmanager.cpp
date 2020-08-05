@@ -4,12 +4,13 @@
 #include "dpiscalemanager.h"
 
 IconManager::IconManager()
-{
 #ifdef Q_OS_WIN
-    disconnectedIcon_ = QIcon(":/Resources/icons/icon_disconnected.ico");
-    connectingIcon_ = QIcon(":/Resources/icons/icon_connecting.ico");
-    connectedIcon_ = QIcon(":/Resources/icons/icon_connected.ico");
-#elif defined Q_OS_MAC
+    : disconnectedIcon_(":/Resources/icons/icon_disconnected.ico"),
+      connectingIcon_(":/Resources/icons/icon_connecting.ico"),
+      connectedIcon_(":/Resources/icons/icon_connected.ico")
+#endif
+{
+#if defined Q_OS_MAC
     int pixelRatio = DpiScaleManager::instance().curDevicePixelRatio();
     if (pixelRatio >= 2)
     {

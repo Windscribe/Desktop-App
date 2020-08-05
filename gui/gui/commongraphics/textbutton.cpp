@@ -10,17 +10,10 @@
 namespace CommonGraphics {
 
 TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent, int addWidth) : ClickableGraphicsObject(parent),
-    fontDescr_(fd), addWidth_(addWidth)
+    text_(text), color_(color), fontDescr_(fd), width_(0), height_(0), addWidth_(addWidth),
+    curTextOpacity_(OPACITY_UNHOVER_TEXT), unhoverOpacity_(OPACITY_UNHOVER_TEXT),
+    textAlignment_(Qt::AlignLeft | Qt::AlignVCenter)
 {
-    curTextOpacity_ = OPACITY_UNHOVER_TEXT;
-    unhoverOpacity_ = OPACITY_UNHOVER_TEXT;
-
-    textAlignment_ = Qt::AlignLeft | Qt::AlignVCenter;
-
-    text_ = text;
-    fontDescr_ = fd;
-    color_ = color;
-
     connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextHoverOpacityChanged(QVariant)));
 
     // Direct constructor call to ClickableGraphicsObject::setCursor() crashes due to "pure virtual function call" for some reason only in this class...

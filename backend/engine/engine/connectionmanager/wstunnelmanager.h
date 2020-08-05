@@ -33,7 +33,7 @@ private:
     QByteArray inputArr_;
     bool bFirstMarketLineAfterStart_;
 
-    const unsigned int DEFAULT_PORT = 1194;
+    static constexpr unsigned int DEFAULT_PORT = 1194;
     unsigned int port_;
 
     QString getNextStringFromInputBuffer(bool &bSuccess, int &outSize);

@@ -93,7 +93,7 @@ void NewsFeedWindowItem::setClickable(bool isClickable)
     messageItem_->setEnabled(isClickable);
 }
 
-void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     if (!messageIdIsInitialized_)
     {

@@ -9,7 +9,7 @@ namespace GuiLocations {
 
 struct CityNode
 {
-    CityNode() : timeMs_(PingTime::PING_FAILED, false) {}
+    CityNode();
     CityNode(const LocationID &locationId, const QString &cityName1ForShow, const QString &cityName2ForShow, const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly,
              bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType, bool isFavorite, bool isDisabled);
 

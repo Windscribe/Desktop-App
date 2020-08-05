@@ -11,17 +11,11 @@
 namespace CommonGraphics {
 
 BubbleButtonDark::BubbleButtonDark(ScalableGraphicsObject *parent, int width, int height, int arcWidth, int arcHeight) : ClickableGraphicsObject(parent),
-    width_(width), height_(height), arcWidth_(arcWidth), arcHeight_(arcHeight), fontDescr_(16, false)
+    width_(width), height_(height), arcWidth_(arcWidth), arcHeight_(arcHeight), fontDescr_(16, false),
+    text_(QT_TR_NOOP("Connect")), curOutlineFillOpacity_(OPACITY_UNHOVER_TEXT),
+    curTextOpacity_(OPACITY_FULL), curOutlineColor_(255, 255, 255),
+    curFillColor_(FontManager::instance().getMidnightColor()), curTextColor_(255, 255, 255)
 {
-    curOutlineFillOpacity_ = OPACITY_UNHOVER_TEXT;
-    curTextOpacity_ = OPACITY_FULL;
-
-    curFillColor_ = FontManager::instance().getMidnightColor();
-    curTextColor_ = QColor(255,255,255);
-    curOutlineColor_ = QColor(255,255,255);
-
-    text_ = QT_TR_NOOP("Connect");
-
     connect(&outlineOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOutlineOpacityChanged(QVariant)));
     connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextOpacityChanged(QVariant)));
 

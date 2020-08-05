@@ -24,6 +24,8 @@ public:
                  bool isShowP2P, PingTime timeMs, QVector<CityNode> &cities, bool forceExpand, bool isPremiumOnly);
 
     ~LocationItem();
+    LocationItem(const LocationItem &) = delete;
+    LocationItem &operator=(const LocationItem &) = delete;
 
     QString getName() const { return name_; }
     int getPingTimeMs() { return timeMs_.getValue().toInt(); }
@@ -86,7 +88,7 @@ public:
     void updateScaling();
 
 private:
-    const int EXPAND_ANIMATION_DURATION = 200;
+    static constexpr int EXPAND_ANIMATION_DURATION = 200;
 
     // visible properties
     QString countryCode_;

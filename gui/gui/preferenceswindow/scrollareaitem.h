@@ -14,8 +14,8 @@ class ScrollAreaItem : public ScalableGraphicsObject
 public:
     explicit ScrollAreaItem(ScalableGraphicsObject *parent, int height);
 
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setItem(BasePage *item);
 
@@ -24,7 +24,7 @@ public:
     void setScrollBarVisibility(bool on);
 
     void hideOpenPopups();
-    virtual void updateScaling();
+    void updateScaling() override;
 
 private slots:
     void onScrollBarMoved(double posPercentY);
@@ -37,16 +37,16 @@ private slots:
     void onScrollBarOpacityChanged(const QVariant &value);
 
 protected:
-    void wheelEvent(QGraphicsSceneWheelEvent *event);
+    void wheelEvent(QGraphicsSceneWheelEvent *event) override;
 
 private:
     BasePage *curItem_;
     VerticalScrollBar *scrollBar_;
 
     int height_;
-    const int WIDTH = 282;
 
-    const int SCROLL_BAR_GAP = 1;
+    static constexpr int WIDTH = 282;
+    static constexpr int SCROLL_BAR_GAP = 1;
 
     QVariantAnimation itemPosAnimation_;
 

@@ -17,10 +17,10 @@ public:
 
     explicit AutoManualSwitchItem(ScalableGraphicsObject *parent, const QString &caption);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setState(SWITCH_STATE state);
-    virtual void updateScaling();
+    void updateScaling() override;
 signals:
     void stateChanged(AutoManualSwitchItem::SWITCH_STATE state);
 

@@ -11,14 +11,15 @@
 
 namespace GuiLocations {
 
-
-LocationItem::LocationItem(IWidgetLocationsInfo *widgetLocationsInfo, int id, const QString &countryCode, const QString &name, bool isShowP2P, PingTime timeMs, QVector<CityNode> &cities, bool forceExpand, bool isPremiumOnly) :
-    timeMs_(timeMs, widgetLocationsInfo->isShowLatencyInMs()),
-    citySubMenuState_(COLLAPSED), selectedInd_(-1), isCursorOverArrow_(false), isCursorOverP2P_(false), isPremiumOnly_(isPremiumOnly),
-    isCursorOverConnectionMeter_(false),
-    isCursorOverFavoriteIcon_(false),
-    curWhiteLineValue_(0.0),
-    widgetLocationsInfo_(widgetLocationsInfo)
+LocationItem::LocationItem(IWidgetLocationsInfo *widgetLocationsInfo, int id, const QString &countryCode, const QString &name, bool isShowP2P, PingTime timeMs, QVector<CityNode> &cities, bool forceExpand, bool isPremiumOnly)
+    : countryCode_(countryCode), name_(name), isShowP2P_(isShowP2P),
+      timeMs_(timeMs, widgetLocationsInfo->isShowLatencyInMs()), cityNodes_(cities), id_(id),
+      forceExpand_(forceExpand), citySubMenuState_(COLLAPSED), selectedInd_(-1),
+      isCursorOverArrow_(false), isCursorOverP2P_(false), isPremiumOnly_(isPremiumOnly),
+      isCursorOverConnectionMeter_(false), isCursorOverFavoriteIcon_(false),
+      startAnimationHeight_(0), endAnimationHeight_(0), curAnimationDuration_(0),
+      curWhiteLineValue_(0), startWhiteLineValue_(0), endWhiteLineValue_(0),
+      widgetLocationsInfo_(widgetLocationsInfo)
 {
     QFont *font = FontManager::instance().getFont(16, true);
     captionTextLayout_ = new QTextLayout(QObject::tr(name.toStdString().c_str()), *font);
@@ -26,13 +27,6 @@ LocationItem::LocationItem(IWidgetLocationsInfo *widgetLocationsInfo, int id, co
     captionTextLayout_->createLine();
     captionTextLayout_->endLayout();
     captionTextLayout_->setCacheEnabled(true);
-
-    id_ = id;
-    countryCode_ = countryCode;
-    name_ = name;
-    isShowP2P_ = isShowP2P;
-    forceExpand_ = forceExpand;
-    cityNodes_ = cities;
 }
 
 LocationItem::~LocationItem()
@@ -606,7 +600,7 @@ void LocationItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const 
         }
         else
         {
-            IndependentPixmap *pingBarPixmap;
+            IndependentPixmap *pingBarPixmap = nullptr;
             if (cityNode.timeMs().toConnectionSpeed() == 0 || (cityNode.isShowPremiumStar() && widgetLocationsInfo_->isFreeSessionStatus()))
             {
                 pingBarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/LOCATION_PING_BARS0");
@@ -695,7 +689,7 @@ void LocationItem::drawBottomLine(QPainter *painter, int left, int right, int bo
         pen.setWidth(1);
         painter->setPen(pen);
         painter->drawLine(left, bottom, right, bottom);
-        painter->drawLine(left, bottom - 1, right, bottom - 1); //
+        painter->drawLine(left, bottom - 1, right, bottom - 1);
     }
     else
     {
@@ -703,16 +697,16 @@ void LocationItem::drawBottomLine(QPainter *painter, int left, int right, int bo
         pen.setWidth(1);
         painter->setPen(pen);
         painter->drawLine(left, bottom, right, bottom);
-        painter->drawLine(left, bottom - 1, right, bottom - 1); //
+        painter->drawLine(left, bottom - 1, right, bottom - 1);
 
         if(whiteValue > 0.000001 )
         {
             int w = (right - left) * whiteValue;
-            QPen pen(Qt::white);
-            pen.setWidth(1);
-            painter->setPen(pen);
+            QPen white_pen(Qt::white);
+            white_pen.setWidth(1);
+            painter->setPen(white_pen);
             painter->drawLine(left, bottom, left + w, bottom);
-            painter->drawLine(left, bottom - 1, left + w, bottom - 1); //
+            painter->drawLine(left, bottom - 1, left + w, bottom - 1);
         }
     }
 }

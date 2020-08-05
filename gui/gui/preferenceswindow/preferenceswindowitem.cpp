@@ -88,13 +88,13 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     pageCaption_ = generalWindowItem_->caption();
 
 
-    networkWhiteListWindowItem_ = new NetworkWhiteListWindowItem(nullptr, preferences, preferencesHelper);
-    proxySettingsWindowItem_ = new ProxySettingsWindowItem(nullptr, preferences, preferencesHelper);
-    advancedParametersWindowItem_ = new AdvancedParametersWindowItem(nullptr, preferences, preferencesHelper);
-    splitTunnelingWindowItem_ = new SplitTunnelingWindowItem(nullptr, preferences, preferencesHelper);
+    networkWhiteListWindowItem_ = new NetworkWhiteListWindowItem(nullptr, preferences);
+    proxySettingsWindowItem_ = new ProxySettingsWindowItem(nullptr, preferences);
+    advancedParametersWindowItem_ = new AdvancedParametersWindowItem(nullptr, preferences);
+    splitTunnelingWindowItem_ = new SplitTunnelingWindowItem(nullptr, preferences);
     splitTunnelingAppsWindowItem_ = new SplitTunnelingAppsWindowItem(nullptr, preferences);
     splitTunnelingAppsSearchWindowItem_ = new SplitTunnelingAppsSearchWindowItem(nullptr, preferences);
-    splitTunnelingIpsAndHostnamesWindowItem_ = new SplitTunnelingIpsAndHostnamesWindowItem(nullptr, preferences, preferencesHelper);
+    splitTunnelingIpsAndHostnamesWindowItem_ = new SplitTunnelingIpsAndHostnamesWindowItem(nullptr, preferences);
 
     connect(splitTunnelingWindowItem_, SIGNAL(appsPageClick()), SLOT(onSplitTunnelingAppsClick()));
     connect(splitTunnelingWindowItem_, SIGNAL(ipsAndHostnamesPageClick()), SLOT(onSplitTunnelingIpsAndHostnamesClick()));
@@ -344,21 +344,21 @@ void PreferencesWindowItem::moveOnePageBack()
         }
         else if (screen == CONNECTION_SCREEN_SPLIT_TUNNELING)
         {
-            SPLIT_TUNNEL_SCREEN screen = splitTunnelingWindowItem_->getScreen();
+            SPLIT_TUNNEL_SCREEN splitTunnelScreen = splitTunnelingWindowItem_->getScreen();
 
-            if (screen == SPLIT_TUNNEL_SCREEN_HOME)
+            if (splitTunnelScreen == SPLIT_TUNNEL_SCREEN_HOME)
             {
                 changeTab(tabControlItem_->currentTab());
             }
-            else if (screen == SPLIT_TUNNEL_SCREEN_APPS)
+            else if (splitTunnelScreen == SPLIT_TUNNEL_SCREEN_APPS)
             {
                 setPreferencesWindowToSplitTunnelingHome();
             }
-            else if (screen == SPLIT_TUNNEL_SCREEN_APPS_SEARCH)
+            else if (splitTunnelScreen == SPLIT_TUNNEL_SCREEN_APPS_SEARCH)
             {
                 setPreferencesWindowToSplitTunnelingAppsHome();
             }
-            else if (screen == SPLIT_TUNNEL_SCREEN_IPS_AND_HOSTNAMES)
+            else if (splitTunnelScreen == SPLIT_TUNNEL_SCREEN_IPS_AND_HOSTNAMES)
             {
                 setPreferencesWindowToSplitTunnelingHome();
             }
@@ -541,7 +541,7 @@ void PreferencesWindowItem::updatePositions()
     tabControlItem_->setHeight(curHeight_ - 99*G_SCALE);
 
     backArrowButton_->setPos(10*G_SCALE, 45*G_SCALE);
-    bottomResizeItem_->setPos(bottomResizeOriginX_*G_SCALE, curHeight_ - bottomResizeOffsetY_*G_SCALE);
+    bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X*G_SCALE, curHeight_ - BOTTOM_RESIZE_OFFSET_Y*G_SCALE);
 
     scrollAreaItem_->setHeight(curHeight_  - 102*G_SCALE);
     scrollAreaItem_->setPos(50*G_SCALE, 83*G_SCALE);
@@ -620,7 +620,7 @@ QRectF PreferencesWindowItem::getBottomResizeArea()
 void PreferencesWindowItem::updateChildItemsAfterHeightChanged()
 {
     tabControlItem_->setHeight(curHeight_  - 99*G_SCALE);
-    bottomResizeItem_->setPos(bottomResizeOriginX_ * G_SCALE, curHeight_  - bottomResizeOffsetY_*G_SCALE );
+    bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X * G_SCALE, curHeight_  - BOTTOM_RESIZE_OFFSET_Y*G_SCALE );
     scrollAreaItem_->setHeight(curHeight_  - 102*G_SCALE);
     advancedParametersWindowItem_->setHeight(curHeight_ / G_SCALE - 130); // only needed to extend the size of the parameters typing region
 }

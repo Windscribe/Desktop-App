@@ -258,7 +258,7 @@ private:
 
     bool isLoginOkAndConnectWindowVisible_;
     bool isCustomConfigMode_;
-    const int TIME_BEFORE_SHOW_SHUTDOWN_WINDOW = 1500;   // ms
+    static constexpr int TIME_BEFORE_SHOW_SHUTDOWN_WINDOW = 1500;   // ms
 
     void hideSupplementaryWidgets();
 

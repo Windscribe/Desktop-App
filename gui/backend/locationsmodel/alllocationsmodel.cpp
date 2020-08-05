@@ -17,12 +17,12 @@ void AllLocationsModel::update(QVector<LocationModelItem *> locations)
             continue;
         }
 
-        if (lmi->id == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+        if (lmi->id.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
         {
             continue;
         }
 
-        if (lmi->id == LocationID::STATIC_IPS_LOCATION_ID)
+        if (lmi->id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
         {
             continue;
         }

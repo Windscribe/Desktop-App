@@ -19,7 +19,7 @@ public:
 
     QString caption();
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 private slots:
     void onIsLaunchOnStartupClicked(bool isChecked);
@@ -59,14 +59,13 @@ signals:
     void languageChanged();
 
 protected:
-    void hideOpenPopups();
+    void hideOpenPopups() override;
 
 private:
     Preferences *preferences_;
 
     CheckBoxItem *checkBoxLaunchOnStart_;
     CheckBoxItem *checkBoxAutoConnect_;
-    CheckBoxItem *checkBoxAllowLanTraffic_;
     CheckBoxItem *checkBoxShowNotifications_;
     CheckBoxItem *checkBoxDockedToTray_;
 

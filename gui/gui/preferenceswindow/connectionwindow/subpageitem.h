@@ -13,12 +13,12 @@ class SubPageItem : public BaseItem
 public:
     explicit SubPageItem(ScalableGraphicsObject *parent, const QString &title, bool clickable = false);
 
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    virtual void hideOpenPopups();
+    void hideOpenPopups() override;
     virtual void setArrowText(QString text);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 private slots:
     void onHoverEnter();

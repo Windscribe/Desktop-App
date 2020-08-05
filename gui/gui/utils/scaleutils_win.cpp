@@ -48,12 +48,12 @@ double closestScaleFactor(double value, QList<double> set)
     double closest = 1.0;
     double closestDiff = fabs(value - closest);
 
-    foreach (double scaleFactor, set)
+    foreach (double scale_factor, set)
     {
-        double diff = fabs(value - scaleFactor);
+        double diff = fabs(value - scale_factor);
         if (diff < closestDiff)
         {
-            closest = scaleFactor;
+            closest = scale_factor;
             closestDiff = diff;
         }
     }
@@ -66,14 +66,14 @@ double closestLargerScaleFactor(double value, QList<double> set)
     double closest = 1.0;
     double closestDiff = 99999;
 
-    foreach (double scaleFactor, set)
+    foreach (double scale_factor, set)
     {
-        if (value < scaleFactor)
+        if (value < scale_factor)
         {
-            double diff = fabs(value - scaleFactor);
+            double diff = fabs(value - scale_factor);
             if (diff < closestDiff)
             {
-                closest = scaleFactor;
+                closest = scale_factor;
                 closestDiff = diff;
             }
         }

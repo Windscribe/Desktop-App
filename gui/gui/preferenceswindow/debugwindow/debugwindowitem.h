@@ -30,7 +30,7 @@ public:
     void setScreen(DEBUG_SCREEN screen);
     void setDebugLogResult(bool success);
 
-    virtual void updateScaling();
+    void updateScaling() override;
 
 signals:
     void viewLogClick();
@@ -71,7 +71,7 @@ private slots:
 #endif
 
 protected:
-    void hideOpenPopups();
+    void hideOpenPopups() override;
 
 private:
     SubPageItem *advParamtersItem_;

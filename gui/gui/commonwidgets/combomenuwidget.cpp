@@ -11,7 +11,6 @@
 namespace CommonWidgets {
 
 ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
-  , roundedCorner_(7)
   , menuListPosY_(0)
 {
 
@@ -50,9 +49,9 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     menuListWidget_->setStyleSheet(layoutStyleSheet);
 }
 
-void ComboMenuWidget::addItem(QString text, const QVariant &data)
+void ComboMenuWidget::addItem(QString text, const QVariant &item_data)
 {
-    ComboMenuWidgetButton *button = new ComboMenuWidgetButton(data);
+    ComboMenuWidgetButton *button = new ComboMenuWidgetButton(item_data);
     QFont *font = FontManager::instance().getFont(12, false);
     button->setFont(*font);
     button->setCheckable(true);
@@ -174,8 +173,7 @@ QPixmap ComboMenuWidget::getCurrentPixmapShape()
     painter.setPen(Qt::white);
     painter.setBrush(Qt::white);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.drawRoundRect(roundedBackgroundRect_,
-                          roundedCorner_, roundedCorner_);
+    painter.drawRoundRect(roundedBackgroundRect_, ROUNDED_CORNER, ROUNDED_CORNER);
     return tempPixmap;
 }
 
@@ -200,8 +198,7 @@ void ComboMenuWidget::paintEvent(QPaintEvent *event)
     painter.setPen(Qt::white);
     painter.setBrush(Qt::white);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.drawRoundRect(roundedBackgroundRect_,
-                          roundedCorner_, roundedCorner_);
+    painter.drawRoundRect(roundedBackgroundRect_, ROUNDED_CORNER, ROUNDED_CORNER);
 }
 
 void ComboMenuWidget::keyPressEvent(QKeyEvent *event)
@@ -237,7 +234,7 @@ void ComboMenuWidget::wheelEvent(QWheelEvent *event)
     }
 }
 
-void ComboMenuWidget::focusOutEvent(QFocusEvent *event)
+void ComboMenuWidget::focusOutEvent(QFocusEvent * /*event*/)
 {
     hide();
 }

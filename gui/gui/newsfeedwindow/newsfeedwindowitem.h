@@ -51,7 +51,7 @@ private:
 
     ScrollableMessage * messageItem_;
 
-    const int MARGIN = 16;
+    static constexpr int MARGIN = 16;
 
     QString windowTitle_;
     QString messageTitle_;

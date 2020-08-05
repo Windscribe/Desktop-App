@@ -31,14 +31,14 @@ private slots:
 
     void onExpandAnimationValueChanged(const QVariant &value);
 
-    void onLanguageChanged() override;
+    void onLanguageChanged();
 
 protected:
     void hideOpenPopups() override;
 
 private:
-    const int COLLAPSED_HEIGHT = 50;
-    const int EXPANDED_HEIGHT = 50 + 43;
+    static constexpr int COLLAPSED_HEIGHT = 50;
+    static constexpr int EXPANDED_HEIGHT = 50 + 43;
 
     ComboBoxItem *comboBoxDNS_;
     EditBoxItem *editBoxIP_;

@@ -28,7 +28,7 @@ private:
     QFileSystemWatcher dirWatcher_;
     QStringList curFiles_;
 
-    const int EMIT_TIMEOUT = 3000;
+    static constexpr int EMIT_TIMEOUT = 3000;
     QTimer emitTimer_;
 
     void checkFiles(bool bWithEmitSignal, bool bFileChanged);

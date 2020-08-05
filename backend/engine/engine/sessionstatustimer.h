@@ -26,7 +26,7 @@ private slots:
 
 private:
 
-    const int TIMER_INTERVAL = 1000;
+    static constexpr int TIMER_INTERVAL = 1000;
 
     bool isStarted_;
     int msec_;

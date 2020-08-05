@@ -32,8 +32,8 @@ public:
     std::string processClientHeaders();
 
 private:
-    const int HTTP_PORT = 80;
-    const int HTTP_PORT_SSL = 443;
+    static constexpr int HTTP_PORT = 80;
+    static constexpr int HTTP_PORT_SSL = 443;
 
     int extractUrl (const char *url, int default_port);
     void stripUsernamePassword (std::string &hostStr);
