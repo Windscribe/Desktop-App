@@ -6,6 +6,7 @@
 #include <QScroller>
 #include <qmath.h>
 #include "graphicresources/fontmanager.h"
+#include "cursorupdatehelper.h"
 #include "widgetlocationssizes.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
@@ -83,8 +84,7 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QAbstractScrollArea(parent),
 
     setFocusPolicy(Qt::NoFocus);
     easingCurve_.setType(QEasingCurve::Linear);
-    viewport()->setCursor(Qt::PointingHandCursor);
-    curCursorShape_ = Qt::PointingHandCursor;
+    cursorUpdateHelper_.reset(new CursorUpdateHelper(viewport()));
 
     ///toolTipRender_ = new ToolTipRender("", QPoint(0, 0));
 
@@ -383,14 +383,11 @@ void WidgetLocations::paintEvent(QPaintEvent *event)
         if (bCursorInViewport)
         {
             detectSelectedItem(QCursor::pos());
+            setCursorForSelected();
         }
 
         if (!isScrollAnimationNow_)
         {
-            if (bCursorInViewport)
-            {
-                setCursorForSelected();
-            }
             prevCursorPos_ = QPoint();
             if (bCursorInViewport)
             {
@@ -498,7 +495,7 @@ void WidgetLocations::scrollContentsBy(int dx, int dy)
     {
         topInd_ = -verticalScrollBar()->value();
         isScrollAnimationNow_ = false;
-        setPointingHandCursor();
+        cursorUpdateHelper_->setPointingHandCursor();
         viewport()->update();
         return;
     }
@@ -516,7 +513,7 @@ void WidgetLocations::scrollContentsBy(int dx, int dy)
     topInd_ = -verticalScrollBar()->value();
     scrollAnimationElapsedTimer_.start();
     isScrollAnimationNow_ = true;
-    setPointingHandCursor();
+    cursorUpdateHelper_->setPointingHandCursor();
     viewport()->update();
 }
 
@@ -1033,33 +1030,33 @@ void WidgetLocations::setCursorForSelected()
         {
             if (items_[indSelected_]->isCursorOverFavouriteIcon())
             {
-                setPointingHandCursor();
+                cursorUpdateHelper_->setPointingHandCursor();
             }
             else
             {
-                setForbiddenCursor();
+                cursorUpdateHelper_->setForbiddenCursor();
             }
         }
         else if (items_[indSelected_]->isForbidden(items_[indSelected_]->getSelected()))
         {
             if (items_[indSelected_]->isCursorOverArrow())
             {
-                setPointingHandCursor();
+                cursorUpdateHelper_->setPointingHandCursor();
             }
             else
             {
-                setForbiddenCursor();
+                cursorUpdateHelper_->setForbiddenCursor();
             }
         }
         else
         {
             if (!items_[indSelected_]->isCursorOverArrow() && items_[indSelected_]->isNoConnection(items_[indSelected_]->getSelected()))
             {
-                setForbiddenCursor();
+                cursorUpdateHelper_->setForbiddenCursor();
             }
             else
             {
-                setPointingHandCursor();
+                cursorUpdateHelper_->setPointingHandCursor();
             }
         }
     }
@@ -1123,24 +1120,6 @@ int WidgetLocations::detectVisibleIndForCursorPos(const QPoint &pt)
 {
     QPoint localPt = viewport()->mapFromGlobal(pt);
     return (localPt.y() - getTopOffset()) / getItemHeight();
-}
-
-void WidgetLocations::setForbiddenCursor()
-{
-    if (curCursorShape_ != Qt::ForbiddenCursor)
-    {
-        viewport()->setCursor(Qt::ForbiddenCursor);
-        curCursorShape_ = Qt::ForbiddenCursor;
-    }
-}
-
-void WidgetLocations::setPointingHandCursor()
-{
-    if (curCursorShape_ != Qt::PointingHandCursor)
-    {
-        viewport()->setCursor(Qt::PointingHandCursor);
-        curCursorShape_ = Qt::PointingHandCursor;
-    }
 }
 
 void WidgetLocations::handleMouseMoveForTooltip()

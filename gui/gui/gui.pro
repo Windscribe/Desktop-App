@@ -270,6 +270,7 @@ SOURCES += \
     locationswindow/widgetlocations/backgroundpixmapanimation.cpp \
     locationswindow/widgetlocations/cityitem.cpp \
     locationswindow/widgetlocations/citynode.cpp \
+    locationswindow/widgetlocations/cursorupdatehelper.cpp \
     locationswindow/widgetlocations/customscrollbar.cpp \
     locationswindow/widgetlocations/itemtimems.cpp \
     locationswindow/widgetlocations/locationitem.cpp \
@@ -479,6 +480,7 @@ HEADERS += \
     locationswindow/widgetlocations/backgroundpixmapanimation.h \
     locationswindow/widgetlocations/cityitem.h \
     locationswindow/widgetlocations/citynode.h \
+    locationswindow/widgetlocations/cursorupdatehelper.h \
     locationswindow/widgetlocations/customscrollbar.h \
     locationswindow/widgetlocations/itemtimems.h \
     locationswindow/widgetlocations/iwidgetlocationsinfo.h \

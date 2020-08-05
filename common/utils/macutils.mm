@@ -27,6 +27,13 @@ void MacUtils::invalidateShadow(void *pNSView)
     [win invalidateShadow];
 }
 
+void MacUtils::invalidateCursorRects(void *pNSView)
+{
+    NSView *view = (NSView *)pNSView;
+    NSWindow *win = [view window];
+    [win resetCursorRects];
+}
+
 void MacUtils::getOSVersionAndBuild(QString &osVersion, QString &build)
 {
     osVersion = QString::fromStdString(execCmd("sw_vers -productVersion")).trimmed();

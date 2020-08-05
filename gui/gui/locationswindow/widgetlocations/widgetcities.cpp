@@ -13,6 +13,7 @@
 #include "cityitem.h"
 #include "staticipdeviceitem.h"
 #include "configfooteritem.h"
+#include "cursorupdatehelper.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
@@ -44,7 +45,6 @@ WidgetCities::WidgetCities(QWidget *parent) : QAbstractScrollArea(parent),
     setFrameStyle(QFrame::NoFrame);
     setMouseTracking(true);
     setStyleSheet("background-color: rgba(0,0,0,0)");
-
 
 #ifdef Q_OS_WIN
     viewport()->grabGesture(Qt::TapGesture);
@@ -91,8 +91,7 @@ WidgetCities::WidgetCities(QWidget *parent) : QAbstractScrollArea(parent),
 
     setFocusPolicy(Qt::NoFocus);
     easingCurve_.setType(QEasingCurve::Linear);
-    viewport()->setCursor(Qt::PointingHandCursor);
-    curCursorShape_ = Qt::PointingHandCursor;
+    cursorUpdateHelper_.reset(new CursorUpdateHelper(viewport()));
 
     setupScrollBar();
 }
@@ -527,14 +526,11 @@ void WidgetCities::paintEvent(QPaintEvent *event)
         if (bCursorInViewport)
         {
             detectSelectedItem(QCursor::pos());
+            setCursorForSelected();
         }
 
         if (!isScrollAnimationNow_)
         {
-            if (bCursorInViewport)
-            {
-                setCursorForSelected();
-            }
             prevCursorPos_ = QPoint();
             if (bCursorInViewport)
             {
@@ -644,7 +640,7 @@ void WidgetCities::scrollContentsBy(int dx, int dy)
     {
         topInd_ = -verticalScrollBar()->value();
         isScrollAnimationNow_ = false;
-        setPointingHandCursor();
+        cursorUpdateHelper_->setPointingHandCursor();
         viewport()->update();
         return;
     }
@@ -662,7 +658,7 @@ void WidgetCities::scrollContentsBy(int dx, int dy)
     topInd_ = -verticalScrollBar()->value();
     scrollAnimationElapsedTimer_.start();
     isScrollAnimationNow_ = true;
-    setPointingHandCursor();
+    cursorUpdateHelper_->setPointingHandCursor();
     viewport()->update();
 }
 
@@ -961,26 +957,26 @@ void WidgetCities::setCursorForSelected()
         {
             if (items_[indSelected_]->isCursorOverFavouriteIcon())
             {
-                setPointingHandCursor();
+                cursorUpdateHelper_->setPointingHandCursor();
             }
             else
             {
-                setForbiddenCursor();
+                cursorUpdateHelper_->setForbiddenCursor();
             }
         }
         else if (items_[indSelected_]->isForbidden())
         {
-            setForbiddenCursor();
+            cursorUpdateHelper_->setForbiddenCursor();
         }
         else
         {
             if (items_[indSelected_]->isNoConnection())
             {
-                setForbiddenCursor();
+                cursorUpdateHelper_->setForbiddenCursor();
             }
             else
             {
-                setPointingHandCursor();
+                cursorUpdateHelper_->setPointingHandCursor();
             }
         }
     }
@@ -1020,24 +1016,6 @@ int WidgetCities::detectVisibleIndForCursorPos(const QPoint &pt)
 {
     QPoint localPt = viewport()->mapFromGlobal(pt);
     return (localPt.y() - getTopOffset()) / getItemHeight();
-}
-
-void WidgetCities::setForbiddenCursor()
-{
-    if (curCursorShape_ != Qt::ForbiddenCursor)
-    {
-        viewport()->setCursor(Qt::ForbiddenCursor);
-        curCursorShape_ = Qt::ForbiddenCursor;
-    }
-}
-
-void WidgetCities::setPointingHandCursor()
-{
-    if (curCursorShape_ != Qt::PointingHandCursor)
-    {
-        viewport()->setCursor(Qt::PointingHandCursor);
-        curCursorShape_ = Qt::PointingHandCursor;
-    }
 }
 
 void WidgetCities::handleMouseMoveForTooltip()

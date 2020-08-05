@@ -8,6 +8,7 @@ namespace MacUtils
 {
     void activateApp();
     void invalidateShadow(void *pNSView);
+    void invalidateCursorRects(void *pNSView);
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     QString getOsVersion();
 

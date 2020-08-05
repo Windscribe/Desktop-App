@@ -20,6 +20,8 @@ class FormConnect;
 
 namespace GuiLocations {
 
+class CursorUpdateHelper;
+
 class WidgetLocations : public QAbstractScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT
@@ -119,7 +121,7 @@ private:
 
     QEasingCurve easingCurve_;
 
-    Qt::CursorShape curCursorShape_;
+    std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
 
     // variables for tooltip
     QPoint prevCursorPos_;
@@ -151,9 +153,6 @@ private:
     void setVisibleExpandedItem(int ind);
     LocationID detectLocationForTopInd(int topInd);
     int detectVisibleIndForCursorPos(const QPoint &pt);
-
-    void setForbiddenCursor();
-    void setPointingHandCursor();
 
     void handleMouseMoveForTooltip();
     void handleLeaveForTooltip();
