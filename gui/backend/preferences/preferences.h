@@ -135,6 +135,7 @@ signals:
     void packetSizeChanged(const ProtoTypes::PacketSize &ps);
     void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
     void isIgnoreSslErrorsChanged(bool b);
+    void invalidLanAddressNotification(QString address);
 
 #ifdef Q_OS_WIN
     void minimizeAndCloseToTrayChanged(bool b);

@@ -14,6 +14,8 @@ CheckBoxItem::CheckBoxItem(ScalableGraphicsObject *parent, const QString &captio
 {
     checkBoxButton_ = new CheckBoxButton(this);
     connect(checkBoxButton_, SIGNAL(stateChanged(bool)), SIGNAL(stateChanged(bool)));
+    connect(checkBoxButton_, SIGNAL(hoverEnter()), SIGNAL(buttonHoverEnter()));
+    connect(checkBoxButton_, SIGNAL(hoverLeave()), SIGNAL(buttonHoverLeave()));
 
     line_ = new DividerLine(this, 276);
     line_->setPos(24*G_SCALE, (50 - 3)*G_SCALE);
@@ -53,6 +55,11 @@ void CheckBoxItem::setLineVisible(bool visible)
     {
         line_->hide();
     }
+}
+
+QPointF CheckBoxItem::getButtonScenePos() const
+{
+    return checkBoxButton_->scenePos();
 }
 
 void CheckBoxItem::updateScaling()

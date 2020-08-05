@@ -1,6 +1,9 @@
 #include "connectionwindowitem.h"
 
+#include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QPainter>
+#include "dpiscalemanager.h"
 #include "languagecontroller.h"
 #include "utils/protoenumtostring.h"
 
@@ -16,6 +19,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onConnectionModePreferencesChanged(ProtoTypes::ConnectionSettings)));
     connect(preferences, SIGNAL(packetSizeChanged(ProtoTypes::PacketSize)), SLOT(onPacketSizePreferencesChanged(ProtoTypes::PacketSize)));
     connect(preferences, SIGNAL(isAllowLanTrafficChanged(bool)), SLOT(onIsAllowLanTrafficPreferencedChanged(bool)));
+    connect(preferences, SIGNAL(invalidLanAddressNotification(QString)), SLOT(onInvalidLanAddressNotification(QString)));
     connect(preferences, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingPreferencesChanged(ProtoTypes::MacAddrSpoofing)));
     //connect(preferences, SIGNAL(dnsWhileConnectedChanged(DNSWhileConnected)), SLOT(onDNSWhileConnectedPreferencesChanged(DNSWhileConnected)));
     connect(preferencesHelper, SIGNAL(isFirewallBlockedChanged(bool)), SLOT(onIsFirewallBlockedChanged(bool)));
@@ -59,6 +63,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     checkBoxAllowLanTraffic_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN traffic"), QString());
     checkBoxAllowLanTraffic_->setState(preferences->isAllowLanTraffic());
     connect(checkBoxAllowLanTraffic_, SIGNAL(stateChanged(bool)), SLOT(onIsAllowLanTrafficClicked(bool)));
+    connect(checkBoxAllowLanTraffic_, SIGNAL(buttonHoverLeave()), SLOT(onAllowLanTrafficButtonHoverLeave()));
     addItem(checkBoxAllowLanTraffic_);
 
     macSpoofingItem_ = new MacSpoofingItem(this);
@@ -179,6 +184,42 @@ void ConnectionWindowItem::onKillTcpSocketsPreferencesChanged(bool b)
 void ConnectionWindowItem::onIsAllowLanTrafficPreferencedChanged(bool b)
 {
     checkBoxAllowLanTraffic_->setState(b);
+}
+
+void ConnectionWindowItem::onInvalidLanAddressNotification(QString address)
+{
+    emit hideTooltip(TOOLTIP_ID_INVALID_LAN_ADDRESS);
+
+    const auto *the_scene = scene();
+    if (!the_scene || !isVisible())
+        return;
+    const auto *view = the_scene->views().first();
+    if (!view)
+        return;
+
+    const auto global_pt = view->mapToGlobal(
+        view->mapFromScene(checkBoxAllowLanTraffic_->getButtonScenePos()));
+
+    const int width = 150 * G_SCALE;
+    const int posX = global_pt.x() + 15 * G_SCALE;
+    const int posY = global_pt.y() - 5 * G_SCALE;
+
+    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_INVALID_LAN_ADDRESS);
+    ti.x = posX;
+    ti.y = posY;
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.9;
+    ti.title = address;
+    ti.desc = tr("Your IP address is not in a LAN address range. Please reconfigure your LAN with "
+                 "a valid RFC-1918 IP range.");
+    ti.width = width;
+    ti.delay = 100;
+    emit showTooltip(ti);
+}
+
+void ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave()
+{
+    emit hideTooltip(TOOLTIP_ID_INVALID_LAN_ADDRESS);
 }
 
 void ConnectionWindowItem::onIsFirewallBlockedChanged(bool bFirewallBlocked)

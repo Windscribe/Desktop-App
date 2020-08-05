@@ -21,6 +21,9 @@ public:
 
 signals:
     void stateChanged(bool isChecked);
+    void hoverEnter();
+    void hoverLeave();
+
 
 protected:
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);

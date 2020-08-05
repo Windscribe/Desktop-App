@@ -19,11 +19,14 @@ public:
     bool isChecked() const;
 
     void setLineVisible(bool visible);
+    QPointF getButtonScenePos() const;
 
     virtual void updateScaling();
 
 signals:
     void stateChanged(bool isChecked);
+    void buttonHoverEnter();
+    void buttonHoverLeave();
 
 private:
     QString strCaption_;

@@ -1,9 +1,11 @@
 #include "preferences.h"
 #include <google/protobuf/util/message_differencer.h>
 #include "../persistentstate.h"
+#include "detectlanrange.h"
 #include "guisettingsfromver1.h"
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
 
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
@@ -50,6 +52,13 @@ void Preferences::setAllowLanTraffic(bool b)
 {
     if (engineSettings_.is_allow_lan_traffic() != b)
     {
+        const auto address = Utils::getLocalIP();
+        if (b && !DetectLanRange::isRfcLanRange(address)) {
+            b = false;
+            qCDebug(LOG_BASIC) << "IP address not in a valid RFC-1918 range:" << address;
+            emit invalidLanAddressNotification(address);
+        }
+
         engineSettings_.set_is_allow_lan_traffic(b);
         emit isAllowLanTrafficChanged(engineSettings_.is_allow_lan_traffic());
         emit updateEngineSettings();

@@ -109,12 +109,14 @@ void CheckBoxButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
     setCursor(Qt::PointingHandCursor);
+    emit hoverEnter();
 }
 
 void CheckBoxButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
     setCursor(Qt::ArrowCursor);
+    emit hoverLeave();
 }
 
 void CheckBoxButton::onOpacityChanged(const QVariant &value)

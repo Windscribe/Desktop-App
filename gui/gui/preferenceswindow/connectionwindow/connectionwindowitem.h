@@ -49,6 +49,7 @@ private slots:
     void onPacketSizeChanged(const ProtoTypes::PacketSize &ps);
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
     void onIsAllowLanTrafficClicked(bool b);
+    void onAllowLanTrafficButtonHoverLeave();
     //void onDNSWhileConnectedItemChanged(DNSWhileConnected dns);
 
     void onFirewallModePreferencesChanged(const ProtoTypes::FirewallSettings &fm);
@@ -56,6 +57,7 @@ private slots:
     void onPacketSizePreferencesChanged(const ProtoTypes::PacketSize &ps);
     void onMacAddrSpoofingPreferencesChanged(const ProtoTypes::MacAddrSpoofing &mas);
     void onIsAllowLanTrafficPreferencedChanged(bool b);
+    void onInvalidLanAddressNotification(QString address);
     void onIsFirewallBlockedChanged(bool bFirewallBlocked);
 #ifdef Q_OS_WIN
     void onKillTcpSocketsPreferencesChanged(bool b);

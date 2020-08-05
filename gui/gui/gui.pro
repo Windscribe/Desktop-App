@@ -168,6 +168,7 @@ SOURCES += \
     ../backend/locationsmodel/staticipscitiesmodel.cpp \
     ../backend/locationsmodel/windflixlocationsmodel.cpp \
     ../backend/preferences/accountinfo.cpp \
+    ../backend/Preferences/detectlanrange.cpp \
     ../backend/preferences/guisettingsfromver1.cpp \
     ../backend/preferences/preferences.cpp \
     ../backend/preferences/preferenceshelper.cpp \
@@ -381,6 +382,7 @@ HEADERS += \
     ../backend/locationsmodel/staticipscitiesmodel.h \
     ../backend/locationsmodel/windflixlocationsmodel.h \
     ../backend/preferences/accountinfo.h \
+    ../backend/preferences/detectlanrange.h \
     ../backend/preferences/guisettingsfromver1.h \
     ../backend/preferences/preferences.h \
     ../backend/preferences/preferenceshelper.h \
