@@ -622,7 +622,7 @@ void PreferencesWindowItem::updateChildItemsAfterHeightChanged()
     tabControlItem_->setHeight(curHeight_  - 99*G_SCALE);
     bottomResizeItem_->setPos(bottomResizeOriginX_ * G_SCALE, curHeight_  - bottomResizeOffsetY_*G_SCALE );
     scrollAreaItem_->setHeight(curHeight_  - 102*G_SCALE);
-    advancedParametersWindowItem_->setHeight(curHeight_  - 130*G_SCALE); // only needed to extend the size of the parameters typing region
+    advancedParametersWindowItem_->setHeight(curHeight_ / G_SCALE - 130); // only needed to extend the size of the parameters typing region
 }
 
 } // namespace PreferencesWindow

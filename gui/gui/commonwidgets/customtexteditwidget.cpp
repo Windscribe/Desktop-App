@@ -12,6 +12,7 @@
 CustomTextEditWidget::CustomTextEditWidget(QWidget *parent) : QPlainTextEdit (parent)
     , width_(0)
     , height_(0)
+    , viewportHeight_(0)
     , stepSize_(1)
     , pressed_(false)
 {
@@ -208,7 +209,8 @@ void CustomTextEditWidget::recalcHeight()
     // document manually.
     document()->adjustSize();
 
-    const int newHeight = (document()->lineCount() + 1) * lineHeight();
+    const int newHeight = qMax<int>( viewportHeight_, ((document()->lineCount() + 1) * lineHeight()) / G_SCALE );
+
 
     if (newHeight != height_)
     {
@@ -302,6 +304,7 @@ int CustomTextEditWidget::lineHeight()
 
 void CustomTextEditWidget::updateScaling()
 {
+    recalcHeight();
     emit recenterWidget();
     menu_->clearItems();
     menu_->clear();

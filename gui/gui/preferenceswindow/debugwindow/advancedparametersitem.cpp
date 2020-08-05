@@ -14,7 +14,6 @@ namespace PreferencesWindow {
 AdvancedParametersItem::AdvancedParametersItem(ScalableGraphicsObject *parent) : BaseItem(parent, 50)
   , saved_(false)
 {
-
     QString ss = "QPlainTextEdit { background: rgb(2,13,28); color: rgb(255, 255, 255) }";
     //QString ss = "QPlainTextEdit { background: rgb(100,100,100); color: rgb(255, 255, 255) }";
 
@@ -27,8 +26,7 @@ AdvancedParametersItem::AdvancedParametersItem(ScalableGraphicsObject *parent) :
     textEdit_->setStyleSheet(ss);
     textEdit_->setBackgroundVisible(false);
     textEdit_->setFrameStyle(QFrame::NoFrame);
-    textEdit_->setWidth(static_cast<int>(boundingRect().width())- 70);
-    textEdit_->setMinimumHeight(290 - RECT_MARGIN_HEIGHT);
+    textEdit_->setFixedWidth(static_cast<int>(boundingRect().width())- 70);
     textEdit_->verticalScrollBar()->setEnabled(false);
     textEdit_->setStepSize(textEdit_->lineHeight());
 
@@ -163,9 +161,13 @@ void AdvancedParametersItem::updateWidgetPositions()
                         height_ * G_SCALE - kMarginHeight);
 
     scrollArea_->setHeight(height_ - 90);
-    scrollArea_->setFixedWidth(scrollArea_->sizeHint().width());
-    scrollArea_->setMaximumHeight(scrollArea_->sizeHint().height());
-    update();
+    const auto scrollSize = scrollArea_->sizeHint();
+
+    // The order of the following calls is important, do not touch.
+    scrollArea_->setMinimumWidth(scrollSize.width());
+    scrollArea_->setMaximumSize(scrollSize);
+    proxyWidget_->setMinimumSize(scrollArea_->minimumSize());
+    proxyWidget_->update();
 }
 
 void AdvancedParametersItem::updateScaling()
@@ -173,6 +175,7 @@ void AdvancedParametersItem::updateScaling()
     ScalableGraphicsObject::updateScaling();
 
     textEdit_->setFont(*FontManager::instance().getFont(12, false));
+    textEdit_->setFixedWidth(boundingRect().width() - 70 * G_SCALE);
     textEdit_->updateScaling();
 
     scrollArea_->move(TEXT_MARGIN_WIDTH * G_SCALE, TEXT_MARGIN_HEIGHT * G_SCALE);
