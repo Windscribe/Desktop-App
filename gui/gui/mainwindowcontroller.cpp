@@ -2742,6 +2742,10 @@ void MainWindowController::handleNextWindowChange()
     {
         changeWindow(queueWindowChanges_.dequeue());
     }
+    else
+    {
+        invalidateShadow_mac();
+    }
 }
 
 void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceCollapsed)
