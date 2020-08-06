@@ -247,9 +247,9 @@ SOURCES += \
     dpiscalemanager.cpp \
     freetrafficnotificationcontroller.cpp \
     guitest.cpp \
-    locationstraymenubutton.cpp \
-    locationstraymenuitemdelegate.cpp \
-    locationstraymenuwidget.cpp \
+    systemtray/locationstraymenubutton.cpp \
+    systemtray/locationstraymenuitemdelegate.cpp \
+    systemtray/locationstraymenuwidget.cpp \
     loginattemptscontroller.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -467,9 +467,9 @@ HEADERS += \
     dpiscalemanager.h \
     freetrafficnotificationcontroller.h \
     guitest.h \
-    locationstraymenubutton.h \
-    locationstraymenuitemdelegate.h \
-    locationstraymenuwidget.h \
+    systemtray/locationstraymenubutton.h \
+    systemtray/locationstraymenuitemdelegate.h \
+    systemtray/locationstraymenuwidget.h \
     loginattemptscontroller.h \
     mainwindow.h \
     graphicresources/fontmanager.h \

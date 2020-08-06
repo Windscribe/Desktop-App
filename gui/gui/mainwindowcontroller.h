@@ -91,6 +91,10 @@ public:
 
     void clearServerRatingsTooltipState();
 
+#ifdef Q_OS_MAC
+    void setFirstSystemTrayPosX(int posX);
+#endif
+
 signals:
     void shadowUpdated();
     void revealConnectWindowStateChanged(bool revealing);
@@ -246,6 +250,10 @@ private:
     int initWindowInitHeight_;
 
     bool isDocked_;
+
+#ifdef Q_OS_MAC
+    int firstSystemTrayPosX_ = 0;
+#endif
 
 #ifdef Q_OS_WIN
     enum TaskbarLocation { TASKBAR_HIDDEN, TASKBAR_BOTTOM, TASKBAR_LEFT, TASKBAR_RIGHT, TASKBAR_TOP };

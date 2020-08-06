@@ -2471,6 +2471,9 @@ void MainWindow::setupTrayIcon()
     trayIcon_.setIcon(iconManager_.getDisconnectedIcon());
     trayIcon_.show();
 
+#ifdef Q_OS_MAC
+    mainWindowController_->setFirstSystemTrayPosX(trayIcon_.geometry().x());
+#endif
     connect(&trayIcon_, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             SLOT( onTrayActivated(QSystemTrayIcon::ActivationReason) ));
 }

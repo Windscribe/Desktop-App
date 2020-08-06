@@ -17,7 +17,8 @@
 #include "graphicresources/iconmanager.h"
 #include "localhttpserver/localhttpserver.h"
 #include "guitest.h"
-#include "locationstraymenuwidget.h"
+#include "systemtray/locationstraymenuwidget.h"
+
 
 class MainWindow : public QWidget
 {

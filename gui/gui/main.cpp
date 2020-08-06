@@ -84,7 +84,10 @@ int main(int argc, char *argv[])
     w.show();
 
     DpiScaleManager::instance().init(&w);
-    w.updateScaling();
+    QTimer::singleShot(0, [&w](){
+        w.updateScaling();
+    });
+
 
 
 #ifdef Q_OS_WIN
