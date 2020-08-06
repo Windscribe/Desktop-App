@@ -10,9 +10,9 @@ class IconManager
 public:
     IconManager();
 
-    QIcon &getDisconnectedIcon() { return disconnectedIcon_; }
-    QIcon &getConnectingIcon() { return connectingIcon_; }
-    QIcon &getConnectedIcon() { return connectedIcon_; }
+    const QIcon *getDisconnectedIcon() const { return &disconnectedIcon_; }
+    const QIcon *getConnectingIcon() const { return &connectingIcon_; }
+    const QIcon *getConnectedIcon() const { return &connectedIcon_; }
 
 private:
     QIcon disconnectedIcon_;

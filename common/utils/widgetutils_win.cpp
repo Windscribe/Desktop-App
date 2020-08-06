@@ -9,6 +9,7 @@
 #include <QXmlStreamReader>
 
 Q_GUI_EXPORT QPixmap qt_pixmapFromWinHICON(HICON icon);
+Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &p);
 
 QPixmap *WidgetUtils_win::extractProgramIcon(QString filePath)
 {
@@ -100,3 +101,44 @@ QPixmap *WidgetUtils_win::extractWindowsAppProgramIcon(QString filePath)
 
     return logoPixmap;
 }
+
+void WidgetUtils_win::updateSystemTrayIcon(const QPixmap &pixmap, QString tooltip)
+{
+    // Constants are taken from "qwindowssystemtrayicon.cpp".
+    const LPCWSTR kWindowName = L"QTrayIconMessageWindow";
+    const UINT q_uNOTIFYICONID = 0;
+
+    const auto appInstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
+    HWND trayHwnd = 0;
+    while ((trayHwnd = FindWindowEx(0, trayHwnd, nullptr, kWindowName)) != 0) {
+        const auto winInstance =
+            reinterpret_cast<const HINSTANCE>(GetWindowLongPtr(trayHwnd, GWLP_HINSTANCE));
+        if (winInstance == appInstance)
+            break;
+    }
+    if (!trayHwnd)
+        return;
+
+    NOTIFYICONDATA tnd;
+    memset(&tnd, 0, sizeof(tnd));
+    tnd.cbSize = sizeof(tnd);
+    tnd.uVersion = NOTIFYICON_VERSION_4;
+    tnd.uID = q_uNOTIFYICONID;
+    tnd.hWnd = trayHwnd;
+    tnd.uFlags = NIF_SHOWTIP;
+    if (!pixmap.isNull()) {
+        tnd.uFlags |= NIF_ICON;
+        tnd.hIcon = qt_pixmapToWinHICON(pixmap);
+    }
+    if (!tooltip.isEmpty()) {
+        tnd.uFlags |= NIF_TIP;
+        const int maxsize = sizeof(tnd.szTip) / sizeof(wchar_t);
+        const int length = qMin(maxsize - 1, tooltip.size());
+        if (length < tooltip.size())
+            tooltip.truncate(length);
+        tooltip.toWCharArray(tnd.szTip);
+        tnd.szTip[length] = wchar_t(0);
+    }
+    Shell_NotifyIcon(NIM_MODIFY, &tnd);
+}
+

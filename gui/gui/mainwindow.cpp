@@ -32,6 +32,7 @@
 
 #ifdef Q_OS_WIN
     #include "utils/winutils.h"
+    #include "utils/widgetutils_win.h"
     #include <windows.h>
 #else
     #include "utils/macutils.h"
@@ -44,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     backend_(NULL),
     logViewerWindow_(nullptr),
+    currentTrayIconType_(TrayIconType::DISCONNECTED),
     trayIcon_(QIcon(":/Resources/icons/icon_disconnected.ico"), this),
     bNotificationConnectedShowed_(false),
     bytesTransferred_(0),
@@ -1535,14 +1537,14 @@ void MainWindow::onBackendMyIpChanged(QString ip, bool isFromDisconnectedState)
 
     if (isFromDisconnectedState)
     {
-        trayIcon_.setToolTip(tr("Disconnected") + "\n" + ip);
+        updateTrayTooltip(tr("Disconnected") + "\n" + ip);
     }
     else
     {
         LocationsModel::LocationInfo li;
         if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
         {
-            trayIcon_.setToolTip(tr("Connected to ") + li.firstName + "-" + li.secondName + "\n" + ip);
+            updateTrayTooltip(tr("Connected to ") + li.firstName + "-" + li.secondName + "\n" + ip);
         }
     }
 }
@@ -1608,14 +1610,11 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
         bytesTransferred_ = 0;
         connectionElapsedTimer_.start();
 
-        trayIcon_.setIcon(iconManager_.getConnectedIcon());
-        qApp->setWindowIcon(iconManager_.getConnectedIcon());
+        updateTrayIcon(TrayIconType::CONNECTED);
     }
     else if (connectState.connect_state_type() == ProtoTypes::CONNECTING || connectState.connect_state_type() == ProtoTypes::DISCONNECTING)
     {
-        trayIcon_.setIcon(iconManager_.getConnectingIcon());
-        qApp->setWindowIcon(iconManager_.getConnectingIcon());
-
+        updateTrayIcon(TrayIconType::CONNECTING);
         mainWindowController_->clearServerRatingsTooltipState();
     }
     else if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
@@ -1628,8 +1627,7 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
             }
             bNotificationConnectedShowed_ = false;
         }
-        trayIcon_.setIcon(iconManager_.getDisconnectedIcon());
-        qApp->setWindowIcon(iconManager_.getDisconnectedIcon());
+        updateTrayIcon(TrayIconType::DISCONNECTED);
 
         if (connectState.disconnect_reason() == ProtoTypes::DISCONNECTED_WITH_ERROR)
         {
@@ -2433,6 +2431,7 @@ void MainWindow::onScaleChanged()
     ImageResourcesSvg::instance().clearHash();
     FontManager::instance().clearCache();
     mainWindowController_->updateScaling();
+    updateTrayIcon(currentTrayIconType_);
 }
 
 void MainWindow::onLanguageChanged()
@@ -2479,7 +2478,7 @@ void MainWindow::backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE er
 
 void MainWindow::setupTrayIcon()
 {
-    trayIcon_.setToolTip(tr("Disconnected") + "\n" + PersistentState::instance().lastExternalIp());
+    updateTrayTooltip(tr("Disconnected") + "\n" + PersistentState::instance().lastExternalIp());
 
     trayIcon_.setContextMenu(&trayMenu_);
     connect(&trayMenu_, SIGNAL(aboutToShow()), SLOT(onTrayMenuAboutToShow()));
@@ -2492,8 +2491,9 @@ void MainWindow::setupTrayIcon()
     locationsMenu_.addAction(listWidgetAction_);
     connect(locationsTrayMenuWidget_, SIGNAL(locationSelected(int)), SLOT(onLocationsTrayMenuLocationSelected(int)));
 
-    trayIcon_.setIcon(iconManager_.getDisconnectedIcon());
+    trayIcon_.setIcon(*iconManager_.getDisconnectedIcon());
     trayIcon_.show();
+    updateTrayIcon(TrayIconType::DISCONNECTED);
 
 #ifdef Q_OS_MAC
     mainWindowController_->setFirstSystemTrayPosX(trayIcon_.geometry().x());
@@ -2696,4 +2696,43 @@ void MainWindow::collapsePreferences()
     mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(
         backend_->isFirewallEnabled());
     mainWindowController_->collapsePreferences();
+}
+
+void MainWindow::updateTrayIcon(TrayIconType type)
+{
+    const QIcon *icon = nullptr;
+    switch (type) {
+    case TrayIconType::DISCONNECTED:
+        icon = iconManager_.getDisconnectedIcon();
+        break;
+    case TrayIconType::CONNECTING:
+        icon = iconManager_.getConnectingIcon();
+        break;
+    case TrayIconType::CONNECTED:
+        icon = iconManager_.getConnectedIcon();
+        break;
+    default:
+        break;
+    }
+     if (icon) {
+         if (currentTrayIconType_ != type)
+             qApp->setWindowIcon(*icon);
+#if defined(Q_OS_WIN)
+         const QPixmap pm = icon->pixmap(QSize(16, 16) * G_SCALE);
+         if (!pm.isNull())
+            WidgetUtils_win::updateSystemTrayIcon(pm, QString());
+#else
+         trayIcon_.setIcon(*icon);
+#endif
+    }
+    currentTrayIconType_ = type;
+}
+
+void MainWindow::updateTrayTooltip(QString tooltip)
+{
+#if defined(Q_OS_WIN)
+    WidgetUtils_win::updateSystemTrayIcon(QPixmap(), std::move(tooltip));
+#else
+    trayIcon_.setToolTip(tooltip);
+#endif
 }

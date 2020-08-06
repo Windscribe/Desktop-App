@@ -225,6 +225,11 @@ private:
     QWidgetAction *listWidgetAction_;
     QMenu trayMenu_;
     QMenu locationsMenu_;
+
+    enum class TrayIconType { DISCONNECTED, CONNECTING, CONNECTED };
+    void updateTrayIcon(TrayIconType type);
+    void updateTrayTooltip(QString tooltip);
+    TrayIconType currentTrayIconType_;
     QSystemTrayIcon trayIcon_;
     IconManager iconManager_;
     bool bNotificationConnectedShowed_;
