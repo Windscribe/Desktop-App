@@ -1,5 +1,1 @@
-build-*
-*.user
-release/*
-debug/*
-*.DS_Store
+.qmake.stash
