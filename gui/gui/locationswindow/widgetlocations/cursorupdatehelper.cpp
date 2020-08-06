@@ -1,7 +1,7 @@
 #include "cursorupdatehelper.h"
 
 #ifdef Q_OS_MAC
-#include "Utils/macutils.h"
+#include "utils/macutils.h"
 #endif
 
 namespace GuiLocations {

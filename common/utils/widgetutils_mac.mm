@@ -38,3 +38,10 @@ void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
     Q_UNUSED(window);
 #endif
 }
+
+
+void WidgetUtils_mac::setNeedsDisplayForWindow(QWidget *widget)
+{
+    NSWindow *nsWindow = [reinterpret_cast<NSView*>(widget->winId()) window];
+    [[nsWindow contentView] setNeedsDisplay:YES];
+}

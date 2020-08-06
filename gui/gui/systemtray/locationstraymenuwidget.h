@@ -5,7 +5,7 @@
 #include <QListWidget>
 #include "locationstraymenuitemdelegate.h"
 #include "locationstraymenubutton.h"
-#include "../Backend/LocationsModel/locationsmodel.h"
+#include "../backend/locationsmodel/locationsmodel.h"
 
 class LocationsTrayMenuWidget : public QWidget
 {
@@ -48,7 +48,7 @@ private:
     const int USER_ROLE_IS_PREMIUM_ONLY = Qt::UserRole + 4;
 
     void updateButtonsState();
-
+    void updateBackground_mac();
 };
 
 #endif // LOCATIONSTRAYMENUWIDGET_H

@@ -5,9 +5,12 @@
 #include <QEvent>
 #include <QApplication>
 #include <QVBoxLayout>
+#include <QDebug>
 #include "dpiscalemanager.h"
 
-#include <QDebug>
+#ifdef Q_OS_MAC
+#include "utils/widgetutils_mac.h"
+#endif
 
 LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent) :
     QWidget(parent)
@@ -51,26 +54,30 @@ LocationsTrayMenuWidget::~LocationsTrayMenuWidget()
 
 bool LocationsTrayMenuWidget::eventFilter(QObject *watched, QEvent *event)
 {
-    if (watched == listWidget_->viewport() && event->type() == QEvent::Wheel)
-    {
-        QTimer::singleShot(0, this, SLOT(updateTableViewSelection()));
-    }
-    else if (watched == listWidget_->viewport() && event->type() == QEvent::MouseMove)
-    {
-        updateTableViewSelection();
-    }
-    else if (watched == listWidget_->viewport() && event->type() == QEvent::MouseButtonPress)
-    {
-        QPoint pt = listWidget_->viewport()->mapFromGlobal(QCursor::pos());
-        QModelIndex ind = listWidget_->indexAt(pt);
-        if (ind.isValid())
-        {
-            QListWidgetItem *item = listWidget_->item(ind.row());
-            bool bIsSelectable = item->data(USER_ROLE_ENABLED).toBool();
-            if (bIsSelectable)
+    if (watched == listWidget_->viewport()) {
+        switch (event->type()) {
+        case QEvent::Wheel:
+            QTimer::singleShot(1, this, SLOT(updateTableViewSelection()));
+            updateBackground_mac();
+            break;
+        case QEvent::MouseMove:
+        case QEvent::MouseButtonPress:
+            updateTableViewSelection();
+            break;
+        case  QEvent::MouseButtonRelease:
             {
-                emit locationSelected(item->data(USER_ROLE_ID).toInt());
+                QPoint pt = listWidget_->viewport()->mapFromGlobal(QCursor::pos());
+                QModelIndex ind = listWidget_->indexAt(pt);
+                if (ind.isValid()) {
+                    QListWidgetItem *item = listWidget_->item(ind.row());
+                    bool bIsSelectable = item->data(USER_ROLE_ENABLED).toBool();
+                    if (bIsSelectable)
+                        emit locationSelected(item->data(USER_ROLE_ID).toInt());
+                }
+                break;
             }
+        default:
+            break;
         }
     }
 
@@ -96,9 +103,9 @@ void LocationsTrayMenuWidget::updateTableViewSelection()
     if (ind.isValid() && ind.column() == 0)
     {
         listWidget_->setCurrentIndex(ind);
-        listWidget_->update();
     }
     updateButtonsState();
+    updateBackground_mac();
 }
 
 void LocationsTrayMenuWidget::onScrollUpClick()
@@ -109,6 +116,7 @@ void LocationsTrayMenuWidget::onScrollUpClick()
         listWidget_->setCurrentRow(ind - 1);
     }
     updateButtonsState();
+    updateBackground_mac();
 }
 
 void LocationsTrayMenuWidget::onScrollDownClick()
@@ -119,6 +127,7 @@ void LocationsTrayMenuWidget::onScrollDownClick()
         listWidget_->setCurrentRow(ind + 1);
     }
     updateButtonsState();
+    updateBackground_mac();
 }
 
 void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
@@ -172,6 +181,7 @@ void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
     }
 
     updateButtonsState();
+    updateBackground_mac();
 }
 
 void LocationsTrayMenuWidget::onSessionStatusChanged(bool bFreeSessionStatus)
@@ -219,3 +229,15 @@ void LocationsTrayMenuWidget::updateButtonsState()
         downButton_->setEnabled((ind.row() + VISIBLE_ITEMS_COUNT) < (listWidget_->count()));
     }
 }
+
+void LocationsTrayMenuWidget::updateBackground_mac()
+{
+#ifdef Q_OS_MAC
+    // This is a hack to force repaint of the window background. For some reason, Qt doesn't do that
+    // even when this is essential, e.g. before painting a widget with a transparent background,
+    // such as |listWidget_|. It seems that such behaviour is OSX version dependent. This call
+    // invalidates the whole submenu window to ensure the translucent menu background is repainted.
+    WidgetUtils_mac::setNeedsDisplayForWindow(this);
+#endif
+}
+
