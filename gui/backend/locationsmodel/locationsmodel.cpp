@@ -1,7 +1,6 @@
 #include "locationsmodel.h"
 
 #include "alllocationsmodel.h"
-#include "windflixlocationsmodel.h"
 #include "configuredcitiesmodel.h"
 #include "staticipscitiesmodel.h"
 #include "favoritecitiesmodel.h"
@@ -14,7 +13,6 @@ LocationsModel::LocationsModel(QObject *parent) : QObject(parent)
 {
     favoriteLocationsStorage_.readFromSettings();
     allLocations_ = new AllLocationsModel(this);
-    windflixLocations_ = new WindflixLocationsModel(this);
     configuredLocations_ = new ConfiguredCitiesModel(this);
     staticIpsLocations_ = new StaticIpsCitiesModel(this);
     favoriteLocations_ = new FavoriteCitiesModel(this);
@@ -91,7 +89,6 @@ void LocationsModel::init()
     }
 
     allLocations_->update(locations_);
-    windflixLocations_->update(locations_);
     configuredLocations_->update(locations_);
     staticIpsLocations_->update(locations_);
     favoriteLocations_->update(locations_);*/
@@ -172,7 +169,6 @@ void LocationsModel::update(const ProtoTypes::ArrayLocations &arr)
     }
 
     allLocations_->update(locations_);
-    windflixLocations_->update(locations_);
     configuredLocations_->update(locations_);
     staticIpsLocations_->update(locations_);
     favoriteLocations_->update(locations_);
@@ -181,11 +177,6 @@ void LocationsModel::update(const ProtoTypes::ArrayLocations &arr)
 BasicLocationsModel *LocationsModel::getAllLocationsModel()
 {
     return allLocations_;
-}
-
-BasicLocationsModel *LocationsModel::getWindflixLocationsModel()
-{
-    return windflixLocations_;
 }
 
 BasicCitiesModel *LocationsModel::getConfiguredLocationsModel()
@@ -209,7 +200,6 @@ void LocationsModel::setOrderLocationsType(ProtoTypes::OrderLocationType orderLo
     {
         orderLocationsType_ = orderLocationsType;
         allLocations_->setOrderLocationsType(orderLocationsType_);
-        windflixLocations_->setOrderLocationsType(orderLocationsType_);
         configuredLocations_->setOrderLocationsType(orderLocationsType_);
         staticIpsLocations_->setOrderLocationsType(orderLocationsType_);
         favoriteLocations_->setOrderLocationsType(orderLocationsType_);
@@ -227,7 +217,6 @@ void LocationsModel::switchFavorite(LocationID id, bool isFavorite)
         favoriteLocationsStorage_.removeFromFavorites(id);
     }
     allLocations_->setIsFavorite(id, isFavorite);
-    windflixLocations_->setIsFavorite(id, isFavorite);
     configuredLocations_->setIsFavorite(id, isFavorite);
     staticIpsLocations_->setIsFavorite(id, isFavorite);
     favoriteLocations_->setIsFavorite(id, isFavorite);
@@ -345,7 +334,6 @@ QVector<LocationModelItem *> LocationsModel::locationModelItems()
 void LocationsModel::setFreeSessionStatus(bool isFreeSessionStatus)
 {
     allLocations_->setFreeSessionStatus(isFreeSessionStatus);
-    windflixLocations_->setFreeSessionStatus(isFreeSessionStatus);
     configuredLocations_->setFreeSessionStatus(isFreeSessionStatus);
     staticIpsLocations_->setFreeSessionStatus(isFreeSessionStatus);
     favoriteLocations_->setFreeSessionStatus(isFreeSessionStatus);
@@ -369,7 +357,6 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
     }();
 
     allLocations_->changeConnectionSpeed(id, speed);
-    windflixLocations_->changeConnectionSpeed(id, speed);
     configuredLocations_->changeConnectionSpeed(id, speed);
     staticIpsLocations_->changeConnectionSpeed(id, speed);
     favoriteLocations_->changeConnectionSpeed(id, speed);

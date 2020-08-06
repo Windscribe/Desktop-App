@@ -166,7 +166,6 @@ SOURCES += \
     ../backend/locationsmodel/locationsmodel.cpp \
     ../backend/locationsmodel/sortlocationsalgorithms.cpp \
     ../backend/locationsmodel/staticipscitiesmodel.cpp \
-    ../backend/locationsmodel/windflixlocationsmodel.cpp \
     ../backend/preferences/accountinfo.cpp \
     ../backend/Preferences/detectlanrange.cpp \
     ../backend/preferences/guisettingsfromver1.cpp \
@@ -381,7 +380,6 @@ HEADERS += \
     ../backend/locationsmodel/locationsmodel.h \
     ../backend/locationsmodel/sortlocationsalgorithms.h \
     ../backend/locationsmodel/staticipscitiesmodel.h \
-    ../backend/locationsmodel/windflixlocationsmodel.h \
     ../backend/preferences/accountinfo.h \
     ../backend/preferences/detectlanrange.h \
     ../backend/preferences/guisettingsfromver1.h \

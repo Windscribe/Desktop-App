@@ -30,7 +30,6 @@ public:
     void update(const ProtoTypes::ArrayLocations &arr);
 
     BasicLocationsModel *getAllLocationsModel();
-    BasicLocationsModel *getWindflixLocationsModel();
     BasicCitiesModel *getConfiguredLocationsModel();
     BasicCitiesModel *getStaticIpsLocationsModel();
     BasicCitiesModel *getFavoriteLocationsModel();
@@ -56,7 +55,6 @@ signals:
 private:
     QString deviceName_;
     BasicLocationsModel *allLocations_;
-    BasicLocationsModel *windflixLocations_;
     BasicCitiesModel *configuredLocations_;
     BasicCitiesModel *staticIpsLocations_;
     BasicCitiesModel *favoriteLocations_;

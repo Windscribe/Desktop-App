@@ -322,6 +322,12 @@ QVector<ServerNode> ServerLocation::getCityNodes(const QString &cityname)
     return cityNodes;
 }
 
+void ServerLocation::appendNode(const ServerNode &node)
+{
+    nodes_ << node;
+    makeInternalStates();
+}
+
 QString ServerLocation::getStaticIpsDeviceName() const
 {
     return staticIpsDeviceName_;

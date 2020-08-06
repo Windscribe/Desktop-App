@@ -48,6 +48,7 @@ public:
 
     QVector<ServerNode> &getNodes();
     QVector<ServerNode> getCityNodes(const QString &cityname);
+    void appendNode(const ServerNode &node);
 
     QString getStaticIpsDeviceName() const;
 

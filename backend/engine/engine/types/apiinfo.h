@@ -182,6 +182,8 @@ public:
     //void debugLoadFromFile(const QString &filename);
 
 private:
+    void processServerLocations();
+
     // for check changed formats (for read/write from settings operations)
     // from REVISION_VERSION = 1 to 2 changes:
     // added QStringList proDataCenters to ServerLocation

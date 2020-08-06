@@ -26,9 +26,6 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
 
     widgetAllLocations_ = new GuiLocations::WidgetLocations(this);
 
-    widgetWindflixLocations_ = new GuiLocations::WidgetLocations(this);
-    widgetWindflixLocations_->hide();
-
     widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this);
     widgetConfiguredLocations_->hide();
 
@@ -51,30 +48,25 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     updateLocationWidgetsGeometry(newHeight);
 
     connect(widgetAllLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetWindflixLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetConfiguredLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetStaticIpsLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetFavoriteLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
 
     connect(widgetAllLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-    connect(widgetWindflixLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
     connect(widgetConfiguredLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
     connect(widgetStaticIpsLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
     connect(widgetFavoriteLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
 
     connect(widgetAllLocations_,        SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(widgetWindflixLocations_,   SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(widgetConfiguredLocations_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(widgetStaticIpsLocations_,  SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(widgetFavoriteLocations_,   SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(widgetAllLocations_,        SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
-    connect(widgetWindflixLocations_,   SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(widgetConfiguredLocations_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(widgetStaticIpsLocations_,  SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(widgetFavoriteLocations_,   SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 
     widgetAllLocations_->setModel(locationsModel->getAllLocationsModel());
-    widgetWindflixLocations_->setModel(locationsModel->getWindflixLocationsModel());
     widgetConfiguredLocations_->setModel(locationsModel->getConfiguredLocationsModel());
     widgetStaticIpsLocations_->setModel(locationsModel->getStaticIpsLocationsModel());
     widgetFavoriteLocations_->setModel(locationsModel->getFavoriteLocationsModel());
@@ -91,7 +83,6 @@ int LocationsTab::setCountVisibleItemSlots(int cnt)
     {
         countOfVisibleItemSlots_ = cnt;
         widgetAllLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
-        widgetWindflixLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
         widgetConfiguredLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
         widgetStaticIpsLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
         widgetFavoriteLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
@@ -158,12 +149,6 @@ void LocationsTab::mouseMoveEvent(QMouseEvent *event)
             setPointingHandCursor();
             rectHoverEnter(rcAllLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "All"), 8 * G_SCALE, -5 * G_SCALE);
         }
-        else if (rcWindflixLocationsIcon_.adjusted(-addMargin, -addMargin, addMargin, addMargin).contains(pt))
-        {
-            curTabMouseOver_ = CUR_TAB_WINDFLIX_LOCATIONS;
-            setPointingHandCursor();
-            rectHoverEnter(rcWindflixLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Windflix"), 8 * G_SCALE, -5 * G_SCALE);
-        }
         else if (rcConfiguredLocationsIcon_.adjusted(-addMargin, -addMargin, addMargin, addMargin).contains(pt))
         {
             curTabMouseOver_ = CUR_TAB_CONFIGURED_LOCATIONS;
@@ -220,11 +205,6 @@ void LocationsTab::changeTab(CurTabEnum newTab)
         endWhiteLinePos = rcStaticIpsLocationsIcon_.center().x();
         onClickStaticIpsLocations();
     }
-    else if (curTab_ == CUR_TAB_WINDFLIX_LOCATIONS)
-    {
-        endWhiteLinePos = rcWindflixLocationsIcon_.center().x();
-        onClickWindflixLocations();
-    }
     else if (curTab_ == CUR_TAB_FAVORITE_LOCATIONS)
     {
         endWhiteLinePos = rcFavoriteLocationsIcon_.center().x();
@@ -273,7 +253,6 @@ void LocationsTab::leaveEvent(QEvent *event)
 void LocationsTab::onClickAllLocations()
 {
     widgetAllLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
-    widgetWindflixLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
@@ -281,22 +260,10 @@ void LocationsTab::onClickAllLocations()
     widgetAllLocations_->raise();
 }
 
-void LocationsTab::onClickWindflixLocations()
-{
-    widgetWindflixLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
-    widgetAllLocations_->hide();
-    widgetConfiguredLocations_->hide();
-    widgetStaticIpsLocations_->hide();
-    widgetFavoriteLocations_->hide();
-    widgetWindflixLocations_->show();
-    widgetWindflixLocations_->raise();
-}
-
 void LocationsTab::onClickConfiguredLocations()
 {
     widgetConfiguredLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
-    widgetWindflixLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
     widgetConfiguredLocations_->show();
@@ -308,7 +275,6 @@ void LocationsTab::onClickStaticIpsLocations()
 {
     widgetStaticIpsLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
-    widgetWindflixLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetFavoriteLocations_->hide();
     widgetStaticIpsLocations_->show();
@@ -320,7 +286,6 @@ void LocationsTab::onClickFavoriteLocations()
 {
     widgetFavoriteLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
-    widgetWindflixLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->show();
@@ -351,7 +316,6 @@ IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
 {
     if (curTab_ == CUR_TAB_ALL_LOCATIONS)        return widgetAllLocations_;
     if (curTab_ == CUR_TAB_FAVORITE_LOCATIONS)   return widgetFavoriteLocations_;
-    if (curTab_ == CUR_TAB_WINDFLIX_LOCATIONS)   return widgetWindflixLocations_;
     if (curTab_ == CUR_TAB_STATIC_IPS_LOCATIONS) return widgetStaticIpsLocations_;
     if (curTab_ == CUR_TAB_CONFIGURED_LOCATIONS) return widgetConfiguredLocations_;
     return nullptr;
@@ -375,11 +339,6 @@ void LocationsTab::drawTab(QPainter &painter, const QRect &rc)
             IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/STATIC_IP_ICON");
             painter.setOpacity(curTab_ == CUR_TAB_STATIC_IPS_LOCATIONS ? 1.0 : 0.5);
             p->draw(rcStaticIpsLocationsIcon_.left(), rcStaticIpsLocationsIcon_.top(), &painter);
-        }
-        {
-            IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/WINDFLIX_ICON");
-            painter.setOpacity(curTab_ == CUR_TAB_WINDFLIX_LOCATIONS ? 1.0 : 0.5);
-            p->draw(rcWindflixLocationsIcon_.left(), rcWindflixLocationsIcon_.top(), &painter);
         }
         {
             IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON");
@@ -485,13 +444,12 @@ void LocationsTab::updateIconRectsAndLine()
 {
     const int posY = 15;
     rcAllLocationsIcon_.       setRect(106 * G_SCALE, posY * G_SCALE, 16 * G_SCALE, 16 * G_SCALE);
-    rcFavoriteLocationsIcon_.  setRect(154 * G_SCALE, posY * G_SCALE, 16 * G_SCALE, 14 * G_SCALE);
-    rcWindflixLocationsIcon_.  setRect(202 * G_SCALE, posY * G_SCALE, 16 * G_SCALE, 16 * G_SCALE);
-    rcStaticIpsLocationsIcon_. setRect(250 * G_SCALE, posY * G_SCALE, 16 * G_SCALE, 16 * G_SCALE);
-    rcConfiguredLocationsIcon_.setRect(298 * G_SCALE, posY * G_SCALE, 18 * G_SCALE, 16 * G_SCALE);
+    rcFavoriteLocationsIcon_.  setRect(166 * G_SCALE, posY * G_SCALE, 16 * G_SCALE, 14 * G_SCALE);
+    rcStaticIpsLocationsIcon_. setRect(226 * G_SCALE, posY * G_SCALE, 16 * G_SCALE, 16 * G_SCALE);
+    rcConfiguredLocationsIcon_.setRect(286 * G_SCALE, posY * G_SCALE, 18 * G_SCALE, 16 * G_SCALE);
+
 
     if      (currentWidgetLocations() == widgetAllLocations_)        curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1*G_SCALE)        ;
-    else if (currentWidgetLocations() == widgetWindflixLocations_)   curWhiteLinePos_ = (rcWindflixLocationsIcon_.center().x() + 1*G_SCALE)   ;
     else if (currentWidgetLocations() == widgetConfiguredLocations_) curWhiteLinePos_ = (rcConfiguredLocationsIcon_.center().x() + 1*G_SCALE) ;
     else if (currentWidgetLocations() == widgetStaticIpsLocations_)  curWhiteLinePos_ = (rcStaticIpsLocationsIcon_.center().x() + 1*G_SCALE)  ;
     else if (currentWidgetLocations() == widgetFavoriteLocations_)   curWhiteLinePos_ = (rcFavoriteLocationsIcon_.center().x() + 1*G_SCALE)   ;
@@ -502,13 +460,11 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
 {
     widgetAllLocations_->setGeometry(       0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
     widgetFavoriteLocations_->setGeometry(  0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
-    widgetWindflixLocations_->setGeometry(  0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
     widgetStaticIpsLocations_->setGeometry( 0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
     widgetConfiguredLocations_->setGeometry(0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
 
     widgetAllLocations_->setSize(WINDOW_WIDTH, newHeight);
     widgetFavoriteLocations_->setSize(WINDOW_WIDTH, newHeight);
-    widgetWindflixLocations_->setSize(WINDOW_WIDTH, newHeight);
     widgetStaticIpsLocations_->setSize(WINDOW_WIDTH, newHeight);
     widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight);
 
@@ -520,7 +476,6 @@ void LocationsTab::updateScaling()
 {
     widgetAllLocations_->       updateScaling();
     widgetFavoriteLocations_->  updateScaling();
-    widgetWindflixLocations_->  updateScaling();
     widgetStaticIpsLocations_-> updateScaling();
     widgetConfiguredLocations_->updateScaling();
 }
@@ -536,7 +491,6 @@ void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
     if (isShowLatencyInMs != widgetAllLocations_->isShowLatencyInMs())
     {
         widgetAllLocations_       ->setShowLatencyInMs(isShowLatencyInMs);
-        widgetWindflixLocations_  ->setShowLatencyInMs(isShowLatencyInMs);
         widgetConfiguredLocations_->setShowLatencyInMs(isShowLatencyInMs);
         widgetStaticIpsLocations_ ->setShowLatencyInMs(isShowLatencyInMs);
         widgetFavoriteLocations_  ->setShowLatencyInMs(isShowLatencyInMs);

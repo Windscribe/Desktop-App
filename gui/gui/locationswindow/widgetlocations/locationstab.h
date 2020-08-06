@@ -16,7 +16,7 @@
 
 namespace GuiLocations {
 
-// switchable tabs of locations, includes widgets for all locations, favorite locations, configured locations, static IPs locations, windflix locations
+// switchable tabs of locations, includes widgets for all locations, favorite locations, configured locations, static IPs locations
 class LocationsTab : public QWidget
 {
     Q_OBJECT
@@ -63,7 +63,6 @@ private:
     IWidgetLocationsInfo *currentWidgetLocations();
 
     GuiLocations::WidgetLocations *widgetAllLocations_;
-    GuiLocations::WidgetLocations *widgetWindflixLocations_;
     GuiLocations::WidgetCities *widgetConfiguredLocations_;
     GuiLocations::WidgetCities *widgetStaticIpsLocations_;
     GuiLocations::WidgetCities *widgetFavoriteLocations_;
@@ -75,7 +74,6 @@ private:
         CUR_TAB_NONE = 0,
         CUR_TAB_ALL_LOCATIONS,
         CUR_TAB_FAVORITE_LOCATIONS,
-        CUR_TAB_WINDFLIX_LOCATIONS,
         CUR_TAB_STATIC_IPS_LOCATIONS,
         CUR_TAB_CONFIGURED_LOCATIONS
     };
@@ -89,7 +87,6 @@ private:
     const int WHITE_LINE_WIDTH = 18;
 
     QRect rcAllLocationsIcon_;
-    QRect rcWindflixLocationsIcon_;
     QRect rcConfiguredLocationsIcon_;
     QRect rcStaticIpsLocationsIcon_;
     QRect rcFavoriteLocationsIcon_;
@@ -105,7 +102,6 @@ private:
     void changeTab(CurTabEnum newTab);
 
     void onClickAllLocations();
-    void onClickWindflixLocations();
     void onClickConfiguredLocations();
     void onClickStaticIpsLocations();
     void onClickFavoriteLocations();
