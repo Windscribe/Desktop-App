@@ -177,6 +177,7 @@ private slots:
     void onPreferencesIsDockedToTrayChanged(bool isDocked);
 #ifdef Q_OS_MAC
     void onPreferencesHideFromDockChanged(bool hideFromDock);
+    void hideShowDockIconImpl();
 #endif
     // WindscribeApplications signals
     void toggleVisibilityIfDocked();
@@ -283,11 +284,15 @@ private:
     bool backendAppActiveState_;
     void setBackendAppActiveState(bool state);
 
-    bool activeState_;
-    qint64 lastWindowStateChange_;
 #ifdef Q_OS_MAC
     void hideShowDockIcon(bool hideFromDock);
+    QTimer hideShowDockIconTimer_;
+    bool currentDockIconVisibility_;
+    bool desiredDockIconVisibility_;
 #endif
+
+    bool activeState_;
+    qint64 lastWindowStateChange_;
 
     void minimizeToTray();
 };

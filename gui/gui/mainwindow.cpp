@@ -58,6 +58,11 @@ MainWindow::MainWindow(QWidget *parent) :
     internetConnected_(false),
     currentlyShowingUserWarningMessage_(false),
     backendAppActiveState_(true),
+ #ifdef Q_OS_MAC
+    hideShowDockIconTimer_(this),
+    currentDockIconVisibility_(true),
+    desiredDockIconVisibility_(true),
+ #endif
     activeState_(true),
     lastWindowStateChange_(0)
 {
@@ -296,7 +301,12 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 #ifdef Q_OS_MAC
-    hideShowDockIcon(backend_->getPreferences()->isHideFromDock());
+    hideShowDockIconTimer_.setSingleShot(true);
+    connect(&hideShowDockIconTimer_, SIGNAL(timeout()), SLOT(hideShowDockIconImpl()));
+    if (backend_->getPreferences()->isHideFromDock()) {
+        desiredDockIconVisibility_ = false;
+        hideShowDockIconImpl();
+    }
 #endif
 }
 
@@ -2047,28 +2057,42 @@ void MainWindow::onPreferencesIsDockedToTrayChanged(bool isDocked)
 {
     mainWindowController_->setIsDockedToTray(isDocked);
     bMoveEnabled_ = !isDocked;
+    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
 #ifdef Q_OS_MAC
 void MainWindow::hideShowDockIcon(bool hideFromDock)
 {
-    if (hideFromDock)
-    {
-        MacUtils::hideDockIcon();
-        QTimer::singleShot(0, [this](){
-            activateAndShow();
-            setBackendAppActiveState(true);
-        });
-    }
-    else
-    {
-        MacUtils::showDockIcon();
-    }
+    desiredDockIconVisibility_ = !hideFromDock;
+    hideShowDockIconTimer_.start(300);
 }
 
 void MainWindow::onPreferencesHideFromDockChanged(bool hideFromDock)
 {
     hideShowDockIcon(hideFromDock);
+}
+
+void MainWindow::hideShowDockIconImpl()
+{
+    if (currentDockIconVisibility_ != desiredDockIconVisibility_) {
+        currentDockIconVisibility_ = desiredDockIconVisibility_;
+        if (currentDockIconVisibility_) {
+            MacUtils::showDockIcon();
+        } else {
+            // A call to |hideDockIcon| will hide the window, this is annoying but that's how
+            // one hides the dock icon on Mac. If there are any GUI events queued, especially
+            // those that are going to show some widgets, it may result in a crash. To avoid it, we
+            // pump the message loop here, including user input events.
+            qApp->processEvents();
+            MacUtils::hideDockIcon();
+            // Do not attempt to show the window immediately, it may take some time to transform
+            // process type in |hideDockIcon|.
+            QTimer::singleShot(1, [this]() {
+                activateAndShow();
+                setBackendAppActiveState(true);
+            });
+        }
+    }
 }
 #endif
 
