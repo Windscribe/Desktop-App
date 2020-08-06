@@ -2715,10 +2715,10 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
             geo.setX(geo.x() - rcIcon.width());
         }
 #endif
-        if (geo.right() > desktopAvailableRc.right())
-        {
-            geo.moveRight(desktopAvailableRc.right());
-        }
+        const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
+        if (geo.right() > kMaxGeometryRightPosition)
+            geo.moveRight(kMaxGeometryRightPosition);
+
     }
 
     mainWindow_->setGeometry(geo);
