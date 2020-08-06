@@ -1716,7 +1716,7 @@ void MainWindow::onBackendSignOutFinished()
 void MainWindow::onBackendCleanupFinished()
 {
     qCDebug(LOG_BASIC) << "Backend Cleanup Finished";
-    close();
+    QApplication::closeAllWindows();
 }
 
 void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()

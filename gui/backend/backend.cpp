@@ -17,6 +17,7 @@ const int PROTOCOL_VERSION = 1;
 const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
 
 Backend::Backend(unsigned int clientId, unsigned int clientPid, const QString &clientName, QObject *parent) : QObject(parent),
+    ipcState_(IPC_INIT_STATE),
     bRecoveringState_(false),
     protocolVersion_(PROTOCOL_VERSION),
     clientId_(clientId),
@@ -37,8 +38,6 @@ Backend::Backend(unsigned int clientId, unsigned int clientPid, const QString &c
     connect(&connectStateHelper_, SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SIGNAL(connectStateChanged(ProtoTypes::ConnectState)));
     connect(&emergencyConnectStateHelper_, SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SIGNAL(emergencyConnectStateChanged(ProtoTypes::ConnectState)));
     connect(&firewallStateHelper_, SIGNAL(firewallStateChanged(bool)), SIGNAL(firewallStateChanged(bool)));
-
-    ipcState_ = IPC_INIT_STATE;
 }
 
 Backend::~Backend()
@@ -781,8 +780,8 @@ void Backend::onConnectionStateChanged(int state, IPC::IConnection *connection)
         qCDebug(LOG_BASIC) << "Disconnected from engine server";
         if (ipcState_ == IPC_DOING_CLEANUP)
         {
-                ipcState_ = IPC_INIT_STATE;
-                emit cleanupFinished();
+            ipcState_ = IPC_INIT_STATE;
+            emit cleanupFinished();
         }
         else if (ipcState_ != IPC_READY)
         {
