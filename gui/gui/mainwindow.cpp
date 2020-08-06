@@ -2715,8 +2715,11 @@ void MainWindow::updateTrayIcon(TrayIconType type)
              qApp->setWindowIcon(*icon);
 #if defined(Q_OS_WIN)
          const QPixmap pm = icon->pixmap(QSize(16, 16) * G_SCALE);
-         if (!pm.isNull())
-            WidgetUtils_win::updateSystemTrayIcon(pm, QString());
+         if (!pm.isNull()) {
+             QTimer::singleShot(1, [pm]() {
+                 WidgetUtils_win::updateSystemTrayIcon(pm, QString());
+             });
+         }
 #else
          trayIcon_.setIcon(*icon);
 #endif
