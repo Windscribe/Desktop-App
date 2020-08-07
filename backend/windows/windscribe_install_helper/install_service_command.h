@@ -6,9 +6,9 @@ class InstallServiceCommand :
 {
 public:
 	InstallServiceCommand(Logger *logger, const wchar_t *servicePath, const wchar_t *subinaclPath);
-	virtual ~InstallServiceCommand();
+	~InstallServiceCommand() override;
 
-	virtual void execute();
+	void execute() override;
 
 private:
 	std::wstring servicePath_;

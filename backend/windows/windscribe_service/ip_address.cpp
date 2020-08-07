@@ -7,7 +7,7 @@ IpAddress::IpAddress(PCWSTR address)
     UINT16 port = 0;
     IN_ADDR v4Addr = {0};
     pIPv4Address = 0;
-    auto status = RtlIpv4StringToAddressEx(address, FALSE, &v4Addr, &port);
+    RtlIpv4StringToAddressEx(address, FALSE, &v4Addr, &port);
     CopyMemory(&pIPv4Address, &v4Addr, 4);
 }
 
@@ -16,7 +16,7 @@ IpAddress::IpAddress(PCSTR address)
 	UINT16 port = 0;
 	IN_ADDR v4Addr = { 0 };
 	pIPv4Address = 0;
-	auto status = RtlIpv4StringToAddressExA(address, FALSE, &v4Addr, &port);
+	RtlIpv4StringToAddressExA(address, FALSE, &v4Addr, &port);
 	CopyMemory(&pIPv4Address, &v4Addr, 4);
 }
 

@@ -6,7 +6,7 @@
 class CalloutFilter
 {
 public:
-	CalloutFilter(FwpmWrapper &fwmpWrapper);
+	explicit CalloutFilter(FwpmWrapper &fwmpWrapper);
 
 	void enable(UINT32 ipTap, UINT32 ipDefault);
 	void disable();

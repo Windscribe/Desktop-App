@@ -105,7 +105,7 @@ void InstallServiceCommand::simpleStopService(const wchar_t *serviceName)
 
 bool InstallServiceCommand::waitForService(SC_HANDLE serviceHandle, DWORD status)
 {
-	DWORD pendingStatus;
+	DWORD pendingStatus = 0;
 	if (status == SERVICE_RUNNING)
 	{
 		pendingStatus = SERVICE_START_PENDING;

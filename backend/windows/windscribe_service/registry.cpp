@@ -42,11 +42,11 @@ bool Registry::regWriteSzProperty(HKEY h, const wchar_t * subkeyName, std::wstri
 
 	bool result = false;
 	HKEY hKey;
-	LONG nError = RegOpenKeyEx(HKEY_LOCAL_MACHINE, subkeyName, NULL, KEY_ALL_ACCESS, &hKey);
+	LONG nError = RegOpenKeyEx(h, subkeyName, NULL, KEY_ALL_ACCESS, &hKey);
 
 	if (nError == ERROR_FILE_NOT_FOUND)
 	{
-		nError = RegCreateKeyEx(HKEY_LOCAL_MACHINE, subkeyName, NULL, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
+		nError = RegCreateKeyEx(h, subkeyName, NULL, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
 	}
 
 	if (nError != ERROR_SUCCESS)

@@ -14,16 +14,16 @@ class Connection : public QObject, public IConnection
 public:
     explicit Connection(QLocalSocket *localSocket);
     explicit Connection();
-    virtual ~Connection();
+    ~Connection() override;
 
-    virtual void connect();
-    virtual void close();
-    virtual void sendCommand(const Command &commandl);
+    void connect() override;
+    void close() override;
+    void sendCommand(const Command &commandl) override;
 
 signals:
-    void newCommand(IPC::Command *cmd, IPC::IConnection *connection);
-    void stateChanged(int state, IPC::IConnection *connection);
-    void allWritten(IPC::IConnection *connection);
+    void newCommand(IPC::Command *cmd, IPC::IConnection *connection) override;
+    void stateChanged(int state, IPC::IConnection *connection) override;
+    void allWritten(IPC::IConnection *connection) override;
 
 private slots:
     void onSocketConnected();

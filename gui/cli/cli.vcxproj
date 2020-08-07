@@ -83,22 +83,22 @@
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4125;4127;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ObjectFileName>debug\</ObjectFileName>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_CLI;WINVER=0x0601;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_CLI;WINVER=0x0601;_WIN32_WINNT=0x0601;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>c:\libs\protobuf_debug\lib\libprotobufd.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\user32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Iphlpapi.lib";$(QTDIR)\lib\libEGLd.lib;$(QTDIR)\lib\libGLESv2d.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>c:\libs\protobuf_debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" /IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreImportLibrary>true</IgnoreImportLibrary>
@@ -131,18 +131,18 @@
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4125;4127;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_CLI;WINVER=0x0601;_WIN32_WINNT=0x0601;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;WINDSCRIBE_CLI;WINVER=0x0601;_WIN32_WINNT=0x0601;_CRT_SECURE_NO_WARNINGS;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <ProgramDataBaseFileName>
       </ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -180,6 +180,7 @@
     <ClCompile Include="..\backend\locationsmodel\alllocationsmodel.cpp" />
     <ClCompile Include="..\..\common\version\appversion.cpp" />
     <ClCompile Include="..\backend\backend.cpp" />
+    <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
     <ClCompile Include="backendcommander.cpp" />
     <ClCompile Include="..\backend\locationsmodel\basiccitiesmodel.cpp" />
     <ClCompile Include="..\backend\locationsmodel\basiclocationsmodel.cpp" />
@@ -216,7 +217,6 @@
     <ClCompile Include="..\..\common\ipc\generated_proto\types.pb.cc" />
     <ClCompile Include="..\backend\types\upgrademodetype.cpp" />
     <ClCompile Include="..\..\common\utils\utils.cpp" />
-    <ClCompile Include="..\backend\locationsmodel\windflixlocationsmodel.cpp" />
     <ClCompile Include="..\..\common\utils\winutils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -252,6 +252,7 @@
     </QtMoc>
     <QtMoc Include="..\backend\firewallstatehelper.h">
     </QtMoc>
+    <ClInclude Include="..\backend\preferences\detectlanrange.h" />
     <ClInclude Include="..\backend\preferences\guisettingsfromver1.h" />
     <ClInclude Include="..\backend\ibackend.h" />
     <ClInclude Include="..\..\common\ipc\iconnection.h" />
@@ -285,8 +286,6 @@
     <ClInclude Include="..\..\common\ipc\generated_proto\types.pb.h" />
     <ClInclude Include="..\backend\types\upgrademodetype.h" />
     <ClInclude Include="..\..\common\utils\utils.h" />
-    <QtMoc Include="..\backend\locationsmodel\windflixlocationsmodel.h">
-    </QtMoc>
     <ClInclude Include="..\..\common\version\windscribe_version.h" />
   </ItemGroup>
   <ItemGroup>

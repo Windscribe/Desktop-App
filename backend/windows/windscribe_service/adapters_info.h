@@ -6,7 +6,7 @@ class AdaptersInfo
 public:
 	AdaptersInfo();
 
-	bool isWindscribeAdapter(NET_IFINDEX index);
+	bool isWindscribeAdapter(NET_IFINDEX index) const;
 	bool getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::string &outIp);
 	std::vector<NET_IFINDEX> getTAPAdapters();
 

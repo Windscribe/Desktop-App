@@ -11,7 +11,7 @@
 class FirewallFilter
 {
 public:
-    FirewallFilter(FwpmWrapper &fwmpWrapper);
+    explicit FirewallFilter(FwpmWrapper &fwmpWrapper);
     ~FirewallFilter();
 
     void on(const wchar_t *ip, bool bAllowLocalTraffic);

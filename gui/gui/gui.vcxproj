@@ -607,7 +607,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\utils\widgetutils.cpp" />
     <ClCompile Include="..\..\common\utils\widgetutils_win.cpp" />
     <ClCompile Include="connectwindow\wifiname.cpp" />
-    <ClCompile Include="..\backend\locationsmodel\windflixlocationsmodel.cpp" />
     <ClCompile Include="application\windowsnativeeventfilter.cpp" />
     <ClCompile Include="application\windscribeapplication.cpp" />
     <ClCompile Include="..\..\common\utils\winutils.cpp" />
@@ -629,6 +628,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <QtMoc Include="preferenceswindow\splittunnelingwindow\appsearchitem.h">
     </QtMoc>
+    <ClInclude Include="..\..\common\utils\networktypes.h" />
     <ClInclude Include="..\..\common\version\appversion.h" />
     <QtMoc Include="preferenceswindow\connectionwindow\automanualswitchitem.h">
     </QtMoc>
@@ -1000,8 +1000,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\utils\widgetutils.h" />
     <ClInclude Include="..\..\common\utils\widgetutils_win.h" />
     <QtMoc Include="connectwindow\wifiname.h">
-    </QtMoc>
-    <QtMoc Include="..\backend\locationsmodel\windflixlocationsmodel.h">
     </QtMoc>
     <ClInclude Include="application\windowsnativeeventfilter.h" />
     <ClInclude Include="..\..\common\version\windscribe_version.h" />

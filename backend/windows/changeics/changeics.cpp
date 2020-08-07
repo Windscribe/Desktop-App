@@ -17,11 +17,10 @@ PFNNcFreeNetconProperties ncFreeNetconProperties = NULL;
 
 void disableIcsOnAll(INetSharingManager *pNSM, std::vector<CComPtr<INetConnection> > &pNetConnections)
 {
-	HRESULT hr;
 	for (size_t i = 0; i < pNetConnections.size(); ++i)
 	{
 		CComPtr<INetSharingConfiguration> pNetConfiguration;
-		hr = pNSM->get_INetSharingConfigurationForINetConnection(pNetConnections[i], &pNetConfiguration);
+		HRESULT hr = pNSM->get_INetSharingConfigurationForINetConnection(pNetConnections[i], &pNetConfiguration);
 		if (hr == S_OK)
 		{
 			VARIANT_BOOL bEnabled = VARIANT_FALSE;
@@ -195,14 +194,14 @@ bool changeImpl(const GUID &publicGuid, const GUID &privateGuid)
 	DWORD dw = pNetConfigurationPublic->EnableSharing(ICSSHARINGTYPE_PUBLIC);
 	if (dw != S_OK)
 	{
-		printf("EnableSharing failed for public guid, %ld\n", dw);
+		printf("EnableSharing failed for public guid, %lu\n", dw);
 		return false;
 	}
 
 	hr = pNetConfigurationPrivate->EnableSharing(ICSSHARINGTYPE_PRIVATE);
 	if (hr != S_OK)
 	{
-		printf("EnableSharing failed for private guid, %ld\n", dw);
+		printf("EnableSharing failed for private guid, %lu\n", dw);
 		return false;
 	}
 
@@ -335,7 +334,7 @@ bool saveIcsSettings(wchar_t *szFilePath)
 
 bool restoreConnectionIfNeed(INetSharingManager *pNSM, std::vector<SHARING_OPTIONS> &vectorSaved, const GUID &guidId, CComPtr<INetConnection> &pNetConnection)
 {
-	size_t ind;
+	size_t ind = 0;
 	bool bFound = false;
 
 	for (size_t i = 0; i < vectorSaved.size(); ++i)
@@ -535,6 +534,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		else
 		{
+            if (hDLL) FreeLibrary(hDLL);
 			return 0;
 		}
 	}
@@ -542,6 +542,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		if (wcscmp(argv[1], L"-change") != 0)
 		{
+            if (hDLL) FreeLibrary(hDLL);
 			return 0;
 		}
 
@@ -549,11 +550,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		if (UuidFromString((RPC_WSTR)argv[2], &publicGuid) != RPC_S_OK)
 		{
 			printf("incorrect public guid\n");
+            if (hDLL) FreeLibrary(hDLL);
 			return 0;
 		}
 		if (UuidFromString((RPC_WSTR)argv[3], &privateGuid) != RPC_S_OK)
 		{
 			printf("incorrect private guid\n");
+            if (hDLL) FreeLibrary(hDLL);
 			return 0;
 		}
 
@@ -573,6 +576,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	fflush(stdout);
 
+    if (hDLL) FreeLibrary(hDLL);
 	return 0;
 }
 

@@ -14,16 +14,16 @@ class TcpConnection : public QObject, public IConnection
 public:
     explicit TcpConnection(QTcpSocket *socket);
     explicit TcpConnection();
-    virtual ~TcpConnection();
+    ~TcpConnection() override;
 
-    virtual void connect();
-    virtual void close();
-    virtual void sendCommand(const Command &commandl);
+    void connect() override;
+    void close() override;
+    void sendCommand(const Command &commandl) override;
 
 signals:
-    void newCommand(Command *cmd, IConnection *connection);
-    void stateChanged(int state, IConnection *connection);
-    void allWritten(IPC::IConnection *connection);
+    void newCommand(Command *cmd, IConnection *connection) override;
+    void stateChanged(int state, IConnection *connection) override;
+    void allWritten(IPC::IConnection *connection) override;
 
 private slots:
     void onSocketConnected();

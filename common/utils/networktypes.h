@@ -37,7 +37,7 @@ struct IfTableRow
     int state;
     bool valid;
 
-    IfTableRow() : index(-1), guidName(""), interfaceName(""), physicalAddress(""), type(ProtoTypes::NETWORK_INTERFACE_NONE), dwType(0), mtu(0), connected(false), valid(false) {}
+    IfTableRow() : index(-1), guidName(""), interfaceName(""), physicalAddress(""), type(ProtoTypes::NETWORK_INTERFACE_NONE), dwType(0), mtu(0), connected(false), state(0), valid(false) {}
     IfTableRow(int ind, QString n, QString intName, QString physAddress,  ProtoTypes::NetworkInterfaceType typ, int dwType, int mtu, bool connected, int state) :
         index(ind), guidName(truncateGUID(n)), interfaceName(intName), physicalAddress(physAddress), type(typ), dwType(dwType), mtu(mtu), connected(connected), state(state), valid(true) {}
 
@@ -73,7 +73,7 @@ struct IfTable2Row
     bool connectorPresent;
     bool endPointInterface;
 
-    IfTable2Row(): index(0), interfaceGuid(""), alias("") {}
+    IfTable2Row(): index(0), interfaceGuid(""), alias(""), op_status(0), connectorPresent(false), endPointInterface(false) {}
     IfTable2Row(unsigned long index, QString guid, QString alias, int op_status, bool connectorPresent, bool endPointInterface) :
         index(index), interfaceGuid(guid), alias(alias), op_status(op_status), connectorPresent(connectorPresent), endPointInterface(endPointInterface) {}
 

@@ -168,11 +168,11 @@ std::vector<std::wstring> DnsFirewall::getDnsServers()
 			PIP_ADAPTER_DNS_SERVER_ADDRESS dnsServerAddress = pCurrAddresses->FirstDnsServerAddress;
 			while (dnsServerAddress)
 			{
-				const int BUF_LEN = 256;
-				WCHAR szBuf[BUF_LEN];
-				DWORD bufSize = BUF_LEN;
 				if (dnsServerAddress->Address.lpSockaddr->sa_family == AF_INET)
 				{
+					const int BUF_LEN = 256;
+					WCHAR szBuf[BUF_LEN];
+					DWORD bufSize = BUF_LEN;
 					int ret = WSAAddressToString(dnsServerAddress->Address.lpSockaddr, dnsServerAddress->Address.iSockaddrLength, NULL, szBuf, &bufSize);
 					if (ret == 0)  // ok
 					{

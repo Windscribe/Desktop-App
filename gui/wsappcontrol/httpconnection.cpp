@@ -10,9 +10,10 @@ HttpConnection::HttpConnection(boost::asio::io_service& io_service, boost::asio:
     connection_manager_(manager),
     request_handler_(handler),
     httpRequestRateLimitController_(httpRequestRateLimitController),
-	callbackFunc_(callbackFunc)
+	callbackFunc_(callbackFunc),
+    request_()
 {
-
+    reply_.status = HttpReply::ok;
 }
 
 boost::asio::ssl::stream<boost::asio::ip::tcp::socket>::lowest_layer_type &HttpConnection::socket()

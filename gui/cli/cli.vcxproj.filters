@@ -147,10 +147,10 @@
     <ClCompile Include="..\..\common\utils\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\backend\locationsmodel\windflixlocationsmodel.cpp">
+    <ClCompile Include="..\..\common\utils\winutils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\common\utils\winutils.cpp">
+    <ClCompile Include="..\backend\preferences\detectlanrange.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -198,9 +198,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <ClInclude Include="..\..\common\utils\executable_signature\executable_signature.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\common\utils\executable_signature\executable_signature_win.cpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\common\utils\extraconfig.h">
@@ -290,66 +287,21 @@
     <ClInclude Include="..\..\common\utils\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <QtMoc Include="..\backend\locationsmodel\windflixlocationsmodel.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <ClInclude Include="..\..\common\version\windscribe_version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\common\utils\winutils.cpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     <CustomBuild Include="debug\moc_predefs.h.cbt">
       <Filter>Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="release\moc_predefs.h.cbt">
       <Filter>Generated Files</Filter>
     </CustomBuild>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\backend\preferences\detectlanrange.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

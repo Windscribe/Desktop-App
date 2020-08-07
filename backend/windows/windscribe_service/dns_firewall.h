@@ -4,7 +4,7 @@
 class DnsFirewall
 {
 public:
-	DnsFirewall(FwpmWrapper &fwmpWrapper);
+	explicit DnsFirewall(FwpmWrapper &fwmpWrapper);
 	~DnsFirewall();
 
 	void disable();

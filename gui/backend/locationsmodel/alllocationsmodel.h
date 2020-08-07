@@ -11,7 +11,7 @@ class AllLocationsModel : public BasicLocationsModel
 public:
     explicit AllLocationsModel(QObject *parent = nullptr);
 
-    virtual void update(QVector<LocationModelItem *> locations);
+    void update(QVector<LocationModelItem *> locations) override;
 };
 
 #endif // ALLLOCATIONSMODEL_H

@@ -646,7 +646,7 @@ void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle, UINT8 weight
 	}
 }
 
-void FirewallFilter::addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle, UINT8 weight)
+void FirewallFilter::addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle, UINT8 /*weight*/)
 {
 	if (appsIds_.count() == 0)
 	{
@@ -686,7 +686,7 @@ void FirewallFilter::addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle,
 		filterIdsApps_.push_back(filterId);
 	}
 }
-void FirewallFilter::addPermitFilterForAppsIdsInclusiveMode(HANDLE engineHandle, UINT8 weight)
+void FirewallFilter::addPermitFilterForAppsIdsInclusiveMode(HANDLE engineHandle, UINT8 /*weight*/)
 {
 	// add permit filter for all apps
 	{
@@ -711,7 +711,7 @@ void FirewallFilter::addPermitFilterForAppsIdsInclusiveMode(HANDLE engineHandle,
 	}
 }
 
-void FirewallFilter::addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHandle, UINT8 weight)
+void FirewallFilter::addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHandle, UINT8 /*weight*/)
 {
 	if (!isSplitTunnelingExclusiveMode_)
 	{

@@ -1,7 +1,8 @@
 #include "Server.h"
 #include <boost/bind.hpp>
 
-Server::Server(ServerCallback_T *callbackFunc) : 
+Server::Server(ServerCallback_T *callbackFunc) :
+    port_(0),
 	callbackFunc_(callbackFunc),
 	io_service_(),
 	acceptor_(io_service_),
@@ -25,7 +26,7 @@ Server::~Server()
 		thread_->join();
 		delete thread_;
 		thread_ = NULL;
-		printf("LOG: Local web server stopped on port %d\n", port_);
+		printf("LOG: Local web server stopped on port %u\n", port_);
 		fflush(stdout);
 	}
 }
@@ -41,7 +42,7 @@ void Server::start(const std::vector<unsigned int> &ports)
 
 void Server::threadFunc(void *t)
 {
-	Server *s = (Server *)t;
+	Server *s = static_cast<Server *>(t);
 	s->run();
 }
 
@@ -84,14 +85,14 @@ void Server::run()
 
 	if (!ec)
 	{
-		printf("LOG: Local web server started on port %d\n", port_);
+		printf("LOG: Local web server started on port %u\n", port_);
 		fflush(stdout);
 		start_accept();
 		io_service_.run();
 	}
 	else
 	{
-		printf("LOG: Can't start local web server on ports %d, %d, %d\n", ports_[0], ports_[1], ports_[2]);
+		printf("LOG: Can't start local web server on ports %u, %u, %u\n", ports_[0], ports_[1], ports_[2]);
 		fflush(stdout);
 	}
 }
@@ -129,7 +130,7 @@ void Server::handle_accept(const boost::system::error_code& e)
 		}
 		else
 		{
-			printf("LOG: Client connected to local web server on port %d\n", port_);
+			printf("LOG: Client connected to local web server on port %u\n", port_);
 			fflush(stdout);
 			connection_manager_.start(new_connection_);
 		}

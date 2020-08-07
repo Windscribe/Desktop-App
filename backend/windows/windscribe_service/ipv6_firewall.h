@@ -4,7 +4,7 @@
 class Ipv6Firewall
 {
 public:
-	Ipv6Firewall(FwpmWrapper &fwmpWrapper);
+	explicit Ipv6Firewall(FwpmWrapper &fwmpWrapper);
 	~Ipv6Firewall();
 
 	void enableIPv6();

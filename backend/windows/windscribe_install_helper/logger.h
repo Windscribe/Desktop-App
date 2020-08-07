@@ -5,8 +5,10 @@
 class Logger
 {
 public:
-	Logger(const wchar_t *path);
+	explicit Logger(const wchar_t *path);
 	virtual ~Logger();
+    Logger(const Logger &) = delete;
+    Logger &operator=(const Logger &) = delete;
 
 	void outStr(const wchar_t *str);
 	void outStr(const char *str);

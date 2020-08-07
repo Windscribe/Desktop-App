@@ -14,7 +14,7 @@
 class Server 
 {
 public:
-	Server(ServerCallback_T *callbackFunc);
+	explicit Server(ServerCallback_T *callbackFunc);
 	virtual ~Server();
 
     void start(const std::vector<unsigned int> &ports);

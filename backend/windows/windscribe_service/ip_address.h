@@ -6,9 +6,9 @@ class IpAddress
 private:
     UINT32 pIPv4Address;
 public:
-    IpAddress(PCWSTR address);
-	IpAddress(PCSTR address);
-	IpAddress(DWORD dwAddress);
+    explicit IpAddress(PCWSTR address);
+	explicit IpAddress(PCSTR address);
+	explicit IpAddress(DWORD dwAddress);
 
 	// The IPv4 address is returned in network order (bytes ordered from left to right).
     UINT32 IPv4NetworkOrder() const;

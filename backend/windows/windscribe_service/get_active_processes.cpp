@@ -66,11 +66,9 @@ std::vector<std::wstring> GetActiveProcesses::getList()
 		// enumerate modules for new pids (which not in processes map)
 		for (DWORD index = 0; index < cntProcessIds; index++)
 		{
-			auto it = processes_.find(processIds[index]);
-			if (it == processes_.end())
+			auto it2 = processes_.find(processIds[index]);
+			if (it2 == processes_.end())
 			{
-				TCHAR szProcessName[MAX_PATH];
-				TCHAR szProcessNameWithPrefix[MAX_PATH];
 				HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processIds[index]);
 
 				if (hProcess != NULL)
@@ -79,6 +77,7 @@ std::vector<std::wstring> GetActiveProcesses::getList()
 					DWORD cbNeeded;
 					if (EnumProcessModulesEx(hProcess, hModules, sizeof(hModules), &cbNeeded, LIST_MODULES_ALL))
 					{
+                        TCHAR szProcessName[MAX_PATH];
 						if (GetModuleBaseName(hProcess, hModules[0], szProcessName, MAX_PATH))
 						{
 							if (isSkipThisProcess(szProcessName))
@@ -92,6 +91,7 @@ std::vector<std::wstring> GetActiveProcesses::getList()
 
 								bool fProcessExists = false;
 								int count = 0;
+                                TCHAR szProcessNameWithPrefix[MAX_PATH];
 								swprintf(szProcessNameWithPrefix, L"%s", szProcessName);
 								do
 								{
@@ -130,9 +130,9 @@ std::vector<std::wstring> GetActiveProcesses::getList()
 		}
 
 		std::vector<std::wstring> res;
-		for (auto it = processes_.begin(); it != processes_.end(); ++it)
+		for (auto it2 = processes_.begin(); it2 != processes_.end(); ++it2)
 		{
-			res.push_back(it->second->module);
+			res.push_back(it2->second->module);
 		}
 
 		return res;
@@ -182,9 +182,9 @@ bool GetActiveProcesses::isSkipThisProcess(TCHAR *szProcessName)
 	}
 }
 
-VOID CALLBACK GetActiveProcesses::timerCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
+VOID CALLBACK GetActiveProcesses::timerCallback(PVOID lpParameter, BOOLEAN /*TimerOrWaitFired*/)
 {
-	GetActiveProcesses *this_ = (GetActiveProcesses *)lpParameter;
+	GetActiveProcesses *this_ = static_cast<GetActiveProcesses *>(lpParameter);
 	std::unique_lock<std::mutex> lock(this_->mutex_);
 	for (auto it = this_->processes_.begin(); it != this_->processes_.end(); ++it)
 	{

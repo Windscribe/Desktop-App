@@ -17,6 +17,8 @@ public:
 private:
     Logger();
     ~Logger();
+    Logger(const Logger &) = delete;
+    Logger &operator=(const Logger &) = delete;
 
     FILE *file_;
     CRITICAL_SECTION cs_;

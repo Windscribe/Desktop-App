@@ -9,15 +9,15 @@
 
 bool ReinstallWanIkev2::enableDevice()
 {
-	bool bIkev2DeviceFound = false;
-	bool bWanIpDeviceFound = false;
-	bool bIkev2DeviceEnabled = false;
-	bool bWanIpDeviceEnabled = false;
-
 	HDEVINFO hDevInfo = SetupDiGetClassDevs(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
 
 	if (hDevInfo != INVALID_HANDLE_VALUE)
 	{
+        bool bIkev2DeviceFound = false;
+        bool bWanIpDeviceFound = false;
+        bool bIkev2DeviceEnabled = false;
+        bool bWanIpDeviceEnabled = false;
+
 		DWORD deviceIndex = 0;
 		SP_DEVINFO_DATA deviceInfoData;
 		ZeroMemory(&deviceInfoData, sizeof(SP_DEVINFO_DATA));
@@ -100,15 +100,15 @@ bool ReinstallWanIkev2::enableDevice()
 
 bool ReinstallWanIkev2::uninstallDevice()
 {
-	bool bIkev2DeviceFound = false;
-	bool bWanIpDeviceFound = false;
-	bool bIkev2DeviceUninstalled = false;
-	bool bWanIpDeviceUninstalled = false;
-
 	HDEVINFO hDevInfo = SetupDiGetClassDevs(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
 
 	if (hDevInfo != INVALID_HANDLE_VALUE)
 	{
+        bool bIkev2DeviceFound = false;
+        bool bWanIpDeviceFound = false;
+        bool bIkev2DeviceUninstalled = false;
+        bool bWanIpDeviceUninstalled = false;
+
 		DWORD deviceIndex = 0;
 		SP_DEVINFO_DATA deviceInfoData;
 		ZeroMemory(&deviceInfoData, sizeof(SP_DEVINFO_DATA));

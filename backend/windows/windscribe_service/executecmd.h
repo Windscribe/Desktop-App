@@ -37,9 +37,8 @@ private:
         DWORD  dwExitCode;
         std::string strLogOutput;
 
-        BlockingCmd()
+        BlockingCmd() : id(0), hProcess(0), hThread(0), hWait(0), bFinished(false), dwExitCode(0)
         {
-            bFinished = false;
         }
     };
 

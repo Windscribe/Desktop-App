@@ -40,6 +40,7 @@ bool ExecutableSignature_win::verify(const wchar_t *szExePath)
 		goto finish;
 	}
 
+    // cppcheck-suppress LocalAllocCalled
 	pSignerInfo = (PCMSG_SIGNER_INFO)LocalAlloc(LPTR, dwSignerInfo);
 
 
@@ -121,6 +122,7 @@ bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertCon
 		return false;
 	}
 	
+    // cppcheck-suppress LocalAllocCalled
 	szName = (LPTSTR)LocalAlloc(LPTR, dwData * sizeof(TCHAR));
 	if (!(CertGetNameString(pCertContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, szName, dwData)))
 	{
