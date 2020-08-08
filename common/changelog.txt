@@ -1,3 +1,22 @@
+2.0.23 (6/08/2020)
+* Bug fix for tunnel connectivity test (Bypass DNS cache for ping requests).
+* Selected tab marker does not match the selected server list on Mac - fixed.
+* Tab button on preferences screen doesn't return from submenu - fixed.
+* Ping bar icon blinks when the program starts - fixed.
+* Wintun driver renamed to windtun420.
+* LAN IP detection randomly picks the loopback interface on a Mac - fixed.
+* Background sometimes visible on Mac (should be fixed, but not 100% sure, not able to reproduce).
+* Incorrect scaling in "Advanced parameters" tab - fixed.
+* The cursor does not change when the mouse wheel is scrolled on Mac - fixed.
+* Docked mode fixes (window positioning issues).
+* GUI crash - fixed.
+* Program hung at exit - fixed.
+* Location list in tray menu is redrawn incorrectly on Mac - fixed.
+* Removed streaming(windflix) tab from location list.
+* Mac installer fixes(hang, crash).
+
+
+2.0.22 (15/07/2020)
 * Added "docked" mode switch to preferences.
 * Fixed "Hide from dock" on Mac.
 * Added "Minimize and close to tray" on Windows.
