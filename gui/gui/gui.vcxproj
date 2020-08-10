@@ -607,7 +607,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\utils\widgetutils.cpp" />
     <ClCompile Include="..\..\common\utils\widgetutils_win.cpp" />
     <ClCompile Include="connectwindow\wifiname.cpp" />
-    <ClCompile Include="..\backend\locationsmodel\windflixlocationsmodel.cpp" />
     <ClCompile Include="application\windowsnativeeventfilter.cpp" />
     <ClCompile Include="application\windscribeapplication.cpp" />
     <ClCompile Include="..\..\common\utils\winutils.cpp" />
@@ -1000,8 +999,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\utils\widgetutils.h" />
     <ClInclude Include="..\..\common\utils\widgetutils_win.h" />
     <QtMoc Include="connectwindow\wifiname.h">
-    </QtMoc>
-    <QtMoc Include="..\backend\locationsmodel\windflixlocationsmodel.h">
     </QtMoc>
     <ClInclude Include="application\windowsnativeeventfilter.h" />
     <ClInclude Include="..\..\common\version\windscribe_version.h" />

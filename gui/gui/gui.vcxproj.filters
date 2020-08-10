@@ -766,9 +766,6 @@
     <ClCompile Include="connectwindow\wifiname.cpp">
       <Filter>GUI Files\connectwindow</Filter>
     </ClCompile>
-    <ClCompile Include="..\backend\locationsmodel\windflixlocationsmodel.cpp">
-      <Filter>Backend Files\locationsmodel</Filter>
-    </ClCompile>
     <ClCompile Include="application\windowsnativeeventfilter.cpp">
       <Filter>GUI Files\application</Filter>
     </ClCompile>
@@ -2190,9 +2187,6 @@
     </QtMoc>
     <QtMoc Include="locationswindow\widgetlocations\widgetlocations.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
-    </QtMoc>
-    <QtMoc Include="..\backend\locationsmodel\windflixlocationsmodel.h">
-      <Filter>Backend Files\locationsmodel</Filter>
     </QtMoc>
     <QtMoc Include="application\windscribeapplication.h">
       <Filter>GUI Files\application</Filter>

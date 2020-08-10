@@ -254,6 +254,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(app, SIGNAL(openLocationsFromAnotherInstance()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(shouldTerminate_mac()), SLOT(onAppShouldTerminate_mac()));
     connect(app, SIGNAL(receivedOpenLocationsMessage()), SLOT(onReceivedOpenLocationsMessage()));
+    connect(app, SIGNAL(focusWindowChanged(QWindow*)), SLOT(onFocusWindowChanged(QWindow*)));
 
     /*connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged())); */
 
@@ -302,13 +303,16 @@ MainWindow::MainWindow(QWidget *parent) :
         mainWindowController_->setWindowPosFromPersistent();
     }
 
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
     hideShowDockIconTimer_.setSingleShot(true);
     connect(&hideShowDockIconTimer_, SIGNAL(timeout()), SLOT(hideShowDockIconImpl()));
     if (backend_->getPreferences()->isHideFromDock()) {
         desiredDockIconVisibility_ = false;
         hideShowDockIconImpl();
     }
+#elif defined(Q_OS_WIN)
+    deactivationTimer_.setSingleShot(true);
+    connect(&deactivationTimer_, SIGNAL(timeout()), SLOT(onWindowDeactivateAndHideImpl()));
 #endif
 }
 
@@ -402,10 +406,9 @@ bool MainWindow::event(QEvent *event)
     // qDebug() << "Event Type: " << event->type();
 
 #if defined Q_OS_WIN
-    if (backend_ != NULL && backend_->getPreferences()->isMinimizeAndCloseToTray())
-    {
-        if (event->type() == QEvent::WindowStateChange)
-        {
+    if (event->type() == QEvent::WindowStateChange) {
+        deactivationTimer_.stop();
+        if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
             QWindowStateChangeEvent *e = static_cast<QWindowStateChangeEvent *>(event);
             // make sure we only do this for minimize events
             if ((e->oldState() != Qt::WindowMinimized) && isMinimized())
@@ -420,28 +423,18 @@ bool MainWindow::event(QEvent *event)
     if (event->type() == QEvent::WindowActivate)
     {
         // qDebug() << "WindowActivate";
-        if (backend_->isInitFinished())
-        {            
-            if (backend_->getPreferences()->isDockedToTray())
-            {
-                activateAndShow();
-            }
-        }
+        if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray())
+            activateAndShow();
         setBackendAppActiveState(true);
         activeState_ = true;
     }
     else if (event->type() == QEvent::WindowDeactivate)
     {
         // qDebug() << "WindowDeactivate";
-        if (backend_->isInitFinished())
-        {
-            if (backend_->getPreferences()->isDockedToTray())
-            {
-                // qDebug() << "Event deactivate";
-                deactivateAndHide();
-            }
-        }
-
+#if !defined(Q_OS_WIN)
+        if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray())
+            deactivateAndHide();
+#endif
         setBackendAppActiveState(false);
         activeState_ = false;
     }
@@ -2214,7 +2207,9 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
         case QSystemTrayIcon::Trigger:
         {
             // qDebug() << "Tray triggered";
+            qDebug() << "TrayActivated";
 #if defined Q_OS_WIN
+            deactivationTimer_.stop();
             activateAndShow();
             setBackendAppActiveState(true);
 #elif defined Q_OS_MAC
@@ -2428,6 +2423,30 @@ void MainWindow::onScaleChanged()
     FontManager::instance().clearCache();
     mainWindowController_->updateScaling();
     updateTrayIcon(currentTrayIconType_);
+}
+
+void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
+{
+#if defined(Q_OS_WIN)
+    // On Windows, there are more top-level windows rather than one, main window. E.g. all the
+    // combobox widgets are separate windows. As a result, opening a combobox menu will result in
+    // main window having lost the focus. To work around the problem, on Windows, we catch the
+    // focus change event. If the |focusWindow| is not null, we're still displaying the application;
+    // otherwise, a window of some other application has been activated, and we can hide.
+    if (!focusWindow) {
+        if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray()) {
+            const int kDeactivationDelayMs = 100;
+            deactivationTimer_.start(kDeactivationDelayMs);
+        }
+    } else {
+        deactivationTimer_.stop();
+    }
+#endif
+}
+
+void MainWindow::onWindowDeactivateAndHideImpl()
+{
+    deactivateAndHide();
 }
 
 void MainWindow::onLanguageChanged()
