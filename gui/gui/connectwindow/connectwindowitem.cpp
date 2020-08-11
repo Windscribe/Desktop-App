@@ -9,19 +9,23 @@
 #include "graphicresources/fontmanager.h"
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
+#include "tooltips/tooltiputil.h"
 
 
 namespace ConnectWindow {
 
-ConnectWindowItem::ConnectWindowItem(QGraphicsObject  *parent) : ScalableGraphicsObject (parent)
-  , networkName_("")
-  , trustType_(ProtoTypes::NETWORK_SECURED)
-  , interfaceType_(ProtoTypes::NETWORK_INTERFACE_NONE)
-  , networkActive_(false)
-  , connectionTime_("")
-  , dataTransferred_("")
-  , isFirewallBlocked_(false)
+ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
+    : ScalableGraphicsObject (parent),
+      preferencesHelper_(preferencesHelper),
+      networkName_(""),
+      trustType_(ProtoTypes::NETWORK_SECURED),
+      interfaceType_(ProtoTypes::NETWORK_INTERFACE_NONE),
+      networkActive_(false),
+      connectionTime_(""),
+      dataTransferred_(""),
+      isFirewallBlocked_(false)
 {
+    Q_ASSERT(preferencesHelper_);
     background_ = new Background(this);
 
 #ifdef Q_OS_WIN
@@ -89,6 +93,8 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject  *parent) : ScalableGraphic
 
     firewallButton_ = new FirewallButton(this);
     connect(firewallButton_, SIGNAL(clicked()), SIGNAL(firewallClick()));
+    connect(firewallButton_, SIGNAL(hoverEnter()), SLOT(onFirewallButtonHoverEnter()));
+    connect(firewallButton_, SIGNAL(hoverLeave()), SLOT(onFirewallButtonHoverLeave()));
 
     firewallInfo_ = new IconButton(16, 16, "INFO_ICON", this, 0.25, 0.25);
     firewallInfo_->setClickableHoverable(false, true);
@@ -420,6 +426,29 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
 void ConnectWindowItem::onConnectStateTextHoverLeave()
 {
     emit hideTooltip(TOOLTIP_ID_CONNECTION_INFO);
+}
+
+void ConnectWindowItem::onFirewallButtonHoverEnter()
+{
+    if (!preferencesHelper_->isFirewallBlocked())
+        return;
+
+    QGraphicsView *view = scene()->views().first();
+    QPoint globalPt = view->mapToGlobal(view->mapFromScene(firewallButton_->scenePos()));
+
+    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_FIREWALL_BLOCKED);
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.1;
+    ti.x = globalPt.x() + 8 * G_SCALE;
+    ti.y = globalPt.y() - 4 * G_SCALE;
+    ti.width = 200 * G_SCALE;
+    TooltipUtil::getFirewallBlockedTooltipInfo(&ti.title, &ti.desc);
+    emit showTooltip(ti);
+}
+
+void ConnectWindowItem::onFirewallButtonHoverLeave()
+{
+    emit hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
 }
 
 void ConnectWindowItem::onFirewallInfoHoverEnter()

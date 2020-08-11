@@ -26,6 +26,8 @@ ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &captio
     button_->setFont(FontDescr(12, false));
     button_->setPos(boundingRect().width()  - button_->boundingRect().width() - 12, (boundingRect().height() - 3 - button_->boundingRect().height()) / 2);
     connect(button_, SIGNAL(widthChanged(int)), this, SLOT(onButtonWidthChanged(int)));
+    connect(button_, SIGNAL(hoverEnter()), SIGNAL(buttonHoverEnter()));
+    connect(button_, SIGNAL(hoverLeave()), SIGNAL(buttonHoverLeave()));
 
     menu_ = new CommonWidgets::ComboMenuWidget();
     connect(menu_, SIGNAL(itemClicked(QString,QVariant)), SLOT(onMenuItemSelected(QString, QVariant)));
@@ -166,6 +168,12 @@ void ComboBoxItem::hideMenu()
     menu_->hide();
 }
 
+QPointF ComboBoxItem::getButtonScenePos() const
+{
+    return button_->scenePos();
+}
+
+
 void ComboBoxItem::setColorScheme(bool /*darkMode*/)
 {
 
@@ -173,7 +181,7 @@ void ComboBoxItem::setColorScheme(bool /*darkMode*/)
 
 void ComboBoxItem::setClickable(bool clickable)
 {
-    button_->setClickable(clickable);
+    button_->setClickableHoverable(clickable, true);
     BaseItem::setClickable(clickable);
 }
 

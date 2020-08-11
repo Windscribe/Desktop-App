@@ -58,6 +58,7 @@ public:
     void clear();
 
     void hideMenu();
+    QPointF getButtonScenePos() const;
 
     void setColorScheme(bool darkMode);
 
@@ -68,6 +69,8 @@ public:
 signals:
     void currentItemChanged(QVariant value);
     void menuClosed();
+    void buttonHoverEnter();
+    void buttonHoverLeave();
 
 private slots:
     void onMenuOpened();
