@@ -43,6 +43,9 @@ int main(int argc, char *argv[])
     }
 #endif
 
+    // clear Qt plugin library paths
+    QCoreApplication::setLibraryPaths(QStringList());
+
     qSetMessagePattern("[{gmt_time} %{time process}] [%{category}]\t %{message}");
 
 #ifdef Q_OS_MAC

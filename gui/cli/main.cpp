@@ -27,6 +27,9 @@ void logAndCout(const QString & str);
 
 int main(int argc, char *argv[])
 {
+    // clear Qt plugin library paths
+    QCoreApplication::setLibraryPaths(QStringList());
+
     QCoreApplication::setApplicationName("Windscribe");
     QCoreApplication::setOrganizationName("Windscribe");
 

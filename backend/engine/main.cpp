@@ -54,6 +54,9 @@ int main(int argc, char *argv[])
     }
 #endif
 
+    // clear Qt plugin library paths
+    QCoreApplication::setLibraryPaths(QStringList());
+
     //::SetUnhandledExceptionFilter(crashHandler);
     //signal(SIGINT, handler_sigterm);
 
