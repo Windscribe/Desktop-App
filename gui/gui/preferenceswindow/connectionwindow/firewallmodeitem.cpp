@@ -22,6 +22,8 @@ FirewallModeItem::FirewallModeItem(ScalableGraphicsObject *parent) : BaseItem(pa
     }
     comboBoxFirewallMode_->setCurrentItem(modes.begin()->second);
     connect(comboBoxFirewallMode_, SIGNAL(currentItemChanged(QVariant)), SLOT(onFirewallModeChanged(QVariant)));
+    connect(comboBoxFirewallMode_, SIGNAL(buttonHoverEnter()), SIGNAL(buttonHoverEnter()));
+    connect(comboBoxFirewallMode_, SIGNAL(buttonHoverLeave()), SIGNAL(buttonHoverLeave()));
 
     comboBoxFirewallWhen_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "When?"), "", 43, QColor(16, 22, 40), 24, true);
 
@@ -125,6 +127,11 @@ void FirewallModeItem::setFirewallMode(const ProtoTypes::FirewallSettings &fm)
 void FirewallModeItem::setFirewallBlock(bool isFirewallBlocked)
 {
     comboBoxFirewallMode_->setClickable(!isFirewallBlocked);
+}
+
+QPointF FirewallModeItem::getButtonScenePos() const
+{
+    return comboBoxFirewallMode_->getButtonScenePos();
 }
 
 void FirewallModeItem::updateScaling()

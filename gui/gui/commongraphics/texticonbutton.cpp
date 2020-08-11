@@ -101,23 +101,22 @@ void TextIconButton::setOpacityByFactor(double opacityFactor)
     update();
 }
 
-void TextIconButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+void TextIconButton::hoverEnterEvent(QGraphicsSceneHoverEvent * /*event*/)
 {
-    Q_UNUSED(event);
-
     if (clickable_)
     {
         startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
         startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
     }
+    emit hoverEnter();
 }
 
-void TextIconButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+void TextIconButton::hoverLeaveEvent(QGraphicsSceneHoverEvent * /*event*/)
 {
-    Q_UNUSED(event);
     startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_UNHOVER_TEXT, ANIMATION_SPEED_FAST);
     startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_UNHOVER_ICON_TEXT_DARK, ANIMATION_SPEED_FAST);
 
+    emit hoverLeave();
 }
 
 void TextIconButton::onTextOpacityChanged(const QVariant &value)

@@ -64,7 +64,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     loginWindow_ = new LoginWindow::LoginWindowItem();
     loggingInWindow_ = new LoginWindow::LoggingInWindowItem();
     initWindow_ = new LoginWindow::InitWindowItem();
-    connectWindow_ = new ConnectWindow::ConnectWindowItem();
+    connectWindow_ = new ConnectWindow::ConnectWindowItem(nullptr, preferencesHelper);
     emergencyConnectWindow_ = new EmergencyConnectWindow::EmergencyConnectWindowItem();
     externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem();
     preferencesWindow_ = new PreferencesWindow::PreferencesWindowItem(NULL, preferences, preferencesHelper, accountInfo);

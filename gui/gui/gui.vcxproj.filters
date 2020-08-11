@@ -379,9 +379,6 @@
     <ClCompile Include="connectwindow\firewallbutton.cpp">
       <Filter>GUI Files\connectwindow</Filter>
     </ClCompile>
-    <ClCompile Include="preferenceswindow\connectionwindow\firewallmodeitem.cpp">
-      <Filter>GUI Files\connectwindow</Filter>
-    </ClCompile>
     <ClCompile Include="loginwindow\firewallturnoffbutton.cpp">
       <Filter>GUI Files\loginwindow</Filter>
     </ClCompile>
@@ -456,9 +453,6 @@
     </ClCompile>
     <ClCompile Include="tooltips\itooltip.cpp">
       <Filter>GUI Files\tooltips</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\common\utils\languagesutil.cpp">
-      <Filter>GUI Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="launchonstartup\launchonstartup_win.cpp">
       <Filter>GUI Files\launchonstartup</Filter>
@@ -766,9 +760,6 @@
     <ClCompile Include="connectwindow\wifiname.cpp">
       <Filter>GUI Files\connectwindow</Filter>
     </ClCompile>
-    <ClCompile Include="..\backend\locationsmodel\windflixlocationsmodel.cpp">
-      <Filter>Backend Files\locationsmodel</Filter>
-    </ClCompile>
     <ClCompile Include="application\windowsnativeeventfilter.cpp">
       <Filter>GUI Files\application</Filter>
     </ClCompile>
@@ -819,6 +810,15 @@
     </ClCompile>
     <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\firewallmodeitem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\languagesutil.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="tooltips\tooltiputil.cpp">
+      <Filter>GUI Files\tooltips</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -970,9 +970,6 @@
       <Filter>Backend Files\locationsmodel</Filter>
     </QtMoc>
     <QtMoc Include="connectwindow\firewallbutton.h">
-      <Filter>GUI Files\connectwindow</Filter>
-    </QtMoc>
-    <QtMoc Include="preferenceswindow\connectionwindow\firewallmodeitem.h">
       <Filter>GUI Files\connectwindow</Filter>
     </QtMoc>
     <QtMoc Include="loginwindow\firewallturnoffbutton.h">
@@ -1244,6 +1241,9 @@
     </QtMoc>
     <QtMoc Include="systemtray\locationstraymenuwidget.h">
       <Filter>GUI Files\systemtray</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\firewallmodeitem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -2191,9 +2191,6 @@
     <QtMoc Include="locationswindow\widgetlocations\widgetlocations.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </QtMoc>
-    <QtMoc Include="..\backend\locationsmodel\windflixlocationsmodel.h">
-      <Filter>Backend Files\locationsmodel</Filter>
-    </QtMoc>
     <QtMoc Include="application\windscribeapplication.h">
       <Filter>GUI Files\application</Filter>
     </QtMoc>
@@ -2334,9 +2331,6 @@
     <ClInclude Include="locationswindow\widgetlocations\iwidgetlocationsinfo.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\utils\languagesutil.h">
-      <Filter>GUI Files\utils</Filter>
-    </ClInclude>
     <ClInclude Include="launchonstartup\launchonstartup_win.h">
       <Filter>GUI Files\launchonstartup</Filter>
     </ClInclude>
@@ -2420,6 +2414,12 @@
     </ClInclude>
     <ClInclude Include="locationswindow\widgetlocations\cursorupdatehelper.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\languagesutil.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="tooltips\tooltiputil.h">
+      <Filter>GUI Files\tooltips</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

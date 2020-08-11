@@ -19,10 +19,13 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
     void setFirewallMode(const ProtoTypes::FirewallSettings &fm);
     void setFirewallBlock(bool isFirewallBlocked);
+    QPointF getButtonScenePos() const;
 
     void updateScaling() override;
 signals:
     void firewallModeChanged(const ProtoTypes::FirewallSettings &fm);
+    void buttonHoverEnter();
+    void buttonHoverLeave();
 
 private slots:
     void onFirewallModeChanged(QVariant v);

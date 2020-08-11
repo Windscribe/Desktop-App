@@ -25,7 +25,7 @@ class ConnectWindowItem : public ScalableGraphicsObject, public IConnectWindow
     Q_OBJECT
     Q_INTERFACES(IConnectWindow)
 public:
-    explicit ConnectWindowItem(QGraphicsObject  *parent = nullptr);
+    explicit ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -62,6 +62,8 @@ public slots:
     void onNetworkHoverLeave();
     void onConnectStateTextHoverEnter();
     void onConnectStateTextHoverLeave();
+    void onFirewallButtonHoverEnter();
+    void onFirewallButtonHoverLeave();
     void onFirewallInfoHoverEnter();
     void onFirewallInfoHoverLeave();
     void onSecondNameHoverEnter();
@@ -83,6 +85,7 @@ signals:
     void hideTooltip(TooltipId type) override;
 
 private:
+    PreferencesHelper *preferencesHelper_;
     IconButton *minimizeButton_;
     IconButton *closeButton_;
 #ifdef Q_OS_MAC
