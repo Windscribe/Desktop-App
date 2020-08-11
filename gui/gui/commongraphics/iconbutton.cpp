@@ -60,6 +60,7 @@ void IconButton::setIcon(QString imagePath)
 void IconButton::setSelected(bool selected)
 {
     selected_ = selected;
+    hovered_ = selected;
 
     if (selected)
     {

@@ -27,6 +27,7 @@ public:
     void setEditButtonClickable(bool clickable);
 
     void setAdditionalButtonBusyState(bool on);
+    void setAdditionalButtonSelectedState(bool selected);
 
 signals:
     void textChanged(const QString &text);

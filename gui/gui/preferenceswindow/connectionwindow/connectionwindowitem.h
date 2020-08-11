@@ -33,6 +33,7 @@ public:
     void setScreen(CONNECTION_SCREEN_TYPE subScreen);
     void setCurrentNetwork(const ProtoTypes::NetworkInterface &networkInterface);
     void setPacketSizeDetectionState(bool on);
+    void showPacketSizeDetectionError(const QString &title, const QString &message);
 
 signals:
     void networkWhitelistPageClick();

@@ -115,6 +115,12 @@ void ConnectionWindowItem::setPacketSizeDetectionState(bool on)
     packetSizeItem_->setPacketSizeDetectionState(on);
 }
 
+void ConnectionWindowItem::showPacketSizeDetectionError(const QString &title,
+                                                        const QString &message)
+{
+    packetSizeItem_->showPacketSizeDetectionError(title, message);
+}
+
 void ConnectionWindowItem::onFirewallModeChanged(const ProtoTypes::FirewallSettings &fm)
 {
     preferences_->setFirewallSettings(fm);

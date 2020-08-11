@@ -501,6 +501,12 @@ void PreferencesWindowItem::setPacketSizeDetectionState(bool on)
     connectionWindowItem_->setPacketSizeDetectionState(on);
 }
 
+void PreferencesWindowItem::showPacketSizeDetectionError(const QString &title,
+                                                         const QString &message)
+{
+    connectionWindowItem_->showPacketSizeDetectionError(title, message);
+}
+
 void PreferencesWindowItem::onSplitTunnelingAppsClick()
 {
     setPreferencesWindowToSplitTunnelingAppsHome();

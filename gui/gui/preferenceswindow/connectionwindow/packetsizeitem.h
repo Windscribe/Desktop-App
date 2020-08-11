@@ -22,6 +22,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void setPacketSize(const ProtoTypes::PacketSize &ps);
     void setPacketSizeDetectionState(bool on);
+    void showPacketSizeDetectionError(const QString &title, const QString &message);
 
     void updateScaling() override;
 
@@ -50,6 +51,7 @@ private:
 
      QVariantAnimation expandEnimation_;
      bool isExpanded_;
+     bool isShowingError_;
 };
 
 } // namespace PreferencesWindow
