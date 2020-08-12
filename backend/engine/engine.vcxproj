@@ -408,7 +408,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\proxy\autodetectproxy_win.cpp" />
     <ClCompile Include="engine\connectionmanager\automanualconnectioncontroller.cpp" />
     <ClCompile Include="engine\connectionmanager\availableport.cpp" />
-    <ClCompile Include="utils\bfecontroller_win.cpp" />
     <ClCompile Include="engine\serverapi\certmanager.cpp" />
     <ClCompile Include="engine\taputils\checkadapterenable.cpp" />
     <ClCompile Include="..\..\common\ipc\generated_proto\clientcommands.pb.cc" />
@@ -462,6 +461,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\connectionmanager\ikev2connection_win.cpp" />
     <ClCompile Include="engine\connectionmanager\ikev2connectiondisconnectlogic_win.cpp" />
     <ClCompile Include="engine\helper\initializehelper.cpp" />
+    <ClCompile Include="utils\bfe_service_win.cpp" />
     <ClCompile Include="utils\installedantiviruses_win.cpp" />
     <ClCompile Include="utils\ipvalidation.cpp" />
     <ClCompile Include="engine\ping\keepalivemanager.cpp" />
@@ -513,6 +513,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\tests\sessionandlocations_test.cpp" />
     <ClCompile Include="engine\sessionstatustimer.cpp" />
     <ClCompile Include="engine\helper\simple_xor_crypt.cpp" />
+    <ClCompile Include="utils\ras_service_win.cpp" />
     <ClCompile Include="utils\simplecrypt.cpp" />
     <ClCompile Include="engine\connectionmanager\sleepevents_win.cpp" />
     <ClCompile Include="engine\vpnshare\socketutils\socketwriteall.cpp" />
@@ -591,7 +592,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="engine\proxy\autodetectproxy_win.h" />
     <ClInclude Include="engine\connectionmanager\automanualconnectioncontroller.h" />
     <ClInclude Include="engine\connectionmanager\availableport.h" />
-    <ClInclude Include="utils\bfecontroller_win.h" />
+    <ClInclude Include="utils\bfe_service_win.h" />
     <ClInclude Include="utils\boost_includes.h" />
     <ClInclude Include="engine\serverapi\certmanager.h" />
     <ClInclude Include="engine\taputils\checkadapterenable.h" />
@@ -774,6 +775,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="engine\sessionstatustimer.h">
     </QtMoc>
     <ClInclude Include="engine\helper\simple_xor_crypt.h" />
+    <ClInclude Include="utils\ras_service_win.h" />
     <ClInclude Include="utils\simplecrypt.h" />
     <QtMoc Include="engine\connectionmanager\sleepevents_win.h">
     </QtMoc>

@@ -169,9 +169,6 @@
     <ClCompile Include="engine\proxy\proxyservercontroller.cpp">
       <Filter>Engine Files\engine\proxy</Filter>
     </ClCompile>
-    <ClCompile Include="utils\bfecontroller_win.cpp">
-      <Filter>Engine Files\utils</Filter>
-    </ClCompile>
     <ClCompile Include="engine\connectionmanager\availableport.cpp">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClCompile>
@@ -568,6 +565,12 @@
     <ClCompile Include="engine\networkdetectionmanager\networkdetectionmanager_mac.cpp">
       <Filter>Engine Files\engine\networkdetectionmanager</Filter>
     </ClCompile>
+    <ClCompile Include="utils\bfe_service_win.cpp">
+      <Filter>Engine Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\ras_service_win.cpp">
+      <Filter>Engine Files\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qconsolelistener.h">
@@ -605,9 +608,6 @@
     </ClInclude>
     <ClInclude Include="engine\proxy\autodetectproxy_win.h">
       <Filter>Engine Files\engine\proxy</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\bfecontroller_win.h">
-      <Filter>Engine Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\boost_includes.h">
       <Filter>Engine Files\utils</Filter>
@@ -1120,6 +1120,12 @@
     </ClInclude>
     <ClInclude Include="engine\connectionmanager\restorednsmanager_mac.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\bfe_service_win.h">
+      <Filter>Engine Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\ras_service_win.h">
+      <Filter>Engine Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

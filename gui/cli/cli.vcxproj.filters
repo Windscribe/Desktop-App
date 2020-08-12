@@ -156,6 +156,9 @@
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\backend\preferences\detectlanrange.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\backend\preferences\accountinfo.h">
