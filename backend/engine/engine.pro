@@ -36,7 +36,8 @@ SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
            engine/helper/helper_win.cpp \
            engine/proxy/autodetectproxy_win.cpp \
            engine/firewall/firewallcontroller_win.cpp \
-           utils/bfecontroller_win.cpp \
+           utils/bfe_service_win.cpp \
+           utils/ras_service_win.cpp \
            engine/dnsresolver/dnsutils_win.cpp \
            engine/adaptermetricscontroller_win.cpp \
            engine/connectionmanager/sleepevents_win.cpp \
@@ -65,7 +66,8 @@ HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
            engine/helper/helper_win.h \
            engine/proxy/autodetectproxy_win.h \
            engine/firewall/firewallcontroller_win.h \
-           utils/bfecontroller_win.h \
+           utils/bfe_service_win.h \
+           utils/ras_service_win.h \
            engine/adaptermetricscontroller_win.h \
            engine/connectionmanager/sleepevents_win.h \
            utils/installedantiviruses_win.h \

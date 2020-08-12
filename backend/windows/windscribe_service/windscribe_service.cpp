@@ -592,6 +592,25 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		wcscpy(bfeCmd, L"sc start BFE");
 		mpr = ExecuteCmd::instance().executeBlockingCmd(bfeCmd);
 	}
+	else if (cmdId == AA_COMMAND_RESET_AND_START_RAS)
+	{
+		Logger::instance().out(L"AA_COMMAND_RESET_AND_START_RAS");
+
+		wchar_t serviceCmd[MAX_PATH];
+		wcscpy(serviceCmd, L"sc config RasMan start= demand");
+		mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
+		wcscpy(serviceCmd, L"sc stop RasMan");
+		mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
+		wcscpy(serviceCmd, L"sc start RasMan");
+		mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
+
+		wcscpy(serviceCmd, L"sc config SstpSvc start= demand");
+		mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
+		wcscpy(serviceCmd, L"sc stop SstpSvc");
+		mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
+		wcscpy(serviceCmd, L"sc start SstpSvc");
+		mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
+	}
 	else if (cmdId == AA_COMMAND_RUN_OPENVPN)
 	{
 		CMD_RUN_OPENVPN cmdRunOpenVpn;

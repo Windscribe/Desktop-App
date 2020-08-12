@@ -18,7 +18,7 @@
 #include <google/protobuf/util/message_differencer.h>
 
 #ifdef Q_OS_WIN
-    #include "utils/bfecontroller_win.h"
+    #include "utils/bfe_service_win.h"
     #include "engine/dnsinfo_win.h"
     #include "engine/taputils/checkadapterenable.h"
     #include "engine/taputils/tapinstall_win.h"
@@ -751,7 +751,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 
     #ifdef Q_OS_WIN
         // check BFE service status
-        if (!BFEController_win::instance().isBFEEnabled())
+        if (!BFE_Service_win::instance().isBFEEnabled())
         {
             emit initFinished(ENGINE_INIT_BFE_SERVICE_FAILED);
         }
@@ -945,7 +945,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 void Engine::enableBFE_winImpl()
 {
 #ifdef Q_OS_WIN
-    bool bSuccess = BFEController_win::instance().checkAndEnableBFE(helper_);
+    bool bSuccess = BFE_Service_win::instance().checkAndEnableBFE(helper_);
     if (bSuccess)
     {
         emit bfeEnableFinished(ENGINE_INIT_SUCCESS);

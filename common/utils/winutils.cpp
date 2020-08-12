@@ -1388,3 +1388,42 @@ QString WinUtils::getLocalIP()
     }
     return "";
 }
+
+bool WinUtils::isServiceRunning(const QString &serviceName)
+{
+    SC_HANDLE schSCManager = NULL;
+    SC_HANDLE schService = NULL;
+
+    schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
+    if (schSCManager == NULL)
+    {
+        DWORD err = GetLastError();
+        qCDebug(LOG_BASIC) << "OpenSCManager failed: " << err;
+        return false;
+    }
+
+    schService = OpenService(schSCManager, serviceName.toStdWString().c_str(), SERVICE_QUERY_STATUS);
+    if (schService == NULL)
+    {
+        DWORD err = GetLastError();
+        qCDebug(LOG_BASIC) << "OpenService for " << serviceName << " failed: " << err;
+        CloseServiceHandle(schSCManager);
+        return false;
+    }
+
+    SERVICE_STATUS_PROCESS ssStatus;
+    DWORD dwBytesNeeded;
+    if (!QueryServiceStatusEx(schService, SC_STATUS_PROCESS_INFO,
+                (LPBYTE) &ssStatus, sizeof(SERVICE_STATUS_PROCESS), &dwBytesNeeded ))
+    {
+        qCDebug(LOG_BASIC) << "QueryServiceStatusEx for " << serviceName << " failed: " << GetLastError();
+        CloseServiceHandle(schService);
+        CloseServiceHandle(schSCManager);
+        return false;
+    }
+
+    bool bRet = ssStatus.dwCurrentState == SERVICE_RUNNING;
+    CloseServiceHandle(schService);
+    CloseServiceHandle(schSCManager);
+    return bRet;
+}

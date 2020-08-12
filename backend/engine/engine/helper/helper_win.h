@@ -35,6 +35,7 @@ public:
 
     bool clearDnsOnTap() override;
     QString enableBFE() override;
+    QString resetAndStartRAS() override;
 
     void setIPv6EnabledInFirewall(bool b) override;
     void setIPv6EnabledInOS(bool b) override;

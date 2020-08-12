@@ -6,6 +6,7 @@
 #include "Engine/hardcodedsettings.h"
 #include "Engine/TapUtils/checkadapterenable.h"
 #include "Utils/winutils.h"
+#include "utils/ras_service_win.h"
 
 #define IKEV2_CONNECTION_NAME  L"Windscribe IKEv2"
 
@@ -315,13 +316,37 @@ void IKEv2Connection_win::onHandleDisconnectLogic()
 
 void IKEv2Connection_win::doConnect()
 {
+    bool ikev2DeviceInitialized = false;
     RASDEVINFO devInfo;
     if (!getIKEv2Device(&devInfo))
+    {
+        qCDebug(LOG_IKEV2) << "Trying resrart SstpSvc and RasMan";
+        if (!RAS_Service_win::instance().restartRASServices(helper_))
+        {
+            qCDebug(LOG_IKEV2) << "Failed to start SstpSvc and/or RasMan services, so return disconnect error";
+        }
+        else
+        {
+            qCDebug(LOG_IKEV2) << "SstpSvc and/or RasMan services restarted, so try getIKEv2Device again";
+            ikev2DeviceInitialized = getIKEv2Device(&devInfo);
+            if (!ikev2DeviceInitialized)
+            {
+                qCDebug(LOG_IKEV2) << "getIKEv2Device failed again";
+            }
+        }
+    }
+    else
+    {
+        ikev2DeviceInitialized = true;
+    }
+
+    if (!ikev2DeviceInitialized)
     {
         state_ = STATE_DISCONNECTED;
         emit error(IKEV_NOT_FOUND_WIN);
         return;
     }
+
 
     RASENTRY rasEntry;
     memset(&rasEntry, 0, sizeof(rasEntry));

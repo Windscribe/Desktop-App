@@ -32,6 +32,7 @@ public:
 
     virtual bool clearDnsOnTap() = 0;
     virtual QString enableBFE() = 0;
+    virtual QString resetAndStartRAS() = 0;
 
 
     virtual void setIPv6EnabledInFirewall(bool b) = 0;

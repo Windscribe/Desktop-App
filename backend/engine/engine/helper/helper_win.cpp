@@ -274,6 +274,17 @@ QString Helper_win::enableBFE()
     return answer;
 }
 
+QString Helper_win::resetAndStartRAS()
+{
+    QMutexLocker locker(&mutex_);
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RESET_AND_START_RAS, std::string());
+    QString answer = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
+    mpr.clear();
+
+    return answer;
+}
+
 void Helper_win::setIPv6EnabledInFirewall(bool b)
 {
     if (bIPV6State_ != b)

@@ -28,6 +28,8 @@ namespace WinUtils
     void openGuiLocations();
     bool reportGuiEngineInit();
 
+    bool isServiceRunning(const QString &serviceName);
+
     // Registry Adapters
     bool regHasLocalMachineSubkeyProperty(QString keyPath, QString propertyName);
     QString regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName);
