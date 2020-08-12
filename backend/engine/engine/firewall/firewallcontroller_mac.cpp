@@ -166,6 +166,12 @@ bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTra
         pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
         pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
 
+        // Loopback addresses to the local host
+        pf += "pass in quick inet from 127.0.0.0/8 to 127.0.0.0/8 flags S/SA keep state\n";
+
+        // Multicast addresses
+        pf += "pass in quick inet from 224.0.0.0/4 to 224.0.0.0/4 flags S/SA keep state\n";
+
         // UPnP
         //pf += "pass out quick inet proto udp from 239.255.255.250 to 239.255.255.250 port = 1900\n";
         //pf += "pass in quick inet proto udp from 239.255.255.250 to 239.255.255.250 port = 1900\n";
