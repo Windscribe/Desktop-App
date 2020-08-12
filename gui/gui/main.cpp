@@ -43,8 +43,10 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // clear Qt plugin library paths
+    // clear Qt plugin library paths for release build
+#ifndef QT_DEBUG
     QCoreApplication::setLibraryPaths(QStringList());
+#endif
 
     qSetMessagePattern("[{gmt_time} %{time process}] [%{category}]\t %{message}");
 
