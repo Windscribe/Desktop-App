@@ -907,15 +907,21 @@ void MainWindow::onPreferencesCycleMacAddressClick()
 
 void MainWindow::onPreferencesWindowDetectPacketMssButtonClicked()
 {
-    if (internetConnected_)
+    if (!backend_->isDisconnected())
+    {
+        const QString title = tr("VPN is active");
+        const QString desc = tr("Cannot detect appropriate packet size while connected. Please disconnect first.");
+        mainWindowController_->getPreferencesWindow()->showPacketSizeDetectionError(title, desc);
+    }
+    else if (internetConnected_)
     {
         backend_->sendDetectPacketSize();
     }
     else
     {
         const QString title = tr("No Internet");
-        const QString desc = tr("Cannot detect appropriate packet size without internet. Check your connection");
-        QMessageBox::information(nullptr, title, desc);
+        const QString desc = tr("Cannot detect appropriate packet size without internet. Check your connection.");
+        mainWindowController_->getPreferencesWindow()->showPacketSizeDetectionError(title, desc);
     }
 }
 

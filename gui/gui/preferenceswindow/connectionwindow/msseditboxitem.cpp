@@ -194,6 +194,12 @@ void MssEditBoxItem::setAdditionalButtonBusyState(bool on)
     }
 }
 
+void MssEditBoxItem::setAdditionalButtonSelectedState(bool selected)
+{
+    if (btnAdditional_)
+        btnAdditional_->setSelected(selected);
+}
+
 void MssEditBoxItem::onEditClick()
 {
     btnEdit_->hide();

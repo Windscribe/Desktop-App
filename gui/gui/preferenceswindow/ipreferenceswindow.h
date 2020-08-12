@@ -33,6 +33,7 @@ public:
     virtual void updatePageSpecific() = 0;
 
     virtual void setPacketSizeDetectionState(bool on) = 0;
+    virtual void showPacketSizeDetectionError(const QString &title, const QString &message) = 0;
 
 signals:
     virtual void escape() = 0;

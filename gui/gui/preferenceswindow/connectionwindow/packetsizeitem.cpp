@@ -14,7 +14,7 @@
 namespace PreferencesWindow {
 
 PacketSizeItem::PacketSizeItem(ScalableGraphicsObject *parent)
-    : BaseItem(parent, 50), isExpanded_(false)
+    : BaseItem(parent, 50), isExpanded_(false), isShowingError_(false)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
@@ -48,6 +48,9 @@ void PacketSizeItem::onExpandAnimationValueChanged(const QVariant &value)
 
 void PacketSizeItem::onAutoDetectAndGenerateHoverEnter()
 {
+    if (isShowingError_)
+        return;
+
     QGraphicsView *view = scene()->views().first();
     QPoint globalPt = view->mapToGlobal(view->mapFromScene(editBoxMSS_->scenePos()));
 
@@ -66,6 +69,10 @@ void PacketSizeItem::onAutoDetectAndGenerateHoverEnter()
 void PacketSizeItem::onAutoDetectAndGenerateHoverLeave()
 {
     emit hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE);
+    if (isShowingError_) {
+        emit hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE_ERROR);
+        isShowingError_ = false;
+    }
 }
 
 void PacketSizeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -110,6 +117,30 @@ void PacketSizeItem::setPacketSize(const ProtoTypes::PacketSize &ps)
 void PacketSizeItem::setPacketSizeDetectionState(bool on)
 {
     editBoxMSS_->setAdditionalButtonBusyState(on);
+}
+
+void PacketSizeItem::showPacketSizeDetectionError(const QString &title, const QString &message)
+{
+    emit hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE);
+
+    QGraphicsView *view = scene()->views().first();
+    QPoint globalPt = view->mapToGlobal(view->mapFromScene(editBoxMSS_->scenePos()));
+
+    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE_ERROR);
+    ti.x = globalPt.x() + 226 * G_SCALE;
+    ti.y = globalPt.y() + 8 * G_SCALE;
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.8;
+    ti.title = title;
+    ti.desc = message;
+    ti.width = 150 * G_SCALE;
+    ti.delay = 100;
+
+    QTimer::singleShot(0, [this, ti]() {
+        isShowingError_ = true;
+        editBoxMSS_->setAdditionalButtonSelectedState(true);
+        emit showTooltip(ti);
+    });
 }
 
 void PacketSizeItem::updateScaling()

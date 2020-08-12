@@ -65,6 +65,7 @@ public:
     void updatePageSpecific() override;
 
     void setPacketSizeDetectionState(bool on) override;
+    void showPacketSizeDetectionError(const QString &title, const QString &message) override;
 
 signals:
     void escape() override;
