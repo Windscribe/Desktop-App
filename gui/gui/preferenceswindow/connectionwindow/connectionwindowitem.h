@@ -46,6 +46,8 @@ signals:
 
 private slots:
     void onFirewallModeChanged(const ProtoTypes::FirewallSettings &fm);
+    void onFirewallModeHoverEnter();
+    void onFirewallModeHoverLeave();
     void onConnectionModeChanged(const ProtoTypes::ConnectionSettings &cm);
     void onPacketSizeChanged(const ProtoTypes::PacketSize &ps);
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
@@ -74,6 +76,7 @@ protected:
 
 private:
     Preferences *preferences_;
+    PreferencesHelper *preferencesHelper_;
     SubPageItem *networkWhitelistItem_;
     SubPageItem *splitTunnelingItem_;
     SubPageItem *proxySettingsItem_;

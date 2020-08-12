@@ -229,6 +229,7 @@ SOURCES += \
     tooltips/tooltipbasic.cpp \
     tooltips/tooltipcontroller.cpp \
     tooltips/tooltipdescriptive.cpp \
+    tooltips/tooltiputil.cpp \
     utils/ipvalidation.cpp \
     utils/mergelog.cpp \
     utils/protoenumtostring.cpp \
@@ -450,6 +451,7 @@ HEADERS += \
     tooltips/tooltipcontroller.h \
     tooltips/tooltipdescriptive.h \
     tooltips/tooltiptypes.h \
+    tooltips/tooltiputil.h \
     utils/ipvalidation.h \
     utils/mergelog.h \
     utils/protoenumtostring.h \

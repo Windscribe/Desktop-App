@@ -6,11 +6,13 @@
 #include "dpiscalemanager.h"
 #include "languagecontroller.h"
 #include "utils/protoenumtostring.h"
+#include "tooltips/tooltiputil.h"
 
 namespace PreferencesWindow {
 
 ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : BasePage(parent)
     , preferences_(preferences)
+    , preferencesHelper_(preferencesHelper)
     , currentScreen_(CONNECTION_SCREEN_HOME)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
@@ -43,6 +45,8 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     firewallModeItem_ = new FirewallModeItem(this);
     connect(firewallModeItem_, SIGNAL(firewallModeChanged(ProtoTypes::FirewallSettings)), SLOT(onFirewallModeChanged(ProtoTypes::FirewallSettings)));
+    connect(firewallModeItem_, SIGNAL(buttonHoverEnter()), SLOT(onFirewallModeHoverEnter()));
+    connect(firewallModeItem_, SIGNAL(buttonHoverLeave()), SLOT(onFirewallModeHoverLeave()));
     firewallModeItem_->setFirewallMode(preferences->firewalSettings());
     firewallModeItem_->setFirewallBlock(preferencesHelper->isFirewallBlocked());
     addItem(firewallModeItem_);
@@ -124,6 +128,29 @@ void ConnectionWindowItem::showPacketSizeDetectionError(const QString &title,
 void ConnectionWindowItem::onFirewallModeChanged(const ProtoTypes::FirewallSettings &fm)
 {
     preferences_->setFirewallSettings(fm);
+}
+
+void ConnectionWindowItem::onFirewallModeHoverEnter()
+{
+    if (!preferencesHelper_->isFirewallBlocked())
+        return;
+
+    QGraphicsView *view = scene()->views().first();
+    QPoint globalPt = view->mapToGlobal(view->mapFromScene(firewallModeItem_->getButtonScenePos()));
+
+    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_FIREWALL_BLOCKED);
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.5;
+    ti.x = globalPt.x() + 8 * G_SCALE;
+    ti.y = globalPt.y() - 4 * G_SCALE;
+    ti.width = 200 * G_SCALE;
+    TooltipUtil::getFirewallBlockedTooltipInfo(&ti.title, &ti.desc);
+    emit showTooltip(ti);
+}
+
+void ConnectionWindowItem::onFirewallModeHoverLeave()
+{
+    emit hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
 }
 
 void ConnectionWindowItem::onConnectionModeChanged(const ProtoTypes::ConnectionSettings &cm)

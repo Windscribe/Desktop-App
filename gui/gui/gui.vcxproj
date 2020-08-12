@@ -453,6 +453,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="systemtray\locationstraymenubutton.cpp" />
     <ClCompile Include="systemtray\locationstraymenuitemdelegate.cpp" />
     <ClCompile Include="systemtray\locationstraymenuwidget.cpp" />
+    <ClCompile Include="tooltips\tooltiputil.cpp" />
     <ClCompile Include="types\dnswhileconnectedtype.cpp" />
     <ClCompile Include="dpiscalemanager.cpp" />
     <ClCompile Include="preferenceswindow\accountwindow\editaccountitem.cpp" />
@@ -718,6 +719,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="systemtray\locationstraymenubutton.h" />
     <QtMoc Include="systemtray\locationstraymenuitemdelegate.h" />
     <QtMoc Include="systemtray\locationstraymenuwidget.h" />
+    <ClInclude Include="tooltips\tooltiputil.h" />
     <ClInclude Include="types\dnswhileconnectedtype.h" />
     <QtMoc Include="dpiscalemanager.h">
     </QtMoc>
