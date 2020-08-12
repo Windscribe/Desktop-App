@@ -839,3 +839,8 @@ QStringList MacUtils::getDnsServersForInterface(const QString &interfaceName)
     dnsList.removeDuplicates();
     return dnsList;
 }
+
+QString MacUtils::getBundlePath()
+{
+    return QString::fromNSString([[NSBundle mainBundle] bundlePath]);
+}

@@ -11,6 +11,7 @@ namespace MacUtils
     void invalidateCursorRects(void *pNSView);
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     QString getOsVersion();
+    QString getBundlePath();
 
     bool isOsVersion10_11_or_greater();
     bool isOsVersionIsSierra_or_greater();

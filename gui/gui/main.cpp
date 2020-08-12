@@ -43,9 +43,17 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // clear Qt plugin library paths for release build
+
+    // set Qt plugin library paths for release build
 #ifndef QT_DEBUG
-    QCoreApplication::setLibraryPaths(QStringList());
+    #ifdef Q_OS_WIN
+        // For Windows an empty list means searching plugins in the executable folder
+        QCoreApplication::setLibraryPaths(QStringList());
+    #else
+        QStringList pluginsPath;
+        pluginsPath << MacUtils::getBundlePath() + "/Contents/PlugIns";
+        QCoreApplication::setLibraryPaths(pluginsPath);
+    #endif
 #endif
 
     qSetMessagePattern("[{gmt_time} %{time process}] [%{category}]\t %{message}");
