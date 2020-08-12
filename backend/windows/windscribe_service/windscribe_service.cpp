@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
 	_getch();
 	SetEvent (g_ServiceStopEvent);
 	WaitForSingleObject (hThread, INFINITE);
+    CloseHandle(hThread);
 	CloseHandle (g_ServiceStopEvent);
 #else
 		
@@ -253,7 +254,7 @@ BOOL CreateDACL(SECURITY_ATTRIBUTES *pSA)
 	return ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(pSA->lpSecurityDescriptor),	NULL);
 }
 
-HANDLE ñreatePipe()
+HANDLE CreatePipe()
 {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -768,12 +769,12 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 
 		std::wstring adapterRegistryName = cmdResetNetworkAdapter.szInterfaceName;
 
-		Logger::instance().out(L"AA_COMMAND_RESET_NETWORK_ADAPTER, Disable %s", adapterRegistryName);
+		Logger::instance().out(L"AA_COMMAND_RESET_NETWORK_ADAPTER, Disable %s", adapterRegistryName.c_str());
 		Utils::callNetworkAdapterMethod(L"Disable", adapterRegistryName);
 
 		if (cmdResetNetworkAdapter.bringBackUp)
 		{
-			Logger::instance().out(L"AA_COMMAND_RESET_NETWORK_ADAPTER, Enable %s", adapterRegistryName);
+			Logger::instance().out(L"AA_COMMAND_RESET_NETWORK_ADAPTER, Enable %s", adapterRegistryName.c_str());
 			Utils::callNetworkAdapterMethod(L"Enable", adapterRegistryName);
 		}
 
@@ -897,7 +898,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 
 	Logger::instance().out(L"Service started");
 
-	HANDLE hPipe = ñreatePipe();
+	HANDLE hPipe = CreatePipe();
 	if (hPipe == INVALID_HANDLE_VALUE)
 	{
 		return 0;

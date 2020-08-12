@@ -7,9 +7,9 @@ class InstallTapCommand :
 {
 public:
 	InstallTapCommand(Logger *logger, const wchar_t *tapInstallPath, const wchar_t *infPath, const wchar_t *tapInstallPathForRemove);
-	virtual ~InstallTapCommand();
+	~InstallTapCommand() override;
 
-	virtual void execute();
+	void execute() override;
 
 private:
 	std::wstring tapInstallPath_;

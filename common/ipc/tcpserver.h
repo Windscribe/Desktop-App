@@ -12,9 +12,9 @@ class TcpServer : public QObject, public IServer
     Q_OBJECT
 public:
     TcpServer();
-    virtual ~TcpServer();
+    ~TcpServer() override;
 
-    virtual bool start();
+    bool start() override;
 
 private slots:
     void onNewConnection();

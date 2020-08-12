@@ -63,7 +63,7 @@ private:
 		read_content
     } state_;
 
-	const int MAX_CONTENT_LENGTH = 200;
+	static constexpr int MAX_CONTENT_LENGTH = 200;
 	int contentLength_;
 };
 

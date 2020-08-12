@@ -3,9 +3,8 @@
 
 #pragma comment(lib, "Shlwapi.lib")
 
-HostsEdit::HostsEdit()
+HostsEdit::HostsEdit() : szTitle_(L"added by Windscribe, do not modify.")
 {
-	szTitle_ = L"added by Windscribe, do not modify.";
     wchar_t szPath[MAX_PATH];
     GetSystemDirectory(szPath, MAX_PATH);
     szSystemDir_ = szPath;
@@ -100,6 +99,7 @@ bool HostsEdit::addHosts(std::wstring szHosts)
 
 			if (c != '\n')
 			{
+                fseek(file, 0, SEEK_END);
 				fputws(L"\n", file);
 			}
 		}

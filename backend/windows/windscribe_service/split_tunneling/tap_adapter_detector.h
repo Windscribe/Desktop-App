@@ -24,7 +24,7 @@ private:
 
 	void detectCurrentConfig();
 	bool removeAdapter(NET_LUID luid);
-	int findAdapter(NET_LUID luid);
+	int findAdapter(NET_LUID luid) const;
 
 	void updateState();
 

@@ -159,7 +159,6 @@ void BackendCommander::sendCommand()
             QVector<LocationModelItem *> lmis = lm->locationModelItems();
 
             // Look for full text region
-            LocationModelItem *foundLmiByRegion = nullptr;
             auto lmiRegion = std::find_if(lmis.begin(), lmis.end(), [this](LocationModelItem *item) {
                     return item->title.toLower() == locationStr_;
             });
@@ -167,7 +166,7 @@ void BackendCommander::sendCommand()
             bool sent = false;
             if (lmiRegion != lmis.end()) // city by region
             {
-                LocationID lid = foundLmiByRegion->id;
+                LocationID lid = (*lmiRegion)->id;
 
                 QList<CityModelItem> nodesWithinRegion;
                 foreach (CityModelItem city, citiesWithoutStaticIps)
@@ -203,9 +202,9 @@ void BackendCommander::sendCommand()
                 }
 
                 QList<CityModelItem> citiesInCountry;
-                foreach (LocationModelItem *lmi, lmiWithCC)
+                for (const LocationModelItem *lmi: qAsConst(lmiWithCC))
                 {
-                    foreach (CityModelItem cmi, citiesWithoutStaticIps)
+                    for (const CityModelItem cmi: qAsConst(citiesWithoutStaticIps))
                     {
                         if (cmi.countryCode == lmi->countryCode)
                         {

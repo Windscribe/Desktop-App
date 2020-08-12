@@ -4,11 +4,11 @@
 
 std::string SimpleXorCrypt::encrypt(std::string &data, const std::string &key)
 {
-	int gg = key.size();
+	const size_t gg = key.size();
 	std::string xorstring = data; 
 	for (size_t i = 0; i < xorstring.size(); i++) 
 	{ 
-        xorstring[i] = data[i] ^ key[i % key.size()];
+        xorstring[i] = data[i] ^ key[i % gg];
 	}
 	return xorstring;
 }

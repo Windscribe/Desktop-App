@@ -41,7 +41,7 @@ protected:
 	{
 		p = NULL;
 	}
-	CComPtrBase(_Inout_opt_ T* lp) throw()
+	explicit CComPtrBase(_Inout_opt_ T* lp) throw()
 	{
 		p = lp;
 		if (p != NULL)
@@ -204,11 +204,11 @@ public:
     CComPtr() throw()
     {
     }
-    CComPtr(_Inout_opt_ T* lp) throw() :
+    explicit CComPtr(_Inout_opt_ T* lp) throw() :
         CComPtrBase<T>(lp)
     {
     }
-    CComPtr(_Inout_ const CComPtr<T>& lp) throw() :
+    explicit CComPtr(_Inout_ const CComPtr<T>& lp) throw() :
         CComPtrBase<T>(lp.p)
     {	
     }
@@ -237,7 +237,7 @@ public:
         }
         return *this;
     }	
-    CComPtr(_Inout_ CComPtr<T>&& lp) throw() :	
+    explicit CComPtr(_Inout_ CComPtr<T>&& lp) throw() :
         CComPtrBase<T>()
     {	
         lp.Swap(*this);

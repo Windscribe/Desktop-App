@@ -7,7 +7,6 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets)
 	PMIB_TCPTABLE2 pTcpTable = NULL;
 	DWORD dwSize = 0;
 	DWORD dwRetVal = 0;
-	int i;
 
 	pTcpTable = (MIB_TCPTABLE2 *)malloc(sizeof(MIB_TCPTABLE2));
 	if (pTcpTable == NULL)
@@ -30,7 +29,7 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets)
 	// Make a second call to GetTcpTable to get the actual data we require
 	if ((dwRetVal = GetTcpTable2(pTcpTable, &dwSize, TRUE)) == NO_ERROR)
 	{
-        for (i = 0; i < (int)pTcpTable->dwNumEntries; i++)
+        for (int i = 0; i < (int)pTcpTable->dwNumEntries; i++)
         {
             auto *entry = &pTcpTable->table[i];
             // Do not close listening sockets.
@@ -81,8 +80,10 @@ namespace
     // Helper class to generate a 32-bit IP address from bytes in network order.
     template<int A, int B, int C, int D>
     struct AddressFromBytes {
-        constexpr DWORD operator()() const { return ((A & 0xff) << 24) | ((B & 0xff) << 16) |
-                                                    ((C & 0xff) << 8) | (D & 0xff); }
+        constexpr DWORD operator()() const { return ((static_cast<DWORD>(A) & 0xff) << 24) |
+                                                    ((static_cast<DWORD>(B) & 0xff) << 16) |
+                                                    ((static_cast<DWORD>(C) & 0xff) << 8)  |
+                                                     (static_cast<DWORD>(D) & 0xff); }
     };
 
     // Helper function to generate a pair of IP addresses in network order, with checking the range

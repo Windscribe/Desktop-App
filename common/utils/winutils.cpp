@@ -211,9 +211,6 @@ QList<QString> enumerateSubkeyNames(HKEY rootKey, QString keyPath, bool wow64)
                       subKey.c_str(),
                       0, options, &hKeyParent) == ERROR_SUCCESS)
     {
-
-        TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
-        DWORD    cbName;                   // size of name string
         TCHAR    achClass[MAX_PATH] = TEXT("");  // buffer for class name
         DWORD    cchClassName = MAX_PATH;  // size of class string
         DWORD    cSubKeys=0;               // number of subkeys
@@ -225,7 +222,7 @@ QList<QString> enumerateSubkeyNames(HKEY rootKey, QString keyPath, bool wow64)
         DWORD    cbSecurityDescriptor; // size of security descriptor
         FILETIME ftLastWriteTime;      // last write time
 
-        DWORD i, retCode;
+        DWORD retCode;
 
         // HKEY hKey;
         // Get the class name and the value count.
@@ -246,9 +243,10 @@ QList<QString> enumerateSubkeyNames(HKEY rootKey, QString keyPath, bool wow64)
 
         if (cSubKeys)
         {
-            for (i=0; i<cSubKeys; i++)
+            for (DWORD i=0; i<cSubKeys; i++)
             {
-                cbName = MAX_KEY_LENGTH;
+                TCHAR achKey[MAX_KEY_LENGTH];   // buffer for subkey name
+                DWORD cbName = MAX_KEY_LENGTH;  // size of name string
                 retCode = RegEnumKeyEx(hKeyParent, i,
                          achKey,
                          &cbName,
@@ -457,7 +455,6 @@ QList<QString> WinUtils::enumerateRunningProgramLocations()
 QString processExecutablePath( DWORD processID )
 {
     QString result;
-    TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
     HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION |
                                    PROCESS_VM_READ,
                                    FALSE, processID );
@@ -465,6 +462,7 @@ QString processExecutablePath( DWORD processID )
     // Get the process name.
     if (NULL != hProcess )
     {
+        TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
         if (GetModuleFileNameEx(hProcess, NULL, szProcessName, sizeof(szProcessName)/sizeof(TCHAR)))
         {
             result = QString::fromWCharArray(szProcessName);
@@ -710,9 +708,6 @@ QList<QString> WinUtils::interfaceSubkeys(QString keyPath)
                       subKey.c_str(),
                       0, KEY_READ, &hKeyParent) == ERROR_SUCCESS)
     {
-
-        TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
-        DWORD    cbName;                   // size of name string
         TCHAR    achClass[MAX_PATH] = TEXT("");  // buffer for class name
         DWORD    cchClassName = MAX_PATH;  // size of class string
         DWORD    cSubKeys=0;               // number of subkeys
@@ -724,7 +719,7 @@ QList<QString> WinUtils::interfaceSubkeys(QString keyPath)
         DWORD    cbSecurityDescriptor; // size of security descriptor
         FILETIME ftLastWriteTime;      // last write time
 
-        DWORD i, retCode;
+        DWORD retCode;
 
         // HKEY hKey;
         // Get the class name and the value count.
@@ -745,9 +740,10 @@ QList<QString> WinUtils::interfaceSubkeys(QString keyPath)
 
         if (cSubKeys)
         {
-            for (i=0; i<cSubKeys; i++)
+            for (DWORD i=0; i<cSubKeys; i++)
             {
-                cbName = MAX_KEY_LENGTH;
+                TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
+                DWORD cbName = MAX_KEY_LENGTH;     // size of name string
                 retCode = RegEnumKeyEx(hKeyParent, i,
                          achKey,
                          &cbName,
@@ -979,7 +975,7 @@ QList<IpAdapter> WinUtils::getIpAdapterTable()
     }
     else
     {
-        printf("GetAdaptersInfo failed with error: %d\n", dwRetVal);
+        printf("GetAdaptersInfo failed with error: %lu\n", dwRetVal);
     }
 
     if (pAdapterInfo)
@@ -1056,7 +1052,7 @@ QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
     }
     else
     {
-        printf("Call to GetAdaptersAddresses failed with error: %d\n", dwRetVal);
+        printf("Call to GetAdaptersAddresses failed with error: %lu\n", dwRetVal);
         if (dwRetVal == ERROR_NO_DATA)
         {
             printf("\tNo addresses were found for the requested parameters\n");
@@ -1097,7 +1093,6 @@ QString WinUtils::ssidFromInterfaceGUID(QString interfaceGUID)
     DWORD dwMaxClient = 2;
     DWORD dwCurVersion = 0;
     DWORD dwResult = 0;
-    DWORD dwRetVal = 0;
 
     PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
 
@@ -1134,7 +1129,6 @@ QString WinUtils::ssidFromInterfaceGUID(QString interfaceGUID)
         if (dwResult != ERROR_SUCCESS)
         {
             //qCDebug(LOG_BASIC) << "WlanQueryInterface failed with error:" << dwResult;
-            dwRetVal = 1;
         }
         else
         {
@@ -1232,7 +1226,7 @@ GUID guidFromQString(QString str)
 {
     GUID reqGUID;
     unsigned long p0;
-    int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
+    unsigned int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
 
     sscanf_s(str.toStdString().c_str(), "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
              &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10);

@@ -52,7 +52,6 @@ BOOL APIENTRY PipeForProcess::myCreatePipeEx(OUT LPHANDLE lpReadPipe, OUT LPHAND
 	IN DWORD nSize, DWORD dwReadMode, DWORD dwWriteMode)
 {
 	HANDLE readPipeHandle, writePipeHandle;
-	DWORD dwError;
 	wchar_t pipeNameBuffer[MAX_PATH];
 
 	// Only one valid OpenMode flag - FILE_FLAG_OVERLAPPED
@@ -93,7 +92,7 @@ BOOL APIENTRY PipeForProcess::myCreatePipeEx(OUT LPHANDLE lpReadPipe, OUT LPHAND
 
 	if (INVALID_HANDLE_VALUE == writePipeHandle) 
 	{
-		dwError = GetLastError();
+		DWORD dwError = GetLastError();
 		CloseHandle(readPipeHandle);
 		SetLastError(dwError);
 		return FALSE;
@@ -106,7 +105,7 @@ BOOL APIENTRY PipeForProcess::myCreatePipeEx(OUT LPHANDLE lpReadPipe, OUT LPHAND
 
 DWORD WINAPI PipeForProcess::readThread(LPVOID lpParam)
 {
-	PipeForProcess *this_ = (PipeForProcess *)lpParam;
+	PipeForProcess *this_ = static_cast<PipeForProcess *>(lpParam);
 
 	HANDLE hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
 	if (hEvent == NULL)
@@ -128,7 +127,7 @@ DWORD WINAPI PipeForProcess::readThread(LPVOID lpParam)
 
 	while (true)
 	{
-		BOOL b = ::ReadFile(this_->hReadPipe_, buf, BUFFER_SIZE, &readword, &overlapped);
+		::ReadFile(this_->hReadPipe_, buf, BUFFER_SIZE, &readword, &overlapped);
 
 		DWORD dwWait = WaitForMultipleObjects(2, hEvents, FALSE, INFINITE);
 		if (dwWait == WAIT_OBJECT_0)

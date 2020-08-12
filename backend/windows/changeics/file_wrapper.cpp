@@ -16,7 +16,8 @@ FileWrapper::~FileWrapper()
 
 bool FileWrapper::open(wchar_t *filePath, wchar_t *mode)
 {
-	file_ = _wfopen(filePath, mode);
+    if (!file_)
+	    file_ = _wfopen(filePath, mode);
 	return file_ != NULL;
 }
 

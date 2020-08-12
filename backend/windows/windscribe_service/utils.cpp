@@ -294,22 +294,22 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
 
 		SysFreeString(ClassName);
 		SysFreeString(MethodName);
-		if (pClass) pClass->Release();
+		pClass->Release();
 		if (pInParamsDefinition) pInParamsDefinition->Release();
 		if (pOutParams) pOutParams->Release();
-		if (pSvc) pSvc->Release();
-		if (pLoc) pLoc->Release();
+		pSvc->Release();
+		pLoc->Release();
 		return;
 	}
 
 	// Clean up
 	SysFreeString(ClassName);
 	SysFreeString(MethodName);
-	if (pClass) pClass->Release();
+	pClass->Release();
 	if (pInParamsDefinition) pInParamsDefinition->Release();
 	if (pOutParams) pOutParams->Release();
-	if (pLoc) pLoc->Release();
-	if (pSvc) pSvc->Release();
+	pLoc->Release();
+	pSvc->Release();
 	return;
 }
 

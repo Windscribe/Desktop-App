@@ -133,7 +133,9 @@ QByteArray ExtraConfig::modifyVerbParameter(const QByteArray &ovpnData, QString 
     return strOvpn.toLocal8Bit();
 }
 
-ExtraConfig::ExtraConfig(): mutex_(QMutex::Recursive), regExp_("(?m)^(?i)(verb)(\\s+)(\\d+$)")
+ExtraConfig::ExtraConfig() : mutex_(QMutex::Recursive),
+                             path_(QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+                                   + "/windscribe_extra.conf"),
+                             regExp_("(?m)^(?i)(verb)(\\s+)(\\d+$)")
 {
-    path_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/windscribe_extra.conf";
 }

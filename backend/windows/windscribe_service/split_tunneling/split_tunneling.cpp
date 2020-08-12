@@ -10,7 +10,7 @@
 #define        THREAD_MESSAGE_EXIT           WM_USER + 3
 
 SplitTunneling::SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper) : firewallFilter_(firewallFilter), calloutFilter_(fwmpWrapper), 
-				routesManager_(firewallFilter), bStarted_(false), bTapConnected_(false), bKeepLocalSockets_(false)
+				routesManager_(firewallFilter), threadId_(0), hThread_(0), bStarted_(false), bTapConnected_(false), bKeepLocalSockets_(false)
 {
 	detectWindscribeExecutables();
 }
@@ -94,7 +94,7 @@ void SplitTunneling::callbackFunc(bool isConnected, TapAdapterDetector::TapAdapt
 
 DWORD WINAPI SplitTunneling::threadFunc(LPVOID n)
 {
-	SplitTunneling *this_ = (SplitTunneling *)n;
+	SplitTunneling *this_ = static_cast<SplitTunneling *>(n);
 
 	MSG msg;
 	while (1)
@@ -160,7 +160,7 @@ DWORD WINAPI SplitTunneling::threadFunc(LPVOID n)
 
 				//firewallFilter_->set
 
-				SPLIT_TUNNELING_SETTINGS *ss = (SPLIT_TUNNELING_SETTINGS *)msg.lParam;
+				auto *ss = reinterpret_cast<SPLIT_TUNNELING_SETTINGS *>(msg.lParam);
 				AppsIds appsIds;
 				appsIds.setFromList(ss->apps);
 				if (!ss->isExclude)
@@ -179,10 +179,7 @@ DWORD WINAPI SplitTunneling::threadFunc(LPVOID n)
 				
 				this_->routesManager_.setSettings(ss->isExclude, ips, ss->hosts);
 
-				if (ss)
-				{
-					delete ss;
-				}
+				delete ss;
 
 				// close TCP sockets if TAP-connected
 				if (this_->bTapConnected_)

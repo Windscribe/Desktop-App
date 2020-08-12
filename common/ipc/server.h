@@ -12,12 +12,12 @@ class Server : public QObject, public IServer
     Q_OBJECT
 public:
     Server();
-    virtual ~Server();
+    ~Server() override;
 
-    virtual bool start();
+    bool start() override;
 
 signals:
-    void newConnection(IPC::IConnection *connection);
+    void newConnection(IPC::IConnection *connection) override;
 
 private slots:
     void onNewConnection();

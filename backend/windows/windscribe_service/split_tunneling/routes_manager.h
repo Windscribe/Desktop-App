@@ -8,7 +8,7 @@
 class RoutesManager
 {
 public:
-	RoutesManager(FirewallFilter &firewallFilter);
+	explicit RoutesManager(FirewallFilter &firewallFilter);
 	~RoutesManager();
 
 	void enable(const MIB_IPFORWARDROW &rowDefault);

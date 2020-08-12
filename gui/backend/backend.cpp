@@ -29,7 +29,8 @@ Backend::Backend(unsigned int clientId, unsigned int clientPid, const QString &c
     process_(NULL),
     connection_(NULL),
     cmdId_(0),
-    isFirewallEnabled_(false)
+    isFirewallEnabled_(false),
+    isExternalConfigMode_(false)
 {
     preferences_.loadGuiSettings();
 
@@ -403,12 +404,12 @@ void Backend::clearCredentials()
     connection_->sendCommand(cmd);
 }
 
-bool Backend::isInitFinished()
+bool Backend::isInitFinished() const
 {
     return ipcState_ == IPC_READY;
 }
 
-bool Backend::isAppCanClose()
+bool Backend::isAppCanClose() const
 {
     return ipcState_ == IPC_INIT_STATE || ipcState_ == IPC_STARTING_PROCESS || ipcState_ == IPC_CONNECTING;
 }

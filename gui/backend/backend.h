@@ -85,8 +85,8 @@ public:
     void setBlockConnect(bool isBlockConnect);
     void clearCredentials();
 
-    bool isInitFinished();
-    bool isAppCanClose();
+    bool isInitFinished() const;
+    bool isAppCanClose() const;
 
     void continueWithCredentialsForOvpnConfig(const QString &username, const QString &password, bool bSave);
 

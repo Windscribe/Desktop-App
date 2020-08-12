@@ -108,9 +108,9 @@ void DnsResolver::cancelAll()
 }
 
 
-void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int timeouts, struct hostent * host)
+void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeouts*/, struct hostent * host)
 {
-	USER_ARG *userArg = (USER_ARG *)arg;
+	USER_ARG *userArg = static_cast<USER_ARG *>(arg);
 
 	// cancel and fail cases
 	if (status == ARES_ECANCELLED)
@@ -149,20 +149,20 @@ void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int timeout
 
 DWORD __stdcall DnsResolver::threadFunc(LPVOID n)
 {
-	DnsResolver *this_ = (DnsResolver *)n;
+	DnsResolver *resolver = static_cast<DnsResolver *>(n);
 
 	while (true)
 	{
         {
-            std::unique_lock<std::mutex> lockWait(this_->mutex_);
-            if (this_->bNeedFinish_)
+            std::unique_lock<std::mutex> lockWait(resolver->mutex_);
+            if (resolver->bNeedFinish_)
             {
                 break;
             }
 
-            if (this_->channel_ != NULL && !this_->processChannel(this_->channel_))
+            if (resolver->channel_ != NULL && !resolver->processChannel(resolver->channel_))
             {
-                this_->waitCondition_.wait(lockWait);
+                resolver->waitCondition_.wait(lockWait);
             }
         }
         Sleep(1);

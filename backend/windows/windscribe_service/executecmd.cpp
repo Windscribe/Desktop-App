@@ -181,12 +181,11 @@ MessagePacketResult ExecuteCmd::clearUnblockingCmd(unsigned long id)
     return mpr;
 }
 
-void ExecuteCmd::waitOrTimerCallback(PVOID lpParameter, BOOLEAN timerOrWaitFired)
+void ExecuteCmd::waitOrTimerCallback(PVOID lpParameter, BOOLEAN /*timerOrWaitFired*/)
 {
     std::lock_guard<std::mutex> lock(this_->mutex_);
 
-    timerOrWaitFired = false;
-    BlockingCmd *blockingCmd = (BlockingCmd *)lpParameter;
+    BlockingCmd *blockingCmd = static_cast<BlockingCmd *>(lpParameter);
 
     DWORD exitCode;
     GetExitCodeProcess(blockingCmd->hProcess, &exitCode);

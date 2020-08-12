@@ -49,7 +49,7 @@
 
 struct CMD_FIREWALL_ON
 {
-	bool    allowLanTraffic;
+	bool allowLanTraffic = false;
     std::wstring ip;
 };
 
@@ -105,16 +105,16 @@ struct CMD_RUN_OPENVPN
 {
     std::wstring    szOpenVpnExecutable;
     std::wstring    szConfigPath;
-    unsigned int    portNumber;
+    unsigned int    portNumber = 0;
     std::wstring    szHttpProxy;           // empty string, if no http
-    unsigned int    httpPortNumber;
+    unsigned int    httpPortNumber = 0;
     std::wstring    szSocksProxy;          // empty string, if no socks
-    unsigned int    socksPortNumber;
+    unsigned int    socksPortNumber = 0;
 };
 
 struct CMD_UPDATE_ICS
 {
-    int             cmd;   // 0 - save, 1 - restore, 2 - change
+    int             cmd = 0;   // 0 - save, 1 - restore, 2 - change
     std::wstring         szConfigPath;
     std::wstring         szPublicGuid;
     std::wstring         szPrivateGuid;
@@ -139,7 +139,7 @@ struct CMD_REMOVE_MAC_ADDRESS_REGISTRY_PROPERTY
 
 struct CMD_RESET_NETWORK_ADAPTER
 {
-    bool bringBackUp;
+    bool bringBackUp = false;
     std::wstring szInterfaceName;
 };
 
@@ -162,8 +162,8 @@ struct CMD_CLOSE_TCP_CONNECTIONS
 
 struct CMD_CHANGE_MTU
 {
-    int mtu;
-    bool storePersistent;
+    int mtu = 0;
+    bool storePersistent = false;
     std::wstring szAdapterName;
 };
 

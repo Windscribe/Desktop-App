@@ -24,7 +24,7 @@ AdaptersInfo::AdaptersInfo()
 }
 
 
-bool AdaptersInfo::isWindscribeAdapter(NET_IFINDEX index)
+bool AdaptersInfo::isWindscribeAdapter(NET_IFINDEX index) const
 {
 	if (pAdapterInfo_)
 	{

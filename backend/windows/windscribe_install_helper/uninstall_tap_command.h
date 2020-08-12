@@ -7,9 +7,9 @@ class UninstallTapCommand :
 {
 public:
 	UninstallTapCommand(Logger *logger, const wchar_t *tapInstallPath);
-	virtual ~UninstallTapCommand();
+	~UninstallTapCommand() override;
 
-	virtual void execute();
+	void execute() override;
 
 private:
 	std::wstring tapInstallPath_;

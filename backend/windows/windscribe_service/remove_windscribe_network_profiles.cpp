@@ -23,8 +23,6 @@ void RemoveWindscribeNetworkProfiles::remove()
 
 void RemoveWindscribeNetworkProfiles::enumAll(HKEY hKey)
 {
-	TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
-	DWORD    cbName;                   // size of name string 
 	DWORD    cntSubKeys = 0;               // number of subkeys 
 	DWORD    cbMaxSubKey;              // longest subkey size 
 	DWORD    cchMaxClass;              // longest class string 
@@ -32,9 +30,7 @@ void RemoveWindscribeNetworkProfiles::enumAll(HKEY hKey)
 	DWORD    cchMaxValue;          // longest value name 
 	DWORD    cbMaxValueData;       // longest value data 
 
-	DWORD i, retCode;
-
-	DWORD cchValue = MAX_VALUE_NAME;
+	DWORD retCode;
 
 	// Get the class name and the value count. 
 	retCode = RegQueryInfoKey(
@@ -56,9 +52,10 @@ void RemoveWindscribeNetworkProfiles::enumAll(HKEY hKey)
 
 	if (cntSubKeys)
 	{
-		for (i = 0; i < cntSubKeys; i++)
+		for (DWORD i = 0; i < cntSubKeys; i++)
 		{
-			cbName = MAX_KEY_LENGTH;
+            TCHAR achKey[MAX_KEY_LENGTH];   // buffer for subkey name
+            DWORD cbName = MAX_KEY_LENGTH;  // size of name string
 			retCode = RegEnumKeyEx(hKey, i, achKey, &cbName, NULL, NULL, NULL, NULL);
 			if (retCode == ERROR_SUCCESS)
 			{
@@ -143,7 +140,7 @@ bool RemoveWindscribeNetworkProfiles::regDelnodeRecurse(HKEY hKeyRoot, LPTSTR lp
 	}
 
 	// Check for an ending slash and add one if it is missing.
-
+    // cppcheck-suppress lstrlenCalled
 	lpEnd = lpSubKey + lstrlen(lpSubKey);
 
 	if (*(lpEnd - 1) != TEXT('\\'))

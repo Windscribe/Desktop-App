@@ -8,6 +8,8 @@
 // A request received from a client.
 struct HttpRequest
 {
+  HttpRequest() : http_version_major(0), http_version_minor(0) {}
+
   std::string method;
   std::string uri;
   int http_version_major;

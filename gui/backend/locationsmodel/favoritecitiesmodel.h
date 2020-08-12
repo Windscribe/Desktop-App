@@ -9,10 +9,10 @@ class FavoriteCitiesModel : public BasicCitiesModel
 public:
     explicit FavoriteCitiesModel(QObject *parent = nullptr);
 
-    virtual void update(QVector<LocationModelItem *> locations);
-    virtual void setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType);
-    virtual void setIsFavorite(LocationID id, bool isFavorite);
-    virtual void setFreeSessionStatus(bool isFreeSessionStatus);
+    void update(QVector<LocationModelItem *> locations) override;
+    void setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType) override;
+    void setIsFavorite(LocationID id, bool isFavorite) override;
+    void setFreeSessionStatus(bool isFreeSessionStatus) override;
 
 private:
     QVector<CityModelItem *> favoriteCities_;

@@ -1,7 +1,7 @@
 #include "httprequestparser.h"
 #include <boost/algorithm/string.hpp>
 
-HttpRequestParser::HttpRequestParser() : state_(method_start)
+HttpRequestParser::HttpRequestParser() : state_(method_start), contentLength_(0)
 {
 
 }

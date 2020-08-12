@@ -19,6 +19,8 @@ public:
 
 	explicit DnsResolver();
 	~DnsResolver();
+    DnsResolver(const DnsResolver &) = delete;
+    DnsResolver &operator=(const DnsResolver &) = delete;
 
 	void stop();
 

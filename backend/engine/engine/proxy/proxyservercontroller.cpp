@@ -18,7 +18,6 @@ bool ProxyServerController::updateProxySettings(const ProxySettings &proxySettin
 #elif defined Q_OS_MAC
         ProxySettings autoProxySettings = AutoDetectProxy_mac::detect(bSuccess);
 #endif
-        // cppcheck-suppress knownConditionTrueFalse
         if (!bSuccess)
         {
             newProxySettings.setOption(PROXY_OPTION_NONE);

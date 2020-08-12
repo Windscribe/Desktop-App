@@ -185,12 +185,11 @@ QList<ProtoTypes::SplitTunnelingApp> Utils::insertionSort(QList<ProtoTypes::Spli
 QString Utils::generateRandomMacAddress()
 {
     QString s;
-    int i, tp;
 
-    for (i = 0; i < 6; i++)
+    for (int i = 0; i < 6; i++)
     {
         char buf[256];
-        tp = generateIntegerRandom(0, 255);
+        int tp = generateIntegerRandom(0, 255);
 
         // Lowest bit in first byte must not be 1 ( 0 - Unicast, 1 - multicast )
         // 2nd lowest bit in first byte must be 1 ( 0 - device, 1 - locally administered mac address )

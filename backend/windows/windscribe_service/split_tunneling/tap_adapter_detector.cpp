@@ -10,7 +10,7 @@ void __stdcall TapAdapterDetector::interfaceChangeCallback(
 	_In_ MIB_NOTIFICATION_TYPE NotificationType
 )
 {
-	TapAdapterDetector *this_ = (TapAdapterDetector *)CallerContext;
+	TapAdapterDetector *this_ = static_cast<TapAdapterDetector *>(CallerContext);
 	if (Row != NULL)
 	{
 		if (NotificationType == MibParameterNotification)
@@ -138,7 +138,7 @@ bool TapAdapterDetector::removeAdapter(NET_LUID luid)
 	return false;
 }
 
-int TapAdapterDetector::findAdapter(NET_LUID luid)
+int TapAdapterDetector::findAdapter(NET_LUID luid) const
 {
 	for (size_t i = 0; i < windscribeAdapters_.size(); ++i)
 	{
@@ -189,14 +189,10 @@ void TapAdapterDetector::detectCurrentConfig()
 	{
 		if (adaptersInfo.isWindscribeAdapter(pipTable->Table[i].InterfaceIndex))
 		{
-			int g = sizeof(NET_LUID);
 			AdapterDescr ad;
 			ad.luid = pipTable->Table[i].InterfaceLuid;
 			ad.isConnected = pipTable->Table[i].Connected;
-			if (ad.isConnected)
-			{
-				ad.dwIp = addrTable.getAdapterIpAddress(pipTable->Table[i].InterfaceIndex);
-			}
+			ad.dwIp = ad.isConnected ? addrTable.getAdapterIpAddress(pipTable->Table[i].InterfaceIndex) : 0;
 			windscribeAdapters_.push_back(ad);
 		}
 	}
