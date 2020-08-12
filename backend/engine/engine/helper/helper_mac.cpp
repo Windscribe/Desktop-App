@@ -207,11 +207,19 @@ bool Helper_mac::executeChangeMtu(const QString &adapter, int mtu)
 
 bool Helper_mac::clearDnsOnTap()
 {
+    // nothing to do on mac
     return false;
 }
 
 QString Helper_mac::enableBFE()
 {
+    // nothing to do on mac
+    return "";
+}
+
+QString Helper_mac::resetAndStartRAS()
+{
+    // nothing to do on mac
     return "";
 }
 
