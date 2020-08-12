@@ -209,6 +209,8 @@ private slots:
     void onMainWindowControllerSendServerRatingDown();
 
     void onScaleChanged();
+    void onFocusWindowChanged(QWindow *focusWindow);
+    void onWindowDeactivateAndHideImpl();
 
 private:
     void gotoLoginWindow();
@@ -289,17 +291,19 @@ private:
     bool backendAppActiveState_;
     void setBackendAppActiveState(bool state);
 
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
     void hideShowDockIcon(bool hideFromDock);
     QTimer hideShowDockIconTimer_;
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
+#elif defined(Q_OS_WIN)
+    QTimer deactivationTimer_;
 #endif
 
     bool activeState_;
     qint64 lastWindowStateChange_;
 
     void minimizeToTray();
-};
+ };
 
 #endif // MAINWINDOW_H
