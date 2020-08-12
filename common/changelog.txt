@@ -1,4 +1,18 @@
-2.0.23 (6/08/2020)
+2.0.24 (12/08/2020)
+* Fixed/checked vulnerabilities - Qt plugins path, CVE-2019-5443(curl/openssl).
+* Hardened the app against common vulnerabilities raised in audits of other VPNs.
+* Openvpn doesn't work for Mac - fixed.
+* Bug with hiding the window when it is deactivated - fixed.
+* [Windows] Blurry icon in taskbar - fixed.
+* Fixes for "RasEnumDevices failed with error: x.
+* Added whitelist loopback + multicast IP ranges in the firewall when "LAN bypass" is enabled.
+* Don't do MTU detection while connected.
+* Taskbar/tray issues in docked mode.
+* Mac fails to delete old app during install - fixed.
+* Added tooltip for no-firewall during split routing on Mac.
+
+
+2.0.23 (06/08/2020)
 * Bug fix for tunnel connectivity test (Bypass DNS cache for ping requests).
 * Selected tab marker does not match the selected server list on Mac - fixed.
 * Tab button on preferences screen doesn't return from submenu - fixed.
