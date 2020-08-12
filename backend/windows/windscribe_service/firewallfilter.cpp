@@ -418,7 +418,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
                 Logger::instance().out(L"Error 25");
             }
         }
-        // 224.0.0.0 - 239.255.255.255
+        // 224.0.0.0 - 239.255.255.255 (multicast ipv4 addresses)
         {
             FWPM_FILTER0 filter = {0};
             std::vector<FWPM_FILTER_CONDITION0> condition(1);
@@ -452,6 +452,39 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
                 Logger::instance().out(L"Error 26");
             }
         }
+		// loopback ipv4 addresses to the local host
+		{
+			FWPM_FILTER0 filter = { 0 };
+			std::vector<FWPM_FILTER_CONDITION0> condition(1);
+			FWP_V4_ADDR_AND_MASK addrMask;
+			memset(&condition[0], 0, sizeof(FWPM_FILTER_CONDITION0) * 1);
+
+			filter.subLayerKey = subLayerGUID_;
+			filter.displayData.name = (wchar_t *)FIREWALL_SUBLAYER_NAMEW;
+			filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
+			filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
+			filter.action.type = FWP_ACTION_PERMIT;
+			filter.weight.type = FWP_UINT8;
+			filter.weight.uint8 = 0x04;
+			filter.filterCondition = &condition[0];
+			filter.numFilterConditions = 1;
+
+			condition[0].fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+			condition[0].matchType = FWP_MATCH_EQUAL;
+			condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
+			condition[0].conditionValue.v4AddrMask = &addrMask;
+
+			IpAddress ipAddress(L"127.0.0.0");
+			addrMask.addr = ipAddress.IPv4HostOrder();
+			addrMask.mask = 0xFF000000;
+
+			UINT64 filterId;
+			dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
+			if (dwFwAPiRetCode != ERROR_SUCCESS)
+			{
+				Logger::instance().out(L"Error 25 loopback IPs");
+			}
+		}
 
         // ipv6 local addresses
 		{
