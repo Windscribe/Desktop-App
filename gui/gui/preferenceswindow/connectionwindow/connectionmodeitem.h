@@ -15,14 +15,19 @@ class ConnectionModeItem : public BaseItem
 {
     Q_OBJECT
 public:
+    enum class ButtonType { PROTOCOL, PORT };
     explicit ConnectionModeItem(ScalableGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void setConnectionMode(const ProtoTypes::ConnectionSettings &cm);
+    QPointF getButtonScenePos(ConnectionModeItem::ButtonType type) const;
+    bool isPortMapInitialized() const { return isPortMapInitialized_; }
 
     void updateScaling() override;
 signals:
     void connectionlModeChanged(const ProtoTypes::ConnectionSettings &cm);
+    void buttonHoverEnter(ConnectionModeItem::ButtonType type);
+    void buttonHoverLeave(ConnectionModeItem::ButtonType type);
 
 private slots:
     void onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state);

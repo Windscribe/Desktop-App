@@ -53,7 +53,12 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     connectionModeItem_ = new ConnectionModeItem(this, preferencesHelper);
     connectionModeItem_->setConnectionMode(preferences->connectionSettings());
-    connect(connectionModeItem_, SIGNAL(connectionlModeChanged(ProtoTypes::ConnectionSettings)), SLOT(onConnectionModeChanged(ProtoTypes::ConnectionSettings)));
+    connect(connectionModeItem_, SIGNAL(connectionlModeChanged(ProtoTypes::ConnectionSettings)),
+        SLOT(onConnectionModeChanged(ProtoTypes::ConnectionSettings)));
+    connect(connectionModeItem_, SIGNAL(buttonHoverEnter(ConnectionModeItem::ButtonType)),
+        SLOT(onConnectionModeHoverEnter(ConnectionModeItem::ButtonType)));
+    connect(connectionModeItem_, SIGNAL(buttonHoverLeave(ConnectionModeItem::ButtonType)),
+        SLOT(onConnectionModeHoverLeave(ConnectionModeItem::ButtonType)));
     addItem(connectionModeItem_);
 
     packetSizeItem_ = new PacketSizeItem(this);
@@ -151,6 +156,31 @@ void ConnectionWindowItem::onFirewallModeHoverEnter()
 void ConnectionWindowItem::onFirewallModeHoverLeave()
 {
     emit hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
+}
+
+void ConnectionWindowItem::onConnectionModeHoverEnter(ConnectionModeItem::ButtonType type)
+{
+    if (connectionModeItem_->isPortMapInitialized())
+        return;
+
+    QGraphicsView *view = scene()->views().first();
+    QPoint globalPt =
+        view->mapToGlobal(view->mapFromScene(connectionModeItem_->getButtonScenePos(type)));
+
+    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_CONNECTION_MODE_LOGIN);
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.5;
+    ti.x = globalPt.x() + 8 * G_SCALE;
+    ti.y = globalPt.y() - 4 * G_SCALE;
+    ti.width = 200 * G_SCALE;
+    ti.title = tr("Not Logged In");
+    ti.desc = tr("Please login to modify connection settings.");
+    emit showTooltip(ti);
+}
+
+void ConnectionWindowItem::onConnectionModeHoverLeave(ConnectionModeItem::ButtonType /*type*/)
+{
+    emit hideTooltip(TOOLTIP_ID_CONNECTION_MODE_LOGIN);
 }
 
 void ConnectionWindowItem::onConnectionModeChanged(const ProtoTypes::ConnectionSettings &cm)
