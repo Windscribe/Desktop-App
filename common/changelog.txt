@@ -10,7 +10,7 @@
 * Taskbar/tray issues in docked mode.
 * Mac fails to delete old app during install - fixed.
 * Added tooltip for no-firewall during split routing on Mac.
-
+* Certificates in wsappcontrol  are replaced.
 
 2.0.23 (06/08/2020)
 * Bug fix for tunnel connectivity test (Bypass DNS cache for ping requests).
