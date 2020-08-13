@@ -214,6 +214,7 @@ private slots:
 
 private:
     void gotoLoginWindow();
+    void gotoExitWindow();
     void collapsePreferences();
 
     Backend *backend_;
@@ -302,6 +303,8 @@ private:
 
     bool activeState_;
     qint64 lastWindowStateChange_;
+
+    bool isExitingFromPreferences_;
 
     void minimizeToTray();
  };
