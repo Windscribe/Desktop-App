@@ -73,7 +73,7 @@ IndependentPixmap *ImageResourcesSvg::getIconIndependentPixmap(const QString &na
         }
         else
         {
-            qCDebug(LOG_BASIC) << "Failed to load Icon: " << name;
+            // qCDebug(LOG_BASIC) << "Failed to load Icon: " << name;
             // Q_ASSERT(false);
             return nullptr;
         }

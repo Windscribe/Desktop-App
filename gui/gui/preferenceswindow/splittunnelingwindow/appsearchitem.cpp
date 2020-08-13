@@ -46,7 +46,7 @@ void AppSearchItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     {
 
 #ifdef Q_OS_WIN
-        int size = 16*G_SCALE;
+        int size = 18*G_SCALE;
 #elif defined Q_OS_MAC
         int size = p->originalPixmapSize().width();
 #endif
