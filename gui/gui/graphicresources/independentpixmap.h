@@ -15,6 +15,8 @@ public:
     explicit IndependentPixmap(QPixmap *pixmap);
     virtual ~IndependentPixmap();
 
+    QSize originalPixmapSize() const;
+
     int width() const;
     int height() const;
 
