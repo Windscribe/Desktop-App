@@ -92,6 +92,7 @@ public:
     void clearServerRatingsTooltipState();
 
 #ifdef Q_OS_MAC
+    void updateNativeShadowIfNeeded();
     void setFirstSystemTrayPosX(int posX);
 #endif
 
@@ -252,6 +253,8 @@ private:
     bool isDocked_;
 
 #ifdef Q_OS_MAC
+    void invalidateShadow_mac_impl();
+    bool isNeedUpdateNativeShadow_ = false;
     int firstSystemTrayPosX_ = 0;
 #endif
 

@@ -33,6 +33,7 @@ public:
     void doClose(QCloseEvent *event = NULL, bool isFromSigTerm_mac = false);
     void updateScaling();
     void updateConnectWindowStateProtocolPortDisplay(ProtoTypes::ConnectionSettings connectionSettings);
+    bool isActiveState() const { return activeState_; }
     QRect trayIconRect();
 
 protected:

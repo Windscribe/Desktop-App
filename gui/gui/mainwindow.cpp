@@ -656,6 +656,9 @@ void MainWindow::paintEvent(QPaintEvent *event)
           p.fillRect(QRect(0, 0, width(), height()),Qt::cyan);
     }*/
 
+#ifdef Q_OS_MAC
+    mainWindowController_->updateNativeShadowIfNeeded();
+#endif
 
     if (!mainWindowController_->isNeedShadow())
     {
