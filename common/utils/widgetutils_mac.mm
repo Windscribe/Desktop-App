@@ -13,7 +13,7 @@ QPixmap *WidgetUtils_mac::extractProgramIcon(const QString &filePath)
     // TODO: QIcon constructor sometimes throws this WARNING into log:
     // "libpng warning: iCCP: known incorrect sRGB profile"
     QIcon icon(filePath);
-    int size = 16 * G_SCALE;
+    int size = 18 * G_SCALE;
     return new QPixmap(icon.pixmap(QSize(size, size)));
 }
 

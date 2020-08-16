@@ -15,6 +15,18 @@ IndependentPixmap::~IndependentPixmap()
     }
 }
 
+QSize IndependentPixmap::originalPixmapSize() const
+{
+    if (pixmap_)
+    {
+        return pixmap_->size();
+    }
+    else
+    {
+        return QSize(0,0);
+    }
+}
+
 int IndependentPixmap::width() const
 {
     if (pixmap_)

@@ -24,7 +24,7 @@ QPixmap *WidgetUtils_win::extractProgramIcon(QString filePath)
     }
     else
     {
-        qDebug() << "Failed to call qt_pixmapFromWinHICON: " << filePath << "(" << icon << ")";
+        // qDebug() << "Failed to call qt_pixmapFromWinHICON: " << filePath << "(" << icon << ")";
     }
 
     DestroyIcon(icon);
