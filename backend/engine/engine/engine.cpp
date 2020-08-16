@@ -840,9 +840,10 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 
     // turn off split tunneling
+#ifdef Q_OS_MAC
     helper_->sendConnectStatus(false, SplitTunnelingNetworkInfo());
+#endif
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
-
 
 #ifdef Q_OS_WIN
     if (helper_)
