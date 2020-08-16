@@ -187,7 +187,6 @@
 				843077AB1DE3AE26002405EA /* execute_cmd.cpp */,
 				843077AC1DE3AE26002405EA /* execute_cmd.h */,
 				840B29551D6BBE88007D9519 /* server.cpp */,
-				840B29561D6BBE88007D9519 /* server.h */,
 				84DA0AEA1B1D7ED000260E8F /* helper-info.plist */,
 				84DA0AEB1B1D7ED000260E8F /* helper-launchd.plist */,
 				84DA0AEC1B1D7ED000260E8F /* helper.cpp */,
@@ -195,6 +194,7 @@
 				00EBAA03247D254400C86F6F /* logger.h */,
 				00AB62AC249142610085A20F /* utils.cpp */,
 				00AB62AD249142610085A20F /* utils.h */,
+				840B29561D6BBE88007D9519 /* server.h */,
 			);
 			path = src;
 			sourceTree = "<group>";

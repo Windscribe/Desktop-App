@@ -746,6 +746,10 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
             emit initFinished(ENGINE_INIT_HELPER_FAILED);
         }
 
+        // turn off split tunneling (for case the state remains from the last launch)
+        helper_->sendConnectStatus(false, SplitTunnelingNetworkInfo());
+        helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
+
         //todo: Mac finish active connections
 #endif
 
@@ -811,9 +815,6 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         helper_->setNeedFinish();
     }
 
-    // turn off split tunneling
-    helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
-
     if (emergencyController_)
     {
         emergencyController_->blockingDisconnect();
@@ -837,6 +838,11 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 
         connectionManager_->removeIkev2ConnectionFromOS();
     }
+
+    // turn off split tunneling
+    helper_->sendConnectStatus(false, SplitTunnelingNetworkInfo());
+    helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
+
 
 #ifdef Q_OS_WIN
     if (helper_)
