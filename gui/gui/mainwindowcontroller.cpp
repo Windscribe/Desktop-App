@@ -183,11 +183,14 @@ void MainWindowController::updateLocationsWindowAndTabGeometryStatic()
     locationsWindow_->updateScaling();
     preferencesWindow_->updateScaling();
     newsFeedWindow_->updateScaling();
+    updateWindow_->updateScaling();
+    upgradeAccountWindow_->updateScaling();
     preferencesWindowHeight_ = preferencesWindowHeight_* (G_SCALE / prevScale);
     prevScale = G_SCALE;
 
     bottomInfoWindow_->updateScaling();
     updateAppItem_->updateScaling();
+    generalMessageWindow_->updateScaling();
 
 
     int height = locationsWindow_->tabAndFooterHeight();

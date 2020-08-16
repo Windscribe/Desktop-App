@@ -14,6 +14,7 @@ public:
     virtual void setDescription(QString description) = 0;
 
     virtual void setErrorMode(bool error) = 0;
+    virtual void updateScaling() = 0;
 
 signals:
     virtual void acceptClick() = 0;

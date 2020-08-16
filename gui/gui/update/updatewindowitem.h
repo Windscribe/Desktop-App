@@ -25,6 +25,8 @@ public:
     void startAnimation() override;
     void stopAnimation() override;
 
+    void updateScaling() override;
+
     void setVersion(QString version) override;
     void setProgress(int progressPercent) override;
     void changeToDownloadingScreen() override;
@@ -52,6 +54,8 @@ private slots:
     void onUpdatingTimeout();
 
     void onLanguageChanged();
+
+    void updatePositions();
 
 private:
     void initScreen();

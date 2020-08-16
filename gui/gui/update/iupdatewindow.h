@@ -17,6 +17,8 @@ public:
     virtual void startAnimation() = 0;
     virtual void stopAnimation() = 0;
 
+    virtual void updateScaling() = 0;
+
 signals:
     virtual void acceptClick() = 0;
     virtual void cancelClick() = 0;

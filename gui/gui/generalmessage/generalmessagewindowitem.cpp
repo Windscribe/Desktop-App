@@ -5,6 +5,7 @@
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "dpiscalemanager.h"
 
 namespace GeneralMessage {
 
@@ -27,8 +28,7 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(bool errorMode, QGraphicsObje
     acceptButton_ = new CommonGraphics::BubbleButtonDark(this, 108, 40, 20, 20);
     connect(acceptButton_, SIGNAL(clicked()), this, SLOT(onAcceptClick()));
     acceptButton_->setText(acceptText);
-    const int acceptPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH, acceptButton_->boundingRect().width());
-    acceptButton_->setPos(acceptPosX, ACCEPT_BUTTON_POS_Y);
+
 
     curTitleText_ = "General Message Title";
     curDescriptionText_ = "General Message Description";
@@ -40,11 +40,12 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(bool errorMode, QGraphicsObje
     }
 
     setErrorMode(errorMode);
+    updateScaling();
 }
 
 QRectF GeneralMessageWindowItem::boundingRect() const
 {
-    return QRectF(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    return QRectF(0, 0, WINDOW_WIDTH * G_SCALE, WINDOW_HEIGHT * G_SCALE);
 }
 
 void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
@@ -63,7 +64,7 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     QFont titleFont = *FontManager::instance().getFont(24, true);
     painter->setFont(titleFont);
 
-    QRectF titleRect(0, TITLE_POS_Y, WINDOW_WIDTH, CommonGraphics::textHeight(titleFont));
+    QRectF titleRect(0, TITLE_POS_Y * G_SCALE, WINDOW_WIDTH * G_SCALE, CommonGraphics::textHeight(titleFont));
     painter->drawText(titleRect, Qt::AlignCenter, tr(curTitleText_.toStdString().c_str()));
 
     // main description
@@ -72,9 +73,9 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     painter->setFont(descFont);
     painter->setPen(Qt::white);
 
-    QRect descRect = CommonGraphics::idealRect(0,0, DESCRIPTION_WIDTH_MIN, WINDOW_WIDTH - 32, 3, tr(curDescriptionText_.toStdString().c_str()), descFont, Qt::TextWordWrap);
-    painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH, descRect.width()), DESCRIPTION_POS_Y - descRect.height()/2,
-                      descRect.width(), WINDOW_HEIGHT,
+    QRect descRect = CommonGraphics::idealRect(0,0, DESCRIPTION_WIDTH_MIN * G_SCALE, (WINDOW_WIDTH - 32)  * G_SCALE, 3, tr(curDescriptionText_.toStdString().c_str()), descFont, Qt::TextWordWrap);
+    painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, descRect.width()), DESCRIPTION_POS_Y * G_SCALE - descRect.height()/2,
+                      descRect.width(), WINDOW_HEIGHT * G_SCALE,
                       Qt::AlignHCenter | Qt::TextWordWrap, tr(curDescriptionText_.toStdString().c_str()));
 }
 
@@ -99,6 +100,14 @@ void GeneralMessageWindowItem::setErrorMode(bool error)
         titleColor_ = Qt::white;
     }
     update();
+}
+
+void GeneralMessageWindowItem::updateScaling()
+{
+    ScalableGraphicsObject::updateScaling();
+
+    const int acceptPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, acceptButton_->boundingRect().width());
+    acceptButton_->setPos(acceptPosX, ACCEPT_BUTTON_POS_Y * G_SCALE);
 }
 
 void GeneralMessageWindowItem::keyPressEvent(QKeyEvent *event)

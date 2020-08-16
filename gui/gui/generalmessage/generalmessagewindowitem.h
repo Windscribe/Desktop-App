@@ -23,6 +23,8 @@ public:
     void setDescription(QString description) override; // UI will currently only support <= 4 lines of description and still look good
     void setErrorMode(bool error) override;
 
+    void updateScaling() override;
+
 signals:
     void acceptClick() override;
 
