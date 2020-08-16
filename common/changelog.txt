@@ -1,3 +1,13 @@
+2.0.25 (16/08/2020)
+* Added tooltips for connection settings on first login screen.
+* Bad app icon (split tunneling) scaling in VM - fixed.
+* Background sometimes visible on Mac - fixed.
+* The app version is incorrect in program/log.
+* Helper version updated to 15.
+* Issue with disable split tunneling state when app close fixed.
+* wsappcontrol crash on Mac - fixed.
+* Out of data screen DPI-issue - fixed.
+
 2.0.24 (12/08/2020)
 * Fixed/checked vulnerabilities - Qt plugins path, CVE-2019-5443(curl/openssl).
 * Hardened the app against common vulnerabilities raised in audits of other VPNs.
