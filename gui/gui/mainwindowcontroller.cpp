@@ -1156,6 +1156,20 @@ void MainWindowController::clearServerRatingsTooltipState()
 }
 
 #ifdef Q_OS_MAC
+void MainWindowController::invalidateShadow_mac_impl()
+{
+    void *id = (void *)mainWindow_->winId();
+    MacUtils::invalidateShadow(id);
+}
+
+void MainWindowController::updateNativeShadowIfNeeded()
+{
+    if (isNeedUpdateNativeShadow_) {
+        isNeedUpdateNativeShadow_ = false;
+        invalidateShadow_mac_impl();
+    }
+}
+
 void MainWindowController::setFirstSystemTrayPosX(int posX)
 {
     firstSystemTrayPosX_ = posX;
@@ -2855,9 +2869,12 @@ void MainWindowController::invalidateShadow_mac()
     // correct shadow, accounting for all the recent changes, we have to place the invalidation call
     // into the main loop as well.
     QTimer::singleShot(0, this, [&]() {
-        void *id = (void *)mainWindow_->winId();
-        MacUtils::invalidateShadow(id);
+        invalidateShadow_mac_impl();
     });
+    // If the window is not in active state, it may be occluded. In this case, OSX won't invalidate
+    // the native shadow at all, so we have to postpone the call till the next paint event.
+    if (!static_cast<MainWindow*>(mainWindow_)->isActiveState())
+        isNeedUpdateNativeShadow_ = true;
 #endif
 }
 
