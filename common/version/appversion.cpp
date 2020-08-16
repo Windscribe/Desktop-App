@@ -38,10 +38,10 @@ QString AppVersion::getFullString() const
 
 AppVersion::AppVersion()
 {
-    version_.asprintf("%d.%02d", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION);
+    version_ = QString::asprintf("%d.%02d", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION);
     major_ = WINDSCRIBE_MAJOR_VERSION;
     minor_ = WINDSCRIBE_MINOR_VERSION;
-    build_.asprintf("%d", WINDSCRIBE_BUILD_VERSION);
+    build_ = QString::asprintf("%d", WINDSCRIBE_BUILD_VERSION);
     buildInt_ = WINDSCRIBE_BUILD_VERSION;
 #ifdef WINDSCRIBE_IS_BETA
     isBeta_ = true;
