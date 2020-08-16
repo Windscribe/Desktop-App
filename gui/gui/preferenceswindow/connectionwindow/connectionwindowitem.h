@@ -49,6 +49,8 @@ private slots:
     void onFirewallModeHoverEnter();
     void onFirewallModeHoverLeave();
     void onConnectionModeChanged(const ProtoTypes::ConnectionSettings &cm);
+    void onConnectionModeHoverEnter(ConnectionModeItem::ButtonType type);
+    void onConnectionModeHoverLeave(ConnectionModeItem::ButtonType type);
     void onPacketSizeChanged(const ProtoTypes::PacketSize &ps);
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
     void onIsAllowLanTrafficClicked(bool b);

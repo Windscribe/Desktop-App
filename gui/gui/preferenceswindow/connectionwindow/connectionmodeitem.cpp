@@ -31,6 +31,10 @@ ConnectionModeItem::ConnectionModeItem(ScalableGraphicsObject *parent, Preferenc
     comboBoxProtocol_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Protocol"), "", 43, QColor(16, 22, 40), 24, true);
     comboBoxProtocol_->setPos(0, COLLAPSED_HEIGHT);
     comboBoxProtocol_->setClickable(false);
+    connect(comboBoxProtocol_, &ComboBoxItem::buttonHoverEnter,
+        [this]() { emit buttonHoverEnter(ButtonType::PROTOCOL); });
+    connect(comboBoxProtocol_, &ComboBoxItem::buttonHoverLeave,
+        [this]() { emit buttonHoverLeave(ButtonType::PROTOCOL); });
 
     /*Q_FOREACH(auto pd, protocols)
     {
@@ -53,6 +57,10 @@ ConnectionModeItem::ConnectionModeItem(ScalableGraphicsObject *parent, Preferenc
     comboBoxPort_->setClickable(false);
 
     connect(comboBoxPort_, SIGNAL(currentItemChanged(QVariant)), SLOT(onCurrentPortItemChanged(QVariant)));
+    connect(comboBoxPort_, &ComboBoxItem::buttonHoverEnter,
+        [this]() { emit buttonHoverEnter(ButtonType::PORT); });
+    connect(comboBoxPort_, &ComboBoxItem::buttonHoverLeave,
+        [this]() { emit buttonHoverLeave(ButtonType::PORT); });
 
     /*if (protocols.size() > 0)
     {
@@ -174,6 +182,20 @@ void ConnectionModeItem::setConnectionMode(const ProtoTypes::ConnectionSettings 
         curConnectionMode_ = cm;
         updateConnectionMode();
     }
+}
+
+QPointF ConnectionModeItem::getButtonScenePos(ButtonType type) const
+{
+    QPointF result;
+    switch (type) {
+    case ButtonType::PROTOCOL:
+        result = comboBoxProtocol_->getButtonScenePos();
+        break;
+    case ButtonType::PORT:
+        result = comboBoxPort_->getButtonScenePos();
+        break;
+    }
+    return result;
 }
 
 void ConnectionModeItem::updateScaling()
