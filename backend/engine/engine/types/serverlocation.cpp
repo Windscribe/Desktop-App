@@ -13,11 +13,20 @@ ServerLocation::ServerLocation() : id_(0), status_(0), premiumOnly_(0), p2p_(0),
 {
 }
 
-bool ServerLocation::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes, QJsonObject &jsonProDataCenters)
+bool ServerLocation::initFromJson(QJsonObject &obj, int version, bool isPro, QStringList &forceDisconnectNodes, QJsonObject &jsonProDataCenters)
 {
-    if (!obj.contains("id") || !obj.contains("name") || !obj.contains("country_code") || !obj.contains("status") ||
+    // Default to the old format.
+    Q_ASSERT(version == 1 || version == 2);
+    if (version < 1 || version > 2)
+        version = 1;
+
+    if (!obj.contains("id") || !obj.contains("name") || !obj.contains("country_code") ||
             !obj.contains("premium_only") || !obj.contains("p2p"))
     {
+        isValid_ = false;
+        return false;
+    }
+    if (version == 1 && !obj.contains("status")) {
         isValid_ = false;
         return false;
     }
@@ -25,7 +34,7 @@ bool ServerLocation::initFromJson(QJsonObject &obj, QStringList &forceDisconnect
     id_ = obj["id"].toInt();
     name_ = obj["name"].toString();
     countryCode_ = obj["country_code"].toString();
-    status_ = obj["status"].toInt();
+    status_ = ( version > 1 ) ? 1 : obj["status"].toInt();
     premiumOnly_ = obj["premium_only"].toInt();
     p2p_ = obj["p2p"].toInt();
     dnsHostName_ = obj["dns_hostname"].toString();
@@ -39,9 +48,47 @@ bool ServerLocation::initFromJson(QJsonObject &obj, QStringList &forceDisconnect
         forceExpand_ = false;
     }
 
-    if (obj.contains("nodes"))
+    if (obj.contains("groups"))
     {
-        Q_FOREACH(const QJsonValue &serverNodeValue, obj["nodes"].toArray())
+        Q_ASSERT(version == 2);
+        const auto groupsArray = obj["groups"].toArray();
+        for (const QJsonValue &serverGroupValue : groupsArray)
+        {
+            QJsonObject objServerGroup = serverGroupValue.toObject();
+            const QString cityName =  QString("%1 - %2")
+                .arg(objServerGroup["city"].toString(), objServerGroup["nick"].toString());
+            if (jsonProDataCenters.isEmpty() && !isPro && objServerGroup["pro"].toInt() != 0) {
+                proDataCenters_ << cityName;
+            }
+            if (objServerGroup.contains("nodes")) {
+                const auto nodesArray = objServerGroup["nodes"].toArray();
+                for (const QJsonValue &serverNodeValue : nodesArray) {
+                    QJsonObject objServerNode = serverNodeValue.toObject();
+                    ServerNode sn;
+                    if (!sn.initFromJson(objServerNode, cityName))
+                    {
+                        isValid_ = false;
+                        return false;
+                    }
+
+                    // not add node with flag force_diconnect, but add it to another list
+                    if (sn.isForceDisconnect())
+                    {
+                        forceDisconnectNodes << sn.getHostname();
+                    }
+                    else
+                    {
+                        nodes_ << sn;
+                    }
+                }
+            }
+        }
+    }
+    else if (obj.contains("nodes"))
+    {
+        Q_ASSERT(version == 1);
+        const auto nodesArray = obj["nodes"].toArray();
+        for (const QJsonValue &serverNodeValue: nodesArray)
         {
             QJsonObject objServerNode = serverNodeValue.toObject();
             ServerNode sn;
@@ -68,8 +115,8 @@ bool ServerLocation::initFromJson(QJsonObject &obj, QStringList &forceDisconnect
         QString strId = QString::number(id_);
         if (jsonProDataCenters.contains(strId))
         {
-            QJsonArray arr = jsonProDataCenters[strId].toArray();
-            Q_FOREACH(const QJsonValue &n, arr)
+            const QJsonArray arr = jsonProDataCenters[strId].toArray();
+            for (const QJsonValue &n: arr)
             {
                 proDataCenters_ << n.toString();
             }
@@ -301,6 +348,12 @@ const QStringList &ServerLocation::getProDataCenters() const
 {
     Q_ASSERT(isValid_);
     return proDataCenters_;
+}
+
+void ServerLocation::appendProDataCentre(const QString &name)
+{
+    Q_ASSERT(isValid_);
+    proDataCenters_.append(name);
 }
 
 QVector<ServerNode> &ServerLocation::getNodes()

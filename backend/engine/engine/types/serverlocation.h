@@ -22,7 +22,7 @@ public:
 public:
     ServerLocation();
 
-    bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes, QJsonObject &jsonProDataCenters);
+    bool initFromJson(QJsonObject &obj, int version, bool isPro, QStringList &forceDisconnectNodes, QJsonObject &jsonProDataCenters);
     void transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId);
     void transformToCustomOvpnLocation(QVector<ServerNode> &nodes);
 
@@ -45,6 +45,7 @@ public:
 
     QStringList getCities();
     const QStringList &getProDataCenters() const;
+    void appendProDataCentre(const QString &name);
 
     QVector<ServerNode> &getNodes();
     QVector<ServerNode> getCityNodes(const QString &cityname);

@@ -386,7 +386,7 @@ LocationID LocationsModel::getLocationIdByName(const QString &location) const
 
 void LocationsModel::splitCityName(const QString &src, QString &outName1, QString &outName2)
 {
-    QStringList strs = src.split("-");
+    QStringList strs = src.split(" - ");
     if (strs.count() > 0)
     {
         outName1 = strs[0].trimmed();
