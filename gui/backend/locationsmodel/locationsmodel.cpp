@@ -384,7 +384,35 @@ LocationID LocationsModel::getLocationIdByName(const QString &location) const
     return LocationID();
 }
 
-void LocationsModel::splitCityName(const QString &src, QString &outName1, QString &outName2)
+LocationID LocationsModel::getLocationIdByCity(
+    const QString &cityname, bool get_best_location) const
+{
+    QString title1, title2;
+    splitCityName(cityname, title1, title2);
+
+    if (!title1.isEmpty() && !title2.isEmpty()) {
+        for (const LocationModelItem * lmi : locations_)
+        {
+            if (lmi->id.getId() < LocationID::BEST_LOCATION_ID)
+                continue;
+            const bool is_best_location = lmi->id.getId() == LocationID::BEST_LOCATION_ID;
+            if (is_best_location != get_best_location)
+                continue;
+            for (const CityModelItem &city : lmi->cities)
+            {
+                if (city.title1.compare(title1, Qt::CaseInsensitive) == 0 &&
+                    city.title2.compare(title2, Qt::CaseInsensitive) == 0)
+                {
+                    return city.id;
+                }
+            }
+        }
+    }
+
+    return LocationID();
+}
+
+void LocationsModel::splitCityName(const QString &src, QString &outName1, QString &outName2) const
 {
     QStringList strs = src.split("-");
     if (strs.count() > 0)

@@ -1060,6 +1060,17 @@ void MainWindow::onLocationSwitchFavorite(LocationID id, bool isFavorite)
 {
     backend_->getLocationsModel()->switchFavorite(id, isFavorite);
     mainWindowController_->getConnectWindow()->updateFavoriteState(id, isFavorite);
+
+    // Also switch favorite flag for the alternate location id; i.e. find the best location with the
+    // same city name, if we are currently processing a generic location, and vice versa.
+    const bool is_best_location = id.getId() == LocationID::BEST_LOCATION_ID;
+    const auto other_id =
+        backend_->getLocationsModel()->getLocationIdByCity(id.getCity(), !is_best_location);
+    if (!other_id.isEmpty()) {
+        Q_ASSERT(!(other_id == id));
+        backend_->getLocationsModel()->switchFavorite(other_id, isFavorite);
+        mainWindowController_->getConnectWindow()->updateFavoriteState(other_id, isFavorite);
+    }
 }
 
 void MainWindow::onLocationsAddStaticIpClicked()
