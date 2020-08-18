@@ -447,6 +447,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (backend_->isAppCanClose())
     {
         QWidget::closeEvent(event);
+        QApplication::closeAllWindows();
     }
     else
     {
@@ -1712,7 +1713,7 @@ void MainWindow::onBackendSignOutFinished()
 void MainWindow::onBackendCleanupFinished()
 {
     qCDebug(LOG_BASIC) << "Backend Cleanup Finished";
-    QApplication::closeAllWindows();
+    close();
 }
 
 void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
