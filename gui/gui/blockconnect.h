@@ -10,6 +10,7 @@ public:
     BlockConnect();
 
     bool isBlocked();
+    bool isBlockedExceedTraffic() const;
     QString message();
     void setNotBlocking();
     void setBlockedExceedTraffic();

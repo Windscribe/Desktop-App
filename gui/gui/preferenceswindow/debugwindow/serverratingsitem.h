@@ -20,7 +20,6 @@ public:
 signals:
     void clearButtonHoverEnter();
     void clearButtonHoverLeave();
-    void clicked();
 
 private:
     IconButton *btnClear_;

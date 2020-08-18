@@ -203,7 +203,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(dynamic_cast<QObject*>(mainWindowController_->getExternalConfigWindow()), SIGNAL(minimizeClick()), SLOT(onMinimizeClick()));
 
     // bottom window signals
-    connect(dynamic_cast<QObject*>(mainWindowController_->getBottomInfoWindow()), SIGNAL(upgradeClick()), SLOT(onBottomWindowUpgradeAccountClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getBottomInfoWindow()), SIGNAL(upgradeClick()), SLOT(onUpgradeAccountAccept()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getBottomInfoWindow()), SIGNAL(renewClick()), SLOT(onBottomWindowRenewClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getBottomInfoWindow()), SIGNAL(loginClick()), SLOT(onBottomWindowExternalConfigLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getBottomInfoWindow()), SIGNAL(proxyGatewayClick()), this, SLOT(onBottomWindowSharingFeaturesClick()));
@@ -955,11 +955,6 @@ void MainWindow::onExternalConfigWindowEscapeClick()
     gotoLoginWindow();
 }
 
-void MainWindow::onBottomWindowUpgradeAccountClick()
-{
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
-}
-
 void MainWindow::onBottomWindowRenewClick()
 {
     // TODO: navigate to website // same as "Upgrade"
@@ -1001,7 +996,8 @@ void MainWindow::onUpdateWindowCancel()
 void MainWindow::onUpgradeAccountAccept()
 {
     QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+    if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_UPGRADE)
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
 }
 
 void MainWindow::onUpgradeAccountCancel()
@@ -1426,6 +1422,7 @@ void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &
             {
                 bDisconnectFromTrafficExceed_ = true;
                 backend_->sendDisconnect();
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
             }
 
             mainWindowController_->getBottomInfoWindow()->setDataRemaining(0, 0);
@@ -2666,6 +2663,10 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
 #endif
     else if (connectState.connect_error() == ProtoTypes::CONNECTION_BLOCKED)
     {
+        if (blockConnect_.isBlockedExceedTraffic()) {
+            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
+            return;
+        }
         msg = blockConnect_.message();
     }
     else if (connectState.connect_error() == ProtoTypes::CANNOT_OPEN_CUSTOM_OVPN_CONFIG)
