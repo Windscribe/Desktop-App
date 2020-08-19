@@ -1,3 +1,14 @@
+2.0.26 (19/08/2020)
+* Fixed installer crash on Big Sur.
+* Made app-kill more robust - stray openvpn process no longer will cause failure to kill (and hang).
+* UI freezes when minimized - fixed.
+* Can't favorite Best Location datacenter - fixed.
+* "You're out of data" GUI behaviour - fixed.
+* Added exit confirm dialog on Alt+F4(Win) and Ctrl+Q(Mac). Also, the app now can be closed without confirmation from Task Manager.
+* Added exit confirm dialog when click exit from Preferences screen.
+
+
+
 2.0.25 (16/08/2020)
 * Added tooltips for connection settings on first login screen.
 * Bad app icon (split tunneling) scaling in VM - fixed.
