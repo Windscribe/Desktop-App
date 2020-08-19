@@ -66,7 +66,8 @@ MainWindow::MainWindow(QWidget *parent) :
     desiredDockIconVisibility_(true),
  #endif
     activeState_(true),
-    lastWindowStateChange_(0)
+    lastWindowStateChange_(0),
+    isExitingFromPreferences_(false)
 {
 
     g_mainWindow = this;
@@ -338,6 +339,31 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 
 void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 {
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+    // Check if the window is closed by pressing a keyboard shortcut (Alt+F4 on Windows, Cmd+Q on
+    // macOS). We cannot detect the keypress itself, because the system doesn't deliver it as
+    // separate keypress messages, but rather as the close event.
+    // But we can assume that such event has a specific set of features:
+    // 1) it is spontaneous (sent by the operating system);
+    // 2) it is sent to active window only (unlike closing via taskbar/task manager);
+    // 3) the modifier key is pressed at the time of the event.
+    // If all these features are present, switch to the exit window instead of closing immediately.
+    if (event && event->spontaneous() && isActiveWindow()) {
+        const auto current_modifiers = QApplication::queryKeyboardModifiers();
+#if defined(Q_OS_WIN)
+        const auto kCheckedModifier = Qt::AltModifier;
+#else
+        // On macOS, the ControlModifier value corresponds to the Command keys on the keyboard.
+        const auto kCheckedModifier = Qt::ControlModifier;
+#endif
+        if (current_modifiers & kCheckedModifier) {
+            event->ignore();
+            gotoExitWindow();
+            return;
+        }
+    }
+#endif  // Q_OS_WIN || Q_OS_MAC
+
     setEnabled(false);
 
     // for startup fix (when app disabled in task manager)
@@ -859,7 +885,7 @@ void MainWindow::onPreferencesSendDebugLogClick()
 
 void MainWindow::onPreferencesQuitAppClick()
 {
-    close();
+    gotoExitWindow();
 }
 
 void MainWindow::onPreferencesNoAccountLoginClick()
@@ -1023,6 +1049,10 @@ void MainWindow::onExitWindowAccept()
 void MainWindow::onExitWindowReject()
 {
     mainWindowController_->changeWindow(MainWindowController::WINDOW_CMD_CLOSE_EXIT);
+    if (isExitingFromPreferences_) {
+        isExitingFromPreferences_ = false;
+        mainWindowController_->expandPreferences();
+    }
 }
 
 void MainWindow::onLocationSelected(LocationID id)
@@ -2714,6 +2744,16 @@ void MainWindow::gotoLoginWindow()
     mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(
         backend_->isFirewallEnabled());
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
+}
+
+void MainWindow::gotoExitWindow()
+{
+    if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_EXIT)
+        return;
+    isExitingFromPreferences_ = mainWindowController_->preferencesVisible();
+    if (isExitingFromPreferences_)
+        collapsePreferences();
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
 }
 
 void MainWindow::collapsePreferences()
