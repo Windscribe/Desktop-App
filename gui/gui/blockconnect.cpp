@@ -11,6 +11,11 @@ bool BlockConnect::isBlocked()
     return bNeedUpgrade_ || blockConnect_ != CONNECT_NOT_BLOCKED;
 }
 
+bool BlockConnect::isBlockedExceedTraffic() const
+{
+    return blockConnect_ == CONNECT_BLOCKED_EXCEED_TRAFFIC;
+}
+
 QString BlockConnect::message()
 {
     if (bNeedUpgrade_)

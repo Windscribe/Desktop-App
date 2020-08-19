@@ -99,7 +99,6 @@ private slots:
     void onExternalConfigWindowEscapeClick();
 
     // bottom window signals
-    void onBottomWindowUpgradeAccountClick();
     void onBottomWindowRenewClick();
     void onBottomWindowExternalConfigLoginClick();
     void onBottomWindowSharingFeaturesClick();
