@@ -47,6 +47,7 @@ public:
     void changeConnectionSpeed(LocationID id, PingTime speed);
 
     LocationID getLocationIdByName(const QString &location) const;
+    LocationID getLocationIdByCity(const QString &cityname, bool get_best_location) const;
 
 signals:
     void locationSpeedChanged(LocationID id, PingTime speed);
@@ -64,7 +65,7 @@ private:
     QSet<LocationID> ids;
     QVector<LocationModelItem *> locations_;
 
-    void splitCityName(const QString &src, QString &outName1, QString &outName2);
+    void splitCityName(const QString &src, QString &outName1, QString &outName2) const;
 };
 
 #endif // LOCATIONSMODEL_H
