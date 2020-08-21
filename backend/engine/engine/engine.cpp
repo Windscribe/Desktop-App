@@ -357,12 +357,7 @@ void Engine::connectClick(const LocationID &locationId)
     QMutexLocker locker(&mutex_);
     if (bInitialized_)
     {
-        if (!online_)
-        {
-            // keep engine in correct state when no internet
-            connectStateController_->setConnectingState(locationId_);
-        }
-
+        connectStateController_->setConnectingState(locationId_);
         QMetaObject::invokeMethod(this, "connectClickImpl", Q_ARG(LocationID, locationId));
     }
 }
