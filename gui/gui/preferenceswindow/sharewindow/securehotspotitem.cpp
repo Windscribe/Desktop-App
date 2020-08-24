@@ -1,9 +1,12 @@
 #include "securehotspotitem.h"
 
 #include <QPainter>
+#include <QMessageBox>
 #include "graphicresources/fontmanager.h"
 #include <google/protobuf/util/message_differencer.h>
 #include "dpiscalemanager.h"
+
+extern QWidget *g_mainWindow;
 
 namespace PreferencesWindow {
 
@@ -136,8 +139,18 @@ void SecureHotspotItem::onSSIDChanged(const QString &text)
 
 void SecureHotspotItem::onPasswordChanged(const QString &password)
 {
-    ss_.set_password(password.toStdString());
-    emit secureHotspotParsChanged(ss_);
+    if (password.length() >= 8)
+    {
+        ss_.set_password(password.toStdString());
+        emit secureHotspotParsChanged(ss_);
+    }
+    else
+    {
+        QString title = tr("Windscribe");
+        QString desc = tr("Hotspot password must be at least 8 characters.");
+        QMessageBox::information(g_mainWindow, title, desc);
+        editBoxPassword_->setText(QString::fromStdString(ss_.password()));
+    }
 }
 
 void SecureHotspotItem::onLanguageChanged()

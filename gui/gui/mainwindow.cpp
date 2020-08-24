@@ -2009,13 +2009,10 @@ void MainWindow::onPreferencesShareProxyGatewayChanged(const ProtoTypes::SharePr
 
 void MainWindow::onPreferencesShareSecureHotspotChanged(const ProtoTypes::ShareSecureHotspot &ss)
 {
-    if (ss.is_enabled())
+    if (ss.is_enabled() && !ss.ssid().empty() && ss.password().length() >= 8)
     {
-        if (!ss.ssid().empty() && ss.password().length() >= 8)
-        {
-            mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(true, QString::fromStdString(ss.ssid()));
-            backend_->startWifiSharing(QString::fromStdString(ss.ssid()), QString::fromStdString(ss.password()));
-        }
+        mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(true, QString::fromStdString(ss.ssid()));
+        backend_->startWifiSharing(QString::fromStdString(ss.ssid()), QString::fromStdString(ss.password()));
     }
     else
     {
