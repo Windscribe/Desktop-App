@@ -7,14 +7,14 @@
 
 namespace PreferencesWindow {
 
-SecureHotspotItem::SecureHotspotItem(ScalableGraphicsObject *parent) : BaseItem(parent, 87), bSupported_(true)
+SecureHotspotItem::SecureHotspotItem(ScalableGraphicsObject *parent) : BaseItem(parent, 87), supported_(HOTSPOT_SUPPORTED)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
     checkBoxButton_ = new CheckBoxButton(this);
     connect(checkBoxButton_, SIGNAL(stateChanged(bool)), SLOT(onCheckBoxStateChanged(bool)));
 
-    setSupported(true);
+    setSupported(supported_);
 
     line_ = new DividerLine(this, 276);
 
@@ -77,11 +77,11 @@ void SecureHotspotItem::setSecureHotspotPars(const ProtoTypes::ShareSecureHotspo
     }
 }
 
-void SecureHotspotItem::setSupported(bool bSupported)
+void SecureHotspotItem::setSupported(HOTSPOT_SUPPORT_TYPE supported)
 {
-    bSupported_ = bSupported;
-    checkBoxButton_->setEnabled(bSupported);
-    if (!bSupported)
+    supported_ = supported;
+    checkBoxButton_->setEnabled(supported_ == HOTSPOT_SUPPORTED);
+    if (supported_ != HOTSPOT_SUPPORTED)
     {
         checkBoxButton_->setState(false);
         ss_.set_is_enabled(false);
@@ -149,14 +149,23 @@ void SecureHotspotItem::onLanguageChanged()
 void SecureHotspotItem::updateCollapsedAndExpandedHeight()
 {
     QFont *descriptionFont =  FontManager::instance().getFont(12, false);
-    if (bSupported_)
+    if (supported_ == HOTSPOT_SUPPORTED)
     {
         descriptionText_ = QT_TR_NOOP("Create a secure hotspot and allow others to use your secure connection");
     }
-    else
+    else if (supported_ == HOTSPOT_NOT_SUPPORTED)
     {
         descriptionText_ = QT_TR_NOOP("Secure hotspot is not supported by your network adapter");
     }
+    else if (supported_ == HOTSPOT_NOT_SUPPORTED_BY_IKEV2)
+    {
+        descriptionText_ = QT_TR_NOOP("Secure hotspot is not supported for IKEv2 protocol and automatic connection mode");
+    }
+    else
+    {
+        Q_ASSERT(false);
+    }
+
     descriptionRect_ = CommonGraphics::textBoundingRect(*descriptionFont, 16*G_SCALE, 45*G_SCALE,
                                                             boundingRect().width() - 40*G_SCALE - checkBoxButton_->boundingRect().width(),
                                                             tr(descriptionText_.toStdString().c_str()), Qt::TextWordWrap);

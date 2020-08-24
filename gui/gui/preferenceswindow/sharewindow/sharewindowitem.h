@@ -25,6 +25,8 @@ private slots:
     void onSecureHotspotParsChanged(const ProtoTypes::ShareSecureHotspot &ss);
     void onSecureHotspotParsPreferencesChanged(const ProtoTypes::ShareSecureHotspot &ss);
 
+    void onConnectionSettingsPreferencesChanged(const ProtoTypes::ConnectionSettings &cs);
+
     void onProxyGatewayParsChanged(const ProtoTypes::ShareProxyGateway &sp);
     void onProxyGatewayParsPreferencesChanged(const ProtoTypes::ShareProxyGateway &sp);
 
@@ -34,6 +36,10 @@ private:
     SecureHotspotItem *secureHotspotItem_;
     ProxyGatewayItem *proxyGatewayItem_;
     Preferences *preferences_;
+    bool isWifiSharingSupported_;
+
+    bool isIkev2OrAutomaticConnectionMode(const ProtoTypes::ConnectionSettings &cs) const;
+    void updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic);
 
 };
 

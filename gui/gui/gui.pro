@@ -167,7 +167,7 @@ SOURCES += \
     ../backend/locationsmodel/sortlocationsalgorithms.cpp \
     ../backend/locationsmodel/staticipscitiesmodel.cpp \
     ../backend/preferences/accountinfo.cpp \
-    ../backend/Preferences/detectlanrange.cpp \
+    ../backend/preferences/detectlanrange.cpp \
     ../backend/preferences/guisettingsfromver1.cpp \
     ../backend/preferences/preferences.cpp \
     ../backend/preferences/preferenceshelper.cpp \

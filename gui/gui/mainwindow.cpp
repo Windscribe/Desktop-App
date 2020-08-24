@@ -2013,11 +2013,13 @@ void MainWindow::onPreferencesShareSecureHotspotChanged(const ProtoTypes::ShareS
     {
         if (!ss.ssid().empty() && ss.password().length() >= 8)
         {
+            mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(true, QString::fromStdString(ss.ssid()));
             backend_->startWifiSharing(QString::fromStdString(ss.ssid()), QString::fromStdString(ss.password()));
         }
     }
     else
     {
+        mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(false, QString());
         backend_->stopWifiSharing();
     }
 }

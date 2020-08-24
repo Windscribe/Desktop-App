@@ -2194,12 +2194,9 @@ void Engine::stopProxySharingImpl()
 
 void Engine::startWifiSharingImpl(const QString &ssid, const QString &password)
 {
-    bool bInitialState = vpnShareController_->isWifiSharingEnabled();
+    vpnShareController_->stopWifiSharing(); //  need to stop it first
     vpnShareController_->startWifiSharing(ssid, password);
-    if (bInitialState == false)   // emit signal if state changed
-    {
-        emit wifiSharingStateChanged(true, ssid);
-    }
+    emit wifiSharingStateChanged(true, ssid);
 }
 
 void Engine::stopWifiSharingImpl()

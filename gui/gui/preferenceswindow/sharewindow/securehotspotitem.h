@@ -16,12 +16,15 @@ namespace PreferencesWindow {
 class SecureHotspotItem : public BaseItem
 {
     Q_OBJECT
+
 public:
+    enum HOTSPOT_SUPPORT_TYPE {HOTSPOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED_BY_IKEV2 };
+
     explicit SecureHotspotItem(ScalableGraphicsObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
     void setSecureHotspotPars(const ProtoTypes::ShareSecureHotspot &ss);
-    void setSupported(bool bSupported);
+    void setSupported(HOTSPOT_SUPPORT_TYPE supported);
 
     void updateScaling() override;
 
@@ -54,7 +57,7 @@ private:
     QString descriptionText_;
     QRect descriptionRect_;
 
-    bool bSupported_;
+    HOTSPOT_SUPPORT_TYPE supported_;
 
 };
 
