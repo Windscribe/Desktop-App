@@ -332,7 +332,7 @@ void ApiInfo::processServerLocations()
 
     // Utility function to extract city name part for location matching.
     auto getRealCityName = [](const QString &str) {
-        auto parts = str.split("-");
+        auto parts = str.split(" - ");
         return parts.size() > 0 ? parts[0].trimmed() : str.trimmed();
     };
 
@@ -345,6 +345,10 @@ void ApiInfo::processServerLocations()
         const auto cities = location->getCities();
         for (const auto &city : cities)
             location_hash.insert(location->getCountryCode() + getRealCityName(city), location);
+        const auto pro_datacentres = location->getProDataCenters();
+        for (const auto &pro_datacentre : pro_datacentres)
+            location_hash.insert(location->getCountryCode() + getRealCityName(pro_datacentre),
+                                 location);
     }
 
     // Merge the locations.
@@ -352,12 +356,19 @@ void ApiInfo::processServerLocations()
     while (itm.hasNext()) {
         LocationPtr &location = itm.next();
         const auto country_code = location->getCountryCode();
-        auto nodes = location->getNodes();
+        const auto nodes = location->getNodes();
         for (const auto &n: nodes) {
             auto target = location_hash.value(country_code + getRealCityName(n.getCityName()));
             Q_ASSERT(!target.isNull());
             if (!target.isNull())
                 target->appendNode(n);
+        }
+        const auto pro_datacentres = location->getProDataCenters();
+        for (const auto &pro_datacentre : pro_datacentres) {
+            auto target = location_hash.value(country_code + getRealCityName(pro_datacentre));
+            Q_ASSERT(!target.isNull());
+            if (!target.isNull())
+                target->appendProDataCentre(pro_datacentre);
         }
         itm.remove();
     }

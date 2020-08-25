@@ -8,7 +8,7 @@ ServerNode::ServerNode() : weight_(0), legacy_(0), forceDisconnect_(0), isValid_
 
 }
 
-bool ServerNode::initFromJson(QJsonObject &obj)
+bool ServerNode::initFromJson(QJsonObject &obj, const QString &cityName)
 {
     if (!obj.contains("ip") || !obj.contains("ip2") || !obj.contains("ip3") || !obj.contains("hostname") || !obj.contains("weight"))
     {
@@ -21,7 +21,11 @@ bool ServerNode::initFromJson(QJsonObject &obj)
     ip_[2] = obj["ip3"].toString();
     hostname_ = obj["hostname"].toString();
     weight_ = obj["weight"].toInt();
-    if (obj.contains("group"))
+    if (!cityName.isEmpty())
+    {
+        cityname_ = cityName;
+    }
+    else if (obj.contains("group"))
     {
         cityname_ = obj["group"].toString();
     }

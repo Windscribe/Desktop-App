@@ -10,7 +10,7 @@ class ServerNode
 public:
     ServerNode();
 
-    bool initFromJson(QJsonObject &obj);
+    bool initFromJson(QJsonObject &obj, const QString &cityName = QString());
 
     void initFromCustomOvpnConfig(const QString &name, const QString &hostname, 
                                   const QString &pathCustomOvpnConfig);
