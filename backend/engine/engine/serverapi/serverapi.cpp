@@ -1037,6 +1037,11 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
             query.addQueryItem("sl_premium", crd->getIsPro() ? "1" : "0");
         }
 
+        if (!crd->getIsOldFormat())
+        {
+            query.addQueryItem("browser", "mobike");
+        }
+
         // add alc parameter in query, if not empty
         if (!alcField.isEmpty())
         {
@@ -1044,8 +1049,6 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         }
 
         url.setQuery(query);
-        // Force old format parser.
-        crd->setIsOldFormat(true);
     }
     // this is domain name, then use domain assets.windscribe.com
     else
