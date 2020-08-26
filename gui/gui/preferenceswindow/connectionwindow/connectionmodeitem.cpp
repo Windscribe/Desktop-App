@@ -72,9 +72,8 @@ ConnectionModeItem::ConnectionModeItem(ScalableGraphicsObject *parent, Preferenc
         comboBoxPort_->setClickable(false);
     }*/
 
-
-    expandEnimation_.setStartValue(COLLAPSED_HEIGHT);
-    expandEnimation_.setEndValue(EXPANDED_HEIGHT);
+    expandEnimation_.setStartValue(COLLAPSED_HEIGHT); // scaled in slot
+    expandEnimation_.setEndValue(EXPANDED_HEIGHT);    // scaled in slot
     expandEnimation_.setDuration(150);
     connect(&expandEnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onExpandAnimationValueChanged(QVariant)));
 }
@@ -152,7 +151,7 @@ void ConnectionModeItem::updateConnectionMode()
         {
             switchItem_->setState(AutoManualSwitchItem::AUTO);
             isExpanded_ = false;
-            setHeight(COLLAPSED_HEIGHT);
+            setHeight(COLLAPSED_HEIGHT * G_SCALE);
         }
         else
         {
@@ -163,7 +162,7 @@ void ConnectionModeItem::updateConnectionMode()
             switchItem_->setState(AutoManualSwitchItem::MANUAL);
             isExpanded_ = true;
 
-            setHeight(EXPANDED_HEIGHT);
+            setHeight(EXPANDED_HEIGHT * G_SCALE);
         }
     }
 }
