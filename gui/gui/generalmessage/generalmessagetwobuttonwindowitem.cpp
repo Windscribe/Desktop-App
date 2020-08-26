@@ -302,7 +302,7 @@ void GeneralMessageTwoButtonWindowItem::unselectCurrentButton(CommonGraphics::Bu
     }
 }
 
-void GeneralMessageTwoButtonWindowItem::changeSelection(GeneralMessageTwoButtonWindowItem::Selection selection)
+void GeneralMessageTwoButtonWindowItem::changeSelection(Selection selection)
 {
     if (selection != selection_)
     {

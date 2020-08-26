@@ -1798,6 +1798,7 @@ void MainWindowController::gotoExitWindow()
             newsFeedWindow_->getGraphicsObject()->stackBefore(exitWindow_->getGraphicsObject());
         }
 
+        exitWindow_->changeSelection(IGeneralMessageTwoButtonWindow::ACCEPT);
         exitWindow_->getGraphicsObject()->show();
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);

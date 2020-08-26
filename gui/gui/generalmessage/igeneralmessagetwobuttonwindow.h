@@ -24,6 +24,9 @@ public:
 
     virtual void updateScaling() = 0;
 
+    enum Selection { NONE, ACCEPT, REJECT };
+    virtual void changeSelection(Selection selection) = 0;
+
 signals:
     virtual void acceptClick() = 0;
     virtual void rejectClick() = 0;
