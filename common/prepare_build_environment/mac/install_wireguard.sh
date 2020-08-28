@@ -19,6 +19,7 @@ export DESTDIR="$HOME/LibsWindscribe/"
 export BINDIR="wireguard"
 mkdir "$DESTDIR/$BINDIR"
 make install
+mv "$DESTDIR/$BINDIR/wireguard-go" "$DESTDIR/$BINDIR/windscribewireguard"
 popd
 
 rm -rf $HOME/"wireguard_temp"

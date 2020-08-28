@@ -25,7 +25,11 @@ xcopy /E /H /Y %TOOLSDIR%\wireguard_changed_files %BUILDDIR%\%WGDIR% || goto :er
 cd %WGDIR%
 make || goto :error
 mkdir "c:\libs\wireguard"
-copy wireguard-go c:\libs\wireguard\wireguard-go.exe || goto :error
+copy wireguard-go c:\libs\wireguard\windscribewireguard_x64.exe || goto :error
+del wireguard-go
+set GOARCH=386
+make || goto :error
+copy wireguard-go c:\libs\wireguard\windscribewireguard_x86.exe || goto :error
 popd
 rd /s /q "c:\wireguard_temp"
 goto :eof
