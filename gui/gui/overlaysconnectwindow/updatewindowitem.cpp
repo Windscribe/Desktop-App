@@ -12,11 +12,11 @@
 namespace UpdateWindow {
 
 
-UpdateWindowItem::UpdateWindowItem(bool upgrade, ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent)
+UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
+    ScalableGraphicsObject(parent)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
 
-    curBackgroundOpacity_       = OPACITY_FULL;
     curTitleOpacity_            = OPACITY_FULL;
     curDescriptionOpacity_      = OPACITY_FULL;
 
@@ -27,17 +27,10 @@ UpdateWindowItem::UpdateWindowItem(bool upgrade, ScalableGraphicsObject *parent)
     curVersion_ = "2.0";
     curProgress_ = 0;
 
-#ifdef Q_OS_WIN
-    background_ = "background/WIN_MAIN_BG";
-#else
-    background_ = "background/MAC_MAIN_BG";
-#endif
-
     connect(&titleOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onTitleOpacityChange(QVariant)));
     connect(&lowerTitleOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onLowerTitleOpacityChange(QVariant)));
     connect(&descriptionOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onDescriptionOpacityChange(QVariant)));
     connect(&lowerDescriptionOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onLowerDescriptionOpacityChange(QVariant)));
-
     connect(&spinnerOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onSpinnerOpacityChange(QVariant)));
     connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onSpinnerRotationChange(QVariant)));
 
@@ -46,41 +39,13 @@ UpdateWindowItem::UpdateWindowItem(bool upgrade, ScalableGraphicsObject *parent)
     acceptButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
     connect(acceptButton_, SIGNAL(clicked()), this, SLOT(onAcceptClick()));
 
-    upgradeMode_ = upgrade;
+    curTitleText_ = QString("v") + curVersion_;
 
-    QString cancelText;
-    double cancelOpacity;
-    if (upgrade)
-    {
-        curTitleText_ = QT_TR_NOOP("You're out of data!");
-        titleColor_ = FontManager::instance().getErrorRedColor();
-        curDescriptionText_ = QT_TR_NOOP("Don't leave your front door open. "
-                                 "Upgrade or wait until next month to get your monthly data allowance back.");
-        curLowerDescriptionText_ = QT_TR_NOOP("");
+    QString updateText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonBright", "Update");
+    acceptButton_->setText(updateText);
 
-        QString upgradeText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonBright", "Upgrade");
-        acceptButton_->setText(upgradeText);
-
-        cancelText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "I'm broke");
-        cancelOpacity = OPACITY_UNHOVER_TEXT;
-    }
-    else
-    {
-        curTitleText_ = QString("v") + curVersion_;
-        curDescriptionText_ = QT_TR_NOOP("You're about to update Windscribe. "
-                                 "The application will auto-restart after it is complete.");
-
-        titleColor_ = FontManager::instance().getBrightYellowColor();
-
-        curLowerTitleText_ = QT_TR_NOOP("Updating ");
-        curLowerDescriptionText_ = QT_TR_NOOP("Your update is in progress, hang in there...");
-
-        QString updateText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonBright", "Update");
-        acceptButton_->setText(updateText);
-
-        cancelText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Cancel");
-        cancelOpacity = OPACITY_UNHOVER_TEXT;
-    }
+    QString cancelText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Cancel");
+    double cancelOpacity = OPACITY_UNHOVER_TEXT;
 
     cancelButton_ = new CommonGraphics::TextButton(cancelText, FontDescr(16, false),
                                                    Qt::white, true, this);
@@ -103,16 +68,20 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     qreal initialOpacity = painter->opacity();
 
     // background:
-    painter->setOpacity(curBackgroundOpacity_ * initialOpacity);
-
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(background_);
+#ifdef Q_OS_WIN
+    const QString background = "background/WIN_MAIN_BG";
+#else
+    const QString background = "background/MAC_MAIN_BG";
+#endif
+    painter->setOpacity(OPACITY_FULL * initialOpacity);
+    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(background);
     p->draw(0, 0, painter);
 
     // Text:
 
     // title
     painter->setOpacity(curTitleOpacity_ * initialOpacity);
-    painter->setPen(titleColor_);
+    painter->setPen(FontManager::instance().getBrightYellowColor());
 
     QFont titleFont = *FontManager::instance().getFont(24, true);
     painter->setFont(titleFont);
@@ -124,15 +93,15 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setFont(*FontManager::instance().getFont(24, false));
     QRectF lowerTitleRect(0, TITLE_POS_Y * G_SCALE, WINDOW_WIDTH * G_SCALE, CommonGraphics::textHeight(titleFont));
 
-    int widthUpdating = CommonGraphics::textWidth(tr(curLowerTitleText_.toStdString().c_str()), *FontManager::instance().getFont(24, false));
+    const QString lowerTitleText = tr("Updating ");
+    int widthUpdating = CommonGraphics::textWidth(lowerTitleText, *FontManager::instance().getFont(24, false));
 
     QString progressPercent = QString("%1%").arg(curProgress_);
     int widthPercent = CommonGraphics::textWidth(progressPercent, *FontManager::instance().getFont(24, false));
 
     int widthTotal = widthUpdating + widthPercent;
     int posX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, widthTotal);
-
-    painter->drawText(posX, TITLE_POS_Y * G_SCALE + CommonGraphics::textHeight(titleFont), tr(curLowerTitleText_.toStdString().c_str()));
+    painter->drawText(posX, TITLE_POS_Y * G_SCALE + CommonGraphics::textHeight(titleFont),lowerTitleText);
 
     painter->setFont(titleFont);
     painter->drawText(posX + widthUpdating, TITLE_POS_Y * G_SCALE + CommonGraphics::textHeight(titleFont), progressPercent);
@@ -143,20 +112,24 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setFont(descFont);
     painter->setPen(Qt::white);
 
-    int width = CommonGraphics::idealWidthOfTextRect(DESCRIPTION_WIDTH_MIN * G_SCALE, WINDOW_WIDTH * G_SCALE, 3, tr(curDescriptionText_.toStdString().c_str()), descFont);
-
+    const QString descText = tr("You're about to update Windscribe. "
+                                "The application will auto-restart after it is complete.");
+    int width = CommonGraphics::idealWidthOfTextRect(DESCRIPTION_WIDTH_MIN * G_SCALE, WINDOW_WIDTH * G_SCALE, 3,
+                                                     descText, descFont);
     painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, width), DESCRIPTION_POS_Y * G_SCALE,
                       width, WINDOW_HEIGHT * G_SCALE,
-                      Qt::AlignHCenter | Qt::TextWordWrap, tr(curDescriptionText_.toStdString().c_str()));
+                      Qt::AlignHCenter | Qt::TextWordWrap, descText);
 
 
     // lower description
     painter->setOpacity(curLowerDescriptionOpacity_ * initialOpacity);
-    int lowerDescWidth = CommonGraphics::idealWidthOfTextRect(LOWER_DESCRIPTION_WIDTH_MIN * G_SCALE, WINDOW_WIDTH * G_SCALE, 2, tr(curLowerDescriptionText_.toStdString().c_str()), descFont);
-
+    const QString lowerDescText = tr("Your update is in progress, hang in there...");
+    int lowerDescWidth = CommonGraphics::idealWidthOfTextRect(LOWER_DESCRIPTION_WIDTH_MIN * G_SCALE,
+                                                              WINDOW_WIDTH * G_SCALE, 2,
+                                                              lowerDescText, descFont);
     painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, lowerDescWidth), LOWER_DESCRIPTION_POS_Y * G_SCALE,
                       lowerDescWidth, WINDOW_HEIGHT * G_SCALE,
-                      Qt::AlignHCenter | Qt::TextWordWrap, tr(curLowerDescriptionText_.toStdString().c_str()));
+                      Qt::AlignHCenter | Qt::TextWordWrap, lowerDescText);
 
 	// spinner
     painter->setOpacity(spinnerOpacity_ * initialOpacity);
@@ -188,13 +161,9 @@ void UpdateWindowItem::setProgress(int progressPercent)
 
 void UpdateWindowItem::startAnimation()
 {
-    if (!upgradeMode_)
-    {
-        spinnerRotation_ = 0;
-        startAnAnimation(spinnerRotationAnimation_, spinnerRotation_, spinnerRotation_ + SPINNER_ROTATION_TARGET, ANIMATION_SPEED_VERY_SLOW);
-
-        QTimer::singleShot(5000, this, SLOT(onUpdatingTimeout()));
-    }
+    spinnerRotation_ = 0;
+    startAnAnimation(spinnerRotationAnimation_, spinnerRotation_, spinnerRotation_ + SPINNER_ROTATION_TARGET, ANIMATION_SPEED_VERY_SLOW);
+    QTimer::singleShot(5000, this, SLOT(onUpdatingTimeout()));
 }
 
 void UpdateWindowItem::stopAnimation()
@@ -209,22 +178,24 @@ void UpdateWindowItem::updateScaling()
 
 void UpdateWindowItem::changeToDownloadingScreen()
 {
-    if (!upgradeMode_)
-    {
-        int animationSpeed = ANIMATION_SPEED_SLOW;
+    int animationSpeed = ANIMATION_SPEED_SLOW;
 
-        // hide first screen
-        startAnAnimation(titleOpacityAnimation_, curTitleOpacity_, OPACITY_HIDDEN, animationSpeed);
-        startAnAnimation(descriptionOpacityAnimation_, curDescriptionOpacity_, OPACITY_HIDDEN, animationSpeed);
+    // hide first screen
+    startAnAnimation(titleOpacityAnimation_, curTitleOpacity_, OPACITY_HIDDEN, animationSpeed);
+    startAnAnimation(descriptionOpacityAnimation_, curDescriptionOpacity_, OPACITY_HIDDEN, animationSpeed);
 
-        acceptButton_->animateHide(animationSpeed);
-        cancelButton_->animateHide(animationSpeed);
+    acceptButton_->animateHide(animationSpeed);
+    cancelButton_->animateHide(animationSpeed);
 
-        // show Updating screen
-        startAnAnimation(lowerTitleOpacityAnimation_, curLowerTitleOpacity_, OPACITY_FULL, animationSpeed);
-        startAnAnimation(lowerDescriptionOpacityAnimation_, curLowerDescriptionOpacity_, OPACITY_FULL, animationSpeed);
-        startAnAnimation(spinnerOpacityAnimation_, spinnerOpacity_, OPACITY_UNHOVER_ICON_STANDALONE, animationSpeed);
-    }
+    // show Updating screen
+    startAnAnimation(lowerTitleOpacityAnimation_, curLowerTitleOpacity_, OPACITY_FULL, animationSpeed);
+    startAnAnimation(lowerDescriptionOpacityAnimation_, curLowerDescriptionOpacity_, OPACITY_FULL, animationSpeed);
+    startAnAnimation(spinnerOpacityAnimation_, spinnerOpacity_, OPACITY_UNHOVER_ICON_STANDALONE, animationSpeed);
+}
+
+void UpdateWindowItem::changeToPromptScreen()
+{
+
 }
 
 void UpdateWindowItem::keyPressEvent(QKeyEvent *event)
@@ -254,23 +225,13 @@ void UpdateWindowItem::initScreen()
 
 void UpdateWindowItem::onAcceptClick()
 {
-    if (!upgradeMode_)
-    {
-        changeToDownloadingScreen();
-    }
-
+    changeToDownloadingScreen();
     emit acceptClick();
 }
 
 void UpdateWindowItem::onCancelClick()
 {
     emit cancelClick();
-}
-
-void UpdateWindowItem::onBackgroundOpacityChange(const QVariant &value)
-{
-    curBackgroundOpacity_ = value.toDouble();
-    update();
 }
 
 void UpdateWindowItem::onTitleOpacityChange(const QVariant &value)
@@ -328,8 +289,8 @@ void UpdateWindowItem::onLanguageChanged()
 {
     cancelButton_->recalcBoundingRect();
 
-    int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH, cancelButton_->getWidth());
-    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y);
+    int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, cancelButton_->getWidth());
+    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y * G_SCALE);
 }
 
 void UpdateWindowItem::updatePositions()

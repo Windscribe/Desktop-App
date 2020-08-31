@@ -10,14 +10,15 @@
 #include "loginwindow/initwindowitem.h"
 #include "emergencyconnectwindow/emergencyconnectwindowitem.h"
 #include "externalconfig/externalconfigwindowitem.h"
-#include "updateapp/updateappitem.h"
 #include "connectwindow/connectwindowitem.h"
 #include "preferenceswindow/preferenceswindowitem.h"
-#include "update/updatewindowitem.h"
+#include "overlaysconnectwindow/updateappitem.h"
+#include "overlaysconnectwindow/updatewindowitem.h"
+#include "overlaysconnectwindow/upgradewindowitem.h"
+#include "overlaysconnectwindow/generalmessagewindowitem.h"
+#include "overlaysconnectwindow/generalmessagetwobuttonwindowitem.h"
 #include "bottominfowidget/bottominfoitem.h"
 #include "newsfeedwindow/newsfeedwindowitem.h"
-#include "generalmessage/generalmessagewindowitem.h"
-#include "generalmessage/generalmessagetwobuttonwindowitem.h"
 #include "utils/utils.h"
 #include "mainwindow.h"
 #include "commongraphics/commongraphics.h"
@@ -68,8 +69,8 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     emergencyConnectWindow_ = new EmergencyConnectWindow::EmergencyConnectWindowItem();
     externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem();
     preferencesWindow_ = new PreferencesWindow::PreferencesWindowItem(NULL, preferences, preferencesHelper, accountInfo);
-    updateWindow_ = new UpdateWindow::UpdateWindowItem(false);
-    upgradeAccountWindow_ = new UpdateWindow::UpdateWindowItem(true);
+    updateWindow_ = new UpdateWindow::UpdateWindowItem();
+    upgradeAccountWindow_ = new UpgradeWindow::UpgradeWindowItem();
     bottomInfoWindow_ = new SharingFeatures::BottomInfoItem();
     generalMessageWindow_ = new GeneralMessage::GeneralMessageWindowItem(false);
     exitWindow_ = new GeneralMessage::GeneralMessageTwoButtonWindowItem(tr(CLOSING_WINDSCRIBE.toStdString().c_str()),

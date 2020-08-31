@@ -13,6 +13,7 @@ public:
     virtual void setVersion(QString version) = 0;
     virtual void setProgress(int progressPercent) = 0;
     virtual void changeToDownloadingScreen() = 0;
+    virtual void changeToPromptScreen() = 0;
 
     virtual void startAnimation() = 0;
     virtual void stopAnimation() = 0;

@@ -205,6 +205,11 @@ SOURCES += \
     localhttpserver/localhttpserver.cpp \
     locationswindow/widgetlocations/configfooteritem.cpp \
     locationswindow/widgetlocations/staticipdeviceitem.cpp \
+    overlaysconnectwindow//upgradewindowitem.cpp \
+    overlaysconnectwindow/updatewindowitem.cpp \
+    overlaysconnectwindow/generalmessagetwobuttonwindowitem.cpp \
+    overlaysconnectwindow/generalmessagewindowitem.cpp \
+    overlaysconnectwindow/updateappitem.cpp \
     preferenceswindow/connectionwindow/msseditboxitem.cpp \
     preferenceswindow/debugwindow/apiresolutionitem.cpp \
     preferenceswindow/generalwindow/versioninfoitem.cpp \
@@ -237,7 +242,6 @@ SOURCES += \
     commonwidgets/customtexteditwidget.cpp \
     commonwidgets/scrollareawidget.cpp \
     commonwidgets/verticalscrollbarwidget.cpp \
-    generalmessage/generalmessagetwobuttonwindowitem.cpp \
     loginwindow/initwindowitem.cpp \
     log/logviewerwindow.cpp \
     preferenceswindow/debugwindow/advancedparameterswindowitem.cpp \
@@ -334,10 +338,8 @@ SOURCES += \
     preferenceswindow/splittunnelingwindow/splittunnelingwindowitem.cpp \
     preferenceswindow/proxysettingswindow/proxysettingswindowitem.cpp \
     commongraphics/clickablegraphicsobject.cpp \
-    update/updatewindowitem.cpp \
     commongraphics/textbutton.cpp \
     commongraphics/bubblebuttonbright.cpp \
-    updateapp/updateappitem.cpp \
     externalconfig/externalconfigwindowitem.cpp \
     bottominfowidget/sharingfeatures/sharingfeatureswindowitem.cpp \
     bottominfowidget/sharingfeatures/sharingfeature.cpp \
@@ -351,7 +353,6 @@ SOURCES += \
     commonwidgets/iconbuttonwidget.cpp \
     preferenceswindow/proxysettingswindow/proxysettingsitem.cpp \
     newsfeedwindow/scrollablemessage.cpp \
-    generalmessage/generalmessagewindowitem.cpp \
     commongraphics/iconbutton.cpp \
     preferenceswindow/textitem.cpp \
     connectwindow/logonotificationsbutton.cpp \
@@ -414,8 +415,16 @@ HEADERS += \
     connectwindow/serverratingindicator.h \
     dialogs/dialoggetusernamepassword.h \
     dialogs/dialogmessagecpuusage.h \
-    generalmessage/generalmessagetwobuttonwindowitem.h \
-    generalmessage/igeneralmessagetwobuttonwindow.h \
+    overlaysconnectwindow/generalmessagetwobuttonwindowitem.h \
+    overlaysconnectwindow/igeneralmessagetwobuttonwindow.h \
+    overlaysconnectwindow/generalmessagewindowitem.h \
+    overlaysconnectwindow/igeneralmessagewindow.h \
+    overlaysconnectwindow/iupgradewindow.h \
+    overlaysconnectwindow/upgradewindowitem.h \
+    overlaysconnectwindow/iupdatewindow.h \
+    overlaysconnectwindow/updatewindowitem.h \
+    overlaysconnectwindow/iupdateappitem.h \
+    overlaysconnectwindow/updateappitem.h \
     graphicresources/fontdescr.h \
     graphicresources/iconmanager.h \
     graphicresources/independentpixmap.h \
@@ -567,12 +576,8 @@ HEADERS += \
     preferenceswindow/splittunnelingwindow/splittunnelingwindowitem.h \
     preferenceswindow/proxysettingswindow/proxysettingswindowitem.h \
     commongraphics/clickablegraphicsobject.h \
-    update/iupdatewindow.h \
-    update/updatewindowitem.h \
     commongraphics/textbutton.h \
     commongraphics/bubblebuttonbright.h \
-    updateapp/iupdateappitem.h \
-    updateapp/updateappitem.h \
     externalconfig/iexternalconfigwindow.h \
     externalconfig/externalconfigwindowitem.h \
     connectwindow/iconnectwindow.h \
@@ -589,8 +594,6 @@ HEADERS += \
     commonwidgets/iconbuttonwidget.h \
     preferenceswindow/proxysettingswindow/proxysettingsitem.h \
     newsfeedwindow/scrollablemessage.h \
-    generalmessage/generalmessagewindowitem.h \
-    generalmessage/igeneralmessagewindow.h \
     commongraphics/iconbutton.h \
     preferenceswindow/textitem.h \
     connectwindow/logonotificationsbutton.h \

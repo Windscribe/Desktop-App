@@ -3,7 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include "update/iupdatewindow.h"
+#include "overlaysconnectwindow/iupdatewindow.h"
 #include "commongraphics/bubblebuttonbright.h"
 #include "commongraphics/textbutton.h"
 
@@ -15,7 +15,7 @@ class UpdateWindowItem : public ScalableGraphicsObject, public IUpdateWindow
     Q_OBJECT
     Q_INTERFACES(IUpdateWindow)
 public:
-    explicit UpdateWindowItem(bool upgrade, ScalableGraphicsObject *parent = nullptr);
+    explicit UpdateWindowItem(ScalableGraphicsObject *parent = nullptr);
 
     QGraphicsObject *getGraphicsObject() override { return this; }
 
@@ -24,12 +24,12 @@ public:
 
     void startAnimation() override;
     void stopAnimation() override;
-
     void updateScaling() override;
 
     void setVersion(QString version) override;
     void setProgress(int progressPercent) override;
     void changeToDownloadingScreen() override;
+    void changeToPromptScreen() override;
 
 signals:
     void acceptClick() override;
@@ -42,7 +42,6 @@ private slots:
     void onAcceptClick();
     void onCancelClick();
 
-    void onBackgroundOpacityChange(const QVariant &value);
     void onTitleOpacityChange(const QVariant &value);
     void onLowerTitleOpacityChange(const QVariant &value);
     void onDescriptionOpacityChange(const QVariant &value);
@@ -52,27 +51,18 @@ private slots:
     void onSpinnerRotationChange(const QVariant &value);
 
     void onUpdatingTimeout();
-
     void onLanguageChanged();
-
     void updatePositions();
 
 private:
     void initScreen();
-    bool upgradeMode_;
-
     CommonGraphics::BubbleButtonBright *acceptButton_;
     CommonGraphics::TextButton *cancelButton_;
 
     QString curVersion_;
     int curProgress_;
-
     QString curTitleText_;
-    QString curLowerTitleText_;
-    QString curDescriptionText_;
-    QString curLowerDescriptionText_;
 
-    double curBackgroundOpacity_;
     double curTitleOpacity_;
     double curLowerTitleOpacity_;
     double curDescriptionOpacity_;
@@ -87,10 +77,6 @@ private:
     QVariantAnimation spinnerOpacityAnimation_;
     int spinnerRotation_;
     QVariantAnimation spinnerRotationAnimation_;
-
-    QColor titleColor_;
-
-    QString background_;
 
     // constants:
     static constexpr int TITLE_POS_Y = 51;

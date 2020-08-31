@@ -14,13 +14,14 @@
 #include "emergencyconnectwindow/iemergencyconnectwindow.h"
 #include "connectwindow/iconnectwindow.h"
 #include "preferenceswindow/ipreferenceswindow.h"
-#include "updateapp/iupdateappitem.h"
+#include "overlaysconnectwindow/iupdateappitem.h"
+#include "overlaysconnectwindow/iupgradewindow.h"
+#include "overlaysconnectwindow/iupdatewindow.h"
+#include "overlaysconnectwindow/igeneralmessagewindow.h"
+#include "overlaysconnectwindow/igeneralmessagetwobuttonwindow.h"
 #include "newsfeedwindow/inewsfeedwindow.h"
-#include "update/iupdatewindow.h"
 #include "externalconfig/iexternalconfigwindow.h"
 #include "bottominfowidget/ibottominfoitem.h"
-#include "generalmessage/igeneralmessagewindow.h"
-#include "generalmessage/igeneralmessagetwobuttonwindow.h"
 #include "tooltips/tooltipcontroller.h"
 
 #include "../backend/preferences/preferenceshelper.h"
@@ -81,7 +82,7 @@ public:
     IInitWindow *getInitWindow() { return initWindow_; }
     IUpdateAppItem *getUpdateAppItem() { return updateAppItem_; }
     IUpdateWindow *getUpdateWindow() { return updateWindow_; }
-    IUpdateWindow *getUpgradeWindow() { return upgradeAccountWindow_; }
+    IUpgradeWindow *getUpgradeWindow() { return upgradeAccountWindow_; }
     IGeneralMessageWindow *getGeneralMessageWindow() { return generalMessageWindow_; }
     IGeneralMessageTwoButtonWindow *getExitWindow() { return exitWindow_; }
 
@@ -145,7 +146,7 @@ private:
     IExternalConfigWindow *externalConfigWindow_;
     IPreferencesWindow *preferencesWindow_;
     IUpdateWindow *updateWindow_;
-    IUpdateWindow *upgradeAccountWindow_;
+    IUpgradeWindow *upgradeAccountWindow_;
     INewsFeedWindow *newsFeedWindow_;
     IBottomInfoItem *bottomInfoWindow_;
     IGeneralMessageWindow *generalMessageWindow_;
