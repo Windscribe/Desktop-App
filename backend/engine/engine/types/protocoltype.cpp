@@ -35,6 +35,10 @@ ProtocolType::ProtocolType(const ProtoTypes::Protocol &p)
     {
         protocol_ = PROTOCOL_WSTUNNEL;
     }
+    else if (p == ProtoTypes::PROTOCOL_WIREGUARD)
+    {
+        protocol_ = PROTOCOL_WIREGUARD;
+    }
     else
     {
         Q_ASSERT(false);
@@ -58,6 +62,10 @@ ProtocolType::ProtocolType(const QString &strProtocol)
     else if (strProtocol.compare("WStunnel", Qt::CaseInsensitive) == 0)
     {
         protocol_ = PROTOCOL_WSTUNNEL;
+    }
+    else if (strProtocol.compare("WireGuard", Qt::CaseInsensitive) == 0)
+    {
+        protocol_ = PROTOCOL_WIREGUARD;
     }
     else if (strProtocol.compare("IKEv2", Qt::CaseInsensitive) == 0)
     {
@@ -91,6 +99,12 @@ bool ProtocolType::isIkev2Protocol() const
 {
     Q_ASSERT(protocol_ != PROTOCOL_UNINITIALIZED);
     return protocol_ == PROTOCOL_IKEV2;
+}
+
+bool ProtocolType::isWireGuardProtocol() const
+{
+    Q_ASSERT(protocol_ != PROTOCOL_UNINITIALIZED);
+    return protocol_ == PROTOCOL_WIREGUARD;
 }
 
 bool ProtocolType::isStunnelOrWStunnelProtocol() const
@@ -146,6 +160,10 @@ QString ProtocolType::toLongString() const
     {
         return "WStunnel";
     }
+    else if (protocol_ == PROTOCOL_WIREGUARD)
+    {
+        return "WireGuard";
+    }
     else
     {
         return "uninitialized";
@@ -174,6 +192,10 @@ ProtoTypes::Protocol ProtocolType::convertToProtobuf() const
     else if (protocol_ == PROTOCOL_WSTUNNEL)
     {
         return ProtoTypes::PROTOCOL_WSTUNNEL;
+    }
+    else if (protocol_ == PROTOCOL_WIREGUARD)
+    {
+        return ProtoTypes::PROTOCOL_WIREGUARD;
     }
     else
     {

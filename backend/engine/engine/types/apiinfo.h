@@ -219,7 +219,10 @@ private:
 
     // in revision 11
     // added premiumExpireDateStr in SessionStats
-    static constexpr int REVISION_VERSION = 11;
+
+    // in revision 12
+    // added WireGuard public key in ServerLocation
+    static constexpr int REVISION_VERSION = 12;
 
     QSharedPointer<SessionStatus> sessionStatus_;
 

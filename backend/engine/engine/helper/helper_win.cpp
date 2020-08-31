@@ -9,6 +9,8 @@
 #include "windscribeinstallhelper_win.h"
 #include "engine/openvpnversioncontroller.h"
 #include "simple_xor_crypt.h"
+#include "engine/types/wireguardconfig.h"
+#include "engine/types/wireguardtypes.h"
 
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
@@ -684,6 +686,137 @@ bool Helper_win::setKextPath(const QString &/*kextPath*/)
     return true;
 }
 
+bool Helper_win::startWireGuard(const QString &exeName, const QString &deviceName)
+{
+    QMutexLocker locker(&mutex_);
+
+    // check executable signature
+    QString wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName + ".exe";
+    if (!ExecutableSignature::verify(wireGuardExePath))
+    {
+        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect";
+        return false;
+    }
+
+    CMD_START_WIREGUARD cmdStartWireGuard;
+    cmdStartWireGuard.szExecutable = exeName.toStdWString();
+    cmdStartWireGuard.szDeviceName = deviceName.toStdWString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdStartWireGuard;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_START_WIREGUARD, stream.str());
+    mpr.clear();
+    return mpr.success;
+}
+
+bool Helper_win::stopWireGuard()
+{
+    QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_STOP_WIREGUARD, std::string());
+    if (mpr.success) {
+        // Daemon was running, check if it's been terminated.
+        if (mpr.blockingCmdFinished && mpr.sizeOfAdditionalData) {
+            qCDebug(LOG_WIREGUARD) << "WireGuard daemon output:";
+            qCDebug(LOG_WIREGUARD) << QString::fromLocal8Bit(
+                static_cast<const char *>(mpr.szAdditionalData), mpr.sizeOfAdditionalData);
+        }
+        mpr.clear();
+        return mpr.blockingCmdFinished;
+    }
+    // Daemon was not running.
+    return true;
+}
+
+bool Helper_win::configureWireGuard(const WireGuardConfig &config)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_CONFIGURE_WIREGUARD cmdConfigureWireGuard;
+    cmdConfigureWireGuard.clientPrivateKey =
+        QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex();
+    cmdConfigureWireGuard.clientIpAddress = config.clientIpAddress().toLatin1();
+    cmdConfigureWireGuard.clientDnsAddressList = config.clientDnsAddress().toLatin1();
+    cmdConfigureWireGuard.peerEndpoint = config.peerEndpoint().toLatin1();
+    cmdConfigureWireGuard.peerPublicKey =
+        QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex();
+    cmdConfigureWireGuard.peerPresharedKey =
+        QByteArray::fromBase64(config.peerPresharedKey().toLatin1()).toHex();
+    cmdConfigureWireGuard.allowedIps = config.peerAllowedIps().toLatin1();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdConfigureWireGuard;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONFIGURE_WIREGUARD, stream.str());
+    if (!mpr.success) {
+        qCDebug(LOG_WIREGUARD) << "WireGuard configuration failed, error code =" << mpr.exitCode;
+    }
+    mpr.clear();
+    return mpr.success;
+}
+
+bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
+{
+    QMutexLocker locker(&mutex_);
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_WIREGUARD_STATUS, std::string());
+    if (mpr.success && status) {
+        switch (mpr.exitCode) {
+        default:
+        case WIREGUARD_STATE_NONE:
+            status->state = WireGuardState::NONE;
+            break;
+        case WIREGUARD_STATE_ERROR:
+            status->state = WireGuardState::FAILURE;
+            break;
+        case WIREGUARD_STATE_STARTING:
+            status->state = WireGuardState::STARTING;
+            break;
+        case WIREGUARD_STATE_LISTENING:
+            status->state = WireGuardState::LISTENING;
+            break;
+        case WIREGUARD_STATE_CONNECTING:
+            status->state = WireGuardState::CONNECTING;
+            break;
+        case WIREGUARD_STATE_ACTIVE:
+            status->state = WireGuardState::ACTIVE;
+            break;
+        }
+        status->errorCode = 0;
+        status->bytesReceived = status->bytesTransmitted = 0;
+        if (mpr.sizeOfAdditionalData) {
+            const auto response
+                = QString::fromLocal8Bit(static_cast<const char *>(mpr.szAdditionalData),
+                                         mpr.sizeOfAdditionalData);
+            QStringList responseParts = response.split(";");
+            bool is_valid_response = false;
+            switch (status->state) {
+            case WireGuardState::FAILURE:
+                if (responseParts.size() == 1) {
+                    status->errorCode = responseParts[0].toInt();
+                    is_valid_response = true;
+                }
+                break;
+            case WireGuardState::ACTIVE:
+                if (responseParts.size() == 2) {
+                    status->bytesReceived = responseParts[0].toULongLong();
+                    status->bytesTransmitted = responseParts[1].toULongLong();
+                    is_valid_response = true;
+                }
+                break;
+            default:
+                break;
+            }
+            if (!is_valid_response)
+                qCDebug(LOG_WIREGUARD) << "Bogus WireGuard status response:" << response;
+            mpr.clear();
+        }
+    }
+    return mpr.success;
+}
+
 void Helper_win::run()
 {
     schSCManager_ = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
@@ -767,21 +900,19 @@ void Helper_win::run()
 
 MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &data)
 {
-    MessagePacketResult mpr;
-
     HANDLE hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
     if (hPipe == INVALID_HANDLE_VALUE)
     {
         if (WaitNamedPipe(SERVICE_PIPE_NAME, MAX_WAIT_TIME_FOR_PIPE) == 0)
         {
-            return mpr;
+            return MessagePacketResult();
         }
         else
         {
             hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
             if (hPipe == INVALID_HANDLE_VALUE)
             {
-                return mpr;
+                return MessagePacketResult();
             }
         }
     }
@@ -790,7 +921,7 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     if (!writeAllToPipe(hPipe, (char *)&cmdId, sizeof(cmdId)))
     {
         CloseHandle(hPipe);
-        return mpr;
+        return MessagePacketResult();
     }
 
     // second 4 bytes - pid
@@ -798,7 +929,7 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     if (!writeAllToPipe(hPipe, (char *)&pid, sizeof(pid)))
     {
         CloseHandle(hPipe);
-        return mpr;
+        return MessagePacketResult();
     }
 
     // third 4 bytes - size of buffer
@@ -806,7 +937,7 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     if (!writeAllToPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
     {
         CloseHandle(hPipe);
-        return mpr;
+        return MessagePacketResult();
     }
 
     // body of message
@@ -815,30 +946,33 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
         if (!writeAllToPipe(hPipe, data.c_str(), sizeOfBuf))
         {
             CloseHandle(hPipe);
-            return mpr;
+            return MessagePacketResult();
         }
     }
 
-    if (!readAllFromPipe(hPipe, (char *)&mpr, sizeof(mpr) - sizeof(mpr.sizeOfAdditionalData)))
+    MessagePacketResultSerialization mpr_serialization;
+    if (!readAllFromPipe(hPipe, mpr_serialization.data(), sizeof(mpr_serialization)))
     {
         CloseHandle(hPipe);
-        mpr.success = false;
-        return mpr;
+        return MessagePacketResult();
     }
 
-    if (mpr.sizeOfAdditionalData > 0)
+    char *additionalData = nullptr;
+    if (mpr_serialization.sizeOfAdditionalData > 0)
     {
-        mpr.szAdditionalData = new char[mpr.sizeOfAdditionalData];
-        if (!readAllFromPipe(hPipe, (char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData))
+        additionalData = new char[mpr_serialization.sizeOfAdditionalData];
+        if (!readAllFromPipe(hPipe, additionalData, mpr_serialization.sizeOfAdditionalData))
         {
             CloseHandle(hPipe);
-            mpr.success = false;
-            return mpr;
+            delete[] additionalData;
+            return MessagePacketResult();
         }
     }
 
     CloseHandle(hPipe);
 
+    auto mpr = mpr_serialization.result();
+    mpr.szAdditionalData = additionalData;
     return mpr;
 }
 
@@ -972,7 +1106,6 @@ bool Helper_win::readAllFromPipe(HANDLE hPipe, char *buf, DWORD len)
     std::string s(buf, len);
     std::string d = SimpleXorCrypt::decrypt(s, ENCRYPT_KEY);
     memcpy(buf, d.data(), len);
-
     return true;
 }
 

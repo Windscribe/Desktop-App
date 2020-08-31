@@ -10,7 +10,8 @@ class ServerNode
 public:
     ServerNode();
 
-    bool initFromJson(QJsonObject &obj, const QString &cityName = QString());
+    bool initFromJson(QJsonObject &obj, const QString &cityName = QString(),
+                      const QString &wgPubKey = QString());
 
     void initFromCustomOvpnConfig(const QString &name, const QString &hostname, 
                                   const QString &pathCustomOvpnConfig);
@@ -31,6 +32,8 @@ public:
     QString getCustomOvpnConfigPath() const;
     void setIpForCustomOvpnConfig(const QString &ip);
 
+    QString getWgPubKey() const;
+
     QString getStaticIp() const;
     QString getStaticIpType() const;
     QString getCityNameForShow() const;
@@ -48,6 +51,7 @@ private:
     QString ip_[3];
     QString hostname_;
     QString cityname_;
+    QString wgpubkey_;
     int weight_;
     int legacy_;   //1 or 0
     int forceDisconnect_;

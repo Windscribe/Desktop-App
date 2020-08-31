@@ -63,9 +63,9 @@ private:
 
         bool existThisLocation;  // used in function updateNodes for remove unused locations
 
-        bool isAllNodesHavePingWithSameIteration();
-        bool findPingInfoForNode(const ServerNode &sn, PingInfo &outPi);
-        int findNodeInd(const ServerNode &sn);
+        bool isAllNodesHavePingWithSameIteration() const;
+        bool findPingInfoForNode(const ServerNode &sn, PingInfo &outPi) const;
+        int findNodeInd(const ServerNode &sn) const;
     };
 
     bool isInitialized_;

@@ -155,8 +155,8 @@ Global
 		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Debug|x64.Build.0 = Debug|x64
 		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Debug|x86.ActiveCfg = Debug|Win32
 		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Debug|x86.Build.0 = Debug|Win32
-		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Release (Embedded Engine)|x64.ActiveCfg = Release|x64
-		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Release (Embedded Engine)|x64.Build.0 = Release|x64
+		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Release (Embedded Engine)|x64.ActiveCfg = Release_x64|x64
+		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Release (Embedded Engine)|x64.Build.0 = Release_x64|x64
 		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Release (Embedded Engine)|x86.ActiveCfg = Release|Win32
 		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Release (Embedded Engine)|x86.Build.0 = Release|Win32
 		{9E9DFDD2-9071-404A-8455-83AB5BC8BAAA}.Release_x64|x64.ActiveCfg = Release_x64|x64

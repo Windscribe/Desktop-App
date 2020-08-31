@@ -643,6 +643,8 @@ void Engine::init()
     connect(serverAPI_, SIGNAL(debugLogAnswer(SERVER_API_RET_CODE,uint)), SLOT(onDebugLogAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(confirmEmailAnswer(SERVER_API_RET_CODE,uint)), SLOT(onConfirmEmailAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,QSharedPointer<StaticIpsLocation>, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,QSharedPointer<StaticIpsLocation>, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(getWireGuardConfigAnswer(SERVER_API_RET_CODE, QSharedPointer<WireGuardConfig>, uint)),
+        SLOT(onGetWireGuardConfigAnswer(SERVER_API_RET_CODE, QSharedPointer<WireGuardConfig>, uint)), Qt::QueuedConnection);
 
     nodesSpeedStore_ = new NodesSpeedStore(this);
 
@@ -668,6 +670,7 @@ void Engine::init()
     connect(connectionManager_, SIGNAL(connectingToHostname(QString)), SLOT(onConnectionManagerConnectingToHostname(QString)));
     connect(connectionManager_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onConnectionManagerProtocolPortChanged(ProtoTypes::Protocol, uint)));
     connect(connectionManager_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onConnectionManagerInternetConnectivityChanged(bool)));
+    connect(connectionManager_, SIGNAL(getWireGuardConfig()), SLOT(onConnectionManagerGetWireGuardConfig()));
     connect(connectionManager_, SIGNAL(requestUsername(QString)), SLOT(onConnectionManagerRequestUsername(QString)));
     connect(connectionManager_, SIGNAL(requestPassword(QString)), SLOT(onConnectionManagerRequestPassword(QString)));
 
@@ -1270,6 +1273,10 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
                 {
                     qCDebug(LOG_BASIC) << "Protocol changed to ikev -> update server locations";
                 }
+                else if (engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
+                {
+                    qCDebug(LOG_BASIC) << "Protocol changed to wireguard -> update server locations";
+                }
                 else
                 {
                     Q_ASSERT(false);
@@ -1612,6 +1619,14 @@ void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<Stati
     }
 }
 
+void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole)
+{
+    if (userRole == serverApiUserRole_ && retCode == SERVER_RETURN_SUCCESS)
+        connectionManager_->setWireGuardConfig(config);
+    else
+        connectionManager_->setWireGuardConfig(QSharedPointer<WireGuardConfig>());
+}
+
 void Engine::onStartCheckUpdate()
 {
     serverAPI_->checkUpdate(engineSettings_.isBetaChannel(), serverApiUserRole_, true);
@@ -1693,7 +1708,8 @@ void Engine::onConnectionManagerConnected()
 
     helper_->setIPv6EnabledInFirewall(false);
 
-    if (engineSettings_.connectionSettings().protocol().isIkev2Protocol())
+    if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
+        engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
     {
         int mtu = mss_ + 40;
         if (mtu > 100)
@@ -1938,6 +1954,12 @@ void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ip
 {
     emit testTunnelResult(success); // stops protocol/port flashing
     emit myIpUpdated(ipAddress, success, false); // sends IP address to UI // test should only occur in connected state
+}
+
+void Engine::onConnectionManagerGetWireGuardConfig()
+{
+    QMutexLocker locker(&mutexApiInfo_);
+    serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
 void Engine::onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig)

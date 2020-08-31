@@ -6,6 +6,7 @@
 #include "engine/types/types.h"
 
 class IHelper;
+class WireGuardConfig;
 
 class IConnection : public QThread
 {
@@ -17,7 +18,8 @@ public:
 
     // config path for openvpn, url for ikev2
     virtual void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
-                              const QString &username, const QString &password, const ProxySettings &proxySettings, bool isEnableIkev2Compression,
+                              const QString &username, const QString &password, const ProxySettings &proxySettings,
+                              const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression,
                               bool isAutomaticConnectionMode) = 0;
     virtual void startDisconnect() = 0;
     virtual bool isDisconnected() = 0;

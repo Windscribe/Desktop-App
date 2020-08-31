@@ -378,6 +378,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\adaptermetricscontroller_win.cpp" />
+    <ClCompile Include="engine\connectionmanager\wireguardconnection.cpp" />
     <ClCompile Include="engine\firewall\firewallcontroller_mac.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -413,6 +414,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\ipc\generated_proto\clientcommands.pb.cc" />
     <ClCompile Include="clientconnectiondescr.cpp" />
     <ClCompile Include="..\..\common\ipc\commandfactory.cpp" />
+    <ClCompile Include="engine\types\wireguardconfig.cpp" />
     <ClCompile Include="engine\vpnshare\connecteduserscounter.cpp" />
     <ClCompile Include="..\..\common\ipc\connection.cpp" />
     <ClCompile Include="engine\connectionmanager\connectionmanager.cpp" />
@@ -586,12 +588,15 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">true</ExcludedFromBuild>
     </QtMoc>
+    <QtMoc Include="engine\connectionmanager\wireguardconnection.h" />
     <ClInclude Include="engine\types\apiinfo.h" />
     <ClInclude Include="..\..\common\version\appversion.h" />
     <ClInclude Include="engine\dnsresolver\areslibraryinit.h" />
     <ClInclude Include="engine\proxy\autodetectproxy_win.h" />
     <ClInclude Include="engine\connectionmanager\automanualconnectioncontroller.h" />
     <ClInclude Include="engine\connectionmanager\availableport.h" />
+    <ClInclude Include="engine\types\wireguardconfig.h" />
+    <ClInclude Include="engine\types\wireguardtypes.h" />
     <ClInclude Include="utils\bfe_service_win.h" />
     <ClInclude Include="utils\boost_includes.h" />
     <ClInclude Include="engine\serverapi\certmanager.h" />

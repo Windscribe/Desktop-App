@@ -1,6 +1,9 @@
 #ifndef EXECUTECMD_H
 #define EXECUTECMD_H
 
+#include "ipc/servicecommunication.h"
+#include "pipe_for_process.h"
+
 class ExecuteCmd
 {
 public:
@@ -15,6 +18,7 @@ public:
     MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
     MessagePacketResult getActiveUnblockingCmdCount();
 	MessagePacketResult clearUnblockingCmd(unsigned long id);
+    MessagePacketResult terminateAndClearUnblockingCmd(unsigned long id);
 
 private:
     ExecuteCmd();
@@ -48,6 +52,7 @@ private:
     static VOID CALLBACK waitOrTimerCallback(PVOID lpParameter, BOOLEAN timerOrWaitFired);
     static ExecuteCmd *this_;
 
+    void terminateCmd(unsigned long id, unsigned long waitTimeout);
 	void clearCmd(unsigned long id);
 	void clearAllCmds();
 };

@@ -23,7 +23,6 @@ public:
     bool executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
                         const QString &socksProxy, unsigned int socksPort,
                         unsigned long &outCmdId) override;
-
     bool executeTaskKill(const QString &executableName) override;
     bool executeResetTap(const QString &tapName) override;
     QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber) override;
@@ -88,6 +87,11 @@ public:
     bool removeWindscribeNetworkProfiles() override;
     void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo &stni) override;
     bool setKextPath(const QString &kextPath) override;
+
+    bool startWireGuard(const QString &exeName, const QString &deviceName) override;
+    bool stopWireGuard() override;
+    bool configureWireGuard(const WireGuardConfig &config) override;
+    bool getWireGuardStatus(WireGuardStatus *status) override;
 
 protected:
     void run() override;

@@ -42,6 +42,9 @@ bool ServerLocation::initFromJson(QJsonObject &obj, bool isPro, QStringList &for
         {
             proDataCenters_ << cityName;
         }
+
+        const QString wgPubKey = objServerGroup["wg_pubkey"].toString();
+
         if (objServerGroup.contains("nodes"))
         {
             const auto nodesArray = objServerGroup["nodes"].toArray();
@@ -49,7 +52,7 @@ bool ServerLocation::initFromJson(QJsonObject &obj, bool isPro, QStringList &for
             {
                 QJsonObject objServerNode = serverNodeValue.toObject();
                 ServerNode sn;
-                if (!sn.initFromJson(objServerNode, cityName))
+                if (!sn.initFromJson(objServerNode, cityName, wgPubKey))
                 {
                     isValid_ = false;
                     return false;

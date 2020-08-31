@@ -5,6 +5,7 @@
 #include <QCoreApplication>
 #include <QDateTime>
 #include "openvpnconnection.h"
+#include "wireguardconnection.h"
 
 #include "utils/utils.h"
 #include "engine/types/types.h"
@@ -444,7 +445,7 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
     testVPNTunnel_->stopTests();
 
     if ((err == AUTH_ERROR && bEmitAuthError_) || err == CANT_RUN_OPENVPN || err == NO_OPENVPN_SOCKET ||
-        err == NO_INSTALLED_TUN_TAP || err == ALL_TAP_IN_USE)
+        err == NO_INSTALLED_TUN_TAP || err == ALL_TAP_IN_USE || err == WIREGUARD_CONNECTION_ERROR)
     {
         // emit error in disconnected event
         latestConnectionError_ = err;
@@ -800,6 +801,16 @@ void ConnectionManager::doConnect()
 
             }
         }
+        else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
+        {
+            // If WireGuard config data don't exist, fetch it now.
+            if (!wireGuardConfig_) {
+                qCDebug(LOG_CONNECTION) << "Missing WireGuard user config, requesting a new one";
+                emit getWireGuardConfig();
+                return;
+            }
+            qCDebug(LOG_CONNECTION) << "Using existing WireGuard user config";
+        }
     }
     else if (currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
     {
@@ -833,7 +844,7 @@ void ConnectionManager::doConnectPart2()
     {
         recreateConnector(ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP));
         connector_->startConnect(makeOVPNFileFromCustom_->path(), "", "", usernameForCustomOvpn_, passwordForCustomOvpn_,
-                                 lastProxySettings_, false, false);
+                                 lastProxySettings_, nullptr, false, false);
     }
     else
     {
@@ -852,7 +863,7 @@ void ConnectionManager::doConnectPart2()
             }
 
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP));
-            connector_->startConnect(makeOVPNFile_->path(), "", "", username, password, lastProxySettings_, false, autoManualConnectionController_.isAutomaticMode());
+            connector_->startConnect(makeOVPNFile_->path(), "", "", username, password, lastProxySettings_, nullptr, false, autoManualConnectionController_.isAutomaticMode());
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
@@ -869,7 +880,19 @@ void ConnectionManager::doConnectPart2()
             }
 
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_IKEV2));
-            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.dnsHostName, username, password, lastProxySettings_, ExtraConfig::instance().isUseIkev2Compression(), autoManualConnectionController_.isAutomaticMode());
+            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.dnsHostName, username, password, lastProxySettings_, nullptr, ExtraConfig::instance().isUseIkev2Compression(), autoManualConnectionController_.isAutomaticMode());
+        }
+        else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
+        {
+            Q_ASSERT(wireGuardConfig_ != nullptr);
+            QString endpointAndPort = QString("%1:%2")
+                .arg(currentConnectionDescr_.ip)
+                .arg(currentConnectionDescr_.port);
+            wireGuardConfig_->updatePeerInfo(currentConnectionDescr_.wgPublicKey, endpointAndPort);
+            recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
+            connector_->startConnect(QString(), currentConnectionDescr_.ip,
+                currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
+                wireGuardConfig_.get(), false, autoManualConnectionController_.isAutomaticMode());
         }
         else
         {
@@ -938,6 +961,10 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
 #elif defined Q_OS_MAC
             connector_ = new IKEv2Connection_mac(this, helper_);
 #endif
+        }
+        else if (protocol.isWireGuardProtocol())
+        {
+            connector_ = new WireGuardConnection(this, helper_);
         }
         else
         {
@@ -1015,6 +1042,22 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
             state_ = STATE_DISCONNECTED;
             emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
         }
+    }
+}
+
+void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> config)
+{
+    if (config) {
+        // Config fetched successfully.
+        wireGuardConfig_ = config;
+        doConnectPart2();
+    } else {
+        // Failed to fetch a config, stop connection.
+        state_ = STATE_AUTO_DISCONNECT;
+        if (connector_)
+            connector_->startDisconnect();
+        else
+            onConnectionDisconnected();
     }
 }
 

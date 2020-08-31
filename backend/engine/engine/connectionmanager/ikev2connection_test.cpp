@@ -35,7 +35,7 @@ IKEv2Connection_test::~IKEv2Connection_test()
 {
 }
 
-void IKEv2Connection_test::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const ProxySettings &proxySettings, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+void IKEv2Connection_test::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
 {
     Q_UNUSED(configPathOrUrl);
     Q_UNUSED(ip);
@@ -43,6 +43,7 @@ void IKEv2Connection_test::startConnect(const QString &configPathOrUrl, const QS
     Q_UNUSED(username);
     Q_UNUSED(password);
     Q_UNUSED(proxySettings);
+    Q_UNUSED(wireGuardConfig);
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isAutomaticConnectionMode);
 

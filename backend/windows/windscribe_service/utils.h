@@ -25,4 +25,5 @@ namespace Utils
 	bool verifyWindscribeProcessPath(DWORD pid);
 
 	void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName);
+    GUID guidFromString(const std::wstring &str);
 };

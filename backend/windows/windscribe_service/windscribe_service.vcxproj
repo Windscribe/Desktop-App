@@ -139,6 +139,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>WindscribeService</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_x64|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -150,6 +151,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>WindscribeService</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_x64|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -175,9 +177,12 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>rpcrt4.lib;version.lib;Fwpuclnt.lib;Iphlpapi.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
       <AdditionalLibraryDirectories>C:\libs\cares\static_x32\lib;C:/libs/boost/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_x64|Win32'">
     <ClCompile>
@@ -194,6 +199,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>rpcrt4.lib;version.lib;Fwpuclnt.lib;Iphlpapi.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -203,13 +212,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/libs/boost/include/boost-1_67;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libs\cares\static_x64\include;C:/libs/boost/include/boost-1_67;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
+      <AdditionalDependencies>rpcrt4.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/libs/boost/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -219,16 +227,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CARES_STATICLIB;WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/libs/boost/include/boost-1_67;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libs\cares\static_x64\include;C:/libs/boost/include/boost-1_67;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>rpcrt4.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <MinimumRequiredVersion>
-      </MinimumRequiredVersion>
+      <AdditionalDependencies>rpcrt4.lib;version.lib;Fwpuclnt.lib;Iphlpapi.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\libs\cares\static_x64\lib;C:/libs/boost/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -251,9 +258,12 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>rpcrt4.lib;version.lib;Fwpuclnt.lib;Iphlpapi.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
       <AdditionalLibraryDirectories>C:\libs\cares\static_x32\lib;C:/libs/boost/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -272,9 +282,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
-      <AdditionalLibraryDirectories>C:\libs\cares\static_x32\lib;C:/libs/boost/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>rpcrt4.lib;version.lib;Fwpuclnt.lib;Iphlpapi.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\libs\cares\static_x64\lib;C:/libs/boost/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_x64|Win32'">
@@ -296,6 +305,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>rpcrt4.lib;version.lib;Fwpuclnt.lib;Iphlpapi.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_x64|x64'">
     <ClCompile>
@@ -316,14 +329,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>rpcrt4.lib;version.lib;Fwpuclnt.lib;Iphlpapi.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <MinimumRequiredVersion>
-      </MinimumRequiredVersion>
       <AdditionalLibraryDirectories>C:\libs\cares\static_x64\lib;C:/libs/boost/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adapters_info.h" />
     <ClInclude Include="all_headers.h" />
@@ -361,6 +369,11 @@
     <ClInclude Include="pipe_for_process.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="sys_ipv6_controller.h" />
+    <ClInclude Include="wireguard\defaultroutemonitor.h" />
+    <ClInclude Include="wireguard\privilegehelper.h" />
+    <ClInclude Include="wireguard\wireguardadapter.h" />
+    <ClInclude Include="wireguard\wireguardcommunicator.h" />
+    <ClInclude Include="wireguard\wireguardcontroller.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="adapters_info.cpp" />
@@ -396,6 +409,11 @@
     <ClCompile Include="sys_ipv6_controller.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="windscribe_service.cpp" />
+    <ClCompile Include="wireguard\defaultroutemonitor.cpp" />
+    <ClCompile Include="wireguard\privilegehelper.cpp" />
+    <ClCompile Include="wireguard\wireguardadapter.cpp" />
+    <ClCompile Include="wireguard\wireguardcommunicator.cpp" />
+    <ClCompile Include="wireguard\wireguardcontroller.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="windscribe_service.rc" />

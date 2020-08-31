@@ -22,9 +22,12 @@
     <Filter Include="Header Files\ipc">
       <UniqueIdentifier>{7bbc84c5-f90a-4d65-85b4-70286d9cc0cf}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
+    <Filter Include="Source Files\wireguard">
+      <UniqueIdentifier>{f55807f5-a73c-4190-a670-650b899c8727}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\wireguard">
+      <UniqueIdentifier>{174f724d-1905-4caf-ab85-c25ba301d545}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="executecmd.h">
@@ -135,6 +138,21 @@
     <ClInclude Include="remove_windscribe_network_profiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wireguard\privilegehelper.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="wireguard\wireguardcommunicator.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="wireguard\wireguardcontroller.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="wireguard\wireguardadapter.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="wireguard\defaultroutemonitor.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windscribe_service.cpp">
@@ -235,6 +253,21 @@
     </ClCompile>
     <ClCompile Include="remove_windscribe_network_profiles.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\wireguardcommunicator.cpp">
+      <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\privilegehelper.cpp">
+      <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\wireguardcontroller.cpp">
+      <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\wireguardadapter.cpp">
+      <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\defaultroutemonitor.cpp">
+      <Filter>Source Files\wireguard</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

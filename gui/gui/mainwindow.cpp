@@ -2488,6 +2488,8 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
     } else {
         deactivationTimer_.stop();
     }
+#else
+    Q_UNUSED(focusWindow);
 #endif
 }
 
@@ -2683,6 +2685,10 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_SAVE_PREFERENCES_MAC)
     {
         msg = tr("Failed to create IKEv2 Profile. Please connect again and select \"Allow\".");
+    }
+    else if (connectState.connect_error() == ProtoTypes::WIREGUARD_CONNECTION_ERROR)
+    {
+        msg = tr("Failed to setup WireGuard connection");
     }
 #ifdef Q_OS_WIN
     else if (connectState.connect_error() == ProtoTypes::NO_INSTALLED_TUN_TAP)

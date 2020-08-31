@@ -325,7 +325,7 @@ void EmergencyController::doConnect()
     }
 
     qCDebug(LOG_EMERGENCY_CONNECT) << "Connecting to IP:" << attempt.ip << " protocol:" << attempt.protocol << " port:" << attempt.port;
-    connector_->startConnect(makeOVPNFile_->path(), "", "", HardcodedSettings::instance().emergencyUsername(), HardcodedSettings::instance().emergencyPassword(), proxySettings_, false, false);
+    connector_->startConnect(makeOVPNFile_->path(), "", "", HardcodedSettings::instance().emergencyUsername(), HardcodedSettings::instance().emergencyPassword(), proxySettings_, nullptr, false, false);
     lastIp_ = attempt.ip;
 }
 

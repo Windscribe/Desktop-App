@@ -53,8 +53,10 @@ enum ConnectError
   IKEV_FAILED_START_MAC = 29;
   IKEV_FAILED_LOAD_PREFERENCES_MAC = 30;
   IKEV_FAILED_SAVE_PREFERENCES_MAC = 31;
+  // wireguard
+  WIREGUARD_CONNECTION_ERROR = 32;
   // emergency
-  EMERGENCY_FAILED_CONNECT = 32;
+  EMERGENCY_FAILED_CONNECT = 33;
 }
 
 enum DisconnectReason
@@ -220,6 +222,7 @@ enum Protocol
 	PROTOCOL_TCP = 2;
 	PROTOCOL_STUNNEL = 3;
 	PROTOCOL_WSTUNNEL = 4;
+	PROTOCOL_WIREGUARD = 5;
 }
 
 message ConnectionSettings

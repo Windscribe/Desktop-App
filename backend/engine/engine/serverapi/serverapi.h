@@ -6,6 +6,7 @@
 #include <QTimer>
 #include "engine/types/apiinfo.h"
 #include "engine/types/portmap.h"
+#include "engine/types/wireguardconfig.h"
 #include "engine/proxy/proxysettings.h"
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
@@ -62,6 +63,7 @@ public:
     void cancelPingTest(quint64 cmdId);
 
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
+    void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
 
     bool isOnline();
 
@@ -84,6 +86,7 @@ signals:
     void staticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation, uint userRole);
     void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
     void notificationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiNotifications> notifications, uint userRole);
+    void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
 
     // need for add to firewall rules
     void hostIpsChanged(const QStringList &hostIps);
@@ -123,6 +126,7 @@ private:
         REPLY_NOTIFICATIONS,
         REPLY_STATIC_IPS,
         REPLY_CONFIRM_EMAIL,
+        REPLY_WIREGUARD_CONFIG,
         NUM_REPLY_TYPES
     };
 
@@ -156,6 +160,7 @@ private:
     void handleNotificationsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handlePingTestDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
+    void handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
 
     void handleAccessIpsCurl(BaseRequest *rd, bool success);
     void handleSessionReplyCurl(BaseRequest *rd, bool success);
@@ -173,6 +178,7 @@ private:
     void handlePingTestCurl(BaseRequest *rd, bool success);
     void handleNotificationsCurl(BaseRequest *rd, bool success);
     void handleStaticIpsCurl(BaseRequest *rd, bool success);
+    void handleWireGuardConfigCurl(BaseRequest *rd, bool success);
 
     INetworkStateManager *networkStateManager_;
     CurlNetworkManager curlNetworkManager_;

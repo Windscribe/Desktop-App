@@ -8,7 +8,7 @@ class ProtocolType
 {
 public:
     enum PROTOCOL_TYPE { PROTOCOL_UNINITIALIZED, PROTOCOL_IKEV2, PROTOCOL_OPENVPN_UDP, PROTOCOL_OPENVPN_TCP,
-                         PROTOCOL_STUNNEL, PROTOCOL_WSTUNNEL };
+                         PROTOCOL_STUNNEL, PROTOCOL_WSTUNNEL, PROTOCOL_WIREGUARD };
 
     ProtocolType();
     ProtocolType(PROTOCOL_TYPE protocol);  // cppcheck-suppress noExplicitConstructor
@@ -18,6 +18,7 @@ public:
     bool isInitialized() const;
     bool isOpenVpnProtocol() const;
     bool isIkev2Protocol() const;
+    bool isWireGuardProtocol() const;
     bool isStunnelOrWStunnelProtocol() const;
     bool isEqual(const ProtocolType &other) const;
     // return ikev2/openvpn string

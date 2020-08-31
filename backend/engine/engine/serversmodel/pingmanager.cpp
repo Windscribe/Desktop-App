@@ -593,7 +593,7 @@ void PingManager::emitConnectionSpeedChangedWrapper(LocationID locationId, PingT
     emit connectionSpeedChanged(locationId, timeMs);
 }
 
-bool PingManager::LocationSpeedInfo::isAllNodesHavePingWithSameIteration()
+bool PingManager::LocationSpeedInfo::isAllNodesHavePingWithSameIteration() const
 {
     if (pingInfo.count() > 0)
     {
@@ -613,7 +613,7 @@ bool PingManager::LocationSpeedInfo::isAllNodesHavePingWithSameIteration()
     return false;
 }
 
-bool PingManager::LocationSpeedInfo::findPingInfoForNode(const ServerNode &sn, PingManager::PingInfo &outPi)
+bool PingManager::LocationSpeedInfo::findPingInfoForNode(const ServerNode &sn, PingManager::PingInfo &outPi) const
 {
     Q_ASSERT(nodes.count() == pingInfo.count());
     for (int i = 0; i < nodes.count(); ++i)
@@ -627,7 +627,7 @@ bool PingManager::LocationSpeedInfo::findPingInfoForNode(const ServerNode &sn, P
     return false;
 }
 
-int PingManager::LocationSpeedInfo::findNodeInd(const ServerNode &sn)
+int PingManager::LocationSpeedInfo::findNodeInd(const ServerNode &sn) const
 {
     for (int i = 0; i < nodes.count(); ++i)
     {

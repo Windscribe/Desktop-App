@@ -18,10 +18,11 @@ OpenVPNConnection::~OpenVPNConnection()
 }
 
 void OpenVPNConnection::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password,
-                                     const ProxySettings &proxySettings, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+                                     const ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
 {
     Q_UNUSED(ip);
     Q_UNUSED(dnsHostName);
+    Q_UNUSED(wireGuardConfig);
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isAutomaticConnectionMode);
     Q_ASSERT(getCurrentState() == STATUS_DISCONNECTED);
@@ -241,7 +242,8 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
         // check timeout
         if (stateVariables_.elapsedTimer.elapsed() > MAX_WAIT_OPENVPN_ON_START)
         {
-            qCDebug(LOG_CONNECTION) << "Can't connect to openvpn socket during 10 secs";
+            qCDebug(LOG_CONNECTION) << "Can't connect to openvpn socket during"
+                                    << (MAX_WAIT_OPENVPN_ON_START/1000) << "secs";
             helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
             setCurrentStateAndEmitError(STATUS_DISCONNECTED, NO_OPENVPN_SOCKET);
             return;
