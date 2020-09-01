@@ -71,8 +71,6 @@ public:
 
     LoginSettings getLastLoginSettings();
     QSharedPointer<PortMap> getCurrentPortMap();
-    QString getCurrentUserId();
-    QString getCurrentUserName();
     QString getAuthHash();
     LocationID getLocationIdByName(const QString &location);
     void clearCredentials();
@@ -341,7 +339,7 @@ private:
     QMutex mutex_;
     QMutex mutexApiInfo_;
 
-    PrevSessionStatus prevSessionStatus_;
+    SessionStatus prevSessionStatus_;
 
     std::atomic<bool> isBlockConnect_;
     std::atomic<bool> isCleanupFinished_;

@@ -68,7 +68,6 @@ bool ServerLocation::initFromJson(QJsonObject &obj, bool isPro, QStringList &for
         }
     }
 
-
     isValid_ = true;
     type_ = SERVER_LOCATION_DEFAULT;
     makeInternalStates();

@@ -101,7 +101,7 @@ QSharedPointer<StaticIpsLocation> ApiInfo::getStaticIpsLocation() const
 
 void ApiInfo::saveToSettings()
 {
-    QSettings settings;
+    /*QSettings settings;
 
     QByteArray arr;
     {
@@ -132,7 +132,7 @@ void ApiInfo::saveToSettings()
         Q_ASSERT(!sessionStatus_.isNull());
         sessionStatus_->writeToStream(stream);
 
-        if (sessionStatus_->staticIps > 0 && !staticIps_.isNull())
+        if (sessionStatus_->getStaticIpsCount() > 0 && !staticIps_.isNull())
         {
             staticIps_->writeToStream(stream);
         }
@@ -147,7 +147,7 @@ void ApiInfo::saveToSettings()
         settings.remove("revisionHash");
     }
 
-    settings.setValue("userId", sessionStatus_->userId);    // need for uninstaller program for open post uninstall webpage
+    settings.setValue("userId", sessionStatus_->userId);    // need for uninstaller program for open post uninstall webpage*/
 }
 
 void ApiInfo::removeFromSettings()
@@ -158,7 +158,7 @@ void ApiInfo::removeFromSettings()
 
 bool ApiInfo::loadFromSettings()
 {
-    QSettings settings;
+    /*QSettings settings;
     QString s = settings.value("apiInfo", "").toString();
     if (!s.isEmpty())
     {
@@ -227,7 +227,8 @@ bool ApiInfo::loadFromSettings()
     else
     {
         return false;
-    }
+    }*/
+    return false;
 }
 
 /*void ApiInfo::debugSaveToFile(const QString &filename)
@@ -374,13 +375,13 @@ void ApiInfo::processServerLocations()
     }
 }
 
-void SessionStatus::writeToStream(QDataStream &stream)
+/*void SessionStatus::writeToStream(QDataStream &stream)
 {
     stream << isPremium;
     stream << status;
     stream << rebill;
     stream << billingPlanId;
-    stream << premiumExpireDate;
+    //stream << premiumExpireDate;
     stream << trafficUsed;
     stream << trafficMax;
     stream << userId;
@@ -404,7 +405,7 @@ void SessionStatus::readFromStream(QDataStream &stream, int revision)
     {
         billingPlanId = INT_MIN;
     }
-    stream >> premiumExpireDate;
+    //stream >> premiumExpireDate;
     stream >> trafficUsed;
     stream >> trafficMax;
     stream >> userId;
@@ -424,7 +425,7 @@ void SessionStatus::readFromStream(QDataStream &stream, int revision)
     {
         stream >> premiumExpireDateStr;
     }
-}
+}*/
 
 /*bool ServerNode::isEqualIpsServerNodes(const QVector<ServerNode> &n1, const QVector<ServerNode> &n2)
 {

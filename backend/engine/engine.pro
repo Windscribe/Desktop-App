@@ -251,6 +251,7 @@ SOURCES += main.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
     application/windowsnativeeventfilter.cpp \
     application/windscribeapplication.cpp \
+    engine/apiinfo/sessionstatus.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/serversmodel/serversmodel.cpp \
     engine/serversmodel/pingmanager.cpp \
@@ -370,6 +371,7 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     application/windowsnativeeventfilter.h \
     application/windscribeapplication.h \
+    engine/apiinfo/sessionstatus.h \
     engine/connectionmanager/makeovpnfile.h \
     engine/dnsresolver/dnsutils.h \
     engine/macaddresscontroller/imacaddresscontroller.h \

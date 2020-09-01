@@ -635,27 +635,7 @@ void EngineServer::onEngineSessionDeleted()
 void EngineServer::onEngineUpdateSessionStatus(QSharedPointer<SessionStatus> sessionStatus)
 {
     IPC::ProtobufCommand<IPCServerCommands::SessionStatusUpdated> cmd;
-
-    ProtoTypes::SessionStatus ss;
-
-    ss.set_is_premium(sessionStatus->isPremium != 0);
-    ss.set_status(sessionStatus->status);
-    ss.set_rebill(sessionStatus->rebill);
-    ss.set_billing_plan_id(sessionStatus->billingPlanId);
-    ss.set_premium_expire_date(sessionStatus->premiumExpireDateStr.toStdString());
-    ss.set_traffic_used(sessionStatus->trafficUsed);
-    ss.set_traffic_max(sessionStatus->trafficMax);
-    ss.set_username(sessionStatus->username.toStdString());
-    ss.set_user_id(sessionStatus->userId.toStdString());
-    ss.set_email(sessionStatus->email.toStdString());
-    ss.set_email_status(sessionStatus->emailStatus);
-
-    Q_FOREACH(const QString &s, sessionStatus->alc)
-    {
-        ss.add_alc(s.toStdString());
-    }
-
-    *cmd.getProtoObj().mutable_session_status() = ss;
+    *cmd.getProtoObj().mutable_session_status() = sessionStatus->getProtoBuf();
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 

@@ -253,27 +253,6 @@ QSharedPointer<PortMap> Engine::getCurrentPortMap()
     return portMap;
 }
 
-QString Engine::getCurrentUserId()
-{
-    QMutexLocker locker(&mutexApiInfo_);
-    Q_ASSERT(!apiInfo_.isNull());
-    return apiInfo_->getSessionStatus()->userId;
-}
-
-// return empty string, if not logged
-QString Engine::getCurrentUserName()
-{
-    QMutexLocker locker(&mutexApiInfo_);
-    if (!apiInfo_.isNull())
-    {
-        return apiInfo_->getSessionStatus()->username;
-    }
-    else
-    {
-        return "";
-    }
-}
-
 QString Engine::getAuthHash()
 {
     QMutexLocker locker(&mutexApiInfo_);
@@ -989,9 +968,8 @@ void Engine::loginImpl(bool bSkipLoadingFromSettings)
                 loginSettings_.setServerCredentials(apiInfo_->getServerCredentials());
             }
 
-            prevSessionStatus_.set(apiInfo_->getSessionStatus()->isPremium, apiInfo_->getSessionStatus()->billingPlanId,
-                                   apiInfo_->getSessionStatus()->getRevisionHash(), apiInfo_->getSessionStatus()->alc,
-                                   apiInfo_->getSessionStatus()->staticIps);
+            prevSessionStatus_ = *apiInfo->getSessionStatus();
+
             updateSessionStatus();
             updateServerLocations();
             updateCurrentNetworkInterface();
@@ -1077,7 +1055,7 @@ void Engine::sendDebugLogImpl()
     QString userName;
     if (!apiInfo_.isNull())
     {
-        userName = apiInfo_->getSessionStatus()->username;
+        userName = apiInfo_->getSessionStatus()->getUsername();
     }
     QString log = MergeLog::mergePrevLogs();
     log += "================================================================================================================================================================================================\n";
@@ -1276,7 +1254,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
                 }
             }
             serverLocationsApiWrapper_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(),
-                                                        ss.isPro(), engineSettings_.connectionSettings().protocol(), ss.alc);
+                                                        ss.isPro(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
         }
     }
 
@@ -1349,9 +1327,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, QSharedPointer<ApiInfo
         {
             {
                 QMutexLocker locker(&mutexApiInfo_);
-                prevSessionStatus_.set(apiInfo_->getSessionStatus()->isPremium, apiInfo_->getSessionStatus()->billingPlanId,
-                                       apiInfo_->getSessionStatus()->getRevisionHash(), apiInfo_->getSessionStatus()->alc,
-                                       apiInfo_->getSessionStatus()->staticIps);
+                prevSessionStatus_ = *apiInfo_->getSessionStatus();
             }
         }
         else
@@ -2258,15 +2234,16 @@ void Engine::updateSessionStatus()
 
         SessionStatus ss = *apiInfo_->getSessionStatus();
 
-        serversModel_->setSessionStatus(ss.isPremium == 0);
+        serversModel_->setSessionStatus(!ss.isPro());
 
         QSharedPointer<SessionStatus> ssForSignal(new SessionStatus());
         *ssForSignal = ss;
         emit sessionStatusUpdated(ssForSignal);
 
-        if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.getStaticIps() != ss.staticIps || ss.staticIpsUpdateDevices.contains(GetDeviceId::instance().getDeviceId()))
+        if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.getStaticIpsCount() != ss.getStaticIpsCount() ||
+                ss.isContainsStaticDeviceId(GetDeviceId::instance().getDeviceId()))
         {
-            if (ss.staticIps > 0)
+            if (ss.getStaticIpsCount() > 0)
             {
                 serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), serverApiUserRole_, true);
             }
@@ -2278,21 +2255,21 @@ void Engine::updateSessionStatus()
             }
         }
 
-        if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.getIsPremium() != ss.isPremium ||
-            prevSessionStatus_.getAlcList() != ss.alc)
+        if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.isPro() != ss.isPro() ||
+            prevSessionStatus_.getAlc() != ss.getAlc())
 
         {
             serverLocationsApiWrapper_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(), ss.isPro(),
-                                                        engineSettings_.connectionSettings().protocol(), ss.alc);
+                                                        engineSettings_.connectionSettings().protocol(), ss.getAlc());
         }
 
-        if (prevSessionStatus_.getBillingPlanId() != INT_MIN && prevSessionStatus_.getBillingPlanId() != ss.billingPlanId)
+        if (prevSessionStatus_.getBillingPlanId() != ss.getBillingPlanId())
         {
             serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
             notificationsUpdateTimer_->start(NOTIFICATIONS_UPDATE_PERIOD);
         }
 
-        prevSessionStatus_.set(ss.isPremium, ss.billingPlanId, ss.getRevisionHash(), ss.alc, ss.staticIps);
+        prevSessionStatus_ = ss;
     }
     mutexApiInfo_.unlock();
 }
@@ -2308,7 +2285,7 @@ void Engine::updateServerLocations()
     }
 
     // if statics ip location exists, then add this location
-    if (!apiInfo_.isNull() && apiInfo_->getSessionStatus()->staticIps > 0 && !apiInfo_->getStaticIpsLocation().isNull())
+    if (!apiInfo_.isNull() && apiInfo_->getSessionStatus()->getStaticIpsCount() > 0 && !apiInfo_->getStaticIpsLocation().isNull())
     {
         QSharedPointer<ServerLocation> staticLocation = apiInfo_->getStaticIpsLocation()->makeServerLocation();
         firewallExceptions_.setStaticLocationIps(staticLocation);

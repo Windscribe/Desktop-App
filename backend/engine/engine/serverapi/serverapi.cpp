@@ -1524,23 +1524,6 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             retCode = SERVER_RETURN_NETWORK_ERROR;
         }
 
-        /*if (reply->error() == QNetworkReply::ProtocolInvalidOperationError || reply->error() == QNetworkReply::ContentOperationNotPermittedError)
-        {
-            retCode = SERVER_RETURN_BAD_USERNAME;
-        }
-        else if (reply->error() == QNetworkReply::ProxyAuthenticationRequiredError)
-        {
-            retCode = SERVER_RETURN_PROXY_AUTH_FAILED;
-        }
-        else if (reply->error() == QNetworkReply::SslHandshakeFailedError)
-        {
-            retCode = SERVER_RETURN_SSL_ERROR;
-        }
-        else
-        {
-            retCode = SERVER_RETURN_NETWORK_ERROR;
-        }*/
-
         if (replyType == REPLY_LOGIN)
         {
             qCDebug(LOG_SERVER_API) << "API request Login failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
@@ -1644,207 +1627,19 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             authHash = jsonData["session_auth_hash"].toString();
         }
 
-        if (!jsonData.contains("status"))
+        QString outErrorMsg;
+        bool success = sessionStatus->initFromJson(jsonData, outErrorMsg);
+        if (!success)
         {
             if (replyType == REPLY_LOGIN)
             {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (status field not found)";
+                qCDebug(LOG_SERVER_API) << "API request Login incorrect json:" << outErrorMsg;
                 emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
             }
             else
             {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (status field not found)";
+                qCDebug(LOG_SERVER_API) << "API request Session incorrect json:" << outErrorMsg;
                 emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-
-        sessionStatus->status = jsonData["status"].toInt();
-
-        if (!jsonData.contains("is_premium"))
-        {
-            if (replyType == REPLY_LOGIN)
-            {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (is_premium field not found )";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
-            }
-            else
-            {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (is_premium field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-        sessionStatus->isPremium = jsonData["is_premium"].toInt();
-
-        if (!jsonData.contains("billing_plan_id"))
-        {
-            if (replyType == REPLY_LOGIN)
-            {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (billing_plan_id field not found )";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
-            }
-            else
-            {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (billing_plan_id field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-        sessionStatus->billingPlanId = jsonData["billing_plan_id"].toInt();
-
-        if (!jsonData.contains("traffic_used"))
-        {
-            if (replyType == REPLY_LOGIN)
-            {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (traffic_used field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
-            }
-            else
-            {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (traffic_used field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-        sessionStatus->trafficUsed = jsonData["traffic_used"].toDouble();
-
-        if (!jsonData.contains("traffic_max"))
-        {
-            if (replyType == REPLY_LOGIN)
-            {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (traffic_max field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
-            }
-            else
-            {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (traffic_max field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-        sessionStatus->trafficMax = jsonData["traffic_max"].toDouble();
-
-        if (!jsonData.contains("user_id"))
-        {
-            if (replyType == REPLY_LOGIN)
-            {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (user_id field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
-            }
-            else
-            {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (user_id field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-        sessionStatus->userId = jsonData["user_id"].toString();
-
-        if (!jsonData.contains("username"))
-        {
-            if (replyType == REPLY_LOGIN)
-            {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (username field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
-            }
-            else
-            {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (username field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-        sessionStatus->username = jsonData["username"].toString();
-
-        if (!jsonData.contains("email"))
-        {
-            if (replyType == REPLY_LOGIN)
-            {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (email field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
-            }
-            else
-            {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (email field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-        sessionStatus->email = jsonData["email"].toString();
-
-        if (!jsonData.contains("email_status"))
-        {
-            if (replyType == REPLY_LOGIN)
-            {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (email_status field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
-            }
-            else
-            {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (email_status field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-        sessionStatus->emailStatus = jsonData["email_status"].toInt();
-
-        if (!jsonData.contains("loc_hash"))
-        {
-            if (replyType == REPLY_LOGIN)
-            {
-                qCDebug(LOG_SERVER_API) << "API request Login incorrect json (loc_hash field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), "", userRole);
-            }
-            else
-            {
-                qCDebug(LOG_SERVER_API) << "API request Session incorrect json (loc_hash field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, QSharedPointer<SessionStatus>(), userRole);
-            }
-            return;
-        }
-        sessionStatus->setRevisionHash(jsonData["loc_hash"].toString());
-
-        if (jsonData.contains("rebill"))
-        {
-            sessionStatus->rebill = jsonData["rebill"].toInt();
-        }
-        if (jsonData.contains("premium_expiry_date"))
-        {
-            QString date = jsonData["premium_expiry_date"].toString();
-            sessionStatus->premiumExpireDateStr = date;
-            sessionStatus->premiumExpireDate = QDate::fromString(date, "yyyy-MM-dd");
-        }
-
-        if (jsonData.contains("alc"))
-        {
-            QJsonArray alcArray = jsonData["alc"].toArray();
-            QStringList alcStrings;
-            Q_FOREACH(const QJsonValue &v, alcArray)
-            {
-                alcStrings << v.toString();
-            }
-
-            sessionStatus->alc = alcStrings;
-        }
-
-        if (jsonData.contains("sip"))
-        {
-            QJsonObject objSip = jsonData["sip"].toObject();
-            if (objSip.contains("count"))
-            {
-                sessionStatus->staticIps = objSip["count"].toInt();
-            }
-            if (objSip.contains("update"))
-            {
-                if (objSip["update"].isArray())
-                {
-                    QJsonArray jsonUpdateIps = objSip["update"].toArray();
-                    Q_FOREACH(const QJsonValue &jsonUpdateIpsIt, jsonUpdateIps)
-                    {
-                        sessionStatus->staticIpsUpdateDevices.insert(jsonUpdateIpsIt.toString());
-                    }
-                }
             }
         }
 

@@ -11,15 +11,15 @@
 #include "utils/simplecrypt.h"
 #include "serverlocation.h"
 #include "staticipslocation.h"
+#include "../apiinfo/sessionstatus.h"
 
-struct SessionStatus
+/*struct SessionStatus
 {
     int isPremium;          // 0 - free, 1 - premium
     int status;             // 2 - disabled
     int rebill;
     int billingPlanId;
-    QDate premiumExpireDate;
-    QString premiumExpireDateStr;
+    QString premiumExpireDateStr;       // "yyyy-MM-dd"
     qint64 trafficUsed;
     qint64 trafficMax;
     QString userId;
@@ -58,10 +58,10 @@ struct SessionStatus
 
 private:
     QString revisionHash_;
-};
+};*/
 
 // used in Engine class for storage previous session status (need storage only fields isPremium and revisionHash)
-class PrevSessionStatus
+/*class PrevSessionStatus
 {
 public:
     PrevSessionStatus() : isInitialized_(false), isPremium_(0), billingPlanId_(0), staticIps_(0) {}
@@ -126,7 +126,7 @@ private:
     QString revisionHash_;
     QStringList alcList_;
     int staticIps_;
-};
+};*/
 
 struct ApiNotification
 {
