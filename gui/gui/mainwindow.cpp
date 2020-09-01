@@ -67,7 +67,9 @@ MainWindow::MainWindow(QWidget *parent) :
  #endif
     activeState_(true),
     lastWindowStateChange_(0),
-    isExitingFromPreferences_(false)
+    isExitingFromPreferences_(false),
+    ignoreUpdateUntilNextRun_(false),
+    downloadRunning_(false)
 {
 
     g_mainWindow = this;
@@ -120,6 +122,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onBackendProtocolPortChanged(ProtoTypes::Protocol, uint)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionProgressChanged(int, ProtoTypes::UpdateVersionProgressState)), SLOT(onBackendUpdateVersionProgressChanged(int, ProtoTypes::UpdateVersionProgressState)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
 
     locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
@@ -984,7 +987,7 @@ void MainWindow::onExternalConfigWindowEscapeClick()
 
 void MainWindow::onBottomWindowRenewClick()
 {
-    // TODO: navigate to website // same as "Upgrade"
+    openUpgradeExternalWindow();
 }
 
 void MainWindow::onBottomWindowExternalConfigLoginClick()
@@ -1006,23 +1009,38 @@ void MainWindow::onBottomWindowSharingFeaturesClick()
 
 void MainWindow::onUpdateAppItemClick()
 {
-    mainWindowController_->getUpdateWindow()->setVersion("2.02");
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
 }
 
 void MainWindow::onUpdateWindowAccept()
 {
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+    downloadRunning_ = true;
+    mainWindowController_->getUpdateWindow()->startAnimation();
+    mainWindowController_->getUpdateWindow()->changeToDownloadingScreen();
+    backend_->sendUpdateVersion();
 }
 
 void MainWindow::onUpdateWindowCancel()
 {
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+    if (downloadRunning_) // treat like "cancel"
+    {
+        backend_->cancelUpdateVersion();
+        mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+    }
+    else // treat like "Later"
+    {
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+
+        // ignoreUpdateUntilNextRun_ = true; // TODO: uncomment later
+        mainWindowController_->hideUpdateWidget();
+    }
+
+    downloadRunning_ = false;
 }
 
 void MainWindow::onUpgradeAccountAccept()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));
+    openUpgradeExternalWindow();
     if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_UPGRADE)
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
 }
@@ -1546,7 +1564,7 @@ void MainWindow::onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &
         {
             blockConnect_.setNeedUpgrade();
         }
-        //showUpdateInfo(true, isBeta, latestBuild, version, url);
+        // showUpdateInfo(true, isBeta, latestBuild, version, url);
 
 
 
@@ -1559,7 +1577,12 @@ void MainWindow::onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &
         //updateWidget_->setText(tr("Update available - v") + version + betaStr);
 
         mainWindowController_->getUpdateAppItem()->setVersionAvailable(QString::fromStdString(checkUpdateInfo.version()));
-        mainWindowController_->showUpdateWidget();
+        mainWindowController_->getUpdateWindow()->setVersion(QString::fromStdString(checkUpdateInfo.version()));
+
+        if (!ignoreUpdateUntilNextRun_)
+        {
+            mainWindowController_->showUpdateWidget();
+        }
     }
     else
     {
@@ -1969,6 +1992,48 @@ void MainWindow::onBackendProtocolPortChanged(const ProtoTypes::Protocol &protoc
 void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on)
 {
     mainWindowController_->getPreferencesWindow()->setPacketSizeDetectionState(on);
+}
+
+void MainWindow::onBackendUpdateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state)
+{
+    mainWindowController_->getUpdateAppItem()->setProgress(progressPercent);
+
+    if (state == ProtoTypes::UPDATE_VERSION_PROGRESS_STATE_SUCCESS)
+    {
+        downloadRunning_ = false;
+        mainWindowController_->hideUpdateWidget();
+        // TODO: start installer in quiet mode
+    }
+    else if (state == ProtoTypes::UPDATE_VERSION_PROGRESS_STATE_DL_FAIL)
+    {
+        downloadRunning_ = false;
+        mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+
+        // Warn user when not manually cancelled
+        const QString titleText = tr("Installer download failed");
+        const QString descText = tr("You may want to try again or try later");
+        QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
+    }
+    else if (state == ProtoTypes::UPDATE_VERSION_PROGRESS_STATE_SIGN_FAIL)
+    {
+        downloadRunning_ = false;
+        mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+
+        // Warn user when not manually cancelled
+        const QString titleText = tr("Installer has failed signature check");
+        const QString descText = tr("Please contact support");
+        QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
+    }
+    else if (state == ProtoTypes::UPDATE_VERSION_PROGRESS_STATE_OTHER_FAIL)
+    {
+        downloadRunning_ = false;
+        mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+
+        // Warn user when not manually cancelled
+        const QString titleText = tr("Installation has failed");
+        const QString descText = tr("Please contact support");
+        QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
+    }
 }
 
 void MainWindow::onBackendEngineCrash()
@@ -2748,6 +2813,11 @@ void MainWindow::setVariablesToInitState()
 void MainWindow::openStaticIpExternalWindow()
 {
     QDesktopServices::openUrl(QUrl( QString("https://%1/staticips?cpid=app_windows").arg(HardcodedSettings::instance().serverUrl())));
+}
+
+void MainWindow::openUpgradeExternalWindow()
+{
+    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void MainWindow::gotoLoginWindow()

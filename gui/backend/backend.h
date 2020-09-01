@@ -109,6 +109,9 @@ public:
     void sendDetectPacketSize();
     void sendSplitTunneling(ProtoTypes::SplitTunneling st);
 
+    void sendUpdateVersion();
+    void cancelUpdateVersion();
+
 private slots:
     void onProcessStarted();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -157,6 +160,7 @@ signals:
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void packetSizeDetectionStateChanged(bool on);
+    void updateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state);
 
     void engineCrash();
     void engineRecoveryFailed();

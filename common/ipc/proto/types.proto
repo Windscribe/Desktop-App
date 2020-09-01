@@ -514,3 +514,14 @@ message SplitTunneling
     repeated SplitTunnelingApp apps = 2;
     repeated SplitTunnelingNetworkRoute network_routes = 3;
 } 
+
+enum UpdateVersionProgressState
+{
+    UPDATE_VERSION_PROGRESS_STATE_INIT = 0;
+    UPDATE_VERSION_PROGRESS_STATE_RUNNING = 1;
+    UPDATE_VERSION_PROGRESS_STATE_CHECKING = 2;
+    UPDATE_VERSION_PROGRESS_STATE_DL_FAIL = 3;
+    UPDATE_VERSION_PROGRESS_STATE_SIGN_FAIL = 4;
+    UPDATE_VERSION_PROGRESS_STATE_SUCCESS = 5;
+    UPDATE_VERSION_PROGRESS_STATE_OTHER_FAIL = 6;
+}

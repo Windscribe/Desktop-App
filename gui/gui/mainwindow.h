@@ -163,6 +163,7 @@ private slots:
     void onBackendInternetConnectivityChanged(bool connectivity);
     void onBackendProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onBackendPacketSizeDetectionStateChanged(bool on);
+    void onBackendUpdateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state);
     void onBackendEngineCrash();
 
     // preferences changes signals
@@ -274,6 +275,7 @@ private:
     void setVariablesToInitState();
 
     void openStaticIpExternalWindow();
+    void openUpgradeExternalWindow();
     void addCustomConfigFolder();
 
     LocalHttpServer *localHttpServer_;
@@ -307,6 +309,9 @@ private:
     bool isExitingFromPreferences_;
 
     void minimizeToTray();
+
+    bool downloadRunning_;
+    bool ignoreUpdateUntilNextRun_;
  };
 
 #endif // MAINWINDOW_H

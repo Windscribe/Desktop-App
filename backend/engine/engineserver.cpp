@@ -75,6 +75,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
             connect(engine_, SIGNAL(notificationsUpdated(QSharedPointer<ApiNotifications>)), SLOT(onEngineNotificationsUpdated(QSharedPointer<ApiNotifications>)));
             connect(engine_, SIGNAL(checkUpdateUpdated(bool,QString,bool,int,QString,bool)), SLOT(onEngineCheckUpdateUpdated(bool,QString,bool,int,QString,bool)));
+            connect(engine_, SIGNAL(updateVersionProgressChanged(int, ProtoTypes::UpdateVersionProgressState)), SLOT(onEngineUpdateVersionProgressChanged(int, ProtoTypes::UpdateVersionProgressState)));
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
             connect(engine_, SIGNAL(sessionStatusUpdated(QSharedPointer<SessionStatus>)), SLOT(onEngineUpdateSessionStatus(QSharedPointer<SessionStatus>)));
             connect(engine_, SIGNAL(sessionDeleted()), SLOT(onEngineSessionDeleted()));
@@ -393,6 +394,10 @@ bool EngineServer::handleCommand(IPC::Command *command)
     {
         engine_->detectPacketSizeMss();
     }
+    else if (command->getStringId() == IPCClientCommands::UpdateVersion::descriptor()->full_name())
+    {
+        engine_->updateVersion();
+    }
 
     return false;
 }
@@ -691,6 +696,14 @@ void EngineServer::onEngineCheckUpdateUpdated(bool available, const QString &ver
     cmd.getProtoObj().mutable_check_update_info()->set_latest_build(latestBuild);
     cmd.getProtoObj().mutable_check_update_info()->set_url(url.toStdString());
     cmd.getProtoObj().mutable_check_update_info()->set_is_supported(supported);
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+}
+
+void EngineServer::onEngineUpdateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state)
+{
+    IPC::ProtobufCommand<IPCServerCommands::UpdateVersionProgressChanged> cmd;
+    cmd.getProtoObj().set_progress(progressPercent);
+    cmd.getProtoObj().set_state(state);
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 

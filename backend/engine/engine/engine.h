@@ -124,6 +124,8 @@ public:
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
 
+    void updateVersion();
+
 public slots:
     void init();
 
@@ -140,6 +142,7 @@ signals:
     void sessionStatusUpdated(QSharedPointer<SessionStatus> sessionStatus);
     void notificationsUpdated(QSharedPointer<ApiNotifications> notifications);
     void checkUpdateUpdated(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported);
+    void updateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void serverLocationsUpdated();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
@@ -263,6 +266,10 @@ private slots:
 
     void detectPacketSizeMssImpl();
 
+    void updateVersionImpl();
+    void onInstallerProgressChanged();
+    void onInstallerDownloadFinished();
+
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
     void onEmergencyControllerError(CONNECTION_ERROR err);
@@ -375,6 +382,8 @@ private:
     void doConnect(bool bEmitAuthError);
     LocationID checkLocationIdExistingAndReturnNewIfNeed(const LocationID &locationId);
     void doDisconnectRestoreStuff();
+
+    QString installerUrl_;
 };
 
 #endif // ENGINE_H

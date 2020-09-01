@@ -758,6 +758,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
         IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> *>(command);
         emit packetSizeDetectionStateChanged(cmd->getProtoObj().on());
     }
+    else if (command->getStringId() == IPCServerCommands::UpdateVersionProgressChanged::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<IPCServerCommands::UpdateVersionProgressChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::UpdateVersionProgressChanged> *>(command);
+        emit updateVersionProgressChanged(cmd->getProtoObj().progress(), cmd->getProtoObj().state());
+    }
 }
 
 void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connection*/)
@@ -948,6 +953,21 @@ void Backend::sendSplitTunneling(ProtoTypes::SplitTunneling st)
      qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
      connection_->sendCommand(cmd);
      emit splitTunnelingStateChanged(st.settings().active());
+}
+
+void Backend::sendUpdateVersion()
+{
+    IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> cmd;
+    qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    connection_->sendCommand(cmd);
+}
+
+void Backend::cancelUpdateVersion()
+{
+    IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> cmd;
+    cmd.getProtoObj().set_cancel_download(true);
+    qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    connection_->sendCommand(cmd);
 }
 
 QString Backend::generateNewFriendlyName()

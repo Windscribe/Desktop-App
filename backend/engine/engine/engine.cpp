@@ -70,7 +70,8 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     online_(false),
     mss_(-1),
     packetSizeControllerThread_(NULL),
-    runningPacketDetection_(false)
+    runningPacketDetection_(false),
+    installerUrl_("")
 {
     connectStateController_ = new ConnectStateController(NULL);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
@@ -579,6 +580,11 @@ void Engine::setSplitTunnelingSettings(bool isActive, bool isExclude, const QStr
     QMetaObject::invokeMethod(this, "setSplitTunnelingSettingsImpl", Q_ARG(bool, isActive),
                               Q_ARG(bool, isExclude), Q_ARG(QStringList, files),
                               Q_ARG(QStringList, ips), Q_ARG(QStringList, hosts));
+}
+
+void Engine::updateVersion()
+{
+    QMetaObject::invokeMethod(this, "updateVersionImpl");
 }
 
 void Engine::init()
@@ -1550,10 +1556,15 @@ void Engine::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray confi
 
 void Engine::onCheckUpdateAnswer(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole)
 {
+    qCDebug(LOG_BASIC) << "Received Check Update Answer";
+
     if (userRole == serverApiUserRole_)
     {
         if (!bNetworkErrorOccured)
         {
+            // installerUrl_ = url; // TODO: uncomment this and remove test download
+            installerUrl_ = "http://ipv4.download.thinkbroadband.com/50MB.zip";
+            qCDebug(LOG_BASIC) << "Installer URL: " << url;
             emit checkUpdateUpdated(available, version, isBeta, latestBuild, url, supported);
         }
         else
@@ -1993,6 +2004,26 @@ void Engine::detectPacketSizeMssImpl()
     {
          qCDebug(LOG_BASIC) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(mss_);
     }
+}
+
+void Engine::updateVersionImpl()
+{
+    if (installerUrl_ != "")
+    {
+        // TODO: implement downloader
+    }
+}
+
+void Engine::onInstallerProgressChanged()
+{
+    // TODO: update progress bar in GUI
+}
+
+void Engine::onInstallerDownloadFinished()
+{
+    // TODO: check code-sign
+
+    // TODO: call installer
 }
 
 void Engine::onEmergencyControllerConnected()

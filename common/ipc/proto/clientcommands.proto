@@ -167,3 +167,8 @@ message ForceCliStateUpdate
 message DetectPacketSize
 {
 }
+
+message UpdateVersion
+{
+  optional bool cancel_download = 1 [ default = false ];
+}

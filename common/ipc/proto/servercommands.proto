@@ -193,3 +193,9 @@ message PacketSizeDetectionState
 {
   optional bool on = 1;
 }
+
+message UpdateVersionProgressChanged
+{
+  optional uint32 progress = 1;
+  optional ProtoTypes.UpdateVersionProgressState state = 2;
+}

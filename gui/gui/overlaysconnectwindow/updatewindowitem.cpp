@@ -24,8 +24,9 @@ UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
     curLowerDescriptionOpacity_ = OPACITY_HIDDEN;
     spinnerOpacity_ = OPACITY_HIDDEN;
 
-    curVersion_ = "2.0";
     curProgress_ = 0;
+    curVersion_ = "2.0";
+    curTitleText_ = QString("v") + curVersion_;
 
     connect(&titleOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onTitleOpacityChange(QVariant)));
     connect(&lowerTitleOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onLowerTitleOpacityChange(QVariant)));
@@ -36,17 +37,15 @@ UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 
+    // accept
     acceptButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
     connect(acceptButton_, SIGNAL(clicked()), this, SLOT(onAcceptClick()));
-
-    curTitleText_ = QString("v") + curVersion_;
-
     QString updateText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonBright", "Update");
     acceptButton_->setText(updateText);
 
+    // cancel
     QString cancelText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Cancel");
     double cancelOpacity = OPACITY_UNHOVER_TEXT;
-
     cancelButton_ = new CommonGraphics::TextButton(cancelText, FontDescr(16, false),
                                                    Qt::white, true, this);
     connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelClick()));
@@ -143,9 +142,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 void UpdateWindowItem::setVersion(QString version)
 {
     curVersion_ = version;
-
     curTitleText_ = QString("v") + curVersion_;
-
     initScreen();
 }
 
@@ -185,7 +182,7 @@ void UpdateWindowItem::changeToDownloadingScreen()
     startAnAnimation(descriptionOpacityAnimation_, curDescriptionOpacity_, OPACITY_HIDDEN, animationSpeed);
 
     acceptButton_->animateHide(animationSpeed);
-    cancelButton_->animateHide(animationSpeed);
+    // cancelButton_->animateHide(animationSpeed); // TODO: uncomment later -- timer will make "cancel" reappear
 
     // show Updating screen
     startAnAnimation(lowerTitleOpacityAnimation_, curLowerTitleOpacity_, OPACITY_FULL, animationSpeed);
@@ -195,7 +192,19 @@ void UpdateWindowItem::changeToDownloadingScreen()
 
 void UpdateWindowItem::changeToPromptScreen()
 {
+    int animationSpeed = ANIMATION_SPEED_SLOW;
 
+    // hide downloading screen
+    startAnAnimation(lowerTitleOpacityAnimation_, curLowerTitleOpacity_, OPACITY_HIDDEN, animationSpeed);
+    startAnAnimation(lowerDescriptionOpacityAnimation_, curLowerDescriptionOpacity_, OPACITY_HIDDEN, animationSpeed);
+    startAnAnimation(spinnerOpacityAnimation_, spinnerOpacity_, OPACITY_HIDDEN, animationSpeed);
+
+    acceptButton_->animateShow(animationSpeed);
+    cancelButton_->animateShow(animationSpeed);
+
+    // show prompt screen
+    startAnAnimation(titleOpacityAnimation_, curTitleOpacity_, OPACITY_FULL, animationSpeed);
+    startAnAnimation(descriptionOpacityAnimation_, curDescriptionOpacity_, OPACITY_FULL, animationSpeed);
 }
 
 void UpdateWindowItem::keyPressEvent(QKeyEvent *event)
