@@ -202,10 +202,8 @@ QSharedPointer<ServerLocation> StaticIpsLocation::makeServerLocation()
     sl->type_ = ServerLocation::SERVER_LOCATION_STATIC;
     sl->name_ = QObject::tr("Static IPs");
     sl->countryCode_ = "STATIC_IPS";
-    sl->status_ = 0;
     sl->premiumOnly_ = false;
     sl->p2p_ = 1;
-    sl->forceExpand_ = true;
     sl->dnsHostName_ = "";
     sl->staticIpsDeviceName_ = deviceName_;
 

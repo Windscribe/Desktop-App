@@ -26,7 +26,6 @@ public:
 
     PingTime getPingTimeMsForLocation(const LocationID &locationId) override;
     void getNameAndCountryByLocationId(LocationID &locationId, QString &outName, QString &outCountry) override;
-    bool isLocationForceExpand(LocationID locationId) override;
     QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(LocationID locationId) override;
     LocationID getLocationIdByName(const QString &location);
 

@@ -74,10 +74,6 @@ private:
 
 namespace
 {
-// Server list format default preference.
-// Should be false, if we use the new (v2) server list format.
-const bool SERVER_LIST_PREFER_OLD_FORMAT = false;
-
 // Interval, in ms, between polling requests, to remove expired and timed out.
 const int REQUEST_POLL_INTERVAL_MS = 100;
 
@@ -142,18 +138,16 @@ class ServerLocationsRequest : public AuthenticatedRequest
 {
 public:
     ServerLocationsRequest(const QString &authhash, const QString &language,
-                           const QString &revision, bool isPro, bool isOldFormat,
+                           const QString &revision, bool isPro,
                            ProtocolType protocol, QStringList alcList, const QString &hostname,
                            int replyType, uint timeout, uint userRole)
         : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole),
-          language_(language), revision_(revision), isPro_(isPro), isOldFormat_(isOldFormat),
+          language_(language), revision_(revision), isPro_(isPro),
           protocol_(protocol), alcList_(alcList) {}
 
     const QString &getLanguage() const { return language_; }
     const QString &getRevision() const { return revision_; }
     bool getIsPro() const { return isPro_; }
-    bool getIsOldFormat() const { return isOldFormat_; }
-    void setIsOldFormat(bool value) { isOldFormat_ = value; }
     ProtocolType getProtocol() const { return protocol_; }
     const QStringList &getAlcList() const { return alcList_; }
 
@@ -161,7 +155,6 @@ private:
     QString language_;
     QString revision_;
     bool isPro_;
-    bool isOldFormat_;
     ProtocolType protocol_;
     QStringList alcList_;
 };
@@ -587,7 +580,7 @@ void ServerAPI::serverLocations(const QString &authHash, const QString &language
     }
 
     submitDnsRequest(createRequest<ServerLocationsRequest>(
-        authHash, language, revision, isPro, SERVER_LIST_PREFER_OLD_FORMAT, protocol,
+        authHash, language, revision, isPro, protocol,
         std::move(alcList), hostname, REPLY_SERVER_LOCATIONS, NETWORK_TIMEOUT, userRole));
 }
 
@@ -1037,10 +1030,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
             query.addQueryItem("sl_premium", crd->getIsPro() ? "1" : "0");
         }
 
-        if (!crd->getIsOldFormat())
-        {
-            query.addQueryItem("browser", "mobike");
-        }
+        query.addQueryItem("browser", "mobike");
 
         // add alc parameter in query, if not empty
         if (!alcField.isEmpty())
@@ -1064,14 +1054,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
             Q_ASSERT(false);
         }
         QString strIsPro = crd->getIsPro() ? "1" : "0";
-        if (crd->getIsOldFormat()) {
-            QString strProtocol = crd->getProtocol().isIkev2Protocol() ? "ikev2" : "openvpn";
-            url = QUrl("https://" + modifiedHostname + "/serverlist/" + strProtocol + "/" + strIsPro
-                + "/" + crd->getRevision());
-        } else {
-            url = QUrl("https://" + modifiedHostname + "/serverlist/mob-v2/" + strIsPro + "/"
-                + crd->getRevision());
-        }
+        url = QUrl("https://" + modifiedHostname + "/serverlist/mob-v2/" + strIsPro + "/" + crd->getRevision());
 
         // add alc parameter in query, if not empty
         if (!alcField.isEmpty())
@@ -1900,7 +1883,6 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
     {
         const auto *crd = dynamic_cast<ServerLocationsRequest*>(rd);
         Q_ASSERT(crd);
-        const int kFormatVersion = crd->getIsOldFormat() ? 1 : 2;
         lastLocationsLanguage_ = crd->getLanguage();
         QByteArray arr = curlRequest->getAnswer();
 
@@ -1921,8 +1903,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
             qCDebug(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations ( v" << kFormatVersion
-                                    << ") incorrect json";
+            qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json";
             emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector< QSharedPointer<ServerLocation> >(), QStringList(), userRole);
             return;
         }
@@ -1931,8 +1912,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         if (!jsonObject.contains("info"))
         {
             qCDebug(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations ( v" << kFormatVersion
-                                    << ")  incorrect json (info field not found)";
+            qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (info field not found)";
             emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector< QSharedPointer<ServerLocation> >(), QStringList(), userRole);
             return;
         }
@@ -1940,8 +1920,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         if (!jsonObject.contains("data"))
         {
             qCDebug(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations ( v" << kFormatVersion
-                                    << ")  incorrect json (data field not found)";
+            qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
             emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector< QSharedPointer<ServerLocation> >(), QStringList(), userRole);
             return;
         }
@@ -1950,17 +1929,10 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         bool isChanged = jsonInfo["changed"].toInt() != 0;
         int newRevision = jsonInfo["revision"].toInt();
         QString revisionHash = jsonInfo["revision_hash"].toString();
-        bool containsProDataCenters = jsonInfo.contains("pro_datacenters");
-        QJsonObject jsonProDataCenters;
-        if (containsProDataCenters)
-        {
-            jsonProDataCenters = jsonInfo["pro_datacenters"].toObject();
-        }
 
         if (isChanged)
         {
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations ( v" << kFormatVersion
-                                    << ") successfully executed, revision changed =" << newRevision
+            qCDebug(LOG_SERVER_API) << "API request ServerLocations successfully executed, revision changed =" << newRevision
                                     << ", revision_hash =" << revisionHash;
 
             // parse locations array
@@ -1975,15 +1947,14 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
                 QJsonObject obj = value.toObject();
 
                 QSharedPointer<ServerLocation> sl(new ServerLocation());
-                if (sl->initFromJson(obj, kFormatVersion, kIsPro, forceDisconnectNodes, jsonProDataCenters))
+                if (sl->initFromJson(obj, kIsPro, forceDisconnectNodes))
                 {
                     serverLocations << sl;
                 }
                 else
                 {
                     qCDebug(LOG_SERVER_API) << arr;
-                    qCDebug(LOG_SERVER_API) << "API request ServerLocations ( v" << kFormatVersion
-                                            << ") incorrect json (data field not found)";
+                    qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
                     emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector< QSharedPointer<ServerLocation> >(), QStringList(), userRole);
                     return;
                 }
@@ -1992,8 +1963,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         }
         else
         {
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations ( v" << kFormatVersion
-                                    << ") successfully executed, revision not changed";
+            qCDebug(LOG_SERVER_API) << "API request ServerLocations successfully executed, revision not changed";
             emit serverLocationsAnswer(SERVER_RETURN_SUCCESS, QVector< QSharedPointer<ServerLocation> >(), QStringList(), userRole);
         }
     }

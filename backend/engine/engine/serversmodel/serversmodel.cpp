@@ -173,18 +173,6 @@ void ServersModel::getNameAndCountryByLocationId(LocationID &locationId, QString
     }
 }
 
-bool ServersModel::isLocationForceExpand(LocationID locationId)
-{
-    QMutexLocker locker(&mutex_);
-
-    auto it = serversMap_.find(locationId.getId());
-    if (it != serversMap_.end())
-    {
-        return it.value()->isForceExpand();
-    }
-    return true;
-}
-
 QSharedPointer<MutableLocationInfo> ServersModel::getMutableLocationInfoById(LocationID locationId)
 {
     QMutexLocker locker(&mutex_);
@@ -330,8 +318,8 @@ ModelExchangeLocationItem ServersModel::serverLocationToModelExchangeLocationIte
     modelLocationExchangeItem.name = sl.getName();
     modelLocationExchangeItem.p2p = sl.getP2P();
     modelLocationExchangeItem.isPremiumOnly = sl.isPremiumOnly();
-    modelLocationExchangeItem.isDisabled = sl.isDisabled();
-    modelLocationExchangeItem.forceExpand = sl.isForceExpand();
+    modelLocationExchangeItem.isDisabled = false;       //todo: remove this
+    modelLocationExchangeItem.forceExpand = true;       //todo: remove this
     modelLocationExchangeItem.staticIpsDeviceName = sl.getStaticIpsDeviceName();
 
     QStringList cities = sl.getCities();

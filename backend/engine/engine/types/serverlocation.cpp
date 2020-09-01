@@ -6,27 +6,18 @@
 #include <QJsonArray>
 #include "locationid.h"
 
-ServerLocation::ServerLocation() : id_(0), status_(0), premiumOnly_(0), p2p_(0),
-                                   forceExpand_(false), isValid_(false), bestLocationId_(0),
+ServerLocation::ServerLocation() : id_(0), premiumOnly_(0), p2p_(0),
+                                   isValid_(false), bestLocationId_(0),
                                    selectedNodeIndForBestLocation_(0), bestLocationPingTimeMs_(0),
                                    type_(SERVER_LOCATION_DEFAULT)
 {
 }
 
-bool ServerLocation::initFromJson(QJsonObject &obj, int version, bool isPro, QStringList &forceDisconnectNodes, QJsonObject &jsonProDataCenters)
+bool ServerLocation::initFromJson(QJsonObject &obj, bool isPro, QStringList &forceDisconnectNodes)
 {
-    // Default to the old format.
-    Q_ASSERT(version == 1 || version == 2);
-    if (version < 1 || version > 2)
-        version = 1;
-
     if (!obj.contains("id") || !obj.contains("name") || !obj.contains("country_code") ||
-            !obj.contains("premium_only") || !obj.contains("p2p"))
+            !obj.contains("premium_only") || !obj.contains("p2p") || !obj.contains("groups"))
     {
-        isValid_ = false;
-        return false;
-    }
-    if (version == 1 && !obj.contains("status")) {
         isValid_ = false;
         return false;
     }
@@ -34,94 +25,50 @@ bool ServerLocation::initFromJson(QJsonObject &obj, int version, bool isPro, QSt
     id_ = obj["id"].toInt();
     name_ = obj["name"].toString();
     countryCode_ = obj["country_code"].toString();
-    status_ = ( version > 1 ) ? 1 : obj["status"].toInt();
     premiumOnly_ = obj["premium_only"].toInt();
     p2p_ = obj["p2p"].toInt();
-    dnsHostName_ = obj["dns_hostname"].toString();
-
-    if (obj.contains("force_expand"))
+    if (obj.contains("dns_hostname"))
     {
-        forceExpand_ = (obj["force_expand"].toInt() == 1);
-    }
-    else
-    {
-        forceExpand_ = false;
+        dnsHostName_ = obj["dns_hostname"].toString();
     }
 
-    if (obj.contains("groups"))
+    const auto groupsArray = obj["groups"].toArray();
+    for (const QJsonValue &serverGroupValue : groupsArray)
     {
-        Q_ASSERT(version == 2);
-        const auto groupsArray = obj["groups"].toArray();
-        for (const QJsonValue &serverGroupValue : groupsArray)
-        {
-            QJsonObject objServerGroup = serverGroupValue.toObject();
-            const QString cityName =  QString("%1 - %2")
+        QJsonObject objServerGroup = serverGroupValue.toObject();
+        const QString cityName =  QString("%1 - %2")
                 .arg(objServerGroup["city"].toString(), objServerGroup["nick"].toString());
-            if (jsonProDataCenters.isEmpty() && !isPro && objServerGroup["pro"].toInt() != 0) {
-                proDataCenters_ << cityName;
-            }
-            if (objServerGroup.contains("nodes")) {
-                const auto nodesArray = objServerGroup["nodes"].toArray();
-                for (const QJsonValue &serverNodeValue : nodesArray) {
-                    QJsonObject objServerNode = serverNodeValue.toObject();
-                    ServerNode sn;
-                    if (!sn.initFromJson(objServerNode, cityName))
-                    {
-                        isValid_ = false;
-                        return false;
-                    }
+        if (!isPro && objServerGroup["pro"].toInt() != 0)
+        {
+            proDataCenters_ << cityName;
+        }
+        if (objServerGroup.contains("nodes"))
+        {
+            const auto nodesArray = objServerGroup["nodes"].toArray();
+            for (const QJsonValue &serverNodeValue : nodesArray)
+            {
+                QJsonObject objServerNode = serverNodeValue.toObject();
+                ServerNode sn;
+                if (!sn.initFromJson(objServerNode, cityName))
+                {
+                    isValid_ = false;
+                    return false;
+                }
 
-                    // not add node with flag force_diconnect, but add it to another list
-                    if (sn.isForceDisconnect())
-                    {
-                        forceDisconnectNodes << sn.getHostname();
-                    }
-                    else
-                    {
-                        nodes_ << sn;
-                    }
+                // not add node with flag force_diconnect, but add it to another list
+                if (sn.isForceDisconnect())
+                {
+                    forceDisconnectNodes << sn.getHostname();
+                }
+                else
+                {
+                    nodes_ << sn;
                 }
             }
         }
     }
-    else if (obj.contains("nodes"))
-    {
-        Q_ASSERT(version == 1);
-        const auto nodesArray = obj["nodes"].toArray();
-        for (const QJsonValue &serverNodeValue: nodesArray)
-        {
-            QJsonObject objServerNode = serverNodeValue.toObject();
-            ServerNode sn;
-            if (!sn.initFromJson(objServerNode))
-            {
-                isValid_ = false;
-                return false;
-            }
 
-            // not add node with flag force_diconnect, but add it to another list
-            if (sn.isForceDisconnect())
-            {
-                forceDisconnectNodes << sn.getHostname();
-            }
-            else
-            {
-                nodes_ << sn;
-            }
-        }
-    }
 
-    if (!jsonProDataCenters.isEmpty())
-    {
-        QString strId = QString::number(id_);
-        if (jsonProDataCenters.contains(strId))
-        {
-            const QJsonArray arr = jsonProDataCenters[strId].toArray();
-            for (const QJsonValue &n: arr)
-            {
-                proDataCenters_ << n.toString();
-            }
-        }
-    }
     isValid_ = true;
     type_ = SERVER_LOCATION_DEFAULT;
     makeInternalStates();
@@ -133,7 +80,6 @@ void ServerLocation::transformToBestLocation(int selectedNodeIndForBestLocation,
     id_ = LocationID::BEST_LOCATION_ID;
     bestLocationId_ = bestLocationId;
     name_ = QObject::tr("Best Location");
-    forceExpand_ = false;
     type_ = SERVER_LOCATION_BEST;
     selectedNodeIndForBestLocation_ = selectedNodeIndForBestLocation;
     bestLocationPingTimeMs_ = bestLocationPingTimeMs;
@@ -146,7 +92,6 @@ void ServerLocation::transformToCustomOvpnLocation(QVector<ServerNode> &nodes)
 
     countryCode_ = "Custom_Configs";
     nodes_ = nodes;
-    forceExpand_ = true;
     p2p_ = 1;
     premiumOnly_ = false;
     id_ = LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID;
@@ -160,7 +105,9 @@ void ServerLocation::writeToStream(QDataStream &stream)
     stream << id_;
     stream << name_;
     stream << countryCode_;
-    stream << status_;
+    // should be removed in the future
+    int notUsedStatus = 1;
+    stream << notUsedStatus;
     stream << premiumOnly_;
     stream << p2p_;
     stream << dnsHostName_;
@@ -172,7 +119,8 @@ void ServerLocation::writeToStream(QDataStream &stream)
     }
 
     stream << proDataCenters_;
-    stream << forceExpand_;
+    bool notUsedForceExpand = true;
+    stream << notUsedForceExpand;
 
     bool isBestLocation = (type_ == SERVER_LOCATION_BEST);
     stream << isBestLocation;
@@ -187,7 +135,8 @@ void ServerLocation::readFromStream(QDataStream &stream, int revision)
     stream >> id_;
     stream >> name_;
     stream >> countryCode_;
-    stream >> status_;
+    int notUsedStatus;
+    stream >> notUsedStatus;
     stream >> premiumOnly_;
     stream >> p2p_;
     stream >> dnsHostName_;
@@ -209,11 +158,8 @@ void ServerLocation::readFromStream(QDataStream &stream, int revision)
     }
     if (revision >= 4)
     {
-        stream >> forceExpand_;
-    }
-    else
-    {
-        forceExpand_ = false;
+        bool notUsedForceExpand;
+        stream >> notUsedForceExpand;
     }
 
     bool isBestLocation = false;
@@ -294,17 +240,6 @@ bool ServerLocation::isPremiumOnly() const
 {
     Q_ASSERT(isValid_);
     return premiumOnly_ == 1;
-}
-
-bool ServerLocation::isForceExpand() const
-{
-    Q_ASSERT(isValid_);
-    return forceExpand_;
-}
-
-bool ServerLocation::isDisabled() const
-{
-    return status_ == 2;
 }
 
 bool ServerLocation::isExistsHostname(const QString &hostname) const
@@ -410,8 +345,8 @@ bool ServerLocation::isEqual(ServerLocation *other)
 {
     Q_ASSERT(other != NULL);
     if (id_ != other->id_ || name_ != other->name_ || countryCode_ != other->countryCode_ ||
-        status_ != other->status_ || premiumOnly_ != other->premiumOnly_ || p2p_ != other->p2p_ ||
-        forceExpand_ != other->forceExpand_ || dnsHostName_ != other->dnsHostName_ || proDataCenters_ != other->proDataCenters_)
+        premiumOnly_ != other->premiumOnly_ || p2p_ != other->p2p_ ||
+        dnsHostName_ != other->dnsHostName_ || proDataCenters_ != other->proDataCenters_)
     {
         return false;
     }

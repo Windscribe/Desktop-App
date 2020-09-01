@@ -22,7 +22,7 @@ public:
 public:
     ServerLocation();
 
-    bool initFromJson(QJsonObject &obj, int version, bool isPro, QStringList &forceDisconnectNodes, QJsonObject &jsonProDataCenters);
+    bool initFromJson(QJsonObject &obj, bool isPro, QStringList &forceDisconnectNodes);
     void transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId);
     void transformToCustomOvpnLocation(QVector<ServerNode> &nodes);
 
@@ -37,8 +37,6 @@ public:
     int getP2P() const;
     QString getDnsHostname() const;
     bool isPremiumOnly() const;
-    bool isForceExpand() const;
-    bool isDisabled() const;
 
     bool isExistsHostname(const QString &hostname) const;
     int nodeIndByHostname(const QString &hostname) const;
@@ -67,10 +65,8 @@ private:
     int id_;
     QString name_;
     QString countryCode_;
-    int status_;
     int premiumOnly_;
     int p2p_;
-    bool forceExpand_;
     QString dnsHostName_;
     QVector<ServerNode> nodes_;
     QStringList proDataCenters_;

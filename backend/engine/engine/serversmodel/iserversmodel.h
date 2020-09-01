@@ -42,7 +42,6 @@ public:
 
     virtual PingTime getPingTimeMsForLocation(const LocationID &locationId) = 0;
     virtual void getNameAndCountryByLocationId(LocationID &locationId, QString &outName, QString &outCountry) = 0;
-    virtual bool isLocationForceExpand(LocationID locationId) = 0;
     virtual QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(LocationID locationId) = 0;
 
 signals:
