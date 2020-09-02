@@ -292,9 +292,9 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCServerCommands::PacketSizeDetectionState>(buf, size);
     }
-    else if (strId == IPCServerCommands::UpdateVersionProgressChanged::descriptor()->full_name())
+    else if (strId == IPCServerCommands::UpdateVersionChanged::descriptor()->full_name())
     {
-        return new ProtobufCommand<IPCServerCommands::UpdateVersionProgressChanged>(buf, size);
+        return new ProtobufCommand<IPCServerCommands::UpdateVersionChanged>(buf, size);
     }
     Q_ASSERT(false);
     return NULL;

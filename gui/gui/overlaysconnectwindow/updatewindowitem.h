@@ -34,6 +34,7 @@ public:
 signals:
     void acceptClick() override;
     void cancelClick() override;
+    void laterClick() override;
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -62,6 +63,7 @@ private:
     QString curVersion_;
     int curProgress_;
     QString curTitleText_;
+    bool downloading_;
 
     double curTitleOpacity_;
     double curLowerTitleOpacity_;
@@ -96,6 +98,8 @@ private:
     static constexpr int SPINNER_POS_Y = 118;
     static constexpr int SPINNER_HALF_WIDTH = 20;
     static constexpr int SPINNER_HALF_HEIGHT = 20;
+
+    const QString cancelButtonText();
 };
 
 } // namespace

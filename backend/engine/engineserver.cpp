@@ -75,7 +75,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
             connect(engine_, SIGNAL(notificationsUpdated(QSharedPointer<ApiNotifications>)), SLOT(onEngineNotificationsUpdated(QSharedPointer<ApiNotifications>)));
             connect(engine_, SIGNAL(checkUpdateUpdated(bool,QString,bool,int,QString,bool)), SLOT(onEngineCheckUpdateUpdated(bool,QString,bool,int,QString,bool)));
-            connect(engine_, SIGNAL(updateVersionProgressChanged(int, ProtoTypes::UpdateVersionProgressState)), SLOT(onEngineUpdateVersionProgressChanged(int, ProtoTypes::UpdateVersionProgressState)));
+            connect(engine_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)), SLOT(onEngineUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
             connect(engine_, SIGNAL(sessionStatusUpdated(QSharedPointer<SessionStatus>)), SLOT(onEngineUpdateSessionStatus(QSharedPointer<SessionStatus>)));
             connect(engine_, SIGNAL(sessionDeleted()), SLOT(onEngineSessionDeleted()));
@@ -396,7 +396,15 @@ bool EngineServer::handleCommand(IPC::Command *command)
     }
     else if (command->getStringId() == IPCClientCommands::UpdateVersion::descriptor()->full_name())
     {
-        engine_->updateVersion();
+        IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> *>(command);
+        if (cmd->getProtoObj().cancel_download())
+        {
+            engine_->stopUpdateVersion();
+        }
+        else
+        {
+            engine_->updateVersion();
+        }
     }
 
     return false;
@@ -699,11 +707,12 @@ void EngineServer::onEngineCheckUpdateUpdated(bool available, const QString &ver
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineUpdateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state)
+void EngineServer::onEngineUpdateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error)
 {
-    IPC::ProtobufCommand<IPCServerCommands::UpdateVersionProgressChanged> cmd;
+    IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> cmd;
     cmd.getProtoObj().set_progress(progressPercent);
     cmd.getProtoObj().set_state(state);
+    cmd.getProtoObj().set_error(error);
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 

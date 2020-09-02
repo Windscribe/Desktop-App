@@ -122,7 +122,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onBackendProtocolPortChanged(ProtoTypes::Protocol, uint)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionProgressChanged(int, ProtoTypes::UpdateVersionProgressState)), SLOT(onBackendUpdateVersionProgressChanged(int, ProtoTypes::UpdateVersionProgressState)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
+            SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
 
     locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
@@ -219,6 +220,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // update window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getUpdateWindow()), SIGNAL(acceptClick()), SLOT(onUpdateWindowAccept()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getUpdateWindow()), SIGNAL(cancelClick()), SLOT(onUpdateWindowCancel()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getUpdateWindow()), SIGNAL(laterClick()), SLOT(onUpdateWindowLater()));
 
     // upgrade window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getUpgradeWindow()), SIGNAL(acceptClick()), SLOT(onUpgradeAccountAccept()));
@@ -1009,12 +1011,14 @@ void MainWindow::onBottomWindowSharingFeaturesClick()
 
 void MainWindow::onUpdateAppItemClick()
 {
+    mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROGRESS);
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
 }
 
 void MainWindow::onUpdateWindowAccept()
 {
     downloadRunning_ = true;
+    mainWindowController_->getUpdateWindow()->setProgress(0);
     mainWindowController_->getUpdateWindow()->startAnimation();
     mainWindowController_->getUpdateWindow()->changeToDownloadingScreen();
     backend_->sendUpdateVersion();
@@ -1022,19 +1026,19 @@ void MainWindow::onUpdateWindowAccept()
 
 void MainWindow::onUpdateWindowCancel()
 {
-    if (downloadRunning_) // treat like "cancel"
-    {
-        backend_->cancelUpdateVersion();
-        mainWindowController_->getUpdateWindow()->changeToPromptScreen();
-    }
-    else // treat like "Later"
-    {
-        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+    backend_->cancelUpdateVersion();
+    mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+    downloadRunning_ = false;
+}
 
-        // ignoreUpdateUntilNextRun_ = true; // TODO: uncomment later
-        mainWindowController_->hideUpdateWidget();
-    }
+void MainWindow::onUpdateWindowLater()
+{
+    mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
+    mainWindowController_->getUpdateAppItem()->setProgress(0);
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
 
+    ignoreUpdateUntilNextRun_ = true;
+    mainWindowController_->hideUpdateWidget();
     downloadRunning_ = false;
 }
 
@@ -1994,45 +1998,53 @@ void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on)
     mainWindowController_->getPreferencesWindow()->setPacketSizeDetectionState(on);
 }
 
-void MainWindow::onBackendUpdateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state)
+void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error)
 {
-    mainWindowController_->getUpdateAppItem()->setProgress(progressPercent);
+    qDebug() << "Mainwindow::onBackendUpdateVersionChanged: " << progressPercent << ", " << state;
 
-    if (state == ProtoTypes::UPDATE_VERSION_PROGRESS_STATE_SUCCESS)
+    if (state == ProtoTypes::UPDATE_VERSION_STATE_DONE)
     {
-        downloadRunning_ = false;
-        mainWindowController_->hideUpdateWidget();
-        // TODO: start installer in quiet mode
-    }
-    else if (state == ProtoTypes::UPDATE_VERSION_PROGRESS_STATE_DL_FAIL)
-    {
-        downloadRunning_ = false;
+        // widget
+        mainWindowController_->getUpdateAppItem()->setProgress(0);
+
+        // update
+        mainWindowController_->getUpdateWindow()->stopAnimation();
         mainWindowController_->getUpdateWindow()->changeToPromptScreen();
 
-        // Warn user when not manually cancelled
-        const QString titleText = tr("Installer download failed");
-        const QString descText = tr("You may want to try again or try later");
-        QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
-    }
-    else if (state == ProtoTypes::UPDATE_VERSION_PROGRESS_STATE_SIGN_FAIL)
-    {
-        downloadRunning_ = false;
-        mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+        if (downloadRunning_) // not cancelled by user
+        {
+            if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
+            {
+                mainWindowController_->hideUpdateWidget();
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+                mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
+            }
+            else // Error
+            {
+                QString titleText = tr("Installation has failed");
+                QString descText = tr("Please contact support");
+                if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
+                {
+                    titleText = tr("Installer download failed");
+                    descText = tr("You may want to try again or try later");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
+                {
+                    titleText = tr("Installer has failed signature check");
+                    descText = tr("Please contact support");
+                }
+                QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
+            }
+        }
 
-        // Warn user when not manually cancelled
-        const QString titleText = tr("Installer has failed signature check");
-        const QString descText = tr("Please contact support");
-        QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
-    }
-    else if (state == ProtoTypes::UPDATE_VERSION_PROGRESS_STATE_OTHER_FAIL)
-    {
         downloadRunning_ = false;
-        mainWindowController_->getUpdateWindow()->changeToPromptScreen();
 
-        // Warn user when not manually cancelled
-        const QString titleText = tr("Installation has failed");
-        const QString descText = tr("Please contact support");
-        QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
+    }
+    else if (state == ProtoTypes::UPDATE_VERSION_STATE_RUNNING)
+    {
+        // qDebug() << "Running -- updating progress";
+        mainWindowController_->getUpdateAppItem()->setProgress(progressPercent);
+        mainWindowController_->getUpdateWindow()->setProgress(progressPercent);
     }
 }
 

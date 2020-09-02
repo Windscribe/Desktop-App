@@ -13,7 +13,8 @@ namespace UpdateWindow {
 
 
 UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
-    ScalableGraphicsObject(parent)
+    ScalableGraphicsObject(parent),
+    downloading_(false)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
 
@@ -44,7 +45,7 @@ UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
     acceptButton_->setText(updateText);
 
     // cancel
-    QString cancelText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Cancel");
+    QString cancelText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Later");
     double cancelOpacity = OPACITY_UNHOVER_TEXT;
     cancelButton_ = new CommonGraphics::TextButton(cancelText, FontDescr(16, false),
                                                    Qt::white, true, this);
@@ -175,6 +176,9 @@ void UpdateWindowItem::updateScaling()
 
 void UpdateWindowItem::changeToDownloadingScreen()
 {
+    downloading_ = true;
+    cancelButton_->setText(cancelButtonText());
+
     int animationSpeed = ANIMATION_SPEED_SLOW;
 
     // hide first screen
@@ -192,6 +196,9 @@ void UpdateWindowItem::changeToDownloadingScreen()
 
 void UpdateWindowItem::changeToPromptScreen()
 {
+    downloading_ = false;
+    cancelButton_->setText(cancelButtonText());
+
     int animationSpeed = ANIMATION_SPEED_SLOW;
 
     // hide downloading screen
@@ -232,6 +239,13 @@ void UpdateWindowItem::initScreen()
     spinnerOpacity_ = OPACITY_HIDDEN;
 }
 
+const QString UpdateWindowItem::cancelButtonText()
+{
+    QString text = tr("Cancel");
+    if (!downloading_) text = tr("Later");
+    return text;
+}
+
 void UpdateWindowItem::onAcceptClick()
 {
     changeToDownloadingScreen();
@@ -240,7 +254,14 @@ void UpdateWindowItem::onAcceptClick()
 
 void UpdateWindowItem::onCancelClick()
 {
-    emit cancelClick();
+    if (downloading_)
+    {
+        emit cancelClick();
+    }
+    else
+    {
+        emit laterClick();
+    }
 }
 
 void UpdateWindowItem::onTitleOpacityChange(const QVariant &value)
@@ -296,6 +317,7 @@ void UpdateWindowItem::onUpdatingTimeout()
 
 void UpdateWindowItem::onLanguageChanged()
 {
+    cancelButton_->setText(cancelButtonText());
     cancelButton_->recalcBoundingRect();
 
     int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, cancelButton_->getWidth());

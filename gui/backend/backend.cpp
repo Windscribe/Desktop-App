@@ -758,10 +758,10 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
         IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> *>(command);
         emit packetSizeDetectionStateChanged(cmd->getProtoObj().on());
     }
-    else if (command->getStringId() == IPCServerCommands::UpdateVersionProgressChanged::descriptor()->full_name())
+    else if (command->getStringId() == IPCServerCommands::UpdateVersionChanged::descriptor()->full_name())
     {
-        IPC::ProtobufCommand<IPCServerCommands::UpdateVersionProgressChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::UpdateVersionProgressChanged> *>(command);
-        emit updateVersionProgressChanged(cmd->getProtoObj().progress(), cmd->getProtoObj().state());
+        IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> *>(command);
+        emit updateVersionChanged(cmd->getProtoObj().progress(), cmd->getProtoObj().state(), cmd->getProtoObj().error());
     }
 }
 

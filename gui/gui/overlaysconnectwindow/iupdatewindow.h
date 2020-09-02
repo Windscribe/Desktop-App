@@ -23,6 +23,7 @@ public:
 signals:
     virtual void acceptClick() = 0;
     virtual void cancelClick() = 0;
+    virtual void laterClick() = 0;
 
 };
 

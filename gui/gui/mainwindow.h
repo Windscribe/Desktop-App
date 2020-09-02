@@ -109,6 +109,7 @@ private slots:
     // update window signals
     void onUpdateWindowAccept();
     void onUpdateWindowCancel();
+    void onUpdateWindowLater();
 
     // upgrade window signals
     void onUpgradeAccountAccept();
@@ -163,7 +164,7 @@ private slots:
     void onBackendInternetConnectivityChanged(bool connectivity);
     void onBackendProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onBackendPacketSizeDetectionStateChanged(bool on);
-    void onBackendUpdateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state);
+    void onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
     void onBackendEngineCrash();
 
     // preferences changes signals

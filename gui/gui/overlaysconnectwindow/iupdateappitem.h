@@ -17,6 +17,9 @@ public:
 
     virtual void updateScaling() = 0;
 
+    enum UpdateAppItemMode { UPDATE_APP_ITEM_MODE_PROMPT, UPDATE_APP_ITEM_MODE_PROGRESS };
+    virtual void setMode(UpdateAppItemMode mode) = 0;
+
 signals:
     void updateClick();
 

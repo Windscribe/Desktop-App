@@ -160,7 +160,7 @@ signals:
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void packetSizeDetectionStateChanged(bool on);
-    void updateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state);
+    void updateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
 
     void engineCrash();
     void engineRecoveryFailed();

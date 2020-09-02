@@ -27,6 +27,7 @@
 #include "engine/macaddresscontroller/imacaddresscontroller.h"
 #include "engine/ping/keepalivemanager.h"
 #include "packetsizecontroller.h"
+#include "downloadhelper/downloadhelper.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
@@ -125,6 +126,7 @@ public:
                                    const QStringList &ips, const QStringList &hosts);
 
     void updateVersion();
+    void stopUpdateVersion();
 
 public slots:
     void init();
@@ -142,7 +144,7 @@ signals:
     void sessionStatusUpdated(QSharedPointer<SessionStatus> sessionStatus);
     void notificationsUpdated(QSharedPointer<ApiNotifications> notifications);
     void checkUpdateUpdated(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported);
-    void updateVersionProgressChanged(int progressPercent, ProtoTypes::UpdateVersionProgressState state);
+    void updateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void serverLocationsUpdated();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
@@ -267,8 +269,9 @@ private slots:
     void detectPacketSizeMssImpl();
 
     void updateVersionImpl();
-    void onInstallerProgressChanged();
-    void onInstallerDownloadFinished();
+    void stopUpdateVersionImpl();
+    void onDownloadHelperProgressChanged(uint progressPercent);
+    void onDownloadHelperFinished(const DownloadHelper::DownloadState &state);
 
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
@@ -345,6 +348,8 @@ private:
 
     RefetchServerCredentialsHelper *refetchServerCredentialsHelper_;
 
+    DownloadHelper *downloadHelper_;
+
     QMutex mutex_;
     QMutex mutexApiInfo_;
 
@@ -383,6 +388,7 @@ private:
     LocationID checkLocationIdExistingAndReturnNewIfNeed(const LocationID &locationId);
     void doDisconnectRestoreStuff();
 
+    uint lastDownloadProgress_;
     QString installerUrl_;
 };
 

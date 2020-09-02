@@ -71,6 +71,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     mss_(-1),
     packetSizeControllerThread_(NULL),
     runningPacketDetection_(false),
+    lastDownloadProgress_(0),
     installerUrl_("")
 {
     connectStateController_ = new ConnectStateController(NULL);
@@ -587,6 +588,11 @@ void Engine::updateVersion()
     QMetaObject::invokeMethod(this, "updateVersionImpl");
 }
 
+void Engine::stopUpdateVersion()
+{
+    QMetaObject::invokeMethod(this, "stopUpdateVersionImpl");
+}
+
 void Engine::init()
 {
     isCleanupFinished_ = false;
@@ -706,6 +712,10 @@ void Engine::init()
     connect(updateSessionStatusTimer_, SIGNAL(needUpdateRightNow()), SLOT(onUpdateSessionStatusTimer()));
     notificationsUpdateTimer_ = new QTimer(this);
     connect(notificationsUpdateTimer_, SIGNAL(timeout()), SLOT(getNewNotifications()));
+
+    downloadHelper_ = new DownloadHelper(this);
+    connect(downloadHelper_, SIGNAL(finished(DownloadHelper::DownloadState)), SLOT(onDownloadHelperFinished(DownloadHelper::DownloadState)));
+    connect(downloadHelper_, SIGNAL(progressChanged(uint)), SLOT(onDownloadHelperProgressChanged(uint)));
 
 #ifdef Q_OS_WIN
     measurementCpuUsage_ = new MeasurementCpuUsage(this, helper_, connectStateController_);
@@ -1563,7 +1573,8 @@ void Engine::onCheckUpdateAnswer(bool available, const QString &version, bool is
         if (!bNetworkErrorOccured)
         {
             // installerUrl_ = url; // TODO: uncomment this and remove test download
-            installerUrl_ = "http://ipv4.download.thinkbroadband.com/50MB.zip";
+            // installerUrl_ = "http://ipv4.download.thinkbroadband.com/50MB.zip";
+            installerUrl_ = "http://ipv4.download.thinkbroadband.com/5MB.zip";
             qCDebug(LOG_BASIC) << "Installer URL: " << url;
             emit checkUpdateUpdated(available, version, isBeta, latestBuild, url, supported);
         }
@@ -2010,20 +2021,56 @@ void Engine::updateVersionImpl()
 {
     if (installerUrl_ != "")
     {
-        // TODO: implement downloader
+        downloadHelper_->get(installerUrl_);
     }
 }
 
-void Engine::onInstallerProgressChanged()
+void Engine::stopUpdateVersionImpl()
 {
-    // TODO: update progress bar in GUI
+    downloadHelper_->stop();
 }
 
-void Engine::onInstallerDownloadFinished()
+void Engine::onDownloadHelperProgressChanged(uint progressPercent)
 {
-    // TODO: check code-sign
+    if (lastDownloadProgress_ != progressPercent)
+    {
+        lastDownloadProgress_ = progressPercent;
+        emit updateVersionChanged(progressPercent, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+    }
+}
 
-    // TODO: call installer
+void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state)
+{
+    const QString dlPath = downloadHelper_->downloadPath();
+    qCDebug(LOG_DOWNLOADER) << "Download finished";
+
+    if (state == DownloadHelper::DOWNLOAD_STATE_SUCCESS)
+    {
+        qCDebug(LOG_DOWNLOADER) << "Downloaded to: " << dlPath;
+
+        // TODO: check code-sign
+
+        // if (validCodeSign)
+        {
+            // TODO: call installer
+        }
+        //else
+        {
+            // delete the installer
+            // emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
+
+        }
+        // emit updateVersionChanged(100, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
+
+        emit updateVersionChanged(100, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+    }
+    else // failure
+    {
+        // delete partially downloaded installer
+        QFile::remove(dlPath);
+
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
+    }
 }
 
 void Engine::onEmergencyControllerConnected()
