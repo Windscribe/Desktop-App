@@ -153,6 +153,13 @@ void serialize(Archive & ar, CMD_CHANGE_MTU & g, const unsigned int version)
 	ar & g.szAdapterName;
 }
 
+template<class Archive>
+void serialize(Archive & ar, CMD_RUN_UPDATE_INSTALLER & g, const unsigned int version)
+{
+	UNREFERENCED_PARAMETER(version);
+	ar & g.szUpdateInstallerLocation;
+}
+
 
 } // namespace serialization
 } // namespace boost

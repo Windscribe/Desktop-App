@@ -33,6 +33,8 @@ public:
                           unsigned long &outCmdId, const QString &eventName) override;
     bool executeChangeMtu(const QString &adapter, int mtu) override;
 
+    QString executeUpdateInstaller(const QString &installerPath, bool &success) override;
+
     bool clearDnsOnTap() override;
     QString enableBFE() override;
     QString resetAndStartRAS() override;

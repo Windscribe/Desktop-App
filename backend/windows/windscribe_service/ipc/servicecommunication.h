@@ -27,23 +27,24 @@
 #define AA_COMMAND_ENUM_PROCESSES				23
 #define AA_COMMAND_TASK_KILL                    24
 #define AA_COMMAND_RESET_TAP                    25
-#define AA_COMMAND_SET_METRIC                    26
-#define AA_COMMAND_WMIC_ENABLE                    27
-#define AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE                    28
-#define AA_COMMAND_CLEAR_DNS_ON_TAP                    29
-#define AA_COMMAND_ENABLE_BFE                    30
-#define AA_COMMAND_RUN_OPENVPN                    31
-#define AA_COMMAND_UPDATE_ICS                    32
-#define AA_COMMAND_WHITELIST_PORTS                 33
-#define AA_COMMAND_DELETE_WHITELIST_PORTS           34
+#define AA_COMMAND_SET_METRIC                   26
+#define AA_COMMAND_WMIC_ENABLE                  27
+#define AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE   28
+#define AA_COMMAND_CLEAR_DNS_ON_TAP             29
+#define AA_COMMAND_ENABLE_BFE                   30
+#define AA_COMMAND_RUN_OPENVPN                  31
+#define AA_COMMAND_UPDATE_ICS                   32
+#define AA_COMMAND_WHITELIST_PORTS              33
+#define AA_COMMAND_DELETE_WHITELIST_PORTS       34
 #define AA_COMMAND_SET_MAC_ADDRESS_REGISTRY_VALUE_SZ		35
 #define AA_COMMAND_REMOVE_MAC_ADDRESS_REGISTRY_PROPERTY		36
-#define AA_COMMAND_RESET_NETWORK_ADAPTER		37
-#define AA_COMMAND_SPLIT_TUNNELING_SETTINGS		38
-#define AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE		39
+#define AA_COMMAND_RESET_NETWORK_ADAPTER					37
+#define AA_COMMAND_SPLIT_TUNNELING_SETTINGS					38
+#define AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE					39
 #define AA_COMMAND_REMOVE_WINDSCRIBE_NETWORK_PROFILES		40
-#define AA_COMMAND_CHANGE_MTU                   41
-#define AA_COMMAND_RESET_AND_START_RAS                   42
+#define AA_COMMAND_CHANGE_MTU								41
+#define AA_COMMAND_RESET_AND_START_RAS						42
+#define AA_COMMAND_RUN_UPDATE_INSTALLER						43
 
 #define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
 
@@ -165,6 +166,11 @@ struct CMD_CHANGE_MTU
     int mtu = 0;
     bool storePersistent = false;
     std::wstring szAdapterName;
+};
+
+struct CMD_RUN_UPDATE_INSTALLER
+{
+    std::wstring szUpdateInstallerLocation;
 };
 
 struct MessagePacketResult

@@ -16,6 +16,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <google/protobuf/util/message_differencer.h>
+#include "utils/executable_signature/executable_signature.h"
 
 #ifdef Q_OS_WIN
     #include "utils/bfe_service_win.h"
@@ -2042,33 +2043,33 @@ void Engine::onDownloadHelperProgressChanged(uint progressPercent)
 void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state)
 {
     const QString dlPath = downloadHelper_->downloadPath();
-    qCDebug(LOG_DOWNLOADER) << "Download finished";
+    qCDebug(LOG_DOWNLOADER) << "Engine:: Download finished";
 
     if (state == DownloadHelper::DOWNLOAD_STATE_SUCCESS)
     {
         qCDebug(LOG_DOWNLOADER) << "Downloaded to: " << dlPath;
 
-        // TODO: check code-sign
+        const QString dlPath = "C:\\Users\\Ed\\AppData\\Local\\Windscribe\\Windscribe\\folder with spaces\\ws_installer.exe";
 
-        // if (validCodeSign)
+        bool success = false;
+        QString output = helper_->executeUpdateInstaller(dlPath, success);
+
+        if (success)
         {
-            // TODO: call installer
+            qCDebug(LOG_DOWNLOADER) << "Installer valid and executed";
+            emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
         }
-        //else
+        else
         {
-            // delete the installer
-            // emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
-
+            qCDebug(LOG_DOWNLOADER) << output;
+            QFile::remove(dlPath);
+            emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
         }
-        // emit updateVersionChanged(100, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
-
-        emit updateVersionChanged(100, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
     }
     else // failure
     {
         // delete partially downloaded installer
         QFile::remove(dlPath);
-
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
     }
 }

@@ -22,6 +22,7 @@
 #include "fwpm_wrapper.h"
 #include "remove_windscribe_network_profiles.h"
 #include <conio.h>
+#include "executable_signature.h"
 
 #define SERVICE_NAME  (L"WindscribeService")
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
@@ -858,6 +859,55 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		Logger::instance().out(logBuf);
 
 		mpr.success = true;
+	}
+	else if (cmdId == AA_COMMAND_RUN_UPDATE_INSTALLER)
+	{
+		CMD_RUN_UPDATE_INSTALLER updateInstallerLocationMsg;
+		ia >> updateInstallerLocationMsg;
+		
+		std::wstring szUpdateInstallerPath = updateInstallerLocationMsg.szUpdateInstallerLocation;
+		Logger::instance().out(szUpdateInstallerPath.c_str());
+
+		// check exists
+		if (!Utils::isFileExists(szUpdateInstallerPath.c_str()))
+		{
+			std::string errStr = "Update installer does not exist";
+			mpr.sizeOfAdditionalData = (DWORD)errStr.length();
+			mpr.szAdditionalData = new char[errStr.length()];
+			memcpy(mpr.szAdditionalData, errStr.c_str(), errStr.length());
+			Logger::instance().out(errStr.c_str());
+
+			mpr.success = false;
+			return mpr;
+		}
+
+#ifndef _DEBUG
+		// sign-check
+		if (!ExecutableSignature::verify(szUpdateInstallerPath.c_str()))
+		{
+			std::string errStr = "Update installer failed sign-check";
+			mpr.sizeOfAdditionalData = (DWORD)errStr.length();
+			mpr.szAdditionalData = new char[errStr.length()];
+			memcpy(mpr.szAdditionalData, errStr.c_str(), errStr.length());
+			Logger::instance().out(errStr.c_str());
+
+			mpr.success = false;
+			return mpr;
+		}
+#endif
+		std::wstring str = L"Running update-installer";
+		Logger::instance().out(str.c_str());
+
+		//wchar_t szWorkingDir[MAX_PATH];
+		//wcscpy(szWorkingDir, Utils::getDirPathFromFullPath(szUpdateInstallerPath).c_str());
+		//Logger::instance().out(L"Update installer dir=%s", szWorkingDir);
+
+		// call installer
+		std::wstring installerQuietMode = szUpdateInstallerPath + L" -q \"C:\\Program Files (x86)\\Windscribe\"";
+
+		mpr = ExecuteCmd::instance().executeUnblockingCmd(installerQuietMode.c_str(), L"", NULL);
+		Logger::instance().out(L"AA_COMMAND_RUN_UPDATE_INSTALLER, cmd=%s", installerQuietMode.c_str());
+
 	}
 	
 	return mpr;
