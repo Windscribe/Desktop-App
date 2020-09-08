@@ -23,7 +23,6 @@ Backend::Backend(unsigned int clientId, unsigned int clientPid, const QString &c
     clientId_(clientId),
     clientPid_(clientPid),
     clientName_(clientName),
-    isSavedAuthHashExists_(false),
     isSavedApiSettingsExists_(false),
     bLastLoginWithAuthHash_(false),
     process_(NULL),
@@ -163,7 +162,7 @@ void Backend::login(const QString &username, const QString &password)
 
 bool Backend::isCanLoginWithAuthHash() const
 {
-    return isSavedAuthHashExists_;
+    return !authHash_.isEmpty();
 }
 
 bool Backend::isSavedApiSettingsExists() const
@@ -549,12 +548,8 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
                     preferencesHelper_.setWifiSharingSupported(cmd->getProtoObj().is_wifi_sharing_supported());
                 }
 
-                isSavedAuthHashExists_ = cmd->getProtoObj().is_saved_auth_hash_exists();
                 isSavedApiSettingsExists_ = cmd->getProtoObj().is_saved_api_settings_exists();
-                if (isSavedAuthHashExists_)
-                {
-                    authHash_ = QString::fromStdString(cmd->getProtoObj().auth_hash());
-                }
+                authHash_ = QString::fromStdString(cmd->getProtoObj().auth_hash());
             }
             ipcState_ = IPC_READY;
             bRecoveringState_ = false;

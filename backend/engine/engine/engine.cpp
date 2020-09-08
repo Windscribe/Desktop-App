@@ -122,36 +122,12 @@ void Engine::enableBFE_win()
     QMetaObject::invokeMethod(this, "enableBFE_winImpl");
 }
 
-bool Engine::isCanLoginWithAuthHash()
-{
-    QMutexLocker locker(&mutex_);
-    QSettings settings;
-    return settings.contains("authHash");
-}
-
-void Engine::loginWithAuthHash()
-{
-    QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
-    Q_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
-
-    QSettings settings;
-    {
-        QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        loginSettings_ = LoginSettings(settings.value("authHash").toString());
-    }
-    loginState_ = LOGIN_IN_PROGRESS;
-    QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, false));
-}
-
-void Engine::loginWithCustomAuthHash(const QString &authHash)
+void Engine::loginWithAuthHash(const QString &authHash)
 {
     QMutexLocker locker(&mutex_);
     Q_ASSERT(bInitialized_);
     //Q_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
 
-    //QSettings settings;
-    //settings.remove("authHash");
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
         loginSettings_ = LoginSettings(authHash);

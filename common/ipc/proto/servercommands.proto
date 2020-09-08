@@ -19,10 +19,8 @@ message InitFinished
   optional ProtoTypes.EngineSettings engine_settings = 2;
   repeated string available_openvpn_versions = 3;
   optional bool is_wifi_sharing_supported = 4;
-  optional bool is_saved_auth_hash_exists = 5 [default = false];
-  optional bool is_saved_api_settings_exists = 6 [default = false];
-  // valid if is_saved_auth_hash_exists true
-  optional string auth_hash = 7;
+  optional bool is_saved_api_settings_exists = 5 [default = false];
+  optional string auth_hash = 6;  // valid if not empty, 
 }
 
 message BfeEnableFinished

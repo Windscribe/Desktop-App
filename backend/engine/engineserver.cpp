@@ -120,7 +120,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
                 cmd.getProtoObj().add_available_openvpn_versions(openVpnVer.toStdString());
             }
             cmd.getProtoObj().set_is_wifi_sharing_supported(engine_->isWifiSharingSupported());
-            cmd.getProtoObj().set_is_saved_auth_hash_exists(engine_->isCanLoginWithAuthHash());
             cmd.getProtoObj().set_is_saved_api_settings_exists(engine_->isApiSavedSettingsExists());
             cmd.getProtoObj().set_auth_hash(engine_->getAuthHash().toStdString());
 
@@ -180,7 +179,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
         // login with auth hash
         else if (!loginCmd->getProtoObj().auth_hash().empty())
         {
-            engine_->loginWithCustomAuthHash(QString::fromStdString(loginCmd->getProtoObj().auth_hash()));
+            engine_->loginWithAuthHash(QString::fromStdString(loginCmd->getProtoObj().auth_hash()));
         }
         // login with username and password
         else if (!loginCmd->getProtoObj().username().empty() && !loginCmd->getProtoObj().password().empty())
@@ -417,7 +416,6 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
 
         cmd.getProtoObj().set_is_wifi_sharing_supported(engine_->isWifiSharingSupported());
 
-        cmd.getProtoObj().set_is_saved_auth_hash_exists(engine_->isCanLoginWithAuthHash());
         cmd.getProtoObj().set_is_saved_api_settings_exists(engine_->isApiSavedSettingsExists());
         cmd.getProtoObj().set_auth_hash(engine_->getAuthHash().toStdString());
 

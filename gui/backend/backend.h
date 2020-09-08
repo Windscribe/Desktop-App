@@ -173,7 +173,6 @@ private:
     unsigned int clientPid_;
     QString clientName_;
 
-    bool isSavedAuthHashExists_;
     bool isSavedApiSettingsExists_;
     QString authHash_;
 

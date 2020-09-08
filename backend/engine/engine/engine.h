@@ -52,9 +52,7 @@ public:
     bool isInitialized();
     void enableBFE_win();
 
-    bool isCanLoginWithAuthHash();
-    void loginWithAuthHash();
-    void loginWithCustomAuthHash(const QString &authHash);
+    void loginWithAuthHash(const QString &authHash);
     void loginWithUsernameAndPassword(const QString &username, const QString &password);
     void loginWithLastLoginSettings();
     bool isApiSavedSettingsExists();
