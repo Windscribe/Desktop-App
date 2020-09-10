@@ -33,7 +33,7 @@ class Backend : public QObject
 {
     Q_OBJECT
 public:
-    explicit Backend(unsigned int clientId, unsigned int clientPid, const QString &clientName, QObject *parent);
+    explicit Backend(unsigned int clientId, unsigned long clientPid, const QString &clientName, QObject *parent);
     virtual ~Backend();
 
     void init();
@@ -174,7 +174,7 @@ private:
 
     unsigned int protocolVersion_;
     unsigned int clientId_;
-    unsigned int clientPid_;
+    unsigned long clientPid_;
     QString clientName_;
 
     bool isSavedAuthHashExists_;

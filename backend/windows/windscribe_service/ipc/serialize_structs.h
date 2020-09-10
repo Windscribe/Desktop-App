@@ -158,6 +158,7 @@ void serialize(Archive & ar, CMD_RUN_UPDATE_INSTALLER & g, const unsigned int ve
 {
 	UNREFERENCED_PARAMETER(version);
 	ar & g.szUpdateInstallerLocation;
+	ar & g.waitingOnPid;
 }
 
 

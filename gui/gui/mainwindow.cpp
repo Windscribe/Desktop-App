@@ -81,8 +81,9 @@ MainWindow::MainWindow(QWidget *parent) :
     freeTrafficNotificationController_ = new FreeTrafficNotificationController(this);
     connect(freeTrafficNotificationController_, SIGNAL(freeTrafficNotification(QString)), SLOT(onFreeTrafficNotification(QString)));
 
-    // TODO: unhardcode the client details
-    backend_ = new Backend(ProtoTypes::CLIENT_ID_GUI, 12345, "gui app", this);
+    unsigned long guiPid = Utils::getCurrentPid();
+    qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
+    backend_ = new Backend(ProtoTypes::CLIENT_ID_GUI, guiPid, "gui app", this);
 
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
 
@@ -541,6 +542,13 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    //if (event->modifiers() & Qt::ControlModifier)
+    //{
+    //    if (event->key() == Qt::Key_U)
+    //    {
+    //        mainWindowController_->showUpdateWidget();
+    //    }
+    //}
 #ifdef QT_DEBUG
     if (event->modifiers() & Qt::ControlModifier)
     {
@@ -2018,6 +2026,11 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 mainWindowController_->hideUpdateWidget();
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
                 mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
+                QTimer::singleShot(0, [this]() {
+                    // Killing from installer doesn't seem to work because FindWindow fails to get window handle
+                    // Self-close and quiet mode should wait for this process to die
+                    doClose();
+                });
             }
             else // Error
             {
@@ -2026,19 +2039,20 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
                 {
                     titleText = tr("Installer download failed");
-                    descText = tr("You may want to try again or try later");
+                    descText = tr("Please try again over a strong internet connection");
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
                 {
                     titleText = tr("Installer has failed signature check");
-                    descText = tr("Please contact support");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_PID_FAIL)
+                {
+                    titleText = tr("Installer has failed due to bad pid");
                 }
                 QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
             }
         }
-
         downloadRunning_ = false;
-
     }
     else if (state == ProtoTypes::UPDATE_VERSION_STATE_RUNNING)
     {

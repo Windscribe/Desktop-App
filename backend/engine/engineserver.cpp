@@ -12,7 +12,11 @@
     #include "engine/taputils/tapinstall_win.h"
 #endif
 
-EngineServer::EngineServer(QObject *parent) : QObject(parent), server_(NULL), engine_(NULL), threadEngine_(NULL)
+EngineServer::EngineServer(QObject *parent) : QObject(parent)
+  , server_(NULL)
+  , engine_(NULL)
+  , threadEngine_(NULL)
+  , guiPid_(0)
 {
     curEngineSettings_.loadFromSettings();
 }
@@ -437,7 +441,7 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
         sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 
         engine_->updateCurrentInternetConnectivity();
-
+        engine_->setGuiPid(guiPid_);
     }
     else if (retCode == ENGINE_INIT_HELPER_FAILED)
     {
@@ -494,6 +498,12 @@ void EngineServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConn
                 clientConnectionDescr.pid_ = cmdClientAuth->getProtoObj().pid();
                 clientConnectionDescr.name_ = QString::fromStdString(cmdClientAuth->getProtoObj().name());
                 clientConnectionDescr.latestCommandTimeMs_ = QDateTime::currentMSecsSinceEpoch();
+
+                if (clientConnectionDescr.clientId_ == ProtoTypes::CLIENT_ID_GUI)
+                {
+                    // qCDebug(LOG_IPC) << "Received GUI PID: " << clientConnectionDescr.pid_;
+                    guiPid_ = clientConnectionDescr.pid_;
+                }
 
                 IPC::ProtobufCommand<IPCServerCommands::AuthReply> cmdReply;
                 connection->sendCommand(cmdReply);

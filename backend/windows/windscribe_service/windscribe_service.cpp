@@ -22,7 +22,7 @@
 #include "fwpm_wrapper.h"
 #include "remove_windscribe_network_profiles.h"
 #include <conio.h>
-#include "executable_signature.h"
+#include "../../../common/utils/executable_signature/executable_signature_win.h"
 
 #define SERVICE_NAME  (L"WindscribeService")
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
@@ -867,6 +867,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		
 		std::wstring szUpdateInstallerPath = updateInstallerLocationMsg.szUpdateInstallerLocation;
 		Logger::instance().out(szUpdateInstallerPath.c_str());
+		Logger::instance().out(L"Pid: %lu" , updateInstallerLocationMsg.waitingOnPid);
 
 		// check exists
 		if (!Utils::isFileExists(szUpdateInstallerPath.c_str()))
@@ -883,7 +884,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 
 #ifndef _DEBUG
 		// sign-check
-		if (!ExecutableSignature::verify(szUpdateInstallerPath.c_str()))
+		if (!ExecutableSignature_win::verify(szUpdateInstallerPath.c_str()))
 		{
 			std::string errStr = "Update installer failed sign-check";
 			mpr.sizeOfAdditionalData = (DWORD)errStr.length();
@@ -898,15 +899,38 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		std::wstring str = L"Running update-installer";
 		Logger::instance().out(str.c_str());
 
+		str = L"test9";
+		Logger::instance().out(str.c_str());
+
 		//wchar_t szWorkingDir[MAX_PATH];
 		//wcscpy(szWorkingDir, Utils::getDirPathFromFullPath(szUpdateInstallerPath).c_str());
 		//Logger::instance().out(L"Update installer dir=%s", szWorkingDir);
 
-		// call installer
-		std::wstring installerQuietMode = szUpdateInstallerPath + L" -q \"C:\\Program Files (x86)\\Windscribe\"";
+		wchar_t szApplicationName[1024];
+		wcscpy(szApplicationName, L"\"");
+		wcscat(szApplicationName, szUpdateInstallerPath.c_str());
+		wcscat(szApplicationName, L"\"");
+		Logger::instance().out(L"Application name: %s", szApplicationName);
 
-		mpr = ExecuteCmd::instance().executeUnblockingCmd(installerQuietMode.c_str(), L"", NULL);
-		Logger::instance().out(L"AA_COMMAND_RUN_UPDATE_INSTALLER, cmd=%s", installerQuietMode.c_str());
+
+		wchar_t szCliBuf[1024];
+		wcscpy(szCliBuf, szApplicationName);
+		wcscat(szCliBuf, L" -q \"C:\\Program Files (x86)\\Windscribe\" ");
+		wcscat(szCliBuf, std::to_wstring(updateInstallerLocationMsg.waitingOnPid).c_str());
+		// wcscat(szCliBuf, L"\"");
+		mpr = ExecuteCmd::instance().executeUnblockingBackgroundCmd(szApplicationName, szCliBuf);
+
+		wchar_t logBuf[1024];
+		wcscpy(logBuf, L"AA_COMMAND_RUN_UPDATE_INSTALLER: ");
+		wcscat(logBuf, szCliBuf);
+		Logger::instance().out(logBuf);
+
+		// call installer
+		//std::wstring installerQuietMode = szUpdateInstallerPath + L" -q \"C:\\Program Files (x86)\\Windscribe\" " + std::to_wstring(updateInstallerLocationMsg.waitingOnPid);
+		//mpr = ExecuteCmd::instance().executeUnblockingBackgroundCmd(installerQuietMode.c_str());
+		//Logger::instance().out(L"AA_COMMAND_RUN_UPDATE_INSTALLER, cmd=%s", installerQuietMode.c_str());
+
+
 
 	}
 	

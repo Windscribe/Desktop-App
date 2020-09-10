@@ -26,6 +26,7 @@ namespace Utils {
     QString fileNameFromFullPath(const QString &fullPath);
     QList<ProtoTypes::SplitTunnelingApp> insertionSort(QList<ProtoTypes::SplitTunnelingApp> apps);
 
+    unsigned long getCurrentPid();
     bool isGuiAlreadyRunning();
     bool giveFocusToGui();
     void openGuiLocations();

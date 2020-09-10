@@ -12,7 +12,7 @@ public:
     bool bClientAuthReceived_;          // is the client made authorization
     unsigned int protocolVersion_;
     unsigned int clientId_;
-    unsigned int pid_;
+    unsigned long pid_;
     QString name_;
     qint64 latestCommandTimeMs_;
 };

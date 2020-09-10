@@ -1,8 +1,11 @@
 #include "executable_signature_win.h"
 #include <tlhelp32.h>
 #include <psapi.h>
+
+#ifdef QT_CORE_LIB
 #include <QCoreApplication>
 #include <QDir>
+#endif
 
 #pragma comment (lib, "wintrust")
 #pragma comment(lib, "crypt32.lib")
@@ -137,6 +140,7 @@ bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertCon
 	return fReturn;
 }
 
+#ifdef QT_CORE_LIB
 
 bool ExecutableSignature_win::isParentProcessGui()
 {
@@ -198,3 +202,5 @@ bool ExecutableSignature_win::verify(const QString &executablePath)
 {
     return verify(executablePath.toStdWString().c_str());
 }
+
+#endif

@@ -125,6 +125,7 @@ public:
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
 
+    void setGuiPid(unsigned long pid);
     void updateVersion();
     void stopUpdateVersion();
 
@@ -268,6 +269,8 @@ private slots:
 
     void detectPacketSizeMssImpl();
 
+    void setGuiPidImpl(unsigned long guiPid);
+
     void updateVersionImpl();
     void stopUpdateVersionImpl();
     void onDownloadHelperProgressChanged(uint progressPercent);
@@ -390,6 +393,7 @@ private:
 
     uint lastDownloadProgress_;
     QString installerUrl_;
+    unsigned long guiPid_;
 };
 
 #endif // ENGINE_H

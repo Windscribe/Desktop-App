@@ -30,7 +30,7 @@ public:
                                      unsigned long &outCmdId, const QString &eventName) = 0;
     virtual bool executeChangeMtu(const QString &adapter, int mtu) = 0;
 
-    virtual QString executeUpdateInstaller(const QString &installerPath, bool &success) = 0;
+    virtual QString executeUpdateInstaller(const QString &installerPath, unsigned long waitingOnPid, bool &success) = 0;
 
     virtual bool clearDnsOnTap() = 0;
     virtual QString enableBFE() = 0;

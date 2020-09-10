@@ -253,12 +253,13 @@ bool Helper_win::executeChangeMtu(const QString &adapter, int mtu)
     return mpr.success;
 }
 
-QString Helper_win::executeUpdateInstaller(const QString &installerPath, bool &success)
+QString Helper_win::executeUpdateInstaller(const QString &installerPath, unsigned long waitingOnPid, bool &success)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_RUN_UPDATE_INSTALLER cmdRunUpdateInstaller;
     cmdRunUpdateInstaller.szUpdateInstallerLocation = installerPath.toStdWString();
+    cmdRunUpdateInstaller.waitingOnPid = waitingOnPid;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);

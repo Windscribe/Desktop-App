@@ -135,6 +135,9 @@
     <ClInclude Include="remove_windscribe_network_profiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature_win.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windscribe_service.cpp">
@@ -234,6 +237,9 @@
       <Filter>Source Files\split_tunneling</Filter>
     </ClCompile>
     <ClCompile Include="remove_windscribe_network_profiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

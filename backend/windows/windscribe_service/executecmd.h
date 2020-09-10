@@ -12,7 +12,8 @@ public:
 
 	MessagePacketResult executeBlockingCmd(wchar_t *cmd);
 	MessagePacketResult executeUnblockingCmd(const wchar_t *cmd, const wchar_t *szEventName, const wchar_t *szWorkingDir);
-    MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
+	MessagePacketResult executeUnblockingBackgroundCmd(const wchar_t *application, const wchar_t *cmd);
+	MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
     MessagePacketResult getActiveUnblockingCmdCount();
 	MessagePacketResult clearUnblockingCmd(unsigned long id);
 
@@ -50,6 +51,9 @@ private:
 
 	void clearCmd(unsigned long id);
 	void clearAllCmds();
+
+	BOOL isTokenElevated(HANDLE handle);
+	BOOL setTokenElevated(HANDLE handle, BOOL elevate);
 };
 
 #endif // EXECUTECMD_H

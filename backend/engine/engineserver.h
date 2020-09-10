@@ -95,6 +95,8 @@ private:
     void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &locationId);
 
     void sendFirewallStateChanged(bool isEnabled);
+
+    unsigned long guiPid_;
 };
 
 #endif // ENGINESERVER_H

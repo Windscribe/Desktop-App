@@ -338,3 +338,11 @@ QString Utils::getLocalIP()
     return WinUtils::getLocalIP();
 #endif
 }
+
+unsigned long Utils::getCurrentPid()
+{
+#ifdef Q_OS_MAC
+#else
+    return GetCurrentProcessId();
+#endif
+}
