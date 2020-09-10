@@ -27,7 +27,11 @@ private:
 
 WireGuardConnectionImpl::WireGuardConnectionImpl(WireGuardConnection *host)
     : host_(host),
+#if defined(Q_OS_WIN)
       adapterName_("WindscribeWireGuard420"),
+#else
+      adapterName_("utun420"),
+#endif
       isDaemonRunning_(false)
 {
 }

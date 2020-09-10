@@ -173,6 +173,10 @@ void SplitTunneling::updateState()
             {
                 ipHostnamesManager_.enable(connectStatus_.ikev2AdapterAddress);
             }
+            else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
+            {
+                // TODO(wireguard)
+            }
         }
         kextClient_.connect();
     }

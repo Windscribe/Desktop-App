@@ -119,6 +119,9 @@ private:
     QString interfaceToSkip_;
     bool bIPV6State_;
 
+    QString wireGuardExeName_;
+    QString wireGuardDeviceName_;
+
     // for blocking execute
     WAITING_DATA waitingData_;
 

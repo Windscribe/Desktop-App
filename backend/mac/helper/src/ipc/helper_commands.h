@@ -12,6 +12,10 @@
 #define HELPER_CMD_SPLIT_TUNNELING_SETTINGS     5
 #define HELPER_CMD_SEND_CONNECT_STATUS          6
 #define HELPER_CMD_SET_KEXT_PATH                7
+#define HELPER_CMD_START_WIREGUARD              8
+#define HELPER_CMD_STOP_WIREGUARD               9
+#define HELPER_CMD_CONFIGURE_WIREGUARD          10
+#define HELPER_CMD_GET_WIREGUARD_STATUS         11
 
 
 struct CMD_EXECUTE
@@ -56,7 +60,12 @@ struct CMD_SEND_DEFAULT_ROUTE
     std::string interfaceIp;
 };
 
-enum CMD_PROTOCOL_TYPE { CMD_PROTOCOL_IKEV2 = 0, CMD_PROTOCOL_OPENVPN,  CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL};
+enum CMD_PROTOCOL_TYPE {
+    CMD_PROTOCOL_IKEV2,
+    CMD_PROTOCOL_OPENVPN,
+    CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL,
+    CMD_PROTOCOL_WIREGUARD
+};
 
 struct CMD_SEND_CONNECT_STATUS
 {
@@ -90,12 +99,41 @@ struct CMD_SET_KEXT_PATH
     std::string kextPath;
 };
 
+struct CMD_START_WIREGUARD
+{
+    std::string exePath;
+    std::string deviceName;
+};
+
+struct CMD_CONFIGURE_WIREGUARD
+{
+    std::string clientPrivateKey;
+    std::string clientIpAddress;
+    std::string clientDnsAddressList;
+    std::string peerPublicKey;
+    std::string peerPresharedKey;
+    std::string peerEndpoint;
+    std::string allowedIps;
+};
+
 struct CMD_ANSWER
 {
     unsigned long cmdId;        // unique ID of command
     int    executed;            // 0 - failed, 1 - executed, 2 - still executing (for openvpn)
+    unsigned long long customInfoValue[2];
     std::string body;
+
+    CMD_ANSWER() : cmdId(0), executed(0), customInfoValue(), body() {}
 };
 
+enum WireGuardServiceState
+{
+    WIREGUARD_STATE_NONE,       // WireGuard is not started.
+    WIREGUARD_STATE_ERROR,      // WireGuard is in error state.
+    WIREGUARD_STATE_STARTING,   // WireGuard is initializing/starting up.
+    WIREGUARD_STATE_LISTENING,  // WireGuard is listening for UAPI commands, but not connected.
+    WIREGUARD_STATE_CONNECTING, // WireGuard is configured and awaits for a handshake.
+    WIREGUARD_STATE_ACTIVE,     // WireGuard is connected.
+};
 
 #endif

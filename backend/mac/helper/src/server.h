@@ -11,6 +11,9 @@
 
 #include "helper_commands.h"
 #include "split_tunneling.h"
+#include "defaultroutemonitor.h"
+#include "wireguardadapter.h"
+#include "wireguardcontroller.h"
 
 typedef boost::shared_ptr<boost::asio::local::stream_protocol::socket> socket_ptr;
 
@@ -23,6 +26,7 @@ public:
   
 private:
     SplitTunneling splitTunneling_;
+    WireGuardController wireGuardController_;
     boost::asio::io_service service_;
     boost::asio::local::stream_protocol::acceptor *acceptor_;
    

@@ -921,8 +921,6 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
     }
     else if (cmdId == AA_COMMAND_GET_WIREGUARD_STATUS)
     {
-        UINT32 errorCode = 0;
-        UINT64 bytesReceived = 0, bytesTransmitted = 0;
         if (!wireGuardController.isInitialized()) {
             mpr.exitCode = WIREGUARD_STATE_NONE;
         } else {
@@ -933,13 +931,14 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
                 mpr.exitCode = WIREGUARD_STATE_ERROR;
                 mpr.customInfoValue[0] = 666u;
             } else {
+                UINT32 errorCode = 0;
+                UINT64 bytesReceived = 0, bytesTransmitted = 0;
                 mpr.success = true;
                 mpr.exitCode =
                     wireGuardController.getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
                 if (mpr.exitCode == WIREGUARD_STATE_ERROR) {
                     mpr.customInfoValue[0] = errorCode;
-                }
-                else if (mpr.exitCode == WIREGUARD_STATE_ACTIVE) {
+                } else if (mpr.exitCode == WIREGUARD_STATE_ACTIVE) {
                     mpr.customInfoValue[0] = bytesReceived;
                     mpr.customInfoValue[1] = bytesTransmitted;
                 }

@@ -42,6 +42,10 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
                 {
                     addIkev2RoutesForInclusiveMode(connectStatus);
                 }
+                else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+                {
+                    // TODO(wireguard)
+                }
             }
         }
     }

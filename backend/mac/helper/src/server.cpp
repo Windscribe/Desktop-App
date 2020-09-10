@@ -153,7 +153,6 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
         splitTunneling_.setConnectParams(cmd);
         outCmdAnswer.executed = 1;
     }
-    
     else if (cmdId == HELPER_CMD_SET_KEXT_PATH)
     {
         CMD_SET_KEXT_PATH cmd;
@@ -162,9 +161,93 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
         splitTunneling_.setKextPath(cmd.kextPath);
         outCmdAnswer.executed = 1;
     }
-    
+    else if (cmdId == HELPER_CMD_START_WIREGUARD)
+    {
+        CMD_START_WIREGUARD cmd;
+        ia >> cmd;
+        const std::string strFullCmd(cmd.exePath + " -f " + cmd.deviceName);
+        outCmdAnswer.cmdId = ExecuteCmd::instance().execute(strFullCmd.c_str());
+        wireGuardController_.init(cmd.deviceName, outCmdAnswer.cmdId);
+        outCmdAnswer.executed = 1;
+    }
+    else if (cmdId == HELPER_CMD_STOP_WIREGUARD)
+    {
+        bool is_daemon_dead = true;
+        std::string log;
+        ExecuteCmd::instance().getStatus(wireGuardController_.getDaemonCmdId(), is_daemon_dead,
+                                         log);
+        if (is_daemon_dead) {
+            wireGuardController_.reset();
+            outCmdAnswer.executed = 1;
+            outCmdAnswer.body = log;
+        }
+    }
+    else if (cmdId == HELPER_CMD_CONFIGURE_WIREGUARD)
+    {
+        CMD_CONFIGURE_WIREGUARD cmd;
+        ia >> cmd;
+
+        outCmdAnswer.executed = 0;
+        if (wireGuardController_.isInitialized()) {
+            do {
+                std::vector<std::string> allowed_ips_vector =
+                    wireGuardController_.splitAndDeduplicateAllowedIps(cmd.allowedIps);
+                if (allowed_ips_vector.size() < 1) {
+                    LOG("WireGuard: invalid AllowedIps \"%s\"", cmd.allowedIps.c_str());
+                    break;
+                }
+                if (!wireGuardController_.configureAdapter(cmd.clientIpAddress,
+                                                           cmd.clientDnsAddressList,
+                                                           allowed_ips_vector)) {
+                    LOG("WireGuard: configureAdapter() failed");
+                    break;
+                }
+                if (!wireGuardController_.configureDefaultRouteMonitor(cmd.peerEndpoint)) {
+                    LOG("WireGuard: configureDefaultRouteMonitor() failed");
+                    break;
+                }
+                if (!wireGuardController_.configureDaemon(cmd.clientPrivateKey,
+                                                          cmd.peerPublicKey, cmd.peerPresharedKey,
+                                                          cmd.peerEndpoint, allowed_ips_vector)) {
+                    LOG("WireGuard: configureDaemon() failed");
+                    break;
+                }
+                outCmdAnswer.executed = 1;
+            } while (0);
+        }
+    }
+    else if (cmdId == HELPER_CMD_GET_WIREGUARD_STATUS)
+    {
+        outCmdAnswer.executed = 1;
+        if (!wireGuardController_.isInitialized()) {
+            outCmdAnswer.cmdId = WIREGUARD_STATE_NONE;
+        } else {
+            bool is_daemon_dead = true;
+            std::string log;
+            ExecuteCmd::instance().getStatus(wireGuardController_.getDaemonCmdId(), is_daemon_dead,
+                                             log);
+            if (is_daemon_dead) {
+                outCmdAnswer.cmdId = WIREGUARD_STATE_ERROR;
+                // Special error code means the daemon is dead.
+                outCmdAnswer.customInfoValue[0] = 666u;
+                outCmdAnswer.body = log;
+            } else {
+                unsigned int errorCode = 0;
+                unsigned long long bytesReceived = 0, bytesTransmitted = 0;
+                outCmdAnswer.cmdId = wireGuardController_.getStatus(
+                    &errorCode, &bytesReceived, &bytesTransmitted);
+                if (outCmdAnswer.cmdId == WIREGUARD_STATE_ERROR) {
+                    outCmdAnswer.customInfoValue[0] = errorCode;
+                } else if (outCmdAnswer.cmdId == WIREGUARD_STATE_ACTIVE) {
+                    outCmdAnswer.customInfoValue[0] = bytesReceived;
+                    outCmdAnswer.customInfoValue[1] = bytesTransmitted;
+                }
+            }
+        }
+    }
+
     buf->consume(sizeof(int)*2 + length);
-    
+
     return true;
 }
 
