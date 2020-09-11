@@ -2,7 +2,7 @@
 #define CUSTOMOVPNCONFIGS_H
 
 #include <QObject>
-#include "engine/types/serverlocation.h"
+#include "engine/apiinfo/serverlocation.h"
 #include "customconfigsdirwatcher.h"
 
 // parse custom_configs directory, make ovpn configs location, resolve IP for hostnames in ovpn-files

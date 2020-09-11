@@ -7,7 +7,9 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 
-const int typeIdApiNotifications = qRegisterMetaType<QSharedPointer<ApiNotifications> >("QSharedPointer<ApiNotifications>");
+//const int typeIdApiNotifications = qRegisterMetaType<QSharedPointer<ApiNotifications> >("QSharedPointer<ApiNotifications>");
+
+namespace ApiInfo {
 
 ApiInfo::ApiInfo() : simpleCrypt_(0x4572A4ACF31A31BA)
 {
@@ -28,15 +30,15 @@ void ApiInfo::setSessionStatus(const QSharedPointer<SessionStatus> &value)
     sessionStatus_ = value;
 }
 
-void ApiInfo::setServerLocations(const QVector<QSharedPointer<ServerLocation> > &value)
+void ApiInfo::setLocations(const QVector<QSharedPointer<Location> > &value)
 {
-    serverLocations_ = value;
+    locations_ = value;
     processServerLocations();
 }
 
-QVector<QSharedPointer<ServerLocation> > ApiInfo::getServerLocations()
+QVector<QSharedPointer<Location> > ApiInfo::getLocations()
 {
-    return serverLocations_;
+    return locations_;
 }
 
 QStringList ApiInfo::getForceDisconnectNodes() const
@@ -49,7 +51,7 @@ void ApiInfo::setForceDisconnectNodes(const QStringList &value)
     forceDisconnectNodes_ = value;
 }
 
-void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
+/*void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
 {
     serverCredentials_ = serverCredentials;
 }
@@ -57,7 +59,7 @@ void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
 const ServerCredentials &ApiInfo::getServerCredentials() const
 {
     return serverCredentials_;
-}
+}*/
 
 QByteArray ApiInfo::getOvpnConfig() const
 {
@@ -79,7 +81,7 @@ void ApiInfo::setAuthHash(const QString &authHash)
     authHash_ = authHash;
 }
 
-QSharedPointer<PortMap> ApiInfo::getPortMap() const
+/*QSharedPointer<PortMap> ApiInfo::getPortMap() const
 {
     return portMap_;
 }
@@ -97,7 +99,7 @@ void ApiInfo::setStaticIpsLocation(QSharedPointer<StaticIpsLocation> &value)
 QSharedPointer<StaticIpsLocation> ApiInfo::getStaticIpsLocation() const
 {
     return staticIps_;
-}
+}*/
 
 void ApiInfo::saveToSettings()
 {
@@ -315,7 +317,7 @@ void ApiInfo::debugLoadFromFile(const QString &filename)
 
 void ApiInfo::processServerLocations()
 {
-    // Build a new list of server locations to merge, removing them from the old list.
+    /*// Build a new list of server locations to merge, removing them from the old list.
     // Currently we merge all WindFlix locations into the corresponding global locations.
     using LocationPtr = QSharedPointer<ServerLocation>;
     using LocationsType = QVector<LocationPtr>;
@@ -372,7 +374,7 @@ void ApiInfo::processServerLocations()
                 target->appendProDataCentre(pro_datacentre);
         }
         itm.remove();
-    }
+    }*/
 }
 
 /*void SessionStatus::writeToStream(QDataStream &stream)
@@ -445,3 +447,5 @@ void SessionStatus::readFromStream(QDataStream &stream, int revision)
         return true;
     }
 }*/
+
+} //namespace ApiInfo

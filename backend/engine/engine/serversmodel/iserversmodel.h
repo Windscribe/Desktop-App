@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QVector>
-#include "engine/types/apiinfo.h"
+//#include "engine/types/apiinfo.h"
 #include "engine/types/locationid.h"
 #include "mutablelocationinfo.h"
 #include "pingtime.h"

@@ -1,38 +1,40 @@
-#ifndef SERVERLOCATION_H
-#define SERVERLOCATION_H
+#ifndef APIINFO_LOCATION_H
+#define APIINFO_LOCATION_H
 
-#include <QMap>
 #include <QVector>
+#include <QJsonObject>
 #include <QSharedPointer>
-#include "servernode.h"
+#include "group.h"
 
-class ServerLocation
+namespace ApiInfo {
+
+class Location
 {
-    friend StaticIpsLocation;
+    //friend StaticIpsLocation;
 
 public:
 
     enum SERVER_LOCATION_TYPE { SERVER_LOCATION_DEFAULT, SERVER_LOCATION_CUSTOM_CONFIG, SERVER_LOCATION_BEST, SERVER_LOCATION_STATIC };
 
-    struct CityNodes
+    /*struct CityNodes
     {
         QVector<int> nodesInds;  // this is indexes in ServerLocation(nodes vector)
-    };
+    };*/
 
 public:
-    ServerLocation();
+    explicit Location();
 
-    bool initFromJson(QJsonObject &obj, bool isPro, QStringList &forceDisconnectNodes);
-    void transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId);
+    bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
+    /*void transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId);
     void transformToCustomOvpnLocation(QVector<ServerNode> &nodes);
 
     void writeToStream(QDataStream &stream);
     void readFromStream(QDataStream &stream, int revision);
 
     int getId() const;
-    int nodesCount() const;
+    int nodesCount() const;*/
     QStringList getAllIps() const;
-    QString getCountryCode() const;
+    /*QString getCountryCode() const;
     QString getName() const;
     int getP2P() const;
     QString getDnsHostname() const;
@@ -57,10 +59,24 @@ public:
 
     SERVER_LOCATION_TYPE getType() const { Q_ASSERT(isValid_); return type_; }
 
-    bool isEqual(ServerLocation *other);
+    bool isEqual(ServerLocation *other);*/
 
 private:
-    // don't forget modify function isEqual, if something changed in variables
+    int id_;
+    QString name_;
+    QString countryCode_;
+    int premiumOnly_;
+    int p2p_;
+    QString dnsHostName_;
+
+    QVector<Group> groups_;
+
+    // internal state
+    bool isValid_;
+    SERVER_LOCATION_TYPE type_;
+
+
+    /*// don't forget modify function isEqual, if something changed in variables
     // data from API
     int id_;
     QString name_;
@@ -84,9 +100,17 @@ private:
 
     SERVER_LOCATION_TYPE type_;
 
-    void makeInternalStates();
+    void makeInternalStates();*/
 };
 
-QVector< QSharedPointer<ServerLocation> > makeCopyOfServerLocationsVector(QVector< QSharedPointer<ServerLocation> > &serverLocations);
+class LocationsArray : public QVector< QSharedPointer<Location> >
+{
+public:
+    QStringList getAllIps() const;
+};
 
-#endif // SERVERLOCATION_H
+//QVector< QSharedPointer<ServerLocation> > makeCopyOfServerLocationsVector(QVector< QSharedPointer<ServerLocation> > &serverLocations);
+
+} //namespace ApiInfo
+
+#endif // APIINFO_LOCATION_H

@@ -1,18 +1,20 @@
-#ifndef SERVERNODE_H
-#define SERVERNODE_H
+#ifndef APIINFO_NODE_H
+#define APIINFO_NODE_H
 
 #include <QJsonObject>
-#include <QString>
-#include "staticipslocation.h"
+#include <QStringList>
+//#include "staticipslocation.h"
 
-class ServerNode
+namespace ApiInfo {
+
+class Node
 {
 public:
-    ServerNode();
+    explicit Node();
 
-    bool initFromJson(QJsonObject &obj, const QString &cityName = QString());
+    bool initFromJson(QJsonObject &obj);
 
-    void initFromCustomOvpnConfig(const QString &name, const QString &hostname, 
+    /*void initFromCustomOvpnConfig(const QString &name, const QString &hostname,
                                   const QString &pathCustomOvpnConfig);
 
     void initFromStaticIpDescr(const StaticIpDescr &sid);
@@ -20,11 +22,11 @@ public:
     void writeToStream(QDataStream &stream) const;
     void readFromStream(QDataStream &stream);
 
-    QString getCityName() const;
+    QString getCityName() const;*/
     QString getHostname() const;
     bool isForceDisconnect() const;
     QString getIp(int ind) const;
-    QString getIpForPing() const;
+    /*QString getIpForPing() const;
     bool isLegacy() const;
     int getWeight() const;
 
@@ -41,13 +43,12 @@ public:
     StaticIpPortsVector getAllStaticIpIntPorts() const;
 
     bool isEqual(const ServerNode &sn) const;
-    bool isEqualIpsAndHostnameAndLegacy(const ServerNode &sn) const;
+    bool isEqualIpsAndHostnameAndLegacy(const ServerNode &sn) const;*/
 
 private:
     // data from API
     QString ip_[3];
     QString hostname_;
-    QString cityname_;
     int weight_;
     int legacy_;   //1 or 0
     int forceDisconnect_;
@@ -56,7 +57,7 @@ private:
     bool isValid_;
 
     // for custom ovpn config
-    bool isCustomOvpnConfig_;
+    /*bool isCustomOvpnConfig_;
     QString pathCustomOvpnConfig_;
 
     // for staticIps
@@ -67,7 +68,9 @@ private:
     QString dnsHostName_;
     // credentials for staticIps
     QString username_;
-    QString password_;
+    QString password_;*/
 };
 
-#endif // SERVERNODE_H
+} //namespace ApiInfo
+
+#endif // APIINFO_NODE_H

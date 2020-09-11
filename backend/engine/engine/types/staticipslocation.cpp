@@ -3,7 +3,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDataStream>
-#include "serverlocation.h"
+#include "../apiinfo/serverlocation.h"
 #include "locationid.h"
 
 StaticIpsLocation::StaticIpsLocation()
@@ -198,7 +198,7 @@ void StaticIpsLocation::readFromStream(QDataStream &stream, int revision)
 QSharedPointer<ServerLocation> StaticIpsLocation::makeServerLocation()
 {
     QSharedPointer<ServerLocation> sl(new ServerLocation);
-    sl->id_ = LocationID::STATIC_IPS_LOCATION_ID;
+    /*sl->id_ = LocationID::STATIC_IPS_LOCATION_ID;
     sl->type_ = ServerLocation::SERVER_LOCATION_STATIC;
     sl->name_ = QObject::tr("Static IPs");
     sl->countryCode_ = "STATIC_IPS";
@@ -216,7 +216,7 @@ QSharedPointer<ServerLocation> StaticIpsLocation::makeServerLocation()
 
     sl->isValid_ = true;
 
-    sl->makeInternalStates();
+    sl->makeInternalStates();*/
 
     return sl;
 }

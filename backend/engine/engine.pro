@@ -251,7 +251,12 @@ SOURCES += main.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
     application/windowsnativeeventfilter.cpp \
     application/windscribeapplication.cpp \
+    engine/apiinfo/apiinfo.cpp \
     engine/apiinfo/sessionstatus.cpp \
+    engine/apiinfo/location.cpp \
+    engine/apiinfo/group.cpp \
+    engine/apiinfo/node.cpp \
+    engine/apiinfo/notification.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/serversmodel/serversmodel.cpp \
     engine/serversmodel/pingmanager.cpp \
@@ -262,7 +267,6 @@ SOURCES += main.cpp \
     utils/simplecrypt.cpp \
     engine/logincontroller/logincontroller.cpp \
     engine/logincontroller/getallconfigscontroller.cpp \
-    engine/types/apiinfo.cpp \
     engine/proxy/proxysettings.cpp \
     engine/types/portmap.cpp \
     engine/types/connectionsettings.cpp \
@@ -327,8 +331,6 @@ SOURCES += main.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
     engine/connectionmanager/ikev2connection_test.cpp \
-    engine/types/serverlocation.cpp \
-    engine/types/servernode.cpp \
     engine/serversmodel/pingnodescontroller.cpp \
     engine/serversmodel/pinglog.cpp \
     engine/serversmodel/testpingnodecontroller.cpp \
@@ -371,7 +373,12 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     application/windowsnativeeventfilter.h \
     application/windscribeapplication.h \
+    engine/apiinfo/apiinfo.h \
     engine/apiinfo/sessionstatus.h \
+    engine/apiinfo/location.h \
+    engine/apiinfo/group.h \
+    engine/apiinfo/node.h \
+    engine/apiinfo/notification.h \
     engine/connectionmanager/makeovpnfile.h \
     engine/dnsresolver/dnsutils.h \
     engine/macaddresscontroller/imacaddresscontroller.h \
@@ -389,7 +396,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     utils/simplecrypt.h \
     engine/logincontroller/logincontroller.h \
     engine/logincontroller/getallconfigscontroller.h \
-    engine/types/apiinfo.h \
     engine/proxy/proxysettings.h \
     engine/types/portmap.h \
     engine/types/connectionsettings.h \
@@ -458,8 +464,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/dnsresolver/dnsresolver.h \
     engine/types/protocoltype.h \
     engine/connectionmanager/ikev2connection_test.h \
-    engine/types/serverlocation.h \
-    engine/types/servernode.h \
     engine/serversmodel/pingnodescontroller.h \
     engine/serversmodel/pinglog.h \
     engine/serversmodel/testpingnodecontroller.h \

@@ -61,7 +61,7 @@ void FirewallExceptions::setDnsPolicy(DNS_POLICY_TYPE dnsPolicy)
     dnsPolicyType_ = dnsPolicy;
 }
 
-void FirewallExceptions::setLocations(const QVector<QSharedPointer<ServerLocation> > &serverLocations)
+/*void FirewallExceptions::setLocations(const QVector<QSharedPointer<ServerLocation> > &serverLocations)
 {
     locationsIPs_.clear();
     Q_FOREACH(QSharedPointer<ServerLocation> sl, serverLocations)
@@ -80,7 +80,7 @@ void FirewallExceptions::setStaticLocationIps(QSharedPointer<ServerLocation> &st
     {
         staticLocationIPs_.clear();
     }
-}
+}*/
 
 void FirewallExceptions::clearStaticLocationIps()
 {

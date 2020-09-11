@@ -9,16 +9,16 @@ ServerLocationsApiWrapper::ServerLocationsApiWrapper(QObject *parent, NodesSpeed
                             SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<QSharedPointer<ServerLocation> >,QStringList, uint)), Qt::QueuedConnection);
     connect(nodesSpeedStore_, SIGNAL(pingIterationChanged()), SLOT(onPingIterationChanged()), Qt::QueuedConnection);
 
-    bestLocation_.readFromSettings();
+    //bestLocation_.readFromSettings();
 
-    pingHost_ = new PingHost(this, NULL);
-    connect(pingHost_, SIGNAL(pingFinished(bool,int,QString,bool)), SLOT(onPingFinished(bool,int,QString,bool)));
+    //pingHost_ = new PingHost(this, NULL);
+    //connect(pingHost_, SIGNAL(pingFinished(bool,int,QString,bool)), SLOT(onPingFinished(bool,int,QString,bool)));
 }
 
 ServerLocationsApiWrapper::~ServerLocationsApiWrapper()
 {
-    pingHost_->clearPings();
-    bestLocation_.writeToSettings();
+    //pingHost_->clearPings();
+    //bestLocation_.writeToSettings();
 }
 
 void ServerLocationsApiWrapper::serverLocations(const QString &authHash, const QString &language, uint userRole, bool isNeedCheckRequestsEnabled,
@@ -27,7 +27,7 @@ void ServerLocationsApiWrapper::serverLocations(const QString &authHash, const Q
     serverAPI_->serverLocations(authHash, language, userRole, isNeedCheckRequestsEnabled, revision, isPro, protocol, alcList);
 }
 
-void ServerLocationsApiWrapper::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector<QSharedPointer<ServerLocation> > serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void ServerLocationsApiWrapper::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiInfo::LocationsArray> serverLocations, QStringList forceDisconnectNodes, uint userRole)
 {
     if (retCode != SERVER_RETURN_SUCCESS)
     {
@@ -35,7 +35,7 @@ void ServerLocationsApiWrapper::onServerLocationsAnswer(SERVER_API_RET_CODE retC
         return;
     }
 
-    // need update firewall exceptions for ping
+    /*// need update firewall exceptions for ping
     emit updateFirewallIpsForLocations(serverLocations);
 
     pingHost_->clearPings();
@@ -96,10 +96,10 @@ void ServerLocationsApiWrapper::onServerLocationsAnswer(SERVER_API_RET_CODE retC
             pings_[ip] = PingTime::NO_PING_INFO;
             pingHost_->addHostForPing(ip, PingHost::PING_TCP);
         }
-    }
+    }*/
 }
 
-void ServerLocationsApiWrapper::onPingIterationChanged()
+/*void ServerLocationsApiWrapper::onPingIterationChanged()
 {
     qCDebug(LOG_BEST_LOCATION()) << "Ping iteration finished";
 
@@ -400,4 +400,4 @@ void ServerLocationsApiWrapper::outputBestLocationToLog(int ind, int selectedNod
                                         "; Selected node IP:" << serverLocations_[ind]->getNodes()[selectedNodeInd].getIpForPing() <<
                                         "; Ping time ms:" << pingTimeMs.toInt();
     }
-}
+}*/

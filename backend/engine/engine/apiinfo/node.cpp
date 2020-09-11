@@ -1,14 +1,14 @@
-#include "servernode.h"
+#include "node.h"
 
-#include <QDataStream>
+namespace ApiInfo {
 
-ServerNode::ServerNode() : weight_(0), legacy_(0), forceDisconnect_(0), isValid_(false),
-                           isCustomOvpnConfig_(false)
+Node::Node() : weight_(0), legacy_(0), forceDisconnect_(0), isValid_(false)/*,
+                           isCustomOvpnConfig_(false)*/
 {
 
 }
 
-bool ServerNode::initFromJson(QJsonObject &obj, const QString &cityName)
+bool Node::initFromJson(QJsonObject &obj)
 {
     if (!obj.contains("ip") || !obj.contains("ip2") || !obj.contains("ip3") || !obj.contains("hostname") || !obj.contains("weight"))
     {
@@ -21,18 +21,6 @@ bool ServerNode::initFromJson(QJsonObject &obj, const QString &cityName)
     ip_[2] = obj["ip3"].toString();
     hostname_ = obj["hostname"].toString();
     weight_ = obj["weight"].toInt();
-    if (!cityName.isEmpty())
-    {
-        cityname_ = cityName;
-    }
-    else if (obj.contains("group"))
-    {
-        cityname_ = obj["group"].toString();
-    }
-    else
-    {
-        cityname_.clear();
-    }
 
     if (obj.contains("legacy"))
     {
@@ -51,12 +39,12 @@ bool ServerNode::initFromJson(QJsonObject &obj, const QString &cityName)
     {
         forceDisconnect_ = 0;
     }
-    isCustomOvpnConfig_ = false;
+    //isCustomOvpnConfig_ = false;
     isValid_ = true;
     return true;
 }
 
-void ServerNode::initFromCustomOvpnConfig(const QString &name, const QString &hostname, const QString &pathCustomOvpnConfig)
+/*void ServerNode::initFromCustomOvpnConfig(const QString &name, const QString &hostname, const QString &pathCustomOvpnConfig)
 {
     hostname_ = hostname;
     cityname_ = name;
@@ -121,27 +109,28 @@ QString ServerNode::getCityName() const
 {
     Q_ASSERT(isValid_);
     return cityname_;
-}
+}*/
 
-QString ServerNode::getHostname() const
+QString Node::getHostname() const
 {
     Q_ASSERT(isValid_);
     return hostname_;
 }
 
-bool ServerNode::isForceDisconnect() const
+bool Node::isForceDisconnect() const
 {
     Q_ASSERT(isValid_);
     return forceDisconnect_ == 1;
 }
 
-QString ServerNode::getIp(int ind) const
+QString Node::getIp(int ind) const
 {
     Q_ASSERT(isValid_);
+    Q_ASSERT(ind >= 0 && ind <= 2);
     return ip_[ind];
 }
 
-QString ServerNode::getIpForPing() const
+/*QString ServerNode::getIpForPing() const
 {
     Q_ASSERT(isValid_);
     return ip_[1];
@@ -235,4 +224,6 @@ bool ServerNode::isEqualIpsAndHostnameAndLegacy(const ServerNode &sn) const
 {
     Q_ASSERT(isValid_);
     return (ip_[0] == sn.ip_[0] && ip_[1] == sn.ip_[1] && ip_[2] == sn.ip_[2] && hostname_ == sn.hostname_ && legacy_ == sn.legacy_);
-}
+}*/
+
+} //namespace ApiInfo

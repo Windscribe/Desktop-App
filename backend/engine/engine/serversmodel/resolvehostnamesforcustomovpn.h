@@ -2,7 +2,7 @@
 #define RESOLVEHOSTNAMESFORCUSTOMOVPN_H
 
 #include <QObject>
-#include "engine/types/serverlocation.h"
+#include "engine/apiinfo/serverlocation.h"
 #include "engine/dnsresolver/dnsresolver.h"
 
 // helper class for resolve hostnames for custom ovpn location (used in ServersModel)

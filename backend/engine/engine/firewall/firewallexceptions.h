@@ -2,7 +2,7 @@
 #define FIREWALLEXCEPTIONS_H
 
 #include <QSharedPointer>
-#include "engine/types/apiinfo.h"
+//#include "engine/types/apiinfo.h"
 #include "engine/proxy/proxysettings.h"
 
 class FirewallExceptions
@@ -18,8 +18,8 @@ public:
 
     void setDnsPolicy(DNS_POLICY_TYPE dnsPolicy);
 
-    void setLocations(const QVector<QSharedPointer<ServerLocation> > &serverLocations);
-    void setStaticLocationIps(QSharedPointer<ServerLocation> &staticLocation);
+    //void setLocations(const QVector<QSharedPointer<ServerLocation> > &serverLocations);
+    //void setStaticLocationIps(QSharedPointer<ServerLocation> &staticLocation);
     void clearStaticLocationIps();
     QString getIPAddressesForFirewall();
     QString getIPAddressesForFirewallForConnectedState(const QString &connectedIp);

@@ -1,6 +1,8 @@
 #include "sessionstatus.h"
 #include <QJsonArray>
 
+namespace ApiInfo {
+
 SessionStatus::SessionStatus() : isInitialized_(false)
 {
 
@@ -162,3 +164,5 @@ void SessionStatus::clear()
     revisionHash_.clear();
     staticIpsUpdateDevices_.clear();
 }
+
+} //namespace ApiInfo

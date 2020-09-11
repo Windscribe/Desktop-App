@@ -8,6 +8,7 @@
 #include "ping/pinghost.h"
 #include "serverapi/serverapi.h"
 
+
 // describe detected BestLocation
 class BestLocationInfo
 {
@@ -115,15 +116,15 @@ public:
                          const QString &revision, bool isPro, ProtocolType protocol, const QStringList &alcList);
 
 signals:
-    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, QVector< QSharedPointer<ServerLocation> > serverLocations,
+    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiInfo::LocationsArray> serverLocations,
                                QStringList forceDisconnectNodes, uint userRole);
 
-    void updatedBestLocation(QVector< QSharedPointer<ServerLocation> > &serverLocations);
+    //void updatedBestLocation(QVector< QSharedPointer<ServerLocation> > &serverLocations);
 
-    void updateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> > &serverLocations);
+    //void updateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> > &serverLocations);
 
 private slots:
-    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector< QSharedPointer<ServerLocation> > serverLocations, QStringList forceDisconnectNodes, uint userRole);
+    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiInfo::LocationsArray> serverLocations, QStringList forceDisconnectNodes, uint userRole);
     void onPingIterationChanged();
     void onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
 
@@ -133,11 +134,11 @@ private:
     ServerAPI *serverAPI_;
     BestLocationInfo bestLocation_;
 
-    QVector<QSharedPointer<ServerLocation> > serverLocations_;
+    QSharedPointer<ApiInfo::LocationsArray> serverLocations_;
     QStringList forceDisconnectNodes_;
     uint userRole_;
 
-    PingHost *pingHost_;
+    /*PingHost *pingHost_;
     QHash<QString, int> pings_;
 
     bool detectBestLocation(const QVector<QSharedPointer<ServerLocation> > &serverLocations, int &outInd, int &outSelNodeInd, int &outTimeMs);
@@ -150,7 +151,7 @@ private:
 
     void selectRandomBestLocation();
 
-    void outputBestLocationToLog(int ind, int selectedNodeInd, PingTime pingTimeMs);
+    void outputBestLocationToLog(int ind, int selectedNodeInd, PingTime pingTimeMs);*/
 };
 
 #endif // SERVERLOCATIONSAPIWRAPPER_H

@@ -1,10 +1,12 @@
-#ifndef SESSION_STATUS_H
-#define SESSION_STATUS_H
+#ifndef APIINFO_SESSION_STATUS_H
+#define APIINFO_SESSION_STATUS_H
 
 #include <QString>
 #include <QSet>
 #include <QJsonObject>
 #include "ipc/generated_proto/types.pb.h"
+
+namespace ApiInfo {
 
 class SessionStatus
 {
@@ -86,4 +88,6 @@ private:
     QString revisionHash_;
 };*/
 
-#endif // SESSION_STATUS_H
+} //namespace ApiInfo
+
+#endif // APIINFO_SESSION_STATUS_H

@@ -4,7 +4,8 @@
 #include <QObject>
 #include <QLinkedList>
 #include <QTimer>
-#include "engine/types/apiinfo.h"
+#include "engine/apiinfo/apiinfo.h"
+#include "engine/apiinfo/notification.h"
 #include "engine/types/portmap.h"
 #include "engine/proxy/proxysettings.h"
 #include "dnscache.h"
@@ -69,9 +70,9 @@ public:
 
 signals:
     void accessIpsAnswer(SERVER_API_RET_CODE retCode, const QStringList &hosts, uint userRole);
-    void loginAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, const QString &authHash, uint userRole);
-    void sessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, uint userRole);
-    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, QVector< QSharedPointer<ServerLocation> > serverLocations,
+    void loginAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiInfo::SessionStatus> sessionStatus, const QString &authHash, uint userRole);
+    void sessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiInfo::SessionStatus> sessionStatus, uint userRole);
+    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiInfo::LocationsArray> serverLocations,
                                QStringList forceDisconnectNodes, uint userRole);
     void serverCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername,
                                  const QString &radiusPassword, ProtocolType protocol, uint userRole);
@@ -81,9 +82,9 @@ signals:
     void checkUpdateAnswer(bool bAvailable, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
     void debugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void confirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void staticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation, uint userRole);
+    //void staticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation, uint userRole);
     void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
-    void notificationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiNotifications> notifications, uint userRole);
+    void notificationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiInfo::ApiNotifications> notifications, uint userRole);
 
     // need for add to firewall rules
     void hostIpsChanged(const QStringList &hostIps);

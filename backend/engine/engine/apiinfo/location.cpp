@@ -1,19 +1,21 @@
-#include "serverlocation.h"
+#include "location.h"
 
 #include <QDataStream>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QJsonArray>
-#include "locationid.h"
+#include "../types/locationid.h"
 
-ServerLocation::ServerLocation() : id_(0), premiumOnly_(0), p2p_(0),
-                                   isValid_(false), bestLocationId_(0),
-                                   selectedNodeIndForBestLocation_(0), bestLocationPingTimeMs_(0),
+namespace ApiInfo {
+
+Location::Location() : id_(0), premiumOnly_(0), p2p_(0),
+                                   isValid_(false)/*, bestLocationId_(0),
+                                   selectedNodeIndForBestLocation_(0), bestLocationPingTimeMs_(0)*/,
                                    type_(SERVER_LOCATION_DEFAULT)
 {
 }
 
-bool ServerLocation::initFromJson(QJsonObject &obj, bool isPro, QStringList &forceDisconnectNodes)
+bool Location::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
 {
     if (!obj.contains("id") || !obj.contains("name") || !obj.contains("country_code") ||
             !obj.contains("premium_only") || !obj.contains("p2p") || !obj.contains("groups"))
@@ -36,44 +38,32 @@ bool ServerLocation::initFromJson(QJsonObject &obj, bool isPro, QStringList &for
     for (const QJsonValue &serverGroupValue : groupsArray)
     {
         QJsonObject objServerGroup = serverGroupValue.toObject();
-        const QString cityName =  QString("%1 - %2")
-                .arg(objServerGroup["city"].toString(), objServerGroup["nick"].toString());
-        if (!isPro && objServerGroup["pro"].toInt() != 0)
+        Group group;
+        if (!group.initFromJson(objServerGroup, forceDisconnectNodes))
         {
-            proDataCenters_ << cityName;
+            isValid_ = false;
+            return false;
         }
-        if (objServerGroup.contains("nodes"))
-        {
-            const auto nodesArray = objServerGroup["nodes"].toArray();
-            for (const QJsonValue &serverNodeValue : nodesArray)
-            {
-                QJsonObject objServerNode = serverNodeValue.toObject();
-                ServerNode sn;
-                if (!sn.initFromJson(objServerNode, cityName))
-                {
-                    isValid_ = false;
-                    return false;
-                }
-
-                // not add node with flag force_diconnect, but add it to another list
-                if (sn.isForceDisconnect())
-                {
-                    forceDisconnectNodes << sn.getHostname();
-                }
-                else
-                {
-                    nodes_ << sn;
-                }
-            }
-        }
+        groups_ << group;
     }
 
     isValid_ = true;
     type_ = SERVER_LOCATION_DEFAULT;
-    makeInternalStates();
+    //makeInternalStates();
     return true;
 }
 
+QStringList LocationsArray::getAllIps() const
+{
+    QStringList list;
+    for (const QSharedPointer<Location> &l : *this)
+    {
+        list << l->getAllIps();
+    }
+    return list;
+}
+
+/*
 void ServerLocation::transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId)
 {
     id_ = LocationID::BEST_LOCATION_ID;
@@ -98,7 +88,7 @@ void ServerLocation::transformToCustomOvpnLocation(QVector<ServerNode> &nodes)
     makeInternalStates();
 }
 
-void ServerLocation::writeToStream(QDataStream &stream)
+/*void ServerLocation::writeToStream(QDataStream &stream)
 {
     Q_ASSERT(isValid_);
     stream << id_;
@@ -196,22 +186,20 @@ int ServerLocation::nodesCount() const
     Q_ASSERT(isValid_);
     return nodes_.count();
 }
-
-QStringList ServerLocation::getAllIps() const
+*/
+QStringList Location::getAllIps() const
 {
     Q_ASSERT(isValid_);
     QStringList list;
-    Q_FOREACH(const ServerNode &sn, nodes_)
+    Q_FOREACH(const Group &group, groups_)
     {
-        list << sn.getIp(0);
-        list << sn.getIp(1);
-        list << sn.getIp(2);
+        list << group.getAllIps();
     }
 
     return list;
 }
 
-QString ServerLocation::getCountryCode() const
+/*QString ServerLocation::getCountryCode() const
 {
     Q_ASSERT(isValid_);
     return countryCode_;
@@ -296,7 +284,7 @@ QVector<ServerNode> &ServerLocation::getNodes()
     return nodes_;
 }
 
-QVector<ServerNode> ServerLocation::getCityNodes(const QString &cityname)
+/*QVector<ServerNode> ServerLocation::getCityNodes(const QString &cityname)
 {
     QVector<ServerNode> cityNodes;
 
@@ -338,9 +326,9 @@ int ServerLocation::getBestLocationPingTimeMs() const
 {
     Q_ASSERT(type_ == SERVER_LOCATION_BEST);
     return bestLocationPingTimeMs_;
-}
+}*/
 
-bool ServerLocation::isEqual(ServerLocation *other)
+/*bool ServerLocation::isEqual(ServerLocation *other)
 {
     Q_ASSERT(other != NULL);
     if (id_ != other->id_ || name_ != other->name_ || countryCode_ != other->countryCode_ ||
@@ -370,10 +358,10 @@ bool ServerLocation::isEqual(ServerLocation *other)
         }
     }
     return true;
-}
+}*/
 
 // grouping cities, making citiesMap_ data
-void ServerLocation::makeInternalStates()
+/*void ServerLocation::makeInternalStates()
 {
     int nodeInd = 0;
     Q_FOREACH(const ServerNode &node, nodes_)
@@ -399,9 +387,9 @@ void ServerLocation::makeInternalStates()
         }
         nodeInd++;
     }
-}
+}*/
 
-QVector<QSharedPointer<ServerLocation> > makeCopyOfServerLocationsVector(QVector<QSharedPointer<ServerLocation> > &serverLocations)
+/*QVector<QSharedPointer<ServerLocation> > makeCopyOfServerLocationsVector(QVector<QSharedPointer<ServerLocation> > &serverLocations)
 {
     QVector<QSharedPointer<ServerLocation> > copyServerlocations;
     Q_FOREACH(QSharedPointer<ServerLocation> s, serverLocations)
@@ -411,4 +399,6 @@ QVector<QSharedPointer<ServerLocation> > makeCopyOfServerLocationsVector(QVector
         copyServerlocations << copySl;
     }
     return copyServerlocations;
-}
+}*/
+
+} // namespace ApiInfo
