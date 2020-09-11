@@ -171,7 +171,6 @@ struct CMD_CHANGE_MTU
 struct CMD_RUN_UPDATE_INSTALLER
 {
     std::wstring szUpdateInstallerLocation;
-    unsigned long waitingOnPid = 0;
 };
 
 struct MessagePacketResult

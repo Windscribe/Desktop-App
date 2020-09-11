@@ -12,7 +12,9 @@ BackendCommander::BackendCommander(CliCommand cmd, const QString &location) : QO
     , receivedLocationsInit_(false)
     , sent_(false)
 {
-    backend_ = new Backend(ProtoTypes::CLIENT_ID_CLI, 54321, "cli app", this);
+    unsigned long cliPid = Utils::getCurrentPid();
+    qCDebug(LOG_BASIC) << "CLI pid: " << cliPid;
+    backend_ = new Backend(ProtoTypes::CLIENT_ID_CLI, cliPid, "cli app", this);
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendConnectStateChanged(ProtoTypes::ConnectState)));

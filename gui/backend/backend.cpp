@@ -16,7 +16,6 @@ const int PROTOCOL_VERSION = 1;
 
 const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
 
-// TODO: ensure cli client pid is correct
 Backend::Backend(unsigned int clientId, unsigned long clientPid, const QString &clientName, QObject *parent) : QObject(parent),
     ipcState_(IPC_INIT_STATE),
     bRecoveringState_(false),

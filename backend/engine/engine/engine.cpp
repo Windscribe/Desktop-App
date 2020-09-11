@@ -584,11 +584,6 @@ void Engine::setSplitTunnelingSettings(bool isActive, bool isExclude, const QStr
                               Q_ARG(QStringList, ips), Q_ARG(QStringList, hosts));
 }
 
-void Engine::setGuiPid(unsigned long pid)
-{
-    QMetaObject::invokeMethod(this, "setGuiPidImpl", Q_ARG(unsigned long, pid));
-}
-
 void Engine::updateVersion()
 {
     QMetaObject::invokeMethod(this, "updateVersionImpl");
@@ -2023,12 +2018,6 @@ void Engine::detectPacketSizeMssImpl()
     }
 }
 
-void Engine::setGuiPidImpl(unsigned long guiPid)
-{
-    qCDebug(LOG_BASIC) << "Engine setting gui pid: " << guiPid;
-    guiPid_ = guiPid;
-}
-
 void Engine::updateVersionImpl()
 {
     if (installerUrl_ != "")
@@ -2062,18 +2051,9 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
         //const QString dlPath = "C:\\Users\\Ed\\AppData\\Local\\Windscribe\\Windscribe\\folder with spaces\\ws_installer.exe";
         const QString dlPath = "C:\\work\\client-desktop-installer\\windows\\Windscribe_2_0_build26_beta.exe";
-        if (guiPid_ <= 0)
-        {
-            qCDebug(LOG_DOWNLOADER) << "Invalid GUI pid, cannot start installer";
-            emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_PID_FAIL);
-            return;
-        }
-
-        qCDebug(LOG_DOWNLOADER) << "Will wait for pid: " << guiPid_;
-
 
         bool success = false;
-        QString output = helper_->executeUpdateInstaller(dlPath, guiPid_, success);
+        QString output = helper_->executeUpdateInstaller(dlPath, success);
 
         if (success)
         {

@@ -68,8 +68,8 @@ MainWindow::MainWindow(QWidget *parent) :
     activeState_(true),
     lastWindowStateChange_(0),
     isExitingFromPreferences_(false),
-    ignoreUpdateUntilNextRun_(false),
-    downloadRunning_(false)
+    downloadRunning_(false),
+    ignoreUpdateUntilNextRun_(false)
 {
 
     g_mainWindow = this;
@@ -542,13 +542,13 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    //if (event->modifiers() & Qt::ControlModifier)
-    //{
-    //    if (event->key() == Qt::Key_U)
-    //    {
-    //        mainWindowController_->showUpdateWidget();
-    //    }
-    //}
+//    if (event->modifiers() & Qt::ControlModifier)
+//    {
+//        if (event->key() == Qt::Key_U)
+//        {
+//            mainWindowController_->showUpdateWidget();
+//        }
+//    }
 #ifdef QT_DEBUG
     if (event->modifiers() & Qt::ControlModifier)
     {
@@ -2026,11 +2026,6 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 mainWindowController_->hideUpdateWidget();
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
                 mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
-                QTimer::singleShot(0, [this]() {
-                    // Killing from installer doesn't seem to work because FindWindow fails to get window handle
-                    // Self-close and quiet mode should wait for this process to die
-                    doClose();
-                });
             }
             else // Error
             {
@@ -2044,10 +2039,6 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
                 {
                     titleText = tr("Installer has failed signature check");
-                }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_PID_FAIL)
-                {
-                    titleText = tr("Installer has failed due to bad pid");
                 }
                 QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
             }

@@ -867,7 +867,6 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		
 		std::wstring szUpdateInstallerPath = updateInstallerLocationMsg.szUpdateInstallerLocation;
 		Logger::instance().out(szUpdateInstallerPath.c_str());
-		Logger::instance().out(L"Pid: %lu" , updateInstallerLocationMsg.waitingOnPid);
 
 		// check exists
 		if (!Utils::isFileExists(szUpdateInstallerPath.c_str()))
@@ -899,38 +898,29 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		std::wstring str = L"Running update-installer";
 		Logger::instance().out(str.c_str());
 
-		str = L"test9";
-		Logger::instance().out(str.c_str());
-
-		//wchar_t szWorkingDir[MAX_PATH];
-		//wcscpy(szWorkingDir, Utils::getDirPathFromFullPath(szUpdateInstallerPath).c_str());
-		//Logger::instance().out(L"Update installer dir=%s", szWorkingDir);
-
+		// installer path
 		wchar_t szApplicationName[1024];
 		wcscpy(szApplicationName, L"\"");
 		wcscat(szApplicationName, szUpdateInstallerPath.c_str());
 		wcscat(szApplicationName, L"\"");
 		Logger::instance().out(L"Application name: %s", szApplicationName);
 
+		// args
+		std::wstring args = L" -q \"";
+		args.append(Utils::getExePath());
+		args.append(L"\"");
 
+		// run
 		wchar_t szCliBuf[1024];
 		wcscpy(szCliBuf, szApplicationName);
-		wcscat(szCliBuf, L" -q \"C:\\Program Files (x86)\\Windscribe\" ");
-		wcscat(szCliBuf, std::to_wstring(updateInstallerLocationMsg.waitingOnPid).c_str());
-		// wcscat(szCliBuf, L"\"");
-		mpr = ExecuteCmd::instance().executeUnblockingBackgroundCmd(szApplicationName, szCliBuf);
+		wcscat(szCliBuf, args.c_str());
+		mpr = ExecuteCmd::instance().executeUnblockingBackgroundCmdAsElevatedUser(szCliBuf);
 
+		// log
 		wchar_t logBuf[1024];
 		wcscpy(logBuf, L"AA_COMMAND_RUN_UPDATE_INSTALLER: ");
 		wcscat(logBuf, szCliBuf);
 		Logger::instance().out(logBuf);
-
-		// call installer
-		//std::wstring installerQuietMode = szUpdateInstallerPath + L" -q \"C:\\Program Files (x86)\\Windscribe\" " + std::to_wstring(updateInstallerLocationMsg.waitingOnPid);
-		//mpr = ExecuteCmd::instance().executeUnblockingBackgroundCmd(installerQuietMode.c_str());
-		//Logger::instance().out(L"AA_COMMAND_RUN_UPDATE_INSTALLER, cmd=%s", installerQuietMode.c_str());
-
-
 
 	}
 	

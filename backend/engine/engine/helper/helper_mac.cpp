@@ -205,7 +205,7 @@ bool Helper_mac::executeChangeMtu(const QString &adapter, int mtu)
     return false;
 }
 
-QString Helper_mac::executeUpdateInstaller(const QString &installerPath, unsigned long waitingForPid, bool &success)
+QString Helper_mac::executeUpdateInstaller(const QString &installerPath, bool &success)
 {
     // TODO: implement call to update installer
     success = false;

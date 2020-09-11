@@ -6,11 +6,9 @@
 #include "logger.h"
 #include <WtsApi32.h>
 #include <UserEnv.h>
-// #include <processthreadsapi.h>
 
 #pragma comment(lib, "WtsApi32.lib")
 #pragma comment(lib, "Userenv.lib")
-
 
 unsigned long ExecuteCmd::blockingCmdId_ = 0;
 ExecuteCmd *ExecuteCmd::this_ = NULL;
@@ -137,7 +135,7 @@ MessagePacketResult ExecuteCmd::executeUnblockingCmd(const wchar_t *cmd, const w
     return mpr;
 }
 
-MessagePacketResult ExecuteCmd::executeUnblockingBackgroundCmd(const wchar_t *application, const wchar_t * cmd)
+MessagePacketResult ExecuteCmd::executeUnblockingBackgroundCmdAsElevatedUser(const wchar_t * cmd)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 
@@ -146,7 +144,7 @@ MessagePacketResult ExecuteCmd::executeUnblockingBackgroundCmd(const wchar_t *ap
 
 	MessagePacketResult mpr;
 
-	// get current process token
+	// Enable SE_TCB_NAME to allow for user elevation
 	HANDLE hProcessToken = NULL;
 	TOKEN_PRIVILEGES TokenPriv, OldTokenPriv;
 	DWORD OldSize = 0;
@@ -157,59 +155,56 @@ MessagePacketResult ExecuteCmd::executeUnblockingBackgroundCmd(const wchar_t *ap
 	if (!AdjustTokenPrivileges(hProcessToken, FALSE, &TokenPriv, sizeof(TokenPriv), &OldTokenPriv, &OldSize))
 	{
 		Logger::instance().out(L"Failed to adjust token priv: %d", GetLastError());
+		safeCloseHandle(hProcessToken);
 		return mpr;
 	}
-	Logger::instance().out(L"Enabled SE_TCB_NAME on process");
-
+	Logger::instance().out(L"Enabled SE_TCB_NAME");
 
 	// get user token
 	DWORD activeSessionId = WTSGetActiveConsoleSessionId();
 	Logger::instance().out(L"ActiveSession Id: %x", activeSessionId);
 	HANDLE hUserToken = NULL;
-	BOOL queryRet = WTSQueryUserToken(activeSessionId, &hUserToken);
-	if (!queryRet)
+	if (!WTSQueryUserToken(activeSessionId, &hUserToken))
 	{
-		Logger::instance().out(L"Failed to obtian user token: %x", GetLastError());
+		Logger::instance().out(L"Failed to obtain user token: %x", GetLastError());
+		safeCloseHandle(hProcessToken);
+		AdjustTokenPrivileges(hProcessToken, FALSE, &OldTokenPriv, sizeof(OldTokenPriv), NULL, NULL);
 		return mpr;
 	}
 
-	// link token
+	// get link token
 	TOKEN_LINKED_TOKEN tokenLinkedToken = { 0 };
 	DWORD tokenLinkedTokenSize = 0;
 	if (!GetTokenInformation(hUserToken, TokenLinkedToken, &tokenLinkedToken, sizeof(tokenLinkedToken), &tokenLinkedTokenSize))
 	{
 		Logger::instance().out(L"Failed to get linked token: %d", GetLastError());
+		safeCloseHandle(hProcessToken);
+		safeCloseHandle(hUserToken);
+		AdjustTokenPrivileges(hProcessToken, FALSE, &OldTokenPriv, sizeof(OldTokenPriv), NULL, NULL);
 		return mpr;
 	}
 	Logger::instance().out(L"Got linked token");
 
-
 	// dup token
 	HANDLE hDuplicatedUserToken;
-	queryRet = DuplicateTokenEx(tokenLinkedToken.LinkedToken, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &hDuplicatedUserToken);
-	CloseHandle(hUserToken);
-
-	if (!queryRet)
+	if (!DuplicateTokenEx(tokenLinkedToken.LinkedToken, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &hDuplicatedUserToken))
 	{
 		Logger::instance().out(L"Failed to duplicate user token: %x", GetLastError());
+		safeCloseHandle(hProcessToken);
+		safeCloseHandle(hUserToken);
+		AdjustTokenPrivileges(hProcessToken, FALSE, &OldTokenPriv, sizeof(OldTokenPriv), NULL, NULL);
 		return mpr;
 	}
-
-
-	if (isTokenElevated(hDuplicatedUserToken))
-	{
-		Logger::instance().out(L"Dup User token is ELEVATED)");
-	}
-	else
-	{
-		Logger::instance().out(L"Dup User token is NOT ELEVATED");
-	}
+	safeCloseHandle(hUserToken);
 
 	// get env
 	LPVOID pEnvBlock = NULL;
 	if (!CreateEnvironmentBlock(&pEnvBlock, hDuplicatedUserToken, FALSE))
 	{
 		Logger::instance().out(L"Failed to duplicate environment: %x", GetLastError());
+		safeCloseHandle(hDuplicatedUserToken);
+		safeCloseHandle(hProcessToken);
+		AdjustTokenPrivileges(hProcessToken, FALSE, &OldTokenPriv, sizeof(OldTokenPriv), NULL, NULL);
 		return mpr;
 	}
 
@@ -220,26 +215,28 @@ MessagePacketResult ExecuteCmd::executeUnblockingBackgroundCmd(const wchar_t *ap
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	si.lpDesktop = L"WinSta0\\default";
-	if (CreateProcessAsUser(hDuplicatedUserToken, NULL, szCmd, NULL, NULL, FALSE,
+	if (!CreateProcessAsUser(hDuplicatedUserToken, NULL, szCmd, NULL, NULL, FALSE,
 							NORMAL_PRIORITY_CLASS  | CREATE_UNICODE_ENVIRONMENT, 
 							pEnvBlock, NULL, &si, &pi))
 	{
-		Logger::instance().out(L"Created process successfully");
-
-		CloseHandle(pi.hThread);
-		CloseHandle(pi.hProcess);
-		mpr.success = true;
-	}
-	else
-	{
 		Logger::instance().out(L"Failed create process: %d", GetLastError());
+		safeCloseHandle(hDuplicatedUserToken);
+		safeCloseHandle(hProcessToken);
+		DestroyEnvironmentBlock(pEnvBlock);
+		AdjustTokenPrivileges(hProcessToken, FALSE, &OldTokenPriv, sizeof(OldTokenPriv), NULL, NULL);
+		return mpr;
 	}
 
-	DestroyEnvironmentBlock(pEnvBlock);
+	Logger::instance().out(L"Created process successfully");
+	safeCloseHandle(pi.hThread);
+	safeCloseHandle(pi.hProcess);
+	mpr.success = true;
 
+	// cleanup
+	DestroyEnvironmentBlock(pEnvBlock);
 	AdjustTokenPrivileges(hProcessToken, FALSE, &OldTokenPriv, sizeof(OldTokenPriv), NULL, NULL);
-	CloseHandle(hDuplicatedUserToken);
-	CloseHandle(hProcessToken);
+	safeCloseHandle(hDuplicatedUserToken);
+	safeCloseHandle(hProcessToken);
 
 	return mpr;
 }
@@ -382,16 +379,11 @@ BOOL ExecuteCmd::isTokenElevated(HANDLE handle)
 	return FALSE;
 }
 
-BOOL ExecuteCmd::setTokenElevated(HANDLE handle, BOOL elevate)
+void ExecuteCmd::safeCloseHandle(HANDLE handle)
 {
-	TOKEN_ELEVATION elevation;
-	elevation.TokenIsElevated = elevate;
-	DWORD cbSize = sizeof(TOKEN_ELEVATION);
-	if (!SetTokenInformation(handle, TokenElevation, &elevation, sizeof(elevation)))
+	if (handle)
 	{
-		Logger::instance().out(L"Failed to elevate token: %d", GetLastError());
-		return FALSE;
+		CloseHandle(handle);
+		handle = NULL;
 	}
-
-	return TRUE;
 }
