@@ -63,7 +63,6 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     serversModel_(NULL),
     nodesSpeedStore_(NULL),
     refetchServerCredentialsHelper_(NULL),
-    mutexApiInfo_(QMutex::Recursive),
     isBlockConnect_(false),
     isCleanupFinished_(false),
     isNeedReconnectAfterRequestUsernameAndPassword_(false),
@@ -166,8 +165,8 @@ bool Engine::isApiSavedSettingsExists()
     if (settings.contains("authHash"))
     {
         // try load ApiInfo from settings
-        QSharedPointer<ApiInfo> apiInfo(new ApiInfo());
-        if (apiInfo->loadFromSettings())
+        ApiInfo::ApiInfo apiInfo;
+        if (apiInfo.loadFromSettings())
         {
             return true;
         }
@@ -219,28 +218,10 @@ LoginSettings Engine::getLastLoginSettings()
     return loginSettings_;
 }
 
-QSharedPointer<PortMap> Engine::getCurrentPortMap()
-{
-    QMutexLocker locker(&mutexApiInfo_);
-    Q_ASSERT(!apiInfo_.isNull());
-    QSharedPointer<PortMap> src = apiInfo_->getPortMap();
-    QSharedPointer<PortMap> portMap(new PortMap);
-    *portMap = *src;
-    return portMap;
-}
-
 QString Engine::getAuthHash()
 {
-    QMutexLocker locker(&mutexApiInfo_);
-    if (!apiInfo_.isNull())
-    {
-        return apiInfo_->getAuthHash();
-    }
-    else
-    {
-        QSettings settings;
-        return settings.value("authHash", "").toString();
-    }
+    QSettings settings;
+    return settings.value("authHash", "").toString();
 }
 
 LocationID Engine::getLocationIdByName(const QString &location)
@@ -258,11 +239,7 @@ LocationID Engine::getLocationIdByName(const QString &location)
 
 void Engine::clearCredentials()
 {
-    QMutexLocker locker(&mutexApiInfo_);
-    if (!apiInfo_.isNull())
-    {
-        return apiInfo_->setServerCredentials(ServerCredentials());
-    }
+    QMetaObject::invokeMethod(this, "clearCredentialsImpl");
 }
 
 IServersModel *Engine::getServersModel()
@@ -751,12 +728,9 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         notificationsUpdateTimer_->stop();
     }
 
+    if (!apiInfo_.isNull())
     {
-        QMutexLocker locker(&mutexApiInfo_);
-        if (!apiInfo_.isNull())
-        {
-            apiInfo_->saveToSettings();
-        }
+        apiInfo_->saveToSettings();
     }
 
     // to skip blocking executeRootCommand() calls
@@ -899,6 +873,14 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     qCDebug(LOG_BASIC) << "Cleanup finished";
 }
 
+void Engine::clearCredentialsImpl()
+{
+    if (!apiInfo_.isNull())
+    {
+        apiInfo_->setServerCredentials(ApiInfo::ServerCredentials());
+    }
+}
+
 void Engine::enableBFE_winImpl()
 {
 #ifdef Q_OS_WIN
@@ -917,39 +899,26 @@ void Engine::enableBFE_winImpl()
 void Engine::loginImpl(bool bSkipLoadingFromSettings)
 {
     QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-    /*QMutexLocker locker(&mutex_);
-    {
-        QMutexLocker lockerApiInfo(&mutexApiInfo_);
-        apiInfo_.reset();
-    }*/
 
     QSettings settings;
     if (!bSkipLoadingFromSettings && settings.contains("authHash"))
     {
         QString authHash = settings.value("authHash").toString();
+        apiInfo_.reset(new ApiInfo::ApiInfo());
 
         // try load ApiInfo from settings
-        QSharedPointer<ApiInfo> apiInfo(new ApiInfo());
-
-        if (apiInfo->loadFromSettings())
+        if (apiInfo_->loadFromSettings())
         {
-            apiInfo->setAuthHash(authHash);
+            apiInfo_->setAuthHash(authHash);
+            loginSettings_.setServerCredentials(apiInfo_->getServerCredentials());
 
             qCDebug(LOG_BASIC) << "ApiInfo readed from settings";
-
-            {
-                QMutexLocker lockerApiInfo(&mutexApiInfo_);
-                apiInfo_ = apiInfo;
-
-                loginSettings_.setServerCredentials(apiInfo_->getServerCredentials());
-            }
-
-            prevSessionStatus_ = *apiInfo->getSessionStatus();
+            prevSessionStatus_ = apiInfo_->getSessionStatus();
 
             updateSessionStatus();
             updateServerLocations();
             updateCurrentNetworkInterface();
-            emit loginFinished(true);
+            emit loginFinished(true, authHash, apiInfo_->getPortMap());
         }
     }
 
@@ -968,7 +937,6 @@ void Engine::recordInstallImpl()
 
 void Engine::sendConfirmEmailImpl()
 {
-    QMutexLocker locker(&mutexApiInfo_);
     if (!apiInfo_.isNull())
     {
         serverAPI_->confirmEmail(serverApiUserRole_, apiInfo_->getAuthHash(), true);
@@ -1027,11 +995,10 @@ void Engine::disconnectClickImpl()
 
 void Engine::sendDebugLogImpl()
 {
-    QMutexLocker locker(&mutexApiInfo_);
     QString userName;
     if (!apiInfo_.isNull())
     {
-        userName = apiInfo_->getSessionStatus()->getUsername();
+        userName = apiInfo_->getSessionStatus().getUsername();
     }
     QString log = MergeLog::mergePrevLogs();
     log += "================================================================================================================================================================================================\n";
@@ -1071,16 +1038,13 @@ void Engine::signOutImplAfterDisconnect()
 
     helper_->enableFirewallOnBoot(false);
 
+    if (!apiInfo_.isNull())
     {
-        QMutexLocker locker(&mutexApiInfo_);
-        if (!apiInfo_.isNull())
-        {
-            serverAPI_->deleteSession(apiInfo_->getAuthHash(), serverApiUserRole_, true);
-            apiInfo_->removeFromSettings();
-            apiInfo_.reset();
-            QSettings settings;
-            settings.remove("authHash");
-        }
+        serverAPI_->deleteSession(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+        apiInfo_->removeFromSettings();
+        apiInfo_.reset();
+        QSettings settings;
+        settings.remove("authHash");
     }
 
     firewallController_->firewallOff();
@@ -1170,7 +1134,6 @@ void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 
     }
 
-    QMutexLocker locker(&mutexApiInfo_);
     serverAPI_->speedRating(apiInfo_->getAuthHash(), lastConnectingHostname_, localExternalIp, rating, serverApiUserRole_, true);
 }
 
@@ -1206,10 +1169,9 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     }
     if (isLanguageChanged || isProtocolChanged)
     {
-        QMutexLocker locker(&mutexApiInfo_);
         if (!apiInfo_.isNull())
         {
-            SessionStatus ss = *apiInfo_->getSessionStatus();
+            ApiInfo::SessionStatus ss = apiInfo_->getSessionStatus();
             if (isLanguageChanged)
             {
                 qCDebug(LOG_BASIC) << "Language changed -> update server locations";
@@ -1267,7 +1229,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     OpenVpnVersionController::instance().setUseWinTun(engineSettings_.isUseWintun());
 }
 
-void Engine::onLoginControllerFinished(LOGIN_RET retCode, QSharedPointer<ApiInfo> apiInfo, bool bFromConnectedToVPNState)
+void Engine::onLoginControllerFinished(LOGIN_RET retCode, const ApiInfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState)
 {
     qCDebug(LOG_BASIC) << "onLoginControllerFinished, retCode =" << loginRetToString(retCode) << ";" << "bFromConnectedToVPNState =" << bFromConnectedToVPNState;
 
@@ -1288,23 +1250,16 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, QSharedPointer<ApiInfo
             //serverAPI_->bestLocation(apiInfo->getAuthHash(), serverApiUserRole_, true);
         }
 
-        QString curRevisionHash;
-        {
-            QMutexLocker locker(&mutexApiInfo_);
-            apiInfo_ = apiInfo;
-            curRevisionHash = apiInfo_->getSessionStatus()->getRevisionHash();
-
-            QSettings settings;
-            settings.setValue("authHash", apiInfo->getAuthHash());
-        }
+        apiInfo_.reset(new ApiInfo::ApiInfo);
+        *apiInfo_ = apiInfo;
+        QString curRevisionHash = apiInfo_->getSessionStatus().getRevisionHash();
+        QSettings settings;
+        settings.setValue("authHash", apiInfo_->getAuthHash());
 
         // if updateServerLocation not called in loginImpl
         if (!prevSessionStatus_.isInitialized())
         {
-            {
-                QMutexLocker locker(&mutexApiInfo_);
-                prevSessionStatus_ = *apiInfo_->getSessionStatus();
-            }
+            prevSessionStatus_ = apiInfo_->getSessionStatus();
         }
         else
         {
@@ -1326,7 +1281,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, QSharedPointer<ApiInfo
             loginState_ = LOGIN_FINISHED;
         }
         updateCurrentNetworkInterface();
-        emit loginFinished(false);
+        emit loginFinished(false, apiInfo_->getAuthHash(), apiInfo_->getPortMap());
     }
     else if (retCode == LOGIN_NO_CONNECTIVITY)
     {
@@ -1410,7 +1365,7 @@ void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
     emit loginStepMessage(msg);
 }
 
-void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector<QSharedPointer<ServerLocation> > serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1418,12 +1373,8 @@ void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector<QShare
         {
             if (!serverLocations.isEmpty())
             {
-                {
-                    QMutexLocker locker(&mutexApiInfo_);
-
-                    apiInfo_->setServerLocations(serverLocations);
-                    apiInfo_->setForceDisconnectNodes(forceDisconnectNodes);
-                }
+                apiInfo_->setLocations(serverLocations);
+                apiInfo_->setForceDisconnectNodes(forceDisconnectNodes);
                 updateServerLocations();
             }
         }
@@ -1438,7 +1389,7 @@ void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector<QShare
     }
 }
 
-void Engine::onBestLocationChanged(QVector<QSharedPointer<ServerLocation> > &serverLocations)
+/*void Engine::onBestLocationChanged(QVector<QSharedPointer<ServerLocation> > &serverLocations)
 {
     if (!serverLocations.isEmpty())
     {
@@ -1449,18 +1400,15 @@ void Engine::onBestLocationChanged(QVector<QSharedPointer<ServerLocation> > &ser
         }
         updateServerLocations();
     }
-}
+}*/
 
-void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, uint userRole)
+void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::SessionStatus &sessionStatus, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
         if (retCode == SERVER_RETURN_SUCCESS)
         {
-            {
-                QMutexLocker locker(&mutexApiInfo_);
-                apiInfo_->setSessionStatus(sessionStatus);
-            }
+            apiInfo_->setSessionStatus(sessionStatus);
             updateSessionStatus();
             // updateCurrentNetworkInterface();
         }
@@ -1471,7 +1419,7 @@ void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<Session
      }
 }
 
-void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiNotifications> notifications, uint userRole)
+void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Notification> &notifications, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1488,7 +1436,6 @@ void Engine::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray confi
     {
         if (retCode == SERVER_RETURN_SUCCESS)
         {
-            QMutexLocker locker(&mutexApiInfo_);
             apiInfo_->setOvpnConfig(config);
         }
         else
@@ -1543,16 +1490,13 @@ void Engine::onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole)
     }
 }
 
-void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation, uint userRole)
+void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::StaticIps &staticIps, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
         if (retCode == SERVER_RETURN_SUCCESS)
         {
-            {
-                QMutexLocker locker(&mutexApiInfo_);
-                apiInfo_->setStaticIpsLocation(staticIpsLocation);
-            }
+            apiInfo_->setStaticIps(staticIps);
             updateServerLocations();
         }
         else
@@ -1571,13 +1515,11 @@ void Engine::onStartCheckUpdate()
 
 void Engine::onStartStaticIpsUpdate()
 {
-    QMutexLocker locker(&mutexApiInfo_);
     serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), serverApiUserRole_, true);
 }
 
 void Engine::onUpdateSessionStatusTimer()
 {
-    QMutexLocker locker(&mutexApiInfo_);
     serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
@@ -1786,10 +1728,7 @@ void Engine::onConnectionManagerError(CONNECTION_ERROR err)
             if (refetchServerCredentialsHelper_ == NULL)
             {
                 // force update session status (for check blocked, banned account state)
-                {
-                    QMutexLocker locker(&mutexApiInfo_);
-                    serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
-                }
+                serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 
                 refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
                 connect(refetchServerCredentialsHelper_, SIGNAL(finished(bool,ServerCredentials)), SLOT(onRefetchServerCredentialsFinished(bool,ServerCredentials)));
@@ -1980,7 +1919,7 @@ void Engine::onEmergencyControllerError(CONNECTION_ERROR err)
     emit emergencyConnectError(err);
 }
 
-void Engine::onRefetchServerCredentialsFinished(bool success, const ServerCredentials &serverCredentials)
+void Engine::onRefetchServerCredentialsFinished(bool success, const ApiInfo::ServerCredentials &serverCredentials)
 {
     bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
     refetchServerCredentialsHelper_->deleteLater();
@@ -2002,13 +1941,18 @@ void Engine::onRefetchServerCredentialsFinished(bool success, const ServerCreden
 
 void Engine::getNewNotifications()
 {
-    QMutexLocker locker(&mutexApiInfo_);
     serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
-void Engine::onUpdateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> > &serverLocations)
+void Engine::onUpdateFirewallIpsForLocations(const QVector<ApiInfo::Location> &serverLocations)
 {
-    firewallExceptions_.setLocations(serverLocations);
+    QStringList listIps;
+    for (const ApiInfo::Location &l : serverLocations)
+    {
+        listIps << l.getAllIps();
+    }
+
+    firewallExceptions_.setLocationsIps(listIps);
     updateFirewallSettings();
 }
 
@@ -2082,7 +2026,6 @@ void Engine::onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType u
 
 void Engine::updateServerConfigsImpl()
 {
-    QMutexLocker locker(&mutexApiInfo_);
     if (!apiInfo_.isNull())
     {
         serverAPI_->serverConfigs(apiInfo_->getAuthHash(), serverApiUserRole_, true);
@@ -2129,7 +2072,8 @@ void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes
 
 void Engine::forceUpdateServerLocationsImpl()
 {
-    serversModel_->updateServers(lastCopyOfServerlocations_);
+    //todo
+    //serversModel_->updateServers(lastCopyOfServerlocations_);
 }
 
 void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType)
@@ -2203,18 +2147,15 @@ void Engine::startLoginController(const LoginSettings &loginSettings, bool bFrom
 
 void Engine::updateSessionStatus()
 {
-    mutexApiInfo_.lock();
     if (!apiInfo_.isNull())
     {
         qCDebug(LOG_BASIC) << "update session status";
 
-        SessionStatus ss = *apiInfo_->getSessionStatus();
+        ApiInfo::SessionStatus ss = apiInfo_->getSessionStatus();
 
         serversModel_->setSessionStatus(!ss.isPro());
 
-        QSharedPointer<SessionStatus> ssForSignal(new SessionStatus());
-        *ssForSignal = ss;
-        emit sessionStatusUpdated(ssForSignal);
+        emit sessionStatusUpdated(ss);
 
         if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.getStaticIpsCount() != ss.getStaticIpsCount() ||
                 ss.isContainsStaticDeviceId(GetDeviceId::instance().getDeviceId()))
@@ -2225,8 +2166,8 @@ void Engine::updateSessionStatus()
             }
             else
             {
-                QSharedPointer<StaticIpsLocation> emptyLocation;
-                apiInfo_->setStaticIpsLocation(emptyLocation);
+                // set empty list of static ips
+                apiInfo_->setStaticIps(ApiInfo::StaticIps());
                 updateServerLocations();
             }
         }
@@ -2247,12 +2188,11 @@ void Engine::updateSessionStatus()
 
         prevSessionStatus_ = ss;
     }
-    mutexApiInfo_.unlock();
 }
 
 void Engine::updateServerLocations()
 {
-    QMutexLocker locker(&mutexApiInfo_);
+    /*QMutexLocker locker(&mutexApiInfo_);
     QVector<QSharedPointer<ServerLocation> > serverLocations;
 
     if (!apiInfo_.isNull())
@@ -2314,7 +2254,7 @@ void Engine::updateServerLocations()
         {
             checkForceDisconnectNode(apiInfo_->getForceDisconnectNodes());
         }
-    }
+    }*/
 }
 
 void Engine::updateFirewallSettings()
@@ -2379,7 +2319,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
 void Engine::doConnect(bool bEmitAuthError)
 {
     // before connect, update ICS sharing and wait for update ICS finished
-    vpnShareController_->onConnectingOrConnectedToVPNEvent();
+    /*vpnShareController_->onConnectingOrConnectedToVPNEvent();
     while (vpnShareController_->isUpdateIcsInProgress())
     {
         QThread::msleep(1);
@@ -2481,7 +2421,7 @@ void Engine::doConnect(bool bEmitAuthError)
         connectionManager_->clickConnect(ovpnConfig, serverCredentials, mli,
             engineSettings_.connectionSettings(), portmap,
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError);
-    }
+    }*/
 }
 
 LocationID Engine::checkLocationIdExistingAndReturnNewIfNeed(const LocationID &locationId)
