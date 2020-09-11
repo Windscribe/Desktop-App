@@ -6,32 +6,29 @@
 #include <QJsonArray>
 #include "../types/locationid.h"
 
+const int typeIdLocation = qRegisterMetaType<ApiInfo::Location>("ApiInfo::Location");
+const int typeIdLocations = qRegisterMetaType<QVector<ApiInfo::Location>>("QVector<ApiInfo::Location>");
+
 namespace ApiInfo {
 
-Location::Location() : id_(0), premiumOnly_(0), p2p_(0),
-                                   isValid_(false)/*, bestLocationId_(0),
-                                   selectedNodeIndForBestLocation_(0), bestLocationPingTimeMs_(0)*/,
-                                   type_(SERVER_LOCATION_DEFAULT)
-{
-}
 
 bool Location::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
 {
     if (!obj.contains("id") || !obj.contains("name") || !obj.contains("country_code") ||
             !obj.contains("premium_only") || !obj.contains("p2p") || !obj.contains("groups"))
     {
-        isValid_ = false;
+        d->isValid_ = false;
         return false;
     }
 
-    id_ = obj["id"].toInt();
-    name_ = obj["name"].toString();
-    countryCode_ = obj["country_code"].toString();
-    premiumOnly_ = obj["premium_only"].toInt();
-    p2p_ = obj["p2p"].toInt();
+    d->id_ = obj["id"].toInt();
+    d->name_ = obj["name"].toString();
+    d->countryCode_ = obj["country_code"].toString();
+    d->premiumOnly_ = obj["premium_only"].toInt();
+    d->p2p_ = obj["p2p"].toInt();
     if (obj.contains("dns_hostname"))
     {
-        dnsHostName_ = obj["dns_hostname"].toString();
+        d->dnsHostName_ = obj["dns_hostname"].toString();
     }
 
     const auto groupsArray = obj["groups"].toArray();
@@ -41,27 +38,17 @@ bool Location::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
         Group group;
         if (!group.initFromJson(objServerGroup, forceDisconnectNodes))
         {
-            isValid_ = false;
+            d->isValid_ = false;
             return false;
         }
-        groups_ << group;
+        d->groups_ << group;
     }
 
-    isValid_ = true;
-    type_ = SERVER_LOCATION_DEFAULT;
-    //makeInternalStates();
+    d->isValid_ = true;
+    d->type_ = SERVER_LOCATION_DEFAULT;
     return true;
 }
 
-QStringList LocationsArray::getAllIps() const
-{
-    QStringList list;
-    for (const QSharedPointer<Location> &l : *this)
-    {
-        list << l->getAllIps();
-    }
-    return list;
-}
 
 /*
 void ServerLocation::transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId)
@@ -187,17 +174,6 @@ int ServerLocation::nodesCount() const
     return nodes_.count();
 }
 */
-QStringList Location::getAllIps() const
-{
-    Q_ASSERT(isValid_);
-    QStringList list;
-    Q_FOREACH(const Group &group, groups_)
-    {
-        list << group.getAllIps();
-    }
-
-    return list;
-}
 
 /*QString ServerLocation::getCountryCode() const
 {

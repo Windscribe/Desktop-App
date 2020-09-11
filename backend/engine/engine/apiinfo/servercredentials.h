@@ -1,8 +1,9 @@
-#ifndef SERVERCREDENTIALS_H
-#define SERVERCREDENTIALS_H
+#ifndef APIINFO_SERVERCREDENTIALS_H
+#define APIINFO_SERVERCREDENTIALS_H
 
 #include <QString>
 
+namespace ApiInfo {
 
 class ServerCredentials
 {
@@ -27,4 +28,6 @@ private:
     QString passwordIkev2_;
 };
 
-#endif // SERVERCREDENTIALS_H
+} //namespace ApiInfo
+
+#endif // APIINFO_SERVERCREDENTIALS_H

@@ -20,23 +20,23 @@ ApiInfo::~ApiInfo()
 {
 }
 
-QSharedPointer<SessionStatus> ApiInfo::getSessionStatus() const
+SessionStatus ApiInfo::getSessionStatus() const
 {
     return sessionStatus_;
 }
 
-void ApiInfo::setSessionStatus(const QSharedPointer<SessionStatus> &value)
+void ApiInfo::setSessionStatus(const SessionStatus &value)
 {
     sessionStatus_ = value;
 }
 
-void ApiInfo::setLocations(const QVector<QSharedPointer<Location> > &value)
+void ApiInfo::setLocations(const QVector<Location> &value)
 {
     locations_ = value;
     processServerLocations();
 }
 
-QVector<QSharedPointer<Location> > ApiInfo::getLocations()
+QVector<Location> ApiInfo::getLocations() const
 {
     return locations_;
 }
@@ -51,15 +51,15 @@ void ApiInfo::setForceDisconnectNodes(const QStringList &value)
     forceDisconnectNodes_ = value;
 }
 
-/*void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
+void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
 {
     serverCredentials_ = serverCredentials;
 }
 
-const ServerCredentials &ApiInfo::getServerCredentials() const
+ServerCredentials ApiInfo::getServerCredentials() const
 {
     return serverCredentials_;
-}*/
+}
 
 QByteArray ApiInfo::getOvpnConfig() const
 {
@@ -81,25 +81,25 @@ void ApiInfo::setAuthHash(const QString &authHash)
     authHash_ = authHash;
 }
 
-/*QSharedPointer<PortMap> ApiInfo::getPortMap() const
+PortMap ApiInfo::getPortMap() const
 {
     return portMap_;
 }
 
-void ApiInfo::setPortMap(const QSharedPointer<PortMap> &portMap)
+void ApiInfo::setPortMap(const PortMap &portMap)
 {
     portMap_ = portMap;
 }
 
-void ApiInfo::setStaticIpsLocation(QSharedPointer<StaticIpsLocation> &value)
+void ApiInfo::setStaticIpsLocation(const StaticIps &value)
 {
     staticIps_ = value;
 }
 
-QSharedPointer<StaticIpsLocation> ApiInfo::getStaticIpsLocation() const
+StaticIps ApiInfo::getStaticIpsLocation() const
 {
     return staticIps_;
-}*/
+}
 
 void ApiInfo::saveToSettings()
 {

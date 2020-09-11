@@ -1,24 +1,19 @@
-#include "staticipslocation.h"
+#include "staticips.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDataStream>
-#include "../apiinfo/serverlocation.h"
-#include "locationid.h"
 
-StaticIpsLocation::StaticIpsLocation()
-{
+const int typeIdStaticIps = qRegisterMetaType<ApiInfo::StaticIps>("ApiInfo::StaticIps");
 
-}
+namespace ApiInfo {
 
-bool StaticIpsLocation::initFromJson(QJsonObject &init_obj)
+bool StaticIps::initFromJson(QJsonObject &init_obj)
 {
     if (!init_obj.contains("static_ips"))
     {
         return false;
     }
-
-    bool bDeviceNameFetched = false;
 
     QJsonArray jsonStaticIps = init_obj["static_ips"].toArray();
     Q_FOREACH(const QJsonValue &value, jsonStaticIps)
@@ -80,7 +75,6 @@ bool StaticIpsLocation::initFromJson(QJsonObject &init_obj)
             }
         }
 
-
         if (!obj.contains("credentials"))
         {
             return false;
@@ -97,19 +91,18 @@ bool StaticIpsLocation::initFromJson(QJsonObject &init_obj)
             return false;
         }
 
-        if (!bDeviceNameFetched && obj.contains("device_name"))
+        if (obj.contains("device_name"))
         {
-            deviceName_ = obj["device_name"].toString();
-            bDeviceNameFetched = true;
+            d->deviceName_ = obj["device_name"].toString();
         }
 
-        ips_ << sid;
+        d->ips_ << sid;
     }
 
     return true;
 }
 
-void StaticIpsLocation::writeToStream(QDataStream &stream) const
+/*void StaticIpsLocation::writeToStream(QDataStream &stream) const
 {
     stream << REVISION_VERSION;
     int cnt = ips_.count();
@@ -193,12 +186,12 @@ void StaticIpsLocation::readFromStream(QDataStream &stream, int revision)
     {
         stream >> deviceName_;
     }
-}
+}*/
 
-QSharedPointer<ServerLocation> StaticIpsLocation::makeServerLocation()
+/*QSharedPointer<ServerLocation> StaticIpsLocation::makeServerLocation()
 {
     QSharedPointer<ServerLocation> sl(new ServerLocation);
-    /*sl->id_ = LocationID::STATIC_IPS_LOCATION_ID;
+    sl->id_ = LocationID::STATIC_IPS_LOCATION_ID;
     sl->type_ = ServerLocation::SERVER_LOCATION_STATIC;
     sl->name_ = QObject::tr("Static IPs");
     sl->countryCode_ = "STATIC_IPS";
@@ -216,10 +209,10 @@ QSharedPointer<ServerLocation> StaticIpsLocation::makeServerLocation()
 
     sl->isValid_ = true;
 
-    sl->makeInternalStates();*/
+    sl->makeInternalStates();
 
     return sl;
-}
+}*/
 
 QString StaticIpPortsVector::getAsStringWithDelimiters() const
 {
@@ -241,3 +234,5 @@ bool operator==(const StaticIpPortDescr &l, const StaticIpPortDescr &r)
 {
     return l.extPort == r.extPort && l.intPort == r.intPort;
 }
+
+} //namespace ApiInfo

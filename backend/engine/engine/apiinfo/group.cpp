@@ -3,25 +3,20 @@
 
 namespace ApiInfo {
 
-Group::Group() : id_(0), pro_(0), isValid_(false)
-{
-
-}
-
 bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
 {
     if (!obj.contains("id") || !obj.contains("city") || !obj.contains("nick") ||
             !obj.contains("pro") || !obj.contains("ping_ip"))
     {
-        isValid_ = false;
+        d->isValid_ = false;
         return false;
     }
 
-    id_ = obj["id"].toInt();
-    city_ = obj["city"].toString();
-    nick_ = obj["nick"].toString();
-    pro_ = obj["pro"].toInt();
-    pingIp_ = obj["ping_ip"].toInt();
+    d->id_ = obj["id"].toInt();
+    d->city_ = obj["city"].toString();
+    d->nick_ = obj["nick"].toString();
+    d->pro_ = obj["pro"].toInt();
+    d->pingIp_ = obj["ping_ip"].toInt();
 
     if (obj.contains("nodes"))
     {
@@ -32,7 +27,7 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
             Node node;
             if (!node.initFromJson(objServerNode))
             {
-                isValid_ = false;
+                d->isValid_ = false;
                 return false;
             }
 
@@ -43,7 +38,7 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
             }
             else
             {
-                nodes_ << node;
+                d->nodes_ << node;
             }
         }
     }
@@ -52,16 +47,16 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
 
 QStringList Group::getAllIps() const
 {
-    Q_ASSERT(isValid_);
+    Q_ASSERT(d->isValid_);
 
     QStringList list;
-    for (const Node &node : nodes_)
+    for (const Node &node : d->nodes_)
     {
         list << node.getIp(0);
         list << node.getIp(1);
         list << node.getIp(2);
     }
-    list << pingIp_;
+    list << d->pingIp_;
     return list;
 }
 

@@ -6,11 +6,11 @@
 #include <QSharedPointer>
 #include <QVector>
 #include <QSet>
-//#include "portmap.h"
-//#include "servercredentials.h"
+#include "portmap.h"
+#include "servercredentials.h"
 #include "utils/simplecrypt.h"
 #include "location.h"
-//#include "staticipslocation.h"
+#include "staticips.h"
 #include "sessionstatus.h"
 
 namespace ApiInfo {
@@ -21,18 +21,17 @@ public:
     ApiInfo();
     virtual ~ApiInfo();
 
-    QSharedPointer<SessionStatus> getSessionStatus() const;
+    SessionStatus getSessionStatus() const;
+    void setSessionStatus(const SessionStatus &value);
 
-    void setSessionStatus(const QSharedPointer<SessionStatus> &value);
-
-    void setLocations(const QVector<QSharedPointer<Location> > &value);
-    QVector<QSharedPointer<Location> > getLocations();
+    void setLocations(const QVector<Location> &value);
+    QVector<Location> getLocations() const;
 
     QStringList getForceDisconnectNodes() const;
     void setForceDisconnectNodes(const QStringList &value);
 
-    //void setServerCredentials(const ServerCredentials &serverCredentials);
-    //const ServerCredentials &getServerCredentials() const;
+    void setServerCredentials(const ServerCredentials &serverCredentials);
+    ServerCredentials getServerCredentials() const;
 
     QByteArray getOvpnConfig() const;
     void setOvpnConfig(const QByteArray &value);
@@ -40,11 +39,11 @@ public:
     QString getAuthHash() const;
     void setAuthHash(const QString &authHash);
 
-    //QSharedPointer<PortMap> getPortMap() const;
-    //void setPortMap(const QSharedPointer<PortMap> &portMap);
+    PortMap getPortMap() const;
+    void setPortMap(const PortMap &portMap);
 
-    //void setStaticIpsLocation(QSharedPointer<StaticIpsLocation> &value);
-    //QSharedPointer<StaticIpsLocation> getStaticIpsLocation() const;
+    void setStaticIpsLocation(const StaticIps &value);
+    StaticIps getStaticIpsLocation() const;
 
     bool loadFromSettings();
     void saveToSettings();
@@ -56,22 +55,15 @@ public:
 private:
     void processServerLocations();
 
-    QSharedPointer<SessionStatus> sessionStatus_;
-
-    QVector<QSharedPointer<Location> > locations_;
-
+    SessionStatus sessionStatus_;
+    QVector<Location> locations_;
     QStringList forceDisconnectNodes_;
-
-    //ServerCredentials serverCredentials_;
-
+    ServerCredentials serverCredentials_;
     QByteArray ovpnConfig_;
-
-    //QSharedPointer<PortMap> portMap_;
-
-    //QSharedPointer<StaticIpsLocation> staticIps_;
+    PortMap portMap_;
+    StaticIps staticIps_;
 
     QString authHash_;
-
     SimpleCrypt simpleCrypt_;
 };
 

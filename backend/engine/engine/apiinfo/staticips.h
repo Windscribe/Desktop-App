@@ -1,11 +1,11 @@
-#ifndef STATICIPSLOCATION_H
-#define STATICIPSLOCATION_H
+#ifndef APIINFO_STATICIPS_H
+#define APIINFO_STATICIPS_H
 
 #include <QSharedPointer>
 #include <QString>
 #include <QVector>
 
-class ServerLocation;
+namespace ApiInfo {
 
 
 struct StaticIpPortDescr
@@ -44,24 +44,41 @@ public:
     QString getAsStringWithDelimiters() const;
 };
 
-class StaticIpsLocation
+// internal data for StaticIps
+class StaticIpsData : public QSharedData
 {
 public:
-    StaticIpsLocation();
-
-    bool initFromJson(QJsonObject &obj);
-
-
-    void writeToStream(QDataStream &stream) const;
-    void readFromStream(QDataStream &stream, int revision);
-
-    QSharedPointer<ServerLocation> makeServerLocation();
-
-private:
-    static constexpr int REVISION_VERSION = 1;
+    StaticIpsData() {}
+    StaticIpsData(const StaticIpsData &other)
+        : QSharedData(other),
+          deviceName_(other.deviceName_),
+          ips_(other.ips_) {}
+    ~StaticIpsData() {}
 
     QString deviceName_;
     QVector<StaticIpDescr> ips_;
 };
 
-#endif // STATICIPSLOCATION_H
+
+// implicitly shared class StaticIps
+class StaticIps
+{
+public:
+    explicit StaticIps() { d = new StaticIpsData; }
+    StaticIps(const StaticIps &other) : d (other.d) { }
+
+    bool initFromJson(QJsonObject &obj);
+
+
+    //void writeToStream(QDataStream &stream) const;
+    //void readFromStream(QDataStream &stream, int revision);
+
+    //QSharedPointer<ServerLocation> makeServerLocation();
+
+private:
+    QSharedDataPointer<StaticIpsData> d;
+};
+
+} //namespace ApiInfo
+
+#endif // APIINFO_STATICIPS_H

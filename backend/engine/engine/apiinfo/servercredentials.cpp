@@ -2,6 +2,8 @@
 
 #include <QDataStream>
 
+namespace ApiInfo {
+
 ServerCredentials::ServerCredentials() :
     bInitialized_(false)
 {
@@ -64,3 +66,5 @@ void ServerCredentials::readFromStream(QDataStream &stream, int revision)
         bInitialized_ = false;
     }
 }
+
+} //namespace ApiInfo

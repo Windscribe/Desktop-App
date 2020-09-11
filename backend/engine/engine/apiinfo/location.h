@@ -8,21 +8,48 @@
 
 namespace ApiInfo {
 
+enum SERVER_LOCATION_TYPE { SERVER_LOCATION_DEFAULT, SERVER_LOCATION_CUSTOM_CONFIG, SERVER_LOCATION_BEST, SERVER_LOCATION_STATIC };
+
+class LocationData : public QSharedData
+{
+public:
+    LocationData() : id_(0), premiumOnly_(0), p2p_(0),
+        isValid_(false),
+        type_(SERVER_LOCATION_DEFAULT) {}
+
+    LocationData(const LocationData &other)
+        : QSharedData(other),
+          id_(other.id_),
+          name_(other.name_),
+          countryCode_(other.countryCode_),
+          premiumOnly_(other.premiumOnly_),
+          p2p_(other.p2p_),
+          dnsHostName_(other.dnsHostName_),
+          groups_(other.groups_),
+          isValid_(other.isValid_),
+          type_(other.type_) {}
+    ~LocationData() {}
+
+    int id_;
+    QString name_;
+    QString countryCode_;
+    int premiumOnly_;
+    int p2p_;
+    QString dnsHostName_;
+
+    QVector<Group> groups_;
+
+    // internal state
+    bool isValid_;
+    SERVER_LOCATION_TYPE type_;
+};
+
+// implicitly shared class Location
 class Location
 {
-    //friend StaticIpsLocation;
-
 public:
-
-    enum SERVER_LOCATION_TYPE { SERVER_LOCATION_DEFAULT, SERVER_LOCATION_CUSTOM_CONFIG, SERVER_LOCATION_BEST, SERVER_LOCATION_STATIC };
-
-    /*struct CityNodes
-    {
-        QVector<int> nodesInds;  // this is indexes in ServerLocation(nodes vector)
-    };*/
-
-public:
-    explicit Location();
+    explicit Location() { d = new LocationData; }
+    Location(const Location &other) : d (other.d) { }
 
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
     /*void transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId);
@@ -62,54 +89,9 @@ public:
     bool isEqual(ServerLocation *other);*/
 
 private:
-    int id_;
-    QString name_;
-    QString countryCode_;
-    int premiumOnly_;
-    int p2p_;
-    QString dnsHostName_;
-
-    QVector<Group> groups_;
-
-    // internal state
-    bool isValid_;
-    SERVER_LOCATION_TYPE type_;
-
-
-    /*// don't forget modify function isEqual, if something changed in variables
-    // data from API
-    int id_;
-    QString name_;
-    QString countryCode_;
-    int premiumOnly_;
-    int p2p_;
-    QString dnsHostName_;
-    QVector<ServerNode> nodes_;
-    QStringList proDataCenters_;
-
-    // internal state
-    bool isValid_;
-
-    QString staticIpsDeviceName_;
-
-    int bestLocationId_;    // link id (which location is best location from locations list)
-    int selectedNodeIndForBestLocation_;
-    int bestLocationPingTimeMs_;
-
-    QMap<QString, QSharedPointer<CityNodes> > citiesMap_;
-
-    SERVER_LOCATION_TYPE type_;
-
-    void makeInternalStates();*/
+    QSharedDataPointer<LocationData> d;
 };
 
-class LocationsArray : public QVector< QSharedPointer<Location> >
-{
-public:
-    QStringList getAllIps() const;
-};
-
-//QVector< QSharedPointer<ServerLocation> > makeCopyOfServerLocationsVector(QVector< QSharedPointer<ServerLocation> > &serverLocations);
 
 } //namespace ApiInfo
 

@@ -2,15 +2,59 @@
 #define APIINFO_NODE_H
 
 #include <QJsonObject>
+#include <QSharedDataPointer>
 #include <QStringList>
-//#include "staticipslocation.h"
 
 namespace ApiInfo {
 
+class NodeData : public QSharedData
+{
+public:
+    NodeData() : weight_(0), forceDisconnect_(0), isValid_(false) {}
+
+    NodeData(const NodeData &other)
+        : QSharedData(other),
+          hostname_(other.hostname_),
+          weight_(other.weight_),
+          forceDisconnect_(other.forceDisconnect_),
+          isValid_(other.isValid_)
+    {
+        ip_[0] = other.ip_[0];
+        ip_[1] = other.ip_[1];
+        ip_[2] = other.ip_[2];
+    }
+    ~NodeData() {}
+
+    // data from API
+    QString ip_[3];
+    QString hostname_;
+    int weight_;
+    int forceDisconnect_;
+
+    // internal state
+    bool isValid_;
+
+    // for custom ovpn config
+    /*bool isCustomOvpnConfig_;
+    QString pathCustomOvpnConfig_;
+
+    // for staticIps
+    QString staticIp_;
+    QString staticIpType_;
+    QVector<StaticIpPortDescr> staticIpPorts_;
+    QString cityNameForShow_;
+    QString dnsHostName_;
+    // credentials for staticIps
+    QString username_;
+    QString password_;*/
+};
+
+// implicitly shared class Node
 class Node
 {
 public:
-    explicit Node();
+    explicit Node() { d = new NodeData; }
+    Node(const Node &other) : d (other.d) { }
 
     bool initFromJson(QJsonObject &obj);
 
@@ -46,29 +90,7 @@ public:
     bool isEqualIpsAndHostnameAndLegacy(const ServerNode &sn) const;*/
 
 private:
-    // data from API
-    QString ip_[3];
-    QString hostname_;
-    int weight_;
-    int legacy_;   //1 or 0
-    int forceDisconnect_;
-
-    // internal state
-    bool isValid_;
-
-    // for custom ovpn config
-    /*bool isCustomOvpnConfig_;
-    QString pathCustomOvpnConfig_;
-
-    // for staticIps
-    QString staticIp_;
-    QString staticIpType_;
-    QVector<StaticIpPortDescr> staticIpPorts_;
-    QString cityNameForShow_;
-    QString dnsHostName_;
-    // credentials for staticIps
-    QString username_;
-    QString password_;*/
+    QSharedDataPointer<NodeData> d;
 };
 
 } //namespace ApiInfo

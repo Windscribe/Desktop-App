@@ -2,45 +2,30 @@
 
 namespace ApiInfo {
 
-Node::Node() : weight_(0), legacy_(0), forceDisconnect_(0), isValid_(false)/*,
-                           isCustomOvpnConfig_(false)*/
-{
-
-}
-
 bool Node::initFromJson(QJsonObject &obj)
 {
     if (!obj.contains("ip") || !obj.contains("ip2") || !obj.contains("ip3") || !obj.contains("hostname") || !obj.contains("weight"))
     {
-        isValid_ = false;
+        d->isValid_ = false;
         return false;
     }
 
-    ip_[0] = obj["ip"].toString();
-    ip_[1] = obj["ip2"].toString();
-    ip_[2] = obj["ip3"].toString();
-    hostname_ = obj["hostname"].toString();
-    weight_ = obj["weight"].toInt();
-
-    if (obj.contains("legacy"))
-    {
-        legacy_ = obj["legacy"].toInt();
-    }
-    else
-    {
-        legacy_ = 0;
-    }
+    d->ip_[0] = obj["ip"].toString();
+    d->ip_[1] = obj["ip2"].toString();
+    d->ip_[2] = obj["ip3"].toString();
+    d->hostname_ = obj["hostname"].toString();
+    d->weight_ = obj["weight"].toInt();
 
     if (obj.contains("force_disconnect"))
     {
-        forceDisconnect_ = obj["force_disconnect"].toInt();
+        d->forceDisconnect_ = obj["force_disconnect"].toInt();
     }
     else
     {
-        forceDisconnect_ = 0;
+        d->forceDisconnect_ = 0;
     }
     //isCustomOvpnConfig_ = false;
-    isValid_ = true;
+    d->isValid_ = true;
     return true;
 }
 
@@ -113,21 +98,21 @@ QString ServerNode::getCityName() const
 
 QString Node::getHostname() const
 {
-    Q_ASSERT(isValid_);
-    return hostname_;
+    Q_ASSERT(d->isValid_);
+    return d->hostname_;
 }
 
 bool Node::isForceDisconnect() const
 {
-    Q_ASSERT(isValid_);
-    return forceDisconnect_ == 1;
+    Q_ASSERT(d->isValid_);
+    return d->forceDisconnect_ == 1;
 }
 
 QString Node::getIp(int ind) const
 {
-    Q_ASSERT(isValid_);
+    Q_ASSERT(d->isValid_);
     Q_ASSERT(ind >= 0 && ind <= 2);
-    return ip_[ind];
+    return d->ip_[ind];
 }
 
 /*QString ServerNode::getIpForPing() const

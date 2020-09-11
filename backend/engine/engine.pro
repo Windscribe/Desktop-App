@@ -257,6 +257,9 @@ SOURCES += main.cpp \
     engine/apiinfo/group.cpp \
     engine/apiinfo/node.cpp \
     engine/apiinfo/notification.cpp \
+    engine/apiinfo/portmap.cpp \
+    engine/apiinfo/staticips.cpp \
+    engine/apiinfo/servercredentials.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/serversmodel/serversmodel.cpp \
     engine/serversmodel/pingmanager.cpp \
@@ -268,7 +271,6 @@ SOURCES += main.cpp \
     engine/logincontroller/logincontroller.cpp \
     engine/logincontroller/getallconfigscontroller.cpp \
     engine/proxy/proxysettings.cpp \
-    engine/types/portmap.cpp \
     engine/types/connectionsettings.cpp \
     engine/serversmodel/nodesspeedratings.cpp \
     engine/getmyipcontroller.cpp \
@@ -325,7 +327,6 @@ SOURCES += main.cpp \
     engine/engine.cpp \
     engine/crossplatformobjectfactory.cpp \
     engine/types/loginsettings.cpp \
-    engine/types/servercredentials.cpp \
     engine/emergencycontroller/emergencycontroller.cpp \
     engine/dnsresolver/areslibraryinit.cpp \
     engine/dnsresolver/dnsresolver.cpp \
@@ -349,7 +350,6 @@ SOURCES += main.cpp \
     engine/ping/pinghost.cpp \
     engine/serversmodel/resolvehostnamesforcustomovpn.cpp \
     engine/customovpnconfigs/customconfigsdirwatcher.cpp \
-    engine/types/staticipslocation.cpp \
     engine/getdeviceid.cpp \
     qconsolelistener.cpp \
     engineserver.cpp \
@@ -379,6 +379,9 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/apiinfo/group.h \
     engine/apiinfo/node.h \
     engine/apiinfo/notification.h \
+    engine/apiinfo/portmap.h \
+    engine/apiinfo/staticips.h \
+    engine/apiinfo/servercredentials.h \
     engine/connectionmanager/makeovpnfile.h \
     engine/dnsresolver/dnsutils.h \
     engine/macaddresscontroller/imacaddresscontroller.h \
@@ -397,7 +400,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/logincontroller/logincontroller.h \
     engine/logincontroller/getallconfigscontroller.h \
     engine/proxy/proxysettings.h \
-    engine/types/portmap.h \
     engine/types/connectionsettings.h \
     engine/getmyipcontroller.h \
     engine/firewall/uniqueiplist.h \
@@ -458,7 +460,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/engine.h \
     engine/crossplatformobjectfactory.h \
     engine/types/loginsettings.h \
-    engine/types/servercredentials.h \
     engine/emergencycontroller/emergencycontroller.h \
     engine/dnsresolver/areslibraryinit.h \
     engine/dnsresolver/dnsresolver.h \
@@ -486,7 +487,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/ping/pinghost.h \
     engine/serversmodel/resolvehostnamesforcustomovpn.h \
     engine/customovpnconfigs/customconfigsdirwatcher.h \
-    engine/types/staticipslocation.h \
     engine/getdeviceid.h \
     qconsolelistener.h \
     engineserver.h \
