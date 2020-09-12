@@ -244,6 +244,7 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 
 SOURCES += main.cpp \
     $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
+    $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.cc \
     $$COMMON_PATH/utils/utils.cpp \
     $$COMMON_PATH/utils/logger.cpp \
     $$COMMON_PATH/utils/extraconfig.cpp \
@@ -365,6 +366,7 @@ SOURCES += main.cpp \
 
 HEADERS  += engine/serversmodel/serversmodel.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \
+    $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.h \
     $$COMMON_PATH/utils/utils.h \
     $$COMMON_PATH/utils/logger.h \
     $$COMMON_PATH/utils/extraconfig.h \

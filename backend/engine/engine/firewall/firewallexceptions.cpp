@@ -61,16 +61,12 @@ void FirewallExceptions::setDnsPolicy(DNS_POLICY_TYPE dnsPolicy)
     dnsPolicyType_ = dnsPolicy;
 }
 
-/*void FirewallExceptions::setLocations(const QVector<QSharedPointer<ServerLocation> > &serverLocations)
+void FirewallExceptions::setLocationsIps(const QStringList &listIps)
 {
-    locationsIPs_.clear();
-    Q_FOREACH(QSharedPointer<ServerLocation> sl, serverLocations)
-    {
-        locationsIPs_ << sl->getAllIps();
-    }
+    locationsIPs_ = listIps;
 }
 
-void FirewallExceptions::setStaticLocationIps(QSharedPointer<ServerLocation> &staticLocation)
+/*void FirewallExceptions::setStaticLocationIps(QSharedPointer<ServerLocation> &staticLocation)
 {
     if (!staticLocation.isNull())
     {

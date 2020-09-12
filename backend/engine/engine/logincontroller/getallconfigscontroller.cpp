@@ -35,7 +35,7 @@ void GetAllConfigsController::putServerCredentialsIkev2Answer(SERVER_API_RET_COD
     handleComplete();
 }
 
-void GetAllConfigsController::putServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config)
+void GetAllConfigsController::putServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config)
 {
     serverConfigsRetCode_ = retCode;
     ovpnConfig_ = config;

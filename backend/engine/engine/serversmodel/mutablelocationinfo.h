@@ -15,7 +15,7 @@ class MutableLocationInfo : public QObject
     Q_OBJECT
 public:
     explicit MutableLocationInfo(const LocationID &locationId, const QString &name,
-                                 const QVector<ServerNode> &nodes, int selectedNode,
+                                 /*const QVector<ServerNode> &nodes,*/ int selectedNode,
                                  const QString &dnsHostName);
     virtual ~MutableLocationInfo();
 
@@ -25,9 +25,9 @@ public:
     QString getDnsName() const;
     QString getCustomOvpnConfigPath() const;
     int isExistSelectedNode() const;
-    const ServerNode &getSelectedNode() const;
+    //const ServerNode &getSelectedNode() const;
     int nodesCount() const;
-    const ServerNode &getNode(int ind) const;
+    //const ServerNode &getNode(int ind) const;
 
     void selectNextNode();
 
@@ -45,7 +45,7 @@ private:
     Qt::HANDLE threadHandle_;
     LocationID locationId_;
     QString name_;
-    QVector<ServerNode> nodes_;
+    //QVector<ServerNode> nodes_;
     int selectedNode_;
     QString dnsHostName_;
 };

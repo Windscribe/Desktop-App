@@ -2,6 +2,7 @@
 #define APIINFO_SERVERCREDENTIALS_H
 
 #include <QString>
+#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace ApiInfo {
 
@@ -10,6 +11,9 @@ class ServerCredentials
 public:
     ServerCredentials();
     ServerCredentials(const QString &usernameOpenVpn, const QString &passwordOpenVpn, const QString &usernameIkev2, const QString &passwordIkev2);
+    ServerCredentials(const ProtoApiInfo::ServerCredentials &serverCredentials);
+
+    ProtoApiInfo::ServerCredentials getProtoBuf() const;
 
     bool isInitialized() const;
     QString usernameForOpenVpn() const;

@@ -33,12 +33,12 @@ private slots:
     void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode);
     void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode);
     void onEngineFirewallStateChanged(bool isEnabled);
-    void onEngineLoginFinished(bool isLoginFromSavedSettings);
+    void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const ApiInfo::PortMap &portMap);
     void onEngineLoginError(LOGIN_RET retCode);
     void onEngineLoginMessage(LOGIN_MESSAGE msg);
     void onEngineSessionDeleted();
-    void onEngineUpdateSessionStatus(QSharedPointer<SessionStatus> sessionStatus);
-    void onEngineNotificationsUpdated(QSharedPointer<ApiNotifications> notifications);
+    void onEngineUpdateSessionStatus(const ApiInfo::SessionStatus &sessionStatus);
+    void onEngineNotificationsUpdated(const QVector<ApiInfo::Notification> &notifications);
     void onEngineCheckUpdateUpdated(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported);
     void onEngineMyIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &locationId);

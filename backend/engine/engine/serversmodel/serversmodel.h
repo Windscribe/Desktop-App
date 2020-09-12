@@ -7,6 +7,7 @@
 #include "nodesspeedratings.h"
 #include "pingmanager.h"
 #include "resolvehostnamesforcustomovpn.h"
+#include "../apiinfo/location.h"
 
 bool operator<(const ModelExchangeCityItem& a, const ModelExchangeCityItem& b);
 
@@ -19,7 +20,7 @@ public:
                           NodesSpeedRatings *nodesSpeedRating, NodesSpeedStore *nodesSpeedStore);
     virtual ~ServersModel();
 
-    void updateServers(QVector< QSharedPointer<ServerLocation> > &newServers, bool bSkipCustomOvpnDnsResolution = false);
+    void updateServers(const QVector<ApiInfo::Location> &newServers, bool bSkipCustomOvpnDnsResolution = false);
     void clear();
 
     void setSessionStatus(bool bFree);

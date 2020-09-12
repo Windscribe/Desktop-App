@@ -1,9 +1,10 @@
 #ifndef AUTOMANUALCONNECTIONCONTROLLER_H
 #define AUTOMANUALCONNECTIONCONTROLLER_H
 
-#include "engine/types/apiinfo.h"
+///#include "engine/types/apiinfo.h"
 #include "engine/types/connectionsettings.h"
 #include "engine/serversmodel/mutablelocationinfo.h"
+#include "engine/apiinfo/staticips.h"
 
 // helper class for ConnectionManager
 // manage automatic and manual connection mode
@@ -31,13 +32,13 @@ public:
         // fields for static ips
         QString username;
         QString password;
-        StaticIpPortsVector staticIpPorts;
+        ApiInfo::StaticIpPortsVector staticIpPorts;
     };
 
     AutoManualConnectionController();
 
-    void startWith(QSharedPointer<MutableLocationInfo> mli, const ConnectionSettings &connectionSettings,
-                   const PortMap &portMap, bool isProxyEnabled);
+    //void startWith(QSharedPointer<MutableLocationInfo> mli, const ConnectionSettings &connectionSettings,
+                   //const PortMap &portMap, bool isProxyEnabled);
     void reset();
     void stop();
     void debugLocationInfoToLog();
@@ -68,12 +69,12 @@ private:
 
     QSharedPointer<MutableLocationInfo> mli_;
     ConnectionSettings connectionSettings_;
-    PortMap portMap_;
+    //PortMap portMap_;
     bool bIsAllFailed_;
     bool bStarted_;
 
     QString getLogForNode(int ind);
-    static bool sortPortMapFunction(const PortItem &p1, const PortItem &p2);
+    //static bool sortPortMapFunction(const PortItem &p1, const PortItem &p2);
 };
 
 #endif // AUTOMANUALCONNECTIONCONTROLLER_H

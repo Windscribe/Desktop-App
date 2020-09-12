@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QSharedPointer>
 #include "group.h"
+#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace ApiInfo {
 
@@ -52,6 +53,8 @@ public:
     Location(const Location &other) : d (other.d) { }
 
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
+    void initFromProtoBuf(const ProtoApiInfo::Location &l);
+    ProtoApiInfo::Location getProtoBuf() const;
     /*void transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId);
     void transformToCustomOvpnLocation(QVector<ServerNode> &nodes);
 

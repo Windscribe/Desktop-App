@@ -2,7 +2,7 @@
 #include "utils/ipvalidation.h"
 #include "utils/logger.h"
 
-ResolveHostnamesForCustomOvpn::ResolveHostnamesForCustomOvpn(QObject *parent) : QObject(parent),
+/*ResolveHostnamesForCustomOvpn::ResolveHostnamesForCustomOvpn(QObject *parent) : QObject(parent),
     nextUniqueId_(0)
 {
     connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *, quint64)), SLOT(onDnsResolvedFinished(QString, QHostInfo,void *, quint64)));
@@ -77,4 +77,4 @@ void ResolveHostnamesForCustomOvpn::onDnsResolvedFinished(const QString &hostnam
             }
         }
     }
-}
+}*/

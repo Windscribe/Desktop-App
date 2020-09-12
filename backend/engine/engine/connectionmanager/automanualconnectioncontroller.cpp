@@ -9,7 +9,7 @@ AutoManualConnectionController::AutoManualConnectionController() :
 {
 }
 
-void AutoManualConnectionController::startWith(QSharedPointer<MutableLocationInfo> mli, const ConnectionSettings &connectionSettings,
+/*void AutoManualConnectionController::startWith(QSharedPointer<MutableLocationInfo> mli, const ConnectionSettings &connectionSettings,
                                                const PortMap &portMap, bool isProxyEnabled)
 {
     attemps_.clear();
@@ -122,7 +122,7 @@ void AutoManualConnectionController::startWith(QSharedPointer<MutableLocationInf
         // duplicate attempts (because we need do all attempts twice)
         attemps_ << attemps_;
     }
-}
+}*/
 
 void AutoManualConnectionController::reset()
 {
@@ -155,7 +155,8 @@ QString AutoManualConnectionController::getLogForNode(int ind)
 {
     QString ret = "node" + QString::number(ind + 1);
 
-    if (mli_->getNode(ind).isLegacy())
+    //todo
+    /*if (mli_->getNode(ind).isLegacy())
     {
         ret += "(legacy)";
     }
@@ -172,13 +173,13 @@ QString AutoManualConnectionController::getLogForNode(int ind)
         }
     }
 
-    ret += "}";
+    ret += "}";*/
     return ret;
 }
 
 // sort portmap protocols in the following order: ikev2, udp, tcp, stealth
 // operator<
-bool AutoManualConnectionController::sortPortMapFunction(const PortItem &p1, const PortItem &p2)
+/*bool AutoManualConnectionController::sortPortMapFunction(const PortItem &p1, const PortItem &p2)
 {
     if (p1.protocol.getType() == ProtocolType::PROTOCOL_IKEV2)
     {
@@ -216,8 +217,7 @@ bool AutoManualConnectionController::sortPortMapFunction(const PortItem &p1, con
         Q_ASSERT(false);
     }
     return 0;
-
-}
+}*/
 
 void AutoManualConnectionController::putFailedConnection()
 {
@@ -281,7 +281,7 @@ bool AutoManualConnectionController::isFailed()
 AutoManualConnectionController::CurrentConnectionDescr AutoManualConnectionController::getCurrentConnectionSettings()
 {
     CurrentConnectionDescr ccd;
-    if (!connectionSettings_.isInitialized())
+    /*if (!connectionSettings_.isInitialized())
     {
         qCDebug(LOG_CONNECTION) << "Fatal error, connectionSettings_ not initialized";
         Q_ASSERT(false);
@@ -338,7 +338,7 @@ AutoManualConnectionController::CurrentConnectionDescr AutoManualConnectionContr
         ccd.username = mli_->getStaticIpUsername();
         ccd.password = mli_->getStaticIpPassword();
         ccd.staticIpPorts = mli_->getStaticIpPorts();
-    }
+    }*/
     return ccd;
 }
 

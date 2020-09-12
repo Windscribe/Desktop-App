@@ -3,6 +3,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDataStream>
+#include <QDebug>
 
 const int typeIdStaticIps = qRegisterMetaType<ApiInfo::StaticIps>("ApiInfo::StaticIps");
 
@@ -10,6 +11,7 @@ namespace ApiInfo {
 
 bool StaticIps::initFromJson(QJsonObject &init_obj)
 {
+    qDebug() << init_obj;
     if (!init_obj.contains("static_ips"))
     {
         return false;
@@ -102,91 +104,80 @@ bool StaticIps::initFromJson(QJsonObject &init_obj)
     return true;
 }
 
-/*void StaticIpsLocation::writeToStream(QDataStream &stream) const
+void StaticIps::initFromProtoBuf(const ProtoApiInfo::StaticIps &staticIps)
 {
-    stream << REVISION_VERSION;
-    int cnt = ips_.count();
-    stream << cnt;
-    for (int i = 0; i < cnt; ++i)
+    d->deviceName_ = QString::fromStdString(staticIps.device_name());
+    d->ips_.clear();
+    for (int i = 0; i < staticIps.ips_size(); ++i)
     {
-        stream << ips_[i].id;
-        stream << ips_[i].ipId;
-        stream << ips_[i].staticIp;
-        stream << ips_[i].type;
-        stream << ips_[i].name;
-        stream << ips_[i].countryCode;
-        stream << ips_[i].shortName;
-        stream << ips_[i].cityName;
-        stream << ips_[i].serverId;
-        stream << ips_[i].nodeIP1;
-        stream << ips_[i].nodeIP2;
-        stream << ips_[i].nodeIP3;
-        stream << ips_[i].hostname;
-        stream << ips_[i].dnsHostname;
-
-        int cntPorts = ips_[i].ports.count();
-        stream << cntPorts;
-        for (int k = 0; k < cntPorts; ++k)
+        const ProtoApiInfo::StaticIpDescr &sd = staticIps.ips(i);
+        StaticIpDescr sid;
+        sid.id = sd.id();
+        sid.ipId = sd.ip_id();
+        sid.staticIp = QString::fromStdString(sd.static_ip());
+        sid.type = QString::fromStdString(sd.type());
+        sid.name = QString::fromStdString(sd.name());
+        sid.countryCode = QString::fromStdString(sd.country_code());
+        sid.shortName = QString::fromStdString(sd.short_name());
+        sid.cityName = QString::fromStdString(sd.city_name());
+        sid.serverId = sd.server_id();
+        Q_ASSERT(sd.node_ips_size() == 3);
+        if (sd.node_ips_size() == 3)
         {
-            stream << ips_[i].ports[k].extPort;
-            stream << ips_[i].ports[k].intPort;
+            sid.nodeIP1 = QString::fromStdString(sd.node_ips(0));
+            sid.nodeIP2 = QString::fromStdString(sd.node_ips(1));
+            sid.nodeIP3 = QString::fromStdString(sd.node_ips(2));
         }
+        sid.hostname = QString::fromStdString(sd.hostname());
+        sid.dnsHostname = QString::fromStdString(sd.dns_hostname());
+        sid.username = QString::fromStdString(sd.username());
+        sid.password = QString::fromStdString(sd.password());
 
-        stream << ips_[i].username;
-        stream << ips_[i].password;
+        for (int p = 0; p < sd.ports_size(); ++p)
+        {
+            StaticIpPortDescr portDescr;
+            portDescr.extPort = sd.ports(p).ext_port();
+            portDescr.intPort = sd.ports(p).int_port();
+            sid.ports << portDescr;
+        }
+        d->ips_ << sid;
     }
-    stream << deviceName_;
 }
 
-void StaticIpsLocation::readFromStream(QDataStream &stream, int revision)
+ProtoApiInfo::StaticIps StaticIps::getProtoBuf() const
 {
-    ips_.clear();
-    deviceName_.clear();
-
-    int revisionVersion;
-    stream >> revisionVersion;
-    int cnt;
-    stream >> cnt;
-    for (int i = 0; i < cnt; ++i)
+    ProtoApiInfo::StaticIps si;
+    si.set_device_name(d->deviceName_.toStdString());
+    for (const StaticIpDescr &sid : d->ips_)
     {
-        StaticIpDescr sid;
+        ProtoApiInfo::StaticIpDescr *pi = si.add_ips();
+        pi->set_id(sid.id);
+        pi->set_ip_id(sid.ipId);
+        pi->set_static_ip(sid.staticIp.toStdString());
+        pi->set_type(sid.type.toStdString());
+        pi->set_name(sid.name.toStdString());
+        pi->set_country_code(sid.countryCode.toStdString());
+        pi->set_short_name(sid.shortName.toStdString());
+        pi->set_city_name(sid.cityName.toStdString());
+        pi->set_server_id(sid.serverId);
+        *pi->add_node_ips() = sid.nodeIP1.toStdString();
+        *pi->add_node_ips() = sid.nodeIP2.toStdString();
+        *pi->add_node_ips() = sid.nodeIP3.toStdString();
+        pi->set_hostname(sid.hostname.toStdString());
+        pi->set_dns_hostname(sid.dnsHostname.toStdString());
+        pi->set_username(sid.username.toStdString());
+        pi->set_password(sid.password.toStdString());
 
-        stream >> sid.id;
-        stream >> sid.ipId;
-        stream >> sid.staticIp;
-        stream >> sid.type;
-        stream >> sid.name;
-        stream >> sid.countryCode;
-        stream >> sid.shortName;
-        stream >> sid.cityName;
-        stream >> sid.serverId;
-        stream >> sid.nodeIP1;
-        stream >> sid.nodeIP2;
-        stream >> sid.nodeIP3;
-        stream >> sid.hostname;
-        stream >> sid.dnsHostname;
-
-        int cntPorts;
-        stream >> cntPorts;
-        for (int k = 0; k < cntPorts; ++k)
+        for (const StaticIpPortDescr &portDescr : sid.ports)
         {
-            StaticIpPortDescr sipd;
-            stream >> sipd.extPort;
-            stream >> sipd.intPort;
-            sid.ports << sipd;
+            ProtoApiInfo::StaticIpPortDescr *port = pi->add_ports();
+            port->set_ext_port(portDescr.extPort);
+            port->set_int_port(portDescr.intPort);
         }
-
-        stream >> sid.username;
-        stream >> sid.password;
-
-        ips_ << sid;
     }
+    return si;
+}
 
-    if (revision >= 9)
-    {
-        stream >> deviceName_;
-    }
-}*/
 
 /*QSharedPointer<ServerLocation> StaticIpsLocation::makeServerLocation()
 {

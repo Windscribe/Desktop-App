@@ -2,14 +2,14 @@
 #define NODESELECTIONALGORITHM_H
 
 #include <QVector>
-#include "engine/types/apiinfo.h"
+//#include "engine/types/apiinfo.h"
 #include "nodesspeedratings.h"
 
 class NodeSelectionAlgorithm
 {
 public:
 
-    struct  NodeInfo
+    /*struct  NodeInfo
     {
         int weight;
         int userRating;
@@ -28,7 +28,7 @@ private:
 
     static const double WEIGHT_NODE;
     static const double WEIGHT_RATING;
-    static const double WEIGHT_LATENCY;
+    static const double WEIGHT_LATENCY;*/
 };
 
 #endif // NODESELECTIONALGORITHM_H

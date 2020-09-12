@@ -2,7 +2,7 @@
 #define CUSTOMOVPNCONFIGS_H
 
 #include <QObject>
-#include "engine/apiinfo/serverlocation.h"
+//#include "engine/apiinfo/serverlocation.h"
 #include "customconfigsdirwatcher.h"
 
 // parse custom_configs directory, make ovpn configs location, resolve IP for hostnames in ovpn-files
@@ -14,7 +14,7 @@ public:
 
     void changeDir(const QString &path);
 
-    QSharedPointer<ServerLocation> getLocation();
+    //QSharedPointer<ServerLocation> getLocation();
     bool isExist();
 
 signals:
@@ -26,11 +26,11 @@ private slots:
 private:
     void parseDir();
 
-    QSharedPointer<ServerLocation> serverLocation_;
+    //QSharedPointer<ServerLocation> serverLocation_;
     CustomConfigsDirWatcher *dirWatcher_;
 
     // return NULL pointer if failed
-    QSharedPointer<ServerNode> makeServerNodeFromOvpnFile(const QString &pathFile);
+    //QSharedPointer<ServerNode> makeServerNodeFromOvpnFile(const QString &pathFile);
 
 };
 

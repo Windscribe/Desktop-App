@@ -6,6 +6,8 @@
 #include "automanualconnectioncontroller.h"
 #include "engine/types/types.h"
 #include "engine/types/protocoltype.h"
+#include "engine/apiinfo/servercredentials.h"
+#include "engine/apiinfo/staticips.h"
 
 class IHelper;
 class INetworkStateManager;
@@ -25,7 +27,7 @@ public:
         helper_(helper), networkStateManager_(networkStateManager), customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage) { Q_UNUSED(serverAPI); }
     virtual ~IConnectionManager() {}
 
-    virtual void clickConnect(const QByteArray &ovpnConfig, const ServerCredentials &serverCredentials,
+    virtual void clickConnect(const QString &ovpnConfig, const ApiInfo::ServerCredentials &serverCredentials,
                               QSharedPointer<MutableLocationInfo> mli,
                               const ConnectionSettings &connectionSettings, const PortMap &portMap, const ProxySettings &proxySettings,
                               bool bEmitAuthError) = 0;
@@ -44,7 +46,7 @@ public:
     virtual QString getCustomOvpnConfigFilePath() = 0;
 
     virtual bool isStaticIpsLocation() const = 0;
-    virtual StaticIpPortsVector getStatisIps() = 0;
+    virtual ApiInfo::StaticIpPortsVector getStatisIps() = 0;
 
     virtual QString getConnectedTapTunAdapter() = 0;
 

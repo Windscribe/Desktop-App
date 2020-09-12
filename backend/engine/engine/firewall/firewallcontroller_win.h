@@ -17,7 +17,7 @@ public:
     bool firewallOff() override;
     bool firewallActualState() override;
 
-    bool whitelistPorts(const StaticIpPortsVector &ports) override;
+    bool whitelistPorts(const ApiInfo::StaticIpPortsVector &ports) override;
     bool deleteWhitelistPorts() override;
 
     void setInterfaceToSkip_mac(const QString &interfaceToSkip) override;

@@ -4,6 +4,7 @@
 #include <QString>
 #include <QJsonObject>
 #include <QVector>
+#include "ipc/generated_proto/types.pb.h"
 #include "node.h"
 
 namespace ApiInfo {
@@ -49,6 +50,7 @@ public:
     Notification(const Notification &other) : d (other.d) { }
 
     bool initFromJson(const QJsonObject &json);
+    ProtoTypes::ApiNotification getProtoBuf() const;
 
 private:
     QSharedDataPointer<NotificationData> d;

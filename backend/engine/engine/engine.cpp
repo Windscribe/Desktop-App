@@ -565,16 +565,16 @@ void Engine::init()
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
 
     serverAPI_ = new ServerAPI(this, networkStateManager_);
-    connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, uint)),
-                        SLOT(onSessionAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, ApiInfo::SessionStatus, uint)),
+                        SLOT(onSessionAnswer(SERVER_API_RET_CODE, ApiInfo::SessionStatus, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(checkUpdateAnswer(bool,QString,bool,int,QString,bool,bool,uint)), SLOT(onCheckUpdateAnswer(bool,QString,bool,int,QString,bool,bool,uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(hostIpsChanged(QStringList)), SLOT(onHostIPsChanged(QStringList)));
-    connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QSharedPointer<ApiNotifications>,uint)),
-                        SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QSharedPointer<ApiNotifications>,uint)));
-    connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QByteArray,uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QByteArray,uint)));
+    connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<ApiInfo::Notification>,uint)),
+                        SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<ApiInfo::Notification>,uint)));
+    connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString,uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString,uint)));
     connect(serverAPI_, SIGNAL(debugLogAnswer(SERVER_API_RET_CODE,uint)), SLOT(onDebugLogAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(confirmEmailAnswer(SERVER_API_RET_CODE,uint)), SLOT(onConfirmEmailAnswer(SERVER_API_RET_CODE,uint)));
-    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,QSharedPointer<StaticIpsLocation>, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,QSharedPointer<StaticIpsLocation>, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,ApiInfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,ApiInfo::StaticIps, uint)), Qt::QueuedConnection);
 
     nodesSpeedStore_ = new NodesSpeedStore(this);
 
@@ -582,10 +582,10 @@ void Engine::init()
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 
     serverLocationsApiWrapper_ = new ServerLocationsApiWrapper(this, nodesSpeedStore_, serverAPI_);
-    connect(serverLocationsApiWrapper_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<QSharedPointer<ServerLocation> >,QStringList, uint)),
-                        SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<QSharedPointer<ServerLocation> >,QStringList, uint)), Qt::QueuedConnection);
-    connect(serverLocationsApiWrapper_, SIGNAL(updatedBestLocation(QVector<QSharedPointer<ServerLocation> > &)), SLOT(onBestLocationChanged(QVector<QSharedPointer<ServerLocation> > &)));
-    connect(serverLocationsApiWrapper_, SIGNAL(updateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)), SLOT(onUpdateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)));
+    connect(serverLocationsApiWrapper_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<ApiInfo::Location>,QStringList, uint)),
+                        SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<ApiInfo::Location>,QStringList, uint)), Qt::QueuedConnection);
+    //connect(serverLocationsApiWrapper_, SIGNAL(updatedBestLocation(QVector<QSharedPointer<ServerLocation> > &)), SLOT(onBestLocationChanged(QVector<QSharedPointer<ServerLocation> > &)));
+    //connect(serverLocationsApiWrapper_, SIGNAL(updateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)), SLOT(onUpdateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)));
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
@@ -1430,7 +1430,7 @@ void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<Ap
     }
 }
 
-void Engine::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config, uint userRole)
+void Engine::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -2139,7 +2139,7 @@ void Engine::startLoginController(const LoginSettings &loginSettings, bool bFrom
     Q_ASSERT(loginController_ == NULL);
     Q_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
     loginController_ = new LoginController(this, helper_, networkStateManager_, serverAPI_, serverLocationsApiWrapper_, engineSettings_.language(), engineSettings_.connectionSettings().protocol());
-    connect(loginController_, SIGNAL(finished(LOGIN_RET, QSharedPointer<ApiInfo>, bool)), SLOT(onLoginControllerFinished(LOGIN_RET, QSharedPointer<ApiInfo>,bool)));
+    connect(loginController_, SIGNAL(finished(LOGIN_RET, ApiInfo::ApiInfo, bool)), SLOT(onLoginControllerFinished(LOGIN_RET, ApiInfo::ApiInfo, bool)));
     connect(loginController_, SIGNAL(readyForNetworkRequests()), SLOT(onReadyForNetworkRequests()));
     connect(loginController_, SIGNAL(stepMessage(LOGIN_MESSAGE)), SLOT(onLoginControllerStepMessage(LOGIN_MESSAGE)));
     loginController_->startLoginProcess(loginSettings, engineSettings_.dnsResolutionSettings(), bFromConnectedState);

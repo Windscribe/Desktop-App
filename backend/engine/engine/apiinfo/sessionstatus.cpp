@@ -75,20 +75,11 @@ bool SessionStatus::initFromJson(QJsonObject &json, QString &outErrorMessage)
     return true;
 }
 
-void SessionStatus::writeToStream(QDataStream &stream) const
+void SessionStatus::initFromProtoBuf(const ProtoTypes::SessionStatus &ss)
 {
-    Q_ASSERT(d->isInitialized_);
-    size_t size = d->ss_.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    d->ss_.SerializeToArray(arr.data(), size);
-    stream << arr;
-}
-
-void SessionStatus::readFromStream(QDataStream &stream)
-{
-    QByteArray arr;
-    stream >> arr;
-    d->ss_.ParseFromArray(arr.data(), arr.size());
+    d->ss_ = ss;
+    d->revisionHash_.clear();
+    d->staticIpsUpdateDevices_.clear();
     d->isInitialized_ = true;
 }
 
@@ -137,6 +128,12 @@ QString SessionStatus::getUsername() const
 {
     Q_ASSERT(d->isInitialized_);
     return QString::fromStdString(d->ss_.username());
+}
+
+QString SessionStatus::getUserId() const
+{
+    Q_ASSERT(d->isInitialized_);
+    return QString::fromStdString(d->ss_.user_id());
 }
 
 const ProtoTypes::SessionStatus &SessionStatus::getProtoBuf() const

@@ -6,7 +6,7 @@
 #include <QTcpSocket>
 #include <QTimer>
 #include <QElapsedTimer>
-#include "engine/types/apiinfo.h"
+//#include "engine/types/apiinfo.h"
 #include "engine/types/locationid.h"
 #include "nodesspeedratings.h"
 #include "nodesspeedstore.h"
@@ -19,7 +19,7 @@ class PingManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit PingManager(QObject *parent, NodesSpeedRatings *nodesSpeedRating, NodesSpeedStore *nodesSpeedStore, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
+    /*explicit PingManager(QObject *parent, NodesSpeedRatings *nodesSpeedRating, NodesSpeedStore *nodesSpeedStore, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
     virtual ~PingManager();
 
     bool isInitialized();
@@ -94,7 +94,7 @@ private:
     QSharedPointer<LocationSpeedInfo> copyLocationSpeedInfoFromExisting(LocationSpeedInfo *lsi, QVector<ServerNode> &newNodes);
     int getAverageLatencyFromCitiesLatencies(const QVector<int> &latencies);
     void handlePingInfoChanged(const QString &ip, int timems, quint32 iteration, bool bForCities);
-    void emitConnectionSpeedChangedWrapper(LocationID locationId, PingTime timeMs);
+    void emitConnectionSpeedChangedWrapper(LocationID locationId, PingTime timeMs);*/
 };
 
 #endif // PINGMANAGER_H

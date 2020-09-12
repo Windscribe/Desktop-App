@@ -2,7 +2,7 @@
 #define RESOLVEHOSTNAMESFORCUSTOMOVPN_H
 
 #include <QObject>
-#include "engine/apiinfo/serverlocation.h"
+//#include "engine/apiinfo/serverlocation.h"
 #include "engine/dnsresolver/dnsresolver.h"
 
 // helper class for resolve hostnames for custom ovpn location (used in ServersModel)
@@ -10,7 +10,7 @@ class ResolveHostnamesForCustomOvpn : public QObject
 {
     Q_OBJECT
 public:
-    explicit ResolveHostnamesForCustomOvpn(QObject *parent);
+    /*explicit ResolveHostnamesForCustomOvpn(QObject *parent);
 
     // return false, if no need resolution
     // return true and later emit signal resolved, if need at least one DNS-resolution
@@ -26,7 +26,7 @@ private:
     ServerLocation location_;
 
     quint64 nextUniqueId_;
-    QHash<QString, quint64> dnsResolversInProgress_;
+    QHash<QString, quint64> dnsResolversInProgress_;*/
 };
 
 #endif // RESOLVEHOSTNAMESFORCUSTOMOVPN_H

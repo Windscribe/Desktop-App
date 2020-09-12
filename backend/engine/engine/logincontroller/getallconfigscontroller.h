@@ -13,7 +13,7 @@ public:
     void putServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Location> &locations, const QStringList &forceDisconnectNodes);
     void putServerCredentialsOpenVpnAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword);
     void putServerCredentialsIkev2Answer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword);
-    void putServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config);
+    void putServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config);
     void putPortMapAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::PortMap &portMap);
     void putStaticIpsAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::StaticIps &staticIps);
 
@@ -21,7 +21,7 @@ public:
     QVector<ApiInfo::Location> locations_;
     QStringList forceDisconnectNodes_;
 
-    QByteArray ovpnConfig_;
+    QString ovpnConfig_;
 
     ApiInfo::PortMap portMap_;
     ApiInfo::StaticIps staticIps_;

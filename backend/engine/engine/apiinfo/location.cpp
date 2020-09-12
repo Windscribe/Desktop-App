@@ -49,6 +49,22 @@ bool Location::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     return true;
 }
 
+void Location::initFromProtoBuf(const ProtoApiInfo::Location &l)
+{
+
+}
+
+QStringList Location::getAllIps() const
+{
+    Q_ASSERT(d->isValid_);
+    QStringList ips;
+    for (const Group &g : d->groups_)
+    {
+        ips << g.getAllIps();
+    }
+    return ips;
+}
+
 
 /*
 void ServerLocation::transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId)

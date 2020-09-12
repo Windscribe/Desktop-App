@@ -175,7 +175,6 @@ message PortMapItem
   optional string heading = 2;
   optional string use = 3;
   repeated uint32 ports = 4;
-  optional uint32 legacy_port = 5;
 }
 
 message ArrayPortMap

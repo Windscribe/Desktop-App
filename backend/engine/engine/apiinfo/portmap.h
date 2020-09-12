@@ -6,6 +6,7 @@
 #include <QVector>
 #include <qstring.h>
 #include "engine/types/protocoltype.h"
+#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace ApiInfo {
 
@@ -39,13 +40,15 @@ public:
     PortMap(const PortMap &other) : d (other.d) { }
 
     bool initFromJson(const QJsonArray &jsonArray);
+    void initFromProtoBuf(const ProtoApiInfo::PortMap &portMap);
+    ProtoApiInfo::PortMap getProtoBuf() const;
 
-    const PortItem* getPortItemByHeading(const QString &heading);
-    const PortItem* getPortItemByProtocolType(const ProtocolType &protocol);
+    int getPortItemCount() const;
+    const PortItem *getPortItemByIndex(int ind) const;
+    const PortItem *getPortItemByHeading(const QString &heading) const;
+    const PortItem *getPortItemByProtocolType(const ProtocolType &protocol) const;
     int getUseIpInd(const ProtocolType &connectionProtocol) const;
 
-    void writeToStream(QDataStream &stream);
-    void readFromStream(QDataStream &stream);
 
 private:
     QSharedDataPointer<PortMapData> d;

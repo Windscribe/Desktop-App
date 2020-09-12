@@ -2,7 +2,7 @@
 #include <QEasingCurve>
 #include "utils/utils.h"
 
-const double NodeSelectionAlgorithm::WEIGHT_NODE = 0.25;
+/*const double NodeSelectionAlgorithm::WEIGHT_NODE = 0.25;
 const double NodeSelectionAlgorithm::WEIGHT_RATING = 0.25;
 const double NodeSelectionAlgorithm::WEIGHT_LATENCY = 0.5;
 
@@ -257,7 +257,7 @@ void NodeSelectionAlgorithm::autoTest()
     int sel = selectRandomNodeBasedOnLatency(nodes, p);
 
     int g = 0;*/
-}
+/*}
 
 int NodeSelectionAlgorithm::getRandomEvent(QVector<double> &p)
 {
@@ -276,3 +276,4 @@ int NodeSelectionAlgorithm::getRandomEvent(QVector<double> &p)
     Q_ASSERT(false);
     return 0;
 }
+*/

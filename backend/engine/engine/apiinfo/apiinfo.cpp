@@ -1,155 +1,149 @@
 #include "apiinfo.h"
 #include <QThread>
 #include <QSettings>
-#include <QDataStream>
-#include <QDebug>
-#include <QElapsedTimer>
 #include "utils/logger.h"
 #include "utils/utils.h"
-
-//const int typeIdApiNotifications = qRegisterMetaType<QSharedPointer<ApiNotifications> >("QSharedPointer<ApiNotifications>");
+#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace ApiInfo {
 
 ApiInfo::ApiInfo() : simpleCrypt_(0x4572A4ACF31A31BA)
 {
-
-}
-
-ApiInfo::~ApiInfo()
-{
+    threadId_ = QThread::currentThreadId();
 }
 
 SessionStatus ApiInfo::getSessionStatus() const
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     return sessionStatus_;
 }
 
 void ApiInfo::setSessionStatus(const SessionStatus &value)
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     sessionStatus_ = value;
 }
 
 void ApiInfo::setLocations(const QVector<Location> &value)
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     locations_ = value;
     processServerLocations();
 }
 
 QVector<Location> ApiInfo::getLocations() const
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     return locations_;
 }
 
 QStringList ApiInfo::getForceDisconnectNodes() const
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     return forceDisconnectNodes_;
 }
 
 void ApiInfo::setForceDisconnectNodes(const QStringList &value)
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     forceDisconnectNodes_ = value;
 }
 
 void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     serverCredentials_ = serverCredentials;
 }
 
 ServerCredentials ApiInfo::getServerCredentials() const
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     return serverCredentials_;
 }
 
-QByteArray ApiInfo::getOvpnConfig() const
+QString ApiInfo::getOvpnConfig() const
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     return ovpnConfig_;
 }
 
-void ApiInfo::setOvpnConfig(const QByteArray &value)
+void ApiInfo::setOvpnConfig(const QString &value)
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     ovpnConfig_ = value;
 }
 
 QString ApiInfo::getAuthHash() const
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     return authHash_;
 }
 
 void ApiInfo::setAuthHash(const QString &authHash)
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     authHash_ = authHash;
 }
 
 PortMap ApiInfo::getPortMap() const
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     return portMap_;
 }
 
 void ApiInfo::setPortMap(const PortMap &portMap)
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     portMap_ = portMap;
 }
 
-void ApiInfo::setStaticIpsLocation(const StaticIps &value)
+void ApiInfo::setStaticIps(const StaticIps &value)
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     staticIps_ = value;
 }
 
-StaticIps ApiInfo::getStaticIpsLocation() const
+StaticIps ApiInfo::getStaticIps() const
 {
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     return staticIps_;
 }
 
 void ApiInfo::saveToSettings()
 {
-    /*QSettings settings;
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
 
-    QByteArray arr;
+    QSettings settings;
+    ProtoApiInfo::ApiInfo protoApiInfo;
+
+    *protoApiInfo.mutable_session_status() = sessionStatus_.getProtoBuf();
+
+    for (const Location &l : locations_)
     {
-        QDataStream stream(&arr, QIODevice::WriteOnly);
-
-        stream << REVISION_VERSION;
-        stream << ovpnConfig_;
-
-        serverCredentials_.writeToStream(stream);
-
-        int serverLocationsCount = serverLocations_.count();
-        stream << serverLocationsCount;
-        for (auto it = serverLocations_.begin(); it != serverLocations_.end(); ++it)
-        {
-            (*it)->writeToStream(stream);
-        }
-
-        // write 5 empty QString (old best location data, for compatiblity with old versions, not used now)
-        QString emptyStr;
-        for (int i = 0; i < 5; i++)
-        {
-            stream << emptyStr;
-        }
-
-        Q_ASSERT(!portMap_.isNull());
-        portMap_->writeToStream(stream);
-
-        Q_ASSERT(!sessionStatus_.isNull());
-        sessionStatus_->writeToStream(stream);
-
-        if (sessionStatus_->getStaticIpsCount() > 0 && !staticIps_.isNull())
-        {
-            staticIps_->writeToStream(stream);
-        }
+        *protoApiInfo.add_locations() = l.getProtoBuf();
     }
+
+    *protoApiInfo.mutable_server_credentials() = serverCredentials_.getProtoBuf();
+    protoApiInfo.set_ovpn_config(ovpnConfig_.toStdString());
+    *protoApiInfo.mutable_port_map() = portMap_.getProtoBuf();
+    *protoApiInfo.mutable_static_ips() = staticIps_.getProtoBuf();
+
+    size_t size = protoApiInfo.ByteSizeLong();
+    QByteArray arr(size, Qt::Uninitialized);
+    protoApiInfo.SerializeToArray(arr.data(), size);
+
     settings.setValue("apiInfo", simpleCrypt_.encryptToString(arr));
-    if(sessionStatus_->isRevisionHashInitialized())
+
+    if (!sessionStatus_.getRevisionHash().isEmpty())
     {
-        settings.setValue("revisionHash", sessionStatus_->getRevisionHash());
+        settings.setValue("revisionHash", sessionStatus_.getRevisionHash());
     }
     else
     {
         settings.remove("revisionHash");
     }
 
-    settings.setValue("userId", sessionStatus_->userId);    // need for uninstaller program for open post uninstall webpage*/
+    settings.setValue("userId", sessionStatus_.getUserId());    // need for uninstaller program for open post uninstall webpage*/
 }
 
 void ApiInfo::removeFromSettings()
@@ -160,77 +154,42 @@ void ApiInfo::removeFromSettings()
 
 bool ApiInfo::loadFromSettings()
 {
-    /*QSettings settings;
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    QSettings settings;
     QString s = settings.value("apiInfo", "").toString();
     if (!s.isEmpty())
     {
         QByteArray arr = simpleCrypt_.decryptToByteArray(s);
-        QDataStream stream(&arr, QIODevice::ReadOnly);
-
-        int revisionVersion;
-        stream >> revisionVersion;
-
-        if (revisionVersion != REVISION_VERSION)
+        ProtoApiInfo::ApiInfo protoApiInfo;
+        if (!protoApiInfo.ParseFromArray(arr.data(), arr.size()))
         {
             return false;
         }
 
-        stream >> ovpnConfig_;
+        sessionStatus_.initFromProtoBuf(protoApiInfo.session_status());
 
-        serverCredentials_.readFromStream(stream, revisionVersion);
-
-        serverLocations_.clear();
-        int serverLocationsCount;
-        stream >> serverLocationsCount;
-        for (int i = 0; i < serverLocationsCount; ++i)
+        locations_.clear();
+        for (int i = 0; i < protoApiInfo.locations_size(); ++i)
         {
-            QSharedPointer<ServerLocation> location(new ServerLocation());
-            location->readFromStream(stream, revisionVersion);
-            serverLocations_ << location;
+            Location location;
+            location.initFromProtoBuf(protoApiInfo.locations(i));
+            locations_ << location;
         }
+
+        forceDisconnectNodes_.clear();
+        serverCredentials_ = ServerCredentials(protoApiInfo.server_credentials());
+        ovpnConfig_ = QString::fromStdString(protoApiInfo.ovpn_config());
+        portMap_.initFromProtoBuf(protoApiInfo.port_map());
+        staticIps_.initFromProtoBuf(protoApiInfo.static_ips());
         processServerLocations();
-        if (serverLocationsCount == 0)
-        {
-            return false;
-        }
 
-        // read 5 QString (old best location data, for compatiblity with old versions, not used now)
-        QString emptyStr;
-        for (int i = 0; i < 5; i++)
-        {
-            stream >> emptyStr;
-        }
-
-        QSharedPointer<PortMap> portMap(new PortMap());
-        portMap->readFromStream(stream);
-        portMap_ = portMap;
-
-        QSharedPointer<SessionStatus> sessionStatus(new SessionStatus());
-        sessionStatus->readFromStream(stream, revisionVersion);
-        sessionStatus_ = sessionStatus;
-
-        if (settings.contains("revisionHash"))
-        {
-            sessionStatus_->setRevisionHash(settings.value("revisionHash").toString());
-        }
-        else
-        {
-            return false;
-        }
-
-        if (sessionStatus_->staticIps > 0)
-        {
-            staticIps_ = QSharedPointer<StaticIpsLocation>(new StaticIpsLocation());
-            staticIps_->readFromStream(stream, revisionVersion);
-        }
-
+        sessionStatus_.setRevisionHash(settings.value("revisionHash", "").toString());
         return true;
     }
     else
     {
         return false;
-    }*/
-    return false;
+    }
 }
 
 /*void ApiInfo::debugSaveToFile(const QString &filename)
@@ -376,58 +335,6 @@ void ApiInfo::processServerLocations()
         itm.remove();
     }*/
 }
-
-/*void SessionStatus::writeToStream(QDataStream &stream)
-{
-    stream << isPremium;
-    stream << status;
-    stream << rebill;
-    stream << billingPlanId;
-    //stream << premiumExpireDate;
-    stream << trafficUsed;
-    stream << trafficMax;
-    stream << userId;
-    stream << username;
-    stream << staticIps;
-    stream << email;
-    stream << emailStatus;
-    stream << premiumExpireDateStr;
-}
-
-void SessionStatus::readFromStream(QDataStream &stream, int revision)
-{
-    stream >> isPremium;
-    stream >> status;
-    stream >> rebill;
-    if (revision >= 7)
-    {
-        stream >> billingPlanId;
-    }
-    else
-    {
-        billingPlanId = INT_MIN;
-    }
-    //stream >> premiumExpireDate;
-    stream >> trafficUsed;
-    stream >> trafficMax;
-    stream >> userId;
-    stream >> username;
-
-    if (revision >= 8)
-    {
-        stream >> staticIps;
-    }
-
-    if (revision >= 10)
-    {
-        stream >> email;
-        stream >> emailStatus;
-    }
-    if (revision >= 11)
-    {
-        stream >> premiumExpireDateStr;
-    }
-}*/
 
 /*bool ServerNode::isEqualIpsServerNodes(const QVector<ServerNode> &n1, const QVector<ServerNode> &n2)
 {

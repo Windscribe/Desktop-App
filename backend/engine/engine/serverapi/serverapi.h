@@ -77,7 +77,7 @@ signals:
                                QStringList forceDisconnectNodes, uint userRole);
     void serverCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername,
                                  const QString &radiusPassword, ProtocolType protocol, uint userRole);
-    void serverConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config, uint userRole);
+    void serverConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void portMapAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::PortMap &portMap, uint userRole);
     void myIPAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);
     void checkUpdateAnswer(bool bAvailable, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);

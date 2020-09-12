@@ -6,13 +6,12 @@
 #include "utils/utils.h"
 #include "engine/dnsresolver/dnsresolver.h"
 
-MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name,
-                                         const QVector<ServerNode> &nodes, int selectedNode,
+MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name, int selectedNode,
                                          const QString &dnsHostName)
     : QObject(nullptr), threadHandle_(QThread::currentThreadId()), locationId_(locationId),
-      name_(name), nodes_(nodes), dnsHostName_(dnsHostName)
+      name_(name)/*, nodes_(nodes)*/, dnsHostName_(dnsHostName)
 {
-    if (selectedNode == -1)
+    /*if (selectedNode == -1)
     {
         // select random node
         if (nodes.count() > 0)
@@ -29,7 +28,7 @@ MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QSt
         strNodes += "; ";
     }
 
-    qCDebug(LOG_BASIC) << "MutableLocationInfo created: " << locationId.getHashString() << strNodes << "; Selected node:" << selectedNode_;
+    qCDebug(LOG_BASIC) << "MutableLocationInfo created: " << locationId.getHashString() << strNodes << "; Selected node:" << selectedNode_*/;
 }
 
 MutableLocationInfo::~MutableLocationInfo()
@@ -55,7 +54,7 @@ QString MutableLocationInfo::getName() const
 
 QString MutableLocationInfo::getDnsName() const
 {
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
+    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     if (isStaticIp())
     {
         if (selectedNode_ < nodes_.count())
@@ -71,14 +70,16 @@ QString MutableLocationInfo::getDnsName() const
     else
     {
         return dnsHostName_;
-    }
+    }*/
+    return "";
 }
 
 QString MutableLocationInfo::getCustomOvpnConfigPath() const
 {
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
+    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
-    return nodes_[selectedNode_].getCustomOvpnConfigPath();
+    return nodes_[selectedNode_].getCustomOvpnConfigPath();*/
+    return "";
 }
 
 int MutableLocationInfo::isExistSelectedNode() const
@@ -87,45 +88,46 @@ int MutableLocationInfo::isExistSelectedNode() const
     return selectedNode_ != -1;
 }
 
-const ServerNode &MutableLocationInfo::getSelectedNode() const
+/*const ServerNode &MutableLocationInfo::getSelectedNode() const
 {
     Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
     return nodes_[selectedNode_];
-}
+}*/
 
 int MutableLocationInfo::nodesCount() const
 {
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
-    return nodes_.count();
+    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
+    return nodes_.count();*/
+    return 0;
 }
 
-const ServerNode &MutableLocationInfo::getNode(int ind) const
+/*const ServerNode &MutableLocationInfo::getNode(int ind) const
 {
     Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     return nodes_[ind];
-}
+}*/
 
 // goto next node or to first (if current selected last or incorrect)
 void MutableLocationInfo::selectNextNode()
 {
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
+    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     selectedNode_ ++;
     if (selectedNode_ >= nodes_.count())
     {
         Q_ASSERT(nodes_.count() > 0);
         selectedNode_ = 0;
-    }
+    }*/
 }
 
 QString MutableLocationInfo::getStaticIpUsername() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    /*Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
     if (selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_].getUsername();
     }
-    else
+    else*/
     {
         return "";
     }
@@ -133,12 +135,12 @@ QString MutableLocationInfo::getStaticIpUsername() const
 
 QString MutableLocationInfo::getStaticIpPassword() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    /*Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
     if (selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_].getPassword();
     }
-    else
+    else*/
     {
         return "";
     }
@@ -146,12 +148,12 @@ QString MutableLocationInfo::getStaticIpPassword() const
 
 StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+   /* Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
     if (selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_].getAllStaticIpIntPorts();
     }
-    else
+    else*/
     {
         return StaticIpPortsVector();
     }
@@ -159,7 +161,7 @@ StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
 
 QString MutableLocationInfo::resolveHostName()
 {
-    Q_ASSERT(locationId_.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID);
+    /*Q_ASSERT(locationId_.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID);
     Q_ASSERT(nodes_.count() == 1);
 
     if (locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID || nodes_.count() != 1)
@@ -188,12 +190,13 @@ QString MutableLocationInfo::resolveHostName()
             qCDebug(LOG_BASIC) << "MutableLocationInfo, failed to resolve" << nodes_[0].getHostname();
             return "";
         }
-    }
+    }*/
+    return "";
 }
 
 void MutableLocationInfo::locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName)
 {
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
+    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
 
     if (locationId == locationId_ && nodes.count() > 0)
     {
@@ -221,5 +224,5 @@ void MutableLocationInfo::locationChanged(const LocationID &locationId, const QV
             strNodes += "; ";
         }
         qCDebug(LOG_BASIC) << "MutableLocationInfo locationChanged: " << locationId.getHashString() << strNodes << "; Selected node:" << selectedNode_;
-    }
+    }*/
 }

@@ -4,9 +4,9 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QVector>
+#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace ApiInfo {
-
 
 struct StaticIpPortDescr
 {
@@ -15,7 +15,6 @@ struct StaticIpPortDescr
 };
 
 bool operator==(const StaticIpPortDescr &l, const StaticIpPortDescr&r);
-
 
 struct StaticIpDescr
 {
@@ -33,9 +32,9 @@ struct StaticIpDescr
     QString nodeIP3;
     QString hostname;
     QString dnsHostname;
-    QVector<StaticIpPortDescr> ports;
     QString username;
     QString password;
+    QVector<StaticIpPortDescr> ports;
 };
 
 class StaticIpPortsVector : public QVector<unsigned int>
@@ -68,10 +67,8 @@ public:
     StaticIps(const StaticIps &other) : d (other.d) { }
 
     bool initFromJson(QJsonObject &obj);
-
-
-    //void writeToStream(QDataStream &stream) const;
-    //void readFromStream(QDataStream &stream, int revision);
+    void initFromProtoBuf(const ProtoApiInfo::StaticIps &staticIps);
+    ProtoApiInfo::StaticIps getProtoBuf() const;
 
     //QSharedPointer<ServerLocation> makeServerLocation();
 

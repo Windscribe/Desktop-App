@@ -228,7 +228,7 @@ private slots:
 
     void onSessionAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::SessionStatus &sessionStatus, uint userRole);
     void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Notification> &notifications, uint userRole);
-    void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config, uint userRole);
+    void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void onCheckUpdateAnswer(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
     void onHostIPsChanged(const QStringList &hostIps);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);

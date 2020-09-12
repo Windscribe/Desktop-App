@@ -5,7 +5,7 @@
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 
-PingManager::PingManager(QObject *parent, NodesSpeedRatings *nodesSpeedRating, NodesSpeedStore *nodesSpeedStore, IConnectStateController *stateController, INetworkStateManager *networkStateManager) : QObject(parent),
+/*PingManager::PingManager(QObject *parent, NodesSpeedRatings *nodesSpeedRating, NodesSpeedStore *nodesSpeedStore, IConnectStateController *stateController, INetworkStateManager *networkStateManager) : QObject(parent),
     isInitialized_(false),
     nodesSpeedRating_(nodesSpeedRating),
     nodesSpeedStore_(nodesSpeedStore),
@@ -637,4 +637,4 @@ int PingManager::LocationSpeedInfo::findNodeInd(const ServerNode &sn)
         }
     }
     return -1;
-}
+}*/

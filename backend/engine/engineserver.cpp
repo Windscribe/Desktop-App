@@ -70,13 +70,13 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(initFinished(ENGINE_INIT_RET_CODE)), SLOT(onEngineInitFinished(ENGINE_INIT_RET_CODE)));
             connect(engine_, SIGNAL(bfeEnableFinished(ENGINE_INIT_RET_CODE)), SLOT(onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE)));
             connect(engine_, SIGNAL(firewallStateChanged(bool)), SLOT(onEngineFirewallStateChanged(bool)));
-            connect(engine_, SIGNAL(loginFinished(bool)), SLOT(onEngineLoginFinished(bool)));
+            connect(engine_, SIGNAL(loginFinished(bool, QString, ApiInfo::PortMap)), SLOT(onEngineLoginFinished(bool, QString, ApiInfo::PortMap)));
             connect(engine_, SIGNAL(loginError(LOGIN_RET)), SLOT(onEngineLoginError(LOGIN_RET)));
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
-            connect(engine_, SIGNAL(notificationsUpdated(QSharedPointer<ApiNotifications>)), SLOT(onEngineNotificationsUpdated(QSharedPointer<ApiNotifications>)));
+            connect(engine_, SIGNAL(notificationsUpdated(QVector<ApiInfo::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<ApiInfo::Notification>)));
             connect(engine_, SIGNAL(checkUpdateUpdated(bool,QString,bool,int,QString,bool)), SLOT(onEngineCheckUpdateUpdated(bool,QString,bool,int,QString,bool)));
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
-            connect(engine_, SIGNAL(sessionStatusUpdated(QSharedPointer<SessionStatus>)), SLOT(onEngineUpdateSessionStatus(QSharedPointer<SessionStatus>)));
+            connect(engine_, SIGNAL(sessionStatusUpdated(ApiInfo::SessionStatus)), SLOT(onEngineUpdateSessionStatus(ApiInfo::SessionStatus)));
             connect(engine_, SIGNAL(sessionDeleted()), SLOT(onEngineSessionDeleted()));
             connect(engine_->getConnectStateController(), SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)),
                     SLOT(onEngineConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)));
@@ -566,28 +566,26 @@ void EngineServer::onEngineFirewallStateChanged(bool isEnabled)
     sendFirewallStateChanged(isEnabled);
 }
 
-void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings)
+void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const ApiInfo::PortMap &portMap)
 {
     IPC::ProtobufCommand<IPCServerCommands::LoginFinished> cmd;
     cmd.getProtoObj().set_is_login_from_saved_settings(isLoginFromSavedSettings);
-    cmd.getProtoObj().set_auth_hash(engine_->getAuthHash().toStdString());
+    cmd.getProtoObj().set_auth_hash(authHash.toStdString());
     qCDebug(LOG_IPC) << "Engine Settings Changed -- Updating client: " << QString::fromStdString(cmd.getDebugString());
 
-    QSharedPointer<PortMap> portMap = engine_->getCurrentPortMap();
     ProtoTypes::ArrayPortMap arrPortMap;
-    for (int i = 0; i < portMap->items.count(); ++i)
+    for (int i = 0; i < portMap.getPortItemCount(); ++i)
     {
+        const ApiInfo::PortItem *portItem = portMap.getPortItemByIndex(i);
         ProtoTypes::PortMapItem pmi;
-        pmi.set_protocol(portMap->items[i].protocol.convertToProtobuf());
-        pmi.set_heading(portMap->items[i].heading.toStdString());
-        pmi.set_use(portMap->items[i].use.toStdString());
+        pmi.set_protocol(portItem->protocol.convertToProtobuf());
+        pmi.set_heading(portItem->heading.toStdString());
+        pmi.set_use(portItem->use.toStdString());
 
-        for (int p = 0; p < portMap->items[i].ports.count(); ++p)
+        for (int p = 0; p < portItem->ports.count(); ++p)
         {
-            pmi.add_ports(portMap->items[i].ports[p]);
+            pmi.add_ports(portItem->ports[p]);
         }
-        pmi.set_legacy_port(portMap->items[i].legacy_port);
-
         *arrPortMap.add_port_map_item() = pmi;
     }
     *cmd.getProtoObj().mutable_array_port_map() = arrPortMap;
@@ -630,32 +628,20 @@ void EngineServer::onEngineSessionDeleted()
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineUpdateSessionStatus(QSharedPointer<SessionStatus> sessionStatus)
+void EngineServer::onEngineUpdateSessionStatus(const ApiInfo::SessionStatus &sessionStatus)
 {
     IPC::ProtobufCommand<IPCServerCommands::SessionStatusUpdated> cmd;
-    *cmd.getProtoObj().mutable_session_status() = sessionStatus->getProtoBuf();
+    *cmd.getProtoObj().mutable_session_status() = sessionStatus.getProtoBuf();
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineNotificationsUpdated(QSharedPointer<ApiNotifications> notifications)
+void EngineServer::onEngineNotificationsUpdated(const QVector<ApiInfo::Notification> &notifications)
 {
     IPC::ProtobufCommand<IPCServerCommands::NotificationsUpdated> cmd;
 
-    if (!notifications.isNull())
+    for (const ApiInfo::Notification &n : notifications)
     {
-        Q_FOREACH(const ApiNotification &an, notifications->notifications)
-        {
-            ProtoTypes::ApiNotification ian;
-            ian.set_id(an.id);
-            ian.set_title(an.title.toStdString());
-            ian.set_message(an.message.toStdString());
-            ian.set_date(an.date);
-            ian.set_perm_free(an.perm_free);
-            ian.set_perm_pro(an.perm_pro);
-            ian.set_popup(an.popup);
-
-            *cmd.getProtoObj().mutable_array_notifications()->add_api_notifications() = ian;
-        }
+        *cmd.getProtoObj().mutable_array_notifications()->add_api_notifications() = n.getProtoBuf();
     }
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }

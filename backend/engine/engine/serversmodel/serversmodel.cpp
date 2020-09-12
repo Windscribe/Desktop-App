@@ -13,14 +13,14 @@ ServersModel::ServersModel(QObject *parent, IConnectStateController *stateContro
                            NodesSpeedRatings *nodesSpeedRating, NodesSpeedStore *nodesSpeedStore) :
     IServersModel(parent), bFreeSessionStatusInitialized_(false),
     bFreeSessionStatus_(true),
-    resolveHostnamesForCustomOvpn_(this),
+    //resolveHostnamesForCustomOvpn_(this),
     customOvpnDnsState_(CUSTOM_OVPN_NO),
     mutex_(QMutex::Recursive)
 {
-    pingManagerThread_ = new QThread(this);
-    pingManager_ = new PingManager(NULL, nodesSpeedRating, nodesSpeedStore, stateController, networkStateManager);
-    connect(pingManager_, SIGNAL(connectionSpeedChanged(LocationID, PingTime)), SIGNAL(connectionSpeedChanged(LocationID, PingTime)));
-    pingManager_->moveToThread(pingManagerThread_);
+    /*pingManagerThread_ = new QThread(this);
+    //pingManager_ = new PingManager(NULL, nodesSpeedRating, nodesSpeedStore, stateController, networkStateManager);
+    //connect(pingManager_, SIGNAL(connectionSpeedChanged(LocationID, PingTime)), SIGNAL(connectionSpeedChanged(LocationID, PingTime)));
+    //pingManager_->moveToThread(pingManagerThread_);
 
     connect(pingManagerThread_, SIGNAL(started()), pingManager_, SLOT(init()));
     connect(pingManagerThread_, SIGNAL (finished()), pingManagerThread_, SLOT (deleteLater()));
@@ -28,24 +28,24 @@ ServersModel::ServersModel(QObject *parent, IConnectStateController *stateContro
 
     pingManagerThread_->start(QThread::LowPriority);
 
-    connect(&resolveHostnamesForCustomOvpn_, SIGNAL(resolved(QSharedPointer<ServerLocation>)), SLOT(onCustomOvpnDnsResolved(QSharedPointer<ServerLocation>)));
+    connect(&resolveHostnamesForCustomOvpn_, SIGNAL(resolved(QSharedPointer<ServerLocation>)), SLOT(onCustomOvpnDnsResolved(QSharedPointer<ServerLocation>)));*/
     //TestPingNodeController::doTest();
     //NodeSelectionAlgorithm::autoTest();
 }
 
 ServersModel::~ServersModel()
 {
-    pingManagerThread_->exit();
-    pingManagerThread_->wait();
-    clearServers();
+    //pingManagerThread_->exit();
+    //pingManagerThread_->wait();
+    //clearServers();
 }
 
-void ServersModel::updateServers(QVector< QSharedPointer<ServerLocation> > &newServers, bool bSkipCustomOvpnDnsResolution)
+void ServersModel::updateServers(const QVector<ApiInfo::Location> &newServers, bool bSkipCustomOvpnDnsResolution)
 {
     QMutexLocker locker(&mutex_);
 
     // if pingManager not initialized waiting (the likelihood of this is close to zero)
-    while (!pingManager_->isInitialized())
+    /*while (!pingManager_->isInitialized())
     {
         QThread::msleep(1);
     }
@@ -96,16 +96,16 @@ void ServersModel::updateServers(QVector< QSharedPointer<ServerLocation> > &newS
     }
 
     emit itemsUpdated(items);
-    pingManager_->updateServers(newServers, customOvpnDnsState_ == CUSTOM_OVPN_IN_PROGRESS);
+    pingManager_->updateServers(newServers, customOvpnDnsState_ == CUSTOM_OVPN_IN_PROGRESS);*/
 }
 
 void ServersModel::clear()
 {
-    QMutexLocker locker(&mutex_);
+    /*QMutexLocker locker(&mutex_);
     clearServers();
     QSharedPointer<QVector<ModelExchangeLocationItem> > items = QSharedPointer<QVector<ModelExchangeLocationItem> >(new QVector<ModelExchangeLocationItem>);
     emit itemsUpdated(items);
-    pingManager_->clear();
+    pingManager_->clear();*/
 }
 
 void ServersModel::setSessionStatus(bool bFree)
@@ -122,7 +122,7 @@ void ServersModel::setSessionStatus(bool bFree)
 
 PingTime ServersModel::getPingTimeMsForLocation(const LocationID &locationId)
 {
-    QMutexLocker locker(&mutex_);
+    /*QMutexLocker locker(&mutex_);
 
     if (locationId.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
     {
@@ -131,12 +131,13 @@ PingTime ServersModel::getPingTimeMsForLocation(const LocationID &locationId)
     else
     {
         return pingManager_->getPingTimeMs(locationId);
-    }
+    }*/
+    return PingTime();
 }
 
 void ServersModel::getNameAndCountryByLocationId(LocationID &locationId, QString &outName, QString &outCountry)
 {
-    QMutexLocker locker(&mutex_);
+    /*QMutexLocker locker(&mutex_);
 
     auto it = serversMap_.find(locationId.getId());
     if (it == serversMap_.end())
@@ -170,12 +171,12 @@ void ServersModel::getNameAndCountryByLocationId(LocationID &locationId, QString
                 outName = locationId.getCity();
             }
         }
-    }
+    }*/
 }
 
 QSharedPointer<MutableLocationInfo> ServersModel::getMutableLocationInfoById(LocationID locationId)
 {
-    QMutexLocker locker(&mutex_);
+   /* QMutexLocker locker(&mutex_);
 
     auto it = serversMap_.find(locationId.getId());
     if (it == serversMap_.end())
@@ -221,13 +222,14 @@ QSharedPointer<MutableLocationInfo> ServersModel::getMutableLocationInfoById(Loc
                 return QSharedPointer<MutableLocationInfo>();
             }
         }
-    }
+    }*/
+    return 0;
 }
 
 // example of location string: NL, Toronto #1, etc
 LocationID ServersModel::getLocationIdByName(const QString &location)
 {
-    QMutexLocker locker(&mutex_);
+    /*QMutexLocker locker(&mutex_);
 
     Q_FOREACH(QSharedPointer<ServerLocation> slm, servers_)
     {
@@ -244,27 +246,27 @@ LocationID ServersModel::getLocationIdByName(const QString &location)
                 return LocationID(slm->getId(), cityName);
             }
         }
-    }
+    }*/
     return LocationID();
 }
 
 QStringList ServersModel::getCitiesForLocationId(int locationId)
 {
-    QMutexLocker locker(&mutex_);
+    /*QMutexLocker locker(&mutex_);
     Q_FOREACH(QSharedPointer<ServerLocation> slm, servers_)
     {
         if (slm->getId() == locationId)
         {
             return slm->getCities();
         }
-    }
+    }*/
     return QStringList();
 }
 
 void ServersModel::setProxySettings(const ProxySettings &proxySettings)
 {
-    QMutexLocker locker(&mutex_);
-    QMetaObject::invokeMethod(pingManager_, "setProxySettings", Qt::QueuedConnection, Q_ARG(ProxySettings, proxySettings));
+    /*QMutexLocker locker(&mutex_);
+    QMetaObject::invokeMethod(pingManager_, "setProxySettings", Qt::QueuedConnection, Q_ARG(ProxySettings, proxySettings));*/
 }
 
 void ServersModel::disableProxy()
@@ -281,7 +283,7 @@ void ServersModel::enableProxy()
 
 void ServersModel::onCustomOvpnDnsResolved(QSharedPointer<ServerLocation> location)
 {
-    QMutexLocker locker(&mutex_);
+    /*QMutexLocker locker(&mutex_);
     QVector<QSharedPointer<ServerLocation> > newServers = makeCopyOfServerLocationsVector(servers_);
     if (newServers.count() > 0 && newServers[0]->getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
     {
@@ -293,7 +295,7 @@ void ServersModel::onCustomOvpnDnsResolved(QSharedPointer<ServerLocation> locati
     else
     {
         Q_ASSERT(false);
-    }
+    }*/
 }
 
 void ServersModel::clearServers()
@@ -305,7 +307,7 @@ void ServersModel::clearServers()
 ModelExchangeLocationItem ServersModel::serverLocationToModelExchangeLocationItem(ServerLocation &sl)
 {
     ModelExchangeLocationItem modelLocationExchangeItem;
-    modelLocationExchangeItem.countryCode = sl.getCountryCode();
+    /*modelLocationExchangeItem.countryCode = sl.getCountryCode();
     if (sl.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
     {
         modelLocationExchangeItem.pingTimeMs = getPingTimeMsForCustomOvpnConfig(LocationID(sl.getId()));
@@ -370,7 +372,7 @@ ModelExchangeLocationItem ServersModel::serverLocationToModelExchangeLocationIte
         emit connectionSpeedChanged(LocationID(sl.getId()), PingTime::PING_FAILED);
     }
 
-    qSort(modelLocationExchangeItem.cities);
+    qSort(modelLocationExchangeItem.cities);*/
 
     return modelLocationExchangeItem;
 }
@@ -390,14 +392,14 @@ ServerLocation *ServersModel::findServerLocationById(int id)
 
 PingTime ServersModel::getPingTimeMsForCustomOvpnConfig(const LocationID &locationId)
 {
-    Q_ASSERT(locationId.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID);
+   /* Q_ASSERT(locationId.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID);
     Q_ASSERT(customOvpnDnsState_ != CUSTOM_OVPN_NO);
 
     if (customOvpnDnsState_ == CUSTOM_OVPN_FINISHED)
     {
         return pingManager_->getPingTimeMs(locationId);
     }
-    else
+    else*/
     {
         return PingTime(PingTime::NO_PING_INFO);
     }
@@ -405,10 +407,10 @@ PingTime ServersModel::getPingTimeMsForCustomOvpnConfig(const LocationID &locati
 
 void ServersModel::setCustomOvpnConfigIpsToFirewall(ServerLocation &sl)
 {
-    QStringList ips = sl.getAllIps();
+    /*QStringList ips = sl.getAllIps();
     // remove duplicates
     QSet<QString> set = ips.toSet();
-    emit customOvpnConfgsIpsChanged(set.toList());
+    emit customOvpnConfgsIpsChanged(set.toList());*/
 }
 
 bool operator<(const ModelExchangeCityItem& a, const ModelExchangeCityItem& b)

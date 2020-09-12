@@ -3,7 +3,6 @@
 
 #include <QDate>
 #include <QFile>
-#include <QSharedPointer>
 #include <QVector>
 #include <QSet>
 #include "portmap.h"
@@ -18,8 +17,7 @@ namespace ApiInfo {
 class ApiInfo
 {
 public:
-    ApiInfo();
-    virtual ~ApiInfo();
+    explicit ApiInfo();
 
     SessionStatus getSessionStatus() const;
     void setSessionStatus(const SessionStatus &value);
@@ -33,8 +31,8 @@ public:
     void setServerCredentials(const ServerCredentials &serverCredentials);
     ServerCredentials getServerCredentials() const;
 
-    QByteArray getOvpnConfig() const;
-    void setOvpnConfig(const QByteArray &value);
+    QString getOvpnConfig() const;
+    void setOvpnConfig(const QString &value);
 
     QString getAuthHash() const;
     void setAuthHash(const QString &authHash);
@@ -42,8 +40,8 @@ public:
     PortMap getPortMap() const;
     void setPortMap(const PortMap &portMap);
 
-    void setStaticIpsLocation(const StaticIps &value);
-    StaticIps getStaticIpsLocation() const;
+    void setStaticIps(const StaticIps &value);
+    StaticIps getStaticIps() const;
 
     bool loadFromSettings();
     void saveToSettings();
@@ -59,12 +57,15 @@ private:
     QVector<Location> locations_;
     QStringList forceDisconnectNodes_;
     ServerCredentials serverCredentials_;
-    QByteArray ovpnConfig_;
+    QString ovpnConfig_;
     PortMap portMap_;
     StaticIps staticIps_;
 
     QString authHash_;
     SimpleCrypt simpleCrypt_;
+
+    // for check thread id, access to the class must be from a single thread
+    Qt::HANDLE threadId_;
 };
 
 } //namespace ApiInfo

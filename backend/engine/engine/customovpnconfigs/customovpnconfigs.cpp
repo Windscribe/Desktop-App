@@ -25,14 +25,15 @@ void CustomOvpnConfigs::changeDir(const QString &path)
     }
 }
 
-QSharedPointer<ServerLocation> CustomOvpnConfigs::getLocation()
+/*QSharedPointer<ServerLocation> CustomOvpnConfigs::getLocation()
 {
     return serverLocation_;
 }
-
+*/
 bool CustomOvpnConfigs::isExist()
 {
-    return !serverLocation_.isNull();
+    //return !serverLocation_.isNull();
+    return false;
 }
 
 void CustomOvpnConfigs::onDirectoryChanged()
@@ -44,7 +45,7 @@ void CustomOvpnConfigs::onDirectoryChanged()
 
 void CustomOvpnConfigs::parseDir()
 {
-    QDir dir(dirWatcher_->curDir());
+    /*QDir dir(dirWatcher_->curDir());
     QStringList filters;
     filters << "*.ovpn";
     dir.setNameFilters(filters);
@@ -71,10 +72,10 @@ void CustomOvpnConfigs::parseDir()
     {
         serverLocation_ = QSharedPointer<ServerLocation>(new ServerLocation);
         serverLocation_->transformToCustomOvpnLocation(nodes);
-    }
+    }*/
 }
 
-QSharedPointer<ServerNode> CustomOvpnConfigs::makeServerNodeFromOvpnFile(const QString &pathFile)
+/*QSharedPointer<ServerNode> CustomOvpnConfigs::makeServerNodeFromOvpnFile(const QString &pathFile)
 {
     QFile file(pathFile);
     if (file.open(QIODevice::ReadOnly))
@@ -106,7 +107,7 @@ QSharedPointer<ServerNode> CustomOvpnConfigs::makeServerNodeFromOvpnFile(const Q
             {
                 customOvpnAuthCredentialsStorage_->setAuthCredentials(pathFile, openVpnLine.username, openVpnLine.password);
             }*/
-        }
+        /*}
 
         if (!hostname.isEmpty())
         {
@@ -125,4 +126,4 @@ QSharedPointer<ServerNode> CustomOvpnConfigs::makeServerNodeFromOvpnFile(const Q
         qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << pathFile;
         return QSharedPointer<ServerNode>();
     }
-}
+}*/
