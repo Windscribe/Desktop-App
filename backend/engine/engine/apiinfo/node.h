@@ -4,6 +4,7 @@
 #include <QJsonObject>
 #include <QSharedDataPointer>
 #include <QStringList>
+#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace ApiInfo {
 
@@ -57,6 +58,8 @@ public:
     Node(const Node &other) : d (other.d) { }
 
     bool initFromJson(QJsonObject &obj);
+    void initFromProtoBuf(const ProtoApiInfo::Node &n);
+    ProtoApiInfo::Node getProtoBuf() const;
 
     /*void initFromCustomOvpnConfig(const QString &name, const QString &hostname,
                                   const QString &pathCustomOvpnConfig);

@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QSharedDataPointer>
 #include "node.h"
+#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace ApiInfo {
 
@@ -46,8 +47,9 @@ public:
     Group(const Group &other) : d (other.d) { }
 
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
+    void initFromProtoBuf(const ProtoApiInfo::Group &g);
+    ProtoApiInfo::Group getProtoBuf() const;
     QStringList getAllIps() const;
-
 
 private:
     QSharedDataPointer<GroupData> d;

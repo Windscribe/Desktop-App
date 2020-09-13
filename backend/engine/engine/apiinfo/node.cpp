@@ -29,6 +29,37 @@ bool Node::initFromJson(QJsonObject &obj)
     return true;
 }
 
+void Node::initFromProtoBuf(const ProtoApiInfo::Node &n)
+{
+    Q_ASSERT(n.ips_size() == 3);
+    if (n.ips_size() == 3)
+    {
+        for (auto i = 0; i < 3; ++i)
+        {
+            d->ip_[i] = QString::fromStdString(n.ips(i));
+        }
+    }
+
+    d->hostname_ = QString::fromStdString(n.hostname());
+    d->weight_ = n.weight();
+    d->forceDisconnect_ = false;
+    d->isValid_ = true;
+}
+
+ProtoApiInfo::Node Node::getProtoBuf() const
+{
+    Q_ASSERT(d->isValid_);
+    ProtoApiInfo::Node node;
+
+    for (auto i = 0; i < 3; ++i)
+    {
+        *node.add_ips() = d->ip_[i].toStdString();
+    }
+    node.set_hostname(d->hostname_.toStdString());
+    node.set_weight(d->weight_);
+    return node;
+}
+
 /*void ServerNode::initFromCustomOvpnConfig(const QString &name, const QString &hostname, const QString &pathCustomOvpnConfig)
 {
     hostname_ = hostname;

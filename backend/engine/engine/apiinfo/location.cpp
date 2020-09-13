@@ -51,7 +51,39 @@ bool Location::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
 
 void Location::initFromProtoBuf(const ProtoApiInfo::Location &l)
 {
+    d->id_ = l.id();
+    d->name_ = QString::fromStdString(l.name());
+    d->countryCode_ = QString::fromStdString(l.country_code());
+    d->premiumOnly_ = l.premium_only();
+    d->p2p_ = l.p2p();
+    d->dnsHostName_ = QString::fromStdString(l.dns_hostname());
 
+    for (int i = 0; i < l.groups_size(); ++i)
+    {
+        Group group;
+        group.initFromProtoBuf(l.groups(i));
+        d->groups_ << group;
+    }
+
+    d->type_ = SERVER_LOCATION_DEFAULT;
+    d->isValid_ = true;
+}
+
+ProtoApiInfo::Location Location::getProtoBuf() const
+{
+    Q_ASSERT(d->isValid_);
+    ProtoApiInfo::Location l;
+    l.set_id(d->id_);
+    l.set_name(d->name_.toStdString());
+    l.set_country_code(d->countryCode_.toStdString());
+    l.set_premium_only(d->premiumOnly_);
+    l.set_p2p(d->p2p_);
+    l.set_dns_hostname(d->dnsHostName_.toStdString());
+    for (const Group &group : d->groups_)
+    {
+        *l.add_groups() = group.getProtoBuf();
+    }
+    return l;
 }
 
 QStringList Location::getAllIps() const
