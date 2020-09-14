@@ -29,7 +29,7 @@ bool SortLocationsAlgorithms::lessThanByAlphabetically(LocationModelItem *item1,
 
 bool SortLocationsAlgorithms::lessThanByLatency(LocationModelItem *item1, LocationModelItem *item2)
 {
-    if (item1->id.getId() == LocationID::BEST_LOCATION_ID && item2->id.getId() != LocationID::BEST_LOCATION_ID)
+    /*if (item1->id.getId() == LocationID::BEST_LOCATION_ID && item2->id.getId() != LocationID::BEST_LOCATION_ID)
     {
         return true;
     }
@@ -60,5 +60,6 @@ bool SortLocationsAlgorithms::lessThanByLatency(LocationModelItem *item1, Locati
         {
             return item1->pingTimeMs.toInt() < item2->pingTimeMs.toInt();
         }
-    }
+    }*/
+    return true;
 }

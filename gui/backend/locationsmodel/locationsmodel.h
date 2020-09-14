@@ -64,7 +64,6 @@ private:
     QSet<LocationID> ids;
     QVector<LocationModelItem *> locations_;
 
-    void splitCityName(const QString &src, QString &outName1, QString &outName2) const;
 };
 
 #endif // LOCATIONSMODEL_H

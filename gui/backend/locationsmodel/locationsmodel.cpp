@@ -20,7 +20,7 @@ LocationsModel::LocationsModel(QObject *parent) : QObject(parent)
 
 LocationsModel::~LocationsModel()
 {
-    Q_FOREACH(LocationModelItem *lmi, locations_)
+    for (const LocationModelItem *lmi : locations_)
     {
         delete lmi;
     }
@@ -42,13 +42,42 @@ void LocationsModel::update(const ProtoTypes::ArrayLocations &arr)
         const ProtoTypes::Location &location = arr.locations(i);
 
         LocationModelItem *lmi = new LocationModelItem();
-
         lmi->initialInd_ = i;
         lmi->id = LocationID(location.id());
         lmi->title = QString::fromStdString(location.name());
-        lmi->countryCode = QString::fromStdString(location.country_code()).toLower();
         lmi->isShowP2P = location.is_p2p_supported();
+        lmi->countryCode = QString::fromStdString(location.country_code()).toLower();
         lmi->isPremiumOnly = location.is_premium_only();
+        locations_ << lmi;
+
+        int cities_cnt = location.cities_size();
+        for (int c = 0; c < cities_cnt; ++c)
+        {
+            const ProtoTypes::City &city = location.cities(c);
+            CityModelItem cmi;
+            cmi.id = LocationID(lmi->id.getId(), QString::fromStdString(city.id()));
+            cmi.title1 = QString::fromStdString(city.name());
+            cmi.title2 = QString::fromStdString(city.nick());
+            cmi.countryCode = lmi->countryCode;
+            cmi.pingTimeMs = city.ping_time();
+            cmi.bShowPremiumStarOnly = city.is_premium_only();
+            cmi.isFavorite = favoriteLocationsStorage_.isFavorite(cmi.id);
+            cmi.isDisabled = city.is_disabled();
+            cmi.staticIpType = QString::fromStdString(city.static_ip_type());
+            cmi.staticIp = QString::fromStdString(city.static_ip());
+            lmi->cities << cmi;
+        }
+
+        // get device name
+        // if (deviceName_ == "")
+        {
+            QString thisLocationsDeviceName = QString::fromStdString(pl.static_ip_device_name());
+            if (thisLocationsDeviceName != "")
+            {
+                deviceName_ = thisLocationsDeviceName;
+                emit deviceNameChanged(deviceName_);
+            }
+        }
     }
 
     /*QHash<int, int> hash;
@@ -365,17 +394,4 @@ LocationID LocationsModel::getLocationIdByCity(
     }
 
     return LocationID();
-}
-
-void LocationsModel::splitCityName(const QString &src, QString &outName1, QString &outName2) const
-{
-    QStringList strs = src.split(" - ");
-    if (strs.count() > 0)
-    {
-        outName1 = strs[0].trimmed();
-    }
-    if (strs.count() > 1)
-    {
-        outName2 = strs[1].trimmed();
-    }
 }

@@ -5,12 +5,13 @@
 #include "../types/pingtime.h"
 #include "../types/locationid.h"
 
+//todo: implicit sharing to avoid copy constructors
 struct CityModelItem
 {
     LocationID id;
     QString title1;
     QString title2;
-    QString countryCode;
+    QString countryCode;        // maybe remove
     PingTime pingTimeMs;
     bool bShowPremiumStarOnly;
     bool isFavorite;
@@ -27,8 +28,6 @@ struct LocationModelItem
     QString countryCode;
     bool isShowP2P;
     bool isPremiumOnly;
-    //PingTime pingTimeMs;
-    bool isForceExpand;
     QVector<CityModelItem> cities;
 };
 
