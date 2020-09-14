@@ -56,7 +56,7 @@ bool Registry::regWriteSzProperty(HKEY h, const wchar_t * subkeyName, std::wstri
 	}
 	else
 	{
-		nError = RegSetValueEx(hKey, valueName.c_str(), 0, REG_SZ, (LPBYTE)value.c_str(), (value.length() + 1) * sizeof(wchar_t));
+		nError = RegSetValueEx(hKey, valueName.c_str(), 0, REG_SZ, (LPBYTE)value.c_str(), (DWORD)((value.length() + 1) * sizeof(wchar_t)));
 		
 		if (nError != ERROR_SUCCESS)
 		{

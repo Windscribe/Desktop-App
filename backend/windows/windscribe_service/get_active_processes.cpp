@@ -26,7 +26,8 @@ std::vector<std::wstring> GetActiveProcesses::getList()
 		processIds.resize(1024);
 		DWORD cbProcess;
 
-		if (!EnumProcesses(&processIds[0], processIds.size() * sizeof(DWORD), &cbProcess))
+        const auto processIdsSize = static_cast<DWORD>(processIds.size() * sizeof(DWORD));
+		if (!EnumProcesses(&processIds[0], processIdsSize, &cbProcess))
 		{
 			return std::vector<std::wstring>();
 		}
@@ -86,18 +87,18 @@ std::vector<std::wstring> GetActiveProcesses::getList()
 							}
 							else
 							{
-								int len = wcslen(szProcessName);
+								auto len = wcslen(szProcessName);
 								wcscpy(szProcessName + len - 4, L"\0");
 
 								bool fProcessExists = false;
 								int count = 0;
                                 TCHAR szProcessNameWithPrefix[MAX_PATH];
-								swprintf(szProcessNameWithPrefix, L"%s", szProcessName);
+								swprintf(szProcessNameWithPrefix, MAX_PATH, L"%s", szProcessName);
 								do
 								{
 									if (count > 0)
 									{
-										swprintf(szProcessNameWithPrefix, L"%s#%d", szProcessName, count);
+										swprintf(szProcessNameWithPrefix, MAX_PATH, L"%s#%d", szProcessName, count);
 									}
 									fProcessExists = isModuleExists(szProcessNameWithPrefix);
 									count++;

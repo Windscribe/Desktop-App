@@ -168,7 +168,7 @@ bool noSpacesInString(std::wstring &str)
 
 bool iequals(const std::wstring &a, const std::wstring &b)
 {
-	unsigned int sz = a.size();
+	auto sz = static_cast<unsigned int>(a.size());
 	if (b.size() != sz)
 		return false;
 

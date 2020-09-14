@@ -140,7 +140,8 @@ bool TapAdapterDetector::removeAdapter(NET_LUID luid)
 
 int TapAdapterDetector::findAdapter(NET_LUID luid) const
 {
-	for (size_t i = 0; i < windscribeAdapters_.size(); ++i)
+    const auto kNumAdapters = static_cast<int>(windscribeAdapters_.size());
+	for (int i = 0; i < kNumAdapters; ++i)
 	{
 		if (windscribeAdapters_[i].luid.Value == luid.Value)
 		{

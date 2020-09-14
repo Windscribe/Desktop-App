@@ -141,7 +141,7 @@ std::vector<std::wstring> DnsFirewall::getDnsServers()
 	std::vector<unsigned char> arr;
 	arr.resize(1);
 
-	outBufLen = arr.size();
+	outBufLen = static_cast<ULONG>(arr.size());
 	do {
 		dwRetVal = GetAdaptersAddresses(AF_UNSPEC, NULL, NULL, (PIP_ADAPTER_ADDRESSES)&arr[0], &outBufLen);
 		if (dwRetVal == ERROR_BUFFER_OVERFLOW)
