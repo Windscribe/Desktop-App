@@ -220,6 +220,7 @@ void ComboBoxItem::onMenuOpened()
     {
         // center on selected item
         heightCentering -= item * menu_->itemHeight();
+        menu_->navigateItemToTop(0);
     }
     else // scrollbar on
     {

@@ -267,9 +267,10 @@ ComboMenuWidgetButton *ComboMenuWidget::itemByName(QString text)
 void ComboMenuWidget::moveListPos(int newY)
 {
     // not too high, not too low
-    if ((newY <= 0) &&
-        (maxViewportHeight_ - newY <= menuListWidget_->geometry().height()))
-    {
+    const int kMinY = qMin( 0, maxViewportHeight_ - menuListWidget_->geometry().height() );
+    newY = qBound(kMinY, newY, 0);
+
+    if (menuListPosY_ != newY) {
         menuListPosY_ = newY;
         updateScaling();
     }
