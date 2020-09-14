@@ -4,7 +4,8 @@
 #include "wireguardcommunicator.h"
 #include "privilegehelper.h"
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/regex.hpp>
+#include <regex>
+#include <type_traits>
 #include <io.h>
 #include <fcntl.h>
 
@@ -21,7 +22,7 @@ UINT64 stringToValueImpl(const std::string &str)
     return _strtoui64(str.c_str(), nullptr, 10);
 }
 template<typename T>
-typename std::enable_if<std::is_integral_v<T>, T>::type
+typename std::enable_if<std::is_integral<T>::value, T>::type
 stringToValue(const std::string &str)
 {
     return str.empty() ? T(0) : stringToValueImpl<T>(str);
@@ -70,14 +71,14 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
     return success;
 }
 
-UINT WireGuardCommunicator::getStatus(int *errorCode, UINT64 *bytesReceived,
+UINT WireGuardCommunicator::getStatus(UINT32 *errorCode, UINT64 *bytesReceived,
                                       UINT64 *bytesTransmitted) const
 {
     FILE *conn = nullptr;
     const auto result = openConnection(&conn);
     if (result == OpenConnectionState::NO_ACCESS) {
         if (errorCode)
-            *errorCode = static_cast<int>(GetLastError());
+            *errorCode = GetLastError();
         return WIREGUARD_STATE_ERROR;
     } else if (result == OpenConnectionState::NO_PIPE) {
         return WIREGUARD_STATE_STARTING;
@@ -101,7 +102,7 @@ UINT WireGuardCommunicator::getStatus(int *errorCode, UINT64 *bytesReceived,
         return WIREGUARD_STATE_STARTING;
 
     // Check for errors.
-    const auto errno_value = stringToValue<int>(results["errno"]);
+    const auto errno_value = stringToValue<UINT32>(results["errno"]);
     if (errno_value != 0) {
         if (errorCode)
             *errorCode = errno_value;
@@ -208,15 +209,15 @@ bool WireGuardCommunicator::getConnectionOutput(FILE *conn, ResultMap *results_m
     if (output.empty())
         return false;
     if (results_map && !results_map->empty()) {
-        boost::regex output_rx("^(\\w+)=(\\w+)$");
-        boost::sregex_iterator it(output.begin(), output.end(), output_rx), end;
+        std::regex output_rx("(^|\n)(\\w+)=(\\w+)(?=\n|$)");
+        std::sregex_iterator it(output.begin(), output.end(), output_rx), end;
         for (; it != end; ++it) {
-            if (it->size() != 3)
+            if (it->size() != 4)
                 continue;
             const auto &match = *it;
-            auto mapitem = results_map->find(match[1].str());
+            auto mapitem = results_map->find(match[2].str());
             if (mapitem != results_map->end())
-                mapitem->second = match[2].str();
+                mapitem->second = match[3].str();
         }
     }
     return true;

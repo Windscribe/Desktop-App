@@ -205,11 +205,12 @@ struct MessagePacketResult
     DWORD exitCode;
     unsigned long blockingCmdId;    // id for check status of blocking cmd
     bool blockingCmdFinished;
+    UINT64 customInfoValue[2];
     DWORD sizeOfAdditionalData;
     void *szAdditionalData;
 
     MessagePacketResult() : id(0), success(false), exitCode(0), blockingCmdId(0),
-                            blockingCmdFinished(false), sizeOfAdditionalData(0),
+                            blockingCmdFinished(false), customInfoValue(), sizeOfAdditionalData(0),
                             szAdditionalData(nullptr)
     {
     }
@@ -234,13 +235,15 @@ struct MessagePacketResultSerialization
     UINT16 success;
     UINT16 blockingCmdFinished;
     UINT32 blockingCmdId;
+    UINT64 customInfoValue[2];
     UINT32 sizeOfAdditionalData;
 
     MessagePacketResultSerialization() : id(0), exitCode(0), success(0), blockingCmdFinished(0),
-        blockingCmdId(0), sizeOfAdditionalData(0) {}
+        blockingCmdId(0), customInfoValue(), sizeOfAdditionalData(0) {}
     explicit MessagePacketResultSerialization(const MessagePacketResult &mpr)
         : id(mpr.id), exitCode(mpr.exitCode), success(mpr.success ? 1 : 0),
           blockingCmdFinished(mpr.blockingCmdFinished ? 1 : 0), blockingCmdId(mpr.blockingCmdId),
+          customInfoValue{ mpr.customInfoValue[0], mpr.customInfoValue[1] },
           sizeOfAdditionalData(mpr.sizeOfAdditionalData) {}
 
     char *data() { return reinterpret_cast<char*>(this); }
@@ -252,6 +255,8 @@ struct MessagePacketResultSerialization
         mpr.success = !!success;
         mpr.blockingCmdFinished = !!blockingCmdFinished;
         mpr.blockingCmdId = blockingCmdId;
+        mpr.customInfoValue[0] = customInfoValue[0];
+        mpr.customInfoValue[1] = customInfoValue[1];
         mpr.sizeOfAdditionalData = sizeOfAdditionalData;
         return mpr;
     }

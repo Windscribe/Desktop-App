@@ -22,7 +22,7 @@ public:
                          const std::vector<std::string> &allowedIps);
     bool isInitialized() const { return is_initialized_; }
     UINT getDaemonCmdId() const { return daemonCmdId_; }
-    UINT getStatus(int *errorCode, UINT64 *bytesReceived, UINT64 *bytesTransmitted) const;
+    UINT getStatus(UINT32 *errorCode, UINT64 *bytesReceived, UINT64 *bytesTransmitted) const;
 
     static std::vector<std::string> splitAndDeduplicateAllowedIps(const std::string &allowedIps);
 

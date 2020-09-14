@@ -177,6 +177,7 @@ void WireGuardConnection::run()
             break;
         }
         const auto current_state = getCurrentState();
+        unsigned int next_status_check_ms = 10u;
         if (current_state != ConnectionState::DISCONNECTED) {
             if (!pimpl_->getStatus(&status)) {
                 qCDebug(LOG_WIREGUARD) << "Failed to get WireGuard status";
@@ -205,7 +206,8 @@ void WireGuardConnection::run()
                 break;
             case WireGuardState::CONNECTING:
                 // Daemon is connecting (waiting for a handshake).
-                 break;
+                next_status_check_ms = 100u;
+                break;
             case WireGuardState::ACTIVE:
             {
                 if (!is_connected) {
@@ -220,10 +222,12 @@ void WireGuardConnection::run()
                     bytesTransmitted = status.bytesTransmitted;
                     emit statisticsUpdated(newBytesReceived, newBytesTransmitted, false);
                 }
+                next_status_check_ms = 250u;
                 break;
             }
             }
         }
+        QThread::msleep(next_status_check_ms);
     }
 }
 

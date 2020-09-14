@@ -763,6 +763,8 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_WIREGUARD_STATUS, std::string());
     if (mpr.success && status) {
+        status->errorCode = 0;
+        status->bytesReceived = status->bytesTransmitted = 0;
         switch (mpr.exitCode) {
         default:
         case WIREGUARD_STATE_NONE:
@@ -770,6 +772,7 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
             break;
         case WIREGUARD_STATE_ERROR:
             status->state = WireGuardState::FAILURE;
+            status->errorCode = mpr.customInfoValue[0];
             break;
         case WIREGUARD_STATE_STARTING:
             status->state = WireGuardState::STARTING;
@@ -782,38 +785,17 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
             break;
         case WIREGUARD_STATE_ACTIVE:
             status->state = WireGuardState::ACTIVE;
+            status->bytesReceived = mpr.customInfoValue[0];
+            status->bytesTransmitted = mpr.customInfoValue[1];
             break;
         }
-        status->errorCode = 0;
-        status->bytesReceived = status->bytesTransmitted = 0;
-        if (mpr.sizeOfAdditionalData) {
-            const auto response
-                = QString::fromLocal8Bit(static_cast<const char *>(mpr.szAdditionalData),
-                                         mpr.sizeOfAdditionalData);
-            QStringList responseParts = response.split(";");
-            bool is_valid_response = false;
-            switch (status->state) {
-            case WireGuardState::FAILURE:
-                if (responseParts.size() == 1) {
-                    status->errorCode = responseParts[0].toInt();
-                    is_valid_response = true;
-                }
-                break;
-            case WireGuardState::ACTIVE:
-                if (responseParts.size() == 2) {
-                    status->bytesReceived = responseParts[0].toULongLong();
-                    status->bytesTransmitted = responseParts[1].toULongLong();
-                    is_valid_response = true;
-                }
-                break;
-            default:
-                break;
-            }
-            if (!is_valid_response)
-                qCDebug(LOG_WIREGUARD) << "Bogus WireGuard status response:" << response;
-            mpr.clear();
-        }
     }
+    if (mpr.sizeOfAdditionalData) {
+        qCDebug(LOG_WIREGUARD) << "WireGuard daemon output:";
+        qCDebug(LOG_WIREGUARD) << QString::fromLocal8Bit(
+            static_cast<const char *>(mpr.szAdditionalData), mpr.sizeOfAdditionalData);
+    }
+    mpr.clear();
     return mpr.success;
 }
 

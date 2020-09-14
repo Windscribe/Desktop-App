@@ -922,20 +922,29 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
     }
     else if (cmdId == AA_COMMAND_GET_WIREGUARD_STATUS)
     {
-        int errorCode = 0;
+        UINT32 errorCode = 0;
         UINT64 bytesReceived = 0, bytesTransmitted = 0;
-        mpr.success = true;
-        mpr.exitCode = wireGuardController.getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
-        std::stringstream info;
-        if (mpr.exitCode == WIREGUARD_STATE_ERROR) {
-            info << errorCode;
-        } else if (mpr.exitCode == WIREGUARD_STATE_ACTIVE) {
-            info << bytesReceived << ";" << bytesTransmitted;
-        }
-        if (info.str().size() > 0) {
-            mpr.sizeOfAdditionalData = static_cast<DWORD>(info.str().length());
-            mpr.szAdditionalData = new char[mpr.sizeOfAdditionalData+1]();
-            memcpy(mpr.szAdditionalData, info.str().c_str(), mpr.sizeOfAdditionalData);
+        if (!wireGuardController.isInitialized()) {
+            mpr.exitCode = WIREGUARD_STATE_NONE;
+        } else {
+            mpr = ExecuteCmd::instance().getUnblockingCmdStatus(
+                wireGuardController.getDaemonCmdId());
+            if (!mpr.success || mpr.blockingCmdFinished) {
+                // Special error code means the daemon is dead.
+                mpr.exitCode = WIREGUARD_STATE_ERROR;
+                mpr.customInfoValue[0] = 666u;
+            } else {
+                mpr.success = true;
+                mpr.exitCode =
+                    wireGuardController.getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
+                if (mpr.exitCode == WIREGUARD_STATE_ERROR) {
+                    mpr.customInfoValue[0] = errorCode;
+                }
+                else if (mpr.exitCode == WIREGUARD_STATE_ACTIVE) {
+                    mpr.customInfoValue[0] = bytesReceived;
+                    mpr.customInfoValue[1] = bytesTransmitted;
+                }
+            }
         }
     }
 	

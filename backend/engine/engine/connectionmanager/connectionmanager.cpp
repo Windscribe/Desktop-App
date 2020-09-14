@@ -1050,6 +1050,13 @@ void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> confi
     if (config) {
         // Config fetched successfully.
         wireGuardConfig_ = config;
+    }
+
+    // If the protocol has been changed, do nothing.
+    if (!currentConnectionDescr_.protocol.isWireGuardProtocol())
+        return;
+
+    if (config) {
         doConnectPart2();
     } else {
         // Failed to fetch a config, stop connection.

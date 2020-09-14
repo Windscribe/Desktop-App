@@ -65,7 +65,7 @@ bool WireGuardController::configureDaemon(const std::string &clientPrivateKey,
                             allowedIps);
 }
 
-UINT WireGuardController::getStatus(int *errorCode, UINT64 *bytesReceived,
+UINT WireGuardController::getStatus(UINT32 *errorCode, UINT64 *bytesReceived,
                                     UINT64 *bytesTransmitted) const
 {
     if (!is_initialized_)
