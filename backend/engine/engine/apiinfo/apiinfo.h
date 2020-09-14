@@ -12,7 +12,7 @@
 #include "staticips.h"
 #include "sessionstatus.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 class ApiInfo
 {
@@ -68,6 +68,6 @@ private:
     Qt::HANDLE threadId_;
 };
 
-} //namespace ApiInfo
+} //namespace apiinfo
 
 #endif // APIINFO_H

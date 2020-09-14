@@ -7,7 +7,7 @@
 #include <QSharedDataPointer>
 #include "ipc/generated_proto/apiinfo.pb.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 class SessionStatusData : public QSharedData
 {
@@ -58,6 +58,6 @@ private:
     QSharedDataPointer<SessionStatusData> d;
 };
 
-} //namespace ApiInfo
+} //namespace apiinfo
 
 #endif // APIINFO_SESSION_STATUS_H

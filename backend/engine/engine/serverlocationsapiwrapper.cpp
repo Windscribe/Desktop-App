@@ -5,8 +5,8 @@
 ServerLocationsApiWrapper::ServerLocationsApiWrapper(QObject *parent, NodesSpeedStore *nodesSpeedStore, ServerAPI *serverAPI) : QObject(parent),
     nodesSpeedStore_(nodesSpeedStore), serverAPI_(serverAPI), userRole_(0)
 {
-    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<ApiInfo::Location>,QStringList, uint)),
-                            SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<ApiInfo::Location>,QStringList, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)),
+                            SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
     //connect(nodesSpeedStore_, SIGNAL(pingIterationChanged()), SLOT(onPingIterationChanged()), Qt::QueuedConnection);
 
     //bestLocation_.readFromSettings();
@@ -27,7 +27,7 @@ void ServerLocationsApiWrapper::serverLocations(const QString &authHash, const Q
     serverAPI_->serverLocations(authHash, language, userRole, isNeedCheckRequestsEnabled, revision, isPro, protocol, alcList);
 }
 
-void ServerLocationsApiWrapper::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void ServerLocationsApiWrapper::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
 {
     if (retCode != SERVER_RETURN_SUCCESS)
     {

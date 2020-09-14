@@ -31,7 +31,7 @@ public:
                                ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
-    void clickConnect(const QString &ovpnConfig, const ApiInfo::ServerCredentials &serverCredentials,
+    void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
                       QSharedPointer<MutableLocationInfo> mli,
                       const ConnectionSettings &connectionSettings, const PortMap &portMap, const ProxySettings &proxySettings,
                       bool bEmitAuthError) override;
@@ -51,7 +51,7 @@ public:
     QString getCustomOvpnConfigFilePath() override;
 
     bool isStaticIpsLocation() const override;
-    ApiInfo::StaticIpPortsVector getStatisIps() override;
+    apiinfo::StaticIpPortsVector getStatisIps() override;
 
     void setMss(int mss) override;
 
@@ -96,7 +96,7 @@ private:
     QString lastIp_;
 
     QString lastOvpnConfig_;
-    ApiInfo::ServerCredentials lastServerCredentials_;
+    apiinfo::ServerCredentials lastServerCredentials_;
     ProxySettings lastProxySettings_;
     bool bEmitAuthError_;
 

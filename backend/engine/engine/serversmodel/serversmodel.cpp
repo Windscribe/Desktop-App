@@ -40,7 +40,7 @@ ServersModel::~ServersModel()
     //clearServers();
 }
 
-void ServersModel::updateServers(const QVector<ApiInfo::Location> &newServers, bool bSkipCustomOvpnDnsResolution)
+void ServersModel::updateServers(const QVector<apiinfo::Location> &newServers, bool bSkipCustomOvpnDnsResolution)
 {
     QMutexLocker locker(&mutex_);
 
@@ -114,7 +114,6 @@ void ServersModel::setSessionStatus(bool bFree)
 
     if (!bFreeSessionStatusInitialized_ || bFree != bFreeSessionStatus_)
     {
-        emit sessionStatusChanged(bFree);
         bFreeSessionStatusInitialized_ = true;
         bFreeSessionStatus_ = bFree;
     }

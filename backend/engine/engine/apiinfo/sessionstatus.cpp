@@ -2,9 +2,9 @@
 #include <QJsonArray>
 #include <QMetaType>
 
-const int typeIdSessionStatus = qRegisterMetaType<ApiInfo::SessionStatus>("ApiInfo::SessionStatus");
+const int typeIdSessionStatus = qRegisterMetaType<apiinfo::SessionStatus>("apiinfo::SessionStatus");
 
-namespace ApiInfo {
+namespace apiinfo {
 
 bool SessionStatus::initFromJson(QJsonObject &json, QString &outErrorMessage)
 {
@@ -160,4 +160,4 @@ void SessionStatus::clear()
     d->staticIpsUpdateDevices_.clear();
 }
 
-} //namespace ApiInfo
+} //namespace apiinfo

@@ -33,12 +33,12 @@ private slots:
     void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode);
     void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode);
     void onEngineFirewallStateChanged(bool isEnabled);
-    void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const ApiInfo::PortMap &portMap);
+    void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap);
     void onEngineLoginError(LOGIN_RET retCode);
     void onEngineLoginMessage(LOGIN_MESSAGE msg);
     void onEngineSessionDeleted();
-    void onEngineUpdateSessionStatus(const ApiInfo::SessionStatus &sessionStatus);
-    void onEngineNotificationsUpdated(const QVector<ApiInfo::Notification> &notifications);
+    void onEngineUpdateSessionStatus(const apiinfo::SessionStatus &sessionStatus);
+    void onEngineNotificationsUpdated(const QVector<apiinfo::Notification> &notifications);
     void onEngineCheckUpdateUpdated(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported);
     void onEngineMyIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &locationId);
@@ -72,6 +72,7 @@ private slots:
     void onEngineConfirmEmailFinished(bool bSuccess);
 
     void onEngineServersModelItemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> > items);
+    void onEngineLocationsModelItemsUpdated(QSharedPointer< QVector<locationsmodel::LocationItem> > items);
     void onEngineServersModelConnectionSpeedChanged(LocationID id, PingTime timeMs);
 
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);

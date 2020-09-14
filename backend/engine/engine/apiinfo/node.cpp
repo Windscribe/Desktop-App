@@ -1,6 +1,6 @@
 #include "node.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 bool Node::initFromJson(QJsonObject &obj)
 {
@@ -242,4 +242,4 @@ bool ServerNode::isEqualIpsAndHostnameAndLegacy(const ServerNode &sn) const
     return (ip_[0] == sn.ip_[0] && ip_[1] == sn.ip_[1] && ip_[2] == sn.ip_[2] && hostname_ == sn.hostname_ && legacy_ == sn.legacy_);
 }*/
 
-} //namespace ApiInfo
+} //namespace apiinfo

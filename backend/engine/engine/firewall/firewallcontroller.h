@@ -20,7 +20,7 @@ public:
     virtual bool firewallOff();
     virtual bool firewallActualState() = 0;
 
-    virtual bool whitelistPorts(const ApiInfo::StaticIpPortsVector &ports);
+    virtual bool whitelistPorts(const apiinfo::StaticIpPortsVector &ports);
     virtual bool deleteWhitelistPorts();
 
     // mac specific functions
@@ -34,7 +34,7 @@ protected:
     QString latestIp_;
     bool latestAllowLanTraffic_;
     bool latestEnabledState_;
-    ApiInfo::StaticIpPortsVector latestStaticIpPorts_;
+    apiinfo::StaticIpPortsVector latestStaticIpPorts_;
     bool bInitialized_;
     bool bStateChanged_;
 };

@@ -504,13 +504,13 @@ void ServerAPI::login(const QString &username, const QString &password, uint use
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit loginAnswer(SERVER_RETURN_API_NOT_READY, ApiInfo::SessionStatus(), "", userRole);
+        emit loginAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::SessionStatus(), "", userRole);
         return;
     }
 
     if (!bIsOnline_)
     {
-        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::SessionStatus(), "", userRole);
+        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", userRole);
         return;
     }
 
@@ -522,13 +522,13 @@ void ServerAPI::session(const QString &authHash, uint userRole, bool isNeedCheck
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit sessionAnswer(SERVER_RETURN_API_NOT_READY, ApiInfo::SessionStatus(), userRole);
+        emit sessionAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::SessionStatus(), userRole);
         return;
     }
 
     if (!bIsOnline_)
     {
-        emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::SessionStatus(), userRole);
+        emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), userRole);
         return;
     }
 
@@ -541,13 +541,13 @@ void ServerAPI::serverLocations(const QString &authHash, const QString &language
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit serverLocationsAnswer(SERVER_RETURN_API_NOT_READY, QVector<ApiInfo::Location>(), QStringList(), userRole);
+        emit serverLocationsAnswer(SERVER_RETURN_API_NOT_READY, QVector<apiinfo::Location>(), QStringList(), userRole);
         return;
     }
 
     if (!bIsOnline_)
     {
-        emit serverLocationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<ApiInfo::Location>(), QStringList(), userRole);
+        emit serverLocationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<apiinfo::Location>(), QStringList(), userRole);
         return;
     }
 
@@ -636,13 +636,13 @@ void ServerAPI::portMap(const QString &authHash, uint userRole, bool isNeedCheck
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit portMapAnswer(SERVER_RETURN_API_NOT_READY, ApiInfo::PortMap(), userRole);
+        emit portMapAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::PortMap(), userRole);
         return;
     }
 
     if (!bIsOnline_)
     {
-        emit portMapAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::PortMap(), userRole);
+        emit portMapAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::PortMap(), userRole);
         return;
     }
 
@@ -771,13 +771,13 @@ void ServerAPI::staticIps(const QString &authHash, const QString &deviceId, uint
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit staticIpsAnswer(SERVER_RETURN_API_NOT_READY, ApiInfo::StaticIps(), userRole);
+        emit staticIpsAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::StaticIps(), userRole);
         return;
     }
 
     if (!bIsOnline_)
     {
-        emit staticIpsAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::StaticIps(), userRole);
+        emit staticIpsAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::StaticIps(), userRole);
         return;
     }
 
@@ -822,13 +822,13 @@ void ServerAPI::notifications(const QString &authHash, uint userRole, bool isNee
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit notificationsAnswer(SERVER_RETURN_API_NOT_READY, QVector<ApiInfo::Notification>(), userRole);
+        emit notificationsAnswer(SERVER_RETURN_API_NOT_READY, QVector<apiinfo::Notification>(), userRole);
         return;
     }
 
     if (!bIsOnline_)
     {
-        emit notificationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<ApiInfo::Notification>(), userRole);
+        emit notificationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<apiinfo::Notification>(), userRole);
         return;
     }
 
@@ -931,7 +931,7 @@ void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStri
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request Login failed: DNS-resolution failed";
-        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::SessionStatus(), "",
+        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "",
                          crd->getUserRole());
         return;
     }
@@ -964,7 +964,7 @@ void ServerAPI::handleSessionDnsResolve(BaseRequest *rd, bool success, const QSt
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request Session failed: DNS-resolution failed";
-        emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::SessionStatus(),
+        emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(),
                            crd->getUserRole());
         return;
     }
@@ -991,7 +991,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request ServerLocations failed: DNS-resolution failed";
         emit serverLocationsAnswer(SERVER_RETURN_NETWORK_ERROR,
-                                   QVector<ApiInfo::Location>(), QStringList(),
+                                   QVector<apiinfo::Location>(), QStringList(),
                                    crd->getUserRole());
         return;
     }
@@ -1143,7 +1143,7 @@ void ServerAPI::handlePortMapDnsResolve(BaseRequest *rd, bool success, const QSt
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request PortMap failed: DNS-resolution failed";
-        emit portMapAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::PortMap(),
+        emit portMapAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::PortMap(),
                            crd->getUserRole());
         return;
     }
@@ -1362,7 +1362,7 @@ void ServerAPI::handleNotificationsDnsResolve(BaseRequest *rd, bool success, con
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "Notifications request failed: DNS-resolution failed";
-        emit notificationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<ApiInfo::Notification>(),
+        emit notificationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<apiinfo::Notification>(),
                                  crd->getUserRole());
         return;
     }
@@ -1388,7 +1388,7 @@ void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const Q
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "StaticIps request failed: DNS-resolution failed";
-        emit staticIpsAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::StaticIps(),
+        emit staticIpsAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::StaticIps(),
                              crd->getUserRole());
         return;
     }
@@ -1521,12 +1521,12 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         if (replyType == REPLY_LOGIN)
         {
             qCDebug(LOG_SERVER_API) << "API request Login failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-            emit loginAnswer(retCode, ApiInfo::SessionStatus(), "", userRole);
+            emit loginAnswer(retCode, apiinfo::SessionStatus(), "", userRole);
         }
         else
         {
             qCDebug(LOG_SERVER_API) << "API request Session failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-            emit sessionAnswer(retCode, ApiInfo::SessionStatus(), userRole);
+            emit sessionAnswer(retCode, apiinfo::SessionStatus(), userRole);
         }
     }
     else
@@ -1554,18 +1554,18 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             if (replyType == REPLY_LOGIN)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::SessionStatus(), "", userRole);
+                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole);
             }
             else
             {
                 qCDebug(LOG_SERVER_API) << "API request Session incorrect json";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::SessionStatus(), userRole);
+                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), userRole);
             }
             return;
         }
         QJsonObject jsonObject = doc.object();
 
-        ApiInfo::SessionStatus sessionStatus;
+        apiinfo::SessionStatus sessionStatus;
 
         if (jsonObject.contains("errorCode"))
         {
@@ -1576,12 +1576,12 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
                 if (replyType == REPLY_LOGIN)
                 {
                     qCDebug(LOG_SERVER_API) << "API request Login return bad username";
-                    emit loginAnswer(SERVER_RETURN_BAD_USERNAME, ApiInfo::SessionStatus(), "", userRole);
+                    emit loginAnswer(SERVER_RETURN_BAD_USERNAME, apiinfo::SessionStatus(), "", userRole);
                 }
                 else
                 {
                     qCDebug(LOG_SERVER_API) << "API request Session return bad username";
-                    emit sessionAnswer(SERVER_RETURN_BAD_USERNAME, ApiInfo::SessionStatus(), userRole);
+                    emit sessionAnswer(SERVER_RETURN_BAD_USERNAME, apiinfo::SessionStatus(), userRole);
                 }
             }
             else
@@ -1589,12 +1589,12 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
                 if (replyType == REPLY_LOGIN)
                 {
                     qCDebug(LOG_SERVER_API) << "API request Login return error";
-                    emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::SessionStatus(), "", userRole);
+                    emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", userRole);
                 }
                 else
                 {
                     qCDebug(LOG_SERVER_API) << "API request Session return error";
-                    emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::SessionStatus(), userRole);
+                    emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), userRole);
                 }
             }
             return;
@@ -1605,12 +1605,12 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             if (replyType == REPLY_LOGIN)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json (data field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::SessionStatus(), "", userRole);
+                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole);
             }
             else
             {
                 qCDebug(LOG_SERVER_API) << "API request Session incorrect json (data field not found)";
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::SessionStatus(), userRole);
+                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), userRole);
             }
             return;
         }
@@ -1628,12 +1628,12 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             if (replyType == REPLY_LOGIN)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json:" << outErrorMsg;
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::SessionStatus(), "", userRole);
+                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole);
             }
             else
             {
                 qCDebug(LOG_SERVER_API) << "API request Session incorrect json:" << outErrorMsg;
-                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::SessionStatus(), userRole);
+                emit sessionAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), userRole);
             }
         }
 
@@ -1661,11 +1661,11 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         qCDebug(LOG_SERVER_API) << "API request ServerLocations failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
         if (curlNetworkManager_.isCurlSslError(curlRetCode) && !bIgnoreSslErrors_)
         {
-            emit serverLocationsAnswer(SERVER_RETURN_SSL_ERROR, QVector<ApiInfo::Location>(), QStringList(), userRole);
+            emit serverLocationsAnswer(SERVER_RETURN_SSL_ERROR, QVector<apiinfo::Location>(), QStringList(), userRole);
         }
         else
         {
-            emit serverLocationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<ApiInfo::Location>(), QStringList(), userRole);
+            emit serverLocationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<apiinfo::Location>(), QStringList(), userRole);
         }
     }
     else
@@ -1693,7 +1693,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json";
-            emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<ApiInfo::Location>(), QStringList(), userRole);
+            emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
             return;
         }
         QJsonObject jsonObject = doc.object();
@@ -1702,7 +1702,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (info field not found)";
-            emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<ApiInfo::Location>(), QStringList(), userRole);
+            emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
             return;
         }
 
@@ -1710,7 +1710,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
-            emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<ApiInfo::Location>(), QStringList(), userRole);
+            emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
             return;
         }
         // parse revision number
@@ -1727,14 +1727,14 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
             // parse locations array
             const QJsonArray jsonData = jsonObject["data"].toArray();
 
-            QVector<ApiInfo::Location> serverLocations;
+            QVector<apiinfo::Location> serverLocations;
             QStringList forceDisconnectNodes;
 
             for (const QJsonValue &value: jsonData)
             {
                 QJsonObject obj = value.toObject();
 
-                ApiInfo::Location sl;
+                apiinfo::Location sl;
                 if (sl.initFromJson(obj, forceDisconnectNodes))
                 {
                     serverLocations << sl;
@@ -1743,7 +1743,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
                 {
                     qCDebug(LOG_SERVER_API) << arr;
                     qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
-                    emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<ApiInfo::Location>(), QStringList(), userRole);
+                    emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
                     return;
                 }
             }
@@ -1752,7 +1752,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         else
         {
             qCDebug(LOG_SERVER_API) << "API request ServerLocations successfully executed, revision not changed";
-            emit serverLocationsAnswer(SERVER_RETURN_SUCCESS, QVector<ApiInfo::Location>(), QStringList(), userRole);
+            emit serverLocationsAnswer(SERVER_RETURN_SUCCESS, QVector<apiinfo::Location>(), QStringList(), userRole);
         }
     }
 }
@@ -1873,11 +1873,11 @@ void ServerAPI::handlePortMapCurl(BaseRequest *rd, bool success)
         qCDebug(LOG_SERVER_API) << "API request PortMap failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
         if (curlNetworkManager_.isCurlSslError(curlRetCode) && !bIgnoreSslErrors_)
         {
-            emit portMapAnswer(SERVER_RETURN_SSL_ERROR, ApiInfo::PortMap(), userRole);
+            emit portMapAnswer(SERVER_RETURN_SSL_ERROR, apiinfo::PortMap(), userRole);
         }
         else
         {
-            emit portMapAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::PortMap(), userRole);
+            emit portMapAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::PortMap(), userRole);
         }
     }
     else
@@ -1890,7 +1890,7 @@ void ServerAPI::handlePortMapCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json";
-            emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::PortMap(), userRole);
+            emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::PortMap(), userRole);
             return;
         }
         QJsonObject jsonObject = doc.object();
@@ -1899,7 +1899,7 @@ void ServerAPI::handlePortMapCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json (data field not found)";
-            emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::PortMap(), userRole);
+            emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::PortMap(), userRole);
             return;
         }
         QJsonObject jsonData =  jsonObject["data"].toObject();
@@ -1907,17 +1907,17 @@ void ServerAPI::handlePortMapCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json (portmap field not found)";
-            emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::PortMap(), userRole);
+            emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::PortMap(), userRole);
             return;
         }
 
         QJsonArray jsonArr = jsonData["portmap"].toArray();
 
-        ApiInfo::PortMap portMap;
+        apiinfo::PortMap portMap;
         if (!portMap.initFromJson(jsonArr))
         {
             qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json (portmap required fields not found)";
-            emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::PortMap(), userRole);
+            emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::PortMap(), userRole);
             return;
         }
 
@@ -2217,7 +2217,7 @@ void ServerAPI::handleNotificationsCurl(BaseRequest *rd, bool success)
     if (curlRetCode != CURLE_OK)
     {
         qCDebug(LOG_SERVER_API) << "Notifications request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-        emit notificationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<ApiInfo::Notification>(), userRole);
+        emit notificationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<apiinfo::Notification>(), userRole);
     }
     else
     {
@@ -2229,7 +2229,7 @@ void ServerAPI::handleNotificationsCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for Notifications";
-            emit notificationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<ApiInfo::Notification>(), userRole);
+            emit notificationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Notification>(), userRole);
             return;
         }
 
@@ -2238,24 +2238,24 @@ void ServerAPI::handleNotificationsCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for Notifications";
-            emit notificationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<ApiInfo::Notification>(), userRole);
+            emit notificationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Notification>(), userRole);
             return;
         }
 
         QJsonObject jsonData =  jsonObject["data"].toObject();
         QJsonArray jsonNotifications = jsonData["notifications"].toArray();
 
-        QVector<ApiInfo::Notification> notifications;
+        QVector<apiinfo::Notification> notifications;
 
         Q_FOREACH(const QJsonValue &value, jsonNotifications)
         {
             QJsonObject obj = value.toObject();
 
-            ApiInfo::Notification n;
+            apiinfo::Notification n;
             if (!n.initFromJson(obj))
             {
                 qCDebug(LOG_SERVER_API) << "Failed parse JSON for Notifications (not all required fields)";
-                emit notificationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<ApiInfo::Notification>(), userRole);
+                emit notificationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Notification>(), userRole);
                 return;
             }
 
@@ -2275,12 +2275,11 @@ void ServerAPI::handleStaticIpsCurl(BaseRequest *rd, bool success)
     if (curlRetCode != CURLE_OK)
     {
         qCDebug(LOG_SERVER_API) << "StaticIps request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-        emit staticIpsAnswer(SERVER_RETURN_NETWORK_ERROR, ApiInfo::StaticIps(), userRole);
+        emit staticIpsAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::StaticIps(), userRole);
     }
     else
     {
         QByteArray arr = curlRequest->getAnswer();
-        qDebug() << arr;
 
         QJsonParseError errCode;
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
@@ -2288,7 +2287,7 @@ void ServerAPI::handleStaticIpsCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
-            emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::StaticIps(), userRole);
+            emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::StaticIps(), userRole);
             return;
         }
 
@@ -2297,18 +2296,18 @@ void ServerAPI::handleStaticIpsCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
-            emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::StaticIps(), userRole);
+            emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::StaticIps(), userRole);
             return;
         }
 
         QJsonObject jsonData =  jsonObject["data"].toObject();
 
-        ApiInfo::StaticIps staticIps;
+        apiinfo::StaticIps staticIps;
         if (!staticIps.initFromJson(jsonData))
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
-            emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, ApiInfo::StaticIps(), userRole);
+            emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::StaticIps(), userRole);
             return;
         }
 

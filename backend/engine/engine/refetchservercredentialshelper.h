@@ -15,7 +15,7 @@ public:
     void startRefetch();
 
 signals:
-    void finished(bool success, const ApiInfo::ServerCredentials &serverCredentials);
+    void finished(bool success, const apiinfo::ServerCredentials &serverCredentials);
 
 private slots:
     void onTimerWaitServerAPIReady();

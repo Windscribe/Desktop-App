@@ -8,7 +8,7 @@
 #include "node.h"
 #include "ipc/generated_proto/apiinfo.pb.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 class GroupData : public QSharedData
 {
@@ -51,10 +51,15 @@ public:
     ProtoApiInfo::Group getProtoBuf() const;
     QStringList getAllIps() const;
 
+    QString getCity() const { Q_ASSERT(d->isValid_); return d->city_; }
+    QString getNick() const { Q_ASSERT(d->isValid_); return d->nick_; }
+    bool isPro() const { Q_ASSERT(d->isValid_); return d->pro_ != 0; }
+
+
 private:
     QSharedDataPointer<GroupData> d;
 };
 
-} //namespace ApiInfo
+} //namespace apiinfo
 
 #endif // APIINFO_GROUP_H

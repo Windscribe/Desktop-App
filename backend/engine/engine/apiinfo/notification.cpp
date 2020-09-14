@@ -2,10 +2,10 @@
 #include <QJsonArray>
 #include <QMetaType>
 
-const int typeIdNotification = qRegisterMetaType<ApiInfo::Notification>("ApiInfo::Notification");
-const int typeIdNotificationArray = qRegisterMetaType<QVector<ApiInfo::Notification> >("QVector<ApiInfo::Notification>");
+const int typeIdNotification = qRegisterMetaType<apiinfo::Notification>("apiinfo::Notification");
+const int typeIdNotificationArray = qRegisterMetaType<QVector<apiinfo::Notification> >("QVector<apiinfo::Notification>");
 
-namespace ApiInfo {
+namespace apiinfo {
 
 bool Notification::initFromJson(const QJsonObject &json)
 {
@@ -47,4 +47,4 @@ ProtoTypes::ApiNotification Notification::getProtoBuf() const
 
 
 
-} // namespace ApiInfo
+} // namespace apiinfo

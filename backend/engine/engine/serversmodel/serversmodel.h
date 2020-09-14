@@ -20,7 +20,7 @@ public:
                           NodesSpeedRatings *nodesSpeedRating, NodesSpeedStore *nodesSpeedStore);
     virtual ~ServersModel();
 
-    void updateServers(const QVector<ApiInfo::Location> &newServers, bool bSkipCustomOvpnDnsResolution = false);
+    void updateServers(const QVector<apiinfo::Location> &newServers, bool bSkipCustomOvpnDnsResolution = false);
     void clear();
 
     void setSessionStatus(bool bFree);

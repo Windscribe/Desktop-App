@@ -1,7 +1,7 @@
 #include "group.h"
 #include <QJsonArray>
 
-namespace ApiInfo {
+namespace apiinfo {
 
 bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
 {
@@ -96,4 +96,4 @@ QStringList Group::getAllIps() const
     return list;
 }
 
-} // namespace ApiInfo
+} // namespace apiinfo

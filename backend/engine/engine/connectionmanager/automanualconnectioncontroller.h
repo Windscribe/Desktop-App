@@ -32,7 +32,7 @@ public:
         // fields for static ips
         QString username;
         QString password;
-        ApiInfo::StaticIpPortsVector staticIpPorts;
+        apiinfo::StaticIpPortsVector staticIpPorts;
     };
 
     AutoManualConnectionController();

@@ -16,15 +16,15 @@ public:
     QString username() const { Q_ASSERT(!isAuthHashLogin_); return username_; }
     QString password() const { Q_ASSERT(!isAuthHashLogin_); return password_; }
 
-    void setServerCredentials(const ApiInfo::ServerCredentials &serverCredentials);
-    const ApiInfo::ServerCredentials &getServerCredentials() { return serverCredentials_; }
+    void setServerCredentials(const apiinfo::ServerCredentials &serverCredentials);
+    const apiinfo::ServerCredentials &getServerCredentials() { return serverCredentials_; }
 
 private:
     bool isAuthHashLogin_;
     QString username_;
     QString password_;
     QString authHash_;
-    ApiInfo::ServerCredentials serverCredentials_;
+    apiinfo::ServerCredentials serverCredentials_;
 };
 
 #endif // LOGINSETTINGS_H

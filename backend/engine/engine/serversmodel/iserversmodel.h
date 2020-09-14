@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QVector>
-//#include "engine/types/apiinfo.h"
 #include "engine/types/locationid.h"
 #include "mutablelocationinfo.h"
 #include "pingtime.h"
@@ -46,7 +45,6 @@ public:
 
 signals:
     void itemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> > items);
-    void sessionStatusChanged(bool bFreeSessionStatus);
     void connectionSpeedChanged(LocationID id, PingTime timeMs);
 };
 

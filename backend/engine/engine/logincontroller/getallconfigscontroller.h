@@ -10,23 +10,23 @@ class GetAllConfigsController : public QObject
 public:
     explicit GetAllConfigsController(QObject *parent);
 
-    void putServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Location> &locations, const QStringList &forceDisconnectNodes);
+    void putServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &locations, const QStringList &forceDisconnectNodes);
     void putServerCredentialsOpenVpnAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword);
     void putServerCredentialsIkev2Answer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword);
     void putServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config);
-    void putPortMapAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::PortMap &portMap);
-    void putStaticIpsAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::StaticIps &staticIps);
+    void putPortMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap);
+    void putStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps);
 
     // public variables for access from LoginController class
-    QVector<ApiInfo::Location> locations_;
+    QVector<apiinfo::Location> locations_;
     QStringList forceDisconnectNodes_;
 
     QString ovpnConfig_;
 
-    ApiInfo::PortMap portMap_;
-    ApiInfo::StaticIps staticIps_;
+    apiinfo::PortMap portMap_;
+    apiinfo::StaticIps staticIps_;
 
-    ApiInfo::ServerCredentials getServerCredentials() const;
+    apiinfo::ServerCredentials getServerCredentials() const;
 
 signals:
     void allConfigsReceived(SERVER_API_RET_CODE retCode);

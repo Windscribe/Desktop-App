@@ -8,7 +8,7 @@ GetAllConfigsController::GetAllConfigsController(QObject *parent) : QObject(pare
 
 }
 
-void GetAllConfigsController::putServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Location> &locations, const QStringList &forceDisconnectNodes)
+void GetAllConfigsController::putServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &locations, const QStringList &forceDisconnectNodes)
 {
     serverLocationsRetCode_ = retCode;
     locations_ = locations;
@@ -43,7 +43,7 @@ void GetAllConfigsController::putServerConfigsAnswer(SERVER_API_RET_CODE retCode
     handleComplete();
 }
 
-void GetAllConfigsController::putPortMapAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::PortMap &portMap)
+void GetAllConfigsController::putPortMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap)
 {
     portMapRetCode_ = retCode;
     portMap_ = portMap;
@@ -51,7 +51,7 @@ void GetAllConfigsController::putPortMapAnswer(SERVER_API_RET_CODE retCode, cons
     handleComplete();
 }
 
-void GetAllConfigsController::putStaticIpsAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::StaticIps &staticIps)
+void GetAllConfigsController::putStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps)
 {
     staticIpsRetCode_ = retCode;
     staticIps_ = staticIps;
@@ -59,9 +59,9 @@ void GetAllConfigsController::putStaticIpsAnswer(SERVER_API_RET_CODE retCode, co
     handleComplete();
 }
 
-ApiInfo::ServerCredentials GetAllConfigsController::getServerCredentials() const
+apiinfo::ServerCredentials GetAllConfigsController::getServerCredentials() const
 {
-    return ApiInfo::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_);
+    return apiinfo::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_);
 }
 
 void GetAllConfigsController::handleComplete()

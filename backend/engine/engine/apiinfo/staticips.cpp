@@ -3,16 +3,14 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDataStream>
-#include <QDebug>
 
-const int typeIdStaticIps = qRegisterMetaType<ApiInfo::StaticIps>("ApiInfo::StaticIps");
+const int typeIdStaticIps = qRegisterMetaType<apiinfo::StaticIps>("apiinfo::StaticIps");
 
-namespace ApiInfo {
+namespace apiinfo {
 
 bool StaticIps::initFromJson(QJsonObject &init_obj)
 {
-    qDebug() << init_obj;
-    if (!init_obj.contains("static_ips"))
+   if (!init_obj.contains("static_ips"))
     {
         return false;
     }
@@ -226,4 +224,4 @@ bool operator==(const StaticIpPortDescr &l, const StaticIpPortDescr &r)
     return l.extPort == r.extPort && l.intPort == r.intPort;
 }
 
-} //namespace ApiInfo
+} //namespace apiinfo

@@ -61,6 +61,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     notificationsUpdateTimer_(NULL),
     nodesSpeedRatings_(NULL),
     serversModel_(NULL),
+    locationsModel_(NULL),
     nodesSpeedStore_(NULL),
     refetchServerCredentialsHelper_(NULL),
     isBlockConnect_(false),
@@ -165,7 +166,7 @@ bool Engine::isApiSavedSettingsExists()
     if (settings.contains("authHash"))
     {
         // try load ApiInfo from settings
-        ApiInfo::ApiInfo apiInfo;
+        apiinfo::ApiInfo apiInfo;
         if (apiInfo.loadFromSettings())
         {
             return true;
@@ -246,6 +247,12 @@ IServersModel *Engine::getServersModel()
 {
     Q_ASSERT(serversModel_ != NULL);
     return serversModel_;
+}
+
+locationsmodel::LocationsModel *Engine::getLocationsModel()
+{
+    Q_ASSERT(locationsModel_ != NULL);
+    return locationsModel_;
 }
 
 IConnectStateController *Engine::getConnectStateController()
@@ -565,16 +572,16 @@ void Engine::init()
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
 
     serverAPI_ = new ServerAPI(this, networkStateManager_);
-    connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, ApiInfo::SessionStatus, uint)),
-                        SLOT(onSessionAnswer(SERVER_API_RET_CODE, ApiInfo::SessionStatus, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)),
+                        SLOT(onSessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(checkUpdateAnswer(bool,QString,bool,int,QString,bool,bool,uint)), SLOT(onCheckUpdateAnswer(bool,QString,bool,int,QString,bool,bool,uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(hostIpsChanged(QStringList)), SLOT(onHostIPsChanged(QStringList)));
-    connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<ApiInfo::Notification>,uint)),
-                        SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<ApiInfo::Notification>,uint)));
+    connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Notification>,uint)),
+                        SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Notification>,uint)));
     connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString,uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString,uint)));
     connect(serverAPI_, SIGNAL(debugLogAnswer(SERVER_API_RET_CODE,uint)), SLOT(onDebugLogAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(confirmEmailAnswer(SERVER_API_RET_CODE,uint)), SLOT(onConfirmEmailAnswer(SERVER_API_RET_CODE,uint)));
-    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,ApiInfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,ApiInfo::StaticIps, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), Qt::QueuedConnection);
 
     nodesSpeedStore_ = new NodesSpeedStore(this);
 
@@ -582,8 +589,8 @@ void Engine::init()
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 
     serverLocationsApiWrapper_ = new ServerLocationsApiWrapper(this, nodesSpeedStore_, serverAPI_);
-    connect(serverLocationsApiWrapper_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<ApiInfo::Location>,QStringList, uint)),
-                        SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<ApiInfo::Location>,QStringList, uint)), Qt::QueuedConnection);
+    connect(serverLocationsApiWrapper_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
+                        SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
     //connect(serverLocationsApiWrapper_, SIGNAL(updatedBestLocation(QVector<QSharedPointer<ServerLocation> > &)), SLOT(onBestLocationChanged(QVector<QSharedPointer<ServerLocation> > &)));
     //connect(serverLocationsApiWrapper_, SIGNAL(updateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)), SLOT(onUpdateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)));
 
@@ -605,6 +612,8 @@ void Engine::init()
 
     serversModel_ = new ServersModel(this, connectStateController_, networkStateManager_, nodesSpeedRatings_, nodesSpeedStore_);
     connect(serversModel_, SIGNAL(customOvpnConfgsIpsChanged(QStringList)), SLOT(onCustomOvpnConfgsIpsChanged(QStringList)));
+
+    locationsModel_ = new locationsmodel::LocationsModel(this);
 
     getMyIPController_ = new GetMyIPController(this, serverAPI_, networkStateManager_);
     connect(getMyIPController_, SIGNAL(answerMyIP(QString,bool,bool)), SLOT(onMyIpAnswer(QString,bool,bool)));
@@ -864,6 +873,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(updateSessionStatusTimer_);
     SAFE_DELETE(notificationsUpdateTimer_);
     SAFE_DELETE(serversModel_);
+    SAFE_DELETE(locationsModel_);
     SAFE_DELETE(nodesSpeedStore_);
     SAFE_DELETE(networkStateManager_);
     SAFE_DELETE(networkDetectionManager_);
@@ -877,7 +887,7 @@ void Engine::clearCredentialsImpl()
 {
     if (!apiInfo_.isNull())
     {
-        apiInfo_->setServerCredentials(ApiInfo::ServerCredentials());
+        apiInfo_->setServerCredentials(apiinfo::ServerCredentials());
     }
 }
 
@@ -904,7 +914,7 @@ void Engine::loginImpl(bool bSkipLoadingFromSettings)
     if (!bSkipLoadingFromSettings && settings.contains("authHash"))
     {
         QString authHash = settings.value("authHash").toString();
-        apiInfo_.reset(new ApiInfo::ApiInfo());
+        apiInfo_.reset(new apiinfo::ApiInfo());
 
         // try load ApiInfo from settings
         if (apiInfo_->loadFromSettings())
@@ -1034,6 +1044,7 @@ void Engine::signOutImplAfterDisconnect()
 
     lastCopyOfServerlocations_.clear();
     serversModel_->clear();
+    locationsModel_->clear();
     prevSessionStatus_.clear();
 
     helper_->enableFirewallOnBoot(false);
@@ -1171,7 +1182,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     {
         if (!apiInfo_.isNull())
         {
-            ApiInfo::SessionStatus ss = apiInfo_->getSessionStatus();
+            apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
             if (isLanguageChanged)
             {
                 qCDebug(LOG_BASIC) << "Language changed -> update server locations";
@@ -1229,7 +1240,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     OpenVpnVersionController::instance().setUseWinTun(engineSettings_.isUseWintun());
 }
 
-void Engine::onLoginControllerFinished(LOGIN_RET retCode, const ApiInfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState)
+void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState)
 {
     qCDebug(LOG_BASIC) << "onLoginControllerFinished, retCode =" << loginRetToString(retCode) << ";" << "bFromConnectedToVPNState =" << bFromConnectedToVPNState;
 
@@ -1250,7 +1261,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const ApiInfo::ApiInfo
             //serverAPI_->bestLocation(apiInfo->getAuthHash(), serverApiUserRole_, true);
         }
 
-        apiInfo_.reset(new ApiInfo::ApiInfo);
+        apiInfo_.reset(new apiinfo::ApiInfo);
         *apiInfo_ = apiInfo;
         QString curRevisionHash = apiInfo_->getSessionStatus().getRevisionHash();
         QSettings settings;
@@ -1365,7 +1376,7 @@ void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
     emit loginStepMessage(msg);
 }
 
-void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1402,7 +1413,7 @@ void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<
     }
 }*/
 
-void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::SessionStatus &sessionStatus, uint userRole)
+void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1419,7 +1430,7 @@ void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::Session
      }
 }
 
-void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Notification> &notifications, uint userRole)
+void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Notification> &notifications, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1490,7 +1501,7 @@ void Engine::onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole)
     }
 }
 
-void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const ApiInfo::StaticIps &staticIps, uint userRole)
+void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1919,7 +1930,7 @@ void Engine::onEmergencyControllerError(CONNECTION_ERROR err)
     emit emergencyConnectError(err);
 }
 
-void Engine::onRefetchServerCredentialsFinished(bool success, const ApiInfo::ServerCredentials &serverCredentials)
+void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials)
 {
     bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
     refetchServerCredentialsHelper_->deleteLater();
@@ -1944,10 +1955,10 @@ void Engine::getNewNotifications()
     serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
-void Engine::onUpdateFirewallIpsForLocations(const QVector<ApiInfo::Location> &serverLocations)
+void Engine::onUpdateFirewallIpsForLocations(const QVector<apiinfo::Location> &serverLocations)
 {
     QStringList listIps;
-    for (const ApiInfo::Location &l : serverLocations)
+    for (const apiinfo::Location &l : serverLocations)
     {
         listIps << l.getAllIps();
     }
@@ -2139,7 +2150,7 @@ void Engine::startLoginController(const LoginSettings &loginSettings, bool bFrom
     Q_ASSERT(loginController_ == NULL);
     Q_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
     loginController_ = new LoginController(this, helper_, networkStateManager_, serverAPI_, serverLocationsApiWrapper_, engineSettings_.language(), engineSettings_.connectionSettings().protocol());
-    connect(loginController_, SIGNAL(finished(LOGIN_RET, ApiInfo::ApiInfo, bool)), SLOT(onLoginControllerFinished(LOGIN_RET, ApiInfo::ApiInfo, bool)));
+    connect(loginController_, SIGNAL(finished(LOGIN_RET, apiinfo::ApiInfo, bool)), SLOT(onLoginControllerFinished(LOGIN_RET, apiinfo::ApiInfo, bool)));
     connect(loginController_, SIGNAL(readyForNetworkRequests()), SLOT(onReadyForNetworkRequests()));
     connect(loginController_, SIGNAL(stepMessage(LOGIN_MESSAGE)), SLOT(onLoginControllerStepMessage(LOGIN_MESSAGE)));
     loginController_->startLoginProcess(loginSettings, engineSettings_.dnsResolutionSettings(), bFromConnectedState);
@@ -2151,7 +2162,7 @@ void Engine::updateSessionStatus()
     {
         qCDebug(LOG_BASIC) << "update session status";
 
-        ApiInfo::SessionStatus ss = apiInfo_->getSessionStatus();
+        apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
 
         serversModel_->setSessionStatus(!ss.isPro());
 
@@ -2167,7 +2178,7 @@ void Engine::updateSessionStatus()
             else
             {
                 // set empty list of static ips
-                apiInfo_->setStaticIps(ApiInfo::StaticIps());
+                apiInfo_->setStaticIps(apiinfo::StaticIps());
                 updateServerLocations();
             }
         }
@@ -2255,6 +2266,7 @@ void Engine::updateServerLocations()
             checkForceDisconnectNode(apiInfo_->getForceDisconnectNodes());
         }
     }*/
+    locationsModel_->setLocations(apiInfo_->getLocations());
 }
 
 void Engine::updateFirewallSettings()

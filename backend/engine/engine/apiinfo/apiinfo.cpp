@@ -5,7 +5,7 @@
 #include "utils/utils.h"
 #include "ipc/generated_proto/apiinfo.pb.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 ApiInfo::ApiInfo() : simpleCrypt_(0x4572A4ACF31A31BA)
 {
@@ -355,4 +355,4 @@ void ApiInfo::processServerLocations()
     }
 }*/
 
-} //namespace ApiInfo
+} //namespace apiinfo

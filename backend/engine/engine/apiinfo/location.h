@@ -7,7 +7,7 @@
 #include "group.h"
 #include "ipc/generated_proto/apiinfo.pb.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 enum SERVER_LOCATION_TYPE { SERVER_LOCATION_DEFAULT, SERVER_LOCATION_CUSTOM_CONFIG, SERVER_LOCATION_BEST, SERVER_LOCATION_STATIC };
 
@@ -55,6 +55,19 @@ public:
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
     void initFromProtoBuf(const ProtoApiInfo::Location &l);
     ProtoApiInfo::Location getProtoBuf() const;
+
+    int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
+    QString getName() const { Q_ASSERT(d->isValid_); return d->name_; }
+    QString getCountryCode() const { Q_ASSERT(d->isValid_); return d->countryCode_; }
+    bool isPremiumOnly() const { Q_ASSERT(d->isValid_); return d->premiumOnly_; }
+    int getP2P() const { Q_ASSERT(d->isValid_); return d->p2p_; }
+
+    int groupsCount() const { Q_ASSERT(d->isValid_); return d->groups_.count(); }
+    Group getGroup(int ind) const { Q_ASSERT(d->isValid_); return d->groups_.at(ind); }
+
+
+
+
     /*void transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId);
     void transformToCustomOvpnLocation(QVector<ServerNode> &nodes);
 
@@ -96,6 +109,6 @@ private:
 };
 
 
-} //namespace ApiInfo
+} //namespace apiinfo
 
 #endif // APIINFO_LOCATION_H

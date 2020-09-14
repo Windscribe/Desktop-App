@@ -6,7 +6,7 @@
 #include <QStringList>
 #include "ipc/generated_proto/apiinfo.pb.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 class NodeData : public QSharedData
 {
@@ -96,6 +96,6 @@ private:
     QSharedDataPointer<NodeData> d;
 };
 
-} //namespace ApiInfo
+} //namespace apiinfo
 
 #endif // APIINFO_NODE_H

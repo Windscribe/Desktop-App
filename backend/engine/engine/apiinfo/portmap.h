@@ -8,7 +8,7 @@
 #include "engine/types/protocoltype.h"
 #include "ipc/generated_proto/apiinfo.pb.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 struct PortItem
 {
@@ -54,7 +54,7 @@ private:
     QSharedDataPointer<PortMapData> d;
 };
 
-} //namespace ApiInfo
+} //namespace apiinfo
 
 
 #endif // APIINFO_PORTMAP_H

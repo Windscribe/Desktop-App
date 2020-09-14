@@ -3,9 +3,9 @@
 #include <QJsonObject>
 #include <QMetaType>
 
-const int typeIdPortMap = qRegisterMetaType<ApiInfo::PortMap>("ApiInfo::PortMap");
+const int typeIdPortMap = qRegisterMetaType<apiinfo::PortMap>("apiinfo::PortMap");
 
-namespace ApiInfo {
+namespace apiinfo {
 
 bool PortMap::initFromJson(const QJsonArray &jsonArray)
 {
@@ -139,4 +139,4 @@ int PortMap::getUseIpInd(const ProtocolType &connectionProtocol) const
     return -1;
 }
 
-} //namespace ApiInfo
+} //namespace apiinfo

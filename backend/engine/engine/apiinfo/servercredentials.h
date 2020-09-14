@@ -4,7 +4,7 @@
 #include <QString>
 #include "ipc/generated_proto/apiinfo.pb.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 class ServerCredentials
 {
@@ -32,6 +32,6 @@ private:
     QString passwordIkev2_;
 };
 
-} //namespace ApiInfo
+} //namespace apiinfo
 
 #endif // APIINFO_SERVERCREDENTIALS_H

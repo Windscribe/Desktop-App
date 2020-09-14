@@ -116,7 +116,7 @@ public:
                          const QString &revision, bool isPro, ProtocolType protocol, const QStringList &alcList);
 
 signals:
-    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Location> &serverLocations,
+    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
                                QStringList forceDisconnectNodes, uint userRole);
 
     //void updatedBestLocation(QVector< QSharedPointer<ServerLocation> > &serverLocations);
@@ -124,7 +124,7 @@ signals:
     //void updateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> > &serverLocations);
 
 private slots:
-    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ApiInfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole);
+    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole);
     //void onPingIterationChanged();
     //void onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
 

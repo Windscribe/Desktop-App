@@ -6,10 +6,10 @@
 #include <QJsonArray>
 #include "../types/locationid.h"
 
-const int typeIdLocation = qRegisterMetaType<ApiInfo::Location>("ApiInfo::Location");
-const int typeIdLocations = qRegisterMetaType<QVector<ApiInfo::Location>>("QVector<ApiInfo::Location>");
+const int typeIdLocation = qRegisterMetaType<apiinfo::Location>("apiinfo::Location");
+const int typeIdLocations = qRegisterMetaType<QVector<apiinfo::Location>>("QVector<apiinfo::Location>");
 
-namespace ApiInfo {
+namespace apiinfo {
 
 
 bool Location::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
@@ -425,4 +425,4 @@ int ServerLocation::getBestLocationPingTimeMs() const
     return copyServerlocations;
 }*/
 
-} // namespace ApiInfo
+} // namespace apiinfo

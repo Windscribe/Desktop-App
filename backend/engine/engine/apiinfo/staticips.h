@@ -6,7 +6,7 @@
 #include <QVector>
 #include "ipc/generated_proto/apiinfo.pb.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 struct StaticIpPortDescr
 {
@@ -76,6 +76,6 @@ private:
     QSharedDataPointer<StaticIpsData> d;
 };
 
-} //namespace ApiInfo
+} //namespace apiinfo
 
 #endif // APIINFO_STATICIPS_H

@@ -7,7 +7,7 @@
 #include "ipc/generated_proto/types.pb.h"
 #include "node.h"
 
-namespace ApiInfo {
+namespace apiinfo {
 
 class NotificationData : public QSharedData
 {
@@ -56,6 +56,6 @@ private:
     QSharedDataPointer<NotificationData> d;
 };
 
-} //namespace ApiInfo
+} //namespace apiinfo
 
 #endif // APIINFO_NOTIFICATION_H

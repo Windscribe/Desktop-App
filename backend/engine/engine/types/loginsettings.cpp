@@ -13,7 +13,7 @@ LoginSettings::LoginSettings(const QString &username, const QString &password)
 {
 }
 
-void LoginSettings::setServerCredentials(const ApiInfo::ServerCredentials &serverCredentials)
+void LoginSettings::setServerCredentials(const apiinfo::ServerCredentials &serverCredentials)
 {
     serverCredentials_ = serverCredentials;
 }
