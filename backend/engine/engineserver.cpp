@@ -402,10 +402,10 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
 
     if (retCode == ENGINE_INIT_SUCCESS)
     {
-        connect(engine_->getServersModel(), SIGNAL(itemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> >)), SLOT(onEngineServersModelItemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> >)));
-        connect(engine_->getServersModel(), SIGNAL(connectionSpeedChanged(LocationID,PingTime)), SLOT(onEngineServersModelConnectionSpeedChanged(LocationID,PingTime)));
-
-        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)), SLOT(onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)),
+                SLOT(onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,PingTime)),
+                SLOT(onEngineLocationsModelPingChangedChanged(LocationID,PingTime)));
 
         cmd.getProtoObj().set_init_state(ProtoTypes::INIT_SUCCESS);
         *cmd.getProtoObj().mutable_engine_settings() = curEngineSettings_.getProtoBufEngineSettings();
@@ -885,60 +885,37 @@ void EngineServer::onEngineConfirmEmailFinished(bool bSuccess)
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineServersModelItemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> > items)
+void EngineServer::onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items)
 {
     IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> cmd;
-
-    Q_FOREACH(const ModelExchangeLocationItem &li, *items)
+    for (const locationsmodel::LocationItem &li : *items)
     {
-        ProtoTypes::Location l;
-        l.set_id(li.id);
-        l.set_name(li.name.toStdString());
-        l.set_city_id("");
-        l.set_city_name("");
-        l.set_country_code(li.countryCode.toStdString());
-        l.set_is_premium_only(li.isPremiumOnly);
-        l.set_is_disabled(li.isDisabled);
-        l.set_is_p2p_supported(li.p2p == 0);
-        l.set_pingtime(li.pingTimeMs.toInt());
-        l.set_is_force_expand(li.forceExpand);
-        l.set_is_show_premium_star_only(false);
-        l.set_static_ip_type("");
-        l.set_static_ip("");
-        l.set_static_ip_device_name(li.staticIpsDeviceName.toStdString());
+        ProtoTypes::Location *l = cmd.getProtoObj().mutable_array_locations()->add_locations();
+        l->set_id(li.id);
+        l->set_name(li.name.toStdString());
+        l->set_country_code(li.countryCode.toStdString());
+        l->set_is_premium_only(li.isPremiumOnly);
+        l->set_is_p2p_supported(li.p2p == 0);
+        l->set_static_ip_device_name(li.staticIpsDeviceName.toStdString());
 
-        *cmd.getProtoObj().mutable_array_locations()->add_locations() = l;
 
-        for (const ModelExchangeCityItem &ci: li.cities)
+        for (const locationsmodel::CityItem &ci : li.cities)
         {
-            ProtoTypes::Location c;
-            c.set_id(li.id);
-            c.set_name("");
-            c.set_city_id(ci.cityId.toStdString());
-            c.set_city_name(ci.cityNameForShow.toStdString());
-            c.set_country_code(li.countryCode.toStdString());
-            c.set_is_premium_only(li.isPremiumOnly);
-            c.set_is_disabled(li.isDisabled);
-            c.set_is_p2p_supported(li.p2p == 0);
-            c.set_pingtime(li.pingTimeMs.toInt());
-            c.set_is_force_expand(false);
-            c.set_is_show_premium_star_only(ci.bShowPremiumStarOnly);
-            c.set_static_ip_type(ci.staticIpType.toStdString());
-            c.set_static_ip(ci.staticIp.toStdString());
-
-            *cmd.getProtoObj().mutable_array_locations()->add_locations() = c;
+            ProtoTypes::City *city = l->add_cities();
+            city->set_id(ci.cityId.toStdString());
+            city->set_name(ci.city.toStdString());
+            city->set_nick(ci.nick.toStdString());
+            city->set_ping_time(ci.pingTimeMs.toInt());
+            city->set_is_premium_only(ci.isPro);
+            city->set_is_disabled(ci.isDisabled);
+            city->set_static_ip_type(ci.staticIpType.toStdString());
+            city->set_static_ip(ci.staticIp.toStdString());
         }
     }
-
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
-void EngineServer::onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items)
-{
-    int g = 0;
-}
-
-void EngineServer::onEngineServersModelConnectionSpeedChanged(LocationID id, PingTime timeMs)
+void EngineServer::onEngineLocationsModelPingChangedChanged(LocationID id, PingTime timeMs)
 {
     IPC::ProtobufCommand<IPCServerCommands::LocationSpeedChanged> cmd;
     cmd.getProtoObj().set_id(id.getId());

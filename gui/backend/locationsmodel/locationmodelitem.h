@@ -7,7 +7,6 @@
 
 struct CityModelItem
 {
-    int initialInd_;        // ind of item without sorting
     LocationID id;
     QString title1;
     QString title2;
@@ -28,7 +27,7 @@ struct LocationModelItem
     QString countryCode;
     bool isShowP2P;
     bool isPremiumOnly;
-    PingTime pingTimeMs;
+    //PingTime pingTimeMs;
     bool isForceExpand;
     QVector<CityModelItem> cities;
 };

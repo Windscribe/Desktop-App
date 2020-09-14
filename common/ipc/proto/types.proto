@@ -110,24 +110,29 @@ message ApiNotification
   optional int32 popup = 7;
 }
 
+message City
+{
+  optional string id = 1;
+  optional string name = 2;
+  optional string nick = 3;
+  optional int32 ping_time = 4;		  // -2 no ping info, -1 ping failed, other values ping time in ms
+  optional bool is_premium_only = 5;
+  optional bool is_disabled = 6;
+  // used for static IP sublocation description
+  optional string static_ip_type = 7;
+  optional string static_ip = 8;
+  
+}
+
 message Location
 {
   optional int32 id = 1;              // this is server id from API, or -1 for best location, or -2 for custom ovpn configs location, or -3 for static ips location
-  optional string name = 2;           // not used if city_name is not empty, make sense only for top level location (country)
-  optional string city_id = 3;        // unique city_id in location. if used, then this is city level location
-  optional string city_name = 4;      
-  optional string country_code = 5;   // used for top level location
-  optional bool is_premium_only = 6;
-  optional bool is_disabled = 7;
-  optional bool is_p2p_supported = 8; // if false, then no p2p support
-  optional int32 pingTime = 9;    // -2 no ping info, -1 ping failed, other values ping time in ms
-  optional bool is_force_expand = 10;
-  optional bool is_show_premium_star_only = 11;
-
-  // used for static IP sublocation description
-  optional string static_ip_type = 12;
-  optional string static_ip = 13;
-  optional string static_ip_device_name = 14;
+  optional string name = 2;           
+  optional string country_code = 3;   
+  optional bool is_premium_only = 4;
+  optional bool is_p2p_supported = 5; // if false, then no p2p support
+  optional string static_ip_device_name = 6;
+  repeated City cities = 7;
 }
 
 message LocationId

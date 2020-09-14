@@ -264,6 +264,8 @@ SOURCES += main.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/serversmodel/serversmodel.cpp \
     engine/serversmodel/pingmanager.cpp \
+    engine/locationsmodel/locationsmodel.cpp \
+    engine/locationsmodel/locationitem.cpp \
     engine/packetsizecontroller.cpp \
     engine/enginesettings.cpp \
     utils/mergelog.cpp \
@@ -365,6 +367,8 @@ SOURCES += main.cpp \
     engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.cpp
 
 HEADERS  += engine/serversmodel/serversmodel.h \
+    engine/locationsmodel/locationsmodel.h \
+    engine/locationsmodel/locationitem.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \
     $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.h \
     $$COMMON_PATH/utils/utils.h \

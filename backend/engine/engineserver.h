@@ -71,9 +71,8 @@ private slots:
     void onEngineSendDebugLogFinished(bool bSuccess);
     void onEngineConfirmEmailFinished(bool bSuccess);
 
-    void onEngineServersModelItemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> > items);
     void onEngineLocationsModelItemsUpdated(QSharedPointer< QVector<locationsmodel::LocationItem> > items);
-    void onEngineServersModelConnectionSpeedChanged(LocationID id, PingTime timeMs);
+    void onEngineLocationsModelPingChangedChanged(LocationID id, PingTime timeMs);
 
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void onEngineSendUserWarning(ProtoTypes::UserWarningType userWarningType);

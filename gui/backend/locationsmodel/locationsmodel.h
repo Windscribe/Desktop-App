@@ -26,7 +26,6 @@ public:
     explicit LocationsModel(QObject *parent = nullptr);
     virtual ~LocationsModel();
 
-    void init();
     void update(const ProtoTypes::ArrayLocations &arr);
 
     BasicLocationsModel *getAllLocationsModel();

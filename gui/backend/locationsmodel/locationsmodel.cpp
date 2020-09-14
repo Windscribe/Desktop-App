@@ -27,76 +27,31 @@ LocationsModel::~LocationsModel()
     favoriteLocationsStorage_.writeToSettings();
 }
 
-void LocationsModel::init()
-{
-    /*QHash<int, int> hash;
-
-    QFile file(":/locations.dat");
-    if (file.open(QIODevice::ReadOnly))
-    {
-        QByteArray arr = file.readAll();
-        IPC::ProtobufCommand<IPCServerCommands::LocationsChanged> cmd(arr.data(), arr.size());
-        int cnt = cmd.getProtoObj().locations_size();
-        for (int i = 0; i < cnt; ++i)
-        {
-            IPCServerCommands::Location pl = cmd.getProtoObj().locations(i);
-
-            if (pl.city_name().empty())
-            {
-
-                LocationModelItem *lmi = new LocationModelItem();
-                lmi->id = LocationID(pl.id());
-                lmi->initialInd_ = i;
-                lmi->title = QString::fromStdString(pl.name());
-                lmi->countryCode = QString::fromStdString(pl.country_code()).toLower();
-                lmi->isDisabled = false;
-                lmi->isShowP2P = pl.is_p2p_supported();
-                lmi->isForceExpand = true;
-                lmi->pingTimeMs = pl.pingtime();
-                locations_ << lmi;
-                hash[pl.id()] = locations_.size() - 1;
-            }
-            else
-            {
-                auto it = hash.find(pl.id());
-
-                if (it == hash.end())
-                {
-                    //Q_ASSERT(false);
-                    continue;
-                }
-                else
-                {
-                    CityModelItem cmi;
-
-                    QString n1, n2;
-                    splitCityName(QString::fromStdString(pl.city_name()), n1, n2);
-
-                    cmi.id = LocationID(pl.id(), QString::fromStdString(pl.city_id()));
-                    cmi.isFavorite = favoriteLocationsStorage_.isFavorite(cmi.id);
-                    cmi.title1 = n1;
-                    cmi.title2 = n2;
-                    cmi.bShowPremiumStarOnly = false;
-                    cmi.pingTimeMs = pl.pingtime();
-                    cmi.staticIpType = QString::fromStdString(pl.static_ip_type());
-                    cmi.staticIp = QString::fromStdString(pl.static_ip());
-
-                    locations_[it.value()]->cities << cmi;
-                    ids << cmi.id;
-                }
-            }
-        }
-    }
-
-    allLocations_->update(locations_);
-    configuredLocations_->update(locations_);
-    staticIpsLocations_->update(locations_);
-    favoriteLocations_->update(locations_);*/
-}
-
 void LocationsModel::update(const ProtoTypes::ArrayLocations &arr)
 {
-    QHash<int, int> hash;
+    for (const LocationModelItem *lmi : locations_)
+    {
+        delete lmi;
+    }
+    locations_.clear();
+    ids.clear();
+
+    int cnt = arr.locations_size();
+    for (int i = 0; i < cnt; ++i)
+    {
+        const ProtoTypes::Location &location = arr.locations(i);
+
+        LocationModelItem *lmi = new LocationModelItem();
+
+        lmi->initialInd_ = i;
+        lmi->id = LocationID(location.id());
+        lmi->title = QString::fromStdString(location.name());
+        lmi->countryCode = QString::fromStdString(location.country_code()).toLower();
+        lmi->isShowP2P = location.is_p2p_supported();
+        lmi->isPremiumOnly = location.is_premium_only();
+    }
+
+    /*QHash<int, int> hash;
 
     Q_FOREACH(LocationModelItem *lmi, locations_)
     {
@@ -171,7 +126,7 @@ void LocationsModel::update(const ProtoTypes::ArrayLocations &arr)
     allLocations_->update(locations_);
     configuredLocations_->update(locations_);
     staticIpsLocations_->update(locations_);
-    favoriteLocations_->update(locations_);
+    favoriteLocations_->update(locations_);*/
 }
 
 BasicLocationsModel *LocationsModel::getAllLocationsModel()
