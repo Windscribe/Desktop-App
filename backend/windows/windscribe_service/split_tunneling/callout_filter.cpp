@@ -231,7 +231,7 @@ bool CalloutFilter::addFilter(HANDLE engineHandle)
 			filter.weight.uint8 = 0x00;
 			filter.providerContextKey = CALLOUT_PROVIDER_CONTEXT_DEFAULT_IP_GUID;
 			filter.flags |= FWPM_FILTER_FLAG_HAS_PROVIDER_CONTEXT;
-			filter.numFilterConditions = conditions.size();
+			filter.numFilterConditions = static_cast<UINT32>(conditions.size());
 			if (conditions.size() > 0)
 			{
 				filter.filterCondition = &conditions[0];
@@ -291,7 +291,7 @@ bool CalloutFilter::addFilter(HANDLE engineHandle)
 			filter.flags |= FWPM_FILTER_FLAG_HAS_PROVIDER_CONTEXT;
 			filter.action.type = FWP_ACTION_CALLOUT_UNKNOWN;
 			filter.action.calloutKey = WINDSCRIBE_CALLOUT_GUID;
-			filter.numFilterConditions = conditions.size();
+			filter.numFilterConditions = static_cast<UINT32>(conditions.size());
 			if (conditions.size() > 0)
 			{
 				filter.filterCondition = &conditions[0];

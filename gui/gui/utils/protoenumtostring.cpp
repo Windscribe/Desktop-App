@@ -22,6 +22,7 @@ ProtoEnumToString::ProtoEnumToString()
     map_["PROTOCOL_TCP"] = "TCP";
     map_["PROTOCOL_STUNNEL"] = "Stealth";
     map_["PROTOCOL_WSTUNNEL"] = "WStunnel";
+    map_["PROTOCOL_WIREGUARD"] = "WireGuard";
 
     map_["ORDER_LOCATION_BY_GEOGRAPHY"] = "Geography";
     map_["ORDER_LOCATION_BY_ALPHABETICALLY"] = "Alphabet";

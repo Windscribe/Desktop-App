@@ -571,6 +571,12 @@
     <ClCompile Include="utils\ras_service_win.cpp">
       <Filter>Engine Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="engine\connectionmanager\wireguardconnection.cpp">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\types\wireguardconfig.cpp">
+      <Filter>Engine Files\engine\types</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qconsolelistener.h">
@@ -849,6 +855,9 @@
     <QtMoc Include="engine\networkdetectionmanager\networkdetectionmanager_mac.h">
       <Filter>Engine Files\engine\networkdetectionmanager</Filter>
     </QtMoc>
+    <QtMoc Include="engine\connectionmanager\wireguardconnection.h">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -1126,6 +1135,12 @@
     </ClInclude>
     <ClInclude Include="utils\ras_service_win.h">
       <Filter>Engine Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\types\wireguardconfig.h">
+      <Filter>Engine Files\engine\types</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\types\wireguardtypes.h">
+      <Filter>Engine Files\engine\types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -22,13 +22,14 @@ void AutoManualConnectionController::startWith(QSharedPointer<MutableLocationInf
     portMap_ = portMap;
     mli_ = mli;
 
-    // remove wstunnel protocol from portMap_ for automatic connection mode
+    // remove wstunnel and WireGuard protocols from portMap_ for automatic connection mode
     if (connectionSettings_.isAutomatic() && !mli_->isCustomOvpnConfig())
     {
         QVector<PortItem>::iterator it = portMap_.items.begin();
         while (it != portMap_.items.end())
         {
-            if (it->protocol.getType() == ProtocolType::PROTOCOL_WSTUNNEL)
+            if (it->protocol.getType() == ProtocolType::PROTOCOL_WSTUNNEL ||
+                it->protocol.getType() == ProtocolType::PROTOCOL_WIREGUARD)
             {
                 it = portMap_.items.erase(it);
             }
@@ -314,6 +315,7 @@ AutoManualConnectionController::CurrentConnectionDescr AutoManualConnectionContr
         ccd.ip = mli_->getSelectedNode().getIp(useIpInd);
         ccd.hostname = mli_->getSelectedNode().getHostname();
         ccd.dnsHostName = mli_->getDnsName();
+        ccd.wgPublicKey = mli_->getSelectedNode().getWgPubKey();
     }
     else
     {
@@ -331,6 +333,7 @@ AutoManualConnectionController::CurrentConnectionDescr AutoManualConnectionContr
         ccd.ip = mli_->getSelectedNode().getIp(useIpInd);
         ccd.hostname = mli_->getSelectedNode().getHostname();
         ccd.dnsHostName = mli_->getDnsName();
+        ccd.wgPublicKey = mli_->getSelectedNode().getWgPubKey();
     }
     if (mli_->isStaticIp())
     {

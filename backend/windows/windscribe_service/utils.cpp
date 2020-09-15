@@ -168,7 +168,7 @@ bool noSpacesInString(std::wstring &str)
 
 bool iequals(const std::wstring &a, const std::wstring &b)
 {
-	unsigned int sz = a.size();
+	auto sz = static_cast<unsigned int>(a.size());
 	if (b.size() != sz)
 		return false;
 
@@ -313,4 +313,26 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
 	return;
 }
 
+GUID guidFromString(const std::wstring &str)
+{
+    GUID reqGUID;
+    unsigned long p0;
+    unsigned int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
+
+    swscanf_s(str.c_str(), L"{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
+        &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10);
+    reqGUID.Data1 = p0;
+    reqGUID.Data2 = static_cast<unsigned short>(p1);
+    reqGUID.Data3 = static_cast<unsigned short>(p2);
+    reqGUID.Data4[0] = static_cast<unsigned char>(p3);
+    reqGUID.Data4[1] = static_cast<unsigned char>(p4);
+    reqGUID.Data4[2] = static_cast<unsigned char>(p5);
+    reqGUID.Data4[3] = static_cast<unsigned char>(p6);
+    reqGUID.Data4[4] = static_cast<unsigned char>(p7);
+    reqGUID.Data4[5] = static_cast<unsigned char>(p8);
+    reqGUID.Data4[6] = static_cast<unsigned char>(p9);
+    reqGUID.Data4[7] = static_cast<unsigned char>(p10);
+
+    return reqGUID;
+}
 }

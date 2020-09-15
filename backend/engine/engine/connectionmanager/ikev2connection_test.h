@@ -18,7 +18,7 @@ public:
     ~IKEv2Connection_test() override;
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const ProxySettings &proxySettings,
-                      bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
+                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
     void startDisconnect() override;
     bool isDisconnected() override;
 

@@ -281,6 +281,7 @@ SOURCES += main.cpp \
     engine/connectionmanager/automanualconnectioncontroller.cpp \
     engine/connectionmanager/connectionmanager.cpp \
     engine/connectionmanager/availableport.cpp \
+    engine/connectionmanager/wireguardconnection.cpp \
     engine/types/locationid.cpp \
     engine/serversmodel/nodeselectionalgorithm.cpp \
     engine/serversmodel/nodesspeedstore.cpp \
@@ -347,6 +348,7 @@ SOURCES += main.cpp \
     engine/serversmodel/resolvehostnamesforcustomovpn.cpp \
     engine/customovpnconfigs/customconfigsdirwatcher.cpp \
     engine/types/staticipslocation.cpp \
+    engine/types/wireguardconfig.cpp \
     engine/getdeviceid.cpp \
     qconsolelistener.cpp \
     engineserver.cpp \
@@ -404,6 +406,7 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/connectionmanager/testvpntunnelhelper.h \
     engine/connectionmanager/openvpnconnection.h \
     engine/connectionmanager/isleepevents.h \
+    engine/connectionmanager/wireguardconnection.h \
     utils/boost_includes.h \
     engine/types/types.h \
     engine/connectionmanager/automanualconnectioncontroller.h \
@@ -481,6 +484,7 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/serversmodel/resolvehostnamesforcustomovpn.h \
     engine/customovpnconfigs/customconfigsdirwatcher.h \
     engine/types/staticipslocation.h \
+    engine/types/wireguardconfig.h \
     engine/getdeviceid.h \
     qconsolelistener.h \
     engineserver.h \

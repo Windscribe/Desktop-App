@@ -5,6 +5,8 @@
 
 
 class SplitTunnelingNetworkInfo;
+class WireGuardConfig;
+struct WireGuardStatus;
 
 class IHelper : public QThread
 {
@@ -20,7 +22,6 @@ public:
     virtual bool executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
                                 const QString &socksProxy, unsigned int socksPort,
                                 unsigned long &outCmdId) = 0;
-
     virtual bool executeTaskKill(const QString &executableName) = 0;
     virtual bool executeResetTap(const QString &tapName) = 0;
     virtual QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber) = 0;
@@ -87,6 +88,12 @@ public:
     virtual bool setKeychainUsernamePassword(const QString &username, const QString &password) = 0;
     virtual void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo &stni) = 0;
     virtual bool setKextPath(const QString &kextPath) = 0;
+
+    // WireGuard functions
+    virtual bool startWireGuard(const QString &exeName, const QString &deviceName) = 0;
+    virtual bool stopWireGuard() = 0;
+    virtual bool configureWireGuard(const WireGuardConfig &config) = 0;
+    virtual bool getWireGuardStatus(WireGuardStatus *status) = 0;
 
 signals:
     void lostConnectionToHelper();

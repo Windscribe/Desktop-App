@@ -21,6 +21,9 @@
 #include "ipc/serialize_structs.h"
 #include "fwpm_wrapper.h"
 #include "remove_windscribe_network_profiles.h"
+#include "wireguard/defaultroutemonitor.h"
+#include "wireguard/wireguardadapter.h"
+#include "wireguard/wireguardcontroller.h"
 #include <conio.h>
 
 #define SERVICE_NAME  (L"WindscribeService")
@@ -311,7 +314,7 @@ std::string getHelperVersion()
 
 MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, IcsManager &icsManager, FirewallFilter &firewallFilter, Ipv6Firewall &ipv6Firewall, DnsFirewall &dnsFirewall,
 										 SysIpv6Controller &sysIpv6Controller, HostsEdit &hostsEdit, GetActiveProcesses &getActiveProcesses,
-										 SplitTunneling &splitTunnelling)
+										 SplitTunneling &splitTunnelling, WireGuardController &wireGuardController)
 {
 	MessagePacketResult mpr;
 	mpr.success = false;
@@ -491,7 +494,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 			overallCharactersCount += 1;  // add null character after each process name
 		}
 
-		mpr.sizeOfAdditionalData = overallCharactersCount * sizeof(wchar_t);
+		mpr.sizeOfAdditionalData = static_cast<DWORD>(overallCharactersCount * sizeof(wchar_t));
 		mpr.szAdditionalData = new wchar_t[overallCharactersCount];
 
 		size_t curPos = 0;
@@ -859,13 +862,99 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 
 		mpr.success = true;
 	}
+    else if (cmdId == AA_COMMAND_START_WIREGUARD)
+    {
+        CMD_START_WIREGUARD cmdStartWireGuard;
+        ia >> cmdStartWireGuard;
+        // check input parameters
+        if (Utils::isValidFileName(cmdStartWireGuard.szExecutable) &&
+            Utils::noSpacesInString(cmdStartWireGuard.szDeviceName)) {
+            std::wstring exePath = Utils::getExePath();
+            std::wstring strCmd = L"\"" + exePath + L"\\" + cmdStartWireGuard.szExecutable + L"\"";
+            strCmd += L" " + cmdStartWireGuard.szDeviceName;
+            mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), L"", exePath.c_str());
+            if (mpr.success)
+                wireGuardController.init(cmdStartWireGuard.szDeviceName, mpr.blockingCmdId);
+            Logger::instance().out(L"AA_COMMAND_START_WIREGUARD: cmd = %s,success = %d",
+                strCmd.c_str(), mpr.success);
+        }
+    }
+    else if (cmdId == AA_COMMAND_STOP_WIREGUARD)
+    {
+        Logger::instance().out(L"AA_COMMAND_STOP_WIREGUARD");
+        wireGuardController.reset();
+        mpr = ExecuteCmd::instance().terminateAndClearUnblockingCmd(
+            wireGuardController.getDaemonCmdId());
+    }
+    else if (cmdId == AA_COMMAND_CONFIGURE_WIREGUARD)
+    {
+        CMD_CONFIGURE_WIREGUARD cmdConfigureWireGuard;
+        ia >> cmdConfigureWireGuard;
+        if (wireGuardController.isInitialized()) {
+            Logger::instance().out(L"AA_COMMAND_CONFIGURE_WIREGUARD");
+            do {
+                std::vector<std::string> allowed_ips_vector =
+                    wireGuardController.splitAndDeduplicateAllowedIps(
+                        cmdConfigureWireGuard.allowedIps);
+                if (allowed_ips_vector.size() < 1) {
+                    Logger::instance().out(L"invalid AllowedIps \"%s\"",
+                        cmdConfigureWireGuard.allowedIps.c_str());
+                    break;
+                }
+                if (!wireGuardController.configureAdapter(cmdConfigureWireGuard.clientIpAddress,
+                    cmdConfigureWireGuard.clientDnsAddressList, allowed_ips_vector)) {
+                    Logger::instance().out(L"configureAdapter() failed");
+                    break;
+                }
+                if (!wireGuardController.configureDefaultRouteMonitor()) {
+                    Logger::instance().out(L"configureDefaultRouteMonitor() failed");
+                    break;
+                }
+                if (!wireGuardController.configureDaemon(cmdConfigureWireGuard.clientPrivateKey,
+                    cmdConfigureWireGuard.peerPublicKey, cmdConfigureWireGuard.peerPresharedKey,
+                    cmdConfigureWireGuard.peerEndpoint, allowed_ips_vector)) {
+                    Logger::instance().out(L"configureDaemon() failed");
+                    break;
+                }
+                mpr.success = true;
+            } while (0);
+        }
+    }
+    else if (cmdId == AA_COMMAND_GET_WIREGUARD_STATUS)
+    {
+        UINT32 errorCode = 0;
+        UINT64 bytesReceived = 0, bytesTransmitted = 0;
+        if (!wireGuardController.isInitialized()) {
+            mpr.exitCode = WIREGUARD_STATE_NONE;
+        } else {
+            mpr = ExecuteCmd::instance().getUnblockingCmdStatus(
+                wireGuardController.getDaemonCmdId());
+            if (!mpr.success || mpr.blockingCmdFinished) {
+                // Special error code means the daemon is dead.
+                mpr.exitCode = WIREGUARD_STATE_ERROR;
+                mpr.customInfoValue[0] = 666u;
+            } else {
+                mpr.success = true;
+                mpr.exitCode =
+                    wireGuardController.getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
+                if (mpr.exitCode == WIREGUARD_STATE_ERROR) {
+                    mpr.customInfoValue[0] = errorCode;
+                }
+                else if (mpr.exitCode == WIREGUARD_STATE_ACTIVE) {
+                    mpr.customInfoValue[0] = bytesReceived;
+                    mpr.customInfoValue[1] = bytesTransmitted;
+                }
+            }
+        }
+    }
 	
 	return mpr;
 }
 
 bool writeMessagePacketResult(HANDLE hPipe, MessagePacketResult &mpr)
 {
-	if (IOUtils::writeAll(hPipe, (char *)&mpr, sizeof(mpr) - sizeof(mpr.szAdditionalData)))
+    MessagePacketResultSerialization mpr_serialization(mpr);
+	if (IOUtils::writeAll(hPipe, mpr_serialization.const_data(), sizeof(mpr_serialization)))
 	{
 		if (mpr.szAdditionalData != NULL)
 		{
@@ -895,6 +984,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 	HostsEdit			  hostsEdit;
 	GetActiveProcesses    getActiveProcesses;
 	SplitTunneling        splitTunnelling(firewallFilter, fwpmHandleWrapper);
+    WireGuardController   wireGuardController;
 
 	Logger::instance().out(L"Service started");
 
@@ -968,7 +1058,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 #endif
 						{
 							MessagePacketResult mpr = processMessagePacket(cmdId, strData, icsManager, firewallFilter, ipv6Firewall, dnsFirewall,
-																			sysIpv6Controller, hostsEdit, getActiveProcesses, splitTunnelling);
+																			sysIpv6Controller, hostsEdit, getActiveProcesses, splitTunnelling, wireGuardController);
 							writeMessagePacketResult(hPipe, mpr);
 						}
 

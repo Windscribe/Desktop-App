@@ -13,6 +13,8 @@
 #include "installhelper_mac.h"
 #include "../mac/helper/src/ipc/helper_commands_serialize.h"
 #include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.h"
+#include "engine/types/wireguardconfig.h"
+#include "engine/types/wireguardtypes.h"
 
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
@@ -816,6 +818,38 @@ bool Helper_mac::setKextPath(const QString &kextPath)
         }
     }
     return true;
+}
+
+bool Helper_mac::startWireGuard(const QString &exeName, const QString &deviceName)
+{
+    Q_UNUSED(exeName);
+    Q_UNUSED(deviceName);
+    // TODO(wireguard): start WireGuard daemon on Mac.
+    return false;
+}
+
+bool Helper_mac::stopWireGuard()
+{
+    // TODO(wireguard): stop WireGuard daemon on Mac.
+    return false;
+}
+
+bool Helper_mac::configureWireGuard(const WireGuardConfig &config)
+{
+    // TODO(wireguard): configure WireGuard daemon on Mac.
+    Q_UNUSED(config);
+    return false;
+}
+
+bool Helper_mac::getWireGuardStatus(WireGuardStatus *status)
+{
+    // TODO(wireguard): get WireGuard status on Mac.
+    if (status) {
+        status->state = WireGuardState::NONE;
+        status->bytesReceived = 0;
+        status->bytesTransmitted = 0;
+    }
+    return false;
 }
 
 int Helper_mac::executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer)

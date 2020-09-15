@@ -13,6 +13,7 @@ class ProxySettings;
 class ServerAPI;
 class ServerNode;
 class MutableLocationInfo;
+class WireGuardConfig;
 struct ConnectionSettings;
 struct PortMap;
 
@@ -48,6 +49,8 @@ public:
 
     virtual QString getConnectedTapTunAdapter() = 0;
 
+    virtual void setWireGuardConfig(QSharedPointer<WireGuardConfig> config) = 0;
+
     //windows specific functions
     virtual void setMss(int mss) = 0;
 
@@ -62,6 +65,7 @@ signals:
     void showFailedAutomaticConnectionMessage();
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void getWireGuardConfig();
 
     void requestUsername(const QString &pathCustomOvpnConfig);
     void requestPassword(const QString &pathCustomOvpnConfig);

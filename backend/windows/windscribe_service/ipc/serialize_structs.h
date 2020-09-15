@@ -153,6 +153,26 @@ void serialize(Archive & ar, CMD_CHANGE_MTU & g, const unsigned int version)
 	ar & g.szAdapterName;
 }
 
+template<class Archive>
+void serialize(Archive & ar, CMD_START_WIREGUARD & g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar & g.szExecutable;
+    ar & g.szDeviceName;
+}
+
+template<class Archive>
+void serialize(Archive & ar, CMD_CONFIGURE_WIREGUARD & g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar & g.clientPrivateKey;
+    ar & g.clientIpAddress;
+    ar & g.clientDnsAddressList;
+    ar & g.peerPublicKey;
+    ar & g.peerPresharedKey;
+    ar & g.peerEndpoint;
+    ar & g.allowedIps;
+}
 
 } // namespace serialization
 } // namespace boost

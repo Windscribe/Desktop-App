@@ -23,6 +23,8 @@
 #include <strsafe.h>
 #include <sddl.h>
 #include <initguid.h>
+#include <tlhelp32.h>
+#include <aclapi.h>
 
 // boost headers
 #include <boost/archive/text_iarchive.hpp>

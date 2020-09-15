@@ -13,8 +13,7 @@ public:
 private:
     static void finishOpenVpnActiveConnections_win(IHelper *helper);
     static void finishIkev2ActiveConnections_win(IHelper *helper);
-
-
+    static void finishWireGuardActiveConnections_win(IHelper *helper);
 };
 
 #endif // FINISHACTIVECONNECTIONS_H

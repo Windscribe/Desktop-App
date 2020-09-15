@@ -46,7 +46,7 @@ void AdapterMetricsController_win::updateMetrics(const QString &tapName, IHelper
         //qDebug() << "adapterName:" << adapterName << ";" << "adapterDescr:" << adapterDescr;
 
         if (strcmp(tapName.toStdString().c_str(), aa->AdapterName) == 0 ||
-                tapName == adapterName) // for IKEv2 case
+                tapName == adapterName) // for IKEv2/WireGuard case
         {
             if (aa->Ipv4Enabled)
             {

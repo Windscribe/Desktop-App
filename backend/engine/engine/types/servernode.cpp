@@ -8,7 +8,7 @@ ServerNode::ServerNode() : weight_(0), legacy_(0), forceDisconnect_(0), isValid_
 
 }
 
-bool ServerNode::initFromJson(QJsonObject &obj, const QString &cityName)
+bool ServerNode::initFromJson(QJsonObject &obj, const QString &cityName, const QString &wgPubKey)
 {
     if (!obj.contains("ip") || !obj.contains("ip2") || !obj.contains("ip3") || !obj.contains("hostname") || !obj.contains("weight"))
     {
@@ -51,6 +51,16 @@ bool ServerNode::initFromJson(QJsonObject &obj, const QString &cityName)
     {
         forceDisconnect_ = 0;
     }
+
+    if (!wgPubKey.isEmpty())
+    {
+        wgpubkey_ = wgPubKey;
+    }
+    else
+    {
+        wgpubkey_ = obj["wg_pubkey"].toString();
+    }
+
     isCustomOvpnConfig_ = false;
     isValid_ = true;
     return true;
@@ -102,6 +112,7 @@ void ServerNode::writeToStream(QDataStream &stream) const
     stream << weight_;
     stream << legacy_;
     stream << cityname_;
+    stream << wgpubkey_;
 }
 
 void ServerNode::readFromStream(QDataStream &stream)
@@ -113,6 +124,7 @@ void ServerNode::readFromStream(QDataStream &stream)
     stream >> weight_;
     stream >> legacy_;
     stream >> cityname_;
+    stream >> wgpubkey_;
 
     isValid_ = true;
 }
@@ -172,6 +184,12 @@ void ServerNode::setIpForCustomOvpnConfig(const QString &ip)
     ip_[0] = ip;
     ip_[1] = ip;
     ip_[2] = ip;
+}
+
+QString ServerNode::getWgPubKey() const
+{
+    Q_ASSERT(isValid_);
+    return wgpubkey_;
 }
 
 QString ServerNode::getStaticIp() const

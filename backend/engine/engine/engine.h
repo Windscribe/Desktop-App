@@ -239,6 +239,7 @@ private slots:
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation, uint userRole);
+    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
 
     void onStartCheckUpdate();
     void onStartStaticIpsUpdate();
@@ -254,6 +255,7 @@ private slots:
     void onConnectionManagerConnectingToHostname(const QString &hostname);
     void onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
+    void onConnectionManagerGetWireGuardConfig();
 
     void onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig);
     void onConnectionManagerRequestPassword(const QString &pathCustomOvpnConfig);

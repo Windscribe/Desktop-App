@@ -14,6 +14,7 @@
 #include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "testvpntunnel.h"
 #include "engine/types/protocoltype.h"
+#include "engine/types/wireguardconfig.h"
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
@@ -52,6 +53,8 @@ public:
 
     bool isStaticIpsLocation() const override;
     StaticIpPortsVector getStatisIps() override;
+
+    void setWireGuardConfig(QSharedPointer<WireGuardConfig> config) override;
 
     void setMss(int mss) override;
 
@@ -125,6 +128,8 @@ private:
     QString passwordForCustomOvpn_;     // can be empty
 
     int mss_;
+
+    QSharedPointer<WireGuardConfig> wireGuardConfig_;
 
     void doConnect();
     void doConnectPart2();

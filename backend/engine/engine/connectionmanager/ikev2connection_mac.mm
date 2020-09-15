@@ -155,10 +155,11 @@ IKEv2Connection_mac::~IKEv2Connection_mac()
 
 }
 
-void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const ProxySettings &proxySettings, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
 {
     Q_UNUSED(configPathOrUrl);
     Q_UNUSED(proxySettings);
+    Q_UNUSED(wireGuardConfig);
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isAutomaticConnectionMode);
     QMutexLocker locker(&mutex_);

@@ -28,6 +28,9 @@ public:
         // fields for CONNECTION_NODE_CUSTOM_OVPN_CONFIG
         QString pathOvpnConfigFile;
 
+        // fields for WireGuard
+        QString wgPublicKey;
+
         // fields for static ips
         QString username;
         QString password;

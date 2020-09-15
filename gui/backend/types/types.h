@@ -20,6 +20,8 @@ enum CONNECTION_ERROR { // common
                         IKEV_FAILED_TO_CONNECT,
                         IKEV_NOT_FOUND_WIN, IKEV_FAILED_SET_ENTRY_WIN, IKEV_FAILED_MODIFY_HOSTS_WIN,
                         IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC, IKEV_FAILED_SET_KEYCHAIN_MAC, IKEV_FAILED_START_MAC, IKEV_FAILED_LOAD_PREFERENCES_MAC, IKEV_FAILED_SAVE_PREFERENCES_MAC,
+                        // wireguard
+                        WIREGUARD_CONNECTION_ERROR,
                         // emergency
                         EMERGENCY_FAILED_CONNECT
                         };
