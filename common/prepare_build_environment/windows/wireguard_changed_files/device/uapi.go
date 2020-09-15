@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"syscall"
 	"time"
 
 	"golang.zx2c4.com/wireguard/ipc"
@@ -467,6 +468,13 @@ func (device *Device) IpcHandle(socket net.Conn) {
 
 	case "get=1\n":
 		status = device.IpcGetOperation(buffered.Writer)
+
+	// Windscribe addition.
+	case "die\n":
+		socket.Close()
+		device.Close()
+		syscall.Exit(0)
+		return
 
 	default:
 		device.log.Error.Println("Invalid UAPI operation:", op)

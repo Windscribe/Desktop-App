@@ -13,6 +13,7 @@ public:
                    const std::vector<std::string> &allowedIps) const;
     UINT getStatus(UINT32 *errorCode, UINT64 *bytesReceived, UINT64 *bytesTransmitted) const;
     bool bindSockets(UINT if4, UINT if6, BOOL if6blackhole) const;
+    void quit() const;
 
     static constexpr UINT SOCKET_INTERFACE_KEEP = ~UINT(0);
 

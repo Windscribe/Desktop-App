@@ -23,11 +23,12 @@ void WireGuardController::init(const std::wstring &deviceName, UINT daemonCmdId)
 
 void WireGuardController::reset()
 {
-    if (!is_initialized_)
-        return;
-    drm_.reset();
-    adapter_.reset();
-    is_initialized_ = false;
+    if (is_initialized_) {
+        drm_.reset();
+        adapter_.reset();
+        is_initialized_ = false;
+    }
+    comm_->quit();
 }
 
 bool WireGuardController::configureAdapter(const std::string &ipAddress,

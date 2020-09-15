@@ -18,7 +18,6 @@ public:
     MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
     MessagePacketResult getActiveUnblockingCmdCount();
 	MessagePacketResult clearUnblockingCmd(unsigned long id);
-    MessagePacketResult terminateAndClearUnblockingCmd(unsigned long id);
 
 private:
     ExecuteCmd();

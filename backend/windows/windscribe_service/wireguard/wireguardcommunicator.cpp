@@ -161,6 +161,21 @@ bool WireGuardCommunicator::bindSockets(UINT if4, UINT if6, BOOL if6blackhole) c
     return success;
 }
 
+void WireGuardCommunicator::quit() const
+{
+    FILE *conn = nullptr;
+    const auto result = openConnection(&conn);
+    if (result != OpenConnectionState::OK) {
+        if (result != OpenConnectionState::NO_PIPE)
+            Logger::instance().out(L"WireGuardCommunicator::quit(): no connection to daemon");
+      return;
+    }
+    // Send die command.
+    fputs("die\n\n", conn);
+    fflush(conn);
+    fclose(conn);
+}
+
 WireGuardCommunicator::OpenConnectionState WireGuardCommunicator::openConnection(FILE **pfp) const
 {
     assert(pfp != nullptr);
