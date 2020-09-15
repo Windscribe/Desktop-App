@@ -542,13 +542,6 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-//    if (event->modifiers() & Qt::ControlModifier)
-//    {
-//        if (event->key() == Qt::Key_U)
-//        {
-//            mainWindowController_->showUpdateWidget();
-//        }
-//    }
 #ifdef QT_DEBUG
     if (event->modifiers() & Qt::ControlModifier)
     {
@@ -1576,9 +1569,6 @@ void MainWindow::onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &
         {
             blockConnect_.setNeedUpgrade();
         }
-        // showUpdateInfo(true, isBeta, latestBuild, version, url);
-
-
 
         QString betaStr;
         betaStr = "-" + QString::number(checkUpdateInfo.latest_build());
@@ -1588,8 +1578,8 @@ void MainWindow::onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &
         }
         //updateWidget_->setText(tr("Update available - v") + version + betaStr);
 
-        mainWindowController_->getUpdateAppItem()->setVersionAvailable(QString::fromStdString(checkUpdateInfo.version()));
-        mainWindowController_->getUpdateWindow()->setVersion(QString::fromStdString(checkUpdateInfo.version()));
+        mainWindowController_->getUpdateAppItem()->setVersionAvailable(QString::fromStdString(checkUpdateInfo.version()), checkUpdateInfo.latest_build());
+        mainWindowController_->getUpdateWindow()->setVersion(QString::fromStdString(checkUpdateInfo.version()), checkUpdateInfo.latest_build());
 
         if (!ignoreUpdateUntilNextRun_)
         {

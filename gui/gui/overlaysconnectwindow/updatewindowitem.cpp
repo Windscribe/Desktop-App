@@ -140,10 +140,10 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     pSpinner->draw(-SPINNER_HALF_WIDTH * G_SCALE,-SPINNER_HALF_HEIGHT * G_SCALE, painter);
 }
 
-void UpdateWindowItem::setVersion(QString version)
+void UpdateWindowItem::setVersion(QString version, int buildNumber)
 {
     curVersion_ = version;
-    curTitleText_ = QString("v") + curVersion_;
+    curTitleText_ = QString("v") + curVersion_+ "." + QString::number(buildNumber);
     initScreen();
 }
 

@@ -105,7 +105,7 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 
 }
 
-void UpdateAppItem::setVersionAvailable(const QString &versionNumber)
+void UpdateAppItem::setVersionAvailable(const QString &versionNumber,int buildNumber)
 {
     QString prefix = "";
     if (versionNumber != "")
@@ -116,7 +116,7 @@ void UpdateAppItem::setVersionAvailable(const QString &versionNumber)
         }
     }
 
-    curVersionText_ = prefix + versionNumber;
+    curVersionText_ = prefix + versionNumber + "." + QString::number(buildNumber);
 
     setMode(UPDATE_APP_ITEM_MODE_PROMPT);
 }

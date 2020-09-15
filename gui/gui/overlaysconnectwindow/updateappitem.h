@@ -20,7 +20,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setVersionAvailable(const QString &versionNumber) override;
+    void setVersionAvailable(const QString &versionNumber, int buildNumber) override;
     void setProgress(int value) override; // from 0 to 100
 
     QPixmap getCurrentPixmapShape() override;

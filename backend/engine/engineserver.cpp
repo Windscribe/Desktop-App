@@ -715,7 +715,7 @@ void EngineServer::onEngineUpdateVersionChanged(uint progressPercent, const Prot
     cmd.getProtoObj().set_progress(progressPercent);
     cmd.getProtoObj().set_state(state);
     cmd.getProtoObj().set_error(error);
-    sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
 void EngineServer::onEngineMyIpUpdated(const QString &ip, bool /*success*/, bool isDisconnected)

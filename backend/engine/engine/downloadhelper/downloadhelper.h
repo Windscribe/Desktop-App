@@ -22,12 +22,10 @@ public:
     };
 
     const QString downloadPath();
-    void setDownloadPath(const QString path);
     void get(const QString url);
     void stop();
 
     DownloadState state();
-    uint progressPercent();
 
 signals:
     void finished(DownloadHelper::DownloadState state);

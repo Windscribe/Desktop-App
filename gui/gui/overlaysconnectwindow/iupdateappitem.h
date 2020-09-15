@@ -10,7 +10,7 @@ public:
 
     virtual QGraphicsObject * getGraphicsObject() = 0;
 
-    virtual void setVersionAvailable(const QString &versionNumber) = 0;
+    virtual void setVersionAvailable(const QString &versionNumber, int buildNumber) = 0;
     virtual void setProgress(int value) = 0; // from 0 to 100
 
     virtual QPixmap getCurrentPixmapShape() = 0;

@@ -266,7 +266,7 @@ QString Helper_win::executeUpdateInstaller(const QString &installerPath, bool &s
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RUN_UPDATE_INSTALLER, stream.str());
 
-    QString errorOutput;
+    QString errorOutput = "";
     if (!mpr.success)
     {
         errorOutput = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);

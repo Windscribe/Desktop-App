@@ -1573,9 +1573,7 @@ void Engine::onCheckUpdateAnswer(bool available, const QString &version, bool is
     {
         if (!bNetworkErrorOccured)
         {
-            // installerUrl_ = url; // TODO: uncomment this and remove test download
-            // installerUrl_ = "http://ipv4.download.thinkbroadband.com/50MB.zip";
-            installerUrl_ = "http://ipv4.download.thinkbroadband.com/5MB.zip";
+            installerUrl_ = url;
             qCDebug(LOG_BASIC) << "Installer URL: " << url;
             emit checkUpdateUpdated(available, version, isBeta, latestBuild, url, supported);
         }
@@ -2049,9 +2047,6 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     {
         qCDebug(LOG_DOWNLOADER) << "Downloaded to: " << dlPath;
 
-        //const QString dlPath = "C:\\Users\\Ed\\AppData\\Local\\Windscribe\\Windscribe\\folder with spaces\\ws_installer.exe";
-        const QString dlPath = "C:\\work\\client-desktop-installer\\windows\\Windscribe_2_0_build26_beta.exe";
-
         bool success = false;
         QString output = helper_->executeUpdateInstaller(dlPath, success);
 
@@ -2062,15 +2057,15 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
         }
         else
         {
-            qCDebug(LOG_DOWNLOADER) << output;
-            //QFile::remove(dlPath);
+            qCDebug(LOG_DOWNLOADER) << "Removing unsigned installer";
+            QFile::remove(dlPath);
             emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
         }
     }
     else // failure
     {
-        // delete partially downloaded installer
-        //QFile::remove(dlPath);
+        qCDebug(LOG_DOWNLOADER) << "Removing incomplete installer";
+        QFile::remove(dlPath);
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
     }
 }

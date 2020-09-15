@@ -2,9 +2,11 @@
 
 #include "utils/logger.h"
 #include <QStandardPaths>
+#include <QFile>
 
 DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
   , reply_(nullptr)
+  , progressPercent_(0)
 {
 #ifdef Q_OS_WIN
     const QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/installer.exe";
@@ -13,16 +15,14 @@ DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
 #endif
     qCDebug(LOG_DOWNLOADER) << "Setting download location: " << path;
     downloadPath_ = path;
+
+    // remove a previously used auto-update installer upon app startup if it exists
+    QFile::remove(downloadPath_);
 }
 
 const QString DownloadHelper::downloadPath()
 {
     return downloadPath_;
-}
-
-void DownloadHelper::setDownloadPath(const QString path)
-{
-    downloadPath_ = path;
 }
 
 void DownloadHelper::get(const QString url)
@@ -33,10 +33,18 @@ void DownloadHelper::get(const QString url)
         return;
     }
 
+    progressPercent_ = 0;
+
     qCDebug(LOG_DOWNLOADER) << "Starting download from url: " << url;
 
     file_ = new QFile(downloadPath_);
-    file_->open(QIODevice::WriteOnly);
+    if (!file_->open(QIODevice::WriteOnly))
+    {
+        qCDebug(LOG_DOWNLOADER) << "Failed to open file for download" << url;
+        file_->deleteLater();
+        file_ = nullptr;
+        return;
+    }
 
     QNetworkRequest request(url);
 
@@ -65,25 +73,21 @@ DownloadHelper::DownloadState DownloadHelper::state()
     return state_;
 }
 
-uint DownloadHelper::progressPercent()
-{
-    return progressPercent_;
-}
-
 void DownloadHelper::onReplyFinished()
 {
-    safeCloseFileAndDeleteObj();
-
+    DownloadState state;
     if (reply_->error() == QNetworkReply::NoError)
     {
         qCDebug(LOG_DOWNLOADER) << "Download finished successfully";
-        emit finished(DOWNLOAD_STATE_SUCCESS);
+        state = DOWNLOAD_STATE_SUCCESS;
     }
     else
     {
         qCDebug(LOG_DOWNLOADER) << "Download failed";
-        emit finished(DOWNLOAD_STATE_FAIL);
+        state = DOWNLOAD_STATE_FAIL;
     }
+    safeCloseFileAndDeleteObj();
+    emit finished(state);
 
     reply_->deleteLater();
     reply_ = nullptr;
@@ -91,7 +95,9 @@ void DownloadHelper::onReplyFinished()
 
 void DownloadHelper::onReplyDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
+    // qCDebug(LOG_DOWNLOADER) << "Bytes received: " << bytesReceived << ", Bytes Total: " << bytesTotal;
     progressPercent_ = (double) bytesReceived / (double) bytesTotal * 100;
+
     // qCDebug(LOG_DOWNLOADER) << "Downloading: " << progressPercent_;
     emit progressChanged(progressPercent_);
 }
@@ -103,13 +109,14 @@ void DownloadHelper::onReplyError(QNetworkReply::NetworkError error)
 
 void DownloadHelper::onReplyReadyRead()
 {
-    //qCDebug(LOG_DOWNLOADER) << "Ready reading...";
     QByteArray arr = reply_->readAll();
 
-    if (file_->isOpen())
+    if (!arr.isEmpty())
     {
-        //qCDebug(LOG_DOWNLOADER) << "Writing...";
-        file_->write(arr);
+        if (file_->isOpen())
+        {
+            file_->write(arr);
+        }
     }
 }
 

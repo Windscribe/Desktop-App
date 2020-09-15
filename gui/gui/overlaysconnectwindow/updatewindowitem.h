@@ -26,7 +26,7 @@ public:
     void stopAnimation() override;
     void updateScaling() override;
 
-    void setVersion(QString version) override;
+    void setVersion(QString version, int buildNumber) override;
     void setProgress(int progressPercent) override;
     void changeToDownloadingScreen() override;
     void changeToPromptScreen() override;

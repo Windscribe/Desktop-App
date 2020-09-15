@@ -1,5 +1,6 @@
 #include "hardcodedsettings.h"
 #include "utils/utils.h"
+#include "version/windscribe_version.h"
 #include <QDateTime>
 #include <QStringList>
 #include <QCryptographicHash>
@@ -35,7 +36,7 @@ QString HardcodedSettings::generateRandomDomain(const QString &prefix)
 HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
 {
     // strings crypted for security (can't see from exe with text editor)
-#ifdef STAGING
+#ifdef WINDSCRIBE_IS_STAGING
     serverApiUrl_ = simpleCrypt_.decryptToString(QString("AwKT27It/jNsDcOf4nW4eydCkcK8MfEnPEyTgPlopg==")); // api-staging.windscribe.com
 #else
     serverApiUrl_ = simpleCrypt_.decryptToString(QString("AwKTH1LNHtOP6jlqFJlZj5TkOyhRwA4=")); // api.windscribe.com
