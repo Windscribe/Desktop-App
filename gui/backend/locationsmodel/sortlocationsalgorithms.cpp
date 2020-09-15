@@ -29,7 +29,7 @@ bool SortLocationsAlgorithms::lessThanByAlphabetically(LocationModelItem *item1,
 
 bool SortLocationsAlgorithms::lessThanByLatency(LocationModelItem *item1, LocationModelItem *item2)
 {
-    /*if (item1->id.getId() == LocationID::BEST_LOCATION_ID && item2->id.getId() != LocationID::BEST_LOCATION_ID)
+    if (item1->id.getId() == LocationID::BEST_LOCATION_ID && item2->id.getId() != LocationID::BEST_LOCATION_ID)
     {
         return true;
     }
@@ -38,28 +38,14 @@ bool SortLocationsAlgorithms::lessThanByLatency(LocationModelItem *item1, Locati
         return false;
     }
 
-    if (item1->pingTimeMs.toInt() < 0 && item2->pingTimeMs.toInt() < 0)
+    qint32 item1AverageLatency = item1->calcAveragePing();
+    qint32 item2AverageLatency = item2->calcAveragePing();
+    if (item1AverageLatency == item2AverageLatency)
     {
         return item1->title < item2->title;
     }
-    else if (item1->pingTimeMs.toInt() < 0 && item2->pingTimeMs.toInt() >= 0)
-    {
-        return false;
-    }
-    else if (item1->pingTimeMs.toInt() >= 0 && item2->pingTimeMs.toInt() < 0)
-    {
-        return true;
-    }
     else
     {
-        if (item1->pingTimeMs.toInt() == item2->pingTimeMs.toInt())
-        {
-            return item1->title < item2->title;
-        }
-        else
-        {
-            return item1->pingTimeMs.toInt() < item2->pingTimeMs.toInt();
-        }
-    }*/
-    return true;
+        return item1AverageLatency < item2AverageLatency;
+    }
 }

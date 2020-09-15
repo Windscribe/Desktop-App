@@ -166,7 +166,7 @@ void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
 
             if (containsAtLeastOneNonProCity)
             {
-                listItem->setData(USER_ROLE_ENABLED, item->pingTimeMs.toConnectionSpeed() != 0);
+                listItem->setData(USER_ROLE_ENABLED, true /*item->pingTimeMs.toConnectionSpeed() != 0*/);  //todo
             }
             else
             {

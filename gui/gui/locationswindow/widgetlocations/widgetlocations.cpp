@@ -698,7 +698,7 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
                                lmi->cities[i].staticIp, lmi->cities[i].staticIpType, lmi->cities[i].isFavorite, lmi->cities[i].isDisabled);
         }
         LocationItem *item = new LocationItem(this, lmi->id.getId(), lmi->countryCode, lmi->title,
-                                              lmi->isShowP2P, PingTime(), cities, lmi->isForceExpand, lmi->isPremiumOnly);
+                                              lmi->isShowP2P, PingTime(), cities, true, lmi->isPremiumOnly);
         items_ << item;
 
         if (lmi->title == QT_TR_NOOP("Best Location"))

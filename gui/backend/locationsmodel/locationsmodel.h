@@ -46,7 +46,7 @@ public:
     void changeConnectionSpeed(LocationID id, PingTime speed);
 
     LocationID getLocationIdByName(const QString &location) const;
-    LocationID getLocationIdByCity(const QString &cityname, bool get_best_location) const;
+    LocationID getLocationIdByCity(const QString &cityId, bool get_best_location) const;
 
 signals:
     void locationSpeedChanged(LocationID id, PingTime speed);
@@ -61,7 +61,6 @@ private:
     FavoriteLocationsStorage favoriteLocationsStorage_;
 
     ProtoTypes::OrderLocationType orderLocationsType_;
-    QSet<LocationID> ids;
     QVector<LocationModelItem *> locations_;
 
 };

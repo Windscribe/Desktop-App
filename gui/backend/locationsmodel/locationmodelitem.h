@@ -29,6 +29,29 @@ struct LocationModelItem
     bool isShowP2P;
     bool isPremiumOnly;
     QVector<CityModelItem> cities;
+
+
+    qint32 calcAveragePing() const
+    {
+        qint32 averagePing = 0;
+        for (const CityModelItem &cmi : cities)
+        {
+            if (cmi.pingTimeMs == PingTime::NO_PING_INFO)
+            {
+                averagePing += 0;
+            }
+            else if (cmi.pingTimeMs == PingTime::PING_FAILED)
+            {
+                averagePing += 2000;    // 2000 - max ping interval
+            }
+            else
+            {
+                averagePing += cmi.pingTimeMs.toInt();
+            }
+        }
+        return averagePing / cities.count();
+    }
+
 };
 
 #endif // LOCATIONMODELITEM_H
