@@ -883,8 +883,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
     {
         Logger::instance().out(L"AA_COMMAND_STOP_WIREGUARD");
         wireGuardController.reset();
-        mpr = ExecuteCmd::instance().terminateAndClearUnblockingCmd(
-            wireGuardController.getDaemonCmdId());
+        mpr = ExecuteCmd::instance().getUnblockingCmdStatus(wireGuardController.getDaemonCmdId());
     }
     else if (cmdId == AA_COMMAND_CONFIGURE_WIREGUARD)
     {
