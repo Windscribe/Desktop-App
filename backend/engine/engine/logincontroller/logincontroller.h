@@ -8,7 +8,6 @@
 #include "getapiaccessips.h"
 #include "engine/types/dnsresolutionsettings.h"
 #include "engine/types/loginsettings.h"
-#include "../serverlocationsapiwrapper.h"
 
 //class IFirewallController;
 class ServerAPI;
@@ -21,7 +20,6 @@ class LoginController : public QObject
     Q_OBJECT
 public:
     explicit LoginController(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager, ServerAPI *serverAPI,
-                             ServerLocationsApiWrapper *serverLocationsApiWrapper,
                              const QString &language, ProtocolType protocol);
     virtual ~LoginController();
 
@@ -59,7 +57,6 @@ private:
 
     IHelper *helper_;
     ServerAPI *serverAPI_;
-    ServerLocationsApiWrapper *serverLocationsApiWrapper_;
 
     uint serverApiUserRole_;
     GetApiAccessIps *getApiAccessIps_;

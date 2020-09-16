@@ -523,7 +523,6 @@ void EngineServer::onConnectionStateCallback(int state, IPC::IConnection *connec
             qCDebug(LOG_IPC) << "All of the clients are disconnected";
             emit finished();
         }
-
     }
     else
     {

@@ -266,6 +266,10 @@ SOURCES += main.cpp \
     engine/serversmodel/pingmanager.cpp \
     engine/locationsmodel/locationsmodel.cpp \
     engine/locationsmodel/locationitem.cpp \
+    engine/locationsmodel/pingipscontroller.cpp \
+    engine/locationsmodel/pingstorage.cpp \
+    engine/locationsmodel/pinglog.cpp \
+    engine/locationsmodel/failedpinglogcontroller.cpp \
     engine/packetsizecontroller.cpp \
     engine/enginesettings.cpp \
     utils/mergelog.cpp \
@@ -281,7 +285,6 @@ SOURCES += main.cpp \
     engine/firewall/firewallexceptions.cpp \
     engine/firewall/firewallcontroller.cpp \
     engine/proxy/proxyservercontroller.cpp \
-    engine/serversmodel/failedpinglogcontroller.cpp \
     engine/types/dnsresolutionsettings.cpp \
     engine/connectionmanager/makeovpnfile.cpp \
     engine/connectionmanager/stunnelmanager.cpp \
@@ -335,8 +338,6 @@ SOURCES += main.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
     engine/connectionmanager/ikev2connection_test.cpp \
-    engine/serversmodel/pingnodescontroller.cpp \
-    engine/serversmodel/pinglog.cpp \
     engine/serversmodel/testpingnodecontroller.cpp \
     engine/serversmodel/mutablelocationinfo.cpp \
     engine/serverlocationsapiwrapper.cpp \
@@ -369,6 +370,10 @@ SOURCES += main.cpp \
 HEADERS  += engine/serversmodel/serversmodel.h \
     engine/locationsmodel/locationsmodel.h \
     engine/locationsmodel/locationitem.h \
+    engine/locationsmodel/pingipscontroller.h \
+    engine/locationsmodel/pingstorage.h \
+    engine/locationsmodel/pinglog.h \
+    engine/locationsmodel/failedpinglogcontroller.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \
     $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.h \
     $$COMMON_PATH/utils/utils.h \
@@ -413,7 +418,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/firewall/firewallcontroller.h \
     engine/firewall/firewallexceptions.h \
     engine/proxy/proxyservercontroller.h \
-    engine/serversmodel/failedpinglogcontroller.h \
     engine/connectionmanager/testvpntunnel.h \
     engine/types/dnsresolutionsettings.h \
     engine/connectionmanager/iconnection.h \
@@ -471,8 +475,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/dnsresolver/dnsresolver.h \
     engine/types/protocoltype.h \
     engine/connectionmanager/ikev2connection_test.h \
-    engine/serversmodel/pingnodescontroller.h \
-    engine/serversmodel/pinglog.h \
     engine/serversmodel/testpingnodecontroller.h \
     engine/serversmodel/nodesspeedratings.h \
     engine/serversmodel/mutablelocationinfo.h \

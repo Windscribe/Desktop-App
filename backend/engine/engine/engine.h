@@ -10,7 +10,7 @@
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
 #include "firewall/firewallcontroller.h"
 #include "serverapi/serverapi.h"
-#include "serverlocationsapiwrapper.h"
+//#include "serverlocationsapiwrapper.h"
 #include "serversmodel/serversmodel.h"
 #include "locationsmodel/locationsmodel.h"
 #include "connectionmanager/iconnectionmanager.h"
@@ -70,10 +70,8 @@ public:
 
     LoginSettings getLastLoginSettings();
     QString getAuthHash();
-    LocationID getLocationIdByName(const QString &location);
     void clearCredentials();
 
-    IServersModel *getServersModel();
     locationsmodel::LocationsModel *getLocationsModel();
     IConnectStateController *getConnectStateController();
 
@@ -293,7 +291,7 @@ private:
     INetworkStateManager *networkStateManager_;
     FirewallController *firewallController_;
     ServerAPI *serverAPI_;
-    ServerLocationsApiWrapper *serverLocationsApiWrapper_;
+    //ServerLocationsApiWrapper *serverLocationsApiWrapper_;
     IConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
@@ -331,9 +329,9 @@ private:
     QTimer *notificationsUpdateTimer_;
 
     NodesSpeedRatings *nodesSpeedRatings_;
-    ServersModel *serversModel_;
+    //ServersModel *serversModel_;
     locationsmodel::LocationsModel *locationsModel_;
-    NodesSpeedStore *nodesSpeedStore_;
+    //NodesSpeedStore *nodesSpeedStore_;
 
     RefetchServerCredentialsHelper *refetchServerCredentialsHelper_;
 

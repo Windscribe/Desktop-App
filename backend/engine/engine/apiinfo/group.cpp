@@ -16,7 +16,7 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     d->city_ = obj["city"].toString();
     d->nick_ = obj["nick"].toString();
     d->pro_ = obj["pro"].toInt();
-    d->pingIp_ = obj["ping_ip"].toInt();
+    d->pingIp_ = obj["ping_ip"].toString();
 
     if (obj.contains("nodes"))
     {

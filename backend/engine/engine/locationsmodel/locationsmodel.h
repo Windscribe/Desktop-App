@@ -5,7 +5,10 @@
 #include "engine/apiinfo/location.h"
 #include "engine/apiinfo/staticips.h"
 #include "engine/types/locationid.h"
+#include "engine/proxy/proxysettings.h"
 #include "locationitem.h"
+#include "pingipscontroller.h"
+#include "pingstorage.h"
 
 namespace locationsmodel {
 
@@ -16,7 +19,7 @@ class LocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit LocationsModel(QObject *parent);
+    explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
     virtual ~LocationsModel();
 
     void setLocations(const QVector<apiinfo::Location> &locations);
@@ -24,12 +27,20 @@ public:
     // void setCustomOvpnConfigs()
     void clear();
 
+    void setProxySettings(const ProxySettings &proxySettings);
+    void disableProxy();
+    void enableProxy();
+
 signals:
     void locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items);
     void locationPingTimeChanged(LocationID id, PingTime timeMs);
 
     //void locationInfoChanged(const LocationID &LocationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
     //void customOvpnConfgsIpsChanged(const QStringList &ips);
+
+private:
+    PingIpsController pingIpsController_;
+    PingStorage pingStorage_;
 
 };
 

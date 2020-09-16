@@ -10,9 +10,8 @@
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,
                                  INetworkStateManager *networkStateManager, ServerAPI *serverAPI,
-                                 ServerLocationsApiWrapper *serverLocationsApiWrapper,
                                  const QString &language, ProtocolType protocol) : QObject(parent),
-    helper_(helper), serverAPI_(serverAPI), serverLocationsApiWrapper_(serverLocationsApiWrapper),
+    helper_(helper), serverAPI_(serverAPI),
     getApiAccessIps_(NULL), networkStateManager_(networkStateManager), language_(language),
     protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL),
     loginStep_(LOGIN_STEP1), readyForNetworkRequestsEmitted_(false)
@@ -24,7 +23,7 @@ LoginController::LoginController(QObject *parent,  IHelper *helper,
     connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), SLOT(onSessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(portMapAnswer(SERVER_API_RET_CODE, apiinfo::PortMap, uint)), SLOT(onPortMapAnswer(SERVER_API_RET_CODE, apiinfo::PortMap, uint)), Qt::QueuedConnection);
 
-    connect(serverLocationsApiWrapper_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)),
+    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)),
                             SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
 
     connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), Qt::QueuedConnection);
@@ -367,7 +366,7 @@ void LoginController::getAllConfigs()
         getAllConfigsController_->putServerCredentialsIkev2Answer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForIkev2(), loginSettings_.getServerCredentials().passwordForIkev2());
     }
 
-    serverLocationsApiWrapper_->serverLocations(newAuthHash_, language_, serverApiUserRole_, false, sessionStatus_.getRevisionHash(), sessionStatus_.isPro(), protocol_, sessionStatus_.getAlc());
+    serverAPI_->serverLocations(newAuthHash_, language_, serverApiUserRole_, false, sessionStatus_.getRevisionHash(), sessionStatus_.isPro(), protocol_, sessionStatus_.getAlc());
     serverAPI_->portMap(newAuthHash_, serverApiUserRole_, false);
     if (sessionStatus_.getStaticIpsCount() > 0)
     {
