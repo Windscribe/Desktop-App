@@ -929,6 +929,12 @@ bool WidgetCities::detectSelectedItem(const QPoint &cursorPos)
         }
         curTop += getItemHeight();
     }
+    if (indSelected_ != -1)
+    {
+        items_[indSelected_]->setSelected(false);
+        indSelected_ = -1;
+        return true;
+    }
     return false;
 }
 
