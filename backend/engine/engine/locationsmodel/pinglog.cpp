@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QStandardPaths>
+#include <QDebug>
 
 PingLog::PingLog(const QString &filename) : file_(NULL)
 {
@@ -32,5 +33,6 @@ void PingLog::addLog(const QString &tag, const QString &str)
     QMutexLocker locker(&mutex_);
     QDateTime dt = QDateTime::currentDateTime();
     textStream_ << dt.toString("ddMMyyyy HH:mm:ss") << "\t" << tag << "\t\t" << str << "\n";
+    qDebug() << tag << "\t\t" << str;
     textStream_.flush();
 }

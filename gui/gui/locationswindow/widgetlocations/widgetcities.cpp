@@ -180,7 +180,7 @@ void WidgetCities::updateListDisplay(QVector<CityModelItem*> items)
     int indInVector = 0;
     Q_FOREACH(const CityModelItem *cmi, items)
     {
-        CityItem *item = new CityItem(this, cmi->id, cmi->title1, cmi->title2, cmi->countryCode,
+        CityItem *item = new CityItem(this, cmi->id, cmi->city, cmi->nick, cmi->countryCode,
                                               cmi->pingTimeMs, cmi->bShowPremiumStarOnly, isShowLatencyInMs(), cmi->staticIp,
                                               cmi->staticIpType, cmi->isFavorite, cmi->isDisabled);
         items_ << item;

@@ -2,6 +2,7 @@
 #include "ipc/protobufcommand.h"
 #include "ipc/generated_proto/servercommands.pb.h"
 #include <google/protobuf/util/message_differencer.h>
+#include "utils/logger.h"
 
 const int typeIdEngineSettings = qRegisterMetaType<EngineSettings>("EngineSettings");
 
@@ -38,7 +39,7 @@ void EngineSettings::loadFromSettings()
     {
         loadFromVersion1(settings);
     }
-    qDebug() << "Engine settings:" << QString::fromStdString(engineSettings_.DebugString());
+    qCDebug(LOG_BASIC) << "Engine settings:" << QString::fromStdString(engineSettings_.DebugString());
 }
 
 const ProtoTypes::EngineSettings &EngineSettings::getProtoBufEngineSettings() const

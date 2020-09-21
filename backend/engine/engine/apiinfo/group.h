@@ -51,6 +51,7 @@ public:
     ProtoApiInfo::Group getProtoBuf() const;
     QStringList getAllIps() const;
 
+    int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
     QString getCity() const { Q_ASSERT(d->isValid_); return d->city_; }
     QString getNick() const { Q_ASSERT(d->isValid_); return d->nick_; }
     bool isPro() const { Q_ASSERT(d->isValid_); return d->pro_ != 0; }

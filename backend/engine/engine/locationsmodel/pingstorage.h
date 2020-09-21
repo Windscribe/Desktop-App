@@ -18,32 +18,29 @@ public:
     virtual ~PingStorage();
 
     void updateNodes(const QStringList &ips);
-    void setNodePing(const QString &nodeIp, PingTime timeMs);
+    void setNodePing(const QString &nodeIp, PingTime timeMs, bool fromDisconnectedState);
     PingTime getNodeSpeed(const QString &nodeIp) const;
 
     quint32 getCurrentIteration() const;
     void incIteration();
 
-    /*QSet<QString> getNodesWithoutPingData(const QStringList &ips);
-
-    void saveToSettings();
-    void loadFromSettings();*/
+    void getState(bool &isAllNodesHaveCurIteration, bool &isAllNodesInDisconnectedState);
 
 private:
 
-    /*struct PingData
+    struct PingData
     {
-        bool isUsed_;
         PingTime timeMs_;
         quint32 iteration_;
+        bool fromDisconnectedState_;
     };
 
-    QHash<QString, PingData> hash_;*/
+    QHash<QString, PingData> hash_;
     quint32 curIteration_;
 
-    /*QMutex mutex_;
+    void saveToSettings();
+    void loadFromSettings();
 
-    bool isAllPingsHaveSameIteration(quint32 &outIteration);*/
 };
 
 } //namespace locationsmodel

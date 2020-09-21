@@ -46,6 +46,22 @@ bool SortLocationsAlgorithms::lessThanByLatency(LocationModelItem *item1, Locati
     }
     else
     {
-        return item1AverageLatency < item2AverageLatency;
+        if (item1AverageLatency == -1)
+        {
+            return false;
+        }
+        else if (item2AverageLatency == -1)
+        {
+            return true;
+        }
+        else
+        {
+            return item1AverageLatency < item2AverageLatency;
+        }
     }
+}
+
+bool SortLocationsAlgorithms::lessThanByAlphabeticallyCityItem(const CityModelItem &item1, const CityModelItem &item2)
+{
+    return item1.makeTitle() < item2.makeTitle();
 }

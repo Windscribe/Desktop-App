@@ -10,8 +10,8 @@
 #include "engine/types/locationid.h"
 #include "nodesspeedratings.h"
 #include "nodesspeedstore.h"
-#include "pingnodescontroller.h"
-#include "pinglog.h"
+//#include "pingnodescontroller.h"
+//#include "pinglog.h"
 #include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "pingtime.h"
 

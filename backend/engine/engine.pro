@@ -268,6 +268,7 @@ SOURCES += main.cpp \
     engine/locationsmodel/locationitem.cpp \
     engine/locationsmodel/pingipscontroller.cpp \
     engine/locationsmodel/pingstorage.cpp \
+    engine/locationsmodel/bestlocation.cpp \
     engine/locationsmodel/pinglog.cpp \
     engine/locationsmodel/failedpinglogcontroller.cpp \
     engine/packetsizecontroller.cpp \
@@ -338,7 +339,6 @@ SOURCES += main.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
     engine/connectionmanager/ikev2connection_test.cpp \
-    engine/serversmodel/testpingnodecontroller.cpp \
     engine/serversmodel/mutablelocationinfo.cpp \
     engine/serverlocationsapiwrapper.cpp \
     engine/helper/simple_xor_crypt.cpp \
@@ -372,6 +372,7 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/locationsmodel/locationitem.h \
     engine/locationsmodel/pingipscontroller.h \
     engine/locationsmodel/pingstorage.h \
+    engine/locationsmodel/bestlocation.h \
     engine/locationsmodel/pinglog.h \
     engine/locationsmodel/failedpinglogcontroller.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \

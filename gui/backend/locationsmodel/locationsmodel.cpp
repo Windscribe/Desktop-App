@@ -4,6 +4,7 @@
 #include "configuredcitiesmodel.h"
 #include "staticipscitiesmodel.h"
 #include "favoritecitiesmodel.h"
+#include "sortlocationsalgorithms.h"
 
 #include <QFile>
 
@@ -55,8 +56,8 @@ void LocationsModel::update(const ProtoTypes::ArrayLocations &arr)
             const ProtoTypes::City &city = location.cities(c);
             CityModelItem cmi;
             cmi.id = LocationID(lmi->id.getId(), QString::fromStdString(city.id()));
-            cmi.title1 = QString::fromStdString(city.name());
-            cmi.title2 = QString::fromStdString(city.nick());
+            cmi.city = QString::fromStdString(city.name());
+            cmi.nick = QString::fromStdString(city.nick());
             cmi.countryCode = lmi->countryCode;
             cmi.pingTimeMs = city.ping_time();
             cmi.bShowPremiumStarOnly = city.is_premium_only();
@@ -66,6 +67,9 @@ void LocationsModel::update(const ProtoTypes::ArrayLocations &arr)
             cmi.staticIp = QString::fromStdString(city.static_ip());
             lmi->cities << cmi;
         }
+
+        // sort cities alphabetically
+        std::sort(lmi->cities.begin(), lmi->cities.end(), SortLocationsAlgorithms::lessThanByAlphabeticallyCityItem);
 
         if (location.id() == LocationID::STATIC_IPS_LOCATION_ID)
         {
@@ -142,11 +146,10 @@ bool LocationsModel::getLocationInfo(LocationID id, LocationsModel::LocationInfo
                 if (locations_[i]->cities.count() > 0)
                 {
                     li.id = id;
-                    li.firstName = locations_[i]->cities[0].title1;
-                    li.secondName = locations_[i]->cities[0].title2;
+                    li.firstName = locations_[i]->cities[0].city;
+                    li.secondName = locations_[i]->cities[0].nick;
                     li.countryCode = locations_[i]->countryCode;
                     li.pingTime = locations_[i]->cities[0].pingTimeMs;
-                    li.isFavorite = false;
                     return true;
                 }
                 else
@@ -164,19 +167,17 @@ bool LocationsModel::getLocationInfo(LocationID id, LocationsModel::LocationInfo
                         {
                             li.id = id;
                             li.firstName = "Custom Config";
-                            li.secondName = locations_[i]->cities[k].title1;
+                            li.secondName = locations_[i]->cities[k].city;
                             li.countryCode = "";
                             li.pingTime = locations_[i]->cities[k].pingTimeMs;
-                            li.isFavorite = false;
                         }
                         else
                         {
                             li.id = id;
-                            li.firstName = locations_[i]->cities[k].title1;
-                            li.secondName = locations_[i]->cities[k].title2;
+                            li.firstName = locations_[i]->cities[k].city;
+                            li.secondName = locations_[i]->cities[k].nick;
                             li.countryCode = locations_[i]->cities[k].countryCode;
                             li.pingTime = locations_[i]->cities[k].pingTimeMs;
-                            li.isFavorite = false;
                         }
                         return true;
                     }
@@ -203,7 +204,7 @@ QString LocationsModel::countryCodeOfStaticCity(const QString &cityName)
 
             for (int k = 0; k < locations_[i]->cities.count(); ++k)
             {
-                if (lmi->cities[k].title1 == cityName)
+                if (lmi->cities[k].city == cityName)
                 {
                     countryCode = lmi->cities[k].countryCode;
                     break;
@@ -279,7 +280,7 @@ LocationID LocationsModel::getLocationIdByName(const QString &location) const
         }
         for (const CityModelItem &city: lmi->cities)
         {
-            if (city.title1.compare(location, Qt::CaseInsensitive) == 0)
+            if (city.city.compare(location, Qt::CaseInsensitive) == 0)
             {
                 return city.id;
             }

@@ -45,7 +45,7 @@ public:
     void updateScaling() override;
 
 public slots:
-    void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isFavorite) override;
+    void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) override;
     void updateLocationSpeed(LocationID id, PingTime speed) override;
     void updateConnectState(const ProtoTypes::ConnectState & newConnectState) override;
     void updateFirewallState(bool isFirewallEnabled) override;

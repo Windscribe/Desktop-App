@@ -9,8 +9,8 @@
 struct CityModelItem
 {
     LocationID id;
-    QString title1;
-    QString title2;
+    QString city;
+    QString nick;
     QString countryCode;        // maybe remove
     PingTime pingTimeMs;
     bool bShowPremiumStarOnly;
@@ -18,6 +18,22 @@ struct CityModelItem
     QString staticIpType;
     QString staticIp;
     bool isDisabled;
+
+    QString makeTitle() const
+    {
+        if (id.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+        {
+            return city;
+        }
+        else if (id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
+        {
+            return city + "(" + staticIp + ")";
+        }
+        else
+        {
+            return city + " - " + nick;
+        }
+    }
 };
 
 struct LocationModelItem
@@ -33,23 +49,35 @@ struct LocationModelItem
 
     qint32 calcAveragePing() const
     {
-        qint32 averagePing = 0;
+        double averagePing = 0;
+        int cnt = 0;
         for (const CityModelItem &cmi : cities)
         {
-            if (cmi.pingTimeMs == PingTime::NO_PING_INFO)
+            if (!cmi.isDisabled)
             {
-                averagePing += 0;
-            }
-            else if (cmi.pingTimeMs == PingTime::PING_FAILED)
-            {
-                averagePing += 2000;    // 2000 - max ping interval
-            }
-            else
-            {
-                averagePing += cmi.pingTimeMs.toInt();
+                if (cmi.pingTimeMs == PingTime::NO_PING_INFO)
+                {
+                    averagePing += 200;     // we assume a maximum ping time for three bars
+                }
+                else if (cmi.pingTimeMs == PingTime::PING_FAILED)
+                {
+                    averagePing += 2000;    // 2000 - max ping interval
+                }
+                else
+                {
+                    averagePing += cmi.pingTimeMs.toInt();
+                }
+                cnt++;
             }
         }
-        return averagePing / cities.count();
+        if (cnt > 0)
+        {
+            return averagePing / (double)cnt;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
 };

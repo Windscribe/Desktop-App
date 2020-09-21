@@ -20,7 +20,6 @@ public:
         QString secondName;
         QString countryCode;
         PingTime pingTime;
-        bool isFavorite;
     };
 
     explicit LocationsModel(QObject *parent = nullptr);

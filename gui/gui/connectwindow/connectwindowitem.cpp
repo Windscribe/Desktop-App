@@ -195,8 +195,9 @@ void ConnectWindowItem::updateScaling()
     updatePositions();
 }
 
-void ConnectWindowItem::updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isFavorite)
+void ConnectWindowItem::updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime)
 {
+    qDebug() << "updateLocationInfo:" << countryCode;
     locationID_ = id;
 
     QString shortenedSecondName = CommonGraphics::truncateText(secondName, *FontManager::instance().getFont(16, false), 175);
@@ -207,7 +208,7 @@ void ConnectWindowItem::updateLocationInfo(LocationID id, const QString &firstNa
     background_->onLocationSelected(countryCode);
     serverRatingIndicator_->setPingTime(pingTime);
 
-    updateFavoriteState(id, isFavorite);
+    //updateFavoriteState(id, isFavorite);  // todo: remove it?
 }
 
 void ConnectWindowItem::updateLocationSpeed(LocationID id, PingTime speed)

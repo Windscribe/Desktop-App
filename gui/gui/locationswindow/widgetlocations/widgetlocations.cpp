@@ -693,7 +693,7 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
         QVector<CityNode> cities;
         for (int i = 0; i < lmi->cities.count(); ++i)
         {
-            cities << CityNode(lmi->cities[i].id, lmi->cities[i].title1, lmi->cities[i].title2, lmi->cities[i].countryCode,
+            cities << CityNode(lmi->cities[i].id, lmi->cities[i].city, lmi->cities[i].nick, lmi->cities[i].countryCode,
                                lmi->cities[i].pingTimeMs, lmi->cities[i].bShowPremiumStarOnly, isShowLatencyInMs(),
                                lmi->cities[i].staticIp, lmi->cities[i].staticIpType, lmi->cities[i].isFavorite, lmi->cities[i].isDisabled);
         }
@@ -701,7 +701,7 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
                                               lmi->isShowP2P, PingTime(), cities, true, lmi->isPremiumOnly);
         items_ << item;
 
-        if (lmi->title == QT_TR_NOOP("Best Location"))
+        if (lmi->id.getId() == LocationID::BEST_LOCATION_ID)
         {
             bestLocation_ = item;
             bestLocationName_ = lmi->title;

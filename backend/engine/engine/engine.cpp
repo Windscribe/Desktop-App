@@ -596,7 +596,7 @@ void Engine::init()
     //serversModel_ = new ServersModel(this, connectStateController_, networkStateManager_, nodesSpeedRatings_, nodesSpeedStore_);
     //connect(serversModel_, SIGNAL(customOvpnConfgsIpsChanged(QStringList)), SLOT(onCustomOvpnConfgsIpsChanged(QStringList)));
 
-    locationsModel_ = new locationsmodel::LocationsModel(this);
+    locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkStateManager_);
 
     getMyIPController_ = new GetMyIPController(this, serverAPI_, networkStateManager_);
     connect(getMyIPController_, SIGNAL(answerMyIP(QString,bool,bool)), SLOT(onMyIpAnswer(QString,bool,bool)));

@@ -93,3 +93,18 @@ message ApiInfo
   optional PortMap port_map = 5;
   optional StaticIps static_ips = 6;
 }
+
+message PingData
+{
+  optional string ip = 1;
+  optional int32 pingTime = 2 [default = -2];   // no ping info by default
+  optional uint32 iteration = 3;
+  optional bool from_disconnected_state = 4;
+}
+
+message PingStorage
+{
+  optional uint32 cur_iteration = 1;
+  repeated PingData pings = 2;
+}
+

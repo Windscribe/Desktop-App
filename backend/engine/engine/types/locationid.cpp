@@ -10,6 +10,16 @@ LocationID::LocationID(int id) : locationId_(id), city_()
 {
 }
 
+LocationID LocationID::createFromApiLocation(int id, int cityId)
+{
+    return LocationID(id, "wind" + QString::number(cityId));
+}
+
+LocationID LocationID::createFromStaticIpsLocation(const QString &city, const QString &ip)
+{
+    return LocationID(STATIC_IPS_LOCATION_ID, city + "(" + ip + ")");
+}
+
 QString LocationID::getHashString() const
 {
     Q_ASSERT(locationId_ != EMPTY_LOCATION);

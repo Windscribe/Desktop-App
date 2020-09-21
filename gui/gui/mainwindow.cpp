@@ -1075,7 +1075,7 @@ void MainWindow::onLocationSelected(LocationID id)
                 countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
             }
 
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime, li.isFavorite);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime);
             mainWindowController_->collapseLocations();
             PersistentState::instance().setLastLocation(id);
             backend_->sendConnect(id);
@@ -1285,7 +1285,7 @@ void MainWindow::onBackendLoginFinished(bool isLoginFromSavedSettings)
                 countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
             }
 
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime, li.isFavorite);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime);
         }
         else
         {
@@ -1293,7 +1293,7 @@ void MainWindow::onBackendLoginFinished(bool isLoginFromSavedSettings)
             if (backend_->getLocationsModel()->getLocationInfo(bestLocation, li))
             {
                 PersistentState::instance().setLastLocation(bestLocation);
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
         }
 
@@ -1608,7 +1608,7 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
                     countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
                 }
 
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
         }
     }
@@ -1770,7 +1770,7 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
                 countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
             }
 
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
         else
         {
@@ -2642,7 +2642,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
                     countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
                 }
 
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
             onConnectWindowConnectClick();
         }
@@ -2723,7 +2723,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
                 countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
             }
 
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
     }
     else

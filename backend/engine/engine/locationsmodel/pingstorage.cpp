@@ -2,40 +2,33 @@
 #include <QDataStream>
 #include <QDebug>
 #include <QSettings>
+#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace locationsmodel {
 
 PingStorage::PingStorage() : curIteration_(0)
 {
-    //loadFromSettings();
+    loadFromSettings();
 }
 
 PingStorage::~PingStorage()
 {
-    //saveToSettings();
+    saveToSettings();
 }
 
-/*void NodesSpeedStore::updateNodes(const QStringList &nodes)
+void PingStorage::updateNodes(const QStringList &ips)
 {
-     QMutexLocker locker(&mutex_);
-    // find and remove unused nodes
-    for (auto it = hash_.begin(); it != hash_.end(); ++it)
+    QSet<QString> setIps;
+    for (const QString &ip : ips)
     {
-        it.value().isUsed_ = false;
-    }
-    Q_FOREACH(const QString &node, nodes)
-    {
-        auto it = hash_.find(node);
-        if (it != hash_.end())
-        {
-            it.value().isUsed_ = true;
-        }
+        setIps.insert(ip);
     }
 
+    // find and remove unused nodes
     auto it = hash_.begin();
     while (it != hash_.end())
     {
-        if (!it.value().isUsed_)
+        if (!setIps.contains(it.key()))
         {
             it = hash_.erase(it);
         }
@@ -46,29 +39,17 @@ PingStorage::~PingStorage()
     }
 }
 
-void NodesSpeedStore::setNodeSpeed(const QString &nodeIp, PingTime timeMs, quint32 iteration)
+void PingStorage::setNodePing(const QString &nodeIp, PingTime timeMs, bool fromDisconnectedState)
 {
-    QMutexLocker locker(&mutex_);
     PingData pd;
-    pd.isUsed_ = false;
     pd.timeMs_ = timeMs;
-    pd.iteration_ = iteration;
+    pd.iteration_ = curIteration_;
+    pd.fromDisconnectedState_ = fromDisconnectedState;
     hash_[nodeIp] = pd;
-
-    if (iteration != curIteration_)
-    {
-        quint32 newIteration;
-        if (isAllPingsHaveSameIteration(newIteration))
-        {
-            curIteration_ = newIteration;
-            emit pingIterationChanged();
-        }
-    }
 }
 
-PingTime NodesSpeedStore::getNodeSpeed(const QString &nodeIp)
+PingTime PingStorage::getNodeSpeed(const QString &nodeIp) const
 {
-    QMutexLocker locker(&mutex_);
     auto it = hash_.find(nodeIp);
     if (it != hash_.end())
     {
@@ -80,88 +61,76 @@ PingTime NodesSpeedStore::getNodeSpeed(const QString &nodeIp)
     }
 }
 
-QSet<QString> NodesSpeedStore::getNodesWithoutPingData(const QStringList &ips)
+quint32 PingStorage::getCurrentIteration() const
 {
-    QMutexLocker locker(&mutex_);
-    QSet<QString> nodesWithoutPing;
-    Q_FOREACH(const QString &ip, ips)
-    {
-        auto it = hash_.find(ip);
-        if (it != hash_.end())
-        {
-            if (it.value().timeMs_ == PingTime::NO_PING_INFO)
-            {
-                nodesWithoutPing.insert(ip);
-            }
-        }
-        else
-        {
-            nodesWithoutPing.insert(ip);
-        }
-    }
-    return nodesWithoutPing;
+    return curIteration_;
 }
 
-void NodesSpeedStore::saveToSettings()
+void PingStorage::incIteration()
 {
-    QMutexLocker locker(&mutex_);
+    curIteration_++;
+}
 
-    QHash<QString, int> hashForSave;
+void PingStorage::getState(bool &isAllNodesHaveCurIteration, bool &isAllNodesInDisconnectedState)
+{
+    isAllNodesHaveCurIteration = true;
+    isAllNodesInDisconnectedState = true;
+
     for (auto it = hash_.begin(); it != hash_.end(); ++it)
     {
-        hashForSave[it.key()] = it.value().timeMs_.toInt();
+        if (it.value().iteration_ != curIteration_)
+        {
+            isAllNodesHaveCurIteration = false;
+        }
+        if (!it.value().fromDisconnectedState_)
+        {
+            isAllNodesInDisconnectedState = false;
+        }
     }
-
-    QByteArray buf;
-    {
-        QDataStream stream(&buf, QIODevice::WriteOnly);
-        stream << hashForSave;
-    }
-    QSettings settings;
-    settings.setValue("pingStorage", buf);
 }
 
-void NodesSpeedStore::loadFromSettings()
+void PingStorage::saveToSettings()
 {
-    QMutexLocker locker(&mutex_);
+    ProtoApiInfo::PingStorage storage;
 
-    QHash<QString, int> hashForLoad;
+    storage.set_cur_iteration(curIteration_);
+    for (auto it = hash_.begin(); it != hash_.end(); ++it)
+    {
+        ProtoApiInfo::PingData *pingData = storage.add_pings();
+        pingData->set_ip(it.key().toStdString());
+        pingData->set_pingtime(it.value().timeMs_.toInt());
+        pingData->set_iteration(it.value().iteration_);
+        pingData->set_from_disconnected_state(it.value().fromDisconnectedState_);
+    }
+    size_t size = storage.ByteSizeLong();
+    QByteArray arr(size, Qt::Uninitialized);
+    storage.SerializeToArray(arr.data(), size);
+
+    QSettings settings;
+    settings.setValue("pingStorage", arr);
+}
+
+void PingStorage::loadFromSettings()
+{
     QSettings settings;
     if (settings.contains("pingStorage"))
     {
-        QByteArray buf = settings.value("pingStorage").toByteArray();
-        QDataStream stream(&buf, QIODevice::ReadOnly);
-        stream >> hashForLoad;
-    }
-    curIteration_ = 0;
-    hash_.clear();
-    for (auto it = hashForLoad.begin(); it != hashForLoad.end(); ++it)
-    {
-        PingData pd;
-        pd.isUsed_ = false;
-        pd.timeMs_ = it.value();
-        pd.iteration_ = 0;
-        hash_[it.key()] = pd;
-    }
-}
-
-bool NodesSpeedStore::isAllPingsHaveSameIteration(quint32 &outIteration)
-{
-    if (hash_.isEmpty())
-    {
-        return false;
-    }
-    quint32 iteration = hash_.begin().value().iteration_;
-    for (auto it = hash_.begin() + 1; it != hash_.end(); ++it)
-    {
-        if (it.value().iteration_ != iteration)
+        QByteArray arr = settings.value("pingStorage").toByteArray();
+        ProtoApiInfo::PingStorage storage;
+        if (storage.ParseFromArray(arr.data(), arr.size()))
         {
-            return false;
+            hash_.clear();
+            curIteration_ = storage.cur_iteration();
+            for (int i = 0; i < storage.pings_size(); ++i)
+            {
+                PingData pd;
+                pd.timeMs_ = storage.pings(i).pingtime();
+                pd.iteration_ = storage.pings(i).iteration();
+                pd.fromDisconnectedState_ = storage.pings(i).from_disconnected_state();
+                hash_[QString::fromStdString(storage.pings(i).ip())] = pd;
+            }
         }
     }
-
-    outIteration = iteration;
-    return true;
 }
-*/
+
 } //namespace locationsmodel

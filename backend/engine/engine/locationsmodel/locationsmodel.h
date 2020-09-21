@@ -9,6 +9,7 @@
 #include "locationitem.h"
 #include "pingipscontroller.h"
 #include "pingstorage.h"
+#include "bestlocation.h"
 
 namespace locationsmodel {
 
@@ -38,9 +39,19 @@ signals:
     //void locationInfoChanged(const LocationID &LocationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
     //void customOvpnConfgsIpsChanged(const QStringList &ips);
 
+private slots:
+    void onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
+    void onNeedIncrementPingIteration();
+
 private:
     PingIpsController pingIpsController_;
     PingStorage pingStorage_;
+    QVector<apiinfo::Location> locations_;
+    BestLocation bestLocation_;
+
+    void detectBestLocation(bool isAllNodesInDisconnectedState);
+    void generateLocationsUpdated();
+    int calcLatency(const apiinfo::Location &l);
 
 };
 

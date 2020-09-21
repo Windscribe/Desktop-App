@@ -26,17 +26,17 @@ class PingIpsController : public QObject
     Q_OBJECT
 public:
 
-    explicit PingIpsController(QObject *parent, IConnectStateController *stateController, PingStorage &pingStorage, INetworkStateManager *networkStateManager/*, PingLog &pingLog*/);
+    explicit PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
 
     void setProxySettings(const ProxySettings &proxySettings);
     void disableProxy();
     void enableProxy();
 
-    void updateIps(QVector<PingIpInfo> ips);
+    void updateIps(const QVector<PingIpInfo> &ips);
 
 signals:
-    void pingStartedInDisconnectedState(const QString &ip);
-    void pingInfoChanged(const QString &ip, int timems);
+    void pingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
+    void needIncrementPingIteration();
 
 
 private slots:
@@ -60,7 +60,6 @@ private:
     };
 
     IConnectStateController *connectStateController_;
-    PingStorage &pingStorage_;
     INetworkStateManager *networkStateManager_;
     PingLog pingLog_;
 
