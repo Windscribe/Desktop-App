@@ -655,7 +655,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
     if (mainWindowController_->isLocationsExpanded())
     {
-        if(event->key() == Qt::Key_Escape)
+        if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
         {
             qCDebug(LOG_BASIC) << "Collapsing Locations";
             mainWindowController_->collapseLocations();
@@ -666,12 +666,17 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
             mainWindowController_->handleKeyReleaseEvent(event);
         }
     }
-    else if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT && !mainWindowController_->preferencesVisible())
+    else if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT
+             && !mainWindowController_->preferencesVisible())
     {
-        if (event->key() == Qt::Key_Down)
+        if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Space)
         {
             qCDebug(LOG_BASIC) << "Expanding Locations";
             mainWindowController_->expandLocations();
+        }
+        else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+        {
+            onConnectWindowConnectClick();
         }
     }
 
