@@ -34,6 +34,8 @@ Q_LOGGING_CATEGORY(LOG_USER,  "gui")
 
 void Logger::install(const QString &name, bool consoleOutput)
 {
+    //QLoggingCategory::setFilterRules("basic=false\nipc=false\nserver_api=false");
+
     QString logFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QDir dir(logFilePath);
     dir.mkpath(logFilePath);

@@ -96,9 +96,9 @@ ConnectionManager::~ConnectionManager()
 }
 
 void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
-                                         QSharedPointer<MutableLocationInfo> mli,
+                                         QSharedPointer<locationsmodel::MutableLocationInfo> mli,
                                          const ConnectionSettings &connectionSettings,
-                                         const PortMap &portMap, const ProxySettings &proxySettings, bool bEmitAuthError)
+                                         const apiinfo::PortMap &portMap, const ProxySettings &proxySettings, bool bEmitAuthError)
 {
     Q_ASSERT(state_ == STATE_DISCONNECTED);
 
@@ -114,7 +114,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 
     state_= STATE_CONNECTING_FROM_USER_CLICK;
 
-    ///autoManualConnectionController_.startWith(mli, connectionSettings, portMap, proxySettings.isProxyEnabled());
+    autoManualConnectionController_.startWith(mli, connectionSettings, portMap, proxySettings.isProxyEnabled());
     autoManualConnectionController_.debugLocationInfoToLog();
 
     doConnect();

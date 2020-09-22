@@ -59,11 +59,13 @@ public:
     int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
     QString getName() const { Q_ASSERT(d->isValid_); return d->name_; }
     QString getCountryCode() const { Q_ASSERT(d->isValid_); return d->countryCode_; }
+    QString getDnsHostName() const { Q_ASSERT(d->isValid_); return d->dnsHostName_; }
     bool isPremiumOnly() const { Q_ASSERT(d->isValid_); return d->premiumOnly_; }
     int getP2P() const { Q_ASSERT(d->isValid_); return d->p2p_; }
 
     int groupsCount() const { Q_ASSERT(d->isValid_); return d->groups_.count(); }
     Group getGroup(int ind) const { Q_ASSERT(d->isValid_); return d->groups_.at(ind); }
+    void addGroup(const Group &group) { Q_ASSERT(d->isValid_); d->groups_.append(group); }
 
 
 

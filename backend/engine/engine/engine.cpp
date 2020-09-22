@@ -35,7 +35,6 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     networkStateManager_(NULL),
     firewallController_(NULL),
     serverAPI_(NULL),
-    //serverLocationsApiWrapper_(NULL),
     connectionManager_(NULL),
     connectStateController_(NULL),
     serverApiUserRole_(0),
@@ -60,9 +59,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     updateSessionStatusTimer_(NULL),
     notificationsUpdateTimer_(NULL),
     nodesSpeedRatings_(NULL),
-    //serversModel_(NULL),
     locationsModel_(NULL),
-    //nodesSpeedStore_(NULL),
     refetchServerCredentialsHelper_(NULL),
     isBlockConnect_(false),
     isCleanupFinished_(false),
@@ -566,15 +563,10 @@ void Engine::init()
     connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
                         SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
 
-    //nodesSpeedStore_ = new NodesSpeedStore(this);
-
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 
     //serverLocationsApiWrapper_ = new ServerLocationsApiWrapper(this, nodesSpeedStore_, serverAPI_);
-    //connect(serverLocationsApiWrapper_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
-    //                    SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
-    //connect(serverLocationsApiWrapper_, SIGNAL(updatedBestLocation(QVector<QSharedPointer<ServerLocation> > &)), SLOT(onBestLocationChanged(QVector<QSharedPointer<ServerLocation> > &)));
     //connect(serverLocationsApiWrapper_, SIGNAL(updateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)), SLOT(onUpdateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)));
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
@@ -850,14 +842,11 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 #endif
     SAFE_DELETE(helper_);
     SAFE_DELETE(getMyIPController_);
-    //SAFE_DELETE(serverLocationsApiWrapper_);
     SAFE_DELETE(serverAPI_);
     SAFE_DELETE(checkUpdateTimer_);
     SAFE_DELETE(updateSessionStatusTimer_);
     SAFE_DELETE(notificationsUpdateTimer_);
-    //SAFE_DELETE(serversModel_);
     SAFE_DELETE(locationsModel_);
-    //SAFE_DELETE(nodesSpeedStore_);
     SAFE_DELETE(networkStateManager_);
     SAFE_DELETE(networkDetectionManager_);
     DnsResolver::instance().stop();
@@ -1025,8 +1014,6 @@ void Engine::signOutImplAfterDisconnect()
     updateSessionStatusTimer_->stop();
     notificationsUpdateTimer_->stop();
 
-    lastCopyOfServerlocations_.clear();
-    //serversModel_->clear();
     locationsModel_->clear();
     prevSessionStatus_.clear();
 
@@ -1238,10 +1225,6 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
 
             qCDebug(LOG_BASIC) << "Update ip after emergency connect";
             getMyIPController_->getIPFromDisconnectedState(1);
-
-            //todo check
-            //qCDebug(LOG_BASIC) << "Update best location  after emergency connect";
-            //serverAPI_->bestLocation(apiInfo->getAuthHash(), serverApiUserRole_, true);
         }
 
         apiInfo_.reset(new apiinfo::ApiInfo);
@@ -1383,19 +1366,6 @@ void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<
     }
 }
 
-/*void Engine::onBestLocationChanged(QVector<QSharedPointer<ServerLocation> > &serverLocations)
-{
-    if (!serverLocations.isEmpty())
-    {
-        qCDebug(LOG_BASIC) << "BestLocation updated";
-        {
-            QMutexLocker locker(&mutexApiInfo_);
-            apiInfo_->setServerLocations(serverLocations);
-        }
-        updateServerLocations();
-    }
-}*/
-
 void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole)
 {
     if (userRole == serverApiUserRole_)
@@ -1515,19 +1485,6 @@ void Engine::onStartStaticIpsUpdate()
 void Engine::onUpdateSessionStatusTimer()
 {
     serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
-}
-
-void Engine::onTimerGetBestLocation()
-{
-    //todo check
-    /*QDateTime curDateTime = QDateTime::currentDateTime();
-    if ((curDateTime.toTime_t() - lastUpdateBestLocationTime_.toTime_t()) > BEST_LOCATION_UPDATE_PERIOD/1000 && connectionManager_->isDisconnected())
-    {
-        qCDebug(LOG_BASIC) << "Update best location";
-        QMutexLocker locker(&mutexApiInfo_);
-        serverAPI_->bestLocation(apiInfo_->getAuthHash(), serverApiUserRole_, true);
-        bestLocationTimer_->stop();
-    }*/
 }
 
 void Engine::onConnectionManagerConnected()
@@ -2147,7 +2104,7 @@ void Engine::updateSessionStatus()
 
         apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
 
-        ///serversModel_->setSessionStatus(!ss.isPro());
+        //serversModel_->setSessionStatus(!ss.isPro());
 
         emit sessionStatusUpdated(ss);
 
@@ -2249,7 +2206,7 @@ void Engine::updateServerLocations()
             checkForceDisconnectNode(apiInfo_->getForceDisconnectNodes());
         }
     }*/
-    locationsModel_->setLocations(apiInfo_->getLocations());
+    locationsModel_->setLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
 }
 
 void Engine::updateFirewallSettings()
@@ -2314,7 +2271,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
 void Engine::doConnect(bool bEmitAuthError)
 {
     // before connect, update ICS sharing and wait for update ICS finished
-    /*vpnShareController_->onConnectingOrConnectedToVPNEvent();
+    vpnShareController_->onConnectingOrConnectedToVPNEvent();
     while (vpnShareController_->isUpdateIcsInProgress())
     {
         QThread::msleep(1);
@@ -2322,7 +2279,7 @@ void Engine::doConnect(bool bEmitAuthError)
 
     locationId_ = checkLocationIdExistingAndReturnNewIfNeed(locationId_);
 
-    QSharedPointer<MutableLocationInfo> mli = serversModel_->getMutableLocationInfoById(locationId_);
+    QSharedPointer<locationsmodel::MutableLocationInfo> mli = locationsModel_->getMutableLocationInfoById(locationId_);
     if (mli.isNull())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, LOCATION_NOT_EXIST);
@@ -2338,7 +2295,7 @@ void Engine::doConnect(bool bEmitAuthError)
         return;
     }
 
-    if (mli->isCustomOvpnConfig())
+    /*if (mli->isCustomOvpnConfig())
     {
         QString outIP = mli->resolveHostName();
         if (outIP.isEmpty())
@@ -2357,7 +2314,7 @@ void Engine::doConnect(bool bEmitAuthError)
                 updateFirewallSettings();
             }
         }
-    }
+    }*/
 
     locationName_ = mli->getName();
 
@@ -2370,29 +2327,13 @@ void Engine::doConnect(bool bEmitAuthError)
     splitTunnelingNetworkInfo_.detectDefaultRoute();
 #endif
 
-    QString authHash;
-    QByteArray ovpnConfig;
-    ServerCredentials serverCredentials;
-    PortMap portmap;
-    {
-        //copy info from apiInfo and release mutex
-        QMutexLocker locker(&mutexApiInfo_);
-        if (!apiInfo_.isNull())
-        {
-            authHash = apiInfo_->getAuthHash();
-            serverCredentials = apiInfo_->getServerCredentials();
-            ovpnConfig = apiInfo_->getOvpnConfig();
-            portmap = *apiInfo_->getPortMap();
-        }
-    }
-
-    if (!serverCredentials.isInitialized() && locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+    if (!apiInfo_->getServerCredentials().isInitialized() && locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
     {
         qCDebug(LOG_BASIC) << "radius username/password empty, refetch server credentials";
 
         if (refetchServerCredentialsHelper_ == NULL)
         {
-            refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, authHash, serverAPI_);
+            refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
             connect(refetchServerCredentialsHelper_, SIGNAL(finished(bool,ServerCredentials)), SLOT(onRefetchServerCredentialsFinished(bool,ServerCredentials)));
             refetchServerCredentialsHelper_->startRefetch();
         }
@@ -2405,24 +2346,24 @@ void Engine::doConnect(bool bEmitAuthError)
         }
         else
         {
-            if (serverCredentials.isInitialized())
+            if (apiInfo_->getServerCredentials().isInitialized())
             {
-                qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << serverCredentials.usernameForOpenVpn();
-                qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << serverCredentials.usernameForIkev2();
+                qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << apiInfo_->getServerCredentials().usernameForOpenVpn();
+                qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << apiInfo_->getServerCredentials().usernameForIkev2();
             }
         }
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
-        connectionManager_->clickConnect(ovpnConfig, serverCredentials, mli,
-            engineSettings_.connectionSettings(), portmap,
+        connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), mli,
+            engineSettings_.connectionSettings(), apiInfo_->getPortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError);
-    }*/
+    }
 }
 
 LocationID Engine::checkLocationIdExistingAndReturnNewIfNeed(const LocationID &locationId)
 {
     //todo
-    return LocationID(LocationID::BEST_LOCATION_ID);
+    return locationId;
     /*QSharedPointer<MutableLocationInfo> mli = serversModel_->getMutableLocationInfoById(locationId);
     if (mli.isNull() || !mli->isExistSelectedNode())
     {

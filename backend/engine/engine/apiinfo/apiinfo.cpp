@@ -276,15 +276,13 @@ void ApiInfo::debugLoadFromFile(const QString &filename)
 
 void ApiInfo::processServerLocations()
 {
-    /*// Build a new list of server locations to merge, removing them from the old list.
+    // Build a new list of server locations to merge, removing them from the old list.
     // Currently we merge all WindFlix locations into the corresponding global locations.
-    using LocationPtr = QSharedPointer<ServerLocation>;
-    using LocationsType = QVector<LocationPtr>;
-    LocationsType locationsToMerge;
-    QMutableVectorIterator<LocationPtr> it(serverLocations_);
+    QVector<Location> locationsToMerge;
+    QMutableVectorIterator<Location> it(locations_);
     while (it.hasNext()) {
-        LocationPtr &location = it.next();
-        if (location->getName().startsWith("WINDFLIX")) {
+        Location &location = it.next();
+        if (location.getName().startsWith("WINDFLIX")) {
             locationsToMerge.append(location);
             it.remove();
         }
@@ -292,48 +290,35 @@ void ApiInfo::processServerLocations()
     if (!locationsToMerge.size())
         return;
 
-    // Utility function to extract city name part for location matching.
-    auto getRealCityName = [](const QString &str) {
-        auto parts = str.split(" - ");
-        return parts.size() > 0 ? parts[0].trimmed() : str.trimmed();
-    };
-
     // Map city names to locations for faster lookups.
-    QHash<QString, LocationPtr> location_hash;
-    for (auto &location: serverLocations_) {
-        const auto title = location->getName();
-        if (title == QT_TR_NOOP("Best Location"))
-            continue;
-        const auto cities = location->getCities();
-        for (const auto &city : cities)
-            location_hash.insert(location->getCountryCode() + getRealCityName(city), location);
-        const auto pro_datacentres = location->getProDataCenters();
-        for (const auto &pro_datacentre : pro_datacentres)
-            location_hash.insert(location->getCountryCode() + getRealCityName(pro_datacentre),
-                                 location);
+    QHash<QString, Location *> location_hash;
+    for (auto &location: locations_) {
+        for (int i = 0; i < location.groupsCount(); ++i)
+        {
+            const Group group = location.getGroup(i);
+            location_hash.insert(location.getCountryCode() + group.getCity(), &location);
+        }
     }
 
     // Merge the locations.
-    QMutableVectorIterator<LocationPtr> itm(locationsToMerge);
+    QMutableVectorIterator<Location> itm(locationsToMerge);
     while (itm.hasNext()) {
-        LocationPtr &location = itm.next();
-        const auto country_code = location->getCountryCode();
-        const auto nodes = location->getNodes();
-        for (const auto &n: nodes) {
-            auto target = location_hash.value(country_code + getRealCityName(n.getCityName()));
-            Q_ASSERT(!target.isNull());
-            if (!target.isNull())
-                target->appendNode(n);
-        }
-        const auto pro_datacentres = location->getProDataCenters();
-        for (const auto &pro_datacentre : pro_datacentres) {
-            auto target = location_hash.value(country_code + getRealCityName(pro_datacentre));
-            Q_ASSERT(!target.isNull());
-            if (!target.isNull())
-                target->appendProDataCentre(pro_datacentre);
+        Location &location = itm.next();
+        const auto country_code = location.getCountryCode();
+
+        for (int i = 0; i < location.groupsCount(); ++i)
+        {
+            const Group group = location.getGroup(i);
+
+            auto target = location_hash.find(country_code + group.getCity());
+            Q_ASSERT(target != location_hash.end());
+            if (target != location_hash.end())
+            {
+                target.value()->addGroup(location.getGroup(i));
+            }
         }
         itm.remove();
-    }*/
+    }
 }
 
 /*bool ServerNode::isEqualIpsServerNodes(const QVector<ServerNode> &n1, const QVector<ServerNode> &n2)

@@ -30,7 +30,7 @@ PingIpsController::PingIpsController(QObject *parent, IConnectStateController *s
         dtNextPingTime_.setTime(QTime(pingHour, pingMinute, pingSecond));
         dtNextPingTime_ = dtNextPingTime_.addDays(1);
     }
-    //dtNextPingTime_ = dtNextPingTime_.addSecs(30);
+    //dtNextPingTime_ = dtNextPingTime_.addSecs(20);      // for testing
 
     pingLog_.addLog("PingIpsController::PingIpsController","set next ping time: " + dtNextPingTime_.toString("ddMMyyyy HH:mm:ss"));
 }
@@ -110,6 +110,7 @@ void PingIpsController::onPingTimer()
     if (bNeedPingByTime)
     {
         dtNextPingTime_ = dtNextPingTime_.addDays(1);
+        //dtNextPingTime_ = dtNextPingTime_.addSecs(20);      // for testing
         qCDebug(LOG_BASIC) << "Ping all nodes by time";
         pingLog_.addLog("PingIpsController::onPingTimer", "it's ping time, set next ping time to:" + dtNextPingTime_.toString("ddMMyyyy HH:mm:ss"));
         emit needIncrementPingIteration();

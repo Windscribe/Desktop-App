@@ -269,6 +269,8 @@ SOURCES += main.cpp \
     engine/locationsmodel/pingipscontroller.cpp \
     engine/locationsmodel/pingstorage.cpp \
     engine/locationsmodel/bestlocation.cpp \
+    engine/locationsmodel/mutablelocationinfo.cpp \
+    engine/locationsmodel/locationnode.cpp \
     engine/locationsmodel/pinglog.cpp \
     engine/locationsmodel/failedpinglogcontroller.cpp \
     engine/packetsizecontroller.cpp \
@@ -339,8 +341,6 @@ SOURCES += main.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
     engine/connectionmanager/ikev2connection_test.cpp \
-    engine/serversmodel/mutablelocationinfo.cpp \
-    engine/serverlocationsapiwrapper.cpp \
     engine/helper/simple_xor_crypt.cpp \
     engine/tests/sessionandlocations_test.cpp \
     engine/sessionstatustimer.cpp \
@@ -373,6 +373,8 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/locationsmodel/pingipscontroller.h \
     engine/locationsmodel/pingstorage.h \
     engine/locationsmodel/bestlocation.h \
+    engine/locationsmodel/mutablelocationinfo.h \
+    engine/locationsmodel/locationnode.h \
     engine/locationsmodel/pinglog.h \
     engine/locationsmodel/failedpinglogcontroller.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \
@@ -478,9 +480,7 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/connectionmanager/ikev2connection_test.h \
     engine/serversmodel/testpingnodecontroller.h \
     engine/serversmodel/nodesspeedratings.h \
-    engine/serversmodel/mutablelocationinfo.h \
     engine/serversmodel/nodesspeedstore.h \
-    engine/serverlocationsapiwrapper.h \
     engine/helper/simple_xor_crypt.h \
     engine/tests/sessionandlocations_test.h \
     engine/sessionstatustimer.h \

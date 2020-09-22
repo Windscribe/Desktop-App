@@ -1,9 +1,18 @@
 #include "bestlocation.h"
+#include "ipc/generated_proto/apiinfo.pb.h"
+
+#include <QSettings>
 
 namespace locationsmodel {
 
-BestLocation::BestLocation() : isValid_(false)
+BestLocation::BestLocation() : isValid_(false), isDetectedFromThisAppStart_(false), isDetectedWithDisconnectedIps_(0), id_(-100)
 {
+    loadFromSettings();
+}
+
+BestLocation::~BestLocation()
+{
+    saveToSettings();
 }
 
 bool BestLocation::isValid() const
@@ -17,11 +26,55 @@ int BestLocation::getId() const
     return id_;
 }
 
-void BestLocation::setId(int id)
+void BestLocation::set(int id, bool isDetectedFromThisAppStart, bool isDetectedWithDisconnectedIps)
 {
     isValid_ = true;
+    isDetectedFromThisAppStart_ = isDetectedFromThisAppStart;
+    isDetectedWithDisconnectedIps_ = isDetectedWithDisconnectedIps;
     id_ = id;
+}
 
+bool BestLocation::isDetectedFromThisAppStart() const
+{
+    Q_ASSERT(isValid_);
+    return isDetectedFromThisAppStart_;
+}
+
+bool BestLocation::isDetectedWithDisconnectedIps() const
+{
+    Q_ASSERT(isValid_);
+    return isDetectedWithDisconnectedIps_;
+}
+
+void BestLocation::saveToSettings()
+{
+    if (isValid_)
+    {
+        ProtoApiInfo::BestLocation b;
+        b.set_id(id_);
+
+        size_t size = b.ByteSizeLong();
+        QByteArray arr(size, Qt::Uninitialized);
+        b.SerializeToArray(arr.data(), size);
+
+        QSettings settings;
+        settings.setValue("bestLocation", arr);
+    }
+}
+
+void BestLocation::loadFromSettings()
+{
+    QSettings settings;
+    if (settings.contains("bestLocation"))
+    {
+        QByteArray arr = settings.value("bestLocation").toByteArray();
+        ProtoApiInfo::BestLocation b;
+        if (b.ParseFromArray(arr.data(), arr.size()))
+        {
+            isValid_ = true;
+            id_ = b.id();
+        }
+    }
 }
 
 } //namespace locationsmodel

@@ -108,3 +108,8 @@ message PingStorage
   repeated PingData pings = 2;
 }
 
+message BestLocation
+{
+  optional int32 id = 1; 
+}
+

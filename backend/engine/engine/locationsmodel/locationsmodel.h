@@ -10,6 +10,7 @@
 #include "pingipscontroller.h"
 #include "pingstorage.h"
 #include "bestlocation.h"
+#include "mutablelocationinfo.h"
 
 namespace locationsmodel {
 
@@ -23,14 +24,15 @@ public:
     explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
     virtual ~LocationsModel();
 
-    void setLocations(const QVector<apiinfo::Location> &locations);
-    void setStaticIps(const apiinfo::StaticIps &staticIps);
+    void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
     // void setCustomOvpnConfigs()
     void clear();
 
     void setProxySettings(const ProxySettings &proxySettings);
     void disableProxy();
     void enableProxy();
+
+    QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
     void locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items);
@@ -47,6 +49,8 @@ private:
     PingIpsController pingIpsController_;
     PingStorage pingStorage_;
     QVector<apiinfo::Location> locations_;
+    apiinfo::StaticIps staticIps_;
+
     BestLocation bestLocation_;
 
     void detectBestLocation(bool isAllNodesInDisconnectedState);

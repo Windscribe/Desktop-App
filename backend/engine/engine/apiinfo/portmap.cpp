@@ -139,4 +139,9 @@ int PortMap::getUseIpInd(const ProtocolType &connectionProtocol) const
     return -1;
 }
 
+QVector<PortItem> &PortMap::items()
+{
+    return d->items_;
+}
+
 } //namespace apiinfo

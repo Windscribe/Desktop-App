@@ -10,8 +10,6 @@
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
 #include "firewall/firewallcontroller.h"
 #include "serverapi/serverapi.h"
-//#include "serverlocationsapiwrapper.h"
-#include "serversmodel/serversmodel.h"
 #include "locationsmodel/locationsmodel.h"
 #include "connectionmanager/iconnectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
@@ -224,7 +222,6 @@ private slots:
 
     void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
                                  QStringList forceDisconnectNodes, uint userRole);
-    //void onBestLocationChanged(QVector< QSharedPointer<ServerLocation> > &serverLocations);
 
     void onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
     void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Notification> &notifications, uint userRole);
@@ -239,7 +236,6 @@ private slots:
     void onStartCheckUpdate();
     void onStartStaticIpsUpdate();
     void onUpdateSessionStatusTimer();
-    void onTimerGetBestLocation();
 
     void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
@@ -291,7 +287,6 @@ private:
     INetworkStateManager *networkStateManager_;
     FirewallController *firewallController_;
     ServerAPI *serverAPI_;
-    //ServerLocationsApiWrapper *serverLocationsApiWrapper_;
     IConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
@@ -329,9 +324,7 @@ private:
     QTimer *notificationsUpdateTimer_;
 
     NodesSpeedRatings *nodesSpeedRatings_;
-    //ServersModel *serversModel_;
     locationsmodel::LocationsModel *locationsModel_;
-    //NodesSpeedStore *nodesSpeedStore_;
 
     RefetchServerCredentialsHelper *refetchServerCredentialsHelper_;
 
@@ -347,8 +340,6 @@ private:
 
     QString lastConnectingHostname_;
     ProtoTypes::Protocol lastConnectingProtocol_;
-
-    QVector<QSharedPointer<ServerLocation> > lastCopyOfServerlocations_;
 
     bool isNeedReconnectAfterRequestUsernameAndPassword_;
 

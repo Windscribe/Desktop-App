@@ -58,6 +58,9 @@ public:
     bool isDisabled() const { Q_ASSERT(d->isValid_); return d->nodes_.isEmpty(); }
     QString getPingIp() const { Q_ASSERT(d->isValid_); return d->pingIp_; }
 
+    int getNodesCount() const { Q_ASSERT(d->isValid_); return d->nodes_.count(); }
+    const Node &getNode(int ind) const { Q_ASSERT(d->isValid_); return d->nodes_[ind]; }
+
 
 private:
     QSharedDataPointer<GroupData> d;

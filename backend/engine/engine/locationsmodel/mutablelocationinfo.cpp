@@ -1,17 +1,18 @@
 #include "mutablelocationinfo.h"
 
-#include <QThread>
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "utils/utils.h"
 #include "engine/dnsresolver/dnsresolver.h"
 
-MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name, int selectedNode,
+namespace locationsmodel {
+
+MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name, const QVector< QSharedPointer<BaseNode> > &nodes, int selectedNode,
                                          const QString &dnsHostName)
-    : QObject(nullptr), threadHandle_(QThread::currentThreadId()), locationId_(locationId),
-      name_(name)/*, nodes_(nodes)*/, dnsHostName_(dnsHostName)
+    : QObject(nullptr), locationId_(locationId),
+      name_(name), nodes_(nodes), dnsHostName_(dnsHostName)
 {
-    /*if (selectedNode == -1)
+    if (selectedNode == -1)
     {
         // select random node
         if (nodes.count() > 0)
@@ -24,17 +25,13 @@ MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QSt
     QString strNodes;
     for (int i = 0; i < nodes_.count(); ++i)
     {
-        strNodes += nodes_[i].getIpForPing();
+        strNodes += nodes_[i]->getIp(0);
         strNodes += "; ";
     }
 
-    qCDebug(LOG_BASIC) << "MutableLocationInfo created: " << locationId.getHashString() << strNodes << "; Selected node:" << selectedNode_*/;
+    qCDebug(LOG_BASIC) << "MutableLocationInfo created: " << name << strNodes << "; Selected node:" << selectedNode_;
 }
 
-MutableLocationInfo::~MutableLocationInfo()
-{
-    //qDebug() << "MutableLocationInfo deleted: " << name_;
-}
 
 bool MutableLocationInfo::isCustomOvpnConfig() const
 {
@@ -48,18 +45,16 @@ bool MutableLocationInfo::isStaticIp() const
 
 QString MutableLocationInfo::getName() const
 {
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     return name_;
 }
 
 QString MutableLocationInfo::getDnsName() const
 {
-    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     if (isStaticIp())
     {
-        if (selectedNode_ < nodes_.count())
+        if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
         {
-            return nodes_[selectedNode_].getStaticIpDnsName();
+            return nodes_[selectedNode_]->getStaticIpDnsName();
         }
         else
         {
@@ -70,96 +65,99 @@ QString MutableLocationInfo::getDnsName() const
     else
     {
         return dnsHostName_;
-    }*/
-    return "";
+    }
 }
 
 QString MutableLocationInfo::getCustomOvpnConfigPath() const
 {
-    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
-    return nodes_[selectedNode_].getCustomOvpnConfigPath();*/
-    return "";
+    return nodes_[selectedNode_]->getCustomOvpnConfigPath();
 }
 
-int MutableLocationInfo::isExistSelectedNode() const
+bool MutableLocationInfo::isExistSelectedNode() const
 {
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     return selectedNode_ != -1;
 }
 
-/*const ServerNode &MutableLocationInfo::getSelectedNode() const
-{
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
-    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
-    return nodes_[selectedNode_];
-}*/
-
 int MutableLocationInfo::nodesCount() const
 {
-    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
-    return nodes_.count();*/
-    return 0;
+    return nodes_.count();
 }
 
-/*const ServerNode &MutableLocationInfo::getNode(int ind) const
+QString MutableLocationInfo::getIpForNode(int indNode, int indIp) const
 {
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
-    return nodes_[ind];
-}*/
+    Q_ASSERT(indNode >= 0 && indNode < nodes_.count());
+    Q_ASSERT(indIp >= 0 && indIp <= 3);
+    return nodes_[indNode]->getIp(indIp);
+}
 
 // goto next node or to first (if current selected last or incorrect)
 void MutableLocationInfo::selectNextNode()
 {
-    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
     selectedNode_ ++;
     if (selectedNode_ >= nodes_.count())
     {
         Q_ASSERT(nodes_.count() > 0);
         selectedNode_ = 0;
-    }*/
+    }
+}
+
+QString MutableLocationInfo::getIpForSelectedNode(int indIp) const
+{
+    Q_ASSERT(indIp >= 0 && indIp <= 3);
+    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    return nodes_[selectedNode_]->getIp(indIp);
+}
+
+QString MutableLocationInfo::getHostnameForSelectedNode() const
+{
+    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    return nodes_[selectedNode_]->getHostname();
 }
 
 QString MutableLocationInfo::getStaticIpUsername() const
 {
-    /*Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
-    if (selectedNode_ < nodes_.count())
+    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
-        return nodes_[selectedNode_].getUsername();
+        return nodes_[selectedNode_]->getStaticIpUsername();
     }
-    else*/
+    else
     {
+        Q_ASSERT(false);
         return "";
     }
 }
 
 QString MutableLocationInfo::getStaticIpPassword() const
 {
-    /*Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
-    if (selectedNode_ < nodes_.count())
+    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
-        return nodes_[selectedNode_].getPassword();
+        return nodes_[selectedNode_]->getStaticIpPassword();
     }
-    else*/
+    else
     {
+        Q_ASSERT(false);
         return "";
     }
 }
 
-StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
+apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
 {
-   /* Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
-    if (selectedNode_ < nodes_.count())
+    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
-        return nodes_[selectedNode_].getAllStaticIpIntPorts();
+        return nodes_[selectedNode_]->getStaticIpPorts();
     }
-    else*/
+    else
     {
-        return StaticIpPortsVector();
+        Q_ASSERT(false);
+        return apiinfo::StaticIpPortsVector();
     }
 }
 
-QString MutableLocationInfo::resolveHostName()
+/*QString MutableLocationInfo::resolveHostName()
 {
     /*Q_ASSERT(locationId_.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID);
     Q_ASSERT(nodes_.count() == 1);
@@ -191,7 +189,7 @@ QString MutableLocationInfo::resolveHostName()
             return "";
         }
     }*/
-    return "";
+/*    return "";
 }
 
 void MutableLocationInfo::locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName)
@@ -224,5 +222,7 @@ void MutableLocationInfo::locationChanged(const LocationID &locationId, const QV
             strNodes += "; ";
         }
         qCDebug(LOG_BASIC) << "MutableLocationInfo locationChanged: " << locationId.getHashString() << strNodes << "; Selected node:" << selectedNode_;
-    }*/
-}
+    }
+}*/
+
+} //namespace locationsmodel

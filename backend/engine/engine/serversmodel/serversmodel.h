@@ -9,10 +9,10 @@
 #include "resolvehostnamesforcustomovpn.h"
 #include "../apiinfo/location.h"
 
-bool operator<(const ModelExchangeCityItem& a, const ModelExchangeCityItem& b);
+//bool operator<(const ModelExchangeCityItem& a, const ModelExchangeCityItem& b);
 
 // thread safe access to public methods
-class ServersModel : public IServersModel
+/*class ServersModel : public IServersModel
 {
     Q_OBJECT
 public:
@@ -65,6 +65,6 @@ private:
     ServerLocation *findServerLocationById(int id);
     PingTime getPingTimeMsForCustomOvpnConfig(const LocationID &locationId);
     void setCustomOvpnConfigIpsToFirewall(ServerLocation &sl);
-};
+};*/
 
 #endif // SERVERSMODEL_H

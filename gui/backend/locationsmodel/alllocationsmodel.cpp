@@ -11,12 +11,6 @@ void AllLocationsModel::update(QVector<LocationModelItem *> locations)
 
     Q_FOREACH(LocationModelItem *lmi, locations)
     {
-        // skip WINDFLIX locations
-        if (lmi->title.contains("WINDFLIX"))
-        {
-            continue;
-        }
-
         if (lmi->id.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
         {
             continue;

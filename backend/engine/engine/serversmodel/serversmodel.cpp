@@ -6,7 +6,7 @@
 
 #include "testpingnodecontroller.h"
 
-const int typeIdVectorModelExchangeLocationItem = qRegisterMetaType<QSharedPointer<QVector<ModelExchangeLocationItem> >>("QSharedPointer<QVector<ModelExchangeLocationItem> >");
+/*const int typeIdVectorModelExchangeLocationItem = qRegisterMetaType<QSharedPointer<QVector<ModelExchangeLocationItem> >>("QSharedPointer<QVector<ModelExchangeLocationItem> >");
 const int typeIdModelExchangeLocationItem = qRegisterMetaType<ModelExchangeLocationItem>("ModelExchangeLocationItem");
 
 ServersModel::ServersModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager,
@@ -31,7 +31,7 @@ ServersModel::ServersModel(QObject *parent, IConnectStateController *stateContro
     connect(&resolveHostnamesForCustomOvpn_, SIGNAL(resolved(QSharedPointer<ServerLocation>)), SLOT(onCustomOvpnDnsResolved(QSharedPointer<ServerLocation>)));*/
     //TestPingNodeController::doTest();
     //NodeSelectionAlgorithm::autoTest();
-}
+/*}
 
 ServersModel::~ServersModel()
 {
@@ -97,7 +97,7 @@ void ServersModel::updateServers(const QVector<apiinfo::Location> &newServers, b
 
     emit itemsUpdated(items);
     pingManager_->updateServers(newServers, customOvpnDnsState_ == CUSTOM_OVPN_IN_PROGRESS);*/
-}
+/*}
 
 void ServersModel::clear()
 {
@@ -106,7 +106,7 @@ void ServersModel::clear()
     QSharedPointer<QVector<ModelExchangeLocationItem> > items = QSharedPointer<QVector<ModelExchangeLocationItem> >(new QVector<ModelExchangeLocationItem>);
     emit itemsUpdated(items);
     pingManager_->clear();*/
-}
+/*}
 
 void ServersModel::setSessionStatus(bool bFree)
 {
@@ -131,7 +131,7 @@ PingTime ServersModel::getPingTimeMsForLocation(const LocationID &locationId)
     {
         return pingManager_->getPingTimeMs(locationId);
     }*/
-    return PingTime();
+ /*   return PingTime();
 }
 
 void ServersModel::getNameAndCountryByLocationId(LocationID &locationId, QString &outName, QString &outCountry)
@@ -171,7 +171,7 @@ void ServersModel::getNameAndCountryByLocationId(LocationID &locationId, QString
             }
         }
     }*/
-}
+/*}
 
 QSharedPointer<MutableLocationInfo> ServersModel::getMutableLocationInfoById(LocationID locationId)
 {
@@ -222,7 +222,7 @@ QSharedPointer<MutableLocationInfo> ServersModel::getMutableLocationInfoById(Loc
             }
         }
     }*/
-    return 0;
+   /* return 0;
 }
 
 // example of location string: NL, Toronto #1, etc
@@ -246,7 +246,7 @@ LocationID ServersModel::getLocationIdByName(const QString &location)
             }
         }
     }*/
-    return LocationID();
+   /* return LocationID();
 }
 
 QStringList ServersModel::getCitiesForLocationId(int locationId)
@@ -259,14 +259,14 @@ QStringList ServersModel::getCitiesForLocationId(int locationId)
             return slm->getCities();
         }
     }*/
-    return QStringList();
+  /*  return QStringList();
 }
 
 void ServersModel::setProxySettings(const ProxySettings &proxySettings)
 {
     /*QMutexLocker locker(&mutex_);
     QMetaObject::invokeMethod(pingManager_, "setProxySettings", Qt::QueuedConnection, Q_ARG(ProxySettings, proxySettings));*/
-}
+/*}
 
 void ServersModel::disableProxy()
 {
@@ -295,7 +295,7 @@ void ServersModel::onCustomOvpnDnsResolved(QSharedPointer<ServerLocation> locati
     {
         Q_ASSERT(false);
     }*/
-}
+/*}
 
 void ServersModel::clearServers()
 {
@@ -372,7 +372,7 @@ ModelExchangeLocationItem ServersModel::serverLocationToModelExchangeLocationIte
     }
 
     qSort(modelLocationExchangeItem.cities);*/
-
+/*
     return modelLocationExchangeItem;
 }
 
@@ -399,7 +399,7 @@ PingTime ServersModel::getPingTimeMsForCustomOvpnConfig(const LocationID &locati
         return pingManager_->getPingTimeMs(locationId);
     }
     else*/
-    {
+ /*   {
         return PingTime(PingTime::NO_PING_INFO);
     }
 }
@@ -410,9 +410,9 @@ void ServersModel::setCustomOvpnConfigIpsToFirewall(ServerLocation &sl)
     // remove duplicates
     QSet<QString> set = ips.toSet();
     emit customOvpnConfgsIpsChanged(set.toList());*/
-}
+/*}
 
 bool operator<(const ModelExchangeCityItem& a, const ModelExchangeCityItem& b)
 {
     return a.cityNameForShow < b.cityNameForShow;
-}
+}*/

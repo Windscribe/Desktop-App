@@ -32,8 +32,8 @@ public:
     ~ConnectionManager() override;
 
     void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
-                      QSharedPointer<MutableLocationInfo> mli,
-                      const ConnectionSettings &connectionSettings, const PortMap &portMap, const ProxySettings &proxySettings,
+                      QSharedPointer<locationsmodel::MutableLocationInfo> mli,
+                      const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap, const ProxySettings &proxySettings,
                       bool bEmitAuthError) override;
 
     void clickDisconnect() override;

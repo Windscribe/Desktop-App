@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVector>
 #include "engine/types/locationid.h"
-#include "mutablelocationinfo.h"
+//#include "mutablelocationinfo.h"
 #include "pingtime.h"
 
 struct ModelExchangeCityItem
@@ -41,7 +41,7 @@ public:
 
     virtual PingTime getPingTimeMsForLocation(const LocationID &locationId) = 0;
     virtual void getNameAndCountryByLocationId(LocationID &locationId, QString &outName, QString &outCountry) = 0;
-    virtual QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(LocationID locationId) = 0;
+    //virtual QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(LocationID locationId) = 0;
 
 signals:
     void itemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> > items);

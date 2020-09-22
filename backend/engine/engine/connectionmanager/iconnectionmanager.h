@@ -6,6 +6,7 @@
 #include "automanualconnectioncontroller.h"
 #include "engine/types/types.h"
 #include "engine/types/protocoltype.h"
+#include "engine/apiinfo/portmap.h"
 #include "engine/apiinfo/servercredentials.h"
 #include "engine/apiinfo/staticips.h"
 
@@ -13,10 +14,7 @@ class IHelper;
 class INetworkStateManager;
 class ProxySettings;
 class ServerAPI;
-class ServerNode;
-class MutableLocationInfo;
 struct ConnectionSettings;
-struct PortMap;
 
 // manage openvpn connection, reconnects, sleep mode, network change, automatic/manual connection mode
 class IConnectionManager : public QObject
@@ -28,8 +26,8 @@ public:
     virtual ~IConnectionManager() {}
 
     virtual void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
-                              QSharedPointer<MutableLocationInfo> mli,
-                              const ConnectionSettings &connectionSettings, const PortMap &portMap, const ProxySettings &proxySettings,
+                              QSharedPointer<locationsmodel::MutableLocationInfo> mli,
+                              const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap, const ProxySettings &proxySettings,
                               bool bEmitAuthError) = 0;
 
     virtual void clickDisconnect() = 0;

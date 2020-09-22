@@ -49,6 +49,8 @@ public:
     const PortItem *getPortItemByProtocolType(const ProtocolType &protocol) const;
     int getUseIpInd(const ProtocolType &connectionProtocol) const;
 
+    QVector<PortItem> &items();
+
 
 private:
     QSharedDataPointer<PortMapData> d;

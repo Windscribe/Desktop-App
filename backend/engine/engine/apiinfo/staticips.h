@@ -35,6 +35,8 @@ struct StaticIpDescr
     QString username;
     QString password;
     QVector<StaticIpPortDescr> ports;
+
+    const QString& getPingIp() const { return nodeIP2; }
 };
 
 class StaticIpPortsVector : public QVector<unsigned int>
@@ -69,6 +71,10 @@ public:
     bool initFromJson(QJsonObject &obj);
     void initFromProtoBuf(const ProtoApiInfo::StaticIps &staticIps);
     ProtoApiInfo::StaticIps getProtoBuf() const;
+
+    const QString &getDeviceName() const { return d->deviceName_; }
+    int getIpsCount() const { return d->ips_.count(); }
+    const StaticIpDescr &getIp(int ind) const { Q_ASSERT(ind >= 0 && ind < d->ips_.count()); return d->ips_[ind]; }
 
     //QSharedPointer<ServerLocation> makeServerLocation();
 
