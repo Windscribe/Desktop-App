@@ -301,8 +301,10 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         // qDebug() << "2+ run (undocked)";
         mainWindowController_->setIsDockedToTray(false);
-        mainWindowController_->setWindowPosFromPersistent();
     }
+
+    if (bMoveEnabled_)
+        mainWindowController_->setWindowPosFromPersistent();
 
 #if defined(Q_OS_MAC)
     hideShowDockIconTimer_.setSingleShot(true);
