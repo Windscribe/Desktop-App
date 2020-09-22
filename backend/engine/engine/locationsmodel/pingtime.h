@@ -1,6 +1,7 @@
-#ifndef PINGTIME_H
-#define PINGTIME_H
+#ifndef LOCATIONSMODEL_PINGTIME_H
+#define LOCATIONSMODEL_PINGTIME_H
 
+namespace locationsmodel {
 
 class PingTime
 {
@@ -33,4 +34,6 @@ private:
     int timeMs_;
 };
 
-#endif // PINGTIME_H
+} //namespace locationsmodel
+
+#endif // LOCATIONSMODEL_PINGTIME_H

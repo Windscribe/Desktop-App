@@ -1,10 +1,13 @@
 #include "pingtime.h"
 #include <QObject>
 
+//const int typeIdPingTime = qRegisterMetaType<locationsmodel::PingTime>("locationsmodel::PingTime");
+
+namespace locationsmodel {
+
 int PingTime::NO_PING_INFO = -2;
 int PingTime::PING_FAILED = -1;
 
-const int typeIdApiNotifications = qRegisterMetaType<PingTime>("PingTime");
 
 
 PingTime::PingTime()
@@ -39,5 +42,6 @@ int PingTime::toConnectionSpeed() const
     {
         return 1;
     }
-
 }
+
+} //namespace locationsmodel

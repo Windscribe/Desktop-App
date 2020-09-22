@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QVector>
-#include "engine/serversmodel/pingtime.h"
+#include "pingtime.h"
 
 namespace locationsmodel {
 

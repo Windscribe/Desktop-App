@@ -21,6 +21,7 @@ public:
 
     virtual QString getIp(int /*ind*/) const { Q_ASSERT(false); return ""; }
     virtual QString getHostname() const { Q_ASSERT(false); return ""; }
+    virtual int getWeight() const {  Q_ASSERT(false); return 1; }
 
     virtual QString getCustomOvpnConfigPath() const { Q_ASSERT(false); return ""; }
 
@@ -34,7 +35,7 @@ public:
 class ApiLocationNode : public BaseNode
 {
 public:
-    explicit ApiLocationNode(const QStringList &ips, const QString &hostname) : hostname_(hostname)
+    explicit ApiLocationNode(const QStringList &ips, const QString &hostname, int weight) : hostname_(hostname), weight_(weight)
     {
         Q_ASSERT(ips.count() == 3);
         ips_[0] = ips[0];
@@ -53,10 +54,13 @@ public:
         return hostname_;
     }
 
+    int getWeight() const override {  return weight_; }
+
 
 private:
     QString ips_[3];
     QString hostname_;
+    int weight_;
 };
 
 
@@ -65,7 +69,7 @@ class StaticLocationNode : public ApiLocationNode
 public:
     explicit StaticLocationNode(const QStringList &ips, const QString &hostname, const QString &dnsName,
                                 const QString &username, const QString &password, const apiinfo::StaticIpPortsVector &ipPortsVector) :
-            ApiLocationNode(ips, hostname), dnsName_(dnsName), username_(username), password_(password), ipPortsVector_(ipPortsVector) {}
+            ApiLocationNode(ips, hostname, 1), dnsName_(dnsName), username_(username), password_(password), ipPortsVector_(ipPortsVector) {}
     virtual ~StaticLocationNode() {}
 
     QString getStaticIpDnsName() const override { return dnsName_; }

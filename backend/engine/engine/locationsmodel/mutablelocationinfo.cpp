@@ -4,6 +4,7 @@
 #include "utils/ipvalidation.h"
 #include "utils/utils.h"
 #include "engine/dnsresolver/dnsresolver.h"
+#include "nodeselectionalgorithm.h"
 
 namespace locationsmodel {
 
@@ -14,10 +15,11 @@ MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QSt
 {
     if (selectedNode == -1)
     {
-        // select random node
+        // select random node based on weight
         if (nodes.count() > 0)
         {
-            selectedNode = Utils::generateIntegerRandom(0, nodes.count() - 1);
+            selectedNode = NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(nodes);
+            Q_ASSERT(selectedNode >= 0 && selectedNode < nodes.count());
         }
     }
     selectedNode_ = selectedNode;

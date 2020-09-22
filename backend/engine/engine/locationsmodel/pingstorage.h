@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QHash>
 #include <QMutex>
-#include "engine/serversmodel/pingtime.h"
+#include "pingtime.h"
 
 namespace locationsmodel {
 

@@ -129,7 +129,7 @@ QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(c
                             const apiinfo::Node &apiInfoNode = group.getNode(n);
                             QStringList ips;
                             ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
-                            nodes << QSharedPointer<BaseNode>(new ApiLocationNode(ips, apiInfoNode.getHostname()));
+                            nodes << QSharedPointer<BaseNode>(new ApiLocationNode(ips, apiInfoNode.getHostname(), apiInfoNode.getWeight()));
                         }
 
 

@@ -399,8 +399,8 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
     {
         connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)),
                 SLOT(onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
-        connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,PingTime)),
-                SLOT(onEngineLocationsModelPingChangedChanged(LocationID,PingTime)));
+        connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)),
+                SLOT(onEngineLocationsModelPingChangedChanged(LocationID,locationsmodel::PingTime)));
 
         cmd.getProtoObj().set_init_state(ProtoTypes::INIT_SUCCESS);
         *cmd.getProtoObj().mutable_engine_settings() = curEngineSettings_.getProtoBufEngineSettings();
@@ -909,7 +909,7 @@ void EngineServer::onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<loc
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
-void EngineServer::onEngineLocationsModelPingChangedChanged(LocationID id, PingTime timeMs)
+void EngineServer::onEngineLocationsModelPingChangedChanged(LocationID id, locationsmodel::PingTime timeMs)
 {
     IPC::ProtobufCommand<IPCServerCommands::LocationSpeedChanged> cmd;
     cmd.getProtoObj().set_id(id.getId());

@@ -34,7 +34,7 @@ public:
 
 signals:
     void locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items);
-    void locationPingTimeChanged(LocationID id, PingTime timeMs);
+    void locationPingTimeChanged(LocationID id, locationsmodel::PingTime timeMs);
 
     //void locationInfoChanged(const LocationID &LocationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
     //void customOvpnConfgsIpsChanged(const QStringList &ips);
