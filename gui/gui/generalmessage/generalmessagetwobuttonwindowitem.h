@@ -35,6 +35,8 @@ public:
 
     void unselectCurrentButton(CommonGraphics::BubbleButtonDark *button);
 
+    void changeSelection(Selection selection) override;
+
 signals:
     void acceptClick() override;
     void rejectClick() override;
@@ -86,9 +88,7 @@ private:
     CommonGraphics::BubbleButtonDark *acceptButton_;
     CommonGraphics::BubbleButtonDark *rejectButton_;
 
-    enum Selection { NONE, ACCEPT, REJECT };
     Selection selection_;
-    void changeSelection(Selection selection);
 };
 
 } // namespace GeneralMessage
