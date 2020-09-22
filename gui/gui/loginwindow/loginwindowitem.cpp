@@ -31,7 +31,7 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent) : ScalableGraphicsObje
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     // Header Region:
-    backButton_ = new IconButton(16*G_SCALE,16*G_SCALE, "login/BACK_ARROW", this);
+    backButton_ = new IconButton(16,16, "login/BACK_ARROW", this);
     connect(backButton_, SIGNAL(clicked()), SLOT(onBackClick()));
 
     curBadgeScale_ = BADGE_SCALE_LARGE;
