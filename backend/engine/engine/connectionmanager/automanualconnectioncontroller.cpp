@@ -9,8 +9,8 @@ AutoManualConnectionController::AutoManualConnectionController() :
 {
 }
 
-void AutoManualConnectionController::startWith(QSharedPointer<MutableLocationInfo> mli, const ConnectionSettings &connectionSettings,
-                                               const PortMap &portMap, bool isProxyEnabled)
+void AutoManualConnectionController::startWith(QSharedPointer<locationsmodel::MutableLocationInfo> mli, const ConnectionSettings &connectionSettings,
+                                               const apiinfo::PortMap &portMap, bool isProxyEnabled)
 {
     attemps_.clear();
     bStarted_ = true;
@@ -25,13 +25,13 @@ void AutoManualConnectionController::startWith(QSharedPointer<MutableLocationInf
     // remove wstunnel and WireGuard protocols from portMap_ for automatic connection mode
     if (connectionSettings_.isAutomatic() && !mli_->isCustomOvpnConfig())
     {
-        QVector<PortItem>::iterator it = portMap_.items.begin();
-        while (it != portMap_.items.end())
+        QVector<apiinfo::PortItem>::iterator it = portMap_.items().begin();
+        while (it != portMap_.items().end())
         {
             if (it->protocol.getType() == ProtocolType::PROTOCOL_WSTUNNEL ||
                 it->protocol.getType() == ProtocolType::PROTOCOL_WIREGUARD)
             {
-                it = portMap_.items.erase(it);
+                it = portMap_.items().erase(it);
             }
             else
             {
@@ -44,7 +44,7 @@ void AutoManualConnectionController::startWith(QSharedPointer<MutableLocationInf
     if (connectionSettings_.isAutomatic() && !mli_->isCustomOvpnConfig())
     {
         // sort portmap protocols in the following order: ikev2, udp, tcp, stealth
-        qSort(portMap_.items.begin(), portMap_.items.end(), sortPortMapFunction);
+        qSort(portMap_.items().begin(), portMap_.items().end(), sortPortMapFunction);
 
         ProtocolType lastSuccessProtocolSaved;
         QSettings settings;
@@ -57,66 +57,67 @@ void AutoManualConnectionController::startWith(QSharedPointer<MutableLocationInf
             lastSuccessProtocolSaved = ProtocolType(strProtocol);
         }
 
+
+        QVector<AttemptInfo> localAttemps;
+        for (int portMapInd = 0; portMapInd < portMap_.items().count(); ++portMapInd)
+        {
+            // skip udp protocol, if proxy enabled
+            if (isProxyEnabled && portMap_.items()[portMapInd].protocol.getType() == ProtocolType::PROTOCOL_OPENVPN_UDP)
+            {
+                continue;
+            }
+            // skip ikev2 protocol if failed ikev2 attempts >= MAX_IKEV2_FAILED_ATTEMPTS
+            if (failedIkev2Counter_ >= MAX_IKEV2_FAILED_ATTEMPTS && portMap_.items()[portMapInd].protocol.isIkev2Protocol())
+            {
+                continue;
+            }
+
+            AttemptInfo attemptInfo;
+            attemptInfo.protocol = portMap_.items()[portMapInd].protocol;
+            Q_ASSERT(portMap_.items()[portMapInd].ports.count() > 0);
+            attemptInfo.portMapInd = portMapInd;
+            attemptInfo.changeNode = false;
+
+            localAttemps << attemptInfo;
+        }
+
+        if (localAttemps.count() > 0)
+        {
+            localAttemps.last().changeNode = true;
+        }
+
+        // if we have successfully saved connection settings, then use it first (move on top list)
+        // but if first protocol ikev2, then use it second
+        if (lastSuccessProtocolSaved.isInitialized())
+        {
+            AttemptInfo firstAttemptInfo;
+            bool bFound = false;
+            for (int i = 0; i < localAttemps.count(); ++i)
+            {
+                if (localAttemps[i].protocol.isEqual(lastSuccessProtocolSaved))
+                {
+                    firstAttemptInfo = localAttemps[i];
+                    localAttemps.remove(i);
+                    bFound = true;
+                    break;
+                 }
+             }
+             if (bFound)
+             {
+                 if (localAttemps.count() > 0 && localAttemps.first().protocol.isIkev2Protocol())
+                 {
+                     localAttemps.insert(1, firstAttemptInfo);
+                 }
+                 else
+                 {
+                     localAttemps.insert(0, firstAttemptInfo);
+                 }
+            }
+        }
+
+        // copy sorted localAttemps to attemps_
         for (int nodeInd = 0; nodeInd < mli_->nodesCount(); ++nodeInd)
         {
-            QVector<AttemptInfo> localAttemps;
-            for (int portMapInd = 0; portMapInd < portMap_.items.count(); ++portMapInd)
-            {
-                // skip udp protocol, if proxy enabled
-                if (isProxyEnabled && portMap_.items[portMapInd].protocol.getType() == ProtocolType::PROTOCOL_OPENVPN_UDP)
-                {
-                    continue;
-                }
-                // skip ikev2 protocol if failed ikev2 attempts >= MAX_IKEV2_FAILED_ATTEMPTS
-                if (failedIkev2Counter_ >= MAX_IKEV2_FAILED_ATTEMPTS && portMap_.items[portMapInd].protocol.isIkev2Protocol())
-                {
-                    continue;
-                }
-
-                AttemptInfo attemptInfo;
-                attemptInfo.protocol = portMap_.items[portMapInd].protocol;
-                Q_ASSERT(portMap_.items[portMapInd].ports.count() > 0);
-                attemptInfo.portMapInd = portMapInd;
-                attemptInfo.changeNode = false;
-
-                localAttemps << attemptInfo;
-            }
-
-            if (localAttemps.count() > 0)
-            {
-                localAttemps.last().changeNode = true;
-            }
-
-            // if we have successfully saved connection settings, then use it first (move on top list)
-            // but if first protocol ikev2, then use it second
-            if (lastSuccessProtocolSaved.isInitialized())
-            {
-                AttemptInfo firstAttemptInfo;
-                bool bFound = false;
-                for (int i = 0; i < localAttemps.count(); ++i)
-                {
-                    if (localAttemps[i].protocol.isEqual(lastSuccessProtocolSaved))
-                    {
-                        firstAttemptInfo = localAttemps[i];
-                        localAttemps.remove(i);
-                        bFound = true;
-                        break;
-                    }
-                }
-                if (bFound)
-                {
-                    if (localAttemps.count() > 0 && localAttemps.first().protocol.isIkev2Protocol())
-                    {
-                        localAttemps.insert(1, firstAttemptInfo);
-                    }
-                    else
-                    {
-                        localAttemps.insert(0, firstAttemptInfo);
-                    }
-                }
-            }
-
-            // copy sorted localAttemps to attemps_
             attemps_ << localAttemps;
         }
 
@@ -156,17 +157,13 @@ QString AutoManualConnectionController::getLogForNode(int ind)
 {
     QString ret = "node" + QString::number(ind + 1);
 
-    if (mli_->getNode(ind).isLegacy())
-    {
-        ret += "(legacy)";
-    }
     ret += " = {";
 
     const int IPS_COUNT = 3;
     for (int i = 0; i < IPS_COUNT; ++i)
     {
         ret += "ip" + QString::number(i + 1) + " = ";
-        ret += mli_->getNode(ind).getIp(i);
+        ret += mli_->getIpForNode(ind, i);
         if (i != (IPS_COUNT - 1))
         {
             ret += ", ";
@@ -179,7 +176,7 @@ QString AutoManualConnectionController::getLogForNode(int ind)
 
 // sort portmap protocols in the following order: ikev2, udp, tcp, stealth
 // operator<
-bool AutoManualConnectionController::sortPortMapFunction(const PortItem &p1, const PortItem &p2)
+bool AutoManualConnectionController::sortPortMapFunction(const apiinfo::PortItem &p1, const apiinfo::PortItem &p2)
 {
     if (p1.protocol.getType() == ProtocolType::PROTOCOL_IKEV2)
     {
@@ -217,7 +214,6 @@ bool AutoManualConnectionController::sortPortMapFunction(const PortItem &p1, con
         Q_ASSERT(false);
     }
     return 0;
-
 }
 
 void AutoManualConnectionController::putFailedConnection()
@@ -294,7 +290,7 @@ AutoManualConnectionController::CurrentConnectionDescr AutoManualConnectionContr
     {
         ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
         ccd.pathOvpnConfigFile = mli_->getCustomOvpnConfigPath();
-        ccd.ip = mli_->getSelectedNode().getIp(0);
+        ccd.ip = mli_->getIpForSelectedNode(0);
         ccd.protocol = ProtocolType::PROTOCOL_OPENVPN_UDP;
         ccd.port = 0;
     }
@@ -302,20 +298,13 @@ AutoManualConnectionController::CurrentConnectionDescr AutoManualConnectionContr
     {
         ccd.connectionNodeType = CONNECTION_NODE_DEFAULT;
         ccd.protocol = attemps_[curAttempt_].protocol;
+        ccd.port = portMap_.items()[attemps_[curAttempt_].portMapInd].ports[0];
 
-        if (mli_->getSelectedNode().isLegacy())
-        {
-            ccd.port = portMap_.getLegacyPort(ccd.protocol);
-        }
-        else
-        {
-            ccd.port = portMap_.items[attemps_[curAttempt_].portMapInd].ports[0];
-        }
         int useIpInd = portMap_.getUseIpInd(ccd.protocol);
-        ccd.ip = mli_->getSelectedNode().getIp(useIpInd);
-        ccd.hostname = mli_->getSelectedNode().getHostname();
+        ccd.ip = mli_->getIpForSelectedNode(useIpInd);
+        ccd.hostname = mli_->getHostnameForSelectedNode();
         ccd.dnsHostName = mli_->getDnsName();
-        ccd.wgPublicKey = mli_->getSelectedNode().getWgPubKey();
+        ccd.wgPublicKey = mli_->getWgPubKeyForSelectedNode();
     }
     else
     {
@@ -323,17 +312,11 @@ AutoManualConnectionController::CurrentConnectionDescr AutoManualConnectionContr
         ccd.protocol = connectionSettings_.protocol();
         ccd.port = connectionSettings_.port();
 
-        // adjust port for legacy nodes
-        if (mli_->getSelectedNode().isLegacy())
-        {
-            ccd.port = portMap_.getLegacyPort(ccd.protocol);
-        }
-
         int useIpInd = portMap_.getUseIpInd(connectionSettings_.protocol());
-        ccd.ip = mli_->getSelectedNode().getIp(useIpInd);
-        ccd.hostname = mli_->getSelectedNode().getHostname();
+        ccd.ip = mli_->getIpForSelectedNode(useIpInd);
+        ccd.hostname = mli_->getHostnameForSelectedNode();
         ccd.dnsHostName = mli_->getDnsName();
-        ccd.wgPublicKey = mli_->getSelectedNode().getWgPubKey();
+        ccd.wgPublicKey = mli_->getWgPubKeyForSelectedNode();
     }
     if (mli_->isStaticIp())
     {

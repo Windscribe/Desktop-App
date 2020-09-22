@@ -10,24 +10,23 @@
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,
                                  INetworkStateManager *networkStateManager, ServerAPI *serverAPI,
-                                 ServerLocationsApiWrapper *serverLocationsApiWrapper,
                                  const QString &language, ProtocolType protocol) : QObject(parent),
-    helper_(helper), serverAPI_(serverAPI), serverLocationsApiWrapper_(serverLocationsApiWrapper),
+    helper_(helper), serverAPI_(serverAPI),
     getApiAccessIps_(NULL), networkStateManager_(networkStateManager), language_(language),
     protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL),
     loginStep_(LOGIN_STEP1), readyForNetworkRequestsEmitted_(false)
 {
-    connect(serverAPI_, SIGNAL(loginAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, QString, uint)),
-                            SLOT(onLoginAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, QString, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QByteArray, uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QByteArray, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(loginAnswer(SERVER_API_RET_CODE,apiinfo::SessionStatus, QString, uint)),
+                            SLOT(onLoginAnswer(SERVER_API_RET_CODE,apiinfo::SessionStatus, QString, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString, uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(serverCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, ProtocolType, uint)), SLOT(onServerCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, ProtocolType, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, uint)), SLOT(onSessionAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(portMapAnswer(SERVER_API_RET_CODE,QSharedPointer<PortMap>, uint)), SLOT(onPortMapAnswer(SERVER_API_RET_CODE,QSharedPointer<PortMap>, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), SLOT(onSessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(portMapAnswer(SERVER_API_RET_CODE, apiinfo::PortMap, uint)), SLOT(onPortMapAnswer(SERVER_API_RET_CODE, apiinfo::PortMap, uint)), Qt::QueuedConnection);
 
-    connect(serverLocationsApiWrapper_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<QSharedPointer<ServerLocation> >,QStringList, uint)),
-                            SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<QSharedPointer<ServerLocation> >,QStringList, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)),
+                            SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
 
-    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,QSharedPointer<StaticIpsLocation>, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,QSharedPointer<StaticIpsLocation>, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), Qt::QueuedConnection);
 
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 }
@@ -59,7 +58,7 @@ void LoginController::startLoginProcess(const LoginSettings &loginSettings, cons
     handleNetworkConnection();
 }
 
-void LoginController::onLoginAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, const QString &authHash, uint userRole)
+void LoginController::onLoginAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -67,7 +66,7 @@ void LoginController::onLoginAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<
     }
 }
 
-void LoginController::onSessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, uint userRole)
+void LoginController::onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -75,7 +74,7 @@ void LoginController::onSessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointe
     }
 }
 
-void LoginController::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector<QSharedPointer<ServerLocation> > serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void LoginController::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -98,7 +97,7 @@ void LoginController::onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, con
     }
 }
 
-void LoginController::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config, uint userRole)
+void LoginController::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -106,7 +105,7 @@ void LoginController::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteAr
     }
 }
 
-void LoginController::onPortMapAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<PortMap> portMap, uint userRole)
+void LoginController::onPortMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -114,11 +113,11 @@ void LoginController::onPortMapAnswer(SERVER_API_RET_CODE retCode, QSharedPointe
     }
 }
 
-void LoginController::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation, uint userRole)
+void LoginController::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
-        getAllConfigsController_->putStaticIpsAnswer(retCode, staticIpsLocation);
+        getAllConfigsController_->putStaticIpsAnswer(retCode, staticIps);
     }
 }
 
@@ -136,12 +135,12 @@ void LoginController::onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, con
         }
         else
         {
-            emit finished(LOGIN_NO_API_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+            emit finished(LOGIN_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
         }
     }
     else if (retCode == SERVER_RETURN_PROXY_AUTH_FAILED)
     {
-        emit finished(LOGIN_PROXY_AUTH_NEED, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+        emit finished(LOGIN_PROXY_AUTH_NEED, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
     }
     else // failed
     {
@@ -152,11 +151,11 @@ void LoginController::onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, con
 
         if (isAllSslErrors())
         {
-            emit finished(LOGIN_SSL_ERROR, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+            emit finished(LOGIN_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
         }
         else
         {
-            emit finished(LOGIN_NO_API_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+            emit finished(LOGIN_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
         }
     }
 }
@@ -177,15 +176,15 @@ void LoginController::onAllConfigsReceived(SERVER_API_RET_CODE retCode)
 {
     if (retCode == SERVER_RETURN_SUCCESS)
     {
-        QSharedPointer<ApiInfo> apiInfo(new ApiInfo());
-        apiInfo->setForceDisconnectNodes(getAllConfigsController_->forceDisconnectNodes_);
-        apiInfo->setOvpnConfig(getAllConfigsController_->ovpnConfig_);
-        apiInfo->setServerCredentials(getAllConfigsController_->getServerCredentials());
-        apiInfo->setServerLocations(getAllConfigsController_->serverLocations_);
-        apiInfo->setPortMap(getAllConfigsController_->portMap_);
-        apiInfo->setStaticIpsLocation(getAllConfigsController_->staticIpsLocation_);
-        apiInfo->setSessionStatus(sessionStatus_);
-        apiInfo->setAuthHash(newAuthHash_);
+        apiinfo::ApiInfo apiInfo;
+        apiInfo.setForceDisconnectNodes(getAllConfigsController_->forceDisconnectNodes_);
+        apiInfo.setOvpnConfig(getAllConfigsController_->ovpnConfig_);
+        apiInfo.setServerCredentials(getAllConfigsController_->getServerCredentials());
+        apiInfo.setLocations(getAllConfigsController_->locations_);
+        apiInfo.setPortMap(getAllConfigsController_->portMap_);
+        apiInfo.setStaticIps(getAllConfigsController_->staticIps_);
+        apiInfo.setSessionStatus(sessionStatus_);
+        apiInfo.setAuthHash(newAuthHash_);
         emit finished(LOGIN_SUCCESS, apiInfo, bFromConnectedToVPNState_);
     }
     else if (retCode == SERVER_RETURN_NETWORK_ERROR || retCode == SERVER_RETURN_SSL_ERROR || retCode == SERVER_RETURN_INCORRECT_JSON)
@@ -206,7 +205,7 @@ void LoginController::onAllConfigsReceived(SERVER_API_RET_CODE retCode)
     }
 }
 
-void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, const QString &authHash)
+void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash)
 {
     if (retCode == SERVER_RETURN_SUCCESS)
     {
@@ -232,11 +231,11 @@ void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, QS
     }
     else if (retCode == SERVER_RETURN_BAD_USERNAME)
     {
-        emit finished(LOGIN_BAD_USERNAME, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+        emit finished(LOGIN_BAD_USERNAME, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
     }
     else if (retCode == SERVER_RETURN_PROXY_AUTH_FAILED)
     {
-        emit finished(LOGIN_PROXY_AUTH_NEED, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+        emit finished(LOGIN_PROXY_AUTH_NEED, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
     }
     else
     {
@@ -326,11 +325,11 @@ void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
             {
                 if (isAllSslErrors())
                 {
-                    emit finished(LOGIN_SSL_ERROR, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+                    emit finished(LOGIN_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
                 }
                 else
                 {
-                    emit finished(LOGIN_NO_API_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+                    emit finished(LOGIN_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
                 }
             }
         }
@@ -339,11 +338,11 @@ void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
     {
         if (retCode == SERVER_RETURN_SSL_ERROR)
         {
-            emit finished(LOGIN_SSL_ERROR, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+            emit finished(LOGIN_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
         }
         else
         {
-            emit finished(LOGIN_NO_API_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+            emit finished(LOGIN_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
         }
     }
 }
@@ -367,15 +366,15 @@ void LoginController::getAllConfigs()
         getAllConfigsController_->putServerCredentialsIkev2Answer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForIkev2(), loginSettings_.getServerCredentials().passwordForIkev2());
     }
 
-    serverLocationsApiWrapper_->serverLocations(newAuthHash_, language_, serverApiUserRole_, false, sessionStatus_->getRevisionHash(), sessionStatus_->isPro(), protocol_, sessionStatus_->alc);
+    serverAPI_->serverLocations(newAuthHash_, language_, serverApiUserRole_, false, sessionStatus_.getRevisionHash(), sessionStatus_.isPro(), protocol_, sessionStatus_.getAlc());
     serverAPI_->portMap(newAuthHash_, serverApiUserRole_, false);
-    if (sessionStatus_->staticIps > 0)
+    if (sessionStatus_.getStaticIpsCount() > 0)
     {
         serverAPI_->staticIps(newAuthHash_, GetDeviceId::instance().getDeviceId(), serverApiUserRole_, false);
     }
     else
     {
-        getAllConfigsController_->putStaticIpsAnswer(SERVER_RETURN_SUCCESS, QSharedPointer<StaticIpsLocation>());
+        getAllConfigsController_->putStaticIpsAnswer(SERVER_RETURN_SUCCESS, apiinfo::StaticIps());
     }
 }
 
@@ -399,7 +398,7 @@ void LoginController::handleNetworkConnection()
             if (waitNetworkConnectivityElapsedTimer_.elapsed() > MAX_WAIT_CONNECTIVITY_TIMEOUT)
             {
                 qCDebug(LOG_BASIC) << "No internet connectivity";
-                emit finished(LOGIN_NO_CONNECTIVITY, QSharedPointer<ApiInfo>(), bFromConnectedToVPNState_);
+                emit finished(LOGIN_NO_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
             }
             else
             {

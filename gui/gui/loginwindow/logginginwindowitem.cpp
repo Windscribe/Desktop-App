@@ -15,8 +15,7 @@ const int LOGGING_IN_TEXT_OFFSET_Y = 16;
 const int LOGIN_SPINNER_OFFSET = 16;
 
 LoggingInWindowItem::LoggingInWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent),
-    curSpinnerRotation_(0), animationActive_(false), targetRotation_(360),
-    additionalMessage_(tr("Logging you in..."))
+    curSpinnerRotation_(0), animationActive_(false), targetRotation_(360)
 {
     connect(&spinnerAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotationChanged(QVariant)));
 }

@@ -41,12 +41,6 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     connect(viewLogItem_, SIGNAL(sendLogClicked()), SLOT(onViewLogItemSendLogClicked()));
     addItem(viewLogItem_);
 
-    serverRatingsItem_ = new ServerRatingsItem(this);
-    connect(serverRatingsItem_, SIGNAL(clearButtonHoverEnter()), SLOT(onClearButtonHoverEnter()));
-    connect(serverRatingsItem_, SIGNAL(clearButtonHoverLeave()), SLOT(onClearButtonHoverLeave()));
-    connect(serverRatingsItem_, SIGNAL(clicked()), SLOT(onClearServerRatingsButtonClick()));
-    addItem(serverRatingsItem_);
-
 #ifdef Q_OS_WIN
     comboBoxTapAdapter_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "TAP Driver"), QString(), 50, Qt::transparent, 0, true);
     updateTapAdaptersList();
@@ -241,50 +235,6 @@ void DebugWindowItem::onViewOrSendButtonHoverLeave()
 {
     emit hideTooltip(TOOLTIP_ID_SEND_LOG);
     emit hideTooltip(TOOLTIP_ID_VIEW_LOG);
-}
-
-void DebugWindowItem::onClearButtonHoverEnter()
-{
-    QGraphicsView *view = scene()->views().first();
-    QPoint globalPt = view->mapToGlobal(view->mapFromScene(serverRatingsItem_->scenePos()));
-    int posX = globalPt.x() + 257*G_SCALE;
-    int posY = globalPt.y()  + 12*G_SCALE;
-
-    TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_CLEAR_SERVER_RATINGS);
-    ti.x = posX;
-    ti.y = posY;
-    ti.title = tr("Clear");
-    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-    ti.tailPosPercent = 0.1;
-    emit showTooltip(ti);
-}
-
-void DebugWindowItem::onClearButtonHoverLeave()
-{
-    emit hideTooltip(TOOLTIP_ID_CLEAR_SERVER_RATINGS);
-}
-
-void DebugWindowItem::onClearServerRatingsButtonClick()
-{
-    emit clearServerRatingsClick();
-
-    QGraphicsView *view = scene()->views().first();
-    QPoint globalPt = view->mapToGlobal(view->mapFromScene(serverRatingsItem_->scenePos()));
-    int posX = globalPt.x() + 257*G_SCALE;
-    int posY = globalPt.y() + 12*G_SCALE;
-
-    TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_SERVER_RATINGS_CLEARED);
-    ti.x = posX;
-    ti.y = posY;
-    ti.title = tr("Cleared");
-    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-    ti.tailPosPercent = 0.1;
-    ti.delay = 0;
-    emit showTooltip(ti);
-
-    QTimer::singleShot(1000, [this](){
-        emit hideTooltip(TOOLTIP_ID_SERVER_RATINGS_CLEARED);
-    });
 }
 
 void DebugWindowItem::onIgnoreSslErrorsPreferencesChanged(bool b)

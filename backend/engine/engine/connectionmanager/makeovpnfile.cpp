@@ -26,7 +26,7 @@ MakeOVPNFile::~MakeOVPNFile()
     file_.remove();
 }
 
-bool MakeOVPNFile::generate(const QByteArray &ovpnData, const QString &ip, const ProtocolType &protocol, uint port, uint portForStunnel, uint portForWstunnel, int mss)
+bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port, uint portForStunnel, uint portForWstunnel, int mss)
 {
     if (!file_.isOpen())
     {
@@ -43,10 +43,10 @@ bool MakeOVPNFile::generate(const QByteArray &ovpnData, const QString &ip, const
     bool bExtraContainsRemote = strExtraConfig.contains("remote", Qt::CaseInsensitive);
 
 
-    QByteArray newOvpnData = ExtraConfig::instance().modifyVerbParameter(ovpnData, strExtraConfig);
+    QString newOvpnData = ExtraConfig::instance().modifyVerbParameter(ovpnData, strExtraConfig);
 
 
-    file_.write( newOvpnData );
+    file_.write( newOvpnData.toLocal8Bit());
 
     QString str;
 

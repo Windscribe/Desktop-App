@@ -96,10 +96,10 @@ ConnectionManager::~ConnectionManager()
     SAFE_DELETE(sleepEvents_);
 }
 
-void ConnectionManager::clickConnect(const QByteArray &ovpnConfig, const ServerCredentials &serverCredentials,
-                                         QSharedPointer<MutableLocationInfo> mli,
+void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
+                                         QSharedPointer<locationsmodel::MutableLocationInfo> mli,
                                          const ConnectionSettings &connectionSettings,
-                                         const PortMap &portMap, const ProxySettings &proxySettings, bool bEmitAuthError)
+                                         const apiinfo::PortMap &portMap, const ProxySettings &proxySettings, bool bEmitAuthError)
 {
     Q_ASSERT(state_ == STATE_DISCONNECTED);
 
@@ -1084,7 +1084,7 @@ bool ConnectionManager::isStaticIpsLocation() const
     return currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_STATIC_IPS;
 }
 
-StaticIpPortsVector ConnectionManager::getStatisIps()
+apiinfo::StaticIpPortsVector ConnectionManager::getStatisIps()
 {
     Q_ASSERT(isStaticIpsLocation());
     return currentConnectionDescr_.staticIpPorts;

@@ -75,7 +75,6 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(debugWindowItem_, SIGNAL(viewLogClick()), SIGNAL(viewLogClick()));
     connect(debugWindowItem_, SIGNAL(sendLogClick()), SIGNAL(sendDebugLogClick()));
     connect(debugWindowItem_, SIGNAL(advParametersClick()), SLOT(onAdvParametersClick()));
-    connect(debugWindowItem_, SIGNAL(clearServerRatingsClick()), SIGNAL(clearServerRatingsClick()));
     connect(debugWindowItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(debugWindowItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 

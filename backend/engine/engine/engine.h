@@ -10,12 +10,10 @@
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
 #include "firewall/firewallcontroller.h"
 #include "serverapi/serverapi.h"
-#include "serverlocationsapiwrapper.h"
-#include "serversmodel/serversmodel.h"
+#include "locationsmodel/locationsmodel.h"
 #include "connectionmanager/iconnectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "engine/refetchservercredentialshelper.h"
-#include "engine/serversmodel/nodesspeedratings.h"
 #include "engine/vpnshare/vpnsharecontroller.h"
 #include "engine/emergencycontroller/emergencycontroller.h"
 #include "getmyipcontroller.h"
@@ -52,9 +50,7 @@ public:
     bool isInitialized();
     void enableBFE_win();
 
-    bool isCanLoginWithAuthHash();
-    void loginWithAuthHash();
-    void loginWithCustomAuthHash(const QString &authHash);
+    void loginWithAuthHash(const QString &authHash);
     void loginWithUsernameAndPassword(const QString &username, const QString &password);
     void loginWithLastLoginSettings();
     bool isApiSavedSettingsExists();
@@ -70,14 +66,10 @@ public:
     bool IPv6StateInOS();
 
     LoginSettings getLastLoginSettings();
-    QSharedPointer<PortMap> getCurrentPortMap();
-    QString getCurrentUserId();
-    QString getCurrentUserName();
     QString getAuthHash();
-    LocationID getLocationIdByName(const QString &location);
     void clearCredentials();
 
-    IServersModel *getServersModel();
+    locationsmodel::LocationsModel *getLocationsModel();
     IConnectStateController *getConnectStateController();
 
     bool isFirewallEnabled();
@@ -93,7 +85,6 @@ public:
     void sendConfirmEmail();
 
     void speedRating(int rating, const QString &localExternalIp);  //rate current connection(0 - down, 1 - up)
-    void clearSpeedRatings();
 
     void updateServerConfigs();
     void updateCurrentNetworkInterface(bool requested = false);
@@ -116,7 +107,6 @@ public:
     void applicationActivated();
     void applicationDeactivated();
 
-    void forceUpdateSessionStatus();    // for testing
     void forceUpdateServerLocations();
 
     void detectPacketSizeMss();
@@ -133,15 +123,14 @@ signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode);
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode);
     void cleanupFinished();
-    void loginFinished(bool isLoginFromSavedSettings);
+    void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap);
     void loginStepMessage(LOGIN_MESSAGE msg);
     void loginError(LOGIN_RET retCode);
     void sessionDeleted();
-    void sessionStatusUpdated(QSharedPointer<SessionStatus> sessionStatus);
-    void notificationsUpdated(QSharedPointer<ApiNotifications> notifications);
+    void sessionStatusUpdated(const apiinfo::SessionStatus &sessionStatus);
+    void notificationsUpdated(const QVector<apiinfo::Notification> &notifications);
     void checkUpdateUpdated(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
-    void serverLocationsUpdated();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
 
@@ -182,6 +171,7 @@ private slots:
     void onInitializeHelper(INIT_HELPER_RET ret);
 
     void cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
+    void clearCredentialsImpl();
     void enableBFE_winImpl();
     void loginImpl(bool bSkipLoadingFromSettings);
     void setIgnoreSslErrorsImlp(bool bIgnoreSslErrors);
@@ -222,29 +212,27 @@ private slots:
     void setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts);
 
-    void onLoginControllerFinished(LOGIN_RET retCode, QSharedPointer<ApiInfo> apiInfo, bool bFromConnectedToVPNState);
+    void onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState);
     void onReadyForNetworkRequests();
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 
-    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector< QSharedPointer<ServerLocation> > serverLocations,
+    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
                                  QStringList forceDisconnectNodes, uint userRole);
-    void onBestLocationChanged(QVector< QSharedPointer<ServerLocation> > &serverLocations);
 
-    void onSessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, uint userRole);
-    void onNotificationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiNotifications> notifications, uint userRole);
-    void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config, uint userRole);
+    void onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
+    void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Notification> &notifications, uint userRole);
+    void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void onCheckUpdateAnswer(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
     void onHostIPsChanged(const QStringList &hostIps);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation, uint userRole);
+    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
 
     void onStartCheckUpdate();
     void onStartStaticIpsUpdate();
     void onUpdateSessionStatusTimer();
-    void onTimerGetBestLocation();
 
     void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
@@ -269,11 +257,9 @@ private slots:
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
     void onEmergencyControllerError(CONNECTION_ERROR err);
 
-    void onRefetchServerCredentialsFinished(bool success, const ServerCredentials &serverCredentials);
+    void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials);
 
     void getNewNotifications();
-
-    void onUpdateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> > &serverLocations);
 
     void onCustomOvpnConfigsChanged();
     void onCustomOvpnConfgsIpsChanged(const QStringList &ips);
@@ -297,7 +283,6 @@ private:
     INetworkStateManager *networkStateManager_;
     FirewallController *firewallController_;
     ServerAPI *serverAPI_;
-    ServerLocationsApiWrapper *serverLocationsApiWrapper_;
     IConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
@@ -321,7 +306,7 @@ private:
     InitializeHelper *inititalizeHelper_;
     bool bInitialized_;
 
-    QSharedPointer<ApiInfo> apiInfo_;
+    QScopedPointer<apiinfo::ApiInfo> apiInfo_;
     LoginController *loginController_;
     enum LOGIN_STATE { LOGIN_NONE, LOGIN_IN_PROGRESS, LOGIN_FINISHED};
     LOGIN_STATE loginState_;
@@ -334,16 +319,13 @@ private:
     SessionStatusTimer *updateSessionStatusTimer_;
     QTimer *notificationsUpdateTimer_;
 
-    NodesSpeedRatings *nodesSpeedRatings_;
-    ServersModel *serversModel_;
-    NodesSpeedStore *nodesSpeedStore_;
+    locationsmodel::LocationsModel *locationsModel_;
 
     RefetchServerCredentialsHelper *refetchServerCredentialsHelper_;
 
     QMutex mutex_;
-    QMutex mutexApiInfo_;
 
-    PrevSessionStatus prevSessionStatus_;
+    apiinfo::SessionStatus prevSessionStatus_;
 
     std::atomic<bool> isBlockConnect_;
     std::atomic<bool> isCleanupFinished_;
@@ -353,8 +335,6 @@ private:
 
     QString lastConnectingHostname_;
     ProtoTypes::Protocol lastConnectingProtocol_;
-
-    QVector<QSharedPointer<ServerLocation> > lastCopyOfServerlocations_;
 
     bool isNeedReconnectAfterRequestUsernameAndPassword_;
 

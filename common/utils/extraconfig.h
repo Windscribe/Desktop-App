@@ -25,7 +25,7 @@ public:
     QString getExtraConfigForIkev2();
     bool isUseIkev2Compression();
     QString getRemoteIpFromExtraConfig();
-    QByteArray modifyVerbParameter(const QByteArray &ovpnData, QString &strExtraConfig);
+    QString modifyVerbParameter(const QString &ovpnData, QString &strExtraConfig);
 
     // used in Engine::addCustomRemoteIpToFirewallIfNeed and later for ikev2 connection
     void setDetectedIp(const QString &ip) { detectedIp_ = ip; }

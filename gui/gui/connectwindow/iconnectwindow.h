@@ -31,7 +31,7 @@ public:
     virtual void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port) = 0;
 
 public slots:
-    virtual void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isFavorite) = 0;
+    virtual void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) = 0;
     virtual void updateLocationSpeed(LocationID id, PingTime speed) = 0;
     virtual void updateConnectState(const ProtoTypes::ConnectState & newConnectState) = 0;
     virtual void updateFirewallState(bool isFirewallEnabled) = 0;

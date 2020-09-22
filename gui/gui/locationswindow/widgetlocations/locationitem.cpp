@@ -601,7 +601,7 @@ void LocationItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const 
         else
         {
             IndependentPixmap *pingBarPixmap = nullptr;
-            if (cityNode.timeMs().toConnectionSpeed() == 0 || (cityNode.isShowPremiumStar() && widgetLocationsInfo_->isFreeSessionStatus()))
+            if (cityNode.timeMs().toConnectionSpeed() == 0)
             {
                 pingBarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/LOCATION_PING_BARS0");
                 painter->setOpacity(0.5);

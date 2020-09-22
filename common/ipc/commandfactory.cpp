@@ -115,10 +115,6 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCClientCommands::SpeedRating>(buf, size);
     }
-    else if (strId == IPCClientCommands::ClearSpeedRatings::descriptor()->full_name())
-    {
-        return new ProtobufCommand<IPCClientCommands::ClearSpeedRatings>(buf, size);
-    }
     else if (strId == IPCClientCommands::GotoCustomOvpnConfigMode::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCClientCommands::GotoCustomOvpnConfigMode>(buf, size);

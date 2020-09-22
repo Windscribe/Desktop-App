@@ -4,9 +4,11 @@
 #include <QObject>
 #include <QLinkedList>
 #include <QTimer>
-#include "engine/types/apiinfo.h"
-#include "engine/types/portmap.h"
 #include "engine/types/wireguardconfig.h"
+#include "engine/apiinfo/apiinfo.h"
+#include "engine/apiinfo/notification.h"
+#include "engine/apiinfo/portmap.h"
+#include "engine/apiinfo/staticips.h"
 #include "engine/proxy/proxysettings.h"
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
@@ -71,21 +73,21 @@ public:
 
 signals:
     void accessIpsAnswer(SERVER_API_RET_CODE retCode, const QStringList &hosts, uint userRole);
-    void loginAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, const QString &authHash, uint userRole);
-    void sessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, uint userRole);
-    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, QVector< QSharedPointer<ServerLocation> > serverLocations,
+    void loginAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash, uint userRole);
+    void sessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
+    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
                                QStringList forceDisconnectNodes, uint userRole);
     void serverCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername,
                                  const QString &radiusPassword, ProtocolType protocol, uint userRole);
-    void serverConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config, uint userRole);
-    void portMapAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<PortMap> portMap, uint userRole);
+    void serverConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
+    void portMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap, uint userRole);
     void myIPAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);
     void checkUpdateAnswer(bool bAvailable, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
     void debugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void confirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void staticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation, uint userRole);
+    void staticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
-    void notificationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiNotifications> notifications, uint userRole);
+    void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<apiinfo::Notification> notifications, uint userRole);
     void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
 
     // need for add to firewall rules

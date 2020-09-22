@@ -1,0 +1,343 @@
+#include "apiinfo.h"
+#include <QThread>
+#include <QSettings>
+#include "utils/logger.h"
+#include "utils/utils.h"
+#include "ipc/generated_proto/apiinfo.pb.h"
+
+namespace apiinfo {
+
+ApiInfo::ApiInfo() : simpleCrypt_(0x4572A4ACF31A31BA)
+{
+    threadId_ = QThread::currentThreadId();
+}
+
+SessionStatus ApiInfo::getSessionStatus() const
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    return sessionStatus_;
+}
+
+void ApiInfo::setSessionStatus(const SessionStatus &value)
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    sessionStatus_ = value;
+}
+
+void ApiInfo::setLocations(const QVector<Location> &value)
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    locations_ = value;
+    processServerLocations();
+}
+
+QVector<Location> ApiInfo::getLocations() const
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    return locations_;
+}
+
+QStringList ApiInfo::getForceDisconnectNodes() const
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    return forceDisconnectNodes_;
+}
+
+void ApiInfo::setForceDisconnectNodes(const QStringList &value)
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    forceDisconnectNodes_ = value;
+}
+
+void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    serverCredentials_ = serverCredentials;
+}
+
+ServerCredentials ApiInfo::getServerCredentials() const
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    return serverCredentials_;
+}
+
+QString ApiInfo::getOvpnConfig() const
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    return ovpnConfig_;
+}
+
+void ApiInfo::setOvpnConfig(const QString &value)
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    ovpnConfig_ = value;
+}
+
+QString ApiInfo::getAuthHash() const
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    return authHash_;
+}
+
+void ApiInfo::setAuthHash(const QString &authHash)
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    authHash_ = authHash;
+}
+
+PortMap ApiInfo::getPortMap() const
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    return portMap_;
+}
+
+void ApiInfo::setPortMap(const PortMap &portMap)
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    portMap_ = portMap;
+}
+
+void ApiInfo::setStaticIps(const StaticIps &value)
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    staticIps_ = value;
+}
+
+StaticIps ApiInfo::getStaticIps() const
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    return staticIps_;
+}
+
+void ApiInfo::saveToSettings()
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+
+    QSettings settings;
+    ProtoApiInfo::ApiInfo protoApiInfo;
+
+    *protoApiInfo.mutable_session_status() = sessionStatus_.getProtoBuf();
+
+    for (const Location &l : locations_)
+    {
+        *protoApiInfo.add_locations() = l.getProtoBuf();
+    }
+
+    *protoApiInfo.mutable_server_credentials() = serverCredentials_.getProtoBuf();
+    protoApiInfo.set_ovpn_config(ovpnConfig_.toStdString());
+    *protoApiInfo.mutable_port_map() = portMap_.getProtoBuf();
+    *protoApiInfo.mutable_static_ips() = staticIps_.getProtoBuf();
+
+    size_t size = protoApiInfo.ByteSizeLong();
+    QByteArray arr(size, Qt::Uninitialized);
+    protoApiInfo.SerializeToArray(arr.data(), size);
+
+    settings.setValue("apiInfo", simpleCrypt_.encryptToString(arr));
+
+    if (!sessionStatus_.getRevisionHash().isEmpty())
+    {
+        settings.setValue("revisionHash", sessionStatus_.getRevisionHash());
+    }
+    else
+    {
+        settings.remove("revisionHash");
+    }
+
+    settings.setValue("userId", sessionStatus_.getUserId());    // need for uninstaller program for open post uninstall webpage*/
+}
+
+void ApiInfo::removeFromSettings()
+{
+    QSettings settings;
+    settings.remove("apiInfo");
+}
+
+bool ApiInfo::loadFromSettings()
+{
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    QSettings settings;
+    QString s = settings.value("apiInfo", "").toString();
+    if (!s.isEmpty())
+    {
+        QByteArray arr = simpleCrypt_.decryptToByteArray(s);
+        ProtoApiInfo::ApiInfo protoApiInfo;
+        if (!protoApiInfo.ParseFromArray(arr.data(), arr.size()))
+        {
+            return false;
+        }
+
+        sessionStatus_.initFromProtoBuf(protoApiInfo.session_status());
+
+        locations_.clear();
+        for (int i = 0; i < protoApiInfo.locations_size(); ++i)
+        {
+            Location location;
+            location.initFromProtoBuf(protoApiInfo.locations(i));
+            locations_ << location;
+        }
+
+        forceDisconnectNodes_.clear();
+        serverCredentials_ = ServerCredentials(protoApiInfo.server_credentials());
+        ovpnConfig_ = QString::fromStdString(protoApiInfo.ovpn_config());
+        portMap_.initFromProtoBuf(protoApiInfo.port_map());
+        staticIps_.initFromProtoBuf(protoApiInfo.static_ips());
+        processServerLocations();
+
+        sessionStatus_.setRevisionHash(settings.value("revisionHash", "").toString());
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*void ApiInfo::debugSaveToFile(const QString &filename)
+{
+    QByteArray arr;
+    {
+        QDataStream stream(&arr, QIODevice::WriteOnly);
+
+        stream << REVISION_VERSION;
+        stream << ovpnConfig_;
+        stream << radiusUsername_;
+        stream << radiusPassword_;
+
+        int serverLocationsCount = serverLocations_.count();
+        stream << serverLocationsCount;
+        for (auto it = serverLocations_.begin(); it != serverLocations_.end(); ++it)
+        {
+            (*it)->writeToStream(stream);
+        }
+
+        Q_ASSERT(!bestLocation_.isNull());
+        bestLocation_->writeToStream(stream);
+
+        Q_ASSERT(!portMap_.isNull());
+        portMap_->writeToStream(stream);
+
+        Q_ASSERT(!sessionStatus_.isNull());
+        sessionStatus_->writeToStream(stream);
+    }
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        file.write(arr);
+        file.close();
+    }
+}
+
+void ApiInfo::debugLoadFromFile(const QString &filename)
+{
+    QFile file(filename);
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QByteArray arr = file.readAll();
+
+        QDataStream stream(&arr, QIODevice::ReadOnly);
+
+        int revisionVersion;
+        stream >> revisionVersion;
+        stream >> ovpnConfig_;
+        stream >> radiusUsername_;
+        stream >> radiusPassword_;
+
+        serverLocations_.clear();
+        int serverLocationsCount;
+        stream >> serverLocationsCount;
+        for (int i = 0; i < serverLocationsCount; ++i)
+        {
+            QSharedPointer<ServerLocation> location(new ServerLocation());
+            location->readFromStream(stream, revisionVersion);
+            serverLocations_ << location;
+        }
+        if (serverLocationsCount == 0)
+        {
+            return;
+        }
+
+        QSharedPointer<BestLocation> best(new BestLocation());
+        best->readFromStream(stream);
+        bestLocation_ = best;
+
+        QSharedPointer<PortMap> portMap(new PortMap());
+        portMap->readFromStream(stream);
+        portMap_ = portMap;
+
+        QSharedPointer<SessionStatus> sessionStatus(new SessionStatus());
+        sessionStatus->readFromStream(stream);
+        sessionStatus_ = sessionStatus;
+
+        mergeServerLocationsWithBestLocation();
+
+        file.close();
+    }
+}*/
+
+void ApiInfo::processServerLocations()
+{
+    // Build a new list of server locations to merge, removing them from the old list.
+    // Currently we merge all WindFlix locations into the corresponding global locations.
+    QVector<Location> locationsToMerge;
+    QMutableVectorIterator<Location> it(locations_);
+    while (it.hasNext()) {
+        Location &location = it.next();
+        if (location.getName().startsWith("WINDFLIX")) {
+            locationsToMerge.append(location);
+            it.remove();
+        }
+    }
+    if (!locationsToMerge.size())
+        return;
+
+    // Map city names to locations for faster lookups.
+    QHash<QString, Location *> location_hash;
+    for (auto &location: locations_) {
+        for (int i = 0; i < location.groupsCount(); ++i)
+        {
+            const Group group = location.getGroup(i);
+            location_hash.insert(location.getCountryCode() + group.getCity(), &location);
+        }
+    }
+
+    // Merge the locations.
+    QMutableVectorIterator<Location> itm(locationsToMerge);
+    while (itm.hasNext()) {
+        Location &location = itm.next();
+        const auto country_code = location.getCountryCode();
+
+        for (int i = 0; i < location.groupsCount(); ++i)
+        {
+            const Group group = location.getGroup(i);
+
+            auto target = location_hash.find(country_code + group.getCity());
+            Q_ASSERT(target != location_hash.end());
+            if (target != location_hash.end())
+            {
+                target.value()->addGroup(location.getGroup(i));
+            }
+        }
+        itm.remove();
+    }
+}
+
+/*bool ServerNode::isEqualIpsServerNodes(const QVector<ServerNode> &n1, const QVector<ServerNode> &n2)
+{
+    if (n1.size() != n2.size())
+    {
+        return false;
+    }
+    else
+    {
+        for (int i = 0; i < n1.size(); ++i)
+        {
+            if (n1[i].ip[0] != n2[i].ip[0] || n1[i].ip[1] != n2[i].ip[1] || n1[i].ip[2] != n2[i].ip[2])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+}*/
+
+} //namespace apiinfo

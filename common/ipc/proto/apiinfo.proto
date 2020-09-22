@@ -1,0 +1,115 @@
+syntax = "proto2";
+import "types.proto";
+
+// used for serializing/deserializing ApiInfo structs to binary format
+package ProtoApiInfo;
+
+message Node
+{
+  repeated string ips = 1;  // 3 ips
+  optional string hostname = 2;
+  optional int32 weight = 3;
+}
+
+message Group
+{
+  optional int32 id = 1;
+  optional string city = 2;
+  optional string nick = 3;
+  optional int32 pro = 4;
+  optional string ping_ip = 5;
+  repeated Node nodes = 6;
+}
+
+message Location
+{
+  optional int32 id = 1;
+  optional string name = 2;
+  optional string country_code = 3;
+  optional int32 premium_only = 4;
+  optional int32 p2p = 5;
+  optional string dns_hostname = 6;
+  repeated Group groups = 7;
+}
+
+message ServerCredentials
+{
+  optional string openvpn_username = 1;
+  optional string openvpn_password = 2;
+  optional string ikev2_username = 3;
+  optional string ikev2_password = 4;
+}
+
+message PortMapItem
+{
+  optional ProtoTypes.Protocol protocol = 1;
+  optional string heading = 2;
+  optional string use = 3;
+  repeated uint32 ports = 4;
+}
+
+message PortMap
+{
+  repeated PortMapItem items = 1;
+}
+
+message StaticIpPortDescr
+{
+  optional uint32 ext_port = 1;
+  optional uint32 int_port = 2;
+}
+
+message StaticIpDescr
+{
+  optional uint32 id = 1;
+  optional uint32 ip_id = 2;
+  optional string static_ip = 3;
+  optional string type = 4; // dc = datacenter ip, res = residential ip
+  optional string name = 5;
+  optional string country_code = 6;
+  optional string short_name = 7;
+  optional string city_name = 8;
+  optional uint32 server_id = 9;
+  repeated string node_ips = 10;  // 3 ips
+  optional string hostname = 11;
+  optional string dns_hostname = 12;
+  optional string username = 13;
+  optional string password = 14;
+  repeated StaticIpPortDescr ports = 15;
+}
+
+message StaticIps
+{
+  optional string device_name = 1;
+  repeated StaticIpDescr ips = 2;
+}
+
+message ApiInfo
+{
+  optional ProtoTypes.SessionStatus session_status = 1;
+  repeated Location locations = 2;
+  optional ServerCredentials server_credentials = 3;
+  optional string ovpn_config = 4;
+  optional PortMap port_map = 5;
+  optional StaticIps static_ips = 6;
+}
+
+message PingData
+{
+  optional string ip = 1;
+  optional int32 pingTime = 2 [default = -2];   // no ping info by default
+  optional uint32 iteration = 3;
+  optional bool from_disconnected_state = 4;
+}
+
+message PingStorage
+{
+  optional uint32 cur_iteration = 1;
+  repeated PingData pings = 2;
+}
+
+message BestLocation
+{
+  optional int32 id = 1; 
+}
+

@@ -109,7 +109,7 @@ QString ExtraConfig::getRemoteIpFromExtraConfig()
     return "";
 }
 
-QByteArray ExtraConfig::modifyVerbParameter(const QByteArray &ovpnData, QString &strExtraConfig)
+QString ExtraConfig::modifyVerbParameter(const QString &ovpnData, QString &strExtraConfig)
 {
     QRegularExpressionMatch match;
     int indExtra = strExtraConfig.indexOf(regExp_, 0, &match);
@@ -130,7 +130,7 @@ QByteArray ExtraConfig::modifyVerbParameter(const QByteArray &ovpnData, QString 
     strOvpn.replace(regExp_, verbString);
     strExtraConfig.remove(indExtra, match.capturedLength());
 
-    return strOvpn.toLocal8Bit();
+    return strOvpn;
 }
 
 ExtraConfig::ExtraConfig() : mutex_(QMutex::Recursive),

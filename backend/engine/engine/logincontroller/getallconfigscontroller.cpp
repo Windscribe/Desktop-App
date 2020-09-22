@@ -8,10 +8,10 @@ GetAllConfigsController::GetAllConfigsController(QObject *parent) : QObject(pare
 
 }
 
-void GetAllConfigsController::putServerLocationsAnswer(SERVER_API_RET_CODE retCode, QVector<QSharedPointer<ServerLocation> > serverLocations, const QStringList &forceDisconnectNodes)
+void GetAllConfigsController::putServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &locations, const QStringList &forceDisconnectNodes)
 {
     serverLocationsRetCode_ = retCode;
-    serverLocations_ = serverLocations;
+    locations_ = locations;
     forceDisconnectNodes_ = forceDisconnectNodes;
     bServerLocationsAnswerReceived_ = true;
     handleComplete();
@@ -35,7 +35,7 @@ void GetAllConfigsController::putServerCredentialsIkev2Answer(SERVER_API_RET_COD
     handleComplete();
 }
 
-void GetAllConfigsController::putServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config)
+void GetAllConfigsController::putServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config)
 {
     serverConfigsRetCode_ = retCode;
     ovpnConfig_ = config;
@@ -43,7 +43,7 @@ void GetAllConfigsController::putServerConfigsAnswer(SERVER_API_RET_CODE retCode
     handleComplete();
 }
 
-void GetAllConfigsController::putPortMapAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<PortMap> portMap)
+void GetAllConfigsController::putPortMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap)
 {
     portMapRetCode_ = retCode;
     portMap_ = portMap;
@@ -51,17 +51,17 @@ void GetAllConfigsController::putPortMapAnswer(SERVER_API_RET_CODE retCode, QSha
     handleComplete();
 }
 
-void GetAllConfigsController::putStaticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<StaticIpsLocation> staticIpsLocation)
+void GetAllConfigsController::putStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps)
 {
     staticIpsRetCode_ = retCode;
-    staticIpsLocation_ = staticIpsLocation;
+    staticIps_ = staticIps;
     bStaticIpsAnswerReceived_ = true;
     handleComplete();
 }
 
-ServerCredentials GetAllConfigsController::getServerCredentials()
+apiinfo::ServerCredentials GetAllConfigsController::getServerCredentials() const
 {
-    return ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_);
+    return apiinfo::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_);
 }
 
 void GetAllConfigsController::handleComplete()

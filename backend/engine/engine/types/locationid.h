@@ -5,6 +5,7 @@
 #include <QMetaType>
 #include <QHash>
 
+// Uniquely identifies a location among all locations (API locations, statis IPs locations, custom config locations, best location).
 class LocationID
 {
 public:
@@ -16,6 +17,10 @@ public:
     LocationID() : locationId_(EMPTY_LOCATION) {}
     LocationID(int id, const QString &cityName);
     explicit LocationID(int id);
+
+    static LocationID createFromApiLocation(int id, int cityId);
+    static LocationID createFromStaticIpsLocation(const QString &city, const QString &ip);
+
 
     LocationID& operator=(LocationID rhs)
     {

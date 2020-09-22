@@ -246,6 +246,7 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 
 SOURCES += main.cpp \
     $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
+    $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.cc \
     $$COMMON_PATH/utils/utils.cpp \
     $$COMMON_PATH/utils/logger.cpp \
     $$COMMON_PATH/utils/extraconfig.cpp \
@@ -253,9 +254,27 @@ SOURCES += main.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
     application/windowsnativeeventfilter.cpp \
     application/windscribeapplication.cpp \
+    engine/apiinfo/apiinfo.cpp \
+    engine/apiinfo/sessionstatus.cpp \
+    engine/apiinfo/location.cpp \
+    engine/apiinfo/group.cpp \
+    engine/apiinfo/node.cpp \
+    engine/apiinfo/notification.cpp \
+    engine/apiinfo/portmap.cpp \
+    engine/apiinfo/staticips.cpp \
+    engine/apiinfo/servercredentials.cpp \
     engine/ping/keepalivemanager.cpp \
-    engine/serversmodel/serversmodel.cpp \
-    engine/serversmodel/pingmanager.cpp \
+    engine/locationsmodel/locationsmodel.cpp \
+    engine/locationsmodel/locationitem.cpp \
+    engine/locationsmodel/pingipscontroller.cpp \
+    engine/locationsmodel/pingstorage.cpp \
+    engine/locationsmodel/bestlocation.cpp \
+    engine/locationsmodel/mutablelocationinfo.cpp \
+    engine/locationsmodel/locationnode.cpp \
+    engine/locationsmodel/pingtime.cpp \
+    engine/locationsmodel/pinglog.cpp \
+    engine/locationsmodel/failedpinglogcontroller.cpp \
+    engine/locationsmodel/nodeselectionalgorithm.cpp \
     engine/packetsizecontroller.cpp \
     engine/enginesettings.cpp \
     utils/mergelog.cpp \
@@ -263,17 +282,13 @@ SOURCES += main.cpp \
     utils/simplecrypt.cpp \
     engine/logincontroller/logincontroller.cpp \
     engine/logincontroller/getallconfigscontroller.cpp \
-    engine/types/apiinfo.cpp \
     engine/proxy/proxysettings.cpp \
-    engine/types/portmap.cpp \
     engine/types/connectionsettings.cpp \
-    engine/serversmodel/nodesspeedratings.cpp \
     engine/getmyipcontroller.cpp \
     engine/firewall/uniqueiplist.cpp \
     engine/firewall/firewallexceptions.cpp \
     engine/firewall/firewallcontroller.cpp \
     engine/proxy/proxyservercontroller.cpp \
-    engine/serversmodel/failedpinglogcontroller.cpp \
     engine/types/dnsresolutionsettings.cpp \
     engine/connectionmanager/makeovpnfile.cpp \
     engine/connectionmanager/stunnelmanager.cpp \
@@ -285,8 +300,6 @@ SOURCES += main.cpp \
     engine/connectionmanager/availableport.cpp \
     engine/connectionmanager/wireguardconnection.cpp \
     engine/types/locationid.cpp \
-    engine/serversmodel/nodeselectionalgorithm.cpp \
-    engine/serversmodel/nodesspeedstore.cpp \
     engine/logincontroller/getapiaccessips.cpp \
     engine/helper/initializehelper.cpp \
     engine/refetchservercredentialshelper.cpp \
@@ -323,23 +336,14 @@ SOURCES += main.cpp \
     engine/engine.cpp \
     engine/crossplatformobjectfactory.cpp \
     engine/types/loginsettings.cpp \
-    engine/types/servercredentials.cpp \
     engine/emergencycontroller/emergencycontroller.cpp \
     engine/dnsresolver/areslibraryinit.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
     engine/connectionmanager/ikev2connection_test.cpp \
-    engine/types/serverlocation.cpp \
-    engine/types/servernode.cpp \
-    engine/serversmodel/pingnodescontroller.cpp \
-    engine/serversmodel/pinglog.cpp \
-    engine/serversmodel/testpingnodecontroller.cpp \
-    engine/serversmodel/mutablelocationinfo.cpp \
-    engine/serverlocationsapiwrapper.cpp \
     engine/helper/simple_xor_crypt.cpp \
     engine/tests/sessionandlocations_test.cpp \
     engine/sessionstatustimer.cpp \
-    engine/serversmodel/pingtime.cpp \
     engine/connectionmanager/wstunnelmanager.cpp \
     engine/customovpnconfigs/customovpnconfigs.cpp \
     engine/connectionmanager/makeovpnfilefromcustom.cpp \
@@ -347,9 +351,7 @@ SOURCES += main.cpp \
     engine/customovpnconfigs/customovpnauthcredentialsstorage.cpp \
     engine/ping/pinghost_tcp.cpp \
     engine/ping/pinghost.cpp \
-    engine/serversmodel/resolvehostnamesforcustomovpn.cpp \
     engine/customovpnconfigs/customconfigsdirwatcher.cpp \
-    engine/types/staticipslocation.cpp \
     engine/types/wireguardconfig.cpp \
     engine/getdeviceid.cpp \
     qconsolelistener.cpp \
@@ -364,8 +366,19 @@ SOURCES += main.cpp \
     $$COMMON_PATH/ipc/tcpserver.cpp \
     engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.cpp
 
-HEADERS  += engine/serversmodel/serversmodel.h \
+HEADERS  +=  engine/locationsmodel/locationsmodel.h \
+    engine/locationsmodel/locationitem.h \
+    engine/locationsmodel/pingipscontroller.h \
+    engine/locationsmodel/pingstorage.h \
+    engine/locationsmodel/bestlocation.h \
+    engine/locationsmodel/mutablelocationinfo.h \
+    engine/locationsmodel/locationnode.h \
+    engine/locationsmodel/pingtime.h \
+    engine/locationsmodel/pinglog.h \
+    engine/locationsmodel/failedpinglogcontroller.h \
+    engine/locationsmodel/nodeselectionalgorithm.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \
+    $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.h \
     $$COMMON_PATH/utils/utils.h \
     $$COMMON_PATH/utils/logger.h \
     $$COMMON_PATH/utils/extraconfig.h \
@@ -374,13 +387,21 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     application/windowsnativeeventfilter.h \
     application/windscribeapplication.h \
+    engine/apiinfo/apiinfo.h \
+    engine/apiinfo/sessionstatus.h \
+    engine/apiinfo/location.h \
+    engine/apiinfo/group.h \
+    engine/apiinfo/node.h \
+    engine/apiinfo/notification.h \
+    engine/apiinfo/portmap.h \
+    engine/apiinfo/staticips.h \
+    engine/apiinfo/servercredentials.h \
     engine/connectionmanager/makeovpnfile.h \
     engine/dnsresolver/dnsutils.h \
     engine/macaddresscontroller/imacaddresscontroller.h \
     engine/networkdetectionmanager/inetworkdetectionmanager.h \
     $$COMMON_PATH/utils/networktypes.h \
     engine/ping/keepalivemanager.h \
-    engine/serversmodel/pingmanager.h \
     engine/packetsizecontroller.h \
     engine/enginesettings.h \
     utils/mergelog.h \
@@ -391,9 +412,7 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     utils/simplecrypt.h \
     engine/logincontroller/logincontroller.h \
     engine/logincontroller/getallconfigscontroller.h \
-    engine/types/apiinfo.h \
     engine/proxy/proxysettings.h \
-    engine/types/portmap.h \
     engine/types/connectionsettings.h \
     engine/getmyipcontroller.h \
     engine/firewall/uniqueiplist.h \
@@ -401,7 +420,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/firewall/firewallcontroller.h \
     engine/firewall/firewallexceptions.h \
     engine/proxy/proxyservercontroller.h \
-    engine/serversmodel/failedpinglogcontroller.h \
     engine/connectionmanager/testvpntunnel.h \
     engine/types/dnsresolutionsettings.h \
     engine/connectionmanager/iconnection.h \
@@ -414,8 +432,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/connectionmanager/automanualconnectioncontroller.h \
     engine/connectionmanager/connectionmanager.h \
     engine/types/locationid.h \
-    engine/serversmodel/iserversmodel.h \
-    engine/serversmodel/nodeselectionalgorithm.h \
     engine/logincontroller/getapiaccessips.h \
     engine/helper/initializehelper.h \
     engine/refetchservercredentialshelper.h \
@@ -455,25 +471,14 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/engine.h \
     engine/crossplatformobjectfactory.h \
     engine/types/loginsettings.h \
-    engine/types/servercredentials.h \
     engine/emergencycontroller/emergencycontroller.h \
     engine/dnsresolver/areslibraryinit.h \
     engine/dnsresolver/dnsresolver.h \
     engine/types/protocoltype.h \
     engine/connectionmanager/ikev2connection_test.h \
-    engine/types/serverlocation.h \
-    engine/types/servernode.h \
-    engine/serversmodel/pingnodescontroller.h \
-    engine/serversmodel/pinglog.h \
-    engine/serversmodel/testpingnodecontroller.h \
-    engine/serversmodel/nodesspeedratings.h \
-    engine/serversmodel/mutablelocationinfo.h \
-    engine/serversmodel/nodesspeedstore.h \
-    engine/serverlocationsapiwrapper.h \
     engine/helper/simple_xor_crypt.h \
     engine/tests/sessionandlocations_test.h \
     engine/sessionstatustimer.h \
-    engine/serversmodel/pingtime.h \
     engine/connectionmanager/wstunnelmanager.h \
     engine/customovpnconfigs/customovpnconfigs.h \
     engine/connectionmanager/makeovpnfilefromcustom.h \
@@ -483,9 +488,7 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/ping/ipv4_header.h \
     engine/ping/pinghost_tcp.h \
     engine/ping/pinghost.h \
-    engine/serversmodel/resolvehostnamesforcustomovpn.h \
     engine/customovpnconfigs/customconfigsdirwatcher.h \
-    engine/types/staticipslocation.h \
     engine/types/wireguardconfig.h \
     engine/getdeviceid.h \
     qconsolelistener.h \

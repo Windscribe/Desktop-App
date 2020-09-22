@@ -70,13 +70,13 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(initFinished(ENGINE_INIT_RET_CODE)), SLOT(onEngineInitFinished(ENGINE_INIT_RET_CODE)));
             connect(engine_, SIGNAL(bfeEnableFinished(ENGINE_INIT_RET_CODE)), SLOT(onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE)));
             connect(engine_, SIGNAL(firewallStateChanged(bool)), SLOT(onEngineFirewallStateChanged(bool)));
-            connect(engine_, SIGNAL(loginFinished(bool)), SLOT(onEngineLoginFinished(bool)));
+            connect(engine_, SIGNAL(loginFinished(bool, QString, apiinfo::PortMap)), SLOT(onEngineLoginFinished(bool, QString, apiinfo::PortMap)));
             connect(engine_, SIGNAL(loginError(LOGIN_RET)), SLOT(onEngineLoginError(LOGIN_RET)));
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
-            connect(engine_, SIGNAL(notificationsUpdated(QSharedPointer<ApiNotifications>)), SLOT(onEngineNotificationsUpdated(QSharedPointer<ApiNotifications>)));
+            connect(engine_, SIGNAL(notificationsUpdated(QVector<apiinfo::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<apiinfo::Notification>)));
             connect(engine_, SIGNAL(checkUpdateUpdated(bool,QString,bool,int,QString,bool)), SLOT(onEngineCheckUpdateUpdated(bool,QString,bool,int,QString,bool)));
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
-            connect(engine_, SIGNAL(sessionStatusUpdated(QSharedPointer<SessionStatus>)), SLOT(onEngineUpdateSessionStatus(QSharedPointer<SessionStatus>)));
+            connect(engine_, SIGNAL(sessionStatusUpdated(apiinfo::SessionStatus)), SLOT(onEngineUpdateSessionStatus(apiinfo::SessionStatus)));
             connect(engine_, SIGNAL(sessionDeleted()), SLOT(onEngineSessionDeleted()));
             connect(engine_->getConnectStateController(), SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)),
                     SLOT(onEngineConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)));
@@ -120,7 +120,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
                 cmd.getProtoObj().add_available_openvpn_versions(openVpnVer.toStdString());
             }
             cmd.getProtoObj().set_is_wifi_sharing_supported(engine_->isWifiSharingSupported());
-            cmd.getProtoObj().set_is_saved_auth_hash_exists(engine_->isCanLoginWithAuthHash());
             cmd.getProtoObj().set_is_saved_api_settings_exists(engine_->isApiSavedSettingsExists());
             cmd.getProtoObj().set_auth_hash(engine_->getAuthHash().toStdString());
 
@@ -180,7 +179,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
         // login with auth hash
         else if (!loginCmd->getProtoObj().auth_hash().empty())
         {
-            engine_->loginWithCustomAuthHash(QString::fromStdString(loginCmd->getProtoObj().auth_hash()));
+            engine_->loginWithAuthHash(QString::fromStdString(loginCmd->getProtoObj().auth_hash()));
         }
         // login with username and password
         else if (!loginCmd->getProtoObj().username().empty() && !loginCmd->getProtoObj().password().empty())
@@ -366,11 +365,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
         engine_->speedRating(cmd->getProtoObj().rating(), QString::fromStdString(cmd->getProtoObj().local_external_ip()));
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::ClearSpeedRatings::descriptor()->full_name())
-    {
-        engine_->clearSpeedRatings();
-        return true;
-    }
     else if (command->getStringId() == IPCClientCommands::ContinueWithCredentialsForOvpnConfig::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCClientCommands::ContinueWithCredentialsForOvpnConfig> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::ContinueWithCredentialsForOvpnConfig> *>(command);
@@ -403,8 +397,10 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
 
     if (retCode == ENGINE_INIT_SUCCESS)
     {
-        connect(engine_->getServersModel(), SIGNAL(itemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> >)), SLOT(onEngineServersModelItemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> >)));
-        connect(engine_->getServersModel(), SIGNAL(connectionSpeedChanged(LocationID,PingTime)), SLOT(onEngineServersModelConnectionSpeedChanged(LocationID,PingTime)));
+        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)),
+                SLOT(onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)),
+                SLOT(onEngineLocationsModelPingChangedChanged(LocationID,locationsmodel::PingTime)));
 
         cmd.getProtoObj().set_init_state(ProtoTypes::INIT_SUCCESS);
         *cmd.getProtoObj().mutable_engine_settings() = curEngineSettings_.getProtoBufEngineSettings();
@@ -417,7 +413,6 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
 
         cmd.getProtoObj().set_is_wifi_sharing_supported(engine_->isWifiSharingSupported());
 
-        cmd.getProtoObj().set_is_saved_auth_hash_exists(engine_->isCanLoginWithAuthHash());
         cmd.getProtoObj().set_is_saved_api_settings_exists(engine_->isApiSavedSettingsExists());
         cmd.getProtoObj().set_auth_hash(engine_->getAuthHash().toStdString());
 
@@ -523,7 +518,6 @@ void EngineServer::onConnectionStateCallback(int state, IPC::IConnection *connec
             qCDebug(LOG_IPC) << "All of the clients are disconnected";
             emit finished();
         }
-
     }
     else
     {
@@ -568,28 +562,26 @@ void EngineServer::onEngineFirewallStateChanged(bool isEnabled)
     sendFirewallStateChanged(isEnabled);
 }
 
-void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings)
+void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap)
 {
     IPC::ProtobufCommand<IPCServerCommands::LoginFinished> cmd;
     cmd.getProtoObj().set_is_login_from_saved_settings(isLoginFromSavedSettings);
-    cmd.getProtoObj().set_auth_hash(engine_->getAuthHash().toStdString());
+    cmd.getProtoObj().set_auth_hash(authHash.toStdString());
     qCDebug(LOG_IPC) << "Engine Settings Changed -- Updating client: " << QString::fromStdString(cmd.getDebugString());
 
-    QSharedPointer<PortMap> portMap = engine_->getCurrentPortMap();
     ProtoTypes::ArrayPortMap arrPortMap;
-    for (int i = 0; i < portMap->items.count(); ++i)
+    for (int i = 0; i < portMap.getPortItemCount(); ++i)
     {
+        const apiinfo::PortItem *portItem = portMap.getPortItemByIndex(i);
         ProtoTypes::PortMapItem pmi;
-        pmi.set_protocol(portMap->items[i].protocol.convertToProtobuf());
-        pmi.set_heading(portMap->items[i].heading.toStdString());
-        pmi.set_use(portMap->items[i].use.toStdString());
+        pmi.set_protocol(portItem->protocol.convertToProtobuf());
+        pmi.set_heading(portItem->heading.toStdString());
+        pmi.set_use(portItem->use.toStdString());
 
-        for (int p = 0; p < portMap->items[i].ports.count(); ++p)
+        for (int p = 0; p < portItem->ports.count(); ++p)
         {
-            pmi.add_ports(portMap->items[i].ports[p]);
+            pmi.add_ports(portItem->ports[p]);
         }
-        pmi.set_legacy_port(portMap->items[i].legacy_port);
-
         *arrPortMap.add_port_map_item() = pmi;
     }
     *cmd.getProtoObj().mutable_array_port_map() = arrPortMap;
@@ -632,52 +624,20 @@ void EngineServer::onEngineSessionDeleted()
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineUpdateSessionStatus(QSharedPointer<SessionStatus> sessionStatus)
+void EngineServer::onEngineUpdateSessionStatus(const apiinfo::SessionStatus &sessionStatus)
 {
     IPC::ProtobufCommand<IPCServerCommands::SessionStatusUpdated> cmd;
-
-    ProtoTypes::SessionStatus ss;
-
-    ss.set_is_premium(sessionStatus->isPremium != 0);
-    ss.set_status(sessionStatus->status);
-    ss.set_rebill(sessionStatus->rebill);
-    ss.set_billing_plan_id(sessionStatus->billingPlanId);
-    ss.set_premium_expire_date(sessionStatus->premiumExpireDateStr.toStdString());
-    ss.set_traffic_used(sessionStatus->trafficUsed);
-    ss.set_traffic_max(sessionStatus->trafficMax);
-    ss.set_username(sessionStatus->username.toStdString());
-    ss.set_user_id(sessionStatus->userId.toStdString());
-    ss.set_email(sessionStatus->email.toStdString());
-    ss.set_email_status(sessionStatus->emailStatus);
-
-    Q_FOREACH(const QString &s, sessionStatus->alc)
-    {
-        ss.add_alc(s.toStdString());
-    }
-
-    *cmd.getProtoObj().mutable_session_status() = ss;
+    *cmd.getProtoObj().mutable_session_status() = sessionStatus.getProtoBuf();
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineNotificationsUpdated(QSharedPointer<ApiNotifications> notifications)
+void EngineServer::onEngineNotificationsUpdated(const QVector<apiinfo::Notification> &notifications)
 {
     IPC::ProtobufCommand<IPCServerCommands::NotificationsUpdated> cmd;
 
-    if (!notifications.isNull())
+    for (const apiinfo::Notification &n : notifications)
     {
-        Q_FOREACH(const ApiNotification &an, notifications->notifications)
-        {
-            ProtoTypes::ApiNotification ian;
-            ian.set_id(an.id);
-            ian.set_title(an.title.toStdString());
-            ian.set_message(an.message.toStdString());
-            ian.set_date(an.date);
-            ian.set_perm_free(an.perm_free);
-            ian.set_perm_pro(an.perm_pro);
-            ian.set_popup(an.popup);
-
-            *cmd.getProtoObj().mutable_array_notifications()->add_api_notifications() = ian;
-        }
+        *cmd.getProtoObj().mutable_array_notifications()->add_api_notifications() = n.getProtoBuf();
     }
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
@@ -919,55 +879,37 @@ void EngineServer::onEngineConfirmEmailFinished(bool bSuccess)
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineServersModelItemsUpdated(QSharedPointer<QVector<ModelExchangeLocationItem> > items)
+void EngineServer::onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items)
 {
     IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> cmd;
-
-    Q_FOREACH(const ModelExchangeLocationItem &li, *items)
+    for (const locationsmodel::LocationItem &li : *items)
     {
-        ProtoTypes::Location l;
-        l.set_id(li.id);
-        l.set_name(li.name.toStdString());
-        l.set_city_id("");
-        l.set_city_name("");
-        l.set_country_code(li.countryCode.toStdString());
-        l.set_is_premium_only(li.isPremiumOnly);
-        l.set_is_disabled(li.isDisabled);
-        l.set_is_p2p_supported(li.p2p == 0);
-        l.set_pingtime(li.pingTimeMs.toInt());
-        l.set_is_force_expand(li.forceExpand);
-        l.set_is_show_premium_star_only(false);
-        l.set_static_ip_type("");
-        l.set_static_ip("");
-        l.set_static_ip_device_name(li.staticIpsDeviceName.toStdString());
+        ProtoTypes::Location *l = cmd.getProtoObj().mutable_array_locations()->add_locations();
+        l->set_id(li.id);
+        l->set_name(li.name.toStdString());
+        l->set_country_code(li.countryCode.toStdString());
+        l->set_is_premium_only(li.isPremiumOnly);
+        l->set_is_p2p_supported(li.p2p == 0);
+        l->set_static_ip_device_name(li.staticIpsDeviceName.toStdString());
 
-        *cmd.getProtoObj().mutable_array_locations()->add_locations() = l;
 
-        for (const ModelExchangeCityItem &ci: li.cities)
+        for (const locationsmodel::CityItem &ci : li.cities)
         {
-            ProtoTypes::Location c;
-            c.set_id(li.id);
-            c.set_name("");
-            c.set_city_id(ci.cityId.toStdString());
-            c.set_city_name(ci.cityNameForShow.toStdString());
-            c.set_country_code(li.countryCode.toStdString());
-            c.set_is_premium_only(li.isPremiumOnly);
-            c.set_is_disabled(li.isDisabled);
-            c.set_is_p2p_supported(li.p2p == 0);
-            c.set_pingtime(li.pingTimeMs.toInt());
-            c.set_is_force_expand(false);
-            c.set_is_show_premium_star_only(ci.bShowPremiumStarOnly);
-            c.set_static_ip_type(ci.staticIpType.toStdString());
-            c.set_static_ip(ci.staticIp.toStdString());
-
-            *cmd.getProtoObj().mutable_array_locations()->add_locations() = c;
+            ProtoTypes::City *city = l->add_cities();
+            city->set_id(ci.cityId.toStdString());
+            city->set_name(ci.city.toStdString());
+            city->set_nick(ci.nick.toStdString());
+            city->set_ping_time(ci.pingTimeMs.toInt());
+            city->set_is_premium_only(ci.isPro);
+            city->set_is_disabled(ci.isDisabled);
+            city->set_static_ip_type(ci.staticIpType.toStdString());
+            city->set_static_ip(ci.staticIp.toStdString());
         }
     }
-
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
-void EngineServer::onEngineServersModelConnectionSpeedChanged(LocationID id, PingTime timeMs)
+void EngineServer::onEngineLocationsModelPingChangedChanged(LocationID id, locationsmodel::PingTime timeMs)
 {
     IPC::ProtobufCommand<IPCServerCommands::LocationSpeedChanged> cmd;
     cmd.getProtoObj().set_id(id.getId());

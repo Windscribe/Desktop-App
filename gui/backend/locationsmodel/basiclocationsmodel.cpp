@@ -23,10 +23,6 @@ void BasicLocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
 {
     const bool location_found = [&]() {
         for (auto *lmi : locations_) {
-            if (lmi->id == id) {
-                lmi->pingTimeMs = speed;
-                return true;
-            }
             for (auto &cmi : lmi->cities) {
                 if (cmi.id == id) {
                     cmi.pingTimeMs = speed;

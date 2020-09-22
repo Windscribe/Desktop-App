@@ -183,7 +183,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(noAccountLoginClick()), SLOT(onPreferencesNoAccountLoginClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(clearServerRatingsClick()), SLOT(onPreferencesClearServerRatingsClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(cycleMacAddressClick()), SLOT(onPreferencesCycleMacAddressClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(detectPacketMssButtonClicked()), SLOT(onPreferencesWindowDetectPacketMssButtonClicked()));
 #ifdef Q_OS_WIN
@@ -901,11 +900,6 @@ void MainWindow::onPreferencesNoAccountLoginClick()
     mainWindowController_->getLoginWindow()->resetState();
 }
 
-void MainWindow::onPreferencesClearServerRatingsClick()
-{
-    backend_->clearSpeedRatings();
-}
-
 void MainWindow::onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow)
 {
     backend_->setIPv6StateInOS(bEnabled);
@@ -1082,7 +1076,7 @@ void MainWindow::onLocationSelected(LocationID id)
                 countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
             }
 
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime, li.isFavorite);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime);
             mainWindowController_->collapseLocations();
             PersistentState::instance().setLastLocation(id);
             backend_->sendConnect(id);
@@ -1292,7 +1286,7 @@ void MainWindow::onBackendLoginFinished(bool isLoginFromSavedSettings)
                 countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
             }
 
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime, li.isFavorite);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime);
         }
         else
         {
@@ -1300,7 +1294,7 @@ void MainWindow::onBackendLoginFinished(bool isLoginFromSavedSettings)
             if (backend_->getLocationsModel()->getLocationInfo(bestLocation, li))
             {
                 PersistentState::instance().setLastLocation(bestLocation);
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
         }
 
@@ -1615,7 +1609,7 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
                     countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
                 }
 
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
         }
     }
@@ -1777,7 +1771,7 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
                 countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
             }
 
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
         else
         {
@@ -2651,7 +2645,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
                     countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
                 }
 
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
             onConnectWindowConnectClick();
         }
@@ -2736,7 +2730,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
                 countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
             }
 
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
     }
     else

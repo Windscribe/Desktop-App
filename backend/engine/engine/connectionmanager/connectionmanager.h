@@ -32,9 +32,9 @@ public:
                                ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
-    void clickConnect(const QByteArray &ovpnConfig, const ServerCredentials &serverCredentials,
-                      QSharedPointer<MutableLocationInfo> mli,
-                      const ConnectionSettings &connectionSettings, const PortMap &portMap, const ProxySettings &proxySettings,
+    void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
+                      QSharedPointer<locationsmodel::MutableLocationInfo> mli,
+                      const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap, const ProxySettings &proxySettings,
                       bool bEmitAuthError) override;
 
     void clickDisconnect() override;
@@ -52,7 +52,7 @@ public:
     QString getCustomOvpnConfigFilePath() override;
 
     bool isStaticIpsLocation() const override;
-    StaticIpPortsVector getStatisIps() override;
+    apiinfo::StaticIpPortsVector getStatisIps() override;
 
     void setWireGuardConfig(QSharedPointer<WireGuardConfig> config) override;
 
@@ -98,8 +98,8 @@ private:
     QString lastDefaultGateway_;
     QString lastIp_;
 
-    QByteArray lastOvpnConfig_;
-    ServerCredentials lastServerCredentials_;
+    QString lastOvpnConfig_;
+    apiinfo::ServerCredentials lastServerCredentials_;
     ProxySettings lastProxySettings_;
     bool bEmitAuthError_;
 

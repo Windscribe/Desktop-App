@@ -80,7 +80,6 @@ public:
     void sendDebugLog();
 
     void speedRating(int rating, const QString &localExternalIp);
-    void clearSpeedRatings();
 
     void setBlockConnect(bool isBlockConnect);
     void clearCredentials();
@@ -173,7 +172,6 @@ private:
     unsigned int clientPid_;
     QString clientName_;
 
-    bool isSavedAuthHashExists_;
     bool isSavedApiSettingsExists_;
     QString authHash_;
 

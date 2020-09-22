@@ -38,27 +38,30 @@ bool SortLocationsAlgorithms::lessThanByLatency(LocationModelItem *item1, Locati
         return false;
     }
 
-    if (item1->pingTimeMs.toInt() < 0 && item2->pingTimeMs.toInt() < 0)
+    qint32 item1AverageLatency = item1->calcAveragePing();
+    qint32 item2AverageLatency = item2->calcAveragePing();
+    if (item1AverageLatency == item2AverageLatency)
     {
         return item1->title < item2->title;
     }
-    else if (item1->pingTimeMs.toInt() < 0 && item2->pingTimeMs.toInt() >= 0)
-    {
-        return false;
-    }
-    else if (item1->pingTimeMs.toInt() >= 0 && item2->pingTimeMs.toInt() < 0)
-    {
-        return true;
-    }
     else
     {
-        if (item1->pingTimeMs.toInt() == item2->pingTimeMs.toInt())
+        if (item1AverageLatency == -1)
         {
-            return item1->title < item2->title;
+            return false;
+        }
+        else if (item2AverageLatency == -1)
+        {
+            return true;
         }
         else
         {
-            return item1->pingTimeMs.toInt() < item2->pingTimeMs.toInt();
+            return item1AverageLatency < item2AverageLatency;
         }
     }
+}
+
+bool SortLocationsAlgorithms::lessThanByAlphabeticallyCityItem(const CityModelItem &item1, const CityModelItem &item2)
+{
+    return item1.makeTitle() < item2.makeTitle();
 }

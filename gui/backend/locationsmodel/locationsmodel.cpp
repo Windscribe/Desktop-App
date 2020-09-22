@@ -4,6 +4,7 @@
 #include "configuredcitiesmodel.h"
 #include "staticipscitiesmodel.h"
 #include "favoritecitiesmodel.h"
+#include "sortlocationsalgorithms.h"
 
 #include <QFile>
 
@@ -20,149 +21,61 @@ LocationsModel::LocationsModel(QObject *parent) : QObject(parent)
 
 LocationsModel::~LocationsModel()
 {
-    Q_FOREACH(LocationModelItem *lmi, locations_)
+    for (const LocationModelItem *lmi : locations_)
     {
         delete lmi;
     }
     favoriteLocationsStorage_.writeToSettings();
 }
 
-void LocationsModel::init()
-{
-    /*QHash<int, int> hash;
-
-    QFile file(":/locations.dat");
-    if (file.open(QIODevice::ReadOnly))
-    {
-        QByteArray arr = file.readAll();
-        IPC::ProtobufCommand<IPCServerCommands::LocationsChanged> cmd(arr.data(), arr.size());
-        int cnt = cmd.getProtoObj().locations_size();
-        for (int i = 0; i < cnt; ++i)
-        {
-            IPCServerCommands::Location pl = cmd.getProtoObj().locations(i);
-
-            if (pl.city_name().empty())
-            {
-
-                LocationModelItem *lmi = new LocationModelItem();
-                lmi->id = LocationID(pl.id());
-                lmi->initialInd_ = i;
-                lmi->title = QString::fromStdString(pl.name());
-                lmi->countryCode = QString::fromStdString(pl.country_code()).toLower();
-                lmi->isDisabled = false;
-                lmi->isShowP2P = pl.is_p2p_supported();
-                lmi->isForceExpand = true;
-                lmi->pingTimeMs = pl.pingtime();
-                locations_ << lmi;
-                hash[pl.id()] = locations_.size() - 1;
-            }
-            else
-            {
-                auto it = hash.find(pl.id());
-
-                if (it == hash.end())
-                {
-                    //Q_ASSERT(false);
-                    continue;
-                }
-                else
-                {
-                    CityModelItem cmi;
-
-                    QString n1, n2;
-                    splitCityName(QString::fromStdString(pl.city_name()), n1, n2);
-
-                    cmi.id = LocationID(pl.id(), QString::fromStdString(pl.city_id()));
-                    cmi.isFavorite = favoriteLocationsStorage_.isFavorite(cmi.id);
-                    cmi.title1 = n1;
-                    cmi.title2 = n2;
-                    cmi.bShowPremiumStarOnly = false;
-                    cmi.pingTimeMs = pl.pingtime();
-                    cmi.staticIpType = QString::fromStdString(pl.static_ip_type());
-                    cmi.staticIp = QString::fromStdString(pl.static_ip());
-
-                    locations_[it.value()]->cities << cmi;
-                    ids << cmi.id;
-                }
-            }
-        }
-    }
-
-    allLocations_->update(locations_);
-    configuredLocations_->update(locations_);
-    staticIpsLocations_->update(locations_);
-    favoriteLocations_->update(locations_);*/
-}
-
 void LocationsModel::update(const ProtoTypes::ArrayLocations &arr)
 {
-    QHash<int, int> hash;
-
-    Q_FOREACH(LocationModelItem *lmi, locations_)
+    for (const LocationModelItem *lmi : locations_)
     {
         delete lmi;
     }
     locations_.clear();
-    ids.clear();
 
     int cnt = arr.locations_size();
     for (int i = 0; i < cnt; ++i)
     {
-        ProtoTypes::Location pl = arr.locations(i);
+        const ProtoTypes::Location &location = arr.locations(i);
 
-        if (pl.city_name().empty())
+        LocationModelItem *lmi = new LocationModelItem();
+        lmi->initialInd_ = i;
+        lmi->id = LocationID(location.id());
+        lmi->title = QString::fromStdString(location.name());
+        lmi->isShowP2P = location.is_p2p_supported();
+        lmi->countryCode = QString::fromStdString(location.country_code()).toLower();
+        lmi->isPremiumOnly = location.is_premium_only();
+        locations_ << lmi;
+
+        int cities_cnt = location.cities_size();
+        for (int c = 0; c < cities_cnt; ++c)
         {
-            LocationModelItem *lmi = new LocationModelItem();
-            lmi->id = LocationID(pl.id());
-            lmi->initialInd_ = i;
-            lmi->title = QString::fromStdString(pl.name());
-            lmi->countryCode = QString::fromStdString(pl.country_code()).toLower();
-            lmi->isShowP2P = pl.is_p2p_supported();
-            lmi->isPremiumOnly = pl.is_premium_only();
-            lmi->isForceExpand = true;
-            lmi->pingTimeMs = pl.pingtime();
-            locations_ << lmi;
-            hash[pl.id()] = locations_.size() - 1;
-        }
-        else
-        {
-            auto it = hash.find(pl.id());
-
-            if (it == hash.end())
-            {
-                //Q_ASSERT(false);
-                continue;
-            }
-            else
-            {
-                CityModelItem cmi;
-
-                QString n1, n2;
-                splitCityName(QString::fromStdString(pl.city_name()), n1, n2);
-
-                cmi.id = LocationID(pl.id(), QString::fromStdString(pl.city_id()));
-                cmi.isFavorite = favoriteLocationsStorage_.isFavorite(cmi.id);
-                cmi.isDisabled = pl.is_disabled();
-                cmi.title1 = n1;
-                cmi.title2 = n2;
-                cmi.countryCode = QString::fromStdString(pl.country_code()).toLower();
-                cmi.bShowPremiumStarOnly = pl.is_show_premium_star_only();
-                cmi.pingTimeMs = pl.pingtime();
-                cmi.staticIpType = QString::fromStdString(pl.static_ip_type());
-                cmi.staticIp = QString::fromStdString(pl.static_ip());
-
-                locations_[it.value()]->cities << cmi;
-                ids << cmi.id;
-            }
+            const ProtoTypes::City &city = location.cities(c);
+            CityModelItem cmi;
+            cmi.id = LocationID(lmi->id.getId(), QString::fromStdString(city.id()));
+            cmi.city = QString::fromStdString(city.name());
+            cmi.nick = QString::fromStdString(city.nick());
+            cmi.countryCode = lmi->countryCode;
+            cmi.pingTimeMs = city.ping_time();
+            cmi.bShowPremiumStarOnly = city.is_premium_only();
+            cmi.isFavorite = favoriteLocationsStorage_.isFavorite(cmi.id);
+            cmi.isDisabled = city.is_disabled();
+            cmi.staticIpType = QString::fromStdString(city.static_ip_type());
+            cmi.staticIp = QString::fromStdString(city.static_ip());
+            lmi->cities << cmi;
         }
 
-        // get device name
-        // if (deviceName_ == "")
+        // sort cities alphabetically
+        std::sort(lmi->cities.begin(), lmi->cities.end(), SortLocationsAlgorithms::lessThanByAlphabeticallyCityItem);
+
+        if (location.id() == LocationID::STATIC_IPS_LOCATION_ID)
         {
-            QString thisLocationsDeviceName = QString::fromStdString(pl.static_ip_device_name());
-            if (thisLocationsDeviceName != "")
+            deviceName_ = QString::fromStdString(location.static_ip_device_name());
+            if (!deviceName_.isEmpty())
             {
-                deviceName_ = thisLocationsDeviceName;
                 emit deviceNameChanged(deviceName_);
             }
         }
@@ -233,11 +146,10 @@ bool LocationsModel::getLocationInfo(LocationID id, LocationsModel::LocationInfo
                 if (locations_[i]->cities.count() > 0)
                 {
                     li.id = id;
-                    li.firstName = locations_[i]->cities[0].title1;
-                    li.secondName = locations_[i]->cities[0].title2;
+                    li.firstName = locations_[i]->cities[0].city;
+                    li.secondName = locations_[i]->cities[0].nick;
                     li.countryCode = locations_[i]->countryCode;
                     li.pingTime = locations_[i]->cities[0].pingTimeMs;
-                    li.isFavorite = false;
                     return true;
                 }
                 else
@@ -255,19 +167,17 @@ bool LocationsModel::getLocationInfo(LocationID id, LocationsModel::LocationInfo
                         {
                             li.id = id;
                             li.firstName = "Custom Config";
-                            li.secondName = locations_[i]->cities[k].title1;
+                            li.secondName = locations_[i]->cities[k].city;
                             li.countryCode = "";
                             li.pingTime = locations_[i]->cities[k].pingTimeMs;
-                            li.isFavorite = false;
                         }
                         else
                         {
                             li.id = id;
-                            li.firstName = locations_[i]->cities[k].title1;
-                            li.secondName = locations_[i]->cities[k].title2;
+                            li.firstName = locations_[i]->cities[k].city;
+                            li.secondName = locations_[i]->cities[k].nick;
                             li.countryCode = locations_[i]->cities[k].countryCode;
                             li.pingTime = locations_[i]->cities[k].pingTimeMs;
-                            li.isFavorite = false;
                         }
                         return true;
                     }
@@ -294,7 +204,7 @@ QString LocationsModel::countryCodeOfStaticCity(const QString &cityName)
 
             for (int k = 0; k < locations_[i]->cities.count(); ++k)
             {
-                if (lmi->cities[k].title1 == cityName)
+                if (lmi->cities[k].city == cityName)
                 {
                     countryCode = lmi->cities[k].countryCode;
                     break;
@@ -343,10 +253,6 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
 {
     [&]() {
         for (auto *lmi : locations_) {
-            if (lmi->id == id) {
-                lmi->pingTimeMs = speed;
-                return;
-            }
             for (auto &cmi : lmi->cities) {
                 if (cmi.id == id) {
                     cmi.pingTimeMs = speed;
@@ -374,7 +280,7 @@ LocationID LocationsModel::getLocationIdByName(const QString &location) const
         }
         for (const CityModelItem &city: lmi->cities)
         {
-            if (city.title1.compare(location, Qt::CaseInsensitive) == 0)
+            if (city.city.compare(location, Qt::CaseInsensitive) == 0)
             {
                 return city.id;
             }
@@ -384,13 +290,13 @@ LocationID LocationsModel::getLocationIdByName(const QString &location) const
     return LocationID();
 }
 
-LocationID LocationsModel::getLocationIdByCity(
-    const QString &cityname, bool get_best_location) const
+LocationID LocationsModel::getLocationIdByCity(const QString &cityId, bool get_best_location) const
 {
-    QString title1, title2;
-    splitCityName(cityname, title1, title2);
+    //QString title1, title2;
+    //splitCityName(cityId, title1, title2);
 
-    if (!title1.isEmpty() && !title2.isEmpty()) {
+    //if (!title1.isEmpty() && !title2.isEmpty()) {
+
         for (const LocationModelItem * lmi : locations_)
         {
             if (lmi->id.getId() < LocationID::BEST_LOCATION_ID)
@@ -400,27 +306,19 @@ LocationID LocationsModel::getLocationIdByCity(
                 continue;
             for (const CityModelItem &city : lmi->cities)
             {
+                if (city.id.getCity() == cityId)
+                {
+                    return city.id;
+                }
+                /*if (city.id)
                 if (city.title1.compare(title1, Qt::CaseInsensitive) == 0 &&
                     city.title2.compare(title2, Qt::CaseInsensitive) == 0)
                 {
                     return city.id;
-                }
+                }*/
             }
         }
-    }
+    //}
 
     return LocationID();
-}
-
-void LocationsModel::splitCityName(const QString &src, QString &outName1, QString &outName2) const
-{
-    QStringList strs = src.split(" - ");
-    if (strs.count() > 0)
-    {
-        outName1 = strs[0].trimmed();
-    }
-    if (strs.count() > 1)
-    {
-        outName2 = strs[1].trimmed();
-    }
 }

@@ -42,7 +42,7 @@ void RefetchServerCredentialsHelper::putFail()
     }
     else
     {
-        emit finished(false, ServerCredentials());
+        emit finished(false, apiinfo::ServerCredentials());
     }
     refetchServerCredentialsState_++;
 }
@@ -93,7 +93,7 @@ void RefetchServerCredentialsHelper::onServerCredentialsAnswer(SERVER_API_RET_CO
                 if (!radiusUsernameOpenVpn_.isEmpty() && !radiusPasswordOpenVpn_.isEmpty() &&
                     !radiusUsernameIkev2_.isEmpty() && !radiusPasswordIkev2_.isEmpty())
                 {
-                    emit finished(true, ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_));
+                    emit finished(true, apiinfo::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_));
                 }
                 else
                 {
