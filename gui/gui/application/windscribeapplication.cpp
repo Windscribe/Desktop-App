@@ -148,3 +148,10 @@ void WindscribeApplication::onOpenLocationsFromAnotherInstance()
 {
     emit openLocationsFromAnotherInstance();
 }
+
+bool WindscribeApplication::event(QEvent *e)
+{
+    if (e->type() == QEvent::Close)
+        emit applicationCloseRequest();
+    return QApplication::event(e);
+}
