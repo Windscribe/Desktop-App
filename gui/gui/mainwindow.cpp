@@ -256,6 +256,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(app, SIGNAL(shouldTerminate_mac()), SLOT(onAppShouldTerminate_mac()));
     connect(app, SIGNAL(receivedOpenLocationsMessage()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(focusWindowChanged(QWindow*)), SLOT(onFocusWindowChanged(QWindow*)));
+    connect(app, SIGNAL(applicationCloseRequest()), SLOT(onAppCloseRequest()));
 
     /*connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged())); */
 
@@ -2234,6 +2235,21 @@ void MainWindow::onReceivedOpenLocationsMessage()
     QTimer::singleShot(500, [this](){
         mainWindowController_->expandLocations();
     });
+}
+
+void MainWindow::onAppCloseRequest()
+{
+    // The main window could be hidden, e.g. deactivated in docked mode. In this case, trying to
+    // close the app using a Dock Icon, will result in a fail, because there is no window to send
+    // a closing signal to. Even worse, if the system attempts to close such app during the
+    // shutdown, it will block the shutdown entirely. See issue #154 for the details.
+    // To deal with the issue, restore main window visibility before further close event
+    // propagation. Please note that we shouldn't close the app from this handler, but we'd rather
+    // wait for a "spontaneous" system event of other Qt event handlers.
+    // Also, there is no need to restore inactive, but visible (e.g. minimized) windows -- they are
+    // handled and closed by Qt correctly.
+    if (!isVisible())
+        activateAndShow();
 }
 
 void MainWindow::showShutdownWindow()

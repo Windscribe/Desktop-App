@@ -44,6 +44,10 @@ signals:
     void openLocationsFromAnotherInstance();
     void shouldTerminate_mac();
     void receivedOpenLocationsMessage();
+    void applicationCloseRequest();
+
+protected:
+    bool event(QEvent *e) override;
 
 private:
     bool bNeedAskClose_;
