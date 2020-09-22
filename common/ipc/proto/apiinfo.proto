@@ -18,7 +18,8 @@ message Group
   optional string nick = 3;
   optional int32 pro = 4;
   optional string ping_ip = 5;
-  repeated Node nodes = 6;
+  optional string wg_pubkey = 6;
+  repeated Node nodes = 7;
 }
 
 message Location
@@ -75,7 +76,9 @@ message StaticIpDescr
   optional string dns_hostname = 12;
   optional string username = 13;
   optional string password = 14;
-  repeated StaticIpPortDescr ports = 15;
+  optional string wg_ip = 15;
+  optional string wg_pubkey = 16;
+  repeated StaticIpPortDescr ports = 17;
 }
 
 message StaticIps

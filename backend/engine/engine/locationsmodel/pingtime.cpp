@@ -1,7 +1,7 @@
 #include "pingtime.h"
 #include <QObject>
 
-//const int typeIdPingTime = qRegisterMetaType<locationsmodel::PingTime>("locationsmodel::PingTime");
+const int typeIdPingTime = qRegisterMetaType<locationsmodel::PingTime>("locationsmodel::PingTime");
 
 namespace locationsmodel {
 

@@ -40,9 +40,11 @@ struct StaticIpDescr
     QString dnsHostname;
     QString username;
     QString password;
+    QString wgIp;
+    QString wgPubKey;
     QVector<StaticIpPortDescr> ports;
 
-    const QString& getPingIp() const { return nodeIP2; }
+    const QString& getPingIp() const { return nodeIP1; }
 
     StaticIpPortsVector getAllStaticIpIntPorts() const
     {

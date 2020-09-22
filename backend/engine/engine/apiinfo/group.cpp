@@ -6,7 +6,7 @@ namespace apiinfo {
 bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
 {
     if (!obj.contains("id") || !obj.contains("city") || !obj.contains("nick") ||
-            !obj.contains("pro") || !obj.contains("ping_ip"))
+            !obj.contains("pro") || !obj.contains("ping_ip") || !obj.contains("wg_pubkey"))
     {
         d->isValid_ = false;
         return false;
@@ -17,6 +17,7 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     d->nick_ = obj["nick"].toString();
     d->pro_ = obj["pro"].toInt();
     d->pingIp_ = obj["ping_ip"].toString();
+    d->wg_pubkey_ = obj["wg_pubkey"].toString();
 
     if (obj.contains("nodes"))
     {
@@ -53,6 +54,7 @@ void Group::initFromProtoBuf(const ProtoApiInfo::Group &g)
     d->nick_ = QString::fromStdString(g.nick());
     d->pro_ = g.pro();
     d->pingIp_ = QString::fromStdString(g.ping_ip());
+    d->wg_pubkey_ = QString::fromStdString(g.wg_pubkey());
 
     for (int i = 0; i < g.nodes_size(); ++i)
     {
@@ -74,6 +76,7 @@ ProtoApiInfo::Group Group::getProtoBuf() const
     group.set_nick(d->nick_.toStdString());
     group.set_pro(d->pro_);
     group.set_ping_ip(d->pingIp_.toStdString());
+    group.set_wg_pubkey(d->wg_pubkey_.toStdString());
     for (const Node &node : d->nodes_)
     {
         *group.add_nodes() = node.getProtoBuf();

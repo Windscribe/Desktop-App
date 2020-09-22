@@ -31,6 +31,7 @@ public:
     QString nick_;
     int pro_;       // 0 - for free account, 1 - for pro account
     QString pingIp_;
+    QString wg_pubkey_;
 
     QVector<Node> nodes_;
 
@@ -57,6 +58,7 @@ public:
     bool isPro() const { Q_ASSERT(d->isValid_); return d->pro_ != 0; }
     bool isDisabled() const { Q_ASSERT(d->isValid_); return d->nodes_.isEmpty(); }
     QString getPingIp() const { Q_ASSERT(d->isValid_); return d->pingIp_; }
+    QString getWgPubKey() const { Q_ASSERT(d->isValid_); return d->wg_pubkey_; }
 
     int getNodesCount() const { Q_ASSERT(d->isValid_); return d->nodes_.count(); }
     const Node &getNode(int ind) const { Q_ASSERT(d->isValid_); return d->nodes_[ind]; }

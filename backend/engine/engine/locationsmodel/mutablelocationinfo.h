@@ -37,6 +37,7 @@ public:
     QString getIpForSelectedNode(int indIp) const;
     QString getHostnameForSelectedNode() const;
     QString getWgPubKeyForSelectedNode() const;
+    QString getWgIpForSelectedNode() const;
 
     QString getStaticIpUsername() const;
     QString getStaticIpPassword() const;

@@ -117,6 +117,19 @@ QString MutableLocationInfo::getHostnameForSelectedNode() const
     return nodes_[selectedNode_]->getHostname();
 }
 
+QString MutableLocationInfo::getWgPubKeyForSelectedNode() const
+{
+    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    return nodes_[selectedNode_]->getWgPubKey();
+}
+
+QString MutableLocationInfo::getWgIpForSelectedNode() const
+{
+    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    return nodes_[selectedNode_]->getWgIp();
+}
+
 QString MutableLocationInfo::getStaticIpUsername() const
 {
     Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);

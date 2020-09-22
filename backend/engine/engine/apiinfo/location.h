@@ -67,44 +67,7 @@ public:
     Group getGroup(int ind) const { Q_ASSERT(d->isValid_); return d->groups_.at(ind); }
     void addGroup(const Group &group) { Q_ASSERT(d->isValid_); d->groups_.append(group); }
 
-
-
-
-    /*void transformToBestLocation(int selectedNodeIndForBestLocation, int bestLocationPingTimeMs, int bestLocationId);
-    void transformToCustomOvpnLocation(QVector<ServerNode> &nodes);
-
-    void writeToStream(QDataStream &stream);
-    void readFromStream(QDataStream &stream, int revision);
-
-    int getId() const;
-    int nodesCount() const;*/
     QStringList getAllIps() const;
-    /*QString getCountryCode() const;
-    QString getName() const;
-    int getP2P() const;
-    QString getDnsHostname() const;
-    bool isPremiumOnly() const;
-
-    bool isExistsHostname(const QString &hostname) const;
-    int nodeIndByHostname(const QString &hostname) const;
-
-    QStringList getCities();
-    const QStringList &getProDataCenters() const;
-    void appendProDataCentre(const QString &name);
-
-    QVector<ServerNode> &getNodes();
-    QVector<ServerNode> getCityNodes(const QString &cityname);
-    void appendNode(const ServerNode &node);
-
-    QString getStaticIpsDeviceName() const;
-
-    int getBestLocationId() const;
-    int getBestLocationSelectedNodeInd() const;
-    int getBestLocationPingTimeMs() const;
-
-    SERVER_LOCATION_TYPE getType() const { Q_ASSERT(isValid_); return type_; }
-
-    bool isEqual(ServerLocation *other);*/
 
 private:
     QSharedDataPointer<LocationData> d;

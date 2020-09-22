@@ -3,6 +3,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDataStream>
+#include <QDebug>
 
 const int typeIdStaticIps = qRegisterMetaType<apiinfo::StaticIps>("apiinfo::StaticIps");
 
@@ -10,6 +11,7 @@ namespace apiinfo {
 
 bool StaticIps::initFromJson(QJsonObject &init_obj)
 {
+   qDebug() << init_obj;
    if (!init_obj.contains("static_ips"))
     {
         return false;
@@ -33,6 +35,8 @@ bool StaticIps::initFromJson(QJsonObject &init_obj)
             sid.countryCode = obj["country_code"].toString();
             sid.shortName = obj["short_name"].toString();
             sid.serverId = obj["server_id"].toDouble();
+            sid.wgIp = obj["wg_ip"].toString();
+            sid.wgPubKey = obj["wg_pubkey"].toString();
 
             QJsonObject objNode = obj["node"].toObject();
             if (objNode.contains("ip") && objNode.contains("ip2") && objNode.contains("ip3") &&
@@ -130,6 +134,8 @@ void StaticIps::initFromProtoBuf(const ProtoApiInfo::StaticIps &staticIps)
         sid.dnsHostname = QString::fromStdString(sd.dns_hostname());
         sid.username = QString::fromStdString(sd.username());
         sid.password = QString::fromStdString(sd.password());
+        sid.wgIp = QString::fromStdString(sd.wg_ip());
+        sid.wgPubKey = QString::fromStdString(sd.wg_pubkey());
 
         for (int p = 0; p < sd.ports_size(); ++p)
         {
@@ -165,6 +171,8 @@ ProtoApiInfo::StaticIps StaticIps::getProtoBuf() const
         pi->set_dns_hostname(sid.dnsHostname.toStdString());
         pi->set_username(sid.username.toStdString());
         pi->set_password(sid.password.toStdString());
+        pi->set_wg_ip(sid.wgIp.toStdString());
+        pi->set_wg_pubkey(sid.wgPubKey.toStdString());
 
         for (const StaticIpPortDescr &portDescr : sid.ports)
         {
@@ -181,7 +189,7 @@ QStringList StaticIps::getAllIps() const
     QStringList ret;
     for (const StaticIpDescr &sid : d->ips_)
     {
-        ret << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3;
+        ret << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3 << sid.wgIp;
     }
     return ret;
 }

@@ -89,6 +89,8 @@ void LocationsModel::enableProxy()
 
 QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
+    LocationID modifiedLocationId = locationId;
+
     if (locationId.getId() == LocationID::STATIC_IPS_LOCATION_ID)
     {
         if (staticIps_.getIpsCount() > 0)
@@ -104,7 +106,7 @@ QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(c
 
                     QStringList ips;
                     ips << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3;
-                    nodes << QSharedPointer<BaseNode>(new StaticLocationNode(ips, sid.hostname, sid.dnsHostname, sid.username, sid.password, sid.getAllStaticIpIntPorts()));
+                    nodes << QSharedPointer<BaseNode>(new StaticLocationNode(ips, sid.hostname, sid.wgPubKey, sid.wgIp, sid.dnsHostname, sid.username, sid.password, sid.getAllStaticIpIntPorts()));
 
                     QSharedPointer<MutableLocationInfo> mli(new MutableLocationInfo(locationId, sid.cityName + " - " + sid.staticIp, nodes, -1, ""));
                     return mli;
@@ -112,34 +114,44 @@ QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(c
             }
         }
     }
-    else
+    else if (locationId.getId() == LocationID::BEST_LOCATION_ID)
     {
-        for (const apiinfo::Location &l : locations_)
+        if (bestLocation_.isValid())
         {
-            if (l.getId() == locationId.getId())
+            modifiedLocationId.setId(bestLocation_.getId());
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
+    }
+
+    for (const apiinfo::Location &l : locations_)
+    {
+        if (l.getId() == modifiedLocationId.getId())
+        {
+            for (int i = 0; i < l.groupsCount(); ++i)
             {
-                for (int i = 0; i < l.groupsCount(); ++i)
+                const apiinfo::Group group = l.getGroup(i);
+                if (LocationID::createFromApiLocation(l.getId(), group.getId()).getCity() == modifiedLocationId.getCity())
                 {
-                    const apiinfo::Group group = l.getGroup(i);
-                    if (LocationID::createFromApiLocation(l.getId(), group.getId()).getCity() == locationId.getCity())
+                    QVector< QSharedPointer<BaseNode> > nodes;
+                    for (int n = 0; n < group.getNodesCount(); ++n)
                     {
-                        QVector< QSharedPointer<BaseNode> > nodes;
-                        for (int n = 0; n < group.getNodesCount(); ++n)
-                        {
-                            const apiinfo::Node &apiInfoNode = group.getNode(n);
-                            QStringList ips;
-                            ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
-                            nodes << QSharedPointer<BaseNode>(new ApiLocationNode(ips, apiInfoNode.getHostname(), apiInfoNode.getWeight()));
-                        }
-
-
-                        QSharedPointer<MutableLocationInfo> mli(new MutableLocationInfo(locationId, group.getCity() + " - " + group.getNick(), nodes, -1, l.getDnsHostName()));
-                        return mli;
+                        const apiinfo::Node &apiInfoNode = group.getNode(n);
+                        QStringList ips;
+                        ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
+                        nodes << QSharedPointer<BaseNode>(new ApiLocationNode(ips, apiInfoNode.getHostname(), apiInfoNode.getWeight(), group.getWgPubKey()));
                     }
+
+
+                    QSharedPointer<MutableLocationInfo> mli(new MutableLocationInfo(modifiedLocationId, group.getCity() + " - " + group.getNick(), nodes, -1, l.getDnsHostName()));
+                    return mli;
                 }
             }
         }
     }
+
     return NULL;
 }
 

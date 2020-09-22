@@ -23,6 +23,9 @@ public:
     virtual QString getHostname() const { Q_ASSERT(false); return ""; }
     virtual int getWeight() const {  Q_ASSERT(false); return 1; }
 
+    virtual QString getWgPubKey() const { Q_ASSERT(false); return ""; }
+    virtual QString getWgIp() const { Q_ASSERT(false); return ""; }
+
     virtual QString getCustomOvpnConfigPath() const { Q_ASSERT(false); return ""; }
 
     virtual QString getStaticIpDnsName() const { Q_ASSERT(false); return ""; }
@@ -35,7 +38,8 @@ public:
 class ApiLocationNode : public BaseNode
 {
 public:
-    explicit ApiLocationNode(const QStringList &ips, const QString &hostname, int weight) : hostname_(hostname), weight_(weight)
+    explicit ApiLocationNode(const QStringList &ips, const QString &hostname, int weight, const QString &wg_pubkey)
+        : hostname_(hostname), weight_(weight), wg_pubkey_(wg_pubkey)
     {
         Q_ASSERT(ips.count() == 3);
         ips_[0] = ips[0];
@@ -54,12 +58,18 @@ public:
         return hostname_;
     }
 
+    QString getWgPubKey() const override
+    {
+        return wg_pubkey_;
+    }
+
     int getWeight() const override {  return weight_; }
 
 
 private:
     QString ips_[3];
     QString hostname_;
+    QString wg_pubkey_;
     int weight_;
 };
 
@@ -67,20 +77,22 @@ private:
 class StaticLocationNode : public ApiLocationNode
 {
 public:
-    explicit StaticLocationNode(const QStringList &ips, const QString &hostname, const QString &dnsName,
+    explicit StaticLocationNode(const QStringList &ips, const QString &hostname, const QString &wg_pubkey, const QString &wg_ip, const QString &dnsName,
                                 const QString &username, const QString &password, const apiinfo::StaticIpPortsVector &ipPortsVector) :
-            ApiLocationNode(ips, hostname, 1), dnsName_(dnsName), username_(username), password_(password), ipPortsVector_(ipPortsVector) {}
+            ApiLocationNode(ips, hostname, 1, wg_pubkey), wg_ip_(wg_ip), dnsName_(dnsName), username_(username), password_(password), ipPortsVector_(ipPortsVector) {}
     virtual ~StaticLocationNode() {}
 
     QString getStaticIpDnsName() const override { return dnsName_; }
     QString getStaticIpUsername() const override { return username_; }
     QString getStaticIpPassword() const override { return password_; }
     apiinfo::StaticIpPortsVector getStaticIpPorts() const override { return ipPortsVector_; }
+    QString getWgIp() const override { return wg_ip_; }
 
 private:
     QString dnsName_;
     QString username_;
     QString password_;
+    QString wg_ip_;
     apiinfo::StaticIpPortsVector ipPortsVector_;
 };
 

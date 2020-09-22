@@ -16,6 +16,8 @@
 #include "version/appversion.h"
 #include "../tests/sessionandlocations_test.h"
 
+const int typeIdWireGuardConfig = qRegisterMetaType<QSharedPointer<WireGuardConfig> >("QSharedPointer<WireGuardConfig>");
+
 class ServerAPI::BaseRequest
 {
 public:
