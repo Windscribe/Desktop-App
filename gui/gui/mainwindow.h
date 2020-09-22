@@ -183,6 +183,7 @@ private slots:
     void onAppActivateFromAnotherInstance();
     void onAppShouldTerminate_mac();
     void onReceivedOpenLocationsMessage();
+    void onAppCloseRequest();
 
     void showShutdownWindow();
 
