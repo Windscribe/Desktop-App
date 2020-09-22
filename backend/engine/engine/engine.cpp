@@ -1684,7 +1684,8 @@ void Engine::onConnectionManagerConnected()
     splitTunnelingNetworkInfo_.setProtocol(lastConnectingProtocol_);
     splitTunnelingNetworkInfo_.setVpnAdapterName(tapInterface);
 
-    if (lastConnectingProtocol_ == ProtoTypes::PROTOCOL_IKEV2)
+    if (lastConnectingProtocol_ == ProtoTypes::PROTOCOL_IKEV2 ||
+        lastConnectingProtocol_ == ProtoTypes::PROTOCOL_WIREGUARD)
     {
         QStringList dnsServers = MacUtils::getDnsServersForInterface(tapInterface);
         splitTunnelingNetworkInfo_.setIkev2DnsServers(dnsServers);

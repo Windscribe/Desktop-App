@@ -22,6 +22,10 @@
 		8434C1081FD5B99C00B7030D /* keychain_utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8434C1071FD5B99C00B7030D /* keychain_utils.mm */; };
 		8434C10D1FD5BA1400B7030D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8434C10C1FD5BA1400B7030D /* Security.framework */; };
 		84DA0AED1B1D7ED000260E8F /* helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84DA0AEC1B1D7ED000260E8F /* helper.cpp */; };
+		946225E625140DD70032A070 /* defaultroutemonitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225DE25140DD70032A070 /* defaultroutemonitor.cpp */; };
+		946225E725140DD70032A070 /* wireguardadapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225DF25140DD70032A070 /* wireguardadapter.cpp */; };
+		946225E825140DD70032A070 /* wireguardcommunicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225E225140DD70032A070 /* wireguardcommunicator.cpp */; };
+		946225E925140DD70032A070 /* wireguardcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225E425140DD70032A070 /* wireguardcontroller.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -81,6 +85,14 @@
 		84DA0AEA1B1D7ED000260E8F /* helper-info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "helper-info.plist"; sourceTree = "<group>"; };
 		84DA0AEB1B1D7ED000260E8F /* helper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "helper-launchd.plist"; sourceTree = "<group>"; };
 		84DA0AEC1B1D7ED000260E8F /* helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = helper.cpp; sourceTree = "<group>"; };
+		946225DE25140DD70032A070 /* defaultroutemonitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = defaultroutemonitor.cpp; sourceTree = "<group>"; };
+		946225DF25140DD70032A070 /* wireguardadapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wireguardadapter.cpp; sourceTree = "<group>"; };
+		946225E025140DD70032A070 /* wireguardadapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wireguardadapter.h; sourceTree = "<group>"; };
+		946225E125140DD70032A070 /* defaultroutemonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defaultroutemonitor.h; sourceTree = "<group>"; };
+		946225E225140DD70032A070 /* wireguardcommunicator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wireguardcommunicator.cpp; sourceTree = "<group>"; };
+		946225E325140DD70032A070 /* wireguardcommunicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wireguardcommunicator.h; sourceTree = "<group>"; };
+		946225E425140DD70032A070 /* wireguardcontroller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wireguardcontroller.cpp; sourceTree = "<group>"; };
+		946225E525140DD70032A070 /* wireguardcontroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wireguardcontroller.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -177,6 +189,7 @@
 		84DA0AE41B1D7EB600260E8F /* src */ = {
 			isa = PBXGroup;
 			children = (
+				946225DD25140DD70032A070 /* wireguard */,
 				001F82D224BCEAAE0081515F /* ip_hostnames */,
 				001EE79224B893B2004624BE /* routes_manager */,
 				001EE78824B89096004624BE /* split_tunneling */,
@@ -197,6 +210,21 @@
 				840B29561D6BBE88007D9519 /* server.h */,
 			);
 			path = src;
+			sourceTree = "<group>";
+		};
+		946225DD25140DD70032A070 /* wireguard */ = {
+			isa = PBXGroup;
+			children = (
+				946225DE25140DD70032A070 /* defaultroutemonitor.cpp */,
+				946225DF25140DD70032A070 /* wireguardadapter.cpp */,
+				946225E025140DD70032A070 /* wireguardadapter.h */,
+				946225E125140DD70032A070 /* defaultroutemonitor.h */,
+				946225E225140DD70032A070 /* wireguardcommunicator.cpp */,
+				946225E325140DD70032A070 /* wireguardcommunicator.h */,
+				946225E425140DD70032A070 /* wireguardcontroller.cpp */,
+				946225E525140DD70032A070 /* wireguardcontroller.h */,
+			);
+			path = wireguard;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -260,6 +288,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				946225E725140DD70032A070 /* wireguardadapter.cpp in Sources */,
 				001EE78624B89075004624BE /* kext_client.cpp in Sources */,
 				000B36D324B8C39300717275 /* bound_route.cpp in Sources */,
 				00EBAA04247D254400C86F6F /* logger.cpp in Sources */,
@@ -272,8 +301,11 @@
 				001F82D824BCF2A80081515F /* ip_hostnames_manager.cpp in Sources */,
 				000B36D624B8CB1500717275 /* routes.cpp in Sources */,
 				84DA0AED1B1D7ED000260E8F /* helper.cpp in Sources */,
+				946225E825140DD70032A070 /* wireguardcommunicator.cpp in Sources */,
+				946225E925140DD70032A070 /* wireguardcontroller.cpp in Sources */,
 				001EE79024B890DF004624BE /* split_tunneling.cpp in Sources */,
 				001F82D724BCF2A80081515F /* ip_routes.cpp in Sources */,
+				946225E625140DD70032A070 /* defaultroutemonitor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

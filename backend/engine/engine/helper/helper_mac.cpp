@@ -201,7 +201,7 @@ bool Helper_mac::executeChangeIcs(int cmd, const QString &configPath, const QStr
     return false;
 }
 
-bool Helper_mac::executeChangeMtu(const QString &adapter, int mtu)
+bool Helper_mac::executeChangeMtu(const QString & /*adapter*/, int /*mtu*/)
 {
     // nothing to do on mac
     return false;
@@ -225,14 +225,14 @@ QString Helper_mac::resetAndStartRAS()
     return "";
 }
 
-void Helper_mac::setIPv6EnabledInFirewall(bool b)
+void Helper_mac::setIPv6EnabledInFirewall(bool /*b*/)
 {
-    Q_UNUSED(b);
+    // nothing to do on mac
 }
 
-void Helper_mac::setIPv6EnabledInOS(bool b)
+void Helper_mac::setIPv6EnabledInOS(bool /*b*/)
 {
-    Q_UNUSED(b);
+    // nothing to do on mac
     Q_ASSERT(false);
 }
 
@@ -477,7 +477,7 @@ QStringList Helper_mac::getProcessesList()
     return QStringList();
 }
 
-bool Helper_mac::whitelistPorts(const QString &ports)
+bool Helper_mac::whitelistPorts(const QString & /*ports*/)
 {
     //nothing todo for Mac
     return true;
@@ -637,19 +637,19 @@ bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QStr
     return false;
 }
 
-bool Helper_mac::setMacAddressRegistryValueSz(QString subkeyInterfaceName, QString value)
+bool Helper_mac::setMacAddressRegistryValueSz(QString /*subkeyInterfaceName*/, QString /*value*/)
 {
     // nothing for mac
     return false;
 }
 
-bool Helper_mac::removeMacAddressRegistryProperty(QString subkeyInterfaceName)
+bool Helper_mac::removeMacAddressRegistryProperty(QString /*subkeyInterfaceName*/)
 {
     // nothing for mac
     return false;
 }
 
-bool Helper_mac::resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp)
+bool Helper_mac::resetNetworkAdapter(QString /*subkeyInterfaceName*/, bool /*bringAdapterBackUp*/)
 {
     // nothing for mac
     return false;
@@ -740,6 +740,10 @@ void Helper_mac::sendConnectStatus(bool isConnected, const SplitTunnelingNetwork
         {
             cmd.protocol = CMD_PROTOCOL_IKEV2;
         }
+        else if (stni.protocol().isWireGuardProtocol())
+        {
+            cmd.protocol = CMD_PROTOCOL_WIREGUARD;
+        }
         else if (stni.protocol().isOpenVpnProtocol())
         {
             cmd.protocol = CMD_PROTOCOL_OPENVPN;
@@ -822,34 +826,175 @@ bool Helper_mac::setKextPath(const QString &kextPath)
 
 bool Helper_mac::startWireGuard(const QString &exeName, const QString &deviceName)
 {
-    Q_UNUSED(exeName);
-    Q_UNUSED(deviceName);
-    // TODO(wireguard): start WireGuard daemon on Mac.
-    return false;
+    // Make sure the device socket is closed.
+    auto result = executeRootCommand("rm -f /var/run/wireguard/" + deviceName + ".sock");
+    if (!result.isEmpty()) {
+        qCDebug(LOG_WIREGUARD) << "Helper_mac: sock rm failed:" << result;
+        return false;
+    }
+
+    QMutexLocker locker(&mutex_);
+    wireGuardExeName_ = exeName;
+    wireGuardDeviceName_.clear();
+
+    if (!isHelperConnected())
+        return false;
+
+    CMD_START_WIREGUARD cmd;
+    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/" + exeName).toStdString();
+    cmd.deviceName = deviceName.toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    if (!sendCmdToHelper(HELPER_CMD_START_WIREGUARD, stream.str())) {
+        doDisconnectAndReconnect();
+        return false;
+    }
+    CMD_ANSWER answerCmd;
+    if (!readAnswer(answerCmd)) {
+        doDisconnectAndReconnect();
+        return false;
+    }
+
+    if (answerCmd.executed)
+        wireGuardDeviceName_ = deviceName;
+
+    return answerCmd.executed != 0;
 }
 
 bool Helper_mac::stopWireGuard()
 {
-    // TODO(wireguard): stop WireGuard daemon on Mac.
-    return false;
+    if (wireGuardDeviceName_.isEmpty())
+        return true;
+
+    auto result = executeRootCommand("rm -f /var/run/wireguard/" + wireGuardDeviceName_ + ".sock");
+    if (!result.isEmpty()) {
+        qCDebug(LOG_WIREGUARD) << "Helper_mac: sock rm failed:" << result;
+        return false;
+    }
+    result = executeRootCommand("pkill -f \"" + wireGuardExeName_ + "\"");
+    if (!result.isEmpty()) {
+        qCDebug(LOG_WIREGUARD) << "Helper_mac: pkill failed:" << result;
+        return false;
+    }
+
+    if (isHelperConnected()) {
+        QMutexLocker locker(&mutex_);
+
+        if (!sendCmdToHelper(HELPER_CMD_STOP_WIREGUARD, "")) {
+            doDisconnectAndReconnect();
+            return false;
+        }
+        CMD_ANSWER answerCmd;
+        if (!readAnswer(answerCmd)) {
+            doDisconnectAndReconnect();
+            return false;
+        }
+        if (answerCmd.executed == 0)
+            return false;
+        if (!answerCmd.body.empty()) {
+            qCDebug(LOG_WIREGUARD) << "WireGuard daemon output:";
+            qCDebug(LOG_WIREGUARD) << QString::fromStdString(answerCmd.body);
+        }
+    }
+    return true;
 }
 
 bool Helper_mac::configureWireGuard(const WireGuardConfig &config)
 {
-    // TODO(wireguard): configure WireGuard daemon on Mac.
-    Q_UNUSED(config);
-    return false;
+    QMutexLocker locker(&mutex_);
+
+    if (!isHelperConnected())
+        return false;
+
+    CMD_CONFIGURE_WIREGUARD cmd;
+    cmd.clientPrivateKey =
+        QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex().data();
+    cmd.clientIpAddress = config.clientIpAddress().toLatin1().data();
+    cmd.clientDnsAddressList = config.clientDnsAddress().toLatin1().data();
+    cmd.peerEndpoint = config.peerEndpoint().toLatin1().data();
+    cmd.peerPublicKey = QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex().data();
+    cmd.peerPresharedKey
+        = QByteArray::fromBase64(config.peerPresharedKey().toLatin1()).toHex().data();
+    cmd.allowedIps = config.peerAllowedIps().toLatin1().data();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    if (!sendCmdToHelper(HELPER_CMD_CONFIGURE_WIREGUARD, stream.str())) {
+        qCDebug(LOG_WIREGUARD) << "Helper_mac: HELPER_CMD_CONFIGURE_WIREGUARD failed";
+        doDisconnectAndReconnect();
+        return false;
+    }
+    CMD_ANSWER answerCmd;
+    if (!readAnswer(answerCmd)) {
+        doDisconnectAndReconnect();
+        return false;
+    }
+    return answerCmd.executed != 0;
 }
 
 bool Helper_mac::getWireGuardStatus(WireGuardStatus *status)
 {
-    // TODO(wireguard): get WireGuard status on Mac.
+    QMutexLocker locker(&mutex_);
+
     if (status) {
         status->state = WireGuardState::NONE;
-        status->bytesReceived = 0;
-        status->bytesTransmitted = 0;
+        status->errorCode = 0;
+        status->bytesReceived = status->bytesTransmitted = 0;
     }
-    return false;
+    if (!isHelperConnected())
+        return false;
+
+    if (!sendCmdToHelper(HELPER_CMD_GET_WIREGUARD_STATUS, "")) {
+        doDisconnectAndReconnect();
+        return false;
+    }
+    CMD_ANSWER answerCmd;
+    if (!readAnswer(answerCmd)) {
+        doDisconnectAndReconnect();
+        return false;
+    }
+
+    if (!answerCmd.executed)
+        return false;
+
+    switch (answerCmd.cmdId) {
+    default:
+    case WIREGUARD_STATE_NONE:
+        status->state = WireGuardState::NONE;
+        break;
+    case WIREGUARD_STATE_ERROR:
+        status->state = WireGuardState::FAILURE;
+        status->errorCode = answerCmd.customInfoValue[0];
+        break;
+    case WIREGUARD_STATE_STARTING:
+        status->state = WireGuardState::STARTING;
+        break;
+    case WIREGUARD_STATE_LISTENING:
+        status->state = WireGuardState::LISTENING;
+        break;
+    case WIREGUARD_STATE_CONNECTING:
+        status->state = WireGuardState::CONNECTING;
+        break;
+    case WIREGUARD_STATE_ACTIVE:
+        status->state = WireGuardState::ACTIVE;
+        status->bytesReceived = answerCmd.customInfoValue[0];
+        status->bytesTransmitted = answerCmd.customInfoValue[1];
+        break;
+    }
+    if (!answerCmd.body.empty()) {
+        qCDebug(LOG_WIREGUARD) << "WireGuard daemon output:";
+        qCDebug(LOG_WIREGUARD) << QString::fromStdString(answerCmd.body);
+    }
+
+    qCDebug(LOG_WIREGUARD) << "Helper_mac: status =" << answerCmd.cmdId
+                           << ", additional info =" << answerCmd.customInfoValue[0] << ","
+                           << answerCmd.customInfoValue[1];
+    return true;
 }
 
 int Helper_mac::executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer)

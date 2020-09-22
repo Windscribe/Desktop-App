@@ -9,6 +9,8 @@ void serialize(Archive &ar, CMD_ANSWER &a, const unsigned int version)
 {
     ar & a.cmdId;
     ar & a.executed;
+    ar & a.customInfoValue[0];
+    ar & a.customInfoValue[1];
     ar & a.body;
 }
 
@@ -80,6 +82,25 @@ template<class Archive>
 void serialize(Archive &ar, CMD_SET_KEXT_PATH &a, const unsigned int version)
 {
     ar & a.kextPath;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_START_WIREGUARD &a, const unsigned int version)
+{
+    ar & a.exePath;
+    ar & a.deviceName;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_CONFIGURE_WIREGUARD &a, const unsigned int version)
+{
+    ar & a.clientPrivateKey;
+    ar & a.clientIpAddress;
+    ar & a.clientDnsAddressList;
+    ar & a.peerPublicKey;
+    ar & a.peerPresharedKey;
+    ar & a.peerEndpoint;
+    ar & a.allowedIps;
 }
 
 }

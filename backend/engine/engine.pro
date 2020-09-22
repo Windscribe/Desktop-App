@@ -224,9 +224,10 @@ copy_openvpn.commands = cp $$HOMEDIR/LibsWindscribe/openvpn_2_4_8/sbin/openvpn $
 copy_stunnel.commands = cp $$HOMEDIR/LibsWindscribe/stunnel/bin/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel
 copy_wstunnel.commands = cp $$PWD/../mac/wstunnel/windscribewstunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewstunnel
 copy_kext.commands = $(COPY_DIR) $$PWD/../mac/kext/Binary/WindscribeKext.kext $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/WindscribeKext.kext
+copy_wireguard.commands = cp $$HOMEDIR/LibsWindscribe/wireguard/windscribewireguard $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewireguard
 
 
-first.depends = $(first) copy_resources mkdir_launch_services copy_helper copy_profile mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_kext
+first.depends = $(first) copy_resources mkdir_launch_services copy_helper copy_profile mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_wireguard copy_kext
 export(first.depends)
 export(copy_resources.commands)
 export(mkdir_launch_services.commands)
@@ -237,7 +238,8 @@ export(copy_openvpn.commands)
 export(copy_stunnel.commands)
 export(copy_wstunnel.commands)
 export(copy_kext.commands)
-QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper copy_profile mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_kext
+export(copy_wireguard.commands)
+QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper copy_profile mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_wireguard copy_kext
 
 } # end macx
 

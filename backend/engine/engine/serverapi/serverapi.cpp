@@ -1179,12 +1179,7 @@ void ServerAPI::handlePortMapDnsResolve(BaseRequest *rd, bool success, const QSt
 
     QUrl url("https://" + crd->getHostname() + "/PortMap");
     QUrlQuery query = MakeQuery(crd->getAuthHash());
-#if defined(Q_OS_WIN)
     query.addQueryItem("version", "5");
-#else
-    // TODO(wireguard): switch to version 5 to enable WireGuard protocol on Mac.
-    query.addQueryItem("version", "3");
-#endif
     url.setQuery(query);
 
     auto *curl_request = crd->createCurlRequest();
