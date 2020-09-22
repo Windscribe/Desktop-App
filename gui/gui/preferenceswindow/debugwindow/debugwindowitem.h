@@ -5,7 +5,6 @@
 #include "../basepage.h"
 #include "../connectionwindow/subpageitem.h"
 #include "viewlogitem.h"
-#include "serverratingsitem.h"
 #include "../comboboxitem.h"
 #include "../checkboxitem.h"
 #include "../backend/preferences/preferences.h"
@@ -35,7 +34,6 @@ public:
 signals:
     void viewLogClick();
     void sendLogClick();
-    void clearServerRatingsClick();
     void advParametersClick();
     void showTooltip(TooltipInfo info);
     void hideTooltip(TooltipId id);
@@ -52,9 +50,6 @@ private slots:
     void onViewButtonHoverEnter();
     void onSendButtonHoverEnter();
     void onViewOrSendButtonHoverLeave();
-    void onClearButtonHoverEnter();
-    void onClearButtonHoverLeave();
-    void onClearServerRatingsButtonClick();
 
     void onIgnoreSslErrorsPreferencesChanged(bool b);
     void onKeepAlivePreferencesChanged(bool b);
@@ -76,7 +71,6 @@ protected:
 private:
     SubPageItem *advParamtersItem_;
     ViewLogItem *viewLogItem_;
-    ServerRatingsItem *serverRatingsItem_;
 
     ApiResolutionItem *apiResolutionItem_;
     CheckBoxItem *cbIgnoreSslErrors_;

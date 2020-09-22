@@ -66,17 +66,10 @@ void FirewallExceptions::setLocationsIps(const QStringList &listIps)
     locationsIPs_ = listIps;
 }
 
-/*void FirewallExceptions::setStaticLocationIps(QSharedPointer<ServerLocation> &staticLocation)
+void FirewallExceptions::setStaticLocationIps(const QStringList &listIps)
 {
-    if (!staticLocation.isNull())
-    {
-        staticLocationIPs_ = staticLocation->getAllIps();
-    }
-    else
-    {
-        staticLocationIPs_.clear();
-    }
-}*/
+    staticLocationIPs_ = listIps;
+}
 
 void FirewallExceptions::clearStaticLocationIps()
 {

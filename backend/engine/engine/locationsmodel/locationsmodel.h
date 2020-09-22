@@ -22,10 +22,8 @@ class LocationsModel : public QObject
     Q_OBJECT
 public:
     explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
-    virtual ~LocationsModel();
 
     void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
-    // void setCustomOvpnConfigs()
     void clear();
 
     void setProxySettings(const ProxySettings &proxySettings);

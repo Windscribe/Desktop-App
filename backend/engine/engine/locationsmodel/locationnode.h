@@ -19,7 +19,7 @@ public:
     virtual ~BaseNode() {}
 
 
-    virtual QString getIp(int ind) const { Q_ASSERT(false); return ""; }
+    virtual QString getIp(int /*ind*/) const { Q_ASSERT(false); return ""; }
     virtual QString getHostname() const { Q_ASSERT(false); return ""; }
 
     virtual QString getCustomOvpnConfigPath() const { Q_ASSERT(false); return ""; }
@@ -60,11 +60,24 @@ private:
 };
 
 
-class StaticLocationNode : public BaseNode
+class StaticLocationNode : public ApiLocationNode
 {
 public:
-    explicit StaticLocationNode();
-    virtual ~StaticLocationNode();
+    explicit StaticLocationNode(const QStringList &ips, const QString &hostname, const QString &dnsName,
+                                const QString &username, const QString &password, const apiinfo::StaticIpPortsVector &ipPortsVector) :
+            ApiLocationNode(ips, hostname), dnsName_(dnsName), username_(username), password_(password), ipPortsVector_(ipPortsVector) {}
+    virtual ~StaticLocationNode() {}
+
+    QString getStaticIpDnsName() const override { return dnsName_; }
+    QString getStaticIpUsername() const override { return username_; }
+    QString getStaticIpPassword() const override { return password_; }
+    apiinfo::StaticIpPortsVector getStaticIpPorts() const override { return ipPortsVector_; }
+
+private:
+    QString dnsName_;
+    QString username_;
+    QString password_;
+    apiinfo::StaticIpPortsVector ipPortsVector_;
 };
 
 class CustomConfigLocationNode : public BaseNode

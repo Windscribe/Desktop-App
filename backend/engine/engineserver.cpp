@@ -365,11 +365,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
         engine_->speedRating(cmd->getProtoObj().rating(), QString::fromStdString(cmd->getProtoObj().local_external_ip()));
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::ClearSpeedRatings::descriptor()->full_name())
-    {
-        engine_->clearSpeedRatings();
-        return true;
-    }
     else if (command->getStringId() == IPCClientCommands::ContinueWithCredentialsForOvpnConfig::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCClientCommands::ContinueWithCredentialsForOvpnConfig> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::ContinueWithCredentialsForOvpnConfig> *>(command);

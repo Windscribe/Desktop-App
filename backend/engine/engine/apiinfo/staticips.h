@@ -16,6 +16,12 @@ struct StaticIpPortDescr
 
 bool operator==(const StaticIpPortDescr &l, const StaticIpPortDescr&r);
 
+class StaticIpPortsVector : public QVector<unsigned int>
+{
+public:
+    QString getAsStringWithDelimiters() const;
+};
+
 struct StaticIpDescr
 {
     uint id;
@@ -37,12 +43,18 @@ struct StaticIpDescr
     QVector<StaticIpPortDescr> ports;
 
     const QString& getPingIp() const { return nodeIP2; }
-};
 
-class StaticIpPortsVector : public QVector<unsigned int>
-{
-public:
-    QString getAsStringWithDelimiters() const;
+    StaticIpPortsVector getAllStaticIpIntPorts() const
+    {
+        StaticIpPortsVector ret;
+        for (const StaticIpPortDescr &portDescr : ports)
+        {
+            ret << portDescr.intPort;
+        }
+        return ret;
+
+    }
+
 };
 
 // internal data for StaticIps
@@ -76,7 +88,7 @@ public:
     int getIpsCount() const { return d->ips_.count(); }
     const StaticIpDescr &getIp(int ind) const { Q_ASSERT(ind >= 0 && ind < d->ips_.count()); return d->ips_[ind]; }
 
-    //QSharedPointer<ServerLocation> makeServerLocation();
+    QStringList getAllIps() const;
 
 private:
     QSharedDataPointer<StaticIpsData> d;

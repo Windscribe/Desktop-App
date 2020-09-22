@@ -83,7 +83,6 @@ private slots:
     void onPreferencesSendDebugLogClick();
     void onPreferencesQuitAppClick();
     void onPreferencesNoAccountLoginClick();
-    void onPreferencesClearServerRatingsClick();
     void onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow);
 	void onPreferencesCycleMacAddressClick();
     void onPreferencesWindowDetectPacketMssButtonClicked();

@@ -183,7 +183,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(noAccountLoginClick()), SLOT(onPreferencesNoAccountLoginClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(clearServerRatingsClick()), SLOT(onPreferencesClearServerRatingsClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(cycleMacAddressClick()), SLOT(onPreferencesCycleMacAddressClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(detectPacketMssButtonClicked()), SLOT(onPreferencesWindowDetectPacketMssButtonClicked()));
 #ifdef Q_OS_WIN
@@ -892,11 +891,6 @@ void MainWindow::onPreferencesNoAccountLoginClick()
 {
     collapsePreferences();
     mainWindowController_->getLoginWindow()->resetState();
-}
-
-void MainWindow::onPreferencesClearServerRatingsClick()
-{
-    backend_->clearSpeedRatings();
 }
 
 void MainWindow::onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow)

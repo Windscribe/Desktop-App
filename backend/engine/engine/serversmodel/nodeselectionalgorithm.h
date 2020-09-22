@@ -3,7 +3,6 @@
 
 #include <QVector>
 //#include "engine/types/apiinfo.h"
-#include "nodesspeedratings.h"
 
 class NodeSelectionAlgorithm
 {

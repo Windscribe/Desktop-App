@@ -176,32 +176,15 @@ ProtoApiInfo::StaticIps StaticIps::getProtoBuf() const
     return si;
 }
 
-
-/*QSharedPointer<ServerLocation> StaticIpsLocation::makeServerLocation()
+QStringList StaticIps::getAllIps() const
 {
-    QSharedPointer<ServerLocation> sl(new ServerLocation);
-    sl->id_ = LocationID::STATIC_IPS_LOCATION_ID;
-    sl->type_ = ServerLocation::SERVER_LOCATION_STATIC;
-    sl->name_ = QObject::tr("Static IPs");
-    sl->countryCode_ = "STATIC_IPS";
-    sl->premiumOnly_ = false;
-    sl->p2p_ = 1;
-    sl->dnsHostName_ = "";
-    sl->staticIpsDeviceName_ = deviceName_;
-
-    for (int i = 0; i < ips_.count(); ++i)
+    QStringList ret;
+    for (const StaticIpDescr &sid : d->ips_)
     {
-        ServerNode sn;
-        sn.initFromStaticIpDescr(ips_[i]);
-        sl->nodes_ << sn;
+        ret << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3;
     }
-
-    sl->isValid_ = true;
-
-    sl->makeInternalStates();
-
-    return sl;
-}*/
+    return ret;
+}
 
 QString StaticIpPortsVector::getAsStringWithDelimiters() const
 {

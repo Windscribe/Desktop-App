@@ -80,7 +80,6 @@ public:
     void sendDebugLog();
 
     void speedRating(int rating, const QString &localExternalIp);
-    void clearSpeedRatings();
 
     void setBlockConnect(bool isBlockConnect);
     void clearCredentials();

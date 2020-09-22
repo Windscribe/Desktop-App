@@ -23,11 +23,6 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     }
 }
 
-LocationsModel::~LocationsModel()
-{
-
-}
-
 void LocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
 {
     locations_ = locations;
@@ -47,6 +42,21 @@ void LocationsModel::setLocations(const QVector<apiinfo::Location> &locations, c
             stringListIps << pii.ip;
         }
     }
+
+    // handle static ips location
+    if (staticIps_.getIpsCount() > 0)
+    {
+        for (int i = 0; i < staticIps_.getIpsCount(); ++i)
+        {
+            const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
+            PingIpInfo pii;
+            pii.ip = sid.getPingIp();
+            pii.pingType = PingHost::PING_TCP;
+            ips << pii;
+            stringListIps << pii.ip;
+        }
+    }
+
     pingStorage_.updateNodes(stringListIps);
     pingIpsController_.updateIps(ips);
 
@@ -55,47 +65,77 @@ void LocationsModel::setLocations(const QVector<apiinfo::Location> &locations, c
 
 void LocationsModel::clear()
 {
-
+    locations_.clear();
+    staticIps_ = apiinfo::StaticIps();
+    pingIpsController_.updateIps(QVector<PingIpInfo>());
+    QSharedPointer<QVector<locationsmodel::LocationItem> > empty(new QVector<locationsmodel::LocationItem>());
+    emit locationsUpdated(empty);
 }
 
 void LocationsModel::setProxySettings(const ProxySettings &proxySettings)
 {
-
+    pingIpsController_.setProxySettings(proxySettings);
 }
 
 void LocationsModel::disableProxy()
 {
-
+    pingIpsController_.disableProxy();
 }
 
 void LocationsModel::enableProxy()
 {
-
+    pingIpsController_.enableProxy();
 }
 
 QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
-    for (const apiinfo::Location &l : locations_)
+    if (locationId.getId() == LocationID::STATIC_IPS_LOCATION_ID)
     {
-        if (l.getId() == locationId.getId())
+        if (staticIps_.getIpsCount() > 0)
         {
-            for (int i = 0; i < l.groupsCount(); ++i)
+            for (int i = 0; i < staticIps_.getIpsCount(); ++i)
             {
-                const apiinfo::Group group = l.getGroup(i);
-                if (LocationID::createFromApiLocation(l.getId(), group.getId()).getCity() == locationId.getCity())
+                const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
+                LocationID staticIpLocationId = LocationID::createFromStaticIpsLocation(sid.cityName, sid.staticIp);
+
+                if (staticIpLocationId == locationId)
                 {
                     QVector< QSharedPointer<BaseNode> > nodes;
-                    for (int n = 0; n < group.getNodesCount(); ++n)
-                    {
-                        const apiinfo::Node &apiInfoNode = group.getNode(n);
-                        QStringList ips;
-                        ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
-                        nodes << QSharedPointer<BaseNode>(new ApiLocationNode(ips, apiInfoNode.getHostname()));
-                    }
 
+                    QStringList ips;
+                    ips << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3;
+                    nodes << QSharedPointer<BaseNode>(new StaticLocationNode(ips, sid.hostname, sid.dnsHostname, sid.username, sid.password, sid.getAllStaticIpIntPorts()));
 
-                    QSharedPointer<MutableLocationInfo> mli(new MutableLocationInfo(locationId, group.getCity() + " - " + group.getNick(), nodes, -1, l.getDnsHostName()));
+                    QSharedPointer<MutableLocationInfo> mli(new MutableLocationInfo(locationId, sid.cityName + " - " + sid.staticIp, nodes, -1, ""));
                     return mli;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (const apiinfo::Location &l : locations_)
+        {
+            if (l.getId() == locationId.getId())
+            {
+                for (int i = 0; i < l.groupsCount(); ++i)
+                {
+                    const apiinfo::Group group = l.getGroup(i);
+                    if (LocationID::createFromApiLocation(l.getId(), group.getId()).getCity() == locationId.getCity())
+                    {
+                        QVector< QSharedPointer<BaseNode> > nodes;
+                        for (int n = 0; n < group.getNodesCount(); ++n)
+                        {
+                            const apiinfo::Node &apiInfoNode = group.getNode(n);
+                            QStringList ips;
+                            ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
+                            nodes << QSharedPointer<BaseNode>(new ApiLocationNode(ips, apiInfoNode.getHostname()));
+                        }
+
+
+                        QSharedPointer<MutableLocationInfo> mli(new MutableLocationInfo(locationId, group.getCity() + " - " + group.getNick(), nodes, -1, l.getDnsHostName()));
+                        return mli;
+                    }
                 }
             }
         }
@@ -124,6 +164,19 @@ void LocationsModel::onPingInfoChanged(const QString &ip, int timems, bool isFro
             if (group.getPingIp() == ip)
             {
                 emit locationPingTimeChanged(LocationID::createFromApiLocation(l.getId(), group.getId()), timems);
+            }
+        }
+    }
+
+    // handle static ips location
+    if (staticIps_.getIpsCount() > 0)
+    {
+        for (int i = 0; i < staticIps_.getIpsCount(); ++i)
+        {
+            const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
+            if (sid.getPingIp() == ip)
+            {
+                emit locationPingTimeChanged(LocationID::createFromStaticIpsLocation(sid.cityName, sid.staticIp), timems);
             }
         }
     }
@@ -284,7 +337,7 @@ void LocationsModel::generateLocationsUpdated()
             CityItem city;
             city.cityId = LocationID::createFromStaticIpsLocation(sid.cityName, sid.staticIp).getCity();
             city.city = sid.cityName;
-            city.pingTimeMs = -2;   //todo
+            city.pingTimeMs = pingStorage_.getNodeSpeed(sid.getPingIp());
             city.isPro = true;
             city.isDisabled = false;
             city.staticIp = sid.staticIp;

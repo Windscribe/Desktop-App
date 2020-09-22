@@ -58,7 +58,6 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     checkUpdateTimer_(NULL),
     updateSessionStatusTimer_(NULL),
     notificationsUpdateTimer_(NULL),
-    nodesSpeedRatings_(NULL),
     locationsModel_(NULL),
     refetchServerCredentialsHelper_(NULL),
     isBlockConnect_(false),
@@ -72,7 +71,6 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     connectStateController_ = new ConnectStateController(NULL);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
     emergencyConnectStateController_ = new ConnectStateController(NULL);
-    nodesSpeedRatings_ = new NodesSpeedRatings();
     OpenVpnVersionController::instance().setUseWinTun(engineSettings.isUseWintun());
 }
 
@@ -80,7 +78,6 @@ Engine::~Engine()
 {
     SAFE_DELETE(connectStateController_);
     SAFE_DELETE(emergencyConnectStateController_);
-    SAFE_DELETE(nodesSpeedRatings_);
     packetSizeControllerThread_->exit();
     packetSizeControllerThread_->wait();
     packetSizeControllerThread_->deleteLater();
@@ -318,11 +315,6 @@ void Engine::speedRating(int rating, const QString &localExternalIp)
     }
 }
 
-void Engine::clearSpeedRatings()
-{
-    nodesSpeedRatings_->clear();
-}
-
 void Engine::updateServerConfigs()
 {
     QMutexLocker locker(&mutex_);
@@ -460,6 +452,11 @@ void Engine::applicationDeactivated()
     QMetaObject::invokeMethod(this, "applicationDeactivatedImpl");
 }
 
+void Engine::forceUpdateServerLocations()
+{
+    QMetaObject::invokeMethod(this, "forceUpdateServerLocationsImpl");
+}
+
 void Engine::updateCurrentNetworkInterface(bool requested)
 {
     QMetaObject::invokeMethod(this, "updateCurrentNetworkInterfaceImpl", Q_ARG(bool, requested));
@@ -468,16 +465,6 @@ void Engine::updateCurrentNetworkInterface(bool requested)
 void Engine::updateCurrentInternetConnectivity()
 {
     QMetaObject::invokeMethod(this, "updateCurrentInternetConnectivityImpl");
-}
-
-void Engine::forceUpdateSessionStatus()
-{
-    QTimer::singleShot(1, this, SLOT(onUpdateSessionStatusTimer()));
-}
-
-void Engine::forceUpdateServerLocations()
-{
-    QMetaObject::invokeMethod(this, "forceUpdateServerLocationsImpl");
 }
 
 void Engine::detectPacketSizeMss()
@@ -565,9 +552,6 @@ void Engine::init()
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
-
-    //serverLocationsApiWrapper_ = new ServerLocationsApiWrapper(this, nodesSpeedStore_, serverAPI_);
-    //connect(serverLocationsApiWrapper_, SIGNAL(updateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)), SLOT(onUpdateFirewallIpsForLocations(QVector<QSharedPointer<ServerLocation> >&)));
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
@@ -1100,21 +1084,6 @@ void Engine::firewallOffImpl()
 
 void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 {
-    if (rating == 0)
-    {
-        nodesSpeedRatings_->thumbDownRatingForNode(lastConnectingHostname_);
-    }
-    else if (rating == 1)
-    {
-        nodesSpeedRatings_->thumbUpRatingForNode(lastConnectingHostname_);
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "Engine::speedRatingImpl, incorrect rating value =" << rating;
-        return;
-
-    }
-
     serverAPI_->speedRating(apiInfo_->getAuthHash(), lastConnectingHostname_, localExternalIp, rating, serverApiUserRole_, true);
 }
 
@@ -1895,18 +1864,6 @@ void Engine::getNewNotifications()
     serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
-void Engine::onUpdateFirewallIpsForLocations(const QVector<apiinfo::Location> &serverLocations)
-{
-    QStringList listIps;
-    for (const apiinfo::Location &l : serverLocations)
-    {
-        listIps << l.getAllIps();
-    }
-
-    firewallExceptions_.setLocationsIps(listIps);
-    updateFirewallSettings();
-}
-
 void Engine::onCustomOvpnConfigsChanged()
 {
     qCDebug(LOG_BASIC) << "Custom ovpn-configs changed";
@@ -2021,10 +1978,10 @@ void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes
     }
 }
 
+// todo: Is this really necessary?
 void Engine::forceUpdateServerLocationsImpl()
 {
-    //todo
-    //serversModel_->updateServers(lastCopyOfServerlocations_);
+    updateServerLocations();
 }
 
 void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType)
@@ -2103,9 +2060,6 @@ void Engine::updateSessionStatus()
         qCDebug(LOG_BASIC) << "update session status";
 
         apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
-
-        //serversModel_->setSessionStatus(!ss.isPro());
-
         emit sessionStatusUpdated(ss);
 
         if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.getStaticIpsCount() != ss.getStaticIpsCount() ||
@@ -2143,26 +2097,7 @@ void Engine::updateSessionStatus()
 
 void Engine::updateServerLocations()
 {
-    /*QMutexLocker locker(&mutexApiInfo_);
-    QVector<QSharedPointer<ServerLocation> > serverLocations;
-
-    if (!apiInfo_.isNull())
-    {
-        serverLocations = apiInfo_->getServerLocations();
-    }
-
-    // if statics ip location exists, then add this location
-    if (!apiInfo_.isNull() && apiInfo_->getSessionStatus()->getStaticIpsCount() > 0 && !apiInfo_->getStaticIpsLocation().isNull())
-    {
-        QSharedPointer<ServerLocation> staticLocation = apiInfo_->getStaticIpsLocation()->makeServerLocation();
-        firewallExceptions_.setStaticLocationIps(staticLocation);
-        serverLocations.insert(0, staticLocation);
-    }
-    else
-    {
-        firewallExceptions_.clearStaticLocationIps();
-    }
-
+    /*
     // if custom ovpn configs exists, then add this location to top of the list
     if (customOvpnConfigs_->isExist())
     {
@@ -2195,9 +2130,6 @@ void Engine::updateServerLocations()
 
         serversModel_->updateServers(serverLocations);
 
-        // emit signal for update in GUI
-        emit serverLocationsUpdated();
-
         lastCopyOfServerlocations_.clear();
         lastCopyOfServerlocations_ = makeCopyOfServerLocationsVector(serverLocations);
 
@@ -2206,7 +2138,35 @@ void Engine::updateServerLocations()
             checkForceDisconnectNode(apiInfo_->getForceDisconnectNodes());
         }
     }*/
+
+
+    qCDebug(LOG_BASIC) << "Servers locations changed";
+
+    // firewall exceptions for API locations
+    QStringList listIps;
+    for (const apiinfo::Location &l : apiInfo_->getLocations())
+    {
+        listIps << l.getAllIps();
+    }
+    firewallExceptions_.setLocationsIps(listIps);
+
+    // firewall exceptions for Static IPs
+    if (apiInfo_->getSessionStatus().getStaticIpsCount() > 0)
+    {
+        firewallExceptions_.setStaticLocationIps(apiInfo_->getStaticIps().getAllIps());
+    }
+    else
+    {
+        firewallExceptions_.clearStaticLocationIps();
+    }
+    updateFirewallSettings();
+
     locationsModel_->setLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
+
+    if (!apiInfo_->getForceDisconnectNodes().isEmpty())
+    {
+        checkForceDisconnectNode(apiInfo_->getForceDisconnectNodes());
+    }
 }
 
 void Engine::updateFirewallSettings()

@@ -378,14 +378,6 @@ void Backend::speedRating(int rating, const QString &localExternalIp)
     connection_->sendCommand(cmd);
 }
 
-void Backend::clearSpeedRatings()
-{
-    Q_ASSERT(isInitFinished());
-    IPC::ProtobufCommand<IPCClientCommands::ClearSpeedRatings> cmd;
-    qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
-    connection_->sendCommand(cmd);
-}
-
 void Backend::setBlockConnect(bool isBlockConnect)
 {
     Q_ASSERT(isInitFinished());

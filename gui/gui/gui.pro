@@ -321,7 +321,6 @@ SOURCES += \
     preferenceswindow/sharewindow/proxyipaddressitem.cpp \
     preferenceswindow/debugwindow/viewlogitem.cpp \
     preferenceswindow/debugwindow/advancedparametersitem.cpp \
-    preferenceswindow/debugwindow/serverratingsitem.cpp \
     preferenceswindow/connectionwindow/firewallmodeitem.cpp \
     preferenceswindow/connectionwindow/automanualswitchitem.cpp \
     preferenceswindow/connectionwindow/connectionmodeitem.cpp \
@@ -554,7 +553,6 @@ HEADERS += \
     preferenceswindow/sharewindow/proxyipaddressitem.h \
     preferenceswindow/debugwindow/viewlogitem.h \
     preferenceswindow/debugwindow/advancedparametersitem.h \
-    preferenceswindow/debugwindow/serverratingsitem.h \
     preferenceswindow/connectionwindow/firewallmodeitem.h \
     preferenceswindow/connectionwindow/automanualswitchitem.h \
     preferenceswindow/connectionwindow/connectionmodeitem.h \

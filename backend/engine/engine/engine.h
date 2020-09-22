@@ -14,7 +14,6 @@
 #include "connectionmanager/iconnectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "engine/refetchservercredentialshelper.h"
-#include "engine/serversmodel/nodesspeedratings.h"
 #include "engine/vpnshare/vpnsharecontroller.h"
 #include "engine/emergencycontroller/emergencycontroller.h"
 #include "getmyipcontroller.h"
@@ -86,7 +85,6 @@ public:
     void sendConfirmEmail();
 
     void speedRating(int rating, const QString &localExternalIp);  //rate current connection(0 - down, 1 - up)
-    void clearSpeedRatings();
 
     void updateServerConfigs();
     void updateCurrentNetworkInterface(bool requested = false);
@@ -109,7 +107,6 @@ public:
     void applicationActivated();
     void applicationDeactivated();
 
-    void forceUpdateSessionStatus();    // for testing
     void forceUpdateServerLocations();
 
     void detectPacketSizeMss();
@@ -134,7 +131,6 @@ signals:
     void notificationsUpdated(const QVector<apiinfo::Notification> &notifications);
     void checkUpdateUpdated(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
-    void serverLocationsUpdated();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
 
@@ -263,8 +259,6 @@ private slots:
 
     void getNewNotifications();
 
-    void onUpdateFirewallIpsForLocations(const QVector<apiinfo::Location> &serverLocations);
-
     void onCustomOvpnConfigsChanged();
     void onCustomOvpnConfgsIpsChanged(const QStringList &ips);
 
@@ -323,7 +317,6 @@ private:
     SessionStatusTimer *updateSessionStatusTimer_;
     QTimer *notificationsUpdateTimer_;
 
-    NodesSpeedRatings *nodesSpeedRatings_;
     locationsmodel::LocationsModel *locationsModel_;
 
     RefetchServerCredentialsHelper *refetchServerCredentialsHelper_;

@@ -131,10 +131,6 @@ message SpeedRating
    optional string local_external_ip = 2;
 }
 
-message ClearSpeedRatings
-{
-}
-
 message GotoCustomOvpnConfigMode
 {
 }

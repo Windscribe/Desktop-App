@@ -263,7 +263,6 @@ SOURCES += main.cpp \
     engine/apiinfo/servercredentials.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/serversmodel/serversmodel.cpp \
-    engine/serversmodel/pingmanager.cpp \
     engine/locationsmodel/locationsmodel.cpp \
     engine/locationsmodel/locationitem.cpp \
     engine/locationsmodel/pingipscontroller.cpp \
@@ -282,7 +281,6 @@ SOURCES += main.cpp \
     engine/logincontroller/getallconfigscontroller.cpp \
     engine/proxy/proxysettings.cpp \
     engine/types/connectionsettings.cpp \
-    engine/serversmodel/nodesspeedratings.cpp \
     engine/getmyipcontroller.cpp \
     engine/firewall/uniqueiplist.cpp \
     engine/firewall/firewallexceptions.cpp \
@@ -402,7 +400,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/networkdetectionmanager/inetworkdetectionmanager.h \
     $$COMMON_PATH/utils/networktypes.h \
     engine/ping/keepalivemanager.h \
-    engine/serversmodel/pingmanager.h \
     engine/packetsizecontroller.h \
     engine/enginesettings.h \
     utils/mergelog.h \
@@ -479,7 +476,6 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/types/protocoltype.h \
     engine/connectionmanager/ikev2connection_test.h \
     engine/serversmodel/testpingnodecontroller.h \
-    engine/serversmodel/nodesspeedratings.h \
     engine/serversmodel/nodesspeedstore.h \
     engine/helper/simple_xor_crypt.h \
     engine/tests/sessionandlocations_test.h \

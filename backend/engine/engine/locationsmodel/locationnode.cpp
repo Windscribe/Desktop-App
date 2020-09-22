@@ -4,15 +4,6 @@
 namespace locationsmodel {
 
 
-StaticLocationNode::StaticLocationNode()
-{
-
-}
-
-StaticLocationNode::~StaticLocationNode()
-{
-
-}
 
 CustomConfigLocationNode::CustomConfigLocationNode()
 {
