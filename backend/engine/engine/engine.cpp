@@ -271,6 +271,7 @@ void Engine::connectClick(const LocationID &locationId)
     QMutexLocker locker(&mutex_);
     if (bInitialized_)
     {
+        locationId_ = locationId;
         connectStateController_->setConnectingState(locationId_);
         QMetaObject::invokeMethod(this, "connectClickImpl", Q_ARG(LocationID, locationId));
     }
