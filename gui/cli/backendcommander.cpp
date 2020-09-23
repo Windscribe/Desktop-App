@@ -227,11 +227,11 @@ void BackendCommander::sendCommand()
                     CityModelItem cmiFoundNickname;
                     foreach (CityModelItem cmi, citiesWithoutStaticIps)
                     {
-                        if (cmi.title1.toLower() == locationStr_)
+                        if (cmi.city.toLower() == locationStr_)
                         {
                             cmiFoundCity = cmi;
                         }
-                        else if (cmi.title2.toLower() == locationStr_)
+                        else if (cmi.nick.toLower() == locationStr_)
                         {
                             cmiFoundNickname = cmi;
                         }
@@ -242,7 +242,7 @@ void BackendCommander::sendCommand()
                         QList<CityModelItem> nodesWithinCity;
                         foreach (CityModelItem city, citiesWithoutStaticIps)
                         {
-                            if (city.title1 == cmiFoundCity.title1)
+                            if (city.city == cmiFoundCity.city)
                             {
                                 nodesWithinCity.append(city);
                             }
