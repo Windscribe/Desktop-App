@@ -1,3 +1,11 @@
+2.0.27 (22/09/2020)
+* Basic WireGuard implementation
+* Migrated to new servers format
+* Ping IP picking logic changed.
+* Best Location selection algorithm changed.
+* Various UI fixes.
+
+
 2.0.26 (19/08/2020)
 * Fixed installer crash on Big Sur.
 * Made app-kill more robust - stray openvpn process no longer will cause failure to kill (and hang).
