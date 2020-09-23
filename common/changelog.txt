@@ -1,6 +1,10 @@
+2.0.28 (23/09/2020)
+* Fixed Wireguard bugs.
+* The selected connection location doesn't get updated until it actually fully connects - fixed.
+
 2.0.27 (22/09/2020)
-* Basic WireGuard implementation
-* Migrated to new servers format
+* Basic WireGuard implementation.
+* Migrated to new servers format.
 * Ping IP picking logic changed.
 * Best Location selection algorithm changed.
 * Various UI fixes.
