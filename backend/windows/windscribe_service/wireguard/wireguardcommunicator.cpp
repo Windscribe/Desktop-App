@@ -29,6 +29,79 @@ stringToValue(const std::string &str)
 }
 }  // namespace
 
+WireGuardCommunicator::Connection::Connection(const std::wstring deviceName)
+    : status_(Status::NO_ACCESS), pipeHandle_(INVALID_HANDLE_VALUE), fileHandle_(nullptr)
+{
+    PrivilegeHelper elevation;
+    if (!elevation.checkElevation()) {
+        Logger::instance().out(L"WireGuard Connection: Failed to elevate privileges");
+        return;
+    }
+    std::wstring pipe_name(L"\\\\.\\pipe\\ProtectedPrefix\\Administrators\\WireGuard\\");
+    pipe_name += deviceName;
+    pipeHandle_ = CreateFile(pipe_name.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr,
+        OPEN_EXISTING, 0, nullptr);
+    if (pipeHandle_ == INVALID_HANDLE_VALUE) {
+        const auto error_code = GetLastError();
+        if (error_code == ERROR_FILE_NOT_FOUND || error_code == ERROR_PIPE_BUSY)
+            status_ = Status::NO_PIPE;
+        return;
+    }
+    if (!elevation.checkElevationForHandle(pipeHandle_)) {
+        Logger::instance().out(L"WireGuard Connection: Pipe handle has invalid access rights");
+        CloseHandle(pipeHandle_);
+        pipeHandle_ = INVALID_HANDLE_VALUE;
+        return;
+    }
+    const int fd = _open_osfhandle(reinterpret_cast<intptr_t>(pipeHandle_), _O_RDWR);
+    if (fd == -1) {
+        Logger::instance().out(L"WireGuard Connection: _open_osfhandle() failed");
+        CloseHandle(pipeHandle_);
+        pipeHandle_ = INVALID_HANDLE_VALUE;
+        return;
+    }
+    fileHandle_ = _fdopen(fd, "r+");
+    status_ = Status::OK;
+}
+
+WireGuardCommunicator::Connection::~Connection()
+{
+    if (fileHandle_)
+        fclose(fileHandle_);
+    if (pipeHandle_ != INVALID_HANDLE_VALUE)
+        CloseHandle(pipeHandle_);
+}
+
+bool WireGuardCommunicator::Connection::getOutput(ResultMap *results_map) const
+{
+    if (!fileHandle_)
+        return false;
+    std::string output;
+    output.reserve(1024);
+    for (;;) {
+        auto c = static_cast<char>(fgetc(fileHandle_));
+        if (c < 0)
+            break;
+        output.push_back(c);
+    }
+    boost::trim(output);
+    if (output.empty())
+        return false;
+    if (results_map && !results_map->empty()) {
+        std::regex output_rx("(^|\n)(\\w+)=(\\w+)(?=\n|$)");
+        std::sregex_iterator it(output.begin(), output.end(), output_rx), end;
+        for (; it != end; ++it) {
+            if (it->size() != 4)
+                continue;
+            const auto &match = *it;
+            auto mapitem = results_map->find(match[2].str());
+            if (mapitem != results_map->end())
+                mapitem->second = match[3].str();
+        }
+    }
+    return true;
+}
+
 void WireGuardCommunicator::setDeviceName(const std::wstring &deviceName)
 {
     assert(!deviceName.empty());
@@ -37,17 +110,17 @@ void WireGuardCommunicator::setDeviceName(const std::wstring &deviceName)
 
 bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
-    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps) const
+    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps)
 {
-    FILE *conn = nullptr;
-    if (openConnection(&conn) != OpenConnectionState::OK) {
+    Connection connection(deviceName_);
+    if (connection.getStatus() != Connection::Status::OK) {
         Logger::instance().out(L"WireGuardCommunicator::configure(): no connection to daemon");
         return false;
     }
 
     // Send set command.
-    fputs("set=1\n", conn);
-    fprintf(conn,
+    fputs("set=1\n", connection);
+    fprintf(connection,
         "private_key=%s\n"
         "replace_peers=true\n"
         "public_key=%s\n"
@@ -58,37 +131,36 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
         clientPrivateKey.c_str(), peerPublicKey.c_str(), peerPresharedKey.c_str(),
         peerEndpoint.c_str());
     for (const auto &ip : allowedIps)
-        fprintf(conn, "allowed_ip=%s\n",ip.c_str());
-    fputs("\n", conn);
-    fflush(conn);
+        fprintf(connection, "allowed_ip=%s\n",ip.c_str());
+    fputs("\n", connection);
+    fflush(connection);
 
     // Check results.
-    ResultMap results{ std::make_pair("errno", "") };
-    bool success = getConnectionOutput(conn, &results);
+    Connection::ResultMap results{ std::make_pair("errno", "") };
+    bool success = connection.getOutput(&results);
     if (success)
         success = stringToValue<int>(results["errno"]) == 0;
-    fclose(conn);
     return success;
 }
 
 UINT WireGuardCommunicator::getStatus(UINT32 *errorCode, UINT64 *bytesReceived,
-                                      UINT64 *bytesTransmitted) const
+                                      UINT64 *bytesTransmitted)
 {
-    FILE *conn = nullptr;
-    const auto result = openConnection(&conn);
-    if (result == OpenConnectionState::NO_ACCESS) {
+    Connection connection(deviceName_);
+    const auto connection_status = connection.getStatus();
+    if (connection_status != Connection::Status::OK) {
+        if (connection.getStatus() == Connection::Status::NO_PIPE)
+            return WIREGUARD_STATE_STARTING;
         if (errorCode)
             *errorCode = GetLastError();
         return WIREGUARD_STATE_ERROR;
-    } else if (result == OpenConnectionState::NO_PIPE) {
-        return WIREGUARD_STATE_STARTING;
     }
 
     // Send get command.
-    fputs("get=1\n\n", conn);
-    fflush(conn);
+    fputs("get=1\n\n", connection);
+    fflush(connection);
 
-    ResultMap results{
+    Connection::ResultMap results{
         std::make_pair("errno", ""),
         std::make_pair("listen_port", ""),
         std::make_pair("public_key", ""),
@@ -96,8 +168,7 @@ UINT WireGuardCommunicator::getStatus(UINT32 *errorCode, UINT64 *bytesReceived,
         std::make_pair("tx_bytes", ""),
         std::make_pair("last_handshake_time_sec", "")
     };
-    bool success = getConnectionOutput(conn, &results);
-    fclose(conn);
+    bool success = connection.getOutput(&results);
     if (!success)
         return WIREGUARD_STATE_STARTING;
 
@@ -128,14 +199,14 @@ UINT WireGuardCommunicator::getStatus(UINT32 *errorCode, UINT64 *bytesReceived,
     return WIREGUARD_STATE_LISTENING;
 }
 
-bool WireGuardCommunicator::bindSockets(UINT if4, UINT if6, BOOL if6blackhole) const
+bool WireGuardCommunicator::bindSockets(UINT if4, UINT if6, BOOL if6blackhole)
 {
     // Check if nothing to bind.
     if (if4 == SOCKET_INTERFACE_KEEP && if6 == SOCKET_INTERFACE_KEEP)
         return true;
 
-    FILE *conn = nullptr;
-    if (openConnection(&conn) != OpenConnectionState::OK) {
+    Connection connection(deviceName_);
+    if (connection.getStatus() != Connection::Status::OK) {
         Logger::instance().out(L"WireGuardCommunicator::bindSockets(): no connection to daemon");
         return false;
     }
@@ -144,96 +215,32 @@ bool WireGuardCommunicator::bindSockets(UINT if4, UINT if6, BOOL if6blackhole) c
         if4, if6, if6blackhole);
 
     // Send socket binding commands.
-    fputs("set=1\n", conn);
+    fputs("set=1\n", connection);
     if (if4 != SOCKET_INTERFACE_KEEP)
-        fprintf(conn,"bind_socket_if4=%u,0\n", if4);
+        fprintf(connection,"bind_socket_if4=%u,0\n", if4);
     if (if6 != SOCKET_INTERFACE_KEEP)
-        fprintf(conn, "bind_socket_if6=%u,%i\n", if6, if6blackhole);
-    fputs("\n", conn);
-    fflush(conn);
+        fprintf(connection, "bind_socket_if6=%u,%i\n", if6, if6blackhole);
+    fputs("\n", connection);
+    fflush(connection);
 
     // Check results.
-    ResultMap results{ std::make_pair("errno", "") };
-    bool success = getConnectionOutput(conn, &results);
+    Connection::ResultMap results{ std::make_pair("errno", "") };
+    bool success = connection.getOutput(&results);
     if (success)
         success = std::stoi(results["errno"]) == 0;
-    fclose(conn);
-    return success;
+     return success;
 }
 
-void WireGuardCommunicator::quit() const
+void WireGuardCommunicator::quit()
 {
-    FILE *conn = nullptr;
-    const auto result = openConnection(&conn);
-    if (result != OpenConnectionState::OK) {
-        if (result != OpenConnectionState::NO_PIPE)
+    Connection connection(deviceName_);
+    const auto connection_status = connection.getStatus();
+    if (connection_status != Connection::Status::OK) {
+        if (connection_status != Connection::Status::NO_PIPE)
             Logger::instance().out(L"WireGuardCommunicator::quit(): no connection to daemon");
       return;
     }
     // Send die command.
-    fputs("die\n\n", conn);
-    fflush(conn);
-    fclose(conn);
-}
-
-WireGuardCommunicator::OpenConnectionState WireGuardCommunicator::openConnection(FILE **pfp) const
-{
-    assert(pfp != nullptr);
-    PrivilegeHelper elevation;
-    if (!elevation.checkElevation()) {
-        Logger::instance().out(L"WireguardCommunicator: Failed to elevate privileges");
-        return OpenConnectionState::NO_ACCESS;
-    }
-    std::wstring pipe_name(L"\\\\.\\pipe\\ProtectedPrefix\\Administrators\\WireGuard\\");
-    pipe_name += deviceName_;
-    HANDLE pipe_handle = CreateFile(pipe_name.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr,
-                                    OPEN_EXISTING, 0, nullptr);
-    if (pipe_handle == INVALID_HANDLE_VALUE) {
-        const auto error_code = GetLastError();
-        if (error_code == ERROR_FILE_NOT_FOUND)
-            return OpenConnectionState::NO_PIPE;
-        else
-            return OpenConnectionState::NO_ACCESS;
-    }
-    if (!elevation.checkElevationForHandle(pipe_handle)) {
-        Logger::instance().out(L"WireguardCommunicator: Pipe handle has invalid access rights");
-        CloseHandle(pipe_handle);
-        return OpenConnectionState::NO_ACCESS;
-    }
-    const int fd = _open_osfhandle(reinterpret_cast<intptr_t>(pipe_handle), _O_RDWR);
-    if (fd == -1) {
-        Logger::instance().out(L"WireguardCommunicator: _open_osfhandle() failed");
-        CloseHandle(pipe_handle);
-        return OpenConnectionState::NO_ACCESS;
-    }
-    *pfp = _fdopen(fd, "r+");
-    return OpenConnectionState::OK;
-}
-
-bool WireGuardCommunicator::getConnectionOutput(FILE *conn, ResultMap *results_map) const
-{
-    std::string output;
-    output.reserve(1024);
-    for (;;) {
-        auto c = static_cast<char>(fgetc(conn));
-        if (c < 0)
-            break;
-        output.push_back(c);
-    }
-    boost::trim(output);
-    if (output.empty())
-        return false;
-    if (results_map && !results_map->empty()) {
-        std::regex output_rx("(^|\n)(\\w+)=(\\w+)(?=\n|$)");
-        std::sregex_iterator it(output.begin(), output.end(), output_rx), end;
-        for (; it != end; ++it) {
-            if (it->size() != 4)
-                continue;
-            const auto &match = *it;
-            auto mapitem = results_map->find(match[2].str());
-            if (mapitem != results_map->end())
-                mapitem->second = match[3].str();
-        }
-    }
-    return true;
+    fputs("die\n\n", connection);
+    fflush(connection);
 }
