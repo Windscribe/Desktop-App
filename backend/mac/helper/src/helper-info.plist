@@ -9,7 +9,7 @@
 	<key>CFBundleName</key>
 	<string>WindscribeHelper</string>
 	<key>CFBundleVersion</key>
-	<string>16</string>
+	<string>17</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2020  Windscribe Limited. All rights reserved.</string>
 	<key>LSMinimumSystemVersion</key>
