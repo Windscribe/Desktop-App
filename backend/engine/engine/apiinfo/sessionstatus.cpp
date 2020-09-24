@@ -43,7 +43,7 @@ bool SessionStatus::initFromJson(QJsonObject &json, QString &outErrorMessage)
     d->ss_.clear_alc();
     if (json.contains("alc"))
     {
-        QJsonArray alcArray = json["alc"].toArray();
+        const QJsonArray alcArray = json["alc"].toArray();
         for (const QJsonValue &v : alcArray)
         {
             d->ss_.add_alc(v.toString().toStdString());
@@ -62,7 +62,7 @@ bool SessionStatus::initFromJson(QJsonObject &json, QString &outErrorMessage)
         {
             if (objSip["update"].isArray())
             {
-                QJsonArray jsonUpdateIps = objSip["update"].toArray();
+                const QJsonArray jsonUpdateIps = objSip["update"].toArray();
                 for (const QJsonValue &jsonUpdateIpsIt : jsonUpdateIps)
                 {
                     d->staticIpsUpdateDevices_.insert(jsonUpdateIpsIt.toString());

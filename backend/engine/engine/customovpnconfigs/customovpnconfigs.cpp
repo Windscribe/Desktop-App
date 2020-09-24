@@ -45,7 +45,8 @@ void CustomOvpnConfigs::onDirectoryChanged()
 
 void CustomOvpnConfigs::parseDir()
 {
-    /*QDir dir(dirWatcher_->curDir());
+#if 0
+    QDir dir(dirWatcher_->curDir());
     QStringList filters;
     filters << "*.ovpn";
     dir.setNameFilters(filters);
@@ -72,10 +73,12 @@ void CustomOvpnConfigs::parseDir()
     {
         serverLocation_ = QSharedPointer<ServerLocation>(new ServerLocation);
         serverLocation_->transformToCustomOvpnLocation(nodes);
-    }*/
+    }
+#endif
 }
 
-/*QSharedPointer<ServerNode> CustomOvpnConfigs::makeServerNodeFromOvpnFile(const QString &pathFile)
+/*
+QSharedPointer<ServerNode> CustomOvpnConfigs::makeServerNodeFromOvpnFile(const QString &pathFile)
 {
     QFile file(pathFile);
     if (file.open(QIODevice::ReadOnly))
@@ -103,11 +106,13 @@ void CustomOvpnConfigs::parseDir()
                     isAlreadyWasHostname = true;
                 }
             }
-            /*else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_AUTH_USER_PASS) // auth-user-pass "path"
+#if 0
+            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_AUTH_USER_PASS) // auth-user-pass "path"
             {
                 customOvpnAuthCredentialsStorage_->setAuthCredentials(pathFile, openVpnLine.username, openVpnLine.password);
-            }*/
-        /*}
+            }
+#endif
+        }
 
         if (!hostname.isEmpty())
         {
@@ -126,4 +131,5 @@ void CustomOvpnConfigs::parseDir()
         qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << pathFile;
         return QSharedPointer<ServerNode>();
     }
-}*/
+}
+*/

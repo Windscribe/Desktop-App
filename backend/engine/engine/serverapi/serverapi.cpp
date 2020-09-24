@@ -1672,7 +1672,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         }
 
         QString outErrorMsg;
-        bool success = sessionStatus.initFromJson(jsonData, outErrorMsg);
+        success = sessionStatus.initFromJson(jsonData, outErrorMsg);
         if (!success)
         {
             if (replyType == REPLY_LOGIN)
