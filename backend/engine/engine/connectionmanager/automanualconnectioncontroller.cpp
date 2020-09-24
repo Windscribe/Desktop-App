@@ -324,7 +324,7 @@ AutoManualConnectionController::CurrentConnectionDescr AutoManualConnectionContr
         ccd.username = mli_->getStaticIpUsername();
         ccd.password = mli_->getStaticIpPassword();
         ccd.staticIpPorts = mli_->getStaticIpPorts();
-\
+
         // for static ip with wireguard protocol override id to wg_ip
         if (ccd.protocol.getType() == ProtocolType::PROTOCOL_WIREGUARD )
         {

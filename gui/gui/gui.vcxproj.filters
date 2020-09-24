@@ -613,9 +613,6 @@
     <ClCompile Include="connectwindow\serverratingindicator.cpp">
       <Filter>GUI Files\connectwindow</Filter>
     </ClCompile>
-    <ClCompile Include="preferenceswindow\debugwindow\serverratingsitem.cpp">
-      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
-    </ClCompile>
     <ClCompile Include="tooltips\serverratingstooltip.cpp">
       <Filter>GUI Files\tooltips</Filter>
     </ClCompile>
@@ -819,6 +816,9 @@
     </ClCompile>
     <ClCompile Include="tooltips\tooltiputil.cpp">
       <Filter>GUI Files\tooltips</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\generated_proto\apiinfo.pb.cc">
+      <Filter>Common Files\ipc\generated_proto</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1115,9 +1115,6 @@
     </QtMoc>
     <QtMoc Include="connectwindow\serverratingindicator.h">
       <Filter>GUI Files\connectwindow</Filter>
-    </QtMoc>
-    <QtMoc Include="preferenceswindow\debugwindow\serverratingsitem.h">
-      <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
     </QtMoc>
     <QtMoc Include="tooltips\serverratingstooltip.h">
       <Filter>GUI Files\tooltips</Filter>
@@ -2109,6 +2106,9 @@
     <None Include="svg\flags\za.svg">
       <Filter>Misc Files\Resource Files</Filter>
     </None>
+    <None Include="..\..\common\ipc\proto\apiinfo.proto">
+      <Filter>Common Files\ipc\proto</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gui.rc">
@@ -2423,6 +2423,9 @@
     </ClInclude>
     <ClInclude Include="tooltips\tooltiputil.h">
       <Filter>GUI Files\tooltips</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\generated_proto\apiinfo.pb.h">
+      <Filter>Common Files\ipc\generated_proto</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

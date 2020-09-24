@@ -113,9 +113,9 @@ void ComboMenuWidget::clearItems()
 
 int ComboMenuWidget::visibleItems()
 {
-    if (items_.length() > MAX_ITEMS_SHOWING)
+    if (items_.length() > maxItemsShowing_)
     {
-        return MAX_ITEMS_SHOWING;
+        return maxItemsShowing_;
     }
     else
     {
@@ -345,7 +345,7 @@ void ComboMenuWidget::updateScaling()
     menuListWidget_->setGeometry(rect);
 
     // restrict height of list viewport
-    maxViewportHeight_ = MAX_ITEMS_SHOWING * STEP_SIZE * G_SCALE;
+    maxViewportHeight_ = maxItemsShowing_ * STEP_SIZE * G_SCALE;
     int restrictedHeight = allButtonsHeight * G_SCALE;
     if (restrictedHeight > maxViewportHeight_) restrictedHeight = maxViewportHeight_;
 
@@ -379,6 +379,12 @@ void ComboMenuWidget::updateScaling()
 
     // update main view port
     emit sizeChanged(buttonWidth  + sideMargin()*2, restrictedHeight + topMargin()*2 );
+}
+
+void ComboMenuWidget::setMaxItemsShowing(int maxItemsShowing)
+{
+    maxItemsShowing_ = qMax(1, maxItemsShowing);
+    updateScaling();
 }
 
 int ComboMenuWidget::largestButtonWidth()

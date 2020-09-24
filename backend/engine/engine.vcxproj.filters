@@ -122,6 +122,12 @@
     <Filter Include="Common Files\utils\executable_signature">
       <UniqueIdentifier>{fcf1a50e-d9cc-480b-9eb5-679385e35010}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine Files\engine\apiinfo">
+      <UniqueIdentifier>{619a5eb6-2a8b-4ce2-ab32-acb56aadeae5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine Files\engine\locationsmodel">
+      <UniqueIdentifier>{e2d6832f-9d11-42ee-965c-a30010a45878}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application\windowsnativeeventfilter.cpp">
@@ -144,9 +150,6 @@
     </ClCompile>
     <ClCompile Include="qconsolelistener.cpp">
       <Filter>Engine Files</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\types\apiinfo.cpp">
-      <Filter>Engine Files\engine\types</Filter>
     </ClCompile>
     <ClCompile Include="..\..\common\version\appversion.cpp">
       <Filter>Common Files\version</Filter>
@@ -267,9 +270,6 @@
     </ClCompile>
     <ClCompile Include="..\..\common\utils\winutils.cpp">
       <Filter>Common Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\failedpinglogcontroller.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
     </ClCompile>
     <ClCompile Include="engine\firewall\firewallcontroller.cpp">
       <Filter>Engine Files\engine\firewall</Filter>
@@ -394,9 +394,6 @@
     <ClCompile Include="engine\measurementcpuusage.cpp">
       <Filter>Engine Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\serversmodel\mutablelocationinfo.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClCompile>
     <ClCompile Include="engine\networkdetectionmanager\networkdetectionmanager_win.cpp">
       <Filter>Engine Files\engine\networkdetectionmanager</Filter>
     </ClCompile>
@@ -405,15 +402,6 @@
     </ClCompile>
     <ClCompile Include="engine\networkstatemanager\networkstatemanager_win.cpp">
       <Filter>Engine Files\engine\networkstatemanager</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\nodesspeedstore.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\nodesspeedratings.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\nodeselectionalgorithm.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
     </ClCompile>
     <ClCompile Include="engine\connectionmanager\openvpnconnection.cpp">
       <Filter>Engine Files\engine\connectionmanager</Filter>
@@ -424,22 +412,7 @@
     <ClCompile Include="engine\openvpnversioncontroller.cpp">
       <Filter>Engine Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\serversmodel\pingtime.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\pinglog.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\pingmanager.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\pingnodescontroller.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClCompile>
     <ClCompile Include="engine\types\protocoltype.cpp">
-      <Filter>Engine Files\engine\types</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\types\portmap.cpp">
       <Filter>Engine Files\engine\types</Filter>
     </ClCompile>
     <ClCompile Include="engine\refetchservercredentialshelper.cpp">
@@ -448,20 +421,11 @@
     <ClCompile Include="engine\sessionstatustimer.cpp">
       <Filter>Engine Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\serverlocationsapiwrapper.cpp">
-      <Filter>Engine Files\engine</Filter>
-    </ClCompile>
     <ClCompile Include="engine\tempscripts_mac.cpp">
       <Filter>Engine Files\engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\connectionmanager\resetwindscribetap_win.cpp">
       <Filter>Engine Files\engine\connectionmanager</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\resolvehostnamesforcustomovpn.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\types\servercredentials.cpp">
-      <Filter>Engine Files\engine\types</Filter>
     </ClCompile>
     <ClCompile Include="..\..\common\ipc\server.cpp">
       <Filter>Common Files\ipc</Filter>
@@ -472,26 +436,11 @@
     <ClCompile Include="..\..\common\ipc\tcpconnection.cpp">
       <Filter>Common Files\ipc</Filter>
     </ClCompile>
-    <ClCompile Include="engine\types\servernode.cpp">
-      <Filter>Engine Files\engine\types</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\types\serverlocation.cpp">
-      <Filter>Engine Files\engine\types</Filter>
-    </ClCompile>
     <ClCompile Include="engine\types\types.cpp">
-      <Filter>Engine Files\engine\types</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\types\staticipslocation.cpp">
       <Filter>Engine Files\engine\types</Filter>
     </ClCompile>
     <ClCompile Include="engine\tests\sessionandlocations_test.cpp">
       <Filter>Engine Files\engine\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\serversmodel.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\serversmodel\testpingnodecontroller.cpp">
-      <Filter>Engine Files\engine\serversmodel</Filter>
     </ClCompile>
     <ClCompile Include="engine\connectionmanager\sleepevents_win.cpp">
       <Filter>Engine Files\engine\connectionmanager</Filter>
@@ -577,6 +526,69 @@
     <ClCompile Include="engine\types\wireguardconfig.cpp">
       <Filter>Engine Files\engine\types</Filter>
     </ClCompile>
+    <ClCompile Include="engine\apiinfo\apiinfo.cpp">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\apiinfo\group.cpp">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\apiinfo\location.cpp">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\apiinfo\node.cpp">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\apiinfo\notification.cpp">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\apiinfo\portmap.cpp">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\apiinfo\servercredentials.cpp">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\apiinfo\sessionstatus.cpp">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\apiinfo\staticips.cpp">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\bestlocation.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\failedpinglogcontroller.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\locationitem.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\locationnode.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\locationsmodel.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\mutablelocationinfo.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\nodeselectionalgorithm.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\pingipscontroller.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\pinglog.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\pingstorage.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\pingtime.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\ipc\generated_proto\apiinfo.pb.cc">
+      <Filter>Common Files\ipc\generated_proto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qconsolelistener.h">
@@ -602,9 +614,6 @@
     </ClInclude>
     <ClInclude Include="engine\connectionmanager\availableport.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\types\apiinfo.h">
-      <Filter>Engine Files\engine\types</Filter>
     </ClInclude>
     <ClInclude Include="..\..\common\version\appversion.h">
       <Filter>Common Files\version</Filter>
@@ -647,9 +656,6 @@
     </ClInclude>
     <ClInclude Include="..\..\common\utils\extraconfig.h">
       <Filter>Common Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\serversmodel\failedpinglogcontroller.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
     </ClInclude>
     <QtMoc Include="engine\firewall\firewallcontroller.h">
       <Filter>Engine Files\engine\firewall</Filter>
@@ -720,9 +726,6 @@
     <ClInclude Include="utils\ipvalidation.h">
       <Filter>Engine Files\utils</Filter>
     </ClInclude>
-    <QtMoc Include="engine\serversmodel\iserversmodel.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </QtMoc>
     <QtMoc Include="engine\connectionmanager\isleepevents.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </QtMoc>
@@ -735,20 +738,11 @@
     <ClInclude Include="engine\connectionmanager\makeovpnfile.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClInclude>
-    <QtMoc Include="engine\serversmodel\mutablelocationinfo.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </QtMoc>
     <QtMoc Include="engine\networkdetectionmanager\networkchangeworkerthread.h">
       <Filter>Engine Files\engine\networkdetectionmanager</Filter>
     </QtMoc>
     <QtMoc Include="engine\networkdetectionmanager\networkdetectionmanager_win.h">
       <Filter>Engine Files\engine\networkdetectionmanager</Filter>
-    </QtMoc>
-    <QtMoc Include="engine\serversmodel\nodesspeedratings.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </QtMoc>
-    <QtMoc Include="engine\serversmodel\nodesspeedstore.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
     </QtMoc>
     <QtMoc Include="engine\ping\pinghost.h">
       <Filter>Engine Files\engine\ping</Filter>
@@ -759,15 +753,6 @@
     <QtMoc Include="engine\ping\pinghost_icmp_win.h">
       <Filter>Engine Files\engine\ping</Filter>
     </QtMoc>
-    <QtMoc Include="engine\serversmodel\pingnodescontroller.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </QtMoc>
-    <ClInclude Include="engine\serversmodel\pingtime.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\types\portmap.h">
-      <Filter>Engine Files\engine\types</Filter>
-    </ClInclude>
     <ClInclude Include="engine\types\protocoltype.h">
       <Filter>Engine Files\engine\types</Filter>
     </ClInclude>
@@ -780,20 +765,11 @@
     <QtMoc Include="engine\refetchservercredentialshelper.h">
       <Filter>Engine Files\engine</Filter>
     </QtMoc>
-    <QtMoc Include="engine\serversmodel\resolvehostnamesforcustomovpn.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </QtMoc>
     <QtMoc Include="engine\serverapi\serverapi.h">
       <Filter>Engine Files\engine\serverapi</Filter>
     </QtMoc>
     <QtMoc Include="..\..\common\ipc\server.h">
       <Filter>Common Files\ipc</Filter>
-    </QtMoc>
-    <QtMoc Include="engine\serverlocationsapiwrapper.h">
-      <Filter>Engine Files\engine</Filter>
-    </QtMoc>
-    <QtMoc Include="engine\serversmodel\serversmodel.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
     </QtMoc>
     <QtMoc Include="engine\sessionstatustimer.h">
       <Filter>Engine Files\engine</Filter>
@@ -821,9 +797,6 @@
     </QtMoc>
     <QtMoc Include="..\..\common\ipc\tcpconnection.h">
       <Filter>Common Files\ipc</Filter>
-    </QtMoc>
-    <QtMoc Include="engine\serversmodel\testpingnodecontroller.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
     </QtMoc>
     <QtMoc Include="engine\connectionmanager\testvpntunnelhelper.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
@@ -857,6 +830,15 @@
     </QtMoc>
     <QtMoc Include="engine\connectionmanager\wireguardconnection.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\locationsmodel\locationsmodel.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\locationsmodel\mutablelocationinfo.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\locationsmodel\pingipscontroller.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -894,6 +876,9 @@
     </None>
     <None Include="engine\connectionmanager\restorednsmanager_mac.mm">
       <Filter>Engine Files\engine\connectionmanager</Filter>
+    </None>
+    <None Include="..\..\common\ipc\proto\apiinfo.proto">
+      <Filter>Common Files\ipc\proto</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -969,9 +954,6 @@
     <QtMoc Include="engine\packetsizecontroller.h">
       <Filter>Engine Files\engine</Filter>
     </QtMoc>
-    <QtMoc Include="engine\serversmodel\pingmanager.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\common\ipc\commandfactory.h">
@@ -1025,32 +1007,17 @@
     <ClInclude Include="utils\mergelog.h">
       <Filter>Engine Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="engine\serversmodel\nodeselectionalgorithm.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClInclude>
     <ClInclude Include="engine\openvpnversioncontroller.h">
       <Filter>Engine Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\customovpnconfigs\parseovpnconfigline.h">
       <Filter>Engine Files\engine\customovpnconfigs</Filter>
     </ClInclude>
-    <ClInclude Include="engine\serversmodel\pinglog.h">
-      <Filter>Engine Files\engine\serversmodel</Filter>
-    </ClInclude>
     <ClInclude Include="engine\proxy\proxysettings.h">
       <Filter>Engine Files\engine\proxy</Filter>
     </ClInclude>
     <ClInclude Include="engine\connectionmanager\resetwindscribetap_win.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\types\servercredentials.h">
-      <Filter>Engine Files\engine\types</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\types\serverlocation.h">
-      <Filter>Engine Files\engine\types</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\types\servernode.h">
-      <Filter>Engine Files\engine\types</Filter>
     </ClInclude>
     <ClInclude Include="engine\tests\sessionandlocations_test.h">
       <Filter>Engine Files\engine\tests</Filter>
@@ -1075,9 +1042,6 @@
     </ClInclude>
     <ClInclude Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo.h">
       <Filter>Engine Files\engine\splittunnelingnetworkinfo</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\types\staticipslocation.h">
-      <Filter>Engine Files\engine\types</Filter>
     </ClInclude>
     <ClInclude Include="engine\taputils\tapinstall_win.h">
       <Filter>Engine Files\engine\taputils</Filter>
@@ -1141,6 +1105,60 @@
     </ClInclude>
     <ClInclude Include="engine\types\wireguardtypes.h">
       <Filter>Engine Files\engine\types</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\apiinfo\apiinfo.h">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\apiinfo\group.h">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\apiinfo\location.h">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\apiinfo\node.h">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\apiinfo\notification.h">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\apiinfo\portmap.h">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\apiinfo\servercredentials.h">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\apiinfo\sessionstatus.h">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\apiinfo\staticips.h">
+      <Filter>Engine Files\engine\apiinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\locationsmodel\bestlocation.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\locationsmodel\failedpinglogcontroller.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\locationsmodel\locationitem.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\locationsmodel\locationnode.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\locationsmodel\nodeselectionalgorithm.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\locationsmodel\pinglog.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\locationsmodel\pingstorage.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\locationsmodel\pingtime.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\ipc\generated_proto\apiinfo.pb.h">
+      <Filter>Common Files\ipc\generated_proto</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

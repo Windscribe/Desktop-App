@@ -393,6 +393,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\common\ipc\generated_proto\apiinfo.pb.cc" />
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp" />
@@ -558,7 +559,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\ipc\server.cpp" />
     <ClCompile Include="..\..\common\ipc\generated_proto\servercommands.pb.cc" />
     <ClCompile Include="connectwindow\serverratingindicator.cpp" />
-    <ClCompile Include="preferenceswindow\debugwindow\serverratingsitem.cpp" />
     <ClCompile Include="tooltips\serverratingstooltip.cpp" />
     <ClCompile Include="utils\shadowmanager.cpp" />
     <ClCompile Include="preferenceswindow\sharewindow\sharewindowitem.cpp" />
@@ -629,6 +629,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <QtMoc Include="preferenceswindow\splittunnelingwindow\appsearchitem.h">
     </QtMoc>
+    <ClInclude Include="..\..\common\ipc\generated_proto\apiinfo.pb.h" />
     <ClInclude Include="..\..\common\utils\networktypes.h" />
     <ClInclude Include="..\..\common\version\appversion.h" />
     <QtMoc Include="preferenceswindow\connectionwindow\automanualswitchitem.h">
@@ -914,8 +915,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\ipc\generated_proto\servercommands.pb.h" />
     <QtMoc Include="connectwindow\serverratingindicator.h">
     </QtMoc>
-    <QtMoc Include="preferenceswindow\debugwindow\serverratingsitem.h">
-    </QtMoc>
     <QtMoc Include="tooltips\serverratingstooltip.h">
     </QtMoc>
     <QtMoc Include="utils\shadowmanager.h">
@@ -1144,6 +1143,37 @@ set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
 if not exist %OUTPATH% mkdir %OUTPATH%
 %PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
+set INCPATH=%(RootDir)%(Directory)
+set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+if not exist %OUTPATH% mkdir %OUTPATH%
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">Building %(Filename)%(Extension)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">Building %(Filename)%(Extension)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">%(RelativeDir)..\generated_proto\%(Filename).pb.cc;%(RelativeDir)..\generated_proto\%(Filename).pb.h;%(Outputs)</Outputs>
     </CustomBuild>
     <None Include="svg\preferences\ACCOUNT_ICON.svg" />
     <None Include="svg\locations\ADD_ICON.svg" />

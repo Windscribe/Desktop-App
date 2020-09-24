@@ -58,6 +58,7 @@ public:
     void clear();
 
     void hideMenu();
+    void setMaxMenuItemsShowing(int maxItemsShowing);
     QPointF getButtonScenePos() const;
 
     void setColorScheme(bool darkMode);
