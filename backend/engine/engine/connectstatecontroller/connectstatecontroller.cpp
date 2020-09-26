@@ -32,7 +32,7 @@ void ConnectStateController::setDisconnectedState(DISCONNECT_REASON reason, CONN
         state_ = CONNECT_STATE_DISCONNECTED;
         disconnectReason_ = reason;
         err_ = err;
-        location_.reset();
+        location_ = LocationID();   //reset
         emit stateChanged(state_, disconnectReason_, err_, location_);
     }
 }
@@ -60,7 +60,7 @@ void ConnectStateController::setDisconnectingState()
         state_ = CONNECT_STATE_DISCONNECTING;
         err_ = NO_CONNECT_ERROR;
         disconnectReason_ = DISCONNECTED_ITSELF;
-        location_.reset();
+        location_ = LocationID();   //reset
         emit stateChanged(state_, disconnectReason_, err_, location_);
     }
 }

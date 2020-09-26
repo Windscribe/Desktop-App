@@ -37,12 +37,12 @@ MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QSt
 
 bool MutableLocationInfo::isCustomOvpnConfig() const
 {
-    return locationId_.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID;
+    return locationId_.isCustomConfigsLocation();
 }
 
 bool MutableLocationInfo::isStaticIp() const
 {
-    return locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID;
+    return locationId_.isStaticIpsLocation();
 }
 
 QString MutableLocationInfo::getName() const
@@ -125,14 +125,14 @@ QString MutableLocationInfo::getWgPubKeyForSelectedNode() const
 
 QString MutableLocationInfo::getWgIpForSelectedNode() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    Q_ASSERT(locationId_.isStaticIpsLocation());
     Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
     return nodes_[selectedNode_]->getWgIp();
 }
 
 QString MutableLocationInfo::getStaticIpUsername() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    Q_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_]->getStaticIpUsername();
@@ -146,7 +146,7 @@ QString MutableLocationInfo::getStaticIpUsername() const
 
 QString MutableLocationInfo::getStaticIpPassword() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    Q_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_]->getStaticIpPassword();
@@ -160,7 +160,7 @@ QString MutableLocationInfo::getStaticIpPassword() const
 
 apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    Q_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_]->getStaticIpPorts();

@@ -9,16 +9,14 @@ void ConfiguredCitiesModel::update(QVector<LocationModelItem *> locations)
 {
     clearCities();
 
-    Q_FOREACH(LocationModelItem *lmi, locations)
+    for (const LocationModelItem *lmi : locations)
     {
-        if (lmi->id.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+        Q_ASSERT(lmi->id.isCustomConfigsLocation());
+        for (int i = 0; i < lmi->cities.count(); ++i)
         {
-            for (int i = 0; i < lmi->cities.count(); ++i)
-            {
-                CityModelItem *cmi = new CityModelItem();
-                *cmi = lmi->cities[i];
-                cities_ << cmi;
-            }
+            CityModelItem *cmi = new CityModelItem();
+            *cmi = lmi->cities[i];
+            cities_ << cmi;
         }
     }
 

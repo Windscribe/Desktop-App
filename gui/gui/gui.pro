@@ -171,7 +171,7 @@ SOURCES += \
     ../backend/preferences/guisettingsfromver1.cpp \
     ../backend/preferences/preferences.cpp \
     ../backend/preferences/preferenceshelper.cpp \
-    ../backend/types/locationid.cpp \
+    $$COMMON_PATH/types/locationid.cpp \
     ../backend/types/pingtime.cpp \
     ../backend/types/types.cpp \
     ../backend/types/upgrademodetype.cpp \
@@ -383,7 +383,7 @@ HEADERS += \
     ../backend/preferences/guisettingsfromver1.h \
     ../backend/preferences/preferences.h \
     ../backend/preferences/preferenceshelper.h \
-    ../backend/types/locationid.h \
+    $$COMMON_PATH/types/locationid.h \
     ../backend/types/pingtime.h \
     ../backend/types/types.h \
     ../backend/types/upgrademodetype.h \

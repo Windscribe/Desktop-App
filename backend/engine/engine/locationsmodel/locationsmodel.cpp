@@ -69,7 +69,7 @@ void LocationsModel::clear()
     staticIps_ = apiinfo::StaticIps();
     pingIpsController_.updateIps(QVector<PingIpInfo>());
     QSharedPointer<QVector<locationsmodel::LocationItem> > empty(new QVector<locationsmodel::LocationItem>());
-    emit locationsUpdated(empty);
+    emit locationsUpdated(LocationID(), empty);
 }
 
 void LocationsModel::setProxySettings(const ProxySettings &proxySettings)
@@ -91,14 +91,14 @@ QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(c
 {
     LocationID modifiedLocationId = locationId;
 
-    if (locationId.getId() == LocationID::STATIC_IPS_LOCATION_ID)
+    if (locationId.isStaticIpsLocation())
     {
         if (staticIps_.getIpsCount() > 0)
         {
             for (int i = 0; i < staticIps_.getIpsCount(); ++i)
             {
                 const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
-                LocationID staticIpLocationId = LocationID::createFromStaticIpsLocation(sid.cityName, sid.staticIp);
+                LocationID staticIpLocationId = LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp);
 
                 if (staticIpLocationId == locationId)
                 {
@@ -114,26 +114,19 @@ QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(c
             }
         }
     }
-    else if (locationId.getId() == LocationID::BEST_LOCATION_ID)
+    else if (locationId.isBestLocation())
     {
-        if (bestLocation_.isValid())
-        {
-            modifiedLocationId.setId(bestLocation_.getId());
-        }
-        else
-        {
-            Q_ASSERT(false);
-        }
+        modifiedLocationId = locationId.bestLocationToApiLocation();
     }
 
     for (const apiinfo::Location &l : locations_)
     {
-        if (l.getId() == modifiedLocationId.getId())
+        if (LocationID::createTopApiLocationId(l.getId()) == modifiedLocationId.toTopLevelLocation())
         {
             for (int i = 0; i < l.groupsCount(); ++i)
             {
                 const apiinfo::Group group = l.getGroup(i);
-                if (LocationID::createFromApiLocation(l.getId(), group.getId()).getCity() == modifiedLocationId.getCity())
+                if (LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()) == modifiedLocationId)
                 {
                     QVector< QSharedPointer<BaseNode> > nodes;
                     for (int n = 0; n < group.getNodesCount(); ++n)
@@ -175,7 +168,7 @@ void LocationsModel::onPingInfoChanged(const QString &ip, int timems, bool isFro
             const apiinfo::Group group = l.getGroup(i);
             if (group.getPingIp() == ip)
             {
-                emit locationPingTimeChanged(LocationID::createFromApiLocation(l.getId(), group.getId()), timems);
+                emit locationPingTimeChanged(LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()), timems);
             }
         }
     }
@@ -188,7 +181,7 @@ void LocationsModel::onPingInfoChanged(const QString &ip, int timems, bool isFro
             const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
             if (sid.getPingIp() == ip)
             {
-                emit locationPingTimeChanged(LocationID::createFromStaticIpsLocation(sid.cityName, sid.staticIp), timems);
+                emit locationPingTimeChanged(LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp), timems);
             }
         }
     }
@@ -282,11 +275,10 @@ void LocationsModel::generateLocationsUpdated()
 {
     QSharedPointer <QVector<LocationItem> > items(new QVector<LocationItem>());
 
-    bool isBestLocationInserted = false;
     for (const apiinfo::Location &l : locations_)
     {
         LocationItem item;
-        item.id = l.getId();
+        item.id = LocationID::createTopApiLocationId(l.getId());
         item.name = l.getName();
         item.countryCode = l.getCountryCode();
         item.isPremiumOnly = l.isPremiumOnly();
@@ -296,7 +288,7 @@ void LocationsModel::generateLocationsUpdated()
         {
             const apiinfo::Group group = l.getGroup(i);
             CityItem city;
-            city.cityId = LocationID::createFromApiLocation(l.getId(), group.getId()).getCity();
+            city.id = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick());
             city.city = group.getCity();
             city.nick = group.getNick();
             city.isPro = group.isPro();
@@ -306,27 +298,19 @@ void LocationsModel::generateLocationsUpdated()
         }
 
         *items << item;
-
-        if (!isBestLocationInserted && bestLocation_.isValid() && bestLocation_.getId() == item.id)
-        {
-            item.id = LocationID::BEST_LOCATION_ID;
-            item.name = "Best Location";
-            items->insert(0,item);
-            isBestLocationInserted = true;
-        }
     }
 
+    LocationID bestLocation;
+    if (bestLocation_.isValid())
+    {
+        bestLocation = LocationID::createBestLocationId(bestLocation_.getId());
+    }
     // use first location as best location
-    if (!isBestLocationInserted)
+    else
     {
         if (items->count() > 0)
         {
-            LocationItem firstItem = items->at(0);
-            bestLocation_.set(firstItem.id, false, false);
-            firstItem.id = LocationID::BEST_LOCATION_ID;
-            firstItem.name = "Best Location";
-            items->insert(0,firstItem);
-
+            bestLocation = items->at(0).id.apiLocationToBestLocation();
             qCDebug(LOG_BEST_LOCATION) << "Best location chosen as the first location:" << bestLocation_.getId();
         }
     }
@@ -336,7 +320,7 @@ void LocationsModel::generateLocationsUpdated()
     {
         LocationItem item;
 
-        item.id = LocationID::STATIC_IPS_LOCATION_ID;
+        item.id = LocationID::createTopStaticLocationId();
         item.name = QObject::tr("Static IPs");
         item.countryCode = "STATIC_IPS";
         item.isPremiumOnly = false;
@@ -347,11 +331,12 @@ void LocationsModel::generateLocationsUpdated()
         {
             const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
             CityItem city;
-            city.cityId = LocationID::createFromStaticIpsLocation(sid.cityName, sid.staticIp).getCity();
+            city.id = LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp);
             city.city = sid.cityName;
             city.pingTimeMs = pingStorage_.getNodeSpeed(sid.getPingIp());
             city.isPro = true;
             city.isDisabled = false;
+            city.staticIpCountryCode = sid.countryCode;
             city.staticIp = sid.staticIp;
             city.staticIpType = sid.type;
 
@@ -361,7 +346,7 @@ void LocationsModel::generateLocationsUpdated()
         *items << item;
     }
 
-    emit locationsUpdated(items);
+    emit locationsUpdated(bestLocation, items);
 }
 
 int LocationsModel::calcLatency(const apiinfo::Location &l)

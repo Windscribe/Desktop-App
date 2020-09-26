@@ -9,7 +9,7 @@
 #include <QTextLayout>
 #include "itemtimems.h"
 #include "../backend/types/pingtime.h"
-#include "../backend/types/locationid.h"
+#include "types/locationid.h"
 #include "citynode.h"
 
 namespace GuiLocations {

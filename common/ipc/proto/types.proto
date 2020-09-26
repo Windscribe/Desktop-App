@@ -114,21 +114,22 @@ message ApiNotification
 
 message City
 {
-  optional string id = 1;
+  optional LocationId id = 1;
   optional string name = 2;
   optional string nick = 3;
   optional int32 ping_time = 4;		  // -2 no ping info, -1 ping failed, other values ping time in ms
   optional bool is_premium_only = 5;
   optional bool is_disabled = 6;
   // used for static IP sublocation description
-  optional string static_ip_type = 7;
-  optional string static_ip = 8;
+  optional string static_ip_country_code = 7;   
+  optional string static_ip_type = 8;
+  optional string static_ip = 9;
   
 }
 
 message Location
 {
-  optional int32 id = 1;              // this is server id from API, or -1 for best location, or -2 for custom ovpn configs location, or -3 for static ips location
+  optional LocationId id = 1;              
   optional string name = 2;           
   optional string country_code = 3;   
   optional bool is_premium_only = 4;
@@ -139,9 +140,16 @@ message Location
 
 message LocationId
 {
-  optional int32 location_id = 1 [default = -100]; 
-  optional string city = 2;
+  optional int32 type = 1 [default = 0]; 
+  optional int32 id = 2; 
+  optional string city = 3;
 }
+
+message ArrayLocationId
+{
+  repeated LocationId ids = 1;
+}
+
 
 message SessionStatus
 {

@@ -4,24 +4,26 @@
 #include <QString>
 #include <QVector>
 #include "pingtime.h"
+#include "types/locationid.h"
 
 namespace locationsmodel {
 
 struct CityItem
 {
-    QString cityId;
+    LocationID id;
     QString city;
     QString nick;
     PingTime pingTimeMs;
     bool isPro;
     bool isDisabled;
+    QString staticIpCountryCode;
     QString staticIpType;
     QString staticIp;
 };
 
 struct LocationItem
 {
-    int id;
+    LocationID id;
     QString name;
     QString countryCode;
     bool isPremiumOnly;

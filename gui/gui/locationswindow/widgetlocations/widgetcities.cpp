@@ -281,9 +281,9 @@ void WidgetCities::setCurrentSelected(LocationID id)
     int curAllInd = 0;
     for (int i = 0; i < items_.count(); ++i)
     {
-        if (items_[i]->getLocationId().getId() == id.getId())
+        if (items_[i]->getLocationId() == id)
         {
-            if (id.getCity().isEmpty())
+            if (id.isTopLevelLocation())
             {
                 // update selected item
                 if (indSelected_ != -1)
@@ -359,9 +359,7 @@ void WidgetCities::setFirstSelected()
 {
     if (items_.count() > 0)
     {
-        LocationID locationId;
-        locationId.setId(items_[0]->getLocationId().getId());
-        setCurrentSelected(locationId);
+        setCurrentSelected(items_[0]->getLocationId());
     }
 }
 

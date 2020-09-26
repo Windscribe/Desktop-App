@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QSet>
-#include "../types/locationid.h"
+#include "types/locationid.h"
 
 class FavoriteLocationsStorage : public QObject
 {

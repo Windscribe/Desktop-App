@@ -299,7 +299,7 @@ SOURCES += main.cpp \
     engine/connectionmanager/connectionmanager.cpp \
     engine/connectionmanager/availableport.cpp \
     engine/connectionmanager/wireguardconnection.cpp \
-    engine/types/locationid.cpp \
+    $$COMMON_PATH/types/locationid.cpp \
     engine/logincontroller/getapiaccessips.cpp \
     engine/helper/initializehelper.cpp \
     engine/refetchservercredentialshelper.cpp \
@@ -431,7 +431,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/types/types.h \
     engine/connectionmanager/automanualconnectioncontroller.h \
     engine/connectionmanager/connectionmanager.h \
-    engine/types/locationid.h \
+    $$COMMON_PATH/types/locationid.h \
     engine/logincontroller/getapiaccessips.h \
     engine/helper/initializehelper.h \
     engine/refetchservercredentialshelper.h \

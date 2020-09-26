@@ -77,7 +77,13 @@ message MyIpUpdated
 
 message LocationsUpdated
 {
-   optional ProtoTypes.ArrayLocations array_locations = 1;
+   optional ProtoTypes.LocationId best_location = 1;
+   optional ProtoTypes.ArrayLocations locations = 2;
+}
+
+message CustomConfigLocationUpdated
+{
+   optional ProtoTypes.ArrayLocations locations = 1;
 }
 
 message StatisticsUpdated
@@ -123,9 +129,8 @@ message Ipv6StateInOS
 
 message LocationSpeedChanged
 {
-  optional int32 id = 1;              
-  optional string city_name = 2;      // if used, then this is city level location
-  optional int32 pingTime = 3;   
+  optional ProtoTypes.LocationId id = 1;              
+  optional int32 pingTime = 2;   
 }
 
 message NetworkChanged

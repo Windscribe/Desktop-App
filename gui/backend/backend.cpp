@@ -211,8 +211,7 @@ void Backend::sendConnect(const LocationID &lid)
 {
     connectStateHelper_.connectClickFromUser();
     IPC::ProtobufCommand<IPCClientCommands::Connect> cmd;
-    cmd.getProtoObj().mutable_locationdid()->set_location_id(lid.getId());
-    cmd.getProtoObj().mutable_locationdid()->set_city(lid.getCity().toStdString());
+    *cmd.getProtoObj().mutable_locationdid() = lid.toProtobuf();
     qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     connection_->sendCommand(cmd);
 }
@@ -590,16 +589,13 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     else if (command->getStringId() == IPCServerCommands::LocationsUpdated::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> *>(command);
-        locationsModel_->update(cmd->getProtoObj().array_locations());
+        locationsModel_->update(cmd->getProtoObj().best_location(), cmd->getProtoObj().locations());
         emit locationsUpdated();
     }
     else if (command->getStringId() == IPCServerCommands::LocationSpeedChanged::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::LocationSpeedChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::LocationSpeedChanged> *>(command);
-        LocationID lid;
-        lid.setId(cmd->getProtoObj().id());
-        lid.setCity(QString::fromStdString(cmd->getProtoObj().city_name()));
-        locationsModel_->changeConnectionSpeed(lid, (int)cmd->getProtoObj().pingtime());
+        locationsModel_->changeConnectionSpeed(LocationID::createFromProtoBuf(cmd->getProtoObj().id()), (int)cmd->getProtoObj().pingtime());
     }
     else if (command->getStringId() == IPCServerCommands::ConnectStateChanged::descriptor()->full_name())
     {

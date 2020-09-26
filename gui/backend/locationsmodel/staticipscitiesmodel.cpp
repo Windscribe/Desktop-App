@@ -9,9 +9,9 @@ void StaticIpsCitiesModel::update(QVector<LocationModelItem *> locations)
 {
     clearCities();
 
-    Q_FOREACH(LocationModelItem *lmi, locations)
+    for (const LocationModelItem *lmi : locations)
     {
-        if (lmi->id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
+        if (lmi->id.isStaticIpsLocation())
         {
             for (int i = 0; i < lmi->cities.count(); ++i)
             {

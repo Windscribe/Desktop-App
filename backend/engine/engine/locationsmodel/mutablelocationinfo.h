@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVector>
 
-#include "engine/types/locationid.h"
+#include "types/locationid.h"
 #include "locationnode.h"
 #include "engine/apiinfo/staticips.h"
 

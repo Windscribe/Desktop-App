@@ -1,8 +1,6 @@
 #ifndef PINGSTORAGE_H
 #define PINGSTORAGE_H
 
-#include "engine/types/locationid.h"
-
 #include <QObject>
 #include <QHash>
 #include <QMutex>

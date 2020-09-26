@@ -4,7 +4,6 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QJsonArray>
-#include "../types/locationid.h"
 
 const int typeIdLocation = qRegisterMetaType<apiinfo::Location>("apiinfo::Location");
 const int typeIdLocations = qRegisterMetaType<QVector<apiinfo::Location>>("QVector<apiinfo::Location>");

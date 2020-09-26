@@ -5,7 +5,7 @@
 #include <QGraphicsObject>
 #include "../backend/types/pingtime.h"
 #include "../backend/types/types.h"
-#include "../backend/types/locationid.h"
+#include "types/locationid.h"
 #include "../backend/preferences/preferences.h"
 #include "ipc/generated_proto/types.pb.h"
 #include "tooltips/tooltiptypes.h"

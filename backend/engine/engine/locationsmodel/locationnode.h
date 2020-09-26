@@ -3,12 +3,8 @@
 
 #include <QObject>
 #include <QVector>
-
-#include "engine/types/locationid.h"
 #include "engine/apiinfo/node.h"
 #include "engine/apiinfo/staticips.h"
-
-
 
 namespace locationsmodel {
 

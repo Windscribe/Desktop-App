@@ -25,7 +25,7 @@ public:
     explicit LocationsModel(QObject *parent = nullptr);
     virtual ~LocationsModel();
 
-    void update(const ProtoTypes::ArrayLocations &arr);
+    void update(const ProtoTypes::LocationId &bestLocation, const ProtoTypes::ArrayLocations &locations);
 
     BasicLocationsModel *getAllLocationsModel();
     BasicCitiesModel *getConfiguredLocationsModel();
@@ -33,10 +33,8 @@ public:
     BasicCitiesModel *getFavoriteLocationsModel();
 
     void setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType);
-    void switchFavorite(LocationID id, bool isFavorite);
-    bool getLocationInfo(LocationID id, LocationInfo &li);
-
-    QString countryCodeOfStaticCity(const QString &cityName);
+    void switchFavorite(const LocationID &id, bool isFavorite);
+    bool getLocationInfo(const LocationID &id, LocationInfo &li);
 
     QList<CityModelItem> activeCityModelItems();
     QVector<LocationModelItem *> locationModelItems();
@@ -45,7 +43,7 @@ public:
     void changeConnectionSpeed(LocationID id, PingTime speed);
 
     LocationID getLocationIdByName(const QString &location) const;
-    LocationID getLocationIdByCity(const QString &cityId, bool get_best_location) const;
+    LocationID getBestLocationId() const;
 
 signals:
     void locationSpeedChanged(LocationID id, PingTime speed);
@@ -61,6 +59,7 @@ private:
 
     ProtoTypes::OrderLocationType orderLocationsType_;
     QVector<LocationModelItem *> locations_;
+    LocationID bestLocationId_;
 
 };
 

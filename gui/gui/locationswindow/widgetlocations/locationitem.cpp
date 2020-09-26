@@ -6,12 +6,11 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
 #include "widgetlocationssizes.h"
-#include "../backend/types/locationid.h"
 #include "dpiscalemanager.h"
 
 namespace GuiLocations {
 
-LocationItem::LocationItem(IWidgetLocationsInfo *widgetLocationsInfo, int id, const QString &countryCode, const QString &name, bool isShowP2P, PingTime timeMs, QVector<CityNode> &cities, bool forceExpand, bool isPremiumOnly)
+LocationItem::LocationItem(IWidgetLocationsInfo *widgetLocationsInfo, const LocationID &id, const QString &countryCode, const QString &name, bool isShowP2P, PingTime timeMs, QVector<CityNode> &cities, bool forceExpand, bool isPremiumOnly)
     : countryCode_(countryCode), name_(name), isShowP2P_(isShowP2P),
       timeMs_(timeMs, widgetLocationsInfo->isShowLatencyInMs()), cityNodes_(cities), id_(id),
       forceExpand_(forceExpand), citySubMenuState_(COLLAPSED), selectedInd_(-1),
@@ -21,6 +20,7 @@ LocationItem::LocationItem(IWidgetLocationsInfo *widgetLocationsInfo, int id, co
       curWhiteLineValue_(0), startWhiteLineValue_(0), endWhiteLineValue_(0),
       widgetLocationsInfo_(widgetLocationsInfo)
 {
+    Q_ASSERT(id_.isTopLevelLocation());
     QFont *font = FontManager::instance().getFont(16, true);
     captionTextLayout_ = new QTextLayout(QObject::tr(name.toStdString().c_str()), *font);
     captionTextLayout_->beginLayout();
@@ -341,21 +341,21 @@ bool LocationItem::isSelectedDisabled()
     return false;
 }
 
-QString LocationItem::getCity(int ind)
+LocationID LocationItem::getLocationIdForCity(int ind)
 {
     Q_ASSERT(ind < cityNodes_.count());
-    return cityNodes_[ind].getLocationId().getCity();
+    return cityNodes_[ind].getLocationId();
 }
 
 int LocationItem::findCityInd(const LocationID &locationId)
 {
-    if (locationId.getCity().isEmpty())
+    if (locationId.isTopLevelLocation())
     {
         return -1;
     }
 
     int ind = 0;
-    Q_FOREACH(const CityNode &cn, cityNodes_)
+    for (const CityNode &cn : cityNodes_)
     {
         if (cn.getLocationId() == locationId)
         {
@@ -380,7 +380,7 @@ QList<CityNode> LocationItem::cityNodes()
 
 void LocationItem::changeSpeedConnection(const LocationID &locationId, PingTime timeMs)
 {
-    if (locationId.getCity().isEmpty())
+    if (locationId.isTopLevelLocation())
     {
         timeMs_.setValue(timeMs);
     }
@@ -457,7 +457,7 @@ void LocationItem::drawLocationCaption(QPainter *painter, const QRect &rc, bool 
     int leftOffs = 16*G_SCALE;
 
     // flag
-    if (id_ != LocationID::STATIC_IPS_LOCATION_ID && id_ != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+    if (!id_.isStaticIpsLocation() && !id_.isCustomConfigsLocation())
     {
         IndependentPixmap *flag = ImageResourcesSvg::instance().getFlag(countryCode_);
         int pixmapFlagHeight = flag->height() ;

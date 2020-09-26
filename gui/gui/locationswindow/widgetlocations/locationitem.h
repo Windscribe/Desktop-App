@@ -9,7 +9,7 @@
 #include <QTextLayout>
 #include "itemtimems.h"
 #include "../backend/types/pingtime.h"
-#include "../backend/types/locationid.h"
+#include "types/locationid.h"
 #include "citynode.h"
 
 namespace GuiLocations {
@@ -20,7 +20,7 @@ public:
 
     enum CITY_SUBMENU_STATE { EXPANDED, COLLAPSED, EXPANDING, COLLAPSING };
 
-    LocationItem(IWidgetLocationsInfo *widgetLocationsInfo, int id, const QString &countryCode, const QString &name,
+    LocationItem(IWidgetLocationsInfo *widgetLocationsInfo, const LocationID &id, const QString &countryCode, const QString &name,
                  bool isShowP2P, PingTime timeMs, QVector<CityNode> &cities, bool forceExpand, bool isPremiumOnly);
 
     ~LocationItem();
@@ -72,8 +72,8 @@ public:
     bool isNoConnection(int ind);
     bool isSelectedDisabled();
 
-    int getId() { return id_; }
-    QString getCity(int ind);
+    LocationID getId() { return id_; }
+    LocationID getLocationIdForCity(int ind);
     int findCityInd(const LocationID &locationId);
     QList<CityNode> cityNodes();
     void changeSpeedConnection(const LocationID &locationId, PingTime timeMs);
@@ -96,7 +96,7 @@ private:
     bool isShowP2P_;
     ItemTimeMs timeMs_;
     QVector<CityNode> cityNodes_;
-    int id_;
+    LocationID id_;
     bool forceExpand_;
 
     // internal states

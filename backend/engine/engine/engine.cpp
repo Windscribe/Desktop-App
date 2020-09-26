@@ -926,7 +926,7 @@ void Engine::connectClickImpl(const LocationID &locationId)
         return;
     }
 
-    if (isBlockConnect_ && locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+    if (isBlockConnect_ && !locationId_.isCustomConfigsLocation())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECTION_BLOCKED);
         getMyIPController_->getIPFromDisconnectedState(1);
@@ -2311,7 +2311,7 @@ void Engine::doConnect(bool bEmitAuthError)
     splitTunnelingNetworkInfo_.detectDefaultRoute();
 #endif
 
-    if (!apiInfo_->getServerCredentials().isInitialized() && locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+    if (!apiInfo_->getServerCredentials().isInitialized() && !locationId_.isCustomConfigsLocation())
     {
         qCDebug(LOG_BASIC) << "radius username/password empty, refetch server credentials";
 

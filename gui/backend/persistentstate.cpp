@@ -104,17 +104,13 @@ bool PersistentState::isIgnoreCpuUsageWarnings()
 
 void PersistentState::setLastLocation(const LocationID &lid)
 {
-    state_.mutable_lastlocation()->set_location_id(lid.getId());
-    state_.mutable_lastlocation()->set_city(lid.getCity().toStdString());
+    *state_.mutable_lastlocation() = lid.toProtobuf();
     save();
 }
 
 LocationID PersistentState::lastLocation() const
 {
-    LocationID lid;
-    lid.setId(state_.lastlocation().location_id());
-    lid.setCity(QString::fromStdString(state_.lastlocation().city()));
-    return lid;
+    return LocationID::createFromProtoBuf(state_.lastlocation());
 }
 
 void PersistentState::setLastExternalIp(const QString &ip)
@@ -176,15 +172,5 @@ void PersistentState::loadFromVersion1(QSettings &settings)
     if (settings.contains("countVisibleLocations"))
     {
         state_.set_count_visible_locations(settings.value("countVisibleLocations", 7).toInt());
-    }
-
-    if (settings.contains("lastLocation"))
-    {
-        state_.mutable_lastlocation()->set_location_id(settings.value("lastLocation").toInt());
-    }
-
-    if (settings.contains("lastCity"))
-    {
-        state_.mutable_lastlocation()->set_city(settings.value("lastCity").toString().toStdString());
     }
 }

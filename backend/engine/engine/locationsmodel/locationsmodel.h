@@ -4,7 +4,7 @@
 #include <QObject>
 #include "engine/apiinfo/location.h"
 #include "engine/apiinfo/staticips.h"
-#include "engine/types/locationid.h"
+#include "types/locationid.h"
 #include "engine/proxy/proxysettings.h"
 #include "locationitem.h"
 #include "pingipscontroller.h"
@@ -33,8 +33,8 @@ public:
     QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
-    void locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items);
-    void locationPingTimeChanged(LocationID id, locationsmodel::PingTime timeMs);
+    void locationsUpdated( const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void locationPingTimeChanged(const LocationID &id, locationsmodel::PingTime timeMs);
 
     //void locationInfoChanged(const LocationID &LocationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
     //void customOvpnConfgsIpsChanged(const QStringList &ips);

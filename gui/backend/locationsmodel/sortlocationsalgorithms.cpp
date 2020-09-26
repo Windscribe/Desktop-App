@@ -3,11 +3,11 @@
 
 bool SortLocationsAlgorithms::lessThanByGeography(LocationModelItem *item1, LocationModelItem *item2)
 {
-    if (item1->id.getId() == LocationID::BEST_LOCATION_ID && item2->id.getId() != LocationID::BEST_LOCATION_ID)
+    if (item1->id.isBestLocation() && !item2->id.isBestLocation())
     {
         return true;
     }
-    else if (item1->id.getId() != LocationID::BEST_LOCATION_ID && item2->id.getId() == LocationID::BEST_LOCATION_ID)
+    else if (!item1->id.isBestLocation() && item2->id.isBestLocation())
     {
         return false;
     }
@@ -16,11 +16,11 @@ bool SortLocationsAlgorithms::lessThanByGeography(LocationModelItem *item1, Loca
 
 bool SortLocationsAlgorithms::lessThanByAlphabetically(LocationModelItem *item1, LocationModelItem *item2)
 {
-    if (item1->id.getId() == LocationID::BEST_LOCATION_ID && item2->id.getId() != LocationID::BEST_LOCATION_ID)
+    if (item1->id.isBestLocation() && !item2->id.isBestLocation())
     {
         return true;
     }
-    else if (item1->id.getId() != LocationID::BEST_LOCATION_ID && item2->id.getId() == LocationID::BEST_LOCATION_ID)
+    else if (!item1->id.isBestLocation() && item2->id.isBestLocation())
     {
         return false;
     }
@@ -29,11 +29,11 @@ bool SortLocationsAlgorithms::lessThanByAlphabetically(LocationModelItem *item1,
 
 bool SortLocationsAlgorithms::lessThanByLatency(LocationModelItem *item1, LocationModelItem *item2)
 {
-    if (item1->id.getId() == LocationID::BEST_LOCATION_ID && item2->id.getId() != LocationID::BEST_LOCATION_ID)
+    if (item1->id.isBestLocation() && !item2->id.isBestLocation())
     {
         return true;
     }
-    else if (item1->id.getId() != LocationID::BEST_LOCATION_ID && item2->id.getId() == LocationID::BEST_LOCATION_ID)
+    else if (!item1->id.isBestLocation() && item2->id.isBestLocation())
     {
         return false;
     }
