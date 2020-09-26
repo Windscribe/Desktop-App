@@ -11,8 +11,6 @@
 #include "../backend/locationsmodel/locationsmodel.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
-#include "staticipdeviceitem.h"
-#include "configfooteritem.h"
 
 namespace GuiLocations {
 

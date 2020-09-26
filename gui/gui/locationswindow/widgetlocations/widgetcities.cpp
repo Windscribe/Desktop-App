@@ -11,8 +11,6 @@
 #include "widgetlocationssizes.h"
 #include "commongraphics/commongraphics.h"
 #include "cityitem.h"
-#include "staticipdeviceitem.h"
-#include "configfooteritem.h"
 #include "cursorupdatehelper.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
@@ -185,17 +183,6 @@ void WidgetCities::updateListDisplay(QVector<CityModelItem*> items)
                                               cmi->staticIpType, cmi->isFavorite, cmi->isDisabled);
         items_ << item;
         indInVector++;
-    }
-
-    if (ribbonType_ == RIBBON_TYPE_STATIC_IP)
-    {
-        StaticIpDeviceItem * sidi = new StaticIpDeviceItem(this);
-        sidi->setDeviceName(deviceName_);
-        items_ << sidi;
-    }
-    else if (ribbonType_ == RIBBON_TYPE_CONFIG)
-    {
-        items_ << new ConfigFooterItem(this);
     }
 
     /*Q_FOREACH(LocationItem *item, items_)

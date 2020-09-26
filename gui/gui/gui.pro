@@ -203,8 +203,6 @@ SOURCES += \
     graphicresources/independentpixmap.cpp \
     launchonstartup/launchonstartup.cpp \
     localhttpserver/localhttpserver.cpp \
-    locationswindow/widgetlocations/configfooteritem.cpp \
-    locationswindow/widgetlocations/staticipdeviceitem.cpp \
     preferenceswindow/connectionwindow/msseditboxitem.cpp \
     preferenceswindow/debugwindow/apiresolutionitem.cpp \
     preferenceswindow/generalwindow/versioninfoitem.cpp \
@@ -420,9 +418,7 @@ HEADERS += \
     graphicresources/independentpixmap.h \
     launchonstartup/launchonstartup.h \
     localhttpserver/localhttpserver.h \
-    locationswindow/widgetlocations/configfooteritem.h \
     locationswindow/widgetlocations/icityitem.h \
-    locationswindow/widgetlocations/staticipdeviceitem.h \
     loginwindow/iinitwindow.h \
     loginwindow/initwindowitem.h \
     preferenceswindow/connectionwindow/msseditboxitem.h \

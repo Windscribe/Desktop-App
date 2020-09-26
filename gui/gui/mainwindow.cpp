@@ -1055,33 +1055,22 @@ void MainWindow::onExitWindowReject()
 
 void MainWindow::onLocationSelected(LocationID id)
 {
-    qCDebug(LOG_USER) << "Location selected";
+    qCDebug(LOG_USER) << "Location selected:" << id.getHashString();
 
-    if (id.getId() == LocationID::RIBBON_ITEM_STATIC_IP)
+    LocationsModel::LocationInfo li;
+    if (backend_->getLocationsModel()->getLocationInfo(id, li))
     {
-        openStaticIpExternalWindow();
-    }
-    else if (id.getId() == LocationID::RIBBON_ITEM_CONFIG)
-    {
-        addCustomConfigFolder();
-    }
-    else
-    {
-        LocationsModel::LocationInfo li;
-        if (backend_->getLocationsModel()->getLocationInfo(id, li))
+        // Should consider refactor of countrycode for static ips on GUI & Engine side when we update the list
+        QString countryCode = li.countryCode;
+        if (id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
         {
-            // Should consider refactor of countrycode for static ips on GUI & Engine side when we update the list
-            QString countryCode = li.countryCode;
-            if (id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
-            {
-                countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
-            }
-
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime);
-            mainWindowController_->collapseLocations();
-            PersistentState::instance().setLastLocation(id);
-            backend_->sendConnect(id);
+            countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
         }
+
+        mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime);
+        mainWindowController_->collapseLocations();
+        PersistentState::instance().setLastLocation(id);
+        backend_->sendConnect(id);
     }
 }
 

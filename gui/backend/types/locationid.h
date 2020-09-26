@@ -13,8 +13,6 @@ public:
     static constexpr int BEST_LOCATION_ID = -1;
     static constexpr int CUSTOM_OVPN_CONFIGS_LOCATION_ID = -2;
     static constexpr int STATIC_IPS_LOCATION_ID = -3;
-    static constexpr int RIBBON_ITEM_STATIC_IP = -4;
-    static constexpr int RIBBON_ITEM_CONFIG = -5;
 
     LocationID() : locationId_(EMPTY_LOCATION) {}
     LocationID(int id, const QString &cityName);
