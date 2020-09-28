@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
     WindscribeApplication a(argc, argv);
     qSetMessagePattern("[{gmt_time} %{time process}] [%{category}]\t %{message}");
 
-    WindscribeApplication::setApplicationName("Windscribe");
     WindscribeApplication::setOrganizationName("Windscribe");
+    WindscribeApplication::setApplicationName("Windscribe2");
 
     CurlInitController curlInitController;
     curlInitController.init();

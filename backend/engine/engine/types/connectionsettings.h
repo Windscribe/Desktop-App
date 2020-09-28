@@ -17,8 +17,7 @@ struct ConnectionSettings
     uint port() const;
     bool isAutomatic() const;
 
-    bool readFromSettings(QSettings &settings);
-    void writeToSettings(QSettings &settings);
+    bool readFromSettingsV1(QSettings &settings);
 
     bool isInitialized() const;
 

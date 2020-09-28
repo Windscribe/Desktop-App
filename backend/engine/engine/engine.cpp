@@ -156,8 +156,7 @@ void Engine::loginWithLastLoginSettings()
 
 bool Engine::isApiSavedSettingsExists()
 {
-    QSettings settings;
-    if (settings.contains("authHash"))
+    if (!apiinfo::ApiInfo::getAuthHash().isEmpty())
     {
         // try load ApiInfo from settings
         apiinfo::ApiInfo apiInfo;
@@ -166,6 +165,7 @@ bool Engine::isApiSavedSettingsExists()
             return true;
         }
     }
+
     return false;
 }
 
@@ -215,8 +215,7 @@ LoginSettings Engine::getLastLoginSettings()
 
 QString Engine::getAuthHash()
 {
-    QSettings settings;
-    return settings.value("authHash", "").toString();
+    return apiinfo::ApiInfo::getAuthHash();
 }
 
 void Engine::clearCredentials()
@@ -871,10 +870,9 @@ void Engine::loginImpl(bool bSkipLoadingFromSettings)
 {
     QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
 
-    QSettings settings;
-    if (!bSkipLoadingFromSettings && settings.contains("authHash"))
+    QString authHash = apiinfo::ApiInfo::getAuthHash();
+    if (!bSkipLoadingFromSettings && !authHash.isEmpty())
     {
-        QString authHash = settings.value("authHash").toString();
         apiInfo_.reset(new apiinfo::ApiInfo());
 
         // try load ApiInfo from settings
@@ -1013,8 +1011,6 @@ void Engine::signOutImplAfterDisconnect()
         serverAPI_->deleteSession(apiInfo_->getAuthHash(), serverApiUserRole_, true);
         apiInfo_->removeFromSettings();
         apiInfo_.reset();
-        QSettings settings;
-        settings.remove("authHash");
     }
 
     firewallController_->firewallOff();
@@ -1208,8 +1204,6 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
         apiInfo_.reset(new apiinfo::ApiInfo);
         *apiInfo_ = apiInfo;
         QString curRevisionHash = apiInfo_->getSessionStatus().getRevisionHash();
-        QSettings settings;
-        settings.setValue("authHash", apiInfo_->getAuthHash());
 
         // if updateServerLocation not called in loginImpl
         if (!prevSessionStatus_.isInitialized())

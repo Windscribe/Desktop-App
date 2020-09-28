@@ -319,7 +319,6 @@ SOURCES += main.cpp \
     engine/vpnshare/socksproxyserver/socksproxyidentreqparser.cpp \
     engine/vpnshare/socketutils/socketwriteall.cpp \
     engine/vpnshare/socksproxyserver/socksproxycommandparser.cpp \
-    engine/vpnshare/vpnsharesettings.cpp \
     engine/vpnshare/vpnsharecontroller.cpp \
     engine/vpnshare/connecteduserscounter.cpp \
     engine/vpnshare/httpproxyserver/httpproxyreply.cpp \
@@ -454,7 +453,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/vpnshare/socksproxyserver/socksproxyidentreqparser.h \
     engine/vpnshare/socketutils/socketwriteall.h \
     engine/vpnshare/socksproxyserver/socksproxycommandparser.h \
-    engine/vpnshare/vpnsharesettings.h \
     engine/vpnshare/vpnsharecontroller.h \
     engine/vpnshare/connecteduserscounter.h \
     engine/vpnshare/httpproxyserver/httpproxyreply.h \

@@ -34,8 +34,9 @@ public:
     QString getOvpnConfig() const;
     void setOvpnConfig(const QString &value);
 
-    QString getAuthHash() const;
-    void setAuthHash(const QString &authHash);
+    // auth hash is stored in a separate value in QSettings
+    static QString getAuthHash();
+    static void setAuthHash(const QString &authHash);
 
     PortMap getPortMap() const;
     void setPortMap(const PortMap &portMap);
@@ -47,11 +48,8 @@ public:
     void saveToSettings();
     static void removeFromSettings();
 
-    //void debugSaveToFile(const QString &filename);
-    //void debugLoadFromFile(const QString &filename);
-
 private:
-    void processServerLocations();
+    void mergeWindflixLocations();
 
     SessionStatus sessionStatus_;
     QVector<Location> locations_;
@@ -61,7 +59,6 @@ private:
     PortMap portMap_;
     StaticIps staticIps_;
 
-    QString authHash_;
     SimpleCrypt simpleCrypt_;
 
     // for check thread id, access to the class must be from a single thread

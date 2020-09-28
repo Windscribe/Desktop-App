@@ -13,8 +13,7 @@ public:
     ProxySettings();
     explicit ProxySettings(const ProtoTypes::ProxySettings &p);
 
-    void readFromSettings(QSettings &settings);
-    void writeToSettings(QSettings &settings);
+    void readFromSettingsV1(QSettings &settings);
 
     bool isEqual(const ProxySettings &other) const;
 

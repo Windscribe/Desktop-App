@@ -27,17 +27,11 @@ bool FavoriteLocationsStorage::isFavorite(const LocationID &locationId)
 void FavoriteLocationsStorage::readFromSettings()
 {
     favoriteLocations_.clear();
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
-    // remove old value from version 1
-    /*if (settings.contains("favoriteLocations"))
+    if (settings.contains("favoriteLocations"))
     {
-        settings.remove("favoriteLocations");
-    }*/
-
-    if (settings.contains("favoriteLocations2"))
-    {
-        QByteArray buf = settings.value("favoriteLocations2").toByteArray();
+        QByteArray buf = settings.value("favoriteLocations").toByteArray();
 
         ProtoTypes::ArrayLocationId arrIds;
         if (arrIds.ParseFromArray(buf.data(), buf.size()))
@@ -62,6 +56,6 @@ void FavoriteLocationsStorage::writeToSettings()
     QByteArray arr(size, Qt::Uninitialized);
     arrIds.SerializeToArray(arr.data(), size);
 
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
     settings.setValue("favoriteLocations2", arr);
 }

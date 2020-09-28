@@ -6,7 +6,7 @@
 
 void PersistentState::load()
 {
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
     if (settings.contains("persistentGuiSettings"))
     {
@@ -17,7 +17,7 @@ void PersistentState::load()
     // then try load from version 1
     else
     {
-        loadFromVersion1(settings);
+        loadFromVersion1();
     }
 
     // Censor User Ip from log
@@ -31,7 +31,7 @@ void PersistentState::load()
 
 void PersistentState::save()
 {
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
     int size = state_.ByteSize();
     QByteArray arr(size, Qt::Uninitialized);
@@ -140,8 +140,9 @@ PersistentState::PersistentState()
     load();
 }
 
-void PersistentState::loadFromVersion1(QSettings &settings)
+void PersistentState::loadFromVersion1()
 {
+    QSettings settings("Windscribe", "Windscribe");
     if (settings.contains("firewallChecked"))
     {
         state_.set_is_firewall_on(settings.value("firewallChecked").toBool());

@@ -8,9 +8,6 @@ const QString MultipleAccountDetection_mac::entryName_ = "locationData2";
 
 MultipleAccountDetection_mac::MultipleAccountDetection_mac() : crypt_(0xFA7234AAF37A31BE)
 {
-    // remove unused old record
-    QSettings settings;
-    settings.remove("locationData");
 }
 
 void MultipleAccountDetection_mac::userBecomeExpired(const QString &username)

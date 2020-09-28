@@ -18,14 +18,6 @@ public:
 
 private:
     SimpleCrypt crypt_;
-
-    struct TOldEntry
-    {
-        QString username_;
-        QDate date_;
-    };
-
-    void readOldEntry(TOldEntry &entry);
 };
 
 #endif // SECRETVALUE_WIN_H

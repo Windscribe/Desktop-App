@@ -311,7 +311,7 @@ void LocationsModel::generateLocationsUpdated()
         if (items->count() > 0)
         {
             bestLocation = items->at(0).id.apiLocationToBestLocation();
-            qCDebug(LOG_BEST_LOCATION) << "Best location chosen as the first location:" << bestLocation_.getId();
+            qCDebug(LOG_BEST_LOCATION) << "Best location chosen as the first location";
         }
     }
 
