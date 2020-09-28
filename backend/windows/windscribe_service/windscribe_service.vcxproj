@@ -343,6 +343,7 @@
     <ClInclude Include="firewallfilter.h" />
     <ClInclude Include="fwpm_wrapper.h" />
     <ClInclude Include="get_active_processes.h" />
+    <ClInclude Include="ikev2ipsec.h" />
     <ClInclude Include="ikev2route.h" />
     <ClInclude Include="ip_address.h" />
     <ClInclude Include="ipc\serialize_structs.h" />
@@ -387,6 +388,7 @@
     <ClCompile Include="get_active_processes.cpp" />
     <ClCompile Include="hostsedit.cpp" />
     <ClCompile Include="icsmanager.cpp" />
+    <ClCompile Include="ikev2ipsec.cpp" />
     <ClCompile Include="ikev2route.cpp" />
     <ClCompile Include="ioutils.cpp" />
     <ClCompile Include="ip_address.cpp" />

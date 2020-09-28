@@ -13,7 +13,7 @@ public:
         return i;
     }
 
-	MessagePacketResult executeBlockingCmd(wchar_t *cmd);
+	MessagePacketResult executeBlockingCmd(wchar_t *cmd, HANDLE user_token = INVALID_HANDLE_VALUE);
 	MessagePacketResult executeUnblockingCmd(const wchar_t *cmd, const wchar_t *szEventName, const wchar_t *szWorkingDir);
     MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
     MessagePacketResult getActiveUnblockingCmdCount();

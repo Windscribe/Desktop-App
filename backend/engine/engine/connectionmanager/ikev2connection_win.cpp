@@ -423,6 +423,7 @@ void IKEv2Connection_win::doConnect()
         return;
     }
 
+    helper_->setIKEv2IPSecParameters();
     helper_->enableDnsLeaksProtection();
 
     // Connecting

@@ -80,6 +80,7 @@ public:
     bool resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp) override;
     bool addIKEv2DefaultRoute() override;
     bool removeWindscribeNetworkProfiles() override;
+    void setIKEv2IPSecParameters() override;
 
     bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
                                    const QStringList &files, const QStringList &ips,

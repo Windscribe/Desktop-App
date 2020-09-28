@@ -153,6 +153,9 @@
     <ClInclude Include="wireguard\defaultroutemonitor.h">
       <Filter>Header Files\wireguard</Filter>
     </ClInclude>
+    <ClInclude Include="ikev2ipsec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windscribe_service.cpp">
@@ -268,6 +271,9 @@
     </ClCompile>
     <ClCompile Include="wireguard\defaultroutemonitor.cpp">
       <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="ikev2ipsec.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

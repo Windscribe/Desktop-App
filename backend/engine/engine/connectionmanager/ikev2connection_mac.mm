@@ -234,12 +234,12 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
             protocol.useExtendedAuthentication = YES;
 
             protocol.IKESecurityAssociationParameters.encryptionAlgorithm = NEVPNIKEv2EncryptionAlgorithmAES256GCM;
-            protocol.IKESecurityAssociationParameters.diffieHellmanGroup = NEVPNIKEv2DiffieHellmanGroup21;
+            protocol.IKESecurityAssociationParameters.diffieHellmanGroup = NEVPNIKEv2DiffieHellmanGroup20;
             protocol.IKESecurityAssociationParameters.integrityAlgorithm = NEVPNIKEv2IntegrityAlgorithmSHA256;
             protocol.IKESecurityAssociationParameters.lifetimeMinutes = 1440;
 
             protocol.childSecurityAssociationParameters.encryptionAlgorithm = NEVPNIKEv2EncryptionAlgorithmAES256GCM;
-            protocol.childSecurityAssociationParameters.diffieHellmanGroup = NEVPNIKEv2DiffieHellmanGroup21;
+            protocol.childSecurityAssociationParameters.diffieHellmanGroup = NEVPNIKEv2DiffieHellmanGroup20;
             protocol.childSecurityAssociationParameters.integrityAlgorithm = NEVPNIKEv2IntegrityAlgorithmSHA256;
             protocol.childSecurityAssociationParameters.lifetimeMinutes = 1440;
 

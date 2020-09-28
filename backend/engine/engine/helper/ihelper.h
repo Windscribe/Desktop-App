@@ -78,6 +78,7 @@ public:
     virtual bool resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp) = 0;
     virtual bool addIKEv2DefaultRoute() = 0;
     virtual bool removeWindscribeNetworkProfiles() = 0;
+    virtual void setIKEv2IPSecParameters() = 0;
 
 #ifdef Q_OS_WIN
     virtual bool isSupportedICS() = 0;

@@ -16,6 +16,7 @@
 #include "cleardns_on_tap.h"
 #include "utils.h"
 #include "registry.h"
+#include "ikev2ipsec.h"
 #include "ikev2route.h"
 #include "ioutils.h"
 #include "ipc/serialize_structs.h"
@@ -862,6 +863,11 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 
 		mpr.success = true;
 	}
+    else if (cmdId == AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS)
+    {
+        mpr.success = IKEv2IPSec::setIKEv2IPSecParameters();
+        Logger::instance().out(L"AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS: success = %d", mpr.success);
+    }
     else if (cmdId == AA_COMMAND_START_WIREGUARD)
     {
         CMD_START_WIREGUARD cmdStartWireGuard;

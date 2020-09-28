@@ -675,6 +675,14 @@ bool Helper_win::removeWindscribeNetworkProfiles()
     return mpr.exitCode;
 }
 
+void Helper_win::setIKEv2IPSecParameters()
+{
+    QMutexLocker locker(&mutex_);
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS, std::string());
+    mpr.clear();
+}
+
 void Helper_win::sendConnectStatus(bool /*isConnected*/, const SplitTunnelingNetworkInfo &/*stni*/)
 {
     // nothing todo for Windows

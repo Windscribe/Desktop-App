@@ -44,10 +44,12 @@
 #define AA_COMMAND_REMOVE_WINDSCRIBE_NETWORK_PROFILES       40
 #define AA_COMMAND_CHANGE_MTU                               41
 #define AA_COMMAND_RESET_AND_START_RAS                      42
-#define AA_COMMAND_START_WIREGUARD                          43
-#define AA_COMMAND_STOP_WIREGUARD                           44
-#define AA_COMMAND_CONFIGURE_WIREGUARD                      45
-#define AA_COMMAND_GET_WIREGUARD_STATUS                     46
+#define AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS               43
+#define AA_COMMAND_START_WIREGUARD                          44
+#define AA_COMMAND_STOP_WIREGUARD                           45
+#define AA_COMMAND_CONFIGURE_WIREGUARD                      46
+#define AA_COMMAND_GET_WIREGUARD_STATUS                     47
+
 
 #define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
 
