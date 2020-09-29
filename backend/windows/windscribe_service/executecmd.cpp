@@ -21,7 +21,7 @@ ExecuteCmd::~ExecuteCmd()
     this_ = NULL;
 }
 
-MessagePacketResult ExecuteCmd::executeBlockingCmd(wchar_t *cmd)
+MessagePacketResult ExecuteCmd::executeBlockingCmd(wchar_t *cmd, HANDLE user_token)
 {
     MessagePacketResult mpr;
 
@@ -46,7 +46,13 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(wchar_t *cmd)
     si.hStdOutput = wPipe;
 
     ZeroMemory( &pi, sizeof(pi) );
-	if (CreateProcess(NULL, cmd, NULL, NULL, TRUE, CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi))
+    const auto run_result = user_token != INVALID_HANDLE_VALUE
+        ? CreateProcessAsUser(user_token, NULL, cmd, NULL, NULL, TRUE,
+            CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)
+        : CreateProcess(NULL, cmd, NULL, NULL, TRUE,
+            CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
+
+	if (run_result)
     {
         DWORD exitCode;
         WaitForSingleObject(pi.hProcess, INFINITE);

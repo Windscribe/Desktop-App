@@ -667,6 +667,11 @@ bool Helper_mac::removeWindscribeNetworkProfiles()
     return false;
 }
 
+void Helper_mac::setIKEv2IPSecParameters()
+{
+    // nothing for mac
+}
+
 bool Helper_mac::setSplitTunnelingSettings(bool isActive, bool isExclude,
                                            bool /*isKeepLocalSockets*/, const QStringList &files,
                                            const QStringList &ips, const QStringList &hosts)
