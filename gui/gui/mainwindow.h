@@ -297,9 +297,8 @@ private:
     QTimer hideShowDockIconTimer_;
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
-#elif defined(Q_OS_WIN)
-    QTimer deactivationTimer_;
 #endif
+    QTimer deactivationTimer_;
 
     bool activeState_;
     qint64 lastWindowStateChange_;
