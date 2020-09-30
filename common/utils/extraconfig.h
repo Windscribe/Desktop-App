@@ -27,6 +27,10 @@ public:
     QString getRemoteIpFromExtraConfig();
     QString modifyVerbParameter(const QString &ovpnData, QString &strExtraConfig);
 
+    int getMtuOffsetIkev2(bool &success);
+    int getMtuOffsetOpenVpn(bool &success);
+    int getMtuOffsetWireguard(bool &success);
+
     // used in Engine::addCustomRemoteIpToFirewallIfNeed and later for ikev2 connection
     void setDetectedIp(const QString &ip) { detectedIp_ = ip; }
     QString getDetectedIp() { return detectedIp_; }
@@ -39,6 +43,9 @@ private:
     QString path_;
     QRegularExpression regExp_;
     QString detectedIp_;
+
+    int getIntFromLineWithString(const QString &line, const QString &str, bool &success);
+    int getIntFromExtraConfigLines(const QString &variableName, bool &success);
 
 };
 

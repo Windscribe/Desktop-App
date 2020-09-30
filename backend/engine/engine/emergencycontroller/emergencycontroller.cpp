@@ -6,6 +6,7 @@
 #include "engine/dnsresolver/dnsresolver.h"
 #include <QFile>
 #include <QCoreApplication>
+#include "Utils/extraconfig.h"
 
 #include <random>
 
@@ -318,8 +319,11 @@ void EmergencyController::doConnect()
     int mss = 0;
     if (!packetSize_.is_automatic())
     {
-        mss = packetSize_.mtu() - MTU_OFFSET_OPENVPN;
-        // TODO: override with adv-params
+        bool advParamsOpenVpnExists = false;
+        int openVpnOffset = ExtraConfig::instance().getMtuOffsetOpenVpn(advParamsOpenVpnExists);
+        if (!advParamsOpenVpnExists) openVpnOffset = MTU_OFFSET_OPENVPN;
+
+        mss = packetSize_.mtu() - openVpnOffset;
 
         if (mss <= 0)
         {

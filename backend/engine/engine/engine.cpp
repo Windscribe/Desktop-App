@@ -1523,26 +1523,37 @@ void Engine::onConnectionManagerConnected()
         if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
             engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
         {
-            // TODO: check for overwrite params
-            int mtuWithConnectionOverhead = packetSize_.mtu() - MTU_OFFSET_IKEV2;
+            int mtuForProtocol = 0;
             if (engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
             {
-                mtuWithConnectionOverhead = packetSize_.mtu() - MTU_OFFSET_WG;
+                bool advParamWireguardMtuOffset = false;
+                int wgoffset = ExtraConfig::instance().getMtuOffsetWireguard(advParamWireguardMtuOffset);
+                if (!advParamWireguardMtuOffset) wgoffset = MTU_OFFSET_WG;
+
+                mtuForProtocol = packetSize_.mtu() - wgoffset;
+            }
+            else
+            {
+                bool advParamIkevMtuOffset = false;
+                int ikev2offset = ExtraConfig::instance().getMtuOffsetIkev2(advParamIkevMtuOffset);
+                if (!advParamIkevMtuOffset) ikev2offset = MTU_OFFSET_IKEV2;
+
+                mtuForProtocol = packetSize_.mtu() - ikev2offset;
             }
 
-            if (mtuWithConnectionOverhead > 0)
+            if (mtuForProtocol > 0)
             {
-                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << tapInterface << ": " << mtuWithConnectionOverhead;
+                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << tapInterface << ": " << mtuForProtocol;
     #ifdef Q_OS_MAC
                 const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(tapInterface).arg(mtu);
                 helper_->executeRootCommand(setIkev2MtuCmd);
     #else
-                helper_->executeChangeMtu(tapInterface, mtuWithConnectionOverhead);
+                helper_->executeChangeMtu(tapInterface, mtuForProtocol);
     #endif
             }
             else
             {
-                qCDebug(LOG_PACKET_SIZE) << "Using default MTU, mtu minus overhead is too low: " << mtuWithConnectionOverhead;
+                qCDebug(LOG_PACKET_SIZE) << "Using default MTU, mtu minus overhead is too low: " << mtuForProtocol;
             }
         }
     }

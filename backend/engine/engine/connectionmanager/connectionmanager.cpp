@@ -770,9 +770,11 @@ void ConnectionManager::doConnect()
             int mss = 0;
             if (!packetSize_.is_automatic())
             {
-                mss = packetSize_.mtu() - MTU_OFFSET_OPENVPN;
+                bool advParamsOpenVpnExists = false;
+                int openVpnOffset = ExtraConfig::instance().getMtuOffsetOpenVpn(advParamsOpenVpnExists);
+                if (!advParamsOpenVpnExists) openVpnOffset = MTU_OFFSET_OPENVPN;
 
-                // TODO: override MSS from adv-params
+                mss = packetSize_.mtu() - openVpnOffset;
 
                 if (mss <= 0)
                 {
