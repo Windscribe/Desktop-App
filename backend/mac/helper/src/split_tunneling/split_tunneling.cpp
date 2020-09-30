@@ -78,6 +78,7 @@ bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindI
                 }
                 else
                 {
+                    // TODO(wireguard)
                     outBindIp = connectStatus_.ikev2AdapterAddress;
                 }
                 LOG("VerifyApp: %s, result: %d", appPath.c_str(), true);
@@ -103,6 +104,7 @@ bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindI
                 }
                 else
                 {
+                    // TODO(wireguard)
                     outBindIp = connectStatus_.ikev2AdapterAddress;
                 }
             }

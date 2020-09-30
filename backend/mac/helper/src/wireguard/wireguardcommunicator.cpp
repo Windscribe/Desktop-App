@@ -29,41 +29,22 @@ stringToValue(const std::string &str)
 }
 }  // namespace
 
-WireGuardCommunicator::Connection::Connection(const std::string deviceName)
+WireGuardCommunicator::Connection::Connection(const std::string &deviceName)
     : status_(Status::NO_ACCESS), socketHandle_(-1), fileHandle_(nullptr)
 {
     struct sockaddr_un addr;
     addr.sun_family = AF_UNIX;
     snprintf(addr.sun_path, sizeof(addr.sun_path), "/var/run/wireguard/%s.sock",
         deviceName.c_str());
-
-    struct stat sbuf;
-    auto ret = stat(addr.sun_path, &sbuf);
-    if (ret < 0) {
-        status_ = Status::NO_SOCKET;
+    int attempt = 0;
+    do {
+        if (connect(&addr))
+            break;
+        if (++attempt < CONNECTION_ATTEMPT_COUNT)
+            usleep(CONNECTION_BETWEEN_WAIT_MS * 1000);
+    } while (attempt < CONNECTION_ATTEMPT_COUNT);
+    if (socketHandle_ == -1)
         return;
-    }
-    if (!S_ISSOCK(sbuf.st_mode)) {
-        errno = EBADF;
-        LOG("File is not a socket: %s", addr.sun_path);
-        return;
-    }
-    socketHandle_ = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (socketHandle_ < 0) {
-        LOG("Failed to open the socket: %s", addr.sun_path);
-        return;
-    }
-    ret = ::connect(socketHandle_, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr));
-    if (ret < 0) {
-        LOG("Failed to connect to the socket: %s", addr.sun_path);
-        if (errno == ECONNREFUSED)
-            unlink(addr.sun_path);
-        if (socketHandle_ >= 0) {
-            close(socketHandle_);
-            socketHandle_ = -1;
-        }
-        return;
-    }
     fileHandle_ = fdopen(socketHandle_, "r+");
     if (!fileHandle_) {
         if (socketHandle_ >= 0) {
@@ -109,6 +90,45 @@ bool WireGuardCommunicator::Connection::getOutput(ResultMap *results_map) const
             if (mapitem != results_map->end())
                 mapitem->second = match[3].str();
         }
+    }
+    return true;
+}
+
+bool WireGuardCommunicator::Connection::connect(struct sockaddr_un *address)
+{
+    struct stat sbuf;
+    auto ret = stat(address->sun_path, &sbuf);
+    if (ret < 0) {
+        // Socket is not available, don't attempt to reconnect.
+        status_ = Status::NO_SOCKET;
+        return false;
+    }
+    if (!S_ISSOCK(sbuf.st_mode)) {
+        errno = EBADF;
+        LOG("File is not a socket: %s", address->sun_path);
+        // Socket is bad, don't attempt to reconnect.
+        status_ = Status::NO_ACCESS;
+        return false;
+    }
+    socketHandle_ = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (socketHandle_ < 0) {
+        LOG("Failed to open the socket: %s", address->sun_path);
+        // Socket cannot be opened, don't attempt to reconnect.
+        status_ = Status::NO_ACCESS;
+        return false;
+    }
+    ret = ::connect(socketHandle_, reinterpret_cast<struct sockaddr *>(address), sizeof(*address));
+    if (ret < 0) {
+        LOG("Failed to connect to the socket: %s", address->sun_path);
+        bool do_retry = errno != EACCES;
+        if (errno == ECONNREFUSED)
+            unlink(address->sun_path);
+        if (socketHandle_ >= 0) {
+            close(socketHandle_);
+            socketHandle_ = -1;
+        }
+        status_ = do_retry ? Status::NO_SOCKET : Status::NO_ACCESS;
+        return do_retry;
     }
     return true;
 }

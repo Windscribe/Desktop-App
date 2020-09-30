@@ -29,7 +29,7 @@ stringToValue(const std::string &str)
 }
 }  // namespace
 
-WireGuardCommunicator::Connection::Connection(const std::wstring deviceName)
+WireGuardCommunicator::Connection::Connection(const std::wstring &deviceName)
     : status_(Status::NO_ACCESS), pipeHandle_(INVALID_HANDLE_VALUE), fileHandle_(nullptr)
 {
     PrivilegeHelper elevation;
@@ -39,14 +39,15 @@ WireGuardCommunicator::Connection::Connection(const std::wstring deviceName)
     }
     std::wstring pipe_name(L"\\\\.\\pipe\\ProtectedPrefix\\Administrators\\WireGuard\\");
     pipe_name += deviceName;
-    pipeHandle_ = CreateFile(pipe_name.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr,
-        OPEN_EXISTING, 0, nullptr);
-    if (pipeHandle_ == INVALID_HANDLE_VALUE) {
-        const auto error_code = GetLastError();
-        if (error_code == ERROR_FILE_NOT_FOUND || error_code == ERROR_PIPE_BUSY)
-            status_ = Status::NO_PIPE;
+    int attempt = 0;
+    do {
+        if (connect(pipe_name))
+            break;
+        if (++attempt < CONNECTION_ATTEMPT_COUNT)
+            Sleep(CONNECTION_BETWEEN_WAIT_MS);
+    } while (attempt < CONNECTION_ATTEMPT_COUNT);
+    if (pipeHandle_ == INVALID_HANDLE_VALUE)
         return;
-    }
     if (!elevation.checkElevationForHandle(pipeHandle_)) {
         Logger::instance().out(L"WireGuard Connection: Pipe handle has invalid access rights");
         CloseHandle(pipeHandle_);
@@ -100,6 +101,29 @@ bool WireGuardCommunicator::Connection::getOutput(ResultMap *results_map) const
         }
     }
     return true;
+}
+
+bool WireGuardCommunicator::Connection::connect(const std::wstring &pipeName)
+{
+    pipeHandle_ = CreateFile(pipeName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr,
+        OPEN_EXISTING, 0, nullptr);
+    if (pipeHandle_ != INVALID_HANDLE_VALUE)
+        return true;
+    const auto error_code = GetLastError();
+    switch (error_code) {
+    case ERROR_FILE_NOT_FOUND:
+        // Pipe is not available, don't attempt to reconnect.
+        status_ = Status::NO_PIPE;
+        return true;
+    case ERROR_PIPE_BUSY:
+        // Pipe is busy, may attempt to reconnect.
+        status_ = Status::NO_PIPE;
+        return false;
+    default:
+        // Other error, don't attempt to reconnect.
+        status_ = Status::NO_ACCESS;
+        return true;
+    }
 }
 
 void WireGuardCommunicator::setDeviceName(const std::wstring &deviceName)
