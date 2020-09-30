@@ -40,7 +40,7 @@ signals:
     void splitTunnelingPageClick();
     void proxySettingsPageClick();
     void cycleMacAddressClick();
-    void detectPacketMssButtonClicked();
+    void detectAppropriatePacketSizeButtonClicked();
     void showTooltip(TooltipInfo info);
     void hideTooltip(TooltipId id);
 

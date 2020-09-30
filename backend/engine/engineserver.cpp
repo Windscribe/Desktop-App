@@ -385,7 +385,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
     }
     else if (command->getStringId() == IPCClientCommands::DetectPacketSize::descriptor()->full_name())
     {
-        engine_->detectPacketSizeMss();
+        engine_->detectAppropriatePacketSize();
     }
 
     return false;
@@ -935,11 +935,11 @@ void EngineServer::onEngineSendUserWarning(ProtoTypes::UserWarningType userWarni
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEnginePacketSizeChanged(bool isAuto, int mss)
+void EngineServer::onEnginePacketSizeChanged(bool isAuto, int mtu)
 {
     ProtoTypes::PacketSize packetSize;
     packetSize.set_is_automatic(isAuto);
-    packetSize.set_mss(mss);
+    packetSize.set_mtu(mtu);
 
     curEngineSettings_.setPacketSize(packetSize);
 

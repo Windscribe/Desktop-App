@@ -68,7 +68,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(connectionWindowItem_, SIGNAL(splitTunnelingPageClick()), SLOT(onSplitTunnelingPageClick()));
     connect(connectionWindowItem_, SIGNAL(proxySettingsPageClick()), SLOT(onProxySettingsPageClick()));
     connect(connectionWindowItem_, SIGNAL(cycleMacAddressClick()), SIGNAL(cycleMacAddressClick()));
-    connect(connectionWindowItem_, SIGNAL(detectPacketMssButtonClicked()), SIGNAL(detectPacketMssButtonClicked()));
+    connect(connectionWindowItem_, SIGNAL(detectAppropriatePacketSizeButtonClicked()), SIGNAL(detectAppropriatePacketSizeButtonClicked()));
     connect(connectionWindowItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(connectionWindowItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 

@@ -309,7 +309,7 @@ message ShareProxyGateway
 message PacketSize
 {
   optional bool is_automatic = 1 [default = false];
-  optional int32 mss = 2 [default = -1]; 		// -1 not set
+  optional int32 mtu = 2 [default = -1]; 		// -1 not set
 }
 
 message MacAddrSpoofing

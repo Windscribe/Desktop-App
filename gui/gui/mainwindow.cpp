@@ -184,7 +184,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(noAccountLoginClick()), SLOT(onPreferencesNoAccountLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(cycleMacAddressClick()), SLOT(onPreferencesCycleMacAddressClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(detectPacketMssButtonClicked()), SLOT(onPreferencesWindowDetectPacketMssButtonClicked()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(detectAppropriatePacketSizeButtonClicked()), SLOT(onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()));
 #ifdef Q_OS_WIN
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(setIpv6StateInOS(bool, bool)), SLOT(onPreferencesSetIpv6StateInOS(bool, bool)));
 #endif
@@ -930,7 +930,7 @@ void MainWindow::onPreferencesCycleMacAddressClick()
     }
 }
 
-void MainWindow::onPreferencesWindowDetectPacketMssButtonClicked()
+void MainWindow::onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()
 {
     if (!backend_->isDisconnected())
     {

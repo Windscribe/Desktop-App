@@ -85,7 +85,7 @@ signals:
     void cycleMacAddressClick();
     void nativeInfoErrorMessage(QString title, QString desc);
     void splitTunnelingAppsAddButtonClick();
-    void detectPacketMssButtonClicked();
+    void detectAppropriatePacketSizeButtonClicked();
 
     void showTooltip(TooltipInfo info);
     void hideTooltip(TooltipId id);

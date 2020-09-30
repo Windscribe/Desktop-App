@@ -64,7 +64,6 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     isCleanupFinished_(false),
     isNeedReconnectAfterRequestUsernameAndPassword_(false),
     online_(false),
-    mss_(-1),
     packetSizeControllerThread_(NULL),
     runningPacketDetection_(false)
 {
@@ -468,9 +467,9 @@ void Engine::updateCurrentInternetConnectivity()
     QMetaObject::invokeMethod(this, "updateCurrentInternetConnectivityImpl");
 }
 
-void Engine::detectPacketSizeMss()
+void Engine::detectAppropriatePacketSize()
 {
-    QMetaObject::invokeMethod(this, "detectPacketSizeMssImpl");
+    QMetaObject::invokeMethod(this, "detectAppropriatePacketSizeImpl");
 }
 
 void Engine::setSettingsMacAddressSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
@@ -523,17 +522,11 @@ void Engine::init()
     ProtoTypes::PacketSize packetSize = engineSettings_.getPacketSize();
     packetSizeController_ = new PacketSizeController(nullptr);
     packetSizeController_->setPacketSize(packetSize);
-    mss_ = packetSize.mss();
+    packetSize_ = packetSize;
     connect(packetSizeController_, SIGNAL(packetSizeChanged(bool, int)), SLOT(onPacketSizeControllerPacketSizeChanged(bool, int)));
     connect(packetSizeController_, SIGNAL(finishedPacketSizeDetection()), SLOT(onPacketSizeControllerFinishedSizeDetection()));
     packetSizeController_->moveToThread(packetSizeControllerThread_);
     packetSizeControllerThread_->start(QThread::LowPriority);
-
-    if (packetSize.is_automatic())
-    {
-        qCDebug(LOG_BASIC) << "Packet Size Auto ON";
-        detectPacketSizeMssImpl();
-    }
 
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
 
@@ -560,7 +553,7 @@ void Engine::init()
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
     connectionManager_ = new ConnectionManager(this, helper_, networkStateManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
-    connectionManager_->setMss(mss_);
+    connectionManager_->setPacketSize(packetSize_);
     connect(connectionManager_, SIGNAL(connected()), SLOT(onConnectionManagerConnected()));
     connect(connectionManager_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onConnectionManagerDisconnected(DISCONNECT_REASON)));
     connect(connectionManager_, SIGNAL(reconnecting()), SLOT(onConnectionManagerReconnecting()));
@@ -590,7 +583,7 @@ void Engine::init()
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
 
     emergencyController_ = new EmergencyController(this, helper_);
-    emergencyController_->setMss(mss_);
+    emergencyController_->setPacketSize(packetSize_);
     connect(emergencyController_, SIGNAL(connected()), SLOT(onEmergencyControllerConnected()));
     connect(emergencyController_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onEmergencyControllerDisconnected(DISCONNECT_REASON)));
     connect(emergencyController_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onEmergencyControllerError(CONNECTION_ERROR)));
@@ -1525,24 +1518,37 @@ void Engine::onConnectionManagerConnected()
 
     helper_->setIPv6EnabledInFirewall(false);
 
-    if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
-        engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
+    if (!packetSize_.is_automatic())
     {
-        int mtu = mss_ + 40;
-        if (mtu > 100)
+        if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
+            engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
         {
-            qCDebug(LOG_BASIC) << "Applying MTU on " << tapInterface << ": " << mtu;
-#ifdef Q_OS_MAC
-            const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(tapInterface).arg(mtu);
-            helper_->executeRootCommand(setIkev2MtuCmd);
-#else
-            helper_->executeChangeMtu(tapInterface, mtu);
-#endif
+            // TODO: check for overwrite params
+            int mtuWithConnectionOverhead = packetSize_.mtu() - MTU_OFFSET_IKEV2;
+            if (engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
+            {
+                mtuWithConnectionOverhead = packetSize_.mtu() - MTU_OFFSET_WG;
+            }
+
+            if (mtuWithConnectionOverhead > 0)
+            {
+                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << tapInterface << ": " << mtuWithConnectionOverhead;
+    #ifdef Q_OS_MAC
+                const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(tapInterface).arg(mtu);
+                helper_->executeRootCommand(setIkev2MtuCmd);
+    #else
+                helper_->executeChangeMtu(tapInterface, mtuWithConnectionOverhead);
+    #endif
+            }
+            else
+            {
+                qCDebug(LOG_PACKET_SIZE) << "Using default MTU, mtu minus overhead is too low: " << mtuWithConnectionOverhead;
+            }
         }
-        else
-        {
-            qCDebug(LOG_BASIC) << "MTU too low, will use adapter default";
-        }
+    }
+    else
+    {
+        qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MTU (Engine)";
     }
 
     if (connectionManager_->isStaticIpsLocation())
@@ -1815,18 +1821,18 @@ void Engine::emergencyDisconnectClickImpl()
     emergencyController_->clickDisconnect();
 }
 
-void Engine::detectPacketSizeMssImpl()
+void Engine::detectAppropriatePacketSizeImpl()
 {
     if (networkDetectionManager_->isOnline())
     {
-        qCDebug(LOG_BASIC) << "Detecting appropriate packet size";
+        qCDebug(LOG_PACKET_SIZE) << "Detecting appropriate packet size";
         runningPacketDetection_ = true;
         emit packetSizeDetectionStateChanged(true);
-        packetSizeController_->detectPacketSizeMss();
+        packetSizeController_->detectAppropriatePacketSize();
     }
     else
     {
-         qCDebug(LOG_BASIC) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(mss_);
+         qCDebug(LOG_PACKET_SIZE) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(packetSize_.mtu());
     }
 }
 
@@ -1925,23 +1931,28 @@ void Engine::onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macA
     setSettingsMacAddressSpoofing(macAddrSpoofing);
 }
 
-void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mss)
+void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
 {
-    mss_ = mss;
-    connectionManager_->setMss(mss);
-    emergencyController_->setMss(mss);
+    ProtoTypes::PacketSize packetSize;
+    packetSize.set_is_automatic(isAuto);
+    packetSize.set_mtu(mtu);
 
-    if (mss    != engineSettings_.getPacketSize().mss() ||
+    packetSize_ = packetSize;
+    connectionManager_->setPacketSize(packetSize);
+    emergencyController_->setPacketSize(packetSize);
+
+    // update gui
+    if (mtu    != engineSettings_.getPacketSize().mtu() ||
         isAuto != engineSettings_.getPacketSize().is_automatic())
     {
         ProtoTypes::PacketSize packetSize;
-        packetSize.set_mss(mss);
+        packetSize.set_mtu(mtu);
         packetSize.set_is_automatic(isAuto);
         engineSettings_.setPacketSize(packetSize);
 
         // Connection to EngineServer is chewing the parameters to garbage when passed as ProtoTypes::PacketSize
         // Probably has something to do with EngineThread
-        emit packetSizeChanged(packetSize.is_automatic(), packetSize.mss());
+        emit packetSizeChanged(packetSize.is_automatic(), packetSize.mtu());
     }
 }
 

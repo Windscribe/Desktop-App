@@ -75,7 +75,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
         str = "\r\nproto udp\r\n";
         file_.write(str.toLocal8Bit());
 
-        if (mss != -1)
+        if (mss > 0)
         {
             str = QString("mssfix %1\r\n").arg(mss);
             file_.write(str.toLocal8Bit());

@@ -85,7 +85,7 @@ private slots:
     void onPreferencesNoAccountLoginClick();
     void onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow);
 	void onPreferencesCycleMacAddressClick();
-    void onPreferencesWindowDetectPacketMssButtonClicked();
+    void onPreferencesWindowDetectAppropriatePacketSizeButtonClicked();
 
     // emergency window signals
     void onEmergencyEscapeClick();

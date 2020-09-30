@@ -18,10 +18,10 @@ void PacketSizeController::setPacketSize(const ProtoTypes::PacketSize &packetSiz
     setPacketSizeImpl(packetSize);
 }
 
-void PacketSizeController::detectPacketSizeMss()
+void PacketSizeController::detectAppropriatePacketSize()
 {
     QMutexLocker locker(&mutex_);
-    QMetaObject::invokeMethod(this, "detectPacketSizeMssImpl");
+    QMetaObject::invokeMethod(this, "detectAppropriatePacketSizeImpl");
 }
 
 void PacketSizeController::earlyStop()
@@ -35,26 +35,26 @@ void PacketSizeController::setPacketSizeImpl(const ProtoTypes::PacketSize &packe
     if (!google::protobuf::util::MessageDifferencer::Equals(packetSize, packetSize_))
     {
         packetSize_ = packetSize;
-        emit packetSizeChanged(packetSize.is_automatic(), packetSize.mss());
+        emit packetSizeChanged(packetSize.is_automatic(), packetSize.mtu());
     }
 }
 
-void PacketSizeController::detectPacketSizeMssImpl()
+void PacketSizeController::detectAppropriatePacketSizeImpl()
 {
     {
         QMutexLocker locker(&mutex_);
         earlyStop_ = false;
     }
 
-    int mss = getIdealPacketSize();
+    int mtu = getIdealPacketSize();
 
     QMutexLocker locker(&mutex_);
-    if (mss != -1)
+    if (mtu > 0)
     {
-        qCDebug(LOG_BASIC) << "Found mss: " << mss;
+        qCDebug(LOG_PACKET_SIZE) << "Found mtu: " << mtu;
         ProtoTypes::PacketSize packetSize;
         packetSize.set_is_automatic(packetSize_.is_automatic());
-        packetSize.set_mss(mss);
+        packetSize.set_mtu(mtu);
         setPacketSizeImpl(packetSize);
     }
 
@@ -71,7 +71,7 @@ int PacketSizeController::getIdealPacketSize()
         QMutexLocker locker(&mutex_);
         if (earlyStop_)
         {
-            qCDebug(LOG_BASIC) << "Exiting packet size detection loop early";
+            qCDebug(LOG_PACKET_SIZE) << "Exiting packet size detection loop early";
             break;
         }
 
@@ -86,9 +86,9 @@ int PacketSizeController::getIdealPacketSize()
 
     if (!success)
     {
-        qCDebug(LOG_BASIC) << "Couldn't find appropriate MTU -- check internet connection";
+        qCDebug(LOG_PACKET_SIZE) << "Couldn't find appropriate MTU -- check internet connection";
         return -1;
     }
 
-    return mtu - 40;
+    return mtu;
 }

@@ -64,7 +64,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     packetSizeItem_ = new PacketSizeItem(this);
     packetSizeItem_->setPacketSize(preferences->packetSize());
     connect(packetSizeItem_, SIGNAL(packetSizeChanged(ProtoTypes::PacketSize)), SLOT(onPacketSizeChanged(ProtoTypes::PacketSize)));
-    connect(packetSizeItem_, SIGNAL(detectPacketMssButtonClicked()), SIGNAL(detectPacketMssButtonClicked()));
+    connect(packetSizeItem_, SIGNAL(detectAppropriatePacketSizeButtonClicked()), SIGNAL(detectAppropriatePacketSizeButtonClicked()));
     connect(packetSizeItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(packetSizeItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     addItem(packetSizeItem_);

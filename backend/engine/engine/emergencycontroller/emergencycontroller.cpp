@@ -19,8 +19,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
         restoreDnsManager_(helper),
     #endif
     serverApiUserRole_(0),
-    state_(STATE_DISCONNECTED),
-    mss_(-1)
+    state_(STATE_DISCONNECTED)
 {
     QFile file(":/Resources/ovpn/emergency.ovpn");
     if (file.open(QIODevice::ReadOnly))
@@ -130,9 +129,9 @@ QString EmergencyController::getConnectedTapAdapter_win()
     return "";
 }
 
-void EmergencyController::setMss(int mss)
+void EmergencyController::setPacketSize(ProtoTypes::PacketSize ps)
 {
-    mss_ = mss;
+    packetSize_ = ps;
 }
 
 void EmergencyController::onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer, quint64 userId)
@@ -316,7 +315,29 @@ void EmergencyController::doConnect()
     CONNECT_ATTEMPT_INFO attempt = attempts_[0];
     attempts_.removeFirst();
 
-    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, attempt.protocol, attempt.port, 0, 0, mss_);
+    int mss = 0;
+    if (!packetSize_.is_automatic())
+    {
+        mss = packetSize_.mtu() - MTU_OFFSET_OPENVPN;
+        // TODO: override with adv-params
+
+        if (mss <= 0)
+        {
+            mss = 0;
+            qCDebug(LOG_PACKET_SIZE) << "Using default MSS - OpenVpn EmergencyController MSS too low: " << mss;
+        }
+        else
+        {
+            qCDebug(LOG_PACKET_SIZE) << "OpenVpn EmergencyController MSS: " << mss;
+        }
+    }
+    else
+    {
+        qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (EmergencyController)";
+    }
+
+
+    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, attempt.protocol, attempt.port, 0, 0, mss);
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";

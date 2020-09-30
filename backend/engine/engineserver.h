@@ -76,7 +76,7 @@ private slots:
 
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void onEngineSendUserWarning(ProtoTypes::UserWarningType userWarningType);
-    void onEnginePacketSizeChanged(bool isAuto, int mss);
+    void onEnginePacketSizeChanged(bool isAuto, int mtu);
     void onEnginePacketSizeDetectionStateChanged(bool on);
 
 private:

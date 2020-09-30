@@ -52,7 +52,7 @@ public:
     virtual void setWireGuardConfig(QSharedPointer<WireGuardConfig> config) = 0;
 
     //windows specific functions
-    virtual void setMss(int mss) = 0;
+    virtual void setPacketSize(ProtoTypes::PacketSize ps) = 0;
 
 signals:
     void connected();

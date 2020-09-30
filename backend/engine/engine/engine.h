@@ -109,7 +109,7 @@ public:
 
     void forceUpdateServerLocations();
 
-    void detectPacketSizeMss();
+    void detectAppropriatePacketSize();
     void setSettingsMacAddressSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
@@ -163,7 +163,7 @@ signals:
     void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void sendUserWarning(ProtoTypes::UserWarningType userWarningType);
     void internetConnectivityChanged(bool connectivity);
-    void packetSizeChanged(bool isAuto, int mss);
+    void packetSizeChanged(bool isAuto, int mtu);
     void packetSizeDetectionStateChanged(bool on);
 
 private slots:
@@ -251,7 +251,7 @@ private slots:
     void emergencyConnectClickImpl();
     void emergencyDisconnectClickImpl();
 
-    void detectPacketSizeMssImpl();
+    void detectAppropriatePacketSizeImpl();
 
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
@@ -267,7 +267,7 @@ private slots:
     void onNetworkChange(ProtoTypes::NetworkInterface networkInterface);
     void onNetworkStateManagerStateChanged(bool isActive, const QString &networkInterface);
     void onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
-    void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mss);
+    void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu);
     void onPacketSizeControllerFinishedSizeDetection();
     void onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType);
 
@@ -340,7 +340,7 @@ private:
 
     bool online_;
 
-    int mss_;
+    ProtoTypes::PacketSize packetSize_;
     QThread *packetSizeControllerThread_;
     bool runningPacketDetection_;
 

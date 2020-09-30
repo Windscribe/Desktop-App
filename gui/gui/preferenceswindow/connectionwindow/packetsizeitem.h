@@ -7,7 +7,7 @@
 #include "automanualswitchitem.h"
 
 #include <QVariantAnimation>
-#include "msseditboxitem.h"
+#include "packetsizeeditboxitem.h"
 #include "ipc/generated_proto/types.pb.h"
 #include "tooltips/tooltiptypes.h"
 
@@ -28,13 +28,13 @@ public:
 
 signals:
     void packetSizeChanged(const ProtoTypes::PacketSize &ps);
-    void detectPacketMssButtonClicked();
+    void detectAppropriatePacketSizeButtonClicked();
     void showTooltip(TooltipInfo data);
     void hideTooltip(TooltipId id);
 
 private slots:
     void onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state);
-    void onMssChanged(const QString &text);
+    void onEditBoxTextChanged(const QString &text);
     void onExpandAnimationValueChanged(const QVariant &value);
 
     void onAutoDetectAndGenerateHoverEnter();
@@ -45,7 +45,7 @@ private:
     static constexpr int EXPANDED_HEIGHT = 50 + 43;
 
     AutoManualSwitchItem *switchItem_;
-    MssEditBoxItem *editBoxMSS_;
+    PacketSizeEditBoxItem *editBoxPacketSize_;
 
     ProtoTypes::PacketSize curPacketSize_;
 
