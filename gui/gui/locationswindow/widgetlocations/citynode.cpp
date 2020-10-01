@@ -2,6 +2,7 @@
 
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
+#include "dpiscalemanager.h"
 
 namespace GuiLocations {
 
@@ -27,8 +28,18 @@ CityNode::CityNode(const LocationID &locationId, const QString &cityName1ForShow
     isCursorOverConnectionMeter_(false),
     caption1FullText_(cityName1ForShow)
 {
+    if (!staticIp.isEmpty())
+    {
+        QFont *fontStaticIp = FontManager::instance().getFont(13, false);
+        captionStaticIpLayout_ = QSharedPointer<QTextLayout>(new QTextLayout(staticIp, *fontStaticIp));
+        captionStaticIpLayout_->beginLayout();
+        captionStaticIpLayout_->createLine();
+        captionStaticIpLayout_->endLayout();
+        captionStaticIpLayout_->setCacheEnabled(true);
+    }
+
     QFont *font = FontManager::instance().getFont(16, true);
-    QString shortenedCaption1Text = CommonGraphics::truncateText(cityName1ForShow, *font, 175);
+    QString shortenedCaption1Text = getShortenedCaptionText(cityName1ForShow, *font);
 
     caption1TextLayout_ = QSharedPointer<QTextLayout>(new QTextLayout(shortenedCaption1Text, *font));
     caption1TextLayout_->beginLayout();
@@ -42,16 +53,6 @@ CityNode::CityNode(const LocationID &locationId, const QString &cityName1ForShow
     caption2TextLayout_->createLine();
     caption2TextLayout_->endLayout();
     caption2TextLayout_->setCacheEnabled(true);
-
-    if (!staticIp.isEmpty())
-    {
-        QFont *fontStaticIp = FontManager::instance().getFont(13, false);
-        captionStaticIpLayout_ = QSharedPointer<QTextLayout>(new QTextLayout(staticIp, *fontStaticIp));
-        captionStaticIpLayout_->beginLayout();
-        captionStaticIpLayout_->createLine();
-        captionStaticIpLayout_->endLayout();
-        captionStaticIpLayout_->setCacheEnabled(true);
-    }
 
     isCursorOverFavoriteIcon_ = false;
 }
@@ -156,8 +157,21 @@ bool CityNode::isDisabled() const
 
 void CityNode::updateScaling()
 {
+    if (!staticIp_.isEmpty())
+    {
+        QFont *fontStaticIp = FontManager::instance().getFont(13, false);
+        captionStaticIpLayout_->setFont(*fontStaticIp);
+        captionStaticIpLayout_->beginLayout();
+        captionStaticIpLayout_->createLine();
+        captionStaticIpLayout_->endLayout();
+        captionStaticIpLayout_->setCacheEnabled(true);
+    }
+
     QFont *font = FontManager::instance().getFont(16, true);
+    QString shortenedCaption1Text = getShortenedCaptionText(caption1FullText_, *font);
+
     caption1TextLayout_->setFont(*font);
+    caption1TextLayout_->setText(shortenedCaption1Text);
     caption1TextLayout_->beginLayout();
     caption1TextLayout_->createLine();
     caption1TextLayout_->endLayout();
@@ -170,17 +184,18 @@ void CityNode::updateScaling()
     caption2TextLayout_->endLayout();
     caption2TextLayout_->setCacheEnabled(true);
 
-    if (!staticIp_.isEmpty())
-    {
-        QFont *fontStaticIp = FontManager::instance().getFont(13, false);
-        captionStaticIpLayout_->setFont(*fontStaticIp);
-        captionStaticIpLayout_->beginLayout();
-        captionStaticIpLayout_->createLine();
-        captionStaticIpLayout_->endLayout();
-        captionStaticIpLayout_->setCacheEnabled(true);
-    }
-
     timeMs_.recreateTextLayout();
+}
+
+QString CityNode::getShortenedCaptionText(QString original, QFont font) const
+{
+    if (locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID &&
+        locationId_.getId() != LocationID::STATIC_IPS_LOCATION_ID)
+        return original;
+    int kMaxWidth = captionStaticIpLayout_ ?
+        ( 200 * G_SCALE - captionStaticIpLayout_->boundingRect().width() ):
+        ( MAXIMUM_CAPTION_WIDTH * G_SCALE );
+    return CommonGraphics::truncateText(original, font, kMaxWidth);
 }
 
 } // namespace GuiLocations

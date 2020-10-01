@@ -192,6 +192,7 @@ void ConnectWindowItem::setTestTunnelResult(bool success)
 void ConnectWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    updateShortenedText();
     updatePositions();
 }
 
@@ -200,13 +201,12 @@ void ConnectWindowItem::updateLocationInfo(LocationID id, const QString &firstNa
     qDebug() << "updateLocationInfo:" << countryCode;
     locationID_ = id;
 
-    QString shortenedSecondName = CommonGraphics::truncateText(secondName, *FontManager::instance().getFont(16, false), 175);
     fullSecondName_ = secondName;
 
     cityName1Text_->setText(firstName);
-    cityName2Text_->setText(shortenedSecondName);
     background_->onLocationSelected(countryCode);
     serverRatingIndicator_->setPingTime(pingTime);
+    updateShortenedText();
 
     //updateFavoriteState(id, isFavorite);  // todo: remove it?
 }
@@ -564,7 +564,6 @@ void ConnectWindowItem::updatePositions()
     cityName2Text_->recalcBoundingRect();
     cityName2Text_->setPos(16*G_SCALE, 155*G_SCALE);
 
-
     preferencesButton_->setPos(WINDOW_MARGIN*G_SCALE, 45*G_SCALE);
     locationsButton_->setPos(93*G_SCALE, 242*G_SCALE);
     serverRatingIndicator_->setPos(296*G_SCALE, 153*G_SCALE);
@@ -573,6 +572,14 @@ void ConnectWindowItem::updatePositions()
     firewallButton_->setPos(16*G_SCALE, 276*G_SCALE);
     firewallInfo_->setPos(35*G_SCALE, 241*G_SCALE);
     logoButton_->setPos(56*G_SCALE, 34*G_SCALE);
+}
+
+void ConnectWindowItem::updateShortenedText()
+{
+    QString shortenedSecondName =
+        CommonGraphics::truncateText(fullSecondName_, *FontManager::instance().getFont(16, false),
+            175 * G_SCALE);
+    cityName2Text_->setText(shortenedSecondName);
 }
 
 } //namespace ConnectWindow

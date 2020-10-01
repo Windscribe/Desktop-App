@@ -124,6 +124,7 @@ private:
     bool isFirewallBlocked_;
 
     void updatePositions();
+    void updateShortenedText();
 
 };
 
