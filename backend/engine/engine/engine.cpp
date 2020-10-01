@@ -1545,7 +1545,7 @@ void Engine::onConnectionManagerConnected()
             {
                 qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << tapInterface << ": " << mtuForProtocol;
     #ifdef Q_OS_MAC
-                const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(tapInterface).arg(mtu);
+                const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(tapInterface).arg(mtuForProtocol);
                 helper_->executeRootCommand(setIkev2MtuCmd);
     #else
                 helper_->executeChangeMtu(tapInterface, mtuForProtocol);

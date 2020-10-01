@@ -6,7 +6,7 @@
 #include "engine/dnsresolver/dnsresolver.h"
 #include <QFile>
 #include <QCoreApplication>
-#include "Utils/extraconfig.h"
+#include "utils/extraconfig.h"
 
 #include <random>
 
