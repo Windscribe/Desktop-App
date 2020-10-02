@@ -172,9 +172,11 @@ apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
     }
 }
 
-/*QString MutableLocationInfo::resolveHostName()
+/*
+QString MutableLocationInfo::resolveHostName()
 {
-    /*Q_ASSERT(locationId_.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID);
+#if 0
+    Q_ASSERT(locationId_.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID);
     Q_ASSERT(nodes_.count() == 1);
 
     if (locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID || nodes_.count() != 1)
@@ -203,13 +205,15 @@ apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
             qCDebug(LOG_BASIC) << "MutableLocationInfo, failed to resolve" << nodes_[0].getHostname();
             return "";
         }
-    }*/
-/*    return "";
+    }
+#endif
+    return "";
 }
 
 void MutableLocationInfo::locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName)
 {
-    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
+#if 0
+    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
 
     if (locationId == locationId_ && nodes.count() > 0)
     {
@@ -238,6 +242,8 @@ void MutableLocationInfo::locationChanged(const LocationID &locationId, const QV
         }
         qCDebug(LOG_BASIC) << "MutableLocationInfo locationChanged: " << locationId.getHashString() << strNodes << "; Selected node:" << selectedNode_;
     }
-}*/
+#endif
+}
+*/
 
 } //namespace locationsmodel

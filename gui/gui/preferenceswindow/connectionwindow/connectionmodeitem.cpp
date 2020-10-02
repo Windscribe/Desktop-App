@@ -113,6 +113,7 @@ void ConnectionModeItem::onPortMapChanged()
             comboBoxProtocol_->addItem(ProtoEnumToString::instance().toString(pd), (int)pd);
         }
         comboBoxProtocol_->setCurrentItem((int)*protocols.begin());
+        comboBoxProtocol_->setMaxMenuItemsShowing(protocols.count());
         updateProtocol(*protocols.begin());
         comboBoxProtocol_->setClickable(true);
         comboBoxPort_->setClickable(true);

@@ -36,6 +36,7 @@ public:
     void activateItem(int index);
 
     void updateScaling();
+    void setMaxItemsShowing(int maxItemsShowing);
 
 signals:
     void itemClicked(QString text, QVariant item_data);
@@ -83,8 +84,9 @@ private:
 
     static constexpr int SHADOW_SIZE = 4;
     static constexpr int STEP_SIZE = 38;
-    int MAX_ITEMS_SHOWING = 5;
-    int maxViewportHeight_ = MAX_ITEMS_SHOWING * STEP_SIZE;
+    static constexpr int DEFAULT_MAX_ITEMS_SHOWING = 5;
+    int maxItemsShowing_ = DEFAULT_MAX_ITEMS_SHOWING;
+    int maxViewportHeight_ = DEFAULT_MAX_ITEMS_SHOWING * STEP_SIZE;
 
 };
 

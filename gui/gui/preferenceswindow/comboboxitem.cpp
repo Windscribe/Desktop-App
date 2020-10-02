@@ -168,6 +168,11 @@ void ComboBoxItem::hideMenu()
     menu_->hide();
 }
 
+void ComboBoxItem::setMaxMenuItemsShowing(int maxItemsShowing)
+{
+    menu_->setMaxItemsShowing(maxItemsShowing);
+}
+
 QPointF ComboBoxItem::getButtonScenePos() const
 {
     return button_->scenePos();

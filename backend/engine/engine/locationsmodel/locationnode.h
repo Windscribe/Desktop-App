@@ -39,7 +39,7 @@ class ApiLocationNode : public BaseNode
 {
 public:
     explicit ApiLocationNode(const QStringList &ips, const QString &hostname, int weight, const QString &wg_pubkey)
-        : hostname_(hostname), weight_(weight), wg_pubkey_(wg_pubkey)
+        : hostname_(hostname), wg_pubkey_(wg_pubkey), weight_(weight)
     {
         Q_ASSERT(ips.count() == 3);
         ips_[0] = ips[0];
@@ -79,7 +79,7 @@ class StaticLocationNode : public ApiLocationNode
 public:
     explicit StaticLocationNode(const QStringList &ips, const QString &hostname, const QString &wg_pubkey, const QString &wg_ip, const QString &dnsName,
                                 const QString &username, const QString &password, const apiinfo::StaticIpPortsVector &ipPortsVector) :
-            ApiLocationNode(ips, hostname, 1, wg_pubkey), wg_ip_(wg_ip), dnsName_(dnsName), username_(username), password_(password), ipPortsVector_(ipPortsVector) {}
+            ApiLocationNode(ips, hostname, 1, wg_pubkey), dnsName_(dnsName), username_(username), password_(password), wg_ip_(wg_ip), ipPortsVector_(ipPortsVector) {}
     virtual ~StaticLocationNode() {}
 
     QString getStaticIpDnsName() const override { return dnsName_; }
