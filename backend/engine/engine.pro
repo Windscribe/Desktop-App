@@ -344,13 +344,16 @@ SOURCES += main.cpp \
     engine/tests/sessionandlocations_test.cpp \
     engine/sessionstatustimer.cpp \
     engine/connectionmanager/wstunnelmanager.cpp \
-    engine/customovpnconfigs/customovpnconfigs.cpp \
+    engine/customconfigs/customconfigs.cpp \
+    engine/customconfigs/customconfigtype.cpp \
+    engine/customconfigs/ovpncustomconfig.cpp \
+    engine/customconfigs/wireguardcustomconfig.cpp \
     engine/connectionmanager/makeovpnfilefromcustom.cpp \
-    engine/customovpnconfigs/parseovpnconfigline.cpp \
-    engine/customovpnconfigs/customovpnauthcredentialsstorage.cpp \
+    engine/customconfigs/parseovpnconfigline.cpp \
+    engine/customconfigs/customovpnauthcredentialsstorage.cpp \
     engine/ping/pinghost_tcp.cpp \
     engine/ping/pinghost.cpp \
-    engine/customovpnconfigs/customconfigsdirwatcher.cpp \
+    engine/customconfigs/customconfigsdirwatcher.cpp \
     engine/types/wireguardconfig.cpp \
     engine/getdeviceid.cpp \
     qconsolelistener.cpp \
@@ -478,15 +481,19 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/tests/sessionandlocations_test.h \
     engine/sessionstatustimer.h \
     engine/connectionmanager/wstunnelmanager.h \
-    engine/customovpnconfigs/customovpnconfigs.h \
+    engine/customconfigs/icustomconfig.h \
+    engine/customconfigs/customconfigtype.h \
+    engine/customconfigs/ovpncustomconfig.h \
+    engine/customconfigs/wireguardcustomconfig.h \
+    engine/customconfigs/customconfigs.h \
     engine/connectionmanager/makeovpnfilefromcustom.h \
-    engine/customovpnconfigs/parseovpnconfigline.h \
-    engine/customovpnconfigs/customovpnauthcredentialsstorage.h \
+    engine/customconfigs/parseovpnconfigline.h \
+    engine/customconfigs/customovpnauthcredentialsstorage.h \
     engine/ping/icmp_header.h \
     engine/ping/ipv4_header.h \
     engine/ping/pinghost_tcp.h \
     engine/ping/pinghost.h \
-    engine/customovpnconfigs/customconfigsdirwatcher.h \
+    engine/customconfigs/customconfigsdirwatcher.h \
     engine/types/wireguardconfig.h \
     engine/getdeviceid.h \
     qconsolelistener.h \

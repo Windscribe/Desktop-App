@@ -23,10 +23,13 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     }
 }
 
-void LocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
+void LocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs)
 {
     locations_ = locations;
     staticIps_ = staticIps;
+    customConfigs_ = customConfigs;
+
+    whitelistIps();
 
     // ping stuff
     QVector<PingIpInfo> ips;
@@ -346,7 +349,50 @@ void LocationsModel::generateLocationsUpdated()
         *items << item;
     }
 
+    // add custom configs location
+    if (!customConfigs_.isEmpty())
+    {
+        LocationItem item;
+
+        item.id = LocationID::createTopCustomConfigsLocationId();
+        item.name = QObject::tr("Custom Configs");
+        item.countryCode = "Custom_Configs";
+        item.isPremiumOnly = false;
+        item.p2p = 1;
+
+        for (const QSharedPointer<const customconfigs::ICustomConfig> config : customConfigs_)
+        {
+            CityItem city;
+            city.id = LocationID::createCustomConfigLocationId(config->filename());
+            city.city = config->name();
+            city.pingTimeMs = PingTime::NO_PING_INFO;       // todo
+            //city.pingTimeMs = pingStorage_.getNodeSpeed(sid.getPingIp());
+            city.isPro = true;
+            city.isDisabled = false;
+
+            city.customConfigType = config->type();
+            city.customConfigIsCorrect = config->isCorrect();
+            city.customConfigErrorMessage = config->getErrorForIncorrect();
+            item.cities << city;
+        }
+        *items << item;
+    }
+
     emit locationsUpdated(bestLocation, items);
+}
+
+void LocationsModel::whitelistIps()
+{
+    QStringList ips;
+    for (const apiinfo::Location &l : locations_)
+    {
+        for (int i = 0; i < l.groupsCount(); ++i)
+        {
+            ips << l.getGroup(i).getAllIps();
+        }
+    }
+    ips << staticIps_.getAllIps();
+    emit whitelistIpsChanged(ips);
 }
 
 int LocationsModel::calcLatency(const apiinfo::Location &l)

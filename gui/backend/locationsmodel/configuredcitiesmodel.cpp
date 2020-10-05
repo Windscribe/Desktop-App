@@ -11,12 +11,14 @@ void ConfiguredCitiesModel::update(QVector<LocationModelItem *> locations)
 
     for (const LocationModelItem *lmi : locations)
     {
-        Q_ASSERT(lmi->id.isCustomConfigsLocation());
-        for (int i = 0; i < lmi->cities.count(); ++i)
+        if (lmi->id.isCustomConfigsLocation())
         {
-            CityModelItem *cmi = new CityModelItem();
-            *cmi = lmi->cities[i];
-            cities_ << cmi;
+            for (int i = 0; i < lmi->cities.count(); ++i)
+            {
+                CityModelItem *cmi = new CityModelItem();
+                *cmi = lmi->cities[i];
+                cities_ << cmi;
+            }
         }
     }
 

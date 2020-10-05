@@ -41,7 +41,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     getMyIPController_(NULL),
     vpnShareController_(NULL),
     emergencyController_(NULL),
-    customOvpnConfigs_(NULL),
+    customConfigs_(NULL),
     customOvpnAuthCredentialsStorage_(NULL),
     networkDetectionManager_(NULL),
     macAddressController_(NULL),
@@ -573,10 +573,8 @@ void Engine::init()
     connect(connectionManager_, SIGNAL(requestUsername(QString)), SLOT(onConnectionManagerRequestUsername(QString)));
     connect(connectionManager_, SIGNAL(requestPassword(QString)), SLOT(onConnectionManagerRequestPassword(QString)));
 
-    //serversModel_ = new ServersModel(this, connectStateController_, networkStateManager_, nodesSpeedRatings_, nodesSpeedStore_);
-    //connect(serversModel_, SIGNAL(customOvpnConfgsIpsChanged(QStringList)), SLOT(onCustomOvpnConfgsIpsChanged(QStringList)));
-
     locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkStateManager_);
+    connect(locationsModel_, SIGNAL(whitelistIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistIpsChanged(QStringList)));
 
     getMyIPController_ = new GetMyIPController(this, serverAPI_, networkStateManager_);
     connect(getMyIPController_, SIGNAL(answerMyIP(QString,bool,bool)), SLOT(onMyIpAnswer(QString,bool,bool)));
@@ -594,9 +592,9 @@ void Engine::init()
     connect(emergencyController_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onEmergencyControllerDisconnected(DISCONNECT_REASON)));
     connect(emergencyController_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onEmergencyControllerError(CONNECTION_ERROR)));
 
-    customOvpnConfigs_ = new CustomOvpnConfigs(this);
-    customOvpnConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
-    connect(customOvpnConfigs_, SIGNAL(changed()), SLOT(onCustomOvpnConfigsChanged()));
+    customConfigs_ = new customconfigs::CustomConfigs(this);
+    customConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
+    connect(customConfigs_, SIGNAL(changed()), SLOT(onCustomConfigsChanged()));
 
     checkUpdateTimer_ = new QTimer(this);
     connect(checkUpdateTimer_, SIGNAL(timeout()), SLOT(onStartCheckUpdate()));
@@ -820,7 +818,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(vpnShareController_);
     SAFE_DELETE(emergencyController_);
     SAFE_DELETE(connectionManager_);
-    SAFE_DELETE(customOvpnConfigs_);
+    SAFE_DELETE(customConfigs_);
     SAFE_DELETE(customOvpnAuthCredentialsStorage_);
     SAFE_DELETE(firewallController_);
     SAFE_DELETE(keepAliveManager_);
@@ -1009,9 +1007,9 @@ void Engine::signOutImplAfterDisconnect()
     if (!apiInfo_.isNull())
     {
         serverAPI_->deleteSession(apiInfo_->getAuthHash(), serverApiUserRole_, true);
-        apiInfo_->removeFromSettings();
         apiInfo_.reset();
     }
+    apiinfo::ApiInfo::removeFromSettings();
 
     firewallController_->firewallOff();
     emit firewallStateChanged(false);
@@ -1174,7 +1172,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
 
     if (isCustomOvpnConfigsPathChanged)
     {
-        customOvpnConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
+        customConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
     }
 
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
@@ -1882,15 +1880,15 @@ void Engine::getNewNotifications()
     serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
-void Engine::onCustomOvpnConfigsChanged()
+void Engine::onCustomConfigsChanged()
 {
-    qCDebug(LOG_BASIC) << "Custom ovpn-configs changed";
+    qCDebug(LOG_BASIC) << "Custom configs changed";
     updateServerLocations();
 }
 
-void Engine::onCustomOvpnConfgsIpsChanged(const QStringList &ips)
+void Engine::onLocationsModelWhitelistIpsChanged(const QStringList &ips)
 {
-    firewallExceptions_.setCustomOvpnIps(ips);
+    firewallExceptions_.setLocationsIps(ips);
     updateFirewallSettings();
 }
 
@@ -2159,27 +2157,7 @@ void Engine::updateServerLocations()
 
 
     qCDebug(LOG_BASIC) << "Servers locations changed";
-
-    // firewall exceptions for API locations
-    QStringList listIps;
-    for (const apiinfo::Location &l : apiInfo_->getLocations())
-    {
-        listIps << l.getAllIps();
-    }
-    firewallExceptions_.setLocationsIps(listIps);
-
-    // firewall exceptions for Static IPs
-    if (apiInfo_->getSessionStatus().getStaticIpsCount() > 0)
-    {
-        firewallExceptions_.setStaticLocationIps(apiInfo_->getStaticIps().getAllIps());
-    }
-    else
-    {
-        firewallExceptions_.clearStaticLocationIps();
-    }
-    updateFirewallSettings();
-
-    locationsModel_->setLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
+    locationsModel_->setLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps(), customConfigs_->getConfigs());
 
     if (!apiInfo_->getForceDisconnectNodes().isEmpty())
     {

@@ -4,7 +4,7 @@
 #include <QDir>
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
-#include "engine/customovpnconfigs/parseovpnconfigline.h"
+#include "engine/customconfigs/parseovpnconfigline.h"
 
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"

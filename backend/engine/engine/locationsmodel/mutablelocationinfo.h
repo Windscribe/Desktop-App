@@ -12,7 +12,7 @@
 namespace locationsmodel {
 
 // describe location info (nodes, selected item, iterate over nodes)
-// the location info can automatically changed (new nodes added, nodes ips changed, etc) if this location changed in LocationsModel
+// the location info can be automatically changed (new nodes added, nodes ips changed, etc) if this location changed in LocationsModel
 // even when the location info changes, the possibility of iteration over nodes remains correct
 class MutableLocationInfo : public QObject
 {

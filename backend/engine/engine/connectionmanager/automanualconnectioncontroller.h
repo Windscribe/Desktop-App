@@ -48,7 +48,6 @@ public:
     void putFailedConnection();
     bool isFailed();
     CurrentConnectionDescr getCurrentConnectionSettings();
-    bool isCurrentIkev2Protocol();
     void saveCurrentSuccessfullConnectionSettings();
     bool isAutomaticMode();
 

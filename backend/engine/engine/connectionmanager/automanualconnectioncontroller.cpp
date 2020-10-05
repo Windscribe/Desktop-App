@@ -335,29 +335,6 @@ AutoManualConnectionController::CurrentConnectionDescr AutoManualConnectionContr
     return ccd;
 }
 
-bool AutoManualConnectionController::isCurrentIkev2Protocol()
-{
-    if (mli_->isCustomOvpnConfig())
-    {
-        return false;
-    }
-    else if (connectionSettings_.isAutomatic())
-    {
-        if (curAttempt_ >= 0 && curAttempt_ < attemps_.count())
-        {
-            return attemps_[curAttempt_].protocol.isIkev2Protocol();
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return connectionSettings_.protocol().isIkev2Protocol();
-    }
-}
-
 void AutoManualConnectionController::saveCurrentSuccessfullConnectionSettings()
 {
     if (connectionSettings_.isAutomatic() && !mli_->isCustomOvpnConfig())

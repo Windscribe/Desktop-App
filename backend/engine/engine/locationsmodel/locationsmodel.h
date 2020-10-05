@@ -11,6 +11,7 @@
 #include "pingstorage.h"
 #include "bestlocation.h"
 #include "mutablelocationinfo.h"
+#include "engine/customconfigs/icustomconfig.h"
 
 namespace locationsmodel {
 
@@ -23,7 +24,8 @@ class LocationsModel : public QObject
 public:
     explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
 
-    void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
+    void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
+    void setCustomConfigs();
     void clear();
 
     void setProxySettings(const ProxySettings &proxySettings);
@@ -35,6 +37,8 @@ public:
 signals:
     void locationsUpdated( const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void locationPingTimeChanged(const LocationID &id, locationsmodel::PingTime timeMs);
+
+    void whitelistIpsChanged(const QStringList &ips);
 
     //void locationInfoChanged(const LocationID &LocationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
     //void customOvpnConfgsIpsChanged(const QStringList &ips);
@@ -48,11 +52,13 @@ private:
     PingStorage pingStorage_;
     QVector<apiinfo::Location> locations_;
     apiinfo::StaticIps staticIps_;
+    QVector<QSharedPointer<const customconfigs::ICustomConfig>> customConfigs_;
 
     BestLocation bestLocation_;
 
     void detectBestLocation(bool isAllNodesInDisconnectedState);
     void generateLocationsUpdated();
+    void whitelistIps();
     int calcLatency(const apiinfo::Location &l);
 
 };

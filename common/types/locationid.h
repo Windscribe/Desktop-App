@@ -15,9 +15,11 @@ public:
 
     static LocationID createTopApiLocationId(int id);
     static LocationID createTopStaticLocationId();
+    static LocationID createTopCustomConfigsLocationId();
     static LocationID createApiLocationId(int id, const QString &city, const QString &nick);
     static LocationID createBestLocationId(int id);
     static LocationID createStaticIpsLocationId(const QString &city, const QString &ip);
+    static LocationID createCustomConfigLocationId(const QString &filename);
     static LocationID createFromProtoBuf(const ProtoTypes::LocationId &lid);
 
     LocationID& operator=(LocationID rhs)

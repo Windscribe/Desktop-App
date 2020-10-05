@@ -19,8 +19,8 @@
 #include "getmyipcontroller.h"
 #include "enginesettings.h"
 #include "sessionstatustimer.h"
-#include "engine/customovpnconfigs/customovpnconfigs.h"
-#include "engine/customovpnconfigs/customovpnauthcredentialsstorage.h"
+#include "engine/customconfigs/customconfigs.h"
+#include "engine/customconfigs/customovpnauthcredentialsstorage.h"
 #include <atomic>
 #include "engine/macaddresscontroller/imacaddresscontroller.h"
 #include "engine/ping/keepalivemanager.h"
@@ -261,8 +261,9 @@ private slots:
 
     void getNewNotifications();
 
-    void onCustomOvpnConfigsChanged();
-    void onCustomOvpnConfgsIpsChanged(const QStringList &ips);
+    void onCustomConfigsChanged();
+
+    void onLocationsModelWhitelistIpsChanged(const QStringList &ips);
 
     void onNetworkChange(ProtoTypes::NetworkInterface networkInterface);
     void onNetworkStateManagerStateChanged(bool isActive, const QString &networkInterface);
@@ -290,7 +291,7 @@ private:
     VpnShareController *vpnShareController_;
     EmergencyController *emergencyController_;
     ConnectStateController *emergencyConnectStateController_;
-    CustomOvpnConfigs *customOvpnConfigs_;
+    customconfigs::CustomConfigs *customConfigs_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
     INetworkDetectionManager *networkDetectionManager_;
     IMacAddressController *macAddressController_;

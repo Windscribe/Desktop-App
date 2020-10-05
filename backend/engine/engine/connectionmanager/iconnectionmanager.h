@@ -2,7 +2,7 @@
 #define ICONNECTIONMANAGER_H
 
 #include <QObject>
-#include "engine/customovpnconfigs/customovpnauthcredentialsstorage.h"
+#include "engine/customconfigs/customovpnauthcredentialsstorage.h"
 #include "automanualconnectioncontroller.h"
 #include "engine/types/types.h"
 #include "engine/types/protocoltype.h"

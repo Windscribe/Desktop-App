@@ -51,11 +51,6 @@ void FirewallExceptions::setCustomOvpnIp(const QString &ip, bool &bChanged)
     }
 }
 
-void FirewallExceptions::setCustomOvpnIps(const QStringList &ips)
-{
-    customOvpnIPs_ = ips;
-}
-
 void FirewallExceptions::setDnsPolicy(DNS_POLICY_TYPE dnsPolicy)
 {
     dnsPolicyType_ = dnsPolicy;
@@ -64,16 +59,6 @@ void FirewallExceptions::setDnsPolicy(DNS_POLICY_TYPE dnsPolicy)
 void FirewallExceptions::setLocationsIps(const QStringList &listIps)
 {
     locationsIPs_ = listIps;
-}
-
-void FirewallExceptions::setStaticLocationIps(const QStringList &listIps)
-{
-    staticLocationIPs_ = listIps;
-}
-
-void FirewallExceptions::clearStaticLocationIps()
-{
-    staticLocationIPs_.clear();
 }
 
 QString FirewallExceptions::getIPAddressesForFirewall()
@@ -143,23 +128,7 @@ QString FirewallExceptions::getIPAddressesForFirewall()
         ipList.add(customOvpnIP_);
     }
 
-    Q_FOREACH(const QString &sl, customOvpnIPs_)
-    {
-        if (!sl.isEmpty())
-        {
-            ipList.add(sl);
-        }
-    }
-
     Q_FOREACH(const QString &sl, locationsIPs_)
-    {
-        if (!sl.isEmpty())
-        {
-            ipList.add(sl);
-        }
-    }
-
-    Q_FOREACH(const QString &sl, staticLocationIPs_)
     {
         if (!sl.isEmpty())
         {

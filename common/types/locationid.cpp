@@ -18,6 +18,11 @@ LocationID LocationID::createTopStaticLocationId()
     return LocationID(STATIC_IPS_LOCATION, 0, QString());
 }
 
+LocationID LocationID::createTopCustomConfigsLocationId()
+{
+    return LocationID(CUSTOM_CONFIGS_LOCATION, 0, QString());
+}
+
 LocationID LocationID::createApiLocationId(int id, const QString &city, const QString &nick)
 {
     return LocationID(API_LOCATION, id, city + " - " + nick);
@@ -31,6 +36,11 @@ LocationID LocationID::createBestLocationId(int id)
 LocationID LocationID::createStaticIpsLocationId(const QString &city, const QString &ip)
 {
     return LocationID(STATIC_IPS_LOCATION, 0, city + " - " + ip);
+}
+
+LocationID LocationID::createCustomConfigLocationId(const QString &filename)
+{
+    return LocationID(CUSTOM_CONFIGS_LOCATION, 0, filename);
 }
 
 LocationID LocationID::createFromProtoBuf(const ProtoTypes::LocationId &lid)

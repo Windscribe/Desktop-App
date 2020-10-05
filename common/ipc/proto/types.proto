@@ -101,6 +101,12 @@ enum LoginMessage
   LOGIN_MESSAGE_TRYING_BACKUP2 = 2;
 }
 
+enum CustomConfigType
+{
+  CUSTOM_CONFIG_OPENVPN = 0;
+  CUSTOM_CONFIG_WIREGUARD = 1;
+}
+
 message ApiNotification
 {
   optional int64 id = 1;
@@ -120,11 +126,14 @@ message City
   optional int32 ping_time = 4;		  // -2 no ping info, -1 ping failed, other values ping time in ms
   optional bool is_premium_only = 5;
   optional bool is_disabled = 6;
-  // used for static IP sublocation description
+  // use for static IP sublocation description
   optional string static_ip_country_code = 7;   
   optional string static_ip_type = 8;
   optional string static_ip = 9;
-  
+  // use for custom config sublocation
+  optional CustomConfigType custom_config_type = 10;
+  optional bool custom_config_is_correct = 11;
+  optional string custom_config_error_message = 12;   // not empty if custom_config_is_correct == false
 }
 
 message Location

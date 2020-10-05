@@ -100,7 +100,7 @@ void LocationsModel::update(const ProtoTypes::LocationId &bestLocation, const Pr
     }
 
     allLocations_->update(locations_);
-    //configuredLocations_->update(locations_);
+    configuredLocations_->update(locations_);
     staticIpsLocations_->update(locations_);
     favoriteLocations_->update(locations_);
 }
