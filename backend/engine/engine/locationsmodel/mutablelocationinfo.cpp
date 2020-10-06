@@ -8,21 +8,10 @@
 
 namespace locationsmodel {
 
-MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name, const QVector< QSharedPointer<BaseNode> > &nodes, int selectedNode,
+MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name, const QVector< QSharedPointer<const BaseNode> > &nodes, int selectedNode,
                                          const QString &dnsHostName)
-    : QObject(nullptr), locationId_(locationId),
-      name_(name), nodes_(nodes), dnsHostName_(dnsHostName)
+    : BaseLocationInfo(locationId, name), nodes_(nodes), selectedNode_(selectedNode), dnsHostName_(dnsHostName)
 {
-    if (selectedNode == -1)
-    {
-        // select random node based on weight
-        if (nodes.count() > 0)
-        {
-            selectedNode = NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(nodes);
-            Q_ASSERT(selectedNode >= 0 && selectedNode < nodes.count());
-        }
-    }
-    selectedNode_ = selectedNode;
 
     QString strNodes;
     for (int i = 0; i < nodes_.count(); ++i)
@@ -35,24 +24,9 @@ MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QSt
 }
 
 
-bool MutableLocationInfo::isCustomOvpnConfig() const
-{
-    return locationId_.isCustomConfigsLocation();
-}
-
-bool MutableLocationInfo::isStaticIp() const
-{
-    return locationId_.isStaticIpsLocation();
-}
-
-QString MutableLocationInfo::getName() const
-{
-    return name_;
-}
-
 QString MutableLocationInfo::getDnsName() const
 {
-    if (isStaticIp())
+    if (locationId_.isStaticIpsLocation())
     {
         if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
         {
@@ -68,12 +42,6 @@ QString MutableLocationInfo::getDnsName() const
     {
         return dnsHostName_;
     }
-}
-
-QString MutableLocationInfo::getCustomOvpnConfigPath() const
-{
-    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
-    return nodes_[selectedNode_]->getCustomOvpnConfigPath();
 }
 
 bool MutableLocationInfo::isExistSelectedNode() const

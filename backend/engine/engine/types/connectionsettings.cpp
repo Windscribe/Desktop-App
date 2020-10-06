@@ -86,7 +86,7 @@ void ConnectionSettings::debugToLog() const
     }
 }
 
-void ConnectionSettings::logConnectionSettings()
+void ConnectionSettings::logConnectionSettings() const
 {
     if (bInitialized_)
     {

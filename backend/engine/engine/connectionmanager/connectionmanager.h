@@ -15,6 +15,7 @@
 #include "testvpntunnel.h"
 #include "engine/types/protocoltype.h"
 #include "engine/types/wireguardconfig.h"
+#include "connsettingspolicy/baseconnsettingspolicy.h"
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
@@ -33,7 +34,7 @@ public:
     ~ConnectionManager() override;
 
     void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
-                      QSharedPointer<locationsmodel::MutableLocationInfo> mli,
+                      QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                       const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap, const ProxySettings &proxySettings,
                       bool bEmitAuthError) override;
 
@@ -95,6 +96,8 @@ private:
     RestoreDNSManager_mac restoreDnsManager_;
 #endif
 
+    QScopedPointer<BaseConnSettingsPolicy> connSettingsPolicy_;
+
     QString lastDefaultGateway_;
     QString lastIp_;
 
@@ -122,7 +125,7 @@ private:
 
     ProtocolType currentProtocol_;
 
-    AutoManualConnectionController::CurrentConnectionDescr currentConnectionDescr_;
+    CurrentConnectionDescr currentConnectionDescr_;
 
     QString usernameForCustomOvpn_;     // can be empty
     QString passwordForCustomOvpn_;     // can be empty

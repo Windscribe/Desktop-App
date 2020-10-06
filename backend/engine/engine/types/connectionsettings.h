@@ -24,7 +24,7 @@ struct ConnectionSettings
     bool isEqual(const ConnectionSettings &s) const;
 
     void debugToLog() const;
-    void logConnectionSettings();
+    void logConnectionSettings() const;
 
     ProtoTypes::ConnectionSettings convertToProtobuf() const;
 

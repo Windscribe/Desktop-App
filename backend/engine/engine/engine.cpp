@@ -2235,15 +2235,15 @@ void Engine::doConnect(bool bEmitAuthError)
 
     locationId_ = checkLocationIdExistingAndReturnNewIfNeed(locationId_);
 
-    QSharedPointer<locationsmodel::MutableLocationInfo> mli = locationsModel_->getMutableLocationInfoById(locationId_);
-    if (mli.isNull())
+    QSharedPointer<locationsmodel::BaseLocationInfo> bli = locationsModel_->getMutableLocationInfoById(locationId_);
+    if (bli.isNull())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, LOCATION_NOT_EXIST);
         getMyIPController_->getIPFromDisconnectedState(1);
         qCDebug(LOG_BASIC) << "Engine::connectError(LOCATION_NOT_EXIST)";
         return;
     }
-    if (!mli->isExistSelectedNode())
+    if (!bli->isExistSelectedNode())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, LOCATION_NO_ACTIVE_NODES);
         getMyIPController_->getIPFromDisconnectedState(1);
@@ -2272,7 +2272,7 @@ void Engine::doConnect(bool bEmitAuthError)
         }
     }*/
 
-    locationName_ = mli->getName();
+    locationName_ = bli->getName();
 
 #ifdef Q_OS_WIN
     helper_->clearDnsOnTap();
@@ -2296,11 +2296,7 @@ void Engine::doConnect(bool bEmitAuthError)
     }
     else
     {
-        if (mli->isStaticIp())
-        {
-            qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << mli->getStaticIpUsername();
-        }
-        else
+        if (!bli->locationId().isCustomConfigsLocation() && !bli->locationId().isStaticIpsLocation())
         {
             if (apiInfo_->getServerCredentials().isInitialized())
             {
@@ -2310,7 +2306,7 @@ void Engine::doConnect(bool bEmitAuthError)
         }
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
-        connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), mli,
+        connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), bli,
             engineSettings_.connectionSettings(), apiInfo_->getPortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError);
     }

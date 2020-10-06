@@ -7,6 +7,7 @@
 #include "types/locationid.h"
 #include "locationnode.h"
 #include "engine/apiinfo/staticips.h"
+#include "baselocationinfo.h"
 
 
 namespace locationsmodel {
@@ -14,20 +15,16 @@ namespace locationsmodel {
 // describe location info (nodes, selected item, iterate over nodes)
 // the location info can be automatically changed (new nodes added, nodes ips changed, etc) if this location changed in LocationsModel
 // even when the location info changes, the possibility of iteration over nodes remains correct
-class MutableLocationInfo : public QObject
+class MutableLocationInfo : public BaseLocationInfo
 {
     Q_OBJECT
 public:
     explicit MutableLocationInfo(const LocationID &locationId, const QString &name,
-                                 const QVector< QSharedPointer<BaseNode> > &nodes, int selectedNode,
+                                 const QVector< QSharedPointer<const BaseNode> > &nodes, int selectedNode,
                                  const QString &dnsHostName);
 
 
-    bool isCustomOvpnConfig() const;
-    bool isStaticIp() const;
-    QString getName() const;
     QString getDnsName() const;
-    QString getCustomOvpnConfigPath() const;
     bool isExistSelectedNode() const;
     int nodesCount() const;
     QString getIpForNode(int indNode, int indIp) const;
@@ -50,9 +47,7 @@ public slots:
     //void locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
 
 private:
-    LocationID locationId_;
-    QString name_;
-    QVector< QSharedPointer<BaseNode> > nodes_;
+    QVector< QSharedPointer<const BaseNode> > nodes_;
     int selectedNode_;
     QString dnsHostName_;
 };

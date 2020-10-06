@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
-#include "automanualconnectioncontroller.h"
 #include "engine/types/types.h"
+#include "engine/locationsmodel/baselocationinfo.h"
 #include "engine/types/protocoltype.h"
 #include "engine/types/wireguardconfig.h"
 #include "engine/apiinfo/portmap.h"
@@ -27,7 +27,7 @@ public:
     virtual ~IConnectionManager() {}
 
     virtual void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
-                              QSharedPointer<locationsmodel::MutableLocationInfo> mli,
+                              QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                               const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap, const ProxySettings &proxySettings,
                               bool bEmitAuthError) = 0;
 
@@ -74,7 +74,6 @@ signals:
 protected:
     IHelper *helper_;
     INetworkStateManager *networkStateManager_;
-    AutoManualConnectionController autoManualConnectionController_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
 };
 

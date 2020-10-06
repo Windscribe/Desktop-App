@@ -50,6 +50,7 @@ public:
     int getUseIpInd(const ProtocolType &connectionProtocol) const;
 
     QVector<PortItem> &items();
+    const QVector<PortItem> &const_items() const;
 
 
 private:

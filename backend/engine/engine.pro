@@ -269,8 +269,8 @@ SOURCES += main.cpp \
     engine/locationsmodel/pingipscontroller.cpp \
     engine/locationsmodel/pingstorage.cpp \
     engine/locationsmodel/bestlocation.cpp \
+    engine/locationsmodel/baselocationinfo.cpp \
     engine/locationsmodel/mutablelocationinfo.cpp \
-    engine/locationsmodel/locationnode.cpp \
     engine/locationsmodel/pingtime.cpp \
     engine/locationsmodel/pinglog.cpp \
     engine/locationsmodel/failedpinglogcontroller.cpp \
@@ -295,7 +295,8 @@ SOURCES += main.cpp \
     engine/connectionmanager/testvpntunnel.cpp \
     engine/connectionmanager/testvpntunnelhelper.cpp \
     engine/connectionmanager/openvpnconnection.cpp \
-    engine/connectionmanager/automanualconnectioncontroller.cpp \
+    engine/connectionmanager/connsettingspolicy/autoconnsettingspolicy.cpp \
+    engine/connectionmanager/connsettingspolicy/manualconnsettingspolicy.cpp \
     engine/connectionmanager/connectionmanager.cpp \
     engine/connectionmanager/availableport.cpp \
     engine/connectionmanager/wireguardconnection.cpp \
@@ -373,8 +374,9 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/locationsmodel/pingipscontroller.h \
     engine/locationsmodel/pingstorage.h \
     engine/locationsmodel/bestlocation.h \
-    engine/locationsmodel/mutablelocationinfo.h \
     engine/locationsmodel/locationnode.h \
+    engine/locationsmodel/baselocationinfo.h \
+    engine/locationsmodel/mutablelocationinfo.h \
     engine/locationsmodel/pingtime.h \
     engine/locationsmodel/pinglog.h \
     engine/locationsmodel/failedpinglogcontroller.h \
@@ -431,7 +433,9 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/connectionmanager/wireguardconnection.h \
     utils/boost_includes.h \
     engine/types/types.h \
-    engine/connectionmanager/automanualconnectioncontroller.h \
+    engine/connectionmanager/connsettingspolicy/baseconnsettingspolicy.h \
+    engine/connectionmanager/connsettingspolicy/autoconnsettingspolicy.h \
+    engine/connectionmanager/connsettingspolicy/manualconnsettingspolicy.h \
     engine/connectionmanager/connectionmanager.h \
     $$COMMON_PATH/types/locationid.h \
     engine/logincontroller/getapiaccessips.h \

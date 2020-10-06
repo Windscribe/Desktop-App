@@ -3,6 +3,8 @@
 #include <QFile>
 #include <QTextStream>
 #include "utils/logger.h"
+#include "mutablelocationinfo.h"
+#include "nodeselectionalgorithm.h"
 
 namespace locationsmodel {
 
@@ -90,7 +92,7 @@ void LocationsModel::enableProxy()
     pingIpsController_.enableProxy();
 }
 
-QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)
+QSharedPointer<BaseLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
     LocationID modifiedLocationId = locationId;
 
@@ -105,14 +107,14 @@ QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(c
 
                 if (staticIpLocationId == locationId)
                 {
-                    QVector< QSharedPointer<BaseNode> > nodes;
+                    QVector< QSharedPointer<const BaseNode> > nodes;
 
                     QStringList ips;
                     ips << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3;
                     nodes << QSharedPointer<BaseNode>(new StaticLocationNode(ips, sid.hostname, sid.wgPubKey, sid.wgIp, sid.dnsHostname, sid.username, sid.password, sid.getAllStaticIpIntPorts()));
 
-                    QSharedPointer<MutableLocationInfo> mli(new MutableLocationInfo(locationId, sid.cityName + " - " + sid.staticIp, nodes, -1, ""));
-                    return mli;
+                    QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(locationId, sid.cityName + " - " + sid.staticIp, nodes, 0, ""));
+                    return bli;
                 }
             }
         }
@@ -131,18 +133,18 @@ QSharedPointer<MutableLocationInfo> LocationsModel::getMutableLocationInfoById(c
                 const apiinfo::Group group = l.getGroup(i);
                 if (LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()) == modifiedLocationId)
                 {
-                    QVector< QSharedPointer<BaseNode> > nodes;
+                    QVector< QSharedPointer<const BaseNode> > nodes;
                     for (int n = 0; n < group.getNodesCount(); ++n)
                     {
                         const apiinfo::Node &apiInfoNode = group.getNode(n);
                         QStringList ips;
                         ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
-                        nodes << QSharedPointer<BaseNode>(new ApiLocationNode(ips, apiInfoNode.getHostname(), apiInfoNode.getWeight(), group.getWgPubKey()));
+                        nodes << QSharedPointer<const ApiLocationNode>(new ApiLocationNode(ips, apiInfoNode.getHostname(), apiInfoNode.getWeight(), group.getWgPubKey()));
                     }
 
-
-                    QSharedPointer<MutableLocationInfo> mli(new MutableLocationInfo(modifiedLocationId, group.getCity() + " - " + group.getNick(), nodes, -1, l.getDnsHostName()));
-                    return mli;
+                    int selectedNode = NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(nodes);
+                    QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(modifiedLocationId, group.getCity() + " - " + group.getNick(), nodes, selectedNode, l.getDnsHostName()));
+                    return bli;
                 }
             }
         }

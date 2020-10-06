@@ -10,7 +10,7 @@
 #include "pingipscontroller.h"
 #include "pingstorage.h"
 #include "bestlocation.h"
-#include "mutablelocationinfo.h"
+#include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
 
 namespace locationsmodel {
@@ -32,7 +32,7 @@ public:
     void disableProxy();
     void enableProxy();
 
-    QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
+    QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
     void locationsUpdated( const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);

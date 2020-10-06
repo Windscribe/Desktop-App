@@ -3,7 +3,7 @@
 
 namespace locationsmodel {
 
-int NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(const QVector<QSharedPointer<BaseNode> > &nodes)
+int NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(const QVector<QSharedPointer<const BaseNode> > &nodes)
 {
     if (nodes.count() == 1)
     {

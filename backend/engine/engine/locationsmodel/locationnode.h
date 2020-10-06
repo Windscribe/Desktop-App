@@ -22,8 +22,6 @@ public:
     virtual QString getWgPubKey() const { Q_ASSERT(false); return ""; }
     virtual QString getWgIp() const { Q_ASSERT(false); return ""; }
 
-    virtual QString getCustomOvpnConfigPath() const { Q_ASSERT(false); return ""; }
-
     virtual QString getStaticIpDnsName() const { Q_ASSERT(false); return ""; }
     virtual QString getStaticIpUsername() const { Q_ASSERT(false); return ""; }
     virtual QString getStaticIpPassword() const { Q_ASSERT(false); return ""; }
@@ -90,13 +88,6 @@ private:
     QString password_;
     QString wg_ip_;
     apiinfo::StaticIpPortsVector ipPortsVector_;
-};
-
-class CustomConfigLocationNode : public BaseNode
-{
-public:
-    explicit CustomConfigLocationNode();
-    virtual ~CustomConfigLocationNode();
 };
 
 
