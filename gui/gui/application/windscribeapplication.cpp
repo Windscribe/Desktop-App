@@ -74,6 +74,7 @@ void setupFocusLossHandler()
 WindscribeApplication::WindscribeApplication(int &argc, char **argv) : QApplication(argc, argv),
     bNeedAskClose_(false), bWasRestartOS_(false)
 {
+    setQuitOnLastWindowClosed(false);
 #ifdef Q_OS_WIN
     QAbstractEventDispatcher::instance()->installNativeEventFilter(&windowsNativeEventFilter_);
 #endif

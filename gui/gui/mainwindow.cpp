@@ -313,10 +313,9 @@ MainWindow::MainWindow(QWidget *parent) :
         desiredDockIconVisibility_ = false;
         hideShowDockIconImpl();
     }
-#elif defined(Q_OS_WIN)
+#endif
     deactivationTimer_.setSingleShot(true);
     connect(&deactivationTimer_, SIGNAL(timeout()), SLOT(onWindowDeactivateAndHideImpl()));
-#endif
 }
 
 MainWindow::~MainWindow()
@@ -433,9 +432,9 @@ bool MainWindow::event(QEvent *event)
 {
     // qDebug() << "Event Type: " << event->type();
 
-#if defined Q_OS_WIN
     if (event->type() == QEvent::WindowStateChange) {
         deactivationTimer_.stop();
+#if defined Q_OS_WIN
         if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
             QWindowStateChangeEvent *e = static_cast<QWindowStateChangeEvent *>(event);
             // make sure we only do this for minimize events
@@ -445,8 +444,8 @@ bool MainWindow::event(QEvent *event)
                 event->ignore();
             }
         }
-    }
 #endif
+    }
 
     if (event->type() == QEvent::WindowActivate)
     {
@@ -459,10 +458,6 @@ bool MainWindow::event(QEvent *event)
     else if (event->type() == QEvent::WindowDeactivate)
     {
         // qDebug() << "WindowDeactivate";
-#if !defined(Q_OS_WIN)
-        if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray())
-            deactivateAndHide();
-#endif
         setBackendAppActiveState(false);
         activeState_ = false;
     }
@@ -476,6 +471,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     {
         QWidget::closeEvent(event);
         QApplication::closeAllWindows();
+        QApplication::quit();
     }
     else
     {
@@ -2140,8 +2136,10 @@ void MainWindow::activateAndShow()
 #endif
 
     mainWindowController_->updateMainAndViewGeometry(true);
-    showNormal();
-    activateWindow();
+    if (!isVisible())
+        showNormal();
+    if (!isActiveWindow())
+        activateWindow();
     lastWindowStateChange_ = QDateTime::currentMSecsSinceEpoch();
 }
 
@@ -2272,8 +2270,8 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
         {
             // qDebug() << "Tray triggered";
             qDebug() << "TrayActivated";
-#if defined Q_OS_WIN
             deactivationTimer_.stop();
+#if defined Q_OS_WIN
             activateAndShow();
             setBackendAppActiveState(true);
 #elif defined Q_OS_MAC
@@ -2491,12 +2489,14 @@ void MainWindow::onScaleChanged()
 
 void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
 {
-#if defined(Q_OS_WIN)
     // On Windows, there are more top-level windows rather than one, main window. E.g. all the
     // combobox widgets are separate windows. As a result, opening a combobox menu will result in
     // main window having lost the focus. To work around the problem, on Windows, we catch the
     // focus change event. If the |focusWindow| is not null, we're still displaying the application;
     // otherwise, a window of some other application has been activated, and we can hide.
+    // On Mac, we apply the fix as well, so that MessageBox/Log Window/etc. won't hide the app
+    // window in docked mode. Otherwise, closing the MessageBox/Log Window/etc. will lead to an
+    // unwanted app termination.
     if (!focusWindow) {
         if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray()) {
             const int kDeactivationDelayMs = 100;
@@ -2505,9 +2505,6 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
     } else {
         deactivationTimer_.stop();
     }
-#else
-    Q_UNUSED(focusWindow);
-#endif
 }
 
 void MainWindow::onWindowDeactivateAndHideImpl()
