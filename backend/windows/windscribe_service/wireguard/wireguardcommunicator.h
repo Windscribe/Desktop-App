@@ -24,12 +24,16 @@ private:
         enum class Status { OK, NO_PIPE, NO_ACCESS };
         using ResultMap = std::map<std::string, std::string>;
 
-        explicit Connection(const std::wstring deviceName);
+        explicit Connection(const std::wstring &deviceName);
         ~Connection();
         bool getOutput(ResultMap *results_map) const;
         Status getStatus() const { return status_; }
         operator FILE*() const { return fileHandle_; }
     private:
+        bool connect(const std::wstring &pipeName);
+
+        static constexpr int CONNECTION_ATTEMPT_COUNT = 5;
+        static constexpr int CONNECTION_BETWEEN_WAIT_MS = 100;
         Status status_;
         HANDLE pipeHandle_;
         FILE *fileHandle_;

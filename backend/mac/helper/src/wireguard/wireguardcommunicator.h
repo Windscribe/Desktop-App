@@ -23,12 +23,16 @@ private:
         enum class Status { OK, NO_SOCKET, NO_ACCESS };
         using ResultMap = std::map<std::string, std::string>;
 
-        explicit Connection(const std::string deviceName);
+        explicit Connection(const std::string &deviceName);
         ~Connection();
         bool getOutput(ResultMap *results_map) const;
         Status getStatus() const { return status_; }
         operator FILE*() const { return fileHandle_; }
     private:
+        bool connect(struct sockaddr_un *address);
+
+        static constexpr int CONNECTION_ATTEMPT_COUNT = 5;
+        static constexpr int CONNECTION_BETWEEN_WAIT_MS = 100;
         Status status_;
         int socketHandle_;
         FILE *fileHandle_;

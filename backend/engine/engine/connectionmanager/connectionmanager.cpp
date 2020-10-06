@@ -914,7 +914,8 @@ void ConnectionManager::doMacRestoreProcedures()
 {
 #ifdef Q_OS_MAC
     // only for openvpn connection
-    if (connector_->metaObject()->className() == OpenVPNConnection::staticMetaObject.className())
+    if (connector_ &&
+        connector_->metaObject()->className() == OpenVPNConnection::staticMetaObject.className())
     {
         QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + lastDefaultGateway_;
         qCDebug(LOG_CONNECTION) << "Execute command: " << delRouteCommand;

@@ -930,7 +930,7 @@ bool Helper_mac::configureWireGuard(const WireGuardConfig &config)
     oa << cmd;
 
     if (!sendCmdToHelper(HELPER_CMD_CONFIGURE_WIREGUARD, stream.str())) {
-        qCDebug(LOG_WIREGUARD) << "Helper_mac: HELPER_CMD_CONFIGURE_WIREGUARD failed";
+        qCDebug(LOG_WIREGUARD) << "WireGuard configuration failed";
         doDisconnectAndReconnect();
         return false;
     }
@@ -995,10 +995,6 @@ bool Helper_mac::getWireGuardStatus(WireGuardStatus *status)
         qCDebug(LOG_WIREGUARD) << "WireGuard daemon output:";
         qCDebug(LOG_WIREGUARD) << QString::fromStdString(answerCmd.body);
     }
-
-    qCDebug(LOG_WIREGUARD) << "Helper_mac: status =" << answerCmd.cmdId
-                           << ", additional info =" << answerCmd.customInfoValue[0] << ","
-                           << answerCmd.customInfoValue[1];
     return true;
 }
 
