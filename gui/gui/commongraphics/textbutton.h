@@ -25,6 +25,7 @@ public:
     void quickHide();
     void animateShow(int animationSpeed);
     void animateHide(int animationSpeed);
+    void unhover();
 
     int getWidth();
     void setText(QString text);
@@ -59,6 +60,7 @@ private:
     QVariantAnimation textOpacityAnimation_;
 
     double unhoverOpacity_;
+    bool isHovered_;
 
     int textAlignment_;
 };

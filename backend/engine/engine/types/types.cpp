@@ -41,6 +41,14 @@ QString loginRetToString(LOGIN_RET ret)
     {
         return "SSL_ERROR";
     }
+    else if (ret == LOGIN_BAD_CODE2FA)
+    {
+        return "BAD_CODE2FA";
+    }
+    else if (ret == LOGIN_MISSING_CODE2FA)
+    {
+        return "MISSING_CODE2FA";
+    }
     else
     {
         Q_ASSERT(false);
@@ -77,6 +85,14 @@ ProtoTypes::LoginError loginRetToProtobuf(LOGIN_RET ret)
     else if (ret == LOGIN_SSL_ERROR)
     {
         return ProtoTypes::LOGIN_ERROR_SSL_ERROR;
+    }
+    else if (ret == LOGIN_BAD_CODE2FA)
+    {
+        return ProtoTypes::LOGIN_ERROR_BAD_CODE2FA;
+    }
+    else if (ret == LOGIN_MISSING_CODE2FA)
+    {
+        return ProtoTypes::LOGIN_ERROR_MISSING_CODE2FA;
     }
     else
     {

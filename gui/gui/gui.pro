@@ -338,6 +338,8 @@ SOURCES += \
     commongraphics/bubblebuttonbright.cpp \
     updateapp/updateappitem.cpp \
     externalconfig/externalconfigwindowitem.cpp \
+    twofactorauth/twofactorauthwindowitem.cpp \
+    twofactorauth/twofactorauthokbutton.cpp \
     bottominfowidget/sharingfeatures/sharingfeatureswindowitem.cpp \
     bottominfowidget/sharingfeatures/sharingfeature.cpp \
     bottominfowidget/upgradewidget/upgradewidgetitem.cpp \
@@ -573,6 +575,9 @@ HEADERS += \
     updateapp/updateappitem.h \
     externalconfig/iexternalconfigwindow.h \
     externalconfig/externalconfigwindowitem.h \
+    twofactorauth/itwofactorauthwindow.h \
+    twofactorauth/twofactorauthwindowitem.h \
+    twofactorauth/twofactorauthokbutton.h \
     connectwindow/iconnectwindow.h \
     bottominfowidget/sharingfeatures/sharingfeatureswindowitem.h \
     bottominfowidget/sharingfeatures/sharingfeature.h \

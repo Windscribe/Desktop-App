@@ -52,13 +52,15 @@ protected:
 private slots:
     void onMinimizeClick();
     void onCloseClick();
+    void onEscapeClick();
 
     // login window signals
-    void onLoginClick(const QString &username, const QString &password);
+    void onLoginClick(const QString &username, const QString &password, const QString &code2fa);
     void onLoginPreferencesClick();
     void onLoginHaveAccountYesClick();
     void onLoginEmergencyWindowClick();
     void onLoginExternalConfigWindowClick();
+    void onLoginTwoFactorAuthWindowClick(const QString &username, const QString &password);
     void onLoginFirewallTurnOffClick();
 
     // connect window signals
@@ -88,14 +90,15 @@ private slots:
     void onPreferencesWindowDetectPacketMssButtonClicked();
 
     // emergency window signals
-    void onEmergencyEscapeClick();
     void onEmergencyConnectClick();
     void onEmergencyDisconnectClick();
     void onEmergencyWindscribeLinkClick();
 
     // external config window signals
     void onExternalConfigWindowNextClick();
-    void onExternalConfigWindowEscapeClick();
+
+    // 2FA window signals
+    void onTwoFactorAuthWindowButtonAddClick(const QString &code2fa);
 
     // bottom window signals
     void onBottomWindowRenewClick();

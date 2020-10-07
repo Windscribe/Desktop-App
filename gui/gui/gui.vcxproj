@@ -455,6 +455,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="systemtray\locationstraymenuitemdelegate.cpp" />
     <ClCompile Include="systemtray\locationstraymenuwidget.cpp" />
     <ClCompile Include="tooltips\tooltiputil.cpp" />
+    <ClCompile Include="twofactorauth\twofactorauthokbutton.cpp" />
+    <ClCompile Include="twofactorauth\twofactorauthwindowitem.cpp" />
     <ClCompile Include="types\dnswhileconnectedtype.cpp" />
     <ClCompile Include="dpiscalemanager.cpp" />
     <ClCompile Include="preferenceswindow\accountwindow\editaccountitem.cpp" />
@@ -721,6 +723,9 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="systemtray\locationstraymenuitemdelegate.h" />
     <QtMoc Include="systemtray\locationstraymenuwidget.h" />
     <ClInclude Include="tooltips\tooltiputil.h" />
+    <QtMoc Include="twofactorauth\twofactorauthwindowitem.h" />
+    <ClInclude Include="twofactorauth\itwofactorauthwindow.h" />
+    <QtMoc Include="twofactorauth\twofactorauthokbutton.h" />
     <ClInclude Include="types\dnswhileconnectedtype.h" />
     <QtMoc Include="dpiscalemanager.h">
     </QtMoc>

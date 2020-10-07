@@ -51,7 +51,8 @@ message Login
   optional string auth_hash = 1;
   optional string username = 2;   // username/password used only if auth_hash is empty
   optional string password = 3;
-  optional bool use_last_login_settings = 4 [default = false];  // if this flag is true then all others not used
+  optional string code2fa = 4;
+  optional bool use_last_login_settings = 5 [default = false];  // if this flag is true then all others not used
 }
 
 message SignOut           

@@ -73,6 +73,17 @@ namespace
 // Interval, in ms, between polling requests, to remove expired and timed out.
 const int REQUEST_POLL_INTERVAL_MS = 100;
 
+QString GetPlatformName()
+{
+#ifdef Q_OS_WIN
+    return "windows";
+#elif defined Q_OS_MAC
+    return "osx";
+#else
+    return "";
+#endif
+}
+
 QUrlQuery MakeQuery(const QString &authHash, bool bAddOpenVpnVersion = false)
 {
     time_t timestamp;
@@ -89,6 +100,7 @@ QUrlQuery MakeQuery(const QString &authHash, bool bAddOpenVpnVersion = false)
     if (bAddOpenVpnVersion)
         query.addQueryItem("ovpn_version",
                            OpenVpnVersionController::instance().getSelectedOpenVpnVersion());
+    query.addQueryItem("platform", GetPlatformName());
 
     return query;
 }
@@ -103,17 +115,19 @@ public:
 class LoginRequest : public ServerAPI::BaseRequest
 {
 public:
-    LoginRequest(const QString &username, const QString &password, const QString &hostname,
-                 int replyType, uint timeout, uint userRole)
+    LoginRequest(const QString &username, const QString &password, const QString &code2fa,
+                 const QString &hostname, int replyType, uint timeout, uint userRole)
         : ServerAPI::BaseRequest(hostname, replyType, timeout, userRole),
-          username_(username), password_(password) {}
+          username_(username), password_(password), code2fa_(code2fa) {}
 
     const QString &getUsername() const { return username_; }
     const QString &getPassword() const { return password_; }
+    const QString &getCode2FA() const { return code2fa_; }
 
 private:
     QString username_;
     QString password_;
+    QString code2fa_;
 };
 
 class AuthenticatedRequest : public ServerAPI::BaseRequest
@@ -504,7 +518,8 @@ void ServerAPI::accessIps(const QString &hostIp, uint userRole, bool isNeedCheck
     }
 }
 
-void ServerAPI::login(const QString &username, const QString &password, uint userRole, bool isNeedCheckRequestsEnabled)
+void ServerAPI::login(const QString &username, const QString &password, const QString &code2fa,
+                      uint userRole, bool isNeedCheckRequestsEnabled)
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
@@ -519,7 +534,7 @@ void ServerAPI::login(const QString &username, const QString &password, uint use
     }
 
     submitDnsRequest( createRequest<LoginRequest>(
-        username, password, hostname_, REPLY_LOGIN, NETWORK_TIMEOUT, userRole) );
+        username, password, code2fa, hostname_, REPLY_LOGIN, NETWORK_TIMEOUT, userRole) );
  }
 
 void ServerAPI::session(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled)
@@ -970,9 +985,12 @@ void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStri
     QUrlQuery postData;
     postData.addQueryItem("username", QUrl::toPercentEncoding(crd->getUsername()));
     postData.addQueryItem("password", QUrl::toPercentEncoding(crd->getPassword()));
+    if (!crd->getCode2FA().isEmpty())
+        postData.addQueryItem("2fa_code", QUrl::toPercentEncoding(crd->getCode2FA()));
     postData.addQueryItem("session_type_id", "3");
     postData.addQueryItem("time", strTimestamp);
     postData.addQueryItem("client_auth_hash", md5Hash);
+    postData.addQueryItem("platform", GetPlatformName());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -999,7 +1017,8 @@ void ServerAPI::handleSessionDnsResolve(BaseRequest *rd, bool success, const QSt
     QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
     QUrl url("https://" + crd->getHostname() + "/Session?session_type_id=3&time=" + strTimestamp
-             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash());
+             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
+             + "&platform=" + GetPlatformName());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1049,6 +1068,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         }
 
         query.addQueryItem("browser", "mobike");
+        query.addQueryItem("platform", GetPlatformName());
 
         // add alc parameter in query, if not empty
         if (!alcField.isEmpty())
@@ -1078,6 +1098,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         if (!alcField.isEmpty())
         {
             QUrlQuery query;
+            query.addQueryItem("platform", GetPlatformName());
             query.addQueryItem("alc", alcField);
             url.setQuery(query);
         }
@@ -1202,7 +1223,8 @@ void ServerAPI::handleRecordInstallDnsResolve(BaseRequest *rd, bool success, con
     QString strTimestamp = QString::number(timestamp);
     QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
-    QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash;
+    QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash
+                + "&platform=" + GetPlatformName();
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(str.toUtf8());
@@ -1233,6 +1255,7 @@ void ServerAPI::handleConfirmEmailDnsResolve(BaseRequest *rd, bool success, cons
     postData.addQueryItem("time", strTimestamp);
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("session_auth_hash", crd->getAuthHash());
+    postData.addQueryItem("platform", GetPlatformName());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1258,7 +1281,7 @@ void ServerAPI::handleMyIPDnsResolve(BaseRequest *rd, bool success, const QStrin
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
 
     QUrl url("https://" + crd->getHostname() + "/MyIp?time=" + strTimestamp + "&client_auth_hash="
-             + md5Hash);
+             + md5Hash + "&platform=" + GetPlatformName());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1286,12 +1309,7 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     QUrlQuery query;
     query.addQueryItem("time", strTimestamp);
     query.addQueryItem("client_auth_hash", md5Hash);
-
-#ifdef Q_OS_WIN
-    query.addQueryItem("platform", "windows");
-#elif defined Q_OS_MAC
-    query.addQueryItem("platform", "osx");
-#endif
+    query.addQueryItem("platform", GetPlatformName());
 
     query.addQueryItem("version", AppVersion::instance().version());
     query.addQueryItem("build", AppVersion::instance().build());
@@ -1343,6 +1361,7 @@ void ServerAPI::handleDebugLogDnsResolve(BaseRequest *rd, bool success, const QS
     postData.addQueryItem("logfile", ba.toBase64());
     if (!crd->getUsername().isEmpty())
         postData.addQueryItem("username", crd->getUsername());
+    postData.addQueryItem("platform", GetPlatformName());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1370,7 +1389,8 @@ void ServerAPI::handleSpeedRatingDnsResolve(BaseRequest *rd, bool success, const
 
     QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash + "&session_auth_hash="
                   + crd->getAuthHash() + "&hostname=" + crd->getSpeedRatingHostname() + "&rating="
-                  + QString::number(crd->getRating()) + "&ip=" + crd->getIp();
+                  + QString::number(crd->getRating()) + "&ip=" + crd->getIp()
+                  + "&platform=" + GetPlatformName();
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(str.toUtf8());
@@ -1398,7 +1418,8 @@ void ServerAPI::handleNotificationsDnsResolve(BaseRequest *rd, bool success, con
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
 
     QUrl url("https://" + crd->getHostname() + "/Notifications?time=" + strTimestamp
-             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash());
+             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
+             + "&platform=" + GetPlatformName());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1424,7 +1445,8 @@ void ServerAPI::handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, c
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
 
     QUrl url("https://" + crd->getHostname() + "/WgConfigs?time=" + strTimestamp
-        + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash());
+             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
+             + "&platform=" + GetPlatformName());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1458,7 +1480,8 @@ void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const Q
     qDebug() << "device_id for StaticIps request:" << crd->getDeviceId();
     QUrl url("https://" + crd->getHostname() + "/StaticIps?time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&device_id=" + crd->getDeviceId() + "&os=" + strOs);
+             + "&device_id=" + crd->getDeviceId() + "&os=" + strOs
+             + "&platform=" + GetPlatformName());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1638,8 +1661,21 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             {
                 if (replyType == REPLY_LOGIN)
                 {
-                    qCDebug(LOG_SERVER_API) << "API request Login return error";
-                    emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", userRole);
+                    if (errorCode == 1340)
+                    {
+                        qCDebug(LOG_SERVER_API) << "API request Login return missing 2FA code";
+                        emit loginAnswer(SERVER_RETURN_MISSING_CODE2FA, apiinfo::SessionStatus(), "", userRole);
+                    }
+                    else if (errorCode == 1341)
+                    {
+                        qCDebug(LOG_SERVER_API) << "API request Login return invalid 2FA code";
+                        emit loginAnswer(SERVER_RETURN_BAD_CODE2FA, apiinfo::SessionStatus(), "", userRole);
+                    }
+                    else
+                    {
+                        qCDebug(LOG_SERVER_API) << "API request Login return error";
+                        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", userRole);
+                    }
                 }
                 else
                 {

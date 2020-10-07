@@ -41,7 +41,7 @@ public:
     void basicClose();
     void cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
     void enableBFE_win();
-    void login(const QString &username, const QString &password);
+    void login(const QString &username, const QString &password, const QString &code2fa);
     bool isCanLoginWithAuthHash() const;
     bool isSavedApiSettingsExists() const;
     QString getCurrentAuthHash() const;

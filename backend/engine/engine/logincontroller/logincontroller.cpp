@@ -164,7 +164,7 @@ void LoginController::tryLoginAgain()
 {
     if (!loginSettings_.isAuthHashLogin())
     {
-        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), serverApiUserRole_, false);
+        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa(), serverApiUserRole_, false);
     }
     else // AUTH_HASH
     {
@@ -233,6 +233,14 @@ void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, co
     {
         emit finished(LOGIN_BAD_USERNAME, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
     }
+    else if (retCode == SERVER_RETURN_MISSING_CODE2FA)
+    {
+        emit finished(LOGIN_MISSING_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
+    }
+    else if (retCode == SERVER_RETURN_BAD_CODE2FA)
+    {
+        emit finished(LOGIN_BAD_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
+    }
     else if (retCode == SERVER_RETURN_PROXY_AUTH_FAILED)
     {
         emit finished(LOGIN_PROXY_AUTH_NEED, apiinfo::ApiInfo(), bFromConnectedToVPNState_);
@@ -250,7 +258,7 @@ void LoginController::makeLoginRequest(const QString &hostname)
     loginElapsedTimer_.start();
     if (!loginSettings_.isAuthHashLogin())
     {
-        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), serverApiUserRole_, false);
+        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa(), serverApiUserRole_, false);
     }
     else // AUTH_HASH
     {

@@ -42,7 +42,7 @@ public:
     void setUseCustomDns(bool bUseCustomDns);
 
     void accessIps(const QString &hostIp, uint userRole, bool isNeedCheckRequestsEnabled);
-    void login(const QString &username, const QString &password, uint userRole, bool isNeedCheckRequestsEnabled);
+    void login(const QString &username, const QString &password, const QString &code2fa, uint userRole, bool isNeedCheckRequestsEnabled);
     void session(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void serverLocations(const QString &authHash, const QString &language, uint userRole, bool isNeedCheckRequestsEnabled,
                          const QString &revision, bool isPro, ProtocolType protocol, const QStringList &alcList);

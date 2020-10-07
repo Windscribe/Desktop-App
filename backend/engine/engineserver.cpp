@@ -185,7 +185,8 @@ bool EngineServer::handleCommand(IPC::Command *command)
         else if (!loginCmd->getProtoObj().username().empty() && !loginCmd->getProtoObj().password().empty())
         {
             engine_->loginWithUsernameAndPassword(QString::fromStdString(loginCmd->getProtoObj().username()),
-                                                  QString::fromStdString(loginCmd->getProtoObj().password()));
+                                                  QString::fromStdString(loginCmd->getProtoObj().password()),
+                                                  QString::fromStdString(loginCmd->getProtoObj().code2fa()));
         }
         else
         {

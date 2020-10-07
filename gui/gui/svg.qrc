@@ -270,5 +270,6 @@
         <file>svg/locations/PRO_CITY_STAR.svg</file>
         <file>svg/locations/PRO_REGION_STAR_DARK.svg</file>
         <file>svg/locations/PRO_REGION_STAR_LIGHT.svg</file>
+        <file>svg/login/TWOFA_ICON.svg</file>
     </qresource>
 </RCC>
