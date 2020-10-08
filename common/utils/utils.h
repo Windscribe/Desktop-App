@@ -46,5 +46,11 @@ namespace Utils {
     bool pingWithMtu(int mtu);
     QString getLocalIP();
 
+    const QString filenameQuotedSingle(const QString &filename);
+    const QString filenameQuotedDouble(const QString &filename);
+    const QString filenameEscapeSpaces(const QString &filename);
+
+    bool copyDirectoryRecursive(QString fromDir, QString toDir);
+
 }
 #endif // UTILS_H

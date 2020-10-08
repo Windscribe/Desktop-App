@@ -207,7 +207,9 @@ bool Helper_mac::executeChangeMtu(const QString &adapter, int mtu)
 
 QString Helper_mac::executeUpdateInstaller(const QString &installerPath, bool &success)
 {
-    // TODO: implement call to update installer
+    Q_UNUSED(installerPath);
+    qCDebug(LOG_BASIC) << "ExecuteUpdateInstaller does nothing on mac";
+    Q_ASSERT(false);
     success = false;
     return "";
 }

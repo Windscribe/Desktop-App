@@ -28,6 +28,7 @@
 #include "engine/ping/keepalivemanager.h"
 #include "packetsizecontroller.h"
 #include "downloadhelper/downloadhelper.h"
+#include "volumehelper/volumehelper_mac.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
@@ -349,6 +350,9 @@ private:
     RefetchServerCredentialsHelper *refetchServerCredentialsHelper_;
 
     DownloadHelper *downloadHelper_;
+#ifdef Q_OS_MAC
+    VolumeHelper_mac *volumeHelper_;
+#endif
 
     QMutex mutex_;
     QMutex mutexApiInfo_;

@@ -32,3 +32,13 @@ bool ExecutableSignature::verify(const QString &executablePath)
     #endif
 #endif
 }
+
+bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
+{
+#ifdef QT_DEBUG
+    Q_UNUSED(executable);
+    return true;
+#else
+    return ExecutableSignature_mac::verifyWithSignCheck(executable);
+#endif
+}

@@ -3,6 +3,8 @@
 #include "utils/logger.h"
 #include <QStandardPaths>
 #include <QFile>
+#include <QDir>
+#include "filenames.h"
 
 DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
   , reply_(nullptr)
@@ -11,13 +13,22 @@ DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
 #ifdef Q_OS_WIN
     const QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/installer.exe";
 #elif defined Q_OS_MAC
+    const QString tempDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    const QString path = tempDir + "/installer.dmg";
 
 #endif
     qCDebug(LOG_DOWNLOADER) << "Setting download location: " << path;
     downloadPath_ = path;
 
-    // remove a previously used auto-update installer upon app startup if it exists
+    // remove a previously used auto-update installer/dmg upon app startup if it exists
     QFile::remove(downloadPath_);
+
+    // remove temp installer.app on mac
+#ifdef Q_OS_MAC
+    QString tempInstallerFilename = tempDir + "/" + INSTALLER_FILENAME_MAC_APP;
+    QDir dir(tempInstallerFilename);
+    dir.removeRecursively();
+#endif
 }
 
 const QString DownloadHelper::downloadPath()
