@@ -39,7 +39,6 @@ public:
     // set single hostname for make API requests
     void setHostname(const QString &hostname);
     QString getHostname() const { return hostname_; }
-    void setUseCustomDns(bool bUseCustomDns);
 
     void accessIps(const QString &hostIp, uint userRole, bool isNeedCheckRequestsEnabled);
     void login(const QString &username, const QString &password, uint userRole, bool isNeedCheckRequestsEnabled);
@@ -189,7 +188,6 @@ private:
 
     QString lastLocationsLanguage_;
 
-    bool bUseCustomDns_;
     DnsCache *dnsCache_;
 
     QString hostname_;

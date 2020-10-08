@@ -41,7 +41,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
 
      makeOVPNFile_ = new MakeOVPNFile();
 
-     connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *, quint64)), SLOT(onDnsResolved(QString, QHostInfo,void *, quint64)));
+     connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *)), SLOT(onDnsResolved(QString, QHostInfo,void *)));
 }
 
 EmergencyController::~EmergencyController()
@@ -59,7 +59,7 @@ void EmergencyController::clickConnect(const ProxySettings &proxySettings)
 
     QString hashedDomain = HardcodedSettings::instance().generateRandomDomain("econnect.");
     qCDebug(LOG_EMERGENCY_CONNECT) << "Generated hashed domain for emergency connect:" << hashedDomain;
-    DnsResolver::instance().lookup(hashedDomain, true, this, 0);
+    DnsResolver::instance().lookup(hashedDomain, this);
 }
 
 void EmergencyController::clickDisconnect()
@@ -135,10 +135,9 @@ void EmergencyController::setMss(int mss)
     mss_ = mss;
 }
 
-void EmergencyController::onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer, quint64 userId)
+void EmergencyController::onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
 {
     Q_UNUSED(hostname);
-    Q_UNUSED(userId);
     if (userPointer == this)
     {
 

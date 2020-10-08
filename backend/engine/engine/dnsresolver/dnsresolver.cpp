@@ -79,21 +79,34 @@ void DnsResolver::recreateDefaultDnsChannel()
     mutex_.unlock();
 }
 
-void DnsResolver::lookup(const QString &hostname, bool bUseCustomDns, void *userPointer, quint64 userId)
+void DnsResolver::setUseCustomDns(bool bUseCustomDns)
+{
+    isUseCustomDns_ = bUseCustomDns;
+
+    if (bUseCustomDns)
+    {
+        qCDebug(LOG_BASIC) << "Changed DNS mode to custom";
+    }
+    else
+    {
+        qCDebug(LOG_BASIC) << "Changed DNS mode to automatic";
+    }
+}
+
+void DnsResolver::lookup(const QString &hostname, void *userPointer)
 {
     mutex_.lock();
 
     if (channelCustomDns_ == NULL || channel_ == NULL)
     {
         qCDebug(LOG_BASIC) << "Error: ares channels not created before DNS-request";
-        emit resolved(hostname, QHostInfo(), userPointer, userId);
+        emit resolved(hostname, QHostInfo(), userPointer);
     }
     USER_ARG *userArg = new USER_ARG();
     userArg->hostname = hostname;
     userArg->userPointer = userPointer;
-    userArg->userId = userId;
 
-    if (bUseCustomDns)
+    if (isUseCustomDns_)
     {
         ares_gethostbyname(channelCustomDns_, hostname.toStdString().c_str(), AF_INET, callback, userArg);
     }
@@ -109,14 +122,14 @@ void DnsResolver::lookup(const QString &hostname, bool bUseCustomDns, void *user
 }
 
 
-QHostInfo DnsResolver::lookupBlocked(const QString &hostname, bool bUseCustomDns)
+QHostInfo DnsResolver::lookupBlocked(const QString &hostname)
 {
     ares_channel channel;
 
     struct ares_options options;
     int optmask = 0;
 
-    createOptionsForAresChannel((!bUseCustomDns) ? QStringList() : getCustomDnsIps(), options, optmask);
+    createOptionsForAresChannel((!isUseCustomDns_) ? QStringList() : getCustomDnsIps(), options, optmask);
     int status = ares_init_options(&channel, &options, optmask);
     if (status != ARES_SUCCESS)
     {
@@ -149,7 +162,8 @@ QHostInfo DnsResolver::lookupBlocked(const QString &hostname, bool bUseCustomDns
 }
 
 DnsResolver::DnsResolver(QObject *parent) : QThread(parent), bStopCalled_(false),
-    bNeedFinish_(false), channel_(NULL), channelCustomDns_(NULL), dnsPolicyType_(DNS_TYPE_OPEN_DNS)
+    bNeedFinish_(false), channel_(NULL), channelCustomDns_(NULL), dnsPolicyType_(DNS_TYPE_OPEN_DNS),
+    isUseCustomDns_(true)
 {
     Q_ASSERT(this_ == NULL);
     this_ = this;
@@ -318,7 +332,7 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
     USER_ARG *userArg = static_cast<USER_ARG *>(arg);
     if (status != ARES_SUCCESS)
     {
-        emit this_->resolved(userArg->hostname, QHostInfo(), userArg->userPointer, userArg->userId);
+        emit this_->resolved(userArg->hostname, QHostInfo(), userArg->userPointer);
         delete userArg;
         return;
     }
@@ -335,7 +349,7 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
     QHostInfo hostInfo;
     hostInfo.setAddresses(addresses);
     hostInfo.setError(QHostInfo::NoError);
-    emit this_->resolved(userArg->hostname, hostInfo, userArg->userPointer, userArg->userId);
+    emit this_->resolved(userArg->hostname, hostInfo, userArg->userPointer);
     delete userArg;
 }
 

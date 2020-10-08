@@ -1545,7 +1545,8 @@ void Engine::onConnectionManagerConnected()
 
     serverAPI_->disableProxy();
     locationsModel_->disableProxy();
-    serverAPI_->setUseCustomDns(false);
+
+    DnsResolver::instance().setUseCustomDns(false);
 
     if (loginState_ == LOGIN_IN_PROGRESS)
     {
@@ -1831,7 +1832,7 @@ void Engine::onEmergencyControllerConnected()
 #endif
 
     serverAPI_->disableProxy();
-    serverAPI_->setUseCustomDns(false);
+    DnsResolver::instance().setUseCustomDns(false);
 
     emergencyConnectStateController_->setConnectedState(LocationID());
     emit emergencyConnected();
@@ -1842,7 +1843,7 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerDisconnected(), reason =" << reason;
 
     serverAPI_->enableProxy();
-    serverAPI_->setUseCustomDns(true);
+    DnsResolver::instance().setUseCustomDns(true);
 
     emergencyConnectStateController_->setDisconnectedState(reason, NO_CONNECT_ERROR);
     emit emergencyDisconnected();
@@ -2194,7 +2195,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
         {
             // make DNS-resolution for add IP to firewall exceptions
             qCDebug(LOG_BASIC) << "Make DNS-resolution for" << strHost;
-            QHostInfo hostInfo = DnsResolver::instance().lookupBlocked(strHost, true);
+            QHostInfo hostInfo = DnsResolver::instance().lookupBlocked(strHost);
             if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
             {
                 qCDebug(LOG_BASIC) << "Resolved IP address for" << strHost << ":" << hostInfo.addresses()[0];
@@ -2351,7 +2352,7 @@ void Engine::doDisconnectRestoreStuff()
 
     serverAPI_->enableProxy();
     locationsModel_->enableProxy();
-    serverAPI_->setUseCustomDns(true);
+    DnsResolver::instance().setUseCustomDns(true);
 
 #ifdef Q_OS_MAC
     firewallController_->setInterfaceToSkip_mac("");

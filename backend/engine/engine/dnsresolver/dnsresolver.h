@@ -25,9 +25,12 @@ public:
     void stop();
     void setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType);
     void recreateDefaultDnsChannel();
-    void lookup(const QString &hostname, bool bUseCustomDns, void *userPointer, quint64 userId);
 
-    QHostInfo lookupBlocked(const QString &hostname, bool bUseCustomDns);
+    void setUseCustomDns(bool bUseCustomDns);
+
+    void lookup(const QString &hostname, void *userPointer);
+
+    QHostInfo lookupBlocked(const QString &hostname);
 
 
 private:
@@ -38,14 +41,13 @@ protected:
     virtual void run();
 
 signals:
-    void resolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer, quint64 userId);
+    void resolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
 
 private:
 
     struct USER_ARG
     {
         void *userPointer;
-        quint64 userId;
         QString hostname;
     };
 
@@ -71,6 +73,8 @@ private:
 #else
     in_addr dnsServers_[2];
 #endif
+
+    std::atomic_bool isUseCustomDns_;
 
 
     static DnsResolver *this_;
