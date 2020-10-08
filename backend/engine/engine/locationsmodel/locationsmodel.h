@@ -12,6 +12,7 @@
 #include "bestlocation.h"
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
+#include "hostnamesresolver.h"
 
 namespace locationsmodel {
 
@@ -55,11 +56,14 @@ private:
     QVector<QSharedPointer<const customconfigs::ICustomConfig>> customConfigs_;
 
     BestLocation bestLocation_;
+    HostnamesResolver hostnameResolver_;
 
     void detectBestLocation(bool isAllNodesInDisconnectedState);
     void generateLocationsUpdated();
     void whitelistIps();
     int calcLatency(const apiinfo::Location &l);
+
+    bool isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
 
 };
 

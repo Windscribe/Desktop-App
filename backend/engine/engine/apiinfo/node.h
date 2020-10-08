@@ -52,6 +52,22 @@ public:
     QString getIp(int ind) const;
     int getWeight() const;
 
+    bool operator== (const Node &other) const
+    {
+        return d->ip_[0] == other.d->ip_[0] &&
+               d->ip_[1] == other.d->ip_[1] &&
+               d->ip_[2] == other.d->ip_[2] &&
+               d->hostname_ == other.d->hostname_ &&
+               d->weight_ == other.d->weight_ &&
+               d->forceDisconnect_ == other.d->forceDisconnect_ &&
+               d->isValid_ == other.d->isValid_;
+    }
+
+    bool operator!= (const Node &other) const
+    {
+        return !operator==(other);
+    }
+
 private:
     QSharedDataPointer<NodeData> d;
 };

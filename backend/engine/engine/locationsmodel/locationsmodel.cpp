@@ -3,13 +3,14 @@
 #include <QFile>
 #include <QTextStream>
 #include "utils/logger.h"
+#include "utils/ipvalidation.h"
 #include "mutablelocationinfo.h"
 #include "nodeselectionalgorithm.h"
 
 namespace locationsmodel {
 
 LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager) : QObject(parent),
-    pingIpsController_(this, stateController, networkStateManager)
+    pingIpsController_(this, stateController, networkStateManager), hostnameResolver_(this)
 {
     connect(&pingIpsController_, SIGNAL(pingInfoChanged(QString,int, bool)), SLOT(onPingInfoChanged(QString,int, bool)));
     connect(&pingIpsController_, SIGNAL(needIncrementPingIteration()), SLOT(onNeedIncrementPingIteration()));
@@ -27,6 +28,12 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
 
 void LocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs)
 {
+    //todo: compare custom configs
+    //if (!isChanged(locations, staticIps, customConfigs))
+    {
+        return;
+    }
+
     locations_ = locations;
     staticIps_ = staticIps;
     customConfigs_ = customConfigs;
@@ -60,7 +67,26 @@ void LocationsModel::setLocations(const QVector<apiinfo::Location> &locations, c
     }
 
     // handle custom configs
-
+    QStringList hostnamesForResolve;
+    for (auto config : customConfigs_)
+    {
+        const QStringList hostnames = config->hostnames();
+        for (auto hostname : hostnames)
+        {
+            if (IpValidation::instance().isIp(hostname))
+            {
+                PingIpInfo pii;
+                pii.ip = hostname;
+                pii.pingType = PingHost::PING_ICMP;
+                ips << pii;
+                stringListIps << pii.ip;
+            }
+            else
+            {
+                hostnamesForResolve << hostname;
+            }
+        }
+    }
 
 
     pingStorage_.updateNodes(stringListIps);
@@ -189,6 +215,16 @@ void LocationsModel::onPingInfoChanged(const QString &ip, int timems, bool isFro
             {
                 emit locationPingTimeChanged(LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp), timems);
             }
+        }
+    }
+
+    // handle custom configs
+    for (auto config : customConfigs_)
+    {
+        const QStringList hostnames = config->hostnames();
+        if (hostnames.contains(ip))
+        {
+            emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(config->filename()), timems);
         }
     }
 }
@@ -432,6 +468,11 @@ int LocationsModel::calcLatency(const apiinfo::Location &l)
     {
         return PingTime::PING_FAILED;
     }
+}
+
+bool LocationsModel::isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QVector<QSharedPointer<const customconfigs::ICustomConfig> > &customConfigs)
+{
+    return locations_ != locations || staticIps_ != staticIps;
 }
 
 } //namespace locationsmodel
