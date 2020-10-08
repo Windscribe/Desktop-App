@@ -7,21 +7,16 @@ class ParseOvpnConfigLine
 {
 public:
 
-    enum OvpnCmd { OVPN_CMD_UNKNOWN, OVPN_CMD_REMOTE_IP, OVPN_CMD_AUTH_USER_PASS, OVPN_CMD_CA};
+    enum OvpnCmd { OVPN_CMD_UNKNOWN, OVPN_CMD_REMOTE_IP};
 
     struct OpenVpnLine
     {
-        OvpnCmd type; // OVPN_CMD_UNKNOWN - unknown, OVPN_CMD_REMOTE_IP - remote ip,
-                      // OVPN_CMD_AUTH_USER_PASS - auth-user-pass "path"
+        OvpnCmd type;
+        QString host;   // extracted hostname/ip from "remote" cmd
 
-        // if both is empty, then need ask
-        QString username;
-        QString password;
 
-        QString host;
-        QString caPath_;
+        OpenVpnLine() : type(OVPN_CMD_UNKNOWN) {}
 
-        uint port;
     };
 
     static OpenVpnLine processLine(const QString &line);

@@ -4,9 +4,7 @@
 #include <QObject>
 #include <QVector>
 
-#include "types/locationid.h"
 #include "locationnode.h"
-#include "engine/apiinfo/staticips.h"
 #include "baselocationinfo.h"
 
 
@@ -39,9 +37,6 @@ public:
     QString getStaticIpUsername() const;
     QString getStaticIpPassword() const;
     apiinfo::StaticIpPortsVector getStaticIpPorts() const;
-
-    // need to do for custom ovpn config, if hostname specified in ovpn-file
-    /*QString resolveHostName();*/
 
 public slots:
     //void locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);

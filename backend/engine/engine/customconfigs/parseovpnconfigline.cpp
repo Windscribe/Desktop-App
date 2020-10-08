@@ -1,12 +1,9 @@
 #include "parseovpnconfigline.h"
 
-#include <QDir>
-
 ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString &line)
 {
     OpenVpnLine openVpnLine;
     openVpnLine.type = OVPN_CMD_UNKNOWN;
-    openVpnLine.port = 0;
 
     if (line.contains("remote", Qt::CaseInsensitive))
     {
@@ -18,16 +15,6 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
             {
                 openVpnLine.type = OVPN_CMD_REMOTE_IP;
                 openVpnLine.host = strs[1];
-
-                if (strs.count() >= 3)
-                {
-                    bool success;
-                    int port = strs[2].toInt(&success);
-                    if (success)
-                    {
-                        openVpnLine.port = port;
-                    }
-                }
             }
         }
     }

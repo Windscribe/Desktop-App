@@ -18,6 +18,7 @@
 
 #include "connsettingspolicy/autoconnsettingspolicy.h"
 #include "connsettingspolicy/manualconnsettingspolicy.h"
+#include "connsettingspolicy/customconfigconnsettingspolicy.h"
 
 
 #include "ikev2connection_test.h"
@@ -115,12 +116,9 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 
     state_= STATE_CONNECTING_FROM_USER_CLICK;
 
-    connSettingsPolicy_.reset(NULL);
-
     if (bli->locationId().isCustomConfigsLocation())
     {
-        //todo
-        Q_ASSERT(false);
+        connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli));
     }
     // API or static ips locations
     else

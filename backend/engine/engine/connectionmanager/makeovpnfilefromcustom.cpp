@@ -30,7 +30,8 @@ MakeOVPNFileFromCustom::~MakeOVPNFileFromCustom()
 // if IP is not empty, need replace all hostnames in remote command to this IP
 bool MakeOVPNFileFromCustom::generate(const QString &pathCustomOvpn, const QString &ip)
 {
-    if (!file_.isOpen())
+    Q_ASSERT(false);
+    /*if (!file_.isOpen())
     {
         if (!file_.open(QIODevice::WriteOnly))
         {
@@ -68,7 +69,7 @@ bool MakeOVPNFileFromCustom::generate(const QString &pathCustomOvpn, const QStri
         }
     }
 
-    file_.flush();
+    file_.flush();*/
 
     return true;
 }

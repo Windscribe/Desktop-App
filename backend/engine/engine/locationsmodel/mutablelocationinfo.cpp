@@ -140,42 +140,8 @@ apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
     }
 }
 
-/*QString MutableLocationInfo::resolveHostName()
-{
-    /*Q_ASSERT(locationId_.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID);
-    Q_ASSERT(nodes_.count() == 1);
 
-    if (locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID || nodes_.count() != 1)
-    {
-        qCDebug(LOG_BASIC) << "MutableLocationInfo::resolveHostName() error, not correct location id or node count != 1";
-        return "";
-    }
-
-    if (IpValidation::instance().isIp(nodes_[0].getHostname()))
-    {
-        nodes_[0].setIpForCustomOvpnConfig(nodes_[0].getHostname());
-        return nodes_[0].getHostname();
-    }
-    else
-    {
-        QHostInfo hostInfo = DnsResolver::instance().lookupBlocked(nodes_[0].getHostname(), true);
-        if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
-        {
-            qCDebug(LOG_BASIC) << "MutableLocationInfo, resolved IP address for" << nodes_[0].getHostname() << ":" << hostInfo.addresses()[0];
-            QString ip = hostInfo.addresses()[0].toString();
-            nodes_[0].setIpForCustomOvpnConfig(ip);
-            return ip;
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "MutableLocationInfo, failed to resolve" << nodes_[0].getHostname();
-            return "";
-        }
-    }*/
-/*    return "";
-}
-
-void MutableLocationInfo::locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName)
+/*void MutableLocationInfo::locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName)
 {
     /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
 

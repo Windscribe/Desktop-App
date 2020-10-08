@@ -14,7 +14,7 @@ namespace locationsmodel {
 
 struct PingIpInfo
 {
-    QString ip;
+    QString ip;     // ip or hostname
     PingHost::PING_TYPE pingType;
 };
 

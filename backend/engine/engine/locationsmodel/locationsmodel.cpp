@@ -49,18 +49,19 @@ void LocationsModel::setLocations(const QVector<apiinfo::Location> &locations, c
     }
 
     // handle static ips location
-    if (staticIps_.getIpsCount() > 0)
+    for (int i = 0; i < staticIps_.getIpsCount(); ++i)
     {
-        for (int i = 0; i < staticIps_.getIpsCount(); ++i)
-        {
-            const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
-            PingIpInfo pii;
-            pii.ip = sid.getPingIp();
-            pii.pingType = PingHost::PING_TCP;
-            ips << pii;
-            stringListIps << pii.ip;
-        }
+        const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
+        PingIpInfo pii;
+        pii.ip = sid.getPingIp();
+        pii.pingType = PingHost::PING_TCP;
+        ips << pii;
+        stringListIps << pii.ip;
     }
+
+    // handle custom configs
+
+
 
     pingStorage_.updateNodes(stringListIps);
     pingIpsController_.updateIps(ips);

@@ -1,4 +1,6 @@
 #include "ovpncustomconfig.h"
+#include "utils/logger.h"
+#include "parseovpnconfigline.h"
 
 #include <QFileInfo>
 
@@ -21,17 +23,22 @@ QString OvpnCustomConfig::filename() const
 
 QStringList OvpnCustomConfig::hostnames() const
 {
-    return QStringList();
+    QStringList list;
+    for (auto r : remotes_)
+    {
+        list << r.hostname;
+    }
+    return list;
 }
 
 bool OvpnCustomConfig::isCorrect() const
 {
-    return true;
+    return isCorrect_;
 }
 
 QString OvpnCustomConfig::getErrorForIncorrect() const
 {
-    return "";
+    return errMessage_;
 }
 
 ICustomConfig *OvpnCustomConfig::makeFromFile(const QString &filepath)
@@ -41,20 +48,23 @@ ICustomConfig *OvpnCustomConfig::makeFromFile(const QString &filepath)
     config->name_ = fi.completeBaseName();
     config->filename_ = fi.fileName();
     config->filepath_ = filepath;
-    config->process();
+    config->isCorrect_ = true;      // by default correct config
+    config->process();              // here the config can change to incorrect
     return config;
 }
 
+
+// retrieves all hostnames/IPs "remote ..." commands
+// also ovpn-config with removed "remote" commands saves in ovpnData_
+// removed "remote" commands are saved in remotes_ (to restore the config with changed hostnames/IPs before connect)
 void OvpnCustomConfig::process()
 {
-    /*QFile file(pathFile);
+    QFile file(filepath_);
     if (file.open(QIODevice::ReadOnly))
     {
-        qDebug(LOG_CUSTOM_OVPN) << "Opened" << pathFile;
+        qDebug(LOG_CUSTOM_OVPN) << "Opened:" << filepath_;
 
-        bool isAlreadyWasHostname = false;
-        QString hostname;
-
+        bool bFoundAtLeastOneRemote = false;
         QTextStream in(&file);
         while (!in.atEnd())
         {
@@ -62,40 +72,32 @@ void OvpnCustomConfig::process()
             ParseOvpnConfigLine::OpenVpnLine openVpnLine = ParseOvpnConfigLine::processLine(line);
             if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_REMOTE_IP) // remote ip
             {
-                if (isAlreadyWasHostname)
-                {
-                    qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << pathFile << "skipped, because it has multiple remote host commands. This is not supported now.";
-                    return QSharedPointer<ServerNode>();
-                }
-                else
-                {
-                    hostname = openVpnLine.host;
-                    isAlreadyWasHostname = true;
-                }
+                RemoteCommandLine rcl;
+                rcl.hostname = openVpnLine.host;
+                rcl.originalRemoteCommand = line;
+                remotes_ << rcl;
+                qDebug(LOG_CUSTOM_OVPN) << "Extracted hostname/IP:" << openVpnLine.host << " from  remote cmd:" << line;
+                bFoundAtLeastOneRemote = true;
             }
-            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_AUTH_USER_PASS) // auth-user-pass "path"
+            else
             {
-                customOvpnAuthCredentialsStorage_->setAuthCredentials(pathFile, openVpnLine.username, openVpnLine.password);
+                ovpnData_ += line + "\n";
             }
         }
 
-        if (!hostname.isEmpty())
+        if (!bFoundAtLeastOneRemote)
         {
-            QSharedPointer<ServerNode> node(new ServerNode);
-            node->initFromCustomOvpnConfig(QFileInfo(pathFile).completeBaseName(), hostname, pathFile);
-            return node;
-        }
-        else
-        {
-            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << pathFile << "skipped, because can't find remote host command. The file format may be incorrect.";
-            return QSharedPointer<ServerNode>();
+            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << filepath_ << "incorrect, because can't find remote host command. The file format may be incorrect.";
+            isCorrect_ = false;
+            errMessage_ = "Can't find remote host command";
         }
     }
     else
     {
-        qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << pathFile;
-        return QSharedPointer<ServerNode>();
-    }*/
+        qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << filepath_;
+        isCorrect_ = false;
+        errMessage_ = "Failed to open file";
+    }
 }
 
 
