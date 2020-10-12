@@ -16,6 +16,7 @@ public:
     virtual ~PingStorage();
 
     void updateNodes(const QStringList &ips);
+
     void setNodePing(const QString &nodeIp, PingTime timeMs, bool fromDisconnectedState);
     PingTime getNodeSpeed(const QString &nodeIp) const;
 

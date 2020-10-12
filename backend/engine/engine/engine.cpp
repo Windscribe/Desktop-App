@@ -574,7 +574,8 @@ void Engine::init()
     connect(connectionManager_, SIGNAL(requestPassword(QString)), SLOT(onConnectionManagerRequestPassword(QString)));
 
     locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkStateManager_);
-    connect(locationsModel_, SIGNAL(whitelistIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistIpsChanged(QStringList)));
+    connect(locationsModel_, SIGNAL(whitelistLocationsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistIpsChanged(QStringList)));
+    connect(locationsModel_, SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistCustomConfigIpsChanged(QStringList)));
 
     getMyIPController_ = new GetMyIPController(this, serverAPI_, networkStateManager_);
     connect(getMyIPController_, SIGNAL(answerMyIP(QString,bool,bool)), SLOT(onMyIpAnswer(QString,bool,bool)));
@@ -1028,7 +1029,7 @@ void Engine::continueWithUsernameAndPasswordImpl(const QString &username, const 
     {
         if (bSave)
         {
-            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFilePath(), username, password);
+            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFileName(), username, password);
         }
         connectionManager_->continueWithUsernameAndPassword(username, password, isNeedReconnectAfterRequestUsernameAndPassword_);
     }
@@ -1045,7 +1046,7 @@ void Engine::continueWithPasswordImpl(const QString &password, bool bSave)
     {
         if (bSave)
         {
-            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFilePath(), "", password);
+            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFileName(), "", password);
         }
         connectionManager_->continueWithPassword(password, isNeedReconnectAfterRequestUsernameAndPassword_);
     }
@@ -1649,7 +1650,7 @@ void Engine::onConnectionManagerError(CONNECTION_ERROR err)
 
         if (connectionManager_->isCustomOvpnConfigCurrentConnection())
         {
-            customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFilePath());
+            customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFileName());
 
             isNeedReconnectAfterRequestUsernameAndPassword_ = true;
             emit requestUsername();
@@ -1891,6 +1892,11 @@ void Engine::onLocationsModelWhitelistIpsChanged(const QStringList &ips)
 {
     firewallExceptions_.setLocationsIps(ips);
     updateFirewallSettings();
+}
+
+void Engine::onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips)
+{
+    Q_ASSERT(false);
 }
 
 void Engine::onNetworkChange(ProtoTypes::NetworkInterface networkInterface)
@@ -2158,7 +2164,8 @@ void Engine::updateServerLocations()
 
 
     qCDebug(LOG_BASIC) << "Servers locations changed";
-    locationsModel_->setLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps(), customConfigs_->getConfigs());
+    locationsModel_->setApiLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
+    locationsModel_->setCustomConfigLocations(customConfigs_->getConfigs());
 
     if (!apiInfo_->getForceDisconnectNodes().isEmpty())
     {

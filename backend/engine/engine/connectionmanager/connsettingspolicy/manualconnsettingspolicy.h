@@ -20,6 +20,7 @@ public:
     CurrentConnectionDescr getCurrentConnectionSettings() const override;
     void saveCurrentSuccessfullConnectionSettings() override;
     bool isAutomaticMode() override;
+    void resolveHostnames() override;
 
 private:
     QSharedPointer<locationsmodel::MutableLocationInfo> locationInfo_;

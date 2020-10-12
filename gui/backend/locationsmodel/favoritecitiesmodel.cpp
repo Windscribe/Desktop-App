@@ -5,11 +5,11 @@ FavoriteCitiesModel::FavoriteCitiesModel(QObject *parent) : BasicCitiesModel(par
 
 }
 
-void FavoriteCitiesModel::update(QVector<LocationModelItem *> locations)
+void FavoriteCitiesModel::update(QVector<QSharedPointer<LocationModelItem>> locations)
 {
     clearCities();
 
-    for (const LocationModelItem *lmi : locations)
+    for (const QSharedPointer<LocationModelItem> lmi : locations)
     {
         if (!lmi->id.isCustomConfigsLocation() && !lmi->id.isStaticIpsLocation() && !lmi->id.isBestLocation())
         {

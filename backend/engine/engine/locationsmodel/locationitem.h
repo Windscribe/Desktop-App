@@ -44,6 +44,35 @@ struct LocationItem
 
     // set default values
     LocationItem() : isPremiumOnly(false), p2p(0) {}
+
+    void fillProtobuf(ProtoTypes::Location *l) const
+    {
+        *l->mutable_id() = id.toProtobuf();
+        l->set_name(name.toStdString());
+        l->set_country_code(countryCode.toStdString());
+        l->set_is_premium_only(isPremiumOnly);
+        l->set_is_p2p_supported(p2p == 0);
+        l->set_static_ip_device_name(staticIpsDeviceName.toStdString());
+
+        for (const locationsmodel::CityItem &ci : cities)
+        {
+            ProtoTypes::City *city = l->add_cities();
+            *city->mutable_id() = ci.id.toProtobuf();
+            city->set_name(ci.city.toStdString());
+            city->set_nick(ci.nick.toStdString());
+            city->set_ping_time(ci.pingTimeMs.toInt());
+            city->set_is_premium_only(ci.isPro);
+            city->set_is_disabled(ci.isDisabled);
+
+            city->set_static_ip_country_code(ci.staticIpCountryCode.toStdString());
+            city->set_static_ip_type(ci.staticIpType.toStdString());
+            city->set_static_ip(ci.staticIp.toStdString());
+
+            city->set_custom_config_type(customconfigs::customConfigTypeToProtobuf(ci.customConfigType));
+            city->set_custom_config_is_correct(ci.customConfigIsCorrect);
+            city->set_custom_config_error_message(ci.customConfigErrorMessage.toStdString());
+        }
+    }
 };
 
 } //namespace locationsmodel

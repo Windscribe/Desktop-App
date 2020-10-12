@@ -1,17 +1,16 @@
 #include "pingipscontroller.h"
 #include "../connectstatecontroller/iconnectstatecontroller.h"
 #include "utils/utils.h"
-#include "failedpinglogcontroller.h"
 #include <QDebug>
 #include "utils/logger.h"
 
 namespace locationsmodel {
 
-PingIpsController::PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager) : QObject(parent),
+PingIpsController::PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost, const QString &log_filename) : QObject(parent),
     connectStateController_(stateController), networkStateManager_(networkStateManager),
-    pingLog_("ping_log.txt"), pingHost_(this, stateController)
+    pingLog_(log_filename), pingHost_(pingHost)
 {
-    connect(&pingHost_, SIGNAL(pingFinished(bool,int,QString, bool)), SLOT(onPingFinished(bool,int,QString, bool)));
+    connect(pingHost_, SIGNAL(pingFinished(bool,int,QString, bool)), SLOT(onPingFinished(bool,int,QString, bool)));
     connect(&pingTimer_, SIGNAL(timeout()), SLOT(onPingTimer()));
 
     int pingHour = Utils::generateIntegerRandom(0, 23);
@@ -33,21 +32,6 @@ PingIpsController::PingIpsController(QObject *parent, IConnectStateController *s
     //dtNextPingTime_ = dtNextPingTime_.addSecs(20);      // for testing
 
     pingLog_.addLog("PingIpsController::PingIpsController","set next ping time: " + dtNextPingTime_.toString("ddMMyyyy HH:mm:ss"));
-}
-
-void PingIpsController::setProxySettings(const ProxySettings &proxySettings)
-{
-    pingHost_.setProxySettings(proxySettings);
-}
-
-void PingIpsController::disableProxy()
-{
-    pingHost_.disableProxy();
-}
-
-void PingIpsController::enableProxy()
-{
-    pingHost_.enableProxy();
 }
 
 void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
@@ -93,7 +77,7 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
         }
     }
 
-    FailedPingLogController::instance().clear();
+    failedPingLogController_.clear();
 
     onPingTimer();
     pingTimer_.start(PING_TIMER_INTERVAL);
@@ -136,13 +120,13 @@ void PingIpsController::onPingTimer()
         {
             pingLog_.addLog("PingNodesController::onPingTimer", "start ping by time: " + it.key());
             it.value().bNowPinging_ = true;
-            pingHost_.addHostForPing(it.key(), it.value().pingType);
+            pingHost_->addHostForPing(it.key(), it.value().pingType);
         }
         else if (!pni.isExistPingAttempt)
         {
             pingLog_.addLog("PingNodesController::onPingTimer", "start ping the new node: " + it.key());
             it.value().bNowPinging_ = true;
-            pingHost_.addHostForPing(it.key(), it.value().pingType);
+            pingHost_->addHostForPing(it.key(), it.value().pingType);
         }
         else if (pni.latestPingFailed_)
         {
@@ -150,14 +134,14 @@ void PingIpsController::onPingTimer()
             {
                 pingLog_.addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
                 it.value().bNowPinging_ = true;
-                pingHost_.addHostForPing(it.key(), it.value().pingType);
+                pingHost_->addHostForPing(it.key(), it.value().pingType);
             }
         }
         else if (!pni.latestPingFromDisconnectedState_ && curConnectState == CONNECT_STATE_DISCONNECTED)
         {
             pingLog_.addLog("PingNodesController::onPingTimer", "start ping from disconnected state, because latest ping was in connected state: " + it.key());
             it.value().bNowPinging_ = true;
-            pingHost_.addHostForPing(it.key(), it.value().pingType);
+            pingHost_->addHostForPing(it.key(), it.value().pingType);
         }
     }
 
@@ -207,7 +191,7 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
                 // next ping attempt in 1 mins
                 itNode.value().nextTimeForFailedPing_ = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
                 emit pingInfoChanged(ip, PingTime::PING_FAILED, isFromDisconnectedState);
-                FailedPingLogController::instance().logFailedIPs(QStringList() << ip);
+                failedPingLogController_.logFailedIPs(QStringList() << ip);
             }
             else
             {

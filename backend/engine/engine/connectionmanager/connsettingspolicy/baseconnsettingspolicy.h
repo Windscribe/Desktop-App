@@ -19,7 +19,8 @@ struct CurrentConnectionDescr
     QString dnsHostName;
 
     // fields for CONNECTION_NODE_CUSTOM_OVPN_CONFIG
-    QString pathOvpnConfigFile;
+    QString ovpnData;
+    QString customConfigFilename;
 
     // fields for WireGuard
     QString wgPublicKey;
@@ -31,10 +32,11 @@ struct CurrentConnectionDescr
 };
 
 // helper class for ConnectionManager
-class BaseConnSettingsPolicy
+class BaseConnSettingsPolicy : public QObject
 {
+    Q_OBJECT
 public:
-    BaseConnSettingsPolicy() : bStarted_(false) {}
+    BaseConnSettingsPolicy() : QObject(nullptr), bStarted_(false) {}
     virtual ~BaseConnSettingsPolicy() {}
 
     //virtual void startWith(QSharedPointer<const locationsmodel::BaseLocationInfo> mli, const ConnectionSettings &connectionSettings,
@@ -55,6 +57,10 @@ public:
     virtual CurrentConnectionDescr getCurrentConnectionSettings() const = 0;
     virtual void saveCurrentSuccessfullConnectionSettings() = 0;
     virtual bool isAutomaticMode() = 0;
+    virtual void resolveHostnames() = 0;
+
+signals:
+    void hostnamesResolved();
 
 protected:
     bool bStarted_;

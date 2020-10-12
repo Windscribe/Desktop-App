@@ -589,7 +589,13 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     else if (command->getStringId() == IPCServerCommands::LocationsUpdated::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> *>(command);
-        locationsModel_->update(cmd->getProtoObj().best_location(), cmd->getProtoObj().locations());
+        locationsModel_->updateApiLocations(cmd->getProtoObj().best_location(), cmd->getProtoObj().locations());
+        emit locationsUpdated();
+    }
+    else if (command->getStringId() == IPCServerCommands::CustomConfigLocationsUpdated::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<IPCServerCommands::CustomConfigLocationsUpdated> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::CustomConfigLocationsUpdated> *>(command);
+        locationsModel_->updateCustomConfigLocations(cmd->getProtoObj().locations());
         emit locationsUpdated();
     }
     else if (command->getStringId() == IPCServerCommands::LocationSpeedChanged::descriptor()->full_name())

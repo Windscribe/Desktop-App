@@ -264,6 +264,7 @@ private slots:
     void onCustomConfigsChanged();
 
     void onLocationsModelWhitelistIpsChanged(const QStringList &ips);
+    void onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips);
 
     void onNetworkChange(ProtoTypes::NetworkInterface networkInterface);
     void onNetworkStateManagerStateChanged(bool isActive, const QString &networkInterface);

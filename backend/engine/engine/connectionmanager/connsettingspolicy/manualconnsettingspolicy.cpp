@@ -103,6 +103,12 @@ bool ManualConnSettingsPolicy::isAutomaticMode()
     return false;
 }
 
+void ManualConnSettingsPolicy::resolveHostnames()
+{
+    //nothing todo
+    emit hostnamesResolved();
+}
+
 QString ManualConnSettingsPolicy::getLogForNode(int ind) const
 {
     QString ret = "node" + QString::number(ind + 1);

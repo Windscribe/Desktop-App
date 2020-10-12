@@ -266,6 +266,8 @@ SOURCES += main.cpp \
     engine/locationsmodel/hostnamesresolver.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/locationsmodel/locationsmodel.cpp \
+    engine/locationsmodel/apilocationsmodel.cpp \
+    engine/locationsmodel/customconfiglocationsmodel.cpp \
     engine/locationsmodel/locationitem.cpp \
     engine/locationsmodel/pingipscontroller.cpp \
     engine/locationsmodel/pingstorage.cpp \
@@ -373,6 +375,8 @@ SOURCES += main.cpp \
     engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.cpp
 
 HEADERS  +=  engine/locationsmodel/locationsmodel.h \
+    engine/locationsmodel/apilocationsmodel.h \
+    engine/locationsmodel/customconfiglocationsmodel.h \
     engine/locationsmodel/hostnamesresolver.h \
     engine/locationsmodel/locationitem.h \
     engine/locationsmodel/pingipscontroller.h \

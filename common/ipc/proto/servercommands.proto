@@ -81,7 +81,8 @@ message LocationsUpdated
    optional ProtoTypes.ArrayLocations locations = 2;
 }
 
-message CustomConfigLocationUpdated
+
+message CustomConfigLocationsUpdated
 {
    optional ProtoTypes.ArrayLocations locations = 1;
 }

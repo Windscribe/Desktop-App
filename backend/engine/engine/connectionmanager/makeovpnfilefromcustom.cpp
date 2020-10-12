@@ -28,10 +28,9 @@ MakeOVPNFileFromCustom::~MakeOVPNFileFromCustom()
 }
 
 // if IP is not empty, need replace all hostnames in remote command to this IP
-bool MakeOVPNFileFromCustom::generate(const QString &pathCustomOvpn, const QString &ip)
+bool MakeOVPNFileFromCustom::generate(const QString &ovpnData, const QString &ip)
 {
-    Q_ASSERT(false);
-    /*if (!file_.isOpen())
+    if (!file_.isOpen())
     {
         if (!file_.open(QIODevice::WriteOnly))
         {
@@ -42,14 +41,17 @@ bool MakeOVPNFileFromCustom::generate(const QString &pathCustomOvpn, const QStri
 
     file_.resize(0);
 
-    QFile customOvpnFile(pathCustomOvpn);
+    file_.write(ovpnData.toLocal8Bit());
+
+
+    /*QFile customOvpnFile(pathCustomOvpn);
     if (!customOvpnFile.open(QIODevice::ReadOnly))
     {
         qCDebug(LOG_CONNECTION) << "Can't open custom ovpn config file:" << pathCustomOvpn;
         return false;
-    }
+    }*/
 
-    QTextStream in(&customOvpnFile);
+    /*QTextStream in(&customOvpnFile);
     while (!in.atEnd())
     {
         QString line = in.readLine();
@@ -67,9 +69,14 @@ bool MakeOVPNFileFromCustom::generate(const QString &pathCustomOvpn, const QStri
             file_.write(line.toLocal8Bit());
             file_.write("\r\n");
         }
-    }
+    }*/
 
-    file_.flush();*/
+    file_.flush();
 
     return true;
+}
+
+QString MakeOVPNFileFromCustom::protocol() const
+{
+    return "UDP";
 }

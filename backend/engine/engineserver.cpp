@@ -398,6 +398,8 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
     {
         connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
                 SLOT(onEngineLocationsModelItemsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)),
+                SLOT(onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
         connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)),
                 SLOT(onEngineLocationsModelPingChangedChanged(LocationID,locationsmodel::PingTime)));
 
@@ -883,35 +885,23 @@ void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLoca
 
     *cmd.getProtoObj().mutable_best_location() = bestLocation.toProtobuf();
 
-    // API locations
     for (const locationsmodel::LocationItem &li : *items)
     {
         ProtoTypes::Location *l = cmd.getProtoObj().mutable_locations()->add_locations();
-        *l->mutable_id() = li.id.toProtobuf();
-        l->set_name(li.name.toStdString());
-        l->set_country_code(li.countryCode.toStdString());
-        l->set_is_premium_only(li.isPremiumOnly);
-        l->set_is_p2p_supported(li.p2p == 0);
-        l->set_static_ip_device_name(li.staticIpsDeviceName.toStdString());
+        li.fillProtobuf(l);
+    }
 
-        for (const locationsmodel::CityItem &ci : li.cities)
-        {
-            ProtoTypes::City *city = l->add_cities();
-            *city->mutable_id() = ci.id.toProtobuf();
-            city->set_name(ci.city.toStdString());
-            city->set_nick(ci.nick.toStdString());
-            city->set_ping_time(ci.pingTimeMs.toInt());
-            city->set_is_premium_only(ci.isPro);
-            city->set_is_disabled(ci.isDisabled);
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
+}
 
-            city->set_static_ip_country_code(ci.staticIpCountryCode.toStdString());
-            city->set_static_ip_type(ci.staticIpType.toStdString());
-            city->set_static_ip(ci.staticIp.toStdString());
+void EngineServer::onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items)
+{
+    IPC::ProtobufCommand<IPCServerCommands::CustomConfigLocationsUpdated> cmd;
 
-            city->set_custom_config_type(customconfigs::customConfigTypeToProtobuf(ci.customConfigType));
-            city->set_custom_config_is_correct(ci.customConfigIsCorrect);
-            city->set_custom_config_error_message(ci.customConfigErrorMessage.toStdString());
-        }
+    for (const locationsmodel::LocationItem &li : *items)
+    {
+        ProtoTypes::Location *l = cmd.getProtoObj().mutable_locations()->add_locations();
+        li.fillProtobuf(l);
     }
 
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);

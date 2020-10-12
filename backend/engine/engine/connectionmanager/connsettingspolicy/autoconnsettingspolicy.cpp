@@ -225,6 +225,12 @@ bool AutoConnSettingsPolicy::isAutomaticMode()
     return true;
 }
 
+void AutoConnSettingsPolicy::resolveHostnames()
+{
+    // nothing todo
+    emit hostnamesResolved();
+}
+
 QString AutoConnSettingsPolicy::getLogForNode(int ind) const
 {
     QString ret = "node" + QString::number(ind + 1);

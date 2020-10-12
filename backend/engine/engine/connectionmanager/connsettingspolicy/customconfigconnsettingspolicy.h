@@ -18,6 +18,10 @@ public:
     CurrentConnectionDescr getCurrentConnectionSettings() const override;
     void saveCurrentSuccessfullConnectionSettings() override;
     bool isAutomaticMode() override;
+    void resolveHostnames() override;
+
+private slots:
+    void onHostnamesResolved();
 
 private:
     QSharedPointer<locationsmodel::CustomConfigLocationInfo> locationInfo_;

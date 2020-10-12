@@ -50,7 +50,7 @@ public:
     void continueWithPassword(const QString &password, bool bNeedReconnect) override;
 
     bool isCustomOvpnConfigCurrentConnection() const override;
-    QString getCustomOvpnConfigFilePath() override;
+    QString getCustomOvpnConfigFileName() override;
 
     bool isStaticIpsLocation() const override;
     apiinfo::StaticIpPortsVector getStatisIps() override;
@@ -82,6 +82,8 @@ private slots:
     void onTunnelTestsFinished(bool bSuccess, const QString &ipAddress);
 
     void onTimerWaitNetworkConnectivity();
+
+    void onHostnamesResolved();
 
 private:
     enum {STATE_DISCONNECTED, STATE_CONNECTING_FROM_USER_CLICK, STATE_CONNECTED, STATE_RECONNECTING,
@@ -136,6 +138,7 @@ private:
 
     void doConnect();
     void doConnectPart2();
+    void doConnectPart3();
     bool checkFails();
 
     void doMacRestoreProcedures();

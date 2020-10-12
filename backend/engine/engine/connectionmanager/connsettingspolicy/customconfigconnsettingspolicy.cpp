@@ -6,6 +6,7 @@ CustomConfigConnSettingsPolicy::CustomConfigConnSettingsPolicy(QSharedPointer<lo
     locationInfo_ = qSharedPointerDynamicCast<locationsmodel::CustomConfigLocationInfo>(bli);
     Q_ASSERT(!locationInfo_.isNull());
     Q_ASSERT(locationInfo_->locationId().isCustomConfigsLocation());
+    connect(locationInfo_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
 }
 
 void CustomConfigConnSettingsPolicy::reset()
@@ -28,12 +29,12 @@ void CustomConfigConnSettingsPolicy::debugLocationInfoToLog() const
 
 void CustomConfigConnSettingsPolicy::putFailedConnection()
 {
-    /*if (!bStarted_)
+    if (!bStarted_)
     {
         return;
     }
 
-    if (failedManualModeCounter_ >= 2)
+    /*if (failedManualModeCounter_ >= 2)
     {
         // try switch to another node for manual mode
         locationInfo_->selectNextNode();
@@ -52,40 +53,11 @@ bool CustomConfigConnSettingsPolicy::isFailed() const
 CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSettings() const
 {
     CurrentConnectionDescr ccd;
-    /*if (!connectionSettings_.isInitialized())
-    {
-        qCDebug(LOG_CONNECTION) << "Fatal error, connectionSettings_ not initialized";
-        Q_ASSERT(false);
-        ccd.connectionNodeType = CONNECTION_NODE_ERROR;
-        return ccd;
-    }
-    else
-    {
-        ccd.connectionNodeType = CONNECTION_NODE_DEFAULT;
-        ccd.protocol = connectionSettings_.protocol();
-        ccd.port = connectionSettings_.port();
 
-        int useIpInd = portMap_.getUseIpInd(connectionSettings_.protocol());
-        ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
-        ccd.hostname = locationInfo_->getHostnameForSelectedNode();
-        ccd.dnsHostName = locationInfo_->getDnsName();
-        ccd.wgPublicKey = locationInfo_->getWgPubKeyForSelectedNode();
-
-        // for static IP set additional fields
-        if (locationInfo_->locationId().isStaticIpsLocation())
-        {
-            ccd.connectionNodeType = CONNECTION_NODE_STATIC_IPS;
-            ccd.username = locationInfo_->getStaticIpUsername();
-            ccd.password = locationInfo_->getStaticIpPassword();
-            ccd.staticIpPorts = locationInfo_->getStaticIpPorts();
-
-            // for static ip with wireguard protocol override id to wg_ip
-            if (ccd.protocol.getType() == ProtocolType::PROTOCOL_WIREGUARD )
-            {
-                ccd.ip = locationInfo_->getWgIpForSelectedNode();
-            }
-        }
-    }*/
+    ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
+    ccd.ovpnData = locationInfo_->getOvpnData();
+    ccd.ip = locationInfo_->getSelectedIp();
+    ccd.customConfigFilename = locationInfo_->getFilename();
 
     return ccd;
 }
@@ -98,6 +70,16 @@ void CustomConfigConnSettingsPolicy::saveCurrentSuccessfullConnectionSettings()
 bool CustomConfigConnSettingsPolicy::isAutomaticMode()
 {
     return false;
+}
+
+void CustomConfigConnSettingsPolicy::resolveHostnames()
+{
+    locationInfo_->resolveHostnames();
+}
+
+void CustomConfigConnSettingsPolicy::onHostnamesResolved()
+{
+    emit hostnamesResolved();
 }
 
 

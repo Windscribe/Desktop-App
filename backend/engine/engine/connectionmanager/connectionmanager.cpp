@@ -133,7 +133,10 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
         }
     }
 
+    connect(connSettingsPolicy_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
+
     connSettingsPolicy_->debugLocationInfoToLog();
+
     doConnect();
 }
 
@@ -193,6 +196,12 @@ void ConnectionManager::blockingDisconnect()
             doMacRestoreProcedures();
             stunnelManager_->killProcess();
             wstunnelManager_->killProcess();
+
+            if (!connSettingsPolicy_.isNull())
+            {
+                connSettingsPolicy_->reset();
+            }
+
             DnsResolver::instance().recreateDefaultDnsChannel();
 
             state_ = STATE_DISCONNECTED;
@@ -557,12 +566,12 @@ void ConnectionManager::onConnectionStatisticsUpdated(quint64 bytesIn, quint64 b
 
 void ConnectionManager::onConnectionRequestUsername()
 {
-    emit requestUsername(currentConnectionDescr_.pathOvpnConfigFile);
+    emit requestUsername(currentConnectionDescr_.customConfigFilename);
 }
 
 void ConnectionManager::onConnectionRequestPassword()
 {
-    emit requestPassword(currentConnectionDescr_.pathOvpnConfigFile);
+    emit requestPassword(currentConnectionDescr_.customConfigFilename);
 }
 
 void ConnectionManager::onSleepMode()
@@ -748,7 +757,7 @@ void ConnectionManager::onWstunnelFinishedBeforeConnection()
 
 void ConnectionManager::onWstunnelStarted()
 {
-    doConnectPart2();
+    doConnectPart3();
 }
 
 void ConnectionManager::doConnect()
@@ -759,6 +768,11 @@ void ConnectionManager::doConnect()
         waitForNetworkConnectivity();
         return;
     }
+    connSettingsPolicy_->resolveHostnames();
+}
+
+void ConnectionManager::doConnectPart2()
+{
 
     bIgnoreConnectionErrorsForOpenVpn_ = false;
 
@@ -833,16 +847,18 @@ void ConnectionManager::doConnect()
     }
     else if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
     {
-        bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(currentConnectionDescr_.pathOvpnConfigFile, currentConnectionDescr_.ip);
+        Q_ASSERT(false);
+        bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(currentConnectionDescr_.ovpnData, currentConnectionDescr_.ip);
         if (!bOvpnSuccess )
         {
-            qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:" << currentConnectionDescr_.pathOvpnConfigFile;
+            qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:" << currentConnectionDescr_.customConfigFilename;
             //Q_ASSERT(false);
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
             emit errorDuringConnection(CANNOT_OPEN_CUSTOM_OVPN_CONFIG);
             return;
         }
+        currentConnectionDescr_.protocol = makeOVPNFileFromCustom_->protocol();
         currentConnectionDescr_.port = makeOVPNFileFromCustom_->port();
     }
     else
@@ -850,10 +866,10 @@ void ConnectionManager::doConnect()
         Q_ASSERT(false);
     }
 
-    doConnectPart2();
+    doConnectPart3();
 }
 
-void ConnectionManager::doConnectPart2()
+void ConnectionManager::doConnectPart3()
 {
     qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
     emit protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
@@ -1064,6 +1080,11 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
     }
 }
 
+void ConnectionManager::onHostnamesResolved()
+{
+    doConnectPart2();
+}
+
 void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> config)
 {
     if (config) {
@@ -1076,7 +1097,7 @@ void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> confi
         return;
 
     if (config) {
-        doConnectPart2();
+        doConnectPart3();
     } else {
         // Failed to fetch a config, stop connection.
         state_ = STATE_AUTO_DISCONNECT;
@@ -1092,10 +1113,10 @@ bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const
     return currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
 }
 
-QString ConnectionManager::getCustomOvpnConfigFilePath()
+QString ConnectionManager::getCustomOvpnConfigFileName()
 {
     Q_ASSERT(isCustomOvpnConfigCurrentConnection());
-    return currentConnectionDescr_.pathOvpnConfigFile;
+    return currentConnectionDescr_.customConfigFilename;
 }
 
 bool ConnectionManager::isStaticIpsLocation() const

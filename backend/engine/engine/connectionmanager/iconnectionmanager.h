@@ -42,7 +42,7 @@ public:
     virtual void continueWithPassword(const QString &password, bool bNeedReconnect) = 0;
 
     virtual bool isCustomOvpnConfigCurrentConnection() const = 0;
-    virtual QString getCustomOvpnConfigFilePath() = 0;
+    virtual QString getCustomOvpnConfigFileName() = 0;
 
     virtual bool isStaticIpsLocation() const = 0;
     virtual apiinfo::StaticIpPortsVector getStatisIps() = 0;

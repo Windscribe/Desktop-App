@@ -5,20 +5,18 @@ ConfiguredCitiesModel::ConfiguredCitiesModel(QObject *parent) : BasicCitiesModel
 
 }
 
-void ConfiguredCitiesModel::update(QVector<LocationModelItem *> locations)
+void ConfiguredCitiesModel::update(QVector<QSharedPointer<LocationModelItem>> locations)
 {
     clearCities();
 
-    for (const LocationModelItem *lmi : locations)
+    for (QSharedPointer<LocationModelItem> lmi : locations)
     {
-        if (lmi->id.isCustomConfigsLocation())
+        Q_ASSERT(lmi->id.isCustomConfigsLocation());
+        for (int i = 0; i < lmi->cities.count(); ++i)
         {
-            for (int i = 0; i < lmi->cities.count(); ++i)
-            {
-                CityModelItem *cmi = new CityModelItem();
-                *cmi = lmi->cities[i];
-                cities_ << cmi;
-            }
+            CityModelItem *cmi = new CityModelItem();
+            *cmi = lmi->cities[i];
+            cities_ << cmi;
         }
     }
 
