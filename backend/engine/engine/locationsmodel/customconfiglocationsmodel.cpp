@@ -138,6 +138,8 @@ void CustomConfigLocationsModel::onResolved(const QString &hostname, const QHost
                         ipItem.ip = ha.toString();
                         ipItem.pingTime = pingStorage_.getNodeSpeed(ipItem.ip);
                         remoteIt->ips << ipItem;
+
+                        emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
                     }
                 }
             }
