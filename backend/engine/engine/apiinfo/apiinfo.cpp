@@ -157,9 +157,18 @@ void ApiInfo::saveToSettings()
 
 void ApiInfo::removeFromSettings()
 {
-    QSettings settings;
-    settings.remove("apiInfo");
-    settings.remove("authHash");
+    {
+        QSettings settings;
+        settings.remove("apiInfo");
+        settings.remove("authHash");
+    }
+    // remove from first version too
+    {
+        QSettings settings1("Windscribe", "Windscribe");
+        settings1.remove("apiInfo");
+        settings1.remove("authHash");
+    }
+
 }
 
 bool ApiInfo::loadFromSettings()

@@ -2152,54 +2152,14 @@ void Engine::updateSessionStatus()
 
 void Engine::updateServerLocations()
 {
-    /*
-    // if custom ovpn configs exists, then add this location to top of the list
-    if (customOvpnConfigs_->isExist())
-    {
-        serverLocations.insert(0, customOvpnConfigs_->getLocation());
-    }
-
-    // compare new servers list with prev servers list
-    bool isEqual = true;
-    if (lastCopyOfServerlocations_.count() == serverLocations.count())
-    {
-        for (int i = 0; i < lastCopyOfServerlocations_.count(); ++i)
-        {
-            if (!lastCopyOfServerlocations_[i]->isEqual(serverLocations[i].data()))
-            {
-                isEqual = false;
-                break;
-            }
-        }
-    }
-    else
-    {
-        isEqual = false;
-    }
-
-    if (!isEqual)
-    {
-        qCDebug(LOG_BASIC) << "Servers locations changed";
-        firewallExceptions_.setLocations(serverLocations);
-        updateFirewallSettings();
-
-        serversModel_->updateServers(serverLocations);
-
-        lastCopyOfServerlocations_.clear();
-        lastCopyOfServerlocations_ = makeCopyOfServerLocationsVector(serverLocations);
-
-        if (!apiInfo_.isNull() && !apiInfo_->getForceDisconnectNodes().isEmpty())
-        {
-            checkForceDisconnectNode(apiInfo_->getForceDisconnectNodes());
-        }
-    }*/
-
-
     qCDebug(LOG_BASIC) << "Servers locations changed";
-    locationsModel_->setApiLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
+    if (!apiInfo_.isNull())
+    {
+        locationsModel_->setApiLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
+    }
     locationsModel_->setCustomConfigLocations(customConfigs_->getConfigs());
 
-    if (!apiInfo_->getForceDisconnectNodes().isEmpty())
+    if (!apiInfo_.isNull() && !apiInfo_->getForceDisconnectNodes().isEmpty())
     {
         checkForceDisconnectNode(apiInfo_->getForceDisconnectNodes());
     }
@@ -2291,27 +2251,6 @@ void Engine::doConnect(bool bEmitAuthError)
         return;
     }
 
-    /*if (mli->isCustomOvpnConfig())
-    {
-        QString outIP = mli->resolveHostName();
-        if (outIP.isEmpty())
-        {
-            connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CANT_RESOLVE_HOSTNAME);
-            getMyIPController_->getIPFromDisconnectedState(1);
-            qCDebug(LOG_BASIC) << "Engine::connectError(CANT_RESOLVE_HOSTNAME)";
-            return;
-        }
-        else
-        {
-            bool bChanged = false;
-            firewallExceptions_.setCustomOvpnIp(outIP, bChanged);
-            if (bChanged)
-            {
-                updateFirewallSettings();
-            }
-        }
-    }*/
-
     locationName_ = bli->getName();
 
 #ifdef Q_OS_WIN
@@ -2323,31 +2262,43 @@ void Engine::doConnect(bool bEmitAuthError)
     splitTunnelingNetworkInfo_.detectDefaultRoute();
 #endif
 
-    if (!apiInfo_->getServerCredentials().isInitialized() && !locationId_.isCustomConfigsLocation())
+    if (!apiInfo_.isNull())
     {
-        qCDebug(LOG_BASIC) << "radius username/password empty, refetch server credentials";
+        if (!apiInfo_->getServerCredentials().isInitialized() && !locationId_.isCustomConfigsLocation())
+        {
+            qCDebug(LOG_BASIC) << "radius username/password empty, refetch server credentials";
 
-        if (refetchServerCredentialsHelper_ == NULL)
-        {
-            refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
-            connect(refetchServerCredentialsHelper_, SIGNAL(finished(bool,ServerCredentials)), SLOT(onRefetchServerCredentialsFinished(bool,ServerCredentials)));
-            refetchServerCredentialsHelper_->startRefetch();
-        }
-    }
-    else
-    {
-        if (!bli->locationId().isCustomConfigsLocation() && !bli->locationId().isStaticIpsLocation())
-        {
-            if (apiInfo_->getServerCredentials().isInitialized())
+            if (refetchServerCredentialsHelper_ == NULL)
             {
-                qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << apiInfo_->getServerCredentials().usernameForOpenVpn();
-                qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << apiInfo_->getServerCredentials().usernameForIkev2();
+                refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
+                connect(refetchServerCredentialsHelper_, SIGNAL(finished(bool,ServerCredentials)), SLOT(onRefetchServerCredentialsFinished(bool,ServerCredentials)));
+                refetchServerCredentialsHelper_->startRefetch();
             }
         }
+        else
+        {
+            if (!bli->locationId().isCustomConfigsLocation() && !bli->locationId().isStaticIpsLocation())
+            {
+                if (apiInfo_->getServerCredentials().isInitialized())
+                {
+                    qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << apiInfo_->getServerCredentials().usernameForOpenVpn();
+                    qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << apiInfo_->getServerCredentials().usernameForIkev2();
+                }
+            }
+            qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
+
+            connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), bli,
+                engineSettings_.connectionSettings(), apiInfo_->getPortMap(),
+                ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError);
+        }
+    }
+    // for custom configs without login
+    else
+    {
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
-        connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), bli,
-            engineSettings_.connectionSettings(), apiInfo_->getPortMap(),
+        connectionManager_->clickConnect("", apiinfo::ServerCredentials(), bli,
+            engineSettings_.connectionSettings(), apiinfo::PortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError);
     }
 }
