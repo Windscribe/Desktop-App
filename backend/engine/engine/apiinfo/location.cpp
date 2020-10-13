@@ -86,13 +86,13 @@ ProtoApiInfo::Location Location::getProtoBuf() const
     return l;
 }
 
-QStringList Location::getAllIps() const
+QStringList Location::getAllPingIps() const
 {
     Q_ASSERT(d->isValid_);
     QStringList ips;
     for (const Group &g : d->groups_)
     {
-        ips << g.getAllIps();
+        ips << g.getPingIp();
     }
     return ips;
 }

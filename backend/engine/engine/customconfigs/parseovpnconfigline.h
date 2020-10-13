@@ -7,15 +7,17 @@ class ParseOvpnConfigLine
 {
 public:
 
-    enum OvpnCmd { OVPN_CMD_UNKNOWN, OVPN_CMD_REMOTE_IP};
+    enum OvpnCmd { OVPN_CMD_UNKNOWN, OVPN_CMD_REMOTE_IP, OVPN_CMD_PROTO, OVPN_CMD_PORT};
 
     struct OpenVpnLine
     {
         OvpnCmd type;
         QString host;   // extracted hostname/ip from "remote" cmd
 
+        uint port;          // 0 if not set
+        QString protocol;   // empty if not set
 
-        OpenVpnLine() : type(OVPN_CMD_UNKNOWN) {}
+        OpenVpnLine() : type(OVPN_CMD_UNKNOWN), port(0) {}
 
     };
 

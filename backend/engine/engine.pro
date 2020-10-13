@@ -420,7 +420,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     utils/mergelog.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \
-    engine/connectionmanager/iconnectionmanager.h \
     engine/networkstatemanager/inetworkstatemanager.h \
     utils/simplecrypt.h \
     engine/logincontroller/logincontroller.h \

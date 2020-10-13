@@ -67,7 +67,7 @@ public:
     Group getGroup(int ind) const { Q_ASSERT(d->isValid_); return d->groups_.at(ind); }
     void addGroup(const Group &group) { Q_ASSERT(d->isValid_); d->groups_.append(group); }
 
-    QStringList getAllIps() const;
+    QStringList getAllPingIps() const;
 
     bool operator== (const Location &other) const
     {

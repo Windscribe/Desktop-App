@@ -347,10 +347,10 @@ void ApiLocationsModel::whitelistIps()
     {
         for (int i = 0; i < l.groupsCount(); ++i)
         {
-            ips << l.getGroup(i).getAllIps();
+            ips << l.getGroup(i).getPingIp();
         }
     }
-    ips << staticIps_.getAllIps();
+    ips << staticIps_.getAllPingIps();
     emit whitelistIpsChanged(ips);
 }
 

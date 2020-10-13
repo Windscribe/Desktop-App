@@ -182,12 +182,12 @@ ProtoApiInfo::StaticIps StaticIps::getProtoBuf() const
     return si;
 }
 
-QStringList StaticIps::getAllIps() const
+QStringList StaticIps::getAllPingIps() const
 {
     QStringList ret;
     for (const StaticIpDescr &sid : d->ips_)
     {
-        ret << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3 << sid.wgIp;
+        ret << sid.getPingIp();
     }
     return ret;
 }

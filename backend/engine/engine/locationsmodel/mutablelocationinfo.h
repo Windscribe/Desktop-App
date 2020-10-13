@@ -23,7 +23,9 @@ public:
 
 
     QString getDnsName() const;
-    bool isExistSelectedNode() const;
+    bool isExistSelectedNode() const override;
+    QString getLogString() const override;
+
     int nodesCount() const;
     QString getIpForNode(int indNode, int indIp) const;
 
@@ -45,6 +47,9 @@ private:
     QVector< QSharedPointer<const BaseNode> > nodes_;
     int selectedNode_;
     QString dnsHostName_;
+
+    QString getLogForNode(int ind) const;
+
 };
 
 } //namespace locationsmodel

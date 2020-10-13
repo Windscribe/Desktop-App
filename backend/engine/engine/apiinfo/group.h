@@ -50,7 +50,6 @@ public:
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
     void initFromProtoBuf(const ProtoApiInfo::Group &g);
     ProtoApiInfo::Group getProtoBuf() const;
-    QStringList getAllIps() const;
 
     int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
     QString getCity() const { Q_ASSERT(d->isValid_); return d->city_; }

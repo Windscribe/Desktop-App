@@ -15,6 +15,42 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
             {
                 openVpnLine.type = OVPN_CMD_REMOTE_IP;
                 openVpnLine.host = strs[1];
+
+                if (strs.count() >= 3)
+                {
+                    openVpnLine.port = strs[2].toUInt();
+
+                    if (strs.count() >= 4)
+                    {
+                        openVpnLine.protocol = strs[3];
+                    }
+                }
+            }
+        }
+    }
+    else if (line.contains("proto", Qt::CaseInsensitive))
+    {
+        QStringList strs = splitLine(line);
+
+        if (strs.count() > 0 && strs[0].compare("proto", Qt::CaseInsensitive) == 0)
+        {
+            if (strs.count() >= 2)
+            {
+                openVpnLine.type = OVPN_CMD_PROTO;
+                openVpnLine.protocol = strs[1];
+            }
+        }
+    }
+    else if (line.contains("port", Qt::CaseInsensitive))
+    {
+        QStringList strs = splitLine(line);
+
+        if (strs.count() > 0 && strs[0].compare("port", Qt::CaseInsensitive) == 0)
+        {
+            if (strs.count() >= 2)
+            {
+                openVpnLine.type = OVPN_CMD_PORT;
+                openVpnLine.port = strs[1].toUInt();
             }
         }
     }

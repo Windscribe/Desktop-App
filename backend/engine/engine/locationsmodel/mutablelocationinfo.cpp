@@ -49,6 +49,18 @@ bool MutableLocationInfo::isExistSelectedNode() const
     return selectedNode_ != -1;
 }
 
+QString MutableLocationInfo::getLogString() const
+{
+    QString strNodes;
+    for (int i = 0; i < nodes_.count(); ++i)
+    {
+        strNodes += getLogForNode(i);
+        strNodes += "; ";
+    }
+
+    return "Location nodes: " + strNodes;
+}
+
 int MutableLocationInfo::nodesCount() const
 {
     return nodes_.count();
@@ -138,6 +150,27 @@ apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
         Q_ASSERT(false);
         return apiinfo::StaticIpPortsVector();
     }
+}
+
+QString MutableLocationInfo::getLogForNode(int ind) const
+{
+    QString ret = "node" + QString::number(ind + 1);
+
+    ret += " = {";
+
+    const int IPS_COUNT = 3;
+    for (int i = 0; i < IPS_COUNT; ++i)
+    {
+        ret += "ip" + QString::number(i + 1) + " = ";
+        ret += getIpForNode(ind, i);
+        if (i != (IPS_COUNT - 1))
+        {
+            ret += ", ";
+        }
+    }
+
+    ret += "}";
+    return ret;
 }
 
 

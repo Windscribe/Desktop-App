@@ -18,15 +18,8 @@ void ManualConnSettingsPolicy::reset()
 
 void ManualConnSettingsPolicy::debugLocationInfoToLog() const
 {
-    QString strNodes;
-    for (int i = 0; i < locationInfo_->nodesCount(); ++i)
-    {
-        strNodes += getLogForNode(i);
-        strNodes += "; ";
-    }
-
     connectionSettings_.logConnectionSettings();
-    qCDebug(LOG_CONNECTION) << "Location nodes:" << strNodes;
+    qCDebug(LOG_CONNECTION) << locationInfo_->getLogString();
 }
 
 void ManualConnSettingsPolicy::putFailedConnection()
@@ -107,25 +100,4 @@ void ManualConnSettingsPolicy::resolveHostnames()
 {
     //nothing todo
     emit hostnamesResolved();
-}
-
-QString ManualConnSettingsPolicy::getLogForNode(int ind) const
-{
-    QString ret = "node" + QString::number(ind + 1);
-
-    ret += " = {";
-
-    const int IPS_COUNT = 3;
-    for (int i = 0; i < IPS_COUNT; ++i)
-    {
-        ret += "ip" + QString::number(i + 1) + " = ";
-        ret += locationInfo_->getIpForNode(ind, i);
-        if (i != (IPS_COUNT - 1))
-        {
-            ret += ", ";
-        }
-    }
-
-    ret += "}";
-    return ret;
 }

@@ -11,6 +11,8 @@ struct RemoteCommandLine
 {
     QString hostname;               // ip or hostname
     QString originalRemoteCommand;
+    uint port;              // 0 if not set
+    QString protocol;       // empty if not set
 };
 
 class OvpnCustomConfig : public ICustomConfig
@@ -26,6 +28,11 @@ public:
 
     static ICustomConfig *makeFromFile(const QString &filepath);
 
+    QVector<RemoteCommandLine> remotes() const;
+    uint globalPort() const;
+    QString globalProtocol() const;
+    QString getOvpnData() const;
+
 private:
     bool isCorrect_;
     QString errMessage_;
@@ -36,6 +43,10 @@ private:
 
     QString ovpnData_;  // ovpn file without "remote" commands. They are all cut out and converted to a list of structures "RemoteItem"
     QVector<RemoteCommandLine> remotes_;
+
+    uint globalPort_;           // 0 if not set
+    QString globalProtocol_;    // empty if not set
+
 
     void process();
 

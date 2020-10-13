@@ -16,15 +16,7 @@ void CustomConfigConnSettingsPolicy::reset()
 
 void CustomConfigConnSettingsPolicy::debugLocationInfoToLog() const
 {
-    /*QString strNodes;
-    for (int i = 0; i < locationInfo_->nodesCount(); ++i)
-    {
-        strNodes += getLogForNode(i);
-        strNodes += "; ";
-    }
-
-    connectionSettings_.logConnectionSettings();
-    qCDebug(LOG_CONNECTION) << "Location nodes:" << strNodes;*/
+    qCDebug(LOG_CONNECTION) << locationInfo_->getLogString();
 }
 
 void CustomConfigConnSettingsPolicy::putFailedConnection()
@@ -34,15 +26,7 @@ void CustomConfigConnSettingsPolicy::putFailedConnection()
         return;
     }
 
-    /*if (failedManualModeCounter_ >= 2)
-    {
-        // try switch to another node for manual mode
-        locationInfo_->selectNextNode();
-    }
-    else
-    {
-       failedManualModeCounter_++;
-    }*/
+    locationInfo_->selectNextNode();
 }
 
 bool CustomConfigConnSettingsPolicy::isFailed() const
@@ -57,7 +41,10 @@ CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSetti
     ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
     ccd.ovpnData = locationInfo_->getOvpnData();
     ccd.ip = locationInfo_->getSelectedIp();
+    ccd.remoteCmdLine = locationInfo_->getSelectedRemoteCommand();
     ccd.customConfigFilename = locationInfo_->getFilename();
+    ccd.port = locationInfo_->getSelectedPort();
+    ccd.protocol = locationInfo_->getSelectedProtocol();
 
     return ccd;
 }

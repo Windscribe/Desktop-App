@@ -11,7 +11,7 @@
 #include "firewall/firewallcontroller.h"
 #include "serverapi/serverapi.h"
 #include "locationsmodel/locationsmodel.h"
-#include "connectionmanager/iconnectionmanager.h"
+#include "connectionmanager/connectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "engine/refetchservercredentialshelper.h"
 #include "engine/vpnshare/vpnsharecontroller.h"
@@ -240,7 +240,7 @@ private slots:
     void onConnectionManagerError(CONNECTION_ERROR err);
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
-    void onConnectionManagerConnectingToHostname(const QString &hostname);
+    void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip);
     void onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
     void onConnectionManagerGetWireGuardConfig();
@@ -285,7 +285,7 @@ private:
     INetworkStateManager *networkStateManager_;
     FirewallController *firewallController_;
     ServerAPI *serverAPI_;
-    IConnectionManager *connectionManager_;
+    ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
     GetMyIPController *getMyIPController_;

@@ -7,6 +7,7 @@
 // // manage manual connection mode (only for API and static ips locations)
 class CustomConfigConnSettingsPolicy : public BaseConnSettingsPolicy
 {
+    Q_OBJECT
 public:
     CustomConfigConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli);
 

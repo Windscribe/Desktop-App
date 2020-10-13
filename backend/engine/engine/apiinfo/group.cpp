@@ -84,19 +84,4 @@ ProtoApiInfo::Group Group::getProtoBuf() const
     return group;
 }
 
-QStringList Group::getAllIps() const
-{
-    Q_ASSERT(d->isValid_);
-
-    QStringList list;
-    for (const Node &node : d->nodes_)
-    {
-        list << node.getIp(0);
-        list << node.getIp(1);
-        list << node.getIp(2);
-    }
-    list << d->pingIp_;
-    return list;
-}
-
 } // namespace apiinfo

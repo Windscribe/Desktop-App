@@ -566,7 +566,7 @@ void Engine::init()
     connect(connectionManager_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onConnectionManagerError(CONNECTION_ERROR)));
     connect(connectionManager_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionManagerStatisticsUpdated(quint64,quint64, bool)));
     connect(connectionManager_, SIGNAL(testTunnelResult(bool, QString)), SLOT(onConnectionManagerTestTunnelResult(bool, QString)));
-    connect(connectionManager_, SIGNAL(connectingToHostname(QString)), SLOT(onConnectionManagerConnectingToHostname(QString)));
+    connect(connectionManager_, SIGNAL(connectingToHostname(QString, QString)), SLOT(onConnectionManagerConnectingToHostname(QString, QString)));
     connect(connectionManager_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onConnectionManagerProtocolPortChanged(ProtoTypes::Protocol, uint)));
     connect(connectionManager_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onConnectionManagerInternetConnectivityChanged(bool)));
     connect(connectionManager_, SIGNAL(getWireGuardConfig()), SLOT(onConnectionManagerGetWireGuardConfig()));
@@ -1746,10 +1746,18 @@ void Engine::onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytes
     emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
 }
 
-void Engine::onConnectionManagerConnectingToHostname(const QString &hostname)
+void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip)
 {
     lastConnectingHostname_ = hostname;
     connectStateController_->setConnectingState(locationId_);
+
+    qCDebug(LOG_BASIC) << "Whitelist connecting ip:" << ip;
+    bool bChanged = false;
+    firewallExceptions_.setConnectingIp(ip, bChanged);
+    if (bChanged)
+    {
+        updateFirewallSettings();
+    }
 }
 
 void Engine::onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port)
@@ -1890,7 +1898,7 @@ void Engine::onCustomConfigsChanged()
 
 void Engine::onLocationsModelWhitelistIpsChanged(const QStringList &ips)
 {
-    firewallExceptions_.setLocationsIps(ips);
+    firewallExceptions_.setLocationsPingIps(ips);
     updateFirewallSettings();
 }
 

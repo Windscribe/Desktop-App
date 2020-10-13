@@ -23,6 +23,8 @@ public:
     QString getName() const;
     virtual bool isExistSelectedNode() const = 0;
 
+    virtual QString getLogString() const = 0;
+
 protected:
     LocationID locationId_;
     QString name_;

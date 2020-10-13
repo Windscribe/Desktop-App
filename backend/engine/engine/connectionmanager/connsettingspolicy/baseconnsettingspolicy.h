@@ -21,6 +21,7 @@ struct CurrentConnectionDescr
     // fields for CONNECTION_NODE_CUSTOM_OVPN_CONFIG
     QString ovpnData;
     QString customConfigFilename;
+    QString remoteCmdLine;
 
     // fields for WireGuard
     QString wgPublicKey;

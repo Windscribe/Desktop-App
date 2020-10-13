@@ -8,6 +8,7 @@
 // // manage manual connection mode (only for API and static ips locations)
 class ManualConnSettingsPolicy : public BaseConnSettingsPolicy
 {
+    Q_OBJECT
 public:
     ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const ConnectionSettings &connectionSettings,
                              const apiinfo::PortMap &portMap);
@@ -27,8 +28,6 @@ private:
     apiinfo::PortMap portMap_;
     ConnectionSettings connectionSettings_;
     int failedManualModeCounter_;
-
-    QString getLogForNode(int ind) const;
 };
 
 #endif // MANUALCONNSETTINGSPOLICY_H

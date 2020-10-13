@@ -7,6 +7,7 @@
 // // manage automatic connection mode (only for API and static ips locations)
 class AutoConnSettingsPolicy : public BaseConnSettingsPolicy
 {
+    Q_OBJECT
 public:
     AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const apiinfo::PortMap &portMap, bool isProxyEnabled);
 
@@ -38,7 +39,6 @@ private:
     bool bIsAllFailed_;
     bool bStarted_;
 
-    QString getLogForNode(int ind) const;
     static bool sortPortMapFunction(const apiinfo::PortItem &p1, const apiinfo::PortItem &p2);
 };
 

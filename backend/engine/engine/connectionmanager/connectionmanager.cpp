@@ -36,8 +36,10 @@
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
 
 ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager,
-                                             ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) :
-    IConnectionManager(parent, helper, networkStateManager, serverAPI, customOvpnAuthCredentialsStorage),
+                                             ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
+    helper_(helper),
+    networkStateManager_(networkStateManager),
+    customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
     connector_(NULL),
     sleepEvents_(NULL),
     stunnelManager_(NULL),
@@ -132,6 +134,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
             connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli, connectionSettings, portMap));
         }
     }
+    connSettingsPolicy_->start();
 
     connect(connSettingsPolicy_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
 
@@ -847,8 +850,7 @@ void ConnectionManager::doConnectPart2()
     }
     else if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
     {
-        Q_ASSERT(false);
-        bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(currentConnectionDescr_.ovpnData, currentConnectionDescr_.ip);
+        bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(currentConnectionDescr_.ovpnData, currentConnectionDescr_.ip, currentConnectionDescr_.remoteCmdLine);
         if (!bOvpnSuccess )
         {
             qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:" << currentConnectionDescr_.customConfigFilename;
@@ -858,8 +860,6 @@ void ConnectionManager::doConnectPart2()
             emit errorDuringConnection(CANNOT_OPEN_CUSTOM_OVPN_CONFIG);
             return;
         }
-        currentConnectionDescr_.protocol = makeOVPNFileFromCustom_->protocol();
-        currentConnectionDescr_.port = makeOVPNFileFromCustom_->port();
     }
     else
     {
@@ -873,7 +873,7 @@ void ConnectionManager::doConnectPart3()
 {
     qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
     emit protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
-    emit connectingToHostname(currentConnectionDescr_.hostname);
+    emit connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip);
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
     {

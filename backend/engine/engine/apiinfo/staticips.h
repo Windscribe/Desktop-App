@@ -117,7 +117,7 @@ public:
     int getIpsCount() const { return d->ips_.count(); }
     const StaticIpDescr &getIp(int ind) const { Q_ASSERT(ind >= 0 && ind < d->ips_.count()); return d->ips_[ind]; }
 
-    QStringList getAllIps() const;
+    QStringList getAllPingIps() const;
 
     bool operator== (const StaticIps &other) const
     {

@@ -13,11 +13,10 @@
 
 MakeOVPNFileFromCustom::MakeOVPNFileFromCustom()
 {
-    QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/custom_configs";
+    QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QDir dir(strPath);
     dir.mkpath(strPath);
-    path_ = strPath + "/windscribe_temp_config.ovpn";
-    port_ = 0;
+    path_ = strPath + "/config.ovpn";
     file_.setFileName(path_);
 }
 
@@ -27,8 +26,8 @@ MakeOVPNFileFromCustom::~MakeOVPNFileFromCustom()
     file_.remove();
 }
 
-// if IP is not empty, need replace all hostnames in remote command to this IP
-bool MakeOVPNFileFromCustom::generate(const QString &ovpnData, const QString &ip)
+// write all of ovpnData to file and add remoteCommand with replaced ip
+bool MakeOVPNFileFromCustom::generate(const QString &ovpnData, const QString &ip, const QString &remoteCommand)
 {
     if (!file_.isOpen())
     {
@@ -43,40 +42,16 @@ bool MakeOVPNFileFromCustom::generate(const QString &ovpnData, const QString &ip
 
     file_.write(ovpnData.toLocal8Bit());
 
-
-    /*QFile customOvpnFile(pathCustomOvpn);
-    if (!customOvpnFile.open(QIODevice::ReadOnly))
+    QString line = remoteCommand;
+    ParseOvpnConfigLine::OpenVpnLine openVpnLine = ParseOvpnConfigLine::processLine(remoteCommand);
+    if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_REMOTE_IP)
     {
-        qCDebug(LOG_CONNECTION) << "Can't open custom ovpn config file:" << pathCustomOvpn;
-        return false;
-    }*/
-
-    /*QTextStream in(&customOvpnFile);
-    while (!in.atEnd())
-    {
-        QString line = in.readLine();
-        ParseOvpnConfigLine::OpenVpnLine openVpnLine = ParseOvpnConfigLine::processLine(line);
-
-        if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_REMOTE_IP)
-        {
-            line = line.replace(openVpnLine.host, ip);
-            file_.write(line.toLocal8Bit());
-            file_.write("\r\n");
-            port_ = openVpnLine.port;
-        }
-        else
-        {
-            file_.write(line.toLocal8Bit());
-            file_.write("\r\n");
-        }
-    }*/
+        line = line.replace(openVpnLine.host, ip);
+        file_.write(line.toLocal8Bit());
+        file_.write("\r\n");
+    }
 
     file_.flush();
-
     return true;
 }
 
-QString MakeOVPNFileFromCustom::protocol() const
-{
-    return "UDP";
-}

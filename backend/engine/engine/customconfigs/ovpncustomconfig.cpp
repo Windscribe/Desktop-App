@@ -48,11 +48,31 @@ ICustomConfig *OvpnCustomConfig::makeFromFile(const QString &filepath)
     config->name_ = fi.completeBaseName();
     config->filename_ = fi.fileName();
     config->filepath_ = filepath;
+    config->globalPort_ = 0;
     config->isCorrect_ = true;      // by default correct config
     config->process();              // here the config can change to incorrect
     return config;
 }
 
+QVector<RemoteCommandLine> OvpnCustomConfig::remotes() const
+{
+    return remotes_;
+}
+
+uint OvpnCustomConfig::globalPort() const
+{
+    return globalPort_;
+}
+
+QString OvpnCustomConfig::globalProtocol() const
+{
+    return globalProtocol_;
+}
+
+QString OvpnCustomConfig::getOvpnData() const
+{
+    return ovpnData_;
+}
 
 // retrieves all hostnames/IPs "remote ..." commands
 // also ovpn-config with removed "remote" commands saves in ovpnData_
@@ -75,12 +95,34 @@ void OvpnCustomConfig::process()
                 RemoteCommandLine rcl;
                 rcl.hostname = openVpnLine.host;
                 rcl.originalRemoteCommand = line;
+                rcl.port = openVpnLine.port;
+                rcl.protocol = openVpnLine.protocol;
                 remotes_ << rcl;
                 qDebug(LOG_CUSTOM_OVPN) << "Extracted hostname/IP:" << openVpnLine.host << " from  remote cmd:" << line;
+                if (!openVpnLine.protocol.isEmpty())
+                {
+                    qDebug(LOG_CUSTOM_OVPN) << "Extracted protocol:" << openVpnLine.protocol << " from  remote cmd:" << line;
+                }
+                if (openVpnLine.port != 0)
+                {
+                    qDebug(LOG_CUSTOM_OVPN) << "Extracted port:" << openVpnLine.port << " from  remote cmd:" << line;
+                }
+
                 bFoundAtLeastOneRemote = true;
             }
             else
             {
+                if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PROTO) // proto cmd
+                {
+                    globalProtocol_ = openVpnLine.protocol;
+                    qDebug(LOG_CUSTOM_OVPN) << "Extracted global protocol:" << globalProtocol_;
+                }
+                else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PORT) // port cmd
+                {
+                    globalPort_ = openVpnLine.port;
+                    qDebug(LOG_CUSTOM_OVPN) << "Extracted global port:" << globalPort_;
+                }
+
                 ovpnData_ += line + "\n";
             }
         }

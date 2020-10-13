@@ -38,11 +38,11 @@ void FirewallExceptions::setCustomRemoteIp(const QString &remoteIP, bool &bChang
     }
 }
 
-void FirewallExceptions::setCustomOvpnIp(const QString &ip, bool &bChanged)
+void FirewallExceptions::setConnectingIp(const QString &connectingIp, bool &bChanged)
 {
-    if (customOvpnIP_ != ip)
+    if (connectingIp_ != connectingIp)
     {
-        customOvpnIP_ = ip;
+        connectingIp_ = connectingIp;
         bChanged = true;
     }
     else
@@ -56,9 +56,9 @@ void FirewallExceptions::setDnsPolicy(DNS_POLICY_TYPE dnsPolicy)
     dnsPolicyType_ = dnsPolicy;
 }
 
-void FirewallExceptions::setLocationsIps(const QStringList &listIps)
+void FirewallExceptions::setLocationsPingIps(const QStringList &listIps)
 {
-    locationsIPs_ = listIps;
+    locationsPingIPs_ = listIps;
 }
 
 QString FirewallExceptions::getIPAddressesForFirewall()
@@ -123,12 +123,12 @@ QString FirewallExceptions::getIPAddressesForFirewall()
         ipList.add(remoteIP_);
     }
 
-    if (!customOvpnIP_.isEmpty())
+    if (!connectingIp_.isEmpty())
     {
-        ipList.add(customOvpnIP_);
+        ipList.add(connectingIp_);
     }
 
-    Q_FOREACH(const QString &sl, locationsIPs_)
+    for (const QString &sl : locationsPingIPs_)
     {
         if (!sl.isEmpty())
         {
