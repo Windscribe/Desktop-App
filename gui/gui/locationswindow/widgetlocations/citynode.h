@@ -45,6 +45,9 @@ struct CityNode
     void updateScaling();
 
 private:
+    QString getShortenedCaptionText(QString original, QFont font) const;
+    static constexpr int MAXIMUM_CAPTION_WIDTH = 175;
+
     LocationID locationId_;
     QString countryCode_;
     ItemTimeMs timeMs_;
