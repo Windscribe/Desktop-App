@@ -2,313 +2,201 @@
 #include "utils/utils.h"
 #include <QFile>
 #include <QTextStream>
+
 #include "utils/logger.h"
+#include "utils/ipvalidation.h"
 #include "customconfiglocationinfo.h"
 #include "nodeselectionalgorithm.h"
+#include "engine/dnsresolver/dnsresolver.h"
+
 
 namespace locationsmodel {
 
 CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost) : QObject(parent),
-    hostnameResolver_(this), pingIpsController_(this, stateController, networkStateManager, pingHost, "ping_log_custom_configs.txt")
+    pingStorage_("pingStorageCustomConfigs"),
+    pingIpsController_(this, stateController, networkStateManager, pingHost, "ping_log_custom_configs.txt")
 {
     connect(&pingIpsController_, SIGNAL(pingInfoChanged(QString,int, bool)), SLOT(onPingInfoChanged(QString,int, bool)));
     connect(&pingIpsController_, SIGNAL(needIncrementPingIteration()), SLOT(onNeedIncrementPingIteration()));
     pingStorage_.incIteration();
 
-    connect(&hostnameResolver_, SIGNAL(allResolved()), SLOT(onHostnamesResolved()));
-
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), SLOT(onTimer()));
-    timer->start(1000 * 10);
+    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void*)), SLOT(onResolved(QString,QHostInfo,void*)));
 }
 
 void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<const customconfigs::ICustomConfig> > &customConfigs)
 {
-    customConfigs_ = customConfigs;
-    generateLocationsUpdated();
-}
+    // todo synchronize ping time for two instances of PingIpsController
+    // todo: check if configs actually changed
+    // todo: dns-resolver cache
 
-/*void CustomConfigLocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs)
-{
-    if (!isChanged(locations, staticIps, customConfigs))
-    {
-        return;
-    }
-
-    hostnameResolver_.clear();
-
-    locations_ = locations;
-    staticIps_ = staticIps;
-    customConfigs_ = customConfigs;
-
-    whitelistIps();
-
-    // ping stuff
-    QVector<PingIpInfo> ips;
-    QStringList stringListIps;
-    for (const apiinfo::Location &l : locations)
-    {
-        for (int i = 0; i < l.groupsCount(); ++i)
-        {
-            PingIpInfo pii;
-            pii.ip = l.getGroup(i).getPingIp();
-            pii.pingType = PingHost::PING_TCP;
-            ips << pii;
-            stringListIps << pii.ip;
-        }
-    }
-
-    // handle static ips location
-    for (int i = 0; i < staticIps_.getIpsCount(); ++i)
-    {
-        const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
-        PingIpInfo pii;
-        pii.ip = sid.getPingIp();
-        pii.pingType = PingHost::PING_TCP;
-        ips << pii;
-        stringListIps << pii.ip;
-    }
-
-    // handle custom configs
     QStringList hostnamesForResolve;
-    for (auto config : customConfigs_)
+    QVector<PingIpInfo> allIps;
+    // fill pingInfos_ array
+    pingInfos_.clear();
+    for (auto config : customConfigs)
     {
+        CustomConfigWithPingInfo cc;
+        cc.customConfig = config;
+
+        // fill remotes
         const QStringList hostnames = config->hostnames();
         for (auto hostname : hostnames)
         {
-            stringListIps << hostname;
-            if (IpValidation::instance().isIp(hostname))
+            RemoteItem ri;
+            ri.ipOrHostname.ip = hostname;
+            ri.isHostname = !IpValidation::instance().isIp(hostname);
+
+            if (!ri.isHostname)
             {
-                PingIpInfo pii;
-                pii.ip = hostname;
-                pii.pingType = PingHost::PING_ICMP;
-                ips << pii;
+                allIps << PingIpInfo(hostname, PingHost::PING_ICMP);
+                ri.ipOrHostname.pingTime = pingStorage_.getNodeSpeed(hostname);
             }
             else
             {
                 hostnamesForResolve << hostname;
             }
+
+            cc.remotes << ri;
         }
-    }
 
-    pingStorage_.updateNodes(stringListIps);
-    pingIpsController_.updateIps(ips, false);
-
-    if (hostnamesForResolve.isEmpty())
-    {
-        pingIpsController_.updateIps(QVector<PingIpInfo>(), true);      // clear hostnames IPs
-    }
-    else
-    {
-        hostnameResolver_.setHostnames(hostnamesForResolve);
+        pingInfos_ << cc;
     }
 
     generateLocationsUpdated();
-}*/
+
+    if (hostnamesForResolve.isEmpty())
+    {
+        startPingAndWhitelistIps();
+    }
+    else
+    {
+        for (const QString &hostname : hostnamesForResolve)
+        {
+            DnsResolver::instance().lookup(hostname, this);
+        }
+    }
+}
 
 void CustomConfigLocationsModel::clear()
 {
-    /*locations_.clear();
-    staticIps_ = apiinfo::StaticIps();
+    pingInfos_.clear();
     pingIpsController_.updateIps(QVector<PingIpInfo>());
     QSharedPointer<QVector<locationsmodel::LocationItem> > empty(new QVector<locationsmodel::LocationItem>());
-    emit locationsUpdated(LocationID(), empty);*/
+    emit locationsUpdated(empty);
 }
 
 QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
     Q_ASSERT(locationId.isCustomConfigsLocation());
 
-    for (const QSharedPointer<const customconfigs::ICustomConfig> config : customConfigs_)
+    for (const CustomConfigWithPingInfo &config : pingInfos_)
     {
-        if (LocationID::createCustomConfigLocationId(config->filename()) == locationId)
+        if (LocationID::createCustomConfigLocationId(config.customConfig->filename()) == locationId)
         {
-             QSharedPointer<BaseLocationInfo> bli(new CustomConfigLocationInfo(locationId, config));
+             QSharedPointer<BaseLocationInfo> bli(new CustomConfigLocationInfo(locationId, config.customConfig));
              return bli;
         }
     }
-
-    /*if (locationId.isStaticIpsLocation())
-    {
-        if (staticIps_.getIpsCount() > 0)
-        {
-            for (int i = 0; i < staticIps_.getIpsCount(); ++i)
-            {
-                const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
-                LocationID staticIpLocationId = LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp);
-
-                if (staticIpLocationId == locationId)
-                {
-                    QVector< QSharedPointer<const BaseNode> > nodes;
-
-                    QStringList ips;
-                    ips << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3;
-                    nodes << QSharedPointer<BaseNode>(new StaticLocationNode(ips, sid.hostname, sid.wgPubKey, sid.wgIp, sid.dnsHostname, sid.username, sid.password, sid.getAllStaticIpIntPorts()));
-
-                    QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(locationId, sid.cityName + " - " + sid.staticIp, nodes, 0, ""));
-                    return bli;
-                }
-            }
-        }
-    }
-    else if (locationId.isBestLocation())
-    {
-        modifiedLocationId = locationId.bestLocationToApiLocation();
-    }
-
-    for (const apiinfo::Location &l : locations_)
-    {
-        if (LocationID::createTopApiLocationId(l.getId()) == modifiedLocationId.toTopLevelLocation())
-        {
-            for (int i = 0; i < l.groupsCount(); ++i)
-            {
-                const apiinfo::Group group = l.getGroup(i);
-                if (LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()) == modifiedLocationId)
-                {
-                    QVector< QSharedPointer<const BaseNode> > nodes;
-                    for (int n = 0; n < group.getNodesCount(); ++n)
-                    {
-                        const apiinfo::Node &apiInfoNode = group.getNode(n);
-                        QStringList ips;
-                        ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
-                        nodes << QSharedPointer<const ApiLocationNode>(new ApiLocationNode(ips, apiInfoNode.getHostname(), apiInfoNode.getWeight(), group.getWgPubKey()));
-                    }
-
-                    int selectedNode = NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(nodes);
-                    QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(modifiedLocationId, group.getCity() + " - " + group.getNick(), nodes, selectedNode, l.getDnsHostName()));
-                    return bli;
-                }
-            }
-        }
-    }*/
 
     return NULL;
 }
 
 void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState)
 {
-    /*if (bFromHostname)
+    pingStorage_.setNodePing(ip, timems, isFromDisconnectedState);
+
+    for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {
-        hostnameResolver_.setLatencyForIp(ip, timems);
-        QString hostname = hostnameResolver_.hostnameForIp(ip);
-        if (!hostname.isEmpty())
+        if (it->setPingTime(ip, timems))
         {
-            PingTime pingTime = hostnameResolver_.getLatencyForHostname(hostname);
-
-            pingStorage_.setNodePing(hostname, pingTime, isFromDisconnectedState);
-
-            for (auto config : customConfigs_)
-            {
-                const QStringList hostnames = config->hostnames();
-                if (hostnames.contains(hostname))
-                {
-                    emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(config->filename()), pingTime);
-                }
-            }
+            emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
         }
     }
-    else
-    {
-
-        pingStorage_.setNodePing(ip, timems, isFromDisconnectedState);
-
-        bool isAllNodesHaveCurIteration;
-        bool isAllNodesInDisconnectedState;
-        pingStorage_.getState(isAllNodesHaveCurIteration, isAllNodesInDisconnectedState);
-
-        if (isAllNodesHaveCurIteration)
-        {
-            detectBestLocation(isAllNodesInDisconnectedState);
-        }
-
-        for (const apiinfo::Location &l : locations_)
-        {
-            for (int i = 0; i < l.groupsCount(); ++i)
-            {
-                const apiinfo::Group group = l.getGroup(i);
-                if (group.getPingIp() == ip)
-                {
-                    emit locationPingTimeChanged(LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()), timems);
-                }
-            }
-        }
-
-        // handle static ips location
-        if (staticIps_.getIpsCount() > 0)
-        {
-            for (int i = 0; i < staticIps_.getIpsCount(); ++i)
-            {
-                const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
-                if (sid.getPingIp() == ip)
-                {
-                    emit locationPingTimeChanged(LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp), timems);
-                }
-            }
-        }
-
-        // handle custom configs
-        for (auto config : customConfigs_)
-        {
-            const QStringList hostnames = config->hostnames();
-            if (hostnames.contains(ip))
-            {
-                emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(config->filename()), timems);
-            }
-        }
-    }*/
 }
 
 void CustomConfigLocationsModel::onNeedIncrementPingIteration()
 {
     pingStorage_.incIteration();
-    hostnameResolver_.clearLatencyInfo();
 }
 
-void CustomConfigLocationsModel::onHostnamesResolved()
+void CustomConfigLocationsModel::onResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
 {
-    /*whitelistIps();
-
-    const QStringList ips = hostnameResolver_.allIps();
-    QVector<PingIpInfo> pingInfos;
-    for (auto ip : ips)
+    if (userPointer == this)
     {
-        PingIpInfo pii;
-        pii.ip = ip;
-        pii.pingType = PingHost::PING_ICMP;
-        pingInfos << pii;
-    }
-    pingIpsController_.updateIps(pingInfos, true);*/
-}
-
-void CustomConfigLocationsModel::onTimer()
-{
-    if (!customConfigs_.isEmpty())
-    {
-        for (const QSharedPointer<const customconfigs::ICustomConfig> config : customConfigs_)
+        for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
         {
-            PingTime pt = Utils::generateIntegerRandom(1, 1500);
-            emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(config->filename()), pt);
-            /*CityItem city;
-            city.id = LocationID::createCustomConfigLocationId(config->filename());
-            city.city = config->name();
-            city.pingTimeMs = PingTime::NO_PING_INFO;       // todo
-            //city.pingTimeMs = pingStorage_.getNodeSpeed(sid.getPingIp());
-            city.isPro = true;
-            city.isDisabled = false;
+            for (auto remoteIt = it->remotes.begin(); remoteIt != it->remotes.end(); ++remoteIt)
+            {
+                if (remoteIt->isHostname && remoteIt->ipOrHostname.ip == hostname)
+                {
+                    remoteIt->isResolved = true;
+                    remoteIt->ips.clear();
 
-            city.customConfigType = config->type();
-            city.customConfigIsCorrect = config->isCorrect();
-            city.customConfigErrorMessage = config->getErrorForIncorrect();
-            item.cities << city;*/
+                    for (const QHostAddress ha : hostInfo.addresses())
+                    {
+                        IpItem ipItem;
+                        ipItem.ip = ha.toString();
+                        ipItem.pingTime = pingStorage_.getNodeSpeed(ipItem.ip);
+                        remoteIt->ips << ipItem;
+                    }
+                }
+            }
+        }
+        if (isAllResolved())
+        {
+            startPingAndWhitelistIps();
         }
     }
+}
+
+bool CustomConfigLocationsModel::isAllResolved() const
+{
+    for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
+    {
+        for (auto remoteIt = it->remotes.begin(); remoteIt != it->remotes.end(); ++remoteIt)
+        {
+            if (remoteIt->isHostname && !remoteIt->isResolved)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void CustomConfigLocationsModel::startPingAndWhitelistIps()
+{
+    QVector<PingIpInfo> allIps;
+    QStringList strListIps;
+
+    for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
+    {
+        for (auto remoteIt = it->remotes.begin(); remoteIt != it->remotes.end(); ++remoteIt)
+        {
+            if (remoteIt->isHostname)
+            {
+                for (auto ipIt = remoteIt->ips.begin(); ipIt != remoteIt->ips.end(); ++ipIt)
+                {
+                    strListIps << ipIt->ip;
+                    allIps << PingIpInfo(ipIt->ip, PingHost::PING_ICMP);
+                }
+            }
+            else
+            {
+                strListIps << remoteIt->ipOrHostname.ip;
+                allIps << PingIpInfo(remoteIt->ipOrHostname.ip, PingHost::PING_ICMP);
+            }
+        }
+    }
+    emit whitelistIpsChanged(strListIps);
+    pingIpsController_.updateIps(allIps);
 }
 
 void CustomConfigLocationsModel::generateLocationsUpdated()
 {
     QSharedPointer <QVector<LocationItem> > items(new QVector<LocationItem>());
 
-    if (!customConfigs_.isEmpty())
+    if (!pingInfos_.isEmpty())
     {
         LocationItem item;
 
@@ -318,19 +206,18 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
         item.isPremiumOnly = false;
         item.p2p = 1;
 
-        for (const QSharedPointer<const customconfigs::ICustomConfig> config : customConfigs_)
+        for (const CustomConfigWithPingInfo &config : pingInfos_)
         {
             CityItem city;
-            city.id = LocationID::createCustomConfigLocationId(config->filename());
-            city.city = config->name();
-            city.pingTimeMs = PingTime::NO_PING_INFO;       // todo
-            //city.pingTimeMs = pingStorage_.getNodeSpeed(sid.getPingIp());
+            city.id = LocationID::createCustomConfigLocationId(config.customConfig->filename());
+            city.city = config.customConfig->name();
+            city.pingTimeMs = config.getPing();
             city.isPro = true;
             city.isDisabled = false;
 
-            city.customConfigType = config->type();
-            city.customConfigIsCorrect = config->isCorrect();
-            city.customConfigErrorMessage = config->getErrorForIncorrect();
+            city.customConfigType = config.customConfig->type();
+            city.customConfigIsCorrect = config.customConfig->isCorrect();
+            city.customConfigErrorMessage = config.customConfig->getErrorForIncorrect();
             item.cities << city;
         }
         *items << item;
@@ -339,42 +226,65 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
     emit locationsUpdated(items);
 }
 
-void CustomConfigLocationsModel::whitelistIps()
+PingTime CustomConfigLocationsModel::CustomConfigWithPingInfo::getPing() const
 {
-    /*QStringList ips;
-    for (const apiinfo::Location &l : locations_)
+    // return first not failed ping
+    for (const RemoteItem &ri : remotes)
     {
-        for (int i = 0; i < l.groupsCount(); ++i)
+        if (!ri.isHostname)
         {
-            ips << l.getGroup(i).getAllIps();
-        }
-    }
-    ips << staticIps_.getAllIps();
-    ips << hostnameResolver_.allIps();
-    emit whitelistIpsChanged(ips);*/
-}
-
-bool CustomConfigLocationsModel::isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QVector<QSharedPointer<const customconfigs::ICustomConfig> > &customConfigs)
-{
-    /*bool bCustomConfigsChanged = false;
-    if (customConfigs_.size() != customConfigs.size())
-    {
-        bCustomConfigsChanged = true;
-    }
-    else
-    {
-        for (int i = 0; i < customConfigs_.size(); ++i)
-        {
-            if (customConfigs_[i]->filename() != customConfigs[i]->filename())
+            if (ri.ipOrHostname.pingTime != PingTime::PING_FAILED)
             {
-                bCustomConfigsChanged = true;
-                break;
+                return ri.ipOrHostname.pingTime;
+            }
+        }
+        else
+        {
+            if (ri.isResolved)
+            {
+                for (const IpItem &ipItem : ri.ips)
+                {
+                    if (ipItem.pingTime != PingTime::PING_FAILED)
+                    {
+                        return ipItem.pingTime;
+                    }
+                }
+            }
+            else
+            {
+                return PingTime::NO_PING_INFO;
             }
         }
     }
 
-    return bCustomConfigsChanged || locations_ != locations || staticIps_ != staticIps;*/
-    return true;
+    return PingTime::PING_FAILED;
+}
+
+bool CustomConfigLocationsModel::CustomConfigWithPingInfo::setPingTime(const QString &ip, PingTime pingTime)
+{
+    for (auto it = remotes.begin(); it != remotes.end(); ++it)
+    {
+        if (!it->isHostname)
+        {
+            if (it->ipOrHostname.ip == ip)
+            {
+                it->ipOrHostname.pingTime = pingTime;
+                return true;
+            }
+        }
+        else
+        {
+            for (auto ipIt = it->ips.begin(); ipIt != it->ips.end(); ++ipIt)
+            {
+                if (ipIt->ip == ip)
+                {
+                    ipIt->pingTime = pingTime;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 } //namespace locationsmodel

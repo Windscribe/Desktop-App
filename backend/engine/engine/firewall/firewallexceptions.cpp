@@ -61,6 +61,11 @@ void FirewallExceptions::setLocationsPingIps(const QStringList &listIps)
     locationsPingIPs_ = listIps;
 }
 
+void FirewallExceptions::setCustomConfigPingIps(const QStringList &listIps)
+{
+    customConfigsPingIPs_ = listIps;
+}
+
 QString FirewallExceptions::getIPAddressesForFirewall()
 {
     //Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
@@ -129,6 +134,14 @@ QString FirewallExceptions::getIPAddressesForFirewall()
     }
 
     for (const QString &sl : locationsPingIPs_)
+    {
+        if (!sl.isEmpty())
+        {
+            ipList.add(sl);
+        }
+    }
+
+    for (const QString &sl : customConfigsPingIPs_)
     {
         if (!sl.isEmpty())
         {

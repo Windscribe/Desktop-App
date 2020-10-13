@@ -44,7 +44,7 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
 
     for (const PingIpInfo &ip_info : ips)
     {
-        auto it = ips_.find(ip_info.ip);
+        auto it = ips_.find(ip_info.ip_);
         if (it == ips_.end())
         {
             PingNodeInfo pni;
@@ -53,8 +53,8 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
             pni.latestPingFailed_ = false;
             pni.bNowPinging_ = false;
             pni.failedPingsInRow = 0;
-            pni.pingType = ip_info.pingType;
-            ips_[ip_info.ip] = pni;
+            pni.pingType = ip_info.pingType_;
+            ips_[ip_info.ip_] = pni;
         }
         else
         {

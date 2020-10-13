@@ -12,7 +12,7 @@ namespace locationsmodel {
 class PingStorage
 {
 public:
-    explicit PingStorage();
+    explicit PingStorage(const QString &settingsKeyName);
     virtual ~PingStorage();
 
     void updateNodes(const QStringList &ips);
@@ -36,6 +36,8 @@ private:
 
     QHash<QString, PingData> hash_;
     quint32 curIteration_;
+
+    QString settingsKeyName_;
 
     void saveToSettings();
     void loadFromSettings();

@@ -263,7 +263,6 @@ SOURCES += main.cpp \
     engine/apiinfo/portmap.cpp \
     engine/apiinfo/staticips.cpp \
     engine/apiinfo/servercredentials.cpp \
-    engine/locationsmodel/hostnamesresolver.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/locationsmodel/locationsmodel.cpp \
     engine/locationsmodel/apilocationsmodel.cpp \
@@ -377,7 +376,6 @@ SOURCES += main.cpp \
 HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/locationsmodel/apilocationsmodel.h \
     engine/locationsmodel/customconfiglocationsmodel.h \
-    engine/locationsmodel/hostnamesresolver.h \
     engine/locationsmodel/locationitem.h \
     engine/locationsmodel/pingipscontroller.h \
     engine/locationsmodel/pingstorage.h \

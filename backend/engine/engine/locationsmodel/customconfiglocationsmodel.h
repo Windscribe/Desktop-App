@@ -1,6 +1,7 @@
 #ifndef CUSTOMCONFIGLOCATIONSMODEL_H
 #define CUSTOMCONFIGLOCATIONSMODEL_H
 
+#include <QHostInfo>
 #include <QObject>
 #include "engine/apiinfo/location.h"
 #include "engine/apiinfo/staticips.h"
@@ -12,7 +13,6 @@
 #include "bestlocation.h"
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
-#include "hostnamesresolver.h"
 
 namespace locationsmodel {
 
@@ -41,24 +41,47 @@ signals:
 private slots:
     void onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
     void onNeedIncrementPingIteration();
-    void onHostnamesResolved();
-
-    void onTimer();
+    void onResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
 
 private:
     PingStorage pingStorage_;
-    QVector<QSharedPointer<const customconfigs::ICustomConfig>> customConfigs_;
-
-    HostnamesResolver hostnameResolver_;
 
     PingIpsController pingIpsController_;
 
+    struct IpItem
+    {
+        QString ip;
+        PingTime pingTime;
+    };
 
+    struct RemoteItem
+    {
+        IpItem ipOrHostname;       // hostname or ip depending isHostname value
+        bool isHostname;
+
+        // make sense only for hostname
+        bool isResolved;
+        QVector<IpItem> ips;
+
+        RemoteItem() : isHostname(false), isResolved(false) {}
+    };
+
+    struct CustomConfigWithPingInfo
+    {
+        QSharedPointer<const customconfigs::ICustomConfig> customConfig;
+
+        QVector<RemoteItem> remotes;
+
+        PingTime getPing() const;
+        bool setPingTime(const QString &ip, PingTime pingTime);
+    };
+
+    QVector<CustomConfigWithPingInfo> pingInfos_;
+
+
+    bool isAllResolved() const;
+    void startPingAndWhitelistIps();
     void generateLocationsUpdated();
-    void whitelistIps();
-
-    bool isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
-
 };
 
 } //namespace locationsmodel

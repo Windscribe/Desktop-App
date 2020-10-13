@@ -19,6 +19,7 @@ public:
     void setDnsPolicy(DNS_POLICY_TYPE dnsPolicy);
 
     void setLocationsPingIps(const QStringList &listIps);
+    void setCustomConfigPingIps(const QStringList &listIps);
 
     QString getIPAddressesForFirewall();
     QString getIPAddressesForFirewallForConnectedState(const QString &connectedIp);
@@ -28,6 +29,7 @@ private:
     QString proxyIP_;
     QString remoteIP_;
     QStringList locationsPingIPs_;
+    QStringList customConfigsPingIPs_;
     QString connectingIp_;
     DNS_POLICY_TYPE dnsPolicyType_;
 

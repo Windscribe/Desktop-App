@@ -1904,7 +1904,8 @@ void Engine::onLocationsModelWhitelistIpsChanged(const QStringList &ips)
 
 void Engine::onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips)
 {
-    Q_ASSERT(false);
+    firewallExceptions_.setCustomConfigPingIps(ips);
+    updateFirewallSettings();
 }
 
 void Engine::onNetworkChange(ProtoTypes::NetworkInterface networkInterface)

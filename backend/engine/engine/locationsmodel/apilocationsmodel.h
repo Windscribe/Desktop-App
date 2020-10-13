@@ -12,7 +12,6 @@
 #include "bestlocation.h"
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
-#include "hostnamesresolver.h"
 
 namespace locationsmodel {
 

@@ -10,6 +10,7 @@
 namespace locationsmodel {
 
 ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost) : QObject(parent),
+    pingStorage_("pingStorage"),
     pingIpsController_(this, stateController, networkStateManager, pingHost, "ping_log.txt")
 {
     connect(&pingIpsController_, SIGNAL(pingInfoChanged(QString,int, bool)), SLOT(onPingInfoChanged(QString,int, bool)));
@@ -45,11 +46,9 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
     {
         for (int i = 0; i < l.groupsCount(); ++i)
         {
-            PingIpInfo pii;
-            pii.ip = l.getGroup(i).getPingIp();
-            pii.pingType = PingHost::PING_TCP;
-            ips << pii;
-            stringListIps << pii.ip;
+            QString pingIp = l.getGroup(i).getPingIp();
+            ips << PingIpInfo(pingIp, PingHost::PING_TCP);
+            stringListIps << pingIp;
         }
     }
 
@@ -57,11 +56,9 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
     for (int i = 0; i < staticIps_.getIpsCount(); ++i)
     {
         const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
-        PingIpInfo pii;
-        pii.ip = sid.getPingIp();
-        pii.pingType = PingHost::PING_TCP;
-        ips << pii;
-        stringListIps << pii.ip;
+        QString pingIp = sid.getPingIp();
+        ips << PingIpInfo(pingIp, PingHost::PING_TCP);
+        stringListIps << pingIp;
     }
 
     pingStorage_.updateNodes(stringListIps);
