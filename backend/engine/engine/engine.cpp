@@ -129,7 +129,7 @@ void Engine::loginWithAuthHash(const QString &authHash)
     QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, false));
 }
 
-void Engine::loginWithUsernameAndPassword(const QString &username, const QString &password)
+void Engine::loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa)
 {
     QMutexLocker locker(&mutex_);
     Q_ASSERT(bInitialized_);
@@ -137,7 +137,7 @@ void Engine::loginWithUsernameAndPassword(const QString &username, const QString
 
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        loginSettings_ = LoginSettings(username, password);
+        loginSettings_ = LoginSettings(username, password, code2fa);
     }
     loginState_ = LOGIN_IN_PROGRESS;
     QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, false));
@@ -1278,10 +1278,11 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
             emit loginError(LOGIN_SSL_ERROR);
         }
     }
-    else if (retCode == LOGIN_BAD_USERNAME)
+    else if (retCode == LOGIN_BAD_USERNAME || retCode == LOGIN_BAD_CODE2FA
+             || retCode == LOGIN_MISSING_CODE2FA)
     {
         loginState_ = LOGIN_NONE;
-        emit loginError(LOGIN_BAD_USERNAME);
+        emit loginError(retCode);
     }
     else
     {

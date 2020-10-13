@@ -17,6 +17,7 @@ public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
 
     void setClickable(bool isClickable);
+    int getSize() const { return BUTTON_SIZE; }
 
 signals:
     void clicked();
@@ -24,6 +25,7 @@ signals:
 private:
     IconButton *iconButton_;
 
+    static constexpr int BUTTON_SIZE = 24;
 };
 
 } // namespace PreferencesWindow

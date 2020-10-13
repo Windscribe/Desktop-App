@@ -143,13 +143,14 @@ void Backend::enableBFE_win()
     connection_->sendCommand(cmd);
 }
 
-void Backend::login(const QString &username, const QString &password)
+void Backend::login(const QString &username, const QString &password, const QString &code2fa)
 {
     Q_ASSERT(isInitFinished());
     bLastLoginWithAuthHash_ = false;
     IPC::ProtobufCommand<IPCClientCommands::Login> cmd;
     cmd.getProtoObj().set_username(username.toStdString());
     cmd.getProtoObj().set_password(password.toStdString());
+    cmd.getProtoObj().set_code2fa(code2fa.toStdString());
     cmd.getProtoObj().set_auth_hash("");
 
     // hide password for logging

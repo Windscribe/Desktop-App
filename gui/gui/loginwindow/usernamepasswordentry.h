@@ -28,6 +28,7 @@ public:
 
     void setError(bool error);
 
+    void setWidth(int width);
     void setOpacityByFactor(double newOpacityFactor);
 
     void setClickable(bool clickable) override;
@@ -41,6 +42,7 @@ public slots:
 signals:
     void activated();
     void keyPressed(QKeyEvent *event);
+    void textChanged(const QString &text);
 
 protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
@@ -48,19 +50,15 @@ protected:
 
 private slots:
     void onDescriptionPosYChanged(const QVariant &value);
-    void onLinePosChanged(const QVariant &value);
 
 private:
     QGraphicsProxyWidget *userEntryProxy_;
     CustomMenuLineEdit *userEntryLine_;
+    const QString userEntryLineAddSS_;
 
     int curDescriptionPosY_;
     QString descriptionText_;
     QVariantAnimation descriptionPosYAnimation_;
-
-    int curLinePos_;
-    QColor curLineActiveColor_;
-    QVariantAnimation linePosAnimation_;
 
     int height_;
     int width_;
@@ -69,11 +67,6 @@ private:
 
     double curDescriptionOpacity_;
     double curLineEditOpacity_;
-
-    double curBackgroundLineOpacity_;
-    double curForgroundLineOpacity_;
-
-    void drawBottomLine(QPainter *painter, int left, int right, int bottom, int whiteLinePos, QColor activeColor);
 
     static constexpr int DESCRIPTION_POS_CLICKED   = 0;
     static constexpr int DESCRIPTION_POS_UNCLICKED = 16;

@@ -46,7 +46,7 @@ void LoginYesNoButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     QFont *font = FontManager::instance().getFont(16, true);
     painter->setFont(*font);
-    painter->setPen(FontManager::instance().getMidnightColor());
+    painter->setPen(Qt::white);
 
     painter->save();
     painter->translate(0, height_* G_SCALE/2);

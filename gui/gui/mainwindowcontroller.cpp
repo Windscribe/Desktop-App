@@ -10,6 +10,7 @@
 #include "loginwindow/initwindowitem.h"
 #include "emergencyconnectwindow/emergencyconnectwindowitem.h"
 #include "externalconfig/externalconfigwindowitem.h"
+#include "twofactorauth/twofactorauthwindowitem.h"
 #include "updateapp/updateappitem.h"
 #include "connectwindow/connectwindowitem.h"
 #include "preferenceswindow/preferenceswindowitem.h"
@@ -67,6 +68,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     connectWindow_ = new ConnectWindow::ConnectWindowItem(nullptr, preferencesHelper);
     emergencyConnectWindow_ = new EmergencyConnectWindow::EmergencyConnectWindowItem();
     externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem();
+    twoFactorAuthWindow_ = new TwoFactorAuthWindow::TwoFactorAuthWindowItem();
     preferencesWindow_ = new PreferencesWindow::PreferencesWindowItem(NULL, preferences, preferencesHelper, accountInfo);
     updateWindow_ = new UpdateWindow::UpdateWindowItem(false);
     upgradeAccountWindow_ = new UpdateWindow::UpdateWindowItem(true);
@@ -86,6 +88,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     scene_->addItem(connectWindow_->getGraphicsObject());
     scene_->addItem(emergencyConnectWindow_->getGraphicsObject());
     scene_->addItem(externalConfigWindow_->getGraphicsObject());
+    scene_->addItem(twoFactorAuthWindow_->getGraphicsObject());
     scene_->addItem(preferencesWindow_->getGraphicsObject());
     scene_->addItem(updateWindow_->getGraphicsObject());
     scene_->addItem(upgradeAccountWindow_->getGraphicsObject());
@@ -101,6 +104,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     connectWindow_->getGraphicsObject()->setVisible(false);
     emergencyConnectWindow_->getGraphicsObject()->setVisible(false);
     externalConfigWindow_->getGraphicsObject()->setVisible(false);
+    twoFactorAuthWindow_->getGraphicsObject()->setVisible(false);
     preferencesWindow_->getGraphicsObject()->setVisible(false);
     updateWindow_->getGraphicsObject()->setVisible(false);
     upgradeAccountWindow_->getGraphicsObject()->setVisible(false);
@@ -178,6 +182,7 @@ void MainWindowController::updateLocationsWindowAndTabGeometryStatic()
     loggingInWindow_->updateScaling();
     emergencyConnectWindow_->updateScaling();
     externalConfigWindow_->updateScaling();
+    twoFactorAuthWindow_->updateScaling();
     exitWindow_->updateScaling();
     connectWindow_->updateScaling();
     locationsWindow_->updateScaling();
@@ -258,6 +263,7 @@ void MainWindowController::updateMaskForGraphicsView()
             && curWindow_ != WINDOW_ID_LOGIN
             && curWindow_ != WINDOW_ID_EMERGENCY
             && curWindow_ != WINDOW_ID_EXTERNAL_CONFIG
+            && curWindow_ != WINDOW_ID_TWO_FACTOR_AUTH
             && windowBeforeExit_ != WINDOW_ID_LOGIN
             && !bottomInfoWindow_->getGraphicsObject()->isVisible())
     {
@@ -388,6 +394,10 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
     else if (windowId == WINDOW_ID_EXTERNAL_CONFIG)
     {
         gotoExternalConfigWindow();
+    }
+    else if (windowId == WINDOW_ID_TWO_FACTOR_AUTH)
+    {
+        gotoTwoFactorAuthWindow();
     }
     else if (windowId == WINDOW_ID_UPDATE)
     {
@@ -791,6 +801,8 @@ void MainWindowController::gotoInitializationWindow()
     emergencyConnectWindow_->getGraphicsObject()->setVisible(false);
     externalConfigWindow_->setClickable(false);
     externalConfigWindow_->getGraphicsObject()->setVisible(false);
+    twoFactorAuthWindow_->setClickable(false);
+    twoFactorAuthWindow_->getGraphicsObject()->setVisible(false);
     newsFeedWindow_->getGraphicsObject()->setVisible(false);
 
     exitWindow_->getGraphicsObject()->setVisible(false);
@@ -818,10 +830,16 @@ void MainWindowController::gotoInitializationWindow()
 void MainWindowController::gotoLoginWindow()
 {
     // qDebug() << "gotoLoginWindow()";
-    Q_ASSERT(curWindow_ == WINDOW_ID_UNITIALIZED || curWindow_ == WINDOW_ID_INITIALIZATION ||
-             curWindow_ == WINDOW_ID_EMERGENCY || curWindow_ == WINDOW_ID_LOGGING_IN || curWindow_ == WINDOW_ID_CONNECT ||
-             curWindow_ == WINDOW_ID_EXTERNAL_CONFIG || curWindow_ == WINDOW_ID_NOTIFICATIONS || curWindow_ == WINDOW_ID_UPDATE ||
-             curWindow_ == WINDOW_ID_UPGRADE);
+    Q_ASSERT(curWindow_ == WINDOW_ID_UNITIALIZED
+             || curWindow_ == WINDOW_ID_INITIALIZATION
+             || curWindow_ == WINDOW_ID_EMERGENCY
+             || curWindow_ == WINDOW_ID_LOGGING_IN
+             || curWindow_ == WINDOW_ID_CONNECT
+             || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
+             || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
+             || curWindow_ == WINDOW_ID_NOTIFICATIONS
+             || curWindow_ == WINDOW_ID_UPDATE
+             || curWindow_ == WINDOW_ID_UPGRADE);
 
     // if preferences expanded when collapse preferences first
     if (preferencesState_ != PREFERENCES_STATE_COLLAPSED)
@@ -951,6 +969,35 @@ void MainWindowController::gotoLoginWindow()
         isAtomicAnimationActive_ = true;
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     }
+    else if (curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH)
+    {
+        curWindow_ = WINDOW_ID_LOGIN;
+
+        twoFactorAuthWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
+
+        loginWindow_->getGraphicsObject()->setOpacity(0.0);
+        loginWindow_->getGraphicsObject()->setVisible(true);
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(loginWindow_->getGraphicsObject());
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]()
+        {
+            twoFactorAuthWindow_->resetState();
+            twoFactorAuthWindow_->getGraphicsObject()->setVisible(false);
+            loginWindow_->setClickable(true);
+            loginWindow_->getGraphicsObject()->setFocus();
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    }
     else if (curWindow_ == WINDOW_ID_LOGGING_IN)
     {
         // qDebug() << "LoggingIn -> Login";
@@ -1057,7 +1104,10 @@ void MainWindowController::gotoEmergencyWindow()
 
 void MainWindowController::gotoLoggingInWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_LOGIN || curWindow_ == WINDOW_ID_INITIALIZATION || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG);
+    Q_ASSERT(curWindow_ == WINDOW_ID_LOGIN
+             || curWindow_ == WINDOW_ID_INITIALIZATION
+             || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
+             || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH);
 
     if (curWindow_ == WINDOW_ID_LOGIN)
     {
@@ -1138,6 +1188,33 @@ void MainWindowController::gotoLoggingInWindow()
         isAtomicAnimationActive_ = true;
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     }
+    else if (curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH)
+    {
+        curWindow_ = WINDOW_ID_LOGGING_IN;
+        twoFactorAuthWindow_->setClickable(false);
+        twoFactorAuthWindow_->getGraphicsObject()->stackBefore(loggingInWindow_->getGraphicsObject());
+
+        loggingInWindow_->getGraphicsObject()->setOpacity(0.0);
+        loggingInWindow_->getGraphicsObject()->setVisible(true);
+        loggingInWindow_->startAnimation();
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(loggingInWindow_->getGraphicsObject());
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+        connect(anim, &QPropertyAnimation::finished, [this]()
+        {
+            twoFactorAuthWindow_->resetState();
+            twoFactorAuthWindow_->getGraphicsObject()->setVisible(false);
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    }
 }
 
 void MainWindowController::hideLocationsWindow()
@@ -1179,9 +1256,12 @@ void MainWindowController::setFirstSystemTrayPosX(int posX)
 void MainWindowController::gotoConnectWindow()
 {
     // qDebug() << "gotoConnectWindow()";
-    Q_ASSERT(   curWindow_ == WINDOW_ID_LOGGING_IN      || curWindow_ == WINDOW_ID_INITIALIZATION
-             || curWindow_ == WINDOW_ID_NOTIFICATIONS   || curWindow_ == WINDOW_ID_UPDATE
-             || curWindow_ == WINDOW_ID_UPGRADE         || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
+    Q_ASSERT(curWindow_ == WINDOW_ID_LOGGING_IN
+             || curWindow_ == WINDOW_ID_INITIALIZATION
+             || curWindow_ == WINDOW_ID_NOTIFICATIONS
+             || curWindow_ == WINDOW_ID_UPDATE
+             || curWindow_ == WINDOW_ID_UPGRADE
+             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG);
 
     if (curWindow_ == WINDOW_ID_LOGGING_IN)
@@ -1452,6 +1532,29 @@ void MainWindowController::gotoConnectWindow()
         updateExpandAnimationParameters();
         handleNextWindowChange();
     }
+    else if (curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH)
+    {
+        // qDebug() << "2FA -> Connect";
+        twoFactorAuthWindow_->getGraphicsObject()->stackBefore(connectWindow_->getGraphicsObject());
+
+        curWindow_ = WINDOW_ID_CONNECT;
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
+        connectWindow_->setClickable(true);
+        connectWindow_->getGraphicsObject()->setVisible(true);
+        twoFactorAuthWindow_->resetState();
+        twoFactorAuthWindow_->getGraphicsObject()->setVisible(false);
+        twoFactorAuthWindow_->setClickable(false);
+
+        updateMainAndViewGeometry(false);
+
+        hideLocationsWindow();
+
+        updateBottomInfoWindowVisibilityAndPos();
+
+        updateExpandAnimationParameters();
+        handleNextWindowChange();
+    }
 }
 
 void MainWindowController::gotoNotificationsWindow()
@@ -1526,10 +1629,68 @@ void MainWindowController::gotoExternalConfigWindow()
     anim->start(QPropertyAnimation::DeleteWhenStopped);
 }
 
+void MainWindowController::gotoTwoFactorAuthWindow()
+{
+    Q_ASSERT(curWindow_ == WINDOW_ID_LOGIN || curWindow_ == WINDOW_ID_LOGGING_IN);
+
+    const auto prevWindow = curWindow_;
+    curWindow_ = WINDOW_ID_TWO_FACTOR_AUTH;
+
+    tooltipController_->hideAllTooltips();
+
+    switch (prevWindow) {
+    case WINDOW_ID_LOGIN:
+        loginWindow_->setClickable(false);
+        loginWindow_->getGraphicsObject()->stackBefore(twoFactorAuthWindow_->getGraphicsObject());
+        break;
+    case WINDOW_ID_LOGGING_IN:
+        loggingInWindow_->getGraphicsObject()->stackBefore(twoFactorAuthWindow_->getGraphicsObject());
+        break;
+    default:
+        break;
+    }
+
+    twoFactorAuthWindow_->resetState();
+    twoFactorAuthWindow_->getGraphicsObject()->setOpacity(0.0);
+    twoFactorAuthWindow_->getGraphicsObject()->setVisible(true);
+
+    QPropertyAnimation *anim = new QPropertyAnimation(this);
+    anim->setTargetObject(twoFactorAuthWindow_->getGraphicsObject());
+    anim->setPropertyName("opacity");
+    anim->setStartValue(twoFactorAuthWindow_->getGraphicsObject()->opacity());
+    anim->setEndValue(1.0);
+    anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+    connect(anim, &QPropertyAnimation::finished, [this, prevWindow]()
+    {
+        switch (prevWindow) {
+        case WINDOW_ID_LOGIN:
+            loginWindow_->getGraphicsObject()->setVisible(false);
+            break;
+        case WINDOW_ID_LOGGING_IN:
+            loggingInWindow_->getGraphicsObject()->setVisible(false);
+            loggingInWindow_->stopAnimation();
+        default:
+            break;
+        }
+        isAtomicAnimationActive_ = false;
+        handleNextWindowChange();
+        twoFactorAuthWindow_->setClickable(true);
+        twoFactorAuthWindow_->getGraphicsObject()->setFocus();
+    });
+
+    isAtomicAnimationActive_ = true;
+
+    anim->start(QPropertyAnimation::DeleteWhenStopped);
+}
+
 void MainWindowController::gotoUpdateWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT || curWindow_ == WINDOW_ID_NOTIFICATIONS || curWindow_ == WINDOW_ID_UPGRADE ||
-             curWindow_ == WINDOW_ID_GENERAL_MESSAGE || curWindow_ == WINDOW_ID_EXIT);
+    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT
+             || curWindow_ == WINDOW_ID_NOTIFICATIONS
+             || curWindow_ == WINDOW_ID_UPGRADE
+             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
+             || curWindow_ == WINDOW_ID_EXIT);
 
     // if preferences expanded when collapse preferences first
     if (preferencesState_ != PREFERENCES_STATE_COLLAPSED)
@@ -1736,6 +1897,7 @@ void MainWindowController::gotoExitWindow()
              || curWindow_ == WINDOW_ID_LOGIN
              || curWindow_ == WINDOW_ID_EMERGENCY
              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
+             || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
              || curWindow_ == WINDOW_ID_NOTIFICATIONS);
 
     windowBeforeExit_ = curWindow_;
@@ -1763,6 +1925,11 @@ void MainWindowController::gotoExitWindow()
     {
         exitWindow_->setBackgroundShapedToConnectWindow(false);
         externalConfigWindow_->setClickable(false);
+    }
+    else if (curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH)
+    {
+        exitWindow_->setBackgroundShapedToConnectWindow(false);
+        twoFactorAuthWindow_->setClickable(false);
     }
     else if (curWindow_ == WINDOW_ID_NOTIFICATIONS)
     {
@@ -1921,6 +2088,28 @@ void MainWindowController::closeExitWindow()
             exitWindow_->getGraphicsObject()->hide();
             externalConfigWindow_->setClickable(true);
             externalConfigWindow_->getGraphicsObject()->setFocus();
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    }
+    else if (windowBeforeExit_ == WINDOW_ID_TWO_FACTOR_AUTH)
+    {
+        curWindow_ = WINDOW_ID_TWO_FACTOR_AUTH;
+        isAtomicAnimationActive_ = true;
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(exitWindow_->getGraphicsObject());
+        anim->setPropertyName("opacity");
+        anim->setStartValue(exitWindow_->getGraphicsObject()->opacity());
+        anim->setEndValue(0.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            exitWindow_->getGraphicsObject()->hide();
+            twoFactorAuthWindow_->setClickable(true);
+            twoFactorAuthWindow_->getGraphicsObject()->setFocus();
             isAtomicAnimationActive_ = false;
             handleNextWindowChange();
         });
@@ -2648,7 +2837,8 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
         height = initWindow_->getGraphicsObject()->boundingRect().height();
     }
     else if (curWindow_ == WINDOW_ID_LOGIN || curWindow_ == WINDOW_ID_LOGGING_IN ||
-             curWindow_ == WINDOW_ID_EMERGENCY || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG)
+             curWindow_ == WINDOW_ID_EMERGENCY || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG ||
+             curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH)
     {
         width = loginWindow_->getGraphicsObject()->boundingRect().width();
         height = loginWindow_->getGraphicsObject()->boundingRect().height();

@@ -21,6 +21,7 @@ public:
     virtual void setErrorMessage(ERROR_MESSAGE_TYPE errorMessage) = 0;    // if errorMessage is empty, then clear error
     virtual void setEmergencyConnectState(bool isEmergencyConnected) = 0;
     virtual void setClickable(bool enabled) = 0;
+    virtual void setCurrent2FACode(QString code) = 0;
     virtual void resetState() = 0;
     virtual void transitionToUsernameScreen() = 0;
     virtual void setFirewallTurnOffButtonVisibility(bool visible) = 0;
@@ -32,7 +33,9 @@ signals:
     virtual void preferencesClick() = 0;
     virtual void emergencyConnectClick() = 0;
     virtual void externalConfigModeClick() = 0;
-    virtual void loginClick(const QString &username, const QString &password) = 0;
+    virtual void twoFactorAuthClick(const QString &username, const QString &password) = 0;
+    virtual void loginClick(const QString &username, const QString &password,
+                            const QString &code2fa) = 0;
     virtual void haveAccountYesClick() = 0;
 };
 

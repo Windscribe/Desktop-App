@@ -85,6 +85,11 @@ QColor FontManager::getMidnightColor()
     return QColor(0x02, 0x0d, 0x1c);
 }
 
+QColor FontManager::getDarkBlueColor()
+{
+    return QColor(0x18, 0x22, 0x2f);
+}
+
 QColor FontManager::getBrightBlueColor()
 {
     return QColor(0x00, 0x6a, 0xff);

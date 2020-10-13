@@ -164,6 +164,9 @@
     <Filter Include="GUI Files\systemtray">
       <UniqueIdentifier>{06d59eb6-84e2-4696-9b27-b4d5fd7b0254}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI Files\twofactorauth">
+      <UniqueIdentifier>{7dbf852d-8b01-4d40-9397-304c0cf8d92c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dialogs\dialogmessagecpuusage.cpp">
@@ -820,6 +823,12 @@
     <ClCompile Include="..\..\common\ipc\generated_proto\apiinfo.pb.cc">
       <Filter>Common Files\ipc\generated_proto</Filter>
     </ClCompile>
+    <ClCompile Include="twofactorauth\twofactorauthwindowitem.cpp">
+      <Filter>GUI Files\twofactorauth</Filter>
+    </ClCompile>
+    <ClCompile Include="twofactorauth\twofactorauthokbutton.cpp">
+      <Filter>GUI Files\twofactorauth</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -1242,6 +1251,12 @@
     <QtMoc Include="preferenceswindow\connectionwindow\firewallmodeitem.h">
       <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
     </QtMoc>
+    <QtMoc Include="twofactorauth\twofactorauthwindowitem.h">
+      <Filter>GUI Files\twofactorauth</Filter>
+    </QtMoc>
+    <QtMoc Include="twofactorauth\twofactorauthokbutton.h">
+      <Filter>GUI Files\twofactorauth</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -1259,6 +1274,7 @@
     <CustomBuild Include="..\..\common\ipc\proto\types.proto">
       <Filter>Common Files\ipc\proto</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="dialogs\dialoggetusernamepassword.ui">
@@ -2106,9 +2122,6 @@
     <None Include="svg\flags\za.svg">
       <Filter>Misc Files\Resource Files</Filter>
     </None>
-    <None Include="..\..\common\ipc\proto\apiinfo.proto">
-      <Filter>Common Files\ipc\proto</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gui.rc">
@@ -2426,6 +2439,9 @@
     </ClInclude>
     <ClInclude Include="..\..\common\ipc\generated_proto\apiinfo.pb.h">
       <Filter>Common Files\ipc\generated_proto</Filter>
+    </ClInclude>
+    <ClInclude Include="twofactorauth\itwofactorauthwindow.h">
+      <Filter>GUI Files\twofactorauth</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

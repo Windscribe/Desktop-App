@@ -18,6 +18,7 @@
 #include "newsfeedwindow/inewsfeedwindow.h"
 #include "update/iupdatewindow.h"
 #include "externalconfig/iexternalconfigwindow.h"
+#include "twofactorauth/itwofactorauthwindow.h"
 #include "bottominfowidget/ibottominfoitem.h"
 #include "generalmessage/igeneralmessagewindow.h"
 #include "generalmessage/igeneralmessagetwobuttonwindow.h"
@@ -31,12 +32,25 @@ class MainWindowController : public QObject
 {
     Q_OBJECT
 public:
-    enum WINDOW_ID { // use this consts in changeWindow(...)
-                     WINDOW_ID_UNITIALIZED, WINDOW_ID_INITIALIZATION, WINDOW_ID_LOGIN, WINDOW_ID_LOGGING_IN,
-                     WINDOW_ID_CONNECT, WINDOW_ID_EMERGENCY, WINDOW_ID_EXTERNAL_CONFIG, WINDOW_ID_NOTIFICATIONS,
-                     WINDOW_ID_UPDATE, WINDOW_ID_UPGRADE, WINDOW_ID_GENERAL_MESSAGE, WINDOW_ID_EXIT, WINDOW_CMD_CLOSE_EXIT,
-                     // internal states
-                     WINDOW_CMD_UPDATE_BOTTOM_INFO};
+    enum WINDOW_ID {
+        // use this consts in changeWindow(...)
+        WINDOW_ID_UNITIALIZED,
+        WINDOW_ID_INITIALIZATION,
+        WINDOW_ID_LOGIN,
+        WINDOW_ID_LOGGING_IN,
+        WINDOW_ID_CONNECT,
+        WINDOW_ID_EMERGENCY,
+        WINDOW_ID_EXTERNAL_CONFIG,
+        WINDOW_ID_TWO_FACTOR_AUTH,
+        WINDOW_ID_NOTIFICATIONS,
+        WINDOW_ID_UPDATE,
+        WINDOW_ID_UPGRADE,
+        WINDOW_ID_GENERAL_MESSAGE,
+        WINDOW_ID_EXIT,
+        WINDOW_CMD_CLOSE_EXIT,
+        // internal states
+        WINDOW_CMD_UPDATE_BOTTOM_INFO
+    };
 
     explicit MainWindowController(QWidget *parent, LocationsWindow *locationsWindow, PreferencesHelper *preferencesHelper,
                                   Preferences *preferences, AccountInfo *accountInfo);
@@ -78,6 +92,7 @@ public:
     INewsFeedWindow *getNewsFeedWindow() { return newsFeedWindow_; }
     IEmergencyConnectWindow *getEmergencyConnectWindow() { return emergencyConnectWindow_; }
     IExternalConfigWindow *getExternalConfigWindow() { return externalConfigWindow_; }
+    ITwoFactorAuthWindow *getTwoFactorAuthWindow() { return twoFactorAuthWindow_; }
     IInitWindow *getInitWindow() { return initWindow_; }
     IUpdateAppItem *getUpdateAppItem() { return updateAppItem_; }
     IUpdateWindow *getUpdateWindow() { return updateWindow_; }
@@ -143,6 +158,7 @@ private:
     IConnectWindow *connectWindow_;
     IEmergencyConnectWindow *emergencyConnectWindow_;
     IExternalConfigWindow *externalConfigWindow_;
+    ITwoFactorAuthWindow *twoFactorAuthWindow_;
     IPreferencesWindow *preferencesWindow_;
     IUpdateWindow *updateWindow_;
     IUpdateWindow *upgradeAccountWindow_;
@@ -201,6 +217,7 @@ private:
     void gotoConnectWindow();
     void gotoNotificationsWindow();
     void gotoExternalConfigWindow();
+    void gotoTwoFactorAuthWindow();
     void gotoUpdateWindow();
     void gotoUpgradeWindow();
     void gotoGeneralMessageWindow();

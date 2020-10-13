@@ -51,7 +51,7 @@ public:
     void enableBFE_win();
 
     void loginWithAuthHash(const QString &authHash);
-    void loginWithUsernameAndPassword(const QString &username, const QString &password);
+    void loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa);
     void loginWithLastLoginSettings();
     bool isApiSavedSettingsExists();
     void signOut();

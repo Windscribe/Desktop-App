@@ -35,11 +35,7 @@ public:
     void resetState() override;
 
     void setClickable(bool enabled) override;
-    void updateEmergencyConnect();
-
-    void hideUsernamePassword();
-    void showUsernamePassword();
-    void showYesNo();
+    void setCurrent2FACode(QString code) override;
 
     void transitionToUsernameScreen() override;
     void setFirewallTurnOffButtonVisibility(bool visible) override;
@@ -54,7 +50,9 @@ signals:
     void preferencesClick() override;
     void emergencyConnectClick() override;
     void externalConfigModeClick() override;
-    void loginClick(const QString &username, const QString &password) override;
+    void twoFactorAuthClick(const QString &username, const QString &password) override;
+    void loginClick(const QString &username, const QString &password,
+                    const QString &code2fa) override;
     void haveAccountYesClick() override;
     void showTooltip(TooltipInfo data);
     void hideTooltip(TooltipId id);
@@ -78,6 +76,7 @@ private slots:
 
     void onUsernameActivated();
     void onPasswordActivated();
+    void onTwoFactorAuthClick();
     void onForgotPassClick();
 
     void onSettingsButtonClick();
@@ -93,7 +92,7 @@ private slots:
 
     void onButtonLinePosChanged(const QVariant &value);
 
-    void onForgotPosYChanged(const QVariant &value);
+    void onForgotAnd2FAPosYChanged(const QVariant &value);
     void onErrorChanged(const QVariant &value);
 
     void onEmergencyTextTransition(const QVariant &value);
@@ -119,6 +118,10 @@ protected:
 
 private:
     void attemptLogin();
+    void updateEmergencyConnect();
+    void hideUsernamePassword();
+    void showUsernamePassword();
+    void showYesNo();
 
     void transitionToEmergencyON();
     void transitionToEmergencyOFF();
@@ -157,9 +160,10 @@ private:
     double curEmergencyTextOpacity_;
     QVariantAnimation emergencyTextAnimation_;
 
-    int curForgotPosY_;
+    int curForgotAnd2FAPosY_;
+    CommonGraphics::TextButton *twoFactorAuthButton_;
     CommonGraphics::TextButton *forgotPassButton_;
-    QVariantAnimation forgotPosYAnimation_;
+    QVariantAnimation forgotAnd2FAPosYAnimation_;
 
     QString curErrorText_;
     double curErrorOpacity_;
@@ -175,6 +179,8 @@ private:
     QVariantAnimation buttonLinePosAnimation_;
 
     bool emergencyConnectOn_;
+
+    QString current2FACode_;
 
     static constexpr int HEADER_HEIGHT               = 71;
 
@@ -194,8 +200,9 @@ private:
 
     static constexpr int LOGIN_TEXT_HEIGHT    = 32;
 
-    static constexpr int FORGOT_POS_Y_DEFAULT = 240;
-    static constexpr int FORGOT_POS_Y_ERROR   = 280;
+    static constexpr int FORGOT_AND_2FA_POS_Y_DEFAULT = 240;
+    static constexpr int FORGOT_AND_2FA_POS_Y_ERROR   = 280;
+    static constexpr int FORGOT_POS_X_SPACING = 24;
 
     static constexpr double BADGE_SCALE_SMALL = 0.6;
     static constexpr double BADGE_SCALE_LARGE = 1.0;

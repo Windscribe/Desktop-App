@@ -8,8 +8,8 @@ LoginSettings::LoginSettings(const QString &authHash) : isAuthHashLogin_(true), 
 {
 }
 
-LoginSettings::LoginSettings(const QString &username, const QString &password)
-    : isAuthHashLogin_(false), username_(username), password_(password)
+LoginSettings::LoginSettings(const QString &username, const QString &password, const QString &code2fa)
+    : isAuthHashLogin_(false), username_(username), password_(password), code2fa_(code2fa)
 {
 }
 

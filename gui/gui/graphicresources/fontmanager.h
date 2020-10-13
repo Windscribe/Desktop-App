@@ -26,6 +26,7 @@ public:
     QColor getCarbonBlackColor();
     QColor getCharcoalColor();
     QColor getMidnightColor();
+    QColor getDarkBlueColor();
     QColor getBrightBlueColor();
     QColor getErrorRedColor();
     QColor getBrightYellowColor();

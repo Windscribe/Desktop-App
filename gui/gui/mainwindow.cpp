@@ -145,13 +145,14 @@ MainWindow::MainWindow(QWidget *parent) :
     mainWindowController_->getNewsFeedWindow()->setMessages(notificationsController_.messages());
 
     // login window signals
-    connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(loginClick(QString,QString)), SLOT(onLoginClick(QString,QString)));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(loginClick(QString,QString,QString)), SLOT(onLoginClick(QString,QString,QString)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(minimizeClick()), SLOT(onMinimizeClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(closeClick()), SLOT(onCloseClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(preferencesClick()), SLOT(onLoginPreferencesClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(haveAccountYesClick()), SLOT(onLoginHaveAccountYesClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(emergencyConnectClick()), SLOT(onLoginEmergencyWindowClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(externalConfigModeClick()), SLOT(onLoginExternalConfigWindowClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(twoFactorAuthClick(QString, QString)), SLOT(onLoginTwoFactorAuthWindowClick(QString, QString)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(firewallTurnOffClick()), SLOT(onLoginFirewallTurnOffClick()));
 
     // connect window signals
@@ -191,16 +192,23 @@ MainWindow::MainWindow(QWidget *parent) :
     // emergency window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getEmergencyConnectWindow()), SIGNAL(minimizeClick()), SLOT(onMinimizeClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getEmergencyConnectWindow()), SIGNAL(closeClick()), SLOT(onCloseClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getEmergencyConnectWindow()), SIGNAL(escapeClick()), SLOT(onEmergencyEscapeClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getEmergencyConnectWindow()), SIGNAL(escapeClick()), SLOT(onEscapeClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getEmergencyConnectWindow()), SIGNAL(connectClick()), SLOT(onEmergencyConnectClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getEmergencyConnectWindow()), SIGNAL(disconnectClick()), SLOT(onEmergencyDisconnectClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getEmergencyConnectWindow()), SIGNAL(windscribeLinkClick()), SLOT(onEmergencyWindscribeLinkClick()));
 
     // external config window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getExternalConfigWindow()), SIGNAL(buttonClick()), SLOT(onExternalConfigWindowNextClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getExternalConfigWindow()), SIGNAL(escapeClick()), SLOT(onExternalConfigWindowEscapeClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getExternalConfigWindow()), SIGNAL(escapeClick()), SLOT(onEscapeClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getExternalConfigWindow()), SIGNAL(closeClick()), SLOT(onCloseClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getExternalConfigWindow()), SIGNAL(minimizeClick()), SLOT(onMinimizeClick()));
+
+    // 2FA window signals
+    connect(dynamic_cast<QObject*>(mainWindowController_->getTwoFactorAuthWindow()), SIGNAL(addClick(QString)), SLOT(onTwoFactorAuthWindowButtonAddClick(QString)));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getTwoFactorAuthWindow()), SIGNAL(loginClick(QString, QString, QString)), SLOT(onLoginClick(QString, QString, QString)));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getTwoFactorAuthWindow()), SIGNAL(escapeClick()), SLOT(onEscapeClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getTwoFactorAuthWindow()), SIGNAL(closeClick()), SLOT(onCloseClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getTwoFactorAuthWindow()), SIGNAL(minimizeClick()), SLOT(onMinimizeClick()));
 
     // bottom window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getBottomInfoWindow()), SIGNAL(upgradeClick()), SLOT(onUpgradeAccountAccept()));
@@ -732,8 +740,14 @@ void MainWindow::onCloseClick()
 #endif
 }
 
-void MainWindow::onLoginClick(const QString &username, const QString &password)
+void MainWindow::onEscapeClick()
 {
+    gotoLoginWindow();
+}
+
+void MainWindow::onLoginClick(const QString &username, const QString &password, const QString &code2fa)
+{
+    mainWindowController_->getTwoFactorAuthWindow()->setCurrentCredentials(username, password);
     mainWindowController_->getLoggingInWindow()->setMessage(QT_TRANSLATE_NOOP("LoginWindow::LoggingInWindowItem", "Logging you in..."));
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
     mainWindowController_->getLoggingInWindow()->startAnimation();
@@ -741,7 +755,7 @@ void MainWindow::onLoginClick(const QString &username, const QString &password)
 
     locationsWindow_->setOnlyConfigTabVisible(false);
 
-    backend_->login(username, password);
+    backend_->login(username, password, code2fa);
 }
 
 void MainWindow::onLoginPreferencesClick()
@@ -762,6 +776,14 @@ void MainWindow::onLoginEmergencyWindowClick()
 void MainWindow::onLoginExternalConfigWindowClick()
 {
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXTERNAL_CONFIG);
+}
+void MainWindow::onLoginTwoFactorAuthWindowClick(const QString &username, const QString &password)
+{
+    mainWindowController_->getTwoFactorAuthWindow()->setErrorMessage(
+        ITwoFactorAuthWindow::ERR_MSG_EMPTY);
+    mainWindowController_->getTwoFactorAuthWindow()->setLoginMode(false);
+    mainWindowController_->getTwoFactorAuthWindow()->setCurrentCredentials(username, password);
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_TWO_FACTOR_AUTH);
 }
 
 void MainWindow::onConnectWindowConnectClick()
@@ -946,11 +968,6 @@ void MainWindow::onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()
     }
 }
 
-void MainWindow::onEmergencyEscapeClick()
-{
-    gotoLoginWindow();
-}
-
 void MainWindow::onEmergencyConnectClick()
 {
     backend_->emergencyConnectClick();
@@ -975,8 +992,9 @@ void MainWindow::onExternalConfigWindowNextClick()
     backend_->gotoCustomOvpnConfigMode();
 }
 
-void MainWindow::onExternalConfigWindowEscapeClick()
+void MainWindow::onTwoFactorAuthWindowButtonAddClick(const QString &code2fa)
 {
+    mainWindowController_->getLoginWindow()->setCurrent2FACode(code2fa);
     gotoLoginWindow();
 }
 
@@ -1269,6 +1287,8 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
 void MainWindow::onBackendLoginFinished(bool isLoginFromSavedSettings)
 {
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
+    mainWindowController_->getTwoFactorAuthWindow()->clearCurrentCredentials();
+
     if (!isLoginOkAndConnectWindowVisible_)
     {
         // choose latest location
@@ -1350,6 +1370,16 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
             mainWindowController_->getLoginWindow()->setErrorMessage(loginAttemptsController_.currentMessage());
             gotoLoginWindow();
         }
+    }
+    else if (loginError == ProtoTypes::LOGIN_ERROR_BAD_CODE2FA ||
+             loginError == ProtoTypes::LOGIN_ERROR_MISSING_CODE2FA)
+    {
+        const bool is_missing_code2fa = (loginError == ProtoTypes::LOGIN_ERROR_MISSING_CODE2FA);
+        mainWindowController_->getTwoFactorAuthWindow()->setErrorMessage(
+            is_missing_code2fa ? ITwoFactorAuthWindow::ERR_MSG_NO_CODE
+                               : ITwoFactorAuthWindow::ERR_MSG_INVALID_CODE);
+        mainWindowController_->getTwoFactorAuthWindow()->setLoginMode(true);
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_TWO_FACTOR_AUTH);
     }
     else if (loginError == ProtoTypes::LOGIN_ERROR_NO_CONNECTIVITY)
     {

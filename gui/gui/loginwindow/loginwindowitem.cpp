@@ -79,8 +79,8 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent) : ScalableGraphicsObje
     // Center Region:
     QString yesText = QT_TRANSLATE_NOOP("LoginWindow::LoginYesNoButton", "Yes");
     QString noText = QT_TRANSLATE_NOOP("LoginWindow::LoginYesNoButton", "No");
-    QString usernameText = QT_TRANSLATE_NOOP("LoginWindow::UsernamePasswordEntry", "USERNAME");
-    QString passwordText = QT_TRANSLATE_NOOP("LoginWindow::UsernamePasswordEntry", "PASSWORD");
+    QString usernameText = QT_TRANSLATE_NOOP("LoginWindow::UsernamePasswordEntry", "Username");
+    QString passwordText = QT_TRANSLATE_NOOP("LoginWindow::UsernamePasswordEntry", "Password");
 
     yesButton_ = new LoginYesNoButton(yesText, this);
     connect(yesButton_, SIGNAL(clicked()), SLOT(onYesButtonClick()));
@@ -98,17 +98,22 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent) : ScalableGraphicsObje
     passwordEntry_ = new UsernamePasswordEntry(passwordText, true, this);
     connect(passwordEntry_, SIGNAL(activated()), SLOT(onPasswordActivated()));
 
-    curForgotPosY_ = FORGOT_POS_Y_DEFAULT;
-    connect(&forgotPosYAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onForgotPosYChanged(QVariant)));
+    curForgotAnd2FAPosY_ = FORGOT_AND_2FA_POS_Y_DEFAULT;
+    connect(&forgotAnd2FAPosYAnimation_, SIGNAL(valueChanged(QVariant)),
+        SLOT(onForgotAnd2FAPosYChanged(QVariant)));
 
     curErrorOpacity_ = OPACITY_HIDDEN;
     connect(&errorAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onErrorChanged(QVariant)));
 
-    QString forgotPassText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Forgot your password?");
+    QString twoFactorAuthText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "2FA Code");
+    twoFactorAuthButton_ = new CommonGraphics::TextButton(twoFactorAuthText, FontDescr(12, false),
+                                                          Qt::white, true, this);
+    connect(twoFactorAuthButton_, SIGNAL(clicked()), SLOT(onTwoFactorAuthClick()));
+    twoFactorAuthButton_->quickHide();
 
+    QString forgotPassText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Forgot password?");
     forgotPassButton_ = new CommonGraphics::TextButton(forgotPassText, FontDescr(12, false),
-                                                       FontManager::instance().getMidnightColor(),
-                                                       true, this);
+                                                       Qt::white, true, this);
     connect(forgotPassButton_, SIGNAL(clicked()), SLOT(onForgotPassClick()));
     forgotPassButton_->quickHide();
 
@@ -199,15 +204,16 @@ void LoginWindowItem::setErrorMessage(ERROR_MESSAGE_TYPE errorMessage)
 
     loginButton_->setError(error);
 
-    int destinationForgotPosY = FORGOT_POS_Y_DEFAULT;
+    int destinationForgotAnd2FAPosY = FORGOT_AND_2FA_POS_Y_DEFAULT;
     double errorOpacity = OPACITY_HIDDEN;
     if (error || !curErrorText_.isEmpty())
     {
         errorOpacity = OPACITY_FULL;
-        destinationForgotPosY = FORGOT_POS_Y_ERROR;
+        destinationForgotAnd2FAPosY = FORGOT_AND_2FA_POS_Y_ERROR;
     }
 
-    startAnAnimation<int>(forgotPosYAnimation_, curForgotPosY_, destinationForgotPosY, ANIMATION_SPEED_FAST);
+    startAnAnimation<int>(forgotAnd2FAPosYAnimation_, curForgotAnd2FAPosY_,
+        destinationForgotAnd2FAPosY, ANIMATION_SPEED_FAST);
     startAnAnimation<double>(errorAnimation_, curErrorOpacity_, errorOpacity, ANIMATION_SPEED_FAST);
 
     update();
@@ -258,20 +264,21 @@ void LoginWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     QRectF rcTopRect(0, 0, WINDOW_WIDTH*G_SCALE, HEADER_HEIGHT*G_SCALE);
     QRectF rcBottomRect(0, HEADER_HEIGHT*G_SCALE, WINDOW_WIDTH*G_SCALE, (LOGIN_HEIGHT - HEADER_HEIGHT)*G_SCALE);
     QColor black = FontManager::instance().getMidnightColor();
+    QColor darkblue = FontManager::instance().getDarkBlueColor();
 
 #ifndef Q_OS_WIN // round background
     painter->setPen(black);
     painter->setBrush(black);
     painter->drawRoundedRect(rcTopRect, 5*G_SCALE, 5*G_SCALE);
 
-    painter->setBrush(Qt::white);
-    painter->setPen(Qt::white);
+    painter->setBrush(darkblue);
+    painter->setPen(darkblue);
     painter->drawRoundedRect(rcBottomRect.adjusted(0, 5*G_SCALE, 0, 0), 5*G_SCALE, 5*G_SCALE);
 #endif
 
     // Square background
     painter->fillRect(rcTopRect.adjusted(0, pushDownSquare, 0, 0), black);
-    painter->fillRect(rcBottomRect.adjusted(0,0,0, -pushDownSquare*2), Qt::white);
+    painter->fillRect(rcBottomRect.adjusted(0,0,0, -pushDownSquare*2), darkblue);
 
     // Badge
     painter->save();
@@ -288,7 +295,7 @@ void LoginWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     painter->save();
     painter->setOpacity(curChildItemOpacity_ * initOpacity);
     painter->setFont(*FontManager::instance().getFont(16, false, 105));
-    painter->setPen(FontManager::instance().getMidnightColor());
+    painter->setPen(Qt::white);
     painter->drawText(QRect(0, 106 * G_SCALE, WINDOW_WIDTH * G_SCALE, 20 * G_SCALE), Qt::AlignCenter, tr("Do you have an account?"));
     painter->restore();
 
@@ -296,9 +303,9 @@ void LoginWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     painter->save();
     painter->setOpacity(OPACITY_UNHOVER_DIVIDER * initOpacity);
     QRect rc1(curButtonLineXPos_*G_SCALE, Y_COORD_YES_LINE*G_SCALE, WINDOW_WIDTH*G_SCALE, 2 * G_SCALE);
-    painter->fillRect(rc1, QBrush(FontManager::instance().getMidnightColor()));
+    painter->fillRect(rc1, Qt::white);
     QRect rc2(curButtonLineXPos_*G_SCALE, Y_COORD_NO_LINE*G_SCALE, WINDOW_WIDTH*G_SCALE, 2 * G_SCALE);
-    painter->fillRect(rc2, QBrush(FontManager::instance().getMidnightColor()));
+    painter->fillRect(rc2, Qt::white);
     painter->restore();
 
     // Login Text
@@ -309,7 +316,7 @@ void LoginWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     QString loginText = tr("Login");
     QFontMetrics fm = painter->fontMetrics();
-    int loginTextWidth = fm.width(loginText);
+    const int loginTextWidth = fm.width(loginText);
     painter->drawText(centeredOffset(WINDOW_WIDTH*G_SCALE, loginTextWidth),
                       (HEADER_HEIGHT/2 + LOGIN_TEXT_HEIGHT/2)*G_SCALE,
                       loginText);
@@ -331,11 +338,22 @@ void LoginWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     // dividers -- bottom buttons
     painter->setOpacity(OPACITY_UNHOVER_DIVIDER * initOpacity);
-    int bottom_button_y = LOGIN_HEIGHT * G_SCALE - settingsButton_->boundingRect().width();
-    int window_center_x_offset = WINDOW_WIDTH/2 * G_SCALE ;
+    const int bottom_button_y = LOGIN_HEIGHT * G_SCALE - settingsButton_->boundingRect().width();
+    const int window_center_x_offset = WINDOW_WIDTH/2 * G_SCALE ;
 
-    painter->fillRect(QRect(window_center_x_offset - 26*G_SCALE, bottom_button_y, 2*G_SCALE,  LOGIN_HEIGHT * G_SCALE), QBrush(FontManager::instance().getMidnightColor()));
-    painter->fillRect(QRect(window_center_x_offset + 25*G_SCALE, bottom_button_y, 2*G_SCALE,  LOGIN_HEIGHT * G_SCALE), QBrush(FontManager::instance().getMidnightColor()));
+    painter->fillRect(QRect(window_center_x_offset - 30*G_SCALE, bottom_button_y, 2*G_SCALE,  LOGIN_HEIGHT * G_SCALE), Qt::white);
+    painter->fillRect(QRect(window_center_x_offset + 29*G_SCALE, bottom_button_y, 2*G_SCALE,  LOGIN_HEIGHT * G_SCALE), Qt::white);
+
+    // divider -- between 2FA and forgot password.
+    if (twoFactorAuthButton_->getOpacity() != OPACITY_HIDDEN) {
+        fm = painter->fontMetrics();
+        const int forgot_and_2fa_divider_x = (WINDOW_MARGIN*G_SCALE
+            + twoFactorAuthButton_->boundingRect().width() + forgotPassButton_->x()) / 2;
+        const int forgot_and_2fa_divider_y = ( 1 + curForgotAnd2FAPosY_ ) * G_SCALE
+            + (twoFactorAuthButton_->boundingRect().height() - fm.ascent()) / 2;
+        painter->fillRect(QRect(forgot_and_2fa_divider_x, forgot_and_2fa_divider_y,
+                                1 * G_SCALE, fm.ascent()), Qt::white);
+    }
 }
 
 void LoginWindowItem::resetState()
@@ -364,6 +382,7 @@ void LoginWindowItem::setClickable(bool enabled)
         {
             usernameEntry_->setClickable(enabled);
             passwordEntry_->setClickable(enabled);
+            twoFactorAuthButton_->setClickable(enabled);
             forgotPassButton_->setClickable(enabled);
 
             if (usernameEntry_->isActive() && passwordEntry_->isActive())
@@ -378,6 +397,7 @@ void LoginWindowItem::setClickable(bool enabled)
         noButton_->setClickable(enabled);
         usernameEntry_->setClickable(enabled);
         passwordEntry_->setClickable(enabled);
+        twoFactorAuthButton_->setClickable(enabled);
         forgotPassButton_->setClickable(enabled);
         loginButton_->setClickable(enabled);
 
@@ -392,6 +412,11 @@ void LoginWindowItem::setClickable(bool enabled)
     minimizeButton_->setClickable(enabled);
     closeButton_->setClickable(enabled);
 #endif
+}
+
+void LoginWindowItem::setCurrent2FACode(QString code)
+{
+    current2FACode_ = code;
 }
 
 void LoginWindowItem::onBackClick()
@@ -424,7 +449,7 @@ void LoginWindowItem::attemptLogin()
     }
     else
     {
-        emit loginClick(username, password);
+        emit loginClick(username, password, current2FACode_);
     }
 
 }
@@ -493,6 +518,14 @@ void LoginWindowItem::onPasswordActivated()
     {
         loginButton_->setClickable(true);
     }
+}
+
+void LoginWindowItem::onTwoFactorAuthClick()
+{
+    QString username = usernameEntry_->getText();
+    QString password = passwordEntry_->getText();
+    twoFactorAuthButton_->unhover();
+    emit twoFactorAuthClick(username, password);
 }
 
 void LoginWindowItem::onForgotPassClick()
@@ -565,11 +598,13 @@ void LoginWindowItem::onButtonLinePosChanged(const QVariant &value)
     update();
 }
 
-void LoginWindowItem::onForgotPosYChanged(const QVariant &value)
+void LoginWindowItem::onForgotAnd2FAPosYChanged(const QVariant &value)
 {
-    curForgotPosY_ = value.toInt();
+    curForgotAnd2FAPosY_ = value.toInt();
 
-    forgotPassButton_->setPos(WINDOW_MARGIN*G_SCALE, curForgotPosY_*G_SCALE);
+    twoFactorAuthButton_->setPos(WINDOW_MARGIN*G_SCALE, curForgotAnd2FAPosY_*G_SCALE);
+    forgotPassButton_->setPos(twoFactorAuthButton_->boundingRect().width()
+        + (WINDOW_MARGIN+FORGOT_POS_X_SPACING)*G_SCALE, curForgotAnd2FAPosY_*G_SCALE);
 
     update();
 }
@@ -680,6 +715,7 @@ void LoginWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, QStrin
 
 void LoginWindowItem::onLanguageChanged()
 {
+    twoFactorAuthButton_->recalcBoundingRect();
     forgotPassButton_->recalcBoundingRect();
 }
 
@@ -702,18 +738,21 @@ void LoginWindowItem::updatePositions()
 
     int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
     int window_center_x_offset = WINDOW_WIDTH/2*G_SCALE - settingsButton_->boundingRect().width()/2;
-    settingsButton_->setPos(window_center_x_offset - 50*G_SCALE, bottom_button_y);
+    settingsButton_->setPos(window_center_x_offset - 58*G_SCALE, bottom_button_y);
 
     emergencyButton_->setPos(window_center_x_offset, bottom_button_y);
 
-    configButton_->setPos(window_center_x_offset + 50*G_SCALE, bottom_button_y);
+    configButton_->setPos(window_center_x_offset + 58*G_SCALE, bottom_button_y);
 
     usernameEntry_->setPos(0, USERNAME_POS_Y_VISIBLE*G_SCALE);
     passwordEntry_->setPos(0, PASSWORD_POS_Y_VISIBLE*G_SCALE);
 
     loginButton_->setPos((LOGIN_WIDTH - 32 - WINDOW_MARGIN)*G_SCALE, LOGIN_BUTTON_POS_Y*G_SCALE);
 
-    forgotPassButton_->setPos(WINDOW_MARGIN * G_SCALE, curForgotPosY_ * G_SCALE);
+    twoFactorAuthButton_->setPos(WINDOW_MARGIN * G_SCALE, curForgotAnd2FAPosY_ * G_SCALE);
+    twoFactorAuthButton_->recalcBoundingRect();
+    forgotPassButton_->setPos(twoFactorAuthButton_->boundingRect().width()
+        + (WINDOW_MARGIN + FORGOT_POS_X_SPACING)*G_SCALE, curForgotAnd2FAPosY_ * G_SCALE);
     forgotPassButton_->recalcBoundingRect();
 }
 
@@ -816,8 +855,10 @@ void LoginWindowItem::changeToAccountScreen()
 
     setErrorMessage(ERR_MSG_EMPTY); // reset error state
 
-    curForgotPosY_ = FORGOT_POS_Y_DEFAULT;
-    forgotPassButton_->setPos(WINDOW_MARGIN * G_SCALE, curForgotPosY_ * G_SCALE);
+    curForgotAnd2FAPosY_ = FORGOT_AND_2FA_POS_Y_DEFAULT;
+    twoFactorAuthButton_->setPos(WINDOW_MARGIN * G_SCALE, curForgotAnd2FAPosY_ * G_SCALE);
+    forgotPassButton_->setPos(twoFactorAuthButton_->boundingRect().width()
+        + (WINDOW_MARGIN + FORGOT_POS_X_SPACING)*G_SCALE, curForgotAnd2FAPosY_ * G_SCALE);
 
     startAnAnimation<int>(buttonLinePosAnimation_, curButtonLineXPos_, LOGIN_MARGIN_WIDTH_LARGE, ANIMATION_SPEED_SLOW );
 
@@ -829,6 +870,7 @@ void LoginWindowItem::changeToAccountScreen()
     startAnAnimation<double>(loginTextOpacityAnimation_, curLoginTextOpacity_, OPACITY_HIDDEN, ANIMATION_SPEED_SLOW);
 
     showYesNo();
+    twoFactorAuthButton_->animateHide(ANIMATION_SPEED_SLOW);
     forgotPassButton_->animateHide(ANIMATION_SPEED_SLOW);
     setFocus();
 }
@@ -852,6 +894,7 @@ void LoginWindowItem::transitionToUsernameScreen()
 
     startAnAnimation<double>(loginTextOpacityAnimation_, curLoginTextOpacity_, OPACITY_FULL, ANIMATION_SPEED_SLOW);
 
+    twoFactorAuthButton_->animateShow(ANIMATION_SPEED_SLOW);
     forgotPassButton_->animateShow(ANIMATION_SPEED_SLOW);
 
     showUsernamePassword();

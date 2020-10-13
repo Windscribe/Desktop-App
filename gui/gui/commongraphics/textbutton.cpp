@@ -11,7 +11,7 @@ namespace CommonGraphics {
 
 TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent, int addWidth) : ClickableGraphicsObject(parent),
     text_(text), color_(color), fontDescr_(fd), width_(0), height_(0), addWidth_(addWidth),
-    curTextOpacity_(OPACITY_UNHOVER_TEXT), unhoverOpacity_(OPACITY_UNHOVER_TEXT),
+    curTextOpacity_(OPACITY_UNHOVER_TEXT), unhoverOpacity_(OPACITY_UNHOVER_TEXT), isHovered_(false),
     textAlignment_(Qt::AlignLeft | Qt::AlignVCenter)
 {
     connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextHoverOpacityChanged(QVariant)));
@@ -138,18 +138,27 @@ void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
         {
             setCursor(Qt::PointingHandCursor);
         }
+        isHovered_ = true;
         emit hoverEnter();
     }
+}
+
+void TextButton::unhover()
+{
+    if (!isHovered_)
+        return;
+
+    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, unhoverOpacity_, ANIMATION_SPEED_FAST);
+    setCursor(Qt::ArrowCursor);
+
+    isHovered_ = false;
+    emit hoverLeave();
 }
 
 void TextButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
-
-    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, unhoverOpacity_, ANIMATION_SPEED_FAST);
-    setCursor(Qt::ArrowCursor);
-
-    emit hoverLeave();
+    unhover();
 }
 
 void TextButton::onTextHoverOpacityChanged(const QVariant &value)

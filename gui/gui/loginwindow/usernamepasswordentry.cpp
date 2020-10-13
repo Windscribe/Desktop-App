@@ -11,19 +11,17 @@
 namespace LoginWindow {
 
 UsernamePasswordEntry::UsernamePasswordEntry(QString descriptionText, bool password, ScalableGraphicsObject *parent)
-    : ClickableGraphicsObject(parent), curDescriptionPosY_(DESCRIPTION_POS_CLICKED),
-      descriptionText_(descriptionText), curLinePos_(0),
-      curLineActiveColor_(FontManager::instance().getMidnightColor()),
-      height_(50), width_(WINDOW_WIDTH), active_(false), curDescriptionOpacity_(OPACITY_HIDDEN),
-      curLineEditOpacity_(OPACITY_HIDDEN), curBackgroundLineOpacity_(OPACITY_UNHOVER_DIVIDER),
-      curForgroundLineOpacity_(OPACITY_FULL)
+    : ClickableGraphicsObject(parent),
+      userEntryLineAddSS_("padding-left: 8px; background: #0cffffff; border-radius: 3px;"),
+      curDescriptionPosY_(DESCRIPTION_POS_CLICKED), descriptionText_(descriptionText), height_(50),
+      width_(WINDOW_WIDTH), active_(false), curDescriptionOpacity_(OPACITY_HIDDEN),
+      curLineEditOpacity_(OPACITY_HIDDEN)
 {
     connect(&descriptionPosYAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onDescriptionPosYChanged(QVariant)));
-    connect(&linePosAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLinePosChanged(QVariant)));
 
     userEntryLine_ = new CustomMenuLineEdit();
 
-    QString ss = "background: white; " + FontManager::instance().getMidnightColorSS();
+    QString ss = userEntryLineAddSS_ + " color: white";
     userEntryLine_->setStyleSheet(ss);
     userEntryLine_->setFrame(false);
     userEntryLine_->setColorScheme(true);
@@ -40,6 +38,8 @@ UsernamePasswordEntry::UsernamePasswordEntry(QString descriptionText, bool passw
     }
 
     connect(userEntryLine_, SIGNAL(keyPressed(QKeyEvent*)), this, SIGNAL(keyPressed(QKeyEvent*)));
+    connect(userEntryLine_, SIGNAL(textChanged(const QString&)), this,
+                            SIGNAL(textChanged(const QString&)));
     setClickable(true);
     clearActiveState();
 
@@ -58,18 +58,16 @@ void UsernamePasswordEntry::paint(QPainter *painter, const QStyleOptionGraphicsI
 
     qreal initOpacity = painter->opacity();
 
-    painter->setPen(FontManager::instance().getMidnightColor());
+    painter->setPen(Qt::white);
 
-    painter->save();
-    painter->translate(0, DESCRIPTION_TEXT_HEIGHT/2*G_SCALE);
-    painter->setFont(*FontManager::instance().getFont(12, true));
-    painter->setOpacity(curDescriptionOpacity_ * initOpacity);
-    painter->drawText(WINDOW_MARGIN*G_SCALE, curDescriptionPosY_, tr(descriptionText_.toStdString().c_str()));
-    painter->restore();
-
-    painter->save();
-    drawBottomLine(painter, WINDOW_MARGIN*G_SCALE,  width_* G_SCALE, (height_ - 2)* G_SCALE, curLinePos_ * G_SCALE, curLineActiveColor_); // bring line into drawing region
-    painter->restore();
+    if (!descriptionText_.isEmpty()) {
+        painter->save();
+        painter->translate(0, DESCRIPTION_TEXT_HEIGHT / 2 * G_SCALE);
+        painter->setFont(*FontManager::instance().getFont(12, true));
+        painter->setOpacity(curDescriptionOpacity_ * initOpacity);
+        painter->drawText(WINDOW_MARGIN*G_SCALE, curDescriptionPosY_, tr(descriptionText_.toStdString().c_str()));
+        painter->restore();
+    }
 
     userEntryProxy_->setOpacity(curLineEditOpacity_ * initOpacity);
 }
@@ -86,8 +84,8 @@ QString UsernamePasswordEntry::getText()
 
 void UsernamePasswordEntry::setError(bool error)
 {
-    QColor color = FontManager::instance().getMidnightColor();
-    QString colorSS = FontManager::instance().getMidnightColorSS();
+    QColor color = Qt::white;
+    QString colorSS = "color: white";
 
     if (error)
     {
@@ -97,21 +95,18 @@ void UsernamePasswordEntry::setError(bool error)
 
     setAcceptHoverEvents(true);
 
-    colorSS += "; background: white";
+    colorSS += ";" + userEntryLineAddSS_;
 
     userEntryLine_->setStyleSheet(colorSS);
-    curLineActiveColor_ = color;
 
     update();
 }
 
 void UsernamePasswordEntry::setOpacityByFactor(double newOpacityFactor)
 {
-    curDescriptionOpacity_ = newOpacityFactor * OPACITY_UNHOVER_TEXT;
+    curDescriptionOpacity_ = newOpacityFactor * OPACITY_FULL;
     curLineEditOpacity_ = newOpacityFactor * OPACITY_FULL;
-
-    curBackgroundLineOpacity_ = newOpacityFactor * OPACITY_UNHOVER_DIVIDER;
-    curForgroundLineOpacity_ = newOpacityFactor;
+    userEntryProxy_->setOpacity(curLineEditOpacity_);
 
     update();
 }
@@ -136,12 +131,18 @@ void UsernamePasswordEntry::setFocus()
     userEntryLine_->setFocus();
 }
 
+void UsernamePasswordEntry::setWidth(int width)
+{
+    width_ = width;
+    userEntryLine_->setFixedWidth(width_ * G_SCALE - WINDOW_MARGIN * G_SCALE * 2);
+}
+
 void UsernamePasswordEntry::updateScaling()
 {
     ClickableGraphicsObject::updateScaling();
     userEntryProxy_->setPos(WINDOW_MARGIN*G_SCALE, 20*G_SCALE);
-    userEntryLine_->setFont(*FontManager::instance().getFont(16, false));
-    userEntryLine_->setFixedHeight(height_*G_SCALE - userEntryProxy_->pos().y() - 3*G_SCALE); // keep text box within drawing region and above line
+    userEntryLine_->setFont(*FontManager::instance().getFont(14, false));
+    userEntryLine_->setFixedHeight(height_*G_SCALE - userEntryProxy_->pos().y()); // keep text box within drawing region and above line
     userEntryLine_->setFixedWidth( width_ * G_SCALE - WINDOW_MARGIN*G_SCALE * 2);
     userEntryLine_->updateScaling();
 }
@@ -184,16 +185,9 @@ void UsernamePasswordEntry::onDescriptionPosYChanged(const QVariant &value)
     update();
 }
 
-void UsernamePasswordEntry::onLinePosChanged(const QVariant &value)
-{
-    curLinePos_ = value.toInt();
-    update();
-}
-
 void UsernamePasswordEntry::clearActiveState()
 {
     startAnAnimation<double>(descriptionPosYAnimation_, curDescriptionPosY_, DESCRIPTION_POS_UNCLICKED, ANIMATION_SPEED_FAST);
-    startAnAnimation<int>(linePosAnimation_, curLinePos_, 0, ANIMATION_SPEED_FAST);
 
     setError(false);
     userEntryProxy_->setVisible(false);
@@ -207,7 +201,6 @@ void UsernamePasswordEntry::activate()
     active_ = true;
 
     startAnAnimation<double>(descriptionPosYAnimation_, curDescriptionPosY_, DESCRIPTION_POS_CLICKED, ANIMATION_SPEED_FAST);
-    startAnAnimation<int>(linePosAnimation_, curLinePos_, width_, ANIMATION_SPEED_FAST);
 
     setCursor(Qt::ArrowCursor);
 
@@ -216,28 +209,6 @@ void UsernamePasswordEntry::activate()
     //userEntryLine_->setFocus();
 
     emit activated();
-}
-
-void UsernamePasswordEntry::drawBottomLine(QPainter *painter, int left, int right, int bottom, int whiteLinePos, QColor activeColor)
-{
-    // backround line
-    QPen pen(FontManager::instance().getMidnightColor());
-    pen.setWidth((int)(G_SCALE+0.5));
-    painter->setPen(pen);
-    painter->setOpacity(curBackgroundLineOpacity_);
-    painter->drawLine(left, bottom, right, bottom);
-    painter->drawLine(left, bottom+1, right, bottom+1); // thicken
-
-    // foreground line -- do not draw if not active
-    if (whiteLinePos != 0)
-    {
-        QPen pen2(activeColor);
-        pen2.setWidth((int)(G_SCALE+0.5));
-        painter->setPen(pen2);
-        painter->setOpacity(curForgroundLineOpacity_);
-        painter->drawLine(left, bottom, left + whiteLinePos, bottom);
-        painter->drawLine(left, bottom+1, left + whiteLinePos, bottom+1); // thicken
-    }
 }
 
 }
