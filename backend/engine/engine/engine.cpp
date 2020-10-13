@@ -1965,14 +1965,14 @@ void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
     if (mtu    != engineSettings_.getPacketSize().mtu() ||
         isAuto != engineSettings_.getPacketSize().is_automatic())
     {
-        ProtoTypes::PacketSize packetSize;
-        packetSize.set_mtu(mtu);
-        packetSize.set_is_automatic(isAuto);
-        engineSettings_.setPacketSize(packetSize);
+        ProtoTypes::PacketSize newPacketSize;
+        newPacketSize.set_mtu(mtu);
+        newPacketSize.set_is_automatic(isAuto);
+        engineSettings_.setPacketSize(newPacketSize);
 
         // Connection to EngineServer is chewing the parameters to garbage when passed as ProtoTypes::PacketSize
         // Probably has something to do with EngineThread
-        emit packetSizeChanged(packetSize.is_automatic(), packetSize.mtu());
+        emit packetSizeChanged(newPacketSize.is_automatic(), newPacketSize.mtu());
     }
 }
 

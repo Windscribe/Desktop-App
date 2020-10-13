@@ -2712,7 +2712,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
         }
         msg = blockConnect_.message();
     }
-    else if (connectState.connect_error() == ProtoTypes::CANNOT_OPEN_CUSTOM_OVPN_CONFIG)
+    else if (connectState.connect_error() == ProtoTypes::CANNOT_OPEN_CUSTOM_CONFIG)
     {
         PersistentState::instance().setLastLocation(backend_->getLocationsModel()->getBestLocationId());
         LocationsModel::LocationInfo li;

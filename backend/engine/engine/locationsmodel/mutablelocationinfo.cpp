@@ -176,7 +176,7 @@ QString MutableLocationInfo::getLogForNode(int ind) const
 
 /*void MutableLocationInfo::locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName)
 {
-    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
+    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
 
     if (locationId == locationId_ && nodes.count() > 0)
     {

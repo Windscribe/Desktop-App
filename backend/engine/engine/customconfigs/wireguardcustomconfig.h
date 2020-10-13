@@ -2,6 +2,8 @@
 #define WIREGUARDCUSTOMCONFIG_H
 
 #include "icustomconfig.h"
+#include "engine/types/wireguardconfig.h"
+#include <QSharedPointer>
 
 namespace customconfigs {
 
@@ -16,12 +18,28 @@ public:
     bool isCorrect() const override;
     QString getErrorForIncorrect() const override;
 
+    QSharedPointer<WireGuardConfig> getWireGuardConfig(const QString &endpointIp) const;
+    uint getEndpointPort() const { return endpointPortNumber_; }
+
     static ICustomConfig *makeFromFile(const QString &filepath);
 
 private:
+    void loadFromFile(const QString &filepath);
+    void validate();
+
+    QString errMessage_;
     QString name_;
     QString filename_;
 
+    QString privateKey_;
+    QString ipAddress_;
+    QString dnsAddress_;
+    QString publicKey_;
+    QString presharedKey_;
+    QString allowedIps_;
+    QString endpointHostname_;
+    QString endpointPort_;
+    uint endpointPortNumber_;
 };
 
 } //namespace customconfigs

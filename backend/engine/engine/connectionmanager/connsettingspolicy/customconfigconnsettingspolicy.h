@@ -9,7 +9,7 @@ class CustomConfigConnSettingsPolicy : public BaseConnSettingsPolicy
 {
     Q_OBJECT
 public:
-    CustomConfigConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli);
+    explicit CustomConfigConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli);
 
 
     void reset() override;

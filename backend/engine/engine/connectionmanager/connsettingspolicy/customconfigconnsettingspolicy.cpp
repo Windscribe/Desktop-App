@@ -1,7 +1,8 @@
 #include "customconfigconnsettingspolicy.h"
 #include "utils/logger.h"
 
-CustomConfigConnSettingsPolicy::CustomConfigConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli)
+CustomConfigConnSettingsPolicy::CustomConfigConnSettingsPolicy(
+    QSharedPointer<locationsmodel::BaseLocationInfo> bli)
 {
     locationInfo_ = qSharedPointerDynamicCast<locationsmodel::CustomConfigLocationInfo>(bli);
     Q_ASSERT(!locationInfo_.isNull());
@@ -40,13 +41,14 @@ CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSetti
 
     if (locationInfo_->isExistSelectedNode())
     {
-        ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
+        ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_CONFIG;
         ccd.ovpnData = locationInfo_->getOvpnData();
         ccd.ip = locationInfo_->getSelectedIp();
         ccd.remoteCmdLine = locationInfo_->getSelectedRemoteCommand();
         ccd.customConfigFilename = locationInfo_->getFilename();
         ccd.port = locationInfo_->getSelectedPort();
         ccd.protocol = locationInfo_->getSelectedProtocol();
+        ccd.wgCustomConfig = locationInfo_->getWireguardCustomConfig(ccd.ip);
     }
     else
     {

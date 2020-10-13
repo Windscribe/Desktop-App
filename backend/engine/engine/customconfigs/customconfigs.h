@@ -2,6 +2,7 @@
 #define CUSTOMCONFIGS_H
 
 #include <QObject>
+#include <QSharedPointer>
 #include <QVector>
 #include "icustomconfig.h"
 #include "customconfigsdirwatcher.h"

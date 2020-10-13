@@ -7,6 +7,19 @@ WireGuardConfig::WireGuardConfig()
 
 }
 
+WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAddress,
+    const QString &dnsAddress, const QString &publicKey, const QString &presharedKey,
+    const QString &endpoint, const QString &allowedIps)
+{
+    client_.privateKey = privateKey;
+    client_.ipAddress = ipAddress;
+    client_.dnsAddress = dnsAddress;
+    peer_.publicKey = publicKey;
+    peer_.presharedKey = presharedKey;
+    peer_.endpoint = endpoint;
+    peer_.allowedIps = allowedIps;
+}
+
 bool WireGuardConfig::initFromJson(QJsonObject &init_obj)
 {
     if (!init_obj.contains("PrivateKey") ||
