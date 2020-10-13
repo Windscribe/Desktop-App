@@ -1,5 +1,5 @@
-#ifndef MSSEDITBOXITEM_H
-#define MSSEDITBOXITEM_H
+#ifndef PACKETSIZEEDITBOXITEM_H
+#define PACKETSIZEEDITBOXITEM_H
 
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
@@ -10,12 +10,12 @@
 
 namespace PreferencesWindow {
 
-class MssEditBoxItem : public ScalableGraphicsObject
+class PacketSizeEditBoxItem : public ScalableGraphicsObject
 {
     Q_OBJECT
 
 public:
-    explicit MssEditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt, bool isDrawFullBottomDivider, const QString &additionalButtonIcon);
+    explicit PacketSizeEditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt, bool isDrawFullBottomDivider, const QString &additionalButtonIcon);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -81,4 +81,4 @@ private:
 } // namespace PreferencesWindow
 
 
-#endif // MSSEDITBOXITEM_H
+#endif // PACKETSIZEEDITBOXITEM_H

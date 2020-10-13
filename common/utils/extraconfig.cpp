@@ -4,6 +4,10 @@
 #include <QStandardPaths>
 #include "../utils/logger.h"
 
+const QString WS_MTU_OFFSET_IKEV_STR = "ws-mtu-offset-ikev2";
+const QString WS_MTU_OFFSET_OPENVPN_STR = "ws-mtu-offset-openvpn";
+const QString WS_MTU_OFFSET_WG_STR = "ws-mtu-offset-wg";
+
 void ExtraConfig::writeConfig(const QString &cfg)
 {
     QMutexLocker locker(&mutex_);
@@ -55,7 +59,10 @@ QString ExtraConfig::getExtraConfigForOpenVpn()
     Q_FOREACH(const QString &line, strs)
     {
         QString lineTrimmed = line.trimmed();
-        if (!lineTrimmed.startsWith("--ikev2", Qt::CaseInsensitive))
+        if (!lineTrimmed.startsWith("--ikev2", Qt::CaseInsensitive)
+                && !lineTrimmed.contains(WS_MTU_OFFSET_IKEV_STR, Qt::CaseInsensitive)
+                && !lineTrimmed.contains(WS_MTU_OFFSET_WG_STR, Qt::CaseInsensitive)
+                && !lineTrimmed.contains(WS_MTU_OFFSET_OPENVPN_STR, Qt::CaseInsensitive))
         {
             result += line + "\n";
         }
@@ -131,6 +138,59 @@ QString ExtraConfig::modifyVerbParameter(const QString &ovpnData, QString &strEx
     strExtraConfig.remove(indExtra, match.capturedLength());
 
     return strOvpn;
+}
+
+int ExtraConfig::getMtuOffsetIkev2(bool &success)
+{
+    return getIntFromExtraConfigLines(WS_MTU_OFFSET_IKEV_STR, success);
+}
+
+int ExtraConfig::getMtuOffsetOpenVpn(bool &success)
+{
+    return getIntFromExtraConfigLines(WS_MTU_OFFSET_OPENVPN_STR, success);
+}
+
+int ExtraConfig::getMtuOffsetWireguard(bool &success)
+{
+    return getIntFromExtraConfigLines(WS_MTU_OFFSET_WG_STR, success);
+}
+
+int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)
+{
+    int endOfId = line.indexOf(str, Qt::CaseInsensitive) + str.length();
+    int equals = line.indexOf("=", endOfId, Qt::CaseInsensitive)+1;
+
+    int result = 0;
+    if (equals != -1)
+    {
+        QString afterEquals = line.mid(equals).trimmed();
+        result = afterEquals.toInt(&success);
+    }
+
+    return result;
+}
+
+int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &success)
+{
+    QString strExtraConfig = getExtraConfig();
+    QStringList strs = strExtraConfig.split("\n");
+
+    Q_FOREACH(const QString &line, strs)
+    {
+        QString lineTrimmed = line.trimmed();
+
+        if (lineTrimmed.startsWith(variableName, Qt::CaseInsensitive))
+        {
+            int result = getIntFromLineWithString(lineTrimmed, variableName, success);
+
+            if (success)
+            {
+                return result;
+            }
+        }
+    }
+
+    return 0;
 }
 
 ExtraConfig::ExtraConfig() : mutex_(QMutex::Recursive),

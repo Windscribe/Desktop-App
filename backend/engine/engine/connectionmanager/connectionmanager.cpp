@@ -48,8 +48,7 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkS
     bWasSuccessfullyConnectionAttempt_(false),
     state_(STATE_DISCONNECTED),
     bLastIsOnline_(true),
-    currentConnectionDescr_(),
-    mss_(-1)
+    currentConnectionDescr_()
 {
     connect(&timerReconnection_, SIGNAL(timeout()), SLOT(onTimerReconnection()));
 
@@ -768,9 +767,33 @@ void ConnectionManager::doConnect()
         if (currentConnectionDescr_.protocol.isOpenVpnProtocol())
         {
 
+            int mss = 0;
+            if (!packetSize_.is_automatic())
+            {
+                bool advParamsOpenVpnExists = false;
+                int openVpnOffset = ExtraConfig::instance().getMtuOffsetOpenVpn(advParamsOpenVpnExists);
+                if (!advParamsOpenVpnExists) openVpnOffset = MTU_OFFSET_OPENVPN;
+
+                mss = packetSize_.mtu() - openVpnOffset;
+
+                if (mss <= 0)
+                {
+                    mss = 0;
+                    qCDebug(LOG_PACKET_SIZE) << "Using default MSS - OpenVpn ConnectionManager MSS too low: " << mss;
+                }
+                else
+                {
+                    qCDebug(LOG_PACKET_SIZE) << "OpenVpn connection MSS: " << mss;
+                }
+            }
+            else
+            {
+                qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (ConnectionManager)";
+            }
+
             bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port,
-                                                        stunnelManager_->getStunnelPort(), wstunnelManager_->getPort(), mss_);
+                                                        stunnelManager_->getStunnelPort(), wstunnelManager_->getPort(), mss);
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
@@ -1091,7 +1114,7 @@ apiinfo::StaticIpPortsVector ConnectionManager::getStatisIps()
     return currentConnectionDescr_.staticIpPorts;
 }
 
-void ConnectionManager::setMss(int mss)
+void ConnectionManager::setPacketSize(ProtoTypes::PacketSize ps)
 {
-    mss_ = mss;
+    packetSize_ = ps;
 }

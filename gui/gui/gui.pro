@@ -205,7 +205,7 @@ SOURCES += \
     localhttpserver/localhttpserver.cpp \
     locationswindow/widgetlocations/configfooteritem.cpp \
     locationswindow/widgetlocations/staticipdeviceitem.cpp \
-    preferenceswindow/connectionwindow/msseditboxitem.cpp \
+    preferenceswindow/connectionwindow/packetsizeeditboxitem.cpp \
     preferenceswindow/debugwindow/apiresolutionitem.cpp \
     preferenceswindow/generalwindow/versioninfoitem.cpp \
     preferenceswindow/networkwhitelistwindow/currentnetworkitem.cpp \
@@ -425,7 +425,7 @@ HEADERS += \
     locationswindow/widgetlocations/staticipdeviceitem.h \
     loginwindow/iinitwindow.h \
     loginwindow/initwindowitem.h \
-    preferenceswindow/connectionwindow/msseditboxitem.h \
+    preferenceswindow/connectionwindow/packetsizeeditboxitem.h \
     preferenceswindow/debugwindow/apiresolutionitem.h \
     preferenceswindow/generalwindow/versioninfoitem.h \
     preferenceswindow/networkwhitelistwindow/currentnetworkitem.h \

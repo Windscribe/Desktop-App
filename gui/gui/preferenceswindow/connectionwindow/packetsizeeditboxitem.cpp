@@ -1,4 +1,4 @@
-#include "msseditboxitem.h"
+#include "packetsizeeditboxitem.h"
 
 #include <QPainter>
 #include <QTimer>
@@ -14,7 +14,7 @@ const int BUSY_SPINNER_OPACITY_ANIMATION_TIME = 300;
 const int BUSY_SPINNER_ROTATION_ANIMATION_TIME = 500;
 const int ADDITIONAL_BUTTON_OPACITY_ANIMATION_TIME = 300;
 
-MssEditBoxItem::MssEditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt, bool isDrawFullBottomDivider, const QString &additionalButtonIcon) : ScalableGraphicsObject(parent)
+PacketSizeEditBoxItem::PacketSizeEditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt, bool isDrawFullBottomDivider, const QString &additionalButtonIcon) : ScalableGraphicsObject(parent)
   , caption_(caption)
   , btnAdditional_(NULL)
   , isEditMode_(false)
@@ -65,12 +65,12 @@ MssEditBoxItem::MssEditBoxItem(ScalableGraphicsObject *parent, const QString &ca
     updatePositions();
 }
 
-QRectF MssEditBoxItem::boundingRect() const
+QRectF PacketSizeEditBoxItem::boundingRect() const
 {
     return QRectF(0, 0, PAGE_WIDTH*G_SCALE, 43*G_SCALE);
 }
 
-void MssEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -114,30 +114,30 @@ void MssEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     }
 }
 
-void MssEditBoxItem::setText(const QString &text)
+void PacketSizeEditBoxItem::setText(const QString &text)
 {
     text_ = text;
     lineEdit_->setText(text_);
     update();
 }
 
-void MssEditBoxItem::setValidator(QRegExpValidator *validator)
+void PacketSizeEditBoxItem::setValidator(QRegExpValidator *validator)
 {
     lineEdit_->setValidator(validator);
 }
 
-void MssEditBoxItem::updateScaling()
+void PacketSizeEditBoxItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
     updatePositions();
 }
 
-void MssEditBoxItem::setEditButtonClickable(bool clickable)
+void PacketSizeEditBoxItem::setEditButtonClickable(bool clickable)
 {
     btnEdit_->setClickable(clickable);
 }
 
-void MssEditBoxItem::setAdditionalButtonBusyState(bool on)
+void PacketSizeEditBoxItem::setAdditionalButtonBusyState(bool on)
 {
     if (additionalButtonBusy_ != on)
     {
@@ -194,13 +194,13 @@ void MssEditBoxItem::setAdditionalButtonBusyState(bool on)
     }
 }
 
-void MssEditBoxItem::setAdditionalButtonSelectedState(bool selected)
+void PacketSizeEditBoxItem::setAdditionalButtonSelectedState(bool selected)
 {
     if (btnAdditional_)
         btnAdditional_->setSelected(selected);
 }
 
-void MssEditBoxItem::onEditClick()
+void PacketSizeEditBoxItem::onEditClick()
 {
     btnEdit_->hide();
     if (btnAdditional_)
@@ -215,7 +215,7 @@ void MssEditBoxItem::onEditClick()
     update();
 }
 
-void MssEditBoxItem::onConfirmClick()
+void PacketSizeEditBoxItem::onConfirmClick()
 {
     btnEdit_->show();
     if (btnAdditional_)
@@ -232,7 +232,7 @@ void MssEditBoxItem::onConfirmClick()
     emit textChanged(text_);
 }
 
-void MssEditBoxItem::onUndoClick()
+void PacketSizeEditBoxItem::onUndoClick()
 {
     btnEdit_->show();
     if (btnAdditional_)
@@ -246,7 +246,7 @@ void MssEditBoxItem::onUndoClick()
     update();
 }
 
-void MssEditBoxItem::onLineEditKeyPress(QKeyEvent *event)
+void PacketSizeEditBoxItem::onLineEditKeyPress(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {
@@ -255,25 +255,25 @@ void MssEditBoxItem::onLineEditKeyPress(QKeyEvent *event)
     }
 }
 
-void MssEditBoxItem::onLanguageChanged()
+void PacketSizeEditBoxItem::onLanguageChanged()
 {
     lineEdit_->setPlaceholderText(tr(editPlaceholderText_.toStdString().c_str()));
 }
 
-void MssEditBoxItem::onBusySpinnerOpacityAnimationChanged(const QVariant &value)
+void PacketSizeEditBoxItem::onBusySpinnerOpacityAnimationChanged(const QVariant &value)
 {
     busySpinnerOpacity_ = value.toDouble();
     // btnAdditional_->setOpacity(1 - busySpinnerOpacity_);
     update();
 }
 
-void MssEditBoxItem::onBusySpinnerRotationAnimationChanged(const QVariant &value)
+void PacketSizeEditBoxItem::onBusySpinnerRotationAnimationChanged(const QVariant &value)
 {
     busySpinnerRotation_ = value.toInt();
     update();
 }
 
-void MssEditBoxItem::onBusySpinnerRotationAnimationFinished()
+void PacketSizeEditBoxItem::onBusySpinnerRotationAnimationFinished()
 {
     // start animation again
     if (additionalButtonBusy_)
@@ -286,13 +286,13 @@ void MssEditBoxItem::onBusySpinnerRotationAnimationFinished()
     }
 }
 
-void MssEditBoxItem::onAdditionalButtonOpacityAnimationValueChanged(const QVariant &value)
+void PacketSizeEditBoxItem::onAdditionalButtonOpacityAnimationValueChanged(const QVariant &value)
 {
     additionalButtonOpacity_ = value.toDouble();
     btnAdditional_->setOpacity(additionalButtonOpacity_);
 }
 
-void MssEditBoxItem::updatePositions()
+void PacketSizeEditBoxItem::updatePositions()
 {
     line_->setPos(24*G_SCALE, 40*G_SCALE);
     btnEdit_->setPos(boundingRect().width() - btnEdit_->boundingRect().width() - 16*G_SCALE, (boundingRect().height() - line_->boundingRect().height() - btnEdit_->boundingRect().height()) / 2);

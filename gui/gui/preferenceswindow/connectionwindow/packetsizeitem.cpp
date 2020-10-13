@@ -22,18 +22,18 @@ PacketSizeItem::PacketSizeItem(ScalableGraphicsObject *parent)
     connect(switchItem_, SIGNAL(stateChanged(AutoManualSwitchItem::SWITCH_STATE)), SLOT(onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE)));
     switchItem_->setPos(0, 0);
 
-    editBoxMSS_ = new MssEditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "MSS"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter MSS"), false, "preferences/AUTODETECT_ICON");
-    connect(editBoxMSS_, SIGNAL(textChanged(QString)), SLOT(onMssChanged(QString)));
-    connect(editBoxMSS_, SIGNAL(additionalButtonHoverEnter()), SLOT(onAutoDetectAndGenerateHoverEnter()));
-    connect(editBoxMSS_, SIGNAL(additionalButtonHoverLeave()), SLOT(onAutoDetectAndGenerateHoverLeave()));
-    connect(editBoxMSS_, SIGNAL(additionalButtonClicked()), SIGNAL(detectPacketMssButtonClicked()));
+    editBoxPacketSize_ = new PacketSizeEditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "MTU"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter MTU"), false, "preferences/AUTODETECT_ICON");
+    connect(editBoxPacketSize_, SIGNAL(textChanged(QString)), SLOT(onEditBoxTextChanged(QString)));
+    connect(editBoxPacketSize_, SIGNAL(additionalButtonHoverEnter()), SLOT(onAutoDetectAndGenerateHoverEnter()));
+    connect(editBoxPacketSize_, SIGNAL(additionalButtonHoverLeave()), SLOT(onAutoDetectAndGenerateHoverLeave()));
+    connect(editBoxPacketSize_, SIGNAL(additionalButtonClicked()), SIGNAL(detectAppropriatePacketSizeButtonClicked()));
 
-    editBoxMSS_->setPos(0, COLLAPSED_HEIGHT*G_SCALE);
+    editBoxPacketSize_->setPos(0, COLLAPSED_HEIGHT*G_SCALE);
     setHeight(EXPANDED_HEIGHT);
 
     QRegExp ipRegex ("^\\d+$");
     QRegExpValidator *integerValidator = new QRegExpValidator(ipRegex, this);
-    editBoxMSS_->setValidator(integerValidator);
+    editBoxPacketSize_->setValidator(integerValidator);
 
     expandEnimation_.setStartValue(COLLAPSED_HEIGHT*G_SCALE);
     expandEnimation_.setEndValue(EXPANDED_HEIGHT*G_SCALE);
@@ -52,7 +52,7 @@ void PacketSizeItem::onAutoDetectAndGenerateHoverEnter()
         return;
 
     QGraphicsView *view = scene()->views().first();
-    QPoint globalPt = view->mapToGlobal(view->mapFromScene(editBoxMSS_->scenePos()));
+    QPoint globalPt = view->mapToGlobal(view->mapFromScene(editBoxPacketSize_->scenePos()));
 
     int posX = globalPt.x() + 226 * G_SCALE;
     int posY = globalPt.y() + 8 * G_SCALE;
@@ -62,7 +62,7 @@ void PacketSizeItem::onAutoDetectAndGenerateHoverEnter()
     ti.y = posY;
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.8;
-    ti.title = tr("Auto-Detect & Generate MSS");
+    ti.title = tr("Auto-Detect & Generate MTU");
     emit showTooltip(ti);
 }
 
@@ -102,21 +102,21 @@ void PacketSizeItem::setPacketSize(const ProtoTypes::PacketSize &ps)
             setHeight(EXPANDED_HEIGHT*G_SCALE);
         }
 
-        editBoxMSS_->setEditButtonClickable(!curPacketSize_.is_automatic());
-        if (curPacketSize_.mss() >= 0)
+        editBoxPacketSize_->setEditButtonClickable(!curPacketSize_.is_automatic());
+        if (curPacketSize_.mtu() >= 0)
         {
-            editBoxMSS_->setText(QString::number(curPacketSize_.mss()));
+            editBoxPacketSize_->setText(QString::number(curPacketSize_.mtu()));
         }
         else
         {
-            editBoxMSS_->setText("");
+            editBoxPacketSize_->setText("");
         }
     }
 }
 
 void PacketSizeItem::setPacketSizeDetectionState(bool on)
 {
-    editBoxMSS_->setAdditionalButtonBusyState(on);
+    editBoxPacketSize_->setAdditionalButtonBusyState(on);
 }
 
 void PacketSizeItem::showPacketSizeDetectionError(const QString &title, const QString &message)
@@ -124,7 +124,7 @@ void PacketSizeItem::showPacketSizeDetectionError(const QString &title, const QS
     emit hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE);
 
     QGraphicsView *view = scene()->views().first();
-    QPoint globalPt = view->mapToGlobal(view->mapFromScene(editBoxMSS_->scenePos()));
+    QPoint globalPt = view->mapToGlobal(view->mapFromScene(editBoxPacketSize_->scenePos()));
 
     TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE_ERROR);
     ti.x = globalPt.x() + 226 * G_SCALE;
@@ -138,7 +138,7 @@ void PacketSizeItem::showPacketSizeDetectionError(const QString &title, const QS
 
     QTimer::singleShot(0, [this, ti]() {
         isShowingError_ = true;
-        editBoxMSS_->setAdditionalButtonSelectedState(true);
+        editBoxPacketSize_->setAdditionalButtonSelectedState(true);
         emit showTooltip(ti);
     });
 }
@@ -147,7 +147,7 @@ void PacketSizeItem::updateScaling()
 {
     BaseItem::updateScaling();
     setHeight(isExpanded_? EXPANDED_HEIGHT*G_SCALE : COLLAPSED_HEIGHT*G_SCALE);
-    editBoxMSS_->setPos(0, COLLAPSED_HEIGHT*G_SCALE);
+    editBoxPacketSize_->setPos(0, COLLAPSED_HEIGHT*G_SCALE);
     expandEnimation_.setStartValue(COLLAPSED_HEIGHT*G_SCALE);
     expandEnimation_.setEndValue(EXPANDED_HEIGHT*G_SCALE);
 }
@@ -178,18 +178,18 @@ void PacketSizeItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state)
         curPacketSize_.set_is_automatic(true);
         emit packetSizeChanged(curPacketSize_);
     }
-    editBoxMSS_->setEditButtonClickable(!curPacketSize_.is_automatic());
+    editBoxPacketSize_->setEditButtonClickable(!curPacketSize_.is_automatic());
 }
 
-void PacketSizeItem::onMssChanged(const QString &text)
+void PacketSizeItem::onEditBoxTextChanged(const QString &text)
 {
     if (text.isEmpty())
     {
-        curPacketSize_.set_mss(-1);
+        curPacketSize_.set_mtu(-1);
     }
     else
     {
-        curPacketSize_.set_mss(text.toInt());
+        curPacketSize_.set_mtu(text.toInt());
     }
     emit packetSizeChanged(curPacketSize_);
 }

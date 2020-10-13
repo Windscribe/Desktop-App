@@ -28,7 +28,7 @@ public:
     //windows specific functions
     QString getConnectedTapAdapter_win();
 
-    void setMss(int mss);
+    void setPacketSize(ProtoTypes::PacketSize ps);
 
 signals:
     void connected();
@@ -69,7 +69,7 @@ private:
     QString lastIp_;
     uint serverApiUserRole_;
     int state_;
-    int mss_;
+    ProtoTypes::PacketSize packetSize_;
 
     void doConnect();
     void doMacRestoreProcedures();

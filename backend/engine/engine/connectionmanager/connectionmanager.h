@@ -56,7 +56,7 @@ public:
 
     void setWireGuardConfig(QSharedPointer<WireGuardConfig> config) override;
 
-    void setMss(int mss) override;
+    void setPacketSize(ProtoTypes::PacketSize ps) override;
 
 private slots:
     void onConnectionConnected();
@@ -127,7 +127,7 @@ private:
     QString usernameForCustomOvpn_;     // can be empty
     QString passwordForCustomOvpn_;     // can be empty
 
-    int mss_;
+    ProtoTypes::PacketSize packetSize_;
 
     QSharedPointer<WireGuardConfig> wireGuardConfig_;
 
