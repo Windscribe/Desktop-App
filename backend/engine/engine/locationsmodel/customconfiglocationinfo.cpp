@@ -14,7 +14,29 @@ CustomConfigLocationInfo::CustomConfigLocationInfo(const LocationID &locationId,
 
 bool CustomConfigLocationInfo::isExistSelectedNode() const
 {
-    return config_->isCorrect();
+    if (!config_->isCorrect())
+    {
+        return false;
+    }
+
+    if (bAllResolved_)
+    {
+        if (selected_ >= 0 && selected_ < remotes_.count())
+        {
+            if (!remotes_[selected_].isHostname)
+            {
+                return true;
+            }
+            else
+            {
+                return selectedHostname_ >= 0 && selectedHostname_ < remotes_[selected_].ipsForHostname_.count();
+            }
+        }
+    }
+    else
+    {
+        return true;
+    }
 }
 
 void CustomConfigLocationInfo::resolveHostnames()

@@ -779,10 +779,13 @@ void ConnectionManager::doConnectPart2()
     bIgnoreConnectionErrorsForOpenVpn_ = false;
 
     currentConnectionDescr_ = connSettingsPolicy_->getCurrentConnectionSettings();
-    Q_ASSERT(currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_ERROR);
+    //Q_ASSERT(currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_ERROR);
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR)
     {
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
+        state_ = STATE_DISCONNECTED;
+        timerReconnection_.stop();
+        emit errorDuringConnection(LOCATION_NO_ACTIVE_NODES);
         return;
     }
 

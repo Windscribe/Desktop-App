@@ -38,13 +38,20 @@ CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSetti
 {
     CurrentConnectionDescr ccd;
 
-    ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
-    ccd.ovpnData = locationInfo_->getOvpnData();
-    ccd.ip = locationInfo_->getSelectedIp();
-    ccd.remoteCmdLine = locationInfo_->getSelectedRemoteCommand();
-    ccd.customConfigFilename = locationInfo_->getFilename();
-    ccd.port = locationInfo_->getSelectedPort();
-    ccd.protocol = locationInfo_->getSelectedProtocol();
+    if (locationInfo_->isExistSelectedNode())
+    {
+        ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
+        ccd.ovpnData = locationInfo_->getOvpnData();
+        ccd.ip = locationInfo_->getSelectedIp();
+        ccd.remoteCmdLine = locationInfo_->getSelectedRemoteCommand();
+        ccd.customConfigFilename = locationInfo_->getFilename();
+        ccd.port = locationInfo_->getSelectedPort();
+        ccd.protocol = locationInfo_->getSelectedProtocol();
+    }
+    else
+    {
+        ccd.connectionNodeType = CONNECTION_NODE_ERROR;
+    }
 
     return ccd;
 }
