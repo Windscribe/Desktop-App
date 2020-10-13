@@ -67,7 +67,25 @@ public:
     Group getGroup(int ind) const { Q_ASSERT(d->isValid_); return d->groups_.at(ind); }
     void addGroup(const Group &group) { Q_ASSERT(d->isValid_); d->groups_.append(group); }
 
-    QStringList getAllIps() const;
+    QStringList getAllPingIps() const;
+
+    bool operator== (const Location &other) const
+    {
+        return d->id_ == other.d->id_ &&
+               d->name_ == other.d->name_ &&
+               d->countryCode_ == other.d->countryCode_ &&
+               d->premiumOnly_ == other.d->premiumOnly_ &&
+               d->p2p_ == other.d->p2p_ &&
+               d->dnsHostName_ == other.d->dnsHostName_ &&
+               d->groups_ == other.d->groups_ &&
+               d->isValid_ == other.d->isValid_ &&
+               d->type_ == other.d->type_;
+    }
+
+    bool operator!= (const Location &other) const
+    {
+        return !operator==(other);
+    }
 
 private:
     QSharedDataPointer<LocationData> d;

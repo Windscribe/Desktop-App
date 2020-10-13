@@ -38,11 +38,11 @@ void FirewallExceptions::setCustomRemoteIp(const QString &remoteIP, bool &bChang
     }
 }
 
-void FirewallExceptions::setCustomOvpnIp(const QString &ip, bool &bChanged)
+void FirewallExceptions::setConnectingIp(const QString &connectingIp, bool &bChanged)
 {
-    if (customOvpnIP_ != ip)
+    if (connectingIp_ != connectingIp)
     {
-        customOvpnIP_ = ip;
+        connectingIp_ = connectingIp;
         bChanged = true;
     }
     else
@@ -51,29 +51,19 @@ void FirewallExceptions::setCustomOvpnIp(const QString &ip, bool &bChanged)
     }
 }
 
-void FirewallExceptions::setCustomOvpnIps(const QStringList &ips)
-{
-    customOvpnIPs_ = ips;
-}
-
 void FirewallExceptions::setDnsPolicy(DNS_POLICY_TYPE dnsPolicy)
 {
     dnsPolicyType_ = dnsPolicy;
 }
 
-void FirewallExceptions::setLocationsIps(const QStringList &listIps)
+void FirewallExceptions::setLocationsPingIps(const QStringList &listIps)
 {
-    locationsIPs_ = listIps;
+    locationsPingIPs_ = listIps;
 }
 
-void FirewallExceptions::setStaticLocationIps(const QStringList &listIps)
+void FirewallExceptions::setCustomConfigPingIps(const QStringList &listIps)
 {
-    staticLocationIPs_ = listIps;
-}
-
-void FirewallExceptions::clearStaticLocationIps()
-{
-    staticLocationIPs_.clear();
+    customConfigsPingIPs_ = listIps;
 }
 
 QString FirewallExceptions::getIPAddressesForFirewall()
@@ -138,20 +128,12 @@ QString FirewallExceptions::getIPAddressesForFirewall()
         ipList.add(remoteIP_);
     }
 
-    if (!customOvpnIP_.isEmpty())
+    if (!connectingIp_.isEmpty())
     {
-        ipList.add(customOvpnIP_);
+        ipList.add(connectingIp_);
     }
 
-    Q_FOREACH(const QString &sl, customOvpnIPs_)
-    {
-        if (!sl.isEmpty())
-        {
-            ipList.add(sl);
-        }
-    }
-
-    Q_FOREACH(const QString &sl, locationsIPs_)
+    for (const QString &sl : locationsPingIPs_)
     {
         if (!sl.isEmpty())
         {
@@ -159,7 +141,7 @@ QString FirewallExceptions::getIPAddressesForFirewall()
         }
     }
 
-    Q_FOREACH(const QString &sl, staticLocationIPs_)
+    for (const QString &sl : customConfigsPingIPs_)
     {
         if (!sl.isEmpty())
         {

@@ -9,7 +9,7 @@ class ConfiguredCitiesModel : public BasicCitiesModel
 public:
     explicit ConfiguredCitiesModel(QObject *parent = nullptr);
 
-    void update(QVector<LocationModelItem *> locations) override;
+    void update(QVector<QSharedPointer<LocationModelItem> > locations) override;
 };
 
 #endif // CONFIGUREDCITIESMODEL_H

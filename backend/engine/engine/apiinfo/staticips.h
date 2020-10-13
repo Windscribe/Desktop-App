@@ -54,7 +54,34 @@ struct StaticIpDescr
             ret << portDescr.intPort;
         }
         return ret;
+    }
 
+    bool operator== (const StaticIpDescr &other) const
+    {
+        return id == other.id &&
+               ipId == other.ipId &&
+               staticIp == other.staticIp &&
+               type == other.type &&
+               name == other.name &&
+               countryCode == other.countryCode &&
+               shortName == other.shortName &&
+               cityName == other.cityName &&
+               serverId == other.serverId &&
+               nodeIP1 == other.nodeIP1 &&
+               nodeIP2 == other.nodeIP2 &&
+               nodeIP3 == other.nodeIP3 &&
+               hostname == other.hostname &&
+               dnsHostname == other.dnsHostname &&
+               username == other.username &&
+               password == other.password &&
+               wgIp == other.wgIp &&
+               wgPubKey == other.wgPubKey &&
+               ports == other.ports;
+    }
+
+    bool operator!= (const StaticIpDescr &other) const
+    {
+        return !operator==(other);
     }
 
 };
@@ -90,7 +117,18 @@ public:
     int getIpsCount() const { return d->ips_.count(); }
     const StaticIpDescr &getIp(int ind) const { Q_ASSERT(ind >= 0 && ind < d->ips_.count()); return d->ips_[ind]; }
 
-    QStringList getAllIps() const;
+    QStringList getAllPingIps() const;
+
+    bool operator== (const StaticIps &other) const
+    {
+        return d->deviceName_ == other.d->deviceName_ &&
+               d->ips_ == other.d->ips_;
+    }
+
+    bool operator!= (const StaticIps &other) const
+    {
+        return !operator==(other);
+    }
 
 private:
     QSharedDataPointer<StaticIpsData> d;

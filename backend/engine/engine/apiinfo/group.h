@@ -50,7 +50,6 @@ public:
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
     void initFromProtoBuf(const ProtoApiInfo::Group &g);
     ProtoApiInfo::Group getProtoBuf() const;
-    QStringList getAllIps() const;
 
     int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
     QString getCity() const { Q_ASSERT(d->isValid_); return d->city_; }
@@ -63,6 +62,23 @@ public:
     int getNodesCount() const { Q_ASSERT(d->isValid_); return d->nodes_.count(); }
     const Node &getNode(int ind) const { Q_ASSERT(d->isValid_); return d->nodes_[ind]; }
 
+
+    bool operator== (const Group &other) const
+    {
+        return d->id_ == other.d->id_ &&
+               d->city_ == other.d->city_ &&
+               d->nick_ == other.d->nick_ &&
+               d->pro_ == other.d->pro_ &&
+               d->pingIp_ == other.d->pingIp_ &&
+               d->wg_pubkey_ == other.d->wg_pubkey_ &&
+               d->nodes_ == other.d->nodes_ &&
+               d->isValid_ == other.d->isValid_;
+    }
+
+    bool operator!= (const Group &other) const
+    {
+        return !operator==(other);
+    }
 
 private:
     QSharedDataPointer<GroupData> d;

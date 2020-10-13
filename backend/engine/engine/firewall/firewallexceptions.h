@@ -11,15 +11,16 @@ public:
 
     void setHostIPs(const QStringList &hostIPs);
     void setProxyIP(const ProxySettings &proxySettings);
+
     void setCustomRemoteIp(const QString &remoteIP, bool &bChanged);
-    void setCustomOvpnIp(const QString &ip, bool &bChanged);
-    void setCustomOvpnIps(const QStringList &ips);
+    void setConnectingIp(const QString &connectingIp, bool &bChanged);
+
 
     void setDnsPolicy(DNS_POLICY_TYPE dnsPolicy);
 
-    void setLocationsIps(const QStringList &listIps);
-    void setStaticLocationIps(const QStringList &listIps);
-    void clearStaticLocationIps();
+    void setLocationsPingIps(const QStringList &listIps);
+    void setCustomConfigPingIps(const QStringList &listIps);
+
     QString getIPAddressesForFirewall();
     QString getIPAddressesForFirewallForConnectedState(const QString &connectedIp);
 
@@ -27,10 +28,9 @@ private:
     QStringList hostIPs_;
     QString proxyIP_;
     QString remoteIP_;
-    QStringList locationsIPs_;
-    QString customOvpnIP_;
-    QStringList customOvpnIPs_;
-    QStringList staticLocationIPs_;
+    QStringList locationsPingIPs_;
+    QStringList customConfigsPingIPs_;
+    QString connectingIp_;
     DNS_POLICY_TYPE dnsPolicyType_;
 
 };

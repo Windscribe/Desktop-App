@@ -14,29 +14,9 @@ void FailedPingLogController::logFailedIPs(const QStringList &ips)
     }
 }
 
-void FailedPingLogController::addLoggedLocationWeights(const QString &locationName)
-{
-    QMutexLocker locker(&mutex_);
-    if (!locations_.contains(locationName))
-    {
-        locations_ << locationName;
-    }
-}
-
-bool FailedPingLogController::isLoggedLocation(const QString &locationName)
-{
-    QMutexLocker locker(&mutex_);
-    return locations_.contains(locationName);
-}
-
 void FailedPingLogController::clear()
 {
     QMutexLocker locker(&mutex_);
     failedPingIps_.clear();
     locations_.clear();
-}
-
-FailedPingLogController::FailedPingLogController()
-{
-
 }

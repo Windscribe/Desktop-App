@@ -5,13 +5,13 @@ FavoriteCitiesModel::FavoriteCitiesModel(QObject *parent) : BasicCitiesModel(par
 
 }
 
-void FavoriteCitiesModel::update(QVector<LocationModelItem *> locations)
+void FavoriteCitiesModel::update(QVector<QSharedPointer<LocationModelItem>> locations)
 {
     clearCities();
 
-    Q_FOREACH(LocationModelItem *lmi, locations)
+    for (const QSharedPointer<LocationModelItem> lmi : locations)
     {
-        if (lmi->id.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID && lmi->id.getId() != LocationID::BEST_LOCATION_ID && lmi->id.getId() != LocationID::STATIC_IPS_LOCATION_ID)
+        if (!lmi->id.isCustomConfigsLocation() && !lmi->id.isStaticIpsLocation() && !lmi->id.isBestLocation())
         {
             for (int i = 0; i < lmi->cities.count(); ++i)
             {
@@ -34,7 +34,7 @@ void FavoriteCitiesModel::setOrderLocationsType(ProtoTypes::OrderLocationType or
     emit itemsUpdated(favoriteCities_);
 }
 
-void FavoriteCitiesModel::setIsFavorite(LocationID id, bool isFavorite)
+void FavoriteCitiesModel::setIsFavorite(const LocationID &id, bool isFavorite)
 {
     Q_FOREACH(CityModelItem *cmi, cities_)
     {

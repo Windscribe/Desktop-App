@@ -17,15 +17,14 @@ struct ConnectionSettings
     uint port() const;
     bool isAutomatic() const;
 
-    bool readFromSettings(QSettings &settings);
-    void writeToSettings(QSettings &settings);
+    bool readFromSettingsV1(QSettings &settings);
 
     bool isInitialized() const;
 
     bool isEqual(const ConnectionSettings &s) const;
 
     void debugToLog() const;
-    void logConnectionSettings();
+    void logConnectionSettings() const;
 
     ProtoTypes::ConnectionSettings convertToProtobuf() const;
 

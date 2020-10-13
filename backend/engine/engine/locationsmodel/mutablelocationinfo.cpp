@@ -8,21 +8,10 @@
 
 namespace locationsmodel {
 
-MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name, const QVector< QSharedPointer<BaseNode> > &nodes, int selectedNode,
+MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name, const QVector< QSharedPointer<const BaseNode> > &nodes, int selectedNode,
                                          const QString &dnsHostName)
-    : QObject(nullptr), locationId_(locationId),
-      name_(name), nodes_(nodes), dnsHostName_(dnsHostName)
+    : BaseLocationInfo(locationId, name), nodes_(nodes), selectedNode_(selectedNode), dnsHostName_(dnsHostName)
 {
-    if (selectedNode == -1)
-    {
-        // select random node based on weight
-        if (nodes.count() > 0)
-        {
-            selectedNode = NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(nodes);
-            Q_ASSERT(selectedNode >= 0 && selectedNode < nodes.count());
-        }
-    }
-    selectedNode_ = selectedNode;
 
     QString strNodes;
     for (int i = 0; i < nodes_.count(); ++i)
@@ -35,24 +24,9 @@ MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QSt
 }
 
 
-bool MutableLocationInfo::isCustomOvpnConfig() const
-{
-    return locationId_.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID;
-}
-
-bool MutableLocationInfo::isStaticIp() const
-{
-    return locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID;
-}
-
-QString MutableLocationInfo::getName() const
-{
-    return name_;
-}
-
 QString MutableLocationInfo::getDnsName() const
 {
-    if (isStaticIp())
+    if (locationId_.isStaticIpsLocation())
     {
         if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
         {
@@ -70,15 +44,21 @@ QString MutableLocationInfo::getDnsName() const
     }
 }
 
-QString MutableLocationInfo::getCustomOvpnConfigPath() const
-{
-    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
-    return nodes_[selectedNode_]->getCustomOvpnConfigPath();
-}
-
 bool MutableLocationInfo::isExistSelectedNode() const
 {
     return selectedNode_ != -1;
+}
+
+QString MutableLocationInfo::getLogString() const
+{
+    QString strNodes;
+    for (int i = 0; i < nodes_.count(); ++i)
+    {
+        strNodes += getLogForNode(i);
+        strNodes += "; ";
+    }
+
+    return "Location nodes: " + strNodes;
 }
 
 int MutableLocationInfo::nodesCount() const
@@ -125,14 +105,14 @@ QString MutableLocationInfo::getWgPubKeyForSelectedNode() const
 
 QString MutableLocationInfo::getWgIpForSelectedNode() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    Q_ASSERT(locationId_.isStaticIpsLocation());
     Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
     return nodes_[selectedNode_]->getWgIp();
 }
 
 QString MutableLocationInfo::getStaticIpUsername() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    Q_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_]->getStaticIpUsername();
@@ -146,7 +126,7 @@ QString MutableLocationInfo::getStaticIpUsername() const
 
 QString MutableLocationInfo::getStaticIpPassword() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    Q_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_]->getStaticIpPassword();
@@ -160,7 +140,7 @@ QString MutableLocationInfo::getStaticIpPassword() const
 
 apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
 {
-    Q_ASSERT(locationId_.getId() == LocationID::STATIC_IPS_LOCATION_ID);
+    Q_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_]->getStaticIpPorts();
@@ -172,48 +152,31 @@ apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
     }
 }
 
-/*
-QString MutableLocationInfo::resolveHostName()
+QString MutableLocationInfo::getLogForNode(int ind) const
 {
-#if 0
-    Q_ASSERT(locationId_.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID);
-    Q_ASSERT(nodes_.count() == 1);
+    QString ret = "node" + QString::number(ind + 1);
 
-    if (locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID || nodes_.count() != 1)
-    {
-        qCDebug(LOG_BASIC) << "MutableLocationInfo::resolveHostName() error, not correct location id or node count != 1";
-        return "";
-    }
+    ret += " = {";
 
-    if (IpValidation::instance().isIp(nodes_[0].getHostname()))
+    const int IPS_COUNT = 3;
+    for (int i = 0; i < IPS_COUNT; ++i)
     {
-        nodes_[0].setIpForCustomOvpnConfig(nodes_[0].getHostname());
-        return nodes_[0].getHostname();
-    }
-    else
-    {
-        QHostInfo hostInfo = DnsResolver::instance().lookupBlocked(nodes_[0].getHostname(), true);
-        if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
+        ret += "ip" + QString::number(i + 1) + " = ";
+        ret += getIpForNode(ind, i);
+        if (i != (IPS_COUNT - 1))
         {
-            qCDebug(LOG_BASIC) << "MutableLocationInfo, resolved IP address for" << nodes_[0].getHostname() << ":" << hostInfo.addresses()[0];
-            QString ip = hostInfo.addresses()[0].toString();
-            nodes_[0].setIpForCustomOvpnConfig(ip);
-            return ip;
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "MutableLocationInfo, failed to resolve" << nodes_[0].getHostname();
-            return "";
+            ret += ", ";
         }
     }
-#endif
-    return "";
+
+    ret += "}";
+    return ret;
 }
 
-void MutableLocationInfo::locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName)
+
+/*void MutableLocationInfo::locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName)
 {
-#if 0
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
+    /*Q_ASSERT(threadHandle_ == QThread::currentThreadId());
 
     if (locationId == locationId_ && nodes.count() > 0)
     {
@@ -242,8 +205,6 @@ void MutableLocationInfo::locationChanged(const LocationID &locationId, const QV
         }
         qCDebug(LOG_BASIC) << "MutableLocationInfo locationChanged: " << locationId.getHashString() << strNodes << "; Selected node:" << selectedNode_;
     }
-#endif
-}
-*/
+}*/
 
 } //namespace locationsmodel

@@ -2,6 +2,7 @@
 #define BASICLOCATIONSMODEL_H
 
 #include <QObject>
+#include <QSharedPointer>
 #include "locationmodelitem.h"
 #include "../types/types.h"
 #include "ipc/generated_proto/types.pb.h"
@@ -13,7 +14,7 @@ public:
     explicit BasicLocationsModel(QObject *parent = nullptr);
     virtual ~BasicLocationsModel();
 
-    virtual void update(QVector<LocationModelItem *> locations) = 0;
+    virtual void update(QVector<QSharedPointer<LocationModelItem>> locations) = 0;
 
     void setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType);
     void changeConnectionSpeed(LocationID id, PingTime speed);

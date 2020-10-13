@@ -1069,33 +1069,15 @@ void MainWindow::onExitWindowReject()
 
 void MainWindow::onLocationSelected(LocationID id)
 {
-    qCDebug(LOG_USER) << "Location selected";
+    qCDebug(LOG_USER) << "Location selected:" << id.getHashString();
 
-    if (id.getId() == LocationID::RIBBON_ITEM_STATIC_IP)
+    LocationsModel::LocationInfo li;
+    if (backend_->getLocationsModel()->getLocationInfo(id, li))
     {
-        openStaticIpExternalWindow();
-    }
-    else if (id.getId() == LocationID::RIBBON_ITEM_CONFIG)
-    {
-        addCustomConfigFolder();
-    }
-    else
-    {
-        LocationsModel::LocationInfo li;
-        if (backend_->getLocationsModel()->getLocationInfo(id, li))
-        {
-            // Should consider refactor of countrycode for static ips on GUI & Engine side when we update the list
-            QString countryCode = li.countryCode;
-            if (id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
-            {
-                countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
-            }
-
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime);
-            mainWindowController_->collapseLocations();
-            PersistentState::instance().setLastLocation(id);
-            backend_->sendConnect(id);
-        }
+        mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+        mainWindowController_->collapseLocations();
+        PersistentState::instance().setLastLocation(id);
+        backend_->sendConnect(id);
     }
 }
 
@@ -1106,13 +1088,12 @@ void MainWindow::onLocationSwitchFavorite(LocationID id, bool isFavorite)
 
     // Also switch favorite flag for the alternate location id; i.e. find the best location with the
     // same city name, if we are currently processing a generic location, and vice versa.
-    const bool is_best_location = id.getId() == LocationID::BEST_LOCATION_ID;
-    const auto other_id =
-        backend_->getLocationsModel()->getLocationIdByCity(id.getCity(), !is_best_location);
-    if (!other_id.isEmpty()) {
-        Q_ASSERT(!(other_id == id));
-        backend_->getLocationsModel()->switchFavorite(other_id, isFavorite);
-        mainWindowController_->getConnectWindow()->updateFavoriteState(other_id, isFavorite);
+    LocationID altLocationId = id.isBestLocation() ? id.bestLocationToApiLocation() : id.apiLocationToBestLocation();
+    LocationsModel::LocationInfo li;
+    if (backend_->getLocationsModel()->getLocationInfo(altLocationId, li))
+    {
+        backend_->getLocationsModel()->switchFavorite(altLocationId, isFavorite);
+        mainWindowController_->getConnectWindow()->updateFavoriteState(altLocationId, isFavorite);
     }
 }
 
@@ -1162,7 +1143,7 @@ bool MainWindow::onLocalHttpServerCommand(QString authHash, bool isConnectCmd, b
                     else
                     {
                         LocationID locationId = backend_->getLocationsModel()->getLocationIdByName(location);
-                        if (!locationId.isEmpty())
+                        if (locationId.isValid())
                         {
                             onLocationSelected(locationId);
                             return true;
@@ -1296,18 +1277,11 @@ void MainWindow::onBackendLoginFinished(bool isLoginFromSavedSettings)
         //LocationID lid(PersistentState::instance().state.lastlocation().location_id(), QString::fromStdString(PersistentState::instance().state.lastlocation().city()));
         if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
         {
-            // Should consider refactor of countrycode for static ips on GUI & Engine side when we update the list
-            QString countryCode = li.countryCode;
-            if (li.id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
-            {
-                countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
-            }
-
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, countryCode, li.pingTime);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
         else
         {
-            LocationID bestLocation(LocationID::BEST_LOCATION_ID);
+            LocationID bestLocation = backend_->getLocationsModel()->getBestLocationId();
             if (backend_->getLocationsModel()->getLocationInfo(bestLocation, li))
             {
                 PersistentState::instance().setLastLocation(bestLocation);
@@ -1487,7 +1461,7 @@ void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &
             // write entry into registry expired_user = username
             multipleAccountDetection_->userBecomeExpired(QString::fromStdString(sessionStatus.username()));
 
-            if ((PersistentState::instance().lastLocation().getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID) &&
+            if ((!PersistentState::instance().lastLocation().isCustomConfigsLocation()) &&
                 (backend_->currentConnectState() == ProtoTypes::CONNECTED || backend_->currentConnectState() == ProtoTypes::CONNECTING))
             {
                 bDisconnectFromTrafficExceed_ = true;
@@ -1545,7 +1519,7 @@ void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &
     if (status == 3)
     {
         blockConnect_.setBlockedBannedUser();
-        if ((PersistentState::instance().lastLocation().getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID) &&
+        if ((!PersistentState::instance().lastLocation().isCustomConfigsLocation()) &&
             (backend_->currentConnectState() == ProtoTypes::CONNECTED || backend_->currentConnectState() == ProtoTypes::CONNECTING))
         {
             backend_->sendDisconnect();
@@ -1621,21 +1595,13 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
     if (connectState.has_location())
     {
         // if connecting/connected location not equal current selected location, then change current selected location and update in GUI
-        if (PersistentState::instance().lastLocation().getId() != connectState.location().location_id() ||
-            PersistentState::instance().lastLocation().getCity() != QString::fromStdString(connectState.location().city()))
+        LocationID connectStateLocationId = LocationID::createFromProtoBuf(connectState.location());
+        if (PersistentState::instance().lastLocation() != connectStateLocationId)
         {
-            PersistentState::instance().setLastLocation( LocationID(connectState.location().location_id(), QString::fromStdString(connectState.location().city())) );
+            PersistentState::instance().setLastLocation( connectStateLocationId );
             LocationsModel::LocationInfo li;
             if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
             {
-
-                // Should consider refactor of countrycode for static ips on GUI & Engine side when we update the list
-                QString countryCode = li.countryCode;
-                if (li.id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
-                {
-                    countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
-                }
-
                 mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
         }
@@ -1791,13 +1757,6 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
         //LocationID lid(PersistentState::instance().state.lastlocation().location_id(), QString::fromStdString(PersistentState::instance().state.lastlocation().city()));
         if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
         {
-            // Should consider refactor of countrycode for static ips on GUI & Engine side when we update the list
-            QString countryCode = li.countryCode;
-            if (li.id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
-            {
-                countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
-            }
-
             mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
         else
@@ -2447,7 +2406,7 @@ void MainWindow::onTrayMenuAboutToShow()
 
 void MainWindow::onLocationsTrayMenuLocationSelected(int locationId)
 {
-    // close menu
+   /* // close menu
 #ifdef Q_OS_WIN
     trayMenu_.close();
 #else
@@ -2471,8 +2430,7 @@ void MainWindow::onLocationsTrayMenuLocationSelected(int locationId)
         QList<CityModelItem> citiesWithoutStaticAndConfig;
         foreach (CityModelItem city, cities)
         {
-            if (city.id.getId() != LocationID::STATIC_IPS_LOCATION_ID &&
-                city.id.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+            if (!city.id.isStaticIpsLocation() && !city.id.isCustomConfigsLocation())
             {
                 if (city.bShowPremiumStarOnly)
                 {
@@ -2506,7 +2464,7 @@ void MainWindow::onLocationsTrayMenuLocationSelected(int locationId)
     else
     {
         qCDebug(LOG_BASIC) << "Couldn't find city by that region (" << locationId << ")";
-    }
+    }*/
 }
 
 void MainWindow::onScaleChanged()
@@ -2674,20 +2632,14 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     }
     else if (connectState.connect_error() == ProtoTypes::LOCATION_NOT_EXIST || connectState.connect_error() == ProtoTypes::LOCATION_NO_ACTIVE_NODES)
     {
-        if (PersistentState::instance().lastLocation().getId() != LocationID::BEST_LOCATION_ID)
+        if (!PersistentState::instance().lastLocation().isBestLocation())
         {
             qCDebug(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
-            PersistentState::instance().setLastLocation(LocationID(LocationID::BEST_LOCATION_ID));
+
+            PersistentState::instance().setLastLocation(backend_->getLocationsModel()->getBestLocationId());
             LocationsModel::LocationInfo li;
             if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
             {
-                // Should consider refactor of countrycode for static ips on GUI & Engine side when we update the list
-                QString countryCode = li.countryCode;
-                if (li.id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
-                {
-                    countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
-                }
-
                 mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
             onConnectWindowConnectClick();
@@ -2762,17 +2714,10 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     }
     else if (connectState.connect_error() == ProtoTypes::CANNOT_OPEN_CUSTOM_OVPN_CONFIG)
     {
-        PersistentState::instance().setLastLocation(LocationID(LocationID::BEST_LOCATION_ID));
+        PersistentState::instance().setLastLocation(backend_->getLocationsModel()->getBestLocationId());
         LocationsModel::LocationInfo li;
         if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
         {
-            // Should consider refactor of countrycode for static ips on GUI & Engine side when we update the list
-            QString countryCode = li.countryCode;
-            if (li.id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
-            {
-                countryCode = backend_->getLocationsModel()->countryCodeOfStaticCity(li.firstName);
-            }
-
             mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
     }

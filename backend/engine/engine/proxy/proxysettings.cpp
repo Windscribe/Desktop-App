@@ -35,22 +35,13 @@ ProxySettings::ProxySettings(const ProtoTypes::ProxySettings &p)
     password_ = QString::fromStdString(p.password());
 }
 
-void ProxySettings::readFromSettings(QSettings &settings)
+void ProxySettings::readFromSettingsV1(QSettings &settings)
 {
     option_ = (PROXY_OPTION)settings.value("proxyOption", PROXY_OPTION_NONE).toInt();
     address_ = settings.value("proxyAddress", "").toString();
     port_ = settings.value("proxyPort", "").toUInt();
     username_ = settings.value("proxyUsername", "").toString();
     password_ = settings.value("proxyPassword", "").toString();
-}
-
-void ProxySettings::writeToSettings(QSettings &settings)
-{
-    settings.setValue("proxyOption", (int)option_);
-    settings.setValue("proxyAddress", address_);
-    settings.setValue("proxyPort", port_);
-    settings.setValue("proxyUsername", username_);
-    settings.setValue("proxyPassword", password_);
 }
 
 bool ProxySettings::isEqual(const ProxySettings &other) const

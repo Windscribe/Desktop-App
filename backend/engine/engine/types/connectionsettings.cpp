@@ -47,7 +47,7 @@ bool ConnectionSettings::isAutomatic() const
     return bAutomatic_;
 }
 
-bool ConnectionSettings::readFromSettings(QSettings &settings)
+bool ConnectionSettings::readFromSettingsV1(QSettings &settings)
 {
     if (settings.contains("connectionProtocol") && settings.contains("connectionPort"))
     {
@@ -61,14 +61,6 @@ bool ConnectionSettings::readFromSettings(QSettings &settings)
     {
         return false;
     }
-}
-
-void ConnectionSettings::writeToSettings(QSettings &settings)
-{
-    Q_ASSERT(bInitialized_);
-    settings.setValue("connectionProtocol", protocol_.toLongString());
-    settings.setValue("connectionPort", port_);
-    settings.setValue("connectionAutomatic", bAutomatic_);
 }
 
 bool ConnectionSettings::isInitialized() const
@@ -94,7 +86,7 @@ void ConnectionSettings::debugToLog() const
     }
 }
 
-void ConnectionSettings::logConnectionSettings()
+void ConnectionSettings::logConnectionSettings() const
 {
     if (bInitialized_)
     {

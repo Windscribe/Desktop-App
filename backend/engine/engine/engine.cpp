@@ -41,7 +41,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     getMyIPController_(NULL),
     vpnShareController_(NULL),
     emergencyController_(NULL),
-    customOvpnConfigs_(NULL),
+    customConfigs_(NULL),
     customOvpnAuthCredentialsStorage_(NULL),
     networkDetectionManager_(NULL),
     macAddressController_(NULL),
@@ -155,8 +155,7 @@ void Engine::loginWithLastLoginSettings()
 
 bool Engine::isApiSavedSettingsExists()
 {
-    QSettings settings;
-    if (settings.contains("authHash"))
+    if (!apiinfo::ApiInfo::getAuthHash().isEmpty())
     {
         // try load ApiInfo from settings
         apiinfo::ApiInfo apiInfo;
@@ -165,6 +164,7 @@ bool Engine::isApiSavedSettingsExists()
             return true;
         }
     }
+
     return false;
 }
 
@@ -214,8 +214,7 @@ LoginSettings Engine::getLastLoginSettings()
 
 QString Engine::getAuthHash()
 {
-    QSettings settings;
-    return settings.value("authHash", "").toString();
+    return apiinfo::ApiInfo::getAuthHash();
 }
 
 void Engine::clearCredentials()
@@ -560,17 +559,16 @@ void Engine::init()
     connect(connectionManager_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onConnectionManagerError(CONNECTION_ERROR)));
     connect(connectionManager_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionManagerStatisticsUpdated(quint64,quint64, bool)));
     connect(connectionManager_, SIGNAL(testTunnelResult(bool, QString)), SLOT(onConnectionManagerTestTunnelResult(bool, QString)));
-    connect(connectionManager_, SIGNAL(connectingToHostname(QString)), SLOT(onConnectionManagerConnectingToHostname(QString)));
+    connect(connectionManager_, SIGNAL(connectingToHostname(QString, QString)), SLOT(onConnectionManagerConnectingToHostname(QString, QString)));
     connect(connectionManager_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onConnectionManagerProtocolPortChanged(ProtoTypes::Protocol, uint)));
     connect(connectionManager_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onConnectionManagerInternetConnectivityChanged(bool)));
     connect(connectionManager_, SIGNAL(getWireGuardConfig()), SLOT(onConnectionManagerGetWireGuardConfig()));
     connect(connectionManager_, SIGNAL(requestUsername(QString)), SLOT(onConnectionManagerRequestUsername(QString)));
     connect(connectionManager_, SIGNAL(requestPassword(QString)), SLOT(onConnectionManagerRequestPassword(QString)));
 
-    //serversModel_ = new ServersModel(this, connectStateController_, networkStateManager_, nodesSpeedRatings_, nodesSpeedStore_);
-    //connect(serversModel_, SIGNAL(customOvpnConfgsIpsChanged(QStringList)), SLOT(onCustomOvpnConfgsIpsChanged(QStringList)));
-
     locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkStateManager_);
+    connect(locationsModel_, SIGNAL(whitelistLocationsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistIpsChanged(QStringList)));
+    connect(locationsModel_, SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistCustomConfigIpsChanged(QStringList)));
 
     getMyIPController_ = new GetMyIPController(this, serverAPI_, networkStateManager_);
     connect(getMyIPController_, SIGNAL(answerMyIP(QString,bool,bool)), SLOT(onMyIpAnswer(QString,bool,bool)));
@@ -588,9 +586,9 @@ void Engine::init()
     connect(emergencyController_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onEmergencyControllerDisconnected(DISCONNECT_REASON)));
     connect(emergencyController_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onEmergencyControllerError(CONNECTION_ERROR)));
 
-    customOvpnConfigs_ = new CustomOvpnConfigs(this);
-    customOvpnConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
-    connect(customOvpnConfigs_, SIGNAL(changed()), SLOT(onCustomOvpnConfigsChanged()));
+    customConfigs_ = new customconfigs::CustomConfigs(this);
+    customConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
+    connect(customConfigs_, SIGNAL(changed()), SLOT(onCustomConfigsChanged()));
 
     checkUpdateTimer_ = new QTimer(this);
     connect(checkUpdateTimer_, SIGNAL(timeout()), SLOT(onStartCheckUpdate()));
@@ -814,7 +812,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(vpnShareController_);
     SAFE_DELETE(emergencyController_);
     SAFE_DELETE(connectionManager_);
-    SAFE_DELETE(customOvpnConfigs_);
+    SAFE_DELETE(customConfigs_);
     SAFE_DELETE(customOvpnAuthCredentialsStorage_);
     SAFE_DELETE(firewallController_);
     SAFE_DELETE(keepAliveManager_);
@@ -864,10 +862,9 @@ void Engine::loginImpl(bool bSkipLoadingFromSettings)
 {
     QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
 
-    QSettings settings;
-    if (!bSkipLoadingFromSettings && settings.contains("authHash"))
+    QString authHash = apiinfo::ApiInfo::getAuthHash();
+    if (!bSkipLoadingFromSettings && !authHash.isEmpty())
     {
-        QString authHash = settings.value("authHash").toString();
         apiInfo_.reset(new apiinfo::ApiInfo());
 
         // try load ApiInfo from settings
@@ -919,7 +916,7 @@ void Engine::connectClickImpl(const LocationID &locationId)
         return;
     }
 
-    if (isBlockConnect_ && locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+    if (isBlockConnect_ && !locationId_.isCustomConfigsLocation())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECTION_BLOCKED);
         getMyIPController_->getIPFromDisconnectedState(1);
@@ -1004,11 +1001,9 @@ void Engine::signOutImplAfterDisconnect()
     if (!apiInfo_.isNull())
     {
         serverAPI_->deleteSession(apiInfo_->getAuthHash(), serverApiUserRole_, true);
-        apiInfo_->removeFromSettings();
         apiInfo_.reset();
-        QSettings settings;
-        settings.remove("authHash");
     }
+    apiinfo::ApiInfo::removeFromSettings();
 
     firewallController_->firewallOff();
     emit firewallStateChanged(false);
@@ -1027,7 +1022,7 @@ void Engine::continueWithUsernameAndPasswordImpl(const QString &username, const 
     {
         if (bSave)
         {
-            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFilePath(), username, password);
+            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFileName(), username, password);
         }
         connectionManager_->continueWithUsernameAndPassword(username, password, isNeedReconnectAfterRequestUsernameAndPassword_);
     }
@@ -1044,7 +1039,7 @@ void Engine::continueWithPasswordImpl(const QString &password, bool bSave)
     {
         if (bSave)
         {
-            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFilePath(), "", password);
+            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFileName(), "", password);
         }
         connectionManager_->continueWithPassword(password, isNeedReconnectAfterRequestUsernameAndPassword_);
     }
@@ -1171,7 +1166,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
 
     if (isCustomOvpnConfigsPathChanged)
     {
-        customOvpnConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
+        customConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
     }
 
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
@@ -1201,8 +1196,6 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
         apiInfo_.reset(new apiinfo::ApiInfo);
         *apiInfo_ = apiInfo;
         QString curRevisionHash = apiInfo_->getSessionStatus().getRevisionHash();
-        QSettings settings;
-        settings.setValue("authHash", apiInfo_->getAuthHash());
 
         // if updateServerLocation not called in loginImpl
         if (!prevSessionStatus_.isInitialized())
@@ -1571,7 +1564,8 @@ void Engine::onConnectionManagerConnected()
 
     serverAPI_->disableProxy();
     locationsModel_->disableProxy();
-    serverAPI_->setUseCustomDns(false);
+
+    DnsResolver::instance().setUseCustomDns(false);
 
     if (loginState_ == LOGIN_IN_PROGRESS)
     {
@@ -1674,7 +1668,7 @@ void Engine::onConnectionManagerError(CONNECTION_ERROR err)
 
         if (connectionManager_->isCustomOvpnConfigCurrentConnection())
         {
-            customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFilePath());
+            customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFileName());
 
             isNeedReconnectAfterRequestUsernameAndPassword_ = true;
             emit requestUsername();
@@ -1770,10 +1764,18 @@ void Engine::onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytes
     emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
 }
 
-void Engine::onConnectionManagerConnectingToHostname(const QString &hostname)
+void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip)
 {
     lastConnectingHostname_ = hostname;
     connectStateController_->setConnectingState(locationId_);
+
+    qCDebug(LOG_BASIC) << "Whitelist connecting ip:" << ip;
+    bool bChanged = false;
+    firewallExceptions_.setConnectingIp(ip, bChanged);
+    if (bChanged)
+    {
+        updateFirewallSettings();
+    }
 }
 
 void Engine::onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port)
@@ -1857,7 +1859,7 @@ void Engine::onEmergencyControllerConnected()
 #endif
 
     serverAPI_->disableProxy();
-    serverAPI_->setUseCustomDns(false);
+    DnsResolver::instance().setUseCustomDns(false);
 
     emergencyConnectStateController_->setConnectedState(LocationID());
     emit emergencyConnected();
@@ -1868,7 +1870,7 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerDisconnected(), reason =" << reason;
 
     serverAPI_->enableProxy();
-    serverAPI_->setUseCustomDns(true);
+    DnsResolver::instance().setUseCustomDns(true);
 
     emergencyConnectStateController_->setDisconnectedState(reason, NO_CONNECT_ERROR);
     emit emergencyDisconnected();
@@ -1906,15 +1908,21 @@ void Engine::getNewNotifications()
     serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
-void Engine::onCustomOvpnConfigsChanged()
+void Engine::onCustomConfigsChanged()
 {
-    qCDebug(LOG_BASIC) << "Custom ovpn-configs changed";
+    qCDebug(LOG_BASIC) << "Custom configs changed";
     updateServerLocations();
 }
 
-void Engine::onCustomOvpnConfgsIpsChanged(const QStringList &ips)
+void Engine::onLocationsModelWhitelistIpsChanged(const QStringList &ips)
 {
-    firewallExceptions_.setCustomOvpnIps(ips);
+    firewallExceptions_.setLocationsPingIps(ips);
+    updateFirewallSettings();
+}
+
+void Engine::onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips)
+{
+    firewallExceptions_.setCustomConfigPingIps(ips);
     updateFirewallSettings();
 }
 
@@ -2188,27 +2196,8 @@ void Engine::updateServerLocations()
 
 
     qCDebug(LOG_BASIC) << "Servers locations changed";
-
-    // firewall exceptions for API locations
-    QStringList listIps;
-    for (const apiinfo::Location &l : apiInfo_->getLocations())
-    {
-        listIps << l.getAllIps();
-    }
-    firewallExceptions_.setLocationsIps(listIps);
-
-    // firewall exceptions for Static IPs
-    if (apiInfo_->getSessionStatus().getStaticIpsCount() > 0)
-    {
-        firewallExceptions_.setStaticLocationIps(apiInfo_->getStaticIps().getAllIps());
-    }
-    else
-    {
-        firewallExceptions_.clearStaticLocationIps();
-    }
-    updateFirewallSettings();
-
-    locationsModel_->setLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
+    locationsModel_->setApiLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
+    locationsModel_->setCustomConfigLocations(customConfigs_->getConfigs());
 
     if (!apiInfo_->getForceDisconnectNodes().isEmpty())
     {
@@ -2245,7 +2234,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
         {
             // make DNS-resolution for add IP to firewall exceptions
             qCDebug(LOG_BASIC) << "Make DNS-resolution for" << strHost;
-            QHostInfo hostInfo = DnsResolver::instance().lookupBlocked(strHost, true);
+            QHostInfo hostInfo = DnsResolver::instance().lookupBlocked(strHost);
             if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
             {
                 qCDebug(LOG_BASIC) << "Resolved IP address for" << strHost << ":" << hostInfo.addresses()[0];
@@ -2286,15 +2275,15 @@ void Engine::doConnect(bool bEmitAuthError)
 
     locationId_ = checkLocationIdExistingAndReturnNewIfNeed(locationId_);
 
-    QSharedPointer<locationsmodel::MutableLocationInfo> mli = locationsModel_->getMutableLocationInfoById(locationId_);
-    if (mli.isNull())
+    QSharedPointer<locationsmodel::BaseLocationInfo> bli = locationsModel_->getMutableLocationInfoById(locationId_);
+    if (bli.isNull())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, LOCATION_NOT_EXIST);
         getMyIPController_->getIPFromDisconnectedState(1);
         qCDebug(LOG_BASIC) << "Engine::connectError(LOCATION_NOT_EXIST)";
         return;
     }
-    if (!mli->isExistSelectedNode())
+    if (!bli->isExistSelectedNode())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, LOCATION_NO_ACTIVE_NODES);
         getMyIPController_->getIPFromDisconnectedState(1);
@@ -2323,7 +2312,7 @@ void Engine::doConnect(bool bEmitAuthError)
         }
     }*/
 
-    locationName_ = mli->getName();
+    locationName_ = bli->getName();
 
 #ifdef Q_OS_WIN
     helper_->clearDnsOnTap();
@@ -2334,7 +2323,7 @@ void Engine::doConnect(bool bEmitAuthError)
     splitTunnelingNetworkInfo_.detectDefaultRoute();
 #endif
 
-    if (!apiInfo_->getServerCredentials().isInitialized() && locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+    if (!apiInfo_->getServerCredentials().isInitialized() && !locationId_.isCustomConfigsLocation())
     {
         qCDebug(LOG_BASIC) << "radius username/password empty, refetch server credentials";
 
@@ -2347,11 +2336,7 @@ void Engine::doConnect(bool bEmitAuthError)
     }
     else
     {
-        if (mli->isStaticIp())
-        {
-            qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << mli->getStaticIpUsername();
-        }
-        else
+        if (!bli->locationId().isCustomConfigsLocation() && !bli->locationId().isStaticIpsLocation())
         {
             if (apiInfo_->getServerCredentials().isInitialized())
             {
@@ -2361,7 +2346,7 @@ void Engine::doConnect(bool bEmitAuthError)
         }
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
-        connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), mli,
+        connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), bli,
             engineSettings_.connectionSettings(), apiInfo_->getPortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError);
     }
@@ -2406,7 +2391,7 @@ void Engine::doDisconnectRestoreStuff()
 
     serverAPI_->enableProxy();
     locationsModel_->enableProxy();
-    serverAPI_->setUseCustomDns(true);
+    DnsResolver::instance().setUseCustomDns(true);
 
 #ifdef Q_OS_MAC
     firewallController_->setInterfaceToSkip_mac("");

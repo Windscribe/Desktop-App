@@ -144,4 +144,9 @@ QVector<PortItem> &PortMap::items()
     return d->items_;
 }
 
+const QVector<PortItem> &PortMap::const_items() const
+{
+    return d->items_;
+}
+
 } //namespace apiinfo

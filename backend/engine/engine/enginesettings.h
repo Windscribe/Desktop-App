@@ -50,7 +50,7 @@ public:
 private:
     ProtoTypes::EngineSettings engineSettings_;
 
-    void loadFromVersion1(QSettings &settings);
+    void loadFromVersion1();
 };
 
 #endif // ENGINESETTINGS_H

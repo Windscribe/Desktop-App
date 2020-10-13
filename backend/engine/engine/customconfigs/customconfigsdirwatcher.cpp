@@ -24,6 +24,11 @@ QString CustomConfigsDirWatcher::curDir() const
     return path_;
 }
 
+QStringList CustomConfigsDirWatcher::curFiles() const
+{
+    return curFiles_;
+}
+
 void CustomConfigsDirWatcher::onDirectoryChanged(const QString & /*path*/)
 {
     checkFiles(true, false);
@@ -49,12 +54,12 @@ void CustomConfigsDirWatcher::checkFiles(bool bWithEmitSignal, bool bFileChanged
 
     QDir dir(path_);
     QStringList filters;
-    filters << "*.ovpn";
+    filters << "*.ovpn" << "*.conf";
     dir.setNameFilters(filters);
     QStringList fileList = dir.entryList(QDir::Files);
 
     QStringList newFileList;
-    Q_FOREACH(const QString &filename, fileList)
+    for (const QString &filename : fileList)
     {
         // skip our temp file
         if (filename == "windscribe_temp_config.ovpn")

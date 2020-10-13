@@ -6,7 +6,6 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
 #include "widgetlocationssizes.h"
-#include "../backend/types/locationid.h"
 #include "dpiscalemanager.h"
 
 namespace GuiLocations {
@@ -148,7 +147,7 @@ bool CityItem::isDisabled()
 
 int CityItem::findCityInd(const LocationID &locationId)
 {
-    if (locationId.getCity().isEmpty())
+    if (locationId.isTopLevelLocation())
     {
         return -1;
     }

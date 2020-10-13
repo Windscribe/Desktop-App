@@ -11,8 +11,6 @@
 #include "widgetlocationssizes.h"
 #include "commongraphics/commongraphics.h"
 #include "cityitem.h"
-#include "staticipdeviceitem.h"
-#include "configfooteritem.h"
 #include "cursorupdatehelper.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
@@ -187,17 +185,6 @@ void WidgetCities::updateListDisplay(QVector<CityModelItem*> items)
         indInVector++;
     }
 
-    if (ribbonType_ == RIBBON_TYPE_STATIC_IP)
-    {
-        StaticIpDeviceItem * sidi = new StaticIpDeviceItem(this);
-        sidi->setDeviceName(deviceName_);
-        items_ << sidi;
-    }
-    else if (ribbonType_ == RIBBON_TYPE_CONFIG)
-    {
-        items_ << new ConfigFooterItem(this);
-    }
-
     /*Q_FOREACH(LocationItem *item, items_)
     {
         if (bSaved && newTopInd == -1)
@@ -294,9 +281,9 @@ void WidgetCities::setCurrentSelected(LocationID id)
     int curAllInd = 0;
     for (int i = 0; i < items_.count(); ++i)
     {
-        if (items_[i]->getLocationId().getId() == id.getId())
+        if (items_[i]->getLocationId() == id)
         {
-            if (id.getCity().isEmpty())
+            if (id.isTopLevelLocation())
             {
                 // update selected item
                 if (indSelected_ != -1)
@@ -372,9 +359,7 @@ void WidgetCities::setFirstSelected()
 {
     if (items_.count() > 0)
     {
-        LocationID locationId;
-        locationId.setId(items_[0]->getLocationId().getId());
-        setCurrentSelected(locationId);
+        setCurrentSelected(items_[0]->getLocationId());
     }
 }
 

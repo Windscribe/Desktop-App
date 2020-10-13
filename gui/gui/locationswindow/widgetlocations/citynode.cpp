@@ -189,8 +189,7 @@ void CityNode::updateScaling()
 
 QString CityNode::getShortenedCaptionText(QString original, QFont font) const
 {
-    if (locationId_.getId() != LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID &&
-        locationId_.getId() != LocationID::STATIC_IPS_LOCATION_ID)
+    if (!locationId_.isCustomConfigsLocation() && !locationId_.isStaticIpsLocation())
         return original;
     int kMaxWidth = captionStaticIpLayout_ ?
         ( 200 * G_SCALE - captionStaticIpLayout_->boundingRect().width() ):

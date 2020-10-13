@@ -36,7 +36,7 @@ signals:
     void errorDuringConnection(CONNECTION_ERROR errorCode);
 
 private slots:
-    void onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer, quint64 userId);
+    void onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
 
     void onConnectionConnected();
     void onConnectionDisconnected();

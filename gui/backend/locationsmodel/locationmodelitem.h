@@ -3,7 +3,7 @@
 
 #include <QVector>
 #include "../types/pingtime.h"
-#include "../types/locationid.h"
+#include "types/locationid.h"
 
 //todo: implicit sharing to avoid copy constructors
 struct CityModelItem
@@ -11,21 +11,24 @@ struct CityModelItem
     LocationID id;
     QString city;
     QString nick;
-    QString countryCode;        // maybe remove
+    QString countryCode;
     PingTime pingTimeMs;
     bool bShowPremiumStarOnly;
     bool isFavorite;
+
+    QString staticIpCountryCode;
     QString staticIpType;
     QString staticIp;
+
     bool isDisabled;
 
     QString makeTitle() const
     {
-        if (id.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+        if (id.isCustomConfigsLocation())
         {
             return city;
         }
-        else if (id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
+        else if (id.isStaticIpsLocation())
         {
             return city + "(" + staticIp + ")";
         }

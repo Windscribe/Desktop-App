@@ -132,12 +132,12 @@ void LocationsTrayMenuWidget::onScrollDownClick()
 
 void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
 {
-    map_.clear();
+    /*map_.clear();
     listWidget_->clear();
 
     for (const LocationModelItem *item: qAsConst(items))
     {
-        if (item->id.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+        if (item->id.isCustomConfigsLocation())
         {
             continue;
         }
@@ -166,7 +166,7 @@ void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
 
             if (containsAtLeastOneNonProCity)
             {
-                listItem->setData(USER_ROLE_ENABLED, true /*item->pingTimeMs.toConnectionSpeed() != 0*/);  //todo
+                listItem->setData(USER_ROLE_ENABLED, item->pingTimeMs.toConnectionSpeed() != 0);  //todo
             }
             else
             {
@@ -181,7 +181,7 @@ void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
     }
 
     updateButtonsState();
-    updateBackground_mac();
+    updateBackground_mac();*/
 }
 
 void LocationsTrayMenuWidget::onSessionStatusChanged(bool bFreeSessionStatus)
@@ -212,12 +212,12 @@ void LocationsTrayMenuWidget::onSessionStatusChanged(bool bFreeSessionStatus)
 
 void LocationsTrayMenuWidget::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
-    QMap<int, QListWidgetItem *>::iterator it = map_.find(id.getId());
+    /*QMap<int, QListWidgetItem *>::iterator it = map_.find(id.getId());
     if (it != map_.end())
     {
         QListWidgetItem *item = it.value();
         item->setData(USER_ROLE_ENABLED, timeMs.toConnectionSpeed() != 0);
-    }
+    }*/
 }
 
 void LocationsTrayMenuWidget::updateButtonsState()

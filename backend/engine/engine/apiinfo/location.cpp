@@ -4,7 +4,6 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QJsonArray>
-#include "../types/locationid.h"
 
 const int typeIdLocation = qRegisterMetaType<apiinfo::Location>("apiinfo::Location");
 const int typeIdLocations = qRegisterMetaType<QVector<apiinfo::Location>>("QVector<apiinfo::Location>");
@@ -87,13 +86,13 @@ ProtoApiInfo::Location Location::getProtoBuf() const
     return l;
 }
 
-QStringList Location::getAllIps() const
+QStringList Location::getAllPingIps() const
 {
     Q_ASSERT(d->isValid_);
     QStringList ips;
     for (const Group &g : d->groups_)
     {
-        ips << g.getAllIps();
+        ips << g.getPingIp();
     }
     return ips;
 }

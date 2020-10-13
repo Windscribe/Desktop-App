@@ -210,8 +210,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
     else if (command->getStringId() == IPCClientCommands::Connect::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCClientCommands::Connect> *connectCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::Connect> *>(command);
-        LocationID lid(connectCmd->getProtoObj().locationdid().location_id(), QString::fromStdString(connectCmd->getProtoObj().locationdid().city()));
-        engine_->connectClick(lid);
+        engine_->connectClick(LocationID::createFromProtoBuf(connectCmd->getProtoObj().locationdid()));
         return true;
     }
     else if (command->getStringId() == IPCClientCommands::Disconnect::descriptor()->full_name())
@@ -398,8 +397,10 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
 
     if (retCode == ENGINE_INIT_SUCCESS)
     {
-        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)),
-                SLOT(onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
+                SLOT(onEngineLocationsModelItemsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)),
+                SLOT(onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
         connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)),
                 SLOT(onEngineLocationsModelPingChangedChanged(LocationID,locationsmodel::PingTime)));
 
@@ -711,10 +712,9 @@ void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASO
     }
     else if (state == CONNECT_STATE_CONNECTED || state == CONNECT_STATE_CONNECTING)
     {
-        if (!locationId.isEmpty())
+        if (locationId.isValid())
         {
-            cmd.getProtoObj().mutable_connect_state()->mutable_location()->set_location_id(locationId.getId());
-            cmd.getProtoObj().mutable_connect_state()->mutable_location()->set_city(locationId.getCity().toStdString());
+            *cmd.getProtoObj().mutable_connect_state()->mutable_location() = locationId.toProtobuf();
         }
     }
 
@@ -880,41 +880,38 @@ void EngineServer::onEngineConfirmEmailFinished(bool bSuccess)
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineLocationsModelItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items)
+void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > items)
 {
     IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> cmd;
+
+    *cmd.getProtoObj().mutable_best_location() = bestLocation.toProtobuf();
+
     for (const locationsmodel::LocationItem &li : *items)
     {
-        ProtoTypes::Location *l = cmd.getProtoObj().mutable_array_locations()->add_locations();
-        l->set_id(li.id);
-        l->set_name(li.name.toStdString());
-        l->set_country_code(li.countryCode.toStdString());
-        l->set_is_premium_only(li.isPremiumOnly);
-        l->set_is_p2p_supported(li.p2p == 0);
-        l->set_static_ip_device_name(li.staticIpsDeviceName.toStdString());
-
-
-        for (const locationsmodel::CityItem &ci : li.cities)
-        {
-            ProtoTypes::City *city = l->add_cities();
-            city->set_id(ci.cityId.toStdString());
-            city->set_name(ci.city.toStdString());
-            city->set_nick(ci.nick.toStdString());
-            city->set_ping_time(ci.pingTimeMs.toInt());
-            city->set_is_premium_only(ci.isPro);
-            city->set_is_disabled(ci.isDisabled);
-            city->set_static_ip_type(ci.staticIpType.toStdString());
-            city->set_static_ip(ci.staticIp.toStdString());
-        }
+        ProtoTypes::Location *l = cmd.getProtoObj().mutable_locations()->add_locations();
+        li.fillProtobuf(l);
     }
+
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
-void EngineServer::onEngineLocationsModelPingChangedChanged(LocationID id, locationsmodel::PingTime timeMs)
+void EngineServer::onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items)
+{
+    IPC::ProtobufCommand<IPCServerCommands::CustomConfigLocationsUpdated> cmd;
+
+    for (const locationsmodel::LocationItem &li : *items)
+    {
+        ProtoTypes::Location *l = cmd.getProtoObj().mutable_locations()->add_locations();
+        li.fillProtobuf(l);
+    }
+
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
+}
+
+void EngineServer::onEngineLocationsModelPingChangedChanged(const LocationID &id, locationsmodel::PingTime timeMs)
 {
     IPC::ProtobufCommand<IPCServerCommands::LocationSpeedChanged> cmd;
-    cmd.getProtoObj().set_id(id.getId());
-    cmd.getProtoObj().set_city_name(id.getCity().toStdString());
+    *cmd.getProtoObj().mutable_id() = id.toProtobuf();
     cmd.getProtoObj().set_pingtime(timeMs.toInt());
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }

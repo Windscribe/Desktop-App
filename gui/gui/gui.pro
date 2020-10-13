@@ -171,7 +171,7 @@ SOURCES += \
     ../backend/preferences/guisettingsfromver1.cpp \
     ../backend/preferences/preferences.cpp \
     ../backend/preferences/preferenceshelper.cpp \
-    ../backend/types/locationid.cpp \
+    $$COMMON_PATH/types/locationid.cpp \
     ../backend/types/pingtime.cpp \
     ../backend/types/types.cpp \
     ../backend/types/upgrademodetype.cpp \
@@ -203,8 +203,6 @@ SOURCES += \
     graphicresources/independentpixmap.cpp \
     launchonstartup/launchonstartup.cpp \
     localhttpserver/localhttpserver.cpp \
-    locationswindow/widgetlocations/configfooteritem.cpp \
-    locationswindow/widgetlocations/staticipdeviceitem.cpp \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.cpp \
     preferenceswindow/debugwindow/apiresolutionitem.cpp \
     preferenceswindow/generalwindow/versioninfoitem.cpp \
@@ -387,7 +385,7 @@ HEADERS += \
     ../backend/preferences/guisettingsfromver1.h \
     ../backend/preferences/preferences.h \
     ../backend/preferences/preferenceshelper.h \
-    ../backend/types/locationid.h \
+    $$COMMON_PATH/types/locationid.h \
     ../backend/types/pingtime.h \
     ../backend/types/types.h \
     ../backend/types/upgrademodetype.h \
@@ -422,9 +420,7 @@ HEADERS += \
     graphicresources/independentpixmap.h \
     launchonstartup/launchonstartup.h \
     localhttpserver/localhttpserver.h \
-    locationswindow/widgetlocations/configfooteritem.h \
     locationswindow/widgetlocations/icityitem.h \
-    locationswindow/widgetlocations/staticipdeviceitem.h \
     loginwindow/iinitwindow.h \
     loginwindow/initwindowitem.h \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.h \

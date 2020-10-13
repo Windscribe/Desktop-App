@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    a.setApplicationName("Windscribe");
     a.setOrganizationName("Windscribe");
+    a.setApplicationName("Windscribe2");
 
     Logger::instance().install("gui", true);
 

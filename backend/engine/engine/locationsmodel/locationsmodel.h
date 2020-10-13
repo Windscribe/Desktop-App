@@ -4,56 +4,48 @@
 #include <QObject>
 #include "engine/apiinfo/location.h"
 #include "engine/apiinfo/staticips.h"
-#include "engine/types/locationid.h"
+#include "types/locationid.h"
 #include "engine/proxy/proxysettings.h"
 #include "locationitem.h"
 #include "pingipscontroller.h"
 #include "pingstorage.h"
 #include "bestlocation.h"
-#include "mutablelocationinfo.h"
+#include "baselocationinfo.h"
+#include "engine/customconfigs/icustomconfig.h"
+#include "apilocationsmodel.h"
+#include "customconfiglocationsmodel.h"
 
 namespace locationsmodel {
 
-// Managing locations. Converts the apiinfo::Location vector to LocationItem vector.
-// Add best location, static IPs, custom OVPN-configs location. Updates the ping speed for each location.
-// thread safe access to public methods
+// Combine ApiLocationsModel and CustomConfigLocationsModel
 class LocationsModel : public QObject
 {
     Q_OBJECT
 public:
     explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
 
-    void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
+    void setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
+    void setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
 
     void setProxySettings(const ProxySettings &proxySettings);
     void disableProxy();
     void enableProxy();
 
-    QSharedPointer<MutableLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
+    QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
-    void locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items);
-    void locationPingTimeChanged(LocationID id, locationsmodel::PingTime timeMs);
+    void locationsUpdated(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void locationPingTimeChanged(const LocationID &id, locationsmodel::PingTime timeMs);
 
-    //void locationInfoChanged(const LocationID &LocationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
-    //void customOvpnConfgsIpsChanged(const QStringList &ips);
-
-private slots:
-    void onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
-    void onNeedIncrementPingIteration();
+    void whitelistLocationsIpsChanged(const QStringList &ips);
+    void whitelistCustomConfigsIpsChanged(const QStringList &ips);
 
 private:
-    PingIpsController pingIpsController_;
-    PingStorage pingStorage_;
-    QVector<apiinfo::Location> locations_;
-    apiinfo::StaticIps staticIps_;
-
-    BestLocation bestLocation_;
-
-    void detectBestLocation(bool isAllNodesInDisconnectedState);
-    void generateLocationsUpdated();
-    int calcLatency(const apiinfo::Location &l);
+    ApiLocationsModel *apiLocationsModel_;
+    CustomConfigLocationsModel *customConfigLocationsModel_;
+    PingHost *pingHost_;
 
 };
 

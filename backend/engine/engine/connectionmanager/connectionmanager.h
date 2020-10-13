@@ -9,12 +9,16 @@
 #include "makeovpnfile.h"
 #include "makeovpnfilefromcustom.h"
 
-#include "iconnectionmanager.h"
 #include "iconnection.h"
 #include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "testvpntunnel.h"
 #include "engine/types/protocoltype.h"
 #include "engine/types/wireguardconfig.h"
+#include "connsettingspolicy/baseconnsettingspolicy.h"
+#include "engine/customconfigs/customovpnauthcredentialsstorage.h"
+#include "engine/apiinfo/servercredentials.h"
+#include "engine/locationsmodel/baselocationinfo.h"
+#include "engine/types/connectionsettings.h"
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
@@ -24,7 +28,9 @@
 class ISleepEvents;
 class IKEv2Connection;
 
-class ConnectionManager : public IConnectionManager
+// manage openvpn connection, reconnects, sleep mode, network change, automatic/manual connection mode
+
+class ConnectionManager : public QObject
 {
     Q_OBJECT
 public:
@@ -33,30 +39,47 @@ public:
     ~ConnectionManager() override;
 
     void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
-                      QSharedPointer<locationsmodel::MutableLocationInfo> mli,
+                      QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                       const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap, const ProxySettings &proxySettings,
-                      bool bEmitAuthError) override;
+                      bool bEmitAuthError);
 
-    void clickDisconnect() override;
-    void blockingDisconnect() override;
-    bool isDisconnected() override;
-    QString getLastConnectedIp() override;
+    void clickDisconnect();
+    void blockingDisconnect();
+    bool isDisconnected();
+    QString getLastConnectedIp();
 
-    QString getConnectedTapTunAdapter() override;
-    void removeIkev2ConnectionFromOS() override;
+    QString getConnectedTapTunAdapter();
+    void removeIkev2ConnectionFromOS();
 
-    void continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect) override;
-    void continueWithPassword(const QString &password, bool bNeedReconnect) override;
+    void continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect);
+    void continueWithPassword(const QString &password, bool bNeedReconnect);
 
-    bool isCustomOvpnConfigCurrentConnection() const override;
-    QString getCustomOvpnConfigFilePath() override;
+    bool isCustomOvpnConfigCurrentConnection() const;
+    QString getCustomOvpnConfigFileName();
 
-    bool isStaticIpsLocation() const override;
-    apiinfo::StaticIpPortsVector getStatisIps() override;
+    bool isStaticIpsLocation() const;
+    apiinfo::StaticIpPortsVector getStatisIps();
 
-    void setWireGuardConfig(QSharedPointer<WireGuardConfig> config) override;
+    void setWireGuardConfig(QSharedPointer<WireGuardConfig> config);
 
-    void setPacketSize(ProtoTypes::PacketSize ps) override;
+    void setMss(int mss);
+    void setPacketSize(ProtoTypes::PacketSize ps);
+
+signals:
+    void connected();
+    void connectingToHostname(const QString &hostname, const QString &ip);
+    void disconnected(DISCONNECT_REASON reason);
+    void errorDuringConnection(CONNECTION_ERROR errorCode);
+    void reconnecting();
+    void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
+    void testTunnelResult(bool success, const QString &ipAddress);
+    void showFailedAutomaticConnectionMessage();
+    void internetConnectivityChanged(bool connectivity);
+    void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void getWireGuardConfig();
+
+    void requestUsername(const QString &pathCustomOvpnConfig);
+    void requestPassword(const QString &pathCustomOvpnConfig);
 
 private slots:
     void onConnectionConnected();
@@ -82,10 +105,16 @@ private slots:
 
     void onTimerWaitNetworkConnectivity();
 
+    void onHostnamesResolved();
+
 private:
     enum {STATE_DISCONNECTED, STATE_CONNECTING_FROM_USER_CLICK, STATE_CONNECTED, STATE_RECONNECTING,
           STATE_DISCONNECTING_FROM_USER_CLICK, STATE_WAIT_FOR_NETWORK_CONNECTIVITY, STATE_RECONNECTION_TIME_EXCEED,
           STATE_SLEEP_MODE_NEED_RECONNECT, STATE_WAKEUP_RECONNECTING, STATE_AUTO_DISCONNECT, STATE_ERROR_DURING_CONNECTION};
+
+    IHelper *helper_;
+    INetworkStateManager *networkStateManager_;
+    CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
 
     IConnection *connector_;
     ISleepEvents *sleepEvents_;
@@ -94,6 +123,8 @@ private:
 #ifdef Q_OS_MAC
     RestoreDNSManager_mac restoreDnsManager_;
 #endif
+
+    QScopedPointer<BaseConnSettingsPolicy> connSettingsPolicy_;
 
     QString lastDefaultGateway_;
     QString lastIp_;
@@ -122,7 +153,7 @@ private:
 
     ProtocolType currentProtocol_;
 
-    AutoManualConnectionController::CurrentConnectionDescr currentConnectionDescr_;
+    CurrentConnectionDescr currentConnectionDescr_;
 
     QString usernameForCustomOvpn_;     // can be empty
     QString passwordForCustomOvpn_;     // can be empty
@@ -133,6 +164,7 @@ private:
 
     void doConnect();
     void doConnectPart2();
+    void doConnectPart3();
     bool checkFails();
 
     void doMacRestoreProcedures();

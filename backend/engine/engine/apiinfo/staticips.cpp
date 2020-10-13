@@ -3,7 +3,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDataStream>
-#include <QDebug>
 
 const int typeIdStaticIps = qRegisterMetaType<apiinfo::StaticIps>("apiinfo::StaticIps");
 
@@ -11,8 +10,7 @@ namespace apiinfo {
 
 bool StaticIps::initFromJson(QJsonObject &init_obj)
 {
-   qDebug() << init_obj;
-   if (!init_obj.contains("static_ips"))
+    if (!init_obj.contains("static_ips"))
     {
         return false;
     }
@@ -32,7 +30,7 @@ bool StaticIps::initFromJson(QJsonObject &init_obj)
             sid.staticIp = obj["static_ip"].toString();
             sid.type = obj["type"].toString();
             sid.name = obj["name"].toString();
-            sid.countryCode = obj["country_code"].toString();
+            sid.countryCode = obj["country_code"].toString().toLower();
             sid.shortName = obj["short_name"].toString();
             sid.serverId = obj["server_id"].toDouble();
             sid.wgIp = obj["wg_ip"].toString();
@@ -184,12 +182,12 @@ ProtoApiInfo::StaticIps StaticIps::getProtoBuf() const
     return si;
 }
 
-QStringList StaticIps::getAllIps() const
+QStringList StaticIps::getAllPingIps() const
 {
     QStringList ret;
     for (const StaticIpDescr &sid : d->ips_)
     {
-        ret << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3 << sid.wgIp;
+        ret << sid.getPingIp();
     }
     return ret;
 }

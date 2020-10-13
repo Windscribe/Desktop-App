@@ -9,11 +9,17 @@
 
 #include "utils/utils.h"
 #include "engine/types/types.h"
+#include "engine/types/connectionsettings.h"
 #include "engine/dnsresolver/dnsresolver.h"
 
 #include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
+
+#include "connsettingspolicy/autoconnsettingspolicy.h"
+#include "connsettingspolicy/manualconnsettingspolicy.h"
+#include "connsettingspolicy/customconfigconnsettingspolicy.h"
+
 
 #include "ikev2connection_test.h"
 
@@ -30,8 +36,10 @@
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
 
 ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager,
-                                             ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) :
-    IConnectionManager(parent, helper, networkStateManager, serverAPI, customOvpnAuthCredentialsStorage),
+                                             ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
+    helper_(helper),
+    networkStateManager_(networkStateManager),
+    customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
     connector_(NULL),
     sleepEvents_(NULL),
     stunnelManager_(NULL),
@@ -77,11 +85,6 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkS
     connect(sleepEvents_, SIGNAL(gotoWake()), SLOT(onWakeMode()));
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
-
-#ifdef QT_DEBUG
-    //auto test for automatic connection controller
-    autoManualConnectionController_.autoTest();
-#endif
 }
 
 ConnectionManager::~ConnectionManager()
@@ -96,7 +99,7 @@ ConnectionManager::~ConnectionManager()
 }
 
 void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
-                                         QSharedPointer<locationsmodel::MutableLocationInfo> mli,
+                                         QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                          const ConnectionSettings &connectionSettings,
                                          const apiinfo::PortMap &portMap, const ProxySettings &proxySettings, bool bEmitAuthError)
 {
@@ -114,8 +117,27 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 
     state_= STATE_CONNECTING_FROM_USER_CLICK;
 
-    autoManualConnectionController_.startWith(mli, connectionSettings, portMap, proxySettings.isProxyEnabled());
-    autoManualConnectionController_.debugLocationInfoToLog();
+    if (bli->locationId().isCustomConfigsLocation())
+    {
+        connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli));
+    }
+    // API or static ips locations
+    else
+    {
+        if (connectionSettings.isAutomatic())
+        {
+            connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli, portMap, proxySettings.isProxyEnabled()));
+        }
+        else
+        {
+            connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli, connectionSettings, portMap));
+        }
+    }
+    connSettingsPolicy_->start();
+
+    connect(connSettingsPolicy_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
+
+    connSettingsPolicy_->debugLocationInfoToLog();
 
     doConnect();
 }
@@ -139,7 +161,10 @@ void ConnectionManager::clickDisconnect()
         else
         {
             state_ = STATE_DISCONNECTED;
-            autoManualConnectionController_.stop();
+            if (!connSettingsPolicy_.isNull())
+            {
+                connSettingsPolicy_->reset();
+            }
             timerReconnection_.stop();
             emit disconnected(DISCONNECTED_BY_USER);
         }
@@ -173,6 +198,12 @@ void ConnectionManager::blockingDisconnect()
             doMacRestoreProcedures();
             stunnelManager_->killProcess();
             wstunnelManager_->killProcess();
+
+            if (!connSettingsPolicy_.isNull())
+            {
+                connSettingsPolicy_->reset();
+            }
+
             DnsResolver::instance().recreateDefaultDnsChannel();
 
             state_ = STATE_DISCONNECTED;
@@ -280,7 +311,7 @@ void ConnectionManager::onConnectionDisconnected()
     {
         case STATE_DISCONNECTING_FROM_USER_CLICK:
             state_ = STATE_DISCONNECTED;
-            autoManualConnectionController_.stop();
+            connSettingsPolicy_->reset();
             timerReconnection_.stop();
             emit disconnected(DISCONNECTED_BY_USER);
             break;
@@ -365,7 +396,7 @@ void ConnectionManager::onConnectionReconnecting()
             {
                 if (bCheckFailsResult)
                 {
-                    autoManualConnectionController_.reset();
+                    connSettingsPolicy_->reset();
                 }
                 state_ = STATE_RECONNECTING;
                 emit reconnecting();
@@ -412,7 +443,7 @@ void ConnectionManager::onConnectionReconnecting()
             {
                 if (bCheckFailsResult)
                 {
-                    autoManualConnectionController_.reset();
+                    connSettingsPolicy_->reset();
                 }
                 connector_->startDisconnect();
             }
@@ -451,8 +482,8 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
         state_ = STATE_ERROR_DURING_CONNECTION;
         timerReconnection_.stop();
     }
-    else if ( (!autoManualConnectionController_.isAutomaticMode() && (err == IKEV_NOT_FOUND_WIN || err == IKEV_FAILED_SET_ENTRY_WIN || err == IKEV_FAILED_MODIFY_HOSTS_WIN) ) ||
-              (!autoManualConnectionController_.isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||
+    else if ( (!connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NOT_FOUND_WIN || err == IKEV_FAILED_SET_ENTRY_WIN || err == IKEV_FAILED_MODIFY_HOSTS_WIN) ) ||
+              (!connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||
                                                                        err == IKEV_FAILED_START_MAC || err == IKEV_FAILED_LOAD_PREFERENCES_MAC || err == IKEV_FAILED_SAVE_PREFERENCES_MAC)))
     {
         state_ = STATE_DISCONNECTED;
@@ -461,8 +492,8 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
     }
     else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == TCP_ERROR ||
              err == CONNECTED_ERROR || err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS || err == IKEV_FAILED_TO_CONNECT ||
-             (autoManualConnectionController_.isAutomaticMode() && (err == IKEV_NOT_FOUND_WIN || err == IKEV_FAILED_SET_ENTRY_WIN || err == IKEV_FAILED_MODIFY_HOSTS_WIN)) ||
-             (autoManualConnectionController_.isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||
+             (connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NOT_FOUND_WIN || err == IKEV_FAILED_SET_ENTRY_WIN || err == IKEV_FAILED_MODIFY_HOSTS_WIN)) ||
+             (connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||
                                                                     err == IKEV_FAILED_START_MAC || err == IKEV_FAILED_LOAD_PREFERENCES_MAC || err == IKEV_FAILED_SAVE_PREFERENCES_MAC)) ||
              (err == AUTH_ERROR && !bEmitAuthError_))
     {
@@ -493,7 +524,7 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
                 {
                     if (bCheckFailsResult)
                     {
-                        autoManualConnectionController_.reset();
+                        connSettingsPolicy_->reset();
                     }
 
                     if (state_ != STATE_RECONNECTING)
@@ -537,12 +568,12 @@ void ConnectionManager::onConnectionStatisticsUpdated(quint64 bytesIn, quint64 b
 
 void ConnectionManager::onConnectionRequestUsername()
 {
-    emit requestUsername(currentConnectionDescr_.pathOvpnConfigFile);
+    emit requestUsername(currentConnectionDescr_.customConfigFilename);
 }
 
 void ConnectionManager::onConnectionRequestPassword()
 {
-    emit requestPassword(currentConnectionDescr_.pathOvpnConfigFile);
+    emit requestPassword(currentConnectionDescr_.customConfigFilename);
 }
 
 void ConnectionManager::onSleepMode()
@@ -728,7 +759,7 @@ void ConnectionManager::onWstunnelFinishedBeforeConnection()
 
 void ConnectionManager::onWstunnelStarted()
 {
-    doConnectPart2();
+    doConnectPart3();
 }
 
 void ConnectionManager::doConnect()
@@ -739,19 +770,24 @@ void ConnectionManager::doConnect()
         waitForNetworkConnectivity();
         return;
     }
+    connSettingsPolicy_->resolveHostnames();
+}
+
+void ConnectionManager::doConnectPart2()
+{
 
     bIgnoreConnectionErrorsForOpenVpn_ = false;
 
-    currentConnectionDescr_ = autoManualConnectionController_.getCurrentConnectionSettings();
-    Q_ASSERT(currentConnectionDescr_.connectionNodeType != AutoManualConnectionController::CONNECTION_NODE_ERROR);
-    if (currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_ERROR)
+    currentConnectionDescr_ = connSettingsPolicy_->getCurrentConnectionSettings();
+    Q_ASSERT(currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_ERROR);
+    if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR)
     {
-        qCDebug(LOG_CONNECTION) << "autoManualConnectionController_.getCurrentConnectionSettings returned incorrect value";
+        qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
         return;
     }
 
-    if (currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_DEFAULT ||
-            currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_STATIC_IPS)
+    if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_DEFAULT ||
+            currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
     {
         if (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL)
         {
@@ -835,35 +871,34 @@ void ConnectionManager::doConnect()
             qCDebug(LOG_CONNECTION) << "Using existing WireGuard user config";
         }
     }
-    else if (currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
+    else if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
     {
-        bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(currentConnectionDescr_.pathOvpnConfigFile, currentConnectionDescr_.ip);
+        bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(currentConnectionDescr_.ovpnData, currentConnectionDescr_.ip, currentConnectionDescr_.remoteCmdLine);
         if (!bOvpnSuccess )
         {
-            qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:" << currentConnectionDescr_.pathOvpnConfigFile;
+            qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:" << currentConnectionDescr_.customConfigFilename;
             //Q_ASSERT(false);
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
             emit errorDuringConnection(CANNOT_OPEN_CUSTOM_OVPN_CONFIG);
             return;
         }
-        currentConnectionDescr_.port = makeOVPNFileFromCustom_->port();
     }
     else
     {
         Q_ASSERT(false);
     }
 
-    doConnectPart2();
+    doConnectPart3();
 }
 
-void ConnectionManager::doConnectPart2()
+void ConnectionManager::doConnectPart3()
 {
     qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
     emit protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
-    emit connectingToHostname(currentConnectionDescr_.hostname);
+    emit connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip);
 
-    if (currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
+    if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
     {
         recreateConnector(ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP));
         connector_->startConnect(makeOVPNFileFromCustom_->path(), "", "", usernameForCustomOvpn_, passwordForCustomOvpn_,
@@ -874,7 +909,7 @@ void ConnectionManager::doConnectPart2()
         if (currentConnectionDescr_.protocol.isOpenVpnProtocol())
         { 
             QString username, password;
-            if (currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_STATIC_IPS)
+            if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
             {
                 username = currentConnectionDescr_.username;
                 password = currentConnectionDescr_.password;
@@ -886,12 +921,12 @@ void ConnectionManager::doConnectPart2()
             }
 
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP));
-            connector_->startConnect(makeOVPNFile_->path(), "", "", username, password, lastProxySettings_, nullptr, false, autoManualConnectionController_.isAutomaticMode());
+            connector_->startConnect(makeOVPNFile_->path(), "", "", username, password, lastProxySettings_, nullptr, false, connSettingsPolicy_->isAutomaticMode());
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
             QString username, password;
-            if (currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_STATIC_IPS)
+            if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
             {
                 username = currentConnectionDescr_.username;
                 password = currentConnectionDescr_.password;
@@ -903,7 +938,7 @@ void ConnectionManager::doConnectPart2()
             }
 
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_IKEV2));
-            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.dnsHostName, username, password, lastProxySettings_, nullptr, ExtraConfig::instance().isUseIkev2Compression(), autoManualConnectionController_.isAutomaticMode());
+            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.dnsHostName, username, password, lastProxySettings_, nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
@@ -915,7 +950,7 @@ void ConnectionManager::doConnectPart2()
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
-                wireGuardConfig_.get(), false, autoManualConnectionController_.isAutomaticMode());
+                wireGuardConfig_.get(), false, connSettingsPolicy_->isAutomaticMode());
         }
         else
         {
@@ -929,8 +964,8 @@ void ConnectionManager::doConnectPart2()
 // return true, if need finish reconnecting
 bool ConnectionManager::checkFails()
 {
-    autoManualConnectionController_.putFailedConnection();
-    return autoManualConnectionController_.isFailed();
+    connSettingsPolicy_->putFailedConnection();
+    return connSettingsPolicy_->isFailed();
 }
 
 void ConnectionManager::doMacRestoreProcedures()
@@ -1012,14 +1047,14 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
 {
     if (!bSuccess)
     {
-        if (autoManualConnectionController_.isAutomaticMode())
+        if (connSettingsPolicy_->isAutomaticMode())
         {
             bool bCheckFailsResult = checkFails();
             if (!bCheckFailsResult || bWasSuccessfullyConnectionAttempt_)
             {
                 if (bCheckFailsResult)
                 {
-                    autoManualConnectionController_.reset();
+                    connSettingsPolicy_->reset();
                 }
                 state_ = STATE_RECONNECTING;
                 emit reconnecting();
@@ -1044,7 +1079,7 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
 
         // if connection mode is automatic, save last successfully connection settings
         bWasSuccessfullyConnectionAttempt_ = true;
-        autoManualConnectionController_.saveCurrentSuccessfullConnectionSettings();
+        connSettingsPolicy_->saveCurrentSuccessfullConnectionSettings();
     }
 }
 
@@ -1069,6 +1104,11 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
     }
 }
 
+void ConnectionManager::onHostnamesResolved()
+{
+    doConnectPart2();
+}
+
 void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> config)
 {
     if (config) {
@@ -1081,7 +1121,7 @@ void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> confi
         return;
 
     if (config) {
-        doConnectPart2();
+        doConnectPart3();
     } else {
         // Failed to fetch a config, stop connection.
         state_ = STATE_AUTO_DISCONNECT;
@@ -1094,18 +1134,18 @@ void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> confi
 
 bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const
 {
-    return currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
+    return currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
 }
 
-QString ConnectionManager::getCustomOvpnConfigFilePath()
+QString ConnectionManager::getCustomOvpnConfigFileName()
 {
     Q_ASSERT(isCustomOvpnConfigCurrentConnection());
-    return currentConnectionDescr_.pathOvpnConfigFile;
+    return currentConnectionDescr_.customConfigFilename;
 }
 
 bool ConnectionManager::isStaticIpsLocation() const
 {
-    return currentConnectionDescr_.connectionNodeType == AutoManualConnectionController::CONNECTION_NODE_STATIC_IPS;
+    return currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS;
 }
 
 apiinfo::StaticIpPortsVector ConnectionManager::getStatisIps()

@@ -279,7 +279,6 @@ private:
 ServerAPI::ServerAPI(QObject *parent, INetworkStateManager *networkStateManager) : QObject(parent),
     networkStateManager_(networkStateManager),
     bIsOnline_(true),
-    bUseCustomDns_(true),
     hostMode_(HOST_MODE_HOSTNAME),
     bIsRequestsEnabled_(false),
     curUserRole_(0),
@@ -307,7 +306,6 @@ ServerAPI::ServerAPI(QObject *parent, INetworkStateManager *networkStateManager)
     {
         qCDebug(LOG_SERVER_API) << "Fatal: SSL not supported";
     }
-    setUseCustomDns(true);
 
     handleDnsResolveFuncTable_[REPLY_LOGIN] = &ServerAPI::handleLoginDnsResolve;
     handleDnsResolveFuncTable_[REPLY_SESSION] = &ServerAPI::handleSessionDnsResolve;
@@ -399,24 +397,11 @@ void ServerAPI::setHostname(const QString &hostname)
     hostname_ = hostname;
 }
 
-void ServerAPI::setUseCustomDns(bool bUseCustomDns)
-{
-    if (bUseCustomDns)
-    {
-        qCDebug(LOG_SERVER_API) << "Changed DNS mode to custom";
-    }
-    else
-    {
-        qCDebug(LOG_SERVER_API) << "Changed DNS mode to automatic";
-    }
-    bUseCustomDns_ = bUseCustomDns;
-}
-
 void ServerAPI::submitDnsRequest(BaseRequest *request)
 {
     if (request && request->isActive()) {
         request->setWaitingHandlerType(BaseRequest::HandlerType::DNS);
-        dnsCache_->resolve(hostname_, request->getDnsCachingTimeout(), bUseCustomDns_, request);
+        dnsCache_->resolve(hostname_, request->getDnsCachingTimeout(), request);
     }
 }
 

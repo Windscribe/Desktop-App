@@ -6,6 +6,7 @@
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include <QSettings>
 
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
@@ -536,7 +537,7 @@ ProtoTypes::EngineSettings Preferences::getEngineSettings() const
 
 void Preferences::saveGuiSettings()
 {
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
     int size = guiSettings_.ByteSize();
     QByteArray arr(size, Qt::Uninitialized);
@@ -547,7 +548,7 @@ void Preferences::saveGuiSettings()
 
 void Preferences::loadGuiSettings()
 {
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
     if (settings.contains("guiSettings"))
     {

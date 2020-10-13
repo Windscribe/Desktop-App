@@ -1,25 +1,12 @@
 #include "secretvalue_win.h"
 
 #include <QDataStream>
-#include <QSettings>
 #include "Utils/logger.h"
 
 wchar_t g_szKeyPath[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\NetControlPort";
 
 SecretValue_win::SecretValue_win() : crypt_(0xFA7234AAF37A31BE)
 {
-    // upgrade from prev version
-    QSettings settings("Windscribe", "Windscribe");
-    if (settings.contains("locationData2"))
-    {
-        TOldEntry oe;
-        readOldEntry(oe);
-        if (!oe.username_.isEmpty())
-        {
-            setValue(oe.username_);
-        }
-        settings.remove("locationData2");
-    }
 }
 
 void SecretValue_win::setValue(const QString &value)
@@ -80,16 +67,4 @@ bool SecretValue_win::isExistValue(QString &value)
 void SecretValue_win::removeValue()
 {
     RegDeleteKeyEx(HKEY_CURRENT_USER, g_szKeyPath, KEY_WOW64_32KEY, 0);
-}
-
-void SecretValue_win::readOldEntry(TOldEntry &entry)
-{
-    QSettings settings("Windscribe", "Windscribe");
-    QByteArray buf = crypt_.decryptToByteArray(settings.value("locationData2").toByteArray());
-    if (!buf.isEmpty())
-    {
-        QDataStream stream(&buf, QIODevice::ReadOnly);
-        stream >> entry.username_;
-        stream >> entry.date_;
-    }
 }

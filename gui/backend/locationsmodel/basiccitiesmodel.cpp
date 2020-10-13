@@ -17,7 +17,7 @@ void BasicCitiesModel::setOrderLocationsType(ProtoTypes::OrderLocationType order
     emit itemsUpdated(cities_);
 }
 
-void BasicCitiesModel::changeConnectionSpeed(LocationID id, PingTime speed)
+void BasicCitiesModel::changeConnectionSpeed(const LocationID &id, const PingTime &speed)
 {
     Q_FOREACH(CityModelItem *cmi, cities_)
     {
@@ -30,7 +30,7 @@ void BasicCitiesModel::changeConnectionSpeed(LocationID id, PingTime speed)
     }
 }
 
-void BasicCitiesModel::setIsFavorite(LocationID id, bool isFavorite)
+void BasicCitiesModel::setIsFavorite(const LocationID &id, bool isFavorite)
 {
     Q_FOREACH(CityModelItem *cmi, cities_)
     {

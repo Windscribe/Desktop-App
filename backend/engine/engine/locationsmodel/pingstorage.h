@@ -1,8 +1,6 @@
 #ifndef PINGSTORAGE_H
 #define PINGSTORAGE_H
 
-#include "engine/types/locationid.h"
-
 #include <QObject>
 #include <QHash>
 #include <QMutex>
@@ -14,10 +12,11 @@ namespace locationsmodel {
 class PingStorage
 {
 public:
-    explicit PingStorage();
+    explicit PingStorage(const QString &settingsKeyName);
     virtual ~PingStorage();
 
     void updateNodes(const QStringList &ips);
+
     void setNodePing(const QString &nodeIp, PingTime timeMs, bool fromDisconnectedState);
     PingTime getNodeSpeed(const QString &nodeIp) const;
 
@@ -37,6 +36,8 @@ private:
 
     QHash<QString, PingData> hash_;
     quint32 curIteration_;
+
+    QString settingsKeyName_;
 
     void saveToSettings();
     void loadFromSettings();

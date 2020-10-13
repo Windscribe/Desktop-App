@@ -12,6 +12,7 @@ public:
     explicit CustomConfigsDirWatcher(QObject *parent, const QString &path);
 
     QString curDir() const;
+    QStringList curFiles() const;
 
 signals:
     void dirChanged();

@@ -19,7 +19,6 @@
 
 #include <atlbase.h>
 
-#include <QSettings>
 #include <QDir>
 #include <QCoreApplication>
 

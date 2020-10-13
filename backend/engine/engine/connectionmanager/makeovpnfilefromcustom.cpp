@@ -4,7 +4,7 @@
 #include <QDir>
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
-#include "engine/customovpnconfigs/parseovpnconfigline.h"
+#include "engine/customconfigs/parseovpnconfigline.h"
 
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"
@@ -13,11 +13,10 @@
 
 MakeOVPNFileFromCustom::MakeOVPNFileFromCustom()
 {
-    QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/custom_configs";
+    QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QDir dir(strPath);
     dir.mkpath(strPath);
-    path_ = strPath + "/windscribe_temp_config.ovpn";
-    port_ = 0;
+    path_ = strPath + "/config.ovpn";
     file_.setFileName(path_);
 }
 
@@ -27,8 +26,8 @@ MakeOVPNFileFromCustom::~MakeOVPNFileFromCustom()
     file_.remove();
 }
 
-// if IP is not empty, need replace all hostnames in remote command to this IP
-bool MakeOVPNFileFromCustom::generate(const QString &pathCustomOvpn, const QString &ip)
+// write all of ovpnData to file and add remoteCommand with replaced ip
+bool MakeOVPNFileFromCustom::generate(const QString &ovpnData, const QString &ip, const QString &remoteCommand)
 {
     if (!file_.isOpen())
     {
@@ -41,34 +40,18 @@ bool MakeOVPNFileFromCustom::generate(const QString &pathCustomOvpn, const QStri
 
     file_.resize(0);
 
-    QFile customOvpnFile(pathCustomOvpn);
-    if (!customOvpnFile.open(QIODevice::ReadOnly))
-    {
-        qCDebug(LOG_CONNECTION) << "Can't open custom ovpn config file:" << pathCustomOvpn;
-        return false;
-    }
+    file_.write(ovpnData.toLocal8Bit());
 
-    QTextStream in(&customOvpnFile);
-    while (!in.atEnd())
+    QString line = remoteCommand;
+    ParseOvpnConfigLine::OpenVpnLine openVpnLine = ParseOvpnConfigLine::processLine(remoteCommand);
+    if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_REMOTE_IP)
     {
-        QString line = in.readLine();
-        ParseOvpnConfigLine::OpenVpnLine openVpnLine = ParseOvpnConfigLine::processLine(line);
-
-        if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_REMOTE_IP)
-        {
-            line = line.replace(openVpnLine.host, ip);
-            file_.write(line.toLocal8Bit());
-            file_.write("\r\n");
-            port_ = openVpnLine.port;
-        }
-        else
-        {
-            file_.write(line.toLocal8Bit());
-            file_.write("\r\n");
-        }
+        line = line.replace(openVpnLine.host, ip);
+        file_.write(line.toLocal8Bit());
+        file_.write("\r\n");
     }
 
     file_.flush();
-
     return true;
 }
+

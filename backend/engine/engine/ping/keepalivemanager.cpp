@@ -6,7 +6,7 @@
 KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController) : QObject(parent),
     isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED), pingHostIcmp_(this, stateController)
 {
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *, quint64)), SLOT(onDnsResolvedFinished(QString, QHostInfo,void *, quint64)));
+    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *)), SLOT(onDnsResolvedFinished(QString, QHostInfo,void *)));
     connect(stateController, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
     connect(&pingHostIcmp_, SIGNAL(pingFinished(bool,int,QString,bool)), SLOT(onPingFinished(bool,int,QString,bool)));
@@ -17,7 +17,7 @@ void KeepAliveManager::setEnabled(bool isEnabled)
     isEnabled_ = isEnabled;
     if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
     {
-        DnsResolver::instance().lookup("windscribe.com", false, this, 0);
+        DnsResolver::instance().lookup("windscribe.com", this);
     }
     else
     {
@@ -34,7 +34,7 @@ void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REA
     curConnectState_ = state;
     if (state == CONNECT_STATE_CONNECTED && isEnabled_)
     {
-        DnsResolver::instance().lookup("windscribe.com", false, this, 0);
+        DnsResolver::instance().lookup("windscribe.com", this);
     }
     else
     {
@@ -60,9 +60,8 @@ void KeepAliveManager::onTimer()
     }
 }
 
-void KeepAliveManager::onDnsResolvedFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer, quint64 userId)
+void KeepAliveManager::onDnsResolvedFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
 {
-    Q_UNUSED(userId);
     Q_UNUSED(hostname);
 
     if (userPointer == this)
@@ -84,7 +83,7 @@ void KeepAliveManager::onDnsResolvedFinished(const QString &hostname, const QHos
         {
             if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
             {
-                DnsResolver::instance().lookup("windscribe.com", false, this, 0);
+                DnsResolver::instance().lookup("windscribe.com", this);
             }
         }
     }

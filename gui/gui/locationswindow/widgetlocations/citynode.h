@@ -2,7 +2,7 @@
 #define CITYNODE_H
 
 #include <QTextLayout>
-#include "../backend/types/locationid.h"
+#include "types/locationid.h"
 #include "itemtimems.h"
 
 namespace GuiLocations {

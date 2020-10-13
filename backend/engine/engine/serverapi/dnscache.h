@@ -13,15 +13,15 @@ public:
     explicit DnsCache(QObject *parent = 0);
     virtual ~DnsCache();
 
-    void resolve(const QString &hostname, bool bUseCustomDns, void *userData);
-    void resolve(const QString &hostname, int cacheTimeout, bool bUseCustomDns, void *userData);
+    void resolve(const QString &hostname, void *userData);
+    void resolve(const QString &hostname, int cacheTimeout, void *userData);
 
 signals:
     void resolved(bool success, void *userData, const QStringList &ips);
     void ipsInCachChanged(const QStringList &ips);
 
 private slots:
-    void onDnsResolverFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer, quint64 userId);
+    void onDnsResolverFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
 
 private:
 

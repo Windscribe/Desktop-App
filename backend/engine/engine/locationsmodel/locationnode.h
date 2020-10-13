@@ -3,12 +3,8 @@
 
 #include <QObject>
 #include <QVector>
-
-#include "engine/types/locationid.h"
 #include "engine/apiinfo/node.h"
 #include "engine/apiinfo/staticips.h"
-
-
 
 namespace locationsmodel {
 
@@ -25,8 +21,6 @@ public:
 
     virtual QString getWgPubKey() const { Q_ASSERT(false); return ""; }
     virtual QString getWgIp() const { Q_ASSERT(false); return ""; }
-
-    virtual QString getCustomOvpnConfigPath() const { Q_ASSERT(false); return ""; }
 
     virtual QString getStaticIpDnsName() const { Q_ASSERT(false); return ""; }
     virtual QString getStaticIpUsername() const { Q_ASSERT(false); return ""; }
@@ -94,13 +88,6 @@ private:
     QString password_;
     QString wg_ip_;
     apiinfo::StaticIpPortsVector ipPortsVector_;
-};
-
-class CustomConfigLocationNode : public BaseNode
-{
-public:
-    explicit CustomConfigLocationNode();
-    virtual ~CustomConfigLocationNode();
 };
 
 

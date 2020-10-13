@@ -265,12 +265,15 @@ SOURCES += main.cpp \
     engine/apiinfo/servercredentials.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/locationsmodel/locationsmodel.cpp \
+    engine/locationsmodel/apilocationsmodel.cpp \
+    engine/locationsmodel/customconfiglocationsmodel.cpp \
     engine/locationsmodel/locationitem.cpp \
     engine/locationsmodel/pingipscontroller.cpp \
     engine/locationsmodel/pingstorage.cpp \
     engine/locationsmodel/bestlocation.cpp \
+    engine/locationsmodel/baselocationinfo.cpp \
     engine/locationsmodel/mutablelocationinfo.cpp \
-    engine/locationsmodel/locationnode.cpp \
+    engine/locationsmodel/customconfiglocationinfo.cpp \
     engine/locationsmodel/pingtime.cpp \
     engine/locationsmodel/pinglog.cpp \
     engine/locationsmodel/failedpinglogcontroller.cpp \
@@ -295,11 +298,13 @@ SOURCES += main.cpp \
     engine/connectionmanager/testvpntunnel.cpp \
     engine/connectionmanager/testvpntunnelhelper.cpp \
     engine/connectionmanager/openvpnconnection.cpp \
-    engine/connectionmanager/automanualconnectioncontroller.cpp \
+    engine/connectionmanager/connsettingspolicy/autoconnsettingspolicy.cpp \
+    engine/connectionmanager/connsettingspolicy/manualconnsettingspolicy.cpp \
+    engine/connectionmanager/connsettingspolicy/customconfigconnsettingspolicy.cpp \
     engine/connectionmanager/connectionmanager.cpp \
     engine/connectionmanager/availableport.cpp \
     engine/connectionmanager/wireguardconnection.cpp \
-    engine/types/locationid.cpp \
+    $$COMMON_PATH/types/locationid.cpp \
     engine/logincontroller/getapiaccessips.cpp \
     engine/helper/initializehelper.cpp \
     engine/refetchservercredentialshelper.cpp \
@@ -319,7 +324,6 @@ SOURCES += main.cpp \
     engine/vpnshare/socksproxyserver/socksproxyidentreqparser.cpp \
     engine/vpnshare/socketutils/socketwriteall.cpp \
     engine/vpnshare/socksproxyserver/socksproxycommandparser.cpp \
-    engine/vpnshare/vpnsharesettings.cpp \
     engine/vpnshare/vpnsharecontroller.cpp \
     engine/vpnshare/connecteduserscounter.cpp \
     engine/vpnshare/httpproxyserver/httpproxyreply.cpp \
@@ -345,13 +349,16 @@ SOURCES += main.cpp \
     engine/tests/sessionandlocations_test.cpp \
     engine/sessionstatustimer.cpp \
     engine/connectionmanager/wstunnelmanager.cpp \
-    engine/customovpnconfigs/customovpnconfigs.cpp \
+    engine/customconfigs/customconfigs.cpp \
+    engine/customconfigs/customconfigtype.cpp \
+    engine/customconfigs/ovpncustomconfig.cpp \
+    engine/customconfigs/wireguardcustomconfig.cpp \
     engine/connectionmanager/makeovpnfilefromcustom.cpp \
-    engine/customovpnconfigs/parseovpnconfigline.cpp \
-    engine/customovpnconfigs/customovpnauthcredentialsstorage.cpp \
+    engine/customconfigs/parseovpnconfigline.cpp \
+    engine/customconfigs/customovpnauthcredentialsstorage.cpp \
     engine/ping/pinghost_tcp.cpp \
     engine/ping/pinghost.cpp \
-    engine/customovpnconfigs/customconfigsdirwatcher.cpp \
+    engine/customconfigs/customconfigsdirwatcher.cpp \
     engine/types/wireguardconfig.cpp \
     engine/getdeviceid.cpp \
     qconsolelistener.cpp \
@@ -367,12 +374,16 @@ SOURCES += main.cpp \
     engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.cpp
 
 HEADERS  +=  engine/locationsmodel/locationsmodel.h \
+    engine/locationsmodel/apilocationsmodel.h \
+    engine/locationsmodel/customconfiglocationsmodel.h \
     engine/locationsmodel/locationitem.h \
     engine/locationsmodel/pingipscontroller.h \
     engine/locationsmodel/pingstorage.h \
     engine/locationsmodel/bestlocation.h \
-    engine/locationsmodel/mutablelocationinfo.h \
     engine/locationsmodel/locationnode.h \
+    engine/locationsmodel/baselocationinfo.h \
+    engine/locationsmodel/mutablelocationinfo.h \
+    engine/locationsmodel/customconfiglocationinfo.h \
     engine/locationsmodel/pingtime.h \
     engine/locationsmodel/pinglog.h \
     engine/locationsmodel/failedpinglogcontroller.h \
@@ -407,7 +418,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     utils/mergelog.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \
-    engine/connectionmanager/iconnectionmanager.h \
     engine/networkstatemanager/inetworkstatemanager.h \
     utils/simplecrypt.h \
     engine/logincontroller/logincontroller.h \
@@ -429,9 +439,12 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/connectionmanager/wireguardconnection.h \
     utils/boost_includes.h \
     engine/types/types.h \
-    engine/connectionmanager/automanualconnectioncontroller.h \
+    engine/connectionmanager/connsettingspolicy/baseconnsettingspolicy.h \
+    engine/connectionmanager/connsettingspolicy/autoconnsettingspolicy.h \
+    engine/connectionmanager/connsettingspolicy/manualconnsettingspolicy.h \
+    engine/connectionmanager/connsettingspolicy/customconfigconnsettingspolicy.h \
     engine/connectionmanager/connectionmanager.h \
-    engine/types/locationid.h \
+    $$COMMON_PATH/types/locationid.h \
     engine/logincontroller/getapiaccessips.h \
     engine/helper/initializehelper.h \
     engine/refetchservercredentialshelper.h \
@@ -454,7 +467,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/vpnshare/socksproxyserver/socksproxyidentreqparser.h \
     engine/vpnshare/socketutils/socketwriteall.h \
     engine/vpnshare/socksproxyserver/socksproxycommandparser.h \
-    engine/vpnshare/vpnsharesettings.h \
     engine/vpnshare/vpnsharecontroller.h \
     engine/vpnshare/connecteduserscounter.h \
     engine/vpnshare/httpproxyserver/httpproxyreply.h \
@@ -480,15 +492,19 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/tests/sessionandlocations_test.h \
     engine/sessionstatustimer.h \
     engine/connectionmanager/wstunnelmanager.h \
-    engine/customovpnconfigs/customovpnconfigs.h \
+    engine/customconfigs/icustomconfig.h \
+    engine/customconfigs/customconfigtype.h \
+    engine/customconfigs/ovpncustomconfig.h \
+    engine/customconfigs/wireguardcustomconfig.h \
+    engine/customconfigs/customconfigs.h \
     engine/connectionmanager/makeovpnfilefromcustom.h \
-    engine/customovpnconfigs/parseovpnconfigline.h \
-    engine/customovpnconfigs/customovpnauthcredentialsstorage.h \
+    engine/customconfigs/parseovpnconfigline.h \
+    engine/customconfigs/customovpnauthcredentialsstorage.h \
     engine/ping/icmp_header.h \
     engine/ping/ipv4_header.h \
     engine/ping/pinghost_tcp.h \
     engine/ping/pinghost.h \
-    engine/customovpnconfigs/customconfigsdirwatcher.h \
+    engine/customconfigs/customconfigsdirwatcher.h \
     engine/types/wireguardconfig.h \
     engine/getdeviceid.h \
     qconsolelistener.h \

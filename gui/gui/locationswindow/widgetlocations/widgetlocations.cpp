@@ -156,9 +156,9 @@ void WidgetLocations::setCurrentSelected(LocationID id)
     int curAllInd = 0;
     for (int i = 0; i < items_.count(); ++i)
     {
-        if (items_[i]->getId() == id.getId())
+        if (items_[i]->getId() == id)
         {
-            if (id.getCity().isEmpty())
+            if (id.isTopLevelLocation())
             {
                 if (indSelected_ != -1)
                 {
@@ -234,9 +234,7 @@ void WidgetLocations::setFirstSelected()
 {
     if (items_.count() > 0)
     {
-        LocationID locationId;
-        locationId.setId(items_[0]->getId());
-        setCurrentSelected(locationId);
+        setCurrentSelected(items_[0]->getId());
     }
 }
 
@@ -548,9 +546,8 @@ void WidgetLocations::mousePressEvent(QMouseEvent *event)
     }
 #endif
 
-    if (event->button() == Qt::LeftButton)
+    if (event->button() == Qt::LeftButton && indSelected_ != -1)
     {
-
         indParentPressed_ = indSelected_;
         indChildPressed_ = items_[indSelected_]->getSelected();
         indChildFavourite_ = detectItemClickOnFavoriteLocationIcon();
@@ -574,7 +571,7 @@ void WidgetLocations::mouseReleaseEvent(QMouseEvent *event)
             if (cityInd != -1 && cityInd == indChildFavourite_) // favorite press and release
             {
                 bool isFavorite = items_[indSelected_]->toggleFavorite(cityInd);
-                LocationID lid(items_[indSelected_]->getId(), items_[indSelected_]->getCity(cityInd));
+                LocationID lid = items_[indSelected_]->getLocationIdForCity(cityInd);
                 if (isFavorite)
                 {
                     emit switchFavorite(lid, true);
@@ -649,7 +646,7 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
 {
     bool bSaved = false;
     LocationID savedTopLocationId;
-    QSet<int> expandedLocationsIds;
+    QSet<LocationID> expandedLocationsIds;
     LocationID savedSelectedLocationId;
 
     if (items_.count() > 0)
@@ -668,12 +665,14 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
 
         if (indSelected_ != -1)
         {
-            savedSelectedLocationId.setId(items_[indSelected_]->getId());
-
             int itemSelectedInd = items_[indSelected_]->getSelected();
             if (itemSelectedInd > 0)
             {
-                savedSelectedLocationId.setCity(items_[indSelected_]->getCity(itemSelectedInd - 1));
+                savedSelectedLocationId = items_[indSelected_]->getLocationIdForCity(itemSelectedInd - 1);
+            }
+            else
+            {
+                savedSelectedLocationId = items_[indSelected_]->getId();
             }
         }
 
@@ -697,11 +696,11 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
                                lmi->cities[i].pingTimeMs, lmi->cities[i].bShowPremiumStarOnly, isShowLatencyInMs(),
                                lmi->cities[i].staticIp, lmi->cities[i].staticIpType, lmi->cities[i].isFavorite, lmi->cities[i].isDisabled);
         }
-        LocationItem *item = new LocationItem(this, lmi->id.getId(), lmi->countryCode, lmi->title,
+        LocationItem *item = new LocationItem(this, lmi->id, lmi->countryCode, lmi->title,
                                               lmi->isShowP2P, PingTime(), cities, true, lmi->isPremiumOnly);
         items_ << item;
 
-        if (lmi->id.getId() == LocationID::BEST_LOCATION_ID)
+        if (lmi->id.isBestLocation())
         {
             bestLocation_ = item;
             bestLocationName_ = lmi->title;
@@ -712,7 +711,7 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
     {
         if (bSaved && newTopInd == -1)
         {
-            if (item->getId() == savedTopLocationId.getId())
+            if (item->getId() == savedTopLocationId)
             {
                 int cityInd = item->findCityInd(savedTopLocationId);
                 if (cityInd != -1)
@@ -731,7 +730,7 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
             item->setExpandedWithoutAnimation();
         }
 
-        if (bSaved && savedSelectedLocationId.getId() == item->getId())
+        if (bSaved && savedSelectedLocationId == item->getId())
         {
             indSelected_ = curInd;
             item->setSelectedByCity(savedSelectedLocationId);
@@ -795,7 +794,7 @@ bool WidgetLocations::isIdVisible(LocationID id)
     for (int i = 0; i < currentVisibleItems_.size(); i++)
     {
         auto item = currentVisibleItems_[i];
-        if (item->getId() == id.getId())
+        if (item->getId() == id)
         {
             idVisible = true;
             break;
@@ -810,7 +809,7 @@ void WidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
     bool bChanged = false;
     for (int i = 0; i < items_.count(); ++i)
     {
-        if (items_[i]->getId() == id.getId())
+        if (items_[i]->getId() == id)
         {
             if (items_[i]->getPingTimeMs() != timeMs.toInt())
             {
@@ -833,7 +832,7 @@ void WidgetLocations::onIsFavoriteChanged(LocationID id, bool isFavorite)
     bool bChanged = false;
     for (int i = 0; i < items_.count(); ++i)
     {
-        if (items_[i]->getId() == id.getId())
+        if (items_[i]->getId().toTopLevelLocation() == id.toTopLevelLocation())
         {
             bChanged = items_[i]->changeIsFavorite(id, isFavorite) && items_[i]->isExpandedOrExpanding();
             break;
@@ -1096,10 +1095,13 @@ LocationID WidgetLocations::detectLocationForTopInd(int topInd)
         {
             if (allItems == (-topInd))
             {
-                locationId.setId(items_[i]->getId());
                 if (k > 0)
                 {
-                    locationId.setCity(items_[i]->getCity(k - 1));
+                    locationId = items_[i]->getLocationIdForCity(k - 1);
+                }
+                else
+                {
+                    locationId = items_[i]->getId();
                 }
                 goto endDetect;
             }
@@ -1124,55 +1126,58 @@ void WidgetLocations::handleMouseMoveForTooltip()
         QPoint cursorPos = mapFromGlobal(QCursor::pos());
         if (cursorPos != prevCursorPos_)
         {
-            if (items_[indSelected_]->isCursorOverP2P())
+            if (indSelected_ != -1)
             {
-                int visibleIndexOfLocation = viewportIndexOfLocationItemSelection(items_[indSelected_]);
-
-                int posY = 0;
-                if (visibleIndexOfLocation != -1)
+                if (items_[indSelected_]->isCursorOverP2P())
                 {
-                    posY = viewportPosYOfIndex(visibleIndexOfLocation, true);
-                }
+                    int visibleIndexOfLocation = viewportIndexOfLocationItemSelection(items_[indSelected_]);
 
-                QPoint pt = mapToGlobal(QPoint((width_ - 58) * G_SCALE, posY - 13 * G_SCALE));
+                    int posY = 0;
+                    if (visibleIndexOfLocation != -1)
+                    {
+                        posY = viewportPosYOfIndex(visibleIndexOfLocation, true);
+                    }
 
-                TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_P2P);
-                ti.x = pt.x();
-                ti.y = pt.y();
-                ti.title = tr("File Sharing Frowned Upon");
-                ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-                ti.tailPosPercent = 0.5;
-                emit showTooltip(ti);
-            }
-            else if (!bShowLatencyInMs_ && items_[indSelected_]->isCursorOverConnectionMeter())
-            {
-                int visibleIndexOfLocation = viewportIndexOfLocationItemSelection(items_[indSelected_]);
-                int posY = 0;
-                if (visibleIndexOfLocation != -1)
-                {
-                    posY = viewportPosYOfIndex(visibleIndexOfLocation, true);
-                }
-                QPoint pt = mapToGlobal(QPoint((width_ - 24) * G_SCALE, posY - 13 * G_SCALE));
+                    QPoint pt = mapToGlobal(QPoint((width_ - 58) * G_SCALE, posY - 13 * G_SCALE));
 
-                int cityIndexSelected = items_[indSelected_]->getSelected() - 1;
-                QList<CityNode> cities = items_[indSelected_]->cityNodes();
-
-                if (cityIndexSelected >= 0 && cityIndexSelected < cities.count())
-                {
-                    TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
+                    TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_P2P);
                     ti.x = pt.x();
                     ti.y = pt.y();
-                    ti.title = QString("%1 Ms").arg(cities[cityIndexSelected].timeMs().toInt());
+                    ti.title = tr("File Sharing Frowned Upon");
                     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
                     ti.tailPosPercent = 0.5;
                     emit showTooltip(ti);
                 }
-            }
-//          else if (items_[indSelected_]->isForbidden(items_[indSelected_]->getSelected()) && !items_[indSelected_]->isCursorOverArrow())
-            else
-            {
-                emit hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
-                emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+                else if (!bShowLatencyInMs_ && items_[indSelected_]->isCursorOverConnectionMeter())
+                {
+                    int visibleIndexOfLocation = viewportIndexOfLocationItemSelection(items_[indSelected_]);
+                    int posY = 0;
+                    if (visibleIndexOfLocation != -1)
+                    {
+                        posY = viewportPosYOfIndex(visibleIndexOfLocation, true);
+                    }
+                    QPoint pt = mapToGlobal(QPoint((width_ - 24) * G_SCALE, posY - 13 * G_SCALE));
+
+                    int cityIndexSelected = items_[indSelected_]->getSelected() - 1;
+                    QList<CityNode> cities = items_[indSelected_]->cityNodes();
+
+                    if (cityIndexSelected >= 0 && cityIndexSelected < cities.count())
+                    {
+                        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
+                        ti.x = pt.x();
+                        ti.y = pt.y();
+                        ti.title = QString("%1 Ms").arg(cities[cityIndexSelected].timeMs().toInt());
+                        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+                        ti.tailPosPercent = 0.5;
+                        emit showTooltip(ti);
+                    }
+                }
+    //          else if (items_[indSelected_]->isForbidden(items_[indSelected_]->getSelected()) && !items_[indSelected_]->isCursorOverArrow())
+                else
+                {
+                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
+                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+                }
             }
         }
 
@@ -1446,12 +1451,15 @@ void WidgetLocations::emitSelectedIfNeed()
     if (indSelected_ != -1)
     {
         LocationID locationId;
-        locationId.setId(items_[indSelected_]->getId());
 
         int itemSelectedInd = items_[indSelected_]->getSelected();
         if (itemSelectedInd > 0)
         {
-            locationId.setCity(items_[indSelected_]->getCity(itemSelectedInd - 1));
+            locationId = items_[indSelected_]->getLocationIdForCity(itemSelectedInd - 1);
+        }
+        else
+        {
+            locationId = items_[indSelected_]->getId();
         }
 
         // click on location

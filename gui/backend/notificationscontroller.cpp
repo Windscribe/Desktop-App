@@ -78,13 +78,13 @@ void NotificationsController::updateState()
 
 void NotificationsController::saveToSettings()
 {
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
     size_t size = notifications_.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
     notifications_.SerializeToArray(arr.data(), size);
 
-    settings.setValue("notifications_v3", arr);
+    settings.setValue("notifications", arr);
 
     QByteArray arrShownPopups;
     {
@@ -97,17 +97,11 @@ void NotificationsController::saveToSettings()
 
 void NotificationsController::readFromSettings()
 {
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
-    // remove setting from old versions
-    if (settings.contains("notifications_v2"))
+    if (settings.contains("notifications"))
     {
-        settings.remove("notifications_v2");
-    }
-
-    if (settings.contains("notifications_v3"))
-    {
-        QByteArray arr = settings.value("notifications_v3").toByteArray();
+        QByteArray arr = settings.value("notifications").toByteArray();
         notifications_.ParseFromArray(arr.data(), arr.size());
     }
 

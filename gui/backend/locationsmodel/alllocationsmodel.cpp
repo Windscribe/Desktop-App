@@ -5,18 +5,18 @@ AllLocationsModel::AllLocationsModel(QObject *parent) : BasicLocationsModel(pare
 {
 }
 
-void AllLocationsModel::update(QVector<LocationModelItem *> locations)
+void AllLocationsModel::update(QVector<QSharedPointer<LocationModelItem> > locations)
 {
     clearLocations();
 
-    Q_FOREACH(LocationModelItem *lmi, locations)
+    Q_FOREACH(QSharedPointer<LocationModelItem> lmi, locations)
     {
-        if (lmi->id.getId() == LocationID::CUSTOM_OVPN_CONFIGS_LOCATION_ID)
+        if (lmi->id.isCustomConfigsLocation())
         {
             continue;
         }
 
-        if (lmi->id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
+        if (lmi->id.isStaticIpsLocation())
         {
             continue;
         }

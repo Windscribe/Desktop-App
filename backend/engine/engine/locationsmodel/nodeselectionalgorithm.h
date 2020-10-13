@@ -8,7 +8,7 @@ namespace locationsmodel {
 class NodeSelectionAlgorithm
 {
 public:
-    static int selectRandomNodeBasedOnWeight(const QVector< QSharedPointer<BaseNode> > &nodes);
+    static int selectRandomNodeBasedOnWeight(const QVector< QSharedPointer<const BaseNode> > &nodes);
 
 private:
     static int getRandomEvent(QVector<double> &p);

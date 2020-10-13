@@ -27,29 +27,35 @@ bool FavoriteLocationsStorage::isFavorite(const LocationID &locationId)
 void FavoriteLocationsStorage::readFromSettings()
 {
     favoriteLocations_.clear();
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
-    // remove old value from version 1
     if (settings.contains("favoriteLocations"))
     {
-        settings.remove("favoriteLocations");
-    }
+        QByteArray buf = settings.value("favoriteLocations").toByteArray();
 
-    if (settings.contains("favoriteLocations2"))
-    {
-        QByteArray buf = settings.value("favoriteLocations2").toByteArray();
-        QDataStream stream(&buf, QIODevice::ReadOnly);
-        stream >> favoriteLocations_;
+        ProtoTypes::ArrayLocationId arrIds;
+        if (arrIds.ParseFromArray(buf.data(), buf.size()))
+        {
+            for (int i = 0; i < arrIds.ids_size(); ++i)
+            {
+                favoriteLocations_.insert(LocationID::createFromProtoBuf(arrIds.ids(i)));
+            }
+        }
     }
 }
 
 void FavoriteLocationsStorage::writeToSettings()
 {
-    QByteArray buf;
+    ProtoTypes::ArrayLocationId arrIds;
+    for (const LocationID &lid : favoriteLocations_)
     {
-        QDataStream stream(&buf, QIODevice::WriteOnly);
-        stream << favoriteLocations_;
+        *arrIds.add_ids() = lid.toProtobuf();
     }
-    QSettings settings("Windscribe", "Windscribe");
-    settings.setValue("favoriteLocations2", buf);
+
+    size_t size = arrIds.ByteSizeLong();
+    QByteArray arr(size, Qt::Uninitialized);
+    arrIds.SerializeToArray(arr.data(), size);
+
+    QSettings settings;
+    settings.setValue("favoriteLocations2", arr);
 }

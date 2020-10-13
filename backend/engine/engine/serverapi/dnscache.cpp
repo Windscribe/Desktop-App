@@ -5,19 +5,19 @@
 
 DnsCache::DnsCache(QObject *parent) : QObject(parent)
 {
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *, quint64)), SLOT(onDnsResolverFinished(QString, QHostInfo,void *, quint64)));
+    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *)), SLOT(onDnsResolverFinished(QString, QHostInfo,void *)));
 }
 
 DnsCache::~DnsCache()
 {
 }
 
-void DnsCache::resolve(const QString &hostname, bool bUseCustomDns, void *userData)
+void DnsCache::resolve(const QString &hostname, void *userData)
 {
-    resolve(hostname, -1, bUseCustomDns, userData);
+    resolve(hostname, -1, userData);
 }
 
-void DnsCache::resolve(const QString &hostname, int cacheTimeout, bool bUseCustomDns, void *userData)
+void DnsCache::resolve(const QString &hostname, int cacheTimeout, void *userData)
 {
     // if hostname this is IP then return immediatelly
     if (IpValidation::instance().isIp(hostname))
@@ -51,13 +51,12 @@ void DnsCache::resolve(const QString &hostname, int cacheTimeout, bool bUseCusto
     if (!resolvingHostsInProgress_.contains(hostname))
     {
         resolvingHostsInProgress_ << hostname;
-        DnsResolver::instance().lookup(hostname, bUseCustomDns, this, 0);
+        DnsResolver::instance().lookup(hostname, this);
     }
 }
 
-void DnsCache::onDnsResolverFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer, quint64 userId)
+void DnsCache::onDnsResolverFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
 {
-    Q_UNUSED(userId);
     if (userPointer == this)
     {
         //qDebug() << "DnsCache::onDnsResolverFinished, hostname=" << hostname << ", " << hostInfo.addresses();

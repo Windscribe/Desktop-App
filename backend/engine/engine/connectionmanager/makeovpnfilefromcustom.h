@@ -9,14 +9,12 @@ public:
     MakeOVPNFileFromCustom();
     virtual ~MakeOVPNFileFromCustom();
 
-    bool generate(const QString &pathCustomOvpn, const QString &ip);
-    QString path() { return path_; }
-    uint port() {return port_;}
+    bool generate(const QString &ovpnData, const QString &ip, const QString &remoteCommand);
+    QString path() const { return path_; }
 
 private:
     QString path_;
     QFile file_;
-    uint port_;
 };
 
 #endif // MAKEOVPNFILEFROMCUSTOM_H

@@ -5,13 +5,13 @@ StaticIpsCitiesModel::StaticIpsCitiesModel(QObject *parent) : BasicCitiesModel(p
 
 }
 
-void StaticIpsCitiesModel::update(QVector<LocationModelItem *> locations)
+void StaticIpsCitiesModel::update(QVector<QSharedPointer<LocationModelItem>> locations)
 {
     clearCities();
 
-    Q_FOREACH(LocationModelItem *lmi, locations)
+    for (QSharedPointer<LocationModelItem> lmi : locations)
     {
-        if (lmi->id.getId() == LocationID::STATIC_IPS_LOCATION_ID)
+        if (lmi->id.isStaticIpsLocation())
         {
             for (int i = 0; i < lmi->cities.count(); ++i)
             {

@@ -9,7 +9,7 @@ class StaticIpsCitiesModel : public BasicCitiesModel
 public:
     explicit StaticIpsCitiesModel(QObject *parent = nullptr);
 
-    void update(QVector<LocationModelItem *> locations) override;
+    void update(QVector<QSharedPointer<LocationModelItem> > locations) override;
 
 };
 

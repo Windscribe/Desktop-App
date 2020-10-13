@@ -16,7 +16,7 @@ EngineSettings::EngineSettings(const ProtoTypes::EngineSettings &s) : engineSett
 
 void EngineSettings::saveToSettings()
 {
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
     size_t size = engineSettings_.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
@@ -27,7 +27,7 @@ void EngineSettings::saveToSettings()
 
 void EngineSettings::loadFromSettings()
 {
-    QSettings settings("Windscribe", "Windscribe");
+    QSettings settings;
 
     if (settings.contains("engineSettings"))
     {
@@ -37,7 +37,7 @@ void EngineSettings::loadFromSettings()
     // try load settings from version 1
     else
     {
-        loadFromVersion1(settings);
+        loadFromVersion1();
     }
     qCDebug(LOG_BASIC) << "Engine settings:" << QString::fromStdString(engineSettings_.DebugString());
 }
@@ -150,8 +150,9 @@ void EngineSettings::setPacketSize(const ProtoTypes::PacketSize &packetSize)
     *engineSettings_.mutable_packet_size() = packetSize;
 }
 
-void EngineSettings::loadFromVersion1(QSettings &settings)
+void EngineSettings::loadFromVersion1()
 {
+    QSettings settings("Windscribe", "Windscribe");
     if (settings.contains("allowLanTraffic"))
     {
         engineSettings_.set_is_allow_lan_traffic(settings.value("allowLanTraffic").toBool());
@@ -192,13 +193,13 @@ void EngineSettings::loadFromVersion1(QSettings &settings)
 
     //vpnShareSettings_.readFromSettings(settings);
     ConnectionSettings cs;
-    if (cs.readFromSettings(settings))
+    if (cs.readFromSettingsV1(settings))
     {
         *engineSettings_.mutable_connection_settings() = cs.convertToProtobuf();
     }
 
     ProxySettings ps;
-    ps.readFromSettings(settings);
+    ps.readFromSettingsV1(settings);
     *engineSettings_.mutable_proxy_settings() = ps.convertToProtobuf();
 
 }

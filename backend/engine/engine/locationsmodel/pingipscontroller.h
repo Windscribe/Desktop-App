@@ -7,6 +7,7 @@
 #include "pingstorage.h"
 #include "engine/ping/pinghost.h"
 #include "pinglog.h"
+#include "failedpinglogcontroller.h"
 #include "engine/networkstatemanager/inetworkstatemanager.h"
 
 
@@ -14,8 +15,11 @@ namespace locationsmodel {
 
 struct PingIpInfo
 {
-    QString ip;
-    PingHost::PING_TYPE pingType;
+    QString ip_;     // ip or hostname
+    PingHost::PING_TYPE pingType_;
+
+    PingIpInfo(const QString &ip, PingHost::PING_TYPE pingType) : ip_(ip), pingType_(pingType) {}
+    PingIpInfo() : pingType_(PingHost::PING_TCP) {}
 };
 
 
@@ -26,11 +30,7 @@ class PingIpsController : public QObject
     Q_OBJECT
 public:
 
-    explicit PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
-
-    void setProxySettings(const ProxySettings &proxySettings);
-    void disableProxy();
-    void enableProxy();
+    explicit PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost, const QString &log_filename);
 
     void updateIps(const QVector<PingIpInfo> &ips);
 
@@ -59,12 +59,14 @@ private:
         PingHost::PING_TYPE pingType;
     };
 
+    FailedPingLogController failedPingLogController_;
+
     IConnectStateController *connectStateController_;
     INetworkStateManager *networkStateManager_;
     PingLog pingLog_;
 
     QHash<QString, PingNodeInfo> ips_;
-    PingHost pingHost_;
+    PingHost *pingHost_;
     QTimer pingTimer_;
 
     QDateTime dtNextPingTime_;

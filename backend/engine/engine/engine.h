@@ -11,7 +11,7 @@
 #include "firewall/firewallcontroller.h"
 #include "serverapi/serverapi.h"
 #include "locationsmodel/locationsmodel.h"
-#include "connectionmanager/iconnectionmanager.h"
+#include "connectionmanager/connectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "engine/refetchservercredentialshelper.h"
 #include "engine/vpnshare/vpnsharecontroller.h"
@@ -19,8 +19,8 @@
 #include "getmyipcontroller.h"
 #include "enginesettings.h"
 #include "sessionstatustimer.h"
-#include "engine/customovpnconfigs/customovpnconfigs.h"
-#include "engine/customovpnconfigs/customovpnauthcredentialsstorage.h"
+#include "engine/customconfigs/customconfigs.h"
+#include "engine/customconfigs/customovpnauthcredentialsstorage.h"
 #include <atomic>
 #include "engine/macaddresscontroller/imacaddresscontroller.h"
 #include "engine/ping/keepalivemanager.h"
@@ -240,7 +240,7 @@ private slots:
     void onConnectionManagerError(CONNECTION_ERROR err);
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
-    void onConnectionManagerConnectingToHostname(const QString &hostname);
+    void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip);
     void onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
     void onConnectionManagerGetWireGuardConfig();
@@ -261,8 +261,10 @@ private slots:
 
     void getNewNotifications();
 
-    void onCustomOvpnConfigsChanged();
-    void onCustomOvpnConfgsIpsChanged(const QStringList &ips);
+    void onCustomConfigsChanged();
+
+    void onLocationsModelWhitelistIpsChanged(const QStringList &ips);
+    void onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips);
 
     void onNetworkChange(ProtoTypes::NetworkInterface networkInterface);
     void onNetworkStateManagerStateChanged(bool isActive, const QString &networkInterface);
@@ -283,14 +285,14 @@ private:
     INetworkStateManager *networkStateManager_;
     FirewallController *firewallController_;
     ServerAPI *serverAPI_;
-    IConnectionManager *connectionManager_;
+    ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
     GetMyIPController *getMyIPController_;
     VpnShareController *vpnShareController_;
     EmergencyController *emergencyController_;
     ConnectStateController *emergencyConnectStateController_;
-    CustomOvpnConfigs *customOvpnConfigs_;
+    customconfigs::CustomConfigs *customConfigs_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
     INetworkDetectionManager *networkDetectionManager_;
     IMacAddressController *macAddressController_;

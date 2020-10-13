@@ -28,7 +28,7 @@ void ApiInfo::setLocations(const QVector<Location> &value)
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
     locations_ = value;
-    processServerLocations();
+    mergeWindflixLocations();
 }
 
 QVector<Location> ApiInfo::getLocations() const
@@ -73,16 +73,25 @@ void ApiInfo::setOvpnConfig(const QString &value)
     ovpnConfig_ = value;
 }
 
-QString ApiInfo::getAuthHash() const
+// return empty string if auth hash not exist in the settings
+QString ApiInfo::getAuthHash()
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
-    return authHash_;
+    QString authHash;
+    QSettings settings2;
+    authHash = settings2.value("authHash", "").toString();
+    if (authHash.isEmpty())
+    {
+        // try load from settings of the app ver1
+        QSettings settings1("Windscribe", "Windscribe");
+        authHash = settings1.value("authHash", "").toString();
+    }
+    return authHash;
 }
 
 void ApiInfo::setAuthHash(const QString &authHash)
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
-    authHash_ = authHash;
+    QSettings settings;
+    settings.setValue("authHash", authHash);
 }
 
 PortMap ApiInfo::getPortMap() const
@@ -150,6 +159,7 @@ void ApiInfo::removeFromSettings()
 {
     QSettings settings;
     settings.remove("apiInfo");
+    settings.remove("authHash");
 }
 
 bool ApiInfo::loadFromSettings()
@@ -181,7 +191,7 @@ bool ApiInfo::loadFromSettings()
         ovpnConfig_ = QString::fromStdString(protoApiInfo.ovpn_config());
         portMap_.initFromProtoBuf(protoApiInfo.port_map());
         staticIps_.initFromProtoBuf(protoApiInfo.static_ips());
-        processServerLocations();
+        mergeWindflixLocations();
 
         sessionStatus_.setRevisionHash(settings.value("revisionHash", "").toString());
         return true;
@@ -192,89 +202,7 @@ bool ApiInfo::loadFromSettings()
     }
 }
 
-/*void ApiInfo::debugSaveToFile(const QString &filename)
-{
-    QByteArray arr;
-    {
-        QDataStream stream(&arr, QIODevice::WriteOnly);
-
-        stream << REVISION_VERSION;
-        stream << ovpnConfig_;
-        stream << radiusUsername_;
-        stream << radiusPassword_;
-
-        int serverLocationsCount = serverLocations_.count();
-        stream << serverLocationsCount;
-        for (auto it = serverLocations_.begin(); it != serverLocations_.end(); ++it)
-        {
-            (*it)->writeToStream(stream);
-        }
-
-        Q_ASSERT(!bestLocation_.isNull());
-        bestLocation_->writeToStream(stream);
-
-        Q_ASSERT(!portMap_.isNull());
-        portMap_->writeToStream(stream);
-
-        Q_ASSERT(!sessionStatus_.isNull());
-        sessionStatus_->writeToStream(stream);
-    }
-    QFile file(filename);
-    if (file.open(QIODevice::WriteOnly))
-    {
-        file.write(arr);
-        file.close();
-    }
-}
-
-void ApiInfo::debugLoadFromFile(const QString &filename)
-{
-    QFile file(filename);
-    if (file.open(QIODevice::ReadOnly))
-    {
-        QByteArray arr = file.readAll();
-
-        QDataStream stream(&arr, QIODevice::ReadOnly);
-
-        int revisionVersion;
-        stream >> revisionVersion;
-        stream >> ovpnConfig_;
-        stream >> radiusUsername_;
-        stream >> radiusPassword_;
-
-        serverLocations_.clear();
-        int serverLocationsCount;
-        stream >> serverLocationsCount;
-        for (int i = 0; i < serverLocationsCount; ++i)
-        {
-            QSharedPointer<ServerLocation> location(new ServerLocation());
-            location->readFromStream(stream, revisionVersion);
-            serverLocations_ << location;
-        }
-        if (serverLocationsCount == 0)
-        {
-            return;
-        }
-
-        QSharedPointer<BestLocation> best(new BestLocation());
-        best->readFromStream(stream);
-        bestLocation_ = best;
-
-        QSharedPointer<PortMap> portMap(new PortMap());
-        portMap->readFromStream(stream);
-        portMap_ = portMap;
-
-        QSharedPointer<SessionStatus> sessionStatus(new SessionStatus());
-        sessionStatus->readFromStream(stream);
-        sessionStatus_ = sessionStatus;
-
-        mergeServerLocationsWithBestLocation();
-
-        file.close();
-    }
-}*/
-
-void ApiInfo::processServerLocations()
+void ApiInfo::mergeWindflixLocations()
 {
     // Build a new list of server locations to merge, removing them from the old list.
     // Currently we merge all WindFlix locations into the corresponding global locations.
@@ -320,24 +248,5 @@ void ApiInfo::processServerLocations()
         itm.remove();
     }
 }
-
-/*bool ServerNode::isEqualIpsServerNodes(const QVector<ServerNode> &n1, const QVector<ServerNode> &n2)
-{
-    if (n1.size() != n2.size())
-    {
-        return false;
-    }
-    else
-    {
-        for (int i = 0; i < n1.size(); ++i)
-        {
-            if (n1[i].ip[0] != n2[i].ip[0] || n1[i].ip[1] != n2[i].ip[1] || n1[i].ip[2] != n2[i].ip[2])
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-}*/
 
 } //namespace apiinfo

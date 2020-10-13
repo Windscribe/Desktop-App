@@ -6,7 +6,8 @@
 
 namespace locationsmodel {
 
-PingStorage::PingStorage() : curIteration_(0)
+PingStorage::PingStorage(const QString &settingsKeyName) : curIteration_(0),
+    settingsKeyName_(settingsKeyName)
 {
     loadFromSettings();
 }
@@ -107,15 +108,15 @@ void PingStorage::saveToSettings()
     storage.SerializeToArray(arr.data(), size);
 
     QSettings settings;
-    settings.setValue("pingStorage", arr);
+    settings.setValue(settingsKeyName_, arr);
 }
 
 void PingStorage::loadFromSettings()
 {
     QSettings settings;
-    if (settings.contains("pingStorage"))
+    if (settings.contains(settingsKeyName_))
     {
-        QByteArray arr = settings.value("pingStorage").toByteArray();
+        QByteArray arr = settings.value(settingsKeyName_).toByteArray();
         ProtoApiInfo::PingStorage storage;
         if (storage.ParseFromArray(arr.data(), arr.size()))
         {

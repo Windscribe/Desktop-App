@@ -3,7 +3,6 @@
 
 #include "ipc/generated_proto/types.pb.h"
 
-#include <QSettings>
 #include "types/locationid.h"
 
 // gui internal states, persistent between the starts of the program
@@ -47,7 +46,7 @@ public:
 
 private:
     PersistentState();
-    void loadFromVersion1(QSettings &settings);
+    void loadFromVersion1();
     void load();
     void save();
 
