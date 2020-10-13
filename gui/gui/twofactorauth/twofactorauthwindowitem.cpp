@@ -311,6 +311,6 @@ void TwoFactorAuthWindowItem::updatePositions()
                       OK_BUTTON_POS_Y*G_SCALE);
 
     codeEntry_->setPos(((WINDOW_WIDTH- CODE_ENTRY_WIDTH)/2)*G_SCALE, CODE_ENTRY_POS_Y*G_SCALE);
-    codeEntry_->setWidth(CODE_ENTRY_WIDTH*G_SCALE);
+    codeEntry_->setWidth(CODE_ENTRY_WIDTH);
 }
 }  // namespace TwoFactorAuthWindow
