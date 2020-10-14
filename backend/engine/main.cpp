@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
     WindscribeApplication a(argc, argv);
     qSetMessagePattern("[{gmt_time} %{time process}] [%{category}]\t %{message}");
 
+    // These values are used for QSettings by default
     WindscribeApplication::setOrganizationName("Windscribe");
     WindscribeApplication::setApplicationName("Windscribe2");
 

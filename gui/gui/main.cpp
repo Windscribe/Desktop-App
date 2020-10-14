@@ -72,8 +72,12 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    // These values are used for QSettings by default
     a.setOrganizationName("Windscribe");
     a.setApplicationName("Windscribe2");
+
+    a.setApplicationDisplayName("Windscribe");
+
 
     Logger::instance().install("gui", true);
 
