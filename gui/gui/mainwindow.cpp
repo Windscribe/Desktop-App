@@ -1572,10 +1572,15 @@ void MainWindow::onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &
 
         QString betaStr;
         betaStr = "-" + QString::number(checkUpdateInfo.latest_build());
-        if (checkUpdateInfo.is_beta())
+        if (checkUpdateInfo.update_channel() == ProtoTypes::UPDATE_CHANNEL_BETA)
         {
             betaStr += "b";
         }
+        else if (checkUpdateInfo.update_channel() == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+        {
+            betaStr += "g";
+        }
+
         //updateWidget_->setText(tr("Update available - v") + version + betaStr);
 
         mainWindowController_->getUpdateAppItem()->setVersionAvailable(QString::fromStdString(checkUpdateInfo.version()), checkUpdateInfo.latest_build());

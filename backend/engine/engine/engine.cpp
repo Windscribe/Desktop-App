@@ -649,7 +649,7 @@ void Engine::init()
     serverAPI_ = new ServerAPI(this, networkStateManager_);
     connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, uint)),
                         SLOT(onSessionAnswer(SERVER_API_RET_CODE,QSharedPointer<SessionStatus>, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(checkUpdateAnswer(bool,QString,bool,int,QString,bool,bool,uint)), SLOT(onCheckUpdateAnswer(bool,QString,bool,int,QString,bool,bool,uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(checkUpdateAnswer(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool,bool,uint)), SLOT(onCheckUpdateAnswer(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool,bool,uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(hostIpsChanged(QStringList)), SLOT(onHostIPsChanged(QStringList)));
     connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QSharedPointer<ApiNotifications>,uint)),
                         SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QSharedPointer<ApiNotifications>,uint)));
@@ -1247,7 +1247,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     qCDebug(LOG_BASIC) << "Engine::setSettingsImpl";
 
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
-    bool isBetaChannelChanged = engineSettings_.isBetaChannel() != engineSettings.isBetaChannel();
+    bool isUpdateChannelChanged = engineSettings_.getUpdateChannel() != engineSettings.getUpdateChannel();
     bool isLanguageChanged = engineSettings_.language() != engineSettings.language();
     bool isProtocolChanged = !engineSettings_.connectionSettings().protocol().isEqual(engineSettings.connectionSettings().protocol());
     bool isCloseTcpSocketsChanged = engineSettings_.isCloseTcpSockets() != engineSettings.isCloseTcpSockets();
@@ -1268,9 +1268,9 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
         updateFirewallSettings();
     }
 
-    if (isBetaChannelChanged)
+    if (isUpdateChannelChanged)
     {
-        serverAPI_->checkUpdate(engineSettings_.isBetaChannel(), serverApiUserRole_, true);
+        serverAPI_->checkUpdate(engineSettings_.getUpdateChannel(), serverApiUserRole_, true);
     }
     if (isLanguageChanged || isProtocolChanged)
     {
@@ -1570,7 +1570,7 @@ void Engine::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray confi
     }
 }
 
-void Engine::onCheckUpdateAnswer(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole)
+void Engine::onCheckUpdateAnswer(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole)
 {
     qCDebug(LOG_BASIC) << "Received Check Update Answer";
 
@@ -1580,7 +1580,7 @@ void Engine::onCheckUpdateAnswer(bool available, const QString &version, bool is
         {
             installerUrl_ = url;
             qCDebug(LOG_BASIC) << "Installer URL: " << url;
-            emit checkUpdateUpdated(available, version, isBeta, latestBuild, url, supported);
+            emit checkUpdateUpdated(available, version, updateChannel, latestBuild, url, supported);
         }
         else
         {
@@ -1640,7 +1640,7 @@ void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<Stati
 
 void Engine::onStartCheckUpdate()
 {
-    serverAPI_->checkUpdate(engineSettings_.isBetaChannel(), serverApiUserRole_, true);
+    serverAPI_->checkUpdate(engineSettings_.getUpdateChannel(), serverApiUserRole_, true);
 }
 
 void Engine::onStartStaticIpsUpdate()

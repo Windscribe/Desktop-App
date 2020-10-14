@@ -144,7 +144,7 @@ signals:
     void sessionDeleted();
     void sessionStatusUpdated(QSharedPointer<SessionStatus> sessionStatus);
     void notificationsUpdated(QSharedPointer<ApiNotifications> notifications);
-    void checkUpdateUpdated(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported);
+    void checkUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported);
     void updateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void serverLocationsUpdated();
@@ -239,7 +239,7 @@ private slots:
     void onSessionAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<SessionStatus> sessionStatus, uint userRole);
     void onNotificationsAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<ApiNotifications> notifications, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, QByteArray config, uint userRole);
-    void onCheckUpdateAnswer(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
+    void onCheckUpdateAnswer(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
     void onHostIPsChanged(const QStringList &hostIps);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);

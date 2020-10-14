@@ -27,7 +27,6 @@ public:
     bool isEqual(const ProtoTypes::EngineSettings &s) const;
 
     QString language() const;
-    bool isBetaChannel() const;
     bool isIgnoreSslErrors() const;
     bool isCloseTcpSockets() const;
     bool isAllowLanTraffic() const;
@@ -38,6 +37,7 @@ public:
     DNS_POLICY_TYPE getDnsPolicy() const;
     ProtoTypes::MacAddrSpoofing getMacAddrSpoofing() const;
     ProtoTypes::PacketSize getPacketSize() const;
+    ProtoTypes::UpdateChannel getUpdateChannel() const;
 
     bool isUseWintun() const;
     QString getCustomOvpnConfigsPath() const;

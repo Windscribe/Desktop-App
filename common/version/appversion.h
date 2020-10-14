@@ -2,6 +2,7 @@
 #define APPVERSION_H
 
 #include <QString>
+#include "ipc/generated_proto/types.pb.h"
 
 class AppVersion
 {
@@ -26,7 +27,7 @@ private:
     int minor_;
     int buildInt_;
 
-    bool isBeta_;
+    ProtoTypes::UpdateChannel buildChannel_;
 };
 
 #endif // APPVERSION_H

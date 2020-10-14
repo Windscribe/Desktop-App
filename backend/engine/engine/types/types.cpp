@@ -12,6 +12,7 @@ const int typeIdDisconnectReason = qRegisterMetaType<DISCONNECT_REASON>("DISCONN
 const int typeIdProxySharingType = qRegisterMetaType<PROXY_SHARING_TYPE>("PROXY_SHARING_TYPE");
 const int typeIdUpdateVersionState = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UpdateVersionState");
 const int typeIdUpdateVersionError = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UpdateVersionError");
+const int typeIdUpdateChannel = qRegisterMetaType<ProtoTypes::UpdateChannel>("ProtoTypes::UpdateChannel");
 
 QString loginRetToString(LOGIN_RET ret)
 {
