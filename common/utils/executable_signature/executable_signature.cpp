@@ -40,7 +40,7 @@ bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
     return true;
 #else
     #ifdef Q_OS_WIN
-        return ExecutableSignature_win::verify(executablePath);
+        return ExecutableSignature_win::verify(executable);
     #else
         return ExecutableSignature_mac::verifyWithSignCheck(executable);
     #endif
