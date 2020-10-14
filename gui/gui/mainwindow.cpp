@@ -250,6 +250,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(backend_->getPreferences(), SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onPreferencesLaunchOnStartupChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings)));
     connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
+    connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
+
 #ifdef Q_OS_MAC
     connect(backend_->getPreferences(), SIGNAL(hideFromDockChanged(bool)), SLOT(onPreferencesHideFromDockChanged(bool)));
 #endif
@@ -952,6 +954,14 @@ void MainWindow::onPreferencesWindowDetectPacketMssButtonClicked()
         const QString desc = tr("Cannot detect appropriate packet size without internet. Check your connection.");
         mainWindowController_->getPreferencesWindow()->showPacketSizeDetectionError(title, desc);
     }
+}
+
+void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
+{
+    Q_UNUSED(updateChannel);
+
+    ignoreUpdateUntilNextRun_ = false;
+    // updates engine through engineSettings
 }
 
 void MainWindow::onEmergencyEscapeClick()

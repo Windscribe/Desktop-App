@@ -77,7 +77,7 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     painter->setPen(FontManager::instance().getBrightYellowColor());
     painter->setFont(*font);
     painter->setOpacity(curVersionOpacity_ * initOpacity);
-    painter->drawText(25*G_SCALE, (HEIGHT*G_SCALE - fm.height() - fm.ascent() / 2) - (G_SCALE+0.5), curVersionText_ + tr(" AVAILABLE"));
+    painter->drawText(25*G_SCALE, (HEIGHT*G_SCALE - fm.height() - fm.ascent() / 2) - (G_SCALE+0.5), curVersionText_);
     painter->restore();
 
     painter->save();
@@ -119,6 +119,7 @@ void UpdateAppItem::setVersionAvailable(const QString &versionNumber,int buildNu
     curVersionText_ = prefix + versionNumber + "." + QString::number(buildNumber);
 
     setMode(UPDATE_APP_ITEM_MODE_PROMPT);
+    update();
 }
 
 void UpdateAppItem::setProgress(int value)

@@ -127,7 +127,7 @@ signals:
     void languageChanged(const QString &lang);
     void locationOrderChanged(ProtoTypes::OrderLocationType o);
     void latencyDisplayChanged(ProtoTypes::LatencyDisplayType l);
-    void updateChannelChanged(ProtoTypes::UpdateChannel c);
+    void updateChannelChanged(const ProtoTypes::UpdateChannel &c);
     void proxySettingsChanged(const ProtoTypes::ProxySettings &ps);
     void firewallSettingsChanged(const ProtoTypes::FirewallSettings &fm);
     void connectionSettingsChanged(const ProtoTypes::ConnectionSettings &cm);

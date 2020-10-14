@@ -177,6 +177,8 @@ private slots:
     void onPreferencesLaunchOnStartupChanged(bool bEnabled);
     void onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings connectionSettings);
     void onPreferencesIsDockedToTrayChanged(bool isDocked);
+    void onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel);
+
 #ifdef Q_OS_MAC
     void onPreferencesHideFromDockChanged(bool hideFromDock);
     void hideShowDockIconImpl();
