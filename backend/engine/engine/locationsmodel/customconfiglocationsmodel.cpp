@@ -132,7 +132,7 @@ void CustomConfigLocationsModel::onResolved(const QString &hostname, const QHost
                     remoteIt->isResolved = true;
                     remoteIt->ips.clear();
 
-                    for (const QHostAddress ha : hostInfo.addresses())
+                    for (const QHostAddress &ha : hostInfo.addresses())
                     {
                         IpItem ipItem;
                         ipItem.ip = ha.toString();

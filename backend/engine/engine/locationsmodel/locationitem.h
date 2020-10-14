@@ -29,7 +29,7 @@ struct CityItem
     QString customConfigErrorMessage;
 
     // set default values
-    CityItem() : isPro(false), isDisabled(false), customConfigIsCorrect(false), customConfigType(customconfigs::CUSTOM_CONFIG_OPENVPN) {}
+    CityItem() : isPro(false), isDisabled(false), customConfigType(customconfigs::CUSTOM_CONFIG_OPENVPN), customConfigIsCorrect(false) {}
 };
 
 struct LocationItem

@@ -8,6 +8,9 @@ class WireGuardConfig
 {
 public:
     WireGuardConfig();
+    WireGuardConfig(const QString &privateKey, const QString &ipAddress, const QString &dnsAddress,
+                    const QString &publicKey, const QString &presharedKey, const QString &endpoint,
+                    const QString &allowedIps);
 
     bool initFromJson(QJsonObject &obj);
     void updatePeerInfo(const QString &publicKey, const QString &endpoint);

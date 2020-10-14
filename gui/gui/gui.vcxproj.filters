@@ -167,6 +167,9 @@
     <Filter Include="GUI Files\twofactorauth">
       <UniqueIdentifier>{7dbf852d-8b01-4d40-9397-304c0cf8d92c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common Files\types">
+      <UniqueIdentifier>{1eb7d2ff-ec11-4f3f-9aa9-406ed3a9b413}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dialogs\dialogmessagecpuusage.cpp">
@@ -287,9 +290,6 @@
       <Filter>GUI Files\commongraphics</Filter>
     </ClCompile>
     <ClCompile Include="locationswindow\widgetlocations\configfooterinfo.cpp">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
-    </ClCompile>
-    <ClCompile Include="locationswindow\widgetlocations\configfooteritem.cpp">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClCompile>
     <ClCompile Include="..\backend\locationsmodel\configuredcitiesmodel.cpp">
@@ -463,9 +463,6 @@
     <ClCompile Include="launchonstartup\launchonstartup.cpp">
       <Filter>GUI Files\launchonstartup</Filter>
     </ClCompile>
-    <ClCompile Include="..\backend\types\locationid.cpp">
-      <Filter>Backend Files\types</Filter>
-    </ClCompile>
     <ClCompile Include="locationswindow\widgetlocations\locationitem.cpp">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClCompile>
@@ -516,9 +513,6 @@
     </ClCompile>
     <ClCompile Include="connectwindow\middleitem.cpp">
       <Filter>GUI Files\connectwindow</Filter>
-    </ClCompile>
-    <ClCompile Include="preferenceswindow\connectionwindow\msseditboxitem.cpp">
-      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
     </ClCompile>
     <ClCompile Include="multipleaccountdetection\multipleaccountdetection_win.cpp">
       <Filter>GUI Files\multipleaccountdetection</Filter>
@@ -665,9 +659,6 @@
       <Filter>GUI Files\preferenceswindow\splittunnelingwindow</Filter>
     </ClCompile>
     <ClCompile Include="locationswindow\widgetlocations\staticipdeviceinfo.cpp">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
-    </ClCompile>
-    <ClCompile Include="locationswindow\widgetlocations\staticipdeviceitem.cpp">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClCompile>
     <ClCompile Include="..\backend\locationsmodel\staticipscitiesmodel.cpp">
@@ -828,6 +819,12 @@
     </ClCompile>
     <ClCompile Include="twofactorauth\twofactorauthokbutton.cpp">
       <Filter>GUI Files\twofactorauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\types\locationid.cpp">
+      <Filter>Common Files\types</Filter>
+    </ClCompile>
+    <ClCompile Include="preferenceswindow\connectionwindow\packetsizeeditboxitem.cpp">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1256,6 +1253,9 @@
     </QtMoc>
     <QtMoc Include="twofactorauth\twofactorauthokbutton.h">
       <Filter>GUI Files\twofactorauth</Filter>
+    </QtMoc>
+    <QtMoc Include="preferenceswindow\connectionwindow\packetsizeeditboxitem.h">
+      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -2159,9 +2159,6 @@
     <QtMoc Include="loginwindow\logginginwindowitem.h">
       <Filter>GUI Files\loginwindow</Filter>
     </QtMoc>
-    <QtMoc Include="preferenceswindow\connectionwindow\msseditboxitem.h">
-      <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
-    </QtMoc>
     <QtMoc Include="preferenceswindow\networkwhitelistwindow\networklistitem.h">
       <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
     </QtMoc>
@@ -2229,9 +2226,6 @@
     </ClInclude>
     <ClInclude Include="commongraphics\commongraphics.h">
       <Filter>GUI Files\commongraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="locationswindow\widgetlocations\configfooteritem.h">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClInclude>
     <ClInclude Include="commonwidgets\custommenuwidget.h">
       <Filter>GUI Files\commonwidgets</Filter>
@@ -2350,9 +2344,6 @@
     <ClInclude Include="launchonstartup\launchonstartup.h">
       <Filter>GUI Files\launchonstartup</Filter>
     </ClInclude>
-    <ClInclude Include="..\backend\types\locationid.h">
-      <Filter>Backend Files\types</Filter>
-    </ClInclude>
     <ClInclude Include="locationswindow\widgetlocations\locationitem.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClInclude>
@@ -2385,9 +2376,6 @@
     </ClInclude>
     <ClInclude Include="..\backend\locationsmodel\sortlocationsalgorithms.h">
       <Filter>Backend Files\locationsmodel</Filter>
-    </ClInclude>
-    <ClInclude Include="locationswindow\widgetlocations\staticipdeviceitem.h">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClInclude>
     <ClInclude Include="preferenceswindow\textitem.h">
       <Filter>GUI Files\preferenceswindow</Filter>
@@ -2442,6 +2430,9 @@
     </ClInclude>
     <ClInclude Include="twofactorauth\itwofactorauthwindow.h">
       <Filter>GUI Files\twofactorauth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\types\locationid.h">
+      <Filter>Common Files\types</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

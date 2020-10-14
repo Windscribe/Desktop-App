@@ -9,7 +9,7 @@ void FavoriteCitiesModel::update(QVector<QSharedPointer<LocationModelItem>> loca
 {
     clearCities();
 
-    for (const QSharedPointer<LocationModelItem> lmi : locations)
+    for (auto lmi : qAsConst(locations))
     {
         if (!lmi->id.isCustomConfigsLocation() && !lmi->id.isStaticIpsLocation() && !lmi->id.isBestLocation())
         {

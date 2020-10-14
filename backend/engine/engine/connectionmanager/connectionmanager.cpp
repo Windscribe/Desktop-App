@@ -874,17 +874,32 @@ void ConnectionManager::doConnectPart2()
             qCDebug(LOG_CONNECTION) << "Using existing WireGuard user config";
         }
     }
-    else if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
+    else if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
-        bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(currentConnectionDescr_.ovpnData, currentConnectionDescr_.ip, currentConnectionDescr_.remoteCmdLine);
-        if (!bOvpnSuccess )
-        {
-            qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:" << currentConnectionDescr_.customConfigFilename;
-            //Q_ASSERT(false);
-            state_ = STATE_DISCONNECTED;
-            timerReconnection_.stop();
-            emit errorDuringConnection(CANNOT_OPEN_CUSTOM_OVPN_CONFIG);
-            return;
+        if (currentConnectionDescr_.protocol.isOpenVpnProtocol()) {
+            bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(
+                currentConnectionDescr_.ovpnData, currentConnectionDescr_.ip,
+                currentConnectionDescr_.remoteCmdLine);
+            if (!bOvpnSuccess)
+            {
+                qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:"
+                                        << currentConnectionDescr_.customConfigFilename;
+                //Q_ASSERT(false);
+                state_ = STATE_DISCONNECTED;
+                timerReconnection_.stop();
+                emit errorDuringConnection(CANNOT_OPEN_CUSTOM_CONFIG);
+                return;
+            }
+        } else if (currentConnectionDescr_.protocol.isWireGuardProtocol()) {
+            Q_ASSERT(currentConnectionDescr_.wgCustomConfig != nullptr);
+            if (currentConnectionDescr_.wgCustomConfig == nullptr) {
+                qCDebug(LOG_CONNECTION) << "Failed to get config for custom WG file:"
+                                        << currentConnectionDescr_.customConfigFilename;
+                state_ = STATE_DISCONNECTED;
+                timerReconnection_.stop();
+                emit errorDuringConnection(CANNOT_OPEN_CUSTOM_CONFIG);
+                return;
+            }
         }
     }
     else
@@ -901,11 +916,15 @@ void ConnectionManager::doConnectPart3()
     emit protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
     emit connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip);
 
-    if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG)
+    if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
-        recreateConnector(ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP));
-        connector_->startConnect(makeOVPNFileFromCustom_->path(), "", "", usernameForCustomOvpn_, passwordForCustomOvpn_,
-                                 lastProxySettings_, nullptr, false, false);
+        if (currentConnectionDescr_.protocol.isWireGuardProtocol())
+            recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
+        else
+            recreateConnector(ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP));
+        connector_->startConnect(makeOVPNFileFromCustom_->path(), "", "", usernameForCustomOvpn_,
+                                 passwordForCustomOvpn_, lastProxySettings_,
+                                 currentConnectionDescr_.wgCustomConfig.get(), false, false);
     }
     else
     {
@@ -1137,7 +1156,8 @@ void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> confi
 
 bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const
 {
-    return currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_OVPN_CONFIG;
+    return currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG &&
+           currentConnectionDescr_.protocol.isOpenVpnProtocol();
 }
 
 QString ConnectionManager::getCustomOvpnConfigFileName()

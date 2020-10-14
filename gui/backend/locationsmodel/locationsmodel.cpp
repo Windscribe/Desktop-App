@@ -320,7 +320,7 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
 // example of location string: NL, Toronto #1, etc
 LocationID LocationsModel::getLocationIdByName(const QString &location) const
 {
-    for (const QSharedPointer<LocationModelItem> lmi: apiLocations_)
+    for (auto lmi : qAsConst(apiLocations_))
     {
         if (lmi->countryCode.compare(location, Qt::CaseInsensitive) == 0)
         {

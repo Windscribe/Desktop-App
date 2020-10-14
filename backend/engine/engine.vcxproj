@@ -378,6 +378,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\common\ipc\generated_proto\apiinfo.pb.cc" />
+    <ClCompile Include="..\..\common\types\locationid.cpp" />
     <ClCompile Include="engine\adaptermetricscontroller_win.cpp" />
     <ClCompile Include="engine\apiinfo\apiinfo.cpp" />
     <ClCompile Include="engine\apiinfo\group.cpp" />
@@ -388,7 +389,17 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\apiinfo\servercredentials.cpp" />
     <ClCompile Include="engine\apiinfo\sessionstatus.cpp" />
     <ClCompile Include="engine\apiinfo\staticips.cpp" />
+    <ClCompile Include="engine\connectionmanager\connsettingspolicy\autoconnsettingspolicy.cpp" />
+    <ClCompile Include="engine\connectionmanager\connsettingspolicy\customconfigconnsettingspolicy.cpp" />
+    <ClCompile Include="engine\connectionmanager\connsettingspolicy\manualconnsettingspolicy.cpp" />
     <ClCompile Include="engine\connectionmanager\wireguardconnection.cpp" />
+    <ClCompile Include="engine\customconfigs\customconfigs.cpp" />
+    <ClCompile Include="engine\customconfigs\customconfigsdirwatcher.cpp" />
+    <ClCompile Include="engine\customconfigs\customconfigtype.cpp" />
+    <ClCompile Include="engine\customconfigs\customovpnauthcredentialsstorage.cpp" />
+    <ClCompile Include="engine\customconfigs\ovpncustomconfig.cpp" />
+    <ClCompile Include="engine\customconfigs\parseovpnconfigline.cpp" />
+    <ClCompile Include="engine\customconfigs\wireguardcustomconfig.cpp" />
     <ClCompile Include="engine\firewall\firewallcontroller_mac.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -401,10 +412,13 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="engine\locationsmodel\apilocationsmodel.cpp" />
+    <ClCompile Include="engine\locationsmodel\baselocationinfo.cpp" />
     <ClCompile Include="engine\locationsmodel\bestlocation.cpp" />
+    <ClCompile Include="engine\locationsmodel\customconfiglocationinfo.cpp" />
+    <ClCompile Include="engine\locationsmodel\customconfiglocationsmodel.cpp" />
     <ClCompile Include="engine\locationsmodel\failedpinglogcontroller.cpp" />
     <ClCompile Include="engine\locationsmodel\locationitem.cpp" />
-    <ClCompile Include="engine\locationsmodel\locationnode.cpp" />
     <ClCompile Include="engine\locationsmodel\locationsmodel.cpp" />
     <ClCompile Include="engine\locationsmodel\mutablelocationinfo.cpp" />
     <ClCompile Include="engine\locationsmodel\nodeselectionalgorithm.cpp" />
@@ -427,7 +441,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\version\appversion.cpp" />
     <ClCompile Include="engine\dnsresolver\areslibraryinit.cpp" />
     <ClCompile Include="engine\proxy\autodetectproxy_win.cpp" />
-    <ClCompile Include="engine\connectionmanager\automanualconnectioncontroller.cpp" />
     <ClCompile Include="engine\connectionmanager\availableport.cpp" />
     <ClCompile Include="engine\serverapi\certmanager.cpp" />
     <ClCompile Include="engine\taputils\checkadapterenable.cpp" />
@@ -444,9 +457,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\curlinitcontroller.cpp" />
     <ClCompile Include="engine\serverapi\curlnetworkmanager.cpp" />
     <ClCompile Include="engine\serverapi\curlrequest.cpp" />
-    <ClCompile Include="engine\customovpnconfigs\customconfigsdirwatcher.cpp" />
-    <ClCompile Include="engine\customovpnconfigs\customovpnauthcredentialsstorage.cpp" />
-    <ClCompile Include="engine\customovpnconfigs\customovpnconfigs.cpp" />
     <ClCompile Include="engine\serverapi\dnscache.cpp" />
     <ClCompile Include="engine\dnsinfo_win.cpp" />
     <ClCompile Include="engine\types\dnsresolutionsettings.cpp" />
@@ -487,7 +497,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="utils\ipvalidation.cpp" />
     <ClCompile Include="engine\ping\keepalivemanager.cpp" />
     <ClCompile Include="localhttpserver\localhttpserver.cpp" />
-    <ClCompile Include="engine\types\locationid.cpp" />
     <ClCompile Include="..\..\common\utils\logger.cpp" />
     <ClCompile Include="engine\logincontroller\logincontroller.cpp" />
     <ClCompile Include="engine\types\loginsettings.cpp" />
@@ -503,7 +512,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\connectionmanager\openvpnconnection.cpp" />
     <ClCompile Include="engine\openvpnversioncontroller.cpp" />
     <ClCompile Include="engine\packetsizecontroller.cpp" />
-    <ClCompile Include="engine\customovpnconfigs\parseovpnconfigline.cpp" />
     <ClCompile Include="engine\ping\pinghost.cpp" />
     <ClCompile Include="engine\ping\pinghost_icmp_win.cpp" />
     <ClCompile Include="engine\ping\pinghost_tcp.cpp" />
@@ -542,7 +550,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\firewall\uniqueiplist.cpp" />
     <ClCompile Include="..\..\common\utils\utils.cpp" />
     <ClCompile Include="engine\vpnshare\vpnsharecontroller.cpp" />
-    <ClCompile Include="engine\vpnshare\vpnsharesettings.cpp" />
     <ClCompile Include="engine\vpnshare\wifisharing\wifisharing.cpp" />
     <ClCompile Include="application\windowsnativeeventfilter.cpp" />
     <ClCompile Include="application\windscribeapplication.cpp" />
@@ -554,6 +561,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
   <ItemGroup>
     <ClInclude Include="..\..\common\ipc\generated_proto\apiinfo.pb.h" />
     <ClInclude Include="..\..\common\ipc\protobuf_utils.h" />
+    <ClInclude Include="..\..\common\types\locationid.h" />
     <ClInclude Include="engine\adaptermetricscontroller_win.h" />
     <QtMoc Include="engine\helper\helper_mac.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -588,6 +596,10 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="engine\apiinfo\servercredentials.h" />
     <ClInclude Include="engine\apiinfo\sessionstatus.h" />
     <ClInclude Include="engine\apiinfo\staticips.h" />
+    <QtMoc Include="engine\connectionmanager\connsettingspolicy\autoconnsettingspolicy.h" />
+    <QtMoc Include="engine\connectionmanager\connsettingspolicy\baseconnsettingspolicy.h" />
+    <QtMoc Include="engine\connectionmanager\connsettingspolicy\customconfigconnsettingspolicy.h" />
+    <QtMoc Include="engine\connectionmanager\connsettingspolicy\manualconnsettingspolicy.h" />
     <ClInclude Include="engine\connectionmanager\restorednsmanager_mac.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -601,7 +613,19 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">true</ExcludedFromBuild>
     </QtMoc>
     <QtMoc Include="engine\connectionmanager\wireguardconnection.h" />
+    <QtMoc Include="engine\customconfigs\customconfigs.h" />
+    <QtMoc Include="engine\customconfigs\customconfigsdirwatcher.h" />
+    <ClInclude Include="engine\customconfigs\customconfigtype.h" />
+    <ClInclude Include="engine\customconfigs\customovpnauthcredentialsstorage.h" />
+    <ClInclude Include="engine\customconfigs\icustomconfig.h" />
+    <ClInclude Include="engine\customconfigs\ovpncustomconfig.h" />
+    <ClInclude Include="engine\customconfigs\parseovpnconfigline.h" />
+    <ClInclude Include="engine\customconfigs\wireguardcustomconfig.h" />
+    <QtMoc Include="engine\locationsmodel\baselocationinfo.h" />
+    <QtMoc Include="engine\locationsmodel\apilocationsmodel.h" />
     <ClInclude Include="engine\locationsmodel\bestlocation.h" />
+    <QtMoc Include="engine\locationsmodel\customconfiglocationinfo.h" />
+    <QtMoc Include="engine\locationsmodel\customconfiglocationsmodel.h" />
     <ClInclude Include="engine\locationsmodel\failedpinglogcontroller.h" />
     <ClInclude Include="engine\locationsmodel\locationitem.h" />
     <ClInclude Include="engine\locationsmodel\locationnode.h" />
@@ -615,7 +639,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\version\appversion.h" />
     <ClInclude Include="engine\dnsresolver\areslibraryinit.h" />
     <ClInclude Include="engine\proxy\autodetectproxy_win.h" />
-    <ClInclude Include="engine\connectionmanager\automanualconnectioncontroller.h" />
     <ClInclude Include="engine\connectionmanager\availableport.h" />
     <ClInclude Include="engine\types\wireguardconfig.h" />
     <ClInclude Include="engine\types\wireguardtypes.h" />
@@ -641,11 +664,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="engine\serverapi\curlnetworkmanager.h">
     </QtMoc>
     <ClInclude Include="engine\serverapi\curlrequest.h" />
-    <QtMoc Include="engine\customovpnconfigs\customconfigsdirwatcher.h">
-    </QtMoc>
-    <ClInclude Include="engine\customovpnconfigs\customovpnauthcredentialsstorage.h" />
-    <QtMoc Include="engine\customovpnconfigs\customovpnconfigs.h">
-    </QtMoc>
     <QtMoc Include="engine\serverapi\dnscache.h">
     </QtMoc>
     <ClInclude Include="engine\dnsinfo_win.h" />
@@ -695,8 +713,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\ipc\iconnection.h" />
     <QtMoc Include="engine\connectionmanager\iconnection.h">
     </QtMoc>
-    <QtMoc Include="engine\connectionmanager\iconnectionmanager.h">
-    </QtMoc>
     <QtMoc Include="engine\connectstatecontroller\iconnectstatecontroller.h">
     </QtMoc>
     <QtMoc Include="engine\vpnshare\wifisharing\icsmanager.h">
@@ -727,7 +743,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <QtMoc Include="localhttpserver\localhttpserver.h">
     </QtMoc>
-    <ClInclude Include="engine\types\locationid.h" />
     <ClInclude Include="..\..\common\utils\logger.h" />
     <QtMoc Include="engine\logincontroller\logincontroller.h">
     </QtMoc>
@@ -751,7 +766,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="engine\openvpnversioncontroller.h" />
     <QtMoc Include="engine\packetsizecontroller.h">
     </QtMoc>
-    <ClInclude Include="engine\customovpnconfigs\parseovpnconfigline.h" />
     <QtMoc Include="engine\ping\pinghost.h">
     </QtMoc>
     <QtMoc Include="engine\ping\pinghost_icmp_win.h">
@@ -811,7 +825,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\utils\utils.h" />
     <QtMoc Include="engine\vpnshare\vpnsharecontroller.h">
     </QtMoc>
-    <ClInclude Include="engine\vpnshare\vpnsharesettings.h" />
     <QtMoc Include="engine\vpnshare\wifisharing\wifisharing.h">
     </QtMoc>
     <ClInclude Include="application\windowsnativeeventfilter.h" />

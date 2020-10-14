@@ -3,9 +3,14 @@
 
 #include "engine/apiinfo/staticips.h"
 #include "engine/apiinfo/portmap.h"
+#include "engine/types/wireguardconfig.h"
 
-enum CONNECTION_NODE_TYPE { CONNECTION_NODE_ERROR, CONNECTION_NODE_DEFAULT, CONNECTION_NODE_CUSTOM_OVPN_CONFIG,
-                          CONNECTION_NODE_STATIC_IPS};
+enum CONNECTION_NODE_TYPE {
+    CONNECTION_NODE_ERROR,
+    CONNECTION_NODE_DEFAULT,
+    CONNECTION_NODE_CUSTOM_CONFIG,
+    CONNECTION_NODE_STATIC_IPS
+};
 
 struct CurrentConnectionDescr
 {
@@ -18,13 +23,14 @@ struct CurrentConnectionDescr
     QString hostname;
     QString dnsHostName;
 
-    // fields for CONNECTION_NODE_CUSTOM_OVPN_CONFIG
+    // fields for CONNECTION_NODE_CUSTOM_CONFIG
     QString ovpnData;
     QString customConfigFilename;
     QString remoteCmdLine;
 
     // fields for WireGuard
     QString wgPublicKey;
+    QSharedPointer<WireGuardConfig> wgCustomConfig;
 
     // fields for static ips
     QString username;

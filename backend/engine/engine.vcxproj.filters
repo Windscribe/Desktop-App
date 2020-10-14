@@ -32,9 +32,6 @@
     <Filter Include="Engine Files\engine\connectstatecontroller">
       <UniqueIdentifier>{4d630c48-b893-4b96-882d-edc517cce67a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine Files\engine\customovpnconfigs">
-      <UniqueIdentifier>{8afb02fe-9219-4d93-86ee-eac33a3a35bb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine Files\engine\dnsresolver">
       <UniqueIdentifier>{f719605d-d379-46f8-a587-286670c1a915}</UniqueIdentifier>
     </Filter>
@@ -128,6 +125,15 @@
     <Filter Include="Engine Files\engine\locationsmodel">
       <UniqueIdentifier>{e2d6832f-9d11-42ee-965c-a30010a45878}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine Files\engine\customconfigs">
+      <UniqueIdentifier>{8afb02fe-9219-4d93-86ee-eac33a3a35bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\types">
+      <UniqueIdentifier>{173aef02-6e82-4711-a5dd-36505e5e842c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine Files\engine\connectionmanager\connsettingspolicy">
+      <UniqueIdentifier>{274327a4-e16a-4cb9-aea2-ab1ae6ea996d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application\windowsnativeeventfilter.cpp">
@@ -173,9 +179,6 @@
       <Filter>Engine Files\engine\proxy</Filter>
     </ClCompile>
     <ClCompile Include="engine\connectionmanager\availableport.cpp">
-      <Filter>Engine Files\engine\connectionmanager</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\connectionmanager\automanualconnectioncontroller.cpp">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClCompile>
     <ClCompile Include="engine\connectionmanager\connectionmanager.cpp">
@@ -231,18 +234,6 @@
     </ClCompile>
     <ClCompile Include="engine\serverapi\serverapi.cpp">
       <Filter>Engine Files\engine\serverapi</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\customovpnconfigs\customovpnconfigs.cpp">
-      <Filter>Engine Files\engine\customovpnconfigs</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\customovpnconfigs\customconfigsdirwatcher.cpp">
-      <Filter>Engine Files\engine\customovpnconfigs</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\customovpnconfigs\customovpnauthcredentialsstorage.cpp">
-      <Filter>Engine Files\engine\customovpnconfigs</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\customovpnconfigs\parseovpnconfigline.cpp">
-      <Filter>Engine Files\engine\customovpnconfigs</Filter>
     </ClCompile>
     <ClCompile Include="engine\types\dnsresolutionsettings.cpp">
       <Filter>Engine Files\engine\types</Filter>
@@ -363,9 +354,6 @@
     </ClCompile>
     <ClCompile Include="localhttpserver\localhttpserver.cpp">
       <Filter>Engine Files\localhttpserver</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\types\locationid.cpp">
-      <Filter>Engine Files\engine\types</Filter>
     </ClCompile>
     <ClCompile Include="engine\ping\keepalivemanager.cpp">
       <Filter>Engine Files\engine\ping</Filter>
@@ -493,9 +481,6 @@
     <ClCompile Include="engine\vpnshare\vpnsharecontroller.cpp">
       <Filter>Engine Files\engine\vpnshare</Filter>
     </ClCompile>
-    <ClCompile Include="engine\vpnshare\vpnsharesettings.cpp">
-      <Filter>Engine Files\engine\vpnshare</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\common\utils\executable_signature\executable_signature.cpp">
       <Filter>Common Files\utils\executable_signature</Filter>
     </ClCompile>
@@ -562,9 +547,6 @@
     <ClCompile Include="engine\locationsmodel\locationitem.cpp">
       <Filter>Engine Files\engine\locationsmodel</Filter>
     </ClCompile>
-    <ClCompile Include="engine\locationsmodel\locationnode.cpp">
-      <Filter>Engine Files\engine\locationsmodel</Filter>
-    </ClCompile>
     <ClCompile Include="engine\locationsmodel\locationsmodel.cpp">
       <Filter>Engine Files\engine\locationsmodel</Filter>
     </ClCompile>
@@ -589,6 +571,51 @@
     <ClCompile Include="..\..\common\ipc\generated_proto\apiinfo.pb.cc">
       <Filter>Common Files\ipc\generated_proto</Filter>
     </ClCompile>
+    <ClCompile Include="engine\customconfigs\customconfigs.cpp">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\customconfigs\customconfigsdirwatcher.cpp">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\customconfigs\customconfigtype.cpp">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\customconfigs\customovpnauthcredentialsstorage.cpp">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\customconfigs\ovpncustomconfig.cpp">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\customconfigs\parseovpnconfigline.cpp">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\customconfigs\wireguardcustomconfig.cpp">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\types\locationid.cpp">
+      <Filter>Common Files\types</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\connectionmanager\connsettingspolicy\autoconnsettingspolicy.cpp">
+      <Filter>Engine Files\engine\connectionmanager\connsettingspolicy</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\connectionmanager\connsettingspolicy\customconfigconnsettingspolicy.cpp">
+      <Filter>Engine Files\engine\connectionmanager\connsettingspolicy</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\connectionmanager\connsettingspolicy\manualconnsettingspolicy.cpp">
+      <Filter>Engine Files\engine\connectionmanager\connsettingspolicy</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\customconfiglocationinfo.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\customconfiglocationsmodel.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\baselocationinfo.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\locationsmodel\apilocationsmodel.cpp">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qconsolelistener.h">
@@ -608,9 +635,6 @@
     </ClInclude>
     <ClInclude Include="engine\adaptermetricscontroller_win.h">
       <Filter>Engine Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\connectionmanager\automanualconnectioncontroller.h">
-      <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClInclude>
     <ClInclude Include="engine\connectionmanager\availableport.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
@@ -687,9 +711,6 @@
     <ClInclude Include="engine\ping\icmp_header.h">
       <Filter>Engine Files\engine\ping</Filter>
     </ClInclude>
-    <QtMoc Include="engine\connectionmanager\iconnectionmanager.h">
-      <Filter>Engine Files\engine\connectionmanager</Filter>
-    </QtMoc>
     <QtMoc Include="engine\connectstatecontroller\iconnectstatecontroller.h">
       <Filter>Engine Files\engine\connectstatecontroller</Filter>
     </QtMoc>
@@ -732,9 +753,6 @@
     <QtMoc Include="engine\ping\keepalivemanager.h">
       <Filter>Engine Files\engine\ping</Filter>
     </QtMoc>
-    <ClInclude Include="engine\types\locationid.h">
-      <Filter>Engine Files\engine\types</Filter>
-    </ClInclude>
     <ClInclude Include="engine\connectionmanager\makeovpnfile.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClInclude>
@@ -840,6 +858,36 @@
     <QtMoc Include="engine\locationsmodel\pingipscontroller.h">
       <Filter>Engine Files\engine\locationsmodel</Filter>
     </QtMoc>
+    <QtMoc Include="engine\customconfigs\customconfigs.h">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\customconfigs\customconfigsdirwatcher.h">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\connectionmanager\connsettingspolicy\autoconnsettingspolicy.h">
+      <Filter>Engine Files\engine\connectionmanager\connsettingspolicy</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\connectionmanager\connsettingspolicy\baseconnsettingspolicy.h">
+      <Filter>Engine Files\engine\connectionmanager\connsettingspolicy</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\connectionmanager\connsettingspolicy\customconfigconnsettingspolicy.h">
+      <Filter>Engine Files\engine\connectionmanager\connsettingspolicy</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\connectionmanager\connsettingspolicy\manualconnsettingspolicy.h">
+      <Filter>Engine Files\engine\connectionmanager\connsettingspolicy</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\locationsmodel\customconfiglocationinfo.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\locationsmodel\customconfiglocationsmodel.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\locationsmodel\baselocationinfo.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </QtMoc>
+    <QtMoc Include="engine\locationsmodel\apilocationsmodel.h">
+      <Filter>Engine Files\engine\locationsmodel</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -857,6 +905,7 @@
     <CustomBuild Include="..\..\common\ipc\proto\servercommands.proto">
       <Filter>Common Files\ipc\proto</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cert\cert.crt">
@@ -877,9 +926,6 @@
     <None Include="engine\connectionmanager\restorednsmanager_mac.mm">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </None>
-    <None Include="..\..\common\ipc\proto\apiinfo.proto">
-      <Filter>Common Files\ipc\proto</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="application\windscribeapplication.h">
@@ -899,12 +945,6 @@
     </QtMoc>
     <QtMoc Include="engine\serverapi\curlnetworkmanager.h">
       <Filter>Engine Files\engine\serverapi</Filter>
-    </QtMoc>
-    <QtMoc Include="engine\customovpnconfigs\customconfigsdirwatcher.h">
-      <Filter>Engine Files\engine\customovpnconfigs</Filter>
-    </QtMoc>
-    <QtMoc Include="engine\customovpnconfigs\customovpnconfigs.h">
-      <Filter>Engine Files\engine\customovpnconfigs</Filter>
     </QtMoc>
     <QtMoc Include="engine\serverapi\dnscache.h">
       <Filter>Engine Files\engine\serverapi</Filter>
@@ -965,9 +1005,6 @@
     <ClInclude Include="engine\serverapi\curlrequest.h">
       <Filter>Engine Files\engine\serverapi</Filter>
     </ClInclude>
-    <ClInclude Include="engine\customovpnconfigs\customovpnauthcredentialsstorage.h">
-      <Filter>Engine Files\engine\customovpnconfigs</Filter>
-    </ClInclude>
     <ClInclude Include="engine\types\dnsresolutionsettings.h">
       <Filter>Engine Files\engine\types</Filter>
     </ClInclude>
@@ -1009,9 +1046,6 @@
     </ClInclude>
     <ClInclude Include="engine\openvpnversioncontroller.h">
       <Filter>Engine Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\customovpnconfigs\parseovpnconfigline.h">
-      <Filter>Engine Files\engine\customovpnconfigs</Filter>
     </ClInclude>
     <ClInclude Include="engine\proxy\proxysettings.h">
       <Filter>Engine Files\engine\proxy</Filter>
@@ -1066,9 +1100,6 @@
     </ClInclude>
     <ClInclude Include="..\..\common\utils\utils.h">
       <Filter>Common Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\vpnshare\vpnsharesettings.h">
-      <Filter>Engine Files\engine\vpnshare</Filter>
     </ClInclude>
     <ClInclude Include="..\..\common\utils\winutils.h">
       <Filter>Common Files\utils</Filter>
@@ -1159,6 +1190,27 @@
     </ClInclude>
     <ClInclude Include="..\..\common\ipc\generated_proto\apiinfo.pb.h">
       <Filter>Common Files\ipc\generated_proto</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\customconfigs\customconfigtype.h">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\customconfigs\customovpnauthcredentialsstorage.h">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\customconfigs\icustomconfig.h">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\customconfigs\ovpncustomconfig.h">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\customconfigs\parseovpnconfigline.h">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\customconfigs\wireguardcustomconfig.h">
+      <Filter>Engine Files\engine\customconfigs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\types\locationid.h">
+      <Filter>Common Files\types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

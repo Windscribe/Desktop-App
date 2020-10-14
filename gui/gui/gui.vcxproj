@@ -394,10 +394,12 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\common\ipc\generated_proto\apiinfo.pb.cc" />
+    <ClCompile Include="..\..\common\types\locationid.cpp" />
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp" />
     <ClCompile Include="preferenceswindow\accountwindow\accountwindowitem.cpp" />
+    <ClCompile Include="preferenceswindow\connectionwindow\packetsizeeditboxitem.cpp" />
     <ClCompile Include="preferenceswindow\debugwindow\advancedparametersitem.cpp" />
     <ClCompile Include="preferenceswindow\debugwindow\advancedparameterswindowitem.cpp" />
     <ClCompile Include="..\backend\locationsmodel\alllocationsmodel.cpp" />
@@ -432,7 +434,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\ipc\commandfactory.cpp" />
     <ClCompile Include="commongraphics\commongraphics.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\configfooterinfo.cpp" />
-    <ClCompile Include="locationswindow\widgetlocations\configfooteritem.cpp" />
     <ClCompile Include="..\backend\locationsmodel\configuredcitiesmodel.cpp" />
     <ClCompile Include="connectwindow\connectbutton.cpp" />
     <ClCompile Include="..\..\common\ipc\connection.cpp" />
@@ -502,7 +503,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="launchonstartup\launchonstartup.cpp" />
     <ClCompile Include="launchonstartup\launchonstartup_win.cpp" />
     <ClCompile Include="localhttpserver\localhttpserver.cpp" />
-    <ClCompile Include="..\backend\types\locationid.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\locationitem.cpp" />
     <ClCompile Include="connectwindow\locationsbutton.cpp" />
     <ClCompile Include="..\backend\locationsmodel\locationsmodel.cpp" />
@@ -524,7 +524,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="utils\makecustomshadow.cpp" />
     <ClCompile Include="utils\mergelog.cpp" />
     <ClCompile Include="connectwindow\middleitem.cpp" />
-    <ClCompile Include="preferenceswindow\connectionwindow\msseditboxitem.cpp" />
     <ClCompile Include="multipleaccountdetection\multipleaccountdetection_win.cpp" />
     <ClCompile Include="multipleaccountdetection\multipleaccountdetectionfactory.cpp" />
     <ClCompile Include="preferenceswindow\networkwhitelistwindow\networklistitem.cpp" />
@@ -578,7 +577,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingswitchitem.cpp" />
     <ClCompile Include="preferenceswindow\splittunnelingwindow\splittunnelingwindowitem.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\staticipdeviceinfo.cpp" />
-    <ClCompile Include="locationswindow\widgetlocations\staticipdeviceitem.cpp" />
     <ClCompile Include="..\backend\locationsmodel\staticipscitiesmodel.cpp" />
     <ClCompile Include="preferenceswindow\connectionwindow\subpageitem.cpp" />
     <ClCompile Include="..\..\common\ipc\tcpconnection.cpp" />
@@ -632,6 +630,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="preferenceswindow\splittunnelingwindow\appsearchitem.h">
     </QtMoc>
     <ClInclude Include="..\..\common\ipc\generated_proto\apiinfo.pb.h" />
+    <ClInclude Include="..\..\common\types\locationid.h" />
     <ClInclude Include="..\..\common\utils\networktypes.h" />
     <ClInclude Include="..\..\common\version\appversion.h" />
     <QtMoc Include="preferenceswindow\connectionwindow\automanualswitchitem.h">
@@ -683,7 +682,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="commongraphics\commongraphics.h" />
     <QtMoc Include="locationswindow\widgetlocations\configfooterinfo.h">
     </QtMoc>
-    <ClInclude Include="locationswindow\widgetlocations\configfooteritem.h" />
     <QtMoc Include="..\backend\locationsmodel\configuredcitiesmodel.h">
     </QtMoc>
     <QtMoc Include="connectwindow\connectbutton.h">
@@ -716,6 +714,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="dialogs\dialogmessagecpuusage.h">
     </QtMoc>
     <ClInclude Include="locationswindow\widgetlocations\cursorupdatehelper.h" />
+    <QtMoc Include="preferenceswindow\connectionwindow\packetsizeeditboxitem.h" />
     <ClInclude Include="preferenceswindow\dividerline.h" />
     <QtMoc Include="preferenceswindow\connectionwindow\dnswhileconnecteditem.h">
     </QtMoc>
@@ -819,7 +818,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="launchonstartup\launchonstartup_win.h" />
     <QtMoc Include="localhttpserver\localhttpserver.h">
     </QtMoc>
-    <ClInclude Include="..\backend\types\locationid.h" />
     <ClInclude Include="locationswindow\widgetlocations\locationitem.h" />
     <ClInclude Include="..\backend\locationsmodel\locationmodelitem.h" />
     <QtMoc Include="connectwindow\locationsbutton.h">
@@ -855,8 +853,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="utils\makecustomshadow.h" />
     <ClInclude Include="utils\mergelog.h" />
     <QtMoc Include="connectwindow\middleitem.h">
-    </QtMoc>
-    <QtMoc Include="preferenceswindow\connectionwindow\msseditboxitem.h">
     </QtMoc>
     <ClInclude Include="multipleaccountdetection\multipleaccountdetection_win.h" />
     <ClInclude Include="multipleaccountdetection\multipleaccountdetectionfactory.h" />
@@ -952,7 +948,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <QtMoc Include="locationswindow\widgetlocations\staticipdeviceinfo.h">
     </QtMoc>
-    <ClInclude Include="locationswindow\widgetlocations\staticipdeviceitem.h" />
     <QtMoc Include="..\backend\locationsmodel\staticipscitiesmodel.h">
     </QtMoc>
     <QtMoc Include="preferenceswindow\connectionwindow\subpageitem.h">
