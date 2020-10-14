@@ -212,6 +212,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCServerCommands::LocationsUpdated>(buf, size);
     }
+    else if (strId == IPCServerCommands::BestLocationUpdated::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCServerCommands::BestLocationUpdated>(buf, size);
+    }
     else if (strId == IPCServerCommands::CustomConfigLocationsUpdated::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCServerCommands::CustomConfigLocationsUpdated>(buf, size);

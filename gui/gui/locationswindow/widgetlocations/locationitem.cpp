@@ -20,7 +20,7 @@ LocationItem::LocationItem(IWidgetLocationsInfo *widgetLocationsInfo, const Loca
       curWhiteLineValue_(0), startWhiteLineValue_(0), endWhiteLineValue_(0),
       widgetLocationsInfo_(widgetLocationsInfo)
 {
-    Q_ASSERT(id_.isTopLevelLocation());
+    Q_ASSERT(id.isBestLocation() || id_.isTopLevelLocation());
     QFont *font = FontManager::instance().getFont(16, true);
     captionTextLayout_ = new QTextLayout(QObject::tr(name.toStdString().c_str()), *font);
     captionTextLayout_->beginLayout();
@@ -500,7 +500,11 @@ void LocationItem::drawLocationCaption(QPainter *painter, const QRect &rc, bool 
         }
     }
 
-    if (allNodesDisabled) // all cities disabled or no cities
+    if (id_.isBestLocation())
+    {
+        //nothing draw for best location
+    }
+    else if (allNodesDisabled) // all cities disabled or no cities
     {
         IndependentPixmap *constructionPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/UNDER_CONSTRUCTION_ICON");
         int constructionPixmapWidth = constructionPixmap->width();

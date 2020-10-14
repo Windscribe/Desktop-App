@@ -29,6 +29,7 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
 {
     apiLocations_.clear();
 
+    bool isBestLocationInserted = false;
     bestLocationId_ = LocationID::createFromProtoBuf(bestLocation);
 
     int cnt = locations.locations_size();
@@ -61,26 +62,27 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
             cmi.staticIpType = QString::fromStdString(city.static_ip_type());
             cmi.staticIp = QString::fromStdString(city.static_ip());
             lmi->cities << cmi;
+
+            // if this is the best location then insert it to top list
+            if (!isBestLocationInserted && !lmi->id.isStaticIpsLocation() && !lmi->id.isCustomConfigsLocation() && cmi.id.apiLocationToBestLocation() == bestLocationId_)
+            {
+                QSharedPointer<LocationModelItem> lmiBestLocation(new LocationModelItem());
+                lmiBestLocation->initialInd_ = lmi->initialInd_;
+                lmiBestLocation->id = bestLocationId_;
+                lmiBestLocation->title = tr("Best Location");
+                lmiBestLocation->countryCode = lmi->countryCode;
+                lmiBestLocation->isShowP2P = lmi->isShowP2P;
+                lmiBestLocation->isPremiumOnly = lmi->isPremiumOnly;
+
+                apiLocations_.insert(0, lmiBestLocation);
+                isBestLocationInserted = true;
+            }
         }
 
         // sort cities alphabetically
         std::sort(lmi->cities.begin(), lmi->cities.end(), SortLocationsAlgorithms::lessThanByAlphabeticallyCityItem);
 
         apiLocations_ << lmi;
-
-        // if this is the best location then insert copy to top list
-        if (!lmi->id.isStaticIpsLocation() && !lmi->id.isCustomConfigsLocation() && lmi->id.apiLocationToBestLocation() == bestLocationId_)
-        {
-            QSharedPointer<LocationModelItem> lmiBestLocation(new LocationModelItem());
-            *lmiBestLocation = *lmi;
-            lmiBestLocation->id = bestLocationId_;
-            lmiBestLocation->title = tr("Best Location");
-            for (int c = 0; c < lmiBestLocation->cities.count(); ++c)
-            {
-                lmiBestLocation->cities[c].id = lmiBestLocation->cities[c].id.apiLocationToBestLocation();
-            }
-            apiLocations_.insert(0, lmiBestLocation);
-        }
 
         if (lmi->id.isStaticIpsLocation())
         {
@@ -95,6 +97,50 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
     allLocations_->update(apiLocations_);
     staticIpsLocations_->update(apiLocations_);
     favoriteLocations_->update(apiLocations_);
+
+    emit bestLocationChanged(bestLocationId_);
+}
+
+void LocationsModel::updateBestLocation(const ProtoTypes::LocationId &bestLocation)
+{
+    LocationID bestLocationId = LocationID::createFromProtoBuf(bestLocation);
+    if (bestLocationId == bestLocationId_)
+    {
+        return;
+    }
+
+    if (apiLocations_.count() > 0)
+    {
+        if (apiLocations_[0]->id.isBestLocation())
+        {
+            for (int i = 1; i < apiLocations_.count(); ++i)
+            {
+                int cities_cnt = apiLocations_[i]->cities.count();
+                for (int c = 0; c < cities_cnt; ++c)
+                {
+                    if (!apiLocations_[i]->cities[c].id.isStaticIpsLocation() && apiLocations_[i]->cities[c].id.apiLocationToBestLocation() == bestLocationId)
+                    {
+                        apiLocations_[0]->id = bestLocationId;
+                        apiLocations_[0]->countryCode = apiLocations_[i]->cities[c].countryCode;
+                        apiLocations_[0]->isShowP2P = apiLocations_[i]->isShowP2P;
+                        apiLocations_[0]->isPremiumOnly = apiLocations_[i]->isPremiumOnly;
+
+                        bestLocationId_ = bestLocationId;
+                        allLocations_->update(apiLocations_);
+                        staticIpsLocations_->update(apiLocations_);
+                        favoriteLocations_->update(apiLocations_);
+
+                        emit bestLocationChanged(bestLocationId_);
+                        return;
+                    }
+                }
+            }
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
+    }
 }
 
 void LocationsModel::updateCustomConfigLocations(const ProtoTypes::ArrayLocations &locations)
@@ -196,18 +242,6 @@ bool LocationsModel::getLocationInfo(const LocationID &id, LocationsModel::Locat
     {
         for (int i = 0; i < customConfigLocations_.count(); ++i)
         {
-            if (customConfigLocations_[i]->id == id)
-            {
-                if (customConfigLocations_[i]->cities.count() > 0)
-                {
-                    li.id = id;
-                    li.firstName = customConfigLocations_[i]->cities[0].city;
-                    li.secondName = customConfigLocations_[i]->cities[0].nick;
-                    li.countryCode = customConfigLocations_[i]->countryCode;
-                    li.pingTime = customConfigLocations_[i]->cities[0].pingTimeMs;
-                    return true;
-                }
-            }
             for (int k = 0; k < customConfigLocations_[i]->cities.count(); ++k)
             {
                 if (customConfigLocations_[i]->cities[k].id == id)
@@ -226,21 +260,21 @@ bool LocationsModel::getLocationInfo(const LocationID &id, LocationsModel::Locat
     {
         for (int i = 0; i < apiLocations_.count(); ++i)
         {
-            if (apiLocations_[i]->id == id)
-            {
-                if (apiLocations_[i]->cities.count() > 0)
-                {
-                    li.id = id;
-                    li.firstName = apiLocations_[i]->cities[0].city;
-                    li.secondName = apiLocations_[i]->cities[0].nick;
-                    li.countryCode = apiLocations_[i]->countryCode;
-                    li.pingTime = apiLocations_[i]->cities[0].pingTimeMs;
-                    return true;
-                }
-            }
             for (int k = 0; k < apiLocations_[i]->cities.count(); ++k)
             {
-                if (apiLocations_[i]->cities[k].id == id)
+                if (id.isBestLocation() && !apiLocations_[i]->cities[k].id.isStaticIpsLocation() && !apiLocations_[i]->cities[k].id.isCustomConfigsLocation())
+                {
+                    if (apiLocations_[i]->cities[k].id.apiLocationToBestLocation() == id)
+                    {
+                        li.id = id;
+                        li.firstName = tr("Best Location");
+                        li.secondName = apiLocations_[i]->cities[k].city;
+                        li.countryCode = apiLocations_[i]->cities[k].countryCode;
+                        li.pingTime = apiLocations_[i]->cities[k].pingTimeMs;
+                        return true;
+                    }
+                }
+                else if (apiLocations_[i]->cities[k].id == id)
                 {
                     li.id = id;
                     li.firstName = apiLocations_[i]->cities[k].city;
@@ -315,6 +349,15 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
     staticIpsLocations_->changeConnectionSpeed(id, speed);
     favoriteLocations_->changeConnectionSpeed(id, speed);
     emit locationSpeedChanged(id, speed);
+
+    // additionally emit signal if id is best location
+    if (!id.isStaticIpsLocation() && !id.isCustomConfigsLocation())
+    {
+        if (id.apiLocationToBestLocation() == bestLocationId_)
+        {
+            emit locationSpeedChanged(bestLocationId_, speed);
+        }
+    }
 }
 
 // example of location string: NL, Toronto #1, etc

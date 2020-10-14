@@ -56,22 +56,19 @@ struct LocationModelItem
         int cnt = 0;
         for (const CityModelItem &cmi : cities)
         {
-            if (!cmi.isDisabled)
+            if (cmi.pingTimeMs == PingTime::NO_PING_INFO)
             {
-                if (cmi.pingTimeMs == PingTime::NO_PING_INFO)
-                {
-                    averagePing += 200;     // we assume a maximum ping time for three bars
-                }
-                else if (cmi.pingTimeMs == PingTime::PING_FAILED)
-                {
-                    averagePing += 2000;    // 2000 - max ping interval
-                }
-                else
-                {
-                    averagePing += cmi.pingTimeMs.toInt();
-                }
-                cnt++;
+                averagePing += 200;     // we assume a maximum ping time for three bars
             }
+            else if (cmi.pingTimeMs == PingTime::PING_FAILED)
+            {
+                averagePing += 2000;    // 2000 - max ping interval
+            }
+            else
+            {
+                averagePing += cmi.pingTimeMs.toInt();
+            }
+            cnt++;
         }
         if (cnt > 0)
         {

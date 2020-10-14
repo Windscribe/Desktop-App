@@ -139,6 +139,8 @@ MainWindow::MainWindow(QWidget *parent) :
         backend_->getLocationsModel(), SIGNAL(locationSpeedChanged(LocationID, PingTime)),
         SLOT(updateLocationSpeed(LocationID, PingTime)));
 
+    connect(backend_->getLocationsModel(), SIGNAL(bestLocationChanged(LocationID)), SLOT(onBestLocationChanged(LocationID)));
+
     connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(escClick()), SLOT(onEscapeNotificationsClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(messageReaded(qint64)),
             &notificationsController_, SLOT(setNotificationReaded(qint64)));
@@ -1964,6 +1966,27 @@ void MainWindow::onBackendEngineCrash()
     mainWindowController_->getInitWindow()->setAdditionalMessage(tr("Lost connection to the backend process.\nRecovering..."));
     mainWindowController_->getInitWindow()->setCropHeight(0); // Needed so that Init screen is correct height when engine fails from connect window
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
+}
+
+void MainWindow::onBestLocationChanged(const LocationID &bestLocation)
+{
+    Q_UNUSED(bestLocation);
+    if (PersistentState::instance().lastLocation().isBestLocation())
+    {
+        if (backend_->isDisconnected())
+        {
+            PersistentState::instance().setLastLocation(bestLocation);
+        }
+        else
+        {
+            PersistentState::instance().setLastLocation(PersistentState::instance().lastLocation().bestLocationToApiLocation());
+        }
+        LocationsModel::LocationInfo li;
+        if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+        {
+            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+        }
+    }
 }
 
 void MainWindow::onPreferencesFirewallSettingsChanged(const ProtoTypes::FirewallSettings &fm)

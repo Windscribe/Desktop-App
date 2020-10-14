@@ -74,18 +74,22 @@ message MyIpUpdated
    optional ProtoTypes.MyIpInfo my_ip_info = 1;
 }
 
-
 message LocationsUpdated
 {
    optional ProtoTypes.LocationId best_location = 1;
    optional ProtoTypes.ArrayLocations locations = 2;
 }
 
-
 message CustomConfigLocationsUpdated
 {
    optional ProtoTypes.ArrayLocations locations = 1;
 }
+
+message BestLocationUpdated
+{
+   optional ProtoTypes.LocationId best_location = 1;
+}
+
 
 message StatisticsUpdated
 {

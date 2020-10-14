@@ -167,6 +167,8 @@ private slots:
     void onBackendPacketSizeDetectionStateChanged(bool on);
     void onBackendEngineCrash();
 
+    void onBestLocationChanged(const LocationID &bestLocation);
+
     // preferences changes signals
     void onPreferencesFirewallSettingsChanged(const ProtoTypes::FirewallSettings &fm);
     void onPreferencesShareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);

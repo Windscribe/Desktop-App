@@ -31,7 +31,7 @@ public:
 signals:
     void locationsUpdated( const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void locationPingTimeChanged(const LocationID &id, locationsmodel::PingTime timeMs);
-
+    void bestLocationUpdated( const LocationID &bestLocation);
     void whitelistIpsChanged(const QStringList &ips);
 
     //void locationInfoChanged(const LocationID &LocationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
@@ -53,7 +53,6 @@ private:
     void detectBestLocation(bool isAllNodesInDisconnectedState);
     void generateLocationsUpdated();
     void whitelistIps();
-    int calcLatency(const apiinfo::Location &l);
 
     bool isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
 

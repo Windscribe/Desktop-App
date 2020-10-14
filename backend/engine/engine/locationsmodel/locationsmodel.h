@@ -37,6 +37,7 @@ public:
 signals:
     void locationsUpdated(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void bestLocationUpdated(const LocationID &bestLocation);
     void locationPingTimeChanged(const LocationID &id, locationsmodel::PingTime timeMs);
 
     void whitelistLocationsIpsChanged(const QStringList &ips);

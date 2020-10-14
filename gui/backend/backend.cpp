@@ -593,6 +593,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
         locationsModel_->updateApiLocations(cmd->getProtoObj().best_location(), cmd->getProtoObj().locations());
         emit locationsUpdated();
     }
+    else if (command->getStringId() == IPCServerCommands::BestLocationUpdated::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<IPCServerCommands::BestLocationUpdated> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::BestLocationUpdated> *>(command);
+        locationsModel_->updateBestLocation(cmd->getProtoObj().best_location());
+    }
     else if (command->getStringId() == IPCServerCommands::CustomConfigLocationsUpdated::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::CustomConfigLocationsUpdated> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::CustomConfigLocationsUpdated> *>(command);

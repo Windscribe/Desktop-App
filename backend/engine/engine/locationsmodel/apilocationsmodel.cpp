@@ -19,7 +19,7 @@ ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *s
 
     if (bestLocation_.isValid())
     {
-        qCDebug(LOG_BEST_LOCATION) << "Best location loaded from settings: " << bestLocation_.getId();
+        qCDebug(LOG_BEST_LOCATION) << "Best location loaded from settings: " << bestLocation_.getId().getHashString();
     }
     else
     {
@@ -183,52 +183,73 @@ void ApiLocationsModel::onNeedIncrementPingIteration()
 void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
 {
     int minLatency = INT_MAX;
-    int min_ind = -1;
+    LocationID locationIdWithMinLatency;
 
     qCDebug(LOG_BEST_LOCATION) << "LocationsModel::detectBestLocation, isAllNodesInDisconnectedState=" << isAllNodesInDisconnectedState;
 
-    int prevBestLocationLatency = 0;
+    int prevBestLocationLatency = INT_MAX;
 
     int ind = 0;
     for (const apiinfo::Location &l : locations_)
     {
-        int latency = calcLatency(l);
-
-        if (bestLocation_.isValid() && l.getId() == bestLocation_.getId())
+        for (int i = 0; i < l.groupsCount(); ++i)
         {
-            prevBestLocationLatency = latency;
+            const apiinfo::Group group = l.getGroup(i);
+
+            if (group.isDisabled())
+            {
+                continue;
+            }
+
+            LocationID lid = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick());
+            int latency = pingStorage_.getNodeSpeed(group.getPingIp()).toInt();
+
+            // we assume a maximum ping time for three bars when no ping info
+            if (latency == PingTime::NO_PING_INFO)
+            {
+                latency = PingTime::LATENCY_STEP1;
+            }
+            else if (latency == PingTime::PING_FAILED)
+            {
+                latency = PingTime::MAX_LATENCY_FOR_PING_FAILED;
+            }
+
+            if (bestLocation_.isValid() && lid == bestLocation_.getId())
+            {
+                prevBestLocationLatency = latency;
+            }
+            if (latency != PingTime::PING_FAILED && latency < minLatency)
+            {
+                minLatency = latency;
+                locationIdWithMinLatency = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()) ;
+            }
         }
 
-        if (latency != -1 && latency < minLatency)
-        {
-            minLatency = latency;
-            min_ind = ind;
-        }
         ind++;
     }
 
-    int prevBestLocationId = -100; // LocationID::EMPTY_LOCATION;
+    LocationID prevBestLocationId;
     if (bestLocation_.isValid())
     {
         prevBestLocationId = bestLocation_.getId();
+        qCDebug(LOG_BEST_LOCATION) << "prevBestLocationId=" << prevBestLocationId.getHashString() << "; prevBestLocationLatency=" << prevBestLocationLatency;
     }
 
-     qCDebug(LOG_BEST_LOCATION) << "prevBestLocationId=" << prevBestLocationId << "; prevBestLocationLatency=" << prevBestLocationLatency;
 
-    if (min_ind != -1)      // new best location found
+    if (locationIdWithMinLatency.isValid())      // new best location found
     {
-        qCDebug(LOG_BEST_LOCATION) << "Detected min latency=" << minLatency << "; id=" << locations_[min_ind].getId();
+        qCDebug(LOG_BEST_LOCATION) << "Detected min latency=" << minLatency << "; id=" << locationIdWithMinLatency.getHashString();
 
         // check whether best location needs to be changed
         if (!bestLocation_.isValid())
         {
-            bestLocation_.set(locations_[min_ind].getId(), true, isAllNodesInDisconnectedState);
+            bestLocation_.set(locationIdWithMinLatency, true, isAllNodesInDisconnectedState);
         }
         else // if best location is valid
         {
             if (!bestLocation_.isDetectedFromThisAppStart())
             {
-                bestLocation_.set(locations_[min_ind].getId(), true, isAllNodesInDisconnectedState);
+                bestLocation_.set(locationIdWithMinLatency, true, isAllNodesInDisconnectedState);
             }
             else if (bestLocation_.isDetectedWithDisconnectedIps())
             {
@@ -237,7 +258,7 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
                     // check ping time changed more than 10% compared to prev best location
                     if ((double)minLatency < ((double)prevBestLocationLatency * 0.9))
                     {
-                        bestLocation_.set(locations_[min_ind].getId(), true, isAllNodesInDisconnectedState);
+                        bestLocation_.set(locationIdWithMinLatency, true, isAllNodesInDisconnectedState);
                     }
                 }
             }
@@ -245,7 +266,7 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
             {
                 if (isAllNodesInDisconnectedState)
                 {
-                    bestLocation_.set(locations_[min_ind].getId(), true, isAllNodesInDisconnectedState);
+                    bestLocation_.set(locationIdWithMinLatency, true, isAllNodesInDisconnectedState);
                 }
             }
         }
@@ -254,14 +275,16 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
     // send the signal to the GUI only if the location has actually changed
     if (bestLocation_.isValid() && prevBestLocationId != bestLocation_.getId())
     {
-        qCDebug(LOG_BEST_LOCATION) << "Best location changed to " << bestLocation_.getId();
-        generateLocationsUpdated();
+        qCDebug(LOG_BEST_LOCATION) << "Best location changed to " << bestLocation_.getId().getHashString();
+        emit bestLocationUpdated(bestLocation_.getId().apiLocationToBestLocation());
     }
 }
 
 void ApiLocationsModel::generateLocationsUpdated()
 {
     QSharedPointer <QVector<LocationItem> > items(new QVector<LocationItem>());
+
+    bool isBestLocationValid = false;
 
     for (const apiinfo::Location &l : locations_)
     {
@@ -283,23 +306,35 @@ void ApiLocationsModel::generateLocationsUpdated()
             city.pingTimeMs = pingStorage_.getNodeSpeed(group.getPingIp());
             city.isDisabled = group.isDisabled();
             item.cities << city;
+
+            if (!isBestLocationValid && bestLocation_.isValid() && bestLocation_.getId() == city.id && !city.isDisabled)
+            {
+                isBestLocationValid = true;
+            }
         }
 
         *items << item;
     }
 
     LocationID bestLocation;
-    if (bestLocation_.isValid())
+    if (isBestLocationValid)
     {
-        bestLocation = LocationID::createBestLocationId(bestLocation_.getId());
+        bestLocation = bestLocation_.getId().apiLocationToBestLocation();
     }
-    // use first location as best location
+    // use first city of first location as best location (if at least on node in the city exists)
     else
     {
-        if (items->count() > 0)
+        for (int l = 0; l < items->count(); ++l)
         {
-            bestLocation = items->at(0).id.apiLocationToBestLocation();
-            qCDebug(LOG_BEST_LOCATION) << "Best location chosen as the first location";
+            for (int c = 0; c < items->at(l).cities.count(); ++c)
+            {
+                if (!items->at(l).cities[c].isDisabled)
+                {
+                    bestLocation = items->at(l).cities[c].id.apiLocationToBestLocation();
+                    qCDebug(LOG_BEST_LOCATION) << "Best location chosen as the first city of the first location:" << items->at(l).cities[c].city << items->at(l).cities[c].nick;
+                    break;
+                }
+            }
         }
     }
 
@@ -349,42 +384,6 @@ void ApiLocationsModel::whitelistIps()
     }
     ips << staticIps_.getAllPingIps();
     emit whitelistIpsChanged(ips);
-}
-
-int ApiLocationsModel::calcLatency(const apiinfo::Location &l)
-{
-    double sumLatency = 0;
-    int cnt = 0;
-
-    for (int i = 0; i < l.groupsCount(); ++i)
-    {
-        const apiinfo::Group group = l.getGroup(i);
-        if (!group.isDisabled())
-        {
-            PingTime pingTime = pingStorage_.getNodeSpeed(group.getPingIp());
-            if (pingTime == PingTime::NO_PING_INFO)
-            {
-                sumLatency += 200;      // we assume a maximum ping time for three bars
-            }
-            else if (pingTime == PingTime::PING_FAILED)
-            {
-                sumLatency += 2000;    // 2000 - max ping interval
-            }
-            else
-            {
-                sumLatency += pingTime.toInt();
-            }
-            cnt++;
-        }
-    }
-    if (cnt > 0)
-    {
-        return sumLatency / (double)cnt;
-    }
-    else
-    {
-        return PingTime::PING_FAILED;
-    }
 }
 
 bool ApiLocationsModel::isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)

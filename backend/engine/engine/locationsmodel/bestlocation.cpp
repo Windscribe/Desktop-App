@@ -5,7 +5,7 @@
 
 namespace locationsmodel {
 
-BestLocation::BestLocation() : isValid_(false), isDetectedFromThisAppStart_(false), isDetectedWithDisconnectedIps_(0), id_(-100)
+BestLocation::BestLocation() : isValid_(false), isDetectedFromThisAppStart_(false), isDetectedWithDisconnectedIps_(0)
 {
     loadFromSettings();
 }
@@ -20,13 +20,13 @@ bool BestLocation::isValid() const
     return isValid_;
 }
 
-int BestLocation::getId() const
+LocationID BestLocation::getId() const
 {
     Q_ASSERT(isValid_);
     return id_;
 }
 
-void BestLocation::set(int id, bool isDetectedFromThisAppStart, bool isDetectedWithDisconnectedIps)
+void BestLocation::set(const LocationID &id, bool isDetectedFromThisAppStart, bool isDetectedWithDisconnectedIps)
 {
     isValid_ = true;
     isDetectedFromThisAppStart_ = isDetectedFromThisAppStart;
@@ -51,7 +51,8 @@ void BestLocation::saveToSettings()
     if (isValid_)
     {
         ProtoApiInfo::BestLocation b;
-        b.set_id(id_);
+
+        *b.mutable_location_id() = id_.toProtobuf();
 
         size_t size = b.ByteSizeLong();
         QByteArray arr(size, Qt::Uninitialized);
@@ -72,7 +73,7 @@ void BestLocation::loadFromSettings()
         if (b.ParseFromArray(arr.data(), arr.size()))
         {
             isValid_ = true;
-            id_ = b.id();
+            id_ = LocationID::createFromProtoBuf(b.location_id());
         }
     }
 }

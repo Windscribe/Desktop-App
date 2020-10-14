@@ -5,10 +5,6 @@ const int typeIdPingTime = qRegisterMetaType<locationsmodel::PingTime>("location
 
 namespace locationsmodel {
 
-int PingTime::NO_PING_INFO = -2;
-int PingTime::PING_FAILED = -1;
-
-
 
 PingTime::PingTime()
 {
@@ -30,11 +26,11 @@ int PingTime::toConnectionSpeed() const
     {
         return 0;
     }
-    else if (timeMs_ < 200)
+    else if (timeMs_ < LATENCY_STEP1)
     {
         return 3;
     }
-    else if (timeMs_ < 500)
+    else if (timeMs_ < LATENCY_STEP2)
     {
         return 2;
     }

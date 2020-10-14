@@ -591,7 +591,14 @@ void WidgetLocations::mouseReleaseEvent(QMouseEvent *event)
                     {
                         if (items_[indSelected_]->isForceExpand() && indChildPressed_ == 0) // Location
                         {
-                            expandOrCollapseSelectedItem();
+                            if (items_[indSelected_]->getId().isBestLocation())
+                            {
+                                emitSelectedIfNeed();
+                            }
+                            else
+                            {
+                                expandOrCollapseSelectedItem();
+                            }
                         }
                         else // City
                         {

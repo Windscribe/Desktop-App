@@ -113,6 +113,7 @@ message PingStorage
 
 message BestLocation
 {
-  optional int32 id = 1; 
+  optional int32 id = 1 [deprecated=true];     // not use anymore
+  optional ProtoTypes.LocationId location_id = 2;
 }
 

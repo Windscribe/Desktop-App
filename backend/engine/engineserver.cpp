@@ -399,6 +399,8 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
     {
         connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
                 SLOT(onEngineLocationsModelItemsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(bestLocationUpdated(LocationID)),
+                SLOT(onEngineLocationsModelBestLocationUpdated(LocationID)));
         connect(engine_->getLocationsModel(), SIGNAL(customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)),
                 SLOT(onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
         connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)),
@@ -892,6 +894,13 @@ void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLoca
         li.fillProtobuf(l);
     }
 
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
+}
+
+void EngineServer::onEngineLocationsModelBestLocationUpdated(const LocationID &bestLocation)
+{
+    IPC::ProtobufCommand<IPCServerCommands::BestLocationUpdated> cmd;
+    *cmd.getProtoObj().mutable_best_location() = bestLocation.toProtobuf();
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 

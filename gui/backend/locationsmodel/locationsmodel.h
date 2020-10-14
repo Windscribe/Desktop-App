@@ -26,6 +26,7 @@ public:
     virtual ~LocationsModel();
 
     void updateApiLocations(const ProtoTypes::LocationId &bestLocation, const ProtoTypes::ArrayLocations &locations);
+    void updateBestLocation(const ProtoTypes::LocationId &bestLocation);
     void updateCustomConfigLocations(const ProtoTypes::ArrayLocations &locations);
 
     BasicLocationsModel *getAllLocationsModel();
@@ -48,6 +49,8 @@ public:
 
 signals:
     void locationSpeedChanged(LocationID id, PingTime speed);
+    void bestLocationChanged(LocationID id);
+
     void deviceNameChanged(const QString &deviceName);
 
 private:

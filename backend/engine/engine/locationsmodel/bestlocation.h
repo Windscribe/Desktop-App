@@ -4,6 +4,7 @@
 #include <QString>
 #include <QVector>
 #include "pingtime.h"
+#include "types/locationid.h"
 
 namespace locationsmodel {
 
@@ -15,9 +16,9 @@ public:
     virtual ~BestLocation();
 
     bool isValid() const;
-    int getId() const;
+    LocationID getId() const;
 
-    void set(int id, bool isDetectedFromThisAppStart, bool isDetectedWithDisconnectedIps);
+    void set(const LocationID &id, bool isDetectedFromThisAppStart, bool isDetectedWithDisconnectedIps);
 
     bool isDetectedFromThisAppStart() const;
     bool isDetectedWithDisconnectedIps() const;
@@ -29,7 +30,7 @@ private:
     bool isValid_;
     bool isDetectedFromThisAppStart_;        // if the location is detected with pings with this app start (not readed from settings or detected as random first)
     bool isDetectedWithDisconnectedIps_;     // if the location is detected without pings in connected state
-    int id_;
+    LocationID id_;
 };
 
 
