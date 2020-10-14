@@ -39,6 +39,10 @@ bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
     Q_UNUSED(executable);
     return true;
 #else
-    return ExecutableSignature_mac::verifyWithSignCheck(executable);
+    #ifdef Q_OS_WIN
+        return ExecutableSignature_win::verify(executablePath);
+    #else
+        return ExecutableSignature_mac::verifyWithSignCheck(executable);
+    #endif
 #endif
 }

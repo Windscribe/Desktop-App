@@ -75,6 +75,7 @@ bool ExecutableSignature_mac::verify(const QString &executablePath)
     return false;
 }
 
+// TODO: convert all uses of this to verify(...) once signature checking has been fixed for gui/engine check
 bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
 {
     //create static code ref via path
