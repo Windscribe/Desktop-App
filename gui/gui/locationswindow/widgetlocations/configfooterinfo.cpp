@@ -10,7 +10,7 @@
 
 ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
   , pressed_(false)
-  , text_(tr("Add Config Location"))
+  , text_(tr("Set Config Location"))
   , font_(*FontManager::instance().getFont(16, true))
   , curTextOpacity_(0.5)
   , curIconOpacity_(OPACITY_UNHOVER_ICON_TEXT)

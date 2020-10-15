@@ -26,10 +26,10 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
 
     widgetAllLocations_ = new GuiLocations::WidgetLocations(this);
 
-    widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this);
+    widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, 6);
     widgetConfiguredLocations_->hide();
 
-    widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this);
+    widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this, 6);
     widgetStaticIpsLocations_->hide();
 
     widgetFavoriteLocations_ = new GuiLocations::WidgetCities(this);
@@ -83,12 +83,12 @@ int LocationsTab::setCountVisibleItemSlots(int cnt)
     {
         countOfVisibleItemSlots_ = cnt;
         widgetAllLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
-        widgetConfiguredLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
-        widgetStaticIpsLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
+        widgetConfiguredLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_-1);
+        widgetStaticIpsLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_-1);
         widgetFavoriteLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
         updateRibbonVisibility();
 
-        int newHeight = 50 * countOfVisibleItemSlots_ - 1;
+        const int newHeight = 50 * countOfVisibleItemSlots_ - 1;
         updateLocationWidgetsGeometry(newHeight);
         return newHeight ;
     }
@@ -458,18 +458,28 @@ void LocationsTab::updateIconRectsAndLine()
 
 void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
 {
-    widgetAllLocations_->setGeometry(       0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
-    widgetFavoriteLocations_->setGeometry(  0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
-    widgetStaticIpsLocations_->setGeometry( 0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
-    widgetConfiguredLocations_->setGeometry(0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+    const int kRibbonHeight = 48;
+
+    widgetAllLocations_->setGeometry(
+        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+    widgetFavoriteLocations_->setGeometry(
+        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+    widgetStaticIpsLocations_->setGeometry(
+        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight) * G_SCALE);
+    widgetConfiguredLocations_->setGeometry(
+        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight)* G_SCALE);
 
     widgetAllLocations_->setSize(WINDOW_WIDTH, newHeight);
     widgetFavoriteLocations_->setSize(WINDOW_WIDTH, newHeight);
-    widgetStaticIpsLocations_->setSize(WINDOW_WIDTH, newHeight);
-    widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight);
+    widgetStaticIpsLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight );
+    widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight);
 
-    staticIPDeviceInfo_->setGeometry(0, (newHeight - 2) * G_SCALE, WINDOW_WIDTH * G_SCALE, 48 * G_SCALE);
-    configFooterInfo_->  setGeometry(0, (newHeight - 2) * G_SCALE, WINDOW_WIDTH * G_SCALE, 48 * G_SCALE);
+    staticIPDeviceInfo_->setGeometry(
+        0, (newHeight - 2) * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+    configFooterInfo_->setGeometry(
+        0, (newHeight - 2) * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+
+    updateScaling();
 }
 
 void LocationsTab::updateScaling()
@@ -514,38 +524,19 @@ void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, i
 
 void LocationsTab::updateRibbonVisibility()
 {
-    if (currentWidgetLocations() == widgetStaticIpsLocations_)
-    {
-        if (widgetStaticIpsLocations_->countVisibleItems() < countOfVisibleItemSlots_)
-        {
-            staticIPDeviceInfo_->show();
-            staticIPDeviceInfo_->raise();
-            widgetStaticIpsLocations_->setRibbonInList(WidgetCities::RIBBON_TYPE_NONE);
-            widgetStaticIpsLocations_->updateScaling();
-        }
-        else
-        {
-            staticIPDeviceInfo_->hide();
-            widgetStaticIpsLocations_->setRibbonInList(WidgetCities::RIBBON_TYPE_STATIC_IP);
-            widgetStaticIpsLocations_->updateScaling();
-        }
-    }
+    const auto *current_widget_locations = currentWidgetLocations();
 
-    if (currentWidgetLocations() == widgetConfiguredLocations_)
+    if (current_widget_locations == widgetStaticIpsLocations_)
     {
-        if (widgetConfiguredLocations_->countVisibleItems() < countOfVisibleItemSlots_)
-        {
-            configFooterInfo_->show();
-            configFooterInfo_->raise();
-            widgetConfiguredLocations_->setRibbonInList(WidgetCities::RIBBON_TYPE_NONE);
-            widgetConfiguredLocations_->updateScaling();
-        }
-        else
-        {
-            configFooterInfo_->hide();
-            widgetConfiguredLocations_->setRibbonInList(WidgetCities::RIBBON_TYPE_CONFIG);
-            widgetConfiguredLocations_->updateScaling();
-        }
+        configFooterInfo_->hide();
+        staticIPDeviceInfo_->show();
+        staticIPDeviceInfo_->raise();
+    }
+    else if (current_widget_locations == widgetConfiguredLocations_)
+    {
+        staticIPDeviceInfo_->hide();
+        configFooterInfo_->show();
+        configFooterInfo_->raise();
     }
 }
 
