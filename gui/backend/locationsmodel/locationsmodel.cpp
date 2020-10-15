@@ -384,6 +384,7 @@ LocationID LocationsModel::getLocationIdByName(const QString &location) const
 
 LocationID LocationsModel::findLocationByFilter(const QString &strFilter) const
 {
+    QString strFilterLower = strFilter.toLower();
     auto getEnabledCities = [](QSharedPointer<LocationModelItem> l) {
         QList<CityModelItem> cities;
         for (auto it : qAsConst(l->cities))
@@ -397,8 +398,8 @@ LocationID LocationsModel::findLocationByFilter(const QString &strFilter) const
     };
 
     // try find by region(location title) first
-    auto lmiRegion = std::find_if(apiLocations_.begin(), apiLocations_.end(), [strFilter](QSharedPointer<LocationModelItem> item) {
-            return !item->id.isStaticIpsLocation() && item->title.toLower() == strFilter;
+    auto lmiRegion = std::find_if(apiLocations_.begin(), apiLocations_.end(), [strFilterLower](QSharedPointer<LocationModelItem> item) {
+            return !item->id.isStaticIpsLocation() && item->title.toLower() == strFilterLower;
     });
 
     if (lmiRegion != apiLocations_.end())
@@ -413,7 +414,7 @@ LocationID LocationsModel::findLocationByFilter(const QString &strFilter) const
         QVector< CityModelItem > citiesWithCC;
         for (auto itr = apiLocations_.begin(); itr != apiLocations_.end(); ++itr)
         {
-            if (!(*itr)->id.isStaticIpsLocation() && (*itr)->countryCode.toLower() == strFilter)
+            if (!(*itr)->id.isStaticIpsLocation() && (*itr)->countryCode.toLower() == strFilterLower)
             {
                 for (auto city : qAsConst((*itr)->cities))
                 {
@@ -443,11 +444,11 @@ LocationID LocationsModel::findLocationByFilter(const QString &strFilter) const
                     {
                         if (!city.isDisabled)
                         {
-                            if (city.city.toLower() == strFilter)
+                            if (city.city.toLower() == strFilterLower)
                             {
                                 cmiFoundCity << city;
                             }
-                            if (city.nick.toLower() == strFilter)
+                            if (city.nick.toLower() == strFilterLower)
                             {
                                 cmiFoundNickname << city;
                             }

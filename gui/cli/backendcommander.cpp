@@ -145,6 +145,7 @@ void BackendCommander::sendCommand()
             LocationID lid = backend_->getLocationsModel()->findLocationByFilter(locationStr_);
             if (lid.isValid())
             {
+                qCDebug(LOG_BASIC) << "Connecting to" << lid.getHashString();
                 backend_->sendConnect(lid);
             }
             else
