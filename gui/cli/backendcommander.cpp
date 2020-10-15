@@ -78,20 +78,20 @@ void BackendCommander::onBackendConnectStateChanged(ProtoTypes::ConnectState sta
         {
             if (state.has_location())
             {
-                LocationID currentLocation(state.location().location_id(), QString::fromStdString(state.location().city()));
+                LocationID currentLocation = LocationID::createFromProtoBuf(state.location());
                 PersistentState::instance().setLastLocation(currentLocation);
-            }
 
-            QString locationConnectedTo;
-            if (state.location().location_id() == LocationID::BEST_LOCATION_ID)
-            {
-                locationConnectedTo = tr("Best Location");
+                QString locationConnectedTo;
+                if (currentLocation.isBestLocation())
+                {
+                    locationConnectedTo = tr("Best Location");
+                }
+                else
+                {
+                    locationConnectedTo = QString::fromStdString(state.location().city());
+                }
+                emit finished(tr("Connected to ") + locationConnectedTo);
             }
-            else
-            {
-                locationConnectedTo = QString::fromStdString(state.location().city());
-            }
-            emit finished(tr("Connected to ") + locationConnectedTo);
         }
         else if (state.connect_state_type() == ProtoTypes::DISCONNECTED)
         {
@@ -136,135 +136,18 @@ void BackendCommander::sendCommand()
     else if (command_ == CLI_COMMAND_CONNECT_BEST)
     {
         qCDebug(LOG_BASIC) << "Connecting to best";
-        backend_->sendConnect(LocationID(LocationID::BEST_LOCATION_ID));
+        backend_->sendConnect(backend_->getLocationsModel()->getBestLocationId());
     }
     else if (command_ == CLI_COMMAND_CONNECT_LOCATION)
     {
         if (locationStr_ != "")
         {
-            LocationsModel *lm = backend_->getLocationsModel();
-            QList<CityModelItem> cities = lm->activeCityModelItems();
-
-            QList<CityModelItem> citiesWithoutStaticIps;
-            foreach (CityModelItem city, cities)
+            LocationID lid = backend_->getLocationsModel()->findLocationByFilter(locationStr_);
+            if (lid.isValid())
             {
-                if (city.id.getId() != LocationID::STATIC_IPS_LOCATION_ID &&
-                    city.id.getId() != LocationID::BEST_LOCATION_ID)
-                {
-                    citiesWithoutStaticIps.append(city);
-                }
+                backend_->sendConnect(lid);
             }
-
-
-            QVector<LocationModelItem *> lmis = lm->locationModelItems();
-
-            // Look for full text region
-            auto lmiRegion = std::find_if(lmis.begin(), lmis.end(), [this](LocationModelItem *item) {
-                    return item->title.toLower() == locationStr_;
-            });
-
-            bool sent = false;
-            if (lmiRegion != lmis.end()) // city by region
-            {
-                LocationID lid = (*lmiRegion)->id;
-
-                QList<CityModelItem> nodesWithinRegion;
-                foreach (CityModelItem city, citiesWithoutStaticIps)
-                {
-                    if (city.id.getId() == lid.getId())
-                    {
-                        nodesWithinRegion.append(city);
-                    }
-                }
-
-                int number = Utils::generateIntegerRandom(0, nodesWithinRegion.length()-1);
-                CityModelItem randomCmiWithinRegion = nodesWithinRegion[number];
-
-                qCDebug(LOG_BASIC) << "Connecting by region";
-                backend_->sendConnect(randomCmiWithinRegion.id);
-                sent = true;
-            }
-            else // not region
-            {
-                QVector<LocationModelItem*> lmiWithCC;
-
-                auto itr = lmis.begin();
-                while (itr != lmis.end())
-                {
-                    itr = std::find_if(itr, lmis.end(), [this](LocationModelItem *item) {
-                        return item->countryCode.toLower() == locationStr_;
-                    });
-                    if (itr != lmis.end())
-                    {
-                        lmiWithCC.append((*itr));
-                        itr++;
-                    }
-                }
-
-                QList<CityModelItem> citiesInCountry;
-                for (const LocationModelItem *lmi: qAsConst(lmiWithCC))
-                {
-                    for (const CityModelItem cmi: qAsConst(citiesWithoutStaticIps))
-                    {
-                        if (cmi.countryCode == lmi->countryCode)
-                        {
-                            citiesInCountry.append(cmi);
-                        }
-                    }
-                }
-
-                if (citiesInCountry.length() > 0) // connect by country
-                {
-                        int number = Utils::generateIntegerRandom(0, citiesInCountry.length()-1);
-                        CityModelItem cityInCountry = citiesInCountry[number];
-                        qCDebug(LOG_BASIC) << "Connecting by country";
-                        backend_->sendConnect(cityInCountry.id);
-                        sent = true;
-                }
-                else // not region or country
-                {
-                    CityModelItem cmiFoundCity;
-                    CityModelItem cmiFoundNickname;
-                    foreach (CityModelItem cmi, citiesWithoutStaticIps)
-                    {
-                        if (cmi.city.toLower() == locationStr_)
-                        {
-                            cmiFoundCity = cmi;
-                        }
-                        else if (cmi.nick.toLower() == locationStr_)
-                        {
-                            cmiFoundNickname = cmi;
-                        }
-                    }
-
-                    if (!cmiFoundCity.id.isEmpty()) // city -- pick random node with same city
-                    {
-                        QList<CityModelItem> nodesWithinCity;
-                        foreach (CityModelItem city, citiesWithoutStaticIps)
-                        {
-                            if (city.city == cmiFoundCity.city)
-                            {
-                                nodesWithinCity.append(city);
-                            }
-                        }
-
-                        int number = Utils::generateIntegerRandom(0, nodesWithinCity.length()-1);
-                        CityModelItem randomCmiWithinCity = nodesWithinCity[number];
-
-                        qCDebug(LOG_BASIC) << "Connecting by city";
-                        backend_->sendConnect(randomCmiWithinCity.id);
-                        sent = true;
-                    }
-                    else if (!cmiFoundNickname.id.isEmpty()) // nickname
-                    {
-                        qCDebug(LOG_BASIC) << "Connecting by nickname";
-                        backend_->sendConnect(cmiFoundNickname.id); // nick randomization handled by Engine
-                        sent = true;
-                    }
-                }
-            }
-
-            if (!sent)
+            else
             {
                 emit finished(tr("Error: Could not find server matching: \"") + locationStr_ + "\"");
             }

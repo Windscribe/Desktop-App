@@ -5,6 +5,7 @@
 #include "staticipscitiesmodel.h"
 #include "favoritecitiesmodel.h"
 #include "sortlocationsalgorithms.h"
+#include "utils/utils.h"
 
 #include <QFile>
 #include <QSharedPointer>
@@ -379,6 +380,97 @@ LocationID LocationsModel::getLocationIdByName(const QString &location) const
     }
 
     return LocationID();
+}
+
+LocationID LocationsModel::findLocationByFilter(const QString &strFilter) const
+{
+    auto getEnabledCities = [](QSharedPointer<LocationModelItem> l) {
+        QList<CityModelItem> cities;
+        for (auto it : qAsConst(l->cities))
+        {
+            if (!it.isDisabled)
+            {
+                cities << it;
+            }
+        }
+        return cities;
+    };
+
+    // try find by region(location title) first
+    auto lmiRegion = std::find_if(apiLocations_.begin(), apiLocations_.end(), [strFilter](QSharedPointer<LocationModelItem> item) {
+            return !item->id.isStaticIpsLocation() && item->title.toLower() == strFilter;
+    });
+
+    if (lmiRegion != apiLocations_.end())
+    {
+        LocationID lid = (*lmiRegion)->id;
+        QList<CityModelItem> cities = getEnabledCities(*lmiRegion);
+        int ind = Utils::generateIntegerRandom(0, cities.length()-1);
+        return cities[ind].id;
+    }
+    else
+    {
+        QVector< CityModelItem > citiesWithCC;
+        for (auto itr = apiLocations_.begin(); itr != apiLocations_.end(); ++itr)
+        {
+            if (!(*itr)->id.isStaticIpsLocation() && (*itr)->countryCode.toLower() == strFilter)
+            {
+                for (auto city : qAsConst((*itr)->cities))
+                {
+                    if (!city.isDisabled)
+                    {
+                        citiesWithCC << city;
+                    }
+                }
+            }
+        }
+
+        if (citiesWithCC.length() > 0) // connect by country
+        {
+            int ind = Utils::generateIntegerRandom(0, citiesWithCC.length()-1);
+            return citiesWithCC[ind].id;
+        }
+        else // not region or country
+        {
+            QVector< CityModelItem > cmiFoundCity;
+            QVector< CityModelItem > cmiFoundNickname;
+
+            for (auto itr = apiLocations_.begin(); itr != apiLocations_.end(); ++itr)
+            {
+                if (!(*itr)->id.isStaticIpsLocation())
+                {
+                    for (auto city : qAsConst((*itr)->cities))
+                    {
+                        if (!city.isDisabled)
+                        {
+                            if (city.city.toLower() == strFilter)
+                            {
+                                cmiFoundCity << city;
+                            }
+                            if (city.nick.toLower() == strFilter)
+                            {
+                                cmiFoundNickname << city;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!cmiFoundCity.isEmpty())
+            {
+                int ind = Utils::generateIntegerRandom(0, cmiFoundCity.length()-1);
+                return cmiFoundCity[ind].id;
+            }
+
+            if (!cmiFoundNickname.isEmpty())
+            {
+                int ind = Utils::generateIntegerRandom(0, cmiFoundNickname.length()-1);
+                return cmiFoundNickname[ind].id;
+            }
+        }
+    }
+
+    return  LocationID();
 }
 
 LocationID LocationsModel::getBestLocationId() const

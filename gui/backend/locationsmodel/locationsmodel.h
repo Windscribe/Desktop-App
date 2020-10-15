@@ -45,6 +45,11 @@ public:
     void changeConnectionSpeed(LocationID id, PingTime speed);
 
     LocationID getLocationIdByName(const QString &location) const;
+
+    // Could be region name, country code, server name
+    // for example "Toronto", "The Six", "CA", "Canada East" would all be valid
+    LocationID findLocationByFilter(const QString &strFilter) const;
+
     LocationID getBestLocationId() const;
 
 signals:
