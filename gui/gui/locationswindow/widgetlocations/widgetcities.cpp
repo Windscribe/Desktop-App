@@ -17,7 +17,7 @@
 
 namespace GuiLocations {
 
-WidgetCities::WidgetCities(QWidget *parent) : QAbstractScrollArea(parent),
+WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QAbstractScrollArea(parent),
     width_(0),
     height_(0),
     topInd_(0),
@@ -25,7 +25,7 @@ WidgetCities::WidgetCities(QWidget *parent) : QAbstractScrollArea(parent),
     indSelected_(-1),
     indPressed_(-1),
     indFavouritePressed_(false),
-    countOfAvailableItemSlots_(7),
+    countOfAvailableItemSlots_(visible_item_slots),
     bIsFreeSession_(false),
     isScrollAnimationNow_(false),
     currentScale_(G_SCALE),
@@ -35,7 +35,6 @@ WidgetCities::WidgetCities(QWidget *parent) : QAbstractScrollArea(parent),
     bShowLatencyInMs_(false),
     bTapGestureStarted_(false),
     citiesModel_(NULL),
-    ribbonType_(RIBBON_TYPE_NONE),
     deviceName_(""),
     emptyListDisplayIcon_(""),
     emptyListDisplayText_("")
@@ -1326,12 +1325,6 @@ int WidgetCities::countVisibleItems()
         count += items_[i]->countVisibleItems();
     }
     return count;
-}
-
-void WidgetCities::setRibbonInList(RibbonType ribbonType)
-{
-    ribbonType_ = ribbonType;
-    updateListDisplay(citiesModel_->getCities());
 }
 
 void WidgetCities::setSize(int width, int height)
