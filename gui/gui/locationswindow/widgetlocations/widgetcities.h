@@ -27,7 +27,7 @@ class WidgetCities : public QAbstractScrollArea, public IWidgetLocationsInfo
     Q_OBJECT
 
 public:
-    explicit WidgetCities(QWidget *parent);
+    explicit WidgetCities(QWidget *parent, int visible_item_slots = 7);
     ~WidgetCities() override;
 
     bool cursorInViewport() override;
@@ -60,9 +60,6 @@ public:
     QRect globalLocationsListViewportRect();
 
     int countVisibleItems() override;
-
-    enum RibbonType { RIBBON_TYPE_NONE, RIBBON_TYPE_STATIC_IP, RIBBON_TYPE_CONFIG };
-    void setRibbonInList(RibbonType ribbonType);
 
     void setSize(int width, int height);
     void updateScaling();
@@ -142,8 +139,6 @@ private:
     QList<LocationID> currentVisibleItems_;
 
     BackgroundPixmapAnimation backgroundPixmapAnimation_;
-
-    RibbonType ribbonType_;
 
     int getItemHeight() const;
     int getTopOffset() const;
