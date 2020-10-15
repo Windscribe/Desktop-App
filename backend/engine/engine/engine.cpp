@@ -720,7 +720,7 @@ void Engine::init()
     connect(downloadHelper_, SIGNAL(progressChanged(uint)), SLOT(onDownloadHelperProgressChanged(uint)));
 
 #ifdef Q_OS_MAC
-    volumeHelper_ = new VolumeHelper_mac();
+    autoUpdaterHelper_ = new AutoUpdaterHelper_mac();
 #endif
 
 #ifdef Q_OS_WIN
@@ -2046,7 +2046,7 @@ void Engine::onDownloadHelperProgressChanged(uint progressPercent)
 void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state)
 {
     const QString dlPath = downloadHelper_->downloadPath();
-    qCDebug(LOG_DOWNLOADER) << "Engine:: Download finished";
+    // qCDebug(LOG_DOWNLOADER) << "Engine:: Download finished";
 
     if (state != DownloadHelper::DOWNLOAD_STATE_SUCCESS)
     {
@@ -2063,7 +2063,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
     if (!success)
     {
-        qCDebug(LOG_DOWNLOADER) << "Removing unsigned installer";
+        qCDebug(LOG_AUTO_UPDATER) << "Removing unsigned installer";
         QFile::remove(dlPath);
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;
@@ -2071,106 +2071,25 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
 #elif defined Q_OS_MAC
 
-    // mount
-    const QString dmgFilename = dlPath;
-    const QString volumeMountPoint = volumeHelper_->mountDmg(dmgFilename);
-    if (volumeMountPoint == "")
+    const QString tempInstallerFilename = autoUpdaterHelper_->copyInternalInstallerToTempFromDmg(dlPath);
+    QFile::remove(dlPath);
+
+    if (tempInstallerFilename == "")
     {
-        QFile::remove(dmgFilename);
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_OTHER_FAIL);
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
 
-    // verify dmg contains installer
-    const QString volumeInstallerFilename = volumeMountPoint + "/" + INSTALLER_FILENAME_MAC_APP;
-    if (!QFileInfo::exists(volumeInstallerFilename))
+    bool verifiedAndRan = autoUpdaterHelper_->verifyAndRun(tempInstallerFilename);
+    if (!verifiedAndRan)
     {
-        qCDebug(LOG_DOWNLOADER) << "Volume installer does not exist: " + volumeInstallerFilename;
-        volumeHelper_->unmountVolume(volumeMountPoint);
-        QFile::remove(dmgFilename);
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_OTHER_FAIL);
-        return;
-    }
-    qCDebug(LOG_VOLUME_HELPER) << "Volume has installer: " << volumeInstallerFilename;
-
-    // remove pre-existing temp installer
-    QFileInfo dmgFileInfo(dmgFilename);
-    const QString tempDirName = dmgFileInfo.canonicalPath();
-    QString tempInstallerFilename = tempDirName + "/" + INSTALLER_FILENAME_MAC_APP;
-    if (QFileInfo::exists(tempInstallerFilename))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Temp installer already exists -- removing: " << tempInstallerFilename;
-        QDir dir(tempInstallerFilename);
-        if (!dir.removeRecursively())
-        {
-            qCDebug(LOG_DOWNLOADER) << "Couldn't remove temp file: " << tempInstallerFilename;
-            volumeHelper_->unmountVolume(volumeMountPoint);
-            QFile::remove(dmgFilename);
-            emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_OTHER_FAIL);
-            return;
-        }
-    }
-    // qCDebug(LOG_DOWNLOADER) << "No pre-existing temp installer: " << tempInstallerFilename;
-
-    // copy/replace installer to temp
-    if (!Utils::copyDirectoryRecursive(volumeInstallerFilename, tempInstallerFilename))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Failed to copy installer into temp folder";
-        volumeHelper_->unmountVolume(volumeMountPoint);
-        QFile::remove(dmgFilename);
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_OTHER_FAIL);
-        return;
-    }
-    qCDebug(LOG_DOWNLOADER) << "Copied installer to: " << tempInstallerFilename;
-
-    // unmount and remove dmg
-    volumeHelper_->unmountVolume(volumeMountPoint);
-    QFile::remove(dmgFilename);
-
-    // verify installer
-    qCDebug(LOG_BASIC) << "Verifying signature and certificate of installer: " << tempInstallerFilename;
-    if (!ExecutableSignature::verifyWithSignCheck(tempInstallerFilename))
-    {
-        qDebug(LOG_BASIC) << "Failed to verify signature and certificate of downloaded installer";
-        QFile::remove(tempInstallerFilename);
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
 
-    QString appFolder = QCoreApplication::applicationDirPath();
-    qCDebug(LOG_BASIC) << "Verified signature and certificate of downloaded installer -- starting with install location: " << appFolder;
-
-#ifdef QT_DEBUG
-    appFolder = "/Applications";
 #endif
 
-    // start installer
-    // use non-static start detached to prevent output from polluting cli
-    QStringList args;
-    args << "-q";
-    args << appFolder;
-
-    QProcess process;
-    process.setProgram(tempInstallerFilename + "/" + INSTALLER_INNER_BINARY_MAC);
-    process.setArguments(args);
-    process.setWorkingDirectory(appFolder);
-    process.setStandardOutputFile(QProcess::nullDevice());
-    process.setStandardErrorFile(QProcess::nullDevice());
-    qint64 pid;
-    if (!process.startDetached(&pid))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Could not start installer process - Removing unsigned installer";
-        QDir dir(tempInstallerFilename);
-        if (!dir.removeRecursively())
-        {
-            qCDebug(LOG_DOWNLOADER) << "Could not remove unsigned installer";;
-        }
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_OTHER_FAIL);
-        return;
-    }
-#endif
-
-    qCDebug(LOG_DOWNLOADER) << "Installer valid and executed";
+    qCDebug(LOG_AUTO_UPDATER) << "Installer valid and executed";
     emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
 }
 

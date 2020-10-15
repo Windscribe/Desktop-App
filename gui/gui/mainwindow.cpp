@@ -2034,16 +2034,35 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
             }
             else // Error
             {
-                QString titleText = tr("Installation has failed");
+                QString titleText = tr("Auto-Updater installation has failed");
                 QString descText = tr("Please contact support");
                 if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
                 {
-                    titleText = tr("Installer download failed");
-                    descText = tr("Please try again over a strong internet connection");
+                    descText = tr("Download has failed to complete. Please try again over a strong internet connection.");
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
                 {
-                    titleText = tr("Installer has failed signature check");
+                    descText = tr("Cannot run the downlaoded installer. It does not have the correct signature");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_MOUNT_FAIL)
+                {
+                    descText = tr("Cannot access the installer. Image mounting has failed.");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL)
+                {
+                    descText = tr("Downloaded image does not contain installer.");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL)
+                {
+                    descText = tr("Cannot overwrite a pre-existing temporary installer");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COPY_FAIL)
+                {
+                    descText = tr("Failed to copy installer to temp location");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL)
+                {
+                    descText = tr("Auto-Updater has failed to run installer");
                 }
                 QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
             }

@@ -416,3 +416,9 @@ bool Utils::copyDirectoryRecursive(QString fromDir, QString toDir)
 
 
 }
+
+bool Utils::removeDirectory(const QString dir)
+{
+    QDir d(dir);
+    return d.removeRecursively();
+}

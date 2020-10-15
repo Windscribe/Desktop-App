@@ -251,13 +251,13 @@ SOURCES += main.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
     application/windowsnativeeventfilter.cpp \
     application/windscribeapplication.cpp \
-    engine/downloadhelper/downloadhelper.cpp \
+    engine/autoupdater/downloadhelper.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/serversmodel/serversmodel.cpp \
     engine/serversmodel/pingmanager.cpp \
     engine/packetsizecontroller.cpp \
     engine/enginesettings.cpp \
-    engine/volumehelper/volumehelper_mac.cpp \
+    engine/autoupdater/autoupdaterhelper_mac.cpp \
     utils/mergelog.cpp \
     engine/tempscripts_mac.cpp \
     utils/simplecrypt.cpp \
@@ -375,7 +375,7 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     application/windscribeapplication.h \
     engine/connectionmanager/makeovpnfile.h \
     engine/dnsresolver/dnsutils.h \
-    engine/downloadhelper/downloadhelper.h \
+    engine/autoupdater/downloadhelper.h \
     engine/macaddresscontroller/imacaddresscontroller.h \
     engine/networkdetectionmanager/inetworkdetectionmanager.h \
     $$COMMON_PATH/utils/networktypes.h \
@@ -383,7 +383,7 @@ HEADERS  += engine/serversmodel/serversmodel.h \
     engine/serversmodel/pingmanager.h \
     engine/packetsizecontroller.h \
     engine/enginesettings.h \
-    engine/volumehelper/volumehelper_mac.h \
+    engine/autoupdater/autoupdaterhelper_mac.h \
     utils/mergelog.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \

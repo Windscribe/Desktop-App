@@ -27,8 +27,8 @@
 #include "engine/macaddresscontroller/imacaddresscontroller.h"
 #include "engine/ping/keepalivemanager.h"
 #include "packetsizecontroller.h"
-#include "downloadhelper/downloadhelper.h"
-#include "volumehelper/volumehelper_mac.h"
+#include "autoupdater/downloadhelper.h"
+#include "autoupdater/autoupdaterhelper_mac.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
@@ -351,7 +351,7 @@ private:
 
     DownloadHelper *downloadHelper_;
 #ifdef Q_OS_MAC
-    VolumeHelper_mac *volumeHelper_;
+    AutoUpdaterHelper_mac *autoUpdaterHelper_;
 #endif
 
     QMutex mutex_;

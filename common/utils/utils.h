@@ -51,6 +51,8 @@ namespace Utils {
     const QString filenameEscapeSpaces(const QString &filename);
 
     bool copyDirectoryRecursive(QString fromDir, QString toDir);
+    bool removeDirectory(const QString dir);
+
 
 }
 #endif // UTILS_H

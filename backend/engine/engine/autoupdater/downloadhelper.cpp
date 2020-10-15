@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QDir>
 #include "filenames.h"
+#include "utils/utils.h"
 
 DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
   , reply_(nullptr)
@@ -26,8 +27,7 @@ DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
     // remove temp installer.app on mac
 #ifdef Q_OS_MAC
     QString tempInstallerFilename = tempDir + "/" + INSTALLER_FILENAME_MAC_APP;
-    QDir dir(tempInstallerFilename);
-    dir.removeRecursively();
+    Utils::removeDirectory(tempInstallerFilename);
 #endif
 }
 
