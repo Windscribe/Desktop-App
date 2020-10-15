@@ -39,7 +39,7 @@ public:
     bool getLocationInfo(const LocationID &id, LocationInfo &li);
 
     //QList<CityModelItem> activeCityModelItems();
-    //QVector<LocationModelItem *> locationModelItems();
+    QSharedPointer<LocationModelItem> getLocationModelItemByTitle(const QString &title) const;
 
     void setFreeSessionStatus(bool isFreeSessionStatus);
     void changeConnectionSpeed(LocationID id, PingTime speed);

@@ -14,7 +14,7 @@
 
 LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent) :
     QWidget(parent)
-  , bIsFreeSession_(true)
+  , bIsFreeSession_(false)
 
 {
     upButton_ = new LocationsTrayMenuButton();
@@ -72,7 +72,7 @@ bool LocationsTrayMenuWidget::eventFilter(QObject *watched, QEvent *event)
                     QListWidgetItem *item = listWidget_->item(ind.row());
                     bool bIsSelectable = item->data(USER_ROLE_ENABLED).toBool();
                     if (bIsSelectable)
-                        emit locationSelected(item->data(USER_ROLE_ID).toInt());
+                        emit locationSelected(item->data(USER_ROLE_TITLE).toString());
                 }
                 break;
             }
@@ -132,7 +132,7 @@ void LocationsTrayMenuWidget::onScrollDownClick()
 
 void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
 {
-    /*map_.clear();
+    map_.clear();
     listWidget_->clear();
 
     for (const LocationModelItem *item: qAsConst(items))
@@ -156,7 +156,7 @@ void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
                 }
             }
 
-            if (!containsAtLeastOneNonProCity)
+            if (!containsAtLeastOneNonProCity && bIsFreeSession_)
             {
                 itemName += " (Pro)";
             }
@@ -164,24 +164,25 @@ void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
             QListWidgetItem *listItem = new QListWidgetItem(itemName);
             listWidget_->addItem(listItem);
 
-            if (containsAtLeastOneNonProCity)
+            if (containsAtLeastOneNonProCity || !bIsFreeSession_)
             {
-                listItem->setData(USER_ROLE_ENABLED, item->pingTimeMs.toConnectionSpeed() != 0);  //todo
+                const auto connectionSpeed = PingTime(item->calcAveragePing()).toConnectionSpeed();
+                listItem->setData(USER_ROLE_ENABLED, connectionSpeed != 0);
             }
             else
             {
                 listItem->setData(USER_ROLE_ENABLED, false);
             }
-            listItem->setData(USER_ROLE_ID, item->id.getId());
+            listItem->setData(USER_ROLE_TITLE, item->title);
             listItem->setData(USER_ROLE_ORIGINAL_NAME, item->title);
             listItem->setData(USER_ROLE_IS_PREMIUM_ONLY, !containsAtLeastOneNonProCity);
 
-            map_[item->id.getId()] = listItem;
+            map_[item->id] = listItem;
         }
     }
 
     updateButtonsState();
-    updateBackground_mac();*/
+    updateBackground_mac();
 }
 
 void LocationsTrayMenuWidget::onSessionStatusChanged(bool bFreeSessionStatus)
@@ -212,12 +213,12 @@ void LocationsTrayMenuWidget::onSessionStatusChanged(bool bFreeSessionStatus)
 
 void LocationsTrayMenuWidget::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
-    /*QMap<int, QListWidgetItem *>::iterator it = map_.find(id.getId());
+    auto it = map_.find(id);
     if (it != map_.end())
     {
         QListWidgetItem *item = it.value();
         item->setData(USER_ROLE_ENABLED, timeMs.toConnectionSpeed() != 0);
-    }*/
+    }
 }
 
 void LocationsTrayMenuWidget::updateButtonsState()

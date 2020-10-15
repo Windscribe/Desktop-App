@@ -1,6 +1,7 @@
 #ifndef LOCATIONSTRAYMENUWIDGET_H
 #define LOCATIONSTRAYMENUWIDGET_H
 
+#include <QHash>
 #include <QWidget>
 #include <QListWidget>
 #include "locationstraymenuitemdelegate.h"
@@ -22,7 +23,7 @@ public:
     void setFontForItems(const QFont &font);
 
 signals:
-    void locationSelected(int locationId);
+    void locationSelected(QString locationTitle);
 
 private slots:
     void updateTableViewSelection();
@@ -35,7 +36,7 @@ private slots:
 
 private:
     bool bIsFreeSession_;
-    QMap<int, QListWidgetItem *> map_;
+    QHash<LocationID, QListWidgetItem *> map_;
     LocationsTrayMenuItemDelegate *locationsTrayMenuItemDelegate_;
     QListWidget *listWidget_;
     LocationsTrayMenuButton *upButton_;
@@ -43,7 +44,7 @@ private:
 
     static constexpr int VISIBLE_ITEMS_COUNT = 20;
     static constexpr int USER_ROLE_ENABLED = Qt::UserRole + 1;
-    static constexpr int USER_ROLE_ID = Qt::UserRole + 2;
+    static constexpr int USER_ROLE_TITLE = Qt::UserRole + 2;
     static constexpr int USER_ROLE_ORIGINAL_NAME = Qt::UserRole + 3;
     static constexpr int USER_ROLE_IS_PREMIUM_ONLY = Qt::UserRole + 4;
 

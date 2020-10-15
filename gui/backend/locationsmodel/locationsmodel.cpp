@@ -310,10 +310,15 @@ bool LocationsModel::getLocationInfo(const LocationID &id, LocationsModel::Locat
     return cities;
 }*/
 
-/*QVector<LocationModelItem *> LocationsModel::locationModelItems()
+QSharedPointer<LocationModelItem>
+LocationsModel::getLocationModelItemByTitle(const QString &title) const
 {
-    return locations_;
-}*/
+    for (int i = 0; i < apiLocations_.count(); ++i) {
+        if (apiLocations_[i]->title == title)
+            return apiLocations_[i];
+    }
+    return nullptr;
+}
 
 void LocationsModel::setFreeSessionStatus(bool isFreeSessionStatus)
 {

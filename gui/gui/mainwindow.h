@@ -203,7 +203,7 @@ private slots:
     void onTrayMenuHelpMe();
     void onTrayMenuQuit();
     void onTrayMenuAboutToShow();
-    void onLocationsTrayMenuLocationSelected(int locationId);
+    void onLocationsTrayMenuLocationSelected(QString locationTitle);
 
     void onFreeTrafficNotification(const QString &message);
     void onNativeInfoErrorMessage(QString title, QString desc);
