@@ -147,6 +147,12 @@ const QString AutoUpdaterHelper_mac::mountDmg(const QString &dmgFilename)
         return "";
     }
 
+    if (mountProcess.exitCode() != 0)
+    {
+        qCDebug(LOG_AUTO_UPDATER) << "Mounting process failed with exit code: " << mountProcess.exitCode();
+        return "";
+    }
+
     // parse output for volume mount point
     const QString mountingOutput = mountProcess.readAll();
     const QList<QString> lines = mountingOutput.split("\n", QString::SkipEmptyParts);

@@ -373,6 +373,11 @@ const QString Utils::filenameQuotedDouble(const QString &filename)
 
 bool Utils::copyDirectoryRecursive(QString fromDir, QString toDir)
 {
+    if (!QFileInfo::exists(fromDir))
+    {
+        return false;
+    }
+
     QDir dir;
     dir.setPath(fromDir);
 
