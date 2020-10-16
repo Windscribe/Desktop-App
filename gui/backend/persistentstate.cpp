@@ -80,15 +80,15 @@ int PersistentState::countVisibleLocations() const
     return state_.count_visible_locations();
 }
 
-void PersistentState::setFirstRun(bool bFirstRun)
+void PersistentState::setFirstLogin(bool bFirstRun)
 {
-    state_.set_is_first_run(bFirstRun);
+    state_.set_is_first_login(bFirstRun);
     save();
 }
 
-bool PersistentState::isFirstRun()
+bool PersistentState::isFirstLogin()
 {
-    return state_.is_first_run();
+    return state_.is_first_login();
 }
 
 void PersistentState::setIgnoreCpuUsageWarnings(bool isIgnore)
@@ -157,7 +157,7 @@ void PersistentState::loadFromVersion1()
 
     if (settings.contains("firstRun"))
     {
-        state_.set_is_first_run(settings.value("firstRun").toBool());
+        state_.set_is_first_login(settings.value("firstRun").toBool());
     }
 
     if (settings.contains("ignoreCpuUsageWarnings"))

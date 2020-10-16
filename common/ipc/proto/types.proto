@@ -478,8 +478,9 @@ message GuiSettings
   optional ShareSecureHotspot share_secure_hotspot = 7;
   optional ShareProxyGateway share_proxy_gateway = 8;
   optional SplitTunneling split_tunneling = 9;
-  optional bool is_docked_to_tray = 10 [default = false];
+  optional bool is_docked_to_tray_win = 10 [default = false];
   optional bool is_minimize_and_close_to_tray = 11 [default = false];
+  optional bool is_docked_to_tray_mac = 12 [default = true];
 }
 
 
@@ -490,7 +491,7 @@ message GuiPersistentState
   optional int32 window_offs_x = 2;
   optional int32 window_offs_y = 3;
   optional int32 count_visible_locations = 4 [default = 7];
-  optional bool is_first_run = 5 [default = true];
+  optional bool is_first_login = 5 [default = true];
   optional bool is_ignore_cpu_usage_warnings = 6 [default = false];
   optional LocationId lastLocation = 7;
   optional string last_external_ip = 8 [default = "N/A"];

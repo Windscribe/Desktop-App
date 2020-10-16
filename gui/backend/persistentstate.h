@@ -25,8 +25,8 @@ public:
     void setCountVisibleLocations(int cnt);
     int countVisibleLocations() const;
 
-    void setFirstRun(bool bFirstRun);
-    bool isFirstRun();
+    void setFirstLogin(bool bFirstRun);
+    bool isFirstLogin();
 
     void setIgnoreCpuUsageWarnings(bool isIgnore);
     bool isIgnoreCpuUsageWarnings();
