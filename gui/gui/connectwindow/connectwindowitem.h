@@ -66,8 +66,9 @@ public slots:
     void onFirewallButtonHoverLeave();
     void onFirewallInfoHoverEnter();
     void onFirewallInfoHoverLeave();
+    void onFirstNameHoverEnter();
     void onSecondNameHoverEnter();
-    void onSecondNameHoverLeave();
+    void onFirstOrSecondNameHoverLeave();
     void onServerRatingIndicatorHoverEnter();
     void onServerRatingIndicatorHoverLeave();
 
@@ -95,7 +96,7 @@ private:
     Background *background_;
     ConnectButton *connectButton_;
     ConnectStateProtocolPort *connectStateProtocolPort_;
-    QGraphicsSimpleTextItem *cityName1Text_;
+    CommonGraphics::TextButton *cityName1Text_;
     CommonGraphics::TextButton *cityName2Text_;
     LocationsButton *locationsButton_;
     ServerRatingIndicator *serverRatingIndicator_;
@@ -116,6 +117,7 @@ private:
     ProtoTypes::NetworkInterfaceType interfaceType_;
     bool networkActive_;
 
+    QString fullFirstName_;
     QString fullSecondName_;
 
     QString connectionTime_;

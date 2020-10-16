@@ -21,6 +21,9 @@ struct CityModelItem
     QString staticIp;
 
     bool isDisabled;
+    bool isCustomConfigCorrect;
+    QString customConfigType;
+    QString customConfigErrorMessage;
 
     QString makeTitle() const
     {

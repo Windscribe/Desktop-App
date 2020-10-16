@@ -11,11 +11,15 @@
 namespace GuiLocations {
 
 
-CityItem::CityItem(IWidgetLocationsInfo *widgetLocationsInfo, const LocationID &locationId, const QString &cityName1ForShow, const QString &cityName2ForShow, const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly,
-                   bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType, bool isFavorite, bool isDisabled) :
+CityItem::CityItem(IWidgetLocationsInfo *widgetLocationsInfo, const LocationID &locationId,
+                   const QString &cityName1ForShow, const QString &cityName2ForShow,
+                   const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly,
+                   bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType,
+                   bool isFavorite, bool isDisabled, bool isCustomConfigCorrect,
+                   const QString &customConfigType, const QString &customConfigErrorMessage) :
     cityNode_(locationId, cityName1ForShow, cityName2ForShow, countryCode, timeMs,
               bShowPremiumStarOnly, isShowLatencyMs, staticIp, staticIpType, isFavorite,
-              isDisabled),
+              isDisabled, isCustomConfigCorrect, customConfigType, customConfigErrorMessage),
     isSelected_(false), isCursorOverConnectionMeter_(false),
     isCursorOverCaption1Text_(false),
     isCursorOverFavouriteIcon_(false),
@@ -28,12 +32,12 @@ void CityItem::setSelected(bool isSelected)
     isSelected_ = isSelected;
 }
 
-bool CityItem::isSelected()
+bool CityItem::isSelected() const
 {
     return isSelected_;
 }
 
-LocationID CityItem::getLocationId()
+LocationID CityItem::getLocationId() const
 {
     return cityNode_.getLocationId();
 }
@@ -43,22 +47,22 @@ QString CityItem::getCountryCode() const
     return cityNode_.getCountryCode();
 }
 
-int CityItem::getPingTimeMs()
+int CityItem::getPingTimeMs() const
 {
     return cityNode_.timeMs().toInt();
 }
 
-QString CityItem::getCaption1TruncatedText()
+QString CityItem::getCaption1TruncatedText() const
 {
     return cityNode_.getCaption1TextLayout()->text();
 }
 
-QString CityItem::getCaption1FullText()
+QString CityItem::getCaption1FullText() const
 {
     return cityNode_.caption1FullText();
 }
 
-QPoint CityItem::getCaption1TextCenter()
+QPoint CityItem::getCaption1TextCenter() const
 {
     QRectF rect = cityNode_.getCaption1TextLayout()->boundingRect();
     return QPoint(static_cast<int>(rect.x() + rect.width()/2), static_cast<int>(rect.y() + rect.height()/2));
@@ -120,12 +124,12 @@ bool CityItem::detectOverFavoriteIconCity()
     return cityNode_.getStaticIp().isEmpty() && cityNode_.isCursorOverFavoriteIcon();
 }
 
-bool CityItem::isForbidden()
+bool CityItem::isForbidden() const
 {
     return cityNode_.isShowPremiumStar() && widgetLocationsInfo_->isFreeSessionStatus();
 }
 
-bool CityItem::isNoConnection()
+bool CityItem::isNoConnection() const
 {
     /*if (ind == 0)
     {
@@ -138,11 +142,21 @@ bool CityItem::isNoConnection()
     return false;
 }
 
-bool CityItem::isDisabled()
+bool CityItem::isDisabled() const
 {
     // API returns disabled for all premium locations when free user session
     // Free users should see premium locations as enabled
     return isForbidden() ? false : cityNode_.isDisabled();
+}
+
+bool CityItem::isCustomConfigCorrect() const
+{
+    return cityNode_.isCustomConfigCorrect();
+}
+
+QString CityItem::getCustomConfigErrorMessage() const
+{
+    return cityNode_.getCustomConfigErrorMessage();
 }
 
 int CityItem::findCityInd(const LocationID &locationId)

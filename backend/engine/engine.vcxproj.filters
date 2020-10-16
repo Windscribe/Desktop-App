@@ -905,7 +905,9 @@
     <CustomBuild Include="..\..\common\ipc\proto\servercommands.proto">
       <Filter>Common Files\ipc\proto</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto" />
+    <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto">
+      <Filter>Common Files\ipc\proto</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cert\cert.crt">

@@ -19,23 +19,27 @@ class CityItem : public ICityItem
     Q_INTERFACES(ICityItem)
 
 public:
-    CityItem(IWidgetLocationsInfo *widgetLocationsInfo, const LocationID &locationId, const QString &cityName1ForShow, const QString &cityName2ForShow, const QString &countryCode,
-             PingTime timeMs, bool bShowPremiumStarOnly, bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType, bool isFavorite, bool isDisabled);
+    CityItem(IWidgetLocationsInfo *widgetLocationsInfo, const LocationID &locationId,
+             const QString &cityName1ForShow, const QString &cityName2ForShow,
+             const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly,
+             bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType,
+             bool isFavorite, bool isDisabled, bool isCustomConfigCorrect,
+             const QString &customConfigType, const QString &customConfigErrorMessage);
 
     // ind -1, no selected
     // ind = 0, location selected
     // ind > 0, city selected
     void setSelected(bool isSelected) override;
-    bool isSelected() override;
+    bool isSelected() const override;
 
-    LocationID getLocationId() override;
+    LocationID getLocationId() const override;
     QString getCountryCode() const override;
-    int getPingTimeMs() override;
+    int getPingTimeMs() const override;
 
-    QString getCaption1TruncatedText() override;
+    QString getCaption1TruncatedText() const override;
 
-    QString getCaption1FullText() override;
-    QPoint getCaption1TextCenter() override;
+    QString getCaption1FullText() const override;
+    QPoint getCaption1TextCenter() const override;
 
     int countVisibleItems() override;
 
@@ -43,15 +47,17 @@ public:
 
     bool mouseMoveEvent(QPoint &pt) override;
     void mouseLeaveEvent() override;
-    bool isCursorOverConnectionMeter()  override { return isCursorOverConnectionMeter_; }
-    bool isCursorOverCaption1Text() override { return isCursorOverCaption1Text_; }
-    bool isCursorOverFavouriteIcon() override { return isCursorOverFavouriteIcon_; }
+    bool isCursorOverConnectionMeter() const override { return isCursorOverConnectionMeter_; }
+    bool isCursorOverCaption1Text() const override { return isCursorOverCaption1Text_; }
+    bool isCursorOverFavouriteIcon() const override { return isCursorOverFavouriteIcon_; }
     bool detectOverFavoriteIconCity() override;
 
     // if ind == 0 return forbidden for location, int >= 1 return forbidden for city
-    bool isForbidden() override;
-    bool isNoConnection() override;
-    bool isDisabled() override;
+    bool isForbidden() const override;
+    bool isNoConnection() const override;
+    bool isDisabled() const override;
+    bool isCustomConfigCorrect() const override;
+    QString getCustomConfigErrorMessage() const override;
 
     int findCityInd(const LocationID &locationId) override;
     void changeSpeedConnection(const LocationID &locationId, PingTime timeMs) override;
