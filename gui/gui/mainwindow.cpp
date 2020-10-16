@@ -2427,67 +2427,53 @@ void MainWindow::onTrayMenuAboutToShow()
 
 }
 
-void MainWindow::onLocationsTrayMenuLocationSelected(int locationId)
+void MainWindow::onLocationsTrayMenuLocationSelected(QString locationTitle)
 {
-   /* // close menu
+   // close menu
 #ifdef Q_OS_WIN
     trayMenu_.close();
 #else
     listWidgetAction_->trigger(); // close doesn't work by default on mac
 #endif
 
-    LocationsModel *lm = backend_->getLocationsModel();
-    QVector<LocationModelItem *> lmis = lm->locationModelItems();
+    const LocationsModel *lm = backend_->getLocationsModel();
+    const auto lmi = lm->getLocationModelItemByTitle(locationTitle);
 
-    // find region by locationId int
-    auto lmiRegion = std::find_if(lmis.begin(), lmis.end(), [=](LocationModelItem *item) {
-            return item->id.getId() == locationId;
-    });
-
-    if (lmiRegion != lmis.end()) // valid find
-    {
-        LocationID lid = (*lmiRegion)->id;
-
-        // get list of just cities
-        QList<CityModelItem> cities = lm->activeCityModelItems();
-        QList<CityModelItem> citiesWithoutStaticAndConfig;
-        foreach (CityModelItem city, cities)
-        {
-            if (!city.id.isStaticIpsLocation() && !city.id.isCustomConfigsLocation())
-            {
-                if (city.bShowPremiumStarOnly)
-                {
-                    if (backend_->getSessionStatus().is_premium())
-                    {
-                        citiesWithoutStaticAndConfig.append(city);
-                    }
-                }
-                else
-                {
-                    citiesWithoutStaticAndConfig.append(city);
-                }
-            }
-        }
-
-        // get random nodes within region
-        QList<CityModelItem> nodesWithinRegion;
-        foreach (CityModelItem city, citiesWithoutStaticAndConfig)
-        {
-            if (city.id.getId() == lid.getId())
-            {
-                nodesWithinRegion.append(city);
-            }
-        }
-
-        // connect to random node in region
-        int number = Utils::generateIntegerRandom(0, nodesWithinRegion.length()-1);
-        CityModelItem randomCmiWithinRegion = nodesWithinRegion[number];
-        onLocationSelected(randomCmiWithinRegion.id);
+    if (!lmi) {
+        qCDebug(LOG_BASIC) << "Couldn't find city by that region (" << locationTitle << ")";
+        return;
     }
-    else
-    {
-        qCDebug(LOG_BASIC) << "Couldn't find city by that region (" << locationId << ")";
-    }*/
+    if (lmi->id.isStaticIpsLocation() || lmi->id.isCustomConfigsLocation()) {
+        qCDebug(LOG_BASIC) << "StaticIPs/CustomConfig region (" << locationTitle << ")";
+        return;
+    }
+
+    // Count valid cities.
+    const bool is_premium = backend_->getSessionStatus().is_premium();
+    int city_count = 0;
+    if (is_premium) {
+        city_count = lmi->cities.count();
+    } else for (const auto &city : lmi->cities) {
+        if (!city.bShowPremiumStarOnly)
+            ++city_count;
+    }
+    if (!city_count) {
+        qCDebug(LOG_BASIC) << "No valid cities in the region (" << locationTitle << ")";
+        return;
+    }
+
+    // connect to random node in region
+    int number = Utils::generateIntegerRandom(1, city_count);
+    qCDebug(LOG_BASIC) << "Connecting to city " << number << "/" << city_count
+                       << " in the region (" << locationTitle << ")";
+    for (const auto &city : lmi->cities) {
+        if (!is_premium && city.bShowPremiumStarOnly)
+            continue;
+        if (!--number) {
+            onLocationSelected(city.id);
+            break;
+        }
+    }
 }
 
 void MainWindow::onScaleChanged()
@@ -2578,7 +2564,7 @@ void MainWindow::setupTrayIcon()
     listWidgetAction_ = new QWidgetAction(&locationsMenu_);
     listWidgetAction_->setDefaultWidget(locationsTrayMenuWidget_);
     locationsMenu_.addAction(listWidgetAction_);
-    connect(locationsTrayMenuWidget_, SIGNAL(locationSelected(int)), SLOT(onLocationsTrayMenuLocationSelected(int)));
+    connect(locationsTrayMenuWidget_, SIGNAL(locationSelected(QString)), SLOT(onLocationsTrayMenuLocationSelected(QString)));
 
     trayIcon_.setIcon(*iconManager_.getDisconnectedIcon());
     trayIcon_.show();
