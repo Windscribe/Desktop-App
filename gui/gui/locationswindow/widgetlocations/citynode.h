@@ -10,8 +10,12 @@ namespace GuiLocations {
 struct CityNode
 {
     CityNode();
-    CityNode(const LocationID &locationId, const QString &cityName1ForShow, const QString &cityName2ForShow, const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly,
-             bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType, bool isFavorite, bool isDisabled);
+    CityNode(const LocationID &locationId, const QString &cityName1ForShow,
+             const QString &cityName2ForShow, const QString &countryCode, PingTime timeMs,
+             bool bShowPremiumStarOnly, bool isShowLatencyMs, const QString &staticIp,
+             const QString &staticIpType, bool isFavorite, bool isDisabled,
+             bool isCustomConfigCorrect, const QString &customConfigType,
+             const QString &customConfigErrorMessage);
 
     void setConnectionSpeed(PingTime timeMs);
     bool isShowPremiumStar() const;
@@ -27,7 +31,7 @@ struct CityNode
     LocationID getLocationId() const;
     QString getCountryCode() const;
 
-    QString caption1FullText();
+    QString caption1FullText() const;
 
     bool isCursorOverFavoriteIcon() const;
     void setCursorOverFavoriteIcon(bool b);
@@ -42,6 +46,9 @@ struct CityNode
     void toggleIsFavorite();
 
     bool isDisabled() const;
+    bool isCustomConfigCorrect() const;
+    QString getCustomConfigType() const;
+    QString getCustomConfigErrorMessage() const;
     void updateScaling();
 
 private:
@@ -62,6 +69,9 @@ private:
     bool isCursorOverCaption1Text_;
     bool isDisabled_;
     bool isCursorOverConnectionMeter_;
+    bool isCustomConfigCorrect_;
+    QString customConfigType_;
+    QString customConfigErrorMessage_;
 
     QString caption1FullText_;
 };

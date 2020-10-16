@@ -60,16 +60,19 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
     connect(connectStateProtocolPort_, SIGNAL(hoverEnter()), SLOT(onConnectStateTextHoverEnter()));
     connect(connectStateProtocolPort_, SIGNAL(hoverLeave()), SLOT(onConnectStateTextHoverLeave()));
 
-    cityName1Text_ = new QGraphicsSimpleTextItem(this);
-    cityName1Text_->setPen(Qt::NoPen);
-    cityName1Text_->setBrush(QColor(255, 255, 255));
+    cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(28, true), Qt::white, true, this);
+    cityName1Text_->setUnhoverOpacity(OPACITY_FULL);
+    cityName1Text_->setCurrentOpacity(OPACITY_FULL);
+    cityName1Text_->setClickableHoverable(false, true);
+    connect(cityName1Text_, SIGNAL(hoverEnter()), this, SLOT(onFirstNameHoverEnter()));
+    connect(cityName1Text_, SIGNAL(hoverLeave()), this, SLOT(onFirstOrSecondNameHoverLeave()));
 
     cityName2Text_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this);
     cityName2Text_->setUnhoverOpacity(OPACITY_FULL);
     cityName2Text_->setCurrentOpacity(OPACITY_FULL);
     cityName2Text_->setClickableHoverable(false, true);
     connect(cityName2Text_, SIGNAL(hoverEnter()), this, SLOT(onSecondNameHoverEnter()));
-    connect(cityName2Text_, SIGNAL(hoverLeave()), this, SLOT(onSecondNameHoverLeave()));
+    connect(cityName2Text_, SIGNAL(hoverLeave()), this, SLOT(onFirstOrSecondNameHoverLeave()));
 
     preferencesButton_ = new IconButton(20, 24, "MENU_ICON", this, 0.5);
     connect(preferencesButton_, SIGNAL(clicked()), SIGNAL(preferencesClick()));
@@ -201,9 +204,9 @@ void ConnectWindowItem::updateLocationInfo(LocationID id, const QString &firstNa
     qDebug() << "updateLocationInfo:" << countryCode;
     locationID_ = id;
 
+    fullFirstName_ = firstName;
     fullSecondName_ = secondName;
 
-    cityName1Text_->setText(firstName);
     background_->onLocationSelected(countryCode);
     serverRatingIndicator_->setPingTime(pingTime);
     updateShortenedText();
@@ -478,6 +481,26 @@ void ConnectWindowItem::onFirewallInfoHoverLeave()
     emit hideTooltip(TOOLTIP_ID_FIREWALL_INFO);
 }
 
+void ConnectWindowItem::onFirstNameHoverEnter()
+{
+    if (fullFirstName_ != cityName1Text_->text())
+    {
+        QGraphicsView *view = scene()->views().first();
+        QPoint globalPt = view->mapToGlobal(view->mapFromScene(cityName1Text_->scenePos()));
+
+        int posX = globalPt.x() + 10 * G_SCALE;
+        int posY = globalPt.y() + 2 * G_SCALE;
+
+        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_FULL_SERVER_NAME);
+        ti.x = posX;
+        ti.y = posY;
+        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+        ti.tailPosPercent = 0.1;
+        ti.title = fullFirstName_;
+        emit showTooltip(ti);
+    }
+}
+
 void ConnectWindowItem::onSecondNameHoverEnter()
 {
     if (fullSecondName_ != cityName2Text_->text())
@@ -498,7 +521,7 @@ void ConnectWindowItem::onSecondNameHoverEnter()
     }
 }
 
-void ConnectWindowItem::onSecondNameHoverLeave()
+void ConnectWindowItem::onFirstOrSecondNameHoverLeave()
 {
     emit hideTooltip(TOOLTIP_ID_FULL_SERVER_NAME);
 }
@@ -558,7 +581,7 @@ void ConnectWindowItem::updatePositions()
 
     connectStateProtocolPort_->setPos(16*G_SCALE, 90*G_SCALE);
 
-    cityName1Text_->setFont(*FontManager::instance().getFont(28, true));
+    cityName1Text_->recalcBoundingRect();
     cityName1Text_->setPos(14*G_SCALE, 112*G_SCALE);
 
     cityName2Text_->recalcBoundingRect();
@@ -576,9 +599,13 @@ void ConnectWindowItem::updatePositions()
 
 void ConnectWindowItem::updateShortenedText()
 {
+    QString shortenedFirstName =
+        CommonGraphics::truncateText(fullFirstName_, cityName1Text_->getFont(),
+            boundingRect().width() - 114 * G_SCALE);
+    cityName1Text_->setText(shortenedFirstName);
+
     QString shortenedSecondName =
-        CommonGraphics::truncateText(fullSecondName_, *FontManager::instance().getFont(16, false),
-            175 * G_SCALE);
+        CommonGraphics::truncateText(fullSecondName_, cityName2Text_->getFont(), 175 * G_SCALE);
     cityName2Text_->setText(shortenedSecondName);
 }
 

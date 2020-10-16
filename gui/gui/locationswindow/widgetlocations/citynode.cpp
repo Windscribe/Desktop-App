@@ -16,7 +16,12 @@ CityNode::CityNode() :
 {
 }
 
-CityNode::CityNode(const LocationID &locationId, const QString &cityName1ForShow, const QString &cityName2ForShow, const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly, bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType, bool isFavorite, bool isDisabled) :
+CityNode::CityNode(const LocationID &locationId, const QString &cityName1ForShow,
+                   const QString &cityName2ForShow, const QString &countryCode, PingTime timeMs,
+                   bool bShowPremiumStarOnly, bool isShowLatencyMs, const QString &staticIp,
+                   const QString &staticIpType, bool isFavorite, bool isDisabled,
+                   bool isCustomConfigCorrect, const QString &customConfigType,
+                   const QString &customConfigErrorMessage) :
     locationId_(locationId),
     countryCode_(countryCode),
     timeMs_(timeMs, isShowLatencyMs), bShowPremiumStarOnly_(bShowPremiumStarOnly),
@@ -26,6 +31,9 @@ CityNode::CityNode(const LocationID &locationId, const QString &cityName1ForShow
     isCursorOverCaption1Text_(false),
     isDisabled_(isDisabled),
     isCursorOverConnectionMeter_(false),
+    isCustomConfigCorrect_(isCustomConfigCorrect),
+    customConfigType_(customConfigType),
+    customConfigErrorMessage_(customConfigErrorMessage),
     caption1FullText_(cityName1ForShow)
 {
     if (!staticIp.isEmpty())
@@ -36,6 +44,12 @@ CityNode::CityNode(const LocationID &locationId, const QString &cityName1ForShow
         captionStaticIpLayout_->createLine();
         captionStaticIpLayout_->endLayout();
         captionStaticIpLayout_->setCacheEnabled(true);
+    }
+
+    if (locationId.isCustomConfigsLocation()) {
+        // Incorrect custom configs are always disabled.
+        if (!customConfigType.isEmpty() && !isCustomConfigCorrect)
+            isDisabled_ = true;
     }
 
     QFont *font = FontManager::instance().getFont(16, true);
@@ -105,7 +119,7 @@ QString CityNode::getCountryCode() const
     return countryCode_;
 }
 
-QString CityNode::caption1FullText()
+QString CityNode::caption1FullText() const
 {
     return caption1FullText_;
 }
@@ -153,6 +167,21 @@ void CityNode::toggleIsFavorite()
 bool CityNode::isDisabled() const
 {
     return isDisabled_;
+}
+
+bool CityNode::isCustomConfigCorrect() const
+{
+    return isCustomConfigCorrect_;
+}
+
+QString CityNode::getCustomConfigType() const
+{
+    return customConfigType_;
+}
+
+QString CityNode::getCustomConfigErrorMessage() const
+{
+    return customConfigErrorMessage_;
 }
 
 void CityNode::updateScaling()
