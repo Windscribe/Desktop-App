@@ -1,3 +1,19 @@
+2.0.29 (16/09/2020)
+* WireGuard improvements/fixes (more details in #213).
+* Custom configs (multiple remotes support, wireguard custom configs support).
+* Changed best location picking logic based on lowest city latency (not a drop-down list).
+* MSS/MTU auto behaviour and ikev2 mtu value change - fixed.
+* App crashes on Mac when the log window closes - fixed.
+* Updated IKEv2 params to mimic the params supplied in the PowerShell.
+* Server name shortening bugs - fixed.
+* Decoupled currently connected Best Location from detected Best Location in server list (more details in #120).
+* "Add Config Location" button fixes (it's always on top and not overlap the list and scrollbar).
+* Locations tray menu fixes.
+* Extended protocol option menu, so now all protocol items are visible.
+* Added animated background of the installer.
+* Other internal improvements.
+
+
 2.0.28 (23/09/2020)
 * Fixed Wireguard bugs.
 * The selected connection location doesn't get updated until it actually fully connects - fixed.
