@@ -11,6 +11,7 @@
 * Locations tray menu fixes.
 * Extended protocol option menu, so now all protocol items are visible.
 * Added animated background of the installer.
+* Automatic updater.
 * Other internal improvements.
 
 
