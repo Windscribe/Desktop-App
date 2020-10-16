@@ -284,29 +284,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
     mainWindowController_->getInitWindow()->startWaitingAnimation();
 
-    if (PersistentState::instance().isFirstRun())
-    {
-#ifdef Q_OS_WIN
-        bool dockedInit = false;
-#else
-        bool dockedInit = true;
-#endif
-        qDebug() << "First Run docked state: " << dockedInit;
-        backend_->getPreferences()->setDockedToTray(dockedInit);
-        mainWindowController_->setIsDockedToTray(dockedInit);
-        bMoveEnabled_ = !dockedInit;
-    }
-    else if (backend_->getPreferences()->isDockedToTray())
-    {
-        // qDebug() << "2+ run (docked)";
-        mainWindowController_->setIsDockedToTray(true);
-        bMoveEnabled_ = false;
-    }
-    else
-    {
-        // qDebug() << "2+ run (undocked)";
-        mainWindowController_->setIsDockedToTray(false);
-    }
+    mainWindowController_->setIsDockedToTray(backend_->getPreferences()->isDockedToTray());
+    bMoveEnabled_ = !backend_->getPreferences()->isDockedToTray();
 
     if (bMoveEnabled_)
         mainWindowController_->setWindowPosFromPersistent();
@@ -1235,17 +1214,15 @@ void MainWindow::onBackendLoginFinished(bool isLoginFromSavedSettings)
         isLoginOkAndConnectWindowVisible_ = true;
     }
 
-    if (!isLoginFromSavedSettings && (!backend_->isLastLoginWithAuthHash()))
+    // open new install on first login
+    if (PersistentState::instance().isFirstLogin())
     {
-        if (PersistentState::instance().isFirstRun())
-        {
-            backend_->recordInstall();
-            PersistentState::instance().setFirstRun(false);
-            // open first start URL
-            QString curUserId = QString::fromStdString(backend_->getSessionStatus().user_id());
-            QDesktopServices::openUrl(QUrl( QString("https://%1/installed/desktop?%2").arg(HardcodedSettings::instance().serverUrl()).arg(curUserId)));
-        }
+        backend_->recordInstall();
+        // open first start URL
+        QString curUserId = QString::fromStdString(backend_->getSessionStatus().user_id());
+        QDesktopServices::openUrl(QUrl( QString("https://%1/installed/desktop?%2").arg(HardcodedSettings::instance().serverUrl()).arg(curUserId)));
     }
+    PersistentState::instance().setFirstLogin(false);
 }
 
 void MainWindow::onBackendLoginStepMessage(ProtoTypes::LoginMessage msg)

@@ -159,6 +159,15 @@ private:
     ProtoTypes::GuiSettings guiSettings_;
 
     bool receivingEngineSettings_;
+
+#ifdef Q_OS_WIN
+    bool isDockedToTrayWin() const;
+    void setDockedToTrayWin(bool b);
+#elif defined Q_OS_MAC
+    bool isDockedToTrayMac() const;
+    void setDockedToTrayMac(bool b);
+#endif
+
 };
 
 #endif // PREFERENCES_H

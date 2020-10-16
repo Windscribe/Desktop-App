@@ -117,18 +117,55 @@ void Preferences::setShowNotifications(bool b)
 
 bool Preferences::isDockedToTray() const
 {
-    return guiSettings_.is_docked_to_tray();
+#ifdef Q_OS_WIN
+    return isDockedToTrayWin();
+#elif defined Q_OS_MAC
+    return isDockedToTrayMac();
+#endif
 }
 
 void Preferences::setDockedToTray(bool b)
 {
-    if (guiSettings_.is_docked_to_tray() != b)
+#ifdef Q_OS_WIN
+    setDockedToTrayWin(b);
+#elif defined Q_OS_MAC
+    setDockedToTrayMac(b);
+#endif
+}
+
+#ifdef Q_OS_WIN
+bool Preferences::isDockedToTrayWin() const
+{
+    return guiSettings_.is_docked_to_tray_win();
+}
+
+void Preferences::setDockedToTrayWin(bool b)
+{
+    if (guiSettings_.is_docked_to_tray_win() != b)
     {
-        guiSettings_.set_is_docked_to_tray(b);
+        guiSettings_.set_is_docked_to_tray_win(b);
         saveGuiSettings();
-        emit isDockedToTrayChanged(guiSettings_.is_docked_to_tray());
+        emit isDockedToTrayChanged(guiSettings_.is_docked_to_tray_win());
     }
 }
+#endif
+
+#ifdef Q_OS_MAC
+bool Preferences::isDockedToTrayMac() const
+{
+    return guiSettings_.is_docked_to_tray_mac();
+}
+
+void Preferences::setDockedToTrayMac(bool b)
+{
+    if (guiSettings_.is_docked_to_tray_mac() != b)
+    {
+        guiSettings_.set_is_docked_to_tray_mac(b);
+        saveGuiSettings();
+        emit isDockedToTrayChanged(guiSettings_.is_docked_to_tray_mac());
+    }
+}
+#endif
 
 const QString Preferences::language() const
 {
