@@ -5,7 +5,7 @@
 #include "utils/utils.h"
 #include "utils/logger.h"
 
-const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::PacketSize");
+const int typeIdPacketSize = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::PacketSize");
 
 PacketSizeController::PacketSizeController(QObject *parent) : QObject(parent)
   , earlyStop_(false)

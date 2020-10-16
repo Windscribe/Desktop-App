@@ -110,6 +110,7 @@ private slots:
     // update window signals
     void onUpdateWindowAccept();
     void onUpdateWindowCancel();
+    void onUpdateWindowLater();
 
     // upgrade window signals
     void onUpgradeAccountAccept();
@@ -164,6 +165,7 @@ private slots:
     void onBackendInternetConnectivityChanged(bool connectivity);
     void onBackendProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onBackendPacketSizeDetectionStateChanged(bool on);
+    void onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
     void onBackendEngineCrash();
 
     void onBestLocationChanged(const LocationID &bestLocation);
@@ -178,6 +180,8 @@ private slots:
     void onPreferencesLaunchOnStartupChanged(bool bEnabled);
     void onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings connectionSettings);
     void onPreferencesIsDockedToTrayChanged(bool isDocked);
+    void onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel);
+
 #ifdef Q_OS_MAC
     void onPreferencesHideFromDockChanged(bool hideFromDock);
     void hideShowDockIconImpl();
@@ -278,6 +282,7 @@ private:
     void setVariablesToInitState();
 
     void openStaticIpExternalWindow();
+    void openUpgradeExternalWindow();
     void addCustomConfigFolder();
 
     bool onLocalHttpServerCommand(QString authHash, bool isConnectCmd, bool isDisconnectCmd, QString location);
@@ -309,6 +314,9 @@ private:
     bool isExitingFromPreferences_;
 
     void minimizeToTray();
+
+    bool downloadRunning_;
+    bool ignoreUpdateUntilNextRun_;
  };
 
 #endif // MAINWINDOW_H

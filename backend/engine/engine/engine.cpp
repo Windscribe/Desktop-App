@@ -16,6 +16,8 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <google/protobuf/util/message_differencer.h>
+#include "utils/executable_signature/executable_signature.h"
+#include "filenames.h"
 
 #ifdef Q_OS_WIN
     #include "utils/bfe_service_win.h"
@@ -65,7 +67,9 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     isNeedReconnectAfterRequestUsernameAndPassword_(false),
     online_(false),
     packetSizeControllerThread_(NULL),
-    runningPacketDetection_(false)
+    runningPacketDetection_(false),
+    lastDownloadProgress_(0),
+    installerUrl_("")
 {
     connectStateController_ = new ConnectStateController(NULL);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
@@ -484,6 +488,16 @@ void Engine::setSplitTunnelingSettings(bool isActive, bool isExclude, const QStr
                               Q_ARG(QStringList, ips), Q_ARG(QStringList, hosts));
 }
 
+void Engine::updateVersion()
+{
+    QMetaObject::invokeMethod(this, "updateVersionImpl");
+}
+
+void Engine::stopUpdateVersion()
+{
+    QMetaObject::invokeMethod(this, "stopUpdateVersionImpl");
+}
+
 void Engine::init()
 {
     isCleanupFinished_ = false;
@@ -532,7 +546,7 @@ void Engine::init()
     serverAPI_ = new ServerAPI(this, networkStateManager_);
     connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)),
                         SLOT(onSessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(checkUpdateAnswer(bool,QString,bool,int,QString,bool,bool,uint)), SLOT(onCheckUpdateAnswer(bool,QString,bool,int,QString,bool,bool,uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(checkUpdateAnswer(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool,bool,uint)), SLOT(onCheckUpdateAnswer(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool,bool,uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(hostIpsChanged(QStringList)), SLOT(onHostIPsChanged(QStringList)));
     connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Notification>,uint)),
                         SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Notification>,uint)));
@@ -596,6 +610,14 @@ void Engine::init()
     connect(updateSessionStatusTimer_, SIGNAL(needUpdateRightNow()), SLOT(onUpdateSessionStatusTimer()));
     notificationsUpdateTimer_ = new QTimer(this);
     connect(notificationsUpdateTimer_, SIGNAL(timeout()), SLOT(getNewNotifications()));
+
+    downloadHelper_ = new DownloadHelper(this);
+    connect(downloadHelper_, SIGNAL(finished(DownloadHelper::DownloadState)), SLOT(onDownloadHelperFinished(DownloadHelper::DownloadState)));
+    connect(downloadHelper_, SIGNAL(progressChanged(uint)), SLOT(onDownloadHelperProgressChanged(uint)));
+
+#ifdef Q_OS_MAC
+    autoUpdaterHelper_ = new AutoUpdaterHelper_mac();
+#endif
 
 #ifdef Q_OS_WIN
     measurementCpuUsage_ = new MeasurementCpuUsage(this, helper_, connectStateController_);
@@ -1085,7 +1107,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     qCDebug(LOG_BASIC) << "Engine::setSettingsImpl";
 
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
-    bool isBetaChannelChanged = engineSettings_.isBetaChannel() != engineSettings.isBetaChannel();
+    bool isUpdateChannelChanged = engineSettings_.getUpdateChannel() != engineSettings.getUpdateChannel();
     bool isLanguageChanged = engineSettings_.language() != engineSettings.language();
     bool isProtocolChanged = !engineSettings_.connectionSettings().protocol().isEqual(engineSettings.connectionSettings().protocol());
     bool isCloseTcpSocketsChanged = engineSettings_.isCloseTcpSockets() != engineSettings.isCloseTcpSockets();
@@ -1106,9 +1128,9 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
         updateFirewallSettings();
     }
 
-    if (isBetaChannelChanged)
+    if (isUpdateChannelChanged)
     {
-        serverAPI_->checkUpdate(engineSettings_.isBetaChannel(), serverApiUserRole_, true);
+        serverAPI_->checkUpdate(engineSettings_.getUpdateChannel(), serverApiUserRole_, true);
     }
     if (isLanguageChanged || isProtocolChanged)
     {
@@ -1376,13 +1398,17 @@ void Engine::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &c
     }
 }
 
-void Engine::onCheckUpdateAnswer(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole)
+void Engine::onCheckUpdateAnswer(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole)
 {
+    qCDebug(LOG_BASIC) << "Received Check Update Answer";
+
     if (userRole == serverApiUserRole_)
     {
         if (!bNetworkErrorOccured)
         {
-            emit checkUpdateUpdated(available, version, isBeta, latestBuild, url, supported);
+            installerUrl_ = url;
+            qCDebug(LOG_BASIC) << "Installer URL: " << url;
+            emit checkUpdateUpdated(available, version, updateChannel, latestBuild, url, supported);
         }
         else
         {
@@ -1447,7 +1473,7 @@ void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPoin
 
 void Engine::onStartCheckUpdate()
 {
-    serverAPI_->checkUpdate(engineSettings_.isBetaChannel(), serverApiUserRole_, true);
+    serverAPI_->checkUpdate(engineSettings_.getUpdateChannel(), serverApiUserRole_, true);
 }
 
 void Engine::onStartStaticIpsUpdate()
@@ -1848,6 +1874,78 @@ void Engine::detectAppropriatePacketSizeImpl()
     {
          qCDebug(LOG_PACKET_SIZE) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(packetSize_.mtu());
     }
+}
+
+void Engine::updateVersionImpl()
+{
+    if (installerUrl_ != "")
+    {
+        downloadHelper_->get(installerUrl_);
+    }
+}
+
+void Engine::stopUpdateVersionImpl()
+{
+    downloadHelper_->stop();
+}
+
+void Engine::onDownloadHelperProgressChanged(uint progressPercent)
+{
+    if (lastDownloadProgress_ != progressPercent)
+    {
+        lastDownloadProgress_ = progressPercent;
+        emit updateVersionChanged(progressPercent, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+    }
+}
+
+void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state)
+{
+    const QString dlPath = downloadHelper_->downloadPath();
+    // qCDebug(LOG_DOWNLOADER) << "Engine:: Download finished";
+
+    if (state != DownloadHelper::DOWNLOAD_STATE_SUCCESS)
+    {
+        qCDebug(LOG_DOWNLOADER) << "Removing incomplete installer";
+        QFile::remove(dlPath);
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
+        return;
+    }
+    qCDebug(LOG_DOWNLOADER) << "Successful download to: " << dlPath;
+
+#ifdef Q_OS_WIN
+    bool success = false;
+    QString output = helper_->executeUpdateInstaller(dlPath, success);
+
+    if (!success)
+    {
+        qCDebug(LOG_AUTO_UPDATER) << "Removing unsigned installer";
+        QFile::remove(dlPath);
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
+        return;
+    }
+
+#elif defined Q_OS_MAC
+
+    const QString tempInstallerFilename = autoUpdaterHelper_->copyInternalInstallerToTempFromDmg(dlPath);
+    QFile::remove(dlPath);
+
+    if (tempInstallerFilename == "")
+    {
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
+        return;
+    }
+
+    bool verifiedAndRan = autoUpdaterHelper_->verifyAndRun(tempInstallerFilename);
+    if (!verifiedAndRan)
+    {
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
+        return;
+    }
+
+#endif
+
+    qCDebug(LOG_AUTO_UPDATER) << "Installer valid and executed";
+    emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
 }
 
 void Engine::onEmergencyControllerConnected()

@@ -183,7 +183,7 @@ message CheckUpdateInfo
 {
   optional bool is_available = 1;
   optional string version = 2;
-  optional bool is_beta = 3;
+  optional UpdateChannel update_channel = 3;
   optional int32 latest_build = 4;
   optional string url = 5;
   optional bool is_supported = 6;
@@ -542,3 +542,23 @@ message SplitTunneling
     repeated SplitTunnelingApp apps = 2;
     repeated SplitTunnelingNetworkRoute network_routes = 3;
 } 
+
+enum UpdateVersionState
+{
+    UPDATE_VERSION_STATE_INIT = 0;
+    UPDATE_VERSION_STATE_RUNNING = 1;
+    UPDATE_VERSION_STATE_DONE = 2;
+}
+
+enum UpdateVersionError
+{
+    UPDATE_VERSION_ERROR_NO_ERROR = 0;
+    UPDATE_VERSION_ERROR_DL_FAIL = 1;
+    UPDATE_VERSION_ERROR_SIGN_FAIL = 2;
+    UPDATE_VERSION_ERROR_OTHER_FAIL = 3;
+    UPDATE_VERSION_ERROR_MOUNT_FAIL = 4;
+    UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL = 5;
+    UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL = 6;
+    UPDATE_VERSION_ERROR_COPY_FAIL = 7;
+    UPDATE_VERSION_ERROR_START_INSTALLER_FAIL = 8;
+}

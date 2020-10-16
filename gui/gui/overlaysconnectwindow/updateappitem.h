@@ -20,11 +20,13 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setVersionAvailable(const QString &versionNumber) override;
+    void setVersionAvailable(const QString &versionNumber, int buildNumber) override;
     void setProgress(int value) override; // from 0 to 100
 
     QPixmap getCurrentPixmapShape() override;
     void updateScaling() override;
+
+    void setMode(UpdateAppItemMode mode) override;
 
 signals:
     void updateClick();
@@ -46,7 +48,7 @@ private:
     void animateTransitionToVersion();
 
     CommonGraphics::TextButton *updateButton_;
-    bool inProgress_;
+    UpdateAppItemMode mode_;
     QString curVersionText_;
 
     static constexpr int WIDTH = 230;
@@ -63,7 +65,7 @@ private:
     QVariantAnimation progressForegroundOpacityAnimation_;
     QVariantAnimation progressBackgroundOpacityAnimation_;
 
-    int curProgressBarPos_;  //  0.0 -> 1.0
+    int curProgressBarPos_;  //  0 -> 100
     QVariantAnimation progressBarPosChangeAnimation_;
 
     static constexpr int VERSION_TEXT_HEIGHT = 14;

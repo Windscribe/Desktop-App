@@ -207,6 +207,15 @@ bool Helper_mac::executeChangeMtu(const QString & /*adapter*/, int /*mtu*/)
     return false;
 }
 
+QString Helper_mac::executeUpdateInstaller(const QString &installerPath, bool &success)
+{
+    Q_UNUSED(installerPath);
+    qCDebug(LOG_BASIC) << "ExecuteUpdateInstaller does nothing on mac";
+    Q_ASSERT(false);
+    success = false;
+    return "";
+}
+
 bool Helper_mac::clearDnsOnTap()
 {
     // nothing to do on mac

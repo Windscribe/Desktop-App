@@ -26,6 +26,7 @@ namespace Utils {
     QString fileNameFromFullPath(const QString &fullPath);
     QList<ProtoTypes::SplitTunnelingApp> insertionSort(QList<ProtoTypes::SplitTunnelingApp> apps);
 
+    unsigned long getCurrentPid();
     bool isGuiAlreadyRunning();
     bool giveFocusToGui();
     void openGuiLocations();
@@ -44,6 +45,14 @@ namespace Utils {
 
     bool pingWithMtu(int mtu);
     QString getLocalIP();
+
+    const QString filenameQuotedSingle(const QString &filename);
+    const QString filenameQuotedDouble(const QString &filename);
+    const QString filenameEscapeSpaces(const QString &filename);
+
+    bool copyDirectoryRecursive(QString fromDir, QString toDir);
+    bool removeDirectory(const QString dir);
+
 
 }
 #endif // UTILS_H

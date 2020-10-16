@@ -66,12 +66,6 @@ QString EngineSettings::language() const
     return QString::fromStdString(engineSettings_.language());
 }
 
-bool EngineSettings::isBetaChannel() const
-{
-    // todo add support for other channels
-    return engineSettings_.update_channel() != ProtoTypes::UPDATE_CHANNEL_RELEASE;
-}
-
 bool EngineSettings::isIgnoreSslErrors() const
 {
     return engineSettings_.is_ignore_ssl_errors();
@@ -123,6 +117,11 @@ ProtoTypes::MacAddrSpoofing EngineSettings::getMacAddrSpoofing() const
 ProtoTypes::PacketSize EngineSettings::getPacketSize() const
 {
     return engineSettings_.packet_size();
+}
+
+ProtoTypes::UpdateChannel EngineSettings::getUpdateChannel() const
+{
+    return engineSettings_.update_channel();
 }
 
 bool EngineSettings::isUseWintun() const

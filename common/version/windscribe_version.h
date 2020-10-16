@@ -5,8 +5,11 @@
 #define WINDSCRIBE_MINOR_VERSION 0
 #define WINDSCRIBE_BUILD_VERSION 29
 
+// only one of these should be enabled; neither -> stable
 #define WINDSCRIBE_IS_BETA
-//#define WINDSCRIBE_IS_STAGING
+// #define WINDSCRIBE_IS_GUINEA_PIG
+
+// #define WINDSCRIBE_IS_STAGING
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)

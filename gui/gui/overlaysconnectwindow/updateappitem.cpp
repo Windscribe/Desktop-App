@@ -10,7 +10,7 @@
 namespace UpdateApp {
 
 UpdateAppItem::UpdateAppItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent),
-    inProgress_(false), curVersionText_(""), curBackgroundOpacity_(OPACITY_FULL),
+    mode_(UPDATE_APP_ITEM_MODE_PROMPT), curVersionText_(""), curBackgroundOpacity_(OPACITY_FULL),
     curVersionOpacity_(OPACITY_FULL), curProgressBackgroundOpacity_(OPACITY_HIDDEN),
     curProgressForegroundOpacity_(OPACITY_HIDDEN), curProgressBarPos_(0)
 {
@@ -77,7 +77,7 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     painter->setPen(FontManager::instance().getBrightYellowColor());
     painter->setFont(*font);
     painter->setOpacity(curVersionOpacity_ * initOpacity);
-    painter->drawText(25*G_SCALE, (HEIGHT*G_SCALE - fm.height() - fm.ascent() / 2) - (G_SCALE+0.5), curVersionText_ + tr(" AVAILABLE"));
+    painter->drawText(25*G_SCALE, (HEIGHT*G_SCALE - fm.height() - fm.ascent() / 2) - (G_SCALE+0.5), curVersionText_);
     painter->restore();
 
     painter->save();
@@ -105,7 +105,7 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 
 }
 
-void UpdateAppItem::setVersionAvailable(const QString &versionNumber)
+void UpdateAppItem::setVersionAvailable(const QString &versionNumber,int buildNumber)
 {
     QString prefix = "";
     if (versionNumber != "")
@@ -116,23 +116,18 @@ void UpdateAppItem::setVersionAvailable(const QString &versionNumber)
         }
     }
 
-    curVersionText_ = prefix + versionNumber;
+    curVersionText_ = prefix + versionNumber + "." + QString::number(buildNumber);
 
-    animateTransitionToVersion();
-    inProgress_ = false;
-    curProgressBarPos_ = 0;
+    setMode(UPDATE_APP_ITEM_MODE_PROMPT);
+    update();
 }
 
 void UpdateAppItem::setProgress(int value)
 {
-    if (!inProgress_)
+    if (mode_ == UPDATE_APP_ITEM_MODE_PROGRESS)
     {
-        animateTransitionToProgress();
-
-        inProgress_ = true;
+        startAnAnimation<int>(progressBarPosChangeAnimation_, curProgressBarPos_, value, ANIMATION_SPEED_VERY_FAST);
     }
-
-    startAnAnimation<double>(progressBarPosChangeAnimation_, curProgressBarPos_, value, ANIMATION_SPEED_VERY_FAST);
 }
 
 QPixmap UpdateAppItem::getCurrentPixmapShape()
@@ -157,6 +152,21 @@ void UpdateAppItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
     updatePositions();
+}
+
+void UpdateAppItem::setMode(IUpdateAppItem::UpdateAppItemMode mode)
+{
+    if (mode == UPDATE_APP_ITEM_MODE_PROMPT)
+    {
+        animateTransitionToVersion();
+        curProgressBarPos_ = 0;
+    }
+    else // Progress
+    {
+        animateTransitionToProgress();
+        curProgressBarPos_ = 0;
+    }
+    mode_ = mode;
 }
 
 void UpdateAppItem::onBackgroundOpacityChanged(const QVariant &value)
@@ -185,7 +195,7 @@ void UpdateAppItem::onProgressBackgroundOpacityChanged(const QVariant &value)
 
 void UpdateAppItem::onProgressBarPosChanged(const QVariant &value)
 {
-    curProgressBarPos_ = value.toDouble();
+    curProgressBarPos_ = value.toInt();
     update();
 }
 

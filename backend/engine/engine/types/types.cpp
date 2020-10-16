@@ -10,6 +10,9 @@ const int typeIdEngineInitRetCode = qRegisterMetaType<ENGINE_INIT_RET_CODE>("ENG
 const int typeIdConnectState = qRegisterMetaType<CONNECT_STATE>("CONNECT_STATE");
 const int typeIdDisconnectReason = qRegisterMetaType<DISCONNECT_REASON>("DISCONNECT_REASON");
 const int typeIdProxySharingType = qRegisterMetaType<PROXY_SHARING_TYPE>("PROXY_SHARING_TYPE");
+const int typeIdUpdateVersionState = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UpdateVersionState");
+const int typeIdUpdateVersionError = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UpdateVersionError");
+const int typeIdUpdateChannel = qRegisterMetaType<ProtoTypes::UpdateChannel>("ProtoTypes::UpdateChannel");
 
 QString loginRetToString(LOGIN_RET ret)
 {

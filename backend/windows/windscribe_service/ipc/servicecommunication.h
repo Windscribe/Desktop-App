@@ -49,6 +49,7 @@
 #define AA_COMMAND_STOP_WIREGUARD                           45
 #define AA_COMMAND_CONFIGURE_WIREGUARD                      46
 #define AA_COMMAND_GET_WIREGUARD_STATUS                     47
+#define AA_COMMAND_RUN_UPDATE_INSTALLER                     48
 
 
 #define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
@@ -198,6 +199,11 @@ enum WireGuardServiceState
     WIREGUARD_STATE_LISTENING,  // WireGuard is listening for UAPI commands, but not connected.
     WIREGUARD_STATE_CONNECTING, // WireGuard is configured and awaits for a handshake.
     WIREGUARD_STATE_ACTIVE,     // WireGuard is connected.
+};
+
+struct CMD_RUN_UPDATE_INSTALLER
+{
+    std::wstring szUpdateInstallerLocation;
 };
 
 struct MessagePacketResult

@@ -33,7 +33,7 @@ class Backend : public QObject
 {
     Q_OBJECT
 public:
-    explicit Backend(unsigned int clientId, unsigned int clientPid, const QString &clientName, QObject *parent);
+    explicit Backend(unsigned int clientId, unsigned long clientPid, const QString &clientName, QObject *parent);
     virtual ~Backend();
 
     void init();
@@ -108,6 +108,9 @@ public:
     void sendDetectPacketSize();
     void sendSplitTunneling(ProtoTypes::SplitTunneling st);
 
+    void sendUpdateVersion();
+    void cancelUpdateVersion();
+
 private slots:
     void onProcessStarted();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -156,6 +159,7 @@ signals:
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void packetSizeDetectionStateChanged(bool on);
+    void updateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
 
     void engineCrash();
     void engineRecoveryFailed();
@@ -169,7 +173,7 @@ private:
 
     unsigned int protocolVersion_;
     unsigned int clientId_;
-    unsigned int clientPid_;
+    unsigned long clientPid_;
     QString clientName_;
 
     bool isSavedApiSettingsExists_;

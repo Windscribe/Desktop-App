@@ -12,7 +12,10 @@
     #include "engine/taputils/tapinstall_win.h"
 #endif
 
-EngineServer::EngineServer(QObject *parent) : QObject(parent), server_(NULL), engine_(NULL), threadEngine_(NULL)
+EngineServer::EngineServer(QObject *parent) : QObject(parent)
+  , server_(NULL)
+  , engine_(NULL)
+  , threadEngine_(NULL)
 {
     curEngineSettings_.loadFromSettings();
 }
@@ -74,7 +77,8 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(loginError(LOGIN_RET)), SLOT(onEngineLoginError(LOGIN_RET)));
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
             connect(engine_, SIGNAL(notificationsUpdated(QVector<apiinfo::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<apiinfo::Notification>)));
-            connect(engine_, SIGNAL(checkUpdateUpdated(bool,QString,bool,int,QString,bool)), SLOT(onEngineCheckUpdateUpdated(bool,QString,bool,int,QString,bool)));
+            connect(engine_, SIGNAL(checkUpdateUpdated(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool)), SLOT(onEngineCheckUpdateUpdated(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool)));
+            connect(engine_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)), SLOT(onEngineUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
             connect(engine_, SIGNAL(sessionStatusUpdated(apiinfo::SessionStatus)), SLOT(onEngineUpdateSessionStatus(apiinfo::SessionStatus)));
             connect(engine_, SIGNAL(sessionDeleted()), SLOT(onEngineSessionDeleted()));
@@ -387,6 +391,18 @@ bool EngineServer::handleCommand(IPC::Command *command)
     {
         engine_->detectAppropriatePacketSize();
     }
+    else if (command->getStringId() == IPCClientCommands::UpdateVersion::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> *>(command);
+        if (cmd->getProtoObj().cancel_download())
+        {
+            engine_->stopUpdateVersion();
+        }
+        else
+        {
+            engine_->updateVersion();
+        }
+    }
 
     return false;
 }
@@ -423,7 +439,6 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
         sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 
         engine_->updateCurrentInternetConnectivity();
-
     }
     else if (retCode == ENGINE_INIT_HELPER_FAILED)
     {
@@ -646,16 +661,25 @@ void EngineServer::onEngineNotificationsUpdated(const QVector<apiinfo::Notificat
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineCheckUpdateUpdated(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported)
+void EngineServer::onEngineCheckUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported)
 {
     IPC::ProtobufCommand<IPCServerCommands::CheckUpdateInfoUpdated> cmd;
     cmd.getProtoObj().mutable_check_update_info()->set_is_available(available);
     cmd.getProtoObj().mutable_check_update_info()->set_version(version.toStdString());
-    cmd.getProtoObj().mutable_check_update_info()->set_is_beta(isBeta);
+    cmd.getProtoObj().mutable_check_update_info()->set_update_channel(updateChannel);
     cmd.getProtoObj().mutable_check_update_info()->set_latest_build(latestBuild);
     cmd.getProtoObj().mutable_check_update_info()->set_url(url.toStdString());
     cmd.getProtoObj().mutable_check_update_info()->set_is_supported(supported);
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+}
+
+void EngineServer::onEngineUpdateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error)
+{
+    IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> cmd;
+    cmd.getProtoObj().set_progress(progressPercent);
+    cmd.getProtoObj().set_state(state);
+    cmd.getProtoObj().set_error(error);
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
 void EngineServer::onEngineMyIpUpdated(const QString &ip, bool /*success*/, bool isDisconnected)

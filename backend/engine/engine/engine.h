@@ -25,6 +25,8 @@
 #include "engine/macaddresscontroller/imacaddresscontroller.h"
 #include "engine/ping/keepalivemanager.h"
 #include "packetsizecontroller.h"
+#include "autoupdater/downloadhelper.h"
+#include "autoupdater/autoupdaterhelper_mac.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
@@ -114,6 +116,9 @@ public:
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
 
+    void updateVersion();
+    void stopUpdateVersion();
+
 public slots:
     void init();
 
@@ -129,7 +134,8 @@ signals:
     void sessionDeleted();
     void sessionStatusUpdated(const apiinfo::SessionStatus &sessionStatus);
     void notificationsUpdated(const QVector<apiinfo::Notification> &notifications);
-    void checkUpdateUpdated(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported);
+    void checkUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported);
+    void updateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
@@ -222,7 +228,7 @@ private slots:
     void onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
     void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Notification> &notifications, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
-    void onCheckUpdateAnswer(bool available, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
+    void onCheckUpdateAnswer(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
     void onHostIPsChanged(const QStringList &hostIps);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
@@ -252,6 +258,11 @@ private slots:
     void emergencyDisconnectClickImpl();
 
     void detectAppropriatePacketSizeImpl();
+
+    void updateVersionImpl();
+    void stopUpdateVersionImpl();
+    void onDownloadHelperProgressChanged(uint progressPercent);
+    void onDownloadHelperFinished(const DownloadHelper::DownloadState &state);
 
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
@@ -325,6 +336,11 @@ private:
 
     RefetchServerCredentialsHelper *refetchServerCredentialsHelper_;
 
+    DownloadHelper *downloadHelper_;
+#ifdef Q_OS_MAC
+    AutoUpdaterHelper_mac *autoUpdaterHelper_;
+#endif
+
     QMutex mutex_;
 
     apiinfo::SessionStatus prevSessionStatus_;
@@ -359,6 +375,9 @@ private:
     void doConnect(bool bEmitAuthError);
     LocationID checkLocationIdExistingAndReturnNewIfNeed(const LocationID &locationId);
     void doDisconnectRestoreStuff();
+
+    uint lastDownloadProgress_;
+    QString installerUrl_;
 };
 
 #endif // ENGINE_H

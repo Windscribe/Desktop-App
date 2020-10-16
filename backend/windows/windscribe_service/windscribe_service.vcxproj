@@ -333,6 +333,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature_win.h" />
     <ClInclude Include="adapters_info.h" />
     <ClInclude Include="all_headers.h" />
     <ClInclude Include="apps_ids.h" />
@@ -377,6 +378,7 @@
     <ClInclude Include="wireguard\wireguardcontroller.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp" />
     <ClCompile Include="adapters_info.cpp" />
     <ClCompile Include="apps_ids.cpp" />
     <ClCompile Include="cleardns_on_tap.cpp" />

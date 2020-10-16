@@ -67,7 +67,9 @@ MainWindow::MainWindow(QWidget *parent) :
  #endif
     activeState_(true),
     lastWindowStateChange_(0),
-    isExitingFromPreferences_(false)
+    isExitingFromPreferences_(false),
+    downloadRunning_(false),
+    ignoreUpdateUntilNextRun_(false)
 {
 
     g_mainWindow = this;
@@ -79,8 +81,9 @@ MainWindow::MainWindow(QWidget *parent) :
     freeTrafficNotificationController_ = new FreeTrafficNotificationController(this);
     connect(freeTrafficNotificationController_, SIGNAL(freeTrafficNotification(QString)), SLOT(onFreeTrafficNotification(QString)));
 
-    // TODO: unhardcode the client details
-    backend_ = new Backend(ProtoTypes::CLIENT_ID_GUI, 12345, "gui app", this);
+    unsigned long guiPid = Utils::getCurrentPid();
+    qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
+    backend_ = new Backend(ProtoTypes::CLIENT_ID_GUI, guiPid, "gui app", this);
 
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
 
@@ -120,6 +123,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onBackendProtocolPortChanged(ProtoTypes::Protocol, uint)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
+            SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
 
     locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
@@ -225,6 +230,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // update window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getUpdateWindow()), SIGNAL(acceptClick()), SLOT(onUpdateWindowAccept()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getUpdateWindow()), SIGNAL(cancelClick()), SLOT(onUpdateWindowCancel()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getUpdateWindow()), SIGNAL(laterClick()), SLOT(onUpdateWindowLater()));
 
     // upgrade window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getUpgradeWindow()), SIGNAL(acceptClick()), SLOT(onUpgradeAccountAccept()));
@@ -253,6 +259,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(backend_->getPreferences(), SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onPreferencesLaunchOnStartupChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings)));
     connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
+    connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
+
 #ifdef Q_OS_MAC
     connect(backend_->getPreferences(), SIGNAL(hideFromDockChanged(bool)), SLOT(onPreferencesHideFromDockChanged(bool)));
 #endif
@@ -944,6 +952,14 @@ void MainWindow::onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()
     }
 }
 
+void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
+{
+    Q_UNUSED(updateChannel);
+
+    ignoreUpdateUntilNextRun_ = false;
+    // updates engine through engineSettings
+}
+
 void MainWindow::onEmergencyConnectClick()
 {
     backend_->emergencyConnectClick();
@@ -976,7 +992,7 @@ void MainWindow::onTwoFactorAuthWindowButtonAddClick(const QString &code2fa)
 
 void MainWindow::onBottomWindowRenewClick()
 {
-    // TODO: navigate to website // same as "Upgrade"
+    openUpgradeExternalWindow();
 }
 
 void MainWindow::onBottomWindowExternalConfigLoginClick()
@@ -998,23 +1014,40 @@ void MainWindow::onBottomWindowSharingFeaturesClick()
 
 void MainWindow::onUpdateAppItemClick()
 {
-    mainWindowController_->getUpdateWindow()->setVersion("2.02");
+    mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROGRESS);
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
 }
 
 void MainWindow::onUpdateWindowAccept()
 {
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+    downloadRunning_ = true;
+    mainWindowController_->getUpdateWindow()->setProgress(0);
+    mainWindowController_->getUpdateWindow()->startAnimation();
+    mainWindowController_->getUpdateWindow()->changeToDownloadingScreen();
+    backend_->sendUpdateVersion();
 }
 
 void MainWindow::onUpdateWindowCancel()
 {
+    backend_->cancelUpdateVersion();
+    mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+    downloadRunning_ = false;
+}
+
+void MainWindow::onUpdateWindowLater()
+{
+    mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
+    mainWindowController_->getUpdateAppItem()->setProgress(0);
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+
+    ignoreUpdateUntilNextRun_ = true;
+    mainWindowController_->hideUpdateWidget();
+    downloadRunning_ = false;
 }
 
 void MainWindow::onUpgradeAccountAccept()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));
+    openUpgradeExternalWindow();
     if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_UPGRADE)
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
 }
@@ -1467,20 +1500,27 @@ void MainWindow::onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &
         {
             blockConnect_.setNeedUpgrade();
         }
-        //showUpdateInfo(true, isBeta, latestBuild, version, url);
-
-
 
         QString betaStr;
         betaStr = "-" + QString::number(checkUpdateInfo.latest_build());
-        if (checkUpdateInfo.is_beta())
+        if (checkUpdateInfo.update_channel() == ProtoTypes::UPDATE_CHANNEL_BETA)
         {
             betaStr += "b";
         }
+        else if (checkUpdateInfo.update_channel() == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+        {
+            betaStr += "g";
+        }
+
         //updateWidget_->setText(tr("Update available - v") + version + betaStr);
 
-        mainWindowController_->getUpdateAppItem()->setVersionAvailable(QString::fromStdString(checkUpdateInfo.version()));
-        mainWindowController_->showUpdateWidget();
+        mainWindowController_->getUpdateAppItem()->setVersionAvailable(QString::fromStdString(checkUpdateInfo.version()), checkUpdateInfo.latest_build());
+        mainWindowController_->getUpdateWindow()->setVersion(QString::fromStdString(checkUpdateInfo.version()), checkUpdateInfo.latest_build());
+
+        if (!ignoreUpdateUntilNextRun_)
+        {
+            mainWindowController_->showUpdateWidget();
+        }
     }
     else
     {
@@ -1875,6 +1915,72 @@ void MainWindow::onBackendProtocolPortChanged(const ProtoTypes::Protocol &protoc
 void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on)
 {
     mainWindowController_->getPreferencesWindow()->setPacketSizeDetectionState(on);
+}
+
+void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error)
+{
+    qDebug() << "Mainwindow::onBackendUpdateVersionChanged: " << progressPercent << ", " << state;
+
+    if (state == ProtoTypes::UPDATE_VERSION_STATE_DONE)
+    {
+        // widget
+        mainWindowController_->getUpdateAppItem()->setProgress(0);
+
+        // update
+        mainWindowController_->getUpdateWindow()->stopAnimation();
+        mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+
+        if (downloadRunning_) // not cancelled by user
+        {
+            if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
+            {
+                mainWindowController_->hideUpdateWidget();
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+                mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
+            }
+            else // Error
+            {
+                QString titleText = tr("Auto-Updater installation has failed");
+                QString descText = tr("Please contact support");
+                if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
+                {
+                    descText = tr("Download has failed to complete. Please try again over a strong internet connection.");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
+                {
+                    descText = tr("Cannot run the downlaoded installer. It does not have the correct signature");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_MOUNT_FAIL)
+                {
+                    descText = tr("Cannot access the installer. Image mounting has failed.");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL)
+                {
+                    descText = tr("Downloaded image does not contain installer.");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL)
+                {
+                    descText = tr("Cannot overwrite a pre-existing temporary installer");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COPY_FAIL)
+                {
+                    descText = tr("Failed to copy installer to temp location");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL)
+                {
+                    descText = tr("Auto-Updater has failed to run installer");
+                }
+                QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
+            }
+        }
+        downloadRunning_ = false;
+    }
+    else if (state == ProtoTypes::UPDATE_VERSION_STATE_RUNNING)
+    {
+        // qDebug() << "Running -- updating progress";
+        mainWindowController_->getUpdateAppItem()->setProgress(progressPercent);
+        mainWindowController_->getUpdateWindow()->setProgress(progressPercent);
+    }
 }
 
 void MainWindow::onBackendEngineCrash()
@@ -2669,6 +2775,11 @@ void MainWindow::setVariablesToInitState()
 void MainWindow::openStaticIpExternalWindow()
 {
     QDesktopServices::openUrl(QUrl( QString("https://%1/staticips?cpid=app_windows").arg(HardcodedSettings::instance().serverUrl())));
+}
+
+void MainWindow::openUpgradeExternalWindow()
+{
+    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void MainWindow::gotoLoginWindow()

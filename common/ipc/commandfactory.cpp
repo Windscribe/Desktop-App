@@ -143,6 +143,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCClientCommands::DetectPacketSize>(buf, size);
     }
+    else if (strId == IPCClientCommands::UpdateVersion::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCClientCommands::UpdateVersion>(buf,size);
+    }
     // servers commands
     else if (strId == IPCServerCommands::AuthReply::descriptor()->full_name())
     {
@@ -291,6 +295,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     else if (strId == IPCServerCommands::PacketSizeDetectionState::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCServerCommands::PacketSizeDetectionState>(buf, size);
+    }
+    else if (strId == IPCServerCommands::UpdateVersionChanged::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCServerCommands::UpdateVersionChanged>(buf, size);
     }
     Q_ASSERT(false);
     return NULL;

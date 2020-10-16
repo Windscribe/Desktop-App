@@ -186,15 +186,15 @@ private:
 class CheckUpdateRequest : public ServerAPI::BaseRequest
 {
 public:
-    CheckUpdateRequest(bool isBetaChannel, const QString &hostname, int replyType, uint timeout,
+    CheckUpdateRequest(ProtoTypes::UpdateChannel updateChannel, const QString &hostname, int replyType, uint timeout,
                        uint userRole)
         : ServerAPI::BaseRequest(hostname, replyType, timeout, userRole),
-          isBetaChannel_(isBetaChannel) {}
+          updateChannel_(updateChannel) {}
 
-    bool getIsBetaChannel() const { return isBetaChannel_; }
+    ProtoTypes::UpdateChannel getUpdateChannel() const { return updateChannel_; }
 
 private:
-    bool isBetaChannel_;
+    ProtoTypes::UpdateChannel updateChannel_;
 };
 
 class DebugLogRequest : public ServerAPI::BaseRequest
@@ -715,24 +715,24 @@ void ServerAPI::myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequest
         isDisconnected, hostname_, REPLY_MY_IP, GET_MY_IP_TIMEOUT, userRole));
 }
 
-void ServerAPI::checkUpdate(bool isBetaChannel, uint userRole, bool isNeedCheckRequestsEnabled)
+void ServerAPI::checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint userRole, bool isNeedCheckRequestsEnabled)
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
         qCDebug(LOG_SERVER_API) << "Check update failed: API not ready";
-        emit checkUpdateAnswer(false, "", false, 0, "", true, true, userRole);
+        emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, true, userRole);
         return;
     }
 
     if (!bIsOnline_)
     {
         qCDebug(LOG_SERVER_API) << "Check update failed: no network connectivity";
-        emit checkUpdateAnswer(false, "", false, 0, "", true, true, userRole);
+        emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, true, userRole);
         return;
     }
 
     submitDnsRequest(createRequest<CheckUpdateRequest>(
-        isBetaChannel, hostname_, REPLY_CHECK_UPDATE, NETWORK_TIMEOUT, userRole));
+        updateChannel, hostname_, REPLY_CHECK_UPDATE, NETWORK_TIMEOUT, userRole));
 }
 
 void ServerAPI::debugLog(const QString &username, const QString &strLog, uint userRole, bool isNeedCheckRequestsEnabled)
@@ -1280,7 +1280,7 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request CheckUpdate failed: DNS-resolution failed";
-        emit checkUpdateAnswer(false, "", false, 0, "", true, true, crd->getUserRole());
+        emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, true, crd->getUserRole());
         return;
     }
 
@@ -1298,8 +1298,14 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
 
     query.addQueryItem("version", AppVersion::instance().version());
     query.addQueryItem("build", AppVersion::instance().build());
-    if (crd->getIsBetaChannel())
+    if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_BETA)
+    {
         query.addQueryItem("beta", "1");
+    }
+    else if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+    {
+        query.addQueryItem("beta", "2");
+    }
 
     // add OS version and build
     QString osVersion, osBuild;
@@ -2051,7 +2057,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
     if (curlRetCode != CURLE_OK)
     {
         qCDebug(LOG_SERVER_API) << "Check update failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-        emit checkUpdateAnswer(false, "", false, 0, "", true, true, userRole);
+        emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, true, userRole);
     }
     else
     {
@@ -2063,7 +2069,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", false, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
         }
 
@@ -2071,7 +2077,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
 
         if (jsonObject.contains("errorCode"))
         {
-            emit checkUpdateAnswer(false, "", false, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
         }
 
@@ -2079,7 +2085,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", false, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
         }
         QJsonObject jsonData =  jsonObject["data"].toObject();
@@ -2087,14 +2093,14 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", false, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
         }
 
         int updateNeeded = jsonData["update_needed_flag"].toInt();
         if (updateNeeded != 1)
         {
-            emit checkUpdateAnswer(false, "", false, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
         }
 
@@ -2102,14 +2108,14 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", false, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
         }
         if (!jsonData.contains("update_url"))
         {
             qCDebug(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", false, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
         }
         int supported = true;
@@ -2118,10 +2124,10 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
             supported = jsonData["supported"].toInt();
         }
 
-        bool isBeta = false;
+        ProtoTypes::UpdateChannel updateChannel = ProtoTypes::UPDATE_CHANNEL_RELEASE;
         if (jsonData.contains("is_beta"))
         {
-            isBeta = jsonData["is_beta"].toInt() != 0;
+            updateChannel = static_cast<ProtoTypes::UpdateChannel>(jsonData["is_beta"].toInt());
         }
 
         int latestBuild = 0;
@@ -2133,7 +2139,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         QString latestVersion = jsonData["latest_version"].toString();
         QString updateUrl = jsonData["update_url"].toString();
 
-        emit checkUpdateAnswer(true, latestVersion, isBeta, latestBuild, updateUrl, supported == 1, false, userRole);
+        emit checkUpdateAnswer(true, latestVersion, updateChannel, latestBuild, updateUrl, supported == 1, false, userRole);
     }
 }
 

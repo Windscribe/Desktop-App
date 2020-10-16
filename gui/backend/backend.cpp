@@ -16,7 +16,7 @@ const int PROTOCOL_VERSION = 1;
 
 const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
 
-Backend::Backend(unsigned int clientId, unsigned int clientPid, const QString &clientName, QObject *parent) : QObject(parent),
+Backend::Backend(unsigned int clientId, unsigned long clientPid, const QString &clientName, QObject *parent) : QObject(parent),
     ipcState_(IPC_INIT_STATE),
     bRecoveringState_(false),
     protocolVersion_(PROTOCOL_VERSION),
@@ -753,6 +753,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
         IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> *>(command);
         emit packetSizeDetectionStateChanged(cmd->getProtoObj().on());
     }
+    else if (command->getStringId() == IPCServerCommands::UpdateVersionChanged::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> *>(command);
+        emit updateVersionChanged(cmd->getProtoObj().progress(), cmd->getProtoObj().state(), cmd->getProtoObj().error());
+    }
 }
 
 void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connection*/)
@@ -943,6 +948,21 @@ void Backend::sendSplitTunneling(ProtoTypes::SplitTunneling st)
      qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
      connection_->sendCommand(cmd);
      emit splitTunnelingStateChanged(st.settings().active());
+}
+
+void Backend::sendUpdateVersion()
+{
+    IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> cmd;
+    qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    connection_->sendCommand(cmd);
+}
+
+void Backend::cancelUpdateVersion()
+{
+    IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> cmd;
+    cmd.getProtoObj().set_cancel_download(true);
+    qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    connection_->sendCommand(cmd);
 }
 
 QString Backend::generateNewFriendlyName()

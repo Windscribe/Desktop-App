@@ -7,6 +7,8 @@ class ExecutableSignature_mac
 public:
     static bool isParentProcessGui();
     static bool verify(const QString &executablePath);
+
+    static bool verifyWithSignCheck(const QString &executablePath);
 };
 
 #endif // EXECUTABLE_SIGNATURE_MAC_H

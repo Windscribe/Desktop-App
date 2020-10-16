@@ -11,6 +11,9 @@ class ExecutableSignature
 public:
     static bool isParentProcessGui();
     static bool verify(const QString &executablePath);
+
+    static bool verifyWithSignCheck(const QString &executable);
+
 };
 
 #endif // EXECUTABLE_SIGNATURE_H

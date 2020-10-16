@@ -3,6 +3,7 @@
 #include <time.h>
 #include <thread>
 #include <limits>
+#include <QDir>
 #include "logger.h"
 #include <google/protobuf/repeated_field.h>
 
@@ -12,6 +13,7 @@
 #elif defined Q_OS_MAC
     #include "macutils.h"
     #include <math.h>
+    #include <unistd.h>
 #endif
 
 using namespace Utils;
@@ -337,4 +339,91 @@ QString Utils::getLocalIP()
 #else
     return WinUtils::getLocalIP();
 #endif
+}
+
+unsigned long Utils::getCurrentPid()
+{
+#ifdef Q_OS_MAC
+    return static_cast<unsigned long>(getpid());
+#else
+    return GetCurrentProcessId();
+#endif
+}
+
+const QString Utils::filenameEscapeSpaces(const QString &filename)
+{
+    QString result("");
+    foreach (QChar c, filename)
+    {
+        if (c == ' ') result.append('\\');
+        result.append(c);
+    }
+    return result;
+}
+
+const QString Utils::filenameQuotedSingle(const QString &filename)
+{
+    return "'" + filename + "'";
+}
+
+const QString Utils::filenameQuotedDouble(const QString &filename)
+{
+    return "\"" + filename + "\"";
+}
+
+bool Utils::copyDirectoryRecursive(QString fromDir, QString toDir)
+{
+    if (!QFileInfo::exists(fromDir))
+    {
+        return false;
+    }
+
+    QDir dir;
+    dir.setPath(fromDir);
+
+    fromDir += QDir::separator();
+    toDir += QDir::separator();
+
+    foreach (QString copy_file, dir.entryList(QDir::Files))
+    {
+        QString from = fromDir + copy_file;
+        QString to = toDir + copy_file;
+
+        if (QFile::exists(to))
+        {
+            if (QFile::remove(to) == false)
+            {
+                return false;
+            }
+        }
+
+        if (QFile::copy(from, to) == false)
+        {
+            return false;
+        }
+    }
+
+    foreach (QString copyDir, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+    {
+        QString from = fromDir + copyDir;
+        QString to = toDir + copyDir;
+
+        if (dir.mkpath(to) == false)
+        {
+            return false;
+        }
+        if (Utils::copyDirectoryRecursive(from, to) == false)
+        {
+            return false;
+        }
+    }
+    return true;
+
+
+}
+
+bool Utils::removeDirectory(const QString dir)
+{
+    QDir d(dir);
+    return d.removeRecursively();
 }

@@ -255,6 +255,30 @@ bool Helper_win::executeChangeMtu(const QString &adapter, int mtu)
     return mpr.success;
 }
 
+QString Helper_win::executeUpdateInstaller(const QString &installerPath, bool &success)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_RUN_UPDATE_INSTALLER cmdRunUpdateInstaller;
+    cmdRunUpdateInstaller.szUpdateInstallerLocation = installerPath.toStdWString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdRunUpdateInstaller;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RUN_UPDATE_INSTALLER, stream.str());
+
+    QString errorOutput = "";
+    if (!mpr.success)
+    {
+        errorOutput = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
+    }
+    success = mpr.success;
+    mpr.clear();
+
+    return errorOutput;
+}
+
 bool Helper_win::clearDnsOnTap()
 {
     QMutexLocker locker(&mutex_);

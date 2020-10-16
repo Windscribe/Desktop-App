@@ -50,7 +50,7 @@ private slots:
     void onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType l);
     void onLatencyItemChanged(QVariant o);
 
-    void onUpdateChannelPreferencesChanged(ProtoTypes::UpdateChannel c);
+    void onUpdateChannelPreferencesChanged(const ProtoTypes::UpdateChannel &c);
     void onUpdateChannelItemChanged(QVariant o);
 
     void onLanguageChanged();

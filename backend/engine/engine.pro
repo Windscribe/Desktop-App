@@ -263,6 +263,7 @@ SOURCES += main.cpp \
     engine/apiinfo/portmap.cpp \
     engine/apiinfo/staticips.cpp \
     engine/apiinfo/servercredentials.cpp \
+    engine/autoupdater/downloadhelper.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/locationsmodel/locationsmodel.cpp \
     engine/locationsmodel/apilocationsmodel.cpp \
@@ -280,6 +281,7 @@ SOURCES += main.cpp \
     engine/locationsmodel/nodeselectionalgorithm.cpp \
     engine/packetsizecontroller.cpp \
     engine/enginesettings.cpp \
+    engine/autoupdater/autoupdaterhelper_mac.cpp \
     utils/mergelog.cpp \
     engine/tempscripts_mac.cpp \
     utils/simplecrypt.cpp \
@@ -396,6 +398,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
+    ../../common/filenames.h \
     application/windowsnativeeventfilter.h \
     application/windscribeapplication.h \
     engine/apiinfo/apiinfo.h \
@@ -409,12 +412,14 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/apiinfo/servercredentials.h \
     engine/connectionmanager/makeovpnfile.h \
     engine/dnsresolver/dnsutils.h \
+    engine/autoupdater/downloadhelper.h \
     engine/macaddresscontroller/imacaddresscontroller.h \
     engine/networkdetectionmanager/inetworkdetectionmanager.h \
     $$COMMON_PATH/utils/networktypes.h \
     engine/ping/keepalivemanager.h \
     engine/packetsizecontroller.h \
     engine/enginesettings.h \
+    engine/autoupdater/autoupdaterhelper_mac.h \
     utils/mergelog.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \

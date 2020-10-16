@@ -54,7 +54,7 @@ public:
 
     void myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequestsEnabled);
 
-    void checkUpdate(bool isBetaChannel, uint userRole, bool isNeedCheckRequestsEnabled);
+    void checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint userRole, bool isNeedCheckRequestsEnabled);
     void debugLog(const QString &username, const QString &strLog, uint userRole, bool isNeedCheckRequestsEnabled);
     void speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating, uint userRole, bool isNeedCheckRequestsEnabled);
 
@@ -81,7 +81,7 @@ signals:
     void serverConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void portMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap, uint userRole);
     void myIPAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);
-    void checkUpdateAnswer(bool bAvailable, const QString &version, bool isBeta, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
+    void checkUpdateAnswer(bool bAvailable, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
     void debugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void confirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void staticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);

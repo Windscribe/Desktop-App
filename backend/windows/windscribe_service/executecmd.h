@@ -15,7 +15,8 @@ public:
 
 	MessagePacketResult executeBlockingCmd(wchar_t *cmd, HANDLE user_token = INVALID_HANDLE_VALUE);
 	MessagePacketResult executeUnblockingCmd(const wchar_t *cmd, const wchar_t *szEventName, const wchar_t *szWorkingDir);
-    MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
+	MessagePacketResult executeUnblockingBackgroundCmdAsElevatedUser(const wchar_t *cmd);
+	MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
     MessagePacketResult getActiveUnblockingCmdCount();
 	MessagePacketResult clearUnblockingCmd(unsigned long id);
 
@@ -54,6 +55,9 @@ private:
     void terminateCmd(unsigned long id, unsigned long waitTimeout);
 	void clearCmd(unsigned long id);
 	void clearAllCmds();
+
+	BOOL isTokenElevated(HANDLE handle);
+	void safeCloseHandle(HANDLE handle);
 };
 
 #endif // EXECUTECMD_H

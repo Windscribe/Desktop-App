@@ -32,7 +32,7 @@ WstunnelManager::~WstunnelManager()
 
 void WstunnelManager::runProcess(const QString &hostname, unsigned int port, bool isUdp)
 {
-    if (!ExecutableSignature::verify(wstunelExePath_))
+    if (!ExecutableSignature::verifyWithSignCheck(wstunelExePath_))
     {
         return;
     }

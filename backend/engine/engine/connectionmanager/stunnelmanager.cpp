@@ -36,7 +36,7 @@ StunnelManager::~StunnelManager()
 
 void StunnelManager::runProcess()
 {
-    if (!ExecutableSignature::verify(stunelExePath_))
+    if (!ExecutableSignature::verifyWithSignCheck(stunelExePath_))
     {
         return;
     }

@@ -211,7 +211,7 @@ void GeneralWindowItem::onLatencyItemChanged(QVariant o)
     preferences_->setLatencyDisplay((ProtoTypes::LatencyDisplayType)o.toInt());
 }
 
-void GeneralWindowItem::onUpdateChannelPreferencesChanged(ProtoTypes::UpdateChannel c)
+void GeneralWindowItem::onUpdateChannelPreferencesChanged(const ProtoTypes::UpdateChannel &c)
 {
     comboBoxUpdateChannel_->setCurrentItem((int)c);
 }
