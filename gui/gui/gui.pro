@@ -116,16 +116,12 @@ QMAKE_INFO_PLIST = info.plist
 makedir.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
 copydata.commands = $(COPY_DIR) $$PWD/../../../client-desktop-installer/mac/binaries/launcher/WindscribeLauncher.app $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
 
-#copy wsappcontrol to Windscribe.app/Contents/Library
-copydata2.commands = $(COPY_DIR) $$PWD/../../../client-desktop-installer/mac/binaries/wsappcontrol/wsappcontrol $$OUT_PWD/Windscribe.app/Contents/Library
-
-first.depends = $(first) makedir copydata copydata2
+first.depends = $(first) makedir copydata
 export(first.depends)
 export(makedir.commands)
 export(copydata.commands)
-export(copydata2.commands)
 #export(makedir4.commands)
-QMAKE_EXTRA_TARGETS += first makedir copydata copydata2 #makedir4 copydata4
+QMAKE_EXTRA_TARGETS += first makedir copydata #makedir4 copydata4
 
 # only for release build
 # comment CONFIG... line if need embedded engine and cli for debug purposes
