@@ -291,26 +291,6 @@ bool LocationsModel::getLocationInfo(const LocationID &id, LocationsModel::Locat
     return false;
 }
 
-/*QList<CityModelItem> LocationsModel::activeCityModelItems()
-{
-    QList<CityModelItem> cities;
-
-    for (int  i = 0; i < locations_.count(); ++i)
-    {
-        LocationModelItem *lmi = locations_[i];
-        LocationID id = lmi->id;
-
-        for (int k = 0; k < locations_[i]->cities.count(); ++k)
-        {
-            // if (!lmi->cities[k].isDisabled)
-            {
-                cities.append(lmi->cities[k]);
-            }
-        }
-    }
-    return cities;
-}*/
-
 QSharedPointer<LocationModelItem>
 LocationsModel::getLocationModelItemByTitle(const QString &title) const
 {
@@ -364,27 +344,6 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
             emit locationSpeedChanged(bestLocationId_, speed);
         }
     }
-}
-
-// example of location string: NL, Toronto #1, etc
-LocationID LocationsModel::getLocationIdByName(const QString &location) const
-{
-    for (auto lmi : qAsConst(apiLocations_))
-    {
-        if (lmi->countryCode.compare(location, Qt::CaseInsensitive) == 0)
-        {
-            return LocationID(lmi->id);
-        }
-        for (const CityModelItem &city: lmi->cities)
-        {
-            if (city.city.compare(location, Qt::CaseInsensitive) == 0)
-            {
-                return city.id;
-            }
-        }
-    }
-
-    return LocationID();
 }
 
 LocationID LocationsModel::findLocationByFilter(const QString &strFilter) const

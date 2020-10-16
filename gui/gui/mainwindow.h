@@ -15,7 +15,6 @@
 #include "blockconnect.h"
 #include "freetrafficnotificationcontroller.h"
 #include "graphicresources/iconmanager.h"
-#include "localhttpserver/localhttpserver.h"
 #include "guitest.h"
 #include "systemtray/locationstraymenuwidget.h"
 
@@ -281,7 +280,6 @@ private:
     void openStaticIpExternalWindow();
     void addCustomConfigFolder();
 
-    LocalHttpServer *localHttpServer_;
     bool onLocalHttpServerCommand(QString authHash, bool isConnectCmd, bool isDisconnectCmd, QString location);
 
     bool revealingConnectWindow_;

@@ -38,13 +38,12 @@ public:
     void switchFavorite(const LocationID &id, bool isFavorite);
     bool getLocationInfo(const LocationID &id, LocationInfo &li);
 
-    //QList<CityModelItem> activeCityModelItems();
     QSharedPointer<LocationModelItem> getLocationModelItemByTitle(const QString &title) const;
 
     void setFreeSessionStatus(bool isFreeSessionStatus);
     void changeConnectionSpeed(LocationID id, PingTime speed);
 
-    LocationID getLocationIdByName(const QString &location) const;
+    //LocationID getLocationIdByName(const QString &location) const;
 
     // Could be region name, country code, server name
     // for example "Toronto", "The Six", "CA", "Canada East" would all be valid

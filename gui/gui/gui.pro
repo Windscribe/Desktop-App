@@ -202,7 +202,6 @@ SOURCES += \
     graphicresources/iconmanager.cpp \
     graphicresources/independentpixmap.cpp \
     launchonstartup/launchonstartup.cpp \
-    localhttpserver/localhttpserver.cpp \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.cpp \
     preferenceswindow/debugwindow/apiresolutionitem.cpp \
     preferenceswindow/generalwindow/versioninfoitem.cpp \
@@ -419,7 +418,6 @@ HEADERS += \
     graphicresources/iconmanager.h \
     graphicresources/independentpixmap.h \
     launchonstartup/launchonstartup.h \
-    localhttpserver/localhttpserver.h \
     locationswindow/widgetlocations/icityitem.h \
     loginwindow/iinitwindow.h \
     loginwindow/initwindowitem.h \

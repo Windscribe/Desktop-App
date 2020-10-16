@@ -281,11 +281,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     backend_->init();
 
-    localHttpServer_ = new LocalHttpServer(this, std::bind(&MainWindow::onLocalHttpServerCommand, this, std::placeholders::_1,
-                                                           std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    localHttpServer_->startServer();
-
-
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
     mainWindowController_->getInitWindow()->startWaitingAnimation();
 
@@ -330,7 +325,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    SAFE_DELETE(localHttpServer_);
+
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
@@ -1114,61 +1109,6 @@ void MainWindow::addCustomConfigFolder()
         backend_->getPreferences()->setCustomOvpnConfigsPath(path);
         backend_->sendEngineSettingsIfChanged();
     }
-}
-
-bool MainWindow::onLocalHttpServerCommand(QString authHash, bool isConnectCmd, bool isDisconnectCmd, QString location)
-{
-    if (backend_->isInitFinished())
-    {
-        if (!isConnectCmd && !isDisconnectCmd)
-        {
-            if (!isLoginOkAndConnectWindowVisible_)
-            {
-                qCDebug(LOG_USER) << "Do autologin for authHash =" << authHash;
-                mainWindowController_->getLoggingInWindow()->setMessage(QT_TRANSLATE_NOOP("LoginWindow::LoggingInWindowItem", "Logging you in..."));
-                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
-                backend_->loginWithAuthHash(authHash);
-                return true;
-            }
-        }
-        else if (isConnectCmd)
-        {
-            if (isLoginOkAndConnectWindowVisible_ && backend_->getCurrentAuthHash() == authHash)
-            {
-                // if we in disconnected state, then make connect
-                if (backend_->isDisconnected())
-                {
-                    if (location.isEmpty())
-                    {
-                        onConnectWindowConnectClick();
-                    }
-                    else
-                    {
-                        LocationID locationId = backend_->getLocationsModel()->getLocationIdByName(location);
-                        if (locationId.isValid())
-                        {
-                            onLocationSelected(locationId);
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        else if (isDisconnectCmd)
-        {
-            if (isLoginOkAndConnectWindowVisible_ && backend_->getCurrentAuthHash() == authHash)
-            {
-                // if we in connected or connecting state, then make disconnect
-                if (!backend_->isDisconnected())
-                {
-                    backend_->sendDisconnect();
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
 }
 
 void MainWindow::onLocationsAddCustomConfigClicked()
