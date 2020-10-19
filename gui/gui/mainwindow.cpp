@@ -134,6 +134,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(locationsWindow_, SIGNAL(addCustomConfigClicked()), SLOT(onLocationsAddCustomConfigClicked()));
     locationsWindow_->setLatencyDisplay(backend_->getPreferences()->latencyDisplay());
     locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(setLatencyDisplay(ProtoTypes::LatencyDisplayType)) );
+    locationsWindow_->connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(setCustomConfigsPath(QString)));
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -1186,7 +1187,6 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
         {
             mainWindowController_->getConnectWindow()->setProtocolPort(p->connectionSettings().protocol(), p->connectionSettings().port());
         }
-
     }
     else if (initState == ProtoTypes::INIT_BFE_SERVICE_NOT_STARTED)
     {
@@ -1219,7 +1219,7 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
     }
 }
 
-void MainWindow::onBackendLoginFinished(bool isLoginFromSavedSettings)
+void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
 {
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
     mainWindowController_->getTwoFactorAuthWindow()->clearCurrentCredentials();

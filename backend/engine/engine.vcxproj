@@ -389,6 +389,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\apiinfo\servercredentials.cpp" />
     <ClCompile Include="engine\apiinfo\sessionstatus.cpp" />
     <ClCompile Include="engine\apiinfo\staticips.cpp" />
+    <ClCompile Include="engine\autoupdater\autoupdaterhelper_mac.cpp" />
+    <ClCompile Include="engine\autoupdater\downloadhelper.cpp" />
     <ClCompile Include="engine\connectionmanager\connsettingspolicy\autoconnsettingspolicy.cpp" />
     <ClCompile Include="engine\connectionmanager\connsettingspolicy\customconfigconnsettingspolicy.cpp" />
     <ClCompile Include="engine\connectionmanager\connsettingspolicy\manualconnsettingspolicy.cpp" />
@@ -600,6 +602,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="engine\connectionmanager\connsettingspolicy\baseconnsettingspolicy.h" />
     <QtMoc Include="engine\connectionmanager\connsettingspolicy\customconfigconnsettingspolicy.h" />
     <QtMoc Include="engine\connectionmanager\connsettingspolicy\manualconnsettingspolicy.h" />
+    <ClInclude Include="engine\autoupdater\autoupdaterhelper_mac.h" />
+    <QtMoc Include="engine\autoupdater\downloadhelper.h" />
     <ClInclude Include="engine\connectionmanager\restorednsmanager_mac.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

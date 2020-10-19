@@ -61,10 +61,12 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     connect(widgetConfiguredLocations_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(widgetStaticIpsLocations_,  SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(widgetFavoriteLocations_,   SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
+    connect(configFooterInfo_,          SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
     connect(widgetAllLocations_,        SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(widgetConfiguredLocations_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(widgetStaticIpsLocations_,  SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(widgetFavoriteLocations_,   SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
+    connect(configFooterInfo_,          SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 
     widgetAllLocations_->setModel(locationsModel->getAllLocationsModel());
     widgetConfiguredLocations_->setModel(locationsModel->getConfiguredLocationsModel());
@@ -488,6 +490,7 @@ void LocationsTab::updateScaling()
     widgetFavoriteLocations_->  updateScaling();
     widgetStaticIpsLocations_-> updateScaling();
     widgetConfiguredLocations_->updateScaling();
+    configFooterInfo_->         updateScaling();
 }
 
 void LocationsTab::updateLanguage()
@@ -505,6 +508,11 @@ void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
         widgetStaticIpsLocations_ ->setShowLatencyInMs(isShowLatencyInMs);
         widgetFavoriteLocations_  ->setShowLatencyInMs(isShowLatencyInMs);
     }
+}
+
+void LocationsTab::setCustomConfigsPath(QString path)
+{
+    configFooterInfo_->setText(path);
 }
 
 void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, int offsetY)

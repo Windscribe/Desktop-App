@@ -398,6 +398,11 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp" />
+    <ClCompile Include="overlaysconnectwindow\generalmessagetwobuttonwindowitem.cpp" />
+    <ClCompile Include="overlaysconnectwindow\generalmessagewindowitem.cpp" />
+    <ClCompile Include="overlaysconnectwindow\updateappitem.cpp" />
+    <ClCompile Include="overlaysconnectwindow\updatewindowitem.cpp" />
+    <ClCompile Include="overlaysconnectwindow\upgradewindowitem.cpp" />
     <ClCompile Include="preferenceswindow\accountwindow\accountwindowitem.cpp" />
     <ClCompile Include="preferenceswindow\connectionwindow\packetsizeeditboxitem.cpp" />
     <ClCompile Include="preferenceswindow\debugwindow\advancedparametersitem.cpp" />
@@ -479,8 +484,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="graphicresources\fontdescr.cpp" />
     <ClCompile Include="graphicresources\fontmanager.cpp" />
     <ClCompile Include="freetrafficnotificationcontroller.cpp" />
-    <ClCompile Include="generalmessage\generalmessagetwobuttonwindowitem.cpp" />
-    <ClCompile Include="generalmessage\generalmessagewindowitem.cpp" />
     <ClCompile Include="preferenceswindow\generalwindow\generalwindowitem.cpp" />
     <ClCompile Include="..\backend\preferences\guisettingsfromver1.cpp" />
     <ClCompile Include="guitest.cpp" />
@@ -502,7 +505,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\utils\languagesutil.cpp" />
     <ClCompile Include="launchonstartup\launchonstartup.cpp" />
     <ClCompile Include="launchonstartup\launchonstartup_win.cpp" />
-    <ClCompile Include="localhttpserver\localhttpserver.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\locationitem.cpp" />
     <ClCompile Include="connectwindow\locationsbutton.cpp" />
     <ClCompile Include="..\backend\locationsmodel\locationsmodel.cpp" />
@@ -590,8 +592,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="tooltips\tooltipdescriptive.cpp" />
     <ClCompile Include="..\backend\types\types.cpp" />
     <ClCompile Include="..\..\common\ipc\generated_proto\types.pb.cc" />
-    <ClCompile Include="updateapp\updateappitem.cpp" />
-    <ClCompile Include="update\updatewindowitem.cpp" />
     <ClCompile Include="..\backend\types\upgrademodetype.cpp" />
     <ClCompile Include="bottominfowidget\upgradewidget\upgradewidgetitem.cpp" />
     <ClCompile Include="preferenceswindow\accountwindow\usernameitem.cpp" />
@@ -715,6 +715,16 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <ClInclude Include="locationswindow\widgetlocations\cursorupdatehelper.h" />
     <QtMoc Include="preferenceswindow\connectionwindow\packetsizeeditboxitem.h" />
+    <QtMoc Include="overlaysconnectwindow\generalmessagetwobuttonwindowitem.h" />
+    <QtMoc Include="overlaysconnectwindow\generalmessagewindowitem.h" />
+    <ClInclude Include="overlaysconnectwindow\igeneralmessagetwobuttonwindow.h" />
+    <ClInclude Include="overlaysconnectwindow\igeneralmessagewindow.h" />
+    <ClInclude Include="overlaysconnectwindow\iupdateappitem.h" />
+    <ClInclude Include="overlaysconnectwindow\iupdatewindow.h" />
+    <ClInclude Include="overlaysconnectwindow\iupgradewindow.h" />
+    <QtMoc Include="overlaysconnectwindow\updateappitem.h" />
+    <QtMoc Include="overlaysconnectwindow\updatewindowitem.h" />
+    <QtMoc Include="overlaysconnectwindow\upgradewindowitem.h" />
     <ClInclude Include="preferenceswindow\dividerline.h" />
     <QtMoc Include="preferenceswindow\connectionwindow\dnswhileconnecteditem.h">
     </QtMoc>
@@ -761,10 +771,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="graphicresources\fontmanager.h" />
     <QtMoc Include="freetrafficnotificationcontroller.h">
     </QtMoc>
-    <QtMoc Include="generalmessage\generalmessagetwobuttonwindowitem.h">
-    </QtMoc>
-    <QtMoc Include="generalmessage\generalmessagewindowitem.h">
-    </QtMoc>
     <QtMoc Include="preferenceswindow\generalwindow\generalwindowitem.h">
     </QtMoc>
     <ClInclude Include="..\backend\preferences\guisettingsfromver1.h" />
@@ -785,8 +791,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="connectwindow\iconnectwindow.h" />
     <ClInclude Include="emergencyconnectwindow\iemergencyconnectwindow.h" />
     <ClInclude Include="externalconfig\iexternalconfigwindow.h" />
-    <ClInclude Include="generalmessage\igeneralmessagetwobuttonwindow.h" />
-    <ClInclude Include="generalmessage\igeneralmessagewindow.h" />
     <ClInclude Include="loginwindow\iinitwindow.h" />
     <ClInclude Include="loginwindow\ilogginginwindow.h" />
     <ClInclude Include="loginwindow\iloginwindow.h" />
@@ -808,16 +812,12 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\ipc\iserver.h" />
     <ClInclude Include="locationswindow\widgetlocations\itemtimems.h" />
     <ClInclude Include="tooltips\itooltip.h" />
-    <ClInclude Include="updateapp\iupdateappitem.h" />
-    <ClInclude Include="update\iupdatewindow.h" />
     <ClInclude Include="locationswindow\widgetlocations\iwidgetlocationsinfo.h" />
     <QtMoc Include="languagecontroller.h">
     </QtMoc>
     <ClInclude Include="..\..\common\utils\languagesutil.h" />
     <ClInclude Include="launchonstartup\launchonstartup.h" />
     <ClInclude Include="launchonstartup\launchonstartup_win.h" />
-    <QtMoc Include="localhttpserver\localhttpserver.h">
-    </QtMoc>
     <ClInclude Include="locationswindow\widgetlocations\locationitem.h" />
     <ClInclude Include="..\backend\locationsmodel\locationmodelitem.h" />
     <QtMoc Include="connectwindow\locationsbutton.h">
@@ -972,10 +972,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="tooltips\tooltiptypes.h" />
     <ClInclude Include="..\backend\types\types.h" />
     <ClInclude Include="..\..\common\ipc\generated_proto\types.pb.h" />
-    <QtMoc Include="updateapp\updateappitem.h">
-    </QtMoc>
-    <QtMoc Include="update\updatewindowitem.h">
-    </QtMoc>
     <ClInclude Include="..\backend\types\upgrademodetype.h" />
     <QtMoc Include="bottominfowidget\upgradewidget\upgradewidgetitem.h">
     </QtMoc>

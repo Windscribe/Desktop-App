@@ -36,6 +36,7 @@ public:
 
 public slots:
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
+    void setCustomConfigsPath(QString path);
 
 protected:
     virtual void paintEvent(QPaintEvent *event);

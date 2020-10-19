@@ -224,7 +224,6 @@
         <file>svg/RATE_SPEED_GOOD_OFF.svg</file>
         <file>svg/RATE_SPEED_GOOD_ON.svg</file>
         <file>svg/locations/ADD_ICON.svg</file>
-        <file>svg/locations/FOLDER_ICON.svg</file>
         <file>svg/BADGE_BLACK_ICON.svg</file>
         <file>svg/SHUTDOWN_ICON.svg</file>
         <file>svg/RENEW_PRO_ICON.svg</file>
@@ -271,5 +270,9 @@
         <file>svg/locations/PRO_REGION_STAR_DARK.svg</file>
         <file>svg/locations/PRO_REGION_STAR_LIGHT.svg</file>
         <file>svg/login/TWOFA_ICON.svg</file>
+        <file>svg/locations/ERROR_ICON.svg</file>
+        <file>svg/locations/OVPN_ICON.svg</file>
+        <file>svg/locations/WG_ICON.svg</file>
+        <file>svg/locations/EDIT_ICON.svg</file>
     </qresource>
 </RCC>

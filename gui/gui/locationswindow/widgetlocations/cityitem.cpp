@@ -212,6 +212,8 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
     painter->setOpacity(1.0);
     drawBottomLine(painter, rc.left() + 24, rc.right(), rc.bottom(), 0.0);
 
+    const bool is_custom_config = cityNode.getLocationId().isCustomConfigsLocation();
+
     if (!cityNode_.getStaticIp().isEmpty())
     {
         IndependentPixmap *datacenterPixmap = NULL;
@@ -245,6 +247,20 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
         int premiumStarPixmapHeight = premiumStarPixmap->height();
         premiumStarPixmap->draw(rc.left() + 16 * G_SCALE, rc.top() + (rc.height() - premiumStarPixmapHeight) / 2, painter);
     }
+    else if (is_custom_config)
+    {
+        QString type = cityNode.getCustomConfigType();
+        if (!type.isEmpty()) {
+            IndependentPixmap *configPixmap = ImageResourcesSvg::instance().getIndependentPixmap(
+                QString("locations/%1_ICON").arg(type.toUpper()));
+            if (configPixmap) {
+                const int pixmapHeight = configPixmap->height();
+                painter->setOpacity(bSelected && !cityNode.isDisabled() ? 1.0 : 0.5);
+                configPixmap->draw(rc.left() + 16 * G_SCALE,
+                                   rc.top() + (rc.height() - pixmapHeight) / 2, painter);
+            }
+        }
+    }
     else
     {
         IndependentPixmap *favoritePixmap;
@@ -269,7 +285,7 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
     cityNode.getCaption1TextLayout()->draw(painter, QPoint(64 * G_SCALE, rc.top() + (rc.height() - boundingRect1.height()) / 2 - 1*G_SCALE));
 
     // caption 2
-    if (cityNode.getStaticIp() == "")
+    if (!is_custom_config && cityNode.getStaticIp() == "")
     {
         QRectF boundingRect2 = cityNode.getCaption2TextLayout()->boundingRect();
         cityNode.getCaption2TextLayout()->draw(painter, QPoint(68 * G_SCALE + boundingRect1.width(), rc.top() + (rc.height() - boundingRect2.height()) / 2 - 1*G_SCALE));
@@ -283,8 +299,18 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
     if (disabled)
     {
         painter->setOpacity(.3);
-        IndependentPixmap *pingBarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/UNDER_CONSTRUCTION_ICON");
+        IndependentPixmap *pingBarPixmap = nullptr;
 
+        if (cityNode.getLocationId().isCustomConfigsLocation() && !cityNode.isCustomConfigCorrect())
+        {
+            pingBarPixmap = ImageResourcesSvg::instance().getIndependentPixmap(
+                "locations/ERROR_ICON");
+        }
+        else
+        {
+            pingBarPixmap = ImageResourcesSvg::instance().getIndependentPixmap(
+                "locations/UNDER_CONSTRUCTION_ICON");
+        }
         int pingBarPixmapHeight = pingBarPixmap->height();
         pingBarPixmap->draw(rc.right() - pingBarPixmap->width() - 16 * G_SCALE, rc.top() + (rc.height() - pingBarPixmapHeight) / 2, painter);
     }
@@ -388,6 +414,10 @@ bool CityItem::isCursorOverConnectionMeter(const QPoint &pt)
 bool CityItem::isCursorOverFavoriteIcon(const QPoint &pt, const CityNode &cityNode)
 {
     if (cityNode.isShowPremiumStar() && widgetLocationsInfo_->isFreeSessionStatus())
+    {
+        return false;
+    }
+    if (cityNode.getLocationId().isCustomConfigsLocation())
     {
         return false;
     }

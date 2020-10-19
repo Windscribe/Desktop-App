@@ -75,6 +75,11 @@ void LocationsWindow::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
     locationsTab_->setLatencyDisplay(l);
 }
 
+void LocationsWindow::setCustomConfigsPath(QString path)
+{
+    locationsTab_->setCustomConfigsPath(path);
+}
+
 void LocationsWindow::onLanguageChanged()
 {
     locationsTab_->updateLanguage();

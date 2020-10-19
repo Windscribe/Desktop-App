@@ -16,6 +16,11 @@ QString WireguardCustomConfig::name() const
     return name_;
 }
 
+QString WireguardCustomConfig::nick() const
+{
+    return nick_;
+}
+
 QString WireguardCustomConfig::filename() const
 {
     return filename_;
@@ -104,6 +109,7 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
             endpointPort_ = QString(":%1").arg(endpointPortNumber_);
     }
     file.endGroup();
+    nick_ = endpointHostname_;
 }
 
 void WireguardCustomConfig::validate()

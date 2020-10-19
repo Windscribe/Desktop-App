@@ -213,6 +213,7 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
             CityItem city;
             city.id = LocationID::createCustomConfigLocationId(config.customConfig->filename());
             city.city = config.customConfig->name();
+            city.nick = config.customConfig->nick();
             city.pingTimeMs = config.getPing();
             city.isPro = true;
             city.isDisabled = false;
