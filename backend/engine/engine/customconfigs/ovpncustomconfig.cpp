@@ -16,6 +16,11 @@ QString OvpnCustomConfig::name() const
     return name_;
 }
 
+QString OvpnCustomConfig::nick() const
+{
+    return nick_;
+}
+
 QString OvpnCustomConfig::filename() const
 {
     return filename_;
@@ -132,6 +137,10 @@ void OvpnCustomConfig::process()
             qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << filepath_ << "incorrect, because can't find remote host command. The file format may be incorrect.";
             isCorrect_ = false;
             errMessage_ = "Can't find remote host command";
+        }
+        else
+        {
+            nick_ = remotes_[0].hostname;
         }
     }
     else

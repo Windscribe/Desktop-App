@@ -11,11 +11,15 @@
 namespace GuiLocations {
 
 
-CityItem::CityItem(IWidgetLocationsInfo *widgetLocationsInfo, const LocationID &locationId, const QString &cityName1ForShow, const QString &cityName2ForShow, const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly,
-                   bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType, bool isFavorite, bool isDisabled) :
+CityItem::CityItem(IWidgetLocationsInfo *widgetLocationsInfo, const LocationID &locationId,
+                   const QString &cityName1ForShow, const QString &cityName2ForShow,
+                   const QString &countryCode, PingTime timeMs, bool bShowPremiumStarOnly,
+                   bool isShowLatencyMs, const QString &staticIp, const QString &staticIpType,
+                   bool isFavorite, bool isDisabled, bool isCustomConfigCorrect,
+                   const QString &customConfigType, const QString &customConfigErrorMessage) :
     cityNode_(locationId, cityName1ForShow, cityName2ForShow, countryCode, timeMs,
               bShowPremiumStarOnly, isShowLatencyMs, staticIp, staticIpType, isFavorite,
-              isDisabled),
+              isDisabled, isCustomConfigCorrect, customConfigType, customConfigErrorMessage),
     isSelected_(false), isCursorOverConnectionMeter_(false),
     isCursorOverCaption1Text_(false),
     isCursorOverFavouriteIcon_(false),
@@ -28,12 +32,12 @@ void CityItem::setSelected(bool isSelected)
     isSelected_ = isSelected;
 }
 
-bool CityItem::isSelected()
+bool CityItem::isSelected() const
 {
     return isSelected_;
 }
 
-LocationID CityItem::getLocationId()
+LocationID CityItem::getLocationId() const
 {
     return cityNode_.getLocationId();
 }
@@ -43,22 +47,22 @@ QString CityItem::getCountryCode() const
     return cityNode_.getCountryCode();
 }
 
-int CityItem::getPingTimeMs()
+int CityItem::getPingTimeMs() const
 {
     return cityNode_.timeMs().toInt();
 }
 
-QString CityItem::getCaption1TruncatedText()
+QString CityItem::getCaption1TruncatedText() const
 {
     return cityNode_.getCaption1TextLayout()->text();
 }
 
-QString CityItem::getCaption1FullText()
+QString CityItem::getCaption1FullText() const
 {
     return cityNode_.caption1FullText();
 }
 
-QPoint CityItem::getCaption1TextCenter()
+QPoint CityItem::getCaption1TextCenter() const
 {
     QRectF rect = cityNode_.getCaption1TextLayout()->boundingRect();
     return QPoint(static_cast<int>(rect.x() + rect.width()/2), static_cast<int>(rect.y() + rect.height()/2));
@@ -120,12 +124,12 @@ bool CityItem::detectOverFavoriteIconCity()
     return cityNode_.getStaticIp().isEmpty() && cityNode_.isCursorOverFavoriteIcon();
 }
 
-bool CityItem::isForbidden()
+bool CityItem::isForbidden() const
 {
     return cityNode_.isShowPremiumStar() && widgetLocationsInfo_->isFreeSessionStatus();
 }
 
-bool CityItem::isNoConnection()
+bool CityItem::isNoConnection() const
 {
     /*if (ind == 0)
     {
@@ -138,11 +142,21 @@ bool CityItem::isNoConnection()
     return false;
 }
 
-bool CityItem::isDisabled()
+bool CityItem::isDisabled() const
 {
     // API returns disabled for all premium locations when free user session
     // Free users should see premium locations as enabled
     return isForbidden() ? false : cityNode_.isDisabled();
+}
+
+bool CityItem::isCustomConfigCorrect() const
+{
+    return cityNode_.isCustomConfigCorrect();
+}
+
+QString CityItem::getCustomConfigErrorMessage() const
+{
+    return cityNode_.getCustomConfigErrorMessage();
 }
 
 int CityItem::findCityInd(const LocationID &locationId)
@@ -198,6 +212,8 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
     painter->setOpacity(1.0);
     drawBottomLine(painter, rc.left() + 24, rc.right(), rc.bottom(), 0.0);
 
+    const bool is_custom_config = cityNode.getLocationId().isCustomConfigsLocation();
+
     if (!cityNode_.getStaticIp().isEmpty())
     {
         IndependentPixmap *datacenterPixmap = NULL;
@@ -231,6 +247,20 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
         int premiumStarPixmapHeight = premiumStarPixmap->height();
         premiumStarPixmap->draw(rc.left() + 16 * G_SCALE, rc.top() + (rc.height() - premiumStarPixmapHeight) / 2, painter);
     }
+    else if (is_custom_config)
+    {
+        QString type = cityNode.getCustomConfigType();
+        if (!type.isEmpty()) {
+            IndependentPixmap *configPixmap = ImageResourcesSvg::instance().getIndependentPixmap(
+                QString("locations/%1_ICON").arg(type.toUpper()));
+            if (configPixmap) {
+                const int pixmapHeight = configPixmap->height();
+                painter->setOpacity(bSelected && !cityNode.isDisabled() ? 1.0 : 0.5);
+                configPixmap->draw(rc.left() + 16 * G_SCALE,
+                                   rc.top() + (rc.height() - pixmapHeight) / 2, painter);
+            }
+        }
+    }
     else
     {
         IndependentPixmap *favoritePixmap;
@@ -255,7 +285,7 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
     cityNode.getCaption1TextLayout()->draw(painter, QPoint(64 * G_SCALE, rc.top() + (rc.height() - boundingRect1.height()) / 2 - 1*G_SCALE));
 
     // caption 2
-    if (cityNode.getStaticIp() == "")
+    if (!is_custom_config && cityNode.getStaticIp() == "")
     {
         QRectF boundingRect2 = cityNode.getCaption2TextLayout()->boundingRect();
         cityNode.getCaption2TextLayout()->draw(painter, QPoint(68 * G_SCALE + boundingRect1.width(), rc.top() + (rc.height() - boundingRect2.height()) / 2 - 1*G_SCALE));
@@ -269,8 +299,18 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
     if (disabled)
     {
         painter->setOpacity(.3);
-        IndependentPixmap *pingBarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/UNDER_CONSTRUCTION_ICON");
+        IndependentPixmap *pingBarPixmap = nullptr;
 
+        if (cityNode.getLocationId().isCustomConfigsLocation() && !cityNode.isCustomConfigCorrect())
+        {
+            pingBarPixmap = ImageResourcesSvg::instance().getIndependentPixmap(
+                "locations/ERROR_ICON");
+        }
+        else
+        {
+            pingBarPixmap = ImageResourcesSvg::instance().getIndependentPixmap(
+                "locations/UNDER_CONSTRUCTION_ICON");
+        }
         int pingBarPixmapHeight = pingBarPixmap->height();
         pingBarPixmap->draw(rc.right() - pingBarPixmap->width() - 16 * G_SCALE, rc.top() + (rc.height() - pingBarPixmapHeight) / 2, painter);
     }
@@ -374,6 +414,10 @@ bool CityItem::isCursorOverConnectionMeter(const QPoint &pt)
 bool CityItem::isCursorOverFavoriteIcon(const QPoint &pt, const CityNode &cityNode)
 {
     if (cityNode.isShowPremiumStar() && widgetLocationsInfo_->isFreeSessionStatus())
+    {
+        return false;
+    }
+    if (cityNode.getLocationId().isCustomConfigsLocation())
     {
         return false;
     }

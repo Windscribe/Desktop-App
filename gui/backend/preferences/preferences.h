@@ -106,6 +106,7 @@ public:
     ProtoTypes::SplitTunnelingSettings splitTunnelingSettings();
     void setSplitTunnelingSettings(ProtoTypes::SplitTunnelingSettings settings);
 
+    QString customOvpnConfigsPath() const;
     void setCustomOvpnConfigsPath(const QString &path);
 
     void setEngineSettings(const ProtoTypes::EngineSettings &es);
@@ -136,6 +137,7 @@ signals:
     void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
     void isIgnoreSslErrorsChanged(bool b);
     void invalidLanAddressNotification(QString address);
+    void customConfigsPathChanged(QString path);
 
 #ifdef Q_OS_WIN
     void minimizeAndCloseToTrayChanged(bool b);

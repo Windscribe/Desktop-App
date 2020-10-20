@@ -4,6 +4,7 @@
 #include <QAbstractButton>
 #include <QVariantAnimation>
 #include "commonwidgets/iconbuttonwidget.h"
+#include "tooltips/tooltiptypes.h"
 
 class ConfigFooterInfo : public QAbstractButton
 {
@@ -12,9 +13,13 @@ public:
     explicit ConfigFooterInfo(QWidget *parent = nullptr);
 
     QSize sizeHint() const override;
+    void setText(const QString &text);
+    void updateScaling();
 
 signals:
     void addCustomConfigClicked();
+    void showTooltip(TooltipInfo info);
+    void hideTooltip(TooltipId id);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -30,8 +35,11 @@ private slots:
     void onIconOpacityChanged(const QVariant &value);
 
 private:
+    void updateDisplayText();
+
     bool pressed_;
-    QString text_;
+    QString fullText_;
+    QString displayText_;
 
     static constexpr int HEIGHT_ = 48;
     QFont font_;
@@ -41,8 +49,6 @@ private:
 
     double curIconOpacity_;
     QVariantAnimation iconOpacityAnimation_;
-
-
 };
 
 #endif // CONFIGLOCATIONFOOTER_H

@@ -177,6 +177,19 @@ void LocationsModel::updateCustomConfigLocations(const ProtoTypes::ArrayLocation
             cmi.staticIpCountryCode = QString::fromStdString(city.static_ip_country_code());
             cmi.staticIpType = QString::fromStdString(city.static_ip_type());
             cmi.staticIp = QString::fromStdString(city.static_ip());
+            cmi.isCustomConfigCorrect = city.custom_config_is_correct();
+            switch (city.custom_config_type()) {
+            case ProtoTypes::CustomConfigType::CUSTOM_CONFIG_OPENVPN:
+                cmi.customConfigType = "ovpn";
+                break;
+            case ProtoTypes::CustomConfigType::CUSTOM_CONFIG_WIREGUARD:
+                cmi.customConfigType = "wg";
+                break;
+            default:
+                Q_ASSERT(false);
+                break;
+            }
+            cmi.customConfigErrorMessage = QString::fromStdString(city.custom_config_error_message());
             lmi->cities << cmi;
         }
 

@@ -134,6 +134,9 @@
     <Filter Include="Engine Files\engine\connectionmanager\connsettingspolicy">
       <UniqueIdentifier>{274327a4-e16a-4cb9-aea2-ab1ae6ea996d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine Files\engine\autoupdater">
+      <UniqueIdentifier>{944efcb9-de3c-435e-9a46-06053cae505c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application\windowsnativeeventfilter.cpp">
@@ -616,6 +619,12 @@
     <ClCompile Include="engine\locationsmodel\apilocationsmodel.cpp">
       <Filter>Engine Files\engine\locationsmodel</Filter>
     </ClCompile>
+    <ClCompile Include="engine\autoupdater\autoupdaterhelper_mac.cpp">
+      <Filter>Engine Files\engine\autoupdater</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\autoupdater\downloadhelper.cpp">
+      <Filter>Engine Files\engine\autoupdater</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qconsolelistener.h">
@@ -888,6 +897,9 @@
     <QtMoc Include="engine\locationsmodel\apilocationsmodel.h">
       <Filter>Engine Files\engine\locationsmodel</Filter>
     </QtMoc>
+    <QtMoc Include="engine\autoupdater\downloadhelper.h">
+      <Filter>Engine Files\engine\autoupdater</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -905,7 +917,9 @@
     <CustomBuild Include="..\..\common\ipc\proto\servercommands.proto">
       <Filter>Common Files\ipc\proto</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto" />
+    <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto">
+      <Filter>Common Files\ipc\proto</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cert\cert.crt">
@@ -1211,6 +1225,9 @@
     </ClInclude>
     <ClInclude Include="..\..\common\types\locationid.h">
       <Filter>Common Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\autoupdater\autoupdaterhelper_mac.h">
+      <Filter>Engine Files\engine\autoupdater</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -42,7 +42,7 @@ void TextButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->drawText(boundingRect(), textAlignment_ , text_);
 }
 
-double TextButton::getOpacity()
+double TextButton::getOpacity() const
 {
     return curTextOpacity_;
 }
@@ -72,10 +72,14 @@ void TextButton::animateHide(int animationSpeed)
     startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_HIDDEN, animationSpeed);
 }
 
-int TextButton::getWidth()
+QFont TextButton::getFont() const
 {
-    QFont *font = FontManager::instance().getFont(fontDescr_);
-    return textWidth(text_,*font);
+    return *FontManager::instance().getFont(fontDescr_);
+}
+
+int TextButton::getWidth() const
+{
+    return textWidth(text_, getFont());
 }
 
 void TextButton::setText(QString text)
@@ -85,7 +89,7 @@ void TextButton::setText(QString text)
     update();
 }
 
-QString TextButton::text()
+QString TextButton::text() const
 {
     return text_;
 }

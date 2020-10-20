@@ -19,7 +19,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    double getOpacity();
+    double getOpacity() const;
     void quickSetOpacity(double opacity);
 
     void quickHide();
@@ -27,9 +27,10 @@ public:
     void animateHide(int animationSpeed);
     void unhover();
 
-    int getWidth();
+    QFont getFont() const;
+    int getWidth() const;
     void setText(QString text);
-    QString text();
+    QString text() const;
 
     void setCurrentOpacity(double opacity);
     void setUnhoverOpacity(double unhoverOpacity);

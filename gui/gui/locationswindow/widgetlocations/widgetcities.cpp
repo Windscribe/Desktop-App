@@ -178,8 +178,10 @@ void WidgetCities::updateListDisplay(QVector<CityModelItem*> items)
     Q_FOREACH(const CityModelItem *cmi, items)
     {
         CityItem *item = new CityItem(this, cmi->id, cmi->city, cmi->nick, cmi->countryCode,
-                                              cmi->pingTimeMs, cmi->bShowPremiumStarOnly, isShowLatencyInMs(), cmi->staticIp,
-                                              cmi->staticIpType, cmi->isFavorite, cmi->isDisabled);
+                                      cmi->pingTimeMs, cmi->bShowPremiumStarOnly,
+                                      isShowLatencyInMs(), cmi->staticIp, cmi->staticIpType,
+                                      cmi->isFavorite, cmi->isDisabled, cmi->isCustomConfigCorrect,
+                                      cmi->customConfigType, cmi->customConfigErrorMessage);
         items_ << item;
         indInVector++;
     }
@@ -599,6 +601,7 @@ void WidgetCities::scrollContentsBy(int dx, int dy)
 
     emit hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
     emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
 
     startAnimationTop_ = topOffs_;
 
@@ -942,6 +945,11 @@ void WidgetCities::setCursorForSelected()
             {
                 cursorUpdateHelper_->setPointingHandCursor();
             }
+            else if (items_[indSelected_]->isCursorOverConnectionMeter() &&
+                     !items_[indSelected_]->getCustomConfigErrorMessage().isEmpty())
+            {
+                cursorUpdateHelper_->setPointingHandCursor();
+            }
             else
             {
                 cursorUpdateHelper_->setForbiddenCursor();
@@ -1010,13 +1018,14 @@ void WidgetCities::handleMouseMoveForTooltip()
         {
             if (indSelected_ != -1)
             {
-                if (items_[indSelected_]->isCursorOverCaption1Text())
+                const auto *item = items_[indSelected_];
+                if (item->isCursorOverCaption1Text())
                 {
-                    QString fullText = items_[indSelected_]->getCaption1FullText();
-                    QString truncatedText = items_[indSelected_]->getCaption1TruncatedText();
+                    QString fullText = item->getCaption1FullText();
+                    QString truncatedText = item->getCaption1TruncatedText();
                     if (fullText != truncatedText)
                     {
-                        QString text = items_[indSelected_]->getCaption1FullText();
+                        QString text = item->getCaption1FullText();
                         QPoint pt = mapToGlobal(QPoint(75 * G_SCALE, getSelectItemCaption1TextCenter().y()));
 
                         TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
@@ -1028,7 +1037,25 @@ void WidgetCities::handleMouseMoveForTooltip()
                         emit showTooltip(ti);
                     }
                 }
-                else if (!bShowLatencyInMs_ && items_[indSelected_]->isCursorOverConnectionMeter())
+                else if (item->isCursorOverConnectionMeter() &&
+                         !item->getCustomConfigErrorMessage().isEmpty())
+                {
+                    QString text = item->getCustomConfigErrorMessage();
+                    if (!text.isEmpty()) {
+                        int ind = detectVisibleIndForCursorPos(QCursor::pos());
+                        int posY = viewportPosYOfIndex(ind, true);
+                        QPoint pt = mapToGlobal(QPoint((width_ - 24) * G_SCALE, posY - 13 * G_SCALE));
+
+                        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
+                        ti.x = pt.x();
+                        ti.y = pt.y();
+                        ti.title = text;
+                        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+                        ti.tailPosPercent = 0.8;
+                        emit showTooltip(ti);
+                    }
+                }
+                else if (!bShowLatencyInMs_ && item->isCursorOverConnectionMeter())
                 {
                     int ind = detectVisibleIndForCursorPos(QCursor::pos());
                     int posY = viewportPosYOfIndex(ind, true);
@@ -1039,18 +1066,19 @@ void WidgetCities::handleMouseMoveForTooltip()
                         TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
                         ti.x = pt.x();
                         ti.y = pt.y();
-                        ti.title = QString("%1 Ms").arg(items_[indSelected_]->getPingTimeMs());
+                        ti.title = QString("%1 Ms").arg(item->getPingTimeMs());
                         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
                         ti.tailPosPercent = 0.5;
                         emit showTooltip(ti);
                     }
                 }
-//              else if (items_[indSelected_]->isCursorOverP2P())
-//              else if (items_[indSelected_]->isForbidden(items_[indSelected_]->getSelected()) && !items_[indSelected_]->isCursorOverArrow())
+//              else if (item->isCursorOverP2P())
+//              else if (item->isForbidden(item->getSelected()) && !item->isCursorOverArrow())
                 else
                 {
                     emit hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
                     emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
                 }
             }
         }
@@ -1064,6 +1092,7 @@ void WidgetCities::handleLeaveForTooltip()
     {
         emit hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
         emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+        emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
     }
 }
 

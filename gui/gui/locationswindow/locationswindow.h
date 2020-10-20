@@ -24,6 +24,7 @@ public:
 
 public slots:
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
+    void setCustomConfigsPath(QString path);
     void onLanguageChanged();
 
 signals:

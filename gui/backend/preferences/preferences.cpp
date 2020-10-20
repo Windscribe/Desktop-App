@@ -527,11 +527,17 @@ void Preferences::setSplitTunnelingSettings(ProtoTypes::SplitTunnelingSettings s
     emit splitTunnelingChanged(st);
 }
 
+QString Preferences::customOvpnConfigsPath() const
+{
+    return QString::fromStdString(engineSettings_.customovpnconfigspath());
+}
+
 void Preferences::setCustomOvpnConfigsPath(const QString &path)
 {
     if (QString::fromStdString(engineSettings_.customovpnconfigspath()) != path)
     {
         engineSettings_.set_customovpnconfigspath(path.toStdString());
+        emit customConfigsPathChanged(path);
     }
 }
 
@@ -554,6 +560,7 @@ void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
     setMacAddrSpoofing(es.mac_addr_spoofing());
     setDnsPolicy(es.dns_policy());
     setKeepAlive(es.is_keep_alive_enabled());
+    setCustomOvpnConfigsPath(QString::fromStdString(es.customovpnconfigspath()));
     receivingEngineSettings_ = false;
 }
 

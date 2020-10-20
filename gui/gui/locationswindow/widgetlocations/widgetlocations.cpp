@@ -476,6 +476,7 @@ void WidgetLocations::scrollContentsBy(int dx, int dy)
 
     emit hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
     emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
 
     startAnimationTop_ = topOffs_;
     endAnimationTop_ = -getItemHeight() * verticalScrollBar()->value();
@@ -699,9 +700,14 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
         QVector<CityNode> cities;
         for (int i = 0; i < lmi->cities.count(); ++i)
         {
-            cities << CityNode(lmi->cities[i].id, lmi->cities[i].city, lmi->cities[i].nick, lmi->cities[i].countryCode,
-                               lmi->cities[i].pingTimeMs, lmi->cities[i].bShowPremiumStarOnly, isShowLatencyInMs(),
-                               lmi->cities[i].staticIp, lmi->cities[i].staticIpType, lmi->cities[i].isFavorite, lmi->cities[i].isDisabled);
+            cities << CityNode(lmi->cities[i].id, lmi->cities[i].city, lmi->cities[i].nick,
+                               lmi->cities[i].countryCode, lmi->cities[i].pingTimeMs,
+                               lmi->cities[i].bShowPremiumStarOnly, isShowLatencyInMs(),
+                               lmi->cities[i].staticIp, lmi->cities[i].staticIpType,
+                               lmi->cities[i].isFavorite, lmi->cities[i].isDisabled,
+                               lmi->cities[i].isCustomConfigCorrect,
+                               lmi->cities[i].customConfigType,
+                               lmi->cities[i].customConfigErrorMessage);
         }
         LocationItem *item = new LocationItem(this, lmi->id, lmi->countryCode, lmi->title,
                                               lmi->isShowP2P, PingTime(), cities, true, lmi->isPremiumOnly);
@@ -1184,6 +1190,7 @@ void WidgetLocations::handleMouseMoveForTooltip()
                 {
                     emit hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
                     emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
                 }
             }
         }
@@ -1198,6 +1205,7 @@ void WidgetLocations::handleLeaveForTooltip()
     {
         emit hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
         emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+        emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
     }
 }
 

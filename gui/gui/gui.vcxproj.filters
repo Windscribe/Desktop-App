@@ -56,17 +56,11 @@
     <Filter Include="GUI Files\externalconfig">
       <UniqueIdentifier>{75b675b7-8abe-4ea0-9239-c7446d21e883}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI Files\generalmessage">
-      <UniqueIdentifier>{b6bb4dae-a56c-4fe8-98f5-a4291a3a1d43}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GUI Files\graphicresources">
       <UniqueIdentifier>{cad8f0d1-4917-443e-adfc-76e1cfb18c83}</UniqueIdentifier>
     </Filter>
     <Filter Include="GUI Files\launchonstartup">
       <UniqueIdentifier>{9f39869f-bd01-476a-9065-c85716a3c73a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI Files\localhttpserver">
-      <UniqueIdentifier>{73140ad4-18db-4cd5-9e70-0928fc4f6b97}</UniqueIdentifier>
     </Filter>
     <Filter Include="GUI Files\locationswindow">
       <UniqueIdentifier>{872c65ae-575b-4523-8294-7016d4a1e305}</UniqueIdentifier>
@@ -122,12 +116,6 @@
     <Filter Include="GUI Files\types">
       <UniqueIdentifier>{c600641e-6fdb-4330-af54-b64eb1fe0813}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI Files\update">
-      <UniqueIdentifier>{b2b3f553-fae1-4b7e-b3a1-0f675fe83806}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI Files\updateapp">
-      <UniqueIdentifier>{5947ff41-ea4f-4dd6-8ba4-3c1ea0934fe7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GUI Files\utils">
       <UniqueIdentifier>{76292c3a-f631-41ab-b5e8-4de0537d2669}</UniqueIdentifier>
     </Filter>
@@ -170,6 +158,9 @@
     <Filter Include="Common Files\types">
       <UniqueIdentifier>{1eb7d2ff-ec11-4f3f-9aa9-406ed3a9b413}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI Files\overlaysconnectwindow">
+      <UniqueIdentifier>{6b266fc1-7021-410e-9119-848ae049c7d1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dialogs\dialogmessagecpuusage.cpp">
@@ -177,9 +168,6 @@
     </ClCompile>
     <ClCompile Include="dialogs\dialoggetusernamepassword.cpp">
       <Filter>GUI Files\dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="localhttpserver\localhttpserver.cpp">
-      <Filter>GUI Files\localhttpserver</Filter>
     </ClCompile>
     <ClCompile Include="..\backend\preferences\accountinfo.cpp">
       <Filter>Backend Files\preferences</Filter>
@@ -393,12 +381,6 @@
     </ClCompile>
     <ClCompile Include="graphicresources\fontmanager.cpp">
       <Filter>GUI Files\graphicresources</Filter>
-    </ClCompile>
-    <ClCompile Include="generalmessage\generalmessagetwobuttonwindowitem.cpp">
-      <Filter>GUI Files\generalmessage</Filter>
-    </ClCompile>
-    <ClCompile Include="generalmessage\generalmessagewindowitem.cpp">
-      <Filter>GUI Files\generalmessage</Filter>
     </ClCompile>
     <ClCompile Include="preferenceswindow\generalwindow\generalwindowitem.cpp">
       <Filter>GUI Files\preferenceswindow\generalwindow</Filter>
@@ -697,12 +679,6 @@
     <ClCompile Include="..\backend\types\types.cpp">
       <Filter>Backend Files\types</Filter>
     </ClCompile>
-    <ClCompile Include="updateapp\updateappitem.cpp">
-      <Filter>GUI Files\updateapp</Filter>
-    </ClCompile>
-    <ClCompile Include="update\updatewindowitem.cpp">
-      <Filter>GUI Files\update</Filter>
-    </ClCompile>
     <ClCompile Include="..\backend\types\upgrademodetype.cpp">
       <Filter>Backend Files\types</Filter>
     </ClCompile>
@@ -826,6 +802,21 @@
     <ClCompile Include="preferenceswindow\connectionwindow\packetsizeeditboxitem.cpp">
       <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
     </ClCompile>
+    <ClCompile Include="overlaysconnectwindow\generalmessagetwobuttonwindowitem.cpp">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="overlaysconnectwindow\generalmessagewindowitem.cpp">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="overlaysconnectwindow\updateappitem.cpp">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="overlaysconnectwindow\updatewindowitem.cpp">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="overlaysconnectwindow\upgradewindowitem.cpp">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -833,9 +824,6 @@
     </QtMoc>
     <QtMoc Include="dialogs\dialogmessagecpuusage.h">
       <Filter>GUI Files\dialogs</Filter>
-    </QtMoc>
-    <QtMoc Include="localhttpserver\localhttpserver.h">
-      <Filter>GUI Files\localhttpserver</Filter>
     </QtMoc>
     <QtMoc Include="..\backend\preferences\accountinfo.h">
       <Filter>Backend Files\preferences</Filter>
@@ -983,12 +971,6 @@
     </QtMoc>
     <QtMoc Include="..\backend\firewallstatehelper.h">
       <Filter>Backend Files</Filter>
-    </QtMoc>
-    <QtMoc Include="generalmessage\generalmessagetwobuttonwindowitem.h">
-      <Filter>GUI Files\generalmessage</Filter>
-    </QtMoc>
-    <QtMoc Include="generalmessage\generalmessagewindowitem.h">
-      <Filter>GUI Files\generalmessage</Filter>
     </QtMoc>
     <QtMoc Include="preferenceswindow\generalwindow\generalwindowitem.h">
       <Filter>GUI Files\preferenceswindow\generalwindow</Filter>
@@ -1188,9 +1170,6 @@
     <QtMoc Include="tooltips\tooltipcontroller.h">
       <Filter>GUI Files\tooltips</Filter>
     </QtMoc>
-    <QtMoc Include="updateapp\updateappitem.h">
-      <Filter>GUI Files\updateapp</Filter>
-    </QtMoc>
     <QtMoc Include="bottominfowidget\upgradewidget\upgradewidgetitem.h">
       <Filter>GUI Files\bottominfowidget\upgradewidget</Filter>
     </QtMoc>
@@ -1257,6 +1236,21 @@
     <QtMoc Include="preferenceswindow\connectionwindow\packetsizeeditboxitem.h">
       <Filter>GUI Files\preferenceswindow\connectionwindow</Filter>
     </QtMoc>
+    <QtMoc Include="overlaysconnectwindow\generalmessagetwobuttonwindowitem.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="overlaysconnectwindow\generalmessagewindowitem.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="overlaysconnectwindow\updateappitem.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="overlaysconnectwindow\updatewindowitem.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="overlaysconnectwindow\upgradewindowitem.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -1274,7 +1268,9 @@
     <CustomBuild Include="..\..\common\ipc\proto\types.proto">
       <Filter>Common Files\ipc\proto</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto" />
+    <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto">
+      <Filter>Common Files\ipc\proto</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="dialogs\dialoggetusernamepassword.ui">
@@ -2186,9 +2182,6 @@
     <QtMoc Include="tooltips\tooltipdescriptive.h">
       <Filter>GUI Files\tooltips</Filter>
     </QtMoc>
-    <QtMoc Include="update\updatewindowitem.h">
-      <Filter>GUI Files\update</Filter>
-    </QtMoc>
     <QtMoc Include="loginwindow\usernamepasswordentry.h">
       <Filter>GUI Files\loginwindow</Filter>
     </QtMoc>
@@ -2281,12 +2274,6 @@
     <ClInclude Include="externalconfig\iexternalconfigwindow.h">
       <Filter>GUI Files\externalconfig</Filter>
     </ClInclude>
-    <ClInclude Include="generalmessage\igeneralmessagewindow.h">
-      <Filter>GUI Files\generalmessage</Filter>
-    </ClInclude>
-    <ClInclude Include="generalmessage\igeneralmessagetwobuttonwindow.h">
-      <Filter>GUI Files\generalmessage</Filter>
-    </ClInclude>
     <ClInclude Include="loginwindow\iinitwindow.h">
       <Filter>GUI Files\loginwindow</Filter>
     </ClInclude>
@@ -2328,12 +2315,6 @@
     </ClInclude>
     <ClInclude Include="tooltips\itooltip.h">
       <Filter>GUI Files\tooltips</Filter>
-    </ClInclude>
-    <ClInclude Include="updateapp\iupdateappitem.h">
-      <Filter>GUI Files\updateapp</Filter>
-    </ClInclude>
-    <ClInclude Include="update\iupdatewindow.h">
-      <Filter>GUI Files\update</Filter>
     </ClInclude>
     <ClInclude Include="locationswindow\widgetlocations\iwidgetlocationsinfo.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
@@ -2433,6 +2414,21 @@
     </ClInclude>
     <ClInclude Include="..\..\common\types\locationid.h">
       <Filter>Common Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="overlaysconnectwindow\igeneralmessagetwobuttonwindow.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="overlaysconnectwindow\igeneralmessagewindow.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="overlaysconnectwindow\iupdateappitem.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="overlaysconnectwindow\iupdatewindow.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="overlaysconnectwindow\iupgradewindow.h">
+      <Filter>GUI Files\overlaysconnectwindow</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

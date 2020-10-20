@@ -20,6 +20,7 @@ class OvpnCustomConfig : public ICustomConfig
 public:
     CUSTOM_CONFIG_TYPE type() const override;
     QString name() const override;      // use for show in the GUI, basically filename without extension
+    QString nick() const override;      // use for show in the GUI, host to connect to
     QString filename() const override;  // filename (without full path). It is used as an identifier for the LocationID
     QStringList hostnames() const override;      // hostnames/ips
 
@@ -38,6 +39,7 @@ private:
     QString errMessage_;
 
     QString name_;
+    QString nick_;
     QString filename_;
     QString filepath_;
 
