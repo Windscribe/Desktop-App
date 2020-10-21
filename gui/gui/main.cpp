@@ -98,7 +98,6 @@ int main(int argc, char *argv[])
 
     DpiScaleManager::instance();    // init dpi scale manager
 
-    ImageResourcesSvg::instance().clearHashAndStartPreloading();
     // init and show tray icon
     QSystemTrayIcon trayIcon;
     trayIcon.setIcon(*IconManager::instance().getDisconnectedIcon());

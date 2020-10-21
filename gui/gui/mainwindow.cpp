@@ -703,15 +703,8 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
 void MainWindow::setWindowToDpiScaleManager()
 {
-    if (DpiScaleManager::instance().setMainWindow(this))
-    {
-        onScaleChanged();
-    }
-    else
-    {
-        mainWindowController_->updateMainAndViewGeometry(true);
-        updateTrayIcon(currentTrayIconType_);
-    }
+    DpiScaleManager::instance().setMainWindow(this);
+    onScaleChanged();
 }
 
 void MainWindow::onMinimizeClick()
