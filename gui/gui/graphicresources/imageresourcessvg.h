@@ -1,11 +1,13 @@
 #ifndef IMAGERESOURCESSVG_H
 #define IMAGERESOURCESSVG_H
 
+#include <QThread>
 #include <QPixmap>
 #include "independentpixmap.h"
 
-class ImageResourcesSvg
+class ImageResourcesSvg : public QThread
 {
+    Q_OBJECT
 
 public:
     static ImageResourcesSvg &instance()
@@ -14,34 +16,34 @@ public:
         return ir;
     }
 
-    void updateHashedPixmaps();
+    void clearHashAndStartPreloading();
+    void finishGracefully();
 
-    // new interface
-    void clearHash();
     IndependentPixmap *getIndependentPixmap(const QString &name);
     IndependentPixmap *getIconIndependentPixmap(const QString &name);
 
     IndependentPixmap *getFlag(const QString &flagName);
     IndependentPixmap *getScaledFlag(const QString &flagName, int width, int height);
 
+protected:
+    void run() override;
+
 private:
     ImageResourcesSvg();
     virtual ~ImageResourcesSvg();
 
-    void clearHashes();
-
-    QHash<QString, QPixmap *> hash_;
-    QHash<int, QHash<QString, QPixmap *> > scaledHashes_;
-
     QHash<QString, IndependentPixmap *> iconHashes_;
-    bool loadIconFromResource(const QString &name);
-
     QHash<QString, IndependentPixmap *> hashIndependent_;
+    std::atomic<bool> bNeedFinish_;
+    bool bFininishedGracefully_;
+    QMutex mutex_;
+
+
+    bool loadIconFromResource(const QString &name);
     bool loadFromResource(const QString &name);
     bool loadFromResourceWithCustomSize(const QString &name, int width, int height);
-
     IndependentPixmap *getIndependentPixmapScaled(const QString &name, int width, int height);
-
+    void clearHash();
 };
 
 #endif // IMAGERESOURCESSVG_H

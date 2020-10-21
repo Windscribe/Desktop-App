@@ -2506,7 +2506,7 @@ void MainWindow::onLocationsTrayMenuLocationSelected(QString locationTitle)
 
 void MainWindow::onScaleChanged()
 {
-    ImageResourcesSvg::instance().clearHash();
+    ImageResourcesSvg::instance().clearHashAndStartPreloading();
     FontManager::instance().clearCache();
     mainWindowController_->updateScaling();
     updateTrayIcon(currentTrayIconType_);

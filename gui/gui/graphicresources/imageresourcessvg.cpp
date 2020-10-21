@@ -9,14 +9,13 @@
 #include "dpiscalemanager.h"
 #include "utils/widgetutils.h"
 
-ImageResourcesSvg::ImageResourcesSvg()
+ImageResourcesSvg::ImageResourcesSvg() : QThread(nullptr), bNeedFinish_(false), bFininishedGracefully_(false), mutex_(QMutex::Recursive)
 {
 }
 
 ImageResourcesSvg::~ImageResourcesSvg()
 {
-    clearHashes();
-    clearHash();
+    Q_ASSERT(bFininishedGracefully_);
 }
 
 void ImageResourcesSvg::clearHash()
@@ -35,10 +34,27 @@ void ImageResourcesSvg::clearHash()
 }
 
 
+void ImageResourcesSvg::clearHashAndStartPreloading()
+{
+    bNeedFinish_ = true;
+    wait();
+    clearHash();
+    bNeedFinish_ = false;
+    start(Priority::LowestPriority);
+}
+
+void ImageResourcesSvg::finishGracefully()
+{
+    bNeedFinish_ = true;
+    wait();
+    clearHash();
+    bFininishedGracefully_ = true;
+}
 
 // get pixmap with original size
 IndependentPixmap *ImageResourcesSvg::getIndependentPixmap(const QString &name)
 {
+    QMutexLocker locker(&mutex_);
     auto it = hashIndependent_.find(name);
     if (it != hashIndependent_.end())
     {
@@ -52,7 +68,7 @@ IndependentPixmap *ImageResourcesSvg::getIndependentPixmap(const QString &name)
         }
         else
         {
-            //Q_ASSERT(false);
+            Q_ASSERT(false);
             return nullptr;
         }
     }
@@ -60,6 +76,7 @@ IndependentPixmap *ImageResourcesSvg::getIndependentPixmap(const QString &name)
 
 IndependentPixmap *ImageResourcesSvg::getIconIndependentPixmap(const QString &name)
 {
+    QMutexLocker locker(&mutex_);
     auto it = iconHashes_.find(name);
     if (it != iconHashes_.end())
     {
@@ -82,6 +99,7 @@ IndependentPixmap *ImageResourcesSvg::getIconIndependentPixmap(const QString &na
 
 IndependentPixmap *ImageResourcesSvg::getFlag(const QString &flagName)
 {
+    QMutexLocker locker(&mutex_);
     IndependentPixmap *ret = getIndependentPixmap("flags/" + flagName);
     if (ret)
     {
@@ -95,6 +113,7 @@ IndependentPixmap *ImageResourcesSvg::getFlag(const QString &flagName)
 
 IndependentPixmap *ImageResourcesSvg::getScaledFlag(const QString &flagName, int width, int height)
 {
+    QMutexLocker locker(&mutex_);
     IndependentPixmap *ret = getIndependentPixmapScaled("flags/" + flagName, width, height);
     if (ret)
     {
@@ -106,22 +125,20 @@ IndependentPixmap *ImageResourcesSvg::getScaledFlag(const QString &flagName, int
     }
 }
 
-void ImageResourcesSvg::clearHashes()
+void ImageResourcesSvg::run()
 {
-    for (auto it = hash_.begin(); it != hash_.end(); ++it)
+    QDirIterator it(":/svg", QDirIterator::Subdirectories);
+    while (!bNeedFinish_ && it.hasNext())
     {
-        delete it.value();
-    }
-    hash_.clear();
-
-    for (auto it = scaledHashes_.begin(); it != scaledHashes_.end(); ++it)
-    {
-        for (auto inner = it.value().begin(); inner != it.value().end(); ++inner)
+        if (it.fileInfo().isFile())
         {
-            delete inner.value();
+            QMutexLocker locker(&mutex_);
+            QString name = it.fileInfo().filePath().mid(6, it.fileInfo().filePath().length() - 10);
+            loadFromResource(name);
         }
+        it.next();
     }
-    scaledHashes_.clear();
+    qCDebug(LOG_BASIC) << "ImageResourcesSvg::run() - all SVGs loaded";
 }
 
 bool ImageResourcesSvg::loadIconFromResource(const QString &name)
@@ -141,54 +158,36 @@ bool ImageResourcesSvg::loadIconFromResource(const QString &name)
 
 bool ImageResourcesSvg::loadFromResource(const QString &name)
 {
-    QDirIterator it(":/svg", QDirIterator::Subdirectories);
-    while (it.hasNext())
+    QSvgRenderer render(":/svg/" + name + ".svg");
+    if (!render.isValid())
     {
-        if (it.fileInfo().isFile())
-        {
-            QString n = it.fileInfo().filePath().mid(6, it.fileInfo().filePath().length() - 10);
-            if (name == n)
-            {
-                QSvgRenderer render(it.fileInfo().filePath());
-                QPixmap *pixmap = new QPixmap(render.defaultSize() * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio());
-                pixmap->fill(Qt::transparent);
-                QPainter painter(pixmap);
-                render.render(&painter);
-
-                pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-                hashIndependent_[name] = new IndependentPixmap(pixmap);
-                return true;
-            }
-        }
-        it.next();
+        return false;
     }
-    return false;
+    QPixmap *pixmap = new QPixmap(render.defaultSize() * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap->fill(Qt::transparent);
+    QPainter painter(pixmap);
+    render.render(&painter);
+
+    pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    hashIndependent_[name] = new IndependentPixmap(pixmap);
+    return true;
 }
 
 bool ImageResourcesSvg::loadFromResourceWithCustomSize(const QString &name, int width, int height)
 {
-    QDirIterator it(":/svg", QDirIterator::Subdirectories);
-    while (it.hasNext())
+    QSvgRenderer render(":/svg/" + name + ".svg");
+    if (!render.isValid())
     {
-        if (it.fileInfo().isFile())
-        {
-            QString n = it.fileInfo().filePath().mid(6, it.fileInfo().filePath().length() - 10);
-            if (name == n)
-            {
-                QSvgRenderer render(it.fileInfo().filePath());
-                QPixmap *pixmap = new QPixmap(QSize(width, height) * DpiScaleManager::instance().curDevicePixelRatio());
-                pixmap->fill(Qt::transparent);
-                QPainter painter(pixmap);
-                render.render(&painter);
-
-                pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-                hashIndependent_[name + "_" + QString::number(width) + "_" + QString::number(height)] = new IndependentPixmap(pixmap);
-                return true;
-            }
-        }
-        it.next();
+        return false;
     }
-    return false;
+    QPixmap *pixmap = new QPixmap(QSize(width, height) * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap->fill(Qt::transparent);
+    QPainter painter(pixmap);
+    render.render(&painter);
+
+    pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    hashIndependent_[name + "_" + QString::number(width) + "_" + QString::number(height)] = new IndependentPixmap(pixmap);
+    return true;
 }
 
 IndependentPixmap *ImageResourcesSvg::getIndependentPixmapScaled(const QString &name, int width, int height)

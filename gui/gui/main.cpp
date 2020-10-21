@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 
     DpiScaleManager::instance();    // init dpi scale manager
 
+    ImageResourcesSvg::instance().clearHashAndStartPreloading();
     // init and show tray icon
     QSystemTrayIcon trayIcon;
     trayIcon.setIcon(*IconManager::instance().getDisconnectedIcon());
@@ -115,7 +116,8 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_WIN
     multipleInstances.unlock();
 #endif
-
-    return a.exec();
+    int ret = a.exec();
+    ImageResourcesSvg::instance().finishGracefully();
+    return ret;
 }
 
