@@ -37,7 +37,9 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QAbstractS
     citiesModel_(NULL),
     deviceName_(""),
     emptyListDisplayIcon_(""),
-    emptyListDisplayText_("")
+    emptyListDisplayText_(""),
+    emptyListDisplayTextWidth_(0),
+    emptyListDisplayTextHeight_(0)
 {
     setFrameStyle(QFrame::NoFrame);
     setMouseTracking(true);
@@ -85,6 +87,11 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QAbstractS
 
     setVerticalScrollBar(scrollBarHidden_);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+    emptyListButton_ = new CommonWidgets::TextButtonWidget(QString(), this);
+    emptyListButton_->setFont(FontDescr(12, false));
+    emptyListButton_->hide();
+    connect(emptyListButton_, SIGNAL(clicked()), SIGNAL(emptyListButtonClicked()));
 
     setFocusPolicy(Qt::NoFocus);
     easingCurve_.setType(QEasingCurve::Linear);
@@ -263,6 +270,8 @@ void WidgetCities::updateListDisplay(QVector<CityModelItem*> items)
 
         viewport()->update();
     }
+
+    updateEmptyListButton();
 }
 
 void WidgetCities::setModel(BasicCitiesModel *citiesModel)
@@ -410,6 +419,7 @@ void WidgetCities::setCountAvailableItemSlots(int cnt)
         emit heightChanged(oldSize.height(), newSize.height());
         setupScrollBar();
         setupScrollBarMaxValue();
+        updateEmptyListButton();
         viewport()->update();
     }
 }
@@ -535,23 +545,34 @@ void WidgetCities::paintEvent(QPaintEvent *event)
     // empty list drawing items
     if (countVisibleItems() == 0)
     {
-        if (emptyListDisplayIcon_ != "")
+        const int kVerticalOffset = emptyListButton_->text().isEmpty() ? 0 : 16;
+        if (!emptyListDisplayIcon_.isEmpty())
         {
             // qDebug() << "Drawing Broken Heart";
-            IndependentPixmap *brokenHeartPixmap = ImageResourcesSvg::instance().getIndependentPixmap(emptyListDisplayIcon_);
-             brokenHeartPixmap->draw(width()/2 - 16 *G_SCALE,
-                               height()/2 - 32*G_SCALE, &painter);
+            IndependentPixmap *brokenHeartPixmap =
+                ImageResourcesSvg::instance().getIndependentPixmap(emptyListDisplayIcon_);
+            brokenHeartPixmap->draw(width() / 2 - 16 * G_SCALE,
+                height() / 2 - (kVerticalOffset + 32) * G_SCALE, &painter);
         }
 
-        if (emptyListDisplayText_ != "")
+        if (!emptyListDisplayText_.isEmpty())
         {
             painter.save();
             QFont font = *FontManager::instance().getFont(12, false);
             painter.setFont(font);
             painter.setPen(Qt::white);
-            painter.drawText(width()/2 - CommonGraphics::textWidth(emptyListDisplayText_,font)/2,
-                             height()/2 + 24*G_SCALE, emptyListDisplayText_);
+            painter.setOpacity(0.5);
+            QRect rc, rcb;
+            const int wide = emptyListDisplayTextWidth_ ? (emptyListDisplayTextWidth_ * G_SCALE) :
+                CommonGraphics::textWidth(emptyListDisplayText_, font);
+            rc.setRect((width() - wide) / 2, height() / 2 - (kVerticalOffset - 16) * G_SCALE,
+                       wide, height() );
+            painter.drawText(rc, Qt::AlignHCenter | Qt::TextWordWrap, emptyListDisplayText_, &rcb);
             painter.restore();
+            if (emptyListDisplayTextHeight_ != rcb.height()) {
+                emptyListDisplayTextHeight_ = rcb.height();
+                updateEmptyListButton();
+            }
         }
     }
 
@@ -1385,6 +1406,7 @@ void WidgetCities::updateScaling()
     }
 
     scrollBarOnTop_->setGeometry(width_*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
+    updateEmptyListButton();
 }
 
 void WidgetCities::setDeviceName(const QString &deviceName)
@@ -1399,10 +1421,30 @@ void WidgetCities::setEmptyListDisplayIcon(QString emptyListDisplayIcon)
     update();
 }
 
-void WidgetCities::setEmptyListDisplayText(QString emptyListDisplayText)
+void WidgetCities::setEmptyListDisplayText(QString emptyListDisplayText, int width)
 {
     emptyListDisplayText_ = emptyListDisplayText;
+    emptyListDisplayTextWidth_ = width;
     update();
+}
+
+void WidgetCities::setEmptyListButtonText(QString text)
+{
+    emptyListButton_->setText(text);
+    update();
+}
+
+void WidgetCities::updateEmptyListButton()
+{
+    if (!items_.isEmpty() || emptyListButton_->text().isEmpty()) {
+        emptyListButton_->hide();
+        return;
+    }
+    const auto sizeHint = emptyListButton_->sizeHint();
+    const int xpos = (width() - sizeHint.width()) / 2;
+    const int ypos = height() / 2 + emptyListDisplayTextHeight_ + 16 * G_SCALE;
+    emptyListButton_->setGeometry(xpos, ypos, sizeHint.width(), sizeHint.height());
+    emptyListButton_->show();
 }
 
 int WidgetCities::viewportPosYOfIndex(int index, bool centerY)

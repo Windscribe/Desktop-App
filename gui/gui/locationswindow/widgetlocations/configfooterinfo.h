@@ -13,6 +13,7 @@ public:
     explicit ConfigFooterInfo(QWidget *parent = nullptr);
 
     QSize sizeHint() const override;
+    QString text() const;
     void setText(const QString &text);
     void updateScaling();
 

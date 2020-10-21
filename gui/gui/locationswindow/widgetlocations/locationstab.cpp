@@ -15,6 +15,8 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     tabPress_(CUR_TAB_NONE),
     curTabMouseOver_(CUR_TAB_NONE),
     countOfVisibleItemSlots_(7),
+    currentLocationListHeight_(0),
+    isRibbonVisible_(false),
     showAllTabs_(true)
 {
     setMouseTracking(true);
@@ -27,14 +29,22 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     widgetAllLocations_ = new GuiLocations::WidgetLocations(this);
 
     widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, 6);
+    widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
+    connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
+                                        SIGNAL(addCustomConfigClicked()));
     widgetConfiguredLocations_->hide();
 
     widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this, 6);
+    widgetStaticIpsLocations_->setEmptyListDisplayIcon("locations/STATIC_IP_ICON_BIG");
+    widgetStaticIpsLocations_->setEmptyListDisplayText(tr("You don't have any Static IPs"), 120);
+    widgetStaticIpsLocations_->setEmptyListButtonText(tr("Buy"));
+    connect(widgetStaticIpsLocations_, SIGNAL(emptyListButtonClicked()),
+                                       SIGNAL(addStaticIpClicked()));
     widgetStaticIpsLocations_->hide();
 
     widgetFavoriteLocations_ = new GuiLocations::WidgetCities(this);
     widgetFavoriteLocations_->setEmptyListDisplayIcon("locations/BROKEN_HEART_ICON");
-    widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here"));
+    widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here..."), 120);
     widgetFavoriteLocations_->hide();
 
     staticIPDeviceInfo_ = new StaticIPDeviceInfo(this);
@@ -77,6 +87,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
 
     connect(locationsModel, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
 
+    updateCustomConfigsEmptyListVisibility();
 }
 
 int LocationsTab::setCountVisibleItemSlots(int cnt)
@@ -460,7 +471,9 @@ void LocationsTab::updateIconRectsAndLine()
 
 void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
 {
-    const int kRibbonHeight = 48;
+    const int kRibbonHeight = isRibbonVisible_ ? 48 : 0;
+
+    currentLocationListHeight_ = newHeight;
 
     widgetAllLocations_->setGeometry(
         0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
@@ -513,6 +526,8 @@ void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
 void LocationsTab::setCustomConfigsPath(QString path)
 {
     configFooterInfo_->setText(path);
+    updateCustomConfigsEmptyListVisibility();
+    updateRibbonVisibility();
 }
 
 void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, int offsetY)
@@ -530,22 +545,58 @@ void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, i
     emit showTooltip(ti);
 }
 
+void LocationsTab::updateCustomConfigsEmptyListVisibility()
+{
+    Q_ASSERT(configFooterInfo_ != nullptr);
+    if (configFooterInfo_->text().isEmpty()) {
+        widgetConfiguredLocations_->setEmptyListDisplayText(
+            tr("Choose the directory that contains custom configs you wish to display here"), 160);
+        widgetConfiguredLocations_->setEmptyListButtonText(tr("Choose"));
+    } else {
+        widgetConfiguredLocations_->setEmptyListDisplayText(
+            tr("The selected directory contains no custom configs"), 160);
+        widgetConfiguredLocations_->setEmptyListButtonText(QString());
+    }
+}
+
 void LocationsTab::updateRibbonVisibility()
 {
-    const auto *current_widget_locations = currentWidgetLocations();
+    auto *current_widget_locations = currentWidgetLocations();
+    const bool is_location_list_empty = current_widget_locations->countVisibleItems() <= 1;
+
+    isRibbonVisible_ = false;
 
     if (current_widget_locations == widgetStaticIpsLocations_)
     {
         configFooterInfo_->hide();
-        staticIPDeviceInfo_->show();
-        staticIPDeviceInfo_->raise();
+        if (is_location_list_empty) {
+            staticIPDeviceInfo_->hide();
+        } else {
+            staticIPDeviceInfo_->show();
+            staticIPDeviceInfo_->raise();
+            isRibbonVisible_ = true;
+        }
     }
     else if (current_widget_locations == widgetConfiguredLocations_)
     {
         staticIPDeviceInfo_->hide();
-        configFooterInfo_->show();
-        configFooterInfo_->raise();
+        const bool is_custom_configs_dir_set = !configFooterInfo_->text().isEmpty();
+        if (!is_custom_configs_dir_set) {
+            configFooterInfo_->hide();
+        } else {
+            configFooterInfo_->show();
+            configFooterInfo_->raise();
+            isRibbonVisible_ = true;
+        }
     }
+    else
+    {
+        configFooterInfo_->hide();
+        staticIPDeviceInfo_->hide();
+    }
+
+    if (currentLocationListHeight_ != 0)
+        updateLocationWidgetsGeometry(currentLocationListHeight_);
 }
 
 } // namespace GuiLocations

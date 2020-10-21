@@ -397,6 +397,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\types\locationid.cpp" />
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
+    <ClCompile Include="commonwidgets\textbuttonwidget.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp" />
     <ClCompile Include="overlaysconnectwindow\generalmessagetwobuttonwindowitem.cpp" />
     <ClCompile Include="overlaysconnectwindow\generalmessagewindowitem.cpp" />
@@ -642,6 +643,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="connectwindow\background.h">
     </QtMoc>
     <ClInclude Include="..\backend\preferences\detectlanrange.h" />
+    <QtMoc Include="commonwidgets\textbuttonwidget.h" />
     <ClInclude Include="locationswindow\widgetlocations\backgroundpixmapanimation.h" />
     <QtMoc Include="preferenceswindow\baseitem.h">
     </QtMoc>
@@ -796,7 +798,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="loginwindow\iloginwindow.h" />
     <QtMoc Include="commongraphics\imageitem.h">
     </QtMoc>
-    <ClInclude Include="graphicresources\imageresourcessvg.h" />
+    <QtMoc Include="graphicresources\imageresourcessvg.h" />
     <ClInclude Include="multipleaccountdetection\imultipleaccountdetection.h" />
     <ClInclude Include="graphicresources\independentpixmap.h" />
     <ClInclude Include="newsfeedwindow\inewsfeedwindow.h" />

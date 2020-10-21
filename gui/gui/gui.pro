@@ -345,6 +345,7 @@ SOURCES += \
     commongraphics/verticaldividerline.cpp \
     commongraphics/custommenulineedit.cpp \
     commonwidgets/iconbuttonwidget.cpp \
+    commonwidgets/textbuttonwidget.cpp \
     preferenceswindow/proxysettingswindow/proxysettingsitem.cpp \
     newsfeedwindow/scrollablemessage.cpp \
     commongraphics/iconbutton.cpp \
@@ -585,6 +586,7 @@ HEADERS += \
     commongraphics/verticaldividerline.h \
     commongraphics/custommenulineedit.h \
     commonwidgets/iconbuttonwidget.h \
+    commonwidgets/textbuttonwidget.h \
     preferenceswindow/proxysettingswindow/proxysettingsitem.h \
     newsfeedwindow/scrollablemessage.h \
     commongraphics/iconbutton.h \
