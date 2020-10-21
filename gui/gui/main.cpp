@@ -94,18 +94,23 @@ int main(int argc, char *argv[])
         return 0;
     }
 #endif
-
     a.setStyle("fusion");
 
-    MainWindow w;
+    DpiScaleManager::instance();    // init dpi scale manager
+
+    // init and show tray icon
+    QSystemTrayIcon trayIcon;
+    trayIcon.setIcon(*IconManager::instance().getDisconnectedIcon());
+    trayIcon.show();
+
+    while (trayIcon.geometry().isEmpty())
+    {
+        a.processEvents();
+    }
+    qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon.geometry();
+
+    MainWindow w(trayIcon);
     w.show();
-
-    DpiScaleManager::instance().init(&w);
-    QTimer::singleShot(0, [&w](){
-        w.updateScaling();
-    });
-
-
 
 #ifdef Q_OS_WIN
     multipleInstances.unlock();

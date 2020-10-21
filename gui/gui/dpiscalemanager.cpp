@@ -15,33 +15,39 @@ static QRect GetGeometryForScreen(const QScreen *screen)
 #endif
 }
 
-void DpiScaleManager::init(QWidget *mainWindow)
+bool DpiScaleManager::setMainWindow(QWidget *mainWindow)
 {
     mainWindow_ = mainWindow;
     connect(mainWindow->window()->windowHandle(), SIGNAL(screenChanged(QScreen *)), SLOT(onWindowScreenChanged(QScreen*)));
-    connect(qApp, SIGNAL(screenAdded(QScreen*)), SLOT(onScreenAdded(QScreen*)));
-    connect(qApp, SIGNAL(screenRemoved(QScreen*)), SLOT(onScreenRemoved(QScreen*)));
-
-
-    curDPI_ = mainWindow->window()->windowHandle()->screen()->logicalDotsPerInch();
-#ifdef Q_OS_WIN
-    curScale_ = (double)curDPI_ / (double)LOWEST_LDPI;
-#else
-    // for Mac curScale always == 1
-    curScale_ = 1;
-#endif
-    curGeometry_ = GetGeometryForScreen(mainWindow->window()->windowHandle()->screen());
-
-    curDevicePixelRatio_ = (int)mainWindow->window()->windowHandle()->screen()->devicePixelRatio();
-    // curDevicePixelRatio_ should be 1 or 2 (not tested for other values)
-    Q_ASSERT(qFuzzyCompare(curDevicePixelRatio_, 1.0) || qFuzzyCompare(curDevicePixelRatio_, 2.0));
-
-    appCurScreen_ = mainWindow->window()->windowHandle()->screen();
 
     foreach (QScreen *screen, qApp->screens())
     {
         connect(screen, SIGNAL(logicalDotsPerInchChanged(qreal)), SLOT(onLogicalDotsPerInchChanged(qreal)));
     }
+
+    QScreen *screen = mainWindow->window()->windowHandle()->screen();
+    curGeometry_ = GetGeometryForScreen(screen);
+
+    if (screen->logicalDotsPerInch() != curDPI_ || !qFuzzyCompare(curDevicePixelRatio_, screen->devicePixelRatio()))
+    {
+        curDPI_ = mainWindow->window()->windowHandle()->screen()->logicalDotsPerInch();
+    #ifdef Q_OS_WIN
+        curScale_ = (double)curDPI_ / (double)LOWEST_LDPI;
+    #else
+        // for Mac curScale always == 1
+        curScale_ = 1;
+    #endif
+
+        curDevicePixelRatio_ = (int)mainWindow->window()->windowHandle()->screen()->devicePixelRatio();
+        // curDevicePixelRatio_ should be 1 or 2 (not tested for other values)
+        Q_ASSERT(qFuzzyCompare(curDevicePixelRatio_, 1.0) || qFuzzyCompare(curDevicePixelRatio_, 2.0));
+        return  true;
+    }
+    else
+    {
+        return false;
+    }
+
 }
 
 void DpiScaleManager::onWindowScreenChanged(QScreen *screen)
@@ -70,29 +76,20 @@ void DpiScaleManager::onLogicalDotsPerInchChanged(qreal dpi)
     }
 }
 
-void DpiScaleManager::onScreenAdded(QScreen *screen)
-{
-    qCDebug(LOG_BASIC) << "DpiScaleManager::onScreenAdded, DPI" << screen->logicalDotsPerInch();
-    screens_ << screen;
-    emit screenConfigurationChanged(screens_);
-}
-
-void DpiScaleManager::onScreenRemoved(QScreen *screen)
-{
-    qCDebug(LOG_BASIC) << "DpiScaleManager::onScreenRemoved, DPI" << screen->logicalDotsPerInch();
-    screens_.remove(screen);
-    emit screenConfigurationChanged(screens_);
-}
-
 DpiScaleManager::DpiScaleManager() : QObject(nullptr), curDevicePixelRatio_(1),
                                      curGeometry_(GetGeometryForScreen(qApp->primaryScreen())),
-                                     appCurScreen_(nullptr), mainWindow_(nullptr)
-{
-#ifdef Q_OS_WIN
+                                     mainWindow_(nullptr)
+{   
     curDPI_ = qApp->primaryScreen()->logicalDotsPerInch();
+
+#ifdef Q_OS_WIN
     curScale_ = (double)curDPI_ / (double)LOWEST_LDPI;
 #else
-    curDPI_ = 0;
+    // for Mac curScale always == 1
     curScale_ = 1;
 #endif
+
+    curGeometry_ = GetGeometryForScreen(qApp->primaryScreen());
+    curDevicePixelRatio_ = (int)qApp->primaryScreen()->devicePixelRatio();
+    qCDebug(LOG_BASIC) << "DpiScaleManager::constructor -> DPI:" << curDPI_ << "; scale:" << curScale_ << "; devicePixelRatio:" << curDevicePixelRatio_;
 }

@@ -41,12 +41,12 @@
 
 QWidget *g_mainWindow = NULL;
 
-MainWindow::MainWindow(QWidget *parent) :
-    QWidget(parent),
+MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
+    QWidget(nullptr),
     backend_(NULL),
     logViewerWindow_(nullptr),
     currentTrayIconType_(TrayIconType::DISCONNECTED),
-    trayIcon_(QIcon(":/Resources/icons/icon_disconnected.ico"), this),
+    trayIcon_(trayIcon),
     bNotificationConnectedShowed_(false),
     bytesTransferred_(0),
     bMousePressed_(false),
@@ -309,6 +309,16 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     deactivationTimer_.setSingleShot(true);
     connect(&deactivationTimer_, SIGNAL(timeout()), SLOT(onWindowDeactivateAndHideImpl()));
+
+    if (DpiScaleManager::instance().setMainWindow(this))
+    {
+        onScaleChanged();
+    }
+    else
+    {
+        mainWindowController_->updateMainAndViewGeometry(true);
+        updateTrayIcon(currentTrayIconType_);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -408,11 +418,6 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
             QTimer::singleShot(TIME_BEFORE_SHOW_SHUTDOWN_WINDOW, this, SLOT(showShutdownWindow()));
         }
     }
-}
-
-void MainWindow::updateScaling()
-{
-    onScaleChanged();
 }
 
 void MainWindow::minimizeToTray()
@@ -2589,7 +2594,7 @@ void MainWindow::setupTrayIcon()
     locationsMenu_.addAction(listWidgetAction_);
     connect(locationsTrayMenuWidget_, SIGNAL(locationSelected(QString)), SLOT(onLocationsTrayMenuLocationSelected(QString)));
 
-    trayIcon_.setIcon(*iconManager_.getDisconnectedIcon());
+    trayIcon_.setIcon(*IconManager::instance().getDisconnectedIcon());
     trayIcon_.show();
     updateTrayIcon(TrayIconType::DISCONNECTED);
 
@@ -2811,13 +2816,13 @@ void MainWindow::updateTrayIcon(TrayIconType type)
     const QIcon *icon = nullptr;
     switch (type) {
     case TrayIconType::DISCONNECTED:
-        icon = iconManager_.getDisconnectedIcon();
+        icon = IconManager::instance().getDisconnectedIcon();
         break;
     case TrayIconType::CONNECTING:
-        icon = iconManager_.getConnectingIcon();
+        icon = IconManager::instance().getConnectingIcon();
         break;
     case TrayIconType::CONNECTED:
-        icon = iconManager_.getConnectedIcon();
+        icon = IconManager::instance().getConnectedIcon();
         break;
     default:
         break;

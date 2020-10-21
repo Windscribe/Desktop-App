@@ -24,13 +24,12 @@ class MainWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QSystemTrayIcon &trayIcon);
     ~MainWindow();
 
     virtual bool eventFilter(QObject *watched, QEvent *event);
 
     void doClose(QCloseEvent *event = NULL, bool isFromSigTerm_mac = false);
-    void updateScaling();
     void updateConnectWindowStateProtocolPortDisplay(ProtoTypes::ConnectionSettings connectionSettings);
     bool isActiveState() const { return activeState_; }
     QRect trayIconRect();
@@ -241,8 +240,7 @@ private:
     void updateTrayIcon(TrayIconType type);
     void updateTrayTooltip(QString tooltip);
     TrayIconType currentTrayIconType_;
-    QSystemTrayIcon trayIcon_;
-    IconManager iconManager_;
+    QSystemTrayIcon &trayIcon_;
     bool bNotificationConnectedShowed_;
     QElapsedTimer connectionElapsedTimer_;
     quint64 bytesTransferred_;
