@@ -310,15 +310,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     deactivationTimer_.setSingleShot(true);
     connect(&deactivationTimer_, SIGNAL(timeout()), SLOT(onWindowDeactivateAndHideImpl()));
 
-    if (DpiScaleManager::instance().setMainWindow(this))
-    {
-        onScaleChanged();
-    }
-    else
-    {
-        mainWindowController_->updateMainAndViewGeometry(true);
-        updateTrayIcon(currentTrayIconType_);
-    }
+    QTimer::singleShot(0, this, SLOT(setWindowToDpiScaleManager()));
 }
 
 MainWindow::~MainWindow()
@@ -706,6 +698,19 @@ void MainWindow::paintEvent(QPaintEvent *event)
         p.drawPixmap(mainWindowController_->getShadowMargin(),
                      mainWindowController_->getShadowMargin(),
                      connectWindowBackground);
+    }
+}
+
+void MainWindow::setWindowToDpiScaleManager()
+{
+    if (DpiScaleManager::instance().setMainWindow(this))
+    {
+        onScaleChanged();
+    }
+    else
+    {
+        mainWindowController_->updateMainAndViewGeometry(true);
+        updateTrayIcon(currentTrayIconType_);
     }
 }
 

@@ -48,6 +48,8 @@ protected:
     virtual void paintEvent(QPaintEvent *event);
 
 private slots:
+    void setWindowToDpiScaleManager();
+
     void onMinimizeClick();
     void onCloseClick();
     void onEscapeClick();

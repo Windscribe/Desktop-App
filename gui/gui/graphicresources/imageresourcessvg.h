@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QPixmap>
+#include <QMutex>
 #include "independentpixmap.h"
 
 class ImageResourcesSvg : public QThread
