@@ -1,3 +1,9 @@
+2.0.30 (21/09/2020)
+* Custom configs UI improvements (more details in #218).
+* Static background in the installer (temporarily to reduce the size of the installer).
+* Program window outside the screen (Mac) - fixed (#227)
+* Preloading SVG-images in the separate thread. Should slightly increase the speed of the UI animations. (#228)
+
 2.0.29 (16/09/2020)
 * WireGuard improvements/fixes (more details in #213).
 * Custom configs (multiple remotes support, wireguard custom configs support).
