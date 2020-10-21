@@ -20,15 +20,20 @@ void CustomConfigs::changeDir(const QString &path)
             return;
         }
         delete dirWatcher_;
+        dirWatcher_ = nullptr;
+    }
+    else if (path.isEmpty())
+    {
+        return;
     }
 
     if (!path.isEmpty())
     {
         dirWatcher_ = new CustomConfigsDirWatcher(this, path);
         connect(dirWatcher_, SIGNAL(dirChanged()), SLOT(onDirectoryChanged()));
-        parseDir();
-        emit changed();
     }
+    parseDir();
+    emit changed();
 }
 
 QVector<QSharedPointer<const ICustomConfig> > CustomConfigs::getConfigs()
@@ -46,6 +51,9 @@ void CustomConfigs::onDirectoryChanged()
 void CustomConfigs::parseDir()
 {
     configs_.clear();
+
+    if (!dirWatcher_)
+        return;
 
     QStringList fileList = dirWatcher_->curFiles();
     for (const QString &filename : fileList)

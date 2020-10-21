@@ -97,6 +97,8 @@ private:
     QVariantAnimation whileLineAnimation_;
 
     int countOfVisibleItemSlots_;
+    int currentLocationListHeight_;
+    bool isRibbonVisible_;
     bool showAllTabs_;
     void changeTab(CurTabEnum newTab);
 
@@ -113,6 +115,7 @@ private:
 
     void rectHoverEnter(QRect buttonRect, QString text, int offsetX, int offsetY);
 
+    void updateCustomConfigsEmptyListVisibility();
     void updateRibbonVisibility();
 };
 

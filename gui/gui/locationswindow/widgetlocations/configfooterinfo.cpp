@@ -10,8 +10,8 @@
 
 ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
   , pressed_(false)
-  , fullText_(tr("Set Config Location"))
-  , displayText_(fullText_)
+  , fullText_()
+  , displayText_()
   , font_(*FontManager::instance().getFont(16, true))
   , curTextOpacity_(0.5)
   , curIconOpacity_(OPACITY_UNHOVER_ICON_TEXT)
@@ -23,6 +23,11 @@ ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
 QSize ConfigFooterInfo::sizeHint() const
 {
     return QSize(WINDOW_WIDTH * G_SCALE, HEIGHT_ * G_SCALE);
+}
+
+QString ConfigFooterInfo::text() const
+{
+    return fullText_;
 }
 
 void ConfigFooterInfo::setText(const QString &text)
