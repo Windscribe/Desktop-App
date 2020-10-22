@@ -30,7 +30,7 @@ private:
 
     QVector<AttemptInfo> attemps_;
     int curAttempt_;
-    int failedIkev2Counter_;
+    static int failedIkev2Counter_;
     bool isFailedIkev2CounterAlreadyIncremented_;
     static const int MAX_IKEV2_FAILED_ATTEMPTS = 5;
 

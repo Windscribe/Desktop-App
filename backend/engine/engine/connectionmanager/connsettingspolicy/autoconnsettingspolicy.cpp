@@ -4,6 +4,8 @@
 #include <QSettings>
 #include "utils/logger.h"
 
+int AutoConnSettingsPolicy::failedIkev2Counter_ = 0;
+
 AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                                const apiinfo::PortMap &portMap, bool isProxyEnabled)
 {
