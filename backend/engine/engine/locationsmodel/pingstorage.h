@@ -32,6 +32,8 @@ private:
         PingTime timeMs_;
         quint32 iteration_;
         bool fromDisconnectedState_;
+
+        PingData() : iteration_(0), fromDisconnectedState_(false) {}
     };
 
     QHash<QString, PingData> hash_;

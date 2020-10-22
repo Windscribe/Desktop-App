@@ -335,6 +335,10 @@ void ApiLocationsModel::generateLocationsUpdated()
                     break;
                 }
             }
+            if (bestLocation.isValid())
+            {
+                break;
+            }
         }
     }
 

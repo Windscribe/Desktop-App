@@ -38,6 +38,16 @@ void PingStorage::updateNodes(const QStringList &ips)
             ++it;
         }
     }
+
+    // and new IPs
+    for (const QString &ip : setIps)
+    {
+        if (!hash_.contains(ip))
+        {
+            hash_[ip] = PingData();
+        }
+    }
+
 }
 
 void PingStorage::setNodePing(const QString &nodeIp, PingTime timeMs, bool fromDisconnectedState)
