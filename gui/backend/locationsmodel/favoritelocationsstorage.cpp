@@ -57,5 +57,5 @@ void FavoriteLocationsStorage::writeToSettings()
     arrIds.SerializeToArray(arr.data(), size);
 
     QSettings settings;
-    settings.setValue("favoriteLocations2", arr);
+    settings.setValue("favoriteLocations", arr);
 }
