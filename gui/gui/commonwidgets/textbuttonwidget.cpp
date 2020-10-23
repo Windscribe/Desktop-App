@@ -13,6 +13,7 @@ TextButtonWidget::TextButtonWidget(QString text, QWidget * parent) : QPushButton
     curOpacity_(OPACITY_UNHOVER_ICON_STANDALONE),
     fontDescr_(12, false)
 {
+    connect(this, SIGNAL(clicked()), SLOT(resetHoverState()));
     connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onOpacityChanged(QVariant)));
 }
 
@@ -69,8 +70,13 @@ void TextButtonWidget::enterEvent(QEvent *event)
 void TextButtonWidget::leaveEvent(QEvent *event)
 {
     Q_UNUSED(event);
-    startAnAnimation(opacityAnimation_, curOpacity_, unhoverOpacity_, ANIMATION_SPEED_FAST);
+    resetHoverState();
     setCursor(Qt::ArrowCursor);
+}
+
+void TextButtonWidget::resetHoverState()
+{
+    startAnAnimation(opacityAnimation_, curOpacity_, unhoverOpacity_, ANIMATION_SPEED_FAST);
 }
 
 void TextButtonWidget::onOpacityChanged(const QVariant &value)
