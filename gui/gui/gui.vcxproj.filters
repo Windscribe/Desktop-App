@@ -817,6 +817,9 @@
     <ClCompile Include="overlaysconnectwindow\upgradewindowitem.cpp">
       <Filter>GUI Files\overlaysconnectwindow</Filter>
     </ClCompile>
+    <ClCompile Include="commonwidgets\textbuttonwidget.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -1250,6 +1253,9 @@
     </QtMoc>
     <QtMoc Include="overlaysconnectwindow\upgradewindowitem.h">
       <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\textbuttonwidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

@@ -12,6 +12,7 @@
 #include "../backend/locationsmodel/basiccitiesmodel.h"
 #include "../backend/locationsmodel/favoritelocationsstorage.h"
 #include "../backend/types/types.h"
+#include "commonwidgets/textbuttonwidget.h"
 #include "iwidgetlocationsinfo.h"
 #include "backgroundpixmapanimation.h"
 #include "tooltips/tooltiptypes.h"
@@ -67,7 +68,8 @@ public:
     void setDeviceName(const QString &deviceName);
 
     void setEmptyListDisplayIcon(QString emptyListDisplayIcon);
-    void setEmptyListDisplayText(QString emptyListDisplayText);
+    void setEmptyListDisplayText(QString emptyListDisplayText, int width = 0);
+    void setEmptyListButtonText(QString text);
 
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;
@@ -87,6 +89,7 @@ signals:
     void addStaticIpURLClicked();
     void showTooltip(TooltipInfo info);
     void hideTooltip(TooltipId type);
+    void emptyListButtonClicked();
 
 private slots:
     void onItemsUpdated(QVector<CityModelItem*> items);
@@ -169,10 +172,14 @@ private:
 
     void updateSelectionCursorAndToolTipByCursorPos();
     void updateListDisplay(QVector<CityModelItem*> items);
+    void updateEmptyListButton();
 
     QString deviceName_;
     QString emptyListDisplayIcon_;
     QString emptyListDisplayText_;
+    int emptyListDisplayTextWidth_;
+    int emptyListDisplayTextHeight_;
+    CommonWidgets::TextButtonWidget *emptyListButton_;
 };
 
 } // namespace GuiLocations
