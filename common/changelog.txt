@@ -1,4 +1,8 @@
 2.0.31 (23/09/2020)
+* Mac DMG the typo fix.
+* Don't collapse the location list when you disconnect. 
+
+2.0.31 (23/09/2020)
 * Extra auth files in OVPN-config issue - fixed.
 * The protocol switch issue - fixed.
 * Favourites save/restore issue - fixed.
