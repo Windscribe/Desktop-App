@@ -246,7 +246,7 @@
         <file>svg/PROTOCOL_TCP.svg</file>
         <file>svg/PROTOCOL_UDP.svg</file>
         <file>svg/PROTOCOL_WSTUNNEL.svg</file>
-        <file>svg/flags/NoFlag.svg</file>
+        <file>svg/flags/noflag.svg</file>
         <file>svg/flags/pa.svg</file>
         <file>svg/flags/pe.svg</file>
         <file>svg/NETWORK_ETHERNET_SECURED.svg</file>
