@@ -1,3 +1,10 @@
+2.0.31 (23/09/2020)
+* Extra auth files in OVPN-config issue - fixed.
+* The protocol switch issue - fixed.
+* Favourites save/restore issue - fixed.
+* GUI improvement for empty CustomConfig/StaticIP.
+* Removed spam in the log when determining the best location.
+
 2.0.30 (21/09/2020)
 * Custom configs UI improvements (more details in #218).
 * Static background in the installer (temporarily to reduce the size of the installer).
