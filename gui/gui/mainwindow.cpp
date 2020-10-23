@@ -776,13 +776,13 @@ void MainWindow::onLoginTwoFactorAuthWindowClick(const QString &username, const 
 
 void MainWindow::onConnectWindowConnectClick()
 {
-    mainWindowController_->collapseLocations();
     if (backend_->isDisconnected())
     {
+        mainWindowController_->collapseLocations();
         backend_->sendConnect(PersistentState::instance().lastLocation());
     }
     else
-    {
+    {  
         backend_->sendDisconnect();
     }
 }
