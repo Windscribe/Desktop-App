@@ -204,7 +204,7 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
 
         item.id = LocationID::createTopCustomConfigsLocationId();
         item.name = QObject::tr("Custom Configs");
-        item.countryCode = "Custom_Configs";
+        item.countryCode = "noflag";
         item.isPremiumOnly = false;
         item.p2p = 1;
 
