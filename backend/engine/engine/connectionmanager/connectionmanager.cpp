@@ -101,7 +101,7 @@ ConnectionManager::~ConnectionManager()
 void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
                                          QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                          const ConnectionSettings &connectionSettings,
-                                         const apiinfo::PortMap &portMap, const ProxySettings &proxySettings, bool bEmitAuthError)
+                                         const apiinfo::PortMap &portMap, const ProxySettings &proxySettings, bool bEmitAuthError, const QString &customConfigPath)
 {
     Q_ASSERT(state_ == STATE_DISCONNECTED);
 
@@ -109,6 +109,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
     lastServerCredentials_ = serverCredentials;
     lastProxySettings_ = proxySettings;
     bEmitAuthError_ = bEmitAuthError;
+    customConfigPath_ = customConfigPath;
 
     bWasSuccessfullyConnectionAttempt_ = false;
 
@@ -877,7 +878,7 @@ void ConnectionManager::doConnectPart2()
     else if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
         if (currentConnectionDescr_.protocol.isOpenVpnProtocol()) {
-            bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(
+            bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(customConfigPath_,
                 currentConnectionDescr_.ovpnData, currentConnectionDescr_.ip,
                 currentConnectionDescr_.remoteCmdLine);
             if (!bOvpnSuccess)

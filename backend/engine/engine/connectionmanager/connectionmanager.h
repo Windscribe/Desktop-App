@@ -41,7 +41,7 @@ public:
     void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                       const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap, const ProxySettings &proxySettings,
-                      bool bEmitAuthError);
+                      bool bEmitAuthError, const QString &customConfigPath);
 
     void clickDisconnect();
     void blockingDisconnect();
@@ -133,6 +133,8 @@ private:
     apiinfo::ServerCredentials lastServerCredentials_;
     ProxySettings lastProxySettings_;
     bool bEmitAuthError_;
+
+    QString customConfigPath_;
 
     QTimer timerWaitNetworkConnectivity_;
 

@@ -2387,7 +2387,7 @@ void Engine::doConnect(bool bEmitAuthError)
 
             connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), bli,
                 engineSettings_.connectionSettings(), apiInfo_->getPortMap(),
-                ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError);
+                ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.getCustomOvpnConfigsPath());
         }
     }
     // for custom configs without login
@@ -2397,7 +2397,7 @@ void Engine::doConnect(bool bEmitAuthError)
 
         connectionManager_->clickConnect("", apiinfo::ServerCredentials(), bli,
             engineSettings_.connectionSettings(), apiinfo::PortMap(),
-            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError);
+            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.getCustomOvpnConfigsPath());
     }
 }
 
