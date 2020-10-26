@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		003EA384242E7A2100DCF49A /* appdelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 003EA383242E7A2100DCF49A /* appdelegate.m */; };
 		003EA389242E7A2200DCF49A /* assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 003EA388242E7A2200DCF49A /* assets.xcassets */; };
-		003EA38C242E7A2200DCF49A /* main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 003EA38A242E7A2200DCF49A /* main.storyboard */; };
+		003EA38C242E7A2200DCF49A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 003EA38A242E7A2200DCF49A /* Main.storyboard */; };
 		003EA38F242E7A2200DCF49A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 003EA38E242E7A2200DCF49A /* main.m */; };
 /* End PBXBuildFile section */
 
@@ -18,7 +18,7 @@
 		003EA382242E7A2100DCF49A /* appdelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = appdelegate.h; sourceTree = "<group>"; };
 		003EA383242E7A2100DCF49A /* appdelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = appdelegate.m; sourceTree = "<group>"; };
 		003EA388242E7A2200DCF49A /* assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = assets.xcassets; sourceTree = "<group>"; };
-		003EA38B242E7A2200DCF49A /* base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = base; path = base.lproj/main.storyboard; sourceTree = "<group>"; };
+		003EA38B242E7A2200DCF49A /* base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = base; path = base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		003EA38D242E7A2200DCF49A /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
 		003EA38E242E7A2200DCF49A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		003EA390242E7A2200DCF49A /* windscribelauncher.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = windscribelauncher.entitlements; sourceTree = "<group>"; };
@@ -57,7 +57,7 @@
 				003EA382242E7A2100DCF49A /* appdelegate.h */,
 				003EA383242E7A2100DCF49A /* appdelegate.m */,
 				003EA388242E7A2200DCF49A /* assets.xcassets */,
-				003EA38A242E7A2200DCF49A /* main.storyboard */,
+				003EA38A242E7A2200DCF49A /* Main.storyboard */,
 				003EA38D242E7A2200DCF49A /* info.plist */,
 				003EA38E242E7A2200DCF49A /* main.m */,
 				003EA390242E7A2200DCF49A /* windscribelauncher.entitlements */,
@@ -123,7 +123,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				003EA389242E7A2200DCF49A /* assets.xcassets in Resources */,
-				003EA38C242E7A2200DCF49A /* main.storyboard in Resources */,
+				003EA38C242E7A2200DCF49A /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,12 +142,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		003EA38A242E7A2200DCF49A /* main.storyboard */ = {
+		003EA38A242E7A2200DCF49A /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				003EA38B242E7A2200DCF49A /* base */,
 			);
-			name = main.storyboard;
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

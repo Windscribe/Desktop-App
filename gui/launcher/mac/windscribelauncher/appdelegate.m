@@ -11,14 +11,16 @@
     NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
     NSArray *apps = [workspace runningApplications];
     
+    // determine if already running
     bool isRunning = false;
     for (NSRunningApplication *a in apps) {
-        if ([a.bundleIdentifier isEqualToString:@"com.windscribe.WindscribeGUI"]) {
+        if ([a.bundleIdentifier isEqualToString:@"com.windscribe.gui.macos"]) {
             isRunning = true;
             break;
         }
     }
     
+    // run if not already running
     if (!isRunning)
     {
         NSString *bundlePath = [[NSBundle mainBundle] bundlePath];

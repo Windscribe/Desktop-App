@@ -1,6 +1,7 @@
 #include "launchonstartup_mac.h"
 #include <AppKit/AppKit.h>
 #include <ServiceManagement/ServiceManagement.h>
+#include "utils/logger.h"
 
 bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
 {
@@ -10,7 +11,7 @@ bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
     bool isRunning = false;
     for (NSRunningApplication *a in apps)
     {
-        if ([a.bundleIdentifier isEqualToString:@"com.windscribe.WindscribeLauncher"])
+        if ([a.bundleIdentifier isEqualToString:@"com.windscribe.launcher.macos"])
         {
             isRunning = true;
             break;
@@ -22,7 +23,16 @@ bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
 
 void LaunchOnStartup_mac::setLaunchOnStartup(bool enable)
 {
-    SMLoginItemSetEnabled((__bridge CFStringRef)@"com.windscribe.WindscribeLauncher", enable);
+    bool success = SMLoginItemSetEnabled((__bridge CFStringRef)@"com.windscribe.launcher.macos", enable);
+
+    if (success)
+    {
+        qCDebug(LOG_LAUNCH_ON_STARTUP) << "Successfully updated Launch on startup mode: " << enable;
+    }
+    else
+    {
+        qCDebug(LOG_LAUNCH_ON_STARTUP) << "Couldn't update launch on startup mode";
+    }
 }
 
 
