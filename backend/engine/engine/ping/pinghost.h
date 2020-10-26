@@ -30,6 +30,14 @@ public:
 signals:
     void pingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
 
+private slots:
+    void addHostForPingImpl(const QString &ip, PingHost::PING_TYPE pingType);
+    void clearPingsImpl();
+
+    void setProxySettingsImpl(const ProxySettings &proxySettings);
+    void disableProxyImpl();
+    void enableProxyImpl();
+
 private:
     PingHost_TCP pingHostTcp_;
 #ifdef Q_OS_WIN
@@ -37,6 +45,7 @@ private:
 #else
     PingHost_ICMP_mac pingHostIcmp_;
 #endif
+
 };
 
 #endif // PINGHOST_H

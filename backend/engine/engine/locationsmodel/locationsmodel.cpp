@@ -2,6 +2,7 @@
 #include "utils/utils.h"
 #include <QFile>
 #include <QTextStream>
+#include <QThread>
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "mutablelocationinfo.h"
@@ -11,7 +12,11 @@ namespace locationsmodel {
 
 LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager) : QObject(parent)
 {
-    pingHost_ = new PingHost(this, stateController);
+    pingThread_ = new QThread(this);
+    pingHost_ = new PingHost(nullptr, stateController);
+    pingHost_->moveToThread(pingThread_);
+    pingThread_->start(QThread::HighPriority);
+
     apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkStateManager, pingHost_);
     customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkStateManager, pingHost_);
 
@@ -23,6 +28,12 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     connect(customConfigLocationsModel_, SIGNAL(locationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)), SIGNAL(customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
     connect(customConfigLocationsModel_, SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)), SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)));
     connect(customConfigLocationsModel_, SIGNAL(whitelistIpsChanged(QStringList)), SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)));
+}
+
+LocationsModel::~LocationsModel()
+{
+    pingThread_->quit();
+    pingThread_->wait();
 }
 
 void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)

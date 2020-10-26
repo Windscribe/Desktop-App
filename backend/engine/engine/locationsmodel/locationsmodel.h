@@ -23,6 +23,7 @@ class LocationsModel : public QObject
     Q_OBJECT
 public:
     explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
+    ~LocationsModel() override;
 
     void setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
     void setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
@@ -47,6 +48,7 @@ private:
     ApiLocationsModel *apiLocationsModel_;
     CustomConfigLocationsModel *customConfigLocationsModel_;
     PingHost *pingHost_;
+    QThread *pingThread_;
 
 };
 

@@ -79,15 +79,18 @@ CONNECT_STATE ConnectStateController::prevState()
 
 DISCONNECT_REASON ConnectStateController::disconnectReason()
 {
+    QMutexLocker locker(&mutex_);
     return disconnectReason_;
 }
 
 CONNECTION_ERROR ConnectStateController::connectionError()
 {
+    QMutexLocker locker(&mutex_);
     return err_;
 }
 
 const LocationID &ConnectStateController::locationId()
 {
+    QMutexLocker locker(&mutex_);
     return location_;
 }
