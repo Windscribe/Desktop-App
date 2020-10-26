@@ -288,6 +288,8 @@ private slots:
 
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location);
 
+    void fetchWireGuardConfig();
+
 private:
     void updateProxySettings();
 
@@ -331,6 +333,7 @@ private:
     QTimer *checkUpdateTimer_;
     SessionStatusTimer *updateSessionStatusTimer_;
     QTimer *notificationsUpdateTimer_;
+    QTimer *fetchWireguardConfigTimer_;
 
     locationsmodel::LocationsModel *locationsModel_;
 

@@ -60,6 +60,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
     checkUpdateTimer_(NULL),
     updateSessionStatusTimer_(NULL),
     notificationsUpdateTimer_(NULL),
+    fetchWireguardConfigTimer_(NULL),
     locationsModel_(NULL),
     refetchServerCredentialsHelper_(NULL),
     isBlockConnect_(false),
@@ -1818,7 +1819,24 @@ void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ip
 
 void Engine::onConnectionManagerGetWireGuardConfig()
 {
-    serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+    if (serverAPI_->isRequestsEnabled()) {
+        fetchWireGuardConfig();
+        return;
+    }
+    if (!fetchWireguardConfigTimer_) {
+        fetchWireguardConfigTimer_ = new QTimer(this);
+        connect(fetchWireguardConfigTimer_, SIGNAL(timeout()), SLOT(fetchWireGuardConfig()));
+    }
+    fetchWireguardConfigTimer_->start(1000);
+}
+
+void Engine::fetchWireGuardConfig()
+{
+    if (serverAPI_->isRequestsEnabled()) {
+        if (fetchWireguardConfigTimer_)
+            fetchWireguardConfigTimer_->stop();
+        serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+    }
 }
 
 void Engine::onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig)
