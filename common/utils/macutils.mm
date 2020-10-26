@@ -4,6 +4,7 @@
 #include "logger.h"
 #import "macutils.h"
 #include "utils/utils.h"
+#include "names.h"
 #include <QFile>
 #include <QProcess>
 #include <QDir>
@@ -647,7 +648,7 @@ NSRunningApplication *guiApplicationByBundleName()
     {
         NSRunningApplication *app = [apps objectAtIndex: i];
         QString appBundleId = QString::fromNSString([app bundleIdentifier]);
-        if (appBundleId == "com.windscribe.gui.macos") // Windscribe GUI // TODO: will this always be the case?
+        if (appBundleId == GUI_BUNDLE_ID)
         {
             if ([app processIdentifier] != [currentApp processIdentifier])
             {

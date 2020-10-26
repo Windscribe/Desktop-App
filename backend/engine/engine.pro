@@ -398,7 +398,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
-    ../../common/filenames.h \
+    ../../common/names.h \
     application/windowsnativeeventfilter.h \
     application/windscribeapplication.h \
     engine/apiinfo/apiinfo.h \

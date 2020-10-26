@@ -2,6 +2,8 @@
 #include <AppKit/AppKit.h>
 #include <ServiceManagement/ServiceManagement.h>
 #include "utils/logger.h"
+#include "names.h"
+
 
 bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
 {
@@ -11,7 +13,7 @@ bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
     bool isRunning = false;
     for (NSRunningApplication *a in apps)
     {
-        if ([a.bundleIdentifier isEqualToString:@"com.windscribe.launcher.macos"])
+        if ([a.bundleIdentifier isEqualToString:LAUNCHER_BUNDLE_ID.toNSString()])
         {
             isRunning = true;
             break;
@@ -23,7 +25,7 @@ bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
 
 void LaunchOnStartup_mac::setLaunchOnStartup(bool enable)
 {
-    bool success = SMLoginItemSetEnabled((__bridge CFStringRef)@"com.windscribe.launcher.macos", enable);
+    bool success = SMLoginItemSetEnabled((__bridge CFStringRef)LAUNCHER_BUNDLE_ID.toNSString(), enable);
 
     if (success)
     {

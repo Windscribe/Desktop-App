@@ -1,5 +1,6 @@
 #include "installhelper_mac.h"
 #include "utils/logger.h"
+#include "names.h"
 
 #import <Foundation/Foundation.h>
 #import <ServiceManagement/ServiceManagement.h>
@@ -7,7 +8,7 @@
 
 bool InstallHelper_mac::installHelper()
 {
-    NSString *helperLabel = @"com.windscribe.helper.macos";
+    NSString *helperLabel = HELPER_BUNDLE_ID.toNSString();
     BOOL result = NO;
 
     NSDictionary *installedHelperJobData  = (NSDictionary *)SMJobCopyDictionary( kSMDomainSystemLaunchd, (CFStringRef)helperLabel);
@@ -25,7 +26,7 @@ bool InstallHelper_mac::installHelper()
         NSBundle*       appBundle       = [NSBundle mainBundle];
         NSURL*          appBundleURL    = [appBundle bundleURL];
 
-        NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:@"Contents/Library/LaunchServices/com.windscribe.helper.macos"];
+        NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:HELPER_BUNDLE_ID_PATH_FROM_ENGINE.toNSString()];
         NSDictionary*   currentInfoPlist        = (NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)currentHelperToolURL );
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];
