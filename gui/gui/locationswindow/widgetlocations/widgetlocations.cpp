@@ -10,6 +10,7 @@
 #include "widgetlocationssizes.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
+#include <QDebug>
 
 namespace GuiLocations {
 
@@ -822,17 +823,12 @@ void WidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
     bool bChanged = false;
     for (int i = 0; i < items_.count(); ++i)
     {
-        if (items_[i]->getId() == id)
+        if (items_[i]->changeSpeedConnection(id, timeMs))
         {
-            if (items_[i]->getPingTimeMs() != timeMs.toInt())
-            {
-                items_[i]->changeSpeedConnection(id, timeMs);
-                bChanged = items_[i]->isExpandedOrExpanding();
-            }
+            bChanged = items_[i]->isExpandedOrExpanding();
             break;
         }
     }
-
 
     if (bChanged && isIdVisible(id))
     {
