@@ -128,6 +128,7 @@ private slots:
     void onLocationSelected(LocationID id);
     void onLocationSwitchFavorite(LocationID id, bool isFavorite);
     void onLocationsAddStaticIpClicked();
+    void onLocationsClearCustomConfigClicked();
     void onLocationsAddCustomConfigClicked();
 
     void onLanguageChanged();
@@ -283,7 +284,6 @@ private:
 
     void openStaticIpExternalWindow();
     void openUpgradeExternalWindow();
-    void addCustomConfigFolder();
 
     bool onLocalHttpServerCommand(QString authHash, bool isConnectCmd, bool isDisconnectCmd, QString location);
 

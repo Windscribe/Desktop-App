@@ -28,6 +28,7 @@ protected:
 
 private slots:
     void onOpacityChanged(const QVariant &value);
+    void resetHoverState();
 
 private:
     double unhoverOpacity_;

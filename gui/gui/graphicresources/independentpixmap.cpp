@@ -75,6 +75,14 @@ void IndependentPixmap::draw(int x, int y, QPainter *painter, int x1, int y1, in
     }
 }
 
+void IndependentPixmap::draw(const QRect &rect, QPainter *painter)
+{
+    if (pixmap_)
+    {
+        painter->drawPixmap(rect, *pixmap_);
+    }
+}
+
 QIcon IndependentPixmap::getScaledIcon()
 {
     QIcon icon(pixmap_->scaled(20,20,Qt::IgnoreAspectRatio, Qt::SmoothTransformation));

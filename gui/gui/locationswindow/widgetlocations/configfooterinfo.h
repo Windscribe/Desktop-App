@@ -18,38 +18,44 @@ public:
     void updateScaling();
 
 signals:
+    void clearCustomConfigClicked();
     void addCustomConfigClicked();
     void showTooltip(TooltipInfo info);
     void hideTooltip(TooltipId id);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-
-    void enterEvent(QEvent *event) override;
     void leaveEvent(QEvent *event) override;
-
+    void mouseMoveEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private slots:
-    void onTextOpacityChanged(const QVariant &value);
-    void onIconOpacityChanged(const QVariant &value);
+    void onIconOpacityChanged(const QVariant &value, int index);
 
 private:
+    struct IconButton {
+        IconButton();
+        double opacity;
+        QVariantAnimation opacityAnimation;
+        QRect rect;
+        bool is_hover;
+    };
+
     void updateDisplayText();
+    void updateButtonRects();
 
     bool pressed_;
     QString fullText_;
     QString displayText_;
+    QRect displayTextRect_;
+    bool isDisplayTextRectHover_;
 
     static constexpr int HEIGHT_ = 48;
     QFont font_;
 
-    double curTextOpacity_;
-    QVariantAnimation textOpacityAnimation_;
-
-    double curIconOpacity_;
-    QVariantAnimation iconOpacityAnimation_;
+    enum { ICON_CLEAR, ICON_CHOOSE, NUM_ICONS };
+    IconButton iconButtons_[NUM_ICONS];
 };
 
 #endif // CONFIGLOCATIONFOOTER_H

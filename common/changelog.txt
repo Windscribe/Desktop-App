@@ -1,4 +1,4 @@
-2.0.31 (23/09/2020)
+2.0.32 (23/09/2020)
 * Mac DMG the typo fix.
 * Don't collapse the location list when you disconnect. 
 

@@ -378,11 +378,12 @@ QList<CityNode> LocationItem::cityNodes()
     return result;
 }
 
-void LocationItem::changeSpeedConnection(const LocationID &locationId, PingTime timeMs)
+bool LocationItem::changeSpeedConnection(const LocationID &locationId, PingTime timeMs)
 {
     if (locationId.isTopLevelLocation())
     {
         timeMs_.setValue(timeMs);
+        return true;
     }
     else
     {
@@ -391,10 +392,11 @@ void LocationItem::changeSpeedConnection(const LocationID &locationId, PingTime 
             if (locationId == cityNodes_[i].getLocationId())
             {
                 cityNodes_[i].setConnectionSpeed(timeMs);
-                break;
+                return true;
             }
         }
     }
+    return false;
 }
 
 bool LocationItem::changeIsFavorite(const LocationID &locationId, bool isFavorite)

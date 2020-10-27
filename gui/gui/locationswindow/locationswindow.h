@@ -32,6 +32,7 @@ signals:
     void selected(LocationID id);
     void switchFavorite(LocationID id, bool isFavorite);
     void addStaticIpClicked();
+    void clearCustomConfigClicked();
     void addCustomConfigClicked();
     void showTooltip(TooltipInfo info);
     void hideTooltip(TooltipId type);

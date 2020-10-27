@@ -76,7 +76,7 @@ public:
     LocationID getLocationIdForCity(int ind);
     int findCityInd(const LocationID &locationId);
     QList<CityNode> cityNodes();
-    void changeSpeedConnection(const LocationID &locationId, PingTime timeMs);
+    bool changeSpeedConnection(const LocationID &locationId, PingTime timeMs);
 
     // return true if changed
     bool changeIsFavorite(const LocationID &locationId, bool isFavorite);
