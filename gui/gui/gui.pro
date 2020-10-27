@@ -361,6 +361,7 @@ SOURCES += \
 
 
 HEADERS += \
+    ../../common/names.h \
     ../backend/backend.h \
     ../backend/connectstatehelper.h \
     ../backend/firewallstatehelper.h \

@@ -17,7 +17,7 @@
 #include <QDir>
 #include <google/protobuf/util/message_differencer.h>
 #include "utils/executable_signature/executable_signature.h"
-#include "filenames.h"
+#include "names.h"
 
 #ifdef Q_OS_WIN
     #include "utils/bfe_service_win.h"

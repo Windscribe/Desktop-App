@@ -4,7 +4,7 @@
 #include <QStandardPaths>
 #include <QFile>
 #include <QDir>
-#include "filenames.h"
+#include "names.h"
 #include "utils/utils.h"
 
 DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
