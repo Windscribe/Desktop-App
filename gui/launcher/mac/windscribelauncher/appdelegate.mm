@@ -1,4 +1,5 @@
 #import "appdelegate.h"
+#include "names.h"
 
 @interface AppDelegate ()
 
@@ -13,8 +14,10 @@
     
     // determine if already running
     bool isRunning = false;
-    for (NSRunningApplication *a in apps) {
-        if ([a.bundleIdentifier isEqualToString:@"com.windscribe.gui.macos"]) {
+    for (NSRunningApplication *a in apps)
+    {
+        NSString *str = [NSString stringWithUTF8String:GUI_BUNDLE_ID.c_str()];
+        if ([a.bundleIdentifier isEqualToString:str]) {
             isRunning = true;
             break;
         }

@@ -26,7 +26,7 @@ DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
 
     // remove temp installer.app on mac
 #ifdef Q_OS_MAC
-    QString tempInstallerFilename = tempDir + "/" + INSTALLER_FILENAME_MAC_APP;
+    QString tempInstallerFilename = tempDir + "/" + QString::fromStdString(INSTALLER_FILENAME_MAC_APP);
     Utils::removeDirectory(tempInstallerFilename);
 #endif
 }

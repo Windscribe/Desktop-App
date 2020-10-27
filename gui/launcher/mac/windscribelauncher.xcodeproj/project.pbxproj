@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		003EA384242E7A2100DCF49A /* appdelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 003EA383242E7A2100DCF49A /* appdelegate.m */; };
+		003EA384242E7A2100DCF49A /* appdelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 003EA383242E7A2100DCF49A /* appdelegate.mm */; };
 		003EA389242E7A2200DCF49A /* assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 003EA388242E7A2200DCF49A /* assets.xcassets */; };
 		003EA38C242E7A2200DCF49A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 003EA38A242E7A2200DCF49A /* Main.storyboard */; };
 		003EA38F242E7A2200DCF49A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 003EA38E242E7A2200DCF49A /* main.m */; };
@@ -16,12 +16,13 @@
 /* Begin PBXFileReference section */
 		003EA37F242E7A2100DCF49A /* WindscribeLauncher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WindscribeLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		003EA382242E7A2100DCF49A /* appdelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = appdelegate.h; sourceTree = "<group>"; };
-		003EA383242E7A2100DCF49A /* appdelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = appdelegate.m; sourceTree = "<group>"; };
+		003EA383242E7A2100DCF49A /* appdelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = appdelegate.mm; sourceTree = "<group>"; };
 		003EA388242E7A2200DCF49A /* assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = assets.xcassets; sourceTree = "<group>"; };
 		003EA38B242E7A2200DCF49A /* base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = base; path = base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		003EA38D242E7A2200DCF49A /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
 		003EA38E242E7A2200DCF49A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		003EA390242E7A2200DCF49A /* windscribelauncher.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = windscribelauncher.entitlements; sourceTree = "<group>"; };
+		88E53B35254864A20027495A /* names.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = names.h; path = ../../../common/names.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +39,7 @@
 		003EA376242E7A2100DCF49A = {
 			isa = PBXGroup;
 			children = (
+				88E53B35254864A20027495A /* names.h */,
 				003EA381242E7A2100DCF49A /* windscribelauncher */,
 				003EA380242E7A2100DCF49A /* Products */,
 			);
@@ -55,7 +57,7 @@
 			isa = PBXGroup;
 			children = (
 				003EA382242E7A2100DCF49A /* appdelegate.h */,
-				003EA383242E7A2100DCF49A /* appdelegate.m */,
+				003EA383242E7A2100DCF49A /* appdelegate.mm */,
 				003EA388242E7A2200DCF49A /* assets.xcassets */,
 				003EA38A242E7A2200DCF49A /* Main.storyboard */,
 				003EA38D242E7A2200DCF49A /* info.plist */,
@@ -135,7 +137,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				003EA38F242E7A2200DCF49A /* main.m in Sources */,
-				003EA384242E7A2100DCF49A /* appdelegate.m in Sources */,
+				003EA384242E7A2100DCF49A /* appdelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

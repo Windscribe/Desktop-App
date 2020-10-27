@@ -648,7 +648,7 @@ NSRunningApplication *guiApplicationByBundleName()
     {
         NSRunningApplication *app = [apps objectAtIndex: i];
         QString appBundleId = QString::fromNSString([app bundleIdentifier]);
-        if (appBundleId == GUI_BUNDLE_ID)
+        if (appBundleId == QString::fromStdString(GUI_BUNDLE_ID))
         {
             if ([app processIdentifier] != [currentApp processIdentifier])
             {
