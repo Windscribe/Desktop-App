@@ -53,6 +53,8 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
             pni.latestPingFailed_ = false;
             pni.bNowPinging_ = false;
             pni.failedPingsInRow = 0;
+            pni.latestPingFromDisconnectedState_ = false;
+            pni.nextTimeForFailedPing_ = 0;
             pni.pingType = ip_info.pingType_;
             ips_[ip_info.ip_] = pni;
         }

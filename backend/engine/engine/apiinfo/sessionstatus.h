@@ -33,8 +33,8 @@ public:
 class SessionStatus
 {
 public:
-    explicit SessionStatus() { d = new SessionStatusData; }
-    SessionStatus(const SessionStatus &other) : d (other.d) { }
+    explicit SessionStatus() : d(new SessionStatusData) {}
+    SessionStatus(const SessionStatus &other) : d (other.d) {}
 
     bool initFromJson(QJsonObject &json, QString &outErrorMessage);
     void initFromProtoBuf(const ProtoTypes::SessionStatus &ss);

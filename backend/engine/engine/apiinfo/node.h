@@ -40,7 +40,7 @@ public:
 class Node
 {
 public:
-    explicit Node() { d = new NodeData; }
+    explicit Node() : d(new NodeData) {}
     Node(const Node &other) : d (other.d) { }
 
     bool initFromJson(QJsonObject &obj);

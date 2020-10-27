@@ -44,8 +44,8 @@ class Group
 {
 
 public:
-    explicit Group() { d = new GroupData; }
-    Group(const Group &other) : d (other.d) { }
+    explicit Group() : d(new GroupData) {}
+    Group(const Group &other) : d (other.d) {}
 
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
     void initFromProtoBuf(const ProtoApiInfo::Group &g);

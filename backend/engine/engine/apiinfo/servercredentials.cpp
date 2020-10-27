@@ -9,18 +9,20 @@ ServerCredentials::ServerCredentials() :
 {
 }
 
-ServerCredentials::ServerCredentials(const QString &usernameOpenVpn, const QString &passwordOpenVpn, const QString &usernameIkev2, const QString &passwordIkev2):
-    bInitialized_(true), usernameOpenVpn_(usernameOpenVpn), passwordOpenVpn_(passwordOpenVpn), usernameIkev2_(usernameIkev2), passwordIkev2_(passwordIkev2)
+ServerCredentials::ServerCredentials(const QString &usernameOpenVpn, const QString &passwordOpenVpn,
+                                     const QString &usernameIkev2, const QString &passwordIkev2) :
+    bInitialized_(true), usernameOpenVpn_(usernameOpenVpn), passwordOpenVpn_(passwordOpenVpn),
+    usernameIkev2_(usernameIkev2), passwordIkev2_(passwordIkev2)
 {
 }
 
-ServerCredentials::ServerCredentials(const ProtoApiInfo::ServerCredentials &serverCredentials)
+ServerCredentials::ServerCredentials(const ProtoApiInfo::ServerCredentials &serverCredentials) :
+    bInitialized_(true),
+    usernameOpenVpn_(QString::fromStdString(serverCredentials.openvpn_username())),
+    passwordOpenVpn_(QString::fromStdString(serverCredentials.openvpn_password())),
+    usernameIkev2_(QString::fromStdString(serverCredentials.ikev2_username())),
+    passwordIkev2_(QString::fromStdString(serverCredentials.ikev2_password()))
 {
-    usernameOpenVpn_ = QString::fromStdString(serverCredentials.openvpn_username());
-    passwordOpenVpn_ = QString::fromStdString(serverCredentials.openvpn_password());
-    usernameIkev2_ = QString::fromStdString(serverCredentials.ikev2_username());
-    passwordIkev2_ = QString::fromStdString(serverCredentials.ikev2_password());
-    bInitialized_ = true;
 }
 
 ProtoApiInfo::ServerCredentials ServerCredentials::getProtoBuf() const

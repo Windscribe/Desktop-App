@@ -49,8 +49,8 @@ public:
 class Location
 {
 public:
-    explicit Location() { d = new LocationData; }
-    Location(const Location &other) : d (other.d) { }
+    explicit Location() : d(new LocationData) {}
+    Location(const Location &other) : d (other.d) {}
 
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
     void initFromProtoBuf(const ProtoApiInfo::Location &l);
