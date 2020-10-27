@@ -274,6 +274,7 @@
         <file>svg/locations/OVPN_ICON.svg</file>
         <file>svg/locations/WG_ICON.svg</file>
         <file>svg/locations/EDIT_ICON.svg</file>
+        <file>svg/locations/CLEAR_ICON.svg</file>
         <file>svg/locations/STATIC_IP_ICON_BIG.svg</file>
         <file>svg/locations/FOLDER_ICON_BIG.svg</file>
     </qresource>

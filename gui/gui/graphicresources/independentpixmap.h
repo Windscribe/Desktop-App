@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QBitmap>
 #include <QPainter>
+#include <QRect>
 
 // everywhere we use this class instead of QPixmap
 // for Mac retina, use pixelRatio = 2, for the rest pixelRatio = 1;
@@ -23,6 +24,7 @@ public:
     void draw(int x, int y, QPainter *painter);
     void draw(int x, int y, int w, int h, QPainter *painter);
     void draw(int x, int y, QPainter *painter, int x1, int y1, int w, int h);
+    void draw(const QRect &rect, QPainter *painter);
 
     QIcon getScaledIcon();
     QPixmap getScaledPixmap(int width, int height);

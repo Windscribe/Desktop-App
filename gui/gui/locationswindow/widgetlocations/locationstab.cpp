@@ -53,6 +53,8 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
 
     configFooterInfo_ = new ConfigFooterInfo(this);
     configFooterInfo_->hide();
+    connect(configFooterInfo_, SIGNAL(clearCustomConfigClicked()),
+            SIGNAL(clearCustomConfigClicked()));
     connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
     int newHeight = 50 * countOfVisibleItemSlots_ - 1;
     updateLocationWidgetsGeometry(newHeight);

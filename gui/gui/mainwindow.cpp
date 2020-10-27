@@ -131,6 +131,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     connect(locationsWindow_, SIGNAL(selected(LocationID)), SLOT(onLocationSelected(LocationID)));
     connect(locationsWindow_, SIGNAL(switchFavorite(LocationID,bool)), SLOT(onLocationSwitchFavorite(LocationID,bool)));
     connect(locationsWindow_, SIGNAL(addStaticIpClicked()), SLOT(onLocationsAddStaticIpClicked()));
+    connect(locationsWindow_, SIGNAL(clearCustomConfigClicked()), SLOT(onLocationsClearCustomConfigClicked()));
     connect(locationsWindow_, SIGNAL(addCustomConfigClicked()), SLOT(onLocationsAddCustomConfigClicked()));
     locationsWindow_->setLatencyDisplay(backend_->getPreferences()->latencyDisplay());
     locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(setLatencyDisplay(ProtoTypes::LatencyDisplayType)) );
@@ -1115,21 +1116,24 @@ void MainWindow::onLocationsAddStaticIpClicked()
     openStaticIpExternalWindow();
 }
 
-void MainWindow::addCustomConfigFolder()
+void MainWindow::onLocationsClearCustomConfigClicked()
 {
-    QString path = QFileDialog::getExistingDirectory(this, tr("Select Custom Config Folder"), "", QFileDialog::ShowDirsOnly);
-
-    if (path != "")
-    {
-        qCDebug(LOG_BASIC) << "User selected custom config path:" << path;
-        backend_->getPreferences()->setCustomOvpnConfigsPath(path);
+    if (!backend_->getPreferences()->customOvpnConfigsPath().isEmpty()) {
+        qCDebug(LOG_BASIC) << "User cleared custom config path";
+        backend_->getPreferences()->setCustomOvpnConfigsPath(QString());
         backend_->sendEngineSettingsIfChanged();
     }
 }
 
 void MainWindow::onLocationsAddCustomConfigClicked()
 {
-    addCustomConfigFolder();
+    QString path = QFileDialog::getExistingDirectory(
+        this, tr("Select Custom Config Folder"), "", QFileDialog::ShowDirsOnly);
+    if (!path.isEmpty()) {
+        qCDebug(LOG_BASIC) << "User selected custom config path:" << path;
+        backend_->getPreferences()->setCustomOvpnConfigsPath(path);
+        backend_->sendEngineSettingsIfChanged();
+    }
 }
 
 void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
