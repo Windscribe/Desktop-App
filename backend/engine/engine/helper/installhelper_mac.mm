@@ -8,7 +8,7 @@
 
 bool InstallHelper_mac::installHelper()
 {
-    NSString *helperLabel = [NSString stringWithUTF8String:HELPER_BUNDLE_ID.c_str()];
+    NSString *helperLabel = @HELPER_BUNDLE_ID;
     BOOL result = NO;
 
     NSDictionary *installedHelperJobData  = (NSDictionary *)SMJobCopyDictionary( kSMDomainSystemLaunchd, (CFStringRef)helperLabel);
@@ -26,7 +26,7 @@ bool InstallHelper_mac::installHelper()
         NSBundle*       appBundle       = [NSBundle mainBundle];
         NSURL*          appBundleURL    = [appBundle bundleURL];
 
-        NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:[NSString stringWithUTF8String:HELPER_BUNDLE_ID_PATH_FROM_ENGINE.c_str()]];
+        NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:@HELPER_BUNDLE_ID_PATH_FROM_ENGINE];
         NSDictionary*   currentInfoPlist        = (NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)currentHelperToolURL );
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];

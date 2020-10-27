@@ -13,7 +13,7 @@ bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
     bool isRunning = false;
     for (NSRunningApplication *a in apps)
     {
-        if ([a.bundleIdentifier isEqualToString:[NSString stringWithUTF8:LAUNCHER_BUNDLE_ID.c_str()]])
+        if ([a.bundleIdentifier isEqualToString:@LAUNCHER_BUNDLE_ID])
         {
             isRunning = true;
             break;
@@ -25,7 +25,7 @@ bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
 
 void LaunchOnStartup_mac::setLaunchOnStartup(bool enable)
 {
-    bool success = SMLoginItemSetEnabled((__bridge CFStringRef)[NSString stringWithUTF8:LAUNCHER_BUNDLE_ID.c_str()], enable);
+    bool success = SMLoginItemSetEnabled((__bridge CFStringRef)@LAUNCHER_BUNDLE_ID, enable);
 
     if (success)
     {

@@ -16,7 +16,7 @@
     bool isRunning = false;
     for (NSRunningApplication *a in apps)
     {
-        NSString *str = [NSString stringWithUTF8String:GUI_BUNDLE_ID.c_str()];
+        NSString *str = [NSString stringWithFormat:@"%s", GUI_BUNDLE_ID];
         if ([a.bundleIdentifier isEqualToString:str]) {
             isRunning = true;
             break;
