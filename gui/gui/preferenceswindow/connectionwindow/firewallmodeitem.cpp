@@ -20,7 +20,7 @@ FirewallModeItem::FirewallModeItem(ScalableGraphicsObject *parent) : BaseItem(pa
     {
         comboBoxFirewallMode_->addItem(v.first, v.second);
     }
-    comboBoxFirewallMode_->setCurrentItem(modes.begin()->second);
+    comboBoxFirewallMode_->setCurrentItem(curFirewallMode_.mode());
     connect(comboBoxFirewallMode_, SIGNAL(currentItemChanged(QVariant)), SLOT(onFirewallModeChanged(QVariant)));
     connect(comboBoxFirewallMode_, SIGNAL(buttonHoverEnter()), SIGNAL(buttonHoverEnter()));
     connect(comboBoxFirewallMode_, SIGNAL(buttonHoverLeave()), SIGNAL(buttonHoverLeave()));
@@ -32,7 +32,7 @@ FirewallModeItem::FirewallModeItem(ScalableGraphicsObject *parent) : BaseItem(pa
     {
         comboBoxFirewallWhen_->addItem(v.first, v.second);
     }
-    comboBoxFirewallWhen_->setCurrentItem(whens.begin()->second);
+    comboBoxFirewallWhen_->setCurrentItem(curFirewallMode_.when());
 
 
     connect(comboBoxFirewallWhen_, SIGNAL(currentItemChanged(QVariant)), SLOT(onFirewallWhenChanged(QVariant)));
