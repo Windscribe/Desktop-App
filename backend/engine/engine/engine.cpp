@@ -17,7 +17,7 @@
 #include <QDir>
 #include <google/protobuf/util/message_differencer.h>
 #include "utils/executable_signature/executable_signature.h"
-#include "filenames.h"
+#include "names.h"
 
 #ifdef Q_OS_WIN
     #include "utils/bfe_service_win.h"
@@ -31,50 +31,54 @@
     #include "networkstatemanager/reachabilityevents.h"
 #endif
 
-Engine::Engine(const EngineSettings &engineSettings) : QObject(NULL),
+Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     engineSettings_(engineSettings),
-    helper_(NULL),
-    networkStateManager_(NULL),
-    firewallController_(NULL),
-    serverAPI_(NULL),
-    connectionManager_(NULL),
-    connectStateController_(NULL),
+    helper_(nullptr),
+    networkStateManager_(nullptr),
+    firewallController_(nullptr),
+    serverAPI_(nullptr),
+    connectionManager_(nullptr),
+    connectStateController_(nullptr),
     serverApiUserRole_(0),
-    getMyIPController_(NULL),
-    vpnShareController_(NULL),
-    emergencyController_(NULL),
-    customConfigs_(NULL),
-    customOvpnAuthCredentialsStorage_(NULL),
-    networkDetectionManager_(NULL),
-    macAddressController_(NULL),
-    keepAliveManager_(NULL),
-    packetSizeController_(NULL),
+    getMyIPController_(nullptr),
+    vpnShareController_(nullptr),
+    emergencyController_(nullptr),
+    customConfigs_(nullptr),
+    customOvpnAuthCredentialsStorage_(nullptr),
+    networkDetectionManager_(nullptr),
+    macAddressController_(nullptr),
+    keepAliveManager_(nullptr),
+    packetSizeController_(nullptr),
 #ifdef Q_OS_WIN
-    measurementCpuUsage_(NULL),
+    measurementCpuUsage_(nullptr),
 #endif
-    inititalizeHelper_(NULL),
+    inititalizeHelper_(nullptr),
     bInitialized_(false),
-    loginController_(NULL),
+    loginController_(nullptr),
     loginState_(LOGIN_NONE),
     loginSettingsMutex_(QMutex::Recursive),
-    checkUpdateTimer_(NULL),
-    updateSessionStatusTimer_(NULL),
-    notificationsUpdateTimer_(NULL),
-    fetchWireguardConfigTimer_(NULL),
-    locationsModel_(NULL),
-    refetchServerCredentialsHelper_(NULL),
+    checkUpdateTimer_(nullptr),
+    updateSessionStatusTimer_(nullptr),
+    notificationsUpdateTimer_(nullptr),
+    fetchWireguardConfigTimer_(nullptr),
+    locationsModel_(nullptr),
+    refetchServerCredentialsHelper_(nullptr),
+    downloadHelper_(nullptr),
+#ifdef Q_OS_MAC
+    autoUpdaterHelper_(nullptr),
+#endif
     isBlockConnect_(false),
     isCleanupFinished_(false),
     isNeedReconnectAfterRequestUsernameAndPassword_(false),
     online_(false),
-    packetSizeControllerThread_(NULL),
+    packetSizeControllerThread_(nullptr),
     runningPacketDetection_(false),
     lastDownloadProgress_(0),
     installerUrl_("")
 {
-    connectStateController_ = new ConnectStateController(NULL);
+    connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
-    emergencyConnectStateController_ = new ConnectStateController(NULL);
+    emergencyConnectStateController_ = new ConnectStateController(nullptr);
     OpenVpnVersionController::instance().setUseWinTun(engineSettings.isUseWintun());
 }
 

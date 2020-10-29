@@ -1,4 +1,5 @@
 #import "appdelegate.h"
+#include "names.h"
 
 @interface AppDelegate ()
 
@@ -11,14 +12,18 @@
     NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
     NSArray *apps = [workspace runningApplications];
     
+    // determine if already running
     bool isRunning = false;
-    for (NSRunningApplication *a in apps) {
-        if ([a.bundleIdentifier isEqualToString:@"com.windscribe.WindscribeGUI"]) {
+    for (NSRunningApplication *a in apps)
+    {
+        NSString *str = [NSString stringWithFormat:@"%s", GUI_BUNDLE_ID];
+        if ([a.bundleIdentifier isEqualToString:str]) {
             isRunning = true;
             break;
         }
     }
     
+    // run if not already running
     if (!isRunning)
     {
         NSString *bundlePath = [[NSBundle mainBundle] bundlePath];

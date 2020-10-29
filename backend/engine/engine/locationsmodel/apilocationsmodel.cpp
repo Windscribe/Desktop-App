@@ -262,7 +262,7 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
                     }
                 }
             }
-            else if (!bestLocation_.isDetectedWithDisconnectedIps())
+            else
             {
                 if (isAllNodesInDisconnectedState)
                 {

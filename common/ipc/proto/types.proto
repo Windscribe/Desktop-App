@@ -294,7 +294,7 @@ enum FirewallWhen
 
 message FirewallSettings
 {
-  optional FirewallMode mode = 1 [default = FIREWALL_MODE_MANUAL];
+  optional FirewallMode mode = 1 [default = FIREWALL_MODE_AUTOMATIC];
   optional FirewallWhen when = 2 [default = FIREWALL_WHEN_BEFORE_CONNECTION];
 }
 

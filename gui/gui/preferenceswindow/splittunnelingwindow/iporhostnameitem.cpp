@@ -19,7 +19,7 @@ IpOrHostnameItem::IpOrHostnameItem(ProtoTypes::SplitTunnelingNetworkRoute route,
     line_ = new DividerLine(this, 276);
 
     text_ = QString::fromStdString(route.name());
-    updatePositions();
+    updateScaling();
 }
 
 void IpOrHostnameItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

@@ -4,12 +4,14 @@
 #include <QStandardPaths>
 #include <QFile>
 #include <QDir>
-#include "filenames.h"
+#include "names.h"
 #include "utils/utils.h"
 
 DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
   , reply_(nullptr)
+  , file_(nullptr)
   , progressPercent_(0)
+  , state_(DOWNLOAD_STATE_INIT)
 {
 #ifdef Q_OS_WIN
     const QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/installer.exe";

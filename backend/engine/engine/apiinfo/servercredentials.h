@@ -11,7 +11,7 @@ class ServerCredentials
 public:
     ServerCredentials();
     ServerCredentials(const QString &usernameOpenVpn, const QString &passwordOpenVpn, const QString &usernameIkev2, const QString &passwordIkev2);
-    ServerCredentials(const ProtoApiInfo::ServerCredentials &serverCredentials);
+    explicit ServerCredentials(const ProtoApiInfo::ServerCredentials &serverCredentials);
 
     ProtoApiInfo::ServerCredentials getProtoBuf() const;
 

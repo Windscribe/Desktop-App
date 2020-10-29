@@ -37,7 +37,6 @@ private:
     QSharedPointer<locationsmodel::MutableLocationInfo> locationInfo_;
     apiinfo::PortMap portMap_;
     bool bIsAllFailed_;
-    bool bStarted_;
 
     static bool sortPortMapFunction(const apiinfo::PortItem &p1, const apiinfo::PortItem &p2);
 };

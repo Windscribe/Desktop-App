@@ -106,8 +106,8 @@ public:
 class StaticIps
 {
 public:
-    explicit StaticIps() { d = new StaticIpsData; }
-    StaticIps(const StaticIps &other) : d (other.d) { }
+    explicit StaticIps() : d(new StaticIpsData) {}
+    StaticIps(const StaticIps &other) : d (other.d) {}
 
     bool initFromJson(QJsonObject &obj);
     void initFromProtoBuf(const ProtoApiInfo::StaticIps &staticIps);
