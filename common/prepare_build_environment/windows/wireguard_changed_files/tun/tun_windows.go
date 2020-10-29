@@ -46,7 +46,7 @@ type NativeTun struct {
 	writeLock sync.Mutex
 }
 
-const WintunPool = wintun.Pool("WireGuard")
+const WintunPool = wintun.Pool("Windscribe WireGuard")
 
 //go:linkname procyield runtime.procyield
 func procyield(cycles uint32)
