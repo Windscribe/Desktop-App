@@ -50,6 +50,32 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
     updateState();
 }
 
+void SplitTunneling::setLatestWireGuardAdapterSettings(const std::string &ipAddress, const std::string &dnsAddressList,
+const std::vector<std::string> &allowedIps)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    
+    wgIpAddress_ = ipAddress;
+    wgDnsAddress_ = dnsAddressList;     //todo several DNS-IPs
+    if (allowedIps.size() > 0)          // todo several allowed-IPs
+    {
+        wgAllowedIp_ = allowedIps[0];
+    }
+    else
+    {
+        wgAllowedIp_.clear();
+    }
+    
+    routesManager_.setLatestWireGuardAdapterSettings(ipAddress, dnsAddressList, allowedIps);
+    
+    std::string ips;
+    for (auto it : allowedIps)
+    {
+        ips += it + ";";
+    }
+    LOG("ipAddress: %s, dnsAddressList: %s, allowedIps = %s", ipAddress.c_str(), dnsAddressList.c_str(), ips.c_str());
+}
+
 bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindIp, bool &isExclude)
 {
     std::lock_guard<std::mutex> guard(mutex_);
@@ -76,10 +102,13 @@ bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindI
                 {
                     outBindIp = connectStatus_.ifconfigTunIp;
                 }
-                else
+                else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
                 {
-                    // TODO(wireguard)
                     outBindIp = connectStatus_.ikev2AdapterAddress;
+                }
+                else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
+                {
+                    outBindIp = wgIpAddress_;
                 }
                 LOG("VerifyApp: %s, result: %d", appPath.c_str(), true);
                 return true;
@@ -102,10 +131,13 @@ bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindI
                 {
                     outBindIp = connectStatus_.ifconfigTunIp;
                 }
-                else
+                else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
                 {
-                    // TODO(wireguard)
                     outBindIp = connectStatus_.ikev2AdapterAddress;
+                }
+                else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
+                {
+                    outBindIp = wgIpAddress_;
                 }
             }
             LOG("VerifyApp: %s, result: %d", appPath.c_str(), true);

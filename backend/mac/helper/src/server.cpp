@@ -202,6 +202,10 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                     LOG("WireGuard: configureAdapter() failed");
                     break;
                 }
+                
+                splitTunneling_.setLatestWireGuardAdapterSettings(cmd.clientIpAddress,
+                                                                  cmd.clientDnsAddressList, allowed_ips_vector);
+                
                 if (!wireGuardController_.configureDefaultRouteMonitor(cmd.peerEndpoint)) {
                     LOG("WireGuard: configureDefaultRouteMonitor() failed");
                     break;

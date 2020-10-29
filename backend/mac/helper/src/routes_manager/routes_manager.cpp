@@ -45,6 +45,7 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
                 else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
                 {
                     // TODO(wireguard)
+                    deleteWireGuardDefaultRoutes(connectStatus);
                 }
             }
         }
@@ -108,6 +109,20 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
     isSplitTunnelActive_ = isSplitTunnelActive;
     isExcludeMode_ = isExcludeMode;
 }
+void RoutesManager::setLatestWireGuardAdapterSettings(const std::string &ipAddress, const std::string &dnsAddressList,
+const std::vector<std::string> &allowedIps)
+{
+    wgIpAddress_ = ipAddress;
+    wgDnsAddress_ = dnsAddressList;     //todo several DNS-IPs
+    if (allowedIps.size() > 0)          // todo several allowed-IPs
+    {
+        wgAllowedIp_ = allowedIps[0];
+    }
+    else
+    {
+        wgAllowedIp_.clear();
+    }
+}
 
 void RoutesManager::deleteOpenVpnDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
 {
@@ -122,6 +137,10 @@ void RoutesManager::deleteOpenVpnDefaultRoutes(const CMD_SEND_CONNECT_STATUS &co
     cmd = "route delete -net 128.0.0.0 " + connectStatus.routeVpnGateway + " 128.0.0.0";
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);
+}
+
+void RoutesManager::deleteWireGuardDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
+{
 }
 
 void RoutesManager::addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS &connectStatus)
