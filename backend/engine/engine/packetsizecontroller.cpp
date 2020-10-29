@@ -63,7 +63,7 @@ void PacketSizeController::detectAppropriatePacketSizeImpl()
 
 int PacketSizeController::getIdealPacketSize()
 {
-    int mtu = 1500;
+    int mtu = 1470;
 
     bool success = false;
     while (mtu >= 1300)

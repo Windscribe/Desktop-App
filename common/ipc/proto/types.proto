@@ -327,7 +327,7 @@ message ShareProxyGateway
 
 message PacketSize
 {
-  optional bool is_automatic = 1 [default = false];
+  optional bool is_automatic = 1 [default = true];
   optional int32 mtu = 2 [default = -1]; 		// -1 not set
 }
 
@@ -427,7 +427,7 @@ message NetworkInterface
     optional bool requested = 9 [ default = false];
     optional int32 metric = 10 [default = 100];
     optional string physical_address = 11;
-    optional int32 mtu = 12 [default = 1500];
+    optional int32 mtu = 12 [default = 1470];
     optional int32 state = 13;
     optional int32 dw_type = 14 [default = 0];
     optional string device_name = 15;

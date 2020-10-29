@@ -1543,10 +1543,11 @@ void Engine::onConnectionManagerConnected()
 
     helper_->setIPv6EnabledInFirewall(false);
 
-    if (!packetSize_.is_automatic())
+
+    if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
+        engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
     {
-        if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
-            engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
+        if (!packetSize_.is_automatic())
         {
             int mtuForProtocol = 0;
             if (engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
@@ -1581,10 +1582,10 @@ void Engine::onConnectionManagerConnected()
                 qCDebug(LOG_PACKET_SIZE) << "Using default MTU, mtu minus overhead is too low: " << mtuForProtocol;
             }
         }
-    }
-    else
-    {
-        qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MTU (Engine)";
+        else
+        {
+            qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MTU (Engine)";
+        }
     }
 
     if (connectionManager_->isStaticIpsLocation())
@@ -2085,14 +2086,13 @@ void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
     if (mtu    != engineSettings_.getPacketSize().mtu() ||
         isAuto != engineSettings_.getPacketSize().is_automatic())
     {
-        ProtoTypes::PacketSize newPacketSize;
-        newPacketSize.set_mtu(mtu);
-        newPacketSize.set_is_automatic(isAuto);
-        engineSettings_.setPacketSize(newPacketSize);
+
+        // qDebug() << "Updating gui with mtu: " << mtu;
+        engineSettings_.setPacketSize(packetSize);
 
         // Connection to EngineServer is chewing the parameters to garbage when passed as ProtoTypes::PacketSize
         // Probably has something to do with EngineThread
-        emit packetSizeChanged(newPacketSize.is_automatic(), newPacketSize.mtu());
+        emit packetSizeChanged(packetSize.is_automatic(), packetSize.mtu());
     }
 }
 
