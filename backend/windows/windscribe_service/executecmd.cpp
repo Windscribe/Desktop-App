@@ -405,8 +405,5 @@ BOOL ExecuteCmd::isTokenElevated(HANDLE handle)
 void ExecuteCmd::safeCloseHandle(HANDLE handle)
 {
 	if (handle)
-	{
 		CloseHandle(handle);
-		handle = NULL;
-	}
 }

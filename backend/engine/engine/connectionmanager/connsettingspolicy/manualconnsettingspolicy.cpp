@@ -1,12 +1,12 @@
 #include "manualconnsettingspolicy.h"
 #include "utils/logger.h"
 
-ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap)
+ManualConnSettingsPolicy::ManualConnSettingsPolicy(
+    QSharedPointer<locationsmodel::BaseLocationInfo> bli,
+    const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap) :
+        locationInfo_(qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli)),
+        portMap_(portMap), connectionSettings_(connectionSettings), failedManualModeCounter_(0)
 {
-    connectionSettings_ = connectionSettings;
-    portMap_ = portMap;
-    failedManualModeCounter_ = 0;
-    locationInfo_ = qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli);
     Q_ASSERT(!locationInfo_.isNull());
     Q_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 }

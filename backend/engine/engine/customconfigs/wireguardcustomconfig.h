@@ -10,6 +10,7 @@ namespace customconfigs {
 class WireguardCustomConfig : public ICustomConfig
 {
 public:
+    WireguardCustomConfig() = default;
     CUSTOM_CONFIG_TYPE type() const override;
     QString name() const override;      // use for show in the GUI, basically filename without extension
     QString nick() const override;      // use for show in the GUI, host to connect to
@@ -41,7 +42,7 @@ private:
     QString allowedIps_;
     QString endpointHostname_;
     QString endpointPort_;
-    uint endpointPortNumber_;
+    uint endpointPortNumber_ = 0;
 };
 
 } //namespace customconfigs

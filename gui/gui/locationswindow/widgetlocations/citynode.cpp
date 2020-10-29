@@ -12,7 +12,8 @@ CityNode::CityNode() :
     isFavorite_(false),
     isCursorOverCaption1Text_(false),
     isDisabled_(false),
-    isCursorOverConnectionMeter_(false)
+    isCursorOverConnectionMeter_(false),
+    isCustomConfigCorrect_(false)
 {
 }
 

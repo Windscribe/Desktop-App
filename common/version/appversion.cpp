@@ -44,18 +44,18 @@ QString AppVersion::getFullString() const
 #endif
 }
 
-AppVersion::AppVersion()
-{
-    version_ = QString::asprintf("%d.%02d", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION);
-    major_ = WINDSCRIBE_MAJOR_VERSION;
-    minor_ = WINDSCRIBE_MINOR_VERSION;
-    build_ = QString::asprintf("%d", WINDSCRIBE_BUILD_VERSION);
-    buildInt_ = WINDSCRIBE_BUILD_VERSION;
+AppVersion::AppVersion() :
+    version_(QString::asprintf("%d.%02d", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION)),
+    build_(QString::asprintf("%d", WINDSCRIBE_BUILD_VERSION)),
+    major_(WINDSCRIBE_MAJOR_VERSION),
+    minor_(WINDSCRIBE_MINOR_VERSION),
+    buildInt_(WINDSCRIBE_BUILD_VERSION),
 #ifdef WINDSCRIBE_IS_BETA
-    buildChannel_ = ProtoTypes::UPDATE_CHANNEL_BETA;
+    buildChannel_(ProtoTypes::UPDATE_CHANNEL_BETA)
 #elif defined WINDSCRIBE_IS_GUINEA_PIG
-    buildChannel_ = ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG;
+    buildChannel_(ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
 #else
-    buildChannel_ = ProtoTypes::UPDATE_CHANNEL_RELEASE;
+    buildChannel_(ProtoTypes::UPDATE_CHANNEL_RELEASE)
 #endif
+{
 }

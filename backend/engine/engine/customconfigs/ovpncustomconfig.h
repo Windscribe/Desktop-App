@@ -18,6 +18,7 @@ struct RemoteCommandLine
 class OvpnCustomConfig : public ICustomConfig
 {
 public:
+    OvpnCustomConfig() = default;
     CUSTOM_CONFIG_TYPE type() const override;
     QString name() const override;      // use for show in the GUI, basically filename without extension
     QString nick() const override;      // use for show in the GUI, host to connect to
@@ -35,7 +36,7 @@ public:
     QString getOvpnData() const;
 
 private:
-    bool isCorrect_;
+    bool isCorrect_ = false;
     QString errMessage_;
 
     QString name_;
@@ -46,7 +47,7 @@ private:
     QString ovpnData_;  // ovpn file without "remote" commands. They are all cut out and converted to a list of structures "RemoteItem"
     QVector<RemoteCommandLine> remotes_;
 
-    uint globalPort_;           // 0 if not set
+    uint globalPort_ = 0;       // 0 if not set
     QString globalProtocol_;    // empty if not set
 
 

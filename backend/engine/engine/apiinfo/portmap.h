@@ -36,8 +36,8 @@ public:
 class PortMap
 {
 public:
-    explicit PortMap() { d = new PortMapData; }
-    PortMap(const PortMap &other) : d (other.d) { }
+    explicit PortMap() : d(new PortMapData) {}
+    PortMap(const PortMap &other) : d (other.d) {}
 
     bool initFromJson(const QJsonArray &jsonArray);
     void initFromProtoBuf(const ProtoApiInfo::PortMap &portMap);

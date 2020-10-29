@@ -7,9 +7,8 @@
 
 namespace apiinfo {
 
-ApiInfo::ApiInfo() : simpleCrypt_(0x4572A4ACF31A31BA)
+ApiInfo::ApiInfo() : simpleCrypt_(0x4572A4ACF31A31BA), threadId_(QThread::currentThreadId())
 {
-    threadId_ = QThread::currentThreadId();
 }
 
 SessionStatus ApiInfo::getSessionStatus() const

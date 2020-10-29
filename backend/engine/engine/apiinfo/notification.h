@@ -46,8 +46,8 @@ public:
 class Notification
 {
 public:
-    explicit Notification() { d = new NotificationData; }
-    Notification(const Notification &other) : d (other.d) { }
+    explicit Notification() : d(new NotificationData) {}
+    Notification(const Notification &other) : d (other.d) {}
 
     bool initFromJson(const QJsonObject &json);
     ProtoTypes::ApiNotification getProtoBuf() const;
