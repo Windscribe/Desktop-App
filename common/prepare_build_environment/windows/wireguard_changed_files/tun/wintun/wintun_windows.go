@@ -626,7 +626,7 @@ func setQuietInstall(devInfo setupapi.DevInfo, devInfoData *setupapi.DevInfoData
 
 // deviceTypeName returns pool-specific device type name.
 func (pool Pool) deviceTypeName() string {
-	return fmt.Sprintf("Windscribe %s Tunnel", pool)
+	return fmt.Sprintf("%s Tunnel", pool)
 }
 
 // Name returns the name of the Wintun interface.
