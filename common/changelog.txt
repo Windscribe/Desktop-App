@@ -1,3 +1,13 @@
+2.0.33 (29/09/2020)
+* Wireguard does not  auto-connect after OS reboot, with auto-connect enabled - fixed.
+* New install with no existing account, firewall should be automatic by default - fixed.
+* MacOS: App doesn't start after OS reboot with Preference to do so - fixed.
+* MacOS: Split tunneling hostnames fixed for exclusive mode.
+* Win: WG split routing sometimes doesn't work after app restart - fixed.
+* Incorrect latency - fixed.
+* Fixed ungraceful engine shutdown on app close.
+* MTU fixes.
+
 2.0.32 (23/09/2020)
 * Mac DMG the typo fix.
 * Don't collapse the location list when you disconnect. 
