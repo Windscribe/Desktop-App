@@ -6,7 +6,9 @@
 #include "adapters_info.h"
 
 
-FirewallFilter::FirewallFilter(FwpmWrapper &fwpmWrapper) : fwpmWrapper_(fwpmWrapper), lastAllowLocalTraffic_(false), isSplitTunnelingEnabled_(false), isSplitTunnelingExclusiveMode_(false)
+FirewallFilter::FirewallFilter(FwpmWrapper &fwpmWrapper) :
+    fwpmWrapper_(fwpmWrapper), lastAllowLocalTraffic_(false), isSplitTunnelingEnabled_(false),
+    isSplitTunnelingExclusiveMode_(false), filterIdWireGuardAdapter_(0)
 {
 	UuidFromString((RPC_WSTR)UUID_LAYER, &subLayerGUID_);
 }
@@ -90,6 +92,7 @@ void FirewallFilter::offImpl(HANDLE engineHandle)
 	}
 	filterIdsApps_.clear();
 	filterIdsSplitRoutingIps_.clear();
+    filterIdWireGuardAdapter_ = 0;
 }
 
 void FirewallFilter::setSplitTunnelingEnabled()
@@ -168,6 +171,45 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<IpAddress> 
 		fwpmWrapper_.endTransaction();
 	}
 	fwpmWrapper_.unlock();
+}
+
+void FirewallFilter::addFilterForWireGuardAdapter(NET_LUID luid)
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+
+    HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
+    fwpmWrapper_.beginTransaction();
+
+    if (filterIdWireGuardAdapter_) {
+        FwpmFilterDeleteById0(hEngine, filterIdWireGuardAdapter_);
+        filterIdWireGuardAdapter_ = 0;
+    }
+    if (currentStatusImpl(hEngine) == true) {
+        filterIdWireGuardAdapter_ = addPermitFilterForAdapter(hEngine, luid, 1);
+    }
+
+    fwpmWrapper_.endTransaction();
+    fwpmWrapper_.unlock();
+}
+
+void FirewallFilter::removeFilterForWireGuardAdapter()
+{
+    if (!filterIdWireGuardAdapter_)
+        return;
+
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+
+    HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
+    fwpmWrapper_.beginTransaction();
+    DWORD ret = FwpmFilterDeleteById0(hEngine, filterIdWireGuardAdapter_);
+    if (ret != ERROR_SUCCESS) {
+        Logger::instance().out(
+            L"FirewallFilter::removeFilterForWireGuardAdapter(), FwpmFilterDeleteById0 failed");
+    }
+    fwpmWrapper_.endTransaction();
+    fwpmWrapper_.unlock();
+
+    filterIdWireGuardAdapter_ = 0;
 }
 
 void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAllowLocalTraffic)
@@ -631,15 +673,13 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
     }
 }
 
-void FirewallFilter::addPermitFilterForAdapter(HANDLE engineHandle, NET_IFINDEX tapInd, UINT8 weight)
+UINT64 FirewallFilter::addPermitFilterForAdapter(HANDLE engineHandle, NET_LUID luid, UINT8 weight)
 {
-    NET_LUID luid;
-    ConvertInterfaceIndexToLuid(tapInd, &luid);
-
     // add permit filter for TAP.
+    UINT64 filterId = 0;
     {
         DWORD dwFwAPiRetCode;
-        FWPM_FILTER0 filter = {0};
+        FWPM_FILTER0 filter = { 0 };
         std::vector<FWPM_FILTER_CONDITION0> condition(1);
         memset(&condition[0], 0, sizeof(FWPM_FILTER_CONDITION0) * (1));
 
@@ -647,7 +687,7 @@ void FirewallFilter::addPermitFilterForAdapter(HANDLE engineHandle, NET_IFINDEX 
         filter.displayData.name = (wchar_t *)FIREWALL_SUBLAYER_NAMEW;
         filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
         filter.action.type = FWP_ACTION_PERMIT;
-		filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
+        filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
         filter.weight.type = FWP_UINT8;
         filter.weight.uint8 = weight;
         filter.filterCondition = &condition[0];
@@ -658,13 +698,20 @@ void FirewallFilter::addPermitFilterForAdapter(HANDLE engineHandle, NET_IFINDEX 
         condition[0].conditionValue.type = FWP_UINT64;
         condition[0].conditionValue.uint64 = &luid.Value;
 
-        UINT64 filterId;
         dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
         if (dwFwAPiRetCode != ERROR_SUCCESS)
         {
             Logger::instance().out(L"Error 30");
         }
     }
+    return filterId;
+}
+
+void FirewallFilter::addPermitFilterForAdapter(HANDLE engineHandle, NET_IFINDEX tapInd, UINT8 weight)
+{
+    NET_LUID luid;
+    ConvertInterfaceIndexToLuid(tapInd, &luid);
+    addPermitFilterForAdapter(engineHandle, luid, weight);
 }
 
 void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle, UINT8 weight)

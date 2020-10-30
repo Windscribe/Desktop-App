@@ -8,8 +8,11 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-WireGuardController::WireGuardController()
-    : comm_(new WireGuardCommunicator), daemonCmdId_(0), is_initialized_(false)
+WireGuardController::WireGuardController(FirewallFilter &firewallFilter)
+    : comm_(new WireGuardCommunicator),
+      firewallFilter_(firewallFilter),
+      daemonCmdId_(0),
+      is_initialized_(false)
 {
 }
 
@@ -24,6 +27,7 @@ void WireGuardController::init(const std::wstring &deviceName, UINT daemonCmdId)
 void WireGuardController::reset()
 {
     if (is_initialized_) {
+        firewallFilter_.removeFilterForWireGuardAdapter();
         drm_.reset();
         adapter_.reset();
         is_initialized_ = false;
@@ -36,6 +40,7 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress,
 {
     if (!is_initialized_ || !adapter_.get())
         return false;
+    firewallFilter_.addFilterForWireGuardAdapter(adapter_->getLuid());
     bool has_default_allowed_ip = false;
     for (const auto &ip : allowedIps) {
         if (boost::algorithm::ends_with(ip, "/0")) {

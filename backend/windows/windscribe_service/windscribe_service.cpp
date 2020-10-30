@@ -1052,7 +1052,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 	HostsEdit			  hostsEdit;
 	GetActiveProcesses    getActiveProcesses;
 	SplitTunneling        splitTunnelling(firewallFilter, fwpmHandleWrapper);
-    WireGuardController   wireGuardController;
+    WireGuardController   wireGuardController(firewallFilter);
 
 	Logger::instance().out(L"Service started");
 
