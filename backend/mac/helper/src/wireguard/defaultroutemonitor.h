@@ -8,7 +8,7 @@
 class DefaultRouteMonitor final
 {
 public:
-    DefaultRouteMonitor(const std::string &deviceName);
+    explicit DefaultRouteMonitor(const std::string &deviceName);
     ~DefaultRouteMonitor();
 
     bool start(const std::string &endpoint);

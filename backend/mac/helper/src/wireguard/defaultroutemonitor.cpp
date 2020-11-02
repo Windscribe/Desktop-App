@@ -12,7 +12,7 @@ namespace
 void RouteMonitorThread(void *callerContext)
 {
     auto *this_ = static_cast<DefaultRouteMonitor *>(callerContext);
-    auto socket_fd = socket(PF_ROUTE, SOCK_RAW, AF_INET);
+    int socket_fd = socket(PF_ROUTE, SOCK_RAW, AF_INET);
     if (socket_fd < 0) {
         LOG("Failed to open PF_ROUTE socket");
         return;

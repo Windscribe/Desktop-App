@@ -6,7 +6,7 @@
 class BasicCommand
 {
 public:
-	BasicCommand(Logger *logger);
+	explicit BasicCommand(Logger *logger);
 	virtual ~BasicCommand();
 
 	virtual void execute() = 0;
