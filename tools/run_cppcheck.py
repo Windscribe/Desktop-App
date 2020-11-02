@@ -51,7 +51,7 @@ def RunCppCheck():
   if num_src_files == 0:
     msg.Print("Building a list of source files...", end=" ")
     for (dirpath, _, filenames) in os.walk(src_path):
-      checkdirpath = dirpath.replace("\\", "/")
+      checkdirpath = dirpath.replace("\\", "/").lower()
       if any(checkdirpath.endswith(subdir) for subdir in \
              ("debug", "release", "generated_proto", ".vs")):
         continue
@@ -61,6 +61,7 @@ def RunCppCheck():
                "/release/",
                "/debug/",
                "/generated_proto/",
+               "/build-",
                "/.vs/"
               )):
         continue

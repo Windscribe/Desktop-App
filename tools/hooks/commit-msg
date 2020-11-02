@@ -54,21 +54,21 @@ else
   if [[ "$extracted_message_trimmed" == "(Enter commit message here)"* ]]; then
     empty_commit_message=1
   fi
-  extracted_ticket_id=$commit_message_line
-  extracted_ticket_id="$(echo $extracted_ticket_id | sed 's/.*https:\/\/gitlab.int.windscribe.com\/ws\/client\/desktop\/client-desktop\/-\/issues\/\([0-9][0-9]*\)/\1/')"
-  extracted_ticket_id="$(echo $extracted_ticket_id | sed 's/.*ws\/client\/desktop\/client-desktop#\([0-9][0-9]*\)/\1/')"
-  [ -n "$extracted_ticket_id" ] && [ "$extracted_ticket_id" -eq "$extracted_ticket_id" ] 2>/dev/null
-  if [ $? -ne 0 ]; then
-    extracted_ticket_id=0
-  fi
-  branch_ticket_id=$(git branch | grep '*' | sed 's/\* \([0-9][0-9]*\)-.*/\1/')
-  [ -n "$branch_ticket_id" ] && [ "$branch_ticket_id" -eq "$branch_ticket_id" ] 2>/dev/null
-  if [ $? -ne 0 ]; then
-    branch_ticket_id=0
-  fi
-  if [ $branch_ticket_id -ne $extracted_ticket_id ]; then
-    ticket_id_mismatch=1
-  fi
+fi
+extracted_ticket_id=$commit_message_line
+extracted_ticket_id="$(echo $extracted_ticket_id | sed 's/.*https:\/\/gitlab.int.windscribe.com\/ws\/client\/desktop\/client-desktop\/-\/issues\/\([0-9][0-9]*\)/\1/')"
+extracted_ticket_id="$(echo $extracted_ticket_id | sed 's/.*ws\/client\/desktop\/client-desktop#\([0-9][0-9]*\)/\1/')"
+[ -n "$extracted_ticket_id" ] && [ "$extracted_ticket_id" -eq "$extracted_ticket_id" ] 2>/dev/null
+if [ $? -ne 0 ]; then
+  extracted_ticket_id=0
+fi
+branch_ticket_id=$(git branch | grep '*' | sed 's/\* \([0-9][0-9]*\)-.*/\1/')
+[ -n "$branch_ticket_id" ] && [ "$branch_ticket_id" -eq "$branch_ticket_id" ] 2>/dev/null
+if [ $? -ne 0 ]; then
+  branch_ticket_id=0
+fi
+if [ $branch_ticket_id -ne $extracted_ticket_id ]; then
+  ticket_id_mismatch=1
 fi
 
 if [ $empty_commit_message -eq 1 ]; then
