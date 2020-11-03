@@ -390,6 +390,7 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
             PersistentState::instance().setFirewallState(false);
         }
     }
+    qCDebug(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
 
     PersistentState::instance().setWindowPos(this->pos());
 
