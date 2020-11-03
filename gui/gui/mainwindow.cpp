@@ -370,8 +370,13 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
                       backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON,
                       backend_->getPreferences()->isLaunchOnStartup());
 
-    if (PersistentState::instance().isFirewallOn() && backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC)
+    // The Backend cleanup should handle standard shutdown (non-restart) firewall changes
+    if (PersistentState::instance().isFirewallOn() &&
+        WindscribeApplication::instance()->isExitWithRestart() &&
+        !backend_->getPreferences()->isLaunchOnStartup() &&
+        backend_->getPreferences()->firewalSettings().mode() != ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
     {
+        qCDebug(LOG_BASIC) << "Setting firewall persistence to false for restart-triggered shutdown";
         PersistentState::instance().setFirewallState(false);
     }
 
