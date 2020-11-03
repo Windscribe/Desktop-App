@@ -377,7 +377,8 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     {
         if (WindscribeApplication::instance()->isExitWithRestart())
         {
-            if (!backend_->getPreferences()->isLaunchOnStartup())
+            if (!backend_->getPreferences()->isLaunchOnStartup() ||
+                !backend_->getPreferences()->isAutoConnect())
             {
                 qCDebug(LOG_BASIC) << "Setting firewall persistence to false for restart-triggered shutdown";
                 PersistentState::instance().setFirewallState(false);
