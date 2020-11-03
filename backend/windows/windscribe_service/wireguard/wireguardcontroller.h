@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../firewallfilter.h"
+
 #include <memory>
 
 class DefaultRouteMonitor;
@@ -9,7 +11,7 @@ class WireGuardCommunicator;
 class WireGuardController final
 {
 public:
-    WireGuardController();
+    explicit WireGuardController(FirewallFilter &firewallFilter);
 
     void init(const std::wstring &deviceName, UINT daemonCmdId);
     void reset();
@@ -30,6 +32,7 @@ private:
     std::unique_ptr<WireGuardAdapter> adapter_;
     std::unique_ptr<DefaultRouteMonitor> drm_;
     std::shared_ptr<WireGuardCommunicator> comm_;
+    FirewallFilter &firewallFilter_;
     UINT daemonCmdId_;
     bool is_initialized_;
 };
