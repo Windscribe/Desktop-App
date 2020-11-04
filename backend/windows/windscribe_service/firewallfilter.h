@@ -25,6 +25,10 @@ public:
 	void setSplitTunnelingAppsIds(const AppsIds &appsIds, bool isExclusiveMode);
 	void setSplitTunnelingWhitelistIps(const std::vector<IpAddress> &ips);
 
+	// WireGuard parameters
+	void addFilterForWireGuardAdapter(NET_LUID luid);
+	void removeFilterForWireGuardAdapter();
+
 private:
 	FwpmWrapper &fwpmWrapper_;
     GUID   subLayerGUID_;
@@ -37,6 +41,7 @@ private:
 
 	void addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAllowLocalTraffic);
 	void addPermitFilterForAdapter(HANDLE engineHandle, NET_IFINDEX tapInd, UINT8 weight);
+	UINT64 addPermitFilterForAdapter(HANDLE engineHandle, NET_LUID luid, UINT8 weight);
 	
 	void addPermitFilterForAppsIds(HANDLE engineHandle, UINT8 weight);
 	void addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle, UINT8 weight);
@@ -61,6 +66,7 @@ private:
 	
 	std::vector<UINT64> filterIdsApps_;
 	std::vector<UINT64> filterIdsSplitRoutingIps_;
+	UINT64 filterIdWireGuardAdapter_;
 
 };
 

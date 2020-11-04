@@ -4,12 +4,16 @@
 class IpAddressTable
 {
 public:
-	IpAddressTable();
+    IpAddressTable();
+    ~IpAddressTable();
 
-	DWORD getAdapterIpAddress(NET_IFINDEX index);
+    IpAddressTable(const IpAddressTable &) = delete;
+    IpAddressTable &operator=(const IpAddressTable &) = delete;
+
+    DWORD getAdapterIpAddress(NET_IFINDEX index) const;
 
 private:
-	std::vector<unsigned char> arr_;
-	MIB_IPADDRTABLE *pIPAddrTable_;
+    std::vector<unsigned char> arr_;
+    MIB_IPADDRTABLE *pIPAddrTable_;
+    MIB_UNICASTIPADDRESS_TABLE *pUnicastIPAddrTable_;
 };
-
