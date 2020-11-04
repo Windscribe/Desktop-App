@@ -778,7 +778,7 @@ void Helper_mac::sendConnectStatus(bool isConnected, const SplitTunnelingNetwork
     cmd.remote_1 = stni.remote1().toStdString();
     cmd.ifconfigTunIp = stni.ifconfigTunIp().toStdString();
 
-    cmd.ikev2AdapterAddress = stni.ikev2AdapterAddress().toStdString();
+    cmd.vpnAdapterIp = stni.vpnAdapterIpAddress().toStdString();
 
     cmd.vpnAdapterName = stni.vpnAdapterName().toStdString();
 
