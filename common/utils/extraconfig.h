@@ -46,6 +46,7 @@ private:
 
     int getIntFromLineWithString(const QString &line, const QString &str, bool &success);
     int getIntFromExtraConfigLines(const QString &variableName, bool &success);
+    bool isLegalOpenVpnCommand(const QString &command) const;
 
 };
 

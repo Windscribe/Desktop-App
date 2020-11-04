@@ -54,18 +54,11 @@ QString ExtraConfig::getExtraConfigForOpenVpn()
 {
     QMutexLocker locker(&mutex_);
     QString result;
-    QString strExtraConfig = getExtraConfig();
-    QStringList strs = strExtraConfig.split("\n");
-    Q_FOREACH(const QString &line, strs)
+    const QStringList strs = getExtraConfig().split("\n");
+    for (const QString &line: strs)
     {
-        QString lineTrimmed = line.trimmed();
-        if (!lineTrimmed.startsWith("--ikev2", Qt::CaseInsensitive)
-                && !lineTrimmed.contains(WS_MTU_OFFSET_IKEV_STR, Qt::CaseInsensitive)
-                && !lineTrimmed.contains(WS_MTU_OFFSET_WG_STR, Qt::CaseInsensitive)
-                && !lineTrimmed.contains(WS_MTU_OFFSET_OPENVPN_STR, Qt::CaseInsensitive))
-        {
+        if (isLegalOpenVpnCommand(line))
             result += line + "\n";
-        }
     }
     return result;
 }
@@ -191,6 +184,33 @@ int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &s
     }
 
     return 0;
+}
+
+bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
+{
+    const QString trimmed_command = command.trimmed();
+    if (trimmed_command.isEmpty())
+        return false;
+
+    // Filter out IKEv2 and mtu related commands.
+    if (trimmed_command.startsWith("--ikev2", Qt::CaseInsensitive)
+        || trimmed_command.contains(WS_MTU_OFFSET_IKEV_STR, Qt::CaseInsensitive)
+        || trimmed_command.contains(WS_MTU_OFFSET_WG_STR, Qt::CaseInsensitive)
+        || trimmed_command.contains(WS_MTU_OFFSET_OPENVPN_STR, Qt::CaseInsensitive))
+        return false;
+
+    // Filter out potentially malicious commands.
+    const char *kUnsafeCommands[] = {
+        "up", "down", "ipchange", "route-up", "route-pre-down", "auth-user-pass-verify",
+        "client-connect", "client-disconnect", "learn-address", "tls-verify", "log", "log-append",
+        "tmp-dir"
+    };
+    const size_t kNumUnsafeCommands = sizeof(kUnsafeCommands) / sizeof(kUnsafeCommands[0]);
+    for (size_t i = 0; i < kNumUnsafeCommands; ++i) {
+        if (trimmed_command.startsWith(QString("%1 ").arg(kUnsafeCommands[i]), Qt::CaseInsensitive))
+            return false;
+    }
+    return true;
 }
 
 ExtraConfig::ExtraConfig() : mutex_(QMutex::Recursive),

@@ -164,6 +164,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
     // concatenate with windscribe_extra.conf file, if it exists
     if (!strExtraConfig.isEmpty())
     {
+        qCDebug(LOG_CONNECTION) << "Adding extra options to OVPN config:" << strExtraConfig;
         file_.write(strExtraConfig.toUtf8());
     }
 
