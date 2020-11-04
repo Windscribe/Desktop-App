@@ -13,7 +13,7 @@ public:
     RoutesManager();
     void updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode);
     
-    void setLatestWireGuardAdapterSettings(const std::string &ipAddress, const std::string &dnsAddressList,
+    void setLatestWireGuardAdapterSettings(const std::string &adapterName, const std::string &ipAddress, const std::string &dnsAddressList,
      const std::vector<std::string> &allowedIps);
     
 private:
@@ -26,6 +26,7 @@ private:
     Routes vpnRoutes_;
     Routes ikev2OverrideRoutes_;
     
+    std::string wgAdapterName_;
     std::string wgIpAddress_;
     std::string wgDnsAddress_;
     std::string wgAllowedIp_;

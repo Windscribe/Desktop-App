@@ -85,11 +85,9 @@ struct CMD_SEND_CONNECT_STATUS
     std::string remote_1;
     std::string ifconfigTunIp;
     
-    // need for ikev2 routing
-    std::string ikev2AdapterAddress;
-    
     // common
     std::string vpnAdapterName;
+    std::string vpnAdapterIp;
     
     std::vector<std::string> dnsServers;
 };

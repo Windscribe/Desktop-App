@@ -36,7 +36,7 @@ public:
     QString ifconfigTunIp() const;
 
     QString vpnAdapterName() const;
-    QString ikev2AdapterAddress() const;
+    QString vpnAdapterIpAddress() const;
 
     QStringList dnsServers() const;
 
@@ -57,7 +57,7 @@ private:
     QString ifconfigTunIp_;
 
     QString vpnAdapterName_;
-    QString ikev2AdapterAddress_;
+    QString vpnAdapterIpAddress_;
 
     QStringList dnsServers_;
 

@@ -71,8 +71,7 @@ void serialize(Archive &ar, CMD_SEND_CONNECT_STATUS &a, const unsigned int versi
     ar & a.remote_1;
     ar & a.ifconfigTunIp;
     
-    ar & a.ikev2AdapterAddress;
-    
+    ar & a.vpnAdapterIp;
     ar & a.vpnAdapterName;
     
     ar & a.dnsServers;

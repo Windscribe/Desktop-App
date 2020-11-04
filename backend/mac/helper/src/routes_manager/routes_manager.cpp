@@ -44,8 +44,9 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
                 }
                 else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
                 {
-                    // TODO(wireguard)
                     deleteWireGuardDefaultRoutes(connectStatus);
+                    dnsServersRoutes_.add(wgDnsAddress_, connectStatus.vpnAdapterIp, "255.255.255.255");
+                    boundRoute_.create(connectStatus.vpnAdapterIp, connectStatus.vpnAdapterName);
                 }
             }
         }
@@ -74,9 +75,15 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
                         vpnRoutes_.add(connectStatus.remote_1, connectStatus.routeNetGateway, "255.255.255.255");
                         vpnRoutes_.add("0.0.0.0", connectStatus.routeVpnGateway, "128.0.0.0");
                         vpnRoutes_.add("128.0.0.0", connectStatus.routeVpnGateway, "128.0.0.0");
-                        
+                        boundRoute_.create(connectStatus.gatewayIp, connectStatus.interfaceName);
                     }
-                    // add bound route
+                    else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+                    {
+                        // add wireguard default routes
+                        vpnRoutes_.addWithInterface("0.0.0.0/1", wgAdapterName_);
+                        vpnRoutes_.addWithInterface("128.0.0.0/1", wgAdapterName_);
+                    }
+
                     boundRoute_.create(connectStatus.gatewayIp, connectStatus.interfaceName);
                 }
                 else
@@ -98,7 +105,9 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
                     }
                     else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
                     {
-                        // TODO(wireguard)
+                        deleteWireGuardDefaultRoutes(connectStatus);
+                        dnsServersRoutes_.add(wgDnsAddress_, connectStatus.vpnAdapterIp, "255.255.255.255");
+                        boundRoute_.create(connectStatus.vpnAdapterIp, connectStatus.vpnAdapterName);
                     }
                 }
             }
@@ -109,9 +118,10 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
     isSplitTunnelActive_ = isSplitTunnelActive;
     isExcludeMode_ = isExcludeMode;
 }
-void RoutesManager::setLatestWireGuardAdapterSettings(const std::string &ipAddress, const std::string &dnsAddressList,
+void RoutesManager::setLatestWireGuardAdapterSettings(const std::string &adapterName, const std::string &ipAddress, const std::string &dnsAddressList,
 const std::vector<std::string> &allowedIps)
 {
+    wgAdapterName_ = adapterName;
     wgIpAddress_ = ipAddress;
     wgDnsAddress_ = dnsAddressList;     //todo several DNS-IPs
     if (allowedIps.size() > 0)          // todo several allowed-IPs
@@ -141,6 +151,13 @@ void RoutesManager::deleteOpenVpnDefaultRoutes(const CMD_SEND_CONNECT_STATUS &co
 
 void RoutesManager::deleteWireGuardDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
 {
+    std::string cmd = "route delete -inet 0.0.0.0/1 -interface " + wgAdapterName_;
+    LOG("execute: %s", cmd.c_str());
+    Utils::executeCommand(cmd);
+    
+    cmd = "route delete -inet 128.0.0.0/1 -interface " + wgAdapterName_;
+    LOG("execute: %s", cmd.c_str());
+    Utils::executeCommand(cmd);
 }
 
 void RoutesManager::addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS &connectStatus)
@@ -152,11 +169,11 @@ void RoutesManager::addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS
     // add DNS-servers
     for (auto it = connectStatus.dnsServers.begin(); it != connectStatus.dnsServers.end(); ++it)
     {
-        dnsServersRoutes_.add(*it, connectStatus.ikev2AdapterAddress, "255.255.255.255");
+        dnsServersRoutes_.add(*it, connectStatus.vpnAdapterIp, "255.255.255.255");
     }
     
     // add bound route
-    boundRoute_.create(connectStatus.ikev2AdapterAddress, connectStatus.vpnAdapterName);
+    boundRoute_.create(connectStatus.vpnAdapterIp, connectStatus.vpnAdapterName);
 }
 void RoutesManager::clearAllRoutes()
 {

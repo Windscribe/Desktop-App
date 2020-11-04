@@ -203,7 +203,8 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                     break;
                 }
                 
-                splitTunneling_.setLatestWireGuardAdapterSettings(cmd.clientIpAddress,
+                
+                splitTunneling_.setLatestWireGuardAdapterSettings( wireGuardController_.getAdapterName(), cmd.clientIpAddress,
                                                                   cmd.clientDnsAddressList, allowed_ips_vector);
                 
                 if (!wireGuardController_.configureDefaultRouteMonitor(cmd.peerEndpoint)) {

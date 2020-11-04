@@ -83,7 +83,7 @@ void SplitTunnelingNetworkInfo::setVpnAdapterName(const QString &vpnName)
 {
 #ifdef Q_OS_MAC
     vpnAdapterName_ = vpnName;
-    ikev2AdapterAddress_ = MacUtils::ipAddressByInterfaceName(vpnAdapterName_);
+    vpnAdapterIpAddress_ = MacUtils::ipAddressByInterfaceName(vpnAdapterName_);
 #else
     Q_UNUSED(vpnName);
 #endif
@@ -149,9 +149,9 @@ QString SplitTunnelingNetworkInfo::vpnAdapterName() const
     return vpnAdapterName_;
 }
 
-QString SplitTunnelingNetworkInfo::ikev2AdapterAddress() const
+QString SplitTunnelingNetworkInfo::vpnAdapterIpAddress() const
 {
-    return ikev2AdapterAddress_;
+    return vpnAdapterIpAddress_;
 }
 
 QStringList SplitTunnelingNetworkInfo::dnsServers() const
@@ -165,7 +165,7 @@ void SplitTunnelingNetworkInfo::outToLog()
                        << "interfaceIp:" << interfaceIp_ << "connectedIp:" << connectedIp_ << "route_vpn_gateway:" << routeVpnGateway_
                        << "route_net_gateway:" << routeNetGateway_
                        << "remote1:" << remote1_
-                       << "vpnAdapterName:" << vpnAdapterName_ << "ikev2AdapterAddress:" << ikev2AdapterAddress_
+                       << "vpnAdapterName:" << vpnAdapterName_ << "vpnAdapterIpAddress:" << vpnAdapterIpAddress_
                        << "dnsServers:" << dnsServers_;
 }
 

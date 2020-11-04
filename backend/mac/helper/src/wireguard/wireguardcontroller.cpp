@@ -40,6 +40,13 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress,
            && adapter_->enableRouting(allowedIps);
 }
 
+const std::string WireGuardController::getAdapterName() const
+{
+    if (!is_initialized_ || !adapter_.get())
+        return "";
+    return adapter_->getName();
+}
+
 bool WireGuardController::configureDefaultRouteMonitor(const std::string &peerEndpoint)
 {
     if (!is_initialized_ || !adapter_.get())

@@ -14,13 +14,36 @@ void Routes::add(const std::string &ip, const std::string &gateway, const std::s
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);
 }
+
+void Routes::addWithInterface(const std::string &ip, const std::string &interface)
+{
+    RouteDescr rd;
+    rd.ip = ip;
+    rd.interface = interface;
+    routes_.push_back(rd);
+    
+    std::string cmd = "route -q -n add -inet " + ip + " -interface " + interface;
+    LOG("execute: %s", cmd.c_str());
+    Utils::executeCommand(cmd);
+}
+
+
 void Routes::clear()
 {
     for(auto const& rd: routes_)
     {
-        std::string cmd = "route delete -net " + rd.ip + " " + rd.gateway + " " + rd.mask;
-        LOG("execute: %s", cmd.c_str());
-        Utils::executeCommand(cmd);
+        if (rd.interface.empty())
+        {
+            std::string cmd = "route delete -net " + rd.ip + " " + rd.gateway + " " + rd.mask;
+            LOG("execute: %s", cmd.c_str());
+            Utils::executeCommand(cmd);
+        }
+        else
+        {
+            std::string cmd = "route delete -inet " + rd.ip + " -interface " + rd.interface;
+            LOG("execute: %s", cmd.c_str());
+            Utils::executeCommand(cmd);
+        }
     }
     routes_.clear();
 }

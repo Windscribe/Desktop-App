@@ -22,7 +22,7 @@ public:
     void setSplitTunnelingParams(bool isActive, bool isExclude, const std::vector<std::string> &apps,
                                  const std::vector<std::string> &ips, const std::vector<std::string> &hosts);
     
-    void setLatestWireGuardAdapterSettings(const std::string &ipAddress, const std::string &dnsAddressList,
+    void setLatestWireGuardAdapterSettings(const std::string &adapterName, const std::string &ipAddress, const std::string &dnsAddressList,
     const std::vector<std::string> &allowedIps);
     
 private:

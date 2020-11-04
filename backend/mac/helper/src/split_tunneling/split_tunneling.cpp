@@ -50,7 +50,7 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
     updateState();
 }
 
-void SplitTunneling::setLatestWireGuardAdapterSettings(const std::string &ipAddress, const std::string &dnsAddressList,
+void SplitTunneling::setLatestWireGuardAdapterSettings(const std::string &adapterName, const std::string &ipAddress, const std::string &dnsAddressList,
 const std::vector<std::string> &allowedIps)
 {
     std::lock_guard<std::mutex> guard(mutex_);
@@ -66,7 +66,7 @@ const std::vector<std::string> &allowedIps)
         wgAllowedIp_.clear();
     }
     
-    routesManager_.setLatestWireGuardAdapterSettings(ipAddress, dnsAddressList, allowedIps);
+    routesManager_.setLatestWireGuardAdapterSettings(adapterName, ipAddress, dnsAddressList, allowedIps);
     
     std::string ips;
     for (auto it : allowedIps)
@@ -104,11 +104,11 @@ bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindI
                 }
                 else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
                 {
-                    outBindIp = connectStatus_.ikev2AdapterAddress;
+                    outBindIp = connectStatus_.vpnAdapterIp;
                 }
                 else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
                 {
-                    outBindIp = wgIpAddress_;
+                    outBindIp = connectStatus_.vpnAdapterIp;
                 }
                 LOG("VerifyApp: %s, result: %d", appPath.c_str(), true);
                 return true;
@@ -133,11 +133,11 @@ bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindI
                 }
                 else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
                 {
-                    outBindIp = connectStatus_.ikev2AdapterAddress;
+                    outBindIp = connectStatus_.vpnAdapterIp;
                 }
                 else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
                 {
-                    outBindIp = wgIpAddress_;
+                    outBindIp = connectStatus_.vpnAdapterIp;
                 }
             }
             LOG("VerifyApp: %s, result: %d", appPath.c_str(), true);
@@ -205,11 +205,11 @@ void SplitTunneling::updateState()
             }
             else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
             {
-                ipHostnamesManager_.enable(connectStatus_.ikev2AdapterAddress);
+                ipHostnamesManager_.enable(connectStatus_.vpnAdapterIp);
             }
             else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
             {
-                // TODO(wireguard)
+                ipHostnamesManager_.enable(connectStatus_.vpnAdapterIp);
             }
         }
         kextClient_.connect();
