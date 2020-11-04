@@ -44,6 +44,10 @@ Backend::~Backend()
 {
     SAFE_DELETE(connection_);
     preferences_.saveGuiSettings();
+    if (process_)
+    {
+        process_->waitForFinished(10000);
+    }
 }
 
 void Backend::init()
@@ -119,7 +123,7 @@ void Backend::cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFir
 
     if (ipcState_ >= IPC_CONNECTED && ipcState_ < IPC_READY)
     {
-        ipcState_ = IPC_DOING_CLEANUP;
+        ipcState_ = IPC_FINISHED_STATE;
         connection_->close();
     }
     else if (ipcState_ == IPC_READY)
@@ -492,7 +496,7 @@ void Backend::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
         ipcState_ = IPC_INIT_STATE;
         emit initFinished(ProtoTypes::INIT_CLEAN);
     }
-    else if (ipcState_ == IPC_DOING_CLEANUP)
+    else if (ipcState_ == IPC_DOING_CLEANUP || ipcState_ == IPC_FINISHED_STATE)
     {
         ipcState_ = IPC_INIT_STATE;
         emit cleanupFinished();
@@ -687,8 +691,9 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     }
     else if (command->getStringId() == IPCServerCommands::CleanupFinished::descriptor()->full_name())
     {
-        ipcState_ = IPC_INIT_STATE;
-        emit cleanupFinished();
+        ipcState_ = IPC_FINISHED_STATE;
+        connection_->close();
+        //emit cleanupFinished();
     }
     else if (command->getStringId() == IPCServerCommands::NetworkChanged::descriptor()->full_name())
     {
@@ -784,6 +789,12 @@ void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connectio
             ipcState_ = IPC_INIT_STATE;
             emit cleanupFinished();
         }
+#ifdef WINDSCRIBE_EMBEDDED_ENGINE
+        else if (ipcState_ == IPC_FINISHED_STATE)
+        {
+            // nothing todo (waiting for process finish and emit cleanupFinished() there
+        }
+#endif
         else if (ipcState_ != IPC_READY)
         {
             emit initFinished(ProtoTypes::INIT_CLEAN);
@@ -796,6 +807,7 @@ void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connectio
                 engineCrashedDoRecovery();
             }
         }
+
     }
     else if (state == IPC::CONNECTION_ERROR)
     {

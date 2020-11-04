@@ -167,7 +167,7 @@ signals:
 private:
 
     enum IPC_STATE { IPC_INIT_STATE, IPC_DOING_CLEANUP, IPC_STARTING_PROCESS, IPC_CONNECTING, IPC_CONNECTED,
-                     IPC_INIT_SENDING, IPC_READY };
+                     IPC_INIT_SENDING, IPC_READY, IPC_FINISHED_STATE };
     IPC_STATE ipcState_;
     bool bRecoveringState_;
 
