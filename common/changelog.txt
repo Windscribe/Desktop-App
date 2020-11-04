@@ -1,3 +1,12 @@
+2.0.34 (04/10/2020)
+* Security fixes for custom configs and advanced parameters.
+* Firewall leak on boot - fixed.
+* Engine closes ungracefully in release mode - fixed.
+* Wireguard split tunnelling support for inclusive mode for Mac.
+* Sometimes split tunneling does't work after app restart on Windows - fixed.
+* WireGuard takes too long to connect with firewall enabled - fixed.
+
+
 2.0.33 (29/09/2020)
 * Wireguard does not  auto-connect after OS reboot, with auto-connect enabled - fixed.
 * New install with no existing account, firewall should be automatic by default - fixed.
