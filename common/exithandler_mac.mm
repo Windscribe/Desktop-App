@@ -41,7 +41,7 @@ NSApplicationTerminateReply exitMacHandler(id self, SEL _cmd,...)
 
     emit ExitHandler_mac::this_->shouldTerminate();
 
-    /*if (g_prevCloseImpl)
+    if (g_prevCloseImpl)
     {
         NSApplicationTerminateReply ret = ( (NSApplicationTerminateReply (*)(id, SEL)) (*g_prevCloseImpl))( self, sel_registerName("applicationShouldTerminate:"));
         return ret;
@@ -49,7 +49,7 @@ NSApplicationTerminateReply exitMacHandler(id self, SEL _cmd,...)
     else
     {
         return NSTerminateNow;
-    }*/
+    }
     return NSTerminateCancel;
 }
 
@@ -57,28 +57,29 @@ ExitHandler_mac::ExitHandler_mac(QObject *parent) : QObject(parent), bExitWithRe
 {
     this_ = this;
 
-    // TODO: fix objc_msgSend parameters
-//    Class cls = objc_getClass("NSApplication");
-//    id appInst = objc_msgSend((id)cls, sel_registerName("sharedApplication"));
+    id (*performMsgSend)(id, SEL) = (id (*)(id, SEL)) objc_msgSend; // define parametered version of objc_msgSend to mimic previous runtime version's parameters
 
-//    if (appInst != NULL)
-//    {
-//        id delegate = objc_msgSend(appInst, sel_registerName("delegate"));
-//        Class delClass = (Class)objc_msgSend(delegate,  sel_registerName("class"));
-//        SEL exitHandle = sel_registerName("applicationShouldTerminate:");
+    Class cls = objc_getClass("NSApplication");
+    id appInst = performMsgSend((id)cls, sel_registerName("sharedApplication"));
 
-//        Method mtdFunc = class_getInstanceMethod(delClass, exitHandle);
-//        const char *types = method_getTypeEncoding(mtdFunc);
+    if (appInst != NULL)
+    {
+        id delegate = performMsgSend(appInst, sel_registerName("delegate"));
+        Class delClass = (Class)performMsgSend(delegate,  sel_registerName("class"));
+        SEL exitHandle = sel_registerName("applicationShouldTerminate:");
 
-//        if (class_getInstanceMethod(delClass, exitHandle))
-//        {
-//            g_prevCloseImpl = class_replaceMethod(delClass, exitHandle, (IMP)exitMacHandler, types);
-//        }
-//        else
-//        {
-//            class_addMethod(delClass, exitHandle, (IMP)exitMacHandler, types);
-//        }
-//    }
+        Method mtdFunc = class_getInstanceMethod(delClass, exitHandle);
+        const char *types = method_getTypeEncoding(mtdFunc);
+
+        if (class_getInstanceMethod(delClass, exitHandle))
+        {
+            g_prevCloseImpl = class_replaceMethod(delClass, exitHandle, (IMP)exitMacHandler, types);
+        }
+        else
+        {
+            class_addMethod(delClass, exitHandle, (IMP)exitMacHandler, types);
+        }
+    }
 }
 
 ExitHandler_mac::~ExitHandler_mac()

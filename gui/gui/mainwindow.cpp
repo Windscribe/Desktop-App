@@ -370,10 +370,27 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
                       backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON,
                       backend_->getPreferences()->isLaunchOnStartup());
 
-    if (PersistentState::instance().isFirewallOn() && backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC)
+    // Backend handles setting firewall state after app closes
+    // This block handles initializing the firewall state on next run
+    if (PersistentState::instance().isFirewallOn()  &&
+        backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC)
     {
-        PersistentState::instance().setFirewallState(false);
+        if (WindscribeApplication::instance()->isExitWithRestart())
+        {
+            if (!backend_->getPreferences()->isLaunchOnStartup() ||
+                !backend_->getPreferences()->isAutoConnect())
+            {
+                qCDebug(LOG_BASIC) << "Setting firewall persistence to false for restart-triggered shutdown";
+                PersistentState::instance().setFirewallState(false);
+            }
+        }
+        else // non-restart close
+        {
+            qCDebug(LOG_BASIC) << "Setting firewall persistence to false for non-restart auto-mode";
+            PersistentState::instance().setFirewallState(false);
+        }
     }
+    qCDebug(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
 
     PersistentState::instance().setWindowPos(this->pos());
 
