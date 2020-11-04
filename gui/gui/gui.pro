@@ -240,6 +240,7 @@ SOURCES += \
     preferenceswindow/debugwindow/advancedparameterswindowitem.cpp \
     utils/hardcodedsettings.cpp \
     utils/simplecrypt.cpp \
+    utils/writeaccessrightschecker.cpp \
     blockconnect.cpp \
     dpiscalemanager.cpp \
     freetrafficnotificationcontroller.cpp \
@@ -465,6 +466,7 @@ HEADERS += \
     preferenceswindow/debugwindow/advancedparameterswindowitem.h \
     utils/hardcodedsettings.h \
     utils/simplecrypt.h \
+    utils/writeaccessrightschecker.h \
     blockconnect.h \
     dpiscalemanager.h \
     freetrafficnotificationcontroller.h \

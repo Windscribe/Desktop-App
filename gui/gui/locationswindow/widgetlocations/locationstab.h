@@ -58,6 +58,7 @@ private slots:
     void onWhiteLinePosChanged(const QVariant &value);
     void onAllLocationsHeightChanged(int oldHeight, int newHeight);
     void onDeviceNameChanged(const QString &deviceName);
+    void onAddCustomConfigClicked();
 
 private:
     IWidgetLocationsInfo *currentWidgetLocations();
@@ -95,7 +96,9 @@ private:
     CurTabEnum curTabMouseOver_;
 
     int curWhiteLinePos_;
-    QVariantAnimation whileLineAnimation_;
+    QVariantAnimation whiteLineAnimation_;
+
+    bool checkCustomConfigPathAccessRights_;
 
     int countOfVisibleItemSlots_;
     int currentLocationListHeight_;

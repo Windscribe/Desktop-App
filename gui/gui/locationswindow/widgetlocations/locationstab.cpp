@@ -1,11 +1,15 @@
 #include "locationstab.h"
 
+#include <QMessageBox>
 #include <QPainter>
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
+#include "utils/writeaccessrightschecker.h"
+
+extern QWidget *g_mainWindow;
 
 namespace GuiLocations {
 
@@ -14,6 +18,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     curTab_(CUR_TAB_ALL_LOCATIONS),
     tabPress_(CUR_TAB_NONE),
     curTabMouseOver_(CUR_TAB_NONE),
+    checkCustomConfigPathAccessRights_(false),
     countOfVisibleItemSlots_(7),
     currentLocationListHeight_(0),
     isRibbonVisible_(false),
@@ -24,14 +29,14 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
 
     updateIconRectsAndLine();
     curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1) * G_SCALE;
-    connect(&whileLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
+    connect(&whiteLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
 
     widgetAllLocations_ = new GuiLocations::WidgetLocations(this);
 
     widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, 6);
     widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
     connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
-                                        SIGNAL(addCustomConfigClicked()));
+                                        SLOT(onAddCustomConfigClicked()));
     widgetConfiguredLocations_->hide();
 
     widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this, 6);
@@ -55,7 +60,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     configFooterInfo_->hide();
     connect(configFooterInfo_, SIGNAL(clearCustomConfigClicked()),
             SIGNAL(clearCustomConfigClicked()));
-    connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
+    connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SLOT(onAddCustomConfigClicked()));
     int newHeight = 50 * countOfVisibleItemSlots_ - 1;
     updateLocationWidgetsGeometry(newHeight);
 
@@ -237,11 +242,11 @@ void LocationsTab::changeTab(CurTabEnum newTab)
         Q_ASSERT(false);
     }
 
-    whileLineAnimation_.stop();
-    whileLineAnimation_.setStartValue(curWhiteLinePos_);
-    whileLineAnimation_.setEndValue(endWhiteLinePos + 2);
-    whileLineAnimation_.setDuration(ANIMATION_DURATION);
-    whileLineAnimation_.start();
+    whiteLineAnimation_.stop();
+    whiteLineAnimation_.setStartValue(curWhiteLinePos_);
+    whiteLineAnimation_.setEndValue(endWhiteLinePos + 2);
+    whiteLineAnimation_.setDuration(ANIMATION_DURATION);
+    whiteLineAnimation_.start();
 
     update();
 }
@@ -327,6 +332,12 @@ void LocationsTab::onDeviceNameChanged(const QString &deviceName)
     widgetStaticIpsLocations_->setDeviceName(deviceName);
 }
 
+void LocationsTab::onAddCustomConfigClicked()
+{
+    checkCustomConfigPathAccessRights_ = true;
+    emit addCustomConfigClicked();
+}
+
 IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
 {
     if (curTab_ == CUR_TAB_ALL_LOCATIONS)        return widgetAllLocations_;
@@ -397,7 +408,7 @@ void LocationsTab::setPointingHandCursor()
 
 bool LocationsTab::isWhiteAnimationActive()
 {
-    return whileLineAnimation_.state() == QAbstractAnimation::Running;
+    return whiteLineAnimation_.state() == QAbstractAnimation::Running;
 }
 
 void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
@@ -530,6 +541,19 @@ void LocationsTab::setCustomConfigsPath(QString path)
     configFooterInfo_->setText(path);
     updateCustomConfigsEmptyListVisibility();
     updateRibbonVisibility();
+
+    if (checkCustomConfigPathAccessRights_) {
+        WriteAccessRightsChecker checker(path);
+        if (checker.isWriteable()) {
+            const QString desc = tr(
+                "The selected directory is writeable for non-privileged users.\n"
+                "Custom configs in this directory may pose a potential security risk.\n"
+                "Directory: \"%1\"")
+                .arg(path);
+            QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+        }
+        checkCustomConfigPathAccessRights_ = false;
+    }
 }
 
 void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, int offsetY)

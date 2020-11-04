@@ -820,6 +820,9 @@
     <ClCompile Include="commonwidgets\textbuttonwidget.cpp">
       <Filter>GUI Files\commonwidgets</Filter>
     </ClCompile>
+    <ClCompile Include="utils\writeaccessrightschecker.cpp">
+      <Filter>GUI Files\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -1256,6 +1259,12 @@
     </QtMoc>
     <QtMoc Include="commonwidgets\textbuttonwidget.h">
       <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <QtMoc Include="graphicresources\imageresourcessvg.h">
+      <Filter>Misc Files\Generated Files</Filter>
+    </QtMoc>
+    <QtMoc Include="utils\writeaccessrightschecker.h">
+      <Filter>GUI Files\utils</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -2288,9 +2297,6 @@
     </ClInclude>
     <ClInclude Include="loginwindow\iloginwindow.h">
       <Filter>GUI Files\loginwindow</Filter>
-    </ClInclude>
-    <ClInclude Include="graphicresources\imageresourcessvg.h">
-      <Filter>GUI Files\graphicresources</Filter>
     </ClInclude>
     <ClInclude Include="multipleaccountdetection\imultipleaccountdetection.h">
       <Filter>GUI Files\multipleaccountdetection</Filter>

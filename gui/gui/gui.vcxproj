@@ -612,8 +612,10 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="application\windowsnativeeventfilter.cpp" />
     <ClCompile Include="application\windscribeapplication.cpp" />
     <ClCompile Include="..\..\common\utils\winutils.cpp" />
+    <ClCompile Include="utils\writeaccessrightschecker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="utils\writeaccessrightschecker.h" />
     <QtMoc Include="..\backend\preferences\accountinfo.h">
     </QtMoc>
     <QtMoc Include="preferenceswindow\accountwindow\accountwindowitem.h">
