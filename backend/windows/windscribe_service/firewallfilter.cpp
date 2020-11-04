@@ -175,6 +175,7 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<IpAddress> 
 
 void FirewallFilter::addFilterForWireGuardAdapter(NET_LUID luid)
 {
+	Logger::instance().out(L"FirewallFilter::addFilterForWireGuardAdapter(), %llu", luid.Value);
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
     HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
@@ -186,6 +187,7 @@ void FirewallFilter::addFilterForWireGuardAdapter(NET_LUID luid)
     }
     if (currentStatusImpl(hEngine) == true) {
         filterIdWireGuardAdapter_ = addPermitFilterForAdapter(hEngine, luid, 1);
+		Logger::instance().out(L"FirewallFilter::addFilterForWireGuardAdapter(), 2");
     }
 
     fwpmWrapper_.endTransaction();

@@ -38,19 +38,20 @@ void WireGuardController::reset()
 bool WireGuardController::configureAdapter(const std::string &ipAddress,
     const std::string &dnsAddressList, const std::vector<std::string> &allowedIps)
 {
-    if (!is_initialized_ || !adapter_.get())
-        return false;
-    firewallFilter_.addFilterForWireGuardAdapter(adapter_->getLuid());
-    bool has_default_allowed_ip = false;
-    for (const auto &ip : allowedIps) {
-        if (boost::algorithm::ends_with(ip, "/0")) {
-            has_default_allowed_ip = true;
-            break;
-        }
-    }
-    return adapter_->setIpAddress(ipAddress, has_default_allowed_ip)
-            && adapter_->setDnsServers(dnsAddressList)
-            && adapter_->enableRouting(allowedIps);
+	if (!is_initialized_ || !adapter_.get())
+		return false;
+	bool has_default_allowed_ip = false;
+	for (const auto &ip : allowedIps) {
+		if (boost::algorithm::ends_with(ip, "/0")) {
+			has_default_allowed_ip = true;
+			break;
+		}
+	}
+	if (!adapter_->setIpAddress(ipAddress, has_default_allowed_ip))
+		return false;
+	firewallFilter_.addFilterForWireGuardAdapter(adapter_->getLuid());
+	return adapter_->setDnsServers(dnsAddressList)
+		&& adapter_->enableRouting(allowedIps);
 }
 
 bool WireGuardController::configureDefaultRouteMonitor()
