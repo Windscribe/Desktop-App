@@ -789,12 +789,15 @@ void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connectio
             ipcState_ = IPC_INIT_STATE;
             emit cleanupFinished();
         }
-#ifdef WINDSCRIBE_EMBEDDED_ENGINE
         else if (ipcState_ == IPC_FINISHED_STATE)
         {
+#ifdef WINDSCRIBE_EMBEDDED_ENGINE
             // nothing todo (waiting for process finish and emit cleanupFinished() there
-        }
+#else
+            ipcState_ = IPC_INIT_STATE;
+            emit cleanupFinished();
 #endif
+        }
         else if (ipcState_ != IPC_READY)
         {
             emit initFinished(ProtoTypes::INIT_CLEAN);
