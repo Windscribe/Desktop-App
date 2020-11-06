@@ -577,6 +577,7 @@ void Engine::init()
     connect(connectionManager_, SIGNAL(reconnecting()), SLOT(onConnectionManagerReconnecting()));
     connect(connectionManager_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onConnectionManagerError(CONNECTION_ERROR)));
     connect(connectionManager_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionManagerStatisticsUpdated(quint64,quint64, bool)));
+    connect(connectionManager_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionManagerInterfaceUpdated(QString)));
     connect(connectionManager_, SIGNAL(testTunnelResult(bool, QString)), SLOT(onConnectionManagerTestTunnelResult(bool, QString)));
     connect(connectionManager_, SIGNAL(connectingToHostname(QString, QString)), SLOT(onConnectionManagerConnectingToHostname(QString, QString)));
     connect(connectionManager_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onConnectionManagerProtocolPortChanged(ProtoTypes::Protocol, uint)));
@@ -1794,6 +1795,16 @@ void Engine::onConnectionManagerInternetConnectivityChanged(bool connectivity)
 void Engine::onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
 {
     emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
+}
+
+void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
+{
+#ifdef Q_OS_MAC
+    firewallController_->setInterfaceToSkip_mac(interfaceName);
+    updateFirewallSettings();
+#else
+    Q_UNUSED(interfaceName);
+#endif
 }
 
 void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip)
