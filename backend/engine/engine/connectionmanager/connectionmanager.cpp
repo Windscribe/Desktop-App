@@ -567,6 +567,11 @@ void ConnectionManager::onConnectionStatisticsUpdated(quint64 bytesIn, quint64 b
     emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
 }
 
+void ConnectionManager::onConnectionInterfaceUpdated(const QString &interfaceName)
+{
+    emit interfaceUpdated(interfaceName);
+}
+
 void ConnectionManager::onConnectionRequestUsername()
 {
     emit requestUsername(currentConnectionDescr_.customConfigFilename);
@@ -1058,6 +1063,7 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
         connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionStatisticsUpdated(quint64,quint64, bool)), Qt::QueuedConnection);
+        connect(connector_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionInterfaceUpdated(QString)), Qt::QueuedConnection);
 
         connect(connector_, SIGNAL(requestUsername()), SLOT(onConnectionRequestUsername()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(requestPassword()), SLOT(onConnectionRequestPassword()), Qt::QueuedConnection);

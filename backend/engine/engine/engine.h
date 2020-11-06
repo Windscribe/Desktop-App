@@ -246,6 +246,7 @@ private slots:
     void onConnectionManagerError(CONNECTION_ERROR err);
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
+    void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
     void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip);
     void onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);

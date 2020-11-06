@@ -206,6 +206,7 @@ void WireGuardConnection::run()
                     qCDebug(LOG_WIREGUARD) << "Configuring WireGuard...";
                     is_configured = true;
                     pimpl_->configure();
+                    emit interfaceUpdated(pimpl_->getAdapterName());
                 }
                 break;
             case WireGuardState::CONNECTING:

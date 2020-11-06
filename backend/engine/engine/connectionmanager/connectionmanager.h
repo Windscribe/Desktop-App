@@ -72,6 +72,7 @@ signals:
     void errorDuringConnection(CONNECTION_ERROR errorCode);
     void reconnecting();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
+    void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
     void testTunnelResult(bool success, const QString &ipAddress);
     void showFailedAutomaticConnectionMessage();
     void internetConnectivityChanged(bool connectivity);
@@ -87,6 +88,7 @@ private slots:
     void onConnectionReconnecting();
     void onConnectionError(CONNECTION_ERROR err);
     void onConnectionStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
+    void onConnectionInterfaceUpdated(const QString &interfaceName);
 
     void onConnectionRequestUsername();
     void onConnectionRequestPassword();

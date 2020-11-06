@@ -34,6 +34,7 @@ signals:
     void reconnecting();
     void error(CONNECTION_ERROR err);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
+    void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
 
     void requestUsername();
     void requestPassword();

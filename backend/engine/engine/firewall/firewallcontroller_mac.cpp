@@ -218,5 +218,8 @@ void FirewallController_mac::setInterfaceToSkip_mac(const QString &interfaceToSk
 {
     QMutexLocker locker(&mutex_);
     qCDebug(LOG_BASIC) << "FirewallController_mac::setInterfaceToSkip_mac ->" << interfaceToSkip;
-    interfaceToSkip_ = interfaceToSkip;
+    if (interfaceToSkip_ != interfaceToSkip) {
+        interfaceToSkip_ = interfaceToSkip;
+        bStateChanged_ = true;
+    }
 }
