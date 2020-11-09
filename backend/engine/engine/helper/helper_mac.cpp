@@ -1156,17 +1156,26 @@ bool Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
     int length = data.size();
     boost::system::error_code ec;
 
+    // first 4 bytes - cmdId
     boost::asio::write(*socket_, boost::asio::buffer(&cmdId, sizeof(cmdId)), boost::asio::transfer_exactly(sizeof(cmdId)), ec);
     if (ec)
     {
         return false;
     }
+    // second 4 bytes - pid
+    const auto pid = getpid();
+    boost::asio::write(*socket_, boost::asio::buffer(&pid, sizeof(pid)), boost::asio::transfer_exactly(sizeof(pid)), ec);
+    if (ec)
+    {
+        return false;
+    }
+    // third 4 bytes - size of buffer
     boost::asio::write(*socket_, boost::asio::buffer(&length, sizeof(length)), boost::asio::transfer_exactly(sizeof(length)), ec);
     if (ec)
     {
         return false;
     }
-
+    // body of message
     boost::asio::write(*socket_, boost::asio::buffer(data.data(), length), boost::asio::transfer_exactly(length), ec);
     if (ec)
     {

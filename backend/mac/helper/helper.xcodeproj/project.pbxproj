@@ -26,6 +26,7 @@
 		946225E725140DD70032A070 /* wireguardadapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225DF25140DD70032A070 /* wireguardadapter.cpp */; };
 		946225E825140DD70032A070 /* wireguardcommunicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225E225140DD70032A070 /* wireguardcommunicator.cpp */; };
 		946225E925140DD70032A070 /* wireguardcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225E425140DD70032A070 /* wireguardcontroller.cpp */; };
+		94DCA9A42559C2510052E65B /* helper_security.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94DCA9A22559C2510052E65B /* helper_security.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -93,6 +94,8 @@
 		946225E325140DD70032A070 /* wireguardcommunicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wireguardcommunicator.h; sourceTree = "<group>"; };
 		946225E425140DD70032A070 /* wireguardcontroller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wireguardcontroller.cpp; sourceTree = "<group>"; };
 		946225E525140DD70032A070 /* wireguardcontroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wireguardcontroller.h; sourceTree = "<group>"; };
+		94DCA9A22559C2510052E65B /* helper_security.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = helper_security.mm; sourceTree = "<group>"; };
+		94DCA9A32559C2510052E65B /* helper_security.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_security.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +113,8 @@
 		001EE77624B88F52004624BE /* ipc */ = {
 			isa = PBXGroup;
 			children = (
+				94DCA9A32559C2510052E65B /* helper_security.h */,
+				94DCA9A22559C2510052E65B /* helper_security.mm */,
 				001EE77824B88F9B004624BE /* helper_commands.h */,
 				001EE77724B88F9B004624BE /* helper_commands_serialize.h */,
 			);
@@ -297,6 +302,7 @@
 				00AB62AE249142610085A20F /* utils.cpp in Sources */,
 				001EE79524B893D1004624BE /* routes_manager.cpp in Sources */,
 				8434C1081FD5B99C00B7030D /* keychain_utils.mm in Sources */,
+				94DCA9A42559C2510052E65B /* helper_security.mm in Sources */,
 				840B29571D6BBE88007D9519 /* server.cpp in Sources */,
 				001F82D824BCF2A80081515F /* ip_hostnames_manager.cpp in Sources */,
 				000B36D624B8CB1500717275 /* routes.cpp in Sources */,

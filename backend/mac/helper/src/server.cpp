@@ -16,6 +16,7 @@
 #include "execute_cmd.h"
 #include "keychain_utils.h"
 #include "ipc/helper_commands_serialize.h"
+#include "ipc/helper_security.h"
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 
@@ -39,24 +40,37 @@ Server::~Server()
 bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer)
 {
     // not enough data for read command
-    if (buf->size() < sizeof(int)*2)
+    if (buf->size() < sizeof(int)*3)
     {
         return false;
     }
     
     const char *bufPtr = boost::asio::buffer_cast<const char*>(buf->data());
-    int cmdId, length;
-    memcpy(&cmdId, bufPtr, sizeof(int));
-    memcpy(&length, bufPtr + sizeof(int), sizeof(int));
-    
+    size_t headerSize = 0;
+    int cmdId;
+    memcpy(&cmdId, bufPtr + headerSize, sizeof(cmdId));
+    headerSize += sizeof(cmdId);
+    pid_t pid;
+    memcpy(&pid, bufPtr + headerSize, sizeof(pid));
+    headerSize += sizeof(pid);
+    int length;
+    memcpy(&length, bufPtr + headerSize, sizeof(length));
+    headerSize += sizeof(length);
+
     // not enough data for read command
-    if (buf->size() < (sizeof(int)*2 + length))
+    if (buf->size() < (headerSize + length))
     {
         return false;
     }
-    
+
+    // check process id
+    if (!HelperSecurity::instance().verifyProcessId(pid))
+    {
+        return false;
+    }
+
     std::vector<char> vector(length);
-    memcpy(&vector[0], bufPtr + sizeof(int)*2, length);
+    memcpy(&vector[0], bufPtr + headerSize, length);
     std::string str(vector.begin(), vector.end());
     std::istringstream stream(str);
     boost::archive::text_iarchive ia(stream, boost::archive::no_header);
@@ -251,7 +265,7 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
         }
     }
 
-    buf->consume(sizeof(int)*2 + length);
+    buf->consume(headerSize + length);
 
     return true;
 }
@@ -276,6 +290,7 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
                 if (!sendAnswerCmd(sock, cmdAnswer))
                 {
                     LOG("client app disconnected");
+                    HelperSecurity::instance().reset();
                     return;
                 }
             }
@@ -284,6 +299,7 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
     else
     {
         LOG("client app disconnected");
+        HelperSecurity::instance().reset();
     }
 }
 
@@ -293,6 +309,7 @@ void Server::acceptHandler(const boost::system::error_code & ec, socket_ptr sock
     {
         LOG("client app connected");
                 
+        HelperSecurity::instance().reset();
         boost::shared_ptr<boost::asio::streambuf> buf(new boost::asio::streambuf);
         boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),
                                     boost::bind(&Server::receiveCmdHandle, this, sock, buf, _1, _2));
@@ -340,16 +357,15 @@ bool Server::sendAnswerCmd(socket_ptr sock, const CMD_ANSWER &cmdAnswer)
 void Server::run()
 {
     system("mkdir -p /var/run");
-    
+
     ::unlink(SOCK_PATH);
-    
+
     boost::asio::local::stream_protocol::endpoint ep(SOCK_PATH);
     acceptor_ = new boost::asio::local::stream_protocol::acceptor(service_, ep);
-    
-    
+
     chmod(SOCK_PATH, 0777);
     startAccept();
-    
+
     boost::thread_group g;
     for (int i = 0; i < 4; i++)
     {
