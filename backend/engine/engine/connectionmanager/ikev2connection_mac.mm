@@ -174,28 +174,25 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
     isPrevConnectionStatusInitialized_ = false;
     state_ = STATE_START_CONNECT;
 
-    if (MacUtils::isOsVersionIsCatalina_or_greater())
+
+    // trying set keychain 3 times during 3 secs (because sometimes occurs error after sleep mode)
+    bool bKeyChainSuccess = false;
+    for (int i = 0; i < 3; ++i)
     {
-        KeyChainUtils::removeKeychainItem();
-        if (!KeyChainUtils::createKeychainItem(username.toStdString().c_str(), password.toStdString().c_str()))
+        if (setKeyChain(username, password))
         {
-            qCDebug(LOG_IKEV2) << "Can't set username/password in keychain";
-            state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
-            mutexLocal.unlock();
-            return;
+            bKeyChainSuccess = true;
+            break;
         }
+        QThread::msleep(1000);
     }
-    else
+
+    if (!bKeyChainSuccess)
     {
-        if (!helper_->setKeychainUsernamePassword(username, password))
-        {
-            qCDebug(LOG_IKEV2) << "Can't set username/password in keychain";
-            state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
-            mutexLocal.unlock();
-            return;
-        }
+        qCDebug(LOG_IKEV2) << "Can't set username/password in keychain";
+        state_ = STATE_DISCONNECTED;
+        emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
+        mutexLocal.unlock();
     }
 
     NEVPNManager *manager = [NEVPNManager sharedManager];
@@ -525,6 +522,26 @@ void IKEv2Connection_mac::onStatisticsTimer()
         emit statisticsUpdated(totalibytes, totalobytes, true);
     }
 
+}
+
+bool IKEv2Connection_mac::setKeyChain(const QString &username, const QString &password)
+{
+    if (MacUtils::isOsVersionIsCatalina_or_greater())
+    {
+        KeyChainUtils::removeKeychainItem();
+        if (!KeyChainUtils::createKeychainItem(username.toStdString().c_str(), password.toStdString().c_str()))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (!helper_->setKeychainUsernamePassword(username, password))
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void IKEv2Connection_mac::handleNotification(void *notification)

@@ -150,7 +150,6 @@ void ConnectionManager::clickDisconnect()
 
     timerWaitNetworkConnectivity_.stop();
 
-    qCDebug(LOG_MY) << "ConnectionManager::clickDisconnect, state:" << state_;
     if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK)
     {
         state_ = STATE_DISCONNECTING_FROM_USER_CLICK;

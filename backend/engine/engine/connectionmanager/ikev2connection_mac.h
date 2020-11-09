@@ -50,6 +50,7 @@ private:
     int prevConnectionStatus_;
     bool isPrevConnectionStatusInitialized_;
 
+    bool setKeyChain(const QString &username, const QString &password);
     void handleNotification(void *notification);
     bool isFailedAuthError(QMap<time_t, QString> &logs);
     bool isSocketError(QMap<time_t, QString> &logs);
