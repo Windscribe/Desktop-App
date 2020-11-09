@@ -145,12 +145,12 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 
 void ConnectionManager::clickDisconnect()
 {
-    // TODO: re-enable
-//    Q_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED || state_ == STATE_RECONNECTING ||
-//             state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
+    Q_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED || state_ == STATE_RECONNECTING ||
+             state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
 
     timerWaitNetworkConnectivity_.stop();
 
+    qCDebug(LOG_MY) << "ConnectionManager::clickDisconnect, state:" << state_;
     if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK)
     {
         state_ = STATE_DISCONNECTING_FROM_USER_CLICK;
@@ -214,14 +214,14 @@ void ConnectionManager::blockingDisconnect()
 
 bool ConnectionManager::isDisconnected()
 {
-    if (connector_)
+    if (state_ == STATE_DISCONNECTED)
     {
-        return connector_->isDisconnected();
+        if (connector_)
+        {
+            Q_ASSERT(connector_->isDisconnected());
+        }
     }
-    else
-    {
-        return true;
-    }
+    return state_ == STATE_DISCONNECTED;
 }
 
 QString ConnectionManager::getLastConnectedIp()
