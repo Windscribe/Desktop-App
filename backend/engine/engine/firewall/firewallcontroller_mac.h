@@ -23,6 +23,7 @@ public:
 
 private:
     QString interfaceToSkip_;
+    bool forceUpdateInterfaceToSkip_;
     QMutex mutex_;
     bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports);
 };
