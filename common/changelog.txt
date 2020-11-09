@@ -1,3 +1,10 @@
+2.0.35 (09/10/2020)
+* OVPN custom configs permission issue - fixed.
+* WireGuard takes too long to connect with firewall enabled - fixed.
+* Sometimes program hangs in connecting/disconnecting states - fixes made, but still need to test.
+* "Failed set password to keychain" error on Mac after sleep mode - fixes made, but still need to test.
+
+
 2.0.34 (04/10/2020)
 * Security fixes for custom configs and advanced parameters.
 * Firewall leak on boot - fixed.
