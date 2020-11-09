@@ -30,7 +30,8 @@ bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QSt
         file_.remove();
     }
 
-    path_ = customConfigPath + "/windscribe_temp_config.ovpn";
+    path_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+          + "/windscribe_temp_config.ovpn";
     file_.setFileName(path_);
 
     if (!file_.open(QIODevice::WriteOnly))
@@ -40,6 +41,10 @@ bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QSt
     }
 
     file_.resize(0);
+
+    QString customConfigPathCopy(customConfigPath);
+    QString cd_command = QString("cd \"%1\"\n\n").arg(customConfigPathCopy.replace("\\", "/"));
+    file_.write(cd_command.toLocal8Bit());
 
     file_.write(ovpnData.toLocal8Bit());
 
