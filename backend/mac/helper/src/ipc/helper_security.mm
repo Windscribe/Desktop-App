@@ -33,7 +33,7 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
     bool result = false;
 
     // Check for a correct ending.
-#if DEBUG
+#if DEBUG || DISABLE_HELPER_SECURITY_CHECK
     const std::string ending = "/WindscribeEngine";
 #else
     const std::string ending = "/WindscribeEngine.app/Contents/MacOS/WindscribeEngine";
@@ -47,7 +47,9 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
             LOG("Invalid app/bundle name for PID %i: '%s'", pid, app_name.c_str());
             break;
         }
-#if !DEBUG
+#if DEBUG || DISABLE_HELPER_SECURITY_CHECK
+        result = true;
+#else
         // Check code signature.
         SecStaticCodeRef staticCode = NULL;
         NSString* path = [NSString stringWithCString:app_name.c_str()
@@ -84,8 +86,6 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
         }
         if (!result)
             LOG("No matching certificate for PID %i", pid);
-#else
-        result = true;
 #endif
     } while (0);
 
