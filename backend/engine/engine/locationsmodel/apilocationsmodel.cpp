@@ -27,15 +27,16 @@ ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *s
     }
 }
 
-void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
+void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QMap<QString,QString> &windflixDnsHostnames)
 {
-    if (!isChanged(locations, staticIps))
+    if (!isChanged(locations, staticIps, windflixDnsHostnames))
     {
         return;
     }
 
     locations_ = locations;
     staticIps_ = staticIps;
+    windflixDnsHostnames_ = windflixDnsHostnames;
 
     whitelistIps();
 
@@ -70,6 +71,7 @@ void ApiLocationsModel::clear()
 {
     locations_.clear();
     staticIps_ = apiinfo::StaticIps();
+    windflixDnsHostnames_.clear();
     pingIpsController_.updateIps(QVector<PingIpInfo>());
     QSharedPointer<QVector<locationsmodel::LocationItem> > empty(new QVector<locationsmodel::LocationItem>());
     emit locationsUpdated(LocationID(), empty);
@@ -125,8 +127,16 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
                         nodes << QSharedPointer<const ApiLocationNode>(new ApiLocationNode(ips, apiInfoNode.getHostname(), apiInfoNode.getWeight(), group.getWgPubKey()));
                     }
 
+                    // once API server list is updated so that the old WINDFLIX locations' dns_hostname matches that of the containing region this code can be removed
+                    QString dnsHostname =  l.getDnsHostName();
+                    if (windflixDnsHostnames_.keys().contains(group.getNick()))
+                    {
+                        dnsHostname = windflixDnsHostnames_[group.getNick()];
+                        qCDebug(LOG_BASIC) << "Overriding DNS hostname for old WINDFLIX location with: " << dnsHostname;
+                    }
+
                     int selectedNode = NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(nodes);
-                    QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(modifiedLocationId, group.getCity() + " - " + group.getNick(), nodes, selectedNode, l.getDnsHostName()));
+                    QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(modifiedLocationId, group.getCity() + " - " + group.getNick(), nodes, selectedNode,dnsHostname));
                     return bli;
                 }
             }
@@ -390,9 +400,10 @@ void ApiLocationsModel::whitelistIps()
     emit whitelistIpsChanged(ips);
 }
 
-bool ApiLocationsModel::isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
+bool ApiLocationsModel::isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QMap<QString, QString> &windflixDnsHostnames)
 {
-    return locations_ != locations || staticIps_ != staticIps;
+    return locations_ != locations || staticIps_ != staticIps || windflixDnsHostnames_ != windflixDnsHostnames;
 }
+
 
 } //namespace locationsmodel
