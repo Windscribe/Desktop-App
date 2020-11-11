@@ -35,6 +35,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
                                            Preferences *preferences, AccountInfo *accountInfo) : QObject(parent),
     curWindow_(WINDOW_ID_UNITIALIZED),
     mainWindow_(parent),
+    preferencesHelper_(preferencesHelper),
     locationsWindow_(locationsWindow),
     CLOSING_WINDSCRIBE(QT_TR_NOOP("Closing Windscribe")),
     CLOSE_ACCEPT(QT_TR_NOOP("Yes")),
@@ -51,9 +52,9 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     initWindowInitHeight_(WINDOW_HEIGHT)
 {
 #ifdef Q_OS_WIN
-    isDocked_ = false;
+    preferencesHelper->setIsDockedToTray(false);
 #else
-    isDocked_ = true;
+    preferencesHelper->setIsDockedToTray(true);
 #endif
 
     shadowManager_ = new ShadowManager(this);
@@ -63,13 +64,13 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
 
     view_->setRenderHints(QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
-    loginWindow_ = new LoginWindow::LoginWindowItem();
+    loginWindow_ = new LoginWindow::LoginWindowItem(nullptr, preferencesHelper);
     loggingInWindow_ = new LoginWindow::LoggingInWindowItem();
     initWindow_ = new LoginWindow::InitWindowItem();
     connectWindow_ = new ConnectWindow::ConnectWindowItem(nullptr, preferencesHelper);
-    emergencyConnectWindow_ = new EmergencyConnectWindow::EmergencyConnectWindowItem();
-    externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem();
-    twoFactorAuthWindow_ = new TwoFactorAuthWindow::TwoFactorAuthWindowItem();
+    emergencyConnectWindow_ = new EmergencyConnectWindow::EmergencyConnectWindowItem(nullptr, preferencesHelper);
+    externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem(nullptr, preferencesHelper);
+    twoFactorAuthWindow_ = new TwoFactorAuthWindow::TwoFactorAuthWindowItem(nullptr, preferencesHelper);
     preferencesWindow_ = new PreferencesWindow::PreferencesWindowItem(NULL, preferences, preferencesHelper, accountInfo);
     updateWindow_ = new UpdateWindow::UpdateWindowItem();
     upgradeAccountWindow_ = new UpgradeWindow::UpgradeWindowItem();
@@ -80,7 +81,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
                                                                         tr(CLOSE_ACCEPT.toStdString().c_str()), tr(CLOSE_REJECT.toStdString().c_str()));
 
     updateAppItem_ = new UpdateApp::UpdateAppItem();
-    newsFeedWindow_ = new NewsFeedWindow::NewsFeedWindowItem();
+    newsFeedWindow_ = new NewsFeedWindow::NewsFeedWindowItem(nullptr, preferencesHelper);
 
     scene_->addItem(loginWindow_->getGraphicsObject());
     scene_->addItem(loggingInWindow_->getGraphicsObject());
@@ -309,7 +310,7 @@ void MainWindowController::setWindowPosFromPersistent()
 
 void MainWindowController::setIsDockedToTray(bool isDocked)
 {
-    isDocked_ = isDocked;
+    preferencesHelper_->setIsDockedToTray(isDocked);
     updateMainAndViewGeometry(true);
 }
 
@@ -2902,7 +2903,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     QRect geo = QRect(mainWindow_->pos().x(), mainWindow_->pos().y(), widthWithShadow, heightWithShadow);
 
-    if (isDocked_)
+    if (preferencesHelper_->isDockedToTray())
     {
         QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
         QScreen *screen = QGuiApplication::screenAt(rcIcon.center());

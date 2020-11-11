@@ -149,6 +149,7 @@ private:
 
     QWidget *mainWindow_;
     ShadowManager *shadowManager_;
+    PreferencesHelper *preferencesHelper_;
 
     QGraphicsView *view_;
     QGraphicsScene* scene_;
@@ -267,8 +268,6 @@ private:
 
     int preferencesShadowOffsetY();
     int initWindowInitHeight_;
-
-    bool isDocked_;
 
 #ifdef Q_OS_MAC
     void invalidateShadow_mac_impl();

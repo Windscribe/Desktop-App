@@ -43,6 +43,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
+    minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
     minimizeButton_->setSelected(true);
 
     closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
@@ -106,6 +107,9 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
 
     logoButton_ = new LogoNotificationsButton(this);
     connect(logoButton_, SIGNAL(clicked()), this, SIGNAL(notificationsClick()));
+
+    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
+            SLOT(onDockedModeChanged(bool)));
 
     QFont descFont = *FontManager::instance().getFont(11, false);
 
@@ -479,6 +483,15 @@ void ConnectWindowItem::onFirewallInfoHoverEnter()
 void ConnectWindowItem::onFirewallInfoHoverLeave()
 {
     emit hideTooltip(TOOLTIP_ID_FIREWALL_INFO);
+}
+
+void ConnectWindowItem::onDockedModeChanged(bool bIsDockedToTray)
+{
+#if defined(Q_OS_MAC)
+    minimizeButton_->setVisible(!bIsDockedToTray);
+#else
+    Q_UNUSED(bIsDockedToTray);
+#endif
 }
 
 void ConnectWindowItem::onFirstNameHoverEnter()

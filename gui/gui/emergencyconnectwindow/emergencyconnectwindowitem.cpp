@@ -11,9 +11,11 @@
 
 namespace EmergencyConnectWindow {
 
-EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent)
-  , errorConnecting_(false)
+EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
+                                                       PreferencesHelper *preferencesHelper)
+    : ScalableGraphicsObject(parent), errorConnecting_(false)
 {
+    Q_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     curTitleOpacity_ = OPACITY_FULL;
@@ -76,6 +78,9 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent) 
     connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotation(QVariant)));
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+
+    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
+            SLOT(onDockedModeChanged(bool)));
 
     textLinkButton_->animateShow(ANIMATION_SPEED_FAST);
 
@@ -435,6 +440,13 @@ void EmergencyConnectWindowItem::onTextLinkWidthChanged()
 void EmergencyConnectWindowItem::onLanguageChanged()
 {
     textLinkButton_->setPos( CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, textLinkButton_->boundingRect().width()), LINK_TEXT_POS_Y*G_SCALE);
+}
+
+void EmergencyConnectWindowItem::onDockedModeChanged(bool /*bIsDockedToTray*/)
+{
+#if defined(Q_OS_MAC)
+    //minimizeButton_->setVisible(!bIsDockedToTray);
+#endif
 }
 
 void EmergencyConnectWindowItem::onTitleOpacityChange(const QVariant &value)

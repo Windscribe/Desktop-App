@@ -5,6 +5,7 @@
 #include <QGraphicsTextItem>
 #include <QGraphicsPixmapItem>
 #include <QTimer>
+#include "../backend/backend.h"
 #include "iloginwindow.h"
 #include "loginyesnobutton.h"
 #include "usernamepasswordentry.h"
@@ -23,7 +24,7 @@ class LoginWindowItem : public ScalableGraphicsObject, public ILoginWindow
     Q_OBJECT
     Q_INTERFACES(ILoginWindow)
 public:
-    explicit LoginWindowItem(QGraphicsObject *parent = nullptr);
+    explicit LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     QGraphicsObject *getGraphicsObject() override;
     void setErrorMessage(ERROR_MESSAGE_TYPE errorMessage) override;
@@ -109,6 +110,7 @@ private slots:
     void onAbstractButtonHoverEnter(QGraphicsObject *button, QString text);
 
     void onLanguageChanged();
+    void onDockedModeChanged(bool bIsDockedToTray);
     void updatePositions();
 
 protected:

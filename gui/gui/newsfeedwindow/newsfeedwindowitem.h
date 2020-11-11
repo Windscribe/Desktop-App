@@ -2,6 +2,7 @@
 #define NEWSFEEDWINDOWITEM_H
 
 #include <QTextBrowser>
+#include "../backend/backend.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "newsfeedwindow/inewsfeedwindow.h"
 #include "commongraphics/iconbutton.h"
@@ -16,7 +17,7 @@ class NewsFeedWindowItem : public ScalableGraphicsObject, public INewsFeedWindow
     Q_OBJECT
     Q_INTERFACES(INewsFeedWindow)
 public:
-    explicit NewsFeedWindowItem(QGraphicsObject *parent = nullptr);
+    explicit NewsFeedWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     QGraphicsObject *getGraphicsObject() { return this; }
     virtual QRectF boundingRect() const;
@@ -42,6 +43,7 @@ private slots:
     void onBackArrowButtonClicked();
     void onLeftClick();
     void onRightClick();
+    void onDockedModeChanged(bool bIsDockedToTray);
 
 private:
     void updateCurrentMessage();

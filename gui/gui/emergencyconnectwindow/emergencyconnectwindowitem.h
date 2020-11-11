@@ -3,6 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QEvent>
+#include "../backend/backend.h"
 #include "emergencyconnectwindow/iemergencyconnectwindow.h"
 #include "commongraphics/bubblebuttonbright.h"
 #include "commongraphics/bubblebuttondark.h"
@@ -18,7 +19,7 @@ class EmergencyConnectWindowItem : public ScalableGraphicsObject, public IEmerge
     Q_OBJECT
     Q_INTERFACES(IEmergencyConnectWindow)
 public:
-    explicit EmergencyConnectWindowItem(QGraphicsObject *parent = nullptr);
+    explicit EmergencyConnectWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     QGraphicsObject *getGraphicsObject() override { return this; }
 
@@ -59,6 +60,7 @@ private slots:
     void onTextLinkWidthChanged();
 
     void onLanguageChanged();
+    void onDockedModeChanged(bool bIsDockedToTray);
 
 private:
     ProtoTypes::ConnectState state_;
