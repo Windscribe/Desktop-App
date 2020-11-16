@@ -10,8 +10,11 @@
 
 namespace ExternalConfigWindow {
 
-ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent)
+ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent,
+                                                   PreferencesHelper *preferencesHelper)
+    : ScalableGraphicsObject(parent)
 {
+    Q_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     curIconPath_ = "BIG_CONFIG_ICON";
@@ -49,6 +52,9 @@ ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent) : Sc
     minimizeButton_->setSelected(true);*/
 
 #endif
+
+    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
+            SLOT(onDockedModeChanged(bool)));
 
     updatePositions();
 }
@@ -178,6 +184,13 @@ void ExternalConfigWindowItem::onEscTextOpacityChange(const QVariant &value)
 {
     curEscTextOpacity_ = value.toDouble();
     update();
+}
+
+void ExternalConfigWindowItem::onDockedModeChanged(bool /*bIsDockedToTray*/)
+{
+#if defined(Q_OS_MAC)
+    //minimizeButton_->setVisible(!bIsDockedToTray);
+#endif
 }
 
 void ExternalConfigWindowItem::updatePositions()

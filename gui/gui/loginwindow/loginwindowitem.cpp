@@ -26,8 +26,10 @@ const QString EMERGENCY_ICON_DISABLED_PATH = "login/EMERGENCY_ICON_DISABLED";
 const QString CONFIG_ICON_PATH             = "login/CONFIG_ICON";
 const QString SETTINGS_ICON_PATH           = "login/SETTINGS_ICON";
 
-LoginWindowItem::LoginWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent)
+LoginWindowItem::LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
+    : ScalableGraphicsObject(parent)
 {
+    Q_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     // Header Region:
@@ -65,6 +67,7 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent) : ScalableGraphicsObje
     connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
+    minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
     minimizeButton_->setSelected(true);
 
 #endif
@@ -145,6 +148,9 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent) : ScalableGraphicsObje
 
     connect(usernameEntry_, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(onUsernamePasswordKeyPress(QKeyEvent*)));
     connect(passwordEntry_, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(onUsernamePasswordKeyPress(QKeyEvent*)));
+
+    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
+            SLOT(onDockedModeChanged(bool)));
 
     updatePositions();
     changeToAccountScreen();
@@ -717,6 +723,15 @@ void LoginWindowItem::onLanguageChanged()
 {
     twoFactorAuthButton_->recalcBoundingRect();
     forgotPassButton_->recalcBoundingRect();
+}
+
+void LoginWindowItem::onDockedModeChanged(bool bIsDockedToTray)
+{
+#if defined(Q_OS_MAC)
+    minimizeButton_->setVisible(!bIsDockedToTray);
+#else
+    Q_UNUSED(bIsDockedToTray);
+#endif
 }
 
 void LoginWindowItem::updatePositions()

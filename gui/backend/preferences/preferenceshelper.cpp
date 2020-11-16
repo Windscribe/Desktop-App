@@ -3,7 +3,8 @@
 #include "version/appversion.h"
 
 PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
-    isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false)
+    isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false),
+    isDockedToTray_(false)
 {
     availableLanguageCodes_ << "en" ; // << "en_nsfw" << "ru" << "ar" << "es" << "fr" << "hu" << "it" << "ja" << "ko" << "nl" <<
                             // "zh" << "de" << "pl" << "tr" << "cs" << "da" << "el" << "pt" << "sk" << "th" << "vi" << "sv" <<
@@ -118,6 +119,20 @@ void PreferencesHelper::setBlockFirewall(bool b)
 bool PreferencesHelper::isFirewallBlocked() const
 {
     return isFirewallBlocked_;
+}
+
+void PreferencesHelper::setIsDockedToTray(bool b)
+{
+    if (isDockedToTray_ != b)
+    {
+        isDockedToTray_ = b;
+        emit isDockedModeChanged(isDockedToTray_);
+    }
+}
+
+bool PreferencesHelper::isDockedToTray() const
+{
+    return isDockedToTray_;
 }
 
 #ifdef Q_OS_WIN

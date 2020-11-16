@@ -10,8 +10,11 @@
 
 namespace TwoFactorAuthWindow
 {
-TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent)
+TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
+                                                 PreferencesHelper *preferencesHelper)
+    : ScalableGraphicsObject(parent)
 {
+    Q_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     curTextOpacity_ = OPACITY_FULL;
@@ -41,6 +44,7 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent) : Scal
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
+    minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
     minimizeButton_->setSelected(true);
 #endif
 
@@ -56,6 +60,9 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent) : Scal
     connect(codeEntry_, SIGNAL(textChanged(const QString&)), this,
                         SLOT(onCodeTextChanged(const QString&)));
     codeEntry_->setClickable(true);
+
+    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
+            SLOT(onDockedModeChanged(bool)));
 
     updatePositions();
 }
@@ -255,6 +262,15 @@ void TwoFactorAuthWindowItem::onErrorChanged(const QVariant &value)
 {
     curErrorOpacity_ = value.toDouble();
     update();
+}
+
+void TwoFactorAuthWindowItem::onDockedModeChanged(bool bIsDockedToTray)
+{
+#if defined(Q_OS_MAC)
+    minimizeButton_->setVisible(!bIsDockedToTray);
+#else
+    Q_UNUSED(bIsDockedToTray);
+#endif
 }
 
 void TwoFactorAuthWindowItem::onEscClicked()

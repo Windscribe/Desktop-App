@@ -71,6 +71,7 @@ public slots:
     void onFirstOrSecondNameHoverLeave();
     void onServerRatingIndicatorHoverEnter();
     void onServerRatingIndicatorHoverLeave();
+    void onDockedModeChanged(bool bIsDockedToTray);
 
 signals:
     void minimizeClick() override;

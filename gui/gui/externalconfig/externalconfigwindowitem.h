@@ -3,6 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
+#include "../backend/backend.h"
 #include "commongraphics/bubblebuttondark.h"
 #include "commongraphics/iconbutton.h"
 #include "externalconfig/iexternalconfigwindow.h"
@@ -15,7 +16,7 @@ class ExternalConfigWindowItem : public ScalableGraphicsObject, public IExternal
     Q_OBJECT
     Q_INTERFACES(IExternalConfigWindow)
 public:
-    explicit ExternalConfigWindowItem(QGraphicsObject *parent = nullptr);
+    explicit ExternalConfigWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     QGraphicsObject *getGraphicsObject() override;
 
@@ -44,6 +45,7 @@ private slots:
     void onBackgroundOpacityChange(const QVariant &value);
     void onTextOpacityChange(const QVariant &value);
     void onEscTextOpacityChange(const QVariant &value);
+    void onDockedModeChanged(bool bIsDockedToTray);
 
 private:
     PreferencesWindow::EscapeButton *escButton_;

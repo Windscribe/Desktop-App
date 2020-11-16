@@ -12,9 +12,11 @@ namespace NewsFeedWindow {
 const int MESSAGE_POS_X = 12;
 const int MESSAGE_POS_Y = 125;
 
-NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent),
-    messageIdIsInitialized_(false)
+NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
+                                       PreferencesHelper *preferencesHelper)
+    : ScalableGraphicsObject(parent), messageIdIsInitialized_(false)
 {
+    Q_ASSERT(preferencesHelper);
     setFlags(QGraphicsObject::ItemIsFocusable);
 
     setVisible(false);
@@ -57,6 +59,7 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent) : ScalableGraphi
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
+    minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
     minimizeButton_->setSelected(false);
 
     closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
@@ -73,6 +76,9 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent) : ScalableGraphi
     leftArrowButton_ = new IconButton(16, 16, "newsfeed/LEFT_ARROW", this);
     leftArrowButton_->animateOpacityChange(OPACITY_UNHOVER_ICON_STANDALONE, 50);
     connect(leftArrowButton_, SIGNAL(clicked()), SLOT(onLeftClick()));
+
+    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
+            SLOT(onDockedModeChanged(bool)));
 
     installEventFilter(this);
     updatePositions();
@@ -230,6 +236,15 @@ void NewsFeedWindowItem::onRightClick()
         updateCurrentMessage();
         emit messageReaded(curMessageId_);
     }
+}
+
+void NewsFeedWindowItem::onDockedModeChanged(bool bIsDockedToTray)
+{
+#if defined(Q_OS_MAC)
+    minimizeButton_->setVisible(!bIsDockedToTray);
+#else
+    Q_UNUSED(bIsDockedToTray);
+#endif
 }
 
 void NewsFeedWindowItem::updateCurrentMessage()

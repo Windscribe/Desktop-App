@@ -3,6 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
+#include "../backend/backend.h"
 #include "itwofactorauthwindow.h"
 #include "twofactorauthokbutton.h"
 #include "commongraphics/iconbutton.h"
@@ -16,7 +17,7 @@ class TwoFactorAuthWindowItem : public ScalableGraphicsObject, public ITwoFactor
     Q_OBJECT
     Q_INTERFACES(ITwoFactorAuthWindow)
 public:
-    explicit TwoFactorAuthWindowItem(QGraphicsObject *parent = nullptr);
+    explicit TwoFactorAuthWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     QGraphicsObject *getGraphicsObject() override;
 
@@ -52,6 +53,7 @@ private slots:
     void onCodeTextChanged(const QString &text);
     void onCodeEntryOpacityChanged(const QVariant &value);
     void onErrorChanged(const QVariant &value);
+    void onDockedModeChanged(bool bIsDockedToTray);
 
 private:
     void updatePositions();
