@@ -2286,7 +2286,7 @@ void Engine::updateServerLocations()
     qCDebug(LOG_BASIC) << "Servers locations changed";
     if (!apiInfo_.isNull())
     {
-        locationsModel_->setApiLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
+        locationsModel_->setApiLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps(), apiInfo_->windflixDnsHostnames());
     }
     locationsModel_->setCustomConfigLocations(customConfigs_->getConfigs());
 

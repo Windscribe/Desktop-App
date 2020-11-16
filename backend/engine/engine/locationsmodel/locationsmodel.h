@@ -25,7 +25,7 @@ public:
     explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
     ~LocationsModel() override;
 
-    void setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
+    void setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QMap<QString, QString> &windflixDnsHostnames);
     void setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
 
