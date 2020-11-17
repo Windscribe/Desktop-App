@@ -9,7 +9,7 @@ typedef std::function<bool(const std::string&, std::string&, bool&)> CheckAppCal
 class KextClient
 {
 public:
-    KextClient(const CheckAppCallback &funcCheckApp);
+    explicit KextClient(const CheckAppCallback &funcCheckApp);
     ~KextClient();
     
     void setKextPath(const std::string &kextPath);

@@ -385,8 +385,6 @@ static void ws_detach(void *cookie, socket_t so)
         log("No cookie was found for this socket!\n");
     }
     
-    cookie = NULL;
-    
     return;
 }
 

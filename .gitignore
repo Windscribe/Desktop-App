@@ -3,4 +3,5 @@ build-*
 release/
 debug/
 .vs/
+*.pyc
 *.DS_Store

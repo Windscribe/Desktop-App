@@ -11,7 +11,7 @@ class LocationID
 {
 public:
 
-    LocationID() : type_(INVALID_LOCATION) {}
+    LocationID() : type_(INVALID_LOCATION), id_(0) {}
 
     static LocationID createTopApiLocationId(int id);
     static LocationID createTopStaticLocationId();

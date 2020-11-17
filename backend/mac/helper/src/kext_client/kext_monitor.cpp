@@ -67,8 +67,6 @@ bool KextMonitor::unloadKext()
     // think we have loaded it.
     LOG("Unloading kext - currently loaded: %d", isKextLoaded_);
 
-    int exitCode = 0;
-
     // Unloading our kext may take a few attempts under normal conditions.
     // If we have any sockets filters still attached inside the kext they need to first be unregistered. The first unload attempt does this.
     // Assuming we successfully unregister the socket filters, our second (or shortly there after) attempt should succeed.
@@ -79,7 +77,7 @@ bool KextMonitor::unloadKext()
     for (int i = 0; i < retryCount; ++i)
     {
         std::string stderr;
-        exitCode = Utils::executeCommand("/sbin/kextunload", pars, &stderr);
+        int exitCode = Utils::executeCommand("/sbin/kextunload", pars, &stderr);
         
         if (exitCode == 0)
         {

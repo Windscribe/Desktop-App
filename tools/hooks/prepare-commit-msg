@@ -1,0 +1,67 @@
+#!/bin/bash
+#*******************************************************************************
+# Windscribe Build System
+# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+#*******************************************************************************
+# HOOK:    prepare-commit-msg
+# PURPOSE: adds GitLab ticket name to the commit message, using current branch.
+# AUTHOR:  Alexander Popov (alexander.popov@windscribe.com)
+#*******************************************************************************
+
+EMSG="\e[1;31mERROR:\e[0;39m"
+
+if [ -z "$1" ]; then
+  printf "$EMSG This hook shall accept at least one argument.\n"
+  exit 1
+fi
+
+unset existing_lines
+if [ -f "$1" ]; then
+  IFS=$'\n' read -d '' -r -a existing_lines < "$1"
+  non_empty_lines=0
+  for i in "${existing_lines[@]}"
+  do
+    if [[ ${i:0:1} == "#" ]] ; then
+      continue
+    fi
+    if [ -n "$i" ]; then
+      non_empty_lines=1
+      break
+    fi
+  done
+  if [ $non_empty_lines -eq 1 ]; then
+    # Non-empty commit message, assume amend.
+    exit 0
+  fi
+else
+  existing_lines[0]=""
+fi
+
+set -f
+
+ticket_id=""
+check_develop=$(git branch | grep '*' | sed 's/\* develop//')
+if [ -z "$check_develop" ]; then
+  # Committing directly to the develop.
+  :
+else
+  ticket_id=$(git branch | grep '*' | sed 's/\* \([0-9][0-9]*\)-.*/\1/')
+  if [[ ${ticket_id:0:1} == "*" ]] ; then
+    # Invalid branch name, reject the commit.
+    printf "$EMSG Invalid current branch name.\n"
+    printf "$ticket_id\n"
+    printf "Please rename the branch to match the pattern: \e[1;32mNNN-some-text-in-branch-name\e[0;39m\n"
+    printf "Where NNN is the ticket number; this is actually the name GitLab suggests."
+    printf "Commit declined due to the error(s).\n\n"
+    exit 1
+  fi
+  ticket_id="ws/client/desktop/client-desktop#$ticket_id"
+fi
+
+echo "(Enter commit message here) $ticket_id" > "$1"
+echo "" >> "$1"
+for i in "${existing_lines[@]}"
+do
+  echo "$i" >> "$1"
+done
+exit 0

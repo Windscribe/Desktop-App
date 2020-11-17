@@ -70,6 +70,7 @@ void __stdcall TapAdapterDetector::interfaceChangeCallback(
 				AdapterDescr ad;
 				ad.luid = localRow.InterfaceLuid;
 				ad.isConnected = localRow.Connected;
+				ad.dwIp = 0;
 				if (ad.isConnected)
 				{
 					IpAddressTable addrTable;
