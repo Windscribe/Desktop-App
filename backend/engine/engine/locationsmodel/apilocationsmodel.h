@@ -23,7 +23,7 @@ class ApiLocationsModel : public QObject
 public:
     explicit ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost);
 
-    void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QMap<QString, QString> &windflixDnsHostnames);
+    void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
     void clear();
 
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
@@ -54,9 +54,7 @@ private:
     void generateLocationsUpdated();
     void whitelistIps();
 
-    bool isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QMap<QString, QString> &windflixDnsHostnames);
-
-    QMap<QString, QString> windflixDnsHostnames_;
+    bool isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
 };
 
 } //namespace locationsmodel

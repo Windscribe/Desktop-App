@@ -170,11 +170,6 @@ void ApiInfo::removeFromSettings()
 
 }
 
-const QMap<QString, QString> ApiInfo::windflixDnsHostnames()
-{
-    return windflixDnsHostnames_;
-}
-
 bool ApiInfo::loadFromSettings()
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
@@ -204,7 +199,6 @@ bool ApiInfo::loadFromSettings()
         ovpnConfig_ = QString::fromStdString(protoApiInfo.ovpn_config());
         portMap_.initFromProtoBuf(protoApiInfo.port_map());
         staticIps_.initFromProtoBuf(protoApiInfo.static_ips());
-        mergeWindflixLocations();
 
         sessionStatus_.setRevisionHash(settings.value("revisionHash", "").toString());
         return true;
@@ -219,7 +213,6 @@ void ApiInfo::mergeWindflixLocations()
 {
     // Build a new list of server locations to merge, removing them from the old list.
     // Currently we merge all WindFlix locations into the corresponding global locations.
-    windflixDnsHostnames_.clear();
     QVector<Location> locationsToMerge;
     QMutableVectorIterator<Location> it(locations_);
     while (it.hasNext()) {
@@ -250,15 +243,14 @@ void ApiInfo::mergeWindflixLocations()
 
         for (int i = 0; i < location.groupsCount(); ++i)
         {
-            const Group group = location.getGroup(i);
-
-            windflixDnsHostnames_[location.getGroup(i).getNick()] = location.getDnsHostName();
+            Group group = location.getGroup(i);
+            group.setOverrideDnsHostName(location.getDnsHostName());
 
             auto target = location_hash.find(country_code + group.getCity());
             Q_ASSERT(target != location_hash.end());
             if (target != location_hash.end())
             {
-                target.value()->addGroup(location.getGroup(i));
+                target.value()->addGroup(group);
             }
         }
         itm.remove();

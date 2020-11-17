@@ -35,6 +35,8 @@ public:
 
     QVector<Node> nodes_;
 
+    QString dnsHostName_;   // if not empty, then use this dns, overwise from parent Location
+
     // internal state
     bool isValid_;
 };
@@ -62,6 +64,9 @@ public:
     int getNodesCount() const { Q_ASSERT(d->isValid_); return d->nodes_.count(); }
     const Node &getNode(int ind) const { Q_ASSERT(d->isValid_); return d->nodes_[ind]; }
 
+    void setOverrideDnsHostName(const QString &dnsHostName) { d->dnsHostName_ = dnsHostName; }
+    QString getDnsHostName() const { Q_ASSERT(d->isValid_); return d->dnsHostName_; }
+
 
     bool operator== (const Group &other) const
     {
@@ -72,6 +77,7 @@ public:
                d->pingIp_ == other.d->pingIp_ &&
                d->wg_pubkey_ == other.d->wg_pubkey_ &&
                d->nodes_ == other.d->nodes_ &&
+               d->dnsHostName_ == other.d->dnsHostName_ &&
                d->isValid_ == other.d->isValid_;
     }
 

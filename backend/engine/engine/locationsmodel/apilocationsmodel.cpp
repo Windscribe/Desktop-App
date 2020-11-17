@@ -27,16 +27,15 @@ ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *s
     }
 }
 
-void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QMap<QString,QString> &windflixDnsHostnames)
+void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
 {
-    if (!isChanged(locations, staticIps, windflixDnsHostnames))
+    if (!isChanged(locations, staticIps))
     {
         return;
     }
 
     locations_ = locations;
     staticIps_ = staticIps;
-    windflixDnsHostnames_ = windflixDnsHostnames;
 
     whitelistIps();
 
@@ -71,7 +70,6 @@ void ApiLocationsModel::clear()
 {
     locations_.clear();
     staticIps_ = apiinfo::StaticIps();
-    windflixDnsHostnames_.clear();
     pingIpsController_.updateIps(QVector<PingIpInfo>());
     QSharedPointer<QVector<locationsmodel::LocationItem> > empty(new QVector<locationsmodel::LocationItem>());
     emit locationsUpdated(LocationID(), empty);
@@ -128,11 +126,15 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
                     }
 
                     // once API server list is updated so that the old WINDFLIX locations' dns_hostname matches that of the containing region this code can be removed
-                    QString dnsHostname =  l.getDnsHostName();
-                    if (windflixDnsHostnames_.find(group.getNick()) != windflixDnsHostnames_.end())
+                    QString dnsHostname;
+                    if (!group.getDnsHostName().isEmpty())
                     {
-                        dnsHostname = windflixDnsHostnames_[group.getNick()];
+                        dnsHostname = group.getDnsHostName();
                         qCDebug(LOG_BASIC) << "Overriding DNS hostname for old WINDFLIX location with: " << dnsHostname;
+                    }
+                    else
+                    {
+                        dnsHostname =  l.getDnsHostName();
                     }
 
                     int selectedNode = NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(nodes);
@@ -400,9 +402,9 @@ void ApiLocationsModel::whitelistIps()
     emit whitelistIpsChanged(ips);
 }
 
-bool ApiLocationsModel::isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QMap<QString, QString> &windflixDnsHostnames)
+bool ApiLocationsModel::isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
 {
-    return locations_ != locations || staticIps_ != staticIps || windflixDnsHostnames_ != windflixDnsHostnames;
+    return locations_ != locations || staticIps_ != staticIps;
 }
 
 

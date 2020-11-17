@@ -49,8 +49,6 @@ public:
     void saveToSettings();
     static void removeFromSettings();
 
-    const QMap<QString, QString> windflixDnsHostnames();
-
 private:
     void mergeWindflixLocations();
 
@@ -66,8 +64,6 @@ private:
 
     // for check thread id, access to the class must be from a single thread
     Qt::HANDLE threadId_;
-
-    QMap<QString, QString> windflixDnsHostnames_;
 };
 
 } //namespace apiinfo

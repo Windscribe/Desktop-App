@@ -55,6 +55,7 @@ void Group::initFromProtoBuf(const ProtoApiInfo::Group &g)
     d->pro_ = g.pro();
     d->pingIp_ = QString::fromStdString(g.ping_ip());
     d->wg_pubkey_ = QString::fromStdString(g.wg_pubkey());
+    d->dnsHostName_ = QString::fromStdString(g.dns_hostname());
 
     for (int i = 0; i < g.nodes_size(); ++i)
     {
@@ -77,6 +78,7 @@ ProtoApiInfo::Group Group::getProtoBuf() const
     group.set_pro(d->pro_);
     group.set_ping_ip(d->pingIp_.toStdString());
     group.set_wg_pubkey(d->wg_pubkey_.toStdString());
+    group.set_dns_hostname(d->dnsHostName_.toStdString());
     for (const Node &node : d->nodes_)
     {
         *group.add_nodes() = node.getProtoBuf();

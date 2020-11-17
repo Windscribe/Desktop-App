@@ -36,9 +36,9 @@ LocationsModel::~LocationsModel()
     pingThread_->wait();
 }
 
-void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps, const QMap<QString, QString> &windflixDnsHostnames)
+void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
 {
-    apiLocationsModel_->setLocations(locations, staticIps, windflixDnsHostnames);
+    apiLocationsModel_->setLocations(locations, staticIps);
 }
 
 void LocationsModel::setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig> > &customConfigs)

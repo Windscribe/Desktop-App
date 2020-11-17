@@ -20,6 +20,7 @@ message Group
   optional string ping_ip = 5;
   optional string wg_pubkey = 6;
   repeated Node nodes = 7;
+  optional string dns_hostname = 8; // if not empty this overrides dns_hostname from Location
 }
 
 message Location
