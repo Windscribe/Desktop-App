@@ -83,11 +83,13 @@ namespace KeyChainUtils
         OSStatus status = SecKeychainCopyDomainDefault(kSecPreferencesDomainUser, &keychain);
         if (status != errSecSuccess)
         {
+            qCDebug(LOG_IKEV2) << "createKeychainItem, SecKeychainCopyDomainDefault return:" << (int)status;
             return false;
         }
         status = SecKeychainUnlock(keychain, 0, NULL, FALSE);
         if (status != errSecSuccess)
         {
+            qCDebug(LOG_IKEV2) << "createKeychainItem, SecKeychainUnlock return:" << (int)status;
             CFRelease(keychain);
             return false;
         }
@@ -97,6 +99,7 @@ namespace KeyChainUtils
         status = SecAccessCreate(CFSTR("Windscribe IKEv2 SecAccess"), (__bridge CFArrayRef)(arrApps), &access);
         if(status != noErr)
         {
+            qCDebug(LOG_IKEV2) << "createKeychainItem, SecAccessCreate return:" << (int)status;
             releaseArrayApps(arrApps);
             CFRelease(keychain);
             return false;
@@ -115,6 +118,7 @@ namespace KeyChainUtils
         status = SecKeychainItemCreateFromContent(kSecGenericPasswordItemClass, &attributes, (int)strlen(password), password, keychain, access, &item);
         if (status != noErr)
         {
+            qCDebug(LOG_IKEV2) << "createKeychainItem, SecKeychainItemCreateFromContent return:" << (int)status;
             releaseArrayApps(arrApps);
             CFRelease(access);
             CFRelease(keychain);
@@ -137,7 +141,11 @@ namespace KeyChainUtils
         [searchDictionary setObject:(__bridge id)kSecMatchLimitAll forKey:(__bridge id)kSecMatchLimit];
         [searchDictionary setObject:@NO forKey:(__bridge id)kSecReturnRef];
 
-        SecItemDelete((__bridge CFDictionaryRef)searchDictionary);
+        OSStatus status = SecItemDelete((__bridge CFDictionaryRef)searchDictionary);
+        if (status != noErr)
+        {
+            qCDebug(LOG_IKEV2) << "removeKeychainItem, SecItemDelete return:" << (int)status;
+        }
         CFRelease(searchDictionary);
     }
 }
@@ -174,25 +182,12 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
     isPrevConnectionStatusInitialized_ = false;
     state_ = STATE_START_CONNECT;
 
-
-    // trying set keychain 3 times during 3 secs (because sometimes occurs error after sleep mode)
-    bool bKeyChainSuccess = false;
-    for (int i = 0; i < 3; ++i)
+    if (!setKeyChain(username, password))
     {
-        if (setKeyChain(username, password))
-        {
-            bKeyChainSuccess = true;
-            break;
-        }
-        QThread::msleep(1000);
-    }
-
-    if (!bKeyChainSuccess)
-    {
-        qCDebug(LOG_IKEV2) << "Can't set username/password in keychain";
         state_ = STATE_DISCONNECTED;
         emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
         mutexLocal.unlock();
+        return;
     }
 
     NEVPNManager *manager = [NEVPNManager sharedManager];
@@ -531,6 +526,7 @@ bool IKEv2Connection_mac::setKeyChain(const QString &username, const QString &pa
         KeyChainUtils::removeKeychainItem();
         if (!KeyChainUtils::createKeychainItem(username.toStdString().c_str(), password.toStdString().c_str()))
         {
+            qCDebug(LOG_IKEV2) << "Can't set username/password in keychain (KeyChainUtils part)";
             return false;
         }
     }
@@ -538,6 +534,7 @@ bool IKEv2Connection_mac::setKeyChain(const QString &username, const QString &pa
     {
         if (!helper_->setKeychainUsernamePassword(username, password))
         {
+            qCDebug(LOG_IKEV2) << "Can't set username/password in keychain (helper part)";
             return false;
         }
     }
