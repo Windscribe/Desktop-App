@@ -1,4 +1,5 @@
 #include "helper_mac.h"
+#include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include <QElapsedTimer>
 #include <QDir>
@@ -1067,6 +1068,7 @@ bool Helper_mac::setKeychainUsernamePasswordImpl(const QString &username, const 
 
 void Helper_mac::run()
 {
+    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
     io_service_.reset();
     reconnectElapsedTimer_.start();
     g_this_->socket_.reset(new boost::asio::local::stream_protocol::socket(io_service_));

@@ -25,6 +25,11 @@ QMAKE_CFLAGS_RELEASE -= -Zc:strictStrings
 QMAKE_CFLAGS -= -Zc:strictStrings
 QMAKE_CXXFLAGS -= -Zc:strictStrings
 
+# Generate debug information (symbol files) for Windows
+QMAKE_CXXFLAGS_RELEASE += /Zi
+QMAKE_CXXFLAGS += /Zi
+QMAKE_LFLAGS += /DEBUG
+
 # Windows 7 platform
 DEFINES += "WINVER=0x0601"
 DEFINES += "PIO_APC_ROUTINE_DEFINED"
@@ -54,6 +59,8 @@ SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
            engine/macaddresscontroller/macaddresscontroller_win.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_win.cpp \
            engine/networkdetectionmanager/networkchangeworkerthread.cpp \
+           $$COMMON_PATH/utils/crashdump.cpp \
+           $$COMMON_PATH/utils/crashhandler.cpp \
            $$COMMON_PATH/utils/winutils.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
            engine/connectionmanager/finishactiveconnections.cpp
@@ -83,6 +90,8 @@ HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
            engine/macaddresscontroller/macaddresscontroller_win.h \
            engine/networkdetectionmanager/networkdetectionmanager_win.h \
            engine/networkdetectionmanager/networkchangeworkerthread.h \
+           $$COMMON_PATH/utils/crashdump.h \
+           $$COMMON_PATH/utils/crashhandler.h \
            $$COMMON_PATH/utils/winutils.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
            engine/connectionmanager/finishactiveconnections.h

@@ -1,5 +1,6 @@
 #include "dnsresolver.h"
 #include "engine/hardcodedsettings.h"
+#include "utils/crashhandler.h"
 #include "utils/logger.h"
 
 #ifdef Q_OS_MAC
@@ -207,6 +208,7 @@ DnsResolver::~DnsResolver()
 
 void DnsResolver::run()
 {
+    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
     while (true)
     {
         QMutexLocker lockerWait(&mutexWait_);

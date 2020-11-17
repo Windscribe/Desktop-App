@@ -1,6 +1,7 @@
 #include "utils/boost_includes.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "helper_win.h"
+#include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include <QDir>
 #include <QCoreApplication>
@@ -833,6 +834,7 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
 
 void Helper_win::run()
 {
+    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
     schSCManager_ = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
     if (schSCManager_ == NULL)
     {

@@ -48,8 +48,15 @@ win32 {
 
     RC_FILE = gui.rc
 
+    # Generate debug information (symbol files) for Windows
+    QMAKE_CXXFLAGS_RELEASE += /Zi
+    QMAKE_CXXFLAGS += /Zi
+    QMAKE_LFLAGS += /DEBUG
+
 SOURCES += multipleaccountdetection/multipleaccountdetection_win.cpp \
            multipleaccountdetection/secretvalue_win.cpp \
+           $$COMMON_PATH/utils/crashdump.cpp \
+           $$COMMON_PATH/utils/crashhandler.cpp \
            $$COMMON_PATH/utils/winutils.cpp \
            $$COMMON_PATH/utils/widgetutils_win.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
@@ -61,6 +68,8 @@ SOURCES += multipleaccountdetection/multipleaccountdetection_win.cpp \
 
 HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
            multipleaccountdetection/secretvalue_win.h \
+           $$COMMON_PATH/utils/crashdump.h \
+           $$COMMON_PATH/utils/crashhandler.h \
            $$COMMON_PATH/utils/winutils.h \
            $$COMMON_PATH/utils/widgetutils_win.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \

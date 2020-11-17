@@ -12,22 +12,9 @@
 #ifdef Q_OS_WIN
     #include "application/preventmultipleinstances_win.h"
     #include "utils/scaleutils_win.h"
+    #include "utils/crashhandler.h"
 #else
     #include "utils/macutils.h"
-#endif
-
-
-#ifdef Q_OS_MAC
-    void handler_sigterm(int signum)
-    {
-        Q_UNUSED(signum);
-        qCDebug(LOG_BASIC) << "SIGTERM signal received";
-        /*if (g_MainWindow)
-        {
-            g_MainWindow->doClose(NULL, true);
-        }*/
-        exit(0);
-    }
 #endif
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
@@ -58,8 +45,12 @@ int main(int argc, char *argv[])
 
     qSetMessagePattern("[{gmt_time} %{time process}] [%{category}]\t %{message}");
 
+#if defined(ENABLE_CRASH_REPORTS)
+    Debug::CrashHandler::setModuleName("gui");
+    Debug::CrashHandler::instance().bindToProcess();
+#endif
+
 #ifdef Q_OS_MAC
-    signal(SIGTERM, handler_sigterm);
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 

@@ -625,6 +625,12 @@
     <ClCompile Include="engine\autoupdater\downloadhelper.cpp">
       <Filter>Engine Files\engine\autoupdater</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\common\utils\crashdump.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\crashhandler.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qconsolelistener.h">
@@ -1228,6 +1234,12 @@
     </ClInclude>
     <ClInclude Include="engine\autoupdater\autoupdaterhelper_mac.h">
       <Filter>Engine Files\engine\autoupdater</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\crashdump.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\crashhandler.h">
+      <Filter>Common Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

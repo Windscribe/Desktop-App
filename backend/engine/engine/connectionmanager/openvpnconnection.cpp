@@ -1,4 +1,5 @@
 #include "openvpnconnection.h"
+#include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/types/types.h"
@@ -62,7 +63,7 @@ void OpenVPNConnection::startDisconnect()
     }
 }
 
-bool OpenVPNConnection::isDisconnected()
+bool OpenVPNConnection::isDisconnected() const
 {
     return getCurrentState() == STATUS_DISCONNECTED;
 }
@@ -163,6 +164,7 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxy
 
 void OpenVPNConnection::run()
 {
+    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
     io_service_.reset();
     io_service_.post(boost::bind( &OpenVPNConnection::funcRunOpenVPN, this ));
     io_service_.run();

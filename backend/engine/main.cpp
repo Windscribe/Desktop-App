@@ -12,36 +12,11 @@
 #ifdef Q_OS_WIN
     #include "engine/taputils/tapinstall_win.h"
     #include "utils/installedantiviruses_win.h"
+    #include "utils/crashhandler.h"
 #elif defined Q_OS_MAC
     #include "utils/macutils.h"
     #include "engine/helper/installhelper_mac.h"
 #endif
-
-#ifdef Q_OS_MAC
-    void handler_sigterm(int /*signum*/)
-    {
-#if 0
-        qCDebug(LOG_BASIC) << "SIGTERM signal received";
-        if (g_MainWindow)
-        {
-            g_MainWindow->doClose(NULL, true);
-        }
-#endif
-        exit(0);
-    }
-#else
-    void handler_sigterm(int /*signum*/)
-    {
-        qCDebug(LOG_BASIC) << "SIGTERM signal receidved";
-    }
-
-LONG WINAPI crashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
-{
-    qCDebug(LOG_BASIC) << "SIGTERM signal received";
-    return EXCEPTION_EXECUTE_HANDLER;
-}
-#endif
-
 
 int main(int argc, char *argv[])
 {
@@ -53,14 +28,15 @@ int main(int argc, char *argv[])
         return hr;
     }
 #endif
+#if defined(ENABLE_CRASH_REPORTS)
+    Debug::CrashHandler::setModuleName("engine");
+    Debug::CrashHandler::instance().bindToProcess();
+#endif
 
     // clear Qt plugin library paths for release build
 #ifndef QT_DEBUG
     QCoreApplication::setLibraryPaths(QStringList());
 #endif
-
-    //::SetUnhandledExceptionFilter(crashHandler);
-    //signal(SIGINT, handler_sigterm);
 
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
 
@@ -73,13 +49,6 @@ int main(int argc, char *argv[])
 
     CurlInitController curlInitController;
     curlInitController.init();
-
-
-/*
-#ifdef Q_OS_MAC
-    signal(SIGTERM, handler_sigterm);
-#endif
-*/
 
     Logger::instance().install("engine", true);
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();

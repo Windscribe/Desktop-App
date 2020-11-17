@@ -284,7 +284,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
       <AdditionalLibraryDirectories>c:\libs\protobuf_release\lib;c:\libs\openssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreImportLibrary>true</IgnoreImportLibrary>
       <LinkIncremental>false</LinkIncremental>
       <OutputFile>$(OutDir)\Windscribe.exe</OutputFile>
@@ -351,7 +351,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
       <AdditionalLibraryDirectories>c:\libs\protobuf_release\lib;c:\libs\openssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreImportLibrary>true</IgnoreImportLibrary>
       <LinkIncremental>false</LinkIncremental>
       <OutputFile>$(OutDir)\Windscribe.exe</OutputFile>
@@ -395,6 +395,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
   <ItemGroup>
     <ClCompile Include="..\..\common\ipc\generated_proto\apiinfo.pb.cc" />
     <ClCompile Include="..\..\common\types\locationid.cpp" />
+    <ClCompile Include="..\..\common\utils\crashdump.cpp" />
+    <ClCompile Include="..\..\common\utils\crashhandler.cpp" />
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
     <ClCompile Include="commonwidgets\textbuttonwidget.cpp" />
@@ -634,6 +636,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <ClInclude Include="..\..\common\ipc\generated_proto\apiinfo.pb.h" />
     <ClInclude Include="..\..\common\types\locationid.h" />
+    <ClInclude Include="..\..\common\utils\crashdump.h" />
+    <ClInclude Include="..\..\common\utils\crashhandler.h" />
     <ClInclude Include="..\..\common\utils\networktypes.h" />
     <ClInclude Include="..\..\common\version\appversion.h" />
     <QtMoc Include="preferenceswindow\connectionwindow\automanualswitchitem.h">

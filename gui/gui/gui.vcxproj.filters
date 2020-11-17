@@ -823,6 +823,12 @@
     <ClCompile Include="utils\writeaccessrightschecker.cpp">
       <Filter>GUI Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\common\utils\crashdump.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\crashhandler.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -2441,6 +2447,12 @@
     </ClInclude>
     <ClInclude Include="overlaysconnectwindow\iupgradewindow.h">
       <Filter>GUI Files\overlaysconnectwindow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\crashdump.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\crashhandler.h">
+      <Filter>Common Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

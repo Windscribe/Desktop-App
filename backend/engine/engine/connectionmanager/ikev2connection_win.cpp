@@ -79,7 +79,7 @@ void IKEv2Connection_win::startDisconnect()
     }
 }
 
-bool IKEv2Connection_win::isDisconnected()
+bool IKEv2Connection_win::isDisconnected() const
 {
     QMutexLocker locker(&mutex_);
     return  state_ == STATE_DISCONNECTED;
