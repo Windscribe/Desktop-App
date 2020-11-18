@@ -198,15 +198,15 @@ bool CrashHandler::bindToProcess()
     oldProcessHandlers_->ipHandler = _set_invalid_parameter_handler(InvalidParameterHandler);
     oldProcessHandlers_->pureCallHandler = _set_purecall_handler(PureCallHandler);
     oldProcessHandlers_->newHandler = _set_new_handler(NewHandler);
-    return true;
+
+    // Install for the main thread as well.
+    return bindToThread();
 }
 
 void CrashHandler::unbindFromProcess()
 {
-    if (!oldProcessHandlers_) {
-        qCDebug(LOG_BASIC) << "CrashHandler::unbindFromProcess: handlers not installed for process";
+    if (!oldProcessHandlers_)
         return;
-    }
 
     // Restore old exception handlers.
     const auto *oh = oldProcessHandlers_.get();
@@ -254,11 +254,9 @@ void CrashHandler::unbindFromThread()
 
     QMutexLocker locker(&threadHandlerMutex_);
     auto it = oldThreadHandlers_.find(thread_id);
-    if (it == oldThreadHandlers_.end()) {
-        qCDebug(LOG_BASIC)
-            << "CrashHandler::unbindFromThread: handlers not installed for thread" << thread_id;
+    if (it == oldThreadHandlers_.end())
         return;
-    }
+
     // Restore old exception handlers.
     const auto *oh = it->second.get();
     if (oh) {
