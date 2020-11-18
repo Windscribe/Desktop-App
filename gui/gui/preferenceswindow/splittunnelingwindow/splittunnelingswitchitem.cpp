@@ -6,6 +6,10 @@
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
+#ifdef Q_OS_MAC
+#include "utils/macutils.h"
+#endif
+
 namespace PreferencesWindow {
 
 SplitTunnelingSwitchItem::SplitTunnelingSwitchItem(ScalableGraphicsObject *parent) : BaseItem(parent, 50*G_SCALE)
@@ -17,6 +21,7 @@ SplitTunnelingSwitchItem::SplitTunnelingSwitchItem(ScalableGraphicsObject *paren
     activeCheckBox_->setState(splitTunnelingActive);
     activeCheckBox_->setLineVisible(false);
     connect(activeCheckBox_, SIGNAL(stateChanged(bool)), SLOT(onActiveSwitchChanged(bool)));
+    connect(activeCheckBox_, SIGNAL(buttonHoverLeave()), SLOT(onActiveSwitchHoverLeave()));
 
     int modeHeight = 43;
     modeComboBox_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Mode"), "", modeHeight, FontManager::instance().getMidnightColor(), 24, true);
@@ -57,6 +62,12 @@ void SplitTunnelingSwitchItem::paint(QPainter *painter, const QStyleOptionGraphi
 
 void SplitTunnelingSwitchItem::setSettings(ProtoTypes::SplitTunnelingSettings settings)
 {
+#ifdef Q_OS_MAC
+    if (settings.active() && MacUtils::isOsVersionIsBigSur_or_greater()) {
+        settings.set_active(false);
+        emit settingsChanged(settings);
+    }
+#endif  // Q_OS_MAC
     settings_ = settings;
     updateActiveUI(settings.active());
     updateModeUI(settings.mode());
@@ -64,9 +75,42 @@ void SplitTunnelingSwitchItem::setSettings(ProtoTypes::SplitTunnelingSettings se
 
 void SplitTunnelingSwitchItem::onActiveSwitchChanged(bool checked)
 {
-    settings_.set_active(checked);
-    updateActiveUI(checked);
-    emit settingsChanged(settings_);
+#ifdef Q_OS_MAC
+    if (checked && MacUtils::isOsVersionIsBigSur_or_greater())
+    {
+        QGraphicsView *view = scene()->views().first();
+        QPoint globalPt = view->mapToGlobal(
+            view->mapFromScene(activeCheckBox_->getButtonScenePos()));
+
+        TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_SPLIT_ROUTING_UNSUPPORTED);
+        ti.x = globalPt.x() + 15 * G_SCALE;
+        ti.y = globalPt.y() - 4 * G_SCALE;
+        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+        ti.tailPosPercent = 0.95;
+        ti.title = tr("Unsupported");
+        ti.desc = tr("Sorry, Split Tunneling is currently not supported on your operating system."
+                     " We are working hard to enable the feature as soon as possible.");
+        ti.width = 260 * G_SCALE;
+        ti.delay = 100;
+
+        QTimer::singleShot(0, [this, ti]() { emit showTooltip(ti); });
+
+        activeCheckBox_->setState(false);
+        checked = false;
+    }
+#endif  // Q_OS_MAC
+    if (settings_.active() != checked) {
+        settings_.set_active(checked);
+        updateActiveUI(checked);
+        emit settingsChanged(settings_);
+    }
+}
+
+void SplitTunnelingSwitchItem::onActiveSwitchHoverLeave()
+{
+#ifdef Q_OS_MAC
+    emit hideTooltip(TOOLTIP_ID_SPLIT_ROUTING_UNSUPPORTED);
+#endif  // Q_OS_MAC
 }
 
 void SplitTunnelingSwitchItem::onExpandAnimationValueChanged(QVariant value)

@@ -694,6 +694,12 @@ bool MacUtils::isOsVersionIsCatalina_or_greater()
     return floor(NSAppKitVersionNumber) >= 1800;
 }
 
+bool MacUtils::isOsVersionIsBigSur_or_greater()
+{
+    // TODO: get exact NSAppKitVersionNumber for Big Sur; currently it is not known.
+    return floor(NSAppKitVersionNumber) >= 2000;
+}
+
 const ProtoTypes::NetworkInterface MacUtils::currentNetworkInterface()
 {
     QString ifname = currentNetworkHwInterfaceName();
