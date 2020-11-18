@@ -41,6 +41,11 @@ win32{
     HEADERS += \
             $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
             $$COMMON_PATH/utils/winutils.cpp
+
+    # Generate debug information (symbol files) for Windows
+    QMAKE_CXXFLAGS_RELEASE += /Zi
+    QMAKE_CXXFLAGS += /Zi
+    QMAKE_LFLAGS += /DEBUG
 }
 
 macx {

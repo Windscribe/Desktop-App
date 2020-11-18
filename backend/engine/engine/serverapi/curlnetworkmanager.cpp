@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <openssl/ssl.h>
+#include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include <QStandardPaths>
 
@@ -147,6 +148,7 @@ void CurlNetworkManager::run()
     CURLM *multi_handle = curl_multi_init();
     int still_running = 0;
     QMap<CURL *, CurlRequest *> map;
+    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
 
 #ifdef MAKE_CURL_LOG_FILE
     logFile_ = fopen(logFilePath_.toStdString().c_str(), "w+");

@@ -91,7 +91,7 @@ void IKEv2Connection_test::startDisconnect()
     }
 }
 
-bool IKEv2Connection_test::isDisconnected()
+bool IKEv2Connection_test::isDisconnected() const
 {
     return !isConnected_;
 }

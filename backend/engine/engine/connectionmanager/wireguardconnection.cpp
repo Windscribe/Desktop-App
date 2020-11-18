@@ -1,4 +1,5 @@
 #include "wireguardconnection.h"
+#include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/helper/ihelper.h"
@@ -151,7 +152,7 @@ void WireGuardConnection::startDisconnect()
     do_stop_thread_ = true;
 }
 
-bool WireGuardConnection::isDisconnected()
+bool WireGuardConnection::isDisconnected() const
 {
     return getCurrentState() == ConnectionState::DISCONNECTED;
 }
@@ -175,6 +176,7 @@ void WireGuardConnection::run()
     bool is_configured = false;
     bool is_connected = false;
 
+    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
     for (pimpl_->connect();;) {
         if (do_stop_thread_) {
             pimpl_->disconnect();

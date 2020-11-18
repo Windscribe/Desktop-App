@@ -22,7 +22,7 @@ public:
                               const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression,
                               bool isAutomaticConnectionMode) = 0;
     virtual void startDisconnect() = 0;
-    virtual bool isDisconnected() = 0;
+    virtual bool isDisconnected() const = 0;
     virtual QString getConnectedTapTunAdapterName() = 0;
 
     virtual void continueWithUsernameAndPassword(const QString &username, const QString &password) = 0;

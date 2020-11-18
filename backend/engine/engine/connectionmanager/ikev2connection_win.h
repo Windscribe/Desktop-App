@@ -24,7 +24,7 @@ public:
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const ProxySettings &proxySettings,
                       const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
     void startDisconnect() override;
-    bool isDisconnected() override;
+    bool isDisconnected() const override;
 
     QString getConnectedTapTunAdapterName() override;
 
@@ -62,7 +62,7 @@ private:
     static constexpr int CONTROL_TIMER_PERIOD = 1000;
     QMap<RASCONNSTATE, QString> mapConnStates_;
 
-    QMutex mutex_;
+    mutable QMutex mutex_;
 
     IKEv2ConnectionDisconnectLogic_win disconnectLogic_;
 

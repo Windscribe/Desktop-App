@@ -1,4 +1,5 @@
 #include "networkchangeworkerthread.h"
+#include "utils/crashhandler.h"
 
 #include <WinSock2.h>
 #include <iphlpapi.h>
@@ -24,6 +25,8 @@ void NetworkChangeWorkerThread::earlyExit()
 
 void NetworkChangeWorkerThread::run()
 {
+    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
+
     HANDLE hEvents[3];
 
     HANDLE hand1 = NULL;

@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QApplication>
 #include <QScreen>
+#include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
 #include "utils/widgetutils.h"
@@ -127,6 +128,7 @@ IndependentPixmap *ImageResourcesSvg::getScaledFlag(const QString &flagName, int
 
 void ImageResourcesSvg::run()
 {
+    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
     QDirIterator it(":/svg", QDirIterator::Subdirectories);
     while (!bNeedFinish_ && it.hasNext())
     {

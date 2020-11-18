@@ -23,7 +23,7 @@ public:
                       const QString &username, const QString &password, const ProxySettings &proxySettings,
                       const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
     void startDisconnect() override;
-    bool isDisconnected() override;
+    bool isDisconnected() const override;
 
     QString getConnectedTapTunAdapterName() override;
 

@@ -20,7 +20,7 @@ public:
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const ProxySettings &proxySettings,
                       const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
     void startDisconnect() override;
-    bool isDisconnected() override;
+    bool isDisconnected() const override;
 
     static void removeIkev2ConnectionFromOS();
 
