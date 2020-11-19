@@ -2195,7 +2195,7 @@ void MainWindow::activateAndShow()
 #endif
 
     mainWindowController_->updateMainAndViewGeometry(true);
-    if (!isVisible())
+    if (!isVisible() || isMinimized())
         showNormal();
     if (!isActiveWindow())
         activateWindow();
