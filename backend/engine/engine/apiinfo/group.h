@@ -22,6 +22,7 @@ public:
           nick_(other.nick_),
           pro_(other.pro_),
           pingIp_(other.pingIp_),
+          wg_pubkey_(other.wg_pubkey_),
           nodes_(other.nodes_),
           isValid_(other.isValid_) {}
     ~GroupData() {}
