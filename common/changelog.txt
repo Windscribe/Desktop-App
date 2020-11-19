@@ -1,9 +1,19 @@
+2.0.36 (20/11/2020)
+* Keychain crash on Mac - fixed.
+* Credentials refetch bug - fixed.
+* Crash minidump added on Windows.
+* Possible GUI crashes - fixed.
+* Prevent SplitTunneling from being enabled on BigSur.
+* Connection problem for WINDFLIX locations - fixed.
+* Removed minimize button in docked mode on Mac.
+* Added the protection of socket helper Mac from vulnerabilities.
+* Tray icon bring to front fixed.
+
 2.0.35 (09/10/2020)
 * OVPN custom configs permission issue - fixed.
 * WireGuard takes too long to connect with firewall enabled - fixed.
 * Sometimes program hangs in connecting/disconnecting states - fixes made, but still need to test.
 * "Failed set password to keychain" error on Mac after sleep mode - fixes made, but still need to test.
-
 
 2.0.34 (04/10/2020)
 * Security fixes for custom configs and advanced parameters.
