@@ -37,6 +37,7 @@ signals:
 
 private slots:
     void onActiveSwitchChanged(bool checked);
+    void onActiveSwitchHoverLeave();
     void onExpandAnimationValueChanged(QVariant value);
     void onCurrentModeChanged(QVariant value);
     void onModeInfoHoverEnter();
