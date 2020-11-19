@@ -1715,7 +1715,7 @@ void Engine::onConnectionManagerError(CONNECTION_ERROR err)
                 serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 
                 refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
-                connect(refetchServerCredentialsHelper_, SIGNAL(finished(bool,ServerCredentials)), SLOT(onRefetchServerCredentialsFinished(bool,ServerCredentials)));
+                connect(refetchServerCredentialsHelper_, SIGNAL(finished(bool,apiinfo::ServerCredentials)), SLOT(onRefetchServerCredentialsFinished(bool,apiinfo::ServerCredentials)));
                 refetchServerCredentialsHelper_->setProperty("fromAuthError", true);
                 refetchServerCredentialsHelper_->startRefetch();
             }
