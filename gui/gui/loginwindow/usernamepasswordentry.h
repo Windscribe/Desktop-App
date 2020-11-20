@@ -21,10 +21,10 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    bool isActive();
+    bool isActive() const;
     void clearActiveState();
 
-    QString getText();
+    QString getText() const;
 
     void setError(bool error);
 
@@ -48,17 +48,12 @@ protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
 
-private slots:
-    void onDescriptionPosYChanged(const QVariant &value);
-
 private:
     QGraphicsProxyWidget *userEntryProxy_;
     CustomMenuLineEdit *userEntryLine_;
     const QString userEntryLineAddSS_;
 
-    int curDescriptionPosY_;
     QString descriptionText_;
-    QVariantAnimation descriptionPosYAnimation_;
 
     int height_;
     int width_;
@@ -68,9 +63,7 @@ private:
     double curDescriptionOpacity_;
     double curLineEditOpacity_;
 
-    static constexpr int DESCRIPTION_POS_CLICKED   = 0;
-    static constexpr int DESCRIPTION_POS_UNCLICKED = 16;
-    static constexpr int DESCRIPTION_TEXT_HEIGHT   = 16;
+    static constexpr int DESCRIPTION_TEXT_HEIGHT = 16;
 };
 
 }
