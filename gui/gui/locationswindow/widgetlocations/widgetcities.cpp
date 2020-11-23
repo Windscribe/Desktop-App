@@ -1167,6 +1167,7 @@ void WidgetCities::clearItems()
         delete item;
     }
     items_.clear();
+    currentVisibleItems_.clear();
 }
 
 double WidgetCities::calcScrollingSpeed(double scrollItemsCount)

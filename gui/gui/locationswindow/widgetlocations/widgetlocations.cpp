@@ -29,7 +29,6 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QAbstractScrollArea(parent),
     bestLocationName_(""),
     isScrollAnimationNow_(false),
     currentScale_(G_SCALE),
-    //toolTipRender_(NULL),
     bMouseInViewport_(false),
     bExpanded_(false),
     bShowLatencyInMs_(false),
@@ -87,8 +86,6 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QAbstractScrollArea(parent),
     easingCurve_.setType(QEasingCurve::Linear);
     cursorUpdateHelper_.reset(new CursorUpdateHelper(viewport()));
 
-    ///toolTipRender_ = new ToolTipRender("", QPoint(0, 0));
-
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
     setupScrollBar();
 }
@@ -96,10 +93,6 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QAbstractScrollArea(parent),
 WidgetLocations::~WidgetLocations()
 {
     clearItems();
-    /*if (toolTipRender_)
-    {
-        delete toolTipRender_;
-    }*/
 }
 
 bool WidgetLocations::cursorInViewport()
@@ -1255,6 +1248,7 @@ void WidgetLocations::clearItems()
         delete item;
     }
     items_.clear();
+    currentVisibleItems_.clear();
 }
 
 double WidgetLocations::calcScrollingSpeed(double scrollItemsCount)
