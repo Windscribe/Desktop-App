@@ -397,11 +397,18 @@ void ServerAPI::setHostname(const QString &hostname)
     hostname_ = hostname;
 }
 
-void ServerAPI::submitDnsRequest(BaseRequest *request)
+void ServerAPI::submitDnsRequest(BaseRequest *request, const QString &forceHostname)
 {
     if (request && request->isActive()) {
         request->setWaitingHandlerType(BaseRequest::HandlerType::DNS);
-        dnsCache_->resolve(hostname_, request->getDnsCachingTimeout(), request);
+        if (forceHostname.isEmpty())
+        {
+            dnsCache_->resolve(hostname_, request->getDnsCachingTimeout(), request);
+        }
+        else
+        {
+            dnsCache_->resolve(forceHostname, request->getDnsCachingTimeout(), request);
+        }
     }
 }
 
@@ -789,7 +796,7 @@ void ServerAPI::staticIps(const QString &authHash, const QString &deviceId, uint
         authHash, deviceId, hostname_, REPLY_STATIC_IPS, NETWORK_TIMEOUT, userRole));
 }
 
-void ServerAPI::pingTest(quint64 cmdId, int testNum)
+void ServerAPI::pingTest(quint64 cmdId, uint timeout)
 {
     if (!bIsOnline_)
     {
@@ -800,15 +807,11 @@ void ServerAPI::pingTest(quint64 cmdId, int testNum)
 
     const QString kCheckIpHostname = "checkip.windscribe.com";
 
-    uint timeout = PING_TEST_TIMEOUT_1;
-    if (testNum == 2) timeout = PING_TEST_TIMEOUT_2;
-    else if (testNum == 3) timeout = PING_TEST_TIMEOUT_3;
-
     qCDebug(LOG_SERVER_API) << "Do ping test to:" << kCheckIpHostname << " with timeout: "
                             << timeout;
 
     submitDnsRequest(createRequest<PingRequest>(
-        cmdId, kCheckIpHostname, REPLY_PING_TEST, timeout, 0));
+        cmdId, kCheckIpHostname, REPLY_PING_TEST, timeout, 0), kCheckIpHostname);
 }
 
 void ServerAPI::cancelPingTest(quint64 cmdId)

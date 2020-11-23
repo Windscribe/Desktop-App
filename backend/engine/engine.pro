@@ -307,7 +307,6 @@ SOURCES += main.cpp \
     engine/connectionmanager/makeovpnfile.cpp \
     engine/connectionmanager/stunnelmanager.cpp \
     engine/connectionmanager/testvpntunnel.cpp \
-    engine/connectionmanager/testvpntunnelhelper.cpp \
     engine/connectionmanager/openvpnconnection.cpp \
     engine/connectionmanager/connsettingspolicy/autoconnsettingspolicy.cpp \
     engine/connectionmanager/connsettingspolicy/manualconnsettingspolicy.cpp \
@@ -447,7 +446,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/connectionmanager/testvpntunnel.h \
     engine/types/dnsresolutionsettings.h \
     engine/connectionmanager/iconnection.h \
-    engine/connectionmanager/testvpntunnelhelper.h \
     engine/connectionmanager/openvpnconnection.h \
     engine/connectionmanager/isleepevents.h \
     engine/connectionmanager/wireguardconnection.h \

@@ -60,7 +60,7 @@ public:
 
     void staticIps(const QString &authHash, const QString &deviceId, uint userRole, bool isNeedCheckRequestsEnabled);
 
-    void pingTest(quint64 cmdId, int testNum);
+    void pingTest(quint64 cmdId, uint timeout);
     void cancelPingTest(quint64 cmdId);
 
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
@@ -103,9 +103,6 @@ private:
     using HandleCurlReplyFunc = void (ServerAPI::*)(BaseRequest*, bool);
 
     enum {
-        PING_TEST_TIMEOUT_1 = 2000,
-        PING_TEST_TIMEOUT_2 = 4000,
-        PING_TEST_TIMEOUT_3 = 8000,
         GET_MY_IP_TIMEOUT = 5000,
         NETWORK_TIMEOUT = 10000,
     };
@@ -138,7 +135,7 @@ private:
             activeRequests_.append(request);
         return request;
     }
-    void submitDnsRequest(BaseRequest *request);
+    void submitDnsRequest(BaseRequest *request, const QString &forceHostname = QString());
     void submitCurlRequest(BaseRequest *request, CurlRequest::MethodType type,
                            const QString &contentTypeHeader, const QString &hostname,
                            const QStringList &ips);

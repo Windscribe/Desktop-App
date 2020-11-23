@@ -1,21 +1,13 @@
 #include "testvpntunnel.h"
 #include "engine/serverapi/serverapi.h"
-#include "testvpntunnelhelper.h"
 #include "utils/logger.h"
+#include "utils/ipvalidation.h"
 
-
-TestVPNTunnel::TestVPNTunnel(QObject *parent, ServerAPI *serverAPI) : QObject(parent), bRunning_(false), testVPNTunnelHelper_(NULL),
-    serverAPI_(serverAPI)
+TestVPNTunnel::TestVPNTunnel(QObject *parent, ServerAPI *serverAPI) : QObject(parent),
+    serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0)
 {
-    startTestTimer_.setInterval(500);
-    startTestTimer_.setSingleShot(true);
-    connect(&startTestTimer_, SIGNAL(timeout()), SLOT(onStartTestTimerTick()));
-}
-
-TestVPNTunnel::~TestVPNTunnel()
-{
-    startTestTimer_.stop();
-    deleteTestVpnTunnelHelper();
+    timeouts_ << PING_TEST_TIMEOUT_1 << PING_TEST_TIMEOUT_2 << PING_TEST_TIMEOUT_3;
+    connect(serverAPI_, SIGNAL(pingTestAnswer(SERVER_API_RET_CODE,QString)), SLOT(onPingTestAnswer(SERVER_API_RET_CODE,QString)), Qt::QueuedConnection);
 }
 
 void TestVPNTunnel::startTests()
@@ -25,83 +17,63 @@ void TestVPNTunnel::startTests()
     if (bRunning_)
     {
         qCDebug(LOG_CONNECTION) << "tests already running, stop previous";
-        startTestTimer_.stop();
-        deleteTestVpnTunnelHelper();
+        serverAPI_->cancelPingTest(cmdId_);
+        bRunning_ = false;
     }
 
+    // start first test
+    qCDebug(LOG_CONNECTION) << "Doing tunnel test 1";
     bRunning_ = true;
-    startTestTimer_.start();
+    curTest_ = 1;
+    elapsed_.start();
+    cmdId_++;
+    serverAPI_->pingTest(cmdId_, timeouts_[curTest_ - 1]);
 }
 
 void TestVPNTunnel::stopTests()
 {
     if (bRunning_)
     {
-        qCDebug(LOG_CONNECTION) << "TestVPNTunnel::stopTests()";
-        startTestTimer_.stop();
-        deleteTestVpnTunnelHelper();
+        qCDebug(LOG_CONNECTION) << "Tunnel tests stopped";
         bRunning_ = false;
+        serverAPI_->cancelPingTest(cmdId_);
     }
 }
 
-void TestVPNTunnel::onHelperTestsFinished(bool bSuccess, int testNum, const QString & ipAddress)
+void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data)
 {
-    if (!bRunning_)
+    if (bRunning_)
     {
-        return;
-    }
-
-    startTestTimer_.stop();
-    if (bSuccess)
-    {
-        stopTests();
-        emit testsFinished(true, ipAddress);
-    }
-    else
-    {
-        if (testNum == 1)
+        const QString trimmedData = data.trimmed();
+        if (retCode == SERVER_RETURN_SUCCESS && IpValidation::instance().isIp(trimmedData))
         {
-            // do second test
-            qCDebug(LOG_CONNECTION) << "First test tunnel failed";
-            deleteTestVpnTunnelHelper();
-            startHelperTest(TIMER_JOB_TEST2);
-        }
-        else if (testNum == 2)
-        {
-            // do third test
-            qCDebug(LOG_CONNECTION) << "Second test tunnel failed";
-            deleteTestVpnTunnelHelper();
-            startHelperTest(TIMER_JOB_TEST3);
+            qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData;
+            bRunning_ = false;
+            emit testsFinished(true, trimmedData);
         }
         else
         {
-            qCDebug(LOG_CONNECTION) << "Third test tunnel failed";
-            stopTests();
-            emit testsFinished(false,"");
+            if (elapsed_.elapsed() < timeouts_[curTest_-1])
+            {
+                cmdId_++;
+                serverAPI_->pingTest(cmdId_, timeouts_[curTest_-1] - elapsed_.elapsed());
+            }
+            else
+            {
+                qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "failed";
+
+                if (curTest_ < 3)
+                {
+                    curTest_++;
+                    elapsed_.start();
+                    cmdId_++;
+                    serverAPI_->pingTest(cmdId_, timeouts_[curTest_ - 1]);
+                }
+                else
+                {
+                    emit testsFinished(false, "");
+                }
+            }
         }
-    }
-}
-
-void TestVPNTunnel::onStartTestTimerTick()
-{
-    startHelperTest(TIMER_JOB_TEST1);
-}
-
-void TestVPNTunnel::startHelperTest(int testNum)
-{
-    Q_ASSERT(testVPNTunnelHelper_ == NULL);
-    testVPNTunnelHelper_ = new TestVPNTunnelHelper(this, serverAPI_);
-    connect(testVPNTunnelHelper_, SIGNAL(testsFinished(bool, int, QString)), SLOT(onHelperTestsFinished(bool, int, QString)));
-    testVPNTunnelHelper_->startTests(testNum);
-}
-
-void TestVPNTunnel::deleteTestVpnTunnelHelper()
-{
-    if (testVPNTunnelHelper_)
-    {
-        testVPNTunnelHelper_->disconnect(this);
-        testVPNTunnelHelper_->stopTests();
-        testVPNTunnelHelper_->deleteLater();
-        testVPNTunnelHelper_ = NULL;
     }
 }

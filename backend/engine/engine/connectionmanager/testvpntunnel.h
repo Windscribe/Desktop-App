@@ -1,11 +1,13 @@
 #ifndef TESTVPNTUNNEL_H
 #define TESTVPNTUNNEL_H
 
+#include <QElapsedTimer>
 #include <QObject>
 #include <QTimer>
+#include <QVector>
+#include "engine/types/types.h"
 
 class ServerAPI;
-class TestVPNTunnelHelper;
 
 // do set of tests after VPN tunnel is established
 class TestVPNTunnel : public QObject
@@ -13,7 +15,6 @@ class TestVPNTunnel : public QObject
     Q_OBJECT
 public:
     explicit TestVPNTunnel(QObject *parent, ServerAPI *serverAPI);
-    virtual ~TestVPNTunnel();
 
 public slots:
     void startTests();
@@ -23,18 +24,21 @@ signals:
     void testsFinished(bool bSuccess, const QString &ipAddress);
 
 private slots:
-    void onHelperTestsFinished(bool bSuccess, int testNum, const QString &ipAddress);
-    void onStartTestTimerTick();
+    void onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
 
 private:
-    bool bRunning_;
-    TestVPNTunnelHelper *testVPNTunnelHelper_;
     ServerAPI *serverAPI_;
-    enum {TIMER_JOB_TEST1 = 1, TIMER_JOB_TEST2, TIMER_JOB_TEST3};
+    bool bRunning_;
+    int curTest_;
+    quint64 cmdId_;
+    QElapsedTimer elapsed_;
 
-    void deleteTestVpnTunnelHelper();
-    void startHelperTest(int testNum);
-    QTimer startTestTimer_;
+    enum {
+           PING_TEST_TIMEOUT_1 = 2000,
+           PING_TEST_TIMEOUT_2 = 4000,
+           PING_TEST_TIMEOUT_3 = 8000,
+       };
+    QVector<uint> timeouts_;
 };
 
 #endif // TESTVPNTUNNEL_H
