@@ -16,7 +16,7 @@ public:
     void detectDefaultRoute();
 
     // need call after connection established
-    void detectInfoFromOpenVpnScript();
+    void detectInfoFromDnsScript();
     void setVpnAdapterName(const QString &vpnName);
     void setIkev2DnsServers(const QStringList &dnsList);
     void setConnectedIp(const QString &ip);

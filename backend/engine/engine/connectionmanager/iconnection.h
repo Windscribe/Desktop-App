@@ -8,6 +8,8 @@
 class IHelper;
 class WireGuardConfig;
 
+enum class ConnectionType { IKEV2, OPENVPN, WIREGUARD };
+
 class IConnection : public QThread
 {
     Q_OBJECT
@@ -24,6 +26,7 @@ public:
     virtual void startDisconnect() = 0;
     virtual bool isDisconnected() const = 0;
     virtual QString getConnectedTapTunAdapterName() = 0;
+    virtual ConnectionType getConnectionType() const = 0;
 
     virtual void continueWithUsernameAndPassword(const QString &username, const QString &password) = 0;
     virtual void continueWithPassword(const QString &password) = 0;

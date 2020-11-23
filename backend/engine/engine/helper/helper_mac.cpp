@@ -929,6 +929,7 @@ bool Helper_mac::configureWireGuard(const WireGuardConfig &config)
         QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex().data();
     cmd.clientIpAddress = config.clientIpAddress().toLatin1().data();
     cmd.clientDnsAddressList = config.clientDnsAddress().toLatin1().data();
+    cmd.clientDnsScriptName = TempScripts_mac::instance().dnsScriptPath().toLatin1().data();
     cmd.peerEndpoint = config.peerEndpoint().toLatin1().data();
     cmd.peerPublicKey = QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex().data();
     cmd.peerPresharedKey

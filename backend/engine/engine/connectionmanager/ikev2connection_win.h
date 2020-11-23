@@ -27,6 +27,7 @@ public:
     bool isDisconnected() const override;
 
     QString getConnectedTapTunAdapterName() override;
+    ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }
 
     static void removeIkev2ConnectionFromOS();
     static QVector<HRASCONN> getActiveWindscribeConnections();

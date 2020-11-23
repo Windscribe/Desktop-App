@@ -24,7 +24,7 @@ void SplitTunnelingNetworkInfo::detectDefaultRoute()
 #endif
 }
 
-void SplitTunnelingNetworkInfo::detectInfoFromOpenVpnScript()
+void SplitTunnelingNetworkInfo::detectInfoFromDnsScript()
 {
     dnsServers_.clear();
     // dns servers written by script dns.sh to file $TMPDIR/windscribe_dns.aaa
@@ -62,20 +62,20 @@ void SplitTunnelingNetworkInfo::detectInfoFromOpenVpnScript()
                 }
                 else
                 {
-                    qCDebug(LOG_BASIC) << "SplitTunnelingNetworkInfo_mac::detectInfoFromOpenVpnScript, error, unknown field name:" << line;
+                    qCDebug(LOG_BASIC) << "SplitTunnelingNetworkInfo_mac::detectInfoFromDnsScript, error, unknown field name:" << line;
                     Q_ASSERT(false);
                 }
             }
             else
             {
-                qCDebug(LOG_BASIC) << "SplitTunnelingNetworkInfo_mac::detectInfoFromOpenVpnScript, error, can't parse line:" << line;
+                qCDebug(LOG_BASIC) << "SplitTunnelingNetworkInfo_mac::detectInfoFromDnsScript, error, can't parse line:" << line;
                 Q_ASSERT(false);
             }
         }
     }
     else
     {
-        qCDebug(LOG_BASIC) << "SplitTunnelingNetworkInfo_mac::detectInfoFromOpenVpnScript, error, can't open file:" << strTempFileWithDns;
+        qCDebug(LOG_BASIC) << "SplitTunnelingNetworkInfo_mac::detectInfoFromDnsScript, error, can't open file:" << strTempFileWithDns;
     }
 }
 

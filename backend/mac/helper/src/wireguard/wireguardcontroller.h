@@ -18,7 +18,7 @@ public:
     void reset();
 
     bool configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList,
-        const std::vector<std::string> &allowedIps);
+        const std::string &dnsScriptName, const std::vector<std::string> &allowedIps);
     const std::string getAdapterName() const;
     bool configureDefaultRouteMonitor(const std::string &peerEndpoint);
     bool configureDaemon(const std::string &clientPrivateKey, const std::string &peerPublicKey,

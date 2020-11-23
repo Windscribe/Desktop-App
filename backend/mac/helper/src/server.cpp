@@ -212,6 +212,7 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                 }
                 if (!wireGuardController_.configureAdapter(cmd.clientIpAddress,
                                                            cmd.clientDnsAddressList,
+                                                           cmd.clientDnsScriptName,
                                                            allowed_ips_vector)) {
                     LOG("WireGuard: configureAdapter() failed");
                     break;

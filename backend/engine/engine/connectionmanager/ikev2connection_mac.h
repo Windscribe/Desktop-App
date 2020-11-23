@@ -20,6 +20,7 @@ public:
     void startDisconnect() override;
     bool isDisconnected() const override;
     QString getConnectedTapTunAdapterName() override;
+    ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }
 
     void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
     void continueWithPassword(const QString &password) override;

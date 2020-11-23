@@ -26,6 +26,7 @@ public:
     bool isDisconnected() const override;
 
     QString getConnectedTapTunAdapterName() override;
+    ConnectionType getConnectionType() const override { return ConnectionType::OPENVPN; }
 
     void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
     void continueWithPassword(const QString &password) override;
