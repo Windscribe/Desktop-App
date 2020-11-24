@@ -908,7 +908,9 @@ void MainWindowController::gotoLoginWindow()
             revealLoginOpacitySeq->deleteLater();
             loginOpacityAnim->deleteLater();
             initHeightAnim->deleteLater();
-            updateMainAndViewGeometry(true);
+            QTimer::singleShot(0, this, [&]() {
+                updateMainAndViewGeometry(true);
+            });
         });
 
         isAtomicAnimationActive_ = true;
