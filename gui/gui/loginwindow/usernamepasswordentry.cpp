@@ -13,12 +13,10 @@ namespace LoginWindow {
 UsernamePasswordEntry::UsernamePasswordEntry(QString descriptionText, bool password, ScalableGraphicsObject *parent)
     : ClickableGraphicsObject(parent),
       userEntryLineAddSS_("padding-left: 8px; background: #0cffffff; border-radius: 3px;"),
-      curDescriptionPosY_(DESCRIPTION_POS_CLICKED), descriptionText_(descriptionText), height_(50),
+      descriptionText_(descriptionText), height_(50),
       width_(WINDOW_WIDTH), active_(false), curDescriptionOpacity_(OPACITY_HIDDEN),
       curLineEditOpacity_(OPACITY_HIDDEN)
 {
-    connect(&descriptionPosYAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onDescriptionPosYChanged(QVariant)));
-
     userEntryLine_ = new CustomMenuLineEdit();
 
     QString ss = userEntryLineAddSS_ + " color: white";
@@ -65,19 +63,19 @@ void UsernamePasswordEntry::paint(QPainter *painter, const QStyleOptionGraphicsI
         painter->translate(0, DESCRIPTION_TEXT_HEIGHT / 2 * G_SCALE);
         painter->setFont(*FontManager::instance().getFont(12, true));
         painter->setOpacity(curDescriptionOpacity_ * initOpacity);
-        painter->drawText(WINDOW_MARGIN*G_SCALE, curDescriptionPosY_, tr(descriptionText_.toStdString().c_str()));
+        painter->drawText(WINDOW_MARGIN*G_SCALE, 0, tr(descriptionText_.toStdString().c_str()));
         painter->restore();
     }
 
     userEntryProxy_->setOpacity(curLineEditOpacity_ * initOpacity);
 }
 
-bool UsernamePasswordEntry::isActive()
+bool UsernamePasswordEntry::isActive() const
 {
     return active_;
 }
 
-QString UsernamePasswordEntry::getText()
+QString UsernamePasswordEntry::getText() const
 {
     return userEntryLine_->text();
 }
@@ -178,36 +176,17 @@ void UsernamePasswordEntry::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
     }
 }
 
-void UsernamePasswordEntry::onDescriptionPosYChanged(const QVariant &value)
-{
-    curDescriptionPosY_ = value.toInt();
-
-    update();
-}
-
 void UsernamePasswordEntry::clearActiveState()
 {
-    startAnAnimation<double>(descriptionPosYAnimation_, curDescriptionPosY_, DESCRIPTION_POS_UNCLICKED, ANIMATION_SPEED_FAST);
-
     setError(false);
-    userEntryProxy_->setVisible(false);
     userEntryLine_->setText("");
-
     active_ = false;
 }
 
 void UsernamePasswordEntry::activate()
 {
     active_ = true;
-
-    startAnAnimation<double>(descriptionPosYAnimation_, curDescriptionPosY_, DESCRIPTION_POS_CLICKED, ANIMATION_SPEED_FAST);
-
     setCursor(Qt::ArrowCursor);
-
-    userEntryProxy_->setVisible(true);
-
-    //userEntryLine_->setFocus();
-
     emit activated();
 }
 
