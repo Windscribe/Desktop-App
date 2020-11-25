@@ -126,6 +126,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
             SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
 
     locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
     connect(locationsWindow_, SIGNAL(selected(LocationID)), SLOT(onLocationSelected(LocationID)));
@@ -1735,21 +1736,28 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
 {
     if (!isLoginOkAndConnectWindowVisible_)
     {
-        // choose latest location
+        // Choose latest location if it's a custom config location; first valid custom config
+        // location otherwise.
         LocationsModel::LocationInfo li;
-        //LocationID lid(PersistentState::instance().state.lastlocation().location_id(), QString::fromStdString(PersistentState::instance().state.lastlocation().city()));
-        if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+        const LocationID lastLocation{PersistentState::instance().lastLocation()};
+        if (lastLocation.isCustomConfigsLocation() &&
+            backend_->getLocationsModel()->getLocationInfo(lastLocation, li))
         {
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(
+                li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
         else
         {
-            /*LocationID bestLocation(LocationID::BEST_LOCATION_ID);
-            if (backend_->getLocationsModel()->getLocationInfo(bestLocation, li))
+            const LocationID bestLocation{
+                backend_->getLocationsModel()->getFirstValidCustomConfigLocationId()};
+            if (bestLocation.isValid() &&
+                backend_->getLocationsModel()->getLocationInfo(bestLocation, li))
             {
                 PersistentState::instance().setLastLocation(bestLocation);
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
-            }*/
+            }
+            // |li| can be empty here, so this will reset current location.
+            mainWindowController_->getConnectWindow()->updateLocationInfo(
+                li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
 
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
@@ -2013,6 +2021,19 @@ void MainWindow::onBackendEngineCrash()
     mainWindowController_->getInitWindow()->setAdditionalMessage(tr("Lost connection to the backend process.\nRecovering..."));
     mainWindowController_->getInitWindow()->setCropHeight(0); // Needed so that Init screen is correct height when engine fails from connect window
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
+}
+
+void MainWindow::onBackendLocationsUpdated()
+{
+    const auto currentLocation{ PersistentState::instance().lastLocation() };
+    if (!currentLocation.isCustomConfigsLocation())
+        return;
+
+    // Update custom config location info, because user could have selected another config path.
+    LocationsModel::LocationInfo li;
+    backend_->getLocationsModel()->getLocationInfo(currentLocation, li);
+    mainWindowController_->getConnectWindow()->updateLocationInfo(
+        li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
 }
 
 void MainWindow::onBestLocationChanged(const LocationID &bestLocation)
@@ -2691,14 +2712,16 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
         if (!PersistentState::instance().lastLocation().isBestLocation())
         {
             qCDebug(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
-
-            PersistentState::instance().setLastLocation(backend_->getLocationsModel()->getBestLocationId());
-            LocationsModel::LocationInfo li;
-            if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
-            {
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+            const LocationID bestLocation{backend_->getLocationsModel()->getBestLocationId()};
+            if (bestLocation.isValid()) {
+                PersistentState::instance().setLastLocation(bestLocation);
+                LocationsModel::LocationInfo li;
+                if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+                {
+                    mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+                }
+                onConnectWindowConnectClick();
             }
-            onConnectWindowConnectClick();
         }
         else
         {
@@ -2770,11 +2793,15 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     }
     else if (connectState.connect_error() == ProtoTypes::CANNOT_OPEN_CUSTOM_CONFIG)
     {
-        PersistentState::instance().setLastLocation(backend_->getLocationsModel()->getBestLocationId());
-        LocationsModel::LocationInfo li;
-        if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
-        {
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+        const LocationID bestLocation{backend_->getLocationsModel()->getBestLocationId()};
+        if (bestLocation.isValid()) {
+            PersistentState::instance().setLastLocation(bestLocation);
+            LocationsModel::LocationInfo li;
+            if (backend_->getLocationsModel()->getLocationInfo(
+                PersistentState::instance().lastLocation(), li)) {
+                mainWindowController_->getConnectWindow()->updateLocationInfo(
+                    li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+            }
         }
     }
     else

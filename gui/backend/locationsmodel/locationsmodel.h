@@ -50,6 +50,7 @@ public:
     LocationID findLocationByFilter(const QString &strFilter) const;
 
     LocationID getBestLocationId() const;
+    LocationID getFirstValidCustomConfigLocationId() const;
 
 signals:
     void locationSpeedChanged(LocationID id, PingTime speed);
