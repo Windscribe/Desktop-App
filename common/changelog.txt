@@ -1,3 +1,11 @@
+2.0.37 (25/11/2020)
+* Possible crashes in the gui are fixed.
+* Tunnel tests issues are fixed.
+* Password field invisible until activating it - fixed.
+* DNS for WireGuard is made so that it is not saved when the OS is rebooted.
+* UI fixes (#204 and #224).
+
+
 2.0.36 (20/11/2020)
 * Keychain crash on Mac - fixed.
 * Credentials refetch bug - fixed.
