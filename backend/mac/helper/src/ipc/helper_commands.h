@@ -108,6 +108,7 @@ struct CMD_CONFIGURE_WIREGUARD
     std::string clientPrivateKey;
     std::string clientIpAddress;
     std::string clientDnsAddressList;
+    std::string clientDnsScriptName;
     std::string peerPublicKey;
     std::string peerPresharedKey;
     std::string peerEndpoint;

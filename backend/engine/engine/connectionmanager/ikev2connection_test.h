@@ -21,6 +21,7 @@ public:
                       const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
+    ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }
 
     static void removeIkev2ConnectionFromOS();
 

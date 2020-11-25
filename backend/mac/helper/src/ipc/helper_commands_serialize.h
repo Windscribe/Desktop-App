@@ -96,6 +96,7 @@ void serialize(Archive &ar, CMD_CONFIGURE_WIREGUARD &a, const unsigned int versi
     ar & a.clientPrivateKey;
     ar & a.clientIpAddress;
     ar & a.clientDnsAddressList;
+    ar & a.clientDnsScriptName;
     ar & a.peerPublicKey;
     ar & a.peerPresharedKey;
     ar & a.peerEndpoint;

@@ -1519,16 +1519,15 @@ void Engine::onConnectionManagerConnected()
     splitTunnelingNetworkInfo_.setProtocol(lastConnectingProtocol_);
     splitTunnelingNetworkInfo_.setVpnAdapterName(tapInterface);
 
-    if (lastConnectingProtocol_ == ProtoTypes::PROTOCOL_IKEV2 ||
-        lastConnectingProtocol_ == ProtoTypes::PROTOCOL_WIREGUARD)
+    if (lastConnectingProtocol_ == ProtoTypes::PROTOCOL_IKEV2)
     {
         QStringList dnsServers = MacUtils::getDnsServersForInterface(tapInterface);
         splitTunnelingNetworkInfo_.setIkev2DnsServers(dnsServers);
     }
     else
     {
-        // detect network params from openvpn dns.sh script (need for routing in helper)
-        splitTunnelingNetworkInfo_.detectInfoFromOpenVpnScript();
+        // detect network params from dns.sh script (need for routing in helper)
+        splitTunnelingNetworkInfo_.detectInfoFromDnsScript();
     }
     splitTunnelingNetworkInfo_.outToLog();
     helper_->sendConnectStatus(true, splitTunnelingNetworkInfo_);

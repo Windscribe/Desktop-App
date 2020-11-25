@@ -43,7 +43,7 @@ bool RunBlockingCommands(const std::vector<std::string> &cmdlist)
 }
 
 WireGuardAdapter::WireGuardAdapter(const std::string &name)
-    : name_(name), is_adapter_initialized_(false), has_default_route_(false)
+    : name_(name), is_dns_server_set_(false), has_default_route_(false)
 {
 }
 
@@ -52,33 +52,8 @@ WireGuardAdapter::~WireGuardAdapter()
     flushDnsServer();
 }
 
-void WireGuardAdapter::initializeOnce()
-{
-    if (is_adapter_initialized_)
-        return;
-    std::string output;
-    auto status = Utils::executeCommand("networksetup -listallnetworkservices", {}, &output);
-    if (status == 0) {
-        std::vector<std::string> services;
-        boost::trim(output);
-        boost::split(services, output, boost::is_any_of("\n"), boost::token_compress_on);
-        for (const auto &service : services) {
-            if (service.find_first_of('*') != std::string::npos)
-                continue;
-            status = Utils::executeCommand("networksetup -getdnsservers \"" + service + "\"",
-                {}, &output);
-            if (status || output.find_first_of(' ') != std::string::npos)
-                output = "empty";
-            boost::replace_all(output, "\n", " ");
-            dns_info_[service] = output;
-        }
-    }
-    is_adapter_initialized_ = true;
-}
-
 bool WireGuardAdapter::setIpAddress(const std::string &address)
 {
-    initializeOnce();
     std::vector<std::string> address_and_cidr;
     boost::split(address_and_cidr, address, boost::is_any_of("/"), boost::token_compress_on);
     int cidr = 0;
@@ -91,21 +66,29 @@ bool WireGuardAdapter::setIpAddress(const std::string &address)
     return RunBlockingCommands(cmdlist);
 }
 
-bool WireGuardAdapter::setDnsServers(const std::string &addressList)
+bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::string &scriptName)
 {
-    initializeOnce();
-    std::string dns_servers(addressList);
-    boost::replace_all(dns_servers, ",", " ");
-    boost::replace_all(dns_servers, ";", " ");
+    dns_script_name_ = scriptName;
+    std::vector<std::string> dns_servers_list;
+    boost::split(dns_servers_list, addressList, boost::is_any_of(",; "), boost::token_compress_on);
+    if (dns_servers_list.empty())
+        return true;
+
+    std::string env_block;
+    for (size_t i = 0; i < dns_servers_list.size(); ++i) {
+        env_block.append("foreign_option_" + std::to_string(i) + "=\"dhcp-option DNS "
+                         + dns_servers_list[i] + "\" ");
+    }
+    is_dns_server_set_ = true;
     std::vector<std::string> cmdlist;
-    for (const auto &info : dns_info_)
-        cmdlist.push_back("networksetup -setdnsservers \"" + info.first + "\" " + dns_servers);
+    if (access(dns_script_name_.c_str(), X_OK) != 0)
+        cmdlist.push_back("chmod +x \"" + dns_script_name_ + "\"");
+    cmdlist.push_back(env_block + dns_script_name_ + " -up");
     return RunBlockingCommands(cmdlist);
 }
 
 bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps)
 {
-    initializeOnce();
     std::vector<std::string> cmdlist;
     for (const auto &ip : allowedIps) {
         if (boost::algorithm::ends_with(ip, "/0")) {
@@ -121,10 +104,12 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps)
 
 bool WireGuardAdapter::flushDnsServer()
 {
-    if (!is_adapter_initialized_)
+    if (!is_dns_server_set_)
         return true;
+    is_dns_server_set_ = false;
     std::vector<std::string> cmdlist;
-    for (const auto &info : dns_info_)
-        cmdlist.push_back("networksetup -setdnsservers \"" + info.first + "\" " + info.second);
+    if (access(dns_script_name_.c_str(), X_OK) != 0)
+        cmdlist.push_back("chmod +x \"" + dns_script_name_ + "\"");
+    cmdlist.push_back(dns_script_name_ + " -down");
     return RunBlockingCommands(cmdlist);
 }

@@ -439,9 +439,6 @@
     <ClCompile Include="engine\connectionmanager\wstunnelmanager.cpp">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClCompile>
-    <ClCompile Include="engine\connectionmanager\testvpntunnelhelper.cpp">
-      <Filter>Engine Files\engine\connectionmanager</Filter>
-    </ClCompile>
     <ClCompile Include="engine\connectionmanager\testvpntunnel.cpp">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClCompile>
@@ -830,9 +827,6 @@
     </QtMoc>
     <QtMoc Include="..\..\common\ipc\tcpconnection.h">
       <Filter>Common Files\ipc</Filter>
-    </QtMoc>
-    <QtMoc Include="engine\connectionmanager\testvpntunnelhelper.h">
-      <Filter>Engine Files\engine\connectionmanager</Filter>
     </QtMoc>
     <QtMoc Include="engine\connectionmanager\testvpntunnel.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>

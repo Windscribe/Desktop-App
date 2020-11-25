@@ -1008,14 +1008,18 @@ bool ConnectionManager::checkFails()
 void ConnectionManager::doMacRestoreProcedures()
 {
 #ifdef Q_OS_MAC
-    // only for openvpn connection
-    if (connector_ &&
-        connector_->metaObject()->className() == OpenVPNConnection::staticMetaObject.className())
+    if (!connector_)
+        return;
+    const auto connection_type = connector_->getConnectionType();
+    if (connection_type == ConnectionType::OPENVPN)
     {
         QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + lastDefaultGateway_;
         qCDebug(LOG_CONNECTION) << "Execute command: " << delRouteCommand;
         QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
         qCDebug(LOG_CONNECTION) << "Output from route delete command: " << cmdAnswer;
+    }
+    if (connection_type == ConnectionType::OPENVPN || connection_type == ConnectionType::WIREGUARD)
+    {
         restoreDnsManager_.restoreState();
     }
 #endif

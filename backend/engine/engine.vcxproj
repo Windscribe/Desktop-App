@@ -548,7 +548,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\ipc\tcpserver.cpp" />
     <ClCompile Include="engine\tempscripts_mac.cpp" />
     <ClCompile Include="engine\connectionmanager\testvpntunnel.cpp" />
-    <ClCompile Include="engine\connectionmanager\testvpntunnelhelper.cpp" />
     <ClCompile Include="engine\types\types.cpp" />
     <ClCompile Include="..\..\common\ipc\generated_proto\types.pb.cc" />
     <ClCompile Include="engine\firewall\uniqueiplist.cpp" />
@@ -824,8 +823,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <ClInclude Include="engine\tempscripts_mac.h" />
     <QtMoc Include="engine\connectionmanager\testvpntunnel.h">
-    </QtMoc>
-    <QtMoc Include="engine\connectionmanager\testvpntunnelhelper.h">
     </QtMoc>
     <ClInclude Include="engine\types\types.h" />
     <ClInclude Include="..\..\common\ipc\generated_proto\types.pb.h" />

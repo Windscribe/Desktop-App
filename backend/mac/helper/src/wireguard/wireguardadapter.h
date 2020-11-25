@@ -12,18 +12,17 @@ public:
     ~WireGuardAdapter();
 
     bool setIpAddress(const std::string &address);
-    bool setDnsServers(const std::string &addressList);
+    bool setDnsServers(const std::string &addressList, const std::string &scriptName);
     bool enableRouting(const std::vector<std::string> &allowedIps);
     const std::string getName() const { return name_; }
     bool hasDefaultRoute() const { return has_default_route_; }
 
 private:
-    void initializeOnce();
     bool flushDnsServer();
 
     std::string name_;
-    std::map<std::string,std::string> dns_info_;
-    bool is_adapter_initialized_;
+    std::string dns_script_name_;
+    bool is_dns_server_set_;
     bool has_default_route_;
 };
 
