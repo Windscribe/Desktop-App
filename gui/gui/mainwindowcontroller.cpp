@@ -778,6 +778,7 @@ void MainWindowController::gotoInitializationWindow()
     }
 
     shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
+    updateWindow_->getGraphicsObject()->hide();
     connectWindow_->getGraphicsObject()->hide();
     tooltipController_->hideAllTooltips();
 
