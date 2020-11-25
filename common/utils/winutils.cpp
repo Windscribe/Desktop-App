@@ -1339,10 +1339,10 @@ QString WinUtils::executeBlockingCmd(QString cmd, const QString & /*params*/, in
     return result;
 }
 
-bool WinUtils::pingWithMtu(int mtu)
+bool WinUtils::pingWithMtu(const QString &url, int mtu)
 {
     const QString cmd = QString("C:\\Windows\\system32\\ping.exe");
-    const QString params = QString(" -n 1 -l %1 -f checkip.windscribe.com").arg(mtu);
+    const QString params = QString(" -n 1 -l %1 -f %2").arg(mtu).arg(url);
     QString result = executeBlockingCmd(cmd + params, params, 1000).trimmed();
     if (result.contains("bytes="))
     {

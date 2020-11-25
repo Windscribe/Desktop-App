@@ -57,7 +57,7 @@ namespace WinUtils
     QString networkNameFromInterfaceGUID(QString adapterGUID);
     QList<QString> singleHexChars();
 
-    bool pingWithMtu(int mtu);
+    bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
 }
 

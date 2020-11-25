@@ -43,7 +43,7 @@ namespace Utils {
     ProtoTypes::NetworkInterface interfaceByName(const ProtoTypes::NetworkInterfaces &interfaces, const QString &interfaceName);
     const ProtoTypes::NetworkInterfaces interfacesExceptOne(const ProtoTypes::NetworkInterfaces &interfaces, const ProtoTypes::NetworkInterface &exceptInterface);
 
-    bool pingWithMtu(int mtu);
+    bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
 
     const QString filenameQuotedSingle(const QString &filename);
