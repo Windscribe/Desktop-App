@@ -14,7 +14,7 @@ const int PROTOCOL_OPACITY_ANIMATION_DURATION = 500;
 namespace ConnectWindow {
 
 ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent)
-    , fontDescr_(11,true, 100, 2)
+    , fontDescr_(11,true, 100)
     , hoverable_(false)
     , connectivity_(false)
     , protocol_(ProtoTypes::PROTOCOL_IKEV2)

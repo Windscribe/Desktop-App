@@ -39,8 +39,6 @@ const int ANIMATION_SPEED_FAST      = 100;
 const int ANIMATION_SPEED_SLOW      = 300;
 const int ANIMATION_SPEED_VERY_SLOW = 900;
 
-const qreal UPDATE_WIDGET_SPACING = 1.83;
-
 template<typename INT_OR_DOUBLE>
 void startAnAnimation(QVariantAnimation &animation, INT_OR_DOUBLE start, INT_OR_DOUBLE stop, int duration)
 {

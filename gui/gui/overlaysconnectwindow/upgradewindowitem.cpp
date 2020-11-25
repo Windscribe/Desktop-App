@@ -20,7 +20,7 @@ UpgradeWindowItem::UpgradeWindowItem(ScalableGraphicsObject *parent) :
     // accept
     acceptButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
     connect(acceptButton_, SIGNAL(clicked()), this, SIGNAL(acceptClick()));
-    QString upgradeText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonBright", "Upgrade");
+    QString upgradeText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonBright", "Get more data");
     acceptButton_->setText(upgradeText);
 
     // cancel
