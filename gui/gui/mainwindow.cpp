@@ -1252,8 +1252,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     {
         // choose latest location
         LocationsModel::LocationInfo li;
-        //LocationID lid(PersistentState::instance().state.lastlocation().location_id(), QString::fromStdString(PersistentState::instance().state.lastlocation().city()));
-        if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+        if (PersistentState::instance().lastLocation().isValid() && backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
         {
             mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
@@ -2018,7 +2017,7 @@ void MainWindow::onBackendEngineCrash()
 void MainWindow::onBestLocationChanged(const LocationID &bestLocation)
 {
     Q_UNUSED(bestLocation);
-    if (PersistentState::instance().lastLocation().isBestLocation())
+    if (PersistentState::instance().lastLocation().isValid() &&  PersistentState::instance().lastLocation().isBestLocation())
     {
         if (backend_->isDisconnected())
         {
