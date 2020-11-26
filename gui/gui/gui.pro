@@ -103,6 +103,7 @@ OBJECTIVE_SOURCES += \
                 application/checkrunningapp/checkrunningapp_mac.mm \
                 application/openlocationshandler_mac.mm \
                 launchonstartup/launchonstartup_mac.mm \
+                utils/interfaceutils_mac.mm \
                 $$COMMON_PATH/exithandler_mac.mm \
                 $$COMMON_PATH/utils/widgetutils_mac.mm \
                 $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm
@@ -113,6 +114,7 @@ HEADERS += \
            application/checkrunningapp/checkrunningapp_mac.h \
            application/openlocationshandler_mac.h \
            launchonstartup/launchonstartup_mac.h \
+           utils/interfaceutils_mac.h \
            $$COMMON_PATH/exithandler_mac.h \
            $$COMMON_PATH/utils/widgetutils_mac.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
@@ -152,6 +154,9 @@ CONFIG(release, debug|release) {
     export(copydata4.commands)
     QMAKE_EXTRA_TARGETS += copydata4
 }
+
+RESOURCES += \
+    windscribe_mac.qrc
 
 } # macx
 
