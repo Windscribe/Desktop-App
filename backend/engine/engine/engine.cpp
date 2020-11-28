@@ -1615,6 +1615,8 @@ void Engine::onConnectionManagerConnected()
         helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
     }
 
+    connectionManager_->startTunnelTests();
+
     connectStateController_->setConnectedState(locationId_);
 }
 

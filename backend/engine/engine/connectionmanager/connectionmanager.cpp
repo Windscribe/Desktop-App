@@ -289,7 +289,6 @@ void ConnectionManager::onConnectionConnected()
 #endif
 
     DnsResolver::instance().recreateDefaultDnsChannel();
-    testVPNTunnel_->startTests();
     timerReconnection_.stop();
     state_ = STATE_CONNECTED;
     emit connected();
@@ -1200,4 +1199,9 @@ apiinfo::StaticIpPortsVector ConnectionManager::getStatisIps()
 void ConnectionManager::setPacketSize(ProtoTypes::PacketSize ps)
 {
     packetSize_ = ps;
+}
+
+void ConnectionManager::startTunnelTests()
+{
+    testVPNTunnel_->startTests();
 }

@@ -65,6 +65,8 @@ public:
     void setMss(int mss);
     void setPacketSize(ProtoTypes::PacketSize ps);
 
+    void startTunnelTests();
+
 signals:
     void connected();
     void connectingToHostname(const QString &hostname, const QString &ip);
