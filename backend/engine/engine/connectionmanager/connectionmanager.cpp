@@ -485,19 +485,9 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
               (!connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||
                                                                        err == IKEV_FAILED_START_MAC || err == IKEV_FAILED_LOAD_PREFERENCES_MAC || err == IKEV_FAILED_SAVE_PREFERENCES_MAC)))
     {
-        if (err == IKEV_FAILED_SET_KEYCHAIN_MAC)
-        {
-            state_ = STATE_RECONNECTING;
-            emit reconnecting();
-            startReconnectionTimer();
-            connector_->startDisconnect();
-        }
-        else
-        {
-            state_ = STATE_DISCONNECTED;
-            timerReconnection_.stop();
-            emit errorDuringConnection(err);
-        }
+        state_ = STATE_DISCONNECTED;
+        timerReconnection_.stop();
+        emit errorDuringConnection(err);
     }
     else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == TCP_ERROR ||
              err == CONNECTED_ERROR || err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS || err == IKEV_FAILED_TO_CONNECT ||
