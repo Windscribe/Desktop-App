@@ -67,7 +67,7 @@ curl.exe https://c-ares.haxx.se/download/c-ares-1.17.1.tar.gz -o c:\cares_temp\c
 7z e c:\cares_temp\c-ares-1.17.1.tar.gz -oc:\cares_temp
 7z x c:\cares_temp\c-ares-1.17.1.tar -oc:\cares_temp
 
-copy /Y cares_changed_files\Makefile.msvc C:\cares_temp\c-ares-1.17.0\Makefile.msvc
+copy /Y cares_changed_files\Makefile.msvc C:\cares_temp\c-ares-1.17.1\Makefile.msvc
 
 PUSHD c:\cares_temp\c-ares-1.17.1
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
