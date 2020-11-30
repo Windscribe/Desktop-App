@@ -462,9 +462,11 @@ void LocationItem::drawLocationCaption(QPainter *painter, const QRect &rc, bool 
     if (!id_.isStaticIpsLocation() && !id_.isCustomConfigsLocation())
     {
         IndependentPixmap *flag = ImageResourcesSvg::instance().getFlag(countryCode_);
-        int pixmapFlagHeight = flag->height() ;
-        flag->draw(leftOffs, rc.top() + (rc.height() - pixmapFlagHeight) / 2, painter);
-        leftOffs += flag->width() + 16*G_SCALE;
+        if (flag) {
+            const int pixmapFlagHeight = flag->height();
+            flag->draw(leftOffs, rc.top() + (rc.height() - pixmapFlagHeight) / 2, painter);
+            leftOffs += flag->width() + 16 * G_SCALE;
+        }
     }
 
     // pro star over flag

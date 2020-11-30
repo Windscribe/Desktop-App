@@ -88,14 +88,16 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         {
             IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(prevCountryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
             p.setOpacity(opacityPrevFlag_);
-            indPix->draw(0, 0, &p);
+            if (indPix)
+                indPix->draw(0, 0, &p);
         }
 
         if (!countryCode_.isEmpty())
         {
             IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(countryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
             p.setOpacity(opacityCurFlag_);
-            indPix->draw(0, 0, &p);
+            if (indPix)
+                indPix->draw(0, 0, &p);
         }
 
         painter->setOpacity(0.4);

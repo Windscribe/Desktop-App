@@ -80,6 +80,22 @@
         <file>svg/flags/si.svg</file>
         <file>svg/flags/rs.svg</file>
         <file>svg/flags/ba.svg</file>
+        <file>svg/flags/bs.svg</file>
+        <file>svg/flags/cl.svg</file>
+        <file>svg/flags/cn.svg</file>
+        <file>svg/flags/cr.svg</file>
+        <file>svg/flags/dz.svg</file>
+        <file>svg/flags/ec.svg</file>
+        <file>svg/flags/et.svg</file>
+        <file>svg/flags/gt.svg</file>
+        <file>svg/flags/ke.svg</file>
+        <file>svg/flags/kh.svg</file>
+        <file>svg/flags/kz.svg</file>
+        <file>svg/flags/ma.svg</file>
+        <file>svg/flags/mc.svg</file>
+        <file>svg/flags/mt.svg</file>
+        <file>svg/flags/pk.svg</file>
+        <file>svg/flags/ve.svg</file>
         <file>svg/locations/ALL_LOCATION_ICON.svg</file>
         <file>svg/locations/CONFIG_ICON.svg</file>
         <file>svg/locations/DESELECTED_FAV_ICON.svg</file>
