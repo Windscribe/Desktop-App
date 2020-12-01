@@ -108,7 +108,7 @@ IndependentPixmap *ImageResourcesSvg::getFlag(const QString &flagName)
     }
     else
     {
-        return getIndependentPixmap("flags/NoFlag");
+        return getIndependentPixmap("flags/noflag");
     }
 }
 
@@ -122,7 +122,7 @@ IndependentPixmap *ImageResourcesSvg::getScaledFlag(const QString &flagName, int
     }
     else
     {
-        return getIndependentPixmapScaled("flags/NoFlag", width, height);
+        return getIndependentPixmapScaled("flags/noflag", width, height);
     }
 }
 

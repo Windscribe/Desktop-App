@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16"><g fill="none"><path fill="#00247D" d="M0 0v16h32V0z"/><g fill="#FFF"><path d="M0 14.18L10.98 8.7l5.47.91L3.68 16H0z"/><path d="M32 14.2L21.06 8.75l-5.48.86L28.35 16H32v-1.8zm0-12.4l-9.82 4.89-5.32-.9L28.45 0H32v1.8zM0 1.72L11.1 7.3l5.28-.9L3.58 0H0v1.73z"/></g><path fill="#CF142B" d="M0 16l14.62-7.33v.91L1.82 16H0zm32-.9L19.23 8.7v.91L32 16v-.9zM32 0L18.69 6.66v-.91L30.18 0H32zM0 .9l12.77 6.4v-.91L0 0v.9z"/><path fill="#FFF" d="M18.4 5.6H32v4.8H18.4V16h-4.8v-5.6H0V5.6h13.6V0h4.8z"/><path fill="#CF142B" d="M17.6 6.4H32v3.2H17.6V16h-3.2V9.6H0V6.4h14.4V0h3.2z"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16">
+  <g fill="none" fill-rule="evenodd">
+    <rect width="32" height="16" fill="#00247D" transform="matrix(1 0 0 -1 0 16)"/>
+    <polygon fill="#FFF" points="32.001 0 32.001 2 25.601 5 32.001 5 32.001 11 26.668 11 32.001 13.5 32.001 16 29.868 16 19.201 11 19.001 11 19.001 16 13.001 16 13.001 11 12.801 11 2.134 16 .001 16 .001 13.5 5.334 11 .001 11 .001 5 6.401 5 .001 2 .001 0 3.201 0 13.001 4.594 13.001 0 19.001 0 19.001 4.594 28.801 0"/>
+    <polygon fill="#CF142B" points="18.001 0 18.001 6 32.001 6 32.001 10 18.001 10 18.001 16 14.001 16 14.001 10 .001 10 .001 6 14.001 6 14.001 0"/>
+    <polygon fill="#CF142B" fill-rule="nonzero" points="10.798 11 .174 16 .001 16 0 14.977 8.452 11"/>
+    <polygon fill="#CF142B" fill-rule="nonzero" points="24.549 11 32 14.506 32 15.61 22.202 11"/>
+    <polygon fill="#CF142B" fill-rule="nonzero" points=".173 0 10.8 5 8.452 5 0 1.022 .001 0"/>
+    <polygon fill="#CF142B" fill-rule="nonzero" points="32.001 0 32 .552 22.549 5 20.2 5 30.829 0"/>
+  </g>
+</svg>
