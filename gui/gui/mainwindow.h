@@ -240,10 +240,11 @@ private:
     QMenu trayMenu_;
     QMenu locationsMenu_;
 
-    enum class TrayIconType { DISCONNECTED, CONNECTING, CONNECTED };
-    void updateTrayIcon(TrayIconType type);
+    enum class AppIconType { DISCONNECTED, CONNECTING, CONNECTED };
+    void updateAppIconType(AppIconType type);
+    void updateTrayIconType(AppIconType type);
     void updateTrayTooltip(QString tooltip);
-    TrayIconType currentTrayIconType_;
+    AppIconType currentAppIconType_;
     QSystemTrayIcon &trayIcon_;
     bool bNotificationConnectedShowed_;
     QElapsedTimer connectionElapsedTimer_;
@@ -306,6 +307,7 @@ private:
     QTimer hideShowDockIconTimer_;
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
+    bool isRunningInDarkMode_;
 #endif
     QTimer deactivationTimer_;
 

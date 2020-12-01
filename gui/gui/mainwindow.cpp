@@ -35,6 +35,7 @@
     #include "utils/widgetutils_win.h"
     #include <windows.h>
 #else
+    #include "utils/interfaceutils_mac.h"
     #include "utils/macutils.h"
     #include "utils/widgetutils_mac.h"
 #endif
@@ -45,7 +46,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     QWidget(nullptr),
     backend_(NULL),
     logViewerWindow_(nullptr),
-    currentTrayIconType_(TrayIconType::DISCONNECTED),
+    currentAppIconType_(AppIconType::DISCONNECTED),
     trayIcon_(trayIcon),
     bNotificationConnectedShowed_(false),
     bytesTransferred_(0),
@@ -308,6 +309,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
         desiredDockIconVisibility_ = false;
         hideShowDockIconImpl();
     }
+    isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
 #endif
     deactivationTimer_.setSingleShot(true);
     connect(&deactivationTimer_, SIGNAL(timeout()), SLOT(onWindowDeactivateAndHideImpl()));
@@ -455,6 +457,15 @@ bool MainWindow::event(QEvent *event)
         }
 #endif
     }
+
+#if defined(Q_OS_MAC)
+    if (event->type() == QEvent::PaletteChange)
+    {
+        isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
+        if (!MacUtils::isOsVersionIsBigSur_or_greater())
+            updateTrayIconType(currentAppIconType_);
+    }
+#endif
 
     if (event->type() == QEvent::WindowActivate)
     {
@@ -1624,11 +1635,13 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
         bytesTransferred_ = 0;
         connectionElapsedTimer_.start();
 
-        updateTrayIcon(TrayIconType::CONNECTED);
+        updateAppIconType(AppIconType::CONNECTED);
+        updateTrayIconType(AppIconType::CONNECTED);
     }
     else if (connectState.connect_state_type() == ProtoTypes::CONNECTING || connectState.connect_state_type() == ProtoTypes::DISCONNECTING)
     {
-        updateTrayIcon(TrayIconType::CONNECTING);
+        updateAppIconType(AppIconType::CONNECTING);
+        updateTrayIconType(AppIconType::CONNECTING);
         mainWindowController_->clearServerRatingsTooltipState();
     }
     else if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
@@ -1641,7 +1654,8 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
             }
             bNotificationConnectedShowed_ = false;
         }
-        updateTrayIcon(TrayIconType::DISCONNECTED);
+        updateAppIconType(AppIconType::DISCONNECTED);
+        updateTrayIconType(AppIconType::DISCONNECTED);
 
         if (connectState.disconnect_reason() == ProtoTypes::DISCONNECTED_WITH_ERROR)
         {
@@ -2548,7 +2562,7 @@ void MainWindow::onScaleChanged()
     ImageResourcesSvg::instance().clearHashAndStartPreloading();
     FontManager::instance().clearCache();
     mainWindowController_->updateScaling();
-    updateTrayIcon(currentTrayIconType_);
+    updateTrayIconType(currentAppIconType_);
 }
 
 void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
@@ -2635,7 +2649,8 @@ void MainWindow::setupTrayIcon()
 
     trayIcon_.setIcon(*IconManager::instance().getDisconnectedIcon());
     trayIcon_.show();
-    updateTrayIcon(TrayIconType::DISCONNECTED);
+    updateAppIconType(AppIconType::DISCONNECTED);
+    updateTrayIconType(AppIconType::DISCONNECTED);
 
 #ifdef Q_OS_MAC
     mainWindowController_->setFirstSystemTrayPosX(trayIcon_.geometry().x());
@@ -2856,25 +2871,64 @@ void MainWindow::collapsePreferences()
     mainWindowController_->collapsePreferences();
 }
 
-void MainWindow::updateTrayIcon(TrayIconType type)
+void MainWindow::updateAppIconType(AppIconType type)
 {
+    if (currentAppIconType_ == type)
+        return;
+
     const QIcon *icon = nullptr;
     switch (type) {
-    case TrayIconType::DISCONNECTED:
+    case AppIconType::DISCONNECTED:
         icon = IconManager::instance().getDisconnectedIcon();
         break;
-    case TrayIconType::CONNECTING:
+    case AppIconType::CONNECTING:
         icon = IconManager::instance().getConnectingIcon();
         break;
-    case TrayIconType::CONNECTED:
+    case AppIconType::CONNECTED:
         icon = IconManager::instance().getConnectedIcon();
         break;
     default:
         break;
     }
+    if (icon)
+        qApp->setWindowIcon(*icon);
+    currentAppIconType_ = type;
+}
+
+void MainWindow::updateTrayIconType(AppIconType type)
+{
+    const QIcon *icon = nullptr;
+#if defined(Q_OS_MAC)
+    switch (type) {
+    case AppIconType::DISCONNECTED:
+        icon = IconManager::instance().getDisconnectedTrayIconForMac(isRunningInDarkMode_);
+        break;
+    case AppIconType::CONNECTING:
+        icon = IconManager::instance().getConnectingTrayIconForMac(isRunningInDarkMode_);
+        break;
+    case AppIconType::CONNECTED:
+        icon = IconManager::instance().getConnectedTrayIconForMac(isRunningInDarkMode_);
+        break;
+    default:
+        break;
+    }
+#else
+    switch (type) {
+    case AppIconType::DISCONNECTED:
+        icon = IconManager::instance().getDisconnectedIcon();
+        break;
+    case AppIconType::CONNECTING:
+        icon = IconManager::instance().getConnectingIcon();
+        break;
+    case AppIconType::CONNECTED:
+        icon = IconManager::instance().getConnectedIcon();
+        break;
+    default:
+        break;
+    }
+#endif
+
      if (icon) {
-         if (currentTrayIconType_ != type)
-             qApp->setWindowIcon(*icon);
 #if defined(Q_OS_WIN)
          const QPixmap pm = icon->pixmap(QSize(16, 16) * G_SCALE);
          if (!pm.isNull()) {
@@ -2886,7 +2940,6 @@ void MainWindow::updateTrayIcon(TrayIconType type)
          trayIcon_.setIcon(*icon);
 #endif
     }
-    currentTrayIconType_ = type;
 }
 
 void MainWindow::updateTrayTooltip(QString tooltip)
