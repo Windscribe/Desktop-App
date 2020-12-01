@@ -1,13 +1,14 @@
 #include "autodetectproxy_win.h"
 #include "Utils/logger.h"
 #include <QNetworkProxy>
+#include "engine/hardcodedsettings.h"
 
 ProxySettings AutoDetectProxy_win::detect(bool &bSuccessfully)
 {
     ProxySettings proxySettings;
     bSuccessfully = false;
 
-    QNetworkProxyQuery npq(QUrl("https://www.windscribe.com"));
+    QNetworkProxyQuery npq(QUrl("https://"+ HardcodedSettings::instance().serverUrl()));
     QList<QNetworkProxy> listOfProxies = QNetworkProxyFactory::systemProxyForQuery(npq);
     if (listOfProxies.size())
     {

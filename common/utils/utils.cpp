@@ -323,12 +323,12 @@ const ProtoTypes::NetworkInterfaces Utils::interfacesExceptOne(const ProtoTypes:
     return resultInterfaces;
 }
 
-bool Utils::pingWithMtu(int mtu)
+bool Utils::pingWithMtu(const QString &url, int mtu)
 {
 #ifdef Q_OS_MAC
-    return MacUtils::pingWithMtu(mtu);
+    return MacUtils::pingWithMtu(url, mtu);
 #else
-    return WinUtils::pingWithMtu(mtu);
+    return WinUtils::pingWithMtu(url, mtu);
 #endif
 }
 

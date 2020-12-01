@@ -18,6 +18,8 @@ public:
     QString serverApiUrl() { return serverApiUrl_; }
     QString serverUrl() { return serverUrl_; }
     QString serverSharedKey() { return serverSharedKey_; }
+    QString serverTunnelTestUrl() { return serverTunnelTestUrl_; }
+
     QStringList customDns() { return customDns_; }
     QStringList googleDns();
     QStringList cloudflareDns();
@@ -35,6 +37,7 @@ private:
     QString serverApiUrl_;
     QString serverUrl_;
     QString serverSharedKey_;
+    QString serverTunnelTestUrl_;
     QStringList customDns_;
     QStringList apiIps_;
     QString emergencyUsername_;

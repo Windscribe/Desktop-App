@@ -43,6 +43,7 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
 #endif
     serverUrl_ = simpleCrypt_.decryptToString(QString("AwKTVtZfi1gEYbLhnxLSBB9vsKPaS4U=")); // www.windscribe.com
     serverSharedKey_ = simpleCrypt_.decryptToString(QString("AwKTgtgfiR8PKaergxuIHFx99v6FGowYXXrx/NUZ3BsIe6Ouhw==")); // 952b4412f002315aa50751032fcaab03
+    serverTunnelTestUrl_ = simpleCrypt_.decryptToString(QString("AwJKLI8S2RgJcKPu2lOZU0Uk/bLBXZsRAH2q")); // checkip.windscribe.com
 
     customDns_ << simpleCrypt_.decryptToString(QString("AwKTYSPvfOC8mBUGLuJz+bmZEQ==")); // 208.67.222.222
     customDns_ << simpleCrypt_.decryptToString(QString("AwKTVIxA008TN7qpgU3eVBQ0vg==")); // 208.67.220.220

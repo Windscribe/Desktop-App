@@ -707,9 +707,9 @@ const ProtoTypes::NetworkInterface MacUtils::currentNetworkInterface()
     return networkInterface;
 }
 
-bool MacUtils::pingWithMtu(int mtu)
+bool MacUtils::pingWithMtu(const QString &url, int mtu)
 {
-    const QString cmd = QString("ping -c 1 -W 1000 -D -s %1 checkip.windscribe.com 2> /dev/null").arg(mtu);
+    const QString cmd = QString("ping -c 1 -W 1000 -D -s %1 %2 2> /dev/null").arg(mtu).arg(url);
     QString result = QString::fromStdString(MacUtils::execCmd(cmd.toStdString().c_str())).trimmed();
 
     if (result.contains("icmp_seq="))
