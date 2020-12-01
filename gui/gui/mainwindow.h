@@ -169,6 +169,7 @@ private slots:
     void onBackendPacketSizeDetectionStateChanged(bool on);
     void onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
     void onBackendEngineCrash();
+    void onBackendLocationsUpdated();
 
     void onBestLocationChanged(const LocationID &bestLocation);
 
