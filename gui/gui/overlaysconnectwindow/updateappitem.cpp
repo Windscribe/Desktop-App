@@ -15,7 +15,7 @@ UpdateAppItem::UpdateAppItem(QGraphicsObject *parent) : ScalableGraphicsObject(p
     curProgressForegroundOpacity_(OPACITY_HIDDEN), curProgressBarPos_(0)
 {
     QString updateText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "UPDATE");
-    updateButton_ = new CommonGraphics::TextButton(updateText, FontDescr(11, true, 105, UPDATE_WIDGET_SPACING),
+    updateButton_ = new CommonGraphics::TextButton(updateText, FontDescr(11, true, 105),
                                                    Qt::white, true, this, 15);
 
     connect(updateButton_, SIGNAL(clicked()), SLOT(onUpdateClick()));
@@ -71,7 +71,7 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 
     // version text
     painter->save();
-    QFont *font = FontManager::instance().getFont(11,true, 105, UPDATE_WIDGET_SPACING);
+    QFont *font = FontManager::instance().getFont(11,true, 105);
     QFontMetrics fm(*font);
     painter->translate(0, VERSION_TEXT_HEIGHT*G_SCALE);
     painter->setPen(FontManager::instance().getBrightYellowColor());
