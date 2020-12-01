@@ -8,10 +8,9 @@ Class = Net
 ClassGUID = {4D36E972-E325-11CE-BFC1-08002BE10318}
 Provider = %Windtun420.CompanyName%
 CatalogFile.NT = windtun420.cat
-DriverVer = 11/30/2020,0.9.0.0
 
 [Manufacturer]
-%Windtun420.CompanyName% = %Windtun420.Name%, NTamd64
+%Windtun420.CompanyName% = %Windtun420.Name%, NT$ARCH$
 
 [SourceDisksNames]
 1 = %Windtun420.DiskDesc%, "", ,
@@ -26,7 +25,7 @@ Windtun.CopyFiles.Sys = 12
 [Windtun420.CopyFiles.Sys]
 windtun420.sys, , , 0x00004002 ; COPYFLG_IN_USE_RENAME | COPYFLG_NOSKIP
 
-[Windtun420.NTamd64]
+[Windtun420.NT$ARCH$]
 %Windtun420.DeviceDesc% = Windtun420.Install, Windtun420
 
 [Windtun420.Install]
@@ -65,4 +64,3 @@ Windtun420.Name = "Windtun420"
 Windtun420.DiskDesc = "Windtun420 Driver Install Disk"
 Windtun420.DeviceDesc = "Windscribe Windtun420"
 Windtun420.CompanyName = "Windscribe Limited"
-
