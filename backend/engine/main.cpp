@@ -67,6 +67,13 @@ int main(int argc, char *argv[])
     }
 
 #ifdef Q_OS_WIN
+    // Make sure that on shutdown, Windows doesn't send a shutdown signal to the engine prior to the
+    // GUI. Since the engine is a console app and has no windows, it cannot intercept any shutdown
+    // messages and postpone a closure. We allow the GUI to perform cleanup by prioritizing shutdown
+    // of the engine with the lowest possible application reserved value, 0x100 (the default value
+    // is 0x280).
+    SetProcessShutdownParameters(0x100, 0);
+
     InstalledAntiviruses_win::outToLog();
 #endif
 
