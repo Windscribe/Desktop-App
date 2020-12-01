@@ -45,6 +45,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     QWidget(nullptr),
     backend_(NULL),
     logViewerWindow_(nullptr),
+    advParametersWindow_(nullptr),
     currentTrayIconType_(TrayIconType::DISCONNECTED),
     trayIcon_(trayIcon),
     bNotificationConnectedShowed_(false),
@@ -189,6 +190,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(signOutClick()), SLOT(onPreferencesSignOutClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(loginClick()), SLOT(onPreferencesLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(viewLogClick()), SLOT(onPreferencesViewLogClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(advancedParametersClicked()), SLOT(onPreferencesAdvancedParametersClicked()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkUpdated(ProtoTypes::NetworkInterface)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
@@ -972,6 +974,29 @@ void MainWindow::onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()
         const QString desc = tr("Cannot detect appropriate packet size without internet. Check your connection.");
         mainWindowController_->getPreferencesWindow()->showPacketSizeDetectionError(title, desc);
     }
+}
+
+void MainWindow::cleanupAdvParametersWindow()
+{
+    if (advParametersWindow_ != nullptr)
+    {
+        disconnect(advParametersWindow_);
+        advParametersWindow_->hide();
+        advParametersWindow_->deleteLater();
+        advParametersWindow_ = nullptr;
+    }
+}
+
+void MainWindow::onPreferencesAdvancedParametersClicked()
+{
+    // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
+    cleanupAdvParametersWindow();
+
+    advParametersWindow_ = new AdvancedParametersDialog(this);
+    advParametersWindow_->setAdvancedParameters(backend_->getPreferences()->debugAdvancedParameters());
+    connect(advParametersWindow_, SIGNAL(okClick()), SLOT(onAdvancedParametersOkClick()));
+    connect(advParametersWindow_, SIGNAL(cancelClick()), SLOT(onAdvancedParametersCancelClick()));
+    advParametersWindow_->show();
 }
 
 void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
@@ -2553,6 +2578,18 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
 void MainWindow::onWindowDeactivateAndHideImpl()
 {
     deactivateAndHide();
+}
+
+void MainWindow::onAdvancedParametersOkClick()
+{
+    const QString text = advParametersWindow_->advancedParametersText();
+    backend_->getPreferences()->setDebugAdvancedParameters(text);
+    cleanupAdvParametersWindow();
+}
+
+void MainWindow::onAdvancedParametersCancelClick()
+{
+    cleanupAdvParametersWindow();
 }
 
 void MainWindow::onLanguageChanged()

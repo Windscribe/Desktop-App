@@ -51,6 +51,8 @@ signals:
 
     virtual void currentNetworkUpdated(ProtoTypes::NetworkInterface) = 0;
 
+    virtual void advancedParametersClicked() = 0;
+
 #ifdef Q_OS_WIN
     virtual void setIpv6StateInOS(bool bEnabled, bool bRestartNow) = 0;
 #endif

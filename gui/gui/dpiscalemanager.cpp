@@ -50,6 +50,19 @@ bool DpiScaleManager::setMainWindow(QWidget *mainWindow)
 
 }
 
+double DpiScaleManager::scaleOfScreen(const QScreen *screen) const
+{
+    qreal dpi = screen->logicalDotsPerInch();
+    qreal scale;
+#ifdef Q_OS_WIN
+    scale = (double)dpi / (double)LOWEST_LDPI;
+#else
+    // for Mac curScale always == 1
+    scale = 1;
+#endif
+    return scale;
+}
+
 void DpiScaleManager::onWindowScreenChanged(QScreen *screen)
 {
     qCDebug(LOG_BASIC) << "DpiScaleManager::onScreenChanged, new DPI" << screen->logicalDotsPerInch();

@@ -201,6 +201,7 @@ SOURCES += \
     connectwindow/ipaddressitem/octetitem.cpp \
     connectwindow/middleitem.cpp \
     connectwindow/serverratingindicator.cpp \
+    dialogs/advancedparametersdialog.cpp \
     dialogs/dialoggetusernamepassword.cpp \
     dialogs/dialogmessagecpuusage.cpp \
     graphicresources/fontdescr.cpp \
@@ -419,6 +420,7 @@ HEADERS += \
     connectwindow/ipaddressitem/octetitem.h \
     connectwindow/middleitem.h \
     connectwindow/serverratingindicator.h \
+    dialogs/advancedparametersdialog.h \
     dialogs/dialoggetusernamepassword.h \
     dialogs/dialogmessagecpuusage.h \
     overlaysconnectwindow/generalmessagetwobuttonwindowitem.h \

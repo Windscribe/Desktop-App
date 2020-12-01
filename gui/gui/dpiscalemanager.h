@@ -37,6 +37,8 @@ public:
         return curGeometry_;
     }
 
+    double scaleOfScreen(const QScreen *screen) const;
+
 signals:
     void scaleChanged(double newScale);
     void screenConfigurationChanged(QSet<QScreen *> screens);
