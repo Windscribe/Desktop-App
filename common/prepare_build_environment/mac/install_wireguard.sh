@@ -10,7 +10,7 @@ rm -rf $HOME/"LibsWindscribe/wireguard"
 
 mkdir $HOME/"wireguard_temp"
 
-WGDIR=wireguard-go-0.0.20200320
+WGDIR=wireguard-go-0.0.20201118
 curl https://git.zx2c4.com/wireguard-go/snapshot/$WGDIR.tar.xz -o $HOME/"wireguard_temp/wireguard.tar.xz" -k -L
 tar -zxvf $HOME/"wireguard_temp/wireguard.tar.xz" -C $HOME/"wireguard_temp"
 

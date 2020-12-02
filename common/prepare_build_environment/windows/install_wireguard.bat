@@ -7,7 +7,7 @@ rd /s /q "c:\libs\wireguard"
 
 set TOOLSDIR=%~dp0
 set BUILDDIR=c:\wireguard_temp\
-set WGDIR=wireguard-go-0.0.20200320
+set WGDIR=wireguard-go-0.0.20201118
 set PATH=%BUILDDIR%deps\go\bin;%BUILDDIR%deps\bin;%PATH%
 
 mkdir %BUILDDIR%

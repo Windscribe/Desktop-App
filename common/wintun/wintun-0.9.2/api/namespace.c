@@ -65,7 +65,7 @@ static _Return_type_success_(return != FALSE) BOOL NamespaceRuntimeInit(void)
         goto cleanupBCryptCloseAlgorithmProvider;
     }
 
-    HANDLE Boundary = CreateBoundaryDescriptorW(L"Wintun", 0);
+    HANDLE Boundary = CreateBoundaryDescriptorW(L"Windtun420", 0);
     if (!Boundary)
     {
         LastError = LOG_LAST_ERROR(L"Failed to create boundary descriptor");
@@ -79,11 +79,11 @@ static _Return_type_success_(return != FALSE) BOOL NamespaceRuntimeInit(void)
 
     for (;;)
     {
-        if (CreatePrivateNamespaceW(&SecurityAttributes, Boundary, L"Wintun"))
+        if (CreatePrivateNamespaceW(&SecurityAttributes, Boundary, L"Windtun420"))
             break;
         if ((LastError = GetLastError()) == ERROR_ALREADY_EXISTS)
         {
-            if (OpenPrivateNamespaceW(Boundary, L"Wintun"))
+            if (OpenPrivateNamespaceW(Boundary, L"Windtun420"))
                 break;
             if ((LastError = GetLastError()) == ERROR_PATH_NOT_FOUND)
                 continue;
@@ -121,7 +121,7 @@ _Return_type_success_(return != NULL) HANDLE NamespaceTakePoolMutex(_In_z_ const
         return NULL;
     }
     DWORD LastError;
-    static const WCHAR mutex_label[] = L"Wintun Adapter Name Mutex Stable Suffix v1 jason@zx2c4.com";
+    static const WCHAR mutex_label[] = L"WireGuard Adapter Name Mutex Stable Suffix v1 jason@zx2c4.com";
     if (!BCRYPT_SUCCESS(
             Status = BCryptHashData(Sha256, (PUCHAR)mutex_label, sizeof(mutex_label) /* Including NULL 2 bytes */, 0)))
     {
@@ -149,7 +149,7 @@ _Return_type_success_(return != NULL) HANDLE NamespaceTakePoolMutex(_In_z_ const
         LastError = RtlNtStatusToDosError(Status);
         goto cleanupPoolNorm;
     }
-    static const WCHAR MutexNamePrefix[] = L"Wintun\\Wintun-Name-Mutex-";
+    static const WCHAR MutexNamePrefix[] = L"Windtun420\\Windtun420-Name-Mutex-";
     WCHAR MutexName[_countof(MutexNamePrefix) + sizeof(Hash) * 2];
     memcpy(MutexName, MutexNamePrefix, sizeof(MutexNamePrefix));
     for (size_t i = 0; i < sizeof(Hash); ++i)
@@ -184,7 +184,7 @@ _Return_type_success_(return != NULL) HANDLE NamespaceTakeDriverInstallationMute
 {
     if (!NamespaceRuntimeInit())
         return NULL;
-    HANDLE Mutex = CreateMutexW(&SecurityAttributes, FALSE, L"Wintun\\Wintun-Driver-Installation-Mutex");
+    HANDLE Mutex = CreateMutexW(&SecurityAttributes, FALSE, L"Windtun420\\Windtun420-Driver-Installation-Mutex");
     if (!Mutex)
     {
         LOG_LAST_ERROR(L"Failed to create mutex");
