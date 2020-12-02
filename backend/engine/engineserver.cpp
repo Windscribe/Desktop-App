@@ -415,6 +415,8 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
     {
         connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
                 SLOT(onEngineLocationsModelItemsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdatedCliOnly(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
+                SLOT(onEngineLocationsModelItemsUpdatedCliOnly(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
         connect(engine_->getLocationsModel(), SIGNAL(bestLocationUpdated(LocationID)),
                 SLOT(onEngineLocationsModelBestLocationUpdated(LocationID)));
         connect(engine_->getLocationsModel(), SIGNAL(customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)),
@@ -919,6 +921,19 @@ void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLoca
     }
 
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
+}
+
+void EngineServer::onEngineLocationsModelItemsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > items)
+{
+    IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> cmd;
+    *cmd.getProtoObj().mutable_best_location() = bestLocation.toProtobuf();
+
+    for (const locationsmodel::LocationItem &li : *items)
+    {
+        ProtoTypes::Location *l = cmd.getProtoObj().mutable_locations()->add_locations();
+        li.fillProtobuf(l);
+    }
+    sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, false, ProtoTypes::CLIENT_ID_CLI);
 }
 
 void EngineServer::onEngineLocationsModelBestLocationUpdated(const LocationID &bestLocation)

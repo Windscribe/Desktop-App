@@ -21,6 +21,7 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkStateManager, pingHost_);
 
     connect(apiLocationsModel_, SIGNAL(locationsUpdated(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)), SIGNAL(locationsUpdated(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+    connect(apiLocationsModel_, SIGNAL(locationsUpdatedCliOnly(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)), SIGNAL(locationsUpdatedCliOnly(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)));
     connect(apiLocationsModel_, SIGNAL(bestLocationUpdated(LocationID)), SIGNAL(bestLocationUpdated(LocationID)));
     connect(apiLocationsModel_, SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)), SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)));
     connect(apiLocationsModel_, SIGNAL(whitelistIpsChanged(QStringList)), SIGNAL(whitelistLocationsIpsChanged(QStringList)));
@@ -34,6 +35,11 @@ LocationsModel::~LocationsModel()
 {
     pingThread_->quit();
     pingThread_->wait();
+}
+
+void LocationsModel::forceSendLocationsToCli()
+{
+    apiLocationsModel_->generateLocationsUpdatedForCliOnly();
 }
 
 void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)

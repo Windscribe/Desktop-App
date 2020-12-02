@@ -25,6 +25,7 @@ public:
     explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
     ~LocationsModel() override;
 
+    void forceSendLocationsToCli();
     void setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
     void setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
@@ -37,6 +38,7 @@ public:
 
 signals:
     void locationsUpdated(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void locationsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void bestLocationUpdated(const LocationID &bestLocation);
     void locationPingTimeChanged(const LocationID &id, locationsmodel::PingTime timeMs);

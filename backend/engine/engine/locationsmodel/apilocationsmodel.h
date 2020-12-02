@@ -15,6 +15,11 @@
 
 namespace locationsmodel {
 
+struct BestAndAllLocations {
+    LocationID bestLocation;
+    QSharedPointer<QVector<locationsmodel::LocationItem> > locations;
+};
+
 // Managing locations (generic API-locations and static IPs locations). Converts the apiinfo::Location vector to LocationItem vector.
 // Detecting and adding best location. Makes and updates the ping for each location.
 class ApiLocationsModel : public QObject
@@ -23,6 +28,7 @@ class ApiLocationsModel : public QObject
 public:
     explicit ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost);
 
+    void generateLocationsUpdatedForCliOnly();
     void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
     void clear();
 
@@ -30,6 +36,7 @@ public:
 
 signals:
     void locationsUpdated( const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void locationsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void locationPingTimeChanged(const LocationID &id, locationsmodel::PingTime timeMs);
     void bestLocationUpdated( const LocationID &bestLocation);
     void whitelistIpsChanged(const QStringList &ips);
@@ -51,7 +58,8 @@ private:
     PingIpsController pingIpsController_;
 
     void detectBestLocation(bool isAllNodesInDisconnectedState);
-    void generateLocationsUpdated();
+    BestAndAllLocations generateLocationsUpdated();
+    void sendLocationsUpdated();
     void whitelistIps();
 
     bool isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);

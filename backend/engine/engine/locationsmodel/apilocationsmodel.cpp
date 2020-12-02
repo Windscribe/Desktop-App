@@ -27,6 +27,12 @@ ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *s
     }
 }
 
+void ApiLocationsModel::generateLocationsUpdatedForCliOnly()
+{
+    BestAndAllLocations ball = generateLocationsUpdated();
+    emit locationsUpdatedCliOnly(ball.bestLocation, ball.locations);
+}
+
 void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
 {
     if (!isChanged(locations, staticIps))
@@ -63,7 +69,7 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
 
     pingStorage_.updateNodes(stringListIps);
     pingIpsController_.updateIps(ips);
-    generateLocationsUpdated();
+    sendLocationsUpdated();
 }
 
 void ApiLocationsModel::clear()
@@ -292,7 +298,7 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
     }
 }
 
-void ApiLocationsModel::generateLocationsUpdated()
+BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
 {
     QSharedPointer <QVector<LocationItem> > items(new QVector<LocationItem>());
 
@@ -385,7 +391,16 @@ void ApiLocationsModel::generateLocationsUpdated()
         *items << item;
     }
 
-    emit locationsUpdated(bestLocation, items);
+    BestAndAllLocations ball;
+    ball.bestLocation = bestLocation;
+    ball.locations = items;
+    return ball;
+}
+
+void ApiLocationsModel::sendLocationsUpdated()
+{
+    BestAndAllLocations ball = generateLocationsUpdated();
+    emit locationsUpdated(ball.bestLocation, ball.locations);
 }
 
 void ApiLocationsModel::whitelistIps()
