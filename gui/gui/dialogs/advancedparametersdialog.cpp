@@ -43,9 +43,11 @@ AdvancedParametersDialog::AdvancedParametersDialog(QWidget *parent) : QWidget(pa
     layout_->addLayout(buttonLayout);
 
     curScreenScale_ = G_SCALE;
+#ifdef Q_OS_WIN
     setGeometry(parent->geometry().x() + 22*G_SCALE,
                 parent->geometry().y() + 65*G_SCALE,
                 350 * G_SCALE, 350 * G_SCALE);
+#endif
     updateScaling();
 }
 
@@ -101,3 +103,4 @@ void AdvancedParametersDialog::resizeEvent(QResizeEvent *event)
     }
     updateScaling();
 }
+

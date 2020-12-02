@@ -324,6 +324,7 @@ private:
     bool downloadRunning_;
     bool ignoreUpdateUntilNextRun_;
     void cleanupAdvParametersWindow();
+    void cleanupLogViewerWindow();
 };
 
 #endif // MAINWINDOW_H

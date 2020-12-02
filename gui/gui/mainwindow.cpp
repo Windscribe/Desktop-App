@@ -891,15 +891,20 @@ void MainWindow::onPreferencesHelpClick()
     QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().serverUrl())));
 }
 
-void MainWindow::onPreferencesViewLogClick()
+void MainWindow::cleanupLogViewerWindow()
 {
-    // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
     if (logViewerWindow_ != nullptr)
     {
         logViewerWindow_->hide();
         logViewerWindow_->deleteLater();
         logViewerWindow_ = nullptr;
     }
+}
+
+void MainWindow::onPreferencesViewLogClick()
+{
+    // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
+    cleanupLogViewerWindow();
 
     logViewerWindow_ = new LogViewer::LogViewerWindow(this);
     logViewerWindow_->setLog(MergeLog::mergeLogs());
@@ -2236,6 +2241,8 @@ void MainWindow::deactivateAndHide()
         setWindowState(Qt::WindowMinimized);
     }
 #endif
+    cleanupAdvParametersWindow();
+    cleanupLogViewerWindow();
     lastWindowStateChange_ = QDateTime::currentMSecsSinceEpoch();
 }
 
