@@ -70,20 +70,13 @@ void OpenVpnVersionController::setUseWinTun(bool bUseWinTun)
     }
     else
     {
-        setSelectedOpenVpnVersion("2.4.8");
+        setSelectedOpenVpnVersion("2.5.0");
     }
 }
 
 bool OpenVpnVersionController::isUseWinTun()
 {
-    if (getSelectedOpenVpnExecutable().contains("2_4"))
-    {
-        return false;
-    }
-    else
-    {
-        return bUseWinTun_;
-    }
+    return bUseWinTun_;
 }
 
 OpenVpnVersionController::OpenVpnVersionController()
