@@ -14,7 +14,7 @@ UsernamePasswordEntry::UsernamePasswordEntry(QString descriptionText, bool passw
     : ClickableGraphicsObject(parent),
       userEntryLineAddSS_("padding-left: 8px; background: #0cffffff; border-radius: 3px;"),
       descriptionText_(descriptionText), height_(50),
-      width_(WINDOW_WIDTH), active_(false), curDescriptionOpacity_(OPACITY_HIDDEN),
+      width_(WINDOW_WIDTH), curDescriptionOpacity_(OPACITY_HIDDEN),
       curLineEditOpacity_(OPACITY_HIDDEN)
 {
     userEntryLine_ = new CustomMenuLineEdit();
@@ -68,11 +68,6 @@ void UsernamePasswordEntry::paint(QPainter *painter, const QStyleOptionGraphicsI
     }
 
     userEntryProxy_->setOpacity(curLineEditOpacity_ * initOpacity);
-}
-
-bool UsernamePasswordEntry::isActive() const
-{
-    return active_;
 }
 
 QString UsernamePasswordEntry::getText() const
@@ -154,7 +149,6 @@ void UsernamePasswordEntry::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             pressed_ = false;
             if (contains(event->pos()))
             {
-                activate();
                 setFocus();
             }
         }
@@ -166,28 +160,10 @@ void UsernamePasswordEntry::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void UsernamePasswordEntry::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-    Q_UNUSED(event);
-
-    if (!active_ && clickable_) //  prevents pointing cursor on description text once active
-    {
-        setCursor(Qt::PointingHandCursor);
-    }
-}
-
 void UsernamePasswordEntry::clearActiveState()
 {
     setError(false);
     userEntryLine_->setText("");
-    active_ = false;
-}
-
-void UsernamePasswordEntry::activate()
-{
-    active_ = true;
-    setCursor(Qt::ArrowCursor);
-    emit activated();
 }
 
 }

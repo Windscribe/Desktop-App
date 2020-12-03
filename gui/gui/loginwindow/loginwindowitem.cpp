@@ -96,10 +96,7 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *pre
     connect(noButton_, SIGNAL(deactivated()), SLOT(onNoDeactivated()));
 
     usernameEntry_ = new UsernamePasswordEntry(usernameText, false, this);
-    connect(usernameEntry_, SIGNAL(activated()), SLOT(onUsernameActivated()));
-
     passwordEntry_ = new UsernamePasswordEntry(passwordText, true, this);
-    connect(passwordEntry_, SIGNAL(activated()), SLOT(onPasswordActivated()));
 
     curForgotAnd2FAPosY_ = FORGOT_AND_2FA_POS_Y_DEFAULT;
     connect(&forgotAnd2FAPosYAnimation_, SIGNAL(valueChanged(QVariant)),
@@ -147,7 +144,9 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *pre
     connect(&emergencyTextAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onEmergencyTextTransition(QVariant)));
 
     connect(usernameEntry_, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(onUsernamePasswordKeyPress(QKeyEvent*)));
+    connect(usernameEntry_, SIGNAL(textChanged(const QString &)), this, SLOT(onUsernamePasswordTextChanged(const QString &)));
     connect(passwordEntry_, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(onUsernamePasswordKeyPress(QKeyEvent*)));
+    connect(passwordEntry_, SIGNAL(textChanged(const QString &)), this, SLOT(onUsernamePasswordTextChanged(const QString &)));
 
     connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
             SLOT(onDockedModeChanged(bool)));
@@ -391,7 +390,7 @@ void LoginWindowItem::setClickable(bool enabled)
             twoFactorAuthButton_->setClickable(enabled);
             forgotPassButton_->setClickable(enabled);
 
-            if (usernameEntry_->isActive() && passwordEntry_->isActive())
+            if (isUsernameAndPasswordValid())
             {
                 loginButton_->setClickable(enabled);
             }
@@ -450,7 +449,6 @@ void LoginWindowItem::attemptLogin()
 
     if (userOrPassError)
     {
-        passwordEntry_->activate();
         setErrorMessage(ERR_MSG_INCORRECT_LOGIN1);
     }
     else
@@ -508,22 +506,6 @@ void LoginWindowItem::onYesDeactivated()
 void LoginWindowItem::onNoDeactivated()
 {
     setFocus();
-}
-
-void LoginWindowItem::onUsernameActivated()
-{
-    if (passwordEntry_->isActive())
-    {
-        loginButton_->setClickable(true);
-    }
-}
-
-void LoginWindowItem::onPasswordActivated()
-{
-    if (usernameEntry_->isActive())
-    {
-        loginButton_->setClickable(true);
-    }
 }
 
 void LoginWindowItem::onTwoFactorAuthClick()
@@ -665,7 +647,6 @@ void LoginWindowItem::onUsernamePasswordKeyPress(QKeyEvent *event)
     {
         if (usernameEntry_->hasFocus())
         {
-            passwordEntry_->activate();
             passwordEntry_->setFocus();
         }
         else if (passwordEntry_->hasFocus())
@@ -675,13 +656,18 @@ void LoginWindowItem::onUsernamePasswordKeyPress(QKeyEvent *event)
     }
     else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
     {
-        attemptLogin();
+        if (isUsernameAndPasswordValid())
+            attemptLogin();
     }
     else if (event->key() == Qt::Key_Escape)
     {
         resetState();
     }
+}
 
+void LoginWindowItem::onUsernamePasswordTextChanged(const QString & /*text*/)
+{
+    loginButton_->setClickable(isUsernameAndPasswordValid());
 }
 
 void LoginWindowItem::onEmergencyHoverEnter()
@@ -914,7 +900,7 @@ void LoginWindowItem::transitionToUsernameScreen()
 
     showUsernamePassword();
 
-    QTimer::singleShot(ANIMATION_SPEED_SLOW, [this]() { usernameEntry_->activate(); usernameEntry_->setFocus(); });
+    QTimer::singleShot(ANIMATION_SPEED_SLOW, [this]() { usernameEntry_->setFocus(); });
 }
 
 void LoginWindowItem::updateScaling()
@@ -946,6 +932,11 @@ void LoginWindowItem::transitionToEmergencyOFF()
 int LoginWindowItem::centeredOffset(int background_length, int graphic_length)
 {
     return background_length/2 - graphic_length/2;
+}
+
+bool LoginWindowItem::isUsernameAndPasswordValid() const
+{
+    return !usernameEntry_->getText().isEmpty() && !passwordEntry_->getText().isEmpty();
 }
 
 void LoginWindowItem::onFirewallTurnOffClick()
