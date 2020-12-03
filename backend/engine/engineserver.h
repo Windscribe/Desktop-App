@@ -73,6 +73,7 @@ private slots:
     void onEngineConfirmEmailFinished(bool bSuccess);
 
     void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, QSharedPointer< QVector<locationsmodel::LocationItem> > items);
+    void onEngineLocationsModelItemsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer< QVector<locationsmodel::LocationItem> > items);
     void onEngineLocationsModelBestLocationUpdated(const LocationID &bestLocation);
     void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer< QVector<locationsmodel::LocationItem> > items);
     void onEngineLocationsModelPingChangedChanged(const LocationID &id, locationsmodel::PingTime timeMs);
