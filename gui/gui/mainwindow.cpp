@@ -285,6 +285,9 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     connect(mainWindowController_, SIGNAL(shadowUpdated()), SLOT(update()));
     connect(mainWindowController_, SIGNAL(revealConnectWindowStateChanged(bool)), this, SLOT(onRevealConnectStateChanged(bool)));
 
+#if defined(Q_OS_MAC)
+    isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
+#endif
     setupTrayIcon();
 
     backend_->getLocationsModel()->setOrderLocationsType(backend_->getPreferences()->locationOrder());
@@ -309,7 +312,6 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
         desiredDockIconVisibility_ = false;
         hideShowDockIconImpl();
     }
-    isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
 #endif
     deactivationTimer_.setSingleShot(true);
     connect(&deactivationTimer_, SIGNAL(timeout()), SLOT(onWindowDeactivateAndHideImpl()));
@@ -2647,10 +2649,9 @@ void MainWindow::setupTrayIcon()
     locationsMenu_.addAction(listWidgetAction_);
     connect(locationsTrayMenuWidget_, SIGNAL(locationSelected(QString)), SLOT(onLocationsTrayMenuLocationSelected(QString)));
 
-    trayIcon_.setIcon(*IconManager::instance().getDisconnectedIcon());
-    trayIcon_.show();
     updateAppIconType(AppIconType::DISCONNECTED);
     updateTrayIconType(AppIconType::DISCONNECTED);
+    trayIcon_.show();
 
 #ifdef Q_OS_MAC
     mainWindowController_->setFirstSystemTrayPosX(trayIcon_.geometry().x());
