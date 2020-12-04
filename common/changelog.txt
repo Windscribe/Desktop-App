@@ -1,3 +1,26 @@
+2.0.38 (04/12/2020)
+* Updated c-ares lib to the latest version.
+* Updated OpenVPN to the latest version 2.5.0.
+* Removed OpenVPN 2.4.8 and use wintun by default.
+* Updated wintun to the latest version 0.9.2.
+* Updated WireGuard to the latest version v0.0.20201118. 
+* Fixed tunnel test fails for IKEv2 on Windows.
+* Mac keychain issue - fixed.
+* Fixed incorrect engine shutdown on Windows.
+* Added new flags, fixed no-flag GUI crash.
+* Added new menubar icons and dark mode detection.
+* UI text fixes (#255).
+* Fixed external config mode problems (#271).
+* All app icons updated.
+* Fixed login button behaviour(#285).
+* Replaced custom advanced parameters with native dialog.
+* Fixed cli inability to connect to locations.
+* Fixed GUI crash related to tray icon.
+* Fixed preferences expanding animation issue on login screen.
+* Increased the waiting time for connecting to the engine in gui to 20 seconds (should fix the possible bug on Mac boot).
+* MTU hashed domain failover fixed. (#245)
+
+
 2.0.37 (25/11/2020)
 * Possible crashes in the gui are fixed.
 * Tunnel tests issues are fixed.
