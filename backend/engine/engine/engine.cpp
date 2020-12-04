@@ -1615,6 +1615,8 @@ void Engine::onConnectionManagerConnected()
         helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
     }
 
+    connectionManager_->startTunnelTests();
+
     connectStateController_->setConnectedState(locationId_);
 }
 
@@ -2163,10 +2165,10 @@ void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes
     }
 }
 
-// todo: Is this really necessary?
+// currently needed for cli state update -- might be a better way
 void Engine::forceUpdateServerLocationsImpl()
 {
-    updateServerLocations();
+    locationsModel_->forceSendLocationsToCli();
 }
 
 void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType)

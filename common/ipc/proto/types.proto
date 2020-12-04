@@ -368,7 +368,7 @@ message EngineSettings
   optional PacketSize packet_size = 14;  
   optional MacAddrSpoofing mac_addr_spoofing = 15;
   optional DnsPolicy dns_policy = 16 [default = DNS_POLICY_OS_DEFAULT];
-  optional TapAdapterType tap_adapter = 17 [default = TAP_ADAPTER];
+  optional TapAdapterType tap_adapter = 17 [default = WINTUN_ADAPTER];
   optional string customOvpnConfigsPath = 18;
   optional bool is_keep_alive_enabled = 19 [default = false];
 }

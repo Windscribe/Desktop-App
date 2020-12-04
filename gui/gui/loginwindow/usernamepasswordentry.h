@@ -21,7 +21,6 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    bool isActive() const;
     void clearActiveState();
 
     QString getText() const;
@@ -36,17 +35,12 @@ public:
     void setFocus();
     void updateScaling() override;
 
-public slots:
-    void activate();
-
 signals:
-    void activated();
     void keyPressed(QKeyEvent *event);
     void textChanged(const QString &text);
 
 protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
 
 private:
     QGraphicsProxyWidget *userEntryProxy_;
@@ -57,8 +51,6 @@ private:
 
     int height_;
     int width_;
-
-    bool active_;
 
     double curDescriptionOpacity_;
     double curLineEditOpacity_;

@@ -2,6 +2,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/dnsresolver/dnsresolver.h"
+#include "engine/hardcodedsettings.h"
 
 KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController) : QObject(parent),
     isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED), pingHostIcmp_(this, stateController)
@@ -17,7 +18,7 @@ void KeepAliveManager::setEnabled(bool isEnabled)
     isEnabled_ = isEnabled;
     if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
     {
-        DnsResolver::instance().lookup("windscribe.com", this);
+        DnsResolver::instance().lookup(HardcodedSettings::instance().serverUrl(), this);
     }
     else
     {
@@ -34,7 +35,7 @@ void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REA
     curConnectState_ = state;
     if (state == CONNECT_STATE_CONNECTED && isEnabled_)
     {
-        DnsResolver::instance().lookup("windscribe.com", this);
+        DnsResolver::instance().lookup(HardcodedSettings::instance().serverUrl(), this);
     }
     else
     {
@@ -83,7 +84,7 @@ void KeepAliveManager::onDnsResolvedFinished(const QString &hostname, const QHos
         {
             if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
             {
-                DnsResolver::instance().lookup("windscribe.com", this);
+                DnsResolver::instance().lookup(HardcodedSettings::instance().serverUrl(), this);
             }
         }
     }

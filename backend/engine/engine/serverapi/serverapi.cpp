@@ -805,7 +805,7 @@ void ServerAPI::pingTest(quint64 cmdId, uint timeout)
         return;
     }
 
-    const QString kCheckIpHostname = "checkip.windscribe.com";
+    const QString kCheckIpHostname = HardcodedSettings::instance().serverTunnelTestUrl();
 
     qCDebug(LOG_SERVER_API) << "Do ping test to:" << kCheckIpHostname << " with timeout: "
                             << timeout;

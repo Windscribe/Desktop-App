@@ -51,7 +51,7 @@ void PlanItem::setPlan(qint64 plan)
     }
     else
     {
-        textButton_->setText(tr("Upgrade"));
+        textButton_->setText(tr("Get more data"));
         textButton_->setCurrentOpacity(OPACITY_UNHOVER_TEXT);
         textButton_->setClickable(true);
     }
@@ -75,7 +75,7 @@ void PlanItem::onLanguageChanged()
     }
     else
     {
-        textButton_->setText(tr("Upgrade"));
+        textButton_->setText(tr("Get more data"));
     }
     updateTextButtonPos();
 }

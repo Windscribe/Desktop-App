@@ -22,8 +22,8 @@ UpgradeWidgetItem::UpgradeWidgetItem(ScalableGraphicsObject *parent) : ScalableG
   , roundedRectXRadius_(10)
 {
 
-    QString buttonText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "UPGRADE");
-    textButton_ = new CommonGraphics::TextButton(buttonText, FontDescr(11, true, 105, UPDATE_WIDGET_SPACING),
+    QString buttonText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "GET MORE DATA");
+    textButton_ = new CommonGraphics::TextButton(buttonText, FontDescr(11, true, 105),
                                                  Qt::white, true, this, 15);
     textButton_->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
@@ -71,7 +71,7 @@ void UpgradeWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
     // version text
     painter->save();
-    QFont font = *FontManager::instance().getFont(11,true, 105, UPDATE_WIDGET_SPACING);
+    QFont font = *FontManager::instance().getFont(11,true, 105);
     QFontMetrics fm(font);
     painter->translate(0, fm.height()+1*G_SCALE);
     painter->setPen(curDataRemainingColor_);
@@ -290,8 +290,7 @@ QString UpgradeWidgetItem::currentText()
             const auto bytes_remaining = bytesMax_ - bytesUsed_;
             const auto gigabytes_remaining = static_cast<int>(bytes_remaining / kOneGB);
             const bool between_1_and_10_gb = gigabytes_remaining >= 1 && gigabytes_remaining < 10;
-            result = Utils::humanReadableByteCount(bytes_remaining, false, between_1_and_10_gb)
-                     + tr(" LEFT");
+            result = Utils::humanReadableByteCount(bytes_remaining, false, between_1_and_10_gb);
         }
     }
 
@@ -334,7 +333,7 @@ void UpgradeWidgetItem::updateButtonText()
         }
         else
         {
-            textButton_->setText(tr("UPGRADE"));
+            textButton_->setText(tr("GET MORE DATA"));
         }
     }
 }

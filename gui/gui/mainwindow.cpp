@@ -35,6 +35,7 @@
     #include "utils/widgetutils_win.h"
     #include <windows.h>
 #else
+    #include "utils/interfaceutils_mac.h"
     #include "utils/macutils.h"
     #include "utils/widgetutils_mac.h"
 #endif
@@ -46,7 +47,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     backend_(NULL),
     logViewerWindow_(nullptr),
     advParametersWindow_(nullptr),
-    currentTrayIconType_(TrayIconType::DISCONNECTED),
+    currentAppIconType_(AppIconType::DISCONNECTED),
     trayIcon_(trayIcon),
     bNotificationConnectedShowed_(false),
     bytesTransferred_(0),
@@ -127,6 +128,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
             SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
 
     locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
     connect(locationsWindow_, SIGNAL(selected(LocationID)), SLOT(onLocationSelected(LocationID)));
@@ -285,6 +287,9 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     connect(mainWindowController_, SIGNAL(shadowUpdated()), SLOT(update()));
     connect(mainWindowController_, SIGNAL(revealConnectWindowStateChanged(bool)), this, SLOT(onRevealConnectStateChanged(bool)));
 
+#if defined(Q_OS_MAC)
+    isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
+#endif
     setupTrayIcon();
 
     backend_->getLocationsModel()->setOrderLocationsType(backend_->getPreferences()->locationOrder());
@@ -456,6 +461,15 @@ bool MainWindow::event(QEvent *event)
         }
 #endif
     }
+
+#if defined(Q_OS_MAC)
+    if (event->type() == QEvent::PaletteChange)
+    {
+        isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
+        if (!MacUtils::isOsVersionIsBigSur_or_greater())
+            updateTrayIconType(currentAppIconType_);
+    }
+#endif
 
     if (event->type() == QEvent::WindowActivate)
     {
@@ -1653,11 +1667,13 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
         bytesTransferred_ = 0;
         connectionElapsedTimer_.start();
 
-        updateTrayIcon(TrayIconType::CONNECTED);
+        updateAppIconType(AppIconType::CONNECTED);
+        updateTrayIconType(AppIconType::CONNECTED);
     }
     else if (connectState.connect_state_type() == ProtoTypes::CONNECTING || connectState.connect_state_type() == ProtoTypes::DISCONNECTING)
     {
-        updateTrayIcon(TrayIconType::CONNECTING);
+        updateAppIconType(AppIconType::CONNECTING);
+        updateTrayIconType(AppIconType::CONNECTING);
         mainWindowController_->clearServerRatingsTooltipState();
     }
     else if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
@@ -1670,7 +1686,8 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
             }
             bNotificationConnectedShowed_ = false;
         }
-        updateTrayIcon(TrayIconType::DISCONNECTED);
+        updateAppIconType(AppIconType::DISCONNECTED);
+        updateTrayIconType(AppIconType::DISCONNECTED);
 
         if (connectState.disconnect_reason() == ProtoTypes::DISCONNECTED_WITH_ERROR)
         {
@@ -1764,21 +1781,28 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
 {
     if (!isLoginOkAndConnectWindowVisible_)
     {
-        // choose latest location
+        // Choose latest location if it's a custom config location; first valid custom config
+        // location otherwise.
         LocationsModel::LocationInfo li;
-        //LocationID lid(PersistentState::instance().state.lastlocation().location_id(), QString::fromStdString(PersistentState::instance().state.lastlocation().city()));
-        if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+        const LocationID lastLocation{PersistentState::instance().lastLocation()};
+        if (lastLocation.isCustomConfigsLocation() &&
+            backend_->getLocationsModel()->getLocationInfo(lastLocation, li))
         {
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(
+                li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
         else
         {
-            /*LocationID bestLocation(LocationID::BEST_LOCATION_ID);
-            if (backend_->getLocationsModel()->getLocationInfo(bestLocation, li))
+            const LocationID bestLocation{
+                backend_->getLocationsModel()->getFirstValidCustomConfigLocationId()};
+            if (bestLocation.isValid() &&
+                backend_->getLocationsModel()->getLocationInfo(bestLocation, li))
             {
                 PersistentState::instance().setLastLocation(bestLocation);
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime, li.isFavorite);
-            }*/
+            }
+            // |li| can be empty here, so this will reset current location.
+            mainWindowController_->getConnectWindow()->updateLocationInfo(
+                li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
         }
 
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
@@ -2042,6 +2066,19 @@ void MainWindow::onBackendEngineCrash()
     mainWindowController_->getInitWindow()->setAdditionalMessage(tr("Lost connection to the backend process.\nRecovering..."));
     mainWindowController_->getInitWindow()->setCropHeight(0); // Needed so that Init screen is correct height when engine fails from connect window
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
+}
+
+void MainWindow::onBackendLocationsUpdated()
+{
+    const auto currentLocation{ PersistentState::instance().lastLocation() };
+    if (!currentLocation.isCustomConfigsLocation())
+        return;
+
+    // Update custom config location info, because user could have selected another config path.
+    LocationsModel::LocationInfo li;
+    backend_->getLocationsModel()->getLocationInfo(currentLocation, li);
+    mainWindowController_->getConnectWindow()->updateLocationInfo(
+        li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
 }
 
 void MainWindow::onBestLocationChanged(const LocationID &bestLocation)
@@ -2559,7 +2596,7 @@ void MainWindow::onScaleChanged()
     ImageResourcesSvg::instance().clearHashAndStartPreloading();
     FontManager::instance().clearCache();
     mainWindowController_->updateScaling();
-    updateTrayIcon(currentTrayIconType_);
+    updateTrayIconType(currentAppIconType_);
 }
 
 void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
@@ -2656,9 +2693,9 @@ void MainWindow::setupTrayIcon()
     locationsMenu_.addAction(listWidgetAction_);
     connect(locationsTrayMenuWidget_, SIGNAL(locationSelected(QString)), SLOT(onLocationsTrayMenuLocationSelected(QString)));
 
-    trayIcon_.setIcon(*IconManager::instance().getDisconnectedIcon());
+    updateAppIconType(AppIconType::DISCONNECTED);
+    updateTrayIconType(AppIconType::DISCONNECTED);
     trayIcon_.show();
-    updateTrayIcon(TrayIconType::DISCONNECTED);
 
 #ifdef Q_OS_MAC
     mainWindowController_->setFirstSystemTrayPosX(trayIcon_.geometry().x());
@@ -2734,14 +2771,16 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
         if (!PersistentState::instance().lastLocation().isBestLocation())
         {
             qCDebug(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
-
-            PersistentState::instance().setLastLocation(backend_->getLocationsModel()->getBestLocationId());
-            LocationsModel::LocationInfo li;
-            if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
-            {
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+            const LocationID bestLocation{backend_->getLocationsModel()->getBestLocationId()};
+            if (bestLocation.isValid()) {
+                PersistentState::instance().setLastLocation(bestLocation);
+                LocationsModel::LocationInfo li;
+                if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+                {
+                    mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+                }
+                onConnectWindowConnectClick();
             }
-            onConnectWindowConnectClick();
         }
         else
         {
@@ -2813,11 +2852,15 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     }
     else if (connectState.connect_error() == ProtoTypes::CANNOT_OPEN_CUSTOM_CONFIG)
     {
-        PersistentState::instance().setLastLocation(backend_->getLocationsModel()->getBestLocationId());
-        LocationsModel::LocationInfo li;
-        if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
-        {
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+        const LocationID bestLocation{backend_->getLocationsModel()->getBestLocationId()};
+        if (bestLocation.isValid()) {
+            PersistentState::instance().setLastLocation(bestLocation);
+            LocationsModel::LocationInfo li;
+            if (backend_->getLocationsModel()->getLocationInfo(
+                PersistentState::instance().lastLocation(), li)) {
+                mainWindowController_->getConnectWindow()->updateLocationInfo(
+                    li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+            }
         }
     }
     else
@@ -2873,25 +2916,64 @@ void MainWindow::collapsePreferences()
     mainWindowController_->collapsePreferences();
 }
 
-void MainWindow::updateTrayIcon(TrayIconType type)
+void MainWindow::updateAppIconType(AppIconType type)
 {
+    if (currentAppIconType_ == type)
+        return;
+
     const QIcon *icon = nullptr;
     switch (type) {
-    case TrayIconType::DISCONNECTED:
+    case AppIconType::DISCONNECTED:
         icon = IconManager::instance().getDisconnectedIcon();
         break;
-    case TrayIconType::CONNECTING:
+    case AppIconType::CONNECTING:
         icon = IconManager::instance().getConnectingIcon();
         break;
-    case TrayIconType::CONNECTED:
+    case AppIconType::CONNECTED:
         icon = IconManager::instance().getConnectedIcon();
         break;
     default:
         break;
     }
+    if (icon)
+        qApp->setWindowIcon(*icon);
+    currentAppIconType_ = type;
+}
+
+void MainWindow::updateTrayIconType(AppIconType type)
+{
+    const QIcon *icon = nullptr;
+#if defined(Q_OS_MAC)
+    switch (type) {
+    case AppIconType::DISCONNECTED:
+        icon = IconManager::instance().getDisconnectedTrayIconForMac(isRunningInDarkMode_);
+        break;
+    case AppIconType::CONNECTING:
+        icon = IconManager::instance().getConnectingTrayIconForMac(isRunningInDarkMode_);
+        break;
+    case AppIconType::CONNECTED:
+        icon = IconManager::instance().getConnectedTrayIconForMac(isRunningInDarkMode_);
+        break;
+    default:
+        break;
+    }
+#else
+    switch (type) {
+    case AppIconType::DISCONNECTED:
+        icon = IconManager::instance().getDisconnectedIcon();
+        break;
+    case AppIconType::CONNECTING:
+        icon = IconManager::instance().getConnectingIcon();
+        break;
+    case AppIconType::CONNECTED:
+        icon = IconManager::instance().getConnectedIcon();
+        break;
+    default:
+        break;
+    }
+#endif
+
      if (icon) {
-         if (currentTrayIconType_ != type)
-             qApp->setWindowIcon(*icon);
 #if defined(Q_OS_WIN)
          const QPixmap pm = icon->pixmap(QSize(16, 16) * G_SCALE);
          if (!pm.isNull()) {
@@ -2903,7 +2985,6 @@ void MainWindow::updateTrayIcon(TrayIconType type)
          trayIcon_.setIcon(*icon);
 #endif
     }
-    currentTrayIconType_ = type;
 }
 
 void MainWindow::updateTrayTooltip(QString tooltip)

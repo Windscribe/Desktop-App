@@ -214,7 +214,6 @@ void TwoFactorAuthWindowItem::setClickable(bool isClickable)
 
     codeEntry_->setClickable(isClickable);
     if (isClickable) {
-        codeEntry_->activate();
         startAnAnimation<double>(codeEntryOpacityAnimation_, curCodeEntryOpacity_,
                                  OPACITY_FULL, ANIMATION_SPEED_SLOW);
         QTimer::singleShot(ANIMATION_SPEED_SLOW, [this]() { codeEntry_->setFocus(); });

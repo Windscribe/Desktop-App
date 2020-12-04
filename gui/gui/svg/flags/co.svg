@@ -1,1 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16"><title>COLOMBIA-small</title><g fill="none"><rect width="32" height="16" fill="#CE1126"/><rect width="32" height="11.9" fill="#003893"/><rect width="32" height="8.2" fill="#FCD116"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16">
+  <g fill="none" fill-rule="evenodd">
+    <rect width="32" height="16" fill="#FCD116" transform="matrix(1 0 0 -1 0 16)"/>
+    <rect width="32" height="4" y="12" fill="#CE1126" transform="matrix(1 0 0 -1 0 28)"/>
+    <rect width="32" height="4" y="8" fill="#003893" transform="matrix(1 0 0 -1 0 20)"/>
+  </g>
+</svg>

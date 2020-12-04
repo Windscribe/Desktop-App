@@ -66,7 +66,7 @@ namespace MacUtils
 
     bool interfaceSpoofed(const QString &interfaceName);
 
-    bool pingWithMtu(int mtu);
+    bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
 
 

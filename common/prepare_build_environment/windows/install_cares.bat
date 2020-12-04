@@ -4,16 +4,15 @@ ECHO ===== Installing C-Ares into c:\libs\cares =====
 rd /s /q "c:\cares_temp"
 rd /s /q "c:\libs\cares"
 
-
 ECHO ===== Building C-Ares 32 (Dll) =====
 
 mkdir c:\cares_temp
-curl.exe https://c-ares.haxx.se/download/c-ares-1.15.0.tar.gz -o c:\cares_temp\c-ares-1.15.0.tar.gz -k -L
+curl.exe https://c-ares.haxx.se/download/c-ares-1.17.1.tar.gz -o c:\cares_temp\c-ares-1.17.1.tar.gz -k -L
 
-7z e c:\cares_temp\c-ares-1.15.0.tar.gz -oc:\cares_temp
-7z x c:\cares_temp\c-ares-1.15.0.tar -oc:\cares_temp
+7z e c:\cares_temp\c-ares-1.17.1.tar.gz -oc:\cares_temp
+7z x c:\cares_temp\c-ares-1.17.1.tar -oc:\cares_temp
 
-PUSHD c:\cares_temp\c-ares-1.15.0
+PUSHD c:\cares_temp\c-ares-1.17.1
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
 
 nmake -f Makefile.msvc   
@@ -23,16 +22,15 @@ nmake -f Makefile.msvc install
 POPD
 rd /s /q "c:\cares_temp"
 
-
 ECHO ===== Building C-Ares 64 (Dll) =====
 
 mkdir c:\cares_temp
-curl.exe https://c-ares.haxx.se/download/c-ares-1.15.0.tar.gz -o c:\cares_temp\c-ares-1.15.0.tar.gz -k -L
+curl.exe https://c-ares.haxx.se/download/c-ares-1.17.1.tar.gz -o c:\cares_temp\c-ares-1.17.1.tar.gz -k -L
 
-7z e c:\cares_temp\c-ares-1.15.0.tar.gz -oc:\cares_temp
-7z x c:\cares_temp\c-ares-1.15.0.tar -oc:\cares_temp
+7z e c:\cares_temp\c-ares-1.17.1.tar.gz -oc:\cares_temp
+7z x c:\cares_temp\c-ares-1.17.1.tar -oc:\cares_temp
 
-PUSHD c:\cares_temp\c-ares-1.15.0
+PUSHD c:\cares_temp\c-ares-1.17.1
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
 
 nmake -f Makefile.msvc   
@@ -42,18 +40,16 @@ nmake -f Makefile.msvc install
 POPD
 rd /s /q "c:\cares_temp"
 
-
 ECHO ===== Building C-Ares 32 (Static) =====
-
 mkdir c:\cares_temp
-curl.exe https://c-ares.haxx.se/download/c-ares-1.15.0.tar.gz -o c:\cares_temp\c-ares-1.15.0.tar.gz -k -L
+curl.exe https://c-ares.haxx.se/download/c-ares-1.17.1.tar.gz -o c:\cares_temp\c-ares-1.17.1.tar.gz -k -L
 
-7z e c:\cares_temp\c-ares-1.15.0.tar.gz -oc:\cares_temp
-7z x c:\cares_temp\c-ares-1.15.0.tar -oc:\cares_temp
+7z e c:\cares_temp\c-ares-1.17.1.tar.gz -oc:\cares_temp
+7z x c:\cares_temp\c-ares-1.17.1.tar -oc:\cares_temp
 
-copy /Y cares_changed_files\Makefile.msvc C:\cares_temp\c-ares-1.15.0\Makefile.msvc
+copy /Y cares_changed_files\Makefile.msvc C:\cares_temp\c-ares-1.17.1\Makefile.msvc
 
-PUSHD c:\cares_temp\c-ares-1.15.0
+PUSHD c:\cares_temp\c-ares-1.17.1
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
 
 nmake -f Makefile.msvc   
@@ -63,18 +59,17 @@ nmake -f Makefile.msvc install
 POPD
 rd /s /q "c:\cares_temp"
 
-
 ECHO ===== Building C-Ares 64 (Static) =====
 
 mkdir c:\cares_temp
-curl.exe https://c-ares.haxx.se/download/c-ares-1.15.0.tar.gz -o c:\cares_temp\c-ares-1.15.0.tar.gz -k -L
+curl.exe https://c-ares.haxx.se/download/c-ares-1.17.1.tar.gz -o c:\cares_temp\c-ares-1.17.1.tar.gz -k -L
 
-7z e c:\cares_temp\c-ares-1.15.0.tar.gz -oc:\cares_temp
-7z x c:\cares_temp\c-ares-1.15.0.tar -oc:\cares_temp
+7z e c:\cares_temp\c-ares-1.17.1.tar.gz -oc:\cares_temp
+7z x c:\cares_temp\c-ares-1.17.1.tar -oc:\cares_temp
 
-copy /Y cares_changed_files\Makefile.msvc C:\cares_temp\c-ares-1.15.0\Makefile.msvc
+copy /Y cares_changed_files\Makefile.msvc C:\cares_temp\c-ares-1.17.1\Makefile.msvc
 
-PUSHD c:\cares_temp\c-ares-1.15.0
+PUSHD c:\cares_temp\c-ares-1.17.1
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
 
 nmake -f Makefile.msvc   

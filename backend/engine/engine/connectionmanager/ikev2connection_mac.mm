@@ -86,13 +86,7 @@ namespace KeyChainUtils
             qCDebug(LOG_IKEV2) << "createKeychainItem, SecKeychainCopyDomainDefault return:" << (int)status;
             return false;
         }
-        status = SecKeychainUnlock(keychain, 0, NULL, FALSE);
-        if (status != errSecSuccess)
-        {
-            qCDebug(LOG_IKEV2) << "createKeychainItem, SecKeychainUnlock return:" << (int)status;
-            CFRelease(keychain);
-            return false;
-        }
+        status = SecKeychainUnlock(keychain, 0, NULL, FALSE);  // don't need to check for SecKeychainUnlock errors, as it doesn't affect anything
 
         SecAccessRef access = nil;
         NSArray *arrApps = trustedApps();

@@ -252,6 +252,9 @@ void LocationsModel::switchFavorite(const LocationID &id, bool isFavorite)
 
 bool LocationsModel::getLocationInfo(const LocationID &id, LocationsModel::LocationInfo &li)
 {
+    if (!id.isValid())
+        return false;
+
     if (id.isCustomConfigsLocation())
     {
         for (int i = 0; i < customConfigLocations_.count(); ++i)
@@ -455,4 +458,18 @@ LocationID LocationsModel::getBestLocationId() const
 {
     Q_ASSERT(bestLocationId_.isValid());
     return bestLocationId_;
+}
+
+LocationID LocationsModel::getFirstValidCustomConfigLocationId() const
+{
+    for (int i = 0; i < customConfigLocations_.count(); ++i)
+    {
+        for (int k = 0; k < customConfigLocations_[i]->cities.count(); ++k)
+        {
+            if (!customConfigLocations_[i]->cities[k].isDisabled &&
+                customConfigLocations_[i]->cities[k].isCustomConfigCorrect)
+                return customConfigLocations_[i]->cities[k].id;
+        }
+    }
+    return LocationID();
 }

@@ -1,15 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="32px" height="16px" viewBox="0 0 32 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 61.2 (89653) - https://sketch.com -->
-    <title>Panama</title>
-    <desc>Created with Sketch.</desc>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Panama" fill-rule="nonzero">
-            <rect id="Rectangle-4" fill="#FFFFFF" x="0" y="0" width="32" height="16"></rect>
-            <rect id="Rectangle-4-Copy" fill="#D21034" x="16" y="0" width="16" height="8"></rect>
-            <rect id="Rectangle-4-Copy-2" fill="#005293" x="0" y="8" width="16" height="8"></rect>
-            <polygon id="Path-3" fill="#005293" points="8 4.96 6.816 5.792 7.264 4.416 6.08 3.584 7.552 3.584 8 2.176 8.416 3.584 9.888 3.584 8.704 4.416 9.152 5.824"></polygon>
-            <polygon id="Path-3-Copy" fill="#D21034" points="24.512 12.96 23.328 13.792 23.776 12.416 22.592 11.584 24.064 11.584 24.512 10.176 24.928 11.584 26.4 11.584 25.216 12.416 25.664 13.824"></polygon>
-        </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16">
+  <g fill="none" fill-rule="evenodd">
+    <rect width="32" height="16" fill="#FFF" transform="matrix(1 0 0 -1 0 16)"/>
+    <rect width="32" height="16" fill="#FFF"/>
+    <polygon fill="#D21034" points="16 0 32 0 32 8 16 8"/>
+    <polygon fill="#005293" points="0 8 16 8 16 16 0 16"/>
+    <g fill-rule="nonzero" transform="translate(6 2)">
+      <polygon fill="#005293" points="2 0 2.472 1.528 4 1.528 2.764 2.472 3.236 4 2 3.056 .764 4 1.236 2.472 0 1.528 1.528 1.528"/>
+      <polygon fill="#D21034" points="18 8 18.472 9.528 20 9.528 18.764 10.472 19.236 12 18 11.056 16.764 12 17.236 10.472 16 9.528 17.528 9.528"/>
     </g>
+  </g>
 </svg>

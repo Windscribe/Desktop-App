@@ -75,8 +75,6 @@ private slots:
     void onYesDeactivated();
     void onNoDeactivated();
 
-    void onUsernameActivated();
-    void onPasswordActivated();
     void onTwoFactorAuthClick();
     void onForgotPassClick();
 
@@ -101,6 +99,7 @@ private slots:
     void onHideYesNoTimerTick();
 
     void onUsernamePasswordKeyPress(QKeyEvent *event);
+    void onUsernamePasswordTextChanged(const QString &text);
 
     void onFirewallTurnOffClick();
 
@@ -131,6 +130,8 @@ private:
     void changeToAccountScreen();
 
     int centeredOffset(int background_length, int graphic_length);
+
+    bool isUsernameAndPasswordValid() const;
 
     bool account_screen_;
 

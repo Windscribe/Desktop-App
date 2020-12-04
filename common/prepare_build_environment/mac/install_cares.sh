@@ -6,11 +6,11 @@ rm -rf $HOME/"cares_temp"
 rm -rf $HOME/"LibsWindscribe/cares"
 
 mkdir $HOME/"cares_temp"
-curl https://c-ares.haxx.se/download/c-ares-1.15.0.tar.gz -o $HOME/"cares_temp/c-ares-1.15.0.tar.gz" -k -L
+curl https://c-ares.haxx.se/download/c-ares-1.17.1.tar.gz -o $HOME/"cares_temp/c-ares-1.17.1.tar.gz" -k -L
 
-tar -zxvf $HOME/"cares_temp/c-ares-1.15.0.tar.gz" -C $HOME/"cares_temp"
+tar -zxvf $HOME/"cares_temp/c-ares-1.17.1.tar.gz" -C $HOME/"cares_temp"
 
-pushd $HOME/"cares_temp/c-ares-1.15.0"
+pushd $HOME/"cares_temp/c-ares-1.17.1"
 
 export CC="cc -mmacosx-version-min=10.11"
 ./configure --prefix=$HOME/"LibsWindscribe/cares"
