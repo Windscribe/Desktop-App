@@ -1900,10 +1900,17 @@ void Engine::detectAppropriatePacketSizeImpl()
 {
     if (networkDetectionManager_->isOnline())
     {
-        qCDebug(LOG_PACKET_SIZE) << "Detecting appropriate packet size";
-        runningPacketDetection_ = true;
-        emit packetSizeDetectionStateChanged(true);
-        packetSizeController_->detectAppropriatePacketSize();
+        if (serverAPI_->isRequestsEnabled())
+        {
+            qCDebug(LOG_PACKET_SIZE) << "Detecting appropriate packet size";
+            runningPacketDetection_ = true;
+            emit packetSizeDetectionStateChanged(true);
+            packetSizeController_->detectAppropriatePacketSize(serverAPI_->getHostname());
+        }
+        else
+        {
+            qCDebug(LOG_PACKET_SIZE) << "ServerAPI not enabled for requests (working hostname not detected). Using: " << QString::number(packetSize_.mtu());
+        }
     }
     else
     {

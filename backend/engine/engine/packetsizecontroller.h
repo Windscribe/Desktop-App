@@ -13,14 +13,14 @@ public:
     explicit PacketSizeController(QObject *parent = nullptr);
 
     void setPacketSize(const ProtoTypes::PacketSize &packetSize);
-    void detectAppropriatePacketSize();
+    void detectAppropriatePacketSize(const QString &hostname);
     void earlyStop();
 signals:
     void packetSizeChanged(bool isAuto, int mtu);
     void finishedPacketSizeDetection();
 
 private slots:
-    void detectAppropriatePacketSizeImpl();
+    void detectAppropriatePacketSizeImpl(const QString &hostname);
 
 private:
     QMutex mutex_;
@@ -28,7 +28,7 @@ private:
     ProtoTypes::PacketSize packetSize_;
     void setPacketSizeImpl(const ProtoTypes::PacketSize &packetSize);
 
-    int getIdealPacketSize();
+    int getIdealPacketSize(const QString &hostname);
 };
 
 #endif // PACKETSIZECONTROLLER_H

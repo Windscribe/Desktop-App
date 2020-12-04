@@ -397,6 +397,25 @@ void ServerAPI::setHostname(const QString &hostname)
     hostname_ = hostname;
 }
 
+QString ServerAPI::getHostname() const
+{
+    // if this is IP, return without change
+    if (IpValidation::instance().isIp(hostname_))
+    {
+        return hostname_;
+    }
+    // otherwise return hostname without "api." appendix
+    else
+    {
+        QString modifiedHostname = hostname_;
+        if (modifiedHostname.startsWith("api.", Qt::CaseInsensitive))
+        {
+            modifiedHostname = modifiedHostname.remove(0, 4);
+        }
+        return modifiedHostname;
+    }
+}
+
 void ServerAPI::submitDnsRequest(BaseRequest *request, const QString &forceHostname)
 {
     if (request && request->isActive()) {
@@ -563,7 +582,7 @@ void ServerAPI::serverLocations(const QString &authHash, const QString &language
     }
 
     QString hostname;
-    // if this is IP, then use api.windscribe.com
+    // if this is IP, then use without changes
     if (IpValidation::instance().isIp(hostname_))
     {
         hostname = hostname_;

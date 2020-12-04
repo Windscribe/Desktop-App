@@ -38,7 +38,7 @@ public:
 
     // set single hostname for make API requests
     void setHostname(const QString &hostname);
-    QString getHostname() const { return hostname_; }
+    QString getHostname() const;
 
     void accessIps(const QString &hostIp, uint userRole, bool isNeedCheckRequestsEnabled);
     void login(const QString &username, const QString &password, const QString &code2fa, uint userRole, bool isNeedCheckRequestsEnabled);

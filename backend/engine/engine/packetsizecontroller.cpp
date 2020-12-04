@@ -4,6 +4,7 @@
 #include "engine/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
+#include "utils/ipvalidation.h"
 
 const int typeIdPacketSize = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::PacketSize");
 
@@ -18,10 +19,10 @@ void PacketSizeController::setPacketSize(const ProtoTypes::PacketSize &packetSiz
     setPacketSizeImpl(packetSize);
 }
 
-void PacketSizeController::detectAppropriatePacketSize()
+void PacketSizeController::detectAppropriatePacketSize(const QString &hostname)
 {
     QMutexLocker locker(&mutex_);
-    QMetaObject::invokeMethod(this, "detectAppropriatePacketSizeImpl");
+    QMetaObject::invokeMethod(this, "detectAppropriatePacketSizeImpl", Q_ARG(QString, hostname));
 }
 
 void PacketSizeController::earlyStop()
@@ -39,14 +40,14 @@ void PacketSizeController::setPacketSizeImpl(const ProtoTypes::PacketSize &packe
     }
 }
 
-void PacketSizeController::detectAppropriatePacketSizeImpl()
+void PacketSizeController::detectAppropriatePacketSizeImpl(const QString &hostname)
 {
     {
         QMutexLocker locker(&mutex_);
         earlyStop_ = false;
     }
 
-    int mtu = getIdealPacketSize();
+    int mtu = getIdealPacketSize(hostname);
 
     QMutexLocker locker(&mutex_);
     if (mtu > 0)
@@ -61,9 +62,22 @@ void PacketSizeController::detectAppropriatePacketSizeImpl()
     emit finishedPacketSizeDetection();
 }
 
-int PacketSizeController::getIdealPacketSize()
+int PacketSizeController::getIdealPacketSize(const QString &hostname)
 {
     int mtu = 1470;
+    QString modifiedHostname = hostname;
+
+    // if this is IP, use without change
+    if (IpValidation::instance().isIp(hostname))
+    {
+        modifiedHostname = hostname;
+    }
+    // append "checkip." in the front
+    else
+    {
+        modifiedHostname = "checkip." + hostname;
+
+    }
 
     bool success = false;
     while (mtu >= 1300)
@@ -75,7 +89,7 @@ int PacketSizeController::getIdealPacketSize()
             break;
         }
 
-        bool pingSuccess = Utils::pingWithMtu(HardcodedSettings::instance().serverTunnelTestUrl(), mtu);
+        bool pingSuccess = Utils::pingWithMtu(modifiedHostname, mtu);
         if (pingSuccess)
         {
             success = true;
