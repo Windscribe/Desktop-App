@@ -2409,8 +2409,8 @@ void MainWindowController::collapsePreferencesFromLogin()
 
     // Resizing
     QVariantAnimation *animResize = new QVariantAnimation(this);
-    animResize->setStartValue((int)preferencesWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE);
-    animResize->setEndValue((int)loginWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE);
+    animResize->setStartValue((int)preferencesWindow_->getGraphicsObject()->boundingRect().height());
+    animResize->setEndValue((int)loginWindow_->getGraphicsObject()->boundingRect().height());
     animResize->setDuration(EXPAND_PREFERENCES_RESIZE_DURATION);
     connect(animResize, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
         preferencesWindow_->setHeight(value.toInt());
