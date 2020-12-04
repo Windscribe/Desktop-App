@@ -90,6 +90,8 @@ signals:
     void showTooltip(TooltipInfo info);
     void hideTooltip(TooltipId id);
 
+    void advancedParametersClicked() override;
+
 #ifdef Q_OS_WIN
     void setIpv6StateInOS(bool bEnabled, bool bRestartNow) override;
 #endif
@@ -151,7 +153,7 @@ private:
     DebugWindowItem *debugWindowItem_;
 
     // sub screens
-    AdvancedParametersWindowItem *advancedParametersWindowItem_;
+    // AdvancedParametersWindowItem *advancedParametersWindowItem_;
     NetworkWhiteListWindowItem *networkWhiteListWindowItem_;
     ProxySettingsWindowItem *proxySettingsWindowItem_;
     SplitTunnelingWindowItem *splitTunnelingWindowItem_;

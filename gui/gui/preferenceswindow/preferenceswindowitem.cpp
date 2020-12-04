@@ -89,7 +89,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
 
     networkWhiteListWindowItem_ = new NetworkWhiteListWindowItem(nullptr, preferences);
     proxySettingsWindowItem_ = new ProxySettingsWindowItem(nullptr, preferences);
-    advancedParametersWindowItem_ = new AdvancedParametersWindowItem(nullptr, preferences);
+    // advancedParametersWindowItem_ = new AdvancedParametersWindowItem(nullptr, preferences);
     splitTunnelingWindowItem_ = new SplitTunnelingWindowItem(nullptr, preferences);
     splitTunnelingAppsWindowItem_ = new SplitTunnelingAppsWindowItem(nullptr, preferences);
     splitTunnelingAppsSearchWindowItem_ = new SplitTunnelingAppsSearchWindowItem(nullptr, preferences);
@@ -120,7 +120,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
 
 PreferencesWindowItem::~PreferencesWindowItem()
 {
-    delete advancedParametersWindowItem_;
+    // delete advancedParametersWindowItem_;
     delete networkWhiteListWindowItem_;
     delete proxySettingsWindowItem_;
     delete splitTunnelingWindowItem_;
@@ -426,12 +426,15 @@ void PreferencesWindowItem::onProxySettingsPageClick()
 
 void PreferencesWindowItem::onAdvParametersClick()
 {
-    scrollAreaItem_->setItem(advancedParametersWindowItem_);
-    advancedParametersWindowItem_->updateScaling();
-    debugWindowItem_->setScreen(DEBUG_SCREEN_ADVANCED_PARAMETERS);
-    setShowSubpageMode(true);
-    pageCaption_ = advancedParametersWindowItem_->caption();
-    update();
+    // TODO: will return to this later when time permits (#143)
+    // scrollAreaItem_->setItem(advancedParametersWindowItem_);
+    // advancedParametersWindowItem_->updateScaling();
+    // debugWindowItem_->setScreen(DEBUG_SCREEN_ADVANCED_PARAMETERS);
+    // setShowSubpageMode(true);
+    // pageCaption_ = advancedParametersWindowItem_->caption();
+    // update();
+
+    emit advancedParametersClicked();
 }
 
 void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingAppsHome()
@@ -627,7 +630,7 @@ void PreferencesWindowItem::updateChildItemsAfterHeightChanged()
     tabControlItem_->setHeight(curHeight_  - 99*G_SCALE);
     bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X * G_SCALE, curHeight_  - BOTTOM_RESIZE_OFFSET_Y*G_SCALE );
     scrollAreaItem_->setHeight(curHeight_  - 102*G_SCALE);
-    advancedParametersWindowItem_->setHeight(curHeight_ / G_SCALE - 130); // only needed to extend the size of the parameters typing region
+    // advancedParametersWindowItem_->setHeight(curHeight_ / G_SCALE - 130); // only needed to extend the size of the parameters typing region
 }
 
 } // namespace PreferencesWindow

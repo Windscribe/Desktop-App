@@ -46,6 +46,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     QWidget(nullptr),
     backend_(NULL),
     logViewerWindow_(nullptr),
+    advParametersWindow_(nullptr),
     currentAppIconType_(AppIconType::DISCONNECTED),
     trayIcon_(trayIcon),
     bNotificationConnectedShowed_(false),
@@ -191,6 +192,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(signOutClick()), SLOT(onPreferencesSignOutClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(loginClick()), SLOT(onPreferencesLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(viewLogClick()), SLOT(onPreferencesViewLogClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(advancedParametersClicked()), SLOT(onPreferencesAdvancedParametersClicked()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkUpdated(ProtoTypes::NetworkInterface)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
@@ -903,15 +905,20 @@ void MainWindow::onPreferencesHelpClick()
     QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().serverUrl())));
 }
 
-void MainWindow::onPreferencesViewLogClick()
+void MainWindow::cleanupLogViewerWindow()
 {
-    // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
     if (logViewerWindow_ != nullptr)
     {
         logViewerWindow_->hide();
         logViewerWindow_->deleteLater();
         logViewerWindow_ = nullptr;
     }
+}
+
+void MainWindow::onPreferencesViewLogClick()
+{
+    // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
+    cleanupLogViewerWindow();
 
     logViewerWindow_ = new LogViewer::LogViewerWindow(this);
     logViewerWindow_->setLog(MergeLog::mergeLogs());
@@ -986,6 +993,29 @@ void MainWindow::onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()
         const QString desc = tr("Cannot detect appropriate packet size without internet. Check your connection.");
         mainWindowController_->getPreferencesWindow()->showPacketSizeDetectionError(title, desc);
     }
+}
+
+void MainWindow::cleanupAdvParametersWindow()
+{
+    if (advParametersWindow_ != nullptr)
+    {
+        disconnect(advParametersWindow_);
+        advParametersWindow_->hide();
+        advParametersWindow_->deleteLater();
+        advParametersWindow_ = nullptr;
+    }
+}
+
+void MainWindow::onPreferencesAdvancedParametersClicked()
+{
+    // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
+    cleanupAdvParametersWindow();
+
+    advParametersWindow_ = new AdvancedParametersDialog(this);
+    advParametersWindow_->setAdvancedParameters(backend_->getPreferences()->debugAdvancedParameters());
+    connect(advParametersWindow_, SIGNAL(okClick()), SLOT(onAdvancedParametersOkClick()));
+    connect(advParametersWindow_, SIGNAL(cancelClick()), SLOT(onAdvancedParametersCancelClick()));
+    advParametersWindow_->show();
 }
 
 void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
@@ -2248,6 +2278,8 @@ void MainWindow::deactivateAndHide()
         setWindowState(Qt::WindowMinimized);
     }
 #endif
+    cleanupAdvParametersWindow();
+    cleanupLogViewerWindow();
     lastWindowStateChange_ = QDateTime::currentMSecsSinceEpoch();
 }
 
@@ -2590,6 +2622,18 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
 void MainWindow::onWindowDeactivateAndHideImpl()
 {
     deactivateAndHide();
+}
+
+void MainWindow::onAdvancedParametersOkClick()
+{
+    const QString text = advParametersWindow_->advancedParametersText();
+    backend_->getPreferences()->setDebugAdvancedParameters(text);
+    cleanupAdvParametersWindow();
+}
+
+void MainWindow::onAdvancedParametersCancelClick()
+{
+    cleanupAdvParametersWindow();
 }
 
 void MainWindow::onLanguageChanged()

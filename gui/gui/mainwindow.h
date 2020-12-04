@@ -17,6 +17,7 @@
 #include "graphicresources/iconmanager.h"
 #include "guitest.h"
 #include "systemtray/locationstraymenuwidget.h"
+#include "dialogs/advancedparametersdialog.h"
 
 
 class MainWindow : public QWidget
@@ -88,6 +89,7 @@ private slots:
     void onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow);
 	void onPreferencesCycleMacAddressClick();
     void onPreferencesWindowDetectAppropriatePacketSizeButtonClicked();
+    void onPreferencesAdvancedParametersClicked();
 
     // emergency window signals
     void onEmergencyConnectClick();
@@ -223,6 +225,9 @@ private slots:
     void onFocusWindowChanged(QWindow *focusWindow);
     void onWindowDeactivateAndHideImpl();
 
+    void onAdvancedParametersOkClick();
+    void onAdvancedParametersCancelClick();
+
 private:
     void gotoLoginWindow();
     void gotoExitWindow();
@@ -235,6 +240,7 @@ private:
 
     LocationsWindow *locationsWindow_;
     LogViewer::LogViewerWindow *logViewerWindow_;
+    AdvancedParametersDialog *advParametersWindow_;
 
     QWidgetAction *listWidgetAction_;
     QMenu trayMenu_;
@@ -320,6 +326,8 @@ private:
 
     bool downloadRunning_;
     bool ignoreUpdateUntilNextRun_;
- };
+    void cleanupAdvParametersWindow();
+    void cleanupLogViewerWindow();
+};
 
 #endif // MAINWINDOW_H

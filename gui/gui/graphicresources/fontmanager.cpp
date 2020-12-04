@@ -9,7 +9,7 @@
 #include "dpiscalemanager.h"
 
 
-QFont *FontManager::getFont(int size, bool isBold, int stretch, qreal letterSpacing)
+QFont *FontManager::getFontWithCustomScale(double scale, int size, bool isBold, int stretch, qreal letterSpacing)
 {
     Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
@@ -23,14 +23,16 @@ QFont *FontManager::getFont(int size, bool isBold, int stretch, qreal letterSpac
         key += "_0";
     }
 
-    key += QString::number(stretch);
+    key += "_" + QString::number(stretch);
+    key += "_" + QString::number(scale, 'f', 2 );
+    // qDebug() << "Font key: " << key;
 
     auto it = fonts_.find(key);
     if (it == fonts_.end())
     {
         QFont *font = new QFont();
         font->setFamily("IBM Plex Sans");
-        font->setPixelSize(size * G_SCALE);
+        font->setPixelSize(size * scale);
         font->setBold(isBold);
         font->setStretch(stretch);
         font->setLetterSpacing(QFont::AbsoluteSpacing, letterSpacing);
@@ -41,6 +43,11 @@ QFont *FontManager::getFont(int size, bool isBold, int stretch, qreal letterSpac
     {
         return it.value();
     }
+}
+
+QFont *FontManager::getFont(int size, bool isBold, int stretch, qreal letterSpacing)
+{
+    return getFontWithCustomScale(G_SCALE, size, isBold, stretch, letterSpacing);
 }
 
 QFont *FontManager::getFont(const FontDescr &fd)

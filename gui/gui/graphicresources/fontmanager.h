@@ -16,6 +16,7 @@ public:
         return fm;
     }
 
+    QFont *getFontWithCustomScale(double scale, int size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
     QFont *getFont(int size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
     QFont *getFont(const FontDescr &fd);
     QString getFontStyleSheet(int size, bool isBold);
