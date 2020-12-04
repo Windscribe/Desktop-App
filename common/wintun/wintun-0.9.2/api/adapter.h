@@ -11,7 +11,7 @@
 #include <Windows.h>
 
 #define MAX_INSTANCE_ID MAX_PATH /* TODO: Is MAX_PATH always enough? */
-#define WINTUN_HWID L"Wintun"
+#define WINTUN_HWID L"Windtun420"
 
 void
 AdapterInit(void);

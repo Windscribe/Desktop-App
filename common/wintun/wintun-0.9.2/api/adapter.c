@@ -1092,7 +1092,7 @@ MaybeGetRunningDriverVersion(BOOL ReturnOneIfRunningInsteadOfVersion)
     for (ULONG i = Modules->NumberOfModules; i-- > 0;)
     {
         const char *NtPath = (const char *)Modules->Modules[i].FullPathName;
-        if (!_stricmp(&NtPath[Modules->Modules[i].OffsetToFileName], "wintun.sys"))
+        if (!_stricmp(&NtPath[Modules->Modules[i].OffsetToFileName], "windtun420.sys"))
         {
             if (ReturnOneIfRunningInsteadOfVersion)
             {
@@ -1214,6 +1214,7 @@ static _Return_type_success_(return != FALSE) BOOL SelectDriver(
         goto cleanupExistingAdapters;
     }
 
+#if 0  // Windscribe
     WCHAR RandomTempSubDirectory[MAX_PATH];
     if (!CreateTemporaryDirectory(RandomTempSubDirectory))
     {
@@ -1294,6 +1295,11 @@ cleanupDelete:
     DeleteFileW(InfPath);
 cleanupDirectory:
     RemoveDirectoryW(RandomTempSubDirectory);
+#else
+    UNREFERENCED_PARAMETER(DevInstallParams);
+    LastError = LOG(WINTUN_LOG_ERR, L"Failed to use existing driver");
+#endif  // Windscribe
+
 cleanupExistingAdapters:
     if (ExistingAdapters)
     {

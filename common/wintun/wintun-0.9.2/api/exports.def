@@ -1,4 +1,4 @@
-LIBRARY wintun.dll
+LIBRARY wgsupport.dll
 EXPORTS
 	WintunAllocateSendPacket
 	WintunCreateAdapter

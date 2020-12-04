@@ -16,6 +16,11 @@
     <WintunPlatform Condition="'$(Platform)'=='ARM64'">arm64</WintunPlatform>
     <WintunPlatform Condition="'$(Platform)'=='Win32'">x86</WintunPlatform>
     <WintunPlatform Condition="'$(Platform)'=='x64'">amd64</WintunPlatform>
+
+    <WintunDriverPath Condition="'$(Platform)'=='ARM'">$(SolutionDir)/../signing/arm</WintunDriverPath>
+    <WintunDriverPath Condition="'$(Platform)'=='ARM64'">$(SolutionDir)/../signing/arm64</WintunDriverPath>
+    <WintunDriverPath Condition="'$(Platform)'=='Win32'">$(SolutionDir)/../signing/i386</WintunDriverPath>
+    <WintunDriverPath Condition="'$(Platform)'=='x64'">$(SolutionDir)/../signing/amd64</WintunDriverPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
