@@ -19,6 +19,8 @@
 * Fixed preferences expanding animation issue on login screen.
 * Increased the waiting time for connecting to the engine in gui to 20 seconds (should fix the possible bug on Mac boot).
 * MTU hashed domain failover fixed. (#245)
+* Prevent browser popup on uninstall during installation on Windows.
+* Fixed missing installer log. (#205)
 
 
 2.0.37 (25/11/2020)
