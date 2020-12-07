@@ -257,6 +257,7 @@ SOURCES += \
     utils/simplecrypt.cpp \
     utils/writeaccessrightschecker.cpp \
     blockconnect.cpp \
+    dpiscaleawarewidget.cpp \
     dpiscalemanager.cpp \
     freetrafficnotificationcontroller.cpp \
     guitest.cpp \
@@ -484,6 +485,7 @@ HEADERS += \
     utils/simplecrypt.h \
     utils/writeaccessrightschecker.h \
     blockconnect.h \
+    dpiscaleawarewidget.h \
     dpiscalemanager.h \
     freetrafficnotificationcontroller.h \
     guitest.h \

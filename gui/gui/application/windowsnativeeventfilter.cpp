@@ -6,6 +6,7 @@
 #ifdef Q_OS_WIN
     #include <windows.h>
     #include "utils/winutils.h"
+    #include "dpiscaleawarewidget.h"
 #endif
 
 WindowsNativeEventFilter::WindowsNativeEventFilter() : QAbstractNativeEventFilter()
@@ -42,6 +43,15 @@ bool WindowsNativeEventFilter::nativeEventFilter(const QByteArray &b, void *mess
                 WindscribeApplication::instance()->setWasRestartOSFlag();
                 bShutdownAlreadyReceived_ = true;
             }
+        }
+    }
+    else if (msg->message == WM_DPICHANGED)
+    {
+        auto *widget = QWidget::find(WId(msg->hwnd));
+        if (widget) {
+            auto *dpi_scale_aware_widget = dynamic_cast<DPIScaleAwareWidget*>(widget);
+            if (dpi_scale_aware_widget)
+                dpi_scale_aware_widget->checkForAutoResize_win();
         }
     }
     else if ( msg->message == dwActivateMessage_)

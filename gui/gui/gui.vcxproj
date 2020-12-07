@@ -400,6 +400,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
     <ClCompile Include="commonwidgets\textbuttonwidget.cpp" />
+    <ClCompile Include="dialogs\advancedparametersdialog.cpp" />
+    <ClCompile Include="dpiscaleawarewidget.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp" />
     <ClCompile Include="overlaysconnectwindow\generalmessagetwobuttonwindowitem.cpp" />
     <ClCompile Include="overlaysconnectwindow\generalmessagewindowitem.cpp" />
@@ -650,6 +652,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <ClInclude Include="..\backend\preferences\detectlanrange.h" />
     <QtMoc Include="commonwidgets\textbuttonwidget.h" />
+    <QtMoc Include="dialogs\advancedparametersdialog.h" />
+    <QtMoc Include="dpiscaleawarewidget.h" />
     <ClInclude Include="locationswindow\widgetlocations\backgroundpixmapanimation.h" />
     <QtMoc Include="preferenceswindow\baseitem.h">
     </QtMoc>

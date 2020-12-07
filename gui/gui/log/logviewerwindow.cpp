@@ -12,7 +12,7 @@
 namespace LogViewer {
 
 
-LogViewerWindow::LogViewerWindow(QWidget *parent) : QWidget(parent)
+LogViewerWindow::LogViewerWindow(QWidget *parent) : DPIScaleAwareWidget(parent)
 {
     setWindowFlag(Qt::Dialog);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
@@ -26,7 +26,6 @@ LogViewerWindow::LogViewerWindow(QWidget *parent) : QWidget(parent)
 
     textEdit_ = new QPlainTextEdit();
     textEdit_->setReadOnly(true);
-    textEdit_->setFont(*FontManager::instance().getFont(12, false));
 
     layout_ = new QVBoxLayout(this);
     layout_->setAlignment(Qt::AlignCenter);
@@ -39,6 +38,8 @@ LogViewerWindow::LogViewerWindow(QWidget *parent) : QWidget(parent)
                 desktopRc.top() + desktopRc.height() * 0.3 / 2,
                 desktopRc.width() * 0.7,
                 desktopRc.height() * 0.7);
+
+    updateScaling();
 }
 
 LogViewerWindow::~LogViewerWindow()
@@ -48,6 +49,11 @@ LogViewerWindow::~LogViewerWindow()
 void LogViewerWindow::setLog(const QString &log)
 {
     textEdit_->setPlainText(log);
+}
+
+void LogViewerWindow::updateScaling()
+{
+    textEdit_->setFont(*FontManager::instance().getFontWithCustomScale(currentScale(), 12, false));
 }
 
 } //namespace LogViewer

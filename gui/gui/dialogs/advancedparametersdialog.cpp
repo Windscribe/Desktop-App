@@ -1,16 +1,14 @@
 #include "advancedparametersdialog.h"
 
 #include <QIcon>
-#include <QGuiApplication>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "dpiscalemanager.h"
 
 #include <QDebug>
 
 const int UNSCALED_SPACER_WIDTH = 40;
 
-AdvancedParametersDialog::AdvancedParametersDialog(QWidget *parent) : QWidget(parent)
+AdvancedParametersDialog::AdvancedParametersDialog(QWidget *parent) : DPIScaleAwareWidget(parent)
 {
     setWindowFlag(Qt::Dialog);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
@@ -25,7 +23,7 @@ AdvancedParametersDialog::AdvancedParametersDialog(QWidget *parent) : QWidget(pa
     clearButton_ = new QPushButton(tr("Clear"));
     okButton_ = new QPushButton(tr("Ok"));
     cancelButton_ = new QPushButton(tr("Cancel"));
-    hSpacer_ = new QSpacerItem(UNSCALED_SPACER_WIDTH*G_SCALE,1, QSizePolicy::Expanding);
+    hSpacer_ = new QSpacerItem(UNSCALED_SPACER_WIDTH * currentScale(),1, QSizePolicy::Expanding);
 
     connect(clearButton_, SIGNAL(clicked()), SLOT(onClearClicked()));
     connect(okButton_, SIGNAL(clicked()), SLOT(onOkClicked()));
@@ -42,11 +40,10 @@ AdvancedParametersDialog::AdvancedParametersDialog(QWidget *parent) : QWidget(pa
     layout_->addWidget(textEdit_, Qt::AlignCenter);
     layout_->addLayout(buttonLayout);
 
-    curScreenScale_ = G_SCALE;
 #ifdef Q_OS_WIN
-    setGeometry(parent->geometry().x() + 22*G_SCALE,
-                parent->geometry().y() + 65*G_SCALE,
-                350 * G_SCALE, 350 * G_SCALE);
+    setGeometry(parent->geometry().x() + 22 * currentScale(),
+                parent->geometry().y() + 65 * currentScale(),
+                350 * currentScale(), 350 * currentScale());
 #endif
     updateScaling();
 }
@@ -68,11 +65,15 @@ const QString AdvancedParametersDialog::advancedParametersText()
 
 void AdvancedParametersDialog::updateScaling()
 {
-    textEdit_->setFont(*FontManager::instance().getFontWithCustomScale(curScreenScale_, 12, false));
-    hSpacer_->changeSize(UNSCALED_SPACER_WIDTH * curScreenScale_, 1, QSizePolicy::Expanding);
-    clearButton_->setFixedWidth(40*curScreenScale_);
-    okButton_->setFixedWidth(30*curScreenScale_);
-    cancelButton_->setFixedWidth(50*curScreenScale_);
+    textEdit_->setFont(*FontManager::instance().getFontWithCustomScale(currentScale(), 12, false));
+    // Update viewport font as well, for placeholder text.
+    textEdit_->viewport()->setFont(
+        *FontManager::instance().getFontWithCustomScale(currentScale(), 12, false));
+
+    hSpacer_->changeSize(UNSCALED_SPACER_WIDTH * currentScale(), 1, QSizePolicy::Expanding);
+    clearButton_->setFixedWidth(40 * currentScale());
+    okButton_->setFixedWidth(30 * currentScale());
+    cancelButton_->setFixedWidth(50 * currentScale());
     update();
 }
 
@@ -90,17 +91,3 @@ void AdvancedParametersDialog::onCancelClicked()
 {
     emit cancelClick();
 }
-
-void AdvancedParametersDialog::resizeEvent(QResizeEvent *event)
-{
-    Q_UNUSED(event);
-
-    QPoint pt(geometry().x() + geometry().width()/2, geometry().y());
-    QScreen *screen = QGuiApplication::screenAt(pt);
-    if (screen)
-    {
-        curScreenScale_ = DpiScaleManager::instance().scaleOfScreen(screen);
-    }
-    updateScaling();
-}
-

@@ -77,6 +77,11 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     g_mainWindow = this;
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
+#if defined(Q_OS_WIN)
+    // Fix resize problem on DPI change by assigning a fixed size flag, because the main window is
+    // already fixed size by design.
+    setWindowFlag(Qt::MSWindowsFixedSizeDialogHint, true);
+#endif
     setAttribute(Qt::WA_TranslucentBackground, true);
 
     multipleAccountDetection_ = QSharedPointer<IMultipleAccountDetection>(MultipleAccountDetectionFactory::create());

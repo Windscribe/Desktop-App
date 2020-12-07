@@ -829,6 +829,12 @@
     <ClCompile Include="..\..\common\utils\crashhandler.cpp">
       <Filter>Common Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="dialogs\advancedparametersdialog.cpp">
+      <Filter>GUI Files\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="dpiscaleawarewidget.cpp">
+      <Filter>GUI Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -1271,6 +1277,12 @@
     </QtMoc>
     <QtMoc Include="utils\writeaccessrightschecker.h">
       <Filter>GUI Files\utils</Filter>
+    </QtMoc>
+    <QtMoc Include="dialogs\advancedparametersdialog.h">
+      <Filter>GUI Files\dialogs</Filter>
+    </QtMoc>
+    <QtMoc Include="dpiscaleawarewidget.h">
+      <Filter>GUI Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
