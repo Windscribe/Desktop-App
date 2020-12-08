@@ -176,6 +176,9 @@ void WireGuardConnection::run()
     bool is_configured = false;
     bool is_connected = false;
 
+    qCDebug(LOG_WIREGUARD) << "Enable dns leak protection";
+    helper_->enableDnsLeaksProtection();
+
     Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
     for (pimpl_->connect();;) {
         if (do_stop_thread_) {
@@ -236,6 +239,10 @@ void WireGuardConnection::run()
         }
         QThread::msleep(next_status_check_ms);
     }
+
+
+    qCDebug(LOG_WIREGUARD) << "Disable dns leak protection";
+    helper_->disableDnsLeaksProtection();
 }
 
 void WireGuardConnection::onProcessKillTimeout()
