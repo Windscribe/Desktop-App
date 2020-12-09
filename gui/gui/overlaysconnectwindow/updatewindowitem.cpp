@@ -113,7 +113,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setPen(Qt::white);
 
     const QString descText = tr("You're about to update Windscribe. "
-                                "The application will auto-restart after it is complete.");
+                                "The application will terminate the active connection and auto-restart.");
     int width = CommonGraphics::idealWidthOfTextRect(DESCRIPTION_WIDTH_MIN * G_SCALE, WINDOW_WIDTH * G_SCALE, 3,
                                                      descText, descFont);
     painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, width), DESCRIPTION_POS_Y * G_SCALE,
