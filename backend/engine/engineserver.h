@@ -81,7 +81,7 @@ private slots:
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void onEngineSendUserWarning(ProtoTypes::UserWarningType userWarningType);
     void onEnginePacketSizeChanged(bool isAuto, int mtu);
-    void onEnginePacketSizeDetectionStateChanged(bool on);
+    void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
 
 private:
     IPC::IServer *server_;

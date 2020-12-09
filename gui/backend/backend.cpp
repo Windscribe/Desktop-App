@@ -866,7 +866,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     else if (command->getStringId() == IPCServerCommands::PacketSizeDetectionState::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> *>(command);
-        emit packetSizeDetectionStateChanged(cmd->getProtoObj().on());
+        emit packetSizeDetectionStateChanged(cmd->getProtoObj().on(), cmd->getProtoObj().is_error());
     }
     else if (command->getStringId() == IPCServerCommands::UpdateVersionChanged::descriptor()->full_name())
     {

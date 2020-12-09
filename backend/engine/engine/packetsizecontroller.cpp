@@ -47,7 +47,8 @@ void PacketSizeController::detectAppropriatePacketSizeImpl(const QString &hostna
         earlyStop_ = false;
     }
 
-    int mtu = getIdealPacketSize(hostname);
+    const int mtu = getIdealPacketSize(hostname);
+    const bool is_error = mtu < 0;
 
     QMutexLocker locker(&mutex_);
     if (mtu > 0)
@@ -59,7 +60,7 @@ void PacketSizeController::detectAppropriatePacketSizeImpl(const QString &hostna
         setPacketSizeImpl(packetSize);
     }
 
-    emit finishedPacketSizeDetection();
+    emit finishedPacketSizeDetection(is_error);
 }
 
 int PacketSizeController::getIdealPacketSize(const QString &hostname)

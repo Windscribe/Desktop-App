@@ -4,6 +4,7 @@
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
 #include <QRegExpValidator>
+#include <QTimer>
 #include "commongraphics/iconbutton.h"
 #include "commongraphics/custommenulineedit.h"
 #include "../dividerline.h"
@@ -47,6 +48,7 @@ private slots:
     void onBusySpinnerOpacityAnimationChanged(const QVariant &value);
     void onBusySpinnerRotationAnimationChanged(const QVariant &value);
     void onBusySpinnerRotationAnimationFinished();
+    void onBusySpinnerStartSpinning();
     void onAdditionalButtonOpacityAnimationValueChanged(const QVariant &value);
 private:
     QString caption_;
@@ -70,6 +72,7 @@ private:
     int spinnerPosY_;
     QVariantAnimation busySpinnerOpacityAnimation_;
     QVariantAnimation busySpinnerRotationAnimation_;
+    QTimer busySpinnerTimer_;
 
     double additionalButtonOpacity_;
     QVariantAnimation additionalButtonOpacityAnimation_;

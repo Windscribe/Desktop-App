@@ -17,7 +17,7 @@ public:
     void earlyStop();
 signals:
     void packetSizeChanged(bool isAuto, int mtu);
-    void finishedPacketSizeDetection();
+    void finishedPacketSizeDetection(bool isError);
 
 private slots:
     void detectAppropriatePacketSizeImpl(const QString &hostname);

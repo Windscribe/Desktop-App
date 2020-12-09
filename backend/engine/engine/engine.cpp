@@ -542,7 +542,7 @@ void Engine::init()
     packetSizeController_->setPacketSize(packetSize);
     packetSize_ = packetSize;
     connect(packetSizeController_, SIGNAL(packetSizeChanged(bool, int)), SLOT(onPacketSizeControllerPacketSizeChanged(bool, int)));
-    connect(packetSizeController_, SIGNAL(finishedPacketSizeDetection()), SLOT(onPacketSizeControllerFinishedSizeDetection()));
+    connect(packetSizeController_, SIGNAL(finishedPacketSizeDetection(bool)), SLOT(onPacketSizeControllerFinishedSizeDetection(bool)));
     packetSizeController_->moveToThread(packetSizeControllerThread_);
     packetSizeControllerThread_->start(QThread::LowPriority);
 
@@ -1904,7 +1904,7 @@ void Engine::detectAppropriatePacketSizeImpl()
         {
             qCDebug(LOG_PACKET_SIZE) << "Detecting appropriate packet size";
             runningPacketDetection_ = true;
-            emit packetSizeDetectionStateChanged(true);
+            emit packetSizeDetectionStateChanged(true, false);
             packetSizeController_->detectAppropriatePacketSize(serverAPI_->getHostname());
         }
         else
@@ -2115,10 +2115,10 @@ void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
     }
 }
 
-void Engine::onPacketSizeControllerFinishedSizeDetection()
+void Engine::onPacketSizeControllerFinishedSizeDetection(bool isError)
 {
     runningPacketDetection_ = false;
-    emit packetSizeDetectionStateChanged(false);
+    emit packetSizeDetectionStateChanged(false, isError);
 }
 
 void Engine::onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType)
