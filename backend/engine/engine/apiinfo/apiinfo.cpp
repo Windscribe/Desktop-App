@@ -21,6 +21,8 @@ void ApiInfo::setSessionStatus(const SessionStatus &value)
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
     sessionStatus_ = value;
+    QSettings settings;
+    settings.setValue("userId", sessionStatus_.getUserId());    // need for uninstaller program for open post uninstall webpage
 }
 
 void ApiInfo::setLocations(const QVector<Location> &value)
@@ -150,8 +152,6 @@ void ApiInfo::saveToSettings()
     {
         settings.remove("revisionHash");
     }
-
-    settings.setValue("userId", sessionStatus_.getUserId());    // need for uninstaller program for open post uninstall webpage*/
 }
 
 void ApiInfo::removeFromSettings()
