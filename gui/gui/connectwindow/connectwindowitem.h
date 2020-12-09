@@ -62,6 +62,7 @@ public slots:
     void onNetworkHoverLeave();
     void onConnectStateTextHoverEnter();
     void onConnectStateTextHoverLeave();
+    void onFirewallButtonClick();
     void onFirewallButtonHoverEnter();
     void onFirewallButtonHoverLeave();
     void onFirewallInfoHoverEnter();
@@ -124,6 +125,7 @@ private:
     QString connectionTime_;
     QString dataTransferred_;
 
+    bool isFirewallAlwaysOn_;
     bool isFirewallBlocked_;
 
     void updatePositions();

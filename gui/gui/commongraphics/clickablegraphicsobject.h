@@ -15,6 +15,7 @@ public:
     virtual bool isClickable();
     virtual void setClickable(bool clickable); // TODO: split clickablehoverable into two independent functions
     virtual void setClickableHoverable(bool clickable, bool hoverable);
+    virtual void setResetHoverOnClick(bool do_reset);
 
     virtual bool isSelected();
     virtual void setSelected(bool selected);
@@ -34,6 +35,7 @@ protected:
     bool stickySelection_;
     bool clickable_;
     bool hoverable_;
+    bool resetHoverOnClick_;
 
     bool pressed_;
     bool hovered_;
