@@ -79,6 +79,8 @@ int PacketSizeController::getIdealPacketSize(const QString &hostname)
 
     }
 
+    qCDebug(LOG_PACKET_SIZE) << "Detecting packet size via:" << modifiedHostname;
+
     bool success = false;
     while (mtu >= 1300)
     {
