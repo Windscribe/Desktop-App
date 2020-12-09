@@ -124,7 +124,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(userWarning(ProtoTypes::UserWarningType)), SLOT(onBackendUserWarning(ProtoTypes::UserWarningType)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onBackendProtocolPortChanged(ProtoTypes::Protocol, uint)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
             SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
@@ -1989,9 +1989,15 @@ void MainWindow::onBackendProtocolPortChanged(const ProtoTypes::Protocol &protoc
     mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
 }
 
-void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on)
+void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on, bool isError)
 {
     mainWindowController_->getPreferencesWindow()->setPacketSizeDetectionState(on);
+
+    if (!on && isError) {
+        const QString title = tr("Detection Error");
+        const QString desc = tr("Cannot detect appropriate packet size due to an error. Please try again.");
+        mainWindowController_->getPreferencesWindow()->showPacketSizeDetectionError(title, desc);
+    }
 }
 
 void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error)

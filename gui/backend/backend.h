@@ -158,7 +158,7 @@ signals:
     void userWarning(ProtoTypes::UserWarningType userWarningType);
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
-    void packetSizeDetectionStateChanged(bool on);
+    void packetSizeDetectionStateChanged(bool on, bool isError);
     void updateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
 
     void engineCrash();

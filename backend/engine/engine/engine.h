@@ -170,7 +170,7 @@ signals:
     void sendUserWarning(ProtoTypes::UserWarningType userWarningType);
     void internetConnectivityChanged(bool connectivity);
     void packetSizeChanged(bool isAuto, int mtu);
-    void packetSizeDetectionStateChanged(bool on);
+    void packetSizeDetectionStateChanged(bool on, bool isError);
 
 private slots:
     void onLostConnectionToHelper();
@@ -282,7 +282,7 @@ private slots:
     void onNetworkStateManagerStateChanged(bool isActive, const QString &networkInterface);
     void onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu);
-    void onPacketSizeControllerFinishedSizeDetection();
+    void onPacketSizeControllerFinishedSizeDetection(bool isError);
     void onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType);
 
     void stopPacketDetectionImpl();

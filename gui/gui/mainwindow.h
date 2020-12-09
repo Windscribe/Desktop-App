@@ -168,7 +168,7 @@ private slots:
     void onBackendUserWarning(ProtoTypes::UserWarningType userWarningType);
     void onBackendInternetConnectivityChanged(bool connectivity);
     void onBackendProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
-    void onBackendPacketSizeDetectionStateChanged(bool on);
+    void onBackendPacketSizeDetectionStateChanged(bool on, bool isError);
     void onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
     void onBackendEngineCrash();
     void onBackendLocationsUpdated();

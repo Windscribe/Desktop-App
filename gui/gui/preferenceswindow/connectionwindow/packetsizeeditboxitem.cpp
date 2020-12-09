@@ -21,6 +21,7 @@ PacketSizeEditBoxItem::PacketSizeEditBoxItem(ScalableGraphicsObject *parent, con
   , additionalButtonBusy_(false)
   , busySpinnerOpacity_(OPACITY_HIDDEN)
   , busySpinnerRotation_(0)
+  , busySpinnerTimer_(this)
   , additionalButtonOpacity_(OPACITY_FULL)
 {
     line_ = new DividerLine(this, isDrawFullBottomDivider ? 276 : 264);
@@ -43,6 +44,10 @@ PacketSizeEditBoxItem::PacketSizeEditBoxItem(ScalableGraphicsObject *parent, con
     btnConfirm_ = new IconButton(16, 16, "preferences/CONFIRM_ICON", this);
     btnConfirm_->hide();
     connect(btnConfirm_, SIGNAL(clicked()), SLOT(onConfirmClick()));
+
+    busySpinnerTimer_.setSingleShot(true);
+    busySpinnerTimer_.setInterval(ADDITIONAL_BUTTON_OPACITY_ANIMATION_TIME / 3);
+    connect(&busySpinnerTimer_, SIGNAL(timeout()), SLOT(onBusySpinnerStartSpinning()));
 
     btnUndo_ = new IconButton(16, 16, "preferences/UNDO_ICON", this);
     btnUndo_->hide();
@@ -137,6 +142,15 @@ void PacketSizeEditBoxItem::setEditButtonClickable(bool clickable)
     btnEdit_->setClickable(clickable);
 }
 
+void PacketSizeEditBoxItem::onBusySpinnerStartSpinning()
+{
+    busySpinnerOpacityAnimation_.stop();
+    busySpinnerOpacityAnimation_.setDuration(BUSY_SPINNER_OPACITY_ANIMATION_TIME);
+    busySpinnerOpacityAnimation_.setStartValue(busySpinnerOpacity_);
+    busySpinnerOpacityAnimation_.setEndValue(OPACITY_FULL);
+    busySpinnerOpacityAnimation_.start();
+}
+
 void PacketSizeEditBoxItem::setAdditionalButtonBusyState(bool on)
 {
     if (additionalButtonBusy_ != on)
@@ -147,13 +161,7 @@ void PacketSizeEditBoxItem::setAdditionalButtonBusyState(bool on)
         if (on)
         {
             // show spinner
-            QTimer::singleShot(ADDITIONAL_BUTTON_OPACITY_ANIMATION_TIME/3, [this](){
-                busySpinnerOpacityAnimation_.stop();
-                busySpinnerOpacityAnimation_.setDuration(BUSY_SPINNER_OPACITY_ANIMATION_TIME);
-                busySpinnerOpacityAnimation_.setStartValue(busySpinnerOpacity_);
-                busySpinnerOpacityAnimation_.setEndValue(OPACITY_FULL);
-                busySpinnerOpacityAnimation_.start();
-            });
+            busySpinnerTimer_.start();
 
             // start rotation
             busySpinnerRotationAnimation_.stop();
@@ -172,6 +180,7 @@ void PacketSizeEditBoxItem::setAdditionalButtonBusyState(bool on)
         else
         {
             // hide spinner
+            busySpinnerTimer_.stop();
             busySpinnerOpacityAnimation_.stop();
             busySpinnerOpacityAnimation_.setDuration(BUSY_SPINNER_OPACITY_ANIMATION_TIME);
             busySpinnerOpacityAnimation_.setStartValue(busySpinnerOpacity_);
