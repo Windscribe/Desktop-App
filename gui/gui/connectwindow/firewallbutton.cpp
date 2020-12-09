@@ -8,13 +8,14 @@ namespace ConnectWindow {
 
 
 FirewallButton::FirewallButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent),
-    isFirewallEnabled_(false), isFirewallAlwaysOn_(false), isDisabled_(false)
+    isFirewallEnabled_(false), isDisabled_(false)
 {
     animation_.setStartValue(0.0);
     animation_.setEndValue(1.0);
     animation_.setDuration(150);
     connect(&animation_, SIGNAL(valueChanged(QVariant)), SLOT(onAnimationValueChanged(QVariant)));
     setClickable(true);
+    setResetHoverOnClick(false);
 }
 
 QRectF FirewallButton::boundingRect() const
@@ -44,11 +45,6 @@ void FirewallButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
         double d = animation_.currentValue().toDouble();
         p->draw(static_cast<int>((2 + d*20.0)*G_SCALE), 2*G_SCALE, painter);
     }
-}
-
-void FirewallButton::setFirewallAlwaysOn(bool isFirewallAlwaysOn)
-{
-    isFirewallAlwaysOn_ = isFirewallAlwaysOn;
 }
 
 void FirewallButton::setDisabled(bool isDisabled)
@@ -81,7 +77,7 @@ void FirewallButton::setFirewallState(bool isFirewallEnabled)
 
 void FirewallButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (isFirewallAlwaysOn_ || isDisabled_)
+    if (isDisabled_)
     {
         event->ignore();
     }
@@ -93,7 +89,7 @@ void FirewallButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void FirewallButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (isFirewallAlwaysOn_ || isDisabled_)
+    if (isDisabled_)
     {
         event->ignore();
     }

@@ -16,9 +16,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setFirewallAlwaysOn(bool isFirewallAlwaysOn);
     void setDisabled(bool isDisabled);
-
 
 public slots:
     void setFirewallState(bool isFirewallEnabled);
@@ -33,7 +31,6 @@ private slots:
 
 private:
     bool isFirewallEnabled_;
-    bool isFirewallAlwaysOn_;
     bool isDisabled_;
     QVariantAnimation animation_;
 };

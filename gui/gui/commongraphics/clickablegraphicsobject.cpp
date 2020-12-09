@@ -7,7 +7,7 @@
 
 
 ClickableGraphicsObject::ClickableGraphicsObject(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
-    selected_(false), stickySelection_(false), clickable_(false), hoverable_(false), pressed_(false), hovered_(false)
+    selected_(false), stickySelection_(false), clickable_(false), hoverable_(false), resetHoverOnClick_(true), pressed_(false), hovered_(false)
 {
     // QtBug: default clickable_(false) because a call to setClickable (setCursor) in the constructor will cause SIGABORT
     setAcceptHoverEvents(false);
@@ -43,6 +43,11 @@ void ClickableGraphicsObject::setClickableHoverable(bool clickable, bool hoverab
     QCursor cursor = Qt::ArrowCursor;
     if (clickable) cursor = Qt::PointingHandCursor;
     setCursor(cursor);
+}
+
+void ClickableGraphicsObject::setResetHoverOnClick(bool do_reset)
+{
+    resetHoverOnClick_ = do_reset;
 }
 
 bool ClickableGraphicsObject::isSelected()
@@ -95,7 +100,8 @@ void ClickableGraphicsObject::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             if (contains(event->pos()))
             {
                 emit clicked();
-                hoverLeaveEvent(nullptr);
+                if (resetHoverOnClick_)
+                    hoverLeaveEvent(nullptr);
             }
         }
     }

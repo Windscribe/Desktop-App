@@ -23,6 +23,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
       networkActive_(false),
       connectionTime_(""),
       dataTransferred_(""),
+      isFirewallAlwaysOn_(false),
       isFirewallBlocked_(false)
 {
     Q_ASSERT(preferencesHelper_);
@@ -96,7 +97,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
     middleItem_ = new MiddleItem(this, "N/A");
 
     firewallButton_ = new FirewallButton(this);
-    connect(firewallButton_, SIGNAL(clicked()), SIGNAL(firewallClick()));
+    connect(firewallButton_, SIGNAL(clicked()), SLOT(onFirewallButtonClick()));
     connect(firewallButton_, SIGNAL(hoverEnter()), SLOT(onFirewallButtonHoverEnter()));
     connect(firewallButton_, SIGNAL(hoverLeave()), SLOT(onFirewallButtonHoverLeave()));
 
@@ -182,7 +183,7 @@ void ConnectWindowItem::setConnectionTimeAndData(QString connectionTime, QString
 
 void ConnectWindowItem::setFirewallAlwaysOn(bool isFirewallAlwaysOn)
 {
-    firewallButton_->setFirewallAlwaysOn(isFirewallAlwaysOn);
+    isFirewallAlwaysOn_ = isFirewallAlwaysOn;
 }
 
 void ConnectWindowItem::setFirewallBlock(bool isFirewallBlocked)
@@ -434,6 +435,27 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
 void ConnectWindowItem::onConnectStateTextHoverLeave()
 {
     emit hideTooltip(TOOLTIP_ID_CONNECTION_INFO);
+}
+
+void ConnectWindowItem::onFirewallButtonClick()
+{
+    if (!isFirewallAlwaysOn_) {
+        emit firewallClick();
+        return;
+    }
+
+    QGraphicsView *view = scene()->views().first();
+    QPoint globalPt = view->mapToGlobal(view->mapFromScene(firewallButton_->scenePos()));
+
+    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_FIREWALL_BLOCKED);
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.2;
+    ti.x = globalPt.x() + firewallButton_->boundingRect().width() / 2;
+    ti.y = globalPt.y() - 4 * G_SCALE;
+    ti.width = 200 * G_SCALE;
+    ti.delay = 100;
+    TooltipUtil::getFirewallAlwaysOnTooltipInfo(&ti.title, &ti.desc);
+    emit showTooltip(ti);
 }
 
 void ConnectWindowItem::onFirewallButtonHoverEnter()
