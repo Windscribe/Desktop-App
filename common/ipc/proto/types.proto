@@ -478,9 +478,8 @@ message GuiSettings
   optional ShareSecureHotspot share_secure_hotspot = 7;
   optional ShareProxyGateway share_proxy_gateway = 8;
   optional SplitTunneling split_tunneling = 9;
-  optional bool is_docked_to_tray_win = 10 [default = false];
+  optional bool is_docked_to_tray = 10 [default = false];
   optional bool is_minimize_and_close_to_tray = 11 [default = false];
-  optional bool is_docked_to_tray_mac = 12 [default = true];
 }
 
 
