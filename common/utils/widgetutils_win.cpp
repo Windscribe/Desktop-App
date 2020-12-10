@@ -102,12 +102,15 @@ QPixmap *WidgetUtils_win::extractWindowsAppProgramIcon(QString filePath)
     return logoPixmap;
 }
 
-void WidgetUtils_win::updateSystemTrayIcon(const QPixmap &pixmap, QString tooltip)
+namespace
 {
-    // Constants are taken from "qwindowssystemtrayicon.cpp".
-    const LPCWSTR kWindowName = L"QTrayIconMessageWindow";
-    const UINT q_uNOTIFYICONID = 0;
+// Constants are taken from "qwindowssystemtrayicon.cpp".
+const LPCWSTR kWindowName = L"QTrayIconMessageWindow";
+const UINT q_uNOTIFYICONID = 0;
+const UINT MYWM_NOTIFYICON = WM_APP + 101;
 
+HWND WidgetUtils_win_GetSystemTrayIconHandle()
+{
     const auto appInstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
     HWND trayHwnd = 0;
     while ((trayHwnd = FindWindowEx(0, trayHwnd, nullptr, kWindowName)) != 0) {
@@ -116,6 +119,13 @@ void WidgetUtils_win::updateSystemTrayIcon(const QPixmap &pixmap, QString toolti
         if (winInstance == appInstance)
             break;
     }
+    return trayHwnd;
+}
+}  // namespace
+
+void WidgetUtils_win::updateSystemTrayIcon(const QPixmap &pixmap, QString tooltip)
+{
+    HWND trayHwnd = WidgetUtils_win_GetSystemTrayIconHandle();
     if (!trayHwnd)
         return;
 
@@ -140,5 +150,14 @@ void WidgetUtils_win::updateSystemTrayIcon(const QPixmap &pixmap, QString toolti
         tnd.szTip[length] = wchar_t(0);
     }
     Shell_NotifyIcon(NIM_MODIFY, &tnd);
+}
+
+void WidgetUtils_win::fixSystemTrayIconDblClick()
+{
+    // Fix Qt bug skipping a single click after handling a double click.
+    // Apparently this is a wontfix on the Qt side: https://bugreports.qt.io/browse/QTBUG-54850
+    HWND trayHwnd = WidgetUtils_win_GetSystemTrayIconHandle();
+    if (trayHwnd)
+        SendMessage(trayHwnd, MYWM_NOTIFYICON, 0, MAKELPARAM(NIN_SELECT, q_uNOTIFYICONID));
 }
 
