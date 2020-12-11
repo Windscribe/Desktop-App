@@ -22,7 +22,7 @@
 					<key>name</key>
 					<string>${APP_BASENAME}.app</string>
 					<key>position</key>
-					<string>{176, 176}</string>
+					<string>{176, 192}</string>
 					<key>type</key>
 					<string>application</string>
 				</dict>
@@ -34,7 +34,7 @@
 		</dict>
 	</dict>
 	<key>documentCreator</key>
-	<string>DropDMG 3.5.10</string>
+	<string>DropDMG 3.6</string>
 	<key>documentType</key>
 	<string>com.c-command.DropDMG.Layout</string>
 	<key>formatVersion</key>
