@@ -4,10 +4,11 @@
 #include <QWidget>
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
+#include "dpiscaleawarewidget.h"
 
 namespace LogViewer {
 
-class LogViewerWindow : public QWidget
+class LogViewerWindow : public DPIScaleAwareWidget
 {
     Q_OBJECT
 public:
@@ -18,6 +19,9 @@ public:
 
 signals:
     void closeClick();
+
+protected:
+    void updateScaling() override;
 
 private:
     QPlainTextEdit *textEdit_;

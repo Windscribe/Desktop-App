@@ -5,8 +5,9 @@
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
 #include <QPushButton>
+#include "dpiscaleawarewidget.h"
 
-class AdvancedParametersDialog : public QWidget
+class AdvancedParametersDialog : public DPIScaleAwareWidget
 {
     Q_OBJECT
 public:
@@ -15,8 +16,6 @@ public:
 
     void setAdvancedParameters(const QString &text);
     const QString advancedParametersText();
-
-    void updateScaling();
 
 signals:
     void okClick();
@@ -28,7 +27,7 @@ private slots:
     void onCancelClicked();
 
 protected:
-    void resizeEvent(QResizeEvent *event) override;
+    void updateScaling() override;
 
 private:
     QPlainTextEdit *textEdit_;
@@ -38,8 +37,6 @@ private:
     QPushButton *okButton_;
     QPushButton *cancelButton_;
     QSpacerItem *hSpacer_;
-
-    double curScreenScale_;
 };
 
 #endif // ADVANCEDPARAMETERSDIALOG_H
