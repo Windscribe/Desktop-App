@@ -2405,13 +2405,21 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
     switch (reason)
     {
         case QSystemTrayIcon::Trigger:
+        case QSystemTrayIcon::DoubleClick:
         {
             // qDebug() << "Tray triggered";
-            qDebug() << "TrayActivated";
             deactivationTimer_.stop();
 #if defined Q_OS_WIN
-            activateAndShow();
-            setBackendAppActiveState(true);
+            if (isMinimized() || !backend_->getPreferences()->isDockedToTray()) {
+                activateAndShow();
+                setBackendAppActiveState(true);
+            } else {
+                deactivateAndHide();
+                setBackendAppActiveState(false);
+            }
+            // Fix a nasty tray icon double-click bug in Qt.
+            if (reason == QSystemTrayIcon::DoubleClick)
+                WidgetUtils_win::fixSystemTrayIconDblClick();
 #elif defined Q_OS_MAC
 
             if (backend_->getPreferences()->isDockedToTray())
@@ -2620,7 +2628,8 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
     // On Mac, we apply the fix as well, so that MessageBox/Log Window/etc. won't hide the app
     // window in docked mode. Otherwise, closing the MessageBox/Log Window/etc. will lead to an
     // unwanted app termination.
-    if (!focusWindow) {
+    const bool kIsTrayIconClicked = trayIconRect().contains(QCursor::pos());
+    if (!focusWindow && !kIsTrayIconClicked) {
         if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray()) {
             const int kDeactivationDelayMs = 100;
             deactivationTimer_.start(kDeactivationDelayMs);

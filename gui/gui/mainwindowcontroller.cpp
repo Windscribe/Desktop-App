@@ -2710,17 +2710,18 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
     QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
     QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
     QRect desktopAvailableRc = screen->availableGeometry();
+    const int kRightOffset = 16 * G_SCALE;
 
     QRect geo;
     if (taskbarLocation == TASKBAR_TOP)
     {
-        geo = QRect(rcIcon.left() + rcIcon.width()/2 - (widthWithShadow)/2,
+        geo = QRect(desktopAvailableRc.right() - width - shadowSize - kRightOffset,
                     desktopAvailableRc.top() - shadowSize,
                     widthWithShadow, heightWithShadow);
 
-        if (geo.right() > desktopAvailableRc.right())
+        if (geo.right() > desktopAvailableRc.right() + shadowSize)
         {
-            geo.moveRight(desktopAvailableRc.right());
+            geo.moveRight(desktopAvailableRc.right() + shadowSize);
         }
     }
     else if (taskbarLocation == TASKBAR_LEFT)
@@ -2737,13 +2738,13 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
     }
     else if (taskbarLocation == TASKBAR_BOTTOM)
     {
-        geo = QRect(rcIcon.left() + rcIcon.width()/2 - widthWithShadow/2,
+        geo = QRect(desktopAvailableRc.right() - width - shadowSize - kRightOffset,
                     desktopAvailableRc.bottom() - heightWithShadow + shadowSize,
                     widthWithShadow, heightWithShadow);
 
-        if (geo.right() > desktopAvailableRc.right())
+        if (geo.right() > desktopAvailableRc.right() + shadowSize)
         {
-            geo.moveRight(desktopAvailableRc.right());
+            geo.moveRight(desktopAvailableRc.right() + shadowSize);
         }
     }
     else // TASKBAR_HIDDEN
@@ -2753,16 +2754,15 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
 
         // determine hidden taskbar location from tray icon
         // BOTTOM and RIGHT use bottom-right corner
-        int posX = desktopAvailableRc.right() - widthWithShadow;
+        int posX = desktopAvailableRc.right() - width - shadowSize - kRightOffset;
         int posY = desktopAvailableRc.bottom() - heightWithShadow + shadowSize;
         if (rcIcon.y() == 0) // TOP
         {
-            posX = desktopAvailableRc.right() - widthWithShadow;
             posY = -shadowSize;
         }
         else if (rcIcon.x() < desktopAvailableRc.width()/2) // LEFT
         {
-            posX = 0;
+            posX = -shadowSize + kRightOffset;
             posY = desktopAvailableRc.bottom() - heightWithShadow + shadowSize;
         }
 
