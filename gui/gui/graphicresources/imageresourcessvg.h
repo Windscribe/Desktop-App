@@ -24,7 +24,7 @@ public:
     IndependentPixmap *getIconIndependentPixmap(const QString &name);
 
     IndependentPixmap *getFlag(const QString &flagName);
-    IndependentPixmap *getScaledFlag(const QString &flagName, int width, int height);
+    IndependentPixmap *getScaledFlag(const QString &flagName, int width, int height, bool enabled = true);
 
 protected:
     void run() override;
@@ -42,8 +42,8 @@ private:
 
     bool loadIconFromResource(const QString &name);
     bool loadFromResource(const QString &name);
-    bool loadFromResourceWithCustomSize(const QString &name, int width, int height);
-    IndependentPixmap *getIndependentPixmapScaled(const QString &name, int width, int height);
+    bool loadFromResourceWithCustomSize(const QString &name, int width, int height, bool enabled);
+    IndependentPixmap *getIndependentPixmapScaled(const QString &name, int width, int height, bool enabled);
     void clearHash();
 };
 

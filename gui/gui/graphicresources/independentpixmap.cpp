@@ -83,13 +83,18 @@ void IndependentPixmap::draw(const QRect &rect, QPainter *painter)
     }
 }
 
-QIcon IndependentPixmap::getScaledIcon()
+QIcon IndependentPixmap::getIcon() const
+{
+    return QIcon(*pixmap_);
+}
+
+QIcon IndependentPixmap::getScaledIcon() const
 {
     QIcon icon(pixmap_->scaled(20,20,Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
     return icon;
 }
 
-QPixmap IndependentPixmap::getScaledPixmap(int width, int height)
+QPixmap IndependentPixmap::getScaledPixmap(int width, int height) const
 {
     QPixmap pm(pixmap_->scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
     return pm;

@@ -835,6 +835,9 @@
     <ClCompile Include="dpiscaleawarewidget.cpp">
       <Filter>GUI Files</Filter>
     </ClCompile>
+    <ClCompile Include="systemtray\locationstraymenunative.cpp">
+      <Filter>GUI Files\systemtray</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -1283,6 +1286,9 @@
     </QtMoc>
     <QtMoc Include="dpiscaleawarewidget.h">
       <Filter>GUI Files</Filter>
+    </QtMoc>
+    <QtMoc Include="systemtray\locationstraymenunative.h">
+      <Filter>GUI Files\systemtray</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

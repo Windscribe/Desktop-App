@@ -47,6 +47,11 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     backend_(NULL),
     logViewerWindow_(nullptr),
     advParametersWindow_(nullptr),
+    locationsMenu_(this),
+#if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
+    listWidgetAction_(nullptr),
+    locationsTrayMenuWidget_(nullptr),
+#endif
     currentAppIconType_(AppIconType::DISCONNECTED),
     trayIcon_(trayIcon),
     bNotificationConnectedShowed_(false),
@@ -2542,7 +2547,9 @@ void MainWindow::loadTrayMenuItems()
     trayMenu_.addAction(tr("Help"), this, SLOT(onTrayMenuHelpMe()));
     trayMenu_.addAction(tr("Exit"), this, SLOT(onTrayMenuQuit()));
 
+#if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     locationsTrayMenuWidget_->setFontForItems(trayMenu_.font());
+#endif
 }
 
 void MainWindow::onTrayMenuAboutToShow()
@@ -2561,12 +2568,12 @@ void MainWindow::onTrayMenuAboutToShow()
 
 }
 
-void MainWindow::onLocationsTrayMenuLocationSelected(QString locationTitle)
+void MainWindow::onLocationsTrayMenuLocationSelected(QString locationTitle, int cityIndex)
 {
    // close menu
 #ifdef Q_OS_WIN
     trayMenu_.close();
-#else
+#elif !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     listWidgetAction_->trigger(); // close doesn't work by default on mac
 #endif
 
@@ -2582,8 +2589,19 @@ void MainWindow::onLocationsTrayMenuLocationSelected(QString locationTitle)
         return;
     }
 
-    // Count valid cities.
     const bool is_premium = backend_->getSessionStatus().is_premium();
+    if (cityIndex >= 0) {
+        for (const auto &city : lmi->cities) {
+            if (cityIndex--)
+                continue;
+            if (is_premium || !city.bShowPremiumStarOnly)
+                onLocationSelected(city.id);
+            break;
+        }
+        return;
+    }
+
+    // Count valid cities.
     int city_count = 0;
     if (is_premium) {
         city_count = lmi->cities.count();
@@ -2706,12 +2724,19 @@ void MainWindow::setupTrayIcon()
     connect(&trayMenu_, SIGNAL(aboutToShow()), SLOT(onTrayMenuAboutToShow()));
 
     locationsMenu_.setTitle(tr("Locations"));
+#if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
+    locationsMenu_.setLocationsModel(backend_->getLocationsModel());
+    connect(&locationsMenu_, SIGNAL(locationSelected(QString, int)),
+        SLOT(onLocationsTrayMenuLocationSelected(QString, int)));
+#else  // USE_LOCATIONS_TRAY_MENU_NATIVE
     locationsTrayMenuWidget_ = new LocationsTrayMenuWidget(&locationsMenu_);
     locationsTrayMenuWidget_->setLocationsModel(backend_->getLocationsModel());
     listWidgetAction_ = new QWidgetAction(&locationsMenu_);
     listWidgetAction_->setDefaultWidget(locationsTrayMenuWidget_);
     locationsMenu_.addAction(listWidgetAction_);
-    connect(locationsTrayMenuWidget_, SIGNAL(locationSelected(QString)), SLOT(onLocationsTrayMenuLocationSelected(QString)));
+    connect(locationsTrayMenuWidget_, SIGNAL(locationSelected(QString,int)),
+        SLOT(onLocationsTrayMenuLocationSelected(QString,int)));
+#endif  // USE_LOCATIONS_TRAY_MENU_NATIVE
 
     updateAppIconType(AppIconType::DISCONNECTED);
     updateTrayIconType(AppIconType::DISCONNECTED);

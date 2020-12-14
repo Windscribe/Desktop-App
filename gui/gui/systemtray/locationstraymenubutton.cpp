@@ -6,7 +6,7 @@
 
 LocationsTrayMenuButton::LocationsTrayMenuButton(QWidget *parent) : QPushButton(parent), type_(TYPE_UP)
 {
-
+    setFlat(true);
 }
 
 void LocationsTrayMenuButton::setType(int type)

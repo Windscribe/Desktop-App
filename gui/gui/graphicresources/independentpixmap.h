@@ -26,8 +26,9 @@ public:
     void draw(int x, int y, QPainter *painter, int x1, int y1, int w, int h);
     void draw(const QRect &rect, QPainter *painter);
 
-    QIcon getScaledIcon();
-    QPixmap getScaledPixmap(int width, int height);
+    QIcon getIcon() const;
+    QIcon getScaledIcon() const;
+    QPixmap getScaledPixmap(int width, int height) const;
 
     QBitmap mask() const;
 
