@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="c:/libs/openssl/include/openssl/applink.c" />
     <ClCompile Include="argv.c" />
     <ClCompile Include="auth_token.c" />
     <ClCompile Include="base64.c" />
