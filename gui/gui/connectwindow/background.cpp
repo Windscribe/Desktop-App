@@ -173,6 +173,11 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
                 opacityConnectingAnimation_.start();
             }
         }
+        else
+        {
+            if (opacityConnectingAnimation_.state() == QPropertyAnimation::Running)
+                opacityConnectingAnimation_.stop();
+        }
 
         if (!qFuzzyIsNull(opacityConnected_))
         {
@@ -181,6 +186,11 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
             {
                 opacityConnectedAnimation_.start();
             }
+        }
+        else
+        {
+            if (opacityConnectedAnimation_.state() == QPropertyAnimation::Running)
+                opacityConnectedAnimation_.stop();
         }
     }
     else if (newConnectState == ProtoTypes::CONNECTED)
@@ -193,6 +203,11 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
                 opacityConnectedAnimation_.start();
             }
         }
+        else
+        {
+            if (opacityConnectedAnimation_.state() == QPropertyAnimation::Running)
+                opacityConnectedAnimation_.stop();
+        }
 
         if (!qFuzzyIsNull(opacityConnecting_))
         {
@@ -201,6 +216,11 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
             {
                 opacityConnectingAnimation_.start();
             }
+        }
+        else
+        {
+            if (opacityConnectingAnimation_.state() == QPropertyAnimation::Running)
+                opacityConnectingAnimation_.stop();
         }
     }
     else if (newConnectState == ProtoTypes::DISCONNECTED)
@@ -213,6 +233,11 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
                 opacityConnectingAnimation_.start();
             }
         }
+        else
+        {
+            if (opacityConnectingAnimation_.state() == QPropertyAnimation::Running)
+                opacityConnectingAnimation_.stop();
+        }
 
         if (!qFuzzyIsNull(opacityConnected_))
         {
@@ -221,6 +246,11 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
             {
                 opacityConnectedAnimation_.start();
             }
+        }
+        else
+        {
+            if (opacityConnectedAnimation_.state() == QPropertyAnimation::Running)
+                opacityConnectedAnimation_.stop();
         }
     }
 }
