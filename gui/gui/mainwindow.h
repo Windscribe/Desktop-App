@@ -59,6 +59,7 @@ private slots:
     void onLoginClick(const QString &username, const QString &password, const QString &code2fa);
     void onLoginPreferencesClick();
     void onLoginHaveAccountYesClick();
+    void onLoginBackToWelcomeClick();
     void onLoginEmergencyWindowClick();
     void onLoginExternalConfigWindowClick();
     void onLoginTwoFactorAuthWindowClick(const QString &username, const QString &password);

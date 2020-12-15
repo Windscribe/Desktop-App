@@ -132,13 +132,13 @@ void ImageResourcesSvg::run()
     QDirIterator it(":/svg", QDirIterator::Subdirectories);
     while (!bNeedFinish_ && it.hasNext())
     {
+        it.next();
         if (it.fileInfo().isFile())
         {
             QMutexLocker locker(&mutex_);
             QString name = it.fileInfo().filePath().mid(6, it.fileInfo().filePath().length() - 10);
             loadFromResource(name);
         }
-        it.next();
     }
     qCDebug(LOG_BASIC) << "ImageResourcesSvg::run() - all SVGs loaded";
 }

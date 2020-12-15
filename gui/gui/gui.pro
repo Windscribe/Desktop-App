@@ -268,6 +268,8 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     loginwindow/loginwindowitem.cpp \
+    loginwindow/welcomewindowitem.cpp \
+    loginwindow/credentialswindowitem.cpp \
     loginwindow/logginginwindowitem.cpp \
     loginwindow/loginyesnobutton.cpp \
     loginwindow/usernamepasswordentry.cpp \
@@ -276,6 +278,7 @@ SOURCES += \
     loginwindow/firewallturnoffbutton.cpp \
     graphicresources/fontmanager.cpp \
     graphicresources/imageresourcessvg.cpp \
+    graphicresources/imageresourcesjpg.cpp \
     emergencyconnectwindow/emergencyconnectwindowitem.cpp \
     emergencyconnectwindow/textlinkbutton.cpp \
     commongraphics/commongraphics.cpp \
@@ -496,6 +499,7 @@ HEADERS += \
     mainwindow.h \
     graphicresources/fontmanager.h \
     graphicresources/imageresourcessvg.h \
+    graphicresources/imageresourcesjpg.h \
     loginwindow/logginginwindowitem.h \
     connectwindow/connectwindowitem.h \
     locationswindow/locationswindow.h \
@@ -528,6 +532,8 @@ HEADERS += \
     connectwindow/wifiname.h \
     connectwindow/firewallbutton.h \
     loginwindow/loginwindowitem.h \
+    loginwindow/welcomewindowitem.h \
+    loginwindow/credentialswindowitem.h \
     loginwindow/ilogginginwindow.h \
     loginwindow/loginyesnobutton.h \
     loginwindow/usernamepasswordentry.h \
@@ -624,6 +630,7 @@ HEADERS += \
 
 RESOURCES += \
     svg.qrc \
+    jpg.qrc \
     windscribe.qrc
 
 TRANSLATIONS += \
