@@ -33,7 +33,7 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
     bool bEnabled = index.model()->data(index, LocationsTrayMenuWidget::USER_ROLE_ENABLED).toBool();
     IndependentPixmap *flag = ImageResourcesSvg::instance().getScaledFlag(
         index.model()->data(index, LocationsTrayMenuWidget::USER_ROLE_COUNTRY_CODE).toString(),
-        20 * G_SCALE, 10 * G_SCALE, bEnabled);
+        20 * G_SCALE, 10 * G_SCALE, bEnabled ? 0 : ImageResourcesSvg::IMAGE_FLAG_GRAYED);
 
     QRect rc = option.rect;
     if (option.state & QStyle::State_Selected)

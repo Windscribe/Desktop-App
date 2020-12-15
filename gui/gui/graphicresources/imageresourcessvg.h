@@ -11,6 +11,12 @@ class ImageResourcesSvg : public QThread
     Q_OBJECT
 
 public:
+    enum ImageFlags
+    {
+        IMAGE_FLAG_GRAYED = 1,
+        IMAGE_FLAG_SQUARE = 2,
+    };
+
     static ImageResourcesSvg &instance()
     {
         static ImageResourcesSvg ir;
@@ -24,7 +30,7 @@ public:
     IndependentPixmap *getIconIndependentPixmap(const QString &name);
 
     IndependentPixmap *getFlag(const QString &flagName);
-    IndependentPixmap *getScaledFlag(const QString &flagName, int width, int height, bool enabled = true);
+    IndependentPixmap *getScaledFlag(const QString &flagName, int width, int height, int flags = 0);
 
 protected:
     void run() override;
@@ -42,8 +48,8 @@ private:
 
     bool loadIconFromResource(const QString &name);
     bool loadFromResource(const QString &name);
-    bool loadFromResourceWithCustomSize(const QString &name, int width, int height, bool enabled);
-    IndependentPixmap *getIndependentPixmapScaled(const QString &name, int width, int height, bool enabled);
+    bool loadFromResourceWithCustomSize(const QString &name, int width, int height, int flags);
+    IndependentPixmap *getIndependentPixmapScaled(const QString &name, int width, int height, int flags);
     void clearHash();
 };
 

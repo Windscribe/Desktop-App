@@ -98,8 +98,13 @@ void LocationsTrayMenuNative::rebuildMenu()
         if (!desc.containsAtLeastOneNonProCity && bIsFreeSession_)
             itemName += " (Pro)";
 
+#if defined(Q_OS_MAC)
+        const int flags = ImageResourcesSvg::IMAGE_FLAG_SQUARE;
+#else
+        const int flags = 0;
+#endif
         IndependentPixmap *flag = ImageResourcesSvg::instance().getScaledFlag(
-            desc.countryCode, 20 * G_SCALE, 10 * G_SCALE);
+            desc.countryCode, 20 * G_SCALE, 10 * G_SCALE, flags);
 
         if (desc.containsAtLeastOneNonProCity || !bIsFreeSession_) {
             desc.menu = addMenu(itemName);
