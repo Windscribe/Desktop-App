@@ -79,7 +79,7 @@ bool ImageResourcesJpg::loadFromResourceWithCustomSize(const QString &name, int 
     FilenameDescr fd = it.value().last();
     for (QVector<FilenameDescr>::iterator vectorIt = it.value().begin(); vectorIt != it.value().end(); ++vectorIt)
     {
-        if (width*height*DpiScaleManager::instance().curDevicePixelRatio() <= vectorIt->width*vectorIt->height)
+        if (width*DpiScaleManager::instance().curDevicePixelRatio()*height*DpiScaleManager::instance().curDevicePixelRatio() <= vectorIt->width*vectorIt->height)
         {
             fd = *vectorIt;
             break;
