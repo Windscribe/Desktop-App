@@ -11,10 +11,12 @@ namespace LoginWindow {
 InitWindowItem::InitWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject (parent)
   , curLogoPosY_(LOGO_POS_CENTER)
   , curSpinnerRotation_(0)
+  , curSpinnerOpacity_(1.0)
   , curAbortOpacity_(OPACITY_HIDDEN)
   , waitingAnimationActive_(false)
   , cropHeight_(0)
   , height_(WINDOW_HEIGHT)
+  , logoDist_(0)
 {
     connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotationChanged(QVariant)));
     connect(&spinnerRotationAnimation_, SIGNAL(finished()), SLOT(onSpinnerRotationFinished()));
@@ -67,6 +69,7 @@ void InitWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     painter->translate(logoPosX + p->width() / 2, LOGO_POS_CENTER * G_SCALE + p->height() / 2);
     painter->rotate(curSpinnerRotation_);
     const int circleDiameter = 80 * G_SCALE;
+    painter->setOpacity(curSpinnerOpacity_);
     painter->drawArc(QRect(-circleDiameter/2, -circleDiameter/2, circleDiameter, circleDiameter), 0, 4 * 360);
 }
 
@@ -83,6 +86,7 @@ void InitWindowItem::startSlideAnimation()
     waitingAnimationActive_ = false;
     spinnerRotationAnimation_.stop();
 
+    logoDist_ = curLogoPosY_ - LOGO_POS_TOP;
     startAnAnimation<int>(logoPosAnimation_, curLogoPosY_, LOGO_POS_TOP, ANIMATION_SPEED_FAST);
 }
 
@@ -143,6 +147,10 @@ void InitWindowItem::onSpinnerRotationFinished()
 void InitWindowItem::onLogoPosChanged(const QVariant &value)
 {
     curLogoPosY_ = value.toInt();
+    if (logoDist_ > 0)
+    {
+        curSpinnerOpacity_ = (double)(curLogoPosY_ - LOGO_POS_TOP) / (double)logoDist_;
+    }
     update();
 }
 

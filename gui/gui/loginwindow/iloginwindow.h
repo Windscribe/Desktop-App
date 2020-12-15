@@ -37,6 +37,7 @@ signals:
     virtual void loginClick(const QString &username, const QString &password,
                             const QString &code2fa) = 0;
     virtual void haveAccountYesClick() = 0;
+    virtual void backToWelcomeClick() = 0;
 };
 
 Q_DECLARE_INTERFACE(ILoginWindow, "ILoginWindow")

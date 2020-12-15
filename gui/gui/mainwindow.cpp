@@ -26,6 +26,7 @@
 #include "dialogs/dialogmessagecpuusage.h"
 
 #include "graphicresources/imageresourcessvg.h"
+#include "graphicresources/imageresourcesjpg.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 #include "launchonstartup/launchonstartup.h"
@@ -172,6 +173,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(closeClick()), SLOT(onCloseClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(preferencesClick()), SLOT(onLoginPreferencesClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(haveAccountYesClick()), SLOT(onLoginHaveAccountYesClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(backToWelcomeClick()), SLOT(onLoginBackToWelcomeClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(emergencyConnectClick()), SLOT(onLoginEmergencyWindowClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(externalConfigModeClick()), SLOT(onLoginExternalConfigWindowClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(twoFactorAuthClick(QString, QString)), SLOT(onLoginTwoFactorAuthWindowClick(QString, QString)));
@@ -799,6 +801,12 @@ void MainWindow::onLoginPreferencesClick()
 void MainWindow::onLoginHaveAccountYesClick()
 {
     loginAttemptsController_.reset();
+    mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
+}
+
+void MainWindow::onLoginBackToWelcomeClick()
+{
+    mainWindowController_->getLoginWindow()->resetState();
 }
 
 void MainWindow::onLoginEmergencyWindowClick()
@@ -2631,6 +2639,7 @@ void MainWindow::onLocationsTrayMenuLocationSelected(QString locationTitle, int 
 void MainWindow::onScaleChanged()
 {
     ImageResourcesSvg::instance().clearHashAndStartPreloading();
+    ImageResourcesJpg::instance().clearHash();
     FontManager::instance().clearCache();
     mainWindowController_->updateScaling();
     updateTrayIconType(currentAppIconType_);
@@ -2941,6 +2950,7 @@ void MainWindow::gotoLoginWindow()
 {
     mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(
         backend_->isFirewallEnabled());
+
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
 }
 
