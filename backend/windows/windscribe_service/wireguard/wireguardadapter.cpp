@@ -162,7 +162,7 @@ bool WireGuardAdapter::setIpAddress(const std::string &address, bool isDefault)
         entry.UseAutomaticMetric = FALSE;
         entry.Metric = 0;
     }
-    entry.NlMtu = 1500;  // This should be updated later by the engine.
+    entry.NlMtu = 1420;  // This should be updated later by the engine.
     status = SetIpInterfaceEntry(&entry);
     if (status != NO_ERROR) {
         Logger::instance().out(L"SetIpInterfaceEntry failed");

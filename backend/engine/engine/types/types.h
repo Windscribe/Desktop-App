@@ -6,7 +6,7 @@
 
 const int MTU_OFFSET_OPENVPN = 40;
 const int MTU_OFFSET_IKEV2 = 80;
-const int MTU_OFFSET_WG = 60;
+const int MTU_OFFSET_WG = 80;
 
 enum CONNECTION_ERROR { // common
                         NO_CONNECT_ERROR,
