@@ -1,3 +1,20 @@
+2.0.39 (04/15/2020)
+* Updated logged out launch screen to new style.
+* Updated installer and DMG background image.
+* Dynamic DPI change bug fixed (#286).
+* Wireguard DNS-leak fixed.
+* Show tooltip on FW toggle in Always On mode.
+* Changed the text in the update window.
+* Add tooltip on packet detection error (#292).
+* Prevent browser uninstall popup, when autoupdate from the app.
+* Fixed broken OpenVPN connection for certain configs (#298).
+* Docked mode off by default on Mac.
+* Fixed UI placement and tray icon click in docked mode.
+* Fixed Mac firewall parameters. #291
+* Made native-like tray locations dropdown.
+* Fixed WireGuard MTU issues.
+
+
 2.0.38 (04/12/2020)
 * Updated c-ares lib to the latest version.
 * Updated OpenVPN to the latest version 2.5.0.
