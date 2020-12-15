@@ -264,6 +264,7 @@ SOURCES += \
     systemtray/locationstraymenubutton.cpp \
     systemtray/locationstraymenuitemdelegate.cpp \
     systemtray/locationstraymenuwidget.cpp \
+    systemtray/locationstraymenunative.cpp \
     loginattemptscontroller.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -492,6 +493,7 @@ HEADERS += \
     systemtray/locationstraymenubutton.h \
     systemtray/locationstraymenuitemdelegate.h \
     systemtray/locationstraymenuwidget.h \
+    systemtray/locationstraymenunative.h \
     loginattemptscontroller.h \
     mainwindow.h \
     graphicresources/fontmanager.h \

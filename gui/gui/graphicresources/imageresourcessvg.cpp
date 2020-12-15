@@ -112,17 +112,18 @@ IndependentPixmap *ImageResourcesSvg::getFlag(const QString &flagName)
     }
 }
 
-IndependentPixmap *ImageResourcesSvg::getScaledFlag(const QString &flagName, int width, int height)
+IndependentPixmap *ImageResourcesSvg::getScaledFlag(const QString &flagName, int width, int height,
+                                                    int flags)
 {
     QMutexLocker locker(&mutex_);
-    IndependentPixmap *ret = getIndependentPixmapScaled("flags/" + flagName, width, height);
+    IndependentPixmap *ret = getIndependentPixmapScaled("flags/" + flagName, width, height, flags);
     if (ret)
     {
         return ret;
     }
     else
     {
-        return getIndependentPixmapScaled("flags/noflag", width, height);
+        return getIndependentPixmapScaled("flags/noflag", width, height, flags);
     }
 }
 
@@ -175,26 +176,56 @@ bool ImageResourcesSvg::loadFromResource(const QString &name)
     return true;
 }
 
-bool ImageResourcesSvg::loadFromResourceWithCustomSize(const QString &name, int width, int height)
+bool ImageResourcesSvg::loadFromResourceWithCustomSize(const QString &name, int width, int height,
+                                                       int flags)
 {
     QSvgRenderer render(":/svg/" + name + ".svg");
     if (!render.isValid())
     {
         return false;
     }
-    QPixmap *pixmap = new QPixmap(QSize(width, height) * DpiScaleManager::instance().curDevicePixelRatio());
+    const auto sizeScale = DpiScaleManager::instance().curDevicePixelRatio();
+    QSize realSize(width * sizeScale, height * sizeScale);
+    if (flags & IMAGE_FLAG_SQUARE) {
+        if (realSize.width() > realSize.height())
+            realSize.setHeight(realSize.width());
+        else
+            realSize.setWidth(realSize.height());
+    }
+    QPixmap *pixmap = new QPixmap(realSize);
     pixmap->fill(Qt::transparent);
-    QPainter painter(pixmap);
-    render.render(&painter);
+    {
+        QRectF rc(0, 0, width * sizeScale, height * sizeScale);
+        rc.moveTo((realSize.width() - rc.width()) / 2, (realSize.height() - rc.height()) / 2);
+        QPainter painter(pixmap);
+        render.render(&painter,rc);
+    }
+    if (flags & IMAGE_FLAG_GRAYED) {
+        auto image = pixmap->toImage();
+        for (int i = 0; i < image.height(); ++i) {
+            auto *scanline = reinterpret_cast<QRgb*>(image.scanLine(i));
+            for (int j = 0; j < image.width(); ++j) {
+                const auto gray = qGray(scanline[j]);
+                const auto alpha = qAlpha(scanline[j]);
+                scanline[j] = QColor(gray, gray, gray, alpha).lighter(200).rgba();
+            }
+        }
+        *pixmap = QPixmap::fromImage(image);
+    }
 
     pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-    hashIndependent_[name + "_" + QString::number(width) + "_" + QString::number(height)] = new IndependentPixmap(pixmap);
+
+    QString modifiedName = name + "_" + QString::number(width) + "_" + QString::number(height);
+    if (flags) modifiedName += "_" + QString::number(flags);
+    hashIndependent_[modifiedName] = new IndependentPixmap(pixmap);
     return true;
 }
 
-IndependentPixmap *ImageResourcesSvg::getIndependentPixmapScaled(const QString &name, int width, int height)
+IndependentPixmap *ImageResourcesSvg::getIndependentPixmapScaled(const QString &name, int width,
+                                                                 int height, int flags)
 {
     QString modifiedName = name + "_" + QString::number(width) + "_" + QString::number(height);
+    if (flags) modifiedName += "_" + QString::number(flags);
     auto it = hashIndependent_.find(modifiedName);
     if (it != hashIndependent_.end())
     {
@@ -202,7 +233,7 @@ IndependentPixmap *ImageResourcesSvg::getIndependentPixmapScaled(const QString &
     }
     else
     {
-        if (loadFromResourceWithCustomSize(name, width, height))
+        if (loadFromResourceWithCustomSize(name, width, height, flags))
         {
             return hashIndependent_.find(modifiedName).value();
         }

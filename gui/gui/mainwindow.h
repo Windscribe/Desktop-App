@@ -16,9 +16,13 @@
 #include "freetrafficnotificationcontroller.h"
 #include "graphicresources/iconmanager.h"
 #include "guitest.h"
+#include "systemtray/locationstraymenunative.h"
 #include "systemtray/locationstraymenuwidget.h"
 #include "dialogs/advancedparametersdialog.h"
 
+#if defined(Q_OS_MAC)
+#define USE_LOCATIONS_TRAY_MENU_NATIVE
+#endif
 
 class MainWindow : public QWidget
 {
@@ -211,7 +215,7 @@ private slots:
     void onTrayMenuHelpMe();
     void onTrayMenuQuit();
     void onTrayMenuAboutToShow();
-    void onLocationsTrayMenuLocationSelected(QString locationTitle);
+    void onLocationsTrayMenuLocationSelected(QString locationTitle, int cityIndex);
 
     void onFreeTrafficNotification(const QString &message);
     void onNativeInfoErrorMessage(QString title, QString desc);
@@ -242,9 +246,14 @@ private:
     LogViewer::LogViewerWindow *logViewerWindow_;
     AdvancedParametersDialog *advParametersWindow_;
 
-    QWidgetAction *listWidgetAction_;
     QMenu trayMenu_;
+#if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
+    LocationsTrayMenuNative locationsMenu_;
+#else
     QMenu locationsMenu_;
+    QWidgetAction *listWidgetAction_;
+    LocationsTrayMenuWidget *locationsTrayMenuWidget_;
+#endif
 
     enum class AppIconType { DISCONNECTED, CONNECTING, CONNECTED };
     void updateAppIconType(AppIconType type);
@@ -300,7 +309,6 @@ private:
 
     bool currentlyShowingUserWarningMessage_;
 
-    LocationsTrayMenuWidget *locationsTrayMenuWidget_;
     void activateAndShow();
     void deactivateAndHide();
     void loadTrayMenuItems();
