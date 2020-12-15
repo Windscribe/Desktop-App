@@ -49,12 +49,15 @@ private:
 
     int curLogoPosY_;
     int curSpinnerRotation_;
+    double curSpinnerOpacity_;
     double curAbortOpacity_;
 
     bool waitingAnimationActive_;
 
     int cropHeight_;
     int height_;
+
+    int logoDist_;
 
     QString msg_;
 
