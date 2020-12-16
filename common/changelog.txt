@@ -1,3 +1,6 @@
+2.0.41 (04/16/2020)
+* Bottom artefact on welcome screen fixed.
+
 2.0.40 (04/16/2020)
 * Beta popup message removed from installer.
 * Removed debug log spam.
