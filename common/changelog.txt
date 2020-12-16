@@ -1,3 +1,11 @@
+2.0.40 (04/16/2020)
+* Beta popup message removed from installer.
+* Removed debug log spam.
+* Fixed background issues on connect screen (#274).
+* Updated logged out background images.
+* Static IP icons swapped (#303).
+* Update screen text fixed.
+
 2.0.39 (04/15/2020)
 * Updated logged out launch screen to new style.
 * Updated installer and DMG background image.
