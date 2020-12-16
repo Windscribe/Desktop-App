@@ -1454,6 +1454,7 @@ if not exist %OUTPATH% mkdir %OUTPATH%
     <None Include="svg\flags\sg.svg" />
     <None Include="svg\flags\si.svg" />
     <None Include="svg\flags\sk.svg" />
+    <QtRcc Include="jpg.qrc" />
     <QtRcc Include="svg.qrc">
       <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">svg</InitFuncName>
       <InitFuncName Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">svg</InitFuncName>

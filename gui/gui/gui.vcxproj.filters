@@ -2491,4 +2491,9 @@
       <Filter>GUI Files\graphicresources</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="jpg.qrc">
+      <Filter>Misc Files\Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
 </Project>
