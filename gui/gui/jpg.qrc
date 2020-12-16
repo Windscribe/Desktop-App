@@ -1,8 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>jpg/welcome_350x350.jpg</file>
-        <file>jpg/welcome_525x525.jpg</file>
-        <file>jpg/welcome_700x700.jpg</file>
-        <file>jpg/welcome_1050x1050.jpg</file>
+        <file>jpg/welcome_332x354.jpg</file>
+        <file>jpg/welcome_498x531.jpg</file>
+        <file>jpg/welcome_664x708.jpg</file>
+        <file>jpg/welcome_996x1062.jpg</file>
+        <file>jpg/welcome_1328x1416.jpg</file>
     </qresource>
 </RCC>

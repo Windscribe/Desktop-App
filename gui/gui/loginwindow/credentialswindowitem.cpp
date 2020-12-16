@@ -12,7 +12,6 @@
 #include <QDebug>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "graphicresources/imageresourcesjpg.h"
 #include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"

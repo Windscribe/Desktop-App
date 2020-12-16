@@ -92,6 +92,9 @@ bool ImageResourcesJpg::loadFromResourceWithCustomSize(const QString &name, int 
         return false;
     }
 
+    Q_ASSERT(img.width() == fd.width);
+    Q_ASSERT(img.height() == fd.height);
+
     QPixmap *pixmap = new QPixmap(QSize(width, height) * DpiScaleManager::instance().curDevicePixelRatio());
     pixmap->fill(Qt::transparent);
     QPainter painter(pixmap);
