@@ -838,6 +838,15 @@
     <ClCompile Include="systemtray\locationstraymenunative.cpp">
       <Filter>GUI Files\systemtray</Filter>
     </ClCompile>
+    <ClCompile Include="loginwindow\credentialswindowitem.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="loginwindow\welcomewindowitem.cpp">
+      <Filter>GUI Files\loginwindow</Filter>
+    </ClCompile>
+    <ClCompile Include="graphicresources\imageresourcesjpg.cpp">
+      <Filter>GUI Files\graphicresources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -1289,6 +1298,12 @@
     </QtMoc>
     <QtMoc Include="systemtray\locationstraymenunative.h">
       <Filter>GUI Files\systemtray</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\credentialswindowitem.h">
+      <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="loginwindow\welcomewindowitem.h">
+      <Filter>GUI Files\loginwindow</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -2471,6 +2486,9 @@
     </ClInclude>
     <ClInclude Include="..\..\common\utils\crashhandler.h">
       <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="graphicresources\imageresourcesjpg.h">
+      <Filter>GUI Files\graphicresources</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

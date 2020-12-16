@@ -402,7 +402,10 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="commonwidgets\textbuttonwidget.cpp" />
     <ClCompile Include="dialogs\advancedparametersdialog.cpp" />
     <ClCompile Include="dpiscaleawarewidget.cpp" />
+    <ClCompile Include="graphicresources\imageresourcesjpg.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp" />
+    <ClCompile Include="loginwindow\credentialswindowitem.cpp" />
+    <ClCompile Include="loginwindow\welcomewindowitem.cpp" />
     <ClCompile Include="overlaysconnectwindow\generalmessagetwobuttonwindowitem.cpp" />
     <ClCompile Include="overlaysconnectwindow\generalmessagewindowitem.cpp" />
     <ClCompile Include="overlaysconnectwindow\updateappitem.cpp" />
@@ -655,6 +658,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="commonwidgets\textbuttonwidget.h" />
     <QtMoc Include="dialogs\advancedparametersdialog.h" />
     <QtMoc Include="dpiscaleawarewidget.h" />
+    <ClInclude Include="graphicresources\imageresourcesjpg.h" />
     <ClInclude Include="locationswindow\widgetlocations\backgroundpixmapanimation.h" />
     <QtMoc Include="preferenceswindow\baseitem.h">
     </QtMoc>
@@ -730,6 +734,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="preferenceswindow\connectionwindow\packetsizeeditboxitem.h" />
     <QtMoc Include="overlaysconnectwindow\generalmessagetwobuttonwindowitem.h" />
     <QtMoc Include="overlaysconnectwindow\generalmessagewindowitem.h" />
+    <QtMoc Include="loginwindow\credentialswindowitem.h" />
+    <QtMoc Include="loginwindow\welcomewindowitem.h" />
     <ClInclude Include="overlaysconnectwindow\igeneralmessagetwobuttonwindow.h" />
     <ClInclude Include="overlaysconnectwindow\igeneralmessagewindow.h" />
     <ClInclude Include="overlaysconnectwindow\iupdateappitem.h" />
