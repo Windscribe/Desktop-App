@@ -510,7 +510,7 @@ void IKEv2Connection_win::doBlockingDisconnect()
     while (!disconnectLogic_.isDisconnected())
     {
         QThread::msleep(1);
-        qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+        qApp->processEvents();
     }
     disconnectLogic_.blockSignals(false);
 }

@@ -108,7 +108,7 @@ void EmergencyController::blockingDisconnect()
             while (!connector_->isDisconnected())
             {
                 QThread::msleep(1);
-                qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+                qApp->processEvents();
 
                 if (elapsedTimer.elapsed() > 10000)
                 {
