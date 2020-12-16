@@ -219,11 +219,11 @@ void CityItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const QRec
         IndependentPixmap *datacenterPixmap = NULL;
         if (cityNode.getStaticIpType().compare("dc", Qt::CaseInsensitive) == 0)
         {
-            datacenterPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/RES_IP_ICON");
+            datacenterPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/DATACENTER_ICON");
         }
         else if (cityNode.getStaticIpType().compare("res", Qt::CaseInsensitive) == 0)
         {
-            datacenterPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/DATACENTER_ICON");
+            datacenterPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/RES_IP_ICON");
         }
         else
         {
