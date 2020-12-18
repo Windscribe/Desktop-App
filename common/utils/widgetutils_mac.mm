@@ -19,10 +19,12 @@ QPixmap *WidgetUtils_mac::extractProgramIcon(const QString &filePath)
 
 void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
 {
+    NSWindow* nsWindow = [(NSView*)(window->winId()) window];
+    [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient];
+
 #if defined __APPLE__ && __MAC_OS_X_VERSION_MAX_ALLOWED >= 101300
     if(@available(macOS 10.13, *))
     {
-        NSWindow* nsWindow = [(NSView*)(window->winId()) window];
         [nsWindow setStyleMask:(/*NSWindowStyleMaskResizable |*/ NSWindowStyleMaskBorderless | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskMiniaturizable)];
         [nsWindow setTitlebarAppearsTransparent:YES];       // 10.10+
         [nsWindow setTitleVisibility:NSWindowTitleHidden];  // 10.10+
@@ -37,6 +39,15 @@ void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
 #else
     Q_UNUSED(window);
 #endif
+}
+
+void WidgetUtils_mac::allowMoveBetweenSpacesForWindow(QWidget *window, bool allow)
+{
+    NSWindow* nsWindow = [(NSView*)(window->winId()) window];
+    if (allow)
+        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient];
+    else
+        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorDefault];
 }
 
 
