@@ -23,14 +23,12 @@ void FirewallFilter::on(const wchar_t *ip, bool bAllowLocalTraffic)
 
 	HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
 
+	fwpmWrapper_.beginTransaction();
+
 	if (currentStatusImpl(hEngine) == true)
     {
-		fwpmWrapper_.beginTransaction();
 		offImpl(hEngine);
-		fwpmWrapper_.endTransaction();
     }
-
-	fwpmWrapper_.beginTransaction();
 
 	FWPM_SUBLAYER0 subLayer = {0};
 	subLayer.subLayerKey = subLayerGUID_;
