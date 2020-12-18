@@ -104,6 +104,10 @@ private:
     int currentLocationListHeight_;
     bool isRibbonVisible_;
     bool showAllTabs_;
+
+    QColor backgroundColor_;
+
+
     void changeTab(CurTabEnum newTab);
 
     void onClickAllLocations();

@@ -22,7 +22,8 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     countOfVisibleItemSlots_(7),
     currentLocationListHeight_(0),
     isRibbonVisible_(false),
-    showAllTabs_(true)
+    showAllTabs_(true),
+    backgroundColor_(14, 25, 38)
 {
     setMouseTracking(true);
     curCursorShape_ = Qt::ArrowCursor;
@@ -147,8 +148,6 @@ void LocationsTab::paintEvent(QPaintEvent *event)
     }
 
     QPainter painter(this);
-    // painter.fillRect(QRect(0, 0, width(), height()), Qt::magenta);
-    painter.fillRect(QRect(0, TOP_TAB_HEIGHT * G_SCALE, width(), height() - TOP_TAB_HEIGHT * G_SCALE), QBrush(QColor(0x03, 0x09, 0x1C)));
     drawTab(painter, QRect(0, 0, width(), TOP_TAB_HEIGHT * G_SCALE));
 
 }
@@ -349,7 +348,7 @@ IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
 
 void LocationsTab::drawTab(QPainter &painter, const QRect &rc)
 {
-    painter.fillRect(rc, QBrush(QColor(0x03, 0x09, 0x1C)));
+    painter.fillRect(rc, QBrush(backgroundColor_));
 
     drawBottomLine(painter, rc.left(), rc.right(), rc.bottom(), curWhiteLinePos_);
 
@@ -381,10 +380,10 @@ void LocationsTab::drawTab(QPainter &painter, const QRect &rc)
 
 void LocationsTab::drawBottomLine(QPainter &painter, int left, int right, int bottom, int whiteLinePos)
 {
-    painter.fillRect(QRect(left, bottom - (G_SCALE+0.5), right-left, G_SCALE+0.5), QBrush(QColor(0x29, 0x2E, 0x3E)));
+    painter.fillRect(QRect(left, bottom-G_SCALE*2 + 1, right-left, G_SCALE*2), QBrush(QColor(3, 9, 28)));
     // draw white line
     {
-        painter.fillRect(QRect((whiteLinePos - WHITE_LINE_WIDTH / 2 *G_SCALE), bottom - (G_SCALE+0.5), WHITE_LINE_WIDTH*G_SCALE, G_SCALE+0.5), QBrush(Qt::white));
+        painter.fillRect(QRect((whiteLinePos - WHITE_LINE_WIDTH / 2 *G_SCALE), bottom-G_SCALE*2 + 1, WHITE_LINE_WIDTH*G_SCALE, G_SCALE*2), QBrush(Qt::white));
     }
 }
 
