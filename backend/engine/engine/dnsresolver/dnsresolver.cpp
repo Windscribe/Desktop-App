@@ -1,4 +1,5 @@
 #include "dnsresolver.h"
+#include "dnsutils.h"
 #include "engine/hardcodedsettings.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
@@ -269,7 +270,16 @@ QStringList DnsResolver::getCustomDnsIps()
 {
     if (dnsPolicyType_ == DNS_TYPE_OS_DEFAULT)
     {
-        return QStringList();
+        QStringList osDefaultList;  // Empty by default.
+#if defined(Q_OS_MAC)
+        // On Mac, don't rely on automatic OS default DNS fetch in CARES, because it reads them from
+        // the "/etc/resolv.conf", which is sometimes not available immediately after reboot.
+        // Feed the CARES with valid OS default DNS values taken from scutil.
+        const auto listDns = DnsUtils::getDnsServers();
+        for (auto it = listDns.cbegin(); it != listDns.cend(); ++it)
+            osDefaultList.push_back(QString::fromStdWString(*it));
+#endif
+        return osDefaultList;
     }
     else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS)
     {
