@@ -2281,14 +2281,18 @@ void MainWindow::activateAndShow()
 {
     // qDebug() << "ActivateAndShow()";
 #ifdef Q_OS_MAC
-    MacUtils::activateApp();
+    const bool kAllowMoveBetweenSpaces = backend_->getPreferences()->isHideFromDock();
+    WidgetUtils_mac::allowMoveBetweenSpacesForWindow(this, kAllowMoveBetweenSpaces);
 #endif
-
     mainWindowController_->updateMainAndViewGeometry(true);
     if (!isVisible() || isMinimized())
         showNormal();
     if (!isActiveWindow())
         activateWindow();
+#ifdef Q_OS_MAC
+    MacUtils::activateApp();
+#endif
+
     lastWindowStateChange_ = QDateTime::currentMSecsSinceEpoch();
 }
 
