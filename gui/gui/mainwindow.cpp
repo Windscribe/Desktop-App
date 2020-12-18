@@ -11,6 +11,7 @@
 #include <QWindow>
 #include <QScreen>
 #include <QWidgetAction>
+#include <QCommandLineParser>
 
 #include "application/windscribeapplication.h"
 #include "commongraphics/commongraphics.h"
@@ -336,6 +337,24 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
 MainWindow::~MainWindow()
 {
 
+}
+
+void MainWindow::showAfterLaunch()
+{
+#ifdef Q_OS_WIN
+    if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
+        QCommandLineParser cmdParser;
+        cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
+        QCommandLineOption osRestartOption("os_restart");
+        cmdParser.addOption(osRestartOption);
+        cmdParser.process(*WindscribeApplication::instance());
+        if (cmdParser.isSet(osRestartOption)) {
+            showMinimized();
+            return;
+        }
+    }
+#endif
+    show();
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
