@@ -9,10 +9,10 @@ rm -rf $HOME/"LibsWindscribe/protobuf"
 
 # get and extract
 mkdir $HOME/"protobuf_temp"
-curl https://github.com/protocolbuffers/protobuf/archive/v3.8.0.tar.gz -o $HOME/"protobuf_temp/protobuf-3.8.0.tar.gz" -k -L
-tar -zxvf $HOME/"protobuf_temp/protobuf-3.8.0.tar.gz" -C $HOME/"protobuf_temp"
+curl https://github.com/protocolbuffers/protobuf/archive/v3.14.0.tar.gz -o $HOME/"protobuf_temp/protobuf-3.14.0.tar.gz" -k -L
+tar -zxvf $HOME/"protobuf_temp/protobuf-3.14.0.tar.gz" -C $HOME/"protobuf_temp"
 
-pushd $HOME/"protobuf_temp/protobuf-3.8.0"
+pushd $HOME/"protobuf_temp/protobuf-3.14.0"
 
 export CC="cc -mmacosx-version-min=10.11"
 

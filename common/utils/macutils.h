@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <QList>
+#include "utils/protobuf_includes.h"
 
 namespace MacUtils
 {

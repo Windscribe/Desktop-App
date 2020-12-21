@@ -54,6 +54,9 @@ win32{
 
 macx {
 
+    #remove unused parameter warnings
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+
     #LIBS += -framework Foundation
     LIBS += -framework AppKit
     LIBS += -framework CoreFoundation

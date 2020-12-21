@@ -33,7 +33,7 @@ void PersistentState::save()
 {
     QSettings settings;
 
-    int size = state_.ByteSize();
+    int size = state_.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
     state_.SerializeToArray(arr.data(), size);
 
