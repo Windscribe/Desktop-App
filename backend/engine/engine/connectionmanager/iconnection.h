@@ -27,6 +27,7 @@ public:
     virtual bool isDisconnected() const = 0;
     virtual QString getConnectedTapTunAdapterName() = 0;
     virtual ConnectionType getConnectionType() const = 0;
+    virtual bool isAllowFirewallAfterCustomConfigConnection() const { return true; }
 
     virtual void continueWithUsernameAndPassword(const QString &username, const QString &password) = 0;
     virtual void continueWithPassword(const QString &password) = 0;

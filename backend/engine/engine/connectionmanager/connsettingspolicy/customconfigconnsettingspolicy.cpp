@@ -43,6 +43,7 @@ CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSetti
     {
         ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_CONFIG;
         ccd.ovpnData = locationInfo_->getOvpnData();
+        ccd.isAllowFirewallAfterConnection = locationInfo_->isAllowFirewallAfterConnection();
         ccd.ip = locationInfo_->getSelectedIp();
         ccd.remoteCmdLine = locationInfo_->getSelectedRemoteCommand();
         ccd.customConfigFilename = locationInfo_->getFilename();

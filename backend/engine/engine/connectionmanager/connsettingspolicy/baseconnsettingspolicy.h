@@ -27,6 +27,7 @@ struct CurrentConnectionDescr
     QString ovpnData;
     QString customConfigFilename;
     QString remoteCmdLine;
+    bool isAllowFirewallAfterConnection;
 
     // fields for WireGuard
     QString wgPublicKey;

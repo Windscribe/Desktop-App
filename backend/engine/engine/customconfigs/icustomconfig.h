@@ -17,6 +17,7 @@ public:
     virtual QString nick() const = 0;       // use for show in the GUI, host to connect to
     virtual QString filename() const = 0;   // filename (without full path), can be used as unique id of config
     virtual QStringList hostnames() const = 0;      // hostnames/ips -> they are used for ping and measure latency
+    virtual bool isAllowFirewallAfterConnection() const = 0;
 
     virtual bool isCorrect() const = 0;
     virtual QString getErrorForIncorrect() const = 0;

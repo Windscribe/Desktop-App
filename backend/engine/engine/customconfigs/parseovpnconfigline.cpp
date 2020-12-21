@@ -54,6 +54,33 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
             }
         }
     }
+    else if (line.contains("verb", Qt::CaseInsensitive))
+    {
+        QStringList strs = splitLine(line);
+
+        if (strs.count() > 0 && strs[0].compare("verb", Qt::CaseInsensitive) == 0)
+        {
+            if (strs.count() >= 2)
+            {
+                openVpnLine.type = OVPN_CMD_VERB;
+                openVpnLine.verb = strs[1].toUInt();
+            }
+        }
+    }
+    else if (line.contains("route-nopull", Qt::CaseInsensitive) ||
+             line.contains("route-noexec", Qt::CaseInsensitive))
+    {
+        openVpnLine.type = OVPN_CMD_IGNORE_REDIRECT_GATEWAY;
+    }
+    else if (line.contains("pull-filter", Qt::CaseInsensitive))
+    {
+        QStringList strs = splitLine(line);
+        if (strs.count() > 2 &&
+            strs[0].compare("pull-filter", Qt::CaseInsensitive) == 0 &&
+            strs[1].compare("ignore", Qt::CaseInsensitive) == 0 &&
+            strs[2].compare("redirect-gateway", Qt::CaseInsensitive) == 0)
+            openVpnLine.type = OVPN_CMD_IGNORE_REDIRECT_GATEWAY;
+    }
 
     return openVpnLine;
 }

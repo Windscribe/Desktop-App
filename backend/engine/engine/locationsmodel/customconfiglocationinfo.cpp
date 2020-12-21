@@ -228,6 +228,11 @@ QSharedPointer<WireGuardConfig> CustomConfigLocationInfo::getWireguardCustomConf
     return nullptr;
 }
 
+bool CustomConfigLocationInfo::isAllowFirewallAfterConnection() const
+{
+    return config_->isAllowFirewallAfterConnection();
+}
+
 void CustomConfigLocationInfo::selectNextNode()
 {
     if (remotes_[selected_].isHostname)

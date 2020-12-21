@@ -1195,3 +1195,13 @@ void ConnectionManager::startTunnelTests()
 {
     testVPNTunnel_->startTests();
 }
+
+bool ConnectionManager::isAllowFirewallAfterConnection() const
+{
+    Q_ASSERT(connector_);
+    if (!connector_ || currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_CUSTOM_CONFIG)
+        return true;
+
+    return currentConnectionDescr_.isAllowFirewallAfterConnection
+        && connector_->isAllowFirewallAfterCustomConfigConnection();
+}

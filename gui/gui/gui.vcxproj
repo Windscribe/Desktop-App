@@ -645,6 +645,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\utils\crashdump.h" />
     <ClInclude Include="..\..\common\utils\crashhandler.h" />
     <ClInclude Include="..\..\common\utils\networktypes.h" />
+    <ClInclude Include="..\..\common\utils\protobuf_includes.h" />
     <ClInclude Include="..\..\common\version\appversion.h" />
     <QtMoc Include="preferenceswindow\connectionwindow\automanualswitchitem.h">
     </QtMoc>
@@ -1029,14 +1030,26 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">if not exist %(RelativeDir)moc_predefs.h.cbt copy NUL %(RelativeDir)moc_predefs.h.cbt
+cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;%(RelativeDir)moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">if not exist %(RelativeDir)moc_predefs.h.cbt copy NUL %(RelativeDir)moc_predefs.h.cbt
+cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;%(RelativeDir)moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generate moc_predefs.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">Generate moc_predefs.h</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug\moc_predefs.h;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">debug\moc_predefs.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)moc_predefs.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">%(RelativeDir)moc_predefs.h;%(Outputs)</Outputs>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">if not exist %(RelativeDir)moc_predefs.h.cbt copy NUL %(RelativeDir)moc_predefs.h.cbt
+cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;%(RelativeDir)moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">if not exist %(RelativeDir)moc_predefs.h.cbt copy NUL %(RelativeDir)moc_predefs.h.cbt
+cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;%(RelativeDir)moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generate moc_predefs.h</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)moc_predefs.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">%(RelativeDir)moc_predefs.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="release\moc_predefs.h.cbt">
       <FileType>Document</FileType>
@@ -1044,12 +1057,24 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">true</ExcludedFromBuild>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">if not exist %(RelativeDir)moc_predefs.h.cbt copy NUL %(RelativeDir)moc_predefs.h.cbt
+cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;%(RelativeDir)moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">if not exist %(RelativeDir)moc_predefs.h.cbt copy NUL %(RelativeDir)moc_predefs.h.cbt
+cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;%(RelativeDir)moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generate moc_predefs.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">Generate moc_predefs.h</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\moc_predefs.h;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">release\moc_predefs.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)moc_predefs.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">%(RelativeDir)moc_predefs.h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">if not exist %(RelativeDir)moc_predefs.h.cbt copy NUL %(RelativeDir)moc_predefs.h.cbt
+cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;%(RelativeDir)moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">if not exist %(RelativeDir)moc_predefs.h.cbt copy NUL %(RelativeDir)moc_predefs.h.cbt
+cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;%(RelativeDir)moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generate moc_predefs.h</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)moc_predefs.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">%(RelativeDir)moc_predefs.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -1080,23 +1105,31 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\common\ipc\proto\servercommands.proto">
       <FileType>Document</FileType>
@@ -1111,23 +1144,31 @@ if not exist %OUTPATH% mkdir %OUTPATH%
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\common\ipc\proto\types.proto">
       <FileType>Document</FileType>
@@ -1142,46 +1183,62 @@ if not exist %OUTPATH% mkdir %OUTPATH%
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
     </CustomBuild>
     <CustomBuild Include="..\..\common\ipc\proto\apiinfo.proto">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug (Embedded Engine)|Win32'">set PROTOC=c:\libs\protobuf_release\bin\protoc
 set INCPATH=%(RootDir)%(Directory)
 set OUTPATH=%(RootDir)%(Directory)..\generated_proto
+set FIXSCRIPTNAME=%INCPATH%\msvc_fix_proto.bat
 if not exist %OUTPATH% mkdir %OUTPATH%
-%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)</Command>
+%PROTOC% -I=%INCPATH% --cpp_out=%OUTPATH% %(Filename)%(Extension)
+call %FIXSCRIPTNAME% "%OUTPATH%\%(Filename).pb.cc"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building %(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building %(Filename)%(Extension)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release (Embedded Engine)|Win32'">Building %(Filename)%(Extension)</Message>

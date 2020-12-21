@@ -24,6 +24,7 @@ public:
     QString nick() const override;      // use for show in the GUI, host to connect to
     QString filename() const override;  // filename (without full path). It is used as an identifier for the LocationID
     QStringList hostnames() const override;      // hostnames/ips
+    bool isAllowFirewallAfterConnection() const override;
 
     bool isCorrect() const override;
     QString getErrorForIncorrect() const override;
@@ -49,6 +50,7 @@ private:
 
     uint globalPort_ = 0;       // 0 if not set
     QString globalProtocol_;    // empty if not set
+    bool isAllowFirewallAfterConnection_ = true;
 
 
     void process();

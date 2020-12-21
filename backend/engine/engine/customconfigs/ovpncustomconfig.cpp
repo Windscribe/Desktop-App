@@ -36,6 +36,11 @@ QStringList OvpnCustomConfig::hostnames() const
     return list;
 }
 
+bool OvpnCustomConfig::isAllowFirewallAfterConnection() const
+{
+    return isAllowFirewallAfterConnection_;
+}
+
 bool OvpnCustomConfig::isCorrect() const
 {
     return isCorrect_;
@@ -90,6 +95,7 @@ void OvpnCustomConfig::process()
         qDebug(LOG_CUSTOM_OVPN) << "Opened:" << filepath_;
 
         bool bFoundAtLeastOneRemote = false;
+        bool bFoundVerbCommand = false;
         QTextStream in(&file);
         while (!in.atEnd())
         {
@@ -115,6 +121,15 @@ void OvpnCustomConfig::process()
 
                 bFoundAtLeastOneRemote = true;
             }
+            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_VERB) // verb cmd
+            {
+                qDebug(LOG_CUSTOM_OVPN) << "Extracted verb:" << openVpnLine.verb;
+                if (openVpnLine.verb < 3)
+                    openVpnLine.verb = 3;
+
+                ovpnData_ += "verb " + QString::number(openVpnLine.verb) + "\n";
+                bFoundVerbCommand = true;
+            }
             else
             {
                 if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PROTO) // proto cmd
@@ -127,10 +142,19 @@ void OvpnCustomConfig::process()
                     globalPort_ = openVpnLine.port;
                     qDebug(LOG_CUSTOM_OVPN) << "Extracted global port:" << globalPort_;
                 }
+                else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_IGNORE_REDIRECT_GATEWAY)
+                {
+                    isAllowFirewallAfterConnection_ = false;
+                    qDebug(LOG_CUSTOM_OVPN)
+                        << "Extracted information: ignore redirect-gateway (" << line << ")";
+                }
 
                 ovpnData_ += line + "\n";
             }
         }
+
+        if (!bFoundVerbCommand)
+            ovpnData_ += "verb 3\n";
 
         if (!bFoundAtLeastOneRemote)
         {

@@ -2490,6 +2490,9 @@
     <ClInclude Include="graphicresources\imageresourcesjpg.h">
       <Filter>GUI Files\graphicresources</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\common\utils\protobuf_includes.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="jpg.qrc">
