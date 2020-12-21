@@ -8,8 +8,6 @@
 #include "ibackend.h"
 #include "ipc/iconnection.h"
 #include "ipc/command.h"
-#include "ipc/generated_proto/types.pb.h"
-#include "ipc/generated_proto/servercommands.pb.h"
 #include "types/locationid.h"
 #include "types/upgrademodetype.h"
 #include "locationsmodel/locationsmodel.h"

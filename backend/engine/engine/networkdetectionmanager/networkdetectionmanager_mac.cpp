@@ -1,6 +1,5 @@
 #include "networkdetectionmanager_mac.h"
 
-#include <google/protobuf/util/message_differencer.h>
 #include <QRegularExpression>
 #include "../networkstatemanager/reachabilityevents.h"
 #include "utils/macutils.h"

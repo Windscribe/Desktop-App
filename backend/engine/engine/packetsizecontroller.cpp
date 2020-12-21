@@ -1,6 +1,5 @@
 #include "packetsizecontroller.h"
 
-#include <google/protobuf/util/message_differencer.h>
 #include "engine/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"

@@ -2,7 +2,6 @@
 #define COMMANDFACTORY_H
 
 #include "command.h"
-#include <google/protobuf/descriptor.h>
 
 namespace IPC
 {

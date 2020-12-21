@@ -2,7 +2,7 @@
 #define APIINFO_SERVERCREDENTIALS_H
 
 #include <QString>
-#include "ipc/generated_proto/apiinfo.pb.h"
+#include "utils/protobuf_includes.h"
 
 namespace apiinfo {
 

@@ -5,7 +5,6 @@
 #include <QSharedPointer>
 #include "locationmodelitem.h"
 #include "../types/types.h"
-#include "ipc/generated_proto/types.pb.h"
 
 class BasicLocationsModel : public QObject
 {

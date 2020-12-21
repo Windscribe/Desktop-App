@@ -3,7 +3,6 @@
 
 #include <QGraphicsObject>
 #include <QString>
-#include "ipc/generated_proto/types.pb.h"
 
 class INewsFeedWindow
 {

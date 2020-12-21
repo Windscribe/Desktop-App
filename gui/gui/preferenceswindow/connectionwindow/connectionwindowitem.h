@@ -10,7 +10,6 @@
 #include "packetsizeitem.h"
 #include "../checkboxitem.h"
 #include "macspoofingitem.h"
-#include "ipc/generated_proto/types.pb.h"
 #include "dnswhileconnecteditem.h"
 
 enum CONNECTION_SCREEN_TYPE { CONNECTION_SCREEN_HOME,

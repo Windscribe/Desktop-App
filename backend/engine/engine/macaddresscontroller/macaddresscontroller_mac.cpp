@@ -1,6 +1,5 @@
 #include "macaddresscontroller_mac.h"
 
-#include <google/protobuf/util/message_differencer.h>
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/macutils.h"

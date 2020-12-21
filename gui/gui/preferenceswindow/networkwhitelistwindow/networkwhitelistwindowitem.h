@@ -7,7 +7,6 @@
 #include "../checkboxitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/textitem.h"
-#include "ipc/generated_proto/types.pb.h"
 #include "networklistitem.h"
 #include "currentnetworkitem.h"
 

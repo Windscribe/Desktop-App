@@ -4,7 +4,7 @@
 #include "../baseitem.h"
 #include "commongraphics/iconbutton.h"
 #include "../dividerline.h"
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 namespace PreferencesWindow {
 

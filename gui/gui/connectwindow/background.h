@@ -6,6 +6,7 @@
 #include <QTimer>
 #include "../backend/types/types.h"
 #include "commongraphics/scalablegraphicsobject.h"
+#include "utils/protobuf_includes.h"
 
 namespace ConnectWindow {
 

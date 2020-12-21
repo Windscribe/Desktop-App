@@ -42,6 +42,10 @@ win32{
             $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
             $$COMMON_PATH/utils/winutils.cpp
 
+
+    # Supress protobuf linker warnings
+    QMAKE_LFLAGS += /IGNORE:4099
+
     # Generate debug information (symbol files) for Windows
     QMAKE_CXXFLAGS_RELEASE += /Zi
     QMAKE_CXXFLAGS += /Zi

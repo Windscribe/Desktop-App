@@ -24,7 +24,6 @@
 #include "preferencestab/ipreferencestabcontrol.h"
 #include "commongraphics/iconbutton.h"
 #include "commongraphics/scalablegraphicsobject.h"
-#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

@@ -5,7 +5,6 @@
 #include <QJsonObject>
 #include <QSharedPointer>
 #include "group.h"
-#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace apiinfo {
 

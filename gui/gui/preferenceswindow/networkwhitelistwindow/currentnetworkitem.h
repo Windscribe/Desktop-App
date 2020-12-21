@@ -3,8 +3,8 @@
 
 #include <QGraphicsObject>
 #include "../baseitem.h"
-#include "ipc/generated_proto/types.pb.h"
 #include "../comboboxitem.h"
+#include "utils/protobuf_includes.h"
 
 namespace PreferencesWindow {
 

@@ -5,7 +5,6 @@
 #include <limits>
 #include <QDir>
 #include "logger.h"
-#include <google/protobuf/repeated_field.h>
 
 #ifdef Q_OS_WIN
     #include <Windows.h>

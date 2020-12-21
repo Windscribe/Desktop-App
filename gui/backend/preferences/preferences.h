@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "../types/types.h"
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
 class Preferences : public QObject

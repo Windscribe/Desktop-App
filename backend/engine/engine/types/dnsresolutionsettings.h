@@ -2,7 +2,7 @@
 #define DNSRESOLUTIONSETTINGS_H
 
 #include <QString>
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 class DnsResolutionSettings
 {

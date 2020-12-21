@@ -3,8 +3,6 @@
 #include "utils/logger.h"
 #include "ipc/server.h"
 #include "ipc/protobufcommand.h"
-#include "ipc/generated_proto/servercommands.pb.h"
-#include "ipc/generated_proto/clientcommands.pb.h"
 #include "engine/openvpnversioncontroller.h"
 #include <QDateTime>
 

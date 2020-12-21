@@ -1,8 +1,5 @@
 #include "networkdetectionmanager_win.h"
 
-#include <google/protobuf/util/message_differencer.h>
-
-
 #include "utils/winutils.h"
 #include "utils/logger.h"
 #include "utils/utils.h"

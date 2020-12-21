@@ -6,7 +6,7 @@
 
 #include <QVariantAnimation>
 #include "../editboxitem.h"
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 namespace PreferencesWindow {
 

@@ -1,8 +1,6 @@
 #ifndef PERSISTENTSTATE_H
 #define PERSISTENTSTATE_H
 
-#include "ipc/generated_proto/types.pb.h"
-
 #include "types/locationid.h"
 
 // gui internal states, persistent between the starts of the program

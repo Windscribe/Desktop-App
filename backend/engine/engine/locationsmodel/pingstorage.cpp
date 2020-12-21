@@ -2,7 +2,7 @@
 #include <QDataStream>
 #include <QDebug>
 #include <QSettings>
-#include "ipc/generated_proto/apiinfo.pb.h"
+#include "utils/protobuf_includes.h"
 
 namespace locationsmodel {
 

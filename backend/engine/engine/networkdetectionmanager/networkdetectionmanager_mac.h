@@ -4,7 +4,6 @@
 #include <QMutex>
 #include "engine/helper/ihelper.h"
 #include "inetworkdetectionmanager.h"
-#include "ipc/generated_proto/types.pb.h"
 
 class NetworkDetectionManager_mac : public INetworkDetectionManager
 {

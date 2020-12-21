@@ -4,7 +4,7 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QVector>
-#include "ipc/generated_proto/apiinfo.pb.h"
+#include "utils/protobuf_includes.h"
 
 namespace apiinfo {
 

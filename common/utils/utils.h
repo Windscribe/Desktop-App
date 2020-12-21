@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QStringList>
-#include "ipc/generated_proto/types.pb.h"
+#include "protobuf_includes.h"
 
 #define SAFE_DELETE(x) if (x) { delete x; x = NULL; }
 #define SAFE_DELETE_LATER(x) if (x) { x->deleteLater(); x = NULL; }

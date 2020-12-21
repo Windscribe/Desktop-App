@@ -8,7 +8,6 @@
 #include "engine/types/dnsresolutionsettings.h"
 #include "engine/proxy/proxysettings.h"
 #include "ipc/command.h"
-#include "ipc/generated_proto/types.pb.h"
 
 class EngineSettings
 {

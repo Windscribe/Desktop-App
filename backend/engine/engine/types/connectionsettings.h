@@ -4,7 +4,6 @@
 #include <QSettings>
 #include <QString>
 #include "engine/types/protocoltype.h"
-#include "ipc/generated_proto/types.pb.h"
 
 struct ConnectionSettings
 {

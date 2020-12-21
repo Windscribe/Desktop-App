@@ -1,7 +1,7 @@
 #ifndef CUSTOMCONFIGTYPE_H
 #define CUSTOMCONFIGTYPE_H
 
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 namespace customconfigs {
 

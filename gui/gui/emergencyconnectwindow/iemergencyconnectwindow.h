@@ -3,7 +3,6 @@
 
 #include <QGraphicsObject>
 #include "../backend/types/types.h"
-#include "ipc/generated_proto/types.pb.h"
 
 class IEmergencyConnectWindow
 {

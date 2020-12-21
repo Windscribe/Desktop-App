@@ -3,7 +3,7 @@
 
 #include "../baseitem.h"
 #include "../comboboxitem.h"
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 namespace PreferencesWindow {
 

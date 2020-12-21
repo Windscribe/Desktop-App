@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QHash>
 #include "ipc/iserver.h"
-#include "ipc/generated_proto/types.pb.h"
 #include "clientconnectiondescr.h"
 #include "engine/engine.h"
 

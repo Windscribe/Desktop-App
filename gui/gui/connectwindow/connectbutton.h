@@ -6,6 +6,7 @@
 #include "../backend/types/types.h"
 #include "commongraphics/clickablegraphicsobject.h"
 #include "commongraphics/imageitem.h"
+#include "utils/protobuf_includes.h"
 
 namespace ConnectWindow {
 

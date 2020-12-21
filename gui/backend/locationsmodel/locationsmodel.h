@@ -6,7 +6,6 @@
 #include "basiccitiesmodel.h"
 #include "favoritelocationsstorage.h"
 #include "ipc/protobufcommand.h"
-#include "ipc/generated_proto/types.pb.h"
 
 class LocationsModel : public QObject
 {

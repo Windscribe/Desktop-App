@@ -4,7 +4,6 @@
 #include "../dividerline.h"
 #include "graphicresources/fontmanager.h"
 #include "utils/protoenumtostring.h"
-#include <google/protobuf/util/message_differencer.h>
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {

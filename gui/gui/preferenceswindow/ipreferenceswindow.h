@@ -3,7 +3,6 @@
 
 #include <QGraphicsObject>
 #include "preferenceswindow/preferencestab/ipreferencestabcontrol.h"
-#include "ipc/generated_proto/types.pb.h"
 #include "connectionwindow/connectionwindowitem.h"
 
 // abstract interface for preferences window

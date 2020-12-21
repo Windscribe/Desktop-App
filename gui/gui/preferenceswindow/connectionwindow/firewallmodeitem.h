@@ -2,7 +2,6 @@
 #define FIREWALLMODEITEM_H
 
 #include "../backend/preferences/preferences.h"
-#include "ipc/generated_proto/types.pb.h"
 #include "../baseitem.h"
 #include "../comboboxitem.h"
 #include "../dividerline.h"

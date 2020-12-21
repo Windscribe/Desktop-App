@@ -25,6 +25,9 @@ QMAKE_CFLAGS_RELEASE -= -Zc:strictStrings
 QMAKE_CFLAGS -= -Zc:strictStrings
 QMAKE_CXXFLAGS -= -Zc:strictStrings
 
+# Supress protobuf linker warnings
+QMAKE_LFLAGS += /IGNORE:4099
+
 # Generate debug information (symbol files) for Windows
 QMAKE_CXXFLAGS_RELEASE += /Zi
 QMAKE_CXXFLAGS += /Zi
@@ -401,6 +404,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \
     $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.h \
     $$COMMON_PATH/utils/utils.h \
+    $$COMMON_PATH/utils/protobuf_includes.h \
     $$COMMON_PATH/utils/logger.h \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/version/appversion.h \

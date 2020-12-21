@@ -4,7 +4,6 @@
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 #include "utils/protoenumtostring.h"
-#include <google/protobuf/util/message_differencer.h>
 #include "dpiscalemanager.h"
 
 namespace SharingFeatures {

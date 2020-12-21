@@ -3,7 +3,6 @@
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <google/protobuf/util/message_differencer.h>
 #include "../dividerline.h"
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"

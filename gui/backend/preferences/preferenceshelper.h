@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QVector>
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 class PreferencesHelper : public QObject
 {

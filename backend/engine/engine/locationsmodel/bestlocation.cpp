@@ -1,5 +1,4 @@
 #include "bestlocation.h"
-#include "ipc/generated_proto/apiinfo.pb.h"
 
 #include <QSettings>
 

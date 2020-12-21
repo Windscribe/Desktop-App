@@ -1,9 +1,9 @@
 #include "macaddresscontroller_win.h"
 
-#include <google/protobuf/util/message_differencer.h>
-#include "Utils/utils.h"
-#include "Utils/winutils.h"
-#include "Utils/logger.h"
+#include "utils/utils.h"
+#include "utils/winutils.h"
+#include "utils/logger.h"
+#include "utils/protobuf_includes.h"
 
 const int typeIdMacAddrSpoofing = qRegisterMetaType<ProtoTypes::MacAddrSpoofing>("ProtoTypes::MacAddrSpoofing");
 const int typeIdUserWarningType = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UserWarningType");

@@ -8,7 +8,6 @@
 #include "proxyipaddressitem.h"
 #include "../backend/preferences/preferences.h"
 #include "../backend/preferences/preferenceshelper.h"
-#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

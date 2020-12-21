@@ -7,7 +7,6 @@
 #include "versioninfoitem.h"
 #include "../backend/preferences/preferenceshelper.h"
 #include "../backend/preferences/preferences.h"
-#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

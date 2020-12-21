@@ -2,7 +2,6 @@
 
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
-#include <google/protobuf/util/message_differencer.h>
 #include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 

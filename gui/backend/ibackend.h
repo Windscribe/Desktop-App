@@ -7,7 +7,6 @@
 #include "preferences/preferenceshelper.h"
 #include "preferences/preferences.h"
 #include "preferences/accountinfo.h"
-#include "ipc/generated_proto/types.pb.h"
 
 // abstract interface for backend
 class IBackend

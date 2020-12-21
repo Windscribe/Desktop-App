@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QMutex>
-#include "ipc/generated_proto/types.pb.h"
 #include "networkstatemanager/inetworkstatemanager.h"
+#include "utils/protobuf_includes.h"
 
 class PacketSizeController : public QObject
 {

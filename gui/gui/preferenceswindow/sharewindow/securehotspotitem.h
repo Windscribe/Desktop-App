@@ -9,7 +9,6 @@
 #include "commongraphics/checkboxbutton.h"
 #include "../editboxitem.h"
 #include <QVariantAnimation>
-#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

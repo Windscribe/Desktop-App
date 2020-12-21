@@ -7,7 +7,6 @@
 #include "../backend/preferences/preferences.h"
 #include "macaddressitem.h"
 #include "autorotatemacitem.h"
-#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

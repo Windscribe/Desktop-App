@@ -8,7 +8,6 @@
 
 #include <QVariantAnimation>
 #include "packetsizeeditboxitem.h"
-#include "ipc/generated_proto/types.pb.h"
 #include "tooltips/tooltiptypes.h"
 
 namespace PreferencesWindow {

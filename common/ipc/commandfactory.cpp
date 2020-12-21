@@ -2,8 +2,7 @@
 
 #include "commandfactory.h"
 #include "protobufcommand.h"
-#include "generated_proto/clientcommands.pb.h"
-#include "generated_proto/servercommands.pb.h"
+#include "utils/protobuf_includes.h"
 
 namespace IPC
 {

@@ -3,7 +3,6 @@
 
 #include <QGraphicsObject>
 #include "../backend/preferences/preferences.h"
-#include "ipc/generated_proto/types.pb.h"
 
 class IBottomInfoItem
 {

@@ -2,7 +2,7 @@
 #define CONNECTSTATEHELPER_H
 
 #include <QObject>
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 class ConnectStateHelper : public QObject
 {

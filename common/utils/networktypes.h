@@ -3,7 +3,7 @@
 
 #include <QDebug>
 #include <QString>
-#include "IPC/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 // TODO: convert unsigned long to int where appropriate
 // TODO: simplify these types 

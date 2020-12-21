@@ -5,6 +5,7 @@
 #include "../backend/types/types.h"
 #include "../backend/types/pingtime.h"
 #include "commongraphics/clickablegraphicsobject.h"
+#include "utils/protobuf_includes.h"
 
 namespace ConnectWindow {
 

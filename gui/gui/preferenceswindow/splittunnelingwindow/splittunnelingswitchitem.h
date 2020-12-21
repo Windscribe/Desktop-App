@@ -7,9 +7,8 @@
 #include "../comboboxitem.h"
 #include "../connectionwindow/subpageitem.h"
 #include "commongraphics/iconbutton.h"
-#include "ipc/generated_proto/types.pb.h"
-
 #include "tooltips/tooltiptypes.h"
+#include "utils/protobuf_includes.h"
 
 namespace PreferencesWindow {
 

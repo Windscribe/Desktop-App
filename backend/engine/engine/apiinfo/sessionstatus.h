@@ -5,7 +5,7 @@
 #include <QSet>
 #include <QJsonObject>
 #include <QSharedDataPointer>
-#include "ipc/generated_proto/apiinfo.pb.h"
+#include "utils/protobuf_includes.h"
 
 namespace apiinfo {
 

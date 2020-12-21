@@ -2,7 +2,6 @@
 #define FIREWALLSTATEHELPER_H
 
 #include <QObject>
-#include "ipc/generated_proto/types.pb.h"
 
 class FirewallStateHelper : public QObject
 {

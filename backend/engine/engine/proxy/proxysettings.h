@@ -5,7 +5,6 @@
 #include <QString>
 #include <QNetworkProxy>
 #include "engine/types/types.h"
-#include "ipc/generated_proto/types.pb.h"
 
 class ProxySettings
 {

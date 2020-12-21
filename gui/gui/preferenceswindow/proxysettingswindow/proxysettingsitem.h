@@ -6,7 +6,6 @@
 #include "../comboboxitem.h"
 #include "../editboxitem.h"
 #include "../dividerline.h"
-#include "ipc/generated_proto/types.pb.h"
 #include <QVariantAnimation>
 
 namespace PreferencesWindow {

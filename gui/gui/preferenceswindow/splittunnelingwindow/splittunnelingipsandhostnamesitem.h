@@ -4,7 +4,6 @@
 #include "../baseitem.h"
 #include "newiporhostnameitem.h"
 #include "iporhostnameitem.h"
-#include "ipc/generated_proto/types.pb.h"
 
 namespace PreferencesWindow {
 

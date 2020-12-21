@@ -7,7 +7,6 @@
 #include "../backend/types/types.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "../backend/preferences/preferences.h"
-#include "ipc/generated_proto/types.pb.h"
 #include "graphicresources/fontdescr.h"
 
 namespace ConnectWindow {

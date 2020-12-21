@@ -5,7 +5,6 @@
 #include <QMap>
 
 #include "networktypes.h"
-#include "IPC/generated_proto/types.pb.h"
 
 namespace WinUtils
 {

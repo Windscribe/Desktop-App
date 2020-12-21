@@ -4,7 +4,7 @@
 #include <QString>
 #include <QMetaType>
 #include <QHash>
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 // Uniquely identifies a location among all locations (API locations, statis IPs locations, custom config locations, best location).
 class LocationID

@@ -3,7 +3,6 @@
 
 #include "inetworkdetectionmanager.h"
 #include "networkchangeworkerthread.h"
-#include "IPC/generated_proto/types.pb.h"
 #include "Engine/Helper/ihelper.h"
 
 class NetworkDetectionManager_win : public INetworkDetectionManager

@@ -6,7 +6,6 @@
 #include <QVector>
 #include <QSharedDataPointer>
 #include "node.h"
-#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace apiinfo {
 

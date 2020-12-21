@@ -6,7 +6,6 @@
 #include <QVector>
 #include <qstring.h>
 #include "engine/types/protocoltype.h"
-#include "ipc/generated_proto/apiinfo.pb.h"
 
 namespace apiinfo {
 

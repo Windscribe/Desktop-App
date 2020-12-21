@@ -48,6 +48,9 @@ win32 {
 
     RC_FILE = gui.rc
 
+    # Supress protobuf linker warnings
+    QMAKE_LFLAGS += /IGNORE:4099
+
     # Generate debug information (symbol files) for Windows
     QMAKE_CXXFLAGS_RELEASE += /Zi
     QMAKE_CXXFLAGS += /Zi
@@ -412,6 +415,7 @@ HEADERS += \
     $$COMMON_PATH/utils/languagesutil.h \
     $$COMMON_PATH/utils/logger.h \
     $$COMMON_PATH/utils/utils.h \
+    $$COMMON_PATH/utils/protobuf_includes.h \
     $$COMMON_PATH/utils/widgetutils.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     $$COMMON_PATH/version/appversion.h \

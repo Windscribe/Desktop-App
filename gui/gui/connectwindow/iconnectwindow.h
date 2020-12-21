@@ -7,7 +7,6 @@
 #include "../backend/types/types.h"
 #include "types/locationid.h"
 #include "../backend/preferences/preferences.h"
-#include "ipc/generated_proto/types.pb.h"
 #include "tooltips/tooltiptypes.h"
 
 // abstract interface for login window

@@ -15,7 +15,6 @@
 #include "getdeviceid.h"
 #include <QCoreApplication>
 #include <QDir>
-#include <google/protobuf/util/message_differencer.h>
 #include "utils/executable_signature/executable_signature.h"
 #include "names.h"
 

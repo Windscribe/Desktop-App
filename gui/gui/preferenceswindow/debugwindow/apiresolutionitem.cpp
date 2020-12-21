@@ -1,7 +1,6 @@
 #include "apiresolutionitem.h"
 
 #include <QPainter>
-#include <google/protobuf/util/message_differencer.h>
 #include "../dividerline.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"

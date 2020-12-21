@@ -2,7 +2,7 @@
 #define TYPES_H
 
 #include <QString>
-#include "ipc/generated_proto/types.pb.h"
+#include "utils/protobuf_includes.h"
 
 const int MTU_OFFSET_OPENVPN = 40;
 const int MTU_OFFSET_IKEV2 = 80;

@@ -4,7 +4,6 @@
 #include <QString>
 #include <QJsonObject>
 #include <QVector>
-#include "ipc/generated_proto/types.pb.h"
 #include "node.h"
 
 namespace apiinfo {
