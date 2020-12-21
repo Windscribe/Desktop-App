@@ -47,9 +47,6 @@ QString AppVersion::getFullString() const
 AppVersion::AppVersion() :
     version_(QString::asprintf("%d.%02d", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION)),
     build_(QString::asprintf("%d", WINDSCRIBE_BUILD_VERSION)),
-    major_(WINDSCRIBE_MAJOR_VERSION),
-    minor_(WINDSCRIBE_MINOR_VERSION),
-    buildInt_(WINDSCRIBE_BUILD_VERSION),
 #ifdef WINDSCRIBE_IS_BETA
     buildChannel_(ProtoTypes::UPDATE_CHANNEL_BETA)
 #elif defined WINDSCRIBE_IS_GUINEA_PIG

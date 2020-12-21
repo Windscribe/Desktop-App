@@ -40,7 +40,7 @@ public:
 
     void transitionToUsernameScreen();
     void setFirewallTurnOffButtonVisibility(bool visible);
-    void updateScaling();
+    void updateScaling() override;
 
     void setUsernameFocus();
 

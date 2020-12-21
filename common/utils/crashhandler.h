@@ -67,7 +67,9 @@ public:
 #endif  // ENABLE_CRASH_REPORTS
     }
 private:
+#if defined(ENABLE_CRASH_REPORTS)
     bool bind_status_ = false;
+#endif
 };
 
 }

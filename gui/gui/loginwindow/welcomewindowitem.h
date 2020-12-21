@@ -37,7 +37,7 @@ public:
     void setClickable(bool enabled);
 
     void setFirewallTurnOffButtonVisibility(bool visible);
-    void updateScaling();
+    void updateScaling() override;
 
 public slots:
     void onTooltipButtonHoverLeave();

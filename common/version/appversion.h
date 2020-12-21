@@ -23,10 +23,6 @@ private:
     QString version_;
     QString build_;
 
-    int major_;
-    int minor_;
-    int buildInt_;
-
     ProtoTypes::UpdateChannel buildChannel_;
 };
 
