@@ -159,6 +159,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     dynamic_cast<QObject*>(mainWindowController_->getConnectWindow())->connect(
         backend_->getLocationsModel(), SIGNAL(locationSpeedChanged(LocationID, PingTime)),
         SLOT(updateLocationSpeed(LocationID, PingTime)));
+    connect(&notificationsController_, SIGNAL(newPopupMessage(int)), SLOT(onNotificationControllerNewPopupMessage(int)));
 
     connect(backend_->getLocationsModel(), SIGNAL(bestLocationChanged(LocationID)), SLOT(onBestLocationChanged(LocationID)));
 
@@ -2103,6 +2104,13 @@ void MainWindow::onBackendLocationsUpdated()
     backend_->getLocationsModel()->getLocationInfo(currentLocation, li);
     mainWindowController_->getConnectWindow()->updateLocationInfo(
         li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+}
+
+void MainWindow::onNotificationControllerNewPopupMessage(int messageId)
+{
+    mainWindowController_->getNewsFeedWindow()->setMessagesWithCurrentOverride(notificationsController_.messages(),
+                                                                               messageId);
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_NOTIFICATIONS);
 }
 
 void MainWindow::onBestLocationChanged(const LocationID &bestLocation)
