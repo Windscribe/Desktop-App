@@ -38,6 +38,7 @@ public:
     void updateConnectWindowStateProtocolPortDisplay(ProtoTypes::ConnectionSettings connectionSettings);
     bool isActiveState() const { return activeState_; }
     QRect trayIconRect();
+    void showAfterLaunch();
 
 protected:
     bool event(QEvent *event);

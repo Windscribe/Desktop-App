@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon.geometry();
 
     MainWindow w(trayIcon);
-    w.show();
+    w.showAfterLaunch();
 
 #ifdef Q_OS_WIN
     multipleInstances.unlock();
