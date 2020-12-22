@@ -30,6 +30,7 @@ public:
     QString getOvpnData() const;
     QString getFilename() const;
     QSharedPointer<WireGuardConfig> getWireguardCustomConfig(const QString &endpointIp) const;
+    bool isAllowFirewallAfterConnection() const;
     void selectNextNode();
 
 

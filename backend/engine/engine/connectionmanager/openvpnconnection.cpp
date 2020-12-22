@@ -7,7 +7,8 @@
 #include "engine/openvpnversioncontroller.h"
 
 OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent, helper),
-    bStopThread_(false), currentState_(STATUS_DISCONNECTED)
+    bStopThread_(false), currentState_(STATUS_DISCONNECTED),
+    isAllowFirewallAfterCustomConfigConnection_(false)
 {
     connect(&killControllerTimer_, SIGNAL(timeout()), SLOT(onKillControllerTimer()));
 }
@@ -39,6 +40,7 @@ void OpenVPNConnection::startConnect(const QString &configPathOrUrl, const QStri
     username_ = username;
     password_ = password;
     proxySettings_ = proxySettings;
+    isAllowFirewallAfterCustomConfigConnection_ = false;
 
     stateVariables_.reset();
     safeSetTapAdapter("");
@@ -66,6 +68,11 @@ void OpenVPNConnection::startDisconnect()
 bool OpenVPNConnection::isDisconnected() const
 {
     return getCurrentState() == STATUS_DISCONNECTED;
+}
+
+bool OpenVPNConnection::isAllowFirewallAfterCustomConfigConnection() const
+{
+    return isAllowFirewallAfterCustomConfigConnection_;
 }
 
 QString OpenVPNConnection::getConnectedTapTunAdapterName()
@@ -481,6 +488,12 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                     safeSetTapAdapter("");
                     qCDebug(LOG_CONNECTION) << "Can't parse TAP name: " << serverReply;
                 }
+            }
+            else if (serverReply.contains("redirect-gateway def1", Qt::CaseInsensitive))
+            {
+                // We are going to set up the default gateway, so firewall is allowed after
+                // we have connected (unless the current custom config explicitly forbits this).
+                isAllowFirewallAfterCustomConfigConnection_ = true;
             }
         }
         else if (serverReply.contains(">FATAL:All TAP-Windows adapters on this system are currently in use", Qt::CaseInsensitive))

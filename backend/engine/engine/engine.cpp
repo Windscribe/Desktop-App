@@ -1493,14 +1493,30 @@ void Engine::onUpdateSessionStatusTimer()
 
 void Engine::onConnectionManagerConnected()
 {
-    if (engineSettings_.firewallSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC && engineSettings_.firewallSettings().when() == ProtoTypes::FIREWALL_WHEN_AFTER_CONNECTION)
-    {
-        if (!firewallController_->firewallActualState())
+    if (engineSettings_.firewallSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC) {
+        const bool isAllowFirewallAfterConnection =
+            connectionManager_->isAllowFirewallAfterConnection();
+
+        if (isAllowFirewallAfterConnection &&
+            engineSettings_.firewallSettings().when() == ProtoTypes::FIREWALL_WHEN_AFTER_CONNECTION)
         {
-            qCDebug(LOG_BASIC) << "Automatic enable firewall after connection";
-            QString ips = firewallExceptions_.getIPAddressesForFirewall();
-            firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
-            emit firewallStateChanged(true);
+            if (!firewallController_->firewallActualState())
+            {
+                qCDebug(LOG_BASIC) << "Automatic enable firewall after connection";
+                QString ips = firewallExceptions_.getIPAddressesForFirewall();
+                firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
+                emit firewallStateChanged(true);
+            }
+        }
+        else if (!isAllowFirewallAfterConnection &&
+            engineSettings_.firewallSettings().when() == ProtoTypes::FIREWALL_WHEN_BEFORE_CONNECTION)
+        {
+            if (firewallController_->firewallActualState())
+            {
+                qCDebug(LOG_BASIC) << "Automatic disable firewall after connection";
+                firewallController_->firewallOff();
+                emit firewallStateChanged(false);
+            }
         }
     }
 

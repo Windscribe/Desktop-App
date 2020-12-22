@@ -24,6 +24,7 @@ public:
                       const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
+    bool isAllowFirewallAfterCustomConfigConnection() const override;
 
     QString getConnectedTapTunAdapterName() override;
     ConnectionType getConnectionType() const override { return ConnectionType::OPENVPN; }
@@ -110,6 +111,7 @@ private:
     StateVariables stateVariables_;
     QString tapAdapter_;
     QMutex tapAdapterMutex_;
+    bool isAllowFirewallAfterCustomConfigConnection_;
 
     static constexpr int KILL_TIMEOUT = 10000;
     QTimer killControllerTimer_;

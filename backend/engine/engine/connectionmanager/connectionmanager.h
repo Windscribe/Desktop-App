@@ -66,6 +66,7 @@ public:
     void setPacketSize(ProtoTypes::PacketSize ps);
 
     void startTunnelTests();
+    bool isAllowFirewallAfterConnection() const;
 
 signals:
     void connected();

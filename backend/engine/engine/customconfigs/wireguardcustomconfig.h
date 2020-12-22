@@ -16,6 +16,7 @@ public:
     QString nick() const override;      // use for show in the GUI, host to connect to
     QString filename() const override;
     QStringList hostnames() const override;      // hostnames/ips
+    bool isAllowFirewallAfterConnection() const override;
 
     bool isCorrect() const override;
     QString getErrorForIncorrect() const override;
@@ -43,6 +44,7 @@ private:
     QString endpointHostname_;
     QString endpointPort_;
     uint endpointPortNumber_ = 0;
+    bool isAllowFirewallAfterConnection_ = true;
 };
 
 } //namespace customconfigs

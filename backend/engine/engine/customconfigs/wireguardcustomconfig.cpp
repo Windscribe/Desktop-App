@@ -34,6 +34,11 @@ QStringList WireguardCustomConfig::hostnames() const
     return list;
 }
 
+bool WireguardCustomConfig::isAllowFirewallAfterConnection() const
+{
+    return isAllowFirewallAfterConnection_;
+}
+
 bool WireguardCustomConfig::isCorrect() const
 {
     return errMessage_.isEmpty();
@@ -99,6 +104,8 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
     publicKey_ = file.value("PublicKey").toString();
     presharedKey_ = file.value("PresharedKey").toString();
     allowedIps_ = file.value("AllowedIPs", "0.0.0.0/0").toString();
+    if (!allowedIps_.contains("/0"))
+        isAllowFirewallAfterConnection_ = false;
     QStringList endpointParts = file.value("Endpoint").toString().split(":");
     endpointHostname_ = endpointParts[0];
     endpointPort_.clear();
