@@ -180,6 +180,10 @@ bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTra
         // Multicast addresses
         pf += "pass in quick inet from 224.0.0.0/4 to 224.0.0.0/4 flags S/SA keep state\n";
 
+        // Allow AirDrop
+        pf += "pass in quick on awdl0 inet6 proto udp from any to any port = 5353 keep state\n";
+        pf += "pass out quick on awdl0 proto tcp all flags any keep state\n";
+
         // UPnP
         //pf += "pass out quick inet proto udp from 239.255.255.250 to 239.255.255.250 port = 1900\n";
         //pf += "pass in quick inet proto udp from 239.255.255.250 to 239.255.255.250 port = 1900\n";
