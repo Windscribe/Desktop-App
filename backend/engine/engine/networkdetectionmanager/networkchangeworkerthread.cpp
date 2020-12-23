@@ -2,10 +2,23 @@
 #include "utils/crashhandler.h"
 
 #include <WinSock2.h>
+#include <Ws2tcpip.h>
 #include <iphlpapi.h>
 #include <Windows.h>
 
 #include <QDebug>
+
+namespace
+{
+void __stdcall IpInterfaceChangeCallback(_In_ PVOID CallerContext,
+                                         _In_ PMIB_IPINTERFACE_ROW /*Row*/ OPTIONAL,
+                                         _In_ MIB_NOTIFICATION_TYPE NotificationType)
+{
+    auto *this_ = static_cast<NetworkChangeWorkerThread *>(CallerContext);
+    if (this_ && NotificationType == MibParameterNotification)
+        this_->postUpdate();
+}
+}  // namespace
 
 
 NetworkChangeWorkerThread::NetworkChangeWorkerThread(QObject *parent) : QThread(parent)
@@ -23,6 +36,11 @@ void NetworkChangeWorkerThread::earlyExit()
     SetEvent(hExitEvent_);
 }
 
+void NetworkChangeWorkerThread::postUpdate()
+{
+    emit networkChanged();
+}
+
 void NetworkChangeWorkerThread::run()
 {
     Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
@@ -35,6 +53,10 @@ void NetworkChangeWorkerThread::run()
     hEvents[0] = hExitEvent_;
     hEvents[1] = CreateEvent(NULL, false, false, NULL);
     hEvents[2] = CreateEvent(NULL, false, false, NULL);
+
+    HANDLE ipInterfaceChangeCallbackHandle = nullptr;
+    NotifyIpInterfaceChange(AF_UNSPEC, IpInterfaceChangeCallback, this,
+        FALSE, &ipInterfaceChangeCallbackHandle);
 
     while (true)
     {
@@ -57,13 +79,16 @@ void NetworkChangeWorkerThread::run()
         DWORD dwWaitResult = WaitForMultipleObjects(3, hEvents, FALSE, INFINITE);
         if ( dwWaitResult == WAIT_OBJECT_0 + 1 || dwWaitResult == WAIT_OBJECT_0 + 2)
         {
-            emit networkChanged();
+            postUpdate();
         }
         else
         {
             break;
         }
     }
+
+    if (ipInterfaceChangeCallbackHandle)
+        CancelMibChangeNotify2(ipInterfaceChangeCallbackHandle);
 
     CloseHandle(hEvents[1]);
     CloseHandle(hEvents[2]);

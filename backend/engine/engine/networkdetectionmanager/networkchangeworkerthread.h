@@ -12,6 +12,7 @@ public:
     virtual ~NetworkChangeWorkerThread();
 
     void earlyExit();
+    void postUpdate();
 
 signals:
     void networkChanged();
