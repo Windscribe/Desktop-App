@@ -1,5 +1,6 @@
 #include "server.h"
 #include "connection.h"
+#include "utils/logger.h"
 #include <QDir>
 
 namespace IPC
@@ -26,7 +27,8 @@ bool Server::start()
 
     server_.setSocketOptions(QLocalServer::UserAccessOption); // so user or admin CLI can talk to admin Engine (Launcher starts app in admin mode)
     bool b = server_.listen("Windscribe8rM7bza5OR");
-    QString s = server_.errorString();
+    if (!b)
+        qCDebug(LOG_IPC) << "IPC server listen error:" << server_.errorString();
     return b;
 }
 
