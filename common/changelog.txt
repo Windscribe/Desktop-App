@@ -1,3 +1,8 @@
+2.01.2 (23/12/2020)
+* Damaged signature on Mac fixed. #315
+* Attempt to fix incorrect offline state and extended logs added. #308
+* Added IPC server listen error logging. #316
+
 2.01.1 (23/12/2020)
 * Possible IP leak when firewall state changes fixed. #306
 * Upgrading version leaks IP during install with Always On firewall - fixed. #305
