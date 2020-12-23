@@ -89,15 +89,23 @@ void NetworkDetectionManager_win::updateCurrentNetworkInterface(bool requested)
     curNetworkInterface.set_requested(requested);
 
     // Only report a changed, properly formed
-    QString name = QString::fromStdString(curNetworkInterface.network_or_ssid());
-    if (name != "Unidentified network"
-            && name != "Identifying..."
-            && !Utils::sameNetworkInterface(lastSentNetworkInterface_, curNetworkInterface))
+    if (lastSentNetworkInterface_.active() != curNetworkInterface.active()
+        || !Utils::sameNetworkInterface(lastSentNetworkInterface_, curNetworkInterface))
     {
-        // if still online: Don't send the NoInterface since this can happen during VPN CONNECTING
-        if (curNetworkInterface.interface_index() == -1)
+        const QString name = QString::fromStdString(curNetworkInterface.network_or_ssid());
+        if (name != "Unidentified network" && name != "Identifying...")
         {
-            if (!isOnline())
+            // if still online: Don't send the NoInterface since this can happen during
+            // VPN CONNECTING
+            if (curNetworkInterface.interface_index() == -1)
+            {
+                if (!isOnline())
+                {
+                    lastSentNetworkInterface_ = curNetworkInterface;
+                    emit networkChanged(curNetworkInterface);
+                }
+            }
+            else
             {
                 lastSentNetworkInterface_ = curNetworkInterface;
                 emit networkChanged(curNetworkInterface);
@@ -105,8 +113,10 @@ void NetworkDetectionManager_win::updateCurrentNetworkInterface(bool requested)
         }
         else
         {
-            lastSentNetworkInterface_ = curNetworkInterface;
-            emit networkChanged(curNetworkInterface);
+            qCDebug(LOG_BASIC) << "Network update skipped: unidentified network (interface ="
+                << curNetworkInterface.friendly_name().c_str() << "id ="
+                << curNetworkInterface.interface_index() << " active ="
+                << curNetworkInterface.active() << ")";
         }
     }
 }
