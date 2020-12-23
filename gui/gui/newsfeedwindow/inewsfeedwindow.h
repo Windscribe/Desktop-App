@@ -15,6 +15,7 @@ public:
 
 public slots:
     virtual void setMessages(const ProtoTypes::ArrayApiNotification &arr) = 0;
+    virtual void setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr, int overrideCurrentMessageId) = 0;
 
 signals:
     virtual void messageReaded(qint64 messageId) = 0;

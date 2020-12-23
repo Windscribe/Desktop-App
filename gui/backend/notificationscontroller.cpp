@@ -2,6 +2,8 @@
 
 #include <QDataStream>
 #include <QSettings>
+#include <algorithm>
+// #include <QDebug>
 
 NotificationsController::NotificationsController(QObject *parent) : QObject(parent),
     latestTotal_(0), latestUnreadCnt_(0)
@@ -46,10 +48,22 @@ ProtoTypes::ArrayApiNotification NotificationsController::messages() const
     }
 }
 
+void NotificationsController::checkForUnreadPopup()
+{
+    // opens news feed programmatically to specified id
+    if (!unreadPopupNotificationIds_.empty())
+    {
+        int maxId = *std::max_element(unreadPopupNotificationIds_.begin(),
+                                      unreadPopupNotificationIds_.end());
+        emit newPopupMessage(maxId);
+    }
+}
+
 void NotificationsController::updateNotifications(const ProtoTypes::ArrayApiNotification &arr)
 {
     notifications_ = arr;
     updateState();
+    checkForUnreadPopup();
 }
 
 void NotificationsController::setNotificationReaded(qint64 notificationId)
@@ -61,13 +75,21 @@ void NotificationsController::setNotificationReaded(qint64 notificationId)
 void NotificationsController::updateState()
 {
     int unreaded = 0;
+    unreadPopupNotificationIds_.clear();
+
     for(int i = 0; i < notifications_.api_notifications_size(); ++i)
     {
         if (idOfShownNotifications_.find(notifications_.api_notifications(i).id()) == idOfShownNotifications_.end())
         {
+            if (notifications_.api_notifications(i).popup() == 1)
+            {
+                unreadPopupNotificationIds_.push_back(notifications_.api_notifications(i).id());
+            }
             unreaded++;
         }
     }
+
+    // updates connect window logo
     if (latestTotal_ != notifications_.api_notifications_size() || latestUnreadCnt_ != unreaded)
     {
         latestTotal_ = notifications_.api_notifications_size();
@@ -112,4 +134,5 @@ void NotificationsController::readFromSettings()
         stream >> idOfShownNotifications_;
     }
     updateState();
+    checkForUnreadPopup();
 }

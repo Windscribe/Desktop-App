@@ -179,6 +179,8 @@ private slots:
     void onBackendEngineCrash();
     void onBackendLocationsUpdated();
 
+    void onNotificationControllerNewPopupMessage(int messageId);
+
     void onBestLocationChanged(const LocationID &bestLocation);
 
     // preferences changes signals

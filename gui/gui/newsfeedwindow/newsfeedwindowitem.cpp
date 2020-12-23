@@ -149,6 +149,17 @@ void NewsFeedWindowItem::updateScaling()
     updatePositions();
 }
 
+void NewsFeedWindowItem::setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr, int overrideCurrentMessageId)
+{
+    curMessageId_ = overrideCurrentMessageId;
+    messageIdIsInitialized_ = true;
+    setMessages(arr);
+    if (isVisible())
+    {
+        emit messageReaded(curMessageId_);
+    }
+}
+
 void NewsFeedWindowItem::setMessages(const ProtoTypes::ArrayApiNotification &arr)
 {
     Q_ASSERT(arr.api_notifications_size() > 0);
