@@ -29,6 +29,9 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     protocolTestTunnelTimer_.setInterval(PROTOCOL_OPACITY_ANIMATION_DURATION);
     connect(&protocolTestTunnelTimer_, SIGNAL(timeout()), SLOT(onProtocolTestTunnelTimerTick()));
     connect(&protocolOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onProtocolOpacityAnimationChanged(QVariant)));
+
+    connectionBadgeDots_ = new ConnectionBadgeDots(this);
+
     recalcSize();
 }
 
@@ -48,10 +51,14 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     // badge
     IndependentPixmap *badgeBgPixmap = ImageResourcesSvg::instance().getIndependentPixmap(badgeIconBg_);
     badgeBgPixmap->draw(0,0, painter);
-    IndependentPixmap *badgeFgPixmap = ImageResourcesSvg::instance().getIndependentPixmap(badgeIconFg_);
 
-    int widthOffset = badgeBgPixmap->width()/2 - badgeFgPixmap->width()/2;
-    badgeFgPixmap->draw(widthOffset, badgeBgPixmap->height()/2 - badgeFgPixmap->height()/2, painter);
+    // connection badge dots made to show during connecting
+    if (badgeIconFg_ != "")
+    {
+        IndependentPixmap *badgeFgPixmap = ImageResourcesSvg::instance().getIndependentPixmap(badgeIconFg_);
+        int widthOffset = badgeBgPixmap->width()/2 - badgeFgPixmap->width()/2;
+        badgeFgPixmap->draw(widthOffset, badgeBgPixmap->height()/2 - badgeFgPixmap->height()/2, painter);
+    }
 
     QFont font = *FontManager::instance().getFont(fontDescr_);
     painter->setFont(font);
@@ -94,20 +101,27 @@ void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState conne
             badgeIconFg_ = "CONNECTION_BADGE_FG_ON";
             textOpacity_ = 1.0;
             textColor_ = QColor(0x55, 0xFF, 0x8A);
+            connectionBadgeDots_->hide();
+            connectionBadgeDots_->stop();
         }
         else if (connectState.connect_state_type() == ProtoTypes::CONNECTING)
         {
             badgeIconBg_ = "CONNECTION_BADGE_BG_CONNECTING";
-            badgeIconFg_ = "CONNECTION_BADGE_FG_SPINNER";
+            badgeIconFg_ = ""; // hide fg
             textOpacity_ = 1.0;
             textColor_ = QColor(0xA0, 0xFE, 0xDA);
+
+            connectionBadgeDots_->start();
+            connectionBadgeDots_->show();
         }
         else if (connectState.connect_state_type() == ProtoTypes::DISCONNECTING)
         {
             badgeIconBg_ = "CONNECTION_BADGE_BG_CONNECTING";
-            badgeIconFg_ = "CONNECTION_BADGE_FG_SPINNER";
+            badgeIconFg_ = ""; // hide fg
             textOpacity_ = 1.0;
             textColor_ = QColor(0xA0, 0xFE, 0xDA);
+            connectionBadgeDots_->start();
+            connectionBadgeDots_->show();
         }
         else if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
         {
@@ -115,6 +129,8 @@ void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState conne
             badgeIconFg_ = "CONNECTION_BADGE_FG_OFF";
             textOpacity_ = 0.5;
             textColor_ = Qt::white;
+            connectionBadgeDots_->hide();
+            connectionBadgeDots_->stop();
         }
     }
     else
@@ -122,6 +138,8 @@ void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState conne
         protocolTestTunnelTimer_.stop();
 
         badgeIconFg_ = "CONNECTION_BADGE_FG_NO_INT";
+        connectionBadgeDots_->hide();
+        connectionBadgeDots_->stop();
 
         if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
         {
