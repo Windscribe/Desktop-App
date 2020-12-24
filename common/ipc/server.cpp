@@ -25,7 +25,6 @@ bool Server::start()
     QFile::remove(connectingPathName);
 #endif
 
-    server_.setSocketOptions(QLocalServer::UserAccessOption); // so user or admin CLI can talk to admin Engine (Launcher starts app in admin mode)
     bool b = server_.listen("Windscribe8rM7bza5OR");
     if (!b)
         qCDebug(LOG_IPC) << "IPC server listen error:" << server_.errorString();
