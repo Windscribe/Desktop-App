@@ -1330,6 +1330,12 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
     mainWindowController_->getTwoFactorAuthWindow()->clearCurrentCredentials();
 
+    if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+    {
+        backend_->firewallOn();
+        mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
+    }
+
     if (!isLoginOkAndConnectWindowVisible_)
     {
         // choose latest location
@@ -1817,6 +1823,12 @@ void MainWindow::onBackendCleanupFinished()
 
 void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
 {
+    if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+    {
+        backend_->firewallOn();
+        mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
+    }
+
     if (!isLoginOkAndConnectWindowVisible_)
     {
         // Choose latest location if it's a custom config location; first valid custom config
