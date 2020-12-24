@@ -2905,7 +2905,37 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
     {
         const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
         const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
-        const QScreen *screen = QGuiApplication::screenAt(iconCenter);
+
+        // qDebug() << "Icon center: " << iconCenter;
+        QScreen *screen = QGuiApplication::screenAt(iconCenter);
+
+#ifdef Q_OS_MAC
+        // screen is sometimes not found when:
+        // * opening laptop lid when a docked windscribe is on secondary monitor
+        // * closing laptop lid when a docked windscribe is on the laptop screen when a second monitor is connected
+        // quick hack implemented here to prevent crash in beta-public build
+        // it appears that laptop screen is not accessible yet, though trayIcon has updated location
+        // this "fix" may result in windscribe being locked in a weird place on screen
+        if (!screen)
+        {
+            qDebug() << "Screen is NULL -- grabbing first screen available";
+            QList<QScreen *> screens = QGuiApplication::screens();
+            foreach (QScreen *i, screens)
+            {
+                if (screen)
+                {
+                    screen = i;
+                    qDebug() << "Screen replacement found: " << i << " " << i->geometry();
+                    break;
+                }
+            }
+            if (!screen)
+            {
+                qDebug() << "Still no screen found -- not updating geometry and scene";
+                return;
+            }
+        }
+#endif
         const QRect desktopAvailableRc = screen->availableGeometry();
 
 #ifdef Q_OS_WIN
