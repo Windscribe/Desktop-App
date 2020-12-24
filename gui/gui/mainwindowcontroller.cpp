@@ -1251,11 +1251,6 @@ void MainWindowController::updateNativeShadowIfNeeded()
         invalidateShadow_mac_impl();
     }
 }
-
-void MainWindowController::setFirstSystemTrayPosX(int posX)
-{
-    firstSystemTrayPosX_ = posX;
-}
 #endif
 
 void MainWindowController::gotoConnectWindow()
@@ -2908,9 +2903,10 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     if (preferencesHelper_->isDockedToTray())
     {
-        QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
-        QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
-        QRect desktopAvailableRc = screen->availableGeometry();
+        const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
+        const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
+        const QScreen *screen = QGuiApplication::screenAt(iconCenter);
+        const QRect desktopAvailableRc = screen->availableGeometry();
 
 #ifdef Q_OS_WIN
         geo = taskbarAwareDockedGeometry_win(width, shadowSize, widthWithShadow, heightWithShadow);
@@ -2919,14 +2915,6 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         int rightEarCenterOffset = 41 * G_SCALE;
         int posX = rcIcon.left() + rcIcon.width() / 2 - (width + shadowSize*2 - rightEarCenterOffset);
         geo = QRect(posX, desktopAvailableRc.top(), widthWithShadow, heightWithShadow);
-
-        // System tray will initialize with an incorrect (yet valid) geometry x-coord that is offset by the width of the icon
-        // Eventually the geometry updates to be correct though
-        // So this hack fix will manually reposition until geometry is correct
-        if (rcIcon.x() == firstSystemTrayPosX_)
-        {
-            geo.setX(geo.x() - rcIcon.width());
-        }
 #endif
         const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
         if (geo.right() > kMaxGeometryRightPosition)

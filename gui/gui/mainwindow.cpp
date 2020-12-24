@@ -44,7 +44,7 @@
 
 QWidget *g_mainWindow = NULL;
 
-MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
+MainWindow::MainWindow() :
     QWidget(nullptr),
     backend_(NULL),
     logViewerWindow_(nullptr),
@@ -55,7 +55,7 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     locationsTrayMenuWidget_(nullptr),
 #endif
     currentAppIconType_(AppIconType::DISCONNECTED),
-    trayIcon_(trayIcon),
+    trayIcon_(),
     bNotificationConnectedShowed_(false),
     bytesTransferred_(0),
     bMousePressed_(false),
@@ -69,19 +69,39 @@ MainWindow::MainWindow(QSystemTrayIcon &trayIcon) :
     internetConnected_(false),
     currentlyShowingUserWarningMessage_(false),
     backendAppActiveState_(true),
- #ifdef Q_OS_MAC
+#ifdef Q_OS_MAC
     hideShowDockIconTimer_(this),
     currentDockIconVisibility_(true),
     desiredDockIconVisibility_(true),
- #endif
+#endif
     activeState_(true),
     lastWindowStateChange_(0),
     isExitingFromPreferences_(false),
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false)
 {
-
     g_mainWindow = this;
+
+    // Initialize "fallback" tray icon geometry.
+    const QScreen *screen = qApp->screens().at(0);
+    const QRect desktopAvailableRc = screen->availableGeometry();
+    savedTrayIconRect_.setTopLeft(QPoint(desktopAvailableRc.right() - WINDOW_WIDTH * G_SCALE, 0));
+    savedTrayIconRect_.setSize(QSize(22, 22));
+
+    // Init and show tray icon.
+    trayIcon_.setIcon(*IconManager::instance().getDisconnectedIcon());
+    trayIcon_.show();
+#ifdef Q_OS_MAC
+    const QRect desktopScreenRc = screen->geometry();
+    if (desktopScreenRc.top() != desktopAvailableRc.top()) {
+        while (trayIcon_.geometry().isEmpty())
+            qApp->processEvents();
+    }
+#else
+    while (trayIcon_.geometry().isEmpty())
+        qApp->processEvents();
+#endif
+    qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
 #if defined(Q_OS_WIN)
@@ -2451,7 +2471,17 @@ void MainWindow::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface networkInt
 
 QRect MainWindow::trayIconRect()
 {
-    return trayIcon_.geometry();
+#if defined(Q_OS_MAC)
+    if (trayIcon_.isVisible()) {
+        const QRect rc = trayIcon_.geometry();
+        if (rc.left() > 0)
+            savedTrayIconRect_ = rc;
+    }
+#else
+    if (trayIcon_.isVisible())
+        savedTrayIconRect_ = trayIcon_.geometry();
+#endif
+    return savedTrayIconRect_;
 }
 
 void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
@@ -2794,9 +2824,6 @@ void MainWindow::setupTrayIcon()
     updateTrayIconType(AppIconType::DISCONNECTED);
     trayIcon_.show();
 
-#ifdef Q_OS_MAC
-    mainWindowController_->setFirstSystemTrayPosX(trayIcon_.geometry().x());
-#endif
     connect(&trayIcon_, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             SLOT( onTrayActivated(QSystemTrayIcon::ActivationReason) ));
 }

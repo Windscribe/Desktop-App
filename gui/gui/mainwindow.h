@@ -29,7 +29,7 @@ class MainWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit MainWindow(QSystemTrayIcon &trayIcon);
+    MainWindow();
     ~MainWindow();
 
     virtual bool eventFilter(QObject *watched, QEvent *event);
@@ -264,7 +264,8 @@ private:
     void updateTrayIconType(AppIconType type);
     void updateTrayTooltip(QString tooltip);
     AppIconType currentAppIconType_;
-    QSystemTrayIcon &trayIcon_;
+    QSystemTrayIcon trayIcon_;
+    QRect savedTrayIconRect_;
     bool bNotificationConnectedShowed_;
     QElapsedTimer connectionElapsedTimer_;
     quint64 bytesTransferred_;

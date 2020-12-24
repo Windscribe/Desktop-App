@@ -109,7 +109,6 @@ public:
 
 #ifdef Q_OS_MAC
     void updateNativeShadowIfNeeded();
-    void setFirstSystemTrayPosX(int posX);
 #endif
 
 signals:
@@ -272,7 +271,6 @@ private:
 #ifdef Q_OS_MAC
     void invalidateShadow_mac_impl();
     bool isNeedUpdateNativeShadow_ = false;
-    int firstSystemTrayPosX_ = 0;
 #endif
 
 #ifdef Q_OS_WIN
