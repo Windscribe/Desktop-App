@@ -8,6 +8,7 @@
 #include "commongraphics/scalablegraphicsobject.h"
 #include "../backend/preferences/preferences.h"
 #include "graphicresources/fontdescr.h"
+#include "connectionbadgedots.h"
 
 namespace ConnectWindow {
 
@@ -42,6 +43,7 @@ private slots:
     void onProtocolOpacityAnimationChanged(const QVariant &value);
 
 private:
+    ConnectionBadgeDots * connectionBadgeDots_;
 
     FontDescr fontDescr_;
     ProtoTypes::ConnectState connectState_;
