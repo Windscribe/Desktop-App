@@ -1,3 +1,11 @@
+2.02.1 (24/12/2020)
+* Fixed docked positioning with auto-hiding menubar on Mac. #311
+* Added connection badge animated dots. #46
+* Firewall frozen in incorrect state across sign out/in fixed. #35
+* UI hover login button bug fixed on welcome screen.
+* GUI crash on Mac when opening or closing laptop lid. #318
+
+
 2.01.2 (23/12/2020)
 * Damaged signature on Mac fixed. #315
 * Attempt to fix incorrect offline state and extended logs added. #308
