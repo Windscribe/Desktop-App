@@ -2918,18 +2918,13 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         // this "fix" may result in windscribe being locked in a weird place on screen
         if (!screen)
         {
-            qDebug() << "Screen is NULL -- grabbing first screen available";
-            QList<QScreen *> screens = QGuiApplication::screens();
-            foreach (QScreen *i, screens)
+            qDebug() << "Screen not found -- grabbing first screen available";
+            if (!QGuiApplication::screens().empty())
             {
-                if (screen)
-                {
-                    screen = i;
-                    qDebug() << "Screen replacement found: " << i << " " << i->geometry();
-                    break;
-                }
+                screen = QGuiApplication::screens().at(0);
+                qDebug() << "Backup screen: " << screen << " " << screen->geometry();
             }
-            if (!screen)
+            if (!screen) // shouldn't happen but just in case - closing lid with no external monitors does not seem to fire the geometry update
             {
                 qDebug() << "Still no screen found -- not updating geometry and scene";
                 return;
