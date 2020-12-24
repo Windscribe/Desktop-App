@@ -4,6 +4,7 @@
 * Firewall frozen in incorrect state across sign out/in fixed. #35
 * UI hover login button bug fixed on welcome screen.
 * GUI crash on Mac when opening or closing laptop lid. #318
+* Attempt to fix IPC server listen error. #316
 
 
 2.01.2 (23/12/2020)
