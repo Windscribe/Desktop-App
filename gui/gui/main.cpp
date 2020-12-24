@@ -89,18 +89,7 @@ int main(int argc, char *argv[])
 
     DpiScaleManager::instance();    // init dpi scale manager
 
-    // init and show tray icon
-    QSystemTrayIcon trayIcon;
-    trayIcon.setIcon(*IconManager::instance().getDisconnectedIcon());
-    trayIcon.show();
-
-    while (trayIcon.geometry().isEmpty())
-    {
-        a.processEvents();
-    }
-    qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon.geometry();
-
-    MainWindow w(trayIcon);
+    MainWindow w;
     w.showAfterLaunch();
 
 #ifdef Q_OS_WIN
