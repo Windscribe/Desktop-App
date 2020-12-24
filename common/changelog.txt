@@ -1,4 +1,4 @@
-2.02.1 (24/12/2020)
+2.01.3 (24/12/2020)
 * Fixed docked positioning with auto-hiding menubar on Mac. #311
 * Added connection badge animated dots. #46
 * Firewall frozen in incorrect state across sign out/in fixed. #35
