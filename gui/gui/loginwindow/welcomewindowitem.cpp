@@ -223,9 +223,7 @@ void WelcomeWindowItem::onMinimizeClick()
 
 void WelcomeWindowItem::onGotoLoginButtonClick()
 {
-    //transitionToUsernameScreen();
-    //updateEmergencyConnect();
-
+    gotoLoginButton_->unhover();
     emit haveAccountYesClick();
 }
 
