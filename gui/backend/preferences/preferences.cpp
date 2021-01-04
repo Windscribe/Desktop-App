@@ -114,6 +114,21 @@ void Preferences::setShowNotifications(bool b)
     }
 }
 
+bool Preferences::isShowCountryFlags() const
+{
+    return guiSettings_.is_show_country_flags();
+}
+
+void Preferences::setShowCountryFlags(bool b)
+{
+    if (guiSettings_.is_show_country_flags() != b)
+    {
+        guiSettings_.set_is_show_country_flags(b);
+        saveGuiSettings();
+        emit isShowCountryFlagsChanged(guiSettings_.is_show_country_flags());
+    }
+}
+
 bool Preferences::isDockedToTray() const
 {
     return guiSettings_.is_docked_to_tray();

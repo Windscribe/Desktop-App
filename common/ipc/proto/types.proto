@@ -480,6 +480,7 @@ message GuiSettings
   optional SplitTunneling split_tunneling = 9;
   optional bool is_docked_to_tray = 10 [default = false];
   optional bool is_minimize_and_close_to_tray = 11 [default = false];
+  optional bool is_show_country_flags = 12 [default = true];
 }
 
 

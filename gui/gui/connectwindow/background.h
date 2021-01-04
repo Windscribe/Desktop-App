@@ -26,6 +26,7 @@ public:
     void onLocationSelected(const QString &countryCode);
 
     void setDarkMode(bool dark);
+    void setShowCountryFlags(bool isShowCountryFlags);
 
     qreal opacityConnecting();
     void setOpacityConnecting(qreal v);
@@ -69,6 +70,8 @@ private:
 
     QString midRightVertDivider_;
     QString bottomLeftHorizDivider_;
+
+    bool isShowCountryFlags_;
 };
 
 } //namespace ConnectWindow

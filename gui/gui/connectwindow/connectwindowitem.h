@@ -41,6 +41,7 @@ public:
     void setFirewallAlwaysOn(bool isFirewallAlwaysOn) override;
     void setFirewallBlock(bool isFirewallBlocked) override;
     void setTestTunnelResult(bool success) override;
+    void setIsShowCountryFlags(bool isShowCountryFlags) override;
 
     void updateScaling() override;
 

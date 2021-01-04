@@ -26,6 +26,7 @@ public:
     virtual void setFirewallAlwaysOn(bool isFirewallAlwaysOn) = 0;
     virtual void setFirewallBlock(bool isFirewallBlocked) = 0;
     virtual void setTestTunnelResult(bool success) = 0;
+    virtual void setIsShowCountryFlags(bool isShowCountryFlags) = 0;
     virtual void updateScaling() = 0;
     virtual void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port) = 0;
 

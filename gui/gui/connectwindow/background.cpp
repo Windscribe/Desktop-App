@@ -13,7 +13,8 @@ namespace ConnectWindow {
 
 
 Background::Background(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
-    opacityConnecting_(0), opacityConnected_(0), opacityDisconnected_(1), opacityCurFlag_(1.0), opacityPrevFlag_(0.0)
+    opacityConnecting_(0), opacityConnected_(0), opacityDisconnected_(1), opacityCurFlag_(1.0),
+    opacityPrevFlag_(0.0), isShowCountryFlags_(true)
 {
     opacityConnectingAnimation_.setTargetObject(this);
     opacityConnectingAnimation_.setPropertyName("opacityConnecting");
@@ -84,17 +85,30 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         pixmap.fill(Qt::transparent);
         QPainter p(&pixmap);
 
-        if (!prevCountryCode_.isEmpty())
+        if (isShowCountryFlags_)
         {
-            IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(prevCountryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
-            p.setOpacity(opacityPrevFlag_);
-            if (indPix)
-                indPix->draw(0, 0, &p);
-        }
+            if (!prevCountryCode_.isEmpty())
+            {
+                IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(
+                    prevCountryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
+                p.setOpacity(opacityPrevFlag_);
+                if (indPix)
+                    indPix->draw(0, 0, &p);
+            }
 
-        if (!countryCode_.isEmpty())
+            if (!countryCode_.isEmpty())
+            {
+                IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(
+                    countryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
+                p.setOpacity(opacityCurFlag_);
+                if (indPix)
+                    indPix->draw(0, 0, &p);
+            }
+        }
+        else
         {
-            IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(countryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
+            IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(
+                "noflag", WIDTH * G_SCALE, 176 * G_SCALE);
             p.setOpacity(opacityCurFlag_);
             if (indPix)
                 indPix->draw(0, 0, &p);
@@ -286,6 +300,12 @@ void Background::setDarkMode(bool dark)
         bottomLeftHorizDivider_ = "BOTTOMLEFT_HORIZ_DIVIDER";
     }
 
+    update();
+}
+
+void Background::setShowCountryFlags(bool isShowCountryFlags)
+{
+    isShowCountryFlags_ = isShowCountryFlags;
     update();
 }
 

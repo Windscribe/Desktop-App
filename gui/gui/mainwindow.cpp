@@ -299,6 +299,7 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onPreferencesLaunchOnStartupChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings)));
     connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
+    connect(backend_->getPreferences(), SIGNAL(isShowCountryFlagsChanged(bool)), SLOT(onPreferencesIsShowCountryFlagsChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
 
 #ifdef Q_OS_MAC
@@ -335,6 +336,7 @@ MainWindow::MainWindow() :
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
     mainWindowController_->getInitWindow()->startWaitingAnimation();
 
+    mainWindowController_->setIsShowCountryFlags(backend_->getPreferences()->isShowCountryFlags());
     mainWindowController_->setIsDockedToTray(backend_->getPreferences()->isDockedToTray());
     bMoveEnabled_ = !backend_->getPreferences()->isDockedToTray();
 
@@ -2298,6 +2300,11 @@ void MainWindow::onPreferencesIsDockedToTrayChanged(bool isDocked)
     mainWindowController_->setIsDockedToTray(isDocked);
     bMoveEnabled_ = !isDocked;
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+}
+
+void MainWindow::onPreferencesIsShowCountryFlagsChanged(bool isShowCountryFlags)
+{
+    mainWindowController_->setIsShowCountryFlags(isShowCountryFlags);
 }
 
 #ifdef Q_OS_MAC
