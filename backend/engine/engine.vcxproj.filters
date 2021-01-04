@@ -1238,6 +1238,9 @@
     <ClInclude Include="..\..\common\utils\protobuf_includes.h">
       <Filter>Common Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\common\utils\multiline_message_logger.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="engine.rc">

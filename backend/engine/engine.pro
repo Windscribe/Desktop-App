@@ -406,6 +406,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     $$COMMON_PATH/utils/utils.h \
     $$COMMON_PATH/utils/protobuf_includes.h \
     $$COMMON_PATH/utils/logger.h \
+    $$COMMON_PATH/utils/multiline_message_logger.h \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \

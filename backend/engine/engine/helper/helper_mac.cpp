@@ -910,9 +910,9 @@ bool Helper_mac::stopWireGuard()
         if (answerCmd.executed == 0)
             return false;
         if (!answerCmd.body.empty()) {
-            qCDebug(LOG_WIREGUARD) << "WireGuard daemon output:";
-            qCDebug(LOG_WIREGUARD) << QString::fromStdString(answerCmd.body);
-        }
+            qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
+                                            << QString::fromStdString(answerCmd.body);
+            }
     }
     return true;
 }
@@ -1003,8 +1003,8 @@ bool Helper_mac::getWireGuardStatus(WireGuardStatus *status)
         break;
     }
     if (!answerCmd.body.empty()) {
-        qCDebug(LOG_WIREGUARD) << "WireGuard daemon output:";
-        qCDebug(LOG_WIREGUARD) << QString::fromStdString(answerCmd.body);
+        qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
+                                        << QString::fromStdString(answerCmd.body);
     }
     return true;
 }
@@ -1188,4 +1188,3 @@ bool Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
 
     return true;
 }
-

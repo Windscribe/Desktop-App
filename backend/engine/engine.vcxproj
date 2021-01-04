@@ -567,6 +567,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\types\locationid.h" />
     <ClInclude Include="..\..\common\utils\crashdump.h" />
     <ClInclude Include="..\..\common\utils\crashhandler.h" />
+    <ClInclude Include="..\..\common\utils\multiline_message_logger.h" />
     <ClInclude Include="..\..\common\utils\protobuf_includes.h" />
     <ClInclude Include="engine\adaptermetricscontroller_win.h" />
     <QtMoc Include="engine\helper\helper_mac.h">

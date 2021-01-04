@@ -5,6 +5,8 @@
 #include <QMutex>
 #include <QLoggingCategory>
 
+#include "multiline_message_logger.h"
+
 // log categories
 Q_DECLARE_LOGGING_CATEGORY(LOG_BASIC)
 Q_DECLARE_LOGGING_CATEGORY(LOG_IPC)

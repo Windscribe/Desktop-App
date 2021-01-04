@@ -1548,7 +1548,7 @@ void ServerAPI::handleAccessIpsCurl(BaseRequest *rd, bool success)
     else
     {
         QByteArray arr = curlRequest->getAnswer();
-        qCDebug(LOG_SERVER_API) << arr;
+        qCDebugMultiline(LOG_SERVER_API) << arr;
 
         QJsonParseError errCode;
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
@@ -1623,7 +1623,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         arr = SessionAndLocationsTest::instance().getSessionData();
 #endif
 
-        qCDebug(LOG_SERVER_API) << arr;
+        qCDebugMultiline(LOG_SERVER_API) << arr;
 
 #ifdef TEST_CREATE_API_FILES
         QFile file("c:\\5\\session.api");
@@ -1790,7 +1790,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json";
             emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
             return;
@@ -1799,7 +1799,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
 
         if (!jsonObject.contains("info"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (info field not found)";
             emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
             return;
@@ -1807,7 +1807,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
 
         if (!jsonObject.contains("data"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
             emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
             return;
@@ -1840,7 +1840,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
                 }
                 else
                 {
-                    qCDebug(LOG_SERVER_API) << arr;
+                    qCDebugMultiline(LOG_SERVER_API) << arr;
                     qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
                     emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
                     return;
@@ -1884,7 +1884,7 @@ void ServerAPI::handleServerCredentialsCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerCredentials" << crd->getProtocol().toShortString() << "incorrect json";
             emit serverCredentialsAnswer(SERVER_RETURN_INCORRECT_JSON, "", "", crd->getProtocol(), userRole);
             return;
@@ -1900,7 +1900,7 @@ void ServerAPI::handleServerCredentialsCurl(BaseRequest *rd, bool success)
 
         if (!jsonObject.contains("data"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerCredentials" << crd->getProtocol().toShortString() << "incorrect json (data field not found)";
             emit serverCredentialsAnswer(SERVER_RETURN_INCORRECT_JSON, "", "", crd->getProtocol(), userRole);
             return;
@@ -1908,7 +1908,7 @@ void ServerAPI::handleServerCredentialsCurl(BaseRequest *rd, bool success)
         QJsonObject jsonData =  jsonObject["data"].toObject();
         if (!jsonData.contains("username") || !jsonData.contains("password"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerCredentials" << crd->getProtocol().toShortString() << "incorrect json (username/password fields not found)";
             emit serverCredentialsAnswer(SERVER_RETURN_INCORRECT_JSON, "", "", crd->getProtocol(), userRole);
             return;
@@ -1987,7 +1987,7 @@ void ServerAPI::handlePortMapCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json";
             emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::PortMap(), userRole);
             return;
@@ -1996,7 +1996,7 @@ void ServerAPI::handlePortMapCurl(BaseRequest *rd, bool success)
 
         if (!jsonObject.contains("data"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json (data field not found)";
             emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::PortMap(), userRole);
             return;
@@ -2004,7 +2004,7 @@ void ServerAPI::handlePortMapCurl(BaseRequest *rd, bool success)
         QJsonObject jsonData =  jsonObject["data"].toObject();
         if (!jsonData.contains("portmap"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json (portmap field not found)";
             emit portMapAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::PortMap(), userRole);
             return;
@@ -2047,7 +2047,7 @@ void ServerAPI::handleMyIPCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request MyIP incorrect json";
             emit myIPAnswer("N/A", false, crd->getIsDisconnected(), userRole);
         }
@@ -2055,14 +2055,14 @@ void ServerAPI::handleMyIPCurl(BaseRequest *rd, bool success)
         QJsonObject jsonObject = doc.object();
         if (!jsonObject.contains("data"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request MyIP incorrect json(data field not found)";
             emit myIPAnswer("N/A", false, crd->getIsDisconnected(), userRole);
         }
         QJsonObject jsonData =  jsonObject["data"].toObject();
         if (!jsonData.contains("user_ip"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request MyIP incorrect json(user_ip field not found)";
             emit myIPAnswer("N/A", false, crd->getIsDisconnected(), userRole);
         }
@@ -2089,7 +2089,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
             emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
@@ -2105,7 +2105,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
 
         if (!jsonObject.contains("data"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
             emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
@@ -2113,7 +2113,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         QJsonObject jsonData =  jsonObject["data"].toObject();
         if (!jsonData.contains("update_needed_flag"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
             emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
@@ -2128,14 +2128,14 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
 
         if (!jsonData.contains("latest_version"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
             emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
         }
         if (!jsonData.contains("update_url"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
             emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
             return;
@@ -2178,7 +2178,7 @@ void ServerAPI::handleRecordInstallCurl(BaseRequest *rd, bool success)
     {
         qCDebug(LOG_SERVER_API) << "RecordInstall request successfully executed";
         QByteArray arr = curlRequest->getAnswer();
-        qCDebug(LOG_SERVER_API) << arr;
+        qCDebugMultiline(LOG_SERVER_API) << arr;
     }
 }
 
@@ -2196,7 +2196,7 @@ void ServerAPI::handleConfirmEmailCurl(BaseRequest *rd, bool success)
     else
     {
         QByteArray arr = curlRequest->getAnswer();
-        qCDebug(LOG_SERVER_API) << arr;
+        qCDebugMultiline(LOG_SERVER_API) << arr;
         QJsonParseError errCode;
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
@@ -2245,7 +2245,7 @@ void ServerAPI::handleDebugLogCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for Report";
             emit debugLogAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
@@ -2254,7 +2254,7 @@ void ServerAPI::handleDebugLogCurl(BaseRequest *rd, bool success)
         QJsonObject jsonObject = doc.object();
         if (!jsonObject.contains("data"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for Report";
             emit debugLogAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
@@ -2262,7 +2262,7 @@ void ServerAPI::handleDebugLogCurl(BaseRequest *rd, bool success)
         QJsonObject jsonData =  jsonObject["data"].toObject();
         if (!jsonData.contains("success"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for Report";
             emit debugLogAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
@@ -2286,7 +2286,7 @@ void ServerAPI::handleSpeedRatingCurl(BaseRequest *rd, bool success)
     {
         qCDebug(LOG_SERVER_API) << "SpeedRating request successfully executed";
         QByteArray arr = curlRequest->getAnswer();
-        qCDebug(LOG_SERVER_API) << arr;
+        qCDebugMultiline(LOG_SERVER_API) << arr;
     }
 }
 
@@ -2326,7 +2326,7 @@ void ServerAPI::handleNotificationsCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for Notifications";
             emit notificationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Notification>(), userRole);
             return;
@@ -2335,7 +2335,7 @@ void ServerAPI::handleNotificationsCurl(BaseRequest *rd, bool success)
         QJsonObject jsonObject = doc.object();
         if (!jsonObject.contains("data"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for Notifications";
             emit notificationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Notification>(), userRole);
             return;
@@ -2385,7 +2385,7 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for WgConfigs";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
                 QSharedPointer<WireGuardConfig>(), userRole);
@@ -2395,7 +2395,7 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
         QJsonObject jsonObject = doc.object();
         if (!jsonObject.contains("data"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for WgConfigs";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
                 QSharedPointer<WireGuardConfig>(), userRole);
@@ -2404,7 +2404,7 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
         QJsonObject jsonData = jsonObject["data"].toObject();
         if (!jsonData.contains("success"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for WgConfigs";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
                 QSharedPointer<WireGuardConfig>(), userRole);
@@ -2413,7 +2413,7 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
 
         int is_success = jsonData["success"].toInt();
         if (!is_success) {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Bad JSON for WgConfigs: success == 0";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
                 QSharedPointer<WireGuardConfig>(), userRole);
@@ -2423,7 +2423,7 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
         QJsonObject jsonConfig = jsonData["config"].toObject();
         QSharedPointer<WireGuardConfig> userconfig(new WireGuardConfig());
         if (!userconfig->initFromJson(jsonConfig)) {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Incorrect JSON for WgConfigs";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
                 QSharedPointer<WireGuardConfig>(), userRole);
@@ -2454,7 +2454,7 @@ void ServerAPI::handleStaticIpsCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
             emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::StaticIps(), userRole);
             return;
@@ -2463,7 +2463,7 @@ void ServerAPI::handleStaticIpsCurl(BaseRequest *rd, bool success)
         QJsonObject jsonObject = doc.object();
         if (!jsonObject.contains("data"))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
             emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::StaticIps(), userRole);
             return;
@@ -2474,7 +2474,7 @@ void ServerAPI::handleStaticIpsCurl(BaseRequest *rd, bool success)
         apiinfo::StaticIps staticIps;
         if (!staticIps.initFromJson(jsonData))
         {
-            qCDebug(LOG_SERVER_API) << arr;
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
             emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::StaticIps(), userRole);
             return;

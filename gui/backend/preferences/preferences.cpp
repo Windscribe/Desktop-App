@@ -567,7 +567,7 @@ void Preferences::loadGuiSettings()
     {
         guiSettings_ = GuiSettingsFromVer1::read();
     }
-    qCDebug(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());
+    qCDebugMultiline(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());
 }
 
 bool Preferences::isReceivingEngineSettings()

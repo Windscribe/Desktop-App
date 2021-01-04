@@ -751,9 +751,9 @@ bool Helper_win::stopWireGuard()
     if (mpr.success) {
         // Daemon was running, check if it's been terminated.
         if (mpr.blockingCmdFinished && mpr.sizeOfAdditionalData) {
-            qCDebug(LOG_WIREGUARD) << "WireGuard daemon output:";
-            qCDebug(LOG_WIREGUARD) << QString::fromLocal8Bit(
-                static_cast<const char *>(mpr.szAdditionalData), mpr.sizeOfAdditionalData);
+            qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
+                << QString::fromLocal8Bit(static_cast<const char *>(mpr.szAdditionalData),
+                                          mpr.sizeOfAdditionalData);
         }
         mpr.clear();
         return mpr.blockingCmdFinished;
@@ -824,9 +824,9 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
         }
     }
     if (mpr.sizeOfAdditionalData) {
-        qCDebug(LOG_WIREGUARD) << "WireGuard daemon output:";
-        qCDebug(LOG_WIREGUARD) << QString::fromLocal8Bit(
-            static_cast<const char *>(mpr.szAdditionalData), mpr.sizeOfAdditionalData);
+        qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
+            << QString::fromLocal8Bit(static_cast<const char *>(mpr.szAdditionalData),
+                                      mpr.sizeOfAdditionalData);
     }
     mpr.clear();
     return mpr.success;

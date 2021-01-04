@@ -171,7 +171,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
         // hide password for logging
         IPC::ProtobufCommand<IPCClientCommands::Login> loggedCmd = *loginCmd;
         loggedCmd.getProtoObj().set_password("*****");
-        qCDebug(LOG_IPC) << QString::fromStdString(loggedCmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(loggedCmd.getDebugString());
 
         // login with last login settings
         if (loginCmd->getProtoObj().use_last_login_settings() == true)
@@ -470,7 +470,7 @@ void EngineServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConn
 {
     if (command->getStringId() != IPCClientCommands::Login::descriptor()->full_name())
     {
-        qCDebug(LOG_IPC) << QString::fromStdString(command->getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
     }
 
     auto itClient = connections_.find(connection);
@@ -586,7 +586,7 @@ void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QS
     IPC::ProtobufCommand<IPCServerCommands::LoginFinished> cmd;
     cmd.getProtoObj().set_is_login_from_saved_settings(isLoginFromSavedSettings);
     cmd.getProtoObj().set_auth_hash(authHash.toStdString());
-    qCDebug(LOG_IPC) << "Engine Settings Changed -- Updating client: " << QString::fromStdString(cmd.getDebugString());
+    qCDebugMultiline(LOG_IPC) << "Engine Settings Changed -- Updating client: " << QString::fromStdString(cmd.getDebugString());
 
     ProtoTypes::ArrayPortMap arrPortMap;
     for (int i = 0; i < portMap.getPortItemCount(); ++i)
@@ -692,7 +692,7 @@ void EngineServer::onEngineMyIpUpdated(const QString &ip, bool /*success*/, bool
         IPC::ProtobufCommand<IPCServerCommands::MyIpUpdated> cmdLoggingOnly;
         cmdLoggingOnly.getProtoObj().mutable_my_ip_info()->set_ip(censoredIp.toStdString());
         cmdLoggingOnly.getProtoObj().mutable_my_ip_info()->set_is_disconnected_state(isDisconnected);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmdLoggingOnly.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmdLoggingOnly.getDebugString());
     }
 
     IPC::ProtobufCommand<IPCServerCommands::MyIpUpdated> cmd;
@@ -1011,7 +1011,7 @@ void EngineServer::sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Com
 {
     if (bWithLog)
     {
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     }
 
     for (auto it = connections_.begin(); it != connections_.end(); ++it)

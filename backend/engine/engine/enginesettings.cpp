@@ -37,7 +37,7 @@ void EngineSettings::loadFromSettings()
     {
         loadFromVersion1();
     }
-    qCDebug(LOG_BASIC) << "Engine settings:" << QString::fromStdString(engineSettings_.DebugString());
+    qCDebugMultiline(LOG_BASIC) << "Engine settings:" << QString::fromStdString(engineSettings_.DebugString());
 }
 
 const ProtoTypes::EngineSettings &EngineSettings::getProtoBufEngineSettings() const

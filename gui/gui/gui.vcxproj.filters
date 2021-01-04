@@ -847,6 +847,9 @@
     <ClCompile Include="graphicresources\imageresourcesjpg.cpp">
       <Filter>GUI Files\graphicresources</Filter>
     </ClCompile>
+    <ClCompile Include="connectwindow\connectionbadgedots.cpp">
+      <Filter>GUI Files\connectwindow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -1304,6 +1307,9 @@
     </QtMoc>
     <QtMoc Include="loginwindow\welcomewindowitem.h">
       <Filter>GUI Files\loginwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="connectwindow\connectionbadgedots.h">
+      <Filter>GUI Files\connectwindow</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -2491,6 +2497,9 @@
       <Filter>GUI Files\graphicresources</Filter>
     </ClInclude>
     <ClInclude Include="..\..\common\utils\protobuf_includes.h">
+      <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\multiline_message_logger.h">
       <Filter>Common Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
