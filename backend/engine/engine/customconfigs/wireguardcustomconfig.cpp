@@ -85,6 +85,7 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
         // File exists and format is correct.
         break;
     }
+
     auto groups = file.childGroups();
     if (groups.indexOf("Interface") < 0) {
         errMessage_ = QObject::tr("Missing \"Interface\" section");
@@ -92,18 +93,19 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
     }
     file.beginGroup("Interface");
     privateKey_ = file.value("PrivateKey").toString();
-    ipAddress_ = file.value("Address").toString();
-    dnsAddress_ = file.value("DNS").toString();
+    ipAddress_ = WireGuardConfig::stripIpv6Address(file.value("Address").toStringList());
+    dnsAddress_ = WireGuardConfig::stripIpv6Address(file.value("DNS").toStringList());
     file.endGroup();
 
     if (groups.indexOf("Peer") < 0) {
-        errMessage_ = QObject::tr("Missing \"Interface\" section");
+        errMessage_ = QObject::tr("Missing \"Peer\" section");
         return;
     }
     file.beginGroup("Peer");
     publicKey_ = file.value("PublicKey").toString();
     presharedKey_ = file.value("PresharedKey").toString();
-    allowedIps_ = file.value("AllowedIPs", "0.0.0.0/0").toString();
+    allowedIps_ =
+        WireGuardConfig::stripIpv6Address(file.value("AllowedIPs", "0.0.0.0/0").toStringList());
     if (!allowedIps_.contains("/0"))
         isAllowFirewallAfterConnection_ = false;
     QStringList endpointParts = file.value("Endpoint").toString().split(":");
