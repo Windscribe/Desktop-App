@@ -26,7 +26,7 @@ void PersistentState::load()
     censoredIp = censoredIp.mid(0, censoredIp.lastIndexOf('.')+1) + "###"; // censor last octet
     censoredState.set_last_external_ip(censoredIp.toStdString());
 
-    qCDebug(LOG_BASIC) << "Gui internal settings:" << QString::fromStdString(censoredState.DebugString());
+    qCDebugMultiline(LOG_BASIC) << "Gui internal settings:" << QString::fromStdString(censoredState.DebugString());
 }
 
 void PersistentState::save()

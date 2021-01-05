@@ -415,6 +415,7 @@ HEADERS += \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/utils/languagesutil.h \
     $$COMMON_PATH/utils/logger.h \
+    $$COMMON_PATH/utils/multiline_message_logger.h \
     $$COMMON_PATH/utils/utils.h \
     $$COMMON_PATH/utils/protobuf_includes.h \
     $$COMMON_PATH/utils/widgetutils.h \

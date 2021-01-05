@@ -130,7 +130,7 @@ void Backend::cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFir
         cmd.getProtoObj().set_is_firewall_checked(isFirewallChecked);
         cmd.getProtoObj().set_is_firewall_always_on(isFirewallAlwaysOn);
         cmd.getProtoObj().set_is_launch_on_start(isLaunchOnStart);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         ipcState_ = IPC_DOING_CLEANUP;
         connection_->sendCommand(cmd);
     }
@@ -142,7 +142,7 @@ void Backend::enableBFE_win()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::EnableBfe_win> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -162,7 +162,7 @@ void Backend::login(const QString &username, const QString &password, const QStr
         // hide password for logging
         IPC::ProtobufCommand<IPCClientCommands::Login> loggedCmd = cmd;
         loggedCmd.getProtoObj().set_password("*****");
-        qCDebug(LOG_IPC) << QString::fromStdString(loggedCmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(loggedCmd.getDebugString());
 
         connection_->sendCommand(cmd);
     }
@@ -186,7 +186,7 @@ void Backend::loginWithAuthHash(const QString &authHash)
         bLastLoginWithAuthHash_ = true;
         IPC::ProtobufCommand<IPCClientCommands::Login> cmd;
         cmd.getProtoObj().set_auth_hash(authHash.toStdString());
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -203,7 +203,7 @@ void Backend::loginWithLastLoginSettings()
     {
         IPC::ProtobufCommand<IPCClientCommands::Login> cmd;
         cmd.getProtoObj().set_use_last_login_settings(true);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -219,7 +219,7 @@ void Backend::signOut()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::SignOut> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -232,7 +232,7 @@ void Backend::sendConnect(const LocationID &lid)
         connectStateHelper_.connectClickFromUser();
         IPC::ProtobufCommand<IPCClientCommands::Connect> cmd;
         *cmd.getProtoObj().mutable_locationdid() = lid.toProtobuf();
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -244,7 +244,7 @@ void Backend::sendDisconnect()
     {
         connectStateHelper_.disconnectClickFromUser();
         IPC::ProtobufCommand<IPCClientCommands::Disconnect> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -265,7 +265,7 @@ void Backend::forceCliStateUpdate()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::ForceCliStateUpdate> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -278,7 +278,7 @@ void Backend::firewallOn(bool updateHelperFirst)
         if (updateHelperFirst) firewallStateHelper_.firewallOnClickFromGUI();
         IPC::ProtobufCommand<IPCClientCommands::Firewall> cmd;
         cmd.getProtoObj().set_is_enable(true);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -291,7 +291,7 @@ void Backend::firewallOff(bool updateHelperFirst)
         if (updateHelperFirst) firewallStateHelper_.firewallOffClickFromGUI();
         IPC::ProtobufCommand<IPCClientCommands::Firewall> cmd;
         cmd.getProtoObj().set_is_enable(false);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -313,7 +313,7 @@ void Backend::emergencyConnectClick()
     {
         emergencyConnectStateHelper_.connectClickFromUser();
         IPC::ProtobufCommand<IPCClientCommands::EmergencyConnect> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -325,7 +325,7 @@ void Backend::emergencyDisconnectClick()
     {
         emergencyConnectStateHelper_.disconnectClickFromUser();
         IPC::ProtobufCommand<IPCClientCommands::EmergencyDisconnect> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -343,7 +343,7 @@ void Backend::startWifiSharing(const QString &ssid, const QString &password)
         IPC::ProtobufCommand<IPCClientCommands::StartWifiSharing> cmd;
         cmd.getProtoObj().set_ssid(ssid.toStdString());
         cmd.getProtoObj().set_password(password.toStdString());
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -354,7 +354,7 @@ void Backend::stopWifiSharing()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::StopWifiSharing> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -366,7 +366,7 @@ void Backend::startProxySharing(ProtoTypes::ProxySharingMode proxySharingMode)
     {
         IPC::ProtobufCommand<IPCClientCommands::StartProxySharing> cmd;
         cmd.getProtoObj().set_sharing_mode(proxySharingMode);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -377,7 +377,7 @@ void Backend::stopProxySharing()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::StopProxySharing> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -389,7 +389,7 @@ void Backend::setIPv6StateInOS(bool bEnabled)
     {
         IPC::ProtobufCommand<IPCClientCommands::SetIpv6StateInOS> cmd;
         cmd.getProtoObj().set_is_enabled(bEnabled);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -400,7 +400,7 @@ void Backend::getAndUpdateIPv6StateInOS()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::GetIpv6StateInOS> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -411,7 +411,7 @@ void Backend::gotoCustomOvpnConfigMode()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::GotoCustomOvpnConfigMode> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -422,7 +422,7 @@ void Backend::recordInstall()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::RecordInstall> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -433,7 +433,7 @@ void Backend::sendConfirmEmail()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::SendConfirmEmail> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -444,7 +444,7 @@ void Backend::sendDebugLog()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::SendDebugLog> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -457,7 +457,7 @@ void Backend::speedRating(int rating, const QString &localExternalIp)
         IPC::ProtobufCommand<IPCClientCommands::SpeedRating> cmd;
         cmd.getProtoObj().set_rating(rating);
         cmd.getProtoObj().set_local_external_ip(localExternalIp.toStdString());
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -468,7 +468,7 @@ void Backend::setBlockConnect(bool isBlockConnect)
     {
         IPC::ProtobufCommand<IPCClientCommands::SetBlockConnect> cmd;
         cmd.getProtoObj().set_is_block_connect(isBlockConnect);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -479,7 +479,7 @@ void Backend::clearCredentials()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::ClearCredentials> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -504,7 +504,7 @@ void Backend::continueWithCredentialsForOvpnConfig(const QString &username, cons
         cmd.getProtoObj().set_username(username.toStdString());
         cmd.getProtoObj().set_password(password.toStdString());
         cmd.getProtoObj().set_is_save(bSave);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -520,7 +520,7 @@ void Backend::sendEngineSettingsIfChanged()
             latestEngineSettings_ = preferences_.getEngineSettings();
             IPC::ProtobufCommand<IPCClientCommands::SetSettings> cmd;
             *cmd.getProtoObj().mutable_enginesettings() = latestEngineSettings_;
-            qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+            qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
             connection_->sendCommand(cmd);
         }
     }
@@ -552,7 +552,7 @@ void Backend::applicationActivated()
     {
         IPC::ProtobufCommand<IPCClientCommands::ApplicationActivated> cmd;
         cmd.getProtoObj().set_is_activated(true);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -563,7 +563,7 @@ void Backend::applicationDeactivated()
     {
         IPC::ProtobufCommand<IPCClientCommands::ApplicationActivated> cmd;
         cmd.getProtoObj().set_is_activated(false);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -627,7 +627,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
         {
             ipcState_ = IPC_INIT_SENDING;
             IPC::ProtobufCommand<IPCClientCommands::Init> cmd;
-            qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+            qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
             connection_->sendCommand(cmd);
         }
     }
@@ -659,7 +659,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     else if (command->getStringId() == IPCServerCommands::FirewallStateChanged::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::FirewallStateChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::FirewallStateChanged> *>(command);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd->getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd->getDebugString());
         firewallStateHelper_.setFirewallStateFromEngine(cmd->getProtoObj().is_firewall_enabled());
     }
     else if (command->getStringId() == IPCServerCommands::LoginFinished::descriptor()->full_name())
@@ -719,7 +719,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     }
     else if (command->getStringId() == IPCServerCommands::ConnectStateChanged::descriptor()->full_name())
     {
-        qCDebug(LOG_IPC) << QString::fromStdString(command->getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
         IPC::ProtobufCommand<IPCServerCommands::ConnectStateChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::ConnectStateChanged> *>(command);
         connectStateHelper_.setConnectStateFromEngine(cmd->getProtoObj().connect_state());
     }
@@ -789,7 +789,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     }
     else if (command->getStringId() == IPCServerCommands::EngineSettingsChanged::descriptor()->full_name())
     {
-        qCDebug(LOG_IPC) << QString::fromStdString(command->getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
         latestEngineSettings_ = static_cast<IPC::ProtobufCommand<IPCServerCommands::EngineSettingsChanged> *>(command)->getProtoObj().enginesettings();
         preferences_.setEngineSettings(latestEngineSettings_);
     }
@@ -804,7 +804,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     }
     else if (command->getStringId() == IPCServerCommands::NetworkChanged::descriptor()->full_name())
     {
-        qCDebug(LOG_IPC) << QString::fromStdString(command->getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
         IPC::ProtobufCommand<IPCServerCommands::NetworkChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::NetworkChanged> *>(command);
 
         ProtoTypes::NetworkInterface networkInterface;
@@ -885,7 +885,7 @@ void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connectio
         cmd.getProtoObj().set_client_id(clientId_);
         cmd.getProtoObj().set_pid(clientPid_);
         cmd.getProtoObj().set_name(clientName_.toStdString());
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
     else if (state == IPC::CONNECTION_DISCONNECTED)
@@ -1064,7 +1064,7 @@ void Backend::sendDetectPacketSize()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::DetectPacketSize> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -1075,7 +1075,7 @@ void Backend::sendSplitTunneling(ProtoTypes::SplitTunneling st)
     {
          IPC::ProtobufCommand<IPCClientCommands::SplitTunneling> cmd;
          *cmd.getProtoObj().mutable_split_tunneling() = st;
-         qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
          connection_->sendCommand(cmd);
          emit splitTunnelingStateChanged(st.settings().active());
     }
@@ -1086,7 +1086,7 @@ void Backend::sendUpdateVersion()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> cmd;
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -1097,7 +1097,7 @@ void Backend::cancelUpdateVersion()
     {
         IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> cmd;
         cmd.getProtoObj().set_cancel_download(true);
-        qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }

@@ -645,6 +645,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\types\locationid.h" />
     <ClInclude Include="..\..\common\utils\crashdump.h" />
     <ClInclude Include="..\..\common\utils\crashhandler.h" />
+    <ClInclude Include="..\..\common\utils\multiline_message_logger.h" />
     <ClInclude Include="..\..\common\utils\networktypes.h" />
     <ClInclude Include="..\..\common\utils\protobuf_includes.h" />
     <ClInclude Include="..\..\common\version\appversion.h" />
