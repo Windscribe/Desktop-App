@@ -1131,14 +1131,16 @@ QString WinUtils::ssidFromInterfaceGUID(QString interfaceGUID)
         }
         else
         {
-
-            if (pConnectInfo->wlanAssociationAttributes.dot11Ssid.uSSIDLength != 0)
-            {
-                for (ULONG k = 0;k < pConnectInfo->wlanAssociationAttributes.dot11Ssid.uSSIDLength;k++)
-                {
-                    ssid.append(pConnectInfo->wlanAssociationAttributes.dot11Ssid.ucSSID[k]);
-                }
+            std::string str_ssid;
+            const auto &dot11Ssid = pConnectInfo->wlanAssociationAttributes.dot11Ssid;
+            if (dot11Ssid.uSSIDLength != 0) {
+                str_ssid.reserve(dot11Ssid.uSSIDLength);
+                for (ULONG k = 0; k < dot11Ssid.uSSIDLength; k++)
+                    str_ssid.push_back(static_cast<char>(dot11Ssid.ucSSID[k]));
             }
+            // Note: |str_ssid| can contain UTF-8 characters, but QString::fromStdString() can
+            // handle the case.
+            ssid = QString::fromStdString(str_ssid);
         }
     }
     if (pConnectInfo != NULL)
