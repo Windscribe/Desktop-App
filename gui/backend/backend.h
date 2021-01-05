@@ -175,8 +175,6 @@ private:
     QString clientName_;
 
     bool isSavedApiSettingsExists_;
-    QString authHash_;
-
     bool bLastLoginWithAuthHash_;
 
     QElapsedTimer connectingTimer_;

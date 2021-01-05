@@ -25,12 +25,16 @@ public:
     QString expireDate() const;
     void setExpireDate(const QString &expireDate);
 
+    QString authHash() const;
+    void setAuthHash(const QString &authHash);
+
 signals:
     void usernameChanged(const QString &username);
     void emailChanged(const QString &email);
     void isNeedConfirmEmailChanged(bool bNeedConfirm);
     void planChanged(qint64 plan);
     void expireDateChanged(const QString &date);
+    void authHashChanged(const QString &authHash);
 
 private:
     QString username_;
@@ -38,6 +42,7 @@ private:
     bool isNeedConfirmEmail_;
     qint64 planBytes_;       // -1 -> unlimited
     QString expireDate_;
+    QString authHash_;
 };
 
 #endif // ACCOUNTINFO_H

@@ -30,6 +30,7 @@ private slots:
     void onIsNeedConfirmEmailChanged(bool bNeedConfirm);
     void onPlanChanged(qint64 plan);
     void onExpireDateChanged(const QString &date);
+    void onAuthHashChanged(const QString &authHash);
 
     void onEditAccountDetailsClicked();
     void onUpgradeClicked();
@@ -46,6 +47,7 @@ private:
     PlanItem *planItem_;
     ExpireDateItem *expireDateItem_;
     EditAccountItem *editAccountItem_;
+    QString authHash_;
 
     QGraphicsTextItem *textItem_;
     CommonGraphics::BubbleButtonDark *loginButton_;
