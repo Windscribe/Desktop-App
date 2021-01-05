@@ -20,6 +20,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     connect(accountInfo, SIGNAL(isNeedConfirmEmailChanged(bool)), SLOT(onIsNeedConfirmEmailChanged(bool)));
     connect(accountInfo, SIGNAL(planChanged(qint64)), SLOT(onPlanChanged(qint64)));
     connect(accountInfo, SIGNAL(expireDateChanged(QString)), SLOT(onExpireDateChanged(QString)));
+    connect(accountInfo, SIGNAL(authHashChanged(QString)), SLOT(onAuthHashChanged(QString)));
 
     usernameItem_ = new UsernameItem(this);
     usernameItem_->setUsername(accountInfo->username());
@@ -45,6 +46,8 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     editAccountItem_ = new EditAccountItem(this);
     connect(editAccountItem_, SIGNAL(clicked()), SLOT(onEditAccountDetailsClicked()));
     addItem(editAccountItem_);
+
+    authHash_ = accountInfo->authHash();
 
     textItem_ = new QGraphicsTextItem(this);
     textItem_->setPlainText(tr("Login to view your account info"));
@@ -119,9 +122,14 @@ void AccountWindowItem::onExpireDateChanged(const QString &date)
     expireDateItem_->setDate(date);
 }
 
+void AccountWindowItem::onAuthHashChanged(const QString &authHash)
+{
+    authHash_ = authHash;
+}
+
 void AccountWindowItem::onEditAccountDetailsClicked()
 {
-    QDesktopServices::openUrl(QUrl(QString("https://%1/myaccount").arg(HardcodedSettings::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl(QString("https://%1/myaccount?app_session=%2").arg(HardcodedSettings::instance().serverUrl(), authHash_)));
 }
 
 void AccountWindowItem::onUpgradeClicked()

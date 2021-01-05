@@ -170,7 +170,7 @@ void Backend::login(const QString &username, const QString &password, const QStr
 
 bool Backend::isCanLoginWithAuthHash() const
 {
-    return !authHash_.isEmpty();
+    return !accountInfo_.authHash().isEmpty();
 }
 
 bool Backend::isSavedApiSettingsExists() const
@@ -193,7 +193,7 @@ void Backend::loginWithAuthHash(const QString &authHash)
 
 QString Backend::getCurrentAuthHash() const
 {
-    return authHash_;
+    return accountInfo_.authHash();
 }
 
 void Backend::loginWithLastLoginSettings()
@@ -649,7 +649,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
                 }
 
                 isSavedApiSettingsExists_ = cmd->getProtoObj().is_saved_api_settings_exists();
-                authHash_ = QString::fromStdString(cmd->getProtoObj().auth_hash());
+                accountInfo_.setAuthHash(QString::fromStdString(cmd->getProtoObj().auth_hash()));
             }
             ipcState_ = IPC_READY;
             bRecoveringState_ = false;
@@ -668,7 +668,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
 
         if (cmd->getProtoObj().has_auth_hash())
         {
-            authHash_ = QString::fromStdString(cmd->getProtoObj().auth_hash());
+            accountInfo_.setAuthHash(QString::fromStdString(cmd->getProtoObj().auth_hash()));
         }
         if (cmd->getProtoObj().has_array_port_map())
         {
