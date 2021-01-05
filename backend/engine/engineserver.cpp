@@ -411,8 +411,8 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
 
     if (retCode == ENGINE_INIT_SUCCESS)
     {
-        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
-                SLOT(onEngineLocationsModelItemsUpdated(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
+                SLOT(onEngineLocationsModelItemsUpdated(LocationID, QString, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
         connect(engine_->getLocationsModel(), SIGNAL(locationsUpdatedCliOnly(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
                 SLOT(onEngineLocationsModelItemsUpdatedCliOnly(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
         connect(engine_->getLocationsModel(), SIGNAL(bestLocationUpdated(LocationID)),
@@ -906,11 +906,12 @@ void EngineServer::onEngineConfirmEmailFinished(bool bSuccess)
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > items)
+void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLocation,  const QString &staticIpDeviceName, QSharedPointer<QVector<locationsmodel::LocationItem> > items)
 {
     IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> cmd;
 
     *cmd.getProtoObj().mutable_best_location() = bestLocation.toProtobuf();
+    cmd.getProtoObj().set_static_ip_device_name(staticIpDeviceName.toStdString());
 
     for (const locationsmodel::LocationItem &li : *items)
     {

@@ -78,7 +78,7 @@ void ApiLocationsModel::clear()
     staticIps_ = apiinfo::StaticIps();
     pingIpsController_.updateIps(QVector<PingIpInfo>());
     QSharedPointer<QVector<locationsmodel::LocationItem> > empty(new QVector<locationsmodel::LocationItem>());
-    emit locationsUpdated(LocationID(), empty);
+    emit locationsUpdated(LocationID(), QString(),  empty);
 }
 
 QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(const LocationID &locationId)
@@ -302,6 +302,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
 {
     QSharedPointer <QVector<LocationItem> > items(new QVector<LocationItem>());
 
+    BestAndAllLocations ball;
     bool isBestLocationValid = false;
 
     for (const apiinfo::Location &l : locations_)
@@ -370,7 +371,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
         item.countryCode = "STATIC_IPS";
         item.isPremiumOnly = false;
         item.p2p = 1;
-        item.staticIpsDeviceName = staticIps_.getDeviceName();
+        ball.staticIpDeviceName = staticIps_.getDeviceName();
 
         for (int i = 0; i < staticIps_.getIpsCount(); ++i)
         {
@@ -391,7 +392,6 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
         *items << item;
     }
 
-    BestAndAllLocations ball;
     ball.bestLocation = bestLocation;
     ball.locations = items;
     return ball;
@@ -400,7 +400,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
 void ApiLocationsModel::sendLocationsUpdated()
 {
     BestAndAllLocations ball = generateLocationsUpdated();
-    emit locationsUpdated(ball.bestLocation, ball.locations);
+    emit locationsUpdated(ball.bestLocation, ball.staticIpDeviceName, ball.locations);
 }
 
 void ApiLocationsModel::whitelistIps()

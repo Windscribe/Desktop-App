@@ -35,7 +35,6 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QAbstractS
     bShowLatencyInMs_(false),
     bTapGestureStarted_(false),
     citiesModel_(NULL),
-    deviceName_(""),
     emptyListDisplayIcon_(""),
     emptyListDisplayText_(""),
     emptyListDisplayTextWidth_(0),
@@ -1408,12 +1407,6 @@ void WidgetCities::updateScaling()
 
     scrollBarOnTop_->setGeometry(width_*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
     updateEmptyListButton();
-}
-
-void WidgetCities::setDeviceName(const QString &deviceName)
-{
-    deviceName_ = deviceName;
-    update();
 }
 
 void WidgetCities::setEmptyListDisplayIcon(QString emptyListDisplayIcon)

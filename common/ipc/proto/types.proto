@@ -145,8 +145,7 @@ message Location
   optional string country_code = 3;   
   optional bool is_premium_only = 4;
   optional bool is_p2p_supported = 5; // if false, then no p2p support
-  optional string static_ip_device_name = 6;
-  repeated City cities = 7;
+  repeated City cities = 6;
 }
 
 message LocationId

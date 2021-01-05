@@ -39,7 +39,6 @@ struct LocationItem
     QString countryCode;
     bool isPremiumOnly;
     int p2p;
-    QString staticIpsDeviceName;            // used only for static Ips location
     QVector<CityItem> cities;
 
     // set default values
@@ -52,7 +51,6 @@ struct LocationItem
         l->set_country_code(countryCode.toStdString());
         l->set_is_premium_only(isPremiumOnly);
         l->set_is_p2p_supported(p2p == 0);
-        l->set_static_ip_device_name(staticIpsDeviceName.toStdString());
 
         for (const locationsmodel::CityItem &ci : cities)
         {

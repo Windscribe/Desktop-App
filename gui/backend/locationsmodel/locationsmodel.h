@@ -24,7 +24,7 @@ public:
     explicit LocationsModel(QObject *parent = nullptr);
     virtual ~LocationsModel();
 
-    void updateApiLocations(const ProtoTypes::LocationId &bestLocation, const ProtoTypes::ArrayLocations &locations);
+    void updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName, const ProtoTypes::ArrayLocations &locations);
     void updateBestLocation(const ProtoTypes::LocationId &bestLocation);
     void updateCustomConfigLocations(const ProtoTypes::ArrayLocations &locations);
 
@@ -58,7 +58,6 @@ signals:
     void deviceNameChanged(const QString &deviceName);
 
 private:
-    QString deviceName_;
     BasicLocationsModel *allLocations_;
     BasicCitiesModel *configuredLocations_;
     BasicCitiesModel *staticIpsLocations_;

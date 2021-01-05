@@ -12,7 +12,6 @@
 
 
 LocationsModel::LocationsModel(QObject *parent) : QObject(parent)
-  , deviceName_("")
 {
     favoriteLocationsStorage_.readFromSettings();
     allLocations_ = new AllLocationsModel(this);
@@ -26,7 +25,7 @@ LocationsModel::~LocationsModel()
     favoriteLocationsStorage_.writeToSettings();
 }
 
-void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocation, const ProtoTypes::ArrayLocations &locations)
+void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName, const ProtoTypes::ArrayLocations &locations)
 {
     apiLocations_.clear();
 
@@ -85,15 +84,18 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
 
         apiLocations_ << lmi;
 
-        if (lmi->id.isStaticIpsLocation())
+        /*if (lmi->id.isStaticIpsLocation())
         {
             deviceName_ = QString::fromStdString(location.static_ip_device_name());
             if (!deviceName_.isEmpty())
             {
                 emit deviceNameChanged(deviceName_);
             }
-        }
+        }*/
     }
+
+    emit deviceNameChanged(staticIpDeviceName);
+
 
     allLocations_->update(apiLocations_);
     staticIpsLocations_->update(apiLocations_);

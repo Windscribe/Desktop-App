@@ -328,7 +328,6 @@ void LocationsTab::onAllLocationsHeightChanged(int oldHeight, int newHeight)
 void LocationsTab::onDeviceNameChanged(const QString &deviceName)
 {
     staticIPDeviceInfo_->setDeviceName(deviceName);
-    widgetStaticIpsLocations_->setDeviceName(deviceName);
 }
 
 void LocationsTab::onAddCustomConfigClicked()

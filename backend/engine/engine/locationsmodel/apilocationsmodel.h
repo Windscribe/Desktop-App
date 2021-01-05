@@ -17,6 +17,7 @@ namespace locationsmodel {
 
 struct BestAndAllLocations {
     LocationID bestLocation;
+    QString staticIpDeviceName;
     QSharedPointer<QVector<locationsmodel::LocationItem> > locations;
 };
 
@@ -35,7 +36,7 @@ public:
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
-    void locationsUpdated( const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void locationsUpdated( const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void locationsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void locationPingTimeChanged(const LocationID &id, locationsmodel::PingTime timeMs);
     void bestLocationUpdated( const LocationID &bestLocation);

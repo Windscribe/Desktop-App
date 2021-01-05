@@ -65,8 +65,6 @@ public:
     void setSize(int width, int height);
     void updateScaling();
 
-    void setDeviceName(const QString &deviceName);
-
     void setEmptyListDisplayIcon(QString emptyListDisplayIcon);
     void setEmptyListDisplayText(QString emptyListDisplayText, int width = 0);
     void setEmptyListButtonText(QString text);
@@ -174,7 +172,6 @@ private:
     void updateListDisplay(QVector<CityModelItem*> items);
     void updateEmptyListButton();
 
-    QString deviceName_;
     QString emptyListDisplayIcon_;
     QString emptyListDisplayText_;
     int emptyListDisplayTextWidth_;

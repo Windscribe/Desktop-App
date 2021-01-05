@@ -698,7 +698,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     else if (command->getStringId() == IPCServerCommands::LocationsUpdated::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> *>(command);
-        locationsModel_->updateApiLocations(cmd->getProtoObj().best_location(), cmd->getProtoObj().locations());
+        locationsModel_->updateApiLocations(cmd->getProtoObj().best_location(), QString::fromStdString(cmd->getProtoObj().static_ip_device_name()), cmd->getProtoObj().locations());
         emit locationsUpdated();
     }
     else if (command->getStringId() == IPCServerCommands::BestLocationUpdated::descriptor()->full_name())

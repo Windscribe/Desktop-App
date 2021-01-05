@@ -20,7 +20,7 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkStateManager, pingHost_);
     customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkStateManager, pingHost_);
 
-    connect(apiLocationsModel_, SIGNAL(locationsUpdated(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)), SIGNAL(locationsUpdated(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+    connect(apiLocationsModel_, SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<locationsmodel::LocationItem> >)), SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
     connect(apiLocationsModel_, SIGNAL(locationsUpdatedCliOnly(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)), SIGNAL(locationsUpdatedCliOnly(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)));
     connect(apiLocationsModel_, SIGNAL(bestLocationUpdated(LocationID)), SIGNAL(bestLocationUpdated(LocationID)));
     connect(apiLocationsModel_, SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)), SIGNAL(locationPingTimeChanged(LocationID,locationsmodel::PingTime)));

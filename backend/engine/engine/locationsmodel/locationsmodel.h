@@ -37,7 +37,7 @@ public:
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
-    void locationsUpdated(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void locationsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void locationsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
     void bestLocationUpdated(const LocationID &bestLocation);

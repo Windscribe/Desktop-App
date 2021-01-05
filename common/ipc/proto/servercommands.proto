@@ -78,6 +78,7 @@ message LocationsUpdated
 {
    optional ProtoTypes.LocationId best_location = 1;
    optional ProtoTypes.ArrayLocations locations = 2;
+   optional string static_ip_device_name = 3;
 }
 
 message CustomConfigLocationsUpdated
