@@ -24,6 +24,9 @@ public:
     QString peerEndpoint() const { return peer_.endpoint; }
     QString peerAllowedIps() const { return peer_.allowedIps; }
 
+    static QString stripIpv6Address(const QStringList &addressList);
+    static QString stripIpv6Address(const QString &addressList);
+
 private:
     struct {
         QString privateKey;

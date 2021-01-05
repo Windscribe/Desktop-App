@@ -400,6 +400,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
     <ClCompile Include="commonwidgets\textbuttonwidget.cpp" />
+    <ClCompile Include="connectwindow\connectionbadgedots.cpp" />
     <ClCompile Include="dialogs\advancedparametersdialog.cpp" />
     <ClCompile Include="dpiscaleawarewidget.cpp" />
     <ClCompile Include="graphicresources\imageresourcesjpg.cpp" />
@@ -659,6 +660,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="commonwidgets\textbuttonwidget.h" />
     <QtMoc Include="dialogs\advancedparametersdialog.h" />
     <QtMoc Include="dpiscaleawarewidget.h" />
+    <QtMoc Include="connectwindow\connectionbadgedots.h" />
     <ClInclude Include="graphicresources\imageresourcesjpg.h" />
     <ClInclude Include="locationswindow\widgetlocations\backgroundpixmapanimation.h" />
     <QtMoc Include="preferenceswindow\baseitem.h">

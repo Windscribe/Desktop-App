@@ -155,12 +155,12 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
         "private_key=%s\n"
         "replace_peers=true\n"
         "public_key=%s\n"
-        "preshared_key=%s\n"
         "endpoint=%s\n"
-        "persistent_keepalive_interval=0\n"
-        "replace_allowed_ips=true\n",
-        clientPrivateKey.c_str(), peerPublicKey.c_str(), peerPresharedKey.c_str(),
-        peerEndpoint.c_str());
+        "persistent_keepalive_interval=0\n",
+        clientPrivateKey.c_str(), peerPublicKey.c_str(), peerEndpoint.c_str());
+    if (!peerPresharedKey.empty())
+        fprintf(connection, "preshared_key=%s\n", peerPresharedKey.c_str());
+    fprintf(connection, "%s", "replace_allowed_ips=true\n");
     for (const auto &ip : allowedIps)
         fprintf(connection, "allowed_ip=%s\n", ip.c_str());
     fputs("\n", connection);
