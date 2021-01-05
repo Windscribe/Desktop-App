@@ -40,6 +40,7 @@
     #include "utils/macutils.h"
     #include "utils/widgetutils_mac.h"
 #endif
+#include "utils/widgetutils.h"
 
 QWidget *g_mainWindow = NULL;
 
@@ -84,6 +85,8 @@ MainWindow::MainWindow() :
 
     // Initialize "fallback" tray icon geometry.
     const QScreen *screen = qApp->screens().at(0);
+    if (!screen) qDebug() << "No screen for fallback tray icon init"; // This shouldn't ever happen
+
     const QRect desktopAvailableRc = screen->availableGeometry();
     savedTrayIconRect_.setTopLeft(QPoint(desktopAvailableRc.right() - WINDOW_WIDTH * G_SCALE, 0));
     savedTrayIconRect_.setSize(QSize(22, 22));
@@ -2519,8 +2522,57 @@ QRect MainWindow::trayIconRect()
 #if defined(Q_OS_MAC)
     if (trayIcon_.isVisible()) {
         const QRect rc = trayIcon_.geometry();
+
+        // qDebug() << "TRAY ICON RECT CALC: " << rc;
+        QScreen *screen = WidgetUtils::slightlySaferScreenAt(QPoint(rc.x(), rc.y()));
+
+        if (!screen)
+        {
+            qDebug() << "No screen found -- using last saved tray icon rect"; // Should never happen
+            Q_ASSERT(false);
+            return savedTrayIconRect_;
+        }
+
         if (rc.left() > 0)
+        {
+            // valid tray icon -- update the cache
+            ScreenIconInfo sii;
+            sii.screenGeo = screen->geometry();
+            sii.iconRelativeGeo = QRect(rc.x() - screen->geometry().x(), rc.y() - screen->geometry().y(),
+                                        rc.width(), rc.height());
+            systemTrayIconScreenHistory_[screen->name()] = sii;
             savedTrayIconRect_ = rc;
+            qDebug() << "Updating savedTrayIcon: " << rc;
+        }
+        else // invalid tray icon location
+        {
+            if (systemTrayIconScreenHistory_.contains(screen->name()))
+            {
+                // screen might have new geometry -- new position must be relative to that
+                ScreenIconInfo sii = systemTrayIconScreenHistory_[screen->name()];
+
+                QRect newIconRect(screen->geometry().x() + sii.iconRelativeGeo.x(), screen->geometry().y() + sii.iconRelativeGeo.y(),
+                                  sii.iconRelativeGeo.width(), sii.iconRelativeGeo.height());
+                savedTrayIconRect_ = newIconRect;
+                qDebug() << "Using existing screen history for new icon location: " << savedTrayIconRect_;
+            }
+            else // no history of screen-icon ratio for this screen -- make best guess
+            {
+                ScreenIconInfo sii = systemTrayIconScreenHistory_[systemTrayIconScreenHistory_.firstKey()];
+
+                double ratioPositionX = (double) sii.iconRelativeGeo.x()/sii.screenGeo.width();
+
+                QRect newIconRect(screen->geometry().x() + (int) (screen->geometry().width() * ratioPositionX),
+                                  screen->geometry().y() + sii.iconRelativeGeo.y(),
+                                  sii.iconRelativeGeo.width(), sii.iconRelativeGeo.height());
+                savedTrayIconRect_ = newIconRect;
+                qDebug() << "Guessing screen history for new icon location: " << savedTrayIconRect_;
+            }
+        }
+    }
+    else
+    {
+        qDebug() << "Tray Icon not visible -- using last saved TrayIconRect";
     }
 #else
     if (trayIcon_.isVisible())

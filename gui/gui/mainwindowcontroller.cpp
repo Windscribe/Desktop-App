@@ -26,6 +26,7 @@
 #include "../backend/persistentstate.h"
 #include "dpiscalemanager.h"
 #include "utils/logger.h"
+#include "utils/widgetutils.h"
 
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"
@@ -2914,7 +2915,9 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
         const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
 
+        // qDebug() << "rcIcon: " << rcIcon;
         // qDebug() << "Icon center: " << iconCenter;
+
         QScreen *screen = QGuiApplication::screenAt(iconCenter);
 
 #ifdef Q_OS_MAC
@@ -2924,19 +2927,11 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         // quick hack implemented here to prevent crash in beta-public build
         // it appears that laptop screen is not accessible yet, though trayIcon has updated location
         // this "fix" may result in windscribe being locked in a weird place on screen
+        screen = WidgetUtils::slightlySaferScreenAt(iconCenter);
         if (!screen)
         {
-            qDebug() << "Screen not found -- grabbing first screen available";
-            if (!QGuiApplication::screens().empty())
-            {
-                screen = QGuiApplication::screens().at(0);
-                qDebug() << "Backup screen: " << screen << " " << screen->geometry();
-            }
-            if (!screen) // shouldn't happen but just in case - closing lid with no external monitors does not seem to fire the geometry update
-            {
-                qDebug() << "Still no screen found -- not updating geometry and scene";
-                return;
-            }
+            qDebug() << "Still no screen found -- not updating geometry and scene";
+            return;
         }
 #endif
         const QRect desktopAvailableRc = screen->availableGeometry();

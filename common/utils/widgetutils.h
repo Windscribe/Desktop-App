@@ -2,11 +2,13 @@
 #define WIDGETUTILS_H
 
 #include <QPixmap>
+#include <QScreen>
 
 namespace WidgetUtils {
 
 QPixmap *extractProgramIcon(QString filePath);
 
+QScreen *slightlySaferScreenAt(QPoint pt);
 }
 
 

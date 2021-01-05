@@ -279,6 +279,15 @@ private:
     QElapsedTimer connectionElapsedTimer_;
     quint64 bytesTransferred_;
 
+#ifdef Q_OS_MAC
+    struct ScreenIconInfo
+    {
+        QRect screenGeo;
+        QRect iconRelativeGeo;
+    };
+    QMap<QString, ScreenIconInfo> systemTrayIconScreenHistory_;
+#endif
+
     QPoint dragPosition_;
     QPoint dragPositionForTooltip_;
     bool bMousePressed_;
