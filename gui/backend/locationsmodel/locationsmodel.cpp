@@ -84,14 +84,6 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
 
         apiLocations_ << lmi;
 
-        /*if (lmi->id.isStaticIpsLocation())
-        {
-            deviceName_ = QString::fromStdString(location.static_ip_device_name());
-            if (!deviceName_.isEmpty())
-            {
-                emit deviceNameChanged(deviceName_);
-            }
-        }*/
     }
 
     emit deviceNameChanged(staticIpDeviceName);
