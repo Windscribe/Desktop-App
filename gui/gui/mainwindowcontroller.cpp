@@ -314,6 +314,11 @@ void MainWindowController::setIsDockedToTray(bool isDocked)
     updateMainAndViewGeometry(true);
 }
 
+void MainWindowController::setIsShowCountryFlags(bool isShowCountryFlags)
+{
+    connectWindow_->setIsShowCountryFlags(isShowCountryFlags);
+}
+
 bool MainWindowController::preferencesVisible()
 {
     return preferencesState_ == PREFERENCES_STATE_EXPANDED || preferencesState_ == PREFERENCES_STATE_ANIMATING;

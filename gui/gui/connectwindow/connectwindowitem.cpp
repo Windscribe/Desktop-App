@@ -196,6 +196,11 @@ void ConnectWindowItem::setTestTunnelResult(bool success)
     connectStateProtocolPort_->setTestTunnelResult(success);
 }
 
+void ConnectWindowItem::setIsShowCountryFlags(bool isShowCountryFlags)
+{
+    background_->setShowCountryFlags(isShowCountryFlags);
+}
+
 void ConnectWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
