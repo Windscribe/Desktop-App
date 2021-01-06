@@ -108,7 +108,7 @@ void ApiResolutionItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state
 
 void ApiResolutionItem::onIPChanged(const QString &text)
 {
-    curApiResolution_.set_manual_ip(text.toStdString());
+    curApiResolution_.set_manual_ip(text.trimmed().toStdString());
     emit apiResolutionChanged(curApiResolution_);
 }
 
