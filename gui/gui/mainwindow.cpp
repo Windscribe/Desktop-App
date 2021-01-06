@@ -993,6 +993,34 @@ void MainWindow::cleanupLogViewerWindow()
     }
 }
 
+QRect MainWindow::guessTrayIconLocationOnScreen(QScreen *screen)
+{
+    QRect newIconRect;
+    if (systemTrayIconScreenHistory_.contains(screen->name()))
+    {
+        // screen might have new geometry -- new position must be relative to that
+        ScreenIconInfo sii = systemTrayIconScreenHistory_[screen->name()];
+
+        newIconRect = QRect(screen->geometry().x() + sii.iconRelativeGeo.x(), screen->geometry().y() + sii.iconRelativeGeo.y(),
+                          sii.iconRelativeGeo.width(), sii.iconRelativeGeo.height());
+        qDebug() << "Using existing screen history for new icon location: " << newIconRect;
+    }
+    else // no history of screen-icon ratio for this screen -- grab first screen's location
+    {
+        ScreenIconInfo sii = systemTrayIconScreenHistory_[systemTrayIconScreenHistory_.firstKey()];
+
+        double ratioPositionX = (double) sii.iconRelativeGeo.x()/sii.screenGeo.width();
+
+        newIconRect = QRect(screen->geometry().x() + (int) (screen->geometry().width() * ratioPositionX),
+                          screen->geometry().y() + sii.iconRelativeGeo.y(),
+                          sii.iconRelativeGeo.width(), sii.iconRelativeGeo.height());
+        qDebug() << "Guessing screen history for new icon location: " << newIconRect;
+    }
+
+    return newIconRect;
+
+}
+
 void MainWindow::onPreferencesViewLogClick()
 {
     // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
@@ -2520,54 +2548,46 @@ void MainWindow::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface networkInt
 QRect MainWindow::trayIconRect()
 {
 #if defined(Q_OS_MAC)
-    if (trayIcon_.isVisible()) {
+    if (trayIcon_.isVisible())
+    {
         const QRect rc = trayIcon_.geometry();
 
         // qDebug() << "TRAY ICON RECT CALC: " << rc;
-        QScreen *screen = WidgetUtils::slightlySaferScreenAt(QPoint(rc.x(), rc.y()));
-
-        if (!screen)
-        {
-            qDebug() << "No screen found -- using last saved tray icon rect"; // Should never happen
-            Q_ASSERT(false);
-            return savedTrayIconRect_;
-        }
+        // QScreen *screen = WidgetUtils::slightlySaferScreenAt(QPoint(rc.x(), rc.y()));
+        // qDebug() << "Primary: " << QGuiApplication::primaryScreen();
+        // qDebug() << "DpiScale Screen: " << DpiScaleManager::instance().curScreenGeometry();
 
         if (rc.left() > 0)
         {
-            // valid tray icon -- update the cache
-            ScreenIconInfo sii;
-            sii.screenGeo = screen->geometry();
-            sii.iconRelativeGeo = QRect(rc.x() - screen->geometry().x(), rc.y() - screen->geometry().y(),
-                                        rc.width(), rc.height());
-            systemTrayIconScreenHistory_[screen->name()] = sii;
-            savedTrayIconRect_ = rc;
-            qDebug() << "Updating savedTrayIcon: " << rc;
+            QScreen *screen = QGuiApplication::screenAt(QPoint(rc.x(), rc.y())); // this can fail when screen coords are weird
+
+            if (screen)
+            {
+                // valid tray icon -- update the cache
+                ScreenIconInfo sii;
+                sii.screenGeo = screen->geometry();
+                sii.iconRelativeGeo = QRect(rc.x() - screen->geometry().x(), rc.y() - screen->geometry().y(),
+                                            rc.width(), rc.height());
+                systemTrayIconScreenHistory_[screen->name()] = sii;
+                savedTrayIconRect_ = rc;
+                qDebug() << "Screen valid: " << screen->name() << " " << screen->geometry() << " - icon valid: " << rc;
+            }
+            else
+            {
+                screen = WidgetUtils::slightlySaferScreenAt(QPoint(rc.x(), rc.y()));
+
+                QRect iconGuess = guessTrayIconLocationOnScreen(screen);
+                qDebug() << "Screen invalid, found: " << screen->name() << " - guessing icon: " << iconGuess;
+                return iconGuess;
+            }
         }
-        else // invalid tray icon location
+        else
         {
-            if (systemTrayIconScreenHistory_.contains(screen->name()))
-            {
-                // screen might have new geometry -- new position must be relative to that
-                ScreenIconInfo sii = systemTrayIconScreenHistory_[screen->name()];
+            QScreen *screen = WidgetUtils::slightlySaferScreenAt(QPoint(rc.x(), rc.y()));
 
-                QRect newIconRect(screen->geometry().x() + sii.iconRelativeGeo.x(), screen->geometry().y() + sii.iconRelativeGeo.y(),
-                                  sii.iconRelativeGeo.width(), sii.iconRelativeGeo.height());
-                savedTrayIconRect_ = newIconRect;
-                qDebug() << "Using existing screen history for new icon location: " << savedTrayIconRect_;
-            }
-            else // no history of screen-icon ratio for this screen -- make best guess
-            {
-                ScreenIconInfo sii = systemTrayIconScreenHistory_[systemTrayIconScreenHistory_.firstKey()];
-
-                double ratioPositionX = (double) sii.iconRelativeGeo.x()/sii.screenGeo.width();
-
-                QRect newIconRect(screen->geometry().x() + (int) (screen->geometry().width() * ratioPositionX),
-                                  screen->geometry().y() + sii.iconRelativeGeo.y(),
-                                  sii.iconRelativeGeo.width(), sii.iconRelativeGeo.height());
-                savedTrayIconRect_ = newIconRect;
-                qDebug() << "Guessing screen history for new icon location: " << savedTrayIconRect_;
-            }
+            QRect iconGuess = guessTrayIconLocationOnScreen(screen);
+            qDebug() << "Invalid icon, found screen: " << screen->name() << " - guessing icon: " << iconGuess;
+            return iconGuess;
         }
     }
     else

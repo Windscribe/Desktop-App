@@ -360,6 +360,8 @@ private:
     bool ignoreUpdateUntilNextRun_;
     void cleanupAdvParametersWindow();
     void cleanupLogViewerWindow();
+
+    QRect guessTrayIconLocationOnScreen(QScreen *screen);
 };
 
 #endif // MAINWINDOW_H
