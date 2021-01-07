@@ -217,6 +217,7 @@ SOURCES += \
     graphicresources/iconmanager.cpp \
     graphicresources/independentpixmap.cpp \
     launchonstartup/launchonstartup.cpp \
+    locationswindow/widgetlocations/searchwidgetlocations.cpp \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.cpp \
     overlaysconnectwindow//upgradewindowitem.cpp \
     overlaysconnectwindow/updatewindowitem.cpp \
@@ -440,6 +441,7 @@ HEADERS += \
     dialogs/advancedparametersdialog.h \
     dialogs/dialoggetusernamepassword.h \
     dialogs/dialogmessagecpuusage.h \
+    locationswindow/widgetlocations/searchwidgetlocations.h \
     overlaysconnectwindow/generalmessagetwobuttonwindowitem.h \
     overlaysconnectwindow/igeneralmessagetwobuttonwindow.h \
     overlaysconnectwindow/generalmessagewindowitem.h \

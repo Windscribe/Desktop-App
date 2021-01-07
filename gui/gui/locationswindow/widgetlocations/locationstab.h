@@ -8,6 +8,7 @@
 #include <QTimer>
 #include "widgetlocations.h"
 #include "widgetcities.h"
+#include "searchwidgetlocations.h"
 #include "../backend/locationsmodel/locationsmodel.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
@@ -59,6 +60,8 @@ signals:
 private slots:
     void onWhiteLinePosChanged(const QVariant &value);
     void onAllLocationsHeightChanged(int oldHeight, int newHeight);
+    void onSearchLocationsHeightChanged(int oldHeight, int newHeight);
+
     void onDeviceNameChanged(const QString &deviceName);
     void onAddCustomConfigClicked();
 
@@ -74,6 +77,7 @@ private:
     GuiLocations::WidgetCities *widgetConfiguredLocations_;
     GuiLocations::WidgetCities *widgetStaticIpsLocations_;
     GuiLocations::WidgetCities *widgetFavoriteLocations_;
+    GuiLocations::SearchWidgetLocations *widgetSearchLocations_;
 
     StaticIPDeviceInfo *staticIPDeviceInfo_; // footer
     ConfigFooterInfo *configFooterInfo_;     // footer
@@ -83,11 +87,15 @@ private:
         CUR_TAB_ALL_LOCATIONS,
         CUR_TAB_FAVORITE_LOCATIONS,
         CUR_TAB_STATIC_IPS_LOCATIONS,
-        CUR_TAB_CONFIGURED_LOCATIONS
+        CUR_TAB_CONFIGURED_LOCATIONS,
+        CUR_TAB_SEARCH_LOCATIONS,
+        CUR_TAB_FIRST = CUR_TAB_ALL_LOCATIONS,
+        CUR_TAB_LAST = CUR_TAB_SEARCH_LOCATIONS
     };
 
     //Backend &backend_;
     CurTabEnum curTab_;
+    CurTabEnum lastTab_;
     CurTabEnum tabPress_;
 
     static constexpr int TOP_TAB_HEIGHT = 50;
@@ -110,7 +118,7 @@ private:
     QRect rcFavoriteLocationsIcon_;
 
     Qt::CursorShape curCursorShape_;
-    CurTabEnum curTabMouseOver_;
+    CurTabEnum curTabMouseOver_; // TODO: use buttons for all tabs instead of mouse-over logic (should be similar to search button)
 
     int curWhiteLinePos_;
     QVariantAnimation whiteLineAnimation_;
@@ -131,6 +139,7 @@ private:
     void onClickConfiguredLocations();
     void onClickStaticIpsLocations();
     void onClickFavoriteLocations();
+    void onClickSearchLocations();
 
     void drawTab(QPainter &painter, const QRect &rc);
     void drawBottomLine(QPainter &painter, int left, int right, int bottom, int whiteLinePos);
