@@ -119,5 +119,12 @@ bool DefaultRouteMonitor::checkDefaultRoutes()
         if6 = lastIfIndex6_;
         if6blackhole = lastIfIndex6_ == NET_IFINDEX_UNSPECIFIED;
     }
-    return comm_->bindSockets(if4, if6, if6blackhole);
+
+    if (comm_->bindSockets(if4, if6, if6blackhole))
+        return true;
+
+    // Sockets were not bound, reset last interface indices.
+    lastIfIndex4_ = ~NET_IFINDEX(0);
+    lastIfIndex6_ = ~NET_IFINDEX(0);
+    return false;
 }

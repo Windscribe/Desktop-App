@@ -62,6 +62,12 @@ WireGuardCommunicator::Connection::Connection(const std::wstring &deviceName)
         return;
     }
     fileHandle_ = _fdopen(fd, "r+");
+    if (!fileHandle_) {
+        Logger::instance().out(L"WireGuard Connection: _fdopen() failed");
+        CloseHandle(pipeHandle_);
+        pipeHandle_ = INVALID_HANDLE_VALUE;
+        return;
+    }
     status_ = Status::OK;
 }
 
