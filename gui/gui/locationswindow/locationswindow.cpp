@@ -16,6 +16,7 @@ LocationsWindow::LocationsWindow(QWidget *parent, LocationsModel *locationsModel
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
 
     connect(locationsTab_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
+    connect(locationsTab_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
     connect(locationsTab_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
     connect(locationsTab_, SIGNAL(addStaticIpClicked()), SIGNAL(addStaticIpClicked()));
     connect(locationsTab_, SIGNAL(clearCustomConfigClicked()), SIGNAL(clearCustomConfigClicked()));

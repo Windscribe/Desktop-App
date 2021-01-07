@@ -164,6 +164,7 @@ MainWindow::MainWindow() :
 
     locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
     connect(locationsWindow_, SIGNAL(selected(LocationID)), SLOT(onLocationSelected(LocationID)));
+    connect(locationsWindow_, SIGNAL(clickedOnPremiumStarCity()), SLOT(onClickedOnPremiumStarCity()));
     connect(locationsWindow_, SIGNAL(switchFavorite(LocationID,bool)), SLOT(onLocationSwitchFavorite(LocationID,bool)));
     connect(locationsWindow_, SIGNAL(addStaticIpClicked()), SLOT(onLocationsAddStaticIpClicked()));
     connect(locationsWindow_, SIGNAL(clearCustomConfigClicked()), SLOT(onLocationsClearCustomConfigClicked()));
@@ -1214,6 +1215,11 @@ void MainWindow::onLocationSelected(LocationID id)
         PersistentState::instance().setLastLocation(id);
         backend_->sendConnect(id);
     }
+}
+
+void MainWindow::onClickedOnPremiumStarCity()
+{
+    openUpgradeExternalWindow();
 }
 
 void MainWindow::onLocationSwitchFavorite(LocationID id, bool isFavorite)

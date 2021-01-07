@@ -47,6 +47,7 @@ protected:
 
 signals:
     void selected(LocationID id);
+    void clickedOnPremiumStarCity();
     void switchFavorite(LocationID id, bool isFavorite);
     void addStaticIpClicked();
     void clearCustomConfigClicked();
