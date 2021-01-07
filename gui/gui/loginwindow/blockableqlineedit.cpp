@@ -58,12 +58,6 @@ void BlockableQLineEdit::focusInEvent(QFocusEvent *event )
 
 void BlockableQLineEdit::focusOutEvent(QFocusEvent *event)
 {
-    if (!clickable_)
-    {
-        event->ignore();
-        return;
-    }
-
     QLineEdit::focusOutEvent(event);
     emit focusOut();
 }
