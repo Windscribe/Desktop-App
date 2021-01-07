@@ -17,7 +17,7 @@ UsernamePasswordEntry::UsernamePasswordEntry(QString descriptionText, bool passw
       width_(WINDOW_WIDTH), curDescriptionOpacity_(OPACITY_HIDDEN),
       curLineEditOpacity_(OPACITY_HIDDEN)
 {
-    userEntryLine_ = new CustomMenuLineEdit();
+    userEntryLine_ = new CommonWidgets::CustomMenuLineEdit();
 
     QString ss = userEntryLineAddSS_ + " color: white";
     userEntryLine_->setStyleSheet(ss);
@@ -35,7 +35,6 @@ UsernamePasswordEntry::UsernamePasswordEntry(QString descriptionText, bool passw
         userEntryLine_->setEchoMode(QLineEdit::Password);
     }
 
-    connect(userEntryLine_, SIGNAL(keyPressed(QKeyEvent*)), this, SIGNAL(keyPressed(QKeyEvent*)));
     connect(userEntryLine_, SIGNAL(textChanged(const QString&)), this,
                             SIGNAL(textChanged(const QString&)));
     setClickable(true);

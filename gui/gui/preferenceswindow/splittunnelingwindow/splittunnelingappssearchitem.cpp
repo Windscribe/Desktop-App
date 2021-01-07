@@ -52,7 +52,7 @@ void SplitTunnelingAppsSearchItem::setLoggedIn(bool loggedIn)
     loggedIn_ = loggedIn;
 }
 
-void SplitTunnelingAppsSearchItem::keyPressEvent(QKeyEvent *event)
+void SplitTunnelingAppsSearchItem::keyReleaseEvent(QKeyEvent *event)
 {
     ClickableGraphicsObject *selected = selectedObject();
 

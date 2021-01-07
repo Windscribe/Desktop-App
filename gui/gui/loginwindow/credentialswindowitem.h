@@ -86,7 +86,6 @@ private slots:
 
     void onEmergencyTextTransition(const QVariant &value);
 
-    void onUsernamePasswordKeyPress(QKeyEvent *event);
     void onUsernamePasswordTextChanged(const QString &text);
 
     void onFirewallTurnOffClick();

@@ -1,5 +1,6 @@
 #include "blockableqlineedit.h"
 
+// #include <QDebug>
 
 BlockableQLineEdit::BlockableQLineEdit(QWidget *parent) : QLineEdit (parent)
 {
@@ -35,6 +36,8 @@ void BlockableQLineEdit::mousePressEvent(QMouseEvent *event)
 
 void BlockableQLineEdit::keyPressEvent(QKeyEvent *event)
 {
+    //qDebug() << "BlockableQLineEdit::keyPressEvent";
+
     if (!clickable_)
     {
         event->ignore();
@@ -42,6 +45,18 @@ void BlockableQLineEdit::keyPressEvent(QKeyEvent *event)
     }
 
     QLineEdit::keyPressEvent(event);
+}
+
+void BlockableQLineEdit::keyReleaseEvent(QKeyEvent *event)
+{
+    //qDebug() << "BlockableQLineEdit::keyReleaseEvent";
+    if (!clickable_)
+    {
+        event->ignore();
+        return;
+    }
+
+    QLineEdit::keyReleaseEvent(event);
 }
 
 void BlockableQLineEdit::focusInEvent(QFocusEvent *event )

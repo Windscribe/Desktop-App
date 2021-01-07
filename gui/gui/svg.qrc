@@ -293,5 +293,7 @@
         <file>svg/locations/CLEAR_ICON.svg</file>
         <file>svg/locations/STATIC_IP_ICON_BIG.svg</file>
         <file>svg/locations/FOLDER_ICON_BIG.svg</file>
+        <file>svg/locations/SEARCH_ICON.svg</file>
+        <file>svg/locations/SEARCH_CANCEL_ICON.svg</file>
     </qresource>
 </RCC>

@@ -123,7 +123,7 @@ private slots:
     void onCurrentNetworkUpdated(ProtoTypes::NetworkInterface network);
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
     void changeTab(PREFERENCES_TAB_TYPE tab);

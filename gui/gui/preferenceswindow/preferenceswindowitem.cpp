@@ -597,11 +597,9 @@ void PreferencesWindowItem::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface
     emit currentNetworkUpdated(network);
 }
 
-void PreferencesWindowItem::keyPressEvent(QKeyEvent *event)
+void PreferencesWindowItem::keyReleaseEvent(QKeyEvent *event)
 {
-    QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-
-    if (keyEvent->key() == Qt::Key_Escape && keyEvent->type() == QEvent::KeyPress)
+    if (event->key() == Qt::Key_Escape)
     {
         if (isShowSubPage_)
         {

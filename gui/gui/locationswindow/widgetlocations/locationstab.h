@@ -11,6 +11,7 @@
 #include "../backend/locationsmodel/locationsmodel.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
+#include "commonwidgets/custommenulineedit.h"
 
 namespace GuiLocations {
 
@@ -44,6 +45,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void leaveEvent(QEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
 
 signals:
     void selected(LocationID id);
@@ -59,6 +61,11 @@ private slots:
     void onAllLocationsHeightChanged(int oldHeight, int newHeight);
     void onDeviceNameChanged(const QString &deviceName);
     void onAddCustomConfigClicked();
+
+    void onSearchButtonClicked();
+    void onSearchCancelButtonClicked();
+    void onSearchButtonPosAnimationValueChanged(const QVariant &value);
+    void onSearchLineEditTextChanged(QString text);
 
 private:
     IWidgetLocationsInfo *currentWidgetLocations();
@@ -86,6 +93,16 @@ private:
     static constexpr int TOP_TAB_HEIGHT = 50;
     static constexpr int ANIMATION_DURATION = 150;
     static constexpr int WHITE_LINE_WIDTH = 18;
+    static constexpr int TOP_TAB_MARGIN = 15;
+    static constexpr double TAB_OPACITY_DIM = 0.5;
+    static constexpr int SEARCH_BUTTON_POS_ANIMATION_DURATION = 200;
+    static constexpr int FIRST_TAB_ICON_POS_X = 106;
+    static constexpr int LAST_TAB_ICON_POS_X = 300;
+
+    bool searchTabSelected_; // better way to do this
+    CommonWidgets::IconButtonWidget *searchButton_;
+    CommonWidgets::IconButtonWidget *searchCancelButton_;
+    CommonWidgets::CustomMenuLineEdit *searchLineEdit_;
 
     QRect rcAllLocationsIcon_;
     QRect rcConfiguredLocationsIcon_;
@@ -125,6 +142,10 @@ private:
 
     void updateCustomConfigsEmptyListVisibility();
     void updateRibbonVisibility();
+
+    int searchButtonPos_;
+    QVariantAnimation searchButtonPosAnimation_;
+    void updateTabIconRects();
 };
 
 } // namespace GuiLocations

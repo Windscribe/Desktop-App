@@ -368,7 +368,7 @@ SOURCES += \
     loginwindow/blockableqlineedit.cpp \
     commongraphics/texticonbutton.cpp \
     commongraphics/verticaldividerline.cpp \
-    commongraphics/custommenulineedit.cpp \
+    commonwidgets/custommenulineedit.cpp \
     commonwidgets/iconbuttonwidget.cpp \
     commonwidgets/textbuttonwidget.cpp \
     preferenceswindow/proxysettingswindow/proxysettingsitem.cpp \
@@ -620,7 +620,7 @@ HEADERS += \
     loginwindow/blockableqlineedit.h \
     commongraphics/texticonbutton.h \
     commongraphics/verticaldividerline.h \
-    commongraphics/custommenulineedit.h \
+    commonwidgets/custommenulineedit.h \
     commonwidgets/iconbuttonwidget.h \
     commonwidgets/textbuttonwidget.h \
     preferenceswindow/proxysettingswindow/proxysettingsitem.h \

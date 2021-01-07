@@ -5,7 +5,7 @@
 #include <QGraphicsProxyWidget>
 #include "../baseitem.h"
 #include "commongraphics/iconbutton.h"
-#include "commongraphics/custommenulineedit.h"
+#include "commonwidgets/custommenulineedit.h"
 
 namespace PreferencesWindow {
 
@@ -33,11 +33,11 @@ signals:
 
 protected:
     void focusInEvent(QFocusEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private slots:
     void onCancelClicked();
     void onClearTextClicked();
-    void onLineEditKeyPress(QKeyEvent *keyEvent);
     void onLanguageChanged();
     void onLineEditTextChanged(QString text);
     void onSearchIconOpacityChanged(const QVariant & value);
@@ -45,7 +45,7 @@ private slots:
 private:
     double searchIconOpacity_;
     QGraphicsProxyWidget *proxyWidget_;
-    CustomMenuLineEdit *lineEdit_;
+    CommonWidgets::CustomMenuLineEdit *lineEdit_;
 
     bool editing_;
     IconButton *clearTextButton_;

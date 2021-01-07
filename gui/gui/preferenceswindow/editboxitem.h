@@ -5,7 +5,7 @@
 #include <QGraphicsProxyWidget>
 #include <QRegExpValidator>
 #include "commongraphics/iconbutton.h"
-#include "commongraphics/custommenulineedit.h"
+#include "commonwidgets/custommenulineedit.h"
 #include "dividerline.h"
 
 namespace PreferencesWindow {
@@ -33,12 +33,14 @@ signals:
     void additionalButtonHoverEnter();
     void additionalButtonHoverLeave();
 
+protected:
+    void keyReleaseEvent(QKeyEvent *event) override;
+
 private slots:
     void onEditClick();
     void onConfirmClick();
     void onUndoClick();
 
-    void onLineEditKeyPress(QKeyEvent * event);
 
     void onLanguageChanged();
 
@@ -54,7 +56,7 @@ private:
     QChar maskingChar_;
 
     QGraphicsProxyWidget *proxyWidget_;
-    CustomMenuLineEdit *lineEdit_;
+    CommonWidgets::CustomMenuLineEdit *lineEdit_;
     DividerLine *line_;
 
     void updatePositions();

@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include <QGraphicsProxyWidget>
-#include "commongraphics/custommenulineedit.h"
+#include "commonwidgets/custommenulineedit.h"
 #include "commongraphics/clickablegraphicsobject.h"
 #include "blockableqlineedit.h"
 
@@ -36,7 +36,6 @@ public:
     void updateScaling() override;
 
 signals:
-    void keyPressed(QKeyEvent *event);
     void textChanged(const QString &text);
 
 protected:
@@ -44,7 +43,7 @@ protected:
 
 private:
     QGraphicsProxyWidget *userEntryProxy_;
-    CustomMenuLineEdit *userEntryLine_;
+    CommonWidgets::CustomMenuLineEdit *userEntryLine_;
     const QString userEntryLineAddSS_;
 
     QString descriptionText_;

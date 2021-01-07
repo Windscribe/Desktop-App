@@ -6,6 +6,10 @@
 #include <QStyle>
 #include "graphicresources/fontmanager.h"
 
+#include <QDebug>
+
+namespace CommonWidgets {
+
 CustomMenuLineEdit::CustomMenuLineEdit(QWidget *parent) : BlockableQLineEdit (parent)
 {
     setContextMenuPolicy(Qt::NoContextMenu);
@@ -27,26 +31,6 @@ void CustomMenuLineEdit::mousePressEvent(QMouseEvent *event)
     else
     {
         BlockableQLineEdit::mousePressEvent(event);
-    }
-}
-
-void CustomMenuLineEdit::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Tab)
-    {
-        emit keyPressed(event);
-    }
-    else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-    {
-        emit keyPressed(event);
-    }
-    else if (event->key() == Qt::Key_Escape)
-    {
-        emit keyPressed(event);
-    }
-    else
-    {
-        BlockableQLineEdit::keyPressEvent(event);
     }
 }
 
@@ -147,3 +131,4 @@ void CustomMenuLineEdit::updateActionsState()
     }
 }
 
+} // namespace
