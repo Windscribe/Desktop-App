@@ -117,10 +117,10 @@ bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertCon
 {
 	bool fReturn = false;
 	LPTSTR szName = NULL;
-	DWORD dwData;
 
 	// Get Subject name size.
-	if (!(dwData = CertGetNameString(pCertContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, NULL,0)))
+    DWORD dwData = CertGetNameString(pCertContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, NULL, 0);
+	if (!dwData)
 	{
 		return false;
 	}

@@ -43,7 +43,7 @@ void NetworkChangeWorkerThread::postUpdate()
 
 void NetworkChangeWorkerThread::run()
 {
-    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
+    BIND_CRASH_HANDLER_FOR_THREAD();
 
     HANDLE hEvents[3];
 

@@ -1,7 +1,12 @@
 #include "crashdump.h"
-#include "logger.h"
 #include <Windows.h>
 #include <dbghelp.h>
+
+#if defined(WINDSCRIBE_SERVICE)
+#include "../../backend/windows/windscribe_service/logger.h"
+#else
+#include "logger.h"
+#endif
 
 #if defined(ENABLE_CRASH_REPORTS)
 
@@ -16,7 +21,7 @@ public:
     bool isAvailable() const;
     void setApiVersion() const;
     void setPrivileges() const;
-    bool writeMinidump(const QString &filename, DWORD thread_id,
+    bool writeMinidump(const std::wstring &filename, DWORD thread_id,
                        PEXCEPTION_POINTERS exception_pointers);
 
 private:
@@ -44,7 +49,7 @@ CrashDumpInternal::CrashDumpInternal()
         fnMiniDumpWriteDump_ = reinterpret_cast<PFNMINIDUMPWRITEDUMP>(
             GetProcAddress(dbgHelpHandle_, "MiniDumpWriteDump"));
     } else {
-        qCDebug(LOG_BASIC) << "Failed to load dbghelp.dll";
+        CRASH_LOG("Failed to load dbghelp.dll");
         fnImagehlpApiVersionEx_ = nullptr;
         fnMiniDumpWriteDump_ = nullptr;
     }
@@ -73,24 +78,23 @@ void CrashDumpInternal::setApiVersion() const
     requiredApiVersion.Reserved = 0;
 
     auto *api_version = fnImagehlpApiVersionEx_(&requiredApiVersion);
-    QString kActualApiString = QString("%1.%2.%3")
-        .arg(api_version->MajorVersion)
-        .arg(api_version->MinorVersion)
-        .arg(api_version->Revision);
+    char kActualApiString[64] = { 0 };
+    std::sprintf(kActualApiString, "%i.%i.%i",
+        api_version->MajorVersion, api_version->MinorVersion, api_version->Revision);
     if (requiredApiVersion.MajorVersion > api_version->MajorVersion ||
         (requiredApiVersion.MajorVersion == api_version->MajorVersion &&
          requiredApiVersion.MinorVersion > api_version->MinorVersion) ||
             (requiredApiVersion.MajorVersion == api_version->MajorVersion &&
              requiredApiVersion.MinorVersion == api_version->MinorVersion &&
              requiredApiVersion.Revision > api_version->Revision)) {
-        QString kRequiredApiString = QString("%1.%2.%3")
-            .arg(requiredApiVersion.MajorVersion)
-            .arg(requiredApiVersion.MinorVersion)
-            .arg(requiredApiVersion.Revision);
-        qCDebug(LOG_BASIC) << "Failed to set DbgHelp API version (" << kActualApiString 
-                           << "should be" << kRequiredApiString << ")";
+        char kRequiredApiString[64] = { 0 };
+        std::sprintf(kRequiredApiString, "%i.%i.%i",
+            requiredApiVersion.MajorVersion, requiredApiVersion.MinorVersion,
+            requiredApiVersion.Revision);
+        CRASH_LOG("Failed to set DbgHelp API version (%s should be %s)",
+                   kActualApiString, kRequiredApiString);
     } else {
-        qCDebug(LOG_BASIC) << "DbgHelp API version is" << kActualApiString;
+        CRASH_LOG("DbgHelp API version is %s", kActualApiString);
     }
 }
 
@@ -98,7 +102,7 @@ void CrashDumpInternal::setPrivileges() const
 {
     HANDLE handle = 0;
     if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &handle)) {
-        qCDebug(LOG_BASIC) << "Failed to set dump privileges (can't get process token)";
+        CRASH_LOG("Failed to set dump privileges (can't get process token)");
         return;
     }
     TOKEN_PRIVILEGES tokenPrivileges;
@@ -108,18 +112,18 @@ void CrashDumpInternal::setPrivileges() const
 
     if (!AdjustTokenPrivileges(
         handle, FALSE, &tokenPrivileges, sizeof(tokenPrivileges), nullptr, nullptr)) {
-        qCDebug(LOG_BASIC) << "Failed to set dump privileges (can't adjust token privileges)";
+        CRASH_LOG("Failed to set dump privileges (can't adjust token privileges)");
     }
     CloseHandle(handle);
 }
 
-bool CrashDumpInternal::writeMinidump(const QString &filename, DWORD thread_id,
+bool CrashDumpInternal::writeMinidump(const std::wstring &filename, DWORD thread_id,
                                       PEXCEPTION_POINTERS exception_pointers)
 {
-    const auto file_handle = CreateFile(filename.toStdWString().c_str(), GENERIC_WRITE, 0, nullptr,
+    const auto file_handle = CreateFile(filename.c_str(), GENERIC_WRITE, 0, nullptr,
                                         CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
     if (file_handle == INVALID_HANDLE_VALUE) {
-        qCDebug(LOG_BASIC) << "Failed to open minidump file for writing:" << filename;
+        CRASH_LOG("Failed to open minidump file for writing: %s", filename.c_str());
         return false;
     }
 
@@ -148,11 +152,10 @@ void CrashDumpInternal::processMinidump(PMINIDUMP_CALLBACK_INPUT input,
 {
     switch (input->CallbackType) {
     case ModuleCallback:
-        qCDebug(LOG_BASIC) << "Dumping info for module"
-                           << QString::fromWCharArray(input->Module.FullPath);
+        CRASH_LOG("Dumping info for module %ls", input->Module.FullPath);
         break;
     case ThreadCallback:
-        qCDebug(LOG_BASIC) << "Dumping info for thread" << hex << input->Thread.ThreadId;
+        CRASH_LOG("Dumping info for thread 0x%08x", input->Thread.ThreadId);
         break;
     default:
         break;
@@ -171,24 +174,24 @@ BOOL CALLBACK CrashDumpInternal::MiniDumpCallback(PVOID param, PMINIDUMP_CALLBAC
 
 CrashDump::CrashDump() : internal_(new CrashDumpInternal)
 {
-    Q_ASSERT(internal_->isAvailable());
+    CRASH_ASSERT(internal_->isAvailable());
 }
 
 CrashDump::~CrashDump() = default;
 
-bool CrashDump::writeToFile(const QString &filename, Qt::HANDLE thread_handle,
+bool CrashDump::writeToFile(const std::wstring &filename, unsigned int thread_handle,
                             void *exception_pointers)
 {
     if (!internal_->isAvailable())
         return false;
 
-    Q_ASSERT(thread_handle);
-    Q_ASSERT(exception_pointers);
+    CRASH_ASSERT(thread_handle);
+    CRASH_ASSERT(exception_pointers);
 
     internal_->setPrivileges();
     internal_->setApiVersion();
-    return internal_->writeMinidump(filename, reinterpret_cast<DWORD>(thread_handle),
-                                    static_cast<PEXCEPTION_POINTERS>(exception_pointers));
+    return internal_->writeMinidump(
+        filename, thread_handle, static_cast<PEXCEPTION_POINTERS>(exception_pointers));
 }
 
 }

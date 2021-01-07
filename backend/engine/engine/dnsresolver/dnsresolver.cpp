@@ -209,7 +209,7 @@ DnsResolver::~DnsResolver()
 
 void DnsResolver::run()
 {
-    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
+    BIND_CRASH_HANDLER_FOR_THREAD();
     while (true)
     {
         QMutexLocker lockerWait(&mutexWait_);

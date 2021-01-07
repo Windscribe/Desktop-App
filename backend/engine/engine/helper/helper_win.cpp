@@ -834,7 +834,7 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
 
 void Helper_win::run()
 {
-    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
+    BIND_CRASH_HANDLER_FOR_THREAD();
     schSCManager_ = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
     if (schSCManager_ == NULL)
     {

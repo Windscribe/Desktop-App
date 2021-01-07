@@ -3,6 +3,7 @@
 
 
 #include "../logger.h"
+#include "../../../../common/utils/crashhandler.h"
 
 DnsResolver *DnsResolver::this_ = NULL;
 
@@ -149,6 +150,7 @@ void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeo
 
 DWORD __stdcall DnsResolver::threadFunc(LPVOID n)
 {
+    BIND_CRASH_HANDLER_FOR_THREAD();
 	DnsResolver *resolver = static_cast<DnsResolver *>(n);
 
 	while (true)

@@ -4,6 +4,7 @@
 #include "../close_tcp_connections.h"
 #include "../logger.h"
 #include "../utils.h"
+#include "../../../../common/utils/crashhandler.h"
 
 #define        THREAD_MESSAGE_ADAPTER        WM_USER + 1
 #define        THREAD_MESSAGE_SETTINGS       WM_USER + 2
@@ -94,6 +95,7 @@ void SplitTunneling::callbackFunc(bool isConnected, TapAdapterDetector::TapAdapt
 
 DWORD WINAPI SplitTunneling::threadFunc(LPVOID n)
 {
+    BIND_CRASH_HANDLER_FOR_THREAD();
 	SplitTunneling *this_ = static_cast<SplitTunneling *>(n);
 
 	MSG msg;

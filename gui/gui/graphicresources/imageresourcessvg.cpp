@@ -129,7 +129,7 @@ IndependentPixmap *ImageResourcesSvg::getScaledFlag(const QString &flagName, int
 
 void ImageResourcesSvg::run()
 {
-    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
+    BIND_CRASH_HANDLER_FOR_THREAD();
     QDirIterator it(":/svg", QDirIterator::Subdirectories);
     while (!bNeedFinish_ && it.hasNext())
     {
