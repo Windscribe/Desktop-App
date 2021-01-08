@@ -244,6 +244,11 @@ void LocationsModel::switchFavorite(const LocationID &id, bool isFavorite)
     favoriteLocations_->setIsFavorite(id, isFavorite);
 }
 
+void LocationsModel::saveFavorites()
+{
+    favoriteLocationsStorage_.writeToSettings();
+}
+
 bool LocationsModel::getLocationInfo(const LocationID &id, LocationsModel::LocationInfo &li)
 {
     if (!id.isValid())
