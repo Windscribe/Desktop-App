@@ -1281,6 +1281,8 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
         setInitialFirewallState();
 
         Preferences *p = backend_->getPreferences();
+        p->validateAndUpdateIfNeeded();
+
         backend_->sendSplitTunneling(p->splitTunneling());
 
         // disable firewall for Mac when split tunneling is active
@@ -1293,13 +1295,13 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
 #endif
 
         // enable wifi/proxy sharing, if checked
-        if (backend_->getPreferences()->shareSecureHotspot().is_enabled())
+        if (p->shareSecureHotspot().is_enabled())
         {
-            onPreferencesShareSecureHotspotChanged(backend_->getPreferences()->shareSecureHotspot());
+            onPreferencesShareSecureHotspotChanged(p->shareSecureHotspot());
         }
-        if (backend_->getPreferences()->shareProxyGateway().is_enabled())
+        if (p->shareProxyGateway().is_enabled())
         {
-            onPreferencesShareProxyGatewayChanged(backend_->getPreferences()->shareProxyGateway());
+            onPreferencesShareProxyGatewayChanged(p->shareProxyGateway());
         }
 
         if (backend_->isCanLoginWithAuthHash())
@@ -3049,6 +3051,7 @@ void MainWindow::gotoExitWindow()
 
 void MainWindow::collapsePreferences()
 {
+    backend_->getPreferences()->validateAndUpdateIfNeeded();
     mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(
         backend_->isFirewallEnabled());
     mainWindowController_->collapsePreferences();

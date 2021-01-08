@@ -117,10 +117,11 @@ public:
 
     ProtoTypes::EngineSettings getEngineSettings() const;
 
-    void saveGuiSettings();
+    void saveGuiSettings() const;
     void loadGuiSettings();
+    void validateAndUpdateIfNeeded();
 
-    bool isReceivingEngineSettings();
+    bool isReceivingEngineSettings() const;
 
 signals:
     void isLaunchOnStartupChanged(bool b);

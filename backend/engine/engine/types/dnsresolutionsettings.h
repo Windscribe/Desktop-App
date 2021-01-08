@@ -22,6 +22,7 @@ public:
 
 private:
     bool isInitialized_;
+    bool isEmptyManualIp_;
     bool bAutomatic_;
     QString manualIp_;
 };
