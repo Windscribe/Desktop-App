@@ -85,7 +85,7 @@ void IKEv2ConnectionDisconnectLogic_win::blockingDisconnect(HRASCONN connHandle)
 
 void IKEv2ConnectionDisconnectLogic_win::run()
 {
-    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
+    BIND_CRASH_HANDLER_FOR_THREAD();
     mutex_.lock();
     if (!waitCondition_.wait(&mutex_, 2000))
     {

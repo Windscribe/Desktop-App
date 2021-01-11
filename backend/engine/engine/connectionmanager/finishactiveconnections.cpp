@@ -43,4 +43,5 @@ void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *help
     if (!strWireGuardExe.endsWith(".exe"))
         strWireGuardExe.append(".exe");
     helper->executeTaskKill(strWireGuardExe);
+    helper->stopWireGuard();  // This will also reset route monitoring.
 }

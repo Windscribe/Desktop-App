@@ -1,5 +1,6 @@
 #include "all_headers.h"
 #include "pipe_for_process.h"
+#include "../../../common/utils/crashhandler.h"
 
 unsigned long PipeForProcess::pipeSerialNumber_ = 0;
 
@@ -105,6 +106,7 @@ BOOL APIENTRY PipeForProcess::myCreatePipeEx(OUT LPHANDLE lpReadPipe, OUT LPHAND
 
 DWORD WINAPI PipeForProcess::readThread(LPVOID lpParam)
 {
+    BIND_CRASH_HANDLER_FOR_THREAD();
 	PipeForProcess *this_ = static_cast<PipeForProcess *>(lpParam);
 
 	HANDLE hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);

@@ -176,7 +176,7 @@ void WireGuardConnection::run()
     bool is_configured = false;
     bool is_connected = false;
 
-    Debug::CrashHandlerForThread bind_crash_handler_to_this_thread;
+    BIND_CRASH_HANDLER_FOR_THREAD();
 
     qCDebug(LOG_WIREGUARD) << "Enable dns leak protection";
     helper_->enableDnsLeaksProtection();

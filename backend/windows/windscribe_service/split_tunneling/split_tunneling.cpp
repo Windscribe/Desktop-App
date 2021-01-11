@@ -5,6 +5,7 @@
 #include "../close_tcp_connections.h"
 #include "../logger.h"
 #include "../utils.h"
+#include "../../../../common/utils/crashhandler.h"
 
 SplitTunneling::SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper) : firewallFilter_(firewallFilter), calloutFilter_(fwmpWrapper), 
 				routesManager_(firewallFilter), bStarted_(false), bTapConnected_(false), bKeepLocalSockets_(false)

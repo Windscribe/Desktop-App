@@ -27,6 +27,7 @@
 #include "wireguard/wireguardcontroller.h"
 #include <conio.h>
 #include "../../../common/utils/executable_signature/executable_signature_win.h"
+#include "../../../common/utils/crashhandler.h"
 
 #define SERVICE_NAME  (L"WindscribeService")
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
@@ -74,6 +75,11 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 	}
+
+#if defined(ENABLE_CRASH_REPORTS)
+    Debug::CrashHandler::setModuleName(L"service");
+    Debug::CrashHandler::instance().bindToProcess();
+#endif
 
 #ifdef _DEBUG
 	// for debug (run without service)
@@ -1044,6 +1050,7 @@ bool writeMessagePacketResult(HANDLE hPipe, MessagePacketResult &mpr)
 DWORD WINAPI serviceWorkerThread(LPVOID)
 {
 	CoInitializeEx(0, COINIT_MULTITHREADED);
+    BIND_CRASH_HANDLER_FOR_THREAD();
 
 	FwpmWrapper	  fwpmHandleWrapper;
 	if (!fwpmHandleWrapper.isInitialized())

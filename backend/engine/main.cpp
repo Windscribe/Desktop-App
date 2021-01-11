@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     }
 #endif
 #if defined(ENABLE_CRASH_REPORTS)
-    Debug::CrashHandler::setModuleName("engine");
+    Debug::CrashHandler::setModuleName(L"engine");
     Debug::CrashHandler::instance().bindToProcess();
 #endif
 

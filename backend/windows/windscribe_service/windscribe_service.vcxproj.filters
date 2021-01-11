@@ -28,6 +28,12 @@
     <Filter Include="Header Files\wireguard">
       <UniqueIdentifier>{174f724d-1905-4caf-ab85-c25ba301d545}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{cc8fa197-db2f-408a-b69c-54fde19671ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{4043dde5-5696-4f67-80f7-0995a19d37ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="executecmd.h">
@@ -159,6 +165,12 @@
     <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature_win.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\common\utils\crashdump.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\utils\crashhandler.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windscribe_service.cpp">
@@ -280,6 +292,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\crashdump.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\crashhandler.cpp">
+      <Filter>Source Files\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

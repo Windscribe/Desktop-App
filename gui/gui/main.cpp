@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     qSetMessagePattern("[{gmt_time} %{time process}] [%{category}]\t %{message}");
 
 #if defined(ENABLE_CRASH_REPORTS)
-    Debug::CrashHandler::setModuleName("gui");
+    Debug::CrashHandler::setModuleName(L"gui");
     Debug::CrashHandler::instance().bindToProcess();
 #endif
 

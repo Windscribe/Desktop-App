@@ -18,7 +18,7 @@ public:
         }
     }
 
-    virtual std::vector<char> getData() const
+    std::vector<char> getData() const override
     {
         size_t size = protoObj.ByteSizeLong();
         std::vector<char> buf(size);
@@ -29,12 +29,12 @@ public:
         return buf;
     }
 
-    virtual std::string getStringId() const
+    std::string getStringId() const override
     {
         return protoObj.descriptor()->full_name();
     }
 
-    virtual std::string getDebugString() const
+    std::string getDebugString() const override
     {
         return "[" + protoObj.descriptor()->name() + "] " + protoObj.DebugString();
     }

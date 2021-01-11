@@ -1,17 +1,20 @@
 #include "crashhandler.h"
 #include "crashdump.h"
-#include "logger.h"
 
 #if defined(ENABLE_CRASH_REPORTS)
 
+#include <ctime>
+#include <intrin.h>
 #include <new.h>
 #include <signal.h>
 #include <Windows.h>
 
-#include <QDateTime>
-#include <QMutexLocker>
+#if defined(WINDSCRIBE_SERVICE)
+#include "../../backend/windows/windscribe_service/logger.h"
+#else
+#include "logger.h"
 #include <QStandardPaths>
-#include <QThread>
+#endif
 
 namespace Debug {
 
@@ -39,11 +42,11 @@ struct ThreadExceptionHandlers
 struct StackOverflowThreadInfo
 {
     explicit StackOverflowThreadInfo(PEXCEPTION_POINTERS exception_pointers,
-        Qt::HANDLE current_thread_id) :
+                                     unsigned int current_thread_id) :
         exceptionPointers(exception_pointers), crashedThreadId(current_thread_id) {}
 
     PEXCEPTION_POINTERS exceptionPointers;
-    Qt::HANDLE crashedThreadId;
+    unsigned int crashedThreadId;
 };
 
 enum class ExceptionType { SEH, TERMINATE, UNEXPECTED, PURECALL, NEW_OPERATOR, INVALID_PARAMETER,
@@ -57,15 +60,15 @@ const char *kExceptionTypeNames[static_cast<int>(ExceptionType::NUM_EXCEPTION_TY
 struct ExceptionInfo
 {
     explicit ExceptionInfo(ExceptionType type, void *exception_pointers = nullptr,
-                           Qt::HANDLE current_thread_id = 0) :
+                           unsigned int current_thread_id = 0) :
         exceptionType(type),
         exceptionPointers(static_cast<PEXCEPTION_POINTERS>(exception_pointers)),
-        exceptionThreadId(current_thread_id ? current_thread_id : QThread::currentThreadId()),
+        exceptionThreadId(current_thread_id ? current_thread_id : GetCurrentThreadId()),
         expression(nullptr), function(nullptr), file(nullptr), line(0) { }
 
     PEXCEPTION_POINTERS exceptionPointers;
     ExceptionType exceptionType;
-    Qt::HANDLE exceptionThreadId;
+    unsigned int exceptionThreadId;
     const wchar_t* expression;
     const wchar_t* function;
     const wchar_t* file;
@@ -74,6 +77,25 @@ struct ExceptionInfo
 
 namespace
 {
+unsigned int GetCurrentThreadId()
+{
+    return ::GetCurrentThreadId();
+}
+
+std::wstring GetOutputLocation()
+{
+#if defined(WINDSCRIBE_SERVICE)
+    wchar_t buffer[MAX_PATH] = { 0 };
+    GetModuleFileName(0, buffer, sizeof(buffer));
+    std::wstring strBuffer{ buffer };
+    strBuffer = strBuffer.substr(0, strBuffer.find_last_of(L"\\/"));
+    return strBuffer + TEXT("/");
+#else
+    return QString("%1/").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+                         .toStdWString();
+#endif
+}
+
 LONG WINAPI LocalSehHandler(__in PEXCEPTION_POINTERS exceptionPointers)
 {
     CrashHandler::instance().handleException(ExceptionInfo(ExceptionType::SEH, exceptionPointers));
@@ -147,7 +169,7 @@ void __cdecl UnexpectedHandler()
 }
 }
 
-QString CrashHandler::moduleName_("unknown");
+std::wstring CrashHandler::moduleName_(L"unknown");
 
 CrashHandler::CrashHandler()
 {
@@ -180,10 +202,9 @@ CrashHandler::~CrashHandler()
 
 bool CrashHandler::bindToProcess()
 {
-    Q_ASSERT(!oldProcessHandlers_);
+    CRASH_ASSERT(!oldProcessHandlers_);
     if (oldProcessHandlers_) {
-        qCDebug(LOG_BASIC)
-            << "CrashHandler::bindToProcess: tried to install process handlers twice";
+        CRASH_LOG("CrashHandler::bindToProcess: tried to install process handlers twice");
         return false;
     }
 
@@ -230,13 +251,13 @@ void CrashHandler::unbindFromProcess()
 
 bool CrashHandler::bindToThread()
 {
-    const auto thread_id = QThread::currentThreadId();
+    const auto thread_id = GetCurrentThreadId();
 
-    QMutexLocker locker(&threadHandlerMutex_);
+    std::lock_guard<std::mutex> locker(threadHandlerMutex_);
     auto it = oldThreadHandlers_.find(thread_id);
     if (it != oldThreadHandlers_.end()) {
-        qCDebug(LOG_BASIC)
-            << "CrashHandler::bindToThread: tried to install handlers twice - thread" << thread_id;
+        CRASH_LOG("CrashHandler::bindToThread: tried to install handlers twice - thread 0x%08x",
+                  thread_id);
         return false;
     }
     auto *thread_handlers = new ThreadExceptionHandlers;
@@ -250,9 +271,9 @@ bool CrashHandler::bindToThread()
 
 void CrashHandler::unbindFromThread()
 {
-    const auto thread_id = QThread::currentThreadId();
+    const auto thread_id = GetCurrentThreadId();
 
-    QMutexLocker locker(&threadHandlerMutex_);
+    std::lock_guard<std::mutex> locker(threadHandlerMutex_);
     auto it = oldThreadHandlers_.find(thread_id);
     if (it == oldThreadHandlers_.end())
         return;
@@ -274,7 +295,7 @@ void CrashHandler::unbindFromThread()
 
 void CrashHandler::handleException(ExceptionInfo info)
 {
-    auto currentThreadId = QThread::currentThreadId();
+    auto currentThreadId = GetCurrentThreadId();
 
     // SEH stack overflow exception is a special case, because we need some stack space to run
     // the minidump creation code. Do this in a separate thread.
@@ -290,8 +311,8 @@ void CrashHandler::handleException(ExceptionInfo info)
         return;
     }
 
-    QMutexLocker locker(&crashMutex_);
-    qCDebug(LOG_BASIC) << "------ CRASH in" << moduleName_ << "------";
+    std::lock_guard<std::mutex> locker(crashMutex_);
+    CRASH_LOG("------ CRASH in %ls ------", moduleName_.c_str());
 
     EXCEPTION_RECORD exceptionRecord;
     CONTEXT contextRecord;
@@ -304,24 +325,22 @@ void CrashHandler::handleException(ExceptionInfo info)
         info.exceptionPointers = &exceptionPointers;
     }
 
-    qCDebug(LOG_BASIC) << " type =" << kExceptionTypeNames[static_cast<int>(info.exceptionType)];
+    CRASH_LOG(" type = %s", kExceptionTypeNames[static_cast<int>(info.exceptionType)]);
     if (info.exceptionPointers) {
-        qCDebug(LOG_BASIC) << " code =" << hex
-                           << info.exceptionPointers->ExceptionRecord->ExceptionCode;
-        qCDebug(LOG_BASIC) << " addr ="
-                           << info.exceptionPointers->ExceptionRecord->ExceptionAddress;
+        CRASH_LOG(" code = 0x%08x", info.exceptionPointers->ExceptionRecord->ExceptionCode);
+        CRASH_LOG(" addr = 0x%08x", info.exceptionPointers->ExceptionRecord->ExceptionAddress);
     }
     if (info.expression)
-        qCDebug(LOG_BASIC) << " expression =" << info.expression;
+        CRASH_LOG(" expression = %ls", info.expression);
     if (info.function)
-        qCDebug(LOG_BASIC) << " function =" << info.function;
+        CRASH_LOG(" function = %ls", info.function);
     if (info.file)
-        qCDebug(LOG_BASIC) << " file =" << info.function << "@" << info.line;
+        CRASH_LOG(" file = %ls@%u", info.file, info.line);
 
     CrashDump minidump;
-    const QString filename = getCrashDumpFilename();
+    const std::wstring filename = getCrashDumpFilename();
     if (minidump.writeToFile(filename, info.exceptionThreadId, info.exceptionPointers))
-        qCDebug(LOG_BASIC) << "Wrote minidump:" << filename;
+        CRASH_LOG("Wrote minidump: %ls", filename.c_str());
 
     TerminateProcess(GetCurrentProcess(), 1);
 }
@@ -357,7 +376,7 @@ void CrashHandler::getExceptionPointers(void *exceptionPointers) const
     contextRecord.Ebp = *((ULONG *)_AddressOfReturnAddress() - 1);
 #elif defined (_M_X64)
     // Need to fill up the Context in IA64 and AMD64.
-    RtlCaptureContext(&ContextRecord);
+    RtlCaptureContext(&contextRecord);
 #endif
 
     auto *output = static_cast<EXCEPTION_POINTERS*>(exceptionPointers);
@@ -366,10 +385,14 @@ void CrashHandler::getExceptionPointers(void *exceptionPointers) const
     output->ExceptionRecord->ExceptionAddress = _ReturnAddress();
 }
 
-QString CrashHandler::getCrashDumpFilename() const
+std::wstring CrashHandler::getCrashDumpFilename() const
 {
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/" + moduleName_
-           + "_" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss_zzz") + ".dmp";
+    const time_t now = time(0);
+    const struct tm time_struct = *localtime(&now);
+    wchar_t time_buffer[128] = { 0 };
+    std::wcsftime(time_buffer, sizeof(time_buffer) / sizeof(time_buffer[0]),
+                  TEXT("%Y-%m-%d_%H-%M-%S"), &time_struct);
+    return GetOutputLocation() + moduleName_ + TEXT("_") + std::wstring(time_buffer) + TEXT(".dmp");
 }
 
 void CrashHandler::crashForTest() const
@@ -385,7 +408,7 @@ void CrashHandler::stackOverflowForTest() const
 {
     struct temp_stack_allocation_for_test {
         ~temp_stack_allocation_for_test() { ++i[0]; }
-        volatile quint64 i[10000];
+        volatile unsigned long long i[10000];
     } temp;  // cppcheck-suppress unusedVariable
     stackOverflowForTest();
 }
