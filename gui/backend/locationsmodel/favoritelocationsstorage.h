@@ -13,6 +13,7 @@ public:
     void addToFavorites(const LocationID &locationId);
     void removeFromFavorites(const LocationID &locationId);
     bool isFavorite(const LocationID &locationId);
+    int size() const;
 
     void readFromSettings();
     void writeToSettings();

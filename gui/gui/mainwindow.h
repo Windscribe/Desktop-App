@@ -16,6 +16,7 @@
 #include "freetrafficnotificationcontroller.h"
 #include "graphicresources/iconmanager.h"
 #include "guitest.h"
+#include "systemtray/locationstraymenutypes.h"
 #include "systemtray/locationstraymenunative.h"
 #include "systemtray/locationstraymenuwidget.h"
 #include "dialogs/advancedparametersdialog.h"
@@ -221,7 +222,7 @@ private slots:
     void onTrayMenuHelpMe();
     void onTrayMenuQuit();
     void onTrayMenuAboutToShow();
-    void onLocationsTrayMenuLocationSelected(QString locationTitle, int cityIndex);
+    void onLocationsTrayMenuLocationSelected(int type, QString locationTitle, int cityIndex);
 
     void onFreeTrafficNotification(const QString &message);
     void onNativeInfoErrorMessage(QString title, QString desc);
@@ -254,11 +255,11 @@ private:
 
     QMenu trayMenu_;
 #if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    LocationsTrayMenuNative locationsMenu_;
+    LocationsTrayMenuNative locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
 #else
-    QMenu locationsMenu_;
-    QWidgetAction *listWidgetAction_;
-    LocationsTrayMenuWidget *locationsTrayMenuWidget_;
+    QMenu locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
+    QWidgetAction *listWidgetAction_[LOCATIONS_TRAY_MENU_NUM_TYPES];
+    LocationsTrayMenuWidget *locationsTrayMenuWidget_[LOCATIONS_TRAY_MENU_NUM_TYPES];
 #endif
 
     enum class AppIconType { DISCONNECTED, CONNECTING, CONNECTED };

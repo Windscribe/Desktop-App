@@ -447,6 +447,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\proxy\autodetectproxy_win.cpp" />
     <ClCompile Include="engine\connectionmanager\availableport.cpp" />
     <ClCompile Include="engine\serverapi\certmanager.cpp" />
+    <ClCompile Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.cpp" />
     <ClCompile Include="engine\taputils\checkadapterenable.cpp" />
     <ClCompile Include="..\..\common\ipc\generated_proto\clientcommands.pb.cc" />
     <ClCompile Include="clientconnectiondescr.cpp" />
@@ -649,6 +650,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="engine\dnsresolver\areslibraryinit.h" />
     <ClInclude Include="engine\proxy\autodetectproxy_win.h" />
     <ClInclude Include="engine\connectionmanager\availableport.h" />
+    <ClInclude Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.h" />
     <ClInclude Include="engine\types\wireguardconfig.h" />
     <ClInclude Include="engine\types\wireguardtypes.h" />
     <ClInclude Include="utils\bfe_service_win.h" />

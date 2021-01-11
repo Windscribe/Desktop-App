@@ -30,11 +30,15 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
         return;
 
     QString text = index.model()->data(index, Qt::DisplayRole).toString();
-    bool bEnabled = index.model()->data(index, LocationsTrayMenuWidget::USER_ROLE_ENABLED).toBool();
-    IndependentPixmap *flag = ImageResourcesSvg::instance().getScaledFlag(
-        index.model()->data(index, LocationsTrayMenuWidget::USER_ROLE_COUNTRY_CODE).toString(),
-        20 * G_SCALE, 10 * G_SCALE, bEnabled ? 0 : ImageResourcesSvg::IMAGE_FLAG_GRAYED);
+    const int flags = index.model()->data(index, LocationsTrayMenuWidget::USER_ROLE_FLAGS).toInt();
+    const bool bEnabled = flags & LocationsTrayMenuWidget::ITEM_FLAG_IS_ENABLED;
+    IndependentPixmap *flag = nullptr;
 
+    if (flags & LocationsTrayMenuWidget::ITEM_FLAG_HAS_COUNTRY) {
+        flag = ImageResourcesSvg::instance().getScaledFlag(
+            index.model()->data(index, LocationsTrayMenuWidget::USER_ROLE_COUNTRY_CODE).toString(),
+            20 * G_SCALE, 10 * G_SCALE, bEnabled ? 0 : ImageResourcesSvg::IMAGE_FLAG_GRAYED);
+    }
     QRect rc = option.rect;
     if (option.state & QStyle::State_Selected)
     {
@@ -71,10 +75,12 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
     painter->setFont(font_);
     painter->drawText(rc, text, to);
 
-    QStyleOption ao(option);
-    ao.rect.setLeft(ao.rect.right() - 20 * G_SCALE);
-    ao.palette.setCurrentColorGroup(bEnabled ? QPalette::Active : QPalette::Disabled);
-    QApplication::style()->drawPrimitive(QStyle::PE_IndicatorArrowRight, &ao, painter);
+    if (flags & LocationsTrayMenuWidget::ITEM_FLAG_HAS_SUBMENU) {
+        QStyleOption ao(option);
+        ao.rect.setLeft(ao.rect.right() - 20 * G_SCALE);
+        ao.palette.setCurrentColorGroup(bEnabled ? QPalette::Active : QPalette::Disabled);
+        QApplication::style()->drawPrimitive(QStyle::PE_IndicatorArrowRight, &ao, painter);
+    }
 }
 
 QSize LocationsTrayMenuItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

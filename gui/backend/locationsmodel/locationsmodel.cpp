@@ -11,7 +11,8 @@
 #include <QSharedPointer>
 
 
-LocationsModel::LocationsModel(QObject *parent) : QObject(parent)
+LocationsModel::LocationsModel(QObject *parent) : QObject(parent),
+    numStaticIPLocations_(0), numStaticIPLocationCities_(0)
 {
     favoriteLocationsStorage_.readFromSettings();
     allLocations_ = new AllLocationsModel(this);
@@ -31,6 +32,7 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
 
     bool isBestLocationInserted = false;
     bestLocationId_ = LocationID::createFromProtoBuf(bestLocation);
+    numStaticIPLocations_ = numStaticIPLocationCities_ = 0;
 
     int cnt = locations.locations_size();
     for (int i = 0; i < cnt; ++i)
@@ -77,6 +79,11 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
                 apiLocations_.insert(0, lmiBestLocation);
                 isBestLocationInserted = true;
             }
+        }
+
+        if (lmi->id.isStaticIpsLocation()) {
+            ++numStaticIPLocations_;
+            numStaticIPLocationCities_ += lmi->cities.count();
         }
 
         // sort cities alphabetically
@@ -473,4 +480,46 @@ LocationID LocationsModel::getFirstValidCustomConfigLocationId() const
         }
     }
     return LocationID();
+}
+
+LocationID LocationsModel::findGenericLocationByTitle(const QString &title) const
+{
+    for (const auto location : apiLocations_) {
+        for (const auto &city : location->cities) {
+            if (city.makeTitle() == title)
+                return city.id;
+        }
+    }
+    return LocationID();
+}
+
+LocationID LocationsModel::findCustomConfigLocationByTitle(const QString &title) const
+{
+    for (const auto location : customConfigLocations_) {
+        for (const auto &city : qAsConst(location->cities)) {
+            if (city.makeTitle() == title)
+                return city.id;
+        }
+    }
+    return LocationID();
+}
+
+int LocationsModel::getNumGenericLocations() const
+{
+    return apiLocations_.count() - numStaticIPLocations_;
+}
+
+int LocationsModel::getNumFavoriteLocations() const
+{
+    return favoriteLocationsStorage_.size();
+}
+
+int LocationsModel::getNumStaticIPLocations() const
+{
+    return numStaticIPLocationCities_;
+}
+
+int LocationsModel::getNumCustomConfigLocations() const
+{
+    return customConfigLocations_.count();
 }

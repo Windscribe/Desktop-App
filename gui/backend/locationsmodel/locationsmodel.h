@@ -51,6 +51,13 @@ public:
 
     LocationID getBestLocationId() const;
     LocationID getFirstValidCustomConfigLocationId() const;
+    LocationID findGenericLocationByTitle(const QString &title) const;
+    LocationID findCustomConfigLocationByTitle(const QString &title) const;
+
+    int getNumGenericLocations() const;
+    int getNumFavoriteLocations() const;
+    int getNumStaticIPLocations() const;
+    int getNumCustomConfigLocations() const;
 
 signals:
     void locationSpeedChanged(LocationID id, PingTime speed);
@@ -69,7 +76,8 @@ private:
     QVector< QSharedPointer<LocationModelItem> > apiLocations_;
     LocationID bestLocationId_;
     QVector< QSharedPointer<LocationModelItem> > customConfigLocations_;
-
+    int numStaticIPLocations_;
+    int numStaticIPLocationCities_;
 };
 
 #endif // LOCATIONSMODEL_H

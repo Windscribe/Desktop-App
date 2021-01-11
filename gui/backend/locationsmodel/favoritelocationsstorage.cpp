@@ -26,6 +26,11 @@ bool FavoriteLocationsStorage::isFavorite(const LocationID &locationId)
     return favoriteLocations_.find(locationId) != favoriteLocations_.end();
 }
 
+int FavoriteLocationsStorage::size() const
+{
+    return favoriteLocations_.size();
+}
+
 void FavoriteLocationsStorage::readFromSettings()
 {
     favoriteLocations_.clear();

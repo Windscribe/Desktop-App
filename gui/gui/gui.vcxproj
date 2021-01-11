@@ -755,6 +755,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="systemtray\locationstraymenuitemdelegate.h" />
     <QtMoc Include="systemtray\locationstraymenuwidget.h" />
     <QtMoc Include="systemtray\locationstraymenunative.h" />
+    <ClInclude Include="systemtray\locationstraymenutypes.h" />
     <ClInclude Include="tooltips\tooltiputil.h" />
     <QtMoc Include="twofactorauth\twofactorauthwindowitem.h" />
     <ClInclude Include="twofactorauth\itwofactorauthwindow.h" />
