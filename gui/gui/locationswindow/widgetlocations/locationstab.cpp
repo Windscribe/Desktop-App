@@ -9,7 +9,7 @@
 #include "tooltips/tooltiptypes.h"
 #include "utils/writeaccessrightschecker.h"
 
-// #include <QDebug>
+#include <QDebug>
 
 extern QWidget *g_mainWindow;
 
@@ -93,6 +93,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     int newHeight = 50 * countOfVisibleItemSlots_ - 1;
 
     widgetSearchLocations_ = new GuiLocations::SearchWidgetLocations(this);
+    widgetSearchLocations_->hide();
 
     updateLocationWidgetsGeometry(newHeight);
 
@@ -128,9 +129,6 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     widgetFavoriteLocations_->setModel(locationsModel->getFavoriteLocationsModel());
     widgetSearchLocations_->setModel(locationsModel->getAllLocationsModel());
 
-    connect(widgetAllLocations_, SIGNAL(heightChanged(int,int)), SLOT(onAllLocationsHeightChanged(int,int)));
-    connect(widgetSearchLocations_, SIGNAL(heightChanged(int,int)), SLOT(onSearchLocationsHeightChanged(int,int)));
-
     connect(locationsModel, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
 
     updateCustomConfigsEmptyListVisibility();
@@ -145,7 +143,7 @@ int LocationsTab::setCountVisibleItemSlots(int cnt)
         widgetConfiguredLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_-1);
         widgetStaticIpsLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_-1);
         widgetFavoriteLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
-        widgetSearchLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
+        // widgetSearchLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
         updateRibbonVisibility();
 
         const int newHeight = 50 * countOfVisibleItemSlots_ - 1;
@@ -395,7 +393,7 @@ void LocationsTab::onClickFavoriteLocations()
 
 void LocationsTab::onClickSearchLocations()
 {
-    widgetSearchLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    //widgetSearchLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
@@ -408,22 +406,6 @@ void LocationsTab::onWhiteLinePosChanged(const QVariant &value)
 {
     curWhiteLinePos_ = value.toInt();
     update();
-}
-
-void LocationsTab::onAllLocationsHeightChanged(int oldHeight, int newHeight)
-{
-    Q_UNUSED(oldHeight);
-
-    widgetAllLocations_->setGeometry(0, TOP_TAB_HEIGHT * G_SCALE, 334 * G_SCALE, newHeight * G_SCALE);
-    widgetAllLocations_->setSize(334, newHeight);
-}
-
-void LocationsTab::onSearchLocationsHeightChanged(int oldHeight, int newHeight)
-{
-    Q_UNUSED(oldHeight);
-
-    widgetSearchLocations_->setGeometry(0, TOP_TAB_HEIGHT * G_SCALE, 334 * G_SCALE, newHeight * G_SCALE);
-    widgetSearchLocations_->setSize(334, newHeight);
 }
 
 void LocationsTab::onDeviceNameChanged(const QString &deviceName)
@@ -577,6 +559,10 @@ bool LocationsTab::isWhiteAnimationActive()
 
 void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
 {
+    // TODO: fix key navigation
+    // * left/right into/outof search
+    // * up/down in search
+
     if (event->key() == Qt::Key_Right)
     {
         int curTabInt = static_cast<int>(curTab_);
@@ -694,7 +680,7 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
     widgetFavoriteLocations_->setSize(WINDOW_WIDTH, newHeight);
     widgetStaticIpsLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight );
     widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight);
-    widgetSearchLocations_->setSize(WINDOW_WIDTH, newHeight);
+    // widgetSearchLocations_->setSize(WINDOW_WIDTH, newHeight);
 
 
     staticIPDeviceInfo_->setGeometry(
@@ -736,7 +722,7 @@ void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
         widgetConfiguredLocations_->setShowLatencyInMs(isShowLatencyInMs);
         widgetStaticIpsLocations_ ->setShowLatencyInMs(isShowLatencyInMs);
         widgetFavoriteLocations_  ->setShowLatencyInMs(isShowLatencyInMs);
-        widgetSearchLocations_    ->setShowLatencyInMs(isShowLatencyInMs);
+        //widgetSearchLocations_    ->setShowLatencyInMs(isShowLatencyInMs);
     }
 }
 

@@ -78,7 +78,6 @@ protected:
 signals:
     void selected(LocationID id);
     void switchFavorite(LocationID id, bool isFavorite);
-    void heightChanged(int oldHeight, int newHeight);
     void addStaticIpURLClicked();
     void showTooltip(TooltipInfo info);
     void hideTooltip(TooltipId type);

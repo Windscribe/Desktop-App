@@ -412,10 +412,7 @@ void WidgetCities::setCountAvailableItemSlots(int cnt)
 {
     if (countOfAvailableItemSlots_ != cnt)
     {
-        QSize oldSize = sizeHint();
         countOfAvailableItemSlots_ = cnt;
-        QSize newSize = sizeHint();
-        emit heightChanged(oldSize.height(), newSize.height());
         setupScrollBar();
         setupScrollBarMaxValue();
         updateEmptyListButton();

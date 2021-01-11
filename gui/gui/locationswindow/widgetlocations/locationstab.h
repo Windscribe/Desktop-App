@@ -59,8 +59,6 @@ signals:
 
 private slots:
     void onWhiteLinePosChanged(const QVariant &value);
-    void onAllLocationsHeightChanged(int oldHeight, int newHeight);
-    void onSearchLocationsHeightChanged(int oldHeight, int newHeight);
 
     void onDeviceNameChanged(const QString &deviceName);
     void onAddCustomConfigClicked();

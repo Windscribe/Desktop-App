@@ -1,14 +1,12 @@
 #ifndef SEARCHWIDGETLOCATIONS_H
 #define SEARCHWIDGETLOCATIONS_H
 
-
-
 #include <QElapsedTimer>
 #include "customscrollbar.h"
 #include <QGraphicsScene>
 #include <QTimer>
 #include <QVBoxLayout>
-#include <QAbstractScrollArea>
+#include <QScrollArea>
 #include <QEasingCurve>
 #include "locationitem.h"
 #include "../backend/locationsmodel/basiclocationsmodel.h"
@@ -17,6 +15,9 @@
 #include "iwidgetlocationsinfo.h"
 #include "backgroundpixmapanimation.h"
 #include "tooltips/tooltiptypes.h"
+#include "locationitemlistwidget.h"
+#include "scrollbar.h"
+
 
 class FormConnect;
 
@@ -24,7 +25,7 @@ namespace GuiLocations {
 
 class CursorUpdateHelper;
 
-class SearchWidgetLocations : public QAbstractScrollArea, public IWidgetLocationsInfo
+class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT
 
@@ -37,9 +38,7 @@ public:
     void centerCursorOnSelectedItem() override;
 
     void setModel(BasicLocationsModel *locationsModel);
-    void setCurrentSelected(LocationID id);
     void setFirstSelected() override;
-    void setExpanded(bool bExpanded);
     void startAnimationWithPixmap(const QPixmap &pixmap);
 
     void setShowLatencyInMs(bool showLatencyInMs);
@@ -50,18 +49,14 @@ public:
     virtual int getScrollBarWidth() override;
 
     void setCountAvailableItemSlots(int cnt);
-    int getCountAvailableItemSlots();
-    virtual QSize sizeHint() const override;
+    // virtual QSize sizeHint() const override; // is this even used?
 
-    void onKeyPressEvent(QKeyEvent *event);
 
     bool eventFilter(QObject *object, QEvent *event) override;
 
-    void handleKeyEvent(QKeyEvent *event) override;
+    void handleKeyEvent(QKeyEvent *event) override; // should be handled by owner?
 
-    bool isIdVisible(LocationID id);
-
-    int countVisibleItems() override;
+    int countVisibleItems() override; // visible is ambiguous
 
     void setSize(int width, int height);
     void updateScaling();
@@ -80,7 +75,6 @@ protected:
 signals:
     void selected(LocationID id);
     void switchFavorite(LocationID id, bool isFavorite);
-    void heightChanged(int oldHeight, int newHeight);
     void addStaticIpURLClicked();
     void showTooltip(TooltipInfo info);
     void hideTooltip(TooltipId type);
@@ -95,13 +89,15 @@ private slots:
     void onLanguageChanged();
 
 private:
+
+    LocationItemListWidget *itemListWidget_;
+
     int width_;
     int height_;
 
     int topInd_;
     int topOffs_;
     int indSelected_;
-    int topOffsSelected_;
     int indParentPressed_;
     int indChildPressed_;
     int indChildFavourite_;
@@ -121,19 +117,17 @@ private:
 
     double currentScale_;
 
-    QEasingCurve easingCurve_;
-
     std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
 
     // variables for tooltip
     QPoint prevCursorPos_;
     bool bMouseInViewport_;
 
-    bool bExpanded_;
     bool bShowLatencyInMs_;
 
     bool bTapGestureStarted_;
 
+    ScrollBar *scrollBar_;
     CustomScrollBar *scrollBarHidden_;
     QScrollBar *scrollBarOnTop_;
     BasicLocationsModel *locationsModel_;
@@ -141,6 +135,14 @@ private:
     QList<LocationItem *> currentVisibleItems_;
 
     BackgroundPixmapAnimation backgroundPixmapAnimation_;
+
+    // was public -- used internally
+    void setCurrentSelected(LocationID id);
+    bool isIdVisible(LocationID id);
+
+    // was public -- not used
+    // int getCountAvailableItemSlots();
+    // void onKeyPressEvent(QKeyEvent *event);
 
     int getItemHeight() const;
     int getTopOffset() const;
@@ -159,8 +161,6 @@ private:
     void handleMouseMoveForTooltip();
     void handleLeaveForTooltip();
 
-    QPoint adjustToolTipPosition(const QPoint &globalPoint, const QSize &toolTipSize, bool isP2PToolTip);
-    QPoint getSelectItemConnectionMeterCenter();
     void clearItems();
     double calcScrollingSpeed(double scrollItemsCount);
     bool isGlobalPointInViewport(const QPoint &pt);
