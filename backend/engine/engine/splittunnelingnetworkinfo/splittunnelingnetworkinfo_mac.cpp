@@ -1,4 +1,4 @@
-#include "splittunnelingnetworkinfo.h"
+#include "splittunnelingnetworkinfo_mac.h"
 #include "utils/logger.h"
 #include <QFile>
 
@@ -6,17 +6,17 @@
     #include "utils/macutils.h"
 #endif
 
-SplitTunnelingNetworkInfo::SplitTunnelingNetworkInfo()
+SplitTunnelingNetworkInfo_mac::SplitTunnelingNetworkInfo_mac()
 {
 
 }
 
-void SplitTunnelingNetworkInfo::setProtocol(const ProtocolType &protocol)
+void SplitTunnelingNetworkInfo_mac::setProtocol(const ProtocolType &protocol)
 {
     protocol_ = protocol;
 }
 
-void SplitTunnelingNetworkInfo::detectDefaultRoute()
+void SplitTunnelingNetworkInfo_mac::detectDefaultRoute()
 {
 #ifdef Q_OS_MAC
     MacUtils::getDefaultRoute(gatewayIp_, interfaceName_);
@@ -24,7 +24,7 @@ void SplitTunnelingNetworkInfo::detectDefaultRoute()
 #endif
 }
 
-void SplitTunnelingNetworkInfo::detectInfoFromDnsScript()
+void SplitTunnelingNetworkInfo_mac::detectInfoFromDnsScript()
 {
     dnsServers_.clear();
     // dns servers written by script dns.sh to file $TMPDIR/windscribe_dns.aaa
@@ -79,7 +79,7 @@ void SplitTunnelingNetworkInfo::detectInfoFromDnsScript()
     }
 }
 
-void SplitTunnelingNetworkInfo::setVpnAdapterName(const QString &vpnName)
+void SplitTunnelingNetworkInfo_mac::setVpnAdapterName(const QString &vpnName)
 {
 #ifdef Q_OS_MAC
     vpnAdapterName_ = vpnName;
@@ -89,77 +89,77 @@ void SplitTunnelingNetworkInfo::setVpnAdapterName(const QString &vpnName)
 #endif
 }
 
-void SplitTunnelingNetworkInfo::setIkev2DnsServers(const QStringList &dnsList)
+void SplitTunnelingNetworkInfo_mac::setIkev2DnsServers(const QStringList &dnsList)
 {
     dnsServers_ = dnsList;
 }
 
-void SplitTunnelingNetworkInfo::setConnectedIp(const QString &ip)
+void SplitTunnelingNetworkInfo_mac::setConnectedIp(const QString &ip)
 {
     connectedIp_ = ip;
 }
 
-ProtocolType SplitTunnelingNetworkInfo::protocol() const
+ProtocolType SplitTunnelingNetworkInfo_mac::protocol() const
 {
     return protocol_;
 }
 
-QString SplitTunnelingNetworkInfo::gatewayIp() const
+QString SplitTunnelingNetworkInfo_mac::gatewayIp() const
 {
     return gatewayIp_;
 }
 
-QString SplitTunnelingNetworkInfo::interfaceName() const
+QString SplitTunnelingNetworkInfo_mac::interfaceName() const
 {
     return interfaceName_;
 }
 
-QString SplitTunnelingNetworkInfo::interfaceIp() const
+QString SplitTunnelingNetworkInfo_mac::interfaceIp() const
 {
     return interfaceIp_;
 }
 
-QString SplitTunnelingNetworkInfo::connectedIp() const
+QString SplitTunnelingNetworkInfo_mac::connectedIp() const
 {
     return connectedIp_;
 }
 
-QString SplitTunnelingNetworkInfo::routeVpnGateway() const
+QString SplitTunnelingNetworkInfo_mac::routeVpnGateway() const
 {
     return routeVpnGateway_;
 }
 
-QString SplitTunnelingNetworkInfo::routeNetGateway() const
+QString SplitTunnelingNetworkInfo_mac::routeNetGateway() const
 {
     return routeNetGateway_;
 }
 
-QString SplitTunnelingNetworkInfo::remote1() const
+QString SplitTunnelingNetworkInfo_mac::remote1() const
 {
     return remote1_;
 }
 
-QString SplitTunnelingNetworkInfo::ifconfigTunIp() const
+QString SplitTunnelingNetworkInfo_mac::ifconfigTunIp() const
 {
     return ifconfigTunIp_;
 }
 
-QString SplitTunnelingNetworkInfo::vpnAdapterName() const
+QString SplitTunnelingNetworkInfo_mac::vpnAdapterName() const
 {
     return vpnAdapterName_;
 }
 
-QString SplitTunnelingNetworkInfo::vpnAdapterIpAddress() const
+QString SplitTunnelingNetworkInfo_mac::vpnAdapterIpAddress() const
 {
     return vpnAdapterIpAddress_;
 }
 
-QStringList SplitTunnelingNetworkInfo::dnsServers() const
+QStringList SplitTunnelingNetworkInfo_mac::dnsServers() const
 {
     return dnsServers_;
 }
 
-void SplitTunnelingNetworkInfo::outToLog() const
+void SplitTunnelingNetworkInfo_mac::outToLog() const
 {
     qCDebug(LOG_BASIC) << "SplitTunnelingNetworkInfo_mac, gatewayIp:" << gatewayIp_ << "interfaceName:" << interfaceName_
                        << "interfaceIp:" << interfaceIp_ << "connectedIp:" << connectedIp_ << "route_vpn_gateway:" << routeVpnGateway_
@@ -169,7 +169,7 @@ void SplitTunnelingNetworkInfo::outToLog() const
                        << "dnsServers:" << dnsServers_;
 }
 
-bool SplitTunnelingNetworkInfo::parseLine(const QString &line, QString &fieldName, QString &value)
+bool SplitTunnelingNetworkInfo_mac::parseLine(const QString &line, QString &fieldName, QString &value)
 {
     QStringList list = line.split('=');
     if (list.count() == 2)

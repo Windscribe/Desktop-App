@@ -3,12 +3,13 @@
 
 #include <QStringList>
 #include "engine/types/protocoltype.h"
+#include "splittunnelingnetworkinfo.h"
 
-// Keep network info which need send to helper for split tunneling (currently used for Mac only)
-class SplitTunnelingNetworkInfo
+// Keep network info which need send to helper for split tunneling
+class SplitTunnelingNetworkInfo_mac : public SplitTunnelingNetworkInfo
 {
 public:
-    SplitTunnelingNetworkInfo();
+    SplitTunnelingNetworkInfo_mac();
 
     void setProtocol(const ProtocolType &protocol);
 
@@ -40,7 +41,7 @@ public:
 
     QStringList dnsServers() const;
 
-    void outToLog();
+    void outToLog() const override;
 
 private:
     ProtocolType protocol_;

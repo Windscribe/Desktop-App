@@ -1532,19 +1532,22 @@ void Engine::onConnectionManagerConnected()
     QString tapInterface = MacUtils::lastConnectedNetworkInterfaceName();
     firewallController_->setInterfaceToSkip_mac(tapInterface);
 
-    splitTunnelingNetworkInfo_.setConnectedIp(connectionManager_->getLastConnectedIp());
-    splitTunnelingNetworkInfo_.setProtocol(lastConnectingProtocol_);
-    splitTunnelingNetworkInfo_.setVpnAdapterName(tapInterface);
+    SplitTunnelingNetworkInfo_mac *mac_splitTunnelingNetworkInfo = dynamic_cast<SplitTunnelingNetworkInfo_mac *>(splitTunnelingNetworkInfo_);
+    Q_ASSERT(mac_splitTunnelingNetworkInfo);
+
+    mac_splitTunnelingNetworkInfo->setConnectedIp(connectionManager_->getLastConnectedIp());
+    mac_splitTunnelingNetworkInfo->setProtocol(lastConnectingProtocol_);
+    mac_splitTunnelingNetworkInfo->setVpnAdapterName(tapInterface);
 
     if (lastConnectingProtocol_ == ProtoTypes::PROTOCOL_IKEV2)
     {
         QStringList dnsServers = MacUtils::getDnsServersForInterface(tapInterface);
-        splitTunnelingNetworkInfo_.setIkev2DnsServers(dnsServers);
+        mac_splitTunnelingNetworkInfo->setIkev2DnsServers(dnsServers);
     }
     else
     {
         // detect network params from dns.sh script (need for routing in helper)
-        splitTunnelingNetworkInfo_.detectInfoFromDnsScript();
+        mac_splitTunnelingNetworkInfo->detectInfoFromDnsScript();
     }
 
 #else
@@ -2415,7 +2418,9 @@ void Engine::doConnect(bool bEmitAuthError)
 #endif
 
 #ifdef Q_OS_MAC
-    splitTunnelingNetworkInfo_.detectDefaultRoute();
+    SplitTunnelingNetworkInfo_mac *mac_splitTunnelingNetworkInfo = dynamic_cast<SplitTunnelingNetworkInfo_mac *>(splitTunnelingNetworkInfo_);
+    Q_ASSERT(mac_splitTunnelingNetworkInfo);
+    mac_splitTunnelingNetworkInfo->detectDefaultRoute();
 #endif
 
     if (!apiInfo_.isNull())
