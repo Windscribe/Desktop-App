@@ -50,6 +50,7 @@
 #define AA_COMMAND_CONFIGURE_WIREGUARD                      46
 #define AA_COMMAND_GET_WIREGUARD_STATUS                     47
 #define AA_COMMAND_RUN_UPDATE_INSTALLER                     48
+#define AA_COMMAND_CONNECT_STATUS                           49
 
 
 #define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
@@ -160,6 +161,12 @@ struct CMD_SPLIT_TUNNELING_SETTINGS
     std::vector<std::wstring> files;
     std::vector<std::wstring> ips;
     std::vector<std::string> hosts;
+};
+
+// used to manage split tunneling
+struct CMD_CONNECT_STATUS
+{
+	bool isConnected;
 };
 
 struct CMD_CLOSE_TCP_CONNECTIONS

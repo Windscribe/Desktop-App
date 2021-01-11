@@ -130,6 +130,14 @@ void serialize(Archive & ar, CMD_SPLIT_TUNNELING_SETTINGS & g, const unsigned in
 }
 
 template<class Archive>
+void serialize(Archive & ar, CMD_CONNECT_STATUS & g, const unsigned int version)
+{
+	UNREFERENCED_PARAMETER(version);
+	ar & g.isConnected;
+}
+
+
+template<class Archive>
 void serialize(Archive & ar, CMD_CLOSE_TCP_CONNECTIONS & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);

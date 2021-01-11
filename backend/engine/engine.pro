@@ -66,7 +66,8 @@ SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
            $$COMMON_PATH/utils/crashhandler.cpp \
            $$COMMON_PATH/utils/winutils.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
-           engine/connectionmanager/finishactiveconnections.cpp
+           engine/connectionmanager/finishactiveconnections.cpp \
+           engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_win.cpp
 
 
 HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
@@ -97,7 +98,8 @@ HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
            $$COMMON_PATH/utils/crashhandler.h \
            $$COMMON_PATH/utils/winutils.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
-           engine/connectionmanager/finishactiveconnections.h
+           engine/connectionmanager/finishactiveconnections.h \
+           engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_win.h
 
 
 LIBS += Ws2_32.lib Advapi32.lib Iphlpapi.lib \
@@ -179,7 +181,8 @@ SOURCES += engine/networkstatemanager/networkstatemanager_mac.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_mac.cpp \
            engine/helper/helper_mac.cpp \
            engine/dnsresolver/dnsutils_mac.cpp \
-           engine/macaddresscontroller/macaddresscontroller_mac.cpp
+           engine/macaddresscontroller/macaddresscontroller_mac.cpp \
+           engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_mac.cpp
 
 HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/connectionmanager/sleepevents_mac.h \
@@ -197,7 +200,8 @@ HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/ping/pinghost_icmp_mac.h \
                engine/networkdetectionmanager/networkdetectionmanager_mac.h \
                engine/macaddresscontroller/macaddresscontroller_mac.h \
-               $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
+               $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h \
+               engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_mac.h
 
 OBJECTIVE_HEADERS += \
                engine/networkstatemanager/reachability.h \

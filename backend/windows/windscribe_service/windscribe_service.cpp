@@ -826,6 +826,13 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		}
 		mpr.success = true;
 	}
+	else if (cmdId == AA_COMMAND_CONNECT_STATUS)
+	{
+		CMD_CONNECT_STATUS cmdConnectStatus;
+		ia >> cmdConnectStatus;
+		Logger::instance().out(L"AA_COMMAND_CONNECT_STATUS: %d", cmdConnectStatus.isConnected);
+		splitTunnelling.setConnectStatus(cmdConnectStatus.isConnected);
+	}
 	else if (cmdId == AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE)
 	{
 		mpr.success = IKEv2Route::addRouteForIKEv2();
