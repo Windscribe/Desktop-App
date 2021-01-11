@@ -278,7 +278,8 @@ bool LocationsModel::getLocationInfo(const LocationID &id, LocationsModel::Locat
         {
             for (int k = 0; k < apiLocations_[i]->cities.count(); ++k)
             {
-                if (id.isBestLocation() && !apiLocations_[i]->cities[k].id.isStaticIpsLocation() && !apiLocations_[i]->cities[k].id.isCustomConfigsLocation())
+                const auto kIsStaticIp = apiLocations_[i]->cities[k].id.isStaticIpsLocation();
+                if (id.isBestLocation() && !kIsStaticIp && !apiLocations_[i]->cities[k].id.isCustomConfigsLocation())
                 {
                     if (apiLocations_[i]->cities[k].id.apiLocationToBestLocation() == id)
                     {
@@ -294,7 +295,8 @@ bool LocationsModel::getLocationInfo(const LocationID &id, LocationsModel::Locat
                 {
                     li.id = id;
                     li.firstName = apiLocations_[i]->cities[k].city;
-                    li.secondName = apiLocations_[i]->cities[k].nick;
+                    li.secondName = kIsStaticIp ? apiLocations_[i]->cities[k].staticIp
+                                                : apiLocations_[i]->cities[k].nick;
                     li.countryCode = apiLocations_[i]->cities[k].countryCode;
                     li.pingTime = apiLocations_[i]->cities[k].pingTimeMs;
                     return true;
