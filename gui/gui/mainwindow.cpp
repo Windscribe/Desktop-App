@@ -464,6 +464,9 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     // objects.
     notificationsController_.shutdown();
 
+    // Save favorites here for the reason above.
+    backend_->getLocationsModel()->saveFavorites();
+
     if (WindscribeApplication::instance()->isExitWithRestart() || isFromSigTerm_mac)
     {
         qCDebug(LOG_BASIC) << "close main window with restart OS";

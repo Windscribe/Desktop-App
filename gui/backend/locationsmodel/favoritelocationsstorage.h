@@ -19,6 +19,7 @@ public:
 
 private:
     QSet<LocationID> favoriteLocations_;
+    bool isFavoriteLocationsSetModified_ = false;
 };
 
 #endif // FAVORITELOCATIONSSTORAGE_H

@@ -8,6 +8,7 @@ void FavoriteLocationsStorage::addToFavorites(const LocationID &locationId)
     if (!favoriteLocations_.contains(locationId))
     {
         favoriteLocations_.insert(locationId);
+        isFavoriteLocationsSetModified_ = true;
     }
 }
 
@@ -16,6 +17,7 @@ void FavoriteLocationsStorage::removeFromFavorites(const LocationID &locationId)
     if (favoriteLocations_.contains(locationId))
     {
         favoriteLocations_.remove(locationId);
+        isFavoriteLocationsSetModified_ = true;
     }
 }
 
@@ -42,10 +44,14 @@ void FavoriteLocationsStorage::readFromSettings()
             }
         }
     }
+    isFavoriteLocationsSetModified_ = false;
 }
 
 void FavoriteLocationsStorage::writeToSettings()
 {
+    if (!isFavoriteLocationsSetModified_)
+        return;
+
     ProtoTypes::ArrayLocationId arrIds;
     for (const LocationID &lid : favoriteLocations_)
     {
@@ -58,4 +64,5 @@ void FavoriteLocationsStorage::writeToSettings()
 
     QSettings settings;
     settings.setValue("favoriteLocations", arr);
+    isFavoriteLocationsSetModified_ = false;
 }

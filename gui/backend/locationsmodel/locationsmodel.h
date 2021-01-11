@@ -35,6 +35,7 @@ public:
 
     void setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType);
     void switchFavorite(const LocationID &id, bool isFavorite);
+    void saveFavorites();
     bool getLocationInfo(const LocationID &id, LocationInfo &li);
 
     QSharedPointer<LocationModelItem> getLocationModelItemByTitle(const QString &title) const;
