@@ -239,7 +239,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
         dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
         if (dwFwAPiRetCode != ERROR_SUCCESS)
         {
-            Logger::instance().out(L"Error 19");
+            Logger::instance().out(L"Error 19 (0x%X)", dwFwAPiRetCode);
         }
     }
 
@@ -275,7 +275,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
 		dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
 		if (dwFwAPiRetCode != ERROR_SUCCESS)
 		{
-			Logger::instance().out(L"Error 20");
+			Logger::instance().out(L"Error 20 (0x%X)", dwFwAPiRetCode);
 		}
     }
 
@@ -318,7 +318,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
             if (dwFwAPiRetCode != ERROR_SUCCESS)
             {
-                Logger::instance().out(L"Error 21");
+                Logger::instance().out(L"Error 21 (0x%X)", dwFwAPiRetCode);
             }
         }
     }
@@ -354,7 +354,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
         dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
         if (dwFwAPiRetCode != ERROR_SUCCESS)
         {
-            Logger::instance().out(L"Error 22");
+            Logger::instance().out(L"Error 22 (0x%X)", dwFwAPiRetCode);
         }
     }
 
@@ -391,7 +391,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
             if (dwFwAPiRetCode != ERROR_SUCCESS)
             {
-                Logger::instance().out(L"Error 23");
+                Logger::instance().out(L"Error 23 (0x%X)", dwFwAPiRetCode);
             }
         }
         // 172.16.0.0 - 172.31.255.255
@@ -424,7 +424,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
             if (dwFwAPiRetCode != ERROR_SUCCESS)
             {
-                Logger::instance().out(L"Error 24");
+                Logger::instance().out(L"Error 24 (0x%X)", dwFwAPiRetCode);
             }
         }
         // 10.0.0.0 - 10.255.255.255
@@ -457,7 +457,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
             if (dwFwAPiRetCode != ERROR_SUCCESS)
             {
-                Logger::instance().out(L"Error 25");
+                Logger::instance().out(L"Error 25 (0x%X)", dwFwAPiRetCode);
             }
         }
         // 224.0.0.0 - 239.255.255.255 (multicast ipv4 addresses)
@@ -491,7 +491,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
             if (dwFwAPiRetCode != ERROR_SUCCESS)
             {
-                Logger::instance().out(L"Error 26");
+                Logger::instance().out(L"Error 26 (0x%X)", dwFwAPiRetCode);
             }
         }
 		// loopback ipv4 addresses to the local host
@@ -524,7 +524,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
 			dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
 			if (dwFwAPiRetCode != ERROR_SUCCESS)
 			{
-				Logger::instance().out(L"Error 25 loopback IPs");
+				Logger::instance().out(L"Error 25 loopback IPs (0x%X)", dwFwAPiRetCode);
 			}
 		}
 
@@ -559,7 +559,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
 			dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
 			if (dwFwAPiRetCode != ERROR_SUCCESS)
 			{
-				Logger::instance().out(L"Error 27");
+				Logger::instance().out(L"Error 27 (0x%X)", dwFwAPiRetCode);
 			}
 		}
         {
@@ -595,7 +595,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
             if (dwFwAPiRetCode != ERROR_SUCCESS)
             {
-                Logger::instance().out(L"Error 27");
+                Logger::instance().out(L"Error 28 (0x%X)", dwFwAPiRetCode);
             }
         }
         {
@@ -631,43 +631,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
             if (dwFwAPiRetCode != ERROR_SUCCESS)
             {
-                Logger::instance().out(L"Error 28");
-            }
-        }
-        {
-            FWPM_FILTER0 filter = {0};
-            std::vector<FWPM_FILTER_CONDITION0> condition(1);
-            memset(&condition[0], 0, sizeof(FWPM_FILTER_CONDITION0) * 1);
-
-            FWP_RANGE0 range;
-            range.valueLow.type = FWP_BYTE_ARRAY16_TYPE;
-            range.valueHigh.type = FWP_BYTE_ARRAY16_TYPE;
-
-            FWP_BYTE_ARRAY16 lowArray = { 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-            range.valueLow.byteArray16 = &lowArray;
-            FWP_BYTE_ARRAY16 highArray = { 254, 128, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255 };
-            range.valueHigh.byteArray16 = &highArray;
-
-            filter.subLayerKey = subLayerGUID_;
-            filter.displayData.name = (wchar_t *)FIREWALL_SUBLAYER_NAMEW;
-            filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V6;
-			filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
-            filter.action.type = FWP_ACTION_PERMIT;
-            filter.weight.type = FWP_UINT8;
-            filter.weight.uint8 = 0x04;
-            filter.filterCondition = &condition[0];
-            filter.numFilterConditions = 1;
-
-            condition[0].fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
-            condition[0].matchType = FWP_MATCH_RANGE;
-            condition[0].conditionValue.type = FWP_RANGE_TYPE;
-            condition[0].conditionValue.rangeValue = &range;
-
-            UINT64 filterId;
-            dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
-            if (dwFwAPiRetCode != ERROR_SUCCESS)
-            {
-                Logger::instance().out(L"Error 29");
+                Logger::instance().out(L"Error 29 (0x%X)", dwFwAPiRetCode);
             }
         }
     }

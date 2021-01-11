@@ -556,7 +556,7 @@ ProtoTypes::EngineSettings Preferences::getEngineSettings() const
     return engineSettings_;
 }
 
-void Preferences::saveGuiSettings()
+void Preferences::saveGuiSettings() const
 {
     QSettings settings;
 
@@ -585,7 +585,23 @@ void Preferences::loadGuiSettings()
     qCDebugMultiline(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());
 }
 
-bool Preferences::isReceivingEngineSettings()
+void Preferences::validateAndUpdateIfNeeded()
+{
+    bool is_update_needed = false;
+
+    // Reset API resolution to automatic if the ip address hasn't been specified.
+    if (!engineSettings_.api_resolution().is_automatic() &&
+        engineSettings_.api_resolution().manual_ip().empty()) {
+        engineSettings_.mutable_api_resolution()->set_is_automatic(true);
+        emit apiResolutionChanged(engineSettings_.api_resolution());
+        is_update_needed = true;
+    }
+
+    if (is_update_needed)
+        emit updateEngineSettings();
+}
+
+bool Preferences::isReceivingEngineSettings() const
 {
     return receivingEngineSettings_;
 }

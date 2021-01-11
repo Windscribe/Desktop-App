@@ -1035,14 +1035,7 @@ void WidgetLocations::setCursorForSelected()
         }
         else if (items_[indSelected_]->isForbidden(items_[indSelected_]->getSelected()))
         {
-            if (items_[indSelected_]->isCursorOverArrow())
-            {
-                cursorUpdateHelper_->setPointingHandCursor();
-            }
-            else
-            {
-                cursorUpdateHelper_->setForbiddenCursor();
-            }
+            cursorUpdateHelper_->setPointingHandCursor();
         }
         else
         {
@@ -1481,6 +1474,11 @@ void WidgetLocations::emitSelectedIfNeed()
             if (!items_[indSelected_]->isForbidden(itemSelectedInd) && !items_[indSelected_]->isNoConnection(itemSelectedInd) && !items_[indSelected_]->isSelectedDisabled())
             {
                 emit selected(locationId);
+            }
+            // click on premium star city
+            else if (items_[indSelected_]->isForbidden(itemSelectedInd))
+            {
+                emit clickedOnPremiumStarCity();
             }
         }
     }

@@ -1,7 +1,8 @@
 #include "dnsresolutionsettings.h"
 #include "utils/logger.h"
 
-DnsResolutionSettings::DnsResolutionSettings() : isInitialized_(false), bAutomatic_(false)
+DnsResolutionSettings::DnsResolutionSettings() : isInitialized_(false), isEmptyManualIp_(true),
+                                                 bAutomatic_(false)
 {
 }
 
@@ -9,6 +10,7 @@ DnsResolutionSettings::DnsResolutionSettings(const ProtoTypes::ApiResolution &d)
 {
     bAutomatic_ = d.is_automatic();
     manualIp_ = QString::fromStdString(d.manual_ip());
+    isEmptyManualIp_ = manualIp_.trimmed().isEmpty();
     isInitialized_ = true;
 }
 
@@ -16,6 +18,7 @@ void DnsResolutionSettings::set(bool bAutomatic, const QString &manualIp)
 {
     bAutomatic_ = bAutomatic;
     manualIp_ = manualIp;
+    isEmptyManualIp_ = manualIp_.trimmed().isEmpty();
     isInitialized_ = true;
 }
 
@@ -25,6 +28,10 @@ void DnsResolutionSettings::debugToLog()
     if (bAutomatic_)
     {
         qCDebug(LOG_BASIC) << "DNS mode: automatic";
+    }
+    else if (isEmptyManualIp_)
+    {
+        qCDebug(LOG_BASIC) << "DNS mode: automatic (empty ip)";
     }
     else
     {
@@ -52,7 +59,7 @@ bool DnsResolutionSettings::isEqual(const DnsResolutionSettings &other) const
 bool DnsResolutionSettings::getIsAutomatic() const
 {
     Q_ASSERT(isInitialized_);
-    return bAutomatic_;
+    return bAutomatic_ || isEmptyManualIp_;
 }
 
 QString DnsResolutionSettings::getManualIp() const

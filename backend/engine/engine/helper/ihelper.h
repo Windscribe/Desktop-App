@@ -68,6 +68,8 @@ public:
                                            const QStringList &files, const QStringList &ips,
                                            const QStringList &hosts) = 0;
 
+    virtual void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo *stni) = 0;
+
     // windows specific functions
     virtual void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) = 0;
     virtual void clearUnblockingCmd(unsigned long cmdId) = 0;
@@ -89,7 +91,6 @@ public:
     // mac specific functions
     virtual QStringList getActiveNetworkInterfaces_mac() = 0;
     virtual bool setKeychainUsernamePassword(const QString &username, const QString &password) = 0;
-    virtual void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo &stni) = 0;
     virtual bool setKextPath(const QString &kextPath) = 0;
 
     // WireGuard functions

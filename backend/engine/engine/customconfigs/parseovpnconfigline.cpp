@@ -25,6 +25,9 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
                         openVpnLine.protocol = strs[3];
                     }
                 }
+
+                if (openVpnLine.protocol.trimmed().isEmpty())
+                    openVpnLine.protocol = "udp";
             }
         }
     }

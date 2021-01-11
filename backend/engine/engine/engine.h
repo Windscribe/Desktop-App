@@ -27,11 +27,10 @@
 #include "packetsizecontroller.h"
 #include "autoupdater/downloadhelper.h"
 #include "autoupdater/autoupdaterhelper_mac.h"
+#include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
-#else
-    #include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.h"
 #endif
 
 // all the functionality of the connections, firewall, helper, etc
@@ -315,9 +314,9 @@ private:
 
 #ifdef Q_OS_WIN
     MeasurementCpuUsage *measurementCpuUsage_;
-#else
-    SplitTunnelingNetworkInfo splitTunnelingNetworkInfo_;
 #endif
+
+    SplitTunnelingNetworkInfo *splitTunnelingNetworkInfo_;
 
     InitializeHelper *inititalizeHelper_;
     bool bInitialized_;

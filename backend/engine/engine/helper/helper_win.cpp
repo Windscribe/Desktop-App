@@ -12,6 +12,7 @@
 #include "simple_xor_crypt.h"
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
+#include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_win.h"
 
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
@@ -708,9 +709,19 @@ void Helper_win::setIKEv2IPSecParameters()
     mpr.clear();
 }
 
-void Helper_win::sendConnectStatus(bool /*isConnected*/, const SplitTunnelingNetworkInfo &/*stni*/)
+void Helper_win::sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo * /*stni*/ )
 {
-    // nothing todo for Windows
+    QMutexLocker locker(&mutex_);
+
+    CMD_CONNECT_STATUS cmdConnectStatus;
+    cmdConnectStatus.isConnected = isConnected;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdConnectStatus;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
+    mpr.clear();
 }
 
 bool Helper_win::setKextPath(const QString &/*kextPath*/)

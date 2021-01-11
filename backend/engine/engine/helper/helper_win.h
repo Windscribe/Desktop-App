@@ -85,10 +85,12 @@ public:
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts) override;
 
+    void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo *stni) override;
+
+
     bool addIKEv2DefaultRoute() override;
     bool removeWindscribeNetworkProfiles() override;
     void setIKEv2IPSecParameters() override;
-    void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo &stni) override;
     bool setKextPath(const QString &kextPath) override;
 
     bool startWireGuard(const QString &exeName, const QString &deviceName) override;

@@ -134,6 +134,7 @@ private slots:
 
     // locations window signals
     void onLocationSelected(LocationID id);
+    void onClickedOnPremiumStarCity();
     void onLocationSwitchFavorite(LocationID id, bool isFavorite);
     void onLocationsAddStaticIpClicked();
     void onLocationsClearCustomConfigClicked();
