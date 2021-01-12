@@ -88,18 +88,39 @@ QPixmap *WidgetUtils_win::extractWindowsAppProgramIcon(QString filePath)
     QFileInfo manifestLogoFileInfo = QFileInfo(manifestLogoFilePath);
     QDir assetDir(manifestLogoFileInfo.absoluteDir());
     QString logoFilter = manifestLogoFileInfo.completeBaseName(); // filename without extension
+    QString logoScaledFilter = logoFilter + ".scale-";
 
-    QPixmap *logoPixmap = nullptr;
+    QString logoFilePath, logoFilePathScaled;
     foreach (QFileInfo assetFile, assetDir.entryInfoList(QDir::Files))
     {
-        if (assetFile.fileName().contains(logoFilter))
-        {
-            logoPixmap = new QPixmap(assetFile.absoluteFilePath());
+        if (assetFile.fileName().contains(logoScaledFilter) &&
+            !assetFile.fileName().contains("contrast-")) {
+            logoFilePathScaled = assetFile.absoluteFilePath();
             break;
+        } else if (assetFile.fileName().contains(logoFilter)) {
+            if (logoFilePath.isEmpty())
+                logoFilePath = assetFile.absoluteFilePath();
         }
     }
 
-    return logoPixmap;
+    std::unique_ptr<QPixmap> logoPixmap;
+    if (!logoFilePathScaled.isEmpty())
+        logoPixmap.reset(new QPixmap(logoFilePathScaled));
+    else if (!logoFilePath.isEmpty())
+        logoPixmap.reset(new QPixmap(logoFilePath));
+
+    if (logoPixmap) {
+        // Fill transparent background with a WindowsApps background color.
+        // This should also be parsed from the manifest, but apparently it is always the same.
+        QPixmap *filledPixmap = new QPixmap(logoPixmap->size());
+        filledPixmap->fill(QColor("#0078D4"));
+        QPainter painter(filledPixmap);
+        painter.drawPixmap(0, 0, *logoPixmap);
+        painter.end();
+        logoPixmap.reset(filledPixmap);
+    }
+
+    return logoPixmap.release();
 }
 
 namespace
