@@ -10,6 +10,7 @@ public:
     explicit LocationsTrayMenuItemDelegate(QObject *parent);
     ~LocationsTrayMenuItemDelegate();
 
+    const QFont &getFontForItems() const { return font_; }
     void setFontForItems(const QFont &font);
 
 protected:

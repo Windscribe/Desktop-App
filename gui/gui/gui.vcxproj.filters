@@ -2502,6 +2502,9 @@
     <ClInclude Include="..\..\common\utils\multiline_message_logger.h">
       <Filter>Common Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="systemtray\locationstraymenutypes.h">
+      <Filter>GUI Files\systemtray</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="jpg.qrc">

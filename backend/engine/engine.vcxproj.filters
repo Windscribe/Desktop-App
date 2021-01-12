@@ -628,6 +628,9 @@
     <ClCompile Include="..\..\common\utils\crashhandler.cpp">
       <Filter>Common Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.cpp">
+      <Filter>Engine Files\engine\splittunnelingnetworkinfo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qconsolelistener.h">
@@ -1240,6 +1243,9 @@
     </ClInclude>
     <ClInclude Include="..\..\common\utils\multiline_message_logger.h">
       <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.h">
+      <Filter>Engine Files\engine\splittunnelingnetworkinfo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

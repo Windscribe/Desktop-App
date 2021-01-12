@@ -33,7 +33,7 @@ struct CityModelItem
         }
         else if (id.isStaticIpsLocation())
         {
-            return city + "(" + staticIp + ")";
+            return city + " (" + staticIp + ")";
         }
         else
         {

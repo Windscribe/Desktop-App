@@ -49,10 +49,10 @@ MainWindow::MainWindow() :
     backend_(NULL),
     logViewerWindow_(nullptr),
     advParametersWindow_(nullptr),
-    locationsMenu_(this),
+    locationsMenu_(),
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    listWidgetAction_(nullptr),
-    locationsTrayMenuWidget_(nullptr),
+    listWidgetAction_(),
+    locationsTrayMenuWidget_(),
 #endif
     currentAppIconType_(AppIconType::DISCONNECTED),
     trayIcon_(),
@@ -2628,7 +2628,15 @@ void MainWindow::loadTrayMenuItems()
         }
         trayMenu_.addSeparator();
 
-        trayMenu_.addMenu(&locationsMenu_);
+        const auto *lm = backend_->getLocationsModel();
+        if (lm->getNumGenericLocations() > 0)
+            trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_GENERIC]);
+        if (lm->getNumFavoriteLocations() > 0)
+            trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_FAVORITES]);
+        if (lm->getNumStaticIPLocations() > 0)
+            trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_STATIC_IPS]);
+        if (lm->getNumCustomConfigLocations() > 0)
+            trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS]);
 
         trayMenu_.addSeparator();
     }
@@ -2647,7 +2655,13 @@ void MainWindow::loadTrayMenuItems()
     trayMenu_.addAction(tr("Exit"), this, SLOT(onTrayMenuQuit()));
 
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    locationsTrayMenuWidget_->setFontForItems(trayMenu_.font());
+    for (int i = 0; i < LOCATIONS_TRAY_MENU_NUM_TYPES; ++i) {
+        locationsTrayMenuWidget_[i]->setFontForItems(trayMenu_.font());
+        // Force geometry update of the menu, because widget size could have been changed.
+        // Send the resize event, so it will make the menu to rebuild its size based on items.
+        QResizeEvent resizeEvent(locationsTrayMenuWidget_[i]->size(), locationsMenu_[i].size());
+        qApp->sendEvent(&locationsMenu_[i], &resizeEvent);
+    }
 #endif
 }
 
@@ -2667,18 +2681,28 @@ void MainWindow::onTrayMenuAboutToShow()
 
 }
 
-void MainWindow::onLocationsTrayMenuLocationSelected(QString locationTitle, int cityIndex)
+void MainWindow::onLocationsTrayMenuLocationSelected(int type, QString locationTitle, int cityIndex)
 {
+    Q_ASSERT(type >= 0 && type < LOCATIONS_TRAY_MENU_NUM_TYPES);
+
    // close menu
 #ifdef Q_OS_WIN
     trayMenu_.close();
 #elif !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    listWidgetAction_->trigger(); // close doesn't work by default on mac
+    listWidgetAction_[type]->trigger(); // close doesn't work by default on mac
 #endif
 
     const LocationsModel *lm = backend_->getLocationsModel();
-    const auto lmi = lm->getLocationModelItemByTitle(locationTitle);
+    if (type != LOCATIONS_TRAY_MENU_TYPE_GENERIC) {
+        auto id = (type == LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS)
+            ? lm->findCustomConfigLocationByTitle(locationTitle)
+            : lm->findGenericLocationByTitle(locationTitle);
+        if (id.isValid())
+            onLocationSelected(id);
+        return;
+    }
 
+    const auto lmi = lm->getLocationModelItemByTitle(locationTitle);
     if (!lmi) {
         qCDebug(LOG_BASIC) << "Couldn't find city by that region (" << locationTitle << ")";
         return;
@@ -2823,20 +2847,31 @@ void MainWindow::setupTrayIcon()
     trayIcon_.setContextMenu(&trayMenu_);
     connect(&trayMenu_, SIGNAL(aboutToShow()), SLOT(onTrayMenuAboutToShow()));
 
-    locationsMenu_.setTitle(tr("Locations"));
+    const QString kLocationTrayMenuNames[] = {
+      tr("Locations"),   // LOCATIONS_TRAY_MENU_TYPE_GENERIC
+      tr("Favourites"),  // LOCATIONS_TRAY_MENU_TYPE_FAVORITES
+      tr("Static IPs"),  // LOCATIONS_TRAY_MENU_TYPE_STATIC_IPS
+      tr("Configured"),  // LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS
+    };
+
+    for (int i = 0; i < LOCATIONS_TRAY_MENU_NUM_TYPES; ++i) {
+        locationsMenu_[i].setTitle(kLocationTrayMenuNames[i]);
 #if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    locationsMenu_.setLocationsModel(backend_->getLocationsModel());
-    connect(&locationsMenu_, SIGNAL(locationSelected(QString, int)),
-        SLOT(onLocationsTrayMenuLocationSelected(QString, int)));
+        locationsMenu_[i].setMenuType(static_cast<LocationsTrayMenuType>(i));
+        locationsMenu_[i].setLocationsModel(backend_->getLocationsModel());
+        connect(&locationsMenu_[i], SIGNAL(locationSelected(int, QString, int)),
+            SLOT(onLocationsTrayMenuLocationSelected(int, QString, int)));
 #else  // USE_LOCATIONS_TRAY_MENU_NATIVE
-    locationsTrayMenuWidget_ = new LocationsTrayMenuWidget(&locationsMenu_);
-    locationsTrayMenuWidget_->setLocationsModel(backend_->getLocationsModel());
-    listWidgetAction_ = new QWidgetAction(&locationsMenu_);
-    listWidgetAction_->setDefaultWidget(locationsTrayMenuWidget_);
-    locationsMenu_.addAction(listWidgetAction_);
-    connect(locationsTrayMenuWidget_, SIGNAL(locationSelected(QString,int)),
-        SLOT(onLocationsTrayMenuLocationSelected(QString,int)));
+        locationsTrayMenuWidget_[i] = new LocationsTrayMenuWidget(
+            static_cast<LocationsTrayMenuType>(i), &locationsMenu_[i]);
+        locationsTrayMenuWidget_[i]->setLocationsModel(backend_->getLocationsModel());
+        listWidgetAction_[i] = new QWidgetAction(&locationsMenu_[i]);
+        listWidgetAction_[i]->setDefaultWidget(locationsTrayMenuWidget_[i]);
+        locationsMenu_[i].addAction(listWidgetAction_[i]);
+        connect(locationsTrayMenuWidget_[i], SIGNAL(locationSelected(int, QString, int)),
+            SLOT(onLocationsTrayMenuLocationSelected(int, QString, int)));
 #endif  // USE_LOCATIONS_TRAY_MENU_NATIVE
+    }
 
     updateAppIconType(AppIconType::DISCONNECTED);
     updateTrayIconType(AppIconType::DISCONNECTED);
