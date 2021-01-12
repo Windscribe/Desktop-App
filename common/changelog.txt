@@ -1,3 +1,23 @@
+2.02.1 (12/01/2021)
+* Split tunneling driver updated for support Win7/Win8. #338, #180
+* Implemented show flags preference. #314
+* Fixed WireGuard custom config issues. #319
+* Added support for Unicode SSIDs. #323
+* Formated WireGuard output to be readable. #325
+* Updated edit account link. #327
+* Attempt to fix not displaying the static ip device name.
+* "Service error 29" removed from service. #330.
+* Prevent blank manual IP in API resolution. 326
+* Fixed Win32 service WireGuard issues and added crashdump support for the service. #324
+* By default use udp protocol for custom OVPN configs. #331
+* Fixed blinking cursor on BlockableQLineEdit not in focus. #322
+* Clicking on a premium location should open browser. #238
+* Fixed favourites not saved on shutdown. #336
+* Show static ip as sublocation name. #332
+* Refactored TAP-adapter detection for split tunneling (Windows). Split tunneling gets disabled with WG should be fixed. #320
+* Extended tray menu to show Static IPs, Custom Configs and favorites. #119
+
+
 2.01.3 (24/12/2020)
 * Fixed docked positioning with auto-hiding menubar on Mac. #311
 * Added connection badge animated dots. #46
