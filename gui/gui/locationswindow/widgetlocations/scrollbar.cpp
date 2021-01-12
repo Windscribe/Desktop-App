@@ -1,6 +1,7 @@
 #include "scrollbar.h"
 
 #include <QWheelEvent>
+#include <QPainter>
 
 #include <QDebug>
 
@@ -33,12 +34,21 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
     // qDebug() << "Setting target: " << targetValue_;
 
     int diffPx = targetValue_ - startValue_;
+    // TODO: optimize the animation speed
     animationDuration_ = qAbs(diffPx) * SCROLL_SPEED_FRACTION;
+    // animationDuration_ = 1000; // for testing
     if (animationDuration_ < MINIMUM_DURATION) animationDuration_ = MINIMUM_DURATION;
     qDebug() << "Animation duration: " << animationDuration_;
 
     elapsedTimer_.start();
     timer_.start();
+}
+
+void ScrollBar::paintEvent(QPaintEvent *event)
+{
+    // QPainter painter(this);
+    // QRect bkgd(0,0,geometry().width(), geometry().height());
+    // painter.fillRect(bkgd, Qt::gray);
 }
 
 void ScrollBar::onScrollAnimationValueChanged(const QVariant &value)

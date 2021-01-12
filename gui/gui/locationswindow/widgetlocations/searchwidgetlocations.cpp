@@ -68,10 +68,10 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
 
     scrollBar_ = new ScrollBar(this);
     setVerticalScrollBar(scrollBar_);
-    itemListWidget_ = new LocationItemListWidget(this);
-    setWidget(itemListWidget_);
-    itemListWidget_->setGeometry(0,0,200,1500);
-    itemListWidget_->show();
+//    itemListWidget_ = new LocationItemListWidget(this);
+//    setWidget(itemListWidget_);
+//    itemListWidget_->setGeometry(0,0,200,1500);
+//    itemListWidget_->show();
     qDebug() << "Search locations viewport: " << viewport()->geometry();
 
 
@@ -173,7 +173,7 @@ void SearchWidgetLocations::setCountAvailableItemSlots(int cnt)
         countOfAvailableItemSlots_ = cnt;
         // setupScrollBar();
         // setupScrollBarMaxValue();
-        viewport()->update();
+        // viewport()->update();
     }
 }
 
@@ -262,6 +262,9 @@ void SearchWidgetLocations::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
+    QPainter painter(viewport());
+    QRect bkgd(0,0,geometry().width(), geometry().height());
+    painter.fillRect(bkgd, Qt::black);
 }
 
 // called by change in the vertical scrollbar
@@ -273,6 +276,7 @@ void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
 
 
     QScrollArea::scrollContentsBy(dx,dy);
+    //update();
 
 }
 
@@ -328,6 +332,8 @@ void SearchWidgetLocations::resizeEvent(QResizeEvent *event)
 void SearchWidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
 {
     Q_UNUSED(items);
+
+
 }
 
 bool SearchWidgetLocations::isIdVisible(LocationID id)
@@ -577,6 +583,11 @@ void SearchWidgetLocations::updateScaling()
     }
 
     // scrollBarOnTop_->setGeometry(width_*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
+}
+
+void SearchWidgetLocations::updateItemWidgetPositions()
+{
+
 }
 
 int SearchWidgetLocations::countVisibleItemsInViewport(LocationItem *locationItem)

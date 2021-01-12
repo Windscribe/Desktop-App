@@ -17,6 +17,7 @@
 #include "tooltips/tooltiptypes.h"
 #include "locationitemlistwidget.h"
 #include "scrollbar.h"
+#include "locationitemregionwidget.h"
 
 
 class FormConnect;
@@ -49,8 +50,6 @@ public:
     virtual int getScrollBarWidth() override;
 
     void setCountAvailableItemSlots(int cnt);
-    // virtual QSize sizeHint() const override; // is this even used?
-
 
     bool eventFilter(QObject *object, QEvent *event) override;
 
@@ -60,6 +59,8 @@ public:
 
     void setSize(int width, int height);
     void updateScaling();
+
+    void updateItemWidgetPositions();
 
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;
@@ -90,7 +91,8 @@ private slots:
 
 private:
 
-    LocationItemListWidget *itemListWidget_;
+    // LocationItemListWidget *itemListWidget_;
+    QList<LocationItemRegionWidget> itemWidgets_;
 
     int width_;
     int height_;
@@ -139,10 +141,6 @@ private:
     // was public -- used internally
     void setCurrentSelected(LocationID id);
     bool isIdVisible(LocationID id);
-
-    // was public -- not used
-    // int getCountAvailableItemSlots();
-    // void onKeyPressEvent(QKeyEvent *event);
 
     int getItemHeight() const;
     int getTopOffset() const;

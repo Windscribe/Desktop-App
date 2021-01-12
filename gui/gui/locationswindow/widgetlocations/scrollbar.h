@@ -13,6 +13,7 @@ public:
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private slots:
     void onScrollAnimationValueChanged(const QVariant &value);
