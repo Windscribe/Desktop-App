@@ -18,6 +18,10 @@ public:
     bool isIpOrDomain(const QString &str);
     bool isIpCidrOrDomain(const QString &str);
 
+#if defined(QT_DEBUG)
+    void runTests();
+#endif
+
 private:
     IpValidation();
 
