@@ -1,30 +1,31 @@
 #ifndef LOCATIONITEMCITYWIDGET_H
 #define LOCATIONITEMCITYWIDGET_H
 
-#include <QWidget>
+#include <QAbstractButton>
 #include <QLabel>
-#include "citynode.h"
+#include "../backend/locationsmodel/basiclocationsmodel.h"
+
 
 namespace GuiLocations {
 
-class LocationItemCityWidget : public QWidget
+class LocationItemCityWidget : public QAbstractButton
 {
     Q_OBJECT
 public:
-    explicit LocationItemCityWidget(QSharedPointer<CityNode> cityNode, QWidget *parent = nullptr);
-    explicit LocationItemCityWidget(QWidget *parent = nullptr);
+    explicit LocationItemCityWidget(CityModelItem cityModelItem, QWidget *parent = nullptr);
+    ~LocationItemCityWidget();
 
-    void setCity(QSharedPointer<CityNode> city);
     void setShowLatencyMs(bool showLatencyMs);
     void updateScaling();
+
+    static const int HEIGHT = 50;
 
 protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    const int HEIGHT = 50;
-    QLabel textLabel_;
-    QSharedPointer<CityNode> cityNode_;
+    QSharedPointer<QLabel> textLabel_;
+    CityModelItem cityModelItem_;
 };
 
 }

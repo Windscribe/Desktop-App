@@ -3,22 +3,27 @@
 #include <QPainter>
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
 #include "widgetlocationssizes.h"
+
+
+#include <QDebug>
 
 namespace GuiLocations {
 
-LocationItemCityWidget::LocationItemCityWidget(QSharedPointer<CityNode> cityNode, QWidget *parent) : QWidget(parent)
-  , cityNode_(cityNode)
+LocationItemCityWidget::LocationItemCityWidget(CityModelItem cityModelItem, QWidget *parent) : QAbstractButton(parent)
+  , cityModelItem_(cityModelItem)
 {
-    textLabel_.setText(cityNode->caption1FullText());
+    textLabel_ = QSharedPointer<QLabel>(new QLabel(this));
+    textLabel_->setFont(*FontManager::instance().getFont(16, true));
+    textLabel_->setStyleSheet("QLabel { color : white; }");
+    textLabel_->setText(cityModelItem.city);
     updateScaling();
 }
 
-void LocationItemCityWidget::setCity(QSharedPointer<CityNode> city)
+LocationItemCityWidget::~LocationItemCityWidget()
 {
-    cityNode_ = city;
-    textLabel_.setText(city->caption1FullText());
-    updateScaling();
+    // qDebug() << "Deleting city widget: " << cityModelItem_.city << " " << cityModelItem_.nick;
 }
 
 void LocationItemCityWidget::setShowLatencyMs(bool showLatencyMs)
@@ -28,7 +33,8 @@ void LocationItemCityWidget::setShowLatencyMs(bool showLatencyMs)
 
 void LocationItemCityWidget::updateScaling()
 {
-    textLabel_.move(10 * G_SCALE, 10 * G_SCALE);
+    textLabel_->setFont(*FontManager::instance().getFont(16, true));
+    textLabel_->move(10 * G_SCALE, 10 * G_SCALE);
     update();
 }
 

@@ -4,44 +4,81 @@
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
 #include "widgetlocationssizes.h"
+#include "graphicresources/fontmanager.h"
+
+#include <QDebug>
 
 namespace GuiLocations {
 
-LocationItemRegionWidget::LocationItemRegionWidget(LocationItem *locationItem, QWidget *parent) : QWidget(parent)
+LocationItemRegionWidget::LocationItemRegionWidget(LocationModelItem *locationModelItem, QWidget *parent) : QAbstractButton(parent)
   , expanded_(false)
-  , locationItem_(locationItem)
+  , locationID_(locationModelItem->id)
 {
     height_ = REGION_HEIGHT;
-    textLabel_.setText(locationItem->getName());
+    textLabel_ = QSharedPointer<QLabel>(new QLabel(this));
+    textLabel_->setFont(*FontManager::instance().getFont(16, true));
+    textLabel_->setStyleSheet("QLabel { color : white; }");
+    textLabel_->setText(locationModelItem->title);
+    textLabel_->show();
+    updateScaling();
 }
 
-LocationItemRegionWidget::LocationItemRegionWidget(QWidget *parent) : QWidget(parent)
-  , expanded_(false)
+LocationItemRegionWidget::~LocationItemRegionWidget()
 {
-    height_ = REGION_HEIGHT;
+    qDebug() << "Deleting region widget: " << textLabel_->text();
 
+}
+
+LocationID LocationItemRegionWidget::getId()
+{
+    return locationID_;
+}
+
+const QString LocationItemRegionWidget::name() const
+{
+    return textLabel_->text();
+}
+
+bool LocationItemRegionWidget::expandable() const
+{
+    return cities_.count() > 0;
+}
+
+bool LocationItemRegionWidget::expanded() const
+{
+    return expanded_;
 }
 
 void LocationItemRegionWidget::setExpanded(bool expand)
 {
-    // TODO: add animation
-    if (expand)
+    if (!expandable())
     {
-        foreach (auto city, cities_)
-        {
-            city->show();
-        }
+        qDebug() << "Cannot expand/collapse region without city widgets";
+        return;
     }
-    else
-    {
-        foreach (auto city, cities_)
-        {
-            city->hide();
-        }
-    }
-    expanded_ = expand;
-    recalcItemPos();
 
+    // TODO: add animation
+    if (expand != expanded_)
+    {
+        if (expand)
+        {
+            qDebug() << "Expanding: " << textLabel_->text();
+            foreach (auto city, cities_)
+            {
+                city->show();
+            }
+        }
+        else
+        {
+            qDebug() << "Collapsing: " << textLabel_->text();
+            foreach (auto city, cities_)
+            {
+                city->hide();
+            }
+        }
+        expanded_ = expand;
+        recalcItemPos();
+    }
 }
 
 void LocationItemRegionWidget::setShowLatencyMs(bool showLatencyMs)
@@ -52,42 +89,34 @@ void LocationItemRegionWidget::setShowLatencyMs(bool showLatencyMs)
     }
 }
 
-void LocationItemRegionWidget::setRegion(LocationItem *locationItem)
+void LocationItemRegionWidget::addCity(CityModelItem city)
 {
-    locationItem_ = locationItem;
-    textLabel_.setText(locationItem->getName());
-}
-
-void LocationItemRegionWidget::setCities(QList<QSharedPointer<CityNode>> cities)
-{
-    // cities_ =  cities;
-    foreach (auto city, cities)
-    {
-        auto cityWidget = new LocationItemCityWidget(city, this);
-        cities_.append(QSharedPointer<LocationItemCityWidget>(cityWidget));
-    }
+    auto cityWidget = QSharedPointer<LocationItemCityWidget>(new LocationItemCityWidget(city, this));
+    cities_.append(cityWidget);
     recalcItemPos();
 }
 
 void LocationItemRegionWidget::updateScaling()
 {
-    textLabel_.move(10 * G_SCALE, 10 * G_SCALE);
+    textLabel_->setFont(*FontManager::instance().getFont(16, true));
+    textLabel_->move(10 * G_SCALE, 10 * G_SCALE);
+
     foreach (auto city, cities_)
     {
         city->updateScaling();
     }
-    update();
+    recalcItemPos();
 }
 
 void LocationItemRegionWidget::recalcItemPos()
 {
-    int height = REGION_HEIGHT;
+    int height = REGION_HEIGHT * G_SCALE;
 
     if (expanded_)
     {
         foreach (auto city, cities_)
         {
-            city->move(0, height);
+            city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LocationItemCityWidget::HEIGHT * G_SCALE);
             height += city->geometry().height();
         }
     }
@@ -102,9 +131,10 @@ void LocationItemRegionWidget::recalcItemPos()
 
 void LocationItemRegionWidget::paintEvent(QPaintEvent *event)
 {
+    // qDebug() << "Region painting";
     QPainter painter(this);
     painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, height_ * G_SCALE),
-                      WidgetLocationsSizes::instance().getBackgroundColor());
+                     WidgetLocationsSizes::instance().getBackgroundColor());
 }
 
 } // namespace

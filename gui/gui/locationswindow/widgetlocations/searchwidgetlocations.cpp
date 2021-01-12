@@ -11,6 +11,8 @@
 #include "widgetlocationssizes.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
+#include "commongraphics/commongraphics.h"
+
 
 #include <QDebug>
 
@@ -35,6 +37,7 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     bShowLatencyInMs_(false),
     bTapGestureStarted_(false),
     locationsModel_(NULL)
+  , filterString_("")
 {
     setFrameStyle(QFrame::NoFrame);
     setMouseTracking(true);
@@ -68,11 +71,11 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
 
     scrollBar_ = new ScrollBar(this);
     setVerticalScrollBar(scrollBar_);
-//    itemListWidget_ = new LocationItemListWidget(this);
-//    setWidget(itemListWidget_);
-//    itemListWidget_->setGeometry(0,0,200,1500);
-//    itemListWidget_->show();
-    qDebug() << "Search locations viewport: " << viewport()->geometry();
+    locationItemListWidget_ = new LocationItemListWidget(this);
+    setWidget(locationItemListWidget_);
+    connect(locationItemListWidget_, SIGNAL(heightChanged(int)), SLOT(onLocationItemListWidgetHeightChanged(int)));
+    locationItemListWidget_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, 0);
+    locationItemListWidget_->show();
 
 
     verticalScrollBar()->setSingleStep(50); // scroll by this many px at a time
@@ -89,7 +92,12 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
 
 SearchWidgetLocations::~SearchWidgetLocations()
 {
-    clearItems();
+
+}
+
+void SearchWidgetLocations::setFilterString(QString text)
+{
+    filterString_ = text;
 }
 
 bool SearchWidgetLocations::cursorInViewport()
@@ -114,6 +122,45 @@ void SearchWidgetLocations::updateSelectionCursorAndToolTipByCursorPos()
 {
 
 }
+
+void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
+{
+    qDebug() << "Updating location widgets";
+
+    locationItemListWidget_->clearWidgets();
+
+    foreach (LocationModelItem *item, items)
+    {
+        if (item->title.contains(filterString_, Qt::CaseInsensitive))
+        {
+            // qDebug() << "About to add region and cities";
+
+            // add item and all children to list
+            locationItemListWidget_->addRegionWidget(item);
+
+            foreach (CityModelItem cityItem, item->cities)
+            {
+                locationItemListWidget_->addCityToRegion(cityItem, item);
+            }
+        }
+        else
+        {
+            foreach (CityModelItem cityItem, item->cities)
+            {
+                // qDebug() << "About to add city to region";
+
+                if (cityItem.city.contains(filterString_, Qt::CaseInsensitive) ||
+                    cityItem.city.contains(filterString_, Qt::CaseInsensitive))
+                {
+                    locationItemListWidget_->addCityToRegion(cityItem, item);
+                }
+            }
+        }
+    }
+
+    qDebug() << "Done updating location widgets";
+}
+
 
 void SearchWidgetLocations::setModel(BasicLocationsModel *locationsModel)
 {
@@ -262,9 +309,9 @@ void SearchWidgetLocations::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
-    QPainter painter(viewport());
-    QRect bkgd(0,0,geometry().width(), geometry().height());
-    painter.fillRect(bkgd, Qt::black);
+    //QPainter painter(viewport());
+    //QRect bkgd(0,0,geometry().width(), geometry().height());
+    // painter.fillRect(bkgd, Qt::black);
 }
 
 // called by change in the vertical scrollbar
@@ -333,6 +380,7 @@ void SearchWidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
 {
     Q_UNUSED(items);
 
+    updateWidgetList(items);
 
 }
 
@@ -375,6 +423,13 @@ void SearchWidgetLocations::onTopScrollBarValueChanged(int value)
 
 void SearchWidgetLocations::onLanguageChanged()
 {
+}
+
+void SearchWidgetLocations::onLocationItemListWidgetHeightChanged(int height)
+{
+    locationItemListWidget_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, height);
+    // TODO: update scrollbar size
+
 }
 
 void SearchWidgetLocations::calcScrollPosition()
@@ -582,12 +637,9 @@ void SearchWidgetLocations::updateScaling()
         }
     }
 
+    locationItemListWidget_->updateScaling();
+
     // scrollBarOnTop_->setGeometry(width_*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
-}
-
-void SearchWidgetLocations::updateItemWidgetPositions()
-{
-
 }
 
 int SearchWidgetLocations::countVisibleItemsInViewport(LocationItem *locationItem)

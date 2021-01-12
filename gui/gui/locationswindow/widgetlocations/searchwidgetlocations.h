@@ -17,7 +17,6 @@
 #include "tooltips/tooltiptypes.h"
 #include "locationitemlistwidget.h"
 #include "scrollbar.h"
-#include "locationitemregionwidget.h"
 
 
 class FormConnect;
@@ -33,6 +32,8 @@ class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 public:
     explicit SearchWidgetLocations(QWidget *parent);
     ~SearchWidgetLocations() override;
+
+    void setFilterString(QString text);
 
     bool cursorInViewport() override;
     bool hasSelection() override;
@@ -59,8 +60,6 @@ public:
 
     void setSize(int width, int height);
     void updateScaling();
-
-    void updateItemWidgetPositions();
 
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;
@@ -89,11 +88,14 @@ private slots:
 
     void onLanguageChanged();
 
+    void onLocationItemListWidgetHeightChanged(int height);
+
 private:
+    LocationItemListWidget *locationItemListWidget_;
+    void updateWidgetList(QVector<LocationModelItem *> items);
 
-    // LocationItemListWidget *itemListWidget_;
-    QList<LocationItemRegionWidget> itemWidgets_;
 
+    QString filterString_;
     int width_;
     int height_;
 
@@ -180,6 +182,7 @@ private:
     int viewportIndexOfLocationHeader(LocationItem *locationItem);
 
     void updateSelectionCursorAndToolTipByCursorPos();
+
 
 };
 
