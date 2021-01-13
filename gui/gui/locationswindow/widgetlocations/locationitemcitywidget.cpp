@@ -14,10 +14,16 @@ namespace GuiLocations {
 LocationItemCityWidget::LocationItemCityWidget(CityModelItem cityModelItem, QWidget *parent) : QAbstractButton(parent)
   , cityModelItem_(cityModelItem)
 {
-    textLabel_ = QSharedPointer<QLabel>(new QLabel(this));
-    textLabel_->setFont(*FontManager::instance().getFont(16, true));
-    textLabel_->setStyleSheet("QLabel { color : white; }");
-    textLabel_->setText(cityModelItem.city);
+    cityLabel_ = QSharedPointer<QLabel>(new QLabel(this));
+    cityLabel_->setFont(*FontManager::instance().getFont(13, true));
+    cityLabel_->setStyleSheet("QLabel { color : white; }");
+    cityLabel_->setText(cityModelItem.city);
+
+    nickLabel_ = QSharedPointer<QLabel>(new QLabel(this));
+    nickLabel_->setFont(*FontManager::instance().getFont(13, false));
+    nickLabel_->setStyleSheet("QLabel { color : white; }");
+    nickLabel_->setText(cityModelItem.nick);
+
     updateScaling();
 }
 
@@ -33,8 +39,12 @@ void LocationItemCityWidget::setShowLatencyMs(bool showLatencyMs)
 
 void LocationItemCityWidget::updateScaling()
 {
-    textLabel_->setFont(*FontManager::instance().getFont(16, true));
-    textLabel_->move(10 * G_SCALE, 10 * G_SCALE);
+    cityLabel_->setFont(*FontManager::instance().getFont(16, true));
+    cityLabel_->move(10 * G_SCALE, 10 * G_SCALE);
+
+    nickLabel_->setFont(*FontManager::instance().getFont(13, false));
+    nickLabel_->move(150 * G_SCALE, 10 * G_SCALE);
+
     update();
 }
 

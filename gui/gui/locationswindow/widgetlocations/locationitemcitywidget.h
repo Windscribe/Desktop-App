@@ -24,7 +24,8 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    QSharedPointer<QLabel> textLabel_;
+    QSharedPointer<QLabel> cityLabel_;
+    QSharedPointer<QLabel> nickLabel_;
     CityModelItem cityModelItem_;
 };
 

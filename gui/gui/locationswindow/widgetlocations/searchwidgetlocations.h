@@ -113,12 +113,6 @@ private:
     LocationItem * bestLocation_;
     QString bestLocationName_;
 
-    int startAnimationTop_;
-    int endAnimationTop_;
-    double scrollAnimationDuration_;
-    QElapsedTimer scrollAnimationElapsedTimer_;
-    bool isScrollAnimationNow_;
-
     double currentScale_;
 
     std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
@@ -146,7 +140,6 @@ private:
 
     int getItemHeight() const;
     int getTopOffset() const;
-    void calcScrollPosition();
     void setupScrollBar();
     void setupScrollBarMaxValue();
     bool detectSelectedItem(const QPoint &cursorPos);

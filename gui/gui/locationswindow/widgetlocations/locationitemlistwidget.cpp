@@ -94,6 +94,7 @@ void LocationItemListWidget::onRegionWidgetClicked()
 
 void LocationItemListWidget::recalcItemPos()
 {
+    qDebug() << "Recalc list height";
     int height = 0;
     foreach (auto itemWidget, itemWidgets_)
     {

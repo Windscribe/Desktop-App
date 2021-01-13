@@ -25,7 +25,7 @@ LocationItemRegionWidget::LocationItemRegionWidget(LocationModelItem *locationMo
 
 LocationItemRegionWidget::~LocationItemRegionWidget()
 {
-    qDebug() << "Deleting region widget: " << textLabel_->text();
+    // qDebug() << "Deleting region widget: " << textLabel_->text();
 
 }
 
@@ -92,6 +92,7 @@ void LocationItemRegionWidget::setShowLatencyMs(bool showLatencyMs)
 void LocationItemRegionWidget::addCity(CityModelItem city)
 {
     auto cityWidget = QSharedPointer<LocationItemCityWidget>(new LocationItemCityWidget(city, this));
+    cityWidget->hide();
     cities_.append(cityWidget);
     recalcItemPos();
 }
@@ -110,6 +111,8 @@ void LocationItemRegionWidget::updateScaling()
 
 void LocationItemRegionWidget::recalcItemPos()
 {
+    qDebug() << "Recalc region height";
+
     int height = REGION_HEIGHT * G_SCALE;
 
     if (expanded_)

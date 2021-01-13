@@ -38,7 +38,7 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
     animationDuration_ = qAbs(diffPx) * SCROLL_SPEED_FRACTION;
     // animationDuration_ = 1000; // for testing
     if (animationDuration_ < MINIMUM_DURATION) animationDuration_ = MINIMUM_DURATION;
-    qDebug() << "Animation duration: " << animationDuration_;
+    // qDebug() << "Animation duration: " << animationDuration_;
 
     elapsedTimer_.start();
     timer_.start();
@@ -49,6 +49,9 @@ void ScrollBar::paintEvent(QPaintEvent *event)
     // QPainter painter(this);
     // QRect bkgd(0,0,geometry().width(), geometry().height());
     // painter.fillRect(bkgd, Qt::gray);
+
+    // qDebug() << "Painting scrollbar - max: " << maximum() << " pagestep: " << pageStep();
+    QScrollBar::paintEvent(event);
 }
 
 void ScrollBar::onScrollAnimationValueChanged(const QVariant &value)
@@ -68,6 +71,6 @@ void ScrollBar::onTimerTick()
     }
 
     int curValue = startValue_ + durationFraction * (targetValue_ - startValue_);
-    qDebug() << "Setting value: " << curValue;
+    // qDebug() << "Setting value: " << curValue;
     setValue(curValue);
 }

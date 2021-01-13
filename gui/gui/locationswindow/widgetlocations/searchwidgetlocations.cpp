@@ -31,7 +31,6 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     bIsFreeSession_(false),
     bestLocation_(nullptr),
     bestLocationName_(""),
-    isScrollAnimationNow_(false),
     currentScale_(G_SCALE),
     bMouseInViewport_(false),
     bShowLatencyInMs_(false),
@@ -77,6 +76,7 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     locationItemListWidget_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, 0);
     locationItemListWidget_->show();
 
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     verticalScrollBar()->setSingleStep(50); // scroll by this many px at a time
     // verticalScrollBar()->setSizeIncrement(QSize(1,1));
@@ -127,6 +127,8 @@ void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 {
     qDebug() << "Updating location widgets";
 
+    // TODO: preserve state of open regions
+
     locationItemListWidget_->clearWidgets();
 
     foreach (LocationModelItem *item, items)
@@ -159,6 +161,7 @@ void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
     }
 
     qDebug() << "Done updating location widgets";
+    qDebug() << "Scrollbar max: " << verticalScrollBar()->maximum();
 }
 
 
@@ -427,29 +430,11 @@ void SearchWidgetLocations::onLanguageChanged()
 
 void SearchWidgetLocations::onLocationItemListWidgetHeightChanged(int height)
 {
-    locationItemListWidget_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, height);
-    // TODO: update scrollbar size
+//    qDebug() << "SearchWidgetLocations::onLocationItemListWidgetHeightChanged: " << height;
+//    qDebug() << "SearchLocations height: "<< geometry().height();
 
-}
-
-void SearchWidgetLocations::calcScrollPosition()
-{
-    double d = (double)scrollAnimationElapsedTimer_.elapsed() / (double)scrollAnimationDuration_;
-    topOffs_ = startAnimationTop_ + (endAnimationTop_ - startAnimationTop_) * d;
-
-    if ((endAnimationTop_ > startAnimationTop_ && topOffs_ >= endAnimationTop_) ||
-      (endAnimationTop_ < startAnimationTop_ && topOffs_ <= endAnimationTop_))
-    {
-        topOffs_ = endAnimationTop_;
-        isScrollAnimationNow_ = false;
-        //setBottomFlag(topInd_);
-    }
-
-    if (topOffs_ > 0)
-    {
-        topOffs_ = endAnimationTop_;
-        isScrollAnimationNow_ = false;
-    }
+    locationItemListWidget_->setGeometry(0,locationItemListWidget_->geometry().y(), WINDOW_WIDTH*G_SCALE, height);
+    verticalScrollBar()->setRange(0, height - verticalScrollBar()->pageStep()); // update scroll bar
 }
 
 void SearchWidgetLocations::setupScrollBar()
@@ -625,8 +610,6 @@ void SearchWidgetLocations::updateScaling()
     if (scale_adjustment != 1.0) {
         currentScale_ = G_SCALE;
         topOffs_ *= scale_adjustment;
-        startAnimationTop_ *= scale_adjustment;
-        endAnimationTop_ *= scale_adjustment;
     }
 
     for (int i = 0; i < items_.count(); ++i)
@@ -843,3 +826,4 @@ int SearchWidgetLocations::viewportIndexOfLocationHeader(LocationItem *locationI
 }
 
 } // namespace GuiLocations
+
