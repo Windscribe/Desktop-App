@@ -115,6 +115,7 @@ public:
 signals:
     void shadowUpdated();
     void revealConnectWindowStateChanged(bool revealing);
+    void preferencesCollapsed();
 
     void sendServerRatingUp();
     void sendServerRatingDown();
