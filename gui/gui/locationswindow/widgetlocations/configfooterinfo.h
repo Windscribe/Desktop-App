@@ -51,7 +51,7 @@ private:
     QRect displayTextRect_;
     bool isDisplayTextRectHover_;
 
-    static constexpr int HEIGHT_ = 48;
+    static constexpr int BOTTOM_LINE_HEIGHT = 1;
     QFont font_;
 
     enum { ICON_CLEAR, ICON_CHOOSE, NUM_ICONS };
