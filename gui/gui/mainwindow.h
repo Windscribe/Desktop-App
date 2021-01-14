@@ -61,6 +61,9 @@ private slots:
     void onCloseClick();
     void onEscapeClick();
 
+    // init window signals
+    void onAbortInitialization();
+
     // login window signals
     void onLoginClick(const QString &username, const QString &password, const QString &code2fa);
     void onLoginPreferencesClick();
@@ -145,6 +148,7 @@ private slots:
 
     // backend state signals
     void onBackendInitFinished(ProtoTypes::InitState initState);
+    void onBackendInitTooLong();
 
     //void onBackendLoginInfoChanged(const ProtoTypes::LoginInfo &loginInfo);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
@@ -293,6 +297,7 @@ private:
 
     bool bDisconnectFromTrafficExceed_;
 
+    bool isInitializationAborted_;
     bool isLoginOkAndConnectWindowVisible_;
     bool isCustomConfigMode_;
     static constexpr int TIME_BEFORE_SHOW_SHUTDOWN_WINDOW = 1500;   // ms

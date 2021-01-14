@@ -5,6 +5,7 @@
 #include <QTimer>
 #include "iinitwindow.h"
 #include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/iconbutton.h"
 
 namespace LoginWindow {
 
@@ -24,9 +25,10 @@ public:
     void startWaitingAnimation() override;
 
     void setClickable(bool clickable) override;
-    void setAdditionalMessage(const QString &msg) override;
+    void setAdditionalMessage(const QString &msg, bool useSmallFont) override;
     void setCropHeight(int height) override;
     void setHeight(int height) override;
+    void setCloseButtonVisible(bool visible) override;
 
     void updateScaling() override;
 
@@ -47,6 +49,13 @@ private:
     static constexpr int ABORT_POS_Y = 225;
     static constexpr int SPINNER_SPEED = 500;
 
+    static constexpr int MSG_SMALL_FONT = 12;
+    static constexpr int MSG_LARGE_FONT = 16;
+
+    void updatePositions();
+
+    IconButton *closeButton_;
+
     int curLogoPosY_;
     int curSpinnerRotation_;
     double curSpinnerOpacity_;
@@ -60,6 +69,7 @@ private:
     int logoDist_;
 
     QString msg_;
+    bool isgMsgSmallFont_;
 
     QVariantAnimation logoPosAnimation_;
     QVariantAnimation spinnerRotationAnimation_;

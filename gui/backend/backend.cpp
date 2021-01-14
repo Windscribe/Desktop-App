@@ -22,6 +22,7 @@ Backend::Backend(unsigned int clientId, unsigned long clientPid, const QString &
     clientName_(clientName),
     isSavedApiSettingsExists_(false),
     bLastLoginWithAuthHash_(false),
+    connectionAttemptTimer_(this),
     process_(NULL),
     connection_(NULL),
     cmdId_(0),
@@ -35,6 +36,9 @@ Backend::Backend(unsigned int clientId, unsigned long clientPid, const QString &
     connect(&connectStateHelper_, SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SIGNAL(connectStateChanged(ProtoTypes::ConnectState)));
     connect(&emergencyConnectStateHelper_, SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SIGNAL(emergencyConnectStateChanged(ProtoTypes::ConnectState)));
     connect(&firewallStateHelper_, SIGNAL(firewallStateChanged(bool)), SIGNAL(firewallStateChanged(bool)));
+
+    connectionAttemptTimer_.setSingleShot(true);
+    connect(&connectionAttemptTimer_, SIGNAL(timeout()), SLOT(onConnectionConnectAttempt()));
 }
 
 Backend::~Backend()
@@ -872,6 +876,20 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     }
 }
 
+void Backend::abortInitialization()
+{
+    if (ipcState_ != IPC_CONNECTING)
+        return;
+
+    connectionAttemptTimer_.stop();
+
+    qCDebug(LOG_BASIC) << "Connection to engine server aborted by user";
+    if (connection_)
+        connection_->close();
+
+    emit initFinished(ProtoTypes::INIT_CLEAN);
+}
+
 void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connection*/)
 {
     if (state == IPC::CONNECTION_CONNECTED)
@@ -923,23 +941,14 @@ void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connectio
     {
         if (ipcState_ == IPC_CONNECTING)
         {
-            if (connectingTimer_.elapsed() > MAX_CONNECTING_TIME)
+            if (connectingTimer_.isValid() && connectingTimer_.elapsed() > TOO_LONG_CONNECTING_TIME)
             {
-                qCDebug(LOG_BASIC) << "Connection error to engine server";
-                if (connection_)
-                {
-                    connection_->close();
-                }
-                emit initFinished(ProtoTypes::INIT_CLEAN);
+                connectingTimer_.invalidate();
+                emit initTooLong();
             }
-            else
-            {
-                // try connect again
-				// Delay necessary so that Engine process will acutally start running on low resource systems
-                QTimer::singleShot(100, [this](){
-                    connection_->connect();
-                });
-            }
+            // Try connect again. Delay is necessary so that Engine process will actually start
+            // running on low resource systems.
+            connectionAttemptTimer_.start(100);
         }
         else if (ipcState_ >= IPC_CONNECTED)
         {
@@ -950,6 +959,12 @@ void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connectio
             }
         }
     }
+}
+
+void Backend::onConnectionConnectAttempt()
+{
+    if (connection_)
+        connection_->connect();
 }
 
 // Assumes that duplicate network filtering occurs on Engine side
