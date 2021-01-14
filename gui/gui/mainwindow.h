@@ -198,6 +198,8 @@ private slots:
     void onPreferencesIsShowCountryFlagsChanged(bool isShowCountryFlags);
     void onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel);
 
+    void onPreferencesCollapsed();
+
 #ifdef Q_OS_MAC
     void onPreferencesHideFromDockChanged(bool hideFromDock);
     void hideShowDockIconImpl();

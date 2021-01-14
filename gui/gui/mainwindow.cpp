@@ -289,6 +289,7 @@ MainWindow::MainWindow() :
 
     connect(mainWindowController_, SIGNAL(sendServerRatingUp()), SLOT(onMainWindowControllerSendServerRatingUp()));
     connect(mainWindowController_, SIGNAL(sendServerRatingDown()), SLOT(onMainWindowControllerSendServerRatingDown()));
+    connect(mainWindowController_, SIGNAL(preferencesCollapsed()), SLOT(onPreferencesCollapsed()));
 
     // preferences changes signals
     connect(backend_->getPreferences(), SIGNAL(firewallSettingsChanged(ProtoTypes::FirewallSettings)), SLOT(onPreferencesFirewallSettingsChanged(ProtoTypes::FirewallSettings)));
@@ -1088,6 +1089,11 @@ void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChann
 
     ignoreUpdateUntilNextRun_ = false;
     // updates engine through engineSettings
+}
+
+void MainWindow::onPreferencesCollapsed()
+{
+    backend_->getPreferences()->validateAndUpdateIfNeeded();
 }
 
 void MainWindow::onEmergencyConnectClick()
@@ -3089,7 +3095,6 @@ void MainWindow::gotoExitWindow()
 
 void MainWindow::collapsePreferences()
 {
-    backend_->getPreferences()->validateAndUpdateIfNeeded();
     mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(
         backend_->isFirewallEnabled());
     mainWindowController_->collapsePreferences();
