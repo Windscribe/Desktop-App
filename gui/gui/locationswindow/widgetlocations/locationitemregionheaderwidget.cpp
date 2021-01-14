@@ -18,13 +18,12 @@ LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(LocationModelItem
 
     height_ = REGION_HEADER_HEIGHT;
     textLabel_ = QSharedPointer<QLabel>(new QLabel(this));
-    textLabel_->setFont(*FontManager::instance().getFont(16, true));
     textLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
     textLabel_->setText(locationModelItem->title);
     textLabel_->setWindowOpacity(OPACITY_HALF);
+    recalcItemPositions();
     textLabel_->show();
 
-    updateScaling();
 }
 
 const QString LocationItemRegionHeaderWidget::name() const
@@ -52,13 +51,13 @@ void LocationItemRegionHeaderWidget::setSelected(bool select)
         selected_ = select;
         if (select)
         {
-            qDebug() << "Selecting Region: " << textLabel_->text();
+            //qDebug() << "Selecting Region: " << textLabel_->text();
             textLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
             emit selected(this);
         }
         else
         {
-            qDebug() << "Unselecting Region: " << textLabel_->text();
+            //qDebug() << "Unselecting Region: " << textLabel_->text();
             textLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
         }
     }
@@ -70,11 +69,6 @@ bool LocationItemRegionHeaderWidget::isSelected() const
     return selected_;
 }
 
-void LocationItemRegionHeaderWidget::updateScaling()
-{
-    textLabel_->setFont(*FontManager::instance().getFont(16, true));
-    textLabel_->move(10 * G_SCALE, 10 * G_SCALE);
-}
 
 void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
 {
@@ -89,9 +83,20 @@ void LocationItemRegionHeaderWidget::enterEvent(QEvent *event)
     setSelected(true); // triggers unselection of other widgets
 }
 
+void LocationItemRegionHeaderWidget::resizeEvent(QResizeEvent *event)
+{
+    recalcItemPositions();
+}
+
 const QString LocationItemRegionHeaderWidget::labelStyleSheetWithOpacity(double opacity)
 {
     return "QLabel { color : rgba(255,255,255, " + QString::number(opacity) + "); }";
+}
+
+void LocationItemRegionHeaderWidget::recalcItemPositions()
+{
+    textLabel_->setFont(*FontManager::instance().getFont(16, true));
+    textLabel_->move(10 * G_SCALE, 10 * G_SCALE);
 }
 
 LocationID LocationItemRegionHeaderWidget::getId()

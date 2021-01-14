@@ -41,10 +41,13 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     setStyleSheet("background-color: rgba(0,0,0,0)");
 
     scrollBar_ = new ScrollBar(this);
+    scrollBar_->setStyleSheet(scrollbarStyleSheet());
     setVerticalScrollBar(scrollBar_);
     locationItemListWidget_ = new LocationItemListWidget(this);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     verticalScrollBar()->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
+
 
     setWidget(locationItemListWidget_);
     connect(locationItemListWidget_, SIGNAL(heightChanged(int)), SLOT(onLocationItemListWidgetHeightChanged(int)));
@@ -88,6 +91,23 @@ void SearchWidgetLocations::centerCursorOnSelectedItem()
 void SearchWidgetLocations::updateSelectionCursorAndToolTipByCursorPos()
 {
 
+}
+
+const QString SearchWidgetLocations::scrollbarStyleSheet()
+{
+    // TODO: don't use stylesheet to draw
+    return QString( "QScrollBar:vertical { margin: %1px %2 %3px %4px; border: none; background: rgba(0, 0, 0, 255); width: %5px; }"
+                 "QScrollBar::handle:vertical { background: rgb(106, 119, 144); color:  rgb(106, 119, 144);"
+                                               "border-width: %6px; border-style: solid; border-radius: %7px;}"
+                 "QScrollBar::add-line:vertical { border: none; background: black; }"
+                 "QScrollBar::sub-line:vertical { border: none; background: black; }")
+                  .arg(qCeil(0)) // top margin
+                  .arg(qCeil(0))  // left margin
+                  .arg(qCeil(0)) //  bottom margin
+                  .arg(qCeil(0))  // left
+                  .arg(3*G_SCALE) // width
+                  .arg(qCeil(4))  // handle border-width
+                  .arg(qCeil(3)); // handle border-radius
 }
 
 void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
@@ -274,15 +294,15 @@ void SearchWidgetLocations::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
-    //QPainter painter(viewport());
-    //QRect bkgd(0,0,geometry().width(), geometry().height());
-    // painter.fillRect(bkgd, Qt::black);
+//    QPainter painter(this);
+//    QRect bkgd(0,0,geometry().width(), geometry().height());
+//    painter.fillRect(bkgd, WidgetLocationsSizes::instance().getBackgroundColor());
 }
 
 // called by change in the vertical scrollbar
 void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
 {
-    qDebug() << "Scrolling contents by: " << dy;
+    // qDebug() << "Scrolling contents by: " << dy;
 
     locationItemListWidget_->selectWidgetContainingCursor();
 
@@ -335,7 +355,7 @@ void SearchWidgetLocations::enterEvent(QEvent *event)
 void SearchWidgetLocations::resizeEvent(QResizeEvent *event)
 {
     QScrollArea::resizeEvent(event);
-    // scrollBarOnTop_->setGeometry(width_*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
+    // scrollBar_->setGeometry(WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), geometry().height());
 }
 
 void SearchWidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
@@ -543,7 +563,7 @@ void SearchWidgetLocations::updateScaling()
 
     locationItemListWidget_->updateScaling();
 
-    // scrollBarOnTop_->setGeometry(width_*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
+    // scrollBar_->setGeometry(WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
 }
 
 int SearchWidgetLocations::countVisibleItemsInViewport(LocationItem *locationItem)

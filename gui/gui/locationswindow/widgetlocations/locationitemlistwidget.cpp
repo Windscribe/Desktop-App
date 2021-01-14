@@ -38,13 +38,13 @@ void LocationItemListWidget::addRegionWidget(LocationModelItem *item)
     auto regionWidget = QSharedPointer<LocationItemRegionWidget>(new LocationItemRegionWidget(item, this));
     connect(regionWidget.get(), SIGNAL(heightChanged(int)), SLOT(onRegionWidgetHeightChanged(int)));
     connect(regionWidget.get(), SIGNAL(clicked(LocationItemCityWidget *)), SLOT(onLocationItemCityClicked(LocationItemCityWidget *)));
-    connect(regionWidget.get(), SIGNAL(clicked()), SLOT(onLocationItemRegionClicked()));
+    connect(regionWidget.get(), SIGNAL(clicked(LocationItemRegionWidget *)), SLOT(onLocationItemRegionClicked(LocationItemRegionWidget *)));
     connect(regionWidget.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onSelectableLocationItemSelected(SelectableLocationItemWidget *)));
     itemWidgets_.append(regionWidget);
     regionWidget->setGeometry(0, 0, WINDOW_WIDTH *G_SCALE, LocationItemRegionHeaderWidget::REGION_HEADER_HEIGHT * G_SCALE);
     regionWidget->show();
     // qDebug() << "Added region: " << item->title;
-    recalcItemPos();
+    recalcItemPositions();
 }
 
 void LocationItemListWidget::addCityToRegion(CityModelItem city, LocationModelItem *region)
@@ -62,15 +62,12 @@ void LocationItemListWidget::addCityToRegion(CityModelItem city, LocationModelIt
     itemWidgets_.last()->addCity(city);
     // qDebug() << "Added City: " << city.city << " " << city.nick;
 
-    recalcItemPos();
+    recalcItemPositions();
 }
 
 void LocationItemListWidget::updateScaling()
 {
-    foreach (auto itemWidget, itemWidgets_)
-    {
-        itemWidget->updateScaling();
-    }
+    recalcItemPositions();
 }
 
 void LocationItemListWidget::selectWidgetContainingCursor()
@@ -80,6 +77,7 @@ void LocationItemListWidget::selectWidgetContainingCursor()
     {
         if (widget->containsCursor())
         {
+            // qDebug() << "Selecting: " << widget->name();
             widget->setSelected(true);
             break;
         }
@@ -112,7 +110,7 @@ void LocationItemListWidget::onRegionWidgetHeightChanged(int height)
     auto regionWidget = static_cast<LocationItemRegionWidget*>(sender());
     // qDebug() << "Region changed height: " << regionWidget->name();
     regionWidget->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, height * G_SCALE);
-    recalcItemPos();
+    recalcItemPositions();
 }
 
 void LocationItemListWidget::onLocationItemCityClicked(LocationItemCityWidget *cityWidget)
@@ -131,27 +129,25 @@ void LocationItemListWidget::onSelectableLocationItemSelected(SelectableLocation
     }
 }
 
-void LocationItemListWidget::onLocationItemRegionClicked()
+void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidget *regionWidget)
 {
-    // qDebug() << "SelectableWidget clicked: " << itemWidget->name();
-    auto regionWidget = static_cast<LocationItemRegionWidget*>(sender());
     regionWidget->setExpanded(!regionWidget->expanded());
 }
 
-void LocationItemListWidget::recalcItemPos()
+void LocationItemListWidget::recalcItemPositions()
 {
-    qDebug() << "Recalc list height";
-    int height = 0;
+    // qDebug() << "Recalc list height";
+    int heightSoFar = 0;
     foreach (auto itemWidget, itemWidgets_)
     {
-        itemWidget->move(0, height);
-        height += itemWidget->geometry().height();
+        itemWidget->setGeometry(0, heightSoFar, WINDOW_WIDTH * G_SCALE, itemWidget->geometry().height());
+        heightSoFar += itemWidget->geometry().height();
     }
 
-    if (height != height_)
+    if (heightSoFar != height_)
     {
-        height_ = height;
-        emit heightChanged(height);
+        height_ = heightSoFar;
+        emit heightChanged(heightSoFar);
     }
     update();
 }

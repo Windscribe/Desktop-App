@@ -13,19 +13,18 @@ namespace GuiLocations {
 
 LocationItemCityWidget::LocationItemCityWidget(CityModelItem cityModelItem, QWidget *parent) : SelectableLocationItemWidget(parent)
   , cityModelItem_(cityModelItem)
+  , selectable_(false)
 {
     cityLabel_ = QSharedPointer<QLabel>(new QLabel(this));
-    cityLabel_->setFont(*FontManager::instance().getFont(13, true));
     cityLabel_->setStyleSheet("QLabel { color : white; }");
     cityLabel_->setText(cityModelItem.city);
     cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
 
     nickLabel_ = QSharedPointer<QLabel>(new QLabel(this));
-    nickLabel_->setFont(*FontManager::instance().getFont(13, false));
     nickLabel_->setStyleSheet("QLabel { color : white; }");
     nickLabel_->setText(cityModelItem.nick);
     nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
-    updateScaling();
+    recalcItemPositions();
 }
 
 LocationItemCityWidget::~LocationItemCityWidget()
@@ -43,26 +42,34 @@ SelectableLocationItemWidget::SelectableLocationItemWidgetType LocationItemCityW
     return SelectableLocationItemWidgetType::CITY;
 }
 
+void LocationItemCityWidget::setSelectable(bool selectable)
+{
+    selectable_ = selectable;
+}
+
 void LocationItemCityWidget::setSelected(bool select)
 {
-    if (selected_ != select)
+    if (selectable_)
     {
-        selected_ = select;
-        if (select)
+        if (selected_ != select)
         {
-            qDebug() << "Selecting City: " << cityLabel_->text() << " " << nickLabel_->text();
-            cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
-            nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
-            emit selected(this);
+            selected_ = select;
+            if (select)
+            {
+                //qDebug() << "Selecting City: " << cityLabel_->text() << " " << nickLabel_->text();
+                cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
+                nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
+                emit selected(this);
+            }
+            else
+            {
+                //qDebug() << "Unselecting City: " << cityLabel_->text() << " " << nickLabel_->text();
+                cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
+                nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
+            }
         }
-        else
-        {
-            qDebug() << "Unselecting City: " << cityLabel_->text() << " " << nickLabel_->text();
-            cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
-            nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
-        }
+        update();
     }
-    update();
 }
 
 bool LocationItemCityWidget::isSelected() const
@@ -83,17 +90,6 @@ void LocationItemCityWidget::setShowLatencyMs(bool showLatencyMs)
 
 }
 
-void LocationItemCityWidget::updateScaling()
-{
-    cityLabel_->setFont(*FontManager::instance().getFont(16, true));
-    cityLabel_->move(10 * G_SCALE, 10 * G_SCALE);
-
-    nickLabel_->setFont(*FontManager::instance().getFont(13, false));
-    nickLabel_->move(150 * G_SCALE, 10 * G_SCALE);
-
-    update();
-}
-
 void LocationItemCityWidget::paintEvent(QPaintEvent *event)
 {
     // background
@@ -106,18 +102,27 @@ void LocationItemCityWidget::paintEvent(QPaintEvent *event)
 void LocationItemCityWidget::enterEvent(QEvent *event)
 {
     Q_UNUSED(event);
+    // qDebug() << "City entered: " << name();
     setSelected(true); // triggers unselection of other widgets
-
 }
 
-void LocationItemCityWidget::leaveEvent(QEvent *event)
+void LocationItemCityWidget::resizeEvent(QResizeEvent *event)
 {
-    Q_UNUSED(event);
+    recalcItemPositions();
 }
 
 const QString LocationItemCityWidget::labelStyleSheetWithOpacity(double opacity)
 {
     return "QLabel { color : rgba(255,255,255, " + QString::number(opacity) + "); }";
+}
+
+void LocationItemCityWidget::recalcItemPositions()
+{
+    cityLabel_->setFont(*FontManager::instance().getFont(16, true));
+    cityLabel_->move(10 * G_SCALE, 10 * G_SCALE);
+
+    nickLabel_->setFont(*FontManager::instance().getFont(13, false));
+    nickLabel_->move(150 * G_SCALE, 10 * G_SCALE);
 }
 
 }

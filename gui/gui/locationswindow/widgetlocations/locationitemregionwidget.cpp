@@ -8,18 +8,18 @@
 
 namespace GuiLocations {
 
-LocationItemRegionWidget::LocationItemRegionWidget(LocationModelItem *locationModelItem, QWidget *parent) : QAbstractButton(parent)
+LocationItemRegionWidget::LocationItemRegionWidget(LocationModelItem *locationModelItem, QWidget *parent) : QWidget(parent)
   , expanded_(false)
 {
     regionHeaderWidget_ = QSharedPointer<LocationItemRegionHeaderWidget>(new LocationItemRegionHeaderWidget(locationModelItem, this));
     connect(regionHeaderWidget_.get(), SIGNAL(clicked()), SLOT(onRegionItemClicked()));
     connect(regionHeaderWidget_.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onRegionItemSelected(SelectableLocationItemWidget *)));
+    recalcItemPos();
 }
 
 LocationItemRegionWidget::~LocationItemRegionWidget()
 {
     // qDebug() << "Deleting region widget: " << textLabel_->text();
-
 }
 
 LocationID LocationItemRegionWidget::getId()
@@ -54,6 +54,7 @@ void LocationItemRegionWidget::setExpanded(bool expand)
             foreach (auto city, cities_)
             {
                 city->show();
+                city->setSelectable(true);
             }
         }
         else
@@ -61,6 +62,7 @@ void LocationItemRegionWidget::setExpanded(bool expand)
             qDebug() << "Collapsing: " << regionHeaderWidget_->name();
             foreach (auto city, cities_)
             {
+                city->setSelectable(false);
                 city->hide();
             }
         }
@@ -80,7 +82,7 @@ void LocationItemRegionWidget::setShowLatencyMs(bool showLatencyMs)
 void LocationItemRegionWidget::addCity(CityModelItem city)
 {
     auto cityWidget = QSharedPointer<LocationItemCityWidget>(new LocationItemCityWidget(city, this));
-    connect(cityWidget.get(), SIGNAL(clicked(SelectableLocationItemWidget *)), SLOT(onCityItemClicked(SelectableLocationItemWidget *)));
+    connect(cityWidget.get(), SIGNAL(clicked(LocationItemCityWidget *)), SLOT(onCityItemClicked(LocationItemCityWidget *)));
     connect(cityWidget.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onCityItemSelected(SelectableLocationItemWidget *)));
     cityWidget->hide();
     cities_.append(cityWidget);
@@ -101,22 +103,13 @@ QList<QSharedPointer<SelectableLocationItemWidget>> LocationItemRegionWidget::se
     return widgets;
 }
 
-
-void LocationItemRegionWidget::updateScaling()
-{
-    foreach (auto city, cities_)
-    {
-        city->updateScaling();
-    }
-    recalcItemPos();
-}
-
 void LocationItemRegionWidget::recalcItemPos()
 {
-    qDebug() << "Recalc region height";
+    // qDebug() << "Recalc region height";
+
+    regionHeaderWidget_->setGeometry(0,0, WINDOW_WIDTH * G_SCALE, LocationItemRegionHeaderWidget::REGION_HEADER_HEIGHT);
 
     int height = LocationItemRegionHeaderWidget::REGION_HEADER_HEIGHT * G_SCALE;
-
     if (expanded_)
     {
         foreach (auto city, cities_)
@@ -134,31 +127,6 @@ void LocationItemRegionWidget::recalcItemPos()
     update();
 }
 
-void LocationItemRegionWidget::paintEvent(QPaintEvent *event)
-{
-
-}
-
-void LocationItemRegionWidget::enterEvent(QEvent *event)
-{
-    Q_UNUSED(event);
-    // qDebug() << "Region entered";
-}
-
-void LocationItemRegionWidget::leaveEvent(QEvent *event)
-{
-    Q_UNUSED(event);
-    // qDebug() << "Region left";
-    // let the LocationItemListWidget handle unselecting
-}
-
-void LocationItemRegionWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    Q_UNUSED(event);
-    // qDebug() << "Mouse move event in region: " << textLabel_->text();
-
-}
-
 void LocationItemRegionWidget::onRegionItemSelected(SelectableLocationItemWidget *regionWidget)
 {
     emit selected(regionWidget);
@@ -166,7 +134,7 @@ void LocationItemRegionWidget::onRegionItemSelected(SelectableLocationItemWidget
 
 void LocationItemRegionWidget::onRegionItemClicked()
 {
-    emit QAbstractButton::clicked();
+    emit clicked(this);
 }
 
 void LocationItemRegionWidget::onCityItemClicked(LocationItemCityWidget *cityWidget)

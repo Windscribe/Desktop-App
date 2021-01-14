@@ -8,7 +8,7 @@
 
 namespace GuiLocations {
 
-class LocationItemRegionWidget : public QAbstractButton
+class LocationItemRegionWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -24,19 +24,13 @@ public:
     void addCity(CityModelItem city);
     QList<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
 
-    void updateScaling();
     void recalcItemPos();
 
 signals:
     void heightChanged(int height);
     void selected(SelectableLocationItemWidget *itemWidget);
-    void clicked(LocationItemCityWidget *itemWidget);
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-    void enterEvent(QEvent *event) override;
-    void leaveEvent(QEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
+    void clicked(LocationItemCityWidget *cityWidget);
+    void clicked(LocationItemRegionWidget *regionWidget);
 
 private slots:
     void onRegionItemSelected(SelectableLocationItemWidget *regionWidget);

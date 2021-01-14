@@ -20,7 +20,6 @@ public:
     bool isSelected() const override;
 
     LocationID getId();
-    void updateScaling();
     static const int REGION_HEADER_HEIGHT = 50;
 
 signals:
@@ -29,6 +28,7 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     LocationID locationID_;
@@ -37,7 +37,7 @@ private:
     int height_;
     bool selected_;
     const QString labelStyleSheetWithOpacity(double opacity);
-
+    void recalcItemPositions();
 };
 
 }

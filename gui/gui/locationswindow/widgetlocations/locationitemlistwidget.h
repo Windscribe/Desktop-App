@@ -34,13 +34,13 @@ private slots:
     void onRegionWidgetHeightChanged(int height);
 
     void onLocationItemCityClicked(LocationItemCityWidget *cityWidget);
-    void onLocationItemRegionClicked();
+    void onLocationItemRegionClicked(LocationItemRegionWidget *regionWidget);
     void onSelectableLocationItemSelected(SelectableLocationItemWidget *itemWidget);
 
 private:
     int height_;
     QList<QSharedPointer<LocationItemRegionWidget>> itemWidgets_;
-    void recalcItemPos();
+    void recalcItemPositions();
     QList<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
 
 };

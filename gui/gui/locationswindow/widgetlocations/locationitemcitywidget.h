@@ -16,32 +16,35 @@ public:
 
     const QString name() const override;
     SelectableLocationItemWidgetType type() override;
+
+    void setSelectable(bool selectable);
     void setSelected(bool select) override;
     bool isSelected() const override;
     bool containsCursor() const override;
 
     void setShowLatencyMs(bool showLatencyMs);
-    void updateScaling();
 
     static const int HEIGHT = 50;
 
 signals:
     void selected(SelectableLocationItemWidget *itemWidget);
-    void clicked(SelectableLocationItemWidget *itemWidget);
+    void clicked(LocationItemCityWidget *itemWidget);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEvent *event) override;
-    void leaveEvent(QEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     QSharedPointer<QLabel> cityLabel_;
     QSharedPointer<QLabel> nickLabel_;
     CityModelItem cityModelItem_;
 
+    bool selectable_;
     bool selected_;
     const QString labelStyleSheetWithOpacity(double opacity);
 
+    void recalcItemPositions();
 
 };
 
