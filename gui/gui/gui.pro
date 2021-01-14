@@ -219,6 +219,7 @@ SOURCES += \
     launchonstartup/launchonstartup.cpp \
     locationswindow/widgetlocations/locationitemcitywidget.cpp \
     locationswindow/widgetlocations/locationitemlistwidget.cpp \
+    locationswindow/widgetlocations/locationitemregionheaderwidget.cpp \
     locationswindow/widgetlocations/locationitemregionwidget.cpp \
     locationswindow/widgetlocations/scrollbar.cpp \
     locationswindow/widgetlocations/searchwidgetlocations.cpp \
@@ -447,9 +448,11 @@ HEADERS += \
     dialogs/dialogmessagecpuusage.h \
     locationswindow/widgetlocations/locationitemcitywidget.h \
     locationswindow/widgetlocations/locationitemlistwidget.h \
+    locationswindow/widgetlocations/locationitemregionheaderwidget.h \
     locationswindow/widgetlocations/locationitemregionwidget.h \
     locationswindow/widgetlocations/scrollbar.h \
     locationswindow/widgetlocations/searchwidgetlocations.h \
+    locationswindow/widgetlocations/selectablelocationitemwidget.h \
     overlaysconnectwindow/generalmessagetwobuttonwindowitem.h \
     overlaysconnectwindow/igeneralmessagetwobuttonwindow.h \
     overlaysconnectwindow/generalmessagewindowitem.h \

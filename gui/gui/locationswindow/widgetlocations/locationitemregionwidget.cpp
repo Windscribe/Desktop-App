@@ -3,8 +3,6 @@
 #include <QPainter>
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
-#include "widgetlocationssizes.h"
-#include "graphicresources/fontmanager.h"
 
 #include <QDebug>
 
@@ -12,15 +10,10 @@ namespace GuiLocations {
 
 LocationItemRegionWidget::LocationItemRegionWidget(LocationModelItem *locationModelItem, QWidget *parent) : QAbstractButton(parent)
   , expanded_(false)
-  , locationID_(locationModelItem->id)
 {
-    height_ = REGION_HEIGHT;
-    textLabel_ = QSharedPointer<QLabel>(new QLabel(this));
-    textLabel_->setFont(*FontManager::instance().getFont(16, true));
-    textLabel_->setStyleSheet("QLabel { color : white; }");
-    textLabel_->setText(locationModelItem->title);
-    textLabel_->show();
-    updateScaling();
+    regionHeaderWidget_ = QSharedPointer<LocationItemRegionHeaderWidget>(new LocationItemRegionHeaderWidget(locationModelItem, this));
+    connect(regionHeaderWidget_.get(), SIGNAL(clicked()), SLOT(onRegionItemClicked()));
+    connect(regionHeaderWidget_.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onRegionItemSelected(SelectableLocationItemWidget *)));
 }
 
 LocationItemRegionWidget::~LocationItemRegionWidget()
@@ -31,12 +24,7 @@ LocationItemRegionWidget::~LocationItemRegionWidget()
 
 LocationID LocationItemRegionWidget::getId()
 {
-    return locationID_;
-}
-
-const QString LocationItemRegionWidget::name() const
-{
-    return textLabel_->text();
+    return regionHeaderWidget_->getId();
 }
 
 bool LocationItemRegionWidget::expandable() const
@@ -62,7 +50,7 @@ void LocationItemRegionWidget::setExpanded(bool expand)
     {
         if (expand)
         {
-            qDebug() << "Expanding: " << textLabel_->text();
+            qDebug() << "Expanding: " << regionHeaderWidget_->name();
             foreach (auto city, cities_)
             {
                 city->show();
@@ -70,7 +58,7 @@ void LocationItemRegionWidget::setExpanded(bool expand)
         }
         else
         {
-            qDebug() << "Collapsing: " << textLabel_->text();
+            qDebug() << "Collapsing: " << regionHeaderWidget_->name();
             foreach (auto city, cities_)
             {
                 city->hide();
@@ -92,16 +80,30 @@ void LocationItemRegionWidget::setShowLatencyMs(bool showLatencyMs)
 void LocationItemRegionWidget::addCity(CityModelItem city)
 {
     auto cityWidget = QSharedPointer<LocationItemCityWidget>(new LocationItemCityWidget(city, this));
+    connect(cityWidget.get(), SIGNAL(clicked(SelectableLocationItemWidget *)), SLOT(onCityItemClicked(SelectableLocationItemWidget *)));
+    connect(cityWidget.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onCityItemSelected(SelectableLocationItemWidget *)));
     cityWidget->hide();
     cities_.append(cityWidget);
     recalcItemPos();
 }
 
+QList<QSharedPointer<SelectableLocationItemWidget>> LocationItemRegionWidget::selectableWidgets()
+{
+    QList<QSharedPointer<SelectableLocationItemWidget>> widgets;
+    widgets.append(regionHeaderWidget_);
+    if (expanded())
+    {
+        foreach (auto city, cities_)
+        {
+            widgets.append(city);
+        }
+    }
+    return widgets;
+}
+
+
 void LocationItemRegionWidget::updateScaling()
 {
-    textLabel_->setFont(*FontManager::instance().getFont(16, true));
-    textLabel_->move(10 * G_SCALE, 10 * G_SCALE);
-
     foreach (auto city, cities_)
     {
         city->updateScaling();
@@ -113,7 +115,7 @@ void LocationItemRegionWidget::recalcItemPos()
 {
     qDebug() << "Recalc region height";
 
-    int height = REGION_HEIGHT * G_SCALE;
+    int height = LocationItemRegionHeaderWidget::REGION_HEADER_HEIGHT * G_SCALE;
 
     if (expanded_)
     {
@@ -134,10 +136,49 @@ void LocationItemRegionWidget::recalcItemPos()
 
 void LocationItemRegionWidget::paintEvent(QPaintEvent *event)
 {
-    // qDebug() << "Region painting";
-    QPainter painter(this);
-    painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, height_ * G_SCALE),
-                     WidgetLocationsSizes::instance().getBackgroundColor());
+
 }
 
+void LocationItemRegionWidget::enterEvent(QEvent *event)
+{
+    Q_UNUSED(event);
+    // qDebug() << "Region entered";
+}
+
+void LocationItemRegionWidget::leaveEvent(QEvent *event)
+{
+    Q_UNUSED(event);
+    // qDebug() << "Region left";
+    // let the LocationItemListWidget handle unselecting
+}
+
+void LocationItemRegionWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+    // qDebug() << "Mouse move event in region: " << textLabel_->text();
+
+}
+
+void LocationItemRegionWidget::onRegionItemSelected(SelectableLocationItemWidget *regionWidget)
+{
+    emit selected(regionWidget);
+}
+
+void LocationItemRegionWidget::onRegionItemClicked()
+{
+    emit QAbstractButton::clicked();
+}
+
+void LocationItemRegionWidget::onCityItemClicked(LocationItemCityWidget *cityWidget)
+{
+    emit clicked(cityWidget);
+}
+
+void LocationItemRegionWidget::onCityItemSelected(SelectableLocationItemWidget *cityWidget)
+{
+    emit selected(cityWidget);
+}
+
+
 } // namespace
+

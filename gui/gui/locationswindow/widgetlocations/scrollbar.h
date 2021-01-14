@@ -14,6 +14,9 @@ public:
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
+//    void mousePressEvent(QMouseEvent *event) override;
+//    void mouseReleaseEvent(QMouseEvent *event) override;
+//    void mouseMoveEvent(QMouseEvent *event) override;
 
 private slots:
     void onScrollAnimationValueChanged(const QVariant &value);
@@ -28,7 +31,11 @@ private:
     int animationDuration_;
     QElapsedTimer elapsedTimer_;
     QTimer timer_;
+    int lastCursorPos_;
 
+    bool pressed_;
+
+    int stepIncrement() const;
 };
 
 #endif // SCROLLBAR_H

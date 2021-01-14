@@ -7,6 +7,8 @@
 
 ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
   , targetValue_(0)
+  , pressed_(false)
+  , lastCursorPos_(0)
 {
     timer_.setInterval(1);
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimerTick()));
@@ -54,6 +56,49 @@ void ScrollBar::paintEvent(QPaintEvent *event)
     QScrollBar::paintEvent(event);
 }
 
+//void ScrollBar::mousePressEvent(QMouseEvent *event)
+//{
+//    qDebug() << "mouse press: " << event->pos().y();
+//    lastCursorPos_ = event->pos().y();
+//    pressed_ = true;
+
+//    QScrollBar::mouseReleaseEvent(event);
+//}
+
+//void ScrollBar::mouseReleaseEvent(QMouseEvent *event)
+//{
+//    qDebug() << "mouse release";
+//    pressed_ = false;
+
+//    QScrollBar::mouseReleaseEvent(event);
+//}
+
+//void ScrollBar::mouseMoveEvent(QMouseEvent *event)
+//{
+////    if (pressed_)
+////    {
+////        int diff = event->pos().y() - lastCursorPos_;
+////        qDebug() << "diff: " << diff;
+////        if (diff >= singleStep())
+////        {
+////            qDebug() << "Moving slider down";
+////            lastCursorPos_ = event->pos().y();
+////            //setSliderPosition(sliderPosition() + 10);
+////            triggerAction(QAbstractSlider::SliderSingleStepAdd);
+////        }
+////        else if (diff <= -singleStep())
+////        {
+////            qDebug() << "Moving slider up";
+////            lastCursorPos_ = event->pos().y();
+////            //setSliderPosition(sliderPosition() - 10);
+////            triggerAction(QAbstractSlider::SliderSingleStepSub);
+////        }
+////    }
+////    qDebug() << event->pos();
+
+//    QScrollBar::mouseMoveEvent(event);
+//}
+
 void ScrollBar::onScrollAnimationValueChanged(const QVariant &value)
 {
     setValue(value.toInt());
@@ -73,4 +118,10 @@ void ScrollBar::onTimerTick()
     int curValue = startValue_ + durationFraction * (targetValue_ - startValue_);
     // qDebug() << "Setting value: " << curValue;
     setValue(curValue);
+}
+
+int ScrollBar::stepIncrement() const
+{
+    double fraction = (double) singleStep()/maximum();
+    return (int)(maximum() * fraction);
 }

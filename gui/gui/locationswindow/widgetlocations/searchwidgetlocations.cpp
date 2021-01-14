@@ -19,8 +19,6 @@
 namespace GuiLocations {
 
 SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(parent),
-    width_(0),
-    height_(0),
     topInd_(0),
     topOffs_(0),
     indSelected_(-1),
@@ -42,52 +40,21 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     setMouseTracking(true);
     setStyleSheet("background-color: rgba(0,0,0,0)");
 
-
-//    scrollBarHidden_ = new CustomScrollBar(NULL, true);
-//    scrollBarOnTop_ = new CustomScrollBar(this, false);
-//    scrollBarOnTop_->setGeometry(50, 0, getScrollBarWidth(), 170 * G_SCALE);
-//    connect(scrollBarOnTop_, SIGNAL(valueChanged(int)), SLOT(onTopScrollBarValueChanged(int)));
-
-//    scrollBarHidden_->setStyleSheet(QString( "QScrollBar:vertical { margin: %1px 0px %2px 0px; border: none; background: rgba(0, 0, 0, 255); width: %3px; }"
-//                                             "QScrollBar::handle:vertical { background: rgb(106, 119, 144); color:  rgb(106, 119, 144);"
-//                                             "border-width: %4px; border-style: solid; border-radius: %5px;}"
-//                                             "QScrollBar::add-line:vertical { border: none; background: none; }"
-//                                             "QScrollBar::sub-line:vertical { border: none; background: none; }")
-//                                              .arg(qCeil(0))
-//                                              .arg(qCeil(0))
-//                                              .arg(qCeil(0))
-//                                              .arg(qCeil(0)).arg(qCeil(0)));
-
-//    scrollBarOnTop_->setStyleSheet(QString( "QScrollBar:vertical { margin: %1px 0px %2px 0px; border: none; background: rgba(0, 0, 0, 255); width: %3px; }"
-//                                             "QScrollBar::handle:vertical { background: rgb(106, 119, 144); color:  rgb(106, 119, 144);"
-//                                             "border-width: %4px; border-style: solid; border-radius: %5px;}"
-//                                             "QScrollBar::add-line:vertical { border: none; background: none; }"
-//                                             "QScrollBar::sub-line:vertical { border: none; background: none; }")
-//                                              .arg(qCeil(CustomScrollBar::SCROLL_BAR_MARGIN))
-//                                              .arg(qCeil(CustomScrollBar::SCROLL_BAR_MARGIN))
-//                                              .arg(getScrollBarWidth())
-//                                              .arg(qCeil(4)).arg(qCeil(3)));
-
     scrollBar_ = new ScrollBar(this);
     setVerticalScrollBar(scrollBar_);
     locationItemListWidget_ = new LocationItemListWidget(this);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    verticalScrollBar()->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+
     setWidget(locationItemListWidget_);
     connect(locationItemListWidget_, SIGNAL(heightChanged(int)), SLOT(onLocationItemListWidgetHeightChanged(int)));
     locationItemListWidget_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, 0);
     locationItemListWidget_->show();
 
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    verticalScrollBar()->setSingleStep(50); // scroll by this many px at a time
-    // verticalScrollBar()->setSizeIncrement(QSize(1,1));
-    //setVerticalScrollBar(scrollBarHidden_);
-    //this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
     setFocusPolicy(Qt::NoFocus);
     cursorUpdateHelper_.reset(new CursorUpdateHelper(viewport()));
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
-    // setupScrollBar();
 }
 
 SearchWidgetLocations::~SearchWidgetLocations()
@@ -242,11 +209,6 @@ int SearchWidgetLocations::getTopOffset() const
     return WidgetLocationsSizes::instance().getTopOffset();
 }
 
-//QSize SearchWidgetLocations::sizeHint() const
-//{
-//    return QSize(355, getItemHeight() * countOfAvailableItemSlots_ + (getTopOffset() - 1));
-//}
-
 //void SearchWidgetLocations::onKeyPressEvent(QKeyEvent *event)
 //{
 //    handleKeyEvent((QKeyEvent *)event);
@@ -320,14 +282,11 @@ void SearchWidgetLocations::paintEvent(QPaintEvent *event)
 // called by change in the vertical scrollbar
 void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
 {
-    // qDebug() << "Scrolling contents by: " << dy;
+    qDebug() << "Scrolling contents by: " << dy;
 
-    // verticalScrollBar()->value();
-
+    locationItemListWidget_->selectWidgetContainingCursor();
 
     QScrollArea::scrollContentsBy(dx,dy);
-    //update();
-
 }
 
 void SearchWidgetLocations::mouseMoveEvent(QMouseEvent *event)
@@ -428,45 +387,14 @@ void SearchWidgetLocations::onLanguageChanged()
 {
 }
 
-void SearchWidgetLocations::onLocationItemListWidgetHeightChanged(int height)
+void SearchWidgetLocations::onLocationItemListWidgetHeightChanged(int listWidgetHeight)
 {
-//    qDebug() << "SearchWidgetLocations::onLocationItemListWidgetHeightChanged: " << height;
-//    qDebug() << "SearchLocations height: "<< geometry().height();
+    //qDebug() << "SearchWidgetLocations::onLocationItemListWidgetHeightChanged: " << listWidgetHeight;
+    //qDebug() << "SearchLocations height: "<< geometry().height();
 
-    locationItemListWidget_->setGeometry(0,locationItemListWidget_->geometry().y(), WINDOW_WIDTH*G_SCALE, height);
-    verticalScrollBar()->setRange(0, height - verticalScrollBar()->pageStep()); // update scroll bar
-}
-
-void SearchWidgetLocations::setupScrollBar()
-{
-    verticalScrollBar()->setMinimum(0);
-    verticalScrollBar()->setSingleStep(1);
-    verticalScrollBar()->setPageStep(countOfAvailableItemSlots_);
-
-    scrollBarOnTop_->setMinimum(0);
-    scrollBarOnTop_->setSingleStep(1);
-    scrollBarOnTop_->setPageStep(countOfAvailableItemSlots_);
-}
-
-void SearchWidgetLocations::setupScrollBarMaxValue()
-{
-    int cntItems = countVisibleItems();
-
-    if ((cntItems - countOfAvailableItemSlots_) > 0)
-    {
-        scrollBarOnTop_->setMaximum(cntItems - countOfAvailableItemSlots_);
-        verticalScrollBar()->setMaximum(cntItems - countOfAvailableItemSlots_);
-        if (!scrollBarOnTop_->isVisible())
-        {
-            scrollBarOnTop_->show();
-        }
-    }
-    else
-    {
-        scrollBarOnTop_->setMaximum(0);
-        verticalScrollBar()->setMaximum(0);
-        scrollBarOnTop_->hide();
-    }
+    locationItemListWidget_->setGeometry(0,locationItemListWidget_->geometry().y(), WINDOW_WIDTH*G_SCALE, listWidgetHeight);
+    verticalScrollBar()->setRange(0, listWidgetHeight - verticalScrollBar()->pageStep()); // update scroll bar
+    verticalScrollBar()->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
 }
 
 bool SearchWidgetLocations::detectSelectedItem(const QPoint &cursorPos)
@@ -593,13 +521,6 @@ int SearchWidgetLocations::countVisibleItems()
         cntItems += item->countVisibleItems();
     }
     return cntItems;
-}
-
-void SearchWidgetLocations::setSize(int width, int height)
-{
-    width_ = width;
-    height_ = height;
-    update();
 }
 
 void SearchWidgetLocations::updateScaling()

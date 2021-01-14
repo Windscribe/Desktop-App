@@ -13,11 +13,16 @@ public:
     explicit LocationItemListWidget(QWidget *parent = nullptr);
     ~LocationItemListWidget();
 
+    int countRegions() const;
     void clearWidgets();
     void addRegionWidget(LocationModelItem *item);
     void addCityToRegion(CityModelItem city, LocationModelItem *region);
 
     void updateScaling();
+
+    void selectWidgetContainingCursor();
+
+    static const int ITEM_HEIGHT = 50;
 
 signals:
     void heightChanged(int height);
@@ -27,12 +32,17 @@ protected:
 
 private slots:
     void onRegionWidgetHeightChanged(int height);
-    void onRegionWidgetClicked();
+
+    void onLocationItemCityClicked(LocationItemCityWidget *cityWidget);
+    void onLocationItemRegionClicked();
+    void onSelectableLocationItemSelected(SelectableLocationItemWidget *itemWidget);
 
 private:
     int height_;
     QList<QSharedPointer<LocationItemRegionWidget>> itemWidgets_;
     void recalcItemPos();
+    QList<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
+
 };
 
 }

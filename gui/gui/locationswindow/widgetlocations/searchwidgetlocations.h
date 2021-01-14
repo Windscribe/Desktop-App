@@ -58,8 +58,8 @@ public:
 
     int countVisibleItems() override; // visible is ambiguous
 
-    void setSize(int width, int height);
     void updateScaling();
+
 
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;
@@ -88,16 +88,13 @@ private slots:
 
     void onLanguageChanged();
 
-    void onLocationItemListWidgetHeightChanged(int height);
+    void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
 
 private:
     LocationItemListWidget *locationItemListWidget_;
     void updateWidgetList(QVector<LocationModelItem *> items);
 
-
     QString filterString_;
-    int width_;
-    int height_;
 
     int topInd_;
     int topOffs_;
@@ -126,8 +123,6 @@ private:
     bool bTapGestureStarted_;
 
     ScrollBar *scrollBar_;
-    CustomScrollBar *scrollBarHidden_;
-    QScrollBar *scrollBarOnTop_;
     BasicLocationsModel *locationsModel_;
 
     QList<LocationItem *> currentVisibleItems_;
@@ -140,8 +135,6 @@ private:
 
     int getItemHeight() const;
     int getTopOffset() const;
-    void setupScrollBar();
-    void setupScrollBarMaxValue();
     bool detectSelectedItem(const QPoint &cursorPos);
     bool detectItemClickOnArrow();
     int detectItemClickOnFavoriteLocationIcon();
@@ -175,7 +168,6 @@ private:
     int viewportIndexOfLocationHeader(LocationItem *locationItem);
 
     void updateSelectionCursorAndToolTipByCursorPos();
-
 
 };
 

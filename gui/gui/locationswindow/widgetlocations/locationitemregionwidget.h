@@ -1,12 +1,10 @@
 #ifndef LOCATIONITEMREGIONWIDGET_H
 #define LOCATIONITEMREGIONWIDGET_H
 
-#include <QAbstractButton>
 #include <QList>
-#include <QLabel>
 #include "../backend/locationsmodel/basiclocationsmodel.h"
-#include "citynode.h"
 #include "locationitemcitywidget.h"
+#include "locationitemregionheaderwidget.h"
 
 namespace GuiLocations {
 
@@ -18,31 +16,40 @@ public:
     ~LocationItemRegionWidget();
 
     LocationID getId();
-    const QString name() const;
     bool expandable() const;
     bool expanded() const;
     void setExpanded(bool expand);
     void setShowLatencyMs(bool showLatencyMs);
 
     void addCity(CityModelItem city);
+    QList<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
+
     void updateScaling();
-
     void recalcItemPos();
-
-    static const int REGION_HEIGHT = 50;
 
 signals:
     void heightChanged(int height);
+    void selected(SelectableLocationItemWidget *itemWidget);
+    void clicked(LocationItemCityWidget *itemWidget);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+
+private slots:
+    void onRegionItemSelected(SelectableLocationItemWidget *regionWidget);
+    void onRegionItemClicked();
+    void onCityItemSelected(SelectableLocationItemWidget *cityWidget);
+    void onCityItemClicked(LocationItemCityWidget *cityWidget);
 
 private:
+    QSharedPointer<LocationItemRegionHeaderWidget> regionHeaderWidget_;
+    QList<QSharedPointer<LocationItemCityWidget>> cities_;
+
     bool expanded_;
     int height_;
-    QSharedPointer<QLabel> textLabel_;
-    LocationID locationID_;
-    QList<QSharedPointer<LocationItemCityWidget>> cities_;
 };
 
 }

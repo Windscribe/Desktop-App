@@ -25,6 +25,7 @@ const double OPACITY_UNHOVER_ICON_TEXT       = 0.2;
 const double OPACITY_UNHOVER_ICON_TEXT_DARK  = 0.3;
 const double OPACITY_UNHOVER_ICON_STANDALONE = 0.4;
 const double OPACITY_UNHOVER_TEXT            = 0.4;
+const double OPACITY_HALF                    = 0.5;
 const double OPACITY_FULL                    = 1.0;
 
 const double OPACITY_BACKGROUND_PROGRESS     = 0.25;
