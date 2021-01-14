@@ -44,7 +44,7 @@ void RoutesManager::disable()
 	isEnabled_ = false; 
 }
 
-void RoutesManager::setSettings(bool isExclude, const std::vector<IpAddress> &ips, const std::vector<std::string> &hosts)
+void RoutesManager::setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts)
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
 
@@ -70,7 +70,7 @@ void RoutesManager::dnsResolverCallback(std::map<std::string, DnsResolver::HostI
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-	std::vector<IpAddress> hostsIps;
+	std::vector<Ip4AddressAndMask> hostsIps;
 	for (auto it = hostInfos.begin(); it != hostInfos.end(); ++it)
 	{
 		if (!it->second.error)
@@ -78,7 +78,7 @@ void RoutesManager::dnsResolverCallback(std::map<std::string, DnsResolver::HostI
 			std::vector<std::string> addresses = it->second.addresses;
 			for (auto addr = addresses.begin(); addr != addresses.end(); ++addr)
 			{
-				hostsIps.push_back(IpAddress(addr->c_str()));
+				hostsIps.push_back(Ip4AddressAndMask(addr->c_str()));
 				Logger::instance().out("RoutesManager::dnsResolverCallback(), Resolved : %s, IP: %s", it->first.c_str(), addr->c_str());
 			}
 		}

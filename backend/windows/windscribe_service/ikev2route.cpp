@@ -1,7 +1,7 @@
 #include "all_headers.h"
 #include "ikev2route.h"
 #include "adapters_info.h"
-#include "ip_address.h"
+#include "ip_address/ip4_address_and_mask.h"
 #include "logger.h"
 
 #pragma comment(lib, "Ntdll.lib")
@@ -24,7 +24,7 @@ bool IKEv2Route::addRouteForIKEv2()
 			row.dwForwardDest = 0;
 			row.dwForwardMask = 0;
 			row.dwForwardPolicy = 0;
-			row.dwForwardNextHop = IpAddress(ip.c_str()).IPv4NetworkOrder();
+			row.dwForwardNextHop = Ip4AddressAndMask(ip.c_str()).ipNetworkOrder();
 			row.dwForwardIfIndex = ifIndex;
 			row.dwForwardType = MIB_IPROUTE_TYPE_INDIRECT;
 			row.dwForwardProto = MIB_IPPROTO_NETMGMT;

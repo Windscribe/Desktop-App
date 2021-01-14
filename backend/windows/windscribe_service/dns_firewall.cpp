@@ -3,7 +3,7 @@
 #include "dns_firewall.h"
 #include "logger.h"
 #include "utils.h"
-#include "ip_address.h"
+#include "ip_address/ip4_address_and_mask.h"
 
 #define	FIREWALL_SUBLAYER_DNS_NAMEW     L"WindscribeDnsFirewallSublayer"
 #define UUID_LAYER_DNS L"7e4a5678-bc70-45e8-8674-21a8e610fd02"
@@ -108,9 +108,9 @@ void DnsFirewall::addFilters(HANDLE engineHandle)
 		condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
 		condition[0].conditionValue.v4AddrMask = &addrMask;
 
-		IpAddress ipAddress(dnsServers[i].c_str());
-		addrMask.addr = ipAddress.IPv4HostOrder();
-		addrMask.mask = VISTA_SUBNET_MASK;
+		Ip4AddressAndMask ipAddress(dnsServers[i].c_str());
+		addrMask.addr = ipAddress.ipHostOrder();
+		addrMask.mask = ipAddress.maskHostOrder();
 
 		condition[1].fieldKey = FWPM_CONDITION_IP_REMOTE_PORT;
 		condition[1].matchType = FWP_MATCH_EQUAL;

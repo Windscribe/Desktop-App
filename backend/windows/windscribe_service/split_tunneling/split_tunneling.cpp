@@ -67,10 +67,10 @@ void SplitTunneling::setSettings(bool isExclude, const std::vector<std::wstring>
 		calloutFilter_.setSettings(isExclude, appsIds);
 		firewallFilter_.setSplitTunnelingAppsIds(appsIds, isExclude);
 
-		std::vector<IpAddress> ipsList;
+		std::vector<Ip4AddressAndMask> ipsList;
 		for (auto it = ips.begin(); it != ips.end(); ++it)
 		{
-			ipsList.push_back(IpAddress(it->c_str()));
+			ipsList.push_back(Ip4AddressAndMask(it->c_str()));
 		}
 
 		routesManager_.setSettings(isExclude, ipsList, hosts);

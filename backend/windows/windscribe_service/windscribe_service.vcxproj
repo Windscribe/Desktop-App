@@ -348,10 +348,10 @@
     <ClInclude Include="get_active_processes.h" />
     <ClInclude Include="ikev2ipsec.h" />
     <ClInclude Include="ikev2route.h" />
-    <ClInclude Include="ip_address.h" />
     <ClInclude Include="ipc\serialize_structs.h" />
     <ClInclude Include="ipc\servicecommunication.h" />
     <ClInclude Include="ipv6_firewall.h" />
+    <ClInclude Include="ip_address\ip4_address_and_mask.h" />
     <ClInclude Include="registry.h" />
     <ClInclude Include="reinstall_wan_ikev2.h" />
     <ClInclude Include="remove_windscribe_network_profiles.h" />
@@ -397,8 +397,8 @@
     <ClCompile Include="ikev2ipsec.cpp" />
     <ClCompile Include="ikev2route.cpp" />
     <ClCompile Include="ioutils.cpp" />
-    <ClCompile Include="ip_address.cpp" />
     <ClCompile Include="ipv6_firewall.cpp" />
+    <ClCompile Include="ip_address\ip4_address_and_mask.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="pipe_for_process.cpp" />
     <ClCompile Include="registry.cpp" />

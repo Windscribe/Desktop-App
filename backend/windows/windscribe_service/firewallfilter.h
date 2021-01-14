@@ -2,7 +2,7 @@
 #define FIREWALLFILTER_H
 
 #include "apps_ids.h"
-#include "ip_address.h"
+#include "ip_address/ip4_address_and_mask.h"
 #include "fwpm_wrapper.h"
 
 #define UUID_LAYER L"367016b3-3af8-4966-8442-d8bb6435f4a0"
@@ -23,7 +23,7 @@ public:
 	void setSplitTunnelingDisabled();
 
 	void setSplitTunnelingAppsIds(const AppsIds &appsIds, bool isExclusiveMode);
-	void setSplitTunnelingWhitelistIps(const std::vector<IpAddress> &ips);
+	void setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips);
 
 	// WireGuard parameters
 	void addFilterForWireGuardAdapter(NET_LUID luid);
@@ -62,7 +62,7 @@ private:
 	bool isSplitTunnelingEnabled_;
 	bool isSplitTunnelingExclusiveMode_;
 	AppsIds appsIds_;
-	std::vector<IpAddress> splitRoutingIps_;
+	std::vector<Ip4AddressAndMask> splitRoutingIps_;
 	
 	std::vector<UINT64> filterIdsApps_;
 	std::vector<UINT64> filterIdsSplitRoutingIps_;

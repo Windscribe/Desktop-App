@@ -1,6 +1,6 @@
 #include "../all_headers.h"
 #include "../executecmd.h"
-#include "../ip_address.h"
+#include "../ip_address/ip4_address_and_mask.h"
 #include "../logger.h"
 #include "../utils.h"
 #include "wireguardadapter.h"
@@ -48,7 +48,7 @@ std::wstring GetDeviceGuid(const std::wstring &deviceName)
     return strGuid;
 }
 
-void CleanupAddressOnDisconnectedInterfaces(const IpAddress &address, UINT8 cidr)
+void CleanupAddressOnDisconnectedInterfaces(const Ip4AddressAndMask &address, UINT8 cidr)
 {
     const int kMaxTries = 5;
     ULONG status = NO_ERROR, bufferSize = 15000u;
@@ -73,7 +73,7 @@ void CleanupAddressOnDisconnectedInterfaces(const IpAddress &address, UINT8 cidr
                 addr->OnLinkPrefixLength != cidr)
                 continue;
             const auto *ip4addr = reinterpret_cast<const sockaddr_in*>(addr->Address.lpSockaddr);
-            if (ip4addr->sin_addr.S_un.S_addr != address.IPv4NetworkOrder())
+            if (ip4addr->sin_addr.S_un.S_addr != address.ipNetworkOrder())
                 continue;
             Logger::instance().out(L"Cleaning up stale address %ls from interface %ls",
                 address.asString().c_str(), data->FriendlyName);
@@ -81,7 +81,7 @@ void CleanupAddressOnDisconnectedInterfaces(const IpAddress &address, UINT8 cidr
             InitializeUnicastIpAddressEntry(&ipentry);
             ipentry.InterfaceLuid = data->Luid;
             ipentry.Address.Ipv4.sin_family = AF_INET;
-            ipentry.Address.Ipv4.sin_addr.S_un.S_addr = address.IPv4NetworkOrder();
+            ipentry.Address.Ipv4.sin_addr.S_un.S_addr = address.ipNetworkOrder();
             status = DeleteUnicastIpAddressEntry(&ipentry);
             if (status != NO_ERROR)
                 Logger::instance().out(L"DeleteUnicastIpAddressEntry failed");
@@ -141,7 +141,7 @@ bool WireGuardAdapter::setIpAddress(const std::string &address, bool isDefault)
         return false;
     std::vector<std::string> address_and_cidr;
     boost::split(address_and_cidr, address, boost::is_any_of("/"), boost::token_compress_on);
-    IpAddress ipaddr(address_and_cidr[0].c_str());
+    Ip4AddressAndMask ipaddr(address_and_cidr[0].c_str());
     UINT8 cidr = 0;
     if (address_and_cidr.size() > 1)
         cidr = strtol(address_and_cidr[1].c_str(), nullptr, 10);
@@ -172,7 +172,7 @@ bool WireGuardAdapter::setIpAddress(const std::string &address, bool isDefault)
     InitializeUnicastIpAddressEntry(&ipentry);
     ipentry.InterfaceLuid = luid_;
     ipentry.Address.Ipv4.sin_family = AF_INET;
-    ipentry.Address.Ipv4.sin_addr.S_un.S_addr = ipaddr.IPv4NetworkOrder();
+	ipentry.Address.Ipv4.sin_addr.S_un.S_addr = ipaddr.ipNetworkOrder();
     ipentry.OnLinkPrefixLength = cidr;
     status = CreateUnicastIpAddressEntry(&ipentry);
     if (status != NO_ERROR) {
@@ -222,7 +222,7 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps)
     for (const auto &ip : allowedIps) {
         std::vector<std::string> address_and_cidr;
         boost::split(address_and_cidr, ip, boost::is_any_of("/"), boost::token_compress_on);
-        IpAddress ipaddr(address_and_cidr[0].c_str());
+        Ip4AddressAndMask ipaddr(address_and_cidr[0].c_str());
         UINT8 cidr = 0;
         if (address_and_cidr.size() > 1)
             cidr = strtol(address_and_cidr[1].c_str(), nullptr, 10);
@@ -230,7 +230,7 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps)
         InitializeIpForwardEntry(&entry);
         entry.InterfaceLuid = luid_;
         entry.DestinationPrefix.Prefix.si_family = AF_INET;
-        entry.DestinationPrefix.Prefix.Ipv4.sin_addr.S_un.S_addr = ipaddr.IPv4NetworkOrder();
+		entry.DestinationPrefix.Prefix.Ipv4.sin_addr.S_un.S_addr = ipaddr.ipNetworkOrder();
         entry.DestinationPrefix.PrefixLength = cidr;
         entry.NextHop.si_family = AF_INET;
         entry.NextHop.Ipv4.sin_addr.S_un.S_addr = 0;

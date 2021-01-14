@@ -7,19 +7,19 @@ IpRoutes::IpRoutes()
 }
 
 
-void IpRoutes::setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<IpAddress> &ips)
+void IpRoutes::setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<Ip4AddressAndMask> &ips)
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
 
 	// exclude duplicates
-	std::set<IpAddress> ipsSet;
+	std::set<Ip4AddressAndMask> ipsSet;
 	for (auto ip = ips.begin(); ip != ips.end(); ++ip)
 	{
 		ipsSet.insert(*ip);
 	}
 
 	// find route which need delete
-	std::set<IpAddress> ipsDelete;
+	std::set<Ip4AddressAndMask> ipsDelete;
 	for (auto it = activeRoutes_.begin(); it != activeRoutes_.end(); ++it)
 	{
 		if (ipsSet.find(it->first) == ipsSet.end())
@@ -43,7 +43,6 @@ void IpRoutes::setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<IpAd
 		}
 	}
 
-	DWORD dwMask = IpAddress("255.255.255.255").IPv4NetworkOrder();
 	for (auto ip = ipsSet.begin(); ip != ipsSet.end(); ++ip)
 	{
 		auto ar = activeRoutes_.find(*ip);
@@ -56,8 +55,8 @@ void IpRoutes::setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<IpAd
 			// add route
 			MIB_IPFORWARDROW row = rowDefault;
 
-			row.dwForwardDest = ip->IPv4NetworkOrder();
-			row.dwForwardMask = dwMask;
+			row.dwForwardDest = ip->ipNetworkOrder();
+			row.dwForwardMask = ip->maskNetworkOrder();
 			row.dwForwardAge = INFINITE;
 
 			DWORD status = CreateIpForwardEntry(&row);

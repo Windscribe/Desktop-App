@@ -149,7 +149,7 @@ void FirewallFilter::setSplitTunnelingAppsIds(const AppsIds &appsIds, bool isExc
 	fwpmWrapper_.unlock();
 }
 
-void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<IpAddress> &ips)
+void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips)
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
 	if (splitRoutingIps_ == ips)
@@ -310,9 +310,9 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
             condition[0].conditionValue.v4AddrMask = &addrMask;
 
-			IpAddress ipAddr(ipAddresses[i].c_str());
-            addrMask.addr = ipAddr.IPv4HostOrder();
-            addrMask.mask = VISTA_SUBNET_MASK;
+			Ip4AddressAndMask ipAddr(ipAddresses[i].c_str());
+			addrMask.addr = ipAddr.ipHostOrder();
+            addrMask.mask = ipAddr.maskHostOrder();
 
             UINT64 filterId;
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
@@ -383,9 +383,9 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
             condition[0].conditionValue.v4AddrMask = &addrMask;
 
-			IpAddress ipAddress(L"192.168.0.0");
-            addrMask.addr = ipAddress.IPv4HostOrder();
-            addrMask.mask = 0xFFFF0000;
+			Ip4AddressAndMask ipAddress("192.168.0.0/16");
+			addrMask.addr = ipAddress.ipHostOrder();
+            addrMask.mask = ipAddress.maskHostOrder();
 
             UINT64 filterId;
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
@@ -416,9 +416,9 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
             condition[0].conditionValue.v4AddrMask = &addrMask;
 
-			IpAddress ipAddress(L"172.16.0.0");
-            addrMask.addr = ipAddress.IPv4HostOrder();
-            addrMask.mask = 0xFFF00000;
+			Ip4AddressAndMask ipAddress(L"172.16.0.0/12");
+            addrMask.addr = ipAddress.ipHostOrder();
+            addrMask.mask = ipAddress.maskHostOrder();
 
             UINT64 filterId;
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
@@ -449,9 +449,9 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
             condition[0].conditionValue.v4AddrMask = &addrMask;
 
-			IpAddress ipAddress(L"10.0.0.0");
-            addrMask.addr = ipAddress.IPv4HostOrder();
-            addrMask.mask = 0xFF000000;
+			Ip4AddressAndMask ipAddress(L"10.0.0.0/8");
+			addrMask.addr = ipAddress.ipHostOrder();
+			addrMask.mask = ipAddress.maskHostOrder();
 
             UINT64 filterId;
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
@@ -516,9 +516,9 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
 			condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
 			condition[0].conditionValue.v4AddrMask = &addrMask;
 
-			IpAddress ipAddress(L"127.0.0.0");
-			addrMask.addr = ipAddress.IPv4HostOrder();
-			addrMask.mask = 0xFF000000;
+			Ip4AddressAndMask ipAddress(L"127.0.0.0/8");
+			addrMask.addr = ipAddress.ipHostOrder();
+			addrMask.mask = ipAddress.maskHostOrder();
 
 			UINT64 filterId;
 			dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
@@ -776,8 +776,8 @@ void FirewallFilter::addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHan
 		conditions[i].conditionValue.type = FWP_V4_ADDR_MASK;
 		conditions[i].conditionValue.v4AddrMask = &addrMasks[i];
 
-		addrMasks[i].addr = splitRoutingIps_[i].IPv4HostOrder();
-		addrMasks[i].mask = VISTA_SUBNET_MASK;
+		addrMasks[i].addr = splitRoutingIps_[i].ipHostOrder();
+		addrMasks[i].mask = splitRoutingIps_[i].maskHostOrder();
 	}
 
 	FWPM_FILTER filter = { 0 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ip_address.h"
+#include "../ip_address/ip4_address_and_mask.h"
 #include "../firewallfilter.h"
 #include "dns_resolver.h"
 #include "ip_routes.h"
@@ -13,7 +13,7 @@ public:
 
 	void enable(const MIB_IPFORWARDROW &rowDefault);
 	void disable();
-	void setSettings(bool isExclude, const std::vector<IpAddress> &ips, const std::vector<std::string> &hosts);
+	void setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts);
 
 private:
 	FirewallFilter &firewallFilter_;
@@ -26,7 +26,7 @@ private:
 	bool isExcludeMode_;
 
 	// latest ips and hosts list
-	std::vector<IpAddress> ipsLatest_;
+	std::vector<Ip4AddressAndMask> ipsLatest_;
 	std::vector<std::string> hostsLatest_;
 
 	MIB_IPFORWARDROW rowDefault_;

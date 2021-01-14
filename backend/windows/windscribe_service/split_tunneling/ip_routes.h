@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ip_address.h"
+#include "../ip_address/ip4_address_and_mask.h"
 #include "dns_resolver.h"
 
 class IpRoutes
@@ -8,11 +8,11 @@ class IpRoutes
 public:
 	IpRoutes();
 
-	void setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<IpAddress> &ips);
+	void setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<Ip4AddressAndMask> &ips);
 	void clear();
 
 private:
 	std::recursive_mutex mutex_;
-	std::map<IpAddress, MIB_IPFORWARDROW> activeRoutes_;
+	std::map<Ip4AddressAndMask, MIB_IPFORWARDROW> activeRoutes_;
 };
 

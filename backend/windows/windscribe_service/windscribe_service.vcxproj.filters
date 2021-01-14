@@ -34,6 +34,12 @@
     <Filter Include="Header Files\common">
       <UniqueIdentifier>{4043dde5-5696-4f67-80f7-0995a19d37ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ip_address">
+      <UniqueIdentifier>{bfa95710-8f34-4208-85be-610fbe9c9406}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ip_address">
+      <UniqueIdentifier>{32286b8b-0fc4-4dbc-ae4b-231320d0851f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="executecmd.h">
@@ -120,9 +126,6 @@
     <ClInclude Include="all_headers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ip_address.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="apps_ids.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -170,6 +173,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\common\utils\crashhandler.h">
       <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="ip_address\ip4_address_and_mask.h">
+      <Filter>Header Files\ip_address</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -248,9 +254,6 @@
     <ClCompile Include="adapters_info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ip_address.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="apps_ids.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -298,6 +301,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\utils\crashhandler.cpp">
       <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="ip_address\ip4_address_and_mask.cpp">
+      <Filter>Source Files\ip_address</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
