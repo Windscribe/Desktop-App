@@ -502,9 +502,9 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
     widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight);
 
     staticIPDeviceInfo_->setGeometry(
-        0, (newHeight - 2) * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+        0, newHeight * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
     configFooterInfo_->setGeometry(
-        0, (newHeight - 2) * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+        0, newHeight * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
 
     updateScaling();
 }

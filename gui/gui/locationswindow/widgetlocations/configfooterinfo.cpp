@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QFileDialog>
+#include "widgetlocationssizes.h"
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
@@ -27,7 +28,7 @@ ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
 
 QSize ConfigFooterInfo::sizeHint() const
 {
-    return QSize(WINDOW_WIDTH * G_SCALE, HEIGHT_ * G_SCALE);
+    return QSize(WINDOW_WIDTH * G_SCALE, height());
 }
 
 QString ConfigFooterInfo::text() const
@@ -48,13 +49,13 @@ void ConfigFooterInfo::updateDisplayText()
     displayText_ = CommonGraphics::truncateText(fullText_, font_,
         width() - (WINDOW_MARGIN * 4 + 40) * G_SCALE);
     displayTextRect_.setRect(WINDOW_MARGIN * G_SCALE, 0,
-        CommonGraphics::textWidth(displayText_, font_), HEIGHT_ * G_SCALE);
+        CommonGraphics::textWidth(displayText_, font_), height() - BOTTOM_LINE_HEIGHT * G_SCALE);
 }
 
 void ConfigFooterInfo::updateButtonRects()
 {
     const int kIconSize = 16 * G_SCALE;
-    const int kIconYOffset = (HEIGHT_ * G_SCALE - kIconSize) / 2;
+    const int kIconYOffset = ((height() - BOTTOM_LINE_HEIGHT * G_SCALE) - kIconSize) / 2;
 
     iconButtons_[ICON_CLEAR].rect.setRect((WINDOW_WIDTH - WINDOW_MARGIN - 32) * G_SCALE - kIconSize,
         kIconYOffset, kIconSize, kIconSize);
@@ -73,11 +74,16 @@ void ConfigFooterInfo::paintEvent(QPaintEvent * /*event*/)
     QPainter painter(this);
     qreal initOpacity = painter.opacity();
 
-    painter.setOpacity(initOpacity * 0.5);
-    painter.fillRect(QRect(0,0,sizeHint().width(), sizeHint().height()), FontManager::instance().getCarbonBlackColor());
+    painter.fillRect(QRect(0,0,sizeHint().width(), sizeHint().height()),
+        FontManager::instance().getCarbonBlackColor());
+
+    const int kBottomLineHeight = BOTTOM_LINE_HEIGHT * G_SCALE;
+    painter.fillRect(QRect(0, height() - kBottomLineHeight, sizeHint().width(), kBottomLineHeight),
+                     GuiLocations::WidgetLocationsSizes::instance().getBackgroundColor());
 
     if (!displayText_.isEmpty()) {
         font_ = *FontManager::instance().getFont(14, false);
+        painter.setOpacity(initOpacity * 0.5);
         painter.setPen(Qt::white);
         painter.setFont(font_);
         painter.drawText(displayTextRect_, Qt::AlignVCenter, displayText_);

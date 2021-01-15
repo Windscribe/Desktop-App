@@ -36,7 +36,7 @@ private:
     int addStaticTextHeight_;
 
     QString deviceName_;
-    static constexpr int HEIGHT = 48;
+    static constexpr int BOTTOM_LINE_HEIGHT = 1;
     QFont font_;
 
     double curTextOpacity_;

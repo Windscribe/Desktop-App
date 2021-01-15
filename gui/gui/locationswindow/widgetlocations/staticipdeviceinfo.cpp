@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QDesktopServices>
 #include <QUrl>
+#include "widgetlocationssizes.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
@@ -34,7 +35,7 @@ void StaticIPDeviceInfo::setDeviceName(QString deviceName)
 
 QSize StaticIPDeviceInfo::sizeHint() const
 {
-    return QSize(WINDOW_WIDTH * G_SCALE, HEIGHT * G_SCALE);
+    return QSize(WINDOW_WIDTH * G_SCALE, height() * G_SCALE);
 }
 
 void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
@@ -46,8 +47,12 @@ void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
     qreal initOpacity = painter.opacity();
 
     // background
-    painter.setOpacity(initOpacity);
-    painter.fillRect(QRect(0,0, sizeHint().width(), sizeHint().height()), FontManager::instance().getCarbonBlackColor());
+    painter.fillRect(QRect(0,0, sizeHint().width(), sizeHint().height()),
+        FontManager::instance().getCarbonBlackColor());
+
+    const int kBottomLineHeight = BOTTOM_LINE_HEIGHT * G_SCALE;
+    painter.fillRect(QRect(0, height() - kBottomLineHeight, sizeHint().width(), kBottomLineHeight),
+        GuiLocations::WidgetLocationsSizes::instance().getBackgroundColor());
 
     font_ = *FontManager::instance().getFont(16, true);
 
