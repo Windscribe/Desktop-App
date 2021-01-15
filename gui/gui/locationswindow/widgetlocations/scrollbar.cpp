@@ -52,7 +52,10 @@ void ScrollBar::paintEvent(QPaintEvent *event)
     // QRect bkgd(0,0,geometry().width(), geometry().height());
     // painter.fillRect(bkgd, Qt::gray);
 
-    // qDebug() << "Painting scrollbar - max: " << maximum() << " pagestep: " << pageStep();
+//    qDebug() << "Scrollbar - max: " << maximum()
+//             << " pagestep: " << pageStep()
+//             << " singleStep: " << singleStep()
+//             << " value: " << value();
     QScrollBar::paintEvent(event);
 }
 

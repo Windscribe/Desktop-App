@@ -171,8 +171,7 @@ private:
 
     const QString scrollbarStyleSheet();
 
-    void scrollUp(int n);
-    void scrollDown(int n);
+    void scrollDown(int itemCount);
 };
 
 } // namespace GuiLocations

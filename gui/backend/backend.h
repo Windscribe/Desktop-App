@@ -109,6 +109,9 @@ public:
     void sendUpdateVersion();
     void cancelUpdateVersion();
 
+    void forceAllLocationsUpdate(); // TODO: remove after testing
+
+
 private slots:
     void onProcessStarted();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);

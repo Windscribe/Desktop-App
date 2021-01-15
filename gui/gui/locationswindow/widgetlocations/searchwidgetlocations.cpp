@@ -110,40 +110,24 @@ const QString SearchWidgetLocations::scrollbarStyleSheet()
             .arg(qCeil(3)); // handle border-radius
 }
 
-void SearchWidgetLocations::scrollUp(int n)
+void SearchWidgetLocations::scrollDown(int itemCount)
 {
-    int newY = locationItemListWidget_->geometry().y() + LocationItemListWidget::ITEM_HEIGHT * G_SCALE * n;
-    if (newY > 0) newY = 0;
-    locationItemListWidget_->move(0, newY);
-}
+    // Scrollbar values use positive (whilte itemListWidget uses negative geometry)
+    int newY = locationItemListWidget_->geometry().y() + LocationItemListWidget::ITEM_HEIGHT * G_SCALE * itemCount;
 
-void SearchWidgetLocations::scrollDown(int n)
-{
-    int newY = locationItemListWidget_->geometry().y() + LocationItemListWidget::ITEM_HEIGHT * G_SCALE * n;
-    int minimum = locationItemListWidget_->geometry().height() - geometry().height();
-    if (newY < minimum) newY = minimum;
-    locationItemListWidget_->move(0, newY);
+    // qDebug() << "SearchWidgetLocations is setting scrollbar value: " << newY;
+    verticalScrollBar()->setValue(newY);
 }
 
 void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 {
-    qDebug() << "Updating location widgets";
+    // storing previous location widget state
+    QVector<LocationID> expandedLocationIds = locationItemListWidget_->expandedLocationIds();
+    LocationID topSelectableLocationIdInViewport = locationItemListWidget_->topSelectableLocationIdInViewport();
+    LocationID lastSelectedLocationId = locationItemListWidget_->lastSelectedLocationId();
 
-    QVector<LocationID> expandedLocationIds;
-    LocationID topSelectableLocationIdInViewport;
-    LocationID lastSelectedLocationId;
-
-    bool saved = false;
-    if (locationItemListWidget_->itemWidgets().count() > 0)
-    {
-        expandedLocationIds = locationItemListWidget_->expandedLocationIds();
-        topSelectableLocationIdInViewport = locationItemListWidget_->topSelectableLocationIdInViewport();
-        lastSelectedLocationId = locationItemListWidget_->lastSelectedLocationId();
-        saved = true;
-    }
-
+    qDebug() << "Updating search locations widget list";
     locationItemListWidget_->clearWidgets();
-
     foreach (LocationModelItem *item, items)
     {
         if (item->title.contains(filterString_, Qt::CaseInsensitive))
@@ -173,8 +157,12 @@ void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
         }
     }
 
-    qDebug() << "Done updating location widgets";
-    qDebug() << "Scrollbar max: " << verticalScrollBar()->maximum();
+    // restoring previous widget state
+    locationItemListWidget_->expandLocationIds(expandedLocationIds);
+    int indexInNewList = locationItemListWidget_->selectableIndex(topSelectableLocationIdInViewport);
+    // qDebug() << "Moving viewport to index: " << indexInNewList;
+    scrollDown(indexInNewList);
+    locationItemListWidget_->selectItem(lastSelectedLocationId);
 }
 
 

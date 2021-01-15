@@ -118,7 +118,7 @@ const QVector<QSharedPointer<LocationItemRegionWidget>> &LocationItemListWidget:
 
 const LocationID LocationItemListWidget::topSelectableLocationIdInViewport()
 {
-    int index = geometry().y()/ITEM_HEIGHT;
+    int index = qAbs(geometry().y())/ITEM_HEIGHT;
     if (index < 0) return LocationID();
 
     auto widgets = selectableWidgets();
@@ -149,6 +149,19 @@ int LocationItemListWidget::selectableIndex(LocationID locationId)
 const LocationID LocationItemListWidget::lastSelectedLocationId() const
 {
     return lastSelectedLocationId_;
+}
+
+void LocationItemListWidget::selectItem(LocationID locationId)
+{
+    foreach (auto widget, selectableWidgets())
+    {
+        if (widget->getId() == locationId)
+        {
+            qDebug() << "Selecting: "<< widget->name();
+            widget->setSelected(true);
+            break;
+        }
+    }
 }
 
 const QVector<QSharedPointer<SelectableLocationItemWidget> > &LocationItemListWidget::visibleItemWidgets()

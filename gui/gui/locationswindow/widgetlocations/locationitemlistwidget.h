@@ -30,6 +30,7 @@ public:
     int selectableIndex(LocationID locationId);
 
     const LocationID lastSelectedLocationId() const;
+    void selectItem(LocationID locationId);
 
     static const int ITEM_HEIGHT = 50;
 

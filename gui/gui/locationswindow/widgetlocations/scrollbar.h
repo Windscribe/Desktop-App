@@ -5,6 +5,8 @@
 #include <QElapsedTimer>
 #include <QTimer>
 
+// TODO: bug - drag scroller down then wheel mouse (will scroll from pre-scroller selection)
+// TODO: bug - drag scroller -> doesn't move in animated notches, causes jittery viewport scrolling
 class ScrollBar : public QScrollBar
 {
     Q_OBJECT

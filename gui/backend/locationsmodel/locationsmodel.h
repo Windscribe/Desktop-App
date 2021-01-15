@@ -51,6 +51,8 @@ public:
     LocationID getBestLocationId() const;
     LocationID getFirstValidCustomConfigLocationId() const;
 
+    void forceAllLocationsUpdate(); // TODO: remove after testing
+
 signals:
     void locationSpeedChanged(LocationID id, PingTime speed);
     void bestLocationChanged(LocationID id);

@@ -47,6 +47,11 @@ Backend::~Backend()
     }
 }
 
+void Backend::forceAllLocationsUpdate()
+{
+    locationsModel_->forceAllLocationsUpdate();
+}
+
 void Backend::init()
 {
     qCDebug(LOG_BASIC) << "Backend::init()";
