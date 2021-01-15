@@ -17,10 +17,23 @@ InitWindowItem::InitWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject
   , cropHeight_(0)
   , height_(WINDOW_HEIGHT)
   , logoDist_(0)
+  , isgMsgSmallFont_(false)
 {
+#ifdef Q_OS_WIN
+    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", this);
+    connect(closeButton_, SIGNAL(clicked()), SIGNAL(abortClicked()));
+#else
+    closeButton_ = new IconButton(14, 14, "MAC_CLOSE_DEFAULT", this);
+    connect(closeButton_, SIGNAL(clicked()), SIGNAL(abortClicked()));
+    connect(closeButton_, &IconButton::hoverEnter, [=]() { closeButton_->setIcon("MAC_CLOSE_HOVER"); });
+    connect(closeButton_, &IconButton::hoverLeave, [=]() { closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
+    closeButton_->setSelected(true);
+#endif
     connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotationChanged(QVariant)));
     connect(&spinnerRotationAnimation_, SIGNAL(finished()), SLOT(onSpinnerRotationFinished()));
     connect(&logoPosAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLogoPosChanged(QVariant)));
+
+    updatePositions();
 }
 
 QRectF InitWindowItem::boundingRect() const
@@ -51,7 +64,8 @@ void InitWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     // additional message
     if (!msg_.isEmpty())
     {
-        painter->setFont(*FontManager::instance().getFont(16, false, 105));
+        const int kFontSize = isgMsgSmallFont_ ? MSG_SMALL_FONT : MSG_LARGE_FONT;
+        painter->setFont(*FontManager::instance().getFont(kFontSize, false, 105));
         //painter->setPen(FontManager::instance().getMidnightColor());
         painter->setPen(Qt::white);
         int textPosY = (LOGO_POS_CENTER + 55)*G_SCALE;
@@ -75,6 +89,7 @@ void InitWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
 void InitWindowItem::resetState()
 {
+    closeButton_->setVisible(false);
     curLogoPosY_ = LOGO_POS_CENTER;
     waitingAnimationActive_ = false;
 
@@ -83,6 +98,7 @@ void InitWindowItem::resetState()
 
 void InitWindowItem::startSlideAnimation()
 {
+    closeButton_->setVisible(false);
     waitingAnimationActive_ = false;
     spinnerRotationAnimation_.stop();
 
@@ -92,6 +108,7 @@ void InitWindowItem::startSlideAnimation()
 
 void InitWindowItem::startWaitingAnimation()
 {
+    closeButton_->setVisible(false);
     waitingAnimationActive_ = true;
 
     curSpinnerRotation_ = 0;
@@ -105,15 +122,17 @@ void InitWindowItem::setClickable(bool /*clickable*/)
     //abortButton_->setClickable(clickable);
 }
 
-void InitWindowItem::setAdditionalMessage(const QString &msg)
+void InitWindowItem::setAdditionalMessage(const QString &msg, bool useSmallFont)
 {
     msg_ = msg;
+    isgMsgSmallFont_ = useSmallFont;
     update();
 }
 
 void InitWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    updatePositions();
 }
 
 void InitWindowItem::setCropHeight(int height)
@@ -127,6 +146,11 @@ void InitWindowItem::setHeight(int height)
     prepareGeometryChange();
     height_ = height;
     update();
+}
+
+void InitWindowItem::setCloseButtonVisible(bool visible)
+{
+    closeButton_->setVisible(visible);
 }
 
 void InitWindowItem::onSpinnerRotationChanged(const QVariant &value)
@@ -157,6 +181,19 @@ void InitWindowItem::onLogoPosChanged(const QVariant &value)
 void InitWindowItem::onShowAbortTimerTimeout()
 {
     //abortButton_->animateShow(ANIMATION_SPEED_FAST);
+}
+
+void InitWindowItem::updatePositions()
+{
+#ifdef Q_OS_WIN
+    const int kClosePosY = WINDOW_WIDTH * G_SCALE - closeButton_->boundingRect().width()
+        - WINDOW_MARGIN * G_SCALE;
+    closeButton_->setPos(kClosePosY, 14 * G_SCALE);
+#else
+    const int kClosePosY = static_cast<int>(boundingRect().width())
+        - static_cast<int>(closeButton_->boundingRect().width()) - 8 * G_SCALE;
+    closeButton_->setPos(kClosePosY, 8 * G_SCALE);
+#endif
 }
 
 }

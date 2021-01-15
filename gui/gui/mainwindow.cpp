@@ -63,6 +63,7 @@ MainWindow::MainWindow() :
     signOutReason_(SIGN_OUT_UNDEFINED),
     isPrevSessionStatusInitialized_(false),
     bDisconnectFromTrafficExceed_(false),
+    isInitializationAborted_(false),
     isLoginOkAndConnectWindowVisible_(false),
     isCustomConfigMode_(false),
     revealingConnectWindow_(false),
@@ -120,6 +121,7 @@ MainWindow::MainWindow() :
     backend_ = new Backend(ProtoTypes::CLIENT_ID_GUI, guiPid, "gui app", this);
 
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));
 
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(loginFinished(bool)), SLOT(onBackendLoginFinished(bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(loginStepMessage(ProtoTypes::LoginMessage)), SLOT(onBackendLoginStepMessage(ProtoTypes::LoginMessage)));
@@ -189,6 +191,9 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(messageReaded(qint64)),
             &notificationsController_, SLOT(setNotificationReaded(qint64)));
     mainWindowController_->getNewsFeedWindow()->setMessages(notificationsController_.messages());
+
+    // init window signals
+    connect(dynamic_cast<QObject*>(mainWindowController_->getInitWindow()), SIGNAL(abortClicked()), SLOT(onAbortInitialization()));
 
     // login window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getLoginWindow()), SIGNAL(loginClick(QString,QString,QString)), SLOT(onLoginClick(QString,QString,QString)));
@@ -826,6 +831,12 @@ void MainWindow::onEscapeClick()
     gotoLoginWindow();
 }
 
+void MainWindow::onAbortInitialization()
+{
+    isInitializationAborted_ = true;
+    backend_->abortInitialization();
+}
+
 void MainWindow::onLoginClick(const QString &username, const QString &password, const QString &code2fa)
 {
     mainWindowController_->getTwoFactorAuthWindow()->setCurrentCredentials(username, password);
@@ -1359,9 +1370,18 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
     }
     else
     {
-        QMessageBox::information(nullptr, QApplication::applicationName(), tr("Can't start the engine. Please contact support."));
+        if (!isInitializationAborted_)
+            QMessageBox::information(nullptr, QApplication::applicationName(), tr("Can't start the engine. Please contact support."));
         QTimer::singleShot(0, this, SLOT(close()));
     }
+}
+
+void MainWindow::onBackendInitTooLong()
+{
+    mainWindowController_->getInitWindow()->setCloseButtonVisible(true);
+    mainWindowController_->getInitWindow()->setAdditionalMessage(
+        tr("This is taking a while, something could be wrong.\n"
+           "If this screen does not disappear,\nplease contact support."), /*useSmallFont =*/ true);
 }
 
 void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
@@ -2158,7 +2178,8 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
 void MainWindow::onBackendEngineCrash()
 {
     mainWindowController_->getInitWindow()->startWaitingAnimation();
-    mainWindowController_->getInitWindow()->setAdditionalMessage(tr("Lost connection to the backend process.\nRecovering..."));
+    mainWindowController_->getInitWindow()->setAdditionalMessage(
+        tr("Lost connection to the backend process.\nRecovering..."), /*useSmallFont =*/ false);
     mainWindowController_->getInitWindow()->setCropHeight(0); // Needed so that Init screen is correct height when engine fails from connect window
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
 }
@@ -2581,6 +2602,9 @@ void MainWindow::onTrayMenuHelpMe()
 
 void MainWindow::onTrayMenuQuit()
 {
+    if (!backend_->isInitFinished())
+        onAbortInitialization();
+
     doClose();
 }
 

@@ -106,6 +106,8 @@ public:
     void sendDetectPacketSize();
     void sendSplitTunneling(ProtoTypes::SplitTunneling st);
 
+    void abortInitialization();
+
     void sendUpdateVersion();
     void cancelUpdateVersion();
 
@@ -115,10 +117,12 @@ private slots:
 
     void onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection);
     void onConnectionStateChanged(int state, IPC::IConnection *connection);
+    void onConnectionConnectAttempt();
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
     void initFinished(ProtoTypes::InitState initState);
+    void initTooLong();
     void cleanupFinished();
 
     void gotoCustomOvpnConfigModeFinished();
@@ -177,8 +181,9 @@ private:
     bool isSavedApiSettingsExists_;
     bool bLastLoginWithAuthHash_;
 
+    QTimer connectionAttemptTimer_;
     QElapsedTimer connectingTimer_;
-    static constexpr int MAX_CONNECTING_TIME = 20000;
+    static constexpr int TOO_LONG_CONNECTING_TIME = 10000;
 
     ProtoTypes::SessionStatus latestSessionStatus_;
     ProtoTypes::EngineSettings latestEngineSettings_;
