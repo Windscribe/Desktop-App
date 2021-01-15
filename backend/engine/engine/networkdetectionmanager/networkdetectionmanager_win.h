@@ -3,7 +3,7 @@
 
 #include "inetworkdetectionmanager.h"
 #include "networkchangeworkerthread.h"
-#include "Engine/Helper/ihelper.h"
+#include "engine/helper/ihelper.h"
 
 class NetworkDetectionManager_win : public INetworkDetectionManager
 {

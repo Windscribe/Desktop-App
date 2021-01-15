@@ -15,9 +15,9 @@ DnsResolver *DnsResolver::this_ = NULL;
 
 const int typeIdQHostInfo = qRegisterMetaType<QHostInfo>("QHostInfo");
 
-void DnsResolver::init()
+void DnsResolver::init(INetworkStateManager *networkStateManager)
 {
-
+    connect(networkStateManager, SIGNAL(stateChanged(bool, QString)), SLOT(onNetworkStateChanged(bool, QString)));
 }
 
 void DnsResolver::stop()
@@ -32,11 +32,8 @@ void DnsResolver::stop()
 
 void DnsResolver::setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType)
 {
-    if (dnsPolicyType_ != dnsPolicyType)
-    {
-        dnsPolicyType_ = dnsPolicyType;
-        recreateCustomDnsChannel();
-    }
+    dnsPolicyType_ = dnsPolicyType;
+    recreateCustomDnsChannel();
 }
 
 void DnsResolver::recreateDefaultDnsChannel()
@@ -161,6 +158,14 @@ QHostInfo DnsResolver::lookupBlocked(const QString &hostname)
 
     ares_destroy(channel);
     return userArg.ha;
+}
+
+void DnsResolver::onNetworkStateChanged(bool isAlive, const QString &/*networkInterface*/)
+{
+    if (isAlive)
+    {
+        recreateCustomDnsChannel();
+    }
 }
 
 DnsResolver::DnsResolver(QObject *parent) : QThread(parent), bStopCalled_(false),

@@ -878,7 +878,7 @@ QList<IfTableRow> WinUtils::getIfTable()
                              nicType,
                              static_cast<int>(pIfTable->table[i].dwType),
                              static_cast<int>(pIfTable->table[i].dwMtu),
-                             pIfTable->table[i].dwOperStatus == IF_OPER_STATUS_OPERATIONAL,
+                             pIfTable->table[i].dwOperStatus >= IF_OPER_STATUS_CONNECTED,
                              (int) pIfTable->table[i].dwOperStatus);
             table.append(ifRow);
         }

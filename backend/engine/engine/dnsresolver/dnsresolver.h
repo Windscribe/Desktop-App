@@ -9,6 +9,7 @@
 #include "areslibraryinit.h"
 #include "ares.h"
 #include "engine/types/types.h"
+#include "engine/networkstatemanager/inetworkstatemanager.h"
 
 class DnsResolver : public QThread
 {
@@ -21,7 +22,7 @@ public:
         return s;
     }
 
-    void init();
+    void init(INetworkStateManager *networkStateManager);
     void stop();
     void setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType);
     void recreateDefaultDnsChannel();
@@ -32,6 +33,8 @@ public:
 
     QHostInfo lookupBlocked(const QString &hostname);
 
+private slots:
+    void onNetworkStateChanged(bool isAlive, const QString &networkInterface);
 
 private:
     explicit DnsResolver(QObject *parent = nullptr);

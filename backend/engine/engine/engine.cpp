@@ -510,10 +510,6 @@ void Engine::init()
 {
     isCleanupFinished_ = false;
 
-    DnsResolver::instance().init();
-    DnsResolver::instance().setDnsPolicy(engineSettings_.getDnsPolicy());
-    firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
-
     helper_ = CrossPlatformObjectFactory::createHelper(this);
     connect(helper_, SIGNAL(lostConnectionToHelper()), SLOT(onLostConnectionToHelper()));
     helper_->startInstallHelper();
@@ -525,6 +521,10 @@ void Engine::init()
 
     networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_);
     networkStateManager_ = CrossPlatformObjectFactory::createNetworkStateManager(this, networkDetectionManager_);
+
+    DnsResolver::instance().init(networkStateManager_);
+    DnsResolver::instance().setDnsPolicy(engineSettings_.getDnsPolicy());
+    firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
 
     ProtoTypes::MacAddrSpoofing macAddrSpoofing = engineSettings_.getMacAddrSpoofing();
     *macAddrSpoofing.mutable_network_interfaces() = Utils::currentNetworkInterfaces(true);
