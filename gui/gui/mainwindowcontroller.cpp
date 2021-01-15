@@ -780,6 +780,7 @@ void MainWindowController::gotoInitializationWindow()
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_PREFERENCES, false);
         preferencesWindow_->getGraphicsObject()->hide();
         preferencesState_ = PREFERENCES_STATE_COLLAPSED;
+        emit preferencesCollapsed();
     }
 
     shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
@@ -2433,6 +2434,7 @@ void MainWindowController::collapsePreferencesFromLogin()
         loginWindow_->setClickable(true);
         loginWindow_->getGraphicsObject()->setFocus();
         preferencesState_ = PREFERENCES_STATE_COLLAPSED;
+        emit preferencesCollapsed();
         shadowManager_->setOpacity(ShadowManager::SHAPE_ID_CONNECT_WINDOW, 1.0, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, true);
         updateMainAndViewGeometry(false);
@@ -2502,6 +2504,7 @@ void MainWindowController::collapsePreferencesFromConnect(bool bSkipBottomInfoWi
     QParallelAnimationGroup *animGroup = new QParallelAnimationGroup(this);
     connect(animGroup, &QVariantAnimation::finished, [this, bSkipBottomInfoWindowAnimate]() {
         preferencesState_ = PREFERENCES_STATE_COLLAPSED;
+        emit preferencesCollapsed();
         tooltipController_->hideAllTooltips();
         updateMainAndViewGeometry(false);
 

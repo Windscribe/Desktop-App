@@ -54,19 +54,20 @@ void ApiResolutionItem::setApiResolution(const ProtoTypes::ApiResolution &ar)
     if(!google::protobuf::util::MessageDifferencer::Equals(curApiResolution_, ar))
     {
         curApiResolution_ = ar;
+        expandEnimation_.stop();
 
         if (ar.is_automatic())
         {
             switchItem_->setState(AutoManualSwitchItem::AUTO);
             isExpanded_ = false;
-            setHeight(COLLAPSED_HEIGHT);
+            setHeight(COLLAPSED_HEIGHT*G_SCALE);
         }
         else
         {
             editBoxIP_->setText(QString::fromStdString(ar.manual_ip()));
             switchItem_->setState(AutoManualSwitchItem::MANUAL);
             isExpanded_ = true;
-            setHeight(EXPANDED_HEIGHT);
+            setHeight(EXPANDED_HEIGHT*G_SCALE);
         }
     }
 }

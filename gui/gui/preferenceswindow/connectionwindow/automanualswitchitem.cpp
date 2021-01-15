@@ -53,6 +53,8 @@ void AutoManualSwitchItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
 
 void AutoManualSwitchItem::setState(SWITCH_STATE state)
 {
+    anim_.stop();
+
     if (state == AUTO)
     {
         isExpanded_ = false;
