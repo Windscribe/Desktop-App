@@ -170,6 +170,9 @@ private:
     void updateSelectionCursorAndToolTipByCursorPos();
 
     const QString scrollbarStyleSheet();
+
+    void scrollUp(int n);
+    void scrollDown(int n);
 };
 
 } // namespace GuiLocations

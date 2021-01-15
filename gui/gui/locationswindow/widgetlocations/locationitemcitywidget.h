@@ -14,6 +14,7 @@ public:
     explicit LocationItemCityWidget(CityModelItem cityModelItem, QWidget *parent = nullptr);
     ~LocationItemCityWidget();
 
+    const LocationID getId() const override;
     const QString name() const override;
     SelectableLocationItemWidgetType type() override;
 

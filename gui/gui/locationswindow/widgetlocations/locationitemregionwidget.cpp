@@ -22,7 +22,7 @@ LocationItemRegionWidget::~LocationItemRegionWidget()
     // qDebug() << "Deleting region widget: " << textLabel_->text();
 }
 
-LocationID LocationItemRegionWidget::getId()
+const LocationID LocationItemRegionWidget::getId() const
 {
     return regionHeaderWidget_->getId();
 }
@@ -89,9 +89,9 @@ void LocationItemRegionWidget::addCity(CityModelItem city)
     recalcItemPos();
 }
 
-QList<QSharedPointer<SelectableLocationItemWidget>> LocationItemRegionWidget::selectableWidgets()
+QVector<QSharedPointer<SelectableLocationItemWidget>> LocationItemRegionWidget::selectableWidgets()
 {
-    QList<QSharedPointer<SelectableLocationItemWidget>> widgets;
+    QVector<QSharedPointer<SelectableLocationItemWidget>> widgets;
     widgets.append(regionHeaderWidget_);
     if (expanded())
     {

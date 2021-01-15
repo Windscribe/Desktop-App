@@ -107,14 +107,40 @@ const QString SearchWidgetLocations::scrollbarStyleSheet()
                   .arg(qCeil(0))  // left
                   .arg(3*G_SCALE) // width
                   .arg(qCeil(4))  // handle border-width
-                  .arg(qCeil(3)); // handle border-radius
+            .arg(qCeil(3)); // handle border-radius
+}
+
+void SearchWidgetLocations::scrollUp(int n)
+{
+    int newY = locationItemListWidget_->geometry().y() + LocationItemListWidget::ITEM_HEIGHT * G_SCALE * n;
+    if (newY > 0) newY = 0;
+    locationItemListWidget_->move(0, newY);
+}
+
+void SearchWidgetLocations::scrollDown(int n)
+{
+    int newY = locationItemListWidget_->geometry().y() + LocationItemListWidget::ITEM_HEIGHT * G_SCALE * n;
+    int minimum = locationItemListWidget_->geometry().height() - geometry().height();
+    if (newY < minimum) newY = minimum;
+    locationItemListWidget_->move(0, newY);
 }
 
 void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 {
     qDebug() << "Updating location widgets";
 
-    // TODO: preserve state of open regions
+    QVector<LocationID> expandedLocationIds;
+    LocationID topSelectableLocationIdInViewport;
+    LocationID lastSelectedLocationId;
+
+    bool saved = false;
+    if (locationItemListWidget_->itemWidgets().count() > 0)
+    {
+        expandedLocationIds = locationItemListWidget_->expandedLocationIds();
+        topSelectableLocationIdInViewport = locationItemListWidget_->topSelectableLocationIdInViewport();
+        lastSelectedLocationId = locationItemListWidget_->lastSelectedLocationId();
+        saved = true;
+    }
 
     locationItemListWidget_->clearWidgets();
 
@@ -307,6 +333,9 @@ void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
     locationItemListWidget_->selectWidgetContainingCursor();
 
     QScrollArea::scrollContentsBy(dx,dy);
+
+    // locationItemListWidget_->visibleItemWidgets();
+    // qDebug() << "New top index: " << locationItemListWidget_->topSelectableIndex();
 }
 
 void SearchWidgetLocations::mouseMoveEvent(QMouseEvent *event)

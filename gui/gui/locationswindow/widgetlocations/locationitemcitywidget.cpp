@@ -32,6 +32,11 @@ LocationItemCityWidget::~LocationItemCityWidget()
     // qDebug() << "Deleting city widget: " << cityModelItem_.city << " " << cityModelItem_.nick;
 }
 
+const LocationID LocationItemCityWidget::getId() const
+{
+    return cityModelItem_.id;
+}
+
 const QString LocationItemCityWidget::name() const
 {
     return cityModelItem_.city + " " + cityModelItem_.nick;

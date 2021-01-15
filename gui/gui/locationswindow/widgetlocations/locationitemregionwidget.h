@@ -1,7 +1,7 @@
 #ifndef LOCATIONITEMREGIONWIDGET_H
 #define LOCATIONITEMREGIONWIDGET_H
 
-#include <QList>
+#include <QVector>
 #include "../backend/locationsmodel/basiclocationsmodel.h"
 #include "locationitemcitywidget.h"
 #include "locationitemregionheaderwidget.h"
@@ -15,20 +15,20 @@ public:
     explicit LocationItemRegionWidget(LocationModelItem *locationItem, QWidget *parent = nullptr);
     ~LocationItemRegionWidget();
 
-    LocationID getId();
+    const LocationID getId() const;
     bool expandable() const;
     bool expanded() const;
     void setExpanded(bool expand);
     void setShowLatencyMs(bool showLatencyMs);
 
     void addCity(CityModelItem city);
-    QList<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
+    QVector<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
 
     void recalcItemPos();
 
 signals:
     void heightChanged(int height);
-    void selected(SelectableLocationItemWidget *itemWidget);
+    void selected(SelectableLocationItemWidget *itemWidget); // TODO: re-word to "accent"
     void clicked(LocationItemCityWidget *cityWidget);
     void clicked(LocationItemRegionWidget *regionWidget);
 
@@ -40,7 +40,7 @@ private slots:
 
 private:
     QSharedPointer<LocationItemRegionHeaderWidget> regionHeaderWidget_;
-    QList<QSharedPointer<LocationItemCityWidget>> cities_;
+    QVector<QSharedPointer<LocationItemCityWidget>> cities_;
 
     bool expanded_;
     int height_;

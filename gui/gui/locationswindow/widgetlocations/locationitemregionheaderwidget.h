@@ -13,13 +13,13 @@ class LocationItemRegionHeaderWidget : public SelectableLocationItemWidget
 public:
     explicit LocationItemRegionHeaderWidget(LocationModelItem *locationItem, QWidget *parent = nullptr);
 
+    const LocationID getId() const override;
     const QString name() const override;
     SelectableLocationItemWidgetType type() override;
     bool containsCursor() const override;
     void setSelected(bool select) override;
     bool isSelected() const override;
 
-    LocationID getId();
     static const int REGION_HEADER_HEIGHT = 50;
 
 signals:

@@ -19,8 +19,17 @@ public:
     void addCityToRegion(CityModelItem city, LocationModelItem *region);
 
     void updateScaling();
-
     void selectWidgetContainingCursor();
+
+    void expandLocationIds(QVector<LocationID> locIds);
+    QVector<LocationID> expandedLocationIds(); // TODO: add expanding
+    const QVector<QSharedPointer<LocationItemRegionWidget>> &itemWidgets();
+    const QVector<QSharedPointer<SelectableLocationItemWidget>> &visibleItemWidgets();
+
+    const LocationID topSelectableLocationIdInViewport();
+    int selectableIndex(LocationID locationId);
+
+    const LocationID lastSelectedLocationId() const;
 
     static const int ITEM_HEIGHT = 50;
 
@@ -39,9 +48,11 @@ private slots:
 
 private:
     int height_;
-    QList<QSharedPointer<LocationItemRegionWidget>> itemWidgets_;
+    QVector<QSharedPointer<LocationItemRegionWidget>> itemWidgets_;
     void recalcItemPositions();
-    QList<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
+    QVector<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets(); // regions + expanded cities
+
+    LocationID lastSelectedLocationId_;
 
 };
 

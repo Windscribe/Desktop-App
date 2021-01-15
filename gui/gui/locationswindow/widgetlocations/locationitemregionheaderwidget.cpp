@@ -99,7 +99,7 @@ void LocationItemRegionHeaderWidget::recalcItemPositions()
     textLabel_->move(10 * G_SCALE, 10 * G_SCALE);
 }
 
-LocationID LocationItemRegionHeaderWidget::getId()
+const LocationID LocationItemRegionHeaderWidget::getId() const
 {
     return locationID_;
 }

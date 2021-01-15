@@ -84,9 +84,92 @@ void LocationItemListWidget::selectWidgetContainingCursor()
     }
 }
 
-QList<QSharedPointer<SelectableLocationItemWidget>> LocationItemListWidget::selectableWidgets()
+void LocationItemListWidget::expandLocationIds(QVector<LocationID> locIds)
 {
-    QList<QSharedPointer<SelectableLocationItemWidget>> selectableItemWidgets;
+    foreach (auto regionWidget, itemWidgets_)
+    {
+        foreach (auto locId, locIds)
+        {
+            if (regionWidget->getId() == locId)
+            {
+                regionWidget->setExpanded(true);
+            }
+        }
+    }
+}
+
+QVector<LocationID> LocationItemListWidget::expandedLocationIds()
+{
+    QVector<LocationID> expanded;
+    foreach (auto regionWidget, itemWidgets_)
+    {
+        if (regionWidget->expanded())
+        {
+            expanded.append(regionWidget->getId());
+        }
+    }
+    return expanded;
+}
+
+const QVector<QSharedPointer<LocationItemRegionWidget>> &LocationItemListWidget::itemWidgets()
+{
+    return itemWidgets_;
+}
+
+const LocationID LocationItemListWidget::topSelectableLocationIdInViewport()
+{
+    int index = geometry().y()/ITEM_HEIGHT;
+    if (index < 0) return LocationID();
+
+    auto widgets = selectableWidgets();
+    if (index > widgets.count() - 1)
+    {
+        // this shouldn't happen
+        qDebug() << "Err: There isn't enough items in selectable list to index (locationID)";
+        return LocationID();
+    }
+
+    return widgets[index]->getId();
+}
+
+int LocationItemListWidget::selectableIndex(LocationID locationId)
+{
+    int i = 0;
+    foreach (auto widget, selectableWidgets())
+    {
+        if (widget->getId() == locationId)
+        {
+            return i;
+        }
+        i++;
+    }
+    return -1;
+}
+
+const LocationID LocationItemListWidget::lastSelectedLocationId() const
+{
+    return lastSelectedLocationId_;
+}
+
+const QVector<QSharedPointer<SelectableLocationItemWidget> > &LocationItemListWidget::visibleItemWidgets()
+{
+    QVector<QSharedPointer<SelectableLocationItemWidget>> visible;
+    foreach (auto widget, selectableWidgets())
+    {
+        //qDebug() << "List geometry: " << geometry() << " - widget geometry: " << widget->geometry();
+        if (geometry().contains(QPoint(widget->geometry().x(), widget->geometry().y())))
+        {
+            //qDebug() << " -> contained " << widget->name();
+            visible.append(widget);
+        }
+    }
+    return visible;
+}
+
+
+QVector<QSharedPointer<SelectableLocationItemWidget>> LocationItemListWidget::selectableWidgets()
+{
+    QVector<QSharedPointer<SelectableLocationItemWidget>> selectableItemWidgets;
     foreach (auto regionWidget, itemWidgets_)
     {
         selectableItemWidgets.append(regionWidget->selectableWidgets());
@@ -127,6 +210,8 @@ void LocationItemListWidget::onSelectableLocationItemSelected(SelectableLocation
             widget->setSelected(false);
         }
     }
+
+    lastSelectedLocationId_ = itemWidget->getId();
 }
 
 void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidget *regionWidget)

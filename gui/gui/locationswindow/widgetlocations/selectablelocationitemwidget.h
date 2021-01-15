@@ -2,6 +2,7 @@
 #define SELECTABLELOCATIONITEMWIDGET_H
 
 #include <QAbstractButton>
+#include "types/locationid.h"
 
 namespace GuiLocations {
 
@@ -16,6 +17,7 @@ public:
         CITY
     };
 
+    virtual const LocationID getId() const = 0;
     virtual const QString name() const = 0;
     virtual SelectableLocationItemWidgetType type() = 0;
     virtual void setSelected(bool select) = 0;
