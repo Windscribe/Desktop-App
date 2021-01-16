@@ -2140,7 +2140,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
                 {
-                    descText = tr("Cannot run the downlaoded installer. It does not have the correct signature");
+                    descText = tr("Cannot run the downloaded installer. It does not have the correct signature");
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_MOUNT_FAIL)
                 {
