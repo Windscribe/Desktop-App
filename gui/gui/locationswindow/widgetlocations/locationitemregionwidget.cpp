@@ -66,6 +66,7 @@ void LocationItemRegionWidget::setExpanded(bool expand)
                 city->hide();
             }
         }
+        regionHeaderWidget_->setExpanded(expand);
         expanded_ = expand;
         recalcItemPos();
     }
@@ -107,14 +108,14 @@ void LocationItemRegionWidget::recalcItemPos()
 {
     // qDebug() << "Recalc region height";
 
-    regionHeaderWidget_->setGeometry(0,0, WINDOW_WIDTH * G_SCALE, LocationItemRegionHeaderWidget::REGION_HEADER_HEIGHT);
+    regionHeaderWidget_->setGeometry(0,0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT);
 
-    int height = LocationItemRegionHeaderWidget::REGION_HEADER_HEIGHT * G_SCALE;
+    int height = LOCATION_ITEM_HEIGHT * G_SCALE;
     if (expanded_)
     {
         foreach (auto city, cities_)
         {
-            city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LocationItemCityWidget::HEIGHT * G_SCALE);
+            city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
             height += city->geometry().height();
         }
     }
@@ -126,6 +127,17 @@ void LocationItemRegionWidget::recalcItemPos()
     }
     update();
 }
+
+//void LocationItemRegionWidget::enterEvent(QEvent *event)
+//{
+//    qDebug() << "Enter region: " << regionHeaderWidget_->name();
+//}
+
+//void LocationItemRegionWidget::leaveEvent(QEvent *event)
+//{
+//    qDebug() << "Leave region: " << regionHeaderWidget_->name();
+
+//}
 
 void LocationItemRegionWidget::onRegionItemSelected(SelectableLocationItemWidget *regionWidget)
 {

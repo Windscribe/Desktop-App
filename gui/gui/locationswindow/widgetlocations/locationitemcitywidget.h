@@ -18,14 +18,12 @@ public:
     const QString name() const override;
     SelectableLocationItemWidgetType type() override;
 
-    void setSelectable(bool selectable);
+    void setSelectable(bool selectable) override;
     void setSelected(bool select) override;
     bool isSelected() const override;
     bool containsCursor() const override;
 
     void setShowLatencyMs(bool showLatencyMs);
-
-    static const int HEIGHT = 50;
 
 signals:
     void selected(SelectableLocationItemWidget *itemWidget);
@@ -34,6 +32,7 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEvent *event) override;
+    // void leaveEvent(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
 private:

@@ -79,13 +79,13 @@ bool SearchWidgetLocations::cursorInViewport()
 
 bool SearchWidgetLocations::hasSelection()
 {
-    return indSelected_ != -1;
+    return locationItemListWidget_->lastSelectedLocationId() != LocationID();
 }
 
 
 void SearchWidgetLocations::centerCursorOnSelectedItem()
 {
-
+    // TODO
 }
 
 void SearchWidgetLocations::updateSelectionCursorAndToolTipByCursorPos()

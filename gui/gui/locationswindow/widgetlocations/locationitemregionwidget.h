@@ -32,6 +32,10 @@ signals:
     void clicked(LocationItemCityWidget *cityWidget);
     void clicked(LocationItemRegionWidget *regionWidget);
 
+//protected:
+//    void enterEvent(QEvent *event) override;
+//    void leaveEvent(QEvent *event) override;
+
 private slots:
     void onRegionItemSelected(SelectableLocationItemWidget *regionWidget);
     void onRegionItemClicked();

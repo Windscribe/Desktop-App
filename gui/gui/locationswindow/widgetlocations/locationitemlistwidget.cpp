@@ -41,7 +41,7 @@ void LocationItemListWidget::addRegionWidget(LocationModelItem *item)
     connect(regionWidget.get(), SIGNAL(clicked(LocationItemRegionWidget *)), SLOT(onLocationItemRegionClicked(LocationItemRegionWidget *)));
     connect(regionWidget.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onSelectableLocationItemSelected(SelectableLocationItemWidget *)));
     itemWidgets_.append(regionWidget);
-    regionWidget->setGeometry(0, 0, WINDOW_WIDTH *G_SCALE, LocationItemRegionHeaderWidget::REGION_HEADER_HEIGHT * G_SCALE);
+    regionWidget->setGeometry(0, 0, WINDOW_WIDTH *G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
     regionWidget->show();
     // qDebug() << "Added region: " << item->title;
     recalcItemPositions();
@@ -72,13 +72,13 @@ void LocationItemListWidget::updateScaling()
 
 void LocationItemListWidget::selectWidgetContainingCursor()
 {
-    // qDebug() << "checking for new selection";
-    foreach (auto widget , selectableWidgets())
+    qDebug() << "checking for new selection";
+    foreach (auto selectableWidget , selectableWidgets())
     {
-        if (widget->containsCursor())
+        if (selectableWidget->containsCursor())
         {
-            // qDebug() << "Selecting: " << widget->name();
-            widget->setSelected(true);
+            qDebug() << "Selecting: " << selectableWidget->name();
+            selectableWidget->setSelected(true);
             break;
         }
     }

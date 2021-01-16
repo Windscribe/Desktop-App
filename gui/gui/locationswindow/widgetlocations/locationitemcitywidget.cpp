@@ -56,22 +56,20 @@ void LocationItemCityWidget::setSelected(bool select)
 {
     if (selectable_)
     {
-        if (selected_ != select)
+        // Do not filter out same-state changes since it is possible to get locked in an updatable state (though relatively rare)
+        selected_ = select;
+        if (select)
         {
-            selected_ = select;
-            if (select)
-            {
-                //qDebug() << "Selecting City: " << cityLabel_->text() << " " << nickLabel_->text();
-                cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
-                nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
-                emit selected(this);
-            }
-            else
-            {
-                //qDebug() << "Unselecting City: " << cityLabel_->text() << " " << nickLabel_->text();
-                cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
-                nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
-            }
+            //qDebug() << "Selecting City: " << cityLabel_->text() << " " << nickLabel_->text();
+            cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
+            nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
+            emit selected(this);
+        }
+        else
+        {
+            //qDebug() << "Unselecting City: " << cityLabel_->text() << " " << nickLabel_->text();
+            cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
+            nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
         }
         update();
     }
@@ -99,7 +97,7 @@ void LocationItemCityWidget::paintEvent(QPaintEvent *event)
 {
     // background
     QPainter painter(this);
-    painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, HEIGHT * G_SCALE),
+    painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE),
                       WidgetLocationsSizes::instance().getBackgroundColor());
 
 }
@@ -110,6 +108,11 @@ void LocationItemCityWidget::enterEvent(QEvent *event)
     // qDebug() << "City entered: " << name();
     setSelected(true); // triggers unselection of other widgets
 }
+
+//void LocationItemCityWidget::leaveEvent(QEvent *event)
+//{
+//    qDebug() << "City leaving: " << name();
+//}
 
 void LocationItemCityWidget::resizeEvent(QResizeEvent *event)
 {

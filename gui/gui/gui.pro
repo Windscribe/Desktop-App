@@ -202,6 +202,7 @@ SOURCES += \
     commongraphics/scalablegraphicsobject.cpp \
     commonwidgets/combomenuwidget.cpp \
     commonwidgets/combomenuwidgetbutton.cpp \
+    commonwidgets/iconwidget.cpp \
     connectwindow/connectionbadgedots.cpp \
     connectwindow/connectstateprotocolport.cpp \
     connectwindow/ipaddressitem/ipaddressitem.cpp \
@@ -435,6 +436,7 @@ HEADERS += \
     commongraphics/scalablegraphicsobject.h \
     commonwidgets/combomenuwidget.h \
     commonwidgets/combomenuwidgetbutton.h \
+    commonwidgets/iconwidget.h \
     connectwindow/connectionbadgedots.h \
     connectwindow/connectstateprotocolport.h \
     connectwindow/ipaddressitem/ipaddressitem.h \

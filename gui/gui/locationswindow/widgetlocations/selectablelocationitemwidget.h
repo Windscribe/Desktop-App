@@ -20,6 +20,7 @@ public:
     virtual const LocationID getId() const = 0;
     virtual const QString name() const = 0;
     virtual SelectableLocationItemWidgetType type() = 0;
+    virtual void setSelectable(bool selectable) = 0;
     virtual void setSelected(bool select) = 0;
     virtual bool isSelected() const = 0;
     virtual bool containsCursor() const = 0;

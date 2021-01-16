@@ -11,6 +11,10 @@ const int WINDOW_WIDTH = 332;
 const int WINDOW_HEIGHT = 316;
 const int WINDOW_MARGIN = 16;
 
+const int LOCATION_ITEM_HEIGHT = 50;
+const int LOCATION_ITEM_MARGIN = 16;
+const int LOCATION_ITEM_FLAG_WIDTH = 32;
+
 const int LOCATIONS_TAB_HEIGHT = 397;
 
 const int LOGIN_WIDTH = 332;
@@ -19,14 +23,17 @@ const int LOGIN_HEIGHT = 354;
 const int LOGIN_BUTTON_POS_Y                 = 232;
 
 const double OPACITY_HIDDEN                  = 0.0;
+const double OPACITY_THIRD                   = 0.3;
+const double OPACITY_HALF                    = 0.5;
+const double OPACITY_FULL                    = 1.0;
+
 const double OPACITY_UNHOVER_DIVIDER         = 0.1;
 const double OPACITY_UNHOVER_DIVIDER_DARK    = 0.2;
 const double OPACITY_UNHOVER_ICON_TEXT       = 0.2;
-const double OPACITY_UNHOVER_ICON_TEXT_DARK  = 0.3;
+const double OPACITY_UNHOVER_ICON_TEXT_DARK  = OPACITY_THIRD;
 const double OPACITY_UNHOVER_ICON_STANDALONE = 0.4;
 const double OPACITY_UNHOVER_TEXT            = 0.4;
-const double OPACITY_HALF                    = 0.5;
-const double OPACITY_FULL                    = 1.0;
+
 
 const double OPACITY_BACKGROUND_PROGRESS     = 0.25;
 const double OPACITY_NEWSFEED_HEADER_BACKGROUND = 0.15;
