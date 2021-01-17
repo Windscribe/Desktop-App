@@ -113,7 +113,6 @@ bool Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumb
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RUN_OPENVPN, stream.str());
     outCmdId = mpr.blockingCmdId;
-    mpr.clear();
 
     return mpr.success;
 }
@@ -130,7 +129,6 @@ bool Helper_win::executeTaskKill(const QString &executableName)
     oa << cmdTaskKill;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_TASK_KILL, stream.str());
-    mpr.clear();
 
     return mpr.success;
 }
@@ -146,7 +144,6 @@ bool Helper_win::executeResetTap(const QString &tapName)
     oa << cmdResetTap;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RESET_TAP, stream.str());
-    mpr.clear();
 
     return mpr.success;
 }
@@ -165,10 +162,7 @@ QString Helper_win::executeSetMetric(const QString &interfaceType, const QString
     oa << cmdSetMetric;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_METRIC, stream.str());
-    QString answer = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
-    mpr.clear();
-
-    return answer;
+    return QString::fromStdString(mpr.additionalString);
 }
 
 QString Helper_win::executeWmicEnable(const QString &adapterName)
@@ -183,10 +177,7 @@ QString Helper_win::executeWmicEnable(const QString &adapterName)
     oa << cmdWmicEnable;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_WMIC_ENABLE, stream.str());
-    QString answer = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
-    mpr.clear();
-
-    return answer;
+    return QString::fromStdString(mpr.additionalString);
 }
 
 QString Helper_win::executeWmicGetConfigManagerErrorCode(const QString &adapterName)
@@ -201,10 +192,7 @@ QString Helper_win::executeWmicGetConfigManagerErrorCode(const QString &adapterN
     oa << cmdWmicGetConfigErrorCode;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE, stream.str());
-    QString answer = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
-    mpr.clear();
-
-    return answer;
+    return QString::fromStdString(mpr.additionalString);
 }
 
 bool Helper_win::executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid, unsigned long &outCmdId, const QString &eventName)
@@ -219,7 +207,6 @@ bool Helper_win::executeChangeIcs(int cmd, const QString &configPath, const QStr
         return false;
     }
 
-
     CMD_UPDATE_ICS cmdUpdateIcs;
     cmdUpdateIcs.cmd = cmd;
     cmdUpdateIcs.szConfigPath = configPath.toStdWString();
@@ -233,7 +220,6 @@ bool Helper_win::executeChangeIcs(int cmd, const QString &configPath, const QStr
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_UPDATE_ICS, stream.str());
     outCmdId = mpr.blockingCmdId;
-    mpr.clear();
 
     return mpr.success;
 }
@@ -252,8 +238,6 @@ bool Helper_win::executeChangeMtu(const QString &adapter, int mtu)
     oa << cmdChangeMtu;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CHANGE_MTU, stream.str());
-    mpr.clear();
-
     return mpr.success;
 }
 
@@ -273,11 +257,9 @@ QString Helper_win::executeUpdateInstaller(const QString &installerPath, bool &s
     QString errorOutput = "";
     if (!mpr.success)
     {
-        errorOutput = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
+        errorOutput = QString::fromStdString(mpr.additionalString);
     }
     success = mpr.success;
-    mpr.clear();
-
     return errorOutput;
 }
 
@@ -286,8 +268,6 @@ bool Helper_win::clearDnsOnTap()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CLEAR_DNS_ON_TAP, std::string());
-    mpr.clear();
-
     return mpr.success;
 }
 
@@ -296,10 +276,7 @@ QString Helper_win::enableBFE()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ENABLE_BFE, std::string());
-    QString answer = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
-    mpr.clear();
-
-    return answer;
+    return QString::fromStdString(mpr.additionalString);
 }
 
 QString Helper_win::resetAndStartRAS()
@@ -307,10 +284,7 @@ QString Helper_win::resetAndStartRAS()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RESET_AND_START_RAS, std::string());
-    QString answer = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
-    mpr.clear();
-
-    return answer;
+    return QString::fromStdString(mpr.additionalString);
 }
 
 void Helper_win::setIPv6EnabledInFirewall(bool b)
@@ -350,7 +324,6 @@ bool Helper_win::IPv6StateInOS()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_OS_IPV6_STATE, std::string());
-    mpr.clear();
     return mpr.exitCode;
 }
 
@@ -375,9 +348,7 @@ QString Helper_win::getHelperVersion()
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_HELPER_VERSION, std::string());
     if (mpr.success)
     {
-        QString str = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
-        mpr.clear();
-        return str;
+        return QString::fromStdString(mpr.additionalString);
     }
     else
     {
@@ -399,7 +370,6 @@ bool Helper_win::removeWindscribeUrlsFromHosts()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_WINDSCRIBE_FROM_HOSTS, std::string());
-    mpr.clear();
     return mpr.success;
 }
 
@@ -414,7 +384,6 @@ bool Helper_win::addHosts(const QString &hosts)
     oa << cmdAddHosts;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ADD_HOSTS, stream.str());
-    mpr.clear();
     return mpr.success;
 }
 
@@ -422,7 +391,6 @@ bool Helper_win::removeHosts()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_HOSTS, std::string());
-    mpr.clear();
     return mpr.success;
 }
 
@@ -455,7 +423,7 @@ QStringList Helper_win::getProcessesList()
     QStringList list;
     if (mpr.success)
     {
-        QString str = QString::fromUtf16((const ushort *)mpr.szAdditionalData, mpr.sizeOfAdditionalData / sizeof(ushort));
+        QString str = QString::fromUtf16((const ushort *)mpr.additionalString.c_str(), mpr.additionalString.size() / sizeof(ushort));
 
         int pos = 0;
         QString curStr;
@@ -472,8 +440,6 @@ QStringList Helper_win::getProcessesList()
             }
             pos++;
         }
-
-        mpr.clear();
     }
     return list;
 }
@@ -490,7 +456,6 @@ bool Helper_win::whitelistPorts(const QString &ports)
     oa << cmdWhitelistPorts;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_WHITELIST_PORTS, stream.str());
-    mpr.clear();
     return mpr.success;
 }
 
@@ -498,7 +463,6 @@ bool Helper_win::deleteWhitelistPorts()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DELETE_WHITELIST_PORTS, std::string());
-    mpr.clear();
     return mpr.success;
 }
 
@@ -520,9 +484,8 @@ void Helper_win::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bo
         outFinished = mpr.blockingCmdFinished;
         if (outFinished)
         {
-            outLog = QString::fromLocal8Bit((const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
+            outLog = QString::fromStdString(mpr.additionalString);
         }
-        mpr.clear();
     }
     else
     {
@@ -550,7 +513,6 @@ bool Helper_win::isSupportedICS()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_IS_SUPPORTED_ICS, std::string());
-    mpr.clear();
     return mpr.exitCode;
 }
 
@@ -572,14 +534,12 @@ void Helper_win::enableDnsLeaksProtection()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DISABLE_DNS_TRAFFIC, std::string());
-    mpr.clear();
 }
 
 void Helper_win::disableDnsLeaksProtection()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ENABLE_DNS_TRAFFIC, std::string());
-    mpr.clear();
 }
 
 bool Helper_win::reinstallWanIkev2()
@@ -587,7 +547,6 @@ bool Helper_win::reinstallWanIkev2()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REINSTALL_WAN_IKEV2, std::string());
-    mpr.clear();
     return mpr.exitCode;
 }
 
@@ -596,7 +555,6 @@ bool Helper_win::enableWanIkev2()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ENABLE_WAN_IKEV2, std::string());
-    mpr.clear();
     return mpr.exitCode;
 }
 
@@ -613,7 +571,6 @@ bool Helper_win::setMacAddressRegistryValueSz(QString subkeyInterfaceName, QStri
     oa << cmdSetMacAddressRegistryValueSz;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_MAC_ADDRESS_REGISTRY_VALUE_SZ, stream.str());
-    mpr.clear();
     return mpr.exitCode;
 }
 
@@ -629,7 +586,6 @@ bool Helper_win::removeMacAddressRegistryProperty(QString subkeyInterfaceName)
     oa << cmdRemoveMacAddressRegistryProperty;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_MAC_ADDRESS_REGISTRY_PROPERTY, stream.str());
-    mpr.clear();
     return mpr.exitCode;
 }
 
@@ -646,7 +602,6 @@ bool Helper_win::resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdap
     oa << cmdResetNetworkAdapter;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RESET_NETWORK_ADAPTER, stream.str());
-    mpr.clear();
     return mpr.exitCode;
 }
 
@@ -681,7 +636,6 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
     oa << cmdSplitTunnelingSettings;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SPLIT_TUNNELING_SETTINGS, stream.str());
-    mpr.clear();
     return mpr.exitCode;
 }
 
@@ -689,7 +643,6 @@ bool Helper_win::addIKEv2DefaultRoute()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE, std::string());
-    mpr.clear();
     return mpr.exitCode;
 }
 
@@ -697,16 +650,13 @@ bool Helper_win::removeWindscribeNetworkProfiles()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_WINDSCRIBE_NETWORK_PROFILES, std::string());
-    mpr.clear();
     return mpr.exitCode;
 }
 
 void Helper_win::setIKEv2IPSecParameters()
 {
     QMutexLocker locker(&mutex_);
-
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS, std::string());
-    mpr.clear();
 }
 
 void Helper_win::sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo * /*stni*/ )
@@ -721,7 +671,6 @@ void Helper_win::sendConnectStatus(bool isConnected, const SplitTunnelingNetwork
     oa << cmdConnectStatus;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
-    mpr.clear();
 }
 
 bool Helper_win::setKextPath(const QString &/*kextPath*/)
@@ -751,7 +700,6 @@ bool Helper_win::startWireGuard(const QString &exeName, const QString &deviceNam
     oa << cmdStartWireGuard;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_START_WIREGUARD, stream.str());
-    mpr.clear();
     return mpr.success;
 }
 
@@ -761,12 +709,10 @@ bool Helper_win::stopWireGuard()
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_STOP_WIREGUARD, std::string());
     if (mpr.success) {
         // Daemon was running, check if it's been terminated.
-        if (mpr.blockingCmdFinished && mpr.sizeOfAdditionalData) {
+        if (mpr.blockingCmdFinished && (!mpr.additionalString.empty())) {
             qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-                << QString::fromLocal8Bit(static_cast<const char *>(mpr.szAdditionalData),
-                                          mpr.sizeOfAdditionalData);
+                << QString::fromStdString(mpr.additionalString);
         }
-        mpr.clear();
         return mpr.blockingCmdFinished;
     }
     // Daemon was not running.
@@ -797,7 +743,6 @@ bool Helper_win::configureWireGuard(const WireGuardConfig &config)
     if (!mpr.success) {
         qCDebug(LOG_WIREGUARD) << "WireGuard configuration failed, error code =" << mpr.exitCode;
     }
-    mpr.clear();
     return mpr.success;
 }
 
@@ -834,12 +779,10 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
             break;
         }
     }
-    if (mpr.sizeOfAdditionalData) {
+    if (!mpr.additionalString.empty()) {
         qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-            << QString::fromLocal8Bit(static_cast<const char *>(mpr.szAdditionalData),
-                                      mpr.sizeOfAdditionalData);
+            << QString::fromStdString(mpr.additionalString);
     }
-    mpr.clear();
     return mpr.success;
 }
 
@@ -977,29 +920,29 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
         }
     }
 
-    MessagePacketResultSerialization mpr_serialization;
-    if (!readAllFromPipe(hPipe, mpr_serialization.data(), sizeof(mpr_serialization)))
+    // read MessagePacketResult
+    MessagePacketResult mpr;
+    if (!readAllFromPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
     {
         CloseHandle(hPipe);
-        return MessagePacketResult();
+        return mpr;
     }
 
-    char *additionalData = nullptr;
-    if (mpr_serialization.sizeOfAdditionalData > 0)
+    if (sizeOfBuf > 0)
     {
-        additionalData = new char[mpr_serialization.sizeOfAdditionalData];
-        if (!readAllFromPipe(hPipe, additionalData, mpr_serialization.sizeOfAdditionalData))
+        QScopedArrayPointer<char> buf(new char[sizeOfBuf]);
+        if (!readAllFromPipe(hPipe, buf.data(), sizeOfBuf))
         {
             CloseHandle(hPipe);
-            delete[] additionalData;
-            return MessagePacketResult();
+            return mpr;
         }
+
+        std::istringstream  stream(std::string(buf.data(), sizeOfBuf));
+        boost::archive::text_iarchive ia(stream, boost::archive::no_header);
+
+        ia >> mpr;
     }
 
-    CloseHandle(hPipe);
-
-    auto mpr = mpr_serialization.result();
-    mpr.szAdditionalData = additionalData;
     return mpr;
 }
 
@@ -1008,7 +951,6 @@ bool Helper_win::disableIPv6()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_IPV6_DISABLE, std::string());
-    mpr.clear();
     return mpr.success;
 }
 
@@ -1017,7 +959,6 @@ bool Helper_win::enableIPv6()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_IPV6_ENABLE, std::string());
-    mpr.clear();
     return mpr.success;
 }
 
@@ -1026,7 +967,6 @@ bool Helper_win::disableIPv6InOS()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_OS_IPV6_DISABLE, std::string());
-    mpr.clear();
     return mpr.success;
 }
 
@@ -1035,7 +975,6 @@ bool Helper_win::enableIPv6InOS()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_OS_IPV6_ENABLE, std::string());
-    mpr.clear();
     return mpr.success;
 }
 

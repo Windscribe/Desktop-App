@@ -1318,7 +1318,7 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     query.addQueryItem("client_auth_hash", md5Hash);
     query.addQueryItem("platform", GetPlatformName());
 
-    query.addQueryItem("version", AppVersion::instance().version());
+    query.addQueryItem("version", "2.01" /*AppVersion::instance().version()*/);
     query.addQueryItem("build", AppVersion::instance().build());
     if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_BETA)
     {

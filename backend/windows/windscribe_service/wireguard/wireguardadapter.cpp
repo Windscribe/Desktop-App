@@ -100,10 +100,9 @@ bool RunBlockingCommands(const std::vector<std::wstring> &cmdlist)
         mpr = ExecuteCmd::instance().executeBlockingCmd(command_buffer);
         if (!mpr.success) {
             Logger::instance().out(L"Command failed: %ls", command_buffer);
-            if (mpr.sizeOfAdditionalData)
-                Logger::instance().out(L"Output: %ls", mpr.szAdditionalData);
+            if (!mpr.additionalString.empty())
+                Logger::instance().out("Output: %s", mpr.additionalString.c_str());
         }
-        mpr.clear();
     }
     return mpr.success;
 }

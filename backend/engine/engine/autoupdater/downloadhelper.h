@@ -21,7 +21,7 @@ public:
         DOWNLOAD_STATE_FAIL
     };
 
-    const QString downloadPath();
+    const QString &downloadPath();
     void get(const QString url);
     void stop();
 

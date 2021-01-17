@@ -72,12 +72,7 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(wchar_t *cmd, HANDLE user_tok
 
         mpr.success = true;
         mpr.exitCode = exitCode;
-        mpr.sizeOfAdditionalData = (DWORD)str.length();
-        if (str.length() > 0)
-        {
-            mpr.szAdditionalData = new char[str.length()];
-			memcpy(mpr.szAdditionalData, str.c_str(), str.length());
-        }
+		mpr.additionalString = str;
     }
     else
     {
@@ -262,9 +257,7 @@ MessagePacketResult ExecuteCmd::getUnblockingCmdStatus(unsigned long cmdId)
                 mpr.success = true;
                 mpr.exitCode = blockingCmd->dwExitCode;
                 mpr.blockingCmdFinished = true;
-                mpr.sizeOfAdditionalData = (DWORD)blockingCmd->strLogOutput.length();
-                mpr.szAdditionalData = new char[blockingCmd->strLogOutput.length()];
-                memcpy(mpr.szAdditionalData, blockingCmd->strLogOutput.c_str(), blockingCmd->strLogOutput.length());
+				mpr.additionalString = blockingCmd->strLogOutput.c_str();
 
                 blockingCmds_.erase(it);
                 delete blockingCmd;

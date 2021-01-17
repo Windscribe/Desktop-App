@@ -1976,11 +1976,12 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
 #ifdef Q_OS_WIN
     bool success = false;
-    QString output = helper_->executeUpdateInstaller(dlPath, success);
+    //QString output = helper_->executeUpdateInstaller(dlPath, success);
+    QString output = helper_->executeUpdateInstaller("C:/aaa/installer.exe", success);
 
     if (!success)
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Removing unsigned installer";
+        qCDebug(LOG_AUTO_UPDATER) << "Removing unsigned installer:" << output;
         QFile::remove(dlPath);
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;

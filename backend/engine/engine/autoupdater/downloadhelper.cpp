@@ -33,7 +33,7 @@ DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
 #endif
 }
 
-const QString DownloadHelper::downloadPath()
+const QString &DownloadHelper::downloadPath()
 {
     return downloadPath_;
 }
@@ -45,6 +45,9 @@ void DownloadHelper::get(const QString url)
         qCDebug(LOG_DOWNLOADER) << "Downloader is busy. Try again later";
         return;
     }
+
+    // remove a previously used auto-update installer/dmg upon app startup if it exists
+    QFile::remove(downloadPath_);
 
     progressPercent_ = 0;
 
@@ -130,6 +133,10 @@ void DownloadHelper::onReplyReadyRead()
         {
             file_->write(arr);
         }
+        else
+        {
+            qCDebug(LOG_DOWNLOADER) << "Download error occurred (file not opened)";
+        }
     }
 }
 
@@ -137,11 +144,7 @@ void DownloadHelper::safeCloseFileAndDeleteObj()
 {
     if (file_)
     {
-        if (file_->isOpen())
-        {
-            file_->close();
-        }
-
+        file_->close();
         file_->deleteLater();
         file_ = nullptr;
     }

@@ -215,66 +215,18 @@ struct CMD_RUN_UPDATE_INSTALLER
 
 struct MessagePacketResult
 {
-    __int64 id;
-    bool success;
-    DWORD exitCode;
-    unsigned long blockingCmdId;    // id for check status of blocking cmd
-    bool blockingCmdFinished;
-    UINT64 customInfoValue[2];
-    DWORD sizeOfAdditionalData;
-    void *szAdditionalData;
+	__int64 id;
+	bool success;
+	DWORD exitCode;
+	unsigned long blockingCmdId;    // id for check status of blocking cmd
+	bool blockingCmdFinished;
+	UINT64 customInfoValue[2];
+	std::string additionalString;
 
-    MessagePacketResult() : id(0), success(false), exitCode(0), blockingCmdId(0),
-                            blockingCmdFinished(false), customInfoValue(), sizeOfAdditionalData(0),
-                            szAdditionalData(nullptr)
-    {
-    }
-
-    void clear()
-    {
-        if (szAdditionalData)
-        {
-            delete[] szAdditionalData;
-            sizeOfAdditionalData = 0;
-            szAdditionalData = NULL;
-        }
-    }
-};
-
-// This is a helper class to be serialized to/from a pipe. Unlike MessagePacketResult, it is
-// architecture-independent, and has the same sizeof and alignment on both 32-bit and 64-bit OS.
-struct MessagePacketResultSerialization
-{
-    INT64 id;
-    UINT32 exitCode;
-    UINT16 success;
-    UINT16 blockingCmdFinished;
-    UINT32 blockingCmdId;
-    UINT64 customInfoValue[2];
-    UINT32 sizeOfAdditionalData;
-
-    MessagePacketResultSerialization() : id(0), exitCode(0), success(0), blockingCmdFinished(0),
-        blockingCmdId(0), customInfoValue(), sizeOfAdditionalData(0) {}
-    explicit MessagePacketResultSerialization(const MessagePacketResult &mpr)
-        : id(mpr.id), exitCode(mpr.exitCode), success(mpr.success ? 1 : 0),
-          blockingCmdFinished(mpr.blockingCmdFinished ? 1 : 0), blockingCmdId(mpr.blockingCmdId),
-          customInfoValue{ mpr.customInfoValue[0], mpr.customInfoValue[1] },
-          sizeOfAdditionalData(mpr.sizeOfAdditionalData) {}
-
-    char *data() { return reinterpret_cast<char*>(this); }
-    const char *const_data() const { return reinterpret_cast<const char*>(this); }
-    MessagePacketResult result() const {
-        MessagePacketResult mpr;
-        mpr.id = id;
-        mpr.exitCode = exitCode;
-        mpr.success = !!success;
-        mpr.blockingCmdFinished = !!blockingCmdFinished;
-        mpr.blockingCmdId = blockingCmdId;
-        mpr.customInfoValue[0] = customInfoValue[0];
-        mpr.customInfoValue[1] = customInfoValue[1];
-        mpr.sizeOfAdditionalData = sizeOfAdditionalData;
-        return mpr;
-    }
+	MessagePacketResult() : id(0), success(false), exitCode(0), blockingCmdId(0),
+		blockingCmdFinished(false), customInfoValue()
+	{
+	}
 };
 
 #endif // SERVICECOMMUNICATION
