@@ -28,8 +28,6 @@ public:
 signals:
     void appsPageClick();
     void ipsAndHostnamesPageClick();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
 
 private slots:
     void onSettingsChanged(ProtoTypes::SplitTunnelingSettings settings);

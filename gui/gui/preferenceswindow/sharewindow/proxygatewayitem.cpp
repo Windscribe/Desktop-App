@@ -30,8 +30,6 @@ ProxyGatewayItem::ProxyGatewayItem(ScalableGraphicsObject *parent, PreferencesHe
     connect(comboBoxProxyType_, SIGNAL(currentItemChanged(QVariant)), SLOT(onProxyTypeItemChanged(QVariant)));
 
     proxyIpAddressItem_ = new ProxyIpAddressItem(this, true);
-    connect(proxyIpAddressItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(proxyIpAddressItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(preferencesHelper, SIGNAL(proxyGatewayAddressChanged(QString)), SLOT(onProxyGatewayAddressChanged(QString)));
 
     connect(&expandEnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onExpandAnimationValueChanged(QVariant)));

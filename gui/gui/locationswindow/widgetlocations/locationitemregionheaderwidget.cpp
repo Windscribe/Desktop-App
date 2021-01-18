@@ -1,19 +1,24 @@
 #include "locationitemregionheaderwidget.h"
 
 #include <QPainter>
+#include <QtMath>
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 #include "widgetlocationssizes.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "tooltips/tooltiptypes.h"
+#include "tooltips/tooltipcontroller.h"
 
 #include <QDebug>
 
 namespace GuiLocations {
 
-LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(LocationModelItem *locationModelItem, QWidget *parent) : SelectableLocationItemWidget(parent)
+LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : SelectableLocationItemWidget(parent)
   , locationID_(locationModelItem->id)
   , countryCode_(locationModelItem->countryCode)
+  , isPremiumOnly_(locationModelItem->isPremiumOnly)
+  , widgetLocationsInfo_(widgetLocationsInfo)
   , showPlusIcon_(true)
   , plusIconOpacity_(OPACITY_THIRD)
   , textOpacity_(OPACITY_UNHOVER_TEXT)
@@ -43,7 +48,7 @@ LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(LocationModelItem
     expandAnimation_.setStartValue(0.0);
     expandAnimation_.setEndValue(1.0);
     expandAnimation_.setDuration(200);
-    connect(&expandAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onPlusRotationAnimationValueChanged(QVariant)));
+    connect(&expandAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onExpandRotationAnimationValueChanged(QVariant)));
 
     recalcItemPositions();
 }
@@ -133,7 +138,15 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
         flag->draw(LOCATION_ITEM_MARGIN*G_SCALE,  (LOCATION_ITEM_HEIGHT*G_SCALE - pixmapFlagHeight) / 2, &painter);
     }
 
-    // TODO: add pro star
+    // pro star
+    qDebug() << "free status : " << widgetLocationsInfo_->isFreeSessionStatus();
+    qDebug() << "premium: " << isPremiumOnly_;
+    if (widgetLocationsInfo_->isFreeSessionStatus() && isPremiumOnly_)
+    {
+        qDebug() << "Drawing star";
+        IndependentPixmap *proRegionStar = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_REGION_STAR_LIGHT");
+        proRegionStar->draw(8 * G_SCALE,  (LOCATION_ITEM_HEIGHT*G_SCALE - 16*G_SCALE) / 2 - 9*G_SCALE, &painter);
+    }
 
     // plus/cross or construction icon
     if (!locationID_.isBestLocation())
@@ -164,7 +177,36 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
         }
     }
 
-    // TODO: add line drawing
+    int left = 24 * G_SCALE;
+    int right = WINDOW_WIDTH * G_SCALE - left;
+    int bottom = LOCATION_ITEM_HEIGHT-1* G_SCALE;
+    painter.setOpacity(1.0);
+
+    // background line (darker line)
+    QPen pen(QColor(0x29, 0x2E, 0x3E));
+    pen.setWidth(1);
+    painter.setPen(pen);
+    painter.drawLine(left, bottom, right, bottom);
+    painter.drawLine(left, bottom - 1, right, bottom - 1);
+
+    // top-most line (white)
+    if( qFabs(1.0 - expandAnimationProgress_) < 0.000001 )
+    {
+        QPen pen(Qt::white);
+        pen.setWidth(1);
+        painter.setPen(pen);
+        painter.drawLine(left, bottom, right, bottom);
+        painter.drawLine(left, bottom - 1, right, bottom - 1);
+    }
+    else if (expandAnimationProgress_ > 0.000001)
+    {
+        int w = (right - left) * expandAnimationProgress_;
+        QPen white_pen(Qt::white);
+        white_pen.setWidth(1);
+        painter.setPen(white_pen);
+        painter.drawLine(left, bottom, left + w, bottom);
+        painter.drawLine(left, bottom - 1, left + w, bottom - 1);
+    }
 }
 
 void LocationItemRegionHeaderWidget::enterEvent(QEvent *event)
@@ -173,12 +215,6 @@ void LocationItemRegionHeaderWidget::enterEvent(QEvent *event)
     setSelected(true); // triggers unselection of other widgets
 }
 
-//void LocationItemRegionHeaderWidget::leaveEvent(QEvent *event)
-//{
-//    qDebug() << "Leaving header: " << name();
-
-//}
-
 void LocationItemRegionHeaderWidget::resizeEvent(QResizeEvent *event)
 {
     recalcItemPositions();
@@ -186,12 +222,20 @@ void LocationItemRegionHeaderWidget::resizeEvent(QResizeEvent *event)
 
 void LocationItemRegionHeaderWidget::onP2pIconHoverEnter()
 {
-    // TODO: add p2p tooltip
+    // p2p tooltip
+    QPoint pt = mapToGlobal(QPoint(p2pIcon_->geometry().center().x(), p2pIcon_->geometry().top() - 3*G_SCALE));
+    TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_P2P);
+    ti.x = pt.x();
+    ti.y = pt.y();
+    ti.title = tr("File Sharing Frowned Upon");
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.5;
+    TooltipController::instance().showTooltipBasic(ti);
 }
 
 void LocationItemRegionHeaderWidget::onP2pIconHoverLeave()
 {
-
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
 }
 
 void LocationItemRegionHeaderWidget::onOpacityAnimationValueChanged(const QVariant &value)
@@ -203,7 +247,7 @@ void LocationItemRegionHeaderWidget::onOpacityAnimationValueChanged(const QVaria
     update();
 }
 
-void LocationItemRegionHeaderWidget::onPlusRotationAnimationValueChanged(const QVariant &value)
+void LocationItemRegionHeaderWidget::onExpandRotationAnimationValueChanged(const QVariant &value)
 {
     expandAnimationProgress_ = value.toDouble();
     update();

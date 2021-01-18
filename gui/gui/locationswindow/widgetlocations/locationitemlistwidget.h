@@ -10,7 +10,7 @@ class LocationItemListWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationItemListWidget(QWidget *parent = nullptr);
+    explicit LocationItemListWidget(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent = nullptr);
     ~LocationItemListWidget();
 
     int countRegions() const;
@@ -24,7 +24,7 @@ public:
     void expandLocationIds(QVector<LocationID> locIds);
     QVector<LocationID> expandedLocationIds(); // TODO: add expanding
     const QVector<QSharedPointer<LocationItemRegionWidget>> &itemWidgets();
-    const QVector<QSharedPointer<SelectableLocationItemWidget>> &visibleItemWidgets();
+    const QVector<QSharedPointer<SelectableLocationItemWidget>> visibleItemWidgets();
 
     const LocationID topSelectableLocationIdInViewport();
     int selectableIndex(LocationID locationId);
@@ -53,6 +53,7 @@ private:
     void recalcItemPositions();
     QVector<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets(); // regions + expanded cities
 
+    IWidgetLocationsInfo *widgetLocationsInfo_;
     LocationID lastSelectedLocationId_;
 
 };

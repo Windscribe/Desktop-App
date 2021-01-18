@@ -9,6 +9,7 @@
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiputil.h"
+#include "tooltips/tooltipcontroller.h"
 
 
 namespace ConnectWindow {
@@ -381,12 +382,12 @@ void ConnectWindowItem::onNetworkHoverEnter()
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.5;
     ti.title = title;
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipBasic(ti);
 }
 
 void ConnectWindowItem::onNetworkHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_NETWORK_INFO);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_NETWORK_INFO);
 }
 
 void ConnectWindowItem::onConnectStateTextHoverEnter()
@@ -416,7 +417,7 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
                 ti.title = "";
                 ti.desc = text;
                 ti.width = 275 * G_SCALE;
-                emit showTooltip(ti);
+                TooltipController::instance().showTooltipDescriptive(ti);
             }
             else // CONNECTED
             {
@@ -430,7 +431,7 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
                 ti.tailtype = TOOLTIP_TAIL_BOTTOM;
                 ti.tailPosPercent = 0.05;
                 ti.title = text;
-                emit showTooltip(ti);
+                TooltipController::instance().showTooltipBasic(ti);
             }
         }
     }
@@ -438,7 +439,7 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
 
 void ConnectWindowItem::onConnectStateTextHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_CONNECTION_INFO);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_CONNECTION_INFO);
 }
 
 void ConnectWindowItem::onFirewallButtonClick()
@@ -459,7 +460,7 @@ void ConnectWindowItem::onFirewallButtonClick()
     ti.width = 200 * G_SCALE;
     ti.delay = 100;
     TooltipUtil::getFirewallAlwaysOnTooltipInfo(&ti.title, &ti.desc);
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipDescriptive(ti);
 }
 
 void ConnectWindowItem::onFirewallButtonHoverEnter()
@@ -477,12 +478,12 @@ void ConnectWindowItem::onFirewallButtonHoverEnter()
     ti.y = globalPt.y() - 4 * G_SCALE;
     ti.width = 200 * G_SCALE;
     TooltipUtil::getFirewallBlockedTooltipInfo(&ti.title, &ti.desc);
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipDescriptive(ti);
 }
 
 void ConnectWindowItem::onFirewallButtonHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
 }
 
 void ConnectWindowItem::onFirewallInfoHoverEnter()
@@ -503,12 +504,12 @@ void ConnectWindowItem::onFirewallInfoHoverEnter()
     ti.desc = tr("Blocks all connectivity in the event of a sudden disconnect");
     ti.width = width;
 
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipDescriptive(ti);
 }
 
 void ConnectWindowItem::onFirewallInfoHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_FIREWALL_INFO);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_FIREWALL_INFO);
 }
 
 void ConnectWindowItem::onDockedModeChanged(bool bIsDockedToTray)
@@ -536,7 +537,7 @@ void ConnectWindowItem::onFirstNameHoverEnter()
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.1;
         ti.title = fullFirstName_;
-        emit showTooltip(ti);
+        TooltipController::instance().showTooltipBasic(ti);
     }
 }
 
@@ -556,13 +557,13 @@ void ConnectWindowItem::onSecondNameHoverEnter()
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.1;
         ti.title = fullSecondName_;
-        emit showTooltip(ti);
+        TooltipController::instance().showTooltipBasic(ti);
     }
 }
 
 void ConnectWindowItem::onFirstOrSecondNameHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_FULL_SERVER_NAME);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_FULL_SERVER_NAME);
 }
 
 void ConnectWindowItem::onServerRatingIndicatorHoverEnter()
@@ -577,7 +578,7 @@ void ConnectWindowItem::onServerRatingIndicatorHoverEnter()
         TooltipInfo ti(TOOLTIP_TYPE_INTERACTIVE, TOOLTIP_ID_SERVER_RATINGS);
         ti.x = posX;
         ti.y = posY;
-        emit showTooltip(ti);
+        TooltipController::instance().showTooltipInteractive(ti.id, ti.x, ti.y, ti.delay);
     }
     else
     {
@@ -594,14 +595,14 @@ void ConnectWindowItem::onServerRatingIndicatorHoverEnter()
         ti.tailPosPercent = 0.9;
         ti.title = tr("Connect to rate");
         ti.type = TOOLTIP_TYPE_BASIC;
-        emit showTooltip(ti);
+        TooltipController::instance().showTooltipBasic(ti);
     }
 }
 
 void ConnectWindowItem::onServerRatingIndicatorHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_SERVER_RATINGS);
-    emit hideTooltip(TOOLTIP_ID_CONNECT_TO_RATE);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_CONNECT_TO_RATE);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_SERVER_RATINGS);
 }
 
 void ConnectWindowItem::updatePositions()

@@ -8,6 +8,7 @@
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
+#include "tooltips/tooltipcontroller.h"
 
 namespace PreferencesWindow {
 
@@ -337,13 +338,13 @@ void PreferencesTabControlItem::onAbstractButtonHoverEnter(QGraphicsObject *butt
         ti.title = text;
         ti.tailtype =  TOOLTIP_TAIL_LEFT;
         ti.tailPosPercent = 0.5;
-        emit showTooltip(ti);
+        TooltipController::instance().showTooltipBasic(ti);
     }
 }
 
 void PreferencesTabControlItem::onButtonHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_PREFERENCES_TAB_INFO);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_PREFERENCES_TAB_INFO);
 }
 
 void PreferencesTabControlItem::fadeButtons(double newOpacity, int animationSpeed)

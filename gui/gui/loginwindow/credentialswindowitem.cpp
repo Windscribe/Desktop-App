@@ -16,6 +16,7 @@
 #include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
+#include "tooltips/tooltipcontroller.h"
 
 namespace LoginWindow {
 
@@ -530,7 +531,7 @@ void CredentialsWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, 
         ti.title = text;
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
-        emit showTooltip(ti);
+        TooltipController::instance().showTooltipBasic(ti);
     }
 }
 
@@ -654,7 +655,7 @@ void CredentialsWindowItem::setUsernameFocus()
 
 void CredentialsWindowItem::onTooltipButtonHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_LOGIN_ADDITIONAL_BUTTON_INFO);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOGIN_ADDITIONAL_BUTTON_INFO);
 }
 
 void CredentialsWindowItem::transitionToEmergencyON()

@@ -14,8 +14,6 @@ SplitTunnelingItem::SplitTunnelingItem(ScalableGraphicsObject *parent) : BaseIte
     connect(splitTunnelingSwitchItem_, SIGNAL(settingsChanged(ProtoTypes::SplitTunnelingSettings)), SIGNAL(settingsChanged(ProtoTypes::SplitTunnelingSettings)));
     connect(splitTunnelingSwitchItem_, SIGNAL(appsPageClick()), SIGNAL(appsPageClick()));
     connect(splitTunnelingSwitchItem_, SIGNAL(ipsAndHostnamesPageClick()), SIGNAL(ipsAndHostnamesPageClick()));
-    connect(splitTunnelingSwitchItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(splitTunnelingSwitchItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 
     updateScaling();
 }

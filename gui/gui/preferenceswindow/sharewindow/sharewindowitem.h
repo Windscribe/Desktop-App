@@ -17,10 +17,6 @@ public:
 
     QString caption();
 
-signals:
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
-
 private slots:
     void onSecureHotspotParsChanged(const ProtoTypes::ShareSecureHotspot &ss);
     void onSecureHotspotParsPreferencesChanged(const ProtoTypes::ShareSecureHotspot &ss);

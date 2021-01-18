@@ -8,10 +8,10 @@
 
 namespace GuiLocations {
 
-LocationItemRegionWidget::LocationItemRegionWidget(LocationModelItem *locationModelItem, QWidget *parent) : QWidget(parent)
+LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : QWidget(parent)
   , expanded_(false)
 {
-    regionHeaderWidget_ = QSharedPointer<LocationItemRegionHeaderWidget>(new LocationItemRegionHeaderWidget(locationModelItem, this));
+    regionHeaderWidget_ = QSharedPointer<LocationItemRegionHeaderWidget>(new LocationItemRegionHeaderWidget(widgetLocationsInfo, locationModelItem, this));
     connect(regionHeaderWidget_.get(), SIGNAL(clicked()), SLOT(onRegionItemClicked()));
     connect(regionHeaderWidget_.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onRegionItemSelected(SelectableLocationItemWidget *)));
     recalcItemPos();

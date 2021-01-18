@@ -40,8 +40,6 @@ signals:
     void proxySettingsPageClick();
     void cycleMacAddressClick();
     void detectAppropriatePacketSizeButtonClicked();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
 
 private slots:
     void onFirewallModeChanged(const ProtoTypes::FirewallSettings &fm);

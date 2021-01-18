@@ -76,8 +76,6 @@ signals:
     void selected(LocationID id);
     void switchFavorite(LocationID id, bool isFavorite);
     void addStaticIpURLClicked();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId type);
 
 private slots:
     void onItemsUpdated(QVector<LocationModelItem*> items);
@@ -91,10 +89,9 @@ private slots:
     void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
 
 private:
+    QString filterString_;
     LocationItemListWidget *locationItemListWidget_;
     void updateWidgetList(QVector<LocationModelItem *> items);
-
-    QString filterString_;
 
     int topInd_;
     int topOffs_;
@@ -145,7 +142,6 @@ private:
     int detectVisibleIndForCursorPos(const QPoint &pt);
 
     void handleMouseMoveForTooltip();
-    void handleLeaveForTooltip();
 
     void clearItems();
     double calcScrollingSpeed(double scrollItemsCount);

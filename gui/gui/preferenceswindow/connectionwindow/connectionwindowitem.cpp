@@ -7,6 +7,7 @@
 #include "languagecontroller.h"
 #include "utils/protoenumtostring.h"
 #include "tooltips/tooltiputil.h"
+#include "tooltips/tooltipcontroller.h"
 
 namespace PreferencesWindow {
 
@@ -65,8 +66,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     packetSizeItem_->setPacketSize(preferences->packetSize());
     connect(packetSizeItem_, SIGNAL(packetSizeChanged(ProtoTypes::PacketSize)), SLOT(onPacketSizeChanged(ProtoTypes::PacketSize)));
     connect(packetSizeItem_, SIGNAL(detectAppropriatePacketSizeButtonClicked()), SIGNAL(detectAppropriatePacketSizeButtonClicked()));
-    connect(packetSizeItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(packetSizeItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     addItem(packetSizeItem_);
 
     checkBoxAllowLanTraffic_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN traffic"), QString());
@@ -150,12 +149,12 @@ void ConnectionWindowItem::onFirewallModeHoverEnter()
     ti.y = globalPt.y() - 4 * G_SCALE;
     ti.width = 200 * G_SCALE;
     TooltipUtil::getFirewallBlockedTooltipInfo(&ti.title, &ti.desc);
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipDescriptive(ti);
 }
 
 void ConnectionWindowItem::onFirewallModeHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
 }
 
 void ConnectionWindowItem::onConnectionModeHoverEnter(ConnectionModeItem::ButtonType type)
@@ -175,12 +174,12 @@ void ConnectionWindowItem::onConnectionModeHoverEnter(ConnectionModeItem::Button
     ti.width = 200 * G_SCALE;
     ti.title = tr("Not Logged In");
     ti.desc = tr("Please login to modify connection settings.");
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipDescriptive(ti);
 }
 
 void ConnectionWindowItem::onConnectionModeHoverLeave(ConnectionModeItem::ButtonType /*type*/)
 {
-    emit hideTooltip(TOOLTIP_ID_CONNECTION_MODE_LOGIN);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_CONNECTION_MODE_LOGIN);
 }
 
 void ConnectionWindowItem::onConnectionModeChanged(const ProtoTypes::ConnectionSettings &cm)
@@ -251,7 +250,7 @@ void ConnectionWindowItem::onIsAllowLanTrafficPreferencedChanged(bool b)
 
 void ConnectionWindowItem::onInvalidLanAddressNotification(QString address)
 {
-    emit hideTooltip(TOOLTIP_ID_INVALID_LAN_ADDRESS);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_INVALID_LAN_ADDRESS);
 
     const auto *the_scene = scene();
     if (!the_scene || !isVisible())
@@ -277,12 +276,12 @@ void ConnectionWindowItem::onInvalidLanAddressNotification(QString address)
                  "a valid RFC-1918 IP range.");
     ti.width = width;
     ti.delay = 100;
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipDescriptive(ti);
 }
 
 void ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_INVALID_LAN_ADDRESS);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_INVALID_LAN_ADDRESS);
 }
 
 void ConnectionWindowItem::onIsFirewallBlockedChanged(bool bFirewallBlocked)

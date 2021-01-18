@@ -21,8 +21,6 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *pre
     connect(welcomeWindowItem_, SIGNAL(emergencyConnectClick()), SIGNAL(emergencyConnectClick()));
     connect(welcomeWindowItem_, SIGNAL(externalConfigModeClick()), SIGNAL(externalConfigModeClick()));
     connect(welcomeWindowItem_, SIGNAL(haveAccountYesClick()), SIGNAL(haveAccountYesClick()));
-    connect(welcomeWindowItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(welcomeWindowItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(welcomeWindowItem_, SIGNAL(firewallTurnOffClick()), SLOT(firewallTurnOffClickWelcomeWindow()));
 
     connect(credentialsWindowItem_, SIGNAL(minimizeClick()), SIGNAL(minimizeClick()));
@@ -33,8 +31,6 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *pre
     connect(credentialsWindowItem_, SIGNAL(backClick()), SIGNAL(backToWelcomeClick()));
     connect(credentialsWindowItem_, SIGNAL(twoFactorAuthClick(QString, QString)), SIGNAL(twoFactorAuthClick(QString, QString)));
     connect(credentialsWindowItem_, SIGNAL(loginClick(QString, QString, QString)), SIGNAL(loginClick(QString, QString, QString)));
-    connect(credentialsWindowItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(credentialsWindowItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(credentialsWindowItem_, SIGNAL(firewallTurnOffClick()), SLOT(firewallTurnOffClickCredentialsWindow()));
 }
 

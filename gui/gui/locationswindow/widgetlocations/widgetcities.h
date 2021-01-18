@@ -84,8 +84,6 @@ signals:
     void selected(LocationID id);
     void switchFavorite(LocationID id, bool isFavorite);
     void addStaticIpURLClicked();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId type);
     void emptyListButtonClicked();
 
 private slots:

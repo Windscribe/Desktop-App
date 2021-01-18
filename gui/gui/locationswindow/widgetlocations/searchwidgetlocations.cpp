@@ -12,29 +12,29 @@
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
-
+#include "tooltips/tooltipcontroller.h"
 
 #include <QDebug>
 
 namespace GuiLocations {
 
-SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(parent),
-    topInd_(0),
-    topOffs_(0),
-    indSelected_(-1),
-    indParentPressed_(-1),
-    indChildPressed_(-1),
-    indChildFavourite_(-1),
-    countOfAvailableItemSlots_(7),
-    bIsFreeSession_(false),
-    bestLocation_(nullptr),
-    bestLocationName_(""),
-    currentScale_(G_SCALE),
-    bMouseInViewport_(false),
-    bShowLatencyInMs_(false),
-    bTapGestureStarted_(false),
-    locationsModel_(NULL)
+SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(parent)
   , filterString_("")
+  , topInd_(0)
+  , topOffs_(0)
+  , indSelected_(-1)
+  , indParentPressed_(-1)
+  , indChildPressed_(-1)
+  , indChildFavourite_(-1)
+  , countOfAvailableItemSlots_(7)
+  , bIsFreeSession_(false)
+  , bestLocation_(nullptr)
+  , bestLocationName_("")
+  , currentScale_(G_SCALE)
+  , bMouseInViewport_(false)
+  , bShowLatencyInMs_(false)
+  , bTapGestureStarted_(false)
+  , locationsModel_(NULL)
 {
     setFrameStyle(QFrame::NoFrame);
     setMouseTracking(true);
@@ -43,7 +43,7 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     scrollBar_ = new ScrollBar(this);
     scrollBar_->setStyleSheet(scrollbarStyleSheet());
     setVerticalScrollBar(scrollBar_);
-    locationItemListWidget_ = new LocationItemListWidget(this);
+    locationItemListWidget_ = new LocationItemListWidget(this, this);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     verticalScrollBar()->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
     scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
@@ -318,6 +318,8 @@ void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
 {
     // qDebug() << "Scrolling contents by: " << dy;
 
+    TooltipController::instance().hideAllTooltips();
+
     locationItemListWidget_->selectWidgetContainingCursor();
 
     QScrollArea::scrollContentsBy(dx,dy);
@@ -411,8 +413,10 @@ void SearchWidgetLocations::onIsFavoriteChanged(LocationID id, bool isFavorite)
 
 void SearchWidgetLocations::onFreeSessionStatusChanged(bool isFreeSessionStatus)
 {
-
-
+    if (bIsFreeSession_ != isFreeSessionStatus)
+    {
+        bIsFreeSession_ = isFreeSessionStatus;
+    }
 }
 
 void SearchWidgetLocations::onTopScrollBarValueChanged(int value)
@@ -483,16 +487,6 @@ int SearchWidgetLocations::detectVisibleIndForCursorPos(const QPoint &pt)
 void SearchWidgetLocations::handleMouseMoveForTooltip()
 {
 
-}
-
-void SearchWidgetLocations::handleLeaveForTooltip()
-{
-//    if (!bMouseInViewport_)
-//    {
-//        emit hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
-//        emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
-//        emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
-//    }
 }
 
 void SearchWidgetLocations::clearItems()

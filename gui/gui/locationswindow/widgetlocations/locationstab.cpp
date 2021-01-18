@@ -8,6 +8,7 @@
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
 #include "utils/writeaccessrightschecker.h"
+#include "tooltips/tooltipcontroller.h"
 
 #include <QDebug>
 
@@ -108,20 +109,6 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     connect(widgetStaticIpsLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
     connect(widgetFavoriteLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
     connect(widgetSearchLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-
-
-    connect(widgetAllLocations_,        SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(widgetConfiguredLocations_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(widgetStaticIpsLocations_,  SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(widgetFavoriteLocations_,   SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(widgetSearchLocations_,        SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(configFooterInfo_,          SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(widgetAllLocations_,        SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
-    connect(widgetConfiguredLocations_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
-    connect(widgetStaticIpsLocations_,  SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
-    connect(widgetFavoriteLocations_,   SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
-    connect(widgetSearchLocations_,        SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(configFooterInfo_,          SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 
     widgetAllLocations_->setModel(locationsModel->getAllLocationsModel());
     widgetConfiguredLocations_->setModel(locationsModel->getConfiguredLocationsModel());
@@ -230,7 +217,7 @@ void LocationsTab::mouseMoveEvent(QMouseEvent *event)
                 curTabMouseOver_ = CUR_TAB_NONE;
                 setArrowCursor();
 
-                emit hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
+                TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
             }
         }
         else
@@ -238,7 +225,7 @@ void LocationsTab::mouseMoveEvent(QMouseEvent *event)
             curTabMouseOver_ = CUR_TAB_NONE;
             setArrowCursor();
 
-            emit hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
+            TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
         }
     }
 
@@ -322,7 +309,7 @@ void LocationsTab::leaveEvent(QEvent *event)
 {
     curTabMouseOver_ = CUR_TAB_NONE;
     setArrowCursor();
-    emit hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
     QWidget::leaveEvent(event);
 }
 
@@ -475,8 +462,7 @@ void LocationsTab::onSearchButtonPosAnimationValueChanged(const QVariant &value)
 
 void LocationsTab::onSearchLineEditTextChanged(QString text)
 {
-    // TODO:
-    // update view
+    // TODO: update view
 }
 
 IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
@@ -758,7 +744,7 @@ void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, i
     ti.title = text;
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.5;
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipBasic(ti);
 }
 
 void LocationsTab::updateCustomConfigsEmptyListVisibility()

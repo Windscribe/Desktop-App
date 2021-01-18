@@ -12,7 +12,7 @@ class LocationItemRegionWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationItemRegionWidget(LocationModelItem *locationItem, QWidget *parent = nullptr);
+    explicit LocationItemRegionWidget(IWidgetLocationsInfo *widgetLocationInfo, LocationModelItem *locationItem, QWidget *parent = nullptr);
     ~LocationItemRegionWidget();
 
     const LocationID getId() const;

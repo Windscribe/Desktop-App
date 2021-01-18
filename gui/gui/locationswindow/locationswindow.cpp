@@ -20,8 +20,6 @@ LocationsWindow::LocationsWindow(QWidget *parent, LocationsModel *locationsModel
     connect(locationsTab_, SIGNAL(addStaticIpClicked()), SIGNAL(addStaticIpClicked()));
     connect(locationsTab_, SIGNAL(clearCustomConfigClicked()), SIGNAL(clearCustomConfigClicked()));
     connect(locationsTab_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
-    connect(locationsTab_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(locationsTab_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 

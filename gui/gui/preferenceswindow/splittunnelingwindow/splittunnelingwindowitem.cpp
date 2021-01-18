@@ -14,8 +14,6 @@ SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *paren
     connect(splitTunnelingItem_, SIGNAL(ipsAndHostnamesPageClick()), SIGNAL(ipsAndHostnamesPageClick()));
     connect(splitTunnelingItem_, SIGNAL(appsPageClick()), SIGNAL(appsPageClick()));
     connect(splitTunnelingItem_, SIGNAL(settingsChanged(ProtoTypes::SplitTunnelingSettings)), SLOT(onSettingsChanged(ProtoTypes::SplitTunnelingSettings)));
-    connect(splitTunnelingItem_, SIGNAL(showTooltip(TooltipInfo)),SIGNAL(showTooltip(TooltipInfo)));
-    connect(splitTunnelingItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 
     addItem(splitTunnelingItem_);
     splitTunnelingItem_->setSettings(preferences->splitTunnelingSettings());

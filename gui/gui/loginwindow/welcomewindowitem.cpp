@@ -17,6 +17,8 @@
 #include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
+#include "tooltips/tooltipcontroller.h"
+
 
 namespace LoginWindow {
 
@@ -337,7 +339,7 @@ void WelcomeWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, QStr
         ti.title = text;
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
-        emit showTooltip(ti);
+        TooltipController::instance().showTooltipBasic(ti);
     }
 }
 
@@ -459,7 +461,7 @@ void WelcomeWindowItem::updateScaling()
 
 void WelcomeWindowItem::onTooltipButtonHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_LOGIN_ADDITIONAL_BUTTON_INFO);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOGIN_ADDITIONAL_BUTTON_INFO);
 }
 
 void WelcomeWindowItem::transitionToEmergencyON()

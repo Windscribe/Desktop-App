@@ -28,8 +28,6 @@ public:
 signals:
     void packetSizeChanged(const ProtoTypes::PacketSize &ps);
     void detectAppropriatePacketSizeButtonClicked();
-    void showTooltip(TooltipInfo data);
-    void hideTooltip(TooltipId id);
 
 private slots:
     void onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state);

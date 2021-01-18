@@ -8,8 +8,9 @@
 
 namespace GuiLocations {
 
-LocationItemListWidget::LocationItemListWidget(QWidget *parent) : QWidget(parent)
+LocationItemListWidget::LocationItemListWidget(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent) : QWidget(parent)
   , height_(0)
+  , widgetLocationsInfo_(widgetLocationsInfo)
 {
     // qDebug() << "Constructed Location Item List Widget";
 }
@@ -35,7 +36,7 @@ void LocationItemListWidget::clearWidgets()
 
 void LocationItemListWidget::addRegionWidget(LocationModelItem *item)
 {
-    auto regionWidget = QSharedPointer<LocationItemRegionWidget>(new LocationItemRegionWidget(item, this));
+    auto regionWidget = QSharedPointer<LocationItemRegionWidget>(new LocationItemRegionWidget(widgetLocationsInfo_, item, this));
     connect(regionWidget.get(), SIGNAL(heightChanged(int)), SLOT(onRegionWidgetHeightChanged(int)));
     connect(regionWidget.get(), SIGNAL(clicked(LocationItemCityWidget *)), SLOT(onLocationItemCityClicked(LocationItemCityWidget *)));
     connect(regionWidget.get(), SIGNAL(clicked(LocationItemRegionWidget *)), SLOT(onLocationItemRegionClicked(LocationItemRegionWidget *)));
@@ -164,7 +165,7 @@ void LocationItemListWidget::selectItem(LocationID locationId)
     }
 }
 
-const QVector<QSharedPointer<SelectableLocationItemWidget> > &LocationItemListWidget::visibleItemWidgets()
+const QVector<QSharedPointer<SelectableLocationItemWidget> > LocationItemListWidget::visibleItemWidgets()
 {
     QVector<QSharedPointer<SelectableLocationItemWidget>> visible;
     foreach (auto widget, selectableWidgets())

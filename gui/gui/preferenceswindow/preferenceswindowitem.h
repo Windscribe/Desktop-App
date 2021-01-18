@@ -86,9 +86,6 @@ signals:
     void splitTunnelingAppsAddButtonClick();
     void detectAppropriatePacketSizeButtonClicked();
 
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
-
     void advancedParametersClicked() override;
 
 #ifdef Q_OS_WIN

@@ -137,9 +137,6 @@ private slots:
     void onBottomInfoHeightChanged();
     void onBottomInfoPosChanged();
 
-    void onChildWindowShowTooltip(TooltipInfo info);
-    void onChildWindowHideTooltip(TooltipId type);
-
     void onTooltipControllerSendServerRatingUp();
     void onTooltipControllerSendServerRatingDown();
 
@@ -169,8 +166,6 @@ private:
     IGeneralMessageWindow *generalMessageWindow_;
     IUpdateAppItem *updateAppItem_;
     IGeneralMessageTwoButtonWindow *exitWindow_;
-
-    TooltipController *tooltipController_;
 
     LocationsWindow *locationsWindow_;
 

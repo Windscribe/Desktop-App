@@ -26,8 +26,6 @@ public:
 
 signals:
     void textChanged(const QString &text);
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
 
 private slots:
     void onCopyClick();

@@ -5,6 +5,7 @@
 #include "../backend/locationsmodel/basiclocationsmodel.h"
 #include "selectablelocationitemwidget.h"
 #include "commonwidgets/iconwidget.h"
+#include "iwidgetlocationsinfo.h"
 
 namespace GuiLocations {
 
@@ -12,7 +13,7 @@ class LocationItemRegionHeaderWidget : public SelectableLocationItemWidget
 {
     Q_OBJECT
 public:
-    explicit LocationItemRegionHeaderWidget(LocationModelItem *locationItem, QWidget *parent = nullptr);
+    explicit LocationItemRegionHeaderWidget(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationItem, QWidget *parent = nullptr);
 
     const LocationID getId() const override;
     const QString name() const override;
@@ -31,18 +32,19 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEvent *event) override;
-    // void leaveEvent(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void onP2pIconHoverEnter();
     void onP2pIconHoverLeave();
     void onOpacityAnimationValueChanged(const QVariant &value);
-    void onPlusRotationAnimationValueChanged(const QVariant &value);
+    void onExpandRotationAnimationValueChanged(const QVariant &value);
 
 private:
     LocationID locationID_;
     QString countryCode_;
+    bool isPremiumOnly_;
+    IWidgetLocationsInfo *widgetLocationsInfo_;
 
     QSharedPointer<IconWidget> p2pIcon_;
     QSharedPointer<QLabel> textLabel_;

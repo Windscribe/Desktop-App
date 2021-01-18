@@ -10,6 +10,8 @@
 #include "widgetlocationssizes.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
+#include "tooltips/tooltipcontroller.h"
+
 #include <QDebug>
 
 namespace GuiLocations {
@@ -465,9 +467,9 @@ void WidgetLocations::scrollContentsBy(int dx, int dy)
         scrollBarOnTop_->setValue(verticalScrollBar()->value());
     }
 
-    emit hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
-    emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
-    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
 
     startAnimationTop_ = topOffs_;
     endAnimationTop_ = -getItemHeight() * verticalScrollBar()->value();
@@ -1145,7 +1147,7 @@ void WidgetLocations::handleMouseMoveForTooltip()
                     ti.title = tr("File Sharing Frowned Upon");
                     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
                     ti.tailPosPercent = 0.5;
-                    emit showTooltip(ti);
+                    TooltipController::instance().showTooltipBasic(ti);
                 }
                 else if (!bShowLatencyInMs_ && items_[indSelected_]->isCursorOverConnectionMeter())
                 {
@@ -1168,15 +1170,15 @@ void WidgetLocations::handleMouseMoveForTooltip()
                         ti.title = QString("%1 Ms").arg(cities[cityIndexSelected].timeMs().toInt());
                         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
                         ti.tailPosPercent = 0.5;
-                        emit showTooltip(ti);
+                        TooltipController::instance().showTooltipBasic(ti);
                     }
                 }
     //          else if (items_[indSelected_]->isForbidden(items_[indSelected_]->getSelected()) && !items_[indSelected_]->isCursorOverArrow())
                 else
                 {
-                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
-                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
-                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
+                    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
+                    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+                    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
                 }
             }
         }
@@ -1189,9 +1191,9 @@ void WidgetLocations::handleLeaveForTooltip()
 {
     if (!bMouseInViewport_)
     {
-        emit hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
-        emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
-        emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
     }
 }
 
