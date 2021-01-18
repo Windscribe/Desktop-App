@@ -23,6 +23,7 @@ public:
 
     void addCity(CityModelItem city);
     QVector<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
+    QVector<QSharedPointer<LocationItemCityWidget>> selectableCityWidgets();
 
     void recalcItemPos();
 
@@ -45,6 +46,7 @@ private slots:
 private:
     QSharedPointer<LocationItemRegionHeaderWidget> regionHeaderWidget_;
     QVector<QSharedPointer<LocationItemCityWidget>> cities_;
+    IWidgetLocationsInfo *widgetLocationsInfo_;
 
     bool expanded_;
     int height_;

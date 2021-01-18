@@ -180,6 +180,16 @@ const QVector<QSharedPointer<SelectableLocationItemWidget> > LocationItemListWid
     return visible;
 }
 
+const QVector<QSharedPointer<LocationItemCityWidget> > LocationItemListWidget::selectableCityWidgets()
+{
+    QVector<QSharedPointer<LocationItemCityWidget>> selectableItemWidgets;
+    foreach (auto regionWidget, itemWidgets_)
+    {
+        selectableItemWidgets.append(regionWidget->selectableCityWidgets());
+    }
+    return selectableItemWidgets;
+}
+
 
 QVector<QSharedPointer<SelectableLocationItemWidget>> LocationItemListWidget::selectableWidgets()
 {

@@ -139,11 +139,8 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
     }
 
     // pro star
-    qDebug() << "free status : " << widgetLocationsInfo_->isFreeSessionStatus();
-    qDebug() << "premium: " << isPremiumOnly_;
     if (widgetLocationsInfo_->isFreeSessionStatus() && isPremiumOnly_)
     {
-        qDebug() << "Drawing star";
         IndependentPixmap *proRegionStar = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_REGION_STAR_LIGHT");
         proRegionStar->draw(8 * G_SCALE,  (LOCATION_ITEM_HEIGHT*G_SCALE - 16*G_SCALE) / 2 - 9*G_SCALE, &painter);
     }
@@ -178,7 +175,7 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
     }
 
     int left = 24 * G_SCALE;
-    int right = WINDOW_WIDTH * G_SCALE - left;
+    int right = WINDOW_WIDTH * G_SCALE - 8*G_SCALE;
     int bottom = LOCATION_ITEM_HEIGHT-1* G_SCALE;
     painter.setOpacity(1.0);
 

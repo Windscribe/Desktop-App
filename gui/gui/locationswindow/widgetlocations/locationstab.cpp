@@ -708,7 +708,7 @@ void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
         widgetConfiguredLocations_->setShowLatencyInMs(isShowLatencyInMs);
         widgetStaticIpsLocations_ ->setShowLatencyInMs(isShowLatencyInMs);
         widgetFavoriteLocations_  ->setShowLatencyInMs(isShowLatencyInMs);
-        //widgetSearchLocations_    ->setShowLatencyInMs(isShowLatencyInMs);
+        widgetSearchLocations_    ->setShowLatencyInMs(isShowLatencyInMs);
     }
 }
 

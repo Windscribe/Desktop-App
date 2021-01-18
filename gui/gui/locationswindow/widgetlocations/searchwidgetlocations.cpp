@@ -194,7 +194,11 @@ void SearchWidgetLocations::startAnimationWithPixmap(const QPixmap &pixmap)
 
 void SearchWidgetLocations::setShowLatencyInMs(bool showLatencyInMs)
 {
-
+    bShowLatencyInMs_ = showLatencyInMs;
+    foreach (auto w, locationItemListWidget_->selectableCityWidgets())
+    {
+        w->setShowLatencyMs(showLatencyInMs);
+    }
 }
 
 bool SearchWidgetLocations::isShowLatencyInMs()
@@ -403,7 +407,13 @@ bool SearchWidgetLocations::isIdVisible(LocationID id)
 
 void SearchWidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
-
+    foreach (QSharedPointer<LocationItemCityWidget> w, locationItemListWidget_->selectableCityWidgets())
+    {
+        if (w->getId() == id)
+        {
+            w->setLatencyMs(timeMs);
+        }
+    }
 }
 
 void SearchWidgetLocations::onIsFavoriteChanged(LocationID id, bool isFavorite)

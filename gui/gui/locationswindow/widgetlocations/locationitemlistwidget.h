@@ -25,6 +25,7 @@ public:
     QVector<LocationID> expandedLocationIds(); // TODO: add expanding
     const QVector<QSharedPointer<LocationItemRegionWidget>> &itemWidgets();
     const QVector<QSharedPointer<SelectableLocationItemWidget>> visibleItemWidgets();
+    const QVector<QSharedPointer<LocationItemCityWidget>> selectableCityWidgets();
 
     const LocationID topSelectableLocationIdInViewport();
     int selectableIndex(LocationID locationId);

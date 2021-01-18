@@ -4,6 +4,10 @@
 #include <QLabel>
 #include "../backend/locationsmodel/basiclocationsmodel.h"
 #include "selectablelocationitemwidget.h"
+#include "iwidgetlocationsinfo.h"
+#include "commonwidgets/iconwidget.h"
+#include "../backend/types/pingtime.h"
+#include "itemtimems.h"
 
 namespace GuiLocations {
 
@@ -11,7 +15,7 @@ class LocationItemCityWidget : public SelectableLocationItemWidget
 {
     Q_OBJECT
 public:
-    explicit LocationItemCityWidget(CityModelItem cityModelItem, QWidget *parent = nullptr);
+    explicit LocationItemCityWidget(IWidgetLocationsInfo *widgetLocationsInfo, CityModelItem cityModelItem, QWidget *parent = nullptr);
     ~LocationItemCityWidget();
 
     const LocationID getId() const override;
@@ -23,8 +27,12 @@ public:
     bool isSelected() const override;
     bool containsCursor() const override;
 
+    // TODO: fix display of time in MS
+    // TODO: fix display of correct ping bar icon (based on speed)
+    void setLatencyMs(PingTime pingTime);
     void setShowLatencyMs(bool showLatencyMs);
 
+    // TODO: add click prevention for forbidden city
 signals:
     void selected(SelectableLocationItemWidget *itemWidget);
     void clicked(LocationItemCityWidget *itemWidget);
@@ -32,14 +40,22 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEvent *event) override;
-    // void leaveEvent(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+
+private slots:
+    void onPingBarIconHoverEnter();
+    void onPingBarIconHoverLeave();
 
 private:
     QSharedPointer<QLabel> cityLabel_;
     QSharedPointer<QLabel> nickLabel_;
-    CityModelItem cityModelItem_;
+    QSharedPointer<IconWidget> pingBarIcon_;
 
+    PingTime pingTime_;
+    CityModelItem cityModelItem_;
+    IWidgetLocationsInfo *widgetLocationsInfo_;
+
+    bool showingPingBar_;
     bool selectable_;
     bool selected_;
     const QString labelStyleSheetWithOpacity(double opacity);

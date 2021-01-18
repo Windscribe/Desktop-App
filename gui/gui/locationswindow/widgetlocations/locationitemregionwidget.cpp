@@ -10,6 +10,8 @@ namespace GuiLocations {
 
 LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : QWidget(parent)
   , expanded_(false)
+  , widgetLocationsInfo_(widgetLocationsInfo)
+
 {
     regionHeaderWidget_ = QSharedPointer<LocationItemRegionHeaderWidget>(new LocationItemRegionHeaderWidget(widgetLocationsInfo, locationModelItem, this));
     connect(regionHeaderWidget_.get(), SIGNAL(clicked()), SLOT(onRegionItemClicked()));
@@ -82,7 +84,7 @@ void LocationItemRegionWidget::setShowLatencyMs(bool showLatencyMs)
 
 void LocationItemRegionWidget::addCity(CityModelItem city)
 {
-    auto cityWidget = QSharedPointer<LocationItemCityWidget>(new LocationItemCityWidget(city, this));
+    auto cityWidget = QSharedPointer<LocationItemCityWidget>(new LocationItemCityWidget(widgetLocationsInfo_, city, this));
     connect(cityWidget.get(), SIGNAL(clicked(LocationItemCityWidget *)), SLOT(onCityItemClicked(LocationItemCityWidget *)));
     connect(cityWidget.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onCityItemSelected(SelectableLocationItemWidget *)));
     cityWidget->hide();
@@ -94,6 +96,19 @@ QVector<QSharedPointer<SelectableLocationItemWidget>> LocationItemRegionWidget::
 {
     QVector<QSharedPointer<SelectableLocationItemWidget>> widgets;
     widgets.append(regionHeaderWidget_);
+    if (expanded())
+    {
+        foreach (auto city, cities_)
+        {
+            widgets.append(city);
+        }
+    }
+    return widgets;
+}
+
+QVector<QSharedPointer<LocationItemCityWidget> > LocationItemRegionWidget::selectableCityWidgets()
+{
+    QVector<QSharedPointer<LocationItemCityWidget>> widgets;
     if (expanded())
     {
         foreach (auto city, cities_)
