@@ -25,6 +25,7 @@ namespace GuiLocations {
 
 class CursorUpdateHelper;
 
+// TODO: test scaling changes in all contained classes
 class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT

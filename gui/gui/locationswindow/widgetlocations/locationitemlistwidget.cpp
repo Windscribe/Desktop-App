@@ -93,7 +93,7 @@ void LocationItemListWidget::expandLocationIds(QVector<LocationID> locIds)
         {
             if (regionWidget->getId() == locId)
             {
-                regionWidget->setExpanded(true);
+                regionWidget->expand();
             }
         }
     }
@@ -104,7 +104,7 @@ QVector<LocationID> LocationItemListWidget::expandedLocationIds()
     QVector<LocationID> expanded;
     foreach (auto regionWidget, itemWidgets_)
     {
-        if (regionWidget->expanded())
+        if (regionWidget->expandedOrExpanding())
         {
             expanded.append(regionWidget->getId());
         }
@@ -240,7 +240,17 @@ void LocationItemListWidget::onSelectableLocationItemSelected(SelectableLocation
 
 void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidget *regionWidget)
 {
-    regionWidget->setExpanded(!regionWidget->expanded());
+    if (regionWidget->expandedOrExpanding())
+    {
+        regionWidget->collapse();
+    }
+    else
+    {
+        if (regionWidget->expandable())
+        {
+            regionWidget->expand();
+        }
+    }
 }
 
 void LocationItemListWidget::recalcItemPositions()
