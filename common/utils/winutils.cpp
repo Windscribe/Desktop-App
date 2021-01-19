@@ -578,10 +578,12 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
             }
         }
 
-        // filter virtual physical adapters
+        // Filter out virtual physical adapters, but keep virtual adapters that act as Ethernet
+        // network bridges (e.g. Hyper-V virtual switches on the host side).
         if (networkInterface.dw_type() != IF_TYPE_PPP &&
-            networkInterface.connector_present() &&
-            !networkInterface.end_point_interface())
+            !networkInterface.end_point_interface() &&
+            (networkInterface.interface_type() == ProtoTypes::NETWORK_INTERFACE_ETH
+                || networkInterface.connector_present()))
         {
             *networkInterfaces.add_networks() = networkInterface;
         }
