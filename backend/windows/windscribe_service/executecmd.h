@@ -19,6 +19,7 @@ public:
 	MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
     MessagePacketResult getActiveUnblockingCmdCount();
 	MessagePacketResult clearUnblockingCmd(unsigned long id);
+    MessagePacketResult suspendUnblockingCmd(unsigned long id);
 
 private:
     ExecuteCmd();
@@ -53,6 +54,7 @@ private:
     static ExecuteCmd *this_;
 
     void terminateCmd(unsigned long id, unsigned long waitTimeout);
+    void suspendCmd(unsigned long id);
 	void clearCmd(unsigned long id);
 	void clearAllCmds();
 

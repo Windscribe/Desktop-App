@@ -73,6 +73,7 @@ public:
     // windows specific functions
     virtual void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) = 0;
     virtual void clearUnblockingCmd(unsigned long cmdId) = 0;
+    virtual void suspendUnblockingCmd(unsigned long cmdId) = 0;
     virtual void enableDnsLeaksProtection() = 0;
     virtual void disableDnsLeaksProtection() = 0;
     virtual bool reinstallWanIkev2() = 0;

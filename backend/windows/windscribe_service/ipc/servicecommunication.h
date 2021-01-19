@@ -51,6 +51,7 @@
 #define AA_COMMAND_GET_WIREGUARD_STATUS                     47
 #define AA_COMMAND_RUN_UPDATE_INSTALLER                     48
 #define AA_COMMAND_CONNECT_STATUS                           49
+#define AA_COMMAND_SUSPEND_UNBLOCKING_CMD                   50
 
 
 #define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
@@ -78,6 +79,11 @@ struct CMD_ENABLE_FIREWALL_ON_BOOT
 };
 
 struct CMD_CLEAR_UNBLOCKING_CMD
+{
+    unsigned long blockingCmdId;
+};
+
+struct CMD_SUSPEND_UNBLOCKING_CMD
 {
     unsigned long blockingCmdId;
 };

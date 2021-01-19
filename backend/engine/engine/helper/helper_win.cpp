@@ -545,6 +545,20 @@ void Helper_win::clearUnblockingCmd(unsigned long cmdId)
     sendCmdToHelper(AA_COMMAND_CLEAR_UNBLOCKING_CMD, stream.str());
 }
 
+void Helper_win::suspendUnblockingCmd(unsigned long cmdId)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_SUSPEND_UNBLOCKING_CMD cmdSuspendUnblockingCmd;
+    cmdSuspendUnblockingCmd.blockingCmdId = cmdId;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdSuspendUnblockingCmd;
+
+    sendCmdToHelper(AA_COMMAND_SUSPEND_UNBLOCKING_CMD, stream.str());
+}
+
 bool Helper_win::isSupportedICS()
 {
     QMutexLocker locker(&mutex_);

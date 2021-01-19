@@ -232,7 +232,7 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
     if (err.value() == 0)
     {
         qCDebug(LOG_CONNECTION) << "Program connected to openvpn socket";
-        helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
+        helper_->suspendUnblockingCmd(stateVariables_.lastCmdId);
         setCurrentState(STATUS_CONNECTED_TO_SOCKET);
         stateVariables_.buffer.reset(new boost::asio::streambuf());
         boost::asio::async_read_until(*stateVariables_.socket, *stateVariables_.buffer, "\n",
@@ -381,6 +381,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             if (!stateVariables_.bSigTermSent)
             {
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
+                helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
                 stateVariables_.bSigTermSent = true;
             }
         }
@@ -393,6 +394,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 if (!stateVariables_.bSigTermSent)
                 {
                     boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
+                    helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
                     stateVariables_.bSigTermSent = true;
                 }
             }
@@ -519,6 +521,7 @@ void OpenVPNConnection::funcDisconnect()
         {
             boost::system::error_code write_error;
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
+            helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
             stateVariables_.bSigTermSent = true;
         }
         else
@@ -561,6 +564,7 @@ void OpenVPNConnection::checkErrorAndContinue(boost::system::error_code &write_e
     {
         boost::system::error_code new_write_error;
         boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), new_write_error);
+        helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
         stateVariables_.bSigTermSent = true;
     }
 }

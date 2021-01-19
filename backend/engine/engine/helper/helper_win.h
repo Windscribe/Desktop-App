@@ -65,6 +65,7 @@ public:
 
     void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
     void clearUnblockingCmd(unsigned long cmdId) override;
+    void suspendUnblockingCmd(unsigned long cmdId) override;
 
     bool isSupportedICS() override;
 
