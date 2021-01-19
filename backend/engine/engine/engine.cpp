@@ -1021,6 +1021,7 @@ void Engine::signOutImplAfterDisconnect()
     checkUpdateTimer_->stop();
     updateSessionStatusTimer_->stop();
     notificationsUpdateTimer_->stop();
+    connectionManager_->resetWireGuardConfig();
 
     locationsModel_->clear();
     prevSessionStatus_.clear();

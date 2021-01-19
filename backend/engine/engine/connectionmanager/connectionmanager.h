@@ -61,6 +61,7 @@ public:
     apiinfo::StaticIpPortsVector getStatisIps();
 
     void setWireGuardConfig(QSharedPointer<WireGuardConfig> config);
+    void resetWireGuardConfig();
 
     void setMss(int mss);
     void setPacketSize(ProtoTypes::PacketSize ps);

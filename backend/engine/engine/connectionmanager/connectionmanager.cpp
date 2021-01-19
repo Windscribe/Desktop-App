@@ -1163,6 +1163,11 @@ void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> confi
     }
 }
 
+void ConnectionManager::resetWireGuardConfig()
+{
+    wireGuardConfig_.reset();
+}
+
 bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const
 {
     return currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG &&
