@@ -6,6 +6,7 @@
 #include "selectablelocationitemwidget.h"
 #include "iwidgetlocationsinfo.h"
 #include "commonwidgets/iconwidget.h"
+#include "commonwidgets/iconbuttonwidget.h"
 #include "../backend/types/pingtime.h"
 #include "itemtimems.h"
 
@@ -22,6 +23,7 @@ public:
     const QString name() const override;
     SelectableLocationItemWidgetType type() override;
 
+    void setFavourited(bool favourited);
     void setSelectable(bool selectable) override;
     void setSelected(bool select) override;
     bool isSelected() const override;
@@ -36,6 +38,7 @@ public:
 signals:
     void selected(SelectableLocationItemWidget *itemWidget);
     void clicked(LocationItemCityWidget *itemWidget);
+    void favoriteClicked(LocationItemCityWidget *itemWidget);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -45,11 +48,13 @@ protected:
 private slots:
     void onPingBarIconHoverEnter();
     void onPingBarIconHoverLeave();
+    void onFavoriteIconButtonClicked();
 
 private:
     QSharedPointer<QLabel> cityLabel_;
     QSharedPointer<QLabel> nickLabel_;
     QSharedPointer<IconWidget> pingBarIcon_;
+    QSharedPointer<CommonWidgets::IconButtonWidget> favoriteIconButton_;
 
     PingTime pingTime_;
     CityModelItem cityModelItem_;

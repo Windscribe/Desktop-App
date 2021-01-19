@@ -26,6 +26,8 @@ public:
 
     void showPlusIcon(bool show);
     void setExpanded(bool expand);
+    void setExpandedWithoutAnimation(bool expand);
+
 signals:
     void selected(SelectableLocationItemWidget *itemWidget);
 

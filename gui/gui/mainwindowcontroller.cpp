@@ -2578,6 +2578,7 @@ void MainWindowController::updateExpandAnimationParameters()
 {
     if (expandLocationsAnimationGroup_ != NULL)
     {
+        // TODO: sometimes this assert can fail
         Q_ASSERT(expandLocationsAnimationGroup_->state() != QAbstractAnimation::Running);
     }
 

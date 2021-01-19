@@ -550,16 +550,16 @@ void LocationItem::drawCityCaption(QPainter *painter, CityNode &cityNode, const 
         IndependentPixmap *favoritePixmap;
         if (cityNode.isFavorite())
         {
-            favoritePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/SELECTED_FAV_ICON");
+            favoritePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_SELECTED");
         }
         else
         {
-            favoritePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/DESELECTED_FAV_ICON");
+            favoritePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_DESELECTED");
         }
 
         int favoritePixmapHeight = favoritePixmap->height();
         painter->setOpacity(cityNode.isCursorOverFavoriteIcon() ? 1.0 : 0.5);
-        favoritePixmap->draw(rc.left() + 16 * G_SCALE, rc.top() + (rc.height() - favoritePixmapHeight) / 2, painter);
+        favoritePixmap->draw(rc.left() + 24 * G_SCALE, rc.top() + (rc.height() - favoritePixmapHeight) / 2, painter);
     }
 
 
@@ -668,11 +668,11 @@ bool LocationItem::isCursorOverFavoriteIcon(const QPoint &pt, const CityNode &ci
         return false;
     }
 
-    IndependentPixmap *favoritePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/DESELECTED_FAV_ICON");
+    IndependentPixmap *favoritePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_DESELECTED");
     int favoritePixmapWidth = favoritePixmap->width();
     int favoritePixmapHeight = favoritePixmap->height();
 
-    QRect rc(16 * G_SCALE, (48 * G_SCALE - favoritePixmapHeight) / 2, favoritePixmapWidth, favoritePixmapHeight);
+    QRect rc(24 * G_SCALE, (48 * G_SCALE - favoritePixmapHeight) / 2, favoritePixmapWidth, favoritePixmapHeight);
     return rc.contains(pt);
 }
 

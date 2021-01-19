@@ -7,6 +7,7 @@
 #include "widgetlocationssizes.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "tooltips/tooltipcontroller.h"
+#include "commongraphics/commongraphics.h"
 
 
 #include <QDebug>
@@ -35,6 +36,22 @@ LocationItemCityWidget::LocationItemCityWidget(IWidgetLocationsInfo *widgetLocat
     connect(pingBarIcon_.get(), SIGNAL(hoverLeave()), SLOT(onPingBarIconHoverLeave()));
     if (widgetLocationsInfo->isShowLatencyInMs()) pingBarIcon_->hide();
 
+    favoriteIconButton_ = QSharedPointer<CommonWidgets::IconButtonWidget>(new CommonWidgets::IconButtonWidget("locations/FAV_ICON_DESELECTED", this));
+    favoriteIconButton_->setUnhoverHoverOpacity(OPACITY_THIRD, OPACITY_FULL);
+
+    if (cityModelItem.bShowPremiumStarOnly && widgetLocationsInfo->isFreeSessionStatus())
+    {
+        favoriteIconButton_->hide();
+    }
+    else
+    {
+        if (cityModelItem.isFavorite)
+        {
+            favoriteIconButton_->setImage("locations/FAV_ICON_SELECTED");
+        }
+    }
+    connect(favoriteIconButton_.get(), SIGNAL(clicked()), SLOT(onFavoriteIconButtonClicked()));
+
     recalcItemPositions();
 }
 
@@ -56,6 +73,18 @@ const QString LocationItemCityWidget::name() const
 SelectableLocationItemWidget::SelectableLocationItemWidgetType LocationItemCityWidget::type()
 {
     return SelectableLocationItemWidgetType::CITY;
+}
+
+void LocationItemCityWidget::setFavourited(bool favourited)
+{
+    if (favourited)
+    {
+        favoriteIconButton_->setImage("locations/FAV_ICON_SELECTED");
+    }
+    else
+    {
+        favoriteIconButton_->setImage("locations/FAV_ICON_DESELECTED");
+    }
 }
 
 void LocationItemCityWidget::setSelectable(bool selectable)
@@ -206,6 +235,11 @@ void LocationItemCityWidget::onPingBarIconHoverLeave()
 
 }
 
+void LocationItemCityWidget::onFavoriteIconButtonClicked()
+{
+    emit favoriteClicked(this);
+}
+
 const QString LocationItemCityWidget::labelStyleSheetWithOpacity(double opacity)
 {
     return "QLabel { color : rgba(255,255,255, " + QString::number(opacity) + "); }";
@@ -224,10 +258,15 @@ void LocationItemCityWidget::recalcItemPositions()
 
     QFont nickFont = *FontManager::instance().getFont(16, false);
     nickLabel_->setFont(nickFont);
-    nickLabel_->move(150 * G_SCALE, 10 * G_SCALE);
     nickLabel_->setGeometry(cityX + cityWidth + 16*G_SCALE,
                             (LOCATION_ITEM_HEIGHT * G_SCALE - CommonGraphics::textHeight(nickFont))/2,
                             CommonGraphics::textWidth(nickLabel_->text(), nickFont), CommonGraphics::textHeight(nickFont));
+
+    // favorite
+    int favoriteHeight = 14 * G_SCALE;
+    favoriteIconButton_->setGeometry(24*G_SCALE,
+                                     (LOCATION_ITEM_HEIGHT*G_SCALE - favoriteHeight)/2,
+                                     16 * G_SCALE, favoriteHeight);
 
     // ping bar
     int scaledX = (WINDOW_WIDTH - 16 - LOCATION_ITEM_MARGIN) * G_SCALE;

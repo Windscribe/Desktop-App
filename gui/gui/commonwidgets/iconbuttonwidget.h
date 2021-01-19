@@ -13,12 +13,17 @@ class IconButtonWidget : public QPushButton
 public:
     explicit IconButtonWidget(QString imagePath, QWidget * parent = nullptr);
 
-    QSize sizeHint() const override;
-
+    int width();
+    int height();
     void setImage(QString imagePath);
 
     void setUnhoverHoverOpacity(double unhoverOpacity, double hoverOpacity);
     void animateOpacityChange(double targetOpacity);
+
+    void updateSize();
+
+signals:
+    void sizeChanged(int width, int height);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -37,8 +42,8 @@ private:
     double curOpacity_;
     QVariantAnimation opacityAnimation_;
 
-    int width_  = 20;
-    int height_ = 20;
+    int width_ ;
+    int height_;
 
 };
 

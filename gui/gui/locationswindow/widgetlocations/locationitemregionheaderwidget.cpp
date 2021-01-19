@@ -121,6 +121,20 @@ void LocationItemRegionHeaderWidget::setExpanded(bool expand)
     expandAnimation_.start();
 }
 
+void LocationItemRegionHeaderWidget::setExpandedWithoutAnimation(bool expand)
+{
+    if (expand)
+    {
+        expandAnimationProgress_ = 1.0;
+    }
+    else
+    {
+        expandAnimationProgress_ = 0.0;
+    }
+    update();
+
+}
+
 void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
 {
     // qDebug() << "Region painting";

@@ -53,6 +53,25 @@ bool LocationItemRegionWidget::expandedOrExpanding()
     return citySubMenuState_ == EXPANDED || citySubMenuState_ == EXPANDING;
 }
 
+void LocationItemRegionWidget::setExpandedWithoutAnimation(bool expand)
+{
+    if (expand)
+    {
+        citySubMenuState_ = EXPANDED;
+    }
+    else
+    {
+        citySubMenuState_ = COLLAPSED;
+    }
+
+    regionHeaderWidget_->setExpandedWithoutAnimation(expand);
+    foreach (auto city, cities_)
+    {
+        city->setSelectable(expand);
+    }
+    recalcItemPos();
+}
+
 void LocationItemRegionWidget::expand()
 {
     qDebug() << "Expanding: " << regionHeaderWidget_->name();
@@ -92,6 +111,7 @@ void LocationItemRegionWidget::addCity(CityModelItem city)
     connect(cityWidget.get(), SIGNAL(clicked(LocationItemCityWidget *)), SLOT(onCityItemClicked(LocationItemCityWidget *)));
     connect(cityWidget.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onCityItemSelected(SelectableLocationItemWidget *)));
     cities_.append(cityWidget);
+    cityWidget->show();
     recalcItemPos();
 }
 
@@ -135,18 +155,22 @@ void LocationItemRegionWidget::recalcItemPos()
         city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
         height += city->geometry().height();
     }
-
-    // only update the height if cities are visible
-    if (citySubMenuState_ == EXPANDED)
-    {
-        if (height != height_)
-        {
-            height_ = height;
-            emit heightChanged(height);
-        }
-    }
-
+    recalcHeight();
     update();
+}
+
+void LocationItemRegionWidget::recalcHeight()
+{
+    if  (citySubMenuState_ == EXPANDED)
+    {
+        height_ = expandedHeight();
+        emit heightChanged(height_);
+    }
+    else if (citySubMenuState_ == COLLAPSED)
+    {
+        height_ = LOCATION_ITEM_HEIGHT*G_SCALE;
+        emit heightChanged(height_);
+    }
 }
 
 void LocationItemRegionWidget::onRegionItemSelected(SelectableLocationItemWidget *regionWidget)
@@ -179,6 +203,7 @@ void LocationItemRegionWidget::onExpandingHeightAnimationValueChanged(const QVar
         citySubMenuState_ = EXPANDED;
         qDebug() << "Expanded";
     }
+
     height_ = height;
     emit heightChanged(height);
 }

@@ -24,6 +24,7 @@ public:
     bool expandable() const;
     void setShowLatencyMs(bool showLatencyMs);
     bool expandedOrExpanding();
+    void setExpandedWithoutAnimation(bool expand);
     void expand();
     void collapse();
 
@@ -32,6 +33,7 @@ public:
     QVector<QSharedPointer<LocationItemCityWidget>> selectableCityWidgets();
 
     void recalcItemPos();
+    void recalcHeight();
 
 signals:
     void heightChanged(int height);

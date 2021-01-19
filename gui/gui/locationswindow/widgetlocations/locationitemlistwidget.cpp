@@ -93,7 +93,7 @@ void LocationItemListWidget::expandLocationIds(QVector<LocationID> locIds)
         {
             if (regionWidget->getId() == locId)
             {
-                regionWidget->expand();
+                regionWidget->setExpandedWithoutAnimation(true);
             }
         }
     }
