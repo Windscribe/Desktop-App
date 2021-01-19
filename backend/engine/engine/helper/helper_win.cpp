@@ -162,7 +162,7 @@ QString Helper_win::executeSetMetric(const QString &interfaceType, const QString
     oa << cmdSetMetric;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_METRIC, stream.str());
-    return QString::fromStdString(mpr.additionalString);
+    return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
 }
 
 QString Helper_win::executeWmicEnable(const QString &adapterName)
@@ -177,7 +177,7 @@ QString Helper_win::executeWmicEnable(const QString &adapterName)
     oa << cmdWmicEnable;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_WMIC_ENABLE, stream.str());
-    return QString::fromStdString(mpr.additionalString);
+    return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
 }
 
 QString Helper_win::executeWmicGetConfigManagerErrorCode(const QString &adapterName)
@@ -192,7 +192,7 @@ QString Helper_win::executeWmicGetConfigManagerErrorCode(const QString &adapterN
     oa << cmdWmicGetConfigErrorCode;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE, stream.str());
-    return QString::fromStdString(mpr.additionalString);
+    return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
 }
 
 bool Helper_win::executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid, unsigned long &outCmdId, const QString &eventName)
@@ -257,7 +257,7 @@ QString Helper_win::executeUpdateInstaller(const QString &installerPath, bool &s
     QString errorOutput = "";
     if (!mpr.success)
     {
-        errorOutput = QString::fromStdString(mpr.additionalString);
+        errorOutput = QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
     }
     success = mpr.success;
     return errorOutput;
@@ -276,7 +276,7 @@ QString Helper_win::enableBFE()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ENABLE_BFE, std::string());
-    return QString::fromStdString(mpr.additionalString);
+    return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
 }
 
 QString Helper_win::resetAndStartRAS()
@@ -284,7 +284,7 @@ QString Helper_win::resetAndStartRAS()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RESET_AND_START_RAS, std::string());
-    return QString::fromStdString(mpr.additionalString);
+    return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
 }
 
 void Helper_win::setIPv6EnabledInFirewall(bool b)
@@ -348,7 +348,7 @@ QString Helper_win::getHelperVersion()
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_HELPER_VERSION, std::string());
     if (mpr.success)
     {
-        return QString::fromStdString(mpr.additionalString);
+        return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
     }
     else
     {
@@ -484,7 +484,7 @@ void Helper_win::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bo
         outFinished = mpr.blockingCmdFinished;
         if (outFinished)
         {
-            outLog = QString::fromStdString(mpr.additionalString);
+            outLog = QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
         }
     }
     else
@@ -711,7 +711,7 @@ bool Helper_win::stopWireGuard()
         // Daemon was running, check if it's been terminated.
         if (mpr.blockingCmdFinished && (!mpr.additionalString.empty())) {
             qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-                << QString::fromStdString(mpr.additionalString);
+                << QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
         }
         return mpr.blockingCmdFinished;
     }
@@ -781,7 +781,7 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
     }
     if (!mpr.additionalString.empty()) {
         qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-            << QString::fromStdString(mpr.additionalString);
+            << QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
     }
     return mpr.success;
 }
