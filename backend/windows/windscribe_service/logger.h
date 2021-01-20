@@ -1,6 +1,8 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include "date_time_helper.h"
+
 class Logger
 {
 public:
@@ -22,6 +24,7 @@ private:
 
     FILE *file_;
     CRITICAL_SECTION cs_;
+    DateTimeHelper time_helper_;
 
     bool isFileExist(const std::wstring &fileName);
 };

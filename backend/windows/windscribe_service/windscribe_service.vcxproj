@@ -341,6 +341,7 @@
     <ClInclude Include="apps_ids.h" />
     <ClInclude Include="cleardns_on_tap.h" />
     <ClInclude Include="close_tcp_connections.h" />
+    <ClInclude Include="date_time_helper.h" />
     <ClInclude Include="dns_firewall.h" />
     <ClInclude Include="executecmd.h" />
     <ClInclude Include="firewallfilter.h" />
@@ -387,6 +388,7 @@
     <ClCompile Include="apps_ids.cpp" />
     <ClCompile Include="cleardns_on_tap.cpp" />
     <ClCompile Include="close_tcp_connections.cpp" />
+    <ClCompile Include="date_time_helper.cpp" />
     <ClCompile Include="dns_firewall.cpp" />
     <ClCompile Include="executecmd.cpp" />
     <ClCompile Include="firewallfilter.cpp" />
