@@ -31,7 +31,7 @@ int LocationItemListWidget::countRegions() const
 void LocationItemListWidget::clearWidgets()
 {
     recentlySelectedWidgets_.clear();
-    foreach (auto regionWidget, itemWidgets_)
+    foreach (QSharedPointer<LocationItemRegionWidget> regionWidget, itemWidgets_)
     {
         disconnect(regionWidget.get());
     }
@@ -94,9 +94,9 @@ void LocationItemListWidget::selectWidgetContainingCursor()
 
 void LocationItemListWidget::expandLocationIds(QVector<LocationID> locIds)
 {
-    foreach (auto regionWidget, itemWidgets_)
+    foreach (QSharedPointer<LocationItemRegionWidget> regionWidget, itemWidgets_)
     {
-        foreach (auto locId, locIds)
+        foreach (LocationID locId, locIds)
         {
             if (regionWidget->getId() == locId)
             {
@@ -106,10 +106,10 @@ void LocationItemListWidget::expandLocationIds(QVector<LocationID> locIds)
     }
 }
 
-QVector<LocationID> LocationItemListWidget::expandedorExpandingLocationIds()
+QVector<LocationID> LocationItemListWidget::expandedOrExpandingLocationIds()
 {
     QVector<LocationID> expanded;
-    foreach (auto regionWidget, itemWidgets_)
+    foreach (QSharedPointer<LocationItemRegionWidget> regionWidget, itemWidgets_)
     {
         if (regionWidget->expandedOrExpanding())
         {
@@ -143,7 +143,7 @@ const LocationID LocationItemListWidget::topSelectableLocationIdInViewport()
 int LocationItemListWidget::selectableIndex(LocationID locationId)
 {
     int i = 0;
-    foreach (auto widget, selectableWidgets())
+    foreach (QSharedPointer<SelectableLocationItemWidget> widget, selectableWidgets())
     {
         if (widget->getId() == locationId)
         {
@@ -161,7 +161,7 @@ const LocationID LocationItemListWidget::lastSelectedLocationId() const
 
 void LocationItemListWidget::selectItem(LocationID locationId)
 {
-    foreach (auto widget, selectableWidgets())
+    foreach (QSharedPointer<SelectableLocationItemWidget> widget, selectableWidgets())
     {
         if (widget->getId() == locationId)
         {
@@ -175,7 +175,7 @@ void LocationItemListWidget::selectItem(LocationID locationId)
 const QVector<QSharedPointer<LocationItemCityWidget> > LocationItemListWidget::selectableCityWidgets()
 {
     QVector<QSharedPointer<LocationItemCityWidget>> selectableItemWidgets;
-    foreach (auto regionWidget, itemWidgets_)
+    foreach (QSharedPointer<LocationItemRegionWidget> regionWidget, itemWidgets_)
     {
         selectableItemWidgets.append(regionWidget->selectableCityWidgets());
     }
@@ -196,7 +196,7 @@ QVector<QSharedPointer<LocationItemCityWidget> > LocationItemListWidget::cityWid
 QVector<QSharedPointer<SelectableLocationItemWidget>> LocationItemListWidget::selectableWidgets()
 {
     QVector<QSharedPointer<SelectableLocationItemWidget>> selectableItemWidgets;
-    foreach (auto regionWidget, itemWidgets_)
+    foreach (QSharedPointer<LocationItemRegionWidget> regionWidget, itemWidgets_)
     {
         selectableItemWidgets.append(regionWidget->selectableWidgets());
     }
@@ -219,7 +219,7 @@ void LocationItemListWidget::updateCursorWithSelectableWidget(SelectableLocation
 void LocationItemListWidget::paintEvent(QPaintEvent *event)
 {
     // qDebug() << "Painting LocationItemListWidget: " << geometry();
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     QPainter painter(this);
     QRect background(0,0, geometry().width(), geometry().height());
     painter.fillRect(background, Qt::gray);
@@ -275,6 +275,7 @@ void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidge
             if (regionWidget->expandable())
             {
                 regionWidget->expand();
+                emit regionExpanding(regionWidget);
             }
         }
     }
@@ -284,7 +285,7 @@ void LocationItemListWidget::recalcItemPositions()
 {
     // qDebug() << "Recalc list height";
     int heightSoFar = 0;
-    foreach (auto itemWidget, itemWidgets_)
+    foreach (QSharedPointer<LocationItemRegionWidget> itemWidget, itemWidgets_)
     {
         itemWidget->setGeometry(0, heightSoFar, WINDOW_WIDTH * G_SCALE, itemWidget->geometry().height());
         heightSoFar += itemWidget->geometry().height();

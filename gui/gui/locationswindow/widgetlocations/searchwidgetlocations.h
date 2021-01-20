@@ -23,8 +23,6 @@ class FormConnect;
 
 namespace GuiLocations {
 
-class CursorUpdateHelper;
-
 // TODO: test scaling changes in all contained classes
 // TODO: test against account that loses/gains pro status
 // TODO: test against disabled servers
@@ -56,13 +54,11 @@ public:
     void setCountAvailableItemSlots(int cnt);
 
     bool eventFilter(QObject *object, QEvent *event) override;
-
     void handleKeyEvent(QKeyEvent *event) override; // should be handled by owner?
 
     int countVisibleItems() override; // visible is ambiguous
 
     void updateScaling();
-
 
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;
@@ -85,94 +81,48 @@ private slots:
     void onConnectionSpeedChanged(LocationID id, PingTime timeMs);
     void onIsFavoriteChanged(LocationID id, bool isFavorite);
     void onFreeSessionStatusChanged(bool isFreeSessionStatus);
-    void onTopScrollBarValueChanged(int value);
 
     void onLanguageChanged();
 
     void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
     void onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
     void onLocationItemListWidgetLocationIdSelected(LocationID id);
+    void onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget *region);
 
+    void onScrollAnimationValueChanged(const QVariant &value);
 private:
-    QString filterString_;
     LocationItemListWidget *locationItemListWidget_;
-    void updateWidgetList(QVector<LocationModelItem *> items);
-
-    int topInd_;
-    int topOffs_;
-    int indSelected_;
-    int indParentPressed_;
-    int indChildPressed_;
-    int indChildFavourite_;
-
-    int countOfAvailableItemSlots_;
-
-    QVector<LocationItem *> items_;
-    bool bIsFreeSession_;
-    LocationItem * bestLocation_;
-    QString bestLocationName_;
-
-    double currentScale_;
-
-    std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
-
-    // variables for tooltip
-    QPoint prevCursorPos_;
-    bool bMouseInViewport_;
-
-    bool bShowLatencyInMs_;
-
-    bool bTapGestureStarted_;
-
     ScrollBar *scrollBar_;
+    QVariantAnimation scrollAnimation_;
+
+    QString filterString_;
+    int countOfAvailableItemSlots_;
+    bool bIsFreeSession_;
+    bool bShowLatencyInMs_;
+    bool bTapGestureStarted_;
     BasicLocationsModel *locationsModel_;
-
-    QList<LocationItem *> currentVisibleItems_;
-
     BackgroundPixmapAnimation backgroundPixmapAnimation_;
 
-    // was public -- used internally
-    void setCurrentSelected(LocationID id);
-    bool isIdVisible(LocationID id);
+    void updateWidgetList(QVector<LocationModelItem *> items);
 
+    // still used?
     int getItemHeight() const;
     int getTopOffset() const;
-    bool detectSelectedItem(const QPoint &cursorPos);
-    bool detectItemClickOnArrow();
-    int detectItemClickOnFavoriteLocationIcon();
+    bool isGlobalPointInViewport(const QPoint &pt);
+    void handleTapClick(const QPoint &cursorPos);
+    QRect globalLocationsListViewportRect();
+
+    // unused -- maybe useful
     bool isExpandAnimationNow();
     void setCursorForSelected();
     void setVisibleExpandedItem(int ind);
     LocationID detectLocationForTopInd(int topInd);
     int detectVisibleIndForCursorPos(const QPoint &pt);
 
-    void handleMouseMoveForTooltip();
-
-    void clearItems();
-    double calcScrollingSpeed(double scrollItemsCount);
-    bool isGlobalPointInViewport(const QPoint &pt);
-    void scrollDownToSelected();
-    void scrollUpToSelected();
-    void handleTapClick(const QPoint &cursorPos);
-    void emitSelectedIfNeed();
-    void expandOrCollapseSelectedItem();
-
-    int countVisibleItemsInViewport(LocationItem *locationItem);
-    int viewportPosYOfIndex(int index, bool centerY);
-    int viewportIndexOfLocationItemSelection(LocationItem *locationItem);
-    QRect globalLocationsListViewportRect();
-
-    QRect locationItemRect(LocationItem *locationItem, bool includeCities);
-    QRect cityRect(LocationItem *locationItem, int cityIndex);
-    bool itemHeaderInViewport(LocationItem *locationItem);
-    QList<int> cityIndexesInViewport(LocationItem *locationItem);
-    int viewportIndexOfLocationHeader(LocationItem *locationItem);
-
-    void updateSelectionCursorAndToolTipByCursorPos();
-
+    // new
     const QString scrollbarStyleSheet();
-
     void scrollDown(int itemCount);
+    void animatedScrollDown(int itemCount);
 };
 
 } // namespace GuiLocations

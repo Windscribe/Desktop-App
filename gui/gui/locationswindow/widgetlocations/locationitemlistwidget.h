@@ -13,7 +13,7 @@ class LocationItemListWidget : public QWidget
     Q_OBJECT
 public:
     explicit LocationItemListWidget(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent = nullptr);
-    ~LocationItemListWidget();
+    ~LocationItemListWidget() override;
 
     int countRegions() const;
     void clearWidgets();
@@ -24,7 +24,7 @@ public:
     void selectWidgetContainingCursor();
 
     void expandLocationIds(QVector<LocationID> locIds);
-    QVector<LocationID> expandedorExpandingLocationIds(); // TODO: add expanding
+    QVector<LocationID> expandedOrExpandingLocationIds();
     const QVector<QSharedPointer<LocationItemRegionWidget>> &itemWidgets();
     const QVector<QSharedPointer<LocationItemCityWidget>> selectableCityWidgets();
     QVector<QSharedPointer<LocationItemCityWidget>> cityWidgets();
@@ -42,6 +42,7 @@ signals:
     void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
     void cityItemClicked(LocationItemCityWidget *cityWidget);
     void locationIdSelected(LocationID id);
+    void regionExpanding(LocationItemRegionWidget *regionWidget);
 
 protected:
     virtual void paintEvent(QPaintEvent *event) override;

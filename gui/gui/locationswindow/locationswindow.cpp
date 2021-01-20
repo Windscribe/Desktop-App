@@ -58,7 +58,7 @@ void LocationsWindow::updateLocationsTabGeometry()
 {
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
 
-    int newHeight = 50 * locationsTab_->getCountVisibleItems() - 1;
+    int newHeight = 50 * locationsTab_->getCountVisibleItems()/* - 1 */; // TODO: is this still needed?
     locationsTab_->updateLocationWidgetsGeometry(newHeight);
     locationsTab_->updateIconRectsAndLine();
     locationsTab_->update();

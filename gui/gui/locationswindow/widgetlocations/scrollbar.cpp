@@ -7,8 +7,8 @@
 
 ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
   , targetValue_(0)
-  , pressed_(false)
   , lastCursorPos_(0)
+  , pressed_(false)
 {
     timer_.setInterval(1);
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimerTick()));
@@ -31,6 +31,9 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
 
     startValue_ = value();
     targetValue_ = targetValue_ + stepVector;
+
+    //qDebug() << "Wheel start: " << startValue_;
+    //qDebug() << "Wheel end  : " << targetValue_;
     if (targetValue_ > maximum()) targetValue_ = maximum();
     if (targetValue_ < minimum()) targetValue_ = minimum();
     // qDebug() << "Setting target: " << targetValue_;
@@ -57,6 +60,12 @@ void ScrollBar::paintEvent(QPaintEvent *event)
 //             << " singleStep: " << singleStep()
 //             << " value: " << value();
     QScrollBar::paintEvent(event);
+}
+
+void ScrollBar::forceSetValue(int value)
+{
+    setValue(value);
+    targetValue_ = value;
 }
 
 //void ScrollBar::mousePressEvent(QMouseEvent *event)

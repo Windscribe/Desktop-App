@@ -12,6 +12,7 @@ class ScrollBar : public QScrollBar
     Q_OBJECT
 public:
     explicit ScrollBar(QWidget *parent = nullptr);
+    void forceSetValue(int value);
 
 protected:
     void wheelEvent(QWheelEvent *event) override;

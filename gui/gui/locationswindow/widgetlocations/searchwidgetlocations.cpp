@@ -7,7 +7,6 @@
 #include <QScroller>
 #include <qmath.h>
 #include "graphicresources/fontmanager.h"
-#include "cursorupdatehelper.h"
 #include "widgetlocationssizes.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
@@ -20,18 +19,8 @@ namespace GuiLocations {
 
 SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(parent)
   , filterString_("")
-  , topInd_(0)
-  , topOffs_(0)
-  , indSelected_(-1)
-  , indParentPressed_(-1)
-  , indChildPressed_(-1)
-  , indChildFavourite_(-1)
   , countOfAvailableItemSlots_(7)
   , bIsFreeSession_(false)
-  , bestLocation_(nullptr)
-  , bestLocationName_("")
-  , currentScale_(G_SCALE)
-  , bMouseInViewport_(false)
   , bShowLatencyInMs_(false)
   , bTapGestureStarted_(false)
   , locationsModel_(NULL)
@@ -40,25 +29,26 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     setMouseTracking(true);
     setStyleSheet("background-color: rgba(0,0,0,0)");
 
+    // scrollbar
     scrollBar_ = new ScrollBar(this);
     scrollBar_->setStyleSheet(scrollbarStyleSheet());
     setVerticalScrollBar(scrollBar_);
     locationItemListWidget_ = new LocationItemListWidget(this, this);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    verticalScrollBar()->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
     scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
 
-
+    // central widget
     setWidget(locationItemListWidget_);
     connect(locationItemListWidget_, SIGNAL(heightChanged(int)), SLOT(onLocationItemListWidgetHeightChanged(int)));
     connect(locationItemListWidget_, SIGNAL(favoriteClicked(LocationItemCityWidget*,bool)), SLOT(onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *, bool)));
     connect(locationItemListWidget_, SIGNAL(locationIdSelected(LocationID)), SLOT(onLocationItemListWidgetLocationIdSelected(LocationID)));
+    connect(locationItemListWidget_, SIGNAL(regionExpanding(LocationItemRegionWidget*)), SLOT(onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget*)));
     locationItemListWidget_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, 0);
     locationItemListWidget_->show();
 
+    connect(&scrollAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onScrollAnimationValueChanged(QVariant)));
     setFocusPolicy(Qt::NoFocus);
-    cursorUpdateHelper_.reset(new CursorUpdateHelper(viewport()));
-
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 }
 
@@ -90,11 +80,6 @@ void SearchWidgetLocations::centerCursorOnSelectedItem()
     // TODO
 }
 
-void SearchWidgetLocations::updateSelectionCursorAndToolTipByCursorPos()
-{
-
-}
-
 const QString SearchWidgetLocations::scrollbarStyleSheet()
 {
     // TODO: don't use stylesheet to draw
@@ -115,16 +100,30 @@ const QString SearchWidgetLocations::scrollbarStyleSheet()
 void SearchWidgetLocations::scrollDown(int itemCount)
 {
     // Scrollbar values use positive (whilte itemListWidget uses negative geometry)
-    int newY = locationItemListWidget_->geometry().y() + LocationItemListWidget::ITEM_HEIGHT * G_SCALE * itemCount;
+    int newY = static_cast<int>(locationItemListWidget_->geometry().y() + LocationItemListWidget::ITEM_HEIGHT * G_SCALE * itemCount);
 
     // qDebug() << "SearchWidgetLocations is setting scrollbar value: " << newY;
-    verticalScrollBar()->setValue(newY);
+    scrollBar_->setValue(newY);
+}
+
+void SearchWidgetLocations::animatedScrollDown(int itemCount)
+{
+    int newY = static_cast<int>(scrollBar_->value() + LocationItemListWidget::ITEM_HEIGHT * G_SCALE * itemCount);
+    qDebug() << scrollBar_->value() << " -> " << newY;
+
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(300);
+    scrollAnimation_.setStartValue(scrollBar_->value());
+    scrollAnimation_.setEndValue(newY);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
+
 }
 
 void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 {
     // storing previous location widget state
-    QVector<LocationID> expandedLocationIds = locationItemListWidget_->expandedorExpandingLocationIds();
+    QVector<LocationID> expandedLocationIds = locationItemListWidget_->expandedOrExpandingLocationIds();
     LocationID topSelectableLocationIdInViewport = locationItemListWidget_->topSelectableLocationIdInViewport();
     LocationID lastSelectedLocationId = locationItemListWidget_->lastSelectedLocationId();
 
@@ -177,11 +176,6 @@ void SearchWidgetLocations::setModel(BasicLocationsModel *locationsModel)
     connect(locationsModel_, SIGNAL(connectionSpeedChanged(LocationID, PingTime)), SLOT(onConnectionSpeedChanged(LocationID, PingTime)), Qt::DirectConnection);
     connect(locationsModel_, SIGNAL(isFavoriteChanged(LocationID, bool)), SLOT(onIsFavoriteChanged(LocationID, bool)), Qt::DirectConnection);
     connect(locationsModel, SIGNAL(freeSessionStatusChanged(bool)), SLOT(onFreeSessionStatusChanged(bool)));
-}
-
-void SearchWidgetLocations::setCurrentSelected(LocationID id)
-{
-
 }
 
 void SearchWidgetLocations::setFirstSelected()
@@ -296,15 +290,15 @@ bool SearchWidgetLocations::eventFilter(QObject *object, QEvent *event)
     {
         QScrollPrepareEvent *se = static_cast<QScrollPrepareEvent *>(event);
         se->setViewportSize(QSizeF(viewport()->size()));
-        se->setContentPosRange(QRectF(0, 0, 1, verticalScrollBar()->maximum() * getItemHeight()));
-        se->setContentPos(QPointF(0, verticalScrollBar()->value() * getItemHeight()));
+        se->setContentPosRange(QRectF(0, 0, 1, scrollBar_->maximum() * getItemHeight()));
+        se->setContentPos(QPointF(0, scrollBar_->value() * getItemHeight()));
         se->accept();
         return true;
     }
     else if (object == viewport() && event->type() == QEvent::Scroll)
     {
         QScrollEvent *se = static_cast<QScrollEvent *>(event);
-        verticalScrollBar()->setValue(se->contentPos().y() / getItemHeight());
+        scrollBar_->setValue(se->contentPos().y() / getItemHeight());
         return true;
     }
     return QAbstractScrollArea::eventFilter(object, event);
@@ -390,22 +384,6 @@ void SearchWidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
 
 }
 
-bool SearchWidgetLocations::isIdVisible(LocationID id)
-{
-    bool idVisible = false;
-    for (int i = 0; i < currentVisibleItems_.size(); i++)
-    {
-        auto item = currentVisibleItems_[i];
-        if (item->getId() == id)
-        {
-            idVisible = true;
-            break;
-        }
-    }
-
-    return idVisible;
-}
-
 void SearchWidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
     // qDebug() << "Search widget speed change";
@@ -421,7 +399,7 @@ void SearchWidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime tim
 
 void SearchWidgetLocations::onIsFavoriteChanged(LocationID id, bool isFavorite)
 {
-    qDebug() << "SearchWidget setting";
+    // qDebug() << "SearchWidget setting";
     foreach (QSharedPointer<LocationItemRegionWidget> region, locationItemListWidget_->itemWidgets())
     {
         if (region->getId().toTopLevelLocation() == id.toTopLevelLocation())
@@ -438,15 +416,13 @@ void SearchWidgetLocations::onFreeSessionStatusChanged(bool isFreeSessionStatus)
     {
         bIsFreeSession_ = isFreeSessionStatus;
     }
-}
 
-void SearchWidgetLocations::onTopScrollBarValueChanged(int value)
-{
-    // verticalScrollBar()->setValue(value);
+    // TODO: free session status change
 }
 
 void SearchWidgetLocations::onLanguageChanged()
 {
+    // TODO: language change
 }
 
 void SearchWidgetLocations::onLocationItemListWidgetHeightChanged(int listWidgetHeight)
@@ -455,13 +431,13 @@ void SearchWidgetLocations::onLocationItemListWidgetHeightChanged(int listWidget
     //qDebug() << "SearchLocations height: "<< geometry().height();
 
     locationItemListWidget_->setGeometry(0,locationItemListWidget_->geometry().y(), WINDOW_WIDTH*G_SCALE, listWidgetHeight);
-    verticalScrollBar()->setRange(0, listWidgetHeight - verticalScrollBar()->pageStep()); // update scroll bar
-    verticalScrollBar()->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->setRange(0, listWidgetHeight - scrollBar_->pageStep()); // update scroll bar
+    scrollBar_->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
 }
 
 void SearchWidgetLocations::onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *cityWidget, bool favorited)
 {
-    qDebug() << "SearchWidget favorite clicked: " << cityWidget->name();
+    // qDebug() << "SearchWidget favorite clicked: " << cityWidget->name();
     emit switchFavorite(cityWidget->getId(), favorited);
 }
 
@@ -470,22 +446,29 @@ void SearchWidgetLocations::onLocationItemListWidgetLocationIdSelected(LocationI
     emit selected(id);
 }
 
-bool SearchWidgetLocations::detectSelectedItem(const QPoint &cursorPos)
+void SearchWidgetLocations::onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget *region)
 {
+    // qDebug() << "Checking for need to scroll due to expand";
+    int topItemSelIndex = locationItemListWidget_->selectableIndex(locationItemListWidget_->topSelectableLocationIdInViewport());
+    int regionSelIndex = locationItemListWidget_->selectableIndex(region->getId());
+    int regionViewportIndex = regionSelIndex - topItemSelIndex;
+    int bottomCityViewportIndex  = regionViewportIndex + region->cityWidgets().count();
 
-    return false;
+    int diff = bottomCityViewportIndex - countVisibleItems();
+    if (diff >= 0)
+    {
+        int change = diff + 1;
+        if (change > regionViewportIndex) change = regionViewportIndex;
+
+        // qDebug() << "Expanding auto-scroll by items: " << change;
+        animatedScrollDown(change);
+    }
 }
 
-bool SearchWidgetLocations::detectItemClickOnArrow()
+void SearchWidgetLocations::onScrollAnimationValueChanged(const QVariant &value)
 {
-
-    return false;
-}
-
-int SearchWidgetLocations::detectItemClickOnFavoriteLocationIcon()
-{
-
-    return -1;
+    scrollBar_->forceSetValue(value.toInt());
+    viewport()->update();
 }
 
 bool SearchWidgetLocations::isExpandAnimationNow()
@@ -516,30 +499,6 @@ int SearchWidgetLocations::detectVisibleIndForCursorPos(const QPoint &pt)
     return (localPt.y() - getTopOffset()) / getItemHeight();
 }
 
-void SearchWidgetLocations::handleMouseMoveForTooltip()
-{
-
-}
-
-void SearchWidgetLocations::clearItems()
-{
-    Q_FOREACH(LocationItem *item, items_)
-    {
-        delete item;
-    }
-    items_.clear();
-    currentVisibleItems_.clear();
-}
-
-double SearchWidgetLocations::calcScrollingSpeed(double scrollItemsCount)
-{
-    if (scrollItemsCount < 3)
-    {
-        scrollItemsCount = 3;
-    }
-    return WidgetLocationsSizes::instance().getScrollingSpeedKef() * scrollItemsCount;
-}
-
 void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
 {
 }
@@ -551,127 +510,25 @@ bool SearchWidgetLocations::isGlobalPointInViewport(const QPoint &pt)
     return globalRectOfViewport.contains(pt);
 }
 
-void SearchWidgetLocations::scrollDownToSelected()
-{
-
-}
-
-void SearchWidgetLocations::scrollUpToSelected()
-{
-
-}
-
 void SearchWidgetLocations::handleTapClick(const QPoint &cursorPos)
-{
-
-}
-
-void SearchWidgetLocations::emitSelectedIfNeed()
-{
-
-}
-
-void SearchWidgetLocations::expandOrCollapseSelectedItem()
 {
 
 }
 
 int SearchWidgetLocations::countVisibleItems()
 {
-    int cntItems = 0;
-    Q_FOREACH(LocationItem *item, items_)
-    {
-        cntItems += item->countVisibleItems();
-    }
-    return cntItems;
+    int geoHeight = geometry().height();
+    // qDebug() << "Geo Height: " << geoHeight;
+
+    int count = static_cast<int>( geoHeight / LocationItemListWidget::ITEM_HEIGHT * G_SCALE);
+    // qDebug() << "Count of viewport items: " << count;
+    return count;
 }
 
 void SearchWidgetLocations::updateScaling()
 {
-    // Update scale-dependent class members.
-    Q_ASSERT(currentScale_ > 0);
-    const auto scale_adjustment = G_SCALE / currentScale_;
-    if (scale_adjustment != 1.0) {
-        currentScale_ = G_SCALE;
-        topOffs_ *= scale_adjustment;
-    }
-
-    for (int i = 0; i < items_.count(); ++i)
-    {
-        if (items_[i] != nullptr)
-        {
-            items_[i]->updateScaling();
-        }
-    }
-
     locationItemListWidget_->updateScaling();
-
     // scrollBar_->setGeometry(WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
-}
-
-int SearchWidgetLocations::countVisibleItemsInViewport(LocationItem *locationItem)
-{
-    int visibleInViewport = 0;
-
-    if (itemHeaderInViewport(locationItem)) visibleInViewport++;
-
-    QList<int> visibleCityIndexes = cityIndexesInViewport(locationItem);
-    for (int i = 0; i < locationItem->cityNodes().length(); i++)
-    {
-        if (visibleCityIndexes.contains(i))
-        {
-            visibleInViewport++;
-        }
-    }
-
-    return visibleInViewport;
-}
-
-int SearchWidgetLocations::viewportPosYOfIndex(int index, bool centerY)
-{
-    int viewportTopLeft = viewport()->geometry().y();
-    int result = viewportTopLeft + index * getItemHeight();
-    if (centerY) result += getItemHeight()/2;
-    return result;
-}
-
-int SearchWidgetLocations::viewportIndexOfLocationItemSelection(LocationItem *locationItem)
-{
-    int visibleIndex = 0;
-
-    bool found = false;
-    for (int i = 0; i < currentVisibleItems_.length(); i++)
-    {
-        LocationItem * item = currentVisibleItems_[i];
-
-        if (item->getId() == locationItem->getId()) // is location header
-        {
-            if (item->getSelected() == 0) //  header selected
-            {
-                visibleIndex = viewportIndexOfLocationHeader(item);
-            }
-            else
-            {
-                int index = 0;
-                if (itemHeaderInViewport(item)) index++;
-
-                QList<int> cityIndicesInViewport = cityIndexesInViewport(item);
-                int selectedIndex = cityIndicesInViewport.indexOf(item->getSelected());
-                index += cityIndicesInViewport.mid(0, selectedIndex).length()-1;
-
-                visibleIndex += index;
-            }
-            found = true;
-            break;
-        }
-        else // not in current location
-        {
-            visibleIndex += countVisibleItemsInViewport(item);
-        }
-    }
-
-    if (!found) return -1;
-    return visibleIndex;
 }
 
 QRect SearchWidgetLocations::globalLocationsListViewportRect()
@@ -684,130 +541,6 @@ QRect SearchWidgetLocations::globalLocationsListViewportRect()
                  viewport()->geometry().width(), viewport()->geometry().height());
 }
 
-QRect SearchWidgetLocations::locationItemRect(LocationItem *locationItem, bool includeCities)
-{
-    QRect result;
-    QRect geometryRect = viewport()->geometry();
-    int curTop = 0;
-
-    Q_FOREACH(LocationItem *item, items_)
-    {
-        int height = getItemHeight();
-        if (includeCities) height = getItemHeight() * item->countVisibleItems();
-
-        QRect rc(0, curTop + getTopOffset() + topOffs_, geometryRect.width(), height);
-
-        if (locationItem->getId() == item->getId())
-        {
-            result = rc;
-            break;
-        }
-
-        curTop += getItemHeight();
-        int curItemAnimationHeight = item->currentAnimationHeight();
-
-        curTop += curItemAnimationHeight;
-    }
-
-    return result;
-}
-
-QRect SearchWidgetLocations::cityRect(LocationItem *locationItem, int cityIndex)
-{
-    QRect result;
-    QRect geometryRect = viewport()->geometry();
-
-    Q_FOREACH(LocationItem *item, items_)
-    {
-        if (locationItem->getId() == item->getId())
-        {
-            QRect headerRect = locationItemRect(item, false);
-
-            for (int i = 0; i < item->cityNodes().length(); i++)
-            {
-                if (cityIndex == i)
-                {
-                    QRect rcCities(0, headerRect.bottom() + i * getItemHeight(), geometryRect.width(), getItemHeight());
-                    result = rcCities;
-                    break;
-                }
-            }
-        }
-    }
-
-    return result;
-}
-
-bool SearchWidgetLocations::itemHeaderInViewport(LocationItem *locationItem)
-{
-    bool result = false;
-
-    QRect vp = viewport()->geometry();
-
-    foreach (LocationItem *item, currentVisibleItems_)
-    {
-        if (locationItem->getId() == item->getId())
-        {
-            QRect rect = locationItemRect(item, false);
-
-            if (vp.intersects(rect))
-            {
-                result = true;
-                break;
-            }
-        }
-    }
-
-    return result;
-}
-
-QList<int> SearchWidgetLocations::cityIndexesInViewport(LocationItem *locationItem)
-{
-    QList<int> result;
-
-    QRect vp = viewport()->geometry();
-
-    if (locationItem->isExpandedOrExpanding())
-    {
-        foreach (LocationItem *item, currentVisibleItems_)
-        {
-            if (locationItem->getId() == item->getId())
-            {
-                for (int i = 0; i < item->cityNodes().length(); i++)
-                {
-                    QRect cr = cityRect(item, i);
-
-                    if (vp.intersects(cr))
-                    {
-                        result.append(i);
-                    }
-                }
-            }
-        }
-    }
-
-    return result;
-}
-
-int SearchWidgetLocations::viewportIndexOfLocationHeader(LocationItem *locationItem)
-{
-    int result = -1;
-
-    QRect vp = viewport()->geometry();
-
-    for (int i = 0; i < countOfAvailableItemSlots_; i++)
-    {
-        QRect slice(0, vp.top() + i *getItemHeight(),vp.width(), getItemHeight());
-
-        if (slice.intersects(locationItemRect(locationItem, false)))
-        {
-            result = i;
-            break;
-        }
-    }
-
-    return result;
-}
 
 } // namespace GuiLocations
 
