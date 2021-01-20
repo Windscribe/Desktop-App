@@ -17,6 +17,8 @@ public:
         CITY
     };
 
+    virtual bool isForbidden() const = 0;
+    virtual bool isDisabled() const = 0;
     virtual const LocationID getId() const = 0;
     virtual const QString name() const = 0;
     virtual SelectableLocationItemWidgetType type() = 0;

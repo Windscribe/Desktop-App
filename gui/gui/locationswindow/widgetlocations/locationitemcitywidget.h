@@ -23,22 +23,21 @@ public:
     const QString name() const override;
     SelectableLocationItemWidgetType type() override;
 
-    void setFavourited(bool favourited);
+    bool isForbidden() const override;
+    bool isDisabled() const override;
+
+    void setFavourited(bool favorited);
     void setSelectable(bool selectable) override;
     void setSelected(bool select) override;
     bool isSelected() const override;
     bool containsCursor() const override;
 
-    // TODO: fix display of time in MS
-    // TODO: fix display of correct ping bar icon (based on speed)
     void setLatencyMs(PingTime pingTime);
     void setShowLatencyMs(bool showLatencyMs);
 
-    // TODO: add click prevention for forbidden city
 signals:
     void selected(SelectableLocationItemWidget *itemWidget);
-    void clicked(LocationItemCityWidget *itemWidget);
-    void favoriteClicked(LocationItemCityWidget *itemWidget);
+    void favoriteClicked(LocationItemCityWidget *itemWidget, bool favorited);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -63,10 +62,13 @@ private:
     bool showingPingBar_;
     bool selectable_;
     bool selected_;
+    bool favorited_;
     const QString labelStyleSheetWithOpacity(double opacity);
 
     void recalcItemPositions();
-
+    void updateFavoriteIcon();
+    void updatePingBarIcon();
+    const QString pingIconNameString(int connectionSpeedIndex);
 };
 
 }

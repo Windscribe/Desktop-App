@@ -1,6 +1,7 @@
 #include "locationitemcitywidget.h"
 
 #include <QPainter>
+#include <QCursor>
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
@@ -9,16 +10,17 @@
 #include "tooltips/tooltipcontroller.h"
 #include "commongraphics/commongraphics.h"
 
-
 #include <QDebug>
 
 namespace GuiLocations {
 
 LocationItemCityWidget::LocationItemCityWidget(IWidgetLocationsInfo *widgetLocationsInfo, CityModelItem cityModelItem, QWidget *parent) : SelectableLocationItemWidget(parent)
   , cityModelItem_(cityModelItem)
-  , selectable_(false)
-  , showingPingBar_(!widgetLocationsInfo->isShowLatencyInMs())
   , widgetLocationsInfo_(widgetLocationsInfo)
+  , showingPingBar_(!widgetLocationsInfo->isShowLatencyInMs())
+  , selectable_(false)
+  , selected_(false)
+  , favorited_(false)
 {
     cityLabel_ = QSharedPointer<QLabel>(new QLabel(this));
     cityLabel_->setStyleSheet("QLabel { color : white; }");
@@ -30,27 +32,16 @@ LocationItemCityWidget::LocationItemCityWidget(IWidgetLocationsInfo *widgetLocat
     nickLabel_->setText(cityModelItem.nick);
     nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
 
+    pingTime_ = cityModelItem.pingTimeMs;
     pingBarIcon_ = QSharedPointer<IconWidget>(new IconWidget("locations/LOCATION_PING_BARS0", this));
-    pingBarIcon_->setOpacity(OPACITY_HALF);
     connect(pingBarIcon_.get(), SIGNAL(hoverEnter()), SLOT(onPingBarIconHoverEnter()));
     connect(pingBarIcon_.get(), SIGNAL(hoverLeave()), SLOT(onPingBarIconHoverLeave()));
-    if (widgetLocationsInfo->isShowLatencyInMs()) pingBarIcon_->hide();
+    updatePingBarIcon();
 
     favoriteIconButton_ = QSharedPointer<CommonWidgets::IconButtonWidget>(new CommonWidgets::IconButtonWidget("locations/FAV_ICON_DESELECTED", this));
     favoriteIconButton_->setUnhoverHoverOpacity(OPACITY_THIRD, OPACITY_FULL);
-
-    if (cityModelItem.bShowPremiumStarOnly && widgetLocationsInfo->isFreeSessionStatus())
-    {
-        favoriteIconButton_->hide();
-    }
-    else
-    {
-        if (cityModelItem.isFavorite)
-        {
-            favoriteIconButton_->setImage("locations/FAV_ICON_SELECTED");
-        }
-    }
     connect(favoriteIconButton_.get(), SIGNAL(clicked()), SLOT(onFavoriteIconButtonClicked()));
+    updateFavoriteIcon();
 
     recalcItemPositions();
 }
@@ -75,9 +66,21 @@ SelectableLocationItemWidget::SelectableLocationItemWidgetType LocationItemCityW
     return SelectableLocationItemWidgetType::CITY;
 }
 
-void LocationItemCityWidget::setFavourited(bool favourited)
+bool LocationItemCityWidget::isForbidden() const
 {
-    if (favourited)
+    return cityModelItem_.bShowPremiumStarOnly && widgetLocationsInfo_->isFreeSessionStatus();
+}
+
+bool LocationItemCityWidget::isDisabled() const
+{
+    return cityModelItem_.isDisabled;
+}
+
+void LocationItemCityWidget::setFavourited(bool favorited)
+{
+    // qDebug() << "City setting favorited: " << name() << " " << favorited;
+    favorited_ = favorited;
+    if (favorited)
     {
         favoriteIconButton_->setImage("locations/FAV_ICON_SELECTED");
     }
@@ -111,7 +114,7 @@ void LocationItemCityWidget::setSelected(bool select)
             cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
             nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
         }
-        update();
+         update();
     }
 }
 
@@ -130,22 +133,16 @@ bool LocationItemCityWidget::containsCursor() const
 
 void LocationItemCityWidget::setLatencyMs(PingTime pingTime)
 {
+    // qDebug() << "City setting latencey: " << name();
     pingTime_ = pingTime;
+    updatePingBarIcon();
 }
 
 void LocationItemCityWidget::setShowLatencyMs(bool showLatencyMs)
 {
-    // ms drawing handled in paintEvent
-    if (showLatencyMs)
-    {
-        pingBarIcon_->hide();
-    }
-    else
-    {
-        pingBarIcon_->show();
-    }
+    // time-text drawing handled in paintEvent
     showingPingBar_ = !showLatencyMs;
-    update();
+    updatePingBarIcon();
 }
 
 void LocationItemCityWidget::paintEvent(QPaintEvent *event)
@@ -156,7 +153,7 @@ void LocationItemCityWidget::paintEvent(QPaintEvent *event)
                       WidgetLocationsSizes::instance().getBackgroundColor());
 
     // pro star
-    if (cityModelItem_.bShowPremiumStarOnly && widgetLocationsInfo_->isFreeSessionStatus())
+    if (isForbidden())
     {
         IndependentPixmap *premiumStarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_CITY_STAR");
         premiumStarPixmap->draw(LOCATION_ITEM_MARGIN * G_SCALE,
@@ -237,7 +234,8 @@ void LocationItemCityWidget::onPingBarIconHoverLeave()
 
 void LocationItemCityWidget::onFavoriteIconButtonClicked()
 {
-    emit favoriteClicked(this);
+    // qDebug() << "Favorite city clicked: " << name();
+    emit favoriteClicked(this, !favorited_);
 }
 
 const QString LocationItemCityWidget::labelStyleSheetWithOpacity(double opacity)
@@ -258,7 +256,7 @@ void LocationItemCityWidget::recalcItemPositions()
 
     QFont nickFont = *FontManager::instance().getFont(16, false);
     nickLabel_->setFont(nickFont);
-    nickLabel_->setGeometry(cityX + cityWidth + 16*G_SCALE,
+    nickLabel_->setGeometry(cityX + cityWidth + 8*G_SCALE,
                             (LOCATION_ITEM_HEIGHT * G_SCALE - CommonGraphics::textHeight(nickFont))/2,
                             CommonGraphics::textWidth(nickLabel_->text(), nickFont), CommonGraphics::textHeight(nickFont));
 
@@ -274,6 +272,59 @@ void LocationItemCityWidget::recalcItemPositions()
     QRect latencyRect(scaledX, scaledY,
                       16 * G_SCALE, 16 *G_SCALE);
     pingBarIcon_->setGeometry(latencyRect);
+}
+
+void LocationItemCityWidget::updateFavoriteIcon()
+{
+    if (isForbidden())
+    {
+        favoriteIconButton_->hide();
+    }
+    else
+    {
+        if (cityModelItem_.isFavorite)
+        {
+            favoriteIconButton_->setImage("locations/FAV_ICON_SELECTED");
+            favorited_ = true;
+        }
+        favoriteIconButton_->show();
+    }
+}
+
+void LocationItemCityWidget::updatePingBarIcon()
+{
+    pingBarIcon_->setImage(pingIconNameString(pingTime_.toConnectionSpeed()));
+
+    if (showingPingBar_)
+    {
+        pingBarIcon_->show();
+    }
+    else
+    {
+        pingBarIcon_->hide();
+    }
+
+    update();
+}
+
+const QString LocationItemCityWidget::pingIconNameString(int connectionSpeedIndex)
+{
+    if (connectionSpeedIndex == 0)
+    {
+        return "locations/LOCATION_PING_BARS0";
+    }
+    else if (connectionSpeedIndex == 1)
+    {
+        return "locations/LOCATION_PING_BARS1";
+    }
+    else if (connectionSpeedIndex == 2)
+    {
+        return "locations/LOCATION_PING_BARS2";
+    }
+    else
+    {
+        return "locations/LOCATION_PING_BARS3";
+    }
 }
 
 }

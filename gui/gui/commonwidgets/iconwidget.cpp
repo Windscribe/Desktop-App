@@ -29,6 +29,12 @@ void IconWidget::setOpacity(double opacity)
     update();
 }
 
+void IconWidget::setImage(const QString imagePath)
+{
+    imagePath_ = imagePath;
+    update();
+}
+
 void IconWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);

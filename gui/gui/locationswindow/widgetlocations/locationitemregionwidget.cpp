@@ -9,14 +9,14 @@
 namespace GuiLocations {
 
 LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : QWidget(parent)
-  , citySubMenuState_(COLLAPSED)
   , widgetLocationsInfo_(widgetLocationsInfo)
+  , citySubMenuState_(COLLAPSED)
 {
     height_ = LOCATION_ITEM_HEIGHT * G_SCALE;
 
     regionHeaderWidget_ = QSharedPointer<LocationItemRegionHeaderWidget>(new LocationItemRegionHeaderWidget(widgetLocationsInfo, locationModelItem, this));
-    connect(regionHeaderWidget_.get(), SIGNAL(clicked()), SLOT(onRegionItemClicked()));
-    connect(regionHeaderWidget_.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onRegionItemSelected(SelectableLocationItemWidget *)));
+    connect(regionHeaderWidget_.get(), SIGNAL(clicked()), SLOT(onRegionHeaderClicked()));
+    connect(regionHeaderWidget_.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onRegionHeaderSelected(SelectableLocationItemWidget *)));
 
     expandingHeightAnimation_.setDirection(QAbstractAnimation::Forward);
     expandingHeightAnimation_.setDuration(200);
@@ -38,14 +38,6 @@ const LocationID LocationItemRegionWidget::getId() const
 bool LocationItemRegionWidget::expandable() const
 {
     return cities_.count() > 0;
-}
-
-void LocationItemRegionWidget::setShowLatencyMs(bool showLatencyMs)
-{
-    foreach (auto city, cities_)
-    {
-        city->setShowLatencyMs(showLatencyMs);
-    }
 }
 
 bool LocationItemRegionWidget::expandedOrExpanding()
@@ -108,8 +100,9 @@ void LocationItemRegionWidget::collapse()
 void LocationItemRegionWidget::addCity(CityModelItem city)
 {
     auto cityWidget = QSharedPointer<LocationItemCityWidget>(new LocationItemCityWidget(widgetLocationsInfo_, city, this));
-    connect(cityWidget.get(), SIGNAL(clicked(LocationItemCityWidget *)), SLOT(onCityItemClicked(LocationItemCityWidget *)));
+    connect(cityWidget.get(), SIGNAL(clicked()), SLOT(onCityItemClicked()));
     connect(cityWidget.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onCityItemSelected(SelectableLocationItemWidget *)));
+    connect(cityWidget.get(), SIGNAL(favoriteClicked(LocationItemCityWidget *, bool)), SIGNAL(favoriteClicked(LocationItemCityWidget*, bool)));
     cities_.append(cityWidget);
     cityWidget->show();
     recalcItemPos();
@@ -140,6 +133,24 @@ QVector<QSharedPointer<LocationItemCityWidget> > LocationItemRegionWidget::selec
         }
     }
     return widgets;
+}
+
+QVector<QSharedPointer<LocationItemCityWidget> > LocationItemRegionWidget::cityWidgets()
+{
+    return cities_;
+}
+
+void LocationItemRegionWidget::setFavorited(LocationID id, bool isFavorite)
+{
+    // qDebug() << "Region setting";
+    foreach (QSharedPointer<LocationItemCityWidget> city, cities_)
+    {
+        if (city->getId() == id)
+        {
+            city->setFavourited(isFavorite);
+            break;
+        }
+    }
 }
 
 void LocationItemRegionWidget::recalcItemPos()
@@ -173,18 +184,25 @@ void LocationItemRegionWidget::recalcHeight()
     }
 }
 
-void LocationItemRegionWidget::onRegionItemSelected(SelectableLocationItemWidget *regionWidget)
+void LocationItemRegionWidget::onRegionHeaderSelected(SelectableLocationItemWidget *regionWidget)
 {
     emit selected(regionWidget);
 }
 
-void LocationItemRegionWidget::onRegionItemClicked()
+void LocationItemRegionWidget::onRegionHeaderClicked()
 {
     emit clicked(this);
 }
 
-void LocationItemRegionWidget::onCityItemClicked(LocationItemCityWidget *cityWidget)
+void LocationItemRegionWidget::onCityItemClicked()
 {
+    LocationItemCityWidget *cityWidget = static_cast<LocationItemCityWidget*>(sender());
+
+    if (cityWidget->isForbidden() || cityWidget->isDisabled())
+    {
+        return;
+    }
+
     emit clicked(cityWidget);
 }
 

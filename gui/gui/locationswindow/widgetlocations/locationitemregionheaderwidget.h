@@ -15,6 +15,8 @@ class LocationItemRegionHeaderWidget : public SelectableLocationItemWidget
 public:
     explicit LocationItemRegionHeaderWidget(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationItem, QWidget *parent = nullptr);
 
+    bool isForbidden() const override;
+    bool isDisabled() const override;
     const LocationID getId() const override;
     const QString name() const override;
     SelectableLocationItemWidgetType type() override;

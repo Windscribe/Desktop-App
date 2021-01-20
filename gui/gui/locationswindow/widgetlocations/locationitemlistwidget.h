@@ -6,6 +6,8 @@
 
 namespace GuiLocations {
 
+class CursorUpdateHelper;
+
 class LocationItemListWidget : public QWidget
 {
     Q_OBJECT
@@ -22,10 +24,10 @@ public:
     void selectWidgetContainingCursor();
 
     void expandLocationIds(QVector<LocationID> locIds);
-    QVector<LocationID> expandedLocationIds(); // TODO: add expanding
+    QVector<LocationID> expandedorExpandingLocationIds(); // TODO: add expanding
     const QVector<QSharedPointer<LocationItemRegionWidget>> &itemWidgets();
-    const QVector<QSharedPointer<SelectableLocationItemWidget>> visibleItemWidgets();
     const QVector<QSharedPointer<LocationItemCityWidget>> selectableCityWidgets();
+    QVector<QSharedPointer<LocationItemCityWidget>> cityWidgets();
 
     const LocationID topSelectableLocationIdInViewport();
     int selectableIndex(LocationID locationId);
@@ -37,6 +39,9 @@ public:
 
 signals:
     void heightChanged(int height);
+    void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
+    void cityItemClicked(LocationItemCityWidget *cityWidget);
+    void locationIdSelected(LocationID id);
 
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
@@ -56,6 +61,11 @@ private:
 
     IWidgetLocationsInfo *widgetLocationsInfo_;
     LocationID lastSelectedLocationId_;
+
+    QVector<SelectableLocationItemWidget*> recentlySelectedWidgets_;
+
+    std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
+    void updateCursorWithSelectableWidget(SelectableLocationItemWidget *widget);
 
 };
 

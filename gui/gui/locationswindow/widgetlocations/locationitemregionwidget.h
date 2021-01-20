@@ -19,10 +19,10 @@ public:
 
     const LocationID getId() const;
 
+
     // TODO: add view change when expanding large (relative to viewport) city set
     CITY_SUBMENU_STATE citySubMenuState() { return citySubMenuState_; }
     bool expandable() const;
-    void setShowLatencyMs(bool showLatencyMs);
     bool expandedOrExpanding();
     void setExpandedWithoutAnimation(bool expand);
     void expand();
@@ -31,6 +31,9 @@ public:
     void addCity(CityModelItem city);
     QVector<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
     QVector<QSharedPointer<LocationItemCityWidget>> selectableCityWidgets();
+    QVector<QSharedPointer<LocationItemCityWidget>> cityWidgets();
+
+    void setFavorited(LocationID id, bool isFavorite);
 
     void recalcItemPos();
     void recalcHeight();
@@ -40,12 +43,13 @@ signals:
     void selected(SelectableLocationItemWidget *itemWidget); // TODO: re-word to "accent"
     void clicked(LocationItemCityWidget *cityWidget);
     void clicked(LocationItemRegionWidget *regionWidget);
+    void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
 
 private slots:
-    void onRegionItemSelected(SelectableLocationItemWidget *regionWidget);
-    void onRegionItemClicked();
+    void onRegionHeaderSelected(SelectableLocationItemWidget *regionWidget);
+    void onRegionHeaderClicked();
     void onCityItemSelected(SelectableLocationItemWidget *cityWidget);
-    void onCityItemClicked(LocationItemCityWidget *cityWidget);
+    void onCityItemClicked();
     void onExpandingHeightAnimationValueChanged(const QVariant &value);
 private:
     QSharedPointer<LocationItemRegionHeaderWidget> regionHeaderWidget_;

@@ -4,6 +4,7 @@
 #include <QDebug>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "cursorupdatehelper.h"
 
 
 namespace GuiLocations {
@@ -13,6 +14,8 @@ LocationItemListWidget::LocationItemListWidget(IWidgetLocationsInfo * widgetLoca
   , widgetLocationsInfo_(widgetLocationsInfo)
 {
     // qDebug() << "Constructed Location Item List Widget";
+    cursorUpdateHelper_.reset(new CursorUpdateHelper(this));
+
 }
 
 LocationItemListWidget::~LocationItemListWidget()
@@ -27,6 +30,7 @@ int LocationItemListWidget::countRegions() const
 
 void LocationItemListWidget::clearWidgets()
 {
+    recentlySelectedWidgets_.clear();
     foreach (auto regionWidget, itemWidgets_)
     {
         disconnect(regionWidget.get());
@@ -41,6 +45,7 @@ void LocationItemListWidget::addRegionWidget(LocationModelItem *item)
     connect(regionWidget.get(), SIGNAL(clicked(LocationItemCityWidget *)), SLOT(onLocationItemCityClicked(LocationItemCityWidget *)));
     connect(regionWidget.get(), SIGNAL(clicked(LocationItemRegionWidget *)), SLOT(onLocationItemRegionClicked(LocationItemRegionWidget *)));
     connect(regionWidget.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onSelectableLocationItemSelected(SelectableLocationItemWidget *)));
+    connect(regionWidget.get(), SIGNAL(favoriteClicked(LocationItemCityWidget*, bool)), SIGNAL(favoriteClicked(LocationItemCityWidget*,bool)));
     itemWidgets_.append(regionWidget);
     regionWidget->setGeometry(0, 0, WINDOW_WIDTH *G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
     regionWidget->show();
@@ -73,13 +78,15 @@ void LocationItemListWidget::updateScaling()
 
 void LocationItemListWidget::selectWidgetContainingCursor()
 {
-    qDebug() << "checking for new selection";
-    foreach (auto selectableWidget , selectableWidgets())
+    //qDebug() << "checking for new selection";
+    foreach (QSharedPointer<SelectableLocationItemWidget> selectableWidget , selectableWidgets())
     {
         if (selectableWidget->containsCursor())
         {
-            qDebug() << "Selecting: " << selectableWidget->name();
+            //qDebug() << "Selecting: " << selectableWidget->name();
             selectableWidget->setSelected(true);
+            updateCursorWithSelectableWidget(selectableWidget.get());
+
             break;
         }
     }
@@ -99,7 +106,7 @@ void LocationItemListWidget::expandLocationIds(QVector<LocationID> locIds)
     }
 }
 
-QVector<LocationID> LocationItemListWidget::expandedLocationIds()
+QVector<LocationID> LocationItemListWidget::expandedorExpandingLocationIds()
 {
     QVector<LocationID> expanded;
     foreach (auto regionWidget, itemWidgets_)
@@ -158,26 +165,11 @@ void LocationItemListWidget::selectItem(LocationID locationId)
     {
         if (widget->getId() == locationId)
         {
-            qDebug() << "Selecting: "<< widget->name();
+            // qDebug() << "Selecting: "<< widget->name();
             widget->setSelected(true);
             break;
         }
     }
-}
-
-const QVector<QSharedPointer<SelectableLocationItemWidget> > LocationItemListWidget::visibleItemWidgets()
-{
-    QVector<QSharedPointer<SelectableLocationItemWidget>> visible;
-    foreach (auto widget, selectableWidgets())
-    {
-        //qDebug() << "List geometry: " << geometry() << " - widget geometry: " << widget->geometry();
-        if (geometry().contains(QPoint(widget->geometry().x(), widget->geometry().y())))
-        {
-            //qDebug() << " -> contained " << widget->name();
-            visible.append(widget);
-        }
-    }
-    return visible;
 }
 
 const QVector<QSharedPointer<LocationItemCityWidget> > LocationItemListWidget::selectableCityWidgets()
@@ -190,6 +182,16 @@ const QVector<QSharedPointer<LocationItemCityWidget> > LocationItemListWidget::s
     return selectableItemWidgets;
 }
 
+QVector<QSharedPointer<LocationItemCityWidget> > LocationItemListWidget::cityWidgets()
+{
+    QVector<QSharedPointer<LocationItemCityWidget>> cityWidgets;
+    foreach (QSharedPointer<LocationItemRegionWidget> regionWidget, itemWidgets_)
+    {
+        cityWidgets.append(regionWidget->cityWidgets());
+    }
+    return cityWidgets;
+}
+
 
 QVector<QSharedPointer<SelectableLocationItemWidget>> LocationItemListWidget::selectableWidgets()
 {
@@ -199,6 +201,18 @@ QVector<QSharedPointer<SelectableLocationItemWidget>> LocationItemListWidget::se
         selectableItemWidgets.append(regionWidget->selectableWidgets());
     }
     return selectableItemWidgets;
+}
+
+void LocationItemListWidget::updateCursorWithSelectableWidget(SelectableLocationItemWidget *widget)
+{
+    if (widget->isForbidden() || widget->isDisabled())
+    {
+        cursorUpdateHelper_->setForbiddenCursor();
+    }
+    else
+    {
+        cursorUpdateHelper_->setPointingHandCursor();
+    }
 }
 
 
@@ -222,33 +236,46 @@ void LocationItemListWidget::onRegionWidgetHeightChanged(int height)
 
 void LocationItemListWidget::onLocationItemCityClicked(LocationItemCityWidget *cityWidget)
 {
-    // probably emit click
+    // qDebug() << "List sees click: " << cityWidget->name();
+    emit locationIdSelected(cityWidget->getId());
 }
 
 void LocationItemListWidget::onSelectableLocationItemSelected(SelectableLocationItemWidget *itemWidget)
 {
-    foreach (auto widget, selectableWidgets())
+    // iterating through all selectable widgets is too slow for scrolling animation
+    // only iterate through cache of previously selected widgets
+    for (SelectableLocationItemWidget *widget : recentlySelectedWidgets_)
     {
-        if (widget.get() != itemWidget)
+        if (widget != itemWidget)
         {
             widget->setSelected(false);
         }
     }
+    recentlySelectedWidgets_.clear();
 
+    updateCursorWithSelectableWidget(itemWidget);
+    recentlySelectedWidgets_.append(itemWidget);
     lastSelectedLocationId_ = itemWidget->getId();
 }
 
 void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidget *regionWidget)
 {
-    if (regionWidget->expandedOrExpanding())
+    if (regionWidget->getId().isBestLocation())
     {
-        regionWidget->collapse();
+        emit locationIdSelected(regionWidget->getId());
     }
     else
     {
-        if (regionWidget->expandable())
+        if (regionWidget->expandedOrExpanding())
         {
-            regionWidget->expand();
+            regionWidget->collapse();
+        }
+        else
+        {
+            if (regionWidget->expandable())
+            {
+                regionWidget->expand();
+            }
         }
     }
 }

@@ -16,6 +16,9 @@ public:
     void setOpacity(double opacity);
     void updateScaling();
 
+    // May not currently support image-size changes
+    void setImage(const QString imagePath);
+
 signals:
     void hoverEnter();
     void hoverLeave();

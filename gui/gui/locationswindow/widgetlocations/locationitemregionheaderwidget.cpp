@@ -53,6 +53,16 @@ LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(IWidgetLocationsI
     recalcItemPositions();
 }
 
+bool LocationItemRegionHeaderWidget::isForbidden() const
+{
+    return false;
+}
+
+bool LocationItemRegionHeaderWidget::isDisabled() const
+{
+    return false;
+}
+
 const QString LocationItemRegionHeaderWidget::name() const
 {
     return textLabel_->text();

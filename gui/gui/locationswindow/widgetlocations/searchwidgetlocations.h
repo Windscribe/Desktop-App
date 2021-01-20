@@ -26,6 +26,8 @@ namespace GuiLocations {
 class CursorUpdateHelper;
 
 // TODO: test scaling changes in all contained classes
+// TODO: test against account that loses/gains pro status
+// TODO: test against disabled servers
 class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT
@@ -88,6 +90,8 @@ private slots:
     void onLanguageChanged();
 
     void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
+    void onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
+    void onLocationItemListWidgetLocationIdSelected(LocationID id);
 
 private:
     QString filterString_;

@@ -51,6 +51,8 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
 
     setWidget(locationItemListWidget_);
     connect(locationItemListWidget_, SIGNAL(heightChanged(int)), SLOT(onLocationItemListWidgetHeightChanged(int)));
+    connect(locationItemListWidget_, SIGNAL(favoriteClicked(LocationItemCityWidget*,bool)), SLOT(onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *, bool)));
+    connect(locationItemListWidget_, SIGNAL(locationIdSelected(LocationID)), SLOT(onLocationItemListWidgetLocationIdSelected(LocationID)));
     locationItemListWidget_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, 0);
     locationItemListWidget_->show();
 
@@ -122,7 +124,7 @@ void SearchWidgetLocations::scrollDown(int itemCount)
 void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 {
     // storing previous location widget state
-    QVector<LocationID> expandedLocationIds = locationItemListWidget_->expandedLocationIds();
+    QVector<LocationID> expandedLocationIds = locationItemListWidget_->expandedorExpandingLocationIds();
     LocationID topSelectableLocationIdInViewport = locationItemListWidget_->topSelectableLocationIdInViewport();
     LocationID lastSelectedLocationId = locationItemListWidget_->lastSelectedLocationId();
 
@@ -195,7 +197,7 @@ void SearchWidgetLocations::startAnimationWithPixmap(const QPixmap &pixmap)
 void SearchWidgetLocations::setShowLatencyInMs(bool showLatencyInMs)
 {
     bShowLatencyInMs_ = showLatencyInMs;
-    foreach (auto w, locationItemListWidget_->selectableCityWidgets())
+    foreach (QSharedPointer<LocationItemCityWidget> w, locationItemListWidget_->cityWidgets())
     {
         w->setShowLatencyMs(showLatencyInMs);
     }
@@ -328,7 +330,6 @@ void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
 
     QScrollArea::scrollContentsBy(dx,dy);
 
-    // locationItemListWidget_->visibleItemWidgets();
     // qDebug() << "New top index: " << locationItemListWidget_->topSelectableIndex();
 }
 
@@ -407,18 +408,28 @@ bool SearchWidgetLocations::isIdVisible(LocationID id)
 
 void SearchWidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
-    foreach (QSharedPointer<LocationItemCityWidget> w, locationItemListWidget_->selectableCityWidgets())
+    // qDebug() << "Search widget speed change";
+    foreach (QSharedPointer<LocationItemCityWidget> w, locationItemListWidget_->cityWidgets())
     {
         if (w->getId() == id)
         {
             w->setLatencyMs(timeMs);
+            break;
         }
     }
 }
 
 void SearchWidgetLocations::onIsFavoriteChanged(LocationID id, bool isFavorite)
 {
-
+    qDebug() << "SearchWidget setting";
+    foreach (QSharedPointer<LocationItemRegionWidget> region, locationItemListWidget_->itemWidgets())
+    {
+        if (region->getId().toTopLevelLocation() == id.toTopLevelLocation())
+        {
+            region->setFavorited(id, isFavorite);
+            break;
+        }
+    }
 }
 
 void SearchWidgetLocations::onFreeSessionStatusChanged(bool isFreeSessionStatus)
@@ -446,6 +457,17 @@ void SearchWidgetLocations::onLocationItemListWidgetHeightChanged(int listWidget
     locationItemListWidget_->setGeometry(0,locationItemListWidget_->geometry().y(), WINDOW_WIDTH*G_SCALE, listWidgetHeight);
     verticalScrollBar()->setRange(0, listWidgetHeight - verticalScrollBar()->pageStep()); // update scroll bar
     verticalScrollBar()->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+}
+
+void SearchWidgetLocations::onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *cityWidget, bool favorited)
+{
+    qDebug() << "SearchWidget favorite clicked: " << cityWidget->name();
+    emit switchFavorite(cityWidget->getId(), favorited);
+}
+
+void SearchWidgetLocations::onLocationItemListWidgetLocationIdSelected(LocationID id)
+{
+    emit selected(id);
 }
 
 bool SearchWidgetLocations::detectSelectedItem(const QPoint &cursorPos)
