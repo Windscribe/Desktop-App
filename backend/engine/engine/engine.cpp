@@ -990,10 +990,10 @@ void Engine::sendDebugLogImpl()
     {
         userName = apiInfo_->getSessionStatus().getUsername();
     }
-    QString log = MergeLog::mergePrevLogs();
+    QString log = MergeLog::mergePrevLogs(true);
     log += "================================================================================================================================================================================================\n";
     log += "================================================================================================================================================================================================\n";
-    log += MergeLog::mergeLogs();
+    log += MergeLog::mergeLogs(true);
     serverAPI_->debugLog(userName, log, serverApiUserRole_, true);
 }
 

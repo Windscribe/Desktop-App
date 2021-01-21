@@ -349,9 +349,6 @@
     <ClCompile Include="utils\ipvalidation.cpp">
       <Filter>Engine Files\utils</Filter>
     </ClCompile>
-    <ClCompile Include="utils\mergelog.cpp">
-      <Filter>Engine Files\utils</Filter>
-    </ClCompile>
     <ClCompile Include="utils\simplecrypt.cpp">
       <Filter>Engine Files\utils</Filter>
     </ClCompile>
@@ -630,6 +627,9 @@
     </ClCompile>
     <ClCompile Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.cpp">
       <Filter>Engine Files\engine\splittunnelingnetworkinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\mergelog.cpp">
+      <Filter>Common Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1058,9 +1058,6 @@
     <ClInclude Include="engine\connectionmanager\makeovpnfilefromcustom.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClInclude>
-    <ClInclude Include="utils\mergelog.h">
-      <Filter>Engine Files\utils</Filter>
-    </ClInclude>
     <ClInclude Include="engine\openvpnversioncontroller.h">
       <Filter>Engine Files\engine</Filter>
     </ClInclude>
@@ -1246,6 +1243,9 @@
     </ClInclude>
     <ClInclude Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.h">
       <Filter>Engine Files\engine\splittunnelingnetworkinfo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\mergelog.h">
+      <Filter>Common Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

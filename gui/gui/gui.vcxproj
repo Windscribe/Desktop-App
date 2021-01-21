@@ -397,6 +397,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\types\locationid.cpp" />
     <ClCompile Include="..\..\common\utils\crashdump.cpp" />
     <ClCompile Include="..\..\common\utils\crashhandler.cpp" />
+    <ClCompile Include="..\..\common\utils\mergelog.cpp" />
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
     <ClCompile Include="commonwidgets\textbuttonwidget.cpp" />
@@ -534,7 +535,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="mainwindowcontroller.cpp" />
     <ClCompile Include="utils\makecustomshadow.cpp" />
-    <ClCompile Include="utils\mergelog.cpp" />
     <ClCompile Include="connectwindow\middleitem.cpp" />
     <ClCompile Include="multipleaccountdetection\multipleaccountdetection_win.cpp" />
     <ClCompile Include="multipleaccountdetection\multipleaccountdetectionfactory.cpp" />
@@ -645,6 +645,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\types\locationid.h" />
     <ClInclude Include="..\..\common\utils\crashdump.h" />
     <ClInclude Include="..\..\common\utils\crashhandler.h" />
+    <ClInclude Include="..\..\common\utils\mergelog.h" />
     <ClInclude Include="..\..\common\utils\multiline_message_logger.h" />
     <ClInclude Include="..\..\common\utils\networktypes.h" />
     <ClInclude Include="..\..\common\utils\protobuf_includes.h" />
@@ -876,7 +877,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="mainwindowcontroller.h">
     </QtMoc>
     <ClInclude Include="utils\makecustomshadow.h" />
-    <ClInclude Include="utils\mergelog.h" />
     <QtMoc Include="connectwindow\middleitem.h">
     </QtMoc>
     <ClInclude Include="multipleaccountdetection\multipleaccountdetection_win.h" />

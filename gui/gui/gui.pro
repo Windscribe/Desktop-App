@@ -191,6 +191,7 @@ SOURCES += \
     $$COMMON_PATH/utils/extraconfig.cpp \
     $$COMMON_PATH/utils/languagesutil.cpp \
     $$COMMON_PATH/utils/logger.cpp \
+    $$COMMON_PATH/utils/mergelog.cpp \
     $$COMMON_PATH/utils/utils.cpp \
     $$COMMON_PATH/utils/widgetutils.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
@@ -248,7 +249,6 @@ SOURCES += \
     tooltips/tooltipdescriptive.cpp \
     tooltips/tooltiputil.cpp \
     utils/ipvalidation.cpp \
-    utils/mergelog.cpp \
     utils/protoenumtostring.cpp \
     commonwidgets/custommenuwidget.cpp \
     commonwidgets/customtexteditwidget.cpp \
@@ -415,6 +415,7 @@ HEADERS += \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/utils/languagesutil.h \
     $$COMMON_PATH/utils/logger.h \
+    $$COMMON_PATH/utils/mergelog.h \
     $$COMMON_PATH/utils/multiline_message_logger.h \
     $$COMMON_PATH/utils/utils.h \
     $$COMMON_PATH/utils/protobuf_includes.h \
@@ -484,7 +485,6 @@ HEADERS += \
     tooltips/tooltiptypes.h \
     tooltips/tooltiputil.h \
     utils/ipvalidation.h \
-    utils/mergelog.h \
     utils/protoenumtostring.h \
     commonwidgets/custommenuwidget.h \
     commonwidgets/customtexteditwidget.h \

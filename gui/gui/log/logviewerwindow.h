@@ -2,6 +2,7 @@
 #define LOGVIEWERWINDOW_H
 
 #include <QWidget>
+#include <QCheckBox>
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
 #include "dpiscaleawarewidget.h"
@@ -15,17 +16,27 @@ public:
     explicit LogViewerWindow(QWidget *parent = nullptr);
     ~LogViewerWindow();
 
-    void setLog(const QString &log);
-
 signals:
     void closeClick();
+
+private slots:
+    void updateLog(bool doMergePerLine);
+    void updateColorHighlighting(bool isColorHighlighting);
 
 protected:
     void updateScaling() override;
 
 private:
+    void highlightBlocks();
+
+    static constexpr bool DEFAULT_MERGE_PER_LINE = true;
+    static constexpr bool DEFAULT_COLOR_HIGHLIGHTING = false;
+
     QPlainTextEdit *textEdit_;
-    QVBoxLayout * layout_;
+    QVBoxLayout *layout_;
+    QCheckBox *cbMergePerLine_;
+    QCheckBox *cbColorHighlighting_;
+    bool isColorHighlighting_;
 };
 
 }
