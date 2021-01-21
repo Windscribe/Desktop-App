@@ -20,11 +20,15 @@ public:
     void updateScaling();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void changeEvent(QEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void changeEvent(QEvent *event)          override;
+    void keyPressEvent(QKeyEvent *event)     override;
 
 signals:
     void itemClicked(QString caption, QVariant value);
+    void keyUpPressed();
+    void keyDownPressed();
+    void keyEnterPressed();
 
 private slots:
     void onMenuTriggered(QAction *action);

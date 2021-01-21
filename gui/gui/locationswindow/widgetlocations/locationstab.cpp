@@ -54,6 +54,10 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     searchLineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     searchLineEdit_->setFrame(false);
     connect(searchLineEdit_, SIGNAL(textChanged(QString)), SLOT(onSearchLineEditTextChanged(QString)));
+    connect(searchLineEdit_, SIGNAL(keyUpPressed()), SLOT(onSearchLineEditKeyUpPressed()));
+    connect(searchLineEdit_, SIGNAL(keyDownPressed()), SLOT(onSearchLineEditKeyDownPressed()));
+    connect(searchLineEdit_, SIGNAL(keyEnterPressed()), SLOT(onSearchLineEditKeyEnterPressed()));
+
     searchLineEdit_->hide();
 
     updateIconRectsAndLine();
@@ -457,6 +461,27 @@ void LocationsTab::onSearchLineEditTextChanged(QString text)
     // TODO: update view
 }
 
+void LocationsTab::onSearchLineEditKeyUpPressed()
+{
+    //qDebug() << "LocationTab:: line edit up";
+    QKeyEvent event(QEvent::KeyPress, Qt::Key_Up, Qt::NoModifier);
+    passEventToLocationWidget(&event);
+}
+
+void LocationsTab::onSearchLineEditKeyDownPressed()
+{
+    //qDebug() << "LocationTab:: line edit down";
+
+    QKeyEvent event(QEvent::KeyPress, Qt::Key_Down, Qt::NoModifier);
+    passEventToLocationWidget(&event);
+}
+
+void LocationsTab::onSearchLineEditKeyEnterPressed()
+{
+    QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+    passEventToLocationWidget(&event);
+}
+
 IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
 {
     if (curTab_ == CUR_TAB_ALL_LOCATIONS)        return widgetAllLocations_;
@@ -535,6 +560,22 @@ bool LocationsTab::isWhiteAnimationActive()
     return whiteLineAnimation_.state() == QAbstractAnimation::Running;
 }
 
+void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
+{
+    IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
+    if (curWidgetLoc != nullptr)
+    {
+        if (curWidgetLoc->hasSelection())
+        {
+            curWidgetLoc->handleKeyEvent(event);
+        }
+        else
+        {
+            curWidgetLoc->setFirstSelected();
+        }
+    }
+}
+
 void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
 {
     qDebug() << "LocationsTab::handleKeyReleaseEvent";
@@ -592,18 +633,7 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
     }
     else
     {
-        IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
-        if (curWidgetLoc != nullptr)
-        {
-            if (curWidgetLoc->hasSelection())
-            {
-                curWidgetLoc->handleKeyEvent(event);
-            }
-            else
-            {
-                curWidgetLoc->setFirstSelected();
-            }
-        }
+        passEventToLocationWidget(event);
     }
 }
 

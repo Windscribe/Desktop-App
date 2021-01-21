@@ -28,7 +28,7 @@ namespace GuiLocations {
 // TODO: test against disabled servers
 // TODO: test keypress navigation with cursor when accessibility permission is off
 
-// TODO: fix text edit focus prevents key press navigation
+// TODO: add fast scrolling when holding down/up (only when connect window has focus)
 class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT

@@ -64,7 +64,11 @@ private slots:
     void onSearchButtonClicked();
     void onSearchCancelButtonClicked();
     void onSearchButtonPosAnimationValueChanged(const QVariant &value);
+
     void onSearchLineEditTextChanged(QString text);
+    void onSearchLineEditKeyUpPressed();
+    void onSearchLineEditKeyDownPressed();
+    void onSearchLineEditKeyEnterPressed();
 
 private:
     IWidgetLocationsInfo *currentWidgetLocations();
@@ -151,6 +155,7 @@ private:
     int searchButtonPos_;
     QVariantAnimation searchButtonPosAnimation_;
     void updateTabIconRects();
+    void passEventToLocationWidget(QKeyEvent *event);
 };
 
 } // namespace GuiLocations
