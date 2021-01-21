@@ -91,12 +91,11 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     connect(configFooterInfo_, SIGNAL(clearCustomConfigClicked()),
             SIGNAL(clearCustomConfigClicked()));
     connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SLOT(onAddCustomConfigClicked()));
-    int newHeight = 50 * countOfVisibleItemSlots_ - 1;
 
     widgetSearchLocations_ = new GuiLocations::SearchWidgetLocations(this);
     widgetSearchLocations_->hide();
 
-    updateLocationWidgetsGeometry(newHeight);
+    updateLocationWidgetsGeometry(unscaledHeight());
 
     connect(widgetAllLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetConfiguredLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
@@ -121,7 +120,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     updateCustomConfigsEmptyListVisibility();
 }
 
-int LocationsTab::setCountVisibleItemSlots(int cnt)
+void LocationsTab::setCountVisibleItemSlots(int cnt)
 {
     if (cnt != countOfVisibleItemSlots_)
     {
@@ -130,16 +129,9 @@ int LocationsTab::setCountVisibleItemSlots(int cnt)
         widgetConfiguredLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_-1);
         widgetStaticIpsLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_-1);
         widgetFavoriteLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
-        // widgetSearchLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
+        widgetSearchLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
         updateRibbonVisibility();
-
-        const int newHeight = 50 * countOfVisibleItemSlots_ - 1;
-        updateLocationWidgetsGeometry(newHeight);
-        return newHeight ;
-    }
-    else
-    {
-        return (50 * countOfVisibleItemSlots_ - 1);
+        updateLocationWidgetsGeometry(unscaledHeight());
     }
 }
 
@@ -380,7 +372,7 @@ void LocationsTab::onClickFavoriteLocations()
 
 void LocationsTab::onClickSearchLocations()
 {
-    //widgetSearchLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetSearchLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
@@ -545,9 +537,7 @@ bool LocationsTab::isWhiteAnimationActive()
 
 void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
 {
-    // TODO: fix key navigation
-    // * left/right into/outof search
-    // * up/down in search
+    qDebug() << "LocationsTab::handleKeyReleaseEvent";
 
     if (event->key() == Qt::Key_Right)
     {
@@ -555,7 +545,15 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
         if (curTabInt < CUR_TAB_LAST)
         {
             curTabInt++;
-            changeTab(static_cast<CurTabEnum>(curTabInt));
+
+            if (curTabInt == CUR_TAB_SEARCH_LOCATIONS)
+            {
+                onSearchButtonClicked(); // this will handle changeTab(..)
+            }
+            else
+            {
+                changeTab(static_cast<CurTabEnum>(curTabInt));
+            }
 
             IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
             if (curWidgetLoc != nullptr)
@@ -573,7 +571,14 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
         if (curTabInt > CUR_TAB_FIRST)
         {
             curTabInt--;
-            changeTab(static_cast<CurTabEnum>(curTabInt));
+            if (curTabInt == CUR_TAB_SEARCH_LOCATIONS)
+            {
+                onSearchButtonClicked(); // this will handle changeTab(..)
+            }
+            else
+            {
+                changeTab(static_cast<CurTabEnum>(curTabInt));
+            }
 
             IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
             if (curWidgetLoc != nullptr)
@@ -697,6 +702,11 @@ void LocationsTab::updateScaling()
 void LocationsTab::updateLanguage()
 {
     widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here"));
+}
+
+int LocationsTab::unscaledHeight()
+{
+    return 50 * countOfVisibleItemSlots_ /* - 1 */; // TODO: still need -1 ?
 }
 
 void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)

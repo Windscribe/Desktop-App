@@ -26,6 +26,9 @@ namespace GuiLocations {
 // TODO: test scaling changes in all contained classes
 // TODO: test against account that loses/gains pro status
 // TODO: test against disabled servers
+// TODO: test keypress navigation with cursor when accessibility permission is off
+
+// TODO: fix text edit focus prevents key press navigation
 class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT
@@ -54,7 +57,7 @@ public:
     void setCountAvailableItemSlots(int cnt);
 
     bool eventFilter(QObject *object, QEvent *event) override;
-    void handleKeyEvent(QKeyEvent *event) override; // should be handled by owner?
+    void handleKeyEvent(QKeyEvent *event) override;
 
     int countVisibleItems() override; // visible is ambiguous
 
@@ -123,6 +126,8 @@ private:
     const QString scrollbarStyleSheet();
     void scrollDown(int itemCount);
     void animatedScrollDown(int itemCount);
+    void animatedScrollUp(int itemCount);
+    int animationScollTarget_;
 };
 
 } // namespace GuiLocations

@@ -1,10 +1,10 @@
 #include "locationitemlistwidget.h"
 
 #include <QPainter>
-#include <QDebug>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 #include "cursorupdatehelper.h"
+#include "utils/logger.h"
 
 
 namespace GuiLocations {
@@ -12,10 +12,11 @@ namespace GuiLocations {
 LocationItemListWidget::LocationItemListWidget(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent) : QWidget(parent)
   , height_(0)
   , widgetLocationsInfo_(widgetLocationsInfo)
+  , lastAccentedItemWidget_(nullptr)
 {
-    // qDebug() << "Constructed Location Item List Widget";
-    cursorUpdateHelper_.reset(new CursorUpdateHelper(this));
+    setFocusPolicy(Qt::NoFocus);
 
+    cursorUpdateHelper_.reset(new CursorUpdateHelper(this));
 }
 
 LocationItemListWidget::~LocationItemListWidget()
@@ -49,7 +50,6 @@ void LocationItemListWidget::addRegionWidget(LocationModelItem *item)
     itemWidgets_.append(regionWidget);
     regionWidget->setGeometry(0, 0, WINDOW_WIDTH *G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
     regionWidget->show();
-    // qDebug() << "Added region: " << item->title;
     recalcItemPositions();
 }
 
@@ -62,11 +62,8 @@ void LocationItemListWidget::addCityToRegion(CityModelItem city, LocationModelIt
     if (!(std::find_if(itemWidgets_.begin(), itemWidgets_.end(), matchingId) != itemWidgets_.end()))
     {
         addRegionWidget(region);
-        // qDebug() << "Added region (JIT): " << region->title;
     }
-
     itemWidgets_.last()->addCity(city);
-    // qDebug() << "Added City: " << city.city << " " << city.nick;
 
     recalcItemPositions();
 }
@@ -78,16 +75,36 @@ void LocationItemListWidget::updateScaling()
 
 void LocationItemListWidget::selectWidgetContainingCursor()
 {
-    //qDebug() << "checking for new selection";
     foreach (QSharedPointer<SelectableLocationItemWidget> selectableWidget , selectableWidgets())
     {
         if (selectableWidget->containsCursor())
         {
-            //qDebug() << "Selecting: " << selectableWidget->name();
             selectableWidget->setSelected(true);
             updateCursorWithSelectableWidget(selectableWidget.get());
 
             break;
+        }
+    }
+}
+
+void LocationItemListWidget::expand(LocationID locId)
+{
+    foreach (QSharedPointer<LocationItemRegionWidget> regionWidget, itemWidgets_)
+    {
+        if (regionWidget->getId() == locId)
+        {
+            regionWidget->expand();
+        }
+    }
+}
+
+void LocationItemListWidget::collapse(LocationID locId)
+{
+    foreach (QSharedPointer<LocationItemRegionWidget> regionWidget, itemWidgets_)
+    {
+        if (regionWidget->getId() == locId)
+        {
+            regionWidget->collapse();
         }
     }
 }
@@ -133,7 +150,7 @@ const LocationID LocationItemListWidget::topSelectableLocationIdInViewport()
     if (index > widgets.count() - 1)
     {
         // this shouldn't happen
-        qDebug() << "Err: There isn't enough items in selectable list to index (locationID)";
+        qDebug(LOG_BASIC) << "Err: There isn't enough items in selectable list to index (locationID)";
         return LocationID();
     }
 
@@ -154,9 +171,98 @@ int LocationItemListWidget::selectableIndex(LocationID locationId)
     return -1;
 }
 
+int LocationItemListWidget::viewportIndex(LocationID locationId)
+{
+    int topItemSelIndex = selectableIndex(topSelectableLocationIdInViewport());
+    int desiredLocSelIndex = selectableIndex(locationId);
+    int desiredLocationViewportIndex = desiredLocSelIndex - topItemSelIndex;
+    return desiredLocationViewportIndex;
+}
+
+void LocationItemListWidget::accentFirstItem()
+{
+    QVector<QSharedPointer<SelectableLocationItemWidget>> widgets = selectableWidgets();
+    if (widgets.count() > 0)
+    {
+        widgets[0]->setSelected(true);
+    }
+}
+
+bool LocationItemListWidget::hasAccentItem()
+{
+    return lastAccentedItemWidget_ != nullptr;
+}
+
+void LocationItemListWidget::moveAccentUp()
+{
+    SelectableLocationItemWidget *lastWidget = nullptr;
+    SelectableLocationItemWidget *currentWidget =  nullptr;
+    foreach (QSharedPointer<SelectableLocationItemWidget> widget, selectableWidgets())
+    {
+        lastWidget = currentWidget;
+        currentWidget = widget.get();
+
+        if (widget->isSelected())
+        {
+            break;
+        }
+    }
+
+    if (lastWidget != nullptr)
+    {
+        lastWidget->setSelected(true);
+    }
+}
+
+void LocationItemListWidget::moveAccentDown()
+{
+    auto list = selectableWidgets();
+    QVectorIterator<QSharedPointer<SelectableLocationItemWidget>> it(list);
+    while (it.hasNext())
+    {
+        if (it.next()->isSelected())
+        {
+            break;
+        }
+    }
+
+    if (it.hasNext())
+    {
+        auto widget = it.next();
+        widget->setSelected(true);
+    }
+}
+
+int LocationItemListWidget::accentItemSelectableIndex()
+{
+    if (!lastAccentedItemWidget_)
+    {
+        return -1;
+    }
+    return selectableIndex(lastAccentedItemWidget_->getId());
+}
+
+int LocationItemListWidget::accentItemViewportIndex()
+{
+    if (!lastAccentedItemWidget_)
+    {
+        return -1;
+    }
+    return viewportIndex(lastAccentedItemWidget_->getId());
+}
+
+SelectableLocationItemWidget * LocationItemListWidget::lastAccentedItemWidget()
+{
+    return lastAccentedItemWidget_;
+}
+
 const LocationID LocationItemListWidget::lastSelectedLocationId() const
 {
-    return lastSelectedLocationId_;
+    if (!lastAccentedItemWidget_)
+    {
+        return LocationID();
+    }
+    return lastAccentedItemWidget_->getId();
 }
 
 void LocationItemListWidget::selectItem(LocationID locationId)
@@ -165,7 +271,6 @@ void LocationItemListWidget::selectItem(LocationID locationId)
     {
         if (widget->getId() == locationId)
         {
-            // qDebug() << "Selecting: "<< widget->name();
             widget->setSelected(true);
             break;
         }
@@ -218,7 +323,6 @@ void LocationItemListWidget::updateCursorWithSelectableWidget(SelectableLocation
 
 void LocationItemListWidget::paintEvent(QPaintEvent *event)
 {
-    // qDebug() << "Painting LocationItemListWidget: " << geometry();
     Q_UNUSED(event)
     QPainter painter(this);
     QRect background(0,0, geometry().width(), geometry().height());
@@ -229,14 +333,12 @@ void LocationItemListWidget::paintEvent(QPaintEvent *event)
 void LocationItemListWidget::onRegionWidgetHeightChanged(int height)
 {
     auto regionWidget = static_cast<LocationItemRegionWidget*>(sender());
-    // qDebug() << "Region changed height: " << regionWidget->name();
     regionWidget->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, height * G_SCALE);
     recalcItemPositions();
 }
 
 void LocationItemListWidget::onLocationItemCityClicked(LocationItemCityWidget *cityWidget)
 {
-    // qDebug() << "List sees click: " << cityWidget->name();
     emit locationIdSelected(cityWidget->getId());
 }
 
@@ -255,7 +357,7 @@ void LocationItemListWidget::onSelectableLocationItemSelected(SelectableLocation
 
     updateCursorWithSelectableWidget(itemWidget);
     recentlySelectedWidgets_.append(itemWidget);
-    lastSelectedLocationId_ = itemWidget->getId();
+    lastAccentedItemWidget_ = itemWidget;
 }
 
 void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidget *regionWidget)
@@ -283,7 +385,6 @@ void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidge
 
 void LocationItemListWidget::recalcItemPositions()
 {
-    // qDebug() << "Recalc list height";
     int heightSoFar = 0;
     foreach (QSharedPointer<LocationItemRegionWidget> itemWidget, itemWidgets_)
     {

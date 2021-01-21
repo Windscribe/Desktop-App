@@ -23,8 +23,8 @@ class LocationsTab : public QWidget
 public:
     explicit LocationsTab(QWidget *parent, LocationsModel *locationsModel);
 
-    // return new height
-    int setCountVisibleItemSlots(int cnt);
+    int unscaledHeight();
+    void setCountVisibleItemSlots(int cnt);
     int getCountVisibleItems();
     void setOnlyConfigTabVisible(bool onlyConfig);
 

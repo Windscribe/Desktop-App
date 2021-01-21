@@ -3,8 +3,9 @@
 #include <QPainter>
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
+#include "utils/logger.h"
 
-#include <QDebug>
+// #include <QDebug>
 
 namespace GuiLocations {
 
@@ -12,6 +13,8 @@ LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widget
   , widgetLocationsInfo_(widgetLocationsInfo)
   , citySubMenuState_(COLLAPSED)
 {
+    setFocusPolicy(Qt::NoFocus);
+
     height_ = LOCATION_ITEM_HEIGHT * G_SCALE;
 
     regionHeaderWidget_ = QSharedPointer<LocationItemRegionHeaderWidget>(new LocationItemRegionHeaderWidget(widgetLocationsInfo, locationModelItem, this));
@@ -27,7 +30,7 @@ LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widget
 
 LocationItemRegionWidget::~LocationItemRegionWidget()
 {
-    // qDebug() << "Deleting region widget: " << textLabel_->text();
+
 }
 
 const LocationID LocationItemRegionWidget::getId() const
@@ -66,7 +69,7 @@ void LocationItemRegionWidget::setExpandedWithoutAnimation(bool expand)
 
 void LocationItemRegionWidget::expand()
 {
-    qDebug() << "Expanding: " << regionHeaderWidget_->name();
+    qCDebug(LOG_BASIC) << "Expanding: " << regionHeaderWidget_->name();
     foreach (auto city, cities_)
     {
         city->setSelectable(true);
@@ -82,7 +85,7 @@ void LocationItemRegionWidget::expand()
 
 void LocationItemRegionWidget::collapse()
 {
-    qDebug() << "Collapsing: " << regionHeaderWidget_->name();
+    qCDebug(LOG_BASIC) << "Collapsing: " << regionHeaderWidget_->name();
 
     foreach (auto city, cities_)
     {
@@ -142,7 +145,6 @@ QVector<QSharedPointer<LocationItemCityWidget> > LocationItemRegionWidget::cityW
 
 void LocationItemRegionWidget::setFavorited(LocationID id, bool isFavorite)
 {
-    // qDebug() << "Region setting";
     foreach (QSharedPointer<LocationItemCityWidget> city, cities_)
     {
         if (city->getId() == id)
@@ -155,7 +157,6 @@ void LocationItemRegionWidget::setFavorited(LocationID id, bool isFavorite)
 
 void LocationItemRegionWidget::recalcItemPos()
 {
-    // qDebug() << "Recalc region height";
 
     regionHeaderWidget_->setGeometry(0,0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT);
 
@@ -209,17 +210,14 @@ void LocationItemRegionWidget::onCityItemClicked()
 void LocationItemRegionWidget::onExpandingHeightAnimationValueChanged(const QVariant &value)
 {
     int height = value.toInt();
-    // qDebug() << "new height: " << height;
 
     if (height == LOCATION_ITEM_HEIGHT*G_SCALE)
     {
         citySubMenuState_ = COLLAPSED;
-        qDebug() << "Collapsed";
     }
     else if (height == expandedHeight())
     {
         citySubMenuState_ = EXPANDED;
-        qDebug() << "Expanded";
     }
 
     height_ = height;
@@ -231,7 +229,6 @@ int LocationItemRegionWidget::expandedHeight()
     int height = LOCATION_ITEM_HEIGHT * G_SCALE;
     foreach (auto city, cities_)
     {
-        // city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
         height += city->geometry().height();
     }
 

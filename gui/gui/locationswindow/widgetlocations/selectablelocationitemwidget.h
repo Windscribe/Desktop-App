@@ -17,6 +17,7 @@ public:
         CITY
     };
 
+    virtual bool isExpanded() const = 0;
     virtual bool isForbidden() const = 0;
     virtual bool isDisabled() const = 0;
     virtual const LocationID getId() const = 0;

@@ -12,6 +12,7 @@
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
 #include "tooltips/tooltipcontroller.h"
+#include "utils/logger.h"
 
 #include <QDebug>
 
@@ -24,10 +25,12 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
   , bShowLatencyInMs_(false)
   , bTapGestureStarted_(false)
   , locationsModel_(NULL)
+  , animationScollTarget_(0)
 {
     setFrameStyle(QFrame::NoFrame);
     setMouseTracking(true);
     setStyleSheet("background-color: rgba(0,0,0,0)");
+    setFocusPolicy(Qt::NoFocus);
 
     // scrollbar
     scrollBar_ = new ScrollBar(this);
@@ -48,7 +51,6 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     locationItemListWidget_->show();
 
     connect(&scrollAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onScrollAnimationValueChanged(QVariant)));
-    setFocusPolicy(Qt::NoFocus);
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 }
 
@@ -108,16 +110,44 @@ void SearchWidgetLocations::scrollDown(int itemCount)
 
 void SearchWidgetLocations::animatedScrollDown(int itemCount)
 {
-    int newY = static_cast<int>(scrollBar_->value() + LocationItemListWidget::ITEM_HEIGHT * G_SCALE * itemCount);
-    qDebug() << scrollBar_->value() << " -> " << newY;
+    int scrollBy = static_cast<int>(LocationItemListWidget::ITEM_HEIGHT * G_SCALE * itemCount);
+
+    if (scrollAnimation_.state() == QAbstractAnimation::Running)
+    {
+        animationScollTarget_ += scrollBy;
+    }
+    else
+    {
+        animationScollTarget_ = scrollBar_->value() + scrollBy;
+    }
 
     scrollAnimation_.stop();
     scrollAnimation_.setDuration(300);
     scrollAnimation_.setStartValue(scrollBar_->value());
-    scrollAnimation_.setEndValue(newY);
+    scrollAnimation_.setEndValue(animationScollTarget_);
     scrollAnimation_.setDirection(QAbstractAnimation::Forward);
     scrollAnimation_.start();
+}
 
+void SearchWidgetLocations::animatedScrollUp(int itemCount)
+{
+    int scrollBy = static_cast<int>(LocationItemListWidget::ITEM_HEIGHT * G_SCALE * itemCount);
+
+    if (scrollAnimation_.state() == QAbstractAnimation::Running)
+    {
+        animationScollTarget_ -= scrollBy;
+    }
+    else
+    {
+        animationScollTarget_ = scrollBar_->value() - scrollBy;
+    }
+
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(300);
+    scrollAnimation_.setStartValue(scrollBar_->value());
+    scrollAnimation_.setEndValue(animationScollTarget_);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
 }
 
 void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
@@ -127,14 +157,12 @@ void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
     LocationID topSelectableLocationIdInViewport = locationItemListWidget_->topSelectableLocationIdInViewport();
     LocationID lastSelectedLocationId = locationItemListWidget_->lastSelectedLocationId();
 
-    qDebug() << "Updating search locations widget list";
+    qCDebug(LOG_BASIC) << "Updating search locations widget list";
     locationItemListWidget_->clearWidgets();
     foreach (LocationModelItem *item, items)
     {
         if (item->title.contains(filterString_, Qt::CaseInsensitive))
         {
-            // qDebug() << "About to add region and cities";
-
             // add item and all children to list
             locationItemListWidget_->addRegionWidget(item);
 
@@ -147,8 +175,6 @@ void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
         {
             foreach (CityModelItem cityItem, item->cities)
             {
-                // qDebug() << "About to add city to region";
-
                 if (cityItem.city.contains(filterString_, Qt::CaseInsensitive) ||
                     cityItem.city.contains(filterString_, Qt::CaseInsensitive))
                 {
@@ -161,7 +187,6 @@ void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
     // restoring previous widget state
     locationItemListWidget_->expandLocationIds(expandedLocationIds);
     int indexInNewList = locationItemListWidget_->selectableIndex(topSelectableLocationIdInViewport);
-    // qDebug() << "Moving viewport to index: " << indexInNewList;
     scrollDown(indexInNewList);
     locationItemListWidget_->selectItem(lastSelectedLocationId);
 }
@@ -180,7 +205,8 @@ void SearchWidgetLocations::setModel(BasicLocationsModel *locationsModel)
 
 void SearchWidgetLocations::setFirstSelected()
 {
-
+    qDebug() << "SearchWidgetLocations::setFirstSelected";
+    locationItemListWidget_->accentFirstItem();
 }
 
 void SearchWidgetLocations::startAnimationWithPixmap(const QPixmap &pixmap)
@@ -320,7 +346,10 @@ void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
 
     TooltipController::instance().hideAllTooltips();
 
-    locationItemListWidget_->selectWidgetContainingCursor();
+    if (cursorInViewport())
+    {
+        locationItemListWidget_->selectWidgetContainingCursor();
+    }
 
     QScrollArea::scrollContentsBy(dx,dy);
 
@@ -501,6 +530,101 @@ int SearchWidgetLocations::detectVisibleIndForCursorPos(const QPoint &pt)
 
 void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
 {
+    qDebug() << "SearchWidgetLocations::handleKeyEvent";
+
+    // TODO: quickly repeating UP can cause cursor to jump out of locations region
+    if (event->key() == Qt::Key_Up)
+    {
+        if (locationItemListWidget_->hasAccentItem())
+        {
+            if (locationItemListWidget_->accentItemSelectableIndex() > 0)
+            {
+                if (locationItemListWidget_->accentItemViewportIndex() <= 0)
+                {
+                    animatedScrollUp(1);
+                }
+                else
+                {
+                    QPoint cursorPos = QCursor::pos();
+                    if (isGlobalPointInViewport(cursorPos))
+                    {
+                        TooltipController::instance().hideAllTooltips();
+
+                        // Note: this kind of cursor control requires Accessibility Permissions on MacOS
+                        QCursor::setPos(QPoint(cursorPos.x(), cursorPos.y() - LOCATION_ITEM_HEIGHT*G_SCALE));
+                    }
+                }
+                locationItemListWidget_->moveAccentUp();
+            }
+        }
+        else
+        {
+            locationItemListWidget_->accentFirstItem();
+        }
+    }
+    else if (event->key() == Qt::Key_Down)
+    {
+        if (locationItemListWidget_->hasAccentItem())
+        {
+            if (locationItemListWidget_->accentItemSelectableIndex() < locationItemListWidget_->itemWidgets().count() - 1)
+            {
+                if (locationItemListWidget_->accentItemViewportIndex() >= countVisibleItems() - 1)
+                {
+                    animatedScrollDown(1);
+                }
+                else
+                {
+                    QPoint cursorPos = QCursor::pos();
+                    if (isGlobalPointInViewport(cursorPos))
+                    {
+                        TooltipController::instance().hideAllTooltips();
+
+                        // Note: this kind of cursor control requires Accessibility Permissions on MacOS
+                        QCursor::setPos(QPoint(cursorPos.x(), cursorPos.y() + LOCATION_ITEM_HEIGHT*G_SCALE));
+                    }
+                }
+                locationItemListWidget_->moveAccentDown();
+            }
+        }
+        else
+        {
+            qDebug() << "Accenting first";
+            locationItemListWidget_->accentFirstItem();
+        }
+    }
+    else if (event->key() == Qt::Key_Return)
+    {
+        // qDebug() << "Selection by key press";
+
+        SelectableLocationItemWidget *lastSelWidget = locationItemListWidget_->lastAccentedItemWidget();
+
+        if (lastSelWidget->getId().isBestLocation())
+        {
+            emit selected(locationItemListWidget_->lastSelectedLocationId());
+        }
+        else if (lastSelWidget->getId().isTopLevelLocation())
+        {
+            if (lastSelWidget->isExpanded())
+            {
+                locationItemListWidget_->collapse(locationItemListWidget_->lastSelectedLocationId());
+            }
+            else
+            {
+                locationItemListWidget_->expand(locationItemListWidget_->lastSelectedLocationId());
+            }
+        }
+        else // city
+        {
+            SelectableLocationItemWidget *widget = locationItemListWidget_->lastAccentedItemWidget();
+            if (widget)
+            {
+                if(!widget->isForbidden() && !widget->isDisabled())
+                {
+                    emit selected(locationItemListWidget_->lastSelectedLocationId());
+                }
+            }
+        }
+    }
 }
 
 bool SearchWidgetLocations::isGlobalPointInViewport(const QPoint &pt)
@@ -518,10 +642,7 @@ void SearchWidgetLocations::handleTapClick(const QPoint &cursorPos)
 int SearchWidgetLocations::countVisibleItems()
 {
     int geoHeight = geometry().height();
-    // qDebug() << "Geo Height: " << geoHeight;
-
     int count = static_cast<int>( geoHeight / LocationItemListWidget::ITEM_HEIGHT * G_SCALE);
-    // qDebug() << "Count of viewport items: " << count;
     return count;
 }
 

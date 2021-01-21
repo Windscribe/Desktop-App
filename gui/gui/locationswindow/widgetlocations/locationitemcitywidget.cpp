@@ -10,7 +10,7 @@
 #include "tooltips/tooltipcontroller.h"
 #include "commongraphics/commongraphics.h"
 
-#include <QDebug>
+// #include <QDebug>
 
 namespace GuiLocations {
 
@@ -22,6 +22,8 @@ LocationItemCityWidget::LocationItemCityWidget(IWidgetLocationsInfo *widgetLocat
   , selected_(false)
   , favorited_(false)
 {
+    setFocusPolicy(Qt::NoFocus);
+
     cityLabel_ = QSharedPointer<QLabel>(new QLabel(this));
     cityLabel_->setStyleSheet("QLabel { color : white; }");
     cityLabel_->setText(cityModelItem.city);
@@ -48,7 +50,12 @@ LocationItemCityWidget::LocationItemCityWidget(IWidgetLocationsInfo *widgetLocat
 
 LocationItemCityWidget::~LocationItemCityWidget()
 {
-    // qDebug() << "Deleting city widget: " << cityModelItem_.city << " " << cityModelItem_.nick;
+
+}
+
+bool LocationItemCityWidget::isExpanded() const
+{
+    return false;
 }
 
 const LocationID LocationItemCityWidget::getId() const
@@ -78,7 +85,6 @@ bool LocationItemCityWidget::isDisabled() const
 
 void LocationItemCityWidget::setFavourited(bool favorited)
 {
-    // qDebug() << "City setting favorited: " << name() << " " << favorited;
     favorited_ = favorited;
     if (favorited)
     {
@@ -103,14 +109,12 @@ void LocationItemCityWidget::setSelected(bool select)
         selected_ = select;
         if (select)
         {
-            //qDebug() << "Selecting City: " << cityLabel_->text() << " " << nickLabel_->text();
             cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
             nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
             emit selected(this);
         }
         else
         {
-            //qDebug() << "Unselecting City: " << cityLabel_->text() << " " << nickLabel_->text();
             cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
             nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
         }
@@ -133,7 +137,6 @@ bool LocationItemCityWidget::containsCursor() const
 
 void LocationItemCityWidget::setLatencyMs(PingTime pingTime)
 {
-    // qDebug() << "City setting latencey: " << name();
     pingTime_ = pingTime;
     updatePingBarIcon();
 }
@@ -201,7 +204,6 @@ void LocationItemCityWidget::paintEvent(QPaintEvent *event)
 void LocationItemCityWidget::enterEvent(QEvent *event)
 {
     Q_UNUSED(event);
-    // qDebug() << "City entered: " << name();
     setSelected(true); // triggers unselection of other widgets
 }
 
@@ -234,7 +236,6 @@ void LocationItemCityWidget::onPingBarIconHoverLeave()
 
 void LocationItemCityWidget::onFavoriteIconButtonClicked()
 {
-    // qDebug() << "Favorite city clicked: " << name();
     emit favoriteClicked(this, !favorited_);
 }
 

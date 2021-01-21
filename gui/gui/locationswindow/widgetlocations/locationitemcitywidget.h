@@ -17,7 +17,9 @@ class LocationItemCityWidget : public SelectableLocationItemWidget
     Q_OBJECT
 public:
     explicit LocationItemCityWidget(IWidgetLocationsInfo *widgetLocationsInfo, CityModelItem cityModelItem, QWidget *parent = nullptr);
-    ~LocationItemCityWidget();
+    ~LocationItemCityWidget() override;
+
+    bool isExpanded() const override;
 
     const LocationID getId() const override;
     const QString name() const override;

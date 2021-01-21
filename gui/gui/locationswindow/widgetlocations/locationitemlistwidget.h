@@ -23,6 +23,8 @@ public:
     void updateScaling();
     void selectWidgetContainingCursor();
 
+    void expand(LocationID locId);
+    void collapse(LocationID locId);
     void expandLocationIds(QVector<LocationID> locIds);
     QVector<LocationID> expandedOrExpandingLocationIds();
     const QVector<QSharedPointer<LocationItemRegionWidget>> &itemWidgets();
@@ -31,7 +33,16 @@ public:
 
     const LocationID topSelectableLocationIdInViewport();
     int selectableIndex(LocationID locationId);
+    int viewportIndex(LocationID locationId);
 
+    void accentFirstItem();
+    bool hasAccentItem();
+    void moveAccentUp();
+    void moveAccentDown();
+    int accentItemSelectableIndex();
+    int accentItemViewportIndex();
+
+    SelectableLocationItemWidget *lastAccentedItemWidget();
     const LocationID lastSelectedLocationId() const;
     void selectItem(LocationID locationId);
 
@@ -61,7 +72,7 @@ private:
     QVector<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets(); // regions + expanded cities
 
     IWidgetLocationsInfo *widgetLocationsInfo_;
-    LocationID lastSelectedLocationId_;
+    SelectableLocationItemWidget *lastAccentedItemWidget_;
 
     QVector<SelectableLocationItemWidget*> recentlySelectedWidgets_;
 

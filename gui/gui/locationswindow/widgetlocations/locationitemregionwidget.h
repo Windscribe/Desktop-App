@@ -19,8 +19,6 @@ public:
 
     const LocationID getId() const;
 
-
-    // TODO: add view change when expanding large (relative to viewport) city set
     CITY_SUBMENU_STATE citySubMenuState() { return citySubMenuState_; }
     bool expandable() const;
     bool expandedOrExpanding();

@@ -15,6 +15,8 @@ class LocationItemRegionHeaderWidget : public SelectableLocationItemWidget
 public:
     explicit LocationItemRegionHeaderWidget(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationItem, QWidget *parent = nullptr);
 
+    bool isExpanded() const override;
+
     bool isForbidden() const override;
     bool isDisabled() const override;
     const LocationID getId() const override;
@@ -61,6 +63,7 @@ private:
     double expandAnimationProgress_;
     QVariantAnimation expandAnimation_;
 
+    bool expanded_;
     bool selected_;
     bool selectable_;
     const QString labelStyleSheetWithOpacity(double opacity);

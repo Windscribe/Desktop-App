@@ -10,7 +10,7 @@
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
 
-#include <QDebug>
+// #include <QDebug>
 
 namespace GuiLocations {
 
@@ -23,10 +23,12 @@ LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(IWidgetLocationsI
   , plusIconOpacity_(OPACITY_THIRD)
   , textOpacity_(OPACITY_UNHOVER_TEXT)
   , expandAnimationProgress_(0.0)
+  , expanded_(false)
   , selected_(false)
   , selectable_(true)
 {
     // setMouseTracking(true);
+    setFocusPolicy(Qt::NoFocus);
 
     textLabel_ = QSharedPointer<QLabel>(new QLabel(this));
     textLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
@@ -51,6 +53,11 @@ LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(IWidgetLocationsI
     connect(&expandAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onExpandRotationAnimationValueChanged(QVariant)));
 
     recalcItemPositions();
+}
+
+bool LocationItemRegionHeaderWidget::isExpanded() const
+{
+    return expanded_;
 }
 
 bool LocationItemRegionHeaderWidget::isForbidden() const
@@ -94,13 +101,11 @@ void LocationItemRegionHeaderWidget::setSelected(bool select)
         selected_ = select;
         if (select)
         {
-            //qDebug() << "Selecting Region: " << textLabel_->text();
             opacityAnimation_.setDirection(QAbstractAnimation::Forward);
             emit selected(this);
         }
         else
         {
-            //qDebug() << "Unselecting Region: " << textLabel_->text();
             opacityAnimation_.setDirection(QAbstractAnimation::Backward);
         }
         opacityAnimation_.start();
@@ -128,6 +133,7 @@ void LocationItemRegionHeaderWidget::setExpanded(bool expand)
     {
         expandAnimation_.setDirection(QAbstractAnimation::Backward);
     }
+    expanded_ = expand;
     expandAnimation_.start();
 }
 
@@ -141,14 +147,12 @@ void LocationItemRegionHeaderWidget::setExpandedWithoutAnimation(bool expand)
     {
         expandAnimationProgress_ = 0.0;
     }
+    expanded_ = expand;
     update();
-
 }
 
 void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
 {
-    // qDebug() << "Region painting";
-
     // background
     QPainter painter(this);
     painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE),
@@ -232,7 +236,6 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
 
 void LocationItemRegionHeaderWidget::enterEvent(QEvent *event)
 {
-    //qDebug() << "Entering header: " << name();
     setSelected(true); // triggers unselection of other widgets
 }
 
