@@ -62,6 +62,11 @@ void BasicLocationsModel::setFreeSessionStatus(bool isFreeSessionStatus)
     }
 }
 
+QVector<LocationModelItem *> BasicLocationsModel::items()
+{
+    return locations_;
+}
+
 void BasicLocationsModel::clearLocations()
 {
     Q_FOREACH(LocationModelItem *lmi, locations_)

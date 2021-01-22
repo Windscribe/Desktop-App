@@ -124,6 +124,7 @@ private:
 
     // new
     const QString scrollbarStyleSheet();
+    void scrollToIndex(int index);
     void scrollDown(int itemCount);
     void animatedScrollDown(int itemCount);
     void animatedScrollUp(int itemCount);

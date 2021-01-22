@@ -17,9 +17,11 @@ LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widget
 
     height_ = LOCATION_ITEM_HEIGHT * G_SCALE;
 
-    regionHeaderWidget_ = QSharedPointer<LocationItemRegionHeaderWidget>(new LocationItemRegionHeaderWidget(widgetLocationsInfo, locationModelItem, this));
-    connect(regionHeaderWidget_.get(), SIGNAL(clicked()), SLOT(onRegionHeaderClicked()));
-    connect(regionHeaderWidget_.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onRegionHeaderSelected(SelectableLocationItemWidget *)));
+    regionHeaderWidget_ = new LocationItemRegionHeaderWidget(widgetLocationsInfo, locationModelItem, this);
+    connect(regionHeaderWidget_, SIGNAL(clicked()), SLOT(onRegionHeaderClicked()));
+    connect(regionHeaderWidget_, SIGNAL(selected()), SLOT(onRegionHeaderSelected()));
+
+    qDebug() << "Creating region: " << regionHeaderWidget_->name();
 
     expandingHeightAnimation_.setDirection(QAbstractAnimation::Forward);
     expandingHeightAnimation_.setDuration(200);
@@ -30,7 +32,17 @@ LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widget
 
 LocationItemRegionWidget::~LocationItemRegionWidget()
 {
+    qDebug() << "Deleting region: " << regionHeaderWidget_->name();
 
+    regionHeaderWidget_->disconnect();
+    regionHeaderWidget_->deleteLater();
+
+    foreach (LocationItemCityWidget *city, cities_)
+    {
+        city->disconnect();
+        city->deleteLater();
+    }
+    cities_.clear();
 }
 
 const LocationID LocationItemRegionWidget::getId() const
@@ -60,7 +72,7 @@ void LocationItemRegionWidget::setExpandedWithoutAnimation(bool expand)
     }
 
     regionHeaderWidget_->setExpandedWithoutAnimation(expand);
-    foreach (auto city, cities_)
+    foreach (LocationItemCityWidget *city, cities_)
     {
         city->setSelectable(expand);
     }
@@ -70,7 +82,7 @@ void LocationItemRegionWidget::setExpandedWithoutAnimation(bool expand)
 void LocationItemRegionWidget::expand()
 {
     qCDebug(LOG_BASIC) << "Expanding: " << regionHeaderWidget_->name();
-    foreach (auto city, cities_)
+    foreach (LocationItemCityWidget * city, cities_)
     {
         city->setSelectable(true);
     }
@@ -87,7 +99,7 @@ void LocationItemRegionWidget::collapse()
 {
     qCDebug(LOG_BASIC) << "Collapsing: " << regionHeaderWidget_->name();
 
-    foreach (auto city, cities_)
+    foreach (LocationItemCityWidget *city, cities_)
     {
         city->setSelectable(false);
     }
@@ -96,28 +108,28 @@ void LocationItemRegionWidget::collapse()
     citySubMenuState_ = COLLAPSING;
     expandingHeightAnimation_.stop();
     expandingHeightAnimation_.setStartValue(height_);
-    expandingHeightAnimation_.setEndValue((int)(LOCATION_ITEM_HEIGHT*G_SCALE));
+    expandingHeightAnimation_.setEndValue(static_cast<int>(LOCATION_ITEM_HEIGHT*G_SCALE));
     expandingHeightAnimation_.start();
 }
 
 void LocationItemRegionWidget::addCity(CityModelItem city)
 {
-    auto cityWidget = QSharedPointer<LocationItemCityWidget>(new LocationItemCityWidget(widgetLocationsInfo_, city, this));
-    connect(cityWidget.get(), SIGNAL(clicked()), SLOT(onCityItemClicked()));
-    connect(cityWidget.get(), SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onCityItemSelected(SelectableLocationItemWidget *)));
-    connect(cityWidget.get(), SIGNAL(favoriteClicked(LocationItemCityWidget *, bool)), SIGNAL(favoriteClicked(LocationItemCityWidget*, bool)));
+    auto cityWidget = new LocationItemCityWidget(widgetLocationsInfo_, city, this);
+    connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));
+    connect(cityWidget, SIGNAL(selected()), SLOT(onCityItemSelected()));
+    connect(cityWidget, SIGNAL(favoriteClicked(LocationItemCityWidget *, bool)), SIGNAL(favoriteClicked(LocationItemCityWidget*, bool)));
     cities_.append(cityWidget);
     cityWidget->show();
     recalcItemPos();
 }
 
-QVector<QSharedPointer<SelectableLocationItemWidget>> LocationItemRegionWidget::selectableWidgets()
+QVector<SelectableLocationItemWidget*> LocationItemRegionWidget::selectableWidgets()
 {
-    QVector<QSharedPointer<SelectableLocationItemWidget>> widgets;
+    QVector<SelectableLocationItemWidget *> widgets;
     widgets.append(regionHeaderWidget_);
     if (expandedOrExpanding())
     {
-        foreach (auto city, cities_)
+        foreach (LocationItemCityWidget *city, cities_)
         {
             widgets.append(city);
         }
@@ -125,27 +137,14 @@ QVector<QSharedPointer<SelectableLocationItemWidget>> LocationItemRegionWidget::
     return widgets;
 }
 
-QVector<QSharedPointer<LocationItemCityWidget> > LocationItemRegionWidget::selectableCityWidgets()
-{
-    QVector<QSharedPointer<LocationItemCityWidget>> widgets;
-    if (expandedOrExpanding())
-    {
-        foreach (auto city, cities_)
-        {
-            widgets.append(city);
-        }
-    }
-    return widgets;
-}
-
-QVector<QSharedPointer<LocationItemCityWidget> > LocationItemRegionWidget::cityWidgets()
+QVector<LocationItemCityWidget *> LocationItemRegionWidget::cityWidgets()
 {
     return cities_;
 }
 
 void LocationItemRegionWidget::setFavorited(LocationID id, bool isFavorite)
 {
-    foreach (QSharedPointer<LocationItemCityWidget> city, cities_)
+    foreach (LocationItemCityWidget *city, cities_)
     {
         if (city->getId() == id)
         {
@@ -185,9 +184,9 @@ void LocationItemRegionWidget::recalcHeight()
     }
 }
 
-void LocationItemRegionWidget::onRegionHeaderSelected(SelectableLocationItemWidget *regionWidget)
+void LocationItemRegionWidget::onRegionHeaderSelected()
 {
-    emit selected(regionWidget);
+    emit selected(regionHeaderWidget_);
 }
 
 void LocationItemRegionWidget::onRegionHeaderClicked()
@@ -211,7 +210,7 @@ void LocationItemRegionWidget::onExpandingHeightAnimationValueChanged(const QVar
 {
     int height = value.toInt();
 
-    if (height == LOCATION_ITEM_HEIGHT*G_SCALE)
+    if (height == static_cast<int>(LOCATION_ITEM_HEIGHT*G_SCALE))
     {
         citySubMenuState_ = COLLAPSED;
     }
@@ -235,9 +234,9 @@ int LocationItemRegionWidget::expandedHeight()
     return height;
 }
 
-void LocationItemRegionWidget::onCityItemSelected(SelectableLocationItemWidget *cityWidget)
+void LocationItemRegionWidget::onCityItemSelected()
 {
-    emit selected(cityWidget);
+    emit selected(static_cast<SelectableLocationItemWidget*>(sender()));
 }
 
 

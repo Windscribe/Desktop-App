@@ -458,7 +458,7 @@ void LocationsTab::onSearchButtonPosAnimationValueChanged(const QVariant &value)
 
 void LocationsTab::onSearchLineEditTextChanged(QString text)
 {
-    // TODO: update view
+    widgetSearchLocations_->setFilterString(text);
 }
 
 void LocationsTab::onSearchLineEditKeyUpPressed()

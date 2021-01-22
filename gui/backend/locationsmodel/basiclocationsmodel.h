@@ -20,6 +20,8 @@ public:
     void setIsFavorite(LocationID id, bool isFavorite);
     void setFreeSessionStatus(bool isFreeSessionStatus);
 
+    QVector<LocationModelItem *> items();
+
 signals:
     void itemsUpdated(QVector<LocationModelItem*> items);  // only for direct connection
     void connectionSpeedChanged(LocationID id, PingTime timeMs);

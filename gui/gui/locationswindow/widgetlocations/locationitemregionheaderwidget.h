@@ -14,6 +14,7 @@ class LocationItemRegionHeaderWidget : public SelectableLocationItemWidget
     Q_OBJECT
 public:
     explicit LocationItemRegionHeaderWidget(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationItem, QWidget *parent = nullptr);
+    ~LocationItemRegionHeaderWidget() override;
 
     bool isExpanded() const override;
 
@@ -33,7 +34,7 @@ public:
     void setExpandedWithoutAnimation(bool expand);
 
 signals:
-    void selected(SelectableLocationItemWidget *itemWidget);
+    void selected();
 
 protected:
     void paintEvent(QPaintEvent *event) override;

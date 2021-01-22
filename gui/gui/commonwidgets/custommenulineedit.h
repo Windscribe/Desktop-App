@@ -26,6 +26,8 @@ protected:
 
 signals:
     void itemClicked(QString caption, QVariant value);
+
+    // TODO: don't use up/down here since it already has purpose
     void keyUpPressed();
     void keyDownPressed();
     void keyEnterPressed();

@@ -10,7 +10,7 @@
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
 
-// #include <QDebug>
+#include <QDebug>
 
 namespace GuiLocations {
 
@@ -53,6 +53,11 @@ LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(IWidgetLocationsI
     connect(&expandAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onExpandRotationAnimationValueChanged(QVariant)));
 
     recalcItemPositions();
+}
+
+LocationItemRegionHeaderWidget::~LocationItemRegionHeaderWidget()
+{
+    qDebug() << "Deleting header: " << name();
 }
 
 bool LocationItemRegionHeaderWidget::isExpanded() const
@@ -102,7 +107,7 @@ void LocationItemRegionHeaderWidget::setSelected(bool select)
         if (select)
         {
             opacityAnimation_.setDirection(QAbstractAnimation::Forward);
-            emit selected(this);
+            emit selected();
         }
         else
         {

@@ -27,9 +27,8 @@ public:
     void collapse();
 
     void addCity(CityModelItem city);
-    QVector<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets();
-    QVector<QSharedPointer<LocationItemCityWidget>> selectableCityWidgets();
-    QVector<QSharedPointer<LocationItemCityWidget>> cityWidgets();
+    QVector<SelectableLocationItemWidget *> selectableWidgets();
+    QVector<LocationItemCityWidget *> cityWidgets();
 
     void setFavorited(LocationID id, bool isFavorite);
 
@@ -38,20 +37,20 @@ public:
 
 signals:
     void heightChanged(int height);
-    void selected(SelectableLocationItemWidget *itemWidget); // TODO: re-word to "accent"
+    void selected(SelectableLocationItemWidget *itemWidget);
     void clicked(LocationItemCityWidget *cityWidget);
     void clicked(LocationItemRegionWidget *regionWidget);
     void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
 
 private slots:
-    void onRegionHeaderSelected(SelectableLocationItemWidget *regionWidget);
+    void onRegionHeaderSelected();
     void onRegionHeaderClicked();
-    void onCityItemSelected(SelectableLocationItemWidget *cityWidget);
+    void onCityItemSelected();
     void onCityItemClicked();
     void onExpandingHeightAnimationValueChanged(const QVariant &value);
 private:
-    QSharedPointer<LocationItemRegionHeaderWidget> regionHeaderWidget_;
-    QVector<QSharedPointer<LocationItemCityWidget>> cities_;
+    LocationItemRegionHeaderWidget *regionHeaderWidget_;
+    QVector<LocationItemCityWidget *> cities_;
     IWidgetLocationsInfo *widgetLocationsInfo_;
 
     CITY_SUBMENU_STATE citySubMenuState_;

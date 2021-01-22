@@ -10,7 +10,7 @@
 #include "tooltips/tooltipcontroller.h"
 #include "commongraphics/commongraphics.h"
 
-// #include <QDebug>
+#include <QDebug>
 
 namespace GuiLocations {
 
@@ -50,7 +50,7 @@ LocationItemCityWidget::LocationItemCityWidget(IWidgetLocationsInfo *widgetLocat
 
 LocationItemCityWidget::~LocationItemCityWidget()
 {
-
+    qDebug() << "Deleting city: " << name();
 }
 
 bool LocationItemCityWidget::isExpanded() const
@@ -111,7 +111,7 @@ void LocationItemCityWidget::setSelected(bool select)
         {
             cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
             nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
-            emit selected(this);
+            emit selected();
         }
         else
         {

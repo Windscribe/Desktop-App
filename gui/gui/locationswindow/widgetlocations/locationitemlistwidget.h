@@ -25,11 +25,12 @@ public:
 
     void expand(LocationID locId);
     void collapse(LocationID locId);
+    void expandAllLocations();
+    void collapseAllLocations();
     void expandLocationIds(QVector<LocationID> locIds);
     QVector<LocationID> expandedOrExpandingLocationIds();
-    const QVector<QSharedPointer<LocationItemRegionWidget>> &itemWidgets();
-    const QVector<QSharedPointer<LocationItemCityWidget>> selectableCityWidgets();
-    QVector<QSharedPointer<LocationItemCityWidget>> cityWidgets();
+    QVector<LocationItemRegionWidget *> itemWidgets();
+    QVector<LocationItemCityWidget *> cityWidgets();
 
     const LocationID topSelectableLocationIdInViewport();
     int selectableIndex(LocationID locationId);
@@ -67,17 +68,16 @@ private slots:
 
 private:
     int height_;
-    QVector<QSharedPointer<LocationItemRegionWidget>> itemWidgets_;
-    void recalcItemPositions();
-    QVector<QSharedPointer<SelectableLocationItemWidget>> selectableWidgets(); // regions + expanded cities
-
-    IWidgetLocationsInfo *widgetLocationsInfo_;
-    SelectableLocationItemWidget *lastAccentedItemWidget_;
-
-    QVector<SelectableLocationItemWidget*> recentlySelectedWidgets_;
-
     std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
+    QVector<LocationItemRegionWidget *> itemWidgets_;
+    SelectableLocationItemWidget *lastAccentedItemWidget_;
+    QVector<SelectableLocationItemWidget *> recentlySelectedWidgets_;
+
+    IWidgetLocationsInfo *widgetLocationsInfo_; // deleted elsewhere
+
+    void recalcItemPositions();
     void updateCursorWithSelectableWidget(SelectableLocationItemWidget *widget);
+    QVector<SelectableLocationItemWidget *> selectableWidgets(); // regions + expanded cities
 
 };
 

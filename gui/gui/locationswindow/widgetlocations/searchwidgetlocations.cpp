@@ -18,6 +18,7 @@
 
 namespace GuiLocations {
 
+
 SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(parent)
   , filterString_("")
   , countOfAvailableItemSlots_(7)
@@ -56,12 +57,32 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
 
 SearchWidgetLocations::~SearchWidgetLocations()
 {
+    locationItemListWidget_->disconnect();
+    locationItemListWidget_->deleteLater();
 
+    scrollBar_->disconnect();
+    scrollBar_->deleteLater();
 }
 
 void SearchWidgetLocations::setFilterString(QString text)
 {
+    // TODO: cursor interferes with filter changing when cursor in viewport
+
     filterString_ = text;
+    updateWidgetList(locationsModel_->items());
+
+    if (filterString_.isEmpty())
+    {
+        qDebug() << "Filter collapsing all";
+        locationItemListWidget_->collapseAllLocations();
+    }
+    else
+    {
+        qDebug() << "Filter expanding all";
+        locationItemListWidget_->expandAllLocations();
+    }
+    locationItemListWidget_->accentFirstItem();
+    scrollToIndex(0);
 }
 
 bool SearchWidgetLocations::cursorInViewport()
@@ -73,7 +94,7 @@ bool SearchWidgetLocations::cursorInViewport()
 
 bool SearchWidgetLocations::hasSelection()
 {
-    return locationItemListWidget_->lastSelectedLocationId() != LocationID();
+    return locationItemListWidget_->hasAccentItem();
 }
 
 
@@ -97,6 +118,11 @@ const QString SearchWidgetLocations::scrollbarStyleSheet()
                   .arg(3*G_SCALE) // width
                   .arg(qCeil(4))  // handle border-width
             .arg(qCeil(3)); // handle border-radius
+}
+
+void SearchWidgetLocations::scrollToIndex(int index)
+{
+    scrollBar_->setValue(static_cast<int>(LocationItemListWidget::ITEM_HEIGHT * G_SCALE * index));
 }
 
 void SearchWidgetLocations::scrollDown(int itemCount)
@@ -183,11 +209,15 @@ void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
             }
         }
     }
+    qDebug() << "Restoring widget state";
 
     // restoring previous widget state
     locationItemListWidget_->expandLocationIds(expandedLocationIds);
     int indexInNewList = locationItemListWidget_->selectableIndex(topSelectableLocationIdInViewport);
-    scrollDown(indexInNewList);
+    if (indexInNewList >= 0)
+    {
+        scrollDown(indexInNewList);
+    }
     locationItemListWidget_->selectItem(lastSelectedLocationId);
 }
 
@@ -217,7 +247,7 @@ void SearchWidgetLocations::startAnimationWithPixmap(const QPixmap &pixmap)
 void SearchWidgetLocations::setShowLatencyInMs(bool showLatencyInMs)
 {
     bShowLatencyInMs_ = showLatencyInMs;
-    foreach (QSharedPointer<LocationItemCityWidget> w, locationItemListWidget_->cityWidgets())
+    foreach (LocationItemCityWidget *w, locationItemListWidget_->cityWidgets())
     {
         w->setShowLatencyMs(showLatencyInMs);
     }
@@ -332,11 +362,12 @@ bool SearchWidgetLocations::eventFilter(QObject *object, QEvent *event)
 
 void SearchWidgetLocations::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
-//    QPainter painter(this);
-//    QRect bkgd(0,0,geometry().width(), geometry().height());
-//    painter.fillRect(bkgd, WidgetLocationsSizes::instance().getBackgroundColor());
+    // draw background for when list is < size of viewport
+    QPainter painter(viewport());
+    QRect bkgd(0,0,geometry().width(), geometry().height());
+    painter.fillRect(bkgd, WidgetLocationsSizes::instance().getBackgroundColor());
 }
 
 // called by change in the vertical scrollbar
@@ -410,13 +441,12 @@ void SearchWidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
     Q_UNUSED(items);
 
     updateWidgetList(items);
-
 }
 
 void SearchWidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
     // qDebug() << "Search widget speed change";
-    foreach (QSharedPointer<LocationItemCityWidget> w, locationItemListWidget_->cityWidgets())
+    foreach (LocationItemCityWidget *w, locationItemListWidget_->cityWidgets())
     {
         if (w->getId() == id)
         {
@@ -429,7 +459,7 @@ void SearchWidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime tim
 void SearchWidgetLocations::onIsFavoriteChanged(LocationID id, bool isFavorite)
 {
     // qDebug() << "SearchWidget setting";
-    foreach (QSharedPointer<LocationItemRegionWidget> region, locationItemListWidget_->itemWidgets())
+    foreach (LocationItemRegionWidget *region, locationItemListWidget_->itemWidgets())
     {
         if (region->getId().toTopLevelLocation() == id.toTopLevelLocation())
         {
@@ -598,6 +628,13 @@ void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
 
         SelectableLocationItemWidget *lastSelWidget = locationItemListWidget_->lastAccentedItemWidget();
 
+        if (!lastSelWidget)
+        {
+            qDebug() << "SearchWidgetLocations::ReturnPress - no item accented";
+            Q_ASSERT(false);
+            return;
+        }
+
         if (lastSelWidget->getId().isBestLocation())
         {
             emit selected(locationItemListWidget_->lastSelectedLocationId());
@@ -615,10 +652,9 @@ void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
         }
         else // city
         {
-            SelectableLocationItemWidget *widget = locationItemListWidget_->lastAccentedItemWidget();
-            if (widget)
+            if (lastSelWidget)
             {
-                if(!widget->isForbidden() && !widget->isDisabled())
+                if(!lastSelWidget->isForbidden() && !lastSelWidget->isDisabled())
                 {
                     emit selected(locationItemListWidget_->lastSelectedLocationId());
                 }

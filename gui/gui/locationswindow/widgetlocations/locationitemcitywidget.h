@@ -38,7 +38,7 @@ public:
     void setShowLatencyMs(bool showLatencyMs);
 
 signals:
-    void selected(SelectableLocationItemWidget *itemWidget);
+    void selected();
     void favoriteClicked(LocationItemCityWidget *itemWidget, bool favorited);
 
 protected:
