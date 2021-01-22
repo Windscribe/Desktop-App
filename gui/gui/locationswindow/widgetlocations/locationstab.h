@@ -66,10 +66,8 @@ private slots:
     void onSearchButtonPosAnimationValueChanged(const QVariant &value);
 
     void onSearchLineEditTextChanged(QString text);
-    void onSearchLineEditKeyUpPressed();
-    void onSearchLineEditKeyDownPressed();
     void onSearchLineEditKeyEnterPressed();
-
+    void onSearchLineEditFocusOut();
 private:
     IWidgetLocationsInfo *currentWidgetLocations();
 
@@ -107,6 +105,7 @@ private:
     static constexpr int FIRST_TAB_ICON_POS_X = 106;
     static constexpr int LAST_TAB_ICON_POS_X = 300;
 
+    QElapsedTimer focusOutTimer_;
     bool searchTabSelected_; // better way to do this
     CommonWidgets::IconButtonWidget *searchButton_;
     CommonWidgets::IconButtonWidget *searchCancelButton_;

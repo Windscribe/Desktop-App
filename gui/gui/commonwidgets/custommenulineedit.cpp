@@ -51,15 +51,8 @@ void CustomMenuLineEdit::changeEvent(QEvent *event)
 void CustomMenuLineEdit::keyPressEvent(QKeyEvent *event)
 {
     qDebug() << "CusomMenuLineEdit::keyPressEvent";
-    if (event->key() == Qt::Key_Up)
-    {
-        emit keyUpPressed();
-    }
-    else if (event->key() == Qt::Key_Down)
-    {
-        emit keyDownPressed();
-    }
-    else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
     {
         emit keyEnterPressed();
     }

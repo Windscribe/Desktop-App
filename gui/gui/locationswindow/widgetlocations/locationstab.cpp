@@ -17,17 +17,17 @@ extern QWidget *g_mainWindow;
 namespace GuiLocations {
 
 
-LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QWidget(parent),
-    curTab_(CUR_TAB_ALL_LOCATIONS),
-    tabPress_(CUR_TAB_NONE),
-    searchTabSelected_(false),
-    curTabMouseOver_(CUR_TAB_NONE),
-    checkCustomConfigPathAccessRights_(false),
-    countOfVisibleItemSlots_(7),
-    currentLocationListHeight_(0),
-    isRibbonVisible_(false),
-    showAllTabs_(true),
-    backgroundColor_(14, 25, 38)
+LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QWidget(parent)
+  , curTab_(CUR_TAB_ALL_LOCATIONS)
+  , tabPress_(CUR_TAB_NONE)
+  , searchTabSelected_(false)
+  , curTabMouseOver_(CUR_TAB_NONE)
+  , checkCustomConfigPathAccessRights_(false)
+  , countOfVisibleItemSlots_(7)
+  , currentLocationListHeight_(0)
+  , isRibbonVisible_(false)
+  , showAllTabs_(true)
+  , backgroundColor_(14, 25, 38)
 {
     setMouseTracking(true);
     curCursorShape_ = Qt::ArrowCursor;
@@ -54,9 +54,8 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     searchLineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     searchLineEdit_->setFrame(false);
     connect(searchLineEdit_, SIGNAL(textChanged(QString)), SLOT(onSearchLineEditTextChanged(QString)));
-    connect(searchLineEdit_, SIGNAL(keyUpPressed()), SLOT(onSearchLineEditKeyUpPressed()));
-    connect(searchLineEdit_, SIGNAL(keyDownPressed()), SLOT(onSearchLineEditKeyDownPressed()));
     connect(searchLineEdit_, SIGNAL(keyEnterPressed()), SLOT(onSearchLineEditKeyEnterPressed()));
+    connect(searchLineEdit_, SIGNAL(focusOut()), SLOT(onSearchLineEditFocusOut()));
 
     searchLineEdit_->hide();
 
@@ -461,25 +460,15 @@ void LocationsTab::onSearchLineEditTextChanged(QString text)
     widgetSearchLocations_->setFilterString(text);
 }
 
-void LocationsTab::onSearchLineEditKeyUpPressed()
-{
-    //qDebug() << "LocationTab:: line edit up";
-    QKeyEvent event(QEvent::KeyPress, Qt::Key_Up, Qt::NoModifier);
-    passEventToLocationWidget(&event);
-}
-
-void LocationsTab::onSearchLineEditKeyDownPressed()
-{
-    //qDebug() << "LocationTab:: line edit down";
-
-    QKeyEvent event(QEvent::KeyPress, Qt::Key_Down, Qt::NoModifier);
-    passEventToLocationWidget(&event);
-}
-
 void LocationsTab::onSearchLineEditKeyEnterPressed()
 {
     QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
     passEventToLocationWidget(&event);
+}
+
+void LocationsTab::onSearchLineEditFocusOut()
+{
+    focusOutTimer_.restart();
 }
 
 IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
@@ -629,6 +618,16 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
                     curWidgetLoc->centerCursorOnSelectedItem();
                 }
             }
+        }
+    }
+    else if (event->key() == Qt::Key_Tab)
+    {
+        // bring focus back into search line edit when focus is elsewhere
+        // Strage behaviour on Mac (at least) -- issue probably exists in event system
+        // can't see to use searchLineEdit_->hasFocus() -- always false
+        if (focusOutTimer_.elapsed() > 200)
+        {
+            searchLineEdit_->setFocus();
         }
     }
     else
