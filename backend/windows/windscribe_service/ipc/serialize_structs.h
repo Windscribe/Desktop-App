@@ -94,6 +94,13 @@ void serialize(Archive & ar, CMD_CLEAR_UNBLOCKING_CMD & g, const unsigned int ve
 }
 
 template<class Archive>
+void serialize(Archive & ar, CMD_SUSPEND_UNBLOCKING_CMD & g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar & g.blockingCmdId;
+}
+
+template<class Archive>
 void serialize(Archive & ar, CMD_SET_MAC_ADDRESS_REGISTRY_VALUE_SZ & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);

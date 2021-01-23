@@ -435,6 +435,12 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		ia >> cmdClearUnblockingCmd;
 		mpr = ExecuteCmd::instance().clearUnblockingCmd(cmdClearUnblockingCmd.blockingCmdId);
 	}
+	else if (cmdId == AA_COMMAND_SUSPEND_UNBLOCKING_CMD)
+	{
+		CMD_SUSPEND_UNBLOCKING_CMD cmdSuspendUnblockingCmd;
+		ia >> cmdSuspendUnblockingCmd;
+		mpr = ExecuteCmd::instance().suspendUnblockingCmd(cmdSuspendUnblockingCmd.blockingCmdId);
+	}
 	else if (cmdId == AA_COMMAND_GET_HELPER_VERSION)
 	{
 		mpr.success = true;

@@ -4,7 +4,7 @@
 
 unsigned long PipeForProcess::pipeSerialNumber_ = 0;
 
-PipeForProcess::PipeForProcess() : hReadPipe_(NULL), hWritePipe_(NULL), hThread_(NULL), hStopEvent_(NULL)
+PipeForProcess::PipeForProcess() : hReadPipe_(NULL), hWritePipe_(NULL), hThread_(NULL), hStopEvent_(NULL), is_suspended_output_(false)
 {
 	SECURITY_ATTRIBUTES sa;
 	ZeroMemory(&sa, sizeof(sa));
@@ -39,8 +39,15 @@ HANDLE PipeForProcess::getPipeHandle()
 void PipeForProcess::startReading()
 {
 	output_.clear();
+	is_suspended_output_ = false;
 	hStopEvent_ = CreateEvent(NULL, TRUE, FALSE, NULL);
 	hThread_ = CreateThread(NULL, 0, readThread, this, 0, NULL);
+}
+
+void PipeForProcess::suspendReading()
+{
+	is_suspended_output_ = true;
+	output_.clear();
 }
 
 std::string PipeForProcess::stopAndGetOutput()
@@ -139,7 +146,7 @@ DWORD WINAPI PipeForProcess::readThread(LPVOID lpParam)
 		else if (dwWait == (WAIT_OBJECT_0 + 1))
 		{
 			GetOverlappedResult(this_->hReadPipe_, &overlapped, &readword, FALSE);
-			if (readword != 0)
+			if (readword != 0 && !this_->is_suspended_output_)
 			{
 				buf[readword] = '\0';
 				std::string cstemp = buf;

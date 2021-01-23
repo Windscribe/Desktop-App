@@ -298,6 +298,15 @@ MessagePacketResult ExecuteCmd::clearUnblockingCmd(unsigned long id)
     return mpr;
 }
 
+MessagePacketResult ExecuteCmd::suspendUnblockingCmd(unsigned long id)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    MessagePacketResult mpr;
+    mpr.success = true;
+    return mpr;
+}
+
 void ExecuteCmd::waitOrTimerCallback(PVOID lpParameter, BOOLEAN /*timerOrWaitFired*/)
 {
     std::lock_guard<std::mutex> lock(this_->mutex_);
@@ -346,6 +355,20 @@ void ExecuteCmd::terminateCmd(unsigned long id, unsigned long waitTimeout)
                 TerminateProcess(blockingCmd->hProcess, EXIT_SUCCESS);
                 WaitForSingleObject(blockingCmd->hProcess, waitTimeout);
             }
+            break;
+        }
+    }
+}
+
+void ExecuteCmd::suspendCmd(unsigned long id)
+{
+    for (auto it = blockingCmds_.begin(); it != blockingCmds_.end(); ++it)
+    {
+        BlockingCmd *blockingCmd = *it;
+        if (blockingCmd->id == id)
+        {
+            blockingCmd->pipeForProcess.suspendReading();
+            blockingCmd->strLogOutput.clear();
             break;
         }
     }

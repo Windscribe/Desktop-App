@@ -571,6 +571,12 @@ void Helper_mac::clearUnblockingCmd(unsigned long cmdId)
     }
 }
 
+void Helper_mac::suspendUnblockingCmd(unsigned long cmdId)
+{
+    // On Mac, this is the same as clearing a cmd.
+    clearUnblockingCmd(cmdId);
+}
+
 void Helper_mac::enableDnsLeaksProtection()
 {
     // nothing todo for Mac
