@@ -2115,23 +2115,21 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
 
     if (state == ProtoTypes::UPDATE_VERSION_STATE_DONE)
     {
-        // widget
-        mainWindowController_->getUpdateAppItem()->setProgress(0);
-
-        // update
-        mainWindowController_->getUpdateWindow()->stopAnimation();
-        mainWindowController_->getUpdateWindow()->changeToPromptScreen();
 
         if (downloadRunning_) // not cancelled by user
         {
             if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
             {
-                mainWindowController_->hideUpdateWidget();
-                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
-                mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
+                //mainWindowController_->hideUpdateWidget();
+                //mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+                //mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
             }
             else // Error
             {
+                mainWindowController_->getUpdateAppItem()->setProgress(0);
+                mainWindowController_->getUpdateWindow()->stopAnimation();
+                mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+
                 QString titleText = tr("Auto-Updater installation has failed");
                 QString descText = tr("Please contact support");
                 if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
@@ -2164,6 +2162,12 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 }
                 QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
             }
+        }
+        else
+        {
+            mainWindowController_->getUpdateAppItem()->setProgress(0);
+            mainWindowController_->getUpdateWindow()->stopAnimation();
+            mainWindowController_->getUpdateWindow()->changeToPromptScreen();
         }
         downloadRunning_ = false;
     }

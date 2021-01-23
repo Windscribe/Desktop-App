@@ -1977,7 +1977,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 #ifdef Q_OS_WIN
     bool success = false;
     //QString output = helper_->executeUpdateInstaller(dlPath, success);
-    QString output = helper_->executeUpdateInstaller("C:/aaa/installer.exe", success);
+    /*QString output = helper_->executeUpdateInstaller("C:/aaa/installer.exe", success);
 
     if (!success)
     {
@@ -1985,7 +1985,32 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
         QFile::remove(dlPath);
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;
+    }*/
+
+    SHELLEXECUTEINFO shExInfo = { 0 };
+    shExInfo.cbSize = sizeof(shExInfo);
+    shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+    shExInfo.hwnd = 0;
+    shExInfo.lpVerb = L"runas";                // Operation to perform
+    shExInfo.lpFile = L"C:/aaa/installer.exe";       // Application to start
+    shExInfo.lpParameters = L"-update";                  // Additional parameters
+    shExInfo.lpDirectory = 0;
+    shExInfo.nShow = SW_SHOW;
+    shExInfo.hInstApp = 0;
+
+    if (ShellExecuteEx(&shExInfo))
+    {
+        //WaitForSingleObject(shExInfo.hProcess, INFINITE);
+        CloseHandle(shExInfo.hProcess);
     }
+    else
+    {
+        qCDebug(LOG_AUTO_UPDATER) << "Removing unsigned installer";
+        QFile::remove(dlPath);
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
+        return;
+    }
+
 
 #elif defined Q_OS_MAC
 
