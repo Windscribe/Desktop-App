@@ -6,19 +6,13 @@ void Logger::out(const wchar_t *format, ...)
     EnterCriticalSection(&cs_);
     if (file_)
     {
-        time_t rawtime;
-        time(&rawtime);
-        struct tm *timeinfo = gmtime(&rawtime);
-        wchar_t buffer[256];
-        wcsftime(buffer, sizeof(buffer) / sizeof(wchar_t), L"%d-%m %I:%M:%S", timeinfo);
-
         va_list args;
         va_start (args, format);
         wchar_t buffer2[10000];
         _vsnwprintf (buffer2, 10000, format, args);
 
-        std::wstring strTime(buffer);
-        std::wstring str = L"[" + strTime + L"]\t" + std::wstring(buffer2) + L"\n";
+        std::wstring strTime = time_helper_.getCurrentTimeString<wchar_t>();
+        std::wstring str = L"[" + strTime + L"] [service]\t " + std::wstring(buffer2) + L"\n";
 #ifdef _DEBUG
 		wprintf(L"%s", str.c_str());
 #else
@@ -35,19 +29,13 @@ void Logger::out(const char *format, ...)
 	EnterCriticalSection(&cs_);
 	if (file_)
 	{
-		time_t rawtime;
-		time(&rawtime);
-		struct tm *timeinfo = gmtime(&rawtime);
-		char buffer[256];
-		strftime(buffer, sizeof(buffer), "%d-%m %I:%M:%S", timeinfo);
-
 		va_list args;
 		va_start(args, format);
 		char buffer2[10000];
 		_vsnprintf(buffer2, 10000, format, args);
 
-		std::string strTime(buffer);
-		std::string str = "[" + strTime + "]\t" + std::string(buffer2) + "\n";
+		std::string strTime = time_helper_.getCurrentTimeString<char>();
+		std::string str = "[" + strTime + "] [service]\t " + std::string(buffer2) + "\n";
 #ifdef _DEBUG
 		printf("%s", str.c_str());
 #else

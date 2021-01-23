@@ -177,6 +177,9 @@
     <ClInclude Include="ip_address\ip4_address_and_mask.h">
       <Filter>Header Files\ip_address</Filter>
     </ClInclude>
+    <ClInclude Include="date_time_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windscribe_service.cpp">
@@ -304,6 +307,9 @@
     </ClCompile>
     <ClCompile Include="ip_address\ip4_address_and_mask.cpp">
       <Filter>Source Files\ip_address</Filter>
+    </ClCompile>
+    <ClCompile Include="date_time_helper.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

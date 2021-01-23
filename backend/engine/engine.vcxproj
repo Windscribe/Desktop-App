@@ -381,6 +381,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\types\locationid.cpp" />
     <ClCompile Include="..\..\common\utils\crashdump.cpp" />
     <ClCompile Include="..\..\common\utils\crashhandler.cpp" />
+    <ClCompile Include="..\..\common\utils\mergelog.cpp" />
     <ClCompile Include="engine\adaptermetricscontroller_win.cpp" />
     <ClCompile Include="engine\apiinfo\apiinfo.cpp" />
     <ClCompile Include="engine\apiinfo\group.cpp" />
@@ -510,7 +511,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\connectionmanager\makeovpnfile.cpp" />
     <ClCompile Include="engine\connectionmanager\makeovpnfilefromcustom.cpp" />
     <ClCompile Include="engine\measurementcpuusage.cpp" />
-    <ClCompile Include="utils\mergelog.cpp" />
     <ClCompile Include="engine\networkdetectionmanager\networkchangeworkerthread.cpp" />
     <ClCompile Include="engine\networkdetectionmanager\networkdetectionmanager_win.cpp" />
     <ClCompile Include="engine\networkstatemanager\networkstatemanager_win.cpp" />
@@ -568,6 +568,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\types\locationid.h" />
     <ClInclude Include="..\..\common\utils\crashdump.h" />
     <ClInclude Include="..\..\common\utils\crashhandler.h" />
+    <ClInclude Include="..\..\common\utils\mergelog.h" />
     <ClInclude Include="..\..\common\utils\multiline_message_logger.h" />
     <ClInclude Include="..\..\common\utils\protobuf_includes.h" />
     <ClInclude Include="engine\adaptermetricscontroller_win.h" />
@@ -764,7 +765,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="engine\connectionmanager\makeovpnfilefromcustom.h" />
     <QtMoc Include="engine\measurementcpuusage.h">
     </QtMoc>
-    <ClInclude Include="utils\mergelog.h" />
     <QtMoc Include="engine\networkdetectionmanager\networkchangeworkerthread.h">
     </QtMoc>
     <QtMoc Include="engine\networkdetectionmanager\networkdetectionmanager_win.h">

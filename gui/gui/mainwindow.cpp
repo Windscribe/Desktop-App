@@ -20,7 +20,6 @@
 #include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
-#include "utils/mergelog.h"
 #include "languagecontroller.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "dialogs/dialoggetusernamepassword.h"
@@ -997,7 +996,6 @@ void MainWindow::onPreferencesViewLogClick()
     cleanupLogViewerWindow();
 
     logViewerWindow_ = new LogViewer::LogViewerWindow(this);
-    logViewerWindow_->setLog(MergeLog::mergeLogs());
     logViewerWindow_->show();
 }
 

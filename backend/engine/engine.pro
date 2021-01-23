@@ -265,6 +265,7 @@ SOURCES += main.cpp \
     $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.cc \
     $$COMMON_PATH/utils/utils.cpp \
     $$COMMON_PATH/utils/logger.cpp \
+    $$COMMON_PATH/utils/mergelog.cpp \
     $$COMMON_PATH/utils/extraconfig.cpp \
     $$COMMON_PATH/version/appversion.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
@@ -298,7 +299,6 @@ SOURCES += main.cpp \
     engine/packetsizecontroller.cpp \
     engine/enginesettings.cpp \
     engine/autoupdater/autoupdaterhelper_mac.cpp \
-    utils/mergelog.cpp \
     engine/tempscripts_mac.cpp \
     utils/simplecrypt.cpp \
     engine/logincontroller/logincontroller.cpp \
@@ -410,6 +410,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     $$COMMON_PATH/utils/utils.h \
     $$COMMON_PATH/utils/protobuf_includes.h \
     $$COMMON_PATH/utils/logger.h \
+    $$COMMON_PATH/utils/mergelog.h \
     $$COMMON_PATH/utils/multiline_message_logger.h \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/version/appversion.h \
@@ -437,7 +438,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/packetsizecontroller.h \
     engine/enginesettings.h \
     engine/autoupdater/autoupdaterhelper_mac.h \
-    utils/mergelog.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \
     engine/networkstatemanager/inetworkstatemanager.h \
