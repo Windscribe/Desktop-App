@@ -1021,7 +1021,7 @@ void MainWindow::onPreferencesCycleMacAddressClick()
     if (!backend_->isDisconnected())
     {
         QString title = tr("VPN is active");
-        QString desc = tr("Applying a MAC spoof may reset your connection. Continue?");
+        QString desc = tr("Rotating your MAC address will result in a disconnect event from the current network. Are you sure?");
         confirm = QMessageBox::question(nullptr, title, desc, QMessageBox::Yes, QMessageBox::No);
     }
 
