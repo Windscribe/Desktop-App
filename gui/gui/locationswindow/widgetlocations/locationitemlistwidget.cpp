@@ -22,7 +22,7 @@ LocationItemListWidget::LocationItemListWidget(IWidgetLocationsInfo * widgetLoca
 
 LocationItemListWidget::~LocationItemListWidget()
 {
-    qDebug() << "Deleting list object";
+    // qDebug() << "Deleting list object";
     clearWidgets();
 }
 
@@ -343,9 +343,7 @@ void LocationItemListWidget::updateCursorWithSelectableWidget(SelectableLocation
 void LocationItemListWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
-    QPainter painter(this);
-    QRect background(0,0, geometry().width(), geometry().height());
-    painter.fillRect(background, Qt::gray);
+
 
 }
 

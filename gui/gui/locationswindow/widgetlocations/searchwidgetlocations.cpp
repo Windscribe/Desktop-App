@@ -69,8 +69,6 @@ SearchWidgetLocations::~SearchWidgetLocations()
 
 void SearchWidgetLocations::setFilterString(QString text)
 {
-    // TODO: cursor interferes with filter changing when cursor in viewport
-
     filterString_ = text;
     updateWidgetList(locationsModel_->items());
 
@@ -103,7 +101,7 @@ bool SearchWidgetLocations::hasSelection()
 
 void SearchWidgetLocations::centerCursorOnSelectedItem()
 {
-    // TODO
+    // TODO:
 }
 
 const QString SearchWidgetLocations::scrollbarStyleSheet()
@@ -125,7 +123,7 @@ const QString SearchWidgetLocations::scrollbarStyleSheet()
 
 void SearchWidgetLocations::scrollToIndex(int index)
 {
-    scrollBar_->setValue(static_cast<int>(LocationItemListWidget::ITEM_HEIGHT * G_SCALE * index));
+    scrollBar_->forceSetValue(static_cast<int>(LocationItemListWidget::ITEM_HEIGHT * G_SCALE * index));
 }
 
 void SearchWidgetLocations::scrollDown(int itemCount)
@@ -481,8 +479,6 @@ void SearchWidgetLocations::onFreeSessionStatusChanged(bool isFreeSessionStatus)
     {
         bIsFreeSession_ = isFreeSessionStatus;
     }
-
-    // TODO: free session status change
 }
 
 void SearchWidgetLocations::onLanguageChanged()
@@ -590,8 +586,17 @@ void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
                     {
                         TooltipController::instance().hideAllTooltips();
 
-                        // Note: this kind of cursor control requires Accessibility Permissions on MacOS
-                        QCursor::setPos(QPoint(cursorPos.x(), static_cast<int>(cursorPos.y() - LOCATION_ITEM_HEIGHT*G_SCALE)));
+                        SelectableLocationItemWidget *lastSelWidget = locationItemListWidget_->lastAccentedItemWidget();
+                        if (lastSelWidget->containsCursor())
+                        {
+                            // Note: this kind of cursor control requires Accessibility Permissions on MacOS
+                            QCursor::setPos(QPoint(cursorPos.x(), static_cast<int>(cursorPos.y() - LOCATION_ITEM_HEIGHT*G_SCALE)));
+                        }
+                        else
+                        {
+                            QCursor::setPos(QPoint(cursorPos.x(),
+                                                   static_cast<int>(lastSelWidget->globalGeometry().top() - LOCATION_ITEM_HEIGHT*G_SCALE/2)));
+                        }
                     }
                 }
                 locationItemListWidget_->moveAccentUp();
@@ -606,7 +611,7 @@ void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
     {
         if (locationItemListWidget_->hasAccentItem())
         {
-            if (locationItemListWidget_->accentItemSelectableIndex() < locationItemListWidget_->itemWidgets().count() - 1)
+            if (locationItemListWidget_->accentItemSelectableIndex() < locationItemListWidget_->selectableWidgets().count() - 1)
             {
                 if (locationItemListWidget_->accentItemViewportIndex() >= countVisibleItems() - 1)
                 {
@@ -620,8 +625,16 @@ void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
                     {
                         TooltipController::instance().hideAllTooltips();
 
-                        // Note: this kind of cursor control requires Accessibility Permissions on MacOS
-                        QCursor::setPos(QPoint(cursorPos.x(), cursorPos.y() + LOCATION_ITEM_HEIGHT*G_SCALE));
+                        SelectableLocationItemWidget *lastSelWidget = locationItemListWidget_->lastAccentedItemWidget();
+                        if (lastSelWidget->containsCursor())
+                        {
+                            // Note: this kind of cursor control requires Accessibility Permissions on MacOS
+                            QCursor::setPos(QPoint(cursorPos.x(), static_cast<int>(cursorPos.y() + LOCATION_ITEM_HEIGHT*G_SCALE)));
+                        }
+                        else
+                        {
+                            QCursor::setPos(QPoint(cursorPos.x(), static_cast<int>(lastSelWidget->globalGeometry().bottom() + LOCATION_ITEM_HEIGHT*G_SCALE/2)));
+                        }
                     }
                 }
                 locationItemListWidget_->moveAccentDown();
@@ -702,7 +715,7 @@ void SearchWidgetLocations::updateScaling()
 QRect SearchWidgetLocations::globalLocationsListViewportRect()
 {
     int offset = getItemHeight();
-    QPoint locationItemListTopLeft(0, geometry().y() - offset); // TODO: issue?
+    QPoint locationItemListTopLeft(0, geometry().y() - offset);
     locationItemListTopLeft = mapToGlobal(locationItemListTopLeft);
 
     return QRect(locationItemListTopLeft.x(), locationItemListTopLeft.y(),

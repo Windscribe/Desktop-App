@@ -32,7 +32,7 @@ LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widget
 
 LocationItemRegionWidget::~LocationItemRegionWidget()
 {
-    qDebug() << "Deleting region: " << regionHeaderWidget_->name();
+    // qDebug() << "Deleting region: " << regionHeaderWidget_->name();
 
     regionHeaderWidget_->disconnect();
     regionHeaderWidget_->deleteLater();

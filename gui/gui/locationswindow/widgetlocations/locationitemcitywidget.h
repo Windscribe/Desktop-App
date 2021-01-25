@@ -32,7 +32,9 @@ public:
     void setSelectable(bool selectable) override;
     void setSelected(bool select) override;
     bool isSelected() const override;
+
     bool containsCursor() const override;
+    QRect globalGeometry() const override;
 
     void setLatencyMs(PingTime pingTime);
     void setShowLatencyMs(bool showLatencyMs);

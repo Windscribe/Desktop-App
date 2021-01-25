@@ -23,13 +23,15 @@ public:
     const LocationID getId() const override;
     const QString name() const override;
     SelectableLocationItemWidgetType type() override;
+
     bool containsCursor() const override;
+    QRect globalGeometry() const override;
+
 
     void setSelectable(bool selectable) override;
     void setSelected(bool select) override;
     bool isSelected() const override;
 
-    void showPlusIcon(bool show);
     void setExpanded(bool expand);
     void setExpandedWithoutAnimation(bool expand);
 

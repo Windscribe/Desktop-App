@@ -50,7 +50,7 @@ LocationItemCityWidget::LocationItemCityWidget(IWidgetLocationsInfo *widgetLocat
 
 LocationItemCityWidget::~LocationItemCityWidget()
 {
-    qDebug() << "Deleting city: " << name();
+    // qDebug() << "Deleting city: " << name();
 }
 
 bool LocationItemCityWidget::isExpanded() const
@@ -71,6 +71,12 @@ const QString LocationItemCityWidget::name() const
 SelectableLocationItemWidget::SelectableLocationItemWidgetType LocationItemCityWidget::type()
 {
     return SelectableLocationItemWidgetType::CITY;
+}
+
+QRect LocationItemCityWidget::globalGeometry() const
+{
+    const QPoint originAsGlobal = mapToGlobal(QPoint(0,0));
+    return QRect(originAsGlobal.x(), originAsGlobal.y(), geometry().width(), geometry().height());
 }
 
 bool LocationItemCityWidget::isForbidden() const
@@ -129,10 +135,7 @@ bool LocationItemCityWidget::isSelected() const
 
 bool LocationItemCityWidget::containsCursor() const
 {
-    const QPoint originAsGlobal = mapToGlobal(QPoint(0,0));
-    QRect geoRectAsGlobal(originAsGlobal.x(), originAsGlobal.y(), geometry().width(), geometry().height());
-    bool result = geoRectAsGlobal.contains(cursor().pos());
-    return result;
+    return globalGeometry().contains(cursor().pos());
 }
 
 void LocationItemCityWidget::setLatencyMs(PingTime pingTime)
@@ -152,6 +155,7 @@ void LocationItemCityWidget::paintEvent(QPaintEvent *event)
 {
     // background
     QPainter painter(this);
+    double initOpacity = painter.opacity();
     painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE),
                       WidgetLocationsSizes::instance().getBackgroundColor());
 
@@ -163,7 +167,21 @@ void LocationItemCityWidget::paintEvent(QPaintEvent *event)
                                 (LOCATION_ITEM_HEIGHT*G_SCALE - premiumStarPixmap->height()) / 2, &painter);
     }
 
-    if (!showingPingBar_)
+    // only show disabled locations to pro users
+    bool disabled = isForbidden() ? false : cityModelItem_.isDisabled;
+
+    if (disabled)
+    {
+        IndependentPixmap *consIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/UNDER_CONSTRUCTION_ICON");
+        if (consIcon)
+        {
+            painter.setOpacity(OPACITY_HALF);
+            consIcon->draw((WINDOW_WIDTH - LOCATION_ITEM_MARGIN)*G_SCALE - consIcon->width(),
+                       (LOCATION_ITEM_HEIGHT*G_SCALE - consIcon->height()) / 2,
+                       &painter);
+        }
+    }
+    else if (!showingPingBar_)
     {
         // draw bubble
         int latencyRectWidth = 33;
@@ -196,6 +214,7 @@ void LocationItemCityWidget::paintEvent(QPaintEvent *event)
     int bottom = LOCATION_ITEM_HEIGHT-1* G_SCALE;
     QPen pen(QColor(0x29, 0x2E, 0x3E));
     pen.setWidth(1);
+    painter.setOpacity(initOpacity);
     painter.setPen(pen);
     painter.drawLine(left, bottom, right, bottom);
     painter.drawLine(left, bottom - 1, right, bottom - 1);
@@ -296,11 +315,17 @@ void LocationItemCityWidget::updatePingBarIcon()
 {
     pingBarIcon_->setImage(pingIconNameString(pingTime_.toConnectionSpeed()));
 
-    if (showingPingBar_)
+    bool disabled = isForbidden() ? false : cityModelItem_.isDisabled;
+
+    if (disabled) // showing construction icon for disabled pro
+    {
+        pingBarIcon_->hide();
+    }
+    else if (showingPingBar_) // show ping bar
     {
         pingBarIcon_->show();
     }
-    else
+    else // show ms ping
     {
         pingBarIcon_->hide();
     }

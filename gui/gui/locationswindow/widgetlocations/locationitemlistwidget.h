@@ -28,9 +28,11 @@ public:
     void expandAllLocations();
     void collapseAllLocations();
     void expandLocationIds(QVector<LocationID> locIds);
+
     QVector<LocationID> expandedOrExpandingLocationIds();
     QVector<LocationItemRegionWidget *> itemWidgets();
     QVector<LocationItemCityWidget *> cityWidgets();
+    QVector<SelectableLocationItemWidget *> selectableWidgets(); // regions + expanded cities
 
     const LocationID topSelectableLocationIdInViewport();
     int selectableIndex(LocationID locationId);
@@ -78,7 +80,6 @@ private:
 
     void recalcItemPositions();
     void updateCursorWithSelectableWidget(SelectableLocationItemWidget *widget);
-    QVector<SelectableLocationItemWidget *> selectableWidgets(); // regions + expanded cities
 
 };
 

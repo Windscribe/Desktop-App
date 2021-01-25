@@ -57,7 +57,7 @@ LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(IWidgetLocationsI
 
 LocationItemRegionHeaderWidget::~LocationItemRegionHeaderWidget()
 {
-    qDebug() << "Deleting header: " << name();
+    // qDebug() << "Deleting header: " << name();
 }
 
 bool LocationItemRegionHeaderWidget::isExpanded() const
@@ -87,10 +87,13 @@ SelectableLocationItemWidget::SelectableLocationItemWidgetType LocationItemRegio
 
 bool LocationItemRegionHeaderWidget::containsCursor() const
 {
-    const QPoint originAsGlobal = mapToGlobal(QPoint(0,0));
-    QRect geoRectAsGlobal(originAsGlobal.x(), originAsGlobal.y(), geometry().width(), geometry().height());
-    bool result = geoRectAsGlobal.contains(cursor().pos());
-    return result;
+    return globalGeometry().contains(cursor().pos());
+}
+
+QRect LocationItemRegionHeaderWidget::globalGeometry() const
+{
+    const  QPoint originAsGlobal = mapToGlobal(QPoint(0,0));
+    return QRect(originAsGlobal.x(), originAsGlobal.y(), geometry().width(), geometry().height());
 }
 
 void LocationItemRegionHeaderWidget::setSelectable(bool selectable)
@@ -120,12 +123,6 @@ void LocationItemRegionHeaderWidget::setSelected(bool select)
 bool LocationItemRegionHeaderWidget::isSelected() const
 {
     return selected_;
-}
-
-void LocationItemRegionHeaderWidget::showPlusIcon(bool show)
-{
-    showPlusIcon_ = show;
-    update();
 }
 
 void LocationItemRegionHeaderWidget::setExpanded(bool expand)
@@ -178,33 +175,20 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
         proRegionStar->draw(8 * G_SCALE,  (LOCATION_ITEM_HEIGHT*G_SCALE - 16*G_SCALE) / 2 - 9*G_SCALE, &painter);
     }
 
-    // plus/cross or construction icon
+    // plus/cross
     if (!locationID_.isBestLocation())
     {
         painter.setOpacity(plusIconOpacity_);
-        if (showPlusIcon_)
-        {
-            IndependentPixmap *expandPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
+        IndependentPixmap *expandPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
 
-            // this part is kind of magical - could use some more clear math
-            painter.save();
-            painter.translate(QPoint((WINDOW_WIDTH - LOCATION_ITEM_MARGIN)*G_SCALE - expandPixmap->width()/2, LOCATION_ITEM_HEIGHT/2));
-            painter.rotate(45 * expandAnimationProgress_);
-            expandPixmap->draw(-expandPixmap->width() / 2,
-                               -expandPixmap->height()/ 2,
-                       &painter);
-            painter.restore();
-        }
-        else
-        {
-            IndependentPixmap *consIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/UNDER_CONSTRUCTION_ICON");
-            if (consIcon)
-            {
-                consIcon->draw((WINDOW_WIDTH - LOCATION_ITEM_MARGIN)*G_SCALE - consIcon->width(),
-                           (LOCATION_ITEM_HEIGHT*G_SCALE - consIcon->height()) / 2,
-                           &painter);
-            }
-        }
+        // this part is kind of magical - could use some more clear math
+        painter.save();
+        painter.translate(QPoint((WINDOW_WIDTH - LOCATION_ITEM_MARGIN)*G_SCALE - expandPixmap->width()/2, LOCATION_ITEM_HEIGHT/2));
+        painter.rotate(45 * expandAnimationProgress_);
+        expandPixmap->draw(-expandPixmap->width() / 2,
+                           -expandPixmap->height()/ 2,
+                   &painter);
+        painter.restore();
     }
 
     int left = 24 * G_SCALE;

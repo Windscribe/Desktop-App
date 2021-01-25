@@ -24,8 +24,6 @@ class FormConnect;
 namespace GuiLocations {
 
 // TODO: test scaling changes in all contained classes
-// TODO: test against account that loses/gains pro status
-// TODO: test against disabled servers
 
 class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 {
