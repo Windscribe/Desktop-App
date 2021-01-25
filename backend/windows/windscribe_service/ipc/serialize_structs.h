@@ -183,13 +183,6 @@ void serialize(Archive & ar, CMD_CONFIGURE_WIREGUARD & g, const unsigned int ver
 }
 
 template<class Archive>
-void serialize(Archive & ar, CMD_RUN_UPDATE_INSTALLER & g, const unsigned int version)
-{
-	UNREFERENCED_PARAMETER(version);
-	ar & g.szUpdateInstallerLocation;
-}
-
-template<class Archive>
 void serialize(Archive & ar, MessagePacketResult & g, const unsigned int version)
 {
 	UNREFERENCED_PARAMETER(version);

@@ -965,63 +965,6 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
             }
         }
     }
-	else if (cmdId == AA_COMMAND_RUN_UPDATE_INSTALLER)
-	{
-		CMD_RUN_UPDATE_INSTALLER updateInstallerLocationMsg;
-		ia >> updateInstallerLocationMsg;
-		
-		std::wstring szUpdateInstallerPath = updateInstallerLocationMsg.szUpdateInstallerLocation;
-		Logger::instance().out(szUpdateInstallerPath.c_str());
-
-		// check exists
-		if (!Utils::isFileExists(szUpdateInstallerPath.c_str()))
-		{
-			mpr.additionalString = "Update installer does not exist";
-			Logger::instance().out(mpr.additionalString.c_str());
-			mpr.success = false;
-			return mpr;
-		}
-
-#ifndef _DEBUG
-		// sign-check
-		if (!ExecutableSignature_win::verify(szUpdateInstallerPath.c_str()))
-		{
-			std::string errStr = "Update installer failed sign-check";
-			mpr.additionalString = errStr;
-			Logger::instance().out(errStr.c_str());
-
-			mpr.success = false;
-			return mpr;
-		}
-#endif
-		std::wstring str = L"Running update-installer";
-		Logger::instance().out(str.c_str());
-
-		// installer path
-		wchar_t szApplicationName[1024];
-		wcscpy(szApplicationName, L"\"");
-		wcscat(szApplicationName, szUpdateInstallerPath.c_str());
-		wcscat(szApplicationName, L"\"");
-		Logger::instance().out(L"Application name: %s", szApplicationName);
-
-		// args
-		std::wstring args = L" -q \"";
-		args.append(Utils::getExePath());
-		args.append(L"\"");
-
-		// run
-		wchar_t szCliBuf[1024];
-		wcscpy(szCliBuf, szApplicationName);
-		wcscat(szCliBuf, args.c_str());
-		mpr = ExecuteCmd::instance().executeUnblockingBackgroundCmdAsElevatedUser(szCliBuf);
-
-		// log
-		wchar_t logBuf[1024];
-		wcscpy(logBuf, L"AA_COMMAND_RUN_UPDATE_INSTALLER: ");
-		wcscat(logBuf, szCliBuf);
-		Logger::instance().out(logBuf);
-
-	}
 	
 	return mpr;
 }

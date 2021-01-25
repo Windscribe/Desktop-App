@@ -108,7 +108,7 @@ public:
 
     void abortInitialization();
 
-    void sendUpdateVersion();
+    void sendUpdateVersion(qint32 mainWindowHandle);
     void cancelUpdateVersion();
 
 private slots:

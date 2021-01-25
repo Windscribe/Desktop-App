@@ -398,7 +398,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
         }
         else
         {
-            engine_->updateVersion();
+            engine_->updateVersion(cmd->getProtoObj().hwnd());
         }
     }
 

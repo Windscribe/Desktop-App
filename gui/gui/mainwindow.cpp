@@ -1171,7 +1171,7 @@ void MainWindow::onUpdateWindowAccept()
     mainWindowController_->getUpdateWindow()->setProgress(0);
     mainWindowController_->getUpdateWindow()->startAnimation();
     mainWindowController_->getUpdateWindow()->changeToDownloadingScreen();
-    backend_->sendUpdateVersion();
+    backend_->sendUpdateVersion(static_cast<qint32>(this->winId()));
 }
 
 void MainWindow::onUpdateWindowCancel()
@@ -2120,9 +2120,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         {
             if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
             {
-                //mainWindowController_->hideUpdateWidget();
-                //mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
-                //mainWindowController_->getUpdateAppItem()->setMode(IUpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
+                // nothing todo, because installer will close app here
             }
             else // Error
             {
@@ -2138,7 +2136,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
                 {
-                    descText = tr("Cannot run the downloaded installer. It does not have the correct signature");
+                    descText = tr("Can't run the downloaded installer. It does not have the correct signature.");
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_MOUNT_FAIL)
                 {
@@ -2154,11 +2152,11 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COPY_FAIL)
                 {
-                    descText = tr("Failed to copy installer to temp location");
+                    descText = tr("Failed to copy installer to temp location.");
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL)
                 {
-                    descText = tr("Auto-Updater has failed to run installer");
+                    descText = tr("Auto-Updater has failed to run installer.");
                 }
                 QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
             }
