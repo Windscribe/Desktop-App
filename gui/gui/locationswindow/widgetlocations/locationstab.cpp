@@ -567,7 +567,7 @@ void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
 
 void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
 {
-    qDebug() << "LocationsTab::handleKeyReleaseEvent";
+    // qDebug() << "LocationsTab::handleKeyReleaseEvent";
 
     if (event->key() == Qt::Key_Right)
     {

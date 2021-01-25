@@ -49,12 +49,13 @@ public:
 
     static const int ITEM_HEIGHT = 50;
 
+    enum ExpandReason { EXPAND_REASON_AUTO, EXPAND_REASON_USER };
 signals:
     void heightChanged(int height);
     void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
     void cityItemClicked(LocationItemCityWidget *cityWidget);
     void locationIdSelected(LocationID id);
-    void regionExpanding(LocationItemRegionWidget *regionWidget);
+    void regionExpanding(LocationItemRegionWidget *regionWidget, LocationItemListWidget::ExpandReason reason);
 
 protected:
     virtual void paintEvent(QPaintEvent *event) override;

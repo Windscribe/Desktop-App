@@ -553,21 +553,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
     else
     {
-        // TODO: probably remove this
-        /*#ifdef Q_OS_WIN
-            if (WindscribeApplication::instance()->isNeedAskClose())
-            {
-                WindscribeApplication::instance()->clearNeedAskClose();
-                show();
-                int res = QMessageBox::question(this, "Windscribe", tr("Are you sure you want to exit Windscribe?"),
-                                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-                if (res == QMessageBox::No)
-                {
-                    event->ignore();
-                    return;
-                }
-            }
-        #endif*/
         doClose(event);
     }
 }
@@ -612,6 +597,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    // qDebug() << "MainWindow::keyPressEvent";
     // TODO: remove after testing
     if (event->modifiers() & Qt::ControlModifier)
     {
@@ -736,6 +722,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
+    // qDebug() << "MainWindow::keyReleaseEvent";
     if (mainWindowController_->isLocationsExpanded())
     {
         if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
@@ -745,7 +732,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
         }
         else
         {
-            qCDebug(LOG_BASIC) << "Pass keyEvent to locations";
+            // qCDebug(LOG_BASIC) << "Pass keyEvent to locations";
             mainWindowController_->handleKeyReleaseEvent(event);
         }
     }

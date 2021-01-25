@@ -241,6 +241,8 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
 
 void LocationItemRegionHeaderWidget::enterEvent(QEvent *event)
 {
+    Q_UNUSED(event)
+    // qDebug() << "Selection by hover enter";
     setSelected(true); // triggers unselection of other widgets
 }
 

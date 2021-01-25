@@ -575,6 +575,7 @@ void MainWindowController::hideAllToolTips()
 
 void MainWindowController::handleKeyReleaseEvent(QKeyEvent *event)
 {
+    // qDebug() << "MainWindowController::handleKeyReleaseEvent";
     locationsWindow_->handleKeyReleaseEvent(event);
 }
 
@@ -2964,6 +2965,7 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
 {
     if (expandLocationsAnimationGroup_ != NULL && expandLocationsAnimationGroup_->state() == QAbstractAnimation::Running)
     {
+        // TODO: can fire when quickly opening locations list on app startup
         Q_ASSERT(false);
     }
     else

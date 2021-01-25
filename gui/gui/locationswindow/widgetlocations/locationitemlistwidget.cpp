@@ -83,6 +83,7 @@ void LocationItemListWidget::selectWidgetContainingCursor()
     {
         if (selectableWidget->containsCursor())
         {
+            // qDebug() << "Selecting by containing cursor";
             selectableWidget->setSelected(true);
             updateCursorWithSelectableWidget(selectableWidget);
 
@@ -98,6 +99,7 @@ void LocationItemListWidget::expand(LocationID locId)
         if (regionWidget->getId() == locId)
         {
             regionWidget->expand();
+            emit regionExpanding(regionWidget, EXPAND_REASON_AUTO);
         }
     }
 }
@@ -233,6 +235,7 @@ void LocationItemListWidget::moveAccentUp()
 
     if (lastWidget != nullptr)
     {
+        // qDebug() << "Selection by moveAccentUp";
         lastWidget->setSelected(true);
     }
 }
@@ -252,6 +255,8 @@ void LocationItemListWidget::moveAccentDown()
     if (it.hasNext())
     {
         auto widget = it.next();
+        // qDebug() << "Selection by moveAccentDown";
+
         widget->setSelected(true);
     }
 }
@@ -374,7 +379,7 @@ void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidge
             if (regionWidget->expandable())
             {
                 regionWidget->expand();
-                emit regionExpanding(regionWidget);
+                emit regionExpanding(regionWidget, EXPAND_REASON_USER);
             }
         }
     }

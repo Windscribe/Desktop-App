@@ -52,7 +52,7 @@ void LocationsWindow::setOnlyConfigTabVisible(bool onlyConfig)
 
 void LocationsWindow::handleKeyReleaseEvent(QKeyEvent *event)
 {
-    qDebug() << "LocationsWindow::handleKeyReleaseEvent";
+    // qDebug() << "LocationsWindow::handleKeyReleaseEvent";
     locationsTab_->handleKeyReleaseEvent(event);
 }
 

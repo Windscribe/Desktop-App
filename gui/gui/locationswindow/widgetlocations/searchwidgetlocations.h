@@ -26,9 +26,7 @@ namespace GuiLocations {
 // TODO: test scaling changes in all contained classes
 // TODO: test against account that loses/gains pro status
 // TODO: test against disabled servers
-// TODO: test keypress navigation with cursor when accessibility permission is off
 
-// TODO: add fast scrolling when holding down/up (only when connect window has focus)
 class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT
@@ -90,13 +88,12 @@ private slots:
     void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
     void onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
     void onLocationItemListWidgetLocationIdSelected(LocationID id);
-    void onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget *region);
+    void onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget *region, LocationItemListWidget::ExpandReason reason);
 
     void onScrollAnimationValueChanged(const QVariant &value);
 private:
     LocationItemListWidget *locationItemListWidget_;
     ScrollBar *scrollBar_;
-    QVariantAnimation scrollAnimation_;
 
     QString filterString_;
     int countOfAvailableItemSlots_;
@@ -128,7 +125,13 @@ private:
     void scrollDown(int itemCount);
     void animatedScrollDown(int itemCount);
     void animatedScrollUp(int itemCount);
+
+    const int PROGRAMMATIC_SCROLL_ANIMATION_DURATION = 300;
+    bool kickPreventMouseSelectionTimer_;
+    QElapsedTimer preventMouseSelectionTimer_;
     int animationScollTarget_;
+    QVariantAnimation scrollAnimation_;
+
 };
 
 } // namespace GuiLocations

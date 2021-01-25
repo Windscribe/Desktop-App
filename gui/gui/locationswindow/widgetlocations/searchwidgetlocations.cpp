@@ -26,6 +26,7 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
   , bShowLatencyInMs_(false)
   , bTapGestureStarted_(false)
   , locationsModel_(NULL)
+  , kickPreventMouseSelectionTimer_(false)
   , animationScollTarget_(0)
 {
     setFrameStyle(QFrame::NoFrame);
@@ -47,9 +48,11 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     connect(locationItemListWidget_, SIGNAL(heightChanged(int)), SLOT(onLocationItemListWidgetHeightChanged(int)));
     connect(locationItemListWidget_, SIGNAL(favoriteClicked(LocationItemCityWidget*,bool)), SLOT(onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *, bool)));
     connect(locationItemListWidget_, SIGNAL(locationIdSelected(LocationID)), SLOT(onLocationItemListWidgetLocationIdSelected(LocationID)));
-    connect(locationItemListWidget_, SIGNAL(regionExpanding(LocationItemRegionWidget*)), SLOT(onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget*)));
+    connect(locationItemListWidget_, SIGNAL(regionExpanding(LocationItemRegionWidget*, LocationItemListWidget::ExpandReason)), SLOT(onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget*, LocationItemListWidget::ExpandReason)));
     locationItemListWidget_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, 0);
     locationItemListWidget_->show();
+
+    preventMouseSelectionTimer_.start();
 
     connect(&scrollAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onScrollAnimationValueChanged(QVariant)));
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
@@ -148,7 +151,7 @@ void SearchWidgetLocations::animatedScrollDown(int itemCount)
     }
 
     scrollAnimation_.stop();
-    scrollAnimation_.setDuration(300);
+    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
     scrollAnimation_.setStartValue(scrollBar_->value());
     scrollAnimation_.setEndValue(animationScollTarget_);
     scrollAnimation_.setDirection(QAbstractAnimation::Forward);
@@ -169,7 +172,7 @@ void SearchWidgetLocations::animatedScrollUp(int itemCount)
     }
 
     scrollAnimation_.stop();
-    scrollAnimation_.setDuration(300);
+    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
     scrollAnimation_.setStartValue(scrollBar_->value());
     scrollAnimation_.setEndValue(animationScollTarget_);
     scrollAnimation_.setDirection(QAbstractAnimation::Forward);
@@ -377,7 +380,10 @@ void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
 
     TooltipController::instance().hideAllTooltips();
 
-    if (cursorInViewport())
+    // cursor should not interfere when animation is running
+    // prevent floating cursor from overriding a keypress animation
+    // this can only occur when accessibility is disabled (since cursor will not be moved)
+    if (cursorInViewport() && preventMouseSelectionTimer_.elapsed() > 100)
     {
         locationItemListWidget_->selectWidgetContainingCursor();
     }
@@ -505,7 +511,7 @@ void SearchWidgetLocations::onLocationItemListWidgetLocationIdSelected(LocationI
     emit selected(id);
 }
 
-void SearchWidgetLocations::onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget *region)
+void SearchWidgetLocations::onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget *region, LocationItemListWidget::ExpandReason reason)
 {
     // qDebug() << "Checking for need to scroll due to expand";
     int topItemSelIndex = locationItemListWidget_->selectableIndex(locationItemListWidget_->topSelectableLocationIdInViewport());
@@ -520,12 +526,15 @@ void SearchWidgetLocations::onLocationItemListWidgetRegionExpanding(LocationItem
         if (change > regionViewportIndex) change = regionViewportIndex;
 
         // qDebug() << "Expanding auto-scroll by items: " << change;
+        if (reason == LocationItemListWidget::EXPAND_REASON_AUTO) kickPreventMouseSelectionTimer_ = true;
+        else kickPreventMouseSelectionTimer_ = false;
         animatedScrollDown(change);
     }
 }
 
 void SearchWidgetLocations::onScrollAnimationValueChanged(const QVariant &value)
 {
+    if (kickPreventMouseSelectionTimer_) preventMouseSelectionTimer_.restart();
     scrollBar_->forceSetValue(value.toInt());
     viewport()->update();
 }
@@ -560,7 +569,7 @@ int SearchWidgetLocations::detectVisibleIndForCursorPos(const QPoint &pt)
 
 void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
 {
-    qDebug() << "SearchWidgetLocations::handleKeyEvent";
+    // qDebug() << "SearchWidgetLocations::handleKeyEvent";
 
     // TODO: quickly repeating UP can cause cursor to jump out of locations region
     if (event->key() == Qt::Key_Up)
@@ -571,6 +580,7 @@ void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
             {
                 if (locationItemListWidget_->accentItemViewportIndex() <= 0)
                 {
+                    kickPreventMouseSelectionTimer_ = true;
                     animatedScrollUp(1);
                 }
                 else
@@ -581,7 +591,7 @@ void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
                         TooltipController::instance().hideAllTooltips();
 
                         // Note: this kind of cursor control requires Accessibility Permissions on MacOS
-                        QCursor::setPos(QPoint(cursorPos.x(), cursorPos.y() - LOCATION_ITEM_HEIGHT*G_SCALE));
+                        QCursor::setPos(QPoint(cursorPos.x(), static_cast<int>(cursorPos.y() - LOCATION_ITEM_HEIGHT*G_SCALE)));
                     }
                 }
                 locationItemListWidget_->moveAccentUp();
@@ -600,6 +610,7 @@ void SearchWidgetLocations::handleKeyEvent(QKeyEvent *event)
             {
                 if (locationItemListWidget_->accentItemViewportIndex() >= countVisibleItems() - 1)
                 {
+                    kickPreventMouseSelectionTimer_ = true;
                     animatedScrollDown(1);
                 }
                 else
