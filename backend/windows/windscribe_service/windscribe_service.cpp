@@ -444,10 +444,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 	else if (cmdId == AA_COMMAND_GET_HELPER_VERSION)
 	{
 		mpr.success = true;
-		std::string helperVersion = getHelperVersion();
-		mpr.sizeOfAdditionalData = (DWORD)helperVersion.length();
-		mpr.szAdditionalData = new char[helperVersion.length()];
-		memcpy(mpr.szAdditionalData, helperVersion.c_str(), helperVersion.length());
+		mpr.additionalString = getHelperVersion();
 	}
 	else if (cmdId == AA_COMMAND_OS_IPV6_STATE)
 	{
@@ -499,6 +496,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 	else if (cmdId == AA_COMMAND_ENUM_PROCESSES)
 	{
 		Logger::instance().out(L"AA_COMMAND_ENUM_PROCESSES");
+		
 		std::vector<std::wstring> list = getActiveProcesses.getList();
 
 		size_t overallCharactersCount = 0;
@@ -508,17 +506,19 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 			overallCharactersCount += 1;  // add null character after each process name
 		}
 
-		mpr.sizeOfAdditionalData = static_cast<DWORD>(overallCharactersCount * sizeof(wchar_t));
-		mpr.szAdditionalData = new wchar_t[overallCharactersCount];
-
-		size_t curPos = 0;
-		wchar_t *p = (wchar_t *)mpr.szAdditionalData;
-		for (auto it = list.begin(); it != list.end(); ++it)
+		if (overallCharactersCount > 0)
 		{
-			memcpy(p + curPos, it->c_str(), it->length() * sizeof(wchar_t));
-			curPos += it->length();
-			p[curPos] = L'\0';
-			curPos++;
+			std::vector<char> v(overallCharactersCount * sizeof(wchar_t));
+			size_t curPos = 0;
+			wchar_t *p = (wchar_t *)(&v[0]);
+			for (auto it = list.begin(); it != list.end(); ++it)
+			{
+				memcpy(p + curPos, it->c_str(), it->length() * sizeof(wchar_t));
+				curPos += it->length();
+				p[curPos] = L'\0';
+				curPos++;
+			}
+			mpr.additionalString = std::string(v.begin(), v.end());
 		}
 		
 		mpr.success = true;
@@ -971,85 +971,28 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
             }
         }
     }
-	else if (cmdId == AA_COMMAND_RUN_UPDATE_INSTALLER)
-	{
-		CMD_RUN_UPDATE_INSTALLER updateInstallerLocationMsg;
-		ia >> updateInstallerLocationMsg;
-		
-		std::wstring szUpdateInstallerPath = updateInstallerLocationMsg.szUpdateInstallerLocation;
-		Logger::instance().out(szUpdateInstallerPath.c_str());
-
-		// check exists
-		if (!Utils::isFileExists(szUpdateInstallerPath.c_str()))
-		{
-			std::string errStr = "Update installer does not exist";
-			mpr.sizeOfAdditionalData = (DWORD)errStr.length();
-			mpr.szAdditionalData = new char[errStr.length()];
-			memcpy(mpr.szAdditionalData, errStr.c_str(), errStr.length());
-			Logger::instance().out(errStr.c_str());
-
-			mpr.success = false;
-			return mpr;
-		}
-
-#ifndef _DEBUG
-		// sign-check
-		if (!ExecutableSignature_win::verify(szUpdateInstallerPath.c_str()))
-		{
-			std::string errStr = "Update installer failed sign-check";
-			mpr.sizeOfAdditionalData = (DWORD)errStr.length();
-			mpr.szAdditionalData = new char[errStr.length()];
-			memcpy(mpr.szAdditionalData, errStr.c_str(), errStr.length());
-			Logger::instance().out(errStr.c_str());
-
-			mpr.success = false;
-			return mpr;
-		}
-#endif
-		std::wstring str = L"Running update-installer";
-		Logger::instance().out(str.c_str());
-
-		// installer path
-		wchar_t szApplicationName[1024];
-		wcscpy(szApplicationName, L"\"");
-		wcscat(szApplicationName, szUpdateInstallerPath.c_str());
-		wcscat(szApplicationName, L"\"");
-		Logger::instance().out(L"Application name: %s", szApplicationName);
-
-		// args
-		std::wstring args = L" -q \"";
-		args.append(Utils::getExePath());
-		args.append(L"\"");
-
-		// run
-		wchar_t szCliBuf[1024];
-		wcscpy(szCliBuf, szApplicationName);
-		wcscat(szCliBuf, args.c_str());
-		mpr = ExecuteCmd::instance().executeUnblockingBackgroundCmdAsElevatedUser(szCliBuf);
-
-		// log
-		wchar_t logBuf[1024];
-		wcscpy(logBuf, L"AA_COMMAND_RUN_UPDATE_INSTALLER: ");
-		wcscat(logBuf, szCliBuf);
-		Logger::instance().out(logBuf);
-
-	}
 	
 	return mpr;
 }
 
 bool writeMessagePacketResult(HANDLE hPipe, MessagePacketResult &mpr)
 {
-    MessagePacketResultSerialization mpr_serialization(mpr);
-	if (IOUtils::writeAll(hPipe, mpr_serialization.const_data(), sizeof(mpr_serialization)))
+	std::stringstream stream;
+	boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+	oa << mpr;
+	const std::string str = stream.str();
+	
+	// first 4 bytes - size of buffer
+	const unsigned long sizeOfBuf = str.size();
+	if (IOUtils::writeAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
 	{
-		if (mpr.szAdditionalData != NULL)
+		if (sizeOfBuf > 0)
 		{
-			bool bRet = IOUtils::writeAll(hPipe, (const char *)mpr.szAdditionalData, mpr.sizeOfAdditionalData);
-			mpr.clear();
+			bool bRet = IOUtils::writeAll(hPipe, str.c_str(), sizeOfBuf);
 			return bRet;
 		}
 	}
+
 	return false;
 }
 

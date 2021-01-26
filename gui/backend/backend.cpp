@@ -1096,11 +1096,12 @@ void Backend::sendSplitTunneling(ProtoTypes::SplitTunneling st)
     }
 }
 
-void Backend::sendUpdateVersion()
+void Backend::sendUpdateVersion(qint32 mainWindowHandle)
 {
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> cmd;
+        cmd.getProtoObj().set_hwnd(mainWindowHandle);
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }

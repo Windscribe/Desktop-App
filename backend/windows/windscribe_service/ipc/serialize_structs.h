@@ -190,10 +190,16 @@ void serialize(Archive & ar, CMD_CONFIGURE_WIREGUARD & g, const unsigned int ver
 }
 
 template<class Archive>
-void serialize(Archive & ar, CMD_RUN_UPDATE_INSTALLER & g, const unsigned int version)
+void serialize(Archive & ar, MessagePacketResult & g, const unsigned int version)
 {
 	UNREFERENCED_PARAMETER(version);
-	ar & g.szUpdateInstallerLocation;
+	ar & g.id;
+	ar & g.success;
+	ar & g.exitCode;
+	ar & g.blockingCmdId;
+	ar & g.blockingCmdFinished;
+	ar & g.customInfoValue;
+	ar & g.additionalString;
 }
 
 } // namespace serialization

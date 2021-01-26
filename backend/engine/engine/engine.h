@@ -115,7 +115,7 @@ public:
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
 
-    void updateVersion();
+    void updateVersion(qint32 windowHandle);
     void stopUpdateVersion();
 
 public slots:
@@ -259,7 +259,7 @@ private slots:
 
     void detectAppropriatePacketSizeImpl();
 
-    void updateVersionImpl();
+    void updateVersionImpl(qint32 windowHandle);
     void stopUpdateVersionImpl();
     void onDownloadHelperProgressChanged(uint progressPercent);
     void onDownloadHelperFinished(const DownloadHelper::DownloadState &state);
@@ -381,6 +381,7 @@ private:
 
     uint lastDownloadProgress_;
     QString installerUrl_;
+    qint32 guiWindowHandle_;
 };
 
 #endif // ENGINE_H
