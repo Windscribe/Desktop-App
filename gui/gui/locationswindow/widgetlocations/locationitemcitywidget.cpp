@@ -211,7 +211,7 @@ void LocationItemCityWidget::paintEvent(QPaintEvent *event)
     // background line
     int left = 24 * G_SCALE;
     int right = WINDOW_WIDTH * G_SCALE - 8*G_SCALE;
-    int bottom = LOCATION_ITEM_HEIGHT-1* G_SCALE;
+    int bottom = (LOCATION_ITEM_HEIGHT-1)* G_SCALE;
     QPen pen(QColor(0x29, 0x2E, 0x3E));
     pen.setWidth(1);
     painter.setOpacity(initOpacity);

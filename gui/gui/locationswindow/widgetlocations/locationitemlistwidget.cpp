@@ -166,22 +166,6 @@ QVector<LocationItemRegionWidget *> LocationItemListWidget::itemWidgets()
     return itemWidgets_;
 }
 
-const LocationID LocationItemListWidget::topSelectableLocationIdInViewport()
-{
-    int index = qAbs(geometry().y())/ITEM_HEIGHT;
-    if (index < 0) return LocationID();
-
-    auto widgets = selectableWidgets();
-    if (index > widgets.count() - 1)
-    {
-        // this shouldn't happen
-        qDebug(LOG_BASIC) << "Err: There isn't enough items in selectable list to index (locationID)";
-        return LocationID();
-    }
-
-    return widgets[index]->getId();
-}
-
 int LocationItemListWidget::selectableIndex(LocationID locationId)
 {
     int i = 0;
@@ -196,15 +180,7 @@ int LocationItemListWidget::selectableIndex(LocationID locationId)
     return -1;
 }
 
-int LocationItemListWidget::viewportIndex(LocationID locationId)
-{
-    int topItemSelIndex = selectableIndex(topSelectableLocationIdInViewport());
-    int desiredLocSelIndex = selectableIndex(locationId);
-    int desiredLocationViewportIndex = desiredLocSelIndex - topItemSelIndex;
-    return desiredLocationViewportIndex;
-}
-
-void LocationItemListWidget::accentFirstItem()
+void LocationItemListWidget::accentFirstSelectableItem()
 {
     QVector<SelectableLocationItemWidget *> widgets = selectableWidgets();
     if (widgets.count() > 0)
@@ -271,16 +247,6 @@ int LocationItemListWidget::accentItemSelectableIndex()
     return selectableIndex(lastAccentedItemWidget_->getId());
 }
 
-int LocationItemListWidget::accentItemViewportIndex()
-{
-    if (!lastAccentedItemWidget_)
-    {
-        qDebug() << "LocationItemListWidget::accentItemViewportIndex - no accent item";
-        return -1;
-    }
-    return viewportIndex(lastAccentedItemWidget_->getId());
-}
-
 SelectableLocationItemWidget *LocationItemListWidget::lastAccentedItemWidget()
 {
     return lastAccentedItemWidget_;
@@ -344,13 +310,13 @@ void LocationItemListWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
-
+    // qDebug() << "List repainting";
 }
 
 void LocationItemListWidget::onRegionWidgetHeightChanged(int height)
 {
     auto regionWidget = static_cast<LocationItemRegionWidget*>(sender());
-    regionWidget->setGeometry(0, 0, static_cast<int>(WINDOW_WIDTH * G_SCALE), static_cast<int>(height * G_SCALE));
+    regionWidget->setGeometry(0, 0, static_cast<int>(WINDOW_WIDTH * G_SCALE), static_cast<int>(height));
     recalcItemPositions();
 }
 
@@ -403,6 +369,7 @@ void LocationItemListWidget::onSelectableLocationItemSelected(SelectableLocation
 
 void LocationItemListWidget::recalcItemPositions()
 {
+    // qDebug() << "List repositioning items";
     int heightSoFar = 0;
     foreach (LocationItemRegionWidget  *itemWidget, itemWidgets_)
     {

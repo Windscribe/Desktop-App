@@ -155,6 +155,9 @@ void LocationItemRegionHeaderWidget::setExpandedWithoutAnimation(bool expand)
 
 void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
 {
+
+    // qDebug() << "Header paintEvent";
+
     // background
     QPainter painter(this);
     painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE),
@@ -183,7 +186,7 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
 
         // this part is kind of magical - could use some more clear math
         painter.save();
-        painter.translate(QPoint((WINDOW_WIDTH - LOCATION_ITEM_MARGIN)*G_SCALE - expandPixmap->width()/2, LOCATION_ITEM_HEIGHT/2));
+        painter.translate(QPoint((WINDOW_WIDTH - LOCATION_ITEM_MARGIN)*G_SCALE - expandPixmap->width()/2, LOCATION_ITEM_HEIGHT*G_SCALE/2));
         painter.rotate(45 * expandAnimationProgress_);
         expandPixmap->draw(-expandPixmap->width() / 2,
                            -expandPixmap->height()/ 2,
@@ -193,7 +196,7 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
 
     int left = 24 * G_SCALE;
     int right = WINDOW_WIDTH * G_SCALE - 8*G_SCALE;
-    int bottom = LOCATION_ITEM_HEIGHT-1* G_SCALE;
+    int bottom = (LOCATION_ITEM_HEIGHT-1)* G_SCALE;
     painter.setOpacity(1.0);
 
     // background line (darker line)
@@ -232,6 +235,7 @@ void LocationItemRegionHeaderWidget::enterEvent(QEvent *event)
 
 void LocationItemRegionHeaderWidget::resizeEvent(QResizeEvent *event)
 {
+    // qDebug() << "Header resize";
     recalcItemPositions();
 }
 
@@ -275,6 +279,7 @@ const QString LocationItemRegionHeaderWidget::labelStyleSheetWithOpacity(double 
 
 void LocationItemRegionHeaderWidget::recalcItemPositions()
 {
+    // qDebug() << "Header recalc item positions";
     QFont font = *FontManager::instance().getFont(16, true);
     textLabel_->setFont(font);
     textLabel_->setGeometry(LOCATION_ITEM_MARGIN * G_SCALE * 2 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,

@@ -21,13 +21,13 @@ LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widget
     connect(regionHeaderWidget_, SIGNAL(clicked()), SLOT(onRegionHeaderClicked()));
     connect(regionHeaderWidget_, SIGNAL(selected()), SLOT(onRegionHeaderSelected()));
 
-    qDebug() << "Creating region: " << regionHeaderWidget_->name();
+    // qDebug() << "Creating region: " << regionHeaderWidget_->name();
 
     expandingHeightAnimation_.setDirection(QAbstractAnimation::Forward);
     expandingHeightAnimation_.setDuration(200);
     connect(&expandingHeightAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onExpandingHeightAnimationValueChanged(QVariant)));
 
-    recalcItemPos();
+    recalcItemPositions();
 }
 
 LocationItemRegionWidget::~LocationItemRegionWidget()
@@ -76,7 +76,7 @@ void LocationItemRegionWidget::setExpandedWithoutAnimation(bool expand)
     {
         city->setSelectable(expand);
     }
-    recalcItemPos();
+    recalcItemPositions();
 }
 
 void LocationItemRegionWidget::expand()
@@ -120,7 +120,7 @@ void LocationItemRegionWidget::addCity(CityModelItem city)
     connect(cityWidget, SIGNAL(favoriteClicked(LocationItemCityWidget *, bool)), SIGNAL(favoriteClicked(LocationItemCityWidget*, bool)));
     cities_.append(cityWidget);
     cityWidget->show();
-    recalcItemPos();
+    recalcItemPositions();
 }
 
 QVector<SelectableLocationItemWidget*> LocationItemRegionWidget::selectableWidgets()
@@ -154,14 +154,14 @@ void LocationItemRegionWidget::setFavorited(LocationID id, bool isFavorite)
     }
 }
 
-void LocationItemRegionWidget::recalcItemPos()
+void LocationItemRegionWidget::recalcItemPositions()
 {
-
-    regionHeaderWidget_->setGeometry(0,0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT);
+    // qDebug() << "Region recalc item positions";
+    regionHeaderWidget_->setGeometry(0,0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
 
     int height = LOCATION_ITEM_HEIGHT * G_SCALE;
 
-    foreach (auto city, cities_)
+    foreach (LocationItemCityWidget *city, cities_)
     {
         city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
         height += city->geometry().height();
@@ -182,6 +182,13 @@ void LocationItemRegionWidget::recalcHeight()
         height_ = LOCATION_ITEM_HEIGHT*G_SCALE;
         emit heightChanged(height_);
     }
+}
+
+void LocationItemRegionWidget::resizeEvent(QResizeEvent *event)
+{
+    Q_UNUSED(event)
+    // qDebug() << "Region resizing";
+    recalcItemPositions();
 }
 
 void LocationItemRegionWidget::onRegionHeaderSelected()
@@ -210,6 +217,7 @@ void LocationItemRegionWidget::onExpandingHeightAnimationValueChanged(const QVar
 {
     int height = value.toInt();
 
+    // qDebug() << "height animation: " << height;
     if (height == static_cast<int>(LOCATION_ITEM_HEIGHT*G_SCALE))
     {
         citySubMenuState_ = COLLAPSED;

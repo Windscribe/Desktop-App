@@ -23,8 +23,6 @@ class FormConnect;
 
 namespace GuiLocations {
 
-// TODO: test scaling changes in all contained classes
-
 class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT
@@ -124,12 +122,22 @@ private:
     void animatedScrollDown(int itemCount);
     void animatedScrollUp(int itemCount);
 
+    const LocationID topViewportSelectableLocationId();
+    int viewportOffsetIndex();
+    int accentItemViewportIndex();
+    int viewportIndex(LocationID locationId);
+
+    double currentScale_;
+    int lastScrollPos_;
+    int lastScrollPosIndex_;
+
     const int PROGRAMMATIC_SCROLL_ANIMATION_DURATION = 300;
     bool kickPreventMouseSelectionTimer_;
     QElapsedTimer preventMouseSelectionTimer_;
     int animationScollTarget_;
     QVariantAnimation scrollAnimation_;
 
+    int closestPositionIncrement(int value);
 };
 
 } // namespace GuiLocations

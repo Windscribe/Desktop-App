@@ -34,20 +34,16 @@ public:
     QVector<LocationItemCityWidget *> cityWidgets();
     QVector<SelectableLocationItemWidget *> selectableWidgets(); // regions + expanded cities
 
-    const LocationID topSelectableLocationIdInViewport();
     int selectableIndex(LocationID locationId);
-    int viewportIndex(LocationID locationId);
+    const LocationID lastSelectedLocationId() const;
+    void selectItem(LocationID locationId);
 
-    void accentFirstItem();
+    void accentFirstSelectableItem();
     bool hasAccentItem();
     void moveAccentUp();
     void moveAccentDown();
     int accentItemSelectableIndex();
-    int accentItemViewportIndex();
-
     SelectableLocationItemWidget *lastAccentedItemWidget();
-    const LocationID lastSelectedLocationId() const;
-    void selectItem(LocationID locationId);
 
     static const int ITEM_HEIGHT = 50;
 

@@ -32,7 +32,7 @@ public:
 
     void setFavorited(LocationID id, bool isFavorite);
 
-    void recalcItemPos();
+    void recalcItemPositions();
     void recalcHeight();
 
 signals:
@@ -41,6 +41,9 @@ signals:
     void clicked(LocationItemCityWidget *cityWidget);
     void clicked(LocationItemRegionWidget *regionWidget);
     void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void onRegionHeaderSelected();
