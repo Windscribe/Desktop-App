@@ -184,10 +184,8 @@ void LocationItemRegionWidget::recalcHeight()
     }
 }
 
-void LocationItemRegionWidget::resizeEvent(QResizeEvent *event)
+void LocationItemRegionWidget::updateScaling()
 {
-    Q_UNUSED(event)
-    // qDebug() << "Region resizing";
     recalcItemPositions();
 }
 

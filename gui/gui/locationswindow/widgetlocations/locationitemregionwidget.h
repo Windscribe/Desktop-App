@@ -35,15 +35,14 @@ public:
     void recalcItemPositions();
     void recalcHeight();
 
+    void updateScaling();
+
 signals:
     void heightChanged(int height);
     void selected(SelectableLocationItemWidget *itemWidget);
     void clicked(LocationItemCityWidget *cityWidget);
     void clicked(LocationItemRegionWidget *regionWidget);
     void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
-
-protected:
-    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void onRegionHeaderSelected();

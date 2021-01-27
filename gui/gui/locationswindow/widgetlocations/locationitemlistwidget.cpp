@@ -74,7 +74,13 @@ void LocationItemListWidget::addCityToRegion(CityModelItem city, LocationModelIt
 
 void LocationItemListWidget::updateScaling()
 {
-    recalcItemPositions();
+    // update scaling for each widget instead of recalcItemPositions
+    // relying on resizeEvent after setGeometry on region items blocks expanding animation for some reason
+    // this will trigger recalcItemPositions() anyway
+    foreach (LocationItemRegionWidget  *itemWidget, itemWidgets_)
+    {
+        itemWidget->updateScaling();
+    }
 }
 
 void LocationItemListWidget::selectWidgetContainingCursor()
