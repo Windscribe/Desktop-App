@@ -89,7 +89,7 @@ void Logger::myMessageHandler(QtMsgType type, const QMessageLogContext &context,
         if (file_)
         {
             QString str = qFormatLogMessage(type, context, s);
-            QString strDateTime = QDateTime::currentDateTimeUtc().toString("ddMM hh:mm:ss:zzz");
+            QString strDateTime = QDateTime::currentDateTimeUtc().toString("ddMMyy hh:mm:ss:zzz");
             str.replace("{gmt_time}", strDateTime);
 
             file_->write(str.toLocal8Bit());
