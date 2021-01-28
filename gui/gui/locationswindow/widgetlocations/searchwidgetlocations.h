@@ -18,7 +18,9 @@
 #include "locationitemlistwidget.h"
 #include "scrollbar.h"
 
-
+// TODO: regression: scrollbar width, background colour, margin
+// TODO: regression: scrollbar opacity on un/hover
+// TODO: regression: scrollbar drag/click doesn't animate viewport change
 class FormConnect;
 
 namespace GuiLocations {

@@ -154,8 +154,6 @@ const QString SearchWidgetLocations::scrollbarStyleSheet()
                         .arg(qCeil(2)); // handle border-radius
     css += QString( "QScrollBar::add-line:vertical { border: none; background: none; }"
                      "QScrollBar::sub-line:vertical { border: none; background: none; }");
-
-
     return css;
 }
 

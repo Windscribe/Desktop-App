@@ -14,6 +14,8 @@
 #include "configfooterinfo.h"
 #include "commonwidgets/custommenulineedit.h"
 
+// TODO: add tooltip for search tab icon hover
+
 namespace GuiLocations {
 
 // switchable tabs of locations, includes widgets for all locations, favorite locations, configured locations, static IPs locations
