@@ -109,18 +109,26 @@ void SearchWidgetLocations::centerCursorOnSelectedItem()
 const QString SearchWidgetLocations::scrollbarStyleSheet()
 {
     // TODO: don't use stylesheet to draw
-    return QString( "QScrollBar:vertical { margin: %1px %2 %3px %4px; border: none; background: rgba(0, 0, 0, 255); width: %5px; }"
-                 "QScrollBar::handle:vertical { background: rgb(106, 119, 144); color:  rgb(106, 119, 144);"
-                                               "border-width: %6px; border-style: solid; border-radius: %7px;}"
-                 "QScrollBar::add-line:vertical { border: none; background: black; }"
-                 "QScrollBar::sub-line:vertical { border: none; background: black; }")
-                  .arg(qCeil(0)) // top margin
-                  .arg(qCeil(0))  // left margin
-                  .arg(qCeil(0)) //  bottom margin
-                  .arg(qCeil(0))  // left
-                  .arg(3*G_SCALE) // width
-                  .arg(qCeil(4))  // handle border-width
-            .arg(qCeil(3)); // handle border-radius
+    QString css = QString( "QScrollBar:vertical { margin: %1px %2 %3px %4px; ")
+                    .arg(qCeil(0))   // top margin
+                    .arg(qCeil(0))   // right
+                    .arg(qCeil(0))   //  bottom margin
+                    .arg(qCeil(0));  // left
+    css += QString("border: none; background: rgba(0,0,0,255); width: %1px; padding: %2 %3 %4 %5; }")
+                    .arg(getScrollBarWidth())  // width
+                    .arg(0)           // padding top
+                    .arg(0 * G_SCALE) // padding left
+                    .arg(0)           // padding bottom
+                    .arg(0);          // padding right
+    css += QString( "QScrollBar::handle:vertical { background: rgb(106, 119, 144); color:  rgb(106, 119, 144);"
+                    "border-width: %1px; border-style: solid; border-radius: %2px;}")
+                        .arg(qCeil(2))  // handle border-width
+                        .arg(qCeil(2)); // handle border-radius
+    css += QString( "QScrollBar::add-line:vertical { border: none; background: none; }"
+                     "QScrollBar::sub-line:vertical { border: none; background: none; }");
+
+
+    return css;
 }
 
 void SearchWidgetLocations::scrollToIndex(int index)
@@ -449,6 +457,7 @@ void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
 
     QScrollArea::scrollContentsBy(dx,dy);
     lastScrollPos_ = locationItemListWidget_->geometry().y();
+    // qDebug() << "Updating last scroll pos: " << lastScrollPos_;
 }
 
 void SearchWidgetLocations::mouseMoveEvent(QMouseEvent *event)
@@ -548,9 +557,9 @@ void SearchWidgetLocations::onLanguageChanged()
 
 void SearchWidgetLocations::onLocationItemListWidgetHeightChanged(int listWidgetHeight)
 {
-
+    // qDebug() << "List widget height: " << listWidgetHeight;
     locationItemListWidget_->setGeometry(0,locationItemListWidget_->geometry().y(), WINDOW_WIDTH*G_SCALE, listWidgetHeight);
-    scrollBar_->setRange(0, listWidgetHeight - scrollBar_->pageStep()); // update scroll bar
+	scrollBar_->setRange(0, listWidgetHeight - scrollBar_->pageStep()); // update scroll bar
     scrollBar_->setSingleStep(LocationItemListWidget::ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
 }
 
@@ -785,6 +794,8 @@ void SearchWidgetLocations::updateScaling()
     }
 
     locationItemListWidget_->updateScaling();
+    scrollBar_->setStyleSheet(scrollbarStyleSheet());
+
 }
 
 QRect SearchWidgetLocations::globalLocationsListViewportRect()

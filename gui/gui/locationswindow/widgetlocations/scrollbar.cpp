@@ -29,36 +29,18 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
         stepVector = singleStep();
     }
 
-    startValue_ = value();
-    targetValue_ = targetValue_ + stepVector;
-
-    //qDebug() << "Wheel start: " << startValue_;
-    //qDebug() << "Wheel end  : " << targetValue_;
-    if (targetValue_ > maximum()) targetValue_ = maximum();
-    if (targetValue_ < minimum()) targetValue_ = minimum();
-    // qDebug() << "Setting target: " << targetValue_;
-
-    int diffPx = targetValue_ - startValue_;
-    // TODO: optimize the animation speed
-    animationDuration_ = qAbs(diffPx) * SCROLL_SPEED_FRACTION;
-    // animationDuration_ = 1000; // for testing
-    if (animationDuration_ < MINIMUM_DURATION) animationDuration_ = MINIMUM_DURATION;
-    // qDebug() << "Animation duration: " << animationDuration_;
-
-    elapsedTimer_.start();
-    timer_.start();
+    animateScroll(targetValue_ + stepVector, SCROLL_SPEED_FRACTION);
 }
 
 void ScrollBar::paintEvent(QPaintEvent *event)
 {
-    // QPainter painter(this);
-    // QRect bkgd(0,0,geometry().width(), geometry().height());
-    // painter.fillRect(bkgd, Qt::gray);
+    QPainter painter(this);
 
-//    qDebug() << "Scrollbar - max: " << maximum()
-//             << " pagestep: " << pageStep()
-//             << " singleStep: " << singleStep()
-//             << " value: " << value();
+    // background
+    // QRect bkgd(0,0,geometry().width(), geometry().height());
+    // qDebug() << "Painting scrollbar: " << bkgd;
+    // painter.fillRect(bkgd, Qt::red);
+
     QScrollBar::paintEvent(event);
 }
 
@@ -68,48 +50,70 @@ void ScrollBar::forceSetValue(int value)
     targetValue_ = value;
 }
 
-//void ScrollBar::mousePressEvent(QMouseEvent *event)
-//{
-//    qDebug() << "mouse press: " << event->pos().y();
-//    lastCursorPos_ = event->pos().y();
-//    pressed_ = true;
+void ScrollBar::mousePressEvent(QMouseEvent *event)
+{
+    bool mouseBelowHandlePos = event->pos().y() > value()*magicRatio();
+    if (mouseBelowHandlePos && event->pos().y() < (value() + pageStep())*magicRatio()) // click in handle
+    {
+        // qDebug() << "Mouse press in handle";
+        lastCursorPos_ = event->pos().y();
+        lastValue_ = value();
+        pressed_ = true;
+    }
+    else if (mouseBelowHandlePos)
+    {
+        // scroll down
+        int proposedValue = value () + pageStep();
+        if (proposedValue <= maximum())
+        {
+            forceSetValue(proposedValue);
+        }
+        else
+        {
+            forceSetValue(maximum());
+        }
+    }
+    else
+    {
+        // scroll up
+        int proposedValue = value() - pageStep();
+        if (proposedValue >= 0)
+        {
+            forceSetValue(proposedValue);
+        }
+        else
+        {
+            forceSetValue(0);
+        }
+    }
+}
 
-//    QScrollBar::mouseReleaseEvent(event);
-//}
+void ScrollBar::mouseReleaseEvent(QMouseEvent *event)
+{
+    // qDebug() << "mouse release";
+    pressed_ = false;
+}
 
-//void ScrollBar::mouseReleaseEvent(QMouseEvent *event)
-//{
-//    qDebug() << "mouse release";
-//    pressed_ = false;
+void ScrollBar::mouseMoveEvent(QMouseEvent *event)
+{
+    if (pressed_)
+    {
+        int diffPx = event->pos().y() - lastCursorPos_;
+        int diffIncrements = diffPx/(singleStep()*magicRatio());
 
-//    QScrollBar::mouseReleaseEvent(event);
-//}
+        int proposedValue = diffIncrements*singleStep() + lastValue_;
+        if (proposedValue >= 0 && proposedValue <= maximum())
+        {
+            if (proposedValue != value())
+            {
+                // TODO: keep scroll dragging notching (no animation), but animate the view scrolling
+                forceSetValue(proposedValue);
+            }
+        }
+    }
 
-//void ScrollBar::mouseMoveEvent(QMouseEvent *event)
-//{
-////    if (pressed_)
-////    {
-////        int diff = event->pos().y() - lastCursorPos_;
-////        qDebug() << "diff: " << diff;
-////        if (diff >= singleStep())
-////        {
-////            qDebug() << "Moving slider down";
-////            lastCursorPos_ = event->pos().y();
-////            //setSliderPosition(sliderPosition() + 10);
-////            triggerAction(QAbstractSlider::SliderSingleStepAdd);
-////        }
-////        else if (diff <= -singleStep())
-////        {
-////            qDebug() << "Moving slider up";
-////            lastCursorPos_ = event->pos().y();
-////            //setSliderPosition(sliderPosition() - 10);
-////            triggerAction(QAbstractSlider::SliderSingleStepSub);
-////        }
-////    }
-////    qDebug() << event->pos();
-
-//    QScrollBar::mouseMoveEvent(event);
-//}
+    QScrollBar::mouseMoveEvent(event);
+}
 
 void ScrollBar::onScrollAnimationValueChanged(const QVariant &value)
 {
@@ -132,8 +136,23 @@ void ScrollBar::onTimerTick()
     setValue(curValue);
 }
 
-int ScrollBar::stepIncrement() const
+double ScrollBar::magicRatio() const
 {
-    double fraction = (double) singleStep()/maximum();
-    return (int)(maximum() * fraction);
+    return static_cast<double>(geometry().height())/(maximum()+pageStep());
+}
+
+void ScrollBar::animateScroll(int target, int animationSpeedFraction)
+{
+    startValue_ = value();
+    targetValue_ = target;
+
+    if (targetValue_ > maximum()) targetValue_ = maximum();
+    if (targetValue_ < minimum()) targetValue_ = minimum();
+
+    int diffPx = targetValue_ - startValue_;
+    animationDuration_ = qAbs(diffPx) * animationSpeedFraction;
+    if (animationDuration_ < MINIMUM_DURATION) animationDuration_ = MINIMUM_DURATION;
+
+    elapsedTimer_.start();
+    timer_.start();
 }

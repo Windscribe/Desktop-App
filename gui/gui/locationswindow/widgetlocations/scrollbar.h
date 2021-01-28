@@ -5,8 +5,6 @@
 #include <QElapsedTimer>
 #include <QTimer>
 
-// TODO: bug - drag scroller down then wheel mouse (will scroll from pre-scroller selection)
-// TODO: bug - drag scroller -> doesn't move in animated notches, causes jittery viewport scrolling
 class ScrollBar : public QScrollBar
 {
     Q_OBJECT
@@ -17,9 +15,9 @@ public:
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-//    void mousePressEvent(QMouseEvent *event) override;
-//    void mouseReleaseEvent(QMouseEvent *event) override;
-//    void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private slots:
     void onScrollAnimationValueChanged(const QVariant &value);
@@ -35,10 +33,12 @@ private:
     QElapsedTimer elapsedTimer_;
     QTimer timer_;
     int lastCursorPos_;
+    int lastValue_;
 
     bool pressed_;
 
-    int stepIncrement() const;
+    double magicRatio() const;
+    void animateScroll(int target, int animationSpeedFraction);
 };
 
 #endif // SCROLLBAR_H
