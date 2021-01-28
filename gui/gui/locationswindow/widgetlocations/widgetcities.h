@@ -34,6 +34,8 @@ public:
     bool cursorInViewport() override;
     bool hasSelection() override;
     void centerCursorOnSelectedItem() override;
+    void centerCursorOnItem(LocationID locId) override;
+    LocationID selectedItemLocationId() override;
 
     void setModel(BasicCitiesModel *citiesModel);
     void setCurrentSelected(LocationID id);

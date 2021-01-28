@@ -279,6 +279,18 @@ void LocationItemListWidget::selectItem(LocationID locationId)
     }
 }
 
+SelectableLocationItemWidget *LocationItemListWidget::selectableWidget(LocationID locationId)
+{
+    foreach (SelectableLocationItemWidget *widget, selectableWidgets())
+    {
+        if (widget->getId() == locationId)
+        {
+            return widget;
+        }
+    }
+    return nullptr;
+}
+
 QVector<LocationItemCityWidget *> LocationItemListWidget::cityWidgets()
 {
     QVector<LocationItemCityWidget *> cityWidgets;

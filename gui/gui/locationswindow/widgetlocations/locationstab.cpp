@@ -473,11 +473,16 @@ void LocationsTab::onSearchLineEditFocusOut()
 
 IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
 {
-    if (curTab_ == CUR_TAB_ALL_LOCATIONS)        return widgetAllLocations_;
-    if (curTab_ == CUR_TAB_FAVORITE_LOCATIONS)   return widgetFavoriteLocations_;
-    if (curTab_ == CUR_TAB_STATIC_IPS_LOCATIONS) return widgetStaticIpsLocations_;
-    if (curTab_ == CUR_TAB_CONFIGURED_LOCATIONS) return widgetConfiguredLocations_;
-    if (curTab_ == CUR_TAB_SEARCH_LOCATIONS)     return widgetSearchLocations_;
+    return locationWidgetByEnum(curTab_);
+}
+
+IWidgetLocationsInfo *LocationsTab::locationWidgetByEnum(LocationsTab::CurTabEnum tabEnum)
+{
+    if (tabEnum == CUR_TAB_ALL_LOCATIONS)        return widgetAllLocations_;
+    if (tabEnum == CUR_TAB_FAVORITE_LOCATIONS)   return widgetFavoriteLocations_;
+    if (tabEnum == CUR_TAB_STATIC_IPS_LOCATIONS) return widgetStaticIpsLocations_;
+    if (tabEnum == CUR_TAB_CONFIGURED_LOCATIONS) return widgetConfiguredLocations_;
+    if (tabEnum == CUR_TAB_SEARCH_LOCATIONS)     return widgetSearchLocations_;
     return nullptr;
 }
 
@@ -578,21 +583,34 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
 
             if (curTabInt == CUR_TAB_SEARCH_LOCATIONS)
             {
+                LocationID previousSelectedLocId;
+                IWidgetLocationsInfo *locWidget = locationWidgetByEnum((CurTabEnum)curTabInt);
+                if (locWidget)
+                {
+                    previousSelectedLocId = locWidget->selectedItemLocationId();
+                }
+
                 onSearchButtonClicked(); // this will handle changeTab(..)
+
+                if (previousSelectedLocId.isValid())
+                {
+                    locWidget->centerCursorOnItem(previousSelectedLocId);
+                }
             }
             else
             {
                 changeTab(static_cast<CurTabEnum>(curTabInt));
-            }
 
-            IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
-            if (curWidgetLoc != nullptr)
-            {
-                if (curWidgetLoc->cursorInViewport())
+                IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
+                if (curWidgetLoc != nullptr)
                 {
-                    curWidgetLoc->centerCursorOnSelectedItem();
+                    if (curWidgetLoc->cursorInViewport())
+                    {
+                        curWidgetLoc->centerCursorOnSelectedItem();
+                    }
                 }
             }
+
         }
     }
     else if (event->key() == Qt::Key_Left)
@@ -603,19 +621,31 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
             curTabInt--;
             if (curTabInt == CUR_TAB_SEARCH_LOCATIONS)
             {
+                LocationID previousSelectedLocId;
+                IWidgetLocationsInfo *locWidget = locationWidgetByEnum((CurTabEnum)curTabInt);
+                if (locWidget)
+                {
+                    previousSelectedLocId = locWidget->selectedItemLocationId();
+                }
+
                 onSearchButtonClicked(); // this will handle changeTab(..)
+
+                if (previousSelectedLocId.isValid())
+                {
+                    locWidget->centerCursorOnItem(previousSelectedLocId);
+                }
             }
             else
             {
                 changeTab(static_cast<CurTabEnum>(curTabInt));
-            }
 
-            IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
-            if (curWidgetLoc != nullptr)
-            {
-                if (curWidgetLoc->cursorInViewport())
+                IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
+                if (curWidgetLoc != nullptr)
                 {
-                    curWidgetLoc->centerCursorOnSelectedItem();
+                    if (curWidgetLoc->cursorInViewport())
+                    {
+                        curWidgetLoc->centerCursorOnSelectedItem();
+                    }
                 }
             }
         }

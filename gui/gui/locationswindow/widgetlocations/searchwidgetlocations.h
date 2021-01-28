@@ -36,6 +36,8 @@ public:
     bool cursorInViewport() override;
     bool hasSelection() override;
     void centerCursorOnSelectedItem() override;
+    void centerCursorOnItem(LocationID locId) override;
+    LocationID selectedItemLocationId() override;
 
     void setModel(BasicLocationsModel *locationsModel);
     void setFirstSelected() override;
@@ -98,46 +100,39 @@ private:
     bool bTapGestureStarted_;
     BasicLocationsModel *locationsModel_;
     BackgroundPixmapAnimation backgroundPixmapAnimation_;
-
-    void updateWidgetList(QVector<LocationModelItem *> items);
-
-    // still used?
-    int getItemHeight() const;
-    int getTopOffset() const;
-    bool isGlobalPointInViewport(const QPoint &pt);
-    void handleTapClick(const QPoint &cursorPos);
-    QRect globalLocationsListViewportRect();
-
-    // unused -- maybe useful
-    bool isExpandAnimationNow();
-    void setCursorForSelected();
-    void setVisibleExpandedItem(int ind);
-    LocationID detectLocationForTopInd(int topInd);
-    int detectVisibleIndForCursorPos(const QPoint &pt);
-
-    // new
-    const QString scrollbarStyleSheet();
-    void scrollToIndex(int index);
-    void scrollDown(int itemCount);
-    void animatedScrollDown(int itemCount);
-    void animatedScrollUp(int itemCount);
-
-    const LocationID topViewportSelectableLocationId();
-    int viewportOffsetIndex();
-    int accentItemViewportIndex();
-    int viewportIndex(LocationID locationId);
-
     double currentScale_;
+
     int lastScrollPos_;
     int lastScrollPosIndex_;
-
     const int PROGRAMMATIC_SCROLL_ANIMATION_DURATION = 300;
     bool kickPreventMouseSelectionTimer_;
     QElapsedTimer preventMouseSelectionTimer_;
     int animationScollTarget_;
     QVariantAnimation scrollAnimation_;
 
+    void updateWidgetList(QVector<LocationModelItem *> items);
+
+    // scrolling
+    const QString scrollbarStyleSheet();
+    void scrollToIndex(int index);
+    void scrollDown(int itemCount);
+    void animatedScrollDown(int itemCount);
+    void animatedScrollUp(int itemCount);
+
+    // viewport
+    const LocationID topViewportSelectableLocationId();
+    int viewportOffsetIndex();
+    int accentItemViewportIndex();
+    int viewportIndex(LocationID locationId);
+    bool locationIdInViewport(LocationID location);
+    bool isGlobalPointInViewport(const QPoint &pt);
+    QRect globalLocationsListViewportRect();
+
+    // helper
+    int getItemHeight() const;
+    void handleTapClick(const QPoint &cursorPos);
     int closestPositionIncrement(int value);
+
 };
 
 } // namespace GuiLocations

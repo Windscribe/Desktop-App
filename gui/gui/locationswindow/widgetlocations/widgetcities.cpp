@@ -140,6 +140,18 @@ void WidgetCities::centerCursorOnSelectedItem()
     }
 }
 
+void WidgetCities::centerCursorOnItem(LocationID locId)
+{
+    Q_UNUSED(locId);
+    // TODO: remove later
+}
+
+LocationID WidgetCities::selectedItemLocationId()
+{
+    // TODO: remove later
+    return LocationID();
+}
+
 void WidgetCities::updateSelectionCursorAndToolTipByCursorPos()
 {
     detectSelectedItem(QCursor::pos());

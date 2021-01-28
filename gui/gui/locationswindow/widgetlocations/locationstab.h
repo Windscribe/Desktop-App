@@ -69,17 +69,6 @@ private slots:
     void onSearchLineEditKeyEnterPressed();
     void onSearchLineEditFocusOut();
 private:
-    IWidgetLocationsInfo *currentWidgetLocations();
-
-    GuiLocations::WidgetLocations *widgetAllLocations_;
-    GuiLocations::WidgetCities *widgetConfiguredLocations_;
-    GuiLocations::WidgetCities *widgetStaticIpsLocations_;
-    GuiLocations::WidgetCities *widgetFavoriteLocations_;
-    GuiLocations::SearchWidgetLocations *widgetSearchLocations_;
-
-    StaticIPDeviceInfo *staticIPDeviceInfo_; // footer
-    ConfigFooterInfo *configFooterInfo_;     // footer
-
     enum CurTabEnum {
         CUR_TAB_NONE = 0,
         CUR_TAB_ALL_LOCATIONS,
@@ -90,6 +79,17 @@ private:
         CUR_TAB_FIRST = CUR_TAB_ALL_LOCATIONS,
         CUR_TAB_LAST = CUR_TAB_SEARCH_LOCATIONS
     };
+
+    IWidgetLocationsInfo *currentWidgetLocations();
+    IWidgetLocationsInfo *locationWidgetByEnum(CurTabEnum tabEnum);
+    GuiLocations::WidgetLocations *widgetAllLocations_;
+    GuiLocations::WidgetCities *widgetConfiguredLocations_;
+    GuiLocations::WidgetCities *widgetStaticIpsLocations_;
+    GuiLocations::WidgetCities *widgetFavoriteLocations_;
+    GuiLocations::SearchWidgetLocations *widgetSearchLocations_;
+
+    StaticIPDeviceInfo *staticIPDeviceInfo_; // footer
+    ConfigFooterInfo *configFooterInfo_;     // footer
 
     //Backend &backend_;
     CurTabEnum curTab_;
@@ -130,7 +130,6 @@ private:
     bool showAllTabs_;
 
     QColor backgroundColor_;
-
 
     void changeTab(CurTabEnum newTab);
 

@@ -2,6 +2,7 @@
 #define IWIDGETLOCATIONSINFO_H
 
 #include <QKeyEvent>
+#include "types/locationid.h"
 
 class IWidgetLocationsInfo
 {
@@ -11,6 +12,9 @@ public:
     virtual bool cursorInViewport() = 0;
     virtual bool hasSelection() = 0;
     virtual void centerCursorOnSelectedItem() = 0;
+
+    virtual void centerCursorOnItem(LocationID locId) = 0;
+    virtual LocationID selectedItemLocationId() = 0;
 
     virtual void setFirstSelected() = 0;
     virtual bool isFreeSessionStatus() = 0;

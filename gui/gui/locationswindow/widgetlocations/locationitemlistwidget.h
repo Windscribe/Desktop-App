@@ -44,6 +44,7 @@ public:
     void moveAccentDown();
     int accentItemSelectableIndex();
     SelectableLocationItemWidget *lastAccentedItemWidget();
+    SelectableLocationItemWidget *selectableWidget(LocationID locationId);
 
     static const int ITEM_HEIGHT = 50;
 

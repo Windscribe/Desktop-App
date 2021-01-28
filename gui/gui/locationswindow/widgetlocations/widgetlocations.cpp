@@ -128,6 +128,18 @@ void WidgetLocations::centerCursorOnSelectedItem()
     }
 }
 
+void WidgetLocations::centerCursorOnItem(LocationID locId)
+{
+    Q_UNUSED(locId)
+    // TODO: remove later
+}
+
+LocationID WidgetLocations::selectedItemLocationId()
+{
+    // TODO: remove later
+    return LocationID();
+}
+
 void WidgetLocations::updateSelectionCursorAndToolTipByCursorPos()
 {
     detectSelectedItem(QCursor::pos());
