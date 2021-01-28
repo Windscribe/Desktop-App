@@ -2,7 +2,6 @@
 #define SEARCHWIDGETLOCATIONS_H
 
 #include <QElapsedTimer>
-#include "customscrollbar.h"
 #include <QGraphicsScene>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -21,7 +20,6 @@
 // TODO: regression: scrollbar width, background colour, margin
 // TODO: regression: scrollbar opacity on un/hover
 // TODO: regression: scrollbar drag/click doesn't animate viewport change
-class FormConnect;
 
 namespace GuiLocations {
 
@@ -33,33 +31,31 @@ public:
     explicit SearchWidgetLocations(QWidget *parent);
     ~SearchWidgetLocations() override;
 
+    void setModel(BasicLocationsModel *locationsModel);
     void setFilterString(QString text);
+    void updateScaling() override;
+
+    bool hasSelection() override;
+    LocationID selectedItemLocationId() override;
+    void setFirstSelected() override;
 
     bool cursorInViewport() override;
-    bool hasSelection() override;
     void centerCursorOnSelectedItem() override;
     void centerCursorOnItem(LocationID locId) override;
-    LocationID selectedItemLocationId() override;
 
-    void setModel(BasicLocationsModel *locationsModel);
-    void setFirstSelected() override;
-    void startAnimationWithPixmap(const QPixmap &pixmap);
+    int countViewportItems() override;
+    void setCountViewportItems(int cnt) override;
 
-    void setShowLatencyInMs(bool showLatencyInMs);
     virtual bool isShowLatencyInMs()   override;
+    void setShowLatencyInMs(bool showLatencyInMs)override;
     virtual bool isFreeSessionStatus() override;
-
     virtual int getWidth()          override;
     virtual int getScrollBarWidth() override;
 
-    void setCountAvailableItemSlots(int cnt);
+    void startAnimationWithPixmap(const QPixmap &pixmap) override;
 
     bool eventFilter(QObject *object, QEvent *event) override;
     void handleKeyEvent(QKeyEvent *event) override;
-
-    int countVisibleItems() override; // visible is ambiguous
-
-    void updateScaling();
 
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;

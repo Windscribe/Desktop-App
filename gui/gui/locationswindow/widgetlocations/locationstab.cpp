@@ -64,7 +64,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1) * G_SCALE;
     connect(&whiteLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
 
-    widgetAllLocations_ = new GuiLocations::WidgetLocations(this);
+    widgetAllLocations_ = new GuiLocations::SearchWidgetLocations(this);
 
     widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, 6);
     widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
@@ -128,11 +128,11 @@ void LocationsTab::setCountVisibleItemSlots(int cnt)
     if (cnt != countOfVisibleItemSlots_)
     {
         countOfVisibleItemSlots_ = cnt;
-        widgetAllLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
-        widgetConfiguredLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_-1);
-        widgetStaticIpsLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_-1);
-        widgetFavoriteLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
-        widgetSearchLocations_->setCountAvailableItemSlots(countOfVisibleItemSlots_);
+        widgetAllLocations_->setCountViewportItems(countOfVisibleItemSlots_);
+        widgetConfiguredLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
+        widgetStaticIpsLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
+        widgetFavoriteLocations_->setCountViewportItems(countOfVisibleItemSlots_);
+        widgetSearchLocations_->setCountViewportItems(countOfVisibleItemSlots_);
         updateRibbonVisibility();
         updateLocationWidgetsGeometry(unscaledHeight());
     }
@@ -726,12 +726,9 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
     widgetSearchLocations_->setGeometry(
         0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
 
-    widgetAllLocations_->setSize(WINDOW_WIDTH, newHeight);
     widgetFavoriteLocations_->setSize(WINDOW_WIDTH, newHeight);
     widgetStaticIpsLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight );
     widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight);
-    // widgetSearchLocations_->setSize(WINDOW_WIDTH, newHeight);
-
 
     staticIPDeviceInfo_->setGeometry(
         0, (newHeight - 2) * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
@@ -833,7 +830,7 @@ void LocationsTab::updateCustomConfigsEmptyListVisibility()
 void LocationsTab::updateRibbonVisibility()
 {
     auto *current_widget_locations = currentWidgetLocations();
-    const bool is_location_list_empty = current_widget_locations->countVisibleItems() <= 1;
+    const bool is_location_list_empty = current_widget_locations->countViewportItems() <= 1;
 
     isRibbonVisible_ = false;
 

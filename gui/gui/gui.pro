@@ -305,7 +305,6 @@ SOURCES += \
     locationswindow/widgetlocations/locationitem.cpp \
     locationswindow/widgetlocations/locationstab.cpp \
     locationswindow/widgetlocations/widgetcities.cpp \
-    locationswindow/widgetlocations/widgetlocations.cpp \
     locationswindow/widgetlocations/widgetlocationssizes.cpp \
     $$COMMON_PATH/ipc/commandfactory.cpp \
     $$COMMON_PATH/ipc/connection.cpp \
@@ -537,7 +536,6 @@ HEADERS += \
     locationswindow/widgetlocations/locationitem.h \
     locationswindow/widgetlocations/locationstab.h \
     locationswindow/widgetlocations/widgetcities.h \
-    locationswindow/widgetlocations/widgetlocations.h \
     locationswindow/widgetlocations/widgetlocationssizes.h \
     $$COMMON_PATH/ipc/command.h \
     $$COMMON_PATH/ipc/commandfactory.h \

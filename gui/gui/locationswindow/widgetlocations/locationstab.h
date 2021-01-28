@@ -6,7 +6,6 @@
 #include <QWidget>
 #include <QVariantAnimation>
 #include <QTimer>
-#include "widgetlocations.h"
 #include "widgetcities.h"
 #include "searchwidgetlocations.h"
 #include "../backend/locationsmodel/locationsmodel.h"
@@ -84,7 +83,7 @@ private:
 
     IWidgetLocationsInfo *currentWidgetLocations();
     IWidgetLocationsInfo *locationWidgetByEnum(CurTabEnum tabEnum);
-    GuiLocations::WidgetLocations *widgetAllLocations_;
+    GuiLocations::SearchWidgetLocations *widgetAllLocations_;
     GuiLocations::WidgetCities *widgetConfiguredLocations_;
     GuiLocations::WidgetCities *widgetStaticIpsLocations_;
     GuiLocations::WidgetCities *widgetFavoriteLocations_;

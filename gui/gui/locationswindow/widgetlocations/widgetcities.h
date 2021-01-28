@@ -50,8 +50,8 @@ public:
     virtual int getWidth() override;
     virtual int getScrollBarWidth() override;
 
-    void setCountAvailableItemSlots(int cnt);
-    int getCountAvailableItemSlots();
+    int countViewportItems() override;
+    void setCountViewportItems(int cnt) override;
     virtual QSize sizeHint() const override; // unused?
 
     void onKeyPressEvent(QKeyEvent *event);
@@ -62,7 +62,6 @@ public:
 
     QRect globalLocationsListViewportRect();
 
-    int countVisibleItems() override;
 
     void setSize(int width, int height);
     void updateScaling();

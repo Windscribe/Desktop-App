@@ -421,7 +421,7 @@ int WidgetCities::getScrollBarWidth()
     return WidgetLocationsSizes::instance().getScrollBarWidth();
 }
 
-void WidgetCities::setCountAvailableItemSlots(int cnt)
+void WidgetCities::setCountViewportItems(int cnt)
 {
     if (countOfAvailableItemSlots_ != cnt)
     {
@@ -431,11 +431,6 @@ void WidgetCities::setCountAvailableItemSlots(int cnt)
         updateEmptyListButton();
         viewport()->update();
     }
-}
-
-int WidgetCities::getCountAvailableItemSlots()
-{
-    return countOfAvailableItemSlots_;
 }
 
 int WidgetCities::getItemHeight() const
@@ -552,7 +547,7 @@ void WidgetCities::paintEvent(QPaintEvent *event)
 
 
     // empty list drawing items
-    if (countVisibleItems() == 0)
+    if (countViewportItems() == 0)
     {
         const int kVerticalOffset = emptyListButton_->text().isEmpty() ? 0 : 16;
         if (!emptyListDisplayIcon_.isEmpty())
@@ -1377,7 +1372,7 @@ QRect WidgetCities::globalLocationsListViewportRect()
     return QRect(locationItemListTopLeft.x(), locationItemListTopLeft.y(), viewport()->geometry().width(), viewport()->geometry().height());
 }
 
-int WidgetCities::countVisibleItems()
+int WidgetCities::countViewportItems()
 {
     int count = 0;
     for (int i = 0; i < items_.count(); ++i)
