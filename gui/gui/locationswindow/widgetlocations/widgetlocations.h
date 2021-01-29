@@ -16,9 +16,6 @@
 #include "widgetlocationslist.h"
 #include "scrollbar.h"
 
-// TODO: regression: scrollbar width, background colour, margin
-// TODO: regression: scrollbar opacity on un/hover
-
 namespace GuiLocations {
 
 class WidgetLocations : public QScrollArea, public IWidgetLocationsInfo
@@ -107,7 +104,6 @@ private:
     void updateWidgetList(QVector<LocationModelItem *> items);
 
     // scrolling
-    const QString scrollbarStyleSheet();
     void scrollToIndex(int index);
     void scrollDown(int itemCount);
     void animatedScrollDown(int itemCount);

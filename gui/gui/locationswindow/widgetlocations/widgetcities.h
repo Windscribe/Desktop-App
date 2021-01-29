@@ -2,7 +2,6 @@
 #define WIDGETCITIES_H
 
 #include <QElapsedTimer>
-#include "customscrollbar.h"
 #include <QGraphicsScene>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -114,7 +113,6 @@ private:
     void updateWidgetList(QVector<CityModelItem*> items);
 
     // scrolling
-    const QString scrollbarStyleSheet();
     void scrollToIndex(int index);
     void scrollDown(int itemCount);
     void animatedScrollDown(int itemCount);

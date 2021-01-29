@@ -4,6 +4,9 @@
 #include <QScrollBar>
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QVariantAnimation>
+
+namespace GuiLocations {
 
 class ScrollBar : public QScrollBar
 {
@@ -13,6 +16,7 @@ public:
     void forceSetValue(int value); // sets the value and updates the target - avoids wheeling bugs where target is outdated
 
     bool dragging();
+    void updateCustomStyleSheet();
 
 signals:
     void handleDragged(int valuePos);
@@ -23,11 +27,13 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 private slots:
     void onScrollAnimationValueChanged(const QVariant &value);
-    void onTimerTick();
-
+    void onScollTimerTick();
+    void onOpacityAnimationValueChanged(const QVariant &value);
 private:
     const double SCROLL_SPEED_FRACTION = 0.5;
     const int MINIMUM_DURATION = 200;
@@ -35,8 +41,8 @@ private:
     int startValue_;
 
     int animationDuration_;
-    QElapsedTimer elapsedTimer_;
-    QTimer timer_;
+    QElapsedTimer scrollElapsedTimer_;
+    QTimer scrollTimer_;
     int lastCursorPos_;
     int lastValue_;
 
@@ -44,6 +50,14 @@ private:
 
     double magicRatio() const;
     void animateScroll(int target, int animationSpeedFraction);
+
+    const QString customStyleSheet();
+    int customScrollBarWidth();
+    int customPaddingWidth();
+
+    double curOpacity_;
+    QVariantAnimation opacityAnimation_;
 };
 
+} // namepspace
 #endif // SCROLLBAR_H
