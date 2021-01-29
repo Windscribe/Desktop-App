@@ -39,6 +39,7 @@ public:
     void setLatencyMs(PingTime pingTime);
     void setShowLatencyMs(bool showLatencyMs);
 
+    void updateScaling();
 signals:
     void selected();
     void favoriteClicked(LocationItemCityWidget *itemWidget, bool favorited);

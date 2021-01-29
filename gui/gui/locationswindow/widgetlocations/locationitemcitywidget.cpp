@@ -151,6 +151,11 @@ void LocationItemCityWidget::setShowLatencyMs(bool showLatencyMs)
     updatePingBarIcon();
 }
 
+void LocationItemCityWidget::updateScaling()
+{
+    // recalcItemPositions();
+}
+
 void LocationItemCityWidget::paintEvent(QPaintEvent *event)
 {
     // background
@@ -229,6 +234,7 @@ void LocationItemCityWidget::enterEvent(QEvent *event)
 
 void LocationItemCityWidget::resizeEvent(QResizeEvent *event)
 {
+    // qDebug() << "City resize";
     recalcItemPositions();
 }
 

@@ -218,6 +218,7 @@ SOURCES += \
     graphicresources/iconmanager.cpp \
     graphicresources/independentpixmap.cpp \
     launchonstartup/launchonstartup.cpp \
+    locationswindow/widgetlocations/cityitemlistwidget.cpp \
     locationswindow/widgetlocations/locationitemcitywidget.cpp \
     locationswindow/widgetlocations/locationitemlistwidget.cpp \
     locationswindow/widgetlocations/locationitemregionheaderwidget.cpp \
@@ -297,12 +298,9 @@ SOURCES += \
     connectwindow/connectwindowitem.cpp \
     locationswindow/locationswindow.cpp \
     locationswindow/widgetlocations/backgroundpixmapanimation.cpp \
-    locationswindow/widgetlocations/cityitem.cpp \
-    locationswindow/widgetlocations/citynode.cpp \
     locationswindow/widgetlocations/cursorupdatehelper.cpp \
     locationswindow/widgetlocations/customscrollbar.cpp \
     locationswindow/widgetlocations/itemtimems.cpp \
-    locationswindow/widgetlocations/locationitem.cpp \
     locationswindow/widgetlocations/locationstab.cpp \
     locationswindow/widgetlocations/widgetcities.cpp \
     locationswindow/widgetlocations/widgetlocationssizes.cpp \
@@ -447,6 +445,7 @@ HEADERS += \
     dialogs/advancedparametersdialog.h \
     dialogs/dialoggetusernamepassword.h \
     dialogs/dialogmessagecpuusage.h \
+    locationswindow/widgetlocations/cityitemlistwidget.h \
     locationswindow/widgetlocations/locationitemcitywidget.h \
     locationswindow/widgetlocations/locationitemlistwidget.h \
     locationswindow/widgetlocations/locationitemregionheaderwidget.h \
@@ -468,7 +467,6 @@ HEADERS += \
     graphicresources/iconmanager.h \
     graphicresources/independentpixmap.h \
     launchonstartup/launchonstartup.h \
-    locationswindow/widgetlocations/icityitem.h \
     loginwindow/iinitwindow.h \
     loginwindow/initwindowitem.h \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.h \
@@ -527,13 +525,10 @@ HEADERS += \
     connectwindow/connectwindowitem.h \
     locationswindow/locationswindow.h \
     locationswindow/widgetlocations/backgroundpixmapanimation.h \
-    locationswindow/widgetlocations/cityitem.h \
-    locationswindow/widgetlocations/citynode.h \
     locationswindow/widgetlocations/cursorupdatehelper.h \
     locationswindow/widgetlocations/customscrollbar.h \
     locationswindow/widgetlocations/itemtimems.h \
     locationswindow/widgetlocations/iwidgetlocationsinfo.h \
-    locationswindow/widgetlocations/locationitem.h \
     locationswindow/widgetlocations/locationstab.h \
     locationswindow/widgetlocations/widgetcities.h \
     locationswindow/widgetlocations/widgetlocationssizes.h \

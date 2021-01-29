@@ -26,6 +26,7 @@ public:
     void expand();
     void collapse();
 
+    // TODO: can speed things up with by removing copies?
     void addCity(CityModelItem city);
     QVector<SelectableLocationItemWidget *> selectableWidgets();
     QVector<LocationItemCityWidget *> cityWidgets();

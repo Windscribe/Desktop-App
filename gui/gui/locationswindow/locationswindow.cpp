@@ -35,7 +35,7 @@ int LocationsWindow::tabAndFooterHeight() const
 void LocationsWindow::setCountVisibleItemSlots(int cnt)
 {
     locationsTab_->setCountVisibleItemSlots(cnt);
-    locationsTabHeight_ = locationsTab_->unscaledHeight() + 48 ; // hide last location separator line
+    locationsTabHeight_ = locationsTab_->unscaledHeight() + 48 ; // hide last location separator line // TODO: issue here?
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
     emit heightChanged();
 }

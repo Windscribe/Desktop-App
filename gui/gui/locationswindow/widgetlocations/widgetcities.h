@@ -6,9 +6,8 @@
 #include <QGraphicsScene>
 #include <QTimer>
 #include <QVBoxLayout>
-#include <QAbstractScrollArea>
+#include <QScrollArea>
 #include <QEasingCurve>
-#include "icityitem.h"
 #include "../backend/locationsmodel/basiccitiesmodel.h"
 #include "../backend/locationsmodel/favoritelocationsstorage.h"
 #include "../backend/types/types.h"
@@ -16,59 +15,45 @@
 #include "iwidgetlocationsinfo.h"
 #include "backgroundpixmapanimation.h"
 #include "tooltips/tooltiptypes.h"
-
-class FormConnect;
+#include "cityitemlistwidget.h"
+#include "scrollbar.h"
 
 namespace GuiLocations {
 
-class CursorUpdateHelper;
-
-class WidgetCities : public QAbstractScrollArea, public IWidgetLocationsInfo
+class WidgetCities : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT
-
 public:
     explicit WidgetCities(QWidget *parent, int visible_item_slots = 7);
     ~WidgetCities() override;
 
-    bool cursorInViewport() override;
+    void setModel(BasicCitiesModel *citiesModel);
+    void updateScaling() override;
+
     bool hasSelection() override;
+    LocationID selectedItemLocationId() override;
+    void setFirstSelected() override;
+
+    bool cursorInViewport() override;
     void centerCursorOnSelectedItem() override;
     void centerCursorOnItem(LocationID locId) override;
-    LocationID selectedItemLocationId() override;
-
-    void setModel(BasicCitiesModel *citiesModel);
-    void setCurrentSelected(LocationID id);
-    void setFirstSelected() override;
-    void setExpanded(bool bExpanded);
-    void startAnimationWithPixmap(const QPixmap &pixmap);
-
-    void setShowLatencyInMs(bool showLatencyInMs);
-    virtual bool isShowLatencyInMs() override;
-    virtual bool isFreeSessionStatus() override;
-
-    virtual int getWidth() override;
-    virtual int getScrollBarWidth() override;
 
     int countViewportItems() override;
     void setCountViewportItems(int cnt) override;
-    virtual QSize sizeHint() const override; // unused?
 
-    void onKeyPressEvent(QKeyEvent *event);
+    void setShowLatencyInMs(bool showLatencyInMs) override;
+    virtual bool isShowLatencyInMs() override;
+    virtual bool isFreeSessionStatus() override;
+
+    void startAnimationWithPixmap(const QPixmap &pixmap) override;
 
     bool eventFilter(QObject *object, QEvent *event) override;
-
-    void handleKeyEvent(QKeyEvent *event) override;
-
-    QRect globalLocationsListViewportRect();
-
-
-    void setSize(int width, int height);
-    void updateScaling();
 
     void setEmptyListDisplayIcon(QString emptyListDisplayIcon);
     void setEmptyListDisplayText(QString emptyListDisplayText, int width = 0);
     void setEmptyListButtonText(QString text);
+
+    void handleKeyEvent(QKeyEvent *event) override;
 
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;
@@ -84,7 +69,6 @@ protected:
 signals:
     void selected(LocationID id);
     void switchFavorite(LocationID id, bool isFavorite);
-    void addStaticIpURLClicked();
     void emptyListButtonClicked();
 
 private slots:
@@ -93,88 +77,62 @@ private slots:
     void onIsFavoriteChanged(LocationID id, bool isFavorite);
     void onFreeSessionStatusChanged(bool isFreeSessionStatus);
 
-    void onTopScrollBarValueChanged(int value);
+    void onLanguageChanged();
+
+    void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
+    void onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
+    void onLocationItemListWidgetLocationIdSelected(LocationID id);
+    void onScrollAnimationValueChanged(const QVariant &value);
 
 private:
-    int width_;
-    int height_;
-    int topInd_;
-    int topOffs_;
-    int indSelected_;
-    int topOffsSelected_;
-    int indPressed_;
-    bool indFavouritePressed_;
-
-    int countOfAvailableItemSlots_;
-
-    QVector<ICityItem *> items_;
-    bool bIsFreeSession_;
-
-    int startAnimationTop_;
-    int endAnimationTop_;
-    double scrollAnimationDuration_;
-    QElapsedTimer scrollAnimationElapsedTimer_;
-    bool isScrollAnimationNow_;
-
-    double currentScale_;
-
-    QEasingCurve easingCurve_;
-
-    std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
-
-    // variables for tooltip
-    QPoint prevCursorPos_;
-    bool bMouseInViewport_;
-
-    bool bExpanded_;
-    bool bShowLatencyInMs_;
-
-    bool bTapGestureStarted_;
-
-    CustomScrollBar *scrollBarHidden_;
-    QScrollBar *scrollBarOnTop_;
+    CityItemListWidget *cityItemListWidget_;
+    ScrollBar *scrollBar_;
     BasicCitiesModel *citiesModel_;
 
-    QList<LocationID> currentVisibleItems_;
-
+    int countOfAvailableItemSlots_;
+    bool bIsFreeSession_;
+    bool bShowLatencyInMs_;
+    bool bTapGestureStarted_;
     BackgroundPixmapAnimation backgroundPixmapAnimation_;
+    double currentScale_;
 
-    int getItemHeight() const;
-    int getTopOffset() const;
-    void calcScrollPosition();
-    void setupScrollBar();
-    void setupScrollBarMaxValue();
-    bool detectSelectedItem(const QPoint &cursorPos);
-    bool detectItemClickOnFavoriteLocationIcon();
-    void setCursorForSelected();
-    LocationID detectLocationForTopInd(int topInd);
-    int detectVisibleIndForCursorPos(const QPoint &pt);
-
-    void handleMouseMoveForTooltip();
-    void handleLeaveForTooltip();
-
-    QPoint adjustToolTipPosition(const QPoint &globalPoint, const QSize &toolTipSize, bool isP2PToolTip);
-    QPoint getSelectItemCaption1TextCenter();
-
-    void clearItems();
-    double calcScrollingSpeed(double scrollItemsCount);
-    bool isGlobalPointInViewport(const QPoint &pt);
-    void scrollDownToSelected();
-    void scrollUpToSelected();
-    void handleTapClick(const QPoint &cursorPos);
-    void emitSelectedIfNeed();
-
-    int viewportPosYOfIndex(int index, bool centerY);
-
-    void updateSelectionCursorAndToolTipByCursorPos();
-    void updateListDisplay(QVector<CityModelItem*> items);
-    void updateEmptyListButton();
+    int lastScrollPos_;
+    const int PROGRAMMATIC_SCROLL_ANIMATION_DURATION = 300;
+    bool kickPreventMouseSelectionTimer_;
+    QElapsedTimer preventMouseSelectionTimer_;
+    int animationScollTarget_;
+    QVariantAnimation scrollAnimation_;
 
     QString emptyListDisplayIcon_;
     QString emptyListDisplayText_;
     int emptyListDisplayTextWidth_;
     int emptyListDisplayTextHeight_;
     CommonWidgets::TextButtonWidget *emptyListButton_;
+
+    void updateEmptyListButton();
+    void updateWidgetList(QVector<CityModelItem*> items);
+
+    // scrolling
+    const QString scrollbarStyleSheet();
+    void scrollToIndex(int index);
+    void scrollDown(int itemCount);
+    void animatedScrollDown(int itemCount);
+    void animatedScrollUp(int itemCount);
+
+    // viewport
+    const LocationID topViewportSelectableLocationId();
+    int viewportOffsetIndex();
+    int accentItemViewportIndex();
+    int viewportIndex(LocationID locationId);
+    bool locationIdInViewport(LocationID location);
+    bool isGlobalPointInViewport(const QPoint &pt);
+    QRect globalLocationsListViewportRect();
+
+    // helper
+    int getScrollBarWidth() ;
+    int getItemHeight() const;
+    void handleTapClick(const QPoint &cursorPos);
+    int closestPositionIncrement(int value);
 };
 
 } // namespace GuiLocations

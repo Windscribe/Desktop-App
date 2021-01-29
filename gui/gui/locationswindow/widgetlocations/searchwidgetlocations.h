@@ -7,7 +7,6 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include <QEasingCurve>
-#include "locationitem.h"
 #include "../backend/locationsmodel/basiclocationsmodel.h"
 #include "../backend/locationsmodel/favoritelocationsstorage.h"
 #include "../backend/types/types.h"
@@ -49,8 +48,6 @@ public:
     virtual bool isShowLatencyInMs()   override;
     void setShowLatencyInMs(bool showLatencyInMs)override;
     virtual bool isFreeSessionStatus() override;
-    virtual int getWidth()          override;
-    virtual int getScrollBarWidth() override;
 
     void startAnimationWithPixmap(const QPixmap &pixmap) override;
 
@@ -71,7 +68,6 @@ protected:
 signals:
     void selected(LocationID id);
     void switchFavorite(LocationID id, bool isFavorite);
-    void addStaticIpURLClicked();
 
 private slots:
     void onItemsUpdated(QVector<LocationModelItem*> items);
@@ -101,7 +97,6 @@ private:
     double currentScale_;
 
     int lastScrollPos_;
-    int lastScrollPosIndex_;
     const int PROGRAMMATIC_SCROLL_ANIMATION_DURATION = 300;
     bool kickPreventMouseSelectionTimer_;
     QElapsedTimer preventMouseSelectionTimer_;
@@ -127,6 +122,7 @@ private:
     QRect globalLocationsListViewportRect();
 
     // helper
+    int getScrollBarWidth();
     int getItemHeight() const;
     void handleTapClick(const QPoint &cursorPos);
     int closestPositionIncrement(int value);

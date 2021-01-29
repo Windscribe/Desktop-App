@@ -15,9 +15,10 @@ public:
     explicit LocationItemListWidget(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent = nullptr);
     ~LocationItemListWidget() override;
 
-    int countRegions() const;
     void clearWidgets();
     void addRegionWidget(LocationModelItem *item);
+
+    // TODO: can speed things up with by removing copies?
     void addCityToRegion(CityModelItem city, LocationModelItem *region);
 
     void updateScaling();
@@ -46,9 +47,8 @@ public:
     SelectableLocationItemWidget *lastAccentedItemWidget();
     SelectableLocationItemWidget *selectableWidget(LocationID locationId);
 
-    static const int ITEM_HEIGHT = 50;
-
     enum ExpandReason { EXPAND_REASON_AUTO, EXPAND_REASON_USER };
+
 signals:
     void heightChanged(int height);
     void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);

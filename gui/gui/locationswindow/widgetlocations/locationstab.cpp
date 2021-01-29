@@ -715,6 +715,7 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
 
     currentLocationListHeight_ = newHeight;
 
+    qDebug() << "Setting height of all location widgets: " << newHeight * G_SCALE;
     widgetAllLocations_->setGeometry(
         0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
     widgetFavoriteLocations_->setGeometry(
@@ -726,9 +727,9 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
     widgetSearchLocations_->setGeometry(
         0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
 
-    widgetFavoriteLocations_->setSize(WINDOW_WIDTH, newHeight);
-    widgetStaticIpsLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight );
-    widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight);
+//    widgetFavoriteLocations_->setSize(WINDOW_WIDTH, newHeight);
+//    widgetStaticIpsLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight );
+//    widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight);
 
     staticIPDeviceInfo_->setGeometry(
         0, (newHeight - 2) * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);

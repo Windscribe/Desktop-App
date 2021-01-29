@@ -26,11 +26,6 @@ LocationItemListWidget::~LocationItemListWidget()
     clearWidgets();
 }
 
-int LocationItemListWidget::countRegions() const
-{
-    return itemWidgets_.count();
-}
-
 void LocationItemListWidget::clearWidgets()
 {
     lastAccentedItemWidget_ = nullptr;
