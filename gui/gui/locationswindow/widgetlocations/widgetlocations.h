@@ -13,7 +13,7 @@
 #include "iwidgetlocationsinfo.h"
 #include "backgroundpixmapanimation.h"
 #include "tooltips/tooltiptypes.h"
-#include "locationitemlistwidget.h"
+#include "widgetlocationslist.h"
 #include "scrollbar.h"
 
 // TODO: regression: scrollbar width, background colour, margin
@@ -21,13 +21,13 @@
 
 namespace GuiLocations {
 
-class SearchWidgetLocations : public QScrollArea, public IWidgetLocationsInfo
+class WidgetLocations : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT
 
 public:
-    explicit SearchWidgetLocations(QWidget *parent);
-    ~SearchWidgetLocations() override;
+    explicit WidgetLocations(QWidget *parent);
+    ~WidgetLocations() override;
 
     void setModel(BasicLocationsModel *locationsModel);
     void setFilterString(QString text);
@@ -77,15 +77,15 @@ private slots:
     void onLanguageChanged();
 
     void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
-    void onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
+    void onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *cityWidget, bool favorited);
     void onLocationItemListWidgetLocationIdSelected(LocationID id);
-    void onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget *region, LocationItemListWidget::ExpandReason reason);
+    void onLocationItemListWidgetRegionExpanding(ItemWidgetRegion *region, WidgetLocationsList::ExpandReason reason);
 
     void onScrollAnimationValueChanged(const QVariant &value);
     void onScrollBarHandleDragged(int valuePos);
 
 private:
-    LocationItemListWidget *locationItemListWidget_;
+    WidgetLocationsList *widgetLocationsList_;
     ScrollBar *scrollBar_;
 
     QString filterString_;

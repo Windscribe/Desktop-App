@@ -1,4 +1,4 @@
-#include "locationitemcitywidget.h"
+#include "itemwidgetcity.h"
 
 #include <QPainter>
 #include <QCursor>
@@ -14,7 +14,7 @@
 
 namespace GuiLocations {
 
-LocationItemCityWidget::LocationItemCityWidget(IWidgetLocationsInfo *widgetLocationsInfo, CityModelItem cityModelItem, QWidget *parent) : SelectableLocationItemWidget(parent)
+ItemWidgetCity::ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, CityModelItem cityModelItem, QWidget *parent) : IItemWidget(parent)
   , cityModelItem_(cityModelItem)
   , widgetLocationsInfo_(widgetLocationsInfo)
   , showingPingBar_(!widgetLocationsInfo->isShowLatencyInMs())
@@ -48,48 +48,48 @@ LocationItemCityWidget::LocationItemCityWidget(IWidgetLocationsInfo *widgetLocat
     recalcItemPositions();
 }
 
-LocationItemCityWidget::~LocationItemCityWidget()
+ItemWidgetCity::~ItemWidgetCity()
 {
     // qDebug() << "Deleting city: " << name();
 }
 
-bool LocationItemCityWidget::isExpanded() const
+bool ItemWidgetCity::isExpanded() const
 {
     return false;
 }
 
-const LocationID LocationItemCityWidget::getId() const
+const LocationID ItemWidgetCity::getId() const
 {
     return cityModelItem_.id;
 }
 
-const QString LocationItemCityWidget::name() const
+const QString ItemWidgetCity::name() const
 {
     return cityModelItem_.city + " " + cityModelItem_.nick;
 }
 
-SelectableLocationItemWidget::SelectableLocationItemWidgetType LocationItemCityWidget::type()
+IItemWidget::ItemWidgetType ItemWidgetCity::type()
 {
-    return SelectableLocationItemWidgetType::CITY;
+    return ItemWidgetType::CITY;
 }
 
-QRect LocationItemCityWidget::globalGeometry() const
+QRect ItemWidgetCity::globalGeometry() const
 {
     const QPoint originAsGlobal = mapToGlobal(QPoint(0,0));
     return QRect(originAsGlobal.x(), originAsGlobal.y(), geometry().width(), geometry().height());
 }
 
-bool LocationItemCityWidget::isForbidden() const
+bool ItemWidgetCity::isForbidden() const
 {
     return cityModelItem_.bShowPremiumStarOnly && widgetLocationsInfo_->isFreeSessionStatus();
 }
 
-bool LocationItemCityWidget::isDisabled() const
+bool ItemWidgetCity::isDisabled() const
 {
     return cityModelItem_.isDisabled;
 }
 
-void LocationItemCityWidget::setFavourited(bool favorited)
+void ItemWidgetCity::setFavourited(bool favorited)
 {
     favorited_ = favorited;
     if (favorited)
@@ -102,12 +102,12 @@ void LocationItemCityWidget::setFavourited(bool favorited)
     }
 }
 
-void LocationItemCityWidget::setSelectable(bool selectable)
+void ItemWidgetCity::setSelectable(bool selectable)
 {
     selectable_ = selectable;
 }
 
-void LocationItemCityWidget::setSelected(bool select)
+void ItemWidgetCity::setSelected(bool select)
 {
     if (selectable_)
     {
@@ -128,35 +128,35 @@ void LocationItemCityWidget::setSelected(bool select)
     }
 }
 
-bool LocationItemCityWidget::isSelected() const
+bool ItemWidgetCity::isSelected() const
 {
     return selected_;
 }
 
-bool LocationItemCityWidget::containsCursor() const
+bool ItemWidgetCity::containsCursor() const
 {
     return globalGeometry().contains(cursor().pos());
 }
 
-void LocationItemCityWidget::setLatencyMs(PingTime pingTime)
+void ItemWidgetCity::setLatencyMs(PingTime pingTime)
 {
     pingTime_ = pingTime;
     updatePingBarIcon();
 }
 
-void LocationItemCityWidget::setShowLatencyMs(bool showLatencyMs)
+void ItemWidgetCity::setShowLatencyMs(bool showLatencyMs)
 {
     // time-text drawing handled in paintEvent
     showingPingBar_ = !showLatencyMs;
     updatePingBarIcon();
 }
 
-void LocationItemCityWidget::updateScaling()
+void ItemWidgetCity::updateScaling()
 {
     // recalcItemPositions();
 }
 
-void LocationItemCityWidget::paintEvent(QPaintEvent *event)
+void ItemWidgetCity::paintEvent(QPaintEvent *event)
 {
     // background
     QPainter painter(this);
@@ -225,20 +225,20 @@ void LocationItemCityWidget::paintEvent(QPaintEvent *event)
     painter.drawLine(left, bottom - 1, right, bottom - 1);
 }
 
-void LocationItemCityWidget::enterEvent(QEvent *event)
+void ItemWidgetCity::enterEvent(QEvent *event)
 {
     Q_UNUSED(event);
     setSelected(true); // triggers unselection of other widgets
 }
 
 
-void LocationItemCityWidget::resizeEvent(QResizeEvent *event)
+void ItemWidgetCity::resizeEvent(QResizeEvent *event)
 {
     // qDebug() << "City resize";
     recalcItemPositions();
 }
 
-void LocationItemCityWidget::onPingBarIconHoverEnter()
+void ItemWidgetCity::onPingBarIconHoverEnter()
 {
     if (showingPingBar_)
     {
@@ -253,23 +253,23 @@ void LocationItemCityWidget::onPingBarIconHoverEnter()
     }
 }
 
-void LocationItemCityWidget::onPingBarIconHoverLeave()
+void ItemWidgetCity::onPingBarIconHoverLeave()
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
 
 }
 
-void LocationItemCityWidget::onFavoriteIconButtonClicked()
+void ItemWidgetCity::onFavoriteIconButtonClicked()
 {
     emit favoriteClicked(this, !favorited_);
 }
 
-const QString LocationItemCityWidget::labelStyleSheetWithOpacity(double opacity)
+const QString ItemWidgetCity::labelStyleSheetWithOpacity(double opacity)
 {
     return "QLabel { color : rgba(255,255,255, " + QString::number(opacity) + "); }";
 }
 
-void LocationItemCityWidget::recalcItemPositions()
+void ItemWidgetCity::recalcItemPositions()
 {
     QFont cityFont = *FontManager::instance().getFont(16, true);
     int cityWidth = CommonGraphics::textWidth(cityLabel_->text(), cityFont);
@@ -300,7 +300,7 @@ void LocationItemCityWidget::recalcItemPositions()
     pingBarIcon_->setGeometry(latencyRect);
 }
 
-void LocationItemCityWidget::updateFavoriteIcon()
+void ItemWidgetCity::updateFavoriteIcon()
 {
     if (isForbidden())
     {
@@ -317,7 +317,7 @@ void LocationItemCityWidget::updateFavoriteIcon()
     }
 }
 
-void LocationItemCityWidget::updatePingBarIcon()
+void ItemWidgetCity::updatePingBarIcon()
 {
     pingBarIcon_->setImage(pingIconNameString(pingTime_.toConnectionSpeed()));
 
@@ -339,7 +339,7 @@ void LocationItemCityWidget::updatePingBarIcon()
     update();
 }
 
-const QString LocationItemCityWidget::pingIconNameString(int connectionSpeedIndex)
+const QString ItemWidgetCity::pingIconNameString(int connectionSpeedIndex)
 {
     if (connectionSpeedIndex == 0)
     {

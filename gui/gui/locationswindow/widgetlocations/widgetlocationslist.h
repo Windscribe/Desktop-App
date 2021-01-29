@@ -2,18 +2,18 @@
 #define LOCATIONITEMLISTWIDGET_H
 
 #include <QWidget>
-#include "locationitemregionwidget.h"
+#include "itemwidgetregion.h"
 
 namespace GuiLocations {
 
 class CursorUpdateHelper;
 
-class LocationItemListWidget : public QWidget
+class WidgetLocationsList : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationItemListWidget(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent = nullptr);
-    ~LocationItemListWidget() override;
+    explicit WidgetLocationsList(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent = nullptr);
+    ~WidgetLocationsList() override;
 
     void clearWidgets();
     void addRegionWidget(LocationModelItem *item);
@@ -31,9 +31,9 @@ public:
     void expandLocationIds(QVector<LocationID> locIds);
 
     QVector<LocationID> expandedOrExpandingLocationIds();
-    QVector<LocationItemRegionWidget *> itemWidgets();
-    QVector<LocationItemCityWidget *> cityWidgets();
-    QVector<SelectableLocationItemWidget *> selectableWidgets(); // regions + expanded cities
+    QVector<ItemWidgetRegion *> itemWidgets();
+    QVector<ItemWidgetCity *> cityWidgets();
+    QVector<IItemWidget *> selectableWidgets(); // regions + expanded cities
 
     int selectableIndex(LocationID locationId);
     const LocationID lastSelectedLocationId() const;
@@ -44,17 +44,17 @@ public:
     void moveAccentUp();
     void moveAccentDown();
     int accentItemSelectableIndex();
-    SelectableLocationItemWidget *lastAccentedItemWidget();
-    SelectableLocationItemWidget *selectableWidget(LocationID locationId);
+    IItemWidget *lastAccentedItemWidget();
+    IItemWidget *selectableWidget(LocationID locationId);
 
     enum ExpandReason { EXPAND_REASON_AUTO, EXPAND_REASON_USER };
 
 signals:
     void heightChanged(int height);
-    void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
-    void cityItemClicked(LocationItemCityWidget *cityWidget);
+    void favoriteClicked(ItemWidgetCity *cityWidget, bool favorited);
+    void cityItemClicked(ItemWidgetCity *cityWidget);
     void locationIdSelected(LocationID id);
-    void regionExpanding(LocationItemRegionWidget *regionWidget, LocationItemListWidget::ExpandReason reason);
+    void regionExpanding(ItemWidgetRegion *regionWidget, WidgetLocationsList::ExpandReason reason);
 
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
@@ -62,21 +62,21 @@ protected:
 private slots:
     void onRegionWidgetHeightChanged(int height);
 
-    void onLocationItemCityClicked(LocationItemCityWidget *cityWidget);
-    void onLocationItemRegionClicked(LocationItemRegionWidget *regionWidget);
-    void onSelectableLocationItemSelected(SelectableLocationItemWidget *itemWidget);
+    void onLocationItemCityClicked(ItemWidgetCity *cityWidget);
+    void onLocationItemRegionClicked(ItemWidgetRegion *regionWidget);
+    void onSelectableLocationItemSelected(IItemWidget *itemWidget);
 
 private:
     int height_;
     std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
-    QVector<LocationItemRegionWidget *> itemWidgets_;
-    SelectableLocationItemWidget *lastAccentedItemWidget_;
-    QVector<SelectableLocationItemWidget *> recentlySelectedWidgets_;
+    QVector<ItemWidgetRegion *> itemWidgets_;
+    IItemWidget *lastAccentedItemWidget_;
+    QVector<IItemWidget *> recentlySelectedWidgets_;
 
     IWidgetLocationsInfo *widgetLocationsInfo_; // deleted elsewhere
 
     void recalcItemPositions();
-    void updateCursorWithSelectableWidget(SelectableLocationItemWidget *widget);
+    void updateCursorWithSelectableWidget(IItemWidget *widget);
 
 };
 

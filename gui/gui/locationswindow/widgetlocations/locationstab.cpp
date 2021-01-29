@@ -65,7 +65,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1) * G_SCALE;
     connect(&whiteLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
 
-    widgetAllLocations_ = new GuiLocations::SearchWidgetLocations(this);
+    widgetAllLocations_ = new GuiLocations::WidgetLocations(this);
 
     widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, 6);
     widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
@@ -96,7 +96,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
             SIGNAL(clearCustomConfigClicked()));
     connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SLOT(onAddCustomConfigClicked()));
 
-    widgetSearchLocations_ = new GuiLocations::SearchWidgetLocations(this);
+    widgetSearchLocations_ = new GuiLocations::WidgetLocations(this);
     widgetSearchLocations_->hide();
 
     updateLocationWidgetsGeometry(unscaledHeight());

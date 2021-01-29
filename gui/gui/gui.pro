@@ -218,13 +218,13 @@ SOURCES += \
     graphicresources/iconmanager.cpp \
     graphicresources/independentpixmap.cpp \
     launchonstartup/launchonstartup.cpp \
-    locationswindow/widgetlocations/cityitemlistwidget.cpp \
-    locationswindow/widgetlocations/locationitemcitywidget.cpp \
-    locationswindow/widgetlocations/locationitemlistwidget.cpp \
-    locationswindow/widgetlocations/locationitemregionheaderwidget.cpp \
-    locationswindow/widgetlocations/locationitemregionwidget.cpp \
+    locationswindow/widgetlocations/itemwidgetcity.cpp \
+    locationswindow/widgetlocations/itemwidgetheader.cpp \
+    locationswindow/widgetlocations/itemwidgetregion.cpp \
     locationswindow/widgetlocations/scrollbar.cpp \
-    locationswindow/widgetlocations/searchwidgetlocations.cpp \
+    locationswindow/widgetlocations/widgetcitieslist.cpp \
+    locationswindow/widgetlocations/widgetlocations.cpp \
+    locationswindow/widgetlocations/widgetlocationslist.cpp \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.cpp \
     overlaysconnectwindow//upgradewindowitem.cpp \
     overlaysconnectwindow/updatewindowitem.cpp \
@@ -445,14 +445,14 @@ HEADERS += \
     dialogs/advancedparametersdialog.h \
     dialogs/dialoggetusernamepassword.h \
     dialogs/dialogmessagecpuusage.h \
-    locationswindow/widgetlocations/cityitemlistwidget.h \
-    locationswindow/widgetlocations/locationitemcitywidget.h \
-    locationswindow/widgetlocations/locationitemlistwidget.h \
-    locationswindow/widgetlocations/locationitemregionheaderwidget.h \
-    locationswindow/widgetlocations/locationitemregionwidget.h \
+    locationswindow/widgetlocations/iitemwidget.h \
+    locationswindow/widgetlocations/itemwidgetcity.h \
+    locationswindow/widgetlocations/itemwidgetheader.h \
+    locationswindow/widgetlocations/itemwidgetregion.h \
     locationswindow/widgetlocations/scrollbar.h \
-    locationswindow/widgetlocations/searchwidgetlocations.h \
-    locationswindow/widgetlocations/selectablelocationitemwidget.h \
+    locationswindow/widgetlocations/widgetcitieslist.h \
+    locationswindow/widgetlocations/widgetlocations.h \
+    locationswindow/widgetlocations/widgetlocationslist.h \
     overlaysconnectwindow/generalmessagetwobuttonwindowitem.h \
     overlaysconnectwindow/igeneralmessagetwobuttonwindow.h \
     overlaysconnectwindow/generalmessagewindowitem.h \

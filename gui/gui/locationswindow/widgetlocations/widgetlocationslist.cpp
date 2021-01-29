@@ -1,4 +1,4 @@
-#include "locationitemlistwidget.h"
+#include "widgetlocationslist.h"
 
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
@@ -10,7 +10,7 @@
 namespace GuiLocations {
 
 
-LocationItemListWidget::LocationItemListWidget(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent) : QWidget(parent)
+WidgetLocationsList::WidgetLocationsList(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent) : QWidget(parent)
   , height_(0)
   , lastAccentedItemWidget_(nullptr)
   , widgetLocationsInfo_(widgetLocationsInfo)
@@ -20,17 +20,17 @@ LocationItemListWidget::LocationItemListWidget(IWidgetLocationsInfo * widgetLoca
     cursorUpdateHelper_.reset(new CursorUpdateHelper(this));
 }
 
-LocationItemListWidget::~LocationItemListWidget()
+WidgetLocationsList::~WidgetLocationsList()
 {
     // qDebug() << "Deleting list object";
     clearWidgets();
 }
 
-void LocationItemListWidget::clearWidgets()
+void WidgetLocationsList::clearWidgets()
 {
     lastAccentedItemWidget_ = nullptr;
     recentlySelectedWidgets_.clear();
-    foreach (LocationItemRegionWidget *regionWidget, itemWidgets_)
+    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         regionWidget->disconnect();
         regionWidget->deleteLater();
@@ -38,23 +38,23 @@ void LocationItemListWidget::clearWidgets()
     itemWidgets_.clear();
 }
 
-void LocationItemListWidget::addRegionWidget(LocationModelItem *item)
+void WidgetLocationsList::addRegionWidget(LocationModelItem *item)
 {
-    auto regionWidget = new LocationItemRegionWidget(widgetLocationsInfo_, item, this);
+    auto regionWidget = new ItemWidgetRegion(widgetLocationsInfo_, item, this);
     connect(regionWidget, SIGNAL(heightChanged(int)), SLOT(onRegionWidgetHeightChanged(int)));
-    connect(regionWidget, SIGNAL(clicked(LocationItemCityWidget *)), SLOT(onLocationItemCityClicked(LocationItemCityWidget *)));
-    connect(regionWidget, SIGNAL(clicked(LocationItemRegionWidget *)), SLOT(onLocationItemRegionClicked(LocationItemRegionWidget *)));
-    connect(regionWidget, SIGNAL(selected(SelectableLocationItemWidget *)), SLOT(onSelectableLocationItemSelected(SelectableLocationItemWidget *)));
-    connect(regionWidget, SIGNAL(favoriteClicked(LocationItemCityWidget*, bool)), SIGNAL(favoriteClicked(LocationItemCityWidget*,bool)));
+    connect(regionWidget, SIGNAL(clicked(ItemWidgetCity *)), SLOT(onLocationItemCityClicked(ItemWidgetCity *)));
+    connect(regionWidget, SIGNAL(clicked(ItemWidgetRegion *)), SLOT(onLocationItemRegionClicked(ItemWidgetRegion *)));
+    connect(regionWidget, SIGNAL(selected(IItemWidget *)), SLOT(onSelectableLocationItemSelected(IItemWidget *)));
+    connect(regionWidget, SIGNAL(favoriteClicked(ItemWidgetCity*, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*,bool)));
     itemWidgets_.append(regionWidget);
     regionWidget->setGeometry(0, 0, static_cast<int>(WINDOW_WIDTH *G_SCALE), static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE));
     regionWidget->show();
     recalcItemPositions();
 }
 
-void LocationItemListWidget::addCityToRegion(CityModelItem city, LocationModelItem *region)
+void WidgetLocationsList::addCityToRegion(CityModelItem city, LocationModelItem *region)
 {
-    auto matchingId = [&](LocationItemRegionWidget  *regionWidget){
+    auto matchingId = [&](ItemWidgetRegion  *regionWidget){
         return regionWidget->getId() == region->id;
     };
 
@@ -67,20 +67,20 @@ void LocationItemListWidget::addCityToRegion(CityModelItem city, LocationModelIt
     recalcItemPositions();
 }
 
-void LocationItemListWidget::updateScaling()
+void WidgetLocationsList::updateScaling()
 {
     // update scaling for each widget instead of recalcItemPositions
     // relying on resizeEvent after setGeometry on region items blocks expanding animation for some reason
     // this will trigger recalcItemPositions() anyway
-    foreach (LocationItemRegionWidget  *itemWidget, itemWidgets_)
+    foreach (ItemWidgetRegion  *itemWidget, itemWidgets_)
     {
         itemWidget->updateScaling();
     }
 }
 
-void LocationItemListWidget::selectWidgetContainingCursor()
+void WidgetLocationsList::selectWidgetContainingCursor()
 {
-    foreach (SelectableLocationItemWidget *selectableWidget , selectableWidgets())
+    foreach (IItemWidget *selectableWidget , selectableWidgets())
     {
         if (selectableWidget->containsCursor())
         {
@@ -93,9 +93,9 @@ void LocationItemListWidget::selectWidgetContainingCursor()
     }
 }
 
-void LocationItemListWidget::expand(LocationID locId)
+void WidgetLocationsList::expand(LocationID locId)
 {
-    foreach (LocationItemRegionWidget *regionWidget, itemWidgets_)
+    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         if (regionWidget->getId() == locId)
         {
@@ -105,9 +105,9 @@ void LocationItemListWidget::expand(LocationID locId)
     }
 }
 
-void LocationItemListWidget::collapse(LocationID locId)
+void WidgetLocationsList::collapse(LocationID locId)
 {
-    foreach (LocationItemRegionWidget *regionWidget, itemWidgets_)
+    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         if (regionWidget->getId() == locId)
         {
@@ -116,9 +116,9 @@ void LocationItemListWidget::collapse(LocationID locId)
     }
 }
 
-void LocationItemListWidget::expandAllLocations()
+void WidgetLocationsList::expandAllLocations()
 {
-    foreach (LocationItemRegionWidget *regionWidget, itemWidgets_)
+    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         if (regionWidget->expandable())
         {
@@ -127,17 +127,17 @@ void LocationItemListWidget::expandAllLocations()
     }
 }
 
-void LocationItemListWidget::collapseAllLocations()
+void WidgetLocationsList::collapseAllLocations()
 {
-    foreach (LocationItemRegionWidget *regionWidget, itemWidgets_)
+    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         regionWidget->collapse();
     }
 }
 
-void LocationItemListWidget::expandLocationIds(QVector<LocationID> locIds)
+void WidgetLocationsList::expandLocationIds(QVector<LocationID> locIds)
 {
-    foreach (LocationItemRegionWidget *regionWidget, itemWidgets_)
+    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         foreach (LocationID locId, locIds)
         {
@@ -149,10 +149,10 @@ void LocationItemListWidget::expandLocationIds(QVector<LocationID> locIds)
     }
 }
 
-QVector<LocationID> LocationItemListWidget::expandedOrExpandingLocationIds()
+QVector<LocationID> WidgetLocationsList::expandedOrExpandingLocationIds()
 {
     QVector<LocationID> expanded;
-    foreach (LocationItemRegionWidget *regionWidget, itemWidgets_)
+    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         if (regionWidget->expandedOrExpanding())
         {
@@ -162,15 +162,15 @@ QVector<LocationID> LocationItemListWidget::expandedOrExpandingLocationIds()
     return expanded;
 }
 
-QVector<LocationItemRegionWidget *> LocationItemListWidget::itemWidgets()
+QVector<ItemWidgetRegion *> WidgetLocationsList::itemWidgets()
 {
     return itemWidgets_;
 }
 
-int LocationItemListWidget::selectableIndex(LocationID locationId)
+int WidgetLocationsList::selectableIndex(LocationID locationId)
 {
     int i = 0;
-    foreach (SelectableLocationItemWidget *widget, selectableWidgets())
+    foreach (IItemWidget *widget, selectableWidgets())
     {
         if (widget->getId() == locationId)
         {
@@ -181,25 +181,25 @@ int LocationItemListWidget::selectableIndex(LocationID locationId)
     return -1;
 }
 
-void LocationItemListWidget::accentFirstSelectableItem()
+void WidgetLocationsList::accentFirstSelectableItem()
 {
-    QVector<SelectableLocationItemWidget *> widgets = selectableWidgets();
+    QVector<IItemWidget *> widgets = selectableWidgets();
     if (widgets.count() > 0)
     {
         widgets[0]->setSelected(true);
     }
 }
 
-bool LocationItemListWidget::hasAccentItem()
+bool WidgetLocationsList::hasAccentItem()
 {
     return lastAccentedItemWidget_;
 }
 
-void LocationItemListWidget::moveAccentUp()
+void WidgetLocationsList::moveAccentUp()
 {
-    SelectableLocationItemWidget *lastWidget = nullptr;
-    SelectableLocationItemWidget *currentWidget =  nullptr;
-    foreach (SelectableLocationItemWidget *widget, selectableWidgets())
+    IItemWidget *lastWidget = nullptr;
+    IItemWidget *currentWidget =  nullptr;
+    foreach (IItemWidget *widget, selectableWidgets())
     {
         lastWidget = currentWidget;
         currentWidget = widget;
@@ -217,10 +217,10 @@ void LocationItemListWidget::moveAccentUp()
     }
 }
 
-void LocationItemListWidget::moveAccentDown()
+void WidgetLocationsList::moveAccentDown()
 {
     auto list = selectableWidgets();
-    QVectorIterator<SelectableLocationItemWidget *> it(list);
+    QVectorIterator<IItemWidget *> it(list);
     while (it.hasNext())
     {
         if (it.next()->isSelected())
@@ -238,7 +238,7 @@ void LocationItemListWidget::moveAccentDown()
     }
 }
 
-int LocationItemListWidget::accentItemSelectableIndex()
+int WidgetLocationsList::accentItemSelectableIndex()
 {
     if (!lastAccentedItemWidget_)
     {
@@ -248,12 +248,12 @@ int LocationItemListWidget::accentItemSelectableIndex()
     return selectableIndex(lastAccentedItemWidget_->getId());
 }
 
-SelectableLocationItemWidget *LocationItemListWidget::lastAccentedItemWidget()
+IItemWidget *WidgetLocationsList::lastAccentedItemWidget()
 {
     return lastAccentedItemWidget_;
 }
 
-const LocationID LocationItemListWidget::lastSelectedLocationId() const
+const LocationID WidgetLocationsList::lastSelectedLocationId() const
 {
     if (!lastAccentedItemWidget_)
     {
@@ -262,9 +262,9 @@ const LocationID LocationItemListWidget::lastSelectedLocationId() const
     return lastAccentedItemWidget_->getId();
 }
 
-void LocationItemListWidget::selectItem(LocationID locationId)
+void WidgetLocationsList::selectItem(LocationID locationId)
 {
-    foreach (SelectableLocationItemWidget *widget, selectableWidgets())
+    foreach (IItemWidget *widget, selectableWidgets())
     {
         if (widget->getId() == locationId)
         {
@@ -274,9 +274,9 @@ void LocationItemListWidget::selectItem(LocationID locationId)
     }
 }
 
-SelectableLocationItemWidget *LocationItemListWidget::selectableWidget(LocationID locationId)
+IItemWidget *WidgetLocationsList::selectableWidget(LocationID locationId)
 {
-    foreach (SelectableLocationItemWidget *widget, selectableWidgets())
+    foreach (IItemWidget *widget, selectableWidgets())
     {
         if (widget->getId() == locationId)
         {
@@ -286,27 +286,27 @@ SelectableLocationItemWidget *LocationItemListWidget::selectableWidget(LocationI
     return nullptr;
 }
 
-QVector<LocationItemCityWidget *> LocationItemListWidget::cityWidgets()
+QVector<ItemWidgetCity *> WidgetLocationsList::cityWidgets()
 {
-    QVector<LocationItemCityWidget *> cityWidgets;
-    foreach (LocationItemRegionWidget *regionWidget, itemWidgets_)
+    QVector<ItemWidgetCity *> cityWidgets;
+    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         cityWidgets.append(regionWidget->cityWidgets());
     }
     return cityWidgets;
 }
 
-QVector<SelectableLocationItemWidget *> LocationItemListWidget::selectableWidgets()
+QVector<IItemWidget *> WidgetLocationsList::selectableWidgets()
 {
-    QVector<SelectableLocationItemWidget *> selectableItemWidgets;
-    foreach (LocationItemRegionWidget *regionWidget, itemWidgets_)
+    QVector<IItemWidget *> selectableItemWidgets;
+    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         selectableItemWidgets.append(regionWidget->selectableWidgets());
     }
     return selectableItemWidgets;
 }
 
-void LocationItemListWidget::updateCursorWithSelectableWidget(SelectableLocationItemWidget *widget)
+void WidgetLocationsList::updateCursorWithSelectableWidget(IItemWidget *widget)
 {
     if (widget->isForbidden() || widget->isDisabled())
     {
@@ -319,27 +319,27 @@ void LocationItemListWidget::updateCursorWithSelectableWidget(SelectableLocation
 }
 
 
-void LocationItemListWidget::paintEvent(QPaintEvent *event)
+void WidgetLocationsList::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
     // qDebug() << "List repainting";
 }
 
-void LocationItemListWidget::onRegionWidgetHeightChanged(int height)
+void WidgetLocationsList::onRegionWidgetHeightChanged(int height)
 {
-    auto regionWidget = static_cast<LocationItemRegionWidget*>(sender());
+    auto regionWidget = static_cast<ItemWidgetRegion*>(sender());
     regionWidget->setGeometry(0, 0, static_cast<int>(WINDOW_WIDTH * G_SCALE), static_cast<int>(height));
     recalcItemPositions();
 }
 
-void LocationItemListWidget::onLocationItemCityClicked(LocationItemCityWidget *cityWidget)
+void WidgetLocationsList::onLocationItemCityClicked(ItemWidgetCity *cityWidget)
 {
     emit locationIdSelected(cityWidget->getId());
 }
 
 
-void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidget *regionWidget)
+void WidgetLocationsList::onLocationItemRegionClicked(ItemWidgetRegion *regionWidget)
 {
     if (regionWidget->getId().isBestLocation())
     {
@@ -362,11 +362,11 @@ void LocationItemListWidget::onLocationItemRegionClicked(LocationItemRegionWidge
     }
 }
 
-void LocationItemListWidget::onSelectableLocationItemSelected(SelectableLocationItemWidget *itemWidget)
+void WidgetLocationsList::onSelectableLocationItemSelected(IItemWidget *itemWidget)
 {
     // iterating through all selectable widgets is too slow for scrolling animation
     // only iterate through cache of previously selected widgets
-    for (SelectableLocationItemWidget *widget : recentlySelectedWidgets_)
+    for (IItemWidget *widget : recentlySelectedWidgets_)
     {
         if (widget != itemWidget)
         {
@@ -380,11 +380,11 @@ void LocationItemListWidget::onSelectableLocationItemSelected(SelectableLocation
     lastAccentedItemWidget_ = itemWidget;
 }
 
-void LocationItemListWidget::recalcItemPositions()
+void WidgetLocationsList::recalcItemPositions()
 {
     // qDebug() << "List repositioning items";
     int heightSoFar = 0;
-    foreach (LocationItemRegionWidget  *itemWidget, itemWidgets_)
+    foreach (ItemWidgetRegion  *itemWidget, itemWidgets_)
     {
         itemWidget->setGeometry(0, heightSoFar, static_cast<int>(WINDOW_WIDTH * G_SCALE), itemWidget->geometry().height());
         heightSoFar += itemWidget->geometry().height();

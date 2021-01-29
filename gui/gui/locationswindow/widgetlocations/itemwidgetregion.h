@@ -3,17 +3,17 @@
 
 #include <QVector>
 #include "../backend/locationsmodel/basiclocationsmodel.h"
-#include "locationitemcitywidget.h"
-#include "locationitemregionheaderwidget.h"
+#include "itemwidgetcity.h"
+#include "itemwidgetheader.h"
 
 namespace GuiLocations {
 
-class LocationItemRegionWidget : public QWidget
+class ItemWidgetRegion : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationItemRegionWidget(IWidgetLocationsInfo *widgetLocationInfo, LocationModelItem *locationItem, QWidget *parent = nullptr);
-    ~LocationItemRegionWidget();
+    explicit ItemWidgetRegion(IWidgetLocationsInfo *widgetLocationInfo, LocationModelItem *locationItem, QWidget *parent = nullptr);
+    ~ItemWidgetRegion();
 
     enum CITY_SUBMENU_STATE { EXPANDED, COLLAPSED, EXPANDING, COLLAPSING };
 
@@ -28,8 +28,8 @@ public:
 
     // TODO: can speed things up with by removing copies?
     void addCity(CityModelItem city);
-    QVector<SelectableLocationItemWidget *> selectableWidgets();
-    QVector<LocationItemCityWidget *> cityWidgets();
+    QVector<IItemWidget *> selectableWidgets();
+    QVector<ItemWidgetCity *> cityWidgets();
 
     void setFavorited(LocationID id, bool isFavorite);
 
@@ -40,10 +40,10 @@ public:
 
 signals:
     void heightChanged(int height);
-    void selected(SelectableLocationItemWidget *itemWidget);
-    void clicked(LocationItemCityWidget *cityWidget);
-    void clicked(LocationItemRegionWidget *regionWidget);
-    void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
+    void selected(IItemWidget *itemWidget);
+    void clicked(ItemWidgetCity *cityWidget);
+    void clicked(ItemWidgetRegion *regionWidget);
+    void favoriteClicked(ItemWidgetCity *cityWidget, bool favorited);
 
 private slots:
     void onRegionHeaderSelected();
@@ -52,8 +52,8 @@ private slots:
     void onCityItemClicked();
     void onExpandingHeightAnimationValueChanged(const QVariant &value);
 private:
-    LocationItemRegionHeaderWidget *regionHeaderWidget_;
-    QVector<LocationItemCityWidget *> cities_;
+    ItemWidgetHeader *regionHeaderWidget_;
+    QVector<ItemWidgetCity *> cities_;
     IWidgetLocationsInfo *widgetLocationsInfo_;
 
     CITY_SUBMENU_STATE citySubMenuState_;

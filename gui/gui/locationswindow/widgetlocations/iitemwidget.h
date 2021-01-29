@@ -6,12 +6,12 @@
 
 namespace GuiLocations {
 
-class SelectableLocationItemWidget : public QAbstractButton
+class IItemWidget : public QAbstractButton
 {
     Q_OBJECT
 public:
-    explicit SelectableLocationItemWidget(QWidget * parent = nullptr) : QAbstractButton(parent) { }
-    enum SelectableLocationItemWidgetType
+    explicit IItemWidget(QWidget * parent = nullptr) : QAbstractButton(parent) { }
+    enum ItemWidgetType
     {
         REGION,
         CITY
@@ -22,7 +22,7 @@ public:
     virtual bool isDisabled() const = 0;
     virtual const LocationID getId() const = 0;
     virtual const QString name() const = 0;
-    virtual SelectableLocationItemWidgetType type() = 0;
+    virtual ItemWidgetType type() = 0;
     virtual void setSelectable(bool selectable) = 0;
     virtual void setSelected(bool select) = 0;
     virtual bool isSelected() const = 0;
@@ -30,8 +30,8 @@ public:
     virtual QRect globalGeometry() const = 0;
 
 signals:
-    void selected(SelectableLocationItemWidgetType*);
-    void clicked(SelectableLocationItemWidgetType*);
+    void selected(ItemWidgetType*);
+    void clicked(ItemWidgetType*);
 };
 
 }

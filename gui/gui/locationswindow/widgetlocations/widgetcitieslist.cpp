@@ -1,4 +1,4 @@
-#include "cityitemlistwidget.h"
+#include "widgetcitieslist.h"
 
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
@@ -7,7 +7,7 @@
 
 namespace GuiLocations {
 
-CityItemListWidget::CityItemListWidget(IWidgetLocationsInfo *widgetLocationsInfo, QWidget *parent) : QWidget(parent)
+WidgetCitiesList::WidgetCitiesList(IWidgetLocationsInfo *widgetLocationsInfo, QWidget *parent) : QWidget(parent)
   , height_(0)
   , lastAccentedItemWidget_(nullptr)
   , widgetLocationsInfo_(widgetLocationsInfo)
@@ -18,17 +18,17 @@ CityItemListWidget::CityItemListWidget(IWidgetLocationsInfo *widgetLocationsInfo
     recalcItemPositions();
 }
 
-CityItemListWidget::~CityItemListWidget()
+WidgetCitiesList::~WidgetCitiesList()
 {
     clearWidgets();
 
 }
 
-void CityItemListWidget::clearWidgets()
+void WidgetCitiesList::clearWidgets()
 {
     lastAccentedItemWidget_ = nullptr;
     recentlySelectedWidgets_.clear();
-    foreach (LocationItemCityWidget *regionWidget, itemWidgets_)
+    foreach (ItemWidgetCity *regionWidget, itemWidgets_)
     {
         regionWidget->disconnect();
         regionWidget->deleteLater();
@@ -37,12 +37,12 @@ void CityItemListWidget::clearWidgets()
 }
 
 // TODO: can speed things up with by removing copies?
-void CityItemListWidget::addCity(CityModelItem city)
+void WidgetCitiesList::addCity(CityModelItem city)
 {
-    auto cityWidget = new LocationItemCityWidget(widgetLocationsInfo_, city, this);
+    auto cityWidget = new ItemWidgetCity(widgetLocationsInfo_, city, this);
     connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));
     connect(cityWidget, SIGNAL(selected()), SLOT(onCityItemAccented()));
-    connect(cityWidget, SIGNAL(favoriteClicked(LocationItemCityWidget *, bool)), SIGNAL(favoriteClicked(LocationItemCityWidget*, bool)));
+    connect(cityWidget, SIGNAL(favoriteClicked(ItemWidgetCity *, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*, bool)));
     cityWidget->setSelectable(true);
     cityWidget->show();
     itemWidgets_.push_back(cityWidget);
@@ -52,15 +52,15 @@ void CityItemListWidget::addCity(CityModelItem city)
     recalcItemPositions();
 }
 
-void CityItemListWidget::updateScaling()
+void WidgetCitiesList::updateScaling()
 {
     recalcItemPositions();
 
 }
 
-void CityItemListWidget::selectWidgetContainingCursor()
+void WidgetCitiesList::selectWidgetContainingCursor()
 {
-    foreach (SelectableLocationItemWidget *selectableWidget , itemWidgets_)
+    foreach (IItemWidget *selectableWidget , itemWidgets_)
     {
         if (selectableWidget->containsCursor())
         {
@@ -72,15 +72,15 @@ void CityItemListWidget::selectWidgetContainingCursor()
     }
 }
 
-QVector<LocationItemCityWidget *> CityItemListWidget::itemWidgets()
+QVector<ItemWidgetCity *> WidgetCitiesList::itemWidgets()
 {
     return itemWidgets_;
 }
 
-int CityItemListWidget::selectableIndex(LocationID locationId)
+int WidgetCitiesList::selectableIndex(LocationID locationId)
 {
     int i = 0;
-    foreach (SelectableLocationItemWidget *widget, itemWidgets_)
+    foreach (IItemWidget *widget, itemWidgets_)
     {
         if (widget->getId() == locationId)
         {
@@ -91,7 +91,7 @@ int CityItemListWidget::selectableIndex(LocationID locationId)
     return -1;
 }
 
-const LocationID CityItemListWidget::lastAccentedLocationId() const
+const LocationID WidgetCitiesList::lastAccentedLocationId() const
 {
     if (!lastAccentedItemWidget_)
     {
@@ -100,9 +100,9 @@ const LocationID CityItemListWidget::lastAccentedLocationId() const
     return lastAccentedItemWidget_->getId();
 }
 
-void CityItemListWidget::accentItem(LocationID locationId)
+void WidgetCitiesList::accentItem(LocationID locationId)
 {
-    foreach (SelectableLocationItemWidget *widget, itemWidgets_)
+    foreach (IItemWidget *widget, itemWidgets_)
     {
         if (widget->getId() == locationId)
         {
@@ -112,7 +112,7 @@ void CityItemListWidget::accentItem(LocationID locationId)
     }
 }
 
-void CityItemListWidget::accentFirstItem()
+void WidgetCitiesList::accentFirstItem()
 {
     if (itemWidgets_.count() > 0)
     {
@@ -120,16 +120,16 @@ void CityItemListWidget::accentFirstItem()
     }
 }
 
-bool CityItemListWidget::hasAccentItem()
+bool WidgetCitiesList::hasAccentItem()
 {
     return lastAccentedItemWidget_;
 }
 
-void CityItemListWidget::moveAccentUp()
+void WidgetCitiesList::moveAccentUp()
 {
-    SelectableLocationItemWidget *lastWidget = nullptr;
-    SelectableLocationItemWidget *currentWidget =  nullptr;
-    foreach (SelectableLocationItemWidget *widget, itemWidgets_)
+    IItemWidget *lastWidget = nullptr;
+    IItemWidget *currentWidget =  nullptr;
+    foreach (IItemWidget *widget, itemWidgets_)
     {
         lastWidget = currentWidget;
         currentWidget = widget;
@@ -147,9 +147,9 @@ void CityItemListWidget::moveAccentUp()
     }
 }
 
-void CityItemListWidget::moveAccentDown()
+void WidgetCitiesList::moveAccentDown()
 {
-    QVectorIterator<LocationItemCityWidget *> it(itemWidgets_);
+    QVectorIterator<ItemWidgetCity *> it(itemWidgets_);
     while (it.hasNext())
     {
         if (it.next()->isSelected())
@@ -165,7 +165,7 @@ void CityItemListWidget::moveAccentDown()
     }
 }
 
-int CityItemListWidget::accentItemIndex()
+int WidgetCitiesList::accentItemIndex()
 {
     if (!lastAccentedItemWidget_)
     {
@@ -175,14 +175,14 @@ int CityItemListWidget::accentItemIndex()
     return selectableIndex(lastAccentedItemWidget_->getId());
 }
 
-SelectableLocationItemWidget *CityItemListWidget::lastAccentedItemWidget()
+IItemWidget *WidgetCitiesList::lastAccentedItemWidget()
 {
     return lastAccentedItemWidget_;
 }
 
-SelectableLocationItemWidget *CityItemListWidget::selectableWidget(LocationID locationId)
+IItemWidget *WidgetCitiesList::selectableWidget(LocationID locationId)
 {
-    foreach (SelectableLocationItemWidget *widget, itemWidgets_)
+    foreach (IItemWidget *widget, itemWidgets_)
     {
         if (widget->getId() == locationId)
         {
@@ -192,13 +192,13 @@ SelectableLocationItemWidget *CityItemListWidget::selectableWidget(LocationID lo
     return nullptr;
 }
 
-void CityItemListWidget::onCityItemAccented()
+void WidgetCitiesList::onCityItemAccented()
 {
-    SelectableLocationItemWidget * itemWidget = static_cast<SelectableLocationItemWidget*>(sender());
+    IItemWidget * itemWidget = static_cast<IItemWidget*>(sender());
 
     // iterating through all selectable widgets is too slow for scrolling animation
     // only iterate through cache of previously selected widgets
-    for (SelectableLocationItemWidget *widget : recentlySelectedWidgets_)
+    for (IItemWidget *widget : recentlySelectedWidgets_)
     {
         if (widget != itemWidget)
         {
@@ -212,19 +212,19 @@ void CityItemListWidget::onCityItemAccented()
     lastAccentedItemWidget_ = itemWidget;
 }
 
-void CityItemListWidget::onCityItemClicked()
+void WidgetCitiesList::onCityItemClicked()
 {
-    auto cityWidget = static_cast<LocationItemCityWidget*>(sender());
+    auto cityWidget = static_cast<ItemWidgetCity*>(sender());
     emit locationIdSelected(cityWidget->getId());
 }
 
-void CityItemListWidget::recalcItemPositions()
+void WidgetCitiesList::recalcItemPositions()
 {
     qDebug() << "City List recalc";
 
     int height = 0;
 
-    foreach (LocationItemCityWidget *city, itemWidgets_)
+    foreach (ItemWidgetCity *city, itemWidgets_)
     {
         city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
         height += city->geometry().height();
@@ -238,7 +238,7 @@ void CityItemListWidget::recalcItemPositions()
     update();
 }
 
-void CityItemListWidget::updateCursorWithSelectableWidget(SelectableLocationItemWidget *widget)
+void WidgetCitiesList::updateCursorWithSelectableWidget(IItemWidget *widget)
 {
     if (widget->isForbidden() || widget->isDisabled())
     {

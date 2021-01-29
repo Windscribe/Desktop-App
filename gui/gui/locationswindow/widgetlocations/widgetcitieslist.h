@@ -3,16 +3,16 @@
 
 #include <QWidget>
 #include "cursorupdatehelper.h"
-#include "locationitemcitywidget.h"
+#include "itemwidgetcity.h"
 
 namespace GuiLocations {
 
-class CityItemListWidget : public QWidget
+class WidgetCitiesList : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CityItemListWidget(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent = nullptr);
-    ~CityItemListWidget();
+    explicit WidgetCitiesList(IWidgetLocationsInfo * widgetLocationsInfo, QWidget *parent = nullptr);
+    ~WidgetCitiesList();
 
     void clearWidgets();
     void addCity(CityModelItem city);
@@ -20,7 +20,7 @@ public:
     void updateScaling();
     void selectWidgetContainingCursor();
 
-    QVector<LocationItemCityWidget *> itemWidgets();
+    QVector<ItemWidgetCity *> itemWidgets();
 
     int selectableIndex(LocationID locationId);
     const LocationID lastAccentedLocationId() const;
@@ -31,13 +31,13 @@ public:
     void moveAccentDown();
     int accentItemIndex();
 
-    SelectableLocationItemWidget *lastAccentedItemWidget();
-    SelectableLocationItemWidget *selectableWidget(LocationID locationId);
+    IItemWidget *lastAccentedItemWidget();
+    IItemWidget *selectableWidget(LocationID locationId);
 
 signals:
     void heightChanged(int height);
-    void favoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
-    void cityItemClicked(LocationItemCityWidget *cityWidget);
+    void favoriteClicked(ItemWidgetCity *cityWidget, bool favorited);
+    void cityItemClicked(ItemWidgetCity *cityWidget);
     void locationIdSelected(LocationID id);
 
 private slots:
@@ -47,14 +47,14 @@ private slots:
 private:
     int height_;
     std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
-    QVector<LocationItemCityWidget *> itemWidgets_;
-    SelectableLocationItemWidget *lastAccentedItemWidget_;
-    QVector<SelectableLocationItemWidget *> recentlySelectedWidgets_;
+    QVector<ItemWidgetCity *> itemWidgets_;
+    IItemWidget *lastAccentedItemWidget_;
+    QVector<IItemWidget *> recentlySelectedWidgets_;
 
     IWidgetLocationsInfo *widgetLocationsInfo_; // deleted elsewhere
 
     void recalcItemPositions();
-    void updateCursorWithSelectableWidget(SelectableLocationItemWidget *widget);
+    void updateCursorWithSelectableWidget(IItemWidget *widget);
 };
 
 } // namespace

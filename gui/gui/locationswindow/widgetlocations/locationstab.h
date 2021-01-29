@@ -7,7 +7,7 @@
 #include <QVariantAnimation>
 #include <QTimer>
 #include "widgetcities.h"
-#include "searchwidgetlocations.h"
+#include "widgetlocations.h"
 #include "../backend/locationsmodel/locationsmodel.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
@@ -83,11 +83,11 @@ private:
 
     IWidgetLocationsInfo *currentWidgetLocations();
     IWidgetLocationsInfo *locationWidgetByEnum(CurTabEnum tabEnum);
-    GuiLocations::SearchWidgetLocations *widgetAllLocations_;
+    GuiLocations::WidgetLocations *widgetAllLocations_;
     GuiLocations::WidgetCities *widgetConfiguredLocations_;
     GuiLocations::WidgetCities *widgetStaticIpsLocations_;
     GuiLocations::WidgetCities *widgetFavoriteLocations_;
-    GuiLocations::SearchWidgetLocations *widgetSearchLocations_;
+    GuiLocations::WidgetLocations *widgetSearchLocations_;
 
     StaticIPDeviceInfo *staticIPDeviceInfo_; // footer
     ConfigFooterInfo *configFooterInfo_;     // footer

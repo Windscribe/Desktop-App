@@ -1,4 +1,4 @@
-#include "locationitemregionwidget.h"
+#include "itemwidgetregion.h"
 
 #include <QPainter>
 #include "dpiscalemanager.h"
@@ -9,7 +9,7 @@
 
 namespace GuiLocations {
 
-LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : QWidget(parent)
+ItemWidgetRegion::ItemWidgetRegion(IWidgetLocationsInfo * widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : QWidget(parent)
   , widgetLocationsInfo_(widgetLocationsInfo)
   , citySubMenuState_(COLLAPSED)
 {
@@ -17,7 +17,7 @@ LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widget
 
     height_ = LOCATION_ITEM_HEIGHT * G_SCALE;
 
-    regionHeaderWidget_ = new LocationItemRegionHeaderWidget(widgetLocationsInfo, locationModelItem, this);
+    regionHeaderWidget_ = new ItemWidgetHeader(widgetLocationsInfo, locationModelItem, this);
     connect(regionHeaderWidget_, SIGNAL(clicked()), SLOT(onRegionHeaderClicked()));
     connect(regionHeaderWidget_, SIGNAL(selected()), SLOT(onRegionHeaderSelected()));
 
@@ -30,14 +30,14 @@ LocationItemRegionWidget::LocationItemRegionWidget(IWidgetLocationsInfo * widget
     recalcItemPositions();
 }
 
-LocationItemRegionWidget::~LocationItemRegionWidget()
+ItemWidgetRegion::~ItemWidgetRegion()
 {
     // qDebug() << "Deleting region: " << regionHeaderWidget_->name();
 
     regionHeaderWidget_->disconnect();
     regionHeaderWidget_->deleteLater();
 
-    foreach (LocationItemCityWidget *city, cities_)
+    foreach (ItemWidgetCity *city, cities_)
     {
         city->disconnect();
         city->deleteLater();
@@ -45,22 +45,22 @@ LocationItemRegionWidget::~LocationItemRegionWidget()
     cities_.clear();
 }
 
-const LocationID LocationItemRegionWidget::getId() const
+const LocationID ItemWidgetRegion::getId() const
 {
     return regionHeaderWidget_->getId();
 }
 
-bool LocationItemRegionWidget::expandable() const
+bool ItemWidgetRegion::expandable() const
 {
     return cities_.count() > 0;
 }
 
-bool LocationItemRegionWidget::expandedOrExpanding()
+bool ItemWidgetRegion::expandedOrExpanding()
 {
     return citySubMenuState_ == EXPANDED || citySubMenuState_ == EXPANDING;
 }
 
-void LocationItemRegionWidget::setExpandedWithoutAnimation(bool expand)
+void ItemWidgetRegion::setExpandedWithoutAnimation(bool expand)
 {
     if (expand)
     {
@@ -72,17 +72,17 @@ void LocationItemRegionWidget::setExpandedWithoutAnimation(bool expand)
     }
 
     regionHeaderWidget_->setExpandedWithoutAnimation(expand);
-    foreach (LocationItemCityWidget *city, cities_)
+    foreach (ItemWidgetCity *city, cities_)
     {
         city->setSelectable(expand);
     }
     recalcItemPositions();
 }
 
-void LocationItemRegionWidget::expand()
+void ItemWidgetRegion::expand()
 {
     qCDebug(LOG_BASIC) << "Expanding: " << regionHeaderWidget_->name();
-    foreach (LocationItemCityWidget * city, cities_)
+    foreach (ItemWidgetCity * city, cities_)
     {
         city->setSelectable(true);
     }
@@ -95,11 +95,11 @@ void LocationItemRegionWidget::expand()
     expandingHeightAnimation_.start();
 }
 
-void LocationItemRegionWidget::collapse()
+void ItemWidgetRegion::collapse()
 {
     qCDebug(LOG_BASIC) << "Collapsing: " << regionHeaderWidget_->name();
 
-    foreach (LocationItemCityWidget *city, cities_)
+    foreach (ItemWidgetCity *city, cities_)
     {
         city->setSelectable(false);
     }
@@ -112,24 +112,24 @@ void LocationItemRegionWidget::collapse()
     expandingHeightAnimation_.start();
 }
 
-void LocationItemRegionWidget::addCity(CityModelItem city)
+void ItemWidgetRegion::addCity(CityModelItem city)
 {
-    auto cityWidget = new LocationItemCityWidget(widgetLocationsInfo_, city, this);
+    auto cityWidget = new ItemWidgetCity(widgetLocationsInfo_, city, this);
     connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));
     connect(cityWidget, SIGNAL(selected()), SLOT(onCityItemSelected()));
-    connect(cityWidget, SIGNAL(favoriteClicked(LocationItemCityWidget *, bool)), SIGNAL(favoriteClicked(LocationItemCityWidget*, bool)));
+    connect(cityWidget, SIGNAL(favoriteClicked(ItemWidgetCity *, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*, bool)));
     cities_.append(cityWidget);
     cityWidget->show();
     recalcItemPositions();
 }
 
-QVector<SelectableLocationItemWidget*> LocationItemRegionWidget::selectableWidgets()
+QVector<IItemWidget*> ItemWidgetRegion::selectableWidgets()
 {
-    QVector<SelectableLocationItemWidget *> widgets;
+    QVector<IItemWidget *> widgets;
     widgets.append(regionHeaderWidget_);
     if (expandedOrExpanding())
     {
-        foreach (LocationItemCityWidget *city, cities_)
+        foreach (ItemWidgetCity *city, cities_)
         {
             widgets.append(city);
         }
@@ -137,14 +137,14 @@ QVector<SelectableLocationItemWidget*> LocationItemRegionWidget::selectableWidge
     return widgets;
 }
 
-QVector<LocationItemCityWidget *> LocationItemRegionWidget::cityWidgets()
+QVector<ItemWidgetCity *> ItemWidgetRegion::cityWidgets()
 {
     return cities_;
 }
 
-void LocationItemRegionWidget::setFavorited(LocationID id, bool isFavorite)
+void ItemWidgetRegion::setFavorited(LocationID id, bool isFavorite)
 {
-    foreach (LocationItemCityWidget *city, cities_)
+    foreach (ItemWidgetCity *city, cities_)
     {
         if (city->getId() == id)
         {
@@ -154,14 +154,14 @@ void LocationItemRegionWidget::setFavorited(LocationID id, bool isFavorite)
     }
 }
 
-void LocationItemRegionWidget::recalcItemPositions()
+void ItemWidgetRegion::recalcItemPositions()
 {
     // qDebug() << "Region recalc item positions";
     regionHeaderWidget_->setGeometry(0,0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
 
     int height = LOCATION_ITEM_HEIGHT * G_SCALE;
 
-    foreach (LocationItemCityWidget *city, cities_)
+    foreach (ItemWidgetCity *city, cities_)
     {
         city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
         height += city->geometry().height();
@@ -170,7 +170,7 @@ void LocationItemRegionWidget::recalcItemPositions()
     update();
 }
 
-void LocationItemRegionWidget::recalcHeight()
+void ItemWidgetRegion::recalcHeight()
 {
     if  (citySubMenuState_ == EXPANDED)
     {
@@ -184,24 +184,24 @@ void LocationItemRegionWidget::recalcHeight()
     }
 }
 
-void LocationItemRegionWidget::updateScaling()
+void ItemWidgetRegion::updateScaling()
 {
     recalcItemPositions();
 }
 
-void LocationItemRegionWidget::onRegionHeaderSelected()
+void ItemWidgetRegion::onRegionHeaderSelected()
 {
     emit selected(regionHeaderWidget_);
 }
 
-void LocationItemRegionWidget::onRegionHeaderClicked()
+void ItemWidgetRegion::onRegionHeaderClicked()
 {
     emit clicked(this);
 }
 
-void LocationItemRegionWidget::onCityItemClicked()
+void ItemWidgetRegion::onCityItemClicked()
 {
-    LocationItemCityWidget *cityWidget = static_cast<LocationItemCityWidget*>(sender());
+    ItemWidgetCity *cityWidget = static_cast<ItemWidgetCity*>(sender());
 
     if (cityWidget->isForbidden() || cityWidget->isDisabled())
     {
@@ -211,7 +211,7 @@ void LocationItemRegionWidget::onCityItemClicked()
     emit clicked(cityWidget);
 }
 
-void LocationItemRegionWidget::onExpandingHeightAnimationValueChanged(const QVariant &value)
+void ItemWidgetRegion::onExpandingHeightAnimationValueChanged(const QVariant &value)
 {
     int height = value.toInt();
 
@@ -229,7 +229,7 @@ void LocationItemRegionWidget::onExpandingHeightAnimationValueChanged(const QVar
     emit heightChanged(height);
 }
 
-int LocationItemRegionWidget::expandedHeight()
+int ItemWidgetRegion::expandedHeight()
 {
     int height = LOCATION_ITEM_HEIGHT * G_SCALE;
     foreach (auto city, cities_)
@@ -240,9 +240,9 @@ int LocationItemRegionWidget::expandedHeight()
     return height;
 }
 
-void LocationItemRegionWidget::onCityItemSelected()
+void ItemWidgetRegion::onCityItemSelected()
 {
-    emit selected(static_cast<SelectableLocationItemWidget*>(sender()));
+    emit selected(static_cast<IItemWidget*>(sender()));
 }
 
 

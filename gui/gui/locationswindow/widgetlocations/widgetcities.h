@@ -15,7 +15,7 @@
 #include "iwidgetlocationsinfo.h"
 #include "backgroundpixmapanimation.h"
 #include "tooltips/tooltiptypes.h"
-#include "cityitemlistwidget.h"
+#include "widgetcitieslist.h"
 #include "scrollbar.h"
 
 namespace GuiLocations {
@@ -80,13 +80,13 @@ private slots:
     void onLanguageChanged();
 
     void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
-    void onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
+    void onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *cityWidget, bool favorited);
     void onLocationItemListWidgetLocationIdSelected(LocationID id);
 
     void onScrollAnimationValueChanged(const QVariant &value);
     void onScrollBarHandleDragged(int valuePos);
 private:
-    CityItemListWidget *cityItemListWidget_;
+    WidgetCitiesList *widgetCitiesList_;
     ScrollBar *scrollBar_;
     BasicCitiesModel *citiesModel_;
 

@@ -1,4 +1,4 @@
-#include "locationitemregionheaderwidget.h"
+#include "itemwidgetheader.h"
 
 #include <QPainter>
 #include <QtMath>
@@ -14,7 +14,7 @@
 
 namespace GuiLocations {
 
-LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : SelectableLocationItemWidget(parent)
+ItemWidgetHeader::ItemWidgetHeader(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : IItemWidget(parent)
   , locationID_(locationModelItem->id)
   , countryCode_(locationModelItem->countryCode)
   , isPremiumOnly_(locationModelItem->isPremiumOnly)
@@ -55,54 +55,54 @@ LocationItemRegionHeaderWidget::LocationItemRegionHeaderWidget(IWidgetLocationsI
     recalcItemPositions();
 }
 
-LocationItemRegionHeaderWidget::~LocationItemRegionHeaderWidget()
+ItemWidgetHeader::~ItemWidgetHeader()
 {
     // qDebug() << "Deleting header: " << name();
 }
 
-bool LocationItemRegionHeaderWidget::isExpanded() const
+bool ItemWidgetHeader::isExpanded() const
 {
     return expanded_;
 }
 
-bool LocationItemRegionHeaderWidget::isForbidden() const
+bool ItemWidgetHeader::isForbidden() const
 {
     return false;
 }
 
-bool LocationItemRegionHeaderWidget::isDisabled() const
+bool ItemWidgetHeader::isDisabled() const
 {
     return false;
 }
 
-const QString LocationItemRegionHeaderWidget::name() const
+const QString ItemWidgetHeader::name() const
 {
     return textLabel_->text();
 }
 
-SelectableLocationItemWidget::SelectableLocationItemWidgetType LocationItemRegionHeaderWidget::type()
+IItemWidget::ItemWidgetType ItemWidgetHeader::type()
 {
-    return SelectableLocationItemWidgetType::REGION;
+    return ItemWidgetType::REGION;
 }
 
-bool LocationItemRegionHeaderWidget::containsCursor() const
+bool ItemWidgetHeader::containsCursor() const
 {
     return globalGeometry().contains(cursor().pos());
 }
 
-QRect LocationItemRegionHeaderWidget::globalGeometry() const
+QRect ItemWidgetHeader::globalGeometry() const
 {
     const  QPoint originAsGlobal = mapToGlobal(QPoint(0,0));
     return QRect(originAsGlobal.x(), originAsGlobal.y(), geometry().width(), geometry().height());
 }
 
-void LocationItemRegionHeaderWidget::setSelectable(bool selectable)
+void ItemWidgetHeader::setSelectable(bool selectable)
 {
     selectable_ = selectable;
 
 }
 
-void LocationItemRegionHeaderWidget::setSelected(bool select)
+void ItemWidgetHeader::setSelected(bool select)
 {
     if (selected_ != select)
     {
@@ -120,12 +120,12 @@ void LocationItemRegionHeaderWidget::setSelected(bool select)
     }
 }
 
-bool LocationItemRegionHeaderWidget::isSelected() const
+bool ItemWidgetHeader::isSelected() const
 {
     return selected_;
 }
 
-void LocationItemRegionHeaderWidget::setExpanded(bool expand)
+void ItemWidgetHeader::setExpanded(bool expand)
 {
     if (expand)
     {
@@ -139,7 +139,7 @@ void LocationItemRegionHeaderWidget::setExpanded(bool expand)
     expandAnimation_.start();
 }
 
-void LocationItemRegionHeaderWidget::setExpandedWithoutAnimation(bool expand)
+void ItemWidgetHeader::setExpandedWithoutAnimation(bool expand)
 {
     if (expand)
     {
@@ -153,7 +153,7 @@ void LocationItemRegionHeaderWidget::setExpandedWithoutAnimation(bool expand)
     update();
 }
 
-void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
+void ItemWidgetHeader::paintEvent(QPaintEvent *event)
 {
 
     // qDebug() << "Header paintEvent";
@@ -226,20 +226,20 @@ void LocationItemRegionHeaderWidget::paintEvent(QPaintEvent *event)
     }
 }
 
-void LocationItemRegionHeaderWidget::enterEvent(QEvent *event)
+void ItemWidgetHeader::enterEvent(QEvent *event)
 {
     Q_UNUSED(event)
     // qDebug() << "Selection by hover enter";
     setSelected(true); // triggers unselection of other widgets
 }
 
-void LocationItemRegionHeaderWidget::resizeEvent(QResizeEvent *event)
+void ItemWidgetHeader::resizeEvent(QResizeEvent *event)
 {
     // qDebug() << "Header resize";
     recalcItemPositions();
 }
 
-void LocationItemRegionHeaderWidget::onP2pIconHoverEnter()
+void ItemWidgetHeader::onP2pIconHoverEnter()
 {
     // p2p tooltip
     QPoint pt = mapToGlobal(QPoint(p2pIcon_->geometry().center().x(), p2pIcon_->geometry().top() - 3*G_SCALE));
@@ -252,12 +252,12 @@ void LocationItemRegionHeaderWidget::onP2pIconHoverEnter()
     TooltipController::instance().showTooltipBasic(ti);
 }
 
-void LocationItemRegionHeaderWidget::onP2pIconHoverLeave()
+void ItemWidgetHeader::onP2pIconHoverLeave()
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
 }
 
-void LocationItemRegionHeaderWidget::onOpacityAnimationValueChanged(const QVariant &value)
+void ItemWidgetHeader::onOpacityAnimationValueChanged(const QVariant &value)
 {
     plusIconOpacity_ = OPACITY_THIRD + (value.toDouble() * (1-OPACITY_THIRD));
     textOpacity_ = OPACITY_UNHOVER_TEXT + (value.toDouble() * (1-OPACITY_UNHOVER_TEXT));
@@ -266,18 +266,18 @@ void LocationItemRegionHeaderWidget::onOpacityAnimationValueChanged(const QVaria
     update();
 }
 
-void LocationItemRegionHeaderWidget::onExpandRotationAnimationValueChanged(const QVariant &value)
+void ItemWidgetHeader::onExpandRotationAnimationValueChanged(const QVariant &value)
 {
     expandAnimationProgress_ = value.toDouble();
     update();
 }
 
-const QString LocationItemRegionHeaderWidget::labelStyleSheetWithOpacity(double opacity)
+const QString ItemWidgetHeader::labelStyleSheetWithOpacity(double opacity)
 {
     return "QLabel { color : rgba(255,255,255, " + QString::number(opacity) + "); }";
 }
 
-void LocationItemRegionHeaderWidget::recalcItemPositions()
+void ItemWidgetHeader::recalcItemPositions()
 {
     // qDebug() << "Header recalc item positions";
     QFont font = *FontManager::instance().getFont(16, true);
@@ -291,7 +291,7 @@ void LocationItemRegionHeaderWidget::recalcItemPositions()
                           p2pIcon_->width(), p2pIcon_->height());
 }
 
-const LocationID LocationItemRegionHeaderWidget::getId() const
+const LocationID ItemWidgetHeader::getId() const
 {
     return locationID_;
 }

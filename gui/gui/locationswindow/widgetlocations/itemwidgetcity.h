@@ -3,7 +3,7 @@
 
 #include <QLabel>
 #include "../backend/locationsmodel/basiclocationsmodel.h"
-#include "selectablelocationitemwidget.h"
+#include "iitemwidget.h"
 #include "iwidgetlocationsinfo.h"
 #include "commonwidgets/iconwidget.h"
 #include "commonwidgets/iconbuttonwidget.h"
@@ -12,18 +12,18 @@
 
 namespace GuiLocations {
 
-class LocationItemCityWidget : public SelectableLocationItemWidget
+class ItemWidgetCity : public IItemWidget
 {
     Q_OBJECT
 public:
-    explicit LocationItemCityWidget(IWidgetLocationsInfo *widgetLocationsInfo, CityModelItem cityModelItem, QWidget *parent = nullptr);
-    ~LocationItemCityWidget() override;
+    explicit ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, CityModelItem cityModelItem, QWidget *parent = nullptr);
+    ~ItemWidgetCity() override;
 
     bool isExpanded() const override;
 
     const LocationID getId() const override;
     const QString name() const override;
-    SelectableLocationItemWidgetType type() override;
+    ItemWidgetType type() override;
 
     bool isForbidden() const override;
     bool isDisabled() const override;
@@ -42,7 +42,7 @@ public:
     void updateScaling();
 signals:
     void selected();
-    void favoriteClicked(LocationItemCityWidget *itemWidget, bool favorited);
+    void favoriteClicked(ItemWidgetCity *itemWidget, bool favorited);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

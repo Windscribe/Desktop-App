@@ -3,18 +3,18 @@
 
 #include <QLabel>
 #include "../backend/locationsmodel/basiclocationsmodel.h"
-#include "selectablelocationitemwidget.h"
+#include "iitemwidget.h"
 #include "commonwidgets/iconwidget.h"
 #include "iwidgetlocationsinfo.h"
 
 namespace GuiLocations {
 
-class LocationItemRegionHeaderWidget : public SelectableLocationItemWidget
+class ItemWidgetHeader : public IItemWidget
 {
     Q_OBJECT
 public:
-    explicit LocationItemRegionHeaderWidget(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationItem, QWidget *parent = nullptr);
-    ~LocationItemRegionHeaderWidget() override;
+    explicit ItemWidgetHeader(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationItem, QWidget *parent = nullptr);
+    ~ItemWidgetHeader() override;
 
     bool isExpanded() const override;
 
@@ -22,7 +22,7 @@ public:
     bool isDisabled() const override;
     const LocationID getId() const override;
     const QString name() const override;
-    SelectableLocationItemWidgetType type() override;
+    ItemWidgetType type() override;
 
     bool containsCursor() const override;
     QRect globalGeometry() const override;
