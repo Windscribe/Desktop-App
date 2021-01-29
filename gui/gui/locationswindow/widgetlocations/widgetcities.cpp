@@ -63,6 +63,7 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QScrollAre
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
     scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
+    connect(scrollBar_, SIGNAL(handleDragged(int)), SLOT(onScrollBarHandleDragged(int)));
 
     // central widget
     cityItemListWidget_ = new CityItemListWidget(this, this);
@@ -258,7 +259,7 @@ bool WidgetCities::eventFilter(QObject *object, QEvent *event)
         verticalScrollBar()->setValue(se->contentPos().y() / getItemHeight());
         return true;
     }
-    return QAbstractScrollArea::eventFilter(object, event);
+    return QScrollArea::eventFilter(object, event);
 }
 
 void WidgetCities::setEmptyListDisplayIcon(QString emptyListDisplayIcon)
@@ -384,13 +385,15 @@ void WidgetCities::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
+    // qDebug() << "WidgetCities::paintEvent - geo: " << geometry();
+
     // draw background for when list is < size of viewport
     QPainter painter(viewport());
     QRect bkgd(0,0,geometry().width(), geometry().height());
     painter.fillRect(bkgd, WidgetLocationsSizes::instance().getBackgroundColor());
 
     // empty list drawing items
-    if (countOfAvailableItemSlots_ == 0)
+    if (cityItemListWidget_->itemWidgets().isEmpty())
     {
         const int kVerticalOffset = emptyListButton_->text().isEmpty() ? 0 : 16;
         if (!emptyListDisplayIcon_.isEmpty())
@@ -429,16 +432,19 @@ void WidgetCities::scrollContentsBy(int dx, int dy)
 {
     TooltipController::instance().hideAllTooltips();
 
-    // cursor should not interfere when animation is running
-    // prevent floating cursor from overriding a keypress animation
-    // this can only occur when accessibility is disabled (since cursor will not be moved)
-    if (cursorInViewport() && preventMouseSelectionTimer_.elapsed() > 100)
+    if (!scrollBar_->dragging())
     {
-        cityItemListWidget_->selectWidgetContainingCursor();
-    }
+        // cursor should not interfere when animation is running
+        // prevent floating cursor from overriding a keypress animation
+        // this can only occur when accessibility is disabled (since cursor will not be moved)
+        if (cursorInViewport() && preventMouseSelectionTimer_.elapsed() > 100)
+        {
+            cityItemListWidget_->selectWidgetContainingCursor();
+        }
 
-    QScrollArea::scrollContentsBy(dx,dy);
-    lastScrollPos_ = cityItemListWidget_->geometry().y();
+        QScrollArea::scrollContentsBy(dx,dy);
+        lastScrollPos_ = cityItemListWidget_->geometry().y();
+    }
 }
 
 void WidgetCities::mouseMoveEvent(QMouseEvent *event)
@@ -450,7 +456,7 @@ void WidgetCities::mouseMoveEvent(QMouseEvent *event)
     }
 #endif
 
-    QAbstractScrollArea::mouseMoveEvent(event);
+    QScrollArea::mouseMoveEvent(event);
 }
 
 void WidgetCities::mousePressEvent(QMouseEvent *event)
@@ -501,7 +507,8 @@ void WidgetCities::enterEvent(QEvent *event)
 
 void WidgetCities::resizeEvent(QResizeEvent *event)
 {
-    QAbstractScrollArea::resizeEvent(event);
+    // qDebug() << "WidgetCities::resizeEvent";
+    QScrollArea::resizeEvent(event);
 }
 
 void WidgetCities::onItemsUpdated(QVector<CityModelItem *> items)
@@ -553,13 +560,6 @@ void WidgetCities::onLocationItemListWidgetHeightChanged(int listWidgetHeight)
     scrollBar_->setRange(0, listWidgetHeight - scrollBar_->pageStep()); // update scroll bar
     scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
 
-// TODO: cities list too long
-    qDebug() << "Height changed: " << listWidgetHeight;
-    qDebug() << "List geo: " << cityItemListWidget_->geometry();
-    qDebug() << "WidgetCities geo: " << geometry();
-    qDebug() << "ScrollBar geo: " << scrollBar_->geometry();
-    qDebug() << "ScrollBar max: " << scrollBar_->maximum();
-    qDebug() << "ScrollBar pageStep: " << scrollBar_->pageStep();
     update();
 }
 
@@ -577,8 +577,30 @@ void WidgetCities::onLocationItemListWidgetLocationIdSelected(LocationID id)
 void WidgetCities::onScrollAnimationValueChanged(const QVariant &value)
 {
     if (kickPreventMouseSelectionTimer_) preventMouseSelectionTimer_.restart();
-    scrollBar_->forceSetValue(value.toInt());
+
+    cityItemListWidget_->move(0, value.toInt());
+    lastScrollPos_ = cityItemListWidget_->geometry().y();
+
+    // update scroll bar for keypress navigation
+    if (!scrollBar_->dragging())
+    {
+        scrollBar_->forceSetValue(-animationScollTarget_);
+    }
+
     viewport()->update();
+}
+
+void WidgetCities::onScrollBarHandleDragged(int valuePos)
+{
+    animationScollTarget_ = -valuePos;
+
+    // qDebug() << "Dragged: " << locationItemListWidget_->geometry().y() << " -> " << animationScollTarget_;
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
+    scrollAnimation_.setStartValue(cityItemListWidget_->geometry().y());
+    scrollAnimation_.setEndValue(animationScollTarget_);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
 }
 
 void WidgetCities::updateEmptyListButton()
@@ -662,16 +684,16 @@ void WidgetCities::animatedScrollDown(int itemCount)
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
-        animationScollTarget_ += scrollBy;
+        animationScollTarget_ -= scrollBy;
     }
     else
     {
-        animationScollTarget_ = scrollBar_->value() + scrollBy;
+        animationScollTarget_ = cityItemListWidget_->geometry().y() - scrollBy;
     }
 
     scrollAnimation_.stop();
     scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(scrollBar_->value());
+    scrollAnimation_.setStartValue(cityItemListWidget_->geometry().y());
     scrollAnimation_.setEndValue(animationScollTarget_);
     scrollAnimation_.setDirection(QAbstractAnimation::Forward);
     scrollAnimation_.start();
@@ -683,16 +705,16 @@ void WidgetCities::animatedScrollUp(int itemCount)
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
-        animationScollTarget_ -= scrollBy;
+        animationScollTarget_ += scrollBy;
     }
     else
     {
-        animationScollTarget_ = scrollBar_->value() - scrollBy;
+        animationScollTarget_ = cityItemListWidget_->geometry().y() + scrollBy;
     }
 
     scrollAnimation_.stop();
     scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(scrollBar_->value());
+    scrollAnimation_.setStartValue(cityItemListWidget_->geometry().y());
     scrollAnimation_.setEndValue(animationScollTarget_);
     scrollAnimation_.setDirection(QAbstractAnimation::Forward);
     scrollAnimation_.start();

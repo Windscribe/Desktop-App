@@ -12,6 +12,11 @@ public:
     explicit ScrollBar(QWidget *parent = nullptr);
     void forceSetValue(int value); // sets the value and updates the target - avoids wheeling bugs where target is outdated
 
+    bool dragging();
+
+signals:
+    void handleDragged(int valuePos);
+
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void paintEvent(QPaintEvent *event) override;

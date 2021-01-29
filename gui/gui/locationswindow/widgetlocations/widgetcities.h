@@ -82,8 +82,9 @@ private slots:
     void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
     void onLocationItemListWidgetFavoriteClicked(LocationItemCityWidget *cityWidget, bool favorited);
     void onLocationItemListWidgetLocationIdSelected(LocationID id);
-    void onScrollAnimationValueChanged(const QVariant &value);
 
+    void onScrollAnimationValueChanged(const QVariant &value);
+    void onScrollBarHandleDragged(int valuePos);
 private:
     CityItemListWidget *cityItemListWidget_;
     ScrollBar *scrollBar_;

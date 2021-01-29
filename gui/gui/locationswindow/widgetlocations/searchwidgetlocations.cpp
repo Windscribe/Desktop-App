@@ -59,6 +59,7 @@ SearchWidgetLocations::SearchWidgetLocations(QWidget *parent) : QScrollArea(pare
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
     scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
+    connect(scrollBar_, SIGNAL(handleDragged(int)), SLOT(onScrollBarHandleDragged(int)));
 
     // central widget
     locationItemListWidget_ = new LocationItemListWidget(this, this);
@@ -426,19 +427,22 @@ void SearchWidgetLocations::scrollContentsBy(int dx, int dy)
 {
     // TODO: scrolling a bit laggy when scrolling through open regions on windows
 
-    // qDebug() << "Scrolling contents by: " << dy;
     TooltipController::instance().hideAllTooltips();
 
-    // cursor should not interfere when animation is running
-    // prevent floating cursor from overriding a keypress animation
-    // this can only occur when accessibility is disabled (since cursor will not be moved)
-    if (cursorInViewport() && preventMouseSelectionTimer_.elapsed() > 100)
+    if (!scrollBar_->dragging())
     {
-        locationItemListWidget_->selectWidgetContainingCursor();
-    }
+        // qDebug() << "Scrolling contents by: " << dy;
+        // cursor should not interfere when animation is running
+        // prevent floating cursor from overriding a keypress animation
+        // this can only occur when accessibility is disabled (since cursor will not be moved)
+        if (cursorInViewport() && preventMouseSelectionTimer_.elapsed() > 100)
+        {
+            locationItemListWidget_->selectWidgetContainingCursor();
+        }
 
-    QScrollArea::scrollContentsBy(dx,dy);
-    lastScrollPos_ = locationItemListWidget_->geometry().y();
+        QScrollArea::scrollContentsBy(dx,dy);
+        lastScrollPos_ = locationItemListWidget_->geometry().y();
+    }
 }
 
 void SearchWidgetLocations::mouseMoveEvent(QMouseEvent *event)
@@ -591,11 +595,32 @@ void SearchWidgetLocations::onLocationItemListWidgetRegionExpanding(LocationItem
 
 void SearchWidgetLocations::onScrollAnimationValueChanged(const QVariant &value)
 {
+    // qDebug() << "ScrollAnimation: " << value.toInt();
     if (kickPreventMouseSelectionTimer_) preventMouseSelectionTimer_.restart();
-    scrollBar_->forceSetValue(value.toInt());
+
+    locationItemListWidget_->move(0, value.toInt());
+    lastScrollPos_ = locationItemListWidget_->geometry().y();
+
+    // update scroll bar for keypress navigation
+    if (!scrollBar_->dragging())
+    {
+        scrollBar_->forceSetValue(-animationScollTarget_);
+    }
     viewport()->update();
 }
 
+void SearchWidgetLocations::onScrollBarHandleDragged(int valuePos)
+{
+    animationScollTarget_ = -valuePos;
+
+    // qDebug() << "Dragged: " << locationItemListWidget_->geometry().y() << " -> " << animationScollTarget_;
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
+    scrollAnimation_.setStartValue(locationItemListWidget_->geometry().y());
+    scrollAnimation_.setEndValue(animationScollTarget_);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
+}
 
 void SearchWidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 {
@@ -690,16 +715,16 @@ void SearchWidgetLocations::animatedScrollDown(int itemCount)
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
-        animationScollTarget_ += scrollBy;
+        animationScollTarget_ -= scrollBy;
     }
     else
     {
-        animationScollTarget_ = scrollBar_->value() + scrollBy;
+        animationScollTarget_ = locationItemListWidget_->geometry().y() - scrollBy;
     }
 
     scrollAnimation_.stop();
     scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(scrollBar_->value());
+    scrollAnimation_.setStartValue(locationItemListWidget_->geometry().y());
     scrollAnimation_.setEndValue(animationScollTarget_);
     scrollAnimation_.setDirection(QAbstractAnimation::Forward);
     scrollAnimation_.start();
@@ -711,16 +736,16 @@ void SearchWidgetLocations::animatedScrollUp(int itemCount)
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
-        animationScollTarget_ -= scrollBy;
+        animationScollTarget_ += scrollBy;
     }
     else
     {
-        animationScollTarget_ = scrollBar_->value() - scrollBy;
+        animationScollTarget_ = locationItemListWidget_->geometry().y() + scrollBy;
     }
 
     scrollAnimation_.stop();
     scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(scrollBar_->value());
+    scrollAnimation_.setStartValue(locationItemListWidget_->geometry().y());
     scrollAnimation_.setEndValue(animationScollTarget_);
     scrollAnimation_.setDirection(QAbstractAnimation::Forward);
     scrollAnimation_.start();

@@ -140,7 +140,7 @@ private:
     void onClickFavoriteLocations();
     void onClickSearchLocations();
 
-    void drawTab(QPainter &painter, const QRect &rc);
+    void drawTabRegion(QPainter &painter, const QRect &rc);
     void drawBottomLine(QPainter &painter, int left, int right, int bottom, int whiteLinePos);
     void setArrowCursor();
     void setPointingHandCursor();

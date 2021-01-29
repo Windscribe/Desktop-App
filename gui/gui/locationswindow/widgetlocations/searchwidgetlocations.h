@@ -18,7 +18,6 @@
 
 // TODO: regression: scrollbar width, background colour, margin
 // TODO: regression: scrollbar opacity on un/hover
-// TODO: regression: scrollbar drag/click doesn't animate viewport change
 
 namespace GuiLocations {
 
@@ -83,6 +82,8 @@ private slots:
     void onLocationItemListWidgetRegionExpanding(LocationItemRegionWidget *region, LocationItemListWidget::ExpandReason reason);
 
     void onScrollAnimationValueChanged(const QVariant &value);
+    void onScrollBarHandleDragged(int valuePos);
+
 private:
     LocationItemListWidget *locationItemListWidget_;
     ScrollBar *scrollBar_;

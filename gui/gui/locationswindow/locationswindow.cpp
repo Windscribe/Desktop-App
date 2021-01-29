@@ -92,6 +92,8 @@ void LocationsWindow::paintEvent(QPaintEvent *event)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
 
+    // qDebug() << "LocatiosWindow::paintEvent - geo: " << geometry();
+
     // draw footer background
     int notchAdjustment = 2;
 #ifdef Q_OS_MAC

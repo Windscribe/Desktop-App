@@ -36,6 +36,9 @@ void ScrollBar::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
+    // qDebug() << "ScrollBar::paintEvent - geo: " << geometry();
+    // qDebug() << "ScrollBar::           - range: " << minimum() <<  " -> " << maximum();
+
     // background
     // QRect bkgd(0,0,geometry().width(), geometry().height());
     // qDebug() << "Painting scrollbar: " << bkgd;
@@ -48,6 +51,11 @@ void ScrollBar::forceSetValue(int value)
 {
     setValue(value);
     targetValue_ = value;
+}
+
+bool ScrollBar::dragging()
+{
+    return pressed_;
 }
 
 void ScrollBar::mousePressEvent(QMouseEvent *event)
@@ -106,8 +114,8 @@ void ScrollBar::mouseMoveEvent(QMouseEvent *event)
         {
             if (proposedValue != value())
             {
-                // TODO: keep scroll dragging notching (no animation), but animate the view scrolling
                 forceSetValue(proposedValue);
+                emit handleDragged(proposedValue);
             }
         }
     }

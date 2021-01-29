@@ -9,6 +9,7 @@
 #include "tooltips/tooltiptypes.h"
 #include "utils/writeaccessrightschecker.h"
 #include "tooltips/tooltipcontroller.h"
+#include "widgetlocationssizes.h"
 
 #include <QDebug>
 
@@ -166,8 +167,14 @@ void LocationsTab::paintEvent(QPaintEvent *event)
         update();
     }
 
+    // cover no background between ribbon and bottom handle (static and config)
     QPainter painter(this);
-    drawTab(painter, QRect(0, 0, width(), TOP_TAB_HEIGHT * G_SCALE));
+    QRect bkgd(0,0,geometry().width(), geometry().height());
+    painter.fillRect(bkgd, WidgetLocationsSizes::instance().getBackgroundColor());
+
+    // qDebug() << "LocationsTab::paintEvent - geo: " << geometry();
+
+    drawTabRegion(painter, QRect(0, 0, width(), TOP_TAB_HEIGHT * G_SCALE));
 
 }
 
@@ -486,7 +493,7 @@ IWidgetLocationsInfo *LocationsTab::locationWidgetByEnum(LocationsTab::CurTabEnu
     return nullptr;
 }
 
-void LocationsTab::drawTab(QPainter &painter, const QRect &rc)
+void LocationsTab::drawTabRegion(QPainter &painter, const QRect &rc)
 {
     painter.fillRect(rc, QBrush(backgroundColor_));
 
