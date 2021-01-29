@@ -96,6 +96,7 @@ void OvpnCustomConfig::process()
 
         bool bFoundAtLeastOneRemote = false;
         bool bFoundVerbCommand = false;
+        QString currentProtocol{ "udp" };
         QTextStream in(&file);
         while (!in.atEnd())
         {
@@ -134,7 +135,7 @@ void OvpnCustomConfig::process()
             {
                 if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PROTO) // proto cmd
                 {
-                    globalProtocol_ = openVpnLine.protocol;
+                    globalProtocol_ = currentProtocol = openVpnLine.protocol;
                     qDebug(LOG_CUSTOM_OVPN) << "Extracted global protocol:" << globalProtocol_;
                 }
                 else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PORT) // port cmd
@@ -151,6 +152,12 @@ void OvpnCustomConfig::process()
 
                 ovpnData_ += line + "\n";
             }
+        }
+
+        // Fix protocol in remotes.
+        for (auto &r : remotes_) {
+            if (r.protocol.isEmpty())
+                r.protocol = currentProtocol;
         }
 
         if (!bFoundVerbCommand)
