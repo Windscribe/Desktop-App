@@ -157,7 +157,7 @@ void LogData::processLine(const QString &line, LogDataType type, quint32 index, 
         Q_ASSERT(type == LOG_TYPE_MIXED);
         type = LOG_TYPE_SERVICE;
         processingLine = line.mid(2);
-    } else if (line.startsWith("===")) {
+    } else if (line.startsWith("===") || line.startsWith("---")) {
         type = LOG_TYPE_AUX;
         processingLine = line;
     } else {

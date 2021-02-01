@@ -4,6 +4,8 @@
 #include <QWidget>
 #include "common.h"
 
+class QDragEnterEvent;
+class QDropEvent;
 class QPlainTextEdit;
 class QPushButton;
 class QCheckBox;
@@ -21,6 +23,10 @@ public:
     ~MainWindow();
 
     void initLogData(const QStringList &filenames);
+
+protected:
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 
 private slots:
     void openLogFile();

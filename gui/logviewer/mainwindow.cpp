@@ -6,11 +6,14 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QDesktopWidget>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QScreen>
@@ -168,6 +171,7 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
             logData_.get(), SLOT(clearDataByLogIndex(quint32)));
     connect(logData_.get(), SIGNAL(dataUpdated()), SLOT(onDataUpdated()));
 
+    setAcceptDrops(true);
     updatePlaceholderText();
     updateScale();
     updateDisplay();
@@ -175,6 +179,24 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls())
+        event->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    const QMimeData* mimeData = event->mimeData();
+    if (!mimeData->hasUrls())
+        return;
+
+    checkRangeOnAppend_ = CheckRangeMode::ASK;
+    const QList<QUrl> filenames = mimeData->urls();
+    for (const auto &filename : filenames)
+        appendLogFromFile(filename.toLocalFile());
 }
 
 void MainWindow::initLogData(const QStringList &filenames)
@@ -469,10 +491,12 @@ void MainWindow::updateDisplay()
     }
 
     cbMultiColumn_->setEnabled(logData_->numTypes() > 1);
-    if (!vismask)
+    if (!vismask) {
+        timeEdit_->clear();
         textWidget_[0]->setVisible(true);
-    else
+    } else {
         timeEdit_->verticalScrollBar()->setValue(scrollPos);
+    }
 
     if (logHightlightMode_) {
         if (vismask == oldvismask)
