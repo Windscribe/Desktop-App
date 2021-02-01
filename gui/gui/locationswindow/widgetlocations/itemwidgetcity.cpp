@@ -14,7 +14,7 @@
 
 namespace GuiLocations {
 
-ItemWidgetCity::ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, CityModelItem cityModelItem, QWidget *parent) : IItemWidget(parent)
+ItemWidgetCity::ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, const CityModelItem &cityModelItem, QWidget *parent) : IItemWidget(parent)
   , cityModelItem_(cityModelItem)
   , widgetLocationsInfo_(widgetLocationsInfo)
   , showingPingBar_(!widgetLocationsInfo->isShowLatencyInMs())

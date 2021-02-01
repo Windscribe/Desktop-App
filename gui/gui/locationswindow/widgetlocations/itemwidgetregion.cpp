@@ -112,7 +112,7 @@ void ItemWidgetRegion::collapse()
     expandingHeightAnimation_.start();
 }
 
-void ItemWidgetRegion::addCity(CityModelItem city)
+void ItemWidgetRegion::addCity(const CityModelItem &city)
 {
     auto cityWidget = new ItemWidgetCity(widgetLocationsInfo_, city, this);
     connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));

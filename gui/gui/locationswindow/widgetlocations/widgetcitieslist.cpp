@@ -36,8 +36,7 @@ void WidgetCitiesList::clearWidgets()
     itemWidgets_.clear();
 }
 
-// TODO: can speed things up with by removing copies?
-void WidgetCitiesList::addCity(CityModelItem city)
+void WidgetCitiesList::addCity(const CityModelItem &city)
 {
     auto cityWidget = new ItemWidgetCity(widgetLocationsInfo_, city, this);
     connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));
@@ -47,7 +46,7 @@ void WidgetCitiesList::addCity(CityModelItem city)
     cityWidget->show();
     itemWidgets_.push_back(cityWidget);
 
-    qDebug() << "Added: " << cityWidget->name();
+    // qDebug() << "Added: " << cityWidget->name();
 
     recalcItemPositions();
 }
@@ -169,7 +168,7 @@ int WidgetCitiesList::accentItemIndex()
 {
     if (!lastAccentedItemWidget_)
     {
-        qDebug() << "LocationItemListWidget::accentItemSelectableIndex - no accent item";
+        // qDebug() << "LocationItemListWidget::accentItemSelectableIndex - no accent item";
         return -1;
     }
     return selectableIndex(lastAccentedItemWidget_->getId());
@@ -220,7 +219,7 @@ void WidgetCitiesList::onCityItemClicked()
 
 void WidgetCitiesList::recalcItemPositions()
 {
-    qDebug() << "City List recalc";
+    // qDebug() << "City List recalc";
 
     int height = 0;
 

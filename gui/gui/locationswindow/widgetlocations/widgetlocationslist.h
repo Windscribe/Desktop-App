@@ -18,8 +18,7 @@ public:
     void clearWidgets();
     void addRegionWidget(LocationModelItem *item);
 
-    // TODO: can speed things up with by removing copies?
-    void addCityToRegion(CityModelItem city, LocationModelItem *region);
+    void addCityToRegion(const CityModelItem &city, LocationModelItem *region);
 
     void updateScaling();
     void selectWidgetContainingCursor();

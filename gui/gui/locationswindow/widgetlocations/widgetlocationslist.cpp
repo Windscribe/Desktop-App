@@ -52,7 +52,7 @@ void WidgetLocationsList::addRegionWidget(LocationModelItem *item)
     recalcItemPositions();
 }
 
-void WidgetLocationsList::addCityToRegion(CityModelItem city, LocationModelItem *region)
+void WidgetLocationsList::addCityToRegion(const CityModelItem &city, LocationModelItem *region)
 {
     auto matchingId = [&](ItemWidgetRegion  *regionWidget){
         return regionWidget->getId() == region->id;

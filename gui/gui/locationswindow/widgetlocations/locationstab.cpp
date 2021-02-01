@@ -722,7 +722,7 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
 
     currentLocationListHeight_ = newHeight;
 
-    qDebug() << "Setting height of all location widgets: " << newHeight * G_SCALE;
+    // qDebug() << "Setting height of all location widgets: " << newHeight * G_SCALE;
     widgetAllLocations_->setGeometry(
         0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
     widgetFavoriteLocations_->setGeometry(

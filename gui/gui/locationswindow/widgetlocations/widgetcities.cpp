@@ -624,7 +624,8 @@ void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
     widgetCitiesList_->clearWidgets();
     foreach (CityModelItem *item, items)
     {
-        widgetCitiesList_->addCity(*item);
+        const CityModelItem &itemRef = *item;
+        widgetCitiesList_->addCity(itemRef);
     }
 
     qCDebug(LOG_BASIC) << "Restoring locations-city widgets state";

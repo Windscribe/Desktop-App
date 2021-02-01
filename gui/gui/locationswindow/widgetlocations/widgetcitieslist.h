@@ -15,7 +15,7 @@ public:
     ~WidgetCitiesList();
 
     void clearWidgets();
-    void addCity(CityModelItem city);
+    void addCity(const CityModelItem &city);
 
     void updateScaling();
     void selectWidgetContainingCursor();

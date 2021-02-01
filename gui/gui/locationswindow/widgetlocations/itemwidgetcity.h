@@ -16,7 +16,7 @@ class ItemWidgetCity : public IItemWidget
 {
     Q_OBJECT
 public:
-    explicit ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, CityModelItem cityModelItem, QWidget *parent = nullptr);
+    explicit ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, const CityModelItem &cityModelItem, QWidget *parent = nullptr);
     ~ItemWidgetCity() override;
 
     bool isExpanded() const override;

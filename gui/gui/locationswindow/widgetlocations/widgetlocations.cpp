@@ -633,7 +633,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
             // add item and all children to list
             widgetLocationsList_->addRegionWidget(item);
 
-            foreach (CityModelItem cityItem, item->cities)
+            foreach (const CityModelItem &cityItem, item->cities)
             {
                 widgetLocationsList_->addCityToRegion(cityItem, item);
             }
