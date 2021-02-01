@@ -48,7 +48,6 @@ public:
     bool isDisconnected();
     QString getLastConnectedIp();
 
-    QString getConnectedTapTunAdapter();
     void removeIkev2ConnectionFromOS();
 
     void continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect);
@@ -70,7 +69,7 @@ public:
     bool isAllowFirewallAfterConnection() const;
 
 signals:
-    void connected();
+    void connected(const ConnectionAdapterInfo &connectionAdapterInfo);
     void connectingToHostname(const QString &hostname, const QString &ip);
     void disconnected(DISCONNECT_REASON reason);
     void errorDuringConnection(CONNECTION_ERROR errorCode);
@@ -87,7 +86,7 @@ signals:
     void requestPassword(const QString &pathCustomOvpnConfig);
 
 private slots:
-    void onConnectionConnected();
+    void onConnectionConnected(const ConnectionAdapterInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
     void onConnectionError(CONNECTION_ERROR err);
@@ -169,6 +168,8 @@ private:
     ProtoTypes::PacketSize packetSize_;
 
     QSharedPointer<WireGuardConfig> wireGuardConfig_;
+
+    ConnectionAdapterInfo lastConnectionAdapterInfo_;
 
     void doConnect();
     void doConnectPart2();

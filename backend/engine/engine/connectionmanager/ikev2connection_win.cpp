@@ -1,11 +1,11 @@
 #include "ikev2connection_win.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <windows.h>
 #include <windns.h>
 #include <QCoreApplication>
-#include "Engine/hardcodedsettings.h"
-#include "Engine/TapUtils/checkadapterenable.h"
-#include "Utils/winutils.h"
+#include "engine/hardcodedsettings.h"
+#include "engine/taputils/checkadapterenable.h"
+#include "utils/winutils.h"
 #include "utils/ras_service_win.h"
 
 #define IKEV2_CONNECTION_NAME  L"Windscribe IKEv2"
@@ -85,10 +85,10 @@ bool IKEv2Connection_win::isDisconnected() const
     return  state_ == STATE_DISCONNECTED;
 }
 
-QString IKEv2Connection_win::getConnectedTapTunAdapterName()
+/*QString IKEv2Connection_win::getConnectedTapTunAdapterName()
 {
     return QString::fromStdWString(IKEV2_CONNECTION_NAME);
-}
+}*/
 
 void IKEv2Connection_win::removeIkev2ConnectionFromOS()
 {
@@ -478,7 +478,10 @@ void IKEv2Connection_win::rasDialFuncCallback(HRASCONN hrasconn, UINT unMsg, tag
             timerControlConnection_.setInterval(CONTROL_TIMER_PERIOD);
             QTimer::singleShot(0, &timerControlConnection_, SLOT(start()));
             state_ = STATE_CONNECTED;
-            emit connected();
+            ConnectionAdapterInfo cai;
+            QString adapterName = QString::fromStdWString(IKEV2_CONNECTION_NAME);
+            cai.setAdapterName(adapterName);
+            emit connected(cai);
         }
     }
     else

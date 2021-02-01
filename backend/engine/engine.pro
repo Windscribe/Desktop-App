@@ -312,6 +312,7 @@ SOURCES += main.cpp \
     engine/proxy/proxyservercontroller.cpp \
     engine/types/dnsresolutionsettings.cpp \
     engine/connectionmanager/makeovpnfile.cpp \
+    engine/connectionmanager/connectionadapterinfo.cpp \
     engine/connectionmanager/stunnelmanager.cpp \
     engine/connectionmanager/testvpntunnel.cpp \
     engine/connectionmanager/openvpnconnection.cpp \
@@ -428,6 +429,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/apiinfo/portmap.h \
     engine/apiinfo/staticips.h \
     engine/apiinfo/servercredentials.h \
+    engine/connectionmanager/connectionadapterinfo.h \
     engine/connectionmanager/makeovpnfile.h \
     engine/dnsresolver/dnsutils.h \
     engine/autoupdater/downloadhelper.h \

@@ -151,11 +151,6 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
     str = "--script-security 2\r\n";
     file_.write(str.toLocal8Bit());
 
-    // for Mac not add default gateway
-    // routes are managed in helper depending split tunneling options
-    //str = "route-noexec\r\n";
-    //file_.write(str.toLocal8Bit());
-
     QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
     QString cmd1 = "\nup \"" + strDnsPath + " -up\"\n";
     file_.write(cmd1.toUtf8());

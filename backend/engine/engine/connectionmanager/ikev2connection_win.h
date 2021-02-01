@@ -10,7 +10,7 @@
 #include <windows.h>
 #include <ras.h>
 #include <raserror.h>
-#include "Engine/Helper/ihelper.h"
+#include "engine/helper/ihelper.h"
 #include "ikev2connectiondisconnectlogic_win.h"
 
 
@@ -26,7 +26,7 @@ public:
     void startDisconnect() override;
     bool isDisconnected() const override;
 
-    QString getConnectedTapTunAdapterName() override;
+    //QString getConnectedTapTunAdapterName() override;
     ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }
 
     static void removeIkev2ConnectionFromOS();

@@ -25,20 +25,17 @@ public:
     bool isDisconnected();
     void blockingDisconnect();
 
-    //windows specific functions
-    QString getConnectedTapAdapter_win();
-
     void setPacketSize(ProtoTypes::PacketSize ps);
 
 signals:
-    void connected();
+    void connected(const ConnectionAdapterInfo &connectionAdapterInfo);
     void disconnected(DISCONNECT_REASON reason);
     void errorDuringConnection(CONNECTION_ERROR errorCode);
 
 private slots:
     void onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
 
-    void onConnectionConnected();
+    void onConnectionConnected(const ConnectionAdapterInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
     void onConnectionError(CONNECTION_ERROR err);

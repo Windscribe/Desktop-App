@@ -229,11 +229,6 @@ QString ConnectionManager::getLastConnectedIp()
 }
 
 
-QString ConnectionManager::getConnectedTapTunAdapter()
-{
-    return connector_->getConnectedTapTunAdapterName();
-}
-
 void ConnectionManager::removeIkev2ConnectionFromOS()
 {
 #ifdef Q_OS_WIN
@@ -273,9 +268,11 @@ void ConnectionManager::continueWithPassword(const QString &password, bool /*bNe
     }
 }
 
-void ConnectionManager::onConnectionConnected()
+void ConnectionManager::onConnectionConnected(const ConnectionAdapterInfo &connectionAdapterInfo)
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionConnected(), state_ =" << state_;
+
+    lastConnectionAdapterInfo_ = connectionAdapterInfo;
 
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK)
     {
@@ -291,7 +288,7 @@ void ConnectionManager::onConnectionConnected()
     DnsResolver::instance().recreateDefaultDnsChannel();
     timerReconnection_.stop();
     state_ = STATE_CONNECTED;
-    emit connected();
+    emit connected(connectionAdapterInfo);
 }
 
 void ConnectionManager::onConnectionDisconnected()
@@ -342,7 +339,7 @@ void ConnectionManager::onConnectionDisconnected()
 #ifdef Q_OS_WIN
             if (bNeedResetTap_)
             {
-                ResetWindscribeTap_win::resetAdapter(helper_, getConnectedTapTunAdapter());
+                ResetWindscribeTap_win::resetAdapter(helper_, lastConnectionAdapterInfo_.adapterName());
                 bNeedResetTap_ = false;
             }
 #endif
@@ -1060,7 +1057,7 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
             Q_ASSERT(false);
         }
 
-        connect(connector_, SIGNAL(connected()), SLOT(onConnectionConnected()), Qt::QueuedConnection);
+        connect(connector_, SIGNAL(connected(ConnectionAdapterInfo)), SLOT(onConnectionConnected(ConnectionAdapterInfo)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);

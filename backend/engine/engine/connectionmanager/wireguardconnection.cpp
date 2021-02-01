@@ -157,10 +157,10 @@ bool WireGuardConnection::isDisconnected() const
     return getCurrentState() == ConnectionState::DISCONNECTED;
 }
 
-QString WireGuardConnection::getConnectedTapTunAdapterName()
+/*QString WireGuardConnection::getConnectedTapTunAdapterName()
 {
     return pimpl_->getAdapterName();
-}
+}*/
 
 // static
 QString WireGuardConnection::getWireGuardExeName()
@@ -274,6 +274,7 @@ void WireGuardConnection::setCurrentState(ConnectionState state)
 void WireGuardConnection::setCurrentStateAndEmitSignal(ConnectionState state)
 {
     QMutexLocker locker(&current_state_mutex_);
+    ConnectionAdapterInfo cai;
     current_state_ = state;
     switch (current_state_) {
     case ConnectionState::DISCONNECTED:
@@ -281,7 +282,7 @@ void WireGuardConnection::setCurrentStateAndEmitSignal(ConnectionState state)
         emit disconnected();
         break;
     case ConnectionState::CONNECTED:
-        emit connected();
+        emit connected(cai);
         break;
     default:
         break;

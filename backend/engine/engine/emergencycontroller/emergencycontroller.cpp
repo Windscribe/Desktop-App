@@ -34,7 +34,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
     }
 
      connector_ = new OpenVPNConnection(this, helper_);
-     connect(connector_, SIGNAL(connected()), SLOT(onConnectionConnected()), Qt::QueuedConnection);
+     connect(connector_, SIGNAL(connected(ConnectionAdapterInfo)), SLOT(onConnectionConnected(ConnectionAdapterInfo)), Qt::QueuedConnection);
      connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
      connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
      connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);
@@ -125,11 +125,6 @@ void EmergencyController::blockingDisconnect()
     }
 }
 
-QString EmergencyController::getConnectedTapAdapter_win()
-{
-    return "";
-}
-
 void EmergencyController::setPacketSize(ProtoTypes::PacketSize ps)
 {
     packetSize_ = ps;
@@ -185,7 +180,7 @@ void EmergencyController::onDnsResolved(const QString &hostname, const QHostInfo
     }
 }
 
-void EmergencyController::onConnectionConnected()
+void EmergencyController::onConnectionConnected(const ConnectionAdapterInfo &connectionAdapterInfo)
 {
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionConnected(), state_ =" << state_;
 
@@ -197,7 +192,7 @@ void EmergencyController::onConnectionConnected()
     DnsResolver::instance().recreateDefaultDnsChannel();
 
     state_ = STATE_CONNECTED;
-    emit connected();
+    emit connected(connectionAdapterInfo);
 }
 
 void EmergencyController::onConnectionDisconnected()

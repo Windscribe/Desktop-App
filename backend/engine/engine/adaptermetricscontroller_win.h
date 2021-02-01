@@ -8,7 +8,7 @@ class IHelper;
 class AdapterMetricsController_win
 {
 public:
-    static void updateMetrics(const QString &tapName, IHelper *helper);
+    static void updateMetrics(const QString &adapterName, IHelper *helper);
 };
 
 #endif // ADAPTERMETRICSCONTROLLER_WIN_H

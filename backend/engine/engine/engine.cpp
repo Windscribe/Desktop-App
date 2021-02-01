@@ -575,7 +575,7 @@ void Engine::init()
 
     connectionManager_ = new ConnectionManager(this, helper_, networkStateManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
     connectionManager_->setPacketSize(packetSize_);
-    connect(connectionManager_, SIGNAL(connected()), SLOT(onConnectionManagerConnected()));
+    connect(connectionManager_, SIGNAL(connected(ConnectionAdapterInfo)), SLOT(onConnectionManagerConnected(ConnectionAdapterInfo)));
     connect(connectionManager_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onConnectionManagerDisconnected(DISCONNECT_REASON)));
     connect(connectionManager_, SIGNAL(reconnecting()), SLOT(onConnectionManagerReconnecting()));
     connect(connectionManager_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onConnectionManagerError(CONNECTION_ERROR)));
@@ -605,7 +605,7 @@ void Engine::init()
 
     emergencyController_ = new EmergencyController(this, helper_);
     emergencyController_->setPacketSize(packetSize_);
-    connect(emergencyController_, SIGNAL(connected()), SLOT(onEmergencyControllerConnected()));
+    connect(emergencyController_, SIGNAL(connected(ConnectionAdapterInfo)), SLOT(onEmergencyControllerConnected(ConnectionAdapterInfo)));
     connect(emergencyController_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onEmergencyControllerDisconnected(DISCONNECT_REASON)));
     connect(emergencyController_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onEmergencyControllerError(CONNECTION_ERROR)));
 
@@ -1494,7 +1494,7 @@ void Engine::onUpdateSessionStatusTimer()
     serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
-void Engine::onConnectionManagerConnected()
+void Engine::onConnectionManagerConnected(const ConnectionAdapterInfo &connectionAdapterInfo)
 {
     if (engineSettings_.firewallSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC) {
         const bool isAllowFirewallAfterConnection =
@@ -1524,7 +1524,7 @@ void Engine::onConnectionManagerConnected()
     }
 
 #ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(connectionManager_->getConnectedTapTunAdapter(), helper_);
+    AdapterMetricsController_win::updateMetrics(connectionAdapterInfo.adapterName(), helper_);
 #endif
 
 #ifdef Q_OS_MAC
@@ -1552,7 +1552,7 @@ void Engine::onConnectionManagerConnected()
     }
 
 #else
-    QString tapInterface = connectionManager_->getConnectedTapTunAdapter();
+    QString tapInterface = connectionAdapterInfo.adapterName();
 #endif
 
     splitTunnelingNetworkInfo_->outToLog();
@@ -2036,12 +2036,12 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
 }
 
-void Engine::onEmergencyControllerConnected()
+void Engine::onEmergencyControllerConnected(const ConnectionAdapterInfo &connectionAdapterInfo)
 {
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerConnected()";
 
 #ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(emergencyController_->getConnectedTapAdapter_win(), helper_);
+    AdapterMetricsController_win::updateMetrics(connectionAdapterInfo.adapterName(), helper_);
 #endif
 
     serverAPI_->disableProxy();

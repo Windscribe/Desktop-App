@@ -23,7 +23,7 @@ public:
     void startDisconnect() override;
     bool isDisconnected() const override;
 
-    QString getConnectedTapTunAdapterName() override;
+    //QString getConnectedTapTunAdapterName() override;
     ConnectionType getConnectionType() const override { return ConnectionType::WIREGUARD; }
 
     void continueWithUsernameAndPassword(const QString & /*username*/, const QString & /*password*/) override {}
