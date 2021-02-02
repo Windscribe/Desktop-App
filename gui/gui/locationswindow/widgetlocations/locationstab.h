@@ -13,8 +13,6 @@
 #include "configfooterinfo.h"
 #include "commonwidgets/custommenulineedit.h"
 
-// TODO: add tooltip for search tab icon hover
-
 namespace GuiLocations {
 
 // switchable tabs of locations, includes widgets for all locations, favorite locations, configured locations, static IPs locations
@@ -62,6 +60,8 @@ private slots:
     void onDeviceNameChanged(const QString &deviceName);
     void onAddCustomConfigClicked();
 
+    void onSearchButtonHoverEnter();
+    void onSearchButtonHoverLeave();
     void onSearchButtonClicked();
     void onSearchCancelButtonClicked();
     void onSearchButtonPosAnimationValueChanged(const QVariant &value);
@@ -118,7 +118,7 @@ private:
     QRect rcFavoriteLocationsIcon_;
 
     Qt::CursorShape curCursorShape_;
-    CurTabEnum curTabMouseOver_; // TODO: use buttons for all tabs instead of mouse-over logic (should be similar to search button)
+    CurTabEnum curTabMouseOver_;
 
     int curWhiteLinePos_;
     QVariantAnimation whiteLineAnimation_;

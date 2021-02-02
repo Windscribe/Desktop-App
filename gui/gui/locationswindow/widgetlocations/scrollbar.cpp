@@ -52,7 +52,7 @@ void ScrollBar::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setOpacity(curOpacity_);
     QRect bkgd(0,0, geometry().width(), geometry().height());
-    qDebug() << "Painting scrollbar: " << bkgd;
+    // qDebug() << "Painting scrollbar: " << bkgd;
     painter.fillRect(bkgd, FontManager::instance().getCarbonBlackColor());
 
     // background without padded region

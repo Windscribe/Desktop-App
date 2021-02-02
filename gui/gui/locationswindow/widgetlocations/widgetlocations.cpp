@@ -118,7 +118,6 @@ void WidgetLocations::setFilterString(QString text)
 
 void WidgetLocations::updateScaling()
 {
-    // TODO: bug when changing scales when displaying lower in the list
     const auto scale_adjustment = G_SCALE / currentScale_;
     if (scale_adjustment != 1.0)
     {
@@ -226,58 +225,57 @@ void WidgetLocations::startAnimationWithPixmap(const QPixmap &pixmap)
 
 bool WidgetLocations::eventFilter(QObject *object, QEvent *event)
 {
-    // TODO: this entire function (for gestures)
-    if (object == viewport() && event->type() == QEvent::Gesture)
-    {
-        QGestureEvent *ge = static_cast<QGestureEvent *>(event);
-        QTapGesture *g = static_cast<QTapGesture *>(ge->gesture(Qt::TapGesture));
-        if (g)
-        {
-            if (g->state() == Qt::GestureStarted)
-            {
-                bTapGestureStarted_ = true;
-            }
-            else if (g->state() == Qt::GestureFinished)
-            {
-                if (bTapGestureStarted_)
-                {
-                    bTapGestureStarted_ = false;
-                    QPointF ptf = g->position();
-                    QPoint pt(ptf.x(), ptf.y());
-                    handleTapClick(viewport()->mapToGlobal(pt));
-                }
-            }
-            else if (g->state() == Qt::GestureCanceled)
-            {
-                bTapGestureStarted_ = false;
-            }
-        }
-        QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
-        if (gp)
-        {
-            if (gp->state() == Qt::GestureStarted)
-            {
+//    if (object == viewport() && event->type() == QEvent::Gesture)
+//    {
+//        QGestureEvent *ge = static_cast<QGestureEvent *>(event);
+//        QTapGesture *g = static_cast<QTapGesture *>(ge->gesture(Qt::TapGesture));
+//        if (g)
+//        {
+//            if (g->state() == Qt::GestureStarted)
+//            {
+//                bTapGestureStarted_ = true;
+//            }
+//            else if (g->state() == Qt::GestureFinished)
+//            {
+//                if (bTapGestureStarted_)
+//                {
+//                    bTapGestureStarted_ = false;
+//                    QPointF ptf = g->position();
+//                    QPoint pt(ptf.x(), ptf.y());
+//                    handleTapClick(viewport()->mapToGlobal(pt));
+//                }
+//            }
+//            else if (g->state() == Qt::GestureCanceled)
+//            {
+//                bTapGestureStarted_ = false;
+//            }
+//        }
+//        QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
+//        if (gp)
+//        {
+//            if (gp->state() == Qt::GestureStarted)
+//            {
 
-                bTapGestureStarted_ = false;
-            }
-        }
-        return true;
-    }
-    else if (object == viewport() && event->type() == QEvent::ScrollPrepare)
-    {
-        QScrollPrepareEvent *se = static_cast<QScrollPrepareEvent *>(event);
-        se->setViewportSize(QSizeF(viewport()->size()));
-        se->setContentPosRange(QRectF(0, 0, 1, scrollBar_->maximum() * getItemHeight()));
-        se->setContentPos(QPointF(0, scrollBar_->value() * getItemHeight()));
-        se->accept();
-        return true;
-    }
-    else if (object == viewport() && event->type() == QEvent::Scroll)
-    {
-        QScrollEvent *se = static_cast<QScrollEvent *>(event);
-        scrollBar_->setValue(se->contentPos().y() / getItemHeight());
-        return true;
-    }
+//                bTapGestureStarted_ = false;
+//            }
+//        }
+//        return true;
+//    }
+//    else if (object == viewport() && event->type() == QEvent::ScrollPrepare)
+//    {
+//        QScrollPrepareEvent *se = static_cast<QScrollPrepareEvent *>(event);
+//        se->setViewportSize(QSizeF(viewport()->size()));
+//        se->setContentPosRange(QRectF(0, 0, 1, scrollBar_->maximum() * getItemHeight()));
+//        se->setContentPos(QPointF(0, scrollBar_->value() * getItemHeight()));
+//        se->accept();
+//        return true;
+//    }
+//    else if (object == viewport() && event->type() == QEvent::Scroll)
+//    {
+//        QScrollEvent *se = static_cast<QScrollEvent *>(event);
+//        scrollBar_->setValue(se->contentPos().y() / getItemHeight());
+//        return true;
+//    }
     return QAbstractScrollArea::eventFilter(object, event);
 }
 

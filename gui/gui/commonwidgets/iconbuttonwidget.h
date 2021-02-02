@@ -24,6 +24,8 @@ public:
 
 signals:
     void sizeChanged(int width, int height);
+    void hoverEnter();
+    void hoverLeave();
 
 protected:
     void paintEvent(QPaintEvent *event) override;

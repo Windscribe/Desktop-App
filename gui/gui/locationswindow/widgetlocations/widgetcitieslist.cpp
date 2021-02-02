@@ -53,6 +53,11 @@ void WidgetCitiesList::addCity(const CityModelItem &city)
 
 void WidgetCitiesList::updateScaling()
 {
+    foreach (ItemWidgetCity *city, itemWidgets_)
+    {
+        city->updateScaling();
+    }
+
     recalcItemPositions();
 
 }

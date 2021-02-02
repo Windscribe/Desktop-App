@@ -206,58 +206,57 @@ void WidgetCities::startAnimationWithPixmap(const QPixmap &pixmap)
 
 bool WidgetCities::eventFilter(QObject *object, QEvent *event)
 {
-    // TODO: thie entire function (for gestures)
-    if (object == viewport() && event->type() == QEvent::Gesture)
-    {
-        QGestureEvent *ge = static_cast<QGestureEvent *>(event);
-        QTapGesture *g = static_cast<QTapGesture *>(ge->gesture(Qt::TapGesture));
-        if (g)
-        {
-            if (g->state() == Qt::GestureStarted)
-            {
-                bTapGestureStarted_ = true;
-            }
-            else if (g->state() == Qt::GestureFinished)
-            {
-                if (bTapGestureStarted_)
-                {
-                    bTapGestureStarted_ = false;
-                    QPointF ptf = g->position();
-                    QPoint pt(ptf.x(), ptf.y());
-                    handleTapClick(viewport()->mapToGlobal(pt));
-                }
-            }
-            else if (g->state() == Qt::GestureCanceled)
-            {
-                bTapGestureStarted_ = false;
-            }
-        }
-        QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
-        if (gp)
-        {
-            if (gp->state() == Qt::GestureStarted)
-            {
+    //    if (object == viewport() && event->type() == QEvent::Gesture)
+    //    {
+    //        QGestureEvent *ge = static_cast<QGestureEvent *>(event);
+    //        QTapGesture *g = static_cast<QTapGesture *>(ge->gesture(Qt::TapGesture));
+    //        if (g)
+    //        {
+    //            if (g->state() == Qt::GestureStarted)
+    //            {
+    //                bTapGestureStarted_ = true;
+    //            }
+    //            else if (g->state() == Qt::GestureFinished)
+    //            {
+    //                if (bTapGestureStarted_)
+    //                {
+    //                    bTapGestureStarted_ = false;
+    //                    QPointF ptf = g->position();
+    //                    QPoint pt(ptf.x(), ptf.y());
+    //                    handleTapClick(viewport()->mapToGlobal(pt));
+    //                }
+    //            }
+    //            else if (g->state() == Qt::GestureCanceled)
+    //            {
+    //                bTapGestureStarted_ = false;
+    //            }
+    //        }
+    //        QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
+    //        if (gp)
+    //        {
+    //            if (gp->state() == Qt::GestureStarted)
+    //            {
 
-                bTapGestureStarted_ = false;
-            }
-        }
-        return true;
-    }
-    else if (object == viewport() && event->type() == QEvent::ScrollPrepare)
-    {
-        QScrollPrepareEvent *se = static_cast<QScrollPrepareEvent *>(event);
-        se->setViewportSize(QSizeF(viewport()->size()));
-        se->setContentPosRange(QRectF(0, 0, 1, verticalScrollBar()->maximum() * getItemHeight()));
-        se->setContentPos(QPointF(0, verticalScrollBar()->value() * getItemHeight()));
-        se->accept();
-        return true;
-    }
-    else if (object == viewport() && event->type() == QEvent::Scroll)
-    {
-        QScrollEvent *se = static_cast<QScrollEvent *>(event);
-        verticalScrollBar()->setValue(se->contentPos().y() / getItemHeight());
-        return true;
-    }
+    //                bTapGestureStarted_ = false;
+    //            }
+    //        }
+    //        return true;
+    //    }
+    //    else if (object == viewport() && event->type() == QEvent::ScrollPrepare)
+    //    {
+    //        QScrollPrepareEvent *se = static_cast<QScrollPrepareEvent *>(event);
+    //        se->setViewportSize(QSizeF(viewport()->size()));
+    //        se->setContentPosRange(QRectF(0, 0, 1, verticalScrollBar()->maximum() * getItemHeight()));
+    //        se->setContentPos(QPointF(0, verticalScrollBar()->value() * getItemHeight()));
+    //        se->accept();
+    //        return true;
+    //    }
+    //    else if (object == viewport() && event->type() == QEvent::Scroll)
+    //    {
+    //        QScrollEvent *se = static_cast<QScrollEvent *>(event);
+    //        verticalScrollBar()->setValue(se->contentPos().y() / getItemHeight());
+    //        return true;
+    //    }
     return QScrollArea::eventFilter(object, event);
 }
 

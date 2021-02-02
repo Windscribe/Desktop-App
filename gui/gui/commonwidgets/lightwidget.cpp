@@ -60,7 +60,6 @@ const QFont &LightWidget::font()
 int LightWidget::textWidth()
 {
     Q_ASSERT(font_ != QFont());
-    Q_ASSERT(text_ != "");
     return CommonGraphics::textWidth(text_, font_);
 }
 

@@ -68,7 +68,7 @@ private slots:
 private:
     int height_;
     std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
-    QVector<ItemWidgetRegion *> itemWidgets_;
+    QVector<ItemWidgetRegion *> itemWidgets_; // Note: spinning up this many widgets is not scalable design. If locations list grows we may experience UI slowdowns. It seems okay for now.
     IItemWidget *lastAccentedItemWidget_;
     QVector<IItemWidget *> recentlySelectedWidgets_;
 

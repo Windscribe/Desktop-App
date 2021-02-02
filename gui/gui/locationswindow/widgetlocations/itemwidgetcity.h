@@ -49,12 +49,13 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 private slots:
     void onPingIconLightWidgetHoveringChanged(bool hovering);
-    void onFavoriteIconButtonClicked(); // TODO: fix me
+    void onCityLightWidgetHoveringChanged(bool hovering);
     void onTextOpacityAnimationValueChanged(const QVariant &value);
-
 private:
     IWidgetLocationsInfo *widgetLocationsInfo_;
     PingTime pingTime_;
@@ -66,10 +67,12 @@ private:
     bool selectable_;
     bool selected_;
     bool favorited_;
+    bool pressingFav_;
 
     const QString pingIconNameString(int connectionSpeedIndex);
     void updatePingBarIcon();
     void updateFavoriteIcon();
+    void clickFavorite();
 
     QSharedPointer<LightWidget> favLightWidget_;
     QSharedPointer<LightWidget> pingIconLightWidget_;
@@ -79,9 +82,14 @@ private:
     QSharedPointer<QTextLayout> nickTextLayout_;
     QSharedPointer<LightWidget> nickLightWidget_;
 
+    QSharedPointer<QTextLayout> staticIpTextLayout_;
+    QSharedPointer<LightWidget> staticIpLightWidget_;
+
     double curTextOpacity_;
     void recreateTextLayouts();
     QVariantAnimation textOpacityAnimation_;
+
+    const int CITY_CAPTION_MAX_WIDTH = 210;
 };
 
 }

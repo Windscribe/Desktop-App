@@ -4,6 +4,7 @@
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
+#include "tooltips/tooltipcontroller.h"
 
 namespace CommonWidgets {
 
@@ -61,6 +62,7 @@ void IconButtonWidget::enterEvent(QEvent *event)
     Q_UNUSED(event);
     startAnAnimation(opacityAnimation_, curOpacity_, hoverOpacity_, ANIMATION_SPEED_FAST);
     setCursor(Qt::PointingHandCursor);
+    emit hoverEnter();
 }
 
 void IconButtonWidget::leaveEvent(QEvent *event)
@@ -68,6 +70,7 @@ void IconButtonWidget::leaveEvent(QEvent *event)
     Q_UNUSED(event);
     startAnAnimation(opacityAnimation_, curOpacity_, unhoverOpacity_, ANIMATION_SPEED_FAST);
     setCursor(Qt::ArrowCursor);
+    emit hoverLeave();
 }
 
 void IconButtonWidget::onOpacityChanged(const QVariant &value)

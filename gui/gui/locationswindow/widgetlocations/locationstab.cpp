@@ -37,6 +37,8 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     searchButton_ = new CommonWidgets::IconButtonWidget("locations/SEARCH_ICON", this);
     searchButton_->setUnhoverHoverOpacity(TAB_OPACITY_DIM, TAB_OPACITY_DIM);
     connect(searchButton_, SIGNAL(clicked()), SLOT(onSearchButtonClicked()));
+    connect(searchButton_, SIGNAL(hoverEnter()), SLOT(onSearchButtonHoverEnter()));
+    connect(searchButton_, SIGNAL(hoverLeave()), SLOT(onSearchButtonHoverLeave()));
     searchButton_->move(searchButtonPos_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
 
     searchButtonPosAnimation_.setDuration(SEARCH_BUTTON_POS_ANIMATION_DURATION);
@@ -406,6 +408,26 @@ void LocationsTab::onAddCustomConfigClicked()
 {
     checkCustomConfigPathAccessRights_ = true;
     emit addCustomConfigClicked();
+}
+
+void LocationsTab::onSearchButtonHoverEnter()
+{
+    QPoint buttonGlobalPoint = mapToGlobal(searchButton_->geometry().topLeft());
+    int posX = buttonGlobalPoint.x() + searchButton_->geometry().width()/2;
+    int posY = buttonGlobalPoint.y() - 5 * G_SCALE;
+
+    TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_TAB_INFO);
+    ti.x = posX;
+    ti.y = posY;
+    ti.title = tr("Search");
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.5;
+    TooltipController::instance().showTooltipBasic(ti);
+}
+
+void LocationsTab::onSearchButtonHoverLeave()
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
 }
 
 void LocationsTab::onSearchButtonClicked()
