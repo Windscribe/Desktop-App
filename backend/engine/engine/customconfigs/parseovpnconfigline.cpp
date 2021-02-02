@@ -70,6 +70,19 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
             }
         }
     }
+    else if (line.contains("cipher", Qt::CaseInsensitive))
+    {
+        QStringList strs = splitLine(line);
+
+        if (strs.count() > 0 && strs[0].compare("cipher", Qt::CaseInsensitive) == 0)
+        {
+            if (strs.count() >= 2)
+            {
+                openVpnLine.type = OVPN_CMD_CIPHER;
+                openVpnLine.protocol = strs[1];
+            }
+        }
+    }
     else if (line.contains("route-nopull", Qt::CaseInsensitive) ||
              line.contains("route-noexec", Qt::CaseInsensitive))
     {

@@ -96,6 +96,7 @@ void OvpnCustomConfig::process()
 
         bool bFoundAtLeastOneRemote = false;
         bool bFoundVerbCommand = false;
+        bool bHasValidCipher = false;
         QTextStream in(&file);
         while (!in.atEnd())
         {
@@ -130,6 +131,13 @@ void OvpnCustomConfig::process()
                 ovpnData_ += "verb " + QString::number(openVpnLine.verb) + "\n";
                 bFoundVerbCommand = true;
             }
+            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_CIPHER) // cipher cmd
+            {
+                qDebug(LOG_CUSTOM_OVPN) << "Extracted cipher:" << openVpnLine.protocol;
+                ovpnData_ += line + "\n";
+                if (!openVpnLine.protocol.trimmed().isEmpty())
+                    bHasValidCipher = true;
+            }
             else
             {
                 if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PROTO) // proto cmd
@@ -155,6 +163,12 @@ void OvpnCustomConfig::process()
 
         if (!bFoundVerbCommand)
             ovpnData_ += "verb 3\n";
+
+        // The "BF-CBC" cipher was the default prior to OpenVPN 2.5.
+        // To support old configs that used to work in older Windscribe distributions, add a default
+        // cipher command when there is no such command in the config.
+        if (!bHasValidCipher)
+            ovpnData_ += "cipher BF-CBC\n";
 
         if (!bFoundAtLeastOneRemote)
         {

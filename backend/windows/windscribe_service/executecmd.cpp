@@ -87,9 +87,10 @@ MessagePacketResult ExecuteCmd::executeUnblockingCmd(const wchar_t *cmd, const w
 {
     std::lock_guard<std::mutex> lock(mutex_);
 
-	wchar_t szCmd[MAX_PATH];
-
-	wcscpy(szCmd, cmd);
+    wchar_t szCmd[1024] = {};
+    if (wcslen(cmd) > sizeof(szCmd) / sizeof(szCmd[0]) - 1)
+        Logger::instance().out(L"Command too long: \"%x\"", cmd);
+    wcsncpy(szCmd, cmd, sizeof(szCmd)/sizeof(szCmd[0])-1);
 
     MessagePacketResult mpr;
 
