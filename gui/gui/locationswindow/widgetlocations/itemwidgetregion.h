@@ -50,6 +50,7 @@ private slots:
     void onCityItemSelected();
     void onCityItemClicked();
     void onExpandingHeightAnimationValueChanged(const QVariant &value);
+
 private:
     ItemWidgetHeader *regionHeaderWidget_;
     QVector<ItemWidgetCity *> cities_;

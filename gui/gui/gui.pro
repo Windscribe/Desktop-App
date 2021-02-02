@@ -203,6 +203,7 @@ SOURCES += \
     commonwidgets/combomenuwidget.cpp \
     commonwidgets/combomenuwidgetbutton.cpp \
     commonwidgets/iconwidget.cpp \
+    commonwidgets/lightwidget.cpp \
     connectwindow/connectionbadgedots.cpp \
     connectwindow/connectstateprotocolport.cpp \
     connectwindow/ipaddressitem/ipaddressitem.cpp \
@@ -433,6 +434,7 @@ HEADERS += \
     commonwidgets/combomenuwidget.h \
     commonwidgets/combomenuwidgetbutton.h \
     commonwidgets/iconwidget.h \
+    commonwidgets/lightwidget.h \
     connectwindow/connectionbadgedots.h \
     connectwindow/connectstateprotocolport.h \
     connectwindow/ipaddressitem/ipaddressitem.h \

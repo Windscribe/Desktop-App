@@ -469,6 +469,8 @@ void MainWindowController::collapseLocations()
         return;
     }
 
+    TooltipController::instance().hideAllTooltips();
+
     isAtomicAnimationActive_ = true;
     functionOnAnimationFinished_ = NULL;
 

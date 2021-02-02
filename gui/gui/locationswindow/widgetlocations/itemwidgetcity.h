@@ -9,6 +9,7 @@
 #include "commonwidgets/iconbuttonwidget.h"
 #include "../backend/types/pingtime.h"
 #include "itemtimems.h"
+#include "commonwidgets/lightwidget.h"
 
 namespace GuiLocations {
 
@@ -47,33 +48,40 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private slots:
-    void onPingBarIconHoverEnter();
-    void onPingBarIconHoverLeave();
-    void onFavoriteIconButtonClicked();
+    void onPingIconLightWidgetHoveringChanged(bool hovering);
+    void onFavoriteIconButtonClicked(); // TODO: fix me
+    void onTextOpacityAnimationValueChanged(const QVariant &value);
 
 private:
-    QSharedPointer<QLabel> cityLabel_;
-    QSharedPointer<QLabel> nickLabel_;
-    QSharedPointer<IconWidget> pingBarIcon_;
-    QSharedPointer<CommonWidgets::IconButtonWidget> favoriteIconButton_;
-
+    IWidgetLocationsInfo *widgetLocationsInfo_;
     PingTime pingTime_;
     CityModelItem cityModelItem_;
-    IWidgetLocationsInfo *widgetLocationsInfo_;
 
-    bool showingPingBar_;
+    bool showFavIcon_;
+    bool showPingIcon_;
+    bool showingLatencyAsPingBar_;
     bool selectable_;
     bool selected_;
     bool favorited_;
-    const QString labelStyleSheetWithOpacity(double opacity);
 
-    void recalcItemPositions();
-    void updateFavoriteIcon();
-    void updatePingBarIcon();
     const QString pingIconNameString(int connectionSpeedIndex);
+    void updatePingBarIcon();
+    void updateFavoriteIcon();
+
+    QSharedPointer<LightWidget> favLightWidget_;
+    QSharedPointer<LightWidget> pingIconLightWidget_;
+
+    QSharedPointer<QTextLayout> cityTextLayout_;
+    QSharedPointer<LightWidget> cityLightWidget_;
+    QSharedPointer<QTextLayout> nickTextLayout_;
+    QSharedPointer<LightWidget> nickLightWidget_;
+
+    double curTextOpacity_;
+    void recreateTextLayouts();
+    QVariantAnimation textOpacityAnimation_;
 };
 
 }

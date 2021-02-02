@@ -186,6 +186,11 @@ void ItemWidgetRegion::recalcHeight()
 
 void ItemWidgetRegion::updateScaling()
 {
+    regionHeaderWidget_->updateScaling();
+    foreach (ItemWidgetCity *city , cities_)
+    {
+        city->updateScaling();
+    }
     recalcItemPositions();
 }
 

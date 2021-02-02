@@ -15,32 +15,26 @@
 namespace GuiLocations {
 
 ItemWidgetHeader::ItemWidgetHeader(IWidgetLocationsInfo *widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : IItemWidget(parent)
+  , widgetLocationsInfo_(widgetLocationsInfo)
   , locationID_(locationModelItem->id)
   , countryCode_(locationModelItem->countryCode)
   , isPremiumOnly_(locationModelItem->isPremiumOnly)
-  , widgetLocationsInfo_(widgetLocationsInfo)
   , showPlusIcon_(true)
-  , plusIconOpacity_(OPACITY_THIRD)
-  , textOpacity_(OPACITY_UNHOVER_TEXT)
-  , expandAnimationProgress_(0.0)
-  , expanded_(false)
   , selected_(false)
   , selectable_(true)
+  , plusIconOpacity_(OPACITY_THIRD)
+  , expanded_(false)
+  , expandAnimationProgress_(0.0)
+  , textOpacity_(OPACITY_UNHOVER_TEXT)
+  , textForLayout_(locationModelItem->title)
+  , textLayout_(nullptr)
+  , showP2pIcon_(locationModelItem->isShowP2P)
+  , p2pHovering_(false)
 {
-    // setMouseTracking(true);
+    setMouseTracking(true);
     setFocusPolicy(Qt::NoFocus);
 
-    textLabel_ = QSharedPointer<QLabel>(new QLabel(this));
-    textLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
-    textLabel_->setText(locationModelItem->title);
-    textLabel_->show();
-
-    p2pIcon_ = QSharedPointer<IconWidget>(new IconWidget("locations/NO_P2P_ICON", this));
-    p2pIcon_->setOpacity(OPACITY_HALF);
-    connect(p2pIcon_.get(), SIGNAL(hoverEnter()), SLOT(onP2pIconHoverEnter()));
-    connect(p2pIcon_.get(), SIGNAL(hoverLeave()), SLOT(onP2pIconHoverLeave()));
-    p2pIcon_->hide();
-    if (locationModelItem->isShowP2P) p2pIcon_->show();
+    recreateTextLayout();
 
     opacityAnimation_.setStartValue(0.0);
     opacityAnimation_.setEndValue(1.0);
@@ -51,8 +45,6 @@ ItemWidgetHeader::ItemWidgetHeader(IWidgetLocationsInfo *widgetLocationsInfo, Lo
     expandAnimation_.setEndValue(1.0);
     expandAnimation_.setDuration(200);
     connect(&expandAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onExpandRotationAnimationValueChanged(QVariant)));
-
-    recalcItemPositions();
 }
 
 ItemWidgetHeader::~ItemWidgetHeader()
@@ -77,7 +69,7 @@ bool ItemWidgetHeader::isDisabled() const
 
 const QString ItemWidgetHeader::name() const
 {
-    return textLabel_->text();
+    return textForLayout_;
 }
 
 IItemWidget::ItemWidgetType ItemWidgetHeader::type()
@@ -153,11 +145,13 @@ void ItemWidgetHeader::setExpandedWithoutAnimation(bool expand)
     update();
 }
 
+void ItemWidgetHeader::updateScaling()
+{
+    recreateTextLayout();
+}
+
 void ItemWidgetHeader::paintEvent(QPaintEvent *event)
 {
-
-    // qDebug() << "Header paintEvent";
-
     // background
     QPainter painter(this);
     painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE),
@@ -176,6 +170,23 @@ void ItemWidgetHeader::paintEvent(QPaintEvent *event)
     {
         IndependentPixmap *proRegionStar = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_REGION_STAR_LIGHT");
         proRegionStar->draw(8 * G_SCALE,  (LOCATION_ITEM_HEIGHT*G_SCALE - 16*G_SCALE) / 2 - 9*G_SCALE, &painter);
+    }
+
+    // text
+    painter.save();
+    painter.setOpacity(textOpacity_);
+    painter.setPen(Qt::white);
+    textLayout_->draw(&painter, QPoint(textLayoutRect().x(), textLayoutRect().y()));
+    painter.restore();
+
+    // p2p
+    if (showP2pIcon_)
+    {
+        painter.setOpacity(OPACITY_HALF);
+
+        QRect p2pr = p2pRect();
+        IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
+        if (p) p->draw(p2pr.x(),p2pr.y(),&painter);
     }
 
     // plus/cross
@@ -233,16 +244,31 @@ void ItemWidgetHeader::enterEvent(QEvent *event)
     setSelected(true); // triggers unselection of other widgets
 }
 
-void ItemWidgetHeader::resizeEvent(QResizeEvent *event)
+void ItemWidgetHeader::mouseMoveEvent(QMouseEvent *event)
 {
-    // qDebug() << "Header resize";
-    recalcItemPositions();
+    // qDebug() << "Mouse move: " << event->pos();
+    if (showP2pIcon_)
+    {
+        if (p2pRect().contains(event->pos()))
+        {
+            qDebug() << "P2P hovering";
+            p2pHovering_ = true;
+            p2pIconHover();
+        }
+        else if (p2pHovering_)
+        {
+            p2pHovering_ = false;
+            qDebug() << "P2P unhover";
+            p2pIconUnhover();
+        }
+    }
 }
 
-void ItemWidgetHeader::onP2pIconHoverEnter()
+void ItemWidgetHeader::p2pIconHover()
 {
     // p2p tooltip
-    QPoint pt = mapToGlobal(QPoint(p2pIcon_->geometry().center().x(), p2pIcon_->geometry().top() - 3*G_SCALE));
+    QRect r = p2pRect();
+    QPoint pt = mapToGlobal(QPoint(r.center().x(), r.top() - 3*G_SCALE));
     TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_P2P);
     ti.x = pt.x();
     ti.y = pt.y();
@@ -252,7 +278,7 @@ void ItemWidgetHeader::onP2pIconHoverEnter()
     TooltipController::instance().showTooltipBasic(ti);
 }
 
-void ItemWidgetHeader::onP2pIconHoverLeave()
+void ItemWidgetHeader::p2pIconUnhover()
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
 }
@@ -262,7 +288,6 @@ void ItemWidgetHeader::onOpacityAnimationValueChanged(const QVariant &value)
     plusIconOpacity_ = OPACITY_THIRD + (value.toDouble() * (1-OPACITY_THIRD));
     textOpacity_ = OPACITY_UNHOVER_TEXT + (value.toDouble() * (1-OPACITY_UNHOVER_TEXT));
 
-    textLabel_->setStyleSheet(labelStyleSheetWithOpacity(textOpacity_));
     update();
 }
 
@@ -272,23 +297,37 @@ void ItemWidgetHeader::onExpandRotationAnimationValueChanged(const QVariant &val
     update();
 }
 
-const QString ItemWidgetHeader::labelStyleSheetWithOpacity(double opacity)
+QFont ItemWidgetHeader::textLayoutFont()
 {
-    return "QLabel { color : rgba(255,255,255, " + QString::number(opacity) + "); }";
+    return *FontManager::instance().getFont(16, true);
 }
 
-void ItemWidgetHeader::recalcItemPositions()
+QRect ItemWidgetHeader::textLayoutRect()
 {
-    // qDebug() << "Header recalc item positions";
-    QFont font = *FontManager::instance().getFont(16, true);
-    textLabel_->setFont(font);
-    textLabel_->setGeometry(LOCATION_ITEM_MARGIN * G_SCALE * 2 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,
-                            (LOCATION_ITEM_HEIGHT * G_SCALE - CommonGraphics::textHeight(font))/2,
-                            CommonGraphics::textWidth(textLabel_->text(), font), CommonGraphics::textHeight(font));
+    QFont f = textLayoutFont();
+    return QRect(64*G_SCALE,
+                 (LOCATION_ITEM_HEIGHT*G_SCALE - CommonGraphics::textHeight(f))/2,
+                 CommonGraphics::textWidth(textForLayout_, f),
+                 CommonGraphics::textHeight(f));
+}
 
-    p2pIcon_->setGeometry((WINDOW_WIDTH - 65)*G_SCALE,
-                          (LOCATION_ITEM_HEIGHT*G_SCALE - p2pIcon_->height())/2,
-                          p2pIcon_->width(), p2pIcon_->height());
+void ItemWidgetHeader::recreateTextLayout()
+{
+    textLayout_ = QSharedPointer<QTextLayout>(new QTextLayout(textForLayout_, textLayoutFont()));
+    textLayout_->beginLayout();
+    textLayout_->createLine();
+    textLayout_->endLayout();
+    textLayout_->setCacheEnabled(true);
+}
+
+QRect ItemWidgetHeader::p2pRect()
+{
+    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
+
+    return QRect((WINDOW_WIDTH - 65)*G_SCALE,
+                 (LOCATION_ITEM_HEIGHT*G_SCALE - p->height())/2,
+                 p->width(),
+                 p->height());
 }
 
 const LocationID ItemWidgetHeader::getId() const

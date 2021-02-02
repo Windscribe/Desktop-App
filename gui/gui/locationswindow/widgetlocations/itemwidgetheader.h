@@ -2,6 +2,7 @@
 #define LOCATIONITEMREGIONHEADERWIDGET_H
 
 #include <QLabel>
+#include <QTextLayout>
 #include "../backend/locationsmodel/basiclocationsmodel.h"
 #include "iitemwidget.h"
 #include "commonwidgets/iconwidget.h"
@@ -27,7 +28,6 @@ public:
     bool containsCursor() const override;
     QRect globalGeometry() const override;
 
-
     void setSelectable(bool selectable) override;
     void setSelected(bool select) override;
     bool isSelected() const override;
@@ -35,42 +35,53 @@ public:
     void setExpanded(bool expand);
     void setExpandedWithoutAnimation(bool expand);
 
+    void updateScaling();
+
 signals:
     void selected();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private slots:
-    void onP2pIconHoverEnter();
-    void onP2pIconHoverLeave();
     void onOpacityAnimationValueChanged(const QVariant &value);
     void onExpandRotationAnimationValueChanged(const QVariant &value);
 
 private:
+    IWidgetLocationsInfo *widgetLocationsInfo_;
     LocationID locationID_;
     QString countryCode_;
     bool isPremiumOnly_;
-    IWidgetLocationsInfo *widgetLocationsInfo_;
-
-    QSharedPointer<IconWidget> p2pIcon_;
-    QSharedPointer<QLabel> textLabel_;
 
     bool showPlusIcon_;
+    bool selected_;
+    bool selectable_;
+
+    // opacity animation
     double plusIconOpacity_;
-    double textOpacity_;
     QVariantAnimation opacityAnimation_;
 
+    // expand animation
+    bool expanded_;
     double expandAnimationProgress_;
     QVariantAnimation expandAnimation_;
 
-    bool expanded_;
-    bool selected_;
-    bool selectable_;
-    const QString labelStyleSheetWithOpacity(double opacity);
-    void recalcItemPositions();
+    // text
+    double textOpacity_;
+    QString textForLayout_;
+    QSharedPointer<QTextLayout> textLayout_;
+    QFont textLayoutFont();
+    QRect textLayoutRect();
+    void recreateTextLayout();
+
+    // p2p
+    bool showP2pIcon_;
+    bool p2pHovering_;
+    QRect p2pRect();
+    void p2pIconHover();
+    void p2pIconUnhover();
 };
 
 }

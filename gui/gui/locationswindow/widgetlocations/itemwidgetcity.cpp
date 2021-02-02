@@ -15,42 +15,45 @@
 namespace GuiLocations {
 
 ItemWidgetCity::ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, const CityModelItem &cityModelItem, QWidget *parent) : IItemWidget(parent)
-  , cityModelItem_(cityModelItem)
   , widgetLocationsInfo_(widgetLocationsInfo)
-  , showingPingBar_(!widgetLocationsInfo->isShowLatencyInMs())
+  , cityModelItem_(cityModelItem)
+  , showFavIcon_(false)
+  , showPingIcon_(false)
+  , showingLatencyAsPingBar_(!widgetLocationsInfo->isShowLatencyInMs())
   , selectable_(false)
   , selected_(false)
   , favorited_(false)
+  , curTextOpacity_(OPACITY_HALF)
 {
+    setMouseTracking(true);
     setFocusPolicy(Qt::NoFocus);
 
-    cityLabel_ = QSharedPointer<QLabel>(new QLabel(this));
-    cityLabel_->setStyleSheet("QLabel { color : white; }");
-    cityLabel_->setText(cityModelItem.city);
-    cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
-
-    nickLabel_ = QSharedPointer<QLabel>(new QLabel(this));
-    nickLabel_->setStyleSheet("QLabel { color : white; }");
-    nickLabel_->setText(cityModelItem.nick);
-    nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
+    // TODO: long name (static ip and config) drawing
+    // TODO: tooltip for long name
+    cityLightWidget_ = QSharedPointer<LightWidget>(new LightWidget(this));
+    cityLightWidget_->setText(cityModelItem.city);
+    nickLightWidget_ = QSharedPointer<LightWidget>(new LightWidget(this));
+    nickLightWidget_->setText(cityModelItem.nick);
 
     pingTime_ = cityModelItem.pingTimeMs;
-    pingBarIcon_ = QSharedPointer<IconWidget>(new IconWidget("locations/LOCATION_PING_BARS0", this));
-    connect(pingBarIcon_.get(), SIGNAL(hoverEnter()), SLOT(onPingBarIconHoverEnter()));
-    connect(pingBarIcon_.get(), SIGNAL(hoverLeave()), SLOT(onPingBarIconHoverLeave()));
+    pingIconLightWidget_ = QSharedPointer<LightWidget>(new LightWidget(this));
+    connect(pingIconLightWidget_.get(), SIGNAL(hoveringChanged(bool)), SLOT(onPingIconLightWidgetHoveringChanged(bool)));
     updatePingBarIcon();
 
-    favoriteIconButton_ = QSharedPointer<CommonWidgets::IconButtonWidget>(new CommonWidgets::IconButtonWidget("locations/FAV_ICON_DESELECTED", this));
-    favoriteIconButton_->setUnhoverHoverOpacity(OPACITY_THIRD, OPACITY_FULL);
-    connect(favoriteIconButton_.get(), SIGNAL(clicked()), SLOT(onFavoriteIconButtonClicked()));
+    favLightWidget_ = QSharedPointer<LightWidget>(new LightWidget(this));
+    favLightWidget_->setIcon("locations/FAV_ICON_DESELECTED");
     updateFavoriteIcon();
 
-    recalcItemPositions();
+    textOpacityAnimation_.setDuration(200);
+    connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextOpacityAnimationValueChanged(QVariant)));
+
+    updateScaling();
 }
 
 ItemWidgetCity::~ItemWidgetCity()
 {
     // qDebug() << "Deleting city: " << name();
+
 }
 
 bool ItemWidgetCity::isExpanded() const
@@ -94,12 +97,13 @@ void ItemWidgetCity::setFavourited(bool favorited)
     favorited_ = favorited;
     if (favorited)
     {
-        favoriteIconButton_->setImage("locations/FAV_ICON_SELECTED");
+        favLightWidget_->setIcon("locations/FAV_ICON_SELECTED");
     }
     else
     {
-        favoriteIconButton_->setImage("locations/FAV_ICON_DESELECTED");
+        favLightWidget_->setIcon("locations/FAV_ICON_DESELECTED");
     }
+    update();
 }
 
 void ItemWidgetCity::setSelectable(bool selectable)
@@ -115,16 +119,17 @@ void ItemWidgetCity::setSelected(bool select)
         selected_ = select;
         if (select)
         {
-            cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
-            nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_FULL));
+            textOpacityAnimation_.setStartValue(curTextOpacity_);
+            textOpacityAnimation_.setEndValue(OPACITY_FULL);
+            textOpacityAnimation_.start();
             emit selected();
         }
         else
         {
-            cityLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
-            nickLabel_->setStyleSheet(labelStyleSheetWithOpacity(OPACITY_HALF));
+            textOpacityAnimation_.setStartValue(curTextOpacity_);
+            textOpacityAnimation_.setEndValue(OPACITY_HALF);
+            textOpacityAnimation_.start();
         }
-         update();
     }
 }
 
@@ -147,17 +152,46 @@ void ItemWidgetCity::setLatencyMs(PingTime pingTime)
 void ItemWidgetCity::setShowLatencyMs(bool showLatencyMs)
 {
     // time-text drawing handled in paintEvent
-    showingPingBar_ = !showLatencyMs;
+    showingLatencyAsPingBar_ = !showLatencyMs;
     updatePingBarIcon();
 }
 
 void ItemWidgetCity::updateScaling()
 {
-    // recalcItemPositions();
+    // city text
+    cityLightWidget_->setFont(*FontManager::instance().getFont(16, true));
+    cityLightWidget_->setRect(QRect(LOCATION_ITEM_MARGIN * G_SCALE * 2 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,
+                                     (LOCATION_ITEM_HEIGHT * G_SCALE - cityLightWidget_->textHeight())/2,
+                                     cityLightWidget_->textWidth(),
+                                     cityLightWidget_->textHeight()));
+
+    // nick text
+    nickLightWidget_->setFont(*FontManager::instance().getFont(16, false));
+    nickLightWidget_->setRect(QRect(cityLightWidget_->rect().x() + cityLightWidget_->rect().width() + 8*G_SCALE,
+                                     (LOCATION_ITEM_HEIGHT * G_SCALE - nickLightWidget_->textHeight())/2,
+                                     nickLightWidget_->textWidth(),
+                                     nickLightWidget_->textHeight()));
+    recreateTextLayouts();
+
+    // ping icon
+    int scaledX = (WINDOW_WIDTH - 16 - LOCATION_ITEM_MARGIN) * G_SCALE;
+    int scaledY = (LOCATION_ITEM_HEIGHT - 16) / 2 * G_SCALE - 1*G_SCALE;
+    pingIconLightWidget_->setRect(QRect(scaledX, scaledY, 16 * G_SCALE, 16 * G_SCALE));
+
+    // fav icon
+    int favoriteHeight = 14 * G_SCALE;
+    favLightWidget_->setRect(QRect(24*G_SCALE,
+                                     (LOCATION_ITEM_HEIGHT*G_SCALE - favoriteHeight)/2,
+                                     16 * G_SCALE,
+                                     favoriteHeight));
+    update();
+
 }
 
 void ItemWidgetCity::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event)
+
     // background
     QPainter painter(this);
     double initOpacity = painter.opacity();
@@ -171,6 +205,27 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
         premiumStarPixmap->draw(LOCATION_ITEM_MARGIN * G_SCALE,
                                 (LOCATION_ITEM_HEIGHT*G_SCALE - premiumStarPixmap->height()) / 2, &painter);
     }
+
+    if (showFavIcon_)
+    {
+        IndependentPixmap *fIcon = ImageResourcesSvg::instance().getIndependentPixmap(favLightWidget_->icon());
+        if (fIcon)
+        {
+            painter.save();
+            painter.setOpacity(favLightWidget_->opacity());
+            fIcon->draw(favLightWidget_->rect().x(), favLightWidget_->rect().y(), &painter);
+            painter.restore();
+        }
+    }
+
+    // text
+    painter.save();
+    painter.setOpacity(curTextOpacity_);
+    painter.setPen(Qt::white);
+    cityTextLayout_->draw(&painter, QPoint(cityLightWidget_->rect().x(), cityLightWidget_->rect().y()));
+    nickTextLayout_->draw(&painter, QPoint(nickLightWidget_->rect().x(), nickLightWidget_->rect().y()));
+    painter.restore();
+
 
     // only show disabled locations to pro users
     bool disabled = isForbidden() ? false : cityModelItem_.isDisabled;
@@ -186,7 +241,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
                        &painter);
         }
     }
-    else if (!showingPingBar_)
+    else if (!showingLatencyAsPingBar_)
     {
         // draw bubble
         int latencyRectWidth = 33;
@@ -212,6 +267,17 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
                                CommonGraphics::textHeight(font)),
                          latencyText);
     }
+    else if (showPingIcon_)
+    {
+        IndependentPixmap *pingIcon = ImageResourcesSvg::instance().getIndependentPixmap(pingIconLightWidget_->icon());
+        if (pingIcon)
+        {
+            painter.save();
+            painter.setOpacity(pingIconLightWidget_->opacity());
+            pingIcon->draw(pingIconLightWidget_->rect().x(), pingIconLightWidget_->rect().y(), &painter);
+            painter.restore();
+        }
+    }
 
     // background line
     int left = 24 * G_SCALE;
@@ -231,32 +297,38 @@ void ItemWidgetCity::enterEvent(QEvent *event)
     setSelected(true); // triggers unselection of other widgets
 }
 
-
-void ItemWidgetCity::resizeEvent(QResizeEvent *event)
+void ItemWidgetCity::mouseMoveEvent(QMouseEvent *event)
 {
-    // qDebug() << "City resize";
-    recalcItemPositions();
-}
-
-void ItemWidgetCity::onPingBarIconHoverEnter()
-{
-    if (showingPingBar_)
+    if (cityLightWidget_->rect().contains(event->pos()))
     {
-        QPoint pt = mapToGlobal(QPoint(pingBarIcon_->geometry().center().x(), pingBarIcon_->geometry().top() - 3*G_SCALE));
-        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
-        ti.x = pt.x();
-        ti.y = pt.y();
-        ti.title = QString("%1 Ms").arg(pingTime_.toInt());
-        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-        ti.tailPosPercent = 0.5;
-        TooltipController::instance().showTooltipBasic(ti);
+        cityLightWidget_->setHovering(true);
+    }
+    else
+    {
+        cityLightWidget_->setHovering(false);
     }
 }
 
-void ItemWidgetCity::onPingBarIconHoverLeave()
+void ItemWidgetCity::onPingIconLightWidgetHoveringChanged(bool hovering)
 {
-    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
-
+    if (hovering)
+    {
+        if (showingLatencyAsPingBar_)
+        {
+            QPoint pt = mapToGlobal(QPoint(pingIconLightWidget_->rect().center().x(), pingIconLightWidget_->rect().top() - 3*G_SCALE));
+            TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
+            ti.x = pt.x();
+            ti.y = pt.y();
+            ti.title = QString("%1 Ms").arg(pingTime_.toInt());
+            ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+            ti.tailPosPercent = 0.5;
+            TooltipController::instance().showTooltipBasic(ti);
+        }
+    }
+    else
+    {
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+    }
 }
 
 void ItemWidgetCity::onFavoriteIconButtonClicked()
@@ -264,76 +336,47 @@ void ItemWidgetCity::onFavoriteIconButtonClicked()
     emit favoriteClicked(this, !favorited_);
 }
 
-const QString ItemWidgetCity::labelStyleSheetWithOpacity(double opacity)
+void ItemWidgetCity::onTextOpacityAnimationValueChanged(const QVariant &value)
 {
-    return "QLabel { color : rgba(255,255,255, " + QString::number(opacity) + "); }";
-}
-
-void ItemWidgetCity::recalcItemPositions()
-{
-    QFont cityFont = *FontManager::instance().getFont(16, true);
-    int cityWidth = CommonGraphics::textWidth(cityLabel_->text(), cityFont);
-    int cityX = LOCATION_ITEM_MARGIN * G_SCALE * 2 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE;
-    cityLabel_->setFont(cityFont);
-    cityLabel_->setGeometry(cityX,
-                            (LOCATION_ITEM_HEIGHT * G_SCALE - CommonGraphics::textHeight(cityFont))/2,
-                            cityWidth,
-                            CommonGraphics::textHeight(cityFont));
-
-    QFont nickFont = *FontManager::instance().getFont(16, false);
-    nickLabel_->setFont(nickFont);
-    nickLabel_->setGeometry(cityX + cityWidth + 8*G_SCALE,
-                            (LOCATION_ITEM_HEIGHT * G_SCALE - CommonGraphics::textHeight(nickFont))/2,
-                            CommonGraphics::textWidth(nickLabel_->text(), nickFont), CommonGraphics::textHeight(nickFont));
-
-    // favorite
-    int favoriteHeight = 14 * G_SCALE;
-    favoriteIconButton_->setGeometry(24*G_SCALE,
-                                     (LOCATION_ITEM_HEIGHT*G_SCALE - favoriteHeight)/2,
-                                     16 * G_SCALE, favoriteHeight);
-
-    // ping bar
-    int scaledX = (WINDOW_WIDTH - 16 - LOCATION_ITEM_MARGIN) * G_SCALE;
-    int scaledY = (LOCATION_ITEM_HEIGHT - 16) / 2 * G_SCALE - 1*G_SCALE;
-    QRect latencyRect(scaledX, scaledY,
-                      16 * G_SCALE, 16 *G_SCALE);
-    pingBarIcon_->setGeometry(latencyRect);
+    curTextOpacity_ = value.toDouble();
+    update();
 }
 
 void ItemWidgetCity::updateFavoriteIcon()
 {
     if (isForbidden())
     {
-        favoriteIconButton_->hide();
+        showFavIcon_ = false;
     }
     else
     {
         if (cityModelItem_.isFavorite)
         {
-            favoriteIconButton_->setImage("locations/FAV_ICON_SELECTED");
+            favLightWidget_->setIcon("locations/FAV_ICON_SELECTED");
             favorited_ = true;
         }
-        favoriteIconButton_->show();
+        showFavIcon_ = true;
     }
+    update();
 }
 
 void ItemWidgetCity::updatePingBarIcon()
 {
-    pingBarIcon_->setImage(pingIconNameString(pingTime_.toConnectionSpeed()));
+    pingIconLightWidget_->setIcon(pingIconNameString(pingTime_.toConnectionSpeed()));
 
     bool disabled = isForbidden() ? false : cityModelItem_.isDisabled;
 
     if (disabled) // showing construction icon for disabled pro
     {
-        pingBarIcon_->hide();
+        showPingIcon_ = false;
     }
-    else if (showingPingBar_) // show ping bar
+    else if (showingLatencyAsPingBar_) // show ping bar
     {
-        pingBarIcon_->show();
+        showPingIcon_ = true;
     }
     else // show ms ping
     {
-        pingBarIcon_->hide();
+        showPingIcon_ = false;
     }
 
     update();
@@ -357,6 +400,21 @@ const QString ItemWidgetCity::pingIconNameString(int connectionSpeedIndex)
     {
         return "locations/LOCATION_PING_BARS3";
     }
+}
+
+void ItemWidgetCity::recreateTextLayouts()
+{
+    cityTextLayout_ = QSharedPointer<QTextLayout>(new QTextLayout(cityLightWidget_->text(), cityLightWidget_->font()));
+    cityTextLayout_->beginLayout();
+    cityTextLayout_->createLine();
+    cityTextLayout_->endLayout();
+    cityTextLayout_->setCacheEnabled(true);
+
+    nickTextLayout_ = QSharedPointer<QTextLayout>(new QTextLayout(nickLightWidget_->text(), nickLightWidget_->font()));
+    nickTextLayout_->beginLayout();
+    nickTextLayout_->createLine();
+    nickTextLayout_->endLayout();
+    nickTextLayout_->setCacheEnabled(true);
 }
 
 }
