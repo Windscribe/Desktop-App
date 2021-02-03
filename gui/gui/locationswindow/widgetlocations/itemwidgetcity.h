@@ -11,6 +11,7 @@
 #include "itemtimems.h"
 #include "commonwidgets/lightwidget.h"
 
+// TODO: rename ambiguous "selectable" where necessary
 namespace GuiLocations {
 
 class ItemWidgetCity : public IItemWidget
@@ -35,6 +36,7 @@ public:
     bool isSelected() const override;
 
     bool containsCursor() const override;
+    bool containsGlobalPoint(const QPoint &pt) override;
     QRect globalGeometry() const override;
 
     void setLatencyMs(PingTime pingTime);

@@ -27,6 +27,7 @@ public:
     virtual void setSelected(bool select) = 0;
     virtual bool isSelected() const = 0;
     virtual bool containsCursor() const = 0;
+    virtual bool containsGlobalPoint(const QPoint &pt) = 0;
     virtual QRect globalGeometry() const = 0;
 
 signals:

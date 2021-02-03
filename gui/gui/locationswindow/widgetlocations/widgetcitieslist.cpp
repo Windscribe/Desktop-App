@@ -62,7 +62,7 @@ void WidgetCitiesList::updateScaling()
 
 }
 
-void WidgetCitiesList::selectWidgetContainingCursor()
+void WidgetCitiesList::accentWidgetContainingCursor()
 {
     foreach (IItemWidget *selectableWidget , itemWidgets_)
     {
@@ -71,6 +71,20 @@ void WidgetCitiesList::selectWidgetContainingCursor()
             // qDebug() << "Selecting by containing cursor";
             selectableWidget->setSelected(true);
             updateCursorWithSelectableWidget(selectableWidget);
+            break;
+        }
+    }
+}
+
+void WidgetCitiesList::selectWidgetContainingGlobalPt(const QPoint &pt)
+{
+    foreach (IItemWidget *selectableWidget , itemWidgets())
+    {
+        if (selectableWidget->containsGlobalPoint(pt))
+        {
+            //qDebug() << "Selecting: " << selectableWidget->name();
+            selectableWidget->setSelected(true);
+            emit locationIdSelected(selectableWidget->getId());
             break;
         }
     }
@@ -218,8 +232,12 @@ void WidgetCitiesList::onCityItemAccented()
 
 void WidgetCitiesList::onCityItemClicked()
 {
-    auto cityWidget = static_cast<ItemWidgetCity*>(sender());
-    emit locationIdSelected(cityWidget->getId());
+    // block false-clicks that come after gesture scroll
+    if (widgetLocationsInfo_->gestureScrollingElapsedTime() > 100)
+    {
+        auto cityWidget = static_cast<ItemWidgetCity*>(sender());
+        emit locationIdSelected(cityWidget->getId());
+    }
 }
 
 void WidgetCitiesList::recalcItemPositions()

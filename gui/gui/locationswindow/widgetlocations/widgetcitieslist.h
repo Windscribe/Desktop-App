@@ -18,7 +18,8 @@ public:
     void addCity(const CityModelItem &city);
 
     void updateScaling();
-    void selectWidgetContainingCursor();
+    void accentWidgetContainingCursor();
+    void selectWidgetContainingGlobalPt(const QPoint &pt);
 
     QVector<ItemWidgetCity *> itemWidgets();
 

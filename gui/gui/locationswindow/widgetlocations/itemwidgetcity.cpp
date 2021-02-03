@@ -146,6 +146,11 @@ bool ItemWidgetCity::containsCursor() const
     return globalGeometry().contains(cursor().pos());
 }
 
+bool ItemWidgetCity::containsGlobalPoint(const QPoint &pt)
+{
+    return globalGeometry().contains(pt);
+}
+
 void ItemWidgetCity::setLatencyMs(PingTime pingTime)
 {
     pingTime_ = pingTime;

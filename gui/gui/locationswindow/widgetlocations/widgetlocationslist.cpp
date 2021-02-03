@@ -78,7 +78,7 @@ void WidgetLocationsList::updateScaling()
     }
 }
 
-void WidgetLocationsList::selectWidgetContainingCursor()
+void WidgetLocationsList::accentWidgetContainingCursor()
 {
     foreach (IItemWidget *selectableWidget , selectableWidgets())
     {
@@ -87,7 +87,20 @@ void WidgetLocationsList::selectWidgetContainingCursor()
             // qDebug() << "Selecting by containing cursor";
             selectableWidget->setSelected(true);
             updateCursorWithSelectableWidget(selectableWidget);
+            break;
+        }
+    }
+}
 
+void WidgetLocationsList::selectWidgetContainingGlobalPt(const QPoint &pt)
+{
+    foreach (IItemWidget *selectableWidget , selectableWidgets())
+    {
+        if (selectableWidget->containsGlobalPoint(pt))
+        {
+            //qDebug() << "Selecting: " << selectableWidget->name();
+            selectableWidget->setSelected(true);
+            emit locationIdSelected(selectableWidget->getId());
             break;
         }
     }
@@ -335,28 +348,36 @@ void WidgetLocationsList::onRegionWidgetHeightChanged(int height)
 
 void WidgetLocationsList::onLocationItemCityClicked(ItemWidgetCity *cityWidget)
 {
-    emit locationIdSelected(cityWidget->getId());
+    // block false-clicks that come after gesture scroll
+    if (widgetLocationsInfo_->gestureScrollingElapsedTime() > 100)
+    {
+        emit locationIdSelected(cityWidget->getId());
+    }
 }
 
 
 void WidgetLocationsList::onLocationItemRegionClicked(ItemWidgetRegion *regionWidget)
 {
-    if (regionWidget->getId().isBestLocation())
+    // block false-clicks that come after gesture scroll
+    if (widgetLocationsInfo_->gestureScrollingElapsedTime() > 100)
     {
-        emit locationIdSelected(regionWidget->getId());
-    }
-    else
-    {
-        if (regionWidget->expandedOrExpanding())
+        if (regionWidget->getId().isBestLocation())
         {
-            regionWidget->collapse();
+            emit locationIdSelected(regionWidget->getId());
         }
         else
         {
-            if (regionWidget->expandable())
+            if (regionWidget->expandedOrExpanding())
             {
-                regionWidget->expand();
-                emit regionExpanding(regionWidget, EXPAND_REASON_USER);
+                regionWidget->collapse();
+            }
+            else
+            {
+                if (regionWidget->expandable())
+                {
+                    regionWidget->expand();
+                    emit regionExpanding(regionWidget, EXPAND_REASON_USER);
+                }
             }
         }
     }

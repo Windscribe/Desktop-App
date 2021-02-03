@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScroller>
+#include <QApplication>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <qmath.h>
@@ -42,20 +43,22 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QScrollAre
     setStyleSheet("background-color: rgba(0,0,0,0)");
     setFocusPolicy(Qt::NoFocus);
 
-//#ifdef Q_OS_WIN
-//    viewport()->grabGesture(Qt::TapGesture);
-//    viewport()->grabGesture(Qt::PanGesture);
-//    viewport()->installEventFilter(this);
+#ifdef Q_OS_WIN
+    viewport()->grabGesture(Qt::TapGesture);
+    viewport()->grabGesture(Qt::PanGesture);
+    viewport()->installEventFilter(this);
 
-//    QScroller::grabGesture(viewport(), QScroller::TouchGesture);
-//    QScroller *scroller = QScroller::scroller(viewport());
-//    QScrollerProperties properties = scroller->scrollerProperties();
-//    QVariant overshootPolicy = QVariant::fromValue<QScrollerProperties::OvershootPolicy>(QScrollerProperties::OvershootAlwaysOff);
-//    properties.setScrollMetric(QScrollerProperties::VerticalOvershootPolicy, overshootPolicy);
-//    properties.setScrollMetric(QScrollerProperties::DecelerationFactor, 0.2);
-//    properties.setScrollMetric(QScrollerProperties::MaximumVelocity, 0.135);
-//    scroller->setScrollerProperties(properties);
-//#endif
+    QScroller::grabGesture(viewport(), QScroller::TouchGesture);
+    QScroller *scroller = QScroller::scroller(viewport());
+    QScrollerProperties properties = scroller->scrollerProperties();
+    QVariant overshootPolicy = QVariant::fromValue<QScrollerProperties::OvershootPolicy>(QScrollerProperties::OvershootAlwaysOff);
+    properties.setScrollMetric(QScrollerProperties::VerticalOvershootPolicy, overshootPolicy);
+    properties.setScrollMetric(QScrollerProperties::DecelerationFactor, 0.2);
+    properties.setScrollMetric(QScrollerProperties::MaximumVelocity, 0.135);
+    scroller->setScrollerProperties(properties);
+#endif
+
+    gestureScrollingElapsedTimer_.start();
 
     // scrollbar
     scrollBar_ = new ScrollBar(this);
@@ -212,57 +215,72 @@ void WidgetCities::startAnimationWithPixmap(const QPixmap &pixmap)
 
 bool WidgetCities::eventFilter(QObject *object, QEvent *event)
 {
-    //    if (object == viewport() && event->type() == QEvent::Gesture)
-    //    {
-    //        QGestureEvent *ge = static_cast<QGestureEvent *>(event);
-    //        QTapGesture *g = static_cast<QTapGesture *>(ge->gesture(Qt::TapGesture));
-    //        if (g)
-    //        {
-    //            if (g->state() == Qt::GestureStarted)
-    //            {
-    //                bTapGestureStarted_ = true;
-    //            }
-    //            else if (g->state() == Qt::GestureFinished)
-    //            {
-    //                if (bTapGestureStarted_)
-    //                {
-    //                    bTapGestureStarted_ = false;
-    //                    QPointF ptf = g->position();
-    //                    QPoint pt(ptf.x(), ptf.y());
-    //                    handleTapClick(viewport()->mapToGlobal(pt));
-    //                }
-    //            }
-    //            else if (g->state() == Qt::GestureCanceled)
-    //            {
-    //                bTapGestureStarted_ = false;
-    //            }
-    //        }
-    //        QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
-    //        if (gp)
-    //        {
-    //            if (gp->state() == Qt::GestureStarted)
-    //            {
-
-    //                bTapGestureStarted_ = false;
-    //            }
-    //        }
-    //        return true;
-    //    }
-    //    else if (object == viewport() && event->type() == QEvent::ScrollPrepare)
-    //    {
-    //        QScrollPrepareEvent *se = static_cast<QScrollPrepareEvent *>(event);
-    //        se->setViewportSize(QSizeF(viewport()->size()));
-    //        se->setContentPosRange(QRectF(0, 0, 1, verticalScrollBar()->maximum() * getItemHeight()));
-    //        se->setContentPos(QPointF(0, verticalScrollBar()->value() * getItemHeight()));
-    //        se->accept();
-    //        return true;
-    //    }
-    //    else if (object == viewport() && event->type() == QEvent::Scroll)
-    //    {
-    //        QScrollEvent *se = static_cast<QScrollEvent *>(event);
-    //        verticalScrollBar()->setValue(se->contentPos().y() / getItemHeight());
-    //        return true;
-    //    }
+    // order of events:
+    //      scroll: prepare -> start -> scroll -> canceled
+    //      tap   : prepate -> start -> finished
+    if (object == viewport() && event->type() == QEvent::Gesture)
+    {
+        QGestureEvent *ge = static_cast<QGestureEvent *>(event);
+        qDebug() << "Event filter - Some Gesture: " << ge->gestures();
+        QTapGesture *g = static_cast<QTapGesture *>(ge->gesture(Qt::TapGesture));
+        if (g)
+        {
+            if (g->state() == Qt::GestureStarted)
+            {
+                qDebug() << "Tap Gesture started";
+                bTapGestureStarted_ = true;
+            }
+            else if (g->state() == Qt::GestureFinished)
+            {
+                if (bTapGestureStarted_)
+                {
+                    // this will only run on a quick tap
+                    bTapGestureStarted_ = false;
+                    QPointF ptf = g->position();
+                    QPoint pt(ptf.x(), ptf.y());
+                    qDebug() << "Tap Gesture finished, selecting by pt: " << pt;
+                    widgetCitiesList_->selectWidgetContainingGlobalPt(pt);
+                }
+            }
+            else if (g->state() == Qt::GestureCanceled)
+            {
+                qDebug() << "Tap Gesture canceled - scrolling";
+                bTapGestureStarted_ = false;
+            }
+        }
+        QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
+        if (gp)
+        {
+            qDebug() << "Pan gesture";
+            if (gp->state() == Qt::GestureStarted)
+            {
+                qDebug() << "Pan gesture started";
+                bTapGestureStarted_ = false;
+            }
+        }
+        return true;
+    }
+    else if (object == viewport() && event->type() == QEvent::ScrollPrepare)
+    {
+        // runs before tap and hold/scroll
+        QScrollPrepareEvent *se = static_cast<QScrollPrepareEvent *>(event);
+        se->setViewportSize(QSizeF(viewport()->size()));
+        se->setContentPosRange(QRectF(0, 0, 1, scrollBar_->maximum()));
+        se->setContentPos(QPointF(0, scrollBar_->value()));
+        se->accept();
+        return true;
+    }
+    else if (object == viewport() && event->type() == QEvent::Scroll)
+    {
+        // runs while scrolling
+        QScrollEvent *se = static_cast<QScrollEvent *>(event);
+        int scrollGesturePos = se->contentPos().y();
+        gestureScrollingElapsedTimer_.restart();
+        int notchedGesturePos = closestPositionIncrement(scrollGesturePos);
+        gestureScrollAnimation(notchedGesturePos);
+        widgetCitiesList_->accentWidgetContainingCursor();
+        return true;
+    }
     return QScrollArea::eventFilter(object, event);
 }
 
@@ -385,6 +403,11 @@ void WidgetCities::handleKeyEvent(QKeyEvent *event)
     }
 }
 
+int WidgetCities::gestureScrollingElapsedTime()
+{
+    return gestureScrollingElapsedTimer_.elapsed();
+}
+
 void WidgetCities::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
@@ -443,7 +466,7 @@ void WidgetCities::scrollContentsBy(int dx, int dy)
         // this can only occur when accessibility is disabled (since cursor will not be moved)
         if (cursorInViewport() && preventMouseSelectionTimer_.elapsed() > 100)
         {
-            widgetCitiesList_->selectWidgetContainingCursor();
+            widgetCitiesList_->accentWidgetContainingCursor();
         }
 
         if (!heightChanging_) // prevents false-positive scrolling when changing scale -- setting widgetLocationsList_ geometry in the heightChanged slot races with the manual forceSetValue
@@ -454,68 +477,17 @@ void WidgetCities::scrollContentsBy(int dx, int dy)
     }
 }
 
-void WidgetCities::mouseMoveEvent(QMouseEvent *event)
-{
-#ifdef Q_OS_WIN
-    if (event->source() == Qt::MouseEventSynthesizedBySystem)
-    {
-        return;
-    }
-#endif
-
-    QScrollArea::mouseMoveEvent(event);
-}
-
 void WidgetCities::mousePressEvent(QMouseEvent *event)
 {
-#ifdef Q_OS_WIN
-    if (event->source() == Qt::MouseEventSynthesizedBySystem)
-    {
-        return;
-    }
-#endif
-
-}
-
-void WidgetCities::mouseReleaseEvent(QMouseEvent *event)
-{
-#ifdef Q_OS_WIN
-    if (event->source() == Qt::MouseEventSynthesizedBySystem)
-    {
-        return;
-    }
-#endif
-
-    QScrollArea::mouseReleaseEvent(event);
-
+    Q_UNUSED(event)
+    // are we blocking mousePressEvent from bubbling up here intentionally?
+    // need note
 }
 
 void WidgetCities::mouseDoubleClickEvent(QMouseEvent *event)
 {
-#ifdef Q_OS_WIN
-    if (event->source() == Qt::MouseEventSynthesizedBySystem)
-    {
-        return;
-    }
-#endif
-
+    // not mouseDoubleClickEvent? was this intentional? need note here
     QScrollArea::mousePressEvent(event);
-}
-
-void WidgetCities::leaveEvent(QEvent *event)
-{
-    QScrollArea::leaveEvent(event);
-}
-
-void WidgetCities::enterEvent(QEvent *event)
-{
-    QScrollArea::enterEvent(event);
-}
-
-void WidgetCities::resizeEvent(QResizeEvent *event)
-{
-    // qDebug() << "WidgetCities::resizeEvent";
-    QScrollArea::resizeEvent(event);
 }
 
 void WidgetCities::onItemsUpdated(QVector<CityModelItem *> items)
@@ -769,19 +741,6 @@ int WidgetCities::getItemHeight() const
     return WidgetLocationsSizes::instance().getItemHeight();
 }
 
-void WidgetCities::handleTapClick(const QPoint &cursorPos)
-{
-    Q_UNUSED(cursorPos)
-//    if (!isScrollAnimationNow_)
-//    {
-//        detectSelectedItem(cursorPos);
-//        viewport()->update();
-//        setCursorForSelected();
-
-//        emitSelectedIfNeed();
-//    }
-}
-
 int WidgetCities::closestPositionIncrement(int value)
 {
     int current = 0;
@@ -797,6 +756,19 @@ int WidgetCities::closestPositionIncrement(int value)
         return current;
     }
     return last;
+}
+
+void WidgetCities::gestureScrollAnimation(int value)
+{
+    animationScollTarget_ = -value;
+
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(GESTURE_SCROLL_ANIMATION_DURATION);
+    scrollAnimation_.setStartValue(widgetCitiesList_->geometry().y());
+    scrollAnimation_.setEndValue(animationScollTarget_);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
+    qApp->processEvents(); // animate scrolling at same time as gesture is moving
 }
 
 } // namespace GuiLocations

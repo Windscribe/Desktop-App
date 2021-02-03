@@ -4,15 +4,12 @@
 #include <QKeyEvent>
 #include "types/locationid.h"
 
-// TODO: fix touch screen gestures
-// TODO: but when scrolling to end of list will mess up the notching
-
+// TODO: calibrate trackpad scrolling
 class IWidgetLocationsInfo
 {
 public:
     virtual ~IWidgetLocationsInfo() {}
 
-    // TODO: bug when changing scales when displaying lower in the list
     virtual void updateScaling() = 0;
 
     // selection
@@ -36,6 +33,7 @@ public:
     virtual void startAnimationWithPixmap(const QPixmap &pixmap) = 0;
     virtual void handleKeyEvent(QKeyEvent *event) = 0;
 
+    virtual int gestureScrollingElapsedTime() = 0;
 
 };
 

@@ -82,6 +82,11 @@ bool ItemWidgetHeader::containsCursor() const
     return globalGeometry().contains(cursor().pos());
 }
 
+bool ItemWidgetHeader::containsGlobalPoint(const QPoint &pt)
+{
+    return globalGeometry().contains(pt);
+}
+
 QRect ItemWidgetHeader::globalGeometry() const
 {
     const  QPoint originAsGlobal = mapToGlobal(QPoint(0,0));

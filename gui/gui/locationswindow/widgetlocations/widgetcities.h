@@ -54,16 +54,13 @@ public:
 
     void handleKeyEvent(QKeyEvent *event) override;
 
+    int gestureScrollingElapsedTime() override;
+
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;
     virtual void scrollContentsBy(int dx, int dy)          override;
-    virtual void mouseMoveEvent(QMouseEvent *event)        override;
     virtual void mousePressEvent(QMouseEvent *event)       override;
-    virtual void mouseReleaseEvent(QMouseEvent *event)     override;
     virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
-    virtual void leaveEvent(QEvent *event)                 override;
-    virtual void enterEvent(QEvent *event)                 override;
-    virtual void resizeEvent(QResizeEvent *event)          override;
 
 signals:
     void selected(LocationID id);
@@ -109,6 +106,8 @@ private:
     int emptyListDisplayTextHeight_;
     CommonWidgets::TextButtonWidget *emptyListButton_;
 
+    QElapsedTimer gestureScrollingElapsedTimer_;
+
     void updateEmptyListButton();
     void updateWidgetList(QVector<CityModelItem*> items);
 
@@ -130,10 +129,13 @@ private:
     // helper
     int getScrollBarWidth() ;
     int getItemHeight() const;
-    void handleTapClick(const QPoint &cursorPos);
     int closestPositionIncrement(int value);
 
     int heightChanging_;
+
+    const int GESTURE_SCROLL_ANIMATION_DURATION = 200;
+    void gestureScrollAnimation(int value);
+
 };
 
 } // namespace GuiLocations

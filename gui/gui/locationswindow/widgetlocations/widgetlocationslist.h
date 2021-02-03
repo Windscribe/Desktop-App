@@ -21,7 +21,8 @@ public:
     void addCityToRegion(const CityModelItem &city, LocationModelItem *region);
 
     void updateScaling();
-    void selectWidgetContainingCursor();
+    void accentWidgetContainingCursor();
+    void selectWidgetContainingGlobalPt(const QPoint &pt);
 
     void expand(LocationID locId);
     void collapse(LocationID locId);

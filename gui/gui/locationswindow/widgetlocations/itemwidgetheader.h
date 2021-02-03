@@ -26,6 +26,7 @@ public:
     ItemWidgetType type() override;
 
     bool containsCursor() const override;
+    bool containsGlobalPoint(const QPoint &pt) override;
     QRect globalGeometry() const override;
 
     void setSelectable(bool selectable) override;
