@@ -13,6 +13,7 @@ void TextHighlighter::processDocument(QTextDocument *doc, bool do_highlight, Log
         QBrush(QColor(Qt::yellow).lighter(180)),
         QBrush(QColor(Qt::magenta).lighter(180)),
     };
+    const QBrush kTextMatchingBrush(QColor(Qt::red).lighter(180));
 
     auto block = doc->begin();
     if (block == doc->end())
@@ -22,7 +23,11 @@ void TextHighlighter::processDocument(QTextDocument *doc, bool do_highlight, Log
         if (block.text().isEmpty())
             continue;
         const auto first_char = block.text()[0].toLatin1();
-        if (do_highlight && first_char != '=') {
+        if (type == LOG_TYPE_MIXED && block.text()[1].toLatin1() == '*') {
+            blockFormat.setBackground(kTextMatchingBrush);
+        } else if (first_char == '*') {
+            blockFormat.setBackground(kTextMatchingBrush);
+        } else if (do_highlight && first_char != '=') {
             if (type == LOG_TYPE_MIXED) {
                 switch (first_char) {
                 case 'G':

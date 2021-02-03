@@ -36,6 +36,7 @@ private slots:
     void setMultiColumn(bool value);
     void setAutoScroll(bool value);
     void setFilterCaseSensitive(bool value);
+    void setHideUnmatched(bool value);
     void applyFilter(QString filter);
     void onDataUpdated();
 
@@ -63,6 +64,7 @@ private:
     QCheckBox *cbHighlight_;
     QCheckBox *cbAutoScroll_;
     QCheckBox *cbFilterCI_;
+    QCheckBox *cbHideUnmatched_;
     QLineEdit *leFilter_;
 
     double dpiScale_;
@@ -76,6 +78,7 @@ private:
     QString saveFilePath_;
     QString currentFilter_;
     bool isFilterCI_;
+    bool isHideUnmatched_;
 };
 
 #endif  // MAINWINDOW_H

@@ -20,6 +20,7 @@
 #include <QScrollBar>
 #include <QSplitter>
 #include <QStandardPaths>
+#include <QTextBlock>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWindow>
@@ -49,7 +50,7 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
                            checkRangeOnAppend_(CheckRangeMode::NO),
                            openFilePath_(QStandardPaths::writableLocation(
                                QStandardPaths::DataLocation)),
-                           isFilterCI_(true)
+                           isFilterCI_(true), isHideUnmatched_(true)
 {
     // Default path for logs.
     openFilePath_.replace(qApp->applicationName(), "Windscribe2");
@@ -84,6 +85,10 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
     cbFilterCI_->setToolTip(tr("Use case-insensitive filter"));
     cbFilterCI_->setChecked(isFilterCI_);
     connect(cbFilterCI_, SIGNAL(toggled(bool)), SLOT(setFilterCaseSensitive(bool)));
+    cbHideUnmatched_ = new QCheckBox(tr("Hide"), this);
+    cbHideUnmatched_->setToolTip(tr("Hide unmatched lines"));
+    cbHideUnmatched_->setChecked(isHideUnmatched_);
+    connect(cbHideUnmatched_, SIGNAL(toggled(bool)), SLOT(setHideUnmatched(bool)));
 
     auto *horzLine = new QFrame(this);
     horzLine->setMaximumHeight(3);
@@ -140,6 +145,7 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
     toplayout->addStretch(1);
     toplayout->addWidget(leFilter_);
     toplayout->addWidget(cbFilterCI_);
+    toplayout->addWidget(cbHideUnmatched_);
     auto *loghlayout = new QHBoxLayout;
     auto *logvlayout = new QVBoxLayout;
     logvlayout->addWidget(timeLabel_);
@@ -277,6 +283,15 @@ void MainWindow::setFilterCaseSensitive(bool value)
     }
 }
 
+void MainWindow::setHideUnmatched(bool value)
+{
+    if (isHideUnmatched_ != value) {
+        isHideUnmatched_ = value;
+        if (!currentFilter_.isEmpty())
+            updateDisplay();
+    }
+}
+
 void MainWindow::applyFilter(QString filter)
 {
     if (currentFilter_ != filter) {
@@ -408,8 +423,10 @@ void MainWindow::updateDisplay()
     const int scrollPos = timeEdit_->verticalScrollBar()->value();
     const auto &lines = logData_->data();
     const auto global_info = logData_->getDataSizeForType(LOG_TYPE_MIXED);
+    const bool kHasFilter = !currentFilter_.isEmpty();
     QString texts[NUM_LOG_TYPES];
     int nonAuxLineCount[NUM_LOG_TYPES] = {};
+    int firstFilterMatchLine = -1;
 
     QString time_string;
     time_string.reserve(global_info.first * 22); // Estimated timestamp size.
@@ -438,9 +455,17 @@ void MainWindow::updateDisplay()
             texts[i].reserve(local_info.second + local_info.first * 6  // Estimated line sizes.
                              + (global_info.first - local_info.first));
         }
+        int counter = 0;
         for (auto it = lines.constBegin(); it != lines.constEnd(); ++it) {
-            if (!checkFilter(it->type, it->text))
-                continue;
+            bool is_filter_match = false;
+            if (kHasFilter) {
+                is_filter_match = checkFilter(it->type, it->text);
+                if (!is_filter_match && isHideUnmatched_)
+                    continue;
+                if (is_filter_match && firstFilterMatchLine < 0)
+                    firstFilterMatchLine = counter;
+                ++counter;
+            }
             if (it->type == LOG_TYPE_AUX || timestamp != it->timestamp) {
                 if (!timestamp.isEmpty()) {
                     trim_lines(timestamp);
@@ -455,24 +480,34 @@ void MainWindow::updateDisplay()
             } else {
                 ++timestamp_lines[it->type];
                 ++nonAuxLineCount[it->type];
-                texts[it->type].append(QString("[%1] %2\n").arg(it->label, it->text));
+                texts[it->type].append(QString("%1[%2] %3\n")
+                    .arg(is_filter_match && !isHideUnmatched_ ? "*" : ">", it->label, it->text));
             }
         }
         trim_lines(timestamp);
         textLabel_[0]->setText(tr(kLogTitles[0]) + ":");
     } else {
-        const char *kTypeMarker[] = { "G>", "E>", "S>" };
+        const char *kTypeMarker[] = { "G", "E", "S" };
         texts[0].reserve(global_info.second + global_info.first * 6); // Estimated line sizes.
+        int counter = 0;
         for (auto it = lines.constBegin(); it != lines.constEnd(); ++it) {
-            if (!checkFilter(it->type, it->text))
-                continue;
+            bool is_filter_match = false;
+            if (kHasFilter) {
+                is_filter_match = checkFilter(it->type, it->text);
+                if (!is_filter_match && isHideUnmatched_)
+                    continue;
+                if (is_filter_match && firstFilterMatchLine < 0)
+                    firstFilterMatchLine = counter;
+                ++counter;
+            }
             time_string.append(it->timestamp + "\n");
             if (it->type == LOG_TYPE_AUX) {
                 texts[0].append(QString("%1\n").arg(it->text));
                 continue;
             }
             ++nonAuxLineCount[0];
-            texts[0].append(QString("%1[%2] %3\n").arg(kTypeMarker[it->type], it->label, it->text));
+            texts[0].append(QString("%1%2[%3] %4\n").arg(kTypeMarker[it->type],
+                is_filter_match && !isHideUnmatched_ ? "*" : ">", it->label, it->text));
         }
         textLabel_[0]->setText(tr("Combined Logs") + ":");
     }
@@ -496,6 +531,19 @@ void MainWindow::updateDisplay()
         textWidget_[0]->setVisible(true);
     } else {
         timeEdit_->verticalScrollBar()->setValue(scrollPos);
+    }
+
+    if (!isHideUnmatched_ && firstFilterMatchLine >= 0) {
+        const QTextCursor timeCursor(
+            timeEdit_->document()->findBlockByLineNumber(firstFilterMatchLine));
+        timeEdit_->setTextCursor(timeCursor);
+        for (int i = 0; i < NUM_LOG_TYPES; ++i) {
+            if (vismask & (1 << i)) {
+                const QTextCursor textCursor(
+                    textEdit_[i]->document()->findBlockByLineNumber(firstFilterMatchLine));
+                textEdit_[i]->setTextCursor(textCursor);
+            }
+        }
     }
 
     if (logHightlightMode_) {
