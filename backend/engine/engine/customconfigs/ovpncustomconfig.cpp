@@ -97,6 +97,7 @@ void OvpnCustomConfig::process()
         bool bFoundAtLeastOneRemote = false;
         bool bFoundVerbCommand = false;
         bool bHasValidCipher = false;
+        bool isTapDevice = false;
         QTextStream in(&file);
         while (!in.atEnd())
         {
@@ -156,6 +157,12 @@ void OvpnCustomConfig::process()
                     qDebug(LOG_CUSTOM_OVPN)
                         << "Extracted information: ignore redirect-gateway (" << line << ")";
                 }
+                else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_DEVICE) // dev cmd
+                {
+                    if (!openVpnLine.protocol.trimmed().compare("tap", Qt::CaseInsensitive))
+                        isTapDevice = true;
+
+                }
 
                 ovpnData_ += line + "\n";
             }
@@ -170,6 +177,14 @@ void OvpnCustomConfig::process()
         if (!bHasValidCipher)
             ovpnData_ += "cipher BF-CBC\n";
 
+#ifdef Q_OS_MAC
+        if (isTapDevice)
+        {
+            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << filepath_ << "uses TAP device, which is not supported on Mac.";
+            isCorrect_ = false;
+            errMessage_ = "TAP adapter is not supported, please change \"device\" to \"tun\" in the config.";
+        }
+#endif
         if (!bFoundAtLeastOneRemote)
         {
             qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << filepath_ << "incorrect, because can't find remote host command. The file format may be incorrect.";
