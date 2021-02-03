@@ -73,10 +73,11 @@ void ScrollBar::paintEvent(QPaintEvent *event)
     QScrollBar::paintEvent(event);
 }
 
-void ScrollBar::forceSetValue(int value)
+void ScrollBar::forceSetValue(int val)
 {
-    setValue(value);
-    targetValue_ = value;
+    // qDebug() << "Forcing: " << value() <<  " -> " << val;
+    targetValue_ = val;
+    setValue(val);
 }
 
 bool ScrollBar::dragging()

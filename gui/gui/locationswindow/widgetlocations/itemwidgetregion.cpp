@@ -167,19 +167,17 @@ void ItemWidgetRegion::recalcItemPositions()
         height += city->geometry().height();
     }
     recalcHeight();
-    update();
 }
 
 void ItemWidgetRegion::recalcHeight()
 {
-    if  (citySubMenuState_ == EXPANDED)
+    int height = LOCATION_ITEM_HEIGHT*G_SCALE;
+    if  (citySubMenuState_ == EXPANDED) height = expandedHeight();
+
+    if (height != height_)
     {
-        height_ = expandedHeight();
-        emit heightChanged(height_);
-    }
-    else if (citySubMenuState_ == COLLAPSED)
-    {
-        height_ = LOCATION_ITEM_HEIGHT*G_SCALE;
+        // qDebug() << "Region height changed";
+        height_ = height;
         emit heightChanged(height_);
     }
 }
@@ -230,8 +228,11 @@ void ItemWidgetRegion::onExpandingHeightAnimationValueChanged(const QVariant &va
         citySubMenuState_ = EXPANDED;
     }
 
-    height_ = height;
-    emit heightChanged(height);
+    if (height != height_)
+    {
+        height_ = height;
+        emit heightChanged(height);
+    }
 }
 
 int ItemWidgetRegion::expandedHeight()

@@ -124,6 +124,7 @@ private:
     void handleTapClick(const QPoint &cursorPos);
     int closestPositionIncrement(int value);
 
+    bool heightChanging_;
 };
 
 } // namespace GuiLocations

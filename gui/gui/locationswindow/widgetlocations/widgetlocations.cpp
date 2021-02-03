@@ -30,6 +30,7 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QScrollArea(parent)
   , lastScrollPos_(0)
   , kickPreventMouseSelectionTimer_(false)
   , animationScollTarget_(0)
+  , heightChanging_(false)
 {
     setFrameStyle(QFrame::NoFrame);
     setMouseTracking(true);
@@ -118,19 +119,22 @@ void WidgetLocations::setFilterString(QString text)
 
 void WidgetLocations::updateScaling()
 {
+    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->updateCustomStyleSheet();
+    widgetLocationsList_->updateScaling();
+
     const auto scale_adjustment = G_SCALE / currentScale_;
     if (scale_adjustment != 1.0)
     {
-        qDebug() << "Scale change!";
         currentScale_ = G_SCALE;
-        int pos = -lastScrollPos_  * scale_adjustment; // lastScrollPos_ is negative (from geometry)
+        int pos = (double) -lastScrollPos_  * scale_adjustment; // lastScrollPos_ is negative (from geometry)
         lastScrollPos_ = -closestPositionIncrement(pos);
-        //qDebug() << "forcing scroll value: " << lastScrollPos_;
-        scrollBar_->forceSetValue(-lastScrollPos_); // use + for scrollbar
-    }
 
-    widgetLocationsList_->updateScaling();
-    scrollBar_->updateCustomStyleSheet();
+        // correct listWidgets pos during scale change // delay necessary for reducing scale factor when low in list
+        QTimer::singleShot(0, [this](){
+            scrollBar_->forceSetValue(-lastScrollPos_); // use + for scrollbar
+        });
+    }
 }
 
 bool WidgetLocations::hasSelection()
@@ -276,7 +280,7 @@ bool WidgetLocations::eventFilter(QObject *object, QEvent *event)
 //        scrollBar_->setValue(se->contentPos().y() / getItemHeight());
 //        return true;
 //    }
-    return QAbstractScrollArea::eventFilter(object, event);
+    return QScrollArea::eventFilter(object, event);
 }
 
 void WidgetLocations::handleKeyEvent(QKeyEvent *event)
@@ -405,8 +409,6 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
     }
 }
 
-
-
 void WidgetLocations::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
@@ -420,11 +422,11 @@ void WidgetLocations::paintEvent(QPaintEvent *event)
 // called by change in the vertical scrollbar
 void WidgetLocations::scrollContentsBy(int dx, int dy)
 {
+    // qDebug() << "Scrolling contents by: " << dy;
     TooltipController::instance().hideAllTooltips();
 
     if (!scrollBar_->dragging())
     {
-        // qDebug() << "Scrolling contents by: " << dy;
         // cursor should not interfere when animation is running
         // prevent floating cursor from overriding a keypress animation
         // this can only occur when accessibility is disabled (since cursor will not be moved)
@@ -433,19 +435,19 @@ void WidgetLocations::scrollContentsBy(int dx, int dy)
             widgetLocationsList_->selectWidgetContainingCursor();
         }
 
-        QScrollArea::scrollContentsBy(dx,dy);
-        lastScrollPos_ = widgetLocationsList_->geometry().y();
+        if (!heightChanging_) // prevents false-positive scrolling when changing scale -- setting widgetLocationsList_ geometry in the heightChanged slot races with the manual forceSetValue
+        {
+            QScrollArea::scrollContentsBy(dx,dy);
+            lastScrollPos_ = widgetLocationsList_->geometry().y();
+            // qDebug() << "New last after scrolling: " << lastScrollPos_;
+        }
     }
 }
 
 void WidgetLocations::mouseMoveEvent(QMouseEvent *event)
 {
-    //#ifdef Q_OS_WIN
-    //    if (event->source() == Qt::MouseEventSynthesizedBySystem)
-    //    {
-    //        return;
-    //    }
-    QAbstractScrollArea::mouseMoveEvent(event);
+
+    QScrollArea::mouseMoveEvent(event);
 }
 
 void WidgetLocations::mousePressEvent(QMouseEvent *event)
@@ -549,9 +551,9 @@ void WidgetLocations::onLanguageChanged()
 void WidgetLocations::onLocationItemListWidgetHeightChanged(int listWidgetHeight)
 {
     // qDebug() << "List widget height: " << listWidgetHeight;
+    heightChanging_ = true;
     widgetLocationsList_->setGeometry(0,widgetLocationsList_->geometry().y(), WINDOW_WIDTH*G_SCALE, listWidgetHeight);
-	scrollBar_->setRange(0, listWidgetHeight - scrollBar_->pageStep()); // update scroll bar
-    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    heightChanging_ = false;
 }
 
 void WidgetLocations::onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *cityWidget, bool favorited)

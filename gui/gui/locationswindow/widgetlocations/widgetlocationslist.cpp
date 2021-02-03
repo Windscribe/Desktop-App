@@ -395,7 +395,6 @@ void WidgetLocationsList::recalcItemPositions()
         height_ = heightSoFar;
         emit heightChanged(heightSoFar);
     }
-    update();
 }
 
 } // namespace

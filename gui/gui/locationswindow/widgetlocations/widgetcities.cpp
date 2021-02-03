@@ -35,6 +35,7 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QScrollAre
   , emptyListDisplayText_("")
   , emptyListDisplayTextWidth_(0)
   , emptyListDisplayTextHeight_(0)
+  , heightChanging_(false)
 {
     setFrameStyle(QFrame::NoFrame);
     setMouseTracking(true);
@@ -104,19 +105,24 @@ void WidgetCities::setModel(BasicCitiesModel *citiesModel)
 
 void WidgetCities::updateScaling()
 {
+    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->updateCustomStyleSheet();
+    widgetCitiesList_->updateScaling();
+    updateEmptyListButton();
+
     const auto scale_adjustment = G_SCALE / currentScale_;
     if (scale_adjustment != 1.0)
     {
-        // qDebug() << "Scale change!";
         currentScale_ = G_SCALE;
-        int pos = -lastScrollPos_  * scale_adjustment; // lastScrollPos_ is negative (from geometry)
+        int pos = (double) -lastScrollPos_  * scale_adjustment; // lastScrollPos_ is negative (from geometry)
         lastScrollPos_ = -closestPositionIncrement(pos);
-        scrollBar_->forceSetValue(-lastScrollPos_); // use + for scrollbar
+
+        // correct listWidgets pos during scale change // delay necessary for reducing scale factor when low in list
+        QTimer::singleShot(0, [this](){
+            scrollBar_->forceSetValue(-lastScrollPos_); // use + for scrollbar
+        });
     }
 
-    widgetCitiesList_->updateScaling();
-    scrollBar_->updateCustomStyleSheet();
-    updateEmptyListButton();
 }
 
 bool WidgetCities::hasSelection()
@@ -440,8 +446,11 @@ void WidgetCities::scrollContentsBy(int dx, int dy)
             widgetCitiesList_->selectWidgetContainingCursor();
         }
 
-        QScrollArea::scrollContentsBy(dx,dy);
-        lastScrollPos_ = widgetCitiesList_->geometry().y();
+        if (!heightChanging_) // prevents false-positive scrolling when changing scale -- setting widgetLocationsList_ geometry in the heightChanged slot races with the manual forceSetValue
+        {
+            QScrollArea::scrollContentsBy(dx,dy);
+            lastScrollPos_ = widgetCitiesList_->geometry().y();
+        }
     }
 }
 
@@ -553,18 +562,14 @@ void WidgetCities::onLanguageChanged()
 
 void WidgetCities::onLocationItemListWidgetHeightChanged(int listWidgetHeight)
 {
-
+    heightChanging_ = true;
     widgetCitiesList_->setGeometry(0,widgetCitiesList_->geometry().y(), WINDOW_WIDTH*G_SCALE, listWidgetHeight);
-    scrollBar_->setRange(0, listWidgetHeight - scrollBar_->pageStep()); // update scroll bar
-    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
-
-    update();
+    heightChanging_ = false;
 }
 
 void WidgetCities::onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *cityWidget, bool favorited)
 {
     emit switchFavorite(cityWidget->getId(), favorited);
-
 }
 
 void WidgetCities::onLocationItemListWidgetLocationIdSelected(LocationID id)

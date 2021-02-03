@@ -132,6 +132,8 @@ private:
     int getItemHeight() const;
     void handleTapClick(const QPoint &cursorPos);
     int closestPositionIncrement(int value);
+
+    int heightChanging_;
 };
 
 } // namespace GuiLocations
