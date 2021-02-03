@@ -139,17 +139,21 @@ void WidgetLocations::updateScaling()
     }
 }
 
-bool WidgetLocations::hasSelection()
+bool WidgetLocations::hasAccentItem()
 {
     return widgetLocationsList_->hasAccentItem();
 }
 
-LocationID WidgetLocations::selectedItemLocationId()
+LocationID WidgetLocations::accentedItemLocationId()
 {
-    return widgetLocationsList_->lastAccentedItemWidget()->getId();
+    if (widgetLocationsList_->lastAccentedItemWidget())
+    {
+        return widgetLocationsList_->lastAccentedItemWidget()->getId();
+    }
+    return LocationID();
 }
 
-void WidgetLocations::setFirstSelected()
+void WidgetLocations::accentFirstItem()
 {
     widgetLocationsList_->accentFirstSelectableItem();
 }
@@ -161,14 +165,14 @@ bool WidgetLocations::cursorInViewport()
     return rect.contains(cursorPos);
 }
 
-void WidgetLocations::centerCursorOnSelectedItem()
+void WidgetLocations::centerCursorOnAccentedItem()
 {
     QPoint cursorPos = QCursor::pos();
     IItemWidget *lastSelWidget = widgetLocationsList_->lastAccentedItemWidget();
 
     if (lastSelWidget)
     {
-        // qDebug() << "Last selected: " << lastSelWidget->name();
+        // qDebug() << "Last accented: " << lastSelWidget->name();
         QCursor::setPos(QPoint(cursorPos.x(), static_cast<int>(lastSelWidget->globalGeometry().top() - LOCATION_ITEM_HEIGHT*G_SCALE/2)));
     }
 }
@@ -323,7 +327,7 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
                         IItemWidget *lastSelWidget = widgetLocationsList_->lastAccentedItemWidget();
 
                         QPoint pt(cursorPos.x(), static_cast<int>(cursorPos.y() - LOCATION_ITEM_HEIGHT*G_SCALE));
-                        if (!lastSelWidget->containsCursor()) // selected item does not match with cursor
+                        if (!lastSelWidget->containsCursor()) // accent item does not match with cursor
                         {
                             pt = QPoint(cursorPos.x(), static_cast<int>(lastSelWidget->globalGeometry().top() - LOCATION_ITEM_HEIGHT*G_SCALE/2));
                         }
@@ -364,7 +368,7 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
                         IItemWidget *lastSelWidget = widgetLocationsList_->lastAccentedItemWidget();
 
                         QPoint pt(cursorPos.x(), static_cast<int>(cursorPos.y() + LOCATION_ITEM_HEIGHT*G_SCALE));
-                        if (!lastSelWidget->containsCursor()) // selected item does not match with cursor
+                        if (!lastSelWidget->containsCursor()) // accent item does not match with cursor
                         {
                             pt = QPoint(cursorPos.x(), static_cast<int>(lastSelWidget->globalGeometry().bottom() + LOCATION_ITEM_HEIGHT*G_SCALE/2));
                         }
@@ -399,17 +403,17 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
 
         if (lastSelWidget->getId().isBestLocation())
         {
-            emit selected(widgetLocationsList_->lastSelectedLocationId());
+            emit selected(widgetLocationsList_->lastAccentedLocationId());
         }
         else if (lastSelWidget->getId().isTopLevelLocation())
         {
             if (lastSelWidget->isExpanded())
             {
-                widgetLocationsList_->collapse(widgetLocationsList_->lastSelectedLocationId());
+                widgetLocationsList_->collapse(widgetLocationsList_->lastAccentedLocationId());
             }
             else
             {
-                widgetLocationsList_->expand(widgetLocationsList_->lastSelectedLocationId());
+                widgetLocationsList_->expand(widgetLocationsList_->lastAccentedLocationId());
             }
         }
         else // city
@@ -418,7 +422,7 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
             {
                 if(!lastSelWidget->isForbidden() && !lastSelWidget->isDisabled())
                 {
-                    emit selected(widgetLocationsList_->lastSelectedLocationId());
+                    emit selected(widgetLocationsList_->lastAccentedLocationId());
                 }
             }
         }
@@ -606,7 +610,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
     // storing previous location widget state
     QVector<LocationID> expandedLocationIds = widgetLocationsList_->expandedOrExpandingLocationIds();
     LocationID topSelectableLocationIdInViewport = topViewportSelectableLocationId();
-    LocationID lastSelectedLocationId = widgetLocationsList_->lastSelectedLocationId();
+    LocationID lastAccentedLocationId = widgetLocationsList_->lastAccentedLocationId();
 
     qCDebug(LOG_BASIC) << "Updating locations widget list";
     widgetLocationsList_->clearWidgets();
@@ -643,7 +647,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
     {
         scrollDown(indexInNewList);
     }
-    widgetLocationsList_->selectItem(lastSelectedLocationId);
+    widgetLocationsList_->accentItem(lastAccentedLocationId);
     qCDebug(LOG_BASIC) << "Done updating location widgets";
 }
 

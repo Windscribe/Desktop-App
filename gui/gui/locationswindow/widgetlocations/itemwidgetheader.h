@@ -30,8 +30,8 @@ public:
     QRect globalGeometry() const override;
 
     void setSelectable(bool selectable) override;
-    void setSelected(bool select) override;
-    bool isSelected() const override;
+    void setAccented(bool accent) override;
+    bool isAccented() const override;
 
     void setExpanded(bool expand);
     void setExpandedWithoutAnimation(bool expand);
@@ -39,7 +39,7 @@ public:
     void updateScaling();
 
 signals:
-    void selected();
+    void accented();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -57,7 +57,7 @@ private:
     bool isPremiumOnly_;
 
     bool showPlusIcon_;
-    bool selected_;
+    bool accented_;
     bool selectable_;
 
     // opacity animation

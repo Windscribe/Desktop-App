@@ -29,12 +29,12 @@ public:
     void setModel(BasicCitiesModel *citiesModel);
     void updateScaling() override;
 
-    bool hasSelection() override;
-    LocationID selectedItemLocationId() override;
-    void setFirstSelected() override;
+    bool hasAccentItem() override;
+    LocationID accentedItemLocationId() override;
+    void accentFirstItem() override;
 
     bool cursorInViewport() override;
-    void centerCursorOnSelectedItem() override;
+    void centerCursorOnAccentedItem() override;
     void centerCursorOnItem(LocationID locId) override;
 
     int countViewportItems() override;

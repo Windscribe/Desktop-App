@@ -50,12 +50,12 @@ private:
     std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
     QVector<ItemWidgetCity *> itemWidgets_;
     IItemWidget *lastAccentedItemWidget_;
-    QVector<IItemWidget *> recentlySelectedWidgets_;
+    QVector<IItemWidget *> recentlyAccentedWidgets_;
 
     IWidgetLocationsInfo *widgetLocationsInfo_; // deleted elsewhere
 
     void recalcItemPositions();
-    void updateCursorWithSelectableWidget(IItemWidget *widget);
+    void updateCursorWithWidget(IItemWidget *widget);
 };
 
 } // namespace

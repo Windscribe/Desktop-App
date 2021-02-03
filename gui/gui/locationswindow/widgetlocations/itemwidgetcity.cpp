@@ -21,7 +21,7 @@ ItemWidgetCity::ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, const 
   , showPingIcon_(false)
   , showingLatencyAsPingBar_(!widgetLocationsInfo->isShowLatencyInMs())
   , selectable_(false)
-  , selected_(false)
+  , accented_(false)
   , favorited_(false)
   , pressingFav_(false)
   , curTextOpacity_(OPACITY_HALF)
@@ -114,18 +114,18 @@ void ItemWidgetCity::setSelectable(bool selectable)
     selectable_ = selectable;
 }
 
-void ItemWidgetCity::setSelected(bool select)
+void ItemWidgetCity::setAccented(bool accent)
 {
     if (selectable_)
     {
         // Do not filter out same-state changes since it is possible to get locked in an updatable state (though relatively rare)
-        selected_ = select;
-        if (select)
+        accented_ = accent;
+        if (accent)
         {
             textOpacityAnimation_.setStartValue(curTextOpacity_);
             textOpacityAnimation_.setEndValue(OPACITY_FULL);
             textOpacityAnimation_.start();
-            emit selected();
+            emit accented();
         }
         else
         {
@@ -136,9 +136,9 @@ void ItemWidgetCity::setSelected(bool select)
     }
 }
 
-bool ItemWidgetCity::isSelected() const
+bool ItemWidgetCity::isAccented() const
 {
-    return selected_;
+    return accented_;
 }
 
 bool ItemWidgetCity::containsCursor() const
@@ -356,7 +356,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
 void ItemWidgetCity::enterEvent(QEvent *event)
 {
     Q_UNUSED(event);
-    setSelected(true); // triggers unselection of other widgets
+    setAccented(true); // triggers unselection of other widgets
 }
 
 void ItemWidgetCity::mouseMoveEvent(QMouseEvent *event)

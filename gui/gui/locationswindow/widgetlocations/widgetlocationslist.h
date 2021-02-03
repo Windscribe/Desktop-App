@@ -36,8 +36,8 @@ public:
     QVector<IItemWidget *> selectableWidgets(); // regions + expanded cities
 
     int selectableIndex(LocationID locationId);
-    const LocationID lastSelectedLocationId() const;
-    void selectItem(LocationID locationId);
+    const LocationID lastAccentedLocationId() const;
+    void accentItem(LocationID locationId);
 
     void accentFirstSelectableItem();
     bool hasAccentItem();
@@ -64,14 +64,14 @@ private slots:
 
     void onLocationItemCityClicked(ItemWidgetCity *cityWidget);
     void onLocationItemRegionClicked(ItemWidgetRegion *regionWidget);
-    void onSelectableLocationItemSelected(IItemWidget *itemWidget);
+    void onSelectableLocationItemAccented(IItemWidget *itemWidget);
 
 private:
     int height_;
     std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
     QVector<ItemWidgetRegion *> itemWidgets_; // Note: spinning up this many widgets is not scalable design. If locations list grows we may experience UI slowdowns. It seems okay for now.
     IItemWidget *lastAccentedItemWidget_;
-    QVector<IItemWidget *> recentlySelectedWidgets_;
+    QVector<IItemWidget *> recentlyAccentedWidgets_;
 
     IWidgetLocationsInfo *widgetLocationsInfo_; // deleted elsewhere
 

@@ -588,13 +588,13 @@ void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
     IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
     if (curWidgetLoc != nullptr)
     {
-        if (curWidgetLoc->hasSelection())
+        if (curWidgetLoc->hasAccentItem())
         {
             curWidgetLoc->handleKeyEvent(event);
         }
         else
         {
-            curWidgetLoc->setFirstSelected();
+            curWidgetLoc->accentFirstItem();
         }
     }
 }
@@ -602,6 +602,7 @@ void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
 void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
 {
     // qDebug() << "LocationsTab::handleKeyReleaseEvent";
+    TooltipController::instance().hideAllTooltips();
 
     if (event->key() == Qt::Key_Right)
     {
@@ -616,7 +617,7 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
                 IWidgetLocationsInfo *locWidget = locationWidgetByEnum((CurTabEnum)curTabInt);
                 if (locWidget)
                 {
-                    previousSelectedLocId = locWidget->selectedItemLocationId();
+                    previousSelectedLocId = locWidget->accentedItemLocationId();
                 }
 
                 onSearchButtonClicked(); // this will handle changeTab(..)
@@ -635,7 +636,7 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
                 {
                     if (curWidgetLoc->cursorInViewport())
                     {
-                        curWidgetLoc->centerCursorOnSelectedItem();
+                        curWidgetLoc->centerCursorOnAccentedItem();
                     }
                 }
             }
@@ -654,7 +655,7 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
                 IWidgetLocationsInfo *locWidget = locationWidgetByEnum((CurTabEnum)curTabInt);
                 if (locWidget)
                 {
-                    previousSelectedLocId = locWidget->selectedItemLocationId();
+                    previousSelectedLocId = locWidget->accentedItemLocationId();
                 }
 
                 onSearchButtonClicked(); // this will handle changeTab(..)
@@ -666,14 +667,21 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
             }
             else
             {
-                changeTab(static_cast<CurTabEnum>(curTabInt));
+                if (curTabInt == CUR_TAB_CONFIGURED_LOCATIONS)
+                {
+                    onSearchCancelButtonClicked(); // handles changeTab(..)
+                }
+                else
+                {
+                    changeTab(static_cast<CurTabEnum>(curTabInt));
+                }
 
                 IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
                 if (curWidgetLoc != nullptr)
                 {
                     if (curWidgetLoc->cursorInViewport())
                     {
-                        curWidgetLoc->centerCursorOnSelectedItem();
+                        curWidgetLoc->centerCursorOnAccentedItem();
                     }
                 }
             }

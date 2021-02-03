@@ -4,7 +4,6 @@
 #include <QKeyEvent>
 #include "types/locationid.h"
 
-// TODO: calibrate trackpad scrolling
 class IWidgetLocationsInfo
 {
 public:
@@ -12,14 +11,17 @@ public:
 
     virtual void updateScaling() = 0;
 
-    // selection
-    virtual bool hasSelection() = 0;
-    virtual LocationID selectedItemLocationId() = 0;
-    virtual void setFirstSelected() = 0;
+    // accenting
+    // For consistency sake the terms "accent" and "highlight" should be used for cursor and keypress hovering
+    // While "selection" should be used for clicking or key pressing [Enter] on a location
+    // IE: "selecting" an item will engage the vpn and an "accented" item will be selected by pressing [enter]
+    virtual bool hasAccentItem() = 0;
+    virtual LocationID accentedItemLocationId() = 0;
+    virtual void accentFirstItem() = 0;
 
     // cursor and viewport
     virtual bool cursorInViewport() = 0;
-    virtual void centerCursorOnSelectedItem() = 0;
+    virtual void centerCursorOnAccentedItem() = 0;
     virtual void centerCursorOnItem(LocationID locId) = 0;
     virtual int countViewportItems() = 0;
     virtual void setCountViewportItems(int count) = 0;

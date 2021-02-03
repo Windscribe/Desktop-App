@@ -19,7 +19,7 @@ ItemWidgetRegion::ItemWidgetRegion(IWidgetLocationsInfo * widgetLocationsInfo, L
 
     regionHeaderWidget_ = new ItemWidgetHeader(widgetLocationsInfo, locationModelItem, this);
     connect(regionHeaderWidget_, SIGNAL(clicked()), SLOT(onRegionHeaderClicked()));
-    connect(regionHeaderWidget_, SIGNAL(selected()), SLOT(onRegionHeaderSelected()));
+    connect(regionHeaderWidget_, SIGNAL(accented()), SLOT(onRegionHeaderAccented()));
 
     // qDebug() << "Creating region: " << regionHeaderWidget_->name();
 
@@ -116,7 +116,7 @@ void ItemWidgetRegion::addCity(const CityModelItem &city)
 {
     auto cityWidget = new ItemWidgetCity(widgetLocationsInfo_, city, this);
     connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));
-    connect(cityWidget, SIGNAL(selected()), SLOT(onCityItemSelected()));
+    connect(cityWidget, SIGNAL(accented()), SLOT(onCityItemAccented()));
     connect(cityWidget, SIGNAL(favoriteClicked(ItemWidgetCity *, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*, bool)));
     cities_.append(cityWidget);
     cityWidget->show();
@@ -192,9 +192,9 @@ void ItemWidgetRegion::updateScaling()
     recalcItemPositions();
 }
 
-void ItemWidgetRegion::onRegionHeaderSelected()
+void ItemWidgetRegion::onRegionHeaderAccented()
 {
-    emit selected(regionHeaderWidget_);
+    emit accented(regionHeaderWidget_);
 }
 
 void ItemWidgetRegion::onRegionHeaderClicked()
@@ -246,9 +246,9 @@ int ItemWidgetRegion::expandedHeight()
     return height;
 }
 
-void ItemWidgetRegion::onCityItemSelected()
+void ItemWidgetRegion::onCityItemAccented()
 {
-    emit selected(static_cast<IItemWidget*>(sender()));
+    emit accented(static_cast<IItemWidget*>(sender()));
 }
 
 

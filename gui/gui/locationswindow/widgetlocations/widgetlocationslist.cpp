@@ -29,7 +29,7 @@ WidgetLocationsList::~WidgetLocationsList()
 void WidgetLocationsList::clearWidgets()
 {
     lastAccentedItemWidget_ = nullptr;
-    recentlySelectedWidgets_.clear();
+    recentlyAccentedWidgets_.clear();
     foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         regionWidget->disconnect();
@@ -44,7 +44,7 @@ void WidgetLocationsList::addRegionWidget(LocationModelItem *item)
     connect(regionWidget, SIGNAL(heightChanged(int)), SLOT(onRegionWidgetHeightChanged(int)));
     connect(regionWidget, SIGNAL(clicked(ItemWidgetCity *)), SLOT(onLocationItemCityClicked(ItemWidgetCity *)));
     connect(regionWidget, SIGNAL(clicked(ItemWidgetRegion *)), SLOT(onLocationItemRegionClicked(ItemWidgetRegion *)));
-    connect(regionWidget, SIGNAL(selected(IItemWidget *)), SLOT(onSelectableLocationItemSelected(IItemWidget *)));
+    connect(regionWidget, SIGNAL(accented(IItemWidget *)), SLOT(onSelectableLocationItemAccented(IItemWidget *)));
     connect(regionWidget, SIGNAL(favoriteClicked(ItemWidgetCity*, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*,bool)));
     itemWidgets_.append(regionWidget);
     regionWidget->setGeometry(0, 0, static_cast<int>(WINDOW_WIDTH *G_SCALE), static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE));
@@ -85,7 +85,7 @@ void WidgetLocationsList::accentWidgetContainingCursor()
         if (selectableWidget->containsCursor())
         {
             // qDebug() << "Selecting by containing cursor";
-            selectableWidget->setSelected(true);
+            selectableWidget->setAccented(true);
             updateCursorWithSelectableWidget(selectableWidget);
             break;
         }
@@ -99,7 +99,7 @@ void WidgetLocationsList::selectWidgetContainingGlobalPt(const QPoint &pt)
         if (selectableWidget->containsGlobalPoint(pt))
         {
             //qDebug() << "Selecting: " << selectableWidget->name();
-            selectableWidget->setSelected(true);
+            selectableWidget->setAccented(true);
             emit locationIdSelected(selectableWidget->getId());
             break;
         }
@@ -199,7 +199,7 @@ void WidgetLocationsList::accentFirstSelectableItem()
     QVector<IItemWidget *> widgets = selectableWidgets();
     if (widgets.count() > 0)
     {
-        widgets[0]->setSelected(true);
+        widgets[0]->setAccented(true);
     }
 }
 
@@ -217,7 +217,7 @@ void WidgetLocationsList::moveAccentUp()
         lastWidget = currentWidget;
         currentWidget = widget;
 
-        if (widget->isSelected())
+        if (widget->isAccented())
         {
             break;
         }
@@ -226,7 +226,7 @@ void WidgetLocationsList::moveAccentUp()
     if (lastWidget != nullptr)
     {
         // qDebug() << "Selection by moveAccentUp";
-        lastWidget->setSelected(true);
+        lastWidget->setAccented(true);
     }
 }
 
@@ -236,7 +236,7 @@ void WidgetLocationsList::moveAccentDown()
     QVectorIterator<IItemWidget *> it(list);
     while (it.hasNext())
     {
-        if (it.next()->isSelected())
+        if (it.next()->isAccented())
         {
             break;
         }
@@ -247,7 +247,7 @@ void WidgetLocationsList::moveAccentDown()
         auto widget = it.next();
         // qDebug() << "Selection by moveAccentDown";
 
-        widget->setSelected(true);
+        widget->setAccented(true);
     }
 }
 
@@ -266,7 +266,7 @@ IItemWidget *WidgetLocationsList::lastAccentedItemWidget()
     return lastAccentedItemWidget_;
 }
 
-const LocationID WidgetLocationsList::lastSelectedLocationId() const
+const LocationID WidgetLocationsList::lastAccentedLocationId() const
 {
     if (!lastAccentedItemWidget_)
     {
@@ -275,13 +275,13 @@ const LocationID WidgetLocationsList::lastSelectedLocationId() const
     return lastAccentedItemWidget_->getId();
 }
 
-void WidgetLocationsList::selectItem(LocationID locationId)
+void WidgetLocationsList::accentItem(LocationID locationId)
 {
     foreach (IItemWidget *widget, selectableWidgets())
     {
         if (widget->getId() == locationId)
         {
-            widget->setSelected(true);
+            widget->setAccented(true);
             break;
         }
     }
@@ -383,21 +383,21 @@ void WidgetLocationsList::onLocationItemRegionClicked(ItemWidgetRegion *regionWi
     }
 }
 
-void WidgetLocationsList::onSelectableLocationItemSelected(IItemWidget *itemWidget)
+void WidgetLocationsList::onSelectableLocationItemAccented(IItemWidget *itemWidget)
 {
     // iterating through all selectable widgets is too slow for scrolling animation
-    // only iterate through cache of previously selected widgets
-    for (IItemWidget *widget : recentlySelectedWidgets_)
+    // only iterate through cache of previously accented widgets
+    for (IItemWidget *widget : recentlyAccentedWidgets_)
     {
         if (widget != itemWidget)
         {
-            widget->setSelected(false);
+            widget->setAccented(false);
         }
     }
-    recentlySelectedWidgets_.clear();
+    recentlyAccentedWidgets_.clear();
 
     updateCursorWithSelectableWidget(itemWidget);
-    recentlySelectedWidgets_.append(itemWidget);
+    recentlyAccentedWidgets_.append(itemWidget);
     lastAccentedItemWidget_ = itemWidget;
 }
 

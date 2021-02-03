@@ -128,17 +128,17 @@ void WidgetCities::updateScaling()
 
 }
 
-bool WidgetCities::hasSelection()
+bool WidgetCities::hasAccentItem()
 {
     return widgetCitiesList_->hasAccentItem();
 }
 
-LocationID WidgetCities::selectedItemLocationId()
+LocationID WidgetCities::accentedItemLocationId()
 {
     return widgetCitiesList_->lastAccentedItemWidget()->getId();
 }
 
-void WidgetCities::setFirstSelected()
+void WidgetCities::accentFirstItem()
 {
     widgetCitiesList_->accentFirstItem();
 }
@@ -151,7 +151,7 @@ bool WidgetCities::cursorInViewport()
     return rect.contains(cursorPos);
 }
 
-void WidgetCities::centerCursorOnSelectedItem()
+void WidgetCities::centerCursorOnAccentedItem()
 {
     QPoint cursorPos = QCursor::pos();
     IItemWidget *lastSelWidget = widgetCitiesList_->lastAccentedItemWidget();
@@ -326,7 +326,7 @@ void WidgetCities::handleKeyEvent(QKeyEvent *event)
                         IItemWidget *lastSelWidget = widgetCitiesList_->lastAccentedItemWidget();
 
                         QPoint pt(cursorPos.x(), static_cast<int>(cursorPos.y() - LOCATION_ITEM_HEIGHT*G_SCALE));
-                        if (!lastSelWidget->containsCursor()) // selected item does not match with cursor
+                        if (!lastSelWidget->containsCursor()) // accent item does not match with cursor
                         {
                             pt = QPoint(cursorPos.x(), static_cast<int>(lastSelWidget->globalGeometry().top() - LOCATION_ITEM_HEIGHT*G_SCALE/2));
                         }
@@ -367,7 +367,7 @@ void WidgetCities::handleKeyEvent(QKeyEvent *event)
                         IItemWidget *lastSelWidget = widgetCitiesList_->lastAccentedItemWidget();
 
                         QPoint pt(cursorPos.x(), static_cast<int>(cursorPos.y() + LOCATION_ITEM_HEIGHT*G_SCALE));
-                        if (!lastSelWidget->containsCursor()) // selected item does not match with cursor
+                        if (!lastSelWidget->containsCursor()) // accent item does not match with cursor
                         {
                             pt = QPoint(cursorPos.x(), static_cast<int>(lastSelWidget->globalGeometry().bottom() + LOCATION_ITEM_HEIGHT*G_SCALE/2));
                         }
@@ -594,7 +594,7 @@ void WidgetCities::updateEmptyListButton()
 void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
 {
     LocationID topSelectableLocationIdInViewport = topViewportSelectableLocationId();
-    LocationID lastSelectedLocationId = widgetCitiesList_->lastAccentedLocationId();
+    LocationID lastAccentedLocationId = widgetCitiesList_->lastAccentedLocationId();
 
     qCDebug(LOG_BASIC) << "Updating locations-city widget list";
     widgetCitiesList_->clearWidgets();
@@ -612,7 +612,7 @@ void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
     {
         scrollDown(indexInNewList);
     }
-    widgetCitiesList_->accentItem(lastSelectedLocationId);
+    widgetCitiesList_->accentItem(lastAccentedLocationId);
     qCDebug(LOG_BASIC) << "Done updating locations-city widget list";
 
 }

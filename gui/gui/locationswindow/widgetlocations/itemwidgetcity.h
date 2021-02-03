@@ -11,7 +11,6 @@
 #include "itemtimems.h"
 #include "commonwidgets/lightwidget.h"
 
-// TODO: rename ambiguous "selectable" where necessary
 namespace GuiLocations {
 
 class ItemWidgetCity : public IItemWidget
@@ -32,8 +31,8 @@ public:
 
     void setFavourited(bool favorited);
     void setSelectable(bool selectable) override;
-    void setSelected(bool select) override;
-    bool isSelected() const override;
+    void setAccented(bool accent) override;
+    bool isAccented() const override;
 
     bool containsCursor() const override;
     bool containsGlobalPoint(const QPoint &pt) override;
@@ -44,7 +43,7 @@ public:
 
     void updateScaling();
 signals:
-    void selected();
+    void accented();
     void favoriteClicked(ItemWidgetCity *itemWidget, bool favorited);
 
 protected:
@@ -67,7 +66,7 @@ private:
     bool showPingIcon_;
     bool showingLatencyAsPingBar_;
     bool selectable_;
-    bool selected_;
+    bool accented_;
     bool favorited_;
     bool pressingFav_;
 

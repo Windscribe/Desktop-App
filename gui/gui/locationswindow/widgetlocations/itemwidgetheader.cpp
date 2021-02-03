@@ -20,7 +20,7 @@ ItemWidgetHeader::ItemWidgetHeader(IWidgetLocationsInfo *widgetLocationsInfo, Lo
   , countryCode_(locationModelItem->countryCode)
   , isPremiumOnly_(locationModelItem->isPremiumOnly)
   , showPlusIcon_(true)
-  , selected_(false)
+  , accented_(false)
   , selectable_(true)
   , plusIconOpacity_(OPACITY_THIRD)
   , expanded_(false)
@@ -99,15 +99,15 @@ void ItemWidgetHeader::setSelectable(bool selectable)
 
 }
 
-void ItemWidgetHeader::setSelected(bool select)
+void ItemWidgetHeader::setAccented(bool accent)
 {
-    if (selected_ != select)
+    if (accented_ != accent)
     {
-        selected_ = select;
-        if (select)
+        accented_ = accent;
+        if (accent)
         {
             opacityAnimation_.setDirection(QAbstractAnimation::Forward);
-            emit selected();
+            emit accented();
         }
         else
         {
@@ -117,9 +117,9 @@ void ItemWidgetHeader::setSelected(bool select)
     }
 }
 
-bool ItemWidgetHeader::isSelected() const
+bool ItemWidgetHeader::isAccented() const
 {
-    return selected_;
+    return accented_;
 }
 
 void ItemWidgetHeader::setExpanded(bool expand)
@@ -246,7 +246,7 @@ void ItemWidgetHeader::enterEvent(QEvent *event)
 {
     Q_UNUSED(event)
     // qDebug() << "Selection by hover enter";
-    setSelected(true); // triggers unselection of other widgets
+    setAccented(true); // triggers unselection of other widgets
 }
 
 void ItemWidgetHeader::mouseMoveEvent(QMouseEvent *event)

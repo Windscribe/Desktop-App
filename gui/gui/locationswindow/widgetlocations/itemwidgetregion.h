@@ -39,15 +39,15 @@ public:
 
 signals:
     void heightChanged(int height);
-    void selected(IItemWidget *itemWidget);
+    void accented(IItemWidget *itemWidget);
     void clicked(ItemWidgetCity *cityWidget);
     void clicked(ItemWidgetRegion *regionWidget);
     void favoriteClicked(ItemWidgetCity *cityWidget, bool favorited);
 
 private slots:
-    void onRegionHeaderSelected();
+    void onRegionHeaderAccented();
     void onRegionHeaderClicked();
-    void onCityItemSelected();
+    void onCityItemAccented();
     void onCityItemClicked();
     void onExpandingHeightAnimationValueChanged(const QVariant &value);
 

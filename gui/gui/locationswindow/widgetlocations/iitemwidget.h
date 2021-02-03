@@ -24,14 +24,14 @@ public:
     virtual const QString name() const = 0;
     virtual ItemWidgetType type() = 0;
     virtual void setSelectable(bool selectable) = 0;
-    virtual void setSelected(bool select) = 0;
-    virtual bool isSelected() const = 0;
+    virtual void setAccented(bool select) = 0;
+    virtual bool isAccented() const = 0;
     virtual bool containsCursor() const = 0;
     virtual bool containsGlobalPoint(const QPoint &pt) = 0;
     virtual QRect globalGeometry() const = 0;
 
 signals:
-    void selected(ItemWidgetType*);
+    void accented(ItemWidgetType*);
     void clicked(ItemWidgetType*);
 };
 

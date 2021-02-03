@@ -27,7 +27,7 @@ WidgetCitiesList::~WidgetCitiesList()
 void WidgetCitiesList::clearWidgets()
 {
     lastAccentedItemWidget_ = nullptr;
-    recentlySelectedWidgets_.clear();
+    recentlyAccentedWidgets_.clear();
     foreach (ItemWidgetCity *regionWidget, itemWidgets_)
     {
         regionWidget->disconnect();
@@ -40,7 +40,7 @@ void WidgetCitiesList::addCity(const CityModelItem &city)
 {
     auto cityWidget = new ItemWidgetCity(widgetLocationsInfo_, city, this);
     connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));
-    connect(cityWidget, SIGNAL(selected()), SLOT(onCityItemAccented()));
+    connect(cityWidget, SIGNAL(accented()), SLOT(onCityItemAccented()));
     connect(cityWidget, SIGNAL(favoriteClicked(ItemWidgetCity *, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*, bool)));
     cityWidget->setSelectable(true);
     cityWidget->show();
@@ -69,8 +69,8 @@ void WidgetCitiesList::accentWidgetContainingCursor()
         if (selectableWidget->containsCursor())
         {
             // qDebug() << "Selecting by containing cursor";
-            selectableWidget->setSelected(true);
-            updateCursorWithSelectableWidget(selectableWidget);
+            selectableWidget->setAccented(true);
+            updateCursorWithWidget(selectableWidget);
             break;
         }
     }
@@ -83,7 +83,7 @@ void WidgetCitiesList::selectWidgetContainingGlobalPt(const QPoint &pt)
         if (selectableWidget->containsGlobalPoint(pt))
         {
             //qDebug() << "Selecting: " << selectableWidget->name();
-            selectableWidget->setSelected(true);
+            selectableWidget->setAccented(true);
             emit locationIdSelected(selectableWidget->getId());
             break;
         }
@@ -124,7 +124,7 @@ void WidgetCitiesList::accentItem(LocationID locationId)
     {
         if (widget->getId() == locationId)
         {
-            widget->setSelected(true);
+            widget->setAccented(true);
             break;
         }
     }
@@ -134,7 +134,7 @@ void WidgetCitiesList::accentFirstItem()
 {
     if (itemWidgets_.count() > 0)
     {
-        itemWidgets_[0]->setSelected(true);
+        itemWidgets_[0]->setAccented(true);
     }
 }
 
@@ -152,7 +152,7 @@ void WidgetCitiesList::moveAccentUp()
         lastWidget = currentWidget;
         currentWidget = widget;
 
-        if (widget->isSelected())
+        if (widget->isAccented())
         {
             break;
         }
@@ -161,7 +161,7 @@ void WidgetCitiesList::moveAccentUp()
     if (lastWidget != nullptr)
     {
         // qDebug() << "Selection by moveAccentUp";
-        lastWidget->setSelected(true);
+        lastWidget->setAccented(true);
     }
 }
 
@@ -170,7 +170,7 @@ void WidgetCitiesList::moveAccentDown()
     QVectorIterator<ItemWidgetCity *> it(itemWidgets_);
     while (it.hasNext())
     {
-        if (it.next()->isSelected())
+        if (it.next()->isAccented())
         {
             break;
         }
@@ -179,7 +179,7 @@ void WidgetCitiesList::moveAccentDown()
     if (it.hasNext())
     {
         auto widget = it.next();
-        widget->setSelected(true);
+        widget->setAccented(true);
     }
 }
 
@@ -215,18 +215,18 @@ void WidgetCitiesList::onCityItemAccented()
     IItemWidget * itemWidget = static_cast<IItemWidget*>(sender());
 
     // iterating through all selectable widgets is too slow for scrolling animation
-    // only iterate through cache of previously selected widgets
-    for (IItemWidget *widget : recentlySelectedWidgets_)
+    // only iterate through cache of previously accented widgets
+    for (IItemWidget *widget : recentlyAccentedWidgets_)
     {
         if (widget != itemWidget)
         {
-            widget->setSelected(false);
+            widget->setAccented(false);
         }
     }
-    recentlySelectedWidgets_.clear();
+    recentlyAccentedWidgets_.clear();
 
-    updateCursorWithSelectableWidget(itemWidget);
-    recentlySelectedWidgets_.append(itemWidget);
+    updateCursorWithWidget(itemWidget);
+    recentlyAccentedWidgets_.append(itemWidget);
     lastAccentedItemWidget_ = itemWidget;
 }
 
@@ -260,7 +260,7 @@ void WidgetCitiesList::recalcItemPositions()
     update();
 }
 
-void WidgetCitiesList::updateCursorWithSelectableWidget(IItemWidget *widget)
+void WidgetCitiesList::updateCursorWithWidget(IItemWidget *widget)
 {
     if (widget->isForbidden() || widget->isDisabled())
     {
