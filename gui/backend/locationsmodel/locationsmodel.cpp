@@ -467,8 +467,3 @@ LocationID LocationsModel::getFirstValidCustomConfigLocationId() const
     }
     return LocationID();
 }
-
-void LocationsModel::forceAllLocationsUpdate()
-{
-    allLocations_->update(apiLocations_);
-}

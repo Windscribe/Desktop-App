@@ -597,16 +597,6 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    // qDebug() << "MainWindow::keyPressEvent";
-    // TODO: remove after testing
-    if (event->modifiers() & Qt::ControlModifier)
-    {
-        if (event->key() == Qt::Key_R)
-        {
-            backend_->forceAllLocationsUpdate();
-        }
-    }
-
 #ifdef QT_DEBUG
     if (event->modifiers() & Qt::ControlModifier)
     {
