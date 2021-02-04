@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QVector>
 #include <QWidget>
 #include "common.h"
 
@@ -11,6 +12,7 @@ class QPushButton;
 class QCheckBox;
 class QLabel;
 class QLineEdit;
+class QToolButton;
 class LogWatcher;
 class LogData;
 
@@ -37,7 +39,10 @@ private slots:
     void setAutoScroll(bool value);
     void setFilterCaseSensitive(bool value);
     void setHideUnmatched(bool value);
-    void applyFilter(QString filter);
+    void setFilter(QString filter);
+    void applyFilter();
+    void gotoPrevMatch();
+    void gotoNextMatch();
     void onDataUpdated();
 
 private:
@@ -45,12 +50,16 @@ private:
     enum class CheckRangeMode { NO, YES, ASK };
     LogDataType chooseLogType(const QString &filename);
     void appendLogFromFile(const QString &filename);
+    void setOverrideCursorIfNeeded();
+    void restoreOverrideCursor();
     bool checkFilter(LogDataType type, const QString &text) const;
+    void ensureLineNumberVisible(int lineNumber);
     void updatePlaceholderText();
     void updateScale();
-    void updateHighlight();
+    void updateHighlight(bool update_matching_lines_only = false);
     void updateDisplay();
     void updateScroll();
+    void updateMatchLabel();
  
     QPlainTextEdit *timeEdit_;
     QPlainTextEdit *textEdit_[NUM_LOG_TYPES];
@@ -66,10 +75,14 @@ private:
     QCheckBox *cbFilterCI_;
     QCheckBox *cbHideUnmatched_;
     QLineEdit *leFilter_;
+    QLabel *matchLabel_;
+    QToolButton *btnNavigate_[2];
+    QTimer *filterTimer_;
 
     double dpiScale_;
     bool logAutoScrollMode_;
     bool logHightlightMode_;
+    bool overrideCursorSet_;
     LogDisplayMode logDisplayMode_;
     std::unique_ptr<LogWatcher> logWatcher_;
     std::unique_ptr<LogData> logData_;
@@ -79,6 +92,10 @@ private:
     QString currentFilter_;
     bool isFilterCI_;
     bool isHideUnmatched_;
+    int textVisibilityMask_;
+    int currentFilterMatch_;
+    int previousFilterMatch_;
+    QVector<int> filterMatches_;
 };
 
 #endif  // MAINWINDOW_H

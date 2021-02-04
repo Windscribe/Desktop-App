@@ -5,6 +5,7 @@
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QCommonStyle>
 #include <QDesktopWidget>
 #include <QDragEnterEvent>
 #include <QDropEvent>
@@ -21,6 +22,7 @@
 #include <QSplitter>
 #include <QStandardPaths>
 #include <QTextBlock>
+#include <QToolButton>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWindow>
@@ -45,12 +47,14 @@ QFont GetMonospaceFont(int pointSize)
 }  // namespace
 
 MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
-                           logHightlightMode_(true), logDisplayMode_(LogDisplayMode::SINGLE_COLUMN),
+                           logHightlightMode_(true), overrideCursorSet_(false),
+                           logDisplayMode_(LogDisplayMode::SINGLE_COLUMN),
                            logWatcher_(new LogWatcher), logData_(new LogData),
                            checkRangeOnAppend_(CheckRangeMode::NO),
                            openFilePath_(QStandardPaths::writableLocation(
                                QStandardPaths::DataLocation)),
-                           isFilterCI_(true), isHideUnmatched_(true)
+                           isFilterCI_(true), isHideUnmatched_(true), textVisibilityMask_(0),
+                           currentFilterMatch_(-1), previousFilterMatch_(-1)
 {
     // Default path for logs.
     openFilePath_.replace(qApp->applicationName(), "Windscribe2");
@@ -89,6 +93,22 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
     cbHideUnmatched_->setToolTip(tr("Hide unmatched lines"));
     cbHideUnmatched_->setChecked(isHideUnmatched_);
     connect(cbHideUnmatched_, SIGNAL(toggled(bool)), SLOT(setHideUnmatched(bool)));
+    matchLabel_ = new QLabel(this);
+    matchLabel_->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    btnNavigate_[0] = new QToolButton(this);
+    btnNavigate_[0]->setIcon(QCommonStyle().standardIcon(QStyle::SP_ArrowBack));
+    btnNavigate_[0]->setEnabled(!isHideUnmatched_);
+    btnNavigate_[0]->setShortcut(QKeySequence("F3"));
+    btnNavigate_[0]->setToolTip(tr("Go to the previous block of matches (%1)")
+                                .arg(btnNavigate_[0]->shortcut().toString()));
+    connect(btnNavigate_[0], SIGNAL(clicked()), SLOT(gotoPrevMatch()));
+    btnNavigate_[1] = new QToolButton(this);
+    btnNavigate_[1]->setIcon(QCommonStyle().standardIcon(QStyle::SP_ArrowForward));
+    btnNavigate_[1]->setEnabled(!isHideUnmatched_);
+    btnNavigate_[1]->setShortcut(QKeySequence("F4"));
+    btnNavigate_[1]->setToolTip(tr("Go to the next block of matches (%1)")
+                                .arg(btnNavigate_[1]->shortcut().toString()));
+    connect(btnNavigate_[1], SIGNAL(clicked()), SLOT(gotoNextMatch()));
 
     auto *horzLine = new QFrame(this);
     horzLine->setMaximumHeight(3);
@@ -98,7 +118,11 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
     leFilter_ = new QLineEdit(this);
     leFilter_->setMinimumWidth(200 * dpiScale_);
     leFilter_->setPlaceholderText(tr("Enter text filter..."));
-    connect(leFilter_, SIGNAL(textEdited(QString)), SLOT(applyFilter(QString)));
+    connect(leFilter_, SIGNAL(textEdited(QString)), SLOT(setFilter(QString)));
+    filterTimer_ = new QTimer(this);
+    filterTimer_->setSingleShot(true);
+    connect(filterTimer_, SIGNAL(timeout()), SLOT(applyFilter()));
+
     timeLabel_ = new QLabel(tr("Timestamp") + ":", this);
     timeEdit_ = new QPlainTextEdit(this);
     timeEdit_->setReadOnly(true);
@@ -143,9 +167,12 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
     toplayout->addWidget(cbHighlight_);
     toplayout->addWidget(cbAutoScroll_);
     toplayout->addStretch(1);
+    toplayout->addWidget(matchLabel_);
     toplayout->addWidget(leFilter_);
     toplayout->addWidget(cbFilterCI_);
     toplayout->addWidget(cbHideUnmatched_);
+    toplayout->addWidget(btnNavigate_[0]);
+    toplayout->addWidget(btnNavigate_[1]);
     auto *loghlayout = new QHBoxLayout;
     auto *logvlayout = new QVBoxLayout;
     logvlayout->addWidget(timeLabel_);
@@ -264,7 +291,9 @@ void MainWindow::setMultiColumn(bool value)
     if (logDisplayMode_ == dm)
         return;
     logDisplayMode_ = dm;
+    setOverrideCursorIfNeeded();
     updateDisplay();
+    restoreOverrideCursor();
 }
 
 void MainWindow::setAutoScroll(bool value)
@@ -278,8 +307,10 @@ void MainWindow::setFilterCaseSensitive(bool value)
 {
     if (isFilterCI_ != value) {
         isFilterCI_ = value;
+        setOverrideCursorIfNeeded();
         updatePlaceholderText();
         updateDisplay();
+        restoreOverrideCursor();
     }
 }
 
@@ -287,18 +318,60 @@ void MainWindow::setHideUnmatched(bool value)
 {
     if (isHideUnmatched_ != value) {
         isHideUnmatched_ = value;
-        if (!currentFilter_.isEmpty())
+        btnNavigate_[0]->setEnabled(!value);
+        btnNavigate_[1]->setEnabled(!value);
+        if (!currentFilter_.isEmpty()) {
+            setOverrideCursorIfNeeded();
             updateDisplay();
+            restoreOverrideCursor();
+        }
     }
 }
 
-void MainWindow::applyFilter(QString filter)
+void MainWindow::setFilter(QString filter)
 {
     if (currentFilter_ != filter) {
         currentFilter_ = filter;
-        updatePlaceholderText();
-        updateDisplay();
+        filterTimer_->start(400);
     }
+}
+
+void MainWindow::applyFilter()
+{
+    setOverrideCursorIfNeeded();
+    updatePlaceholderText();
+    updateDisplay();
+    restoreOverrideCursor();
+}
+
+void MainWindow::gotoPrevMatch()
+{
+    if (isHideUnmatched_ || filterMatches_.isEmpty())
+        return;
+
+    const int numFilterMatches = filterMatches_.size();
+    previousFilterMatch_ = currentFilterMatch_;
+    if (--currentFilterMatch_ < 0)
+        currentFilterMatch_ = numFilterMatches-1;
+    const int lineNumber = filterMatches_[currentFilterMatch_];
+    ensureLineNumberVisible(lineNumber);
+    updateHighlight(/*update_matching_lines_only=*/true);
+    updateMatchLabel();
+}
+
+void MainWindow::gotoNextMatch()
+{
+    if (isHideUnmatched_ || filterMatches_.isEmpty())
+        return;
+
+    const int numFilterMatches = filterMatches_.size();
+    previousFilterMatch_ = currentFilterMatch_;
+    if (++currentFilterMatch_ >= numFilterMatches)
+        currentFilterMatch_ = 0;
+    const int lineNumber = filterMatches_[currentFilterMatch_];
+    ensureLineNumberVisible(lineNumber);
+    updateHighlight(/*update_matching_lines_only=*/true);
+    updateMatchLabel();
 }
 
 void MainWindow::onDataUpdated()
@@ -362,11 +435,40 @@ void MainWindow::appendLogFromFile(const QString &filename)
      }
 }
 
+void MainWindow::setOverrideCursorIfNeeded()
+{
+    const int kDataSizeTooLarge = 5000;
+    if (overrideCursorSet_ || logData_->data().size() < kDataSizeTooLarge)
+        return;
+    qApp->setOverrideCursor(Qt::WaitCursor);
+    overrideCursorSet_ = true;
+}
+
+void MainWindow::restoreOverrideCursor()
+{
+    if (overrideCursorSet_) {
+        qApp->restoreOverrideCursor();
+        overrideCursorSet_ = false;
+    }
+}
+
 bool MainWindow::checkFilter(LogDataType type, const QString &text) const
 {
     if (type == LOG_TYPE_AUX || currentFilter_.isEmpty())
         return true;
     return text.contains(currentFilter_, isFilterCI_ ? Qt::CaseInsensitive : Qt::CaseSensitive);
+}
+
+void MainWindow::ensureLineNumberVisible(int lineNumber)
+{
+    const QTextCursor timeCursor(timeEdit_->document()->findBlockByLineNumber(lineNumber));
+    timeEdit_->setTextCursor(timeCursor);
+    for (int i = 0; i < NUM_LOG_TYPES; ++i) {
+        if (!(textVisibilityMask_ & (1 << i)))
+            continue;
+        const QTextCursor textCursor(textEdit_[i]->document()->findBlockByLineNumber(lineNumber));
+        textEdit_[i]->setTextCursor(textCursor);
+    }
 }
 
 void MainWindow::updatePlaceholderText()
@@ -400,19 +502,35 @@ void MainWindow::updateScale()
 
     btnOpenLog_->setFont(font());
     btnClearLog_->setFont(font());
+
+    matchLabel_->setFixedWidth(60 * dpiScale_);
 }
 
-void MainWindow::updateHighlight()
+void MainWindow::updateHighlight(bool update_matching_lines_only)
 {
     const bool kIsMulti = logDisplayMode_ == LogDisplayMode::MULTI_COLUMNS
         && logData_->numTypes() > 1;
 
+    int currentFilterMatchLine = -1;
+    if (!isHideUnmatched_ && !filterMatches_.isEmpty() && currentFilterMatch_ >= 0)
+        currentFilterMatchLine = filterMatches_[currentFilterMatch_];
+
+    setOverrideCursorIfNeeded();
     for (int i = 0; i < NUM_LOG_TYPES; ++i) {
         if (!textWidget_[i]->isVisible())
             continue;
-        TextHighlighter::processDocument(textEdit_[i]->document(), logHightlightMode_,
-            kIsMulti ? static_cast<LogDataType>(i) : LOG_TYPE_MIXED);
+        TextHighlighter th(logHightlightMode_, currentFilterMatchLine,
+                           kIsMulti ? static_cast<LogDataType>(i) : LOG_TYPE_MIXED);
+        QList<int> lineNumbers;
+        if (update_matching_lines_only) {
+            if (previousFilterMatch_ >= 0)
+                lineNumbers.push_back(filterMatches_[previousFilterMatch_]);
+            if (currentFilterMatch_ >= 0)
+                lineNumbers.push_back(filterMatches_[currentFilterMatch_]);
+        }
+        th.processDocument(textEdit_[i]->document(), lineNumbers);
     }
+    restoreOverrideCursor();
 }
 
 void MainWindow::updateDisplay()
@@ -423,22 +541,24 @@ void MainWindow::updateDisplay()
     const int scrollPos = timeEdit_->verticalScrollBar()->value();
     const auto &lines = logData_->data();
     const auto global_info = logData_->getDataSizeForType(LOG_TYPE_MIXED);
+    const int oldvismask = textVisibilityMask_;
     const bool kHasFilter = !currentFilter_.isEmpty();
     QString texts[NUM_LOG_TYPES];
     int nonAuxLineCount[NUM_LOG_TYPES] = {};
-    int firstFilterMatchLine = -1;
+
+    filterTimer_->stop();
+
+    textVisibilityMask_ = 0;
+    filterMatches_.clear();
+    previousFilterMatch_ = currentFilterMatch_ = -1;
 
     QString time_string;
     time_string.reserve(global_info.first * 22); // Estimated timestamp size.
 
-    int vismask = 0, oldvismask = 0;
-    for (int i = 0; i < NUM_LOG_TYPES; ++i)
-        if (textWidget_[i]->isVisible())
-            oldvismask |= (1 << i);
-
     if (kIsMulti) {
         QString timestamp;
         int timestamp_lines[NUM_LOG_TYPES] = {};
+        int timestamp_line_count = 0;
         auto trim_lines = [&](const QString &timestamp) {
             const int add =
                 qMax(qMax(timestamp_lines[0], timestamp_lines[1]), timestamp_lines[2]);
@@ -449,28 +569,28 @@ void MainWindow::updateDisplay()
             }
             for (int i = 1; i < add; ++i)
                 time_string.append(timestamp + "\n");
+            timestamp_line_count += qMax(0, add - 1);
         };
         for (int i = 0; i < NUM_LOG_TYPES; ++i) {
             const auto local_info = logData_->getDataSizeForType(static_cast<LogDataType>(i));
             texts[i].reserve(local_info.second + local_info.first * 6  // Estimated line sizes.
                              + (global_info.first - local_info.first));
         }
-        int counter = 0;
+        int counter = 1, prevmatch = -1;
+        LogDataType prevtype = LOG_TYPE_UNKNOWN;
         for (auto it = lines.constBegin(); it != lines.constEnd(); ++it) {
             bool is_filter_match = false;
             if (kHasFilter) {
                 is_filter_match = checkFilter(it->type, it->text);
                 if (!is_filter_match && isHideUnmatched_)
                     continue;
-                if (is_filter_match && firstFilterMatchLine < 0)
-                    firstFilterMatchLine = counter;
-                ++counter;
-            }
+             }
             if (it->type == LOG_TYPE_AUX || timestamp != it->timestamp) {
                 if (!timestamp.isEmpty()) {
                     trim_lines(timestamp);
                     memset(timestamp_lines, 0, sizeof(timestamp_lines));
                 }
+                counter = timestamp_line_count++;
                 time_string.append(it->timestamp + "\n");
                 timestamp = it->timestamp;
             }
@@ -478,10 +598,21 @@ void MainWindow::updateDisplay()
                 for (int i = 0; i < NUM_LOG_TYPES; ++i)
                     texts[i].append(QString("%1\n").arg(it->text));
             } else {
+                if (it->type == prevtype) {
+                    ++counter;
+                } else {
+                    counter = timestamp_line_count;
+                    prevtype = it->type;
+                }
                 ++timestamp_lines[it->type];
                 ++nonAuxLineCount[it->type];
                 texts[it->type].append(QString("%1[%2] %3\n")
-                    .arg(is_filter_match && !isHideUnmatched_ ? "*" : ">", it->label, it->text));
+                    .arg(is_filter_match && !isHideUnmatched_ ? "*" : ">",it->label, it->text));
+            }
+            if (is_filter_match) {
+                if (counter > prevmatch + 1)
+                    filterMatches_.push_back(counter-1);
+                prevmatch = counter;
             }
         }
         trim_lines(timestamp);
@@ -489,15 +620,18 @@ void MainWindow::updateDisplay()
     } else {
         const char *kTypeMarker[] = { "G", "E", "S" };
         texts[0].reserve(global_info.second + global_info.first * 6); // Estimated line sizes.
-        int counter = 0;
+        int counter = 0, prevmatch = 0;
         for (auto it = lines.constBegin(); it != lines.constEnd(); ++it) {
             bool is_filter_match = false;
             if (kHasFilter) {
                 is_filter_match = checkFilter(it->type, it->text);
                 if (!is_filter_match && isHideUnmatched_)
                     continue;
-                if (is_filter_match && firstFilterMatchLine < 0)
-                    firstFilterMatchLine = counter;
+                if (is_filter_match) {
+                    if (counter != prevmatch + 1)
+                        filterMatches_.push_back(counter);
+                    prevmatch = counter;
+                }
                 ++counter;
             }
             time_string.append(it->timestamp + "\n");
@@ -511,6 +645,15 @@ void MainWindow::updateDisplay()
         }
         textLabel_[0]->setText(tr("Combined Logs") + ":");
     }
+
+    // If we don't hide unmatched lines, and there are no matches, clear the log anyway to prevent
+    // confusion.
+    if (kHasFilter && !isHideUnmatched_ && filterMatches_.isEmpty()) {
+        time_string.clear();
+        for (int i = 0; i < NUM_LOG_TYPES; ++i)
+            texts[i].clear();
+    }
+
     timeEdit_->setPlainText(time_string);
 
     for (int i = 0; i < NUM_LOG_TYPES; ++i) {
@@ -518,7 +661,7 @@ void MainWindow::updateDisplay()
         if (!is_empty && nonAuxLineCount[i]) {
             textEdit_[i]->setPlainText(texts[i]);
             textWidget_[i]->setVisible(true);
-            vismask |= (1 << i);
+            textVisibilityMask_ |= (1 << i);
         } else {
             textEdit_[i]->clear();
             textWidget_[i]->setVisible(false);
@@ -526,32 +669,23 @@ void MainWindow::updateDisplay()
     }
 
     cbMultiColumn_->setEnabled(logData_->numTypes() > 1);
-    if (!vismask) {
+    if (!textVisibilityMask_) {
         timeEdit_->clear();
         textWidget_[0]->setVisible(true);
     } else {
         timeEdit_->verticalScrollBar()->setValue(scrollPos);
     }
 
-    if (!isHideUnmatched_ && firstFilterMatchLine >= 0) {
-        const QTextCursor timeCursor(
-            timeEdit_->document()->findBlockByLineNumber(firstFilterMatchLine));
-        timeEdit_->setTextCursor(timeCursor);
-        for (int i = 0; i < NUM_LOG_TYPES; ++i) {
-            if (vismask & (1 << i)) {
-                const QTextCursor textCursor(
-                    textEdit_[i]->document()->findBlockByLineNumber(firstFilterMatchLine));
-                textEdit_[i]->setTextCursor(textCursor);
-            }
-        }
-    }
-
     if (logHightlightMode_) {
-        if (vismask == oldvismask)
+        if (textVisibilityMask_ == oldvismask)
             updateHighlight();
         else
             QTimer::singleShot(0, [&]() { updateHighlight(); });
     }
+
+    if (!filterMatches_.isEmpty())
+        gotoNextMatch();
+    updateMatchLabel();
 }
 
 void MainWindow::updateScroll()
@@ -561,5 +695,15 @@ void MainWindow::updateScroll()
             timeEdit_->verticalScrollBar()->setValue(
                 timeEdit_->verticalScrollBar()->maximum());
         });
+    }
+}
+
+void MainWindow::updateMatchLabel()
+{
+    if (isHideUnmatched_ || currentFilter_.isEmpty()) {
+        matchLabel_->clear();
+    } else {
+        matchLabel_->setText(
+            QString("%1/%2").arg(currentFilterMatch_+1).arg(filterMatches_.count()));
     }
 }
