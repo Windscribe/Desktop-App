@@ -138,7 +138,11 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     // note: route gateway not used for WireGuard in AdapterGatewayInfo
     adapterGatewayInfo_.clear();
     adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
-    adapterGatewayInfo_.setAdapterIp(wireGuardConfig->clientIpAddress());
+    QStringList address_and_cidr = wireGuardConfig->clientIpAddress().split('/');
+    if (address_and_cidr.size() > 1)
+    {
+        adapterGatewayInfo_.setAdapterIp(address_and_cidr[0]);
+    }
     adapterGatewayInfo_.setDnsServers(QStringList() << wireGuardConfig->clientDnsAddress());
 
     setCurrentState(ConnectionState::CONNECTING);
@@ -231,6 +235,7 @@ void WireGuardConnection::run()
                 if (!is_connected) {
                     qCDebug(LOG_WIREGUARD) << "WireGuard daemon reported successful handshake";
                     is_connected = true;
+
                     setCurrentStateAndEmitSignal(WireGuardConnection::ConnectionState::CONNECTED);
                 }
                 const auto newBytesReceived = status.bytesReceived - bytesReceived;
