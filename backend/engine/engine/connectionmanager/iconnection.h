@@ -4,7 +4,7 @@
 #include <QThread>
 #include "engine/proxy/proxysettings.h"
 #include "engine/types/types.h"
-#include "connectionadapterinfo.h"
+#include "adaptergatewayinfo.h"
 
 class IHelper;
 class WireGuardConfig;
@@ -33,7 +33,7 @@ public:
     virtual void continueWithPassword(const QString &password) = 0;
 
 signals:
-    void connected(const ConnectionAdapterInfo &connectionAdapterInfo);
+    void connected(const AdapterGatewayInfo &connectionAdapterInfo);
     void disconnected();
     void reconnecting();
     void error(CONNECTION_ERROR err);

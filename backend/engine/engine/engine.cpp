@@ -575,7 +575,7 @@ void Engine::init()
 
     connectionManager_ = new ConnectionManager(this, helper_, networkStateManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
     connectionManager_->setPacketSize(packetSize_);
-    connect(connectionManager_, SIGNAL(connected(ConnectionAdapterInfo)), SLOT(onConnectionManagerConnected(ConnectionAdapterInfo)));
+    connect(connectionManager_, SIGNAL(connected()), SLOT(onConnectionManagerConnected()));
     connect(connectionManager_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onConnectionManagerDisconnected(DISCONNECT_REASON)));
     connect(connectionManager_, SIGNAL(reconnecting()), SLOT(onConnectionManagerReconnecting()));
     connect(connectionManager_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onConnectionManagerError(CONNECTION_ERROR)));
@@ -605,7 +605,7 @@ void Engine::init()
 
     emergencyController_ = new EmergencyController(this, helper_);
     emergencyController_->setPacketSize(packetSize_);
-    connect(emergencyController_, SIGNAL(connected(ConnectionAdapterInfo)), SLOT(onEmergencyControllerConnected(ConnectionAdapterInfo)));
+    connect(emergencyController_, SIGNAL(connected()), SLOT(onEmergencyControllerConnected()));
     connect(emergencyController_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onEmergencyControllerDisconnected(DISCONNECT_REASON)));
     connect(emergencyController_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onEmergencyControllerError(CONNECTION_ERROR)));
 
@@ -671,7 +671,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 #endif
 
     // turn off split tunneling (for case the state remains from the last launch)
-    helper_->sendConnectStatus(false, nullptr);
+    helper_->sendConnectStatus(false, AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 
@@ -759,7 +759,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 
     // turn off split tunneling
-    helper_->sendConnectStatus(false, nullptr);
+    helper_->sendConnectStatus(false, AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 #ifdef Q_OS_WIN
@@ -1494,7 +1494,7 @@ void Engine::onUpdateSessionStatusTimer()
     serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
-void Engine::onConnectionManagerConnected(const ConnectionAdapterInfo &connectionAdapterInfo)
+void Engine::onConnectionManagerConnected()
 {
     if (engineSettings_.firewallSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC) {
         const bool isAllowFirewallAfterConnection =
@@ -1556,7 +1556,7 @@ void Engine::onConnectionManagerConnected(const ConnectionAdapterInfo &connectio
 #endif
 
     splitTunnelingNetworkInfo_->outToLog();
-    helper_->sendConnectStatus(true, splitTunnelingNetworkInfo_);
+    helper_->sendConnectStatus(true, connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(), connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
 
     if (firewallController_->firewallActualState())
     {
@@ -2036,7 +2036,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
 }
 
-void Engine::onEmergencyControllerConnected(const ConnectionAdapterInfo &connectionAdapterInfo)
+void Engine::onEmergencyControllerConnected()
 {
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerConnected()";
 
@@ -2557,7 +2557,7 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     {
         if (state != CONNECT_STATE_CONNECTED)
         {
-            helper_->sendConnectStatus(false, nullptr);
+            helper_->sendConnectStatus(false, AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
         }
     }
 }

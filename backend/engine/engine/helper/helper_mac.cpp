@@ -16,6 +16,7 @@
 #include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_mac.h"
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
+#include "engine/connectionmanager/adaptergatewayinfo.h"
 
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
@@ -740,7 +741,8 @@ bool Helper_mac::setSplitTunnelingSettings(bool isActive, bool isExclude,
     return true;
 }
 
-void Helper_mac::sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo *stni)
+void Helper_mac::sendConnectStatus(bool isConnected, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                                   const QString &connectedIp, const ProtocolType &protocol)
 {
     QMutexLocker locker(&mutex_);
 
@@ -750,23 +752,23 @@ void Helper_mac::sendConnectStatus(bool isConnected, const SplitTunnelingNetwork
     }
 
     CMD_SEND_CONNECT_STATUS cmd;
-    const SplitTunnelingNetworkInfo_mac *mac_stni = dynamic_cast<const SplitTunnelingNetworkInfo_mac *>(stni);
+    cmd.isConnected = isConnected;
 
-    if (isConnected && mac_stni)
+    if (isConnected)
     {
-        if (mac_stni->protocol().isStunnelOrWStunnelProtocol())
+        if (protocol.isStunnelOrWStunnelProtocol())
         {
             cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
         }
-        else if (mac_stni->protocol().isIkev2Protocol())
+        else if (protocol.isIkev2Protocol())
         {
             cmd.protocol = CMD_PROTOCOL_IKEV2;
         }
-        else if (mac_stni->protocol().isWireGuardProtocol())
+        else if (protocol.isWireGuardProtocol())
         {
             cmd.protocol = CMD_PROTOCOL_WIREGUARD;
         }
-        else if (mac_stni->protocol().isOpenVpnProtocol())
+        else if (protocol.isOpenVpnProtocol())
         {
             cmd.protocol = CMD_PROTOCOL_OPENVPN;
         }
@@ -774,28 +776,24 @@ void Helper_mac::sendConnectStatus(bool isConnected, const SplitTunnelingNetwork
         {
             Q_ASSERT(false);
         }
-    }
 
-    cmd.isConnected = isConnected;
-    if (mac_stni)
-    {
-        cmd.connectedIp = mac_stni->connectedIp().toStdString();
-        cmd.gatewayIp = mac_stni->gatewayIp().toStdString();
-        cmd.interfaceName = mac_stni->interfaceName().toStdString();
-        cmd.interfaceIp = mac_stni->interfaceIp().toStdString();
-        cmd.routeVpnGateway = mac_stni->routeVpnGateway().toStdString();
-        cmd.routeNetGateway = mac_stni->routeNetGateway().toStdString();
-        cmd.remote_1 = mac_stni->remote1().toStdString();
-        cmd.ifconfigTunIp = mac_stni->ifconfigTunIp().toStdString();
-
-        cmd.vpnAdapterIp = mac_stni->vpnAdapterIpAddress().toStdString();
-
-        cmd.vpnAdapterName = mac_stni->vpnAdapterName().toStdString();
-
-        Q_FOREACH(const QString &dns, mac_stni->dnsServers())
+        auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
         {
-            cmd.dnsServers.push_back(dns.toStdString());
-        }
+            out.adapterName = a.adapterName().toStdString();
+            out.adapterIp = a.adapterIp().toStdString();
+            out.gatewayIp = a.gateway().toStdString();
+            const QStringList dns = a.dnsServers();
+            for(auto ip : dns)
+            {
+                out.dnsServers.push_back(ip.toStdString());
+            }
+        };
+
+        fillAdapterInfo(defaultAdapter, cmd.defaultAdapter);
+        fillAdapterInfo(vpnAdapter, cmd.vpnAdapter);
+
+        cmd.connectedIp = connectedIp.toStdString();
+        cmd.remoteIp = vpnAdapter.remoteIp().toStdString();
     }
 
     std::stringstream stream;

@@ -239,7 +239,7 @@ private slots:
     void onStartStaticIpsUpdate();
     void onUpdateSessionStatusTimer();
 
-    void onConnectionManagerConnected(const ConnectionAdapterInfo &connectionAdapterInfo);
+    void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
     void onConnectionManagerReconnecting();
     void onConnectionManagerError(CONNECTION_ERROR err);
@@ -264,7 +264,7 @@ private slots:
     void onDownloadHelperProgressChanged(uint progressPercent);
     void onDownloadHelperFinished(const DownloadHelper::DownloadState &state);
 
-    void onEmergencyControllerConnected(const ConnectionAdapterInfo &connectionAdapterInfo);
+    void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
     void onEmergencyControllerError(CONNECTION_ERROR err);
 

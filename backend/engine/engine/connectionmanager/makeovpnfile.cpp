@@ -26,7 +26,7 @@ MakeOVPNFile::~MakeOVPNFile()
     file_.remove();
 }
 
-bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port, uint portForStunnel, uint portForWstunnel, int mss)
+bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port, uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway)
 {
     if (!file_.isOpen())
     {
@@ -94,48 +94,23 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
         str = "\r\nproto tcp\r\n";
         file_.write(str.toLocal8Bit());
     }
-    else if (protocol.getType() == ProtocolType::PROTOCOL_STUNNEL)
+    else if (protocol.isStunnelOrWStunnelProtocol())
     {
         if (!bExtraContainsRemote)
         {
             str = "\r\nremote 127.0.0.1";
             file_.write(str.toLocal8Bit());
         }
-        str = QString("\r\nport %1").arg(portForStunnel);
+        str = QString("\r\nport %1").arg(portForStunnelOrWStunnel);
         file_.write(str.toLocal8Bit());
 
         str = "\r\nproto tcp\r\n";
         file_.write(str.toLocal8Bit());
 
     #ifdef Q_OS_MAC
-        QString defaultGateway = MacUtils::getDefaultGatewayForPrimaryInterface();
         if (!defaultGateway.isEmpty())
         {
-            qCDebug(LOG_CONNECTION) << "defaultGateway for stunnel ovpn config: " << defaultGateway;
-            str = QString("route %1 255.255.255.255 %2\r\n").arg(ip).arg(defaultGateway);
-            file_.write(str.toLocal8Bit());
-        }
-    #endif
-
-    }
-    else if (protocol.getType() == ProtocolType::PROTOCOL_WSTUNNEL)
-    {
-        if (!bExtraContainsRemote)
-        {
-            str = "\r\nremote 127.0.0.1";
-            file_.write(str.toLocal8Bit());
-        }
-        str = QString("\r\nport %1").arg(portForWstunnel);
-        file_.write(str.toLocal8Bit());
-
-        str = "\r\nproto tcp\r\n";
-        file_.write(str.toLocal8Bit());
-
-    #ifdef Q_OS_MAC
-        QString defaultGateway = MacUtils::getDefaultGatewayForPrimaryInterface();
-        if (!defaultGateway.isEmpty())
-        {
-            qCDebug(LOG_CONNECTION) << "defaultGateway for wstunnel ovpn config: " << defaultGateway;
+            qCDebug(LOG_CONNECTION) << "defaultGateway for stunnel/wstunnel ovpn config: " << defaultGateway;
             str = QString("route %1 255.255.255.255 %2\r\n").arg(ip).arg(defaultGateway);
             file_.write(str.toLocal8Bit());
         }

@@ -113,7 +113,7 @@ private:
     static constexpr int KILL_TIMEOUT = 10000;
     QTimer killControllerTimer_;
 
-    ConnectionAdapterInfo connectionAdapterInfo_;
+    AdapterGatewayInfo connectionAdapterInfo_;
 
     void funcRunOpenVPN();
     void funcConnectToOpenVPN(const boost::system::error_code& err);
@@ -124,7 +124,9 @@ private:
     void continueWithUsernameImpl();
     void continueWithPasswordImpl();
 
-    bool parsePushReply(const QString &reply, ConnectionAdapterInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway);
+    bool parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway);
+    bool parseDeviceOpenedReply(const QString &reply, QString &outDriverName, QString &outDeviceName);
+    bool parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp);
 };
 
 #endif // OPENVPNCONNECTION_H

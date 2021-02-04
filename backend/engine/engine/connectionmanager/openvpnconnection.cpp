@@ -426,6 +426,15 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         {
             if (serverReply.contains("CONNECTED,SUCCESS", Qt::CaseInsensitive))
             {
+                QString remoteIp;
+                if (parseConnectedSuccessReply(serverReply, remoteIp))
+                {
+                    connectionAdapterInfo_.setRemoteIp(remoteIp);
+                }
+                else
+                {
+                    qCDebug(LOG_CONNECTION) << "Can't parse CONNECTED,SUCCESS control message";
+                }
                 setCurrentState(STATUS_CONNECTED);
                 emit connected(connectionAdapterInfo_);
             }
@@ -473,14 +482,26 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             {
                 emit error(INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS);
             }
+            else if (serverReply.contains("device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
+            {
+                QString driverName, deviceName;
+                if (parseDeviceOpenedReply(serverReply, driverName, deviceName))
+                {
+#ifdef Q_OS_MAC
+                    connectionAdapterInfo_.setAdapterName(deviceName);
+#endif
+                }
+            }
+#ifdef Q_OS_WIN
             else if (serverReply.contains("wintun device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
             {
-                connectionAdapterInfo_.setAdapterName(ConnectionAdapterInfo::wintunAdapterName);
+                connectionAdapterInfo_.setAdapterName(AdapterGatewayInfo::wintunAdapterName);
             }
             else if (serverReply.contains("tap-windows6 device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
             {
-                connectionAdapterInfo_.setAdapterName(ConnectionAdapterInfo::tapAdapterName);
+                connectionAdapterInfo_.setAdapterName(AdapterGatewayInfo::tapAdapterName);
             }
+#endif
             else if (serverReply.contains("PUSH: Received control message:", Qt::CaseInsensitive))
             {
                 bool isRedirectDefaultGateway = true;
@@ -576,7 +597,7 @@ void OpenVPNConnection::continueWithPasswordImpl()
     checkErrorAndContinue(write_error, false);
 }
 
-bool OpenVPNConnection::parsePushReply(const QString &reply, ConnectionAdapterInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway)
+bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway)
 {
     QStringRef str(&reply);
 
@@ -617,7 +638,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, ConnectionAdapterIn
                 }
                 else
                 {
-                    outConnectionAdapterInfo.setVpnGateway(ipStr);
+                    outConnectionAdapterInfo.setGateway(ipStr);
                 }
             }
         }
@@ -667,6 +688,47 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, ConnectionAdapterIn
                     }
                 }
             }
+        }
+    }
+    return true;
+}
+
+bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &outDriverName, QString &outDeviceName)
+{
+    QStringRef str(&reply);
+    const QVector<QStringRef> v = str.split(',');
+    if (v.count() != 3)
+    {
+        qCDebug(LOG_CONNECTION) << "Can't parse opened device message";
+        return false;
+    }
+    const QVector<QStringRef> v2 = v.last().split(' ');
+    if (v2.count() != 4)
+    {
+        qCDebug(LOG_CONNECTION) << "Can't parse opened device message (divide into 4 strings)";
+        return false;
+    }
+    outDriverName = v2[1].toString();
+    outDeviceName = v2[3].toString();
+    return !outDriverName.isEmpty() && !outDeviceName.isEmpty();
+}
+
+bool OpenVPNConnection::parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp)
+{
+    QStringRef str(&reply);
+    const QVector<QStringRef> v = str.split(',');
+    if (v.count() != 8)
+    {
+        qCDebug(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (inccorect number of words)";
+        return false;
+    }
+    else
+    {
+        outRemoteIp = v[4].toString();
+        if (outRemoteIp.isEmpty())
+        {
+            qCDebug(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (remote ip is empty)";
+            return false;
         }
     }
     return true;

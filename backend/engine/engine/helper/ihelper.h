@@ -3,10 +3,11 @@
 
 #include <QThread>
 
-
 class SplitTunnelingNetworkInfo;
 class WireGuardConfig;
 struct WireGuardStatus;
+class AdapterGatewayInfo;
+class ProtocolType;
 
 class IHelper : public QThread
 {
@@ -68,7 +69,8 @@ public:
                                            const QStringList &files, const QStringList &ips,
                                            const QStringList &hosts) = 0;
 
-    virtual void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo *stni) = 0;
+    virtual void sendConnectStatus(bool isConnected, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                                   const QString &connectedIp, const ProtocolType &protocol) = 0;
 
     // windows specific functions
     virtual void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) = 0;

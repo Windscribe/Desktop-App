@@ -478,7 +478,7 @@ void IKEv2Connection_win::rasDialFuncCallback(HRASCONN hrasconn, UINT unMsg, tag
             timerControlConnection_.setInterval(CONTROL_TIMER_PERIOD);
             QTimer::singleShot(0, &timerControlConnection_, SLOT(start()));
             state_ = STATE_CONNECTED;
-            ConnectionAdapterInfo cai;
+            AdapterGatewayInfo cai;
             QString adapterName = QString::fromStdWString(IKEV2_CONNECTION_NAME);
             cai.setAdapterName(adapterName);
             emit connected(cai);

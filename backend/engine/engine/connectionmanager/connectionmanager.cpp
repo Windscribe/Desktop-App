@@ -228,6 +228,17 @@ QString ConnectionManager::getLastConnectedIp()
     return lastIp_;
 }
 
+const AdapterGatewayInfo &ConnectionManager::getDefaultAdapterInfo() const
+{
+    return defaultAdapterInfo_;
+}
+
+const AdapterGatewayInfo &ConnectionManager::getVpnAdapterInfo() const
+{
+    Q_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
+    return vpnAdapterInfo_;
+}
+
 
 void ConnectionManager::removeIkev2ConnectionFromOS()
 {
@@ -268,11 +279,12 @@ void ConnectionManager::continueWithPassword(const QString &password, bool /*bNe
     }
 }
 
-void ConnectionManager::onConnectionConnected(const ConnectionAdapterInfo &connectionAdapterInfo)
+void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo)
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionConnected(), state_ =" << state_;
 
-    lastConnectionAdapterInfo_ = connectionAdapterInfo;
+    vpnAdapterInfo_ = connectionAdapterInfo;
+    qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK)
     {
@@ -280,15 +292,10 @@ void ConnectionManager::onConnectionConnected(const ConnectionAdapterInfo &conne
         return;
     }
 
-#if defined Q_OS_MAC
-    lastDefaultGateway_ = MacUtils::getDefaultGatewayForPrimaryInterface();
-    qCDebug(LOG_CONNECTION) << "lastDefaultGateway =" << lastDefaultGateway_;
-#endif
-
     DnsResolver::instance().recreateDefaultDnsChannel();
     timerReconnection_.stop();
     state_ = STATE_CONNECTED;
-    emit connected(connectionAdapterInfo);
+    emit connected();
 }
 
 void ConnectionManager::onConnectionDisconnected()
@@ -771,6 +778,9 @@ void ConnectionManager::doConnect()
         waitForNetworkConnectivity();
         return;
     }
+    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo();
+    qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
+
     connSettingsPolicy_->resolveHostnames();
 }
 
@@ -831,9 +841,12 @@ void ConnectionManager::doConnectPart2()
                 qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (ConnectionManager)";
             }
 
+            uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
+                        (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
+
             bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port,
-                                                        stunnelManager_->getStunnelPort(), wstunnelManager_->getPort(), mss);
+                                                        portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway());
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
@@ -999,7 +1012,7 @@ void ConnectionManager::doMacRestoreProcedures()
     const auto connection_type = connector_->getConnectionType();
     if (connection_type == ConnectionType::OPENVPN)
     {
-        QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + lastDefaultGateway_;
+        QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
         qCDebug(LOG_CONNECTION) << "Execute command: " << delRouteCommand;
         QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
         qCDebug(LOG_CONNECTION) << "Output from route delete command: " << cmdAnswer;
@@ -1057,7 +1070,7 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
             Q_ASSERT(false);
         }
 
-        connect(connector_, SIGNAL(connected(ConnectionAdapterInfo)), SLOT(onConnectionConnected(ConnectionAdapterInfo)), Qt::QueuedConnection);
+        connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);

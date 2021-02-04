@@ -51,6 +51,7 @@ private:
     mutable QMutex current_state_mutex_;
     std::atomic<bool> do_stop_thread_;
     QTimer kill_process_timer_;
+    AdapterGatewayInfo adapterGatewayInfo_;
 
 };
 

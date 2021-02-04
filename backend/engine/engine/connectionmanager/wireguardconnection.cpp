@@ -135,6 +135,12 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
     pimpl_->setConfig(wireGuardConfig);
 
+    // note: route gateway not used for WireGuard in AdapterGatewayInfo
+    adapterGatewayInfo_.clear();
+    adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
+    adapterGatewayInfo_.setAdapterIp(wireGuardConfig->clientIpAddress());
+    adapterGatewayInfo_.setDnsServers(QStringList() << wireGuardConfig->clientDnsAddress());
+
     setCurrentState(ConnectionState::CONNECTING);
     start(LowPriority);
  }
@@ -149,6 +155,7 @@ void WireGuardConnection::startDisconnect()
     if (!kill_process_timer_.isActive())
         kill_process_timer_.start(PROCESS_KILL_TIMEOUT);
 
+    adapterGatewayInfo_.clear();
     do_stop_thread_ = true;
 }
 
@@ -274,15 +281,14 @@ void WireGuardConnection::setCurrentState(ConnectionState state)
 void WireGuardConnection::setCurrentStateAndEmitSignal(ConnectionState state)
 {
     QMutexLocker locker(&current_state_mutex_);
-    ConnectionAdapterInfo cai;
     current_state_ = state;
     switch (current_state_) {
     case ConnectionState::DISCONNECTED:
         QTimer::singleShot(0, &kill_process_timer_, SLOT(stop()));
         emit disconnected();
         break;
-    case ConnectionState::CONNECTED:
-        emit connected(cai);
+    case ConnectionState::CONNECTED:        
+        emit connected(adapterGatewayInfo_);
         break;
     default:
         break;
