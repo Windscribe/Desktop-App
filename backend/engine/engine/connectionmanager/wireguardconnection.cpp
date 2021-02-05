@@ -7,6 +7,10 @@
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 
+#ifdef Q_OS_WIN
+    #include "adapterutils_win.h"
+#endif
+
 class WireGuardConnectionImpl
 {
 public:
@@ -135,6 +139,8 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
     pimpl_->setConfig(wireGuardConfig);
 
+    // for windows adapterGatewayInfo_ filled on emit connected below
+#ifdef Q_OS_MAC
     // note: route gateway not used for WireGuard in AdapterGatewayInfo
     adapterGatewayInfo_.clear();
     adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
@@ -144,6 +150,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
         adapterGatewayInfo_.setAdapterIp(address_and_cidr[0]);
     }
     adapterGatewayInfo_.setDnsServers(QStringList() << wireGuardConfig->clientDnsAddress());
+#endif
 
     setCurrentState(ConnectionState::CONNECTING);
     start(LowPriority);
@@ -236,6 +243,9 @@ void WireGuardConnection::run()
                     qCDebug(LOG_WIREGUARD) << "WireGuard daemon reported successful handshake";
                     is_connected = true;
 
+#ifdef Q_OS_WIN
+                    adapterGatewayInfo_ = AdapterUtils_win::getWindscribeConnectedAdapterInfo();
+#endif
                     setCurrentStateAndEmitSignal(WireGuardConnection::ConnectionState::CONNECTED);
                 }
                 const auto newBytesReceived = status.bytesReceived - bytesReceived;

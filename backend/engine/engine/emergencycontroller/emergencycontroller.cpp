@@ -196,7 +196,7 @@ void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connec
     DnsResolver::instance().recreateDefaultDnsChannel();
 
     state_ = STATE_CONNECTED;
-    emit connected(connectionAdapterInfo);
+    emit connected();
 }
 
 void EmergencyController::onConnectionDisconnected()

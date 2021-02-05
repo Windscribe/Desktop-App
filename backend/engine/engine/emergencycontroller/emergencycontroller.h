@@ -30,7 +30,7 @@ public:
     void setPacketSize(ProtoTypes::PacketSize ps);
 
 signals:
-    void connected(const AdapterGatewayInfo &connectionAdapterInfo);
+    void connected();
     void disconnected(DISCONNECT_REASON reason);
     void errorDuringConnection(CONNECTION_ERROR errorCode);
 

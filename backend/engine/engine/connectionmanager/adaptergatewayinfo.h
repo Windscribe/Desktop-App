@@ -6,27 +6,24 @@
 class AdapterGatewayInfo
 {
 public:
-
-#ifdef Q_OS_WIN
-    static const QString wintunAdapterName;     // wintun adapter name
-    static const QString tapAdapterName;        // old tap adapter name
-#endif
-
     static AdapterGatewayInfo detectAndCreateDefaultAdaperInfo();
 
 public:
+    explicit AdapterGatewayInfo();
     void setAdapterName(const QString &name) { adapterName_ = name; }
     void setAdapterIp(const QString &ip) { adapterIp_ = ip; }
     void setGateway(const QString &ip) { gateway_ = ip; }
     void setDnsServers(const QStringList &ips) { dnsServers_ = ips; }
     void addDnsServer(const QString &ip) { dnsServers_ << ip; }
     void setRemoteIp(const QString &ip) { remoteIp_ = ip; }
+    void setIfIndex(unsigned long ifIndex) { ifIndex_ = ifIndex; }
 
     QString adapterName() const { return adapterName_; }
     QString adapterIp() const { return adapterIp_; }
     QString gateway() const { return gateway_; }
     QStringList dnsServers() const { return dnsServers_; }
     QString remoteIp() const { return remoteIp_; }
+    unsigned long ifIndex() const { return ifIndex_; }
 
     void clear() {
         adapterName_.clear();
@@ -35,6 +32,8 @@ public:
         dnsServers_.clear();
         remoteIp_.clear();
     }
+
+    bool isEmpty() const;
 
     QString makeLogString();
 
@@ -46,6 +45,8 @@ private:
 
     // used only for openvpn connection
     QString remoteIp_;
+
+    unsigned long ifIndex_; // used only for Windows
 };
 
 #endif // ADAPTER_GATEWAY_INFO_H

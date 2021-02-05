@@ -1524,7 +1524,7 @@ void Engine::onConnectionManagerConnected()
     }
 
 #ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(connectionAdapterInfo.adapterName(), helper_);
+    AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);
 #endif
 
 #ifdef Q_OS_MAC
@@ -1552,7 +1552,7 @@ void Engine::onConnectionManagerConnected()
     }
 
 #else
-    QString tapInterface = connectionAdapterInfo.adapterName();
+    QString tapInterface = connectionManager_->getVpnAdapterInfo().adapterName();
 #endif
 
     splitTunnelingNetworkInfo_->outToLog();
@@ -2041,7 +2041,7 @@ void Engine::onEmergencyControllerConnected()
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerConnected()";
 
 #ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(connectionAdapterInfo.adapterName(), helper_);
+    AdapterMetricsController_win::updateMetrics(emergencyController_->getVpnAdapterInfo().adapterName(), helper_);
 #endif
 
     serverAPI_->disableProxy();

@@ -540,13 +540,13 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		ia >> cmdResetTap;
 
 		wchar_t resetCmd[MAX_PATH];
-		wcscpy(resetCmd, L"wmic path win32_networkadapter where GUID=\"");
+		wcscpy(resetCmd, L"wmic path win32_networkadapter where Description=\"");
 		wcscat(resetCmd, cmdResetTap.szTapName.c_str());
 		wcscat(resetCmd, L"\" call disable");
 		Logger::instance().out(L"AA_COMMAND_RESET_TAP, cmd1=%s", resetCmd);
 		mpr = ExecuteCmd::instance().executeBlockingCmd(resetCmd);
 
-		wcscpy(resetCmd, L"wmic path win32_networkadapter where GUID=\"");
+		wcscpy(resetCmd, L"wmic path win32_networkadapter where Description=\"");
 		wcscat(resetCmd, cmdResetTap.szTapName.c_str());
 		wcscat(resetCmd, L"\" call enable");
 		Logger::instance().out(L"AA_COMMAND_RESET_TAP, cmd2=%s", resetCmd);

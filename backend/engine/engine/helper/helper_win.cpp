@@ -658,7 +658,8 @@ void Helper_win::setIKEv2IPSecParameters()
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS, std::string());
 }
 
-void Helper_win::sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo * /*stni*/ )
+void Helper_win::sendConnectStatus(bool isConnected, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                                   const QString &connectedIp, const ProtocolType &protocol)
 {
     QMutexLocker locker(&mutex_);
 

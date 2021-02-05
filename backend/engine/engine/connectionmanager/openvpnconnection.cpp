@@ -7,6 +7,10 @@
 #include "engine/openvpnversioncontroller.h"
 #include "utils/ipvalidation.h"
 
+#ifdef Q_OS_WIN
+    #include "adapterutils_win.h"
+#endif
+
 OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent, helper),
     bStopThread_(false), currentState_(STATUS_DISCONNECTED),
     isAllowFirewallAfterCustomConfigConnection_(false)
@@ -426,6 +430,26 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         {
             if (serverReply.contains("CONNECTED,SUCCESS", Qt::CaseInsensitive))
             {
+#ifdef Q_OS_WIN
+                AdapterGatewayInfo windscribeAdapter = AdapterUtils_win::getWindscribeConnectedAdapterInfo();
+                if (!windscribeAdapter.isEmpty())
+                {
+                    if (connectionAdapterInfo_.adapterIp() != windscribeAdapter.adapterIp())
+                    {
+                        qCDebug(LOG_CONNECTION) << "Error: Adapter IP detected from openvpn log not equal to the adapter IP from AdapterUtils_win::getWindscribeConnectedAdapterInfo()";
+                        Q_ASSERT(false);
+                    }
+                    connectionAdapterInfo_.setAdapterName(windscribeAdapter.adapterName());
+                    connectionAdapterInfo_.setAdapterIp(windscribeAdapter.adapterIp());
+                    connectionAdapterInfo_.setDnsServers(windscribeAdapter.dnsServers());
+                    connectionAdapterInfo_.setIfIndex(windscribeAdapter.ifIndex());
+                }
+                else
+                {
+                    qCDebug(LOG_CONNECTION) << "Can't detect connected Windscribe adapter";
+                }
+#endif
+
                 QString remoteIp;
                 if (parseConnectedSuccessReply(serverReply, remoteIp))
                 {
@@ -482,24 +506,14 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             {
                 emit error(INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS);
             }
+#ifdef Q_OS_MAC
             else if (serverReply.contains("device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
             {
                 QString driverName, deviceName;
                 if (parseDeviceOpenedReply(serverReply, driverName, deviceName))
                 {
-#ifdef Q_OS_MAC
                     connectionAdapterInfo_.setAdapterName(deviceName);
-#endif
                 }
-            }
-#ifdef Q_OS_WIN
-            else if (serverReply.contains("wintun device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
-            {
-                connectionAdapterInfo_.setAdapterName(AdapterGatewayInfo::wintunAdapterName);
-            }
-            else if (serverReply.contains("tap-windows6 device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
-            {
-                connectionAdapterInfo_.setAdapterName(AdapterGatewayInfo::tapAdapterName);
             }
 #endif
             else if (serverReply.contains("PUSH: Received control message:", Qt::CaseInsensitive))

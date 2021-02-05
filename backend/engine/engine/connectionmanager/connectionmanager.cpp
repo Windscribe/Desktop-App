@@ -25,7 +25,7 @@
 
 #ifdef Q_OS_WIN
     #include "sleepevents_win.h"
-    #include "resetwindscribetap_win.h"
+    #include "adapterutils_win.h"
     #include "ikev2connection_win.h"
 #elif defined Q_OS_MAC
     #include "sleepevents_mac.h"
@@ -346,7 +346,7 @@ void ConnectionManager::onConnectionDisconnected()
 #ifdef Q_OS_WIN
             if (bNeedResetTap_)
             {
-                ResetWindscribeTap_win::resetAdapter(helper_, lastConnectionAdapterInfo_.adapterName());
+                AdapterUtils_win::resetAdapter(helper_, vpnAdapterInfo_.adapterName());
                 bNeedResetTap_ = false;
             }
 #endif

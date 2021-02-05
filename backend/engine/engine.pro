@@ -38,7 +38,7 @@ DEFINES += "WINVER=0x0601"
 DEFINES += "PIO_APC_ROUTINE_DEFINED"
 
 SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
-           engine/connectionmanager/resetwindscribetap_win.cpp \
+           engine/connectionmanager/adapterutils_win.cpp \
            engine/dnsinfo_win.cpp \
            engine/taputils/tapinstall_win.cpp \
            engine/helper/helper_win.cpp \
@@ -71,7 +71,7 @@ SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
 
 
 HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
-           engine/connectionmanager/resetwindscribetap_win.h \
+           engine/connectionmanager/adapterutils_win.h \
            engine/dnsinfo_win.h \
            engine/taputils/tapinstall_win.h \
            engine/helper/helper_win.h \

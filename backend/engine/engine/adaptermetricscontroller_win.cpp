@@ -48,11 +48,10 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
     IP_ADAPTER_ADDRESSES_LH *aa = (IP_ADAPTER_ADDRESSES_LH *)arr.data();
     while (aa)
     {
-        QString friendlyName = QString::fromUtf16((const ushort *)aa->FriendlyName);
         QString adapterDescr = QString::fromUtf16((const ushort *)aa->Description);
         //qDebug() << "adapterName:" << adapterName << ";" << "adapterDescr:" << adapterDescr;
 
-        if ( adapterName == friendlyName || adapterName == adapterDescr)  // all possible cases for OpenVPN/IKEv2/WireGuard adapters
+        if (adapterName == adapterDescr)
         {
             if (aa->Ipv4Enabled)
             {
