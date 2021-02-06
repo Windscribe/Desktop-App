@@ -239,6 +239,7 @@ private slots:
     void onMainWindowControllerSendServerRatingDown();
 
     void onScaleChanged();
+    void onDpiScaleManagerNewScreen(QScreen *screen);
     void onFocusWindowChanged(QWindow *focusWindow);
     void onWindowDeactivateAndHideImpl();
 
@@ -278,15 +279,6 @@ private:
     bool bNotificationConnectedShowed_;
     QElapsedTimer connectionElapsedTimer_;
     quint64 bytesTransferred_;
-
-#ifdef Q_OS_MAC
-    struct ScreenIconInfo
-    {
-        QRect screenGeo;
-        QRect iconRelativeGeo;
-    };
-    QMap<QString, ScreenIconInfo> systemTrayIconScreenHistory_;
-#endif
 
     QPoint dragPosition_;
     QPoint dragPositionForTooltip_;
@@ -346,6 +338,15 @@ private:
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
     bool isRunningInDarkMode_;
+
+    typedef QRect TrayIconRelativeGeometry ;
+    QMap<QString, TrayIconRelativeGeometry> systemTrayIconRelativeGeoScreenHistory_;
+    QString lastScreenName_;
+
+    const QRect bestGuessForTrayIconRectFromLastScreen(const QPoint &pt);
+    const QRect trayIconRectForLastScreen();
+    const QRect trayIconRectForScreenContainingPt(const QPoint &pt);
+    const QRect generateTrayIconRectFromHistory(const QString &screenName);
 #endif
     QTimer deactivationTimer_;
 

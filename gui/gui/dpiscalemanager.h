@@ -42,6 +42,7 @@ public:
 signals:
     void scaleChanged(double newScale);
     void screenConfigurationChanged(QSet<QScreen *> screens);
+    void newScreen(QScreen *screen);
 
 private slots:
     void onWindowScreenChanged(QScreen *screen);
