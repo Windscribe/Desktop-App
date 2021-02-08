@@ -2941,7 +2941,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
             return;
         }
 
-        const QRect desktopAvailableRc = screen->geometry();
+        const QRect desktopAvailableRc = screen->availableGeometry();
 
         // center ear on tray
         int rightEarCenterOffset = static_cast<int>(41 * G_SCALE);
