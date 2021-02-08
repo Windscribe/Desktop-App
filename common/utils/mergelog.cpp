@@ -5,6 +5,18 @@
 #include <QStandardPaths>
 #include <QTextStream>
 
+namespace
+{
+bool isYearInDatePresent(const QString &dateline)
+{
+    const int scan = qMin(6, dateline.length());
+    for (int i = 0; i < scan; ++i)
+        if (dateline[i] == ' ')
+            return false;
+    return true;
+}
+}  // namespace
+
 QString MergeLog::mergeLogs(bool doMergePerLine)
 {
     const QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
@@ -49,9 +61,12 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogF
                 const QString line = qts.readLine();
                 if (line[0] != '[')
                     continue;
-                const auto datetime =
-                    QDateTime::fromString(line.mid(1, 17), "ddMM hh:mm:ss:zzz")
-                    .addYears(kCurrentYearOffset);
+                const auto datestr = line.mid(1, 19);
+                const auto datetime = isYearInDatePresent(datestr)
+                    ? QDateTime::fromString(datestr, "ddMMyy hh:mm:ss:zzz")
+                        .addYears(100)
+                    : QDateTime::fromString(datestr, "ddMM hh:mm:ss:zzz")
+                        .addYears(kCurrentYearOffset);
                 if (minmax && (datetime < minmax[0] || datetime > minmax[1]))
                     continue;
                 if (prevDateTime != datetime) {
