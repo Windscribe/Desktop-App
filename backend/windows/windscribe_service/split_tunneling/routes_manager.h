@@ -1,38 +1,31 @@
-#pragma once
+#ifndef RoutesManager_h
+#define RoutesManager_h
 
-#include "../ip_address/ip4_address_and_mask.h"
-#include "../firewallfilter.h"
-#include "dns_resolver.h"
-#include "ip_routes.h"
+#include "../ipc/servicecommunication.h"
 
+// state-based route management, depends on parameters isConnected, isSplitTunnelActive,
+// exclusive/inclusive split tunneling mode
 class RoutesManager
 {
 public:
-	explicit RoutesManager(FirewallFilter &firewallFilter);
-	~RoutesManager();
-
-	void enable(const MIB_IPFORWARDROW &rowDefault);
-	void disable();
-	void setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts);
-
+    RoutesManager();
+    void updateState(const CMD_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode);
+        
 private:
-	FirewallFilter &firewallFilter_;
-	DnsResolver dnsResolver_;
-	IpRoutes ipRoutes_;
-
-	bool isEnabled_;
-	std::recursive_mutex mutex_;
-
-	bool isExcludeMode_;
-
-	// latest ips and hosts list
-	std::vector<Ip4AddressAndMask> ipsLatest_;
-	std::vector<std::string> hostsLatest_;
-
-	MIB_IPFORWARDROW rowDefault_;
-
-
-	void dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos);
-
+    CMD_CONNECT_STATUS connectStatus_;
+    bool isSplitTunnelActive_;
+    bool isExcludeMode_;
+    
+    /*BoundRoute boundRoute_;
+    Routes dnsServersRoutes_;
+    Routes vpnRoutes_;
+    Routes ikev2OverrideRoutes_;
+	*/
+    void deleteOpenVpnDefaultRoutes(const CMD_CONNECT_STATUS &connectStatus);
+    /*void deleteWireGuardDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus);
+    
+    void addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS &connectStatus);
+    void clearAllRoutes();*/
 };
 
+#endif /* RoutesManager_h */

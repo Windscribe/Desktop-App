@@ -13,9 +13,12 @@
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 #include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_win.h"
-
+#include "engine/connectionmanager/adaptergatewayinfo.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
+
+//  the program to connect to the helper socket without starting the service (for debug purpose)
+#define DEBUG_DONT_USE_SERVICE
 
 SC_HANDLE schSCManager_ = NULL;
 SC_HANDLE schService_ = NULL;
@@ -663,12 +666,56 @@ void Helper_win::sendConnectStatus(bool isConnected, const AdapterGatewayInfo &d
 {
     QMutexLocker locker(&mutex_);
 
-    CMD_CONNECT_STATUS cmdConnectStatus;
-    cmdConnectStatus.isConnected = isConnected;
+    CMD_CONNECT_STATUS cmd;
+    cmd.isConnected = isConnected;
+
+    if (isConnected)
+    {
+        if (protocol.isStunnelOrWStunnelProtocol())
+        {
+            cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
+        }
+        else if (protocol.isIkev2Protocol())
+        {
+            cmd.protocol = CMD_PROTOCOL_IKEV2;
+        }
+        else if (protocol.isWireGuardProtocol())
+        {
+            cmd.protocol = CMD_PROTOCOL_WIREGUARD;
+        }
+        else if (protocol.isOpenVpnProtocol())
+        {
+            cmd.protocol = CMD_PROTOCOL_OPENVPN;
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
+
+        auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
+        {
+            out.adapterName = a.adapterName().toStdString();
+            out.adapterIp = a.adapterIp().toStdString();
+            out.gatewayIp = a.gateway().toStdString();
+            out.ifIndex = a.ifIndex();
+            const QStringList dns = a.dnsServers();
+            for(auto ip : dns)
+            {
+                out.dnsServers.push_back(ip.toStdString());
+            }
+        };
+
+        fillAdapterInfo(defaultAdapter, cmd.defaultAdapter);
+        fillAdapterInfo(vpnAdapter, cmd.vpnAdapter);
+
+        cmd.connectedIp = connectedIp.toStdString();
+        cmd.remoteIp = vpnAdapter.remoteIp().toStdString();
+    }
+
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdConnectStatus;
+    oa << cmd;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
 }
@@ -788,6 +835,7 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
 
 void Helper_win::run()
 {
+#ifndef DEBUG_DONT_USE_SERVICE
     BIND_CRASH_HANDLER_FOR_THREAD();
     schSCManager_ = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
     if (schSCManager_ == NULL)
@@ -864,7 +912,7 @@ void Helper_win::run()
             return;
         }
     }
-
+#endif
     bHelperConnected_ = true;
 }
 

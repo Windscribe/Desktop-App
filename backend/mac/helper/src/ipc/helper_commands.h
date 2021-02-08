@@ -86,25 +86,6 @@ struct CMD_SEND_CONNECT_STATUS
     // need for stunnel/wstunnel/openvpn routing
     std::string connectedIp;
     std::string remoteIp;
-
-    /*std::string gatewayIp;
-    std::string interfaceName;
-    std::string interfaceIp;
-    
-    // need for stunnel/wstunnel routing
-    std::string connectedIp;
-
-    // need for openvpn routing
-    std::string routeVpnGateway;
-    std::string routeNetGateway;
-    std::string remote_1;
-    std::string ifconfigTunIp;
-    
-    // common
-    std::string vpnAdapterName;
-    std::string vpnAdapterIp;
-    
-    std::vector<std::string> dnsServers;*/
 };
 
 struct CMD_SET_KEXT_PATH

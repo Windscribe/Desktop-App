@@ -8,17 +8,18 @@
 #include "../../../../common/utils/crashhandler.h"
 
 SplitTunneling::SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper) : firewallFilter_(firewallFilter), calloutFilter_(fwmpWrapper), 
-				routesManager_(firewallFilter), bStarted_(false), bTapConnected_(false), bKeepLocalSockets_(false)
+				 isSplitTunnelActive_(false), isExclude_(false), bKeepLocalSockets_(false)
 {
+	connectStatus_.isConnected = false;
 	detectWindscribeExecutables();
 }
 
 SplitTunneling::~SplitTunneling()
 {
-	assert(bStarted_ == false);
+	assert(isSplitTunnelActive_ == false);
 }
 
-void SplitTunneling::start()
+/*void SplitTunneling::start()
 {
 	if (!bStarted_)
 	{
@@ -49,11 +50,23 @@ void SplitTunneling::stop()
 			CloseTcpConnections::closeAllTcpConnections(bKeepLocalSockets_);
 		}
 	}
-}
+}*/
 
-void SplitTunneling::setSettings(bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts)
+void SplitTunneling::setSettings(bool isActive, bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts)
 {
-	if (bStarted_)
+	isSplitTunnelActive_ = isActive;
+	isExclude_ = isExclude;
+
+	apps_ = apps;
+
+	///ipHostnamesManager_.setSettings(isExclude, ips, hosts);
+
+	///applyExtraRules(apps_);
+	routesManager_.updateState(connectStatus_, isSplitTunnelActive_, isExclude_);
+	updateState();
+
+
+	/*if (bStarted_)
 	{
 		Logger::instance().out(L"SplitTunneling::setSettings() set settings message");
 
@@ -85,16 +98,20 @@ void SplitTunneling::setSettings(bool isExclude, const std::vector<std::wstring>
 	else
 	{
 		assert(false);
-	}
+	}*/
 }
 
-void SplitTunneling::setConnectStatus(bool isConnected)
+void SplitTunneling::setConnectStatus(CMD_CONNECT_STATUS &connectStatus)
 {
-	if (bStarted_)
-	{
-		bTapConnected_ = isConnected;
+	connectStatus_ = connectStatus;
+	routesManager_.updateState(connectStatus_, isSplitTunnelActive_, isExclude_);
+	updateState();
 
-		if (isConnected)
+	/*if (bStarted_)
+	{
+		bTapConnected_ = connectStatus.isConnected;
+
+		if (connectStatus.isConnected)
 		{
 			DWORD ip;
 			NET_LUID luid;
@@ -132,10 +149,10 @@ void SplitTunneling::setConnectStatus(bool isConnected)
 			routesManager_.disable();
 			firewallFilter_.setSplitTunnelingDisabled();
 		}
-	}
+	}*/
 }
 
-bool SplitTunneling::detectDefaultInterfaceFromRouteTable(IF_INDEX excludeIfIndex, IF_INDEX &outIfIndex, MIB_IPFORWARDROW &outRow)
+/*bool SplitTunneling::detectDefaultInterfaceFromRouteTable(IF_INDEX excludeIfIndex, IF_INDEX &outIfIndex, MIB_IPFORWARDROW &outRow)
 {
 	std::vector<unsigned char> arr(sizeof(MIB_IPFORWARDTABLE));
 	DWORD dwSize = 0;
@@ -196,7 +213,7 @@ bool SplitTunneling::getIpAddressDefaultInterface(IF_INDEX tapAdapterIfIndex, DW
 	}
 
 	return false;
-}
+}*/
 
 void SplitTunneling::removeAllFilters(FwpmWrapper &fwmpWrapper)
 {
@@ -229,4 +246,49 @@ void SplitTunneling::detectWindscribeExecutables()
 	FindClose(hFind);
 
 	windscribeExecutablesIds_.setFromList(windscribeExeFiles);
+}
+
+void SplitTunneling::updateState()
+{
+	if (connectStatus_.isConnected && isSplitTunnelActive_)
+	{
+		splitTunnelServiceManager_.start();
+
+		DWORD redirectIp;
+		AppsIds appsIds;
+
+		if (isExclude_)
+		{
+			Ip4AddressAndMask ipAddress(connectStatus_.defaultAdapter.adapterIp.c_str());
+			redirectIp = ipAddress.ipNetworkOrder();
+			appsIds.setFromList(apps_);
+
+			//ipHostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp);
+		}
+		else
+		{
+
+
+			if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+			{
+				//ipHostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp);
+			}
+			else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
+			{
+				//ipHostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp);
+			}
+			else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
+			{
+				//ipHostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp);
+			}
+		}
+
+		calloutFilter_.enable(redirectIp, appsIds);
+	}
+	else
+	{
+		calloutFilter_.disable();
+		//ipHostnamesManager_.disable();
+		splitTunnelServiceManager_.stop();
+	}
 }

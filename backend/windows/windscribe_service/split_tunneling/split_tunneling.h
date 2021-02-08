@@ -5,6 +5,7 @@
 #include "split_tunnel_service_manager.h"
 #include "../apps_ids.h"
 #include "../firewallfilter.h"
+#include "../ipc/servicecommunication.h"
 
 class SplitTunneling
 {
@@ -12,10 +13,10 @@ public:
 	SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper);
 	~SplitTunneling();
 
-	void start();
-	void stop();
-	void setSettings(bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts);
-	void setConnectStatus(bool isConnected);
+	//void start();
+	//void stop();
+	void setSettings(bool isActive, bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts);
+	void setConnectStatus(CMD_CONNECT_STATUS &connectStatus);
     void setKeepLocalSocketsOnDisconnect(bool value) { bKeepLocalSockets_ = value; }
 
 	static void removeAllFilters(FwpmWrapper &fwmpWrapper);
@@ -25,20 +26,27 @@ private:
 	CalloutFilter calloutFilter_;
 	RoutesManager routesManager_;
 	SplitTunnelServiceManager splitTunnelServiceManager_;
-	bool bStarted_;
-	bool bTapConnected_;
+	/*bool bStarted_;
+	bool bTapConnected_;*/
     bool bKeepLocalSockets_;
 	AppsIds windscribeExecutablesIds_;
 
-	struct ROUTE_ITEM
+	/*struct ROUTE_ITEM
 	{
 		IF_INDEX interfaceIndex;
 		DWORD metric;
 		MIB_IPFORWARDROW row;
-	};
+	};*/
+	CMD_CONNECT_STATUS connectStatus_;
+	bool isSplitTunnelActive_;
+	bool isExclude_;
+	std::vector<std::wstring> apps_;
 
-	bool detectDefaultInterfaceFromRouteTable(IF_INDEX excludeIfIndex, IF_INDEX &outIfIndex, MIB_IPFORWARDROW &outRow);
-	bool getIpAddressDefaultInterface(IF_INDEX tapAdapterIfIndex, DWORD &outIp, MIB_IPFORWARDROW &outRow);
+
+	//bool detectDefaultInterfaceFromRouteTable(IF_INDEX excludeIfIndex, IF_INDEX &outIfIndex, MIB_IPFORWARDROW &outRow);
+	//bool getIpAddressDefaultInterface(IF_INDEX tapAdapterIfIndex, DWORD &outIp, MIB_IPFORWARDROW &outRow);
 	void detectWindscribeExecutables();
+
+	void updateState();
 };
 

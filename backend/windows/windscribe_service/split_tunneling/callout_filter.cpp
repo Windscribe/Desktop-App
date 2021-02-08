@@ -13,19 +13,11 @@ DEFINE_GUID(
 );
 
 DEFINE_GUID(
-	CALLOUT_PROVIDER_CONTEXT_DEFAULT_IP_GUID,
+	CALLOUT_PROVIDER_CONTEXT_IP_GUID,
 	0x9DCD5EC9,
 	0x56A2,
 	0x42D3,
 	0xA1, 0x8A, 0x52, 0xA7, 0x99, 0xA1, 0xD4, 0x62
-);
-
-DEFINE_GUID(
-	CALLOUT_PROVIDER_CONTEXT_VPN_IP_GUID,
-	0xE3188682,
-	0x3B41,
-	0x4559,
-	0x9C, 0x2B, 0xFF, 0x64, 0x10, 0xC6, 0x17, 0xCB
 );
 
 DEFINE_GUID(
@@ -43,15 +35,21 @@ typedef struct WINDSCRIBE_CALLOUT_DATA_
 } WINDSCRIBE_CALLOUT_DATA;
 
 
-CalloutFilter::CalloutFilter(FwpmWrapper &fwmpWrapper): fwmpWrapper_(fwmpWrapper), isEnabled_(false), isExcludeMode_(true)
+CalloutFilter::CalloutFilter(FwpmWrapper &fwmpWrapper): fwmpWrapper_(fwmpWrapper), isEnabled_(false), prevIp_(0)
 {
 }
 
-void CalloutFilter::enable(UINT32 ipTap, UINT32 ipDefault)
+void CalloutFilter::enable(UINT32 ip, const AppsIds &appsIds)
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
 
 	Logger::instance().out(L"CalloutFilter::enable()");
+
+	// nothing todo if nothing changed
+	if (isEnabled_ && ip == prevIp_ && appsIds == appsIds_)
+	{
+		return;
+	}
 
 	if (isEnabled_)
 	{
@@ -59,15 +57,13 @@ void CalloutFilter::enable(UINT32 ipTap, UINT32 ipDefault)
 		disable();
 	}
 
+	appsIds_ = appsIds;
+	prevIp_ = ip;
+
 	HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
 	fwmpWrapper_.beginTransaction();
 
-	if (!addProviderContext(hEngine, CALLOUT_PROVIDER_CONTEXT_DEFAULT_IP_GUID, ipDefault))
-	{
-		Logger::instance().out(L"CalloutFilter::enable(), addProviderContext failed");
-	}
-
-	if (!addProviderContext(hEngine, CALLOUT_PROVIDER_CONTEXT_VPN_IP_GUID, ipTap))
+	if (!addProviderContext(hEngine, CALLOUT_PROVIDER_CONTEXT_IP_GUID, ip))
 	{
 		Logger::instance().out(L"CalloutFilter::enable(), addProviderContext failed");
 	}
@@ -112,50 +108,6 @@ void CalloutFilter::disable()
 	Logger::instance().out(L"CalloutFilter::disable()");
 	removeAllFilters(fwmpWrapper_);
 	isEnabled_ = false;
-}
-
-void CalloutFilter::setSettings(bool isExclude, const AppsIds &appsIds)
-{
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
-
-	// nothing todo if nothing changed
-	if (isExclude == isExcludeMode_ && appsIds == appsIds_)
-	{
-		return;
-	}
-
-	appsIds_ = appsIds;
-	isExcludeMode_ = isExclude;
-
-	if (isEnabled_)
-	{
-		Logger::instance().out(L"CalloutFilter::setSettings() in enabled state");
-		
-		HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
-		fwmpWrapper_.beginTransaction();
-
-		if (!deleteSublayer(hEngine))
-		{
-			Logger::instance().out(L"CalloutFilter::setSettings(), deleteSublayer failed");
-		}
-
-		if (!addSubLayer(hEngine))
-		{
-			Logger::instance().out(L"CalloutFilter::setSettings(), addSubLayer failed");
-		}
-
-		if (!addFilter(hEngine))
-		{
-			Logger::instance().out(L"CalloutFilter::setSettings(), addFilter failed");
-		}
-
-		fwmpWrapper_.endTransaction();
-		fwmpWrapper_.unlock();
-	}
-	else
-	{
-		Logger::instance().out(L"CalloutFilter::setSettings() in disabled state");
-	}
 }
 
 bool CalloutFilter::addProviderContext(HANDLE engineHandle, const GUID &guid, UINT32 ip)
@@ -205,7 +157,44 @@ bool CalloutFilter::addFilter(HANDLE engineHandle)
 {
 	bool retValue = true;
 
-	if (isExcludeMode_)
+	if (appsIds_.count() == 0)
+	{
+		return true;
+	}
+
+	{
+		std::vector<FWPM_FILTER_CONDITION> conditions(appsIds_.count());
+		for (size_t i = 0; i < appsIds_.count(); ++i)
+		{
+			conditions[i].fieldKey = FWPM_CONDITION_ALE_APP_ID;
+			conditions[i].matchType = FWP_MATCH_EQUAL;
+			conditions[i].conditionValue.type = FWP_BYTE_BLOB_TYPE;
+			conditions[i].conditionValue.byteBlob = appsIds_.getAppId(i);
+		}
+
+		FWPM_FILTER filter = { 0 };
+		filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
+		filter.layerKey = FWPM_LAYER_ALE_BIND_REDIRECT_V4;
+		filter.displayData.name = (wchar_t *)L"Windscribe filter for callout driver";
+		filter.weight.type = FWP_UINT8;
+		filter.weight.uint8 = 0x00;
+		filter.providerContextKey = CALLOUT_PROVIDER_CONTEXT_IP_GUID;
+		filter.flags |= FWPM_FILTER_FLAG_HAS_PROVIDER_CONTEXT;
+		filter.numFilterConditions = static_cast<UINT32>(conditions.size());
+		if (conditions.size() > 0)
+		{
+			filter.filterCondition = &conditions[0];
+		}
+		filter.action.type = FWP_ACTION_CALLOUT_UNKNOWN;
+		filter.action.calloutKey = WINDSCRIBE_CALLOUT_GUID;
+
+		UINT64 filterId;
+		DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+		retValue = (ret == ERROR_SUCCESS);
+	}
+
+
+	/*if (isExcludeMode_)
 	{
 
 		if (appsIds_.count() == 0)
@@ -304,7 +293,7 @@ bool CalloutFilter::addFilter(HANDLE engineHandle)
 				retValue = false;
 			}
 		}
-	}
+	}*/
 
 	return retValue;
 }
@@ -325,8 +314,7 @@ bool CalloutFilter::removeAllFilters(FwpmWrapper &fwmpWrapper)
 	DWORD ret = deleteSublayer(hEngine);
 	
 	ret = FwpmCalloutDeleteByKey(hEngine, &WINDSCRIBE_CALLOUT_GUID);
-	ret = FwpmProviderContextDeleteByKey(hEngine, &CALLOUT_PROVIDER_CONTEXT_DEFAULT_IP_GUID);
-	ret = FwpmProviderContextDeleteByKey(hEngine, &CALLOUT_PROVIDER_CONTEXT_VPN_IP_GUID);
+	ret = FwpmProviderContextDeleteByKey(hEngine, &CALLOUT_PROVIDER_CONTEXT_IP_GUID);
 
 	fwmpWrapper.endTransaction();
 	fwmpWrapper.unlock();

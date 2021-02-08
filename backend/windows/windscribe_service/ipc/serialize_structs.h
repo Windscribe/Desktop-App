@@ -137,10 +137,28 @@ void serialize(Archive & ar, CMD_SPLIT_TUNNELING_SETTINGS & g, const unsigned in
 }
 
 template<class Archive>
-void serialize(Archive & ar, CMD_CONNECT_STATUS & g, const unsigned int version)
+void serialize(Archive &ar, ADAPTER_GATEWAY_INFO &a, const unsigned int version)
 {
-	UNREFERENCED_PARAMETER(version);
-	ar & g.isConnected;
+    UNREFERENCED_PARAMETER(version);
+    ar & a.adapterName;
+    ar & a.adapterIp;
+    ar & a.gatewayIp;
+    ar & a.dnsServers;
+    ar & a.ifIndex;
+}
+
+template<class Archive>
+void serialize(Archive & ar, CMD_CONNECT_STATUS & a, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar & a.isConnected;
+    ar & a.protocol;
+
+    ar & a.defaultAdapter;
+    ar & a.vpnAdapter;
+
+    ar & a.connectedIp;
+    ar & a.remoteIp;
 }
 
 
