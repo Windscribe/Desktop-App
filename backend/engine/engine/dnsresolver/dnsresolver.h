@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QWaitCondition>
 #include <QMutex>
+#include <QVector>
 #include "areslibraryinit.h"
 #include "ares.h"
 #include "engine/types/types.h"
@@ -72,9 +73,9 @@ private:
     char szDomain_[128];
     char *domainPtr_;
 #ifdef Q_OS_WIN
-    IN_ADDR dnsServers_[2];
+    QVector<IN_ADDR> dnsServers_;
 #else
-    in_addr dnsServers_[2];
+    QVector<in_addr> dnsServers_;
 #endif
 
     std::atomic_bool isUseCustomDns_;

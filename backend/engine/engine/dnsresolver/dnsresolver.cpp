@@ -327,18 +327,15 @@ void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_op
         options.domains = &domainPtr_;
         options.tries = 1;
 
-        Q_ASSERT(dnsIps.count() <= 2);
         struct sockaddr_in sa;
-
-        ares_inet_pton(AF_INET, dnsIps[0].toStdString().c_str(), &(sa.sin_addr));
-        dnsServers_[0] = sa.sin_addr;
-        if (dnsIps.count() > 1)
-        {
-            ares_inet_pton(AF_INET, dnsIps[1].toStdString().c_str(), &(sa.sin_addr));
-            dnsServers_[1] = sa.sin_addr;
+        dnsServers_.clear();
+        dnsServers_.reserve(dnsIps.count());
+        for (const auto &dnsIp : dnsIps) {
+            ares_inet_pton(AF_INET, dnsIp.toStdString().c_str(), &(sa.sin_addr));
+            dnsServers_.push_back(sa.sin_addr);
         }
-        options.nservers = dnsIps.count();
-        options.servers = dnsServers_;
+        options.nservers = dnsServers_.count();
+        options.servers = &dnsServers_[0];
     }
 }
 

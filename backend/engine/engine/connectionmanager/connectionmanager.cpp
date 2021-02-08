@@ -676,7 +676,7 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &netwo
             else
             {
                 emit reconnecting();
-                state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
+                state_ = STATE_RECONNECTING;
                 Q_ASSERT(!timerReconnection_.isActive());
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
                 connector_->startDisconnect();
