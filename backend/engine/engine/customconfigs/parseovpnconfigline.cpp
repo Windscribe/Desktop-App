@@ -22,12 +22,9 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
 
                     if (strs.count() >= 4)
                     {
-                        openVpnLine.protocol = strs[3];
+                        openVpnLine.protocol = strs[3].trimmed();
                     }
                 }
-
-                if (openVpnLine.protocol.trimmed().isEmpty())
-                    openVpnLine.protocol = "udp";
             }
         }
     }
@@ -40,7 +37,7 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
             if (strs.count() >= 2)
             {
                 openVpnLine.type = OVPN_CMD_PROTO;
-                openVpnLine.protocol = strs[1];
+                openVpnLine.protocol = strs[1].trimmed();
             }
         }
     }

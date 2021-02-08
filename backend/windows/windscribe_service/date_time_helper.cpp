@@ -33,7 +33,8 @@ std::basic_string<T> DateTimeHelper::getCurrentTimeString() const
     output_stream.fill(T('0'));
     output_stream.setf(std::ios::fixed);
 
-    output_stream << std::setw(2) << st.wDay << std::setw(2) << st.wMonth << T(' ')
+    output_stream << std::setw(2) << st.wDay << std::setw(2) << st.wMonth
+                  << std::setw(2) << (st.wYear - 2000) << T(' ')
                   << std::setw(2) << st.wHour << T(':') << std::setw(2) << st.wMinute << T(':')
                   << std::setw(2) << st.wSecond << T(':')
                   << std::setw(3) << st.wMilliseconds << T(' ')
