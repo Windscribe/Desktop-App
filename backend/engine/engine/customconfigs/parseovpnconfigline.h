@@ -13,6 +13,8 @@ public:
         OVPN_CMD_PROTO,
         OVPN_CMD_PORT,
         OVPN_CMD_VERB,
+        OVPN_CMD_DEVICE,
+        OVPN_CMD_CIPHER,
         OVPN_CMD_IGNORE_REDIRECT_GATEWAY,
     };
 
