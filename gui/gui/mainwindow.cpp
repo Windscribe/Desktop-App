@@ -64,7 +64,6 @@ MainWindow::MainWindow() :
     bDisconnectFromTrafficExceed_(false),
     isInitializationAborted_(false),
     isLoginOkAndConnectWindowVisible_(false),
-    isCustomConfigMode_(false),
     revealingConnectWindow_(false),
     internetConnected_(false),
     currentlyShowingUserWarningMessage_(false),
@@ -1124,7 +1123,7 @@ void MainWindow::onExternalConfigWindowNextClick()
 {
     mainWindowController_->getExternalConfigWindow()->setClickable(false);
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
-    isCustomConfigMode_ = true;
+    backend_->getPreferencesHelper()->setIsExternalConfigMode(true);
     locationsWindow_->setOnlyConfigTabVisible(true);
     backend_->gotoCustomOvpnConfigMode();
 }
@@ -1833,7 +1832,7 @@ void MainWindow::onBackendSignOutFinished()
     isPrevSessionStatusInitialized_ = false;
     mainWindowController_->getPreferencesWindow()->setLoggedIn(false);
     isLoginOkAndConnectWindowVisible_ = false;
-    isCustomConfigMode_ = false;
+    backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
 
     //hideSupplementaryWidgets();
 
@@ -3086,7 +3085,7 @@ void MainWindow::setVariablesToInitState()
     bytesTransferred_ = 0;
     bDisconnectFromTrafficExceed_ = false;
     isPrevSessionStatusInitialized_ = false;
-    isCustomConfigMode_ = false;
+    backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
 }
 
 void MainWindow::openStaticIpExternalWindow()

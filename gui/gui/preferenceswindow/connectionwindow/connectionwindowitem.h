@@ -63,6 +63,7 @@ private slots:
     void onIsAllowLanTrafficPreferencedChanged(bool b);
     void onInvalidLanAddressNotification(QString address);
     void onIsFirewallBlockedChanged(bool bFirewallBlocked);
+    void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
 #ifdef Q_OS_WIN
     void onKillTcpSocketsPreferencesChanged(bool b);
     void onKillTcpSocketsStateChanged(bool isChecked);
