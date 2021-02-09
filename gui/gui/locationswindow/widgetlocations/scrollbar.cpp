@@ -36,6 +36,9 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
 //             << ", delta: " << event->delta()
 //             << ", globalPos: " << event->globalPos() // cursor pos
 //             << ", phase: " << event->phase();
+
+	// Note: Windows10 trackpad does not appear to generate Synthesized system events so this block will only run on Mac
+	// On Windows the trackpad event will run same block as mouse wheel (below)
     int stepVector = 0;
 
     if (event->source() == Qt::MouseEventSynthesizedBySystem) // touchpad scroll and flick
