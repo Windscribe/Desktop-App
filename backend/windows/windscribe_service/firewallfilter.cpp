@@ -95,7 +95,7 @@ void FirewallFilter::offImpl(HANDLE engineHandle)
 
 void FirewallFilter::setSplitTunnelingEnabled()
 {
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
+	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
 
 	HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
 	fwpmWrapper_.beginTransaction();
@@ -110,11 +110,11 @@ void FirewallFilter::setSplitTunnelingEnabled()
 	}
 
 	fwpmWrapper_.endTransaction();
-	fwpmWrapper_.unlock();
+	fwpmWrapper_.unlock();*/
 }
 void FirewallFilter::setSplitTunnelingDisabled()
 {
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
+	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
 	
 	HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
 	fwpmWrapper_.beginTransaction();
@@ -122,12 +122,12 @@ void FirewallFilter::setSplitTunnelingDisabled()
 	fwpmWrapper_.endTransaction();
 	fwpmWrapper_.unlock();
 
-	isSplitTunnelingEnabled_ = false;
+	isSplitTunnelingEnabled_ = false;*/
 }
 
 void FirewallFilter::setSplitTunnelingAppsIds(const AppsIds &appsIds, bool isExclusiveMode)
 {
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
+	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
 	if (appsIds_ == appsIds && isSplitTunnelingExclusiveMode_ == isExclusiveMode)
 	{
 		return;
@@ -146,12 +146,12 @@ void FirewallFilter::setSplitTunnelingAppsIds(const AppsIds &appsIds, bool isExc
 		fwpmWrapper_.endTransaction();
 	}
 
-	fwpmWrapper_.unlock();
+	fwpmWrapper_.unlock();*/
 }
 
 void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips)
 {
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
+	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
 	if (splitRoutingIps_ == ips)
 	{
 		return;
@@ -168,7 +168,7 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressA
 		addPermitFilterForSplitRoutingWhitelistIps(hEngine, 2);
 		fwpmWrapper_.endTransaction();
 	}
-	fwpmWrapper_.unlock();
+	fwpmWrapper_.unlock();*/
 }
 
 void FirewallFilter::addFilterForWireGuardAdapter(NET_LUID luid)

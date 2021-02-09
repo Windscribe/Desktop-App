@@ -8,7 +8,7 @@
 #include "../../../../common/utils/crashhandler.h"
 
 SplitTunneling::SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper) : firewallFilter_(firewallFilter), calloutFilter_(fwmpWrapper), 
-				 isSplitTunnelActive_(false), isExclude_(false), bKeepLocalSockets_(false)
+				 hostnamesManager_(firewallFilter), isSplitTunnelActive_(false), isExclude_(false), bKeepLocalSockets_(false)
 {
 	connectStatus_.isConnected = false;
 	detectWindscribeExecutables();
@@ -59,12 +59,15 @@ void SplitTunneling::setSettings(bool isActive, bool isExclude, const std::vecto
 
 	apps_ = apps;
 
-	///ipHostnamesManager_.setSettings(isExclude, ips, hosts);
+	std::vector<Ip4AddressAndMask> ipsList;
+	for (auto it = ips.begin(); it != ips.end(); ++it)
+	{
+		ipsList.push_back(Ip4AddressAndMask(it->c_str()));
+	}
+	hostnamesManager_.setSettings(isExclude, ipsList, hosts);
 
-	///applyExtraRules(apps_);
 	routesManager_.updateState(connectStatus_, isSplitTunnelActive_, isExclude_);
 	updateState();
-
 
 	/*if (bStarted_)
 	{
@@ -196,34 +199,27 @@ void SplitTunneling::updateState()
 		DWORD redirectIp;
 		AppsIds appsIds;
 		appsIds.setFromList(apps_);
-			
 
 		if (isExclude_)
 		{
 			Ip4AddressAndMask ipAddress(connectStatus_.defaultAdapter.adapterIp.c_str());
 			redirectIp = ipAddress.ipNetworkOrder();
-
-			//ipHostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp);
+			hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
 		}
 		else
 		{
 			appsIds.addFrom(windscribeExecutablesIds_);
 		
 			Ip4AddressAndMask ipAddress(connectStatus_.vpnAdapter.adapterIp.c_str());
-			redirectIp = ipAddress.ipNetworkOrder();
-			
+			redirectIp = ipAddress.ipNetworkOrder();	
 
 			if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
 			{
-				//ipHostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp);
+				hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
 			}
-			else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
+			else if ((connectStatus_.protocol == CMD_PROTOCOL_IKEV2 || connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD))
 			{
-				//ipHostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp);
-			}
-			else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
-			{
-				//ipHostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp);
+				hostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp, connectStatus_.vpnAdapter.ifIndex);
 			}
 		}
 
@@ -232,7 +228,7 @@ void SplitTunneling::updateState()
 	else
 	{
 		calloutFilter_.disable();
-		//ipHostnamesManager_.disable();
+		hostnamesManager_.disable();
 		splitTunnelServiceManager_.stop();
 	}
 }

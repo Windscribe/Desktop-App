@@ -1,17 +1,17 @@
 #pragma once
 
-#include "../ip_address/ip4_address_and_mask.h"
-#include "../firewallfilter.h"
+#include "../../ip_address/ip4_address_and_mask.h"
+#include "../../firewallfilter.h"
 #include "dns_resolver.h"
 #include "ip_routes.h"
 
-class RoutesManager
+class HostnamesManager
 {
 public:
-	explicit RoutesManager(FirewallFilter &firewallFilter);
-	~RoutesManager();
+	explicit HostnamesManager(FirewallFilter &firewallFilter);
+	~HostnamesManager();
 
-	void enable(const MIB_IPFORWARDROW &rowDefault);
+	void enable(const std::string &gatewayIp, unsigned long ifIndex);
 	void disable();
 	void setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts);
 

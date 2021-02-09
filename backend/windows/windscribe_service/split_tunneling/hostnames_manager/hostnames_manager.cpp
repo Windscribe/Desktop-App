@@ -1,21 +1,20 @@
-#include "../all_headers.h"
-#include "routes_manager.h"
-#include "../logger.h"
+#include "../../all_headers.h"
+#include "hostnames_manager.h"
+#include "../../logger.h"
 
-RoutesManager::RoutesManager(FirewallFilter &firewallFilter): firewallFilter_(firewallFilter), isEnabled_(false), isExcludeMode_(true)
+HostnamesManager::HostnamesManager(FirewallFilter &firewallFilter): firewallFilter_(firewallFilter), isEnabled_(false), isExcludeMode_(true)
 {
-	dnsResolver_.setResolveDomainsCallbackHandler(std::bind(&RoutesManager::dnsResolverCallback, this, std::placeholders::_1));
+	dnsResolver_.setResolveDomainsCallbackHandler(std::bind(&HostnamesManager::dnsResolverCallback, this, std::placeholders::_1));
 }
 
-RoutesManager::~RoutesManager()
+HostnamesManager::~HostnamesManager()
 {
 	dnsResolver_.stop();
 }
 
-
-void RoutesManager::enable(const MIB_IPFORWARDROW &rowDefault)
+void HostnamesManager::enable(const std::string &gatewayIp, unsigned long ifIndex)
 {
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
+	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
 
 	if (!isExcludeMode_)
 	{
@@ -27,10 +26,10 @@ void RoutesManager::enable(const MIB_IPFORWARDROW &rowDefault)
 	firewallFilter_.setSplitTunnelingWhitelistIps(ipsLatest_);
 	dnsResolver_.resolveDomains(hostsLatest_);
 
-	isEnabled_ = true;
+	isEnabled_ = true;*/
 }
 
-void RoutesManager::disable()
+void HostnamesManager::disable()
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
 
@@ -44,7 +43,7 @@ void RoutesManager::disable()
 	isEnabled_ = false; 
 }
 
-void RoutesManager::setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts)
+void HostnamesManager::setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts)
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
 
@@ -66,7 +65,7 @@ void RoutesManager::setSettings(bool isExclude, const std::vector<Ip4AddressAndM
 	}
 }
 
-void RoutesManager::dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos)
+void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos)
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
 

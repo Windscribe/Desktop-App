@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ip_address/ip4_address_and_mask.h"
+#include "../../ip_address/ip4_address_and_mask.h"
 #include "dns_resolver.h"
 
 class IpRoutes

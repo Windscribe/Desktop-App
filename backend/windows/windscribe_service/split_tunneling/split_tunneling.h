@@ -3,6 +3,7 @@
 #include "callout_filter.h"
 #include "routes_manager.h"
 #include "split_tunnel_service_manager.h"
+#include "hostnames_manager/hostnames_manager.h"
 #include "../apps_ids.h"
 #include "../firewallfilter.h"
 #include "../ipc/servicecommunication.h"
@@ -25,7 +26,9 @@ private:
 	FirewallFilter &firewallFilter_;
 	CalloutFilter calloutFilter_;
 	RoutesManager routesManager_;
+	HostnamesManager hostnamesManager_;
 	SplitTunnelServiceManager splitTunnelServiceManager_;
+
 	/*bool bStarted_;
 	bool bTapConnected_;*/
     bool bKeepLocalSockets_;
