@@ -70,7 +70,7 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QScrollArea(parent)
     connect(widgetLocationsList_, SIGNAL(favoriteClicked(ItemWidgetCity*,bool)), SLOT(onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *, bool)));
     connect(widgetLocationsList_, SIGNAL(locationIdSelected(LocationID)), SLOT(onLocationItemListWidgetLocationIdSelected(LocationID)));
     connect(widgetLocationsList_, SIGNAL(regionExpanding(ItemWidgetRegion*, WidgetLocationsList::ExpandReason)), SLOT(onLocationItemListWidgetRegionExpanding(ItemWidgetRegion*, WidgetLocationsList::ExpandReason)));
-    widgetLocationsList_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, 0);
+    widgetLocationsList_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), 0);
     widgetLocationsList_->show();
 
     preventMouseSelectionTimer_.start();
@@ -535,7 +535,7 @@ void WidgetLocations::onLocationItemListWidgetHeightChanged(int listWidgetHeight
 {
     // qDebug() << "List widget height: " << listWidgetHeight;
     heightChanging_ = true;
-    widgetLocationsList_->setGeometry(0,widgetLocationsList_->geometry().y(), WINDOW_WIDTH*G_SCALE, listWidgetHeight);
+    widgetLocationsList_->setGeometry(0,widgetLocationsList_->geometry().y(), WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), listWidgetHeight);
     heightChanging_ = false;
 }
 

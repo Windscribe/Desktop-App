@@ -74,7 +74,7 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QScrollAre
     connect(widgetCitiesList_, SIGNAL(heightChanged(int)), SLOT(onLocationItemListWidgetHeightChanged(int)));
     connect(widgetCitiesList_, SIGNAL(favoriteClicked(ItemWidgetCity*,bool)), SLOT(onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *, bool)));
     connect(widgetCitiesList_, SIGNAL(locationIdSelected(LocationID)), SLOT(onLocationItemListWidgetLocationIdSelected(LocationID)));
-    widgetCitiesList_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE, 0);
+    widgetCitiesList_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), 0);
     widgetCitiesList_->show();
 
     emptyListButton_ = new CommonWidgets::TextButtonWidget(QString(), this);
@@ -535,7 +535,7 @@ void WidgetCities::onLanguageChanged()
 void WidgetCities::onLocationItemListWidgetHeightChanged(int listWidgetHeight)
 {
     heightChanging_ = true;
-    widgetCitiesList_->setGeometry(0,widgetCitiesList_->geometry().y(), WINDOW_WIDTH*G_SCALE, listWidgetHeight);
+    widgetCitiesList_->setGeometry(0,widgetCitiesList_->geometry().y(), WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), listWidgetHeight);
     heightChanging_ = false;
 }
 
