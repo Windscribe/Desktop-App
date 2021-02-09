@@ -111,9 +111,6 @@
     <ClInclude Include="split_tunneling\split_tunneling.h">
       <Filter>Header Files\split_tunneling</Filter>
     </ClInclude>
-    <ClInclude Include="split_tunneling\tap_adapter_detector.h">
-      <Filter>Header Files\split_tunneling</Filter>
-    </ClInclude>
     <ClInclude Include="split_tunneling\split_tunnel_service_manager.h">
       <Filter>Header Files\split_tunneling</Filter>
     </ClInclude>
@@ -258,9 +255,6 @@
       <Filter>Source Files\split_tunneling</Filter>
     </ClCompile>
     <ClCompile Include="split_tunneling\split_tunneling.cpp">
-      <Filter>Source Files\split_tunneling</Filter>
-    </ClCompile>
-    <ClCompile Include="split_tunneling\tap_adapter_detector.cpp">
       <Filter>Source Files\split_tunneling</Filter>
     </ClCompile>
     <ClCompile Include="split_tunneling\split_tunnel_service_manager.cpp">

@@ -1,9 +1,9 @@
-#include "../all_headers.h"
+#include "../../all_headers.h"
 #include "dns_resolver.h"
 
 
-#include "../logger.h"
-#include "../../../../common/utils/crashhandler.h"
+#include "../../logger.h"
+#include "../../../../../common/utils/crashhandler.h"
 
 DnsResolver *DnsResolver::this_ = NULL;
 

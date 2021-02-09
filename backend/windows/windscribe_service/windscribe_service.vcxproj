@@ -368,7 +368,6 @@
     <ClInclude Include="split_tunneling\routes_manager.h" />
     <ClInclude Include="split_tunneling\split_tunneling.h" />
     <ClInclude Include="split_tunneling\split_tunnel_service_manager.h" />
-    <ClInclude Include="split_tunneling\tap_adapter_detector.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="hostsedit.h" />
     <ClInclude Include="icsmanager.h" />
@@ -421,7 +420,6 @@
     <ClCompile Include="split_tunneling\routes_manager.cpp" />
     <ClCompile Include="split_tunneling\split_tunneling.cpp" />
     <ClCompile Include="split_tunneling\split_tunnel_service_manager.cpp" />
-    <ClCompile Include="split_tunneling\tap_adapter_detector.cpp" />
     <ClCompile Include="sys_ipv6_controller.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="windscribe_service.cpp" />

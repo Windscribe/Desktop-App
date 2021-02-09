@@ -8,7 +8,7 @@ class IpRoutes
 public:
 	IpRoutes();
 
-	void setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<Ip4AddressAndMask> &ips);
+	void setIps(const std::string gatewayIp, unsigned long ifIndex, const std::vector<Ip4AddressAndMask> &ips);
 	void clear();
 
 private:

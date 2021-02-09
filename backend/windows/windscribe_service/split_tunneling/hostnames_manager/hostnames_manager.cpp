@@ -14,19 +14,17 @@ HostnamesManager::~HostnamesManager()
 
 void HostnamesManager::enable(const std::string &gatewayIp, unsigned long ifIndex)
 {
-	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-	if (!isExcludeMode_)
-	{
-		return;
-	}
-
-	rowDefault_ = rowDefault;
-	ipRoutes_.setIps(rowDefault_, ipsLatest_);
+	gatewayIp_ = gatewayIp;
+	ifIndex_ = ifIndex;
+	ipRoutes_.clear();
+	ipRoutes_.setIps(gatewayIp_, ifIndex_, ipsLatest_);
 	firewallFilter_.setSplitTunnelingWhitelistIps(ipsLatest_);
+	dnsResolver_.cancelAll();
 	dnsResolver_.resolveDomains(hostsLatest_);
 
-	isEnabled_ = true;*/
+	isEnabled_ = true;
 }
 
 void HostnamesManager::disable()
@@ -46,23 +44,9 @@ void HostnamesManager::disable()
 void HostnamesManager::setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts)
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
-
-	// nothing todo if nothing changed
-	if (isExclude == isExcludeMode_ && ips == ipsLatest_ && hosts == hostsLatest_)
-	{
-		return;
-	}
-
 	ipsLatest_ = ips;
 	hostsLatest_ = hosts;
 	isExcludeMode_ = isExclude;
-
-	if (isEnabled_ && isExclude)
-	{
-		ipRoutes_.setIps(rowDefault_, ips);
-		firewallFilter_.setSplitTunnelingWhitelistIps(ips);
-		dnsResolver_.resolveDomains(hosts);
-	}
 }
 
 void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos)
@@ -89,9 +73,9 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
 
 	hostsIps.insert(hostsIps.end(), ipsLatest_.begin(), ipsLatest_.end());
 
-	if (isEnabled_ && isExcludeMode_)
+	if (isEnabled_)
 	{
-		ipRoutes_.setIps(rowDefault_, hostsIps);
+		ipRoutes_.setIps(gatewayIp_, ifIndex_, hostsIps);
 		firewallFilter_.setSplitTunnelingWhitelistIps(hostsIps);
 	}
 }

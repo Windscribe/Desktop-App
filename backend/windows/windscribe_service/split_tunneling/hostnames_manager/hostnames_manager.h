@@ -29,7 +29,8 @@ private:
 	std::vector<Ip4AddressAndMask> ipsLatest_;
 	std::vector<std::string> hostsLatest_;
 
-	MIB_IPFORWARDROW rowDefault_;
+	std::string gatewayIp_;
+	unsigned long ifIndex_;
 
 
 	void dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos);

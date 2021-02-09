@@ -14,9 +14,7 @@ public:
 	SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper);
 	~SplitTunneling();
 
-	//void start();
-	//void stop();
-	void setSettings(bool isActive, bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts);
+	void setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts);
 	void setConnectStatus(CMD_CONNECT_STATUS &connectStatus);
     void setKeepLocalSocketsOnDisconnect(bool value) { bKeepLocalSockets_ = value; }
 
@@ -29,24 +27,16 @@ private:
 	HostnamesManager hostnamesManager_;
 	SplitTunnelServiceManager splitTunnelServiceManager_;
 
-	/*bool bStarted_;
-	bool bTapConnected_;*/
     bool bKeepLocalSockets_;
 	AppsIds windscribeExecutablesIds_;
-
-	/*struct ROUTE_ITEM
-	{
-		IF_INDEX interfaceIndex;
-		DWORD metric;
-		MIB_IPFORWARDROW row;
-	};*/
 	CMD_CONNECT_STATUS connectStatus_;
-	bool isSplitTunnelActive_;
+	bool isSplitTunnelEnabled_;
 	bool isExclude_;
 	std::vector<std::wstring> apps_;
+	bool prevIsSplitTunnelActive_;
+	bool prevIsExclude_;
 
 	void detectWindscribeExecutables();
-
 	void updateState();
 };
 

@@ -1,14 +1,11 @@
 #include "../all_headers.h"
 #include "split_tunneling.h"
-#include "ip_address_table.h"
-#include "tap_adapter_detector.h"
 #include "../close_tcp_connections.h"
 #include "../logger.h"
 #include "../utils.h"
-#include "../../../../common/utils/crashhandler.h"
 
 SplitTunneling::SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper) : firewallFilter_(firewallFilter), calloutFilter_(fwmpWrapper), 
-				 hostnamesManager_(firewallFilter), isSplitTunnelActive_(false), isExclude_(false), bKeepLocalSockets_(false)
+				 hostnamesManager_(firewallFilter), isSplitTunnelEnabled_(false), isExclude_(false), bKeepLocalSockets_(false), prevIsSplitTunnelActive_(false), prevIsExclude_(false)
 {
 	connectStatus_.isConnected = false;
 	detectWindscribeExecutables();
@@ -16,45 +13,12 @@ SplitTunneling::SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmp
 
 SplitTunneling::~SplitTunneling()
 {
-	assert(isSplitTunnelActive_ == false);
+	assert(isSplitTunnelEnabled_ == false);
 }
 
-/*void SplitTunneling::start()
+void SplitTunneling::setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts)
 {
-	if (!bStarted_)
-	{
-		Logger::instance().out(L"SplitTunneling::start()");
-
-		splitTunnelServiceManager_.start();
-
-		bStarted_ = true;
-	}
-}
-
-void SplitTunneling::stop()
-{
-	if (bStarted_)
-	{
-		calloutFilter_.disable();
-		routesManager_.disable();
-		firewallFilter_.setSplitTunnelingDisabled();
-		bStarted_ = false;
-
-		splitTunnelServiceManager_.stop();
-		Logger::instance().out(L"SplitTunneling::stop()");
-
-		// close TCP sockets if TAP-connected
-		if (bTapConnected_)
-		{
-			Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
-			CloseTcpConnections::closeAllTcpConnections(bKeepLocalSockets_);
-		}
-	}
-}*/
-
-void SplitTunneling::setSettings(bool isActive, bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts)
-{
-	isSplitTunnelActive_ = isActive;
+	isSplitTunnelEnabled_ = isEnabled;
 	isExclude_ = isExclude;
 
 	apps_ = apps;
@@ -66,95 +30,16 @@ void SplitTunneling::setSettings(bool isActive, bool isExclude, const std::vecto
 	}
 	hostnamesManager_.setSettings(isExclude, ipsList, hosts);
 
-	routesManager_.updateState(connectStatus_, isSplitTunnelActive_, isExclude_);
-	updateState();
-
-	/*if (bStarted_)
-	{
-		Logger::instance().out(L"SplitTunneling::setSettings() set settings message");
-
-		AppsIds appsIds;
-		appsIds.setFromList(apps);
-		if (!isExclude)
-		{
-			appsIds.addFrom(windscribeExecutablesIds_);
-		}
-
-		calloutFilter_.setSettings(isExclude, appsIds);
-		firewallFilter_.setSplitTunnelingAppsIds(appsIds, isExclude);
-
-		std::vector<Ip4AddressAndMask> ipsList;
-		for (auto it = ips.begin(); it != ips.end(); ++it)
-		{
-			ipsList.push_back(Ip4AddressAndMask(it->c_str()));
-		}
-
-		routesManager_.setSettings(isExclude, ipsList, hosts);
-
-		// close TCP sockets if TAP-connected
-		if (bTapConnected_)
-		{
-			Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
-			CloseTcpConnections::closeAllTcpConnections(bKeepLocalSockets_);
-		}
-	}
-	else
-	{
-		assert(false);
-	}*/
+	routesManager_.updateState(connectStatus_, isSplitTunnelEnabled_, isExclude_);
+	updateState();	
 }
 
 void SplitTunneling::setConnectStatus(CMD_CONNECT_STATUS &connectStatus)
 {
 	connectStatus_ = connectStatus;
-	routesManager_.updateState(connectStatus_, isSplitTunnelActive_, isExclude_);
+	routesManager_.updateState(connectStatus_, isSplitTunnelEnabled_, isExclude_);
 	updateState();
-
-	/*if (bStarted_)
-	{
-		bTapConnected_ = connectStatus.isConnected;
-
-		if (connectStatus.isConnected)
-		{
-			DWORD ip;
-			NET_LUID luid;
-			if (!TapAdapterDetector::detect(ip, luid))
-			{
-				Logger::instance().out(L"SplitTunneling::setConnectStatus() failed detect connected TAP-adapter");
-				return;
-			}
-
-			NET_IFINDEX ifIndex;
-			if (ConvertInterfaceLuidToIndex(&luid, &ifIndex) == NO_ERROR)
-			{
-				DWORD defaultIp;
-				MIB_IPFORWARDROW defaultRow;
-
-				if (getIpAddressDefaultInterface(ifIndex, defaultIp, defaultRow))
-				{
-					firewallFilter_.setSplitTunnelingEnabled();
-					calloutFilter_.enable(ip, defaultIp);
-					routesManager_.enable(defaultRow);
-				}
-				else
-				{
-					Logger::instance().out(L"SplitTunneling::setConnectStatus() getIpAddressDefaultInterface() failed");
-				}
-			}
-			else
-			{
-				Logger::instance().out(L"SplitTunneling::setConnectStatus() ConvertInterfaceLuidToIndex() failed");
-			}
-		}
-		else
-		{
-			calloutFilter_.disable();
-			routesManager_.disable();
-			firewallFilter_.setSplitTunnelingDisabled();
-		}
-	}*/
 }
-
 
 
 void SplitTunneling::removeAllFilters(FwpmWrapper &fwmpWrapper)
@@ -192,7 +77,9 @@ void SplitTunneling::detectWindscribeExecutables()
 
 void SplitTunneling::updateState()
 {
-	if (connectStatus_.isConnected && isSplitTunnelActive_)
+	bool isSplitTunnelActive = connectStatus_.isConnected && isSplitTunnelEnabled_;
+
+	if (isSplitTunnelActive)
 	{
 		splitTunnelServiceManager_.start();
 
@@ -230,5 +117,24 @@ void SplitTunneling::updateState()
 		calloutFilter_.disable();
 		hostnamesManager_.disable();
 		splitTunnelServiceManager_.stop();
+	}
+
+	// close TCP sockets if state changed
+	bool bNeedCloseTcpSockets = false;
+	if (isSplitTunnelActive != prevIsSplitTunnelActive_)
+	{
+		bNeedCloseTcpSockets = true;
+	}
+	else if (isSplitTunnelActive && isExclude_ != prevIsExclude_)
+	{
+		bNeedCloseTcpSockets = true;
+	}
+	prevIsSplitTunnelActive_ = isSplitTunnelActive;
+	prevIsExclude_ = isExclude_;
+
+	if (bNeedCloseTcpSockets)
+	{
+		Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
+		CloseTcpConnections::closeAllTcpConnections(bKeepLocalSockets_);
 	}
 }
