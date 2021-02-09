@@ -120,9 +120,6 @@
     <ClInclude Include="ikev2route.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="adapters_info.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="all_headers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -179,6 +176,15 @@
     </ClInclude>
     <ClInclude Include="date_time_helper.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\ip_forward_table.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\routes.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="adapters_info.h">
+      <Filter>Header Files\wireguard</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -310,6 +316,12 @@
     </ClCompile>
     <ClCompile Include="date_time_helper.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\ip_forward_table.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\routes.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

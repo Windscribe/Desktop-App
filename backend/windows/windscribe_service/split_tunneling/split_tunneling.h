@@ -42,9 +42,6 @@ private:
 	bool isExclude_;
 	std::vector<std::wstring> apps_;
 
-
-	//bool detectDefaultInterfaceFromRouteTable(IF_INDEX excludeIfIndex, IF_INDEX &outIfIndex, MIB_IPFORWARDROW &outRow);
-	//bool getIpAddressDefaultInterface(IF_INDEX tapAdapterIfIndex, DWORD &outIp, MIB_IPFORWARDROW &outRow);
 	void detectWindscribeExecutables();
 
 	void updateState();

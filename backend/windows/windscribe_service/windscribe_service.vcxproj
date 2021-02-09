@@ -361,7 +361,9 @@
     <ClInclude Include="split_tunneling\callout_filter.h" />
     <ClInclude Include="split_tunneling\dns_resolver.h" />
     <ClInclude Include="split_tunneling\ip_address_table.h" />
+    <ClInclude Include="split_tunneling\ip_forward_table.h" />
     <ClInclude Include="split_tunneling\ip_routes.h" />
+    <ClInclude Include="split_tunneling\routes.h" />
     <ClInclude Include="split_tunneling\routes_manager.h" />
     <ClInclude Include="split_tunneling\split_tunneling.h" />
     <ClInclude Include="split_tunneling\split_tunnel_service_manager.h" />
@@ -411,7 +413,9 @@
     <ClCompile Include="split_tunneling\callout_filter.cpp" />
     <ClCompile Include="split_tunneling\dns_resolver.cpp" />
     <ClCompile Include="split_tunneling\ip_address_table.cpp" />
+    <ClCompile Include="split_tunneling\ip_forward_table.cpp" />
     <ClCompile Include="split_tunneling\ip_routes.cpp" />
+    <ClCompile Include="split_tunneling\routes.cpp" />
     <ClCompile Include="split_tunneling\routes_manager.cpp" />
     <ClCompile Include="split_tunneling\split_tunneling.cpp" />
     <ClCompile Include="split_tunneling\split_tunnel_service_manager.cpp" />

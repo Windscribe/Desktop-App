@@ -1,5 +1,6 @@
 #include "../all_headers.h"
 #include "routes_manager.h"
+#include "../ip_address/ip4_address_and_mask.h"
 
 RoutesManager::RoutesManager()
 {
@@ -11,113 +12,58 @@ RoutesManager::RoutesManager()
 void RoutesManager::updateState(const CMD_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode)
 {
     bool prevIsConnected = connectStatus_.isConnected;
-    bool prevIsExcludeMode = isExcludeMode_;
     
     if  (prevIsConnected == false && connectStatus.isConnected == true)
     {
         if (isSplitTunnelActive)
         {
-            if (isExcludeMode)
-            {
-                // add bound route
-                ///boundRoute_.create(connectStatus.defaultAdapter.gatewayIp, connectStatus.defaultAdapter.adapterName);
-            }
-            else
+            if (!isExcludeMode)
             {
                 if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
                 {
-                    // delete openvpn default routes
-                    deleteOpenVpnDefaultRoutes(connectStatus);
-                    // add routes for DNS servers
-                    /*for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
-                    {
-                        dnsServersRoutes_.add(*it, connectStatus.vpnAdapter.gatewayIp, "255.255.255.255");
-                    }
-                    
-                    // add bound route
-                    boundRoute_.create(connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.adapterName);*/
+					doActionsForInclusiveModeOpenVpn(connectStatus);
                 }
                 else if (connectStatus.protocol == CMD_PROTOCOL_IKEV2)
                 {
-                    ///addIkev2RoutesForInclusiveMode(connectStatus);
+					doActionsForInclusiveModeIkev2(connectStatus);
                 }
                 else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
                 {
-                    /*deleteWireGuardDefaultRoutes(connectStatus);
-                    if (!connectStatus.vpnAdapter.dnsServers.empty())
-                    {
-                        dnsServersRoutes_.add(connectStatus.vpnAdapter.dnsServers[0], connectStatus.vpnAdapter.adapterIp, "255.255.255.255");
-                    }
-                    boundRoute_.create(connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.adapterName);*/
+					doActionsForInclusiveModeWireGuard(connectStatus);
                 }
             }
         }
     }
     else if (prevIsConnected == true && connectStatus.isConnected == false)
     {
-        ///clearAllRoutes();
+        clearAllRoutes();
     }
     else if (prevIsConnected == true && connectStatus.isConnected == true)
     {
         if (isSplitTunnelActive == false)
         {
-            ///clearAllRoutes();
+            clearAllRoutes();
         }
-        else  // if (isSplitTunnelActive == true)
-        {
-            if (prevIsExcludeMode != isExcludeMode)
-            {
-                /*clearAllRoutes();
-                
-                if (isExcludeMode)
-                {
-                    if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
-                    {
-                        // add openvpn default routes
-                        vpnRoutes_.add(connectStatus.remoteIp, connectStatus.defaultAdapter.gatewayIp, "255.255.255.255");
-                        vpnRoutes_.add("0.0.0.0", connectStatus.vpnAdapter.gatewayIp, "128.0.0.0");
-                        vpnRoutes_.add("128.0.0.0", connectStatus.vpnAdapter.gatewayIp, "128.0.0.0");
-                        boundRoute_.create(connectStatus.defaultAdapter.gatewayIp, connectStatus.vpnAdapter.adapterName);
-                    }
-                    else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
-                    {
-                        // add wireguard default routes
-                        vpnRoutes_.addWithInterface("0.0.0.0/1", connectStatus.vpnAdapter.adapterName);
-                        vpnRoutes_.addWithInterface("128.0.0.0/1", connectStatus.vpnAdapter.adapterName);
-                    }
+		else  // if (isSplitTunnelActive == true)
+		{
+			clearAllRoutes();
 
-                    boundRoute_.create(connectStatus.defaultAdapter.gatewayIp, connectStatus.defaultAdapter.adapterName);
-                }
-                else
-                {
-                    if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
-                    {
-                        deleteOpenVpnDefaultRoutes(connectStatus);
-                        // add routes for DNS servers
-                        for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
-                        {
-                            dnsServersRoutes_.add(*it, connectStatus.vpnAdapter.gatewayIp, "255.255.255.255");
-                        }
-                        // add bound route
-                        boundRoute_.create(connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.adapterName);
-                    }
-                    else if (connectStatus.protocol == CMD_PROTOCOL_IKEV2)
-                    {
-                        addIkev2RoutesForInclusiveMode(connectStatus);
-                    }
-                    else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
-                    {
-                        deleteWireGuardDefaultRoutes(connectStatus);
-                        // todo several DNS-servers
-                        if (!connectStatus.vpnAdapter.dnsServers.empty())
-                        {
-                            dnsServersRoutes_.add(connectStatus.vpnAdapter.dnsServers[0], connectStatus.vpnAdapter.adapterIp, "255.255.255.255");
-                        }
-                        boundRoute_.create(connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.adapterName);
-                    }
-                }*/
-            }
-        }
+			if (!isExcludeMode)
+			{
+				if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+				{
+					doActionsForInclusiveModeOpenVpn(connectStatus);
+				}
+				else if (connectStatus.protocol == CMD_PROTOCOL_IKEV2)
+				{
+					doActionsForInclusiveModeIkev2(connectStatus);
+				}
+				else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+				{
+					doActionsForInclusiveModeWireGuard(connectStatus);
+				}
+			}
+		}
     }
     
     connectStatus_ = connectStatus;
@@ -125,51 +71,49 @@ void RoutesManager::updateState(const CMD_CONNECT_STATUS &connectStatus, bool is
     isExcludeMode_ = isExcludeMode;
 }
 
-void RoutesManager::deleteOpenVpnDefaultRoutes(const CMD_CONNECT_STATUS &connectStatus)
-{
-    std::string cmd = "route delete -net " + connectStatus.remoteIp + " " + connectStatus.defaultAdapter.gatewayIp + " 255.255.255.255";
-    LOG("execute: %s", cmd.c_str());
-    Utils::executeCommand(cmd);
-    
-    cmd = "route delete -net 0.0.0.0 " + connectStatus.vpnAdapter.gatewayIp + " 128.0.0.0";
-    LOG("execute: %s", cmd.c_str());
-    Utils::executeCommand(cmd);
-    
-    cmd = "route delete -net 128.0.0.0 " + connectStatus.vpnAdapter.gatewayIp + " 128.0.0.0";
-    LOG("execute: %s", cmd.c_str());
-    Utils::executeCommand(cmd);
-}
-
-/*void RoutesManager::deleteWireGuardDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
-{
-    std::string cmd = "route delete -inet 0.0.0.0/1 -interface " + connectStatus.vpnAdapter.adapterName;
-    LOG("execute: %s", cmd.c_str());
-    Utils::executeCommand(cmd);
-    
-    cmd = "route delete -inet 128.0.0.0/1 -interface " + connectStatus.vpnAdapter.adapterName;
-    LOG("execute: %s", cmd.c_str());
-    Utils::executeCommand(cmd);
-}
-
-void RoutesManager::addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS &connectStatus)
-{
-    // add routes for override ikev2 default routes
-    ikev2OverrideRoutes_.add("0.0.0.0", connectStatus.defaultAdapter.gatewayIp, "128.0.0.0");
-    ikev2OverrideRoutes_.add("128.0.0.0", connectStatus.defaultAdapter.gatewayIp, "128.0.0.0");
-    
-    // add DNS-servers
-    for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
-    {
-        dnsServersRoutes_.add(*it, connectStatus.vpnAdapter.adapterIp, "255.255.255.255");
-    }
-    
-    // add bound route
-    boundRoute_.create(connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.adapterName);
-}
 void RoutesManager::clearAllRoutes()
 {
-    dnsServersRoutes_.clear();
-    ikev2OverrideRoutes_.clear();
-    boundRoute_.remove();
+	dnsServersRoutes_.revertRoutes();
+	boundRoute_.revertRoutes();
+	openVpnRoutes_.revertRoutes();
+	ikev2Routes_.revertRoutes();
+	wgRoutes_.revertRoutes();
 }
-*/
+
+void RoutesManager::doActionsForInclusiveModeOpenVpn(const CMD_CONNECT_STATUS &connectStatus)
+{
+	// delete openvpn default routes
+	IpForwardTable table;
+	//openVpnRoutes_.deleteRoute(table, connectStatus.remoteIp, "255.255.255.255", connectStatus.defaultAdapter.gatewayIp, connectStatus.defaultAdapter.ifIndex);
+	openVpnRoutes_.deleteRoute(table, "0.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex);
+	openVpnRoutes_.deleteRoute(table, "128.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex);
+
+	// add routes for DNS servers
+	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
+	{
+		dnsServersRoutes_.addRoute(*it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
+	}
+	// add bound route
+	boundRoute_.addRoute("0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, true);
+}
+void RoutesManager::doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS &connectStatus)
+{
+	// delete wireguard default route
+	IpForwardTable table;
+	wgRoutes_.deleteRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
+	// add routes for DNS servers
+	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
+	{
+		dnsServersRoutes_.addRoute(*it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
+	}
+	// add bound route
+	boundRoute_.addRoute("0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
+}
+void RoutesManager::doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &connectStatus)
+{
+	// delete ikev2 default route
+	IpForwardTable table;
+	ikev2Routes_.deleteRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
+	// add bound route
+	boundRoute_.addRoute("0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
+}

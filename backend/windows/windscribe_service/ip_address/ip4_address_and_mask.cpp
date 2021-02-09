@@ -25,13 +25,11 @@ bool Ip4AddressAndMask::isValid() const
 
 UINT32 Ip4AddressAndMask::ipNetworkOrder()  const
 {
-	assert(isValid());
 	return htonl(ipAddress_); ;
 }
 
 UINT32 Ip4AddressAndMask::maskNetworkOrder() const
 {
-	assert(isValid());
 	return htonl(mask_);
 }
 

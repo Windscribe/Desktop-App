@@ -152,68 +152,7 @@ void SplitTunneling::setConnectStatus(CMD_CONNECT_STATUS &connectStatus)
 	}*/
 }
 
-/*bool SplitTunneling::detectDefaultInterfaceFromRouteTable(IF_INDEX excludeIfIndex, IF_INDEX &outIfIndex, MIB_IPFORWARDROW &outRow)
-{
-	std::vector<unsigned char> arr(sizeof(MIB_IPFORWARDTABLE));
-	DWORD dwSize = 0;
-	if (GetIpForwardTable((MIB_IPFORWARDTABLE *)&arr[0], &dwSize, 0) == ERROR_INSUFFICIENT_BUFFER)
-	{
-		arr.resize(dwSize);
-	}
 
-	if (GetIpForwardTable((MIB_IPFORWARDTABLE *)&arr[0], &dwSize, 0) != NO_ERROR)
-	{
-		return false;
-	}
-
-	MIB_IPFORWARDTABLE *pIpForwardTable = (MIB_IPFORWARDTABLE *)&arr[0];
-	std::vector<ROUTE_ITEM> items;
-
-	for (DWORD i = 0; i < pIpForwardTable->dwNumEntries; i++)
-	{
-		if (pIpForwardTable->table[i].dwForwardDest == 0)
-		{
-			if (pIpForwardTable->table[i].dwForwardIfIndex != excludeIfIndex)
-			{
-				ROUTE_ITEM ri;
-				ri.interfaceIndex = pIpForwardTable->table[i].dwForwardIfIndex;
-				ri.metric = pIpForwardTable->table[i].dwForwardMetric1;
-				ri.row = pIpForwardTable->table[i];
-				items.push_back(ri);
-			}
-		}
-	}
-
-	if (items.size() > 0)
-	{
-		std::sort(items.begin(), items.end(),
-			[](const ROUTE_ITEM &a, const ROUTE_ITEM &b) -> bool
-		{
-			return a.metric < b.metric;
-		});
-
-		outIfIndex = items[0].interfaceIndex;
-		outRow = items[0].row;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool SplitTunneling::getIpAddressDefaultInterface(IF_INDEX tapAdapterIfIndex, DWORD &outIp, MIB_IPFORWARDROW &outRow)
-{
-	IF_INDEX outIfIndex;
-	if (detectDefaultInterfaceFromRouteTable(tapAdapterIfIndex, outIfIndex, outRow))
-	{
-		IpAddressTable addrTable;
-		outIp = addrTable.getAdapterIpAddress(outIfIndex);
-		return true;
-	}
-
-	return false;
-}*/
 
 void SplitTunneling::removeAllFilters(FwpmWrapper &fwmpWrapper)
 {
@@ -256,18 +195,23 @@ void SplitTunneling::updateState()
 
 		DWORD redirectIp;
 		AppsIds appsIds;
+		appsIds.setFromList(apps_);
+			
 
 		if (isExclude_)
 		{
 			Ip4AddressAndMask ipAddress(connectStatus_.defaultAdapter.adapterIp.c_str());
 			redirectIp = ipAddress.ipNetworkOrder();
-			appsIds.setFromList(apps_);
 
 			//ipHostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp);
 		}
 		else
 		{
-
+			appsIds.addFrom(windscribeExecutablesIds_);
+		
+			Ip4AddressAndMask ipAddress(connectStatus_.vpnAdapter.adapterIp.c_str());
+			redirectIp = ipAddress.ipNetworkOrder();
+			
 
 			if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
 			{

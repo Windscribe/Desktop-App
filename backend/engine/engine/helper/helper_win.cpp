@@ -17,7 +17,7 @@
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
-//  the program to connect to the helper socket without starting the service (for debug purpose)
+//  the program to connect to the helper socket without starting the service (uncomment for debug purpose)
 #define DEBUG_DONT_USE_SERVICE
 
 SC_HANDLE schSCManager_ = NULL;
