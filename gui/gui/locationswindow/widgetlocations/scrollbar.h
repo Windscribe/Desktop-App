@@ -46,6 +46,8 @@ private:
     int lastCursorPos_;
     int lastValue_;
 
+    int trackPadScrollDelta_;
+
     bool pressed_;
 
     double magicRatio() const;

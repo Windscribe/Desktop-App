@@ -16,6 +16,7 @@ namespace GuiLocations {
 ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
   , targetValue_(0)
   , lastCursorPos_(0)
+  , trackPadScrollDelta_(0)
   , pressed_(false)
   , curOpacity_(OPACITY_HALF)
 {
@@ -29,20 +30,64 @@ ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
 
 void ScrollBar::wheelEvent(QWheelEvent * event)
 {
-    // qDebug() << "delta: " << event->angleDelta();
-    int stepVector;
-    if (event->angleDelta().y() > 0)
+//    qDebug() << event->source()
+//             << ", wheel event delta: " << event->angleDelta()
+//             << ", pixDelta: " << event->pixelDelta()
+//             << ", delta: " << event->delta()
+//             << ", globalPos: " << event->globalPos() // cursor pos
+//             << ", phase: " << event->phase();
+    int stepVector = 0;
+
+    if (event->source() == Qt::MouseEventSynthesizedBySystem) // touchpad scroll and flick
     {
-        // qDebug() << "Wheel Up";
-        stepVector = -singleStep();
+        if (event->phase() == Qt::ScrollBegin)
+        {
+            trackPadScrollDelta_ = 0;
+        }
+        else if (event->phase() == Qt::ScrollUpdate) //  trackpad drag
+        {
+            trackPadScrollDelta_ += event->angleDelta().y();
+        }
+        else if (event->phase() == Qt::ScrollMomentum) // trackpad gesture/flick
+        {
+            trackPadScrollDelta_ += event->angleDelta().y();
+        }
+        else if (event->phase() == Qt::ScrollEnd) // remove finger from trackpad
+        {
+            // tap after momentum seems to "just work" -- no need to explicitly stop animation
+        }
+
+        if (trackPadScrollDelta_ > singleStep())
+        {
+            int diff = trackPadScrollDelta_ - singleStep();
+            stepVector = -singleStep();
+            trackPadScrollDelta_ = diff;
+        }
+        else if (trackPadScrollDelta_ < -singleStep())
+        {
+            int diff = trackPadScrollDelta_ + singleStep();
+            stepVector = singleStep();
+            trackPadScrollDelta_ = diff;
+        }
     }
-    else
+    else // mouse wheel
     {
-        // qDebug() << "Wheel Down";
-        stepVector = singleStep();
+        if (event->angleDelta().y() > 0)
+        {
+            // qDebug() << "Wheel Up";
+            stepVector = -singleStep();
+        }
+        else if (event->angleDelta().y() < 0) // angle delta can be 0
+        {
+            // qDebug() << "Wheel Down";
+            stepVector = singleStep();
+        }
     }
 
-    animateScroll(targetValue_ + stepVector, SCROLL_SPEED_FRACTION);
+    if (stepVector != 0)
+    {
+        animateScroll(targetValue_ + stepVector, SCROLL_SPEED_FRACTION);
+    }
 }
 
 void ScrollBar::paintEvent(QPaintEvent *event)
