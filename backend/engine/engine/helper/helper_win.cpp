@@ -12,8 +12,8 @@
 #include "simple_xor_crypt.h"
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
-#include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_win.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
+#include "engine/types/protocoltype.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
