@@ -20,8 +20,6 @@
 
 namespace LoginWindow {
 
-const int LOGIN_MARGIN_WIDTH_LARGE = 24 ;
-
 const QString EMERGENCY_ICON_ENABLED_PATH  = "login/EMERGENCY_ICON_ENABLED";
 const QString EMERGENCY_ICON_DISABLED_PATH = "login/EMERGENCY_ICON_DISABLED";
 const QString CONFIG_ICON_PATH             = "login/CONFIG_ICON";

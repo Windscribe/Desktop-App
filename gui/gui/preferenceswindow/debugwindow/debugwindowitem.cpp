@@ -109,7 +109,7 @@ void DebugWindowItem::setDebugLogResult(bool success)
 
     showSendButtonToolTip(displayString);
 
-    QTimer::singleShot(TOOLTIP_TIMEOUT, [this](){
+    QTimer::singleShot(TOOLTIP_TIMEOUT, [](){
         TooltipController::instance().hideTooltip(TOOLTIP_ID_LOG_SENT);
     });
 }
