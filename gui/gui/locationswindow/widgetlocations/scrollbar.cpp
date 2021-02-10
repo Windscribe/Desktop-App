@@ -134,10 +134,7 @@ void ScrollBar::paintEvent(QPaintEvent *event)
     initStyleOption(&opt);
     opt.subControls = QStyle::SC_All;
     rcHandle = style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarSlider, this);
-    rcHandle = rcHandle.marginsAdded(QMargins(-2*G_SCALE, 0, -4*G_SCALE, 0));
-    QBrush brush(QColor(255, 255, 255));
-    painter.setBrush(brush);
-    painter.drawRoundedRect(rcHandle, 1, 1);
+    painter.fillRect(rcHandle, Qt::white);
 
     // Note: some drawing handled via css (see customStyleSheet())
     QScrollBar::paintEvent(event);
@@ -312,8 +309,8 @@ const QString ScrollBar::customStyleSheet()
     // handle - draw in paintEvent to change opacity
     css += QString( "QScrollBar::handle:vertical { background: rgba(0,0,0,0); color:  rgba(0,0,0,0);"
                     "border-width: %1px; border-style: solid; border-radius: %2px;}")
-                        .arg(qCeil(2))  // handle border-width
-                        .arg(qCeil(2)); // handle border-radius
+                        .arg(qCeil(0))  // handle border-width
+                        .arg(qCeil(0)); // handle border-radius
     // top and bottom page buttons
     css += QString( "QScrollBar::add-line:vertical { border: none; background: none; }"
                      "QScrollBar::sub-line:vertical { border: none; background: none; }");
@@ -327,7 +324,7 @@ int ScrollBar::customScrollBarWidth()
 
 int ScrollBar::customPaddingWidth()
 {
-    return 3 * G_SCALE;
+    return 2 * G_SCALE;
 }
 
 }
