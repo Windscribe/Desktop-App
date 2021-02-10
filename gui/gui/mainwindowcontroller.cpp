@@ -26,6 +26,7 @@
 #include "../backend/persistentstate.h"
 #include "dpiscalemanager.h"
 #include "utils/logger.h"
+#include "utils/widgetutils.h"
 
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"
@@ -2911,52 +2912,57 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     if (preferencesHelper_->isDockedToTray())
     {
+
+#ifdef Q_OS_WIN
         const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
         const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
 
-        // qDebug() << "Icon center: " << iconCenter;
         QScreen *screen = QGuiApplication::screenAt(iconCenter);
 
-#ifdef Q_OS_MAC
-        // screen is sometimes not found when:
-        // * opening laptop lid when a docked windscribe is on secondary monitor
-        // * closing laptop lid when a docked windscribe is on the laptop screen when a second monitor is connected
-        // quick hack implemented here to prevent crash in beta-public build
-        // it appears that laptop screen is not accessible yet, though trayIcon has updated location
-        // this "fix" may result in windscribe being locked in a weird place on screen
-        if (!screen)
-        {
-            qDebug() << "Screen not found -- grabbing first screen available";
-            if (!QGuiApplication::screens().empty())
-            {
-                screen = QGuiApplication::screens().at(0);
-                qDebug() << "Backup screen: " << screen << " " << screen->geometry();
-            }
-            if (!screen) // shouldn't happen but just in case - closing lid with no external monitors does not seem to fire the geometry update
-            {
-                qDebug() << "Still no screen found -- not updating geometry and scene";
-                return;
-            }
-        }
-#endif
         const QRect desktopAvailableRc = screen->availableGeometry();
-
-#ifdef Q_OS_WIN
         geo = taskbarAwareDockedGeometry_win(width, shadowSize, widthWithShadow, heightWithShadow);
-#else
 
-        int rightEarCenterOffset = 41 * G_SCALE;
-        int posX = rcIcon.left() + rcIcon.width() / 2 - (width + shadowSize*2 - rightEarCenterOffset);
-        geo = QRect(posX, desktopAvailableRc.top(), widthWithShadow, heightWithShadow);
-#endif
         const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
         if (geo.right() > kMaxGeometryRightPosition)
             geo.moveRight(kMaxGeometryRightPosition);
 
+#elif defined Q_OS_MAC
+
+        const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
+        const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
+
+        // On Mac: screen is sometimes not found because QSystemTrayIcon is invalid or not contained in screen list
+        // during monitor change or opening/closing laptop lid
+        // Safer screen check prevents a crash when the trayIcon is invalid
+        QScreen *screen = WidgetUtils::slightlySaferScreenAt(iconCenter);
+        if (!screen)
+        {
+            qDebug() << "Still no screen found -- not updating geometry and scene";
+            return;
+        }
+
+        const QRect desktopAvailableRc = screen->availableGeometry();
+
+        // center ear on tray
+        int rightEarCenterOffset = static_cast<int>(41 * G_SCALE);
+        int posX = rcIcon.left() + rcIcon.width() / 2 - (width + shadowSize*2 - rightEarCenterOffset);
+        geo = QRect(posX, desktopAvailableRc.top(), widthWithShadow, heightWithShadow);
+
+        // keeps mainwindow on-screen
+        const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
+        if (geo.right() > kMaxGeometryRightPosition)
+        {
+            qDebug() << "Keeping mainwindow on screen!";
+            geo.moveRight(kMaxGeometryRightPosition);
+        }
+#endif
+
     }
 
+    qDebug() << "Updating mainwindow geo: " << geo;
     mainWindow_->setGeometry(geo);
     updateViewAndScene(width, height, shadowSize, updateShadow);
+
 }
 
 void MainWindowController::updateViewAndScene(int width, int height, int shadowSize, bool updateShadow)
@@ -2982,6 +2988,9 @@ void MainWindowController::updateViewAndScene(int width, int height, int shadowS
         shadowManager_->updateShadow();
         invalidateShadow_mac();
     }
+
+    // qDebug() << "MainWindow Geo (after view/scene update): " << mainWindow_->geometry();
+
 }
 
 void MainWindowController::handleNextWindowChange()
@@ -3113,6 +3122,7 @@ void MainWindowController::keepWindowInsideScreenCoordinates()
 
     if (rcWindow.bottom() > (rcScreen.bottom()))
     {
+        qDebug() << "KEEPING MAINWINDOW INSIDE SCREEN COORDINATES";
        rcWindow.moveBottom(rcScreen.bottom());
        mainWindow_->setGeometry(rcWindow);
     }
