@@ -16,6 +16,7 @@ namespace GuiLocations {
 ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
   , targetValue_(0)
   , lastCursorPos_(0)
+  , trackpadDeltaSum_(0)
   , trackPadScrollDelta_(0)
   , pressed_(false)
   , curOpacity_(OPACITY_HALF)
@@ -40,7 +41,6 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
 	// Note: Windows10 trackpad does not appear to generate Synthesized system events so this block will only run on Mac
 	// On Windows the trackpad event will run same block as mouse wheel (below)
     int stepVector = 0;
-
     if (event->source() == Qt::MouseEventSynthesizedBySystem) // touchpad scroll and flick
     {
         if (event->phase() == Qt::ScrollBegin)
@@ -75,20 +75,42 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
     }
     else // mouse wheel
     {
-        if (event->angleDelta().y() > 0)
+
+        // Some Windows trackpads send multple small deltas instead of one single large delta (like mouse scroll)
+        // "Phase" data does not indicate anything helpful, all are "NoScrollPhase", unlike MacOS phase seen above
+        // So we track scrolling until it accumulates to similar delta
+        int change = event->angleDelta().y();
+        if (abs(change) != 120 ) // mouse scroll is dead give-away by delta +/- 120 value
+        {
+            change += trackpadDeltaSum_;
+        }
+        else
+        {
+            // if some starts using mouse to scoll then clear accumulation
+            trackpadDeltaSum_ = 0;
+        }
+
+        if (change > singleStep())
         {
             // qDebug() << "Wheel Up";
             stepVector = -singleStep();
+            trackpadDeltaSum_ = change - singleStep();
         }
-        else if (event->angleDelta().y() < 0) // angle delta can be 0
+        else if (change < -singleStep()) // angle delta can be 0
         {
             // qDebug() << "Wheel Down";
             stepVector = singleStep();
+            trackpadDeltaSum_ = change + singleStep();
+        }
+        else
+        {
+            trackpadDeltaSum_ = change;
         }
     }
 
     if (stepVector != 0)
     {
+        // qDebug() << "Scrolling: " << startValue_ + stepVector;
         animateScroll(targetValue_ + stepVector, SCROLL_SPEED_FRACTION);
     }
 }
@@ -124,6 +146,7 @@ void ScrollBar::paintEvent(QPaintEvent *event)
 void ScrollBar::forceSetValue(int val)
 {
     // qDebug() << "Forcing: " << value() <<  " -> " << val;
+    trackpadDeltaSum_= 0;
     targetValue_ = val;
     setValue(val);
 }

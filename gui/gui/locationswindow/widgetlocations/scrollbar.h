@@ -46,6 +46,7 @@ private:
     int lastCursorPos_;
     int lastValue_;
 
+    int trackpadDeltaSum_;
     int trackPadScrollDelta_;
 
     bool pressed_;
