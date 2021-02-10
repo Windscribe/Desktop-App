@@ -239,6 +239,7 @@ private slots:
     void onMainWindowControllerSendServerRatingDown();
 
     void onScaleChanged();
+    void onDpiScaleManagerNewScreen(QScreen *screen);
     void onFocusWindowChanged(QWindow *focusWindow);
     void onWindowDeactivateAndHideImpl();
 
@@ -301,7 +302,6 @@ private:
 
     bool isInitializationAborted_;
     bool isLoginOkAndConnectWindowVisible_;
-    bool isCustomConfigMode_;
     static constexpr int TIME_BEFORE_SHOW_SHUTDOWN_WINDOW = 1500;   // ms
 
     void hideSupplementaryWidgets();
@@ -337,6 +337,15 @@ private:
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
     bool isRunningInDarkMode_;
+
+    typedef QRect TrayIconRelativeGeometry ;
+    QMap<QString, TrayIconRelativeGeometry> systemTrayIconRelativeGeoScreenHistory_;
+    QString lastScreenName_;
+
+    const QRect bestGuessForTrayIconRectFromLastScreen(const QPoint &pt);
+    const QRect trayIconRectForLastScreen();
+    const QRect trayIconRectForScreenContainingPt(const QPoint &pt);
+    const QRect generateTrayIconRectFromHistory(const QString &screenName);
 #endif
     QTimer deactivationTimer_;
 
@@ -351,6 +360,8 @@ private:
     bool ignoreUpdateUntilNextRun_;
     void cleanupAdvParametersWindow();
     void cleanupLogViewerWindow();
+
+    QRect guessTrayIconLocationOnScreen(QScreen *screen);
 };
 
 #endif // MAINWINDOW_H

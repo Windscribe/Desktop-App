@@ -44,6 +44,7 @@ void BasePage::addItem(BaseItem *item)
 {
     item->setParentItem(this);
     connect(item, SIGNAL(heightChanged(int)), SLOT(recalcItemsPos()));
+    connect(item, SIGNAL(visibleChanged()), SLOT(recalcItemsPos()));
     items_ << item;
     recalcItemsPos();
 }
@@ -90,6 +91,8 @@ void BasePage::recalcItemsPos()
     int newHeight = 0;
     Q_FOREACH(BaseItem *item, items_)
     {
+        if (!item->isVisible())
+            continue;
         item->setPos(0, newHeight);
         newHeight += item->boundingRect().height();
     }

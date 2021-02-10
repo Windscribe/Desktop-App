@@ -29,6 +29,9 @@ namespace WinUtils
 
     bool isServiceRunning(const QString &serviceName);
 
+    bool is32BitAppRunningOn64Bit();
+    QString iconPathFromBinPath(const QString &binPath);
+
     // Registry Adapters
     bool regHasLocalMachineSubkeyProperty(QString keyPath, QString propertyName);
     QString regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName);

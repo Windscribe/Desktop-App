@@ -268,6 +268,8 @@ void SplitTunnelingAppsSearchItem::drawItemsAndUpdateHeight(int baseHeight, QLis
 
 #ifdef Q_OS_MAC
         iconPath = MacUtils::iconPathFromBinPath(iconPath);
+#else
+        iconPath = WinUtils::iconPathFromBinPath(iconPath);
 #endif
 
         QSharedPointer<AppSearchItem> appItem = QSharedPointer<AppSearchItem>(new AppSearchItem(app, iconPath, this), &QObject::deleteLater);

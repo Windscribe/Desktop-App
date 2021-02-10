@@ -1424,3 +1424,26 @@ bool WinUtils::isServiceRunning(const QString &serviceName)
     CloseServiceHandle(schSCManager);
     return bRet;
 }
+
+bool WinUtils::is32BitAppRunningOn64Bit()
+{
+    // Check if this is a 64-bit app used in a 32-bit app.
+#if defined (_M_X64)
+    return false;
+#else
+    BOOL iswow64 = FALSE;
+    static bool result = IsWow64Process(GetCurrentProcess(), &iswow64) && iswow64;
+    return result;
+#endif
+}
+
+QString WinUtils::iconPathFromBinPath(const QString &binPath)
+{
+    QString result = binPath;
+    if (is32BitAppRunningOn64Bit()) {
+        result.replace("\\", "/");
+        if (result.contains("/System32/", Qt::CaseInsensitive) && !QFileInfo(result).exists())
+            result.replace("/System32/", "/Sysnative/", Qt::CaseInsensitive);
+    }
+    return result;
+}

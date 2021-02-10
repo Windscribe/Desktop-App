@@ -35,6 +35,9 @@ public:
     void setIsDockedToTray(bool b);
     bool isDockedToTray() const;
 
+    void setIsExternalConfigMode(bool b);
+    bool isExternalConfigMode() const;
+
 #ifdef Q_OS_WIN
     void setIpv6StateInOS(bool bEnabled);
     bool getIpv6StateInOS() const;
@@ -49,6 +52,7 @@ signals:
     void installedTapAdapterChanged(ProtoTypes::TapAdapterType tapAdapter);
     void isFirewallBlockedChanged(bool bFirewallBlocked);
     void isDockedModeChanged(bool bIsDockedToTray);
+    void isExternalConfigModeChanged(bool bIsExternalConfigMode);
 
 private:
     QStringList availableLanguageCodes_;
@@ -62,6 +66,7 @@ private:
 
     bool isFirewallBlocked_;
     bool isDockedToTray_;
+    bool isExternalConfigMode_;
 };
 
 #endif // PREFERENCESHELPER_H
