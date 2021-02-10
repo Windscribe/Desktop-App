@@ -1,3 +1,30 @@
+2.02.2 (10/02/2021)
+* Improved domain name validation in GUI preferences. #333
+* Fixed GUI and DPI scaling issues for API resolution in GUI preferences. #326
+* Fixed network level split routing defaults to /32 bug. #337
+* Removed initialization timeout in GUI. #339
+* Fixed Mac UI bug with static ips and custom configs ribbon. #341
+* Recreate DNS-resolver when network state changes (app fails over to direct IP API when started with no Internet access). #122
+* Fixed Hyper-V host network bridge detection. #334
+* Fixed the auto-update algorithm on Windows (sometimes update fails with "removing unsigned installer" error). #321
+* Fixed OVPN pipe-related deadlock issue. #335
+* Refetch WG config after logout. #345
+* Improved service logging, log merging and improved readability in GUI internal viewer. #346
+* Added year to logs. #350
+* WindscribeLogViewer - standalone log viewer app made for internal debug purposes. #352
+* Fixed custom configs OVPN protocol detection. #355
+* Localhost blocked in inclusive Split Routing mode, issue fixed. #167
+* Added split tunneling for the inclusive mode for hostnames (Windows). #238
+* Inclusive split tunneling breaks BattleNet agent - fixed. #344
+* Fixed default cipher problem with OVPN custom configs. #356
+* Disabled TAP custom configs on Mac. #356
+* Gui crash on Mac when opening or closing laptop lid - fixed. #318
+* Fix reconnect on external IKEv2 failure, fix DNS server list size issue. #359
+* Locations list refactored, location search tab added. #118
+* Hide "Connection settings" in external config mode. #361
+* Fixed EXE selection for a WoW64 GUI process. #353
+* Updated split tunneling driver for support Win7. #180
+
 2.02.1 (12/01/2021)
 * Split tunneling driver updated for support Win7/Win8. #338, #180
 * Implemented show flags preference. #314
