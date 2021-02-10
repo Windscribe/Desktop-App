@@ -28,7 +28,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
   , currentLocationListHeight_(0)
   , isRibbonVisible_(false)
   , showAllTabs_(true)
-  , backgroundColor_(14, 25, 38)
+  , tabBackgroundColor_(14, 25, 38)
 {
     setMouseTracking(true);
     curCursorShape_ = Qt::ArrowCursor;
@@ -518,7 +518,7 @@ IWidgetLocationsInfo *LocationsTab::locationWidgetByEnum(LocationsTab::CurTabEnu
 
 void LocationsTab::drawTabRegion(QPainter &painter, const QRect &rc)
 {
-    painter.fillRect(rc, QBrush(backgroundColor_));
+    painter.fillRect(rc, QBrush(tabBackgroundColor_));
 
     if (!searchTabSelected_)
     {
@@ -554,11 +554,8 @@ void LocationsTab::drawTabRegion(QPainter &painter, const QRect &rc)
 
 void LocationsTab::drawBottomLine(QPainter &painter, int left, int right, int bottom, int whiteLinePos)
 {
-    painter.fillRect(QRect(left, bottom-G_SCALE*2 + 1, right-left, G_SCALE*2), QBrush(QColor(3, 9, 28)));
     // draw white line
-    {
-        painter.fillRect(QRect((whiteLinePos - WHITE_LINE_WIDTH / 2 *G_SCALE), bottom-G_SCALE*2 + 1, WHITE_LINE_WIDTH*G_SCALE, G_SCALE*2), QBrush(Qt::white));
-    }
+    painter.fillRect(QRect((whiteLinePos - WHITE_LINE_WIDTH / 2 *G_SCALE), bottom-G_SCALE*2 + 1, WHITE_LINE_WIDTH*G_SCALE, G_SCALE*2), QBrush(Qt::white));
 }
 
 void LocationsTab::setArrowCursor()

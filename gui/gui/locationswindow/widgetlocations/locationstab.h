@@ -131,7 +131,7 @@ private:
     bool isRibbonVisible_;
     bool showAllTabs_;
 
-    QColor backgroundColor_;
+    QColor tabBackgroundColor_;
 
     void changeTab(CurTabEnum newTab);
 
