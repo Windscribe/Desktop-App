@@ -339,7 +339,8 @@ void CrashHandler::handleException(ExceptionInfo info)
 
     CrashDump minidump;
     const std::wstring filename = getCrashDumpFilename();
-    if (minidump.writeToFile(filename, info.exceptionThreadId, info.exceptionPointers))
+    if (minidump.writeToFile(GetOutputLocation() + filename, info.exceptionThreadId,
+                             info.exceptionPointers))
         CRASH_LOG("Wrote minidump: %ls", filename.c_str());
 
     TerminateProcess(GetCurrentProcess(), 1);
@@ -392,7 +393,7 @@ std::wstring CrashHandler::getCrashDumpFilename() const
     wchar_t time_buffer[128] = { 0 };
     std::wcsftime(time_buffer, sizeof(time_buffer) / sizeof(time_buffer[0]),
                   TEXT("%Y-%m-%d_%H-%M-%S"), &time_struct);
-    return GetOutputLocation() + moduleName_ + TEXT("_") + std::wstring(time_buffer) + TEXT(".dmp");
+    return moduleName_ + TEXT("_") + std::wstring(time_buffer) + TEXT(".dmp");
 }
 
 void CrashHandler::crashForTest() const
