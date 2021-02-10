@@ -86,7 +86,8 @@ public:
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts) override;
 
-    void sendConnectStatus(bool isConnected, const SplitTunnelingNetworkInfo *stni) override;
+    void sendConnectStatus(bool isConnected, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                           const QString &connectedIp, const ProtocolType &protocol) override;
 
 
     bool addIKEv2DefaultRoute() override;

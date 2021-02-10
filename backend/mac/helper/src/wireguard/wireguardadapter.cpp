@@ -56,7 +56,7 @@ bool WireGuardAdapter::setIpAddress(const std::string &address)
 {
     std::vector<std::string> address_and_cidr;
     boost::split(address_and_cidr, address, boost::is_any_of("/"), boost::token_compress_on);
-    int cidr = 0;
+    int cidr = 32;
     if (address_and_cidr.size() > 1)
         cidr = static_cast<int>(strtol(address_and_cidr[1].c_str(), nullptr, 10));
     std::vector<std::string> cmdlist;

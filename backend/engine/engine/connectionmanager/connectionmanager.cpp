@@ -25,7 +25,7 @@
 
 #ifdef Q_OS_WIN
     #include "sleepevents_win.h"
-    #include "resetwindscribetap_win.h"
+    #include "adapterutils_win.h"
     #include "ikev2connection_win.h"
 #elif defined Q_OS_MAC
     #include "sleepevents_mac.h"
@@ -228,11 +228,17 @@ QString ConnectionManager::getLastConnectedIp()
     return lastIp_;
 }
 
-
-QString ConnectionManager::getConnectedTapTunAdapter()
+const AdapterGatewayInfo &ConnectionManager::getDefaultAdapterInfo() const
 {
-    return connector_->getConnectedTapTunAdapterName();
+    return defaultAdapterInfo_;
 }
+
+const AdapterGatewayInfo &ConnectionManager::getVpnAdapterInfo() const
+{
+    Q_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
+    return vpnAdapterInfo_;
+}
+
 
 void ConnectionManager::removeIkev2ConnectionFromOS()
 {
@@ -273,20 +279,18 @@ void ConnectionManager::continueWithPassword(const QString &password, bool /*bNe
     }
 }
 
-void ConnectionManager::onConnectionConnected()
+void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo)
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionConnected(), state_ =" << state_;
+
+    vpnAdapterInfo_ = connectionAdapterInfo;
+    qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK)
     {
         qCDebug(LOG_CONNECTION) << "Already disconnecting -- do not enter connected state";
         return;
     }
-
-#if defined Q_OS_MAC
-    lastDefaultGateway_ = MacUtils::getDefaultGatewayForPrimaryInterface();
-    qCDebug(LOG_CONNECTION) << "lastDefaultGateway =" << lastDefaultGateway_;
-#endif
 
     DnsResolver::instance().recreateDefaultDnsChannel();
     timerReconnection_.stop();
@@ -342,7 +346,7 @@ void ConnectionManager::onConnectionDisconnected()
 #ifdef Q_OS_WIN
             if (bNeedResetTap_)
             {
-                ResetWindscribeTap_win::resetAdapter(helper_, getConnectedTapTunAdapter());
+                AdapterUtils_win::resetAdapter(helper_, vpnAdapterInfo_.adapterName());
                 bNeedResetTap_ = false;
             }
 #endif
@@ -774,6 +778,9 @@ void ConnectionManager::doConnect()
         waitForNetworkConnectivity();
         return;
     }
+    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo();
+    qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
+
     connSettingsPolicy_->resolveHostnames();
 }
 
@@ -834,9 +841,12 @@ void ConnectionManager::doConnectPart2()
                 qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (ConnectionManager)";
             }
 
+            uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
+                        (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
+
             bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port,
-                                                        stunnelManager_->getStunnelPort(), wstunnelManager_->getPort(), mss);
+                                                        portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway());
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
@@ -1002,7 +1012,7 @@ void ConnectionManager::doMacRestoreProcedures()
     const auto connection_type = connector_->getConnectionType();
     if (connection_type == ConnectionType::OPENVPN)
     {
-        QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + lastDefaultGateway_;
+        QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
         qCDebug(LOG_CONNECTION) << "Execute command: " << delRouteCommand;
         QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
         qCDebug(LOG_CONNECTION) << "Output from route delete command: " << cmdAnswer;
@@ -1060,7 +1070,7 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
             Q_ASSERT(false);
         }
 
-        connect(connector_, SIGNAL(connected()), SLOT(onConnectionConnected()), Qt::QueuedConnection);
+        connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);

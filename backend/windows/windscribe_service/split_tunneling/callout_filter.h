@@ -8,9 +8,8 @@ class CalloutFilter
 public:
 	explicit CalloutFilter(FwpmWrapper &fwmpWrapper);
 
-	void enable(UINT32 ipTap, UINT32 ipDefault);
+	void enable(UINT32 ip, const AppsIds &appsIds);
 	void disable();
-	void setSettings(bool isExclude, const AppsIds &appsIds);
 
 	static bool removeAllFilters(FwpmWrapper &fwmpWrapper);
 
@@ -27,10 +26,6 @@ private:
 	std::recursive_mutex mutex_;
 
 	AppsIds appsIds_;
-	bool isExcludeMode_;
-
-	// latest apps list
-	//std::vector<std::wstring> appsLatest_;
-
+	DWORD prevIp_;
 };
 

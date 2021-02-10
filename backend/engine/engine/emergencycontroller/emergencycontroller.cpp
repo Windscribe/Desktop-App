@@ -34,7 +34,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
     }
 
      connector_ = new OpenVPNConnection(this, helper_);
-     connect(connector_, SIGNAL(connected()), SLOT(onConnectionConnected()), Qt::QueuedConnection);
+     connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
      connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
      connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
      connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);
@@ -125,9 +125,10 @@ void EmergencyController::blockingDisconnect()
     }
 }
 
-QString EmergencyController::getConnectedTapAdapter_win()
+const AdapterGatewayInfo &EmergencyController::getVpnAdapterInfo() const
 {
-    return "";
+    Q_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
+    return vpnAdapterInfo_;
 }
 
 void EmergencyController::setPacketSize(ProtoTypes::PacketSize ps)
@@ -185,14 +186,12 @@ void EmergencyController::onDnsResolved(const QString &hostname, const QHostInfo
     }
 }
 
-void EmergencyController::onConnectionConnected()
+void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo)
 {
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionConnected(), state_ =" << state_;
 
-#if defined Q_OS_MAC
-    lastDefaultGateway_ = MacUtils::getDefaultGatewayForPrimaryInterface();
-    qCDebug(LOG_CONNECTION) << "lastDefaultGateway =" << lastDefaultGateway_;
-#endif
+    vpnAdapterInfo_ = connectionAdapterInfo;
+    qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     DnsResolver::instance().recreateDefaultDnsChannel();
 
@@ -311,6 +310,9 @@ void EmergencyController::onConnectionError(CONNECTION_ERROR err)
 
 void EmergencyController::doConnect()
 {
+    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo();
+    qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
+
     Q_ASSERT(!attempts_.empty());
     CONNECT_ATTEMPT_INFO attempt = attempts_[0];
     attempts_.removeFirst();
@@ -340,7 +342,7 @@ void EmergencyController::doConnect()
     }
 
 
-    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, attempt.protocol, attempt.port, 0, 0, mss);
+    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, attempt.protocol, attempt.port, 0, mss, defaultAdapterInfo_.gateway());
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
@@ -356,7 +358,7 @@ void EmergencyController::doConnect()
 void EmergencyController::doMacRestoreProcedures()
 {
 #ifdef Q_OS_MAC
-    QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + lastDefaultGateway_;
+    QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
     qCDebug(LOG_EMERGENCY_CONNECT) << "Execute command: " << delRouteCommand;
     QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
     qCDebug(LOG_EMERGENCY_CONNECT) << "Output from route delete command: " << cmdAnswer;

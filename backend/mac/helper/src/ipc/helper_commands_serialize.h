@@ -55,26 +55,25 @@ void serialize(Archive & ar, CMD_SPLIT_TUNNELING_SETTINGS &g, const unsigned int
 }
 
 template<class Archive>
+void serialize(Archive &ar, ADAPTER_GATEWAY_INFO &a, const unsigned int version)
+{
+    ar & a.adapterName;
+    ar & a.adapterIp;
+    ar & a.gatewayIp;
+    ar & a.dnsServers;
+}
+
+template<class Archive>
 void serialize(Archive &ar, CMD_SEND_CONNECT_STATUS &a, const unsigned int version)
 {
     ar & a.isConnected;
     ar & a.protocol;
     
-    ar & a.gatewayIp;
-    ar & a.interfaceName;
-    ar & a.interfaceIp;
+    ar & a.defaultAdapter;
+    ar & a.vpnAdapter;
     
     ar & a.connectedIp;
-    
-    ar & a.routeVpnGateway;
-    ar & a.routeNetGateway;
-    ar & a.remote_1;
-    ar & a.ifconfigTunIp;
-    
-    ar & a.vpnAdapterIp;
-    ar & a.vpnAdapterName;
-    
-    ar & a.dnsServers;
+    ar & a.remoteIp;
 }
 
 template<class Archive>

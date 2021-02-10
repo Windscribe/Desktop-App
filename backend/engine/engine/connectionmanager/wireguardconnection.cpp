@@ -7,6 +7,10 @@
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 
+#ifdef Q_OS_WIN
+    #include "adapterutils_win.h"
+#endif
+
 class WireGuardConnectionImpl
 {
 public:
@@ -135,6 +139,19 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
     pimpl_->setConfig(wireGuardConfig);
 
+    // for windows adapterGatewayInfo_ filled on emit connected below
+#ifdef Q_OS_MAC
+    // note: route gateway not used for WireGuard in AdapterGatewayInfo
+    adapterGatewayInfo_.clear();
+    adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
+    QStringList address_and_cidr = wireGuardConfig->clientIpAddress().split('/');
+    if (address_and_cidr.size() > 1)
+    {
+        adapterGatewayInfo_.setAdapterIp(address_and_cidr[0]);
+    }
+    adapterGatewayInfo_.setDnsServers(QStringList() << wireGuardConfig->clientDnsAddress());
+#endif
+
     setCurrentState(ConnectionState::CONNECTING);
     start(LowPriority);
  }
@@ -149,6 +166,7 @@ void WireGuardConnection::startDisconnect()
     if (!kill_process_timer_.isActive())
         kill_process_timer_.start(PROCESS_KILL_TIMEOUT);
 
+    adapterGatewayInfo_.clear();
     do_stop_thread_ = true;
 }
 
@@ -157,10 +175,10 @@ bool WireGuardConnection::isDisconnected() const
     return getCurrentState() == ConnectionState::DISCONNECTED;
 }
 
-QString WireGuardConnection::getConnectedTapTunAdapterName()
+/*QString WireGuardConnection::getConnectedTapTunAdapterName()
 {
     return pimpl_->getAdapterName();
-}
+}*/
 
 // static
 QString WireGuardConnection::getWireGuardExeName()
@@ -224,6 +242,10 @@ void WireGuardConnection::run()
                 if (!is_connected) {
                     qCDebug(LOG_WIREGUARD) << "WireGuard daemon reported successful handshake";
                     is_connected = true;
+
+#ifdef Q_OS_WIN
+                    adapterGatewayInfo_ = AdapterUtils_win::getWindscribeConnectedAdapterInfo();
+#endif
                     setCurrentStateAndEmitSignal(WireGuardConnection::ConnectionState::CONNECTED);
                 }
                 const auto newBytesReceived = status.bytesReceived - bytesReceived;
@@ -280,8 +302,8 @@ void WireGuardConnection::setCurrentStateAndEmitSignal(ConnectionState state)
         QTimer::singleShot(0, &kill_process_timer_, SLOT(stop()));
         emit disconnected();
         break;
-    case ConnectionState::CONNECTED:
-        emit connected();
+    case ConnectionState::CONNECTED:        
+        emit connected(adapterGatewayInfo_);
         break;
     default:
         break;

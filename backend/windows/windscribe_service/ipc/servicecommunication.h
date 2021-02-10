@@ -167,10 +167,35 @@ struct CMD_SPLIT_TUNNELING_SETTINGS
     std::vector<std::string> hosts;
 };
 
+struct ADAPTER_GATEWAY_INFO
+{
+	std::string adapterName;
+	std::string adapterIp;
+	std::string gatewayIp;
+	std::vector<std::string> dnsServers;
+	unsigned long ifIndex;
+};
+
+
+enum CMD_PROTOCOL_TYPE {
+	CMD_PROTOCOL_IKEV2,
+	CMD_PROTOCOL_OPENVPN,
+	CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL,
+	CMD_PROTOCOL_WIREGUARD
+};
+
 // used to manage split tunneling
 struct CMD_CONNECT_STATUS
 {
 	bool isConnected;
+	CMD_PROTOCOL_TYPE protocol;
+
+	ADAPTER_GATEWAY_INFO defaultAdapter;
+	ADAPTER_GATEWAY_INFO vpnAdapter;
+
+	// need for stunnel/wstunnel/openvpn routing
+	std::string connectedIp;
+	std::string remoteIp;
 };
 
 struct CMD_CLOSE_TCP_CONNECTIONS

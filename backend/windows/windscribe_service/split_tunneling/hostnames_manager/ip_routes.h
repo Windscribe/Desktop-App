@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ip_address/ip4_address_and_mask.h"
+#include "../../ip_address/ip4_address_and_mask.h"
 #include "dns_resolver.h"
 
 class IpRoutes
@@ -8,7 +8,7 @@ class IpRoutes
 public:
 	IpRoutes();
 
-	void setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<Ip4AddressAndMask> &ips);
+	void setIps(const std::string gatewayIp, unsigned long ifIndex, const std::vector<Ip4AddressAndMask> &ips);
 	void clear();
 
 private:

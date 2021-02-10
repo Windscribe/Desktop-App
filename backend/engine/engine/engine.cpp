@@ -24,12 +24,10 @@
     #include "engine/taputils/checkadapterenable.h"
     #include "engine/taputils/tapinstall_win.h"
     #include "engine/adaptermetricscontroller_win.h"
-    #include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_win.h"
 #elif defined Q_OS_MAC
     #include "ipv6controller_mac.h"
     #include "utils/macutils.h"
     #include "networkstatemanager/reachabilityevents.h"
-    #include "engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_mac.h"
 #endif
 
 Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
@@ -81,14 +79,12 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
     emergencyConnectStateController_ = new ConnectStateController(nullptr);
     OpenVpnVersionController::instance().setUseWinTun(engineSettings.isUseWintun());
-    splitTunnelingNetworkInfo_ = SplitTunnelingNetworkInfo::createObject();
 }
 
 Engine::~Engine()
 {
     SAFE_DELETE(connectStateController_);
     SAFE_DELETE(emergencyConnectStateController_);
-    SAFE_DELETE(splitTunnelingNetworkInfo_);
     packetSizeControllerThread_->exit();
     packetSizeControllerThread_->wait();
     packetSizeControllerThread_->deleteLater();
@@ -671,7 +667,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 #endif
 
     // turn off split tunneling (for case the state remains from the last launch)
-    helper_->sendConnectStatus(false, nullptr);
+    helper_->sendConnectStatus(false, AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 
@@ -759,7 +755,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 
     // turn off split tunneling
-    helper_->sendConnectStatus(false, nullptr);
+    helper_->sendConnectStatus(false, AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 #ifdef Q_OS_WIN
@@ -1523,40 +1519,15 @@ void Engine::onConnectionManagerConnected()
         }
     }
 
+    QString adapterName = connectionManager_->getVpnAdapterInfo().adapterName();
+
 #ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(connectionManager_->getConnectedTapTunAdapter(), helper_);
-#endif
-
-#ifdef Q_OS_MAC
-
-    // detect tap or ikev2 interface
-    QString tapInterface = MacUtils::lastConnectedNetworkInterfaceName();
-    firewallController_->setInterfaceToSkip_mac(tapInterface);
-
-    SplitTunnelingNetworkInfo_mac *mac_splitTunnelingNetworkInfo = dynamic_cast<SplitTunnelingNetworkInfo_mac *>(splitTunnelingNetworkInfo_);
-    Q_ASSERT(mac_splitTunnelingNetworkInfo);
-
-    mac_splitTunnelingNetworkInfo->setConnectedIp(connectionManager_->getLastConnectedIp());
-    mac_splitTunnelingNetworkInfo->setProtocol(lastConnectingProtocol_);
-    mac_splitTunnelingNetworkInfo->setVpnAdapterName(tapInterface);
-
-    if (lastConnectingProtocol_ == ProtoTypes::PROTOCOL_IKEV2)
-    {
-        QStringList dnsServers = MacUtils::getDnsServersForInterface(tapInterface);
-        mac_splitTunnelingNetworkInfo->setIkev2DnsServers(dnsServers);
-    }
-    else
-    {
-        // detect network params from dns.sh script (need for routing in helper)
-        mac_splitTunnelingNetworkInfo->detectInfoFromDnsScript();
-    }
-
+    AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);    
 #else
-    QString tapInterface = connectionManager_->getConnectedTapTunAdapter();
+    firewallController_->setInterfaceToSkip_mac(adapterName);
 #endif
 
-    splitTunnelingNetworkInfo_->outToLog();
-    helper_->sendConnectStatus(true, splitTunnelingNetworkInfo_);
+    helper_->sendConnectStatus(true, connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(), connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
 
     if (firewallController_->firewallActualState())
     {
@@ -1590,12 +1561,12 @@ void Engine::onConnectionManagerConnected()
 
             if (mtuForProtocol > 0)
             {
-                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << tapInterface << ": " << mtuForProtocol;
+                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << adapterName << ": " << mtuForProtocol;
     #ifdef Q_OS_MAC
-                const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(tapInterface).arg(mtuForProtocol);
+                const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(adapterName).arg(mtuForProtocol);
                 helper_->executeRootCommand(setIkev2MtuCmd);
     #else
-                helper_->executeChangeMtu(tapInterface, mtuForProtocol);
+                helper_->executeChangeMtu(adapterName, mtuForProtocol);
     #endif
             }
             else
@@ -2041,7 +2012,7 @@ void Engine::onEmergencyControllerConnected()
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerConnected()";
 
 #ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(emergencyController_->getConnectedTapAdapter_win(), helper_);
+    AdapterMetricsController_win::updateMetrics(emergencyController_->getVpnAdapterInfo().adapterName(), helper_);
 #endif
 
     serverAPI_->disableProxy();
@@ -2443,12 +2414,6 @@ void Engine::doConnect(bool bEmitAuthError)
     CheckAdapterEnable::enableIfNeed(helper_, "Windscribe VPN");
 #endif
 
-#ifdef Q_OS_MAC
-    SplitTunnelingNetworkInfo_mac *mac_splitTunnelingNetworkInfo = dynamic_cast<SplitTunnelingNetworkInfo_mac *>(splitTunnelingNetworkInfo_);
-    Q_ASSERT(mac_splitTunnelingNetworkInfo);
-    mac_splitTunnelingNetworkInfo->detectDefaultRoute();
-#endif
-
     if (!apiInfo_.isNull())
     {
         if (!apiInfo_->getServerCredentials().isInitialized() && !locationId_.isCustomConfigsLocation())
@@ -2557,7 +2522,7 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     {
         if (state != CONNECT_STATE_CONNECTED)
         {
-            helper_->sendConnectStatus(false, nullptr);
+            helper_->sendConnectStatus(false, AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
         }
     }
 }

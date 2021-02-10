@@ -186,7 +186,7 @@ MessagePacketResult ExecuteCmd::clearUnblockingCmd(unsigned long id)
     return mpr;
 }
 
-MessagePacketResult ExecuteCmd::suspendUnblockingCmd(unsigned long id)
+MessagePacketResult ExecuteCmd::suspendUnblockingCmd(unsigned long /*id*/)
 {
     std::lock_guard<std::mutex> lock(mutex_);
 

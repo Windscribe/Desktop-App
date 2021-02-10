@@ -540,13 +540,13 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		ia >> cmdResetTap;
 
 		wchar_t resetCmd[MAX_PATH];
-		wcscpy(resetCmd, L"wmic path win32_networkadapter where GUID=\"");
+		wcscpy(resetCmd, L"wmic path win32_networkadapter where Description=\"");
 		wcscat(resetCmd, cmdResetTap.szTapName.c_str());
 		wcscat(resetCmd, L"\" call disable");
 		Logger::instance().out(L"AA_COMMAND_RESET_TAP, cmd1=%s", resetCmd);
 		mpr = ExecuteCmd::instance().executeBlockingCmd(resetCmd);
 
-		wcscpy(resetCmd, L"wmic path win32_networkadapter where GUID=\"");
+		wcscpy(resetCmd, L"wmic path win32_networkadapter where Description=\"");
 		wcscat(resetCmd, cmdResetTap.szTapName.c_str());
 		wcscat(resetCmd, L"\" call enable");
 		Logger::instance().out(L"AA_COMMAND_RESET_TAP, cmd2=%s", resetCmd);
@@ -827,7 +827,8 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         splitTunnelling.setKeepLocalSocketsOnDisconnect(
             cmdSplitTunnelingSettings.isKeepLocalSockets);
 
-		if (cmdSplitTunnelingSettings.isActive)
+		splitTunnelling.setSettings(cmdSplitTunnelingSettings.isActive, cmdSplitTunnelingSettings.isExclude, cmdSplitTunnelingSettings.files, cmdSplitTunnelingSettings.ips, cmdSplitTunnelingSettings.hosts);
+		/*if (cmdSplitTunnelingSettings.isActive)
 		{
 			splitTunnelling.start();
 			splitTunnelling.setSettings(cmdSplitTunnelingSettings.isExclude, cmdSplitTunnelingSettings.files, cmdSplitTunnelingSettings.ips, cmdSplitTunnelingSettings.hosts);
@@ -835,7 +836,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		else
 		{
 			splitTunnelling.stop();
-		}
+		}*/
 		mpr.success = true;
 	}
 	else if (cmdId == AA_COMMAND_CONNECT_STATUS)
@@ -843,7 +844,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		CMD_CONNECT_STATUS cmdConnectStatus;
 		ia >> cmdConnectStatus;
 		Logger::instance().out(L"AA_COMMAND_CONNECT_STATUS: %d", cmdConnectStatus.isConnected);
-		splitTunnelling.setConnectStatus(cmdConnectStatus.isConnected);
+		splitTunnelling.setConnectStatus(cmdConnectStatus);
 	}
 	else if (cmdId == AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE)
 	{
@@ -1105,7 +1106,11 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 	CloseHandle(hEvent);
 	CloseHandle(hPipe);
 
-	splitTunnelling.stop();
+	// turn off split tunneling
+	CMD_CONNECT_STATUS connectStatus = { 0 };
+	connectStatus.isConnected = false;
+	splitTunnelling.setConnectStatus(connectStatus);
+	//splitTunnelling.stop();
 
 	CoUninitialize();
 	Logger::instance().out(L"Service stopped");

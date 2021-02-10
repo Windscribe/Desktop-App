@@ -23,7 +23,7 @@ public:
     void startDisconnect() override;
     bool isDisconnected() const override;
 
-    QString getConnectedTapTunAdapterName() override;
+    //QString getConnectedTapTunAdapterName() override;
     ConnectionType getConnectionType() const override { return ConnectionType::WIREGUARD; }
 
     void continueWithUsernameAndPassword(const QString & /*username*/, const QString & /*password*/) override {}
@@ -51,6 +51,7 @@ private:
     mutable QMutex current_state_mutex_;
     std::atomic<bool> do_stop_thread_;
     QTimer kill_process_timer_;
+    AdapterGatewayInfo adapterGatewayInfo_;
 
 };
 

@@ -1,15 +1,28 @@
-#include "../all_headers.h"
+#include "../../all_headers.h"
 #include "ip_routes.h"
-#include "../logger.h"
+#include "../../logger.h"
 
 IpRoutes::IpRoutes()
 {
 }
 
 
-void IpRoutes::setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<Ip4AddressAndMask> &ips)
+void IpRoutes::setIps(const std::string gatewayIp, unsigned long ifIndex, const std::vector<Ip4AddressAndMask> &ips)
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
+
+	// get metric for interface with ifIndex
+	MIB_IPINTERFACE_ROW interfaceRow;
+	memset(&interfaceRow, 0, sizeof(interfaceRow));
+	interfaceRow.Family = AF_INET;
+	interfaceRow.InterfaceIndex = ifIndex;
+	DWORD dwErr = GetIpInterfaceEntry(&interfaceRow);
+	if (dwErr != NO_ERROR)
+	{
+		Logger::instance().out("IpRoutes::setIps(), GetIpInterfaceEntry failed with error: %x", dwErr);
+		return;
+	}
+
 
 	// exclude duplicates
 	std::set<Ip4AddressAndMask> ipsSet;
@@ -52,12 +65,16 @@ void IpRoutes::setIps(const MIB_IPFORWARDROW &rowDefault, const std::vector<Ip4A
 		}
 		else
 		{
+			Ip4AddressAndMask gateway(gatewayIp.c_str());
 			// add route
-			MIB_IPFORWARDROW row = rowDefault;
-
+			MIB_IPFORWARDROW row;
+			memset(&row, 0, sizeof(row));
+			row.dwForwardProto = MIB_IPPROTO_NETMGMT;
 			row.dwForwardDest = ip->ipNetworkOrder();
 			row.dwForwardMask = ip->maskNetworkOrder();
-			row.dwForwardAge = INFINITE;
+			row.dwForwardNextHop = gateway.ipNetworkOrder();
+			row.dwForwardMetric1 = interfaceRow.Metric;
+			row.dwForwardIfIndex = ifIndex;
 
 			DWORD status = CreateIpForwardEntry(&row);
 			if (status != NO_ERROR)

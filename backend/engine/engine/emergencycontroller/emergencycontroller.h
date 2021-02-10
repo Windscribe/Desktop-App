@@ -25,8 +25,7 @@ public:
     bool isDisconnected();
     void blockingDisconnect();
 
-    //windows specific functions
-    QString getConnectedTapAdapter_win();
+    const AdapterGatewayInfo &getVpnAdapterInfo() const;
 
     void setPacketSize(ProtoTypes::PacketSize ps);
 
@@ -38,7 +37,7 @@ signals:
 private slots:
     void onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
 
-    void onConnectionConnected();
+    void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
     void onConnectionError(CONNECTION_ERROR err);
@@ -65,11 +64,13 @@ private:
     };
     QVector<CONNECT_ATTEMPT_INFO> attempts_;
 
-    QString lastDefaultGateway_;
     QString lastIp_;
     uint serverApiUserRole_;
     int state_;
     ProtoTypes::PacketSize packetSize_;
+
+    AdapterGatewayInfo defaultAdapterInfo_;
+    AdapterGatewayInfo vpnAdapterInfo_;
 
     void doConnect();
     void doMacRestoreProcedures();

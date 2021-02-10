@@ -40,6 +40,12 @@
     <Filter Include="Source Files\ip_address">
       <UniqueIdentifier>{32286b8b-0fc4-4dbc-ae4b-231320d0851f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\split_tunneling\hostnames_manager">
+      <UniqueIdentifier>{4080f6c5-360f-4e4e-b31a-59a07174aea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\split_tunneling\hostnames_manager">
+      <UniqueIdentifier>{2e5326c0-d981-4256-bc1b-47dc8f9df2af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="executecmd.h">
@@ -105,9 +111,6 @@
     <ClInclude Include="split_tunneling\split_tunneling.h">
       <Filter>Header Files\split_tunneling</Filter>
     </ClInclude>
-    <ClInclude Include="split_tunneling\tap_adapter_detector.h">
-      <Filter>Header Files\split_tunneling</Filter>
-    </ClInclude>
     <ClInclude Include="split_tunneling\split_tunnel_service_manager.h">
       <Filter>Header Files\split_tunneling</Filter>
     </ClInclude>
@@ -120,26 +123,14 @@
     <ClInclude Include="ikev2route.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="adapters_info.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="all_headers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="apps_ids.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="split_tunneling\ip_routes.h">
-      <Filter>Header Files\split_tunneling</Filter>
-    </ClInclude>
     <ClInclude Include="fwpm_wrapper.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="split_tunneling\ares_library_init.h">
-      <Filter>Header Files\split_tunneling</Filter>
-    </ClInclude>
-    <ClInclude Include="split_tunneling\dns_resolver.h">
-      <Filter>Header Files\split_tunneling</Filter>
     </ClInclude>
     <ClInclude Include="split_tunneling\routes_manager.h">
       <Filter>Header Files\split_tunneling</Filter>
@@ -179,6 +170,27 @@
     </ClInclude>
     <ClInclude Include="date_time_helper.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\ip_forward_table.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\routes.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="adapters_info.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\hostnames_manager\dns_resolver.h">
+      <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\hostnames_manager\hostnames_manager.h">
+      <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\hostnames_manager\ip_routes.h">
+      <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\hostnames_manager\ares_library_init.h">
+      <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -245,9 +257,6 @@
     <ClCompile Include="split_tunneling\split_tunneling.cpp">
       <Filter>Source Files\split_tunneling</Filter>
     </ClCompile>
-    <ClCompile Include="split_tunneling\tap_adapter_detector.cpp">
-      <Filter>Source Files\split_tunneling</Filter>
-    </ClCompile>
     <ClCompile Include="split_tunneling\split_tunnel_service_manager.cpp">
       <Filter>Source Files\split_tunneling</Filter>
     </ClCompile>
@@ -260,17 +269,8 @@
     <ClCompile Include="apps_ids.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="split_tunneling\ip_routes.cpp">
-      <Filter>Source Files\split_tunneling</Filter>
-    </ClCompile>
     <ClCompile Include="fwpm_wrapper.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="split_tunneling\ares_library_init.cpp">
-      <Filter>Source Files\split_tunneling</Filter>
-    </ClCompile>
-    <ClCompile Include="split_tunneling\dns_resolver.cpp">
-      <Filter>Source Files\split_tunneling</Filter>
     </ClCompile>
     <ClCompile Include="split_tunneling\routes_manager.cpp">
       <Filter>Source Files\split_tunneling</Filter>
@@ -310,6 +310,24 @@
     </ClCompile>
     <ClCompile Include="date_time_helper.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\ip_forward_table.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\routes.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\hostnames_manager\dns_resolver.cpp">
+      <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\hostnames_manager\hostnames_manager.cpp">
+      <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\hostnames_manager\ip_routes.cpp">
+      <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\hostnames_manager\ares_library_init.cpp">
+      <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

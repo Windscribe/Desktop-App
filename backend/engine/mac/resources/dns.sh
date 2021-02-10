@@ -128,21 +128,7 @@ if [ "$1" = "-up" ] ; then
     done <<< "${FOREIGN_OPTIONS}"
 
     echo "DOMAIN: $DOMAIN_NAME"
-    echo "VPN DNS: $VPN_DNS"
-
-    # put follow values to temp file in current dir (this file is used by app)
-    # dns_servers
-    # route_vpn_gateway
-    # remote_1
-    # route_net_gateway
-    # ifconfig_local
-    echo "dns_servers=$VPN_DNS" > "$CUR_DIR/windscribe_dns.aaa" 
-    echo "route_vpn_gateway=$route_vpn_gateway" >> "$CUR_DIR/windscribe_dns.aaa"
-    echo "remote_1=$remote_1" >> "$CUR_DIR/windscribe_dns.aaa"
-    echo "route_net_gateway=$route_net_gateway" >> "$CUR_DIR/windscribe_dns.aaa"
-    echo "ifconfig_local=$ifconfig_local" >> "$CUR_DIR/windscribe_dns.aaa"
-
-    
+    echo "VPN DNS: $VPN_DNS"    
 
     scutil <<_EOF
         d.init

@@ -690,7 +690,7 @@ void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle, UINT8 weight
 	}
 }
 
-void FirewallFilter::addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle, UINT8 /*weight*/)
+void FirewallFilter::addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle, UINT8 weight)
 {
 	if (appsIds_.count() == 0)
 	{
@@ -712,7 +712,7 @@ void FirewallFilter::addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle,
 	filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
 	filter.action.type = FWP_ACTION_PERMIT;
 	filter.weight.type = FWP_UINT8;
-	filter.weight.uint8 = 0x02;
+	filter.weight.uint8 = weight;
 	filter.numFilterConditions = static_cast<UINT32>(conditions.size());
 	if (conditions.size() > 0)
 	{
@@ -784,7 +784,6 @@ void FirewallFilter::addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHan
 	filter.subLayerKey = subLayerGUID_;
 	filter.displayData.name = (wchar_t *)FIREWALL_SUBLAYER_NAMEW;
 	filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
-	//filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
 	filter.action.type = FWP_ACTION_PERMIT;
 	filter.weight.type = FWP_UINT8;
 	filter.weight.uint8 = 0x02;

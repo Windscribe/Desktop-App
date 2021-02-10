@@ -50,39 +50,13 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
     updateState();
 }
 
-void SplitTunneling::setLatestWireGuardAdapterSettings(const std::string &adapterName, const std::string &ipAddress, const std::string &dnsAddressList,
-const std::vector<std::string> &allowedIps)
-{
-    std::lock_guard<std::mutex> guard(mutex_);
-    
-    wgIpAddress_ = ipAddress;
-    wgDnsAddress_ = dnsAddressList;     //todo several DNS-IPs
-    if (allowedIps.size() > 0)          // todo several allowed-IPs
-    {
-        wgAllowedIp_ = allowedIps[0];
-    }
-    else
-    {
-        wgAllowedIp_.clear();
-    }
-    
-    routesManager_.setLatestWireGuardAdapterSettings(adapterName, ipAddress, dnsAddressList, allowedIps);
-    
-    std::string ips;
-    for (auto it : allowedIps)
-    {
-        ips += it + ";";
-    }
-    LOG("ipAddress: %s, dnsAddressList: %s, allowedIps = %s", ipAddress.c_str(), dnsAddressList.c_str(), ips.c_str());
-}
-
 bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindIp, bool &isExclude)
 {
     std::lock_guard<std::mutex> guard(mutex_);
     
     isExclude = isExclude_;
     
-    if (connectStatus_.interfaceIp.empty())
+    if (connectStatus_.defaultAdapter.adapterIp.empty())
     {
         goto not_verify;
     }
@@ -98,18 +72,7 @@ bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindI
             }
             else
             {
-                if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
-                {
-                    outBindIp = connectStatus_.ifconfigTunIp;
-                }
-                else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
-                {
-                    outBindIp = connectStatus_.vpnAdapterIp;
-                }
-                else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
-                {
-                    outBindIp = connectStatus_.vpnAdapterIp;
-                }
+                outBindIp = connectStatus_.vpnAdapter.adapterIp;
                 LOG("VerifyApp: %s, result: %d", appPath.c_str(), true);
                 return true;
             }
@@ -123,22 +86,11 @@ bool SplitTunneling::verifyApp(const std::string &appPath, std::string &outBindI
         {
             if (isExclude)
             {
-                outBindIp = connectStatus_.interfaceIp;
+                outBindIp = connectStatus_.defaultAdapter.adapterIp;
             }
             else
             {
-                if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
-                {
-                    outBindIp = connectStatus_.ifconfigTunIp;
-                }
-                else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
-                {
-                    outBindIp = connectStatus_.vpnAdapterIp;
-                }
-                else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
-                {
-                    outBindIp = connectStatus_.vpnAdapterIp;
-                }
+                outBindIp = connectStatus_.vpnAdapter.adapterIp;
             }
             LOG("VerifyApp: %s, result: %d", appPath.c_str(), true);
             return true;
@@ -195,21 +147,21 @@ void SplitTunneling::updateState()
     {
         if (isExclude_)
         {
-            ipHostnamesManager_.enable(connectStatus_.gatewayIp);
+            ipHostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp);
         }
         else
         {
             if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
             {
-                ipHostnamesManager_.enable(connectStatus_.routeVpnGateway);
+                ipHostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp);
             }
             else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
             {
-                ipHostnamesManager_.enable(connectStatus_.vpnAdapterIp);
+                ipHostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp);
             }
             else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
             {
-                ipHostnamesManager_.enable(connectStatus_.vpnAdapterIp);
+                ipHostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp);
             }
         }
         kextClient_.connect();

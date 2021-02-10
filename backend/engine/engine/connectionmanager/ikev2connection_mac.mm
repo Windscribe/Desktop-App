@@ -330,12 +330,6 @@ bool IKEv2Connection_mac::isDisconnected() const
     return state_ == STATE_DISCONNECTED;
 }
 
-QString IKEv2Connection_mac::getConnectedTapTunAdapterName()
-{
-    //nothing todo for Mac
-    return "";
-}
-
 void IKEv2Connection_mac::continueWithUsernameAndPassword(const QString &username, const QString &password)
 {
     // nothing todo for ikev2
@@ -424,9 +418,16 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
     {
         qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusConnected";
         state_ = STATE_CONNECTED;
-        emit connected();
-        statisticsTimer_.start(STATISTICS_UPDATE_PERIOD);
+
+        // note: route gateway not used for ikev2 in AdapterGatewayInfo
+        AdapterGatewayInfo cai;
         ipsecAdapterName_ = MacUtils::lastConnectedNetworkInterfaceName();
+        cai.setAdapterName(ipsecAdapterName_);
+        cai.setAdapterIp(MacUtils::ipAddressByInterfaceName(ipsecAdapterName_));
+        cai.setDnsServers(MacUtils::getDnsServersForInterface(ipsecAdapterName_));
+
+        emit connected(cai);
+        statisticsTimer_.start(STATISTICS_UPDATE_PERIOD);
     }
     else if (status == NEVPNStatusReasserting)
     {

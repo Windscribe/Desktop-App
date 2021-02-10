@@ -4,6 +4,7 @@
 #include <QThread>
 #include "engine/proxy/proxysettings.h"
 #include "engine/types/types.h"
+#include "adaptergatewayinfo.h"
 
 class IHelper;
 class WireGuardConfig;
@@ -25,7 +26,6 @@ public:
                               bool isAutomaticConnectionMode) = 0;
     virtual void startDisconnect() = 0;
     virtual bool isDisconnected() const = 0;
-    virtual QString getConnectedTapTunAdapterName() = 0;
     virtual ConnectionType getConnectionType() const = 0;
     virtual bool isAllowFirewallAfterCustomConfigConnection() const { return true; }
 
@@ -33,7 +33,7 @@ public:
     virtual void continueWithPassword(const QString &password) = 0;
 
 signals:
-    void connected();
+    void connected(const AdapterGatewayInfo &connectionAdapterInfo);
     void disconnected();
     void reconnecting();
     void error(CONNECTION_ERROR err);

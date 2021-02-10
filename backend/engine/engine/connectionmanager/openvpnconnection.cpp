@@ -5,6 +5,11 @@
 #include "engine/types/types.h"
 #include "availableport.h"
 #include "engine/openvpnversioncontroller.h"
+#include "utils/ipvalidation.h"
+
+#ifdef Q_OS_WIN
+    #include "adapterutils_win.h"
+#endif
 
 OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent, helper),
     bStopThread_(false), currentState_(STATUS_DISCONNECTED),
@@ -43,7 +48,7 @@ void OpenVPNConnection::startConnect(const QString &configPathOrUrl, const QStri
     isAllowFirewallAfterCustomConfigConnection_ = false;
 
     stateVariables_.reset();
-    safeSetTapAdapter("");
+    connectionAdapterInfo_.clear();
     start(LowPriority);
 }
 
@@ -73,11 +78,6 @@ bool OpenVPNConnection::isDisconnected() const
 bool OpenVPNConnection::isAllowFirewallAfterCustomConfigConnection() const
 {
     return isAllowFirewallAfterCustomConfigConnection_;
-}
-
-QString OpenVPNConnection::getConnectedTapTunAdapterName()
-{
-    return safeGetTapAdapter();
 }
 
 void OpenVPNConnection::continueWithUsernameAndPassword(const QString &username, const QString &password)
@@ -318,6 +318,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         }
         if (serverReply.contains("HOLD:Waiting for hold release", Qt::CaseInsensitive))
         {
+            boost::asio::write(*stateVariables_.socket, boost::asio::buffer("verb 3\n"), boost::asio::transfer_all(), write_error);
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer("state on all\n"), boost::asio::transfer_all(), write_error);
         }
         else if (serverReply.startsWith("END") && stateVariables_.bWasStateNotification)
@@ -429,8 +430,37 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         {
             if (serverReply.contains("CONNECTED,SUCCESS", Qt::CaseInsensitive))
             {
+#ifdef Q_OS_WIN
+                AdapterGatewayInfo windscribeAdapter = AdapterUtils_win::getWindscribeConnectedAdapterInfo();
+                if (!windscribeAdapter.isEmpty())
+                {
+                    if (connectionAdapterInfo_.adapterIp() != windscribeAdapter.adapterIp())
+                    {
+                        qCDebug(LOG_CONNECTION) << "Error: Adapter IP detected from openvpn log not equal to the adapter IP from AdapterUtils_win::getWindscribeConnectedAdapterInfo()";
+                        Q_ASSERT(false);
+                    }
+                    connectionAdapterInfo_.setAdapterName(windscribeAdapter.adapterName());
+                    connectionAdapterInfo_.setAdapterIp(windscribeAdapter.adapterIp());
+                    connectionAdapterInfo_.setDnsServers(windscribeAdapter.dnsServers());
+                    connectionAdapterInfo_.setIfIndex(windscribeAdapter.ifIndex());
+                }
+                else
+                {
+                    qCDebug(LOG_CONNECTION) << "Can't detect connected Windscribe adapter";
+                }
+#endif
+
+                QString remoteIp;
+                if (parseConnectedSuccessReply(serverReply, remoteIp))
+                {
+                    connectionAdapterInfo_.setRemoteIp(remoteIp);
+                }
+                else
+                {
+                    qCDebug(LOG_CONNECTION) << "Can't parse CONNECTED,SUCCESS control message";
+                }
                 setCurrentState(STATUS_CONNECTED);
-                emit connected();
+                emit connected(connectionAdapterInfo_);
             }
             else if (serverReply.contains("CONNECTED,ERROR", Qt::CaseInsensitive))
             {
@@ -476,26 +506,30 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             {
                 emit error(INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS);
             }
-            else if (serverReply.contains("TAP-WIN32 device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
+#ifdef Q_OS_MAC
+            else if (serverReply.contains("device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
             {
-                int b = serverReply.indexOf("{");
-                int e = serverReply.indexOf("}");
-                if (b != -1 && e != -1 && b < e)
+                QString driverName, deviceName;
+                if (parseDeviceOpenedReply(serverReply, driverName, deviceName))
                 {
-                    QString tapName = serverReply.mid(b, e-b+1);
-                    safeSetTapAdapter(tapName);
-                }
-                else
-                {
-                    safeSetTapAdapter("");
-                    qCDebug(LOG_CONNECTION) << "Can't parse TAP name: " << serverReply;
+                    connectionAdapterInfo_.setAdapterName(deviceName);
                 }
             }
-            else if (serverReply.contains("redirect-gateway def1", Qt::CaseInsensitive))
+#endif
+            else if (serverReply.contains("PUSH: Received control message:", Qt::CaseInsensitive))
             {
-                // We are going to set up the default gateway, so firewall is allowed after
-                // we have connected (unless the current custom config explicitly forbits this).
-                isAllowFirewallAfterCustomConfigConnection_ = true;
+                bool isRedirectDefaultGateway = true;
+                if (!parsePushReply(serverReply, connectionAdapterInfo_, isRedirectDefaultGateway))
+                {
+                    qCDebug(LOG_CONNECTION) << "Can't parse PUSH Received control message";
+                }
+
+                if (isRedirectDefaultGateway)
+                {
+                    // We are going to set up the default gateway, so firewall is allowed after
+                    // we have connected (unless the current custom config explicitly forbits this).
+                    isAllowFirewallAfterCustomConfigConnection_ = true;
+                }
             }
         }
         else if (serverReply.contains(">FATAL:All TAP-Windows adapters on this system are currently in use", Qt::CaseInsensitive))
@@ -529,18 +563,6 @@ void OpenVPNConnection::funcDisconnect()
             stateVariables_.bNeedSendSigTerm = true;
         }
     }
-}
-
-QString OpenVPNConnection::safeGetTapAdapter()
-{
-    QMutexLocker locker(&tapAdapterMutex_);
-    return tapAdapter_;
-}
-
-void OpenVPNConnection::safeSetTapAdapter(const QString &tapAdapter)
-{
-    QMutexLocker locker(&tapAdapterMutex_);
-    tapAdapter_ = tapAdapter;
 }
 
 void OpenVPNConnection::checkErrorAndContinue(boost::system::error_code &write_error, bool bWithAsyncReadCall)
@@ -587,4 +609,141 @@ void OpenVPNConnection::continueWithPasswordImpl()
     boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
 
     checkErrorAndContinue(write_error, false);
+}
+
+bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway)
+{
+    QStringRef str(&reply);
+
+    int firstQuote = str.indexOf('\'');
+    int lastQuote = str.lastIndexOf('\'');
+    if (firstQuote == -1 || lastQuote == -1)
+    {
+        return false;
+    }
+
+    const QStringRef str2 = str.mid(firstQuote + 1, lastQuote - firstQuote - 1);
+    const QVector<QStringRef> values =  str2.split(',');
+
+    outRedirectDefaultGateway = false;
+    outConnectionAdapterInfo.clear();
+
+    for (auto it : values)
+    {
+        if (it.contains("redirect-gateway def1", Qt::CaseInsensitive))
+        {
+            outRedirectDefaultGateway = true;
+        }
+        else if (it.contains("route-gateway", Qt::CaseInsensitive))
+        {
+            const QVector<QStringRef> v = it.split(' ');
+            if (v.count() != 2)
+            {
+                qCDebug(LOG_CONNECTION) << "Can't parse route-gateway message";
+                return false;
+            }
+            else
+            {
+                const QString ipStr = v[1].toString();
+                if (!IpValidation::instance().isIp(ipStr))
+                {
+                    qCDebug(LOG_CONNECTION) << "Can't parse route-gateway message (incorrect IPv4 address)";
+                    return false;
+                }
+                else
+                {
+                    outConnectionAdapterInfo.setGateway(ipStr);
+                }
+            }
+        }
+        else if (it.contains("ifconfig", Qt::CaseInsensitive))
+        {
+            const QVector<QStringRef> v = it.split(' ');
+            if (v.count() != 3)
+            {
+                qCDebug(LOG_CONNECTION) << "Can't parse ifconfig message";
+                return false;
+            }
+            else
+            {
+                const QString ipStr = v[1].toString();
+                if (!IpValidation::instance().isIp(ipStr))
+                {
+                    qCDebug(LOG_CONNECTION) << "Can't parse ifconfig message (incorrect IPv4 address)";
+                    return false;
+                }
+                else
+                {
+                    outConnectionAdapterInfo.setAdapterIp(ipStr);
+                }
+            }
+        }
+        else if (it.contains("dhcp-option", Qt::CaseInsensitive))
+        {
+            const QVector<QStringRef> v = it.split(' ');
+            if (v.count() != 3)
+            {
+                qCDebug(LOG_CONNECTION) << "Can't parse dhcp-option message";
+                return false;
+            }
+            else
+            {
+                if (v[1] == "DNS")
+                {
+                    const QString ipStr = v[2].toString();
+                    if (!IpValidation::instance().isIp(ipStr))
+                    {
+                        qCDebug(LOG_CONNECTION) << "Can't parse dhcp-option DNS message (incorrect IPv4 address)";
+                        return false;
+                    }
+                    else
+                    {
+                        outConnectionAdapterInfo.addDnsServer(ipStr);
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &outDriverName, QString &outDeviceName)
+{
+    QStringRef str(&reply);
+    const QVector<QStringRef> v = str.split(',');
+    if (v.count() != 3)
+    {
+        qCDebug(LOG_CONNECTION) << "Can't parse opened device message";
+        return false;
+    }
+    const QVector<QStringRef> v2 = v.last().split(' ');
+    if (v2.count() != 4)
+    {
+        qCDebug(LOG_CONNECTION) << "Can't parse opened device message (divide into 4 strings)";
+        return false;
+    }
+    outDriverName = v2[1].toString();
+    outDeviceName = v2[3].toString();
+    return !outDriverName.isEmpty() && !outDeviceName.isEmpty();
+}
+
+bool OpenVPNConnection::parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp)
+{
+    QStringRef str(&reply);
+    const QVector<QStringRef> v = str.split(',');
+    if (v.count() != 8)
+    {
+        qCDebug(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (inccorect number of words)";
+        return false;
+    }
+    else
+    {
+        outRemoteIp = v[4].toString();
+        if (outRemoteIp.isEmpty())
+        {
+            qCDebug(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (remote ip is empty)";
+            return false;
+        }
+    }
+    return true;
 }

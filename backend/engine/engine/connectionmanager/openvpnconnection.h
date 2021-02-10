@@ -26,7 +26,6 @@ public:
     bool isDisconnected() const override;
     bool isAllowFirewallAfterCustomConfigConnection() const override;
 
-    QString getConnectedTapTunAdapterName() override;
     ConnectionType getConnectionType() const override { return ConnectionType::OPENVPN; }
 
     void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
@@ -109,23 +108,25 @@ private:
     };
 
     StateVariables stateVariables_;
-    QString tapAdapter_;
-    QMutex tapAdapterMutex_;
     bool isAllowFirewallAfterCustomConfigConnection_;
 
     static constexpr int KILL_TIMEOUT = 10000;
     QTimer killControllerTimer_;
 
+    AdapterGatewayInfo connectionAdapterInfo_;
+
     void funcRunOpenVPN();
     void funcConnectToOpenVPN(const boost::system::error_code& err);
     void handleRead(const boost::system::error_code& err, size_t bytes_transferred);
     void funcDisconnect();
-    QString safeGetTapAdapter();
-    void safeSetTapAdapter(const QString &tapAdapter);
 
     void checkErrorAndContinue(boost::system::error_code &write_error, bool bWithAsyncReadCall);
     void continueWithUsernameImpl();
     void continueWithPasswordImpl();
+
+    bool parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway);
+    bool parseDeviceOpenedReply(const QString &reply, QString &outDriverName, QString &outDeviceName);
+    bool parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp);
 };
 
 #endif // OPENVPNCONNECTION_H

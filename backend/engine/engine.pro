@@ -38,7 +38,7 @@ DEFINES += "WINVER=0x0601"
 DEFINES += "PIO_APC_ROUTINE_DEFINED"
 
 SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
-           engine/connectionmanager/resetwindscribetap_win.cpp \
+           engine/connectionmanager/adapterutils_win.cpp \
            engine/dnsinfo_win.cpp \
            engine/taputils/tapinstall_win.cpp \
            engine/helper/helper_win.cpp \
@@ -66,12 +66,11 @@ SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
            $$COMMON_PATH/utils/crashhandler.cpp \
            $$COMMON_PATH/utils/winutils.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
-           engine/connectionmanager/finishactiveconnections.cpp \
-           engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_win.cpp
+           engine/connectionmanager/finishactiveconnections.cpp
 
 
 HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
-           engine/connectionmanager/resetwindscribetap_win.h \
+           engine/connectionmanager/adapterutils_win.h \
            engine/dnsinfo_win.h \
            engine/taputils/tapinstall_win.h \
            engine/helper/helper_win.h \
@@ -98,8 +97,7 @@ HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
            $$COMMON_PATH/utils/crashhandler.h \
            $$COMMON_PATH/utils/winutils.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
-           engine/connectionmanager/finishactiveconnections.h \
-           engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_win.h
+           engine/connectionmanager/finishactiveconnections.h
 
 
 LIBS += Ws2_32.lib Advapi32.lib Iphlpapi.lib \
@@ -181,8 +179,7 @@ SOURCES += engine/networkstatemanager/networkstatemanager_mac.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_mac.cpp \
            engine/helper/helper_mac.cpp \
            engine/dnsresolver/dnsutils_mac.cpp \
-           engine/macaddresscontroller/macaddresscontroller_mac.cpp \
-           engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_mac.cpp
+           engine/macaddresscontroller/macaddresscontroller_mac.cpp
 
 HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/connectionmanager/sleepevents_mac.h \
@@ -200,8 +197,7 @@ HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/ping/pinghost_icmp_mac.h \
                engine/networkdetectionmanager/networkdetectionmanager_mac.h \
                engine/macaddresscontroller/macaddresscontroller_mac.h \
-               $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h \
-               engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo_mac.h
+               $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
 
 OBJECTIVE_HEADERS += \
                engine/networkstatemanager/reachability.h \
@@ -312,6 +308,7 @@ SOURCES += main.cpp \
     engine/proxy/proxyservercontroller.cpp \
     engine/types/dnsresolutionsettings.cpp \
     engine/connectionmanager/makeovpnfile.cpp \
+    engine/connectionmanager/adaptergatewayinfo.cpp \
     engine/connectionmanager/stunnelmanager.cpp \
     engine/connectionmanager/testvpntunnel.cpp \
     engine/connectionmanager/openvpnconnection.cpp \
@@ -387,8 +384,7 @@ SOURCES += main.cpp \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
     clientconnectiondescr.cpp \
     $$COMMON_PATH/ipc/tcpconnection.cpp \
-    $$COMMON_PATH/ipc/tcpserver.cpp \
-    engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.cpp
+    $$COMMON_PATH/ipc/tcpserver.cpp
 
 HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/locationsmodel/apilocationsmodel.h \
@@ -428,6 +424,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/apiinfo/portmap.h \
     engine/apiinfo/staticips.h \
     engine/apiinfo/servercredentials.h \
+    engine/connectionmanager/adaptergatewayinfo.h \
     engine/connectionmanager/makeovpnfile.h \
     engine/dnsresolver/dnsutils.h \
     engine/autoupdater/downloadhelper.h \
@@ -541,8 +538,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
     clientconnectiondescr.h \
     $$COMMON_PATH/ipc/tcpconnection.h \
-    $$COMMON_PATH/ipc/tcpserver.h \
-    engine/splittunnelingnetworkinfo/splittunnelingnetworkinfo.h
+    $$COMMON_PATH/ipc/tcpserver.h
 
 RESOURCES += \
     engine.qrc

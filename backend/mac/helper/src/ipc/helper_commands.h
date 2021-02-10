@@ -67,29 +67,25 @@ enum CMD_PROTOCOL_TYPE {
     CMD_PROTOCOL_WIREGUARD
 };
 
+struct ADAPTER_GATEWAY_INFO
+{
+    std::string adapterName;
+    std::string adapterIp;
+    std::string gatewayIp;
+    std::vector<std::string> dnsServers;
+};
+
 struct CMD_SEND_CONNECT_STATUS
 {
     bool isConnected;
     CMD_PROTOCOL_TYPE protocol;
-
-    std::string gatewayIp;
-    std::string interfaceName;
-    std::string interfaceIp;
     
-    // need for stunnel/wstunnel routing
+    ADAPTER_GATEWAY_INFO defaultAdapter;
+    ADAPTER_GATEWAY_INFO vpnAdapter;
+    
+    // need for stunnel/wstunnel/openvpn routing
     std::string connectedIp;
-
-    // need for openvpn routing
-    std::string routeVpnGateway;
-    std::string routeNetGateway;
-    std::string remote_1;
-    std::string ifconfigTunIp;
-    
-    // common
-    std::string vpnAdapterName;
-    std::string vpnAdapterIp;
-    
-    std::vector<std::string> dnsServers;
+    std::string remoteIp;
 };
 
 struct CMD_SET_KEXT_PATH

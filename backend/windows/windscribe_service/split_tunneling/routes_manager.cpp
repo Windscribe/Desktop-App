@@ -1,98 +1,119 @@
 #include "../all_headers.h"
 #include "routes_manager.h"
-#include "../logger.h"
+#include "../ip_address/ip4_address_and_mask.h"
 
-RoutesManager::RoutesManager(FirewallFilter &firewallFilter): firewallFilter_(firewallFilter), isEnabled_(false), isExcludeMode_(true)
+RoutesManager::RoutesManager()
 {
-	dnsResolver_.setResolveDomainsCallbackHandler(std::bind(&RoutesManager::dnsResolverCallback, this, std::placeholders::_1));
+    isSplitTunnelActive_ = false;
+    isExcludeMode_ = false;
+    connectStatus_.isConnected = false;
 }
 
-RoutesManager::~RoutesManager()
+void RoutesManager::updateState(const CMD_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode)
 {
-	dnsResolver_.stop();
-}
-
-
-void RoutesManager::enable(const MIB_IPFORWARDROW &rowDefault)
-{
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
-
-	if (!isExcludeMode_)
-	{
-		return;
-	}
-
-	rowDefault_ = rowDefault;
-	ipRoutes_.setIps(rowDefault_, ipsLatest_);
-	firewallFilter_.setSplitTunnelingWhitelistIps(ipsLatest_);
-	dnsResolver_.resolveDomains(hostsLatest_);
-
-	isEnabled_ = true;
-}
-
-void RoutesManager::disable()
-{
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
-
-	if (!isEnabled_)
-	{
-		return;
-	}
-	ipRoutes_.clear();
-
-	dnsResolver_.cancelAll();
-	isEnabled_ = false; 
-}
-
-void RoutesManager::setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts)
-{
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
-
-	// nothing todo if nothing changed
-	if (isExclude == isExcludeMode_ && ips == ipsLatest_ && hosts == hostsLatest_)
-	{
-		return;
-	}
-
-	ipsLatest_ = ips;
-	hostsLatest_ = hosts;
-	isExcludeMode_ = isExclude;
-
-	if (isEnabled_ && isExclude)
-	{
-		ipRoutes_.setIps(rowDefault_, ips);
-		firewallFilter_.setSplitTunnelingWhitelistIps(ips);
-		dnsResolver_.resolveDomains(hosts);
-	}
-}
-
-void RoutesManager::dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos)
-{
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
-
-	std::vector<Ip4AddressAndMask> hostsIps;
-	for (auto it = hostInfos.begin(); it != hostInfos.end(); ++it)
-	{
-		if (!it->second.error)
+    bool prevIsConnected = connectStatus_.isConnected;
+    
+    if  (prevIsConnected == false && connectStatus.isConnected == true)
+    {
+        if (isSplitTunnelActive)
+        {
+            if (!isExcludeMode)
+            {
+                if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+                {
+					doActionsForInclusiveModeOpenVpn(connectStatus);
+                }
+                else if (connectStatus.protocol == CMD_PROTOCOL_IKEV2)
+                {
+					doActionsForInclusiveModeIkev2(connectStatus);
+                }
+                else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+                {
+					doActionsForInclusiveModeWireGuard(connectStatus);
+                }
+            }
+        }
+    }
+    else if (prevIsConnected == true && connectStatus.isConnected == false)
+    {
+        clearAllRoutes();
+    }
+    else if (prevIsConnected == true && connectStatus.isConnected == true)
+    {
+        if (isSplitTunnelActive == false)
+        {
+            clearAllRoutes();
+        }
+		else  // if (isSplitTunnelActive == true)
 		{
-			std::vector<std::string> addresses = it->second.addresses;
-			for (auto addr = addresses.begin(); addr != addresses.end(); ++addr)
+			clearAllRoutes();
+
+			if (!isExcludeMode)
 			{
-				hostsIps.push_back(Ip4AddressAndMask(addr->c_str()));
-				Logger::instance().out("RoutesManager::dnsResolverCallback(), Resolved : %s, IP: %s", it->first.c_str(), addr->c_str());
+				if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+				{
+					doActionsForInclusiveModeOpenVpn(connectStatus);
+				}
+				else if (connectStatus.protocol == CMD_PROTOCOL_IKEV2)
+				{
+					doActionsForInclusiveModeIkev2(connectStatus);
+				}
+				else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+				{
+					doActionsForInclusiveModeWireGuard(connectStatus);
+				}
 			}
 		}
-		else
-		{
-			Logger::instance().out("RoutesManager::dnsResolverCallback(), Failed resolve : %s", it->first.c_str());
-		}
-	}
+    }
+    
+    connectStatus_ = connectStatus;
+    isSplitTunnelActive_ = isSplitTunnelActive;
+    isExcludeMode_ = isExcludeMode;
+}
 
-	hostsIps.insert(hostsIps.end(), ipsLatest_.begin(), ipsLatest_.end());
+void RoutesManager::clearAllRoutes()
+{
+	dnsServersRoutes_.revertRoutes();
+	boundRoute_.revertRoutes();
+	openVpnRoutes_.revertRoutes();
+	ikev2Routes_.revertRoutes();
+	wgRoutes_.revertRoutes();
+}
 
-	if (isEnabled_ && isExcludeMode_)
+void RoutesManager::doActionsForInclusiveModeOpenVpn(const CMD_CONNECT_STATUS &connectStatus)
+{
+	// delete openvpn default routes
+	IpForwardTable table;
+	//openVpnRoutes_.deleteRoute(table, connectStatus.remoteIp, "255.255.255.255", connectStatus.defaultAdapter.gatewayIp, connectStatus.defaultAdapter.ifIndex);
+	openVpnRoutes_.deleteRoute(table, "0.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex);
+	openVpnRoutes_.deleteRoute(table, "128.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex);
+
+	// add routes for DNS servers
+	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
 	{
-		ipRoutes_.setIps(rowDefault_, hostsIps);
-		firewallFilter_.setSplitTunnelingWhitelistIps(hostsIps);
+		dnsServersRoutes_.addRoute(table, *it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
 	}
+	// add bound route
+	boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, true);
+}
+void RoutesManager::doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS &connectStatus)
+{
+	// delete wireguard default route
+	IpForwardTable table;
+	wgRoutes_.deleteRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
+	// add routes for DNS servers
+	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
+	{
+		dnsServersRoutes_.addRoute(table, *it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
+	}
+	// add bound route
+	boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
+}
+void RoutesManager::doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &connectStatus)
+{
+	// delete ikev2 default route
+	IpForwardTable table;
+	ikev2Routes_.deleteRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
+	// add bound route
+	boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
 }

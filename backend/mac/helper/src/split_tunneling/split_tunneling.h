@@ -22,9 +22,6 @@ public:
     void setSplitTunnelingParams(bool isActive, bool isExclude, const std::vector<std::string> &apps,
                                  const std::vector<std::string> &ips, const std::vector<std::string> &hosts);
     
-    void setLatestWireGuardAdapterSettings(const std::string &adapterName, const std::string &ipAddress, const std::string &dnsAddressList,
-    const std::vector<std::string> &allowedIps);
-    
 private:
     std::mutex mutex_;
     
@@ -37,10 +34,6 @@ private:
     KextClient kextClient_;
     RoutesManager routesManager_;
     IpHostnamesManager ipHostnamesManager_;
-    
-    std::string wgIpAddress_;
-    std::string wgDnsAddress_;
-    std::string wgAllowedIp_;
         
     const std::string WEBKIT_FRAMEWORK_PATH = std::string("/System/Library/Frameworks/WebKit.framework");
     const std::string STAGED_WEBKIT_FRAMEWORK_PATH = std::string("/System/Library/StagedFrameworks/Safari/WebKit.framework");

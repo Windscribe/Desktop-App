@@ -1,14 +1,21 @@
 #include "adaptermetricscontroller_win.h"
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <WinSock2.h>
 #include <windows.h>
 #include <iphlpapi.h>
-#include "Utils/winutils.h"
-#include "Engine/Helper/ihelper.h"
+#include "utils/winutils.h"
+#include "engine/helper/ihelper.h"
 
-void AdapterMetricsController_win::updateMetrics(const QString &tapName, IHelper *helper)
+void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHelper *helper)
 {
-    if (!WinUtils::isWindows10orGreater() || tapName.isEmpty())
+    if (adapterName.isEmpty())
+    {
+        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::onConnected(), Error, adapterName is empty";
+        Q_ASSERT(false);
+        return;
+    }
+
+    if (!WinUtils::isWindows10orGreater())
     {
         return;
     }
@@ -41,12 +48,10 @@ void AdapterMetricsController_win::updateMetrics(const QString &tapName, IHelper
     IP_ADAPTER_ADDRESSES_LH *aa = (IP_ADAPTER_ADDRESSES_LH *)arr.data();
     while (aa)
     {
-        QString adapterName = QString::fromUtf16((const ushort *)aa->FriendlyName);
-        //QString adapterDescr = QString::fromUtf8(aa->AdapterName);
+        QString adapterDescr = QString::fromUtf16((const ushort *)aa->Description);
         //qDebug() << "adapterName:" << adapterName << ";" << "adapterDescr:" << adapterDescr;
 
-        if (strcmp(tapName.toStdString().c_str(), aa->AdapterName) == 0 ||
-                tapName == adapterName) // for IKEv2/WireGuard case
+        if (adapterName == adapterDescr)
         {
             if (aa->Ipv4Enabled)
             {
@@ -59,6 +64,11 @@ void AdapterMetricsController_win::updateMetrics(const QString &tapName, IHelper
                 tapAdapterIPv6Metric = aa->Ipv6Metric;
             }
             tapFriendlyName = QString::fromStdWString(aa->FriendlyName);
+            if (bTapAdapterFound)     // check for duplicate adapters
+            {
+                Q_ASSERT(false);
+                qCDebug(LOG_BASIC) << "AdapterMetricsController_win::onConnected(), Error, two adapters with the same name found";
+            }
             bTapAdapterFound = true;
         }
         else
