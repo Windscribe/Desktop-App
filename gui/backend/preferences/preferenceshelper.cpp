@@ -4,7 +4,7 @@
 
 PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
     isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false),
-    isDockedToTray_(false)
+    isDockedToTray_(false), isExternalConfigMode_(false)
 {
     availableLanguageCodes_ << "en" ; // << "en_nsfw" << "ru" << "ar" << "es" << "fr" << "hu" << "it" << "ja" << "ko" << "nl" <<
                             // "zh" << "de" << "pl" << "tr" << "cs" << "da" << "el" << "pt" << "sk" << "th" << "vi" << "sv" <<
@@ -133,6 +133,20 @@ void PreferencesHelper::setIsDockedToTray(bool b)
 bool PreferencesHelper::isDockedToTray() const
 {
     return isDockedToTray_;
+}
+
+void PreferencesHelper::setIsExternalConfigMode(bool b)
+{
+    if (isExternalConfigMode_ != b)
+    {
+        isExternalConfigMode_ = b;
+        emit isExternalConfigModeChanged(isExternalConfigMode_);
+    }
+}
+
+bool PreferencesHelper::isExternalConfigMode() const
+{
+    return isExternalConfigMode_;
 }
 
 #ifdef Q_OS_WIN

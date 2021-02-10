@@ -25,6 +25,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingPreferencesChanged(ProtoTypes::MacAddrSpoofing)));
     //connect(preferences, SIGNAL(dnsWhileConnectedChanged(DNSWhileConnected)), SLOT(onDNSWhileConnectedPreferencesChanged(DNSWhileConnected)));
     connect(preferencesHelper, SIGNAL(isFirewallBlockedChanged(bool)), SLOT(onIsFirewallBlockedChanged(bool)));
+    connect(preferencesHelper, SIGNAL(isExternalConfigModeChanged(bool)), SLOT(onIsExternalConfigModeChanged(bool)));
 #ifdef Q_OS_WIN
     connect(preferences, SIGNAL(isKillTcpSocketsChanged(bool)), SLOT(onKillTcpSocketsPreferencesChanged(bool)));
 #endif
@@ -288,6 +289,11 @@ void ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave()
 void ConnectionWindowItem::onIsFirewallBlockedChanged(bool bFirewallBlocked)
 {
     firewallModeItem_->setFirewallBlock(bFirewallBlocked);
+}
+
+void ConnectionWindowItem::onIsExternalConfigModeChanged(bool bIsExternalConfigMode)
+{
+    connectionModeItem_->setVisible(!bIsExternalConfigMode);
 }
 
 /*
