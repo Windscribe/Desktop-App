@@ -394,6 +394,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\apiinfo\staticips.cpp" />
     <ClCompile Include="engine\autoupdater\autoupdaterhelper_mac.cpp" />
     <ClCompile Include="engine\autoupdater\downloadhelper.cpp" />
+    <ClCompile Include="engine\connectionmanager\adaptergatewayinfo.cpp" />
+    <ClCompile Include="engine\connectionmanager\adapterutils_win.cpp" />
     <ClCompile Include="engine\connectionmanager\connsettingspolicy\autoconnsettingspolicy.cpp" />
     <ClCompile Include="engine\connectionmanager\connsettingspolicy\customconfigconnsettingspolicy.cpp" />
     <ClCompile Include="engine\connectionmanager\connsettingspolicy\manualconnsettingspolicy.cpp" />
@@ -448,7 +450,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\proxy\autodetectproxy_win.cpp" />
     <ClCompile Include="engine\connectionmanager\availableport.cpp" />
     <ClCompile Include="engine\serverapi\certmanager.cpp" />
-    <ClCompile Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.cpp" />
     <ClCompile Include="engine\taputils\checkadapterenable.cpp" />
     <ClCompile Include="..\..\common\ipc\generated_proto\clientcommands.pb.cc" />
     <ClCompile Include="clientconnectiondescr.cpp" />
@@ -525,7 +526,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\proxy\proxysettings.cpp" />
     <ClCompile Include="qconsolelistener.cpp" />
     <ClCompile Include="engine\refetchservercredentialshelper.cpp" />
-    <ClCompile Include="engine\connectionmanager\resetwindscribetap_win.cpp" />
     <ClCompile Include="..\..\common\ipc\server.cpp" />
     <ClCompile Include="engine\serverapi\serverapi.cpp" />
     <ClCompile Include="..\..\common\ipc\generated_proto\servercommands.pb.cc" />
@@ -542,7 +542,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="engine\vpnshare\socksproxyserver\socksproxyidentreqparser.cpp" />
     <ClCompile Include="engine\vpnshare\socksproxyserver\socksproxyreadexactly.cpp" />
     <ClCompile Include="engine\vpnshare\socksproxyserver\socksproxyserver.cpp" />
-    <ClCompile Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo.cpp" />
     <ClCompile Include="engine\connectionmanager\stunnelmanager.cpp" />
     <ClCompile Include="engine\taputils\tapinstall_win.cpp" />
     <ClCompile Include="..\..\common\ipc\tcpconnection.cpp" />
@@ -611,6 +610,8 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="engine\connectionmanager\connsettingspolicy\manualconnsettingspolicy.h" />
     <ClInclude Include="engine\autoupdater\autoupdaterhelper_mac.h" />
     <QtMoc Include="engine\autoupdater\downloadhelper.h" />
+    <ClInclude Include="engine\connectionmanager\adaptergatewayinfo.h" />
+    <ClInclude Include="engine\connectionmanager\adapterutils_win.h" />
     <ClInclude Include="engine\connectionmanager\restorednsmanager_mac.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -651,7 +652,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="engine\dnsresolver\areslibraryinit.h" />
     <ClInclude Include="engine\proxy\autodetectproxy_win.h" />
     <ClInclude Include="engine\connectionmanager\availableport.h" />
-    <ClInclude Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.h" />
     <ClInclude Include="engine\types\wireguardconfig.h" />
     <ClInclude Include="engine\types\wireguardtypes.h" />
     <ClInclude Include="utils\bfe_service_win.h" />
@@ -791,7 +791,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <QtMoc Include="engine\refetchservercredentialshelper.h">
     </QtMoc>
-    <ClInclude Include="engine\connectionmanager\resetwindscribetap_win.h" />
     <QtMoc Include="..\..\common\ipc\server.h">
     </QtMoc>
     <QtMoc Include="engine\serverapi\serverapi.h">
@@ -817,7 +816,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="engine\vpnshare\socksproxyserver\socksproxyserver.h">
     </QtMoc>
     <ClInclude Include="engine\vpnshare\socksproxyserver\socksstructs.h" />
-    <ClInclude Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo.h" />
     <QtMoc Include="engine\connectionmanager\stunnelmanager.h">
     </QtMoc>
     <ClInclude Include="engine\taputils\tapinstall_win.h" />

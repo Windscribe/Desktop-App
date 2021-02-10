@@ -155,7 +155,7 @@ void ItemWidgetHeader::updateScaling()
     recreateTextLayout();
 }
 
-void ItemWidgetHeader::paintEvent(QPaintEvent *event)
+void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
 {
     // background
     QPainter painter(this);
@@ -225,9 +225,9 @@ void ItemWidgetHeader::paintEvent(QPaintEvent *event)
     // top-most line (white)
     if( qFabs(1.0 - expandAnimationProgress_) < 0.000001 )
     {
-        QPen pen(Qt::white);
-        pen.setWidth(1);
-        painter.setPen(pen);
+        QPen white_pen(Qt::white);
+        white_pen.setWidth(1);
+        painter.setPen(white_pen);
         painter.drawLine(left, bottom, right, bottom);
         painter.drawLine(left, bottom - 1, right, bottom - 1);
     }

@@ -65,9 +65,6 @@
     <Filter Include="Engine Files\engine\proxy">
       <UniqueIdentifier>{7595b68a-f21b-44ff-a7d1-fd3df9b7cda6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine Files\engine\splittunnelingnetworkinfo">
-      <UniqueIdentifier>{eff13eac-d699-4292-8812-140b1a0e13d3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine Files\engine\serverapi">
       <UniqueIdentifier>{22f73589-5698-4222-a2da-0c210c9caddb}</UniqueIdentifier>
     </Filter>
@@ -412,9 +409,6 @@
     <ClCompile Include="engine\tempscripts_mac.cpp">
       <Filter>Engine Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\connectionmanager\resetwindscribetap_win.cpp">
-      <Filter>Engine Files\engine\connectionmanager</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\common\ipc\server.cpp">
       <Filter>Common Files\ipc</Filter>
     </ClCompile>
@@ -468,9 +462,6 @@
     </ClCompile>
     <ClCompile Include="engine\vpnshare\socksproxyserver\socksproxyserver.cpp">
       <Filter>Engine Files\engine\vpnshare\socksproxyserver</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo.cpp">
-      <Filter>Engine Files\engine\splittunnelingnetworkinfo</Filter>
     </ClCompile>
     <ClCompile Include="engine\taputils\tapinstall_win.cpp">
       <Filter>Engine Files\engine\taputils</Filter>
@@ -625,11 +616,14 @@
     <ClCompile Include="..\..\common\utils\crashhandler.cpp">
       <Filter>Common Files\utils</Filter>
     </ClCompile>
-    <ClCompile Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.cpp">
-      <Filter>Engine Files\engine\splittunnelingnetworkinfo</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\common\utils\mergelog.cpp">
       <Filter>Common Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\connectionmanager\adaptergatewayinfo.cpp">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\connectionmanager\adapterutils_win.cpp">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1064,9 +1058,6 @@
     <ClInclude Include="engine\proxy\proxysettings.h">
       <Filter>Engine Files\engine\proxy</Filter>
     </ClInclude>
-    <ClInclude Include="engine\connectionmanager\resetwindscribetap_win.h">
-      <Filter>Engine Files\engine\connectionmanager</Filter>
-    </ClInclude>
     <ClInclude Include="engine\tests\sessionandlocations_test.h">
       <Filter>Engine Files\engine\tests</Filter>
     </ClInclude>
@@ -1087,9 +1078,6 @@
     </ClInclude>
     <ClInclude Include="engine\vpnshare\socksproxyserver\socksstructs.h">
       <Filter>Engine Files\engine\vpnshare\socksproxyserver</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo.h">
-      <Filter>Engine Files\engine\splittunnelingnetworkinfo</Filter>
     </ClInclude>
     <ClInclude Include="engine\taputils\tapinstall_win.h">
       <Filter>Engine Files\engine\taputils</Filter>
@@ -1241,11 +1229,14 @@
     <ClInclude Include="..\..\common\utils\multiline_message_logger.h">
       <Filter>Common Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="engine\splittunnelingnetworkinfo\splittunnelingnetworkinfo_win.h">
-      <Filter>Engine Files\engine\splittunnelingnetworkinfo</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\common\utils\mergelog.h">
       <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\connectionmanager\adaptergatewayinfo.h">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\connectionmanager\adapterutils_win.h">
+      <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
