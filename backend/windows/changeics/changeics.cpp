@@ -490,13 +490,48 @@ bool restoreIcsSettings(wchar_t *szFilePath)
 	return true;
 }
 
+void browseForApplicationName()
+{
+    wchar_t buffer[MAX_PATH] = {};
+
+    OPENFILENAME op;
+    memset(&op, 0, sizeof(op));
+    op.lStructSize = sizeof(op);
+    op.lpstrFilter = L"All Files (*.*)\0*.*\0\0";
+    op.lpstrFile = buffer;
+    op.nMaxFile = MAX_PATH;
+    op.lpstrTitle = L"Select an application";
+    op.lpstrInitialDir = L"C:\\";
+    op.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_ENABLESIZING
+             | OFN_EXPLORER;
+    if (!GetOpenFileName(&op))
+        return;
+
+    // Fix path separators.
+    for (size_t i = 0; i < MAX_PATH; ++i) {
+        if (!buffer[i])
+            break;
+        if (buffer[i] == '\\')
+            buffer[i] = '/';
+    }
+    printf("%ls", buffer);
+}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	// 3 commands
+	// 4 commands
 	// -change GUID1 GUID2
 	// -save filepath
 	// -restore filepath
+    // -browseforapp
+
+    if (argc == 2)
+    {
+        // Special "browseforapp" command doesn't require netshell.dll.
+        if (wcscmp(argv[1], L"-browseforapp") == 0)
+            browseForApplicationName();
+        return 0;
+    }
 
 	HMODULE hDLL = LoadLibrary(L"netshell.dll");
 	if (hDLL)

@@ -2736,9 +2736,21 @@ void MainWindow::onNativeInfoErrorMessage(QString title, QString desc)
 
 void MainWindow::onSplitTunnelingAppsAddButtonClick()
 {
-    QString filename = QFileDialog::getOpenFileName(this, tr("Select an application"), "C:\\");
+    QString filename;
+#if defined(Q_OS_WIN)
+    QProcess getOpenFileNameProcess;
+    QString changeIcsExePath = QCoreApplication::applicationDirPath() + "/ChangeIcs.exe";
+    getOpenFileNameProcess.start(changeIcsExePath, { "-browseforapp" }, QIODevice::ReadOnly);
+    if (getOpenFileNameProcess.waitForFinished(-1)) {
+        filename = getOpenFileNameProcess.readAll().trimmed();
+        if (filename.isEmpty())
+            return;
+    }
+#endif  // Q_OS_WIN
+    if (filename.isEmpty())
+        filename = QFileDialog::getOpenFileName(this, tr("Select an application"), "C:\\");
 
-    if (filename != "") // TODO: validation
+    if (!filename.isEmpty()) // TODO: validation
     {
         mainWindowController_->getPreferencesWindow()->addApplicationManually(filename);
     }
