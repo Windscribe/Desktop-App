@@ -631,7 +631,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
             foreach (CityModelItem cityItem, item->cities)
             {
                 if (cityItem.city.contains(filterString_, Qt::CaseInsensitive) ||
-                    cityItem.city.contains(filterString_, Qt::CaseInsensitive))
+                    cityItem.nick.contains(filterString_, Qt::CaseInsensitive))
                 {
                     widgetLocationsList_->addCityToRegion(cityItem, item);
                 }
