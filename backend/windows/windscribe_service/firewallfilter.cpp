@@ -95,7 +95,7 @@ void FirewallFilter::offImpl(HANDLE engineHandle)
 
 void FirewallFilter::setSplitTunnelingEnabled()
 {
-	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
 
 	HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
 	fwpmWrapper_.beginTransaction();
@@ -110,11 +110,11 @@ void FirewallFilter::setSplitTunnelingEnabled()
 	}
 
 	fwpmWrapper_.endTransaction();
-	fwpmWrapper_.unlock();*/
+	fwpmWrapper_.unlock();
 }
 void FirewallFilter::setSplitTunnelingDisabled()
 {
-	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
 	
 	HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
 	fwpmWrapper_.beginTransaction();
@@ -122,12 +122,12 @@ void FirewallFilter::setSplitTunnelingDisabled()
 	fwpmWrapper_.endTransaction();
 	fwpmWrapper_.unlock();
 
-	isSplitTunnelingEnabled_ = false;*/
+	isSplitTunnelingEnabled_ = false;
 }
 
 void FirewallFilter::setSplitTunnelingAppsIds(const AppsIds &appsIds, bool isExclusiveMode)
 {
-	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
 	if (appsIds_ == appsIds && isSplitTunnelingExclusiveMode_ == isExclusiveMode)
 	{
 		return;
@@ -146,12 +146,12 @@ void FirewallFilter::setSplitTunnelingAppsIds(const AppsIds &appsIds, bool isExc
 		fwpmWrapper_.endTransaction();
 	}
 
-	fwpmWrapper_.unlock();*/
+	fwpmWrapper_.unlock();
 }
 
 void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips)
 {
-	/*std::lock_guard<std::recursive_mutex> guard(mutex_);
+	std::lock_guard<std::recursive_mutex> guard(mutex_);
 	if (splitRoutingIps_ == ips)
 	{
 		return;
@@ -168,7 +168,7 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressA
 		addPermitFilterForSplitRoutingWhitelistIps(hEngine, 2);
 		fwpmWrapper_.endTransaction();
 	}
-	fwpmWrapper_.unlock();*/
+	fwpmWrapper_.unlock();
 }
 
 void FirewallFilter::addFilterForWireGuardAdapter(NET_LUID luid)
@@ -690,7 +690,7 @@ void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle, UINT8 weight
 	}
 }
 
-void FirewallFilter::addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle, UINT8 /*weight*/)
+void FirewallFilter::addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle, UINT8 weight)
 {
 	if (appsIds_.count() == 0)
 	{
@@ -712,7 +712,7 @@ void FirewallFilter::addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle,
 	filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
 	filter.action.type = FWP_ACTION_PERMIT;
 	filter.weight.type = FWP_UINT8;
-	filter.weight.uint8 = 0x02;
+	filter.weight.uint8 = weight;
 	filter.numFilterConditions = static_cast<UINT32>(conditions.size());
 	if (conditions.size() > 0)
 	{
@@ -784,7 +784,6 @@ void FirewallFilter::addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHan
 	filter.subLayerKey = subLayerGUID_;
 	filter.displayData.name = (wchar_t *)FIREWALL_SUBLAYER_NAMEW;
 	filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
-	//filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
 	filter.action.type = FWP_ACTION_PERMIT;
 	filter.weight.type = FWP_UINT8;
 	filter.weight.uint8 = 0x02;

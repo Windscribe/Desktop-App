@@ -2,7 +2,7 @@
 #include "ip_forward_table.h"
 
 
-IpForwardTable::IpForwardTable()
+IpForwardTable::IpForwardTable(): maxMetric_(0)
 {
 	ULONG ulSize = sizeof(MIB_IPFORWARDROW) * 32;
 	ipForwardVector_.resize(ulSize);
@@ -24,6 +24,14 @@ IpForwardTable::IpForwardTable()
 	else
 	{
 		pIpForwardTable = (MIB_IPFORWARDTABLE *)&ipForwardVector_[0];
+
+		for (DWORD ind = 0; ind < pIpForwardTable->dwNumEntries; ++ind)
+		{
+			if (pIpForwardTable->table[ind].dwForwardMetric1 > maxMetric_)
+			{
+				maxMetric_ = pIpForwardTable->table[ind].dwForwardMetric1;
+			}
+		}
 	}
 }
 

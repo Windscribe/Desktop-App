@@ -9,8 +9,8 @@ class Routes
 public:
     Routes();
     
-	void deleteRoute(const IpForwardTable &curRoutetable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex);
-	void addRoute(const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex, bool useMaxMetric);
+	void deleteRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex);
+	void addRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex, bool useMaxMetric);
 
 	void revertRoutes();
 

@@ -29,7 +29,6 @@ void SplitTunneling::setSettings(bool isEnabled, bool isExclude, const std::vect
 		ipsList.push_back(Ip4AddressAndMask(it->c_str()));
 	}
 	hostnamesManager_.setSettings(isExclude, ipsList, hosts);
-
 	routesManager_.updateState(connectStatus_, isSplitTunnelEnabled_, isExclude_);
 	updateState();	
 }
@@ -110,12 +109,15 @@ void SplitTunneling::updateState()
 			}
 		}
 
+		firewallFilter_.setSplitTunnelingAppsIds(appsIds, isExclude_);
+		firewallFilter_.setSplitTunnelingEnabled();
 		calloutFilter_.enable(redirectIp, appsIds);
 	}
 	else
 	{
 		calloutFilter_.disable();
 		hostnamesManager_.disable();
+		firewallFilter_.setSplitTunnelingDisabled();
 		splitTunnelServiceManager_.stop();
 	}
 

@@ -20,11 +20,6 @@ void Routes::deleteRoute(const IpForwardTable &curRouteTable, const std::string 
 		const MIB_IPFORWARDROW *row = curRouteTable.getByIndex(i);
 		if (row)
 		{
-			in_addr adr;
-			memcpy(&adr, &row->dwForwardNextHop, sizeof(DWORD));
-			char *buf = inet_ntoa(adr);
-
-			
 			if (row->dwForwardDest == dest.ipNetworkOrder() && row->dwForwardMask == mask.ipNetworkOrder() && row->dwForwardNextHop == gateway.ipNetworkOrder()
 				&& row->dwForwardIfIndex == ifIndex)
 			{
@@ -43,7 +38,7 @@ void Routes::deleteRoute(const IpForwardTable &curRouteTable, const std::string 
 	}
 	
 }
-void Routes::addRoute(const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex, bool useMaxMetric)
+void Routes::addRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex, bool useMaxMetric)
 {
 	std::string log = "Routes::addRoute(), destIp=" + destIp + ", maskIp=" + maskIp + ", gatewayIp=" + gatewayIp;
 	Logger::instance().out("%s", log.c_str());
@@ -51,16 +46,25 @@ void Routes::addRoute(const std::string &destIp, const std::string &maskIp, cons
 	Ip4AddressAndMask mask(maskIp.c_str());
 	Ip4AddressAndMask gateway(gatewayIp.c_str());
 
-	// get metric for interface with ifIndex
-	MIB_IPINTERFACE_ROW interfaceRow;
-	memset(&interfaceRow, 0, sizeof(interfaceRow));
-	interfaceRow.Family = AF_INET;
-	interfaceRow.InterfaceIndex = ifIndex;
-	DWORD dwErr = GetIpInterfaceEntry(&interfaceRow);
-	if (dwErr != NO_ERROR)
+	ULONG metric;
+	if (useMaxMetric)
 	{
-		Logger::instance().out("Routes::addRoute(), GetIpInterfaceEntry failed with error: %x", dwErr);
-		return;
+		metric = curRouteTable.getMaxMetric() + 1;
+	}
+	else
+	{
+		// get metric for interface with ifIndex
+		MIB_IPINTERFACE_ROW interfaceRow;
+		memset(&interfaceRow, 0, sizeof(interfaceRow));
+		interfaceRow.Family = AF_INET;
+		interfaceRow.InterfaceIndex = ifIndex;
+		DWORD dwErr = GetIpInterfaceEntry(&interfaceRow);
+		if (dwErr != NO_ERROR)
+		{
+			Logger::instance().out("Routes::addRoute(), GetIpInterfaceEntry failed with error: %x", dwErr);
+			return;
+		}
+		metric = interfaceRow.Metric;
 	}
 
 	MIB_IPFORWARDROW row;
@@ -69,17 +73,11 @@ void Routes::addRoute(const std::string &destIp, const std::string &maskIp, cons
 	row.dwForwardDest = dest.ipNetworkOrder();
 	row.dwForwardMask = mask.ipNetworkOrder();
 	row.dwForwardNextHop = gateway.ipNetworkOrder();
-	if (useMaxMetric)
-	{
-		row.dwForwardMetric1 = 100000000;
-	}
-	else
-	{
-		row.dwForwardMetric1 = interfaceRow.Metric;
-	}
+	row.dwForwardMetric1 = metric;
+
 	row.dwForwardIfIndex = ifIndex;
 
-	dwErr = CreateIpForwardEntry(&row);
+	DWORD dwErr = CreateIpForwardEntry(&row);
 	if (dwErr == NO_ERROR)
 	{
 		addedRoutes_.push_back(row);

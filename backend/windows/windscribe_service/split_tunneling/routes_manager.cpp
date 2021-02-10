@@ -91,10 +91,10 @@ void RoutesManager::doActionsForInclusiveModeOpenVpn(const CMD_CONNECT_STATUS &c
 	// add routes for DNS servers
 	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
 	{
-		dnsServersRoutes_.addRoute(*it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
+		dnsServersRoutes_.addRoute(table, *it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
 	}
 	// add bound route
-	boundRoute_.addRoute("0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, true);
+	boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, true);
 }
 void RoutesManager::doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS &connectStatus)
 {
@@ -104,10 +104,10 @@ void RoutesManager::doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS 
 	// add routes for DNS servers
 	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
 	{
-		dnsServersRoutes_.addRoute(*it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
+		dnsServersRoutes_.addRoute(table, *it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
 	}
 	// add bound route
-	boundRoute_.addRoute("0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
+	boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
 }
 void RoutesManager::doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &connectStatus)
 {
@@ -115,5 +115,5 @@ void RoutesManager::doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &con
 	IpForwardTable table;
 	ikev2Routes_.deleteRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
 	// add bound route
-	boundRoute_.addRoute("0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
+	boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
 }
