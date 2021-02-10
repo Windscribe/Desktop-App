@@ -397,7 +397,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
             state_ = STATE_DISCONNECTED;
             emit error(IKEV_FAILED_TO_CONNECT);
         }
-        else
+        else if (state_ != STATE_DISCONNECTED)
         {
             if (state_ == STATE_DISCONNECTING_AUTH_ERROR)
             {
