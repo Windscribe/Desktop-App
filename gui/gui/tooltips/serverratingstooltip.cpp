@@ -35,8 +35,6 @@ void ServerRatingsTooltip::updateScaling()
     font_ = *FontManager::instance().getFont(12, false);
     recalcWidth();
     recalcHeight();
-    rateUpButton_->setGeometry(0, 0, BUTTON_WIDTH*G_SCALE, BUTTON_HEIGHT*G_SCALE);
-    rateDownButton_->setGeometry(0, 0, BUTTON_WIDTH*G_SCALE, BUTTON_HEIGHT*G_SCALE);
     updatePositions();
 }
 
@@ -194,8 +192,13 @@ void ServerRatingsTooltip::updatePositions()
     QFontMetrics fm(font_);
     int textWidth = fm.width(translatedText());
     int padding = MARGIN_WIDTH *G_SCALE + TEXT_BUTTON_SPACING*G_SCALE + additionalTailWidth();
-    rateUpButton_->move(textWidth + padding, MARGIN_HEIGHT*G_SCALE);
-    rateDownButton_->move(textWidth + padding + BUTTON_WIDTH*G_SCALE + MARGIN_WIDTH*G_SCALE, MARGIN_HEIGHT*G_SCALE);
+
+    rateUpButton_->updateSize();
+    rateDownButton_->updateSize();
+    rateUpButton_->setGeometry(textWidth + padding, MARGIN_HEIGHT*G_SCALE, rateUpButton_->width(), rateUpButton_->height());
+    rateDownButton_->setGeometry(textWidth + padding + rateUpButton_->width() + MARGIN_WIDTH*G_SCALE,
+                                 MARGIN_HEIGHT*G_SCALE,
+                                 rateDownButton_->width(), rateDownButton_->height());
 }
 
 const QString ServerRatingsTooltip::translatedText()

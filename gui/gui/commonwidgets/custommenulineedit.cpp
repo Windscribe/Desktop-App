@@ -6,6 +6,10 @@
 #include <QStyle>
 #include "graphicresources/fontmanager.h"
 
+#include <QDebug>
+
+namespace CommonWidgets {
+
 CustomMenuLineEdit::CustomMenuLineEdit(QWidget *parent) : BlockableQLineEdit (parent)
 {
     setContextMenuPolicy(Qt::NoContextMenu);
@@ -30,26 +34,6 @@ void CustomMenuLineEdit::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void CustomMenuLineEdit::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Tab)
-    {
-        emit keyPressed(event);
-    }
-    else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-    {
-        emit keyPressed(event);
-    }
-    else if (event->key() == Qt::Key_Escape)
-    {
-        emit keyPressed(event);
-    }
-    else
-    {
-        BlockableQLineEdit::keyPressEvent(event);
-    }
-}
-
 void CustomMenuLineEdit::changeEvent(QEvent *event)
 {
     if (event != nullptr && event->type() == QEvent::LanguageChange)
@@ -62,6 +46,18 @@ void CustomMenuLineEdit::changeEvent(QEvent *event)
     {
         BlockableQLineEdit::changeEvent(event);
     }
+}
+
+void CustomMenuLineEdit::keyPressEvent(QKeyEvent *event)
+{
+    qDebug() << "CusomMenuLineEdit::keyPressEvent";
+
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+    {
+        emit keyEnterPressed();
+    }
+
+    BlockableQLineEdit::keyPressEvent(event);
 }
 
 void CustomMenuLineEdit::setColorScheme(bool darkMode)
@@ -147,3 +143,4 @@ void CustomMenuLineEdit::updateActionsState()
     }
 }
 
+} // namespace

@@ -22,8 +22,6 @@ ShareWindowItem::ShareWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 
     proxyGatewayItem_ = new ProxyGatewayItem(this, preferencesHelper);
     connect(proxyGatewayItem_, SIGNAL(proxyGatewayParsChanged(ProtoTypes::ShareProxyGateway)), SLOT(onProxyGatewayParsChanged(ProtoTypes::ShareProxyGateway)));
-    connect(proxyGatewayItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(proxyGatewayItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     proxyGatewayItem_->setProxyGatewayPars(preferences->shareProxyGateway());
     addItem(proxyGatewayItem_);
 }

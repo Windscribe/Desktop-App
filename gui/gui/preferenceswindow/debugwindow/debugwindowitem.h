@@ -35,8 +35,6 @@ signals:
     void viewLogClick();
     void sendLogClick();
     void advParametersClick();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
 #ifdef Q_OS_WIN
     void setIpv6StateInOS(bool bEnabled, bool bRestartNow);
 #endif

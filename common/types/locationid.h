@@ -53,6 +53,10 @@ public:
 
     QString getHashString() const;
 
+    int type() { return type_; }
+    int id() { return id_; }
+    QString city() { return city_; }
+
 private:
     static constexpr int INVALID_LOCATION = 0;
     static constexpr int API_LOCATION = 1;

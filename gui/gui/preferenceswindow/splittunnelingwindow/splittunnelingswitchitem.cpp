@@ -5,6 +5,8 @@
 #include "utils/logger.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
+#include "tooltips/tooltipcontroller.h"
+
 
 #ifdef Q_OS_MAC
 #include "utils/macutils.h"
@@ -93,7 +95,7 @@ void SplitTunnelingSwitchItem::onActiveSwitchChanged(bool checked)
         ti.width = 260 * G_SCALE;
         ti.delay = 100;
 
-        QTimer::singleShot(0, [this, ti]() { emit showTooltip(ti); });
+        QTimer::singleShot(0, [this, ti]() { TooltipController::instance().showTooltipDescriptive(ti); });
 
         activeCheckBox_->setState(false);
         checked = false;
@@ -109,7 +111,7 @@ void SplitTunnelingSwitchItem::onActiveSwitchChanged(bool checked)
 void SplitTunnelingSwitchItem::onActiveSwitchHoverLeave()
 {
 #ifdef Q_OS_MAC
-    emit hideTooltip(TOOLTIP_ID_SPLIT_ROUTING_UNSUPPORTED);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_SPLIT_ROUTING_UNSUPPORTED);
 #endif  // Q_OS_MAC
 }
 
@@ -142,12 +144,12 @@ void SplitTunnelingSwitchItem::onModeInfoHoverEnter()
     ti.title = tr("Mode");
     ti.desc = tr("Exclusive: Selected apps and hostnames will not use VPN connection. \n\nInclusive: Only selected apps and hostnames will use VPN connection.");
     ti.width = width;
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipDescriptive(ti);
 }
 
 void SplitTunnelingSwitchItem::onModeInfoHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_SPLIT_ROUTING_MODE_INFO);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_SPLIT_ROUTING_MODE_INFO);
 }
 
 void SplitTunnelingSwitchItem::setClickable(bool clickable)

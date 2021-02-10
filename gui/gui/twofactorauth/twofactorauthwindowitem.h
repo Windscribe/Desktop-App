@@ -40,7 +40,7 @@ signals:
     void closeClick() override;
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private slots:
     void onEscClicked();
@@ -49,7 +49,6 @@ private slots:
     void onTextOpacityChange(const QVariant &value);
     void onEscTextOpacityChange(const QVariant &value);
 
-    void onCodeKeyPress(QKeyEvent *event);
     void onCodeTextChanged(const QString &text);
     void onCodeEntryOpacityChanged(const QVariant &value);
     void onErrorChanged(const QVariant &value);

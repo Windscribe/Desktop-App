@@ -56,7 +56,6 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
         SLOT(onCodeEntryOpacityChanged(QVariant)));
 
     codeEntry_ = new LoginWindow::UsernamePasswordEntry(QString(), false, this);
-    connect(codeEntry_, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(onCodeKeyPress(QKeyEvent*)));
     connect(codeEntry_, SIGNAL(textChanged(const QString&)), this,
                         SLOT(onCodeTextChanged(const QString&)));
     codeEntry_->setClickable(true);
@@ -228,7 +227,7 @@ void TwoFactorAuthWindowItem::updateScaling()
     updatePositions();
 }
 
-void TwoFactorAuthWindowItem::keyPressEvent(QKeyEvent *event)
+void TwoFactorAuthWindowItem::keyReleaseEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {
@@ -239,11 +238,6 @@ void TwoFactorAuthWindowItem::keyPressEvent(QKeyEvent *event)
     {
         onButtonClicked();
     }
-}
-
-void TwoFactorAuthWindowItem::onCodeKeyPress(QKeyEvent *event)
-{
-    keyPressEvent(event);
 }
 
 void TwoFactorAuthWindowItem::onCodeTextChanged(const QString &text)

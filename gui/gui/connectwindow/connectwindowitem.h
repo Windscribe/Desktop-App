@@ -85,8 +85,6 @@ signals:
     void notificationsClick() override;
     void networkButtonClick();
     void splitTunnelingButtonClick();
-    void showTooltip(TooltipInfo info) override;
-    void hideTooltip(TooltipId type) override;
 
 private:
     PreferencesHelper *preferencesHelper_;

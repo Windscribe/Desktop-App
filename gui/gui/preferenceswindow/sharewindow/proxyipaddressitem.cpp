@@ -10,6 +10,8 @@
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "tooltips/tooltipcontroller.h"
+
 
 namespace PreferencesWindow {
 
@@ -60,7 +62,7 @@ void ProxyIpAddressItem::updateScaling()
 
 void ProxyIpAddressItem::onCopyClick()
 {
-    emit hideTooltip(TOOLTIP_ID_PROXY_IP_COPIED); // multi-clicks will keep the tooltip alive
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_PROXY_IP_COPIED); // multi-clicks will keep the tooltip alive
 
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(strIP_);
@@ -77,10 +79,10 @@ void ProxyIpAddressItem::onCopyClick()
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 1;
     ti.delay = 0;
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipBasic(ti);
 
     QTimer::singleShot(TOOLTIP_TIMEOUT, [this](){
-       emit hideTooltip(TOOLTIP_ID_PROXY_IP_COPIED);
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_PROXY_IP_COPIED);
     });
 }
 

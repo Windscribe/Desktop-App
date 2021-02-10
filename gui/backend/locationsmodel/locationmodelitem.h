@@ -6,6 +6,7 @@
 #include "types/locationid.h"
 
 //todo: implicit sharing to avoid copy constructors
+//note regarding this todo: passing qsharedpointer's via signal/slots may be a bit tricky (probably need to inform the moc)
 struct CityModelItem
 {
     LocationID id;

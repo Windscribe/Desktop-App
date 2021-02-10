@@ -23,8 +23,6 @@ signals:
     void settingsChanged(ProtoTypes::SplitTunnelingSettings settings);
     void appsPageClick();
     void ipsAndHostnamesPageClick();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
 
 private:
     SplitTunnelingSwitchItem *splitTunnelingSwitchItem_;

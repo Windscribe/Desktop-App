@@ -51,8 +51,6 @@ signals:
     virtual void firewallClick() = 0;
     virtual void locationsClick() = 0;
     virtual void notificationsClick() = 0;
-    virtual void showTooltip(TooltipInfo info) = 0;
-    virtual void hideTooltip(TooltipId type) = 0;
 
 };
 

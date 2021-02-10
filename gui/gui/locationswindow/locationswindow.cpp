@@ -6,6 +6,7 @@
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
+#include <QDebug>
 
 LocationsWindow::LocationsWindow(QWidget *parent, LocationsModel *locationsModel) : QWidget(parent),
     locationsTabHeight_(LOCATIONS_TAB_HEIGHT), bDragPressed_(false)
@@ -21,8 +22,6 @@ LocationsWindow::LocationsWindow(QWidget *parent, LocationsModel *locationsModel
     connect(locationsTab_, SIGNAL(addStaticIpClicked()), SIGNAL(addStaticIpClicked()));
     connect(locationsTab_, SIGNAL(clearCustomConfigClicked()), SIGNAL(clearCustomConfigClicked()));
     connect(locationsTab_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
-    connect(locationsTab_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(locationsTab_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 
@@ -36,8 +35,8 @@ int LocationsWindow::tabAndFooterHeight() const
 
 void LocationsWindow::setCountVisibleItemSlots(int cnt)
 {
-    int newHeight = locationsTab_->setCountVisibleItemSlots(cnt);
-    locationsTabHeight_ = newHeight + 48 ; // hide last location separator line
+    locationsTab_->setCountVisibleItemSlots(cnt);
+    locationsTabHeight_ = locationsTab_->unscaledHeight() + 48 ; // hide last location separator line // TODO: issue here?
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
     emit heightChanged();
 }
@@ -54,6 +53,7 @@ void LocationsWindow::setOnlyConfigTabVisible(bool onlyConfig)
 
 void LocationsWindow::handleKeyReleaseEvent(QKeyEvent *event)
 {
+    // qDebug() << "LocationsWindow::handleKeyReleaseEvent";
     locationsTab_->handleKeyReleaseEvent(event);
 }
 
@@ -61,8 +61,7 @@ void LocationsWindow::updateLocationsTabGeometry()
 {
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
 
-    int newHeight = 50 * locationsTab_->getCountVisibleItems() - 1;
-    locationsTab_->updateLocationWidgetsGeometry(newHeight);
+    locationsTab_->updateLocationWidgetsGeometry(locationsTab_->unscaledHeight());
     locationsTab_->updateIconRectsAndLine();
     locationsTab_->update();
 }
@@ -93,6 +92,8 @@ void LocationsWindow::paintEvent(QPaintEvent *event)
 
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
+
+    // qDebug() << "LocatiosWindow::paintEvent - geo: " << geometry();
 
     // draw footer background
     int notchAdjustment = 2;

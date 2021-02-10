@@ -30,12 +30,11 @@ EditBoxItem::EditBoxItem(ScalableGraphicsObject *parent, const QString &caption,
 
     editPlaceholderText_ = editPrompt;
 
-    lineEdit_ = new CustomMenuLineEdit();
+    lineEdit_ = new CommonWidgets::CustomMenuLineEdit();
     lineEdit_->setPlaceholderText(tr(editPrompt.toStdString().c_str()));
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
 
-    connect(lineEdit_, SIGNAL(keyPressed(QKeyEvent*)), SLOT(onLineEditKeyPress(QKeyEvent*)));
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 
     proxyWidget_ = new QGraphicsProxyWidget(this);
@@ -118,6 +117,18 @@ void EditBoxItem::setMasked(bool masked)
     update();
 }
 
+void EditBoxItem::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+    {
+        onConfirmClick();
+    }
+    else if (event->key() == Qt::Key_Escape)
+    {
+        onUndoClick();
+        parentItem()->setFocus();
+    }
+}
 
 void EditBoxItem::onEditClick()
 {
@@ -152,14 +163,6 @@ void EditBoxItem::onUndoClick()
     update();
 }
 
-void EditBoxItem::onLineEditKeyPress(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Escape)
-    {
-        onUndoClick();
-        parentItem()->setFocus();
-    }
-}
 
 void EditBoxItem::onLanguageChanged()
 {

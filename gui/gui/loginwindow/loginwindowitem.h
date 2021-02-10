@@ -47,8 +47,6 @@ signals:
                     const QString &code2fa) override;
     void haveAccountYesClick() override;
     void backToWelcomeClick() override;
-    void showTooltip(TooltipInfo data);
-    void hideTooltip(TooltipId id);
     void firewallTurnOffClick();
 
 private slots:

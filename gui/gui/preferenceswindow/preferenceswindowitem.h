@@ -86,9 +86,6 @@ signals:
     void splitTunnelingAppsAddButtonClick();
     void detectAppropriatePacketSizeButtonClicked();
 
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
-
     void advancedParametersClicked() override;
 
 #ifdef Q_OS_WIN
@@ -123,7 +120,7 @@ private slots:
     void onCurrentNetworkUpdated(ProtoTypes::NetworkInterface network);
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
     void changeTab(PREFERENCES_TAB_TYPE tab);

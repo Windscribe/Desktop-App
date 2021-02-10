@@ -21,14 +21,13 @@ NewIpOrHostnameItem::NewIpOrHostnameItem(ScalableGraphicsObject *parent) : BaseI
     connect(cancelTextButton_, SIGNAL(clicked()), SLOT(onCancelClicked()));
 
     QString placeHolderText = tr("Enter IP or Hostname");
-    lineEdit_ = new CustomMenuLineEdit();
+    lineEdit_ = new CommonWidgets::CustomMenuLineEdit();
     lineEdit_->setPlaceholderText(placeHolderText);
     lineEdit_->setFont(*FontManager::instance().getFont(14, false));
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
-
-    connect(lineEdit_, SIGNAL(keyPressed(QKeyEvent*)), SLOT(onLineEditKeyPress(QKeyEvent*)));
     connect(lineEdit_, SIGNAL(textChanged(QString)), SLOT(onLineEditTextChanged(QString)));
+
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 
     proxyWidget_ = new QGraphicsProxyWidget(this);
@@ -65,6 +64,25 @@ void NewIpOrHostnameItem::updateScaling()
 
 }
 
+void NewIpOrHostnameItem::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+    {
+        submitEntryForRule();
+    }
+    else if (event->key() == Qt::Key_Escape)
+    {
+        if (lineEdit_->text() == "")
+        {
+            emit escape();
+        }
+        else
+        {
+            lineEdit_->setText("");
+        }
+    }
+}
+
 void NewIpOrHostnameItem::setEditMode(bool editMode)
 {
     editing_ = editMode;
@@ -84,25 +102,6 @@ void NewIpOrHostnameItem::setEditMode(bool editMode)
 void NewIpOrHostnameItem::onCancelClicked()
 {
     lineEdit_->setText("");
-}
-
-void NewIpOrHostnameItem::onLineEditKeyPress(QKeyEvent *keyEvent)
-{
-    if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
-    {
-        submitEntryForRule();
-    }
-    else if (keyEvent->key() == Qt::Key_Escape)
-    {
-        if (lineEdit_->text() == "")
-        {
-            emit escape();
-        }
-        else
-        {
-            lineEdit_->setText("");
-        }
-    }
 }
 
 void NewIpOrHostnameItem::onLanguageChanged()

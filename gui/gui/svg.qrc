@@ -98,14 +98,12 @@
         <file>svg/flags/ve.svg</file>
         <file>svg/locations/ALL_LOCATION_ICON.svg</file>
         <file>svg/locations/CONFIG_ICON.svg</file>
-        <file>svg/locations/DESELECTED_FAV_ICON.svg</file>
         <file>svg/locations/EXPAND_ICON.svg</file>
         <file>svg/locations/FAV_ICON.svg</file>
         <file>svg/locations/LOCATION_PING_BARS0.svg</file>
         <file>svg/locations/LOCATION_PING_BARS1.svg</file>
         <file>svg/locations/LOCATION_PING_BARS2.svg</file>
         <file>svg/locations/LOCATION_PING_BARS3.svg</file>
-        <file>svg/locations/SELECTED_FAV_ICON.svg</file>
         <file>svg/locations/STATIC_IP_ICON.svg</file>
         <file>svg/locations/TOP_ICON_DIVIDER.svg</file>
         <file>svg/locations/NO_P2P_ICON.svg</file>
@@ -293,5 +291,9 @@
         <file>svg/locations/CLEAR_ICON.svg</file>
         <file>svg/locations/STATIC_IP_ICON_BIG.svg</file>
         <file>svg/locations/FOLDER_ICON_BIG.svg</file>
+        <file>svg/locations/SEARCH_ICON.svg</file>
+        <file>svg/locations/SEARCH_CANCEL_ICON.svg</file>
+        <file>svg/locations/FAV_ICON_DESELECTED.svg</file>
+        <file>svg/locations/FAV_ICON_SELECTED.svg</file>
     </qresource>
 </RCC>

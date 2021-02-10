@@ -203,6 +203,8 @@ SOURCES += \
     commongraphics/scalablegraphicsobject.cpp \
     commonwidgets/combomenuwidget.cpp \
     commonwidgets/combomenuwidgetbutton.cpp \
+    commonwidgets/iconwidget.cpp \
+    commonwidgets/lightwidget.cpp \
     connectwindow/connectionbadgedots.cpp \
     connectwindow/connectstateprotocolport.cpp \
     connectwindow/ipaddressitem/ipaddressitem.cpp \
@@ -218,6 +220,13 @@ SOURCES += \
     graphicresources/iconmanager.cpp \
     graphicresources/independentpixmap.cpp \
     launchonstartup/launchonstartup.cpp \
+    locationswindow/widgetlocations/itemwidgetcity.cpp \
+    locationswindow/widgetlocations/itemwidgetheader.cpp \
+    locationswindow/widgetlocations/itemwidgetregion.cpp \
+    locationswindow/widgetlocations/scrollbar.cpp \
+    locationswindow/widgetlocations/widgetcitieslist.cpp \
+    locationswindow/widgetlocations/widgetlocations.cpp \
+    locationswindow/widgetlocations/widgetlocationslist.cpp \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.cpp \
     overlaysconnectwindow//upgradewindowitem.cpp \
     overlaysconnectwindow/updatewindowitem.cpp \
@@ -290,15 +299,10 @@ SOURCES += \
     connectwindow/connectwindowitem.cpp \
     locationswindow/locationswindow.cpp \
     locationswindow/widgetlocations/backgroundpixmapanimation.cpp \
-    locationswindow/widgetlocations/cityitem.cpp \
-    locationswindow/widgetlocations/citynode.cpp \
     locationswindow/widgetlocations/cursorupdatehelper.cpp \
-    locationswindow/widgetlocations/customscrollbar.cpp \
     locationswindow/widgetlocations/itemtimems.cpp \
-    locationswindow/widgetlocations/locationitem.cpp \
     locationswindow/widgetlocations/locationstab.cpp \
     locationswindow/widgetlocations/widgetcities.cpp \
-    locationswindow/widgetlocations/widgetlocations.cpp \
     locationswindow/widgetlocations/widgetlocationssizes.cpp \
     $$COMMON_PATH/ipc/commandfactory.cpp \
     $$COMMON_PATH/ipc/connection.cpp \
@@ -368,7 +372,7 @@ SOURCES += \
     loginwindow/blockableqlineedit.cpp \
     commongraphics/texticonbutton.cpp \
     commongraphics/verticaldividerline.cpp \
-    commongraphics/custommenulineedit.cpp \
+    commonwidgets/custommenulineedit.cpp \
     commonwidgets/iconbuttonwidget.cpp \
     commonwidgets/textbuttonwidget.cpp \
     preferenceswindow/proxysettingswindow/proxysettingsitem.cpp \
@@ -430,6 +434,8 @@ HEADERS += \
     commongraphics/scalablegraphicsobject.h \
     commonwidgets/combomenuwidget.h \
     commonwidgets/combomenuwidgetbutton.h \
+    commonwidgets/iconwidget.h \
+    commonwidgets/lightwidget.h \
     connectwindow/connectionbadgedots.h \
     connectwindow/connectstateprotocolport.h \
     connectwindow/ipaddressitem/ipaddressitem.h \
@@ -441,6 +447,14 @@ HEADERS += \
     dialogs/advancedparametersdialog.h \
     dialogs/dialoggetusernamepassword.h \
     dialogs/dialogmessagecpuusage.h \
+    locationswindow/widgetlocations/iitemwidget.h \
+    locationswindow/widgetlocations/itemwidgetcity.h \
+    locationswindow/widgetlocations/itemwidgetheader.h \
+    locationswindow/widgetlocations/itemwidgetregion.h \
+    locationswindow/widgetlocations/scrollbar.h \
+    locationswindow/widgetlocations/widgetcitieslist.h \
+    locationswindow/widgetlocations/widgetlocations.h \
+    locationswindow/widgetlocations/widgetlocationslist.h \
     overlaysconnectwindow/generalmessagetwobuttonwindowitem.h \
     overlaysconnectwindow/igeneralmessagetwobuttonwindow.h \
     overlaysconnectwindow/generalmessagewindowitem.h \
@@ -455,7 +469,6 @@ HEADERS += \
     graphicresources/iconmanager.h \
     graphicresources/independentpixmap.h \
     launchonstartup/launchonstartup.h \
-    locationswindow/widgetlocations/icityitem.h \
     loginwindow/iinitwindow.h \
     loginwindow/initwindowitem.h \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.h \
@@ -513,16 +526,11 @@ HEADERS += \
     connectwindow/connectwindowitem.h \
     locationswindow/locationswindow.h \
     locationswindow/widgetlocations/backgroundpixmapanimation.h \
-    locationswindow/widgetlocations/cityitem.h \
-    locationswindow/widgetlocations/citynode.h \
     locationswindow/widgetlocations/cursorupdatehelper.h \
-    locationswindow/widgetlocations/customscrollbar.h \
     locationswindow/widgetlocations/itemtimems.h \
     locationswindow/widgetlocations/iwidgetlocationsinfo.h \
-    locationswindow/widgetlocations/locationitem.h \
     locationswindow/widgetlocations/locationstab.h \
     locationswindow/widgetlocations/widgetcities.h \
-    locationswindow/widgetlocations/widgetlocations.h \
     locationswindow/widgetlocations/widgetlocationssizes.h \
     $$COMMON_PATH/ipc/command.h \
     $$COMMON_PATH/ipc/commandfactory.h \
@@ -620,7 +628,7 @@ HEADERS += \
     loginwindow/blockableqlineedit.h \
     commongraphics/texticonbutton.h \
     commongraphics/verticaldividerline.h \
-    commongraphics/custommenulineedit.h \
+    commonwidgets/custommenulineedit.h \
     commonwidgets/iconbuttonwidget.h \
     commonwidgets/textbuttonwidget.h \
     preferenceswindow/proxysettingswindow/proxysettingsitem.h \

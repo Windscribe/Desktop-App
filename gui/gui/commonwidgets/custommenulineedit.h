@@ -8,6 +8,8 @@
 #include "preferenceswindow/comboboxitem.h"
 #include "commonwidgets/custommenuwidget.h"
 
+namespace CommonWidgets {
+
 class CustomMenuLineEdit : public BlockableQLineEdit
 {
     Q_OBJECT
@@ -18,13 +20,15 @@ public:
     void updateScaling();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void changeEvent(QEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void changeEvent(QEvent *event)          override;
+    void keyPressEvent(QKeyEvent *event)     override;
 
 signals:
     void itemClicked(QString caption, QVariant value);
-    void keyPressed(QKeyEvent *event);
+
+    void keyEnterPressed();
+    void keyTabReleased();
 
 private slots:
     void onMenuTriggered(QAction *action);
@@ -36,4 +40,5 @@ private:
 
 };
 
+}
 #endif // CUSTOMMENULINEEDIT_H

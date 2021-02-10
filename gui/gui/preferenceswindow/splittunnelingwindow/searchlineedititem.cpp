@@ -25,14 +25,13 @@ SearchLineEditItem::SearchLineEditItem(ScalableGraphicsObject *parent) : BaseIte
     connect(clearTextButton_, SIGNAL(clicked()), SLOT(onClearTextClicked()));
 
     QString placeHolderText = tr("Search");
-    lineEdit_ = new CustomMenuLineEdit();
+    lineEdit_ = new CommonWidgets::CustomMenuLineEdit();
     lineEdit_->setPlaceholderText(placeHolderText);
     lineEdit_->setFont(*FontManager::instance().getFont(14, false));
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
     connect(lineEdit_, SIGNAL(focusIn()), SIGNAL(focusIn()));
 
-    connect(lineEdit_, SIGNAL(keyPressed(QKeyEvent*)), SLOT(onLineEditKeyPress(QKeyEvent*)));
     connect(lineEdit_, SIGNAL(textChanged(QString)), SLOT(onLineEditTextChanged(QString)));
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 
@@ -99,20 +98,9 @@ void SearchLineEditItem::focusInEvent(QFocusEvent * /*event*/)
     emit focusIn();
 }
 
-void SearchLineEditItem::onCancelClicked()
+void SearchLineEditItem::keyReleaseEvent(QKeyEvent *event)
 {
-    exitSearchMode();
-}
-
-void SearchLineEditItem::onClearTextClicked()
-{
-    lineEdit_->setText("");
-    proxyWidget_->setFocus();
-}
-
-void SearchLineEditItem::onLineEditKeyPress(QKeyEvent *keyEvent)
-{
-    if (keyEvent->key() == Qt::Key_Escape)
+    if (event->key() == Qt::Key_Escape)
     {
         if (lineEdit_->text() == "")
         {
@@ -123,10 +111,21 @@ void SearchLineEditItem::onLineEditKeyPress(QKeyEvent *keyEvent)
             lineEdit_->setText("");
         }
     }
-    else if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)
+    else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
     {
         emit enterPressed();
     }
+}
+
+void SearchLineEditItem::onCancelClicked()
+{
+    exitSearchMode();
+}
+
+void SearchLineEditItem::onClearTextClicked()
+{
+    lineEdit_->setText("");
+    proxyWidget_->setFocus();
 }
 
 void SearchLineEditItem::onLanguageChanged()

@@ -4,7 +4,7 @@
 #include <QGraphicsProxyWidget>
 #include "../baseitem.h"
 #include "commongraphics/iconbutton.h"
-#include "commongraphics/custommenulineedit.h"
+#include "commonwidgets/custommenulineedit.h"
 
 namespace PreferencesWindow {
 
@@ -22,16 +22,18 @@ signals:
     void addNewIpOrHostnameClicked(QString ipOrHostname);
     void escape();
 
+protected:
+    void keyReleaseEvent(QKeyEvent *event) override;
+
 private slots:
     void onCancelClicked();
-    void onLineEditKeyPress(QKeyEvent *keyEvent);
     void onLanguageChanged();
     void onLineEditTextChanged(QString text);
     void onAddIpOrHostnameClicked();
 
 private:
     QGraphicsProxyWidget *proxyWidget_;
-    CustomMenuLineEdit *lineEdit_;
+    CommonWidgets::CustomMenuLineEdit *lineEdit_;
 
     bool editing_;
     IconButton *cancelTextButton_;

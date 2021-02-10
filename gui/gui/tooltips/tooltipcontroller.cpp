@@ -8,7 +8,7 @@
 
 #include <QDebug>
 
-TooltipController::TooltipController(QObject *parent) : QObject(parent)
+TooltipController::TooltipController() : QObject(nullptr)
   , serverRatingsTooltip_(nullptr)
   , serverRatingState_(SERVER_RATING_NONE)
 {

@@ -10,7 +10,11 @@ class TooltipController : public QObject
 {
     Q_OBJECT
 public:
-    explicit TooltipController(QObject *parent = nullptr);
+    static TooltipController &instance()
+    {
+        static TooltipController t;
+        return t;
+    }
 
     void hideAllTooltips();
     void showTooltipInteractive(TooltipId id, int x, int y, int delay);
@@ -29,6 +33,8 @@ private slots:
     void onServerRatingsTooltipRateDownClicked();
 
 private:
+    TooltipController();
+
     ServerRatingsTooltip *serverRatingsTooltip_;
     ServerRatingState serverRatingState_;
 

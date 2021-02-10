@@ -35,7 +35,7 @@ signals:
     void scrollToRect(QRect r);
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private slots:
     void onAppDeleteClicked();

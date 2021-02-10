@@ -6,11 +6,12 @@
 #include <QWidget>
 #include <QVariantAnimation>
 #include <QTimer>
-#include "widgetlocations.h"
 #include "widgetcities.h"
+#include "widgetlocations.h"
 #include "../backend/locationsmodel/locationsmodel.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
+#include "commonwidgets/custommenulineedit.h"
 
 namespace GuiLocations {
 
@@ -21,8 +22,8 @@ class LocationsTab : public QWidget
 public:
     explicit LocationsTab(QWidget *parent, LocationsModel *locationsModel);
 
-    // return new height
-    int setCountVisibleItemSlots(int cnt);
+    int unscaledHeight();
+    void setCountVisibleItemSlots(int cnt);
     int getCountVisibleItems();
     void setOnlyConfigTabVisible(bool onlyConfig);
 
@@ -44,6 +45,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void leaveEvent(QEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
 
 signals:
     void selected(LocationID id);
@@ -52,41 +54,64 @@ signals:
     void addStaticIpClicked();
     void clearCustomConfigClicked();
     void addCustomConfigClicked();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId type);
 
 private slots:
     void onWhiteLinePosChanged(const QVariant &value);
-    void onAllLocationsHeightChanged(int oldHeight, int newHeight);
+
     void onDeviceNameChanged(const QString &deviceName);
     void onAddCustomConfigClicked();
 
+    void onSearchButtonHoverEnter();
+    void onSearchButtonHoverLeave();
+    void onSearchButtonClicked();
+    void onSearchCancelButtonClicked();
+    void onSearchButtonPosAnimationValueChanged(const QVariant &value);
+
+    void onSearchLineEditTextChanged(QString text);
+    void onSearchLineEditKeyEnterPressed();
+    void onSearchLineEditFocusOut();
 private:
-    IWidgetLocationsInfo *currentWidgetLocations();
-
-    GuiLocations::WidgetLocations *widgetAllLocations_;
-    GuiLocations::WidgetCities *widgetConfiguredLocations_;
-    GuiLocations::WidgetCities *widgetStaticIpsLocations_;
-    GuiLocations::WidgetCities *widgetFavoriteLocations_;
-
-    StaticIPDeviceInfo *staticIPDeviceInfo_; // footer
-    ConfigFooterInfo *configFooterInfo_;     // footer
-
     enum CurTabEnum {
         CUR_TAB_NONE = 0,
         CUR_TAB_ALL_LOCATIONS,
         CUR_TAB_FAVORITE_LOCATIONS,
         CUR_TAB_STATIC_IPS_LOCATIONS,
-        CUR_TAB_CONFIGURED_LOCATIONS
+        CUR_TAB_CONFIGURED_LOCATIONS,
+        CUR_TAB_SEARCH_LOCATIONS,
+        CUR_TAB_FIRST = CUR_TAB_ALL_LOCATIONS,
+        CUR_TAB_LAST = CUR_TAB_SEARCH_LOCATIONS
     };
+
+    IWidgetLocationsInfo *currentWidgetLocations();
+    IWidgetLocationsInfo *locationWidgetByEnum(CurTabEnum tabEnum);
+    GuiLocations::WidgetLocations *widgetAllLocations_;
+    GuiLocations::WidgetCities *widgetConfiguredLocations_;
+    GuiLocations::WidgetCities *widgetStaticIpsLocations_;
+    GuiLocations::WidgetCities *widgetFavoriteLocations_;
+    GuiLocations::WidgetLocations *widgetSearchLocations_;
+
+    StaticIPDeviceInfo *staticIPDeviceInfo_; // footer
+    ConfigFooterInfo *configFooterInfo_;     // footer
 
     //Backend &backend_;
     CurTabEnum curTab_;
+    CurTabEnum lastTab_;
     CurTabEnum tabPress_;
 
     static constexpr int TOP_TAB_HEIGHT = 50;
     static constexpr int ANIMATION_DURATION = 150;
     static constexpr int WHITE_LINE_WIDTH = 18;
+    static constexpr int TOP_TAB_MARGIN = 15;
+    static constexpr double TAB_OPACITY_DIM = 0.5;
+    static constexpr int SEARCH_BUTTON_POS_ANIMATION_DURATION = 200;
+    static constexpr int FIRST_TAB_ICON_POS_X = 106;
+    static constexpr int LAST_TAB_ICON_POS_X = 300;
+
+    QElapsedTimer focusOutTimer_;
+    bool searchTabSelected_; // better way to do this
+    CommonWidgets::IconButtonWidget *searchButton_;
+    CommonWidgets::IconButtonWidget *searchCancelButton_;
+    CommonWidgets::CustomMenuLineEdit *searchLineEdit_;
 
     QRect rcAllLocationsIcon_;
     QRect rcConfiguredLocationsIcon_;
@@ -108,15 +133,15 @@ private:
 
     QColor backgroundColor_;
 
-
     void changeTab(CurTabEnum newTab);
 
     void onClickAllLocations();
     void onClickConfiguredLocations();
     void onClickStaticIpsLocations();
     void onClickFavoriteLocations();
+    void onClickSearchLocations();
 
-    void drawTab(QPainter &painter, const QRect &rc);
+    void drawTabRegion(QPainter &painter, const QRect &rc);
     void drawBottomLine(QPainter &painter, int left, int right, int bottom, int whiteLinePos);
     void setArrowCursor();
     void setPointingHandCursor();
@@ -126,6 +151,11 @@ private:
 
     void updateCustomConfigsEmptyListVisibility();
     void updateRibbonVisibility();
+
+    int searchButtonPos_;
+    QVariantAnimation searchButtonPosAnimation_;
+    void updateTabIconRects();
+    void passEventToLocationWidget(QKeyEvent *event);
 };
 
 } // namespace GuiLocations

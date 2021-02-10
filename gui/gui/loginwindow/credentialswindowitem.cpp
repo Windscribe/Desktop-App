@@ -16,6 +16,7 @@
 #include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
+#include "tooltips/tooltipcontroller.h"
 
 namespace LoginWindow {
 
@@ -118,9 +119,7 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
     curEmergencyTextOpacity_ = OPACITY_HIDDEN;
     connect(&emergencyTextAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onEmergencyTextTransition(QVariant)));
 
-    connect(usernameEntry_, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(onUsernamePasswordKeyPress(QKeyEvent*)));
     connect(usernameEntry_, SIGNAL(textChanged(const QString &)), this, SLOT(onUsernamePasswordTextChanged(const QString &)));
-    connect(passwordEntry_, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(onUsernamePasswordKeyPress(QKeyEvent*)));
     connect(passwordEntry_, SIGNAL(textChanged(const QString &)), this, SLOT(onUsernamePasswordTextChanged(const QString &)));
 
     connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
@@ -496,30 +495,6 @@ void CredentialsWindowItem::showUsernamePassword()
     passwordEntry_->show();
 }
 
-void CredentialsWindowItem::onUsernamePasswordKeyPress(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Tab)
-    {
-        if (usernameEntry_->hasFocus())
-        {
-            passwordEntry_->setFocus();
-        }
-        else if (passwordEntry_->hasFocus())
-        {
-            usernameEntry_->setFocus();
-        }
-    }
-    else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-    {
-        if (isUsernameAndPasswordValid())
-            attemptLogin();
-    }
-    else if (event->key() == Qt::Key_Escape)
-    {
-        emit backClick();
-    }
-}
-
 void CredentialsWindowItem::onUsernamePasswordTextChanged(const QString & /*text*/)
 {
     loginButton_->setClickable(isUsernameAndPasswordValid());
@@ -556,7 +531,7 @@ void CredentialsWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, 
         ti.title = text;
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
-        emit showTooltip(ti);
+        TooltipController::instance().showTooltipBasic(ti);
     }
 }
 
@@ -611,6 +586,7 @@ void CredentialsWindowItem::updatePositions()
 
 void CredentialsWindowItem::keyPressEvent(QKeyEvent *event)
 {
+    qDebug() << "Credentials::keyPressEvent";
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
     {
         attemptLogin();
@@ -625,6 +601,7 @@ void CredentialsWindowItem::keyPressEvent(QKeyEvent *event)
 
 bool CredentialsWindowItem::sceneEvent(QEvent *event)
 {
+    // qDebug() << "Credentials:: scene event";
     if (event->type() == QEvent::KeyRelease)
     {
 
@@ -634,6 +611,7 @@ bool CredentialsWindowItem::sceneEvent(QEvent *event)
         {
             if (hasFocus())
             {
+                qDebug() << "Credentials::setting focus";
                 usernameEntry_->setFocus();
                 return true;
             }
@@ -671,12 +649,13 @@ void CredentialsWindowItem::updateScaling()
 
 void CredentialsWindowItem::setUsernameFocus()
 {
+    qDebug() << "Credentials::setUsernameFocus()";
     usernameEntry_->setFocus();
 }
 
 void CredentialsWindowItem::onTooltipButtonHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_LOGIN_ADDITIONAL_BUTTON_INFO);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOGIN_ADDITIONAL_BUTTON_INFO);
 }
 
 void CredentialsWindowItem::transitionToEmergencyON()

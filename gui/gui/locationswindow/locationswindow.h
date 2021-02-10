@@ -35,8 +35,6 @@ signals:
     void addStaticIpClicked();
     void clearCustomConfigClicked();
     void addCustomConfigClicked();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId type);
 
 protected:
     virtual void paintEvent(QPaintEvent *event);

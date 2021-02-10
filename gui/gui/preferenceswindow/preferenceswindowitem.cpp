@@ -40,8 +40,6 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(signOutClick()), SIGNAL(signOutClick()));
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(loginClick()), SIGNAL(loginClick()));
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(quitClick()), SIGNAL(quitAppClick()));
-    connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 
     backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", this);
     // backArrowButton_->hide();
@@ -69,17 +67,10 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(connectionWindowItem_, SIGNAL(proxySettingsPageClick()), SLOT(onProxySettingsPageClick()));
     connect(connectionWindowItem_, SIGNAL(cycleMacAddressClick()), SIGNAL(cycleMacAddressClick()));
     connect(connectionWindowItem_, SIGNAL(detectAppropriatePacketSizeButtonClicked()), SIGNAL(detectAppropriatePacketSizeButtonClicked()));
-    connect(connectionWindowItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(connectionWindowItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 
     connect(debugWindowItem_, SIGNAL(viewLogClick()), SIGNAL(viewLogClick()));
     connect(debugWindowItem_, SIGNAL(sendLogClick()), SIGNAL(sendDebugLogClick()));
     connect(debugWindowItem_, SIGNAL(advParametersClick()), SLOT(onAdvParametersClick()));
-    connect(debugWindowItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(debugWindowItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
-
-    connect(shareWindowItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(shareWindowItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
 #ifdef Q_OS_WIN
     connect(debugWindowItem_, SIGNAL(setIpv6StateInOS(bool,bool)), SIGNAL(setIpv6StateInOS(bool,bool)));
 #endif
@@ -97,8 +88,6 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
 
     connect(splitTunnelingWindowItem_, SIGNAL(appsPageClick()), SLOT(onSplitTunnelingAppsClick()));
     connect(splitTunnelingWindowItem_, SIGNAL(ipsAndHostnamesPageClick()), SLOT(onSplitTunnelingIpsAndHostnamesClick()));
-    connect(splitTunnelingWindowItem_, SIGNAL(showTooltip(TooltipInfo)), SIGNAL(showTooltip(TooltipInfo)));
-    connect(splitTunnelingWindowItem_, SIGNAL(hideTooltip(TooltipId)), SIGNAL(hideTooltip(TooltipId)));
     connect(splitTunnelingAppsWindowItem_, SIGNAL(searchButtonClicked()), SLOT(onSplitTunnelingAppsSearchClick()));
     connect(splitTunnelingAppsWindowItem_, SIGNAL(addButtonClicked()), SIGNAL(splitTunnelingAppsAddButtonClick()));
     connect(splitTunnelingAppsWindowItem_, SIGNAL(appsUpdated(QList<ProtoTypes::SplitTunnelingApp>)), SLOT(onAppsWindowAppsUpdated(QList<ProtoTypes::SplitTunnelingApp>)));
@@ -597,11 +586,9 @@ void PreferencesWindowItem::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface
     emit currentNetworkUpdated(network);
 }
 
-void PreferencesWindowItem::keyPressEvent(QKeyEvent *event)
+void PreferencesWindowItem::keyReleaseEvent(QKeyEvent *event)
 {
-    QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-
-    if (keyEvent->key() == Qt::Key_Escape && keyEvent->type() == QEvent::KeyPress)
+    if (event->key() == Qt::Key_Escape)
     {
         if (isShowSubPage_)
         {

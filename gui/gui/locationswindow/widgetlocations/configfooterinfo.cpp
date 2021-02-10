@@ -8,6 +8,7 @@
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
+#include "tooltips/tooltipcontroller.h"
 
 ConfigFooterInfo::IconButton::IconButton() : opacity(OPACITY_UNHOVER_ICON_TEXT), is_hover(false) {}
 
@@ -103,7 +104,7 @@ void ConfigFooterInfo::paintEvent(QPaintEvent * /*event*/)
 void ConfigFooterInfo::leaveEvent(QEvent * /*event*/)
 {
     isDisplayTextRectHover_ = false;
-    emit hideTooltip(TOOLTIP_ID_CONFIG_FOOTER);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_CONFIG_FOOTER);
 }
 
 void ConfigFooterInfo::mouseMoveEvent(QMouseEvent *event)
@@ -138,9 +139,9 @@ void ConfigFooterInfo::mouseMoveEvent(QMouseEvent *event)
             ti.title = fullText_;
             ti.tailtype = TOOLTIP_TAIL_BOTTOM;
             ti.tailPosPercent = 0.5;
-            emit showTooltip(ti);
+            TooltipController::instance().showTooltipBasic(ti);
         } else {
-            emit hideTooltip(TOOLTIP_ID_CONFIG_FOOTER);
+            TooltipController::instance().hideTooltip(TOOLTIP_ID_CONFIG_FOOTER);
         }
     }
 }

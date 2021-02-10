@@ -57,8 +57,6 @@ signals:
     void loginClick(const QString &username, const QString &password,
                     const QString &code2fa);
     void haveAccountYesClick();
-    void showTooltip(TooltipInfo data);
-    void hideTooltip(TooltipId id);
     void firewallTurnOffClick();
     void backClick();
 
@@ -86,7 +84,6 @@ private slots:
 
     void onEmergencyTextTransition(const QVariant &value);
 
-    void onUsernamePasswordKeyPress(QKeyEvent *event);
     void onUsernamePasswordTextChanged(const QString &text);
 
     void onFirewallTurnOffClick();

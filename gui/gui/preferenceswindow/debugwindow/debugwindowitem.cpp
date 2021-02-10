@@ -8,6 +8,7 @@
 #include "languagecontroller.h"
 #include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
+#include "tooltips/tooltipcontroller.h"
 
 extern QWidget *g_mainWindow;
 
@@ -109,7 +110,7 @@ void DebugWindowItem::setDebugLogResult(bool success)
     showSendButtonToolTip(displayString);
 
     QTimer::singleShot(TOOLTIP_TIMEOUT, [this](){
-        emit hideTooltip(TOOLTIP_ID_LOG_SENT);
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_LOG_SENT);
     });
 }
 
@@ -211,7 +212,7 @@ void DebugWindowItem::onViewButtonHoverEnter()
     ti.title = tr("View Log");
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.1;
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipBasic(ti);
 }
 
 void DebugWindowItem::onSendButtonHoverEnter()
@@ -228,13 +229,13 @@ void DebugWindowItem::onSendButtonHoverEnter()
     ti.title = tr("Send Log");
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.1;
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipBasic(ti);
 }
 
 void DebugWindowItem::onViewOrSendButtonHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_SEND_LOG);
-    emit hideTooltip(TOOLTIP_ID_VIEW_LOG);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_SEND_LOG);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_VIEW_LOG);
 }
 
 void DebugWindowItem::onIgnoreSslErrorsPreferencesChanged(bool b)
@@ -322,7 +323,7 @@ void DebugWindowItem::showSendButtonToolTip(const QString &text)
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.1;
     ti.delay = 0;
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipBasic(ti);
 }
 
 } // namespace PreferencesWindow

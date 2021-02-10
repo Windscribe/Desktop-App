@@ -24,8 +24,6 @@ public:
 
 signals:
     void proxyGatewayParsChanged(const ProtoTypes::ShareProxyGateway &sp);
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
 
 private slots:
     void onCheckBoxStateChanged(bool isChecked);

@@ -7,6 +7,7 @@
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "tooltips/tooltipcontroller.h"
 
 #include <QDebug>
 
@@ -62,14 +63,14 @@ void PacketSizeItem::onAutoDetectAndGenerateHoverEnter()
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.8;
     ti.title = tr("Auto-Detect & Generate MTU");
-    emit showTooltip(ti);
+    TooltipController::instance().showTooltipBasic(ti);
 }
 
 void PacketSizeItem::onAutoDetectAndGenerateHoverLeave()
 {
-    emit hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE);
     if (isShowingError_) {
-        emit hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE_ERROR);
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE_ERROR);
         isShowingError_ = false;
     }
 }
@@ -120,7 +121,7 @@ void PacketSizeItem::setPacketSizeDetectionState(bool on)
 
 void PacketSizeItem::showPacketSizeDetectionError(const QString &title, const QString &message)
 {
-    emit hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_AUTO_DETECT_PACKET_SIZE);
 
     QGraphicsView *view = scene()->views().first();
     QPoint globalPt = view->mapToGlobal(view->mapFromScene(editBoxPacketSize_->scenePos()));
@@ -138,7 +139,7 @@ void PacketSizeItem::showPacketSizeDetectionError(const QString &title, const QS
     QTimer::singleShot(0, [this, ti]() {
         isShowingError_ = true;
         editBoxPacketSize_->setAdditionalButtonSelectedState(true);
-        emit showTooltip(ti);
+        TooltipController::instance().showTooltipBasic(ti);
     });
 }
 

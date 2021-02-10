@@ -55,12 +55,11 @@ PacketSizeEditBoxItem::PacketSizeEditBoxItem(ScalableGraphicsObject *parent, con
 
     editPlaceholderText_ = editPrompt;
 
-    lineEdit_ = new CustomMenuLineEdit();
+    lineEdit_ = new CommonWidgets::CustomMenuLineEdit();
     lineEdit_->setPlaceholderText(tr(editPrompt.toStdString().c_str()));
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
 
-    connect(lineEdit_, SIGNAL(keyPressed(QKeyEvent*)), SLOT(onLineEditKeyPress(QKeyEvent*)));
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 
     proxyWidget_ = new QGraphicsProxyWidget(this);
@@ -209,6 +208,15 @@ void PacketSizeEditBoxItem::setAdditionalButtonSelectedState(bool selected)
         btnAdditional_->setSelected(selected);
 }
 
+void PacketSizeEditBoxItem::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Escape)
+    {
+        onUndoClick();
+        parentItem()->setFocus();
+    }
+}
+
 void PacketSizeEditBoxItem::onEditClick()
 {
     btnEdit_->hide();
@@ -253,15 +261,6 @@ void PacketSizeEditBoxItem::onUndoClick()
     proxyWidget_->hide();
     isEditMode_ = false;
     update();
-}
-
-void PacketSizeEditBoxItem::onLineEditKeyPress(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Escape)
-    {
-        onUndoClick();
-        parentItem()->setFocus();
-    }
 }
 
 void PacketSizeEditBoxItem::onLanguageChanged()

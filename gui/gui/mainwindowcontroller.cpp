@@ -123,15 +123,6 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     connect(dynamic_cast<QObject*>(preferencesWindow_), SIGNAL(sizeChanged()), SLOT(onPreferencesWindowResize()));
     connect(dynamic_cast<QObject*>(preferencesWindow_), SIGNAL(resizeFinished()), SLOT(onPreferencesWindowResizeFinished()));
 
-    connect(locationsWindow_, SIGNAL(showTooltip(TooltipInfo)), SLOT(onChildWindowShowTooltip(TooltipInfo)));
-    connect(locationsWindow_, SIGNAL(hideTooltip(TooltipId)), SLOT(onChildWindowHideTooltip(TooltipId)));
-    connect(static_cast<ConnectWindow::ConnectWindowItem*>(connectWindow_), SIGNAL(showTooltip(TooltipInfo)), SLOT(onChildWindowShowTooltip(TooltipInfo)));
-    connect(static_cast<ConnectWindow::ConnectWindowItem*>(connectWindow_), SIGNAL(hideTooltip(TooltipId)), SLOT(onChildWindowHideTooltip(TooltipId)));
-    connect(static_cast<LoginWindow::LoginWindowItem*>(loginWindow_), SIGNAL(showTooltip(TooltipInfo)), SLOT(onChildWindowShowTooltip(TooltipInfo)));
-    connect(static_cast<LoginWindow::LoginWindowItem*>(loginWindow_), SIGNAL(hideTooltip(TooltipId)), SLOT(onChildWindowHideTooltip(TooltipId)));
-    connect(static_cast<PreferencesWindow::PreferencesWindowItem*>(preferencesWindow_), SIGNAL(showTooltip(TooltipInfo)), SLOT(onChildWindowShowTooltip(TooltipInfo)));
-    connect(static_cast<PreferencesWindow::PreferencesWindowItem*>(preferencesWindow_), SIGNAL(hideTooltip(TooltipId)), SLOT(onChildWindowHideTooltip(TooltipId)));
-
     preferencesWindowHeight_ = preferencesWindow_->recommendedHeight();
 
     view_->setStyleSheet("background: transparent; border: none");
@@ -146,9 +137,8 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_PREFERENCES, false);
     connect(shadowManager_, SIGNAL(shadowUpdated()), SIGNAL(shadowUpdated()));
 
-    tooltipController_ = new TooltipController(nullptr);
-    connect(tooltipController_, SIGNAL(sendServerRatingUp()), SLOT(onTooltipControllerSendServerRatingUp()));
-    connect(tooltipController_, SIGNAL(sendServerRatingDown()), SLOT(onTooltipControllerSendServerRatingDown()));
+    connect(&TooltipController::instance(), SIGNAL(sendServerRatingUp()), SLOT(onTooltipControllerSendServerRatingUp()));
+    connect(&TooltipController::instance(), SIGNAL(sendServerRatingDown()), SLOT(onTooltipControllerSendServerRatingDown()));
 
     updateExpandAnimationParameters();
 }
@@ -479,6 +469,8 @@ void MainWindowController::collapseLocations()
         return;
     }
 
+    TooltipController::instance().hideAllTooltips();
+
     isAtomicAnimationActive_ = true;
     functionOnAnimationFinished_ = NULL;
 
@@ -580,11 +572,12 @@ int MainWindowController::getShadowMargin()
 
 void MainWindowController::hideAllToolTips()
 {
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
 }
 
 void MainWindowController::handleKeyReleaseEvent(QKeyEvent *event)
 {
+    // qDebug() << "MainWindowController::handleKeyReleaseEvent";
     locationsWindow_->handleKeyReleaseEvent(event);
 }
 
@@ -736,30 +729,6 @@ void MainWindowController::onBottomInfoPosChanged()
     keepWindowInsideScreenCoordinates();
 }
 
-void MainWindowController::onChildWindowShowTooltip(TooltipInfo info)
-{
-    // info.x and y should be the position of the tooltip tail point
-
-    if (info.type == TOOLTIP_TYPE_BASIC)
-    {
-        tooltipController_->showTooltipBasic(info);
-    }
-    else if (info.type == TOOLTIP_TYPE_DESCRIPTIVE)
-    {
-        tooltipController_->showTooltipDescriptive(info);
-    }
-    else if (info.type == TOOLTIP_TYPE_INTERACTIVE)
-    {
-        // currently only 1 interactive -- will need to expand if we get more
-        tooltipController_->showTooltipInteractive(info.id, info.x, info.y, info.delay);
-    }
-}
-
-void MainWindowController::onChildWindowHideTooltip(TooltipId type)
-{
-    tooltipController_->hideTooltip(type);
-}
-
 void MainWindowController::onTooltipControllerSendServerRatingUp()
 {
     emit sendServerRatingUp();
@@ -786,7 +755,7 @@ void MainWindowController::gotoInitializationWindow()
     shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
     updateWindow_->getGraphicsObject()->hide();
     connectWindow_->getGraphicsObject()->hide();
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
 
     if (bottomInfoWindow_->getGraphicsObject()->isVisible())
     {
@@ -1059,7 +1028,7 @@ void MainWindowController::gotoLoginWindow()
         loginWindow_->setClickable(true);
 
         connectWindow_->getGraphicsObject()->hide();
-        tooltipController_->hideAllTooltips();
+        TooltipController::instance().hideAllTooltips();
 
         if (bottomInfoWindow_->getGraphicsObject()->isVisible())
         {
@@ -1087,7 +1056,7 @@ void MainWindowController::gotoEmergencyWindow()
     curWindow_ = WINDOW_ID_EMERGENCY;
 
     loginWindow_->setClickable(false);
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
     loginWindow_->getGraphicsObject()->stackBefore(emergencyConnectWindow_->getGraphicsObject());
 
     emergencyConnectWindow_->getGraphicsObject()->setOpacity(0.0);
@@ -1124,7 +1093,7 @@ void MainWindowController::gotoLoggingInWindow()
     {
         curWindow_ = WINDOW_ID_LOGGING_IN;
         loginWindow_->setClickable(false);
-        tooltipController_->hideAllTooltips();
+        TooltipController::instance().hideAllTooltips();
         loginWindow_->getGraphicsObject()->stackBefore(loggingInWindow_->getGraphicsObject());
 
         loggingInWindow_->getGraphicsObject()->setOpacity(0.0);
@@ -1240,7 +1209,7 @@ void MainWindowController::hideLocationsWindow()
 
 void MainWindowController::clearServerRatingsTooltipState()
 {
-    tooltipController_->clearServerRatings();
+    TooltipController::instance().clearServerRatings();
 }
 
 #ifdef Q_OS_MAC
@@ -1570,7 +1539,7 @@ void MainWindowController::gotoNotificationsWindow()
     isAtomicAnimationActive_ = true;
     curWindow_ = WINDOW_ID_NOTIFICATIONS;
 
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
     connectWindow_->setClickable(false);
     bottomInfoWindow_->setClickable(false);
 
@@ -1608,7 +1577,7 @@ void MainWindowController::gotoExternalConfigWindow()
     curWindow_ = WINDOW_ID_EXTERNAL_CONFIG;
 
     loginWindow_->setClickable(false);
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
     loginWindow_->getGraphicsObject()->stackBefore(externalConfigWindow_->getGraphicsObject());
 
     externalConfigWindow_->getGraphicsObject()->setOpacity(0.0);
@@ -1642,7 +1611,7 @@ void MainWindowController::gotoTwoFactorAuthWindow()
     const auto prevWindow = curWindow_;
     curWindow_ = WINDOW_ID_TWO_FACTOR_AUTH;
 
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
 
     switch (prevWindow) {
     case WINDOW_ID_LOGIN:
@@ -1710,7 +1679,7 @@ void MainWindowController::gotoUpdateWindow()
     WINDOW_ID saveCurWindow = curWindow_;
     curWindow_ = WINDOW_ID_UPDATE;
 
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
     connectWindow_->setClickable(false);
     bottomInfoWindow_->setClickable(false);
 
@@ -1830,7 +1799,7 @@ void MainWindowController::gotoUpgradeWindow()
     isAtomicAnimationActive_ = true;
     curWindow_ = WINDOW_ID_UPGRADE;
 
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
     connectWindow_->setClickable(false);
     bottomInfoWindow_->setClickable(false);
 
@@ -1867,7 +1836,7 @@ void MainWindowController::gotoGeneralMessageWindow()
     isAtomicAnimationActive_ = true;
     curWindow_ = WINDOW_ID_GENERAL_MESSAGE;
 
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
     connectWindow_->setClickable(false);
     bottomInfoWindow_->setClickable(false);
 
@@ -1912,14 +1881,14 @@ void MainWindowController::gotoExitWindow()
     {
         exitWindow_->setBackgroundShapedToConnectWindow(true);
 
-        tooltipController_->hideAllTooltips();
+        TooltipController::instance().hideAllTooltips();
         connectWindow_->setClickable(false);
         bottomInfoWindow_->setClickable(false);
     }
     else if (curWindow_ == WINDOW_ID_LOGIN)
     {
         exitWindow_->setBackgroundShapedToConnectWindow(false);
-        tooltipController_->hideAllTooltips();
+        TooltipController::instance().hideAllTooltips();
         loginWindow_->setClickable(false);
     }
     else if (curWindow_ == WINDOW_ID_EMERGENCY)
@@ -2253,7 +2222,7 @@ void MainWindowController::expandPreferencesFromConnect()
             return;
         }
 
-        tooltipController_->hideAllTooltips();
+        TooltipController::instance().hideAllTooltips();
 
         preferencesState_ = PREFERENCES_STATE_ANIMATING;
 
@@ -2381,7 +2350,7 @@ void MainWindowController::collapsePreferencesFromLogin()
     isAtomicAnimationActive_ = true;
 
     preferencesWindow_->setScrollBarVisibility(false);
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
 
     preferencesState_ = PREFERENCES_STATE_ANIMATING;
     loginWindow_->getGraphicsObject()->show();
@@ -2462,7 +2431,7 @@ void MainWindowController::collapsePreferencesFromConnect(bool bSkipBottomInfoWi
         return;
     }
     preferencesWindow_->setScrollBarVisibility(false);
-    tooltipController_->hideAllTooltips();
+    TooltipController::instance().hideAllTooltips();
 
     preferencesState_ = PREFERENCES_STATE_ANIMATING;
     connectWindow_->getGraphicsObject()->show();
@@ -2505,7 +2474,7 @@ void MainWindowController::collapsePreferencesFromConnect(bool bSkipBottomInfoWi
     connect(animGroup, &QVariantAnimation::finished, [this, bSkipBottomInfoWindowAnimate]() {
         preferencesState_ = PREFERENCES_STATE_COLLAPSED;
         emit preferencesCollapsed();
-        tooltipController_->hideAllTooltips();
+        TooltipController::instance().hideAllTooltips();
         updateMainAndViewGeometry(false);
 
         connectWindow_->setClickable(true);
@@ -2615,6 +2584,7 @@ void MainWindowController::updateExpandAnimationParameters()
 {
     if (expandLocationsAnimationGroup_ != NULL)
     {
+        // TODO: sometimes this assert can fail
         Q_ASSERT(expandLocationsAnimationGroup_->state() != QAbstractAnimation::Running);
     }
 
@@ -3000,6 +2970,7 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
 {
     if (expandLocationsAnimationGroup_ != NULL && expandLocationsAnimationGroup_->state() == QAbstractAnimation::Running)
     {
+        // TODO: can fire when quickly opening locations list on app startup
         Q_ASSERT(false);
     }
     else

@@ -20,8 +20,6 @@ public:
 signals:
     void clearCustomConfigClicked();
     void addCustomConfigClicked();
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

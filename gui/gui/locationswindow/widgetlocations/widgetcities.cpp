@@ -4,45 +4,44 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScroller>
+#include <QApplication>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <qmath.h>
 #include "graphicresources/fontmanager.h"
 #include "widgetlocationssizes.h"
+#include "languagecontroller.h"
 #include "commongraphics/commongraphics.h"
-#include "cityitem.h"
 #include "cursorupdatehelper.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
+#include "tooltips/tooltipcontroller.h"
+#include "utils/logger.h"
+
+#include <QDebug>
 
 namespace GuiLocations {
 
-WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QAbstractScrollArea(parent),
-    width_(0),
-    height_(0),
-    topInd_(0),
-    topOffs_(0),
-    indSelected_(-1),
-    indPressed_(-1),
-    indFavouritePressed_(false),
-    countOfAvailableItemSlots_(visible_item_slots),
-    bIsFreeSession_(false),
-    isScrollAnimationNow_(false),
-    currentScale_(G_SCALE),
-    // toolTipRender_(NULL),
-    bMouseInViewport_(false),
-    bExpanded_(false),
-    bShowLatencyInMs_(false),
-    bTapGestureStarted_(false),
-    citiesModel_(NULL),
-    emptyListDisplayIcon_(""),
-    emptyListDisplayText_(""),
-    emptyListDisplayTextWidth_(0),
-    emptyListDisplayTextHeight_(0)
+WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QScrollArea(parent)
+  , citiesModel_(NULL)
+  , countOfAvailableItemSlots_(visible_item_slots)
+  , bIsFreeSession_(false)
+  , bShowLatencyInMs_(false)
+  , bTapGestureStarted_(false)
+  , currentScale_(G_SCALE)
+  , lastScrollPos_(0)
+  , kickPreventMouseSelectionTimer_(false)
+  , animationScollTarget_(0)
+  , emptyListDisplayIcon_("")
+  , emptyListDisplayText_("")
+  , emptyListDisplayTextWidth_(0)
+  , emptyListDisplayTextHeight_(0)
+  , heightChanging_(false)
 {
     setFrameStyle(QFrame::NoFrame);
     setMouseTracking(true);
     setStyleSheet("background-color: rgba(0,0,0,0)");
+    setFocusPolicy(Qt::NoFocus);
 
 #ifdef Q_OS_WIN
     viewport()->grabGesture(Qt::TapGesture);
@@ -59,218 +58,42 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QAbstractS
     scroller->setScrollerProperties(properties);
 #endif
 
-    scrollBarHidden_ = new CustomScrollBar(NULL, true);
-    scrollBarOnTop_ = new CustomScrollBar(this, false);
-    scrollBarOnTop_->setGeometry(50, 0, getScrollBarWidth(), 170 * G_SCALE);
-    connect(scrollBarOnTop_, SIGNAL(valueChanged(int)), SLOT(onTopScrollBarValueChanged(int)));
+    gestureScrollingElapsedTimer_.start();
 
-    scrollBarHidden_->setStyleSheet(QString( "QScrollBar:vertical { margin: %1px 0px %2px 0px; border: none; background: rgba(0, 0, 0, 255); width: %3px; }"
-                                             "QScrollBar::handle:vertical { background: rgb(106, 119, 144); color:  rgb(106, 119, 144);"
-                                             "border-width: %4px; border-style: solid; border-radius: %5px;}"
-                                             "QScrollBar::add-line:vertical { border: none; background: none; }"
-                                             "QScrollBar::sub-line:vertical { border: none; background: none; }")
-                                              .arg(qCeil(0))
-                                              .arg(qCeil(0))
-                                              .arg(qCeil(0))
-                                              .arg(qCeil(0)).arg(qCeil(0)));
+    // scrollbar
+    scrollBar_ = new ScrollBar(this);
+    setVerticalScrollBar(scrollBar_);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
+    connect(scrollBar_, SIGNAL(handleDragged(int)), SLOT(onScrollBarHandleDragged(int)));
 
-    scrollBarOnTop_->setStyleSheet(QString( "QScrollBar:vertical { margin: %1px 0px %2px 0px; border: none; background: rgba(0, 0, 0, 255); width: %3px; }"
-                                             "QScrollBar::handle:vertical { background: rgb(106, 119, 144); color:  rgb(106, 119, 144);"
-                                             "border-width: %4px; border-style: solid; border-radius: %5px;}"
-                                             "QScrollBar::add-line:vertical { border: none; background: none; }"
-                                             "QScrollBar::sub-line:vertical { border: none; background: none; }")
-                                              .arg(qCeil(CustomScrollBar::SCROLL_BAR_MARGIN))
-                                              .arg(qCeil(CustomScrollBar::SCROLL_BAR_MARGIN))
-                                              .arg(getScrollBarWidth())
-                                              .arg(qCeil(4)).arg(qCeil(3)));
-
-    setVerticalScrollBar(scrollBarHidden_);
-    this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    // central widget
+    widgetCitiesList_ = new WidgetCitiesList(this, this);
+    setWidget(widgetCitiesList_);
+    connect(widgetCitiesList_, SIGNAL(heightChanged(int)), SLOT(onLocationItemListWidgetHeightChanged(int)));
+    connect(widgetCitiesList_, SIGNAL(favoriteClicked(ItemWidgetCity*,bool)), SLOT(onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *, bool)));
+    connect(widgetCitiesList_, SIGNAL(locationIdSelected(LocationID)), SLOT(onLocationItemListWidgetLocationIdSelected(LocationID)));
+    widgetCitiesList_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), 0);
+    widgetCitiesList_->show();
 
     emptyListButton_ = new CommonWidgets::TextButtonWidget(QString(), this);
     emptyListButton_->setFont(FontDescr(12, false));
     emptyListButton_->hide();
     connect(emptyListButton_, SIGNAL(clicked()), SIGNAL(emptyListButtonClicked()));
 
-    setFocusPolicy(Qt::NoFocus);
-    easingCurve_.setType(QEasingCurve::Linear);
-    cursorUpdateHelper_.reset(new CursorUpdateHelper(viewport()));
-
-    setupScrollBar();
+    preventMouseSelectionTimer_.start();
+    connect(&scrollAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onScrollAnimationValueChanged(QVariant)));
+    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 }
 
 WidgetCities::~WidgetCities()
 {
-    clearItems();
-    /*if (toolTipRender_)
-    {
-        delete toolTipRender_;
-    }*/
-}
+    widgetCitiesList_->disconnect();
+    widgetCitiesList_->deleteLater();
 
-bool WidgetCities::cursorInViewport()
-{
-    QPoint cursorPos = QCursor::pos();
-    QRect rect = globalLocationsListViewportRect();
-    return rect.contains(cursorPos);
-}
-
-bool WidgetCities::hasSelection()
-{
-    return indSelected_ != -1;
-}
-
-void WidgetCities::centerCursorOnSelectedItem()
-{
-    if (indSelected_ != -1)
-    {
-        // Updating cursor
-        int visibleIndexOfCurrentSelection = currentVisibleItems_.indexOf(items_[indSelected_]->getLocationId());
-        if (visibleIndexOfCurrentSelection != -1)
-        {
-            int posY = globalLocationsListViewportRect().y() + viewportPosYOfIndex(visibleIndexOfCurrentSelection, true);
-            QPoint pt(QCursor::pos().x(), posY);
-            QCursor::setPos(pt);
-        }
-    }
-    else
-    {
-        updateSelectionCursorAndToolTipByCursorPos();
-    }
-}
-
-void WidgetCities::updateSelectionCursorAndToolTipByCursorPos()
-{
-    detectSelectedItem(QCursor::pos());
-    setCursorForSelected();
-    handleMouseMoveForTooltip();
-}
-
-void WidgetCities::updateListDisplay(QVector<CityModelItem*> items)
-{
-    bool bSaved = false;
-    LocationID savedTopLocationId;
-    LocationID savedSelectedLocationId;
-
-    /*if (items_.count() > 0)
-    {
-        // save location id of top item
-        savedTopLocationId = detectLocationForTopInd(topInd_);
-
-        if (indSelected_ != -1)
-        {
-            savedSelectedLocationId = items_[indSelected_]->getLocationId();
-
-            int itemSelectedInd = items_[indSelected_]->getSelected();
-            if (itemSelectedInd > 0)
-            {
-                savedSelectedLocationId.setCity(items_[indSelected_]->getCity(itemSelectedInd - 1));
-            }
-        }
-
-        bSaved = true;
-    }*/
-
-    clearItems();
-
-    int curInd = 0;
-    Q_UNUSED(curInd);
-    int newTopInd = -1;  // cppcheck-suppress variableScope
-    int allIndCounter = 0;  // cppcheck-suppress variableScope
-
-    indSelected_ = -1;
-
-    int indInVector = 0;
-    Q_FOREACH(const CityModelItem *cmi, items)
-    {
-        CityItem *item = new CityItem(this, cmi->id, cmi->city, cmi->nick, cmi->countryCode,
-                                      cmi->pingTimeMs, cmi->bShowPremiumStarOnly,
-                                      isShowLatencyInMs(), cmi->staticIp, cmi->staticIpType,
-                                      cmi->isFavorite, cmi->isDisabled, cmi->isCustomConfigCorrect,
-                                      cmi->customConfigType, cmi->customConfigErrorMessage);
-        items_ << item;
-        indInVector++;
-    }
-
-    /*Q_FOREACH(LocationItem *item, items_)
-    {
-        if (bSaved && newTopInd == -1)
-        {
-            if (item->getId() == savedTopLocationId.getId())
-            {
-                int cityInd = item->findCityInd(savedTopLocationId);
-                if (cityInd != -1)
-                {
-                    newTopInd = allIndCounter + cityInd + 1;
-                }
-                else
-                {
-                    newTopInd = allIndCounter;
-                }
-            }
-        }
-
-        if (bSaved && expandedLocationsIds.contains(item->getId()))
-        {
-            item->setExpandedWithoutAnimation();
-        }
-
-        if (bSaved && savedSelectedLocationId.getId() == item->getId())
-        {
-            indSelected_ = curInd;
-            item->setSelectedByCity(savedSelectedLocationId);
-        }
-
-        curInd++;
-        allIndCounter += item->countVisibleItems();
-    }*/
-
-    if (bSaved)
-    {
-        if (newTopInd != -1 && allIndCounter > countOfAvailableItemSlots_)
-        {
-            if (allIndCounter - newTopInd <= countOfAvailableItemSlots_)
-            {
-                topInd_ = -newTopInd + (countOfAvailableItemSlots_ - (allIndCounter - newTopInd));
-            }
-            else
-            {
-                topInd_ = -newTopInd;
-            }
-        }
-        else
-        {
-            topInd_ = 0;
-        }
-
-        topOffs_ = getItemHeight() * topInd_;
-
-        isScrollAnimationNow_ = false;
-
-        verticalScrollBar()->setValue(-topInd_);
-        setupScrollBarMaxValue();
-        viewport()->update();
-    }
-    else
-    {
-        topInd_ = 0;
-        topOffs_ = 0;
-        isScrollAnimationNow_ = false;
-
-        verticalScrollBar()->blockSignals(true);
-        verticalScrollBar()->setValue(0);
-        verticalScrollBar()->blockSignals(false);
-
-        scrollBarOnTop_->blockSignals(true);
-        scrollBarOnTop_->setValue(0);
-        scrollBarOnTop_->blockSignals(false);
-
-        setupScrollBarMaxValue();
-
-        viewport()->update();
-    }
-
-    updateEmptyListButton();
+    scrollBar_->disconnect();
+    scrollBar_->deleteLater();
 }
 
 void WidgetCities::setModel(BasicCitiesModel *citiesModel)
@@ -283,103 +106,90 @@ void WidgetCities::setModel(BasicCitiesModel *citiesModel)
     connect(citiesModel_, SIGNAL(isFavoriteChanged(LocationID, bool)), SLOT(onIsFavoriteChanged(LocationID, bool)), Qt::DirectConnection);
 }
 
-void WidgetCities::setCurrentSelected(LocationID id)
+void WidgetCities::updateScaling()
 {
-    isScrollAnimationNow_ = false;
+    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->updateCustomStyleSheet();
+    widgetCitiesList_->updateScaling();
+    updateEmptyListButton();
 
-    int curAllInd = 0;
-    for (int i = 0; i < items_.count(); ++i)
+    const auto scale_adjustment = G_SCALE / currentScale_;
+    if (scale_adjustment != 1.0)
     {
-        if (items_[i]->getLocationId() == id)
+        currentScale_ = G_SCALE;
+        int pos = (double) -lastScrollPos_  * scale_adjustment; // lastScrollPos_ is negative (from geometry)
+        lastScrollPos_ = -closestPositionIncrement(pos);
+
+        // correct listWidgets pos during scale change // delay necessary for reducing scale factor when low in list
+        QTimer::singleShot(0, [this](){
+            scrollBar_->forceSetValue(-lastScrollPos_); // use + for scrollbar
+        });
+    }
+
+}
+
+bool WidgetCities::hasAccentItem()
+{
+    return widgetCitiesList_->hasAccentItem();
+}
+
+LocationID WidgetCities::accentedItemLocationId()
+{
+    return widgetCitiesList_->lastAccentedItemWidget()->getId();
+}
+
+void WidgetCities::accentFirstItem()
+{
+    widgetCitiesList_->accentFirstItem();
+}
+
+
+bool WidgetCities::cursorInViewport()
+{
+    QPoint cursorPos = QCursor::pos();
+    QRect rect = globalLocationsListViewportRect();
+    return rect.contains(cursorPos);
+}
+
+void WidgetCities::centerCursorOnAccentedItem()
+{
+    QPoint cursorPos = QCursor::pos();
+    IItemWidget *lastSelWidget = widgetCitiesList_->lastAccentedItemWidget();
+
+    if (lastSelWidget)
+    {
+        QCursor::setPos(QPoint(cursorPos.x(), static_cast<int>(lastSelWidget->globalGeometry().top() - LOCATION_ITEM_HEIGHT*G_SCALE/2)));
+    }
+}
+
+void WidgetCities::centerCursorOnItem(LocationID locId)
+{
+    QPoint cursorPos = QCursor::pos();
+    if (locId.isValid())
+    {
+        if (locationIdInViewport(locId))
         {
-            if (id.isTopLevelLocation())
+            IItemWidget *widget = widgetCitiesList_->selectableWidget(locId);
+            if (widget)
             {
-                // update selected item
-                if (indSelected_ != -1)
-                {
-                    items_[indSelected_]->setSelected(false);
-                }
-                items_[i]->setSelected(true);
-                indSelected_ = i;
-
-                verticalScrollBar()->blockSignals(true);
-                verticalScrollBar()->setValue(curAllInd);
-                verticalScrollBar()->blockSignals(false);
-
-                scrollBarOnTop_->blockSignals(true);
-                scrollBarOnTop_->setValue(curAllInd);
-                scrollBarOnTop_->blockSignals(false);
-
-                topInd_ = -verticalScrollBar()->value();
-                topOffs_ = getItemHeight() * topInd_;
-
-                viewport()->update();
+                QCursor::setPos(QPoint(cursorPos.x(), static_cast<int>(widget->globalGeometry().top() + LOCATION_ITEM_HEIGHT*G_SCALE/2)));
             }
-            else
-            {
-                setupScrollBarMaxValue();
-
-                int cityInd = items_[i]->findCityInd(id);
-                if (cityInd != -1)
-                {
-                    if (indSelected_ != -1)
-                    {
-                        items_[indSelected_]->setSelected(false);
-                    }
-                    items_[i]->setSelected(true);
-                    indSelected_ = i;
-
-                    verticalScrollBar()->blockSignals(true);
-                    if (cityInd < (countOfAvailableItemSlots_ - 1))
-                    {
-                        verticalScrollBar()->setValue(curAllInd);
-                    }
-                    else
-                    {
-                        verticalScrollBar()->setValue(curAllInd + cityInd + 1 - (countOfAvailableItemSlots_ - 1));
-                    }
-                    verticalScrollBar()->blockSignals(false);
-
-                    scrollBarOnTop_->blockSignals(true);
-                    if (cityInd < (countOfAvailableItemSlots_ - 1))
-                    {
-                        scrollBarOnTop_->setValue(curAllInd);
-                    }
-                    else
-                    {
-                        scrollBarOnTop_->setValue(curAllInd + cityInd + 1 - (countOfAvailableItemSlots_ - 1));
-                    }
-                    scrollBarOnTop_->blockSignals(false);
-
-
-                    topInd_ = -verticalScrollBar()->value();
-                    topOffs_ = getItemHeight() * topInd_;
-
-                    viewport()->update();
-                }
-            }
-            break;
         }
-        curAllInd += items_[i]->countVisibleItems();
     }
 }
 
-void WidgetCities::setFirstSelected()
+int WidgetCities::countViewportItems()
 {
-    if (items_.count() > 0)
+    return countOfAvailableItemSlots_;
+}
+
+void WidgetCities::setCountViewportItems(int cnt)
+{
+    if (countOfAvailableItemSlots_ != cnt)
     {
-        setCurrentSelected(items_[0]->getLocationId());
+        countOfAvailableItemSlots_ = cnt;
+        updateEmptyListButton();
     }
-}
-
-void WidgetCities::setExpanded(bool bExpanded)
-{
-    bExpanded_ = bExpanded;
-}
-
-void WidgetCities::startAnimationWithPixmap(const QPixmap &pixmap)
-{
-    backgroundPixmapAnimation_.startWith(pixmap, 150);
 }
 
 void WidgetCities::setShowLatencyInMs(bool showLatencyInMs)
@@ -398,89 +208,53 @@ bool WidgetCities::isFreeSessionStatus()
     return bIsFreeSession_;
 }
 
-int WidgetCities::getWidth()
+void WidgetCities::startAnimationWithPixmap(const QPixmap &pixmap)
 {
-    return viewport()->width();
-}
-
-int WidgetCities::getScrollBarWidth()
-{
-    return WidgetLocationsSizes::instance().getScrollBarWidth();
-}
-
-void WidgetCities::setCountAvailableItemSlots(int cnt)
-{
-    if (countOfAvailableItemSlots_ != cnt)
-    {
-        QSize oldSize = sizeHint();
-        countOfAvailableItemSlots_ = cnt;
-        QSize newSize = sizeHint();
-        emit heightChanged(oldSize.height(), newSize.height());
-        setupScrollBar();
-        setupScrollBarMaxValue();
-        updateEmptyListButton();
-        viewport()->update();
-    }
-}
-
-int WidgetCities::getCountAvailableItemSlots()
-{
-    return countOfAvailableItemSlots_;
-}
-
-int WidgetCities::getItemHeight() const
-{
-    return WidgetLocationsSizes::instance().getItemHeight();
-}
-
-int WidgetCities::getTopOffset() const
-{
-    return WidgetLocationsSizes::instance().getTopOffset();
-}
-
-QSize WidgetCities::sizeHint() const
-{
-    return QSize(355, getItemHeight() * countOfAvailableItemSlots_ + (getTopOffset() - 1));
-}
-
-void WidgetCities::onKeyPressEvent(QKeyEvent *event)
-{
-    handleKeyEvent((QKeyEvent *)event);
+    backgroundPixmapAnimation_.startWith(pixmap, 150);
 }
 
 bool WidgetCities::eventFilter(QObject *object, QEvent *event)
 {
+    // order of events:
+    //      scroll: prepare -> start -> scroll -> canceled
+    //      tap   : prepate -> start -> finished
     if (object == viewport() && event->type() == QEvent::Gesture)
     {
         QGestureEvent *ge = static_cast<QGestureEvent *>(event);
+        qDebug() << "Event filter - Some Gesture: " << ge->gestures();
         QTapGesture *g = static_cast<QTapGesture *>(ge->gesture(Qt::TapGesture));
         if (g)
         {
             if (g->state() == Qt::GestureStarted)
             {
+                qDebug() << "Tap Gesture started";
                 bTapGestureStarted_ = true;
             }
             else if (g->state() == Qt::GestureFinished)
             {
                 if (bTapGestureStarted_)
                 {
+                    // this will only run on a quick tap
                     bTapGestureStarted_ = false;
                     QPointF ptf = g->position();
                     QPoint pt(ptf.x(), ptf.y());
-                    handleTapClick(viewport()->mapToGlobal(pt));
+                    qDebug() << "Tap Gesture finished, selecting by pt: " << pt;
+                    widgetCitiesList_->selectWidgetContainingGlobalPt(pt);
                 }
             }
             else if (g->state() == Qt::GestureCanceled)
             {
+                qDebug() << "Tap Gesture canceled - scrolling";
                 bTapGestureStarted_ = false;
             }
         }
         QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
         if (gp)
         {
+            qDebug() << "Pan gesture";
             if (gp->state() == Qt::GestureStarted)
             {
-
+                qDebug() << "Pan gesture started";
                 bTapGestureStarted_ = false;
             }
         }
@@ -488,61 +262,165 @@ bool WidgetCities::eventFilter(QObject *object, QEvent *event)
     }
     else if (object == viewport() && event->type() == QEvent::ScrollPrepare)
     {
+        // runs before tap and hold/scroll
         QScrollPrepareEvent *se = static_cast<QScrollPrepareEvent *>(event);
         se->setViewportSize(QSizeF(viewport()->size()));
-        se->setContentPosRange(QRectF(0, 0, 1, verticalScrollBar()->maximum() * getItemHeight()));
-        se->setContentPos(QPointF(0, verticalScrollBar()->value() * getItemHeight()));
+        se->setContentPosRange(QRectF(0, 0, 1, scrollBar_->maximum()));
+        se->setContentPos(QPointF(0, scrollBar_->value()));
         se->accept();
         return true;
     }
     else if (object == viewport() && event->type() == QEvent::Scroll)
     {
+        // runs while scrolling
         QScrollEvent *se = static_cast<QScrollEvent *>(event);
-        verticalScrollBar()->setValue(se->contentPos().y() / getItemHeight());
+        int scrollGesturePos = se->contentPos().y();
+        gestureScrollingElapsedTimer_.restart();
+        int notchedGesturePos = closestPositionIncrement(scrollGesturePos);
+        gestureScrollAnimation(notchedGesturePos);
+        widgetCitiesList_->accentWidgetContainingCursor();
         return true;
     }
-    return QAbstractScrollArea::eventFilter(object, event);
+    return QScrollArea::eventFilter(object, event);
+}
+
+void WidgetCities::setEmptyListDisplayIcon(QString emptyListDisplayIcon)
+{
+    emptyListDisplayIcon_ = emptyListDisplayIcon;
+    update();
+}
+
+void WidgetCities::setEmptyListDisplayText(QString emptyListDisplayText, int width)
+{
+    emptyListDisplayText_ = emptyListDisplayText;
+    emptyListDisplayTextWidth_ = width;
+    update();
+}
+
+void WidgetCities::setEmptyListButtonText(QString text)
+{
+    emptyListButton_->setText(text);
+    update();
+}
+
+void WidgetCities::handleKeyEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Up)
+    {
+        if (widgetCitiesList_->hasAccentItem())
+        {
+            if (widgetCitiesList_->accentItemIndex() > 0)
+            {
+                if (accentItemViewportIndex() <= 0)
+                {
+                    kickPreventMouseSelectionTimer_ = true;
+                    animatedScrollUp(1);
+                }
+                else
+                {
+                    QPoint cursorPos = QCursor::pos();
+                    if (isGlobalPointInViewport(cursorPos))
+                    {
+                        TooltipController::instance().hideAllTooltips();
+
+                        IItemWidget *lastSelWidget = widgetCitiesList_->lastAccentedItemWidget();
+
+                        QPoint pt(cursorPos.x(), static_cast<int>(cursorPos.y() - LOCATION_ITEM_HEIGHT*G_SCALE));
+                        if (!lastSelWidget->containsCursor()) // accent item does not match with cursor
+                        {
+                            pt = QPoint(cursorPos.x(), static_cast<int>(lastSelWidget->globalGeometry().top() - LOCATION_ITEM_HEIGHT*G_SCALE/2));
+                        }
+
+                        if (isGlobalPointInViewport(pt)) // prevent jump outside of locations region
+                        {
+                            // Note: this kind of cursor control requires Accessibility Permissions on MacOS
+                            QCursor::setPos(pt);
+                        }
+                    }
+                }
+                widgetCitiesList_->moveAccentUp();
+            }
+        }
+        else
+        {
+            widgetCitiesList_->accentFirstItem();
+        }
+    }
+    else if (event->key() == Qt::Key_Down)
+    {
+        if (widgetCitiesList_->hasAccentItem())
+        {
+            if (widgetCitiesList_->accentItemIndex() < widgetCitiesList_->itemWidgets().count() - 1)
+            {
+                if (accentItemViewportIndex() >= countOfAvailableItemSlots_ - 1)
+                {
+                    kickPreventMouseSelectionTimer_ = true;
+                    animatedScrollDown(1);
+                }
+                else
+                {
+                    QPoint cursorPos = QCursor::pos();
+                    if (isGlobalPointInViewport(cursorPos))
+                    {
+                        TooltipController::instance().hideAllTooltips();
+
+                        IItemWidget *lastSelWidget = widgetCitiesList_->lastAccentedItemWidget();
+
+                        QPoint pt(cursorPos.x(), static_cast<int>(cursorPos.y() + LOCATION_ITEM_HEIGHT*G_SCALE));
+                        if (!lastSelWidget->containsCursor()) // accent item does not match with cursor
+                        {
+                            pt = QPoint(cursorPos.x(), static_cast<int>(lastSelWidget->globalGeometry().bottom() + LOCATION_ITEM_HEIGHT*G_SCALE/2));
+                        }
+
+                        if (isGlobalPointInViewport(pt)) // prevent jump outside of locations region
+                        {
+                            // Note: this kind of cursor control requires Accessibility Permissions on MacOS
+                            QCursor::setPos(pt);
+                        }
+                    }
+                }
+                widgetCitiesList_->moveAccentDown();
+            }
+        }
+        else
+        {
+            // qDebug() << "Accenting first";
+            widgetCitiesList_->accentFirstItem();
+        }
+    }
+    else if (event->key() == Qt::Key_Return)
+    {
+        // qDebug() << "Selection by key press";
+        IItemWidget *lastSelWidget = widgetCitiesList_->lastAccentedItemWidget();
+
+        if (lastSelWidget)
+        {
+            if(!lastSelWidget->isForbidden() && !lastSelWidget->isDisabled())
+            {
+                emit selected(widgetCitiesList_->lastAccentedLocationId());
+            }
+        }
+    }
+}
+
+int WidgetCities::gestureScrollingElapsedTime()
+{
+    return gestureScrollingElapsedTimer_.elapsed();
 }
 
 void WidgetCities::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
-    if (isScrollAnimationNow_)
-    {
-        bool bCursorInViewport = isGlobalPointInViewport(QCursor::pos());
+    // qDebug() << "WidgetCities::paintEvent - geo: " << geometry();
 
-        calcScrollPosition();
-        if (bCursorInViewport)
-        {
-            detectSelectedItem(QCursor::pos());
-            setCursorForSelected();
-        }
-
-        if (!isScrollAnimationNow_)
-        {
-            prevCursorPos_ = QPoint();
-            if (bCursorInViewport)
-            {
-                handleMouseMoveForTooltip();
-            }
-        }
-
-        viewport()->update();
-    }
-    else if (backgroundPixmapAnimation_.isAnimationActive())
-    {
-        viewport()->update();
-    }
-
-    // background
+    // draw background for when list is < size of viewport
     QPainter painter(viewport());
-    QRect geometryRect = viewport()->geometry();
-    painter.fillRect(QRect(0, 0, geometryRect.width(), geometryRect.height()), QBrush(WidgetLocationsSizes::instance().getBackgroundColor()));
-
+    QRect bkgd(0,0,geometry().width(), geometry().height());
+    painter.fillRect(bkgd, WidgetLocationsSizes::instance().getBackgroundColor());
 
     // empty list drawing items
-    if (countVisibleItems() == 0)
+    if (widgetCitiesList_->itemWidgets().isEmpty())
     {
         const int kVerticalOffset = emptyListButton_->text().isEmpty() ? 0 : 16;
         if (!emptyListDisplayIcon_.isEmpty())
@@ -574,252 +452,70 @@ void WidgetCities::paintEvent(QPaintEvent *event)
             }
         }
     }
-
-    QRect locationsGeometry = QRect(0, getTopOffset(), geometryRect.width(), geometryRect.height() - getTopOffset());
-
-    // draw items
-    int itemInd = 0;
-    int curTop = 0;
-    QVector<int> linesForScrollbar;
-    linesForScrollbar.reserve(10);
-
-    currentVisibleItems_.clear();
-    Q_FOREACH(ICityItem *item, items_)
-    {
-        QRect rc(0, curTop + getTopOffset() + topOffs_, geometryRect.width(), getItemHeight()*item->countVisibleItems());
-        QRect rcLocationCaption(0, curTop + getTopOffset() + topOffs_, geometryRect.width(), getItemHeight());
-        curTop += getItemHeight();
-
-        if (locationsGeometry.intersects(rc))
-        {
-            linesForScrollbar << rcLocationCaption.bottom();
-
-            item->drawLocationCaption(&painter, rcLocationCaption);
-            currentVisibleItems_.append(item->getLocationId());
-        }
-
-        itemInd++;
-    }
-
-    if (backgroundPixmapAnimation_.isAnimationActive())
-    {
-        painter.setOpacity(backgroundPixmapAnimation_.curOpacity());
-        painter.drawPixmap(0, 0, backgroundPixmapAnimation_.curPixmap());
-    }
 }
 
+// called by change in the vertical scrollbar
 void WidgetCities::scrollContentsBy(int dx, int dy)
 {
-    Q_UNUSED(dx);
-    Q_UNUSED(dy);
-    //clearBottomFlags();
+    TooltipController::instance().hideAllTooltips();
 
-    if (verticalScrollBar()->value() != scrollBarOnTop_->value())
+    if (!scrollBar_->dragging())
     {
-        scrollBarOnTop_->setValue(verticalScrollBar()->value());
-    }
-
-    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
-    emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
-    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
-
-    startAnimationTop_ = topOffs_;
-
-    endAnimationTop_ = -getItemHeight() * verticalScrollBar()->value();
-
-    int scrollAreaHeight;
-    if (startAnimationTop_ < endAnimationTop_)
-    {
-        scrollAreaHeight = endAnimationTop_ - startAnimationTop_;
-    }
-    else if (startAnimationTop_ > endAnimationTop_)
-    {
-        scrollAreaHeight = startAnimationTop_ - endAnimationTop_;
-    }
-    else
-    {
-        topInd_ = -verticalScrollBar()->value();
-        isScrollAnimationNow_ = false;
-        cursorUpdateHelper_->setPointingHandCursor();
-        viewport()->update();
-        return;
-    }
-
-    double countScrollItems = scrollAreaHeight / ((double)getItemHeight());
-    double curSpeed = calcScrollingSpeed(countScrollItems);
-
-    double d = (double)(scrollAreaHeight) / (double)curSpeed;
-    scrollAnimationDuration_ = d;
-    if (scrollAnimationDuration_ <= 0.01)
-    {
-        scrollAnimationDuration_ = 1;
-    }
-
-    topInd_ = -verticalScrollBar()->value();
-    scrollAnimationElapsedTimer_.start();
-    isScrollAnimationNow_ = true;
-    cursorUpdateHelper_->setPointingHandCursor();
-    viewport()->update();
-}
-
-void WidgetCities::mouseMoveEvent(QMouseEvent *event)
-{
-#ifdef Q_OS_WIN
-    if (event->source() == Qt::MouseEventSynthesizedBySystem)
-    {
-        return;
-    }
-#endif
-
-    if (!isScrollAnimationNow_)
-    {
-        if (detectSelectedItem(QCursor::pos()))
+        // cursor should not interfere when animation is running
+        // prevent floating cursor from overriding a keypress animation
+        // this can only occur when accessibility is disabled (since cursor will not be moved)
+        if (cursorInViewport() && preventMouseSelectionTimer_.elapsed() > 100)
         {
-            // if something changed, then update viewport
-            viewport()->update();
+            widgetCitiesList_->accentWidgetContainingCursor();
         }
-        setCursorForSelected();
-        handleMouseMoveForTooltip();
+
+        if (!heightChanging_) // prevents false-positive scrolling when changing scale -- setting widgetLocationsList_ geometry in the heightChanged slot races with the manual forceSetValue
+        {
+            QScrollArea::scrollContentsBy(dx,dy);
+            lastScrollPos_ = widgetCitiesList_->geometry().y();
+        }
     }
-    QAbstractScrollArea::mouseMoveEvent(event);
 }
 
 void WidgetCities::mousePressEvent(QMouseEvent *event)
 {
-#ifdef Q_OS_WIN
-    if (event->source() == Qt::MouseEventSynthesizedBySystem)
-    {
-        return;
-    }
-#endif
-
-    if (event->button() == Qt::LeftButton)
-    {
-        indPressed_ = indSelected_;
-        indFavouritePressed_ = detectItemClickOnFavoriteLocationIcon();
-    }
-}
-
-void WidgetCities::mouseReleaseEvent(QMouseEvent *event)
-{
-#ifdef Q_OS_WIN
-    if (event->source() == Qt::MouseEventSynthesizedBySystem)
-    {
-        return;
-    }
-#endif
-
-    if (event->button() == Qt::LeftButton)
-    {
-        if (indPressed_ == indSelected_ && isGlobalPointInViewport(QCursor::pos()))
-        {
-            int indFav = detectItemClickOnFavoriteLocationIcon();
-            if ( indFav && indFavouritePressed_)
-            {
-                bool isFavorite = items_[indSelected_]->toggleFavorite();
-                if (isFavorite)
-                {
-                    emit switchFavorite(items_[indSelected_]->getLocationId(), true);
-                }
-                else
-                {
-                    emit switchFavorite(items_[indSelected_]->getLocationId(), false);
-                }
-
-                viewport()->update();
-            }
-            else if (indSelected_ != -1) // valid
-            {
-                if (!indFav && !indFavouritePressed_) // neither favourite press or release
-                {
-                    emitSelectedIfNeed();
-                }
-            }
-        }
-    }
+    Q_UNUSED(event)
+    // are we blocking mousePressEvent from bubbling up here intentionally?
+    // need note
 }
 
 void WidgetCities::mouseDoubleClickEvent(QMouseEvent *event)
 {
-#ifdef Q_OS_WIN
-    if (event->source() == Qt::MouseEventSynthesizedBySystem)
-    {
-        return;
-    }
-#endif
-
-    mousePressEvent(event);
-}
-
-void WidgetCities::leaveEvent(QEvent *event)
-{
-    bMouseInViewport_ = false;
-    handleLeaveForTooltip();
-
-    Q_FOREACH(ICityItem *item, items_)
-    {
-        item->mouseLeaveEvent();
-    }
-
-    viewport()->update();
-    QWidget::leaveEvent(event);
-}
-
-void WidgetCities::enterEvent(QEvent *event)
-{
-    bMouseInViewport_ = true;
-    QWidget::enterEvent(event);
-}
-
-void WidgetCities::resizeEvent(QResizeEvent *event)
-{
-    QAbstractScrollArea::resizeEvent(event);
-    scrollBarOnTop_->setGeometry(width_*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
+    // not mouseDoubleClickEvent? was this intentional? need note here
+    QScrollArea::mousePressEvent(event);
 }
 
 void WidgetCities::onItemsUpdated(QVector<CityModelItem *> items)
 {
-   updateListDisplay(items);
-   updateScaling();
+    updateWidgetList(items);
 }
 
 void WidgetCities::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
-    bool bChanged = false;
-    for (int i = 0; i < items_.count(); ++i)
+    foreach (ItemWidgetCity *w, widgetCitiesList_->itemWidgets())
     {
-        if (items_[i]->getLocationId() == id)
+        if (w->getId() == id)
         {
-            if (items_[i]->getPingTimeMs() != timeMs.toInt())
-            {
-                items_[i]->changeSpeedConnection(id, timeMs);
-                bChanged = true;
-                break;
-            }
+            w->setLatencyMs(timeMs);
+            break;
         }
-    }
-
-    if (bChanged && currentVisibleItems_.contains(id))
-    {
-        viewport()->update();
     }
 }
 
 void WidgetCities::onIsFavoriteChanged(LocationID id, bool isFavorite)
 {
-    bool bChanged = false;
-    for (int i = 0; i < items_.count(); ++i)
+    foreach (ItemWidgetCity *city, widgetCitiesList_->itemWidgets())
     {
-        if (items_[i]->getLocationId() == id)
+        if (city->getId() == id)
         {
-            bChanged = items_[i]->changeIsFavorite(id, isFavorite);
+            city->setFavourited(isFavorite);
             break;
         }
-    }
-
-    if (bChanged && currentVisibleItems_.contains(id))
-    {
-        viewport()->update();
     }
 }
 
@@ -828,609 +524,63 @@ void WidgetCities::onFreeSessionStatusChanged(bool isFreeSessionStatus)
     if (bIsFreeSession_ != isFreeSessionStatus)
     {
         bIsFreeSession_ = isFreeSessionStatus;
-        handleLeaveForTooltip();
-        viewport()->update();
     }
 }
 
-void WidgetCities::onTopScrollBarValueChanged(int value)
+void WidgetCities::onLanguageChanged()
 {
-    verticalScrollBar()->setValue(value);
+    // TODO: language change
 }
 
-void WidgetCities::calcScrollPosition()
+void WidgetCities::onLocationItemListWidgetHeightChanged(int listWidgetHeight)
 {
-    double d = static_cast<double>(scrollAnimationElapsedTimer_.elapsed()) / static_cast<double>(scrollAnimationDuration_);
-    topOffs_ = static_cast<int>(startAnimationTop_ + (endAnimationTop_ - startAnimationTop_) * d);
-
-    if ((endAnimationTop_ > startAnimationTop_ && topOffs_ >= endAnimationTop_) ||
-      (endAnimationTop_ < startAnimationTop_ && topOffs_ <= endAnimationTop_))
-    {
-        topOffs_ = endAnimationTop_;
-        isScrollAnimationNow_ = false;
-        //setBottomFlag(topInd_);
-    }
-
-    if (topOffs_ > 0)
-    {
-        topOffs_ = endAnimationTop_;
-        isScrollAnimationNow_ = false;
-    }
+    heightChanging_ = true;
+    widgetCitiesList_->setGeometry(0,widgetCitiesList_->geometry().y(), WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), listWidgetHeight);
+    heightChanging_ = false;
 }
 
-void WidgetCities::setupScrollBar()
+void WidgetCities::onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *cityWidget, bool favorited)
 {
-    verticalScrollBar()->setMinimum(0);
-    verticalScrollBar()->setSingleStep(1);
-    verticalScrollBar()->setPageStep(countOfAvailableItemSlots_);
-
-    scrollBarOnTop_->setMinimum(0);
-    scrollBarOnTop_->setSingleStep(1);
-    scrollBarOnTop_->setPageStep(countOfAvailableItemSlots_);
+    emit switchFavorite(cityWidget->getId(), favorited);
 }
 
-void WidgetCities::setupScrollBarMaxValue()
+void WidgetCities::onLocationItemListWidgetLocationIdSelected(LocationID id)
 {
-    int cntItems = 0;
-    for (int i = 0; i < items_.length(); i++)
-    {
-        ICityItem *item = items_[i];
-        cntItems += item->countVisibleItems();
-    }
-    if ((cntItems - countOfAvailableItemSlots_) > 0)
-    {
-        scrollBarOnTop_->setMaximum(cntItems - countOfAvailableItemSlots_);
-        verticalScrollBar()->setMaximum(cntItems - countOfAvailableItemSlots_);
-        if (!scrollBarOnTop_->isVisible())
-        {
-            scrollBarOnTop_->show();
-        }
-    }
-    else
-    {
-        scrollBarOnTop_->setMaximum(0);
-        verticalScrollBar()->setMaximum(0);
-        scrollBarOnTop_->hide();
-    }
+    emit selected(id);
 }
 
-bool WidgetCities::detectSelectedItem(const QPoint &cursorPos)
+void WidgetCities::onScrollAnimationValueChanged(const QVariant &value)
 {
-    int curTop = 0;
-    for (int i = 0; i < items_.size(); ++i)
+    if (kickPreventMouseSelectionTimer_) preventMouseSelectionTimer_.restart();
+
+    widgetCitiesList_->move(0, value.toInt());
+    lastScrollPos_ = widgetCitiesList_->geometry().y();
+
+    // update scroll bar for keypress navigation
+    if (!scrollBar_->dragging())
     {
-        QPoint pt(0, curTop + getTopOffset() + topOffs_);
-        pt = mapToGlobal(pt);
-
-        QPoint localBottomPt = viewport()->mapFromGlobal(QPoint(pt.x(), pt.y()));
-        if (localBottomPt.y() >= getTopOffset() && QRect(pt.x(), pt.y(), viewport()->geometry().width(), getItemHeight()).contains(cursorPos))
-        {
-            if (indSelected_ == i)
-            {
-                bool bChanged = false;
-                if (!items_[indSelected_]->isSelected())
-                {
-                    items_[indSelected_]->setSelected(true);
-                    bChanged = true;
-                }
-
-                QPoint ptLocal(QPoint(cursorPos.x() - pt.x(), cursorPos.y() - pt.y()));
-                return items_[indSelected_]->mouseMoveEvent(ptLocal) || bChanged;
-            }
-            else
-            {
-                if (indSelected_ != -1)
-                {
-                    items_[indSelected_]->setSelected(false);
-                }
-
-                indSelected_ = i;
-                topOffsSelected_ = curTop;
-
-                items_[indSelected_]->setSelected(true);
-                QPoint ptLocal(QPoint(cursorPos.x() - pt.x(), cursorPos.y() - pt.y()));
-                items_[indSelected_]->mouseMoveEvent(ptLocal);
-
-                return true;
-            }
-        }
-        curTop += getItemHeight();
-    }
-    if (indSelected_ != -1)
-    {
-        items_[indSelected_]->setSelected(false);
-        indSelected_ = -1;
-        return true;
-    }
-    return false;
-}
-
-
-bool WidgetCities::detectItemClickOnFavoriteLocationIcon()
-{
-    if (indSelected_ != -1)
-    {
-        return items_[indSelected_]->detectOverFavoriteIconCity();
-    }
-    return false;
-}
-
-void WidgetCities::setCursorForSelected()
-{
-    if (indSelected_ != -1)
-    {
-        if (items_[indSelected_]->isDisabled())
-        {
-            if (items_[indSelected_]->isCursorOverFavouriteIcon())
-            {
-                cursorUpdateHelper_->setPointingHandCursor();
-            }
-            else if (items_[indSelected_]->isCursorOverConnectionMeter() &&
-                     !items_[indSelected_]->getCustomConfigErrorMessage().isEmpty())
-            {
-                cursorUpdateHelper_->setPointingHandCursor();
-            }
-            else
-            {
-                cursorUpdateHelper_->setForbiddenCursor();
-            }
-        }
-        else if (items_[indSelected_]->isForbidden())
-        {
-            cursorUpdateHelper_->setForbiddenCursor();
-        }
-        else
-        {
-            if (items_[indSelected_]->isNoConnection())
-            {
-                cursorUpdateHelper_->setForbiddenCursor();
-            }
-            else
-            {
-                cursorUpdateHelper_->setPointingHandCursor();
-            }
-        }
-    }
-}
-
-LocationID WidgetCities::detectLocationForTopInd(int topInd)
-{
-    Q_UNUSED(topInd);
-
-    Q_ASSERT(false);
-    LocationID locationId;
-
-    /*int allItems = 0;
-
-    for (int i = 0; i < items_.count(); ++i)
-    {
-        for (int k = 0; k < items_[i]->countVisibleItems(); ++k)
-        {
-            if (allItems == (-topInd))
-            {
-                locationId.setId(items_[i]->getId());
-                if (k > 0)
-                {
-                    locationId.setCity(items_[i]->getCity(k - 1));
-                }
-                goto endDetect;
-            }
-            allItems++;
-        }
-    }
-
-endDetect:*/
-    return locationId;
-}
-
-int WidgetCities::detectVisibleIndForCursorPos(const QPoint &pt)
-{
-    QPoint localPt = viewport()->mapFromGlobal(pt);
-    return (localPt.y() - getTopOffset()) / getItemHeight();
-}
-
-void WidgetCities::handleMouseMoveForTooltip()
-{
-    if (bMouseInViewport_)
-    {
-        QPoint cursorPos = mapFromGlobal(QCursor::pos());
-        if (cursorPos != prevCursorPos_)
-        {
-            if (indSelected_ != -1)
-            {
-                const auto *item = items_[indSelected_];
-                if (item->isCursorOverCaption1Text())
-                {
-                    QString fullText = item->getCaption1FullText();
-                    QString truncatedText = item->getCaption1TruncatedText();
-                    if (fullText != truncatedText)
-                    {
-                        QString text = item->getCaption1FullText();
-                        QPoint pt = mapToGlobal(QPoint(75 * G_SCALE, getSelectItemCaption1TextCenter().y()));
-
-                        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
-                        ti.x = pt.x();
-                        ti.y = pt.y();
-                        ti.title = text;
-                        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-                        ti.tailPosPercent = 0.2;
-                        emit showTooltip(ti);
-                    }
-                }
-                else if (item->isCursorOverConnectionMeter() &&
-                         !item->getCustomConfigErrorMessage().isEmpty())
-                {
-                    QString text = item->getCustomConfigErrorMessage();
-                    if (!text.isEmpty()) {
-                        int ind = detectVisibleIndForCursorPos(QCursor::pos());
-                        int posY = viewportPosYOfIndex(ind, true);
-                        QPoint pt = mapToGlobal(QPoint((width_ - 24) * G_SCALE, posY - 13 * G_SCALE));
-
-                        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
-                        ti.x = pt.x();
-                        ti.y = pt.y();
-                        ti.title = text;
-                        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-                        ti.tailPosPercent = 0.8;
-                        emit showTooltip(ti);
-                    }
-                }
-                else if (!bShowLatencyInMs_ && item->isCursorOverConnectionMeter())
-                {
-                    int ind = detectVisibleIndForCursorPos(QCursor::pos());
-                    int posY = viewportPosYOfIndex(ind, true);
-                    QPoint pt = mapToGlobal(QPoint((width_ - 24) * G_SCALE, posY - 13*G_SCALE));
-
-                    if (indSelected_ >= 0 && indSelected_ < items_.count())
-                    {
-                        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
-                        ti.x = pt.x();
-                        ti.y = pt.y();
-                        ti.title = QString("%1 Ms").arg(item->getPingTimeMs());
-                        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-                        ti.tailPosPercent = 0.5;
-                        emit showTooltip(ti);
-                    }
-                }
-//              else if (item->isCursorOverP2P())
-//              else if (item->isForbidden(item->getSelected()) && !item->isCursorOverArrow())
-                else
-                {
-                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
-                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
-                    emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
-                }
-            }
-        }
-        prevCursorPos_ = cursorPos;
-    }
-}
-
-void WidgetCities::handleLeaveForTooltip()
-{
-    if (!bMouseInViewport_)
-    {
-        emit hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
-        emit hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
-        emit hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
-    }
-}
-
-QPoint WidgetCities::adjustToolTipPosition(const QPoint &globalPoint, const QSize &toolTipSize, bool isP2PToolTip)
-{
-    QPoint localPoint = viewport()->mapFromGlobal(globalPoint);
-    QRect viewportRc = viewport()->geometry();
-
-    // adjust y position
-    int y_offs = 15;
-    if ((localPoint.y() - toolTipSize.height() - y_offs) > getItemHeight() / 2)
-    {
-        localPoint = QPoint(localPoint.x(), localPoint.y() - toolTipSize.height() - y_offs);
-    }
-    else
-    {
-        int additionalOffs = 0;
-        if (isP2PToolTip)
-        {
-            additionalOffs = 15;
-        }
-        localPoint = QPoint(localPoint.x(), localPoint.y() + y_offs + additionalOffs);
-    }
-
-    // adjust x position
-    localPoint.setX(localPoint.x() - toolTipSize.width() / 2);
-
-    if (localPoint.x() < 0)
-    {
-        localPoint.setX(0);
-    }
-    int viewportWidthWithoutScrollBar = viewportRc.width() - getScrollBarWidth();
-    if ((localPoint.x() + toolTipSize.width()) > viewportWidthWithoutScrollBar)
-    {
-        localPoint.setX(viewportWidthWithoutScrollBar - toolTipSize.width());
-    }
-
-    return localPoint;
-}
-
-QPoint WidgetCities::getSelectItemCaption1TextCenter()
-{
-    QPoint ptLocalCenter = items_[indSelected_]->getCaption1TextCenter();
-    return QPoint(ptLocalCenter.x(), topOffsSelected_ + ptLocalCenter.y() + topOffs_);
-}
-
-void WidgetCities::clearItems()
-{
-    Q_FOREACH(ICityItem *item, items_)
-    {
-        delete item;
-    }
-    items_.clear();
-    currentVisibleItems_.clear();
-}
-
-double WidgetCities::calcScrollingSpeed(double scrollItemsCount)
-{
-    if (scrollItemsCount < 3)
-    {
-        scrollItemsCount = 3;
-    }
-    return WidgetLocationsSizes::instance().getScrollingSpeedKef() * scrollItemsCount;
-}
-
-void WidgetCities::handleKeyEvent(QKeyEvent *event)
-{
-    QPoint cursorPos = QCursor::pos();
-
-    if (event->key() == Qt::Key_Up)
-    {
-        if (isGlobalPointInViewport(cursorPos))
-        {
-            handleLeaveForTooltip();
-
-            int ind = detectVisibleIndForCursorPos(cursorPos);
-            if (ind > 0 && ind <= (countOfAvailableItemSlots_ - 1))
-            {
-                cursorPos.setY(cursorPos.y() - getItemHeight());
-                QCursor::setPos(cursorPos);
-            }
-            else if (ind == 0)
-            {
-                verticalScrollBar()->setValue(verticalScrollBar()->value() - 1);
-            }
-            else
-            {
-                Q_ASSERT(false);
-            }
-            updateSelectionCursorAndToolTipByCursorPos();
-        }
-        else
-        {
-            if (indSelected_ != -1)
-            {
-                if (items_[indSelected_]->isSelected())
-                {
-                    if (indSelected_ > 0)
-                    {
-                        items_[indSelected_]->setSelected(false);
-                        indSelected_--;
-                        items_[indSelected_]->setSelected(true);
-                    }
-                }
-                scrollUpToSelected();
-            }
-        }
-        update();
-    }
-    else if (event->key() == Qt::Key_Down)
-    {
-        if (isGlobalPointInViewport(cursorPos))
-        {
-            handleLeaveForTooltip();
-
-            int ind = detectVisibleIndForCursorPos(cursorPos);
-            if (ind >= 0 && ind < (countOfAvailableItemSlots_ - 1))
-            {
-                if (ind < items_.count() - 1)
-                {
-                    cursorPos.setY(cursorPos.y() + getItemHeight());
-                    QCursor::setPos(cursorPos);
-                }
-            }
-            else if (ind == (countOfAvailableItemSlots_ - 1))
-            {
-                verticalScrollBar()->setValue(verticalScrollBar()->value() + 1);
-            }
-            else
-            {
-                Q_ASSERT(false);
-            }
-            updateSelectionCursorAndToolTipByCursorPos();
-        }
-        else
-        {
-            if (indSelected_ != -1)
-            {
-                if (indSelected_ < (items_.count() - 1))
-                {
-                    items_[indSelected_]->setSelected(false);
-                    indSelected_++;
-                    items_[indSelected_]->setSelected(true);
-                }
-
-                scrollDownToSelected();
-            }
-        }
-        update();
-    }
-    else if (event->key() == Qt::Key_PageUp)
-    {
-    }
-    else if (event->key() == Qt::Key_PageDown)
-    {
-    }
-    else if (event->key() == Qt::Key_Return)
-    {
-        emitSelectedIfNeed();
-    }
-}
-
-bool WidgetCities::isGlobalPointInViewport(const QPoint &pt)
-{
-    QPoint pt1 = viewport()->mapToGlobal(QPoint(0,0));
-    QRect globalRectOfViewport(pt1.x(), pt1.y(), viewport()->geometry().width(), viewport()->geometry().height());
-    return globalRectOfViewport.contains(pt);
-}
-
-void WidgetCities::scrollDownToSelected()
-{
-    // detect position in visible list for item with ind
-    int allTop = 0;
-    for (int i = 0; i < items_.count(); ++i)
-    {
-        if (i == indSelected_)
-        {
-            break;
-        }
-        allTop += items_[i]->countVisibleItems();
-    }
-    int visibleInd = allTop + topInd_;
-
-    // if selected item visible then nothing todo
-    if (visibleInd >= 0 && visibleInd <= (countOfAvailableItemSlots_ - 1))
-    {
-    }
-    else
-    {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + 1);
+        scrollBar_->forceSetValue(-animationScollTarget_);
     }
 
     viewport()->update();
 }
 
-void WidgetCities::scrollUpToSelected()
+void WidgetCities::onScrollBarHandleDragged(int valuePos)
 {
-    // detect position in visible list for item with ind
-    int allTop = 0;
-    for (int i = 0; i < items_.count(); ++i)
-    {
-        if (i == indSelected_)
-        {
-            break;
-        }
-        allTop += items_[i]->countVisibleItems();
-    }
-    int visibleInd = allTop + topInd_;
+    animationScollTarget_ = -valuePos;
 
-    // if selected item visible then nothing todo
-    if (visibleInd >= 0 && visibleInd <= (countOfAvailableItemSlots_ - 1))
-    {
-    }
-    else
-    {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() - 1);
-    }
-
-    viewport()->update();
-}
-
-void WidgetCities::handleTapClick(const QPoint &cursorPos)
-{
-    if (!isScrollAnimationNow_)
-    {
-        detectSelectedItem(cursorPos);
-        viewport()->update();
-        setCursorForSelected();
-
-        emitSelectedIfNeed();
-    }
-}
-
-void WidgetCities::emitSelectedIfNeed()
-{
-    if (indSelected_ != -1)
-    {
-        LocationID locationId = items_[indSelected_]->getLocationId();
-
-        if (!items_[indSelected_]->isForbidden() && !items_[indSelected_]->isNoConnection() && !items_[indSelected_]->isDisabled())
-        {
-            emit selected(locationId);
-        }
-    }
-}
-
-QRect WidgetCities::globalLocationsListViewportRect()
-{
-    int offset = getItemHeight();
-    QPoint locationItemListTopLeft(0, geometry().y() - offset);
-    locationItemListTopLeft = mapToGlobal(locationItemListTopLeft);
-    return QRect(locationItemListTopLeft.x(), locationItemListTopLeft.y(), viewport()->geometry().width(), viewport()->geometry().height());
-}
-
-int WidgetCities::countVisibleItems()
-{
-    int count = 0;
-    for (int i = 0; i < items_.count(); ++i)
-    {
-        count += items_[i]->countVisibleItems();
-    }
-    return count;
-}
-
-void WidgetCities::setSize(int width, int height)
-{
-    width_ = width;
-    height_ = height;
-    update();
-}
-
-void WidgetCities::updateScaling()
-{
-    // Update scale-dependent class members.
-    Q_ASSERT(currentScale_ > 0);
-    const auto scale_adjustment = G_SCALE / currentScale_;
-    if (scale_adjustment != 1.0) {
-        currentScale_ = G_SCALE;
-        topOffs_ *= scale_adjustment;
-        topOffsSelected_ *= scale_adjustment;
-        startAnimationTop_ *= scale_adjustment;
-        endAnimationTop_ *= scale_adjustment;
-    }
-
-    for (int i = 0; i < items_.count(); ++i)
-    {
-        if (items_[i] != nullptr)
-        {
-            items_[i]->updateScaling();
-        }
-    }
-
-    scrollBarOnTop_->setGeometry(width_*G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), height_ * G_SCALE);
-    updateEmptyListButton();
-}
-
-void WidgetCities::setEmptyListDisplayIcon(QString emptyListDisplayIcon)
-{
-    emptyListDisplayIcon_ = emptyListDisplayIcon;
-    update();
-}
-
-void WidgetCities::setEmptyListDisplayText(QString emptyListDisplayText, int width)
-{
-    emptyListDisplayText_ = emptyListDisplayText;
-    emptyListDisplayTextWidth_ = width;
-    update();
-}
-
-void WidgetCities::setEmptyListButtonText(QString text)
-{
-    emptyListButton_->setText(text);
-    update();
+    // qDebug() << "Dragged: " << locationItemListWidget_->geometry().y() << " -> " << animationScollTarget_;
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
+    scrollAnimation_.setStartValue(widgetCitiesList_->geometry().y());
+    scrollAnimation_.setEndValue(animationScollTarget_);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
 }
 
 void WidgetCities::updateEmptyListButton()
 {
-    if (!items_.isEmpty() || emptyListButton_->text().isEmpty()) {
+    if (!widgetCitiesList_->itemWidgets().isEmpty() || emptyListButton_->text().isEmpty()) {
         emptyListButton_->hide();
         return;
     }
@@ -1441,12 +591,184 @@ void WidgetCities::updateEmptyListButton()
     emptyListButton_->show();
 }
 
-int WidgetCities::viewportPosYOfIndex(int index, bool centerY)
+void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
 {
-    int viewportTopLeft = viewport()->geometry().y();
-    int result = viewportTopLeft + index * getItemHeight();
-    if (centerY) result += getItemHeight()/2;
-    return result;
+    LocationID topSelectableLocationIdInViewport = topViewportSelectableLocationId();
+    LocationID lastAccentedLocationId = widgetCitiesList_->lastAccentedLocationId();
+
+    qCDebug(LOG_BASIC) << "Updating locations-city widget list";
+    widgetCitiesList_->clearWidgets();
+    foreach (CityModelItem *item, items)
+    {
+        const CityModelItem &itemRef = *item;
+        widgetCitiesList_->addCity(itemRef);
+    }
+
+    qCDebug(LOG_BASIC) << "Restoring locations-city widgets state";
+
+    // restoring previous widget state
+    int indexInNewList = widgetCitiesList_->selectableIndex(topSelectableLocationIdInViewport);
+    if (indexInNewList >= 0)
+    {
+        scrollDown(indexInNewList);
+    }
+    widgetCitiesList_->accentItem(lastAccentedLocationId);
+    qCDebug(LOG_BASIC) << "Done updating locations-city widget list";
+
+}
+
+void WidgetCities::scrollToIndex(int index)
+{
+    int pos = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * index);
+    pos = closestPositionIncrement(pos);
+    scrollBar_->forceSetValue(pos);
+}
+
+void WidgetCities::scrollDown(int itemCount)
+{
+    // Scrollbar values use positive (whilte itemListWidget uses negative geometry)
+    int newY = static_cast<int>(widgetCitiesList_->geometry().y() + LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+    scrollBar_->setValue(newY);
+}
+
+void WidgetCities::animatedScrollDown(int itemCount)
+{
+    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+
+    if (scrollAnimation_.state() == QAbstractAnimation::Running)
+    {
+        animationScollTarget_ -= scrollBy;
+    }
+    else
+    {
+        animationScollTarget_ = widgetCitiesList_->geometry().y() - scrollBy;
+    }
+
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
+    scrollAnimation_.setStartValue(widgetCitiesList_->geometry().y());
+    scrollAnimation_.setEndValue(animationScollTarget_);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
+}
+
+void WidgetCities::animatedScrollUp(int itemCount)
+{
+    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+
+    if (scrollAnimation_.state() == QAbstractAnimation::Running)
+    {
+        animationScollTarget_ += scrollBy;
+    }
+    else
+    {
+        animationScollTarget_ = widgetCitiesList_->geometry().y() + scrollBy;
+    }
+
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
+    scrollAnimation_.setStartValue(widgetCitiesList_->geometry().y());
+    scrollAnimation_.setEndValue(animationScollTarget_);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
+}
+
+const LocationID WidgetCities::topViewportSelectableLocationId()
+{
+    int index = qRound(qAbs(widgetCitiesList_->geometry().y())/(LOCATION_ITEM_HEIGHT * G_SCALE));
+
+    auto widgets = widgetCitiesList_->itemWidgets();
+    if (index < 0 || index > widgets.count() - 1)
+    {
+        qDebug(LOG_BASIC) << "Err: Can't index selectable items with: " << index;
+        return LocationID();
+    }
+
+    return widgets[index]->getId();
+}
+
+int WidgetCities::viewportOffsetIndex()
+{
+    int index = qRound(qAbs(widgetCitiesList_->geometry().y())/(LOCATION_ITEM_HEIGHT * G_SCALE));
+    return index;
+}
+
+int WidgetCities::accentItemViewportIndex()
+{
+    if (!widgetCitiesList_->hasAccentItem())
+    {
+        return -1;
+    }
+    return viewportIndex(widgetCitiesList_->lastAccentedItemWidget()->getId());
+}
+
+int WidgetCities::viewportIndex(LocationID locationId)
+{
+    int topItemSelIndex = widgetCitiesList_->selectableIndex(topViewportSelectableLocationId());
+    int desiredLocSelIndex = widgetCitiesList_->selectableIndex(locationId);
+    int desiredLocationViewportIndex = desiredLocSelIndex - topItemSelIndex;
+    return desiredLocationViewportIndex;
+}
+
+bool WidgetCities::locationIdInViewport(LocationID location)
+{
+    int vi = viewportIndex(location);
+    return vi >= 0 && vi < countOfAvailableItemSlots_;
+}
+
+bool WidgetCities::isGlobalPointInViewport(const QPoint &pt)
+{
+    QPoint pt1 = viewport()->mapToGlobal(QPoint(0,0));
+    QRect globalRectOfViewport(pt1.x(), pt1.y(), viewport()->geometry().width(), viewport()->geometry().height());
+    return globalRectOfViewport.contains(pt);
+}
+
+QRect WidgetCities::globalLocationsListViewportRect()
+{
+    int offset = getItemHeight();
+    QPoint locationItemListTopLeft(0, geometry().y() - offset);
+    locationItemListTopLeft = mapToGlobal(locationItemListTopLeft);
+    return QRect(locationItemListTopLeft.x(), locationItemListTopLeft.y(), viewport()->geometry().width(), viewport()->geometry().height());
+}
+
+int WidgetCities::getScrollBarWidth()
+{
+    return WidgetLocationsSizes::instance().getScrollBarWidth();
+}
+
+int WidgetCities::getItemHeight() const
+{
+    return WidgetLocationsSizes::instance().getItemHeight();
+}
+
+int WidgetCities::closestPositionIncrement(int value)
+{
+    int current = 0;
+    int last = 0;
+    while (current < value)
+    {
+        last = current;
+        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+    }
+
+    if (qAbs(current - value) < qAbs(last - value))
+    {
+        return current;
+    }
+    return last;
+}
+
+void WidgetCities::gestureScrollAnimation(int value)
+{
+    animationScollTarget_ = -value;
+
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(GESTURE_SCROLL_ANIMATION_DURATION);
+    scrollAnimation_.setStartValue(widgetCitiesList_->geometry().y());
+    scrollAnimation_.setEndValue(animationScollTarget_);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
+    qApp->processEvents(); // animate scrolling at same time as gesture is moving
 }
 
 } // namespace GuiLocations

@@ -46,8 +46,6 @@ signals:
     void signOutClick() override;
     void loginClick() override;
     void quitClick() override;
-    void showTooltip(TooltipInfo info);
-    void hideTooltip(TooltipId id);
 
 private slots:
     void onGeneralButtonClicked();

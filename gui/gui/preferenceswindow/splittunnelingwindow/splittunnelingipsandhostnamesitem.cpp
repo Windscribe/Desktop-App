@@ -50,7 +50,7 @@ void SplitTunnelingIpsAndHostnamesItem::setFocusOnTextEntry()
     newIpOrHostnameItem_->setSelected(true);
 }
 
-void SplitTunnelingIpsAndHostnamesItem::keyPressEvent(QKeyEvent *event)
+void SplitTunnelingIpsAndHostnamesItem::keyReleaseEvent(QKeyEvent *event)
 {
     ClickableGraphicsObject *selected = selectedObject();
 

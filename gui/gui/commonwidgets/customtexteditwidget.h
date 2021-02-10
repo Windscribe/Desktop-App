@@ -2,7 +2,7 @@
 #define CUSTOMTEXTEDITWIDGET_H
 
 #include <QPlainTextEdit>
-#include "commongraphics/custommenulineedit.h"
+#include "commonwidgets/custommenulineedit.h"
 #include "commonwidgets/iscrollablewidget.h"
 
 class CustomTextEditWidget : public QPlainTextEdit, public IScrollableWidget
@@ -34,7 +34,6 @@ protected:
 
 signals:
     void itemClicked(QString caption, QVariant value);
-    void keyPressed(QKeyEvent *event);
 
     void heightChanged(int newHeight) override;
     void shiftPos(int newPos) override;
