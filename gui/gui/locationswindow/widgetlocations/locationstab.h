@@ -34,6 +34,7 @@ public:
     void updateScaling();
 
     void updateLanguage();
+    void hideSearchTab();
 
 public slots:
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);

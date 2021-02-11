@@ -260,21 +260,25 @@ void LocationsTab::changeTab(CurTabEnum newTab)
     {
         endWhiteLinePos = rcConfiguredLocationsIcon_.center().x();
         onClickConfiguredLocations();
+        widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == CUR_TAB_STATIC_IPS_LOCATIONS)
     {
         endWhiteLinePos = rcStaticIpsLocationsIcon_.center().x();
         onClickStaticIpsLocations();
+        widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == CUR_TAB_FAVORITE_LOCATIONS)
     {
         endWhiteLinePos = rcFavoriteLocationsIcon_.center().x();
         onClickFavoriteLocations();
+        widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == CUR_TAB_ALL_LOCATIONS)
     {
         endWhiteLinePos = rcAllLocationsIcon_.center().x();
         onClickAllLocations();
+        widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == CUR_TAB_SEARCH_LOCATIONS)
     {
@@ -459,24 +463,7 @@ void LocationsTab::onSearchButtonClicked()
 void LocationsTab::onSearchCancelButtonClicked()
 {
     // qDebug() << "Search cancel clicked";
-
-    if (searchTabSelected_)
-    {
-        searchButton_->setEnabled(true);
-        searchButtonPosAnimation_.setDirection(QAbstractAnimation::Forward);
-        searchButtonPosAnimation_.start();
-
-        searchCancelButton_->hide();
-        searchLineEdit_->hide();
-
-        changeTab(lastTab_);
-
-        // let animation finish before showing all tabs
-        QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION, [this](){
-            searchTabSelected_ = false;
-            update();
-        });
-    }
+    hideSearchTab();
 }
 
 void LocationsTab::onSearchButtonPosAnimationValueChanged(const QVariant &value)
@@ -794,6 +781,28 @@ void LocationsTab::updateScaling()
 void LocationsTab::updateLanguage()
 {
     widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here"));
+}
+
+void LocationsTab::hideSearchTab()
+{
+    if (searchTabSelected_)
+    {
+        searchButton_->setEnabled(true);
+        searchButtonPosAnimation_.setDirection(QAbstractAnimation::Forward);
+        searchButtonPosAnimation_.start();
+
+        searchCancelButton_->hide();
+        searchLineEdit_->hide();
+        searchLineEdit_->clear();
+
+        changeTab(lastTab_);
+
+        // let animation finish before showing all tabs
+        QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION, [this](){
+            searchTabSelected_ = false;
+            update();
+        });
+    }
 }
 
 int LocationsTab::unscaledHeight()

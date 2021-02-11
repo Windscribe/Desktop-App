@@ -22,6 +22,8 @@ public:
     void updateLocationsTabGeometry();
     void updateScaling();
 
+    void hideSearchTab();
+
 public slots:
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
     void setCustomConfigsPath(QString path);
