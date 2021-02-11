@@ -2922,14 +2922,14 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
         if (geo.right() > kMaxGeometryRightPosition)
         {
-            qDebug() << "Keeping mainwindow on screen!";
+            // qDebug() << "Keeping mainwindow on screen!";
             geo.moveRight(kMaxGeometryRightPosition);
         }
 #endif
 
     }
 
-    qDebug() << "Updating mainwindow geo: " << geo;
+    // qDebug() << "Updating mainwindow geo: " << geo;
     mainWindow_->setGeometry(geo);
     updateViewAndScene(width, height, shadowSize, updateShadow);
 
