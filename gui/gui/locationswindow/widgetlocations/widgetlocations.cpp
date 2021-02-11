@@ -29,7 +29,6 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QScrollArea(parent)
   , locationsModel_(NULL)
   , currentScale_(G_SCALE)
   , lastScrollPos_(0)
-  , kickPreventMouseSelectionTimer_(false)
   , animationScollTarget_(0)
   , heightChanging_(false)
 {
@@ -69,7 +68,7 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QScrollArea(parent)
     connect(widgetLocationsList_, SIGNAL(heightChanged(int)), SLOT(onLocationItemListWidgetHeightChanged(int)));
     connect(widgetLocationsList_, SIGNAL(favoriteClicked(ItemWidgetCity*,bool)), SLOT(onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *, bool)));
     connect(widgetLocationsList_, SIGNAL(locationIdSelected(LocationID)), SLOT(onLocationItemListWidgetLocationIdSelected(LocationID)));
-    connect(widgetLocationsList_, SIGNAL(regionExpanding(ItemWidgetRegion*, WidgetLocationsList::ExpandReason)), SLOT(onLocationItemListWidgetRegionExpanding(ItemWidgetRegion*, WidgetLocationsList::ExpandReason)));
+    connect(widgetLocationsList_, SIGNAL(regionExpanding(ItemWidgetRegion*)), SLOT(onLocationItemListWidgetRegionExpanding(ItemWidgetRegion*)));
     widgetLocationsList_->setGeometry(0,0, WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), 0);
     widgetLocationsList_->show();
 
@@ -77,6 +76,9 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QScrollArea(parent)
     gestureScrollingElapsedTimer_.start();
 
     connect(&scrollAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onScrollAnimationValueChanged(QVariant)));
+    connect(&scrollAnimation_, SIGNAL(finished()), SLOT(onScrollAnimationFinished()));
+    connect(&scrollAnimationForKeyPress_, SIGNAL(valueChanged(QVariant)), SLOT(onScrollAnimationForKeyPressValueChanged(QVariant)));
+    connect(&scrollAnimationForKeyPress_, SIGNAL(finished()), SLOT(onScrollAnimationForKeyPressFinished()));
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 }
 
@@ -314,8 +316,7 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
             {
                 if (accentItemViewportIndex() <= 0)
                 {
-                    kickPreventMouseSelectionTimer_ = true;
-                    animatedScrollUp(1);
+                    animatedScrollUpByKeyPress(1);
                 }
                 else
                 {
@@ -355,8 +356,7 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
             {
                 if (accentItemViewportIndex() >= countOfAvailableItemSlots_ - 1)
                 {
-                    kickPreventMouseSelectionTimer_ = true;
-                    animatedScrollDown(1);
+                    animatedScrollDownByKeyPress(1);
                 }
                 else
                 {
@@ -413,7 +413,10 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
             }
             else
             {
-                widgetLocationsList_->expand(widgetLocationsList_->lastAccentedLocationId());
+                LocationID locId = widgetLocationsList_->lastAccentedLocationId();
+                widgetLocationsList_->expand(locId);
+                ItemWidgetRegion *widget = widgetLocationsList_->regionWidget(locId);
+                regionExpandingAnimation(widget);
             }
         }
         else // city
@@ -533,7 +536,7 @@ void WidgetLocations::onLanguageChanged()
 
 void WidgetLocations::onLocationItemListWidgetHeightChanged(int listWidgetHeight)
 {
-    // qDebug() << "List widget height: " << listWidgetHeight;
+    // qDebug() << "List widget height: " << listWidgetHeight << ", geoY: " << widgetLocationsList_->geometry().y();
     heightChanging_ = true;
     widgetLocationsList_->setGeometry(0,widgetLocationsList_->geometry().y(), WINDOW_WIDTH*G_SCALE - getScrollBarWidth(), listWidgetHeight);
     heightChanging_ = false;
@@ -555,23 +558,16 @@ void WidgetLocations::onLocationItemListWidgetLocationIdSelected(LocationID id)
     }
 }
 
-void WidgetLocations::onLocationItemListWidgetRegionExpanding(ItemWidgetRegion *region, WidgetLocationsList::ExpandReason reason)
+void WidgetLocations::onLocationItemListWidgetRegionExpanding(ItemWidgetRegion *region)
 {
-    // qDebug() << "Checking for need to scroll due to expand";
-    int topItemSelIndex = widgetLocationsList_->selectableIndex(topViewportSelectableLocationId());
-    int regionSelIndex = widgetLocationsList_->selectableIndex(region->getId());
-    int regionViewportIndex = regionSelIndex - topItemSelIndex;
-    int bottomCityViewportIndex  = regionViewportIndex + region->cityWidgets().count();
-
-    int diff = bottomCityViewportIndex - countOfAvailableItemSlots_;
+    int regionVI = regionViewportIndex(region);
+    int diff = regionOutOfViewBy(region);
     if (diff >= 0)
     {
         int change = diff + 1;
-        if (change > regionViewportIndex) change = regionViewportIndex;
+        if (change > regionVI) change = regionVI;
 
         // qDebug() << "Expanding auto-scroll by items: " << change;
-        if (reason == WidgetLocationsList::EXPAND_REASON_AUTO) kickPreventMouseSelectionTimer_ = true;
-        else kickPreventMouseSelectionTimer_ = false;
         animatedScrollDown(change);
     }
 }
@@ -579,17 +575,41 @@ void WidgetLocations::onLocationItemListWidgetRegionExpanding(ItemWidgetRegion *
 void WidgetLocations::onScrollAnimationValueChanged(const QVariant &value)
 {
     // qDebug() << "ScrollAnimation: " << value.toInt();
-    if (kickPreventMouseSelectionTimer_) preventMouseSelectionTimer_.restart();
 
-    widgetLocationsList_->move(0, value.toInt());
+    int listPos = value.toInt();
+    widgetLocationsList_->move(0, listPos);
     lastScrollPos_ = widgetLocationsList_->geometry().y();
 
-    // update scroll bar for keypress navigation
+    viewport()->update();
+}
+
+void WidgetLocations::onScrollAnimationFinished()
+{
+    // syncs scrollbar with view
     if (!scrollBar_->dragging())
     {
         scrollBar_->forceSetValue(-animationScollTarget_);
     }
+}
+
+void WidgetLocations::onScrollAnimationForKeyPressValueChanged(const QVariant &value)
+{
+    // qDebug() << "ScrollAnimationForKeyPress: " << value.toInt() << ", Kicking mouse prevention timer (keyPress)";
+    preventMouseSelectionTimer_.restart();
+
+    widgetLocationsList_->move(0, value.toInt());
+    lastScrollPos_ = widgetLocationsList_->geometry().y();
     viewport()->update();
+
+}
+
+void WidgetLocations::onScrollAnimationForKeyPressFinished()
+{
+    // syncs scrollbar with view
+    if (!scrollBar_->dragging())
+    {
+        scrollBar_->forceSetValue(-animationScollTarget_);
+    }
 }
 
 void WidgetLocations::onScrollBarHandleDragged(int valuePos)
@@ -653,9 +673,9 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 
 void WidgetLocations::scrollToIndex(int index)
 {
-    // qDebug() <<
     int pos = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * index);
     pos = closestPositionIncrement(pos);
+    // qDebug() << "ScrollToIndex position: " << pos;
     scrollBar_->forceSetValue(pos);
 }
 
@@ -707,6 +727,72 @@ void WidgetLocations::animatedScrollUp(int itemCount)
     scrollAnimation_.setEndValue(animationScollTarget_);
     scrollAnimation_.setDirection(QAbstractAnimation::Forward);
     scrollAnimation_.start();
+}
+
+void WidgetLocations::animatedScrollDownByKeyPress(int itemCount)
+{
+    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+
+    if (scrollAnimationForKeyPress_.state() == QAbstractAnimation::Running)
+    {
+        updateScrollBarWithView();
+        animationScollTarget_ -= scrollBy;
+    }
+    else
+    {
+        animationScollTarget_ = widgetLocationsList_->geometry().y() - scrollBy;
+    }
+
+    // qDebug() << "AnimatedScrollDownByKeyPress: " << widgetLocationsList_->geometry().y() << " -> " << animationScollTarget_;
+    scrollAnimationForKeyPress_.stop();
+    scrollAnimationForKeyPress_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
+    scrollAnimationForKeyPress_.setStartValue(widgetLocationsList_->geometry().y());
+    scrollAnimationForKeyPress_.setEndValue(animationScollTarget_);
+    scrollAnimationForKeyPress_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimationForKeyPress_.start();
+}
+
+void WidgetLocations::animatedScrollUpByKeyPress(int itemCount)
+{
+    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+
+    if (scrollAnimationForKeyPress_.state() == QAbstractAnimation::Running)
+    {
+        updateScrollBarWithView();
+        animationScollTarget_ += scrollBy;
+    }
+    else
+    {
+        animationScollTarget_ = widgetLocationsList_->geometry().y() + scrollBy;
+    }
+
+    scrollAnimationForKeyPress_.stop();
+    scrollAnimationForKeyPress_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
+    scrollAnimationForKeyPress_.setStartValue(widgetLocationsList_->geometry().y());
+    scrollAnimationForKeyPress_.setEndValue(animationScollTarget_);
+    scrollAnimationForKeyPress_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimationForKeyPress_.start();
+}
+
+void WidgetLocations::gestureScrollAnimation(int value)
+{
+    animationScollTarget_ = -value;
+
+    scrollAnimation_.stop();
+    scrollAnimation_.setDuration(GESTURE_SCROLL_ANIMATION_DURATION);
+    scrollAnimation_.setStartValue(widgetLocationsList_->geometry().y());
+    scrollAnimation_.setEndValue(animationScollTarget_);
+    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
+    scrollAnimation_.start();
+    qApp->processEvents(); // animate scrolling at same time as gesture is moving
+}
+
+void WidgetLocations::updateScrollBarWithView()
+{
+    if (!scrollBar_->dragging())
+    {
+        scrollBar_->forceSetValue(-widgetLocationsList_->geometry().y());
+    }
 }
 
 const LocationID WidgetLocations::topViewportSelectableLocationId()
@@ -771,6 +857,21 @@ QRect WidgetLocations::globalLocationsListViewportRect()
                  viewport()->geometry().width(), viewport()->geometry().height());
 }
 
+int WidgetLocations::regionViewportIndex(ItemWidgetRegion *region)
+{
+    int topItemSelIndex = widgetLocationsList_->selectableIndex(topViewportSelectableLocationId());
+    int regionSelIndex = widgetLocationsList_->selectableIndex(region->getId());
+    return regionSelIndex - topItemSelIndex;
+}
+
+int WidgetLocations::regionOutOfViewBy(ItemWidgetRegion *region)
+{
+    // qDebug() << "Checking for need to scroll due to expand";
+    int rvi = regionViewportIndex(region);
+    int bottomCityViewportIndex  = rvi + region->cityWidgets().count();
+    return bottomCityViewportIndex - countOfAvailableItemSlots_;
+}
+
 int WidgetLocations::getScrollBarWidth()
 {
     return WidgetLocationsSizes::instance().getScrollBarWidth();
@@ -798,17 +899,28 @@ int WidgetLocations::closestPositionIncrement(int value)
     return last;
 }
 
-void WidgetLocations::gestureScrollAnimation(int value)
+bool WidgetLocations::isItemIncrement(int position)
 {
-    animationScollTarget_ = -value;
+    int current = 0;
+    while (current < position)
+    {
+        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+    }
+    return current == position;
+}
 
-    scrollAnimation_.stop();
-    scrollAnimation_.setDuration(GESTURE_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(widgetLocationsList_->geometry().y());
-    scrollAnimation_.setEndValue(animationScollTarget_);
-    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
-    scrollAnimation_.start();
-    qApp->processEvents(); // animate scrolling at same time as gesture is moving
+void WidgetLocations::regionExpandingAnimation(ItemWidgetRegion *region)
+{
+    int regionVI = regionViewportIndex(region);
+    int diff = regionOutOfViewBy(region);
+    if (diff >= 0)
+    {
+        int change = diff + 1;
+        if (change > regionVI) change = regionVI;
+
+        // qDebug() << "Expanding auto-scroll by items: " << change;
+        animatedScrollDownByKeyPress(change);
+    }
 }
 
 

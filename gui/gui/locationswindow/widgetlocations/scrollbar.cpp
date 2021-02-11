@@ -252,7 +252,7 @@ void ScrollBar::onScollTimerTick()
     double durationFraction = (double) scrollElapsedTimer_.elapsed() / animationDuration_;
     if (durationFraction > 1)
     {
-        // qDebug() << "Stopping timer";
+        // qDebug() << "Stopping timer with target: " << targetValue_;
         scrollTimer_.stop();
         setValue(targetValue_);
         return;

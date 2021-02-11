@@ -113,7 +113,6 @@ void WidgetLocationsList::expand(LocationID locId)
         if (regionWidget->getId() == locId)
         {
             regionWidget->expand();
-            emit regionExpanding(regionWidget, EXPAND_REASON_AUTO);
         }
     }
 }
@@ -299,6 +298,18 @@ IItemWidget *WidgetLocationsList::selectableWidget(LocationID locationId)
     return nullptr;
 }
 
+ItemWidgetRegion *WidgetLocationsList::regionWidget(LocationID locationId)
+{
+    foreach (ItemWidgetRegion *regionWidget, qAsConst(itemWidgets_))
+    {
+        if (regionWidget->getId() == locationId)
+        {
+            return regionWidget;
+        }
+    }
+    return nullptr;
+}
+
 QVector<ItemWidgetCity *> WidgetLocationsList::cityWidgets()
 {
     QVector<ItemWidgetCity *> cityWidgets;
@@ -376,7 +387,7 @@ void WidgetLocationsList::onLocationItemRegionClicked(ItemWidgetRegion *regionWi
                 if (regionWidget->expandable())
                 {
                     regionWidget->expand();
-                    emit regionExpanding(regionWidget, EXPAND_REASON_USER);
+                    emit regionExpanding(regionWidget);
                 }
             }
         }

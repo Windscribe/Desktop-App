@@ -46,15 +46,14 @@ public:
     int accentItemSelectableIndex();
     IItemWidget *lastAccentedItemWidget();
     IItemWidget *selectableWidget(LocationID locationId);
-
-    enum ExpandReason { EXPAND_REASON_AUTO, EXPAND_REASON_USER };
+    ItemWidgetRegion *regionWidget(LocationID locationId);
 
 signals:
     void heightChanged(int height);
     void favoriteClicked(ItemWidgetCity *cityWidget, bool favorited);
     void cityItemClicked(ItemWidgetCity *cityWidget);
     void locationIdSelected(LocationID id);
-    void regionExpanding(ItemWidgetRegion *regionWidget, WidgetLocationsList::ExpandReason reason);
+    void regionExpanding(ItemWidgetRegion *regionWidget);
 
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
