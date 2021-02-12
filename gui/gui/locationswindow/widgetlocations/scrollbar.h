@@ -20,6 +20,7 @@ public:
 
 signals:
     void handleDragged(int valuePos);
+    void stopScroll(bool lastScrollUp);
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
@@ -45,6 +46,7 @@ private:
     QTimer scrollTimer_;
     int lastCursorPos_;
     int lastValue_;
+    bool lastScrollDirectionUp_;
 
     int trackpadDeltaSum_;
     int trackPadScrollDelta_;

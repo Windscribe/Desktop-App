@@ -16,6 +16,7 @@ namespace GuiLocations {
 ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
   , targetValue_(0)
   , lastCursorPos_(0)
+  , lastScrollDirectionUp_(false)
   , trackpadDeltaSum_(0)
   , trackPadScrollDelta_(0)
   , pressed_(false)
@@ -50,14 +51,22 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
         else if (event->phase() == Qt::ScrollUpdate) //  trackpad drag
         {
             trackPadScrollDelta_ += event->angleDelta().y();
+            lastScrollDirectionUp_  = event->angleDelta().y() > 0;
         }
         else if (event->phase() == Qt::ScrollMomentum) // trackpad gesture/flick
         {
             trackPadScrollDelta_ += event->angleDelta().y();
+            lastScrollDirectionUp_  = event->angleDelta().y() > 0;
         }
         else if (event->phase() == Qt::ScrollEnd) // remove finger from trackpad
         {
-            // tap after momentum seems to "just work" -- no need to explicitly stop animation
+            if (trackPadScrollDelta_ == 0)
+            {
+                // we can stop the animation from proceeding, but can't update the scrollbar properly -- signal scrollarea for that
+                scrollTimer_.stop();
+                emit stopScroll(lastScrollDirectionUp_);
+                return;
+            }
         }
 
         if (trackPadScrollDelta_ > singleStep())
@@ -80,13 +89,14 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
         // "Phase" data does not indicate anything helpful, all are "NoScrollPhase", unlike MacOS phase seen above
         // So we track scrolling until it accumulates to similar delta
         int change = event->angleDelta().y();
+        lastScrollDirectionUp_  = event->angleDelta().y() > 0;
         if (abs(change) != 120 ) // mouse scroll is dead give-away by delta +/- 120 value
         {
             change += trackpadDeltaSum_;
         }
         else
         {
-            // if some starts using mouse to scoll then clear accumulation
+            // if someone starts using mouse to scoll then clear accumulation
             trackpadDeltaSum_ = 0;
         }
 
@@ -143,6 +153,7 @@ void ScrollBar::paintEvent(QPaintEvent *event)
 void ScrollBar::forceSetValue(int val)
 {
     // qDebug() << "Forcing: " << value() <<  " -> " << val;
+    scrollTimer_.stop();
     trackpadDeltaSum_= 0;
     targetValue_ = val;
     setValue(val);

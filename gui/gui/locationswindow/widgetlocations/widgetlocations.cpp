@@ -60,7 +60,7 @@ WidgetLocations::WidgetLocations(QWidget *parent) : QScrollArea(parent)
     scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
     scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
     connect(scrollBar_, SIGNAL(handleDragged(int)), SLOT(onScrollBarHandleDragged(int)));
-
+    connect(scrollBar_, SIGNAL(stopScroll(bool)), SLOT(onScrollBarStopScroll(bool)));
 
     // central widget
     widgetLocationsList_ = new WidgetLocationsList(this, this);
@@ -576,8 +576,7 @@ void WidgetLocations::onScrollAnimationValueChanged(const QVariant &value)
 {
     // qDebug() << "ScrollAnimation: " << value.toInt();
 
-    int listPos = value.toInt();
-    widgetLocationsList_->move(0, listPos);
+    widgetLocationsList_->move(0, value.toInt());
     lastScrollPos_ = widgetLocationsList_->geometry().y();
 
     viewport()->update();
@@ -617,12 +616,23 @@ void WidgetLocations::onScrollBarHandleDragged(int valuePos)
     animationScollTarget_ = -valuePos;
 
     // qDebug() << "Dragged: " << locationItemListWidget_->geometry().y() << " -> " << animationScollTarget_;
-    scrollAnimation_.stop();
-    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(widgetLocationsList_->geometry().y());
-    scrollAnimation_.setEndValue(animationScollTarget_);
-    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
-    scrollAnimation_.start();
+    startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
+}
+
+void WidgetLocations::onScrollBarStopScroll(bool lastScrollDirectionUp)
+{
+    if (lastScrollDirectionUp)
+    {
+        int nextPos = previousPositionIncrement(-widgetLocationsList_->geometry().y());
+        animationScollTarget_ = -nextPos;
+        startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
+    }
+    else
+    {
+        int nextPos = nextPositionIncrement(-widgetLocationsList_->geometry().y());
+        animationScollTarget_ = -nextPos;
+        startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
+    }
 }
 
 void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
@@ -699,13 +709,7 @@ void WidgetLocations::animatedScrollDown(int itemCount)
     {
         animationScollTarget_ = widgetLocationsList_->geometry().y() - scrollBy;
     }
-
-    scrollAnimation_.stop();
-    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(widgetLocationsList_->geometry().y());
-    scrollAnimation_.setEndValue(animationScollTarget_);
-    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
-    scrollAnimation_.start();
+    startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
 }
 
 void WidgetLocations::animatedScrollUp(int itemCount)
@@ -720,13 +724,7 @@ void WidgetLocations::animatedScrollUp(int itemCount)
     {
         animationScollTarget_ = widgetLocationsList_->geometry().y() + scrollBy;
     }
-
-    scrollAnimation_.stop();
-    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(widgetLocationsList_->geometry().y());
-    scrollAnimation_.setEndValue(animationScollTarget_);
-    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
-    scrollAnimation_.start();
+    startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
 }
 
 void WidgetLocations::animatedScrollDownByKeyPress(int itemCount)
@@ -743,13 +741,7 @@ void WidgetLocations::animatedScrollDownByKeyPress(int itemCount)
         animationScollTarget_ = widgetLocationsList_->geometry().y() - scrollBy;
     }
 
-    // qDebug() << "AnimatedScrollDownByKeyPress: " << widgetLocationsList_->geometry().y() << " -> " << animationScollTarget_;
-    scrollAnimationForKeyPress_.stop();
-    scrollAnimationForKeyPress_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimationForKeyPress_.setStartValue(widgetLocationsList_->geometry().y());
-    scrollAnimationForKeyPress_.setEndValue(animationScollTarget_);
-    scrollAnimationForKeyPress_.setDirection(QAbstractAnimation::Forward);
-    scrollAnimationForKeyPress_.start();
+    startAnimationScrollByPosition(animationScollTarget_, scrollAnimationForKeyPress_);
 }
 
 void WidgetLocations::animatedScrollUpByKeyPress(int itemCount)
@@ -766,12 +758,17 @@ void WidgetLocations::animatedScrollUpByKeyPress(int itemCount)
         animationScollTarget_ = widgetLocationsList_->geometry().y() + scrollBy;
     }
 
-    scrollAnimationForKeyPress_.stop();
-    scrollAnimationForKeyPress_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimationForKeyPress_.setStartValue(widgetLocationsList_->geometry().y());
-    scrollAnimationForKeyPress_.setEndValue(animationScollTarget_);
-    scrollAnimationForKeyPress_.setDirection(QAbstractAnimation::Forward);
-    scrollAnimationForKeyPress_.start();
+    startAnimationScrollByPosition(animationScollTarget_, scrollAnimationForKeyPress_);
+}
+
+void WidgetLocations::startAnimationScrollByPosition(int positionValue, QVariantAnimation &animation)
+{
+    animation.stop();
+    animation.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
+    animation.setStartValue(widgetLocationsList_->geometry().y());
+    animation.setEndValue(positionValue);
+    animation.setDirection(QAbstractAnimation::Forward);
+    animation.start();
 }
 
 void WidgetLocations::gestureScrollAnimation(int value)
@@ -899,14 +896,28 @@ int WidgetLocations::closestPositionIncrement(int value)
     return last;
 }
 
-bool WidgetLocations::isItemIncrement(int position)
+int WidgetLocations::nextPositionIncrement(int value)
 {
     int current = 0;
-    while (current < position)
+    while (current < value)
     {
         current += LOCATION_ITEM_HEIGHT * G_SCALE;
     }
-    return current == position;
+
+    return current;
+}
+
+int WidgetLocations::previousPositionIncrement(int value)
+{
+    int current = 0;
+    int last = 0;
+    while (current < value)
+    {
+        last = current;
+        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+    }
+
+    return last;
 }
 
 void WidgetLocations::regionExpandingAnimation(ItemWidgetRegion *region)

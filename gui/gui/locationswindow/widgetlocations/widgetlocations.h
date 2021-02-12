@@ -81,6 +81,7 @@ private slots:
     void onScrollAnimationForKeyPressValueChanged(const QVariant &value);
     void onScrollAnimationForKeyPressFinished();
     void onScrollBarHandleDragged(int valuePos);
+    void onScrollBarStopScroll(bool lastScrollDirectionUp);
 
 private:
     WidgetLocationsList *widgetLocationsList_;
@@ -100,7 +101,6 @@ private:
     QElapsedTimer preventMouseSelectionTimer_;
     int animationScollTarget_;
     QVariantAnimation scrollAnimation_;
-
     QVariantAnimation scrollAnimationForKeyPress_;
 
     QElapsedTimer gestureScrollingElapsedTimer_;
@@ -114,6 +114,7 @@ private:
     void animatedScrollUp(int itemCount);
     void animatedScrollDownByKeyPress(int itemCount);
     void animatedScrollUpByKeyPress(int itemCount);
+    void startAnimationScrollByPosition(int positionValue, QVariantAnimation &animation);
     const int GESTURE_SCROLL_ANIMATION_DURATION = 200;
     void gestureScrollAnimation(int value);
     void updateScrollBarWithView();
@@ -133,7 +134,8 @@ private:
     int getScrollBarWidth();
     int getItemHeight() const;
     int closestPositionIncrement(int value);
-    bool isItemIncrement(int position);
+    int nextPositionIncrement(int value);
+    int previousPositionIncrement(int value);
 
     bool heightChanging_;
     void regionExpandingAnimation(ItemWidgetRegion *region);
