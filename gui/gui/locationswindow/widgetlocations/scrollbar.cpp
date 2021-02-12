@@ -177,7 +177,7 @@ void ScrollBar::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void ScrollBar::mouseReleaseEvent(QMouseEvent *event)
+void ScrollBar::mouseReleaseEvent(QMouseEvent * /*event*/)
 {
     // qDebug() << "mouse release";
     pressed_ = false;

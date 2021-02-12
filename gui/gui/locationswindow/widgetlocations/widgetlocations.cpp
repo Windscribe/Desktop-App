@@ -201,10 +201,7 @@ int WidgetLocations::countViewportItems()
 
 void WidgetLocations::setCountViewportItems(int cnt)
 {
-    if (countOfAvailableItemSlots_ != cnt)
-    {
-        countOfAvailableItemSlots_ = cnt;
-    }
+    countOfAvailableItemSlots_ = cnt;
 }
 
 bool WidgetLocations::isShowLatencyInMs()
@@ -516,10 +513,7 @@ void WidgetLocations::onIsFavoriteChanged(LocationID id, bool isFavorite)
 
 void WidgetLocations::onFreeSessionStatusChanged(bool isFreeSessionStatus)
 {
-    if (bIsFreeSession_ != isFreeSessionStatus)
-    {
-        bIsFreeSession_ = isFreeSessionStatus;
-    }
+    bIsFreeSession_ = isFreeSessionStatus;
 }
 
 void WidgetLocations::onLanguageChanged()
@@ -614,24 +608,24 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 
     qCDebug(LOG_BASIC) << "Updating locations widget list";
     widgetLocationsList_->clearWidgets();
-    foreach (LocationModelItem *item, items)
+    for (LocationModelItem *item: qAsConst(items))
     {
         if (item->title.contains(filterString_, Qt::CaseInsensitive))
         {
             // add item and all children to list
             widgetLocationsList_->addRegionWidget(item);
 
-            foreach (const CityModelItem &cityItem, item->cities)
+            for (const CityModelItem &cityItem: qAsConst(item->cities))
             {
                 widgetLocationsList_->addCityToRegion(cityItem, item);
             }
         }
         else
         {
-            foreach (CityModelItem cityItem, item->cities)
+            for (const CityModelItem &cityItem: qAsConst(item->cities))
             {
                 if (cityItem.city.contains(filterString_, Qt::CaseInsensitive) ||
-                    cityItem.city.contains(filterString_, Qt::CaseInsensitive))
+                    cityItem.nick.contains(filterString_, Qt::CaseInsensitive))
                 {
                     widgetLocationsList_->addCityToRegion(cityItem, item);
                 }

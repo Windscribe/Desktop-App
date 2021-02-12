@@ -150,9 +150,9 @@ void WidgetLocationsList::collapseAllLocations()
 
 void WidgetLocationsList::expandLocationIds(QVector<LocationID> locIds)
 {
-    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
+    for (ItemWidgetRegion *regionWidget : qAsConst(itemWidgets_))
     {
-        foreach (LocationID locId, locIds)
+        for (const LocationID locId : qAsConst(locIds))
         {
             if (regionWidget->getId() == locId)
             {

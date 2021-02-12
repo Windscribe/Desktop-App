@@ -244,12 +244,6 @@
     <ClCompile Include="preferenceswindow\checkboxitem.cpp">
       <Filter>GUI Files\preferenceswindow</Filter>
     </ClCompile>
-    <ClCompile Include="locationswindow\widgetlocations\cityitem.cpp">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
-    </ClCompile>
-    <ClCompile Include="locationswindow\widgetlocations\citynode.cpp">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
-    </ClCompile>
     <ClCompile Include="commongraphics\clickablegraphicsobject.cpp">
       <Filter>GUI Files\commongraphics</Filter>
     </ClCompile>
@@ -307,14 +301,8 @@
     <ClCompile Include="preferenceswindow\networkwhitelistwindow\currentnetworkitem.cpp">
       <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
     </ClCompile>
-    <ClCompile Include="commongraphics\custommenulineedit.cpp">
-      <Filter>GUI Files\commongraphics</Filter>
-    </ClCompile>
     <ClCompile Include="commonwidgets\custommenuwidget.cpp">
       <Filter>GUI Files\commonwidgets</Filter>
-    </ClCompile>
-    <ClCompile Include="locationswindow\widgetlocations\customscrollbar.cpp">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClCompile>
     <ClCompile Include="commonwidgets\customtexteditwidget.cpp">
       <Filter>GUI Files\commonwidgets</Filter>
@@ -444,9 +432,6 @@
     </ClCompile>
     <ClCompile Include="launchonstartup\launchonstartup.cpp">
       <Filter>GUI Files\launchonstartup</Filter>
-    </ClCompile>
-    <ClCompile Include="locationswindow\widgetlocations\locationitem.cpp">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClCompile>
     <ClCompile Include="..\backend\locationsmodel\locationsmodel.cpp">
       <Filter>Backend Files\locationsmodel</Filter>
@@ -850,6 +835,33 @@
     <ClCompile Include="..\..\common\utils\mergelog.cpp">
       <Filter>Common Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="commonwidgets\custommenulineedit.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="commonwidgets\iconwidget.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="commonwidgets\lightwidget.cpp">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\itemwidgetcity.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\itemwidgetheader.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\itemwidgetregion.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\scrollbar.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\widgetcitieslist.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\widgetlocationslist.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -915,9 +927,6 @@
     <QtMoc Include="commongraphics\checkboxbutton.h">
       <Filter>GUI Files\commongraphics</Filter>
     </QtMoc>
-    <ClInclude Include="locationswindow\widgetlocations\cityitem.h">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
-    </ClInclude>
     <QtMoc Include="preferenceswindow\comboboxitem.h">
       <Filter>GUI Files\preferenceswindow</Filter>
     </QtMoc>
@@ -959,9 +968,6 @@
     </QtMoc>
     <QtMoc Include="preferenceswindow\networkwhitelistwindow\currentnetworkitem.h">
       <Filter>GUI Files\preferenceswindow\networkwhitelistwindow</Filter>
-    </QtMoc>
-    <QtMoc Include="locationswindow\widgetlocations\customscrollbar.h">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </QtMoc>
     <QtMoc Include="commonwidgets\customtexteditwidget.h">
       <Filter>GUI Files\commonwidgets</Filter>
@@ -1310,6 +1316,36 @@
     </QtMoc>
     <QtMoc Include="connectwindow\connectionbadgedots.h">
       <Filter>GUI Files\connectwindow</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\custommenulineedit.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\iconwidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <QtMoc Include="commonwidgets\lightwidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\iitemwidget.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\itemwidgetcity.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\itemwidgetheader.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\itemwidgetregion.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\scrollbar.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\widgetcitieslist.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\widgetlocationslist.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -2203,9 +2239,6 @@
     <QtMoc Include="commonwidgets\combomenuwidget.h">
       <Filter>GUI Files\commonwidgets</Filter>
     </QtMoc>
-    <QtMoc Include="commongraphics\custommenulineedit.h">
-      <Filter>GUI Files\commongraphics</Filter>
-    </QtMoc>
     <QtMoc Include="preferenceswindow\debugwindow\debugwindowitem.h">
       <Filter>GUI Files\preferenceswindow\debugwindow</Filter>
     </QtMoc>
@@ -2263,9 +2296,6 @@
       <Filter>Common Files\version</Filter>
     </ClInclude>
     <ClInclude Include="locationswindow\widgetlocations\backgroundpixmapanimation.h">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
-    </ClInclude>
-    <ClInclude Include="locationswindow\widgetlocations\citynode.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\common\ipc\generated_proto\clientcommands.pb.h">
@@ -2381,9 +2411,6 @@
     </ClInclude>
     <ClInclude Include="launchonstartup\launchonstartup.h">
       <Filter>GUI Files\launchonstartup</Filter>
-    </ClInclude>
-    <ClInclude Include="locationswindow\widgetlocations\locationitem.h">
-      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClInclude>
     <ClInclude Include="..\backend\locationsmodel\locationmodelitem.h">
       <Filter>Backend Files\locationsmodel</Filter>
@@ -2504,6 +2531,9 @@
     </ClInclude>
     <ClInclude Include="..\..\common\utils\mergelog.h">
       <Filter>Common Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="commonwidgets\iscrollablewidget.h">
+      <Filter>GUI Files\commonwidgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

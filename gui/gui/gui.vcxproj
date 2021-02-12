@@ -400,12 +400,21 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\utils\mergelog.cpp" />
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp" />
+    <ClCompile Include="commonwidgets\custommenulineedit.cpp" />
+    <ClCompile Include="commonwidgets\iconwidget.cpp" />
+    <ClCompile Include="commonwidgets\lightwidget.cpp" />
     <ClCompile Include="commonwidgets\textbuttonwidget.cpp" />
     <ClCompile Include="connectwindow\connectionbadgedots.cpp" />
     <ClCompile Include="dialogs\advancedparametersdialog.cpp" />
     <ClCompile Include="dpiscaleawarewidget.cpp" />
     <ClCompile Include="graphicresources\imageresourcesjpg.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\itemwidgetcity.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\itemwidgetheader.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\itemwidgetregion.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\scrollbar.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\widgetcitieslist.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\widgetlocationslist.cpp" />
     <ClCompile Include="loginwindow\credentialswindowitem.cpp" />
     <ClCompile Include="loginwindow\welcomewindowitem.cpp" />
     <ClCompile Include="overlaysconnectwindow\generalmessagetwobuttonwindowitem.cpp" />
@@ -439,8 +448,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="commongraphics\bubblebuttondark.cpp" />
     <ClCompile Include="commongraphics\checkboxbutton.cpp" />
     <ClCompile Include="preferenceswindow\checkboxitem.cpp" />
-    <ClCompile Include="locationswindow\widgetlocations\cityitem.cpp" />
-    <ClCompile Include="locationswindow\widgetlocations\citynode.cpp" />
     <ClCompile Include="commongraphics\clickablegraphicsobject.cpp" />
     <ClCompile Include="..\..\common\ipc\generated_proto\clientcommands.pb.cc" />
     <ClCompile Include="preferenceswindow\comboboxitem.cpp" />
@@ -458,9 +465,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="connectwindow\connectstateprotocolport.cpp" />
     <ClCompile Include="connectwindow\connectwindowitem.cpp" />
     <ClCompile Include="preferenceswindow\networkwhitelistwindow\currentnetworkitem.cpp" />
-    <ClCompile Include="commongraphics\custommenulineedit.cpp" />
     <ClCompile Include="commonwidgets\custommenuwidget.cpp" />
-    <ClCompile Include="locationswindow\widgetlocations\customscrollbar.cpp" />
     <ClCompile Include="commonwidgets\customtexteditwidget.cpp" />
     <ClCompile Include="preferenceswindow\debugwindow\debugwindowitem.cpp" />
     <ClCompile Include="dialogs\dialoggetusernamepassword.cpp" />
@@ -516,7 +521,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="..\..\common\utils\languagesutil.cpp" />
     <ClCompile Include="launchonstartup\launchonstartup.cpp" />
     <ClCompile Include="launchonstartup\launchonstartup_win.cpp" />
-    <ClCompile Include="locationswindow\widgetlocations\locationitem.cpp" />
     <ClCompile Include="connectwindow\locationsbutton.cpp" />
     <ClCompile Include="..\backend\locationsmodel\locationsmodel.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\locationstab.cpp" />
@@ -663,6 +667,10 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="dialogs\advancedparametersdialog.h" />
     <QtMoc Include="dpiscaleawarewidget.h" />
     <QtMoc Include="connectwindow\connectionbadgedots.h" />
+    <QtMoc Include="commonwidgets\custommenulineedit.h" />
+    <QtMoc Include="commonwidgets\iconwidget.h" />
+    <ClInclude Include="commonwidgets\iscrollablewidget.h" />
+    <QtMoc Include="commonwidgets\lightwidget.h" />
     <ClInclude Include="graphicresources\imageresourcesjpg.h" />
     <ClInclude Include="locationswindow\widgetlocations\backgroundpixmapanimation.h" />
     <QtMoc Include="preferenceswindow\baseitem.h">
@@ -688,8 +696,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <QtMoc Include="preferenceswindow\checkboxitem.h">
     </QtMoc>
-    <ClInclude Include="locationswindow\widgetlocations\cityitem.h" />
-    <ClInclude Include="locationswindow\widgetlocations\citynode.h" />
     <QtMoc Include="commongraphics\clickablegraphicsobject.h">
     </QtMoc>
     <ClInclude Include="..\..\common\ipc\generated_proto\clientcommands.pb.h" />
@@ -722,11 +728,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <QtMoc Include="preferenceswindow\networkwhitelistwindow\currentnetworkitem.h">
     </QtMoc>
-    <QtMoc Include="commongraphics\custommenulineedit.h">
-    </QtMoc>
     <ClInclude Include="commonwidgets\custommenuwidget.h" />
-    <QtMoc Include="locationswindow\widgetlocations\customscrollbar.h">
-    </QtMoc>
     <QtMoc Include="commonwidgets\customtexteditwidget.h">
     </QtMoc>
     <QtMoc Include="preferenceswindow\debugwindow\debugwindowitem.h">
@@ -741,6 +743,13 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="overlaysconnectwindow\generalmessagewindowitem.h" />
     <QtMoc Include="loginwindow\credentialswindowitem.h" />
     <QtMoc Include="loginwindow\welcomewindowitem.h" />
+    <QtMoc Include="locationswindow\widgetlocations\iitemwidget.h" />
+    <QtMoc Include="locationswindow\widgetlocations\itemwidgetcity.h" />
+    <QtMoc Include="locationswindow\widgetlocations\itemwidgetheader.h" />
+    <QtMoc Include="locationswindow\widgetlocations\itemwidgetregion.h" />
+    <QtMoc Include="locationswindow\widgetlocations\scrollbar.h" />
+    <QtMoc Include="locationswindow\widgetlocations\widgetcitieslist.h" />
+    <QtMoc Include="locationswindow\widgetlocations\widgetlocationslist.h" />
     <ClInclude Include="overlaysconnectwindow\igeneralmessagetwobuttonwindow.h" />
     <ClInclude Include="overlaysconnectwindow\igeneralmessagewindow.h" />
     <ClInclude Include="overlaysconnectwindow\iupdateappitem.h" />
@@ -844,7 +853,6 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="..\..\common\utils\languagesutil.h" />
     <ClInclude Include="launchonstartup\launchonstartup.h" />
     <ClInclude Include="launchonstartup\launchonstartup_win.h" />
-    <ClInclude Include="locationswindow\widgetlocations\locationitem.h" />
     <ClInclude Include="..\backend\locationsmodel\locationmodelitem.h" />
     <QtMoc Include="connectwindow\locationsbutton.h">
     </QtMoc>

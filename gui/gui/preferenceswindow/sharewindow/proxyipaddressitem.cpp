@@ -81,7 +81,7 @@ void ProxyIpAddressItem::onCopyClick()
     ti.delay = 0;
     TooltipController::instance().showTooltipBasic(ti);
 
-    QTimer::singleShot(TOOLTIP_TIMEOUT, [this](){
+    QTimer::singleShot(TOOLTIP_TIMEOUT, [](){
         TooltipController::instance().hideTooltip(TOOLTIP_ID_PROXY_IP_COPIED);
     });
 }

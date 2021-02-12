@@ -95,7 +95,7 @@ void SplitTunnelingSwitchItem::onActiveSwitchChanged(bool checked)
         ti.width = 260 * G_SCALE;
         ti.delay = 100;
 
-        QTimer::singleShot(0, [this, ti]() { TooltipController::instance().showTooltipDescriptive(ti); });
+        QTimer::singleShot(0, [ti]() { TooltipController::instance().showTooltipDescriptive(ti); });
 
         activeCheckBox_->setState(false);
         checked = false;
