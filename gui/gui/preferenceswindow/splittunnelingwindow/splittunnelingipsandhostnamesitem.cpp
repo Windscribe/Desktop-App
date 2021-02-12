@@ -148,6 +148,12 @@ void SplitTunnelingIpsAndHostnamesItem::validateAndCreateNetworkRoute(QString ip
             errorTitle = "Ip or Hostname already exists";
             errorDesc = "Please enter a value not already in the list.";
         }
+        else if (!IpValidation::instance().isValidIpForCidr(ipOrHostname))
+        {
+            errorTitle = "Incorrect IP/mask combination";
+            errorDesc = "Please enter a valid IPv4 address and/or CIDR notation.\n" \
+                        "You entered: " + ipOrHostname;
+        }
         else
         {
             ProtoTypes::SplitTunnelingNetworkRouteType type = ProtoTypes::SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
