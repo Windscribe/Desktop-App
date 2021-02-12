@@ -493,7 +493,7 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
         timerReconnection_.stop();
         emit errorDuringConnection(err);
     }
-    else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == TCP_ERROR ||
+    else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == WINTUN_OVER_CAPACITY || err == TCP_ERROR ||
              err == CONNECTED_ERROR || err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS || err == IKEV_FAILED_TO_CONNECT ||
              (connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NOT_FOUND_WIN || err == IKEV_FAILED_SET_ENTRY_WIN || err == IKEV_FAILED_MODIFY_HOSTS_WIN)) ||
              (connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||

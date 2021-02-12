@@ -498,6 +498,10 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             {
                 emit error(UDP_NETWORK_DOWN);
             }
+            else if (serverReply.contains("write_wintun", Qt::CaseInsensitive) && serverReply.contains("head/tail value is over capacity", Qt::CaseInsensitive))
+            {
+                emit error(WINTUN_OVER_CAPACITY);
+            }
             else if (serverReply.contains("TCP", Qt::CaseInsensitive) && serverReply.contains("failed", Qt::CaseInsensitive))
             {
                 emit error(TCP_ERROR);

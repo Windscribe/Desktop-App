@@ -261,7 +261,7 @@ void EmergencyController::onConnectionError(CONNECTION_ERROR err)
         // emit error in disconnected event
         state_ = STATE_ERROR_DURING_CONNECTION;
     }
-    else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == TCP_ERROR ||
+    else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == WINTUN_OVER_CAPACITY || err == TCP_ERROR ||
              err == CONNECTED_ERROR || err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
     {
         if (state_ == STATE_CONNECTED)
