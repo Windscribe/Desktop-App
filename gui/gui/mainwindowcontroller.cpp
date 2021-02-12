@@ -476,6 +476,7 @@ void MainWindowController::collapseLocations()
     functionOnAnimationFinished_ = NULL;
 
     connectWindow_->updateLocationsState(false);
+    locationsWindow_->hideSearchTab();
 
     if (bottomInfoWindow_->isUpgradeWidgetVisible() ||
         bottomInfoWindow_->isSharingFeatureVisible()) {
@@ -2436,6 +2437,7 @@ void MainWindowController::collapsePreferencesFromConnect(bool bSkipBottomInfoWi
 
     preferencesState_ = PREFERENCES_STATE_ANIMATING;
     connectWindow_->getGraphicsObject()->show();
+    locationsWindow_->hideSearchTab();
 
     // opacity change
     QVariantAnimation *animOpacity = new QVariantAnimation(this);
@@ -2922,14 +2924,14 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
         if (geo.right() > kMaxGeometryRightPosition)
         {
-            qDebug() << "Keeping mainwindow on screen!";
+            // qDebug() << "Keeping mainwindow on screen!";
             geo.moveRight(kMaxGeometryRightPosition);
         }
 #endif
 
     }
 
-    qDebug() << "Updating mainwindow geo: " << geo;
+    // qDebug() << "Updating mainwindow geo: " << geo;
     mainWindow_->setGeometry(geo);
     updateViewAndScene(width, height, shadowSize, updateShadow);
 

@@ -32,6 +32,7 @@ public:
     void setFavourited(bool favorited);
     void setSelectable(bool selectable) override;
     void setAccented(bool accent) override;
+    void setAccentedWithoutAnimation(bool accent) override;
     bool isAccented() const override;
 
     bool containsCursor() const override;

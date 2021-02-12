@@ -71,6 +71,11 @@ void LocationsWindow::updateScaling()
     locationsTab_->updateScaling();
 }
 
+void LocationsWindow::hideSearchTab()
+{
+    locationsTab_->hideSearchTab();
+}
+
 void LocationsWindow::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
 {
     locationsTab_->setLatencyDisplay(l);

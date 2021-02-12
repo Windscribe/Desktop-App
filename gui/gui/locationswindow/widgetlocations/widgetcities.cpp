@@ -67,6 +67,7 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QScrollAre
     scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
     scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
     connect(scrollBar_, SIGNAL(handleDragged(int)), SLOT(onScrollBarHandleDragged(int)));
+    connect(scrollBar_, SIGNAL(stopScroll(bool)), SLOT(onScrollBarStopScroll(bool)));
 
     // central widget
     widgetCitiesList_ = new WidgetCitiesList(this, this);
@@ -568,14 +569,24 @@ void WidgetCities::onScrollAnimationValueChanged(const QVariant &value)
 void WidgetCities::onScrollBarHandleDragged(int valuePos)
 {
     animationScollTarget_ = -valuePos;
-
     // qDebug() << "Dragged: " << locationItemListWidget_->geometry().y() << " -> " << animationScollTarget_;
-    scrollAnimation_.stop();
-    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(widgetCitiesList_->geometry().y());
-    scrollAnimation_.setEndValue(animationScollTarget_);
-    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
-    scrollAnimation_.start();
+    startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
+}
+
+void WidgetCities::onScrollBarStopScroll(bool lastScrollDirectionUp)
+{
+    if (lastScrollDirectionUp)
+    {
+        int nextPos = previousPositionIncrement(-widgetCitiesList_->geometry().y());
+        animationScollTarget_ = -nextPos;
+        startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
+    }
+    else
+    {
+        int nextPos = nextPositionIncrement(-widgetCitiesList_->geometry().y());
+        animationScollTarget_ = -nextPos;
+        startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
+    }
 }
 
 void WidgetCities::updateEmptyListButton()
@@ -643,13 +654,7 @@ void WidgetCities::animatedScrollDown(int itemCount)
     {
         animationScollTarget_ = widgetCitiesList_->geometry().y() - scrollBy;
     }
-
-    scrollAnimation_.stop();
-    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(widgetCitiesList_->geometry().y());
-    scrollAnimation_.setEndValue(animationScollTarget_);
-    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
-    scrollAnimation_.start();
+    startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
 }
 
 void WidgetCities::animatedScrollUp(int itemCount)
@@ -664,13 +669,17 @@ void WidgetCities::animatedScrollUp(int itemCount)
     {
         animationScollTarget_ = widgetCitiesList_->geometry().y() + scrollBy;
     }
+    startAnimationScrollByPosition(animationScollTarget_, scrollAnimation_);
+}
 
-    scrollAnimation_.stop();
-    scrollAnimation_.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
-    scrollAnimation_.setStartValue(widgetCitiesList_->geometry().y());
-    scrollAnimation_.setEndValue(animationScollTarget_);
-    scrollAnimation_.setDirection(QAbstractAnimation::Forward);
-    scrollAnimation_.start();
+void WidgetCities::startAnimationScrollByPosition(int positionValue, QVariantAnimation &animation)
+{
+    animation.stop();
+    animation.setDuration(PROGRAMMATIC_SCROLL_ANIMATION_DURATION);
+    animation.setStartValue(widgetCitiesList_->geometry().y());
+    animation.setEndValue(positionValue);
+    animation.setDirection(QAbstractAnimation::Forward);
+    animation.start();
 }
 
 const LocationID WidgetCities::topViewportSelectableLocationId()
@@ -755,6 +764,30 @@ int WidgetCities::closestPositionIncrement(int value)
     {
         return current;
     }
+    return last;
+}
+
+int WidgetCities::nextPositionIncrement(int value)
+{
+    int current = 0;
+    while (current < value)
+    {
+        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+    }
+
+    return current;
+}
+
+int WidgetCities::previousPositionIncrement(int value)
+{
+    int current = 0;
+    int last = 0;
+    while (current < value)
+    {
+        last = current;
+        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+    }
+
     return last;
 }
 

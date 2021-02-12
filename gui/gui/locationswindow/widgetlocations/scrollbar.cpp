@@ -16,6 +16,8 @@ namespace GuiLocations {
 ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
   , targetValue_(0)
   , lastCursorPos_(0)
+  , lastScrollDirectionUp_(false)
+  , trackpadDeltaSum_(0)
   , trackPadScrollDelta_(0)
   , pressed_(false)
   , curOpacity_(OPACITY_HALF)
@@ -40,7 +42,6 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
 	// Note: Windows10 trackpad does not appear to generate Synthesized system events so this block will only run on Mac
 	// On Windows the trackpad event will run same block as mouse wheel (below)
     int stepVector = 0;
-
     if (event->source() == Qt::MouseEventSynthesizedBySystem) // touchpad scroll and flick
     {
         if (event->phase() == Qt::ScrollBegin)
@@ -50,14 +51,22 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
         else if (event->phase() == Qt::ScrollUpdate) //  trackpad drag
         {
             trackPadScrollDelta_ += event->angleDelta().y();
+            lastScrollDirectionUp_  = event->angleDelta().y() > 0;
         }
         else if (event->phase() == Qt::ScrollMomentum) // trackpad gesture/flick
         {
             trackPadScrollDelta_ += event->angleDelta().y();
+            lastScrollDirectionUp_  = event->angleDelta().y() > 0;
         }
         else if (event->phase() == Qt::ScrollEnd) // remove finger from trackpad
         {
-            // tap after momentum seems to "just work" -- no need to explicitly stop animation
+            if (trackPadScrollDelta_ == 0)
+            {
+                // we can stop the animation from proceeding, but can't update the scrollbar properly -- signal scrollarea for that
+                scrollTimer_.stop();
+                emit stopScroll(lastScrollDirectionUp_);
+                return;
+            }
         }
 
         if (trackPadScrollDelta_ > singleStep())
@@ -75,20 +84,43 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
     }
     else // mouse wheel
     {
-        if (event->angleDelta().y() > 0)
+
+        // Some Windows trackpads send multple small deltas instead of one single large delta (like mouse scroll)
+        // "Phase" data does not indicate anything helpful, all are "NoScrollPhase", unlike MacOS phase seen above
+        // So we track scrolling until it accumulates to similar delta
+        int change = event->angleDelta().y();
+        lastScrollDirectionUp_  = event->angleDelta().y() > 0;
+        if (abs(change) != 120 ) // mouse scroll is dead give-away by delta +/- 120 value
+        {
+            change += trackpadDeltaSum_;
+        }
+        else
+        {
+            // if someone starts using mouse to scoll then clear accumulation
+            trackpadDeltaSum_ = 0;
+        }
+
+        if (change > singleStep())
         {
             // qDebug() << "Wheel Up";
             stepVector = -singleStep();
+            trackpadDeltaSum_ = change - singleStep();
         }
-        else if (event->angleDelta().y() < 0) // angle delta can be 0
+        else if (change < -singleStep()) // angle delta can be 0
         {
             // qDebug() << "Wheel Down";
             stepVector = singleStep();
+            trackpadDeltaSum_ = change + singleStep();
+        }
+        else
+        {
+            trackpadDeltaSum_ = change;
         }
     }
 
     if (stepVector != 0)
     {
+        // qDebug() << "Scrolling: " << startValue_ + stepVector;
         animateScroll(targetValue_ + stepVector, SCROLL_SPEED_FRACTION);
     }
 }
@@ -112,10 +144,7 @@ void ScrollBar::paintEvent(QPaintEvent *event)
     initStyleOption(&opt);
     opt.subControls = QStyle::SC_All;
     rcHandle = style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarSlider, this);
-    rcHandle = rcHandle.marginsAdded(QMargins(-2*G_SCALE, 0, -4*G_SCALE, 0));
-    QBrush brush(QColor(255, 255, 255));
-    painter.setBrush(brush);
-    painter.drawRoundedRect(rcHandle, 1, 1);
+    painter.fillRect(rcHandle, Qt::white);
 
     // Note: some drawing handled via css (see customStyleSheet())
     QScrollBar::paintEvent(event);
@@ -124,6 +153,8 @@ void ScrollBar::paintEvent(QPaintEvent *event)
 void ScrollBar::forceSetValue(int val)
 {
     // qDebug() << "Forcing: " << value() <<  " -> " << val;
+    scrollTimer_.stop();
+    trackpadDeltaSum_= 0;
     targetValue_ = val;
     setValue(val);
 }
@@ -232,7 +263,7 @@ void ScrollBar::onScollTimerTick()
     double durationFraction = (double) scrollElapsedTimer_.elapsed() / animationDuration_;
     if (durationFraction > 1)
     {
-        // qDebug() << "Stopping timer";
+        // qDebug() << "Stopping timer with target: " << targetValue_;
         scrollTimer_.stop();
         setValue(targetValue_);
         return;
@@ -289,8 +320,8 @@ const QString ScrollBar::customStyleSheet()
     // handle - draw in paintEvent to change opacity
     css += QString( "QScrollBar::handle:vertical { background: rgba(0,0,0,0); color:  rgba(0,0,0,0);"
                     "border-width: %1px; border-style: solid; border-radius: %2px;}")
-                        .arg(qCeil(2))  // handle border-width
-                        .arg(qCeil(2)); // handle border-radius
+                        .arg(qCeil(0))  // handle border-width
+                        .arg(qCeil(0)); // handle border-radius
     // top and bottom page buttons
     css += QString( "QScrollBar::add-line:vertical { border: none; background: none; }"
                      "QScrollBar::sub-line:vertical { border: none; background: none; }");
@@ -304,7 +335,7 @@ int ScrollBar::customScrollBarWidth()
 
 int ScrollBar::customPaddingWidth()
 {
-    return 3 * G_SCALE;
+    return 2 * G_SCALE;
 }
 
 }

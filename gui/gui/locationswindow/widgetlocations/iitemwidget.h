@@ -25,6 +25,7 @@ public:
     virtual ItemWidgetType type() = 0;
     virtual void setSelectable(bool selectable) = 0;
     virtual void setAccented(bool select) = 0;
+    virtual void setAccentedWithoutAnimation(bool accent) = 0;
     virtual bool isAccented() const = 0;
     virtual bool containsCursor() const = 0;
     virtual bool containsGlobalPoint(const QPoint &pt) = 0;

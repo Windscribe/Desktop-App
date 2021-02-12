@@ -74,10 +74,14 @@ private slots:
     void onLocationItemListWidgetHeightChanged(int listWidgetHeight);
     void onLocationItemListWidgetFavoriteClicked(ItemWidgetCity *cityWidget, bool favorited);
     void onLocationItemListWidgetLocationIdSelected(LocationID id);
-    void onLocationItemListWidgetRegionExpanding(ItemWidgetRegion *region, WidgetLocationsList::ExpandReason reason);
+    void onLocationItemListWidgetRegionExpanding(ItemWidgetRegion *region);
 
     void onScrollAnimationValueChanged(const QVariant &value);
+    void onScrollAnimationFinished();
+    void onScrollAnimationForKeyPressValueChanged(const QVariant &value);
+    void onScrollAnimationForKeyPressFinished();
     void onScrollBarHandleDragged(int valuePos);
+    void onScrollBarStopScroll(bool lastScrollDirectionUp);
 
 private:
     WidgetLocationsList *widgetLocationsList_;
@@ -94,10 +98,10 @@ private:
 
     int lastScrollPos_;
     const int PROGRAMMATIC_SCROLL_ANIMATION_DURATION = 300;
-    bool kickPreventMouseSelectionTimer_;
     QElapsedTimer preventMouseSelectionTimer_;
     int animationScollTarget_;
     QVariantAnimation scrollAnimation_;
+    QVariantAnimation scrollAnimationForKeyPress_;
 
     QElapsedTimer gestureScrollingElapsedTimer_;
 
@@ -108,6 +112,12 @@ private:
     void scrollDown(int itemCount);
     void animatedScrollDown(int itemCount);
     void animatedScrollUp(int itemCount);
+    void animatedScrollDownByKeyPress(int itemCount);
+    void animatedScrollUpByKeyPress(int itemCount);
+    void startAnimationScrollByPosition(int positionValue, QVariantAnimation &animation);
+    const int GESTURE_SCROLL_ANIMATION_DURATION = 200;
+    void gestureScrollAnimation(int value);
+    void updateScrollBarWithView();
 
     // viewport
     const LocationID topViewportSelectableLocationId();
@@ -117,16 +127,20 @@ private:
     bool locationIdInViewport(LocationID location);
     bool isGlobalPointInViewport(const QPoint &pt);
     QRect globalLocationsListViewportRect();
+    int regionViewportIndex(ItemWidgetRegion *region);
+    int regionOutOfViewBy(ItemWidgetRegion *region);
 
     // helper
     int getScrollBarWidth();
     int getItemHeight() const;
     int closestPositionIncrement(int value);
+    int nextPositionIncrement(int value);
+    int previousPositionIncrement(int value);
 
     bool heightChanging_;
+    void regionExpandingAnimation(ItemWidgetRegion *region);
 
-    const int GESTURE_SCROLL_ANIMATION_DURATION = 200;
-    void gestureScrollAnimation(int value);
+
 };
 
 } // namespace GuiLocations
