@@ -81,6 +81,8 @@ private slots:
 
     void onScrollAnimationValueChanged(const QVariant &value);
     void onScrollBarHandleDragged(int valuePos);
+    void onScrollBarStopScroll(bool lastScrollDirectionUp);
+
 private:
     WidgetCitiesList *widgetCitiesList_;
     ScrollBar *scrollBar_;
@@ -116,6 +118,8 @@ private:
     void scrollDown(int itemCount);
     void animatedScrollDown(int itemCount);
     void animatedScrollUp(int itemCount);
+    void startAnimationScrollByPosition(int positionValue, QVariantAnimation &animation);
+
 
     // viewport
     const LocationID topViewportSelectableLocationId();
@@ -130,6 +134,8 @@ private:
     int getScrollBarWidth() ;
     int getItemHeight() const;
     int closestPositionIncrement(int value);
+    int nextPositionIncrement(int value);
+    int previousPositionIncrement(int value);
 
     int heightChanging_;
 
