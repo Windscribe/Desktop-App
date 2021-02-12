@@ -27,7 +27,8 @@ void TestVPNTunnel::startTests()
     curTest_ = 1;
     elapsed_.start();
     cmdId_++;
-    serverAPI_->pingTest(cmdId_, timeouts_[curTest_ - 1]);
+    lastTimeForCallWithLog_ = QTime::currentTime();
+    serverAPI_->pingTest(cmdId_, timeouts_[curTest_ - 1], true);
 }
 
 void TestVPNTunnel::stopTests()
@@ -55,8 +56,8 @@ void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString 
         {
             if (elapsed_.elapsed() < timeouts_[curTest_-1])
             {
-                cmdId_++;
-                serverAPI_->pingTest(cmdId_, timeouts_[curTest_-1] - elapsed_.elapsed());
+                // next ping attempt after 100 ms
+                QTimer::singleShot(100, this, SLOT(doNextPingTest()));
             }
             else
             {
@@ -66,14 +67,36 @@ void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString 
                 {
                     curTest_++;
                     elapsed_.start();
-                    cmdId_++;
-                    serverAPI_->pingTest(cmdId_, timeouts_[curTest_ - 1]);
+                    doNextPingTest();
                 }
                 else
                 {
                     emit testsFinished(false, "");
                 }
             }
+        }
+    }
+}
+
+void TestVPNTunnel::doNextPingTest()
+{
+    if (bRunning_ && curTest_ >= 1 && curTest_ <= 3)
+    {
+        // reduce log output (maximum 1 log output per 1 sec)
+        bool bWriteLog = lastTimeForCallWithLog_.msecsTo(QTime::currentTime()) > 1000;
+        if (bWriteLog)
+        {
+            lastTimeForCallWithLog_ = QTime::currentTime();
+        }
+
+        cmdId_++;
+        if ((timeouts_[curTest_-1] - elapsed_.elapsed()) > 0)
+        {
+            serverAPI_->pingTest(cmdId_, timeouts_[curTest_-1] - elapsed_.elapsed(), bWriteLog);
+        }
+        else
+        {
+            serverAPI_->pingTest(cmdId_, 100, bWriteLog);
         }
     }
 }

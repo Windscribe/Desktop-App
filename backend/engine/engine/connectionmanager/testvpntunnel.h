@@ -4,6 +4,7 @@
 #include <QElapsedTimer>
 #include <QObject>
 #include <QTimer>
+#include <QTime>
 #include <QVector>
 #include "engine/types/types.h"
 
@@ -25,6 +26,7 @@ signals:
 
 private slots:
     void onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
+    void doNextPingTest();
 
 private:
     ServerAPI *serverAPI_;
@@ -32,6 +34,7 @@ private:
     int curTest_;
     quint64 cmdId_;
     QElapsedTimer elapsed_;
+    QTime lastTimeForCallWithLog_;
 
     enum {
            PING_TEST_TIMEOUT_1 = 2000,

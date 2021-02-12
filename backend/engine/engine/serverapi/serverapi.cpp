@@ -264,15 +264,17 @@ class PingRequest : public ServerAPI::BaseRequest
 {
 public:
     PingRequest(quint64 commandId, const QString &hostname, int replyType, uint timeout,
-                uint userRole)
+                uint userRole, bool bWriteLog)
         : ServerAPI::BaseRequest(hostname, replyType, timeout, userRole),
-          commandId_(commandId) {}
+          commandId_(commandId), bWriteLog_(bWriteLog) {}
     int getDnsCachingTimeout() const override { return NO_DNS_CACHING; }
 
     quint64 getCommandId() const { return commandId_; }
+    bool isWriteLog() const { return bWriteLog_; }
 
 private:
     quint64 commandId_;
+    bool bWriteLog_;
 };
 } // namespace
 
@@ -815,22 +817,28 @@ void ServerAPI::staticIps(const QString &authHash, const QString &deviceId, uint
         authHash, deviceId, hostname_, REPLY_STATIC_IPS, NETWORK_TIMEOUT, userRole));
 }
 
-void ServerAPI::pingTest(quint64 cmdId, uint timeout)
+void ServerAPI::pingTest(quint64 cmdId, uint timeout, bool bWriteLog)
 {
     if (!bIsOnline_)
     {
-        qCDebug(LOG_SERVER_API) << "PingTest request failed: no network connectivity";
+        if (bWriteLog)
+        {
+            qCDebug(LOG_SERVER_API) << "PingTest request failed: no network connectivity";
+        }
         emit pingTestAnswer(SERVER_RETURN_NETWORK_ERROR, "");
         return;
     }
 
     const QString kCheckIpHostname = HardcodedSettings::instance().serverTunnelTestUrl();
 
-    qCDebug(LOG_SERVER_API) << "Do ping test to:" << kCheckIpHostname << " with timeout: "
+    if (bWriteLog)
+    {
+        qCDebug(LOG_SERVER_API) << "Do ping test to:" << kCheckIpHostname << " with timeout: "
                             << timeout;
+    }
 
     submitDnsRequest(createRequest<PingRequest>(
-        cmdId, kCheckIpHostname, REPLY_PING_TEST, timeout, 0), kCheckIpHostname);
+        cmdId, kCheckIpHostname, REPLY_PING_TEST, timeout, 0, bWriteLog), kCheckIpHostname);
 }
 
 void ServerAPI::cancelPingTest(quint64 cmdId)
@@ -1507,7 +1515,9 @@ void ServerAPI::handlePingTestDnsResolve(BaseRequest *rd, bool success, const QS
     Q_ASSERT(crd);
 
     if (!success) {
-        qCDebug(LOG_SERVER_API) << "PingTest request failed: DNS-resolution failed";
+        if (crd->isWriteLog()) {
+            qCDebug(LOG_SERVER_API) << "PingTest request failed: DNS-resolution failed";
+        }
         emit pingTestAnswer(SERVER_RETURN_NETWORK_ERROR, "");
         return;
     }
@@ -2292,12 +2302,17 @@ void ServerAPI::handleSpeedRatingCurl(BaseRequest *rd, bool success)
 
 void ServerAPI::handlePingTestCurl(BaseRequest *rd, bool success)
 {
+    auto *crd = dynamic_cast<PingRequest*>(rd);
+    Q_ASSERT(crd);
     const auto *curlRequest = rd->getCurlRequest();
     CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
 
     if (curlRetCode != CURLE_OK)
     {
-        qCDebug(LOG_SERVER_API) << "PingTest request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        if (crd->isWriteLog())
+        {
+            qCDebug(LOG_SERVER_API) << "PingTest request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        }
         emit pingTestAnswer(SERVER_RETURN_NETWORK_ERROR, "");
     }
     else

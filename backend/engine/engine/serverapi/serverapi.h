@@ -60,7 +60,7 @@ public:
 
     void staticIps(const QString &authHash, const QString &deviceId, uint userRole, bool isNeedCheckRequestsEnabled);
 
-    void pingTest(quint64 cmdId, uint timeout);
+    void pingTest(quint64 cmdId, uint timeout, bool bWriteLog);
     void cancelPingTest(quint64 cmdId);
 
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
