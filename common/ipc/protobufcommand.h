@@ -2,6 +2,7 @@
 #define PROTOBUFCOMMAND_H
 
 #include "command.h"
+#include "../utils/clean_sensitive_info.h"
 
 namespace IPC
 {
@@ -36,7 +37,8 @@ public:
 
     std::string getDebugString() const override
     {
-        return "[" + protoObj.descriptor()->name() + "] " + protoObj.DebugString();
+        return "[" + protoObj.descriptor()->name() + "] "
+               + Utils::cleanSensitiveInfo(protoObj.DebugString());
     }
 
     T &getProtoObj() { return protoObj; }

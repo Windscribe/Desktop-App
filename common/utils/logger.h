@@ -5,6 +5,7 @@
 #include <QMutex>
 #include <QLoggingCategory>
 
+#include "clean_sensitive_info.h"
 #include "multiline_message_logger.h"
 
 // log categories

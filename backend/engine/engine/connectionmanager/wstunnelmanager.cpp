@@ -21,7 +21,7 @@ WstunnelManager::WstunnelManager(QObject *parent) : QObject(parent), bProcessSta
     wstunelExePath_ = QCoreApplication::applicationDirPath() + "/wstunnel.exe";
 #elif defined Q_OS_MAC
     wstunelExePath_ = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewstunnel";
-    qCDebug(LOG_BASIC) << wstunelExePath_;
+    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(wstunelExePath_);
 #endif
 }
 

@@ -92,7 +92,7 @@ void OvpnCustomConfig::process()
     QFile file(filepath_);
     if (file.open(QIODevice::ReadOnly))
     {
-        qDebug(LOG_CUSTOM_OVPN) << "Opened:" << filepath_;
+        qDebug(LOG_CUSTOM_OVPN) << "Opened:" << Utils::cleanSensitiveInfo(filepath_);
 
         bool bFoundAtLeastOneRemote = false;
         bool bFoundVerbCommand = false;
@@ -187,14 +187,14 @@ void OvpnCustomConfig::process()
 #ifdef Q_OS_MAC
         if (isTapDevice)
         {
-            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << filepath_ << "uses TAP device, which is not supported on Mac.";
+            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "uses TAP device, which is not supported on Mac.";
             isCorrect_ = false;
             errMessage_ = "TAP adapter is not supported, please change \"device\" to \"tun\" in the config.";
         }
 #endif
         if (!bFoundAtLeastOneRemote)
         {
-            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << filepath_ << "incorrect, because can't find remote host command. The file format may be incorrect.";
+            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "incorrect, because can't find remote host command. The file format may be incorrect.";
             isCorrect_ = false;
             errMessage_ = "Can't find remote host command";
         }
@@ -205,7 +205,7 @@ void OvpnCustomConfig::process()
     }
     else
     {
-        qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << filepath_;
+        qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << Utils::cleanSensitiveInfo(filepath_);
         isCorrect_ = false;
         errMessage_ = "Failed to open file";
     }

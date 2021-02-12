@@ -862,6 +862,9 @@
     <ClCompile Include="locationswindow\widgetlocations\widgetlocationslist.cpp">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\common\utils\clean_sensitive_info.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -2534,6 +2537,9 @@
     </ClInclude>
     <ClInclude Include="commonwidgets\iscrollablewidget.h">
       <Filter>GUI Files\commonwidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\clean_sensitive_info.h">
+      <Filter>Common Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -124,7 +124,7 @@ bool Helper_mac::executeOpenVPN(const QString &commandLine, const QString &pathT
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    qDebug() << cmdOpenVPN;
+    qDebug() << Utils::cleanSensitiveInfo(cmdOpenVPN);
 
     if (!sendCmdToHelper(HELPER_CMD_EXECUTE_OPENVPN, stream.str()))
     {
@@ -345,11 +345,14 @@ void Helper_mac::enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QS
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Execute command: " << "launchctl unload " + filePath;
+        qCDebug(LOG_BASIC) << "Execute command: "
+                           << "launchctl unload " + Utils::cleanSensitiveInfo(filePath);
         executeRootCommand("launchctl unload " + filePath);
-        qCDebug(LOG_BASIC) << "Execute command: " << "rm " + filePath;
+        qCDebug(LOG_BASIC) << "Execute command: "
+                           << "rm " + Utils::cleanSensitiveInfo(filePath);
         executeRootCommand("rm " + filePath);
-        qCDebug(LOG_BASIC) << "Execute command: " << "rm " + macSpoofingScript;
+        qCDebug(LOG_BASIC) << "Execute command: "
+                           << "rm " + Utils::cleanSensitiveInfo(macSpoofingScript);
         executeRootCommand("rm \"" + macSpoofingScript + "\"");
     }
 }
@@ -437,11 +440,13 @@ void Helper_mac::enableFirewallOnBoot(bool bEnable)
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Execute command: " << "launchctl unload " + filePath;
+        qCDebug(LOG_BASIC) << "Execute command: "
+                           << "launchctl unload " + Utils::cleanSensitiveInfo(filePath);
         executeRootCommand("launchctl unload " + filePath);
-        qCDebug(LOG_BASIC) << "Execute command: " << "rm " + filePath;
+        qCDebug(LOG_BASIC) << "Execute command: " << "rm " + Utils::cleanSensitiveInfo(filePath);
         executeRootCommand("rm " + filePath);
-        qCDebug(LOG_BASIC) << "Execute command: " << "rm " + pfBashScriptFile;
+        qCDebug(LOG_BASIC) << "Execute command: "
+                           << "rm " + Utils::cleanSensitiveInfo(pfBashScriptFile);
         executeRootCommand("rm \"" + pfBashScriptFile + "\"");
     }
 }

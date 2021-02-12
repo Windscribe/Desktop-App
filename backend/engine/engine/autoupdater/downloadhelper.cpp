@@ -20,7 +20,7 @@ DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
     const QString path = tempDir + "/installer.dmg";
 
 #endif
-    qCDebug(LOG_DOWNLOADER) << "Setting download location: " << path;
+    qCDebug(LOG_DOWNLOADER) << "Setting download location: " << Utils::cleanSensitiveInfo(path);
     downloadPath_ = path;
 
     // remove a previously used auto-update installer/dmg upon app startup if it exists

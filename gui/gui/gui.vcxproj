@@ -395,6 +395,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
   <ItemGroup>
     <ClCompile Include="..\..\common\ipc\generated_proto\apiinfo.pb.cc" />
     <ClCompile Include="..\..\common\types\locationid.cpp" />
+    <ClCompile Include="..\..\common\utils\clean_sensitive_info.cpp" />
     <ClCompile Include="..\..\common\utils\crashdump.cpp" />
     <ClCompile Include="..\..\common\utils\crashhandler.cpp" />
     <ClCompile Include="..\..\common\utils\mergelog.cpp" />
@@ -647,6 +648,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     </QtMoc>
     <ClInclude Include="..\..\common\ipc\generated_proto\apiinfo.pb.h" />
     <ClInclude Include="..\..\common\types\locationid.h" />
+    <ClInclude Include="..\..\common\utils\clean_sensitive_info.h" />
     <ClInclude Include="..\..\common\utils\crashdump.h" />
     <ClInclude Include="..\..\common\utils\crashhandler.h" />
     <ClInclude Include="..\..\common\utils\mergelog.h" />
