@@ -35,7 +35,7 @@ void StaticIPDeviceInfo::setDeviceName(QString deviceName)
 
 QSize StaticIPDeviceInfo::sizeHint() const
 {
-    return QSize(WINDOW_WIDTH * G_SCALE, height() * G_SCALE);
+    return QSize(WINDOW_WIDTH * G_SCALE, height());
 }
 
 void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
@@ -47,7 +47,7 @@ void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
     qreal initOpacity = painter.opacity();
 
     // background
-    painter.fillRect(QRect(0,0, sizeHint().width(), sizeHint().height()),
+    painter.fillRect(QRect(0,0, sizeHint().width(), height()),
         FontManager::instance().getCarbonBlackColor());
 
     const int kBottomLineHeight = BOTTOM_LINE_HEIGHT * G_SCALE;
