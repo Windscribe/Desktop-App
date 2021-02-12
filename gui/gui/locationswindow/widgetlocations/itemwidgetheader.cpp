@@ -117,6 +117,27 @@ void ItemWidgetHeader::setAccented(bool accent)
     }
 }
 
+void ItemWidgetHeader::setAccentedWithoutAnimation(bool accent)
+{
+    opacityAnimation_.stop();
+    if (accented_ != accent)
+    {
+        accented_ = accent;
+        if (accent)
+        {
+            plusIconOpacity_ = OPACITY_FULL;
+            textOpacity_ = OPACITY_FULL;
+            emit accented();
+        }
+        else
+        {
+            plusIconOpacity_ = OPACITY_THIRD;
+            textOpacity_ = OPACITY_UNHOVER_TEXT;
+        }
+    }
+    update();
+}
+
 bool ItemWidgetHeader::isAccented() const
 {
     return accented_;

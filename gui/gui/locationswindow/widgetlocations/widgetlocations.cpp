@@ -110,14 +110,14 @@ void WidgetLocations::setFilterString(QString text)
     if (filterString_.isEmpty())
     {
         qDebug() << "Filter collapsing all";
-        widgetLocationsList_->collapseAllLocations();
+        widgetLocationsList_->collapseAllLocationsWithoutAnimation();
     }
     else
     {
         qDebug() << "Filter expanding all";
-        widgetLocationsList_->expandAllLocations();
+        widgetLocationsList_->expandAllLocationsWithoutAnimation();
     }
-    widgetLocationsList_->accentFirstSelectableItem();
+    widgetLocationsList_->accentFirstSelectableItemWithoutAnimation();
     scrollToIndex(0);
 }
 
@@ -667,7 +667,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
     {
         scrollDown(indexInNewList);
     }
-    widgetLocationsList_->accentItem(lastAccentedLocationId);
+    widgetLocationsList_->accentItemWithoutAnimation(lastAccentedLocationId);
     qCDebug(LOG_BASIC) << "Done updating location widgets";
 }
 

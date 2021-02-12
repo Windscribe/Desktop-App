@@ -136,6 +136,26 @@ void ItemWidgetCity::setAccented(bool accent)
     }
 }
 
+void ItemWidgetCity::setAccentedWithoutAnimation(bool accent)
+{
+    textOpacityAnimation_.stop();
+    if (selectable_)
+    {
+        // Do not filter out same-state changes since it is possible to get locked in an updatable state (though relatively rare)
+        accented_ = accent;
+        if (accent)
+        {
+            curTextOpacity_ = OPACITY_FULL;
+            emit accented();
+        }
+        else
+        {
+            curTextOpacity_ = OPACITY_HALF;
+        }
+    }
+    update();
+}
+
 bool ItemWidgetCity::isAccented() const
 {
     return accented_;

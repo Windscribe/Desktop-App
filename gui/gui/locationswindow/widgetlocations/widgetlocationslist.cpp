@@ -128,22 +128,22 @@ void WidgetLocationsList::collapse(LocationID locId)
     }
 }
 
-void WidgetLocationsList::expandAllLocations()
+void WidgetLocationsList::expandAllLocationsWithoutAnimation()
 {
     foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
         if (regionWidget->expandable())
         {
-            regionWidget->expand();
+            regionWidget->setExpandedWithoutAnimation(true);
         }
     }
 }
 
-void WidgetLocationsList::collapseAllLocations()
+void WidgetLocationsList::collapseAllLocationsWithoutAnimation()
 {
     foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
     {
-        regionWidget->collapse();
+        regionWidget->setExpandedWithoutAnimation(false);
     }
 }
 
@@ -199,6 +199,15 @@ void WidgetLocationsList::accentFirstSelectableItem()
     if (widgets.count() > 0)
     {
         widgets[0]->setAccented(true);
+    }
+}
+
+void WidgetLocationsList::accentFirstSelectableItemWithoutAnimation()
+{
+    QVector<IItemWidget *> widgets = selectableWidgets();
+    if (widgets.count() > 0)
+    {
+        widgets[0]->setAccentedWithoutAnimation(true);
     }
 }
 
@@ -281,6 +290,18 @@ void WidgetLocationsList::accentItem(LocationID locationId)
         if (widget->getId() == locationId)
         {
             widget->setAccented(true);
+            break;
+        }
+    }
+}
+
+void WidgetLocationsList::accentItemWithoutAnimation(LocationID locationId)
+{
+    foreach (IItemWidget *widget, selectableWidgets())
+    {
+        if (widget->getId() == locationId)
+        {
+            widget->setAccentedWithoutAnimation(true);
             break;
         }
     }
@@ -402,7 +423,7 @@ void WidgetLocationsList::onSelectableLocationItemAccented(IItemWidget *itemWidg
     {
         if (widget != itemWidget)
         {
-            widget->setAccented(false);
+            widget->setAccentedWithoutAnimation(false);
         }
     }
     recentlyAccentedWidgets_.clear();
