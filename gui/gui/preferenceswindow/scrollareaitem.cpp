@@ -4,7 +4,7 @@
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
-#include <QDebug>
+// #include <QDebug>
 
 namespace PreferencesWindow {
 
@@ -223,15 +223,15 @@ void ScrollAreaItem::setScrollBarVisibility(bool on)
 
 void ScrollAreaItem::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
-    qDebug() << "ScrollAreaItem::wheelEvent,"
-             << " spontaneous: " << event->spontaneous()
-             << ", mouse buttons: " << event->buttons()
-             << ", delta: " << event->delta()
-             << ", scenePos: " << event->scenePos()
-             << ", screenPos: " << event->screenPos()
-             << ", pos: " << event->pos()
-             << ", wheel orietnation: " << event->orientation()
-             << ", widget: " << event->widget();
+//    qDebug() << "ScrollAreaItem::wheelEvent,"
+//             << " spontaneous: " << event->spontaneous()
+//             << ", mouse buttons: " << event->buttons()
+//             << ", delta: " << event->delta()
+//             << ", scenePos: " << event->scenePos()
+//             << ", screenPos: " << event->screenPos()
+//             << ", pos: " << event->pos()
+//             << ", wheel orietnation: " << event->orientation()
+//             << ", widget: " << event->widget();
 
     // event->delta() may have different value depending on source device
     // mouse -> always will have a single +/- 120 value come through
