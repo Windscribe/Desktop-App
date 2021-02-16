@@ -1,3 +1,20 @@
+2.02.3 (16/02/2021)
+* Updated text on external config mode window. #365
+* Removed sensitive info from logs. #366
+* App locks up when the file explorer is shown - fixed. #353
+* List of locations fixes. #118
+	- Search animations on text change
+	- touchpad scrolling slow to stop on Mac by tap
+ 	- Added searchbox clearing on tab change and locations drawer hiding
+	- Fixed location expanding animation bug (big lists and bottom items)
+	- Fixed size of locations tab-area in search tab
+	- Fixed ultra-sensitive touchpad on some Windows machines
+	- Fixed locations search for nicknames
+* Fixed locations ribbon UI regression. #341
+* PingTest grows debug log - fixed. #362
+* Added workaround for openvpn error "write_wintun(): head/tail value is over capacity". #368
+* Check correctness of IP/CIDR combination in GUI. #363
+
 2.02.2 (10/02/2021)
 * Improved domain name validation in GUI preferences. #333
 * Fixed GUI and DPI scaling issues for API resolution in GUI preferences. #326
