@@ -1,5 +1,6 @@
 #include "crashhandler.h"
 #include "crashdump.h"
+#include "clean_sensitive_info.h"
 
 #if defined(ENABLE_CRASH_REPORTS)
 
@@ -338,10 +339,9 @@ void CrashHandler::handleException(ExceptionInfo info)
         CRASH_LOG(" file = %ls@%u", info.file, info.line);
 
     CrashDump minidump;
-    const std::wstring filename = getCrashDumpFilename();
-    if (minidump.writeToFile(GetOutputLocation() + filename, info.exceptionThreadId,
-                             info.exceptionPointers))
-        CRASH_LOG("Wrote minidump: %ls", filename.c_str());
+    const std::wstring filename = GetOutputLocation() + getCrashDumpFilename();
+    if (minidump.writeToFile(filename, info.exceptionThreadId, info.exceptionPointers))
+        CRASH_LOG("Wrote minidump: %ls", Utils::cleanSensitiveInfo(filename).c_str());
 
     TerminateProcess(GetCurrentProcess(), 1);
 }

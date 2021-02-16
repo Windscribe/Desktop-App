@@ -73,7 +73,8 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     packetSizeControllerThread_(nullptr),
     runningPacketDetection_(false),
     lastDownloadProgress_(0),
-    installerUrl_("")
+    installerUrl_(""),
+    guiWindowHandle_(0)
 {
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
@@ -656,7 +657,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         kextPath = QDir::cleanPath(kextPath);
         if (helper_->setKextPath(kextPath))
         {
-            qCDebug(LOG_BASIC) << "Kext path set:" << kextPath;
+            qCDebug(LOG_BASIC) << "Kext path set:" << Utils::cleanSensitiveInfo(kextPath);
         }
         else
         {

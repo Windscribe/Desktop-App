@@ -70,7 +70,7 @@ void Backend::init()
     QString engineExePath = QCoreApplication::applicationDirPath() + "/../Library/WindscribeEngine.app";
 #endif
 
-    qCDebug(LOG_BASIC()) << "Calling Engine at: " << engineExePath;
+    qCDebug(LOG_BASIC()) << "Calling Engine at: " << Utils::cleanSensitiveInfo(engineExePath);
     if (!ExecutableSignature::verify(engineExePath))
     {
         qCDebug(LOG_BASIC()) << "Engine signature invalid";

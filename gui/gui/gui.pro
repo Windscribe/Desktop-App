@@ -188,6 +188,7 @@ SOURCES += \
     ../backend/types/pingtime.cpp \
     ../backend/types/types.cpp \
     ../backend/types/upgrademodetype.cpp \
+    $$COMMON_PATH/utils/clean_sensitive_info.cpp \
     $$COMMON_PATH/utils/extraconfig.cpp \
     $$COMMON_PATH/utils/languagesutil.cpp \
     $$COMMON_PATH/utils/logger.cpp \
@@ -416,6 +417,7 @@ HEADERS += \
     ../backend/types/pingtime.h \
     ../backend/types/types.h \
     ../backend/types/upgrademodetype.h \
+    $$COMMON_PATH/utils/clean_sensitive_info.h \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/utils/languagesutil.h \
     $$COMMON_PATH/utils/logger.h \

@@ -18,7 +18,7 @@ StunnelManager::StunnelManager(QObject *parent) : QObject(parent), bProcessStart
     stunelExePath_ = QCoreApplication::applicationDirPath() + "/tstunnel.exe";
 #elif defined Q_OS_MAC
     stunelExePath_ = QCoreApplication::applicationDirPath() + "/../Helpers/windscribestunnel";
-    qCDebug(LOG_BASIC) << stunelExePath_;
+    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(stunelExePath_);
 #endif
 
     QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);

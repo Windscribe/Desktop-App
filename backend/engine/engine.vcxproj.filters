@@ -625,6 +625,9 @@
     <ClCompile Include="engine\connectionmanager\adapterutils_win.cpp">
       <Filter>Engine Files\engine\connectionmanager</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\common\utils\clean_sensitive_info.cpp">
+      <Filter>Common Files\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="qconsolelistener.h">
@@ -1237,6 +1240,9 @@
     </ClInclude>
     <ClInclude Include="engine\connectionmanager\adapterutils_win.h">
       <Filter>Engine Files\engine\connectionmanager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\clean_sensitive_info.h">
+      <Filter>Common Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -74,11 +74,11 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
     switch (file.status()) {
     default:
     case QSettings::AccessError:
-        qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << filepath;
+        qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << Utils::cleanSensitiveInfo(filepath);
         errMessage_ = QObject::tr("Failed to open file");
         return;
     case QSettings::FormatError:
-        qDebug(LOG_CUSTOM_OVPN) << "Failed to parse file" << filepath;
+        qDebug(LOG_CUSTOM_OVPN) << "Failed to parse file" << Utils::cleanSensitiveInfo(filepath);
         errMessage_ = QObject::tr("Invalid config format");
         return;
     case QSettings::NoError:
