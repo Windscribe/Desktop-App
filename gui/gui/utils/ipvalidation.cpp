@@ -1,4 +1,5 @@
 #include "ipvalidation.h"
+#include <QStringList>
 
 bool IpValidation::isIp(const QString &str)
 {
@@ -23,6 +24,21 @@ bool IpValidation::isIpOrDomain(const QString &str)
 bool IpValidation::isIpCidrOrDomain(const QString &str)
 {
     return (isIpCidr(str) || isDomain(str));
+}
+
+bool IpValidation::isValidIpForCidr(const QString &str)
+{
+    const auto ip_and_cidr = str.split("/", QString::SkipEmptyParts);
+    const quint32 cidr_value = (ip_and_cidr.size() < 2) ? 32 : ip_and_cidr[1].toUInt();
+    if (cidr_value == 32) {
+        // CIDR is 32 or not specified, this is a single IP.
+        return true;
+    }
+    const auto octets = ip_and_cidr[0].split(".");
+    const quint32 ip_value = (octets[0].toUInt() << 24) | (octets[1].toUInt() << 16)
+                            | (octets[2].toUInt() << 8) | octets[3].toUInt();
+    const quint32 ip_mask = cidr_value ? ~((1 << (32 - cidr_value)) - 1) : 0;
+    return (ip_value & ip_mask) == ip_value;
 }
 
 IpValidation::IpValidation()

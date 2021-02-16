@@ -17,6 +17,7 @@ public:
     bool isDomain(const QString &str);
     bool isIpOrDomain(const QString &str);
     bool isIpCidrOrDomain(const QString &str);
+    bool isValidIpForCidr(const QString &str);
 
 #if defined(QT_DEBUG)
     void runTests();
