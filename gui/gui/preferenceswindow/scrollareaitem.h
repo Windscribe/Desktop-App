@@ -60,6 +60,12 @@ private:
 
     bool scrollBarVisible_ = false;
 
+    const int TRACKPAD_DELTA_THRESHOLD = 50;
+    int trackpadDeltaSum_;
+
+    int scaledThreshold();
+
+
 };
 
 } // namespace PreferencesWindow
