@@ -116,6 +116,7 @@ SOURCES += \
         $$COMMON_PATH/utils/utils.cpp \
         $$COMMON_PATH/version/appversion.cpp \
         $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
+        $$COMMON_PATH/utils/clean_sensitive_info.cpp \
         ../backend/persistentstate.cpp \
         backendcommander.cpp \
         cliapplication.cpp \
@@ -170,6 +171,7 @@ HEADERS += \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
+    $$COMMON_PATH/utils/clean_sensitive_info.h \
     ../backend/persistentstate.h \
     backendcommander.h \
     cliapplication.h
