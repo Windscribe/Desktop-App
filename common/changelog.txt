@@ -14,6 +14,7 @@
 * PingTest grows debug log - fixed. #362
 * Added workaround for openvpn error "write_wintun(): head/tail value is over capacity". #368
 * Check correctness of IP/CIDR combination in GUI. #363
+* Updated "esc" button in the installer. #354
 
 2.02.2 (10/02/2021)
 * Improved domain name validation in GUI preferences. #333
