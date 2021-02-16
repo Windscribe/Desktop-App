@@ -4,6 +4,8 @@
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
+#include <QDebug>
+
 namespace PreferencesWindow {
 
 ScrollAreaItem::ScrollAreaItem(ScalableGraphicsObject *parent, int height) : ScalableGraphicsObject(parent),
@@ -41,9 +43,14 @@ void ScrollAreaItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
 void ScrollAreaItem::setItemPosY(int newPosY)
 {
+    qDebug() << "ScrollAreaItem::setItemPosY: " << newPosY;
+
     int lowestY = height_ - static_cast<int>(curItem_->boundingRect().height());
     if (newPosY < lowestY) newPosY = lowestY;
     if (newPosY > 0) newPosY = 0;
+
+    qDebug() << "ScrollAreaItem::setItemPosY (after): " << newPosY;
+
 
     curItem_->setY(newPosY);
     update();
@@ -96,6 +103,8 @@ void ScrollAreaItem::updateScaling()
 
 void ScrollAreaItem::onScrollBarMoved(double posPercentY)
 {
+    qDebug() << "ScrollAreaItem::onScrollBarMoved: " << posPercentY;
+
     int newPosY = - static_cast<int>(curItem_->boundingRect().height() * posPercentY);
     curItem_->setY(newPosY);
     update();
@@ -103,6 +112,8 @@ void ScrollAreaItem::onScrollBarMoved(double posPercentY)
 
 void ScrollAreaItem::onItemPosYChanged(const QVariant &value)
 {
+    qDebug() << "ScrollAreaItem::onItemPosYChanged: " << value.toInt();
+
     curItem_->setY(value.toInt());
     updateScrollBarByItem();
     update();
@@ -110,7 +121,7 @@ void ScrollAreaItem::onItemPosYChanged(const QVariant &value)
 
 void ScrollAreaItem::onPageHeightChange(int newHeight)
 {
-    Q_UNUSED(newHeight);
+    Q_UNUSED(newHeight)
 
     const int pageHeight = curItem_->currentHeight();
 
@@ -127,6 +138,8 @@ void ScrollAreaItem::onPageHeightChange(int newHeight)
 
 void ScrollAreaItem::onPageScrollToPosition(int itemPos)
 {
+    qDebug() << "ScrollAreaItem::onPageScrollToPosition, itemPos: " << itemPos;
+
     int posWrtScrollArea = curItem_->currentPosY() + itemPos;
 
     if (posWrtScrollArea > 0)
@@ -146,6 +159,8 @@ void ScrollAreaItem::onPageScrollToPosition(int itemPos)
 
 void ScrollAreaItem::onPageScrollToRect(QRect r)
 {
+    qDebug() << "ScrollAreaItem::onPageScrollToRect, r: " << r;
+
     int posWrtScrollArea = curItem_->currentPosY() + r.y();
 
     if (posWrtScrollArea > 0) // item in or below the view
@@ -209,6 +224,16 @@ void ScrollAreaItem::setScrollBarVisibility(bool on)
 
 void ScrollAreaItem::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
+    qDebug() << "ScrollAreaItem::wheelEvent,"
+             << " spontaneous: " << event->spontaneous()
+             << ", mouse buttons: " << event->buttons()
+             << ", delta: " << event->delta()
+             << ", scenePos: " << event->scenePos()
+             << ", screenPos: " << event->screenPos()
+             << ", pos: " << event->pos()
+             << ", wheel orietnation: " << event->orientation()
+             << ", widget: " << event->widget();
+
     int mouseSpeedFactor = 2;
 
     int newY = static_cast<int>(curItem_->y() + event->delta()/mouseSpeedFactor);
