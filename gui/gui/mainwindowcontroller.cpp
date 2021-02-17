@@ -476,7 +476,10 @@ void MainWindowController::collapseLocations()
     functionOnAnimationFinished_ = NULL;
 
     connectWindow_->updateLocationsState(false);
-    locationsWindow_->hideSearchTab();
+    if (locationsWindow_->currentTab() == GuiLocations::LocationsTab::LOCATION_TAB_SEARCH_LOCATIONS)
+    {
+        locationsWindow_->hideSearchTabWithoutAnimation();
+    }
 
     if (bottomInfoWindow_->isUpgradeWidgetVisible() ||
         bottomInfoWindow_->isSharingFeatureVisible()) {
@@ -2437,7 +2440,11 @@ void MainWindowController::collapsePreferencesFromConnect(bool bSkipBottomInfoWi
 
     preferencesState_ = PREFERENCES_STATE_ANIMATING;
     connectWindow_->getGraphicsObject()->show();
-    locationsWindow_->hideSearchTab();
+
+    if (locationsWindow_->currentTab() == GuiLocations::LocationsTab::LOCATION_TAB_SEARCH_LOCATIONS)
+    {
+        locationsWindow_->hideSearchTabWithoutAnimation();
+    }
 
     // opacity change
     QVariantAnimation *animOpacity = new QVariantAnimation(this);

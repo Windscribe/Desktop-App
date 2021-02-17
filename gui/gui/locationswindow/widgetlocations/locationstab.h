@@ -35,6 +35,19 @@ public:
 
     void updateLanguage();
     void hideSearchTab();
+    void hideSearchTabWithoutAnimation();
+
+    enum LocationTabEnum {
+        LOCATION_TAB_NONE = 0,
+        LOCATION_TAB_ALL_LOCATIONS,
+        LOCATION_TAB_FAVORITE_LOCATIONS,
+        LOCATION_TAB_STATIC_IPS_LOCATIONS,
+        LOCATION_TAB_CONFIGURED_LOCATIONS,
+        LOCATION_TAB_SEARCH_LOCATIONS,
+        LOCATION_TAB_FIRST = LOCATION_TAB_ALL_LOCATIONS,
+        LOCATION_TAB_LAST = LOCATION_TAB_SEARCH_LOCATIONS
+    };
+    LocationTabEnum currentTab();
 
 public slots:
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
@@ -74,19 +87,10 @@ private slots:
     void onSearchLineEditTextChanged(QString text);
     void onSearchLineEditFocusOut();
 private:
-    enum CurTabEnum {
-        CUR_TAB_NONE = 0,
-        CUR_TAB_ALL_LOCATIONS,
-        CUR_TAB_FAVORITE_LOCATIONS,
-        CUR_TAB_STATIC_IPS_LOCATIONS,
-        CUR_TAB_CONFIGURED_LOCATIONS,
-        CUR_TAB_SEARCH_LOCATIONS,
-        CUR_TAB_FIRST = CUR_TAB_ALL_LOCATIONS,
-        CUR_TAB_LAST = CUR_TAB_SEARCH_LOCATIONS
-    };
+
 
     IWidgetLocationsInfo *currentWidgetLocations();
-    IWidgetLocationsInfo *locationWidgetByEnum(CurTabEnum tabEnum);
+    IWidgetLocationsInfo *locationWidgetByEnum(LocationTabEnum tabEnum);
     GuiLocations::WidgetLocations *widgetAllLocations_;
     GuiLocations::WidgetCities *widgetConfiguredLocations_;
     GuiLocations::WidgetCities *widgetStaticIpsLocations_;
@@ -97,9 +101,9 @@ private:
     ConfigFooterInfo *configFooterInfo_;     // footer
 
     //Backend &backend_;
-    CurTabEnum curTab_;
-    CurTabEnum lastTab_;
-    CurTabEnum tabPress_;
+    LocationTabEnum curTab_;
+    LocationTabEnum lastTab_;
+    LocationTabEnum tabPress_;
 
     static constexpr int TOP_TAB_HEIGHT = 50;
     static constexpr int ANIMATION_DURATION = 150;
@@ -125,7 +129,7 @@ private:
     QRect rcFavoriteLocationsIcon_;
 
     Qt::CursorShape curCursorShape_;
-    CurTabEnum curTabMouseOver_;
+    LocationTabEnum curTabMouseOver_;
 
     int curWhiteLinePos_;
     QVariantAnimation whiteLineAnimation_;
@@ -139,7 +143,7 @@ private:
 
     QColor tabBackgroundColor_;
 
-    void changeTab(CurTabEnum newTab);
+    void changeTab(LocationTabEnum newTab, bool animateChange = true);
 
     void onClickAllLocations();
     void onClickConfiguredLocations();
@@ -160,7 +164,7 @@ private:
     void updateCustomConfigsEmptyListVisibility();
     void updateRibbonVisibility();
 
-    int searchButtonPos_;
+    int searchButtonPosUnscaled_;
     QVariantAnimation searchButtonPosAnimation_;
     void updateTabIconRects();
     void passEventToLocationWidget(QKeyEvent *event);

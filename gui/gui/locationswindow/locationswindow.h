@@ -22,7 +22,8 @@ public:
     void updateLocationsTabGeometry();
     void updateScaling();
 
-    void hideSearchTab();
+    void hideSearchTabWithoutAnimation();
+    GuiLocations::LocationsTab::LocationTabEnum currentTab();
 
 public slots:
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
