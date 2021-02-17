@@ -572,7 +572,6 @@ void WidgetLocations::onScrollAnimationValueChanged(const QVariant &value)
 
     widgetLocationsList_->move(0, value.toInt());
     lastScrollPos_ = widgetLocationsList_->geometry().y();
-
     viewport()->update();
 }
 
@@ -588,7 +587,9 @@ void WidgetLocations::onScrollAnimationFinished()
 void WidgetLocations::onScrollAnimationForKeyPressValueChanged(const QVariant &value)
 {
     // qDebug() << "ScrollAnimationForKeyPress: " << value.toInt() << ", Kicking mouse prevention timer (keyPress)";
+#ifndef Q_OS_WIN
     preventMouseSelectionTimer_.restart();
+#endif
 
     widgetLocationsList_->move(0, value.toInt());
     lastScrollPos_ = widgetLocationsList_->geometry().y();

@@ -453,7 +453,10 @@ void LocationsTab::switchToSearchAndRestoreAccentedItem()
 
     if (previousSelectedLocId.isValid())
     {
-        locWidget->centerCursorOnItem(previousSelectedLocId);
+        if (locWidget->cursorInViewport())
+        {
+            locWidget->centerCursorOnItem(previousSelectedLocId);
+        }
     }
 }
 
@@ -512,9 +515,12 @@ void LocationsTab::onSearchButtonClicked()
             searchButtonPosAnimation_.setDirection(QAbstractAnimation::Backward);
             searchButtonPosAnimation_.start();
 
-            searchCancelButton_->show();
-            searchLineEdit_->show();
-            searchLineEdit_->setFocus();
+            // delay so cursor and cancel don't appear before search slides over
+            QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION+100, [this](){
+                searchCancelButton_->show();
+                searchLineEdit_->show();
+                searchLineEdit_->setFocus();
+            });
         });
     }
 }
@@ -855,7 +861,7 @@ void LocationsTab::hideSearchTab()
         changeTab(lastTab_);
 
         // let animation finish before showing all tabs
-        QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION, [this](){
+        QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION+100, [this](){
             searchTabSelected_ = false;
             update();
         });
