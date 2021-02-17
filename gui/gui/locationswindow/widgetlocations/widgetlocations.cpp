@@ -14,6 +14,8 @@
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
+
 
 #include <QDebug>
 
@@ -587,9 +589,10 @@ void WidgetLocations::onScrollAnimationFinished()
 void WidgetLocations::onScrollAnimationForKeyPressValueChanged(const QVariant &value)
 {
     // qDebug() << "ScrollAnimationForKeyPress: " << value.toInt() << ", Kicking mouse prevention timer (keyPress)";
-#ifndef Q_OS_WIN
-    preventMouseSelectionTimer_.restart();
-#endif
+    if (!Utils::accessibilityPermissions())
+    {
+        preventMouseSelectionTimer_.restart();
+    }
 
     widgetLocationsList_->move(0, value.toInt());
     lastScrollPos_ = widgetLocationsList_->geometry().y();

@@ -25,6 +25,7 @@ namespace Utils {
     std::wstring getDirPathFromFullPath(const std::wstring &fullPath);
     QString fileNameFromFullPath(const QString &fullPath);
     QList<ProtoTypes::SplitTunnelingApp> insertionSort(QList<ProtoTypes::SplitTunnelingApp> apps);
+    bool accessibilityPermissions();
 
     unsigned long getCurrentPid();
     bool isGuiAlreadyRunning();

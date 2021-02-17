@@ -127,6 +127,10 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     searchTypingDelayTimer_.setInterval(100);
     connect(&searchTypingDelayTimer_, SIGNAL(timeout()), SLOT(onSearchTypingDelayTimerTimeout()));
 
+    delayShowIconsTimer_.setSingleShot(true);
+    delayShowIconsTimer_.setInterval(SEARCH_BUTTON_POS_ANIMATION_DURATION+100);
+    connect(&delayShowIconsTimer_, SIGNAL(timeout()), SLOT(onDelayShowIconsTimerTimeout()));
+
     connect(locationsModel, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
 
     updateCustomConfigsEmptyListVisibility();
@@ -351,34 +355,47 @@ void LocationsTab::keyReleaseEvent(QKeyEvent *event)
 bool LocationsTab::eventFilter(QObject *object, QEvent *event)
 {
     // qDebug() << "LocationsTab::eventFilter";
-    if (object == searchLineEdit_ && event->type() == QEvent::KeyRelease)
+    if (object == searchLineEdit_)
     {
-        // qDebug() << "Filtered KeyRelease from search line edit";
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)
+        if (event->type() == QEvent::KeyRelease)
         {
-            passEventToLocationWidget(keyEvent);
-        }
-        else if (keyEvent->key() == Qt::Key_Down)
-        {
-            passEventToLocationWidget(keyEvent);
-        }
-        else if (keyEvent->key() == Qt::Key_Up)
-        {
-            passEventToLocationWidget(keyEvent);
-        }
-        else if (keyEvent->key() == Qt::Key_Escape)
-        {
-            if (searchLineEdit_->text() == "")
+            // qDebug() << "Filtered KeyRelease from search line edit";
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)
             {
-                onSearchCancelButtonClicked();
+                passEventToLocationWidget(keyEvent);
             }
-            else
+            else if (keyEvent->key() == Qt::Key_Down)
             {
-                searchLineEdit_->setText("");
+                passEventToLocationWidget(keyEvent);
+            }
+            else if (keyEvent->key() == Qt::Key_Up)
+            {
+                passEventToLocationWidget(keyEvent);
+            }
+            else if (keyEvent->key() == Qt::Key_Escape)
+            {
+                if (searchLineEdit_->text() == "")
+                {
+                    onSearchCancelButtonClicked();
+                }
+                else
+                {
+                    searchLineEdit_->setText("");
+                }
+            }
+            return true;
+        }
+        else if (event->type() == QEvent::KeyPress)
+        {
+            // block KeyPresses too on up/down to prevent lineedit cursor movement
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Up ||
+                keyEvent->key() == Qt::Key_Down)
+            {
+                return true;
             }
         }
-        return true;
     }
     return QWidget::eventFilter(object, event);
 }
@@ -517,9 +534,13 @@ void LocationsTab::onSearchButtonClicked()
 
             // delay so cursor and cancel don't appear before search slides over
             QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION+100, [this](){
-                searchCancelButton_->show();
-                searchLineEdit_->show();
-                searchLineEdit_->setFocus();
+                // check no interruption by hideSearchTab() -- could happen on fast searchClick->close locations tray
+                if (!delayShowIconsTimer_.isActive() && searchTabSelected_)
+                {
+                    searchCancelButton_->show();
+                    searchLineEdit_->show();
+                    searchLineEdit_->setFocus();
+                }
             });
         });
     }
@@ -535,6 +556,12 @@ void LocationsTab::onSearchButtonPosAnimationValueChanged(const QVariant &value)
 {
     searchButtonPos_ = value.toInt();
     searchButton_->move(searchButtonPos_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
+}
+
+void LocationsTab::onDelayShowIconsTimerTimeout()
+{
+    searchTabSelected_ = false;
+    update();
 }
 
 void LocationsTab::onSearchTypingDelayTimerTimeout()
@@ -861,10 +888,7 @@ void LocationsTab::hideSearchTab()
         changeTab(lastTab_);
 
         // let animation finish before showing all tabs
-        QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION+100, [this](){
-            searchTabSelected_ = false;
-            update();
-        });
+        delayShowIconsTimer_.start();
     }
 }
 

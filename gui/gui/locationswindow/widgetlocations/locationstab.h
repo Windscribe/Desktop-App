@@ -69,6 +69,7 @@ private slots:
     void onSearchCancelButtonClicked();
     void onSearchButtonPosAnimationValueChanged(const QVariant &value);
 
+    void onDelayShowIconsTimerTimeout();
     void onSearchTypingDelayTimerTimeout();
     void onSearchLineEditTextChanged(QString text);
     void onSearchLineEditFocusOut();
@@ -116,6 +117,7 @@ private:
     CommonWidgets::IconButtonWidget *searchButton_;
     CommonWidgets::IconButtonWidget *searchCancelButton_;
     CommonWidgets::CustomMenuLineEdit *searchLineEdit_;
+    QTimer delayShowIconsTimer_;
 
     QRect rcAllLocationsIcon_;
     QRect rcConfiguredLocationsIcon_;

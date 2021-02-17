@@ -17,6 +17,7 @@
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
 
 #include <QDebug>
 
@@ -551,7 +552,10 @@ void WidgetCities::onLocationItemListWidgetLocationIdSelected(LocationID id)
 
 void WidgetCities::onScrollAnimationValueChanged(const QVariant &value)
 {
-    if (kickPreventMouseSelectionTimer_) preventMouseSelectionTimer_.restart();
+    if (kickPreventMouseSelectionTimer_ && !Utils::accessibilityPermissions())
+    {
+        preventMouseSelectionTimer_.restart();
+    }
 
     widgetCitiesList_->move(0, value.toInt());
     lastScrollPos_ = widgetCitiesList_->geometry().y();

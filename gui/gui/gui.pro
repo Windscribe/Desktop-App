@@ -92,6 +92,7 @@ LIBS += -framework CoreServices
 LIBS += -framework Security
 LIBS += -framework SystemConfiguration
 LIBS += -framework ServiceManagement
+LIBS += -framework ApplicationServices
 
 INCLUDEPATH += $$(HOME)/LibsWindscribe/protobuf/include
 LIBS += -L$$(HOME)/LibsWindscribe/protobuf/lib -lprotobuf
