@@ -41,12 +41,13 @@ public slots:
     void setCustomConfigsPath(QString path);
 
 protected:
-    virtual void paintEvent(QPaintEvent *event);
-    virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void leaveEvent(QEvent *event);
-    virtual void keyReleaseEvent(QKeyEvent *event);
+    void paintEvent(QPaintEvent *event)        override;
+    void mouseMoveEvent(QMouseEvent *event)    override;
+    void mousePressEvent(QMouseEvent *event)   override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event)             override;
+    void keyReleaseEvent(QKeyEvent *event)     override;
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
     void selected(LocationID id);
@@ -68,8 +69,8 @@ private slots:
     void onSearchCancelButtonClicked();
     void onSearchButtonPosAnimationValueChanged(const QVariant &value);
 
+    void onSearchTypingDelayTimerTimeout();
     void onSearchLineEditTextChanged(QString text);
-    void onSearchLineEditKeyEnterPressed();
     void onSearchLineEditFocusOut();
 private:
     enum CurTabEnum {
@@ -108,6 +109,8 @@ private:
     static constexpr int FIRST_TAB_ICON_POS_X = 106;
     static constexpr int LAST_TAB_ICON_POS_X = 300;
 
+    QString filterText_;
+    QTimer searchTypingDelayTimer_; // saves some drawing cycles for fast typers -- most significant slowdown should be fixed by hide/show widgets instead of create/destroy (as it does now)
     QElapsedTimer focusOutTimer_;
     bool searchTabSelected_; // better way to do this
     CommonWidgets::IconButtonWidget *searchButton_;
@@ -141,6 +144,8 @@ private:
     void onClickStaticIpsLocations();
     void onClickFavoriteLocations();
     void onClickSearchLocations();
+
+    void switchToSearchAndRestoreAccentedItem();
 
     void drawTabRegion(QPainter &painter, const QRect &rc);
     void drawBottomLine(QPainter &painter, int left, int right, int bottom, int whiteLinePos);

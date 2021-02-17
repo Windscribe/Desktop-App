@@ -19,6 +19,8 @@ public:
     void setColorScheme(bool darkMode);
     void updateScaling();
 
+    void appendText(const QString &str);
+
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void changeEvent(QEvent *event)          override;
@@ -26,9 +28,6 @@ protected:
 
 signals:
     void itemClicked(QString caption, QVariant value);
-
-    void keyEnterPressed();
-    void keyTabReleased();
 
 private slots:
     void onMenuTriggered(QAction *action);

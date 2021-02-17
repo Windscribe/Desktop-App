@@ -21,6 +21,7 @@ namespace GuiLocations {
 LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QWidget(parent)
   , curTab_(CUR_TAB_ALL_LOCATIONS)
   , tabPress_(CUR_TAB_NONE)
+  , filterText_("")
   , searchTabSelected_(false)
   , curTabMouseOver_(CUR_TAB_NONE)
   , checkCustomConfigPathAccessRights_(false)
@@ -56,8 +57,8 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     searchLineEdit_->setFont(*FontManager::instance().getFont(14, false));
     searchLineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     searchLineEdit_->setFrame(false);
+    searchLineEdit_->installEventFilter(this);
     connect(searchLineEdit_, SIGNAL(textChanged(QString)), SLOT(onSearchLineEditTextChanged(QString)));
-    connect(searchLineEdit_, SIGNAL(keyEnterPressed()), SLOT(onSearchLineEditKeyEnterPressed()));
     connect(searchLineEdit_, SIGNAL(focusOut()), SLOT(onSearchLineEditFocusOut()));
 
     searchLineEdit_->hide();
@@ -121,6 +122,10 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     widgetStaticIpsLocations_->setModel(locationsModel->getStaticIpsLocationsModel());
     widgetFavoriteLocations_->setModel(locationsModel->getFavoriteLocationsModel());
     widgetSearchLocations_->setModel(locationsModel->getAllLocationsModel());
+
+    searchTypingDelayTimer_.setSingleShot(true);
+    searchTypingDelayTimer_.setInterval(100);
+    connect(&searchTypingDelayTimer_, SIGNAL(timeout()), SLOT(onSearchTypingDelayTimerTimeout()));
 
     connect(locationsModel, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
 
@@ -325,20 +330,57 @@ void LocationsTab::leaveEvent(QEvent *event)
 
 void LocationsTab::keyReleaseEvent(QKeyEvent *event)
 {
-    // qDebug() << "LocationsTab::keyReleaseEvent";
-    if (event->key() == Qt::Key_Escape)
+    qDebug() << "LocationsTab::keyReleaseEvent";
+//    if (event->key() == Qt::Key_Escape)
+//    {
+//        if (searchLineEdit_->text() == "")
+//        {
+//            onSearchCancelButtonClicked();
+//            event->accept();
+//        }
+//        else
+//        {
+//            searchLineEdit_->setText("");
+//            event->accept();
+//        }
+//    }
+
+    QWidget::keyReleaseEvent(event);
+}
+
+bool LocationsTab::eventFilter(QObject *object, QEvent *event)
+{
+    // qDebug() << "LocationsTab::eventFilter";
+    if (object == searchLineEdit_ && event->type() == QEvent::KeyRelease)
     {
-        if (searchLineEdit_->text() == "")
+        // qDebug() << "Filtered KeyRelease from search line edit";
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)
         {
-            onSearchCancelButtonClicked();
-            event->accept();
+            passEventToLocationWidget(keyEvent);
         }
-        else
+        else if (keyEvent->key() == Qt::Key_Down)
         {
-            searchLineEdit_->setText("");
-            event->accept();
+            passEventToLocationWidget(keyEvent);
         }
+        else if (keyEvent->key() == Qt::Key_Up)
+        {
+            passEventToLocationWidget(keyEvent);
+        }
+        else if (keyEvent->key() == Qt::Key_Escape)
+        {
+            if (searchLineEdit_->text() == "")
+            {
+                onSearchCancelButtonClicked();
+            }
+            else
+            {
+                searchLineEdit_->setText("");
+            }
+        }
+        return true;
     }
+    return QWidget::eventFilter(object, event);
 }
 
 void LocationsTab::onClickAllLocations()
@@ -396,6 +438,23 @@ void LocationsTab::onClickSearchLocations()
     widgetAllLocations_->hide();
     widgetSearchLocations_->show();
     widgetSearchLocations_->raise();
+}
+
+void LocationsTab::switchToSearchAndRestoreAccentedItem()
+{
+    LocationID previousSelectedLocId;
+    IWidgetLocationsInfo *locWidget = locationWidgetByEnum(CUR_TAB_SEARCH_LOCATIONS);
+    if (locWidget)
+    {
+        previousSelectedLocId = locWidget->accentedItemLocationId();
+    }
+
+    onSearchButtonClicked(); // this will handle changeTab(..)
+
+    if (previousSelectedLocId.isValid())
+    {
+        locWidget->centerCursorOnItem(previousSelectedLocId);
+    }
 }
 
 void LocationsTab::onWhiteLinePosChanged(const QVariant &value)
@@ -472,15 +531,16 @@ void LocationsTab::onSearchButtonPosAnimationValueChanged(const QVariant &value)
     searchButton_->move(searchButtonPos_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
 }
 
-void LocationsTab::onSearchLineEditTextChanged(QString text)
+void LocationsTab::onSearchTypingDelayTimerTimeout()
 {
-    widgetSearchLocations_->setFilterString(text);
+    // qDebug() << "Setting filter with: " << filterText_;
+    widgetSearchLocations_->setFilterString(filterText_);
 }
 
-void LocationsTab::onSearchLineEditKeyEnterPressed()
+void LocationsTab::onSearchLineEditTextChanged(QString text)
 {
-    QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
-    passEventToLocationWidget(&event);
+    filterText_ = text;
+    searchTypingDelayTimer_.start();
 }
 
 void LocationsTab::onSearchLineEditFocusOut()
@@ -598,19 +658,7 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
 
             if (curTabInt == CUR_TAB_SEARCH_LOCATIONS)
             {
-                LocationID previousSelectedLocId;
-                IWidgetLocationsInfo *locWidget = locationWidgetByEnum((CurTabEnum)curTabInt);
-                if (locWidget)
-                {
-                    previousSelectedLocId = locWidget->accentedItemLocationId();
-                }
-
-                onSearchButtonClicked(); // this will handle changeTab(..)
-
-                if (previousSelectedLocId.isValid())
-                {
-                    locWidget->centerCursorOnItem(previousSelectedLocId);
-                }
+                switchToSearchAndRestoreAccentedItem();
             }
             else
             {
@@ -636,19 +684,8 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
             curTabInt--;
             if (curTabInt == CUR_TAB_SEARCH_LOCATIONS)
             {
-                LocationID previousSelectedLocId;
-                IWidgetLocationsInfo *locWidget = locationWidgetByEnum((CurTabEnum)curTabInt);
-                if (locWidget)
-                {
-                    previousSelectedLocId = locWidget->accentedItemLocationId();
-                }
-
-                onSearchButtonClicked(); // this will handle changeTab(..)
-
-                if (previousSelectedLocId.isValid())
-                {
-                    locWidget->centerCursorOnItem(previousSelectedLocId);
-                }
+                // don't think this can happen
+                switchToSearchAndRestoreAccentedItem();
             }
             else
             {
@@ -682,9 +719,29 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
             searchLineEdit_->setFocus();
         }
     }
-    else
+    else if (event->key() == Qt::Key_Up ||
+             event->key() == Qt::Key_Down ||
+             event->key() == Qt::Key_Return ||
+             event->key() == Qt::Key_Enter )
     {
         passEventToLocationWidget(event);
+    }
+    else // any other char should open search screen
+    {
+        // block non-chars
+        if ((event->key() & Qt::Key_Escape) == Qt::Key_Escape)
+        {
+            return;
+        }
+
+        // set locations tab to search screen
+        if (curTab_ != CUR_TAB_SEARCH_LOCATIONS)
+        {
+            switchToSearchAndRestoreAccentedItem();
+        }
+
+        searchLineEdit_->appendText(event->text());
+        searchLineEdit_->setFocus();
     }
 }
 
