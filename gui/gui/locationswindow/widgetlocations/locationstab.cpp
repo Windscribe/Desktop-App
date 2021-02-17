@@ -767,23 +767,40 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
     {
         passEventToLocationWidget(event);
     }
-    else // any other char should open search screen
+}
+
+void LocationsTab::handleKeyPressEvent(QKeyEvent *event)
+{
+    // let the release handle these
+    if (event->key() == Qt::Key_Right  ||
+        event->key() == Qt::Key_Left   ||
+        event->key() == Qt::Key_Up     ||
+        event->key() == Qt::Key_Down   ||
+        event->key() == Qt::Key_Tab    ||
+        event->key() == Qt::Key_Return ||
+        event->key() == Qt::Key_Enter )
     {
-        // block non-chars
-        if ((event->key() & Qt::Key_Escape) == Qt::Key_Escape)
-        {
-            return;
-        }
-
-        // set locations tab to search screen
-        if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS)
-        {
-            switchToSearchAndRestoreAccentedItem();
-        }
-
-        searchLineEdit_->appendText(event->text());
-        searchLineEdit_->setFocus();
+        return;
     }
+
+    // block non-chars
+    if ((event->key() & Qt::Key_Escape) == Qt::Key_Escape)
+    {
+        return;
+    }
+
+    // set locations tab to search screen
+    if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS)
+    {
+        switchToSearchAndRestoreAccentedItem();
+    }
+
+    // Adding text to search text must be handled in the keyPress instread of keyRelease because
+    // during focus transition from locationsTab -> searchLineEdit: mainWindow no longer fires keyReleaseEvents
+    // while searchLineEdit has not yet picked up the focus (it uses keyPressEvents too)
+    // qDebug() << "Appending text: " << event->text();
+    searchLineEdit_->appendText(event->text());
+    searchLineEdit_->setFocus();
 }
 
 void LocationsTab::updateTabIconRects()

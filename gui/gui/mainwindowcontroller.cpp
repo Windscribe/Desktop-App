@@ -586,6 +586,11 @@ void MainWindowController::handleKeyReleaseEvent(QKeyEvent *event)
     locationsWindow_->handleKeyReleaseEvent(event);
 }
 
+void MainWindowController::handleKeyPressEvent(QKeyEvent *event)
+{
+    locationsWindow_->handleKeyPressEvent(event);
+}
+
 void MainWindowController::onExpandLocationsListAnimationFinished()
 {
     if (expandLocationsListAnimation_->direction() == QAbstractAnimation::Backward)

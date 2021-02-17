@@ -728,6 +728,15 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
     }
 #endif
+    // for feeding chars to searchbar when mainwindow has focus
+    if (mainWindowController_->isLocationsExpanded())
+    {
+        if(event->key() != Qt::Key_Escape || event->key() != Qt::Key_Space)
+        {
+            mainWindowController_->handleKeyPressEvent(event);
+        }
+    }
+
     QWidget::keyPressEvent(event);
 }
 

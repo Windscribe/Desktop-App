@@ -103,6 +103,7 @@ public:
     IGeneralMessageTwoButtonWindow *getExitWindow() { return exitWindow_; }
 
     void handleKeyReleaseEvent(QKeyEvent *event);
+    void handleKeyPressEvent(QKeyEvent *event);
 
     void hideLocationsWindow();
 

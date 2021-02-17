@@ -57,6 +57,11 @@ void LocationsWindow::handleKeyReleaseEvent(QKeyEvent *event)
     locationsTab_->handleKeyReleaseEvent(event);
 }
 
+void LocationsWindow::handleKeyPressEvent(QKeyEvent *event)
+{
+    locationsTab_->handleKeyPressEvent(event);
+}
+
 void LocationsWindow::updateLocationsTabGeometry()
 {
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);

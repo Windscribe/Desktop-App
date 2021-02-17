@@ -797,7 +797,7 @@ const LocationID WidgetLocations::topViewportSelectableLocationId()
     auto widgets = widgetLocationsList_->selectableWidgets();
     if (index < 0 || index > widgets.count() - 1)
     {
-        qDebug(LOG_BASIC) << "Err: Can't index selectable items with: " << index;
+        // qDebug(LOG_BASIC) << "Err: Can't index selectable items with: " << index;
         return LocationID();
     }
 

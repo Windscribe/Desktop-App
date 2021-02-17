@@ -28,6 +28,7 @@ public:
     void setOnlyConfigTabVisible(bool onlyConfig);
 
     void handleKeyReleaseEvent(QKeyEvent *event);
+    void handleKeyPressEvent(QKeyEvent *event);
 
     void updateIconRectsAndLine();
     void updateLocationWidgetsGeometry(int newHeight);

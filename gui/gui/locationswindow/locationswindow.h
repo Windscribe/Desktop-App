@@ -18,6 +18,7 @@ public:
     void setOnlyConfigTabVisible(bool onlyConfig);
 
     void handleKeyReleaseEvent(QKeyEvent *event);
+    void handleKeyPressEvent(QKeyEvent *event);
 
     void updateLocationsTabGeometry();
     void updateScaling();
@@ -40,12 +41,11 @@ signals:
     void addCustomConfigClicked();
 
 protected:
-    virtual void paintEvent(QPaintEvent *event);
-    virtual void resizeEvent(QResizeEvent *event);
-
-    virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
+    void paintEvent(QPaintEvent *event)        override;
+    void resizeEvent(QResizeEvent *event)      override;
+    void mouseMoveEvent(QMouseEvent *event)    override;
+    void mousePressEvent(QMouseEvent *event)   override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
     static constexpr int BOTTOM_AREA_HEIGHT = 20;
