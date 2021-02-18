@@ -464,17 +464,26 @@ void LocationsTab::onClickSearchLocations()
     widgetSearchLocations_->raise();
 }
 
-void LocationsTab::switchToSearchAndRestoreAccentedItem()
+void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum locationTab)
 {
+    // get target locations previously accented item
     LocationID previousSelectedLocId;
-    IWidgetLocationsInfo *locWidget = locationWidgetByEnum(LOCATION_TAB_SEARCH_LOCATIONS);
+    IWidgetLocationsInfo *locWidget = locationWidgetByEnum(locationTab);
     if (locWidget)
     {
         previousSelectedLocId = locWidget->accentedItemLocationId();
     }
 
-    onSearchButtonClicked(); // this will handle changeTab(..)
+    if (locationTab == LOCATION_TAB_SEARCH_LOCATIONS)
+    {
+        onSearchButtonClicked(); // this will handle changeTab(..)
+    }
+    else
+    {
+        changeTab(locationTab);
+    }
 
+    // move cursor to previously selected accent item
     if (previousSelectedLocId.isValid())
     {
         if (locWidget->cursorInViewport())
@@ -696,25 +705,7 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
         if (curTabInt < LOCATION_TAB_LAST)
         {
             curTabInt++;
-
-            if (curTabInt == LOCATION_TAB_SEARCH_LOCATIONS)
-            {
-                switchToSearchAndRestoreAccentedItem();
-            }
-            else
-            {
-                changeTab(static_cast<LocationTabEnum>(curTabInt));
-
-                IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
-                if (curWidgetLoc != nullptr)
-                {
-                    if (curWidgetLoc->cursorInViewport())
-                    {
-                        curWidgetLoc->centerCursorOnAccentedItem();
-                    }
-                }
-            }
-
+            switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
         }
     }
     else if (event->key() == Qt::Key_Left)
@@ -723,31 +714,7 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
         if (curTabInt > LOCATION_TAB_FIRST)
         {
             curTabInt--;
-            if (curTabInt == LOCATION_TAB_SEARCH_LOCATIONS)
-            {
-                // don't think this can happen
-                switchToSearchAndRestoreAccentedItem();
-            }
-            else
-            {
-                if (curTabInt == LOCATION_TAB_CONFIGURED_LOCATIONS)
-                {
-                    onSearchCancelButtonClicked(); // handles changeTab(..)
-                }
-                else
-                {
-                    changeTab(static_cast<LocationTabEnum>(curTabInt));
-                }
-
-                IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
-                if (curWidgetLoc != nullptr)
-                {
-                    if (curWidgetLoc->cursorInViewport())
-                    {
-                        curWidgetLoc->centerCursorOnAccentedItem();
-                    }
-                }
-            }
+            switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
         }
     }
     else if (event->key() == Qt::Key_Tab)
@@ -794,7 +761,7 @@ void LocationsTab::handleKeyPressEvent(QKeyEvent *event)
     {
         if (event->key() != Qt::Key_Space) // prevent space from triggering search when intention is to close locations tray
         {
-            switchToSearchAndRestoreAccentedItem();
+            switchToTabAndRestoreCursorToAccentedItem(LOCATION_TAB_SEARCH_LOCATIONS);
 
             // Adding text to search text must be handled in the keyPress instead of keyRelease because
             // during focus transition from locationsTab -> searchLineEdit: mainWindow no longer fires keyReleaseEvents

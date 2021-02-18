@@ -152,7 +152,7 @@ private:
     void onClickFavoriteLocations();
     void onClickSearchLocations();
 
-    void switchToSearchAndRestoreAccentedItem();
+    void switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum locationTab);
 
     void drawTabRegion(QPainter &painter, const QRect &rc);
     void drawBottomLine(QPainter &painter, int left, int right, int bottom, int whiteLinePos);

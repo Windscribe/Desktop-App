@@ -137,7 +137,11 @@ bool WidgetCities::hasAccentItem()
 
 LocationID WidgetCities::accentedItemLocationId()
 {
-    return widgetCitiesList_->lastAccentedItemWidget()->getId();
+    if (widgetCitiesList_->lastAccentedItemWidget())
+    {
+        return widgetCitiesList_->lastAccentedItemWidget()->getId();
+    }
+    return LocationID();
 }
 
 void WidgetCities::accentFirstItem()
