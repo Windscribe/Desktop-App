@@ -792,15 +792,23 @@ void LocationsTab::handleKeyPressEvent(QKeyEvent *event)
     // set locations tab to search screen
     if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS)
     {
-        switchToSearchAndRestoreAccentedItem();
-    }
+        if (event->key() != Qt::Key_Space) // prevent space from triggering search when intention is to close locations tray
+        {
+            switchToSearchAndRestoreAccentedItem();
 
-    // Adding text to search text must be handled in the keyPress instread of keyRelease because
-    // during focus transition from locationsTab -> searchLineEdit: mainWindow no longer fires keyReleaseEvents
-    // while searchLineEdit has not yet picked up the focus (it uses keyPressEvents too)
-    // qDebug() << "Appending text: " << event->text();
-    searchLineEdit_->appendText(event->text());
-    searchLineEdit_->setFocus();
+            // Adding text to search text must be handled in the keyPress instead of keyRelease because
+            // during focus transition from locationsTab -> searchLineEdit: mainWindow no longer fires keyReleaseEvents
+            // while searchLineEdit has not yet picked up the focus (it uses keyPressEvents too)
+            // qDebug() << "Appending text: " << event->text();
+            searchLineEdit_->appendText(event->text());
+            searchLineEdit_->setFocus();
+        }
+    }
+    else
+    {
+        searchLineEdit_->appendText(event->text());
+        searchLineEdit_->setFocus();
+    }
 }
 
 void LocationsTab::updateTabIconRects()
