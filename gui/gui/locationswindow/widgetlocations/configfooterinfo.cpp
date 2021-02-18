@@ -20,6 +20,7 @@ ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
   , isDisplayTextRectHover_(false)
   , font_(*FontManager::instance().getFont(16, true))
 {
+    setFocusPolicy(Qt::NoFocus);
     setMouseTracking(true);
     for (int i = 0; i < NUM_ICONS; ++i) {
         connect(&iconButtons_[i].opacityAnimation, &QVariantAnimation::valueChanged,
