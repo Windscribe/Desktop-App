@@ -34,7 +34,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     escapeButton_ = new EscapeButton(this);
     connect(escapeButton_, SIGNAL(clicked()), SIGNAL(escape()));
 
-    tabControlItem_ = new PreferencesTabControlItem(this);
+    tabControlItem_ = new PreferencesTabControlItem(this, preferencesHelper);
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(currentTabChanged(PREFERENCES_TAB_TYPE)), SLOT(onCurrentTabChanged(PREFERENCES_TAB_TYPE)));
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(helpClick()), SIGNAL(helpClick()));
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(signOutClick()), SIGNAL(signOutClick()));

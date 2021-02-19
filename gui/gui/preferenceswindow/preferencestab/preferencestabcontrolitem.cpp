@@ -12,13 +12,15 @@
 
 namespace PreferencesWindow {
 
-PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * parent) : ScalableGraphicsObject(parent)
+PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * parent,
+                                                     PreferencesHelper *preferencesHelper)
+    : ScalableGraphicsObject(parent)
     , loggedIn_(false)
     , curTab_(TAB_UNDEFINED)
     , curInSubpage_(false)
 {
     height_ = 303;
-    curLineStartPos_ = GENERAL_BUTTON_Y;
+    curLineStartPos_ = TOP_BUTTON_Y;
 
     generalButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/GENERAL_ICON", this);
 
@@ -68,6 +70,7 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
     updateBottomAnchoredButtonPos();
 
     connect(&linePosAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onLinePosChanged(QVariant)));
+    connect(preferencesHelper, SIGNAL(isExternalConfigModeChanged(bool)), SLOT(onIsExternalConfigModeChanged(bool)));
 
     //  init general tab on start without animation
     generalButton_->setSelected(true);
@@ -129,7 +132,9 @@ void PreferencesTabControlItem::changeToGeneral()
         generalButton_->setStickySelection(true);
         generalButton_->animateOpacityChange(OPACITY_FULL, ANIMATION_SPEED_FAST);
 
-        startAnAnimation(linePosAnimation_, curLineStartPos_, GENERAL_BUTTON_Y, ANIMATION_SPEED_FAST);
+        startAnAnimation(linePosAnimation_, curLineStartPos_,
+                         static_cast<int>(generalButton_->y() / G_SCALE),
+                         ANIMATION_SPEED_FAST);
 
         curTab_ = TAB_GENERAL;
         emit currentTabChanged(TAB_GENERAL);
@@ -146,7 +151,9 @@ void PreferencesTabControlItem::changeToAccount()
         accountButton_->setStickySelection(true);
         accountButton_->animateOpacityChange(OPACITY_FULL, ANIMATION_SPEED_FAST);
 
-        startAnAnimation(linePosAnimation_, curLineStartPos_, ACCOUNT_BUTTON_Y, ANIMATION_SPEED_FAST);
+        startAnAnimation(linePosAnimation_, curLineStartPos_,
+                         static_cast<int>(accountButton_->y() / G_SCALE),
+                         ANIMATION_SPEED_FAST);
 
         curTab_ = TAB_ACCOUNT;
         emit currentTabChanged(TAB_ACCOUNT);
@@ -163,7 +170,9 @@ void PreferencesTabControlItem::changeToConnection()
         connectionButton_->setStickySelection(true);
         connectionButton_->animateOpacityChange(OPACITY_FULL, ANIMATION_SPEED_FAST);
 
-        startAnAnimation(linePosAnimation_, curLineStartPos_, CONNECTION_BUTTON_Y, ANIMATION_SPEED_FAST);
+        startAnAnimation(linePosAnimation_, curLineStartPos_,
+                         static_cast<int>(connectionButton_->y() / G_SCALE),
+                         ANIMATION_SPEED_FAST);
 
         curTab_ = TAB_CONNECTION;
         emit currentTabChanged(TAB_CONNECTION);
@@ -180,7 +189,9 @@ void PreferencesTabControlItem::changeToShare()
         shareButton_->setStickySelection(true);
         shareButton_->animateOpacityChange(OPACITY_FULL, ANIMATION_SPEED_FAST);
 
-        startAnAnimation(linePosAnimation_, curLineStartPos_, SHARE_BUTTON_Y, ANIMATION_SPEED_FAST);
+        startAnAnimation(linePosAnimation_, curLineStartPos_,
+                         static_cast<int>(shareButton_->y() / G_SCALE),
+                         ANIMATION_SPEED_FAST);
 
         curTab_ = TAB_SHARE;
         emit currentTabChanged(TAB_SHARE);
@@ -197,11 +208,38 @@ void PreferencesTabControlItem::changeToDebug()
         debugButton_->setStickySelection(true);
         debugButton_->animateOpacityChange(OPACITY_FULL, ANIMATION_SPEED_FAST);
 
-        startAnAnimation(linePosAnimation_, curLineStartPos_, DEBUG_BUTTON_Y, ANIMATION_SPEED_FAST);
+        startAnAnimation(linePosAnimation_, curLineStartPos_,
+                         static_cast<int>(debugButton_->y() / G_SCALE),
+                         ANIMATION_SPEED_FAST);
 
         curTab_ = TAB_DEBUG;
         emit currentTabChanged(TAB_DEBUG);
     }
+}
+
+void PreferencesTabControlItem::updateLinePos()
+{
+    qreal currentPos = TOP_BUTTON_Y;
+    switch (curTab_) {
+    default:
+    case TAB_GENERAL:
+        currentPos = generalButton_->y();
+        break;
+    case TAB_ACCOUNT:
+        currentPos = accountButton_->y();
+        break;
+    case TAB_CONNECTION:
+        currentPos = connectionButton_->y();
+        break;
+    case TAB_SHARE:
+        currentPos = shareButton_->y();
+        break;
+    case TAB_DEBUG:
+        currentPos = debugButton_->y();
+        break;
+    }
+    linePosAnimation_.stop();
+    curLineStartPos_ = static_cast<int>(currentPos / G_SCALE);
 }
 
 void PreferencesTabControlItem::setInSubpage(bool inSubpage)
@@ -347,6 +385,14 @@ void PreferencesTabControlItem::onButtonHoverLeave()
     TooltipController::instance().hideTooltip(TOOLTIP_ID_PREFERENCES_TAB_INFO);
 }
 
+void PreferencesTabControlItem::onIsExternalConfigModeChanged(bool bIsExternalConfigMode)
+{
+    accountButton_->setVisible(!bIsExternalConfigMode);
+    if (bIsExternalConfigMode && curTab_ == TAB_ACCOUNT)
+        changeToGeneral();
+    updateTopAnchoredButtonsPos();
+}
+
 void PreferencesTabControlItem::fadeButtons(double newOpacity, int animationSpeed)
 {
     generalButton_->setSelected(false);
@@ -376,11 +422,17 @@ void PreferencesTabControlItem::updateBottomAnchoredButtonPos()
 
 void PreferencesTabControlItem::updateTopAnchoredButtonsPos()
 {
-    generalButton_->setPos(buttonMarginX(), GENERAL_BUTTON_Y*G_SCALE);
-    accountButton_->setPos(buttonMarginX(), ACCOUNT_BUTTON_Y*G_SCALE);
-    connectionButton_->setPos(buttonMarginX(), CONNECTION_BUTTON_Y*G_SCALE);
-    shareButton_->setPos(buttonMarginX(), SHARE_BUTTON_Y*G_SCALE);
-    debugButton_->setPos(buttonMarginX(), DEBUG_BUTTON_Y*G_SCALE);
+    IconButton *buttonsInOrder[] = {
+        generalButton_, accountButton_, connectionButton_, shareButton_, debugButton_
+    };
+    int startY = TOP_BUTTON_Y;
+    for (size_t i = 0; i < sizeof(buttonsInOrder) / sizeof(buttonsInOrder[0]); ++i) {
+        if (buttonsInOrder[i]->isVisible()) {
+            buttonsInOrder[i]->setPos(buttonMarginX(), startY*G_SCALE);
+            startY += BUTTON_HEIGHT + SEPERATOR_Y;
+        }
+    }
+    updateLinePos();
 }
 
 int PreferencesTabControlItem::buttonMarginX() const

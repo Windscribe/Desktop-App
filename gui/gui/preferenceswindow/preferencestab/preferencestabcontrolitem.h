@@ -6,6 +6,7 @@
 #include "ipreferencestabcontrol.h"
 #include "commongraphics/iconbutton.h"
 #include "tooltips/tooltiptypes.h"
+#include "../backend/preferences/preferenceshelper.h"
 
 namespace PreferencesWindow {
 
@@ -15,7 +16,8 @@ class PreferencesTabControlItem : public ScalableGraphicsObject, public IPrefere
     Q_OBJECT
     Q_INTERFACES(IPreferencesTabControl)
 public:
-    explicit PreferencesTabControlItem(ScalableGraphicsObject *parent = nullptr);
+    explicit PreferencesTabControlItem(ScalableGraphicsObject *parent,
+                                       PreferencesHelper *preferencesHelper);
 
     QGraphicsObject *getGraphicsObject() override;
 
@@ -39,6 +41,7 @@ public:
 
 public slots:
     void onButtonHoverLeave();
+    void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
 
 signals:
     void currentTabChanged(PREFERENCES_TAB_TYPE tab) override;
@@ -92,6 +95,7 @@ private:
 
     void updateBottomAnchoredButtonPos();
     void updateTopAnchoredButtonsPos();
+    void updateLinePos();
 
     static constexpr int WIDTH = 48; //  16 + 16 + 16;
     int height_;
@@ -99,12 +103,10 @@ private:
     int buttonMarginX() const;
 
     static constexpr int SEPERATOR_Y = 16;
-    static constexpr int GENERAL_BUTTON_Y = 16;
-    static constexpr int ACCOUNT_BUTTON_Y = GENERAL_BUTTON_Y + 16 + SEPERATOR_Y;
-    static constexpr int CONNECTION_BUTTON_Y = ACCOUNT_BUTTON_Y + 16 + SEPERATOR_Y;
-    static constexpr int SHARE_BUTTON_Y = CONNECTION_BUTTON_Y + 16 + SEPERATOR_Y;
-    static constexpr int DEBUG_BUTTON_Y = SHARE_BUTTON_Y + 16 + SEPERATOR_Y;
+    static constexpr int TOP_BUTTON_Y = 16;
+
     static constexpr int BUTTON_WIDTH = WIDTH - 4;
+    static constexpr int BUTTON_HEIGHT = 16;
 
     // Keep tooltip 2px to the right of the pic: 10 = 16 / 2 + 2.
     static constexpr int SCENE_OFFSET_X = BUTTON_WIDTH / 2 + 10;
