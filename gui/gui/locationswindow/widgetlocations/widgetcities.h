@@ -80,6 +80,7 @@ private slots:
     void onLocationItemListWidgetLocationIdSelected(LocationID id);
 
     void onScrollAnimationValueChanged(const QVariant &value);
+    void onScrollAnimationFinished();
     void onScrollBarHandleDragged(int valuePos);
     void onScrollBarStopScroll(bool lastScrollDirectionUp);
 
@@ -119,7 +120,7 @@ private:
     void animatedScrollDown(int itemCount);
     void animatedScrollUp(int itemCount);
     void startAnimationScrollByPosition(int positionValue, QVariantAnimation &animation);
-
+    void updateScrollBarWithView();
 
     // viewport
     const LocationID topViewportSelectableLocationId();

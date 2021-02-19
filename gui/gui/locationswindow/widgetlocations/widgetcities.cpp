@@ -86,6 +86,7 @@ WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QScrollAre
 
     preventMouseSelectionTimer_.start();
     connect(&scrollAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onScrollAnimationValueChanged(QVariant)));
+    connect(&scrollAnimation_, SIGNAL(finished()), SLOT(onScrollAnimationFinished()));
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 }
 
@@ -563,14 +564,12 @@ void WidgetCities::onScrollAnimationValueChanged(const QVariant &value)
 
     widgetCitiesList_->move(0, value.toInt());
     lastScrollPos_ = widgetCitiesList_->geometry().y();
-
-    // update scroll bar for keypress navigation
-    if (!scrollBar_->dragging())
-    {
-        scrollBar_->forceSetValue(-animationScollTarget_);
-    }
-
     viewport()->update();
+}
+
+void WidgetCities::onScrollAnimationFinished()
+{
+    updateScrollBarWithView();
 }
 
 void WidgetCities::onScrollBarHandleDragged(int valuePos)
@@ -655,6 +654,7 @@ void WidgetCities::animatedScrollDown(int itemCount)
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
+        updateScrollBarWithView();
         animationScollTarget_ -= scrollBy;
     }
     else
@@ -670,6 +670,7 @@ void WidgetCities::animatedScrollUp(int itemCount)
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
+        updateScrollBarWithView();
         animationScollTarget_ += scrollBy;
     }
     else
@@ -687,6 +688,15 @@ void WidgetCities::startAnimationScrollByPosition(int positionValue, QVariantAni
     animation.setEndValue(positionValue);
     animation.setDirection(QAbstractAnimation::Forward);
     animation.start();
+}
+
+void WidgetCities::updateScrollBarWithView()
+{
+    // update scroll bar for keypress navigation
+    if (!scrollBar_->dragging())
+    {
+        scrollBar_->forceSetValue(-widgetCitiesList_->geometry().y());
+    }
 }
 
 const LocationID WidgetCities::topViewportSelectableLocationId()

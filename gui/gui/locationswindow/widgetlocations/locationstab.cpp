@@ -338,27 +338,6 @@ void LocationsTab::leaveEvent(QEvent *event)
     QWidget::leaveEvent(event);
 }
 
-
-void LocationsTab::keyReleaseEvent(QKeyEvent *event)
-{
-    qDebug() << "LocationsTab::keyReleaseEvent";
-//    if (event->key() == Qt::Key_Escape)
-//    {
-//        if (searchLineEdit_->text() == "")
-//        {
-//            onSearchCancelButtonClicked();
-//            event->accept();
-//        }
-//        else
-//        {
-//            searchLineEdit_->setText("");
-//            event->accept();
-//        }
-//    }
-
-    QWidget::keyReleaseEvent(event);
-}
-
 bool LocationsTab::eventFilter(QObject *object, QEvent *event)
 {
     // qDebug() << "LocationsTab::eventFilter";
@@ -384,7 +363,7 @@ bool LocationsTab::eventFilter(QObject *object, QEvent *event)
             {
                 if (searchLineEdit_->text() == "")
                 {
-                    onSearchCancelButtonClicked();
+                    hideSearchTab();
                 }
                 else
                 {

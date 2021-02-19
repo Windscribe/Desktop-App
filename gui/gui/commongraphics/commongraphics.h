@@ -81,7 +81,8 @@ QRect idealRect(int posX, int posY, int minWidth, int maxWidth, int idealLines, 
 
 QRect textBoundingRect(QFont font, int posX, int posY, int width, QString message, Qt::TextFlag flag);
 
-QString truncateText(QString original, QFont font, int width);
+QString maybeTruncatedText(const QString &original, const QFont &font, int width);
+QString truncatedText(QString original, QFont font, int width);
 }
 
 

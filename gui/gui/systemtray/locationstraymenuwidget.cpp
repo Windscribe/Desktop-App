@@ -219,7 +219,7 @@ void LocationsTrayMenuWidget::updateShortenedTexts()
 
     for (int ind = 0; ind < listWidget_->count(); ++ind) {
         QListWidgetItem *item = listWidget_->item(ind);
-        QString itemName = CommonGraphics::truncateText(
+        QString itemName = CommonGraphics::truncatedText(
             item->data(USER_ROLE_ORIGINAL_NAME).toString(),
             locationsTrayMenuItemDelegate_->getFontForItems(),
             listWidget_->width()- 30 * G_SCALE);

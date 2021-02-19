@@ -50,6 +50,8 @@ ItemWidgetHeader::ItemWidgetHeader(IWidgetLocationsInfo *widgetLocationsInfo, Lo
 ItemWidgetHeader::~ItemWidgetHeader()
 {
     // qDebug() << "Deleting header: " << name();
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
+
 }
 
 bool ItemWidgetHeader::isExpanded() const
@@ -268,6 +270,12 @@ void ItemWidgetHeader::enterEvent(QEvent *event)
     Q_UNUSED(event)
     // qDebug() << "Selection by hover enter";
     setAccented(true); // triggers unselection of other widgets
+}
+
+void ItemWidgetHeader::leaveEvent(QEvent *event)
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
+    QWidget::leaveEvent(event);
 }
 
 void ItemWidgetHeader::mouseMoveEvent(QMouseEvent *event)

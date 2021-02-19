@@ -579,11 +579,7 @@ void WidgetLocations::onScrollAnimationValueChanged(const QVariant &value)
 
 void WidgetLocations::onScrollAnimationFinished()
 {
-    // syncs scrollbar with view
-    if (!scrollBar_->dragging())
-    {
-        scrollBar_->forceSetValue(-animationScollTarget_);
-    }
+    updateScrollBarWithView();
 }
 
 void WidgetLocations::onScrollAnimationForKeyPressValueChanged(const QVariant &value)
@@ -602,11 +598,7 @@ void WidgetLocations::onScrollAnimationForKeyPressValueChanged(const QVariant &v
 
 void WidgetLocations::onScrollAnimationForKeyPressFinished()
 {
-    // syncs scrollbar with view
-    if (!scrollBar_->dragging())
-    {
-        scrollBar_->forceSetValue(-animationScollTarget_);
-    }
+    updateScrollBarWithView();
 }
 
 void WidgetLocations::onScrollBarHandleDragged(int valuePos)

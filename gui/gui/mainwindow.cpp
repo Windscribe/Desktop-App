@@ -729,6 +729,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
 #endif
     // for feeding chars to searchbar when mainwindow has focus
+    // qDebug() << "MainWindow::keyPressEvent";
     if (mainWindowController_->isLocationsExpanded())
     {
         if(event->key() != Qt::Key_Escape || event->key() != Qt::Key_Space)
@@ -2506,6 +2507,8 @@ void MainWindow::deactivateAndHide()
 
 void MainWindow::setBackendAppActiveState(bool state)
 {
+    TooltipController::instance().hideAllTooltips();
+
     if (backend_->isInitFinished() && backendAppActiveState_ != state) {
         backendAppActiveState_ = state;
         state ? backend_->applicationActivated() : backend_->applicationDeactivated();

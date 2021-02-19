@@ -25,6 +25,7 @@ public:
     const QFont &font();
 
     // only use for text
+    int truncatedTextWidth(int maxWidth);
     int textWidth();
     int textHeight();
 

@@ -48,7 +48,7 @@ void ConfigFooterInfo::setText(const QString &text)
 void ConfigFooterInfo::updateDisplayText()
 {
     font_ = *FontManager::instance().getFont(14, false);
-    displayText_ = CommonGraphics::truncateText(fullText_, font_,
+    displayText_ = CommonGraphics::truncatedText(fullText_, font_,
         width() - (WINDOW_MARGIN * 4 + 40) * G_SCALE);
     displayTextRect_.setRect(WINDOW_MARGIN * G_SCALE, 0,
         CommonGraphics::textWidth(displayText_, font_), height() - BOTTOM_LINE_HEIGHT * G_SCALE);

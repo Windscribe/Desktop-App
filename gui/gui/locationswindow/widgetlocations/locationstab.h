@@ -60,7 +60,6 @@ protected:
     void mousePressEvent(QMouseEvent *event)   override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event)             override;
-    void keyReleaseEvent(QKeyEvent *event)     override;
     bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
