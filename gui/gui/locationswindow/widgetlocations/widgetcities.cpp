@@ -196,7 +196,9 @@ void WidgetCities::setCountViewportItems(int cnt)
 void WidgetCities::setShowLatencyInMs(bool showLatencyInMs)
 {
     bShowLatencyInMs_ = showLatencyInMs;
-    viewport()->update();
+    const auto widgetCities = widgetCitiesList_->itemWidgets();
+    for (auto *w : widgetCities)
+        w->setShowLatencyMs(showLatencyInMs);
 }
 
 bool WidgetCities::isShowLatencyInMs()
@@ -522,10 +524,7 @@ void WidgetCities::onIsFavoriteChanged(LocationID id, bool isFavorite)
 
 void WidgetCities::onFreeSessionStatusChanged(bool isFreeSessionStatus)
 {
-    if (bIsFreeSession_ != isFreeSessionStatus)
-    {
-        bIsFreeSession_ = isFreeSessionStatus;
-    }
+    bIsFreeSession_ = isFreeSessionStatus;
 }
 
 void WidgetCities::onLanguageChanged()
