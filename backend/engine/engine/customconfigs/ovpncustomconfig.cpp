@@ -6,6 +6,23 @@
 
 namespace customconfigs {
 
+namespace {
+
+bool CheckAndFixProtocolName(QString &protocol)
+{
+    bool is_valid = false;
+    if (protocol.startsWith("udp")) {
+        is_valid = !protocol.startsWith("udp6");
+        protocol = "udp";
+    } else if (protocol.startsWith("tcp")) {
+        is_valid = !protocol.startsWith("tcp6");
+        protocol = "tcp";
+    }
+    return is_valid;
+}
+
+}  // namespace
+
 CUSTOM_CONFIG_TYPE OvpnCustomConfig::type() const
 {
     return CUSTOM_CONFIG_OPENVPN;
@@ -170,9 +187,12 @@ void OvpnCustomConfig::process()
         }
 
         // Fix protocol in remotes.
+        bool hasAnyValidProtocol = false;
         for (auto &r : remotes_) {
             if (r.protocol.isEmpty())
                 r.protocol = currentProtocol;
+            if (CheckAndFixProtocolName(r.protocol))
+                hasAnyValidProtocol = true;
         }
 
         if (!bFoundVerbCommand)
@@ -197,6 +217,12 @@ void OvpnCustomConfig::process()
             qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "incorrect, because can't find remote host command. The file format may be incorrect.";
             isCorrect_ = false;
             errMessage_ = "Can't find remote host command";
+        }
+        else if (!hasAnyValidProtocol)
+        {
+            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "incorrect, because there is no correct protocol. Please note that IPv6 protocols are not supported.";
+            isCorrect_ = false;
+            errMessage_ = "Connection protocol is not valid";
         }
         else
         {
