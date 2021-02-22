@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "widgetlocations/locationstab.h"
+#include "widgetlocations/footer.h"
 
 class LocationsWindow : public QWidget
 {
@@ -48,11 +49,14 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-    static constexpr int BOTTOM_AREA_HEIGHT = 20;
+    const int LOCATIONS_TAB_HEIGHT_INIT = 398; // 7 * 50 + TAB_HEADER_HEIGHT
+    static constexpr int FOOTER_HEIGHT = 22; // 20 + COVER_LAST_ITEM_LINE
     static constexpr int MIN_VISIBLE_LOCATIONS = 3;
     static constexpr int MAX_VISIBLE_LOCATIONS = 12;
 
     GuiLocations::LocationsTab *locationsTab_;
+    GuiLocations::Footer *footer_; // overlay needed to be done as child widget so we can paint over the other widget, locationsTab_
+
     int locationsTabHeight_;
     bool bDragPressed_;
     QPoint dragPressPt_;

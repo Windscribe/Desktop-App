@@ -22,7 +22,7 @@ class LocationsTab : public QWidget
 public:
     explicit LocationsTab(QWidget *parent, LocationsModel *locationsModel);
 
-    int unscaledHeight();
+    int unscaledHeightOfItemViewport();
     void setCountVisibleItemSlots(int cnt);
     int getCountVisibleItems();
     void setOnlyConfigTabVisible(bool onlyConfig);
@@ -49,6 +49,9 @@ public:
         LOCATION_TAB_LAST = LOCATION_TAB_SEARCH_LOCATIONS
     };
     LocationTabEnum currentTab();
+
+    static constexpr int TAB_HEADER_HEIGHT = 48;
+    static constexpr int COVER_LAST_ITEM_LINE = 2;
 
 public slots:
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
@@ -97,15 +100,16 @@ private:
     GuiLocations::WidgetCities *widgetFavoriteLocations_;
     GuiLocations::WidgetLocations *widgetSearchLocations_;
 
-    StaticIPDeviceInfo *staticIPDeviceInfo_; // footer
-    ConfigFooterInfo *configFooterInfo_;     // footer
+    // ribbons
+    StaticIPDeviceInfo *staticIPDeviceInfo_;
+    ConfigFooterInfo *configFooterInfo_;
 
     //Backend &backend_;
     LocationTabEnum curTab_;
     LocationTabEnum lastTab_;
     LocationTabEnum tabPress_;
 
-    static constexpr int TOP_TAB_HEIGHT = 50;
+    static constexpr int RIBBON_HEIGHT = 50;
     static constexpr int ANIMATION_DURATION = 150;
     static constexpr int WHITE_LINE_WIDTH = 18;
     static constexpr int TOP_TAB_MARGIN = 15;

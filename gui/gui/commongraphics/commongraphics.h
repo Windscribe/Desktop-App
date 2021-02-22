@@ -16,8 +16,6 @@ const int LOCATION_ITEM_MARGIN = 16;
 const int LOCATION_ITEM_MARGIN_TO_LINE = 24;
 const int LOCATION_ITEM_FLAG_WIDTH = 32;
 
-const int LOCATIONS_TAB_HEIGHT = 398;
-
 const int LOGIN_WIDTH = 332;
 const int LOGIN_HEIGHT = 354;
 

@@ -102,7 +102,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     widgetSearchLocations_ = new GuiLocations::WidgetLocations(this);
     widgetSearchLocations_->hide();
 
-    updateLocationWidgetsGeometry(unscaledHeight());
+    updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
 
     connect(widgetAllLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetAllLocations_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
@@ -147,7 +147,7 @@ void LocationsTab::setCountVisibleItemSlots(int cnt)
         widgetFavoriteLocations_->setCountViewportItems(countOfVisibleItemSlots_);
         widgetSearchLocations_->setCountViewportItems(countOfVisibleItemSlots_);
         updateRibbonVisibility();
-        updateLocationWidgetsGeometry(unscaledHeight());
+        updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
     }
 }
 
@@ -186,7 +186,7 @@ void LocationsTab::paintEvent(QPaintEvent *event)
 
     // qDebug() << "LocationsTab::paintEvent - geo: " << geometry();
 
-    drawTabRegion(painter, QRect(0, 0, width(), TOP_TAB_HEIGHT * G_SCALE));
+    drawTabRegion(painter, QRect(0, 0, width(), TAB_HEADER_HEIGHT * G_SCALE));
 
 }
 
@@ -388,7 +388,7 @@ bool LocationsTab::eventFilter(QObject *object, QEvent *event)
 
 void LocationsTab::onClickAllLocations()
 {
-    widgetAllLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetAllLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
@@ -399,7 +399,7 @@ void LocationsTab::onClickAllLocations()
 
 void LocationsTab::onClickConfiguredLocations()
 {
-    widgetConfiguredLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetConfiguredLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
@@ -411,7 +411,7 @@ void LocationsTab::onClickConfiguredLocations()
 
 void LocationsTab::onClickStaticIpsLocations()
 {
-    widgetStaticIpsLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetStaticIpsLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetFavoriteLocations_->hide();
@@ -423,7 +423,7 @@ void LocationsTab::onClickStaticIpsLocations()
 
 void LocationsTab::onClickFavoriteLocations()
 {
-    widgetFavoriteLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetFavoriteLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
@@ -434,7 +434,7 @@ void LocationsTab::onClickFavoriteLocations()
 
 void LocationsTab::onClickSearchLocations()
 {
-    widgetSearchLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetSearchLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
@@ -802,30 +802,27 @@ void LocationsTab::updateIconRectsAndLine()
 
 void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
 {
-    const int kRibbonHeight = isRibbonVisible_ ? 48 : 0;
+    const int kRibbonHeight = isRibbonVisible_ ? RIBBON_HEIGHT : 0;
 
     currentLocationListHeight_ = newHeight;
 
-    // qDebug() << "Setting height of all location widgets: " << newHeight * G_SCALE;
     widgetAllLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
     widgetFavoriteLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
     widgetStaticIpsLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight) * G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight) * G_SCALE);
     widgetConfiguredLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight)* G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight) * G_SCALE);
     widgetSearchLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
 
-//    widgetFavoriteLocations_->setSize(WINDOW_WIDTH, newHeight);
-//    widgetStaticIpsLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight );
-//    widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight);
-
+    // ribbon geometry
+    // TODO: why 4? relabel
     staticIPDeviceInfo_->setGeometry(
-        0, newHeight * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+        0, newHeight * G_SCALE - 4*G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
     configFooterInfo_->setGeometry(
-        0, newHeight * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+        0, newHeight * G_SCALE - 4*G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
 
     updateScaling();
 }
@@ -896,9 +893,9 @@ LocationsTab::LocationTabEnum LocationsTab::currentTab()
     return curTab_;
 }
 
-int LocationsTab::unscaledHeight()
+int LocationsTab::unscaledHeightOfItemViewport()
 {
-    return 50 * countOfVisibleItemSlots_ /* - 1 */; // TODO: still need -1 ?
+    return LOCATION_ITEM_HEIGHT * countOfVisibleItemSlots_ ;
 }
 
 void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)

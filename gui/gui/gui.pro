@@ -222,6 +222,7 @@ SOURCES += \
     graphicresources/iconmanager.cpp \
     graphicresources/independentpixmap.cpp \
     launchonstartup/launchonstartup.cpp \
+    locationswindow/widgetlocations/footer.cpp \
     locationswindow/widgetlocations/itemwidgetcity.cpp \
     locationswindow/widgetlocations/itemwidgetheader.cpp \
     locationswindow/widgetlocations/itemwidgetregion.cpp \
@@ -450,6 +451,7 @@ HEADERS += \
     dialogs/advancedparametersdialog.h \
     dialogs/dialoggetusernamepassword.h \
     dialogs/dialogmessagecpuusage.h \
+    locationswindow/widgetlocations/footer.h \
     locationswindow/widgetlocations/iitemwidget.h \
     locationswindow/widgetlocations/itemwidgetcity.h \
     locationswindow/widgetlocations/itemwidgetheader.h \

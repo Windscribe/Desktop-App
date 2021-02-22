@@ -77,6 +77,11 @@ void FontManager::languageChanged()
     clearFontMap();
 }
 
+QColor FontManager::getLocationsFooterColor()
+{
+    return QColor(26, 39, 58);
+}
+
 QColor FontManager::getScrollBarBackgroundColor()
 {
     return QColor(76, 90, 100);
