@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include "widgetlocations/locationstab.h"
-#include "widgetlocations/footer.h"
+#include "widgetlocations/footertopstrip.h"
 
 class LocationsWindow : public QWidget
 {
@@ -50,12 +50,13 @@ protected:
 
 private:
     const int LOCATIONS_TAB_HEIGHT_INIT = 398; // 7 * 50 + TAB_HEADER_HEIGHT
-    static constexpr int FOOTER_HEIGHT = 22; // 20 + COVER_LAST_ITEM_LINE
+    static constexpr int FOOTER_HEIGHT = 14; //
+    static constexpr int FOOTER_HEIGHT_FULL = 16; // remaining 2px is drawn with footerTopStrip_ overlay
     static constexpr int MIN_VISIBLE_LOCATIONS = 3;
     static constexpr int MAX_VISIBLE_LOCATIONS = 12;
 
     GuiLocations::LocationsTab *locationsTab_;
-    GuiLocations::Footer *footer_; // overlay needed to be done as child widget so we can paint over the other widget, locationsTab_
+    GuiLocations::FooterTopStrip *footerTopStrip_; // overlay needed to be done as child widget so we can paint over the other widget, locationsTab_
 
     int locationsTabHeight_;
     bool bDragPressed_;
@@ -63,9 +64,7 @@ private:
     int dragInitialVisibleItemsCount_;
     int dragInitialBtnDragCenter_;
 
-    QRect getResizeMiddleRect();
-
-    QColor footerColor_;
+    QRect getResizeHandleClickableRect();
 };
 
 #endif // LOCATIONSWINDOW_H

@@ -4,7 +4,6 @@
 #include <QMouseEvent>
 #include <QDesktopServices>
 #include <QUrl>
-#include "widgetlocationssizes.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
@@ -52,7 +51,7 @@ void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
 
     const int kBottomLineHeight = BOTTOM_LINE_HEIGHT * G_SCALE;
     painter.fillRect(QRect(0, height() - kBottomLineHeight, sizeHint().width(), kBottomLineHeight),
-        GuiLocations::WidgetLocationsSizes::instance().getBackgroundColor());
+        FontManager::instance().getMidnightColor());
 
     font_ = *FontManager::instance().getFont(16, true);
 

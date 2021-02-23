@@ -51,7 +51,7 @@ public:
     LocationTabEnum currentTab();
 
     static constexpr int TAB_HEADER_HEIGHT = 48;
-    static constexpr int COVER_LAST_ITEM_LINE = 2;
+    static constexpr int COVER_LAST_ITEM_LINE = 4;
 
 public slots:
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);

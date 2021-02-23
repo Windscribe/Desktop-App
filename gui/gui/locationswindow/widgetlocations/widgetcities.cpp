@@ -426,7 +426,7 @@ void WidgetCities::paintEvent(QPaintEvent *event)
     // draw background for when list is < size of viewport
     QPainter painter(viewport());
     QRect bkgd(0,0,geometry().width(), geometry().height());
-    painter.fillRect(bkgd, WidgetLocationsSizes::instance().getBackgroundColor());
+    painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
 
     // empty list drawing items
     if (widgetCitiesList_->itemWidgets().isEmpty())

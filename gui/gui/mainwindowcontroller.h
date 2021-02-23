@@ -251,7 +251,8 @@ private:
     void clearMaskForGraphicsView();
 
     int lastPreferencesHeight_;
-    int locationWindowHeightScaled_; //  TODO: use should be replaced by direct call to current size
+    int locationWindowHeightScaled_; // Previously there were issues dynamically grabbing locationsWindow height... keeping a cache somehow helped. Not sure if the original issue persists
+
     void keepWindowInsideScreenCoordinates();
 
     void getGraphicsRegionWidthAndHeight(int &width, int &height, int &addHeightToGeometry);

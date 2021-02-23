@@ -5,7 +5,6 @@
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
-#include "widgetlocationssizes.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
@@ -183,7 +182,7 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
     // background
     QPainter painter(this);
     painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE),
-                     WidgetLocationsSizes::instance().getBackgroundColor());
+                     FontManager::instance().getMidnightColor());
 
     // flag
     IndependentPixmap *flag = ImageResourcesSvg::instance().getFlag(countryCode_);

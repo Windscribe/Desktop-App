@@ -3,7 +3,6 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QFileDialog>
-#include "widgetlocationssizes.h"
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
@@ -81,7 +80,7 @@ void ConfigFooterInfo::paintEvent(QPaintEvent * /*event*/)
 
     const int kBottomLineHeight = BOTTOM_LINE_HEIGHT * G_SCALE;
     painter.fillRect(QRect(0, height() - kBottomLineHeight, sizeHint().width(), kBottomLineHeight),
-                     GuiLocations::WidgetLocationsSizes::instance().getBackgroundColor());
+                     FontManager::instance().getMidnightColor());
 
     if (!displayText_.isEmpty()) {
         font_ = *FontManager::instance().getFont(14, false);

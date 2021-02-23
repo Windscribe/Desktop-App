@@ -1,8 +1,6 @@
 #ifndef WIDGETLOCATIONSSIZES_H
 #define WIDGETLOCATIONSSIZES_H
 
-#include <QColor>
-
 
 namespace GuiLocations {
 
@@ -15,11 +13,9 @@ public:
         return i;
     }
 
-
     int getItemHeight();
     int getTopOffset();
     int getScrollBarWidth();
-    QColor getBackgroundColor();
     double getScrollingSpeedKef();
 
 private:
@@ -29,7 +25,6 @@ private:
     int topOffset_;
     int scrollBarWidth_;
     double scrollingSpeedKef_;
-    QColor backgroundColor_;
 
 };
 } // namespace GuiLocations

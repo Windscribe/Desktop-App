@@ -9,7 +9,6 @@
 #include "tooltips/tooltiptypes.h"
 #include "utils/writeaccessrightschecker.h"
 #include "tooltips/tooltipcontroller.h"
-#include "widgetlocationssizes.h"
 
 #include <QDebug>
 
@@ -182,7 +181,7 @@ void LocationsTab::paintEvent(QPaintEvent *event)
     // cover no background between ribbon and bottom handle (static and config)
     QPainter painter(this);
     QRect bkgd(0,0,geometry().width(), geometry().height());
-    painter.fillRect(bkgd, WidgetLocationsSizes::instance().getBackgroundColor());
+    painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
 
     // qDebug() << "LocationsTab::paintEvent - geo: " << geometry();
 
@@ -818,11 +817,10 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
         0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
 
     // ribbon geometry
-    // TODO: why 4? relabel
     staticIPDeviceInfo_->setGeometry(
-        0, newHeight * G_SCALE - 4*G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+        0, newHeight * G_SCALE - COVER_LAST_ITEM_LINE*G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
     configFooterInfo_->setGeometry(
-        0, newHeight * G_SCALE - 4*G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+        0, newHeight * G_SCALE - COVER_LAST_ITEM_LINE*G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
 
     updateScaling();
 }

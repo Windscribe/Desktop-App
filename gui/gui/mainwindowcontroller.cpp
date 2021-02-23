@@ -2800,7 +2800,6 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
         {
             width = connectWindow_->getGraphicsObject()->boundingRect().width();
             height = connectWindow_->getGraphicsObject()->boundingRect().height();
-            // TODO: issue here
             addHeightToGeometry = (locationWindowHeightScaled_ - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE); // locationWindowHeight_ instead of locationWindow_->expandedHeight() because bug where expandedHeight updates too early so the slide doesn't increment
             if (addHeightToGeometry < 0 ) addHeightToGeometry = 0;
         }

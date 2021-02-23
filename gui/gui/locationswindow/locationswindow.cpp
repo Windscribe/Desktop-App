@@ -18,8 +18,8 @@ LocationsWindow::LocationsWindow(QWidget *parent, LocationsModel *locationsModel
     locationsTab_ = new GuiLocations::LocationsTab(this, locationsModel);
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
 
-    footer_ = new GuiLocations::Footer(this);
-    footer_->setGeometry(0, locationsTabHeight_*G_SCALE - 2*G_SCALE, WINDOW_WIDTH*G_SCALE, 2*G_SCALE);
+    footerTopStrip_ = new GuiLocations::FooterTopStrip(this);
+    footerTopStrip_->setGeometry(0, locationsTabHeight_*G_SCALE - 2*G_SCALE, WINDOW_WIDTH*G_SCALE, 2*G_SCALE);
 
     connect(locationsTab_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(locationsTab_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
@@ -29,8 +29,6 @@ LocationsWindow::LocationsWindow(QWidget *parent, LocationsModel *locationsModel
     connect(locationsTab_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
-
-    footerColor_ = FontManager::instance().getLocationsFooterColor();
 }
 
 int LocationsWindow::tabAndFooterHeight() const
@@ -41,9 +39,10 @@ int LocationsWindow::tabAndFooterHeight() const
 void LocationsWindow::setCountVisibleItemSlots(int cnt)
 {
     locationsTab_->setCountVisibleItemSlots(cnt);
-    locationsTabHeight_ = locationsTab_->unscaledHeightOfItemViewport() + GuiLocations::LocationsTab::TAB_HEADER_HEIGHT; // hide last location separator line // TODO: issue here?
+    // Previously there were issues directly grabbing locationsTab height... keeping a cache somehow helped. Not sure if the original issue persists
+    locationsTabHeight_ = locationsTab_->unscaledHeightOfItemViewport() + GuiLocations::LocationsTab::TAB_HEADER_HEIGHT;
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
-    footer_->setGeometry(0, locationsTabHeight_*G_SCALE - 2*G_SCALE, WINDOW_WIDTH*G_SCALE, 2*G_SCALE);
+    footerTopStrip_->setGeometry(0, locationsTabHeight_*G_SCALE - 2*G_SCALE, WINDOW_WIDTH*G_SCALE, 2*G_SCALE);
     emit heightChanged();
 }
 
@@ -71,7 +70,7 @@ void LocationsWindow::handleKeyPressEvent(QKeyEvent *event)
 void LocationsWindow::updateLocationsTabGeometry()
 {
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
-    footer_->setGeometry(0, locationsTabHeight_*G_SCALE - 2*G_SCALE, WINDOW_WIDTH*G_SCALE, 2*G_SCALE);
+    footerTopStrip_->setGeometry(0, locationsTabHeight_*G_SCALE - 2*G_SCALE, WINDOW_WIDTH*G_SCALE, 2*G_SCALE);
 
     locationsTab_->updateLocationWidgetsGeometry(locationsTab_->unscaledHeightOfItemViewport());
     locationsTab_->updateIconRectsAndLine();
@@ -115,23 +114,26 @@ void LocationsWindow::paintEvent(QPaintEvent *event)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
 
-    // qDebug() << "LocatiosWindow::paintEvent - geo: " << geometry();
+    // qDebug() << "LocationsWindow::paintEvent - geo: " << geometry();
 
-    // draw footer background
+    // footer background
+    QColor footerColor = FontManager::instance().getLocationsFooterColor();
 #ifdef Q_OS_MAC
-        p.setPen(footerColor_);
-        p.setBrush(footerColor_); // TODO: re-label some of these magic values
-        p.drawRoundedRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE - GuiLocations::LocationsTab::COVER_LAST_ITEM_LINE * G_SCALE,
-                                width(), (FOOTER_HEIGHT + 2) * G_SCALE), 8, 8);
-        p.fillRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE - GuiLocations::LocationsTab::COVER_LAST_ITEM_LINE * G_SCALE,
-                         width(), (FOOTER_HEIGHT) * G_SCALE / 2), QBrush(footerColor_));
+        p.setPen(footerColor);
+        p.setBrush(footerColor);
+        // draw rounded corners on mac
+        p.drawRoundedRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE,
+                                width(), FOOTER_HEIGHT * G_SCALE), 8, 8);
+        // roundedRect leaves gap between bottom of list and footer at corners -- cover it
+        p.fillRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE,
+                         width(), (FOOTER_HEIGHT) * G_SCALE / 2), QBrush(footerColor));
 #else
-        p.fillRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE, width(), (FOOTER_HEIGHT - 2) * G_SCALE), QBrush(footerColor_));
+        p.fillRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE, width(), FOOTER_HEIGHT * G_SCALE), QBrush(footerColor));
 #endif
 
-    // draw footer handle
+    // footer handle
     QRect middle(width() / 2 - 12* G_SCALE,
-                 height() - FOOTER_HEIGHT * G_SCALE / 2 - GuiLocations::LocationsTab::COVER_LAST_ITEM_LINE * G_SCALE,
+                 height() - (FOOTER_HEIGHT_FULL+2) * G_SCALE / 2,
                  24 * G_SCALE, 3 * G_SCALE);
     p.setOpacity(0.5);
     p.fillRect(QRect(middle.left(), middle.top(), middle.width(), 2 * G_SCALE), QBrush(Qt::white));
@@ -179,7 +181,7 @@ void LocationsWindow::mouseMoveEvent(QMouseEvent *event)
     }
     else
     {
-        QRect middle = getResizeMiddleRect();
+        QRect middle = getResizeHandleClickableRect();
         if (middle.contains(event->pos()))
         {
             setCursor(Qt::SizeVerCursor);
@@ -194,7 +196,7 @@ void LocationsWindow::mouseMoveEvent(QMouseEvent *event)
 
 void LocationsWindow::mousePressEvent(QMouseEvent *event)
 {
-    QRect middle = getResizeMiddleRect();
+    QRect middle = getResizeHandleClickableRect();
     if (middle.contains(event->pos()))
     {
         bDragPressed_ = true;
@@ -216,10 +218,9 @@ void LocationsWindow::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-QRect LocationsWindow::getResizeMiddleRect()
+QRect LocationsWindow::getResizeHandleClickableRect()
 {
     return QRect(width() / 2 - 14*G_SCALE,
-                 height() - FOOTER_HEIGHT*G_SCALE / 2 - 4*G_SCALE,
-                 28*G_SCALE,
-                 8*G_SCALE);
+                 height() - FOOTER_HEIGHT_FULL*G_SCALE / 2 - 2*G_SCALE,
+                 28*G_SCALE, 8*G_SCALE);
 }

@@ -5,7 +5,6 @@
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
-#include "widgetlocationssizes.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "tooltips/tooltipcontroller.h"
 #include "commongraphics/commongraphics.h"
@@ -233,7 +232,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     double initOpacity = painter.opacity();
     painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE),
-                      WidgetLocationsSizes::instance().getBackgroundColor());
+                      FontManager::instance().getMidnightColor());
 
     if (cityModelItem_.id.isStaticIpsLocation())
     {
