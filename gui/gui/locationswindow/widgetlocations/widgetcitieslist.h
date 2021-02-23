@@ -56,6 +56,8 @@ private:
 
     void recalcItemPositions();
     void updateCursorWithWidget(IItemWidget *widget);
+    void safeEmitLocationIdSelected(IItemWidget *widget);
+
 };
 
 } // namespace

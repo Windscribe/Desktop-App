@@ -68,6 +68,11 @@ bool ItemWidgetHeader::isDisabled() const
     return false;
 }
 
+bool ItemWidgetHeader::isBrokenConfig() const
+{
+    return false;
+}
+
 const QString ItemWidgetHeader::name() const
 {
     return textForLayout_;

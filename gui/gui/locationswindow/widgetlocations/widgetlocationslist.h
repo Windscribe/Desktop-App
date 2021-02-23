@@ -49,6 +49,7 @@ public:
     IItemWidget *lastAccentedItemWidget();
     IItemWidget *selectableWidget(LocationID locationId);
     ItemWidgetRegion *regionWidget(LocationID locationId);
+    IItemWidget *itemWidget(LocationID locationId);
 
 signals:
     void heightChanged(int height);
@@ -79,6 +80,7 @@ private:
     void recalcItemPositions();
     void updateCursorWithSelectableWidget(IItemWidget *widget);
 
+    void safeEmitLocationIdSelected(IItemWidget *widget);
 };
 
 }

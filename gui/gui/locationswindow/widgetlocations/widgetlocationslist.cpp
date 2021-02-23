@@ -100,7 +100,7 @@ void WidgetLocationsList::selectWidgetContainingGlobalPt(const QPoint &pt)
         {
             //qDebug() << "Selecting: " << selectableWidget->name();
             selectableWidget->setAccented(true);
-            emit locationIdSelected(selectableWidget->getId());
+            safeEmitLocationIdSelected(selectableWidget);
             break;
         }
     }
@@ -331,6 +331,18 @@ ItemWidgetRegion *WidgetLocationsList::regionWidget(LocationID locationId)
     return nullptr;
 }
 
+IItemWidget *WidgetLocationsList::itemWidget(LocationID locationId)
+{
+    foreach (ItemWidgetCity *w, cityWidgets())
+    {
+        if (w->getId() == locationId)
+        {
+            return w;
+        }
+    }
+    return nullptr;
+}
+
 QVector<ItemWidgetCity *> WidgetLocationsList::cityWidgets()
 {
     QVector<ItemWidgetCity *> cityWidgets;
@@ -353,13 +365,25 @@ QVector<IItemWidget *> WidgetLocationsList::selectableWidgets()
 
 void WidgetLocationsList::updateCursorWithSelectableWidget(IItemWidget *widget)
 {
-    if (widget->isForbidden() || widget->isDisabled())
+    if (widget->isForbidden() ||
+        widget->isDisabled()  ||
+        widget->isBrokenConfig())
     {
         cursorUpdateHelper_->setForbiddenCursor();
     }
     else
     {
         cursorUpdateHelper_->setPointingHandCursor();
+    }
+}
+
+void WidgetLocationsList::safeEmitLocationIdSelected(IItemWidget *widget)
+{
+    if (!widget->isForbidden() &&
+        !widget->isDisabled()  &&
+        !widget->isBrokenConfig())
+    {
+        emit locationIdSelected(widget->getId());
     }
 }
 
@@ -383,7 +407,7 @@ void WidgetLocationsList::onLocationItemCityClicked(ItemWidgetCity *cityWidget)
     // block false-clicks that come after gesture scroll
     if (widgetLocationsInfo_->gestureScrollingElapsedTime() > 100)
     {
-        emit locationIdSelected(cityWidget->getId());
+        safeEmitLocationIdSelected(cityWidget);
     }
 }
 
@@ -395,7 +419,14 @@ void WidgetLocationsList::onLocationItemRegionClicked(ItemWidgetRegion *regionWi
     {
         if (regionWidget->getId().isBestLocation())
         {
-            emit locationIdSelected(regionWidget->getId());
+            LocationID locId = regionWidget->getId();
+            IItemWidget *w = itemWidget(locId);
+            if (!w)
+            {
+                qCDebug(LOG_BASIC) << "Couldn't find best location widget in locations list: " << locId.id(); // shouldn't happen
+                return;
+            }
+            safeEmitLocationIdSelected(w);
         }
         else
         {

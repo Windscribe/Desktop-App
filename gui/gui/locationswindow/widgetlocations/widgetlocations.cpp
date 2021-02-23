@@ -422,7 +422,9 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
         {
             if (lastSelWidget)
             {
-                if(!lastSelWidget->isForbidden() && !lastSelWidget->isDisabled())
+                if(!lastSelWidget->isForbidden() &&
+                   !lastSelWidget->isDisabled()  &&
+                   !lastSelWidget->isBrokenConfig())
                 {
                     emit selected(widgetLocationsList_->lastAccentedLocationId());
                 }

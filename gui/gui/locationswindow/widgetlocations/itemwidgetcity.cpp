@@ -57,6 +57,7 @@ ItemWidgetCity::~ItemWidgetCity()
     // qDebug() << "Deleting city: " << name();
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
 }
 
 bool ItemWidgetCity::isExpanded() const
@@ -93,6 +94,11 @@ bool ItemWidgetCity::isForbidden() const
 bool ItemWidgetCity::isDisabled() const
 {
     return cityModelItem_.isDisabled;
+}
+
+bool ItemWidgetCity::isBrokenConfig() const
+{
+    return cityModelItem_.id.isCustomConfigsLocation() && !cityModelItem_.isCustomConfigCorrect;
 }
 
 void ItemWidgetCity::setFavourited(bool favorited)
@@ -323,6 +329,13 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
                        &painter);
         }
     }
+    else if (isBrokenConfig())
+    {
+        painter.save();
+        IndependentPixmap *pingIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/ERROR_ICON");
+        pingIcon->draw(pingIconLightWidget_->rect().x(), pingIconLightWidget_->rect().y(), &painter);
+        painter.restore();
+    }
     else if (!showingLatencyAsPingBar_)
     {
         // draw bubble
@@ -383,6 +396,7 @@ void ItemWidgetCity::leaveEvent(QEvent *event)
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
     QWidget::leaveEvent(event);
 }
 
@@ -404,7 +418,7 @@ void ItemWidgetCity::mouseMoveEvent(QMouseEvent *event)
         cityLightWidget_->setHovering(false);
     }
 
-    if (showingLatencyAsPingBar_)
+    if (showingLatencyAsPingBar_ || isBrokenConfig())
     {
         if (pingIconLightWidget_->rect().contains(event->pos()))
         {
@@ -461,7 +475,21 @@ void ItemWidgetCity::onPingIconLightWidgetHoveringChanged(bool hovering)
 {
     if (hovering)
     {
-        if (showingLatencyAsPingBar_)
+        if (isBrokenConfig())
+        {
+            QString text = cityModelItem_.customConfigErrorMessage;
+            if (text.isEmpty()) text = tr("Unknown Config Error");
+
+            QPoint pt = mapToGlobal(QPoint(pingIconLightWidget_->rect().center().x(), pingIconLightWidget_->rect().top() - 3*G_SCALE));
+            TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
+            ti.x = pt.x();
+            ti.y = pt.y();
+            ti.title = text;
+            ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+            ti.tailPosPercent = 0.8;
+            TooltipController::instance().showTooltipBasic(ti);
+        }
+        else if (showingLatencyAsPingBar_)
         {
             QPoint pt = mapToGlobal(QPoint(pingIconLightWidget_->rect().center().x(), pingIconLightWidget_->rect().top() - 3*G_SCALE));
             TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
@@ -476,6 +504,7 @@ void ItemWidgetCity::onPingIconLightWidgetHoveringChanged(bool hovering)
     else
     {
         TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
     }
 }
 

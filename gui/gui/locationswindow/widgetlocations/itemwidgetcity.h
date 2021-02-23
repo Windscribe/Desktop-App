@@ -28,6 +28,7 @@ public:
 
     bool isForbidden() const override;
     bool isDisabled() const override;
+    bool isBrokenConfig() const override;
 
     void setFavourited(bool favorited);
     void setSelectable(bool selectable) override;

@@ -206,7 +206,7 @@ void ItemWidgetRegion::onCityItemClicked()
 {
     ItemWidgetCity *cityWidget = static_cast<ItemWidgetCity*>(sender());
 
-    if (cityWidget->isForbidden() || cityWidget->isDisabled())
+    if (cityWidget->isForbidden() || cityWidget->isDisabled() || cityWidget->isBrokenConfig())
     {
         return;
     }

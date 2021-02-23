@@ -404,7 +404,9 @@ void WidgetCities::handleKeyEvent(QKeyEvent *event)
 
         if (lastSelWidget)
         {
-            if(!lastSelWidget->isForbidden() && !lastSelWidget->isDisabled())
+            if(!lastSelWidget->isForbidden() &&
+               !lastSelWidget->isDisabled()  &&
+               !lastSelWidget->isBrokenConfig())
             {
                 emit selected(widgetCitiesList_->lastAccentedLocationId());
             }
