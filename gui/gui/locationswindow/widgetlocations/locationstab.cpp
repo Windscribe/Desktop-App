@@ -171,7 +171,7 @@ void LocationsTab::setOnlyConfigTabVisible(bool onlyConfig)
 
 void LocationsTab::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     if (isWhiteAnimationActive())
     {
@@ -394,6 +394,7 @@ void LocationsTab::onClickAllLocations()
     widgetSearchLocations_->hide();
     widgetAllLocations_->show();
     widgetAllLocations_->raise();
+    updateRibbonVisibility();
 }
 
 void LocationsTab::onClickConfiguredLocations()
@@ -429,6 +430,7 @@ void LocationsTab::onClickFavoriteLocations()
     widgetSearchLocations_->hide();
     widgetFavoriteLocations_->show();
     widgetFavoriteLocations_->raise();
+    updateRibbonVisibility();
 }
 
 void LocationsTab::onClickSearchLocations()
@@ -440,6 +442,7 @@ void LocationsTab::onClickSearchLocations()
     widgetAllLocations_->hide();
     widgetSearchLocations_->show();
     widgetSearchLocations_->raise();
+    updateRibbonVisibility();
 }
 
 void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum locationTab)

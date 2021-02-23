@@ -725,6 +725,7 @@ void WidgetLocations::animatedScrollDownByKeyPress(int itemCount)
     {
         updateScrollBarWithView();
         animationScollTarget_ -= scrollBy;
+        if (animationScollTarget_ < -scrollBar_->maximum()) animationScollTarget_ = -scrollBar_->maximum(); // prevent scrolling too far during key press animation
     }
     else
     {
@@ -742,6 +743,7 @@ void WidgetLocations::animatedScrollUpByKeyPress(int itemCount)
     {
         updateScrollBarWithView();
         animationScollTarget_ += scrollBy;
+        if (animationScollTarget_ > 0) animationScollTarget_ = 0; // prevent scrolling too far during key press animation
     }
     else
     {

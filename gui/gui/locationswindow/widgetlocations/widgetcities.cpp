@@ -656,6 +656,7 @@ void WidgetCities::animatedScrollDown(int itemCount)
     {
         updateScrollBarWithView();
         animationScollTarget_ -= scrollBy;
+        if (animationScollTarget_ < -scrollBar_->maximum()) animationScollTarget_ = -scrollBar_->maximum(); // prevent scrolling too far during key press animation
     }
     else
     {
@@ -672,6 +673,7 @@ void WidgetCities::animatedScrollUp(int itemCount)
     {
         updateScrollBarWithView();
         animationScollTarget_ += scrollBy;
+        if (animationScollTarget_ > 0) animationScollTarget_ = 0; // prevent scrolling too far during key press animation
     }
     else
     {
