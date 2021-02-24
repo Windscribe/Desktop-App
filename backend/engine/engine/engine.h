@@ -114,6 +114,7 @@ public:
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
 
+    void updateWindowInfo(qint32 windowCenterX, qint32 windowCenterY);
     void updateVersion(qint32 windowHandle);
     void stopUpdateVersion();
 
@@ -258,10 +259,12 @@ private slots:
 
     void detectAppropriatePacketSizeImpl();
 
+    void updateWindowInfoImpl(qint32 windowCenterX, qint32 windowCenterY);
     void updateVersionImpl(qint32 windowHandle);
     void stopUpdateVersionImpl();
     void onDownloadHelperProgressChanged(uint progressPercent);
     void onDownloadHelperFinished(const DownloadHelper::DownloadState &state);
+    void updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY);
 
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
@@ -378,6 +381,7 @@ private:
 
     uint lastDownloadProgress_;
     QString installerUrl_;
+    QString installerPath_;
     qint32 guiWindowHandle_;
 };
 

@@ -493,6 +493,12 @@ void Engine::setSplitTunnelingSettings(bool isActive, bool isExclude, const QStr
                               Q_ARG(QStringList, ips), Q_ARG(QStringList, hosts));
 }
 
+void Engine::updateWindowInfo(qint32 windowCenterX, qint32 windowCenterY)
+{
+    QMetaObject::invokeMethod(this, "updateWindowInfoImpl",
+                              Q_ARG(qint32, windowCenterX), Q_ARG(qint32, windowCenterY));
+}
+
 void Engine::updateVersion(qint32 windowHandle)
 {
     QMetaObject::invokeMethod(this, "updateVersionImpl", Q_ARG(qint32, windowHandle));
@@ -1911,9 +1917,19 @@ void Engine::detectAppropriatePacketSizeImpl()
     }
 }
 
+void Engine::updateWindowInfoImpl(qint32 windowCenterX, qint32 windowCenterY)
+{
+    if (installerPath_ != "" && lastDownloadProgress_ == 100)
+    {
+        lastDownloadProgress_ = 0;
+        updateRunInstaller(windowCenterX, windowCenterY);
+    }
+}
+
 void Engine::updateVersionImpl(qint32 windowHandle)
 {
     guiWindowHandle_ = windowHandle;
+
     if (installerUrl_ != "")
     {
         downloadHelper_->get(installerUrl_);
@@ -1930,34 +1946,59 @@ void Engine::onDownloadHelperProgressChanged(uint progressPercent)
     if (lastDownloadProgress_ != progressPercent)
     {
         lastDownloadProgress_ = progressPercent;
-        emit updateVersionChanged(progressPercent, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+        emit updateVersionChanged(progressPercent, ProtoTypes::UPDATE_VERSION_STATE_DOWNLOADING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
     }
 }
 
 void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state)
 {
-    const QString dlPath = downloadHelper_->downloadPath();
+    lastDownloadProgress_ = 100;
+    installerPath_ = downloadHelper_->downloadPath();
 
     if (state != DownloadHelper::DOWNLOAD_STATE_SUCCESS)
     {
         qCDebug(LOG_DOWNLOADER) << "Removing incomplete installer";
-        QFile::remove(dlPath);
+        QFile::remove(installerPath_);
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
         return;
     }
-    qCDebug(LOG_DOWNLOADER) << "Successful download to: " << dlPath;
+    qCDebug(LOG_DOWNLOADER) << "Successful download to: " << installerPath_;
 
 #ifdef Q_OS_WIN
 
-    if (!ExecutableSignature::verify(dlPath))
+    if (!ExecutableSignature::verify(installerPath_))
     {
         qCDebug(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer";
-        QFile::remove(dlPath);
+        QFile::remove(installerPath_);
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;
     }
+    qCDebug(LOG_AUTO_UPDATER) << "Installer signature valid";
+#elif defined Q_OS_MAC
 
-    std::wstring installerPath = dlPath.toStdWString();
+    const QString tempInstallerFilename = autoUpdaterHelper_->copyInternalInstallerToTempFromDmg(installerPath_);
+    QFile::remove(installerPath_);
+
+    if (tempInstallerFilename == "")
+    {
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
+        return;
+    }
+    installerPath_ = tempInstallerFilename;
+#endif
+
+    emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+}
+
+void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
+{
+#ifdef Q_OS_WIN
+    std::wstring installerPath = installerPath_.toStdWString();
+
+    QString installerArgString{ "-update" };
+    if (windowCenterX != -1 && windowCenterY != -1)
+        installerArgString.append(QString(" -center %1 %2").arg(windowCenterX).arg(windowCenterY));
+    std::wstring installerArgs = installerArgString.toStdWString();
 
     SHELLEXECUTEINFO shExInfo;
     memset(&shExInfo, 0, sizeof(shExInfo));
@@ -1965,7 +2006,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     shExInfo.fMask = SEE_MASK_DEFAULT;
     shExInfo.lpVerb = L"runas";                // Operation to perform
     shExInfo.lpFile = installerPath.c_str();       // Application to start
-    shExInfo.lpParameters = L"-update";                  // Additional parameters
+    shExInfo.lpParameters = installerArgs.c_str();  // Additional parameters
     shExInfo.nShow = SW_SHOW;
     if (guiWindowHandle_ != 0)
     {
@@ -1976,34 +2017,26 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     {
         DWORD lastError = GetLastError();
         qCDebug(LOG_AUTO_UPDATER) << "Can't start installer: errorCode = " << lastError;
-        QFile::remove(dlPath);
+        QFile::remove(installerPath_);
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
         return;
     }
 
-    qCDebug(LOG_AUTO_UPDATER) << "Installer signature valid";
-
 #elif defined Q_OS_MAC
+    QString additionalArgs;
+    if (windowCenterX != -1 && windowCenterY != -1)
+        additionalArgs.append(QString("-center %1 %2").arg(windowCenterX).arg(windowCenterY));
 
-    const QString tempInstallerFilename = autoUpdaterHelper_->copyInternalInstallerToTempFromDmg(dlPath);
-    QFile::remove(dlPath);
-
-    if (tempInstallerFilename == "")
-    {
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
-        return;
-    }
-
-    bool verifiedAndRan = autoUpdaterHelper_->verifyAndRun(tempInstallerFilename);
+    bool verifiedAndRan = autoUpdaterHelper_->verifyAndRun(installerPath_, additionalArgs);
     if (!verifiedAndRan)
     {
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
-
-    qCDebug(LOG_AUTO_UPDATER) << "Installer valid and executed";
 #endif
 
+    qCDebug(LOG_AUTO_UPDATER) << "Installer valid and executed";
+    installerPath_.clear();
 
     emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
 }
