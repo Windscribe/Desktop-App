@@ -24,6 +24,7 @@ const int LOGIN_BUTTON_POS_Y                 = 232;
 const double OPACITY_HIDDEN                  = 0.0;
 const double OPACITY_THIRD                   = 0.3;
 const double OPACITY_HALF                    = 0.5;
+const double OPACITY_TWO_THIRDS              = 0.66;
 const double OPACITY_FULL                    = 1.0;
 
 const double OPACITY_UNHOVER_DIVIDER         = 0.1;

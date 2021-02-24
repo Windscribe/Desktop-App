@@ -2,20 +2,22 @@
 
 #include <QPainter>
 #include <QGraphicsSceneEvent>
+#include <QCursor>
 #include "commongraphics/commongraphics.h"
-
 #include "dpiscalemanager.h"
+#include "graphicresources/fontmanager.h"
+
+// #include <QDebug>
 
 VerticalScrollBar::VerticalScrollBar(int height, double barPortion, ScalableGraphicsObject *parent)
     : ScalableGraphicsObject(parent),
       height_(height),
-      drawWidth_(SCROLL_WIDTH / 2),
-      drawWidthPosY_(static_cast<int>(SCROLL_WIDTH * 0.5 - drawWidth_ * 0.5)),
       curBarPosY_(0),
       curBarHeight_(static_cast<int>(height * barPortion)),
       mouseHold_(false),
       mouseOnClickY_(0)
 {
+    setAcceptHoverEvents(true);
     connect(&barPosYAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onBarPosYChanged(QVariant)));
 }
 
@@ -26,26 +28,22 @@ QRectF VerticalScrollBar::boundingRect() const
 
 void VerticalScrollBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
     qreal initOpacity = painter->opacity();
-
     painter->setRenderHint(QPainter::Antialiasing, true);
 
     // draw background line
     painter->setPen(Qt::white);
-    painter->setOpacity(OPACITY_UNHOVER_ICON_TEXT * initOpacity);
-    QRectF rect(drawWidthPosY_*G_SCALE, 1*G_SCALE, drawWidth_*G_SCALE, height_);
-    painter->drawRoundedRect(rect, 5*G_SCALE, 5*G_SCALE);
-
-    // Foreground lin
-    painter->setPen(Qt::white);
-    painter->setBrush(Qt::white);
     painter->setOpacity(OPACITY_FULL * initOpacity);
-    QRectF rect2(drawWidthPosY_*G_SCALE, curBarPosY_+1*G_SCALE, drawWidth_*G_SCALE, curBarHeight_);
-    painter->drawRoundedRect(rect2, 5*G_SCALE, 5*G_SCALE);
+    QRectF bgRect(0*G_SCALE, 1*G_SCALE, visibleWidth(), height_);
+    painter->fillRect(bgRect, FontManager::instance().getScrollBarBackgroundColor());
 
+    // Foreground handle
+    painter->setOpacity(OPACITY_FULL * initOpacity);
+    QRectF fgRect(0*G_SCALE, curBarPosY_+1*G_SCALE, visibleWidth(), curBarHeight_);
+    painter->fillRect(fgRect, Qt::white);
 }
 
 void VerticalScrollBar::setHeight(int height, double barPortion)
@@ -66,6 +64,11 @@ void VerticalScrollBar::moveBarToPercentPos(double posPercentY)
 
     curBarPosY_ = newPos;
     update();
+}
+
+int VerticalScrollBar::visibleWidth()
+{
+    return static_cast<int>(static_cast<double>(SCROLL_WIDTH)/2 * G_SCALE);
 }
 
 void VerticalScrollBar::onBarPosYChanged(const QVariant &value)
@@ -135,6 +138,20 @@ void VerticalScrollBar::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
         update();
     }
+}
+
+void VerticalScrollBar::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event)
+    setCursor(Qt::PointingHandCursor);
+    emit hoverEnter();
+}
+
+void VerticalScrollBar::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event)
+    setCursor(Qt::ArrowCursor);
+    emit hoverLeave();
 }
 
 bool VerticalScrollBar::inBarRegion( int y)
