@@ -6,7 +6,7 @@
 #include <QStyle>
 #include "graphicresources/fontmanager.h"
 
-#include <QDebug>
+// #include <QDebug>
 
 namespace CommonWidgets {
 
@@ -50,7 +50,7 @@ void CustomMenuLineEdit::changeEvent(QEvent *event)
 
 void CustomMenuLineEdit::keyPressEvent(QKeyEvent *event)
 {
-    qDebug() << "CusomMenuLineEdit::keyPressEvent";
+    // qCDebug(LOG_USER) << "CusomMenuLineEdit::keyPressEvent";
 
     BlockableQLineEdit::keyPressEvent(event);
 }

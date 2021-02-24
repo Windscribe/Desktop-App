@@ -23,7 +23,7 @@ class WidgetLocations : public QScrollArea, public IWidgetLocationsInfo
     Q_OBJECT
 
 public:
-    explicit WidgetLocations(QWidget *parent);
+    explicit WidgetLocations(QWidget *parent, const QString name);
     ~WidgetLocations() override;
 
     void setModel(BasicLocationsModel *locationsModel);
@@ -84,6 +84,7 @@ private slots:
     void onScrollBarStopScroll(bool lastScrollDirectionUp);
 
 private:
+    QString name_;
     WidgetLocationsList *widgetLocationsList_;
     ScrollBar *scrollBar_;
 

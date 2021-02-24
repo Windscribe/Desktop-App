@@ -81,7 +81,7 @@ void ItemWidgetRegion::setExpandedWithoutAnimation(bool expand)
 
 void ItemWidgetRegion::expand()
 {
-    qCDebug(LOG_BASIC) << "Expanding: " << regionHeaderWidget_->name();
+    qCDebug(LOG_LOCATION_LIST) << "Expanding: " << regionHeaderWidget_->name();
     foreach (ItemWidgetCity * city, cities_)
     {
         city->setSelectable(true);
@@ -97,7 +97,7 @@ void ItemWidgetRegion::expand()
 
 void ItemWidgetRegion::collapse()
 {
-    qCDebug(LOG_BASIC) << "Collapsing: " << regionHeaderWidget_->name();
+    qCDebug(LOG_LOCATION_LIST) << "Collapsing: " << regionHeaderWidget_->name();
 
     foreach (ItemWidgetCity *city, cities_)
     {

@@ -421,7 +421,7 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
 
 void MainWindowController::expandLocations()
 {
-    qCDebug(LOG_BASIC) << "MainWindowController::expandLocations";
+    qCDebug(LOG_LOCATION_LIST) << "MainWindowController::expandLocations";
     Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
     Q_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
@@ -455,7 +455,7 @@ void MainWindowController::expandLocations()
 
 void MainWindowController::collapseLocations()
 {
-    qCDebug(LOG_BASIC) << "MainWindowController::collapseLocations";
+    qCDebug(LOG_LOCATION_LIST) << "MainWindowController::collapseLocations";
     Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
     Q_ASSERT(expandLocationsAnimationGroup_ != NULL);
 

@@ -748,7 +748,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
         {
-            qCDebug(LOG_BASIC) << "Collapsing Locations";
+            qCDebug(LOG_USER) << "Collapsing Locations [key]";
             mainWindowController_->collapseLocations();
         }
         else
@@ -762,7 +762,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Space)
         {
-            qCDebug(LOG_BASIC) << "Expanding Locations";
+            qCDebug(LOG_USER) << "Expanding Locations [key]";
             mainWindowController_->expandLocations();
         }
         else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
@@ -930,6 +930,7 @@ void MainWindow::onConnectWindowNetworkButtonClick()
 
 void MainWindow::onConnectWindowLocationsClick()
 {
+    qCDebug(LOG_USER) << "Locations button clicked";
     if (!mainWindowController_->isLocationsExpanded())
     {
         mainWindowController_->expandLocations();

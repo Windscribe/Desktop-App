@@ -35,6 +35,7 @@ public:
     void updateScaling();
 
     void updateLanguage();
+    void showSearchTab();
     void hideSearchTab();
     void hideSearchTabWithoutAnimation();
 

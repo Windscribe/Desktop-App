@@ -419,14 +419,8 @@ void WidgetLocationsList::onLocationItemRegionClicked(ItemWidgetRegion *regionWi
     {
         if (regionWidget->getId().isBestLocation())
         {
-            LocationID locId = regionWidget->getId();
-            IItemWidget *w = itemWidget(locId);
-            if (!w)
-            {
-                qCDebug(LOG_BASIC) << "Couldn't find best location widget in locations list: " << locId.id(); // shouldn't happen
-                return;
-            }
-            safeEmitLocationIdSelected(w);
+            // shouldn't need to verify location is valid since it is best location
+            emit locationIdSelected(regionWidget->getId());
         }
         else
         {

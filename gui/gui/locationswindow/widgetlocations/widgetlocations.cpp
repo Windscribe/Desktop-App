@@ -17,12 +17,13 @@
 #include "utils/utils.h"
 
 
-#include <QDebug>
+// #include <QDebug>
 
 namespace GuiLocations {
 
 
-WidgetLocations::WidgetLocations(QWidget *parent) : QScrollArea(parent)
+WidgetLocations::WidgetLocations(QWidget *parent, const QString name) : QScrollArea(parent)
+  , name_(name)
   , filterString_("")
   , countOfAvailableItemSlots_(7)
   , bIsFreeSession_(false)
@@ -111,14 +112,15 @@ void WidgetLocations::setFilterString(QString text)
 
     if (filterString_.isEmpty())
     {
-        qDebug() << "Filter collapsing all";
+        qCDebug(LOG_LOCATION_LIST) << "Filter collapsing items: " << name_;
         widgetLocationsList_->collapseAllLocationsWithoutAnimation();
     }
     else
     {
-        qDebug() << "Filter expanding all";
+        qCDebug(LOG_LOCATION_LIST) << "Filter expanding items: " << name_;
         widgetLocationsList_->expandAllLocationsWithoutAnimation();
     }
+    qCDebug(LOG_LOCATION_LIST) << "Resetting accent item and list pos: " << name_;
     widgetLocationsList_->accentFirstSelectableItemWithoutAnimation();
     scrollToIndex(0);
 }
@@ -245,7 +247,7 @@ bool WidgetLocations::eventFilter(QObject *object, QEvent *event)
         {
             if (g->state() == Qt::GestureStarted)
             {
-                qDebug() << "Tap Gesture started";
+                qCDebug(LOG_USER) << "Tap Gesture started";
                 bTapGestureStarted_ = true;
             }
             else if (g->state() == Qt::GestureFinished)
@@ -256,24 +258,24 @@ bool WidgetLocations::eventFilter(QObject *object, QEvent *event)
                     bTapGestureStarted_ = false;
                     QPointF ptf = g->position();
                     QPoint pt(ptf.x(), ptf.y());
-                    qDebug() << "Tap Gesture finished, selecting by pt: " << pt;
+                    qCDebug(LOG_USER) << "Tap Gesture finished, selecting by pt: " << pt;
                     widgetLocationsList_->selectWidgetContainingGlobalPt(pt);
                 }
             }
             else if (g->state() == Qt::GestureCanceled)
             {
                 // this will run if scrolling gestures start coming through
-                qDebug() << "Tap Gesture canceled - scrolling";
+                qCDebug(LOG_USER) << "Tap Gesture canceled - scrolling";
                 bTapGestureStarted_ = false;
             }
         }
         QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
         if (gp)
         {
-            qDebug() << "Pan gesture";
+            qCDebug(LOG_USER) << "Pan gesture";
             if (gp->state() == Qt::GestureStarted)
             {
-                qDebug() << "Pan gesture started";
+                qCDebug(LOG_USER) << "Pan gesture started";
                 bTapGestureStarted_ = false;
             }
         }
@@ -384,7 +386,7 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
         }
         else
         {
-            qDebug() << "Accenting first";
+            qCDebug(LOG_LOCATION_LIST) << "Accenting first";
             widgetLocationsList_->accentFirstSelectableItem();
         }
     }
@@ -489,12 +491,13 @@ void WidgetLocations::mouseDoubleClickEvent(QMouseEvent *event)
 
 void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
 {
+    qCDebug(LOG_LOCATION_LIST) << "Items updated: " << name_;
     updateWidgetList(items);
 }
 
 void WidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
-    // qDebug() << "Search widget speed change";
+    // qCDebug(LOG_LOCATION_LIST) << "Search widget speed change";
     foreach (ItemWidgetCity *w, widgetLocationsList_->cityWidgets())
     {
         if (w->getId() == id)
@@ -629,12 +632,14 @@ void WidgetLocations::onScrollBarStopScroll(bool lastScrollDirectionUp)
 
 void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 {
+    qCDebug(LOG_LOCATION_LIST) << name_ << " updating locations widget list";
+
     // storing previous location widget state
     QVector<LocationID> expandedLocationIds = widgetLocationsList_->expandedOrExpandingLocationIds();
     LocationID topSelectableLocationIdInViewport = topViewportSelectableLocationId();
     LocationID lastAccentedLocationId = widgetLocationsList_->lastAccentedLocationId();
 
-    qCDebug(LOG_BASIC) << "Updating locations widget list";
+    qCDebug(LOG_LOCATION_LIST) << name_ << " caching previous display state ";
     widgetLocationsList_->clearWidgets();
     for (LocationModelItem *item: qAsConst(items))
     {
@@ -660,7 +665,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
             }
         }
     }
-    qCDebug(LOG_BASIC) << "Restoring location widgets state";
+    qCDebug(LOG_LOCATION_LIST) << name_ << " restoring display state";
 
     // restoring previous widget state
     widgetLocationsList_->expandLocationIds(expandedLocationIds);
@@ -670,7 +675,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
         scrollDown(indexInNewList);
     }
     widgetLocationsList_->accentItemWithoutAnimation(lastAccentedLocationId);
-    qCDebug(LOG_BASIC) << "Done updating location widgets";
+    qCDebug(LOG_LOCATION_LIST) << name_ << " done updating locations widget list";
 }
 
 void WidgetLocations::scrollToIndex(int index)

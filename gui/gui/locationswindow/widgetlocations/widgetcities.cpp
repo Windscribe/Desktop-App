@@ -23,7 +23,8 @@
 
 namespace GuiLocations {
 
-WidgetCities::WidgetCities(QWidget *parent, int visible_item_slots) : QScrollArea(parent)
+WidgetCities::WidgetCities(QWidget *parent, const QString name, int visible_item_slots) : QScrollArea(parent)
+  , name_(name)
   , citiesModel_(NULL)
   , countOfAvailableItemSlots_(visible_item_slots)
   , bIsFreeSession_(false)
@@ -230,13 +231,13 @@ bool WidgetCities::eventFilter(QObject *object, QEvent *event)
     if (object == viewport() && event->type() == QEvent::Gesture)
     {
         QGestureEvent *ge = static_cast<QGestureEvent *>(event);
-        qDebug() << "Event filter - Some Gesture: " << ge->gestures();
+        qCDebug(LOG_USER) << "Event filter - Some Gesture: " << ge->gestures();
         QTapGesture *g = static_cast<QTapGesture *>(ge->gesture(Qt::TapGesture));
         if (g)
         {
             if (g->state() == Qt::GestureStarted)
             {
-                qDebug() << "Tap Gesture started";
+                qCDebug(LOG_USER) << "Tap Gesture started";
                 bTapGestureStarted_ = true;
             }
             else if (g->state() == Qt::GestureFinished)
@@ -247,23 +248,23 @@ bool WidgetCities::eventFilter(QObject *object, QEvent *event)
                     bTapGestureStarted_ = false;
                     QPointF ptf = g->position();
                     QPoint pt(ptf.x(), ptf.y());
-                    qDebug() << "Tap Gesture finished, selecting by pt: " << pt;
+                    qCDebug(LOG_USER) << "Tap Gesture finished, selecting by pt: " << pt;
                     widgetCitiesList_->selectWidgetContainingGlobalPt(pt);
                 }
             }
             else if (g->state() == Qt::GestureCanceled)
             {
-                qDebug() << "Tap Gesture canceled - scrolling";
+                qCDebug(LOG_USER) << "Tap Gesture canceled - scrolling";
                 bTapGestureStarted_ = false;
             }
         }
         QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
         if (gp)
         {
-            qDebug() << "Pan gesture";
+            qCDebug(LOG_USER) << "Pan gesture";
             if (gp->state() == Qt::GestureStarted)
             {
-                qDebug() << "Pan gesture started";
+                qCDebug(LOG_USER) << "Pan gesture started";
                 bTapGestureStarted_ = false;
             }
         }
@@ -503,6 +504,7 @@ void WidgetCities::mouseDoubleClickEvent(QMouseEvent *event)
 
 void WidgetCities::onItemsUpdated(QVector<CityModelItem *> items)
 {
+    qCDebug(LOG_LOCATION_LIST) << "Items updated: " << name_;
     updateWidgetList(items);
 }
 
@@ -612,10 +614,11 @@ void WidgetCities::updateEmptyListButton()
 
 void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
 {
+    qCDebug(LOG_LOCATION_LIST) << name_ << " updating city widget list";
     LocationID topSelectableLocationIdInViewport = topViewportSelectableLocationId();
     LocationID lastAccentedLocationId = widgetCitiesList_->lastAccentedLocationId();
 
-    qCDebug(LOG_BASIC) << "Updating locations-city widget list";
+    qCDebug(LOG_LOCATION_LIST) << name_ << " caching previous display state";
     widgetCitiesList_->clearWidgets();
     foreach (CityModelItem *item, items)
     {
@@ -623,7 +626,7 @@ void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
         widgetCitiesList_->addCity(itemRef);
     }
 
-    qCDebug(LOG_BASIC) << "Restoring locations-city widgets state";
+    qCDebug(LOG_LOCATION_LIST) << name_ << " restoring display state";
 
     // restoring previous widget state
     int indexInNewList = widgetCitiesList_->selectableIndex(topSelectableLocationIdInViewport);
@@ -632,8 +635,7 @@ void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
         scrollDown(indexInNewList);
     }
     widgetCitiesList_->accentItem(lastAccentedLocationId);
-    qCDebug(LOG_BASIC) << "Done updating locations-city widget list";
-
+    qCDebug(LOG_LOCATION_LIST) << name_ << " done updating city widget list";
 }
 
 void WidgetCities::scrollToIndex(int index)

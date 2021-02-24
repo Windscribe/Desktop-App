@@ -9,8 +9,9 @@
 #include "tooltips/tooltiptypes.h"
 #include "utils/writeaccessrightschecker.h"
 #include "tooltips/tooltipcontroller.h"
+#include "utils/logger.h"
 
-#include <QDebug>
+// #include <QDebug>
 
 extern QWidget *g_mainWindow;
 
@@ -67,15 +68,15 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1) * G_SCALE;
     connect(&whiteLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
 
-    widgetAllLocations_ = new GuiLocations::WidgetLocations(this);
+    widgetAllLocations_ = new GuiLocations::WidgetLocations(this, "All");
 
-    widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, 6);
+    widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, "Configs", 6);
     widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
     connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
                                         SLOT(onAddCustomConfigClicked()));
     widgetConfiguredLocations_->hide();
 
-    widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this, 6);
+    widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this, "Static IP", 6);
     widgetStaticIpsLocations_->setEmptyListDisplayIcon("locations/STATIC_IP_ICON_BIG");
     widgetStaticIpsLocations_->setEmptyListDisplayText(tr("You don't have any Static IPs"), 120);
     widgetStaticIpsLocations_->setEmptyListButtonText(tr("Buy"));
@@ -83,7 +84,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
                                        SIGNAL(addStaticIpClicked()));
     widgetStaticIpsLocations_->hide();
 
-    widgetFavoriteLocations_ = new GuiLocations::WidgetCities(this);
+    widgetFavoriteLocations_ = new GuiLocations::WidgetCities(this, "Favourites");
     widgetFavoriteLocations_->setEmptyListDisplayIcon("locations/BROKEN_HEART_ICON");
     widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here..."), 120);
     widgetFavoriteLocations_->hide();
@@ -98,7 +99,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
             SIGNAL(clearCustomConfigClicked()));
     connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SLOT(onAddCustomConfigClicked()));
 
-    widgetSearchLocations_ = new GuiLocations::WidgetLocations(this);
+    widgetSearchLocations_ = new GuiLocations::WidgetLocations(this, "Search");
     widgetSearchLocations_->hide();
 
     updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
@@ -263,30 +264,31 @@ void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
 
     updateTabIconRects();
 
+    qCDebug(LOG_LOCATION_LIST) << "Tab Transition: " << lastTab_ << " -> " << curTab_;
     int endWhiteLinePos;
     if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS)
     {
         endWhiteLinePos = rcConfiguredLocationsIcon_.center().x();
         onClickConfiguredLocations();
-        widgetSearchLocations_->setFilterString("");
+        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS)
     {
         endWhiteLinePos = rcStaticIpsLocationsIcon_.center().x();
         onClickStaticIpsLocations();
-        widgetSearchLocations_->setFilterString("");
+        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS)
     {
         endWhiteLinePos = rcFavoriteLocationsIcon_.center().x();
         onClickFavoriteLocations();
-        widgetSearchLocations_->setFilterString("");
+        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == LOCATION_TAB_ALL_LOCATIONS)
     {
         endWhiteLinePos = rcAllLocationsIcon_.center().x();
         onClickAllLocations();
-        widgetSearchLocations_->setFilterString("");
+        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == LOCATION_TAB_SEARCH_LOCATIONS)
     {
@@ -323,7 +325,7 @@ void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
         if (curTabMouseOver_ != LOCATION_TAB_NONE &&  curTabMouseOver_ != curTab_ && tabPress_ == curTabMouseOver_)
         {
             // Currently this should only handle non-search icons
-            // qDebug() << "LocationsTab::MouseReleaseEvent";
+            qCDebug(LOG_USER) << "Clicked tab: " << curTabMouseOver_;
             changeTab(curTabMouseOver_);
         }
     }
@@ -362,6 +364,7 @@ bool LocationsTab::eventFilter(QObject *object, QEvent *event)
             {
                 if (searchLineEdit_->text() == "")
                 {
+                    qCDebug(LOG_USER) << "Search cancel via [Escape]";
                     hideSearchTab();
                 }
                 else
@@ -455,9 +458,10 @@ void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum loc
         previousSelectedLocId = locWidget->accentedItemLocationId();
     }
 
+    qCDebug(LOG_USER) << "Key press tab selection";
     if (locationTab == LOCATION_TAB_SEARCH_LOCATIONS)
     {
-        onSearchButtonClicked(); // this will handle changeTab(..)
+        showSearchTab(); // this will handle changeTab(..)
     }
     else
     {
@@ -513,40 +517,13 @@ void LocationsTab::onSearchButtonHoverLeave()
 
 void LocationsTab::onSearchButtonClicked()
 {
-    // qDebug() << "Search clicked";
-
-    if (showAllTabs_)
-    {
-        searchButton_->setEnabled(false);
-
-        changeTab(LOCATION_TAB_SEARCH_LOCATIONS);
-
-        searchTabSelected_ = true;
-        update();
-
-        QTimer::singleShot(100, [this]()
-        {
-            searchButtonPosAnimation_.stop();
-            searchButtonPosAnimation_.setDirection(QAbstractAnimation::Backward);
-            searchButtonPosAnimation_.start();
-
-            // delay so cursor and cancel don't appear before search slides over
-            QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION+100, [this](){
-                // check no interruption by hideSearchTab() -- could happen on fast searchClick->close locations tray
-                if (!delayShowIconsTimer_.isActive() && searchTabSelected_)
-                {
-                    searchCancelButton_->show();
-                    searchLineEdit_->show();
-                    searchLineEdit_->setFocus();
-                }
-            });
-        });
-    }
+    qCDebug(LOG_USER) << "Search clicked";
+    showSearchTab();
 }
 
 void LocationsTab::onSearchCancelButtonClicked()
 {
-    // qDebug() << "Search cancel clicked";
+    qCDebug(LOG_USER) << "Search cancel clicked";
     hideSearchTab();
 }
 
@@ -564,12 +541,13 @@ void LocationsTab::onDelayShowIconsTimerTimeout()
 
 void LocationsTab::onSearchTypingDelayTimerTimeout()
 {
-    // qDebug() << "Setting filter with: " << filterText_;
+    qCDebug(LOG_LOCATION_LIST) << "Setting filter with typed: " << filterText_;
     widgetSearchLocations_->setFilterString(filterText_);
 }
 
 void LocationsTab::onSearchLineEditTextChanged(QString text)
 {
+    qCDebug(LOG_USER) << "User changed text in search: " << text;
     filterText_ = text;
     searchTypingDelayTimer_.start();
 }
@@ -850,6 +828,37 @@ void LocationsTab::updateLanguage()
     widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here"));
 }
 
+void LocationsTab::showSearchTab()
+{
+    if (showAllTabs_)
+    {
+        searchButton_->setEnabled(false);
+
+        changeTab(LOCATION_TAB_SEARCH_LOCATIONS);
+
+        searchTabSelected_ = true;
+        update();
+
+        QTimer::singleShot(100, [this]()
+        {
+            searchButtonPosAnimation_.stop();
+            searchButtonPosAnimation_.setDirection(QAbstractAnimation::Backward);
+            searchButtonPosAnimation_.start();
+
+            // delay so cursor and cancel don't appear before search slides over
+            QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION+100, [this](){
+                // check no interruption by hideSearchTab() -- could happen on fast searchClick->close locations tray
+                if (!delayShowIconsTimer_.isActive() && searchTabSelected_)
+                {
+                    searchCancelButton_->show();
+                    searchLineEdit_->show();
+                    searchLineEdit_->setFocus();
+                }
+            });
+        });
+    }
+}
+
 void LocationsTab::hideSearchTab()
 {
     if (searchTabSelected_)
@@ -872,6 +881,7 @@ void LocationsTab::hideSearchTab()
 
 void LocationsTab::hideSearchTabWithoutAnimation()
 {
+    qCDebug(LOG_LOCATION_LIST) << "hide search without animation";
     if (searchTabSelected_)
     {
         searchButtonPosAnimation_.stop();
