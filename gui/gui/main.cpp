@@ -19,6 +19,20 @@
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
 
+#ifdef Q_OS_MAC
+MainWindow *g_MainWindow = NULL;
+    void handler_sigterm(int signum)
+    {
+        Q_UNUSED(signum);
+        qCDebug(LOG_BASIC) << "SIGTERM signal received";
+        if (g_MainWindow)
+        {
+            g_MainWindow->doClose(NULL, true);
+        }
+        exit(0);
+    }
+#endif
+
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_WIN
@@ -28,6 +42,10 @@ int main(int argc, char *argv[])
     {
         return 0;
     }
+#endif
+
+#ifdef Q_OS_MAC
+    signal(SIGTERM, handler_sigterm);
 #endif
 
 
@@ -90,12 +108,18 @@ int main(int argc, char *argv[])
     DpiScaleManager::instance();    // init dpi scale manager
 
     MainWindow w;
+#ifdef Q_OS_MAC
+    g_MainWindow = &w;
+#endif
     w.showAfterLaunch();
 
 #ifdef Q_OS_WIN
     multipleInstances.unlock();
 #endif
     int ret = a.exec();
+#ifdef Q_OS_MAC
+    g_MainWindow = nullptr;
+#endif
     ImageResourcesSvg::instance().finishGracefully();
     return ret;
 }

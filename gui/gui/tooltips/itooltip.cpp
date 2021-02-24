@@ -1,5 +1,5 @@
 #include "itooltip.h"
-
+#include <QPainterPath>
 #include "dpiscalemanager.h"
 
 int ITooltip::getWidth() const

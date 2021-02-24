@@ -1,6 +1,7 @@
 #include "tooltipbasic.h"
 
 #include <QPainter>
+#include <QPainterPath>
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"

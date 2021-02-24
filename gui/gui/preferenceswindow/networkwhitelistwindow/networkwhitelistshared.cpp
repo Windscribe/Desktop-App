@@ -1,4 +1,5 @@
 #include "networkwhitelistshared.h"
+#include <QObject>
 
 #include "../backend/persistentstate.h"
 

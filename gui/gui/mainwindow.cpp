@@ -479,7 +479,14 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 
     if (WindscribeApplication::instance()->isExitWithRestart() || isFromSigTerm_mac)
     {
-        qCDebug(LOG_BASIC) << "close main window with restart OS";
+        if (!isFromSigTerm_mac)
+        {
+            qCDebug(LOG_BASIC) << "close main window with restart OS";
+        }
+        else
+        {
+            qCDebug(LOG_BASIC) << "close main window with SIGTERM";
+        }
         while (!backend_->isAppCanClose())
         {
             QThread::msleep(1);
