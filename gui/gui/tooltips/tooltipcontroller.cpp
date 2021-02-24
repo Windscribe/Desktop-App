@@ -22,12 +22,12 @@ void TooltipController::hideAllTooltips()
         serverRatingsTooltip_->hide();
     }
 
-    foreach (TooltipId type, tooltips_.keys())
+    foreach (TooltipId id, tooltips_.keys())
     {
-        if (tooltips_[type])
+        if (tooltips_.contains(id))
         {
-            tooltips_[type]->setShowState(TOOLTIP_SHOW_STATE_HIDE);
-            tooltips_[type]->hide();
+            tooltips_[id]->setShowState(TOOLTIP_SHOW_STATE_HIDE);
+            tooltips_[id]->hide();
         }
     }
 }
@@ -58,8 +58,11 @@ void TooltipController::showTooltipInteractive(TooltipId id, int x, int y, int d
         if (delay != -1) actualDelay = delay;
 
         QTimer::singleShot(actualDelay, [this](){
-            serverRatingsTooltip_->setShowState(TOOLTIP_SHOW_STATE_SHOW);
-            serverRatingsTooltip_->show();
+            if (serverRatingsTooltip_)
+            {
+                serverRatingsTooltip_->setShowState(TOOLTIP_SHOW_STATE_SHOW);
+                serverRatingsTooltip_->show();
+            }
         });
     }
     else
@@ -73,7 +76,7 @@ void TooltipController::showTooltipBasic(TooltipInfo info)
 {
     TooltipId id = info.id;
     // rebuild each time since setGeometry call (implicit and explicit) doesn't respond well to crossing monitor screens (May be related to QTBUG-63661)
-    if (tooltips_[id])
+    if (tooltips_.contains(id))
     {
         // do not show an already showing tooltip as it will cause a flicker
         if (tooltips_[id]->getShowState() == TOOLTIP_SHOW_STATE_SHOW && tooltips_[id]->toTooltipInfo() == info)
@@ -82,7 +85,7 @@ void TooltipController::showTooltipBasic(TooltipInfo info)
         }
 
         tooltips_[id]->deleteLater();
-        tooltips_[id] = nullptr;
+        tooltips_.remove(id);
     }
 
     tooltips_[id] = new TooltipBasic(info, nullptr);
@@ -106,10 +109,13 @@ void TooltipController::showTooltipBasic(TooltipInfo info)
     if (info.delay != -1) actualDelay = info.delay;
 
     QTimer::singleShot(actualDelay, [this, id](){
-        if (tooltips_[id]->getShowState() != TOOLTIP_SHOW_STATE_HIDE)
+        if (tooltips_.contains(id))
         {
-            tooltips_[id]->setShowState(TOOLTIP_SHOW_STATE_SHOW);
-            tooltips_[id]->show();
+            if (tooltips_[id]->getShowState() != TOOLTIP_SHOW_STATE_HIDE)
+            {
+                tooltips_[id]->setShowState(TOOLTIP_SHOW_STATE_SHOW);
+                tooltips_[id]->show();
+            }
         }
     });
 }
@@ -117,10 +123,10 @@ void TooltipController::showTooltipBasic(TooltipInfo info)
 void TooltipController::showTooltipDescriptive(TooltipInfo info)
 {
     TooltipId id = info.id;
-    if (tooltips_[id])
+    if (tooltips_.contains(id))
     {
         tooltips_[id]->deleteLater();
-        tooltips_[id] = nullptr;
+        tooltips_.remove(id);
     }
 
     tooltips_[id] = new TooltipDescriptive(info, nullptr);
@@ -144,17 +150,21 @@ void TooltipController::showTooltipDescriptive(TooltipInfo info)
     if (info.delay != -1) actualDelay = info.delay;
 
     QTimer::singleShot(actualDelay, [this, id](){
-        if (tooltips_[id]->getShowState() != TOOLTIP_SHOW_STATE_HIDE)
+        if (tooltips_.contains(id))
         {
-            tooltips_[id]->setShowState(TOOLTIP_SHOW_STATE_SHOW);
-            tooltips_[id]->show();
+            if (tooltips_[id]->getShowState() != TOOLTIP_SHOW_STATE_HIDE)
+            {
+                tooltips_[id]->setShowState(TOOLTIP_SHOW_STATE_SHOW);
+                tooltips_[id]->show();
+            }
         }
     });
+
 }
 
-void TooltipController::hideTooltip(TooltipId type)
+void TooltipController::hideTooltip(TooltipId id)
 {
-    if (type == TooltipId::TOOLTIP_ID_SERVER_RATINGS)
+    if (id == TooltipId::TOOLTIP_ID_SERVER_RATINGS)
     {
         // give user time to get mouse on the tooltip
         QTimer::singleShot(TOOLTIP_SHOW_DELAY, [this](){
@@ -175,10 +185,10 @@ void TooltipController::hideTooltip(TooltipId type)
     }
     else
     {
-        if (tooltips_[type])
+        if (tooltips_.contains(id))
         {
-            tooltips_[type]->setShowState(TOOLTIP_SHOW_STATE_HIDE);
-            tooltips_[type]->hide();
+            tooltips_[id]->setShowState(TOOLTIP_SHOW_STATE_HIDE);
+            tooltips_[id]->hide();
         }
     }
 }
