@@ -1,3 +1,6 @@
+2.02.4 (16/02/2021)
+* Autoupdate from older versions of the program (prior 2.02 build 1) fixed.
+
 2.02.3 (16/02/2021)
 * Updated text on external config mode window. #365
 * Removed sensitive info from logs. #366
