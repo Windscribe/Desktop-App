@@ -6,10 +6,10 @@ rm -rf $HOME/"stunnel_temp"
 rm -rf $HOME/"LibsWindscribe/stunnel"
 
 mkdir $HOME/"stunnel_temp"
-curl https://www.stunnel.org/downloads/stunnel-5.57.tar.gz -o $HOME/"stunnel_temp/stunnel-5.57.tar.gz" -k -L
-tar -zxvf $HOME/"stunnel_temp/stunnel-5.57.tar.gz" -C $HOME/"stunnel_temp"
+curl https://www.stunnel.org/downloads/stunnel-5.58.tar.gz -o $HOME/"stunnel_temp/stunnel-5.58.tar.gz" -k -L
+tar -zxvf $HOME/"stunnel_temp/stunnel-5.58.tar.gz" -C $HOME/"stunnel_temp"
 
-pushd $HOME/"stunnel_temp/stunnel-5.57"
+pushd $HOME/"stunnel_temp/stunnel-5.58"
 export CC="cc -mmacosx-version-min=10.11"
 ./configure --prefix=$HOME/"LibsWindscribe/stunnel" --prefix=$HOME/"LibsWindscribe/stunnel" --with-ssl=$HOME/"LibsWindscribe/openssl"
 make
