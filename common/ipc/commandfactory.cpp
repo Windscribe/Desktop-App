@@ -146,6 +146,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCClientCommands::UpdateVersion>(buf,size);
     }
+    else if (strId == IPCClientCommands::UpdateWindowInfo::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCClientCommands::UpdateWindowInfo>(buf, size);
+    }
     // servers commands
     else if (strId == IPCServerCommands::AuthReply::descriptor()->full_name())
     {

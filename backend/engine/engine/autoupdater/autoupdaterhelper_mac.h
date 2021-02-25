@@ -10,7 +10,7 @@ public:
     explicit AutoUpdaterHelper_mac();
 
     const QString copyInternalInstallerToTempFromDmg(const QString &dmgFilename);
-    bool verifyAndRun(const QString &tempInstallerFilename);
+    bool verifyAndRun(const QString &tempInstallerFilename, const QString &additionalArgs);
     ProtoTypes::UpdateVersionError error();
 
 private:

@@ -108,6 +108,7 @@ public:
 
     void abortInitialization();
 
+    void sendUpdateWindowInfo(qint32 mainWindowCenterX, qint32 mainWindowCenterY);
     void sendUpdateVersion(qint32 mainWindowHandle);
     void cancelUpdateVersion();
 

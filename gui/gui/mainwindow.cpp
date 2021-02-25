@@ -2177,11 +2177,19 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         }
         downloadRunning_ = false;
     }
-    else if (state == ProtoTypes::UPDATE_VERSION_STATE_RUNNING)
+    else if (state == ProtoTypes::UPDATE_VERSION_STATE_DOWNLOADING)
     {
         // qDebug() << "Running -- updating progress";
         mainWindowController_->getUpdateAppItem()->setProgress(progressPercent);
         mainWindowController_->getUpdateWindow()->setProgress(progressPercent);
+    }
+    else if (state == ProtoTypes::UPDATE_VERSION_STATE_RUNNING)
+    {
+        // Send main window center coordinates from the GUI, to position the installer properly.
+        const bool is_visible = isVisible() && !isMinimized();
+        const quint32 center_x = is_visible ? (geometry().x() + geometry().width() / 2) : -1;
+        const quint32 center_y = is_visible ? (geometry().y() + geometry().height() / 2) : -1;
+        backend_->sendUpdateWindowInfo(center_x, center_y);
     }
 }
 

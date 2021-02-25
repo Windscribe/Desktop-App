@@ -1096,6 +1096,18 @@ void Backend::sendSplitTunneling(ProtoTypes::SplitTunneling st)
     }
 }
 
+void Backend::sendUpdateWindowInfo(qint32 mainWindowCenterX, qint32 mainWindowCenterY)
+{
+    if (isInitFinished())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::UpdateWindowInfo> cmd;
+        cmd.getProtoObj().set_window_center_x(mainWindowCenterX);
+        cmd.getProtoObj().set_window_center_y(mainWindowCenterY);
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        connection_->sendCommand(cmd);
+    }
+}
+
 void Backend::sendUpdateVersion(qint32 mainWindowHandle)
 {
     if (isInitFinished())

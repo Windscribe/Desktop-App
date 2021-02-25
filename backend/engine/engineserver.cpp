@@ -401,6 +401,11 @@ bool EngineServer::handleCommand(IPC::Command *command)
             engine_->updateVersion(cmd->getProtoObj().hwnd());
         }
     }
+    else if (command->getStringId() == IPCClientCommands::UpdateWindowInfo::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::UpdateWindowInfo> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::UpdateWindowInfo> *>(command);
+        engine_->updateWindowInfo(cmd->getProtoObj().window_center_x(), cmd->getProtoObj().window_center_y());
+    }
 
     return false;
 }

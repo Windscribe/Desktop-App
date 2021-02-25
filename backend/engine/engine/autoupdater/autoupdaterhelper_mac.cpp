@@ -69,7 +69,8 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
     return tempInstallerFilename;
 }
 
-bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename)
+bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
+                                         const QString &additionalArgs)
 {
     if (error_ != ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
     {
@@ -99,6 +100,8 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename)
     QStringList args;
     args << "-q";
     args << appFolder;
+    if (!additionalArgs.isEmpty())
+        args.append(additionalArgs.split(" "));
 
     QProcess process;
     process.setProgram(tempInstallerFilename + "/" + INSTALLER_INNER_BINARY_MAC);
@@ -112,7 +115,7 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename)
         qCDebug(LOG_AUTO_UPDATER) << "Could not start installer process - Removing unsigned installer";
         if (!Utils::removeDirectory(tempInstallerFilename))
         {
-            qCDebug(LOG_AUTO_UPDATER) << "Could not remove unsigned installer";;
+            qCDebug(LOG_AUTO_UPDATER) << "Could not remove unsigned installer";
         }
         error_ = ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL;
         return false;
