@@ -8,11 +8,7 @@
 class RestoreDNSManager_mac
 {
 public:
-    explicit RestoreDNSManager_mac(IHelper *helper);
-    bool restoreState();
-
-private:
-    IHelper *helper_;
+    static bool restoreState(IHelper *helper);
 };
 
 #endif // RESTOREDNSMANAGER_MAC_H

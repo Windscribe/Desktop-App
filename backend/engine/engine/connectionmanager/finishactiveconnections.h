@@ -6,14 +6,19 @@
 class FinishActiveConnections
 {
 public:
-
-    static void finishAllActiveConnections_win(IHelper *helper);
-
+    static void finishAllActiveConnections(IHelper *helper);
 
 private:
+#ifdef Q_OS_WIN
+    static void finishAllActiveConnections_win(IHelper *helper);
     static void finishOpenVpnActiveConnections_win(IHelper *helper);
     static void finishIkev2ActiveConnections_win(IHelper *helper);
     static void finishWireGuardActiveConnections_win(IHelper *helper);
+#else
+    static void finishAllActiveConnections_mac(IHelper *helper);
+    static void finishOpenVpnActiveConnections_mac(IHelper *helper);
+    static void finishWireGuardActiveConnections_mac(IHelper *helper);
+#endif
 };
 
 #endif // FINISHACTIVECONNECTIONS_H

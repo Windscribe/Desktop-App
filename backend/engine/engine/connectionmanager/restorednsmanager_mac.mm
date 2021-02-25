@@ -5,20 +5,15 @@
 #include <QFile>
 #include "engine/tempscripts_mac.h"
 
-RestoreDNSManager_mac::RestoreDNSManager_mac(IHelper *helper) :
-    helper_(helper)
-{
-}
-
-bool RestoreDNSManager_mac::restoreState()
+bool RestoreDNSManager_mac::restoreState(IHelper *helper)
 {
     qCDebug(LOG_BASIC) << "=== RestoreDNSManager::restoreState() ===";
 
     QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
-    QString strAnswer = helper_->executeRootCommand(strDnsPath + " -down");
+    QString strAnswer = helper->executeRootCommand(strDnsPath + " -down");
     qCDebug(LOG_BASIC) << "Output from dns.sh -down: " << strAnswer;
 
-    strAnswer = helper_->executeRootCommand(strDnsPath);
+    strAnswer = helper->executeRootCommand(strDnsPath);
     qCDebug(LOG_BASIC) << "Output from dns.sh: " << strAnswer;
     return true;
 }

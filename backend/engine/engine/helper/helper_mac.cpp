@@ -161,8 +161,9 @@ bool Helper_mac::executeOpenVPN(const QString &configPath, unsigned int portNumb
 
 bool Helper_mac::executeTaskKill(const QString &executableName)
 {
-    Q_UNUSED(executableName);
-    return false;
+    QString killCmd = "pkill " + executableName;
+    executeRootCommand(killCmd);
+    return true;
 }
 
 bool Helper_mac::executeResetTap(const QString &tapName)

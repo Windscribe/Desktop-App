@@ -650,9 +650,9 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         QMutexLocker locker(&mutex_);
         bInitialized_ = true;
 
-#ifdef Q_OS_WIN
-        FinishActiveConnections::finishAllActiveConnections_win(helper_);
-#else
+        FinishActiveConnections::finishAllActiveConnections(helper_);
+
+#ifdef Q_OS_MAC
         QString kextPath = QCoreApplication::applicationDirPath() + "/../Helpers/WindscribeKext.kext";
         kextPath = QDir::cleanPath(kextPath);
         if (helper_->setKextPath(kextPath))
@@ -664,7 +664,6 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
             qCDebug(LOG_BASIC) << "Kext path set failed";
             emit initFinished(ENGINE_INIT_HELPER_FAILED);
         }
-        //todo: Mac finish active connections
 #endif
 
     // turn off split tunneling (for case the state remains from the last launch)

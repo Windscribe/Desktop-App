@@ -44,9 +44,6 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkS
     sleepEvents_(NULL),
     stunnelManager_(NULL),
     wstunnelManager_(NULL),
-#ifdef Q_OS_MAC
-    restoreDnsManager_(helper),
-#endif
     bEmitAuthError_(false),
     makeOVPNFile_(NULL),
     makeOVPNFileFromCustom_(NULL),
@@ -1019,7 +1016,7 @@ void ConnectionManager::doMacRestoreProcedures()
     }
     if (connection_type == ConnectionType::OPENVPN || connection_type == ConnectionType::WIREGUARD)
     {
-        restoreDnsManager_.restoreState();
+        RestoreDNSManager_mac::restoreState(helper_);
     }
 #endif
 }

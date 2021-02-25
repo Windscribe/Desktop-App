@@ -65,8 +65,7 @@ SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
            $$COMMON_PATH/utils/crashdump.cpp \
            $$COMMON_PATH/utils/crashhandler.cpp \
            $$COMMON_PATH/utils/winutils.cpp \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
-           engine/connectionmanager/finishactiveconnections.cpp
+           $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp
 
 
 HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
@@ -96,8 +95,7 @@ HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
            $$COMMON_PATH/utils/crashdump.h \
            $$COMMON_PATH/utils/crashhandler.h \
            $$COMMON_PATH/utils/winutils.h \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
-           engine/connectionmanager/finishactiveconnections.h
+           $$COMMON_PATH/utils/executable_signature/executable_signature_win.h
 
 
 LIBS += Ws2_32.lib Advapi32.lib Iphlpapi.lib \
@@ -385,7 +383,8 @@ SOURCES += main.cpp \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
     clientconnectiondescr.cpp \
     $$COMMON_PATH/ipc/tcpconnection.cpp \
-    $$COMMON_PATH/ipc/tcpserver.cpp
+    $$COMMON_PATH/ipc/tcpserver.cpp \
+    engine/connectionmanager/finishactiveconnections.cpp
 
 HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/locationsmodel/apilocationsmodel.h \
@@ -540,7 +539,8 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
     clientconnectiondescr.h \
     $$COMMON_PATH/ipc/tcpconnection.h \
-    $$COMMON_PATH/ipc/tcpserver.h
+    $$COMMON_PATH/ipc/tcpserver.h \
+    engine/connectionmanager/finishactiveconnections.h
 
 RESOURCES += \
     engine.qrc

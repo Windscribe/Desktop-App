@@ -1,10 +1,27 @@
 #include "finishactiveconnections.h"
 #include "../openvpnversioncontroller.h"
-#include "ikev2connection_win.h"
 #include "wireguardconnection.h"
-#include <windows.h>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 
+#ifdef Q_OS_WIN
+    #include <windows.h>
+    #include "ikev2connection_win.h"
+#endif
+
+#ifdef Q_OS_MAC
+    #include "restorednsmanager_mac.h"
+#endif
+
+void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
+{
+#ifdef Q_OS_WIN
+    finishAllActiveConnections_win(helper);
+#else
+    finishAllActiveConnections_mac(helper);
+#endif
+}
+
+#ifdef Q_OS_WIN
 void FinishActiveConnections::finishAllActiveConnections_win(IHelper *helper)
 {
     finishOpenVpnActiveConnections_win(helper);
@@ -45,3 +62,25 @@ void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *help
     helper->executeTaskKill(strWireGuardExe);
     helper->stopWireGuard();  // This will also reset route monitoring.
 }
+#else
+void FinishActiveConnections::finishAllActiveConnections_mac(IHelper *helper)
+{
+    finishOpenVpnActiveConnections_mac(helper);
+    finishWireGuardActiveConnections_mac(helper);
+}
+void FinishActiveConnections::finishOpenVpnActiveConnections_mac(IHelper *helper)
+{
+    QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();
+    Q_FOREACH (const QString &strExe, strOpenVpnExeList)
+    {
+        helper->executeTaskKill(strExe);
+    }
+    helper->executeTaskKill("windscribestunnel");
+    helper->executeTaskKill("windscribewstunnel");
+    RestoreDNSManager_mac::restoreState(helper);
+}
+void FinishActiveConnections::finishWireGuardActiveConnections_mac(IHelper *helper)
+{
+    helper->stopWireGuard();
+}
+#endif

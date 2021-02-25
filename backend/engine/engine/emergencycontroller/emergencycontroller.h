@@ -52,10 +52,6 @@ private:
     MakeOVPNFile *makeOVPNFile_;
     ProxySettings proxySettings_;
 
-#ifdef Q_OS_MAC
-    RestoreDNSManager_mac restoreDnsManager_;
-#endif
-
     struct CONNECT_ATTEMPT_INFO
     {
         QString ip;

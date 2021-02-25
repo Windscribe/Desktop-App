@@ -16,9 +16,6 @@
 
 EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QObject(parent),
     helper_(helper),
-    #ifdef Q_OS_MAC
-        restoreDnsManager_(helper),
-    #endif
     serverApiUserRole_(0),
     state_(STATE_DISCONNECTED)
 {
@@ -362,7 +359,7 @@ void EmergencyController::doMacRestoreProcedures()
     qCDebug(LOG_EMERGENCY_CONNECT) << "Execute command: " << delRouteCommand;
     QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
     qCDebug(LOG_EMERGENCY_CONNECT) << "Output from route delete command: " << cmdAnswer;
-    restoreDnsManager_.restoreState();
+    RestoreDNSManager_mac::restoreState(helper_);
 #endif
 }
 
