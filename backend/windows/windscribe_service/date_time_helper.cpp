@@ -6,7 +6,15 @@ namespace
 {
 UINT64 GetMillisecondsFromSystemTime(const SYSTEMTIME &st)
 {
-    return 3600000 * st.wHour + 60000 * st.wMinute + 1000 * st.wSecond + st.wMilliseconds;
+    FILETIME ft;
+    SystemTimeToFileTime(&st, &ft);
+
+    ULARGE_INTEGER value;
+    value.LowPart = ft.dwLowDateTime;
+    value.HighPart = ft.dwHighDateTime;
+
+    // Divide by 10000, because FILETIME is of 100 nanoseconds resolution, but we need milliseconds.
+    return value.QuadPart / 10000;
 }
 }
 
