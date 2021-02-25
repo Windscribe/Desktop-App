@@ -23,6 +23,7 @@
 Server::Server()
 {
     acceptor_ = NULL;
+    files_ = NULL;
 }
 
 Server::~Server()
@@ -32,6 +33,11 @@ Server::~Server()
     if (acceptor_)
     {
         delete acceptor_;
+    }
+    
+    if (files_)
+    {
+        delete files_;
     }
 
     unlink(SOCK_PATH);
@@ -258,6 +264,40 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                     outCmdAnswer.customInfoValue[0] = bytesReceived;
                     outCmdAnswer.customInfoValue[1] = bytesTransmitted;
                 }
+            }
+        }
+    }
+    else if (cmdId == HELPER_CMD_KILL_PROCESS)
+    {
+        CMD_KILL_PROCESS cmd;
+        ia >> cmd;
+        outCmdAnswer.executed = (kill(cmd.processId, SIGTERM) == 0);
+    }
+    else if (cmdId == HELPER_CMD_INSTALLER_SET_PATH)
+    {
+        CMD_INSTALLER_FILES_SET_PATH cmd;
+        ia >> cmd;
+        
+        if (files_)
+        {
+            delete files_;
+        }
+        files_ = new Files(cmd.archivePath, cmd.installPath, cmd.userId, cmd.groupId);
+        outCmdAnswer.executed = 1;
+    }
+    else if (cmdId == HELPER_CMD_INSTALLER_EXECUTE_COPY_FILE)
+    {
+        if (files_)
+        {
+            outCmdAnswer.executed = files_->executeStep();
+            if (outCmdAnswer.executed == -1)
+            {
+                outCmdAnswer.body = files_->getLastError();
+            }
+            if (outCmdAnswer.executed == -1 || outCmdAnswer.executed == 100)
+            {
+                delete files_;
+                files_ = NULL;
             }
         }
     }

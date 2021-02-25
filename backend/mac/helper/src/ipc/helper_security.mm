@@ -31,19 +31,34 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
     }
 
     bool result = false;
+    
+    
+    std::vector<std::string> endings;
 
     // Check for a correct ending.
+    endings.push_back("/Contents/MacOS/installer");
 #if DEBUG || DISABLE_HELPER_SECURITY_CHECK
-    const std::string ending = "/WindscribeEngine";
+    endings.push_back("/WindscribeEngine");
 #else
-    const std::string ending = "/WindscribeEngine.app/Contents/MacOS/WindscribeEngine";
+    endings.push_back("/WindscribeEngine.app/Contents/MacOS/WindscribeEngine");
 #endif
-    const auto ending_length = ending.length();
+    
     const auto app_name_length = app_name.length();
     do {
         // Check bundle name.
-        if (app_name_length < ending_length ||
-            app_name.compare(app_name_length - ending_length, ending_length, ending)) {
+        bool bFoundBundleName = false;
+        for (auto ending : endings)
+        {
+            const auto ending_length = ending.length();
+            if (app_name_length >= ending_length &&
+                app_name.compare(app_name_length - ending_length, ending_length, ending) == 0)
+            {
+                bFoundBundleName = true;
+                break;
+            }
+        }
+        if (!bFoundBundleName)
+        {
             LOG("Invalid app/bundle name for PID %i: '%s'", pid, app_name.c_str());
             break;
         }

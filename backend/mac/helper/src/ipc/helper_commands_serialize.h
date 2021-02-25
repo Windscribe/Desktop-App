@@ -102,6 +102,22 @@ void serialize(Archive &ar, CMD_CONFIGURE_WIREGUARD &a, const unsigned int versi
     ar & a.allowedIps;
 }
 
+template<class Archive>
+void serialize(Archive &ar, CMD_KILL_PROCESS &a, const unsigned int version)
+{
+    ar & a.processId;
+}
+
+
+template<class Archive>
+void serialize(Archive &ar, CMD_INSTALLER_FILES_SET_PATH &a, const unsigned int version)
+{
+    ar & a.archivePath;
+    ar & a.installPath;
+    ar & a.userId;
+    ar & a.groupId;
+}
+
 }
 }
 

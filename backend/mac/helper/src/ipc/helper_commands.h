@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #define HELPER_CMD_EXECUTE                      0
 #define HELPER_CMD_EXECUTE_OPENVPN              1
@@ -16,6 +17,13 @@
 #define HELPER_CMD_STOP_WIREGUARD               9
 #define HELPER_CMD_CONFIGURE_WIREGUARD          10
 #define HELPER_CMD_GET_WIREGUARD_STATUS         11
+#define HELPER_CMD_KILL_PROCESS                 12
+
+// installer commands
+#define HELPER_CMD_INSTALLER_SET_PATH           13
+#define HELPER_CMD_INSTALLER_EXECUTE_COPY_FILE  14
+
+
 
 
 struct CMD_EXECUTE
@@ -129,6 +137,20 @@ enum WireGuardServiceState
     WIREGUARD_STATE_LISTENING,  // WireGuard is listening for UAPI commands, but not connected.
     WIREGUARD_STATE_CONNECTING, // WireGuard is configured and awaits for a handshake.
     WIREGUARD_STATE_ACTIVE,     // WireGuard is connected.
+};
+
+struct CMD_KILL_PROCESS
+{
+    pid_t processId;
+};
+
+// installer commands
+struct CMD_INSTALLER_FILES_SET_PATH
+{
+    std::wstring archivePath;
+    std::wstring installPath;
+    uid_t userId;
+    gid_t groupId;
 };
 
 #endif

@@ -14,6 +14,7 @@
 #include "defaultroutemonitor.h"
 #include "wireguardadapter.h"
 #include "wireguardcontroller.h"
+#include "installer/files.h"
 
 typedef boost::shared_ptr<boost::asio::local::stream_protocol::socket> socket_ptr;
 
@@ -29,6 +30,8 @@ private:
     WireGuardController wireGuardController_;
     boost::asio::io_service service_;
     boost::asio::local::stream_protocol::acceptor *acceptor_;
+    
+    Files *files_;
    
     bool readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer);
     
