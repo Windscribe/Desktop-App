@@ -9,6 +9,7 @@
 #include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
+#include "utils/logger.h"
 
 extern QWidget *g_mainWindow;
 
@@ -302,6 +303,8 @@ void DebugWindowItem::onLanguageChanged()
 void DebugWindowItem::hideOpenPopups()
 {
     BasePage::hideOpenPopups();
+
+    qCDebug(LOG_PREFERENCES) << "Hiding Debug popups";
 
 #ifdef Q_OS_WIN
     comboBoxTapAdapter_->hideMenu();

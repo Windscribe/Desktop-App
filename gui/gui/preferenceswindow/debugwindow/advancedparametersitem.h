@@ -44,6 +44,7 @@ private:
     QGraphicsProxyWidget *proxyWidget_;
     CustomTextEditWidget *textEdit_;
 
+    // NOTE: ScrollAreaWidget's VerticalScrollbarWidget was updated to improve ComboBox scrollbar. When we return to custom widget for AdvancedParameters, verify scrollbar behaviour is okay.
     ScrollAreaWidget *scrollArea_;
 
     CommonGraphics::BubbleButtonDark *clearButton_;

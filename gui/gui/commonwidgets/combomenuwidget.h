@@ -81,13 +81,19 @@ private:
     void moveListPos(int newY);
     int sideMargin();
     int largestButtonWidth();
+    int allButtonsHeight();
+    double scrollBarHeightFraction();
+    int restrictedHeight();
 
+    static constexpr int SCROLL_BAR_WIDTH = 6;
+    static constexpr int MINIMUM_COMBO_MENU_WIDTH = 60;
     static constexpr int SHADOW_SIZE = 4;
     static constexpr int STEP_SIZE = 38;
     static constexpr int DEFAULT_MAX_ITEMS_SHOWING = 5;
     int maxItemsShowing_ = DEFAULT_MAX_ITEMS_SHOWING;
     int maxViewportHeight_ = DEFAULT_MAX_ITEMS_SHOWING * STEP_SIZE;
 
+    void updateScrollBarVisibility();
 };
 
 }

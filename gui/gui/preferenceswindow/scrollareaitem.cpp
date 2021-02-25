@@ -3,6 +3,7 @@
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "utils/logger.h"
 
 // #include <QDebug>
 
@@ -94,6 +95,8 @@ int ScrollAreaItem::scaledThreshold()
 
 void ScrollAreaItem::hideOpenPopups()
 {
+    qCDebug(LOG_PREFERENCES) << "Hiding ScrollAreaItem popups";
+
     curItem_->hideOpenPopups();
 }
 

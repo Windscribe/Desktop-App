@@ -37,6 +37,7 @@ Q_LOGGING_CATEGORY(LOG_LAUNCH_ON_STARTUP, "launch_on_startup")
 
 Q_LOGGING_CATEGORY(LOG_USER,  "user")
 Q_LOGGING_CATEGORY(LOG_LOCATION_LIST, "loclist");
+Q_LOGGING_CATEGORY(LOG_PREFERENCES, "prefs")
 
 void Logger::install(const QString &name, bool consoleOutput)
 {

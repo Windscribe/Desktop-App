@@ -10,9 +10,9 @@
 VerticalScrollBarWidget::VerticalScrollBarWidget(int width, int height, QWidget *parent) : QWidget(parent)
     , width_(width)
     , height_(height)
+    , curOpacity_(OPACITY_HIDDEN)
     , curBackgroundColor_(Qt::white)
     , curForegroundColor_(Qt::white)
-    , drawWidth_(width/2 - 1)
     , curBarPosY_(0)
     , curBarHeight_(height)
     , barPortion_(0)
@@ -20,8 +20,6 @@ VerticalScrollBarWidget::VerticalScrollBarWidget(int width, int height, QWidget 
     , pressed_(false)
     , mouseOnClickY_(0)
 {
-    drawWidthPosY_ = static_cast<int>( (static_cast<double>( width_ )/ 2 - static_cast<double>(drawWidth_) / 2) );
-
     connect(&barPosYAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onBarPosYChanged(QVariant)));
 }
 
@@ -58,8 +56,13 @@ void VerticalScrollBarWidget::moveBarToPercentPos(double posPercentY)
             curBarPosY_ = newPos;
             update();
         }
-
     }
+}
+
+void VerticalScrollBarWidget::setOpacity(double opacity)
+{
+    curOpacity_ = opacity;
+    update();
 }
 
 void VerticalScrollBarWidget::setBackgroundColor(QColor color)
@@ -93,21 +96,14 @@ void VerticalScrollBarWidget::paintEvent(QPaintEvent *event)
     // painter.fillRect(QRect(0,0, sizeHint().width(), sizeHint().height()), Qt::magenta);
 
     // draw background line
-    painter.setOpacity(.1);
-    painter.setPen(curBackgroundColor_);
-    painter.setBrush(curBackgroundColor_);
-    QRectF rect(drawWidthPosY_, 1,
-                drawWidth_*G_SCALE, height_);
-    painter.drawRoundedRect(rect, 5, 5);
+    painter.setOpacity(curOpacity_);
+    QRectF bgRect(0, 1, width_*G_SCALE, height_);
+    painter.fillRect(bgRect, curBackgroundColor_);
 
     // Foreground line
-    painter.setOpacity(1);
-
-    painter.setPen(curForegroundColor_);
-    painter.setBrush(curForegroundColor_);
-    QRectF rect2(drawWidthPosY_ , (curBarPosY_+1),
-                 drawWidth_*G_SCALE, curBarHeight_);
-    painter.drawRoundedRect(rect2, 5, 5);
+    painter.setOpacity(curOpacity_);
+    QRectF fgRect(0 , (curBarPosY_+1), width_*G_SCALE, curBarHeight_);
+    painter.fillRect(fgRect, curForegroundColor_);
 }
 
 void VerticalScrollBarWidget::mousePressEvent(QMouseEvent *event)
@@ -202,6 +198,18 @@ void VerticalScrollBarWidget::mouseMoveEvent(QMouseEvent *event)
             update();
         }
     }
+}
+
+void VerticalScrollBarWidget::enterEvent(QEvent *event)
+{
+    Q_UNUSED(event)
+    emit hoverEnter();
+}
+
+void VerticalScrollBarWidget::leaveEvent(QEvent *event)
+{
+    Q_UNUSED(event)
+    emit hoverLeave();
 }
 
 bool VerticalScrollBarWidget::inBarRegion(int y)

@@ -7,6 +7,7 @@
 #include "utils/makecustomshadow.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
+#include "utils/logger.h"
 
 namespace CommonWidgets {
 
@@ -38,8 +39,9 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     menuListWidget_->setLayout(layout_);
     menuListWidget_->show();
 
-    scrollBar_ = new VerticalScrollBarWidget(5, 90, this);
+    scrollBar_ = new VerticalScrollBarWidget(SCROLL_BAR_WIDTH, 90, this);
     connect(scrollBar_, SIGNAL(moved(double)), SLOT(onScrollBarMoved(double)));
+    scrollBar_->setOpacity(OPACITY_FULL);
     scrollBar_->setBackgroundColor(Qt::white);
     scrollBar_->setForegroundColor(Qt::black);
     scrollBar_->show();
@@ -68,6 +70,8 @@ void ComboMenuWidget::addItem(QString text, const QVariant &item_data)
 
     layout_->addWidget(button);
     updateScaling();
+    updateScrollBarVisibility();
+
 }
 
 void ComboMenuWidget::removeItem(int index)
@@ -148,6 +152,7 @@ QString ComboMenuWidget::textOfItem(int index)
 void ComboMenuWidget::onButtonClick()
 {
     ComboMenuWidgetButton * button = static_cast<ComboMenuWidgetButton *>(sender());
+    qCDebug(LOG_USER) << "ComboMenu item clicked: " << button->text();
 
     if (button != nullptr)
     {
@@ -203,6 +208,7 @@ void ComboMenuWidget::paintEvent(QPaintEvent *event)
 
 void ComboMenuWidget::keyPressEvent(QKeyEvent *event)
 {
+    qCDebug(LOG_USER) << "ComboMenu keypress: " << event->text();
     if (event->key() == Qt::Key_Escape)
     {
         hide();
@@ -215,7 +221,8 @@ void ComboMenuWidget::keyPressEvent(QKeyEvent *event)
 
 void ComboMenuWidget::hideEvent(QHideEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
+    // qCDebug(LOG_PREFERENCES) << "ComboMenu hide event";
     emit hidden();
 }
 
@@ -224,11 +231,13 @@ void ComboMenuWidget::wheelEvent(QWheelEvent *event)
     const int change = 20;
     if (event->delta() > 0) // scroll up
     {
+        qCDebug(LOG_USER) << "ComboMenu wheeling (up): " << event->delta();
         int newY = menuListPosY_ + change; // moves inner down
         moveListPos(newY);
     }
     else // scroll down
     {
+        qCDebug(LOG_USER) << "ComboMenu wheeling (down): " << event->delta();
         int newY = menuListPosY_ - change; // moves inner up
         moveListPos(newY);
     }
@@ -315,6 +324,18 @@ int ComboMenuWidget::sideMargin()
     return SHADOW_SIZE * G_SCALE;
 }
 
+void ComboMenuWidget::updateScrollBarVisibility()
+{
+    if (scrollBarHeightFraction() < .97) // protect from rounding errors
+    {
+        scrollBar_->show();
+    }
+    else
+    {
+        scrollBar_->hide();
+    }
+}
+
 void ComboMenuWidget::updateScaling()
 {
     // update button widths
@@ -327,64 +348,55 @@ void ComboMenuWidget::updateScaling()
         button->setWidthUnscaled(fm.boundingRect(button->text()).width() + 30);
     }
 
+    maxViewportHeight_ = maxItemsShowing_ * STEP_SIZE * G_SCALE;
+    int rHeight = restrictedHeight();
+    int allButtonsHeightScaled = allButtonsHeight();
+
     // resize buttons max button width
-    int allButtonsHeight = 0;
-    int buttonWidth = largestButtonWidth(); // no scaling since font takes care of it
-    if (buttonWidth < 55 ) buttonWidth = 55 ; // minimum width
+    int buttonWidth = largestButtonWidth();
+    if (buttonWidth < MINIMUM_COMBO_MENU_WIDTH ) buttonWidth = MINIMUM_COMBO_MENU_WIDTH ; // minimum width
+    if (rHeight < allButtonsHeightScaled) buttonWidth += 25; // Add width when there is scrollbar to display
 
     for (auto buttonItem : items_)
     {
         ComboMenuWidgetButton * button  = static_cast<ComboMenuWidgetButton *>(buttonItem);
         button->setFixedHeight(STEP_SIZE * G_SCALE);
         button->setFixedWidth(buttonWidth);
-        allButtonsHeight += STEP_SIZE;
     }
 
     // resize list widget
-    QRect rect(sideMargin(), menuListPosY_ + topMargin(), buttonWidth, allButtonsHeight * G_SCALE);
+    QRect rect(sideMargin(), menuListPosY_ + topMargin(), buttonWidth, allButtonsHeightScaled);
     menuListWidget_->setGeometry(rect);
 
     // restrict height of list viewport
-    maxViewportHeight_ = maxItemsShowing_ * STEP_SIZE * G_SCALE;
-    int restrictedHeight = allButtonsHeight * G_SCALE;
-    if (restrictedHeight > maxViewportHeight_) restrictedHeight = maxViewportHeight_;
+
 
     // clip menu list
-    clippingRegion_ = QRect(0, -menuListPosY_,
-                            buttonWidth,
-                            restrictedHeight);
+    clippingRegion_ = QRect(0, -menuListPosY_, buttonWidth, rHeight);
     menuListWidget_->setMask(clippingRegion_);
 
     // update rounded background size
-    roundedBackgroundRect_ = QRect(SHADOW_SIZE*G_SCALE, SHADOW_SIZE*G_SCALE,
+    roundedBackgroundRect_ = QRect(SHADOW_SIZE*G_SCALE,
+                                   SHADOW_SIZE*G_SCALE,
                                    buttonWidth,
-                                   restrictedHeight + (SPACER_SIZE*G_SCALE)*2 );
+                                   rHeight + (SPACER_SIZE*G_SCALE)*2 );
 
     // update scroll bar
-    double sf = static_cast<double>(restrictedHeight)/(allButtonsHeight*G_SCALE);
-    scrollBar_->setHeight(restrictedHeight);
-    scrollBar_->setGeometry(buttonWidth - 2, topMargin(), 10, restrictedHeight);
-    scrollBar_->setBarPortion(sf);
+    scrollBar_->setHeight(rHeight);
+    scrollBar_->setGeometry(buttonWidth - SCROLL_BAR_WIDTH*G_SCALE, topMargin(), SCROLL_BAR_WIDTH * G_SCALE, rHeight);
+    scrollBar_->setBarPortion(scrollBarHeightFraction());
     double yPosPercent = static_cast<double>(menuListPosY_) / menuListWidget_->geometry().height();
     scrollBar_->moveBarToPercentPos(yPosPercent);
 
-    if (sf < .97) // protect from rounding errors
-    {
-        scrollBar_->show();
-    }
-    else
-    {
-        scrollBar_->hide();
-    }
-
     // update main view port
-    emit sizeChanged(buttonWidth  + sideMargin()*2, restrictedHeight + topMargin()*2 );
+    emit sizeChanged(buttonWidth  + sideMargin()*2, rHeight + topMargin()*2 );
 }
 
 void ComboMenuWidget::setMaxItemsShowing(int maxItemsShowing)
 {
     maxItemsShowing_ = qMax(1, maxItemsShowing);
     updateScaling();
+    updateScrollBarVisibility();
 }
 
 int ComboMenuWidget::largestButtonWidth()
@@ -400,6 +412,23 @@ int ComboMenuWidget::largestButtonWidth()
     }
 
     return largestButtonWidth;
+}
+
+int ComboMenuWidget::allButtonsHeight()
+{
+    return static_cast<int>(items_.count() * STEP_SIZE *G_SCALE);
+}
+
+double ComboMenuWidget::scrollBarHeightFraction()
+{
+    return static_cast<double>(restrictedHeight())/(allButtonsHeight());
+}
+
+int ComboMenuWidget::restrictedHeight()
+{
+    int restrictedHeight = allButtonsHeight();
+    if (restrictedHeight > maxViewportHeight_) restrictedHeight = maxViewportHeight_;
+    return restrictedHeight;
 }
 
 
