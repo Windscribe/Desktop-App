@@ -101,6 +101,7 @@ public:
     virtual bool stopWireGuard() = 0;
     virtual bool configureWireGuard(const WireGuardConfig &config) = 0;
     virtual bool getWireGuardStatus(WireGuardStatus *status) = 0;
+    virtual void setDefaultWireGuardDeviceName(const QString &deviceName) = 0;
 
 signals:
     void lostConnectionToHelper();

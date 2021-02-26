@@ -97,6 +97,7 @@ public:
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;
     bool getWireGuardStatus(WireGuardStatus *status) override;
+    void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
 protected:
     void run() override;

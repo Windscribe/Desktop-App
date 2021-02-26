@@ -81,6 +81,7 @@ void FinishActiveConnections::finishOpenVpnActiveConnections_mac(IHelper *helper
 }
 void FinishActiveConnections::finishWireGuardActiveConnections_mac(IHelper *helper)
 {
+    helper->setDefaultWireGuardDeviceName(WireGuardConnection::getWireGuardAdapterName());
     helper->stopWireGuard();
 }
 #endif

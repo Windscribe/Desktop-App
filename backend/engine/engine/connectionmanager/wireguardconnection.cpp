@@ -32,11 +32,7 @@ private:
 
 WireGuardConnectionImpl::WireGuardConnectionImpl(WireGuardConnection *host)
     : host_(host),
-#if defined(Q_OS_WIN)
-      adapterName_("WindscribeWireGuard420"),
-#else
-      adapterName_("utun420"),
-#endif
+      adapterName_(WireGuardConnection::getWireGuardAdapterName()),
       isDaemonRunning_(false)
 {
 }
@@ -184,6 +180,16 @@ bool WireGuardConnection::isDisconnected() const
 QString WireGuardConnection::getWireGuardExeName()
 {
     return QString("windscribewireguard");
+}
+
+// static
+QString WireGuardConnection::getWireGuardAdapterName()
+{
+#if defined(Q_OS_WIN)
+    return QString("WindscribeWireGuard420");
+#else
+    return QString("utun420");
+#endif
 }
 
 void WireGuardConnection::run()

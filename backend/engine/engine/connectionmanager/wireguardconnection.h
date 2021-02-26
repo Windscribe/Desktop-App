@@ -30,6 +30,7 @@ public:
     void continueWithPassword(const QString & /*password*/) override {}
 
     static QString getWireGuardExeName();
+    static QString getWireGuardAdapterName();
 
 protected:
     void run() override;
