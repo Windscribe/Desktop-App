@@ -49,7 +49,7 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     scrollBar_ = new VerticalScrollBarWidget(SCROLL_BAR_WIDTH, 90, this);
     connect(scrollBar_, SIGNAL(moved(double)), SLOT(onScrollBarMoved(double)));
     scrollBar_->setOpacity(OPACITY_FULL);
-    scrollBar_->setBackgroundColor(Qt::white);
+    scrollBar_->setBackgroundColor(Qt::transparent);
     scrollBar_->setForegroundColor(Qt::black);
     scrollBar_->show();
 
