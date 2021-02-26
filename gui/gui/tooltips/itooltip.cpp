@@ -108,7 +108,13 @@ void ITooltip::initWindowFlags()
 #ifdef Q_OS_WIN
     setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
 #else
-    setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
+    // Removed Qt::Tooltip since inner Qt::Popup seems to cause very rare crash when telling tooltip to show()
+    // Appears to be same issue as ComboMenuWidget (see combomenuwidget.cpp for details)
+    // though the tooltip bug is much more rare and I haven't yet found a way to reliably reproduce
+    // Similarly, I removed Qt::Tooltip from flags and added WA_ShowWithoutActivating to prevent the tooltips
+    // from stealing activation from the app and visibly updating the cursor type on every tooltip show
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_ShowWithoutActivating, true); // TODO: this is probably not appropriate for InteractiveTooltip
 #endif
     setAttribute(Qt::WA_TranslucentBackground, true);
 }

@@ -22,8 +22,15 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     setWindowFlags(Qt::SubWindow | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
 #else
     // Menu not visible on Mac with when it is a Qt::SubWindow
-    // Popup will prevent mainwindow WindowDeactivate event from hiding the app while using the combobox
-    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+    // It appears that Popup is no longer necessary to prevent mainwindow WindowDeactivate event from hiding the app while using the combobox
+    // I have removed it since it causes a very rare crash when we attempt to call show() on the menu on MacOS Catalina
+    // Seems like a Qt bug -- as of Qt5.12.7 can reproduce unreliably (with popup enabled):
+    // 1. go to preferences connection window and open port combobox
+    // 2. wheel up/down and select a different port a few times
+    // 3. go to preferences general window
+    // 4. click on the comboboxes you can see, scroll down click on the rest
+    // If it becomes clear that we NEED the Qt::Popup then perhaps this bug will be resolved in future Qt versions.
+    setWindowFlags(Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
 #endif
     setAttribute(Qt::WA_TranslucentBackground, true);
     setFocusPolicy(Qt::StrongFocus);
