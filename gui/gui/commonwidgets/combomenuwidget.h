@@ -80,7 +80,7 @@ private:
 
     void moveListPos(int newY);
     int sideMargin();
-    int largestButtonWidth();
+    int largestButtonWidthUnscaled();
     int allButtonsHeight();
     double scrollBarHeightFraction();
     int restrictedHeight();

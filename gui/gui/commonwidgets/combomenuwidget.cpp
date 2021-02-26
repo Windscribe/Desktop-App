@@ -159,10 +159,10 @@ QString ComboMenuWidget::textOfItem(int index)
 void ComboMenuWidget::onButtonClick()
 {
     ComboMenuWidgetButton * button = static_cast<ComboMenuWidgetButton *>(sender());
-    qCDebug(LOG_USER) << "ComboMenu item clicked: " << button->text();
 
     if (button != nullptr)
     {
+        qCDebug(LOG_USER) << "ComboMenu item clicked: " << button->text();
         emit itemClicked(button->text(), button->data());
     }
 }
@@ -355,15 +355,17 @@ void ComboMenuWidget::updateScaling()
         button->setWidthUnscaled(fm.boundingRect(button->text()).width() + 30);
     }
 
+    // restrict height of list viewport
     maxViewportHeight_ = maxItemsShowing_ * STEP_SIZE * G_SCALE;
     int rHeight = restrictedHeight();
     int allButtonsHeightScaled = allButtonsHeight();
 
-    // resize buttons max button width
-    int buttonWidth = largestButtonWidth();
-    if (buttonWidth < MINIMUM_COMBO_MENU_WIDTH ) buttonWidth = MINIMUM_COMBO_MENU_WIDTH ; // minimum width
-    if (rHeight < allButtonsHeightScaled) buttonWidth += 25; // Add width when there is scrollbar to display
+    // find appropriate width
+    int buttonWidth = largestButtonWidthUnscaled();
+    if (buttonWidth < MINIMUM_COMBO_MENU_WIDTH*G_SCALE ) buttonWidth = MINIMUM_COMBO_MENU_WIDTH *G_SCALE ; // minimum width
+    if (rHeight < allButtonsHeightScaled) buttonWidth += 25*G_SCALE; // Add width when there is scrollbar to display
 
+    // resize buttons to width
     for (auto buttonItem : items_)
     {
         ComboMenuWidgetButton * button  = static_cast<ComboMenuWidgetButton *>(buttonItem);
@@ -374,8 +376,6 @@ void ComboMenuWidget::updateScaling()
     // resize list widget
     QRect rect(sideMargin(), menuListPosY_ + topMargin(), buttonWidth, allButtonsHeightScaled);
     menuListWidget_->setGeometry(rect);
-
-    // restrict height of list viewport
 
 
     // clip menu list
@@ -396,7 +396,7 @@ void ComboMenuWidget::updateScaling()
     scrollBar_->moveBarToPercentPos(yPosPercent);
 
     // update main view port
-    emit sizeChanged(buttonWidth  + sideMargin()*2, rHeight + topMargin()*2 );
+    emit sizeChanged(buttonWidth + sideMargin()*2, rHeight + topMargin()*2 );
 }
 
 void ComboMenuWidget::setMaxItemsShowing(int maxItemsShowing)
@@ -406,7 +406,7 @@ void ComboMenuWidget::setMaxItemsShowing(int maxItemsShowing)
     updateScrollBarVisibility();
 }
 
-int ComboMenuWidget::largestButtonWidth()
+int ComboMenuWidget::largestButtonWidthUnscaled()
 {
     int largestButtonWidth = 0;
 
