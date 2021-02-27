@@ -375,15 +375,16 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     }
 
     // background line
+	// TODO: lines drawn like this do not scale -- fix
     int left = static_cast<int>(24 * G_SCALE);
     int right = static_cast<int>(WINDOW_WIDTH * G_SCALE - 8*G_SCALE);
-    int bottom = static_cast<int>((LOCATION_ITEM_HEIGHT-1)* G_SCALE);
+    int bottom = static_cast<int>(LOCATION_ITEM_HEIGHT*G_SCALE) -1; // 1 is not scaled since we want bottom-most pixel in geometry
     QPen pen(QColor(0x29, 0x2E, 0x3E));
     pen.setWidth(1);
     painter.setOpacity(initOpacity);
     painter.setPen(pen);
-    painter.drawLine(left, bottom, right, bottom);
     painter.drawLine(left, bottom - 1, right, bottom - 1);
+    painter.drawLine(left, bottom, right, bottom);
 }
 
 void ItemWidgetCity::enterEvent(QEvent *event)

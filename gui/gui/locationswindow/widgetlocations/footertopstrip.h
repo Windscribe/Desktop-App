@@ -11,6 +11,8 @@ class FooterTopStrip : public QWidget
 public:
     explicit FooterTopStrip(QWidget *parent = nullptr);
 
+    static constexpr int HEIGHT = 2;
+
 protected:
     void paintEvent(QPaintEvent *event);
 };

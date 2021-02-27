@@ -239,15 +239,16 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
 
     int left = 24 * G_SCALE;
     int right = WINDOW_WIDTH * G_SCALE - 8*G_SCALE;
-    int bottom = (LOCATION_ITEM_HEIGHT-1)* G_SCALE;
+    int bottom = static_cast<int>(LOCATION_ITEM_HEIGHT*G_SCALE) - 1; // 1 is not scaled since we want bottom-most pixel inside geometry
     painter.setOpacity(1.0);
 
+    // TODO: lines not scaled since we draw just single pixels
     // background line (darker line)
     QPen pen(QColor(0x29, 0x2E, 0x3E));
     pen.setWidth(1);
     painter.setPen(pen);
-    painter.drawLine(left, bottom, right, bottom);
     painter.drawLine(left, bottom - 1, right, bottom - 1);
+    painter.drawLine(left, bottom, right, bottom);
 
     // top-most line (white)
     if( qFabs(1.0 - expandAnimationProgress_) < 0.000001 )

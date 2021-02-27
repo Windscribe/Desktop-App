@@ -11,7 +11,11 @@ const int WINDOW_WIDTH = 332;
 const int WINDOW_HEIGHT = 316;
 const int WINDOW_MARGIN = 16;
 
+// Re: heavy use of qCeil(LOCATION_ITEM_HEIGHT*G_SCALE):
+// When scaling is 125% or 175% a truncated value will drastically affect the size of the list
+// and affect it's scrollability, especially when dragging the scroller with the mouse
 const int LOCATION_ITEM_HEIGHT = 50;
+
 const int LOCATION_ITEM_MARGIN = 16;
 const int LOCATION_ITEM_MARGIN_TO_LINE = 24;
 const int LOCATION_ITEM_FLAG_WIDTH = 32;

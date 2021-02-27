@@ -66,7 +66,7 @@ WidgetCities::WidgetCities(QWidget *parent, const QString name, int visible_item
     scrollBar_ = new ScrollBar(this);
     setVerticalScrollBar(scrollBar_);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->setSingleStep(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE)); // scroll by this many px at a time
     scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
     connect(scrollBar_, SIGNAL(handleDragged(int)), SLOT(onScrollBarHandleDragged(int)));
     connect(scrollBar_, SIGNAL(stopScroll(bool)), SLOT(onScrollBarStopScroll(bool)));
@@ -112,7 +112,7 @@ void WidgetCities::setModel(BasicCitiesModel *citiesModel)
 
 void WidgetCities::updateScaling()
 {
-    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->setSingleStep(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE)); // scroll by this many px at a time
     scrollBar_->updateCustomStyleSheet();
     widgetCitiesList_->updateScaling();
     updateEmptyListButton();
@@ -640,7 +640,7 @@ void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
 
 void WidgetCities::scrollToIndex(int index)
 {
-    int pos = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * index);
+    int pos = static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * index);
     pos = closestPositionIncrement(pos);
     scrollBar_->forceSetValue(pos);
 }
@@ -648,13 +648,13 @@ void WidgetCities::scrollToIndex(int index)
 void WidgetCities::scrollDown(int itemCount)
 {
     // Scrollbar values use positive (whilte itemListWidget uses negative geometry)
-    int newY = static_cast<int>(widgetCitiesList_->geometry().y() + LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+    int newY = static_cast<int>(widgetCitiesList_->geometry().y() + qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * itemCount);
     scrollBar_->setValue(newY);
 }
 
 void WidgetCities::animatedScrollDown(int itemCount)
 {
-    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+    int scrollBy = static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * itemCount);
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
@@ -671,7 +671,7 @@ void WidgetCities::animatedScrollDown(int itemCount)
 
 void WidgetCities::animatedScrollUp(int itemCount)
 {
-    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+    int scrollBy = static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * itemCount);
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
@@ -707,7 +707,7 @@ void WidgetCities::updateScrollBarWithView()
 
 const LocationID WidgetCities::topViewportSelectableLocationId()
 {
-    int index = qRound(qAbs(widgetCitiesList_->geometry().y())/(LOCATION_ITEM_HEIGHT * G_SCALE));
+    int index = viewportOffsetIndex();
 
     auto widgets = widgetCitiesList_->itemWidgets();
     if (index < 0 || index > widgets.count() - 1)
@@ -721,7 +721,7 @@ const LocationID WidgetCities::topViewportSelectableLocationId()
 
 int WidgetCities::viewportOffsetIndex()
 {
-    int index = qRound(qAbs(widgetCitiesList_->geometry().y())/(LOCATION_ITEM_HEIGHT * G_SCALE));
+    int index = qRound(static_cast<double>(qAbs(widgetCitiesList_->geometry().y())/qCeil(LOCATION_ITEM_HEIGHT * G_SCALE)));
     return index;
 }
 
@@ -780,7 +780,7 @@ int WidgetCities::closestPositionIncrement(int value)
     while (current < value)
     {
         last = current;
-        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+        current += qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
     }
 
     if (qAbs(current - value) < qAbs(last - value))
@@ -795,7 +795,7 @@ int WidgetCities::nextPositionIncrement(int value)
     int current = 0;
     while (current < value)
     {
-        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+        current += qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
     }
 
     return current;
@@ -808,7 +808,7 @@ int WidgetCities::previousPositionIncrement(int value)
     while (current < value)
     {
         last = current;
-        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+        current += qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
     }
 
     return last;

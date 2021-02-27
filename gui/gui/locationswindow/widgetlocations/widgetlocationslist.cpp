@@ -1,6 +1,7 @@
 #include "widgetlocationslist.h"
 
 #include <QPainter>
+#include <QtMath>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 #include "cursorupdatehelper.h"
@@ -47,7 +48,7 @@ void WidgetLocationsList::addRegionWidget(LocationModelItem *item)
     connect(regionWidget, SIGNAL(accented(IItemWidget *)), SLOT(onSelectableLocationItemAccented(IItemWidget *)));
     connect(regionWidget, SIGNAL(favoriteClicked(ItemWidgetCity*, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*,bool)));
     itemWidgets_.append(regionWidget);
-    regionWidget->setGeometry(0, 0, static_cast<int>(WINDOW_WIDTH *G_SCALE), static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE));
+    regionWidget->setGeometry(0, 0, static_cast<int>(WINDOW_WIDTH *G_SCALE), static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE)));
     regionWidget->show();
     recalcItemPositions();
 }

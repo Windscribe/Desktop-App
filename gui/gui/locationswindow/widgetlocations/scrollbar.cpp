@@ -9,7 +9,7 @@
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 
-#include <QDebug>
+// #include <QDebug>
 
 namespace GuiLocations {
 
@@ -120,7 +120,7 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
 
     if (stepVector != 0)
     {
-        // qDebug() << "Scrolling: " << startValue_ + stepVector;
+        // qDebug() << "Scrolling: " << targetValue_ + stepVector;
         animateScroll(targetValue_ + stepVector, SCROLL_SPEED_FRACTION);
     }
 }

@@ -1,5 +1,6 @@
 #include "widgetcitieslist.h"
 
+#include <QtMath>
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
 #include "utils/logger.h"
@@ -248,7 +249,7 @@ void WidgetCitiesList::recalcItemPositions()
 
     foreach (ItemWidgetCity *city, itemWidgets_)
     {
-        city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
+        city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
         height += city->geometry().height();
     }
 

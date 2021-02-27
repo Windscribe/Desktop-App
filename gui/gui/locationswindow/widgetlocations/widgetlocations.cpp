@@ -60,7 +60,7 @@ WidgetLocations::WidgetLocations(QWidget *parent, const QString name) : QScrollA
     scrollBar_ = new ScrollBar(this);
     setVerticalScrollBar(scrollBar_);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->setSingleStep(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE)); // scroll by this many px at a time
     scrollBar_->setGeometry(WINDOW_WIDTH * G_SCALE - getScrollBarWidth(), 0, getScrollBarWidth(), 170 * G_SCALE);
     connect(scrollBar_, SIGNAL(handleDragged(int)), SLOT(onScrollBarHandleDragged(int)));
     connect(scrollBar_, SIGNAL(stopScroll(bool)), SLOT(onScrollBarStopScroll(bool)));
@@ -127,7 +127,7 @@ void WidgetLocations::setFilterString(QString text)
 
 void WidgetLocations::updateScaling()
 {
-    scrollBar_->setSingleStep(LOCATION_ITEM_HEIGHT * G_SCALE); // scroll by this many px at a time
+    scrollBar_->setSingleStep(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE)); // scroll by this many px at a time
     scrollBar_->updateCustomStyleSheet();
     widgetLocationsList_->updateScaling();
 
@@ -680,7 +680,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 
 void WidgetLocations::scrollToIndex(int index)
 {
-    int pos = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * index);
+    int pos = static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * index);
     pos = closestPositionIncrement(pos);
     // qDebug() << "ScrollToIndex position: " << pos;
     scrollBar_->forceSetValue(pos);
@@ -689,14 +689,14 @@ void WidgetLocations::scrollToIndex(int index)
 void WidgetLocations::scrollDown(int itemCount)
 {
     // Scrollbar values use positive (whilte itemListWidget uses negative geometry)
-    int newY = static_cast<int>(widgetLocationsList_->geometry().y() + LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+    int newY = static_cast<int>(widgetLocationsList_->geometry().y() + qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * itemCount);
 
     scrollBar_->setValue(newY);
 }
 
 void WidgetLocations::animatedScrollDown(int itemCount)
 {
-    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+    int scrollBy = static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * itemCount);
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
@@ -711,7 +711,7 @@ void WidgetLocations::animatedScrollDown(int itemCount)
 
 void WidgetLocations::animatedScrollUp(int itemCount)
 {
-    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+    int scrollBy = static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * itemCount);
 
     if (scrollAnimation_.state() == QAbstractAnimation::Running)
     {
@@ -726,7 +726,7 @@ void WidgetLocations::animatedScrollUp(int itemCount)
 
 void WidgetLocations::animatedScrollDownByKeyPress(int itemCount)
 {
-    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+    int scrollBy = static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * itemCount);
 
     if (scrollAnimationForKeyPress_.state() == QAbstractAnimation::Running)
     {
@@ -744,7 +744,7 @@ void WidgetLocations::animatedScrollDownByKeyPress(int itemCount)
 
 void WidgetLocations::animatedScrollUpByKeyPress(int itemCount)
 {
-    int scrollBy = static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE * itemCount);
+    int scrollBy = static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) * itemCount);
 
     if (scrollAnimationForKeyPress_.state() == QAbstractAnimation::Running)
     {
@@ -793,7 +793,7 @@ void WidgetLocations::updateScrollBarWithView()
 
 const LocationID WidgetLocations::topViewportSelectableLocationId()
 {
-    int index = qRound(qAbs(widgetLocationsList_->geometry().y())/(LOCATION_ITEM_HEIGHT * G_SCALE));
+    int index = viewportOffsetIndex();
 
     auto widgets = widgetLocationsList_->selectableWidgets();
     if (index < 0 || index > widgets.count() - 1)
@@ -807,7 +807,7 @@ const LocationID WidgetLocations::topViewportSelectableLocationId()
 
 int WidgetLocations::viewportOffsetIndex()
 {
-    int index = qRound(qAbs(widgetLocationsList_->geometry().y())/(LOCATION_ITEM_HEIGHT * G_SCALE));
+    int index = qRound(static_cast<double>(qAbs(widgetLocationsList_->geometry().y())/(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE))));
 
     // qDebug() << locationItemListWidget_->geometry().y() << " / " << (LOCATION_ITEM_HEIGHT * G_SCALE) <<  " -> " << index;
     return index;
@@ -885,7 +885,7 @@ int WidgetLocations::closestPositionIncrement(int value)
     while (current < value)
     {
         last = current;
-        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+        current += qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
     }
 
     if (qAbs(current - value) < qAbs(last - value))
@@ -900,7 +900,7 @@ int WidgetLocations::nextPositionIncrement(int value)
     int current = 0;
     while (current < value)
     {
-        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+        current += qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
     }
 
     return current;
@@ -913,7 +913,7 @@ int WidgetLocations::previousPositionIncrement(int value)
     while (current < value)
     {
         last = current;
-        current += LOCATION_ITEM_HEIGHT * G_SCALE;
+        current += qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
     }
 
     return last;

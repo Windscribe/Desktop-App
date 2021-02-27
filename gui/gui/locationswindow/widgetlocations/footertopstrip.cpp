@@ -18,12 +18,12 @@ void FooterTopStrip::paintEvent(QPaintEvent *event)
     Q_UNUSED(event)
 
     QColor footerColor = FontManager::instance().getLocationsFooterColor();
-    const int FOOTER_STRIP_HEIGHT = 2;
 
     // just a 2px slice to cover the last viewport item line in the locations list
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(QRect(0, 0, WINDOW_WIDTH *G_SCALE, FOOTER_STRIP_HEIGHT * G_SCALE), QBrush(footerColor));
+    QRect geo(0, 0, WINDOW_WIDTH *G_SCALE, geometry().height());
+    p.fillRect(geo, QBrush(footerColor));
 
 }
 

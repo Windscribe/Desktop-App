@@ -1,6 +1,7 @@
 #include "locationswindow.h"
 
 #include <QPainter>
+#include <QtMath>
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
@@ -10,16 +11,16 @@
 #include <QDebug>
 
 LocationsWindow::LocationsWindow(QWidget *parent, LocationsModel *locationsModel) : QWidget(parent)
-  , locationsTabHeight_(LOCATIONS_TAB_HEIGHT_INIT)
+  , locationsTabHeightUnscaled_(LOCATIONS_TAB_HEIGHT_INIT)
   , bDragPressed_(false)
 {
     setMouseTracking(true);
 
     locationsTab_ = new GuiLocations::LocationsTab(this, locationsModel);
-    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
+    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
 
     footerTopStrip_ = new GuiLocations::FooterTopStrip(this);
-    footerTopStrip_->setGeometry(0, locationsTabHeight_*G_SCALE - 2*G_SCALE, WINDOW_WIDTH*G_SCALE, 2*G_SCALE);
+    updateFooterOverlayGeo();
 
     connect(locationsTab_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(locationsTab_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
@@ -33,16 +34,17 @@ LocationsWindow::LocationsWindow(QWidget *parent, LocationsModel *locationsModel
 
 int LocationsWindow::tabAndFooterHeight() const
 {
-    return (locationsTabHeight_ + FOOTER_HEIGHT);
+    return (locationsTabHeightUnscaled_ + FOOTER_HEIGHT);
 }
 
 void LocationsWindow::setCountVisibleItemSlots(int cnt)
 {
     locationsTab_->setCountVisibleItemSlots(cnt);
     // Previously there were issues directly grabbing locationsTab height... keeping a cache somehow helped. Not sure if the original issue persists
-    locationsTabHeight_ = locationsTab_->unscaledHeightOfItemViewport() + GuiLocations::LocationsTab::TAB_HEADER_HEIGHT;
-    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
-    footerTopStrip_->setGeometry(0, locationsTabHeight_*G_SCALE - 2*G_SCALE, WINDOW_WIDTH*G_SCALE, 2*G_SCALE);
+    locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + GuiLocations::LocationsTab::TAB_HEADER_HEIGHT;
+    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
+    updateFooterOverlayGeo();
+
     emit heightChanged();
 }
 
@@ -69,8 +71,8 @@ void LocationsWindow::handleKeyPressEvent(QKeyEvent *event)
 
 void LocationsWindow::updateLocationsTabGeometry()
 {
-    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, locationsTabHeight_ * G_SCALE);
-    footerTopStrip_->setGeometry(0, locationsTabHeight_*G_SCALE - 2*G_SCALE, WINDOW_WIDTH*G_SCALE, 2*G_SCALE);
+    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
+    updateFooterOverlayGeo();
 
     locationsTab_->updateLocationWidgetsGeometry(locationsTab_->unscaledHeightOfItemViewport());
     locationsTab_->updateIconRectsAndLine();
@@ -80,6 +82,7 @@ void LocationsWindow::updateLocationsTabGeometry()
 void LocationsWindow::updateScaling()
 {
     locationsTab_->updateScaling();
+    updateFooterOverlayGeo();
 }
 
 void LocationsWindow::hideSearchTabWithoutAnimation()
@@ -128,6 +131,7 @@ void LocationsWindow::paintEvent(QPaintEvent *event)
         p.fillRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE,
                          width(), (FOOTER_HEIGHT) * G_SCALE / 2), QBrush(footerColor));
 #else
+        // drawing FOOTER_HEIGHT_FULL here should make no difference since the child list will draw over anyway
         p.fillRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE, width(), FOOTER_HEIGHT * G_SCALE), QBrush(footerColor));
 #endif
 
@@ -223,4 +227,17 @@ QRect LocationsWindow::getResizeHandleClickableRect()
     return QRect(width() / 2 - 14*G_SCALE,
                  height() - FOOTER_HEIGHT_FULL*G_SCALE / 2 - 2*G_SCALE,
                  28*G_SCALE, 8*G_SCALE);
+}
+
+void LocationsWindow::updateFooterOverlayGeo()
+{
+    int bringItBackAbit = qCeil(GuiLocations::FooterTopStrip::HEIGHT * G_SCALE);
+    int tabHeight = locationsTab_->geometry().height();
+    int newFooterPos = tabHeight - bringItBackAbit;
+
+    footerTopStrip_->setGeometry(0,
+                                 newFooterPos,
+                                 WINDOW_WIDTH*G_SCALE,
+                                 bringItBackAbit);
+    footerTopStrip_->update();
 }

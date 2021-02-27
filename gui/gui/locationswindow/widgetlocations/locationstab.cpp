@@ -2,6 +2,7 @@
 
 #include <QMessageBox>
 #include <QPainter>
+#include <QtMath>
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
@@ -786,16 +787,18 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
 
     currentLocationListHeight_ = newHeight;
 
+    int scaledHeight = qCeil(newHeight * G_SCALE);
+
     widgetAllLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight);
     widgetFavoriteLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight);
     widgetStaticIpsLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight) * G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight - (kRibbonHeight * G_SCALE));
     widgetConfiguredLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight) * G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight - (kRibbonHeight * G_SCALE));
     widgetSearchLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight);
 
     // ribbon geometry
     staticIPDeviceInfo_->setGeometry(
@@ -906,7 +909,7 @@ LocationsTab::LocationTabEnum LocationsTab::currentTab()
 
 int LocationsTab::unscaledHeightOfItemViewport()
 {
-    return LOCATION_ITEM_HEIGHT * countOfVisibleItemSlots_ ;
+    return LOCATION_ITEM_HEIGHT * countOfVisibleItemSlots_;
 }
 
 void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)

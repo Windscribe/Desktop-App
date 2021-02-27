@@ -58,13 +58,14 @@ private:
     GuiLocations::LocationsTab *locationsTab_;
     GuiLocations::FooterTopStrip *footerTopStrip_; // overlay needed to be done as child widget so we can paint over the other widget, locationsTab_
 
-    int locationsTabHeight_;
+    int locationsTabHeightUnscaled_;
     bool bDragPressed_;
     QPoint dragPressPt_;
     int dragInitialVisibleItemsCount_;
     int dragInitialBtnDragCenter_;
 
     QRect getResizeHandleClickableRect();
+    void updateFooterOverlayGeo();
 };
 
 #endif // LOCATIONSWINDOW_H
