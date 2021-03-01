@@ -788,23 +788,20 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
     currentLocationListHeight_ = newHeight;
 
     int scaledHeight = qCeil(newHeight * G_SCALE);
+    int scaledWidth = WINDOW_WIDTH * G_SCALE;
+    int scaledTabHeaderHeight = qCeil(TAB_HEADER_HEIGHT * G_SCALE);
+    int ribbonHeight = (kRibbonHeight * G_SCALE);
+    int ribbonOffset = qCeil(COVER_LAST_ITEM_LINE*G_SCALE);
 
-    widgetAllLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight);
-    widgetFavoriteLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight);
-    widgetStaticIpsLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight - (kRibbonHeight * G_SCALE));
-    widgetConfiguredLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight - (kRibbonHeight * G_SCALE));
-    widgetSearchLocations_->setGeometry(
-        0, TAB_HEADER_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, scaledHeight);
+    widgetAllLocations_->setGeometry(        0, scaledTabHeaderHeight, scaledWidth, scaledHeight);
+    widgetFavoriteLocations_->setGeometry(   0, scaledTabHeaderHeight, scaledWidth, scaledHeight);
+    widgetStaticIpsLocations_->setGeometry(  0, scaledTabHeaderHeight, scaledWidth, scaledHeight - ribbonHeight);
+    widgetConfiguredLocations_->setGeometry( 0, scaledTabHeaderHeight, scaledWidth, scaledHeight - ribbonHeight);
+    widgetSearchLocations_->setGeometry(     0, scaledTabHeaderHeight, scaledWidth, scaledHeight);
 
     // ribbon geometry
-    staticIPDeviceInfo_->setGeometry(
-        0, newHeight * G_SCALE - COVER_LAST_ITEM_LINE*G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
-    configFooterInfo_->setGeometry(
-        0, newHeight * G_SCALE - COVER_LAST_ITEM_LINE*G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+    staticIPDeviceInfo_->setGeometry( 0, scaledHeight - ribbonOffset, scaledWidth, ribbonHeight);
+    configFooterInfo_->setGeometry(   0, scaledHeight - ribbonOffset, scaledWidth, ribbonHeight);
 
     updateScaling();
 }
