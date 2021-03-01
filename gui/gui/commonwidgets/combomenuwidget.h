@@ -66,6 +66,8 @@ private:
     // background
     QRect roundedBackgroundRect_;
 
+    const int TRACKPAD_DELTA_THRESHOLD = 25;
+    int trackpadDeltaSum_;
     VerticalScrollBarWidget *scrollBar_;
 
     // list widget

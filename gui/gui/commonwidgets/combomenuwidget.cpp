@@ -12,6 +12,7 @@
 namespace CommonWidgets {
 
 ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
+  , trackpadDeltaSum_(0)
   , menuListPosY_(0)
 {
 
@@ -97,6 +98,7 @@ void ComboMenuWidget::removeItem(int index)
 
 void ComboMenuWidget::navigateItemToTop(int index)
 {
+    trackpadDeltaSum_ = 0;
     if (index >= 0 && index < items_.count())
     {
         int newValue = -index*STEP_SIZE*G_SCALE;
@@ -235,18 +237,37 @@ void ComboMenuWidget::hideEvent(QHideEvent *event)
 
 void ComboMenuWidget::wheelEvent(QWheelEvent *event)
 {
-    const int change = 20;
-    if (event->delta() > 0) // scroll up
+    // Some Windows trackpads send multple small deltas instead of one single large delta (like mouse scroll)
+    // "Phase" data does not indicate anything helpful, all are "NoScrollPhase", unlike MacOS phase seen above
+    // So we track scrolling until it accumulates to similar delta
+    int change = event->angleDelta().y();
+    if (abs(change) != 120) // must be trackpad
     {
-        qCDebug(LOG_USER) << "ComboMenu wheeling (up): " << event->delta();
-        int newY = menuListPosY_ + change; // moves inner down
+        change += trackpadDeltaSum_;
+    }
+    else // could be mouse or trackpad
+    {
+        // if someone starts using mouse (or +/- 120 trackpad) to scoll then clear accumulation
+        trackpadDeltaSum_ = 0;
+    }
+
+    if (change > TRACKPAD_DELTA_THRESHOLD) // scroll up
+    {
+        //qCDebug(LOG_USER) << "ComboMenu wheeling (up): " << event->delta();
+        int newY = menuListPosY_ + TRACKPAD_DELTA_THRESHOLD; // moves inner down
+        trackpadDeltaSum_ = change - TRACKPAD_DELTA_THRESHOLD;
         moveListPos(newY);
     }
-    else // scroll down
+    else if (change < -TRACKPAD_DELTA_THRESHOLD) // scroll down
     {
-        qCDebug(LOG_USER) << "ComboMenu wheeling (down): " << event->delta();
-        int newY = menuListPosY_ - change; // moves inner up
+        //qCDebug(LOG_USER) << "ComboMenu wheeling (down): " << event->delta();
+        int newY = menuListPosY_ - TRACKPAD_DELTA_THRESHOLD; // moves inner up
+        trackpadDeltaSum_ = change + TRACKPAD_DELTA_THRESHOLD;
         moveListPos(newY);
+    }
+    else // accumulate changes
+    {
+        trackpadDeltaSum_ = change;
     }
 }
 

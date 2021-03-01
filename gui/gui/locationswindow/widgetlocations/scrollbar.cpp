@@ -82,7 +82,7 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
             trackPadScrollDelta_ = diff;
         }
     }
-    else // mouse wheel
+    else // mouse wheel or trackpad drag
     {
 
         // Some Windows trackpads send multple small deltas instead of one single large delta (like mouse scroll)
@@ -90,13 +90,13 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
         // So we track scrolling until it accumulates to similar delta
         int change = event->angleDelta().y();
         lastScrollDirectionUp_  = event->angleDelta().y() > 0;
-        if (abs(change) != 120 ) // mouse scroll is dead give-away by delta +/- 120 value
+        if (abs(change) != 120 ) // must be trackpad
         {
             change += trackpadDeltaSum_;
         }
         else
         {
-            // if someone starts using mouse to scoll then clear accumulation
+            // if someone starts using mouse (or +/- 120 trackpad) to scoll then clear accumulation
             trackpadDeltaSum_ = 0;
         }
 
