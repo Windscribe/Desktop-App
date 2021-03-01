@@ -173,6 +173,6 @@ message UpdateVersion
 
 message UpdateWindowInfo
 {
-  optional int32 window_center_x = 1 [ default = -1 ];
-  optional int32 window_center_y = 2 [ default = -1 ];
+  optional int32 window_center_x = 1 [ default = 2147483647 ];
+  optional int32 window_center_y = 2 [ default = 2147483647 ];
 }

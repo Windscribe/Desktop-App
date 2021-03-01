@@ -2187,8 +2187,22 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
     {
         // Send main window center coordinates from the GUI, to position the installer properly.
         const bool is_visible = isVisible() && !isMinimized();
-        const quint32 center_x = is_visible ? (geometry().x() + geometry().width() / 2) : -1;
-        const quint32 center_y = is_visible ? (geometry().y() + geometry().height() / 2) : -1;
+        qint32 center_x;
+        qint32 center_y;
+        if (!is_visible)
+        {
+            center_x = INT_MAX;
+            center_y = INT_MAX;
+        }
+        else
+        {
+#ifdef Q_OS_WIN
+            center_x = geometry().x() + geometry().width() / 2;
+            center_y = geometry().y() + geometry().height() / 2;
+#else
+            MacUtils::getNSWindowCenter((void *)this->winId(), center_x, center_y);
+#endif
+        }
         backend_->sendUpdateWindowInfo(center_x, center_y);
     }
 }

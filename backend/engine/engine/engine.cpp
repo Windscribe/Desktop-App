@@ -1995,7 +1995,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     std::wstring installerPath = installerPath_.toStdWString();
 
     QString installerArgString{ "-update" };
-    if (windowCenterX != -1 && windowCenterY != -1)
+    if (windowCenterX != INT_MAX && windowCenterY != INT_MAX)
         installerArgString.append(QString(" -center %1 %2").arg(windowCenterX).arg(windowCenterY));
     std::wstring installerArgs = installerArgString.toStdWString();
 
@@ -2023,7 +2023,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
 
 #elif defined Q_OS_MAC
     QString additionalArgs;
-    if (windowCenterX != -1 && windowCenterY != -1)
+    if (windowCenterX != INT_MAX && windowCenterY != INT_MAX)
         additionalArgs.append(QString("-center %1 %2").arg(windowCenterX).arg(windowCenterY));
 
     bool verifiedAndRan = autoUpdaterHelper_->verifyAndRun(installerPath_, additionalArgs);

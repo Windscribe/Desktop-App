@@ -851,3 +851,11 @@ QString MacUtils::getBundlePath()
 {
     return QString::fromNSString([[NSBundle mainBundle] bundlePath]);
 }
+
+void MacUtils::getNSWindowCenter(void *nsView, int &outX, int &outY)
+{
+    NSView *view = (NSView *)nsView;
+    NSRect rc = view.window.frame;
+    outX = rc.origin.x + rc.size.width / 2;
+    outY = rc.origin.y + rc.size.height / 2;
+}
