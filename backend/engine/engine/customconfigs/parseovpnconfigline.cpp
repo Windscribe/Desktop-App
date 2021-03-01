@@ -93,6 +93,19 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
             }
         }
     }
+    else if (line.contains("script-security", Qt::CaseInsensitive))
+    {
+        QStringList strs = splitLine(line);
+
+        if (strs.count() > 0 && strs[0].compare("script-security", Qt::CaseInsensitive) == 0)
+        {
+            if (strs.count() >= 2)
+            {
+                openVpnLine.type = OVPN_CMD_SCRIPT_SECURITY;
+                openVpnLine.verb = strs[1].toUInt();
+            }
+        }
+    }
     else if (line.contains("route-nopull", Qt::CaseInsensitive) ||
              line.contains("route-noexec", Qt::CaseInsensitive))
     {

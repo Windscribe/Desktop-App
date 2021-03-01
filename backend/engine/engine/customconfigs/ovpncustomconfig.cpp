@@ -113,6 +113,7 @@ void OvpnCustomConfig::process()
 
         bool bFoundAtLeastOneRemote = false;
         bool bFoundVerbCommand = false;
+        bool bFoundScriptSecurityCommand = false;
         bool bHasValidCipher = false;
         bool isTapDevice = false;
         QString currentProtocol{ "udp" };
@@ -149,6 +150,18 @@ void OvpnCustomConfig::process()
 
                 ovpnData_ += "verb " + QString::number(openVpnLine.verb) + "\n";
                 bFoundVerbCommand = true;
+            }
+            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_SCRIPT_SECURITY) // script-security cmd
+            {
+                qDebug(LOG_CUSTOM_OVPN) << "Extracted script-security:" << openVpnLine.verb;
+#ifdef Q_OS_MAC
+                // Needed script-security at least 2 on Mac, to allow an "up" command for the DNS
+                // setup script.
+                if (openVpnLine.verb < 2)
+                    openVpnLine.verb = 2;
+#endif
+                ovpnData_ += "script-security " + QString::number(openVpnLine.verb) + "\n";
+                bFoundScriptSecurityCommand = true;
             }
             else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_CIPHER) // cipher cmd
             {
@@ -197,6 +210,12 @@ void OvpnCustomConfig::process()
 
         if (!bFoundVerbCommand)
             ovpnData_ += "verb 3\n";
+#ifdef Q_OS_MAC
+        // Needed script-security at least 2 on Mac, to allow an "up" command for the DNS setup
+        // script.
+        if (!bFoundScriptSecurityCommand)
+            ovpnData_ += "script-security 2\n";
+#endif
 
         // The "BF-CBC" cipher was the default prior to OpenVPN 2.5.
         // To support old configs that used to work in older Windscribe distributions, add a default

@@ -57,6 +57,13 @@ bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QSt
         file_.write("\r\n");
     }
 
+#ifdef Q_OS_MAC
+    // No need to set "script-security" here, because it is handled in the config parsing code.
+    QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
+    QString cmd1 = "\nup \"" + strDnsPath + " -up\"\n";
+    file_.write(cmd1.toUtf8());
+#endif
+
     file_.flush();
     return true;
 }
