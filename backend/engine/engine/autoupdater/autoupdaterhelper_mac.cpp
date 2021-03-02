@@ -91,10 +91,6 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
     QString appFolder = QCoreApplication::applicationDirPath();
     qCDebug(LOG_AUTO_UPDATER) << "Verified signature and certificate of downloaded installer -- starting with install location: " << appFolder;
 
-#ifdef QT_DEBUG
-    appFolder = "/Applications";
-#endif
-
     // start installer
     // use non-static start detached to prevent output from polluting cli
     QStringList args;
