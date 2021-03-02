@@ -24,6 +24,7 @@ public:
 
     void languageChanged();
 
+    QColor getLocationsFooterColor();
     QColor getScrollBarBackgroundColor(); // more generic name for this color?
     QColor getCarbonBlackColor();
     QColor getCharcoalColor();

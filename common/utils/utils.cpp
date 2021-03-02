@@ -13,6 +13,7 @@
     #include "macutils.h"
     #include <math.h>
     #include <unistd.h>
+    #include <ApplicationServices/ApplicationServices.h>
 #endif
 
 using namespace Utils;
@@ -425,4 +426,13 @@ bool Utils::removeDirectory(const QString dir)
 {
     QDir d(dir);
     return d.removeRecursively();
+}
+
+bool Utils::accessibilityPermissions()
+{
+#ifdef Q_OS_MAC
+    return AXIsProcessTrusted();
+#else
+    return true;
+#endif
 }

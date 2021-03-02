@@ -92,6 +92,7 @@ LIBS += -framework CoreServices
 LIBS += -framework Security
 LIBS += -framework SystemConfiguration
 LIBS += -framework ServiceManagement
+LIBS += -framework ApplicationServices
 
 INCLUDEPATH += $$(HOME)/LibsWindscribe/protobuf/include
 LIBS += -L$$(HOME)/LibsWindscribe/protobuf/lib -lprotobuf
@@ -221,6 +222,7 @@ SOURCES += \
     graphicresources/iconmanager.cpp \
     graphicresources/independentpixmap.cpp \
     launchonstartup/launchonstartup.cpp \
+    locationswindow/widgetlocations/footertopstrip.cpp \
     locationswindow/widgetlocations/itemwidgetcity.cpp \
     locationswindow/widgetlocations/itemwidgetheader.cpp \
     locationswindow/widgetlocations/itemwidgetregion.cpp \
@@ -449,6 +451,7 @@ HEADERS += \
     dialogs/advancedparametersdialog.h \
     dialogs/dialoggetusernamepassword.h \
     dialogs/dialogmessagecpuusage.h \
+    locationswindow/widgetlocations/footertopstrip.h \
     locationswindow/widgetlocations/iitemwidget.h \
     locationswindow/widgetlocations/itemwidgetcity.h \
     locationswindow/widgetlocations/itemwidgetheader.h \

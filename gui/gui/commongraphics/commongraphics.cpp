@@ -57,7 +57,7 @@ QRect idealRect(int posX, int posY, int minWidth, int maxWidth, int idealLines, 
     return textBoundingRect(font, posX, posY, ideal_width, text, flag);
 }
 
-QString truncateText(QString original, QFont font, int width)
+QString truncatedText(QString original, QFont font, int width)
 {
     QString shortened = original;
 
@@ -78,6 +78,16 @@ QString truncateText(QString original, QFont font, int width)
     if (count <= 3) shortened = original;
 
     return shortened;
+}
+
+QString maybeTruncatedText(const QString &original, const QFont &font, int width)
+{
+    QString newText = original;
+    if (CommonGraphics::textWidth(original, font) > width)
+    {
+        newText = CommonGraphics::truncatedText(original, font, width);
+    }
+    return newText;
 }
 
 }

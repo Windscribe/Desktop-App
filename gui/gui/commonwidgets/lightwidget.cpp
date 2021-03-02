@@ -57,6 +57,12 @@ const QFont &LightWidget::font()
     return font_;
 }
 
+int LightWidget::truncatedTextWidth(int maxWidth)
+{
+    Q_ASSERT(font_ != QFont());
+    return CommonGraphics::textWidth(CommonGraphics::maybeTruncatedText(text_, font_, maxWidth), font_);
+}
+
 int LightWidget::textWidth()
 {
     Q_ASSERT(font_ != QFont());

@@ -5,7 +5,6 @@
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
-#include "widgetlocationssizes.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
@@ -50,6 +49,8 @@ ItemWidgetHeader::ItemWidgetHeader(IWidgetLocationsInfo *widgetLocationsInfo, Lo
 ItemWidgetHeader::~ItemWidgetHeader()
 {
     // qDebug() << "Deleting header: " << name();
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
+
 }
 
 bool ItemWidgetHeader::isExpanded() const
@@ -63,6 +64,11 @@ bool ItemWidgetHeader::isForbidden() const
 }
 
 bool ItemWidgetHeader::isDisabled() const
+{
+    return false;
+}
+
+bool ItemWidgetHeader::isBrokenConfig() const
 {
     return false;
 }
@@ -181,7 +187,7 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
     // background
     QPainter painter(this);
     painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE),
-                     WidgetLocationsSizes::instance().getBackgroundColor());
+                     FontManager::instance().getMidnightColor());
 
     // flag
     IndependentPixmap *flag = ImageResourcesSvg::instance().getFlag(countryCode_);
@@ -233,15 +239,16 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
 
     int left = 24 * G_SCALE;
     int right = WINDOW_WIDTH * G_SCALE - 8*G_SCALE;
-    int bottom = (LOCATION_ITEM_HEIGHT-1)* G_SCALE;
+    int bottom = static_cast<int>(LOCATION_ITEM_HEIGHT*G_SCALE) - 1; // 1 is not scaled since we want bottom-most pixel inside geometry
     painter.setOpacity(1.0);
 
+    // TODO: lines not scaled since we draw just single pixels
     // background line (darker line)
     QPen pen(QColor(0x29, 0x2E, 0x3E));
     pen.setWidth(1);
     painter.setPen(pen);
-    painter.drawLine(left, bottom, right, bottom);
     painter.drawLine(left, bottom - 1, right, bottom - 1);
+    painter.drawLine(left, bottom, right, bottom);
 
     // top-most line (white)
     if( qFabs(1.0 - expandAnimationProgress_) < 0.000001 )
@@ -268,6 +275,12 @@ void ItemWidgetHeader::enterEvent(QEvent *event)
     Q_UNUSED(event)
     // qDebug() << "Selection by hover enter";
     setAccented(true); // triggers unselection of other widgets
+}
+
+void ItemWidgetHeader::leaveEvent(QEvent *event)
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
+    QWidget::leaveEvent(event);
 }
 
 void ItemWidgetHeader::mouseMoveEvent(QMouseEvent *event)

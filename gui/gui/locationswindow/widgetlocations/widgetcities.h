@@ -23,7 +23,7 @@ class WidgetCities : public QScrollArea, public IWidgetLocationsInfo
 {
     Q_OBJECT
 public:
-    explicit WidgetCities(QWidget *parent, int visible_item_slots = 7);
+    explicit WidgetCities(QWidget *parent, const QString name, int visible_item_slots = 7);
     ~WidgetCities() override;
 
     void setModel(BasicCitiesModel *citiesModel);
@@ -80,10 +80,12 @@ private slots:
     void onLocationItemListWidgetLocationIdSelected(LocationID id);
 
     void onScrollAnimationValueChanged(const QVariant &value);
+    void onScrollAnimationFinished();
     void onScrollBarHandleDragged(int valuePos);
     void onScrollBarStopScroll(bool lastScrollDirectionUp);
 
 private:
+    QString name_;
     WidgetCitiesList *widgetCitiesList_;
     ScrollBar *scrollBar_;
     BasicCitiesModel *citiesModel_;
@@ -119,7 +121,7 @@ private:
     void animatedScrollDown(int itemCount);
     void animatedScrollUp(int itemCount);
     void startAnimationScrollByPosition(int positionValue, QVariantAnimation &animation);
-
+    void updateScrollBarWithView();
 
     // viewport
     const LocationID topViewportSelectableLocationId();

@@ -21,6 +21,7 @@ public:
     void animateHide();
     void animateShow();
 
+    const QString text();
     void setText(QString text);
 
     int getWidth();

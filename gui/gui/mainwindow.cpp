@@ -728,6 +728,16 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
     }
 #endif
+    // for feeding chars to searchbar when mainwindow has focus
+    // qDebug() << "MainWindow::keyPressEvent";
+    if (mainWindowController_->isLocationsExpanded())
+    {
+        if(event->key() != Qt::Key_Escape || event->key() != Qt::Key_Space)
+        {
+            mainWindowController_->handleKeyPressEvent(event);
+        }
+    }
+
     QWidget::keyPressEvent(event);
 }
 
@@ -738,7 +748,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
         {
-            qCDebug(LOG_BASIC) << "Collapsing Locations";
+            qCDebug(LOG_USER) << "Collapsing Locations [key]";
             mainWindowController_->collapseLocations();
         }
         else
@@ -752,7 +762,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Space)
         {
-            qCDebug(LOG_BASIC) << "Expanding Locations";
+            qCDebug(LOG_USER) << "Expanding Locations [key]";
             mainWindowController_->expandLocations();
         }
         else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
@@ -920,6 +930,7 @@ void MainWindow::onConnectWindowNetworkButtonClick()
 
 void MainWindow::onConnectWindowLocationsClick()
 {
+    qCDebug(LOG_USER) << "Locations button clicked";
     if (!mainWindowController_->isLocationsExpanded())
     {
         mainWindowController_->expandLocations();
@@ -2511,6 +2522,8 @@ void MainWindow::deactivateAndHide()
 
 void MainWindow::setBackendAppActiveState(bool state)
 {
+    TooltipController::instance().hideAllTooltips();
+
     if (backend_->isInitFinished() && backendAppActiveState_ != state) {
         backendAppActiveState_ = state;
         state ? backend_->applicationActivated() : backend_->applicationDeactivated();

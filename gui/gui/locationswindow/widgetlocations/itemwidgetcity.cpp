@@ -5,7 +5,6 @@
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
-#include "widgetlocationssizes.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "tooltips/tooltipcontroller.h"
 #include "commongraphics/commongraphics.h"
@@ -56,7 +55,9 @@ ItemWidgetCity::ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, const 
 ItemWidgetCity::~ItemWidgetCity()
 {
     // qDebug() << "Deleting city: " << name();
-
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
 }
 
 bool ItemWidgetCity::isExpanded() const
@@ -93,6 +94,11 @@ bool ItemWidgetCity::isForbidden() const
 bool ItemWidgetCity::isDisabled() const
 {
     return cityModelItem_.isDisabled;
+}
+
+bool ItemWidgetCity::isBrokenConfig() const
+{
+    return cityModelItem_.id.isCustomConfigsLocation() && !cityModelItem_.isCustomConfigCorrect;
 }
 
 void ItemWidgetCity::setFavourited(bool favorited)
@@ -190,21 +196,21 @@ void ItemWidgetCity::updateScaling()
     cityLightWidget_->setFont(*FontManager::instance().getFont(16, true));
     cityLightWidget_->setRect(QRect(LOCATION_ITEM_MARGIN * G_SCALE * 2 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,
                                      (LOCATION_ITEM_HEIGHT * G_SCALE - cityLightWidget_->textHeight())/2,
-                                     cityLightWidget_->textWidth(),
+                                     cityLightWidget_->truncatedTextWidth(CITY_CAPTION_MAX_WIDTH*G_SCALE),
                                      cityLightWidget_->textHeight()));
 
     // nick text
     nickLightWidget_->setFont(*FontManager::instance().getFont(16, false));
     nickLightWidget_->setRect(QRect(cityLightWidget_->rect().x() + cityLightWidget_->rect().width() + 8*G_SCALE,
                                      (LOCATION_ITEM_HEIGHT * G_SCALE - nickLightWidget_->textHeight())/2,
-                                     nickLightWidget_->textWidth(),
+                                     nickLightWidget_->truncatedTextWidth(CITY_CAPTION_MAX_WIDTH*G_SCALE),
                                      nickLightWidget_->textHeight()));
 
     // static ip text
     staticIpLightWidget_->setFont(*FontManager::instance().getFont(13, false));
-    staticIpLightWidget_->setRect(QRect((WINDOW_WIDTH*G_SCALE - staticIpLightWidget_->textWidth() - 44*G_SCALE),
+    staticIpLightWidget_->setRect(QRect((WINDOW_WIDTH*G_SCALE - staticIpLightWidget_->truncatedTextWidth(CITY_CAPTION_MAX_WIDTH*G_SCALE) - 44*G_SCALE),
                                          (LOCATION_ITEM_HEIGHT * G_SCALE - staticIpLightWidget_->textHeight())/2,
-                                         staticIpLightWidget_->textWidth(),
+                                         staticIpLightWidget_->truncatedTextWidth(CITY_CAPTION_MAX_WIDTH*G_SCALE),
                                          staticIpLightWidget_->textHeight()));
 
     recreateTextLayouts();
@@ -232,7 +238,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     double initOpacity = painter.opacity();
     painter.fillRect(QRect(0, 0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE),
-                      WidgetLocationsSizes::instance().getBackgroundColor());
+                      FontManager::instance().getMidnightColor());
 
     if (cityModelItem_.id.isStaticIpsLocation())
     {
@@ -258,7 +264,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
         }
 
         // static ip text
-        qDebug() << "Drawing static location";
+        // qDebug() << "Drawing static location";
         painter.setOpacity(0.5);
         painter.setPen(Qt::white);
         staticIpTextLayout_->draw(&painter, QPoint(staticIpLightWidget_->rect().x(), staticIpLightWidget_->rect().y()));
@@ -323,6 +329,13 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
                        &painter);
         }
     }
+    else if (isBrokenConfig())
+    {
+        painter.save();
+        IndependentPixmap *pingIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/ERROR_ICON");
+        pingIcon->draw(pingIconLightWidget_->rect().x(), pingIconLightWidget_->rect().y(), &painter);
+        painter.restore();
+    }
     else if (!showingLatencyAsPingBar_)
     {
         // draw bubble
@@ -362,21 +375,30 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     }
 
     // background line
-    int left = 24 * G_SCALE;
-    int right = WINDOW_WIDTH * G_SCALE - 8*G_SCALE;
-    int bottom = (LOCATION_ITEM_HEIGHT-1)* G_SCALE;
+	// TODO: lines drawn like this do not scale -- fix
+    int left = static_cast<int>(24 * G_SCALE);
+    int right = static_cast<int>(WINDOW_WIDTH * G_SCALE - 8*G_SCALE);
+    int bottom = static_cast<int>(LOCATION_ITEM_HEIGHT*G_SCALE) -1; // 1 is not scaled since we want bottom-most pixel in geometry
     QPen pen(QColor(0x29, 0x2E, 0x3E));
     pen.setWidth(1);
     painter.setOpacity(initOpacity);
     painter.setPen(pen);
-    painter.drawLine(left, bottom, right, bottom);
     painter.drawLine(left, bottom - 1, right, bottom - 1);
+    painter.drawLine(left, bottom, right, bottom);
 }
 
 void ItemWidgetCity::enterEvent(QEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     setAccented(true); // triggers unselection of other widgets
+}
+
+void ItemWidgetCity::leaveEvent(QEvent *event)
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
+    QWidget::leaveEvent(event);
 }
 
 void ItemWidgetCity::mouseMoveEvent(QMouseEvent *event)
@@ -392,8 +414,12 @@ void ItemWidgetCity::mouseMoveEvent(QMouseEvent *event)
             cityLightWidget_->setHovering(false);
         }
     }
+    else
+    {
+        cityLightWidget_->setHovering(false);
+    }
 
-    if (showingLatencyAsPingBar_)
+    if (showingLatencyAsPingBar_ || isBrokenConfig())
     {
         if (pingIconLightWidget_->rect().contains(event->pos()))
         {
@@ -403,6 +429,10 @@ void ItemWidgetCity::mouseMoveEvent(QMouseEvent *event)
         {
             pingIconLightWidget_->setHovering(false);
         }
+    }
+    else
+    {
+        pingIconLightWidget_->setHovering(false);
     }
 }
 
@@ -446,7 +476,21 @@ void ItemWidgetCity::onPingIconLightWidgetHoveringChanged(bool hovering)
 {
     if (hovering)
     {
-        if (showingLatencyAsPingBar_)
+        if (isBrokenConfig())
+        {
+            QString text = cityModelItem_.customConfigErrorMessage;
+            if (text.isEmpty()) text = tr("Unknown Config Error");
+
+            QPoint pt = mapToGlobal(QPoint(pingIconLightWidget_->rect().center().x(), pingIconLightWidget_->rect().top() - 3*G_SCALE));
+            TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
+            ti.x = pt.x();
+            ti.y = pt.y();
+            ti.title = text;
+            ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+            ti.tailPosPercent = 0.8;
+            TooltipController::instance().showTooltipBasic(ti);
+        }
+        else if (showingLatencyAsPingBar_)
         {
             QPoint pt = mapToGlobal(QPoint(pingIconLightWidget_->rect().center().x(), pingIconLightWidget_->rect().top() - 3*G_SCALE));
             TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
@@ -461,6 +505,7 @@ void ItemWidgetCity::onPingIconLightWidgetHoveringChanged(bool hovering)
     else
     {
         TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ERROR_MESSAGE);
     }
 }
 
@@ -468,7 +513,10 @@ void ItemWidgetCity::onCityLightWidgetHoveringChanged(bool hovering)
 {
     if (hovering)
     {
-        if (CommonGraphics::textWidth(cityLightWidget_->text(), cityLightWidget_->font()) > CITY_CAPTION_MAX_WIDTH*G_SCALE)
+        QString text = CommonGraphics::maybeTruncatedText(cityLightWidget_->text(),
+                                                          cityLightWidget_->font(),
+                                                          static_cast<int>(CITY_CAPTION_MAX_WIDTH*G_SCALE));
+        if (text != cityLightWidget_->text())
         {
             QPoint pt = mapToGlobal(QPoint(cityLightWidget_->rect().x() + cityLightWidget_->rect().width()*0.1,
                                            cityLightWidget_->rect().top() - 3*G_SCALE));
@@ -561,12 +609,9 @@ const QString ItemWidgetCity::pingIconNameString(int connectionSpeedIndex)
 void ItemWidgetCity::recreateTextLayouts()
 {
     // shortening should only be required for configs
-    QString cityText = cityLightWidget_->text();
-    int maxWidth = CITY_CAPTION_MAX_WIDTH * G_SCALE;
-    if (CommonGraphics::textWidth(cityText, cityLightWidget_->font()) > maxWidth)
-    {
-        cityText = CommonGraphics::truncateText(cityText, cityLightWidget_->font(), maxWidth);
-    }
+    QString cityText = CommonGraphics::maybeTruncatedText(cityLightWidget_->text(),
+                                                          cityLightWidget_->font(),
+                                                          static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
 
     cityTextLayout_ = QSharedPointer<QTextLayout>(new QTextLayout(cityText, cityLightWidget_->font()));
     cityTextLayout_->beginLayout();

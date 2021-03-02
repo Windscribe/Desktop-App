@@ -1,5 +1,6 @@
 #include "widgetcitieslist.h"
 
+#include <QtMath>
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
 #include "utils/logger.h"
@@ -84,7 +85,7 @@ void WidgetCitiesList::selectWidgetContainingGlobalPt(const QPoint &pt)
         {
             //qDebug() << "Selecting: " << selectableWidget->name();
             selectableWidget->setAccented(true);
-            emit locationIdSelected(selectableWidget->getId());
+            safeEmitLocationIdSelected(selectableWidget);
             break;
         }
     }
@@ -236,7 +237,7 @@ void WidgetCitiesList::onCityItemClicked()
     if (widgetLocationsInfo_->gestureScrollingElapsedTime() > 100)
     {
         auto cityWidget = static_cast<ItemWidgetCity*>(sender());
-        emit locationIdSelected(cityWidget->getId());
+        safeEmitLocationIdSelected(cityWidget);
     }
 }
 
@@ -248,7 +249,7 @@ void WidgetCitiesList::recalcItemPositions()
 
     foreach (ItemWidgetCity *city, itemWidgets_)
     {
-        city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
+        city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
         height += city->geometry().height();
     }
 
@@ -262,13 +263,25 @@ void WidgetCitiesList::recalcItemPositions()
 
 void WidgetCitiesList::updateCursorWithWidget(IItemWidget *widget)
 {
-    if (widget->isForbidden() || widget->isDisabled())
+    if (widget->isForbidden() ||
+        widget->isDisabled()  ||
+        widget->isBrokenConfig())
     {
         cursorUpdateHelper_->setForbiddenCursor();
     }
     else
     {
         cursorUpdateHelper_->setPointingHandCursor();
+    }
+}
+
+void WidgetCitiesList::safeEmitLocationIdSelected(IItemWidget *widget)
+{
+    if (!widget->isDisabled() &&
+        !widget->isForbidden() &&
+        !widget->isBrokenConfig())
+    {
+        emit locationIdSelected(widget->getId());
     }
 }
 

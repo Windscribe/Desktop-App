@@ -11,12 +11,14 @@ const int WINDOW_WIDTH = 332;
 const int WINDOW_HEIGHT = 316;
 const int WINDOW_MARGIN = 16;
 
+// Re: heavy use of qCeil(LOCATION_ITEM_HEIGHT*G_SCALE):
+// When scaling is 125% or 175% a truncated value will drastically affect the size of the list
+// and affect it's scrollability, especially when dragging the scroller with the mouse
 const int LOCATION_ITEM_HEIGHT = 50;
+
 const int LOCATION_ITEM_MARGIN = 16;
 const int LOCATION_ITEM_MARGIN_TO_LINE = 24;
 const int LOCATION_ITEM_FLAG_WIDTH = 32;
-
-const int LOCATIONS_TAB_HEIGHT = 398;
 
 const int LOGIN_WIDTH = 332;
 const int LOGIN_HEIGHT = 354;
@@ -26,6 +28,7 @@ const int LOGIN_BUTTON_POS_Y                 = 232;
 const double OPACITY_HIDDEN                  = 0.0;
 const double OPACITY_THIRD                   = 0.3;
 const double OPACITY_HALF                    = 0.5;
+const double OPACITY_TWO_THIRDS              = 0.66;
 const double OPACITY_FULL                    = 1.0;
 
 const double OPACITY_UNHOVER_DIVIDER         = 0.1;
@@ -81,7 +84,8 @@ QRect idealRect(int posX, int posY, int minWidth, int maxWidth, int idealLines, 
 
 QRect textBoundingRect(QFont font, int posX, int posY, int width, QString message, Qt::TextFlag flag);
 
-QString truncateText(QString original, QFont font, int width);
+QString maybeTruncatedText(const QString &original, const QFont &font, int width);
+QString truncatedText(QString original, QFont font, int width);
 }
 
 

@@ -421,7 +421,7 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
 
 void MainWindowController::expandLocations()
 {
-    qCDebug(LOG_BASIC) << "MainWindowController::expandLocations";
+    qCDebug(LOG_LOCATION_LIST) << "MainWindowController::expandLocations";
     Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
     Q_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
@@ -455,7 +455,7 @@ void MainWindowController::expandLocations()
 
 void MainWindowController::collapseLocations()
 {
-    qCDebug(LOG_BASIC) << "MainWindowController::collapseLocations";
+    qCDebug(LOG_LOCATION_LIST) << "MainWindowController::collapseLocations";
     Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
     Q_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
@@ -476,7 +476,10 @@ void MainWindowController::collapseLocations()
     functionOnAnimationFinished_ = NULL;
 
     connectWindow_->updateLocationsState(false);
-    locationsWindow_->hideSearchTab();
+    if (locationsWindow_->currentTab() == GuiLocations::LocationsTab::LOCATION_TAB_SEARCH_LOCATIONS)
+    {
+        locationsWindow_->hideSearchTabWithoutAnimation();
+    }
 
     if (bottomInfoWindow_->isUpgradeWidgetVisible() ||
         bottomInfoWindow_->isSharingFeatureVisible()) {
@@ -581,6 +584,11 @@ void MainWindowController::handleKeyReleaseEvent(QKeyEvent *event)
 {
     // qDebug() << "MainWindowController::handleKeyReleaseEvent";
     locationsWindow_->handleKeyReleaseEvent(event);
+}
+
+void MainWindowController::handleKeyPressEvent(QKeyEvent *event)
+{
+    locationsWindow_->handleKeyPressEvent(event);
 }
 
 void MainWindowController::onExpandLocationsListAnimationFinished()
@@ -2437,7 +2445,11 @@ void MainWindowController::collapsePreferencesFromConnect(bool bSkipBottomInfoWi
 
     preferencesState_ = PREFERENCES_STATE_ANIMATING;
     connectWindow_->getGraphicsObject()->show();
-    locationsWindow_->hideSearchTab();
+
+    if (locationsWindow_->currentTab() == GuiLocations::LocationsTab::LOCATION_TAB_SEARCH_LOCATIONS)
+    {
+        locationsWindow_->hideSearchTabWithoutAnimation();
+    }
 
     // opacity change
     QVariantAnimation *animOpacity = new QVariantAnimation(this);
@@ -2788,7 +2800,6 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
         {
             width = connectWindow_->getGraphicsObject()->boundingRect().width();
             height = connectWindow_->getGraphicsObject()->boundingRect().height();
-            // TODO: issue here
             addHeightToGeometry = (locationWindowHeightScaled_ - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE); // locationWindowHeight_ instead of locationWindow_->expandedHeight() because bug where expandedHeight updates too early so the slide doesn't increment
             if (addHeightToGeometry < 0 ) addHeightToGeometry = 0;
         }

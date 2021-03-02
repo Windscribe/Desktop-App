@@ -21,6 +21,8 @@ public:
 
     bool isForbidden() const override;
     bool isDisabled() const override;
+    bool isBrokenConfig() const override;
+
     const LocationID getId() const override;
     const QString name() const override;
     ItemWidgetType type() override;
@@ -45,6 +47,7 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private slots:

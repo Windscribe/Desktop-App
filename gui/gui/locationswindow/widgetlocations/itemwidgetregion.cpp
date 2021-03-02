@@ -1,6 +1,7 @@
 #include "itemwidgetregion.h"
 
 #include <QPainter>
+#include <QtMath>
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
 #include "utils/logger.h"
@@ -15,7 +16,7 @@ ItemWidgetRegion::ItemWidgetRegion(IWidgetLocationsInfo * widgetLocationsInfo, L
 {
     setFocusPolicy(Qt::NoFocus);
 
-    height_ = LOCATION_ITEM_HEIGHT * G_SCALE;
+    height_ = qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
 
     regionHeaderWidget_ = new ItemWidgetHeader(widgetLocationsInfo, locationModelItem, this);
     connect(regionHeaderWidget_, SIGNAL(clicked()), SLOT(onRegionHeaderClicked()));
@@ -81,7 +82,7 @@ void ItemWidgetRegion::setExpandedWithoutAnimation(bool expand)
 
 void ItemWidgetRegion::expand()
 {
-    qCDebug(LOG_BASIC) << "Expanding: " << regionHeaderWidget_->name();
+    qCDebug(LOG_LOCATION_LIST) << "Expanding: " << regionHeaderWidget_->name();
     foreach (ItemWidgetCity * city, cities_)
     {
         city->setSelectable(true);
@@ -97,7 +98,7 @@ void ItemWidgetRegion::expand()
 
 void ItemWidgetRegion::collapse()
 {
-    qCDebug(LOG_BASIC) << "Collapsing: " << regionHeaderWidget_->name();
+    qCDebug(LOG_LOCATION_LIST) << "Collapsing: " << regionHeaderWidget_->name();
 
     foreach (ItemWidgetCity *city, cities_)
     {
@@ -108,7 +109,7 @@ void ItemWidgetRegion::collapse()
     citySubMenuState_ = COLLAPSING;
     expandingHeightAnimation_.stop();
     expandingHeightAnimation_.setStartValue(height_);
-    expandingHeightAnimation_.setEndValue(static_cast<int>(LOCATION_ITEM_HEIGHT*G_SCALE));
+    expandingHeightAnimation_.setEndValue(static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT*G_SCALE)));
     expandingHeightAnimation_.start();
 }
 
@@ -157,13 +158,13 @@ void ItemWidgetRegion::setFavorited(LocationID id, bool isFavorite)
 void ItemWidgetRegion::recalcItemPositions()
 {
     // qDebug() << "Region recalc item positions";
-    regionHeaderWidget_->setGeometry(0,0, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
+    regionHeaderWidget_->setGeometry(0,0, WINDOW_WIDTH * G_SCALE, qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
 
-    int height = LOCATION_ITEM_HEIGHT * G_SCALE;
+    int height = qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
 
     foreach (ItemWidgetCity *city, cities_)
     {
-        city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
+        city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
         height += city->geometry().height();
     }
     recalcHeight();
@@ -171,7 +172,7 @@ void ItemWidgetRegion::recalcItemPositions()
 
 void ItemWidgetRegion::recalcHeight()
 {
-    int height = LOCATION_ITEM_HEIGHT*G_SCALE;
+    int height = qCeil(LOCATION_ITEM_HEIGHT*G_SCALE);
     if  (citySubMenuState_ == EXPANDED) height = expandedHeight();
 
     if (height != height_)
@@ -206,7 +207,7 @@ void ItemWidgetRegion::onCityItemClicked()
 {
     ItemWidgetCity *cityWidget = static_cast<ItemWidgetCity*>(sender());
 
-    if (cityWidget->isForbidden() || cityWidget->isDisabled())
+    if (cityWidget->isForbidden() || cityWidget->isDisabled() || cityWidget->isBrokenConfig())
     {
         return;
     }
@@ -219,7 +220,7 @@ void ItemWidgetRegion::onExpandingHeightAnimationValueChanged(const QVariant &va
     int height = value.toInt();
 
     // qDebug() << "height animation: " << height;
-    if (height == static_cast<int>(LOCATION_ITEM_HEIGHT*G_SCALE))
+    if (height == static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT*G_SCALE)))
     {
         citySubMenuState_ = COLLAPSED;
     }
@@ -237,7 +238,7 @@ void ItemWidgetRegion::onExpandingHeightAnimationValueChanged(const QVariant &va
 
 int ItemWidgetRegion::expandedHeight()
 {
-    int height = LOCATION_ITEM_HEIGHT * G_SCALE;
+    int height = qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
     foreach (auto city, cities_)
     {
         height += city->geometry().height();

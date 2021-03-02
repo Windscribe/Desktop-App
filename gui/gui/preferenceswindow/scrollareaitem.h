@@ -35,6 +35,8 @@ private slots:
     void onPageScrollToRect(QRect r);
 
     void onScrollBarOpacityChanged(const QVariant &value);
+    void onScrollBarHoverEnter();
+    void onScrollBarHoverLeave();
 
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent *event) override;
@@ -45,6 +47,7 @@ private:
 
     int height_;
 
+    static constexpr int SCROLL_DISTANCE_FROM_RIGHT = 2;
     static constexpr int WIDTH = 282;
     static constexpr int SCROLL_BAR_GAP = 1;
 

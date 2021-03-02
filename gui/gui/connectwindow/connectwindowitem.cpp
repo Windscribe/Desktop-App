@@ -640,12 +640,12 @@ void ConnectWindowItem::updatePositions()
 void ConnectWindowItem::updateShortenedText()
 {
     QString shortenedFirstName =
-        CommonGraphics::truncateText(fullFirstName_, cityName1Text_->getFont(),
+        CommonGraphics::truncatedText(fullFirstName_, cityName1Text_->getFont(),
             boundingRect().width() - 114 * G_SCALE);
     cityName1Text_->setText(shortenedFirstName);
 
     QString shortenedSecondName =
-        CommonGraphics::truncateText(fullSecondName_, cityName2Text_->getFont(), 175 * G_SCALE);
+        CommonGraphics::truncatedText(fullSecondName_, cityName2Text_->getFont(), 175 * G_SCALE);
     cityName2Text_->setText(shortenedSecondName);
 }
 

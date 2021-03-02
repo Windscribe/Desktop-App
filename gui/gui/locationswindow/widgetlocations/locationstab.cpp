@@ -2,6 +2,7 @@
 
 #include <QMessageBox>
 #include <QPainter>
+#include <QtMath>
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
@@ -9,9 +10,9 @@
 #include "tooltips/tooltiptypes.h"
 #include "utils/writeaccessrightschecker.h"
 #include "tooltips/tooltipcontroller.h"
-#include "widgetlocationssizes.h"
+#include "utils/logger.h"
 
-#include <QDebug>
+// #include <QDebug>
 
 extern QWidget *g_mainWindow;
 
@@ -19,10 +20,11 @@ namespace GuiLocations {
 
 
 LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QWidget(parent)
-  , curTab_(CUR_TAB_ALL_LOCATIONS)
-  , tabPress_(CUR_TAB_NONE)
+  , curTab_(LOCATION_TAB_ALL_LOCATIONS)
+  , tabPress_(LOCATION_TAB_NONE)
+  , filterText_("")
   , searchTabSelected_(false)
-  , curTabMouseOver_(CUR_TAB_NONE)
+  , curTabMouseOver_(LOCATION_TAB_NONE)
   , checkCustomConfigPathAccessRights_(false)
   , countOfVisibleItemSlots_(7)
   , currentLocationListHeight_(0)
@@ -33,13 +35,13 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     setMouseTracking(true);
     curCursorShape_ = Qt::ArrowCursor;
 
-    searchButtonPos_ = LAST_TAB_ICON_POS_X;
+    searchButtonPosUnscaled_ = LAST_TAB_ICON_POS_X;
     searchButton_ = new CommonWidgets::IconButtonWidget("locations/SEARCH_ICON", this);
     searchButton_->setUnhoverHoverOpacity(TAB_OPACITY_DIM, TAB_OPACITY_DIM);
     connect(searchButton_, SIGNAL(clicked()), SLOT(onSearchButtonClicked()));
     connect(searchButton_, SIGNAL(hoverEnter()), SLOT(onSearchButtonHoverEnter()));
     connect(searchButton_, SIGNAL(hoverLeave()), SLOT(onSearchButtonHoverLeave()));
-    searchButton_->move(searchButtonPos_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
+    searchButton_->move(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
 
     searchButtonPosAnimation_.setDuration(SEARCH_BUTTON_POS_ANIMATION_DURATION);
     searchButtonPosAnimation_.setStartValue(FIRST_TAB_ICON_POS_X); // keep animation unaware of scaling
@@ -56,8 +58,8 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     searchLineEdit_->setFont(*FontManager::instance().getFont(14, false));
     searchLineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     searchLineEdit_->setFrame(false);
+    searchLineEdit_->installEventFilter(this);
     connect(searchLineEdit_, SIGNAL(textChanged(QString)), SLOT(onSearchLineEditTextChanged(QString)));
-    connect(searchLineEdit_, SIGNAL(keyEnterPressed()), SLOT(onSearchLineEditKeyEnterPressed()));
     connect(searchLineEdit_, SIGNAL(focusOut()), SLOT(onSearchLineEditFocusOut()));
 
     searchLineEdit_->hide();
@@ -67,15 +69,15 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1) * G_SCALE;
     connect(&whiteLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
 
-    widgetAllLocations_ = new GuiLocations::WidgetLocations(this);
+    widgetAllLocations_ = new GuiLocations::WidgetLocations(this, "All");
 
-    widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, 6);
+    widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, "Configs", 6);
     widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
     connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
                                         SLOT(onAddCustomConfigClicked()));
     widgetConfiguredLocations_->hide();
 
-    widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this, 6);
+    widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this, "Static IP", 6);
     widgetStaticIpsLocations_->setEmptyListDisplayIcon("locations/STATIC_IP_ICON_BIG");
     widgetStaticIpsLocations_->setEmptyListDisplayText(tr("You don't have any Static IPs"), 120);
     widgetStaticIpsLocations_->setEmptyListButtonText(tr("Buy"));
@@ -83,7 +85,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
                                        SIGNAL(addStaticIpClicked()));
     widgetStaticIpsLocations_->hide();
 
-    widgetFavoriteLocations_ = new GuiLocations::WidgetCities(this);
+    widgetFavoriteLocations_ = new GuiLocations::WidgetCities(this, "Favourites");
     widgetFavoriteLocations_->setEmptyListDisplayIcon("locations/BROKEN_HEART_ICON");
     widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here..."), 120);
     widgetFavoriteLocations_->hide();
@@ -98,10 +100,10 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
             SIGNAL(clearCustomConfigClicked()));
     connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SLOT(onAddCustomConfigClicked()));
 
-    widgetSearchLocations_ = new GuiLocations::WidgetLocations(this);
+    widgetSearchLocations_ = new GuiLocations::WidgetLocations(this, "Search");
     widgetSearchLocations_->hide();
 
-    updateLocationWidgetsGeometry(unscaledHeight());
+    updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
 
     connect(widgetAllLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetAllLocations_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
@@ -122,6 +124,14 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     widgetFavoriteLocations_->setModel(locationsModel->getFavoriteLocationsModel());
     widgetSearchLocations_->setModel(locationsModel->getAllLocationsModel());
 
+    searchTypingDelayTimer_.setSingleShot(true);
+    searchTypingDelayTimer_.setInterval(100);
+    connect(&searchTypingDelayTimer_, SIGNAL(timeout()), SLOT(onSearchTypingDelayTimerTimeout()));
+
+    delayShowIconsTimer_.setSingleShot(true);
+    delayShowIconsTimer_.setInterval(SEARCH_BUTTON_POS_ANIMATION_DURATION+100);
+    connect(&delayShowIconsTimer_, SIGNAL(timeout()), SLOT(onDelayShowIconsTimerTimeout()));
+
     connect(locationsModel, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
 
     updateCustomConfigsEmptyListVisibility();
@@ -138,7 +148,7 @@ void LocationsTab::setCountVisibleItemSlots(int cnt)
         widgetFavoriteLocations_->setCountViewportItems(countOfVisibleItemSlots_);
         widgetSearchLocations_->setCountViewportItems(countOfVisibleItemSlots_);
         updateRibbonVisibility();
-        updateLocationWidgetsGeometry(unscaledHeight());
+        updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
     }
 }
 
@@ -152,18 +162,18 @@ void LocationsTab::setOnlyConfigTabVisible(bool onlyConfig)
     if (onlyConfig)
     {
         showAllTabs_ = false;
-        changeTab(CUR_TAB_CONFIGURED_LOCATIONS);
+        changeTab(LOCATION_TAB_CONFIGURED_LOCATIONS);
     }
     else
     {
         showAllTabs_ = true;
-        changeTab(CUR_TAB_ALL_LOCATIONS);
+        changeTab(LOCATION_TAB_ALL_LOCATIONS);
     }
 }
 
 void LocationsTab::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     if (isWhiteAnimationActive())
     {
@@ -173,11 +183,11 @@ void LocationsTab::paintEvent(QPaintEvent *event)
     // cover no background between ribbon and bottom handle (static and config)
     QPainter painter(this);
     QRect bkgd(0,0,geometry().width(), geometry().height());
-    painter.fillRect(bkgd, WidgetLocationsSizes::instance().getBackgroundColor());
+    painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
 
     // qDebug() << "LocationsTab::paintEvent - geo: " << geometry();
 
-    drawTabRegion(painter, QRect(0, 0, width(), TOP_TAB_HEIGHT * G_SCALE));
+    drawTabRegion(painter, QRect(0, 0, width(), TAB_HEADER_HEIGHT * G_SCALE));
 
 }
 
@@ -195,31 +205,31 @@ void LocationsTab::mouseMoveEvent(QMouseEvent *event)
         {
             if (rcAllLocationsIcon_.adjusted(-addMargin, -addMargin, addMargin, addMargin).contains(pt))
             {
-                curTabMouseOver_ = CUR_TAB_ALL_LOCATIONS;
+                curTabMouseOver_ = LOCATION_TAB_ALL_LOCATIONS;
                 setPointingHandCursor();
                 rectHoverEnter(rcAllLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "All"), 8 * G_SCALE, -5 * G_SCALE);
             }
             else if (rcConfiguredLocationsIcon_.adjusted(-addMargin, -addMargin, addMargin, addMargin).contains(pt))
             {
-                curTabMouseOver_ = CUR_TAB_CONFIGURED_LOCATIONS;
+                curTabMouseOver_ = LOCATION_TAB_CONFIGURED_LOCATIONS;
                 setPointingHandCursor();
                 rectHoverEnter(rcConfiguredLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Configured"), 9 * G_SCALE, -5 * G_SCALE);
             }
             else if (rcStaticIpsLocationsIcon_.adjusted(-addMargin, -addMargin, addMargin, addMargin).contains(pt))
             {
-                curTabMouseOver_ = CUR_TAB_STATIC_IPS_LOCATIONS;
+                curTabMouseOver_ = LOCATION_TAB_STATIC_IPS_LOCATIONS;
                 setPointingHandCursor();
                 rectHoverEnter(rcStaticIpsLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Static IPs"), 8 * G_SCALE, -5 * G_SCALE);
             }
             else if (rcFavoriteLocationsIcon_.adjusted(-addMargin, -addMargin, addMargin, addMargin).contains(pt))
             {
-                curTabMouseOver_ = CUR_TAB_FAVORITE_LOCATIONS;
+                curTabMouseOver_ = LOCATION_TAB_FAVORITE_LOCATIONS;
                 setPointingHandCursor();
                 rectHoverEnter(rcFavoriteLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Favourites"), 8 * G_SCALE, -5 * G_SCALE);
             }
             else
             {
-                curTabMouseOver_ = CUR_TAB_NONE;
+                curTabMouseOver_ = LOCATION_TAB_NONE;
                 setArrowCursor();
 
                 TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
@@ -227,7 +237,7 @@ void LocationsTab::mouseMoveEvent(QMouseEvent *event)
         }
         else
         {
-            curTabMouseOver_ = CUR_TAB_NONE;
+            curTabMouseOver_ = LOCATION_TAB_NONE;
             setArrowCursor();
 
             TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
@@ -241,46 +251,47 @@ void LocationsTab::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
-        if (curTabMouseOver_ != CUR_TAB_NONE)
+        if (curTabMouseOver_ != LOCATION_TAB_NONE)
         {
             tabPress_ = curTabMouseOver_;
         }
     }
 }
 
-void LocationsTab::changeTab(CurTabEnum newTab)
+void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
 {
     lastTab_ = curTab_;
     curTab_ = newTab;
 
     updateTabIconRects();
 
+    qCDebug(LOG_LOCATION_LIST) << "Tab Transition: " << lastTab_ << " -> " << curTab_;
     int endWhiteLinePos;
-    if (curTab_ == CUR_TAB_CONFIGURED_LOCATIONS)
+    if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS)
     {
         endWhiteLinePos = rcConfiguredLocationsIcon_.center().x();
         onClickConfiguredLocations();
-        widgetSearchLocations_->setFilterString("");
+        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
-    else if (curTab_ == CUR_TAB_STATIC_IPS_LOCATIONS)
+    else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS)
     {
         endWhiteLinePos = rcStaticIpsLocationsIcon_.center().x();
         onClickStaticIpsLocations();
-        widgetSearchLocations_->setFilterString("");
+        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
-    else if (curTab_ == CUR_TAB_FAVORITE_LOCATIONS)
+    else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS)
     {
         endWhiteLinePos = rcFavoriteLocationsIcon_.center().x();
         onClickFavoriteLocations();
-        widgetSearchLocations_->setFilterString("");
+        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
-    else if (curTab_ == CUR_TAB_ALL_LOCATIONS)
+    else if (curTab_ == LOCATION_TAB_ALL_LOCATIONS)
     {
         endWhiteLinePos = rcAllLocationsIcon_.center().x();
         onClickAllLocations();
-        widgetSearchLocations_->setFilterString("");
+        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
-    else if (curTab_ == CUR_TAB_SEARCH_LOCATIONS)
+    else if (curTab_ == LOCATION_TAB_SEARCH_LOCATIONS)
     {
         // no line movement for search locations tab, it is hidden
         endWhiteLinePos = curWhiteLinePos_;
@@ -292,11 +303,18 @@ void LocationsTab::changeTab(CurTabEnum newTab)
         Q_ASSERT(false);
     }
 
-    whiteLineAnimation_.stop();
-    whiteLineAnimation_.setStartValue(curWhiteLinePos_);
-    whiteLineAnimation_.setEndValue(endWhiteLinePos + 2);
-    whiteLineAnimation_.setDuration(ANIMATION_DURATION);
-    whiteLineAnimation_.start();
+    if (animateChange)
+    {
+        whiteLineAnimation_.stop();
+        whiteLineAnimation_.setStartValue(curWhiteLinePos_);
+        whiteLineAnimation_.setEndValue(endWhiteLinePos + 2);
+        whiteLineAnimation_.setDuration(ANIMATION_DURATION);
+        whiteLineAnimation_.start();
+    }
+    else
+    {
+        curWhiteLinePos_ = endWhiteLinePos+2;
+    }
 
     update();
 }
@@ -305,10 +323,10 @@ void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
-        if (curTabMouseOver_ != CUR_TAB_NONE &&  curTabMouseOver_ != curTab_ && tabPress_ == curTabMouseOver_)
+        if (curTabMouseOver_ != LOCATION_TAB_NONE &&  curTabMouseOver_ != curTab_ && tabPress_ == curTabMouseOver_)
         {
             // Currently this should only handle non-search icons
-            // qDebug() << "LocationsTab::MouseReleaseEvent";
+            qCDebug(LOG_USER) << "Clicked tab: " << curTabMouseOver_;
             changeTab(curTabMouseOver_);
         }
     }
@@ -316,45 +334,76 @@ void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
 
 void LocationsTab::leaveEvent(QEvent *event)
 {
-    curTabMouseOver_ = CUR_TAB_NONE;
+    curTabMouseOver_ = LOCATION_TAB_NONE;
     setArrowCursor();
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
     QWidget::leaveEvent(event);
 }
 
-
-void LocationsTab::keyReleaseEvent(QKeyEvent *event)
+bool LocationsTab::eventFilter(QObject *object, QEvent *event)
 {
-    // qDebug() << "LocationsTab::keyReleaseEvent";
-    if (event->key() == Qt::Key_Escape)
+    // qDebug() << "LocationsTab::eventFilter";
+    if (object == searchLineEdit_)
     {
-        if (searchLineEdit_->text() == "")
+        if (event->type() == QEvent::KeyRelease)
         {
-            onSearchCancelButtonClicked();
-            event->accept();
+            // qDebug() << "Filtered KeyRelease from search line edit";
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)
+            {
+                passEventToLocationWidget(keyEvent);
+            }
+            else if (keyEvent->key() == Qt::Key_Down)
+            {
+                passEventToLocationWidget(keyEvent);
+            }
+            else if (keyEvent->key() == Qt::Key_Up)
+            {
+                passEventToLocationWidget(keyEvent);
+            }
+            else if (keyEvent->key() == Qt::Key_Escape)
+            {
+                if (searchLineEdit_->text() == "")
+                {
+                    qCDebug(LOG_USER) << "Search cancel via [Escape]";
+                    hideSearchTab();
+                }
+                else
+                {
+                    searchLineEdit_->setText("");
+                }
+            }
+            return true;
         }
-        else
+        else if (event->type() == QEvent::KeyPress)
         {
-            searchLineEdit_->setText("");
-            event->accept();
+            // block KeyPresses too on up/down to prevent lineedit cursor movement
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Up ||
+                keyEvent->key() == Qt::Key_Down)
+            {
+                return true;
+            }
         }
     }
+    return QWidget::eventFilter(object, event);
 }
 
 void LocationsTab::onClickAllLocations()
 {
-    widgetAllLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetAllLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
     widgetSearchLocations_->hide();
     widgetAllLocations_->show();
     widgetAllLocations_->raise();
+    updateRibbonVisibility();
 }
 
 void LocationsTab::onClickConfiguredLocations()
 {
-    widgetConfiguredLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetConfiguredLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
@@ -366,7 +415,7 @@ void LocationsTab::onClickConfiguredLocations()
 
 void LocationsTab::onClickStaticIpsLocations()
 {
-    widgetStaticIpsLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetStaticIpsLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetFavoriteLocations_->hide();
@@ -378,24 +427,56 @@ void LocationsTab::onClickStaticIpsLocations()
 
 void LocationsTab::onClickFavoriteLocations()
 {
-    widgetFavoriteLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetFavoriteLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetSearchLocations_->hide();
     widgetFavoriteLocations_->show();
     widgetFavoriteLocations_->raise();
+    updateRibbonVisibility();
 }
 
 void LocationsTab::onClickSearchLocations()
 {
-    widgetSearchLocations_->startAnimationWithPixmap(this->grab(QRect(0, TOP_TAB_HEIGHT* G_SCALE, width(), height() - TOP_TAB_HEIGHT* G_SCALE)));
+    widgetSearchLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
     widgetAllLocations_->hide();
     widgetSearchLocations_->show();
     widgetSearchLocations_->raise();
+    updateRibbonVisibility();
+}
+
+void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum locationTab)
+{
+    // get target locations previously accented item
+    LocationID previousSelectedLocId;
+    IWidgetLocationsInfo *locWidget = locationWidgetByEnum(locationTab);
+    if (locWidget)
+    {
+        previousSelectedLocId = locWidget->accentedItemLocationId();
+    }
+
+    qCDebug(LOG_USER) << "Key press tab selection";
+    if (locationTab == LOCATION_TAB_SEARCH_LOCATIONS)
+    {
+        showSearchTab(); // this will handle changeTab(..)
+    }
+    else
+    {
+        changeTab(locationTab);
+    }
+
+    // move cursor to previously selected accent item
+    if (previousSelectedLocId.isValid())
+    {
+        if (locWidget->cursorInViewport())
+        {
+            locWidget->centerCursorOnItem(previousSelectedLocId);
+        }
+    }
 }
 
 void LocationsTab::onWhiteLinePosChanged(const QVariant &value)
@@ -437,50 +518,39 @@ void LocationsTab::onSearchButtonHoverLeave()
 
 void LocationsTab::onSearchButtonClicked()
 {
-    // qDebug() << "Search clicked";
-
-    if (showAllTabs_)
-    {
-        searchButton_->setEnabled(false);
-
-        changeTab(CUR_TAB_SEARCH_LOCATIONS);
-
-        searchTabSelected_ = true;
-        update();
-
-        QTimer::singleShot(100, [this]()
-        {
-            searchButtonPosAnimation_.setDirection(QAbstractAnimation::Backward);
-            searchButtonPosAnimation_.start();
-
-            searchCancelButton_->show();
-            searchLineEdit_->show();
-            searchLineEdit_->setFocus();
-        });
-    }
+    qCDebug(LOG_USER) << "Search clicked";
+    showSearchTab();
 }
 
 void LocationsTab::onSearchCancelButtonClicked()
 {
-    // qDebug() << "Search cancel clicked";
+    qCDebug(LOG_USER) << "Search cancel clicked";
     hideSearchTab();
 }
 
 void LocationsTab::onSearchButtonPosAnimationValueChanged(const QVariant &value)
 {
-    searchButtonPos_ = value.toInt();
-    searchButton_->move(searchButtonPos_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
+    searchButtonPosUnscaled_ = value.toInt();
+    searchButton_->move(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
+}
+
+void LocationsTab::onDelayShowIconsTimerTimeout()
+{
+    searchTabSelected_ = false;
+    update();
+}
+
+void LocationsTab::onSearchTypingDelayTimerTimeout()
+{
+    qCDebug(LOG_LOCATION_LIST) << "Setting filter with typed: " << filterText_;
+    widgetSearchLocations_->setFilterString(filterText_);
 }
 
 void LocationsTab::onSearchLineEditTextChanged(QString text)
 {
-    widgetSearchLocations_->setFilterString(text);
-}
-
-void LocationsTab::onSearchLineEditKeyEnterPressed()
-{
-    QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
-    passEventToLocationWidget(&event);
+    qCDebug(LOG_USER) << "User changed text in search: " << text;
+    filterText_ = text;
+    searchTypingDelayTimer_.start();
 }
 
 void LocationsTab::onSearchLineEditFocusOut()
@@ -493,13 +563,13 @@ IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
     return locationWidgetByEnum(curTab_);
 }
 
-IWidgetLocationsInfo *LocationsTab::locationWidgetByEnum(LocationsTab::CurTabEnum tabEnum)
+IWidgetLocationsInfo *LocationsTab::locationWidgetByEnum(LocationsTab::LocationTabEnum tabEnum)
 {
-    if (tabEnum == CUR_TAB_ALL_LOCATIONS)        return widgetAllLocations_;
-    if (tabEnum == CUR_TAB_FAVORITE_LOCATIONS)   return widgetFavoriteLocations_;
-    if (tabEnum == CUR_TAB_STATIC_IPS_LOCATIONS) return widgetStaticIpsLocations_;
-    if (tabEnum == CUR_TAB_CONFIGURED_LOCATIONS) return widgetConfiguredLocations_;
-    if (tabEnum == CUR_TAB_SEARCH_LOCATIONS)     return widgetSearchLocations_;
+    if (tabEnum == LOCATION_TAB_ALL_LOCATIONS)        return widgetAllLocations_;
+    if (tabEnum == LOCATION_TAB_FAVORITE_LOCATIONS)   return widgetFavoriteLocations_;
+    if (tabEnum == LOCATION_TAB_STATIC_IPS_LOCATIONS) return widgetStaticIpsLocations_;
+    if (tabEnum == LOCATION_TAB_CONFIGURED_LOCATIONS) return widgetConfiguredLocations_;
+    if (tabEnum == LOCATION_TAB_SEARCH_LOCATIONS)     return widgetSearchLocations_;
     return nullptr;
 }
 
@@ -515,24 +585,24 @@ void LocationsTab::drawTabRegion(QPainter &painter, const QRect &rc)
         // Draw Icons
         {
             IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/CONFIG_ICON");
-            painter.setOpacity(curTab_ == CUR_TAB_CONFIGURED_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
+            painter.setOpacity(curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
             p->draw(rcConfiguredLocationsIcon_.left(), rcConfiguredLocationsIcon_.top(), &painter);
         }
         if (showAllTabs_)
         {
             {
                 IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/STATIC_IP_ICON");
-                painter.setOpacity(curTab_ == CUR_TAB_STATIC_IPS_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
+                painter.setOpacity(curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
                 p->draw(rcStaticIpsLocationsIcon_.left(), rcStaticIpsLocationsIcon_.top(), &painter);
             }
             {
                 IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON");
-                painter.setOpacity(curTab_ == CUR_TAB_FAVORITE_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
+                painter.setOpacity(curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
                 p->draw(rcFavoriteLocationsIcon_.left(), rcFavoriteLocationsIcon_.top(), &painter);
             }
             {
                 IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/ALL_LOCATION_ICON");
-                painter.setOpacity(curTab_ == CUR_TAB_ALL_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
+                painter.setOpacity(curTab_ == LOCATION_TAB_ALL_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
                 p->draw(rcAllLocationsIcon_.left(), rcAllLocationsIcon_.top(), &painter);
             }
         }
@@ -592,84 +662,19 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Right)
     {
         int curTabInt = static_cast<int>(curTab_);
-        if (curTabInt < CUR_TAB_LAST)
+        if (curTabInt < LOCATION_TAB_LAST)
         {
             curTabInt++;
-
-            if (curTabInt == CUR_TAB_SEARCH_LOCATIONS)
-            {
-                LocationID previousSelectedLocId;
-                IWidgetLocationsInfo *locWidget = locationWidgetByEnum((CurTabEnum)curTabInt);
-                if (locWidget)
-                {
-                    previousSelectedLocId = locWidget->accentedItemLocationId();
-                }
-
-                onSearchButtonClicked(); // this will handle changeTab(..)
-
-                if (previousSelectedLocId.isValid())
-                {
-                    locWidget->centerCursorOnItem(previousSelectedLocId);
-                }
-            }
-            else
-            {
-                changeTab(static_cast<CurTabEnum>(curTabInt));
-
-                IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
-                if (curWidgetLoc != nullptr)
-                {
-                    if (curWidgetLoc->cursorInViewport())
-                    {
-                        curWidgetLoc->centerCursorOnAccentedItem();
-                    }
-                }
-            }
-
+            switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
         }
     }
     else if (event->key() == Qt::Key_Left)
     {
         int curTabInt = static_cast<int>(curTab_);
-        if (curTabInt > CUR_TAB_FIRST)
+        if (curTabInt > LOCATION_TAB_FIRST)
         {
             curTabInt--;
-            if (curTabInt == CUR_TAB_SEARCH_LOCATIONS)
-            {
-                LocationID previousSelectedLocId;
-                IWidgetLocationsInfo *locWidget = locationWidgetByEnum((CurTabEnum)curTabInt);
-                if (locWidget)
-                {
-                    previousSelectedLocId = locWidget->accentedItemLocationId();
-                }
-
-                onSearchButtonClicked(); // this will handle changeTab(..)
-
-                if (previousSelectedLocId.isValid())
-                {
-                    locWidget->centerCursorOnItem(previousSelectedLocId);
-                }
-            }
-            else
-            {
-                if (curTabInt == CUR_TAB_CONFIGURED_LOCATIONS)
-                {
-                    onSearchCancelButtonClicked(); // handles changeTab(..)
-                }
-                else
-                {
-                    changeTab(static_cast<CurTabEnum>(curTabInt));
-                }
-
-                IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
-                if (curWidgetLoc != nullptr)
-                {
-                    if (curWidgetLoc->cursorInViewport())
-                    {
-                        curWidgetLoc->centerCursorOnAccentedItem();
-                    }
-                }
-            }
+            switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
         }
     }
     else if (event->key() == Qt::Key_Tab)
@@ -682,15 +687,60 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
             searchLineEdit_->setFocus();
         }
     }
-    else
+    else if (event->key() == Qt::Key_Up ||
+             event->key() == Qt::Key_Down ||
+             event->key() == Qt::Key_Return ||
+             event->key() == Qt::Key_Enter )
     {
         passEventToLocationWidget(event);
     }
 }
 
+void LocationsTab::handleKeyPressEvent(QKeyEvent *event)
+{
+    // let the release handle these
+    if (event->key() == Qt::Key_Right  ||
+        event->key() == Qt::Key_Left   ||
+        event->key() == Qt::Key_Up     ||
+        event->key() == Qt::Key_Down   ||
+        event->key() == Qt::Key_Tab    ||
+        event->key() == Qt::Key_Return ||
+        event->key() == Qt::Key_Enter )
+    {
+        return;
+    }
+
+    // block non-chars
+    if ((event->key() & Qt::Key_Escape) == Qt::Key_Escape)
+    {
+        return;
+    }
+
+    // set locations tab to search screen
+    if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS)
+    {
+        if (event->key() != Qt::Key_Space) // prevent space from triggering search when intention is to close locations tray
+        {
+            switchToTabAndRestoreCursorToAccentedItem(LOCATION_TAB_SEARCH_LOCATIONS);
+
+            // Adding text to search text must be handled in the keyPress instead of keyRelease because
+            // during focus transition from locationsTab -> searchLineEdit: mainWindow no longer fires keyReleaseEvents
+            // while searchLineEdit has not yet picked up the focus (it uses keyPressEvents too)
+            // qDebug() << "Appending text: " << event->text();
+            searchLineEdit_->appendText(event->text());
+            searchLineEdit_->setFocus();
+        }
+    }
+    else
+    {
+        searchLineEdit_->appendText(event->text());
+        searchLineEdit_->setFocus();
+    }
+}
+
 void LocationsTab::updateTabIconRects()
 {
-    searchButton_->move(searchButtonPos_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
+    searchButton_->move(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
     searchCancelButton_->move(LAST_TAB_ICON_POS_X * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
 
     int totalWidthForFirst4TabsWithSpacing = LAST_TAB_ICON_POS_X - FIRST_TAB_ICON_POS_X;
@@ -733,30 +783,25 @@ void LocationsTab::updateIconRectsAndLine()
 
 void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
 {
-    const int kRibbonHeight = isRibbonVisible_ ? 48 : 0;
+    const int kRibbonHeight = isRibbonVisible_ ? RIBBON_HEIGHT : 0;
 
     currentLocationListHeight_ = newHeight;
 
-    // qDebug() << "Setting height of all location widgets: " << newHeight * G_SCALE;
-    widgetAllLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
-    widgetFavoriteLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
-    widgetStaticIpsLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight) * G_SCALE);
-    widgetConfiguredLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, (newHeight - kRibbonHeight)* G_SCALE);
-    widgetSearchLocations_->setGeometry(
-        0, TOP_TAB_HEIGHT * G_SCALE, WINDOW_WIDTH * G_SCALE, newHeight * G_SCALE);
+    int scaledHeight = qCeil(newHeight * G_SCALE);
+    int scaledWidth = WINDOW_WIDTH * G_SCALE;
+    int scaledTabHeaderHeight = qCeil(TAB_HEADER_HEIGHT * G_SCALE);
+    int ribbonHeight = (kRibbonHeight * G_SCALE);
+    int ribbonOffset = qCeil(COVER_LAST_ITEM_LINE*G_SCALE);
 
-//    widgetFavoriteLocations_->setSize(WINDOW_WIDTH, newHeight);
-//    widgetStaticIpsLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight );
-//    widgetConfiguredLocations_->setSize(WINDOW_WIDTH, newHeight - kRibbonHeight);
+    widgetAllLocations_->setGeometry(        0, scaledTabHeaderHeight, scaledWidth, scaledHeight);
+    widgetFavoriteLocations_->setGeometry(   0, scaledTabHeaderHeight, scaledWidth, scaledHeight);
+    widgetStaticIpsLocations_->setGeometry(  0, scaledTabHeaderHeight, scaledWidth, scaledHeight - ribbonHeight);
+    widgetConfiguredLocations_->setGeometry( 0, scaledTabHeaderHeight, scaledWidth, scaledHeight - ribbonHeight);
+    widgetSearchLocations_->setGeometry(     0, scaledTabHeaderHeight, scaledWidth, scaledHeight);
 
-    staticIPDeviceInfo_->setGeometry(
-        0, newHeight * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
-    configFooterInfo_->setGeometry(
-        0, newHeight * G_SCALE, WINDOW_WIDTH * G_SCALE, kRibbonHeight * G_SCALE);
+    // ribbon geometry
+    staticIPDeviceInfo_->setGeometry( 0, scaledHeight - ribbonOffset, scaledWidth, ribbonHeight);
+    configFooterInfo_->setGeometry(   0, scaledHeight - ribbonOffset, scaledWidth, ribbonHeight);
 
     updateScaling();
 }
@@ -770,7 +815,7 @@ void LocationsTab::updateScaling()
     widgetSearchLocations_->    updateScaling();
     configFooterInfo_->         updateScaling();
 
-    searchButton_->setGeometry(searchButtonPos_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16*G_SCALE, 16*G_SCALE);
+    searchButton_->setGeometry(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16*G_SCALE, 16*G_SCALE);
     searchCancelButton_->setGeometry(LAST_TAB_ICON_POS_X * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16*G_SCALE, 16*G_SCALE);
     searchLineEdit_->setFont(*FontManager::instance().getFont(14, false));
     searchLineEdit_->setGeometry((FIRST_TAB_ICON_POS_X + 32)*G_SCALE, 2*G_SCALE,
@@ -783,11 +828,43 @@ void LocationsTab::updateLanguage()
     widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here"));
 }
 
+void LocationsTab::showSearchTab()
+{
+    if (showAllTabs_)
+    {
+        searchButton_->setEnabled(false);
+
+        changeTab(LOCATION_TAB_SEARCH_LOCATIONS);
+
+        searchTabSelected_ = true;
+        update();
+
+        QTimer::singleShot(100, [this]()
+        {
+            searchButtonPosAnimation_.stop();
+            searchButtonPosAnimation_.setDirection(QAbstractAnimation::Backward);
+            searchButtonPosAnimation_.start();
+
+            // delay so cursor and cancel don't appear before search slides over
+            QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION+100, [this](){
+                // check no interruption by hideSearchTab() -- could happen on fast searchClick->close locations tray
+                if (!delayShowIconsTimer_.isActive() && searchTabSelected_)
+                {
+                    searchCancelButton_->show();
+                    searchLineEdit_->show();
+                    searchLineEdit_->setFocus();
+                }
+            });
+        });
+    }
+}
+
 void LocationsTab::hideSearchTab()
 {
     if (searchTabSelected_)
     {
         searchButton_->setEnabled(true);
+        searchButtonPosAnimation_.stop();
         searchButtonPosAnimation_.setDirection(QAbstractAnimation::Forward);
         searchButtonPosAnimation_.start();
 
@@ -798,16 +875,38 @@ void LocationsTab::hideSearchTab()
         changeTab(lastTab_);
 
         // let animation finish before showing all tabs
-        QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION, [this](){
-            searchTabSelected_ = false;
-            update();
-        });
+        delayShowIconsTimer_.start();
     }
 }
 
-int LocationsTab::unscaledHeight()
+void LocationsTab::hideSearchTabWithoutAnimation()
 {
-    return 50 * countOfVisibleItemSlots_ /* - 1 */; // TODO: still need -1 ?
+    qCDebug(LOG_LOCATION_LIST) << "hide search without animation";
+    if (searchTabSelected_)
+    {
+        searchButtonPosAnimation_.stop();
+        searchButton_->setEnabled(true);
+        searchButtonPosUnscaled_ = LAST_TAB_ICON_POS_X;
+        searchButton_->move(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
+
+        searchCancelButton_->hide();
+        searchLineEdit_->hide();
+        searchLineEdit_->clear();
+
+        changeTab(lastTab_, false);
+
+        searchTabSelected_ = false;
+    }
+}
+
+LocationsTab::LocationTabEnum LocationsTab::currentTab()
+{
+    return curTab_;
+}
+
+int LocationsTab::unscaledHeightOfItemViewport()
+{
+    return LOCATION_ITEM_HEIGHT * countOfVisibleItemSlots_;
 }
 
 void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)

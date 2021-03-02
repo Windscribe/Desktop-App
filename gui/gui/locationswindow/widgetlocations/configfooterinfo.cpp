@@ -3,7 +3,6 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QFileDialog>
-#include "widgetlocationssizes.h"
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
@@ -20,6 +19,7 @@ ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
   , isDisplayTextRectHover_(false)
   , font_(*FontManager::instance().getFont(16, true))
 {
+    setFocusPolicy(Qt::NoFocus);
     setMouseTracking(true);
     for (int i = 0; i < NUM_ICONS; ++i) {
         connect(&iconButtons_[i].opacityAnimation, &QVariantAnimation::valueChanged,
@@ -47,7 +47,7 @@ void ConfigFooterInfo::setText(const QString &text)
 void ConfigFooterInfo::updateDisplayText()
 {
     font_ = *FontManager::instance().getFont(14, false);
-    displayText_ = CommonGraphics::truncateText(fullText_, font_,
+    displayText_ = CommonGraphics::truncatedText(fullText_, font_,
         width() - (WINDOW_MARGIN * 4 + 40) * G_SCALE);
     displayTextRect_.setRect(WINDOW_MARGIN * G_SCALE, 0,
         CommonGraphics::textWidth(displayText_, font_), height() - BOTTOM_LINE_HEIGHT * G_SCALE);
@@ -80,7 +80,7 @@ void ConfigFooterInfo::paintEvent(QPaintEvent * /*event*/)
 
     const int kBottomLineHeight = BOTTOM_LINE_HEIGHT * G_SCALE;
     painter.fillRect(QRect(0, height() - kBottomLineHeight, sizeHint().width(), kBottomLineHeight),
-                     GuiLocations::WidgetLocationsSizes::instance().getBackgroundColor());
+                     FontManager::instance().getMidnightColor());
 
     if (!displayText_.isEmpty()) {
         font_ = *FontManager::instance().getFont(14, false);

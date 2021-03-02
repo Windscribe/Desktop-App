@@ -3,6 +3,7 @@
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "utils/logger.h"
 
 // #include <QDebug>
 
@@ -16,15 +17,16 @@ ScrollAreaItem::ScrollAreaItem(ScalableGraphicsObject *parent, int height) : Sca
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
-    const int scrollDistanceFromRight = 6;
 
     const int scrollBarHeight = height_ - static_cast<int>(SCROLL_BAR_GAP*2.5);
 
     scrollBar_ = new VerticalScrollBar(scrollBarHeight, 1.0, this);
-    scrollBar_->setPos(PAGE_WIDTH - VerticalScrollBar::SCROLL_WIDTH - scrollDistanceFromRight, SCROLL_BAR_GAP);
+    scrollBar_->setPos(PAGE_WIDTH - SCROLL_DISTANCE_FROM_RIGHT - scrollBar_->visibleWidth(), SCROLL_BAR_GAP);
     scrollBar_->setZValue(1);
     scrollBar_->setOpacity(OPACITY_HIDDEN);
     connect(scrollBar_, SIGNAL(moved(double)), SLOT(onScrollBarMoved(double)));
+    connect(scrollBar_, SIGNAL(hoverEnter()), SLOT(onScrollBarHoverEnter()));
+    connect(scrollBar_, SIGNAL(hoverLeave()), SLOT(onScrollBarHoverLeave()));
 
     connect(&itemPosAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onItemPosYChanged(QVariant)));
     connect(&scrollBarOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onScrollBarOpacityChanged(QVariant)));
@@ -93,6 +95,8 @@ int ScrollAreaItem::scaledThreshold()
 
 void ScrollAreaItem::hideOpenPopups()
 {
+    qCDebug(LOG_PREFERENCES) << "Hiding ScrollAreaItem popups";
+
     curItem_->hideOpenPopups();
 }
 
@@ -100,8 +104,7 @@ void ScrollAreaItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
 
-    const int scrollDistanceFromRight = 6;
-    scrollBar_->setPos((PAGE_WIDTH - VerticalScrollBar::SCROLL_WIDTH - scrollDistanceFromRight)*G_SCALE, SCROLL_BAR_GAP*G_SCALE);
+    scrollBar_->setPos((PAGE_WIDTH - SCROLL_DISTANCE_FROM_RIGHT)*G_SCALE - scrollBar_->visibleWidth(), SCROLL_BAR_GAP*G_SCALE);
 }
 
 void ScrollAreaItem::onScrollBarMoved(double posPercentY)
@@ -183,6 +186,22 @@ void ScrollAreaItem::onScrollBarOpacityChanged(const QVariant &value)
     scrollBar_->setOpacity(curScrollBarOpacity_);
 }
 
+void ScrollAreaItem::onScrollBarHoverEnter()
+{
+    if (scrollBarVisible_)
+    {
+        startAnAnimation<double>(scrollBarOpacityAnimation_, curScrollBarOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
+    }
+}
+
+void ScrollAreaItem::onScrollBarHoverLeave()
+{
+    if (scrollBarVisible_)
+    {
+        startAnAnimation<double>(scrollBarOpacityAnimation_, curScrollBarOpacity_, OPACITY_TWO_THIRDS, ANIMATION_SPEED_FAST);
+    }
+}
+
 void ScrollAreaItem::setHeight(int height)
 {
     int change = abs(height_ - height);
@@ -207,7 +226,7 @@ void ScrollAreaItem::setScrollBarVisibility(bool on)
         scrollBarVisible_ = true;
         if (screenFraction() < 1)
         {
-            startAnAnimation<double>(scrollBarOpacityAnimation_, curScrollBarOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
+            startAnAnimation<double>(scrollBarOpacityAnimation_, curScrollBarOpacity_, OPACITY_TWO_THIRDS, ANIMATION_SPEED_FAST);
         }
 
     }
@@ -289,7 +308,7 @@ void ScrollAreaItem::updateScrollBarByHeight()
     {
         if (sf < 1)
         {
-            scrollBar_->setOpacity(OPACITY_FULL);
+            scrollBar_->setOpacity(OPACITY_TWO_THIRDS);
         }
         else
         {

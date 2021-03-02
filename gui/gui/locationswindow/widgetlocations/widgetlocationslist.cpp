@@ -1,6 +1,7 @@
 #include "widgetlocationslist.h"
 
 #include <QPainter>
+#include <QtMath>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 #include "cursorupdatehelper.h"
@@ -47,7 +48,7 @@ void WidgetLocationsList::addRegionWidget(LocationModelItem *item)
     connect(regionWidget, SIGNAL(accented(IItemWidget *)), SLOT(onSelectableLocationItemAccented(IItemWidget *)));
     connect(regionWidget, SIGNAL(favoriteClicked(ItemWidgetCity*, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*,bool)));
     itemWidgets_.append(regionWidget);
-    regionWidget->setGeometry(0, 0, static_cast<int>(WINDOW_WIDTH *G_SCALE), static_cast<int>(LOCATION_ITEM_HEIGHT * G_SCALE));
+    regionWidget->setGeometry(0, 0, static_cast<int>(WINDOW_WIDTH *G_SCALE), static_cast<int>(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE)));
     regionWidget->show();
     recalcItemPositions();
 }
@@ -100,7 +101,7 @@ void WidgetLocationsList::selectWidgetContainingGlobalPt(const QPoint &pt)
         {
             //qDebug() << "Selecting: " << selectableWidget->name();
             selectableWidget->setAccented(true);
-            emit locationIdSelected(selectableWidget->getId());
+            safeEmitLocationIdSelected(selectableWidget);
             break;
         }
     }
@@ -331,6 +332,18 @@ ItemWidgetRegion *WidgetLocationsList::regionWidget(LocationID locationId)
     return nullptr;
 }
 
+IItemWidget *WidgetLocationsList::itemWidget(LocationID locationId)
+{
+    foreach (ItemWidgetCity *w, cityWidgets())
+    {
+        if (w->getId() == locationId)
+        {
+            return w;
+        }
+    }
+    return nullptr;
+}
+
 QVector<ItemWidgetCity *> WidgetLocationsList::cityWidgets()
 {
     QVector<ItemWidgetCity *> cityWidgets;
@@ -353,13 +366,25 @@ QVector<IItemWidget *> WidgetLocationsList::selectableWidgets()
 
 void WidgetLocationsList::updateCursorWithSelectableWidget(IItemWidget *widget)
 {
-    if (widget->isForbidden() || widget->isDisabled())
+    if (widget->isForbidden() ||
+        widget->isDisabled()  ||
+        widget->isBrokenConfig())
     {
         cursorUpdateHelper_->setForbiddenCursor();
     }
     else
     {
         cursorUpdateHelper_->setPointingHandCursor();
+    }
+}
+
+void WidgetLocationsList::safeEmitLocationIdSelected(IItemWidget *widget)
+{
+    if (!widget->isForbidden() &&
+        !widget->isDisabled()  &&
+        !widget->isBrokenConfig())
+    {
+        emit locationIdSelected(widget->getId());
     }
 }
 
@@ -383,7 +408,7 @@ void WidgetLocationsList::onLocationItemCityClicked(ItemWidgetCity *cityWidget)
     // block false-clicks that come after gesture scroll
     if (widgetLocationsInfo_->gestureScrollingElapsedTime() > 100)
     {
-        emit locationIdSelected(cityWidget->getId());
+        safeEmitLocationIdSelected(cityWidget);
     }
 }
 
@@ -395,6 +420,7 @@ void WidgetLocationsList::onLocationItemRegionClicked(ItemWidgetRegion *regionWi
     {
         if (regionWidget->getId().isBestLocation())
         {
+            // shouldn't need to verify location is valid since it is best location
             emit locationIdSelected(regionWidget->getId());
         }
         else

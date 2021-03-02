@@ -70,6 +70,11 @@ void TextIconButton::animateShow()
     startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_UNHOVER_ICON_TEXT_DARK, ANIMATION_SPEED_FAST);
 }
 
+const QString TextIconButton::text()
+{
+    return text_;
+}
+
 void TextIconButton::setText(QString text)
 {
     text_ = text;

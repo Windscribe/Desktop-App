@@ -69,7 +69,6 @@ public:
 
 signals:
     void currentItemChanged(QVariant value);
-    void menuClosed();
     void buttonHoverEnter();
     void buttonHoverLeave();
 
