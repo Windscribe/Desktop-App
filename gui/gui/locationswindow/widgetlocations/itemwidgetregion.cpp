@@ -125,7 +125,7 @@ void ItemWidgetRegion::addCity(const CityModelItem &city)
     auto cityWidget = new ItemWidgetCity(widgetLocationsInfo_, city, this);
     connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));
     connect(cityWidget, SIGNAL(accented()), SLOT(onCityItemAccented()));
-    connect(cityWidget, SIGNAL(hoverEvent()), SLOT(onCityItemHoverEnter()));
+    connect(cityWidget, SIGNAL(hoverEnter()), SLOT(onCityItemHoverEnter()));
     connect(cityWidget, SIGNAL(favoriteClicked(ItemWidgetCity *, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*, bool)));
     cities_.append(cityWidget);
     cityWidget->show();
