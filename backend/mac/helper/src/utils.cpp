@@ -5,7 +5,8 @@ namespace Utils
 {
 
 // based on 3rd party lib (http://pstreams.sourceforge.net/)
-int executeCommand(const std::string &cmd, const std::vector<std::string> &args, std::string *pOutputStr)
+int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
+                   std::string *pOutputStr, bool appendFromStdErr)
 {
     std::string cmdLine = cmd;
 
@@ -37,12 +38,14 @@ int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
         proc.clear();
     }
 
-    // read child's stderr
-    while (std::getline(proc.err(), line))
-    {
-        if (pOutputStr)
+    if (appendFromStdErr) {
+        // read child's stderr
+        while (std::getline(proc.err(), line))
         {
-            *pOutputStr += line + "\n";
+            if (pOutputStr)
+            {
+                *pOutputStr += line + "\n";
+            }
         }
     }
 

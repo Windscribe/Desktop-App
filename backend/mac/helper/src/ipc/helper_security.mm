@@ -23,7 +23,9 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
 {
     // Get application name from pid.
     std::string app_name;
-    Utils::executeCommand("ps awx | awk '$1 == " + std::to_string(pid) + " { print $5 }'", {}, &app_name);
+    Utils::executeCommand("ps awx | awk '$1 == " + std::to_string(pid) +
+                          " { an=$5; for (i=6;i<=NF;i++){ an=an\" \"$i }; print an }'",
+                          {}, &app_name, /*appendFromStdErr =*/ false);
     boost::trim(app_name);
     if (app_name.empty()) {
         LOG("Failed to get app/bundle name for PID %i", pid);
@@ -47,7 +49,7 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
     do {
         // Check bundle name.
         bool bFoundBundleName = false;
-        for (auto ending : endings)
+        for (const auto &ending : endings)
         {
             const auto ending_length = ending.length();
             if (app_name_length >= ending_length &&
