@@ -164,6 +164,11 @@ void ComboBoxItem::clear()
     update();
 }
 
+bool ComboBoxItem::hasMenuWithFocus()
+{
+    return menu_->hasFocus();
+}
+
 void ComboBoxItem::hideMenu()
 {
     // qCDebug(LOG_PREFERENCES) << "Hiding menu for: " << strCaption_;

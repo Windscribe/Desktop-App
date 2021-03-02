@@ -8,7 +8,6 @@
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
 
-
 namespace PreferencesWindow {
 
 
@@ -586,17 +585,24 @@ void PreferencesWindowItem::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface
     emit currentNetworkUpdated(network);
 }
 
-void PreferencesWindowItem::keyReleaseEvent(QKeyEvent *event)
+void PreferencesWindowItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {
-        if (isShowSubPage_)
+        if (scrollAreaItem_->hasComboMenuWithFocus())
         {
-            moveOnePageBack();
+            scrollAreaItem_->hideOpenPopups();
         }
         else
         {
-            emit escape();
+            if (isShowSubPage_)
+            {
+                moveOnePageBack();
+            }
+            else
+            {
+                emit escape();
+            }
         }
     }
 }
