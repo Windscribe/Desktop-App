@@ -833,6 +833,11 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
     return mpr.success;
 }
 
+void Helper_win::setDefaultWireGuardDeviceName(const QString & /*deviceName*/)
+{
+    // Nothing to do.
+}
+
 void Helper_win::run()
 {
 #ifndef DEBUG_DONT_USE_SERVICE

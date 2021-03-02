@@ -1013,6 +1013,14 @@ bool Helper_mac::getWireGuardStatus(WireGuardStatus *status)
     return true;
 }
 
+void Helper_mac::setDefaultWireGuardDeviceName(const QString &deviceName)
+{
+    // If we don't have an active WireGuard device, assign the default device name. It is important
+    // for a subsequent call to stopWireGuard(), to stop the device created during the last session.
+    if (wireGuardDeviceName_.isEmpty())
+        wireGuardDeviceName_ = deviceName;
+}
+
 int Helper_mac::executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer)
 {
     CMD_EXECUTE cmd;
