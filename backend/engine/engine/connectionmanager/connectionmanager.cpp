@@ -53,6 +53,7 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkS
     bWasSuccessfullyConnectionAttempt_(false),
     state_(STATE_DISCONNECTED),
     bLastIsOnline_(true),
+    bWakeSignalReceived_(false),
     currentConnectionDescr_()
 {
     connect(&timerReconnection_, SIGNAL(timeout()), SLOT(onTimerReconnection()));
@@ -586,6 +587,8 @@ void ConnectionManager::onSleepMode()
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), state_ =" << state_;
 
     timerReconnection_.stop();
+    bWakeSignalReceived_ = false;
+
     switch (state_)
     {
         case STATE_DISCONNECTED:
@@ -597,6 +600,12 @@ void ConnectionManager::onSleepMode()
             blockingDisconnect();
             qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), connection blocking disconnected";
             state_ = STATE_SLEEP_MODE_NEED_RECONNECT;
+            if (bWakeSignalReceived_) {
+                // If we are already awake (got the wake event during waiting in the blocking
+                // disconnect loop), reconnect immediately.
+                restoreConnectionAfterWakeUp();
+                bWakeSignalReceived_ = false;
+            }
             break;
         case STATE_DISCONNECTING_FROM_USER_CLICK:
             break;
@@ -614,6 +623,7 @@ void ConnectionManager::onWakeMode()
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onWakeMode(), state_ =" << state_;
     timerReconnection_.stop();
+    bWakeSignalReceived_ = true;
 
     switch (state_)
     {
@@ -626,15 +636,7 @@ void ConnectionManager::onWakeMode()
         case STATE_RECONNECTION_TIME_EXCEED:
             break;
         case STATE_SLEEP_MODE_NEED_RECONNECT:
-            if (bLastIsOnline_)
-            {
-                state_ = STATE_WAKEUP_RECONNECTING;
-                doConnect();
-            }
-            else
-            {
-                state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
-            }
+            restoreConnectionAfterWakeUp();
             break;
         default:
             Q_ASSERT(false);
@@ -1078,6 +1080,23 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
         connect(connector_, SIGNAL(requestPassword()), SLOT(onConnectionRequestPassword()), Qt::QueuedConnection);
 
         currentProtocol_ = protocol;
+    }
+}
+
+void ConnectionManager::restoreConnectionAfterWakeUp()
+{
+    if (bLastIsOnline_)
+    {
+        qCDebug(LOG_CONNECTION) <<
+            "ConnectionManager::restoreConnectionAfterWakeUp(), reconnecting";
+        state_ = STATE_WAKEUP_RECONNECTING;
+        doConnect();
+    }
+    else
+    {
+        qCDebug(LOG_CONNECTION) <<
+            "ConnectionManager::restoreConnectionAfterWakeUp(), waiting for network connectivity";
+        state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
     }
 }
 
