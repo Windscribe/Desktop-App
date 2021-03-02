@@ -899,6 +899,15 @@ void LocationsTab::hideSearchTabWithoutAnimation()
     }
 }
 
+void LocationsTab::setMuteAccentChanges(bool mute)
+{
+    widgetAllLocations_       ->setMuteAccentChanges(mute);
+    widgetConfiguredLocations_->setMuteAccentChanges(mute);
+    widgetStaticIpsLocations_ ->setMuteAccentChanges(mute);
+    widgetFavoriteLocations_  ->setMuteAccentChanges(mute);
+    widgetSearchLocations_    ->setMuteAccentChanges(mute);
+}
+
 LocationsTab::LocationTabEnum LocationsTab::currentTab()
 {
     return curTab_;

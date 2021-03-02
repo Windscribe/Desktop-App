@@ -33,6 +33,7 @@ public:
     bool hasAccentItem() override;
     LocationID accentedItemLocationId() override;
     void accentFirstItem() override;
+    void setMuteAccentChanges(bool mute) override;
 
     bool cursorInViewport() override;
     void centerCursorOnAccentedItem() override;

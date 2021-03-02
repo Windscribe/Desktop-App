@@ -308,6 +308,14 @@ void WidgetLocationsList::accentItemWithoutAnimation(LocationID locationId)
     }
 }
 
+void WidgetLocationsList::setMuteAccentChanges(bool mute)
+{
+    foreach (ItemWidgetRegion *region, qAsConst(itemWidgets_))
+    {
+        region->setMuteAccentChanges(mute);
+    }
+}
+
 IItemWidget *WidgetLocationsList::selectableWidget(LocationID locationId)
 {
     foreach (IItemWidget *widget, selectableWidgets())

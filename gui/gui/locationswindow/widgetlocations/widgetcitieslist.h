@@ -31,6 +31,7 @@ public:
     void moveAccentUp();
     void moveAccentDown();
     int accentItemIndex();
+    void setMuteAccentChanges(bool mute);
 
     IItemWidget *lastAccentedItemWidget();
     IItemWidget *selectableWidget(LocationID locationId);
@@ -44,6 +45,7 @@ signals:
 private slots:
     void onCityItemAccented();
     void onCityItemClicked();
+    void onCityItemHoverEnter();
 
 private:
     int height_;
@@ -54,6 +56,7 @@ private:
 
     IWidgetLocationsInfo *widgetLocationsInfo_; // deleted elsewhere
 
+    bool muteAccentChanges_;
     void recalcItemPositions();
     void updateCursorWithWidget(IItemWidget *widget);
     void safeEmitLocationIdSelected(IItemWidget *widget);

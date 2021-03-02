@@ -23,6 +23,7 @@ public:
     bool expandable() const;
     bool expandedOrExpanding();
     void setExpandedWithoutAnimation(bool expand);
+    void setMuteAccentChanges(bool mute);
     void expand();
     void collapse();
 
@@ -47,14 +48,18 @@ signals:
 private slots:
     void onRegionHeaderAccented();
     void onRegionHeaderClicked();
+    void onRegionHeaderHoverEnter();
     void onCityItemAccented();
     void onCityItemClicked();
+    void onCityItemHoverEnter();
     void onExpandingHeightAnimationValueChanged(const QVariant &value);
 
 private:
     ItemWidgetHeader *regionHeaderWidget_;
     QVector<ItemWidgetCity *> cities_;
     IWidgetLocationsInfo *widgetLocationsInfo_;
+
+    bool muteAccentChanges_;
 
     CITY_SUBMENU_STATE citySubMenuState_;
     QVariantAnimation expandingHeightAnimation_;

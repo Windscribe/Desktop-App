@@ -151,6 +151,10 @@ void WidgetCities::accentFirstItem()
     widgetCitiesList_->accentFirstItem();
 }
 
+void WidgetCities::setMuteAccentChanges(bool mute)
+{
+    widgetCitiesList_->setMuteAccentChanges(mute);
+}
 
 bool WidgetCities::cursorInViewport()
 {

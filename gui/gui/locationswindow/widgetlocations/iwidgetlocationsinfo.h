@@ -18,6 +18,7 @@ public:
     virtual bool hasAccentItem() = 0;
     virtual LocationID accentedItemLocationId() = 0;
     virtual void accentFirstItem() = 0;
+    virtual void setMuteAccentChanges(bool mute) = 0;
 
     // cursor and viewport
     virtual bool cursorInViewport() = 0;

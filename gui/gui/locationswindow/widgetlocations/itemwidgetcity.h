@@ -47,6 +47,7 @@ public:
 signals:
     void accented();
     void favoriteClicked(ItemWidgetCity *itemWidget, bool favorited);
+    void hoverEnter();
 
 protected:
     void paintEvent(QPaintEvent *event) override;

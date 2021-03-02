@@ -12,6 +12,7 @@ WidgetCitiesList::WidgetCitiesList(IWidgetLocationsInfo *widgetLocationsInfo, QW
   , height_(0)
   , lastAccentedItemWidget_(nullptr)
   , widgetLocationsInfo_(widgetLocationsInfo)
+  , muteAccentChanges_(false)
 {
     setFocusPolicy(Qt::NoFocus);
     cursorUpdateHelper_.reset(new CursorUpdateHelper(this));
@@ -42,6 +43,7 @@ void WidgetCitiesList::addCity(const CityModelItem &city)
     auto cityWidget = new ItemWidgetCity(widgetLocationsInfo_, city, this);
     connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));
     connect(cityWidget, SIGNAL(accented()), SLOT(onCityItemAccented()));
+    connect(cityWidget, SIGNAL(hoverEnter()), SLOT(onCityItemHoverEnter()));
     connect(cityWidget, SIGNAL(favoriteClicked(ItemWidgetCity *, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*, bool)));
     cityWidget->setSelectable(true);
     cityWidget->show();
@@ -194,6 +196,11 @@ int WidgetCitiesList::accentItemIndex()
     return selectableIndex(lastAccentedItemWidget_->getId());
 }
 
+void WidgetCitiesList::setMuteAccentChanges(bool mute)
+{
+    muteAccentChanges_ = mute;
+}
+
 IItemWidget *WidgetCitiesList::lastAccentedItemWidget()
 {
     return lastAccentedItemWidget_;
@@ -238,6 +245,15 @@ void WidgetCitiesList::onCityItemClicked()
     {
         auto cityWidget = static_cast<ItemWidgetCity*>(sender());
         safeEmitLocationIdSelected(cityWidget);
+    }
+}
+
+void WidgetCitiesList::onCityItemHoverEnter()
+{
+    if (!muteAccentChanges_)
+    {
+        auto cityWidget = static_cast<ItemWidgetCity*>(sender());
+        cityWidget->setAccented(true);
     }
 }
 

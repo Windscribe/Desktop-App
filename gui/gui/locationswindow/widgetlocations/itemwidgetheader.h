@@ -43,6 +43,7 @@ public:
 
 signals:
     void accented();
+    void hoverEnter();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
