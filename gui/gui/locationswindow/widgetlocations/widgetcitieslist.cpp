@@ -228,7 +228,7 @@ void WidgetCitiesList::onCityItemAccented()
     {
         if (widget != itemWidget)
         {
-            widget->setAccented(false);
+            widget->setAccentedWithoutAnimation(false);
         }
     }
     recentlyAccentedWidgets_.clear();
