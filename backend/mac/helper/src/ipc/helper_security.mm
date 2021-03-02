@@ -2,6 +2,7 @@
 #include "logger.h"
 #include "utils.h"
 #include <boost/algorithm/string.hpp>
+#include <libproc.h>
 #import <Foundation/Foundation.h>
 
 void HelperSecurity::reset()
@@ -21,22 +22,16 @@ bool HelperSecurity::verifyProcessId(pid_t pid)
 
 bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
 {
-    // Get application name from pid.
-    std::string app_name;
-    Utils::executeCommand("ps awx | awk '$1 == " + std::to_string(pid) +
-                          " { an=$5; for (i=6;i<=NF;i++){ an=an\" \"$i }; print an }'",
-                          {}, &app_name, /*appendFromStdErr =*/ false);
-    boost::trim(app_name);
-    if (app_name.empty()) {
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+    if (proc_pidpath(pid, pathbuf, sizeof(pathbuf)) <= 0)
+    {
         LOG("Failed to get app/bundle name for PID %i", pid);
         return false;
     }
-
+    std::string app_name = pathbuf;
     bool result = false;
     
-    
     std::vector<std::string> endings;
-
     // Check for a correct ending.
     endings.push_back("/Contents/MacOS/installer");
 #if DEBUG || DISABLE_HELPER_SECURITY_CHECK
