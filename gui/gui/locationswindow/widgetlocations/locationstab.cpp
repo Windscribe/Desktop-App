@@ -460,11 +460,15 @@ void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum loc
     }
 
     qCDebug(LOG_USER) << "Key press tab selection";
-    if (locationTab == LOCATION_TAB_SEARCH_LOCATIONS)
+    if (locationTab == LOCATION_TAB_SEARCH_LOCATIONS) // going to search tab
     {
         showSearchTab(); // this will handle changeTab(..)
     }
-    else
+    else if (curTab_ == LOCATION_TAB_SEARCH_LOCATIONS) // leaving search tab
+    {
+        hideSearchTab(); // handles changeTab(..)
+    }
+    else // any other transition
     {
         changeTab(locationTab);
     }
