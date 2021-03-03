@@ -244,13 +244,6 @@ bool Helper_win::executeChangeMtu(const QString &adapter, int mtu)
     return mpr.success;
 }
 
-QString Helper_win::executeUpdateInstaller(const QString & /*installerPath*/, bool &success)
-{
-    // nothing todo for windows
-    success = true;
-    return "";
-}
-
 bool Helper_win::clearDnsOnTap()
 {
     QMutexLocker locker(&mutex_);
