@@ -160,6 +160,7 @@ private:
 
     int state_;
     bool bLastIsOnline_;
+    bool bWakeSignalReceived_;
 
     ProtocolType currentProtocol_;
 
@@ -184,6 +185,7 @@ private:
     void startReconnectionTimer();
     void waitForNetworkConnectivity();
     void recreateConnector(ProtocolType protocol);
+    void restoreConnectionAfterWakeUp();
 };
 
 #endif // CONNECTIONMANAGER_H
