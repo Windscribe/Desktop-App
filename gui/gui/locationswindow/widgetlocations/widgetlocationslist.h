@@ -3,10 +3,9 @@
 
 #include <QWidget>
 #include "itemwidgetregion.h"
+#include "cursorupdatehelper.h"
 
 namespace GuiLocations {
-
-class CursorUpdateHelper;
 
 class WidgetLocationsList : public QWidget
 {

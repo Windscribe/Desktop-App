@@ -12,14 +12,20 @@ TooltipController::TooltipController() : QObject(nullptr)
   , serverRatingsTooltip_(nullptr)
   , serverRatingState_(SERVER_RATING_NONE)
 {
-
+    serverRatingsHideTimer_.setInterval(TOOLTIP_SHOW_DELAY);
+    serverRatingsHideTimer_.setSingleShot(true);
+    connect(&serverRatingsHideTimer_, SIGNAL(timeout()), SLOT(onServerRatingHideTimerTimeout()));
 }
 
 void TooltipController::hideAllTooltips()
 {
     if (serverRatingsTooltip_)
     {
-        serverRatingsTooltip_->hide();
+        // when server rating tooltip steals activation/focus prevent it from hiding itself
+        if (!serverRatingsTooltip_->isHovering())
+        {
+            serverRatingsTooltip_->hide();
+        }
     }
 
     foreach (TooltipId id, tooltips_.keys())
@@ -36,6 +42,7 @@ void TooltipController::showTooltipInteractive(TooltipId id, int x, int y, int d
 {
     if (id == TooltipId::TOOLTIP_ID_SERVER_RATINGS)
     {
+        serverRatingsHideTimer_.stop();
         if (serverRatingsTooltip_)
         {
             serverRatingsTooltip_->disconnect();
@@ -159,7 +166,6 @@ void TooltipController::showTooltipDescriptive(TooltipInfo info)
             }
         }
     });
-
 }
 
 void TooltipController::hideTooltip(TooltipId id)
@@ -167,21 +173,7 @@ void TooltipController::hideTooltip(TooltipId id)
     if (id == TooltipId::TOOLTIP_ID_SERVER_RATINGS)
     {
         // give user time to get mouse on the tooltip
-        QTimer::singleShot(TOOLTIP_SHOW_DELAY, [this](){
-            if (serverRatingsTooltip_)
-            {
-                if (!serverRatingsTooltip_->isHovering())
-                {
-                    serverRatingsTooltip_->stopHoverTimer();
-                    serverRatingsTooltip_->setShowState(TOOLTIP_SHOW_STATE_HIDE);
-                    serverRatingsTooltip_->hide();
-                }
-                else
-                {
-                    serverRatingsTooltip_->startHoverTimer();
-                }
-            }
-        });
+        serverRatingsHideTimer_.start();
     }
     else
     {
@@ -208,5 +200,22 @@ void TooltipController::onServerRatingsTooltipRateDownClicked()
 {
     serverRatingState_ = SERVER_RATING_BAD;
     emit sendServerRatingDown();
+}
+
+void TooltipController::onServerRatingHideTimerTimeout()
+{
+    if (serverRatingsTooltip_)
+    {
+        if (!serverRatingsTooltip_->isHovering())
+        {
+            serverRatingsTooltip_->stopHoverTimer();
+            serverRatingsTooltip_->setShowState(TOOLTIP_SHOW_STATE_HIDE);
+            serverRatingsTooltip_->hide();
+        }
+        else
+        {
+            serverRatingsTooltip_->startHoverTimer();
+        }
+    }
 }
 

@@ -114,7 +114,7 @@ void ITooltip::initWindowFlags()
     // Similarly, I removed Qt::Tooltip from flags and added WA_ShowWithoutActivating to prevent the tooltips
     // from stealing activation from the app and visibly updating the cursor type on every tooltip show
     setWindowFlags(Qt::FramelessWindowHint);
-    setAttribute(Qt::WA_ShowWithoutActivating, true); // TODO: this is probably not appropriate for InteractiveTooltip
+    setAttribute(Qt::WA_ShowWithoutActivating, true);
 #endif
     setAttribute(Qt::WA_TranslucentBackground, true);
 }

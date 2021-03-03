@@ -44,7 +44,7 @@ protected:
     double tailPosPercent_;
     TooltipShowState showState_;
 
-    void initWindowFlags();
+    virtual void initWindowFlags();
     int leftTooltipMinY() const;
     int leftTooltipMaxY() const;
     int bottomTooltipMaxX() const;

@@ -31,10 +31,12 @@ signals:
 private slots:
     void onServerRatingsTooltipRateUpClicked();
     void onServerRatingsTooltipRateDownClicked();
+    void onServerRatingHideTimerTimeout();
 
 private:
     TooltipController();
 
+    QTimer serverRatingsHideTimer_;
     ServerRatingsTooltip *serverRatingsTooltip_;
     ServerRatingState serverRatingState_;
 
