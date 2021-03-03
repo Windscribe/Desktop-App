@@ -26,7 +26,7 @@ public:
     void setSupported(HOTSPOT_SUPPORT_TYPE supported);
 
     void updateScaling() override;
-
+    bool hasItemWithFocus() override;
 signals:
     void secureHotspotParsChanged(const ProtoTypes::ShareSecureHotspot &ss);
 

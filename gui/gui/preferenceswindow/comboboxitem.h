@@ -57,7 +57,7 @@ public:
 
     void clear();
 
-    bool hasMenuWithFocus() override;
+    bool hasItemWithFocus() override;
     void hideMenu();
     void setMaxMenuItemsShowing(int maxItemsShowing);
     QPointF getButtonScenePos() const;

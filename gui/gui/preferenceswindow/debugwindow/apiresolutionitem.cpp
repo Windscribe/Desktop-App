@@ -79,6 +79,11 @@ void ApiResolutionItem::updateScaling()
     updatePositions();
 }
 
+bool ApiResolutionItem::hasItemWithFocus()
+{
+    return editBoxIP_->lineEditHasFocus();
+}
+
 void ApiResolutionItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state)
 {
     if (state == AutoManualSwitchItem::MANUAL && !isExpanded_)

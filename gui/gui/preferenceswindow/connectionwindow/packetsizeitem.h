@@ -24,6 +24,7 @@ public:
     void showPacketSizeDetectionError(const QString &title, const QString &message);
 
     void updateScaling() override;
+    bool hasItemWithFocus() override;
 
 signals:
     void packetSizeChanged(const ProtoTypes::PacketSize &ps);

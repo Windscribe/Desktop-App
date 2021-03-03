@@ -231,6 +231,11 @@ void SplitTunnelingIpsAndHostnamesItem::updateScaling()
     newIpOrHostnameItem_->setPos(0, 50*G_SCALE);
 }
 
+bool SplitTunnelingIpsAndHostnamesItem::hasItemWithFocus()
+{
+    return newIpOrHostnameItem_->lineEditHasFocus();
+}
+
 void SplitTunnelingIpsAndHostnamesItem::onDeleteClicked()
 {
     IpOrHostnameItem * itemToDelete = static_cast<IpOrHostnameItem *>(sender());

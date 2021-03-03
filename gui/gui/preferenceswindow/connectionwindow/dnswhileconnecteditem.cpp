@@ -48,6 +48,11 @@ void DNSWhileConnectedItem::updateScaling()
     comboBoxDNS_->updateScaling();
 }
 
+bool DNSWhileConnectedItem::hasItemWithFocus()
+{
+    return editBoxIP_->lineEditHasFocus();
+}
+
 /*void DNSWhileConnectedItem::setDNSWhileConnected(const DNSWhileConnected &dns)
 {
     curDNSWhileConnected_ = dns;

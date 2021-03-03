@@ -24,6 +24,7 @@ public:
     void setSelected(bool selected) override;
 
     void updateScaling() override;
+    bool hasItemWithFocus() override;
 
 signals:
     void searchModeExited();

@@ -23,6 +23,7 @@ public:
     void updateProgramList();
 
     void updateScaling() override;
+    bool hasItemWithFocus() override;
 
 signals:
     void appsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps);

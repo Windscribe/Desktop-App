@@ -30,6 +30,8 @@ public:
     void setAdditionalButtonBusyState(bool on);
     void setAdditionalButtonSelectedState(bool selected);
 
+    bool lineEditHasFocus();
+
 signals:
     void textChanged(const QString &text);
     void additionalButtonClicked();

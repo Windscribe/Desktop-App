@@ -152,6 +152,11 @@ void PacketSizeItem::updateScaling()
     expandEnimation_.setEndValue(EXPANDED_HEIGHT*G_SCALE);
 }
 
+bool PacketSizeItem::hasItemWithFocus()
+{
+    return editBoxPacketSize_->lineEditHasFocus();
+}
+
 void PacketSizeItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state)
 {
     if (state == AutoManualSwitchItem::MANUAL /*&& !isExpanded_*/)

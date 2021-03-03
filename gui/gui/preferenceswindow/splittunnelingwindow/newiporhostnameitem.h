@@ -17,6 +17,7 @@ public:
 
     void setSelected(bool selected) override;
     void updateScaling() override;
+    bool lineEditHasFocus();
 
 signals:
     void addNewIpOrHostnameClicked(QString ipOrHostname);

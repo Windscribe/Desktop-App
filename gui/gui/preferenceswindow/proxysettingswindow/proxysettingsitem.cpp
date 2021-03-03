@@ -188,6 +188,14 @@ void ProxySettingsItem::updateScaling()
     updatePositions();
 }
 
+bool ProxySettingsItem::hasItemWithFocus()
+{
+    return editBoxAddress_->lineEditHasFocus()  ||
+           editBoxPort_->lineEditHasFocus()     ||
+           editBoxUsername_->lineEditHasFocus() ||
+           editBoxPassword_->lineEditHasFocus();
+}
+
 void ProxySettingsItem::onProxyTypeChanged(QVariant v)
 {
     int new_proxy_option = v.toInt();

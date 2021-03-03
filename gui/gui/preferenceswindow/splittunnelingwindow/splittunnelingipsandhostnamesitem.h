@@ -21,6 +21,7 @@ public:
     void attemptDelete(IpOrHostnameItem *itemToDelete);
 
     void updateScaling() override;
+    bool hasItemWithFocus() override;
 
 signals:
     void escape();

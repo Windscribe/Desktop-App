@@ -27,6 +27,8 @@ public:
     void setEditButtonClickable(bool clickable);
     void setMasked(bool masked);
 
+    bool lineEditHasFocus();
+
 signals:
     void textChanged(const QString &text);
     void additionalButtonClicked();

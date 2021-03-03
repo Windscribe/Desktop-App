@@ -589,11 +589,8 @@ void PreferencesWindowItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {
-        if (scrollAreaItem_->hasComboMenuWithFocus())
-        {
-            scrollAreaItem_->hideOpenPopups();
-        }
-        else
+        // if inner item has focus let it handle the [Escape] event
+        if (!scrollAreaItem_->hasItemWithFocus())
         {
             if (isShowSubPage_)
             {

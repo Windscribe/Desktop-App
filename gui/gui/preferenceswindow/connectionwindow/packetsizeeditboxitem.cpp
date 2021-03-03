@@ -208,6 +208,11 @@ void PacketSizeEditBoxItem::setAdditionalButtonSelectedState(bool selected)
         btnAdditional_->setSelected(selected);
 }
 
+bool PacketSizeEditBoxItem::lineEditHasFocus()
+{
+    return lineEdit_->hasFocus();
+}
+
 void PacketSizeEditBoxItem::keyReleaseEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
