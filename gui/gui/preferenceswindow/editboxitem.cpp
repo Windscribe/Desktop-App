@@ -51,8 +51,8 @@ QRectF EditBoxItem::boundingRect() const
 
 void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
     qreal initialOpacity = painter->opacity();
 
@@ -115,6 +115,11 @@ void EditBoxItem::setMasked(bool masked)
         lineEdit_->setEchoMode(QLineEdit::Normal);
     }
     update();
+}
+
+bool EditBoxItem::lineEditHasFocus()
+{
+    return lineEdit_->hasFocus();
 }
 
 void EditBoxItem::keyReleaseEvent(QKeyEvent *event)

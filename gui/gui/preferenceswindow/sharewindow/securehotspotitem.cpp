@@ -102,6 +102,12 @@ void SecureHotspotItem::updateScaling()
     updatePositions();
 }
 
+bool SecureHotspotItem::hasItemWithFocus()
+{
+    return editBoxSSID_->lineEditHasFocus() ||
+           editBoxPassword_->lineEditHasFocus();
+}
+
 void SecureHotspotItem::onCheckBoxStateChanged(bool isChecked)
 {
     if (isChecked)

@@ -164,7 +164,7 @@ void ComboBoxItem::clear()
     update();
 }
 
-bool ComboBoxItem::hasMenuWithFocus()
+bool ComboBoxItem::hasItemWithFocus()
 {
     return menu_->hasFocus();
 }

@@ -27,7 +27,7 @@ public:
     virtual void hideOpenPopups();
     void updateScaling() override;
 
-    virtual bool hasComboMenuWithFocus();
+    virtual bool hasItemWithFocus();
 
 signals:
     void escape();

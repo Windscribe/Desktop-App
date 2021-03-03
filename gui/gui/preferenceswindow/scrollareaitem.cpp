@@ -240,9 +240,9 @@ void ScrollAreaItem::setScrollBarVisibility(bool on)
 
 }
 
-bool ScrollAreaItem::hasComboMenuWithFocus()
+bool ScrollAreaItem::hasItemWithFocus()
 {
-    return curItem_->hasComboMenuWithFocus();
+    return curItem_->hasItemWithFocus();
 }
 
 void ScrollAreaItem::wheelEvent(QGraphicsSceneWheelEvent *event)

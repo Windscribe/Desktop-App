@@ -20,6 +20,7 @@ public:
     void setApiResolution(const ProtoTypes::ApiResolution &ar);
 
     void updateScaling() override;
+    bool hasItemWithFocus() override;
 
 signals:
     void apiResolutionChanged(const ProtoTypes::ApiResolution &ar);

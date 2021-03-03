@@ -22,6 +22,8 @@ public:
     //void setDNSWhileConnected(const DNSWhileConnected &dns);
 
     void updateScaling() override;
+    bool hasItemWithFocus() override;
+
 signals:
     //void dnsWhileConnectedChanged(const DNSWhileConnected &dns);
 

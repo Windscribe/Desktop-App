@@ -154,6 +154,11 @@ void SplitTunnelingAppsSearchItem::updateScaling()
     updateItemsPosAndUpdateHeight();
 }
 
+bool SplitTunnelingAppsSearchItem::hasItemWithFocus()
+{
+    return searchLineEditItem_->hasItemWithFocus();
+}
+
 void SplitTunnelingAppsSearchItem::onAppItemClicked()
 {
     if (loggedIn_)

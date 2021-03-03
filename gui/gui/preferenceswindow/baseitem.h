@@ -20,7 +20,7 @@ public:
     QString id();
     void setId(QString id);
 
-    virtual bool hasMenuWithFocus() { return false; }
+    virtual bool hasItemWithFocus() { return false; }
 
 signals:
     void heightChanged(int newHeight);

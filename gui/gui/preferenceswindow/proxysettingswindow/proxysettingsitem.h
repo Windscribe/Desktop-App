@@ -20,6 +20,8 @@ public:
     void setProxySettings(const ProtoTypes::ProxySettings &ps);
 
     void updateScaling() override;
+    bool hasItemWithFocus() override;
+
 signals:
     void proxySettingsChanged(const ProtoTypes::ProxySettings &ps);
 

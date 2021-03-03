@@ -93,6 +93,11 @@ void SearchLineEditItem::updateScaling()
     updatePositions();
 }
 
+bool SearchLineEditItem::hasItemWithFocus()
+{
+    return lineEdit_->hasFocus();
+}
+
 void SearchLineEditItem::focusInEvent(QFocusEvent * /*event*/)
 {
     emit focusIn();
