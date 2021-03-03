@@ -4,7 +4,6 @@
 #include <QtMath>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
-#include "cursorupdatehelper.h"
 #include "utils/logger.h"
 
 

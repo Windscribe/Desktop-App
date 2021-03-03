@@ -18,11 +18,13 @@ ServerRatingsTooltip::ServerRatingsTooltip(QWidget *parent) : ITooltip(parent)
     rateUpButton_->setUnhoverHoverOpacity(OPACITY_FULL, OPACITY_FULL);
     rateUpButton_->animateOpacityChange(OPACITY_FULL);
     connect(rateUpButton_, SIGNAL(clicked()), SLOT(onRateUpButtonClicked()));
+    connect(rateUpButton_, SIGNAL(hoverEnter()), SLOT(onRateUpButtonHoverEnter()));
 
     rateDownButton_ = new CommonWidgets::IconButtonWidget("RATE_SPEED_BAD_OFF", this);
     rateDownButton_->setUnhoverHoverOpacity(OPACITY_FULL, OPACITY_FULL);
     rateDownButton_->animateOpacityChange(OPACITY_FULL);
     connect(rateDownButton_, SIGNAL(clicked()), SLOT(onRateDownButtonClicked()));
+    connect(rateDownButton_, SIGNAL(hoverEnter()), SLOT(onRateDownButtonHoverEnter()));
 
     hoverTimer_.setInterval(50);
     hoverTimer_.setSingleShot(false);
@@ -173,6 +175,24 @@ void ServerRatingsTooltip::paintEvent(QPaintEvent * /*event*/)
     painter.setFont(font_);
     painter.setOpacity(OPACITY_FULL);
     painter.drawText(MARGIN_WIDTH*G_SCALE + additionalTailWidth(), 20*G_SCALE, translatedText());
+}
+
+void ServerRatingsTooltip::onRateUpButtonHoverEnter()
+{
+    // need to manually activate to get cursor changes since we set WA_ShowWithoutActivating
+    // This effectively delays activation until cursor is in the tooltip region,
+    // so when the mainwindow deactivation hideAllTooltip happens, we don't close the tooltip
+    activateWindow();
+    setFocus();
+}
+
+void ServerRatingsTooltip::onRateDownButtonHoverEnter()
+{
+    // need to manually activate to get cursor changes since we set WA_ShowWithoutActivating
+    // This effectively delays activation until cursor is in the tooltip region,
+    // so when the mainwindow deactivation hideAllTooltip happens, we don't close the tooltip
+    activateWindow();
+    setFocus();
 }
 
 void ServerRatingsTooltip::recalcWidth()

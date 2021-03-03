@@ -13,6 +13,14 @@ CursorUpdateHelper::CursorUpdateHelper(QWidget *widget)
     widget_->setCursor(currentCursor_);
 }
 
+void CursorUpdateHelper::setArrowCursor()
+{
+    if (currentCursor_ != Qt::ArrowCursor) {
+        currentCursor_ = Qt::ArrowCursor;
+        applyCurrentCursor();
+    }
+}
+
 void CursorUpdateHelper::setForbiddenCursor()
 {
     if (currentCursor_ != Qt::ForbiddenCursor) {

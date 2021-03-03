@@ -10,6 +10,7 @@ class CursorUpdateHelper
 public:
     explicit CursorUpdateHelper(QWidget *widget);
 
+    void setArrowCursor();
     void setForbiddenCursor();
     void setPointingHandCursor();
 

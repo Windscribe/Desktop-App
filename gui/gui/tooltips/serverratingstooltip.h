@@ -36,6 +36,10 @@ public slots:
 protected:
     void paintEvent(QPaintEvent *event) override;
 
+private slots:
+    void onRateUpButtonHoverEnter();
+    void onRateDownButtonHoverEnter();
+
 private:
     CommonWidgets::IconButtonWidget *rateUpButton_;
     CommonWidgets::IconButtonWidget *rateDownButton_;
