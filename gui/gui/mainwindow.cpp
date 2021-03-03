@@ -79,6 +79,7 @@ MainWindow::MainWindow() :
     activeState_(true),
     lastWindowStateChange_(0),
     isExitingFromPreferences_(false),
+    isSpontaneousCloseEvent_(false),
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false)
 {
@@ -417,7 +418,7 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     // 2) it is sent to active window only (unlike closing via taskbar/task manager);
     // 3) the modifier key is pressed at the time of the event.
     // If all these features are present, switch to the exit window instead of closing immediately.
-    if (event && event->spontaneous() && isActiveWindow()) {
+    if (event && (isSpontaneousCloseEvent_ || event->spontaneous()) && isActiveWindow()) {
         const auto current_modifiers = QApplication::queryKeyboardModifiers();
 #if defined(Q_OS_WIN)
         const auto kCheckedModifier = Qt::AltModifier;
@@ -426,6 +427,7 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
         const auto kCheckedModifier = Qt::ControlModifier;
 #endif
         if (current_modifiers & kCheckedModifier) {
+            isSpontaneousCloseEvent_ = false;
             event->ignore();
             gotoExitWindow();
             return;
@@ -434,6 +436,7 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 #endif  // Q_OS_WIN || Q_OS_MAC
 
     setEnabled(false);
+    isSpontaneousCloseEvent_ = false;
 
     // for startup fix (when app disabled in task manager)
     LaunchOnStartup::instance().setLaunchOnStartup(backend_->getPreferences()->isLaunchOnStartup());
@@ -2564,6 +2567,7 @@ void MainWindow::onAppActivateFromAnotherInstance()
 void MainWindow::onAppShouldTerminate_mac()
 {
     qCDebug(LOG_BASIC) << "onShouldTerminate_mac signal in MainWindow";
+    isSpontaneousCloseEvent_ = true;
     close();
 }
 

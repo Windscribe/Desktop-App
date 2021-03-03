@@ -353,6 +353,7 @@ private:
     qint64 lastWindowStateChange_;
 
     bool isExitingFromPreferences_;
+    bool isSpontaneousCloseEvent_;
 
     void minimizeToTray();
 

@@ -410,6 +410,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClCompile Include="dpiscaleawarewidget.cpp" />
     <ClCompile Include="graphicresources\imageresourcesjpg.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\cursorupdatehelper.cpp" />
+    <ClCompile Include="locationswindow\widgetlocations\footertopstrip.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\itemwidgetcity.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\itemwidgetheader.cpp" />
     <ClCompile Include="locationswindow\widgetlocations\itemwidgetregion.cpp" />
@@ -752,6 +753,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <QtMoc Include="locationswindow\widgetlocations\scrollbar.h" />
     <QtMoc Include="locationswindow\widgetlocations\widgetcitieslist.h" />
     <QtMoc Include="locationswindow\widgetlocations\widgetlocationslist.h" />
+    <QtMoc Include="locationswindow\widgetlocations\footertopstrip.h" />
     <ClInclude Include="overlaysconnectwindow\igeneralmessagetwobuttonwindow.h" />
     <ClInclude Include="overlaysconnectwindow\igeneralmessagewindow.h" />
     <ClInclude Include="overlaysconnectwindow\iupdateappitem.h" />
@@ -848,7 +850,7 @@ copy "$(TargetPath)" "$(SolutionDir)build-output/$(TargetFileName)"</Command>
     <ClInclude Include="utils\ipvalidation.h" />
     <ClInclude Include="..\..\common\ipc\iserver.h" />
     <ClInclude Include="locationswindow\widgetlocations\itemtimems.h" />
-    <ClInclude Include="tooltips\itooltip.h" />
+    <QtMoc Include="tooltips\itooltip.h" />
     <ClInclude Include="locationswindow\widgetlocations\iwidgetlocationsinfo.h" />
     <QtMoc Include="languagecontroller.h">
     </QtMoc>
