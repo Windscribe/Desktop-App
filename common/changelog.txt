@@ -1,3 +1,39 @@
+2.02.5 (03/03/2021)
+* Windscribe beta installer fails on macOS standard accounts - fixed. #369
+* Detect legacy OS version, download legacy installer (Windows/Mac). #3 and #6
+* Remove the helper from version 1 when installing 2.0 (Mac). #5
+* Launch update installer at the same screen position as app (Windows/Mac). #7 and #8
+* Auto-update the application (Mac) - fixes.
+* Trackpad scrolling on Big Sur is wonky - fixes. #342
+* Removed account tab from preferences in external config mode. #365
+
+* Improvements to preferences and combobox menus. #118
+	-> Increased scroll bar widths.
+	-> Fixed trackpad sensitivities on Mac and Windows.
+	-> Fixed [Escape] key press navigations.
+* Fixed rare crash on Mac when using comboboxes and tooltips. #118
+* Improvements to location window. #118
+	-> Tab transitions: animations and logging
+	-> Added navigation to search tab when you start typing
+ 	-> Improved key-press navigation and cursor integration
+	-> Fixed footer size
+	-> Fixed view offset that happens at the bottom of the each list
+	-> Fixed error messages and connection prevention for bad vpn configs
+	-> Fixed drag-scrolling to bottom and top of list
+	-> Fixed scaling issues on 125% and 175%
+	-> Other minor bug fixes
+
+* Fixed latency display always as bars on some screens. #372
+* Fixed OVPN custom config issues with protocol names. #374
+* Fixed custom config error message. #375
+* Added SIGTERM signal processing for Mac. #379
+* Fixed incorrect timestamps in service log. #378
+* Finish all active connections on app start(Mac). #380
+* The program hangs on the welcome screen on Mac when installed in the folder with spaces - fixed. #383
+* Custom config does not change DNS server on MacOS - fixed. #384
+* Fixed WireGuard on wake connect issue. #385
+* Fixed Cmd+Q shortcut confirmation regression on Mac. #11
+
 2.02.4 (16/02/2021)
 * Autoupdate from older versions of the program (prior 2.02 build 1) fixed.
 
