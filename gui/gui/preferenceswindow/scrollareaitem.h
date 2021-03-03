@@ -23,6 +23,7 @@ public:
 
     void setScrollBarVisibility(bool on);
 
+    bool hasComboMenuWithFocus();
     void hideOpenPopups();
     void updateScaling() override;
 

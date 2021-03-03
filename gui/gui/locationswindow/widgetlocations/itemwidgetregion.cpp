@@ -12,6 +12,7 @@ namespace GuiLocations {
 
 ItemWidgetRegion::ItemWidgetRegion(IWidgetLocationsInfo * widgetLocationsInfo, LocationModelItem *locationModelItem, QWidget *parent) : QWidget(parent)
   , widgetLocationsInfo_(widgetLocationsInfo)
+  , muteAccentChanges_(false)
   , citySubMenuState_(COLLAPSED)
 {
     setFocusPolicy(Qt::NoFocus);
@@ -21,6 +22,7 @@ ItemWidgetRegion::ItemWidgetRegion(IWidgetLocationsInfo * widgetLocationsInfo, L
     regionHeaderWidget_ = new ItemWidgetHeader(widgetLocationsInfo, locationModelItem, this);
     connect(regionHeaderWidget_, SIGNAL(clicked()), SLOT(onRegionHeaderClicked()));
     connect(regionHeaderWidget_, SIGNAL(accented()), SLOT(onRegionHeaderAccented()));
+    connect(regionHeaderWidget_, SIGNAL(hoverEnter()), SLOT(onRegionHeaderHoverEnter()));
 
     // qDebug() << "Creating region: " << regionHeaderWidget_->name();
 
@@ -80,6 +82,11 @@ void ItemWidgetRegion::setExpandedWithoutAnimation(bool expand)
     recalcItemPositions();
 }
 
+void ItemWidgetRegion::setMuteAccentChanges(bool mute)
+{
+    muteAccentChanges_ = mute;
+}
+
 void ItemWidgetRegion::expand()
 {
     qCDebug(LOG_LOCATION_LIST) << "Expanding: " << regionHeaderWidget_->name();
@@ -118,6 +125,7 @@ void ItemWidgetRegion::addCity(const CityModelItem &city)
     auto cityWidget = new ItemWidgetCity(widgetLocationsInfo_, city, this);
     connect(cityWidget, SIGNAL(clicked()), SLOT(onCityItemClicked()));
     connect(cityWidget, SIGNAL(accented()), SLOT(onCityItemAccented()));
+    connect(cityWidget, SIGNAL(hoverEnter()), SLOT(onCityItemHoverEnter()));
     connect(cityWidget, SIGNAL(favoriteClicked(ItemWidgetCity *, bool)), SIGNAL(favoriteClicked(ItemWidgetCity*, bool)));
     cities_.append(cityWidget);
     cityWidget->show();
@@ -203,6 +211,14 @@ void ItemWidgetRegion::onRegionHeaderClicked()
     emit clicked(this);
 }
 
+void ItemWidgetRegion::onRegionHeaderHoverEnter()
+{
+    if (!muteAccentChanges_)
+    {
+        regionHeaderWidget_->setAccented(true);
+    }
+}
+
 void ItemWidgetRegion::onCityItemClicked()
 {
     ItemWidgetCity *cityWidget = static_cast<ItemWidgetCity*>(sender());
@@ -213,6 +229,15 @@ void ItemWidgetRegion::onCityItemClicked()
     }
 
     emit clicked(cityWidget);
+}
+
+void ItemWidgetRegion::onCityItemHoverEnter()
+{
+    if (!muteAccentChanges_)
+    {
+        ItemWidgetCity *cityWidget = static_cast<ItemWidgetCity*>(sender());
+        cityWidget->setAccented(true);
+    }
 }
 
 void ItemWidgetRegion::onExpandingHeightAnimationValueChanged(const QVariant &value)

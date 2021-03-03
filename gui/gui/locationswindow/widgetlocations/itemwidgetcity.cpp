@@ -390,7 +390,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
 void ItemWidgetCity::enterEvent(QEvent *event)
 {
     Q_UNUSED(event)
-    setAccented(true); // triggers unselection of other widgets
+    emit hoverEnter();
 }
 
 void ItemWidgetCity::leaveEvent(QEvent *event)

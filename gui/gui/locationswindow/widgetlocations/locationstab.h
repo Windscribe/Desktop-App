@@ -39,6 +39,8 @@ public:
     void hideSearchTab();
     void hideSearchTabWithoutAnimation();
 
+    void setMuteAccentChanges(bool mute);
+
     enum LocationTabEnum {
         LOCATION_TAB_NONE = 0,
         LOCATION_TAB_ALL_LOCATIONS,

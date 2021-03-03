@@ -164,6 +164,11 @@ void WidgetLocations::accentFirstItem()
     widgetLocationsList_->accentFirstSelectableItem();
 }
 
+void WidgetLocations::setMuteAccentChanges(bool mute)
+{
+    widgetLocationsList_->setMuteAccentChanges(mute);
+}
+
 bool WidgetLocations::cursorInViewport()
 {
     QPoint cursorPos = QCursor::pos();

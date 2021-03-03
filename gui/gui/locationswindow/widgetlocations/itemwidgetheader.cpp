@@ -274,7 +274,7 @@ void ItemWidgetHeader::enterEvent(QEvent *event)
 {
     Q_UNUSED(event)
     // qDebug() << "Selection by hover enter";
-    setAccented(true); // triggers unselection of other widgets
+    emit hoverEnter();
 }
 
 void ItemWidgetHeader::leaveEvent(QEvent *event)

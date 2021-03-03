@@ -81,6 +81,18 @@ void BasePage::updateScaling()
     recalcItemsPos();
 }
 
+bool BasePage::hasComboMenuWithFocus()
+{
+    Q_FOREACH(BaseItem *item, items_)
+    {
+        if (item->hasMenuWithFocus())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 QList<BaseItem *> BasePage::items() const
 {
     return items_;

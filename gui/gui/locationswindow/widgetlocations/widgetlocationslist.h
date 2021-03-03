@@ -39,6 +39,7 @@ public:
     const LocationID lastAccentedLocationId() const;
     void accentItem(LocationID locationId);
     void accentItemWithoutAnimation(LocationID locationId);
+    void setMuteAccentChanges(bool mute);
 
     void accentFirstSelectableItem();
     void accentFirstSelectableItemWithoutAnimation();
