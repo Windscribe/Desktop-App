@@ -865,6 +865,9 @@
     <ClCompile Include="..\..\common\utils\clean_sensitive_info.cpp">
       <Filter>Common Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="locationswindow\widgetlocations\footertopstrip.cpp">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="dialogs\dialoggetusernamepassword.h">
@@ -1348,6 +1351,9 @@
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </QtMoc>
     <QtMoc Include="locationswindow\widgetlocations\widgetlocationslist.h">
+      <Filter>GUI Files\locationswindow\widgetlocations</Filter>
+    </QtMoc>
+    <QtMoc Include="locationswindow\widgetlocations\footertopstrip.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </QtMoc>
   </ItemGroup>
