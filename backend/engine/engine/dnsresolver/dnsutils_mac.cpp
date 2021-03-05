@@ -17,10 +17,10 @@ std::vector<std::wstring> getDnsServers()
     process.waitForFinished(-1);
     QString strAnswer = QString::fromStdString((const char *)process.readAll().data()).toLower();
 
-    QStringList lines = strAnswer.split("\n");
+    const QStringList lines = strAnswer.split("\n");
 
     QSet<QString> ips;
-    Q_FOREACH(const QString &line, lines)
+    for (const QString &line : lines)
     {
         if (line.contains("nameserver"))
         {
@@ -36,7 +36,7 @@ std::vector<std::wstring> getDnsServers()
 
     qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list:" << ips;
 
-    Q_FOREACH(const QString &s, ips)
+    for (const QString &s : qAsConst(ips))
     {
         dnsServers.push_back(s.toStdWString());
     }

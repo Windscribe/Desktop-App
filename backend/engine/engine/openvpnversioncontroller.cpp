@@ -85,8 +85,8 @@ OpenVpnVersionController::OpenVpnVersionController()
     selectedInd_ = -1;
     QString pathDir = getOpenVpnBinaryPath();
     QDir dir(pathDir);
-    QStringList files = dir.entryList(QStringList() << "windscribeopenvpn*");
-    Q_FOREACH(const QString &fileName, files)
+    const QStringList files = dir.entryList(QStringList() << "windscribeopenvpn*");
+    for (const QString &fileName : files)
     {
         QString version = detectVersion(pathDir + "/" + fileName);
         if (!version.isEmpty())

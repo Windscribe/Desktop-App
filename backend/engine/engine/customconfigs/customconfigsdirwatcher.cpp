@@ -47,7 +47,7 @@ void CustomConfigsDirWatcher::onEmitTimer()
 void CustomConfigsDirWatcher::checkFiles(bool bWithEmitSignal, bool bFileChanged)
 {
     // remove prev files from watch paths
-    Q_FOREACH(const QString &filename, curFiles_)
+    for (const QString &filename : qAsConst(curFiles_))
     {
         dirWatcher_.removePath(path_ + "/" + filename);
     }

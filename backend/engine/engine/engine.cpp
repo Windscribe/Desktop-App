@@ -2190,7 +2190,7 @@ void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes
     {
         // check for force_disconnect nodes if we connected
        /* bool bNeedDisconnect = false;
-        Q_FOREACH(const QString &sn, forceDisconnectNodes)
+        for (const QString &sn : forceDisconnectNodes)
         {
             if (lastConnectingHostname_ == sn)
             {

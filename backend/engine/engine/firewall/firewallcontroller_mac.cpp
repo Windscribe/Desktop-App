@@ -158,7 +158,7 @@ bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTra
     if (!ports.isEmpty())
     {
         //pass in proto tcp from any to any port 1234
-        Q_FOREACH(unsigned int port, ports)
+        for (unsigned int port : ports)
         {
             pf += "pass in quick proto tcp from any to any port = " + QString::number(port) + "\n";
         }

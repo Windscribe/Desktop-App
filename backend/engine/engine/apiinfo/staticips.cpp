@@ -15,8 +15,8 @@ bool StaticIps::initFromJson(QJsonObject &init_obj)
         return false;
     }
 
-    QJsonArray jsonStaticIps = init_obj["static_ips"].toArray();
-    Q_FOREACH(const QJsonValue &value, jsonStaticIps)
+    const QJsonArray jsonStaticIps = init_obj["static_ips"].toArray();
+    for (const QJsonValue &value : jsonStaticIps)
     {
         StaticIpDescr sid;
         QJsonObject obj = value.toObject();

@@ -30,7 +30,7 @@ void WidgetCitiesList::clearWidgets()
 {
     lastAccentedItemWidget_ = nullptr;
     recentlyAccentedWidgets_.clear();
-    foreach (ItemWidgetCity *regionWidget, itemWidgets_)
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         regionWidget->disconnect();
         regionWidget->deleteLater();
@@ -56,7 +56,7 @@ void WidgetCitiesList::addCity(const CityModelItem &city)
 
 void WidgetCitiesList::updateScaling()
 {
-    foreach (ItemWidgetCity *city, itemWidgets_)
+    for (auto *city : qAsConst(itemWidgets_))
     {
         city->updateScaling();
     }
@@ -67,7 +67,7 @@ void WidgetCitiesList::updateScaling()
 
 void WidgetCitiesList::accentWidgetContainingCursor()
 {
-    foreach (IItemWidget *selectableWidget , itemWidgets_)
+    for (auto *selectableWidget : qAsConst(itemWidgets_))
     {
         if (selectableWidget->containsCursor())
         {
@@ -81,7 +81,8 @@ void WidgetCitiesList::accentWidgetContainingCursor()
 
 void WidgetCitiesList::selectWidgetContainingGlobalPt(const QPoint &pt)
 {
-    foreach (IItemWidget *selectableWidget , itemWidgets())
+    const auto widgetList = itemWidgets();
+    for (auto *selectableWidget : widgetList)
     {
         if (selectableWidget->containsGlobalPoint(pt))
         {
@@ -101,7 +102,7 @@ QVector<ItemWidgetCity *> WidgetCitiesList::itemWidgets()
 int WidgetCitiesList::selectableIndex(LocationID locationId)
 {
     int i = 0;
-    foreach (IItemWidget *widget, itemWidgets_)
+    for (const auto *widget : qAsConst(itemWidgets_))
     {
         if (widget->getId() == locationId)
         {
@@ -123,7 +124,7 @@ const LocationID WidgetCitiesList::lastAccentedLocationId() const
 
 void WidgetCitiesList::accentItem(LocationID locationId)
 {
-    foreach (IItemWidget *widget, itemWidgets_)
+    for (auto *widget : qAsConst(itemWidgets_))
     {
         if (widget->getId() == locationId)
         {
@@ -150,7 +151,7 @@ void WidgetCitiesList::moveAccentUp()
 {
     IItemWidget *lastWidget = nullptr;
     IItemWidget *currentWidget =  nullptr;
-    foreach (IItemWidget *widget, itemWidgets_)
+    for (auto *widget : qAsConst(itemWidgets_))
     {
         lastWidget = currentWidget;
         currentWidget = widget;
@@ -208,7 +209,7 @@ IItemWidget *WidgetCitiesList::lastAccentedItemWidget()
 
 IItemWidget *WidgetCitiesList::selectableWidget(LocationID locationId)
 {
-    foreach (IItemWidget *widget, itemWidgets_)
+    for (auto *widget : qAsConst(itemWidgets_))
     {
         if (widget->getId() == locationId)
         {
@@ -263,7 +264,7 @@ void WidgetCitiesList::recalcItemPositions()
 
     int height = 0;
 
-    foreach (ItemWidgetCity *city, itemWidgets_)
+    for (auto *city : qAsConst(itemWidgets_))
     {
         city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
         height += city->geometry().height();

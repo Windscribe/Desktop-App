@@ -159,8 +159,8 @@ QList<QString> MacUtils::listedCmdResults(const QString &cmd)
     QList<QString> result;
     QString response = QString::fromStdString(execCmd(cmd.toStdString().c_str()));
 
-    QList<QString> lines = response.split("\n");
-    foreach (const QString &line, lines)
+    const QList<QString> lines = response.split("\n");
+    for (const QString &line : lines)
     {
         const QString iName = line.trimmed();
         if (iName != "")
@@ -314,10 +314,10 @@ QMap<QString, int> MacUtils::currentHardwareInterfaceIndexes()
     QString cmd = "networksetup -listallhardwareports | grep Device | awk '{print $2}'";
     QString response = QString::fromStdString(execCmd(cmd.toStdString().c_str()));
 
-    QList<QString> lines = response.split("\n");
+    const QList<QString> lines = response.split("\n");
 
     int index = 1;
-    foreach (const QString &line, lines)
+    for (const QString &line : lines)
     {
         const QString iName = line.trimmed();
         if (iName != "")
@@ -339,9 +339,9 @@ QList<QString> MacUtils::currentNetworkHwInterfaces()
     QString cmd = "networksetup -listnetworkserviceorder | grep Device | sed -e 's/.*Device: //' -e 's/)//'";
     QString response = QString::fromStdString(execCmd(cmd.toStdString().c_str()));
 
-    QList<QString> lines = response.split("\n");
+    const QList<QString> lines = response.split("\n");
 
-    foreach (const QString &line, lines)
+    for (const QString &line : lines)
     {
         const QString iName = line.trimmed();
         if (iName != "")
@@ -366,10 +366,10 @@ ProtoTypes::NetworkInterfaces MacUtils::currentNetworkInterfaces(bool includeNoI
         *networkInterfaces.add_networks() = Utils::noNetworkInterface();
     }
 
-    QList<QString> hwInterfaces = currentNetworkHwInterfaces();
-    QMap<QString, int> interfaceIndexes = currentHardwareInterfaceIndexes();
+    const QList<QString> hwInterfaces = currentNetworkHwInterfaces();
+    const QMap<QString, int> interfaceIndexes = currentHardwareInterfaceIndexes();
 
-    foreach (const QString & interfaceName, hwInterfaces)
+    for (const QString &interfaceName : hwInterfaces)
     {
         ProtoTypes::NetworkInterface networkInterface;
 
@@ -473,11 +473,11 @@ QString MacUtils::macAddressFromIP(QString ipAddr, QString interfaceName)
     }
 
 
-    QList<QString> lines = strReply.split('\n');
+    const QList<QString> lines = strReply.split('\n');
 
     bool foundLineWithInterface = false;
     QString line = "";
-    foreach (QString line, lines)
+    for (QString line : lines)
     {
         if (line.contains(interfaceName))
         {
@@ -531,8 +531,8 @@ QString MacUtils::trueMacAddress(const QString &interfaceName)
 
 QString MacUtils::currentNetworkHwInterfaceName()
 {
-    QList<QString> hwInterfaces = currentNetworkHwInterfaces();
-    foreach (const QString & interface, hwInterfaces)
+    const QList<QString> hwInterfaces = currentNetworkHwInterfaces();
+    for (const QString & interface : hwInterfaces)
     {
         if (isAdapterUp(interface))
         {

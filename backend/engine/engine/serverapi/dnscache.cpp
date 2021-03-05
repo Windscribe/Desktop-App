@@ -69,7 +69,8 @@ void DnsCache::onDnsResolverFinished(const QString &hostname, const QHostInfo &h
 
             ResolvedHostInfo rhi;
             rhi.time = QDateTime::currentMSecsSinceEpoch();
-            Q_FOREACH(const QHostAddress &ha, hostInfo.addresses())
+            const auto hostAddresses = hostInfo.addresses();
+            for (const QHostAddress &ha : hostAddresses)
             {
                 ips << ha.toString();
             }
@@ -113,7 +114,7 @@ void DnsCache::checkForNewIps(const QHostInfo &hostInfo)
     if (bNewIps)
     {
         QStringList ips;
-        Q_FOREACH(const QString &ip, resolvedIps_)
+        for (const QString &ip : qAsConst(resolvedIps_))
         {
             ips << ip;
         }
@@ -133,7 +134,7 @@ void DnsCache::checkForNewIps(const QString &ip)
     if (bNewIps)
     {
         QStringList ips;
-        Q_FOREACH(const QString &resolved_ip, resolvedIps_)
+        for (const QString &resolved_ip : qAsConst(resolvedIps_))
         {
             ips << resolved_ip;
         }

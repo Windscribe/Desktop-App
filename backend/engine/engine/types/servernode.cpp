@@ -232,7 +232,7 @@ StaticIpPortsVector ServerNode::getAllStaticIpIntPorts() const
 {
     Q_ASSERT(isValid_);
     StaticIpPortsVector ret;
-    Q_FOREACH(const StaticIpPortDescr &portDescr, staticIpPorts_)
+    for (const StaticIpPortDescr &portDescr : staticIpPorts_)
     {
         ret << portDescr.intPort;
     }

@@ -26,7 +26,7 @@ ConnectionModeItem::ConnectionModeItem(ScalableGraphicsObject *parent, Preferenc
     connect(switchItem_, SIGNAL(stateChanged(AutoManualSwitchItem::SWITCH_STATE)), SLOT(onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE)));
     switchItem_->setPos(0, 0);
 
-    //QVector<ProtoTypes::Protocol> protocols = preferencesHelper->getAvailableProtocols();
+    //const QVector<ProtoTypes::Protocol> protocols = preferencesHelper->getAvailableProtocols();
     comboBoxProtocol_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Protocol"), "", 43, QColor(16, 22, 40), 24, true);
     comboBoxProtocol_->setPos(0, COLLAPSED_HEIGHT);
     comboBoxProtocol_->setClickable(false);
@@ -35,7 +35,7 @@ ConnectionModeItem::ConnectionModeItem(ScalableGraphicsObject *parent, Preferenc
     connect(comboBoxProtocol_, &ComboBoxItem::buttonHoverLeave,
         [this]() { emit buttonHoverLeave(ButtonType::PROTOCOL); });
 
-    /*Q_FOREACH(auto pd, protocols)
+    /*for (auto pd : protocols)
     {
         comboBoxProtocol_->addItem(ProtoEnumToString::instance().toString(pd), (int)pd);
     }
@@ -103,11 +103,11 @@ void ConnectionModeItem::onPortMapChanged()
     comboBoxProtocol_->clear();
     comboBoxPort_->clear();
 
-    QVector<ProtoTypes::Protocol> protocols = preferencesHelper_->getAvailableProtocols();
+    const QVector<ProtoTypes::Protocol> protocols = preferencesHelper_->getAvailableProtocols();
     if (protocols.size() > 0)
     {
         isPortMapInitialized_ = true;
-        Q_FOREACH(auto pd, protocols)
+        for (auto pd : protocols)
         {
             comboBoxProtocol_->addItem(ProtoEnumToString::instance().toString(pd), (int)pd);
         }
@@ -135,8 +135,8 @@ void ConnectionModeItem::hideOpenPopups()
 void ConnectionModeItem::updateProtocol(ProtoTypes::Protocol protocol)
 {
     comboBoxPort_->clear();
-    QVector<uint> ports = preferencesHelper_->getAvailablePortsForProtocol(protocol);
-    Q_FOREACH(uint p, ports)
+    const QVector<uint> ports = preferencesHelper_->getAvailablePortsForProtocol(protocol);
+    for (uint p : ports)
     {
         comboBoxPort_->addItem(QString::number(p), p);
     }

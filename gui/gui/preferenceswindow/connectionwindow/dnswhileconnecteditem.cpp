@@ -9,8 +9,8 @@ DNSWhileConnectedItem::DNSWhileConnectedItem(ScalableGraphicsObject *parent) : B
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
     comboBoxDNS_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "DNS While Connected"), "", 50, Qt::transparent, 0, false);
-    QList<DNSWhileConnectedType> modes = DNSWhileConnectedType::allAvailableTypes();
-    foreach (const DNSWhileConnectedType & d, modes)
+    const QList<DNSWhileConnectedType> modes = DNSWhileConnectedType::allAvailableTypes();
+    for (const DNSWhileConnectedType &d : modes)
     {
         comboBoxDNS_->addItem(d.toString(), static_cast<int>(d.type()));
     }
@@ -120,8 +120,8 @@ void DNSWhileConnectedItem::onLanguageChanged()
 
     comboBoxDNS_->clear();
 
-    QList<DNSWhileConnectedType> modes = DNSWhileConnectedType::allAvailableTypes();
-    foreach (const DNSWhileConnectedType & d, modes)
+    const QList<DNSWhileConnectedType> modes = DNSWhileConnectedType::allAvailableTypes();
+    for (const DNSWhileConnectedType &d : modes)
     {
         comboBoxDNS_->addItem(d.toString(), static_cast<int>(d.type()));
     }

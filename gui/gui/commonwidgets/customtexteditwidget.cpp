@@ -263,7 +263,8 @@ void CustomTextEditWidget::onBlockCountChanged(int newblockCount)
 
 void CustomTextEditWidget::disableActions()
 {
-    foreach (QAction *action, menu_->actions())
+    const auto menuActions = menu_->actions();
+    for (QAction *action : menuActions)
     {
         action->setEnabled(false);
     }

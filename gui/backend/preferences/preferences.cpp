@@ -447,7 +447,7 @@ QList<ProtoTypes::SplitTunnelingApp> Preferences::splitTunnelingApps()
 void Preferences::setSplitTunnelingApps(QList<ProtoTypes::SplitTunnelingApp> apps)
 {
     ProtoTypes::SplitTunneling st;
-    foreach (ProtoTypes::SplitTunnelingApp app, apps)
+    for (ProtoTypes::SplitTunnelingApp app : qAsConst(apps))
     {
         *st.add_apps() = app;
     }
@@ -474,7 +474,7 @@ QList<ProtoTypes::SplitTunnelingNetworkRoute> Preferences::splitTunnelingNetwork
 void Preferences::setSplitTunnelingNetworkRoutes(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes)
 {
     ProtoTypes::SplitTunneling st;
-    foreach (ProtoTypes::SplitTunnelingNetworkRoute app, routes)
+    for (ProtoTypes::SplitTunnelingNetworkRoute app : qAsConst(routes))
     {
         *st.add_network_routes() = app;
     }

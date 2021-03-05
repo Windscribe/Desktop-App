@@ -36,7 +36,7 @@ void FavoriteCitiesModel::setOrderLocationsType(ProtoTypes::OrderLocationType or
 
 void FavoriteCitiesModel::setIsFavorite(const LocationID &id, bool isFavorite)
 {
-    Q_FOREACH(CityModelItem *cmi, cities_)
+    for (CityModelItem *cmi : qAsConst(cities_))
     {
         if (cmi->id == id)
         {
@@ -72,7 +72,7 @@ void FavoriteCitiesModel::selectOnlyFavorite()
 {
     favoriteCities_.clear();
 
-    Q_FOREACH(CityModelItem *cmi, cities_)
+    for (CityModelItem *cmi : qAsConst(cities_))
     {
         if (cmi->isFavorite && !(cmi->bShowPremiumStarOnly && isFreeSessionStatus_))
         {

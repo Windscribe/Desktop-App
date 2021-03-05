@@ -111,7 +111,8 @@ void CustomMenuLineEdit::onMenuTriggered(QAction *action)
 
 void CustomMenuLineEdit::updateActionsState()
 {
-    foreach (QAction * action, menu_->actions())
+    const auto menuActions = menu_->actions();
+    for (QAction *action : menuActions)
     {
         QVariant userValue = action->data();
 

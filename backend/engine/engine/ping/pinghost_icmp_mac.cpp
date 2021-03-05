@@ -62,9 +62,9 @@ void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exi
     QProcess *process = (QProcess *)sender();
     if (exitCode == 0)
     {
-        QString strAnswer = process->readAll();
-        QStringList lines = strAnswer.split("\n");
-        Q_FOREACH (const QString &line, lines)
+        const QString strAnswer = process->readAll();
+        const QStringList lines = strAnswer.split("\n");
+        for (const QString &line : lines)
         {
             if (line.contains("icmp_seq=0"))
             {

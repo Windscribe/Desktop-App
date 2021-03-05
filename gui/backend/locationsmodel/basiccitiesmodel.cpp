@@ -19,7 +19,7 @@ void BasicCitiesModel::setOrderLocationsType(ProtoTypes::OrderLocationType order
 
 void BasicCitiesModel::changeConnectionSpeed(const LocationID &id, const PingTime &speed)
 {
-    Q_FOREACH(CityModelItem *cmi, cities_)
+    for (CityModelItem *cmi : qAsConst(cities_))
     {
         if (cmi->id == id)
         {
@@ -32,7 +32,7 @@ void BasicCitiesModel::changeConnectionSpeed(const LocationID &id, const PingTim
 
 void BasicCitiesModel::setIsFavorite(const LocationID &id, bool isFavorite)
 {
-    Q_FOREACH(CityModelItem *cmi, cities_)
+    for (CityModelItem *cmi : qAsConst(cities_))
     {
         if (cmi->id == id)
         {
@@ -59,7 +59,7 @@ QVector<CityModelItem *> BasicCitiesModel::getCities()
 
 void BasicCitiesModel::clearCities()
 {
-    Q_FOREACH(CityModelItem *cmi, cities_)
+    for (CityModelItem *cmi : qAsConst(cities_))
     {
         delete cmi;
     }

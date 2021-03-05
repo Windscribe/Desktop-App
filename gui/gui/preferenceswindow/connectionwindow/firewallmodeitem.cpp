@@ -14,8 +14,8 @@ FirewallModeItem::FirewallModeItem(ScalableGraphicsObject *parent) : BaseItem(pa
 
     comboBoxFirewallMode_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Firewall Mode"), "", 50, /*QColor(255, 0, 0)*/Qt::transparent, 0, false);
 
-    QList< QPair<QString, int> > modes = ProtoEnumToString::instance().getEnums(ProtoTypes::FirewallMode_descriptor());
-    Q_FOREACH(auto v, modes)
+    const QList< QPair<QString, int> > modes = ProtoEnumToString::instance().getEnums(ProtoTypes::FirewallMode_descriptor());
+    for (const auto v : modes)
     {
         comboBoxFirewallMode_->addItem(v.first, v.second);
     }
@@ -26,8 +26,8 @@ FirewallModeItem::FirewallModeItem(ScalableGraphicsObject *parent) : BaseItem(pa
 
     comboBoxFirewallWhen_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "When?"), "", 43, QColor(16, 22, 40), 24, true);
 
-    QList< QPair<QString, int> > whens = ProtoEnumToString::instance().getEnums(ProtoTypes::FirewallWhen_descriptor());
-    Q_FOREACH(auto v, whens)
+    const QList< QPair<QString, int> > whens = ProtoEnumToString::instance().getEnums(ProtoTypes::FirewallWhen_descriptor());
+    for (const auto v : whens)
     {
         comboBoxFirewallWhen_->addItem(v.first, v.second);
     }
@@ -62,8 +62,8 @@ void FirewallModeItem::onLanguageChanged()
     QVariant mode = comboBoxFirewallMode_->currentItem();
     comboBoxFirewallMode_->clear();
 
-    /*QList<FirewallModeType> modes = FirewallModeType::allAvailableTypes();
-    Q_FOREACH(const FirewallModeType &v, modes)
+    /*const QList<FirewallModeType> modes = FirewallModeType::allAvailableTypes();
+    for (const FirewallModeType &v : modes)
     {
         comboBoxFirewallMode_->addItem(v.toString(), (int)v.type());
     }
@@ -73,8 +73,8 @@ void FirewallModeItem::onLanguageChanged()
     QVariant when = comboBoxFirewallWhen_->currentItem();
     comboBoxFirewallWhen_->clear();
 
-    QList<FirewallWhenType> whens = FirewallWhenType::allAvailableTypes();
-    Q_FOREACH(const FirewallWhenType &w, whens)
+    const QList<FirewallWhenType> whens = FirewallWhenType::allAvailableTypes();
+    for (const FirewallWhenType &w : whens)
     {
         comboBoxFirewallWhen_->addItem(w.toString(), (int)w.type());
     }

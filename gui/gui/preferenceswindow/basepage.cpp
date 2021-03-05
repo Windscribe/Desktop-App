@@ -69,7 +69,7 @@ void BasePage::removeItem(BaseItem *itemToRemove)
 
 void BasePage::hideOpenPopups()
 {
-    Q_FOREACH(BaseItem *item, items_)
+    for (BaseItem *item : qAsConst(items_))
     {
         item->hideOpenPopups();
     }
@@ -83,7 +83,7 @@ void BasePage::updateScaling()
 
 bool BasePage::hasItemWithFocus()
 {
-    Q_FOREACH(BaseItem *item, items_)
+    for (BaseItem *item : qAsConst(items_))
     {
         if (item->hasItemWithFocus())
         {
@@ -101,7 +101,7 @@ QList<BaseItem *> BasePage::items() const
 void BasePage::recalcItemsPos()
 {
     int newHeight = 0;
-    Q_FOREACH(BaseItem *item, items_)
+    for (BaseItem *item : qAsConst(items_))
     {
         if (!item->isVisible())
             continue;

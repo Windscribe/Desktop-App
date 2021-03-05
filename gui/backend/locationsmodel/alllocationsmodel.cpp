@@ -9,7 +9,7 @@ void AllLocationsModel::update(QVector<QSharedPointer<LocationModelItem> > locat
 {
     clearLocations();
 
-    Q_FOREACH(QSharedPointer<LocationModelItem> lmi, locations)
+    for (QSharedPointer<LocationModelItem> lmi : qAsConst(locations))
     {
         if (lmi->id.isCustomConfigsLocation())
         {

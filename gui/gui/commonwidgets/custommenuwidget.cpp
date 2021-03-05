@@ -33,7 +33,8 @@ void CustomMenuWidget::addItem(const QString &caption, const QVariant &userValue
 QAction * CustomMenuWidget::action(CustomMenuWidget::DefaultAction act)
 {
     QAction *found = nullptr;
-    foreach (QAction *action, actions())
+    const auto actionList = actions();
+    for (QAction *action : actionList)
     {
         QVariant userValue = action->data();
 

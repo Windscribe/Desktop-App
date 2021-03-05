@@ -270,9 +270,9 @@ QMap<QString,QString> enumerateCleanedProgramLocations(HKEY hKey, QString keyPat
 {
     QMap<QString, QString> programLocations;
 
-    QList<QString> uninstallSubkeys = enumerateSubkeyNames(hKey, keyPath, wow64);
+    const QList<QString> uninstallSubkeys = enumerateSubkeyNames(hKey, keyPath, wow64);
 
-    foreach (QString subkey, uninstallSubkeys)
+    for (const QString &subkey : uninstallSubkeys)
     {
         QString fullKeyName = keyPath + "\\" + subkey;
         QString iconPath = regGetLocalMachineRegistryValueSz(hKey, fullKeyName,"DisplayIcon", wow64);
@@ -304,8 +304,9 @@ QMap<QString, QString> WinUtils::enumerateInstalledProgramIconLocations()
 
     for (int i = 0; i < maps.length(); i++)
     {
-        QMap<QString,QString> map = maps[i];
-        foreach (QString name, map.keys())
+        const QMap<QString,QString> map = maps[i];
+        const auto mapKeys = map.keys();
+        for (QString name : mapKeys)
         {
             programLocations.insert(name, map[name]);
         }
@@ -632,7 +633,8 @@ IfTableRow WinUtils::ifRowByIndex(int index)
 {
     IfTableRow found;
 
-    foreach (IfTableRow row, getIfTable())
+    const auto if_table = getIfTable();
+    for (IfTableRow row : if_table)
     {
         if (index == static_cast<int>(row.index)) // TODO: convert all ifIndices to int
         {
@@ -648,11 +650,11 @@ QString WinUtils::interfaceSubkeyPath(int interfaceIndex)
 {
     IfTableRow row = ifRowByIndex(interfaceIndex);
 
-    QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
-    QList<QString> ifSubkeys = interfaceSubkeys(keyPath);
+    const QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
+    const QList<QString> ifSubkeys = interfaceSubkeys(keyPath);
 
     QString foundSubkey = "";
-    foreach( QString subkey, ifSubkeys)
+    for (const QString &subkey : ifSubkeys)
     {
         QString subkeyPath = keyPath + "\\" + subkey;
         QString subkeyInterfaceGuid = WinUtils::regGetLocalMachineRegistryValueSz(subkeyPath, "NetCfgInstanceId");
@@ -671,11 +673,11 @@ QString WinUtils::interfaceSubkeyName(int interfaceIndex)
 {
     IfTableRow row = ifRowByIndex(interfaceIndex);
 
-    QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
-    QList<QString> ifSubkeys = interfaceSubkeys(keyPath);
+    const QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
+    const QList<QString> ifSubkeys = interfaceSubkeys(keyPath);
 
     QString foundSubkeyName = "";
-    foreach( QString subkey, ifSubkeys)
+    for (const QString &subkey : ifSubkeys)
     {
         QString subkeyPath = keyPath + "\\" + subkey;
         QString subkeyInterfaceGuid = WinUtils::regGetLocalMachineRegistryValueSz(subkeyPath, "NetCfgInstanceId");

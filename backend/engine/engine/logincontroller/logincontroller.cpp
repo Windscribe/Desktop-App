@@ -289,10 +289,10 @@ QString LoginController::selectRandomIpForStep3()
     }
 }
 
-bool LoginController::isAllSslErrors()
+bool LoginController::isAllSslErrors() const
 {
     bool bAllSslErrors = true;
-    Q_FOREACH(SERVER_API_RET_CODE rc, retCodesForLoginSteps_)
+    for (SERVER_API_RET_CODE rc : retCodesForLoginSteps_)
     {
         if (rc != SERVER_RETURN_SSL_ERROR)
         {

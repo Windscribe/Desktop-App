@@ -16,10 +16,10 @@ QString PreferencesHelper::buildVersion()
     return AppVersion::instance().getFullString();
 }
 
-QList<QPair<QString, QString> > PreferencesHelper::availableLanguages()
+QList<QPair<QString, QString> > PreferencesHelper::availableLanguages() const
 {
     QList<QPair<QString, QString> > pairs;
-    Q_FOREACH(const QString &lang, availableLanguageCodes_)
+    for (const QString &lang : availableLanguageCodes_)
     {
         pairs << QPair<QString, QString>(LanguagesUtil::convertCodeToNative(lang), lang);
     }

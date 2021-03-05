@@ -592,10 +592,10 @@ bool Helper_mac::reinstallWanIkev2()
 
 QStringList Helper_mac::getActiveNetworkInterfaces_mac()
 {
-    QString answer = executeRootCommand("ifconfig -a");
-    QStringList lines = answer.split("\n");
+    const QString answer = executeRootCommand("ifconfig -a");
+    const QStringList lines = answer.split("\n");
     QStringList res;
-    Q_FOREACH(const QString s, lines)
+    for (const QString s : lines)
     {
         if (s.startsWith("en", Qt::CaseInsensitive))
         {

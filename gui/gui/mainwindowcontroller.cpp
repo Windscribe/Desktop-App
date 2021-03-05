@@ -274,7 +274,8 @@ void MainWindowController::setWindowPosFromPersistent()
     {
         bool pointInExistingScreen = false;
         QPoint lastAppPt = PersistentState::instance().windowPos();
-        foreach (QScreen *screen, qApp->screens())
+        const auto screenList = qApp->screens();
+        for (QScreen *screen : screenList)
         {
             if (screen->geometry().contains(lastAppPt))
             {

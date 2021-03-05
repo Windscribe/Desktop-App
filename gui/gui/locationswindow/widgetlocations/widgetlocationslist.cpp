@@ -30,7 +30,7 @@ void WidgetLocationsList::clearWidgets()
 {
     lastAccentedItemWidget_ = nullptr;
     recentlyAccentedWidgets_.clear();
-    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         regionWidget->disconnect();
         regionWidget->deleteLater();
@@ -72,7 +72,7 @@ void WidgetLocationsList::updateScaling()
     // update scaling for each widget instead of recalcItemPositions
     // relying on resizeEvent after setGeometry on region items blocks expanding animation for some reason
     // this will trigger recalcItemPositions() anyway
-    foreach (ItemWidgetRegion  *itemWidget, itemWidgets_)
+    for (auto *itemWidget : qAsConst(itemWidgets_))
     {
         itemWidget->updateScaling();
     }
@@ -80,7 +80,8 @@ void WidgetLocationsList::updateScaling()
 
 void WidgetLocationsList::accentWidgetContainingCursor()
 {
-    foreach (IItemWidget *selectableWidget , selectableWidgets())
+    const auto widgets = selectableWidgets();
+    for (auto *selectableWidget : widgets)
     {
         if (selectableWidget->containsCursor())
         {
@@ -94,7 +95,8 @@ void WidgetLocationsList::accentWidgetContainingCursor()
 
 void WidgetLocationsList::selectWidgetContainingGlobalPt(const QPoint &pt)
 {
-    foreach (IItemWidget *selectableWidget , selectableWidgets())
+    const auto widgets = selectableWidgets();
+    for (auto *selectableWidget : widgets)
     {
         if (selectableWidget->containsGlobalPoint(pt))
         {
@@ -108,7 +110,7 @@ void WidgetLocationsList::selectWidgetContainingGlobalPt(const QPoint &pt)
 
 void WidgetLocationsList::expand(LocationID locId)
 {
-    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         if (regionWidget->getId() == locId)
         {
@@ -119,7 +121,7 @@ void WidgetLocationsList::expand(LocationID locId)
 
 void WidgetLocationsList::collapse(LocationID locId)
 {
-    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         if (regionWidget->getId() == locId)
         {
@@ -130,7 +132,7 @@ void WidgetLocationsList::collapse(LocationID locId)
 
 void WidgetLocationsList::expandAllLocationsWithoutAnimation()
 {
-    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         if (regionWidget->expandable())
         {
@@ -141,7 +143,7 @@ void WidgetLocationsList::expandAllLocationsWithoutAnimation()
 
 void WidgetLocationsList::collapseAllLocationsWithoutAnimation()
 {
-    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         regionWidget->setExpandedWithoutAnimation(false);
     }
@@ -149,7 +151,7 @@ void WidgetLocationsList::collapseAllLocationsWithoutAnimation()
 
 void WidgetLocationsList::expandLocationIds(QVector<LocationID> locIds)
 {
-    for (ItemWidgetRegion *regionWidget : qAsConst(itemWidgets_))
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         for (const LocationID locId : qAsConst(locIds))
         {
@@ -164,7 +166,7 @@ void WidgetLocationsList::expandLocationIds(QVector<LocationID> locIds)
 QVector<LocationID> WidgetLocationsList::expandedOrExpandingLocationIds()
 {
     QVector<LocationID> expanded;
-    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         if (regionWidget->expandedOrExpanding())
         {
@@ -182,7 +184,8 @@ QVector<ItemWidgetRegion *> WidgetLocationsList::itemWidgets()
 int WidgetLocationsList::selectableIndex(LocationID locationId)
 {
     int i = 0;
-    foreach (IItemWidget *widget, selectableWidgets())
+    const auto widgets = selectableWidgets();
+    for (auto *widget : widgets)
     {
         if (widget->getId() == locationId)
         {
@@ -195,7 +198,7 @@ int WidgetLocationsList::selectableIndex(LocationID locationId)
 
 void WidgetLocationsList::accentFirstSelectableItem()
 {
-    QVector<IItemWidget *> widgets = selectableWidgets();
+    const auto widgets = selectableWidgets();
     if (widgets.count() > 0)
     {
         widgets[0]->setAccented(true);
@@ -220,7 +223,8 @@ void WidgetLocationsList::moveAccentUp()
 {
     IItemWidget *lastWidget = nullptr;
     IItemWidget *currentWidget =  nullptr;
-    foreach (IItemWidget *widget, selectableWidgets())
+    const auto widgets = selectableWidgets();
+    for (auto *widget : widgets)
     {
         lastWidget = currentWidget;
         currentWidget = widget;
@@ -285,7 +289,8 @@ const LocationID WidgetLocationsList::lastAccentedLocationId() const
 
 void WidgetLocationsList::accentItem(LocationID locationId)
 {
-    foreach (IItemWidget *widget, selectableWidgets())
+    const auto widgets = selectableWidgets();
+    for (auto *widget : widgets)
     {
         if (widget->getId() == locationId)
         {
@@ -297,7 +302,8 @@ void WidgetLocationsList::accentItem(LocationID locationId)
 
 void WidgetLocationsList::accentItemWithoutAnimation(LocationID locationId)
 {
-    foreach (IItemWidget *widget, selectableWidgets())
+    const auto widgets = selectableWidgets();
+    for (auto *widget : widgets)
     {
         if (widget->getId() == locationId)
         {
@@ -309,7 +315,7 @@ void WidgetLocationsList::accentItemWithoutAnimation(LocationID locationId)
 
 void WidgetLocationsList::setMuteAccentChanges(bool mute)
 {
-    foreach (ItemWidgetRegion *region, qAsConst(itemWidgets_))
+    for (auto *region : qAsConst(itemWidgets_))
     {
         region->setMuteAccentChanges(mute);
     }
@@ -317,7 +323,8 @@ void WidgetLocationsList::setMuteAccentChanges(bool mute)
 
 IItemWidget *WidgetLocationsList::selectableWidget(LocationID locationId)
 {
-    foreach (IItemWidget *widget, selectableWidgets())
+    const auto widgets = selectableWidgets();
+    for (auto *widget : widgets)
     {
         if (widget->getId() == locationId)
         {
@@ -329,7 +336,7 @@ IItemWidget *WidgetLocationsList::selectableWidget(LocationID locationId)
 
 ItemWidgetRegion *WidgetLocationsList::regionWidget(LocationID locationId)
 {
-    foreach (ItemWidgetRegion *regionWidget, qAsConst(itemWidgets_))
+    for (ItemWidgetRegion *regionWidget : qAsConst(itemWidgets_))
     {
         if (regionWidget->getId() == locationId)
         {
@@ -341,7 +348,8 @@ ItemWidgetRegion *WidgetLocationsList::regionWidget(LocationID locationId)
 
 IItemWidget *WidgetLocationsList::itemWidget(LocationID locationId)
 {
-    foreach (ItemWidgetCity *w, cityWidgets())
+    const auto widgets = cityWidgets();
+    for (ItemWidgetCity *w : widgets)
     {
         if (w->getId() == locationId)
         {
@@ -354,7 +362,7 @@ IItemWidget *WidgetLocationsList::itemWidget(LocationID locationId)
 QVector<ItemWidgetCity *> WidgetLocationsList::cityWidgets()
 {
     QVector<ItemWidgetCity *> cityWidgets;
-    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         cityWidgets.append(regionWidget->cityWidgets());
     }
@@ -364,7 +372,7 @@ QVector<ItemWidgetCity *> WidgetLocationsList::cityWidgets()
 QVector<IItemWidget *> WidgetLocationsList::selectableWidgets()
 {
     QVector<IItemWidget *> selectableItemWidgets;
-    foreach (ItemWidgetRegion *regionWidget, itemWidgets_)
+    for (auto *regionWidget : qAsConst(itemWidgets_))
     {
         selectableItemWidgets.append(regionWidget->selectableWidgets());
     }
@@ -470,7 +478,7 @@ void WidgetLocationsList::recalcItemPositions()
 {
     // qDebug() << "List repositioning items";
     int heightSoFar = 0;
-    foreach (ItemWidgetRegion  *itemWidget, itemWidgets_)
+    for (auto *itemWidget : qAsConst(itemWidgets_))
     {
         itemWidget->setGeometry(0, heightSoFar, static_cast<int>(WINDOW_WIDTH * G_SCALE), itemWidget->geometry().height());
         heightSoFar += itemWidget->geometry().height();

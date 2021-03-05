@@ -91,7 +91,8 @@ QPixmap *WidgetUtils_win::extractWindowsAppProgramIcon(QString filePath)
     QString logoScaledFilter = logoFilter + ".scale-";
 
     QString logoFilePath, logoFilePathScaled;
-    foreach (QFileInfo assetFile, assetDir.entryInfoList(QDir::Files))
+    const auto assetFileList = assetDir.entryInfoList(QDir::Files);
+    for (const QFileInfo &assetFile : assetFileList)
     {
         if (assetFile.fileName().contains(logoScaledFilter) &&
             !assetFile.fileName().contains("contrast-")) {

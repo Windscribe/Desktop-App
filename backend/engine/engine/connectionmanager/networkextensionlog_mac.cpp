@@ -51,13 +51,13 @@ QMap<time_t, QString> NetworkExtensionLog_mac::collectNext()
     {
 
         QJsonParseError errCode;
-        QJsonDocument doc = QJsonDocument::fromJson(process.readAll(), &errCode);
+        const QJsonDocument doc = QJsonDocument::fromJson(process.readAll(), &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isArray())
         {
             qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command";
             return nextLogs;
         }
-        Q_FOREACH(const QJsonValue &value, doc.array())
+        for (const QJsonValue &value : doc.array())
         {
             QJsonObject jsonObj = value.toObject();
             if (!jsonObj.contains("machTimestamp"))

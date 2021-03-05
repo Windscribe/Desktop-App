@@ -223,7 +223,7 @@ void ShadowManager::updateShadow()
 
     {
         QPainter painter(&pixmap);
-        Q_FOREACH(const ShadowObject &so, objects_)
+        for (const ShadowObject &so : qAsConst(objects_))
         {
             if (so.isVisible)
             {

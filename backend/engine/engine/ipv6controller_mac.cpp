@@ -13,10 +13,10 @@ void Ipv6Controller_mac::disableIpv6()
         Q_ASSERT(helper_ != NULL);
         qCDebug(LOG_BASIC) << "Disable IPv6 for all network interfaces";
 
-        QString answer = helper_->executeRootCommand("networksetup -listallnetworkservices");
-        QStringList strs = answer.split("\n");
+        const QString answer = helper_->executeRootCommand("networksetup -listallnetworkservices");
+        const QStringList strs = answer.split("\n");
         QStringList networkIntefaces;
-        Q_FOREACH(const QString &str, strs)
+        for (const QString &str : strs)
         {
             if (!str.isEmpty() && !str.contains("An asterisk", Qt::CaseInsensitive))
             {
@@ -26,7 +26,7 @@ void Ipv6Controller_mac::disableIpv6()
 
         saveIpv6States(networkIntefaces);
 
-        Q_FOREACH(const QString &networkInterface, networkIntefaces)
+        for (const QString &networkInterface : qAsConst(networkIntefaces))
         {
             if (isEnabledIPv6(networkInterface))
             {
@@ -47,10 +47,10 @@ void Ipv6Controller_mac::restoreIpv6()
         Q_ASSERT(helper_ != NULL);
         qCDebug(LOG_BASIC) << "Restore IPv6 for all network interfaces";
 
-        QString answer = helper_->executeRootCommand("networksetup -listallnetworkservices");
-        QStringList strs = answer.split("\n");
+        const QString answer = helper_->executeRootCommand("networksetup -listallnetworkservices");
+        const QStringList strs = answer.split("\n");
         QStringList networkIntefaces;
-        Q_FOREACH(const QString &str, strs)
+        for (const QString &str : strs)
         {
             if (!str.isEmpty() && !str.contains("An asterisk", Qt::CaseInsensitive))
             {
@@ -58,7 +58,7 @@ void Ipv6Controller_mac::restoreIpv6()
             }
         }
 
-        Q_FOREACH(const QString &networkInterface, networkIntefaces)
+        for(const QString &networkInterface : qAsConst(networkIntefaces))
         {
             QString curState = getStateFromCmd(networkInterface);
             QString savedState = getStateFromSaved(networkInterface);
@@ -102,12 +102,12 @@ Ipv6Controller_mac::~Ipv6Controller_mac()
 
 void Ipv6Controller_mac::saveIpv6States(const QStringList &networkIntefaces)
 {
-    Q_FOREACH(const QString &interface, networkIntefaces)
+    for (const QString &interface : networkIntefaces)
     {
-        QString answer = helper_->executeRootCommand("networksetup -getinfo \"" + interface + "\"");
+        const QString answer = helper_->executeRootCommand("networksetup -getinfo \"" + interface + "\"");
         qCDebug(LOG_BASIC) << "Saved config for interface" << interface << ":" << answer;
-        QStringList strs = answer.split("\n");
-        Q_FOREACH(const QString &s, strs)
+        const QStringList strs = answer.split("\n");
+        for (const QString &s : strs)
         {
             if (s.contains("IPv6:", Qt::CaseInsensitive))
             {
@@ -155,9 +155,9 @@ QString Ipv6Controller_mac::getStateFromSaved(const QString &interface)
 
 QString Ipv6Controller_mac::getStateFromCmd(const QString &interface)
 {
-    QString answer = helper_->executeRootCommand("networksetup -getinfo \"" + interface + "\"");
-    QStringList strs = answer.split("\n");
-    Q_FOREACH(const QString &s, strs)
+    const QString answer = helper_->executeRootCommand("networksetup -getinfo \"" + interface + "\"");
+    const QStringList strs = answer.split("\n");
+    for (const QString &s : strs)
     {
         if (s.contains("IPv6:", Qt::CaseInsensitive))
         {

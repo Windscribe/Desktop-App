@@ -66,14 +66,14 @@ void MeasurementCpuUsage::startInConnectingState()
 {
     qDebug() << "MeasurementCpuUsage started";
 
-    QStringList processesList = helper_->getProcessesList();
+    const QStringList processesList = helper_->getProcessesList();
 
     for(auto it = counters_.begin(); it != counters_.end(); ++it)
     {
         it.value().bUsed = false;
     }
 
-    Q_FOREACH(const QString &processName, processesList)
+    for (const QString &processName : processesList)
     {
         auto it = counters_.find(processName);
         if (it == counters_.end())
@@ -213,14 +213,14 @@ void MeasurementCpuUsage::onTimer()
     {
         // check for new processes
         bool bAddedNewProcesses = false;
-        QStringList processesList = helper_->getProcessesList();
+        const QStringList processesList = helper_->getProcessesList();
 
         for(auto it = counters_.begin(); it != counters_.end(); ++it)
         {
             it.value().bUsed = false;
         }
 
-        Q_FOREACH(const QString &processName, processesList)
+        for (const QString &processName : processesList)
         {
             auto it = counters_.find(processName);
             if (it == counters_.end())

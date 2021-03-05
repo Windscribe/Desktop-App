@@ -15,19 +15,19 @@ public:
         return s;
     }
 
-    QString serverApiUrl() { return serverApiUrl_; }
-    QString serverUrl() { return serverUrl_; }
-    QString serverSharedKey() { return serverSharedKey_; }
-    QString serverTunnelTestUrl() { return serverTunnelTestUrl_; }
+    QString serverApiUrl() const { return serverApiUrl_; }
+    QString serverUrl() const { return serverUrl_; }
+    QString serverSharedKey() const { return serverSharedKey_; }
+    QString serverTunnelTestUrl() const { return serverTunnelTestUrl_; }
 
-    QStringList customDns() { return customDns_; }
-    QStringList googleDns();
-    QStringList cloudflareDns();
-    QStringList apiIps() { return apiIps_; }
+    const QStringList customDns() const { return customDns_; }
+    const QStringList googleDns() const;
+    const QStringList cloudflareDns() const;
+    const QStringList apiIps() const { return apiIps_; }
 
-    QString emergencyUsername() { return emergencyUsername_; }
-    QString emergencyPassword() { return emergencyPassword_; }
-    QStringList emergencyIps() { return emergencyIps_; }
+    QString emergencyUsername() const { return emergencyUsername_; }
+    QString emergencyPassword() const { return emergencyPassword_; }
+    const QStringList emergencyIps() const { return emergencyIps_; }
 
     QString generateRandomDomain(const QString &prefix);
 

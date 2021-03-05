@@ -2056,7 +2056,7 @@ void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
     if (!PersistentState::instance().isIgnoreCpuUsageWarnings())
     {
         QString processesListString;
-        Q_FOREACH(const QString &processName, processesList)
+        for (const QString &processName : processesList)
         {
             if (!processesListString.isEmpty())
             {
