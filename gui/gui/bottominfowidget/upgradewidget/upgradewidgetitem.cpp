@@ -287,7 +287,7 @@ QString UpgradeWidgetItem::currentText()
         else
         {
             const qint64 kOneGB = 1024 * 1024 * 1024;
-            const auto bytes_remaining = bytesMax_ - bytesUsed_;
+            const auto bytes_remaining = qMax(qint64(0), bytesMax_ - bytesUsed_);
             const auto gigabytes_remaining = static_cast<int>(bytes_remaining / kOneGB);
             const bool between_1_and_10_gb = gigabytes_remaining >= 1 && gigabytes_remaining < 10;
             result = Utils::humanReadableByteCount(bytes_remaining, false, between_1_and_10_gb);
