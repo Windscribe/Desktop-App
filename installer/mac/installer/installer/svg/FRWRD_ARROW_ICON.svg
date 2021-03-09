@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="7px" height="12px" viewBox="0 0 7 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>install-arrow</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Install-3" transform="translate(-338.000000, -324.000000)" fill="#020D1C">
+            <g id="middle" transform="translate(235.000000, 278.000000)">
+                <g id="Group">
+                    <path d="M103.243,56.6653119 L108,52.0026262 L103.243,47.3346881 C102.919,47.0300453 102.919,46.515304 103.243,46.2099109 C103.54075,45.9300297 104.00425,45.9300297 104.302,46.2099109 L110,52.0026262 L104.302,57.7900891 C104.00425,58.0699703 103.54075,58.0699703 103.243,57.7900891 C102.919,57.484696 102.919,56.9699547 103.243,56.6653119 Z" id="install-arrow"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

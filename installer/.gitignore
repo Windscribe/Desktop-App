@@ -1,0 +1,15 @@
+mac/Binaries
+*.DS_Store
+
+windows/installer/Debug/*
+windows/installer/Release/*
+windows/temp-installer/*
+windows/uninstaller/x64/Debug/*
+windows/uninstaller/x64/Release/*
+windows/installer/.vs/*
+windows/uninstaller/.vs/*
+windows/builds/*
+windows/InstallerFiles/*
+windows/signing/*.pfx
+*.user
+*.7z

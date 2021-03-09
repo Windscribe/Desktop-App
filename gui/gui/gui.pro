@@ -129,7 +129,7 @@ QMAKE_INFO_PLIST = info.plist
 
 #copy WindscribeLauncher.app to Windscribe.app/Contents/Library/LoginItems folder
 makedir.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
-copydata.commands = $(COPY_DIR) $$PWD/../../../client-desktop-installer/mac/binaries/launcher/WindscribeLauncher.app $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
+copydata.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/launcher/WindscribeLauncher.app $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
 
 first.depends = $(first) makedir copydata
 export(first.depends)
@@ -143,7 +143,7 @@ QMAKE_EXTRA_TARGETS += first makedir copydata #makedir4 copydata4
 CONFIG(release, debug|release) {
 
     #copy WindscribeEngine.app to Windscribe.app/Contents/Library folder
-    copydata3.commands = $(COPY_DIR) $$PWD/../../../client-desktop-installer/mac/binaries/engine/WindscribeEngine.app $$OUT_PWD/Windscribe.app/Contents/Library
+    copydata3.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/engine/WindscribeEngine.app $$OUT_PWD/Windscribe.app/Contents/Library
     first.depends += copydata3
     export(copydata3.commands)
     QMAKE_EXTRA_TARGETS += copydata3
@@ -153,7 +153,7 @@ CONFIG(release, debug|release) {
     first.depends += makedir4
     export(makedir4.commands)
     QMAKE_EXTRA_TARGETS += makedir4
-    copydata4.commands = $(COPY_FILE) $$PWD/../../../client-desktop-installer/mac/binaries/cli/windscribe-cli $$OUT_PWD/Windscribe.app/Contents/MacOS/windscribe-cli
+    copydata4.commands = $(COPY_FILE) $$PWD/../../installer/mac/binaries/cli/windscribe-cli $$OUT_PWD/Windscribe.app/Contents/MacOS/windscribe-cli
     first.depends += copydata4
     export(copydata4.commands)
     QMAKE_EXTRA_TARGETS += copydata4
