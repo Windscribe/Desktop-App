@@ -10,6 +10,7 @@
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
+    #include "ikev2connection_mac.h"
 #endif
 
 void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
@@ -67,7 +68,9 @@ void FinishActiveConnections::finishAllActiveConnections_mac(IHelper *helper)
 {
     finishOpenVpnActiveConnections_mac(helper);
     finishWireGuardActiveConnections_mac(helper);
+    IKEv2Connection_mac::closeWindscribeActiveConnection();
 }
+
 void FinishActiveConnections::finishOpenVpnActiveConnections_mac(IHelper *helper)
 {
     QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();

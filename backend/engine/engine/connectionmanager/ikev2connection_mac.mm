@@ -373,6 +373,39 @@ void IKEv2Connection_mac::removeIkev2ConnectionFromOS()
     mutex.unlock();*/
 }
 
+void IKEv2Connection_mac::closeWindscribeActiveConnection()
+{
+    static QWaitCondition waitCondition;
+    static QMutex mutex;
+
+    mutex.lock();
+
+    NEVPNManager *manager = [NEVPNManager sharedManager];
+    if (manager)
+    {
+        [manager loadFromPreferencesWithCompletionHandler:^(NSError *err)
+        {
+            mutex.lock();
+            if (!err)
+            {
+                NEVPNConnection * connection = [manager connection];
+                if (connection.status == NEVPNStatusConnected || connection.status == NEVPNStatusConnecting)
+                {
+                    if ([manager.localizedDescription isEqualToString:@"Windscribe VPN"] == YES)
+                    {
+                        qCDebug(LOG_IKEV2) << "Previous IKEv2 connection is active. Stop it.";
+                        [connection stopVPNTunnel];
+                    }
+                }
+            }
+            waitCondition.wakeAll();
+            mutex.unlock();
+        }];
+    }
+    waitCondition.wait(&mutex);
+    mutex.unlock();
+}
+
 void IKEv2Connection_mac::handleNotificationImpl(int status)
 {
     QMutexLocker locker(&mutex_);

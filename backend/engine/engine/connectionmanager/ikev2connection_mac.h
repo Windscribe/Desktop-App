@@ -26,6 +26,7 @@ public:
 
 
     static void removeIkev2ConnectionFromOS();
+    static void closeWindscribeActiveConnection();
 
 private slots:
     void handleNotificationImpl(int status);
