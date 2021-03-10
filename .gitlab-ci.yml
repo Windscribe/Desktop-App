@@ -1,0 +1,52 @@
+stages:
+  - Build Dependencies
+  - Build
+  - Artifact Upload
+
+#before_script:
+#  - sample
+
+variables:
+  SAMPLE: 'value'
+  VERSION_BOOST:            "1.2.3"
+  VERSION_CARES:            "1.2.3"
+  VERSION_CMAKE:            "1.2.3"
+  VERSION_CPPCHECK:         "1.2.3"
+  VERSION_CURL:             "1.2.3"
+  VERSION_GITSCM:           "1.2.3"
+  VERSION_LZO:              "1.2.3"
+  VERSION_OPENSSL:          "1.1.1"
+  VERSION_OPENVPN_24:       "1.2.3"
+  VERSION_OPENVPN_25:       "1.2.3"
+  VERSION_PERL:             "1.2.3"
+  VERSION_PROTOBUF_DEBUG:   "1.2.3"
+  VERSION_PROTOBUF_RELEASE: "1.2.3"
+  VERSION_PYTHON_27:        "2.7.1"
+  VERSION_QT:               "1.2.3"
+  VERSION_STUNNEL:          "1.2.3"
+  VERSION_VS:               "1.2.3"
+  VERSION_WIREGUARD:        "0.8.8"
+  VERSION_ZLIB:             "1.2.3"
+
+#cache:
+#  key: sample
+#  paths:
+#    - sample_path
+
+#hello_world:
+#  tags: [win10]
+#  stage: Build Dependencies
+#  script:
+#    - echo hello.world
+#    - .\test.ps1
+#    - .\install_curl.bat
+#  rules:
+#    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANC
+#      changes:
+#        - some-file
+
+build:
+  tags: [win10]
+  stage: Build
+  script:
+    - .\build_all.bat
