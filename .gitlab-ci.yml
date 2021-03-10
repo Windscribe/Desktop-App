@@ -7,7 +7,7 @@ stages:
 #  - sample
 
 variables:
-  CODE_SIGNING_PFX_PATH:                 "installer\windows\signing\code_signing.pfx"
+  CODE_SIGNING_PFX_PATH: "installer\windows\signing\code_signing.pfx"
 
 #cache:
 #  key: sample
@@ -30,7 +30,7 @@ build:
   tags: [win10]
   stage: Build
   before_script:
-    - & {$outpath = ('$CODE_SIGNING_PFX_PATH'); $inpath = ('$CODE_SIGNING_PFX_BASE64'); [IO.File]::WriteAllBytes($outpath, ([convert]::FromBase64String(([IO.File]::ReadAllText($inpath)))))}
+    - powershell -Command "& {$outpath = ('$CODE_SIGNING_PFX_PATH'); $inpath = ('$CODE_SIGNING_PFX_BASE64'); [IO.File]::WriteAllBytes($outpath, ([convert]::FromBase64String(([IO.File]::ReadAllText($inpath)))))}"
   script:
     - cd installer\windows
     - .\build_all.bat
