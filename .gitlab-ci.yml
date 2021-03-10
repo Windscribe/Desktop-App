@@ -49,4 +49,5 @@ build:
   tags: [win10]
   stage: Build
   script:
-    - .\installer\windows\build_all.bat
+    - cd installer\windows
+    - .\build_all.bat
