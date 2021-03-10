@@ -2,6 +2,7 @@
 #define INEWSFEEDWINDOW_H
 
 #include <QGraphicsObject>
+#include <QSet>
 #include <QString>
 
 class INewsFeedWindow
@@ -14,8 +15,11 @@ public:
     virtual void updateScaling() = 0;
 
 public slots:
-    virtual void setMessages(const ProtoTypes::ArrayApiNotification &arr) = 0;
-    virtual void setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr, int overrideCurrentMessageId) = 0;
+    virtual void setMessages(const ProtoTypes::ArrayApiNotification &arr,
+                             const QSet<qint64> &shownIds) = 0;
+    virtual void setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr,
+                                                const QSet<qint64> &shownIds,
+                                                int overrideCurrentMessageId) = 0;
 
 signals:
     virtual void messageReaded(qint64 messageId) = 0;
