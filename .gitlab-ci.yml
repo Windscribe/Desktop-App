@@ -7,7 +7,7 @@ stages:
 #  - sample
 
 variables:
-  CODE_SIGNING_PFX_PATH: "installer\windows\signing\code_signing.pfx"
+  CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
 
 #cache:
 #  key: sample
