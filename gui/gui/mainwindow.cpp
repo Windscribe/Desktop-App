@@ -2634,7 +2634,7 @@ QRect MainWindow::trayIconRect()
     if (trayIcon_.isVisible())
     {
         const QRect rc = trayIcon_.geometry();
-        qDebug() << "System-reported tray icon rect: " << rc;
+        // qDebug() << "System-reported tray icon rect: " << rc;
 
         // check for valid tray icon
         if (!rc.isValid())

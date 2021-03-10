@@ -282,7 +282,7 @@ void GeneralWindowItem::hideOpenPopups()
 {
     BasePage::hideOpenPopups();
 
-    qCDebug(LOG_PREFERENCES) << "Hiding General popups";
+    // qCDebug(LOG_PREFERENCES) << "Hiding General popups";
     comboBoxLanguage_      ->hideMenu();
     comboBoxLocationOrder_ ->hideMenu();
     comboBoxLatencyDisplay_->hideMenu();

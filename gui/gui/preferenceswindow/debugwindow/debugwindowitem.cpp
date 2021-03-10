@@ -304,7 +304,7 @@ void DebugWindowItem::hideOpenPopups()
 {
     BasePage::hideOpenPopups();
 
-    qCDebug(LOG_PREFERENCES) << "Hiding Debug popups";
+    // qCDebug(LOG_PREFERENCES) << "Hiding Debug popups";
 
 #ifdef Q_OS_WIN
     comboBoxTapAdapter_->hideMenu();

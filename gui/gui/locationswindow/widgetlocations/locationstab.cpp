@@ -552,7 +552,7 @@ void LocationsTab::onSearchTypingDelayTimerTimeout()
 
 void LocationsTab::onSearchLineEditTextChanged(QString text)
 {
-    qCDebug(LOG_USER) << "User changed text in search: " << text;
+    // qCDebug(LOG_USER) << "User changed text in search: " << text;
     filterText_ = text;
     searchTypingDelayTimer_.start();
 }
