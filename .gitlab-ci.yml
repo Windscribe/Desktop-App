@@ -49,5 +49,8 @@ build:
   tags: [win10]
   stage: Build
   script:
+    - cd common\ipc\proto
+    - .\generate_proto.bat
+    - cd ..\..\
     - cd installer\windows
     - .\build_all.bat
