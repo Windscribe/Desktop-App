@@ -2,7 +2,10 @@ ECHO OFF
 @RD /S /Q %~dp0..\generated_proto 
 mkdir %~dp0..\generated_proto
 
-forfiles /p %~dp0 /m *.proto /c "c:/libs/protobuf_release/bin/protoc -I=%~dp0 --cpp_out=%~dp0..\generated_proto @file"
+set oldpath=%PATH%
+set PATH=c:/libs/protobuf_release/bin;%PATH%
+forfiles /p %~dp0 /m *.proto /c "protoc -I=%~dp0 --cpp_out=%~dp0..\generated_proto @file"
+set PATH=%oldpath%
 
 rem removing warnings for MSVC
 SET headstring1="#ifdef _MSC_VER"
