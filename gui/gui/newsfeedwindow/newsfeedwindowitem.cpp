@@ -149,22 +149,27 @@ void NewsFeedWindowItem::updateScaling()
     updatePositions();
 }
 
-void NewsFeedWindowItem::setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr, int overrideCurrentMessageId)
+void NewsFeedWindowItem::setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr,
+                                                        const QSet<qint64> &shownIds,
+                                                        int overrideCurrentMessageId)
 {
     curMessageId_ = overrideCurrentMessageId;
     messageIdIsInitialized_ = true;
-    setMessages(arr);
+    setMessages(arr, shownIds);
     if (isVisible())
     {
-        emit messageReaded(curMessageId_);
+        setCurrentMessageRead();
     }
 }
 
-void NewsFeedWindowItem::setMessages(const ProtoTypes::ArrayApiNotification &arr)
+void NewsFeedWindowItem::setMessages(const ProtoTypes::ArrayApiNotification &arr,
+                                     const QSet<qint64> &shownIds)
 {
     Q_ASSERT(arr.api_notifications_size() > 0);
 
     messages_ = arr;
+    shownIds_ = shownIds;
+
     bool bFinded = false;
     if (messageIdIsInitialized_)
     {
@@ -186,10 +191,11 @@ void NewsFeedWindowItem::setMessages(const ProtoTypes::ArrayApiNotification &arr
         messageIdIsInitialized_ = true;
         if (isVisible())
         {
-            emit messageReaded(curMessageId_);
+            setCurrentMessageRead();
         }
     }
 
+    setCurrentMessageToFirstUnread();
     updateCurrentMessage();
 }
 
@@ -208,7 +214,7 @@ bool NewsFeedWindowItem::eventFilter(QObject *watching, QEvent *event)
         }
     } else if (event->type() == QEvent::FocusIn) {
         if (messageIdIsInitialized_)
-            emit messageReaded(curMessageId_);
+            setCurrentMessageRead();
     }
 
     return false;
@@ -234,7 +240,7 @@ void NewsFeedWindowItem::onLeftClick()
         curMessageInd_++;
         curMessageId_ = messages_.api_notifications(curMessageInd_).id();
         updateCurrentMessage();
-        emit messageReaded(curMessageId_);
+        setCurrentMessageRead();
     }
 }
 
@@ -245,7 +251,7 @@ void NewsFeedWindowItem::onRightClick()
         curMessageInd_--;
         curMessageId_ = messages_.api_notifications(curMessageInd_).id();
         updateCurrentMessage();
-        emit messageReaded(curMessageId_);
+        setCurrentMessageRead();
     }
 }
 
@@ -256,6 +262,25 @@ void NewsFeedWindowItem::onDockedModeChanged(bool bIsDockedToTray)
 #else
     Q_UNUSED(bIsDockedToTray);
 #endif
+}
+
+void NewsFeedWindowItem::setCurrentMessageToFirstUnread()
+{
+    qint64 curMessageDate = 0;
+    for (int i = 0; i < messages_.api_notifications_size(); ++i) {
+        const auto &notification = messages_.api_notifications(i);
+        if (notification.date() >= curMessageDate && !shownIds_.contains(notification.id())) {
+            curMessageInd_ = i;
+            curMessageId_ = notification.id();
+            curMessageDate = notification.date();
+        }
+    }
+}
+
+void NewsFeedWindowItem::setCurrentMessageRead()
+{
+    shownIds_.insert(curMessageId_);
+    emit messageReaded(curMessageId_);
 }
 
 void NewsFeedWindowItem::updateCurrentMessage()

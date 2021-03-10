@@ -48,6 +48,11 @@ ProtoTypes::ArrayApiNotification NotificationsController::messages() const
     }
 }
 
+const QSet<qint64> &NotificationsController::shownIds() const
+{
+    return idOfShownNotifications_;
+}
+
 void NotificationsController::checkForUnreadPopup()
 {
     // opens news feed programmatically to specified id
