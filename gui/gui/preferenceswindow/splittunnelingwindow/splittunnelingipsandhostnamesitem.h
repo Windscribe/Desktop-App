@@ -49,7 +49,7 @@ private:
     void validateAndCreateNetworkRoute(QString ipOrHostname);
     void createNetworkRouteUiItem(ProtoTypes::SplitTunnelingNetworkRoute ipOrHostname);
 
-    IpOrHostnameItem *itemByName(QString ipOrHostname);
+    IpOrHostnameItem *itemByName(QString ipOrHostname) const;
     void recalcHeight();
     void recalcItemPositions();
 

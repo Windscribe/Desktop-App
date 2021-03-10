@@ -52,7 +52,8 @@ QScreen *WidgetUtils::slightlySaferScreenAt(QPoint pt)
 
 QScreen *WidgetUtils::screenByName(const QString &name)
 {
-    Q_FOREACH (QScreen *screen, QGuiApplication::screens())
+    const auto screens = QGuiApplication::screens();
+    for (QScreen *screen : screens)
     {
         if (screen->name() == name)
         {
@@ -64,7 +65,8 @@ QScreen *WidgetUtils::screenByName(const QString &name)
 
 QScreen *WidgetUtils::screenContainingPt(const QPoint &pt)
 {
-    Q_FOREACH (QScreen *screen, QGuiApplication::screens())
+    const auto screens = QGuiApplication::screens();
+    for (QScreen *screen : screens)
     {
         // qDebug() << "Checking screen: " << screen->name() << " " <<  screen->geometry();
         if (screen->geometry().contains(pt))

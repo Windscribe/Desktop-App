@@ -28,7 +28,8 @@ void TooltipController::hideAllTooltips()
         }
     }
 
-    foreach (TooltipId id, tooltips_.keys())
+    const auto tooltipsKeys = tooltips_.keys();
+    for (TooltipId id : tooltipsKeys)
     {
         if (tooltips_.contains(id))
         {

@@ -20,7 +20,7 @@ void NetworkListItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
 void NetworkListItem::hideOpenPopups()
 {
-    foreach (ComboBoxItem *combo, networks_)
+    for (auto *combo : qAsConst(networks_))
     {
         combo->hideOpenPopups();
     }
@@ -28,7 +28,7 @@ void NetworkListItem::hideOpenPopups()
 
 void NetworkListItem::clearNetworks()
 {
-    foreach (ComboBoxItem *combo, networks_)
+    for (auto *combo : qAsConst(networks_))
     {
         removeNetworkCombo(combo);
     }
@@ -59,7 +59,7 @@ void NetworkListItem::addNetwork(ProtoTypes::NetworkInterface network, ProtoType
 ProtoTypes::NetworkWhiteList NetworkListItem::networkWhiteList()
 {
     ProtoTypes::NetworkWhiteList entries;
-    foreach (ComboBoxItem *combo, networks_)
+    for (auto *combo : qAsConst(networks_))
     {
         // Convert friendly name to MAC address ID
         ProtoTypes::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(combo->labelCaption());
@@ -71,7 +71,7 @@ ProtoTypes::NetworkWhiteList NetworkListItem::networkWhiteList()
 
 void NetworkListItem::updateNetworkCombos()
 {
-    foreach (ComboBoxItem *combo, networks_)
+    for (auto *combo : qAsConst(networks_))
     {
         ProtoTypes::NetworkTrustType currentTrust = static_cast<ProtoTypes::NetworkTrustType>(combo->currentItem().toInt());
 
@@ -101,7 +101,7 @@ void NetworkListItem::setCurrentNetwork(ProtoTypes::NetworkInterface network)
     currentNetwork_ = network;
 
     // update current network in the list
-    foreach (ComboBoxItem *combo, networks_)
+    for (auto *combo : qAsConst(networks_))
     {
         if (combo->labelCaption() == QString::fromStdString(currentNetwork_.friendly_name()))
         {
@@ -130,7 +130,7 @@ void NetworkListItem::onNetworkItemChanged(QVariant data)
 void NetworkListItem::recalcHeight()
 {
     int newHeight = 0;
-    foreach(ComboBoxItem *combo, networks_)
+    for (auto *combo : qAsConst(networks_))
     {
         if (combo->labelCaption() != QString::fromStdString(currentNetwork_.friendly_name()))
         {

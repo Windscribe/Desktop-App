@@ -80,8 +80,8 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 
     comboBoxLocationOrder_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Location order"), QString(), 50, Qt::transparent, 0, true);
 
-    QList< QPair<QString, int> > allOrderTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::OrderLocationType_descriptor());
-    Q_FOREACH(auto o, allOrderTypes)
+    const QList< QPair<QString, int> > allOrderTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::OrderLocationType_descriptor());
+    for (const auto o : allOrderTypes)
     {
         comboBoxLocationOrder_->addItem(o.first, o.second);
     }
@@ -90,9 +90,9 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     addItem(comboBoxLocationOrder_);
 
     comboBoxLatencyDisplay_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Latency Display"), QString(), 50, Qt::transparent, 0, true);
-    QList< QPair<QString, int> > allLatencyTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::LatencyDisplayType_descriptor());
+    const QList< QPair<QString, int> > allLatencyTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::LatencyDisplayType_descriptor());
 
-    Q_FOREACH(auto l, allLatencyTypes)
+    for (const auto l : allLatencyTypes)
     {
         comboBoxLatencyDisplay_->addItem(l.first, l.second);
     }
@@ -102,8 +102,8 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 
 
     comboBoxUpdateChannel_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Update Channel"), QString(), 50, Qt::transparent, 0, true);
-    QList< QPair<QString, int> > allUpdateChannelTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::UpdateChannel_descriptor());
-    Q_FOREACH(auto u, allUpdateChannelTypes)
+    const QList< QPair<QString, int> > allUpdateChannelTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::UpdateChannel_descriptor());
+    for (const auto u : allUpdateChannelTypes)
     {
         comboBoxUpdateChannel_->addItem(u.first, u.second);
     }
@@ -247,22 +247,22 @@ void GeneralWindowItem::onLanguageChanged()
     comboBoxLatencyDisplay_->clear();
     comboBoxUpdateChannel_->clear();
 
-    QList<OrderLocationType> allOrderTypes = OrderLocationType::allAvailableTypes();
-    Q_FOREACH(const OrderLocationType &o, allOrderTypes)
+    const QList<OrderLocationType> allOrderTypes = OrderLocationType::allAvailableTypes();
+    for (const OrderLocationType &o : allOrderTypes)
     {
         comboBoxLocationOrder_->addItem(o.toString(), (int)o.type());
     }
     comboBoxLocationOrder_->setCurrentItem(order.toInt());
 
-    QList<LatencyDisplayType> allLatencyTypes = LatencyDisplayType::allAvailableTypes();
-    Q_FOREACH(const LatencyDisplayType &l, allLatencyTypes)
+    const QList<LatencyDisplayType> allLatencyTypes = LatencyDisplayType::allAvailableTypes();
+    for (const LatencyDisplayType &l : allLatencyTypes)
     {
         comboBoxLatencyDisplay_->addItem(l.toString(), (int)l.type());
     }
     comboBoxLatencyDisplay_->setCurrentItem(latency.toInt());
 
-    QList<UpdateChannelType> allUpdateChannelTypes = UpdateChannelType::allAvailableTypes();
-    Q_FOREACH(const UpdateChannelType &u, allUpdateChannelTypes)
+    const QList<UpdateChannelType> allUpdateChannelTypes = UpdateChannelType::allAvailableTypes();
+    for (const UpdateChannelType &u : allUpdateChannelTypes)
     {
         comboBoxUpdateChannel_->addItem(u.toString(), (int)u.type());
     }

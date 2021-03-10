@@ -21,8 +21,8 @@ public:
     void setLocationsPingIps(const QStringList &listIps);
     void setCustomConfigPingIps(const QStringList &listIps);
 
-    QString getIPAddressesForFirewall();
-    QString getIPAddressesForFirewallForConnectedState(const QString &connectedIp);
+    QString getIPAddressesForFirewall() const;
+    QString getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const;
 
 private:
     QStringList hostIPs_;

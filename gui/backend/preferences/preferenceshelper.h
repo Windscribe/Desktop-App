@@ -12,7 +12,7 @@ public:
     explicit PreferencesHelper(QObject *parent = nullptr);
 
     QString buildVersion();
-    QList<QPair<QString, QString> > availableLanguages();
+    QList<QPair<QString, QString> > availableLanguages() const;
 
     void setProxyGatewayAddress(const QString &address);
     QString getProxyGatewayAddress() const;

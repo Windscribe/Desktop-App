@@ -143,7 +143,7 @@ void MacAddressController_win::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
         networksBeingUpdated_.clear();
 
         // reset adapters
-        foreach (int indexToReset, interfacesToReset)
+        for (int indexToReset : qAsConst(interfacesToReset))
         {
             networksBeingUpdated_.append(indexToReset);
             networkDetectionManager_->resetAdapter(indexToReset);

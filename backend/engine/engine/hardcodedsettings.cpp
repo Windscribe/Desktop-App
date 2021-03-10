@@ -5,12 +5,12 @@
 #include <QStringList>
 #include <QCryptographicHash>
 
-QStringList HardcodedSettings::googleDns()
+const QStringList HardcodedSettings::googleDns() const
 {
     return QStringList() << "8.8.8.8" << "8.8.4.4";
 }
 
-QStringList HardcodedSettings::cloudflareDns()
+const QStringList HardcodedSettings::cloudflareDns() const
 {
     return QStringList() << "1.1.1.1" << "1.0.0.1";
 }

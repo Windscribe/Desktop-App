@@ -22,7 +22,8 @@ EngineServer::~EngineServer()
 {
     curEngineSettings_.saveToSettings();
 
-    foreach (auto connection, connections_.keys())
+    const auto connectionKeys = connections_.keys();
+    for (auto connection : connectionKeys)
     {
         dynamic_cast<QObject*>(connection)->disconnect();
         connections_.remove(connection);
@@ -116,8 +117,8 @@ bool EngineServer::handleCommand(IPC::Command *command)
             IPC::ProtobufCommand<IPCServerCommands::InitFinished> cmd;
             cmd.getProtoObj().set_init_state(ProtoTypes::INIT_SUCCESS);
             *cmd.getProtoObj().mutable_engine_settings() = curEngineSettings_.getProtoBufEngineSettings();
-            QStringList vers = OpenVpnVersionController::instance().getAvailableOpenVpnVersions();
-            Q_FOREACH(const QString &openVpnVer, vers)
+            const QStringList vers = OpenVpnVersionController::instance().getAvailableOpenVpnVersions();
+            for (const QString &openVpnVer : vers)
             {
                 cmd.getProtoObj().add_available_openvpn_versions(openVpnVer.toStdString());
             }
@@ -430,8 +431,8 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
         cmd.getProtoObj().set_init_state(ProtoTypes::INIT_SUCCESS);
         *cmd.getProtoObj().mutable_engine_settings() = curEngineSettings_.getProtoBufEngineSettings();
 
-        QStringList vers = OpenVpnVersionController::instance().getAvailableOpenVpnVersions();
-        Q_FOREACH(const QString &openVpnVer, vers)
+        const QStringList vers = OpenVpnVersionController::instance().getAvailableOpenVpnVersions();
+        for (const QString &openVpnVer : vers)
         {
             cmd.getProtoObj().add_available_openvpn_versions(openVpnVer.toStdString());
         }
@@ -872,7 +873,7 @@ void EngineServer::onEngineNetworkChanged(ProtoTypes::NetworkInterface networkIn
 void EngineServer::onEngineDetectionCpuUsageAfterConnected(QStringList list)
 {
     IPC::ProtobufCommand<IPCServerCommands::HighCpuUsage> cmd;
-    Q_FOREACH(const QString &p, list)
+    for (const QString &p : qAsConst(list))
     {
         *cmd.getProtoObj().add_processes() = p.toStdString();
     }

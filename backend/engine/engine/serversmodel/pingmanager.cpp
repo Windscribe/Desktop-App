@@ -46,7 +46,7 @@ void PingManager::updateServers(QVector<QSharedPointer<ServerLocation> > &newSer
 
     QVector<PingNodesController::PingNodeAndType> allIps;
 
-    Q_FOREACH(QSharedPointer<ServerLocation> sl, newServers)
+    for (QSharedPointer<ServerLocation> sl : qAsConst(newServers))
     {
         // skip custom ovpn configs location
         if (bSkipCustomOvpnLocation && sl->getType() == ServerLocation::SERVER_LOCATION_CUSTOM_CONFIG)
@@ -166,7 +166,7 @@ void PingManager::onPingStartedInDisconnectedState(const QString &ip)
     for (auto it = hashLocationsSpeedInfo_.begin(); it != hashLocationsSpeedInfo_.end(); ++it)
     {
         int ind = 0;
-        Q_FOREACH (const ServerNode &sn, it.value()->nodes)
+        for (const ServerNode &sn : qAsConst(it.value()->nodes))
         {
             if (sn.getIpForPing() == ip)
             {
@@ -257,7 +257,7 @@ void PingManager::onNodeSpeedRatingChanged(const QString &hostname)
     for (auto it = hashLocationsSpeedInfo_.begin(); it != hashLocationsSpeedInfo_.end(); ++it)
     {
         int ind = 0;
-        Q_FOREACH (const ServerNode &sn, it.value()->nodes)
+        for (const ServerNode &sn : qAsConst(it.value()->nodes))
         {
             if (sn.getHostname() == hostname)
             {
@@ -372,7 +372,7 @@ void PingManager::selectSpeedAndSelectedNodeForNewLocation(const LocationID &loc
         return;
     }
 
-    Q_FOREACH (const ServerNode &sn, lsi->nodes)
+    for (const ServerNode &sn : qAsConst(lsi->nodes))
     {
         PingTime timeMs = nodesSpeedStore_->getNodeSpeed(sn.getIpForPing());
 
@@ -531,7 +531,7 @@ int PingManager::getAverageLatencyFromCitiesLatencies(const QVector<int> &latenc
 {
     int sum = 0;
     int cnt = 0;
-    Q_FOREACH(int latency, latencies)
+    for (int latency : latencies)
     {
         if (latency >= 0)
         {
@@ -559,7 +559,7 @@ void PingManager::handlePingInfoChanged(const QString &ip, int timems, quint32 i
 
             bool bChangedLocation = false;
             int ind = 0;
-            Q_FOREACH (const ServerNode &sn, it.value()->nodes)
+            for (const ServerNode &sn : qAsConst(it.value()->nodes))
             {
                 if (sn.getIpForPing() == ip)
                 {

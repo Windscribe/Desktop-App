@@ -67,9 +67,9 @@ QString ExtraConfig::getExtraConfigForIkev2()
 {
     QMutexLocker locker(&mutex_);
     QString result;
-    QString strExtraConfig = getExtraConfig();
-    QStringList strs = strExtraConfig.split("\n");
-    Q_FOREACH(const QString &line, strs)
+    const QString strExtraConfig = getExtraConfig();
+    const QStringList strs = strExtraConfig.split("\n");
+    for (const QString &line : strs)
     {
         QString lineTrimmed = line.trimmed();
         if (lineTrimmed.startsWith("--ikev2", Qt::CaseInsensitive))
@@ -90,9 +90,9 @@ bool ExtraConfig::isUseIkev2Compression()
 QString ExtraConfig::getRemoteIpFromExtraConfig()
 {
     QMutexLocker locker(&mutex_);
-    QString strExtraConfig = getExtraConfig(false);
-    QStringList strs = strExtraConfig.split("\n");
-    Q_FOREACH(const QString &line, strs)
+    const QString strExtraConfig = getExtraConfig(false);
+    const QStringList strs = strExtraConfig.split("\n");
+    for (const QString &line : strs)
     {
         if (line.contains("remote", Qt::CaseInsensitive))
         {
@@ -165,10 +165,10 @@ int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &st
 
 int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &success)
 {
-    QString strExtraConfig = getExtraConfig();
-    QStringList strs = strExtraConfig.split("\n");
+    const QString strExtraConfig = getExtraConfig();
+    const QStringList strs = strExtraConfig.split("\n");
 
-    Q_FOREACH(const QString &line, strs)
+    for (const QString &line : strs)
     {
         QString lineTrimmed = line.trimmed();
 

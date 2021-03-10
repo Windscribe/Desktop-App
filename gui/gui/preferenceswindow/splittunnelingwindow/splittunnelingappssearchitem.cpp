@@ -220,7 +220,8 @@ QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsSearchItem::filteredAppIt
 {
     QList<ProtoTypes::SplitTunnelingApp> apps;
 
-    foreach (ProtoTypes::SplitTunnelingApp app, activeAndSystemApps())
+    const auto appList = activeAndSystemApps();
+    for (auto app : appList)
     {
         if (QString::fromStdString(app.name()).toLower().contains(filterString.toLower()))
         {
@@ -267,7 +268,7 @@ void SplitTunnelingAppsSearchItem::drawItemsAndUpdateHeight(int baseHeight, QLis
     drawnApps_.clear();
 
     int height = baseHeight*G_SCALE;
-    foreach (ProtoTypes::SplitTunnelingApp app, itemsToDraw)
+    for (auto app : qAsConst(itemsToDraw))
     {
         QString iconPath = QString::fromStdString(app.full_name());
 
@@ -293,7 +294,7 @@ void SplitTunnelingAppsSearchItem::drawItemsAndUpdateHeight(int baseHeight, QLis
 void SplitTunnelingAppsSearchItem::updateItemsPosAndUpdateHeight()
 {
     int height = 50*G_SCALE;
-    foreach (QSharedPointer<AppSearchItem> appItem, drawnApps_)
+    for (auto appItem : qAsConst(drawnApps_))
     {
         appItem->setPos(0, height);
         height += 50*G_SCALE;
@@ -318,9 +319,8 @@ void SplitTunnelingAppsSearchItem::updateSystemApps()
     systemApps_.clear();
 
 #ifdef Q_OS_WIN
-    QList<QString> runningPrograms = WinUtils::enumerateRunningProgramLocations();
-
-    foreach (QString exePath, runningPrograms)
+    const auto runningPrograms = WinUtils::enumerateRunningProgramLocations();
+    for (const QString &exePath : runningPrograms)
     {
         if (!exePath.contains("C:\\Windows")
                 && !exePath.contains("Windscribe.exe")
@@ -337,9 +337,8 @@ void SplitTunnelingAppsSearchItem::updateSystemApps()
         }
     }
 #else
-    QList<QString> installedPrograms = MacUtils::enumerateInstalledPrograms();
-
-    foreach (const QString &binPath, installedPrograms)
+    const auto installedPrograms = MacUtils::enumerateInstalledPrograms();
+    for (const QString &binPath : installedPrograms)
     {
         if (!binPath.contains("Windscribe"))
         {
@@ -361,12 +360,14 @@ QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsSearchItem::activeAndSyst
 {
     QList<ProtoTypes::SplitTunnelingApp> activeAndSystemApps;
 
-    foreach (ProtoTypes::SplitTunnelingApp app, Utils::insertionSort(apps_))
+    const auto sortedApps = Utils::insertionSort(apps_);
+    for (auto app : sortedApps)
     {
         activeAndSystemApps.append(app);
     }
 
-    foreach (ProtoTypes::SplitTunnelingApp systemApp, Utils::insertionSort(systemApps_))
+    const auto sortedSystemApps = Utils::insertionSort(systemApps_);
+    for (auto systemApp : sortedSystemApps)
     {
         bool found = false;
         for (const ProtoTypes::SplitTunnelingApp &app: qAsConst(activeAndSystemApps))
@@ -432,7 +433,8 @@ ClickableGraphicsObject *SplitTunnelingAppsSearchItem::selectedObject()
 {
     ClickableGraphicsObject *selected = nullptr;
 
-    foreach (ClickableGraphicsObject *object, selectableObjects())
+    const auto objectList = selectableObjects();
+    for (auto *object : objectList)
     {
         if (object && object->isSelected())
         {
@@ -448,7 +450,7 @@ QList<ClickableGraphicsObject *> SplitTunnelingAppsSearchItem::selectableObjects
     QList<ClickableGraphicsObject*> selectable;
 
     selectable.append(static_cast<ClickableGraphicsObject *>(searchLineEditItem_));
-    foreach (QSharedPointer<AppSearchItem> appItem, drawnApps_)
+    for (auto appItem : qAsConst(drawnApps_))
     {
         selectable.append(static_cast<ClickableGraphicsObject*>(appItem.get()));
     }
@@ -458,7 +460,8 @@ QList<ClickableGraphicsObject *> SplitTunnelingAppsSearchItem::selectableObjects
 
 void SplitTunnelingAppsSearchItem::clearSelection()
 {
-    foreach (ClickableGraphicsObject *object, selectableObjects())
+    const auto objectList = selectableObjects();
+    for (auto *object : objectList)
     {
         if (object)
         {

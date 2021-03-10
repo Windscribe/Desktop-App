@@ -72,8 +72,8 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     addItem(cbKeepAlive_);
 
     comboBoxAppInternalDns_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Internal DNS"), QString(), 50, Qt::transparent, 0, true);
-    QList< QPair<QString, int> > dnsTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::DnsPolicy_descriptor());
-    Q_FOREACH(auto d, dnsTypes)
+    const QList< QPair<QString, int> > dnsTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::DnsPolicy_descriptor());
+    for (const auto d : dnsTypes)
     {
         comboBoxAppInternalDns_->addItem(d.first, d.second);
     }
@@ -292,8 +292,8 @@ void DebugWindowItem::onLanguageChanged()
 
     comboBoxDNSWhileDisconnected_->clear();
 
-    QList<DNSWhileDisconnectedType> allDNSTypes = DNSWhileDisconnectedType::allAvailableTypes();
-    Q_FOREACH(const DNSWhileDisconnectedType &d, allDNSTypes)
+    const QList<DNSWhileDisconnectedType> allDNSTypes = DNSWhileDisconnectedType::allAvailableTypes();
+    for (const DNSWhileDisconnectedType &d : allDNSTypes)
     {
         comboBoxDNSWhileDisconnected_->addItem(d.toString(), static_cast<int>(d.type()));
     }

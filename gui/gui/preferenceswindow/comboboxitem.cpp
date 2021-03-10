@@ -103,7 +103,7 @@ void ComboBoxItem::removeItem(const QVariant &value)
 
 void ComboBoxItem::setCurrentItem(QVariant value)
 {
-    Q_FOREACH(const ComboBoxItemDescr &cb, items_)
+    for (const ComboBoxItemDescr &cb : qAsConst(items_))
     {
         if (cb.userValue() == value)
         {

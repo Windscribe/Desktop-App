@@ -20,7 +20,8 @@ bool DpiScaleManager::setMainWindow(QWidget *mainWindow)
     mainWindow_ = mainWindow;
     connect(mainWindow->window()->windowHandle(), SIGNAL(screenChanged(QScreen *)), SLOT(onWindowScreenChanged(QScreen*)));
 
-    foreach (QScreen *screen, qApp->screens())
+    const auto screenList = qApp->screens();
+    for (QScreen *screen : screenList)
     {
         connect(screen, SIGNAL(logicalDotsPerInchChanged(qreal)), SLOT(onLogicalDotsPerInchChanged(qreal)));
     }

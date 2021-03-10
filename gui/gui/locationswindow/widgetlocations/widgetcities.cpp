@@ -514,7 +514,8 @@ void WidgetCities::onItemsUpdated(QVector<CityModelItem *> items)
 
 void WidgetCities::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
-    foreach (ItemWidgetCity *w, widgetCitiesList_->itemWidgets())
+    const auto widgetList = widgetCitiesList_->itemWidgets();
+    for (auto *w : widgetList)
     {
         if (w->getId() == id)
         {
@@ -526,11 +527,12 @@ void WidgetCities::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 
 void WidgetCities::onIsFavoriteChanged(LocationID id, bool isFavorite)
 {
-    foreach (ItemWidgetCity *city, widgetCitiesList_->itemWidgets())
+    const auto widgetList = widgetCitiesList_->itemWidgets();
+    for (auto *w : widgetList)
     {
-        if (city->getId() == id)
+        if (w->getId() == id)
         {
-            city->setFavourited(isFavorite);
+            w->setFavourited(isFavorite);
             break;
         }
     }
@@ -624,9 +626,9 @@ void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
 
     qCDebug(LOG_LOCATION_LIST) << name_ << " caching previous display state";
     widgetCitiesList_->clearWidgets();
-    foreach (CityModelItem *item, items)
+    for (auto *item : qAsConst(items))
     {
-        const CityModelItem &itemRef = *item;
+        const auto &itemRef = *item;
         widgetCitiesList_->addCity(itemRef);
     }
 

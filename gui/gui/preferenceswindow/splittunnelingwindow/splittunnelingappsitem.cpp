@@ -243,7 +243,8 @@ void SplitTunnelingAppsItem::drawItemsAndUpdateHeight()
     drawnApps_.clear();
 
     int height = 90*G_SCALE;
-    foreach (ProtoTypes::SplitTunnelingApp app, Utils::insertionSort(apps_))
+    const auto sortedApps = Utils::insertionSort(apps_);
+    for (auto app : sortedApps)
     {
         QString iconPath = QString::fromStdString(app.full_name());
 
@@ -274,7 +275,7 @@ void SplitTunnelingAppsItem::drawItemsAndUpdateHeight()
 void SplitTunnelingAppsItem::updateItemsPosAndUpdateHeight()
 {
     int height = 90*G_SCALE;
-    foreach (QSharedPointer<AppIncludedItem> appItem, drawnApps_)
+    for (auto appItem : qAsConst(drawnApps_))
     {
         appItem->setPos(0, height);
         height += 50*G_SCALE;
@@ -358,7 +359,8 @@ ClickableGraphicsObject *SplitTunnelingAppsItem::selectedObject()
 {
     ClickableGraphicsObject *selected = nullptr;
 
-    foreach (ClickableGraphicsObject *object, selectableObjects())
+    const auto objectList = selectableObjects();
+    for (auto *object : objectList)
     {
         if (object && object->isSelected())
         {
@@ -375,7 +377,7 @@ QList<ClickableGraphicsObject *> SplitTunnelingAppsItem::selectableObjects()
 
     selectable.append(static_cast<ClickableGraphicsObject *>(searchButton_));
     selectable.append(static_cast<ClickableGraphicsObject *>(addButton_));
-    foreach (QSharedPointer<AppIncludedItem> appItem, drawnApps_)
+    for (auto appItem : qAsConst(drawnApps_))
     {
         selectable.append(static_cast<ClickableGraphicsObject*>(appItem.get()));
     }
@@ -385,7 +387,8 @@ QList<ClickableGraphicsObject *> SplitTunnelingAppsItem::selectableObjects()
 
 void SplitTunnelingAppsItem::clearSelection()
 {
-    foreach (ClickableGraphicsObject *object, selectableObjects())
+    const auto objectList = selectableObjects();
+    for (auto *object : objectList)
     {
         if (object)
         {

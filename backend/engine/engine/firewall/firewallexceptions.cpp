@@ -66,7 +66,7 @@ void FirewallExceptions::setCustomConfigPingIps(const QStringList &listIps)
     customConfigsPingIPs_ = listIps;
 }
 
-QString FirewallExceptions::getIPAddressesForFirewall()
+QString FirewallExceptions::getIPAddressesForFirewall() const
 {
     //Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
@@ -84,33 +84,33 @@ QString FirewallExceptions::getIPAddressesForFirewall()
     }
     else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS)
     {
-        Q_FOREACH(const QString &s, HardcodedSettings::instance().customDns())
+        for (const QString &s : HardcodedSettings::instance().customDns())
         {
             ipList.add(s);
         }
     }
     else if (dnsPolicyType_ == DNS_TYPE_CLOUDFLARE)
     {
-        Q_FOREACH(const QString &s, HardcodedSettings::instance().cloudflareDns())
+        for (const QString &s : HardcodedSettings::instance().cloudflareDns())
         {
             ipList.add(s);
         }
     }
     else if (dnsPolicyType_ == DNS_TYPE_GOOGLE)
     {
-        Q_FOREACH(const QString &s, HardcodedSettings::instance().googleDns())
+        for (const QString &s : HardcodedSettings::instance().googleDns())
         {
             ipList.add(s);
         }
     }
 
     // add hardcoded IPs
-    Q_FOREACH(const QString &s, HardcodedSettings::instance().apiIps())
+    for (const QString &s : HardcodedSettings::instance().apiIps())
     {
         ipList.add(s);
     }
 
-    Q_FOREACH(const QString &s, hostIPs_)
+    for (const QString &s : hostIPs_)
     {
         if (!s.isEmpty())
         {
@@ -152,7 +152,7 @@ QString FirewallExceptions::getIPAddressesForFirewall()
     return ipList.getFirewallString();
 }
 
-QString FirewallExceptions::getIPAddressesForFirewallForConnectedState(const QString &connectedIp)
+QString FirewallExceptions::getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const
 {
     UniqueIpList ipList;
     ipList.add("127.0.0.1");

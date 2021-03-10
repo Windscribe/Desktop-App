@@ -34,7 +34,7 @@ void SplitTunnelingIpsAndHostnamesItem::paint(QPainter *painter, const QStyleOpt
 
 void SplitTunnelingIpsAndHostnamesItem::setNetworkRoutes(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes)
 {
-    foreach (ProtoTypes::SplitTunnelingNetworkRoute route, routes)
+    for (auto route : qAsConst(routes))
     {
         createNetworkRouteUiItem(route);
     }
@@ -258,10 +258,10 @@ void SplitTunnelingIpsAndHostnamesItem::onSelectionChanged(bool selected)
     }
 }
 
-IpOrHostnameItem *SplitTunnelingIpsAndHostnamesItem::itemByName(QString ipOrHostname)
+IpOrHostnameItem *SplitTunnelingIpsAndHostnamesItem::itemByName(QString ipOrHostname) const
 {
     IpOrHostnameItem *found = nullptr;
-    foreach (IpOrHostnameItem *item, ipsAndHostnames_)
+    for (auto *item : ipsAndHostnames_)
     {
         if (item->getIpOrHostnameText() == ipOrHostname)
         {
@@ -284,7 +284,7 @@ void SplitTunnelingIpsAndHostnamesItem::recalcItemPositions()
     int pos = 100*G_SCALE;
     sortedIpsAndHostnames_ = sorted(ipsAndHostnames_);
 
-    foreach (IpOrHostnameItem *item, sortedIpsAndHostnames_)
+    for (auto *item : qAsConst(sortedIpsAndHostnames_))
     {
         item->setPos(0, pos);
         pos += 50*G_SCALE;
@@ -295,7 +295,7 @@ void SplitTunnelingIpsAndHostnamesItem::emitNetworkRoutesUpdated()
 {
     QList<ProtoTypes::SplitTunnelingNetworkRoute> routes;
 
-    foreach (IpOrHostnameItem *item, ipsAndHostnames_)
+    for (auto *item : qAsConst(ipsAndHostnames_))
     {
         routes.append(item->getNetworkRoute());
     }
@@ -361,7 +361,8 @@ ClickableGraphicsObject *SplitTunnelingIpsAndHostnamesItem::selectedObject()
 {
     ClickableGraphicsObject *selected = nullptr;
 
-    foreach (ClickableGraphicsObject *object, selectableObjects())
+    const auto objectList = selectableObjects();
+    for (auto *object : objectList)
     {
         if (object && object->isSelected())
         {
@@ -377,7 +378,7 @@ QList<ClickableGraphicsObject *> SplitTunnelingIpsAndHostnamesItem::selectableOb
     QList<ClickableGraphicsObject*> selectable;
 
     selectable.append(static_cast<ClickableGraphicsObject *>(newIpOrHostnameItem_));
-    foreach (IpOrHostnameItem *item , sortedIpsAndHostnames_)
+    for (auto *item : qAsConst(sortedIpsAndHostnames_))
     {
         selectable.append(static_cast<ClickableGraphicsObject*>(item));
     }
@@ -387,7 +388,8 @@ QList<ClickableGraphicsObject *> SplitTunnelingIpsAndHostnamesItem::selectableOb
 
 void SplitTunnelingIpsAndHostnamesItem::clearSelection()
 {
-    foreach (ClickableGraphicsObject *object, selectableObjects())
+    const auto objectList = selectableObjects();
+    for (auto *object : objectList)
     {
         if (object)
         {

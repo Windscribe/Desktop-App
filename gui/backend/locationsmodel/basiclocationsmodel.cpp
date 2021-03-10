@@ -39,7 +39,7 @@ void BasicLocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
 
 void BasicLocationsModel::setIsFavorite(LocationID id, bool isFavorite)
 {
-    Q_FOREACH(LocationModelItem *lmi, locations_)
+    for (LocationModelItem *lmi : qAsConst(locations_))
     {
         for (int i = 0; i < lmi->cities.count(); ++i)
         {
@@ -69,7 +69,7 @@ QVector<LocationModelItem *> BasicLocationsModel::items()
 
 void BasicLocationsModel::clearLocations()
 {
-    Q_FOREACH(LocationModelItem *lmi, locations_)
+    for (LocationModelItem *lmi : qAsConst(locations_))
     {
         delete lmi;
     }

@@ -139,7 +139,7 @@ void NetworkWhiteListWindowItem::addNewlyFoundNetworks()
         }
     }
 
-    foreach (ProtoTypes::NetworkInterface network , adds)
+    for (ProtoTypes::NetworkInterface network : qAsConst(adds))
     {
         networkListItem_->addNetwork(network, ProtoTypes::NETWORK_SECURED);
     }

@@ -14,7 +14,7 @@ void InstalledAntiviruses_win::outToLog()
     getSecurityCenter(L"ROOT\\SecurityCenter2");
 
     QList<AntivirusInfo> listAntiViruses, listSpywares, listFirewalls;
-    Q_FOREACH(const AntivirusInfo &ai, list)
+    for (const AntivirusInfo &ai : qAsConst(list))
     {
         if (ai.productType == PT_SPYWARE)
         {

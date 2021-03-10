@@ -522,7 +522,7 @@ void PreferencesWindowItem::onSplitTunnelingIpsAndHostnamesClick()
 void PreferencesWindowItem::updateSplitTunnelingAppsCount(QList<ProtoTypes::SplitTunnelingApp> apps)
 {
     int activeApps = 0;
-    foreach (ProtoTypes::SplitTunnelingApp app, apps)
+    for (ProtoTypes::SplitTunnelingApp app : qAsConst(apps))
     {
         if (app.active()) activeApps++;
     }

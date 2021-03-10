@@ -223,7 +223,8 @@ bool WidgetLocations::isShowLatencyInMs()
 void WidgetLocations::setShowLatencyInMs(bool showLatencyInMs)
 {
     bShowLatencyInMs_ = showLatencyInMs;
-    foreach (ItemWidgetCity *w, widgetLocationsList_->cityWidgets())
+    const auto widgetList = widgetLocationsList_->cityWidgets();
+    for (auto *w : widgetList)
     {
         w->setShowLatencyMs(showLatencyInMs);
     }
@@ -503,7 +504,8 @@ void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
 void WidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 {
     // qCDebug(LOG_LOCATION_LIST) << "Search widget speed change";
-    foreach (ItemWidgetCity *w, widgetLocationsList_->cityWidgets())
+    const auto widgetList = widgetLocationsList_->cityWidgets();
+    for (auto *w : widgetList)
     {
         if (w->getId() == id)
         {
@@ -516,7 +518,8 @@ void WidgetLocations::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
 void WidgetLocations::onIsFavoriteChanged(LocationID id, bool isFavorite)
 {
     // qDebug() << "SearchWidget setting";
-    foreach (ItemWidgetRegion *region, widgetLocationsList_->itemWidgets())
+    const auto widgetList = widgetLocationsList_->itemWidgets();
+    for (auto *region : widgetList)
     {
         if (region->getId().toTopLevelLocation() == id.toTopLevelLocation())
         {

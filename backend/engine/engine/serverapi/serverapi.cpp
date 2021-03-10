@@ -1583,10 +1583,10 @@ void ServerAPI::handleAccessIpsCurl(BaseRequest *rd, bool success)
             return;
         }
 
-        QJsonArray jsonArray = jsonData["hosts"].toArray();
+        const QJsonArray jsonArray = jsonData["hosts"].toArray();
 
         QStringList listHosts;
-        Q_FOREACH(const QJsonValue &value, jsonArray)
+        for (const QJsonValue &value : jsonArray)
         {
             listHosts << value.toString();
         }
@@ -2357,11 +2357,11 @@ void ServerAPI::handleNotificationsCurl(BaseRequest *rd, bool success)
         }
 
         QJsonObject jsonData =  jsonObject["data"].toObject();
-        QJsonArray jsonNotifications = jsonData["notifications"].toArray();
+        const QJsonArray jsonNotifications = jsonData["notifications"].toArray();
 
         QVector<apiinfo::Notification> notifications;
 
-        Q_FOREACH(const QJsonValue &value, jsonNotifications)
+        for (const QJsonValue &value : jsonNotifications)
         {
             QJsonObject obj = value.toObject();
 

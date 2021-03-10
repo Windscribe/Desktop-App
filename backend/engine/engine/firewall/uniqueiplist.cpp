@@ -9,10 +9,10 @@ void UniqueIpList::add(const QString &ip)
     }
 }
 
-QString UniqueIpList::getFirewallString()
+QString UniqueIpList::getFirewallString() const
 {
     QString ret;
-    Q_FOREACH(const QString &ip, set_)
+    for (const QString &ip : set_)
     {
         ret += ip + ";";
     }

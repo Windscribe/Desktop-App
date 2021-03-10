@@ -339,23 +339,25 @@ void MacAddressController_mac::removeMacAddressSpoof(const QString &interfaceNam
 void MacAddressController_mac::applyAndRemoveSpoofs(QMap<QString, QString> spoofsToApply, QMap<QString, QString> spoofsToRemove)
 {
     // load filter list first so network listener can't empty list before we are done processing the updates
-    foreach (const QString &applyInterface, spoofsToApply.keys())
+    const auto spoofToApplyKeys = spoofsToApply.keys();
+    for (const QString &applyInterface : spoofToApplyKeys)
     {
         networksBeingUpdated_.append(applyInterface);
     }
-    foreach (const QString &removeInterface, spoofsToRemove.keys())
+    const auto spoofToRemoveKeys = spoofsToRemove.keys();
+    for (const QString &removeInterface : spoofToRemoveKeys)
     {
         networksBeingUpdated_.append(removeInterface);
     }
 
     // apply spoofs -- should only be one max
-    foreach (const QString &applyInterface, spoofsToApply.keys())
+    for (const QString &applyInterface : spoofToApplyKeys)
     {
         qCDebug(LOG_BASIC) << "Applying spoof: " << applyInterface << " " << spoofsToApply[applyInterface];
         applyMacAddressSpoof(applyInterface, spoofsToApply[applyInterface]);
     }
     // remove spoofs
-    foreach (const QString &removeInterface, spoofsToRemove.keys())
+    for (const QString &removeInterface : spoofToRemoveKeys)
     {
         qCDebug(LOG_BASIC) << "Removing spoof: " << removeInterface;
         removeMacAddressSpoof(removeInterface);
@@ -365,11 +367,12 @@ void MacAddressController_mac::applyAndRemoveSpoofs(QMap<QString, QString> spoof
 void MacAddressController_mac::removeSpoofs(QMap<QString, QString> spoofsToRemove)
 {
     // load filter list first so network listener can't empty list before we are done processing the updates
-    foreach (const QString &removeInterface, spoofsToRemove.keys())
+    const auto spoofsToRemoveKeys = spoofsToRemove.keys();
+    for (const QString &removeInterface : spoofsToRemoveKeys)
     {
         networksBeingUpdated_.append(removeInterface);
     }
-    foreach (const QString &removeInterface, networksBeingUpdated_)
+    for (const QString &removeInterface : qAsConst(networksBeingUpdated_))
     {
         qCDebug(LOG_BASIC) << "Removing spoof: " << removeInterface;
         removeMacAddressSpoof(removeInterface);

@@ -87,7 +87,7 @@ private:
     void makeApiAccessRequest();
     QString selectRandomIpForStep3();
 
-    bool isAllSslErrors();
+    bool isAllSslErrors() const;
     void handleNextLoginAfterFail(SERVER_API_RET_CODE retCode);
 };
 

@@ -40,7 +40,7 @@ ItemWidgetRegion::~ItemWidgetRegion()
     regionHeaderWidget_->disconnect();
     regionHeaderWidget_->deleteLater();
 
-    foreach (ItemWidgetCity *city, cities_)
+    for (auto *city : qAsConst(cities_))
     {
         city->disconnect();
         city->deleteLater();
@@ -75,7 +75,7 @@ void ItemWidgetRegion::setExpandedWithoutAnimation(bool expand)
     }
 
     regionHeaderWidget_->setExpandedWithoutAnimation(expand);
-    foreach (ItemWidgetCity *city, cities_)
+    for (auto *city : qAsConst(cities_))
     {
         city->setSelectable(expand);
     }
@@ -90,7 +90,7 @@ void ItemWidgetRegion::setMuteAccentChanges(bool mute)
 void ItemWidgetRegion::expand()
 {
     qCDebug(LOG_LOCATION_LIST) << "Expanding: " << regionHeaderWidget_->name();
-    foreach (ItemWidgetCity * city, cities_)
+    for (auto *city : qAsConst(cities_))
     {
         city->setSelectable(true);
     }
@@ -107,7 +107,7 @@ void ItemWidgetRegion::collapse()
 {
     qCDebug(LOG_LOCATION_LIST) << "Collapsing: " << regionHeaderWidget_->name();
 
-    foreach (ItemWidgetCity *city, cities_)
+    for (auto *city : qAsConst(cities_))
     {
         city->setSelectable(false);
     }
@@ -138,7 +138,7 @@ QVector<IItemWidget*> ItemWidgetRegion::selectableWidgets()
     widgets.append(regionHeaderWidget_);
     if (expandedOrExpanding())
     {
-        foreach (ItemWidgetCity *city, cities_)
+        for (auto *city : qAsConst(cities_))
         {
             widgets.append(city);
         }
@@ -153,7 +153,7 @@ QVector<ItemWidgetCity *> ItemWidgetRegion::cityWidgets()
 
 void ItemWidgetRegion::setFavorited(LocationID id, bool isFavorite)
 {
-    foreach (ItemWidgetCity *city, cities_)
+    for (auto *city : qAsConst(cities_))
     {
         if (city->getId() == id)
         {
@@ -170,7 +170,7 @@ void ItemWidgetRegion::recalcItemPositions()
 
     int height = qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
 
-    foreach (ItemWidgetCity *city, cities_)
+    for (auto *city : qAsConst(cities_))
     {
         city->setGeometry(0, height, WINDOW_WIDTH * G_SCALE, qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
         height += city->geometry().height();
@@ -194,7 +194,7 @@ void ItemWidgetRegion::recalcHeight()
 void ItemWidgetRegion::updateScaling()
 {
     regionHeaderWidget_->updateScaling();
-    foreach (ItemWidgetCity *city , cities_)
+    for (auto *city : qAsConst(cities_))
     {
         city->updateScaling();
     }
@@ -264,7 +264,7 @@ void ItemWidgetRegion::onExpandingHeightAnimationValueChanged(const QVariant &va
 int ItemWidgetRegion::expandedHeight()
 {
     int height = qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
-    foreach (auto city, cities_)
+    for (auto *city : qAsConst(cities_))
     {
         height += city->geometry().height();
     }

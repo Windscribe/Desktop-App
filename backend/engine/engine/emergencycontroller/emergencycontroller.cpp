@@ -365,9 +365,9 @@ void EmergencyController::doMacRestoreProcedures()
 
 void EmergencyController::addRandomHardcodedIpsToAttempts()
 {
-    QStringList ips = HardcodedSettings::instance().emergencyIps();
+    const QStringList ips = HardcodedSettings::instance().emergencyIps();
     std::vector<QString> randomVecIps;
-    Q_FOREACH(const QString &ip, ips)
+    for (const QString &ip : ips)
     {
         randomVecIps.push_back(ip);
     }

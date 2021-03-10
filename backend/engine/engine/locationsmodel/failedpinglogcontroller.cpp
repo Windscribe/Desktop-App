@@ -4,7 +4,7 @@
 void FailedPingLogController::logFailedIPs(const QStringList &ips)
 {
     QMutexLocker locker(&mutex_);
-    Q_FOREACH(const QString &ip, ips)
+    for (const QString &ip : ips)
     {
         if (!failedPingIps_.contains(ip))
         {

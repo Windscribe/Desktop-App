@@ -353,7 +353,7 @@ unsigned long Utils::getCurrentPid()
 const QString Utils::filenameEscapeSpaces(const QString &filename)
 {
     QString result("");
-    foreach (QChar c, filename)
+    for (QChar c : filename)
     {
         if (c == ' ') result.append('\\');
         result.append(c);
@@ -384,7 +384,8 @@ bool Utils::copyDirectoryRecursive(QString fromDir, QString toDir)
     fromDir += QDir::separator();
     toDir += QDir::separator();
 
-    foreach (QString copy_file, dir.entryList(QDir::Files))
+    const auto copy_file_list = dir.entryList(QDir::Files);
+    for (const QString &copy_file : copy_file_list)
     {
         QString from = fromDir + copy_file;
         QString to = toDir + copy_file;
@@ -403,10 +404,11 @@ bool Utils::copyDirectoryRecursive(QString fromDir, QString toDir)
         }
     }
 
-    foreach (QString copyDir, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+    const auto copy_dir_list = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const QString &copy_dir : copy_dir_list)
     {
-        QString from = fromDir + copyDir;
-        QString to = toDir + copyDir;
+        QString from = fromDir + copy_dir;
+        QString to = toDir + copy_dir;
 
         if (dir.mkpath(to) == false)
         {

@@ -6,11 +6,11 @@ CurlRequest::CurlRequest() : curlCode_(CURLE_FAILED_INIT), methodType_(METHOD_GE
 
 CurlRequest::~CurlRequest()
 {
-    Q_FOREACH(struct curl_slist *list, curlLists_)
+    for (struct curl_slist *list : qAsConst(curlLists_))
     {
         curl_slist_free_all(list);
     }
-    Q_FOREACH(CURLSH *sh, curlShareHandles_)
+    for (CURLSH *sh : qAsConst(curlShareHandles_))
     {
         curl_share_cleanup(sh);
     }
@@ -118,7 +118,7 @@ QString CurlRequest::getHostname() const
 
 void CurlRequest::setIps(const QStringList &ips)
 {
-    Q_FOREACH(const QString &ip, ips)
+    for (const QString &ip : ips)
     {
         ips_.enqueue(ip);
     }

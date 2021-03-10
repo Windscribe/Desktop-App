@@ -32,8 +32,8 @@ void FinishActiveConnections::finishAllActiveConnections_win(IHelper *helper)
 
 void FinishActiveConnections::finishOpenVpnActiveConnections_win(IHelper *helper)
 {
-    QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();
-    Q_FOREACH (const QString &strExe, strOpenVpnExeList)
+    const QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();
+    for (const QString &strExe : strOpenVpnExeList)
     {
         helper->executeTaskKill(strExe);
     }
@@ -41,11 +41,11 @@ void FinishActiveConnections::finishOpenVpnActiveConnections_win(IHelper *helper
 
 void FinishActiveConnections::finishIkev2ActiveConnections_win(IHelper *helper)
 {
-    QVector<HRASCONN> v = IKEv2Connection_win::getActiveWindscribeConnections();
+    const QVector<HRASCONN> v = IKEv2Connection_win::getActiveWindscribeConnections();
 
     if (!v.isEmpty())
     {
-        Q_FOREACH(HRASCONN hRas, v)
+        for (HRASCONN hRas : v)
         {
             IKEv2ConnectionDisconnectLogic_win::blockingDisconnect(hRas);
         }
@@ -73,8 +73,8 @@ void FinishActiveConnections::finishAllActiveConnections_mac(IHelper *helper)
 
 void FinishActiveConnections::finishOpenVpnActiveConnections_mac(IHelper *helper)
 {
-    QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();
-    Q_FOREACH (const QString &strExe, strOpenVpnExeList)
+    const QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();
+    for (const QString &strExe : strOpenVpnExeList)
     {
         helper->executeTaskKill(strExe);
     }
