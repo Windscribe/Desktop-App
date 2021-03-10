@@ -5,6 +5,9 @@ setlocal enabledelayedexpansion
 rd /s /q "c:\wireguard_temp"
 rd /s /q "c:\libs\wireguard"
 
+REM SET VERSION_GO=1.14.4
+REM SET VERSION_WIREGUARD=4.2.1
+
 set TOOLSDIR=%~dp0
 set BUILDDIR=c:\wireguard_temp\
 set WGDIR=wireguard-go-0.0.20201118
@@ -15,8 +18,8 @@ pushd %BUILDDIR% || exit /b 1
 
 mkdir deps || goto :error
 cd deps || goto :error
-call :install go.zip https://dl.google.com/go/go1.14.4.windows-amd64.zip || goto :error
-call :install make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip || goto :error
+call :install go.zip https://dl.google.com/go/go%VERSION_GO%.windows-amd64.zip || goto :error
+call :install make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-%VERSION_WIREGUARD%-without-guile-w32-bin.zip || goto :error
 cd .. || goto :error
 
 call :install wireguard-go.zip https://git.zx2c4.com/wireguard-go/snapshot/%WGDIR%.zip || goto :error

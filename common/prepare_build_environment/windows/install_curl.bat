@@ -21,16 +21,15 @@ xcopy C:\curl_temp\curl-%VERSION_CURL%\builds\libcurl-vc-x86-release-dll-ssl-dll
 POPD
 rd /s /q "c:\curl_temp"
 
+IF NOT EXIST c:\libs\curl\bin\curl.exe (exit /b 1 )
+
 REM Handle additional parameters: -zip "PATH" 
 IF "%1"=="-zip" (
 IF not [%2]==[] (
 ECHO "Making zip into %2"
 7z.exe a %2\curl.zip c:\libs\curl
+IF NOT EXIST %2\curl.zip (exit /b 2 )
 )
 )
 
-IF EXIST c:\libs\curl\bin\curl.exe (
-	exit /b 0
-) ELSE (
-	exit /b 1
-)
+exit /b 0

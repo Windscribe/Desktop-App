@@ -9,16 +9,15 @@ curl.exe http://download.qt.io/official_releases/jom/jom_%VERSION_JOM%.zip -o c:
 7z x c:\libs\jom\jom_%VERSION_JOM%.zip -oc:\libs\jom
 del c:\libs\jom\jom_%VERSION_JOM%.zip
 
+IF NOT EXIST c:\libs\jom\jom.exe (exit /b 1 )
+
 REM Handle additional parameters: -zip "PATH" 
 IF "%1"=="-zip" (
 IF not [%2]==[] (
 ECHO "Making zip into %2"
 7z.exe a %2\jom.zip c:\libs\jom
+IF NOT EXIST %2\jom.zip (exit /b 1 )
 )
 )
 
-IF EXIST c:\libs\jom\jom.exe (
-	exit /b 0
-) ELSE (
-	exit /b 1
-)
+exit /b 0
