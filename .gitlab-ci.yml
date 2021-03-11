@@ -12,7 +12,7 @@ variables:
   NEXUS_PATH_LATEST: '/latest'
   NEXUS_PATH_BRANCHES: '/branches'
   NEXUS_PATH_TAGS: '/tags'
-  TARGET: 'Windscribe.exe'
+  TARGET: '*.exe'
   #NEXUS_USERNAME: "sample"         # Set in Gitlab variables
   #NEXUS_PASSWORD: "VhVvMiM3jD04c"  # Set in Gitlab variables
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
