@@ -7,6 +7,14 @@ stages:
 #  - sample
 
 variables:
+  NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
+  NEXUS_PATH_ROOT: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME'
+  NEXUS_PATH_LATEST: '/latest'
+  NEXUS_PATH_BRANCHES: '/branches'
+  NEXUS_PATH_TAGS: '/tags'
+  TARGET: 'Windscribe.exe'
+  #NEXUS_USERNAME: "sample"         # Set in Gitlab variables
+  #NEXUS_PASSWORD: "VhVvMiM3jD04c"  # Set in Gitlab variables
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
 
 #cache:
@@ -29,8 +37,21 @@ variables:
 build:
   tags: [win10]
   stage: Build
+  artifacts:
+    untracked: false
+    paths:
+      - installer\windows\${TARGET}
   before_script:
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
   script:
     - cd installer\windows
     - .\build_all.bat
+
+artifact-upload:
+  image: node:10.13.0
+  stage: Artifact Upload
+  dependencies:
+    - build
+  script:
+    - curl --silent --show-error --fail --upload-file ${TARGET} -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
+    - curl --silent --show-error --fail --upload-file ${TARGET} -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
