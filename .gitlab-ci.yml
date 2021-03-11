@@ -50,8 +50,6 @@ build:
 artifact-upload:
   image: node:10.13.0
   stage: Artifact Upload
-  variables:
-    GIT_STRATEGY: none
   cache: {}
   dependencies:
     - build
