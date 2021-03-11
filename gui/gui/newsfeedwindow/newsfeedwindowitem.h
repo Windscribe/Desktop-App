@@ -27,8 +27,11 @@ public:
     void updateScaling();
 
 public slots:
-    virtual void setMessages(const ProtoTypes::ArrayApiNotification &arr);
-    virtual void setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr, int overrideCurrentMessageId);
+    virtual void setMessages(const ProtoTypes::ArrayApiNotification &arr,
+                             const QSet<qint64> &shownIds);
+    virtual void setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr,
+                                                const QSet<qint64> &shownIds,
+                                                int overrideCurrentMessageId);
 
 signals:
     void messageReaded(qint64 messageId);
@@ -47,6 +50,8 @@ private slots:
     void onDockedModeChanged(bool bIsDockedToTray);
 
 private:
+    void setCurrentMessageToFirstUnread();
+    void setCurrentMessageRead();
     void updateCurrentMessage();
     void updateLeftRightArrowClickability();
 
@@ -60,6 +65,7 @@ private:
     QString messageTitle_;
 
     ProtoTypes::ArrayApiNotification messages_;
+    QSet<qint64> shownIds_;
 
     int curMessageInd_;
     qint64 curMessageId_;

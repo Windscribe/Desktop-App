@@ -195,7 +195,8 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(escClick()), SLOT(onEscapeNotificationsClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(messageReaded(qint64)),
             &notificationsController_, SLOT(setNotificationReaded(qint64)));
-    mainWindowController_->getNewsFeedWindow()->setMessages(notificationsController_.messages());
+    mainWindowController_->getNewsFeedWindow()->setMessages(
+        notificationsController_.messages(), notificationsController_.shownIds());
 
     // init window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getInitWindow()), SIGNAL(abortClicked()), SLOT(onAbortInitialization()));
@@ -663,7 +664,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         else if (event->key() == Qt::Key_N)
         {
-            mainWindowController_->getNewsFeedWindow()->setMessages(notificationsController_.messages());
+            mainWindowController_->getNewsFeedWindow()->setMessages(
+                notificationsController_.messages(), notificationsController_.shownIds());
             mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_NOTIFICATIONS);
         }
         else if (event->key() == Qt::Key_V)
@@ -953,7 +955,8 @@ void MainWindow::onConnectWindowPreferencesClick()
 
 void MainWindow::onConnectWindowNotificationsClick()
 {
-    mainWindowController_->getNewsFeedWindow()->setMessages(notificationsController_.messages());
+    mainWindowController_->getNewsFeedWindow()->setMessages(
+        notificationsController_.messages(), notificationsController_.shownIds());
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_NOTIFICATIONS);
 }
 
@@ -2248,8 +2251,8 @@ void MainWindow::onBackendLocationsUpdated()
 
 void MainWindow::onNotificationControllerNewPopupMessage(int messageId)
 {
-    mainWindowController_->getNewsFeedWindow()->setMessagesWithCurrentOverride(notificationsController_.messages(),
-                                                                               messageId);
+    mainWindowController_->getNewsFeedWindow()->setMessagesWithCurrentOverride(
+        notificationsController_.messages(), notificationsController_.shownIds(), messageId);
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_NOTIFICATIONS);
 }
 

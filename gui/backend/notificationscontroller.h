@@ -18,6 +18,7 @@ public:
     int unreadMessages() const;
 
     ProtoTypes::ArrayApiNotification messages() const;
+    const QSet<qint64> &shownIds() const;
 
 public slots:
     void updateNotifications(const ProtoTypes::ArrayApiNotification &arr);
