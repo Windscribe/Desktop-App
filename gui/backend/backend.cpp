@@ -556,7 +556,7 @@ void Backend::applicationActivated()
     {
         IPC::ProtobufCommand<IPCClientCommands::ApplicationActivated> cmd;
         cmd.getProtoObj().set_is_activated(true);
-        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        // qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }
@@ -567,7 +567,7 @@ void Backend::applicationDeactivated()
     {
         IPC::ProtobufCommand<IPCClientCommands::ApplicationActivated> cmd;
         cmd.getProtoObj().set_is_activated(false);
-        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        // qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
 }

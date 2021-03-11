@@ -265,7 +265,7 @@ void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
 
     updateTabIconRects();
 
-    qCDebug(LOG_LOCATION_LIST) << "Tab Transition: " << lastTab_ << " -> " << curTab_;
+    // qCDebug(LOG_LOCATION_LIST) << "Tab Transition: " << lastTab_ << " -> " << curTab_;
     int endWhiteLinePos;
     if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS)
     {
@@ -326,7 +326,7 @@ void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
         if (curTabMouseOver_ != LOCATION_TAB_NONE &&  curTabMouseOver_ != curTab_ && tabPress_ == curTabMouseOver_)
         {
             // Currently this should only handle non-search icons
-            qCDebug(LOG_USER) << "Clicked tab: " << curTabMouseOver_;
+            // qCDebug(LOG_USER) << "Clicked tab: " << curTabMouseOver_;
             changeTab(curTabMouseOver_);
         }
     }
@@ -365,7 +365,7 @@ bool LocationsTab::eventFilter(QObject *object, QEvent *event)
             {
                 if (searchLineEdit_->text() == "")
                 {
-                    qCDebug(LOG_USER) << "Search cancel via [Escape]";
+                    // qCDebug(LOG_USER) << "Search cancel via [Escape]";
                     hideSearchTab();
                 }
                 else
@@ -459,7 +459,7 @@ void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum loc
         previousSelectedLocId = locWidget->accentedItemLocationId();
     }
 
-    qCDebug(LOG_USER) << "Key press tab selection";
+    // qCDebug(LOG_USER) << "Key press tab selection";
     if (locationTab == LOCATION_TAB_SEARCH_LOCATIONS) // going to search tab
     {
         showSearchTab(); // this will handle changeTab(..)
@@ -522,13 +522,13 @@ void LocationsTab::onSearchButtonHoverLeave()
 
 void LocationsTab::onSearchButtonClicked()
 {
-    qCDebug(LOG_USER) << "Search clicked";
+    // qCDebug(LOG_USER) << "Search clicked";
     showSearchTab();
 }
 
 void LocationsTab::onSearchCancelButtonClicked()
 {
-    qCDebug(LOG_USER) << "Search cancel clicked";
+    // qCDebug(LOG_USER) << "Search cancel clicked";
     hideSearchTab();
 }
 
@@ -546,7 +546,7 @@ void LocationsTab::onDelayShowIconsTimerTimeout()
 
 void LocationsTab::onSearchTypingDelayTimerTimeout()
 {
-    qCDebug(LOG_LOCATION_LIST) << "Setting filter with typed: " << filterText_;
+    // qCDebug(LOG_LOCATION_LIST) << "Setting filter with typed: " << filterText_;
     widgetSearchLocations_->setFilterString(filterText_);
 }
 
@@ -584,7 +584,7 @@ void LocationsTab::drawTabRegion(QPainter &painter, const QRect &rc)
     if (!searchTabSelected_)
     {
         // draw white line
-        drawBottomLine(painter, rc.left(), rc.right(), rc.bottom(), curWhiteLinePos_);
+        drawBottomLine(painter, rc.bottom(), curWhiteLinePos_);
 
         // Draw Icons
         {
@@ -613,7 +613,7 @@ void LocationsTab::drawTabRegion(QPainter &painter, const QRect &rc)
     }
 }
 
-void LocationsTab::drawBottomLine(QPainter &painter, int left, int right, int bottom, int whiteLinePos)
+void LocationsTab::drawBottomLine(QPainter &painter, int bottom, int whiteLinePos)
 {
     // draw white line
     painter.fillRect(QRect((whiteLinePos - WHITE_LINE_WIDTH / 2 *G_SCALE), bottom-G_SCALE*2 + 1, WHITE_LINE_WIDTH*G_SCALE, G_SCALE*2), QBrush(Qt::white));
@@ -665,20 +665,26 @@ void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
 
     if (event->key() == Qt::Key_Right)
     {
-        int curTabInt = static_cast<int>(curTab_);
-        if (curTabInt < LOCATION_TAB_LAST)
+        if (showAllTabs_)
         {
-            curTabInt++;
-            switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
+            int curTabInt = static_cast<int>(curTab_);
+            if (curTabInt < LOCATION_TAB_LAST)
+            {
+                curTabInt++;
+                switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
+            }
         }
     }
     else if (event->key() == Qt::Key_Left)
     {
-        int curTabInt = static_cast<int>(curTab_);
-        if (curTabInt > LOCATION_TAB_FIRST)
+        if (showAllTabs_)
         {
-            curTabInt--;
-            switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
+            int curTabInt = static_cast<int>(curTab_);
+            if (curTabInt > LOCATION_TAB_FIRST)
+            {
+                curTabInt--;
+                switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
+            }
         }
     }
     else if (event->key() == Qt::Key_Tab)

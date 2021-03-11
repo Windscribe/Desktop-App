@@ -640,7 +640,7 @@ void WidgetLocations::onScrollBarStopScroll(bool lastScrollDirectionUp)
 
 void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 {
-    qCDebug(LOG_LOCATION_LIST) << name_ << " updating locations widget list";
+    // qCDebug(LOG_LOCATION_LIST) << name_ << " updating locations widget list";
 
     // storing previous location widget state
     QVector<LocationID> expandedLocationIds = widgetLocationsList_->expandedOrExpandingLocationIds();
@@ -673,7 +673,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
             }
         }
     }
-    qCDebug(LOG_LOCATION_LIST) << name_ << " restoring display state";
+    // qCDebug(LOG_LOCATION_LIST) << name_ << " restoring display state";
 
     // restoring previous widget state
     widgetLocationsList_->expandLocationIds(expandedLocationIds);

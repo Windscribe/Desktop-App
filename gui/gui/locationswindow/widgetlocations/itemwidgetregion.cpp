@@ -89,7 +89,7 @@ void ItemWidgetRegion::setMuteAccentChanges(bool mute)
 
 void ItemWidgetRegion::expand()
 {
-    qCDebug(LOG_LOCATION_LIST) << "Expanding: " << regionHeaderWidget_->name();
+    // qCDebug(LOG_LOCATION_LIST) << "Expanding: " << regionHeaderWidget_->name();
     for (auto *city : qAsConst(cities_))
     {
         city->setSelectable(true);
@@ -105,7 +105,7 @@ void ItemWidgetRegion::expand()
 
 void ItemWidgetRegion::collapse()
 {
-    qCDebug(LOG_LOCATION_LIST) << "Collapsing: " << regionHeaderWidget_->name();
+    // qCDebug(LOG_LOCATION_LIST) << "Collapsing: " << regionHeaderWidget_->name();
 
     for (auto *city : qAsConst(cities_))
     {

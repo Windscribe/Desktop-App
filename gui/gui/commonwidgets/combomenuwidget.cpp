@@ -164,7 +164,7 @@ void ComboMenuWidget::onButtonClick()
 
     if (button != nullptr)
     {
-        qCDebug(LOG_USER) << "ComboMenu item clicked: " << button->text();
+        // qCDebug(LOG_USER) << "ComboMenu item clicked: " << button->text();
         emit itemClicked(button->text(), button->data());
     }
 }
@@ -217,7 +217,7 @@ void ComboMenuWidget::paintEvent(QPaintEvent *event)
 
 void ComboMenuWidget::keyPressEvent(QKeyEvent *event)
 {
-    qCDebug(LOG_USER) << "ComboMenu keypress: " << event->text();
+    // qCDebug(LOG_USER) << "ComboMenu keypress: " << event->text();
     if (event->key() == Qt::Key_Escape)
     {
         hide();

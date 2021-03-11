@@ -584,7 +584,7 @@ void CredentialsWindowItem::updatePositions()
 
 void CredentialsWindowItem::keyPressEvent(QKeyEvent *event)
 {
-    qDebug() << "Credentials::keyPressEvent";
+    // qDebug() << "Credentials::keyPressEvent";
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
     {
         attemptLogin();
@@ -609,7 +609,7 @@ bool CredentialsWindowItem::sceneEvent(QEvent *event)
         {
             if (hasFocus())
             {
-                qDebug() << "Credentials::setting focus";
+                //qDebug() << "Credentials::setting focus";
                 usernameEntry_->setFocus();
                 return true;
             }
@@ -647,7 +647,7 @@ void CredentialsWindowItem::updateScaling()
 
 void CredentialsWindowItem::setUsernameFocus()
 {
-    qDebug() << "Credentials::setUsernameFocus()";
+    // qDebug() << "Credentials::setUsernameFocus()";
     usernameEntry_->setFocus();
 }
 
