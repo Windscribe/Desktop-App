@@ -20,9 +20,7 @@ curl.exe https://dl.bintray.com/boostorg/release/%VERSION_BOOST%/source/boost_%V
 
 PUSHD c:\boost_temp\boost_%VERSION_BOOST_UNDERSCORED%
 call bootstrap.bat
-b2 install --build-type=complete --prefix=c:\libs\boost
-
-rem echo Error level: %errorlevel%
+b2 install --build-type=complete --prefix=c:\libs\boost --without-python || exit /b 1
 
 POPD
 rd /s /q "c:\boost_temp"
