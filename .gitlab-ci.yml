@@ -30,7 +30,7 @@ build:
   tags: [win10]
   stage: Build
   before_script:
-    - & {$outpath = ('$CODE_SIGNING_PFX_PATH'); $inpath = ('$CODE_SIGNING_PFX_BASE64'); [IO.File]::WriteAllBytes($outpath, ([convert]::FromBase64String(([IO.File]::ReadAllText($inpath)))))}
+    - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
   script:
     - cd installer\windows
     - .\build_all.bat
