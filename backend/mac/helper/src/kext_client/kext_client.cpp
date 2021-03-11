@@ -150,7 +150,7 @@ bool KextClient::recvAll(int socket, void *buffer, size_t length)
     char *ptr = (char*) buffer;
     while (length > 0)
     {
-        size_t i = recv(socket, ptr, length, 0);
+        ssize_t i = recv(socket, ptr, length, 0);
         if (i < 1) return false;
         ptr += i;
         length -= i;
