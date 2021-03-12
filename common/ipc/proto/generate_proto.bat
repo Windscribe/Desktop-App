@@ -34,3 +34,17 @@ for %%I in (%~dp0..\generated_proto\*.cc) do (
 )
 
 del merged.tmp
+
+REM verify all files were created
+for /R %~dp0 %%f in (*.proto) do (
+  IF NOT EXIST %~dp0..\generated_proto\%%~nf.pb.cc (goto :error)
+  IF NOT EXIST %~dp0..\generated_proto\%%~nf.pb.h (goto :error)
+)
+
+echo Successfully generated all ipc files.
+goto :eof
+
+:error
+  echo Failed to generate all ipc files.
+  exit /b 1
+  
