@@ -973,7 +973,7 @@ void ConnectionManager::doConnectPart3()
             }
 
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_IKEV2));
-            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.dnsHostName, username, password, lastProxySettings_, nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
+            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_, nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
