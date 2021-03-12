@@ -1,0 +1,7 @@
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+variables:
+  VERSION_PROTOBUF: '3.14.0'
+  BUILDROOT_PROTOBUF: 'build-libs/protobuf'
