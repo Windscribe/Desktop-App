@@ -936,7 +936,7 @@ void MainWindow::onConnectWindowNetworkButtonClick()
 
 void MainWindow::onConnectWindowLocationsClick()
 {
-    qCDebug(LOG_USER) << "Locations button clicked";
+    // qCDebug(LOG_USER) << "Locations button clicked";
     if (!mainWindowController_->isLocationsExpanded())
     {
         mainWindowController_->expandLocations();
@@ -1292,7 +1292,7 @@ void MainWindow::onLocationsAddStaticIpClicked()
 void MainWindow::onLocationsClearCustomConfigClicked()
 {
     if (!backend_->getPreferences()->customOvpnConfigsPath().isEmpty()) {
-        qCDebug(LOG_BASIC) << "User cleared custom config path";
+        // qCDebug(LOG_BASIC) << "User cleared custom config path";
         backend_->getPreferences()->setCustomOvpnConfigsPath(QString());
         backend_->sendEngineSettingsIfChanged();
     }
@@ -1305,7 +1305,7 @@ void MainWindow::onLocationsAddCustomConfigClicked()
         this, tr("Select Custom Config Folder"), "", QFileDialog::ShowDirsOnly);
     currentlyShowingExternalDialog_ = false;
     if (!path.isEmpty()) {
-        qCDebug(LOG_BASIC) << "User selected custom config path:" << path;
+        // qCDebug(LOG_BASIC) << "User selected custom config path:" << path;
         backend_->getPreferences()->setCustomOvpnConfigsPath(path);
         backend_->sendEngineSettingsIfChanged();
     }
@@ -2637,7 +2637,7 @@ QRect MainWindow::trayIconRect()
     if (trayIcon_.isVisible())
     {
         const QRect rc = trayIcon_.geometry();
-        qDebug() << "System-reported tray icon rect: " << rc;
+        // qDebug() << "System-reported tray icon rect: " << rc;
 
         // check for valid tray icon
         if (!rc.isValid())
