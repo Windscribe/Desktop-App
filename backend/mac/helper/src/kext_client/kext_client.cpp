@@ -1,5 +1,6 @@
 #include "kext_client.h"
 #include "logger.h"
+#include "utils.h"
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <arpa/inet.h>
@@ -12,8 +13,13 @@
 
 #define KEXT_MSG_REPLY        0
 
-KextClient::KextClient(const CheckAppCallback &funcCheckApp) : sock_(-1), isConnected_(false), thread_(NULL), funcCheckApp_(funcCheckApp)
+KextClient::KextClient() : sock_(-1), isConnected_(false), thread_(NULL), bFinishThread_(false)
 {
+    isExclude_ = false;
+    connectStatus_.isConnected = false;
+    
+    windscribeExecutables_.push_back("wsappcontrol");
+    windscribeExecutables_.push_back("/WindscribeEngine.app");
 }
 
 KextClient::~KextClient()
@@ -24,11 +30,14 @@ KextClient::~KextClient()
 
 void KextClient::setKextPath(const std::string &kextPath)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     kextMonitor_.setKextPath(kextPath);
 }
 
 void KextClient::connect()
 {
+    std::lock_guard<std::mutex> guard(mutex_);
+    
     if (isConnected_)
     {
         return;
@@ -75,11 +84,12 @@ void KextClient::connect()
 
     if(::connect(sock_, reinterpret_cast<sockaddr*>(&sc), sizeof(sockaddr_ctl)))
     {
-        LOG("Connect error");
+        LOG("Connect error: %d", errno);
         ::close(sock_);
         return;
     }
     
+    bFinishThread_ = false;
     thread_ = new std::thread(&KextClient::readSocketThread, this);
     
     LOG("Socket successfully connected");
@@ -90,7 +100,10 @@ void KextClient::disconnect()
 {
     if (isConnected_)
     {
-        shutdown(sock_, SHUT_RDWR);
+        {
+            std::lock_guard<std::mutex> guard(mutex_);
+            close(sock_);
+        }
         
         if (thread_)
         {
@@ -98,13 +111,26 @@ void KextClient::disconnect()
             delete thread_;
             thread_ = NULL;
         }
-        
-        close(sock_);
+
         isConnected_ = false;
         sock_ = -1;
         kextMonitor_.unloadKext();
         LOG("Socket disconnected");
     }
+}
+
+void KextClient::setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    connectStatus_ = connectStatus;
+}
+
+void KextClient::setSplitTunnelingParams(bool isExclude, const std::vector<std::string> &apps)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    isExclude_ = isExclude;
+    apps_ = apps;
+    applyExtraRules(apps_);
 }
 
 void KextClient::readSocketThread()
@@ -114,7 +140,7 @@ void KextClient::readSocketThread()
 
     while (recvAll(sock_, &procQuery, sizeof(procQuery)))
     {
-        LOG("packet received");
+        std::lock_guard<std::mutex> guard(mutex_);
         
         procResponse.id = procQuery.id;
         procResponse.command = procQuery.command;
@@ -130,7 +156,7 @@ void KextClient::readSocketThread()
          
             std::string outIp;
             bool isExclude;
-            procResponse.accept = funcCheckApp_(s, outIp, isExclude);
+            procResponse.accept = verifyApp(s, outIp, isExclude);
             procResponse.rule_type = isExclude ? BypassVPN : OnlyVPN;
             if (procResponse.accept)
             {
@@ -156,4 +182,92 @@ bool KextClient::recvAll(int socket, void *buffer, size_t length)
         length -= i;
     }
     return true;
+}
+
+// add extra paths for Mac standard applications
+void KextClient::applyExtraRules(std::vector<std::string> &apps)
+{
+    std::vector<std::string> addedPaths;
+    
+    // If the system WebKit framework is excluded/vpnOnly, add this staged framework
+    // path too. Newer versions of Safari use this.
+    for (const auto &path: apps)
+    {
+        if (Utils::findCaseInsensitive(path, "/App Store.app") != std::string::npos)
+        {
+            addedPaths.push_back(WEBKIT_FRAMEWORK_PATH);
+            addedPaths.push_back(STAGED_WEBKIT_FRAMEWORK_PATH);
+            addedPaths.push_back("/System/Library/PrivateFrameworks/AppStoreDaemon.framework/Support/appstoreagent");
+        }
+        else if (Utils::findCaseInsensitive(path, "/Calendar.app") != std::string::npos)
+        {
+            addedPaths.push_back(WEBKIT_FRAMEWORK_PATH);
+            addedPaths.push_back(STAGED_WEBKIT_FRAMEWORK_PATH);
+            addedPaths.push_back("/System/Library/PrivateFrameworks/CalendarAgent.framework/Executables/CalendarAgent");
+        }
+        else if (Utils::findCaseInsensitive(path, "/Safari.app") != std::string::npos)
+        {
+            addedPaths.push_back(WEBKIT_FRAMEWORK_PATH);
+            addedPaths.push_back(STAGED_WEBKIT_FRAMEWORK_PATH);
+            
+            addedPaths.push_back("/System/Library/CoreServices/SafariSupport.bundle/Contents/MacOS/SafariBookmarksSyncAgent");
+            addedPaths.push_back("/System/Library/StagedFrameworks/Safari/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.Networking.xpc");
+            addedPaths.push_back("/System/Library/PrivateFrameworks/SafariSafeBrowsing.framework/Versions/A/com.apple.Safari.SafeBrowsing.Service");
+            addedPaths.push_back("/System/Library/StagedFrameworks/Safari/SafariShared.framework/Versions/A/XPCServices/com.apple.Safari.SearchHelper.xpc");
+        }
+    }
+    
+    for (const auto &path: addedPaths)
+    {
+        apps.push_back(path);
+    }
+}
+bool KextClient::verifyApp(const std::string &appPath, std::string &outBindIp, bool &isExclude)
+{
+    isExclude = isExclude_;
+        
+    if (connectStatus_.defaultAdapter.adapterIp.empty())
+    {
+        goto not_verify;
+    }
+        
+    // check for Windscribe executables
+    for (const auto &windscribePath: windscribeExecutables_)
+    {
+        if (Utils::findCaseInsensitive(appPath, windscribePath) != std::string::npos)
+        {
+            if (isExclude)
+            {
+                goto not_verify;
+            }
+            else
+            {
+                outBindIp = connectStatus_.vpnAdapter.adapterIp;
+                LOG("VerifyApp: %s, result: %d", appPath.c_str(), true);
+                return true;
+            }
+        }
+    }
+        
+    // check for app list
+    for (std::vector<std::string>::iterator it = apps_.begin(); it != apps_.end(); ++it)
+    {
+        if (appPath.rfind(*it, 0) == 0)
+        {
+            if (isExclude)
+            {
+                outBindIp = connectStatus_.defaultAdapter.adapterIp;
+            }
+            else
+            {
+                outBindIp = connectStatus_.vpnAdapter.adapterIp;
+            }
+            LOG("VerifyApp: %s, result: %d", appPath.c_str(), true);
+            return true;
+        }
+    }
+    
+not_verify:
+    LOG("VerifyApp: %s, result: %d", appPath.c_str(), false);
+    return false;
 }

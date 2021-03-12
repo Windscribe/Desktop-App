@@ -3,18 +3,20 @@
 
 #include <thread>
 #include "kext_monitor.h"
-
-typedef std::function<bool(const std::string&, std::string&, bool&)> CheckAppCallback;
+#include "../ipc/helper_commands.h"
 
 class KextClient
 {
 public:
-    explicit KextClient(const CheckAppCallback &funcCheckApp);
+    explicit KextClient();
     ~KextClient();
     
     void setKextPath(const std::string &kextPath);
     void connect();
     void disconnect();
+    
+    void setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus);
+    void setSplitTunnelingParams(bool isExclude, const std::vector<std::string> &apps);
     
 private:
     
@@ -48,17 +50,28 @@ private:
         int socket_type;
     } ProcQuery;
     
+    std::mutex mutex_;
     
     int sock_;
     bool isConnected_;
     
     std::thread *thread_;
-    CheckAppCallback funcCheckApp_;
+    std::atomic<bool> bFinishThread_;
     KextMonitor kextMonitor_;
+    
+    bool isExclude_;
+    CMD_SEND_CONNECT_STATUS connectStatus_;
+    std::vector<std::string> windscribeExecutables_;
+    std::vector<std::string> apps_;
+    
+    const std::string WEBKIT_FRAMEWORK_PATH = std::string("/System/Library/Frameworks/WebKit.framework");
+    const std::string STAGED_WEBKIT_FRAMEWORK_PATH = std::string("/System/Library/StagedFrameworks/Safari/WebKit.framework");
     
     void readSocketThread();
     bool recvAll(int socket, void *buffer, size_t length);
     
+    void applyExtraRules(std::vector<std::string> &apps);
+    bool verifyApp(const std::string &appPath, std::string &outBindIp, bool &isExclude);
 };
 
 #endif // KextClient_h
