@@ -2,6 +2,7 @@ build-*
 *.user
 release/
 debug/
+temp/
 .vs/
 *.pyc
 *.DS_Store
