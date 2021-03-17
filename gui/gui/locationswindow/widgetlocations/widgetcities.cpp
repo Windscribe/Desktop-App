@@ -235,13 +235,13 @@ bool WidgetCities::eventFilter(QObject *object, QEvent *event)
     if (object == viewport() && event->type() == QEvent::Gesture)
     {
         QGestureEvent *ge = static_cast<QGestureEvent *>(event);
-        qCDebug(LOG_USER) << "Event filter - Some Gesture: " << ge->gestures();
+        // qCDebug(LOG_USER) << "Event filter - Some Gesture: " << ge->gestures();
         QTapGesture *g = static_cast<QTapGesture *>(ge->gesture(Qt::TapGesture));
         if (g)
         {
             if (g->state() == Qt::GestureStarted)
             {
-                qCDebug(LOG_USER) << "Tap Gesture started";
+                //qCDebug(LOG_USER) << "Tap Gesture started";
                 bTapGestureStarted_ = true;
             }
             else if (g->state() == Qt::GestureFinished)
@@ -252,23 +252,23 @@ bool WidgetCities::eventFilter(QObject *object, QEvent *event)
                     bTapGestureStarted_ = false;
                     QPointF ptf = g->position();
                     QPoint pt(ptf.x(), ptf.y());
-                    qCDebug(LOG_USER) << "Tap Gesture finished, selecting by pt: " << pt;
+                    //qCDebug(LOG_USER) << "Tap Gesture finished, selecting by pt: " << pt;
                     widgetCitiesList_->selectWidgetContainingGlobalPt(pt);
                 }
             }
             else if (g->state() == Qt::GestureCanceled)
             {
-                qCDebug(LOG_USER) << "Tap Gesture canceled - scrolling";
+                //qCDebug(LOG_USER) << "Tap Gesture canceled - scrolling";
                 bTapGestureStarted_ = false;
             }
         }
         QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
         if (gp)
         {
-            qCDebug(LOG_USER) << "Pan gesture";
+            //qCDebug(LOG_USER) << "Pan gesture";
             if (gp->state() == Qt::GestureStarted)
             {
-                qCDebug(LOG_USER) << "Pan gesture started";
+                //qCDebug(LOG_USER) << "Pan gesture started";
                 bTapGestureStarted_ = false;
             }
         }

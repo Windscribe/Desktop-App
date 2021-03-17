@@ -2924,7 +2924,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         QScreen *screen = WidgetUtils::slightlySaferScreenAt(iconCenter);
         if (!screen)
         {
-            qDebug() << "Still no screen found -- not updating geometry and scene";
+            // qDebug() << "Still no screen found -- not updating geometry and scene";
             return;
         }
 
@@ -3110,7 +3110,7 @@ void MainWindowController::keepWindowInsideScreenCoordinates()
 
     if (rcWindow.bottom() > (rcScreen.bottom()))
     {
-        qDebug() << "KEEPING MAINWINDOW INSIDE SCREEN COORDINATES";
+       // qDebug() << "KEEPING MAINWINDOW INSIDE SCREEN COORDINATES";
        rcWindow.moveBottom(rcScreen.bottom());
        mainWindow_->setGeometry(rcWindow);
     }

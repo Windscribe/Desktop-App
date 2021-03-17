@@ -33,8 +33,8 @@ QRectF BubbleButtonBright::boundingRect() const
 
 void BubbleButtonBright::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
     qreal initialOpacity = painter->opacity();
 
