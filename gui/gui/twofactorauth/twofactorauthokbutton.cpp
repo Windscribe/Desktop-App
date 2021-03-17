@@ -15,12 +15,10 @@ TwoFactorAuthOkButton::TwoFactorAuthOkButton(ScalableGraphicsObject *parent, int
           arcHeight_(16), fontDescr_(14, false), text_()
 {
     setButtonType(BUTTON_TYPE_ADD);
-    setClickable(true);
-    updateTargetFillColor();
-
     fillColorAnimation_.setTargetObject(this);
     fillColorAnimation_.setParent(this);
     connect(&fillColorAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onColorChanged(QVariant)));
+    setClickable(true); // triggers fillColorAnimation -- after init to avoid "no-target" logging
 }
 
 QRectF TwoFactorAuthOkButton::boundingRect() const
