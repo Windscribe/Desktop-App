@@ -404,7 +404,7 @@ void Backend::getAndUpdateIPv6StateInOS()
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::GetIpv6StateInOS> cmd;
-        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        // qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString()); // hidden because it's a bit spammy
         connection_->sendCommand(cmd);
     }
 }
@@ -472,7 +472,7 @@ void Backend::setBlockConnect(bool isBlockConnect)
     {
         IPC::ProtobufCommand<IPCClientCommands::SetBlockConnect> cmd;
         cmd.getProtoObj().set_is_block_connect(isBlockConnect);
-        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        // qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString()); // a bit spammy
         connection_->sendCommand(cmd);
     }
 }

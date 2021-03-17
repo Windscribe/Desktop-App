@@ -508,7 +508,7 @@ void WidgetCities::mouseDoubleClickEvent(QMouseEvent *event)
 
 void WidgetCities::onItemsUpdated(QVector<CityModelItem *> items)
 {
-    qCDebug(LOG_LOCATION_LIST) << "Items updated: " << name_;
+    // qCDebug(LOG_LOCATION_LIST) << "Items updated: " << name_;
     updateWidgetList(items);
 }
 

@@ -2323,7 +2323,6 @@ void MainWindowController::expandPreferencesFromConnect()
     if (isLocationsExpanded())
     {
         connectWindow_->updateLocationsState(false);
-        expandLocationsAnimationGroup_->removeAnimation(collapseBottomInfoWindowAnimation_);
         expandLocationsAnimationGroup_->setDirection(QAbstractAnimation::Backward);
         if (expandLocationsAnimationGroup_->state() != QAbstractAnimation::Running)
         {
