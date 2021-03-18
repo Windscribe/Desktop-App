@@ -65,9 +65,9 @@ private:
     CURL *makePutRequest(CurlRequest *curlRequest);
     CURL *makeDeleteRequest(CurlRequest *curlRequest);
 
-    void setupResolveHosts(CurlRequest *curlRequest, CURL *curl);
-    void setupSslVerification(CURL *curl);
-    void setupProxy(CURL *curl);
+    bool setupResolveHosts(CurlRequest *curlRequest, CURL *curl);
+    bool setupSslVerification(CURL *curl);
+    bool setupProxy(CURL *curl);
 };
 
 #endif // CURLNETWORKMANAGER_H

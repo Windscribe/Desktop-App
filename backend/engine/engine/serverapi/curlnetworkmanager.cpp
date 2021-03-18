@@ -310,23 +310,26 @@ CURL *CurlNetworkManager::makeGetRequest(CurlRequest *curlRequest)
 
     if (curl)
     {
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_bytearray);
-        curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, curlRequest->getAnswerPointer());
-        curl_easy_setopt(curl, CURLOPT_URL, curlRequest->getGetData().toStdString().c_str());
-        curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1);
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlRequest->getTimeout());
+        if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_bytearray) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, curlRequest->getAnswerPointer()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_URL, curlRequest->getGetData().toStdString().c_str()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlRequest->getTimeout()) != CURLE_OK) goto failed;
 
-        setupResolveHosts(curlRequest, curl);
-        setupSslVerification(curl);
-        setupProxy(curl);
+        if (!setupResolveHosts(curlRequest, curl)) goto failed;
+        if (!setupSslVerification(curl)) goto failed;
+        if (!setupProxy(curl)) goto failed;
 
         return curl;
     }
-    else
+
+failed:
+    if (curl)
     {
-        return NULL;
+        curl_easy_cleanup(curl);
     }
+    return NULL;
 }
 
 CURL *CurlNetworkManager::makePostRequest(CurlRequest *curlRequest)
@@ -335,30 +338,35 @@ CURL *CurlNetworkManager::makePostRequest(CurlRequest *curlRequest)
 
     if (curl)
     {
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_bytearray);
-        curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, curlRequest->getAnswerPointer());
-        curl_easy_setopt(curl, CURLOPT_URL, curlRequest->getUrl().toStdString().c_str());
-        curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1);
+        if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_bytearray) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK)  goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, curlRequest->getAnswerPointer()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_URL, curlRequest->getUrl().toStdString().c_str()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) goto failed;
 
         struct curl_slist *list = NULL;
         list = curl_slist_append(list, curlRequest->getContentTypeHeader().toStdString().c_str());
+        if (list == NULL) goto failed;
         curlRequest->addCurlListForFreeLater(list);
 
-        curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, curlRequest->getPostData().toStdString().c_str());
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlRequest->getTimeout());
+        if (curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, curlRequest->getPostData().size()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, curlRequest->getPostData().data()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlRequest->getTimeout()) != CURLE_OK) goto failed;
 
-        setupResolveHosts(curlRequest, curl);
-        setupSslVerification(curl);
-        setupProxy(curl);
+        if (!setupResolveHosts(curlRequest, curl)) goto failed;
+        if (!setupSslVerification(curl)) goto failed;
+        if (!setupProxy(curl)) goto failed;
 
         return curl;
     }
-    else
+
+failed:
+    if (curl)
     {
-        return NULL;
+        curl_easy_cleanup(curl);
     }
+    return NULL;
 }
 
 CURL *CurlNetworkManager::makePutRequest(CurlRequest *curlRequest)
@@ -367,7 +375,11 @@ CURL *CurlNetworkManager::makePutRequest(CurlRequest *curlRequest)
     CURL *curl = makePostRequest(curlRequest);
     if (curl)
     {
-        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        if (curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT") != CURLE_OK)
+        {
+            curl_easy_cleanup(curl);
+            return NULL;
+        }
         return curl;
     }
     else
@@ -382,68 +394,74 @@ CURL *CurlNetworkManager::makeDeleteRequest(CurlRequest *curlRequest)
 
     if (curl)
     {
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_bytearray);
-        curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, curlRequest->getAnswerPointer());
-        curl_easy_setopt(curl, CURLOPT_URL, curlRequest->getGetData().toStdString().c_str());
-        curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1);
-        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, curlRequest->getTimeout());
+        if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_bytearray) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, curlRequest->getAnswerPointer()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_URL, curlRequest->getGetData().toStdString().c_str()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE") != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, curlRequest->getTimeout()) != CURLE_OK) goto failed;
 
-        setupResolveHosts(curlRequest, curl);
-        setupSslVerification(curl);
-        setupProxy(curl);
+        if (!setupResolveHosts(curlRequest, curl)) goto failed;
+        if (!setupSslVerification(curl)) goto failed;
+        if (!setupProxy(curl)) goto failed;
 
         return curl;
     }
-    else
+
+failed:
+    if (curl)
     {
-        return NULL;
+        curl_easy_cleanup(curl);
     }
+    return NULL;
 }
 
-void CurlNetworkManager::setupResolveHosts(CurlRequest *curlRequest, CURL *curl)
+bool CurlNetworkManager::setupResolveHosts(CurlRequest *curlRequest, CURL *curl)
 {
     if (curlRequest->isHasNextIp())
     {
         CURLSH *share_handle = curl_share_init();
-        curl_share_setopt(share_handle, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS);
-        curl_easy_setopt(curl, CURLOPT_SHARE, share_handle);
+        if (curl_share_setopt(share_handle, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS) != CURLSHE_OK) return false;
+        if (curl_easy_setopt(curl, CURLOPT_SHARE, share_handle) != CURLE_OK) return false;
 
         struct curl_slist *hosts = NULL;
         QString s = curlRequest->getHostname() + ":443" + ":" + curlRequest->getNextIp();
         hosts = curl_slist_append(NULL, s.toStdString().c_str());
+        if (hosts == NULL) return false;
 
         curlRequest->addCurlListForFreeLater(hosts);
-        curl_easy_setopt(curl, CURLOPT_RESOLVE, hosts);
+        if (curl_easy_setopt(curl, CURLOPT_RESOLVE, hosts) != CURLE_OK) return false;
     }
+    return true;
 }
 
-void CurlNetworkManager::setupSslVerification(CURL *curl)
+bool CurlNetworkManager::setupSslVerification(CURL *curl)
 {
     QMutexLocker lock(&mutexAccess_);
 #ifdef Q_OS_MAC
-    curl_easy_setopt(curl, CURLOPT_CAINFO, certPath_.toStdString().c_str());
+    if (curl_easy_setopt(curl, CURLOPT_CAINFO, certPath_.toStdString().c_str()) != CURLE_OK) return false;
 #endif
     if (bIgnoreSslErrors_)
     {
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+        if (curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0) != CURLE_OK) return false;
+        if (curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0) != CURLE_OK) return false;
     }
     else
     {
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1);
-        curl_easy_setopt(curl, CURLOPT_SSL_CTX_FUNCTION, *sslctx_function);
-        curl_easy_setopt(curl, CURLOPT_SSL_CTX_DATA, &certManager_);
+        if (curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1) != CURLE_OK) return false;
+        if (curl_easy_setopt(curl, CURLOPT_SSL_CTX_FUNCTION, *sslctx_function) != CURLE_OK) return false;
+        if (curl_easy_setopt(curl, CURLOPT_SSL_CTX_DATA, &certManager_) != CURLE_OK) return false;
     }
 
 #ifdef MAKE_CURL_LOG_FILE
-    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
-    curl_easy_setopt(curl, CURLOPT_STDERR, logFile_);
+    if (curl_easy_setopt(curl, CURLOPT_VERBOSE, 1) != CURLE_OK) return false;
+    if (curl_easy_setopt(curl, CURLOPT_STDERR, logFile_) != CURLE_OK) return false;
 #endif
+    return true;
 }
 
-void CurlNetworkManager::setupProxy(CURL *curl)
+bool CurlNetworkManager::setupProxy(CURL *curl)
 {
     QMutexLocker lock(&mutexAccess_);
     QString proxyString;
@@ -452,7 +470,7 @@ void CurlNetworkManager::setupProxy(CURL *curl)
         if (proxySettings_.option() == PROXY_OPTION_NONE)
         {
             //nothing todo
-            return;
+            return true;
         }
         else if (proxySettings_.option() == PROXY_OPTION_HTTP)
         {
@@ -463,15 +481,15 @@ void CurlNetworkManager::setupProxy(CURL *curl)
             proxyString = "socks5://" + proxySettings_.address() + ":" + QString::number(proxySettings_.getPort());
         }
 
-
-        curl_easy_setopt(curl, CURLOPT_PROXY, proxyString.toStdString().c_str());
+        if (curl_easy_setopt(curl, CURLOPT_PROXY, proxyString.toStdString().c_str()) != CURLE_OK) return false;
         if (!proxySettings_.getUsername().isEmpty())
         {
-            curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, proxySettings_.getUsername().toStdString().c_str());
+            if (curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, proxySettings_.getUsername().toStdString().c_str()) != CURLE_OK) return false;
         }
         if (!proxySettings_.getPassword().isEmpty())
         {
-            curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, proxySettings_.getPassword().toStdString().c_str());
+            if (curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, proxySettings_.getPassword().toStdString().c_str()) != CURLE_OK) return false;
         }
     }
+    return true;
 }
