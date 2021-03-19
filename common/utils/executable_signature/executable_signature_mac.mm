@@ -92,12 +92,7 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
     status = SecStaticCodeCheckValidity(staticCode, flags, NULL);
     if (status != errSecSuccess)
     {
-        qDebug() << "FAILED SIGNATURE CHECK";
-        qDebug() << "!";
-        qDebug() << "!";
-        qDebug() << "!";
-        qDebug() << "!";
-        qDebug() << "!";
+        qDebug() << "Failed Signature Check";
         return false;
     }
 

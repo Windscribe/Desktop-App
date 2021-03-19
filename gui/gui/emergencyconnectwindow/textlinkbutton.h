@@ -3,7 +3,6 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include <QPropertyAnimation>
 #include <QFont>
 #include <QTextDocument>
 #include "commongraphics/clickablegraphicsobject.h"

@@ -42,10 +42,10 @@ QScreen *WidgetUtils::slightlySaferScreenAt(QPoint pt)
         if (!QGuiApplication::screens().empty())
         {
             screen = QGuiApplication::screens().at(0);
-            qDebug() << "Backup screen: " << screen << " " << screen->geometry();
+            // qDebug() << "Backup screen: " << screen << " " << screen->geometry();
             return screen;
         }
-        qCDebug(LOG_BASIC) << "No screens available -- this should never happen";
+        // qCDebug(LOG_BASIC) << "No screens available -- this should never happen";
     }
     return screen;
 }
