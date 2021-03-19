@@ -4,22 +4,65 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <thread>
+#include <future>
 
 namespace
 {
-bool isYearInDatePresent(const QString &dateline)
+bool isYearInDatePresent(const std::string &dateline)
 {
-    const int scan = qMin(6, dateline.length());
+    const int scan = qMin(6, (int)dateline.size());
     for (int i = 0; i < scan; ++i)
         if (dateline[i] == ' ')
             return false;
     return true;
 }
+
+// parse date from string "ddMMyy hh:mm:ss:zzz"
+QDateTime parseDateTimeFormat1(const std::string &datestr)
+{
+    int dd,MM,yy;
+    int hh, mm, ss, zzz;
+    if (sscanf(datestr.c_str(),"%02d%02d%02d %02d:%02d:%02d:%03d", &dd, &MM, &yy, &hh, &mm, &ss, &zzz) == 7)
+    {
+        return QDateTime(QDate(yy, MM, dd), QTime(hh, mm, ss, zzz));
+    }
+    else
+    {
+        return QDateTime();
+    }
+}
+
+// parse date from string "ddMM hh:mm:ss:zzz"
+QDateTime parseDateTimeFormat2(const std::string &datestr)
+{
+    int dd,MM;
+    int hh, mm, ss, zzz;
+    if (sscanf(datestr.c_str(),"%02d%02d %02d:%02d:%02d:%03d", &dd, &MM, &hh, &mm, &ss, &zzz) == 6)
+    {
+        return QDateTime(QDate(0, MM, dd), QTime(hh, mm, ss, zzz));
+    }
+    else
+    {
+        return QDateTime();
+    }
+}
+
+
 }  // namespace
 
 QString MergeLog::mergeLogs(bool doMergePerLine)
 {
     const QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+
+    /*const QString guiLogFilename = "C:/Users/azano/Downloads/log_gui.txt";
+    const QString engineLogFilename = "C:/Users/azano/Downloads/log_engine.txt";
+    const QString serviceLogFilename1 = "C:/Users/azano/Downloads/windscribeservice.log";
+    const QString serviceLogFilename2 = "C:/Users/azano/Downloads/windscribeservice_prev.log";*/
+
     const QString guiLogFilename = path + "/log_gui.txt";
     const QString engineLogFilename = path + "/log_engine.txt";
     const QString serviceLogFilename1 = qApp->applicationDirPath() + "/windscribeservice.log";
@@ -39,66 +82,82 @@ QString MergeLog::mergePrevLogs(bool doMergePerLine)
                  doMergePerLine);
 }
 
+int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QString>> *lines, const QString *filename, LineSource source, bool useMinMax, QDateTime min, QDateTime max)
+{
+    int datasize = 0;
+    const int kCurrentYearOffset = QDateTime::currentDateTime().date().year() - 1900;
+    QDateTime prevDateTime;
+
+    std::ifstream file;
+    file.open(filename->toStdString());
+    if (file.fail())
+    {
+        return 0;
+    }
+
+    int timestamp = 0;
+    std::string line;
+    while (std::getline(file, line))
+    {
+        if (line[0] != '[')
+            continue;
+        const auto datestr = line.substr(1, 19);
+
+        const auto datetime = isYearInDatePresent(datestr)
+            ? parseDateTimeFormat1(datestr)
+                .addYears(100)
+            : parseDateTimeFormat2(datestr)
+                .addYears(kCurrentYearOffset);
+
+        if (useMinMax && (datetime < min || datetime > max))
+            continue;
+        if (prevDateTime != datetime) {
+            prevDateTime = datetime;
+            timestamp = 0;
+        }
+        // In QMultiMap, elements with the same key will be placed in a reverse order.
+        // https://doc.qt.io/qt-5/qmap-iterator.html#details
+        // To deal with the issue, we create a compound key: 44 bits for a timestamp, 2 bits
+        // for the source, and 18 additional lower bits for a "timestamp" (line serial
+        // number). We assume the maximum number of lines with unique timestamp never
+        // exceeds 262143, which is quite reasonable (it looks infeasible to output 250k+
+        // lines to a log file within 1 ms).
+        const auto key = (static_cast<quint64>(datetime.toMSecsSinceEpoch()) << 20)
+                       | (static_cast<quint64>(source) << 18) | qMin(timestamp++, 0x3ffff);
+        {
+            QMutexLocker locker(mutex);
+            lines->insert(key, qMakePair(source, QString::fromStdString(line)));
+        }
+        datasize += line.length() + 3;
+    }
+    return datasize;
+}
+
 QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogFilename,
                         const QString &serviceLogFilename, const QString &servicePrevLogFilename,
                         bool doMergePerLine)
 {
-    enum class LineSource { GUI, ENGINE, SERVICE, NUM_LINE_SOURCES };
+    QMutex mutex;
     QMultiMap<quint64, QPair<LineSource, QString>> lines;
     int estimatedLogSize = 0;
 
-    auto processFileFun = [&lines]
-    (const QString &file, LineSource source, const QDateTime *minmax) -> int
+    auto futureGuiLog = std::async(MergeLog::mergeTask, &mutex, &lines, &guiLogFilename, LineSource::GUI, false, QDateTime(), QDateTime());
+    auto futureEngineLog = std::async(MergeLog::mergeTask, &mutex, &lines, &engineLogFilename, LineSource::ENGINE, false, QDateTime(), QDateTime());
+    estimatedLogSize += futureGuiLog.get();
+    estimatedLogSize += futureEngineLog.get();
+
+    QDateTime minDate, maxDate;
+    bool isUseMinMaxDate = false;
+    if (lines.count() > 1)
     {
-        QFile qf(file);
-        int datasize = 0;
-        const int kCurrentYearOffset = QDateTime::currentDateTime().date().year() - 1900;
-        QDateTime prevDateTime;
-        if (qf.open(QIODevice::ReadOnly)) {
-            int timestamp = 0;
-            QTextStream qts(&qf);
-            while (!qts.atEnd()) {
-                const QString line = qts.readLine();
-                if (line[0] != '[')
-                    continue;
-                const auto datestr = line.mid(1, 19);
-                const auto datetime = isYearInDatePresent(datestr)
-                    ? QDateTime::fromString(datestr, "ddMMyy hh:mm:ss:zzz")
-                        .addYears(100)
-                    : QDateTime::fromString(datestr, "ddMM hh:mm:ss:zzz")
-                        .addYears(kCurrentYearOffset);
-                if (minmax && (datetime < minmax[0] || datetime > minmax[1]))
-                    continue;
-                if (prevDateTime != datetime) {
-                    prevDateTime = datetime;
-                    timestamp = 0;
-                }
-                // In QMultiMap, elements with the same key will be placed in a reverse order.
-                // https://doc.qt.io/qt-5/qmap-iterator.html#details
-                // To deal with the issue, we create a compound key: 44 bits for a timestamp, 2 bits
-                // for the source, and 18 additional lower bits for a "timestamp" (line serial
-                // number). We assume the maximum number of lines with unique timestamp never
-                // exceeds 262143, which is quite reasonable (it looks infeasible to output 250k+
-                // lines to a log file within 1 ms).
-                const auto key = (static_cast<quint64>(datetime.toMSecsSinceEpoch()) << 20)
-                               | (static_cast<quint64>(source) << 18) | qMin(timestamp++, 0x3ffff);
-                lines.insert(key, qMakePair(source, line));
-                datasize += line.length() + 3;
-            }
-            qf.close();
-        }
-        return datasize;
-    };
+        minDate = QDateTime::fromMSecsSinceEpoch(lines.firstKey() >> 20); // Strip source and timestamp.
+        maxDate = QDateTime::fromMSecsSinceEpoch(lines.lastKey() >> 20);
+        isUseMinMaxDate = true;
+    }
 
-    estimatedLogSize += processFileFun(guiLogFilename, LineSource::GUI, nullptr);
-    estimatedLogSize += processFileFun(engineLogFilename, LineSource::ENGINE, nullptr);
-
-    const QDateTime minMaxTime[] = {
-        QDateTime::fromMSecsSinceEpoch(lines.firstKey() >> 20),  // Strip source and timestamp.
-        QDateTime::fromMSecsSinceEpoch(lines.lastKey() >> 20)
-    };
-    estimatedLogSize += processFileFun(serviceLogFilename, LineSource::SERVICE, minMaxTime);
-    estimatedLogSize += processFileFun(servicePrevLogFilename, LineSource::SERVICE, minMaxTime);
+    auto futureService = std::async(MergeLog::mergeTask, &mutex, &lines, &serviceLogFilename, LineSource::SERVICE, isUseMinMaxDate, minDate, maxDate);
+    auto futureServicePrev = std::async(MergeLog::mergeTask, &mutex, &lines, &servicePrevLogFilename, LineSource::SERVICE, isUseMinMaxDate, minDate, maxDate);
+    estimatedLogSize += futureService.get() + futureServicePrev.get();
 
     if (!doMergePerLine)
         estimatedLogSize += 400;  // Account for log separation lines.
@@ -149,3 +208,4 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogF
     }
     return result;
 }
+
