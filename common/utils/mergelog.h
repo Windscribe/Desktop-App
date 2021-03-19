@@ -6,7 +6,7 @@
 #include <QMutex>
 #include <vector>
 
-// merge two logs log_gui.txt and log_engine.txt to one
+// merge logs files log_gui.txt, log_engine.txt, windscribeservice.log to one, cut out the middle of the log if the count of lines  exceeds MAX_COUNT_OF_LINES
 class MergeLog
 {
 public:
@@ -14,6 +14,7 @@ public:
     static QString mergePrevLogs(bool doMergePerLine);
 
 private:
+     static constexpr int MAX_COUNT_OF_LINES = 100000;
     static QString merge(const QString &guiLogFilename, const QString &engineLogFilename,
                          const QString &serviceLogFilename, const QString &servicePrevLogFilename,
                          bool doMergePerLine);
