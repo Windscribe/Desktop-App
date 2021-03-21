@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QCheckBox>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QVBoxLayout>
 #include "dpiscaleawarewidget.h"
 
@@ -22,6 +23,7 @@ signals:
 private slots:
     void updateLog(bool doMergePerLine);
     void updateColorHighlighting(bool isColorHighlighting);
+    void onExportClick();
 
 protected:
     void updateScaling() override;
@@ -36,6 +38,7 @@ private:
     QVBoxLayout *layout_;
     QCheckBox *cbMergePerLine_;
     QCheckBox *cbColorHighlighting_;
+    QPushButton *btnExportLog_;
     bool isColorHighlighting_;
 };
 
