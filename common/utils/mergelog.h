@@ -14,7 +14,7 @@ public:
     static QString mergePrevLogs(bool doMergePerLine);
 
 private:
-     static constexpr int MAX_COUNT_OF_LINES = 100000;
+    static constexpr int MAX_COUNT_OF_LINES = 100000;
     static QString merge(const QString &guiLogFilename, const QString &engineLogFilename,
                          const QString &serviceLogFilename, const QString &servicePrevLogFilename,
                          bool doMergePerLine);

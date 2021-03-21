@@ -180,14 +180,16 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogF
         result.append("\n");
     };
 
-    // cut out the middle of the log if the count of lines  exceeds MAX_COUNT_OF_LINES
+    // cut out the path of the log if the count of lines  exceeds MAX_COUNT_OF_LINES (keep 10% begin and 90% end of log)
     int cutCount = 0;
+    int cutBeginInd = 0;
+    int cutEndInd = lines.count();
     if (lines.count() > MAX_COUNT_OF_LINES)
     {
         cutCount = lines.count() - MAX_COUNT_OF_LINES;
+        cutBeginInd = MAX_COUNT_OF_LINES / 10;
+        cutEndInd = lines.count() - MAX_COUNT_OF_LINES * 0.9;
     }
-    int cutBeginInd = (lines.count() - cutCount) / 2;
-    int cutEndInd = (lines.count() + cutCount) / 2;
 
     if (doMergePerLine) {
         int ind = 0;
