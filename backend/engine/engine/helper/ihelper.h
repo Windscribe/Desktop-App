@@ -67,7 +67,7 @@ public:
                                            const QStringList &files, const QStringList &ips,
                                            const QStringList &hosts) = 0;
 
-    virtual void sendConnectStatus(bool isConnected, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+    virtual void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                                    const QString &connectedIp, const ProtocolType &protocol) = 0;
 
     // windows specific functions

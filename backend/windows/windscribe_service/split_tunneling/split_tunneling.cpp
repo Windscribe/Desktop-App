@@ -5,7 +5,7 @@
 #include "../utils.h"
 
 SplitTunneling::SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper) : firewallFilter_(firewallFilter), calloutFilter_(fwmpWrapper), 
-				 hostnamesManager_(firewallFilter), isSplitTunnelEnabled_(false), isExclude_(false), bKeepLocalSockets_(false), prevIsSplitTunnelActive_(false), prevIsExclude_(false)
+				 hostnamesManager_(firewallFilter), isSplitTunnelEnabled_(false), isExclude_(false), prevIsSplitTunnelActive_(false), prevIsExclude_(false)
 {
 	connectStatus_.isConnected = false;
 	detectWindscribeExecutables();
@@ -134,9 +134,9 @@ void SplitTunneling::updateState()
 	prevIsSplitTunnelActive_ = isSplitTunnelActive;
 	prevIsExclude_ = isExclude_;
 
-	if (bNeedCloseTcpSockets)
+	if (bNeedCloseTcpSockets && connectStatus_.isCloseTcpSocket)
 	{
 		Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
-		CloseTcpConnections::closeAllTcpConnections(bKeepLocalSockets_, isExclude_, apps_);
+		CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket, isExclude_, apps_);
 	}
 }

@@ -16,7 +16,6 @@ public:
 
 	void setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts);
 	void setConnectStatus(CMD_CONNECT_STATUS &connectStatus);
-    void setKeepLocalSocketsOnDisconnect(bool value) { bKeepLocalSockets_ = value; }
 
 	static void removeAllFilters(FwpmWrapper &fwmpWrapper);
 
@@ -27,7 +26,6 @@ private:
 	HostnamesManager hostnamesManager_;
 	SplitTunnelServiceManager splitTunnelServiceManager_;
 
-    bool bKeepLocalSockets_;
 	AppsIds windscribeExecutablesIds_;
 	CMD_CONNECT_STATUS connectStatus_;
 	bool isSplitTunnelEnabled_;

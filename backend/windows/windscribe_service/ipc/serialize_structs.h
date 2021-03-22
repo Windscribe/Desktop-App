@@ -152,6 +152,8 @@ void serialize(Archive & ar, CMD_CONNECT_STATUS & a, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
     ar & a.isConnected;
+	ar & a.isCloseTcpSocket;
+	ar & a.isKeepLocalSocket;
     ar & a.protocol;
 
     ar & a.defaultAdapter;

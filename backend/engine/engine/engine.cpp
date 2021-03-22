@@ -673,7 +673,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 #endif
 
     // turn off split tunneling (for case the state remains from the last launch)
-    helper_->sendConnectStatus(false, AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
+    helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 
@@ -761,7 +761,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 
     // turn off split tunneling
-    helper_->sendConnectStatus(false, AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
+    helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 #ifdef Q_OS_WIN
@@ -1533,7 +1533,7 @@ void Engine::onConnectionManagerConnected()
     firewallController_->setInterfaceToSkip_mac(adapterName);
 #endif
 
-    helper_->sendConnectStatus(true, connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(), connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
+    helper_->sendConnectStatus(true, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(), connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
 
     if (firewallController_->firewallActualState())
     {
@@ -2555,7 +2555,7 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     {
         if (state != CONNECT_STATE_CONNECTED)
         {
-            helper_->sendConnectStatus(false, AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
+            helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
         }
     }
 }
