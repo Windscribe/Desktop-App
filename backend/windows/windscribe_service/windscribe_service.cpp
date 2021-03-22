@@ -38,8 +38,19 @@ HANDLE                g_ServiceStopEvent = INVALID_HANDLE_VALUE;
 HANDLE				  g_hThread = NULL;
 //HostsEdit             g_hostsEdit;
 
-bool bOn = false;
-bool bOff = false;
+// latest split tunneling pars
+struct SPLIT_TUNNELING_PARS
+{
+	bool isEnabled;
+	bool isExclude;
+	std::vector<std::wstring> apps;
+	bool isVpnConnected;
+
+	SPLIT_TUNNELING_PARS() : isEnabled(false), isExclude(true), isVpnConnected(false) {}
+};
+
+SPLIT_TUNNELING_PARS g_SplitTunnelingPars;
+
 
 VOID WINAPI serviceMain(DWORD argc, LPTSTR *argv);
 VOID WINAPI serviceCtrlHandler(DWORD);
@@ -490,7 +501,15 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         ia >> cmdCloseTcpConnections;
         Logger::instance().out(L"AA_COMMAND_CLOSE_TCP_CONNECTIONS, KeepLocalSockets = %d",
                                cmdCloseTcpConnections.isKeepLocalSockets);
-		CloseTcpConnections::closeAllTcpConnections(cmdCloseTcpConnections.isKeepLocalSockets);
+
+		if (g_SplitTunnelingPars.isEnabled && g_SplitTunnelingPars.isVpnConnected)
+		{
+			CloseTcpConnections::closeAllTcpConnections(cmdCloseTcpConnections.isKeepLocalSockets, g_SplitTunnelingPars.isExclude, g_SplitTunnelingPars.apps);
+		}
+		else
+		{
+			CloseTcpConnections::closeAllTcpConnections(cmdCloseTcpConnections.isKeepLocalSockets);
+		}
 		mpr.success = true;
 	}
 	else if (cmdId == AA_COMMAND_ENUM_PROCESSES)
@@ -824,19 +843,13 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 			Logger::instance().out("AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s", cmdSplitTunnelingSettings.hosts[i].c_str());
 		}
 
-        splitTunnelling.setKeepLocalSocketsOnDisconnect(
-            cmdSplitTunnelingSettings.isKeepLocalSockets);
 
 		splitTunnelling.setSettings(cmdSplitTunnelingSettings.isActive, cmdSplitTunnelingSettings.isExclude, cmdSplitTunnelingSettings.files, cmdSplitTunnelingSettings.ips, cmdSplitTunnelingSettings.hosts);
-		/*if (cmdSplitTunnelingSettings.isActive)
-		{
-			splitTunnelling.start();
-			splitTunnelling.setSettings(cmdSplitTunnelingSettings.isExclude, cmdSplitTunnelingSettings.files, cmdSplitTunnelingSettings.ips, cmdSplitTunnelingSettings.hosts);
-		}
-		else
-		{
-			splitTunnelling.stop();
-		}*/
+		
+		g_SplitTunnelingPars.isEnabled = cmdSplitTunnelingSettings.isActive;
+		g_SplitTunnelingPars.isExclude = cmdSplitTunnelingSettings.isExclude;
+		g_SplitTunnelingPars.apps = cmdSplitTunnelingSettings.files;
+
 		mpr.success = true;
 	}
 	else if (cmdId == AA_COMMAND_CONNECT_STATUS)
@@ -845,6 +858,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		ia >> cmdConnectStatus;
 		Logger::instance().out(L"AA_COMMAND_CONNECT_STATUS: %d", cmdConnectStatus.isConnected);
 		splitTunnelling.setConnectStatus(cmdConnectStatus);
+		g_SplitTunnelingPars.isVpnConnected = cmdConnectStatus.isConnected;
 	}
 	else if (cmdId == AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE)
 	{
