@@ -2416,7 +2416,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
 void Engine::doConnect(bool bEmitAuthError)
 {
     // before connect, update ICS sharing and wait for update ICS finished
-    vpnShareController_->onConnectingOrConnectedToVPNEvent();
+    vpnShareController_->onConnectingOrConnectedToVPNEvent(OpenVpnVersionController::instance().isUseWinTun() ? "Windscribe Windtun420" : "Windscribe VPN");
     while (vpnShareController_->isUpdateIcsInProgress())
     {
         QThread::msleep(1);
