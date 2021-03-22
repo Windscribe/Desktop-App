@@ -353,7 +353,7 @@ message EngineSettings
   optional string language = 1 [default = "en"];
   optional UpdateChannel update_channel = 2 [default = UPDATE_CHANNEL_RELEASE];
   optional bool is_ignore_ssl_errors = 3 [default = false];
-  optional bool is_close_tcp_sockets = 4 [default = false];
+  optional bool is_close_tcp_sockets = 4 [default = true];
   optional bool is_allow_lan_traffic = 5 [default = false];
   optional FirewallSettings firewall_settings = 6;
   optional ConnectionSettings connection_settings = 7;
