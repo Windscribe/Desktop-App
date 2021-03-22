@@ -137,6 +137,6 @@ void SplitTunneling::updateState()
 	if (bNeedCloseTcpSockets)
 	{
 		Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
-		CloseTcpConnections::closeAllTcpConnections(bKeepLocalSockets_);
+		CloseTcpConnections::closeAllTcpConnections(bKeepLocalSockets_, isExclude_, apps_);
 	}
 }
