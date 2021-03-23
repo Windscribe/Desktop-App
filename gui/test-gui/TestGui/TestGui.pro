@@ -4,7 +4,7 @@ CONFIG -= app_bundle
 
 QT += core gui network svg
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-TARGET = TargetTestGui
+TARGET = TestGui
 
 win32 {
     # enable when linking to MT-built gtest

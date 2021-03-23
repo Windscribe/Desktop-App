@@ -5,3 +5,5 @@ debug/
 .vs/
 *.pyc
 *.DS_Store
+installer/windows/tests_output.log
+installer/windows/temp-tests/*

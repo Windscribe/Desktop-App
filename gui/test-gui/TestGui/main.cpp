@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     mainWindow.show();
 
     ::testing::InitGoogleTest(&argc, argv);
-    RUN_ALL_TESTS();
+    return RUN_ALL_TESTS();
 
-    return app.exec();
+    // urn app.exec();
 }
