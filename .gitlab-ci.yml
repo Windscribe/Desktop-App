@@ -1,0 +1,69 @@
+# Define Stages
+stages:
+  - Build Dependencies
+  - Build
+  - Artifact Upload
+
+#before_script:
+#  - sample
+
+# Set variables inherited by all jobs
+variables:
+  NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
+  NEXUS_PATH_ROOT: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME'
+  NEXUS_PATH_LATEST: '/latest'
+  NEXUS_PATH_BRANCHES: '/branches'
+  NEXUS_PATH_TAGS: '/tags'
+  TARGET: '*.exe'
+  #NEXUS_USERNAME: "sample"         # Set in Gitlab variables
+  #NEXUS_PASSWORD: "VhVvMiM3jD04c"  # Set in Gitlab variables
+  CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
+
+#cache:
+#  key: sample
+#  paths:
+#    - sample_path
+
+#hello_world:
+#  tags: [win10]
+#  stage: Build Dependencies
+#  script:
+#    - echo hello.world
+#    - .\test.ps1
+#    - .\install_curl.bat
+#  rules:
+#    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANC
+#      changes:
+#        - some-file
+
+# Build the exe on a runner with tag win10 and capture the artifact for successive jobs 
+build:
+  tags: [win10]
+  stage: Build
+  artifacts:
+    untracked: false
+    # capture the artifact here
+    paths:
+      - installer\windows\${TARGET}
+  # decode the pfx from base64 and write out
+  before_script:
+    - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
+  script:
+  # trigger build
+    - cd installer\windows
+    - .\build_all.bat
+
+artifact-upload:
+  image: node:10.13.0
+  stage: Artifact Upload
+  cache: {}
+  dependencies:
+    - build
+  before_script:
+    # get release name
+    - VERSION=$(python2.7 installer/windows/extract_version.py common/version/windscribe_version.h)
+  script:
+    # post to nexus artifact store
+    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
+    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
+    - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
