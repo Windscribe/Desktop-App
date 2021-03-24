@@ -47,4 +47,4 @@ goto :eof
 :error
 	echo Failed to build test binaries: %errorlevel%
 	cd %CURRENT_DIR%
-	exit /b %errorlevel%
+	exit /b 1

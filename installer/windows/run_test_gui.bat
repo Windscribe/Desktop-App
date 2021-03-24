@@ -26,10 +26,10 @@ popd
 echo === Test finished successfully. 
 goto :eof
 :error 
-	echo Test Gui has failed to run correctly. Check binary and libs.
+	echo Test Gui has failed to run correctly. Check binary and libs. (1)
 	cd %CURRENT_DIR%
-	exit /b %errorlevel%
+	exit /b 1
 :test-failure
 	echo At least one failed test case. See %OUTPUT%
 	cd %CURRENT_DIR%
-	exit /b %errorlevel%
+	exit /b 1
