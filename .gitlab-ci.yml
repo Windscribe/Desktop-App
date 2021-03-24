@@ -80,7 +80,8 @@ artifact-upload:
   stage: Artifact Upload
   cache: {}
   dependencies:
-    - build
+    #- build
+    - test
   before_script:
     # get release name
     - VERSION=$(python2.7 installer/windows/extract_version.py common/version/windscribe_version.h)
