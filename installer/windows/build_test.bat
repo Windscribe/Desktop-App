@@ -45,7 +45,7 @@ popd
 echo Successfully built test binaries.
 goto :eof
 :error
-	echo Failed to build test binaries: %errorlevel%
+	set FAIL_REASON=%errorlevel%
+	echo Failed to build test binaries: %FAIL_REASON%
 	cd %CURRENT_DIR%
-	echo error level after cd: %errorlevel%
-	exit /b 2
+	exit /b %FAIL_REASON%
