@@ -1,6 +1,11 @@
 #ifndef SERVERAPI_H
 #define SERVERAPI_H
 
+#ifdef _MSC_VER
+// Disable Qt deprecation warning: QLinkedList.
+#pragma warning(disable: 4996)
+#endif
+
 #include <QObject>
 #include <QLinkedList>
 #include <QTimer>

@@ -273,7 +273,7 @@ void MeasurementCpuUsage::onTimer()
 
         if (!processesForPopup.isEmpty())
         {
-            qSort(processesForPopup);
+            std::sort(processesForPopup.begin(), processesForPopup.end());
             emit detectionCpuUsageAfterConnected(processesForPopup);
         }
     }
