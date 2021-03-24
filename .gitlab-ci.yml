@@ -93,7 +93,6 @@ test:
     - .\run_test_gui.bat
 
 test-artifact-upload:
-  tags: [win10-test]
   image: node:10.13.0
   stage: Test Artifact Upload
   cache: {}
