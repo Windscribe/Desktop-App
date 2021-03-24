@@ -3,7 +3,6 @@ stages:
   - Build Dependencies
   - Build
   - Artifact Upload
-  - Build Test
   - Test
 
 #before_script:
@@ -77,24 +76,16 @@ build-dep:
     - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
     - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
 
-build-test:
+test:
   tags: [win10]
-  stage: Build Test
+  stage: Test
   artifacts:
     untracked: false
     paths:
       - installer\windows\temp-tests\release\${TARGET}
+      - installer\windows\tests_output.log
   script:
     - cd installer\windows
     - .\build_test.bat
-
-
-# output: installer\windows\tests_output.log
-test:
-  tags: [win10]
-  stage: Test
-  dependencies:
-    - build-test
-  script:
-    - cd installer\windows
     - .\run_test_gui.bat
+
