@@ -43,6 +43,7 @@ build:jom:
     - tools/deps/install_jom -zip
   after_script:
     - Remove-Item -Path $BUILDROOT\jom -Force -Recurse
+    - Remove-Item -Path $CI_PROJECT_DIR
     #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
@@ -61,38 +62,71 @@ artifact-upload:jom:
     - changes:
       - tools/vars/jom.yml
 
-build:boost:
+build:cares:
   tags: [win10]
   stage: Build Dependencies
   artifacts:
     untracked: false
     paths: 
-      - $BUILDROOT/$ARTIFACT_BOOST
+      - $BUILDROOT/$ARTIFACT_CARES
   script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
-    - tools/deps/install_boost -zip
+    - tools/deps/install_cares -zip
   after_script:
-    - Remove-Item -Path $BUILDROOT\boost -Force -Recurse
+    - Remove-Item -Path $BUILDROOT\cares -Force -Recurse
+    - Remove-Item -Path $CI_PROJECT_DIR
     #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
-      - tools/vars/boost.yml
+      - tools/vars/cares.yml
 
-artifact-upload:boost:
+artifact-upload:cares:
   image: node:10.13.0
   stage: Artifact Upload
   cache: {}
   dependencies:
-    - build:boost
+    - build:cares
   before_script:
   script:
-    - curl --silent --show-error --fail --upload-file $BUILDROOT_BOOST/$ARTIFACT_BOOST -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_BOOST}"
+    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_CARES -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_CARES}"
   rules:
     - changes:
-      - tools/vars/boost.yml
+      - tools/vars/cares.yml
 
+#build:boost:
+#  tags: [win10]
+#  stage: Build Dependencies
+#  artifacts:
+#    untracked: false
+#    paths: 
+#      - $BUILDROOT/$ARTIFACT_BOOST
+#  script:
+#    # run this blindly until baked into image
+#    - python tools/bin/get-pip.py
+#    - python -m pip install -r tools/requirements.txt
+#    - tools/deps/install_boost -zip
+#  after_script:
+#    - Remove-Item -Path $BUILDROOT\boost -Force -Recurse
+#    #- Remove-Item -Path $TMP_BOOST -Force -Recurse
+#  rules:
+#    - changes:
+#      - tools/vars/boost.yml
+#
+#artifact-upload:boost:
+#  image: node:10.13.0
+#  stage: Artifact Upload
+#  cache: {}
+#  dependencies:
+#    - build:boost
+#  before_script:
+#  script:
+#    - curl --silent --show-error --fail --upload-file $BUILDROOT_BOOST/$ARTIFACT_BOOST -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_BOOST}"
+#  rules:
+#    - changes:
+#      - tools/vars/boost.yml
+#
 # Build the exe on a runner with tag win10 and capture the artifact for successive jobs 
 #build:
 #  tags: [win10]
