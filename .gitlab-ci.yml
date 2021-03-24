@@ -43,7 +43,7 @@ build:boost:
     - rmdir $BUILDROOT_BOOST
     - rmdir $TMP_BOOST
   rules:
-    changes:
+    - changes:
       - tools/vars/boost.yml
 
 artifact-upload:boost:
