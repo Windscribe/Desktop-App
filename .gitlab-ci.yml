@@ -107,4 +107,4 @@ test-artifact-upload:
     # tests_output
     - curl --silent --show-error --fail --upload-file installer/windows/tests_output.log -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
     - curl --silent --show-error --fail --upload-file installer/windows/tests_output.log -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
-    - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}
+    - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_HUMAN_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}
