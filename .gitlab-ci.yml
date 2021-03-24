@@ -35,7 +35,7 @@ build:jom:
   artifacts:
     untracked: false
     paths: 
-      - $BUILDROOT/jom.zip
+      - $BUILDROOT/$ARTIFACT_JOM
   script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
@@ -67,7 +67,7 @@ build:boost:
   artifacts:
     untracked: false
     paths: 
-      - $BUILDROOT/boost.zip
+      - $BUILDROOT/$ARTIFACT_BOOST
   script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
