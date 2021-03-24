@@ -45,7 +45,7 @@ build:jom:
     #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
-      - tools/vars/boost.yml
+      - tools/vars/jom.yml
 
 artifact-upload:jom:
   image: node:10.13.0
