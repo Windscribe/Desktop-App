@@ -12,7 +12,8 @@ stages:
 # Set variables inherited by all jobs
 variables:
   NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
-  NEXUS_PATH_ROOT: '/#browse/browse:$CI_PROJECT_NAME:$CI_PROJECT_NAME'
+  NEXUS_PATH_ROOT: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME'
+  NEXUS_HUMAN_PATH_ROOT: '/#browse/browse:$CI_PROJECT_NAME:$CI_PROJECT_NAME'
   NEXUS_PATH_LATEST: '/latest'
   NEXUS_PATH_BRANCHES: '/branches'
   NEXUS_PATH_TAGS: '/tags'
@@ -76,7 +77,7 @@ variables:
     # post to nexus artifact store
     - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
     - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
-    - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
+    - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_HUMAN_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
 
 test:
   tags: [win10-test]
