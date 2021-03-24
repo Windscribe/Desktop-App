@@ -38,17 +38,11 @@ build:jom:
     untracked: false
     paths: 
       - $BUILDROOT/$ARTIFACT_JOM
-  before_script:
-    - Remove-Item -Path $BUILDROOT/jom -Force -Recurse -ErrorAction Ignore
   script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
     - tools/deps/install_jom -zip
-  after_script:
-    - Remove-Item -Path $BUILDROOT/jom -Force -Recurse
-    #- Remove-Item -Path $CI_PROJECT_DIR
-    #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
       - tools/vars/jom.yml
