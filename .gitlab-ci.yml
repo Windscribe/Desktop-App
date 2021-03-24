@@ -24,6 +24,7 @@ variables:
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
   RUNNING_CI: 1
   BUILDROOT: 'build-libs'
+  TMPROOT: 'temp'
 
 include:
   - local: 'vars.yml'
@@ -34,14 +35,14 @@ build:jom:
   artifacts:
     untracked: false
     paths: 
-      - $BUILDROOT/$ARTIFACT_JOM
+      - $BUILDROOT/jom.zip
   script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
     - tools/deps/install_jom -zip
   after_script:
-    - Remove-Item -Path $BUILDROOT_JOM -Force -Recurse
+    - Remove-Item -Path $BUILDROOT\jom -Force -Recurse
     #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
@@ -66,14 +67,14 @@ build:boost:
   artifacts:
     untracked: false
     paths: 
-      - $BUILDROOT/$ARTIFACT_BOOST
+      - $BUILDROOT/boost.zip
   script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
     - tools/deps/install_boost -zip
   after_script:
-    - Remove-Item -Path $BUILDROOT_BOOST -Force -Recurse
+    - Remove-Item -Path $BUILDROOT\boost -Force -Recurse
     #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
