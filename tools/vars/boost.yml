@@ -5,5 +5,3 @@
 variables:
   VERSION_BOOST: '1.69.0'
   BUILDROOT_BOOST: 'build-libs\boost'
-  ARTIFACT_BOOST: 'boost.zip'
-  TMP_BOOST: 'temp\boost'
