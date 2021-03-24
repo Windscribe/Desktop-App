@@ -32,17 +32,21 @@ include:
 build:jom:
   tags: [win10]
   stage: Build Dependencies
+  variables:
+    GIT_STRATEGY: clone
   artifacts:
     untracked: false
     paths: 
       - $BUILDROOT/$ARTIFACT_JOM
+  before_script:
+    - Remove-Item -Path $BUILDROOT/jom -Force -Recurse
   script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
     - tools/deps/install_jom -zip
   after_script:
-    - Remove-Item -Path $BUILDROOT\jom -Force -Recurse
+    - Remove-Item -Path $BUILDROOT/jom -Force -Recurse
     #- Remove-Item -Path $CI_PROJECT_DIR
     #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
@@ -53,6 +57,8 @@ artifact-upload:jom:
   image: node:10.13.0
   stage: Artifact Upload
   cache: {}
+  variables:
+    GIT_STRATEGY: none
   dependencies:
     - build:jom
   before_script:
