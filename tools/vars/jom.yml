@@ -4,8 +4,8 @@
 # ------------------------------------------------------------------------------
 variables:
   VERSION_JOM: '1_1_2'
-  BUILDROOT_JOM: 'build-libs/jom'
-  ARTIFACT_BOOST: 'jom.zip'
+  BUILDROOT_JOM: 'build-libs\jom'
+  ARTIFACT_JOM: 'jom.zip'
   TMP_BOOST: 'temp\jom'
 
 
