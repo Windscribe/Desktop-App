@@ -4,7 +4,7 @@
 TEST(some_suite, some_test)
 {
     ASSERT_EQ(1, 1);
-    ASSERT_EQ(1, 2); // for failure test
+    // ASSERT_EQ(1, 2); // for failure test
 }
 
 TEST(some_suite, some_test1)
