@@ -55,6 +55,9 @@ artifact-upload:boost:
   before_script:
   script:
     - curl --silent --show-error --fail --upload-file $BUILDROOT_BOOST/$ARTIFACT_BOOST -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_BOOST}"
+  rules:
+    - changes:
+      - tools/vars/boost.yml
 
 # Build the exe on a runner with tag win10 and capture the artifact for successive jobs 
 #build:
