@@ -43,7 +43,7 @@ build:jom:
     - tools/deps/install_jom -zip
   after_script:
     - Remove-Item -Path $BUILDROOT\jom -Force -Recurse
-    - Remove-Item -Path $CI_PROJECT_DIR
+    #- Remove-Item -Path $CI_PROJECT_DIR
     #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
@@ -76,7 +76,7 @@ build:cares:
     - tools/deps/install_cares -zip
   after_script:
     - Remove-Item -Path $BUILDROOT\cares -Force -Recurse
-    - Remove-Item -Path $CI_PROJECT_DIR
+    #- Remove-Item -Path $CI_PROJECT_DIR
     #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
@@ -109,7 +109,7 @@ build:lzo:
     - tools/deps/install_lzo -zip
   after_script:
     - Remove-Item -Path $BUILDROOT\lzo -Force -Recurse
-    - Remove-Item -Path $CI_PROJECT_DIR
+    #- Remove-Item -Path $CI_PROJECT_DIR
     #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:

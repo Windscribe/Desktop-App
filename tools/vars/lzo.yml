@@ -6,3 +6,4 @@ variables:
   VERSION_LZO: '2.10'
   BUILDROOT_LZO: 'build-libs/lzo'
   ARTIFACT_LZO: 'lzo.zip'
+
