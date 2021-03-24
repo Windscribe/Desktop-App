@@ -37,7 +37,8 @@ variables:
 #      changes:
 #        - some-file
 
-build-dep:
+# download, build and install gtest for test builds
+.build-dep:
   tags: [win10]
   stage: Build Dependencies
   script:
@@ -76,6 +77,7 @@ build-dep:
     - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
     - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
 
+# test builds
 test:
   tags: [win10]
   stage: Test
