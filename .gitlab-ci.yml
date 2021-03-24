@@ -95,6 +95,39 @@ artifact-upload:cares:
     - changes:
       - tools/vars/cares.yml
 
+build:lzo:
+  tags: [win10]
+  stage: Build Dependencies
+  artifacts:
+    untracked: false
+    paths: 
+      - $BUILDROOT/$ARTIFACT_LZO
+  script:
+    # run this blindly until baked into image
+    - python tools/bin/get-pip.py
+    - python -m pip install -r tools/requirements.txt
+    - tools/deps/install_lzo -zip
+  after_script:
+    - Remove-Item -Path $BUILDROOT\lzo -Force -Recurse
+    - Remove-Item -Path $CI_PROJECT_DIR
+    #- Remove-Item -Path $TMP_BOOST -Force -Recurse
+  rules:
+    - changes:
+      - tools/vars/lzo.yml
+
+artifact-upload:lzo:
+  image: node:10.13.0
+  stage: Artifact Upload
+  cache: {}
+  dependencies:
+    - build:lzo
+  before_script:
+  script:
+    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_LZO -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_LZO}"
+  rules:
+    - changes:
+      - tools/vars/lzo.yml
+
 #build:boost:
 #  tags: [win10]
 #  stage: Build Dependencies
