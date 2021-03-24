@@ -23,17 +23,18 @@ variables:
   #NEXUS_PASSWORD: "VhVvMiM3jD04c"  # Set in Gitlab variables
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
   RUNNING_CI: 1
+  BUILDROOT: 'build-libs'
 
 include:
   - local: 'vars.yml'
 
-build:boost:
+build:jom:
   tags: [win10]
   stage: Build Dependencies
   artifacts:
     untracked: false
     paths: 
-      - $BUILDROOT_BOOST/$ARTIFACT_BOOST
+      - $BUILDROOT/$ARTIFACT_JOM
   script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
@@ -41,7 +42,39 @@ build:boost:
     - tools/deps/install_boost -zip
   after_script:
     - Remove-Item -Path $BUILDROOT_BOOST -Force -Recurse
-    - Remove-Item -Path $TMP_BOOST -Force -Recurse
+    #- Remove-Item -Path $TMP_BOOST -Force -Recurse
+  rules:
+    - changes:
+      - tools/vars/boost.yml
+
+artifact-upload:jom:
+  image: node:10.13.0
+  stage: Artifact Upload
+  cache: {}
+  dependencies:
+    - build:jom
+  before_script:
+  script:
+    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}"
+  rules:
+    - changes:
+      - tools/vars/jom.yml
+
+build:boost:
+  tags: [win10]
+  stage: Build Dependencies
+  artifacts:
+    untracked: false
+    paths: 
+      - $BUILDROOT/$ARTIFACT_BOOST
+  script:
+    # run this blindly until baked into image
+    - python tools/bin/get-pip.py
+    - python -m pip install -r tools/requirements.txt
+    - tools/deps/install_boost -zip
+  after_script:
+    - Remove-Item -Path $BUILDROOT_BOOST -Force -Recurse
+    #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
       - tools/vars/boost.yml
