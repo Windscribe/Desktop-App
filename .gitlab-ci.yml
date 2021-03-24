@@ -2,8 +2,9 @@
 stages:
   - Build Dependencies
   - Build
-  - Test
   - Artifact Upload
+  - Test
+  - Test Artifact Upload
 
 #before_script:
 #  - sample
@@ -62,6 +63,21 @@ variables:
     - cd installer\windows
     - .\build_all.bat
 
+.artifact-upload:
+  image: node:10.13.0
+  stage: Artifact Upload
+  cache: {}
+  dependencies:
+    - build
+  before_script:
+    # get release name
+    - VERSION=$(python2.7 installer/windows/extract_version.py common/version/windscribe_version.h)
+  script:
+    # post to nexus artifact store
+    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
+    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
+    - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
+
 test:
   tags: [win10]
   stage: Test
@@ -75,20 +91,14 @@ test:
     - .\build_test.bat
     - .\run_test_gui.bat
 
-artifact-upload:
+test-artifact-upload:
   image: node:10.13.0
-  stage: Artifact Upload
+  stage: Test Artifact Upload
   cache: {}
   dependencies:
-    #- build
     - test
-  before_script:
-    # get release name
-    - VERSION=$(python2.7 installer/windows/extract_version.py common/version/windscribe_version.h)
   script:
     # post to nexus artifact store
-    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
-    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
+    - curl --silent --show-error --fail --upload-file installer/windows/temp-tests/release/TestGui.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
+    - curl --silent --show-error --fail --upload-file installer/windows/tests_output.log -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
     - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
-
-
