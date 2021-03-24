@@ -39,7 +39,7 @@ build:jom:
     paths: 
       - $BUILDROOT/$ARTIFACT_JOM
   before_script:
-    - Remove-Item -Path $BUILDROOT/jom -Force -Recurse
+    - Remove-Item -Path $BUILDROOT/jom -Force -Recurse -ErrorAction Ignore
   script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
