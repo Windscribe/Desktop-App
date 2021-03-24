@@ -46,6 +46,7 @@ rd /s /q %TEMP_FOLDER%
 echo Successfully installed gtest.
 goto :eof
 :error
-	echo Failed to install gtest: %errorlevel%
+	set FAIL_REASON=%errorlevel%
+	echo Failed to install gtest: %FAIL_REASON%
 	cd %SCRIPT_DIR%
-	exit /b %errorlevel%
+	exit /b %FAIL_REASON%

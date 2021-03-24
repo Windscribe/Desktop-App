@@ -38,6 +38,13 @@ variables:
 #      changes:
 #        - some-file
 
+build-dep:
+  tags: [win10]
+  stage: Build Dependencies
+  script:
+    - cd common\prepare_build_environment\windows
+    - .\install_gtest.bat
+
 # Build the exe on a runner with tag win10 and capture the artifact for successive jobs 
 .build:
   tags: [win10]
