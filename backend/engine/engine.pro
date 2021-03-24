@@ -15,8 +15,10 @@ TEMPLATE = app
 DEFINES += QT_MESSAGELOGCONTEXT
 
 COMMON_PATH = $$PWD/../../common
+BUILD_LIBS_PATH = $$PWD/../../build-libs
 
 INCLUDEPATH += $$COMMON_PATH
+
 
 win32 {
 
@@ -103,27 +105,27 @@ LIBS += Ws2_32.lib Advapi32.lib Iphlpapi.lib \
     Ole32.lib Shlwapi.lib Version.lib Psapi.lib \
     rasapi32.lib Pdh.lib Shell32.lib netapi32.lib msi.lib
 
-INCLUDEPATH += C:/libs/boost/include/boost-1_67
-LIBS += -L"C:/libs/boost/lib"
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include/boost-1_67
+LIBS += -L"$$BUILD_LIBS_PATH/boost/lib"
 
-INCLUDEPATH += "C:/libs/curl/include"
-LIBS += -L"C:/libs/curl/lib" -llibcurl
+INCLUDEPATH += "$$BUILD_LIBS_PATH/curl/include"
+LIBS += -L"$$BUILD_LIBS_PATH/curl/lib" -llibcurl
 
 #DEFINES += "CARES_STATICLIB"
-INCLUDEPATH += "C:/libs/cares/dll_x32/include"
-LIBS += -L"C:/libs/cares/dll_x32/lib" -lcares
+INCLUDEPATH += "$$BUILD_LIBS_PATH/cares/dll_x32/include"
+LIBS += -L"$$BUILD_LIBS_PATH/cares/dll_x32/lib" -lcares
 
-INCLUDEPATH += "C:/libs/openssl/include"
-LIBS += -L"C:/libs/openssl/lib" -llibeay32 -lssleay32
+INCLUDEPATH += "$$BUILD_LIBS_PATH/openssl/include"
+LIBS += -L"$$BUILD_LIBS_PATH/openssl/lib" -llibeay32 -lssleay32
 
 # protobuf libs
 CONFIG(release, debug|release){
-    INCLUDEPATH += c:/libs/protobuf_release/include
-    LIBS += -Lc:/libs/protobuf_release/lib -llibprotobuf
+    INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/release/include
+    LIBS += -L$$BUILD_LIBS_PATH/protobuf/release/lib -llibprotobuf
 }
 CONFIG(debug, debug|release){
-    INCLUDEPATH += c:/libs/protobuf_debug/include
-    LIBS += -Lc:/libs/protobuf_debug/lib -llibprotobufd
+    INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/debug/include
+    LIBS += -L$$BUILD_LIBS_PATH/protobuf/debug/lib -llibprotobufd
 }
 
 RC_FILE = engine.rc
@@ -150,14 +152,14 @@ LIBS += -framework NetworkExtension
 QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 
 #boost include and libs
-INCLUDEPATH += $$HOMEDIR/LibsWindscribe/boost/include
-LIBS += $$HOMEDIR/LibsWindscribe/boost/lib/libboost_system.a
-LIBS += $$HOMEDIR/LibsWindscribe/boost/lib/libboost_serialization.a
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_system.a
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
 
-INCLUDEPATH += $$HOMEDIR/LibsWindscribe/openssl/include
-LIBS+=-L$$HOMEDIR/LibsWindscribe/openssl/lib -lssl -lcrypto
-INCLUDEPATH += $$HOMEDIR/LibsWindscribe/curl/include
-LIBS += -L$$HOMEDIR/LibsWindscribe/curl/lib/ -lcurl
+INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
+LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
+LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
 
 #protobuf include and libs
 INCLUDEPATH += $$(HOME)/LibsWindscribe/protobuf/include
@@ -165,8 +167,8 @@ LIBS += -L$$(HOME)/LibsWindscribe/protobuf/lib -lprotobuf
 
 #c-ares library
 # don't forget remove *.dylib files for static link
-INCLUDEPATH += $$HOMEDIR/LibsWindscribe/cares/include
-LIBS += -L$$HOMEDIR/LibsWindscribe/cares/lib -lcares
+INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
+LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
 
 
 SOURCES += engine/networkstatemanager/networkstatemanager_mac.cpp \
@@ -230,11 +232,11 @@ mkdir_launch_services.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Content
 copy_helper.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/helper/com.windscribe.helper.macos $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
 copy_profile.commands = $(COPY_DIR) $$PWD/../mac/provisioning_profile/embedded.provisionprofile $$OUT_PWD/WindscribeEngine.app/Contents
 mkdir_helpers.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Helpers
-copy_openvpn.commands = cp $$HOMEDIR/LibsWindscribe/openvpn_2_5_0/sbin/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_5_0
-copy_stunnel.commands = cp $$HOMEDIR/LibsWindscribe/stunnel/bin/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel
+copy_openvpn.commands = cp $$BUILD_LIBS_PATH/openvpn_2_5_0/sbin/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_5_0
+copy_stunnel.commands = cp $$BUILD_LIBS_PATH/stunnel/bin/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel
 copy_wstunnel.commands = cp $$PWD/../mac/wstunnel/windscribewstunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewstunnel
 copy_kext.commands = $(COPY_DIR) $$PWD/../mac/kext/Binary/WindscribeKext.kext $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/WindscribeKext.kext
-copy_wireguard.commands = cp $$HOMEDIR/LibsWindscribe/wireguard/windscribewireguard $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewireguard
+copy_wireguard.commands = cp $$BUILD_LIBS_PATH/wireguard/windscribewireguard $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewireguard
 
 
 first.depends = $(first) copy_resources mkdir_launch_services copy_helper copy_profile mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_wireguard copy_kext
