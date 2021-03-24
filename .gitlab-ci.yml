@@ -2,8 +2,8 @@
 stages:
   - Build Dependencies
   - Build
-  - Artifact Upload
   - Test
+  - Artifact Upload
 
 #before_script:
 #  - sample
@@ -62,7 +62,20 @@ variables:
     - cd installer\windows
     - .\build_all.bat
 
-.artifact-upload:
+test:
+  tags: [win10]
+  stage: Test
+  artifacts:
+    untracked: false
+    paths:
+      - installer\windows\temp-tests\release\${TARGET}
+      - installer\windows\tests_output.log
+  script:
+    - cd installer\windows
+    - .\build_test.bat
+    - .\run_test_gui.bat
+
+artifact-upload:
   image: node:10.13.0
   stage: Artifact Upload
   cache: {}
@@ -77,17 +90,4 @@ variables:
     - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
     - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
 
-# test builds
-test:
-  tags: [win10]
-  stage: Test
-  artifacts:
-    untracked: false
-    paths:
-      - installer\windows\temp-tests\release\${TARGET}
-      - installer\windows\tests_output.log
-  script:
-    - cd installer\windows
-    - .\build_test.bat
-    - .\run_test_gui.bat
 
