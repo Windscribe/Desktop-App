@@ -40,8 +40,8 @@ build:boost:
     - python -m pip install -r tools/requirements.txt
     - tools/deps/install_boost -zip
   after_script:
-    - rmdir $BUILDROOT_BOOST
-    - rmdir $TMP_BOOST
+    - Remove-Item -Path $BUILDROOT_BOOST -Force -Recurse
+    - Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
       - tools/vars/boost.yml
