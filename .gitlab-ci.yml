@@ -1,8 +1,6 @@
 # Define Stages
 stages:
   - Build Dependencies
-  # - Build
-  # - Artifact Upload
   - Build Test
   - Test
 
