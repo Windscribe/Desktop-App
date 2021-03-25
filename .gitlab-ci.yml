@@ -121,6 +121,52 @@ artifact-upload:lzo:
     - changes:
       - tools/vars/lzo.yml
 
+# Build Dependency and Upload Boost
+build:boost:
+  <<: *template_win10_build_dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_BOOST
+  script:
+    - tools/deps/install_boost -zip
+  rules:
+    - changes:
+      - tools/vars/boost.yml
+
+artifact-upload:boost:
+  <<: *template_upload_artifact
+  variables:
+    GIT_STRATEGY: none
+    ARTIFACT_PATH: $ARTIFACT_BOOST
+  dependencies:
+    - build:boost
+  rules:
+    - changes:
+      - tools/vars/boost.yml
+
+# Build Dependency and Upload Wireguard
+build:wireguard:
+  <<: *template_win10_build_dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_WIREGUARD
+  script:
+    - tools/deps/install_wireguard -zip
+  rules:
+    - changes:
+      - tools/vars/wireguard.yml
+
+artifact-upload:wireguard:
+  <<: *template_upload_artifact
+  variables:
+    GIT_STRATEGY: none
+    ARTIFACT_PATH: $ARTIFACT_WIREGUARD
+  dependencies:
+    - build:wireguard
+  rules:
+    - changes:
+      - tools/vars/wireguard.yml
+
 
 #build:boost:
 #  tags: [win10]
