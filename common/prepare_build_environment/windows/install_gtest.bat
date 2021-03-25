@@ -1,7 +1,7 @@
 @echo OFF
 
 set SCRIPT_DIR=%~dp0
-SET GTEST_VERSION=1.10.0
+SET VERSION_GTEST=1.10.0
 set CMAKE="C:\Program Files\CMake\bin\cmake.exe"
 set VC_VARSALL="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat"
 set LIBS_GTEST_RELEASE=C:\libs\gtest
@@ -13,11 +13,11 @@ IF EXIST %TEMP_FOLDER% ( rd /s /q %TEMP_FOLDER% || goto :error )
 
 echo ===== Creating temp folder... %SCRIPT_DIR%
 mkdir %TEMP_FOLDER%
-curl.exe https://github.com/google/googletest/archive/release-%GTEST_VERSION%.zip -o c:\gtest_temp\gtest.zip -k -L
+curl.exe https://github.com/google/googletest/archive/release-%VERSION_GTEST%.zip -o c:\gtest_temp\gtest.zip -k -L
 7z x %TEMP_FOLDER%\gtest.zip -oc:\gtest_temp
 
 echo ===== Navigating to build dir
-pushd %TEMP_FOLDER%\googletest-release-%GTEST_VERSION% || goto :error
+pushd %TEMP_FOLDER%\googletest-release-%VERSION_GTEST% || goto :error
 mkdir build || goto :error
 pushd build || goto :error
 
