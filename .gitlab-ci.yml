@@ -190,10 +190,10 @@ build:openvpn:
     ARTIFACT_PATH: $ARTIFACT_OPENVPN
   needs:
     - build:openssl
-    - build:zlib
+    - build:lzo
   script:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_OPENSSL}" --cacert "tools/cacert.pem"
-    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_ZLIB}" --cacert "tools/cacert.pem"
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_LZO -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_LZO}" --cacert "tools/cacert.pem"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - tools/deps/install_openvpn -zip
     - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
