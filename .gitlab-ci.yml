@@ -41,7 +41,7 @@ include:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
-    - Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}
+    - Get-ChildItem -ErrorAction Ignore .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}
 
 
 # Build Dependency and Upload Jom
