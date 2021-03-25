@@ -19,6 +19,11 @@ win32 {
     LIBS += -Lc:/libs/gtest/lib -lgmock -lgtest
 }
 
+macx {
+    INCLUDEPATH += $$(HOME)/LibsWindscribe/gtest/include
+    LIBS += -L$$(HOME)/LibsWindscribe/gtest/lib -lgtest -lgmock
+}
+
 SOURCES += \
         main.cpp \
         sometest.cpp
