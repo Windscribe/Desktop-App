@@ -36,18 +36,26 @@ include:
   artifacts:
     untracked: false
     paths:
-      - $ARTIFACT_PATH
+      - $BUILDROOT/$ARTIFACT_PATH
   before_script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
 
+.template_upload_artifact: &template_upload_artifact
+  image: node:10.13.0
+  stage: Artifact Upload
+  cache: {}
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
 
 build:jom:
   <<: *template_win10_build_dependencies
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $BUILDROOT/$ARTIFACT_JOM
+    ARTIFACT_PATH: $ARTIFACT_JOM
   script:
     - tools/deps/install_jom -zip
   rules:
@@ -55,15 +63,12 @@ build:jom:
       - tools/vars/jom.yml
 
 artifact-upload:jom:
-  image: node:10.13.0
-  stage: Artifact Upload
-  cache: {}
+  <<: *template_upload_artifact
   variables:
     GIT_STRATEGY: none
+    ARTIFACT_PATH: $ARTIFACT_JOM
   dependencies:
     - build:jom
-  script:
-    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}"
   rules:
     - changes:
       - tools/vars/jom.yml
