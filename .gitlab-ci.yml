@@ -1,13 +1,11 @@
-# Define Stages
+
 stages:
   - Build Dependencies
+  - Build Libs
   - Build
   - Artifact Upload
   - Test
   - Test Artifact Upload
-
-#before_script:
-#  - sample
 
 # Set variables inherited by all jobs
 variables:
@@ -21,23 +19,10 @@ variables:
   #NEXUS_USERNAME: "sample"         # Set in Gitlab variables
   #NEXUS_PASSWORD: "VhVvMiM3jD04c"  # Set in Gitlab variables
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
+  RUNNING_CI: 1
 
-#cache:
-#  key: sample
-#  paths:
-#    - sample_path
-
-#hello_world:
-#  tags: [win10-test]
-#  stage: Build Dependencies
-#  script:
-#    - echo hello.world
-#    - .\test.ps1
-#    - .\install_curl.bat
-#  rules:
-#    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANC
-#      changes:
-#        - some-file
+include:
+  - local: 'vars.yml'
 
 # download, build and install gtest for test builds
 .build-dep:
@@ -46,6 +31,40 @@ variables:
   script:
     - cd common\prepare_build_environment\windows
     - .\install_gtest.bat
+
+# Build the libs on a runner with tag win10 and capture the artifact for successive jobs 
+.build-libs:
+  tags: [win10-test]
+  stage: Build Libs
+  artifacts:
+    untracked: false
+    # capture the artifact here
+    paths:
+      - installer\windows\${TARGET}
+  # decode the pfx from base64 and write out
+  #before_script:
+  #  - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
+  script:
+  # trigger build
+    # TESTING PIPELINE: Build libraries.
+    # Install PIP (should be actually done once, as it affects the system, not only the repo).
+    - python tools/bin/get-pip.py
+    # This also updates the system, BUT is should be done if we updated repo's requirements.txt.
+    - python -m pip install -r tools/requirements.txt
+    # Run installation scripts in order of dependencies (if none, then arbitrary order).
+    - tools/deps/install_jom -zip
+    - tools/deps/install_openssl -zip
+    - tools/deps/install_cares -zip
+    - tools/deps/install_wireguard -zip
+    - tools/deps/install_lzo -zip
+    - tools/deps/install_zlib -zip
+    - tools/deps/install_curl -zip
+    - tools/deps/install_stunnel -zip
+    - tools/deps/install_openvpn -zip
+    - tools/deps/install_protobuf -zip
+    - tools/deps/install_boost -zip
+    # NB: Qt installation can be insanely long (more than 1h), and we hit a time limit.
+    #- tools/deps/install_qt -zip
 
 # Build the exe on a runner with tag win10 and capture the artifact for successive jobs 
 .build:
@@ -79,7 +98,7 @@ variables:
     - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
     - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_HUMAN_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
 
-test:
+.test:
   tags: [win10-test]
   stage: Test
   artifacts:
@@ -92,18 +111,25 @@ test:
     - .\build_test.bat
     - .\run_test_gui.bat
 
-test-artifact-upload:
+.test-artifact-upload:
   image: node:10.13.0
   stage: Test Artifact Upload
   cache: {}
   dependencies:
     - test
   script:
-    # post to nexus artifact store
-    # test gui
     - curl --silent --show-error --fail --upload-file installer/windows/temp-tests/release/TestGui.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
     - curl --silent --show-error --fail --upload-file installer/windows/temp-tests/release/TestGui.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
-    # tests_output
     - curl --silent --show-error --fail --upload-file installer/windows/tests_output.log -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
     - curl --silent --show-error --fail --upload-file installer/windows/tests_output.log -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
     - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_HUMAN_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}
+
+
+
+
+
+
+
+
+
+
