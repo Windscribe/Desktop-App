@@ -42,15 +42,6 @@ include:
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
 
-.template_upload_artifact: &template_upload_artifact
-  image: node:10.13.0
-  stage: Artifact Upload
-  cache: {}
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
-
 # Build Dependency and Upload Jom
 build:jom:
   <<: *template_win10_build_dependencies
@@ -59,21 +50,10 @@ build:jom:
     ARTIFACT_PATH: $ARTIFACT_JOM
   script:
     - tools/deps/install_jom -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/jom.yml
-
-artifact-upload:jom:
-  <<: *template_upload_artifact
-  variables:
-    GIT_STRATEGY: none
-    ARTIFACT_PATH: $ARTIFACT_JOM
-  dependencies:
-    - build:jom
-  rules:
-    - changes:
-      - tools/vars/jom.yml
-
 
 # Build Dependency and Upload Cares
 build:cares:
@@ -83,17 +63,7 @@ build:cares:
     ARTIFACT_PATH: $ARTIFACT_CARES
   script:
     - tools/deps/install_cares -zip
-  rules:
-    - changes:
-      - tools/vars/cares.yml
-
-artifact-upload:cares:
-  <<: *template_upload_artifact
-  variables:
-    GIT_STRATEGY: none
-    ARTIFACT_PATH: $ARTIFACT_CARES
-  dependencies:
-    - build:cares
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/cares.yml
@@ -106,17 +76,7 @@ build:lzo:
     ARTIFACT_PATH: $ARTIFACT_LZO
   script:
     - tools/deps/install_lzo -zip
-  rules:
-    - changes:
-      - tools/vars/lzo.yml
-
-artifact-upload:lzo:
-  <<: *template_upload_artifact
-  variables:
-    GIT_STRATEGY: none
-    ARTIFACT_PATH: $ARTIFACT_LZO
-  dependencies:
-    - build:lzo
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/lzo.yml
@@ -129,17 +89,7 @@ build:boost:
     ARTIFACT_PATH: $ARTIFACT_BOOST
   script:
     - tools/deps/install_boost -zip
-  rules:
-    - changes:
-      - tools/vars/boost.yml
-
-artifact-upload:boost:
-  <<: *template_upload_artifact
-  variables:
-    GIT_STRATEGY: none
-    ARTIFACT_PATH: $ARTIFACT_BOOST
-  dependencies:
-    - build:boost
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/boost.yml
@@ -152,17 +102,7 @@ build:wireguard:
     ARTIFACT_PATH: $ARTIFACT_WIREGUARD
   script:
     - tools/deps/install_wireguard -zip
-  rules:
-    - changes:
-      - tools/vars/wireguard.yml
-
-artifact-upload:wireguard:
-  <<: *template_upload_artifact
-  variables:
-    GIT_STRATEGY: none
-    ARTIFACT_PATH: $ARTIFACT_WIREGUARD
-  dependencies:
-    - build:wireguard
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/wireguard.yml
