@@ -5,3 +5,4 @@
 variables:
   VERSION_STUNNEL: '5.58'
   BUILDROOT_STUNNEL: 'build-libs/stunnel'
+  ARTIFACT_STUNNEL: 'stunnel.zip'

@@ -5,3 +5,4 @@
 variables:
   VERSION_OPENVPN: '2.5.0'
   BUILDROOT_OPENVPN: 'build-libs/openvpn_2_5_0'
+  ARTIFACT_OPENVPN: 'openvpn.zip'
