@@ -50,7 +50,7 @@ build:jom:
     ARTIFACT_PATH: $ARTIFACT_JOM
   script:
     - tools/deps/install_jom -zip
-    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
   rules:
     - changes:
       - tools/vars/jom.yml
@@ -63,7 +63,7 @@ build:cares:
     ARTIFACT_PATH: $ARTIFACT_CARES
   script:
     - tools/deps/install_cares -zip
-    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
   rules:
     - changes:
       - tools/vars/cares.yml
@@ -76,7 +76,7 @@ build:lzo:
     ARTIFACT_PATH: $ARTIFACT_LZO
   script:
     - tools/deps/install_lzo -zip
-    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
   rules:
     - changes:
       - tools/vars/lzo.yml
@@ -89,7 +89,7 @@ build:boost:
     ARTIFACT_PATH: $ARTIFACT_BOOST
   script:
     - tools/deps/install_boost -zip
-    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
   rules:
     - changes:
       - tools/vars/boost.yml
@@ -102,7 +102,7 @@ build:wireguard:
     ARTIFACT_PATH: $ARTIFACT_WIREGUARD
   script:
     - tools/deps/install_wireguard -zip
-    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
   rules:
     - changes:
       - tools/vars/wireguard.yml
