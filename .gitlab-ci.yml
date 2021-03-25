@@ -9,6 +9,7 @@ stages:
 
 # Set variables inherited by all jobs
 variables:
+  GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
   NEXUS_PATH_ROOT: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME/'
   NEXUS_PATH_LATEST: '/latest'
@@ -29,19 +30,25 @@ variables:
 include:
   - local: 'vars.yml'
 
-build:jom:
+.template_win10_build_dependencies: &template_win10_build_dependencies
   tags: [win10]
   stage: Build Dependencies
-  variables:
-    GIT_STRATEGY: clone
   artifacts:
     untracked: false
-    paths: 
-      - $BUILDROOT/$ARTIFACT_JOM
-  script:
+    paths:
+      - $ARTIFACT_PATH
+  before_script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
+
+
+build:jom:
+  <<: *template_win10_build_dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $BUILDROOT/$ARTIFACT_JOM
+  script:
     - tools/deps/install_jom -zip
   rules:
     - changes:
@@ -55,7 +62,6 @@ artifact-upload:jom:
     GIT_STRATEGY: none
   dependencies:
     - build:jom
-  before_script:
   script:
     - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}"
   rules:
