@@ -51,6 +51,7 @@ include:
   script:
     - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}"
 
+# Build Dependency and Upload Jom
 build:jom:
   <<: *template_win10_build_dependencies
   variables:
@@ -73,71 +74,53 @@ artifact-upload:jom:
     - changes:
       - tools/vars/jom.yml
 
+
+# Build Dependency and Upload Cares
 build:cares:
-  tags: [win10]
-  stage: Build Dependencies
-  artifacts:
-    untracked: false
-    paths: 
-      - $BUILDROOT/$ARTIFACT_CARES
+  <<: *template_win10_build_dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_CARES
   script:
-    # run this blindly until baked into image
-    - python tools/bin/get-pip.py
-    - python -m pip install -r tools/requirements.txt
     - tools/deps/install_cares -zip
-  after_script:
-    - Remove-Item -Path $BUILDROOT\cares -Force -Recurse
-    #- Remove-Item -Path $CI_PROJECT_DIR
-    #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
       - tools/vars/cares.yml
 
 artifact-upload:cares:
-  image: node:10.13.0
-  stage: Artifact Upload
-  cache: {}
+  <<: *template_upload_artifact
+  variables:
+    GIT_STRATEGY: none
+    ARTIFACT_PATH: $ARTIFACT_CARES
   dependencies:
     - build:cares
-  before_script:
-  script:
-    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_CARES -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_CARES}"
   rules:
     - changes:
       - tools/vars/cares.yml
 
+# Build Dependency and Upload Lzo
 build:lzo:
-  tags: [win10]
-  stage: Build Dependencies
-  artifacts:
-    untracked: false
-    paths: 
-      - $BUILDROOT/$ARTIFACT_LZO
+  <<: *template_win10_build_dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_LZO
   script:
-    # run this blindly until baked into image
-    - python tools/bin/get-pip.py
-    - python -m pip install -r tools/requirements.txt
     - tools/deps/install_lzo -zip
-  after_script:
-    - Remove-Item -Path $BUILDROOT\lzo -Force -Recurse
-    #- Remove-Item -Path $CI_PROJECT_DIR
-    #- Remove-Item -Path $TMP_BOOST -Force -Recurse
   rules:
     - changes:
       - tools/vars/lzo.yml
 
 artifact-upload:lzo:
-  image: node:10.13.0
-  stage: Artifact Upload
-  cache: {}
+  <<: *template_upload_artifact
+  variables:
+    GIT_STRATEGY: none
+    ARTIFACT_PATH: $ARTIFACT_LZO
   dependencies:
     - build:lzo
-  before_script:
-  script:
-    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_LZO -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_LZO}"
   rules:
     - changes:
       - tools/vars/lzo.yml
+
 
 #build:boost:
 #  tags: [win10]
