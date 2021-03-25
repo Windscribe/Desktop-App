@@ -95,7 +95,7 @@ int ScrollAreaItem::scaledThreshold()
 
 void ScrollAreaItem::hideOpenPopups()
 {
-    qCDebug(LOG_PREFERENCES) << "Hiding ScrollAreaItem popups";
+    // qCDebug(LOG_PREFERENCES) << "Hiding ScrollAreaItem popups";
 
     curItem_->hideOpenPopups();
 }

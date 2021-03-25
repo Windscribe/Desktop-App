@@ -213,7 +213,7 @@ void ComboBoxItem::updateScaling()
 
 void ComboBoxItem::onMenuOpened()
 {
-    qCDebug(LOG_USER) << "ComboButton clicked: " << strCaption_;
+    // qCDebug(LOG_USER) << "ComboButton clicked: " << strCaption_;
     QPointF buttonTopRight = QPointF(button_->scenePos().x() + button_->boundingRect().width(), button_->scenePos().y());
     QPointF alignedOrigin = QPointF(buttonTopRight.x() - menu_->sizeHint().width(), buttonTopRight.y());
 
@@ -272,7 +272,7 @@ void ComboBoxItem::onMenuOpened()
     if (heightCentering + menu_height > screen_max_ypos)
         heightCentering = screen_max_ypos - menu_height;
 
-    qCDebug(LOG_PREFERENCES) << "Showing menu: " << strCaption_;
+    // qCDebug(LOG_PREFERENCES) << "Showing menu: " << strCaption_;
     menu_->move(point.x() - offsetX, heightCentering);
     menu_->show();
     menu_->setFocus();
@@ -280,7 +280,7 @@ void ComboBoxItem::onMenuOpened()
 
 void ComboBoxItem::onMenuItemSelected(QString text, QVariant data)
 {
-    qCDebug(LOG_PREFERENCES) << "Menu item selected: " << text;
+    // qCDebug(LOG_PREFERENCES) << "Menu item selected: " << text;
     QVariant newItem = data;
     if (newItem != curItem_.userValue())
     {
@@ -297,7 +297,7 @@ void ComboBoxItem::onMenuItemSelected(QString text, QVariant data)
 void ComboBoxItem::onMenuHidden()
 {
     // this fires twice on Mac on off-click
-    qCDebug(LOG_PREFERENCES) << "Menu hidden: " << strCaption_;
+    // qCDebug(LOG_PREFERENCES) << "Menu hidden: " << strCaption_;
     parentItem()->setFocus();
 }
 

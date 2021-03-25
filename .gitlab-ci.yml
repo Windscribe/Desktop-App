@@ -118,6 +118,20 @@ build:wireguard:
       - tools/vars/wireguard.yml
 
 
+build:gtest:
+  <<: *template_win10_build
+  stage: Build Dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_GTEST
+  script:
+    - tools/deps/install_gtest -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/gtest.yml
+
+
 # Build Dependency and Upload Openssl
 build:openssl:
   <<: *template_win10_build

@@ -326,7 +326,7 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
     if (isAtomicAnimationActive_)
     {
         queueWindowChanges_.enqueue(windowId);
-        qCDebug(LOG_BASIC) << "MainWindowController::changeWindow(enqueue):" << (int)windowId;
+        //qCDebug(LOG_BASIC) << "MainWindowController::changeWindow(enqueue):" << (int)windowId;
         return;
     }
 
@@ -334,7 +334,7 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
     if (curWindow_ == WINDOW_ID_LOGIN && preferencesState_ != PREFERENCES_STATE_COLLAPSED)
     {
         queueWindowChanges_.enqueue(windowId);
-        qCDebug(LOG_BASIC) << "MainWindowController::changeWindow(enqueue):" << (int)windowId;
+        //qCDebug(LOG_BASIC) << "MainWindowController::changeWindow(enqueue):" << (int)windowId;
         return;
     }
 
@@ -343,11 +343,11 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
     if (curWindow_ == WINDOW_ID_CONNECT && preferencesState_ != PREFERENCES_STATE_COLLAPSED && windowId != WINDOW_ID_UPDATE && windowId != WINDOW_ID_LOGIN && windowId != WINDOW_ID_INITIALIZATION)
     {
         queueWindowChanges_.enqueue(windowId);
-        qCDebug(LOG_BASIC) << "MainWindowController::changeWindow(enqueue):" << (int)windowId;
+        //qCDebug(LOG_BASIC) << "MainWindowController::changeWindow(enqueue):" << (int)windowId;
         return;
     }
 
-    qCDebug(LOG_BASIC) << "MainWindowController::changeWindow:" << (int)windowId;
+    //qCDebug(LOG_BASIC) << "MainWindowController::changeWindow:" << (int)windowId;
 
     // specific commands
     if (windowId == WINDOW_CMD_UPDATE_BOTTOM_INFO)
@@ -422,7 +422,7 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
 
 void MainWindowController::expandLocations()
 {
-    qCDebug(LOG_LOCATION_LIST) << "MainWindowController::expandLocations";
+    // qCDebug(LOG_LOCATION_LIST) << "MainWindowController::expandLocations";
     Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
     Q_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
@@ -457,7 +457,7 @@ void MainWindowController::expandLocations()
 
 void MainWindowController::collapseLocations()
 {
-    qCDebug(LOG_LOCATION_LIST) << "MainWindowController::collapseLocations";
+    // qCDebug(LOG_LOCATION_LIST) << "MainWindowController::collapseLocations";
     Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
     Q_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
@@ -678,7 +678,7 @@ void MainWindowController::onCollapseBottomInfoWindowAnimationValueChanged(const
 
 void MainWindowController::onLocationsWindowHeightChanged() // manual resizing
 {
-    qCDebug(LOG_USER) << "MainController:: Resizing Locations";
+    // qCDebug(LOG_USER) << "MainController:: Resizing Locations";
     locationWindowHeightScaled_ = locationsWindow_->tabAndFooterHeight() * G_SCALE;
     updateLocationsWindowAndTabGeometry();
     updateMainAndViewGeometry(false);
@@ -2131,7 +2131,7 @@ void MainWindowController::closeExitWindow()
 
 void MainWindowController::expandPreferencesFromLogin()
 {
-    qCDebug(LOG_BASIC) << "MainWindowController::expandPreferencesFromLogin";
+    // qCDebug(LOG_BASIC) << "MainWindowController::expandPreferencesFromLogin";
 
     if (preferencesState_ != PREFERENCES_STATE_COLLAPSED)
     {
@@ -2220,7 +2220,7 @@ void MainWindowController::expandPreferencesFromLogin()
 
 void MainWindowController::expandPreferencesFromConnect()
 {
-    qCDebug(LOG_BASIC) << "MainWindowController::expandPreferencesFromConnect";
+    // qCDebug(LOG_BASIC) << "MainWindowController::expandPreferencesFromConnect";
 
     if (preferencesState_ != PREFERENCES_STATE_COLLAPSED)
     {
@@ -2354,7 +2354,7 @@ void MainWindowController::expandPreferencesFromConnect()
 
 void MainWindowController::collapsePreferencesFromLogin()
 {
-    qCDebug(LOG_BASIC) << "MainWindowController::collapsePreferencesFromLogin";
+    // qCDebug(LOG_BASIC) << "MainWindowController::collapsePreferencesFromLogin";
 
     if (preferencesState_ != PREFERENCES_STATE_EXPANDED)
     {
@@ -2438,7 +2438,7 @@ void MainWindowController::collapsePreferencesFromLogin()
 
 void MainWindowController::collapsePreferencesFromConnect(bool bSkipBottomInfoWindowAnimate)
 {
-    qCDebug(LOG_BASIC) << "MainWindowController::collapsePreferencesFromConnect";
+    // qCDebug(LOG_BASIC) << "MainWindowController::collapsePreferencesFromConnect";
 
     if (preferencesState_ != PREFERENCES_STATE_EXPANDED)
     {

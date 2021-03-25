@@ -1,3 +1,13 @@
+2.02.8 (12/03/2021)
+* Updated remoteid for IKEv2 profiles on Mac. #420
+* Inclusive split routing issue on Mac - should be fixed. #398
+* Removed useless(spam) messages from log (GUI side). #414 
+* Prevented keypress navigation to other locations from config-only mode.
+* Fixed auto-hide of docked app on showing extrnal OS dialogs. #396
+* Fixed negative remaining bytes issue. #370
+* Open newsfeed to the first unread message, if any. #371
+
+
 2.02.5 (03/03/2021)
 * Windscribe beta installer fails on macOS standard accounts - fixed. #369
 * Detect legacy OS version, download legacy installer (Windows/Mac). #3 and #6

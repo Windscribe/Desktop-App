@@ -620,11 +620,11 @@ void WidgetCities::updateEmptyListButton()
 
 void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
 {
-    qCDebug(LOG_LOCATION_LIST) << name_ << " updating city widget list";
+    // qCDebug(LOG_LOCATION_LIST) << name_ << " updating city widget list";
     LocationID topSelectableLocationIdInViewport = topViewportSelectableLocationId();
     LocationID lastAccentedLocationId = widgetCitiesList_->lastAccentedLocationId();
 
-    qCDebug(LOG_LOCATION_LIST) << name_ << " caching previous display state";
+    // qCDebug(LOG_LOCATION_LIST) << name_ << " caching previous display state";
     widgetCitiesList_->clearWidgets();
     for (auto *item : qAsConst(items))
     {
@@ -632,7 +632,7 @@ void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
         widgetCitiesList_->addCity(itemRef);
     }
 
-    qCDebug(LOG_LOCATION_LIST) << name_ << " restoring display state";
+    // qCDebug(LOG_LOCATION_LIST) << name_ << " restoring display state";
 
     // restoring previous widget state
     int indexInNewList = widgetCitiesList_->selectableIndex(topSelectableLocationIdInViewport);
@@ -641,7 +641,7 @@ void WidgetCities::updateWidgetList(QVector<CityModelItem *> items)
         scrollDown(indexInNewList);
     }
     widgetCitiesList_->accentItem(lastAccentedLocationId);
-    qCDebug(LOG_LOCATION_LIST) << name_ << " done updating city widget list";
+    // qCDebug(LOG_LOCATION_LIST) << name_ << " done updating city widget list";
 }
 
 void WidgetCities::scrollToIndex(int index)

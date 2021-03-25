@@ -112,15 +112,15 @@ void WidgetLocations::setFilterString(QString text)
 
     if (filterString_.isEmpty())
     {
-        qCDebug(LOG_LOCATION_LIST) << "Filter collapsing items: " << name_;
+        // qCDebug(LOG_LOCATION_LIST) << "Filter collapsing items: " << name_;
         widgetLocationsList_->collapseAllLocationsWithoutAnimation();
     }
     else
     {
-        qCDebug(LOG_LOCATION_LIST) << "Filter expanding items: " << name_;
+        // qCDebug(LOG_LOCATION_LIST) << "Filter expanding items: " << name_;
         widgetLocationsList_->expandAllLocationsWithoutAnimation();
     }
-    qCDebug(LOG_LOCATION_LIST) << "Resetting accent item and list pos: " << name_;
+    // qCDebug(LOG_LOCATION_LIST) << "Resetting accent item and list pos: " << name_;
     widgetLocationsList_->accentFirstSelectableItemWithoutAnimation();
     scrollToIndex(0);
 }
@@ -640,14 +640,14 @@ void WidgetLocations::onScrollBarStopScroll(bool lastScrollDirectionUp)
 
 void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
 {
-    qCDebug(LOG_LOCATION_LIST) << name_ << " updating locations widget list";
+    // qCDebug(LOG_LOCATION_LIST) << name_ << " updating locations widget list";
 
     // storing previous location widget state
     QVector<LocationID> expandedLocationIds = widgetLocationsList_->expandedOrExpandingLocationIds();
     LocationID topSelectableLocationIdInViewport = topViewportSelectableLocationId();
     LocationID lastAccentedLocationId = widgetLocationsList_->lastAccentedLocationId();
 
-    qCDebug(LOG_LOCATION_LIST) << name_ << " caching previous display state ";
+    //qCDebug(LOG_LOCATION_LIST) << name_ << " caching previous display state ";
     widgetLocationsList_->clearWidgets();
     for (LocationModelItem *item: qAsConst(items))
     {
@@ -673,7 +673,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
             }
         }
     }
-    qCDebug(LOG_LOCATION_LIST) << name_ << " restoring display state";
+    // qCDebug(LOG_LOCATION_LIST) << name_ << " restoring display state";
 
     // restoring previous widget state
     widgetLocationsList_->expandLocationIds(expandedLocationIds);
@@ -683,7 +683,7 @@ void WidgetLocations::updateWidgetList(QVector<LocationModelItem *> items)
         scrollDown(indexInNewList);
     }
     widgetLocationsList_->accentItemWithoutAnimation(lastAccentedLocationId);
-    qCDebug(LOG_LOCATION_LIST) << name_ << " done updating locations widget list";
+    // qCDebug(LOG_LOCATION_LIST) << name_ << " done updating locations widget list";
 }
 
 void WidgetLocations::scrollToIndex(int index)

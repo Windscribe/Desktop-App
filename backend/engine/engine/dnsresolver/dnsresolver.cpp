@@ -22,12 +22,14 @@ void DnsResolver::init(INetworkStateManager *networkStateManager)
 
 void DnsResolver::stop()
 {
+    qCDebug(LOG_BASIC) << "Stopping DnsResolver";
     mutexWait_.lock();
     bNeedFinish_ = true;
     waitCondition_.wakeAll();
     mutexWait_.unlock();
     wait();
     bStopCalled_ = true;
+    qCDebug(LOG_BASIC) << "DnsResolver stopped";
 }
 
 void DnsResolver::setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType)

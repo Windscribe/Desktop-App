@@ -325,7 +325,7 @@ void ConnectionWindowItem::onIsAllowLanTrafficClicked(bool b)
 
 void ConnectionWindowItem::hideOpenPopups()
 {
-    qCDebug(LOG_PREFERENCES) << "Hiding Connection popups";
+    // qCDebug(LOG_PREFERENCES) << "Hiding Connection popups";
 
     BasePage::hideOpenPopups();
 }

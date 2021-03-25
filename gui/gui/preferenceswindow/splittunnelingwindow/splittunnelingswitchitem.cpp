@@ -194,7 +194,7 @@ void SplitTunnelingSwitchItem::updateActiveUI(bool checked)
             expandEnimation_.start();
         }
 
-        qCDebug(LOG_USER) << "Enabled Split Tunneling";
+        //qCDebug(LOG_USER) << "Enabled Split Tunneling";
     }
     else
     {
@@ -205,7 +205,7 @@ void SplitTunnelingSwitchItem::updateActiveUI(bool checked)
             expandEnimation_.start();
         }
 
-        qCDebug(LOG_USER) << "Disabled Split Tunneling";
+        //qCDebug(LOG_USER) << "Disabled Split Tunneling";
     }
 }
 

@@ -161,7 +161,7 @@ private:
     void switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum locationTab);
 
     void drawTabRegion(QPainter &painter, const QRect &rc);
-    void drawBottomLine(QPainter &painter, int left, int right, int bottom, int whiteLinePos);
+    void drawBottomLine(QPainter &painter, int bottom, int whiteLinePos);
     void setArrowCursor();
     void setPointingHandCursor();
     bool isWhiteAnimationActive();
