@@ -37,6 +37,7 @@ QMAKE_LFLAGS += /DEBUG
 
 # Windows 7 platform
 DEFINES += "WINVER=0x0601"
+DEFINES += "_WIN32_WINNT=0x0601"
 DEFINES += "PIO_APC_ROUTINE_DEFINED"
 
 SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
@@ -105,7 +106,7 @@ LIBS += Ws2_32.lib Advapi32.lib Iphlpapi.lib \
     Ole32.lib Shlwapi.lib Version.lib Psapi.lib \
     rasapi32.lib Pdh.lib Shell32.lib netapi32.lib msi.lib
 
-INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include/boost-1_67
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include/boost-1_69
 LIBS += -L"$$BUILD_LIBS_PATH/boost/lib"
 
 INCLUDEPATH += "$$BUILD_LIBS_PATH/curl/include"

@@ -132,34 +132,50 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>WindscribeService</TargetName>
+    <OutDir>debug\</OutDir>
+    <IntDir>debug\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_x64|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>WindscribeService</TargetName>
+    <OutDir>debug\</OutDir>
+    <IntDir>debug\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>WindscribeService</TargetName>
+    <OutDir>debug64\</OutDir>
+    <IntDir>debug64\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_x64|x64'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>WindscribeService</TargetName>
+    <OutDir>debug64\</OutDir>
+    <IntDir>debug64\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>WindscribeService</TargetName>
+    <OutDir>release\</OutDir>
+    <IntDir>release\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>WindscribeService</TargetName>
+    <OutDir>release64\</OutDir>
+    <IntDir>release64\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_x64|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>WindscribeService</TargetName>
+    <OutDir>release\</OutDir>
+    <IntDir>release\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_x64|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>WindscribeService</TargetName>
+    <OutDir>release64\</OutDir>
+    <IntDir>release64\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
