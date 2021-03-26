@@ -1,6 +1,6 @@
 # Define Stages
 stages:
-  - Build Dependencies
+  - Build Dependencies 1
   - Build Dependencies 2
   - Build Dependencies 3
   - Build
@@ -44,7 +44,7 @@ include:
 # Build Dependency and Upload Jom
 build:jom:
   <<: *template_win10_build
-  stage: Build Dependencies
+  stage: Build Dependencies 1
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_JOM
@@ -59,7 +59,7 @@ build:jom:
 # Build Dependency and Upload Cares
 build:cares:
   <<: *template_win10_build
-  stage: Build Dependencies
+  stage: Build Dependencies 1
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_CARES
@@ -74,7 +74,7 @@ build:cares:
 # Build Dependency and Upload Lzo
 build:lzo:
   <<: *template_win10_build
-  stage: Build Dependencies
+  stage: Build Dependencies 1
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_LZO
@@ -89,7 +89,7 @@ build:lzo:
 # Build Dependency and Upload Boost
 build:boost:
   <<: *template_win10_build
-  stage: Build Dependencies
+  stage: Build Dependencies 1
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_BOOST
@@ -104,7 +104,7 @@ build:boost:
 # Build Dependency and Upload Wireguard
 build:wireguard:
   <<: *template_win10_build
-  stage: Build Dependencies
+  stage: Build Dependencies 1
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_WIREGUARD
@@ -118,7 +118,7 @@ build:wireguard:
 
 build:gtest:
   <<: *template_win10_build
-  stage: Build Dependencies
+  stage: Build Dependencies 1
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_GTEST
@@ -323,8 +323,8 @@ build:installer:
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
     - Set-Variable -name VERSION -value $(python installer/windows/extract_version.py common/version/windscribe_version.h)
     - tools/build_all -zip
-    - tools/bin/curl.exe --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
-    - tools/bin/curl.exe --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file build-exe/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file build-exe/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
   rules:
     - changes:
       - '.gitlab-ci.yml'
