@@ -324,10 +324,12 @@ build:installer:
     - Set-Variable -name VERSION -value $(python installer/windows/extract_version.py common/version/windscribe_version.h)
     - tools/build_all -zip
     - tools/bin/curl.exe --silent --show-error --fail --upload-file build-exe/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file build-exe/WindscribeSymbols_$VERSION.zip -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/WindscribeSymbols_$VERSION.zip" --cacert "tools/cacert.pem"
     - tools/bin/curl.exe --silent --show-error --fail --upload-file build-exe/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
-  rules:
-    - changes:
-      - '.gitlab-ci.yml'
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file build-exe/WindscribeSymbols_$VERSION.zip -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/WindscribeSymbols_$VERSION.zip" --cacert "tools/cacert.pem"
+  # rules:
+    # - changes:
+      # - '.gitlab-ci.yml'
       # - tools/vars/jom.yml
       # - tools/vars/cares.yml
       # - tools/vars/lzo.yml
@@ -341,86 +343,3 @@ build:installer:
       # - tools/vars/protobuf.yml
       # - tools/vars/qt.yml
       # - tools/vars/stunnel.yml
-
-
-
-#build:boost:
-#  tags: [win10]
-#  stage: Build Dependencies
-#  artifacts:
-#    untracked: false
-#    paths: 
-#      - $BUILDROOT/$ARTIFACT_BOOST
-#  script:
-#    # run this blindly until baked into image
-#    - python tools/bin/get-pip.py
-#    - python -m pip install -r tools/requirements.txt
-#    - tools/deps/install_boost -zip
-#  after_script:
-#    - Remove-Item -Path $BUILDROOT\boost -Force -Recurse
-#    #- Remove-Item -Path $TMP_BOOST -Force -Recurse
-#  rules:
-#    - changes:
-#      - tools/vars/boost.yml
-#
-#artifact-upload:boost:
-#  image: node:10.13.0
-#  stage: Artifact Upload
-#  cache: {}
-#  dependencies:
-#    - build:boost
-#  before_script:
-#  script:
-#    - curl --silent --show-error --fail --upload-file $BUILDROOT_BOOST/$ARTIFACT_BOOST -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_BOOST}"
-#  rules:
-#    - changes:
-#      - tools/vars/boost.yml
-#
-# Build the exe on a runner with tag win10 and capture the artifact for successive jobs 
-#build:
-#  tags: [win10]
-#  stage: Build
-#  artifacts:
-#    untracked: false
-#    # capture the artifact here
-#    paths:
-#      - installer\windows\${TARGET}
-#  # decode the pfx from base64 and write out
-#  #before_script:
-#  #  - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
-#  script:
-#  # trigger build
-#    # TESTING PIPELINE: Build libraries.
-#    # Install PIP (should be actually done once, as it affects the system, not only the repo).
-#    - python tools/bin/get-pip.py
-#    # This also updates the system, BUT is should be done if we updated repo's requirements.txt.
-#    - python -m pip install -r tools/requirements.txt
-#    # Run installation scripts in order of dependencies (if none, then arbitrary order).
-#    - tools/deps/install_jom -zip
-#    - tools/deps/install_openssl -zip
-#    - tools/deps/install_cares -zip
-#    - tools/deps/install_wireguard -zip
-#    - tools/deps/install_lzo -zip
-#    - tools/deps/install_zlib -zip
-#    - tools/deps/install_curl -zip
-#    - tools/deps/install_stunnel -zip
-#    - tools/deps/install_openvpn -zip
-#    - tools/deps/install_protobuf -zip
-#    - tools/deps/install_boost -zip
-#    # NB: Qt installation can be insanely long (more than 1h), and we hit a time limit.
-#    #- tools/deps/install_qt -zip
-#
-#artifact-upload:
-#  image: node:10.13.0
-#  stage: Artifact Upload
-#  cache: {}
-#  dependencies:
-#    - build
-#  before_script:
-#    # get release name
-#    - VERSION=$(python2.7 installer/windows/extract_version.py common/version/windscribe_version.h)
-#  script:
-#    # post to nexus artifact store
-#    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
-#    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
-#    - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
