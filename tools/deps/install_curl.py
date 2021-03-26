@@ -95,7 +95,10 @@ def InstallDependency():
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
   installzipname = None
   if "-zip" in sys.argv:
-    installzipname = os.path.join(os.path.dirname(outpath), "{}.zip".format(dep_name))
+    dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
+    dep_artifact_str = os.environ[dep_artifact_var] if dep_artifact_var in os.environ else \
+                       "{}.zip".format(dep_name)
+    installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
   msg.Print("Installing artifacts...")
   artifacts_dir = temp_dir
   if utl.GetCurrentOS() == "win32":

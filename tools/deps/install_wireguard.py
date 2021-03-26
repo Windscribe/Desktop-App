@@ -124,7 +124,10 @@ def InstallDependency():
   # Copy the dependency to output directory and to a zip file, if needed.
   aflist = [outpath]
   if "-zip" in sys.argv:
-    installzipname = os.path.join(os.path.dirname(outpath), "{}.zip".format(dep_name))
+    dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
+    dep_artifact_str = os.environ[dep_artifact_var] if dep_artifact_var in os.environ else \
+                       "{}.zip".format(dep_name)
+    installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
     msg.Print("Installing artifacts...")
     aflist = iutl.InstallArtifacts(outpath, DEP_FILE_MASK, None, installzipname)
   for af in aflist:

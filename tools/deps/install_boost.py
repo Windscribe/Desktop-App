@@ -98,7 +98,10 @@ def InstallDependency():
   aflist = [outpath]
   msg.Print("Installing artifacts...")
   if "-zip" in sys.argv:
-    installzipname = os.path.join(os.path.dirname(outpath), "{}.zip".format(dep_name))
+    dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
+    dep_artifact_str = os.environ[dep_artifact_var] if dep_artifact_var in os.environ else \
+                       "{}.zip".format(dep_name)
+    installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
     aflist.extend(iutl.InstallArtifacts(outpath, DEP_FILE_MASK, None, installzipname))
   for af in aflist:
     msg.HeadPrint("Ready: \"{}\"".format(af))
