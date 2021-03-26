@@ -63,20 +63,7 @@ build:win:jom:
     - changes:
       - tools/vars/jom.yml
 
-
-build:mac:jom:
-  <<: *template_mac_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_JOM
-  script:
-    - tools/deps/install_jom -zip
-    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
-  rules:
-    - changes:
-      - tools/vars/jom.yml
-
+# No jom for mac
 
 # Build Dependency and Upload Cares
 build:win:cares:
@@ -88,6 +75,20 @@ build:win:cares:
   script:
     - tools/deps/install_cares -zip
     - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/cares.yml
+
+
+build:mac:cares:
+  <<: *template_mac_build
+  stage: Build Dependencies 1
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_CARES
+  script:
+    - tools/deps/install_cares -zip
+    - curl --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
   rules:
     - changes:
       - tools/vars/cares.yml
