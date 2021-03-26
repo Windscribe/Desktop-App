@@ -4,7 +4,7 @@ echo "Installing Google Test..."
 VERSION_GTEST="1.10.0"
 
 rm -rf $HOME/"gtest_temp"
-rm -rf $HOME/"LibsWindsccribe/gtest"
+rm -rf $HOME/"LibsWindscribe/gtest"
 
 mkdir $HOME/gtest_temp
 curl https://github.com/google/googletest/archive/refs/tags/release-$VERSION_GTEST.tar.gz -o $HOME/"gtest_temp/gtest.tar.gz" -k -L
@@ -14,6 +14,7 @@ pushd $HOME/"gtest_temp/googletest-release-"$VERSION_GTEST
 
 mkdir build
 cd build
+export CC="cc -mmacosx-version-min=10.11"
 /Applications/CMake.app/Contents/bin/cmake .. -Dgtest_force_shared_crt=ON -DCMAKE_INSTALL_PREFIX=$HOME/LibsWindscribe/gtest
 make
 make install

@@ -13,7 +13,8 @@ sys.path.insert(0, TOOLS_DIR)
 
 CONFIG_NAME = os.path.join("vars", "gtest.yml")
 
-CMAKE_BINARY = "C:\\Program Files\\CMake\\bin\\cmake.exe"
+CMAKE_BINARY_WIN = "C:\\Program Files\\CMake\\bin\\cmake.exe"
+CMAKE_BINARY_MAC = "/Applications/CMake.app/Contents/bin/cmake"
 
 import base.messages as msg
 import base.utils as utl
@@ -22,7 +23,7 @@ import installutils as iutl
 # Dependency-specific settings.
 DEP_TITLE = "GTest"
 DEP_URL = "https://github.com/google/googletest/archive/"
-DEP_OS_LIST = [ "win32" ] # TODO: add mac and linux
+DEP_OS_LIST = [ "win32", "macos", "linux" ]
 DEP_FILE_MASK = [ "lib/**", "include/**"]
 
 def BuildDependencyMSVC(outpath):
@@ -35,7 +36,7 @@ def BuildDependencyMSVC(outpath):
   buildpath = os.path.join(current_wd, "build")
   utl.CreateDirectory(buildpath)
   os.chdir(buildpath)
-  build_cmd = [ CMAKE_BINARY, "..",
+  build_cmd = [ CMAKE_BINARY_WIN, "..",
                 "-Dgtest_force_shared_crt=ON" ]
   iutl.RunCommand(build_cmd, env=buildenv, shell=True)
   iutl.RunCommand(["msbuild", "googletest-distribution.sln", "/p:Configuration=Release", "/p:Platform=Win32"], env=buildenv, shell=True)
@@ -48,15 +49,23 @@ def BuildDependencyMSVC(outpath):
 
 
 def BuildDependencyGNU(outpath):
-  pass
-  # currend_wd = os.getcwd()
-  # # Create an environment with CC flags.
-  # buildenv = os.environ.copy()
-  # buildenv.update({ "BINDIR" : "wireguard", "DESTDIR" : os.path.dirname(currend_wd) + os.sep })
-  # # Build and install.
-  # iutl.RunCommand(["make"], env=buildenv)
-  # iutl.RunCommand(["make", "install", "-s"], env=buildenv)
-  # utl.CopyFile("{}/wireguard-go".format(currend_wd), "{}/windscribewireguard".format(outpath))
+  currend_wd = os.getcwd()
+  # Create an environment with CC flags.
+  buildenv = os.environ.copy()
+  buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
+  # Build and install.
+  msg.HeadPrint("Building: {}".format(DEP_TITLE))
+  current_wd = os.getcwd()
+  buildpath = os.path.join(current_wd, "build")
+  utl.CreateDirectory(buildpath)
+  os.chdir(buildpath)
+  cmake_cmd = [ CMAKE_BINARY_MAC, "..",
+                "-Dgtest_force_shared_crt=ON",
+                "-DCMAKE_INSTALL_PREFIX={}".format(outpath)]
+  iutl.RunCommand(cmake_cmd, env=buildenv)
+  iutl.RunCommand(["make"], env=buildenv)
+  iutl.RunCommand(["make", "install"], env=buildenv)
+
 
 def InstallDependency():
   # Load environment.
@@ -74,7 +83,7 @@ def InstallDependency():
   temp_dir = iutl.PrepareTempDirectory(dep_name)
   # Download and unpack the archive.
   archivetitle = "release-{}".format(dep_version_str)
-  archivename = archivetitle + ".zip" # TODO: expand when supporting MacOS
+  archivename = archivetitle + (".zip" if utl.GetCurrentOS() == "win32" else ".tar.gz")
   archivepath = os.path.join(temp_dir, archivename)
   localfilename = os.path.join(temp_dir, "googletest-" + archivetitle)
   msg.HeadPrint("Downloading: \"{}\"".format(archivename))
@@ -91,7 +100,7 @@ def InstallDependency():
   buildpath = os.path.join(localfilename, "build")
   msg.HeadPrint("Building: \"{}\"".format(archivetitle))
   BuildDependencyMSVC(outpath) \
-    if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(buildpath)
+    if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(outpath)
   os.chdir(old_cwd)
   # Copy the dependency to output directory and to a zip file, if needed.
   installzipname = None
