@@ -177,7 +177,7 @@ build:zlib:
 # Build and Upload Curl
 build:curl:
   <<: *template_win10_build
-  stage: Build
+  stage: Build Dependencies 3
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_CURL
