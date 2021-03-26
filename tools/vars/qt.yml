@@ -6,3 +6,4 @@ variables:
   VERSION_QT: '5.15.2'
   BUILDROOT_QT: 'build-libs/qt'
   WINTEMPROOT_QT: 'C:/temp'
+  ARTIFACT_QT: 'qt.zip'

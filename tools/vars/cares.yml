@@ -5,3 +5,5 @@
 variables:
   VERSION_CARES: '1.17.1'
   BUILDROOT_CARES: 'build-libs/cares'
+  ARTIFACT_CARES: 'cares.zip'
+ 
