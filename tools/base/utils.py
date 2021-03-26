@@ -192,3 +192,22 @@ def CopyAllFiles(sourcedir, destdir, copymode=True):
       srcfilename = os.path.join(dirpath, filename)
       dstfilename = os.path.join(destdir + dirpath[prefixlen:], filename)
       CopyFile(srcfilename, dstfilename, copymode)
+
+
+def CopyMacBundle(sourcefilename, destfilename):
+  msg.Verbose("CopyMacBundle: \"{}\" to \"{}\"".format(sourcefilename, destfilename))
+  if not os.path.exists(sourcefilename):
+    raise IOError("Can't copy bundle \"{}\": not found.".format(sourcefilename))
+  destdir = os.path.dirname(destfilename)
+  if not os.path.exists(destdir):
+    CreateDirectory(destdir)
+  last_error = None
+  for _ in range(_OS_RETRY_COUNT):
+    try:
+      shutil.copytree(sourcefilename, destfilename, symlinks=True)
+      return True
+    except EnvironmentError as e:
+      last_error = e
+      time.sleep(1)
+  raise IOError("Can't copy bundle \"{}\" to \"{}\"!\nLast error: {}".format(
+    sourcefilename, destfilename, last_error))

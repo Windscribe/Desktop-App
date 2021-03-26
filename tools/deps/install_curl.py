@@ -24,7 +24,7 @@ DEP_OS_LIST = [ "win32", "macos", "linux" ]
 DEP_FILE_MASK = [ "bin/**", "include/**", "lib/**" ]
 
 
-def BuildDependencyMSVC(openssl_root, zlib_root, outpath):
+def BuildDependencyMSVC(openssl_root, zlib_root):
   # Create an environment with VS vars.
   buildenv = os.environ.copy()
   buildenv.update({ "MAKEFLAGS" : "S" })
@@ -82,26 +82,28 @@ def InstallDependency():
   msg.HeadPrint("Extracting: \"{}\"".format(archivename))
   iutl.ExtractFile(localfilename)
   # Build the dependency.
-  old_cwd = os.getcwd()
-  os.chdir(os.path.join(temp_dir, archivetitle))
-  msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-  BuildDependencyMSVC(openssl_root, zlib_root, temp_dir) \
-    if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(openssl_root, temp_dir)
-  os.chdir(old_cwd)
-  # Copy the dependency to output directory and to a zip file, if needed.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ[dep_buildroot_var] if dep_buildroot_var in os.environ else \
                       os.path.join("build-libs", dep_name)
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+  old_cwd = os.getcwd()
+  os.chdir(os.path.join(temp_dir, archivetitle))
+  msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+  BuildDependencyMSVC(openssl_root, zlib_root) \
+    if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(openssl_root, outpath)
+  os.chdir(old_cwd)
+  # Copy the dependency to output directory and to a zip file, if needed.
   installzipname = None
   if "-zip" in sys.argv:
     installzipname = os.path.join(os.path.dirname(outpath), "{}.zip".format(dep_name))
   msg.Print("Installing artifacts...")
-  artifacts_dir = temp_dir
+  artifacts_dir = outpath
+  install_dir = None
   if utl.GetCurrentOS() == "win32":
-    artifacts_dir = os.path.join(artifacts_dir, archivetitle, "builds",
+    artifacts_dir = os.path.join(temp_dir, archivetitle, "builds",
                                  "libcurl-vc-x86-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
-  aflist = iutl.InstallArtifacts(artifacts_dir, DEP_FILE_MASK, outpath, installzipname)
+    install_dir = outpath
+  aflist = iutl.InstallArtifacts(artifacts_dir, DEP_FILE_MASK, install_dir, installzipname)
   for af in aflist:
     msg.HeadPrint("Ready: \"{}\"".format(af))
   # Cleanup.

@@ -8,6 +8,7 @@ gui:
   subdir:   gui/gui
   target:   Windscribe.exe
   symbols:  Windscribe.pdb
+  macapp:   Windscribe.app
 
 cli:
   name:     CLI
@@ -22,6 +23,8 @@ engine:
   subdir:   backend/engine
   target:   WindscribeEngine.exe
   symbols:  WindscribeEngine.pdb
+  macapp:   WindscribeEngine.app
+  plugins:  no
 
 service32:
   name:     Service
@@ -64,12 +67,11 @@ installhelper:
   target:   WindscribeInstallHelper.exe
   symbols:  WindscribeInstallHelper.pdb
 
-launcher:
+launcher_win:
   name:     Launcher
-  project:  windscribelauncher.vcxproj
+  project:  windscribelauncher.pro
   subdir:   gui/launcher/win
   target:   WindscribeLauncher.exe
-  symbols:  WindscribeLauncher.pdb
 
 uninstaller:
   name:     Uninstaller
@@ -77,13 +79,42 @@ uninstaller:
   subdir:   installer/windows/uninstaller
   target:   uninstall.exe
 
-# This is a special target build after all the targets, packing, signing, etc.
-# Do not include into the targets list!
-installer:
+installer_win:
   name:     Installer
   project:  installer.vcxproj
   subdir:   installer/windows/installer
   target:   installer.exe
+
+helper:
+  name:     Helper
+  project:  helper.xcodeproj
+  subdir:   backend/mac/helper
+  target:   com.windscribe.helper.macos
+  scheme:   com.windscribe.helper.macos
+  outdir:   helper
+  xcflags:
+    - OTHER_CODE_SIGN_FLAGS=--timestamp
+    - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+
+launcher_mac:
+  name:     Launcher
+  project:  windscribelauncher.xcodeproj
+  subdir:   gui/launcher/mac
+  target:   WindscribeLauncher.app
+  scheme:   WindscribeLauncher
+  outdir:   launcher
+
+installer_mac:
+  name:     Installer
+  project:  installer.xcodeproj
+  subdir:   installer/mac/installer
+  target:   installer.app
+  scheme:   installer
+  outdir:   installer
+  xcflags:
+    - OTHER_CODE_SIGN_FLAGS=--timestamp
+    - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+
 
 targets:
   win32:
@@ -95,8 +126,19 @@ targets:
     - changeics32
     - changeics64
     - installhelper
-    - launcher
+    - launcher_win
     - uninstaller
+  macos:
+    - helper
+    - engine
+    - launcher_mac
+    - cli
+    - gui
+
+installer:
+  win32: installer_win
+  macos: installer_mac
+
 
 qt_files:
   - bin/libEGL.dll
@@ -144,3 +186,37 @@ lib_files:
   wireguard:
     - windscribewireguard_x86.exe -> x32/windscribewireguard.exe
     - windscribewireguard_x64.exe -> x64/windscribewireguard.exe
+
+macdeployfixes:
+  engine:
+    copy_libs:
+      openssl:
+        - lib/libcrypto.1.1.dylib -> Contents/Helpers/libcrypto.1.1.dylib
+        - lib/libssl.1.1.dylib -> Contents/Helpers/libssl.1.1.dylib
+    rpathfix:
+      Contents/Helpers/windscribeopenvpn_2_5_0:
+        openssl:
+          - lib/libssl.1.1.dylib -> libssl.1.1.dylib
+          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+      Contents/Helpers/windscribestunnel:
+        openssl:
+          - lib/libssl.1.1.dylib -> libssl.1.1.dylib
+          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+      Contents/Helpers/libssl.1.1.dylib:
+        openssl:
+          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+    codesign:
+      sign_app: yes
+      entitlements_binary: Contents/MacOS/WindscribeEngine
+      entitlements_file: backend/engine/mac/windscribe_engine.entitlements
+  gui:
+    remove_files:
+      # Remove unused Qt frameworks.
+      - Contents/Frameworks/QtQml.framework
+      - Contents/Frameworks/QtQuick.framework
+    rpathfix:
+      Contents/MacOS/windscribe-cli:
+        protobuf:
+          - lib/libprotobuf.19.dylib -> ../Frameworks/libprotobuf.19.dylib
+    codesign:
+      sign_app: yes
