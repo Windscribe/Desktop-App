@@ -1356,6 +1356,9 @@
     <QtMoc Include="locationswindow\widgetlocations\footertopstrip.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
     </QtMoc>
+    <QtMoc Include="tooltips\itooltip.h">
+      <Filter>Misc Files\Generated Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
@@ -2408,9 +2411,6 @@
     </ClInclude>
     <ClInclude Include="locationswindow\widgetlocations\itemtimems.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>
-    </ClInclude>
-    <ClInclude Include="tooltips\itooltip.h">
-      <Filter>GUI Files\tooltips</Filter>
     </ClInclude>
     <ClInclude Include="locationswindow\widgetlocations\iwidgetlocationsinfo.h">
       <Filter>GUI Files\locationswindow\widgetlocations</Filter>

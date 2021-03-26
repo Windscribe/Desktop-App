@@ -7,6 +7,8 @@
 #include <QScrollBar>
 #include <QTextBlock>
 #include <QTextDocument>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
@@ -41,10 +43,15 @@ LogViewerWindow::LogViewerWindow(QWidget *parent)
     cbColorHighlighting_->setChecked(isColorHighlighting_);
     connect(cbColorHighlighting_, SIGNAL(toggled(bool)), SLOT(updateColorHighlighting(bool)));
 
+    btnExportLog_ = new QPushButton("this");
+    btnExportLog_->setText(tr("Export to file..."));
+    connect(btnExportLog_, SIGNAL(clicked(bool)), SLOT(onExportClick()));
+
     auto *hLayout = new QHBoxLayout();
     hLayout->setAlignment(Qt::AlignLeft);
     hLayout->addWidget(cbMergePerLine_);
     hLayout->addWidget(cbColorHighlighting_);
+    hLayout->addWidget(btnExportLog_);
     hLayout->addStretch(1);
 
     layout_ = new QVBoxLayout(this);
@@ -78,6 +85,28 @@ void LogViewerWindow::updateColorHighlighting(bool isColorHighlighting)
 {
     isColorHighlighting_ = isColorHighlighting;
     highlightBlocks();
+}
+
+void LogViewerWindow::onExportClick()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save log"), QString(), tr("Text files (*.txt)"));
+    if (!fileName.isEmpty())
+    {
+        QString log = MergeLog::mergePrevLogs(true);
+        log += "================================================================================================================================================================================================\n";
+        log += "================================================================================================================================================================================================\n";
+        log += MergeLog::mergeLogs(true);
+
+        QFile file(fileName);
+        if (file.open(QIODevice::WriteOnly))
+        {
+            file.write(log.toLocal8Bit());
+        }
+        else
+        {
+            QMessageBox::information(this, "Export log", "Failed to export log");
+        }
+    }
 }
 
 void LogViewerWindow::updateScaling()

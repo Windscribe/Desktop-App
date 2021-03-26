@@ -20,7 +20,7 @@ public:
     explicit VpnShareController(QObject *parent, IHelper *helper);
     virtual ~VpnShareController();
 
-    void onConnectingOrConnectedToVPNEvent();
+    void onConnectingOrConnectedToVPNEvent(const QString &vpnAdapterName);
     void onDisconnectedFromVPNEvent();
 
     bool isUpdateIcsInProgress();

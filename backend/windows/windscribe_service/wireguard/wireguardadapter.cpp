@@ -143,7 +143,7 @@ bool WireGuardAdapter::setIpAddress(const std::string &address, bool isDefault)
     Ip4AddressAndMask ipaddr(address_and_cidr[0].c_str());
     UINT8 cidr = 0;
     if (address_and_cidr.size() > 1)
-        cidr = strtol(address_and_cidr[1].c_str(), nullptr, 10);
+        cidr = static_cast<UINT8>(strtol(address_and_cidr[1].c_str(), nullptr, 10));
     CleanupAddressOnDisconnectedInterfaces(ipaddr, cidr);
 
     MIB_IPINTERFACE_ROW entry;
@@ -224,7 +224,7 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps)
         Ip4AddressAndMask ipaddr(address_and_cidr[0].c_str());
         UINT8 cidr = 0;
         if (address_and_cidr.size() > 1)
-            cidr = strtol(address_and_cidr[1].c_str(), nullptr, 10);
+            cidr = static_cast<UINT8>(strtol(address_and_cidr[1].c_str(), nullptr, 10));
         MIB_IPFORWARD_ROW2 entry;
         InitializeIpForwardEntry(&entry);
         entry.InterfaceLuid = luid_;

@@ -260,7 +260,7 @@ void CredentialsWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
         QString loginText = tr("Login");
         QFontMetrics fm = painter->fontMetrics();
-        const int loginTextWidth = fm.width(loginText);
+        const int loginTextWidth = fm.horizontalAdvance(loginText);
         painter->drawText(centeredOffset(WINDOW_WIDTH*G_SCALE, loginTextWidth),
                           (HEADER_HEIGHT/2 + LOGIN_TEXT_HEIGHT/2)*G_SCALE,
                           loginText);

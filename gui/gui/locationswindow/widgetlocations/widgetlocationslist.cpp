@@ -267,7 +267,7 @@ int WidgetLocationsList::accentItemSelectableIndex()
 {
     if (!lastAccentedItemWidget_)
     {
-        qDebug() << "LocationItemListWidget::accentItemSelectableIndex - no accent item";
+        // qDebug() << "LocationItemListWidget::accentItemSelectableIndex - no accent item";
         return -1;
     }
     return selectableIndex(lastAccentedItemWidget_->getId());

@@ -2323,7 +2323,6 @@ void MainWindowController::expandPreferencesFromConnect()
     if (isLocationsExpanded())
     {
         connectWindow_->updateLocationsState(false);
-        expandLocationsAnimationGroup_->removeAnimation(collapseBottomInfoWindowAnimation_);
         expandLocationsAnimationGroup_->setDirection(QAbstractAnimation::Backward);
         if (expandLocationsAnimationGroup_->state() != QAbstractAnimation::Running)
         {
@@ -2924,7 +2923,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         QScreen *screen = WidgetUtils::slightlySaferScreenAt(iconCenter);
         if (!screen)
         {
-            qDebug() << "Still no screen found -- not updating geometry and scene";
+            // qDebug() << "Still no screen found -- not updating geometry and scene";
             return;
         }
 
@@ -3071,7 +3070,7 @@ bool MainWindowController::isBottomInfoCollapsed() const
 
 void MainWindowController::updateCursorInViewport()
 {
-    QMouseEvent event(QEvent::MouseMove, QCursor::pos(), Qt::NoButton, 0, 0);
+    QMouseEvent event(QEvent::MouseMove, QCursor::pos(), Qt::NoButton, Qt::MouseButtons(), Qt::KeyboardModifiers());
     QApplication::sendEvent(view_->viewport(), &event);
 }
 
@@ -3110,7 +3109,7 @@ void MainWindowController::keepWindowInsideScreenCoordinates()
 
     if (rcWindow.bottom() > (rcScreen.bottom()))
     {
-        qDebug() << "KEEPING MAINWINDOW INSIDE SCREEN COORDINATES";
+       // qDebug() << "KEEPING MAINWINDOW INSIDE SCREEN COORDINATES";
        rcWindow.moveBottom(rcScreen.bottom());
        mainWindow_->setGeometry(rcWindow);
     }

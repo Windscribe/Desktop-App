@@ -737,9 +737,11 @@ bool Helper_mac::setSplitTunnelingSettings(bool isActive, bool isExclude,
     return true;
 }
 
-void Helper_mac::sendConnectStatus(bool isConnected, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+void Helper_mac::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                                    const QString &connectedIp, const ProtocolType &protocol)
 {
+    Q_UNUSED(isCloseTcpSocket);
+    Q_UNUSED(isKeepLocalSocket);
     QMutexLocker locker(&mutex_);
 
     if (!isHelperConnected())

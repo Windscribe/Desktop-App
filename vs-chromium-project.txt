@@ -15,6 +15,7 @@
 
 [SearchableFiles.ignore]
 build-output/
+build-libs/
 backend/engine/debug/
 backend/engine/release/
 common/ipc/generated_proto/

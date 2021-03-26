@@ -298,10 +298,10 @@ const ProtoTypes::MacAddrSpoofing &Preferences::macAddrSpoofing() const
 
 void Preferences::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &mas)
 {
-    qDebug() << "Preferences::SetMacAddrSpoofing()";
+    // qDebug() << "Preferences::SetMacAddrSpoofing()";
     if(!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.mac_addr_spoofing(), mas))
     {
-        qDebug() << "Actually updating GUI copy of engine settings with mac_addr_spoofing";
+        // qDebug() << "Actually updating GUI copy of engine settings with mac_addr_spoofing";
         *engineSettings_.mutable_mac_addr_spoofing() = mas;
         emit macAddrSpoofingChanged(engineSettings_.mac_addr_spoofing());
     }

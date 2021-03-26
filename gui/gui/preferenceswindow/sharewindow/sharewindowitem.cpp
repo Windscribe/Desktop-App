@@ -16,7 +16,7 @@ ShareWindowItem::ShareWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 
     secureHotspotItem_ = new SecureHotspotItem(this);
     connect(secureHotspotItem_, SIGNAL(secureHotspotParsChanged(ProtoTypes::ShareSecureHotspot)), SLOT(onSecureHotspotParsChanged(ProtoTypes::ShareSecureHotspot)));
-    updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(preferences_->getEngineSettings().connection_settings()));
+    //updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(preferences_->getEngineSettings().connection_settings()));
     secureHotspotItem_->setSecureHotspotPars(preferences->shareSecureHotspot());
     addItem(secureHotspotItem_);
 
@@ -64,7 +64,7 @@ void ShareWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool bSuppo
 
 bool ShareWindowItem::isIkev2OrAutomaticConnectionMode(const ProtoTypes::ConnectionSettings &cs) const
 {
-    return cs.protocol() == ProtoTypes::PROTOCOL_IKEV2 || cs.is_automatic();
+    return cs.protocol() == ProtoTypes::PROTOCOL_IKEV2 || cs.protocol() == ProtoTypes::PROTOCOL_WIREGUARD || cs.is_automatic();
 }
 
 void ShareWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic)
