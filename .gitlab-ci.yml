@@ -138,7 +138,7 @@ build:openssl:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_OPENSSL
   needs:
-    - build:jom
+    - {job: 'build:jom', optional: true}
   script:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}" --cacert "tools/cacert.pem"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
@@ -158,7 +158,7 @@ build:zlib:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_ZLIB
   needs:
-    - build:jom
+    - {job: 'build:jom', optional: true}
   script:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}" --cacert "tools/cacert.pem"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
@@ -178,8 +178,8 @@ build:curl:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_CURL
   needs:
-    - build:openssl
-    - build:zlib
+    - {job: 'build:openssl', optional: true}
+    - {job: 'build:zlib', optional: true}
   script:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_OPENSSL}" --cacert "tools/cacert.pem"
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_ZLIB}" --cacert "tools/cacert.pem"
@@ -201,8 +201,8 @@ build:openvpn:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_OPENVPN
   needs:
-    - build:openssl
-    - build:lzo
+    - {job: 'build:openssl', optional: true}
+    - {job: 'build:lzo', optional: true}
   script:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_OPENSSL}" --cacert "tools/cacert.pem"
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_LZO -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_LZO}" --cacert "tools/cacert.pem"
@@ -225,7 +225,7 @@ build:protobuf:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_PROTOBUF
   needs:
-    - build:zlib
+    - {job: 'build:zlib', optional: true}
   script:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_ZLIB}" --cacert "tools/cacert.pem"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
@@ -246,8 +246,8 @@ build:qt:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_QT
   needs:
-    - build:jom
-    - build:openssl
+    - {job: 'build:jom', optional: true}
+    - {job: 'build:openssl', optional: true}
   script:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_OPENSSL}" --cacert "tools/cacert.pem"
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}" --cacert "tools/cacert.pem"
@@ -269,8 +269,8 @@ build:stunnel:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_STUNNEL
   needs:
-    - build:jom
-    - build:openssl
+    - {job: 'build:jom', optional: true}
+    - {job: 'build:openssl', optional: true}
   script:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_OPENSSL}" --cacert "tools/cacert.pem"
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}" --cacert "tools/cacert.pem"
@@ -292,19 +292,19 @@ build:installer:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
   needs:
-    - build:jom
-    - build:cares
-    - build:lzo
-    - build:boost
-    - build:wireguard
-    - build:gtest
-    - build:openssl
-    - build:zlib
-    - build:curl
-    - build:openvpn
-    - build:protobuf
-    - build:qt
-    - build:stunnel
+    - {job: 'build:jom', optional: true}
+    - {job: 'build:cares', optional: true}
+    - {job: 'build:lzo', optional: true}
+    - {job: 'build:boost', optional: true}
+    - {job: 'build:wireguard', optional: true}
+    - {job: 'build:gtest', optional: true}
+    - {job: 'build:openssl', optional: true}
+    - {job: 'build:zlib', optional: true}
+    - {job: 'build:curl', optional: true}
+    - {job: 'build:openvpn', optional: true}
+    - {job: 'build:protobuf', optional: true}
+    - {job: 'build:qt', optional: true}
+    - {job: 'build:stunnel', optional: true}
   script:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}" --cacert "tools/cacert.pem"
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_CARES -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_CARES}" --cacert "tools/cacert.pem"
