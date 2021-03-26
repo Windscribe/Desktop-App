@@ -1,6 +1,7 @@
 # Define Stages
 stages:
   - Build Dependencies
+  - Build Dependencies 2
   - Build
   - Artifact Upload
 
@@ -9,82 +10,361 @@ stages:
 
 # Set variables inherited by all jobs
 variables:
+  GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
-  NEXUS_PATH_ROOT: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME'
+  NEXUS_PATH_ROOT: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME/'
   NEXUS_PATH_LATEST: '/latest'
   NEXUS_PATH_BRANCHES: '/branches'
   NEXUS_PATH_TAGS: '/tags'
+  NEXUS_PATH_DEPS: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME/dependencies'
+  NEXUS_PATH_DEPS_LATEST: '/latest'
+  NEXUS_PATH_DEPS_BRANCHES: '/branches'
+  NEXUS_PATH_DEPS_TAGS: '/tags'
   TARGET: '*.exe'
   #NEXUS_USERNAME: "sample"         # Set in Gitlab variables
   #NEXUS_PASSWORD: "VhVvMiM3jD04c"  # Set in Gitlab variables
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
   RUNNING_CI: 1
+  BUILDROOT: 'build-libs'
+  TMPROOT: 'temp'
 
 include:
   - local: 'vars.yml'
 
-#cache:
-#  key: sample
-#  paths:
-#    - sample_path
-
-#hello_world:
-#  tags: [win10]
-#  stage: Build Dependencies
-#  script:
-#    - echo hello.world
-#    - .\test.ps1
-#    - .\install_curl.bat
-#  rules:
-#    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANC
-#      changes:
-#        - some-file
-
-# Build the exe on a runner with tag win10 and capture the artifact for successive jobs 
-build:
+.template_win10_build: &template_win10_build
   tags: [win10]
-  stage: Build
   artifacts:
     untracked: false
-    # capture the artifact here
     paths:
-      - installer\windows\${TARGET}
-  # decode the pfx from base64 and write out
-  #before_script:
-  #  - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
-  script:
-  # trigger build
-    # TESTING PIPELINE: Build libraries.
-    # Install PIP (should be actually done once, as it affects the system, not only the repo).
-    - python tools/bin/get-pip.py
-    # This also updates the system, BUT is should be done if we updated repo's requirements.txt.
-    - python -m pip install -r tools/requirements.txt
-    # Run installation scripts in order of dependencies (if none, then arbitrary order).
-    - tools/deps/install_jom -zip
-    - tools/deps/install_openssl -zip
-    - tools/deps/install_cares -zip
-    - tools/deps/install_wireguard -zip
-    - tools/deps/install_lzo -zip
-    - tools/deps/install_zlib -zip
-    - tools/deps/install_curl -zip
-    - tools/deps/install_stunnel -zip
-    - tools/deps/install_openvpn -zip
-    - tools/deps/install_protobuf -zip
-    - tools/deps/install_boost -zip
-    # NB: Qt installation can be insanely long (more than 1h), and we hit a time limit.
-    #- tools/deps/install_qt -zip
-
-artifact-upload:
-  image: node:10.13.0
-  stage: Artifact Upload
-  cache: {}
-  dependencies:
-    - build
+      - $BUILDROOT/$ARTIFACT_PATH
   before_script:
-    # get release name
-    - VERSION=$(python2.7 installer/windows/extract_version.py common/version/windscribe_version.h)
+    # run this blindly until baked into image
+    - python tools/bin/get-pip.py
+    - python -m pip install -r tools/requirements.txt
+
+
+# Build Dependency and Upload Jom
+build:jom:
+  <<: *template_win10_build
+  stage: Build Dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_JOM
   script:
-    # post to nexus artifact store
-    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
-    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
-    - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe
+    - tools/deps/install_jom -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/jom.yml
+
+
+# Build Dependency and Upload Cares
+build:cares:
+  <<: *template_win10_build
+  stage: Build Dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_CARES
+  script:
+    - tools/deps/install_cares -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/cares.yml
+
+
+# Build Dependency and Upload Lzo
+build:lzo:
+  <<: *template_win10_build
+  stage: Build Dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_LZO
+  script:
+    - tools/deps/install_lzo -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/lzo.yml
+
+
+# Build Dependency and Upload Boost
+build:boost:
+  <<: *template_win10_build
+  stage: Build Dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_BOOST
+  script:
+    - tools/deps/install_boost -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/boost.yml
+
+
+# Build Dependency and Upload Wireguard
+build:wireguard:
+  <<: *template_win10_build
+  stage: Build Dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_WIREGUARD
+  script:
+    - tools/deps/install_wireguard -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/wireguard.yml
+
+
+build:gtest:
+  <<: *template_win10_build
+  stage: Build Dependencies
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_GTEST
+  script:
+    - tools/deps/install_gtest -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/gtest.yml
+
+
+# Build Dependency and Upload Openssl
+build:openssl:
+  <<: *template_win10_build
+  stage: Build Dependencies 2
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_OPENSSL
+  needs:
+    - build:jom
+  script:
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}" --cacert "tools/cacert.pem"
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    - tools/deps/install_openssl -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/openssl.yml
+      - tools/vars/jom.yml
+
+
+# Build Dependency and Upload Zlib
+build:zlib:
+  <<: *template_win10_build
+  stage: Build Dependencies 2
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_ZLIB
+  needs:
+    - build:jom
+  script:
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}" --cacert "tools/cacert.pem"
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    - tools/deps/install_zlib -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/zlib.yml
+      - tools/vars/jom.yml
+
+
+# Build and Upload Curl
+build:curl:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_CURL
+  needs:
+    - build:openssl
+    - build:zlib
+  script:
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_OPENSSL}" --cacert "tools/cacert.pem"
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_ZLIB}" --cacert "tools/cacert.pem"
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    - tools/deps/install_curl -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/curl.yml
+      - tools/vars/zlib.yml
+      - tools/vars/jom.yml
+
+
+# Build and Upload Openvpn
+build:openvpn:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_OPENVPN
+  needs:
+    - build:openssl
+    - build:lzo
+  script:
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_OPENSSL}" --cacert "tools/cacert.pem"
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_LZO -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_LZO}" --cacert "tools/cacert.pem"
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    - tools/deps/install_openvpn -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/openvpn.yml
+      - tools/vars/openssl.yml
+      - tools/vars/jom.yml
+      - tools/vars/lzo.yml
+
+
+# Build and Upload Protobuf
+build:protobuf:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_PROTOBUF
+  needs:
+    - build:zlib
+  script:
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_ZLIB}" --cacert "tools/cacert.pem"
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    - tools/deps/install_protobuf -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/protobuf.yml
+      - tools/vars/zlib.yml
+      - tools/vars/jom.yml
+
+
+# Build and Upload Qt
+build:qt:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_QT
+  needs:
+    - build:jom
+    - build:openssl
+  script:
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_OPENSSL}" --cacert "tools/cacert.pem"
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}" --cacert "tools/cacert.pem"
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    - tools/deps/install_qt -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/qt.yml
+      - tools/vars/openssl.yml
+      - tools/vars/jom.yml
+
+
+# Build and Upload Stunnel
+build:stunnel:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_STUNNEL
+  needs:
+    - build:jom
+    - build:openssl
+  script:
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_OPENSSL}" --cacert "tools/cacert.pem"
+    - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_JOM -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_JOM}" --cacert "tools/cacert.pem"
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    - tools/deps/install_stunnel -zip
+    - tools/bin/curl.exe --silent --show-error --fail --upload-file $BUILDROOT/$ARTIFACT_PATH -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_PATH}" --cacert "tools/cacert.pem"
+  rules:
+    - changes:
+      - tools/vars/stunnel.yml
+      - tools/vars/openssl.yml
+      - tools/vars/jom.yml
+
+
+
+
+#build:boost:
+#  tags: [win10]
+#  stage: Build Dependencies
+#  artifacts:
+#    untracked: false
+#    paths: 
+#      - $BUILDROOT/$ARTIFACT_BOOST
+#  script:
+#    # run this blindly until baked into image
+#    - python tools/bin/get-pip.py
+#    - python -m pip install -r tools/requirements.txt
+#    - tools/deps/install_boost -zip
+#  after_script:
+#    - Remove-Item -Path $BUILDROOT\boost -Force -Recurse
+#    #- Remove-Item -Path $TMP_BOOST -Force -Recurse
+#  rules:
+#    - changes:
+#      - tools/vars/boost.yml
+#
+#artifact-upload:boost:
+#  image: node:10.13.0
+#  stage: Artifact Upload
+#  cache: {}
+#  dependencies:
+#    - build:boost
+#  before_script:
+#  script:
+#    - curl --silent --show-error --fail --upload-file $BUILDROOT_BOOST/$ARTIFACT_BOOST -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_BOOST}"
+#  rules:
+#    - changes:
+#      - tools/vars/boost.yml
+#
+# Build the exe on a runner with tag win10 and capture the artifact for successive jobs 
+#build:
+#  tags: [win10]
+#  stage: Build
+#  artifacts:
+#    untracked: false
+#    # capture the artifact here
+#    paths:
+#      - installer\windows\${TARGET}
+#  # decode the pfx from base64 and write out
+#  #before_script:
+#  #  - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
+#  script:
+#  # trigger build
+#    # TESTING PIPELINE: Build libraries.
+#    # Install PIP (should be actually done once, as it affects the system, not only the repo).
+#    - python tools/bin/get-pip.py
+#    # This also updates the system, BUT is should be done if we updated repo's requirements.txt.
+#    - python -m pip install -r tools/requirements.txt
+#    # Run installation scripts in order of dependencies (if none, then arbitrary order).
+#    - tools/deps/install_jom -zip
+#    - tools/deps/install_openssl -zip
+#    - tools/deps/install_cares -zip
+#    - tools/deps/install_wireguard -zip
+#    - tools/deps/install_lzo -zip
+#    - tools/deps/install_zlib -zip
+#    - tools/deps/install_curl -zip
+#    - tools/deps/install_stunnel -zip
+#    - tools/deps/install_openvpn -zip
+#    - tools/deps/install_protobuf -zip
+#    - tools/deps/install_boost -zip
+#    # NB: Qt installation can be insanely long (more than 1h), and we hit a time limit.
+#    #- tools/deps/install_qt -zip
+#
+#artifact-upload:
+#  image: node:10.13.0
+#  stage: Artifact Upload
+#  cache: {}
+#  dependencies:
+#    - build
+#  before_script:
+#    # get release name
+#    - VERSION=$(python2.7 installer/windows/extract_version.py common/version/windscribe_version.h)
+#  script:
+#    # post to nexus artifact store
+#    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/${NEXUS_FILE_NAME}"
+#    - curl --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/${NEXUS_FILE_NAME}"
+#    - echo Got some fresh bins for you right here. ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}${NEXUS_PATH_LATEST}/Windscribe_$VERSION.exe

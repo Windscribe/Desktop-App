@@ -7,3 +7,4 @@ variables:
   BUILDROOT_WIREGUARD: 'build-libs/wireguard'
   VERSION_WIN32_GO: '1.16.2'
   VERSION_WIN32_MAKE: '4.2.1'
+  ARTIFACT_WIREGUARD: 'wireguard.zip'

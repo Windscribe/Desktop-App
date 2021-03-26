@@ -15,3 +15,4 @@ include:
   - 'tools/vars/protobuf.yml'
   - 'tools/vars/stunnel.yml'
   - 'tools/vars/wireguard.yml'
+  - 'tools/vars/gtest.yml'
