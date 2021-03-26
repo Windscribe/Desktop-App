@@ -35,10 +35,6 @@ include:
 
 .template_win10_build: &template_win10_build
   tags: [win10]
-  artifacts:
-    untracked: false
-    paths:
-      - $BUILDROOT/$ARTIFACT_PATH
   before_script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
@@ -292,10 +288,6 @@ build:stunnel:
 build:installer:
   <<: *template_win10_build
   stage: Build
-  artifacts:
-    untracked: false
-    paths:
-      - installer\windows\*.exe
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
@@ -328,13 +320,13 @@ build:installer:
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_QT -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_QT}" --cacert "tools/cacert.pem"
     - tools/bin/curl.exe --silent --show-error --fail --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/${ARTIFACT_STUNNEL}" --cacert "tools/cacert.pem"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    - VERSION=$(python installer/windows/extract_version.py common/version/windscribe_version.h)
+    - Set-Variable -name VERSION -value $(python installer/windows/extract_version.py common/version/windscribe_version.h)
     - tools/build_all -zip
     - tools/bin/curl.exe --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
     - tools/bin/curl.exe --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
-  # rules:
-    # - changes:
-      # - tools/vars/jom.yml
+   rules:
+     - changes:
+       - .gitlab-ci.yml
       # - tools/vars/jom.yml
       # - tools/vars/cares.yml
       # - tools/vars/lzo.yml
