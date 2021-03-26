@@ -66,10 +66,9 @@ installhelper:
 
 launcher:
   name:     Launcher
-  project:  windscribelauncher.vcxproj
+  project:  windscribelauncher.pro
   subdir:   gui/launcher/win
   target:   WindscribeLauncher.exe
-  symbols:  WindscribeLauncher.pdb
 
 uninstaller:
   name:     Uninstaller
