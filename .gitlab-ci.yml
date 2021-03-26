@@ -324,9 +324,9 @@ build:installer:
     - tools/build_all -zip
     - tools/bin/curl.exe --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
     - tools/bin/curl.exe --silent --show-error --fail --upload-file installer/windows/Windscribe_$VERSION.exe -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/Windscribe_$VERSION.exe" --cacert "tools/cacert.pem"
-   rules:
-     - changes:
-       - '.gitlab-ci.yml'
+  rules:
+    - changes:
+      - '.gitlab-ci.yml'
       # - tools/vars/jom.yml
       # - tools/vars/cares.yml
       # - tools/vars/lzo.yml
