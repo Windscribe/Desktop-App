@@ -163,8 +163,8 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
 LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
 
 #protobuf include and libs
-INCLUDEPATH += $$(HOME)/LibsWindscribe/protobuf/include
-LIBS += -L$$(HOME)/LibsWindscribe/protobuf/lib -lprotobuf
+INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
 #c-ares library
 # don't forget remove *.dylib files for static link

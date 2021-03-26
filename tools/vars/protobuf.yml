@@ -5,3 +5,4 @@
 variables:
   VERSION_PROTOBUF: '3.14.0'
   BUILDROOT_PROTOBUF: 'build-libs/protobuf'
+  ARTIFACT_PROTOBUF: 'protobuf.zip'

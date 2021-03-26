@@ -538,7 +538,7 @@
 					"$(PROJECT_DIR)/installer/Frameworks",
 					"$(PROJECT_DIR)",
 				);
-				HEADER_SEARCH_PATHS = "$(HOME)/LibsWindscribe/boost/include";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)../../../build-libs/boost/include";
 				INFOPLIST_FILE = installer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -547,7 +547,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/installer/Frameworks/SVGKit.framework/Versions/A",
-					$HOME/LibsWindscribe/boost/lib,
+					"$(PROJECT_DIR)../../../build-libs/LibsWindscribe/boost/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				OTHER_LDFLAGS = "-lboost_serialization";
@@ -572,7 +572,7 @@
 					"$(PROJECT_DIR)/installer/Frameworks",
 					"$(PROJECT_DIR)",
 				);
-				HEADER_SEARCH_PATHS = "$(HOME)/LibsWindscribe/boost/include";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)../../../build-libs/boost/include";
 				INFOPLIST_FILE = installer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -581,7 +581,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/installer/Frameworks/SVGKit.framework/Versions/A",
-					$HOME/LibsWindscribe/boost/lib,
+					"$(PROJECT_DIR)../../../build-libs/boost/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				OTHER_LDFLAGS = "-lboost_serialization";

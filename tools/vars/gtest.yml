@@ -3,7 +3,6 @@
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_JOM: '1_1_2'
-  BUILDROOT_JOM: 'build-libs\jom'
-  ARTIFACT_JOM: 'jom.zip'
-
+  VERSION_GTEST: '1.10.0'
+  BUILDROOT_GTEST: 'build-libs/gtest'
+  ARTIFACT_GTEST: 'gtest.zip'
