@@ -29,8 +29,7 @@ variables:
   BUILDROOT: 'build-libs'
   TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
-  CURL_WIN: 'tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem'
-  CURL_MAC: 'curl               --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem'
+  CURL_SHARED_ARGS: '--silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem'
 
 include:
   - local: 'vars.yml'
@@ -60,7 +59,7 @@ build:win:jom:
     ARTIFACT_PATH: $ARTIFACT_JOM
   script:
     - tools/deps/install_jom -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/jom.yml
@@ -77,7 +76,7 @@ build:win:cares:
     ARTIFACT_PATH: $ARTIFACT_CARES
   script:
     - tools/deps/install_cares -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/cares.yml
@@ -91,7 +90,7 @@ build:mac:cares:
     ARTIFACT_PATH: $ARTIFACT_CARES
   script:
     - tools/deps/install_cares -zip
-    - $CURL_MAC --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
+    - curl $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/cares.yml
@@ -106,7 +105,7 @@ build:win:lzo:
     ARTIFACT_PATH: $ARTIFACT_LZO
   script:
     - tools/deps/install_lzo -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/lzo.yml
@@ -120,7 +119,7 @@ build:mac:lzo:
     ARTIFACT_PATH: $ARTIFACT_LZO
   script:
     - tools/deps/install_lzo -zip
-    - $CURL_MAC --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
+    - curl $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/lzo.yml
@@ -135,7 +134,7 @@ build:win:boost:
     ARTIFACT_PATH: $ARTIFACT_BOOST
   script:
     - tools/deps/install_boost -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/boost.yml
@@ -149,7 +148,7 @@ build:mac:boost:
     ARTIFACT_PATH: $ARTIFACT_BOOST
   script:
     - tools/deps/install_boost -zip
-    - $CURL_MAC --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
+    - curl $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/boost.yml
@@ -163,7 +162,7 @@ build:win:wireguard:
     ARTIFACT_PATH: $ARTIFACT_WIREGUARD
   script:
     - tools/deps/install_wireguard -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/wireguard.yml
@@ -177,7 +176,7 @@ build:mac:wireguard:
     ARTIFACT_PATH: $ARTIFACT_WIREGUARD
   script:
     - tools/deps/install_wireguard -zip
-    - $CURL_MAC --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
+    - curl $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/wireguard.yml
@@ -191,7 +190,7 @@ build:win:gtest:
     ARTIFACT_PATH: $ARTIFACT_GTEST
   script:
     - tools/deps/install_gtest -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/gtest.yml
@@ -205,7 +204,7 @@ build:mac:gtest:
     ARTIFACT_PATH: $ARTIFACT_GTEST
   script:
     - tools/deps/install_gtest -zip
-    - $CURL_MAC --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
+    - curl $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/gtest.yml
@@ -221,10 +220,10 @@ build:win:openssl:
   # needs:
     # - {job: 'build:win:jom', optional: true}
   script:
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - tools/deps/install_openssl -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/openssl.yml
@@ -239,7 +238,7 @@ build:mac:openssl:
     ARTIFACT_PATH: $ARTIFACT_OPENSSL
   script:
     - tools/deps/install_openssl -zip
-    - $CURL_MAC --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
+    - curl $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/openssl.yml
@@ -254,10 +253,10 @@ build:win:zlib:
   # needs:
     # - {job: 'build:win:jom', optional: true}
   script:
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - tools/deps/install_zlib -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/zlib.yml
@@ -277,11 +276,11 @@ build:win:curl:
     # - {job: 'build:win:openssl', optional: true}
     # - {job: 'build:win:zlib', optional: true}
   script:
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - tools/deps/install_curl -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/curl.yml
@@ -299,10 +298,10 @@ build:mac:curl:
     # - {job: 'build:win:openssl', optional: true}
     # - {job: 'build:win:zlib', optional: true}
   script:
-    - $CURL_MAC --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
+    - curl $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
     - find ./build-libs/ -type f -name "*.zip" -exec unzip -d "{}" "{}"\;
     - tools/deps/install_curl -zip
-    - $CURL_MAC --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
+    - curl $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/curl.yml
@@ -320,11 +319,11 @@ build:win:openvpn:
     # - {job: 'build:win:openssl', optional: true}
     # - {job: 'build:win:lzo', optional: true}
   script:
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_LZO}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_LZO}"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - tools/deps/install_openvpn -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/openvpn.yml
@@ -343,10 +342,10 @@ build:win:protobuf:
   # needs:
     # - {job: 'build:win:zlib', optional: true}
   script:
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - tools/deps/install_protobuf -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/protobuf.yml
@@ -365,11 +364,11 @@ build:win:qt:
     # - {job: 'build:win:jom', optional: true}
     # - {job: 'build:win:openssl', optional: true}
   script:
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - tools/deps/install_qt -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/qt.yml
@@ -388,11 +387,11 @@ build:win:stunnel:
     # - {job: 'build:win:jom', optional: true}
     # - {job: 'build:win:openssl', optional: true}
   script:
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - tools/deps/install_stunnel -zip
-    - $CURL_WIN --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
     - changes:
       - tools/vars/stunnel.yml
@@ -422,27 +421,27 @@ build:win:installer:
     # - {job: 'build:win:qt', optional: true}
     # - {job: 'build:win:stunnel', optional: true}
   script:
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_CARES "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_CARES}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_LZO}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_BOOST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_BOOST}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_WIREGUARD "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_WIREGUARD}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_GTEST}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_CURL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_CURL}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENVPN}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PROTOBUF}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
-    - $CURL_WIN --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_STUNNEL}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_CARES "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_CARES}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_LZO}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_BOOST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_BOOST}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_WIREGUARD "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_WIREGUARD}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_GTEST}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_CURL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_CURL}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENVPN}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PROTOBUF}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_STUNNEL}"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
     - Set-Variable -name VERSION -value $(python installer/windows/extract_version.py common/version/windscribe_version.h)
     - tools/build_all -zip
-    - $CURL_WIN --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/Windscribe_$VERSION.exe"
-    - $CURL_WIN --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/WindscribeSymbols_$VERSION.zip"
-    - $CURL_WIN --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe"
-    - $CURL_WIN --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/WindscribeSymbols_$VERSION.zip"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/Windscribe_$VERSION.exe"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/WindscribeSymbols_$VERSION.zip"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe"
+    - tools/bin/curl.exe $CURL_SHARED_ARGS --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/WindscribeSymbols_$VERSION.zip"
   # rules:
     # - changes:
       # - '.gitlab-ci.yml'

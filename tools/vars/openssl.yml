@@ -6,4 +6,3 @@ variables:
   VERSION_OPENSSL: '1.1.1d'
   BUILDROOT_OPENSSL: 'build-libs/openssl'
   ARTIFACT_OPENSSL: 'openssl.zip'
-
