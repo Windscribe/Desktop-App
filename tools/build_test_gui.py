@@ -1,0 +1,189 @@
+#!/usr/bin/env python
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+# Purpose: builds test-gui
+
+# TODO: add better file structure so is more expandable to additional test binaries
+#       IE temp/tests/test-gui/release instead of temp/tests/release
+
+# TODO: ideally this script should handle building all the test binaries
+#       this should only be done if possible to succeed at building second script if first script fails
+#       (assuming they are independent)
+
+import glob2
+import os
+import re
+import sys
+import time
+import zipfile
+
+TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(TOOLS_DIR)
+COMMON_DIR = os.path.join(ROOT_DIR, "common")
+sys.path.insert(0, TOOLS_DIR)
+
+import base.messages as msg
+import base.utils as utl
+import deps.installutils as iutl
+
+BUILD_TITLE = "TestGui"
+BUILD_CFGNAME = "build_test_gui.yml"
+BUILD_OS_LIST = [ "win32" ]
+
+BUILD_APP_VERSION_STRING = ""
+BUILD_QMAKE_EXE = ""
+BUILD_TEST_GUI_FILES = ""
+
+# TODO: move into shared py file
+def ExtractAppVersion():
+  version_file = os.path.join(COMMON_DIR, "version", "windscribe_version.h")
+  values = [0]*4
+  patterns = [
+    re.compile("\\bWINDSCRIBE_MAJOR_VERSION\\s+(\\d+)"),
+    re.compile("\\bWINDSCRIBE_MINOR_VERSION\\s+(\\d+)"),
+    re.compile("\\bWINDSCRIBE_BUILD_VERSION\\s+(\\d+)"),
+    re.compile("^#define\\s+WINDSCRIBE_IS_BETA")
+  ]
+  with open(version_file, "r") as f:
+    for line in f:
+      for i in range(len(patterns)):
+        matched = patterns[i].search(line)
+        if matched:
+          values[i] = int(matched.group(1)) if matched.lastindex > 0 else 1
+          break
+  version_string = "{:d}_{:02d}_build{:d}".format(values[0], values[1], values[2])
+  if values[3]:
+    version_string += "_beta"
+  return version_string
+
+# TODO: move into shared py file
+def GenerateProtobuf():
+  proto_root = iutl.GetDependencyBuildRoot("protobuf")
+  if not proto_root:
+    raise iutl.InstallError("Protobuf is not installed.")
+  msg.Info("Generating Protobuf...")
+  proto_gen = os.path.join(COMMON_DIR, "ipc", "proto", "generate_proto")
+  proto_gen = proto_gen + (".bat" if utl.GetCurrentOS() == "win32" else ".sh")
+  iutl.RunCommand([proto_gen, os.path.join(proto_root, "release", "bin")], shell=True)
+
+# TODO: move into shared py file
+def CopyFile(filename, srcdir, dstdir, strip_first_dir=False):
+  parts = filename.split("->")
+  srcfilename = parts[0].strip()
+  dstfilename = srcfilename if len(parts) == 1 else parts[1].strip()
+  msg.Print(dstfilename)
+  srcfile = os.path.normpath(os.path.join(srcdir, srcfilename))
+  dstfile = os.path.normpath(dstfilename)
+  if strip_first_dir:
+    dstfile = os.sep.join(dstfile.split(os.path.sep)[1:])
+  dstfile = os.path.join(dstdir, dstfile)
+  utl.CopyAllFiles(srcfile, dstfile) \
+    if srcfilename.endswith(("\\", "/")) else utl.CopyFile(srcfile, dstfile)
+
+# TODO: move into shared py file
+def CopyFiles(title, filelist, srcdir, dstdir, strip_first_dir=False):
+  msg.Info("Copying {} files...".format(title))
+  for filename in filelist:
+    CopyFile(filename, srcdir, dstdir, strip_first_dir)
+
+# TODO: move into shared file
+def GetProjectFile(subdir_name, project_name):
+  return os.path.normpath(os.path.join(
+  	os.path.dirname(TOOLS_DIR), subdir_name, project_name))
+
+# TODO: move into shared file
+def CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root):
+  if "qt_files" in configdata:
+      CopyFiles("Qt", configdata["qt_files"], qt_root, BUILD_TEST_GUI_FILES, strip_first_dir=True)
+  if "msvc_files" in configdata:
+    CopyFiles("MSVC", configdata["msvc_files"], msvc_root, BUILD_TEST_GUI_FILES)
+  # utl.CopyAllFiles(crt_root, BUILD_TEST_GUI_FILES) # api-ms-win-...dlls
+  if "lib_files" in configdata:
+    for k, v in configdata["lib_files"].iteritems():
+      lib_root = iutl.GetDependencyBuildRoot(k)
+      if not lib_root:
+        raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+      CopyFiles(k, v, lib_root, BUILD_TEST_GUI_FILES)
+
+
+def BuildTestGui():
+  # Load config.
+  configdata = utl.LoadConfig(os.path.join(TOOLS_DIR, "{}".format(BUILD_CFGNAME)))
+  if not configdata:
+    raise iutl.InstallError("Failed to load config \"{}\".".format(BUILD_CFGNAME))
+  current_os = utl.GetCurrentOS()
+  # TODO: parse check for build_test_gui.yml?
+  # Extract app version.
+  global BUILD_APP_VERSION_STRING
+  BUILD_APP_VERSION_STRING = ExtractAppVersion()
+  msg.Info("App version extracted: \"{}\"".format(BUILD_APP_VERSION_STRING))
+  # Get Qt directory.
+  qt_root = iutl.GetDependencyBuildRoot("qt")
+  if not qt_root:
+    raise iutl.InstallError("Qt is not installed.")
+  # Do some preliminary VS checks on Windows.
+  if current_os == "win32":
+    buildenv = os.environ.copy()
+    buildenv.update(iutl.GetVisualStudioEnvironment())
+    msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "x86", "Microsoft.VC141.CRT")
+    crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x86".format(
+      buildenv["WINDOWSSDKVERSION"])
+    if not os.path.exists(msvc_root):
+      raise iutl.InstallError("MSVS installation not found.")
+    if not os.path.exists(crt_root):
+      raise iutl.InstallError("CRT files not found.")
+  # Prepare output
+  artifact_dir = os.path.join(ROOT_DIR, "test-exe")
+  utl.RemoveDirectory(artifact_dir)
+  temp_dir = iutl.PrepareTempDirectory("tests")
+  global BUILD_TEST_GUI_FILES
+  BUILD_TEST_GUI_FILES = os.path.join(temp_dir, "release")
+  # Prep build tools
+  global BUILD_QMAKE_EXE
+  BUILD_QMAKE_EXE = os.path.join(qt_root, "bin", "qmake")
+  if current_os == "win32":
+    BUILD_QMAKE_EXE += ".exe"
+    buildenv.update({ "MAKEFLAGS" : "S" })
+    buildenv.update(iutl.GetVisualStudioEnvironment())
+    buildenv.update({ "CL" : "/MP" })
+  # Generate protobuf
+  GenerateProtobuf()
+  old_cwd = os.getcwd()
+  os.chdir(temp_dir)
+  # build test-gui # TODO: make this more generic to accomodate multiple test binaries?
+  iswin = current_os == "win32"
+  test_gui = configdata["test-gui"]
+  c_subdir = test_gui["subdir"]
+  c_project = test_gui["project"]
+  build_cmd = [ BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release" ]
+  if iswin: 
+    build_cmd.extend(["-spec", "win32-msvc"])
+  iutl.RunCommand(build_cmd, env=buildenv, shell=iswin)
+  iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=iswin)
+  CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root)
+  # TODO: archive the artifact
+
+if __name__ == "__main__":
+  start_time = time.time()
+  current_os = utl.GetCurrentOS()
+  if current_os not in BUILD_OS_LIST:
+    msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
+    sys.exit(0)
+  try:
+    msg.Print("Building {}...".format(BUILD_TITLE))
+    BuildTestGui()
+    exitcode = 0
+  except iutl.InstallError as e:
+    msg.Error(e)
+    exitcode = e.exitcode
+  except IOError as e:
+    msg.Error(e)
+    exitcode = 1
+  elapsed_time = time.time() - start_time
+  if elapsed_time >= 60:
+    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time/60, elapsed_time%60))
+  else:
+    msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
+  sys.exit(exitcode)

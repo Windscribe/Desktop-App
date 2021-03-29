@@ -93,6 +93,25 @@ def CreateDirectory(directory, force_recreate=False):
       time.sleep(1)
   raise IOError("Can't create directory \"{}\"!\nLast error: {}".format(directory, last_error))
 
+def CreateFile(filename, force_recreate=False):
+  msg.Verbose("CreateFile: \"{}\"".format(filename))
+  ufilename = MakeUnicodePath(filename)
+  if os.path.exists(ufilename):
+    if (force_recreate):
+      utl.RemoveFile(ufilename)
+    else:
+      msg.Verbose("File already exists")
+      return False
+  for _ in range(_OS_RETRY_COUNT):
+    try:
+      f = open(ufilename, "w")
+      f.close()
+      return True
+    except EnvironmentError as e:
+      last_error = e
+      time.sleep(1)
+  raise IOError("Can't create file \"{}\"!\nLast error: {}".format(filename, last_error))
+
 
 def RenameDirectory(srcname, dstname):
   msg.Verbose("RenameDirectory: \"{}\" to \"{}\"".format(srcname, dstname))
