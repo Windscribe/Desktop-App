@@ -163,8 +163,8 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
 LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
 
 #protobuf include and libs
-INCLUDEPATH += $$(HOME)/LibsWindscribe/protobuf/include
-LIBS += -L$$(HOME)/LibsWindscribe/protobuf/lib -lprotobuf
+INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
 #c-ares library
 # don't forget remove *.dylib files for static link
@@ -233,8 +233,8 @@ mkdir_launch_services.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Content
 copy_helper.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/helper/com.windscribe.helper.macos $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
 copy_profile.commands = $(COPY_DIR) $$PWD/../mac/provisioning_profile/embedded.provisionprofile $$OUT_PWD/WindscribeEngine.app/Contents
 mkdir_helpers.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Helpers
-copy_openvpn.commands = cp $$BUILD_LIBS_PATH/openvpn_2_5_0/sbin/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_5_0
-copy_stunnel.commands = cp $$BUILD_LIBS_PATH/stunnel/bin/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel
+copy_openvpn.commands = cp $$BUILD_LIBS_PATH/openvpn_2_5_0/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_5_0
+copy_stunnel.commands = cp $$BUILD_LIBS_PATH/stunnel/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel
 copy_wstunnel.commands = cp $$PWD/../mac/wstunnel/windscribewstunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewstunnel
 copy_kext.commands = $(COPY_DIR) $$PWD/../mac/kext/Binary/WindscribeKext.kext $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/WindscribeKext.kext
 copy_wireguard.commands = cp $$BUILD_LIBS_PATH/wireguard/windscribewireguard $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewireguard

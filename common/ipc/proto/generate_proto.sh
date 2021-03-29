@@ -1,8 +1,9 @@
 #!/bin/bash
 
-CUR_PATH=$(pwd)
+CUR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-rm -rf "$CUR_PATH/../generated_proto"
+cd "$CUR_PATH"
+if [ -d "$CUR_PATH/../generated_proto" ]; then rm -rf "$CUR_PATH/../generated_proto"; fi
 mkdir -p ../generated_proto
 
 protodir=$1

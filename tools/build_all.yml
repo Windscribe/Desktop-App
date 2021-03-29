@@ -8,6 +8,7 @@ gui:
   subdir:   gui/gui
   target:   Windscribe.exe
   symbols:  Windscribe.pdb
+  macapp:   Windscribe.app
 
 cli:
   name:     CLI
@@ -22,6 +23,8 @@ engine:
   subdir:   backend/engine
   target:   WindscribeEngine.exe
   symbols:  WindscribeEngine.pdb
+  macapp:   WindscribeEngine.app
+  plugins:  no
 
 service32:
   name:     Service
@@ -64,7 +67,7 @@ installhelper:
   target:   WindscribeInstallHelper.exe
   symbols:  WindscribeInstallHelper.pdb
 
-launcher:
+launcher_win:
   name:     Launcher
   project:  windscribelauncher.pro
   subdir:   gui/launcher/win
@@ -76,13 +79,38 @@ uninstaller:
   subdir:   installer/windows/uninstaller
   target:   uninstall.exe
 
-# This is a special target build after all the targets, packing, signing, etc.
-# Do not include into the targets list!
-installer:
+installer_win:
   name:     Installer
   project:  installer.vcxproj
   subdir:   installer/windows/installer
   target:   installer.exe
+
+helper:
+  name:     Helper
+  project:  helper.xcodeproj
+  subdir:   backend/mac/helper
+  target:   com.windscribe.helper.macos
+  scheme:   com.windscribe.helper.macos
+  outdir:   helper
+  xcflags:
+    - OTHER_CODE_SIGN_FLAGS=--timestamp
+    - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+
+launcher_mac:
+  name:     Launcher
+  project:  windscribelauncher.xcodeproj
+  subdir:   gui/launcher/mac
+  target:   WindscribeLauncher.app
+  scheme:   WindscribeLauncher
+  outdir:   launcher
+
+installer_mac:
+  name:     Installer
+  project:  installer.xcodeproj
+  subdir:   installer/mac/installer
+  target:   installer.app
+  scheme:   installer
+
 
 targets:
   win32:
@@ -94,8 +122,17 @@ targets:
     - changeics32
     - changeics64
     - installhelper
-    - launcher
+    - launcher_win
     - uninstaller
+  macos:
+    - helper
+    - engine
+    - launcher_mac
+
+installer:
+  win32: installer_win
+  macos: installer_mac
+
 
 qt_files:
   - bin/libEGL.dll

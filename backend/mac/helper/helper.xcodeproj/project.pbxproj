@@ -586,10 +586,10 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					$HOME/LibsWindscribe/boost/include,
+					"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
+					"$(PROJECT_DIR)/../../../build-libs/boost/include",
 				);
-				LIBRARY_SEARCH_PATHS = $HOME/LibsWindscribe/boost/lib;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../build-libs/boost/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
@@ -622,10 +622,10 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					$HOME/LibsWindscribe/boost/include,
+					"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
+					"$(PROJECT_DIR)/../../../build-libs/boost/include",
 				);
-				LIBRARY_SEARCH_PATHS = $HOME/LibsWindscribe/boost/lib;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../build-libs/boost/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				OTHER_LDFLAGS = (
 					"-sectcreate",

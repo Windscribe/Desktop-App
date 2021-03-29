@@ -186,6 +186,8 @@ def CopyFile(sourcefilename, destfilename, copymode=True):
 
 def CopyAllFiles(sourcedir, destdir, copymode=True):
   msg.Verbose("CopyAllFiles: \"{}\" to \"{}\"".format(sourcedir,destdir))
+  if not os.path.exists(destdir):
+    CreateDirectory(destdir)
   prefixlen = len(sourcedir)
   for dirpath, _, filenames in os.walk(sourcedir):
     for filename in filenames:
