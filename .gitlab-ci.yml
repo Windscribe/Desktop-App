@@ -298,7 +298,7 @@ build:mac:curl:
     # - {job: 'build:win:zlib', optional: true}
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
-    - find ./build-libs/ -type f -name "*.zip" -exec unzip -d "{}" "{}" \;
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -d ${z%%.zip} $z; done; fi
     - tools/deps/install_curl -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
