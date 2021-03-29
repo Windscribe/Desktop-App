@@ -110,6 +110,10 @@ installer_mac:
   subdir:   installer/mac/installer
   target:   installer.app
   scheme:   installer
+  outdir:   installer
+  xcflags:
+    - OTHER_CODE_SIGN_FLAGS=--timestamp
+    - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
 
 
 targets:
@@ -128,6 +132,8 @@ targets:
     - helper
     - engine
     - launcher_mac
+    - cli
+    - gui
 
 installer:
   win32: installer_win
@@ -180,3 +186,37 @@ lib_files:
   wireguard:
     - windscribewireguard_x86.exe -> x32/windscribewireguard.exe
     - windscribewireguard_x64.exe -> x64/windscribewireguard.exe
+
+macdeployfixes:
+  engine:
+    copy_libs:
+      openssl:
+        - lib/libcrypto.1.1.dylib -> Contents/Helpers/libcrypto.1.1.dylib
+        - lib/libssl.1.1.dylib -> Contents/Helpers/libssl.1.1.dylib
+    rpathfix:
+      Contents/Helpers/windscribeopenvpn_2_5_0:
+        openssl:
+          - lib/libssl.1.1.dylib -> libssl.1.1.dylib
+          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+      Contents/Helpers/windscribestunnel:
+        openssl:
+          - lib/libssl.1.1.dylib -> libssl.1.1.dylib
+          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+      Contents/Helpers/libssl.1.1.dylib:
+        openssl:
+          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+    codesign:
+      sign_app: yes
+      entitlements_binary: Contents/MacOS/WindscribeEngine
+      entitlements_file: backend/engine/mac/windscribe_engine.entitlements
+  gui:
+    remove_files:
+      # Remove unused Qt frameworks.
+      - Contents/Frameworks/QtQml.framework
+      - Contents/Frameworks/QtQuick.framework
+    rpathfix:
+      Contents/MacOS/windscribe-cli:
+        protobuf:
+          - lib/libprotobuf.19.dylib -> ../Frameworks/libprotobuf.19.dylib
+    codesign:
+      sign_app: yes

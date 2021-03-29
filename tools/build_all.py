@@ -26,6 +26,7 @@ BUILD_TITLE = "Windscribe"
 BUILD_CFGNAME = "build_all.yml"
 BUILD_OS_LIST = [ "win32", "macos" ]
 BUILD_CERT_PASSWORD = "fBafQVi0RC4Ts4zMUFOE" # TODO: keep elsewhere!
+BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
 BUILD_APP_VERSION_STRINGS = ()
 BUILD_QMAKE_EXE = ""
@@ -85,7 +86,79 @@ def GenerateProtobuf():
     iutl.RunCommand([proto_gen, os.path.join(proto_root, "bin")], shell=True)
 
 
-def BuildComponent(component, is_64bit, buildenv):
+def CopyFile(filename, srcdir, dstdir, strip_first_dir=False):
+  parts = filename.split("->")
+  srcfilename = parts[0].strip()
+  dstfilename = srcfilename if len(parts) == 1 else parts[1].strip()
+  msg.Print(dstfilename)
+  srcfile = os.path.normpath(os.path.join(srcdir, srcfilename))
+  dstfile = os.path.normpath(dstfilename)
+  if strip_first_dir:
+    dstfile = os.sep.join(dstfile.split(os.path.sep)[1:])
+  dstfile = os.path.join(dstdir, dstfile)
+  utl.CopyAllFiles(srcfile, dstfile) \
+    if srcfilename.endswith(("\\", "/")) else utl.CopyFile(srcfile, dstfile)
+
+
+def CopyFiles(title, filelist, srcdir, dstdir, strip_first_dir=False):
+  msg.Info("Copying {} files...".format(title))
+  for filename in filelist:
+    CopyFile(filename, srcdir, dstdir, strip_first_dir)
+
+
+def ApplyMacDeployFixes(appname, fixlist):
+  # Special deploy fixes for Mac.
+  # 1. copy_libs
+  if "copy_libs" in fixlist:
+    for k, v in fixlist["copy_libs"].iteritems():
+      lib_root = iutl.GetDependencyBuildRoot(k)
+      if not lib_root:
+        raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+      CopyFiles(k, v, lib_root, appname)
+  # 2. remove_files
+  if "remove_files" in fixlist:
+    msg.Info("Removing unnecessary files...")
+    for k in fixlist["remove_files"]:
+      utl.RemoveFile(os.path.join(appname, k))
+  # 3. rpathfix
+  if "rpathfix" in fixlist:
+    current_wd = os.getcwd()
+    msg.Info("Fixing rpaths...")
+    for f, m in fixlist["rpathfix"].iteritems():
+      fs = os.path.split(f)
+      os.chdir(os.path.join(appname,fs[0]))
+      for k, v in m.iteritems():
+        lib_root = iutl.GetDependencyBuildRoot(k)
+        if not lib_root:
+          raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+        for vv in v:
+          parts = vv.split("->")
+          srcv = parts[0].strip()
+          dstv = srcv if len(parts) == 1 else parts[1].strip()
+          change_lib_from = os.path.join(lib_root, srcv)
+          change_lib_to = "@executable_path/{}".format(dstv)
+          iutl.RunCommand(["install_name_tool", "-change", change_lib_from, change_lib_to, fs[1]])
+    os.chdir(current_wd)
+  # 4. Code signing.
+  if "codesign" in fixlist:
+    # Signing the whole app.
+    if "sign_app" in fixlist["codesign"] and fixlist["codesign"]["sign_app"]:
+      msg.Info("Signing the app bundle...")
+      iutl.RunCommand(["codesign", "--deep", appname, "--options", "runtime", "--timestamp",
+                       "-s", BUILD_DEVELOPER_MAC])
+      # This validation is optional.
+      iutl.RunCommand(["codesign", "-v", appname])
+    if "entitlements_binary" in fixlist["codesign"]:
+      msg.Info("Signing a binary with entitlements...")
+      entitlements_binary = os.path.join(appname, fixlist["codesign"]["entitlements_binary"])
+      entitlements_file = os.path.join(ROOT_DIR, fixlist["codesign"]["entitlements_file"])
+      iutl.RunCommand(["codesign", "--entitlements", entitlements_file, "-f",
+                       "-s", BUILD_DEVELOPER_MAC, "--options", "runtime", "--timestamp",
+                       entitlements_binary])
+
+
+def BuildComponent(component, is_64bit, buildenv=None, macdeployfixes=None,
+                   target_name_override=None):
   # Collect settings.
   current_os = utl.GetCurrentOS()
   c_iswin = current_os == "win32"
@@ -118,7 +191,7 @@ def BuildComponent(component, is_64bit, buildenv):
       if "plugins" in component and not component["plugins"]:
         deploy_cmd.append("-no-plugins")
       iutl.RunCommand(deploy_cmd, env=buildenv)
-      UpdateVersionInPlist(os.path.join(temp_wd,component["macapp"],"Contents","Info.plist"))
+      UpdateVersionInPlist(os.path.join(temp_wd,component["macapp"], "Contents", "Info.plist"))
   elif c_project.endswith(".vcxproj"):
     # Build MSVC project.
     conf = "Release_x64" if is_64bit else "Release"
@@ -137,7 +210,7 @@ def BuildComponent(component, is_64bit, buildenv):
                   "-quiet"]
     if "xcflags" in component:
       build_cmd.extend(map(lambda s : "\"" + s + "\"", component["xcflags"]))
-    if "ExternalCompilerOptions" in buildenv:
+    if buildenv and "ExternalCompilerOptions" in buildenv:
       build_cmd.append("OTHER_CFLAGS=\"{}\"".format(buildenv["ExternalCompilerOptions"]))
     build_cmd.extend(["clean", "build"])
     os.chdir(os.path.join(ROOT_DIR, c_subdir))
@@ -147,31 +220,36 @@ def BuildComponent(component, is_64bit, buildenv):
                                         "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " \
                                         "grep -oEi \"\/.*\"".format(c_project)], shell=True)
       if c_target.endswith(".app"):
-        utl.CopyAllFiles(os.path.join(outdir, c_target), os.path.join(temp_wd, c_target))
+        utl.CopyMacBundle(os.path.join(outdir, c_target), os.path.join(temp_wd, c_target))
       else:
         utl.CopyFile(os.path.join(outdir, c_target), os.path.join(temp_wd, c_target))
     os.chdir(temp_wd)
     target_location = ""
   else:
     raise iutl.InstallError("Unknown project type: \"{}\"!".format(c_project))
+  # Apply Mac deploy fixes to the app.
+  if c_ismac and macdeployfixes and c_target.endswith(".app"):
+    appfullname = os.path.join(temp_wd, target_location, c_target)
+    ApplyMacDeployFixes(appfullname, macdeployfixes)
   # Copy output file.
   if c_target:
     srcfile = os.path.join(temp_wd, target_location, c_target)
     dstfile = BUILD_INSTALLER_FILES
     if "outdir" in component:
       dstfile = os.path.join(dstfile, component["outdir"])
-    dstfile = os.path.join(dstfile, c_target)
+    dstfile = os.path.join(dstfile, target_name_override if target_name_override else c_target)
     if c_target.endswith(".app"):
-      utl.CopyAllFiles(srcfile, dstfile)
+      utl.CopyMacBundle(srcfile, dstfile)
     else:
       utl.CopyFile(srcfile, dstfile)
   if BUILD_SYMBOL_FILES and "symbols" in component:
     srcfile = os.path.join(temp_wd, target_location, component["symbols"])
-    dstfile = BUILD_SYMBOL_FILES
-    if "outdir" in component:
-      dstfile = os.path.join(dstfile, component["outdir"])
-    dstfile = os.path.join(dstfile, component["symbols"])
-    utl.CopyFile(srcfile, dstfile)
+    if os.path.exists(srcfile):
+      dstfile = BUILD_SYMBOL_FILES
+      if "outdir" in component:
+        dstfile = os.path.join(dstfile, component["outdir"])
+      dstfile = os.path.join(dstfile, component["symbols"])
+      utl.CopyFile(srcfile, dstfile)
   os.chdir(current_wd)
 
 
@@ -204,7 +282,10 @@ def BuildComponents(configdata, targetlist, qt_root):
     if is_64bit:
       has_64bit = True
       continue
-    BuildComponent(configdata[target], is_64bit, buildenv)
+    macdeployfixes = None
+    if "macdeployfixes" in configdata and target in configdata["macdeployfixes"]:
+      macdeployfixes = configdata["macdeployfixes"][target]
+    BuildComponent(configdata[target], is_64bit, buildenv, macdeployfixes)
   if has_64bit:
     buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
     for target in targetlist:
@@ -213,27 +294,10 @@ def BuildComponents(configdata, targetlist, qt_root):
           "Undefined target: {} (please check \"{}\"".format(target, BUILD_CFGNAME))
       is_64bit = "is64bit" in configdata[target] and configdata[target]["is64bit"]
       if is_64bit:
-        BuildComponent(configdata[target], is_64bit, buildenv)
-
-
-def CopyFile(filename, srcdir, dstdir, strip_first_dir=False):
-  parts = filename.split("->")
-  srcfilename = parts[0].strip()
-  dstfilename = srcfilename if len(parts) == 1 else parts[1].strip()
-  msg.Print(dstfilename)
-  srcfile = os.path.normpath(os.path.join(srcdir, srcfilename))
-  dstfile = os.path.normpath(dstfilename)
-  if strip_first_dir:
-    dstfile = os.sep.join(dstfile.split(os.path.sep)[1:])
-  dstfile = os.path.join(dstdir, dstfile)
-  utl.CopyAllFiles(srcfile, dstfile) \
-    if srcfilename.endswith(("\\", "/")) else utl.CopyFile(srcfile, dstfile)
-
-
-def CopyFiles(title, filelist, srcdir, dstdir, strip_first_dir=False):
-  msg.Info("Copying {} files...".format(title))
-  for filename in filelist:
-    CopyFile(filename, srcdir, dstdir, strip_first_dir)
+        macdeployfixes = None
+        if "macdeployfixes" in configdata and target in configdata["macdeployfixes"]:
+          macdeployfixes = configdata["macdeployfixes"][target]
+        BuildComponent(configdata[target], is_64bit, buildenv, macdeployfixes)
 
 
 def PackSymbols():
@@ -250,7 +314,7 @@ def PackSymbols():
   zf.close()
 
 
-def SignExecutables(filename_to_sign=None):
+def SignExecutablesWin32(filename_to_sign=None):
   msg.Info("Signing...")
   signtool = os.path.join(ROOT_DIR, "installer", "windows", "signing", "signtool.exe")
   certfile = os.path.join(ROOT_DIR, "installer", "windows", "signing", "code_signing.pfx")
@@ -285,7 +349,7 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   # Pack symbols for crashdump analysis.
   PackSymbols()
   # Sign executable files with a certificate.
-  SignExecutables()
+  SignExecutablesWin32()
   # Place everything in a 7z archive.
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["win32"]]
@@ -306,7 +370,33 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
     "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRINGS[0])))
   utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                   installer_info["target"])), final_installer_name)
-  SignExecutables(final_installer_name)
+  SignExecutablesWin32(final_installer_name)
+
+
+def BuildInstallerMac(configdata):
+  # Place everything in a 7z archive.
+  msg.Info("Zipping...")
+  installer_info = configdata[configdata["installer"]["macos"]]
+  archive_filename = os.path.normpath(
+    os.path.join(ROOT_DIR, installer_info["subdir"], "installer", "resources", "windscribe.7z"))
+  utl.RemoveFile(archive_filename)
+  iutl.RunCommand(["7z", "a", archive_filename,
+                   os.path.join(BUILD_INSTALLER_FILES, "Windscribe.app"),
+                   "-y", "-bso0", "-bsp2"])
+  # Build and sign the installer.
+  installer_app_override = "WindscribeInstaller.app"
+  BuildComponent(installer_info, False, target_name_override=installer_app_override)
+  # Drop DMG.
+  dmg_dir = BUILD_INSTALLER_FILES
+  if "outdir" in installer_info:
+    dmg_dir = os.path.join(dmg_dir, installer_info["outdir"])
+  old_cwd = os.getcwd()
+  os.chdir(dmg_dir)
+  iutl.RunCommand(["dropdmg", "--config-name=Windscribe2", installer_app_override])
+  os.chdir(old_cwd)
+  final_installer_name = os.path.normpath(os.path.join(dmg_dir,
+    "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRINGS[0])))
+  utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
 
 def BuildAll():
@@ -362,12 +452,20 @@ def BuildAll():
     BuildComponents(configdata, configdata["targets"][current_os], qt_root)
   if current_os == "win32":
     BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
+  elif current_os == "macos":
+    BuildInstallerMac(configdata)
   os.chdir(old_cwd)
   # Copy artifacts.
   msg.Print("Installing artifacts...")
   utl.CreateDirectory(artifact_dir, True)
-  artifact_path = os.path.join(temp_dir, "InstallerFiles")
-  for filename in glob2.glob(temp_dir + os.sep + "*"):
+  if current_os == "macos":
+    artifact_path = BUILD_INSTALLER_FILES
+    installer_info = configdata[configdata["installer"]["macos"]]
+    if "outdir" in installer_info:
+      artifact_path = os.path.join(artifact_path, installer_info["outdir"])
+  else:
+    artifact_path = temp_dir
+  for filename in glob2.glob(artifact_path + os.sep + "*"):
     if os.path.isdir(filename):
       continue
     filetitle = os.path.basename(filename)
