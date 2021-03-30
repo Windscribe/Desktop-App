@@ -211,7 +211,7 @@ void ConnectWindowItem::updateScaling()
 
 void ConnectWindowItem::updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime)
 {
-    qDebug() << "updateLocationInfo:" << countryCode;
+    // qDebug() << "updateLocationInfo:" << countryCode;
     locationID_ = id;
 
     fullFirstName_ = firstName;

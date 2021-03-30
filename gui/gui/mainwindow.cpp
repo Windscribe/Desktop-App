@@ -754,7 +754,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
         {
-            qCDebug(LOG_USER) << "Collapsing Locations [key]";
+            // qCDebug(LOG_USER) << "Collapsing Locations [key]";
             mainWindowController_->collapseLocations();
         }
         else
@@ -768,7 +768,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Space)
         {
-            qCDebug(LOG_USER) << "Expanding Locations [key]";
+            // qCDebug(LOG_USER) << "Expanding Locations [key]";
             mainWindowController_->expandLocations();
         }
         else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
@@ -2139,7 +2139,7 @@ void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on, bool isError)
 
 void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error)
 {
-    qDebug() << "Mainwindow::onBackendUpdateVersionChanged: " << progressPercent << ", " << state;
+    // qDebug() << "Mainwindow::onBackendUpdateVersionChanged: " << progressPercent << ", " << state;
 
     if (state == ProtoTypes::UPDATE_VERSION_STATE_DONE)
     {
@@ -2411,7 +2411,7 @@ const QRect MainWindow::bestGuessForTrayIconRectFromLastScreen(const QPoint &pt)
     {
         return lastScreenTrayRect;
     }
-    qDebug() << "No valid history of last screen";
+    // qDebug() << "No valid history of last screen";
     return trayIconRectForScreenContainingPt(pt);
 }
 
@@ -2425,7 +2425,7 @@ const QRect MainWindow::trayIconRectForLastScreen()
             return rect;
         }
     }
-    qDebug() << "No valid last screen";
+    // qDebug() << "No valid last screen";
     return QRect(0,0,0,0); // invalid
 }
 
@@ -2434,7 +2434,7 @@ const QRect MainWindow::trayIconRectForScreenContainingPt(const QPoint &pt)
     QScreen *screen = WidgetUtils::slightlySaferScreenAt(pt);
     if (!screen)
     {
-        qCDebug(LOG_BASIC) << "Cannot find screen while determining tray icon";
+        // qCDebug(LOG_BASIC) << "Cannot find screen while determining tray icon";
         return QRect(0,0,0,0);
     }
     return guessTrayIconLocationOnScreen(screen);
@@ -2459,10 +2459,10 @@ const QRect MainWindow::generateTrayIconRectFromHistory(const QString &screenNam
                                          rect.width(), rect.height());
             return newIconRect;
         }
-        qDebug() << "   No screen by name: " << screenName;
+        //qDebug() << "   No screen by name: " << screenName;
         return QRect(0,0,0,0);
     }
-    qDebug() << "   No history for screen: " << screenName;
+    //qDebug() << "   No history for screen: " << screenName;
     return QRect(0,0,0,0);
 }
 
@@ -2642,10 +2642,10 @@ QRect MainWindow::trayIconRect()
         // check for valid tray icon
         if (!rc.isValid())
         {
-            qCDebug(LOG_BASIC) << "   Tray icon invalid - check last screen " << rc;
+            // qCDebug(LOG_BASIC) << "   Tray icon invalid - check last screen " << rc;
             QRect lastGuess = bestGuessForTrayIconRectFromLastScreen(rc.topLeft());
             if (lastGuess.isValid()) return lastGuess;
-            qDebug() << "Using cached rect: " << savedTrayIconRect_;
+            //qDebug() << "Using cached rect: " << savedTrayIconRect_;
             return savedTrayIconRect_;
         }
 
@@ -2653,14 +2653,14 @@ QRect MainWindow::trayIconRect()
         QScreen *screen = QGuiApplication::screenAt(rc.center());
         if (!screen)
         {
-            qCDebug(LOG_BASIC) << "No screen at point -- make best guess " << rc;
+            // qCDebug(LOG_BASIC) << "No screen at point -- make best guess " << rc;
             QRect bestGuess = trayIconRectForScreenContainingPt(rc.topLeft());
             if (bestGuess.isValid())
             {
-                qDebug() << "Using best guess rect << " << bestGuess;
+                //qDebug() << "Using best guess rect << " << bestGuess;
                 return bestGuess;
             }
-            qDebug() << "Using cached rect: " << savedTrayIconRect_;
+            //qDebug() << "Using cached rect: " << savedTrayIconRect_;
             return savedTrayIconRect_;
         }
 
@@ -2674,7 +2674,7 @@ QRect MainWindow::trayIconRect()
         return savedTrayIconRect_;
     }
 
-    qCDebug(LOG_BASIC) << "Tray Icon not visible -- using last saved TrayIconRect";
+    // qCDebug(LOG_BASIC) << "Tray Icon not visible -- using last saved TrayIconRect";
 
 #else
     if (trayIcon_.isVisible())
@@ -2976,7 +2976,7 @@ void MainWindow::onDpiScaleManagerNewScreen(QScreen *screen)
     // Any attempt to remove the bug resulted in only pushing the bug around and this is extremely tedious to test. Fair warning.
     if (backend_->getPreferences()->isDockedToTray())
     {
-        qDebug() << "New scale from DpiScaleManager (docked app) - hide app";
+        // qDebug() << "New scale from DpiScaleManager (docked app) - hide app";
         deactivateAndHide();
     }
 #endif

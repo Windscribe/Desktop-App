@@ -219,13 +219,13 @@ bool VpnShareController::isWifiSharingSupported()
 #endif
 }
 
-void VpnShareController::onConnectingOrConnectedToVPNEvent()
+void VpnShareController::onConnectingOrConnectedToVPNEvent(const QString &vpnAdapterName)
 {
     QMutexLocker locker(&mutex_);
 #ifdef Q_OS_WIN
     if (wifiSharing_)
     {
-        wifiSharing_->switchSharingForConnectingOrConnected();
+        wifiSharing_->switchSharingForConnectingOrConnected(vpnAdapterName);
     }
 #endif
     if (httpProxyServer_)

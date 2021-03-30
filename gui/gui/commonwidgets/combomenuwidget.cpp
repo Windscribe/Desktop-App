@@ -187,7 +187,7 @@ QPixmap ComboMenuWidget::getCurrentPixmapShape()
     painter.setPen(Qt::white);
     painter.setBrush(Qt::white);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.drawRoundRect(roundedBackgroundRect_, ROUNDED_CORNER, ROUNDED_CORNER);
+    painter.drawRoundedRect(roundedBackgroundRect_, ROUNDED_CORNER, ROUNDED_CORNER, Qt::RelativeSize);
     return tempPixmap;
 }
 
@@ -212,7 +212,7 @@ void ComboMenuWidget::paintEvent(QPaintEvent *event)
     painter.setPen(Qt::white);
     painter.setBrush(Qt::white);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.drawRoundRect(roundedBackgroundRect_, ROUNDED_CORNER, ROUNDED_CORNER);
+    painter.drawRoundedRect(roundedBackgroundRect_, ROUNDED_CORNER, ROUNDED_CORNER, Qt::RelativeSize);
 }
 
 void ComboMenuWidget::keyPressEvent(QKeyEvent *event)

@@ -28,7 +28,7 @@ QDateTime parseDateTimeFormat1(const std::string &datestr)
     int hh, mm, ss, zzz;
     if (sscanf(datestr.c_str(),"%02d%02d%02d %02d:%02d:%02d:%03d", &dd, &MM, &yy, &hh, &mm, &ss, &zzz) == 7)
     {
-        return QDateTime(QDate(yy, MM, dd), QTime(hh, mm, ss, zzz));
+        return QDateTime(QDate(yy + 1900, MM, dd), QTime(hh, mm, ss, zzz));
     }
     else
     {
@@ -43,7 +43,7 @@ QDateTime parseDateTimeFormat2(const std::string &datestr)
     int hh, mm, ss, zzz;
     if (sscanf(datestr.c_str(),"%02d%02d %02d:%02d:%02d:%03d", &dd, &MM, &hh, &mm, &ss, &zzz) == 6)
     {
-        return QDateTime(QDate(0, MM, dd), QTime(hh, mm, ss, zzz));
+        return QDateTime(QDate(1900, MM, dd), QTime(hh, mm, ss, zzz));
     }
     else
     {
@@ -57,11 +57,6 @@ QDateTime parseDateTimeFormat2(const std::string &datestr)
 QString MergeLog::mergeLogs(bool doMergePerLine)
 {
     const QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-
-    /*const QString guiLogFilename = "C:/Users/azano/Downloads/log_gui.txt";
-    const QString engineLogFilename = "C:/Users/azano/Downloads/log_engine.txt";
-    const QString serviceLogFilename1 = "C:/Users/azano/Downloads/windscribeservice.log";
-    const QString serviceLogFilename2 = "C:/Users/azano/Downloads/windscribeservice_prev.log";*/
 
     const QString guiLogFilename = path + "/log_gui.txt";
     const QString engineLogFilename = path + "/log_engine.txt";
@@ -115,6 +110,8 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
             prevDateTime = datetime;
             timestamp = 0;
         }
+
+
         // In QMultiMap, elements with the same key will be placed in a reverse order.
         // https://doc.qt.io/qt-5/qmap-iterator.html#details
         // To deal with the issue, we create a compound key: 44 bits for a timestamp, 2 bits
@@ -124,6 +121,7 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
         // lines to a log file within 1 ms).
         const auto key = (static_cast<quint64>(datetime.toMSecsSinceEpoch()) << 20)
                        | (static_cast<quint64>(source) << 18) | qMin(timestamp++, 0x3ffff);
+
         {
             QMutexLocker locker(mutex);
             lines->insert(key, qMakePair(source, QString::fromStdString(line)));
@@ -182,17 +180,40 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogF
         result.append("\n");
     };
 
+    // cut out the part of the log if the count of lines  exceeds MAX_COUNT_OF_LINES (keep 10% begin and 90% end of log)
+    int cutCount = 0;
+    int cutBeginInd = 0;
+    int cutEndInd = lines.count();
+    if (lines.count() > MAX_COUNT_OF_LINES)
+    {
+        cutCount = lines.count() - MAX_COUNT_OF_LINES;
+        cutBeginInd = MAX_COUNT_OF_LINES / 10;
+        cutEndInd = lines.count() - MAX_COUNT_OF_LINES * 0.9;
+    }
+
     if (doMergePerLine) {
+        int ind = 0;
         for (auto it = lines.constBegin(); it != lines.constEnd(); ++it)
-            logAppendFun(it.value());
+        {
+            // cut out middle
+            if (cutCount == 0 || ind < cutBeginInd || ind > cutEndInd)
+            {
+                logAppendFun(it.value());
+            }
+            ind++;
+        }
     } else {
         const char *separators[] = { nullptr, "Engine", "Service" };
         for (int i = 0; i < static_cast<int>(LineSource::NUM_LINE_SOURCES); ++i) {
             const auto current_source = static_cast<LineSource>(i);
             bool is_first_line = true;
+            int ind = 0;
             for (auto it = lines.constBegin(); it != lines.constEnd(); ++it) {
                 if (it.value().first != current_source)
+                {
+                    ind++;
                     continue;
+                }
                 if (is_first_line) {
                     is_first_line = false;
                     if (separators[i]) {
@@ -202,7 +223,12 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogF
                         result.append("\n");
                     }
                 }
-                logAppendFun(it.value());
+                // cut out middle
+                if (cutCount == 0 || ind < cutBeginInd || ind > cutEndInd)
+                {
+                    logAppendFun(it.value());
+                }
+                ind++;
             }
         }
     }

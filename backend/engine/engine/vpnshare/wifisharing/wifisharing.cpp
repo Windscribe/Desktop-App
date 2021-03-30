@@ -1,14 +1,14 @@
 #include "wifisharing.h"
 #include <QTimer>
-#include <qDebug>
+#include <QDebug>
 #include <winsock2.h>
 #include <iphlpapi.h>
 #include <QElapsedTimer>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include "wlanmanager.h"
 #include "icsmanager.h"
 
-GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter);
+GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const QString &vpnAdapterName);
 GUID stringToGuid(PCHAR str);
 
 WifiSharing::WifiSharing(QObject *parent, IHelper *helper) : QObject(parent),
@@ -81,8 +81,9 @@ void WifiSharing::switchSharingForDisconnected()
     timerForUpdateIcsDisconnected_.start(DELAY_FOR_UPDATE_ICS_DISCONNECTED);
 }
 
-void WifiSharing::switchSharingForConnectingOrConnected()
+void WifiSharing::switchSharingForConnectingOrConnected(const QString &vpnAdapterName)
 {
+    vpnAdapterName_ = vpnAdapterName;
     if (timerForUpdateIcsDisconnected_.isActive())
     {
         timerForUpdateIcsDisconnected_.stop();
@@ -90,7 +91,7 @@ void WifiSharing::switchSharingForConnectingOrConnected()
     sharingState_ = STATE_CONNECTING_CONNECTED;
     if (isSharingStarted_)
     {
-        updateICS(sharingState_);
+        updateICS(sharingState_, vpnAdapterName);
     }
 }
 
@@ -109,7 +110,7 @@ void WifiSharing::onWlanStarted()
     if (isSharingStarted_)
     {
         qCDebug(LOG_WLAN_MANAGER) << "WifiSharing::onWlanStarted";
-        updateICS(sharingState_);
+        updateICS(sharingState_, vpnAdapterName_);
     }
 }
 
@@ -120,15 +121,15 @@ void WifiSharing::onTimerForUpdateIcsDisconnected()
     if (isSharingStarted_)
     {
         // switch sharing for disconnected state make with delay
-        updateICS(sharingState_);
+        updateICS(sharingState_, vpnAdapterName_);
     }
 }
 
-void WifiSharing::updateICS(int state)
+void WifiSharing::updateICS(int state, const QString &vpnAdapterName)
 {
     qCDebug(LOG_WLAN_MANAGER) << "WifiSharing::updateICS()";
     bool bSuccess;
-    GUID guidAdapter = getGuidForPrimaryAdapter(bSuccess, state == STATE_CONNECTING_CONNECTED);
+    GUID guidAdapter = getGuidForPrimaryAdapter(bSuccess, state == STATE_CONNECTING_CONNECTED, vpnAdapterName);
 
     if (!bSuccess)
     {
@@ -142,7 +143,7 @@ void WifiSharing::updateICS(int state)
     }
 }
 
-GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter)
+GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const QString &vpnAdapterName)
 {
     DWORD dwBestIfIndex;
     if (GetBestInterface(INADDR_ANY, &dwBestIfIndex) != NO_ERROR)
@@ -183,8 +184,7 @@ GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter)
     {
         while (pCurrAddresses)
         {
-            if (pCurrAddresses->IfType == IF_TYPE_ETHERNET_CSMACD || pCurrAddresses->IfType == IF_TYPE_IEEE80211)
-            if (wcsstr(pCurrAddresses->Description, L"Windscribe VPN") != 0)
+            if (wcsstr(pCurrAddresses->Description, vpnAdapterName.toStdWString().c_str()) != 0)
             //if (pCurrAddresses->OperStatus == IfOperStatusUp)
             {
                     qCDebug(LOG_WLAN_MANAGER) << "Detected Windscribe VPN tap adapter" << QString::fromStdString(pCurrAddresses->AdapterName) << QString::fromStdWString(pCurrAddresses->FriendlyName);

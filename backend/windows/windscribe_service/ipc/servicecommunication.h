@@ -188,6 +188,10 @@ enum CMD_PROTOCOL_TYPE {
 struct CMD_CONNECT_STATUS
 {
 	bool isConnected;
+
+    bool isCloseTcpSocket;
+    bool isKeepLocalSocket;
+
 	CMD_PROTOCOL_TYPE protocol;
 
 	ADAPTER_GATEWAY_INFO defaultAdapter;

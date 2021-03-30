@@ -891,7 +891,7 @@ void LocationsTab::hideSearchTab()
 
 void LocationsTab::hideSearchTabWithoutAnimation()
 {
-    qCDebug(LOG_LOCATION_LIST) << "hide search without animation";
+    // qCDebug(LOG_LOCATION_LIST) << "hide search without animation";
     if (searchTabSelected_)
     {
         searchButtonPosAnimation_.stop();

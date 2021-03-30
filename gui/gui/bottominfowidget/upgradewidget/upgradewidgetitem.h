@@ -3,7 +3,6 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include <QPropertyAnimation>
 #include "commongraphics/textbutton.h"
 
 namespace UpgradeWidget {

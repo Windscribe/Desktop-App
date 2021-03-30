@@ -101,22 +101,22 @@ def InstallDependency():
   msg.HeadPrint("Extracting: \"{}\"".format(archivename))
   iutl.ExtractFile(localfilename)
   # Build the dependency.
-  old_cwd = os.getcwd()
-  os.chdir(os.path.join(temp_dir, archivetitle))
-  msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-  BuildDependencyMSVC(zlib_root, temp_dir) \
-    if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(temp_dir)
-  os.chdir(old_cwd)
-  # Copy the dependency to output directory and to a zip file, if needed.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ[dep_buildroot_var] if dep_buildroot_var in os.environ else \
                       os.path.join("build-libs", dep_name)
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
-  installzipname = None
+  old_cwd = os.getcwd()
+  os.chdir(os.path.join(temp_dir, archivetitle))
+  msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+  BuildDependencyMSVC(zlib_root, outpath) \
+    if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(outpath)
+  os.chdir(old_cwd)
+  # Copy the dependency to output directory and to a zip file, if needed.
+  aflist = [outpath]
   if "-zip" in sys.argv:
     installzipname = os.path.join(os.path.dirname(outpath), "{}.zip".format(dep_name))
-  msg.Print("Installing artifacts...")
-  aflist = iutl.InstallArtifacts(temp_dir, DEP_FILE_MASK, outpath, installzipname)
+    msg.Print("Installing artifacts...")
+    aflist = iutl.InstallArtifacts(outpath, DEP_FILE_MASK, None, installzipname)
   for af in aflist:
     msg.HeadPrint("Ready: \"{}\"".format(af))
   # Cleanup.

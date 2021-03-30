@@ -90,9 +90,6 @@
     <ClCompile Include="..\..\common\utils\languagesutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\backend\types\locationid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\backend\locationsmodel\locationsmodel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -157,6 +154,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\backend\preferences\detectlanrange.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\types\locationid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\utils\clean_sensitive_info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -233,9 +236,6 @@
     <ClInclude Include="..\..\common\utils\languagesutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\backend\types\locationid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\backend\locationsmodel\locationmodelitem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -307,6 +307,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\backend\preferences\detectlanrange.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\types\locationid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\utils\clean_sensitive_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

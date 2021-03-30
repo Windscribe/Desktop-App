@@ -1,8 +1,9 @@
 #include "all_headers.h"
 #include "close_tcp_connections.h"
+#include <cwctype>
 
 // static
-void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets)
+void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isExclude /*= true*/, const std::vector<std::wstring> &apps/* = std::vector<std::wstring>()*/)
 {
 	PMIB_TCPTABLE2 pTcpTable = NULL;
 	DWORD dwSize = 0;
@@ -42,6 +43,37 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets)
             if (isWindscribeProcessName(entry->dwOwningPid))
                 continue;
 
+			// don't close apps sockets
+			if (isExclude)
+			{
+				bool bSkip = false;
+				for (auto app : apps)
+				{
+					if (isAppSocket(entry->dwOwningPid, app))
+					{
+						bSkip = true;
+						break;
+					}
+				}
+				if (bSkip)
+					continue;
+			}
+			// // don't close not apps sockets
+			else
+			{
+				bool bFound = false;
+				for (auto app : apps)
+				{
+					if (isAppSocket(entry->dwOwningPid, app))
+					{
+						bFound = true;
+						break;
+					}
+				}
+				if (!bFound)
+					continue;
+			}
+
             entry->dwState = MIB_TCP_STATE_DELETE_TCB;
             SetTcpEntry(reinterpret_cast<MIB_TCPROW *>(entry));
         }
@@ -56,6 +88,18 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets)
 // static
 bool CloseTcpConnections::isWindscribeProcessName(DWORD dwPid)
 {
+	return isAppSocket(dwPid, L"windscribe");
+}
+
+//static 
+bool CloseTcpConnections::isAppSocket(DWORD dwPid, const std::wstring &app)
+{
+	std::wstring lowerApp = app;
+	std::transform(lowerApp.begin(), lowerApp.end(), lowerApp.begin(),
+		[](wchar_t c) {return static_cast<wchar_t>(std::towlower(c)); });
+
+	std::replace(lowerApp.begin(), lowerApp.end(), L'/', L'\\');
+
 	bool bRet = false;
 	HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwPid);
 	if (processHandle != NULL)
@@ -64,7 +108,7 @@ bool CloseTcpConnections::isWindscribeProcessName(DWORD dwPid)
 		if (GetModuleFileNameEx(processHandle, NULL, filename, MAX_PATH) != 0)
 		{
 			_wcslwr(filename);
-			if (wcsstr(filename, L"windscribe") != 0)
+			if (wcsstr(filename, lowerApp.c_str()/* L"windscribe")*/) != 0)
 			{
 				bRet = true;
 			}
@@ -74,6 +118,7 @@ bool CloseTcpConnections::isWindscribeProcessName(DWORD dwPid)
 
 	return bRet;
 }
+
 
 namespace
 {
@@ -116,3 +161,4 @@ bool CloseTcpConnections::isLocalAddress(DWORD address)
 
     return false;
 }
+

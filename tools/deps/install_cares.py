@@ -89,6 +89,9 @@ def InstallDependency():
   iutl.DownloadFile("{}{}".format(DEP_URL, archivename), localfilename)
   msg.HeadPrint("Extracting: \"{}\"".format(archivename))
   iutl.ExtractFile(localfilename)
+  # Copy modified files (Windows only).
+  if utl.GetCurrentOS() == "win32":
+    iutl.CopyCustomFiles(dep_name,os.path.join(temp_dir, archivetitle))
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ[dep_buildroot_var] if dep_buildroot_var in os.environ else \

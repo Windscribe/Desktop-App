@@ -25,7 +25,7 @@ public:
     bool isSharingStarted();
 
     void switchSharingForDisconnected();
-    void switchSharingForConnectingOrConnected();
+    void switchSharingForConnectingOrConnected(const QString &vpnAdapterName);
 
     int getConnectedUsersCount();
 
@@ -43,6 +43,7 @@ private:
     QString ssid_;
     WlanManager *wlanManager_;
     IcsManager *icsManager_;
+    QString vpnAdapterName_;
 
     QTimer timerForUpdateIcsDisconnected_;
     static constexpr int DELAY_FOR_UPDATE_ICS_DISCONNECTED = 10000;
@@ -52,7 +53,7 @@ private:
 
 
 
-    void updateICS(int state);
+    void updateICS(int state, const QString &vpnAdapterName);
 };
 
 #endif // WIFISHARING_H

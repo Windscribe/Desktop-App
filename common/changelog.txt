@@ -1,9 +1,21 @@
+2.02.9 (22/03/2021)
+* Removed some more log spam and log errors. #414
+* Large post data send bug fixed. #427
+* Log merge speed increased (for large files 5-10 times). #427
+* Cut out the part of the log if the count of lines exceeds 100k (keep 10% begin and 90% end of log). #427
+* Added Export Log button. #429
+* Do not close sockets for applications that do not use a VPN. #426
+* Set "TCP socket termination" option ON by default.
+* Linked option "TCP socket termination" with closing sockets in split tunneling. #426
+* Hotspot fix for openVPN, disable hotspot for WireGuard. #432
+
+
 2.02.8 (12/03/2021)
 * Updated remoteid for IKEv2 profiles on Mac. #420
 * Inclusive split routing issue on Mac - should be fixed. #398
 * Removed useless(spam) messages from log (GUI side). #414 
 * Prevented keypress navigation to other locations from config-only mode.
-* Fixed auto-hide of docked app on showing extrnal OS dialogs. #396
+* Fixed auto-hide of docked app on showing external OS dialogs. #396
 * Fixed negative remaining bytes issue. #370
 * Open newsfeed to the first unread message, if any. #371
 

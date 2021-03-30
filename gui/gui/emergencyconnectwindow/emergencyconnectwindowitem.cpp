@@ -145,7 +145,7 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
     }
 
     QFontMetrics fm = painter->fontMetrics();
-    int width = fm.width(descriptionText)/desiredLines; // 3 lines
+    int width = fm.horizontalAdvance(descriptionText)/desiredLines; // 3 lines
     if (width < DESCRIPTION_WIDTH_MIN*G_SCALE) width = DESCRIPTION_WIDTH_MIN*G_SCALE;
     else if (width > LOGIN_WIDTH*G_SCALE) width = LOGIN_WIDTH*G_SCALE;
     painter->drawText(CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, width), DESCRIPTION_POS_Y*G_SCALE,

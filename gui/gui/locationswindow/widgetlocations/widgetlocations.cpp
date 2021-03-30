@@ -253,7 +253,7 @@ bool WidgetLocations::eventFilter(QObject *object, QEvent *event)
         {
             if (g->state() == Qt::GestureStarted)
             {
-                qCDebug(LOG_USER) << "Tap Gesture started";
+                //qCDebug(LOG_USER) << "Tap Gesture started";
                 bTapGestureStarted_ = true;
             }
             else if (g->state() == Qt::GestureFinished)
@@ -264,24 +264,24 @@ bool WidgetLocations::eventFilter(QObject *object, QEvent *event)
                     bTapGestureStarted_ = false;
                     QPointF ptf = g->position();
                     QPoint pt(ptf.x(), ptf.y());
-                    qCDebug(LOG_USER) << "Tap Gesture finished, selecting by pt: " << pt;
+                    //qCDebug(LOG_USER) << "Tap Gesture finished, selecting by pt: " << pt;
                     widgetLocationsList_->selectWidgetContainingGlobalPt(pt);
                 }
             }
             else if (g->state() == Qt::GestureCanceled)
             {
                 // this will run if scrolling gestures start coming through
-                qCDebug(LOG_USER) << "Tap Gesture canceled - scrolling";
+                //qCDebug(LOG_USER) << "Tap Gesture canceled - scrolling";
                 bTapGestureStarted_ = false;
             }
         }
         QPanGesture *gp = static_cast<QPanGesture *>(ge->gesture(Qt::PanGesture));
         if (gp)
         {
-            qCDebug(LOG_USER) << "Pan gesture";
+            //qCDebug(LOG_USER) << "Pan gesture";
             if (gp->state() == Qt::GestureStarted)
             {
-                qCDebug(LOG_USER) << "Pan gesture started";
+                //qCDebug(LOG_USER) << "Pan gesture started";
                 bTapGestureStarted_ = false;
             }
         }
@@ -392,7 +392,7 @@ void WidgetLocations::handleKeyEvent(QKeyEvent *event)
         }
         else
         {
-            qCDebug(LOG_LOCATION_LIST) << "Accenting first";
+            // qCDebug(LOG_LOCATION_LIST) << "Accenting first";
             widgetLocationsList_->accentFirstSelectableItem();
         }
     }
@@ -490,14 +490,14 @@ void WidgetLocations::mousePressEvent(QMouseEvent *event)
 
 void WidgetLocations::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    qDebug() << "WidgetLocations::mouseDoubleClickEvent";
+    // qDebug() << "WidgetLocations::mouseDoubleClickEvent";
     // mousePressEvent instead of double click? need note here
     QScrollArea::mousePressEvent(event);
 }
 
 void WidgetLocations::onItemsUpdated(QVector<LocationModelItem *> items)
 {
-    qCDebug(LOG_LOCATION_LIST) << "Items updated: " << name_;
+    //qCDebug(LOG_LOCATION_LIST) << "Items updated: " << name_;
     updateWidgetList(items);
 }
 

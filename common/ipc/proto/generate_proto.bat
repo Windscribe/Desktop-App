@@ -1,10 +1,13 @@
-ECHO OFF
+@ECHO OFF
 @RD /S /Q %~dp0..\generated_proto 
 mkdir %~dp0..\generated_proto
 
+set protodir=%1
+if "%protodir%"=="" set protodir=%~dp0..\..\..\build-libs\protobuf\release\bin
+
 set oldpath=%PATH%
-set PATH=c:/libs/protobuf_release/bin;%PATH%
-forfiles /p %~dp0 /m *.proto /c "protoc -I=%~dp0 --cpp_out=%~dp0..\generated_proto @file"
+set PATH=%protodir%;%PATH%
+forfiles /p %~dp0 /m *.proto /c "protoc -I=%~dp0 --cpp_out=%~dp0..\generated_proto @file" 1>NUL
 set PATH=%oldpath%
 
 rem removing warnings for MSVC
@@ -18,7 +21,7 @@ SET endstring2="#pragma warning^(pop^)"
 SET endstring3="#endif"
 
 for %%I in (%~dp0..\generated_proto\*.cc) do (
-  del merged.tmp
+  if exist merged.tmp del merged.tmp
   echo %headstring1:"=% >> merged.tmp
   echo %headstring2:"=% >> merged.tmp
   echo %headstring3:"=% >> merged.tmp
@@ -30,21 +33,8 @@ for %%I in (%~dp0..\generated_proto\*.cc) do (
   echo %endstring2:"=% >> merged.tmp
   echo %endstring3:"=% >> merged.tmp
   
-  copy /Y merged.tmp %%~fI
+  copy /Y merged.tmp %%~fI 1>NUL
 )
 
-del merged.tmp
-
-REM verify all files were created
-for /R %~dp0 %%f in (*.proto) do (
-  IF NOT EXIST %~dp0..\generated_proto\%%~nf.pb.cc (goto :error)
-  IF NOT EXIST %~dp0..\generated_proto\%%~nf.pb.h (goto :error)
-)
-
-echo Successfully generated all ipc files.
-goto :eof
-
-:error
-  echo Failed to generate all ipc files.
-  exit /b 1
-  
+if exist merged.tmp del merged.tmp
+exit /B %ERRORLEVEL%

@@ -110,7 +110,7 @@ void ExternalConfigWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QString descriptionText = tr("Use the Windscribe app without an account to connect to any OpenVPN or WireGuard server.");
     QFontMetrics fm = painter->fontMetrics();
-    int width = fm.width(descriptionText)/3; // 3 lines
+    int width = fm.horizontalAdvance(descriptionText)/3; // 3 lines
     if (width < DESCRIPTION_WIDTH_MIN*G_SCALE) width = DESCRIPTION_WIDTH_MIN*G_SCALE;
     else if (width > LOGIN_WIDTH*G_SCALE) width = LOGIN_WIDTH*G_SCALE;
     painter->drawText(CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, width), DESCRIPTION_POS_Y*G_SCALE,

@@ -144,7 +144,7 @@ DWORD Uninstaller::RunFirstPhase(HINSTANCE hInstance,LPSTR lpszCmdParam)
 {
   DirectoriesOfAWindows dir_win;
   wstring TempFile;
-  HWND Wnd;
+  //HWND Wnd;
   HANDLE ProcessHandle;
 
   Log::instance().out(L"RunFirstPhase");
@@ -277,9 +277,9 @@ void Uninstaller::DelayDeleteFile(const bool DisableFsRedir, const wstring Filen
 
 void Uninstaller::DeleteUninstallDataFiles()
 {
- HWND ProcessWnd;
- DWORD ProcessID;
- HANDLE Process;
+ //HWND ProcessWnd;
+ //DWORD ProcessID;
+ //HANDLE Process;
 
 
  Log::instance().out("Deleting Uninstall data files.");

@@ -5,7 +5,7 @@
 #include "../utils.h"
 
 SplitTunneling::SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper) : firewallFilter_(firewallFilter), calloutFilter_(fwmpWrapper), 
-				 hostnamesManager_(firewallFilter), isSplitTunnelEnabled_(false), isExclude_(false), bKeepLocalSockets_(false), prevIsSplitTunnelActive_(false), prevIsExclude_(false)
+				 hostnamesManager_(firewallFilter), isSplitTunnelEnabled_(false), isExclude_(false), prevIsSplitTunnelActive_(false), prevIsExclude_(false)
 {
 	connectStatus_.isConnected = false;
 	detectWindscribeExecutables();
@@ -122,21 +122,16 @@ void SplitTunneling::updateState()
 	}
 
 	// close TCP sockets if state changed
-	bool bNeedCloseTcpSockets = false;
-	if (isSplitTunnelActive != prevIsSplitTunnelActive_)
+	if (isSplitTunnelActive != prevIsSplitTunnelActive_ && connectStatus_.isCloseTcpSocket)
 	{
-		bNeedCloseTcpSockets = true;
+		Logger::instance().out(L"SplitTunneling::threadFunc() close TCP sockets, exclude non VPN apps");
+		CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket, isExclude_, apps_);
 	}
-	else if (isSplitTunnelActive && isExclude_ != prevIsExclude_)
+	else if (isSplitTunnelActive && isExclude_ != prevIsExclude_ && connectStatus_.isCloseTcpSocket)
 	{
-		bNeedCloseTcpSockets = true;
+		Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
+		CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket);
 	}
 	prevIsSplitTunnelActive_ = isSplitTunnelActive;
 	prevIsExclude_ = isExclude_;
-
-	if (bNeedCloseTcpSockets)
-	{
-		Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
-		CloseTcpConnections::closeAllTcpConnections(bKeepLocalSockets_);
-	}
 }

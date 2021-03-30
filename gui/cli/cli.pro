@@ -13,6 +13,7 @@ DEFINES += WINDSCRIBE_CLI
 TARGET = windscribe-cli
 
 COMMON_PATH = $$PWD/../../common
+BUILD_LIBS_PATH = $$PWD/../../build-libs
 INCLUDEPATH += $$COMMON_PATH
 
 # You can also make your code fail to compile if it uses deprecated APIs.
@@ -22,12 +23,12 @@ INCLUDEPATH += $$COMMON_PATH
 
 win32{
     CONFIG(release, debug|release){
-        INCLUDEPATH += c:/libs/protobuf_release/include
-        LIBS += -Lc:/libs/protobuf_release/lib -llibprotobuf
+        INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/release/include
+        LIBS += -L$$BUILD_LIBS_PATH/protobuf/release/lib -llibprotobuf
     }
     CONFIG(debug, debug|release){
-        INCLUDEPATH += c:/libs/protobuf_debug/include
-        LIBS += -Lc:/libs/protobuf_debug/lib -llibprotobufd
+        INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/debug/include
+        LIBS += -L$$BUILD_LIBS_PATH/protobuf/debug/lib -llibprotobufd
     }
 
     LIBS += -luser32
@@ -63,8 +64,8 @@ macx {
     LIBS += -framework CoreServices
     LIBS += -framework Security
 
-    INCLUDEPATH += $$(HOME)/LibsWindscribe/protobuf/include
-    LIBS += -L$$(HOME)/LibsWindscribe/protobuf/lib -lprotobuf
+    INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+    LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
     OBJECTIVE_SOURCES += \
             $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm \

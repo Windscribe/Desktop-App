@@ -14,7 +14,7 @@ int centeredOffset(int background_length, int graphic_length)
 int textWidth(QString text, const QFont &font)
 {
     QFontMetrics fontMetrics(font);
-    return fontMetrics.width(text);
+    return fontMetrics.horizontalAdvance(text);
 }
 
 int textHeight(const QFont &font)
@@ -39,7 +39,7 @@ int idealWidth(int minWidth, int maxWidth, int idealLines, int oneLineWidth)
 int idealWidthOfTextRect(int minWidth, int maxWidth, int idealLines, QString text, const QFont &font)
 {
     QFontMetrics fm(font);
-    int oneLineWidth = fm.width(text);
+    int oneLineWidth = fm.horizontalAdvance(text);
     oneLineWidth *= 1.1; // Actual text length will be a bit larger than the one-liner text due to centering per line
     return idealWidth(minWidth, maxWidth, idealLines, oneLineWidth);
 }

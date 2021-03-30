@@ -151,6 +151,27 @@ def RemoveFile(filename):
   raise IOError("Can't remove file \"{}\"!\nLast error: {}".format(filename, last_error))
 
 
+def RenameFile(srcname, dstname):
+  msg.Verbose("RenameFile: \"{}\" to \"{}\"".format(srcname, dstname))
+  usrcname = MakeUnicodePath(srcname)
+  if not os.path.exists(usrcname):
+    msg.Verbose("File doesn't exist")
+    return True
+  udstname = MakeUnicodePath(dstname)
+  if os.path.exists(udstname):
+    RemoveFile(dstname)
+  last_error = None
+  for _ in range(_OS_RETRY_COUNT):
+    try:
+      os.rename(usrcname, udstname)
+      return True
+    except EnvironmentError as e:
+      last_error = e
+      time.sleep(1)
+  raise IOError("Can't rename file \"{}\" to \"{}\"!\nLast error: {}".format( \
+    srcname, dstname, last_error))
+
+
 def RemoveAllFiles(sourcedir, filemask):
   fullmask = os.path.join(sourcedir, filemask)
   msg.Verbose("RemoveAllFiles: \"{}\"".format(fullmask))
@@ -161,6 +182,8 @@ def RemoveAllFiles(sourcedir, filemask):
 
 def CopyFile(sourcefilename, destfilename, copymode=True):
   msg.Verbose("CopyFile: \"{}\" to \"{}\"".format(sourcefilename, destfilename))
+  if not os.path.exists(sourcefilename):
+    raise IOError("Can't copy file \"{}\": not found.".format(sourcefilename))
   usourcefilename = MakeUnicodePath(sourcefilename)
   udestfilename = MakeUnicodePath(destfilename)
   destdir = os.path.dirname(destfilename)
@@ -188,3 +211,22 @@ def CopyAllFiles(sourcedir, destdir, copymode=True):
       srcfilename = os.path.join(dirpath, filename)
       dstfilename = os.path.join(destdir + dirpath[prefixlen:], filename)
       CopyFile(srcfilename, dstfilename, copymode)
+
+
+def CopyMacBundle(sourcefilename, destfilename):
+  msg.Verbose("CopyMacBundle: \"{}\" to \"{}\"".format(sourcefilename, destfilename))
+  if not os.path.exists(sourcefilename):
+    raise IOError("Can't copy bundle \"{}\": not found.".format(sourcefilename))
+  destdir = os.path.dirname(destfilename)
+  if not os.path.exists(destdir):
+    CreateDirectory(destdir)
+  last_error = None
+  for _ in range(_OS_RETRY_COUNT):
+    try:
+      shutil.copytree(sourcefilename, destfilename, symlinks=True)
+      return True
+    except EnvironmentError as e:
+      last_error = e
+      time.sleep(1)
+  raise IOError("Can't copy bundle \"{}\" to \"{}\"!\nLast error: {}".format(
+    sourcefilename, destfilename, last_error))

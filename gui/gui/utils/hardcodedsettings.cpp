@@ -25,9 +25,9 @@ QString HardcodedSettings::generateRandomDomain(const QString &prefix)
     //qCDebug(LOG_BASIC) << "Month for generated domain:" << dt.date().month();
 
     QByteArray str = passwordForRandomDomain_;    // "giveMEsomePACKETZ9!"
-    str += QString::number(randomNum);
-    str += QString::number(dt.date().month());
-    str += QString::number(dt.date().year());
+    str += QString::number(randomNum).toLatin1();
+    str += QString::number(dt.date().month()).toLatin1();
+    str += QString::number(dt.date().year()).toLatin1();
     QByteArray code = QCryptographicHash::hash(str, QCryptographicHash::Sha1);
     QString result = prefix + code.toHex() + ".com";
     return result;

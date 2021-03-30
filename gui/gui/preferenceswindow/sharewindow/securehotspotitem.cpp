@@ -177,7 +177,7 @@ void SecureHotspotItem::updateCollapsedAndExpandedHeight()
     }
     else if (supported_ == HOTSPOT_NOT_SUPPORTED_BY_IKEV2)
     {
-        descriptionText_ = QT_TR_NOOP("Secure hotspot is not supported for IKEv2 protocol and automatic connection mode");
+        descriptionText_ = QT_TR_NOOP("Secure hotspot is not supported for IKEv2/WireGuard protocol and automatic connection mode");
     }
     else
     {

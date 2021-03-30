@@ -66,3 +66,8 @@ def ExecuteInPipe(command_and_args, strip_quotes=False, env=None):
   if execute_result:
     raise PipeRuntimeError(execute_result, output_line_count)
   return output_line_count
+
+
+def ExecuteAndGetOutput(command_and_args, env=None, shell=False):
+  process_handle = subprocess.Popen(command_and_args, stdout=subprocess.PIPE, env=env, shell=shell)
+  return process_handle.communicate()[0].strip()

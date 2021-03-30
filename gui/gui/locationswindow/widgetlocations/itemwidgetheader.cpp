@@ -290,14 +290,14 @@ void ItemWidgetHeader::mouseMoveEvent(QMouseEvent *event)
     {
         if (p2pRect().contains(event->pos()))
         {
-            qDebug() << "P2P hovering";
+            // qDebug() << "P2P hovering";
             p2pHovering_ = true;
             p2pIconHover();
         }
         else if (p2pHovering_)
         {
             p2pHovering_ = false;
-            qDebug() << "P2P unhover";
+            // qDebug() << "P2P unhover";
             p2pIconUnhover();
         }
     }
