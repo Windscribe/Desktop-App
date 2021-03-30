@@ -592,10 +592,8 @@ build:mac:installer:
     # - echo -n "$CODE_SIGNING_PFX_BASE64" | base64 --decode > $CODE_SIGNING_PFX_PATH
     - VERSION=$(python installer/windows/extract_version.py common/version/windscribe_version.h)
     - tools/build_all -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/Windscribe_$VERSION.dmg"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/WindscribeSymbols_$VERSION.zip"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/WindscribeSymbols_$VERSION.zip"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/Windscribe_$VERSION.dmg"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg"
   rules:
     - if: '$BUILD_MAC == "y"'
     # changes:
