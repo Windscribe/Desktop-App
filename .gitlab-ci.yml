@@ -589,11 +589,11 @@ build:mac:installer:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_STUNNEL}"
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    # Clean out DropDMG Windscribe2 settings and simlink to this repo
+    # Clean out DropDMG Windscribe2 settings and symlink to this repo
     - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
     - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
-    - ln -s ./common/prepare_build_environment/mac/DropDMG/Configurations/Windscribe2.plist ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
-    - ln -s ./common/prepare_build_environment/mac/DropDMG/Layouts/Windscribe2 ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
+    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Configurations/Windscribe2.plist ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
+    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Layouts/Windscribe2 ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
     # - echo -n "$CODE_SIGNING_PFX_BASE64" | base64 --decode > $CODE_SIGNING_PFX_PATH
     - VERSION=$(python installer/windows/extract_version.py common/version/windscribe_version.h)
     - tools/build_all -zip
