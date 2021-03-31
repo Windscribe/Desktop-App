@@ -47,7 +47,7 @@ echo "Sending to Apple for notarization"
 # Outputs are written to stderr
 # Upload the tool for notarization
 # (Tee through /dev/stderr so the output is logged in case we exit here due to set -e)
-notarizeOutput=$( (sudo xcrun altool --notarize-app -t osx -f "WindscribeInstaller.zip" --primary-bundle-id="$APP_BUNDLE" -u "$APPLE_ID_EMAIL" -p "$APPLE_ID_PASSWORD") 2>&1 | tee /dev/stderr)
+notarizeOutput=$( (sudo /usr/bin/xcrun altool --notarize-app -t osx -f "WindscribeInstaller.zip" --primary-bundle-id="$APP_BUNDLE" -u "$APPLE_ID_EMAIL" -p "$APPLE_ID_PASSWORD") 2>&1 | tee /dev/stderr)
 
 if [[ $notarizeOutput == *"No errors uploading"* ]];
 then
@@ -69,7 +69,7 @@ deadline=$(($(date "+%s") + ${APPLE_NOTARIZE_TIMEOUT}))
 
 while :
 do
-    notarizationStatus=$( (sudo xcrun altool --notarization-info "$REQUEST_ID" -u "$APPLE_ID_EMAIL" -p "$APPLE_ID_PASSWORD") 2>&1 | tee /dev/stderr)
+    notarizationStatus=$( (sudo /usr/bin/xcrun altool --notarization-info "$REQUEST_ID" -u "$APPLE_ID_EMAIL" -p "$APPLE_ID_PASSWORD") 2>&1 | tee /dev/stderr)
 
     if [[ $notarizationStatus == *"in progress"* ]];
     then
@@ -103,7 +103,7 @@ do
 done
 
 # Assuming that the package has been approved by this point
-stapleOutput=$( (sudo xcrun stapler staple "WindscribeInstaller.app") 2>&1)
+stapleOutput=$( (sudo /usr/bin/xcrun stapler staple "WindscribeInstaller.app") 2>&1)
 
 if [[ $stapleOutput == *"action worked"* ]];
 then
