@@ -581,7 +581,7 @@ bool IKEv2Connection_mac::isFailedAuthError(QMap<time_t, QString> &logs)
 {
     for (QMap<time_t, QString>::iterator it = logs.begin(); it != logs.end(); ++it)
     {
-        if (it.value().contains("Failed", Qt::CaseInsensitive) && it.value().contains("IKE", Qt::CaseInsensitive))
+        if (it.value().contains("Failed", Qt::CaseInsensitive) && it.value().contains("IKE", Qt::CaseInsensitive) && it.value().contains("Auth", Qt::CaseInsensitive))
         {
             if (!(it.value().contains("Failed", Qt::CaseInsensitive) && it.value().contains("IKEv2 socket", Qt::CaseInsensitive)))
             {
