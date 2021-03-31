@@ -24,7 +24,7 @@ import deps.installutils as iutl
 # Windscribe settings.
 BUILD_TITLE = "Windscribe"
 BUILD_CFGNAME = "build_all.yml"
-BUILD_OS_LIST = [ "win32", "macos" ]
+BUILD_OS_LIST = ["win32", "macos"]
 BUILD_CERT_PASSWORD = "fBafQVi0RC4Ts4zMUFOE" # TODO: keep elsewhere!
 BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
@@ -37,13 +37,11 @@ BUILD_SYMBOL_FILES = ""
 
 def ExtractAppVersion():
   version_file = os.path.join(COMMON_DIR, "version", "windscribe_version.h")
-  values = [0]*4
-  patterns = [
-    re.compile("\\bWINDSCRIBE_MAJOR_VERSION\\s+(\\d+)"),
+  values = [0] * 4
+  patterns = [re.compile("\\bWINDSCRIBE_MAJOR_VERSION\\s+(\\d+)"),
     re.compile("\\bWINDSCRIBE_MINOR_VERSION\\s+(\\d+)"),
     re.compile("\\bWINDSCRIBE_BUILD_VERSION\\s+(\\d+)"),
-    re.compile("^#define\\s+WINDSCRIBE_IS_BETA")
-  ]
+    re.compile("^#define\\s+WINDSCRIBE_IS_BETA")]
   with open(version_file, "r") as f:
     for line in f:
       for i in range(len(patterns)):
@@ -122,23 +120,22 @@ def ApplyMacDeployFixes(appname, fixlist):
       utl.RemoveFile(os.path.join(appname, k))
   # 3. rpathfix
   if "rpathfix" in fixlist:
-    current_wd = os.getcwd()
-    msg.Info("Fixing rpaths...")
-    for f, m in fixlist["rpathfix"].iteritems():
-      fs = os.path.split(f)
-      os.chdir(os.path.join(appname,fs[0]))
-      for k, v in m.iteritems():
-        lib_root = iutl.GetDependencyBuildRoot(k)
-        if not lib_root:
-          raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-        for vv in v:
-          parts = vv.split("->")
-          srcv = parts[0].strip()
-          dstv = srcv if len(parts) == 1 else parts[1].strip()
-          change_lib_from = os.path.join(lib_root, srcv)
-          change_lib_to = "@executable_path/{}".format(dstv)
-          iutl.RunCommand(["install_name_tool", "-change", change_lib_from, change_lib_to, fs[1]])
-    os.chdir(current_wd)
+    with utl.PushDir():
+      msg.Info("Fixing rpaths...")
+      for f, m in fixlist["rpathfix"].iteritems():
+        fs = os.path.split(f)
+        os.chdir(os.path.join(appname,fs[0]))
+        for k, v in m.iteritems():
+          lib_root = iutl.GetDependencyBuildRoot(k)
+          if not lib_root:
+            raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+          for vv in v:
+            parts = vv.split("->")
+            srcv = parts[0].strip()
+            dstv = srcv if len(parts) == 1 else parts[1].strip()
+            change_lib_from = os.path.join(lib_root, srcv)
+            change_lib_to = "@executable_path/{}".format(dstv)
+            iutl.RunCommand(["install_name_tool", "-change", change_lib_from, change_lib_to, fs[1]])
   # 4. Code signing.
   if "codesign" in fixlist:
     # Signing the whole app.
@@ -157,8 +154,7 @@ def ApplyMacDeployFixes(appname, fixlist):
                        entitlements_binary])
 
 
-def BuildComponent(component, is_64bit, buildenv=None, macdeployfixes=None,
-                   target_name_override=None):
+def BuildComponent(component, is_64bit, buildenv=None, macdeployfixes=None, target_name_override=None):
   # Collect settings.
   current_os = utl.GetCurrentOS()
   c_iswin = current_os == "win32"
@@ -166,91 +162,90 @@ def BuildComponent(component, is_64bit, buildenv=None, macdeployfixes=None,
   c_bits = "64" if (is_64bit or c_ismac) else "32"
   c_project = component["project"]
   c_subdir = component["subdir"]
-  c_target = component["target"] if "target" in component else None
+  c_target = component.get("target", None)
   if c_ismac and "macapp" in component:
     c_target = component["macapp"]
   # Strip "exe" if not on Windows.
   if not c_iswin and c_target.endswith(".exe"):
-    c_target = c_target[:len(c_target)-4]
+    c_target = c_target[:len(c_target) - 4]
   # Setup a directory.
   msg.Info("Building {} ({}-bit)...".format(component["name"], c_bits))
-  current_wd = os.getcwd()
-  temp_wd = os.path.normpath(os.path.join(current_wd, c_subdir))
-  utl.CreateDirectory(temp_wd)
-  os.chdir(temp_wd)
-  if c_project.endswith(".pro"):
-    # Build Qt project.
-    build_cmd = [ BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release silent" ]
-    if c_iswin:
-      build_cmd.extend(["-spec", "win32-msvc"])
-    iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
-    iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=c_iswin)
-    target_location = "release" if c_iswin else ""
-    if c_ismac and "macapp" in component:
-      deploy_cmd = [ BUILD_MACDEPLOY, component["macapp"]]
-      if "plugins" in component and not component["plugins"]:
-        deploy_cmd.append("-no-plugins")
-      iutl.RunCommand(deploy_cmd, env=buildenv)
-      UpdateVersionInPlist(os.path.join(temp_wd,component["macapp"], "Contents", "Info.plist"))
-  elif c_project.endswith(".vcxproj"):
-    # Build MSVC project.
-    conf = "Release_x64" if is_64bit else "Release"
-    build_cmd = [
-      "msbuild.exe", GetProjectFile(c_subdir, c_project),
-      "/p:SolutionDir={}".format(ROOT_DIR + os.sep),
-      "/p:OutDir={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
-      "/p:IntDir={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
-      "/p:IntermediateOutputPath={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
-      "/p:Configuration={}".format(conf), "-nologo", "-verbosity:m" ]
-    iutl.RunCommand(build_cmd, env=buildenv, shell=True)
-    target_location = "release-{}".format(c_bits)
-  elif c_project.endswith(".xcodeproj"):
-    # Build Xcode project.
-    build_cmd = [ "xcodebuild", "-scheme", component["scheme"], "-configuration", "Release",
-                  "-quiet"]
-    if "xcflags" in component:
-      build_cmd.extend(map(lambda s : "\"" + s + "\"", component["xcflags"]))
-    if buildenv and "ExternalCompilerOptions" in buildenv:
-      build_cmd.append("OTHER_CFLAGS=\"{}\"".format(buildenv["ExternalCompilerOptions"]))
-    build_cmd.extend(["clean", "build"])
-    os.chdir(os.path.join(ROOT_DIR, c_subdir))
-    iutl.RunCommand(build_cmd, env=buildenv)
-    if c_target:
-      outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | " \
-                                        "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " \
-                                        "grep -oEi \"\/.*\"".format(c_project)], shell=True)
-      if c_target.endswith(".app"):
-        utl.CopyMacBundle(os.path.join(outdir, c_target), os.path.join(temp_wd, c_target))
-      else:
-        utl.CopyFile(os.path.join(outdir, c_target), os.path.join(temp_wd, c_target))
+  with utl.PushDir() as current_wd:
+    temp_wd = os.path.normpath(os.path.join(current_wd, c_subdir))
+    utl.CreateDirectory(temp_wd)
     os.chdir(temp_wd)
-    target_location = ""
-  else:
-    raise iutl.InstallError("Unknown project type: \"{}\"!".format(c_project))
-  # Apply Mac deploy fixes to the app.
-  if c_ismac and macdeployfixes and c_target.endswith(".app"):
-    appfullname = os.path.join(temp_wd, target_location, c_target)
-    ApplyMacDeployFixes(appfullname, macdeployfixes)
-  # Copy output file.
-  if c_target:
-    srcfile = os.path.join(temp_wd, target_location, c_target)
-    dstfile = BUILD_INSTALLER_FILES
-    if "outdir" in component:
-      dstfile = os.path.join(dstfile, component["outdir"])
-    dstfile = os.path.join(dstfile, target_name_override if target_name_override else c_target)
-    if c_target.endswith(".app"):
-      utl.CopyMacBundle(srcfile, dstfile)
+    if c_project.endswith(".pro"):
+      # Build Qt project.
+      build_cmd = [BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release silent"]
+      if c_iswin:
+        build_cmd.extend(["-spec", "win32-msvc"])
+      iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
+      iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=c_iswin)
+      target_location = "release" if c_iswin else ""
+      if c_ismac and "macapp" in component:
+        deploy_cmd = [BUILD_MACDEPLOY, component["macapp"]]
+        if "plugins" in component and not component["plugins"]:
+          deploy_cmd.append("-no-plugins")
+        iutl.RunCommand(deploy_cmd, env=buildenv)
+        UpdateVersionInPlist(os.path.join(temp_wd,component["macapp"], "Contents", "Info.plist"))
+    elif c_project.endswith(".vcxproj"):
+      # Build MSVC project.
+      conf = "Release_x64" if is_64bit else "Release"
+      build_cmd = [
+        "msbuild.exe", GetProjectFile(c_subdir, c_project),
+        "/p:SolutionDir={}".format(ROOT_DIR + os.sep),
+        "/p:OutDir={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
+        "/p:IntDir={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
+        "/p:IntermediateOutputPath={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
+        "/p:Configuration={}".format(conf), "-nologo", "-verbosity:m"
+      ]
+      iutl.RunCommand(build_cmd, env=buildenv, shell=True)
+      target_location = "release-{}".format(c_bits)
+    elif c_project.endswith(".xcodeproj"):
+      # Build Xcode project.
+      build_cmd = ["xcodebuild", "-scheme", component["scheme"], "-configuration", "Release", "-quiet"]
+      if "xcflags" in component:
+        build_cmd.extend(map(lambda s : "\"" + s + "\"", component["xcflags"]))
+      if buildenv and "ExternalCompilerOptions" in buildenv:
+        build_cmd.append("OTHER_CFLAGS=\"{}\"".format(buildenv["ExternalCompilerOptions"]))
+      build_cmd.extend(["clean", "build"])
+      os.chdir(os.path.join(ROOT_DIR, c_subdir))
+      iutl.RunCommand(build_cmd, env=buildenv)
+      if c_target:
+        outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | " \
+                                          "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " \
+                                          "grep -oEi \"\/.*\"".format(c_project)], shell=True)
+        if c_target.endswith(".app"):
+          utl.CopyMacBundle(os.path.join(outdir, c_target), os.path.join(temp_wd, c_target))
+        else:
+          utl.CopyFile(os.path.join(outdir, c_target), os.path.join(temp_wd, c_target))
+      os.chdir(temp_wd)
+      target_location = ""
     else:
-      utl.CopyFile(srcfile, dstfile)
-  if BUILD_SYMBOL_FILES and "symbols" in component:
-    srcfile = os.path.join(temp_wd, target_location, component["symbols"])
-    if os.path.exists(srcfile):
-      dstfile = BUILD_SYMBOL_FILES
+      raise iutl.InstallError("Unknown project type: \"{}\"!".format(c_project))
+    # Apply Mac deploy fixes to the app.
+    if c_ismac and macdeployfixes and c_target.endswith(".app"):
+      appfullname = os.path.join(temp_wd, target_location, c_target)
+      ApplyMacDeployFixes(appfullname, macdeployfixes)
+    # Copy output file.
+    if c_target:
+      srcfile = os.path.join(temp_wd, target_location, c_target)
+      dstfile = BUILD_INSTALLER_FILES
       if "outdir" in component:
         dstfile = os.path.join(dstfile, component["outdir"])
-      dstfile = os.path.join(dstfile, component["symbols"])
-      utl.CopyFile(srcfile, dstfile)
-  os.chdir(current_wd)
+      dstfile = os.path.join(dstfile, target_name_override if target_name_override else c_target)
+      if c_target.endswith(".app"):
+        utl.CopyMacBundle(srcfile, dstfile)
+      else:
+        utl.CopyFile(srcfile, dstfile)
+    if BUILD_SYMBOL_FILES and "symbols" in component:
+      srcfile = os.path.join(temp_wd, target_location, component["symbols"])
+      if os.path.exists(srcfile):
+        dstfile = BUILD_SYMBOL_FILES
+        if "outdir" in component:
+          dstfile = os.path.join(dstfile, component["outdir"])
+        dstfile = os.path.join(dstfile, component["symbols"])
+        utl.CopyFile(srcfile, dstfile)
 
 
 def BuildComponents(configdata, targetlist, qt_root):
@@ -276,8 +271,7 @@ def BuildComponents(configdata, targetlist, qt_root):
   has_64bit = False
   for target in targetlist:
     if not target in configdata:
-      raise iutl.InstallError(
-        "Undefined target: {} (please check \"{}\"".format(target, BUILD_CFGNAME))
+      raise iutl.InstallError("Undefined target: {} (please check \"{}\"".format(target, BUILD_CFGNAME))
     is_64bit = "is64bit" in configdata[target] and configdata[target]["is64bit"]
     if is_64bit:
       has_64bit = True
@@ -290,8 +284,7 @@ def BuildComponents(configdata, targetlist, qt_root):
     buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
     for target in targetlist:
       if not target in configdata:
-        raise iutl.InstallError(
-          "Undefined target: {} (please check \"{}\"".format(target, BUILD_CFGNAME))
+        raise iutl.InstallError("Undefined target: {} (please check \"{}\"".format(target, BUILD_CFGNAME))
       is_64bit = "is64bit" in configdata[target] and configdata[target]["is64bit"]
       if is_64bit:
         macdeployfixes = None
@@ -353,8 +346,7 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   # Place everything in a 7z archive.
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["win32"]]
-  archive_filename = \
-    os.path.normpath(os.path.join(ROOT_DIR, installer_info["subdir"], "../windscribe.7z"))
+  archive_filename = os.path.normpath(os.path.join(ROOT_DIR, installer_info["subdir"], "../windscribe.7z"))
   print(archive_filename)
   ziptool = os.path.join(TOOLS_DIR, "bin", "7z.exe")
   iutl.RunCommand([ziptool, "a", archive_filename, os.path.join(BUILD_INSTALLER_FILES, "*"),
@@ -377,8 +369,7 @@ def BuildInstallerMac(configdata):
   # Place everything in a 7z archive.
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["macos"]]
-  archive_filename = os.path.normpath(
-    os.path.join(ROOT_DIR, installer_info["subdir"], "installer", "resources", "windscribe.7z"))
+  archive_filename = os.path.normpath(os.path.join(ROOT_DIR, installer_info["subdir"], "installer", "resources", "windscribe.7z"))
   utl.RemoveFile(archive_filename)
   iutl.RunCommand(["7z", "a", archive_filename,
                    os.path.join(BUILD_INSTALLER_FILES, "Windscribe.app"),
@@ -390,12 +381,9 @@ def BuildInstallerMac(configdata):
   dmg_dir = BUILD_INSTALLER_FILES
   if "outdir" in installer_info:
     dmg_dir = os.path.join(dmg_dir, installer_info["outdir"])
-  old_cwd = os.getcwd()
-  os.chdir(dmg_dir)
-  iutl.RunCommand(["dropdmg", "--config-name=Windscribe2", installer_app_override])
-  os.chdir(old_cwd)
-  final_installer_name = os.path.normpath(os.path.join(dmg_dir,
-    "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRINGS[0])))
+  with utl.PushDir(dmg_dir):
+    iutl.RunCommand(["dropdmg", "--config-name=Windscribe2", installer_app_override])
+  final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRINGS[0])))
   utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
 
@@ -410,8 +398,7 @@ def BuildAll():
   if "installer" not in configdata or \
       current_os not in configdata["installer"] or \
       configdata["installer"][current_os] not in configdata:
-    raise iutl.InstallError(
-      "Missing {} installer target in \"{}\".".format(current_os, BUILD_CFGNAME))
+    raise iutl.InstallError("Missing {} installer target in \"{}\".".format(current_os, BUILD_CFGNAME))
   # Extract app version.
   global BUILD_APP_VERSION_STRINGS
   BUILD_APP_VERSION_STRINGS = ExtractAppVersion()
@@ -425,8 +412,7 @@ def BuildAll():
     buildenv = os.environ.copy()
     buildenv.update(iutl.GetVisualStudioEnvironment())
     msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "x86", "Microsoft.VC141.CRT")
-    crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x86".format(
-      buildenv["WINDOWSSDKVERSION"])
+    crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x86".format(buildenv["WINDOWSSDKVERSION"])
     if not os.path.exists(msvc_root):
       raise iutl.InstallError("MSVS installation not found.")
     if not os.path.exists(crt_root):
@@ -446,15 +432,13 @@ def BuildAll():
     utl.CreateDirectory(BUILD_SYMBOL_FILES, True)
   # Build the components.
   GenerateProtobuf()
-  old_cwd = os.getcwd()
-  os.chdir(temp_dir)
-  if configdata["targets"][current_os]:
-    BuildComponents(configdata, configdata["targets"][current_os], qt_root)
-  if current_os == "win32":
-    BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
-  elif current_os == "macos":
-    BuildInstallerMac(configdata)
-  os.chdir(old_cwd)
+  with utl.PushDir(temp_dir):
+    if configdata["targets"][current_os]:
+      BuildComponents(configdata, configdata["targets"][current_os], qt_root)
+    if current_os == "win32":
+      BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
+    elif current_os == "macos":
+      BuildInstallerMac(configdata)
   # Copy artifacts.
   msg.Print("Installing artifacts...")
   utl.CreateDirectory(artifact_dir, True)
@@ -494,7 +478,7 @@ if __name__ == "__main__":
     exitcode = 1
   elapsed_time = time.time() - start_time
   if elapsed_time >= 60:
-    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time/60, elapsed_time%60))
+    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
   else:
     msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
   sys.exit(exitcode)

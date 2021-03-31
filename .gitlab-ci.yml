@@ -29,7 +29,7 @@ variables:
   BUILDROOT: 'build-libs'
   TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
-  BUILD_WIN: 'n'
+  BUILD_WIN: 'y'
   BUILD_MAC: 'y'
 
 include:

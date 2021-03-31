@@ -213,3 +213,14 @@ def CopyMacBundle(sourcefilename, destfilename):
       time.sleep(1)
   raise IOError("Can't copy bundle \"{}\" to \"{}\"!\nLast error: {}".format(
     sourcefilename, destfilename, last_error))
+
+
+class PushDir(object):
+  def __init__(self, wd = None):
+    self.wd = wd
+    self.orig = os.getcwd()
+  def __enter__(self):
+    if self.wd: os.chdir(self.wd)
+    return os.getcwd()
+  def __exit__(self, type, value, traceback):
+    os.chdir(self.orig)
