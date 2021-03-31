@@ -1,17 +1,17 @@
 #include "failedpinglogcontroller.h"
 #include "utils/logger.h"
 
-void FailedPingLogController::logFailedIPs(const QStringList &ips)
+bool FailedPingLogController::logFailedIPs(const QString &ip)
 {
     QMutexLocker locker(&mutex_);
-    for (const QString &ip : ips)
+
+    if (!failedPingIps_.contains(ip))
     {
-        if (!failedPingIps_.contains(ip))
-        {
-            qCDebug(LOG_PING) << "Ping failed for node: " << ip;
-            failedPingIps_ << ip;
-        }
+        qCDebug(LOG_PING) << "Ping failed for node: " << ip;
+        failedPingIps_ << ip;
+        return true;
     }
+    return false;
 }
 
 void FailedPingLogController::clear()

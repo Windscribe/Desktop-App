@@ -8,7 +8,7 @@
 class FailedPingLogController
 {
 public:
-    void logFailedIPs(const QStringList &ips);
+    bool logFailedIPs(const QString &ip);
     void clear();
 
 
