@@ -20,14 +20,14 @@ import installutils as iutl
 # Dependency-specific settings.
 DEP_TITLE = "CAres"
 DEP_URL = "https://c-ares.haxx.se/download/"
-DEP_OS_LIST = [ "win32", "macos", "linux" ]
+DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = []  # filled out later.
 
 CARES_CONFIGS = {
-  "dll_x32" : [ "x86", "dll" ],
-  "dll_x64" : [ "x86_amd64", "dll" ],
-  "static_x32" : [ "x86", "lib" ],
-  "static_x64" : [ "x86_amd64", "lib" ],
+  "dll_x32" : ["x86", "dll"],
+  "dll_x64" : ["x86_amd64", "dll"],
+  "static_x32" : ["x86", "lib"],
+  "static_x64" : ["x86_amd64", "lib"],
 }
 
 
@@ -48,7 +48,7 @@ def BuildDependencyMSVC(outpath):
       iutl.RunCommand(["nmake", "/F", "Makefile.msvc", "CFG={}-{}".format(params[1], buildcfg),
                        "install"], env=buildenv, shell=True)
     iutl.RunCommand(["nmake", "/F", "Makefile.msvc", "clean"], env=buildenv, shell=True)
-    DEP_FILE_MASK.append( "{}/**".format(prefix) )
+    DEP_FILE_MASK.append("{}/**".format(prefix))
 
 
 def BuildDependencyGNU(outpath):
@@ -64,7 +64,7 @@ def BuildDependencyGNU(outpath):
   iutl.RunCommand(["make"], env=buildenv)
   iutl.RunCommand(["make", "install", "-s"], env=buildenv)
   for prefix in ["include", "lib"]:
-    DEP_FILE_MASK.append( "{}/**".format(prefix) )
+    DEP_FILE_MASK.append("{}/**".format(prefix))
 
 
 def InstallDependency():
@@ -76,7 +76,7 @@ def InstallDependency():
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
   dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
-  dep_version_str = os.environ[dep_version_var] if dep_version_var in os.environ else None
+  dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))
   # Prepare output.
@@ -94,20 +94,19 @@ def InstallDependency():
     iutl.CopyCustomFiles(dep_name,os.path.join(temp_dir, archivetitle))
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-  dep_buildroot_str = os.environ[dep_buildroot_var] if dep_buildroot_var in os.environ else \
-                      os.path.join("build-libs", dep_name)
+  dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
-  old_cwd = os.getcwd()
-  os.chdir(os.path.join(temp_dir, archivetitle))
-  msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-  BuildDependencyMSVC(outpath) if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(outpath)
-  os.chdir(old_cwd)
+  with utl.PushDir(os.path.join(temp_dir, archivetitle)):
+    msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+    if utl.GetCurrentOS() == "win32":
+      BuildDependencyMSVC(outpath)
+    else:
+      BuildDependencyGNU(outpath)
   # Copy the dependency to output directory and to a zip file, if needed.
   aflist = [outpath]
   if "-zip" in sys.argv:
     dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
-    dep_artifact_str = os.environ[dep_artifact_var] if dep_artifact_var in os.environ else \
-                       "{}.zip".format(dep_name)
+    dep_artifact_str = os.environ.get(dep_artifact_var, "{}.zip".format(dep_name))
     installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
     msg.Print("Installing artifacts...")
     aflist = iutl.InstallArtifacts(outpath, DEP_FILE_MASK, None, installzipname)
@@ -136,7 +135,7 @@ if __name__ == "__main__":
     exitcode = 1
   elapsed_time = time.time() - start_time
   if elapsed_time >= 60:
-    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time/60, elapsed_time%60))
+    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
   else:
     msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
   sys.exit(exitcode)

@@ -20,8 +20,8 @@ import installutils as iutl
 # Dependency-specific settings.
 DEP_TITLE = "CUrl"
 DEP_URL = "https://curl.haxx.se/download/"
-DEP_OS_LIST = [ "win32", "macos", "linux" ]
-DEP_FILE_MASK = [ "bin/**", "include/**", "lib/**" ]
+DEP_OS_LIST = ["win32", "macos", "linux"]
+DEP_FILE_MASK = ["bin/**", "include/**", "lib/**"]
 
 
 def BuildDependencyMSVC(openssl_root, zlib_root):
@@ -61,7 +61,7 @@ def InstallDependency():
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
   dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
-  dep_version_str = os.environ[dep_version_var] if dep_version_var in os.environ else None
+  dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))
   openssl_root = iutl.GetDependencyBuildRoot("openssl")
@@ -83,28 +83,25 @@ def InstallDependency():
   iutl.ExtractFile(localfilename)
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-  dep_buildroot_str = os.environ[dep_buildroot_var] if dep_buildroot_var in os.environ else \
-                      os.path.join("build-libs", dep_name)
+  dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
-  old_cwd = os.getcwd()
-  os.chdir(os.path.join(temp_dir, archivetitle))
-  msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-  BuildDependencyMSVC(openssl_root, zlib_root) \
-    if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(openssl_root, outpath)
-  os.chdir(old_cwd)
+  with utl.PushDir(os.path.join(temp_dir, archivetitle)):
+    msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+    if utl.GetCurrentOS() == "win32":
+      BuildDependencyMSVC(openssl_root, zlib_root)
+    else:
+      BuildDependencyGNU(openssl_root, outpath)
   # Copy the dependency to output directory and to a zip file, if needed.
   installzipname = None
   if "-zip" in sys.argv:
     dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
-    dep_artifact_str = os.environ[dep_artifact_var] if dep_artifact_var in os.environ else \
-                       "{}.zip".format(dep_name)
+    dep_artifact_str = os.environ.get(dep_artifact_var, "{}.zip".format(dep_name))
     installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
   msg.Print("Installing artifacts...")
   artifacts_dir = outpath
   install_dir = None
   if utl.GetCurrentOS() == "win32":
-    artifacts_dir = os.path.join(temp_dir, archivetitle, "builds",
-                                 "libcurl-vc-x86-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
+    artifacts_dir = os.path.join(temp_dir, archivetitle, "builds", "libcurl-vc-x86-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
     install_dir = outpath
   aflist = iutl.InstallArtifacts(artifacts_dir, DEP_FILE_MASK, install_dir, installzipname)
   for af in aflist:
@@ -132,7 +129,7 @@ if __name__ == "__main__":
     exitcode = 1
   elapsed_time = time.time() - start_time
   if elapsed_time >= 60:
-    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time/60, elapsed_time%60))
+    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
   else:
     msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
   sys.exit(exitcode)

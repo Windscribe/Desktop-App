@@ -20,8 +20,8 @@ import installutils as iutl
 # Dependency-specific settings.
 DEP_TITLE = "LZO"
 DEP_URL = "http://www.oberhumer.com/opensource/lzo/download/"
-DEP_OS_LIST = [ "win32", "macos", "linux" ]
-DEP_FILE_MASK = [ "include/**", "lib/**" ]
+DEP_OS_LIST = ["win32", "macos", "linux"]
+DEP_FILE_MASK = ["include/**", "lib/**"]
 
 
 def BuildDependencyMSVC(outpath):
@@ -61,7 +61,7 @@ def InstallDependency():
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
   dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
-  dep_version_str = os.environ[dep_version_var] if dep_version_var in os.environ else None
+  dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))
   # Prepare output.
@@ -78,20 +78,19 @@ def InstallDependency():
   iutl.CopyCustomFiles(dep_name,os.path.join(temp_dir, archivetitle))
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-  dep_buildroot_str = os.environ[dep_buildroot_var] if dep_buildroot_var in os.environ else \
-                      os.path.join("build-libs", dep_name)
+  dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
-  old_cwd = os.getcwd()
-  os.chdir(os.path.join(temp_dir, archivetitle))
-  msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-  BuildDependencyMSVC(temp_dir) if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(temp_dir)
-  os.chdir(old_cwd)
+  with utl.PushDir(os.path.join(temp_dir, archivetitle)):
+    msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+    if utl.GetCurrentOS() == "win32":
+      BuildDependencyMSVC(temp_dir)
+    else:
+      BuildDependencyGNU(temp_dir)
   # Copy the dependency to output directory and to a zip file, if needed.
   installzipname = None
   if "-zip" in sys.argv:
     dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
-    dep_artifact_str = os.environ[dep_artifact_var] if dep_artifact_var in os.environ else \
-                       "{}.zip".format(dep_name)
+    dep_artifact_str = os.environ.get(dep_artifact_var, "{}.zip".format(dep_name))
     installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
   msg.Print("Installing artifacts...")
   aflist = iutl.InstallArtifacts(temp_dir, DEP_FILE_MASK, outpath, installzipname)
@@ -120,7 +119,7 @@ if __name__ == "__main__":
     exitcode = 1
   elapsed_time = time.time() - start_time
   if elapsed_time >= 60:
-    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time/60, elapsed_time%60))
+    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
   else:
     msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
   sys.exit(exitcode)

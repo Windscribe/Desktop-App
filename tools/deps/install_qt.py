@@ -20,16 +20,16 @@ import installutils as iutl
 # Dependency-specific settings.
 DEP_TITLE = "Qt"
 DEP_URL = "https://download.qt.io/archive/qt/"
-DEP_OS_LIST = [ "win32", "macos", "linux" ]
-DEP_FILE_MASK = [ "bin/**", "include/**", "lib/**", "mkspecs/**", "phrasebooks/**", "plugins/**",
-                  "translations/**" ]
+DEP_OS_LIST = ["win32", "macos", "linux"]
+DEP_FILE_MASK = ["bin/**", "include/**", "lib/**", "mkspecs/**", "phrasebooks/**", "plugins/**",
+                  "translations/**"]
 
-QT_SKIP_MODULES = [ "qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtconnectivity",
+QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtconnectivity",
   "qtdatavis3d", "qtdeclarative", "qtdoc", "qtgamepad", "qtgraphicaleffects", "qtlocation",
   "qtmultimedia", "qtnetworkauth", "qtpurchasing", "qtquickcontrols", "qtquickcontrols2",
   "qtremoteobjects", "qtscript", "qtscxml", "qtserialbus", "qtserialport", "qtspeech",
   "qtvirtualkeyboard", "qtwayland", "qtwebchannel", "qtwebengine", "qtwebglplugin", "qtwebsockets",
-  "qtwebview" ]
+  "qtwebview"]
 
 
 def BuildDependencyMSVC(installpath, openssl_root, outpath):
@@ -45,7 +45,7 @@ def BuildDependencyMSVC(installpath, openssl_root, outpath):
   configure_cmd.extend(["-L", "{}\lib".format(openssl_root)])
   configure_cmd.extend(["-prefix", installpath])
   if QT_SKIP_MODULES:
-    configure_cmd.extend(x for t in zip(["-skip"]*len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
+    configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
   iutl.RunCommand(configure_cmd, env=buildenv, shell=True)
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=True)
@@ -63,7 +63,7 @@ def BuildDependencyGNU(installpath, openssl_root, outpath):
   configure_cmd.append("-I{}/include".format(openssl_root))
   configure_cmd.extend(["-prefix", installpath])
   if QT_SKIP_MODULES:
-    configure_cmd.extend(x for t in zip(["-skip"]*len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
+    configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
@@ -79,7 +79,7 @@ def InstallDependency():
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
   dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
-  dep_version_str = os.environ[dep_version_var] if dep_version_var in os.environ else None
+  dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))
   openssl_root = iutl.GetDependencyBuildRoot("openssl")
@@ -93,8 +93,7 @@ def InstallDependency():
   archivename = archivetitle + (".zip" if utl.GetCurrentOS() == "win32" else ".tar.xz")
   localfilename = os.path.join(temp_dir, archivename)
   msg.HeadPrint("Downloading: \"{}\"".format(archivename))
-  iutl.DownloadFile("{}/{}/{}/single/{}".format(
-    DEP_URL, dep_version_major, dep_version_str, archivename), localfilename)
+  iutl.DownloadFile("{}/{}/{}/single/{}".format(DEP_URL, dep_version_major, dep_version_str, archivename), localfilename)
   msg.HeadPrint("Extracting: \"{}\"".format(archivename))
   iutl.ExtractFile(localfilename)
   # Windows workaround for long paths problem.
@@ -105,22 +104,20 @@ def InstallDependency():
     extracteddir = archivetitle
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-  dep_buildroot_str = os.environ[dep_buildroot_var] if dep_buildroot_var in os.environ else \
-                      os.path.join("build-libs", dep_name)
+  dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
-  old_cwd = os.getcwd()
-  os.chdir(os.path.join(temp_dir, extracteddir))
-  msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-  BuildDependencyMSVC(outpath, openssl_root, temp_dir) \
-    if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(outpath, openssl_root, temp_dir)
-  os.chdir(old_cwd)
+  with utl.PushDir(os.path.join(temp_dir, extracteddir)):
+    msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+    if utl.GetCurrentOS() == "win32":
+      BuildDependencyMSVC(outpath, openssl_root, temp_dir)
+    else:
+      BuildDependencyGNU(outpath, openssl_root, temp_dir)
   # Copy the dependency to a zip file, if needed.
   aflist = [outpath]
   msg.Print("Installing artifacts...")
   if "-zip" in sys.argv:
     dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
-    dep_artifact_str = os.environ[dep_artifact_var] if dep_artifact_var in os.environ else \
-                       "{}.zip".format(dep_name)
+    dep_artifact_str = os.environ.get(dep_artifact_var, "{}.zip".format(dep_name))
     installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
     aflist.extend(iutl.InstallArtifacts(outpath, DEP_FILE_MASK, None, installzipname))
   for af in aflist:
@@ -148,7 +145,7 @@ if __name__ == "__main__":
     exitcode = 1
   elapsed_time = time.time() - start_time
   if elapsed_time >= 60:
-    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time/60, elapsed_time%60))
+    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
   else:
     msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
   sys.exit(exitcode)

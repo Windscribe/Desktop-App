@@ -20,8 +20,8 @@ import installutils as iutl
 # Dependency-specific settings.
 DEP_TITLE = "protobuf"
 DEP_URL = "https://github.com/protocolbuffers/protobuf/archive/"
-DEP_OS_LIST = [ "win32", "macos", "linux" ]
-DEP_FILE_MASK = [ "bin/**", "include/**", "lib/**" ]
+DEP_OS_LIST = ["win32", "macos", "linux"]
+DEP_FILE_MASK = ["bin/**", "include/**", "lib/**"]
 
 CMAKE_BINARY = "C:\\Program Files\\CMake\\bin\\cmake.exe"
 
@@ -43,14 +43,14 @@ def BuildDependencyMSVC(zlib_root, outpath):
   # Build and install all configurations.
   currend_wd = os.getcwd()
   DEP_FILE_MASK = []
-  for config in [ "Debug", "Release" ]:
+  for config in ["Debug", "Release"]:
     msg.HeadPrint("Building: {} version".format(config))
     config_lowercase = config.lower()
     configpath = os.path.join(currend_wd, "cmake", "build", config_lowercase)
     utl.CreateDirectory(configpath)
     os.chdir(configpath)
-    build_cmd = [ CMAKE_BINARY, "-DCMAKE_BUILD_TYPE=" + config,
-                  "-DCMAKE_INSTALL_PREFIX={}".format(os.path.join(outpath, config_lowercase)) ]
+    build_cmd = [CMAKE_BINARY, "-DCMAKE_BUILD_TYPE=" + config,
+                  "-DCMAKE_INSTALL_PREFIX={}".format(os.path.join(outpath, config_lowercase))]
     build_cmd.extend(shared_config_flags)
     build_cmd.append("../..")
     iutl.RunCommand(build_cmd, env=buildenv, shell=True)
@@ -81,7 +81,7 @@ def InstallDependency():
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
   dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
-  dep_version_str = os.environ[dep_version_var] if dep_version_var in os.environ else None
+  dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))
   if utl.GetCurrentOS() == "win32":
@@ -102,15 +102,14 @@ def InstallDependency():
   iutl.ExtractFile(localfilename)
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-  dep_buildroot_str = os.environ[dep_buildroot_var] if dep_buildroot_var in os.environ else \
-                      os.path.join("build-libs", dep_name)
+  dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
-  old_cwd = os.getcwd()
-  os.chdir(os.path.join(temp_dir, archivetitle))
-  msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-  BuildDependencyMSVC(zlib_root, outpath) \
-    if utl.GetCurrentOS() == "win32" else BuildDependencyGNU(outpath)
-  os.chdir(old_cwd)
+  with utl.PushDir(os.path.join(temp_dir, archivetitle)):
+    msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+    if utl.GetCurrentOS() == "win32":
+      BuildDependencyMSVC(zlib_root, outpath)
+    else:
+      BuildDependencyGNU(outpath)
   # Copy the dependency to output directory and to a zip file, if needed.
   aflist = [outpath]
   if "-zip" in sys.argv:
@@ -142,7 +141,7 @@ if __name__ == "__main__":
     exitcode = 1
   elapsed_time = time.time() - start_time
   if elapsed_time >= 60:
-    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time/60, elapsed_time%60))
+    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
   else:
     msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
   sys.exit(exitcode)
