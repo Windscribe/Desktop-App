@@ -54,6 +54,8 @@ public:
     bool isInitialized() const;
     void clear();
 
+    bool isChangedForLogging(const SessionStatus &session) const;
+
 private:
     QSharedDataPointer<SessionStatusData> d;
 };

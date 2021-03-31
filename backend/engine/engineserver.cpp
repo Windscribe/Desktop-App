@@ -653,7 +653,7 @@ void EngineServer::onEngineUpdateSessionStatus(const apiinfo::SessionStatus &ses
 {
     IPC::ProtobufCommand<IPCServerCommands::SessionStatusUpdated> cmd;
     *cmd.getProtoObj().mutable_session_status() = sessionStatus.getProtoBuf();
-    sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
 void EngineServer::onEngineNotificationsUpdated(const QVector<apiinfo::Notification> &notifications)
@@ -664,7 +664,7 @@ void EngineServer::onEngineNotificationsUpdated(const QVector<apiinfo::Notificat
     {
         *cmd.getProtoObj().mutable_array_notifications()->add_api_notifications() = n.getProtoBuf();
     }
-    sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
 void EngineServer::onEngineCheckUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported)

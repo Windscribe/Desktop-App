@@ -347,6 +347,7 @@ private:
     QMutex mutex_;
 
     apiinfo::SessionStatus prevSessionStatus_;
+    apiinfo::SessionStatus prevSessionForLogging_;
 
     std::atomic<bool> isBlockConnect_;
     std::atomic<bool> isCleanupFinished_;

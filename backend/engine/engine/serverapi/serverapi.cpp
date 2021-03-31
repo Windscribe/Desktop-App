@@ -1558,7 +1558,7 @@ void ServerAPI::handleAccessIpsCurl(BaseRequest *rd, bool success)
     else
     {
         QByteArray arr = curlRequest->getAnswer();
-        qCDebugMultiline(LOG_SERVER_API) << arr;
+        //qCDebugMultiline(LOG_SERVER_API) << arr;
 
         QJsonParseError errCode;
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
@@ -1633,7 +1633,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         arr = SessionAndLocationsTest::instance().getSessionData();
 #endif
 
-        qCDebugMultiline(LOG_SERVER_API) << arr;
+        //qCDebugMultiline(LOG_SERVER_API) << arr;
 
 #ifdef TEST_CREATE_API_FILES
         QFile file("c:\\5\\session.api");
@@ -2188,7 +2188,7 @@ void ServerAPI::handleRecordInstallCurl(BaseRequest *rd, bool success)
     {
         qCDebug(LOG_SERVER_API) << "RecordInstall request successfully executed";
         QByteArray arr = curlRequest->getAnswer();
-        qCDebugMultiline(LOG_SERVER_API) << arr;
+        //qCDebugMultiline(LOG_SERVER_API) << arr;
     }
 }
 
@@ -2206,7 +2206,7 @@ void ServerAPI::handleConfirmEmailCurl(BaseRequest *rd, bool success)
     else
     {
         QByteArray arr = curlRequest->getAnswer();
-        qCDebugMultiline(LOG_SERVER_API) << arr;
+        //qCDebugMultiline(LOG_SERVER_API) << arr;
         QJsonParseError errCode;
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
@@ -2296,7 +2296,7 @@ void ServerAPI::handleSpeedRatingCurl(BaseRequest *rd, bool success)
     {
         qCDebug(LOG_SERVER_API) << "SpeedRating request successfully executed";
         QByteArray arr = curlRequest->getAnswer();
-        qCDebugMultiline(LOG_SERVER_API) << arr;
+        //qCDebugMultiline(LOG_SERVER_API) << arr;
     }
 }
 

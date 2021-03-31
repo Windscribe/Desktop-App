@@ -160,4 +160,37 @@ void SessionStatus::clear()
     d->staticIpsUpdateDevices_.clear();
 }
 
+bool SessionStatus::isChangedForLogging(const SessionStatus &session) const
+{
+    if (d->isInitialized_ != session.d->isInitialized_ ||
+        d->ss_.is_premium() != session.d->ss_.is_premium() ||
+        d->ss_.status() != session.d->ss_.status() ||
+        d->ss_.rebill() != session.d->ss_.rebill() ||
+        d->ss_.billing_plan_id() != session.d->ss_.billing_plan_id() ||
+        d->ss_.premium_expire_date() != session.d->ss_.premium_expire_date() ||
+        d->ss_.traffic_max() != session.d->ss_.traffic_max() ||
+        d->ss_.username() != session.d->ss_.username() ||
+        d->ss_.user_id() != session.d->ss_.user_id() ||
+        d->ss_.email() != session.d->ss_.email() ||
+        d->ss_.email_status() != session.d->ss_.email_status() ||
+        d->ss_.static_ips() != session.d->ss_.static_ips() ||
+        d->ss_.alc_size() != session.d->ss_.alc_size())
+    {
+        return  true;
+    }
+    else
+    {
+        // compare alc array
+        for (int i = 0; i < d->ss_.alc_size(); ++i)
+        {
+            if (d->ss_.alc(i) != session.d->ss_.alc(i))
+            {
+                return true;
+            }
+        }
+
+        return  false;
+    }
+}
+
 } //namespace apiinfo
