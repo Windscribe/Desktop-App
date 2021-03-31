@@ -125,8 +125,8 @@ private:
 
     static constexpr int SPINNER_POS_Y = 164;
 
-    static constexpr int CONNECT_BUTTON_POS_Y = 218;
-    static constexpr int DISCONNECT_BUTTON_POS_Y = 218;
+    static constexpr int CONNECT_BUTTON_POS_Y = 233;
+    static constexpr int DISCONNECT_BUTTON_POS_Y = 233;
 
     static constexpr int TARGET_ROTATION = 360;
 
