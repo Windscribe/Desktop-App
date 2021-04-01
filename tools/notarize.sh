@@ -99,7 +99,7 @@ do
         echo "$notarizationStatus"
     fi
 
-    sleep 5
+    sleep 15
 done
 
 # Assuming that the package has been approved by this point
