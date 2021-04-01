@@ -16,6 +16,9 @@ ROOT_DIR = os.path.dirname(TOOLS_DIR)
 COMMON_DIR = os.path.join(ROOT_DIR, "common")
 sys.path.insert(0, TOOLS_DIR)
 
+NOTARIZE_FLAG = "--notarize"
+CI_MODE_FLAG = "--ci-mode"
+
 import base.messages as msg
 import base.process as proc
 import base.utils as utl
@@ -377,7 +380,12 @@ def BuildInstallerMac(configdata):
   # Build and sign the installer.
   installer_app_override = "WindscribeInstaller.app"
   BuildComponent(installer_info, False, target_name_override=installer_app_override)
+  if NOTARIZE_FLAG in sys.argv:
+    msg.Print("Notarizing...")
+    notarize_script = os.path.join(TOOLS_DIR, "notarize.sh")
+    iutl.RunCommand([notarize_script, CI_MODE_FLAG])
   # Drop DMG.
+  msg.Print("Preparing dmg...")
   dmg_dir = BUILD_INSTALLER_FILES
   if "outdir" in installer_info:
     dmg_dir = os.path.join(dmg_dir, installer_info["outdir"])
@@ -467,6 +475,9 @@ if __name__ == "__main__":
     msg.Print("{} is not needed on {}, skipping.".format(BUILD_TITLE, current_os))
     sys.exit(0)
   try:
+    if current_os == "macos" and NOTARIZE_FLAG in sys.argv and not (CI_MODE_FLAG in sys.argv):
+      msg.Print("Cannot notarize from build_all. Use manual notarization if necessary (may break offline notarizing check for user), but notarization should be done by the CI for permissions reasons.")
+      sys.exit(0)
     msg.Print("Building {}...".format(BUILD_TITLE))
     BuildAll()
     exitcode = 0
