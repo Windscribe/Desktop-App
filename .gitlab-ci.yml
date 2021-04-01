@@ -596,7 +596,7 @@ build:mac:installer:
     - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Layouts/Windscribe2 ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
     # - echo -n "$CODE_SIGNING_PFX_BASE64" | base64 --decode > $CODE_SIGNING_PFX_PATH
     - VERSION=$(python installer/windows/extract_version.py common/version/windscribe_version.h)
-    - tools/build_all -zip --ci-mode
+    - tools/build_all -zip --ci-mode --notarize
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/Windscribe_$VERSION.dmg"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg"
     - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
