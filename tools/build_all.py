@@ -205,9 +205,9 @@ def BuildComponent(component, is_64bit, buildenv=None, macdeployfixes=None, targ
       # Build Xcode project.
       build_cmd = ["xcodebuild", "-scheme", component["scheme"], "-configuration", "Release", "-quiet"]
       if "xcflags" in component:
-        build_cmd.extend(map(lambda s : "\"" + s + "\"", component["xcflags"]))
+        build_cmd.extend(component["xcflags"])
       if buildenv and "ExternalCompilerOptions" in buildenv:
-        build_cmd.append("OTHER_CFLAGS=\"{}\"".format(buildenv["ExternalCompilerOptions"]))
+        build_cmd.append("OTHER_CFLAGS={}".format(buildenv["ExternalCompilerOptions"]))
       build_cmd.extend(["clean", "build"])
       os.chdir(os.path.join(ROOT_DIR, c_subdir))
       iutl.RunCommand(build_cmd, env=buildenv)
