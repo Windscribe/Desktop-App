@@ -16,7 +16,6 @@ win32 {
     QMAKE_CXXFLAGS_RELEASE += /Zi
     QMAKE_CXXFLAGS += /Zi
     QMAKE_LFLAGS += /DEBUG
-
 }
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/gtest/include
