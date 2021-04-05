@@ -6,6 +6,8 @@ QT += core gui network svg
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = TestGui
 
+BUILD_LIBS_PATH = $$PWD/../../../build-libs
+
 win32 {
     # enable when linking to MT-built gtest
     #QMAKE_CXXFLAGS_RELEASE -= -MD
@@ -15,9 +17,10 @@ win32 {
     QMAKE_CXXFLAGS += /Zi
     QMAKE_LFLAGS += /DEBUG
 
-    INCLUDEPATH += c:/libs/gtest/include
-    LIBS += -Lc:/libs/gtest/lib -lgmock -lgtest
 }
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/gtest/include
+LIBS += -L$$BUILD_LIBS_PATH/gtest/lib -lgmock -lgtest
 
 SOURCES += \
         main.cpp \
