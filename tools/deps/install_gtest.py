@@ -103,7 +103,7 @@ def InstallDependency():
     if utl.GetCurrentOS() == "win32":
       BuildDependencyMSVC(outpath)
     else:
-      BuildDependencyGNU(buildpath)
+      BuildDependencyGNU(outpath)
   # Copy the dependency to output directory and to a zip file, if needed.
   installzipname = None
   if "-zip" in sys.argv:
