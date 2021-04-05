@@ -24,10 +24,10 @@ import deps.installutils as iutl
 
 BUILD_TITLE = "TestGui"
 BUILD_CFGNAME = "build_test_gui.yml"
-BUILD_OS_LIST = [ "win32" ]
+BUILD_OS_LIST = [ "win32", "macos"]
 
 BUILD_APP_VERSION_STRING = ""
-BUILD_TEST_GUI_FILES = ""
+RUN_TEST_GUI_FILES = ""
 
 def ExtractAppVersion():
   version_file = os.path.join(COMMON_DIR, "version", "windscribe_version.h")
@@ -45,7 +45,7 @@ def ExtractAppVersion():
         if matched:
           values[i] = int(matched.group(1)) if matched.lastindex > 0 else 1
           break
-  version_string = "{:d}_{:02d}_build{:d}".format(values[0], values[1], values[2])https://gitlab.int.windscribe.com/ws/client/desktop/client-desktop/-/jobs/41065#L61
+  version_string = "{:d}_{:02d}_build{:d}".format(values[0], values[1], values[2])
   if values[3]:
     version_string += "_beta"
   return version_string
@@ -56,23 +56,23 @@ def RunTestGui():
   if not configdata:
     raise iutl.InstallError("Failed to load config \"{}\".".format(BUILD_CFGNAME))
   current_os = utl.GetCurrentOS()
-
-  temp_dir = iutl.PrepareTempDirectory("tests", False)
-  global BUILD_TEST_GUI_FILES
-  BUILD_TEST_GUI_FILES = os.path.join(temp_dir, "release")
-
-  test_gui_exe = os.path.join(BUILD_TEST_GUI_FILES, configdata["test-gui"]["target"])
+  # Prep dirs, check for binary
+  artifact_dir = os.path.join(ROOT_DIR, "test-exe")
+  global RUN_TEST_GUI_FILES
+  RUN_TEST_GUI_FILES = os.path.join(artifact_dir, "gui")
+  test_gui_exe = os.path.join(RUN_TEST_GUI_FILES, configdata["test-gui"]["name"])
+  if current_os == "win32":
+    test_gui_exe += ".exe"
   if not os.path.exists(test_gui_exe):
   	raise iutl.InstallError("Could not find test gui executable.")
-
-  # global BUILD_APP_VERSION_STRING
-  # BUILD_APP_VERSION_STRING = ExtractAppVersion()
-  # test_gui_output = os.path.join(BUILD_TEST_GUI_FILES, "test-gui-{}.log".format(BUILD_APP_VERSION_STRING))
-  # utl.CreateFile(test_gui_output, True)
-
-  proc.Execute([test_gui_exe])
-  msg.Print("Successful run of test-gui")
-
+  # Create output file
+  global BUILD_APP_VERSION_STRING
+  BUILD_APP_VERSION_STRING = ExtractAppVersion()
+  test_gui_output = os.path.join(RUN_TEST_GUI_FILES, "{}-{}.log".format(configdata["test-gui"]["name"], BUILD_APP_VERSION_STRING))
+  utl.CreateFile(test_gui_output, True)
+  # Run test
+  proc.ExecuteWithRealtimeOutput([test_gui_exe], None, False, test_gui_output)
+  msg.Print("Successful run of {}".format(configdata["test-gui"]["name"]))
 
 if __name__ == "__main__":
   start_time = time.time()

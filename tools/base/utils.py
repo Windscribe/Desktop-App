@@ -98,7 +98,7 @@ def CreateFile(filename, force_recreate=False):
   ufilename = MakeUnicodePath(filename)
   if os.path.exists(ufilename):
     if (force_recreate):
-      utl.RemoveFile(ufilename)
+      RemoveFile(filename)
     else:
       msg.Verbose("File already exists")
       return False

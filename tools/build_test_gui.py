@@ -30,7 +30,7 @@ import deps.installutils as iutl
 
 BUILD_TITLE = "TestGui"
 BUILD_CFGNAME = "build_test_gui.yml"
-BUILD_OS_LIST = [ "win32" ]
+BUILD_OS_LIST = [ "win32", "macos" ]
 
 BUILD_APP_VERSION_STRING = ""
 BUILD_QMAKE_EXE = ""
@@ -93,7 +93,6 @@ def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(
   	os.path.dirname(TOOLS_DIR), subdir_name, project_name))
 
-# TODO: move into shared file
 def CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root):
   if "qt_files" in configdata:
       CopyFiles("Qt", configdata["qt_files"], qt_root, BUILD_TEST_GUI_FILES, strip_first_dir=True)
@@ -123,9 +122,9 @@ def BuildTestGui():
   qt_root = iutl.GetDependencyBuildRoot("qt")
   if not qt_root:
     raise iutl.InstallError("Qt is not installed.")
+  buildenv = os.environ.copy()
   # Do some preliminary VS checks on Windows.
   if current_os == "win32":
-    buildenv = os.environ.copy()
     buildenv.update(iutl.GetVisualStudioEnvironment())
     msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "x86", "Microsoft.VC141.CRT")
     crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x86".format(
@@ -139,7 +138,9 @@ def BuildTestGui():
   utl.RemoveDirectory(artifact_dir)
   temp_dir = iutl.PrepareTempDirectory("tests")
   global BUILD_TEST_GUI_FILES
-  BUILD_TEST_GUI_FILES = os.path.join(temp_dir, "release")
+  BUILD_TEST_GUI_FILES = os.path.join(temp_dir, "gui")
+  utl.CreateDirectory(BUILD_TEST_GUI_FILES)
+
   # Prep build tools
   global BUILD_QMAKE_EXE
   BUILD_QMAKE_EXE = os.path.join(qt_root, "bin", "qmake")
@@ -151,7 +152,7 @@ def BuildTestGui():
   # Generate protobuf
   GenerateProtobuf()
   old_cwd = os.getcwd()
-  os.chdir(temp_dir)
+  os.chdir(BUILD_TEST_GUI_FILES)
   # build test-gui # TODO: make this more generic to accomodate multiple test binaries?
   iswin = current_os == "win32"
   test_gui = configdata["test-gui"]
@@ -160,10 +161,23 @@ def BuildTestGui():
   build_cmd = [ BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release" ]
   if iswin: 
     build_cmd.extend(["-spec", "win32-msvc"])
+  if current_os == "macos":
+    build_cmd.extend(["-spec", "macx-clang", "CONFIG+=x86_64"])
   iutl.RunCommand(build_cmd, env=buildenv, shell=iswin)
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=iswin)
-  CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root)
-  # TODO: archive the artifact
+  if iswin:
+    CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root)
+  # move to test-exe
+  artifact_dir = os.path.join(ROOT_DIR, "test-exe")
+  utl.RemoveDirectory(artifact_dir)
+  archive_test_gui = os.path.join(artifact_dir, "gui")
+  utl.CreateDirectory(archive_test_gui, True)
+  gui_test_src = os.path.join(BUILD_TEST_GUI_FILES, configdata["test-gui"]["name"])
+  if iswin:
+    gui_test_src += ".exe"
+  utl.CopyFile(gui_test_src, os.path.join(archive_test_gui, configdata["test-gui"]["name"]))
+  # clean up temp
+  utl.RemoveDirectory(BUILD_TEST_GUI_FILES)
 
 if __name__ == "__main__":
   start_time = time.time()

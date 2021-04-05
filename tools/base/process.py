@@ -23,18 +23,20 @@ def Execute(command_and_args, is_silent=False, env=None):
     raise RuntimeError(execute_result)
 
 
-def ExecuteWithRealtimeOutput(command_and_args, env=None, shell=False):
+def ExecuteWithRealtimeOutput(command_and_args, env=None, shell=False, logOutput=os.devnull):
   process_handle = subprocess.Popen(command_and_args, stdout=subprocess.PIPE, env=env, shell=shell)
-  while True:
-    output = process_handle.stdout.readline()
-    if not output and process_handle.poll() is not None:
-      break
-    if output:
-      print(output.strip())
-      sys.stdout.flush()
-  execute_result = process_handle.poll()
-  if execute_result:
-    raise RuntimeError(execute_result)
+  with open(logOutput, "w") as file_out:
+    while True:
+      output = process_handle.stdout.readline()
+      if not output and process_handle.poll() is not None:
+        break
+      if output:
+        file_out.write(output)
+        print(output.strip())
+        sys.stdout.flush()
+    execute_result = process_handle.poll()
+    if execute_result:
+      raise RuntimeError(execute_result)
 
 
 class PipeRuntimeError(Exception):

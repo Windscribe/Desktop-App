@@ -8,3 +8,4 @@ temp/
 *.DS_Store
 installer/windows/tests_output.log
 installer/windows/temp-tests/*
+test-exe/*

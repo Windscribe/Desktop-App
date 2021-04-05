@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 
 test-gui:
-  name: test-gui
+  name: TestGui
   project: TestGui.pro
   subdir: gui/test-gui/TestGui
   target: TestGui.exe
