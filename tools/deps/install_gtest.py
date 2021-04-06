@@ -36,7 +36,7 @@ def BuildDependencyMSVC(outpath):
   buildpath = os.path.join(current_wd, "build")
   utl.CreateDirectory(buildpath)
   os.chdir(buildpath)
-  if current_wd == "win32":
+  if utl.GetCurrentOS() == "win32":
     build_cmd = [ CMAKE_BINARY_WIN, "..", "-Dgtest_force_shared_crt=ON" ]
   else:
     build_cmd = [CMAKE_BINARY_MAC, "..", "-Dgtest_force_shared_crt=ON"]
