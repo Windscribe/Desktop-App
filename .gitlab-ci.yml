@@ -68,7 +68,6 @@ build:win:jom:
 
 # No jom for mac
 
-
 # Build Dependency and Upload Cares
 build:win:cares:
   <<: *template_win10_build
