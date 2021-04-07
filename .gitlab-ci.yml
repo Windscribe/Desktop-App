@@ -36,7 +36,6 @@ variables:
 
 include:
   - local: 'vars.yml'
-  - local: 'tools/build_test_gui.yml'
 
 .template_win10_build: &template_win10_build
   tags: [win10]
@@ -509,8 +508,8 @@ testing:win:buildtestgui:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_GTEST}"
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
     - tools/build_test_gui
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/$ARTIFACT_TEST_GUI_WIN "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/$ARTIFACT_TEST_GUI_WIN"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/$ARTIFACT_TEST_GUI_WIN "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/$ARTIFACT_TEST_GUI_WIN"
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui.exe"
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
 
 testing:mac:buildtestgui:
   <<: *template_mac_build
@@ -521,8 +520,8 @@ testing:mac:buildtestgui:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_GTEST}"
     - tools/build_test_gui
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/$ARTIFACT_TEST_GUI_MAC "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/$ARTIFACT_TEST_GUI_MAC"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/$ARTIFACT_TEST_GUI_MAC "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/$ARTIFACT_TEST_GUI_MAC"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
 
 # Run Tests
 testing:win:runtestgui:
@@ -533,7 +532,7 @@ testing:win:runtestgui:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_GTEST}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_TEST_GUI_WIN "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/$ARTIFACT_TEST_GUI_WIN"
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/TestGui.exe "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
     - Set-Variable -name VERSION -value $(python installer/windows/extract_version.py common/version/windscribe_version.h)
     - tools/run_test_gui
@@ -548,7 +547,7 @@ testing:mac:runtestgui:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_GTEST}"    
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_TEST_GUI_MAC "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_TEST_GUI_MAC}"    
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/TestGui "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"    
     - VERSION=$(python installer/windows/extract_version.py common/version/windscribe_version.h)
     - tools/run_test_gui
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui-$VERSION.log "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui-$VERSION.log"
