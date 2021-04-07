@@ -1024,6 +1024,15 @@ void MainWindow::onPreferencesViewLogClick()
     cleanupLogViewerWindow();
 
     logViewerWindow_ = new LogViewer::LogViewerWindow(this);
+    logViewerWindow_->setAttribute( Qt::WA_DeleteOnClose );
+
+    connect(
+        logViewerWindow_, &LogViewer::LogViewerWindow::destroyed,
+        [=]( QObject* )  {
+            logViewerWindow_ = nullptr;
+        }
+    );
+
     logViewerWindow_->show();
 }
 
@@ -2993,7 +3002,7 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
     // window in docked mode. Otherwise, closing the MessageBox/Log Window/etc. will lead to an
     // unwanted app termination.
     const bool kIsTrayIconClicked = trayIconRect().contains(QCursor::pos());
-    if (!focusWindow && !kIsTrayIconClicked && !currentlyShowingExternalDialog_) {
+    if (!focusWindow && !kIsTrayIconClicked && !currentlyShowingExternalDialog_ && !logViewerWindow_) {
         if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray()) {
             const int kDeactivationDelayMs = 100;
             deactivationTimer_.start(kDeactivationDelayMs);
