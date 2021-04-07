@@ -136,8 +136,10 @@ private:
     template<typename RequestType, typename... RequestArgs>
     RequestType *createRequest(RequestArgs &&... args) {
         auto *request = new RequestType(std::forward<RequestArgs>( args )...);
-        if (request)
+        // if (request)
+        {
             activeRequests_.append(request);
+        }
         return request;
     }
     void submitDnsRequest(BaseRequest *request, const QString &forceHostname = QString());
