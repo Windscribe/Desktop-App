@@ -10,6 +10,10 @@ test-gui:
   target: TestGui.exe
   symbols: TestGui.pdb
 
+variables:
+  ARTIFACT_TEST_GUI_MAC: 'TestGui'
+  ARTIFACT_TEST_GUI_WIN: 'TestGui.exe'
+
 # TODO: probably want to centralize this with build_all.yml contents
 qt_files:
   - bin/libEGL.dll
