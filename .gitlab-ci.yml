@@ -502,6 +502,7 @@ build:mac:stunnel:
 testing:win:buildtestgui:
   <<: *template_win10_build
   stage: Build Tests
+  variables:
     GIT_STRATEGY: clone
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
@@ -527,6 +528,7 @@ testing:mac:buildtestgui:
 testing:win:runtestgui:
   <<: *template_win10_build
   stage: Run Tests
+  variables:
     GIT_STRATEGY: clone
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
@@ -541,6 +543,7 @@ testing:win:runtestgui:
 testing:mac:runtestgui:
   <<: *template_mac_build
   stage: Run Tests
+  variables:
     GIT_STRATEGY: clone
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
