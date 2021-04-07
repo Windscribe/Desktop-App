@@ -1,3 +1,9 @@
+2.02.10 (31/03/2021)
+* The detection of the authorization error for IKEv2 made more specific. #398
+* Reduced logs and ping_long_custom_configs.txt size. #434
+* The description on the emergency connection screen has been updated.
+
+
 2.02.9 (22/03/2021)
 * Removed some more log spam and log errors. #414
 * Large post data send bug fixed. #427

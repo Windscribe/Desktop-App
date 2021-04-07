@@ -11,8 +11,8 @@ tar -zxvf $HOME/"boost_temp/boost_1_69_0.tar.gz" -C $HOME/"boost_temp"
 
 pushd $HOME/"boost_temp/boost_1_69_0"
 sh bootstrap.sh --prefix=$HOME/"LibsWindscribe/boost" --with-toolset=clang
-./b2 link=static toolset=clang cflags=-mmacosx-version-min=10.11 cxxflags=-mmacosx-version-min=10.11 mflags=-mmacosx-version-min=10.11 mmflags=-mmacosx-version-min=10.11 linkflags=-mmacosx-version-min=10.11
-./b2 install
+# only need to compile serialization, system and thread on Mac. Other libs are accessible via header-only libs.
+./b2 install link=static toolset=clang cflags=-mmacosx-version-min=10.11 cxxflags=-mmacosx-version-min=10.11 mflags=-mmacosx-version-min=10.11 mmflags=-mmacosx-version-min=10.11 linkflags=-mmacosx-version-min=10.11 --with-serialization --with-system --with-thread
 
 echo "Removing *.dylibs:"
 rm -v $HOME/LibsWindscribe/boost/lib/*.dylib

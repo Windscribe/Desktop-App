@@ -140,7 +140,7 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
     }
     else
     {
-        descriptionText = tr("Can't access Windscribe? Connect to our servers to block your restrictive network.");
+        descriptionText = tr("Can't access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.");
         desiredLines = 3;
     }
 

@@ -20,7 +20,10 @@ curl.exe https://dl.bintray.com/boostorg/release/%VERSION_BOOST%/source/boost_%V
 
 PUSHD c:\boost_temp\boost_%VERSION_BOOST_UNDERSCORED%
 call bootstrap.bat
-b2 install --build-type=complete --prefix=c:\libs\boost --without-python || exit /b 1
+
+rem Compiling Windscribe2.0 on windows only requires compiling: date_time, regex, serialization and system. 
+rem Other boost dependencies can be found in header-only libs
+b2 install --build-type=complete --prefix=c:\libs\boost --with-date_time --with-regex --with-serialization --with-system
 
 POPD
 rd /s /q "c:\boost_temp"

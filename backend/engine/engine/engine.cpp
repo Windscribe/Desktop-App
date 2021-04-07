@@ -1027,6 +1027,7 @@ void Engine::signOutImplAfterDisconnect()
 
     locationsModel_->clear();
     prevSessionStatus_.clear();
+    prevSessionForLogging_.clear();
 
     helper_->enableFirewallOnBoot(false);
 
@@ -2301,9 +2302,23 @@ void Engine::updateSessionStatus()
 {
     if (!apiInfo_.isNull())
     {
-        qCDebug(LOG_BASIC) << "update session status";
-
         apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
+
+        if (ss.isChangedForLogging(prevSessionForLogging_))
+        {
+            std::string strLog =  "[" + ss.getProtoBuf().descriptor()->name() + "] {\n"
+                   + Utils::cleanSensitiveInfo(ss.getProtoBuf().DebugString()) + "}";
+
+            qCDebug(LOG_BASIC) << "update session status (changed since last call)";
+            qCDebugMultiline(LOG_BASIC) << QString::fromStdString(strLog);
+            prevSessionForLogging_ = ss;
+        }
+        else
+        {
+            qCDebug(LOG_BASIC) << "update session status, no changes since last call";
+        }
+
+
         emit sessionStatusUpdated(ss);
 
         if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.getStaticIpsCount() != ss.getStaticIpsCount() ||

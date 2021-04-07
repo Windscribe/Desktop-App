@@ -134,7 +134,7 @@ void PingIpsController::onPingTimer()
         {
             if (pni.nextTimeForFailedPing_ == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing_)
             {
-                pingLog_.addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
+                //pingLog_.addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
                 it.value().bNowPinging_ = true;
                 pingHost_->addHostForPing(it.key(), it.value().pingType);
             }
@@ -188,17 +188,20 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
 
             if (itNode.value().failedPingsInRow >= MAX_FAILED_PING_IN_ROW)
             {
-                pingLog_.addLog("PingIpsController::onPingFinished", "ping failed 3 times at row: " + ip);
+                //pingLog_.addLog("PingIpsController::onPingFinished", "ping failed 3 times at row: " + ip);
                 itNode.value().failedPingsInRow = 0;
                 // next ping attempt in 1 mins
                 itNode.value().nextTimeForFailedPing_ = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
                 emit pingInfoChanged(ip, PingTime::PING_FAILED, isFromDisconnectedState);
-                failedPingLogController_.logFailedIPs(QStringList() << ip);
+                if (failedPingLogController_.logFailedIPs(ip))
+                {
+                    pingLog_.addLog("PingIpsController::onPingFinished", "ping failed: " + ip);
+                }
             }
             else
             {
                 itNode.value().nextTimeForFailedPing_ = 0;
-                pingLog_.addLog("PingIpsController::onPingFinished", "ping failed: " + ip);
+                //pingLog_.addLog("PingIpsController::onPingFinished", "ping failed: " + ip);
             }
         }
     }
