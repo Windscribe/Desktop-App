@@ -208,19 +208,19 @@ build:win:gtest:
         - tools/vars/gtest.yml
 
 
-#build:mac:gtest:
-#  <<: *template_mac_build
-#  stage: Build Dependencies 1
-#  variables:
-#    GIT_STRATEGY: clone
-#    ARTIFACT_PATH: $ARTIFACT_GTEST
-#  script:
-#    - tools/deps/install_gtest -zip
-#    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-#  rules:
-#    - if: '$BUILD_MAC == "y"'
-#      changes:
-#        - tools/vars/gtest.yml
+build:mac:gtest:
+ <<: *template_mac_build
+ stage: Build Dependencies 1
+ variables:
+   GIT_STRATEGY: clone
+   ARTIFACT_PATH: $ARTIFACT_GTEST
+ script:
+   - tools/deps/install_gtest -zip
+   - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
+ rules:
+   - if: '$BUILD_MAC == "y"'
+     changes:
+       - tools/vars/gtest.yml
 
 
 # Build Dependency and Upload Openssl
@@ -506,6 +506,7 @@ testing:win:buildtestgui:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_GTEST}"
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
     - tools/build_test_gui
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui.exe"
@@ -519,6 +520,7 @@ testing:mac:buildtestgui:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_GTEST}"
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
     - tools/build_test_gui
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
