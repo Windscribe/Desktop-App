@@ -69,44 +69,10 @@ def GenerateProtobuf():
   proto_gen = proto_gen + (".bat" if utl.GetCurrentOS() == "win32" else ".sh")
   iutl.RunCommand([proto_gen, os.path.join(proto_root, "release", "bin")], shell=True)
 
-# TODO: move into shared py file
-def CopyFile(filename, srcdir, dstdir, strip_first_dir=False):
-  parts = filename.split("->")
-  srcfilename = parts[0].strip()
-  dstfilename = srcfilename if len(parts) == 1 else parts[1].strip()
-  msg.Print(dstfilename)
-  srcfile = os.path.normpath(os.path.join(srcdir, srcfilename))
-  dstfile = os.path.normpath(dstfilename)
-  if strip_first_dir:
-    dstfile = os.sep.join(dstfile.split(os.path.sep)[1:])
-  dstfile = os.path.join(dstdir, dstfile)
-  utl.CopyAllFiles(srcfile, dstfile) \
-    if srcfilename.endswith(("\\", "/")) else utl.CopyFile(srcfile, dstfile)
-
-# TODO: move into shared py file
-def CopyFiles(title, filelist, srcdir, dstdir, strip_first_dir=False):
-  msg.Info("Copying {} files...".format(title))
-  for filename in filelist:
-    CopyFile(filename, srcdir, dstdir, strip_first_dir)
-
 # TODO: move into shared file
 def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(
   	os.path.dirname(TOOLS_DIR), subdir_name, project_name))
-
-def CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root, targetDir):
-  if "qt_files" in configdata:
-      CopyFiles("Qt", configdata["qt_files"], qt_root, targetDir, strip_first_dir=True)
-  if "msvc_files" in configdata:
-    CopyFiles("MSVC", configdata["msvc_files"], msvc_root, targetDir)
-  # utl.CopyAllFiles(crt_root, targetDir) # api-ms-win-...dlls
-  if "lib_files" in configdata:
-    for k, v in configdata["lib_files"].iteritems():
-      lib_root = iutl.GetDependencyBuildRoot(k)
-      if not lib_root:
-        raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-      CopyFiles(k, v, lib_root, targetDir)
-
 
 def BuildTestGui():
   # Load config.
@@ -183,8 +149,6 @@ def BuildTestGui():
     gui_test_src += ".exe"
     gui_test_dest += ".exe"
   utl.CopyFile(gui_test_src, gui_test_dest)
-  if iswin:
-    CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root, archive_test_gui)
   # clean up temp
   utl.RemoveDirectory(BUILD_TEST_GUI_FILES)
 
