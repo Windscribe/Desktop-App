@@ -535,6 +535,7 @@ testing:win:runtestgui:
     GIT_STRATEGY: clone
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_GTEST}"
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PROTOBUF}"
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o test-exe/gui/TestGui.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
@@ -552,6 +553,7 @@ testing:mac:runtestgui:
     GIT_STRATEGY: clone
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_GTEST}"  
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PROTOBUF}"  
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o test-exe/gui/TestGui "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"    
