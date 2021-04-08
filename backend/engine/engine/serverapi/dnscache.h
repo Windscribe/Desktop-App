@@ -5,7 +5,6 @@
 #include <QObject>
 #include <QHostInfo>
 
-// used by NetworkManagerCustomDns for custom DNS resolver
 class DnsCache : public QObject
 {
     Q_OBJECT

@@ -525,8 +525,8 @@ void Engine::init()
     networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_);
     networkStateManager_ = CrossPlatformObjectFactory::createNetworkStateManager(this, networkDetectionManager_);
 
-    DnsResolver::instance().init(networkStateManager_);
     DnsResolver::instance().setDnsPolicy(engineSettings_.getDnsPolicy());
+    DnsResolver::instance().runTests();
     firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
 
     ProtoTypes::MacAddrSpoofing macAddrSpoofing = engineSettings_.getMacAddrSpoofing();

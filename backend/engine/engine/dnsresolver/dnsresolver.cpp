@@ -4,6 +4,8 @@
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 
+#include <QElapsedTimer>
+
 #ifdef Q_OS_MAC
     #include <netinet/in.h>
     #include <arpa/inet.h>
@@ -12,21 +14,23 @@
 #endif
 
 DnsResolver *DnsResolver::this_ = NULL;
-
 const int typeIdQHostInfo = qRegisterMetaType<QHostInfo>("QHostInfo");
 
-void DnsResolver::init(INetworkStateManager *networkStateManager)
+void DnsResolver::runTests()
 {
-    connect(networkStateManager, SIGNAL(stateChanged(bool, QString)), SLOT(onNetworkStateChanged(bool, QString)));
+    //todo -> move to test project
+    test_ = new DnsResolver_test(this);
+    test_->runTests();
 }
 
 void DnsResolver::stop()
 {
     qCDebug(LOG_BASIC) << "Stopping DnsResolver";
-    mutexWait_.lock();
+    test_->stop();
+    mutex_.lock();
     bNeedFinish_ = true;
     waitCondition_.wakeAll();
-    mutexWait_.unlock();
+    mutex_.unlock();
     wait();
     bStopCalled_ = true;
     qCDebug(LOG_BASIC) << "DnsResolver stopped";
@@ -34,50 +38,8 @@ void DnsResolver::stop()
 
 void DnsResolver::setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType)
 {
+    QMutexLocker locker(&mutex_);
     dnsPolicyType_ = dnsPolicyType;
-    recreateCustomDnsChannel();
-}
-
-void DnsResolver::recreateDefaultDnsChannel()
-{
-    mutex_.lock();
-    if (channel_)
-    {
-        ares_destroy(channel_);
-        channel_ = NULL;
-    }
-
-    struct ares_options options;
-    int optmask = 0;
-
-    createOptionsForAresChannel(QStringList(), options, optmask);
-
-    int status = ares_init_options(&channel_, &options, optmask);
-    if (status != ARES_SUCCESS)
-    {
-        qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-        channel_ = NULL;
-    }
-
-    if (dnsPolicyType_ == DNS_TYPE_OS_DEFAULT)
-    {
-        if (channelCustomDns_)
-        {
-            ares_destroy(channelCustomDns_);
-            channelCustomDns_ = NULL;
-        }
-
-        createOptionsForAresChannel(QStringList(), options, optmask);
-
-        status = ares_init_options(&channelCustomDns_, &options, optmask);
-        if (status != ARES_SUCCESS)
-        {
-            qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-            channelCustomDns_ = NULL;
-        }
-    }
-
-    mutex_.unlock();
 }
 
 void DnsResolver::setUseCustomDns(bool bUseCustomDns)
@@ -94,35 +56,6 @@ void DnsResolver::setUseCustomDns(bool bUseCustomDns)
     }
 }
 
-void DnsResolver::lookup(const QString &hostname, void *userPointer)
-{
-    mutex_.lock();
-
-    if (channelCustomDns_ == NULL || channel_ == NULL)
-    {
-        qCDebug(LOG_BASIC) << "Error: ares channels not created before DNS-request";
-        emit resolved(hostname, QHostInfo(), userPointer);
-    }
-    USER_ARG *userArg = new USER_ARG();
-    userArg->hostname = hostname;
-    userArg->userPointer = userPointer;
-
-    if (isUseCustomDns_)
-    {
-        ares_gethostbyname(channelCustomDns_, hostname.toStdString().c_str(), AF_INET, callback, userArg);
-    }
-    else
-    {
-        ares_gethostbyname(channel_, hostname.toStdString().c_str(), AF_INET, callback, userArg);
-    }
-    mutex_.unlock();
-
-    mutexWait_.lock();
-    waitCondition_.wakeAll();
-    mutexWait_.unlock();
-}
-
-
 QHostInfo DnsResolver::lookupBlocked(const QString &hostname)
 {
     ares_channel channel;
@@ -130,7 +63,9 @@ QHostInfo DnsResolver::lookupBlocked(const QString &hostname)
     struct ares_options options;
     int optmask = 0;
 
-    createOptionsForAresChannel((!isUseCustomDns_) ? QStringList() : getCustomDnsIps(), options, optmask);
+    QScopedPointer<ALLOCATED_DATA_FOR_OPTIONS> allocatedData (new ALLOCATED_DATA_FOR_OPTIONS());
+    createOptionsForAresChannel((!isUseCustomDns_) ? QStringList() : getCustomDnsIps(), options, optmask, allocatedData.data());
+
     int status = ares_init_options(&channel, &options, optmask);
     if (status != ARES_SUCCESS)
     {
@@ -162,48 +97,14 @@ QHostInfo DnsResolver::lookupBlocked(const QString &hostname)
     return userArg.ha;
 }
 
-void DnsResolver::onNetworkStateChanged(bool isAlive, const QString &/*networkInterface*/)
-{
-    if (isAlive)
-    {
-        recreateCustomDnsChannel();
-    }
-}
 
 DnsResolver::DnsResolver(QObject *parent) : QThread(parent), bStopCalled_(false),
-    bNeedFinish_(false), channel_(NULL), channelCustomDns_(NULL), dnsPolicyType_(DNS_TYPE_OPEN_DNS),
+    bNeedFinish_(false), dnsPolicyType_(DNS_TYPE_OPEN_DNS),
     isUseCustomDns_(true)
 {
     Q_ASSERT(this_ == NULL);
     this_ = this;
-    strcpy(szDomain_, HardcodedSettings::instance().serverApiUrl().toStdString().c_str());
-    domainPtr_ = szDomain_;
     aresLibraryInit_.init();
-
-    struct ares_options options;
-    int optmask = 0;
-
-    createOptionsForAresChannel(QStringList(), options, optmask);
-    {
-        QMutexLocker locker(&mutex_);
-        int status = ares_init_options(&channel_, &options, optmask);
-        if (status != ARES_SUCCESS)
-        {
-            qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-            return;
-        }
-    }
-
-    createOptionsForAresChannel(getCustomDnsIps(), options, optmask);
-    {
-        QMutexLocker locker(&mutex_);
-        int status = ares_init_options(&channelCustomDns_, &options, optmask);
-        if (status != ARES_SUCCESS)
-        {
-            qCDebug(LOG_BASIC) << "ares_init_options failed for custon dns:" << QString::fromStdString(ares_strerror(status));
-            return;
-        }
-    }
 
     start(QThread::LowPriority);
 }
@@ -212,65 +113,6 @@ DnsResolver::~DnsResolver()
 {
     Q_ASSERT(bStopCalled_);
     this_ = NULL;
-}
-
-void DnsResolver::run()
-{
-    BIND_CRASH_HANDLER_FOR_THREAD();
-    while (true)
-    {
-        QMutexLocker lockerWait(&mutexWait_);
-        if (bNeedFinish_)
-        {
-            break;
-        }
-
-        bool b1, b2;
-        {
-            QMutexLocker locker(&mutex_);
-            b1 = processChannel(channel_);
-            b2 = processChannel(channelCustomDns_);
-        }
-        if (!b1 && !b2)
-        {
-            // wait for new request
-            waitCondition_.wait(&mutexWait_);
-        }
-    }
-
-    {
-        QMutexLocker locker(&mutex_);
-        ares_destroy(channel_);
-        ares_destroy(channelCustomDns_);
-
-        channel_= NULL;
-        channelCustomDns_ = NULL;
-    }
-
-}
-
-void DnsResolver::recreateCustomDnsChannel()
-{
-    mutex_.lock();
-    if (channelCustomDns_)
-    {
-        ares_destroy(channelCustomDns_);
-        channelCustomDns_ = NULL;
-    }
-
-    struct ares_options options;
-    int optmask = 0;
-
-    createOptionsForAresChannel(getCustomDnsIps(), options, optmask);
-
-    int status = ares_init_options(&channelCustomDns_, &options, optmask);
-    if (status != ARES_SUCCESS)
-    {
-        qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-        channelCustomDns_ = NULL;
-    }
-
-    mutex_.unlock();
 }
 
 QStringList DnsResolver::getCustomDnsIps()
@@ -307,7 +149,7 @@ QStringList DnsResolver::getCustomDnsIps()
     return QStringList();
 }
 
-void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_options &options, int &optmask)
+void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_options &options, int &optmask, ALLOCATED_DATA_FOR_OPTIONS *allocatedData)
 {
     memset(&options, 0, sizeof(options));
     optmask = 0;
@@ -317,7 +159,7 @@ void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_op
         optmask |= ARES_OPT_DOMAINS;
         optmask |= ARES_OPT_TRIES;
         options.ndomains = 1;
-        options.domains = &domainPtr_;
+        options.domains = &(allocatedData->domainPtr);
         options.tries = 1;
     }
     else
@@ -326,21 +168,30 @@ void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_op
         optmask |= ARES_OPT_SERVERS;
         optmask |= ARES_OPT_TRIES;
         options.ndomains = 1;
-        options.domains = &domainPtr_;
+        options.domains = &(allocatedData->domainPtr);
         options.tries = 1;
 
         struct sockaddr_in sa;
-        dnsServers_.clear();
-        dnsServers_.reserve(dnsIps.count());
-        for (const auto &dnsIp : dnsIps) {
+
+        allocatedData->dnsServers.clear();
+        allocatedData->dnsServers.reserve(dnsIps.count());
+        for (const auto &dnsIp : dnsIps)
+        {
             ares_inet_pton(AF_INET, dnsIp.toStdString().c_str(), &(sa.sin_addr));
-            dnsServers_.push_back(sa.sin_addr);
+            allocatedData->dnsServers.push_back(sa.sin_addr);
         }
-        options.nservers = dnsServers_.count();
-        options.servers = &dnsServers_[0];
+
+        if (allocatedData->dnsServers.count() > 0)
+        {
+            options.nservers = allocatedData->dnsServers.count();
+            options.servers = &(allocatedData->dnsServers[0]);
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
     }
 }
-
 
 void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
 {
@@ -402,8 +253,8 @@ bool DnsResolver::processChannel(ares_channel channel)
     int res;
     int nfds;
     struct timeval tvp;
-    tvp.tv_sec = 1;
-    tvp.tv_usec = 0;
+    tvp.tv_sec = 0;
+    tvp.tv_usec = 10000; // 10 ms max waiting time
 
     FD_ZERO(&read_fds);
     FD_ZERO(&write_fds);
@@ -420,4 +271,110 @@ bool DnsResolver::processChannel(ares_channel channel)
     }
     ares_process(channel, &read_fds, &write_fds);
     return true;
+}
+
+
+void DnsResolver::lookup(const QString &hostname, void *userPointer)
+{
+    QElapsedTimer timer;
+    timer.start();
+    ares_channel channel;
+    struct ares_options options;
+    int optmask = 0;
+
+    ALLOCATED_DATA_FOR_OPTIONS *allocatedData = new ALLOCATED_DATA_FOR_OPTIONS();
+
+    createOptionsForAresChannel((!isUseCustomDns_) ? QStringList() : getCustomDnsIps(), options, optmask, allocatedData);
+    int status = ares_init_options(&channel, &options, optmask);
+    if (status != ARES_SUCCESS)
+    {
+        qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
+        delete allocatedData;
+        emit resolved(hostname, QHostInfo(), userPointer);
+    }
+    else
+    {
+        USER_ARG *userArg = new USER_ARG();
+        userArg->hostname = hostname;
+        userArg->userPointer = userPointer;
+
+        ares_gethostbyname(channel, hostname.toStdString().c_str(), AF_INET, callback, userArg);
+
+        {
+            QMutexLocker locker(&mutex_);
+            CHANNEL_INFO ci;
+            ci.channel = channel;
+            ci.allocatedData = allocatedData;
+            queue_.enqueue(ci);
+            waitCondition_.wakeAll();
+        }
+    }
+    qDebug() << "lookup:" << hostname << "; time = " << timer.elapsed() << ((!isUseCustomDns_) ? QStringList() : getCustomDnsIps());
+}
+
+void DnsResolver::run()
+{
+    BIND_CRASH_HANDLER_FOR_THREAD();
+
+    QVector<CHANNEL_INFO> channels;
+
+    while (true)
+    {
+        QMutexLocker locker(&mutex_);
+        if (bNeedFinish_)
+        {
+            break;
+        }
+
+        while (!queue_.isEmpty())
+        {
+            channels << queue_.dequeue();
+        }
+
+        bool bExistJob = false;
+
+        QVector<CHANNEL_INFO>::iterator it = channels.begin();
+        while (it != channels.end())
+        {
+            if (processChannel(it->channel))
+            {
+                bExistJob = true;
+                ++it;
+            }
+            else
+            {
+                ares_destroy(it->channel);
+                delete it->allocatedData;
+                it = channels.erase(it);
+            }
+        }
+
+        if (!bExistJob)
+        {
+            // wait for new requests
+            waitCondition_.wait(&mutex_);
+        }
+    }
+
+    // remove outstanding channels
+    {
+        QMutexLocker locker(&mutex_);
+        while (!queue_.isEmpty())
+        {
+            channels << queue_.dequeue();
+        }
+    }
+    QVector<CHANNEL_INFO>::iterator it = channels.begin();
+    while (it != channels.end())
+    {
+        ares_destroy(it->channel);
+        delete it->allocatedData;
+        it = channels.erase(it);
+    }
+}
+
+DnsResolver::ALLOCATED_DATA_FOR_OPTIONS::ALLOCATED_DATA_FOR_OPTIONS()
+{
+    strcpy(szDomain, HardcodedSettings::instance().serverApiUrl().toStdString().c_str());
+    domainPtr = szDomain;
 }

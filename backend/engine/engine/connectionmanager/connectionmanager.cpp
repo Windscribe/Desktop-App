@@ -10,7 +10,6 @@
 #include "utils/utils.h"
 #include "engine/types/types.h"
 #include "engine/types/connectionsettings.h"
-#include "engine/dnsresolver/dnsresolver.h"
 
 #include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "utils/extraconfig.h"
@@ -202,8 +201,6 @@ void ConnectionManager::blockingDisconnect()
                 connSettingsPolicy_->reset();
             }
 
-            DnsResolver::instance().recreateDefaultDnsChannel();
-
             state_ = STATE_DISCONNECTED;
         }
     }
@@ -290,7 +287,6 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
         return;
     }
 
-    DnsResolver::instance().recreateDefaultDnsChannel();
     timerReconnection_.stop();
     state_ = STATE_CONNECTED;
     emit connected();
@@ -305,8 +301,6 @@ void ConnectionManager::onConnectionDisconnected()
     stunnelManager_->killProcess();
     wstunnelManager_->killProcess();
     timerWaitNetworkConnectivity_.stop();
-
-    DnsResolver::instance().recreateDefaultDnsChannel();
 
     switch (state_)
     {

@@ -116,7 +116,6 @@ void EmergencyController::blockingDisconnect()
             }
             connector_->blockSignals(false);
             doMacRestoreProcedures();
-            DnsResolver::instance().recreateDefaultDnsChannel();
             state_ = STATE_DISCONNECTED;
         }
     }
@@ -190,8 +189,6 @@ void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connec
     vpnAdapterInfo_ = connectionAdapterInfo;
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
-    DnsResolver::instance().recreateDefaultDnsChannel();
-
     state_ = STATE_CONNECTED;
     emit connected();
 }
@@ -201,7 +198,6 @@ void EmergencyController::onConnectionDisconnected()
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionDisconnected(), state_ =" << state_;
 
     doMacRestoreProcedures();
-    DnsResolver::instance().recreateDefaultDnsChannel();
 
     switch (state_)
     {

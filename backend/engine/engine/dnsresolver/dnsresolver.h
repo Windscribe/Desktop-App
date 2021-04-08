@@ -11,7 +11,10 @@
 #include "ares.h"
 #include "engine/types/types.h"
 #include "engine/networkstatemanager/inetworkstatemanager.h"
+#include "dnsresolver_test.h"
 
+
+// singleton
 class DnsResolver : public QThread
 {
     Q_OBJECT
@@ -23,19 +26,14 @@ public:
         return s;
     }
 
-    void init(INetworkStateManager *networkStateManager);
+    void runTests();
     void stop();
-    void setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType);
-    void recreateDefaultDnsChannel();
 
+    void setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType);
     void setUseCustomDns(bool bUseCustomDns);
 
     void lookup(const QString &hostname, void *userPointer);
-
     QHostInfo lookupBlocked(const QString &hostname);
-
-private slots:
-    void onNetworkStateChanged(bool isAlive, const QString &networkInterface);
 
 private:
     explicit DnsResolver(QObject *parent = nullptr);
@@ -60,34 +58,39 @@ private:
         QHostInfo ha;
     };
 
+    struct ALLOCATED_DATA_FOR_OPTIONS
+    {
+        char szDomain[128];
+        char *domainPtr;
+#ifdef Q_OS_WIN
+        QVector<IN_ADDR> dnsServers;
+#else
+        QVector<in_addr> dnsServers;
+#endif
+        ALLOCATED_DATA_FOR_OPTIONS();
+    };
+
+    struct CHANNEL_INFO
+    {
+        ares_channel channel;
+        ALLOCATED_DATA_FOR_OPTIONS *allocatedData;
+    };
+
+    AresLibraryInit aresLibraryInit_;
     bool bStopCalled_;
+    QQueue<CHANNEL_INFO> queue_;
     QMutex mutex_;
-    QMutex mutexWait_;
     QWaitCondition waitCondition_;
     bool bNeedFinish_;
-    AresLibraryInit aresLibraryInit_;
-    ares_channel channel_;
-    ares_channel channelCustomDns_;
-
     DNS_POLICY_TYPE dnsPolicyType_;
-    char szDomain_[128];
-    char *domainPtr_;
-#ifdef Q_OS_WIN
-    QVector<IN_ADDR> dnsServers_;
-#else
-    QVector<in_addr> dnsServers_;
-#endif
-
     std::atomic_bool isUseCustomDns_;
 
+    DnsResolver_test *test_;
 
     static DnsResolver *this_;
 
-    void recreateCustomDnsChannel();
     QStringList getCustomDnsIps();
-
-    void createOptionsForAresChannel(const QStringList &dnsIps, struct ares_options &options, int &optmask);
-
+    void createOptionsForAresChannel(const QStringList &dnsIps, struct ares_options &options, int &optmask, ALLOCATED_DATA_FOR_OPTIONS *allocatedData);
     static void callback(void *arg, int status, int timeouts, struct hostent *host);
     static void callbackForBlocked(void *arg, int status, int timeouts, struct hostent *host);
     // return false, if nothing to process more
