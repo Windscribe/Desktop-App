@@ -132,7 +132,9 @@ def BuildTestGui():
   c_project = test_gui["project"]
   build_cmd = [ BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release" ]
   if iswin: 
-    build_cmd.extend(["-spec", "win32-msvc"])
+    # need to get absolute path of mkspec for CI edge case where qt is built on another machine but used on this machine
+    abs_path_win32_msvc_mkspec = os.path.join(qt_root, "mkspecs", "win32-msvc")
+    build_cmd.extend(["-spec", abs_path_win32_msvc_mkspec])
   if current_os == "macos":
     build_cmd.extend(["-spec", "macx-clang", "CONFIG+=x86_64"])
   iutl.RunCommand(build_cmd, env=buildenv, shell=iswin)

@@ -28,7 +28,7 @@ bool IpValidation::isIpCidrOrDomain(const QString &str)
 
 bool IpValidation::isValidIpForCidr(const QString &str)
 {
-    const auto ip_and_cidr = str.split("/", Qt::SkipEmptyParts);
+    const auto ip_and_cidr = str.split("/", QString::SkipEmptyParts);
     const quint32 cidr_value = (ip_and_cidr.size() < 2) ? 32 : ip_and_cidr[1].toUInt();
     if (cidr_value == 32) {
         // CIDR is 32 or not specified, this is a single IP.

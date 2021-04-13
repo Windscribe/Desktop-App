@@ -157,7 +157,7 @@ def ApplyMacDeployFixes(appname, fixlist):
                        entitlements_binary])
 
 
-def BuildComponent(component, is_64bit, buildenv=None, macdeployfixes=None, target_name_override=None):
+def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=None, target_name_override=None):
   # Collect settings.
   current_os = utl.GetCurrentOS()
   c_iswin = current_os == "win32"
@@ -181,7 +181,9 @@ def BuildComponent(component, is_64bit, buildenv=None, macdeployfixes=None, targ
       # Build Qt project.
       build_cmd = [BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release silent"]
       if c_iswin:
-        build_cmd.extend(["-spec", "win32-msvc"])
+        # need to get absolute path of mkspec for CI edge case where qt is built on another machine but used on this machine
+        abs_path_win32_msvc_mkspec = os.path.join(qt_root, "mkspecs", "win32-msvc")
+        build_cmd.extend(["-spec", abs_path_win32_msvc_mkspec])
       iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
       iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=c_iswin)
       target_location = "release" if c_iswin else ""
@@ -282,7 +284,7 @@ def BuildComponents(configdata, targetlist, qt_root):
     macdeployfixes = None
     if "macdeployfixes" in configdata and target in configdata["macdeployfixes"]:
       macdeployfixes = configdata["macdeployfixes"][target]
-    BuildComponent(configdata[target], is_64bit, buildenv, macdeployfixes)
+    BuildComponent(configdata[target], is_64bit, qt_root, buildenv, macdeployfixes)
   if has_64bit:
     buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
     for target in targetlist:
@@ -293,7 +295,7 @@ def BuildComponents(configdata, targetlist, qt_root):
         macdeployfixes = None
         if "macdeployfixes" in configdata and target in configdata["macdeployfixes"]:
           macdeployfixes = configdata["macdeployfixes"][target]
-        BuildComponent(configdata[target], is_64bit, buildenv, macdeployfixes)
+        BuildComponent(configdata[target], is_64bit, qt_root, buildenv, macdeployfixes)
 
 
 def PackSymbols():
@@ -359,7 +361,7 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   buildenv.update({ "MAKEFLAGS" : "S" })
   buildenv.update(iutl.GetVisualStudioEnvironment())
   buildenv.update({ "CL" : "/MP" })
-  BuildComponent(installer_info, False, buildenv)
+  BuildComponent(installer_info, False, qt_root, buildenv)
   utl.RemoveFile(archive_filename)
   final_installer_name = os.path.normpath(os.path.join(os.getcwd(),
     "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRINGS[0])))
@@ -368,7 +370,7 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   SignExecutablesWin32(final_installer_name)
 
 
-def BuildInstallerMac(configdata):
+def BuildInstallerMac(configdata, qt_root):
   # Place everything in a 7z archive.
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["macos"]]
@@ -379,7 +381,7 @@ def BuildInstallerMac(configdata):
                    "-y", "-bso0", "-bsp2"])
   # Build and sign the installer.
   installer_app_override = "WindscribeInstaller.app"
-  BuildComponent(installer_info, False, target_name_override=installer_app_override)
+  BuildComponent(installer_info, False, qt_root, target_name_override=installer_app_override)
   if NOTARIZE_FLAG in sys.argv:
     msg.Print("Notarizing...")
     notarize_script = os.path.join(TOOLS_DIR, "notarize.sh")
@@ -446,7 +448,7 @@ def BuildAll():
     if current_os == "win32":
       BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
     elif current_os == "macos":
-      BuildInstallerMac(configdata)
+      BuildInstallerMac(configdata, qt_root)
   # Copy artifacts.
   msg.Print("Installing artifacts...")
   utl.CreateDirectory(artifact_dir, True)
