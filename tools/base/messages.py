@@ -36,6 +36,12 @@ def Print(message, **kwargs):
   sys.stdout.flush()
 
 
+def Verbose(message, **kwargs):
+  if "-v" in sys.argv:
+    print(message, **kwargs)
+    sys.stdout.flush()
+
+
 def HeadPrint(message, **kwargs):
   first_space = message.find(":")
   the_rest = message

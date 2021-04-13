@@ -996,9 +996,9 @@ bool writeMessagePacketResult(HANDLE hPipe, MessagePacketResult &mpr)
 	boost::archive::text_oarchive oa(stream, boost::archive::no_header);
 	oa << mpr;
 	const std::string str = stream.str();
-	
+
 	// first 4 bytes - size of buffer
-	const unsigned long sizeOfBuf = str.size();
+	const auto sizeOfBuf = static_cast<unsigned long>(str.size());
 	if (IOUtils::writeAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
 	{
 		if (sizeOfBuf > 0)

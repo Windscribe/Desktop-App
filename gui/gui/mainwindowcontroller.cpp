@@ -3070,7 +3070,7 @@ bool MainWindowController::isBottomInfoCollapsed() const
 
 void MainWindowController::updateCursorInViewport()
 {
-    QMouseEvent event(QEvent::MouseMove, QCursor::pos(), Qt::NoButton, 0, 0);
+    QMouseEvent event(QEvent::MouseMove, QCursor::pos(), Qt::NoButton, Qt::MouseButtons(), Qt::KeyboardModifiers());
     QApplication::sendEvent(view_->viewport(), &event);
 }
 

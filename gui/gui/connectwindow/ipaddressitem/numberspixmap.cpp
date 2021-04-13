@@ -65,14 +65,14 @@ void NumbersPixmap::rescale()
     itemWidth_ = 0;
     for (int i = 0; i <= 9; ++i)
     {
-        int w = fm.width(QString::number(i));
+        int w = fm.horizontalAdvance(QString::number(i));
         if (w > itemWidth_)
         {
             itemWidth_ = w;
         }
     }
 
-    dotWidth_ = fm.width(".");
+    dotWidth_ = fm.horizontalAdvance(".");
 
     QPixmap *pixmap = new QPixmap(QSize(itemWidth_, itemHeight_ * 11) * DpiScaleManager::instance().curDevicePixelRatio());
     pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
@@ -107,7 +107,7 @@ void NumbersPixmap::rescale()
     painter2.drawText(QRect(0, 0, itemWidth_, itemHeight_), ".");
     dotPixmap_ = new IndependentPixmap(dotPixmap);
 
-    int naWidth = fm.width("N/A");
+    int naWidth = fm.horizontalAdvance("N/A");
     QPixmap *naPixmap = new QPixmap(QSize(naWidth, itemHeight_) * DpiScaleManager::instance().curDevicePixelRatio());
     naPixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
     naPixmap->fill(QColor(Qt::transparent));

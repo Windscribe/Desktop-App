@@ -2,9 +2,10 @@ ECHO off
 ECHO ===== Installing Protobuf into C:\libs\protobuf_debug=====
 
 REM NOTE: This script requires cmake be installed first
+REM SET VERSION_PROTOBUF=3.14.0
 
 set PROTOBUF_TEMP="c:\protobuf_temp"
-set PROTOBUF_TEMP_ZIP="c:\protobuf_temp\protobuf-3.14.0.zip"
+set PROTOBUF_TEMP_ZIP="c:\protobuf_temp\protobuf-%VERSION_PROTOBUF%.zip"
 set PROTOBUF_INSTALL_LOCATION="C:\libs\protobuf_debug"
 
 REM ------ Clear Previously Existing Locations --------
@@ -15,12 +16,12 @@ rd /s /q %PROTOBUF_INSTALL_LOCATION%
 REM ------ Get Protobuf --------
 
 mkdir %PROTOBUF_TEMP%
-curl.exe https://github.com/protocolbuffers/protobuf/archive/v3.14.0.zip -o %PROTOBUF_TEMP_ZIP% -k -L
+curl.exe https://github.com/protocolbuffers/protobuf/archive/v%VERSION_PROTOBUF%.zip -o %PROTOBUF_TEMP_ZIP% -k -L
 7z x %PROTOBUF_TEMP_ZIP% -o%PROTOBUF_TEMP%
 
 REM ------ Make & Build --------
 
-pushd C:\protobuf_temp\protobuf-3.14.0\cmake
+pushd C:\protobuf_temp\protobuf-%VERSION_PROTOBUF%\cmake
 
 rd /s /q build
 
@@ -43,11 +44,15 @@ popd
 popd
 rd /s /q %PROTOBUF_TEMP%
 
+IF NOT EXIST %PROTOBUF_INSTALL_LOCATION%\bin\protoc.exe (exit /b 1 )
 
 REM Handle additional parameters: -zip "PATH" 
 IF "%1"=="-zip" (
 IF not [%2]==[] (
 ECHO "Making zip into %2"
 7z.exe a %2\protobuf_debug.zip c:\libs\protobuf_debug
+IF NOT EXIST %2\protobuf_debug.zip (exit /b 1 )
 )
 )
+
+exit /b 0
