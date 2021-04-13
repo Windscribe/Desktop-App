@@ -35,6 +35,7 @@ BUILD_OS_LIST = [ "win32", "macos" ]
 BUILD_APP_VERSION_STRING = ""
 BUILD_QMAKE_EXE = ""
 BUILD_TEST_GUI_FILES = ""
+BUILD_TEST_GUI_BINARIES = ""
 
 # TODO: move into shared py file
 def ExtractAppVersion():
@@ -68,44 +69,10 @@ def GenerateProtobuf():
   proto_gen = proto_gen + (".bat" if utl.GetCurrentOS() == "win32" else ".sh")
   iutl.RunCommand([proto_gen, os.path.join(proto_root, "release", "bin")], shell=True)
 
-# TODO: move into shared py file
-def CopyFile(filename, srcdir, dstdir, strip_first_dir=False):
-  parts = filename.split("->")
-  srcfilename = parts[0].strip()
-  dstfilename = srcfilename if len(parts) == 1 else parts[1].strip()
-  msg.Print(dstfilename)
-  srcfile = os.path.normpath(os.path.join(srcdir, srcfilename))
-  dstfile = os.path.normpath(dstfilename)
-  if strip_first_dir:
-    dstfile = os.sep.join(dstfile.split(os.path.sep)[1:])
-  dstfile = os.path.join(dstdir, dstfile)
-  utl.CopyAllFiles(srcfile, dstfile) \
-    if srcfilename.endswith(("\\", "/")) else utl.CopyFile(srcfile, dstfile)
-
-# TODO: move into shared py file
-def CopyFiles(title, filelist, srcdir, dstdir, strip_first_dir=False):
-  msg.Info("Copying {} files...".format(title))
-  for filename in filelist:
-    CopyFile(filename, srcdir, dstdir, strip_first_dir)
-
 # TODO: move into shared file
 def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(
   	os.path.dirname(TOOLS_DIR), subdir_name, project_name))
-
-def CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root):
-  if "qt_files" in configdata:
-      CopyFiles("Qt", configdata["qt_files"], qt_root, BUILD_TEST_GUI_FILES, strip_first_dir=True)
-  if "msvc_files" in configdata:
-    CopyFiles("MSVC", configdata["msvc_files"], msvc_root, BUILD_TEST_GUI_FILES)
-  # utl.CopyAllFiles(crt_root, BUILD_TEST_GUI_FILES) # api-ms-win-...dlls
-  if "lib_files" in configdata:
-    for k, v in configdata["lib_files"].iteritems():
-      lib_root = iutl.GetDependencyBuildRoot(k)
-      if not lib_root:
-        raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-      CopyFiles(k, v, lib_root, BUILD_TEST_GUI_FILES)
-
 
 def BuildTestGui():
   # Load config.
@@ -139,6 +106,11 @@ def BuildTestGui():
   temp_dir = iutl.PrepareTempDirectory("tests")
   global BUILD_TEST_GUI_FILES
   BUILD_TEST_GUI_FILES = os.path.join(temp_dir, "gui")
+  global BUILD_TEST_GUI_BINARIES
+  if current_os == "win32":
+    BUILD_TEST_GUI_BINARIES = os.path.join(BUILD_TEST_GUI_FILES, "release")
+  else:
+    BUILD_TEST_GUI_BINARIES = BUILD_TEST_GUI_FILES
   utl.CreateDirectory(BUILD_TEST_GUI_FILES)
 
   # Prep build tools
@@ -165,17 +137,18 @@ def BuildTestGui():
     build_cmd.extend(["-spec", "macx-clang", "CONFIG+=x86_64"])
   iutl.RunCommand(build_cmd, env=buildenv, shell=iswin)
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=iswin)
-  if iswin:
-    CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root)
+
   # move to test-exe
   artifact_dir = os.path.join(ROOT_DIR, "test-exe")
   utl.RemoveDirectory(artifact_dir)
   archive_test_gui = os.path.join(artifact_dir, "gui")
   utl.CreateDirectory(archive_test_gui, True)
-  gui_test_src = os.path.join(BUILD_TEST_GUI_FILES, configdata["test-gui"]["name"])
+  gui_test_src = os.path.join(BUILD_TEST_GUI_BINARIES, configdata["test-gui"]["name"])
+  gui_test_dest = os.path.join(archive_test_gui, configdata["test-gui"]["name"])
   if iswin:
     gui_test_src += ".exe"
-  utl.CopyFile(gui_test_src, os.path.join(archive_test_gui, configdata["test-gui"]["name"]))
+    gui_test_dest += ".exe"
+  utl.CopyFile(gui_test_src, gui_test_dest)
   # clean up temp
   utl.RemoveDirectory(BUILD_TEST_GUI_FILES)
 

@@ -50,12 +50,60 @@ def ExtractAppVersion():
     version_string += "_beta"
   return version_string
 
+# TODO: move into shared py file
+def CopyFile(filename, srcdir, dstdir, strip_first_dir=False):
+  parts = filename.split("->")
+  srcfilename = parts[0].strip()
+  dstfilename = srcfilename if len(parts) == 1 else parts[1].strip()
+  msg.Print(dstfilename)
+  srcfile = os.path.normpath(os.path.join(srcdir, srcfilename))
+  dstfile = os.path.normpath(dstfilename)
+  if strip_first_dir:
+    dstfile = os.sep.join(dstfile.split(os.path.sep)[1:])
+  dstfile = os.path.join(dstdir, dstfile)
+  utl.CopyAllFiles(srcfile, dstfile) \
+    if srcfilename.endswith(("\\", "/")) else utl.CopyFile(srcfile, dstfile)
+
+# TODO: move into shared py file
+def CopyFiles(title, filelist, srcdir, dstdir, strip_first_dir=False):
+  msg.Info("Copying {} files...".format(title))
+  for filename in filelist:
+    CopyFile(filename, srcdir, dstdir, strip_first_dir)
+
+def CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root, targetDir):
+  if "qt_files" in configdata:
+      CopyFiles("Qt", configdata["qt_files"], qt_root, targetDir, strip_first_dir=True)
+  if "msvc_files" in configdata:
+    CopyFiles("MSVC", configdata["msvc_files"], msvc_root, targetDir)
+  # utl.CopyAllFiles(crt_root, targetDir) # api-ms-win-...dlls
+  if "lib_files" in configdata:
+    for k, v in configdata["lib_files"].iteritems():
+      lib_root = iutl.GetDependencyBuildRoot(k)
+      if not lib_root:
+        raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+      CopyFiles(k, v, lib_root, targetDir)
+
+
 def RunTestGui():
   # Load config.
   configdata = utl.LoadConfig(os.path.join(TOOLS_DIR, "{}".format(BUILD_CFGNAME)))
   if not configdata:
     raise iutl.InstallError("Failed to load config \"{}\".".format(BUILD_CFGNAME))
   current_os = utl.GetCurrentOS()
+  qt_root = iutl.GetDependencyBuildRoot("qt")
+  if not qt_root:
+    raise iutl.InstallError("Qt is not installed.")
+  buildenv = os.environ.copy()
+
+  if current_os == "win32":
+    buildenv.update(iutl.GetVisualStudioEnvironment())
+    msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "x86", "Microsoft.VC141.CRT")
+    crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x86".format(
+      buildenv["WINDOWSSDKVERSION"])
+    if not os.path.exists(msvc_root):
+      raise iutl.InstallError("MSVS installation not found.")
+    if not os.path.exists(crt_root):
+      raise iutl.InstallError("CRT files not found.")
   # Prep dirs, check for binary
   artifact_dir = os.path.join(ROOT_DIR, "test-exe")
   global RUN_TEST_GUI_FILES
@@ -63,6 +111,7 @@ def RunTestGui():
   test_gui_exe = os.path.join(RUN_TEST_GUI_FILES, configdata["test-gui"]["name"])
   if current_os == "win32":
     test_gui_exe += ".exe"
+    CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root, RUN_TEST_GUI_FILES)
   if not os.path.exists(test_gui_exe):
   	raise iutl.InstallError("Could not find test gui executable.")
   # Create output file
