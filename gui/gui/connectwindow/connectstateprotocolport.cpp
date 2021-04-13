@@ -79,7 +79,7 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
 
     // port
     QFontMetrics fm = painter->fontMetrics();
-    const int protocolWidth = fm.width(protocolString);
+    const int protocolWidth = fm.horizontalAdvance(protocolString);
     const QString portString = QString::number(port_);
     const int portPosX = separatorMinusProtocolPosX + (separatorPortPadding + 1) * G_SCALE + protocolWidth;
     painter->drawText(QPoint(portPosX, posYBot), portString);
@@ -270,9 +270,9 @@ void ConnectStateProtocolPort::recalcSize()
     QFontMetrics fm(font);
 
     const QString protocolString = ProtoEnumToString::instance().toString(protocol_);
-    const int protocolWidth = fm.width(protocolString);
+    const int protocolWidth = fm.horizontalAdvance(protocolString);
     const QString portString = QString::number(port_);
-    const int portWidth = fm.width(portString);
+    const int portWidth = fm.horizontalAdvance(portString);
     const int badgeWidth = 36;
     const int separatorWidthSum = badgeProtocolPadding + protocolSeparatorPadding + separatorPortPadding;
     const int badgeHeight = 20;

@@ -10,7 +10,11 @@
 
 EMSG="\e[1;31mERROR:\e[0;39m"
 
-type python >/dev/null 2>&1 || \
+pythonexename=$PYTHONHOME
+if [ -n "$pythonexename" ]; then pythonexename=${pythonexename}/; fi
+pythonexename=${pythonexename}python
+
+type "$pythonexename" >/dev/null 2>&1 || \
  { printf "$EMSG Python is not installed, aborting.\n"; exit 1; }
 type cppcheck >/dev/null 2>&1 || \
  { printf "$EMSG CppCheck is not installed, aborting.\n"; exit 1; }
@@ -33,6 +37,6 @@ if [ -n "$files_for_cppcheck" ]; then
   if [ $num_files -gt 5 ]; then
     printf "Running cppcheck for $num_files files, please wait...\n"
   fi
-  echo ${files_for_cppcheck[@]} | python "tools/run_cppcheck.py" --pipe
+  echo ${files_for_cppcheck[@]} | "$pythonexename" "tools/run_cppcheck.py" --pipe
   if [ $? -ne 0 ]; then exit 1; fi
 fi

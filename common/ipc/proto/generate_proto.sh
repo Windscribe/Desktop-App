@@ -1,7 +1,12 @@
 #!/bin/bash
 
-CUR_PATH=$(pwd)
+CUR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-rm -rf "$CUR_PATH/../generated_proto"
+cd "$CUR_PATH"
+if [ -d "$CUR_PATH/../generated_proto" ]; then rm -rf "$CUR_PATH/../generated_proto"; fi
 mkdir -p ../generated_proto
-$HOME/LibsWindscribe/protobuf/bin/protoc -I=$CUR_PATH --cpp_out=$CUR_PATH/../generated_proto $CUR_PATH/*.proto
+
+protodir=$1
+[ -z "$protodir" ] && protodir=$CUR_PATH/../../../build-libs/protobuf/bin
+
+$protodir/protoc -I=$CUR_PATH --cpp_out=$CUR_PATH/../generated_proto $CUR_PATH/*.proto

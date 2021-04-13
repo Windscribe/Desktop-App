@@ -20,6 +20,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += WINDSCRIBE_GUI
 
 COMMON_PATH = $$PWD/../../common
+BUILD_LIBS_PATH = $$PWD/../../build-libs
 
 INCLUDEPATH += $$COMMON_PATH
 
@@ -34,12 +35,12 @@ CONFIG(release, debug|release) {
 
 win32 {
     CONFIG(release, debug|release){
-        INCLUDEPATH += c:/libs/protobuf_release/include
-        LIBS += -Lc:/libs/protobuf_release/lib -llibprotobuf
+        INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/release/include
+        LIBS += -L$$BUILD_LIBS_PATH/protobuf/release/lib -llibprotobuf
     }
     CONFIG(debug, debug|release){
-        INCLUDEPATH += c:/libs/protobuf_debug/include
-        LIBS += -Lc:/libs/protobuf_debug/lib -llibprotobufd
+        INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/debug/include
+        LIBS += -L$$BUILD_LIBS_PATH/protobuf/debug/lib -llibprotobufd
     }
 
     LIBS += -luser32
@@ -94,8 +95,8 @@ LIBS += -framework SystemConfiguration
 LIBS += -framework ServiceManagement
 LIBS += -framework ApplicationServices
 
-INCLUDEPATH += $$(HOME)/LibsWindscribe/protobuf/include
-LIBS += -L$$(HOME)/LibsWindscribe/protobuf/lib -lprotobuf
+INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
 SOURCES += multipleaccountdetection/multipleaccountdetection_mac.cpp
 
@@ -143,7 +144,7 @@ QMAKE_EXTRA_TARGETS += first makedir copydata #makedir4 copydata4
 CONFIG(release, debug|release) {
 
     #copy WindscribeEngine.app to Windscribe.app/Contents/Library folder
-    copydata3.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/engine/WindscribeEngine.app $$OUT_PWD/Windscribe.app/Contents/Library
+    copydata3.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/WindscribeEngine.app $$OUT_PWD/Windscribe.app/Contents/Library
     first.depends += copydata3
     export(copydata3.commands)
     QMAKE_EXTRA_TARGETS += copydata3
@@ -153,7 +154,7 @@ CONFIG(release, debug|release) {
     first.depends += makedir4
     export(makedir4.commands)
     QMAKE_EXTRA_TARGETS += makedir4
-    copydata4.commands = $(COPY_FILE) $$PWD/../../installer/mac/binaries/cli/windscribe-cli $$OUT_PWD/Windscribe.app/Contents/MacOS/windscribe-cli
+    copydata4.commands = $(COPY_FILE) $$PWD/../../installer/mac/binaries/windscribe-cli $$OUT_PWD/Windscribe.app/Contents/MacOS/windscribe-cli
     first.depends += copydata4
     export(copydata4.commands)
     QMAKE_EXTRA_TARGETS += copydata4

@@ -128,7 +128,7 @@ int ScrollAreaWidget::discretePosY(int newY)
 void ScrollAreaWidget::wheelEvent(QWheelEvent *event)
 {
     int mouseSpeedFactor = 2;
-    int newY = static_cast<int>(centralWidget_->getWidget()->pos().y() + event->delta()/mouseSpeedFactor);
+    int newY = static_cast<int>(centralWidget_->getWidget()->pos().y() + event->angleDelta().y()/mouseSpeedFactor);
 
     newY = discretePosY(newY);
 

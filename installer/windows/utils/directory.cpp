@@ -59,7 +59,7 @@ wstring Directory::ReplaceSystemDirWithSysWow64(const wstring Path)
 //  file system redirector would do. Otherwise, Path is returned unchanged. }
 
   wstring SysWow64Dir, SysDir;
-  unsigned int L;
+  size_t L;
 
   SysWow64Dir = GetSysWow64Dir();
   if (SysWow64Dir != L"")

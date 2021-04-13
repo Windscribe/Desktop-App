@@ -121,7 +121,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 			{
 				uninstall_progress = new UninstallProgress;
 
-				bool ret = uninstall_progress->registerClass(hInstance,nCmdShow,L"Uninstall\ - " + ApplicationInfo::instance().getName(), L"Windscribe_uninstaller");
+				bool ret = uninstall_progress->registerClass(hInstance,nCmdShow,L"Uninstall\\ - " + ApplicationInfo::instance().getName(), L"Windscribe_uninstaller");
 
 				if(ret == false)
 				{
