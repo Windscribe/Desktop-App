@@ -132,7 +132,7 @@ def BuildTestGui():
   utl.CreateDirectory(BUILD_TEST_GUI_FILES)
   # Prep build tools
   if current_os == "win32":
-    BUILD_QMAKE_EXE += ".exe"
+    BUILD_QMAKE_EXE = "C:\\Qt\\bin\\qmake.exe"
     buildenv.update({ "MAKEFLAGS" : "S" })
     buildenv.update(iutl.GetVisualStudioEnvironment())
     buildenv.update({ "CL" : "/MP" })
@@ -145,13 +145,12 @@ def BuildTestGui():
   test_gui = configdata["test-gui"]
   c_subdir = test_gui["subdir"]
   c_project = test_gui["project"]
-
+  relative_pro_file = "../../../" + c_subdir + "/" + c_project
+  build_cmd = [BUILD_QMAKE_EXE, relative_pro_file]   
   if iswin: 
-    relative_pro_file = "../../../" + c_subdir + "/" + c_project
-    build_cmd = [ "C:\\Qt\\bin\\qmake.exe", relative_pro_file]    
     build_cmd.extend(["-spec", "win32-msvc"])
     build_cmd.extend(["CONFIG+=release" ])
-  if current_os == "macos":
+  elif current_os == "macos":
     build_cmd.extend(["-spec", "macx-clang", "CONFIG+=x86_64"])
   iutl.RunCommand(build_cmd, env=buildenv, shell=iswin)
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=iswin)
