@@ -91,10 +91,14 @@ bool WireGuardCommunicator::Connection::getOutput(ResultMap *results_map) const
             break;
         output.push_back(c);
     }
+
+	Logger::instance().out("WireGuardCommunicator::Connection::getOutput(): %s", output.c_str());
+
     boost::trim(output);
     if (output.empty())
         return false;
-    if (results_map && !results_map->empty()) {
+
+	if (results_map && !results_map->empty()) {
         std::regex output_rx("(^|\n)(\\w+)=(\\w+)(?=\n|$)");
         std::sregex_iterator it(output.begin(), output.end(), output_rx), end;
         for (; it != end; ++it) {
@@ -257,7 +261,8 @@ bool WireGuardCommunicator::bindSockets(UINT if4, UINT if6, BOOL if6blackhole)
     Connection::ResultMap results{ std::make_pair("errno", "") };
     bool success = connection.getOutput(&results);
     if (success)
-        success = std::stoi(results["errno"]) == 0;
+		success = stringToValue<int>(results["errno"]) == 0;
+
      return success;
 }
 
