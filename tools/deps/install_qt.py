@@ -122,10 +122,18 @@ def InstallDependency():
     aflist.extend(iutl.InstallArtifacts(outpath, DEP_FILE_MASK, None, installzipname))
   for af in aflist:
     msg.HeadPrint("Ready: \"{}\"".format(af))
+  # install to C: drive
+  if utl.GetCurrentOS() == "win32":
+    if "-install" in sys.argv:
+      qt_dest = "C:\\Qt"
+      if os.path.exists(qt_dest):
+        msg.Print("Removing existing lib: " + qt_dest)
+        utl.RemoveDirectory(qt_dest)
+      msg.Print("Copying...")
+      utl.CopyAllFiles(os.path.join(os.path.dirname(TOOLS_DIR), "build-libs", "qt"), qt_dest)
   # Cleanup.
   msg.Print("Cleaning temporary directory...")
   utl.RemoveDirectory(temp_dir)
-
 
 if __name__ == "__main__":
   start_time = time.time()

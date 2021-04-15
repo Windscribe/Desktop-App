@@ -27,6 +27,7 @@ sys.path.insert(0, TOOLS_DIR)
 import base.messages as msg
 import base.utils as utl
 import deps.installutils as iutl
+import base.process as proc
 
 BUILD_TITLE = "TestGui"
 BUILD_CFGNAME = "build_test_gui.yml"
@@ -89,6 +90,23 @@ def BuildTestGui():
   qt_root = iutl.GetDependencyBuildRoot("qt")
   if not qt_root:
     raise iutl.InstallError("Qt is not installed.")
+  global BUILD_QMAKE_EXE
+  BUILD_QMAKE_EXE = os.path.join(qt_root, "bin", "qmake")
+  # Calling a qmake binary that was built on a different machine doesn't work.
+  # Instead we keep qt copy burnt into the image and just verify it is the same as last built qt
+  if current_os == "win32":
+    c_drive_qt = "C:\\Qt"
+    c_drive_qmake = c_drive_qt + "\\bin\\qmake.exe"
+    repo_qmake = qt_root + "\\bin\\qmake.exe"
+    if os.path.exists(c_drive_qmake):
+      msg.Print("C:\\Qt already exists")
+      c_drive_qt_version = proc.ExecuteAndGetOutput([c_drive_qmake, "-query", "QT_VERSION"])
+      msg.Print("C_DRIVE_QT: " + c_drive_qt_version)
+      repo_qt_version = proc.ExecuteAndGetOutput([repo_qmake, "-query", "QT_VERSION"])
+      if (c_drive_qt_version != repo_qt_version):
+        raise iutl.InstallError("Qt Version doesn't match. Please update runner image qt version.")
+    else:
+      raise iutl.InstallError("No Qt found. Please update runner image qt version.")
   buildenv = os.environ.copy()
   # Do some preliminary VS checks on Windows.
   if current_os == "win32":
@@ -112,10 +130,7 @@ def BuildTestGui():
   else:
     BUILD_TEST_GUI_BINARIES = BUILD_TEST_GUI_FILES
   utl.CreateDirectory(BUILD_TEST_GUI_FILES)
-
   # Prep build tools
-  global BUILD_QMAKE_EXE
-  BUILD_QMAKE_EXE = os.path.join(qt_root, "bin", "qmake")
   if current_os == "win32":
     BUILD_QMAKE_EXE += ".exe"
     buildenv.update({ "MAKEFLAGS" : "S" })
@@ -130,11 +145,12 @@ def BuildTestGui():
   test_gui = configdata["test-gui"]
   c_subdir = test_gui["subdir"]
   c_project = test_gui["project"]
-  build_cmd = [ BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release" ]
+
   if iswin: 
-    # need to get absolute path of mkspec for CI edge case where qt is built on another machine but used on this machine
-    abs_path_win32_msvc_mkspec = os.path.join(qt_root, "mkspecs", "win32-msvc")
-    build_cmd.extend(["-spec", abs_path_win32_msvc_mkspec])
+    relative_pro_file = "../../../" + c_subdir + "/" + c_project
+    build_cmd = [ "C:\\Qt\\bin\\qmake.exe", relative_pro_file]    
+    build_cmd.extend(["-spec", "win32-msvc"])
+    build_cmd.extend(["CONFIG+=release" ])
   if current_os == "macos":
     build_cmd.extend(["-spec", "macx-clang", "CONFIG+=x86_64"])
   iutl.RunCommand(build_cmd, env=buildenv, shell=iswin)
