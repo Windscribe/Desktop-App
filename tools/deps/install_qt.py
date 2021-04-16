@@ -31,7 +31,6 @@ QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtc
   "qtvirtualkeyboard", "qtwayland", "qtwebchannel", "qtwebengine", "qtwebglplugin", "qtwebsockets",
   "qtwebview"]
 
-
 def BuildDependencyMSVC(installpath, openssl_root, outpath):
   # Create an environment with VS vars.
   buildenv = os.environ.copy()
@@ -50,9 +49,6 @@ def BuildDependencyMSVC(installpath, openssl_root, outpath):
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=True)
   iutl.RunCommand(["nmake", "install"], env=buildenv, shell=True)
-  # add qt.conf to override the built-in QT_INSTALL_PREFIX 
-  qt_conf_path = os.path.join(installpath, "bin", "qt.conf")
-  utl.CreateFileWithContents(qt_conf_path, "[Paths]\nPrefix = ..", True)
 
 def BuildDependencyGNU(installpath, openssl_root, outpath):
   # Create an environment.
@@ -70,7 +66,6 @@ def BuildDependencyGNU(installpath, openssl_root, outpath):
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
   iutl.RunCommand(["make", "install", "-s"], env=buildenv)
-
 
 def InstallDependency():
   # Load environment.
@@ -114,6 +109,9 @@ def InstallDependency():
       BuildDependencyMSVC(outpath, openssl_root, temp_dir)
     else:
       BuildDependencyGNU(outpath, openssl_root, temp_dir)
+    # add qt.conf to override the built-in QT_INSTALL_PREFIX 
+    qt_conf_path = os.path.join(outpath, "bin", "qt.conf")
+    utl.CreateFileWithContents(qt_conf_path, "[Paths]\nPrefix = ..", True)
   # Copy the dependency to a zip file, if needed.
   aflist = [outpath]
   msg.Print("Installing artifacts...")
