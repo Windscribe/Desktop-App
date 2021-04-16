@@ -50,7 +50,9 @@ def BuildDependencyMSVC(installpath, openssl_root, outpath):
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=True)
   iutl.RunCommand(["nmake", "install"], env=buildenv, shell=True)
-
+  # add qt.conf to override the built-in QT_INSTALL_PREFIX 
+  qt_conf_path = os.path.join(installpath, "bin", "qt.conf")
+  utl.CreateFileWithContents(qt_conf_path, "[Paths]\nPrefix = ..", True)
 
 def BuildDependencyGNU(installpath, openssl_root, outpath):
   # Create an environment.
@@ -122,15 +124,6 @@ def InstallDependency():
     aflist.extend(iutl.InstallArtifacts(outpath, DEP_FILE_MASK, None, installzipname))
   for af in aflist:
     msg.HeadPrint("Ready: \"{}\"".format(af))
-  # install to C: drive
-  if utl.GetCurrentOS() == "win32":
-    if "-install" in sys.argv:
-      qt_dest = "C:\\Qt"
-      if os.path.exists(qt_dest):
-        msg.Print("Removing existing lib: " + qt_dest)
-        utl.RemoveDirectory(qt_dest)
-      msg.Print("Copying...")
-      utl.CopyAllFiles(os.path.join(os.path.dirname(TOOLS_DIR), "build-libs", "qt"), qt_dest)
   # Cleanup.
   msg.Print("Cleaning temporary directory...")
   utl.RemoveDirectory(temp_dir)

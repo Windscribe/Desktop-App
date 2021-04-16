@@ -415,21 +415,6 @@ def BuildAll():
   qt_root = iutl.GetDependencyBuildRoot("qt")
   if not qt_root:
     raise iutl.InstallError("Qt is not installed.")
-  # Calling a qmake binary that was built on a different machine doesn't work.
-  # Instead we keep qt copy burnt into the image and just verify it is the same as last built qt
-  if current_os == "win32":
-    c_drive_qt = "C:\\Qt"
-    c_drive_qmake = c_drive_qt + "\\bin\\qmake.exe"
-    repo_qmake = qt_root + "\\bin\\qmake.exe"
-    if os.path.exists(c_drive_qmake):
-      c_drive_qt_version = proc.ExecuteAndGetOutput([c_drive_qmake, "-query", "QT_VERSION"])
-      msg.Print("C_DRIVE_QT: " + c_drive_qt_version)
-      repo_qt_version = proc.ExecuteAndGetOutput([repo_qmake, "-query", "QT_VERSION"])
-      if (c_drive_qt_version != repo_qt_version):
-        raise iutl.InstallError("Qt Version doesn't match. Please update runner image qt version.")
-      qt_root = c_drive_qt
-    else:
-      raise iutl.InstallError("No Qt found. Please update runner image qt version.")
   # Do some preliminary VS checks on Windows.
   if current_os == "win32":
     buildenv = os.environ.copy()
