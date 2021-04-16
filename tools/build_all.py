@@ -181,9 +181,7 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
       # Build Qt project.
       build_cmd = [BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release silent"]
       if c_iswin:
-        # need to get absolute path of mkspec for CI edge case where qt is built on another machine but used on this machine
-        abs_path_win32_msvc_mkspec = os.path.join(qt_root, "mkspecs", "win32-msvc")
-        build_cmd.extend(["-spec", abs_path_win32_msvc_mkspec])
+        build_cmd.extend(["-spec", "win32-msvc"])
       iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
       iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=c_iswin)
       target_location = "release" if c_iswin else ""
@@ -417,6 +415,21 @@ def BuildAll():
   qt_root = iutl.GetDependencyBuildRoot("qt")
   if not qt_root:
     raise iutl.InstallError("Qt is not installed.")
+  # Calling a qmake binary that was built on a different machine doesn't work.
+  # Instead we keep qt copy burnt into the image and just verify it is the same as last built qt
+  if current_os == "win32":
+    c_drive_qt = "C:\\Qt"
+    c_drive_qmake = c_drive_qt + "\\bin\\qmake.exe"
+    repo_qmake = qt_root + "\\bin\\qmake.exe"
+    if os.path.exists(c_drive_qmake):
+      c_drive_qt_version = proc.ExecuteAndGetOutput([c_drive_qmake, "-query", "QT_VERSION"])
+      msg.Print("C_DRIVE_QT: " + c_drive_qt_version)
+      repo_qt_version = proc.ExecuteAndGetOutput([repo_qmake, "-query", "QT_VERSION"])
+      if (c_drive_qt_version != repo_qt_version):
+        raise iutl.InstallError("Qt Version doesn't match. Please update runner image qt version.")
+      qt_root = c_drive_qt
+    else:
+      raise iutl.InstallError("No Qt found. Please update runner image qt version.")
   # Do some preliminary VS checks on Windows.
   if current_os == "win32":
     buildenv = os.environ.copy()

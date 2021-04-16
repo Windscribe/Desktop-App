@@ -217,6 +217,6 @@ macdeployfixes:
     rpathfix:
       Contents/MacOS/windscribe-cli:
         protobuf:
-          - lib/libprotobuf.19.dylib -> ../Frameworks/libprotobuf.19.dylib
+          - lib/libprotobuf.25.dylib -> ../Frameworks/libprotobuf.25.dylib
     codesign:
       sign_app: yes
