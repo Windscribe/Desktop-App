@@ -1,6 +1,5 @@
 #include "dnsresolver.h"
 #include "dnsutils.h"
-#include "engine/hardcodedsettings.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 
@@ -130,19 +129,13 @@ void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_op
 
     if (dnsIps.isEmpty())
     {
-        optmask |= ARES_OPT_DOMAINS;
         optmask |= ARES_OPT_TRIES;
-        options.ndomains = 1;
-        options.domains = &(allocatedData->domainPtr);
         options.tries = 1;
     }
     else
     {
-        optmask |= ARES_OPT_DOMAINS;
         optmask |= ARES_OPT_SERVERS;
         optmask |= ARES_OPT_TRIES;
-        options.ndomains = 1;
-        options.domains = &(allocatedData->domainPtr);
         options.tries = 1;
 
         struct sockaddr_in sa;
@@ -338,8 +331,3 @@ void DnsResolver::run()
     }
 }
 
-DnsResolver::ALLOCATED_DATA_FOR_OPTIONS::ALLOCATED_DATA_FOR_OPTIONS()
-{
-    strcpy(szDomain, HardcodedSettings::instance().serverApiUrl().toStdString().c_str());
-    domainPtr = szDomain;
-}

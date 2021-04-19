@@ -8,7 +8,6 @@
 #include <QVector>
 #include "areslibraryinit.h"
 #include "ares.h"
-#include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "dnsresolver_test.h"
 
 
@@ -59,14 +58,11 @@ private:
 
     struct ALLOCATED_DATA_FOR_OPTIONS
     {
-        char szDomain[128];
-        char *domainPtr;
 #ifdef Q_OS_WIN
         QVector<IN_ADDR> dnsServers;
 #else
         QVector<in_addr> dnsServers;
 #endif
-        ALLOCATED_DATA_FOR_OPTIONS();
     };
 
     struct CHANNEL_INFO
