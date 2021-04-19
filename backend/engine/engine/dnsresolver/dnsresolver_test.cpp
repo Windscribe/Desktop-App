@@ -2012,7 +2012,7 @@ DnsResolver_test::DnsResolver_test(QObject *parent) : QObject(parent), bStopped_
         domains_ << QString::fromStdString(s);
     }
 
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void*)), SLOT(onResolved(QString,QHostInfo,void*)));
+    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QStringList,void*)), SLOT(onResolved(QString,QStringList,void*)));
 }
 
 void DnsResolver_test::runTests()
@@ -2032,7 +2032,7 @@ void DnsResolver_test::stop()
     bStopped_ = true;
 }
 
-void DnsResolver_test::onResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
+void DnsResolver_test::onResolved(const QString &hostname, const QStringList &hostInfo, void *userPointer)
 {
     if (userPointer == this)
     {

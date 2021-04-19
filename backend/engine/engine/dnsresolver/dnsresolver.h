@@ -1,7 +1,6 @@
 #ifndef DNSRESOLVER_H
 #define DNSRESOLVER_H
 
-#include <QHostInfo>
 #include <QQueue>
 #include <QThread>
 #include <QWaitCondition>
@@ -9,7 +8,6 @@
 #include <QVector>
 #include "areslibraryinit.h"
 #include "ares.h"
-#include "engine/types/types.h"
 #include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "dnsresolver_test.h"
 
@@ -26,14 +24,15 @@ public:
         return s;
     }
 
-    void runTests();
+    //void runTests();
     void stop();
 
-    void setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType);
-    void setUseCustomDns(bool bUseCustomDns);
+    // if ips is empty, then use default OS DNS
+    // sets the DNS servers for all subsequent requests
+    void setDnsServers(const QStringList &ips);
 
     void lookup(const QString &hostname, void *userPointer);
-    QHostInfo lookupBlocked(const QString &hostname);
+    QStringList lookupBlocked(const QString &hostname);
 
 private:
     explicit DnsResolver(QObject *parent = nullptr);
@@ -43,7 +42,7 @@ protected:
     virtual void run();
 
 signals:
-    void resolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
+    void resolved(const QString &hostname, const QStringList &addresses, void *userPointer);
 
 private:
 
@@ -55,7 +54,7 @@ private:
 
     struct USER_ARG_FOR_BLOCKED
     {
-        QHostInfo ha;
+        QStringList ips;
     };
 
     struct ALLOCATED_DATA_FOR_OPTIONS
@@ -82,14 +81,11 @@ private:
     QMutex mutex_;
     QWaitCondition waitCondition_;
     bool bNeedFinish_;
-    DNS_POLICY_TYPE dnsPolicyType_;
-    std::atomic_bool isUseCustomDns_;
-
-    DnsResolver_test *test_;
+    QStringList dnsServers_;
 
     static DnsResolver *this_;
 
-    QStringList getCustomDnsIps();
+    QStringList getDnsIps();
     void createOptionsForAresChannel(const QStringList &dnsIps, struct ares_options &options, int &optmask, ALLOCATED_DATA_FOR_OPTIONS *allocatedData);
     static void callback(void *arg, int status, int timeouts, struct hostent *host);
     static void callbackForBlocked(void *arg, int status, int timeouts, struct hostent *host);

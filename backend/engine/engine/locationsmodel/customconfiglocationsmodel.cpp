@@ -20,7 +20,7 @@ CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnect
     connect(&pingIpsController_, SIGNAL(needIncrementPingIteration()), SLOT(onNeedIncrementPingIteration()));
     pingStorage_.incIteration();
 
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void*)), SLOT(onResolved(QString,QHostInfo,void*)));
+    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QStringList,void*)), SLOT(onResolved(QString,QStringList,void*)));
 }
 
 void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<const customconfigs::ICustomConfig> > &customConfigs)
@@ -119,7 +119,7 @@ void CustomConfigLocationsModel::onNeedIncrementPingIteration()
     pingStorage_.incIteration();
 }
 
-void CustomConfigLocationsModel::onResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
+void CustomConfigLocationsModel::onResolved(const QString &hostname, const QStringList &ips, void *userPointer)
 {
     if (userPointer == this)
     {
@@ -132,10 +132,10 @@ void CustomConfigLocationsModel::onResolved(const QString &hostname, const QHost
                     remoteIt->isResolved = true;
                     remoteIt->ips.clear();
 
-                    for (const QHostAddress &ha : hostInfo.addresses())
+                    for (const QString &ip : ips)
                     {
                         IpItem ipItem;
-                        ipItem.ip = ha.toString();
+                        ipItem.ip = ip;
                         ipItem.pingTime = pingStorage_.getNodeSpeed(ipItem.ip);
                         remoteIt->ips << ipItem;
 

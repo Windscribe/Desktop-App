@@ -38,7 +38,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
 
      makeOVPNFile_ = new MakeOVPNFile();
 
-     connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *)), SLOT(onDnsResolved(QString, QHostInfo,void *)));
+     connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QStringList,void *)), SLOT(onDnsResolved(QString, QStringList,void *)));
 }
 
 EmergencyController::~EmergencyController()
@@ -132,7 +132,7 @@ void EmergencyController::setPacketSize(ProtoTypes::PacketSize ps)
     packetSize_ = ps;
 }
 
-void EmergencyController::onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
+void EmergencyController::onDnsResolved(const QString &hostname, const QStringList &addresses, void *userPointer)
 {
     Q_UNUSED(hostname);
     if (userPointer == this)
@@ -140,15 +140,15 @@ void EmergencyController::onDnsResolved(const QString &hostname, const QHostInfo
 
         attempts_.clear();
 
-        if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
+        if (!addresses.isEmpty())
         {
-            qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolved:" << hostInfo.addresses();
+            qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolved:" << addresses;
 
             // generate connect attempts array
             std::vector<QString> randomVecIps;
-            for (int i = 0; i < hostInfo.addresses().count(); ++i)
+            for (int i = 0; i < addresses.count(); ++i)
             {
-                randomVecIps.push_back(hostInfo.addresses()[i].toString());
+                randomVecIps.push_back(addresses[i]);
             }
 
             std::random_device rd;

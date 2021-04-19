@@ -11,7 +11,7 @@
 namespace DnsUtils
 {
 
-std::vector<std::wstring> getDnsServers()
+std::vector<std::wstring> getOSDefaultDnsServers()
 {
     std::vector<std::wstring> dnsServers;
 

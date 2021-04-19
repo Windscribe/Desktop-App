@@ -15,7 +15,7 @@ public:
     void stop();
 
 private slots:
-    void onResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
+    void onResolved(const QString &hostname, const QStringList &hostInfo, void *userPointer);
 
 private:
     QVector<QString> domains_;

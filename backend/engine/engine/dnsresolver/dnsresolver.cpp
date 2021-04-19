@@ -4,8 +4,6 @@
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 
-#include <QElapsedTimer>
-
 #ifdef Q_OS_MAC
     #include <netinet/in.h>
     #include <arpa/inet.h>
@@ -14,19 +12,18 @@
 #endif
 
 DnsResolver *DnsResolver::this_ = NULL;
-const int typeIdQHostInfo = qRegisterMetaType<QHostInfo>("QHostInfo");
 
-void DnsResolver::runTests()
-{
+//void DnsResolver::runTests()
+//{
     //todo -> move to test project
-    test_ = new DnsResolver_test(this);
-    test_->runTests();
-}
+    //test_ = new DnsResolver_test(this);
+    //test_->runTests();
+//}
 
 void DnsResolver::stop()
 {
     qCDebug(LOG_BASIC) << "Stopping DnsResolver";
-    test_->stop();
+    //test_->stop();
     mutex_.lock();
     bNeedFinish_ = true;
     waitCondition_.wakeAll();
@@ -36,27 +33,21 @@ void DnsResolver::stop()
     qCDebug(LOG_BASIC) << "DnsResolver stopped";
 }
 
-void DnsResolver::setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType)
+void DnsResolver::setDnsServers(const QStringList &ips)
 {
-    QMutexLocker locker(&mutex_);
-    dnsPolicyType_ = dnsPolicyType;
-}
-
-void DnsResolver::setUseCustomDns(bool bUseCustomDns)
-{
-    isUseCustomDns_ = bUseCustomDns;
-
-    if (bUseCustomDns)
+    if (ips.isEmpty())
     {
-        qCDebug(LOG_BASIC) << "Changed DNS mode to custom";
+        qCDebug(LOG_BASIC) << "Changed DNS servers for DnsResolver to OS default";
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Changed DNS mode to automatic";
+        qCDebug(LOG_BASIC) << "Changed DNS servers for DnsResolver to:" << ips;
     }
+    QMutexLocker locker(&mutex_);
+    dnsServers_ = ips;
 }
 
-QHostInfo DnsResolver::lookupBlocked(const QString &hostname)
+QStringList DnsResolver::lookupBlocked(const QString &hostname)
 {
     ares_channel channel;
 
@@ -64,13 +55,13 @@ QHostInfo DnsResolver::lookupBlocked(const QString &hostname)
     int optmask = 0;
 
     QScopedPointer<ALLOCATED_DATA_FOR_OPTIONS> allocatedData (new ALLOCATED_DATA_FOR_OPTIONS());
-    createOptionsForAresChannel((!isUseCustomDns_) ? QStringList() : getCustomDnsIps(), options, optmask, allocatedData.data());
+    createOptionsForAresChannel(getDnsIps(), options, optmask, allocatedData.data());
 
     int status = ares_init_options(&channel, &options, optmask);
     if (status != ARES_SUCCESS)
     {
         qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-        return QHostInfo();
+        return QStringList();
     }
 
     USER_ARG_FOR_BLOCKED userArg;
@@ -94,13 +85,12 @@ QHostInfo DnsResolver::lookupBlocked(const QString &hostname)
     }
 
     ares_destroy(channel);
-    return userArg.ha;
+    return userArg.ips;
 }
 
 
 DnsResolver::DnsResolver(QObject *parent) : QThread(parent), bStopCalled_(false),
-    bNeedFinish_(false), dnsPolicyType_(DNS_TYPE_OPEN_DNS),
-    isUseCustomDns_(true)
+    bNeedFinish_(false)
 {
     Q_ASSERT(this_ == NULL);
     this_ = this;
@@ -115,38 +105,22 @@ DnsResolver::~DnsResolver()
     this_ = NULL;
 }
 
-QStringList DnsResolver::getCustomDnsIps()
+QStringList DnsResolver::getDnsIps()
 {
-    if (dnsPolicyType_ == DNS_TYPE_OS_DEFAULT)
+    if (dnsServers_.isEmpty())
     {
-        QStringList osDefaultList;  // Empty by default.
 #if defined(Q_OS_MAC)
+        QStringList osDefaultList;  // Empty by default.
         // On Mac, don't rely on automatic OS default DNS fetch in CARES, because it reads them from
         // the "/etc/resolv.conf", which is sometimes not available immediately after reboot.
         // Feed the CARES with valid OS default DNS values taken from scutil.
-        const auto listDns = DnsUtils::getDnsServers();
+        const auto listDns = DnsUtils::getOSDefaultDnsServers();
         for (auto it = listDns.cbegin(); it != listDns.cend(); ++it)
             osDefaultList.push_back(QString::fromStdWString(*it));
-#endif
         return osDefaultList;
+#endif
     }
-    else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS)
-    {
-        return HardcodedSettings::instance().customDns();
-    }
-    else if (dnsPolicyType_ == DNS_TYPE_CLOUDFLARE)
-    {
-        return QStringList() << HardcodedSettings::instance().cloudflareDns();
-    }
-    else if (dnsPolicyType_ == DNS_TYPE_GOOGLE)
-    {
-        return QStringList() << HardcodedSettings::instance().googleDns();
-    }
-    else
-    {
-        Q_ASSERT(false);
-    }
-    return QStringList();
+    return dnsServers_;
 }
 
 void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_options &options, int &optmask, ALLOCATED_DATA_FOR_OPTIONS *allocatedData)
@@ -199,24 +173,21 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
     USER_ARG *userArg = static_cast<USER_ARG *>(arg);
     if (status != ARES_SUCCESS)
     {
-        emit this_->resolved(userArg->hostname, QHostInfo(), userArg->userPointer);
+        emit this_->resolved(userArg->hostname, QStringList(), userArg->userPointer);
         delete userArg;
         return;
     }
 
-    QList<QHostAddress> addresses;
+    QStringList addresses;
     for (char **p = host->h_addr_list; *p; p++)
     {
         char addr_buf[46] = "??";
 
         ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
-        addresses << QHostAddress(QString::fromStdString(addr_buf));
+        addresses << QString::fromStdString(addr_buf);
     }
 
-    QHostInfo hostInfo;
-    hostInfo.setAddresses(addresses);
-    hostInfo.setError(QHostInfo::NoError);
-    emit this_->resolved(userArg->hostname, hostInfo, userArg->userPointer);
+    emit this_->resolved(userArg->hostname, addresses, userArg->userPointer);
     delete userArg;
 }
 
@@ -227,23 +198,20 @@ void DnsResolver::callbackForBlocked(void *arg, int status, int timeouts, hosten
 
     if(status == ARES_SUCCESS)
     {
-        QList<QHostAddress> addresses;
+        QStringList addresses;
         for (char **p = host->h_addr_list; *p; p++)
         {
             char addr_buf[46] = "??";
 
             ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
-            addresses << QHostAddress(QString::fromStdString(addr_buf));
+            addresses << QString::fromStdString(addr_buf);
         }
 
-        QHostInfo hostInfo;
-        hostInfo.setAddresses(addresses);
-        hostInfo.setError(QHostInfo::NoError);
-        userArg->ha = hostInfo;
+        userArg->ips = addresses;
     }
     else
     {
-        userArg->ha = QHostInfo();
+        userArg->ips.clear();
     }
 }
 
@@ -276,21 +244,19 @@ bool DnsResolver::processChannel(ares_channel channel)
 
 void DnsResolver::lookup(const QString &hostname, void *userPointer)
 {
-    QElapsedTimer timer;
-    timer.start();
     ares_channel channel;
     struct ares_options options;
     int optmask = 0;
 
     ALLOCATED_DATA_FOR_OPTIONS *allocatedData = new ALLOCATED_DATA_FOR_OPTIONS();
 
-    createOptionsForAresChannel((!isUseCustomDns_) ? QStringList() : getCustomDnsIps(), options, optmask, allocatedData);
+    createOptionsForAresChannel(getDnsIps(), options, optmask, allocatedData);
     int status = ares_init_options(&channel, &options, optmask);
     if (status != ARES_SUCCESS)
     {
         qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
         delete allocatedData;
-        emit resolved(hostname, QHostInfo(), userPointer);
+        emit resolved(hostname, QStringList(), userPointer);
     }
     else
     {
@@ -309,7 +275,6 @@ void DnsResolver::lookup(const QString &hostname, void *userPointer)
             waitCondition_.wakeAll();
         }
     }
-    qDebug() << "lookup:" << hostname << "; time = " << timer.elapsed() << ((!isUseCustomDns_) ? QStringList() : getCustomDnsIps());
 }
 
 void DnsResolver::run()

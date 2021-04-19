@@ -10,7 +10,7 @@ namespace locationsmodel {
 CustomConfigLocationInfo::CustomConfigLocationInfo(const LocationID &locationId, QSharedPointer<const customconfigs::ICustomConfig> config) :
     BaseLocationInfo(locationId, config->filename()), config_(config), globalPort_(0), bAllResolved_(false), selected_(0), selectedHostname_(0)
 {
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void*)), SLOT(onResolved(QString,QHostInfo,void*)));
+    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QStringList,void*)), SLOT(onResolved(QString,QStringList,void*)));
 }
 
 bool CustomConfigLocationInfo::isExistSelectedNode() const
@@ -282,7 +282,7 @@ QString CustomConfigLocationInfo::getLogString() const
     return ret;
 }
 
-void CustomConfigLocationInfo::onResolved(const QString &hostname, const QHostInfo &hostInfo,
+void CustomConfigLocationInfo::onResolved(const QString &hostname, const QStringList &ips,
                                           void *userPointer)
 {
     if (userPointer == this)
@@ -292,10 +292,10 @@ void CustomConfigLocationInfo::onResolved(const QString &hostname, const QHostIn
             if (remotes_[i].isHostname && remotes_[i].ipOrHostname_ == hostname)
             {
                 QString strIps;
-                for (const QHostAddress &ha : hostInfo.addresses())
+                for (const QString &ip : ips)
                 {
-                    remotes_[i].ipsForHostname_ << ha.toString();
-                    strIps += ha.toString() + "; ";
+                    remotes_[i].ipsForHostname_ << ip;
+                    strIps += ip + "; ";
                 }
 
                 qCDebug(LOG_CONNECTION) << "Hostname:" << hostname << " resolved -> " << strIps;

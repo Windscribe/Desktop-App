@@ -276,6 +276,7 @@ SOURCES += main.cpp \
     engine/apiinfo/staticips.cpp \
     engine/apiinfo/servercredentials.cpp \
     engine/autoupdater/downloadhelper.cpp \
+    engine/dnsresolver/dnsutils.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/locationsmodel/locationsmodel.cpp \
     engine/locationsmodel/apilocationsmodel.cpp \

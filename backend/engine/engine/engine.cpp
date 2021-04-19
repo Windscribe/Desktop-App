@@ -9,6 +9,7 @@
 #include "openvpnversioncontroller.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "dnsresolver/dnsresolver.h"
+#include "dnsresolver/dnsutils.h"
 #include "openvpnversioncontroller.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
@@ -525,8 +526,7 @@ void Engine::init()
     networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_);
     networkStateManager_ = CrossPlatformObjectFactory::createNetworkStateManager(this, networkDetectionManager_);
 
-    DnsResolver::instance().setDnsPolicy(engineSettings_.getDnsPolicy());
-    DnsResolver::instance().runTests();
+    DnsResolver::instance().setDnsServers(DnsUtils::dnsPolicyTypeToStringList(engineSettings_.getDnsPolicy()));
     firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
 
     ProtoTypes::MacAddrSpoofing macAddrSpoofing = engineSettings_.getMacAddrSpoofing();
@@ -1131,7 +1131,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     if (isDnsPolicyChanged)
     {
         firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
-        DnsResolver::instance().setDnsPolicy(engineSettings_.getDnsPolicy());
+        DnsResolver::instance().setDnsServers(DnsUtils::dnsPolicyTypeToStringList(engineSettings_.getDnsPolicy()));
     }
 
     if (isAllowLanTrafficChanged || isDnsPolicyChanged)
@@ -1596,7 +1596,8 @@ void Engine::onConnectionManagerConnected()
     serverAPI_->disableProxy();
     locationsModel_->disableProxy();
 
-    DnsResolver::instance().setUseCustomDns(false);
+    DnsResolver::instance().setDnsServers(QStringList());  // use OS default DNS list
+
 
     if (loginState_ == LOGIN_IN_PROGRESS)
     {
@@ -2050,7 +2051,7 @@ void Engine::onEmergencyControllerConnected()
 #endif
 
     serverAPI_->disableProxy();
-    DnsResolver::instance().setUseCustomDns(false);
+    DnsResolver::instance().setDnsServers(QStringList());  // use OS default DNS list
 
     emergencyConnectStateController_->setConnectedState(LocationID());
     emit emergencyConnected();
@@ -2061,7 +2062,7 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerDisconnected(), reason =" << reason;
 
     serverAPI_->enableProxy();
-    DnsResolver::instance().setUseCustomDns(true);
+    DnsResolver::instance().setDnsServers(DnsUtils::dnsPolicyTypeToStringList(engineSettings_.getDnsPolicy()));
 
     emergencyConnectStateController_->setDisconnectedState(reason, NO_CONNECT_ERROR);
     emit emergencyDisconnected();
@@ -2398,11 +2399,11 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
         {
             // make DNS-resolution for add IP to firewall exceptions
             qCDebug(LOG_BASIC) << "Make DNS-resolution for" << strHost;
-            QHostInfo hostInfo = DnsResolver::instance().lookupBlocked(strHost);
-            if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
+            QStringList ips = DnsResolver::instance().lookupBlocked(strHost);
+            if (!ips.isEmpty())
             {
-                qCDebug(LOG_BASIC) << "Resolved IP address for" << strHost << ":" << hostInfo.addresses()[0];
-                ip = hostInfo.addresses()[0].toString();
+                qCDebug(LOG_BASIC) << "Resolved IP address for" << strHost << ":" << ips[0];
+                ip = ips[0];
                 ExtraConfig::instance().setDetectedIp(ip);
             }
             else
@@ -2542,7 +2543,7 @@ void Engine::doDisconnectRestoreStuff()
 
     serverAPI_->enableProxy();
     locationsModel_->enableProxy();
-    DnsResolver::instance().setUseCustomDns(true);
+    DnsResolver::instance().setDnsServers(DnsUtils::dnsPolicyTypeToStringList(engineSettings_.getDnsPolicy()));
 
 #ifdef Q_OS_MAC
     firewallController_->setInterfaceToSkip_mac("");

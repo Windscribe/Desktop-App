@@ -76,7 +76,7 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
     // add dns servers
     if (dnsPolicyType_ == DNS_TYPE_OS_DEFAULT)
     {
-        std::vector<std::wstring> listDns = DnsUtils::getDnsServers();
+        std::vector<std::wstring> listDns = DnsUtils::getOSDefaultDnsServers();
         for (std::vector<std::wstring>::iterator it = listDns.begin(); it != listDns.end(); ++it)
         {
             ipList.add(QString::fromStdWString(*it));

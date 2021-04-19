@@ -20,7 +20,7 @@ signals:
     void ipsInCachChanged(const QStringList &ips);
 
 private slots:
-    void onDnsResolverFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
+    void onDnsResolverFinished(const QString &hostname, const QStringList &resolvedIps, void *userPointer);
 
 private:
 
@@ -43,7 +43,7 @@ private:
     QSet<QString> resolvingHostsInProgress_;
     QVector<PendingResolvingHosts> pendingHosts_;
 
-    void checkForNewIps(const QHostInfo &hostInfo);
+    void checkForNewIps(const QStringList &newIps);
     void checkForNewIps(const QString &ip);
 };
 

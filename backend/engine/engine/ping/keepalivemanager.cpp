@@ -7,7 +7,7 @@
 KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController) : QObject(parent),
     isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED), pingHostIcmp_(this, stateController)
 {
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *)), SLOT(onDnsResolvedFinished(QString, QHostInfo,void *)));
+    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QStringList,void *)), SLOT(onDnsResolvedFinished(QString, QStringList,void *)));
     connect(stateController, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
     connect(&pingHostIcmp_, SIGNAL(pingFinished(bool,int,QString,bool)), SLOT(onPingFinished(bool,int,QString,bool)));
@@ -61,18 +61,18 @@ void KeepAliveManager::onTimer()
     }
 }
 
-void KeepAliveManager::onDnsResolvedFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
+void KeepAliveManager::onDnsResolvedFinished(const QString &hostname, const QStringList &ips, void *userPointer)
 {
     Q_UNUSED(hostname);
 
     if (userPointer == this)
     {
-        if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
+        if (!ips.isEmpty())
         {
             ips_.clear();
-            for (int i = 0; i < hostInfo.addresses().count(); ++i)
+            for (int i = 0; i < ips.count(); ++i)
             {
-                ips_ << IP_DESCR(hostInfo.addresses()[i].toString());
+                ips_ << IP_DESCR(ips[i]);
             }
 
             if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)

@@ -5,7 +5,7 @@
 
 DnsCache::DnsCache(QObject *parent) : QObject(parent)
 {
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *)), SLOT(onDnsResolverFinished(QString, QHostInfo,void *)));
+    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QStringList,void *)), SLOT(onDnsResolverFinished(QString, QStringList,void *)));
 }
 
 DnsCache::~DnsCache()
@@ -55,24 +55,23 @@ void DnsCache::resolve(const QString &hostname, int cacheTimeout, void *userData
     }
 }
 
-void DnsCache::onDnsResolverFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
+void DnsCache::onDnsResolverFinished(const QString &hostname, const QStringList &resolvedIps, void *userPointer)
 {
     if (userPointer == this)
     {
         //qDebug() << "DnsCache::onDnsResolverFinished, hostname=" << hostname << ", " << hostInfo.addresses();
         bool bSuccess = false;
         QStringList ips;
-        if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
+        if (!resolvedIps.isEmpty())
         {
-            checkForNewIps(hostInfo);
+            checkForNewIps(resolvedIps);
             ///hookAddrInfo_->setCache(hostname, hostInfo.addresses());
 
             ResolvedHostInfo rhi;
             rhi.time = QDateTime::currentMSecsSinceEpoch();
-            const auto hostAddresses = hostInfo.addresses();
-            for (const QHostAddress &ha : hostAddresses)
+            for (const QString &ip : resolvedIps)
             {
-                ips << ha.toString();
+                ips << ip;
             }
             rhi.ips = ips;
             resolvedHosts_[hostname] = rhi;
@@ -97,13 +96,12 @@ void DnsCache::onDnsResolverFinished(const QString &hostname, const QHostInfo &h
     }
 }
 
-void DnsCache::checkForNewIps(const QHostInfo &hostInfo)
+void DnsCache::checkForNewIps(const QStringList &newIps)
 {
     bool bNewIps = false;
-    QList<QHostAddress> list = hostInfo.addresses();
-    for (auto it = list.begin(); it != list.end(); ++it)
+
+    for (const QString &ip : newIps)
     {
-        QString ip = it->toString();
         if (!resolvedIps_.contains(ip))
         {
             resolvedIps_ << ip;
