@@ -136,7 +136,11 @@ def ExtractFile(localfilename, outputpath=None, deleteonsuccess=True):
       msg.Verbose(e)
       raise InstallError("Error extracting ZIP file.")
   else:
-    tar_cmd = [ "tar", "zxf", localfilename, "-C", outputpath ]
+    tar_options = "xf"
+    # only mac tar (BSD impl) is smart enough to determine .xz is not gzip format
+    if localfilename.endswith(".gz"):
+        tar_options += "z"
+    tar_cmd = [ "tar", tar_options , localfilename, "-C", outputpath ]
     try:
       proc.ExecuteWithRealtimeOutput(tar_cmd)
       extracted = True
