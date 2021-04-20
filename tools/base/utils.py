@@ -112,6 +112,12 @@ def CreateFile(filename, force_recreate=False):
       time.sleep(1)
   raise IOError("Can't create file \"{}\"!\nLast error: {}".format(filename, last_error))
 
+def CreateFileWithContents(filename, text="", force_recreate=False):
+  if CreateFile(filename, force_recreate):
+    with open(filename, "w") as file:
+      file.write(text)
+    return True
+  raise IOError("Can't create file \"{}\"!\nLast error: {}".format(filename, last_error))
 
 def RenameDirectory(srcname, dstname):
   msg.Verbose("RenameDirectory: \"{}\" to \"{}\"".format(srcname, dstname))
