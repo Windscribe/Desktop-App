@@ -45,15 +45,24 @@ def BuildDependencyGNU(installpath, outpath):
   # Create an environment.
   buildenv = os.environ.copy()
   # Configure.
-  iutl.RunCommand(["sh", "bootstrap.sh", "--prefix={}".format(installpath), "--with-toolset=clang"])
+  bootstrap_args = ""
+  b2_args = [] 
+  if utl.GetCurrentOS() == "macos":
+    bootstrap_args = "--with-toolset=clang" 
+    b2_args = ["toolset=clang", "cflags=-mmacosx-version-min=10.11",
+      "cxxflags=-mmacosx-version-min=10.11", "mflags=-mmacosx-version-min=10.11",
+      "mmflags=-mmacosx-version-min=10.11", "linkflags=-mmacosx-version-min=10.11"]
+  iutl.RunCommand(["sh", "bootstrap.sh", "--prefix={}".format(installpath), bootstrap_args])
   # Build and install.
-  b2cmd = ["./b2", "-q", "link=static", "toolset=clang", "cflags=-mmacosx-version-min=10.11",
-    "cxxflags=-mmacosx-version-min=10.11", "mflags=-mmacosx-version-min=10.11",
-    "mmflags=-mmacosx-version-min=10.11", "linkflags=-mmacosx-version-min=10.11"]
+  b2cmd = ["./b2", "-q", "link=static"]
+  b2cmd.extend(b2_args)
+  b2_install_cmd = ["./b2" , "install"]
   if BOOST_WITH_MODULES:
-    b2cmd.extend(["--with-" + m for m in BOOST_WITH_MODULES])
+    module_args = ["--with-" + m for m in BOOST_WITH_MODULES]
+    b2cmd.extend(module_args)
+    b2_install_cmd.extend(module_args)
   iutl.RunCommand(b2cmd)
-  iutl.RunCommand(["./b2", "install"])
+  iutl.RunCommand(b2_install_cmd)
   # Remove dylibs.
   if utl.GetCurrentOS() == "macos":
     utl.RemoveAllFiles(os.path.join(installpath, "lib"), "*.dylib")
