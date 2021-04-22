@@ -1,21 +1,20 @@
 #ifndef DNSRESOLVER_H
 #define DNSRESOLVER_H
 
-#include <QQueue>
-#include <QThread>
-#include <QWaitCondition>
-#include <QMutex>
-#include <QVector>
+#include <functional>
+#include <thread>
+#include <mutex>
+#include "dnsrequest.h"
 #include "areslibraryinit.h"
 #include "ares.h"
 #include "dnsresolver_test.h"
 
+typedef std::function<void(std::vector<std::string>)> DnsResolverCallback;
 
-// singleton
-class DnsResolver : public QThread
+// singleton for DNS requests, thread-safe, based on c-ares only
+// todo: remove the dependency on Qt (QString, Qt logger)
+class DnsResolver
 {
-    Q_OBJECT
-
 public:
     static DnsResolver &instance()
     {
@@ -23,67 +22,58 @@ public:
         return s;
     }
 
-    //void runTests();
-    void stop();
+    DnsResolver(const DnsResolver &) = delete;
+    DnsResolver &operator=(const DnsResolver &) = delete;
 
     // if ips is empty, then use default OS DNS
     // sets the DNS servers for all subsequent requests
     void setDnsServers(const QStringList &ips);
 
-    void lookup(const QString &hostname, void *userPointer);
-    QStringList lookupBlocked(const QString &hostname);
+    void lookup(const std::string &hostname, const DnsResolverCallback &callback);
+    std::vector<std::string> lookupBlocked(const std::string &hostname);
+
+    // Delete a callback handler and requests for it. A class that has a callback should call this in its destructor.
+    void detachCallbackAndRemoveRequests(const DnsResolverCallback &callback);
 
 private:
-    explicit DnsResolver(QObject *parent = nullptr);
+    explicit DnsResolver();
     virtual ~DnsResolver();
-
-protected:
-    virtual void run();
-
-signals:
-    void resolved(const QString &hostname, const QStringList &addresses, void *userPointer);
-
-private:
-
-    struct USER_ARG
-    {
-        void *userPointer;
-        QString hostname;
-    };
 
     struct USER_ARG_FOR_BLOCKED
     {
         QStringList ips;
     };
 
-    struct ALLOCATED_DATA_FOR_OPTIONS
+
+    struct REQUEST_DATA
     {
+        std::string hostname;
+        ares_channel channel;
+        DnsResolverCallback callback;
+
+        // data for options
 #ifdef Q_OS_WIN
         QVector<IN_ADDR> dnsServers;
 #else
         QVector<in_addr> dnsServers;
 #endif
-    };
 
-    struct CHANNEL_INFO
-    {
-        ares_channel channel;
-        ALLOCATED_DATA_FOR_OPTIONS *allocatedData;
     };
 
     AresLibraryInit aresLibraryInit_;
-    bool bStopCalled_;
-    QQueue<CHANNEL_INFO> queue_;
-    QMutex mutex_;
-    QWaitCondition waitCondition_;
+    std::thread thread_;
+    std::vector< std::shared_ptr<REQUEST_DATA> > activeRequests_;
+    std::mutex mutex_;
+    std::condition_variable waitCondition_;
     bool bNeedFinish_;
     QStringList dnsServers_;
 
     static DnsResolver *this_;
 
+    void threadProc();
     QStringList getDnsIps();
-    void createOptionsForAresChannel(const QStringList &dnsIps, struct ares_options &options, int &optmask, ALLOCATED_DATA_FOR_OPTIONS *allocatedData);
-    static void callback(void *arg, int status, int timeouts, struct hostent *host);
+    void createOptionsForAresChannel(const QStringList &dnsIps, struct ares_options &options, int &optmask, REQUEST_DATA *requestData);
+    static void callbackForNonBlocked(void *arg, int status, int timeouts, struct hostent *host);
     static void callbackForBlocked(void *arg, int status, int timeouts, struct hostent *host);
     // return false, if nothing to process more
     bool processChannel(ares_channel channel);
