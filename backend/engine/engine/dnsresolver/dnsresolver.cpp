@@ -12,36 +12,29 @@
 
 DnsResolver *DnsResolver::this_ = NULL;
 
-DnsResolver::DnsResolver() : bNeedFinish_(false)
-{
-    Q_ASSERT(this_ == NULL);
-    this_ = this;
-    aresLibraryInit_.init();
+//void DnsResolver::runTests()
+//{
+    //todo -> move to test project
+    //test_ = new DnsResolver_test(this);
+    //test_->runTests();
+//}
 
-    thread_ = std::thread(&DnsResolver::threadProc, this);
-}
-
-DnsResolver::~DnsResolver()
+void DnsResolver::stop()
 {
     qCDebug(LOG_BASIC) << "Stopping DnsResolver";
-    {
-        std::lock_guard<std::mutex> guard(mutex_);
-        bNeedFinish_ = true;
-        waitCondition_.notify_all();
-   }
-   try
-   {
-        thread_.join();
-   }
-   catch (...) { /* suppress */ };
-
-   this_ = NULL;
-   qCDebug(LOG_BASIC) << "DnsResolver stopped";
+    //test_->stop();
+    mutex_.lock();
+    bNeedFinish_ = true;
+    waitCondition_.wakeAll();
+    mutex_.unlock();
+    wait();
+    bStopCalled_ = true;
+    qCDebug(LOG_BASIC) << "DnsResolver stopped";
 }
 
 void DnsResolver::setDnsServers(const QStringList &ips)
 {
-    if (ips.empty())
+    if (ips.isEmpty())
     {
         qCDebug(LOG_BASIC) << "Changed DNS servers for DnsResolver to OS default";
     }
@@ -49,42 +42,12 @@ void DnsResolver::setDnsServers(const QStringList &ips)
     {
         qCDebug(LOG_BASIC) << "Changed DNS servers for DnsResolver to:" << ips;
     }
-    std::lock_guard<std::mutex> guard(mutex_);
+    QMutexLocker locker(&mutex_);
     dnsServers_ = ips;
 }
 
-void DnsResolver::lookup(const std::string &hostname, const DnsResolverCallback &callback)
+QStringList DnsResolver::lookupBlocked(const QString &hostname)
 {
-    std::shared_ptr<REQUEST_DATA> requestData(new REQUEST_DATA());
-
-    struct ares_options options;
-    int optmask = 0;
-
-    createOptionsForAresChannel(getDnsIps(), options, optmask, requestData.get());
-    int status = ares_init_options(&requestData->channel, &options, optmask);
-    if (status != ARES_SUCCESS)
-    {
-        qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-        callback(std::vector<std::string>());
-        return;
-    }
-    else
-    {
-        requestData->callback = callback;
-        requestData->hostname = hostname;
-        ares_gethostbyname(requestData->channel, hostname.c_str(), AF_INET, callbackForNonBlocked, requestData.get());
-        {
-            std::lock_guard<std::mutex> guard(mutex_);
-            activeRequests_.push_back(requestData);
-            waitCondition_.notify_all();
-        }
-    }
-}
-
-
-std::vector<std::string> DnsResolver::lookupBlocked(const std::string &hostname)
-{
-    /*DnsRequest *dnsRequest = new DnsRequest(this, hostname);
     ares_channel channel;
 
     struct ares_options options;
@@ -97,7 +60,7 @@ std::vector<std::string> DnsResolver::lookupBlocked(const std::string &hostname)
     if (status != ARES_SUCCESS)
     {
         qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-        return dnsRequest;
+        return QStringList();
     }
 
     USER_ARG_FOR_BLOCKED userArg;
@@ -121,68 +84,29 @@ std::vector<std::string> DnsResolver::lookupBlocked(const std::string &hostname)
     }
 
     ares_destroy(channel);
-
-    dnsRequest->setIps(userArg.ips);
-    return dnsRequest;*/
-    return std::vector<std::string>();
+    return userArg.ips;
 }
 
-void DnsResolver::detachCallbackAndRemoveRequests(const DnsResolverCallback &callback)
+
+DnsResolver::DnsResolver(QObject *parent) : QThread(parent), bStopCalled_(false),
+    bNeedFinish_(false)
 {
+    Q_ASSERT(this_ == NULL);
+    this_ = this;
+    aresLibraryInit_.init();
 
+    start(QThread::LowPriority);
 }
 
-void DnsResolver::threadProc()
+DnsResolver::~DnsResolver()
 {
-    BIND_CRASH_HANDLER_FOR_THREAD();
-
-    while (true)
-    {
-        std::unique_lock<std::mutex> guard(mutex_);
-        if (bNeedFinish_)
-        {
-            break;
-        }
-
-        bool bExistJob = false;
-
-        auto it = activeRequests_.begin();
-        while (it != activeRequests_.end())
-        {
-            if (processChannel((*it)->channel))
-            {
-                bExistJob = true;
-                ++it;
-            }
-            else
-            {
-                ares_destroy((*it)->channel);
-                it = activeRequests_.erase(it);
-            }
-        }
-
-        if (!bExistJob)
-        {
-            // wait for new requests
-            waitCondition_.wait(guard);
-        }
-    }
-
-    // remove outstanding channels
-    {
-        std::lock_guard<std::mutex> guard(mutex_);
-        for (auto it : activeRequests_)
-        {
-            ares_destroy(it->channel);
-        }
-        activeRequests_.clear();
-    }
+    Q_ASSERT(bStopCalled_);
+    this_ = NULL;
 }
-
 
 QStringList DnsResolver::getDnsIps()
 {
-    if (dnsServers_.empty())
+    if (dnsServers_.isEmpty())
     {
 #if defined(Q_OS_MAC)
         QStringList osDefaultList;  // Empty by default.
@@ -198,12 +122,12 @@ QStringList DnsResolver::getDnsIps()
     return dnsServers_;
 }
 
-void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_options &options, int &optmask, REQUEST_DATA *requestData)
+void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_options &options, int &optmask, ALLOCATED_DATA_FOR_OPTIONS *allocatedData)
 {
     memset(&options, 0, sizeof(options));
     optmask = 0;
 
-    if (dnsIps.empty())
+    if (dnsIps.isEmpty())
     {
         optmask |= ARES_OPT_TRIES;
         options.tries = 1;
@@ -216,18 +140,18 @@ void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_op
 
         struct sockaddr_in sa;
 
-        requestData->dnsServers.clear();
-        requestData->dnsServers.reserve(dnsIps.size());
+        allocatedData->dnsServers.clear();
+        allocatedData->dnsServers.reserve(dnsIps.count());
         for (const auto &dnsIp : dnsIps)
         {
             ares_inet_pton(AF_INET, dnsIp.toStdString().c_str(), &(sa.sin_addr));
-            requestData->dnsServers.push_back(sa.sin_addr);
+            allocatedData->dnsServers.push_back(sa.sin_addr);
         }
 
-        if (requestData->dnsServers.count() > 0)
+        if (allocatedData->dnsServers.count() > 0)
         {
-            options.nservers = requestData->dnsServers.count();
-            options.servers = &(requestData->dnsServers[0]);
+            options.nservers = allocatedData->dnsServers.count();
+            options.servers = &(allocatedData->dnsServers[0]);
         }
         else
         {
@@ -236,29 +160,28 @@ void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_op
     }
 }
 
-void DnsResolver::callbackForNonBlocked(void *arg, int status, int timeouts, hostent *host)
+void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
 {
     Q_UNUSED(timeouts);
-    REQUEST_DATA *requestData = static_cast<REQUEST_DATA *>(arg);
+    USER_ARG *userArg = static_cast<USER_ARG *>(arg);
     if (status != ARES_SUCCESS)
     {
-        requestData->callback(std::vector<std::string>());
+        emit this_->resolved(userArg->hostname, QStringList(), userArg->userPointer);
+        delete userArg;
         return;
     }
 
-    std::vector<std::string> addresses;
+    QStringList addresses;
     for (char **p = host->h_addr_list; *p; p++)
     {
         char addr_buf[46] = "??";
 
         ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
-        addresses.push_back(addr_buf);
+        addresses << QString::fromStdString(addr_buf);
     }
 
-    requestData->callback(addresses);
-    //userArg->dnsRequest->setIps(addresses);
-    //emit userArg->dnsRequest->finished(userArg->dnsRequest);
-    //delete userArg;
+    emit this_->resolved(userArg->hostname, addresses, userArg->userPointer);
+    delete userArg;
 }
 
 void DnsResolver::callbackForBlocked(void *arg, int status, int timeouts, hostent *host)
@@ -310,3 +233,101 @@ bool DnsResolver::processChannel(ares_channel channel)
     ares_process(channel, &read_fds, &write_fds);
     return true;
 }
+
+
+void DnsResolver::lookup(const QString &hostname, void *userPointer)
+{
+    ares_channel channel;
+    struct ares_options options;
+    int optmask = 0;
+
+    ALLOCATED_DATA_FOR_OPTIONS *allocatedData = new ALLOCATED_DATA_FOR_OPTIONS();
+
+    createOptionsForAresChannel(getDnsIps(), options, optmask, allocatedData);
+    int status = ares_init_options(&channel, &options, optmask);
+    if (status != ARES_SUCCESS)
+    {
+        qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
+        delete allocatedData;
+        emit resolved(hostname, QStringList(), userPointer);
+    }
+    else
+    {
+        USER_ARG *userArg = new USER_ARG();
+        userArg->hostname = hostname;
+        userArg->userPointer = userPointer;
+
+        ares_gethostbyname(channel, hostname.toStdString().c_str(), AF_INET, callback, userArg);
+
+        {
+            QMutexLocker locker(&mutex_);
+            CHANNEL_INFO ci;
+            ci.channel = channel;
+            ci.allocatedData = allocatedData;
+            queue_.enqueue(ci);
+            waitCondition_.wakeAll();
+        }
+    }
+}
+
+void DnsResolver::run()
+{
+    BIND_CRASH_HANDLER_FOR_THREAD();
+
+    QVector<CHANNEL_INFO> channels;
+
+    while (true)
+    {
+        QMutexLocker locker(&mutex_);
+        if (bNeedFinish_)
+        {
+            break;
+        }
+
+        while (!queue_.isEmpty())
+        {
+            channels << queue_.dequeue();
+        }
+
+        bool bExistJob = false;
+
+        QVector<CHANNEL_INFO>::iterator it = channels.begin();
+        while (it != channels.end())
+        {
+            if (processChannel(it->channel))
+            {
+                bExistJob = true;
+                ++it;
+            }
+            else
+            {
+                ares_destroy(it->channel);
+                delete it->allocatedData;
+                it = channels.erase(it);
+            }
+        }
+
+        if (!bExistJob)
+        {
+            // wait for new requests
+            waitCondition_.wait(&mutex_);
+        }
+    }
+
+    // remove outstanding channels
+    {
+        QMutexLocker locker(&mutex_);
+        while (!queue_.isEmpty())
+        {
+            channels << queue_.dequeue();
+        }
+    }
+    QVector<CHANNEL_INFO>::iterator it = channels.begin();
+    while (it != channels.end())
+    {
+        ares_destroy(it->channel);
+        delete it->allocatedData;
+        it = channels.erase(it);
+    }
+}
+
