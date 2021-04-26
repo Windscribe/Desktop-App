@@ -276,7 +276,6 @@ SOURCES += main.cpp \
     engine/apiinfo/staticips.cpp \
     engine/apiinfo/servercredentials.cpp \
     engine/autoupdater/downloadhelper.cpp \
-    engine/dnsresolver/dnsutils.cpp \
     engine/ping/keepalivemanager.cpp \
     engine/locationsmodel/locationsmodel.cpp \
     engine/locationsmodel/apilocationsmodel.cpp \
@@ -356,6 +355,8 @@ SOURCES += main.cpp \
     engine/types/loginsettings.cpp \
     engine/emergencycontroller/emergencycontroller.cpp \
     engine/dnsresolver/areslibraryinit.cpp \
+    engine/dnsresolver/dnsrequest.cpp \
+    engine/dnsresolver/dnsserversconfiguration.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/dnsresolver/dnsresolver_test.cpp \
     engine/types/protocoltype.cpp \
@@ -429,7 +430,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/apiinfo/servercredentials.h \
     engine/connectionmanager/adaptergatewayinfo.h \
     engine/connectionmanager/makeovpnfile.h \
-    engine/dnsresolver/dnsutils.h \
     engine/autoupdater/downloadhelper.h \
     engine/macaddresscontroller/imacaddresscontroller.h \
     engine/networkdetectionmanager/inetworkdetectionmanager.h \
@@ -506,6 +506,9 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/types/loginsettings.h \
     engine/emergencycontroller/emergencycontroller.h \
     engine/dnsresolver/areslibraryinit.h \
+    engine/dnsresolver/dnsutils.h \
+    engine/dnsresolver/dnsrequest.h \
+    engine/dnsresolver/dnsserversconfiguration.h \
     engine/dnsresolver/dnsresolver.h \
     engine/dnsresolver/dnsresolver_test.h \
     engine/types/protocoltype.h \

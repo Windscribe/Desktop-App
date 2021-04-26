@@ -1,11 +1,10 @@
 #include "dnscache.h"
 #include <QDateTime>
 #include "utils/ipvalidation.h"
-#include "engine/dnsresolver/dnsresolver.h"
+#include "engine/dnsresolver/dnsrequest.h"
 
 DnsCache::DnsCache(QObject *parent) : QObject(parent)
 {
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QStringList,void *)), SLOT(onDnsResolverFinished(QString, QStringList,void *)));
 }
 
 DnsCache::~DnsCache()
@@ -51,49 +50,51 @@ void DnsCache::resolve(const QString &hostname, int cacheTimeout, void *userData
     if (!resolvingHostsInProgress_.contains(hostname))
     {
         resolvingHostsInProgress_ << hostname;
-        DnsResolver::instance().lookup(hostname, this);
+        DnsRequest *dnsRequest = new DnsRequest(this, hostname);
+        connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+        dnsRequest->lookup();
     }
 }
 
-void DnsCache::onDnsResolverFinished(const QString &hostname, const QStringList &resolvedIps, void *userPointer)
+void DnsCache::onDnsRequestFinished()
 {
-    if (userPointer == this)
+    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
+    Q_ASSERT(dnsRequest != nullptr);
+
+    bool bSuccess = false;
+    QStringList ips;
+    if (!dnsRequest->isError())
     {
-        //qDebug() << "DnsCache::onDnsResolverFinished, hostname=" << hostname << ", " << hostInfo.addresses();
-        bool bSuccess = false;
-        QStringList ips;
-        if (!resolvedIps.isEmpty())
+        checkForNewIps(dnsRequest->ips());
+
+        ResolvedHostInfo rhi;
+        rhi.time = QDateTime::currentMSecsSinceEpoch();
+        for (const QString &ip : dnsRequest->ips())
         {
-            checkForNewIps(resolvedIps);
-            ///hookAddrInfo_->setCache(hostname, hostInfo.addresses());
-
-            ResolvedHostInfo rhi;
-            rhi.time = QDateTime::currentMSecsSinceEpoch();
-            for (const QString &ip : resolvedIps)
-            {
-                ips << ip;
-            }
-            rhi.ips = ips;
-            resolvedHosts_[hostname] = rhi;
-            bSuccess = true;
+            ips << ip;
         }
-
-        auto it = pendingHosts_.begin();
-        while (it != pendingHosts_.end())
-        {
-            if (it->hostname == hostname)
-            {
-                emit resolved(bSuccess, it->userData, ips);
-                it = pendingHosts_.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
-        }
-
-        resolvingHostsInProgress_.remove(hostname);
+        rhi.ips = ips;
+        resolvedHosts_[dnsRequest->hostname()] = rhi;
+        bSuccess = true;
     }
+
+    auto it = pendingHosts_.begin();
+    while (it != pendingHosts_.end())
+    {
+        if (it->hostname == dnsRequest->hostname())
+        {
+            emit resolved(bSuccess, it->userData, ips);
+            it = pendingHosts_.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    resolvingHostsInProgress_.remove(dnsRequest->hostname());
+
+    dnsRequest->deleteLater();
 }
 
 void DnsCache::checkForNewIps(const QStringList &newIps)

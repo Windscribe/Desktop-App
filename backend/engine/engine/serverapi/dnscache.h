@@ -20,7 +20,7 @@ signals:
     void ipsInCachChanged(const QStringList &ips);
 
 private slots:
-    void onDnsResolverFinished(const QString &hostname, const QStringList &resolvedIps, void *userPointer);
+    void onDnsRequestFinished();
 
 private:
 

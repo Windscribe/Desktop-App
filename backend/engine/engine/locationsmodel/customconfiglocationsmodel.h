@@ -41,7 +41,7 @@ signals:
 private slots:
     void onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
     void onNeedIncrementPingIteration();
-    void onResolved(const QString &hostname, const QStringList &ips, void *userPointer);
+    void onDnsRequestFinished();
 
 private:
     PingStorage pingStorage_;

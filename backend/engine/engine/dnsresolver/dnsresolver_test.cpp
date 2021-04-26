@@ -2017,14 +2017,14 @@ DnsResolver_test::DnsResolver_test(QObject *parent) : QObject(parent), bStopped_
 
 void DnsResolver_test::runTests()
 {
-    for (int i = 0; i < 10; i++)
+    /*for (int i = 0; i < 10; i++)
     {
         QtConcurrent::run([=](){
             if (!bStopped_)
                 DnsResolver::instance().lookup(getRandomDomain(), this);
 
         });
-    }
+    }*/
 }
 
 void DnsResolver_test::stop()
@@ -2041,8 +2041,8 @@ void DnsResolver_test::onResolved(const QString &hostname, const QStringList &ho
         QtConcurrent::run([=](){
             if (!bStopped_)
             {
-                DnsResolver::instance().lookupBlocked(getRandomDomain());
-                DnsResolver::instance().lookup(getRandomDomain(), this);
+                //DnsResolver::instance().lookupBlocked(getRandomDomain());
+                //DnsResolver::instance().lookup(getRandomDomain(), this);
             }
         });
     }

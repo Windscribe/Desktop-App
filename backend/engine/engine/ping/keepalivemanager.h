@@ -23,7 +23,7 @@ public:
 private slots:
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location);
     void onTimer();
-    void onDnsResolvedFinished(const QString &hostname, const QStringList &ips, void *userPointer);
+    void onDnsRequestFinished();
     void onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
 
 private:
