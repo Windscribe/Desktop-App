@@ -202,6 +202,8 @@ private slots:
     void onPreferencesIsShowCountryFlagsChanged(bool isShowCountryFlags);
     void onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel);
 
+    void onPreferencesReportErrorToUser(const QString &title, const QString &desc);
+
     void onPreferencesCollapsed();
 
 #ifdef Q_OS_MAC

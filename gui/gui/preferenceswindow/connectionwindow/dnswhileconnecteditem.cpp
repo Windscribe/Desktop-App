@@ -2,23 +2,24 @@
 
 namespace PreferencesWindow {
 
-DNSWhileConnectedItem::DNSWhileConnectedItem(ScalableGraphicsObject *parent) : BaseItem(parent, 50),
+DnsWhileConnectedItem::DnsWhileConnectedItem(ScalableGraphicsObject *parent) : BaseItem(parent, 50),
    comboBoxDNS_(nullptr)
    ,isExpanded_(false)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
     comboBoxDNS_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "DNS While Connected"), "", 50, Qt::transparent, 0, false);
-    const QList<DNSWhileConnectedType> modes = DNSWhileConnectedType::allAvailableTypes();
-    for (const DNSWhileConnectedType &d : modes)
+    const QList<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE> modes = DnsWhileConnectedInfo::allAvailableTypes();
+    for (const DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE &d : modes)
     {
-        comboBoxDNS_->addItem(d.toString(), static_cast<int>(d.type()));
+        comboBoxDNS_->addItem(DnsWhileConnectedInfo::typeToString(d), static_cast<int>(d));
     }
-    comboBoxDNS_->setCurrentItem(modes.begin()->type());
+    comboBoxDNS_->setCurrentItem(modes.first());
     connect(comboBoxDNS_, SIGNAL(currentItemChanged(QVariant)), SLOT(onDNSWhileConnectedModeChanged(QVariant)));
 
     editBoxIP_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "IP Address"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter IP"), false);
     connect(editBoxIP_, SIGNAL(textChanged(QString)), SLOT(onDNSWhileConnectedIPChanged(QString)));
+    // TODO: validate on "enter" pressed
 
     editBoxIP_->setPos(0, COLLAPSED_HEIGHT);
 
@@ -36,43 +37,45 @@ DNSWhileConnectedItem::DNSWhileConnectedItem(ScalableGraphicsObject *parent) : B
     connect(&expandEnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onExpandAnimationValueChanged(QVariant)));
 }
 
-void DNSWhileConnectedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void DnsWhileConnectedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(painter);
     Q_UNUSED(option);
     Q_UNUSED(widget);
 }
 
-void DNSWhileConnectedItem::updateScaling()
+void DnsWhileConnectedItem::updateScaling()
 {
     comboBoxDNS_->updateScaling();
 }
 
-bool DNSWhileConnectedItem::hasItemWithFocus()
+bool DnsWhileConnectedItem::hasItemWithFocus()
 {
     return editBoxIP_->lineEditHasFocus();
 }
 
-/*void DNSWhileConnectedItem::setDNSWhileConnected(const DNSWhileConnected &dns)
+void DnsWhileConnectedItem::setDNSWhileConnected(const DnsWhileConnectedInfo &dns, bool override)
 {
     curDNSWhileConnected_ = dns;
 
-    if (dns.type == DNSWhileConnectedType::ROBERT)
+    if (dns.type() == DnsWhileConnectedInfo::ROBERT)
     {
-        comboBoxDNS_->setCurrentItem(DNSWhileConnectedType::ROBERT);
+        comboBoxDNS_->setCurrentItem(DnsWhileConnectedInfo::ROBERT);
+        if (override) setHeightAndLinePos(COLLAPSED_HEIGHT); // override for smooth animation during user click
         isExpanded_ = false;
     }
     else
     {
-        editBoxIP_->setText(dns.ipAddress);
-        comboBoxDNS_->setCurrentItem(DNSWhileConnectedType::CUSTOM);
+        editBoxIP_->setText(dns.ipAddress());
+        comboBoxDNS_->setCurrentItem(DnsWhileConnectedInfo::CUSTOM);
+        if (override) setHeightAndLinePos(EXPANDED_HEIGHT);  // override for smooth animation during user click
         isExpanded_ = true;
     }
-}*/
+}
 
-void DNSWhileConnectedItem::onDNSWhileConnectedModeChanged(QVariant v)
+void PreferencesWindow::DnsWhileConnectedItem::updateDisplay(DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE type)
 {
-    if (v.toInt() == DNSWhileConnectedType::CUSTOM && !isExpanded_)
+    if (type == DnsWhileConnectedInfo::CUSTOM && !isExpanded_)
     {
         expandEnimation_.setDirection(QVariantAnimation::Forward);
         if (expandEnimation_.state() != QVariantAnimation::Running)
@@ -90,45 +93,59 @@ void DNSWhileConnectedItem::onDNSWhileConnectedModeChanged(QVariant v)
         }
         isExpanded_ = false;
     }
-
-    /*if (curDNSWhileConnected_.type.type() != v.toInt())
-    {
-        curDNSWhileConnected_.type = v.toInt();
-        emit dnsWhileConnectedChanged(curDNSWhileConnected_);
-    }*/
 }
 
-void DNSWhileConnectedItem::onDNSWhileConnectedIPChanged(QString v)
+void DnsWhileConnectedItem::setHeightAndLinePos(int height)
 {
-    /*if (curDNSWhileConnected_.ipAddress != v)
-    {
-        curDNSWhileConnected_.ipAddress = v;
-        emit dnsWhileConnectedChanged(curDNSWhileConnected_);
-    }*/
+    setHeight(height);
+    dividerLine_->setPos(24, height - dividerLine_->boundingRect().height());
 }
 
-void DNSWhileConnectedItem::onExpandAnimationValueChanged(const QVariant &value)
+void DnsWhileConnectedItem::onDNSWhileConnectedModeChanged(QVariant v)
 {
-    setHeight(value.toInt());
+    updateDisplay(static_cast<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE>(v.toInt()));
 
-    dividerLine_->setPos(24, value.toInt() - dividerLine_->boundingRect().height());
+    if (curDNSWhileConnected_.type() != v.toInt())
+    {
+        curDNSWhileConnected_.setType(static_cast<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE>(v.toInt()));
+        if (curDNSWhileConnected_.type() == DnsWhileConnectedInfo::ROBERT)
+        {
+            curDNSWhileConnected_.setIpAddress("");
+        }
+
+        emit dnsWhileConnectedInfoChanged(curDNSWhileConnected_);
+    }
 }
 
-void DNSWhileConnectedItem::onLanguageChanged()
+void DnsWhileConnectedItem::onDNSWhileConnectedIPChanged(QString v)
+{
+    if (curDNSWhileConnected_.ipAddress() != v)
+    {
+        curDNSWhileConnected_.setIpAddress(v);
+        emit dnsWhileConnectedInfoChanged(curDNSWhileConnected_);
+    }
+}
+
+void DnsWhileConnectedItem::onExpandAnimationValueChanged(const QVariant &value)
+{
+    setHeightAndLinePos(value.toInt());
+}
+
+void DnsWhileConnectedItem::onLanguageChanged()
 {
     QVariant dnsSelected = comboBoxDNS_->currentItem();
 
     comboBoxDNS_->clear();
 
-    const QList<DNSWhileConnectedType> modes = DNSWhileConnectedType::allAvailableTypes();
-    for (const DNSWhileConnectedType &d : modes)
+    const QList<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE> modes = DnsWhileConnectedInfo::allAvailableTypes();
+    for (const DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE &d : modes)
     {
-        comboBoxDNS_->addItem(d.toString(), static_cast<int>(d.type()));
+        comboBoxDNS_->addItem(DnsWhileConnectedInfo::typeToString(d), static_cast<int>(d));
     }
     comboBoxDNS_->setCurrentItem(dnsSelected.toInt());
 }
 
-void DNSWhileConnectedItem::hideOpenPopups()
+void DnsWhileConnectedItem::hideOpenPopups()
 {
     comboBoxDNS_->hideMenu();
 }

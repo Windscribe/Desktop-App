@@ -347,6 +347,18 @@ enum DnsPolicy
    DNS_POLICY_GOOGLE = 3;
 }
 
+enum DnsWhileConnectedType
+{
+   DNS_WHILE_CONNECTED_TYPE_ROBERT = 0;
+   DNS_WHILE_CONNECTED_TYPE_CUSTOM = 1;
+}
+
+message DnsWhileConnectedInfo
+{
+   optional DnsWhileConnectedType type = 1 [default = DNS_WHILE_CONNECTED_TYPE_ROBERT];
+   optional string ip_address = 2 [default = ""];
+}
+
 // engine settings, which can be changed by user from GUI
 message EngineSettings
 {
@@ -370,6 +382,7 @@ message EngineSettings
   optional TapAdapterType tap_adapter = 17 [default = WINTUN_ADAPTER];
   optional string customOvpnConfigsPath = 18;
   optional bool is_keep_alive_enabled = 19 [default = false];
+  optional DnsWhileConnectedInfo dns_while_connected_info = 20;
 }
 
 message ProxySharingInfo

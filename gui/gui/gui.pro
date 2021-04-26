@@ -190,6 +190,7 @@ SOURCES += \
     ../backend/types/pingtime.cpp \
     ../backend/types/types.cpp \
     ../backend/types/upgrademodetype.cpp \
+    ../backend/types/dnswhileconnectedinfo.cpp \
     $$COMMON_PATH/utils/clean_sensitive_info.cpp \
     $$COMMON_PATH/utils/extraconfig.cpp \
     $$COMMON_PATH/utils/languagesutil.cpp \
@@ -384,7 +385,6 @@ SOURCES += \
     commongraphics/iconbutton.cpp \
     preferenceswindow/textitem.cpp \
     connectwindow/logonotificationsbutton.cpp \
-    types/dnswhileconnectedtype.cpp \
     preferenceswindow/connectionwindow/dnswhileconnecteditem.cpp \
     languagecontroller.cpp \
     locationswindow/widgetlocations/staticipdeviceinfo.cpp \
@@ -420,6 +420,7 @@ HEADERS += \
     ../backend/types/pingtime.h \
     ../backend/types/types.h \
     ../backend/types/upgrademodetype.h \
+    ../backend/types/dnswhileconnectedinfo.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/utils/languagesutil.h \
@@ -642,7 +643,6 @@ HEADERS += \
     commongraphics/iconbutton.h \
     preferenceswindow/textitem.h \
     connectwindow/logonotificationsbutton.h \
-    types/dnswhileconnectedtype.h \
     preferenceswindow/connectionwindow/dnswhileconnecteditem.h \
     languagecontroller.h \
     locationswindow/widgetlocations/staticipdeviceinfo.h \

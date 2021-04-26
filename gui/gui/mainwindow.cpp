@@ -315,6 +315,7 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), SIGNAL(isShowCountryFlagsChanged(bool)), SLOT(onPreferencesIsShowCountryFlagsChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
 
+    connect(backend_->getPreferences(), SIGNAL(reportErrorToUser(QString,QString)), SLOT(onPreferencesReportErrorToUser(QString,QString)));
 #ifdef Q_OS_MAC
     connect(backend_->getPreferences(), SIGNAL(hideFromDockChanged(bool)), SLOT(onPreferencesHideFromDockChanged(bool)));
 #endif
@@ -1135,6 +1136,13 @@ void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChann
 
     ignoreUpdateUntilNextRun_ = false;
     // updates engine through engineSettings
+}
+
+void MainWindow::onPreferencesReportErrorToUser(const QString &title, const QString &desc)
+{
+    mainWindowController_->getGeneralMessageWindow()->setTitle(title);
+    mainWindowController_->getGeneralMessageWindow()->setDescription(desc);
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
 }
 
 void MainWindow::onPreferencesCollapsed()

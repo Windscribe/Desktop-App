@@ -52,7 +52,7 @@ private slots:
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
     void onIsAllowLanTrafficClicked(bool b);
     void onAllowLanTrafficButtonHoverLeave();
-    //void onDNSWhileConnectedItemChanged(DNSWhileConnected dns);
+    void onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo dns);
 
     void onFirewallModePreferencesChanged(const ProtoTypes::FirewallSettings &fm);
     void onConnectionModePreferencesChanged(const ProtoTypes::ConnectionSettings &cm);
@@ -67,7 +67,7 @@ private slots:
     void onKillTcpSocketsStateChanged(bool isChecked);
 #endif
 
-    //void onDNSWhileConnectedPreferencesChanged(const DNSWhileConnected &dns);
+    void onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns, bool override);
 
     void onLanguageChanged();
 
@@ -85,7 +85,7 @@ private:
     PacketSizeItem *packetSizeItem_;
     MacSpoofingItem *macSpoofingItem_;
     CheckBoxItem *checkBoxAllowLanTraffic_;
-    // DNSWhileConnectedItem *dnsWhileConnectedItem_;
+    DnsWhileConnectedItem *dnsWhileConnectedItem_;
 #ifdef Q_OS_WIN
     CheckBoxItem *cbKillTcp_;
 #endif
