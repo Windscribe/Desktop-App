@@ -5,7 +5,6 @@
 #include <QThread>
 #include <QWaitCondition>
 #include <QMutex>
-#include "curlrequest.h"
 #include "curlreply.h"
 #include "certmanager.h"
 #include "networkrequest.h"
@@ -21,17 +20,11 @@ public:
     explicit CurlNetworkManager(QObject *parent = 0);
     virtual ~CurlNetworkManager();
     CurlReply *get(const NetworkRequest &request, const QStringList &ips);
-    void post(CurlRequest *curlRequest, uint timeout, const QString &contentTypeHeader, const QString &hostname, const QStringList &ips);
-    void put(CurlRequest *curlRequest, uint timeout, const QString &contentTypeHeader, const QString &hostname, const QStringList &ips);
-    void deleteResource(CurlRequest *curlRequest, uint timeout, const QString &hostname, const QStringList &ips);
+    CurlReply *post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips);
+    CurlReply *put(const NetworkRequest &request, const QStringList &ips);
+    CurlReply *deleteResource(const NetworkRequest &request, const QStringList &ips);
 
     void abort(CurlReply *reply);
-
-    bool isCurlSslError(CURLcode curlCode);
-
-    //void setProxySettings(const ProxySettings &proxySettings);
-    //void setProxyEnabled(bool bEnabled);
-
 
 protected:
     virtual void run();
@@ -42,15 +35,11 @@ private slots:
 
 private:
     CertManager certManager_;
-    //QQueue<CurlRequest *> queue_;
     QQueue<quint64> queue_;
-    QMutex mutexQueue_;
     QWaitCondition waitCondition_;
     bool bNeedFinish_;
-    ///ProxySettings proxySettings_;
-    bool bProxyEnabled_;
-
-    QMutex mutexAccess_;
+    QMap<quint64, CurlReply *> activeRequests_;
+    QMutex mutex_;
 
 #ifdef Q_OS_MAC
     QString certPath_;
@@ -61,21 +50,16 @@ private:
     FILE *logFile_;
 #endif
 
-    /// === new === ///
-    QMap<quint64, CurlReply *> activeRequests_;
-    QMutex mutex_;
-    /// ====== ///
-
-
     QMap<quint64, QSharedPointer<quint64> > idsMap_;   // need for curl callback functions, we pass pointer to quint64
 
+    CurlReply *invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const QByteArray &data = QByteArray());
 
     void setIdIntoMap(quint64 id);
     CURL *makeRequest(CurlReply *curlReply);
     CURL *makeGetRequest(CurlReply *curlReply);
-    CURL *makePostRequest(CurlRequest *curlRequest);
-    CURL *makePutRequest(CurlRequest *curlRequest);
-    CURL *makeDeleteRequest(CurlRequest *curlRequest);
+    CURL *makePostRequest(CurlReply *curlReply);
+    CURL *makePutRequest(CurlReply *curlReply);
+    CURL *makeDeleteRequest(CurlReply *curlReply);
 
     bool setupResolveHosts(CurlReply *curlReply, CURL *curl);
     bool setupSslVerification(CurlReply *curlReply, CURL *curl);

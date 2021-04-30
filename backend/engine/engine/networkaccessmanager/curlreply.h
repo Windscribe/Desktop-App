@@ -3,6 +3,7 @@
 
 #include <QMutex>
 #include "networkrequest.h"
+#include <curl/curl.h>
 
 class CurlNetworkManager;
 
@@ -15,7 +16,9 @@ public:
 
     void abort();
     QByteArray readAll();
-    int curlErrorCode() const;
+    bool isSSLError() const;
+    bool isSuccess() const;
+    QString errorString() const;
 
 signals:
     void finished();
@@ -25,26 +28,31 @@ signals:
 private:
     enum REQUEST_TYPE { REQUEST_GET, REQUEST_POST, REQUEST_PUT, REQUEST_DELETE};
 
-    explicit CurlReply(QObject *parent, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, CurlNetworkManager *manager);
+    explicit CurlReply(QObject *parent, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData, CurlNetworkManager *manager);
 
     const NetworkRequest &networkRequest() const;
     QStringList ips() const;
     void appendNewData(const QByteArray &newData);
-    void setCurlErrorCode(int curlErrorCode);
+    void setCurlErrorCode(CURLcode curlErrorCode);
     REQUEST_TYPE requestType() const;
+    const QByteArray &postData() const;
 
     quint64 id() const;
+    void addCurlListForFreeLater(struct curl_slist *list);
 
     QByteArray data_;
     mutable QMutex mutex_;
-    int curlErrorCode_;
+    CURLcode curlErrorCode_;
 
     NetworkRequest networkRequest_;
     QStringList ips_;
     quint64 id_;
+    QByteArray postData_;
 
     REQUEST_TYPE requestType_;
     CurlNetworkManager *manager_;
+    QVector<struct curl_slist *> curlLists_;
+
 
     friend class CurlNetworkManager;    // CurlNetworkManager class uses private functions to store internal data
 };

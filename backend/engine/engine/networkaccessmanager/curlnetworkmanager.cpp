@@ -11,7 +11,7 @@
 CurlNetworkManager *g_this = nullptr;
 
 CurlNetworkManager::CurlNetworkManager(QObject *parent) : QThread(parent),
-    bNeedFinish_(false), bProxyEnabled_(true)
+    bNeedFinish_(false)
 #ifdef Q_OS_MAC
     , certPath_(QCoreApplication::applicationDirPath() + "/../Resources/cert.pem")
 #endif
@@ -39,9 +39,9 @@ CurlNetworkManager::~CurlNetworkManager()
 
 size_t CurlNetworkManager::writeDataCallback(void *ptr, size_t size, size_t count, void *id)
 {
-    quint64 *requestId = static_cast<quint64 *>(id);
-
     QMutexLocker locker(&g_this->mutex_);
+
+    quint64 *requestId = static_cast<quint64 *>(id);
     auto it = g_this->activeRequests_.find(*requestId);
     if (it != g_this->activeRequests_.end())
     {
@@ -51,18 +51,16 @@ size_t CurlNetworkManager::writeDataCallback(void *ptr, size_t size, size_t coun
         emit it.value()->readyRead();
     }
 
-    //QByteArray *arr = (QByteArray *)stream;
-    //arr->append((char*)ptr, size*count);
     return size*count;
 }
 
 int CurlNetworkManager::progressCallback(void *id,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow)
 {
-    quint64 *requestId = static_cast<quint64 *>(id);
+    QMutexLocker locker(&g_this->mutex_);
 
+    quint64 *requestId = static_cast<quint64 *>(id);
     if (dltotal > 0)
     {
-        QMutexLocker locker(&g_this->mutex_);
         auto it = g_this->activeRequests_.find(*requestId);
         if (it != g_this->activeRequests_.end())
         {
@@ -92,97 +90,34 @@ CURLcode sslctx_function(CURL *curl, void *sslctx, void *parm)
 CurlReply *CurlNetworkManager::get(const NetworkRequest &request, const QStringList &ips)
 {
     QMutexLocker locker(&mutex_);
-    CurlReply *reply = new CurlReply(this, request, ips, CurlReply::REQUEST_GET, this);
-    Q_ASSERT(!activeRequests_.contains(reply->id()));
-    activeRequests_[reply->id()] = reply;
-    QMetaObject::invokeMethod(this, "handleRequest", Qt::QueuedConnection, Q_ARG(quint64, reply->id()));
-    return reply;
-
-    /*request->setMethodType(CurlRequest::METHOD_GET);
-    request->setTimeout(id);
-    request->setHostname(hostname);
-    request->setIps(ips);
-
-    mutexQueue_.lock();
-    queue_.enqueue(request);
-    waitCondition_.wakeAll();
-    mutexQueue_.unlock();*/
+    return invokeRequest(CurlReply::REQUEST_GET, request, ips);
 }
 
-void CurlNetworkManager::post(CurlRequest *curlRequest, uint timeout, const QString &contentTypeHeader,
-                              const QString &hostname, const QStringList &ips)
+CurlReply *CurlNetworkManager::post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips)
 {
-    /*curlRequest->setMethodType(CurlRequest::METHOD_POST);
-    curlRequest->setTimeout(timeout);
-    curlRequest->setContentTypeHeader(contentTypeHeader);
-    curlRequest->setHostname(hostname);
-    curlRequest->setIps(ips);
-
-    mutexQueue_.lock();
-    queue_.enqueue(curlRequest);
-    waitCondition_.wakeAll();
-    mutexQueue_.unlock();*/
+    QMutexLocker locker(&mutex_);
+    return invokeRequest(CurlReply::REQUEST_POST, request, ips, data);
 }
 
-void CurlNetworkManager::put(CurlRequest *curlRequest, uint timeout, const QString &contentTypeHeader, const QString &hostname, const QStringList &ips)
+CurlReply *CurlNetworkManager::put(const NetworkRequest &request, const QStringList &ips)
 {
-    /*curlRequest->setMethodType(CurlRequest::METHOD_PUT);
-    curlRequest->setTimeout(timeout);
-    curlRequest->setContentTypeHeader(contentTypeHeader);
-    curlRequest->setHostname(hostname);
-    curlRequest->setIps(ips);
-
-    mutexQueue_.lock();
-    queue_.enqueue(curlRequest);
-    waitCondition_.wakeAll();
-    mutexQueue_.unlock();*/
+    QMutexLocker locker(&mutex_);
+    return invokeRequest(CurlReply::REQUEST_PUT, request, ips);
 }
 
-void CurlNetworkManager::deleteResource(CurlRequest *curlRequest, uint timeout, const QString &hostname, const QStringList &ips)
+CurlReply *CurlNetworkManager::deleteResource(const NetworkRequest &request, const QStringList &ips)
 {
-    /*curlRequest->setMethodType(CurlRequest::METHOD_DELETE);
-    curlRequest->setTimeout(timeout);
-    curlRequest->setHostname(hostname);
-    curlRequest->setIps(ips);
-
-    mutexQueue_.lock();
-    queue_.enqueue(curlRequest);
-    waitCondition_.wakeAll();
-    mutexQueue_.unlock();*/
+    QMutexLocker locker(&mutex_);
+    return invokeRequest(CurlReply::REQUEST_DELETE, request, ips);
 }
 
 void CurlNetworkManager::abort(CurlReply *reply)
 {
     QMutexLocker lock(&mutex_);
     activeRequests_.remove(reply->id());
+    idsMap_.remove(reply->id());
 }
 
-
-bool CurlNetworkManager::isCurlSslError(CURLcode curlCode)
-{
-    if (curlCode == CURLE_SSL_CONNECT_ERROR || curlCode == CURLE_SSL_CERTPROBLEM || curlCode == CURLE_SSL_CIPHER ||
-        curlCode == CURLE_SSL_ISSUER_ERROR || curlCode == CURLE_SSL_PINNEDPUBKEYNOTMATCH || curlCode == CURLE_SSL_INVALIDCERTSTATUS ||
-        curlCode == CURLE_SSL_CACERT || curlCode == CURLE_PEER_FAILED_VERIFICATION)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-/*void CurlNetworkManager::setProxySettings(const ProxySettings &proxySettings)
-{
-    QMutexLocker lock(&mutexAccess_);
-    proxySettings_ = proxySettings;
-}
-
-void CurlNetworkManager::setProxyEnabled(bool bEnabled)
-{
-    QMutexLocker lock(&mutexAccess_);
-    bProxyEnabled_ = bEnabled;
-}*/
 
 void CurlNetworkManager::run()
 {
@@ -276,39 +211,6 @@ void CurlNetworkManager::run()
                 auto it = map.find(e);
                 if (it != map.end())
                 {
-                     /*CurlRequest *curlRequest = it.value();
-                    // if we have another IPs for connect, try it
-                    if (m->data.result != CURLE_OK && curlRequest->isHasNextIp())
-                    {
-                        //qDebug() << "===== Try another IP";
-                        map.remove(e);
-                        curl_multi_remove_handle(multi_handle, e);
-                        curl_easy_cleanup(e);
-
-                        CURL *curl = makeRequest(curlRequest);
-                        if (curl)
-                        {
-                            map[curl] = curlRequest;
-                            curl_multi_add_handle(multi_handle, curl);
-                            still_running++;
-                        }
-                        else
-                        {
-                            qCDebug(LOG_CURL_MANAGER) << "Can't create curl object";
-                            Q_ASSERT(false);
-                            ///emit finished(curlRequest);
-                        }
-                    }
-                    else*/
-                    {
-                        //curl_off_t download;
-                        //if (curl_easy_getinfo(e, CURLINFO_SIZE_DOWNLOAD_T, &download) != CURLE_OK)
-                        //{
-                            //Q_ASSERT(false);
-                        //}
-                        // check if gzip compression used
-                        //Q_ASSERT(download < 30000);
-
                         {
                             QMutexLocker locker(&mutex_);
                             auto request = activeRequests_.find(it.value());
@@ -322,9 +224,8 @@ void CurlNetworkManager::run()
 
                         map.remove(e);
 
-                        curl_multi_remove_handle(multi_handle, e);
-                        curl_easy_cleanup(e);
-                    }
+                    curl_multi_remove_handle(multi_handle, e);
+                    curl_easy_cleanup(e);
                 }
                 else
                 {
@@ -349,6 +250,7 @@ void CurlNetworkManager::run()
     {
         QMutexLocker locker(&mutex_);
         activeRequests_.clear();
+        idsMap_.clear();
     }
     map.clear();
 
@@ -368,6 +270,15 @@ void CurlNetworkManager::handleRequest(quint64 id)
         queue_.enqueue(id);
         waitCondition_.wakeAll();
     }
+}
+
+CurlReply *CurlNetworkManager::invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const QByteArray &data /*= QByteArray*/)
+{
+    CurlReply *reply = new CurlReply(this, request, ips, type, data, this);
+    Q_ASSERT(!activeRequests_.contains(reply->id()));
+    activeRequests_[reply->id()] = reply;
+    QMetaObject::invokeMethod(this, "handleRequest", Qt::QueuedConnection, Q_ARG(quint64, reply->id()));
+    return reply;
 }
 
 void CurlNetworkManager::setIdIntoMap(quint64 id)
@@ -391,15 +302,15 @@ CURL *CurlNetworkManager::makeRequest(CurlReply *curlReply)
     }
     else if (curlReply->requestType() == CurlReply::REQUEST_POST)
     {
-        //return makePostRequest(curlReply);
+        return makePostRequest(curlReply);
     }
     else if (curlReply->requestType() == CurlReply::REQUEST_PUT)
     {
-        //return makePutRequest(curlReply);
+        return makePutRequest(curlReply);
     }
     else if (curlReply->requestType() == CurlReply::REQUEST_DELETE)
     {
-        //return makeDeleteRequest(curlReply);
+        return makeDeleteRequest(curlReply);
     }
     else
     {
@@ -442,33 +353,37 @@ failed:
     return NULL;
 }
 
-CURL *CurlNetworkManager::makePostRequest(CurlRequest *curlRequest)
+CURL *CurlNetworkManager::makePostRequest(CurlReply *curlReply)
 {
-    /*CURL *curl = curl_easy_init();
+    CURL *curl = curl_easy_init();
 
     if (curl)
     {
-        if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_bytearray) != CURLE_OK) goto failed;
+        setIdIntoMap(curlReply->id());
+
+        if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeDataCallback) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK)  goto failed;
-
-        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, curlRequest->getAnswerPointer()) != CURLE_OK) goto failed;
-
-        if (curl_easy_setopt(curl, CURLOPT_URL, curlRequest->getUrl().toStdString().c_str()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_URL, curlReply->networkRequest().url().toString().toStdString().c_str()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) goto failed;
 
         struct curl_slist *list = NULL;
-        list = curl_slist_append(list, curlRequest->getContentTypeHeader().toStdString().c_str());
+        list = curl_slist_append(list, curlReply->networkRequest().contentTypeHeader().toStdString().c_str());
         if (list == NULL) goto failed;
-        curlRequest->addCurlListForFreeLater(list);
+        curlReply->addCurlListForFreeLater(list);
 
-        if (curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, curlRequest->getPostData().size()) != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, curlRequest->getPostData().data()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, curlReply->postData().size()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, curlReply->postData().data()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list) != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlRequest->getTimeout()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlReply->networkRequest().timeout()) != CURLE_OK) goto failed;
 
-        if (!setupResolveHosts(curlRequest, curl)) goto failed;
-        if (!setupSslVerification(curl)) goto failed;
-        if (!setupProxy(curl)) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_XFERINFODATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0) != CURLE_OK) goto failed;
+
+        if (!setupResolveHosts(curlReply, curl)) goto failed;
+        if (!setupSslVerification(curlReply, curl)) goto failed;
+        if (!setupProxy(curlReply, curl)) goto failed;
 
         return curl;
     }
@@ -477,14 +392,14 @@ failed:
     if (curl)
     {
         curl_easy_cleanup(curl);
-    }*/
+    }
     return NULL;
 }
 
-CURL *CurlNetworkManager::makePutRequest(CurlRequest *curlRequest)
+CURL *CurlNetworkManager::makePutRequest(CurlReply *curlReply)
 {
     // the same as making post, only add CURLOPT_CUSTOMREQUEST field
-    CURL *curl = makePostRequest(curlRequest);
+    CURL *curl = makePostRequest(curlReply);
     if (curl)
     {
         if (curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT") != CURLE_OK)
@@ -500,7 +415,7 @@ CURL *CurlNetworkManager::makePutRequest(CurlRequest *curlRequest)
     }
 }
 
-CURL *CurlNetworkManager::makeDeleteRequest(CurlRequest *curlRequest)
+CURL *CurlNetworkManager::makeDeleteRequest(CurlReply *curlReply)
 {
     CURL *curl = curl_easy_init();
 
@@ -533,43 +448,21 @@ bool CurlNetworkManager::setupResolveHosts(CurlReply *curlReply, CURL *curl)
 {
     if (!curlReply->ips().isEmpty())
     {
-        CURLSH *share_handle = curl_share_init();
-        if (curl_share_setopt(share_handle, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS) != CURLSHE_OK) return false;
-        if (curl_easy_setopt(curl, CURLOPT_SHARE, share_handle) != CURLE_OK) return false;
-
-        struct curl_slist *hosts = NULL;
-        QString hostname = curlReply->networkRequest().url().host();
-        QString s = hostname + ":443" + ":" + curlReply->ips()[0];
-        hosts = curl_slist_append(NULL, s.toStdString().c_str());
+        QString strResolve = curlReply->networkRequest().url().host() + ":443" + ":" + curlReply->ips().join(";");
+        struct curl_slist *hosts = curl_slist_append(NULL, strResolve.toStdString().c_str());
         if (hosts == NULL) return false;
-
-        ///curlRequest->addCurlListForFreeLater(hosts);
+        curlReply->addCurlListForFreeLater(hosts);
         if (curl_easy_setopt(curl, CURLOPT_RESOLVE, hosts) != CURLE_OK) return false;
     }
     else
     {
         Q_ASSERT(false);
     }
-    /*if (curlRequest->isHasNextIp())
-    {
-        CURLSH *share_handle = curl_share_init();
-        if (curl_share_setopt(share_handle, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS) != CURLSHE_OK) return false;
-        if (curl_easy_setopt(curl, CURLOPT_SHARE, share_handle) != CURLE_OK) return false;
-
-        struct curl_slist *hosts = NULL;
-        QString s = curlRequest->getHostname() + ":443" + ":" + curlRequest->getNextIp();
-        hosts = curl_slist_append(NULL, s.toStdString().c_str());
-        if (hosts == NULL) return false;
-
-        curlRequest->addCurlListForFreeLater(hosts);
-        if (curl_easy_setopt(curl, CURLOPT_RESOLVE, hosts) != CURLE_OK) return false;
-    }*/
     return true;
 }
 
 bool CurlNetworkManager::setupSslVerification(CurlReply *curlReply, CURL *curl)
 {
-    QMutexLocker lock(&mutexAccess_);
 #ifdef Q_OS_MAC
     if (curl_easy_setopt(curl, CURLOPT_CAINFO, certPath_.toStdString().c_str()) != CURLE_OK) return false;
 #endif
