@@ -707,12 +707,27 @@ void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool
         cmd.remoteIp = vpnAdapter.remoteIp().toStdString();
     }
 
-
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
+}
+
+void Helper_win::setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_DNS_WHILE_CONNECTED cmd;
+    cmd.ifIndex = ifIndex;
+    cmd.szDnsIpAddress = overrideDnsIpAddress.toStdWString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DNS_WHILE_CONNECTED, stream.str());
+    // return mpr.exitCode;
 }
 
 bool Helper_win::setKextPath(const QString &/*kextPath*/)

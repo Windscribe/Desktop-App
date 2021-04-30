@@ -21,18 +21,6 @@ DnsWhileConnectedInfo::DnsWhileConnectedInfo(ProtoTypes::DnsWhileConnectedInfo p
 
 }
 
-//DnsWhileConnectedInfo::DnsWhileConnectedInfo(int type)
-//{
-//    if (type >= ROBERT && type <= CUSTOM)
-//    {
-//        type_ = static_cast<DNS_WHILE_CONNECTED_TYPE>(type);
-//    }
-//    else
-//    {
-//        Q_ASSERT(false);
-//    }
-//}
-
 QString DnsWhileConnectedInfo::toString() const
 {
     return typeToString(type_);

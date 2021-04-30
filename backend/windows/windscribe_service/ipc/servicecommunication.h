@@ -51,6 +51,7 @@
 #define AA_COMMAND_GET_WIREGUARD_STATUS                     47
 #define AA_COMMAND_CONNECT_STATUS                           48
 #define AA_COMMAND_SUSPEND_UNBLOCKING_CMD                   49
+#define AA_COMMAND_DNS_WHILE_CONNECTED                      50
 
 #define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
 
@@ -200,6 +201,12 @@ struct CMD_CONNECT_STATUS
 	// need for stunnel/wstunnel/openvpn routing
 	std::string connectedIp;
 	std::string remoteIp;
+};
+
+struct CMD_DNS_WHILE_CONNECTED
+{
+    unsigned long ifIndex = 0;
+    std::wstring szDnsIpAddress;
 };
 
 struct CMD_CLOSE_TCP_CONNECTIONS

@@ -814,6 +814,13 @@ void Helper_mac::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool
     }
 }
 
+void Helper_mac::setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress)
+{
+    Q_UNUSED(ifIndex)
+    Q_UNUSED(overrideDnsIpAddress)
+    // TODO: do something
+}
+
 bool Helper_mac::setKextPath(const QString &kextPath)
 {
     QMutexLocker locker(&mutex_);

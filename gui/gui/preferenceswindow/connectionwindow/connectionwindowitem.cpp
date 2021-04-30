@@ -25,7 +25,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, SIGNAL(isAllowLanTrafficChanged(bool)), SLOT(onIsAllowLanTrafficPreferencedChanged(bool)));
     connect(preferences, SIGNAL(invalidLanAddressNotification(QString)), SLOT(onInvalidLanAddressNotification(QString)));
     connect(preferences, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingPreferencesChanged(ProtoTypes::MacAddrSpoofing)));
-    connect(preferences, SIGNAL(dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo, bool)), SLOT(onDnsWhileConnectedPreferencesChanged(DnsWhileConnectedInfo, bool)));
+    connect(preferences, SIGNAL(dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedPreferencesChanged(DnsWhileConnectedInfo)));
     connect(preferencesHelper, SIGNAL(isFirewallBlockedChanged(bool)), SLOT(onIsFirewallBlockedChanged(bool)));
     connect(preferencesHelper, SIGNAL(isExternalConfigModeChanged(bool)), SLOT(onIsExternalConfigModeChanged(bool)));
 #ifdef Q_OS_WIN
@@ -72,7 +72,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     dnsWhileConnectedItem_ = new DnsWhileConnectedItem(this);
     connect(dnsWhileConnectedItem_, SIGNAL(dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo)));
-    dnsWhileConnectedItem_->setDNSWhileConnected(preferences->dnsWhileConnectedInfo());
     addItem(dnsWhileConnectedItem_);
 
     checkBoxAllowLanTraffic_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN traffic"), QString());
@@ -297,9 +296,9 @@ void ConnectionWindowItem::onIsExternalConfigModeChanged(bool bIsExternalConfigM
     connectionModeItem_->setVisible(!bIsExternalConfigMode);
 }
 
-void ConnectionWindowItem::onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns, bool override)
+void ConnectionWindowItem::onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns)
 {
-    dnsWhileConnectedItem_->setDNSWhileConnected(dns, override);
+    dnsWhileConnectedItem_->setDNSWhileConnected(dns);
 
     if (dns.type() == DnsWhileConnectedInfo::CUSTOM)
     {

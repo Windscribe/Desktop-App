@@ -29,7 +29,7 @@ DnsWhileConnectedItem::DnsWhileConnectedItem(ScalableGraphicsObject *parent) : B
     editBoxIP_->setValidator(ipValidator);
 
     dividerLine_ = new DividerLine(this, 276);
-    dividerLine_->setPos(24, 50 - dividerLine_->boundingRect().height());
+    setHeightAndLinePos(COLLAPSED_HEIGHT);
 
     expandEnimation_.setStartValue(COLLAPSED_HEIGHT);
     expandEnimation_.setEndValue(EXPANDED_HEIGHT);
@@ -54,26 +54,27 @@ bool DnsWhileConnectedItem::hasItemWithFocus()
     return editBoxIP_->lineEditHasFocus();
 }
 
-void DnsWhileConnectedItem::setDNSWhileConnected(const DnsWhileConnectedInfo &dns, bool override)
+void DnsWhileConnectedItem::setDNSWhileConnected(const DnsWhileConnectedInfo &dns)
 {
-    curDNSWhileConnected_ = dns;
+    if (dns != curDNSWhileConnected_)
+    {
+        curDNSWhileConnected_ = dns;
 
-    if (dns.type() == DnsWhileConnectedInfo::ROBERT)
-    {
-        comboBoxDNS_->setCurrentItem(DnsWhileConnectedInfo::ROBERT);
-        if (override) setHeightAndLinePos(COLLAPSED_HEIGHT); // override for smooth animation during user click
-        isExpanded_ = false;
-    }
-    else
-    {
-        editBoxIP_->setText(dns.ipAddress());
-        comboBoxDNS_->setCurrentItem(DnsWhileConnectedInfo::CUSTOM);
-        if (override) setHeightAndLinePos(EXPANDED_HEIGHT);  // override for smooth animation during user click
-        isExpanded_ = true;
+        // update inner widgets
+        if (dns.type() == DnsWhileConnectedInfo::ROBERT)
+        {
+            comboBoxDNS_->setCurrentItem(DnsWhileConnectedInfo::ROBERT);
+        }
+        else
+        {
+            editBoxIP_->setText(dns.ipAddress());
+            comboBoxDNS_->setCurrentItem(DnsWhileConnectedInfo::CUSTOM);
+        }
+        updateHeight(curDNSWhileConnected_.type());
     }
 }
 
-void PreferencesWindow::DnsWhileConnectedItem::updateDisplay(DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE type)
+void PreferencesWindow::DnsWhileConnectedItem::updateHeight(DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE type)
 {
     if (type == DnsWhileConnectedInfo::CUSTOM && !isExpanded_)
     {
@@ -103,14 +104,17 @@ void DnsWhileConnectedItem::setHeightAndLinePos(int height)
 
 void DnsWhileConnectedItem::onDNSWhileConnectedModeChanged(QVariant v)
 {
-    updateDisplay(static_cast<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE>(v.toInt()));
+    updateHeight(static_cast<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE>(v.toInt()));
 
     if (curDNSWhileConnected_.type() != v.toInt())
     {
         curDNSWhileConnected_.setType(static_cast<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE>(v.toInt()));
+
+        // clear ip when robert is selected
         if (curDNSWhileConnected_.type() == DnsWhileConnectedInfo::ROBERT)
         {
             curDNSWhileConnected_.setIpAddress("");
+            editBoxIP_->setText("");
         }
 
         emit dnsWhileConnectedInfoChanged(curDNSWhileConnected_);

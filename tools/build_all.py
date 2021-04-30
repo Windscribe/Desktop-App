@@ -196,7 +196,6 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
       conf = "Release_x64" if is_64bit else "Release"
       build_cmd = [
         "msbuild.exe", GetProjectFile(c_subdir, c_project),
-        "/p:SolutionDir={}".format(ROOT_DIR + os.sep),
         "/p:OutDir={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
         "/p:IntDir={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
         "/p:IntermediateOutputPath={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),

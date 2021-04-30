@@ -67,7 +67,7 @@ private slots:
     void onKillTcpSocketsStateChanged(bool isChecked);
 #endif
 
-    void onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns, bool override);
+    void onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns);
 
     void onLanguageChanged();
 

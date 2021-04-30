@@ -51,6 +51,12 @@ public:
     const AdapterGatewayInfo &getDefaultAdapterInfo() const;
     const AdapterGatewayInfo &getVpnAdapterInfo() const;
 
+    struct CustomDnsAdapterGatewayInfo {
+        AdapterGatewayInfo adapterInfo;
+        ProtoTypes::DnsWhileConnectedInfo dnsWhileConnectedInfo;
+    };
+    const CustomDnsAdapterGatewayInfo &getCustomDnsAdapterGatewayInfo() const;
+    void setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info);
 
     void removeIkev2ConnectionFromOS();
 
@@ -175,6 +181,8 @@ private:
 
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;
+
+    CustomDnsAdapterGatewayInfo customDnsAdapterGatewayInfo_;
 
     void doConnect();
     void doConnectPart2();

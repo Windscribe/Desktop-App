@@ -37,6 +37,7 @@ public:
     ProtoTypes::MacAddrSpoofing getMacAddrSpoofing() const;
     ProtoTypes::PacketSize getPacketSize() const;
     ProtoTypes::UpdateChannel getUpdateChannel() const;
+    ProtoTypes::DnsWhileConnectedInfo getDnsWhileConnectedInfo() const;
 
     bool isUseWintun() const;
     QString getCustomOvpnConfigsPath() const;

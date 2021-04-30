@@ -237,6 +237,16 @@ const AdapterGatewayInfo &ConnectionManager::getVpnAdapterInfo() const
     return vpnAdapterInfo_;
 }
 
+const ConnectionManager::CustomDnsAdapterGatewayInfo &ConnectionManager::getCustomDnsAdapterGatewayInfo() const
+{
+    Q_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
+    return customDnsAdapterGatewayInfo_;
+}
+
+void ConnectionManager::setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info)
+{
+    customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo = info;
+}
 
 void ConnectionManager::removeIkev2ConnectionFromOS()
 {
@@ -282,7 +292,17 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionConnected(), state_ =" << state_;
 
     vpnAdapterInfo_ = connectionAdapterInfo;
+    customDnsAdapterGatewayInfo_.adapterInfo = connectionAdapterInfo;
+
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
+
+    // override the DNS if we are using custom
+    if (customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
+    {
+        QString customDnsIp = QString::fromStdString(customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ip_address());
+        customDnsAdapterGatewayInfo_.adapterInfo.setDnsServers(QStringList() << customDnsIp);
+        qCDebug(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
+    }
 
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK)
     {

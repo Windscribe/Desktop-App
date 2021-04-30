@@ -160,7 +160,7 @@ signals:
     void shareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);
     void debugAdvancedParametersChanged(const QString &pars);
     void dnsPolicyChanged(ProtoTypes::DnsPolicy d);
-    void dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo dnsWcInfo, bool override = false);
+    void dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo dnsWcInfo);
     void networkWhiteListChanged(ProtoTypes::NetworkWhiteList l);
     void splitTunnelingChanged(ProtoTypes::SplitTunneling st);
     void keepAliveChanged(bool b);

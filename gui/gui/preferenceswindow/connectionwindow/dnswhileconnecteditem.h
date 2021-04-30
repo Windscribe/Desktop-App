@@ -19,7 +19,7 @@ public:
     explicit DnsWhileConnectedItem(ScalableGraphicsObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    void setDNSWhileConnected(const DnsWhileConnectedInfo &dns, bool override = false);
+    void setDNSWhileConnected(const DnsWhileConnectedInfo &dns);
 
     void updateScaling() override;
     bool hasItemWithFocus() override;
@@ -51,7 +51,7 @@ private:
     DnsWhileConnectedInfo curDNSWhileConnected_;
     DividerLine *dividerLine_;
 
-    void updateDisplay(DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE type);
+    void updateHeight(DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE type);
     void setHeightAndLinePos(int height);
 };
 

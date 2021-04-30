@@ -13,7 +13,6 @@ public:
     DnsWhileConnectedInfo();
     explicit DnsWhileConnectedInfo(DNS_WHILE_CONNECTED_TYPE type);
     explicit DnsWhileConnectedInfo(ProtoTypes::DnsWhileConnectedInfo protoBufInfo);
-    // explicit DNSWhileConnectedInfo(int type);
 
     QString toString() const;
     DNS_WHILE_CONNECTED_TYPE type() const;

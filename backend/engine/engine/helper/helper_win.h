@@ -87,6 +87,7 @@ public:
     void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const ProtocolType &protocol) override;
 
+    void setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 
     bool addIKEv2DefaultRoute() override;
     bool removeWindscribeNetworkProfiles() override;

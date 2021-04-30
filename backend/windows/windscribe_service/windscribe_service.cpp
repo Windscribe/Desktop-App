@@ -860,6 +860,25 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		splitTunnelling.setConnectStatus(cmdConnectStatus);
 		g_SplitTunnelingPars.isVpnConnected = cmdConnectStatus.isConnected;
 	}
+	else if (cmdId == AA_COMMAND_DNS_WHILE_CONNECTED)
+	{
+		CMD_DNS_WHILE_CONNECTED cmdDnsWhileConnected;
+		ia >> cmdDnsWhileConnected;
+
+		wchar_t szBuf[1024];
+		wcscpy(szBuf, L"netsh interface ipv4 set dns \"");
+		wcscat(szBuf, std::to_wstring(cmdDnsWhileConnected.ifIndex).c_str());
+		wcscat(szBuf, L"\" static ");
+		wcscat(szBuf, cmdDnsWhileConnected.szDnsIpAddress.c_str());
+		mpr = ExecuteCmd::instance().executeBlockingCmd(szBuf);
+
+		wchar_t logBuf[1024];
+		wcscpy(logBuf, L"AA_COMMAND_DNS_WHILE_CONNECTED: ");
+		wcscat(logBuf, szBuf);
+		Logger::instance().out(logBuf);
+
+		mpr.success = true;
+	}
 	else if (cmdId == AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE)
 	{
 		mpr.success = IKEv2Route::addRouteForIKEv2();

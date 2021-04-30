@@ -123,6 +123,11 @@ ProtoTypes::UpdateChannel EngineSettings::getUpdateChannel() const
     return engineSettings_.update_channel();
 }
 
+ProtoTypes::DnsWhileConnectedInfo EngineSettings::getDnsWhileConnectedInfo() const
+{
+    return engineSettings_.dns_while_connected_info();
+}
+
 bool EngineSettings::isUseWintun() const
 {
     return engineSettings_.tap_adapter() == ProtoTypes::WINTUN_ADAPTER;

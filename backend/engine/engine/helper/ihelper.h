@@ -70,6 +70,8 @@ public:
     virtual void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                                    const QString &connectedIp, const ProtocolType &protocol) = 0;
 
+    virtual void setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
+
     // windows specific functions
     virtual void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) = 0;
     virtual void clearUnblockingCmd(unsigned long cmdId) = 0;

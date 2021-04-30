@@ -555,6 +555,7 @@ void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
     setDnsPolicy(es.dns_policy());
     setKeepAlive(es.is_keep_alive_enabled());
     setCustomOvpnConfigsPath(QString::fromStdString(es.customovpnconfigspath()));
+    setDnsWhileConnectedInfo(DnsWhileConnectedInfo(es.dns_while_connected_info()));
     receivingEngineSettings_ = false;
 }
 
@@ -621,7 +622,7 @@ void Preferences::validateAndUpdateIfNeeded()
         protoDns.set_type(ProtoTypes::DNS_WHILE_CONNECTED_TYPE_ROBERT);
         protoDns.set_ip_address("");
         *engineSettings_.mutable_dns_while_connected_info() = protoDns;
-        emit dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info()), true);
+        emit dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info()));
         emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
         is_update_needed = true;
     }

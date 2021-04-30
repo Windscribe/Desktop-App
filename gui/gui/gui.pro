@@ -199,6 +199,7 @@ SOURCES += \
     $$COMMON_PATH/utils/utils.cpp \
     $$COMMON_PATH/utils/widgetutils.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
+    $$COMMON_PATH/utils/ipvalidation.cpp \
     $$COMMON_PATH/version/appversion.cpp \
     ../backend/persistentstate.cpp \
     application/windowsnativeeventfilter.cpp \
@@ -262,7 +263,6 @@ SOURCES += \
     tooltips/tooltipcontroller.cpp \
     tooltips/tooltipdescriptive.cpp \
     tooltips/tooltiputil.cpp \
-    utils/ipvalidation.cpp \
     utils/protoenumtostring.cpp \
     commonwidgets/custommenuwidget.cpp \
     commonwidgets/customtexteditwidget.cpp \
@@ -431,6 +431,7 @@ HEADERS += \
     $$COMMON_PATH/utils/protobuf_includes.h \
     $$COMMON_PATH/utils/widgetutils.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
+    $$COMMON_PATH/utils/ipvalidation.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     ../backend/persistentstate.h \
@@ -504,7 +505,6 @@ HEADERS += \
     tooltips/tooltipdescriptive.h \
     tooltips/tooltiptypes.h \
     tooltips/tooltiputil.h \
-    utils/ipvalidation.h \
     utils/protoenumtostring.h \
     commonwidgets/custommenuwidget.h \
     commonwidgets/customtexteditwidget.h \
