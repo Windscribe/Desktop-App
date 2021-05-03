@@ -16,7 +16,6 @@ CurlNetworkManager::CurlNetworkManager(QObject *parent) : QThread(parent),
     , certPath_(QCoreApplication::applicationDirPath() + "/../Resources/cert.pem")
 #endif
 {
-    qCDebug(LOG_BASIC) << "Curl version:" << curl_version();
 
 #ifdef MAKE_CURL_LOG_FILE
     logFilePath_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
@@ -99,10 +98,10 @@ CurlReply *CurlNetworkManager::post(const NetworkRequest &request, const QByteAr
     return invokeRequest(CurlReply::REQUEST_POST, request, ips, data);
 }
 
-CurlReply *CurlNetworkManager::put(const NetworkRequest &request, const QStringList &ips)
+CurlReply *CurlNetworkManager::put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips)
 {
     QMutexLocker locker(&mutex_);
-    return invokeRequest(CurlReply::REQUEST_PUT, request, ips);
+    return invokeRequest(CurlReply::REQUEST_PUT, request, ips, data);
 }
 
 CurlReply *CurlNetworkManager::deleteResource(const NetworkRequest &request, const QStringList &ips)
@@ -117,7 +116,6 @@ void CurlNetworkManager::abort(CurlReply *reply)
     activeRequests_.remove(reply->id());
     idsMap_.remove(reply->id());
 }
-
 
 void CurlNetworkManager::run()
 {
@@ -196,6 +194,29 @@ void CurlNetworkManager::run()
             curl_multi_wait(multi_handle, NULL, 0, 1000, &numfds);
         }
 
+        // check for aborted requests
+        {
+            for (auto it = map.begin(); it != map.end(); /*++it*/) // should not increment it in the for loop
+            {
+                bool bFound = false;
+                {
+                    QMutexLocker locker(&mutex_);
+                    auto findIt = activeRequests_.find(it.value());
+                    bFound = findIt != activeRequests_.end();
+                }
+                if (!bFound)
+                {
+                    curl_multi_remove_handle(multi_handle, it.key());
+                    curl_easy_cleanup(it.key());
+                    it = map.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+        }
+
         curl_multi_perform(multi_handle, &still_running);
 
         // check finished requests
@@ -226,6 +247,7 @@ void CurlNetworkManager::run()
 
                     curl_multi_remove_handle(multi_handle, e);
                     curl_easy_cleanup(e);
+
                 }
                 else
                 {
@@ -419,19 +441,26 @@ CURL *CurlNetworkManager::makeDeleteRequest(CurlReply *curlReply)
 {
     CURL *curl = curl_easy_init();
 
-    /*if (curl)
+    if (curl)
     {
-        if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_bytearray) != CURLE_OK) goto failed;
+        setIdIntoMap(curlReply->id());
+
+        if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeDataCallback) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
+
         if (curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, curlRequest->getAnswerPointer()) != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_URL, curlRequest->getGetData().toStdString().c_str()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_URL, curlReply->networkRequest().url().toString().toStdString().c_str()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE") != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, curlRequest->getTimeout()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlReply->networkRequest().timeout()) != CURLE_OK) goto failed;
 
-        if (!setupResolveHosts(curlRequest, curl)) goto failed;
-        if (!setupSslVerification(curl)) goto failed;
-        if (!setupProxy(curl)) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_XFERINFODATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0) != CURLE_OK) goto failed;
+
+        if (!setupResolveHosts(curlReply, curl)) goto failed;
+        if (!setupSslVerification(curlReply, curl)) goto failed;
+        if (!setupProxy(curlReply, curl)) goto failed;
 
         return curl;
     }
@@ -440,7 +469,7 @@ failed:
     if (curl)
     {
         curl_easy_cleanup(curl);
-    }*/
+    }
     return NULL;
 }
 
@@ -490,29 +519,29 @@ bool CurlNetworkManager::setupProxy(CurlReply *curlReply, CURL *curl)
     QString proxyString;
     if (curlReply->networkRequest().proxySettings().isProxyEnabled())
     {
-        /*if (proxySettings_.option() == PROXY_OPTION_NONE)
+        if (curlReply->networkRequest().proxySettings().option() == PROXY_OPTION_NONE)
         {
             //nothing todo
             return true;
         }
-        else if (proxySettings_.option() == PROXY_OPTION_HTTP)
+        else if (curlReply->networkRequest().proxySettings().option() == PROXY_OPTION_HTTP)
         {
-            proxyString = "http://" + proxySettings_.address() + ":" + QString::number(proxySettings_.getPort());
+            proxyString = "http://" + curlReply->networkRequest().proxySettings().address() + ":" + QString::number(curlReply->networkRequest().proxySettings().getPort());
         }
-        else if (proxySettings_.option() == PROXY_OPTION_SOCKS)
+        else if (curlReply->networkRequest().proxySettings().option() == PROXY_OPTION_SOCKS)
         {
-            proxyString = "socks5://" + proxySettings_.address() + ":" + QString::number(proxySettings_.getPort());
+            proxyString = "socks5://" + curlReply->networkRequest().proxySettings().address() + ":" + QString::number(curlReply->networkRequest().proxySettings().getPort());
         }
 
         if (curl_easy_setopt(curl, CURLOPT_PROXY, proxyString.toStdString().c_str()) != CURLE_OK) return false;
-        if (!proxySettings_.getUsername().isEmpty())
+        if (!curlReply->networkRequest().proxySettings().getUsername().isEmpty())
         {
-            if (curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, proxySettings_.getUsername().toStdString().c_str()) != CURLE_OK) return false;
+            if (curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, curlReply->networkRequest().proxySettings().getUsername().toStdString().c_str()) != CURLE_OK) return false;
         }
-        if (!proxySettings_.getPassword().isEmpty())
+        if (!curlReply->networkRequest().proxySettings().getPassword().isEmpty())
         {
-            if (curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, proxySettings_.getPassword().toStdString().c_str()) != CURLE_OK) return false;
-        }*/
+            if (curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, curlReply->networkRequest().proxySettings().getPassword().toStdString().c_str()) != CURLE_OK) return false;
+        }
     }
     return true;
 }

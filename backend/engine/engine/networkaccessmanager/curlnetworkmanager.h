@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QWaitCondition>
 #include <QMutex>
+#include "curlinitcontroller.h"
 #include "curlreply.h"
 #include "certmanager.h"
 #include "networkrequest.h"
@@ -21,7 +22,7 @@ public:
     virtual ~CurlNetworkManager();
     CurlReply *get(const NetworkRequest &request, const QStringList &ips);
     CurlReply *post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips);
-    CurlReply *put(const NetworkRequest &request, const QStringList &ips);
+    CurlReply *put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips);
     CurlReply *deleteResource(const NetworkRequest &request, const QStringList &ips);
 
     void abort(CurlReply *reply);
@@ -29,11 +30,11 @@ public:
 protected:
     virtual void run();
 
-
 private slots:
     void handleRequest(quint64 id);
 
 private:
+    CurlInitController curlInit_;
     CertManager certManager_;
     QQueue<quint64> queue_;
     QWaitCondition waitCondition_;

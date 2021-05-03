@@ -1,10 +1,13 @@
 #include "tst_curlnetworkmanager.h"
-#include "networkaccessmanager/curlnetworkmanager.h"
 #include "dnsresolver/dnsrequest.h"
 #include <QtTest>
+#include <QtConcurrent/QtConcurrent>
 
 TestCurlNetworkManager::TestCurlNetworkManager()
 {
+    // Initialize Winsock
+    WSADATA wsaData;
+    int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
 }
 
 TestCurlNetworkManager::~TestCurlNetworkManager()
@@ -14,23 +17,74 @@ TestCurlNetworkManager::~TestCurlNetworkManager()
 void TestCurlNetworkManager::test_get()
 {
     CurlNetworkManager *manager = new CurlNetworkManager(this);
-    NetworkRequest request(QUrl("https://httpbin.org/get"), 5000, false);
+    NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 10000, false);
 
     DnsRequest dnsRequest(this, request.url().host());
     dnsRequest.lookupBlocked();
     QVERIFY(dnsRequest.ips().count() > 0);
+
+    int progressCalled = 0;
 
     CurlReply *reply = manager->get(request, dnsRequest.ips());
 
     QObject::connect(reply, &CurlReply::finished, this, [=]
     {
         QVERIFY(reply->isSuccess());
+        QJsonParseError errCode;
+        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &errCode);
+        QVERIFY(errCode.error == QJsonParseError::NoError && doc.isObject());
+        QVERIFY(doc.object().contains("args"));
+        QVERIFY(doc.object()["args"].isObject());
+        QVERIFY(doc.object()["args"].toObject()["foo1"].toString() == "bar1");
+        QVERIFY(doc.object()["args"].toObject()["foo2"].toString() == "bar2");
+
         reply->deleteLater();
+    });
+
+    QObject::connect(reply, &CurlReply::progress, this, [&progressCalled]
+    {
+        progressCalled++;
+    });
+
+
+    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    signalFinished.wait(20000);
+    QCOMPARE(signalFinished.count(), 1);
+    QVERIFY(progressCalled > 0);
+}
+
+void TestCurlNetworkManager::test_readall_get()
+{
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
+    NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 10000, false);
+
+    DnsRequest dnsRequest(this, request.url().host());
+    dnsRequest.lookupBlocked();
+    QVERIFY(dnsRequest.ips().count() > 0);
+
+    QByteArray arr;
+    CurlReply *reply = manager->get(request, dnsRequest.ips());
+
+    QObject::connect(reply, &CurlReply::readyRead, this, [&arr, reply]
+    {
+        QByteArray newData = reply->readAll();
+        arr.append(newData);
     });
 
     QSignalSpy signalFinished(reply, SIGNAL(finished()));
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
+
+    QVERIFY(reply->isSuccess());
+    QJsonParseError errCode;
+    QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
+    QVERIFY(errCode.error == QJsonParseError::NoError && doc.isObject());
+    QVERIFY(doc.object().contains("args"));
+    QVERIFY(doc.object()["args"].isObject());
+    QVERIFY(doc.object()["args"].toObject()["foo1"].toString() == "bar1");
+    QVERIFY(doc.object()["args"].toObject()["foo2"].toString() == "bar2");
+
+    reply->deleteLater();
 }
 
 void TestCurlNetworkManager::test_incorrect_get()
@@ -64,6 +118,7 @@ void TestCurlNetworkManager::test_timeout_get()
     QObject::connect(reply, &CurlReply::finished, this, [=]
     {
         QVERIFY(!reply->isSuccess());
+        qDebug() << reply->errorString();
         reply->deleteLater();
     });
 
@@ -132,17 +187,40 @@ void TestCurlNetworkManager::test_ssl_errors()
     }
 }
 
-void TestCurlNetworkManager::test_iplist_get()
+void TestCurlNetworkManager::test_ignore_ssl_error()
 {
     CurlNetworkManager *manager = new CurlNetworkManager(this);
-    NetworkRequest request(QUrl("https://httpbin.org/get"), 10000, false);
 
+    NetworkRequest request(QUrl("https://expired.badssl.com/"), 10000, false);
+    request.setIgnoreSslErrors(true);
     DnsRequest dnsRequest(this, request.url().host());
     dnsRequest.lookupBlocked();
     QVERIFY(dnsRequest.ips().count() > 0);
+    CurlReply *reply = manager->get(request, dnsRequest.ips());
+    QObject::connect(reply, &CurlReply::finished, this, [=]
+    {
+        QVERIFY(!reply->isSSLError());
+        reply->deleteLater();
+    });
+
+    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    signalFinished.wait(20000);
+
+    QVERIFY(signalFinished.count() == 1);
+}
+
+void TestCurlNetworkManager::test_iplist_get()
+{
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
+    NetworkRequest request(QUrl("https://httpbin.org/get"), 20000, false);
+
+    DnsRequest dnsRequest(this, request.url().host());
+    dnsRequest.lookupBlocked();
+
+    QVERIFY(dnsRequest.ips().count() > 0);
 
     {
-        CurlReply *reply = manager->get(request, QStringList() << dnsRequest.ips()[0] << "222.222.222.222");
+        CurlReply *reply = manager->get(request, QStringList() << dnsRequest.ips() << "222.222.222.222");
 
         QObject::connect(reply, &CurlReply::finished, this, [=]
         {
@@ -155,7 +233,7 @@ void TestCurlNetworkManager::test_iplist_get()
         QCOMPARE(signalFinished.count(), 1);
     }
     {
-        CurlReply *reply = manager->get(request, QStringList() << "222.222.222.222" << dnsRequest.ips()[0]);
+        CurlReply *reply = manager->get(request, QStringList() << "222.222.222.222" << dnsRequest.ips());
 
         QObject::connect(reply, &CurlReply::finished, this, [=]
         {
@@ -172,49 +250,199 @@ void TestCurlNetworkManager::test_iplist_get()
 void TestCurlNetworkManager::test_post()
 {
     CurlNetworkManager *manager = new CurlNetworkManager(this);
-    NetworkRequest request(QUrl("https://postman-echo.com/post?hand=wave"), 5000, false);
+    NetworkRequest request(QUrl("https://postman-echo.com/post?hand=wave"), 20000, false);
 
     DnsRequest dnsRequest(this, request.url().host());
     dnsRequest.lookupBlocked();
     QVERIFY(dnsRequest.ips().count() > 0);
 
-    CurlReply *reply = manager->post(request, "hand=wave", dnsRequest.ips());
+    int progressCalled = 0;
+    CurlReply *reply = manager->post(request, "postdata=testtest", dnsRequest.ips());
 
     QObject::connect(reply, &CurlReply::finished, this, [=]
     {
         QVERIFY(reply->isSuccess());
-        qDebug() << reply->readAll();
+        QJsonParseError errCode;
+        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &errCode);
+        QVERIFY(errCode.error == QJsonParseError::NoError && doc.isObject());
+        QVERIFY(doc.object().contains("args"));
+        QVERIFY(doc.object()["args"].isObject());
+        QVERIFY(doc.object()["args"].toObject()["hand"].toString() == "wave");
+
+        QVERIFY(doc.object().contains("json"));
+        QVERIFY(doc.object()["json"].isObject());
+        QVERIFY(doc.object()["json"].toObject()["postdata"].toString() == "testtest");
+
         reply->deleteLater();
+    });
+
+    QObject::connect(reply, &CurlReply::progress, this, [&progressCalled]
+    {
+        progressCalled++;
     });
 
     QSignalSpy signalFinished(reply, SIGNAL(finished()));
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
+    QVERIFY(progressCalled > 0);
 }
 
-
-
-void TestCurlNetworkManager::test_async()
+void TestCurlNetworkManager::test_put()
 {
-    /*CurlNetworkManager *manager = new CurlNetworkManager(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
+    NetworkRequest request(QUrl("https://postman-echo.com/put?hand=wave"), 20000, false);
 
-    NetworkRequest request(QUrl("https://assets.totallyacdn.com/desktop/win/Windscribe.exe"), 5000, false);
+    DnsRequest dnsRequest(this, request.url().host());
+    dnsRequest.lookupBlocked();
+    QVERIFY(dnsRequest.ips().count() > 0);
 
+    int progressCalled = 0;
+    CurlReply *reply = manager->put(request, "putdata=testtest", dnsRequest.ips());
+
+    QObject::connect(reply, &CurlReply::finished, this, [=]
+    {
+        QVERIFY(reply->isSuccess());
+        QJsonParseError errCode;
+        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &errCode);
+        QVERIFY(errCode.error == QJsonParseError::NoError && doc.isObject());
+        QVERIFY(doc.object().contains("args"));
+        QVERIFY(doc.object()["args"].isObject());
+        QVERIFY(doc.object()["args"].toObject()["hand"].toString() == "wave");
+
+        QVERIFY(doc.object().contains("json"));
+        QVERIFY(doc.object()["json"].isObject());
+        QVERIFY(doc.object()["json"].toObject()["putdata"].toString() == "testtest");
+
+        reply->deleteLater();
+    });
+
+    QObject::connect(reply, &CurlReply::progress, this, [&progressCalled]
+    {
+        progressCalled++;
+    });
+
+    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    signalFinished.wait(20000);
+    QCOMPARE(signalFinished.count(), 1);
+    QVERIFY(progressCalled > 0);
+}
+
+void TestCurlNetworkManager::test_delete()
+{
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
+    NetworkRequest request(QUrl("https://postman-echo.com/delete?hand=wave"), 20000, false);
+
+    DnsRequest dnsRequest(this, request.url().host());
+    dnsRequest.lookupBlocked();
+    QVERIFY(dnsRequest.ips().count() > 0);
+
+    int progressCalled = 0;
+    CurlReply *reply = manager->deleteResource(request,  dnsRequest.ips());
+
+    QObject::connect(reply, &CurlReply::finished, this, [=]
+    {
+        QVERIFY(reply->isSuccess());
+        QJsonParseError errCode;
+        QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &errCode);
+        QVERIFY(errCode.error == QJsonParseError::NoError && doc.isObject());
+        QVERIFY(doc.object().contains("args"));
+        QVERIFY(doc.object()["args"].isObject());
+        QVERIFY(doc.object()["args"].toObject()["hand"].toString() == "wave");
+
+        reply->deleteLater();
+    });
+
+    QObject::connect(reply, &CurlReply::progress, this, [&progressCalled]
+    {
+        progressCalled++;
+    });
+
+    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    signalFinished.wait(20000);
+    QCOMPARE(signalFinished.count(), 1);
+    QVERIFY(progressCalled > 0);
+}
+
+void TestCurlNetworkManager::test_multi()
+{
+    QThread thread;
+    CurlTestMulti async;
+
+    async.moveToThread(&thread);
+    async.connect(&thread, SIGNAL(started()), SLOT(start()));
+    thread.connect(&async, SIGNAL(finished()), SLOT(quit()));
+    QSignalSpy signalFinished(&thread, SIGNAL(finished()));
+
+    thread.start();
+
+
+    signalFinished.wait(30000);
+    thread.wait();
+}
+
+void CurlTestMulti::start()
+{
+    finished_ = 0;
+    manager_ = new CurlNetworkManager(this);
+
+    NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 5000, false);
+    DnsRequest dnsRequest(NULL, request.url().host());
+    dnsRequest.lookupBlocked();
+    QVERIFY(dnsRequest.ips().count() > 0);
 
     for (int i = 0; i < 100; ++i)
     {
-        CurlReply *reply = manager->get(request, QStringList() << "104.25.98.39");
-        QSignalSpy signalFinished(reply, SIGNAL(finished()));
-        QSignalSpy signalProgress(reply, SIGNAL(progress(qint64,qint64)));
+        CurlReply *reply = manager_->get(request, dnsRequest.ips());
+        connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
+        replies_ << reply;
     }
-
-    //QSignalSpy signalFinished(reply, SIGNAL(finished()));
-    //QSignalSpy signalProgress(reply, SIGNAL(progress(qint64,qint64)));
-
-    signalFinished.wait(20000);
-    QCOMPARE(signalFinished.count(), 1);
-
-    QVERIFY(signalProgress.count() >= 1);
-    */
+    QTimer::singleShot(10, this, SLOT(addMore()));
+    QTimer::singleShot(100, this, SLOT(removeOne()));
 }
 
+void CurlTestMulti::onReplyFinished()
+{
+    finished_++;
+    CurlReply *reply = qobject_cast<CurlReply *>(sender());
+    replies_.remove(reply);
+    if (replies_.empty())
+    {
+        qDebug() << "finished:" << finished_;
+        emit finished();
+    }
+    reply->deleteLater();
+}
+
+void CurlTestMulti::removeOne()
+{
+    if (!replies_.empty())
+    {
+        (*replies_.begin())->deleteLater();
+        replies_.erase(replies_.begin());
+    }
+    if (replies_.empty())
+    {
+        qDebug() << "finished:" << finished_;
+        emit finished();
+    }
+    else
+    {
+        QTimer::singleShot(50, this, SLOT(removeOne()));
+    }
+}
+
+void CurlTestMulti::addMore()
+{
+    NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 5000, false);
+    DnsRequest dnsRequest(NULL, request.url().host());
+    dnsRequest.lookupBlocked();
+    QVERIFY(dnsRequest.ips().count() > 0);
+
+    for (int i = 0; i < 100; ++i)
+    {
+        CurlReply *reply = manager_->get(request, dnsRequest.ips());
+        connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
+        replies_ << reply;
+    }
+    int g = 0;
+}

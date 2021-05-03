@@ -2,6 +2,7 @@
 #define TESTCURLNETWORKMANAGER_H
 
 #include <QObject>
+#include "networkaccessmanager/curlnetworkmanager.h"
 
 class TestCurlNetworkManager : public QObject
 {
@@ -13,17 +14,39 @@ public:
 
 private slots:
     void test_get();
+    void test_readall_get();
     void test_incorrect_get();
     void test_timeout_get();
     void test_ssl_errors();
+    void test_ignore_ssl_error();
     void test_iplist_get();
 
     void test_post();
+    void test_put();
+    void test_delete();
+
+    void test_multi();
+
+};
 
 
-    void test_async();
+class CurlTestMulti : public QObject
+{
+    Q_OBJECT
+public slots:
+    void start();
+signals:
+    void finished();
+
+private slots:
+    void onReplyFinished();
+    void removeOne();
+    void addMore();
 
 private:
+    CurlNetworkManager *manager_;
+    QSet<CurlReply *> replies_;
+    int finished_;
 };
 
 
