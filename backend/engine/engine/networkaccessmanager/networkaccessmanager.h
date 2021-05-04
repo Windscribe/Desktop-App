@@ -6,6 +6,8 @@
 #include "proxy/proxysettings.h"
 #include "curlnetworkmanager.h"
 
+class NetworkAccessManager;
+
 class NetworkReply : public QObject
 {
     Q_OBJECT
@@ -13,16 +15,27 @@ class NetworkReply : public QObject
     enum NetworkError { NoError };
 
 public:
-    explicit NetworkReply(QObject *parent);
+    explicit NetworkReply(NetworkAccessManager *parent);
+    virtual ~NetworkReply();
 
     void abort();
     QByteArray readAll();
     NetworkError error() const;
+    bool isSuccess() const;
 
 signals:
     void finished();
     void progress(qint64 bytesReceived, qint64 bytesTotal);
     void readyRead();
+
+private:
+    void setCurlReply(CurlReply *curlReply);
+    void abortCurl();
+
+    CurlReply *curlReply_;
+    NetworkAccessManager *manager_;
+
+    friend class NetworkAccessManager;
 };
 
 
@@ -40,12 +53,24 @@ public:
     NetworkReply *put(const NetworkRequest &request, const QByteArray &data);
     NetworkReply *deleteResource(const NetworkRequest &request);
 
+    void abort(NetworkReply *reply);
+
 signals:
     // need for add exception rules to firewall
     // use only direct connection type, because the IPs must be resolved before the HTTP/HTTPS request is actually executed
-    void whitelistIpsChanged(const QStringList &ips);
+    void whitelistIpsChanged(const QSet<QString> &ips);
 
-public:
+private slots:
+    void handleRequest(quint64 id);
+    void onDnsRequestFinished();
+
+    void onCurlReplyFinished();
+    void onCurlProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void onCurlReadyRead();
+
+private:
+    static std::atomic<quint64> nextId_;
+
     enum REQUEST_TYPE { REQUEST_GET, REQUEST_POST, REQUEST_PUT, REQUEST_DELETE};
     struct RequestData
     {
@@ -56,16 +81,10 @@ public:
         QByteArray data;
     };
 
-private slots:
-    void handleRequest(quint64 id);
-    void onReplyDestroyed(QObject *obj);
-    void onDnsRequestFinished();
-
-private:
-    static std::atomic<quint64> nextId_;
-
     QMap<quint64, QSharedPointer<RequestData> > activeRequests_;
     CurlNetworkManager *curlNetworkManager_;
+
+    QSet<QString> lastWhitelistIps_;
 };
 
 

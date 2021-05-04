@@ -14,6 +14,7 @@
 // comment, if no need log file from curl
 //#define MAKE_CURL_LOG_FILE      1
 
+// Implementing queries with curl library. Don't use it directly, use NetworkAccessManager instead.
 class CurlNetworkManager : public QThread
 {
     Q_OBJECT

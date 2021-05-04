@@ -10,10 +10,11 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent) : QObject(parent)
 
 NetworkReply *NetworkAccessManager::get(const NetworkRequest &request)
 {
+    Q_ASSERT(QThread::currentThread() == this->thread());
+
     quint64 id = nextId_++;
     NetworkReply *reply = new NetworkReply(this);
     reply->setProperty("replyId", id);
-    connect(reply, SIGNAL(destroyed(QObject*)), SLOT(onReplyDestroyed(QObject*)));
 
     QSharedPointer<RequestData> requestData(new RequestData);
     requestData->id = id;
@@ -29,8 +30,26 @@ NetworkReply *NetworkAccessManager::get(const NetworkRequest &request)
     return reply;
 }
 
+void NetworkAccessManager::abort(NetworkReply *reply)
+{
+    Q_ASSERT(QThread::currentThread() == this->thread());
+    Q_ASSERT(reply->property("replyId") != QVariant::Invalid);
+    quint64 id = reply->property("replyId").toULongLong();
+
+    auto it = activeRequests_.find(id);
+    Q_ASSERT(it != activeRequests_.end());
+    if (it != activeRequests_.end())
+    {
+        QSharedPointer<RequestData> requestData = it.value();
+        requestData->reply->abortCurl();
+        activeRequests_.erase(it);
+    }
+}
+
 void NetworkAccessManager::handleRequest(quint64 id)
 {
+    Q_ASSERT(QThread::currentThread() == this->thread());
+
     auto it = activeRequests_.find(id);
     if (it != activeRequests_.end())
     {
@@ -41,18 +60,6 @@ void NetworkAccessManager::handleRequest(quint64 id)
         connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
         dnsRequest->lookup();
     }
-    else
-    {
-        Q_ASSERT(false);
-    }
-}
-
-void NetworkAccessManager::onReplyDestroyed(QObject *obj)
-{
-    Q_ASSERT(obj->property("replyId") != QVariant::Invalid);
-    quint64 id = obj->property("replyId").toULongLong();
-    Q_ASSERT(activeRequests_.contains(id));
-    activeRequests_.remove(id);
 }
 
 void NetworkAccessManager::onDnsRequestFinished()
@@ -64,16 +71,126 @@ void NetworkAccessManager::onDnsRequestFinished()
     auto it = activeRequests_.find(replyId);
     if (it != activeRequests_.end())
     {
+        QSet<QString> whitelistIps = lastWhitelistIps_;
         QSharedPointer<RequestData> requestData = it.value();
 
+        if (!dnsRequest->isError())
+        {
+            for (auto ip : dnsRequest->ips())
+            {
+                whitelistIps.insert(ip);
+            }
 
+            if (whitelistIps != lastWhitelistIps_)
+            {
+                emit whitelistIpsChanged(whitelistIps);
+                lastWhitelistIps_ = whitelistIps;
+            }
 
-        //emit requestData->reply->finished();
+            CurlReply *curlReply = curlNetworkManager_->get(requestData->request, dnsRequest->ips());
+            curlReply->setProperty("replyId", replyId);
+            requestData->reply->setCurlReply(curlReply);
+
+            connect(curlReply, SIGNAL(finished()), SLOT(onCurlReplyFinished()));
+            connect(curlReply, SIGNAL(progress(qint64,qint64)), SLOT(onCurlProgress(qint64,qint64)));
+            connect(curlReply, SIGNAL(readyRead()), SLOT(onCurlReadyRead()));
+        }
+        else
+        {
+
+        }
     }
     dnsRequest->deleteLater();
 }
 
-NetworkReply::NetworkReply(QObject *parent) : QObject(parent)
+void NetworkAccessManager::onCurlReplyFinished()
+{
+    quint64 replyId = sender()->property("replyId").toULongLong();
+    auto it = activeRequests_.find(replyId);
+    if (it != activeRequests_.end())
+    {
+        QSharedPointer<RequestData> requestData = it.value();
+        emit requestData->reply->finished();
+    }
+}
+
+void NetworkAccessManager::onCurlProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+    quint64 replyId = sender()->property("replyId").toULongLong();
+    auto it = activeRequests_.find(replyId);
+    if (it != activeRequests_.end())
+    {
+        QSharedPointer<RequestData> requestData = it.value();
+        emit requestData->reply->progress(bytesReceived, bytesTotal);
+    }
+}
+
+void NetworkAccessManager::onCurlReadyRead()
+{
+    quint64 replyId = sender()->property("replyId").toULongLong();
+    auto it = activeRequests_.find(replyId);
+    if (it != activeRequests_.end())
+    {
+        QSharedPointer<RequestData> requestData = it.value();
+        emit requestData->reply->readyRead();
+    }
+
+}
+
+NetworkReply::NetworkReply(NetworkAccessManager *parent) : QObject(parent), curlReply_(NULL), manager_(parent)
 {
 
+}
+
+NetworkReply::~NetworkReply()
+{
+    abort();
+}
+
+void NetworkReply::abort()
+{
+    manager_->abort(this);
+    if (curlReply_)
+    {
+        curlReply_->deleteLater();
+        curlReply_ = nullptr;
+    }
+}
+
+QByteArray NetworkReply::readAll()
+{
+    if (curlReply_)
+    {
+        return curlReply_->readAll();
+    }
+    else
+    {
+        Q_ASSERT(false);
+        return QByteArray();
+    }
+}
+
+bool NetworkReply::isSuccess() const
+{
+    if (curlReply_)
+    {
+        return curlReply_->isSuccess();
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void NetworkReply::setCurlReply(CurlReply *curlReply)
+{
+    curlReply_ = curlReply;
+}
+
+void NetworkReply::abortCurl()
+{
+    if (curlReply_)
+    {
+        curlReply_->abort();
+    }
 }
