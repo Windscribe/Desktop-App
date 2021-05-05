@@ -17,6 +17,8 @@ private slots:
     void test_blocked();
     void test_incorrect();
     void test_subdomain();
+    void test_timeout();
+    void test_timeout_blocked();
 
 private:
     QStringList domains_;

@@ -4,79 +4,75 @@
 #include "utils/ipvalidation.h"
 #include "dnsresolver/dnsrequest.h"
 
-DnsCache::DnsCache(QObject *parent) : QObject(parent)
+class DnsCache::Usages
+{
+public:
+    void addUsage(const QString &hostname, quint64 id)
+    {
+        map_.insert(hostname, id);
+    }
+
+    void deleteUsage(quint64 id)
+    {
+        auto it = map_.begin();
+        while (it != map_.end())
+        {
+            if (it.value() == id)
+            {
+                it = map_.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
+
+    bool isHostnameUsed(const QString &hostname) const
+    {
+        return !map_.values(hostname).isEmpty();
+    }
+
+private:
+    QMap<QString, quint64> map_;
+};
+
+DnsCache::DnsCache(QObject *parent, int cacheTimeoutMs /*= 60000*/, int reviewCacheIntervalMs /*= 1000*/) : QObject(parent), usages_(new Usages),
+    cacheTimeoutMs_(cacheTimeoutMs)
 {
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), SLOT(onTimer()));
-    timer->start(REVIEW_CACHE_PERIOD);
+    timer->start(reviewCacheIntervalMs);
 }
 
 DnsCache::~DnsCache()
 {
 }
 
-void DnsCache::resolve(const QString &hostname, quint64 id, bool bypassCache /*= false*/)
+void DnsCache::resolve(const QString &hostname, quint64 id, bool bypassCache /*= false*/, const QStringList &dnsServers /*= QStringList()*/, int timeoutMs /*= 5000*/)
 {
+    usages_->addUsage(hostname, id);
+
     if (!bypassCache)
     {
-        auto it = cacheByHostname_.find(hostname);
-        if (it != cacheByHostname_.end())
-        {
-            it.value().usages++;
-            cacheById_[id] = &it.value();
-            emit resolved(true, it.value().ips, id, true);
-            return;
-        }
-
-        pendingRequests_[hostname].push_back(id);
-
-        if (!resolvingHostsInProgress_.contains(hostname))
-        {
-            resolvingHostsInProgress_ << hostname;
-            DnsRequest *dnsRequest = new DnsRequest(this, hostname);
-            connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
-            dnsRequest->lookup();
-        }
-    }
-
-
-
-    // if hostname this is IP then return immediatelly
-    /*if (IpValidation::instance().isIp(hostname))
-    {
-        checkForNewIps(hostname);
-        emit resolved(true, userData, QStringList() << hostname);
-        return;
-    }
-
-    if (cacheTimeout < 0)
-        cacheTimeout = CACHE_TIMEOUT;
-
-    if (cacheTimeout > 0) {
         auto it = cache_.find(hostname);
         if (it != cache_.end())
         {
-            qint64 curTime = QDateTime::currentMSecsSinceEpoch();
-            if ((curTime - it.value().time) <= cacheTimeout)
-            {
-                emit resolved(true, userData, it.value().ips);
-                return;
-            }
+            emit resolved(true, it.value().ips, id, true);
+            return;
         }
     }
 
-    PendingHost ph;
-    ph.hostname = hostname;
-    ph.userData = userData;
-    pendingHosts_ << ph;
+    DnsRequest *dnsRequest = new DnsRequest(this, hostname, dnsServers, timeoutMs);
+    dnsRequest->setProperty("requestId", id);
+    connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+    dnsRequest->lookup();
+}
 
-    if (!resolvingHostsInProgress_.contains(hostname))
-    {
-        resolvingHostsInProgress_ << hostname;
-        DnsRequest *dnsRequest = new DnsRequest(this, hostname);
-        connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
-        dnsRequest->lookup();
-    }*/
+void DnsCache::notifyFinished(quint64 id)
+{
+    usages_->deleteUsage(id);
+    QTimer::singleShot(0, this, SLOT(checkForNewIps()));
 }
 
 void DnsCache::onDnsRequestFinished()
@@ -84,107 +80,68 @@ void DnsCache::onDnsRequestFinished()
     DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
     Q_ASSERT(dnsRequest != nullptr);
 
+    bool bOk;
+    quint64 requestId = dnsRequest->property("requestId").toULongLong(&bOk);
+    Q_ASSERT(bOk);
 
     bool bSuccess = false;
     if (!dnsRequest->isError())
     {
-        cacheByHostname_[dnsRequest->hostname()].ips = dnsRequest->ips();
-        cacheByHostname_[dnsRequest->hostname()].time = QDateTime::currentMSecsSinceEpoch();
-        cacheByHostname_[dnsRequest->hostname()].usages++;
+        cache_[dnsRequest->hostname()].ips = dnsRequest->ips();
+        cache_[dnsRequest->hostname()].time = QDateTime::currentMSecsSinceEpoch();
         bSuccess = true;
+
+        checkForNewIps();
     }
 
-
-    auto it = pendingRequests_.find(dnsRequest->hostname());
-    Q_ASSERT(it != pendingRequests_.end());
-    if (it != pendingRequests_.end())
-    {
-        const QList<quint64> &list = it.value();
-        for (auto id : list)
-        {
-            emit resolved(bSuccess, dnsRequest->ips(), id, false);
-        }
-    }
-
-
-    /*bool bSuccess = false;
-    QStringList ips;
-    if (!dnsRequest->isError())
-    {
-        checkForNewIps(dnsRequest->ips());
-
-        ResolvedHostInfo rhi;
-        rhi.time = QDateTime::currentMSecsSinceEpoch();
-        ips = dnsRequest->ips();
-        rhi.ips = ips;
-        cache_[dnsRequest->hostname()] = rhi;
-        bSuccess = true;
-    }
-
-    auto it = pendingHosts_.begin();
-    while (it != pendingHosts_.end())
-    {
-        if (it->hostname == dnsRequest->hostname())
-        {
-            emit resolved(bSuccess, it->userData, ips);
-            it = pendingHosts_.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }*/
-
-    resolvingHostsInProgress_.remove(dnsRequest->hostname());
+    emit resolved(bSuccess, dnsRequest->ips(), requestId, false);
     dnsRequest->deleteLater();
 }
 
 void DnsCache::onTimer()
 {
-    // delete old IPs from cache
-    /*auto it = cache_.begin();
+    bool bChanged = false;
+    // delete outdated and unused IPs from cache
+    auto it = cache_.begin();
     while (it != cache_.end())
     {
         qint64 curTime = QDateTime::currentMSecsSinceEpoch();
-        if ((curTime - it.value().time) <= cacheTimeout)
+        if ((curTime - it.value().time) > cacheTimeoutMs_ && !usages_->isHostnameUsed(it.key()))
         {
-
-            emit resolved(bSuccess, it->userData, ips);
-            it = pendingHosts_.erase(it);
+            it = cache_.erase(it);
+            bChanged = true;
         }
         else
         {
             ++it;
         }
-    }*/
+    }
 
+    if (bChanged)
+    {
+        checkForNewIps();
+    }
 }
 
-void DnsCache::checkForNewIps(const QStringList &newIps)
+void DnsCache::checkForNewIps()
 {
-    /*bool bNewIps = false;
+    QSet<QString> setIps;
 
-    for (const QString &ip : newIps)
+    for (auto it = cache_.begin(); it != cache_.end(); ++it)
     {
-        if (!resolvedIps_.contains(ip))
+        if (usages_->isHostnameUsed(it.key()))
         {
-            resolvedIps_ << ip;
-            bNewIps = true;
+            for (auto ip : it.value().ips)
+            {
+                setIps.insert(ip);
+            }
         }
     }
 
-    if (bNewIps)
+    if (setIps != lastWhitelistIps_)
     {
-        QStringList ips;
-        for (const QString &ip : qAsConst(resolvedIps_))
-        {
-            ips << ip;
-        }
-        emit ipsInCachChanged(ips);
-    }*/
+        lastWhitelistIps_ = setIps;
+        emit whitelistIpsChanged(setIps);
+    }
 }
 
-void DnsCache::checkForNewIps(const QString &ip)
-{
-    checkForNewIps(QStringList() << ip);
-}

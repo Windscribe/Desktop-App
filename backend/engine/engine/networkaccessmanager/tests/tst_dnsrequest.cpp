@@ -1837,6 +1837,40 @@ void TestDnsRequest::test_subdomain()
     QVERIFY(request->ips().count() != 0);
 }
 
+void TestDnsRequest::test_timeout()
+{
+    QElapsedTimer timer;
+    timer.start();
+
+
+    DnsRequest *request = new DnsRequest(NULL, "google.com", QStringList() << "192.0.2.10", 2000);
+
+    connect(
+        request, &DnsRequest::finished,
+        [request]()
+    {
+        request->deleteLater();
+    });
+
+    request->lookup();
+
+    QSignalSpy spySignal(request, SIGNAL(finished()));
+    spySignal.wait(10000);
+    QCOMPARE(spySignal.count(), 1);
+
+    QVERIFY(timer.elapsed() >= 2000 && timer.elapsed() <= 3000);
+}
+
+void TestDnsRequest::test_timeout_blocked()
+{
+    QElapsedTimer timer;
+    timer.start();
+    DnsRequest *request = new DnsRequest(NULL, "google.com", QStringList() << "192.0.2.10", 2000);
+    request->lookupBlocked();
+    QVERIFY(timer.elapsed() >= 2000 && timer.elapsed() <= 3000);
+}
+
+
 QString TestDnsRequest::getRandomDomain()
 {
     QMutexLocker locker(&mutex_);

@@ -9,38 +9,31 @@ class DnsCache : public QObject
 {
     Q_OBJECT
 public:
-    explicit DnsCache(QObject *parent = 0);
+    class Usages;
+
+    explicit DnsCache(QObject *parent, int cacheTimeoutMs = 60000, int reviewCacheIntervalMs = 1000);
     virtual ~DnsCache();
 
-    void resolve(const QString &hostname, quint64 id, bool bypassCache = false);
+    void resolve(const QString &hostname, quint64 id, bool bypassCache = false, const QStringList &dnsServers = QStringList(), int timeoutMs = 5000);
     void notifyFinished(quint64 id);
 
 signals:
     void resolved(bool success, const QStringList &ips, quint64 id, bool bFromCache);
-    void ipsInCachChanged(const QStringList &ips);
+    void whitelistIpsChanged(const QSet<QString> &ips);
 
 private slots:
     void onDnsRequestFinished();
     void onTimer();
+    void checkForNewIps();
 
 private:
-
-    static constexpr int CACHE_TIMEOUT = 60000;        // 1 min
-    static constexpr int REVIEW_CACHE_PERIOD = 1000;        // 1 sec
-
     struct CacheItem
     {
         qint64 time;
         QStringList ips;
-        int usages;
 
-        CacheItem() : time(0), usages(0) {}
+        CacheItem() : time(0) {}
     };
-
-    QMap<QString, CacheItem > cacheByHostname_;
-    QMap<quint64, CacheItem *> cacheById_;
-
-    /*QSet<QString> resolvedIps_;*/
 
     struct PendingRequest
     {
@@ -48,11 +41,11 @@ private:
         quint64 id;
     };
 
-    QSet<QString> resolvingHostsInProgress_;
-    QMap<QString, QList<quint64>> pendingRequests_;
+    QMap<QString, CacheItem> cache_;
+    QScopedPointer<Usages> usages_;
+    QSet<QString> lastWhitelistIps_;
+    int cacheTimeoutMs_;
 
-    void checkForNewIps(const QStringList &newIps);
-    void checkForNewIps(const QString &ip);
 };
 
 #endif // DNSCACHE_H

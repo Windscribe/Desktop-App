@@ -4,7 +4,7 @@
 #include "tst_dnsrequest.h"
 #include "tst_curlnetworkmanager.h"
 #include "tst_networkaccessmanager.h"
-
+#include "tst_dnscache.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
     int status = 0;
     //status |= QTest::qExec(new TestDnsRequest() , argc, argv);
     //status |= QTest::qExec(new TestCurlNetworkManager() , argc, argv);
-    status |= QTest::qExec(new TestNetworkAccessManager() , argc, argv);
+    //status |= QTest::qExec(new TestNetworkAccessManager() , argc, argv);
+    status |= QTest::qExec(new TestDnsCache() , argc, argv);
 
     return status;
 }
