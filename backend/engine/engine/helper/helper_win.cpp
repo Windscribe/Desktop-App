@@ -714,8 +714,10 @@ void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
 }
 
-void Helper_win::setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress)
+void Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
 {
+    Q_UNUSED(isIkev2)
+
     QMutexLocker locker(&mutex_);
 
     CMD_DNS_WHILE_CONNECTED cmd;
@@ -728,6 +730,11 @@ void Helper_win::setCustomDnsWhileConnected(unsigned long ifIndex, const QString
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DNS_WHILE_CONNECTED, stream.str());
     // return mpr.exitCode;
+}
+
+bool Helper_win::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties)
+{
+    // nothing to do
 }
 
 bool Helper_win::setKextPath(const QString &/*kextPath*/)

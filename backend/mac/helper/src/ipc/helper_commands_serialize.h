@@ -118,6 +118,13 @@ void serialize(Archive &ar, CMD_INSTALLER_FILES_SET_PATH &a, const unsigned int 
     ar & a.groupId;
 }
 
+template<class Archive>
+void serialize(Archive &ar, CMD_APPLY_CUSTOM_DNS &a, const unsigned int version)
+{
+    ar & a.ipAddress;
+    ar & a.networkService;
+}
+
 }
 }
 

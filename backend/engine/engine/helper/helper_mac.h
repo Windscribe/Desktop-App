@@ -89,9 +89,9 @@ public:
     void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const ProtocolType &protocol) override;
 
-    void setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
-
     bool setKextPath(const QString &kextPath) override;
+    void setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
+    bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties) override;
 
     bool startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;

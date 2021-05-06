@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import <SystemConfiguration/SystemConfiguration.h>
 #include <AppKit/AppKit.h>
 
 #include "logger.h"
@@ -858,4 +859,33 @@ void MacUtils::getNSWindowCenter(void *nsView, int &outX, int &outY)
     NSRect rc = view.window.frame;
     outX = rc.origin.x + rc.size.width / 2;
     outY = rc.origin.y + rc.size.height / 2;
+}
+
+bool MacUtils::dynamicStoreEntryHasKey(const QString &entry, const QString &key)
+{
+    SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("WindscribeKeyChecker"), NULL, NULL);
+    CFDictionaryRef dnskey = (CFDictionaryRef) SCDynamicStoreCopyValue(dynRef, entry.toCFString());
+    CFStringRef setByWindscribeValue = (CFStringRef) CFDictionaryGetValue(dnskey, key.toCFString());
+    CFRelease(dnskey);
+    CFRelease(dynRef);
+    return setByWindscribeValue != NULL;
+}
+
+QStringList MacUtils::getListOfDnsNetworkServiceEntries()
+{
+    QStringList result;
+    QString command = "echo 'list' | scutil | grep /Network/Service | grep DNS";
+    QString cmdOutput = QString::fromStdString(execCmd(command.toStdString().c_str())).trimmed();
+    qDebug() << "Raw result: " << cmdOutput;
+
+    QStringList lines = cmdOutput.split('\n');
+    for (QString line : lines)
+    {
+        if (line.contains("="))
+        {
+            QString entry = line.mid(line.indexOf("=")+1).trimmed();
+            result.append(entry);
+        }
+    }
+    return result;
 }

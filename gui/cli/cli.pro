@@ -63,6 +63,7 @@ macx {
     LIBS += -framework CoreFoundation
     LIBS += -framework CoreServices
     LIBS += -framework Security
+    LIBS += -framework SystemConfiguration
 
     INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
     LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf

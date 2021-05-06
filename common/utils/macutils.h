@@ -76,6 +76,9 @@ namespace MacUtils
     // implemented with "scutil --dns" command
     // TODO: do not implement via an external util, as the output format of util may change in OS
     QStringList getDnsServersForInterface(const QString &interfaceName);
+
+    QStringList getListOfDnsNetworkServiceEntries();
+    bool dynamicStoreEntryHasKey(const QString &entry, const QString &key);
 }
 
 

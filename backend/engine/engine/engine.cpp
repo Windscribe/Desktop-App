@@ -1551,7 +1551,8 @@ void Engine::onConnectionManagerConnected()
 
     if (connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
     {
-        helper_->setCustomDnsWhileConnected(connectionManager_->getVpnAdapterInfo().ifIndex(),
+        helper_->setCustomDnsWhileConnected(engineSettings_.connectionSettings().protocol().isIkev2Protocol(),
+                                            connectionManager_->getVpnAdapterInfo().ifIndex(),
                                             QString::fromStdString(connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.ip_address()));
     }
 

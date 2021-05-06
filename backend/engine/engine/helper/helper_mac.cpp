@@ -17,6 +17,7 @@
 #include "engine/types/wireguardtypes.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/types/protocoltype.h"
+#include "utils/macutils.h"
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 
@@ -814,12 +815,91 @@ void Helper_mac::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool
     }
 }
 
-void Helper_mac::setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress)
+void Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
 {
     Q_UNUSED(ifIndex)
     Q_UNUSED(overrideDnsIpAddress)
-    // TODO: do something
+
+    // get list of entries of interest
+    QStringList networkServices = MacUtils::getListOfDnsNetworkServiceEntries();
+    qDebug() << "List of DNS network services: " << networkServices;
+
+    // filter list to only SetByWindscribe entries
+    QStringList dnsNetworkServices;
+
+    if (isIkev2)
+    {
+        // IKEv2 is slightly different -- look for "ConfirmedServiceID" key in each DNS dictionary
+        for (QString service : networkServices)
+        {
+            if (MacUtils::dynamicStoreEntryHasKey(service, "ConfirmedServiceID"))
+            {
+                dnsNetworkServices.append(service);
+            }
+        }
+    }
+    else
+    {
+        // WG and openVPN: just look for 'SetByWindscribe' key in each DNS dictionary
+        for (QString service : networkServices)
+        {
+            if (MacUtils::dynamicStoreEntryHasKey(service, "SetByWindscribe"))
+            {
+                dnsNetworkServices.append(service);
+            }
+        }
+    }
+    qDebug() << "List of DNS network services: " << dnsNetworkServices;
+
+    // change DNS on each entry
+    bool successAll = true;
+    for (QString service : dnsNetworkServices)
+    {
+        successAll = successAll && Helper_mac::setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service);
+    }
+
+    if (!successAll)
+    {
+        qDebug() << "Failed to set all the DNS network services";
+    }
 }
+
+bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_APPLY_CUSTOM_DNS cmd;
+    cmd.ipAddress = ipAddress.toStdString();
+    cmd.networkService = entry.toStdString();
+
+    if (!isHelperConnected())
+        return false;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    if (!sendCmdToHelper(HELPER_CMD_APPLY_CUSTOM_DNS, stream.str()))
+    {
+        return RET_DISCONNECTED;
+    }
+    else
+    {
+//        CMD_ANSWER answerCmd;
+//        if (!readAnswer(answerCmd))
+//        {
+//            return RET_DISCONNECTED;
+//        }
+//        else
+//        {
+//            *bExecuted = (answerCmd.executed == 1);
+//            return RET_SUCCESS;
+//        }
+    }
+
+    return true;
+}
+
 
 bool Helper_mac::setKextPath(const QString &kextPath)
 {

@@ -23,6 +23,8 @@
 #define HELPER_CMD_INSTALLER_SET_PATH           13
 #define HELPER_CMD_INSTALLER_EXECUTE_COPY_FILE  14
 
+#define HELPER_CMD_APPLY_CUSTOM_DNS             15
+
 
 
 
@@ -151,6 +153,12 @@ struct CMD_INSTALLER_FILES_SET_PATH
     std::wstring installPath;
     uid_t userId;
     gid_t groupId;
+};
+
+struct CMD_APPLY_CUSTOM_DNS
+{
+    std::string ipAddress;
+    std::string networkService;
 };
 
 #endif

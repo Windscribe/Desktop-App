@@ -70,8 +70,6 @@ public:
     virtual void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                                    const QString &connectedIp, const ProtocolType &protocol) = 0;
 
-    virtual void setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
-
     // windows specific functions
     virtual void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) = 0;
     virtual void clearUnblockingCmd(unsigned long cmdId) = 0;
@@ -91,10 +89,13 @@ public:
     virtual bool isSupportedICS() = 0;
 #endif
 
+    virtual void setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
+
     // mac specific functions
     virtual QStringList getActiveNetworkInterfaces_mac() = 0;
     virtual bool setKeychainUsernamePassword(const QString &username, const QString &password) = 0;
     virtual bool setKextPath(const QString &kextPath) = 0;
+    virtual bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties) = 0;
 
     // WireGuard functions
     virtual bool startWireGuard(const QString &exeName, const QString &deviceName) = 0;
