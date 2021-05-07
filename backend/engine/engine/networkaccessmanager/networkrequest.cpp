@@ -34,6 +34,16 @@ bool NetworkRequest::isUseDnsCache() const
     return bUseDnsCache_;
 }
 
+void NetworkRequest::setDnsServers(const QStringList &dnsServers)
+{
+    dnsServers_ = dnsServers;
+}
+
+QStringList NetworkRequest::dnsServers() const
+{
+    return dnsServers_;
+}
+
 void NetworkRequest::setContentTypeHeader(const QString &header)
 {
     header_ = header;

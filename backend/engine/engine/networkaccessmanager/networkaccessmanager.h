@@ -5,6 +5,7 @@
 #include <QUrl>
 #include "proxy/proxysettings.h"
 #include "curlnetworkmanager.h"
+#include "dnscache.h"
 
 class NetworkAccessManager;
 
@@ -12,7 +13,7 @@ class NetworkReply : public QObject
 {
     Q_OBJECT
 
-    enum NetworkError { NoError };
+    enum NetworkError { NoError, TimeoutExceed, DnsResolveError, CurlError };
 
 public:
     explicit NetworkReply(NetworkAccessManager *parent);
@@ -32,8 +33,11 @@ private:
     void setCurlReply(CurlReply *curlReply);
     void abortCurl();
 
+    void setError(NetworkError err);
+
     CurlReply *curlReply_;
     NetworkAccessManager *manager_;
+    NetworkError error_;
 
     friend class NetworkAccessManager;
 };
@@ -47,6 +51,7 @@ class NetworkAccessManager : public QObject
     Q_OBJECT
 public:
     explicit NetworkAccessManager(QObject *parent = nullptr);
+    virtual ~NetworkAccessManager();
 
     NetworkReply *get(const NetworkRequest &request);
     NetworkReply *post(const NetworkRequest &request, const QByteArray &data);
@@ -62,11 +67,12 @@ signals:
 
 private slots:
     void handleRequest(quint64 id);
-    void onDnsRequestFinished();
 
     void onCurlReplyFinished();
     void onCurlProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onCurlReadyRead();
+
+    void onResolved(bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs);
 
 private:
     static std::atomic<quint64> nextId_;
@@ -83,8 +89,11 @@ private:
 
     QMap<quint64, QSharedPointer<RequestData> > activeRequests_;
     CurlNetworkManager *curlNetworkManager_;
+    DnsCache *dnsCache_;
 
-    QSet<QString> lastWhitelistIps_;
+    quint64 getNextId();
+
+    NetworkReply *invokeHandleRequest(REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data);
 };
 
 

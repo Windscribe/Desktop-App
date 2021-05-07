@@ -1,9 +1,14 @@
 #include "dnsrequest.h"
 #include "dnsresolver.h"
-#include "dnsserversconfiguration.h"
 #include <QDebug>
 
-DnsRequest::DnsRequest(QObject *parent, const QString &hostname) : QObject(parent), hostname_(hostname)
+DnsRequest::DnsRequest(QObject *parent, const QString &hostname, const QStringList &dnsServers /*= QStringList()*/, int timeoutMs /*= 5000*/)
+    : QObject(parent), hostname_(hostname), dnsServers_(dnsServers), timeoutMs_(timeoutMs), aresErrorCode_(ARES_SUCCESS)
+{
+
+}
+
+DnsRequest::~DnsRequest()
 {
 }
 
@@ -19,29 +24,35 @@ QString DnsRequest::hostname() const
 
 bool DnsRequest::isError() const
 {
-    return ips_.isEmpty();
+    return aresErrorCode_ != ARES_SUCCESS || ips_.isEmpty();
+}
+
+QString DnsRequest::errorString()
+{
+    return QString::fromStdString(ares_strerror(aresErrorCode_));
 }
 
 void DnsRequest::lookup()
 {
    QSharedPointer<DnsRequestPrivate> obj = QSharedPointer<DnsRequestPrivate>(new DnsRequestPrivate, &QObject::deleteLater);
    obj->moveToThread(this->thread());
-   connect(obj.get(), SIGNAL(resolved(QStringList)), SLOT(onResolved(QStringList)));
-   DnsResolver::instance().lookup(hostname_, obj.staticCast<QObject>(), DnsServersConfiguration::instance().getCurrentDnsServers());
+   connect(obj.get(), SIGNAL(resolved(QStringList, int)), SLOT(onResolved(QStringList, int)));
+   DnsResolver::instance().lookup(hostname_, obj.staticCast<QObject>(), dnsServers_, timeoutMs_);
 }
 
 void DnsRequest::lookupBlocked()
 {
-    ips_ = DnsResolver::instance().lookupBlocked(hostname_, DnsServersConfiguration::instance().getCurrentDnsServers());
+    ips_ = DnsResolver::instance().lookupBlocked(hostname_, dnsServers_, timeoutMs_, &aresErrorCode_);
 }
 
-void DnsRequest::onResolved(const QStringList &ips)
+void DnsRequest::onResolved(const QStringList &ips, int aresErrorCode)
 {
+    aresErrorCode_ = aresErrorCode;
     ips_ = ips;
     emit finished();
 }
 
-void DnsRequestPrivate::onResolved(const QStringList &ips)
+void DnsRequestPrivate::onResolved(const QStringList &ips, int aresErrorCode)
 {
-    emit resolved(ips);
+    emit resolved(ips, aresErrorCode);
 }

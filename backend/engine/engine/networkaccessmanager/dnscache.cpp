@@ -45,10 +45,6 @@ DnsCache::DnsCache(QObject *parent, int cacheTimeoutMs /*= 60000*/, int reviewCa
     timer->start(reviewCacheIntervalMs);
 }
 
-DnsCache::~DnsCache()
-{
-}
-
 void DnsCache::resolve(const QString &hostname, quint64 id, bool bypassCache /*= false*/, const QStringList &dnsServers /*= QStringList()*/, int timeoutMs /*= 5000*/)
 {
     usages_->addUsage(hostname, id);
@@ -58,13 +54,14 @@ void DnsCache::resolve(const QString &hostname, quint64 id, bool bypassCache /*=
         auto it = cache_.find(hostname);
         if (it != cache_.end())
         {
-            emit resolved(true, it.value().ips, id, true);
+            emit resolved(true, it.value().ips, id, true, 0);
             return;
         }
     }
 
     DnsRequest *dnsRequest = new DnsRequest(this, hostname, dnsServers, timeoutMs);
     dnsRequest->setProperty("requestId", id);
+    dnsRequest->setProperty("startTime", QDateTime::currentMSecsSinceEpoch());
     connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
     dnsRequest->lookup();
 }
@@ -73,6 +70,11 @@ void DnsCache::notifyFinished(quint64 id)
 {
     usages_->deleteUsage(id);
     QTimer::singleShot(0, this, SLOT(checkForNewIps()));
+}
+
+const QSet<QString> &DnsCache::whitelistIps() const
+{
+    return lastWhitelistIps_;
 }
 
 void DnsCache::onDnsRequestFinished()
@@ -84,6 +86,11 @@ void DnsCache::onDnsRequestFinished()
     quint64 requestId = dnsRequest->property("requestId").toULongLong(&bOk);
     Q_ASSERT(bOk);
 
+    qint64 startTimeMs = dnsRequest->property("startTime").toLongLong(&bOk);
+    Q_ASSERT(bOk);
+    qint64 timeRequest = QDateTime::currentMSecsSinceEpoch() - startTimeMs;
+    Q_ASSERT(timeRequest >= 0);
+
     bool bSuccess = false;
     if (!dnsRequest->isError())
     {
@@ -94,7 +101,7 @@ void DnsCache::onDnsRequestFinished()
         checkForNewIps();
     }
 
-    emit resolved(bSuccess, dnsRequest->ips(), requestId, false);
+    emit resolved(bSuccess, dnsRequest->ips(), requestId, false, timeRequest);
     dnsRequest->deleteLater();
 }
 

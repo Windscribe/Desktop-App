@@ -19,6 +19,9 @@ public:
     void setUseDnsCache(bool bUseDnsCache);
     bool isUseDnsCache() const;
 
+    void setDnsServers(const QStringList &dnsServers);
+    QStringList dnsServers() const;
+
     void setContentTypeHeader(const QString &header);
     QString contentTypeHeader() const;
 
@@ -35,6 +38,7 @@ private:
     ProxySettings proxySettings_;
     bool bIgnoreSslErrors_;
     QString header_;
+    QStringList dnsServers_;
 };
 
 #endif // NETWORKREQUEST_H

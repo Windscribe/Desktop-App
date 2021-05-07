@@ -63,6 +63,7 @@ void CurlReply::abort()
     {
         curl_slist_free_all(list);
     }
+    curlLists_.clear();
 }
 
 QByteArray CurlReply::readAll()

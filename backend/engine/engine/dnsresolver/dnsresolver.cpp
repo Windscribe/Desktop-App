@@ -35,24 +35,25 @@ DnsResolver::~DnsResolver()
     this_ = NULL;
 }
 
-void DnsResolver::lookup(const QString &hostname, QSharedPointer<QObject> object, const QStringList &dnsServers)
+void DnsResolver::lookup(const QString &hostname, QSharedPointer<QObject> object, const QStringList &dnsServers, int timeoutMs)
 {
     QMutexLocker locker(&mutex_);
     REQUEST_INFO ri;
     ri.hostname = hostname;
     ri.object = object;
     ri.dnsServers = dnsServers;
+    ri.timeoutMs = timeoutMs;
     queue_.enqueue(ri);
     waitCondition_.wakeAll();
 }
 
-QStringList DnsResolver::lookupBlocked(const QString &hostname, const QStringList &dnsServers)
+QStringList DnsResolver::lookupBlocked(const QString &hostname, const QStringList &dnsServers, int timeoutMs, int *outErrorCode)
 {
     struct ares_options options;
     int optmask = 0;
 
     QScopedPointer<CHANNEL_INFO> channelInfo (new CHANNEL_INFO());
-    createOptionsForAresChannel(getDnsIps(dnsServers), options, optmask, channelInfo.data());
+    createOptionsForAresChannel(getDnsIps(dnsServers), timeoutMs, options, optmask, channelInfo.data());
 
     int status = ares_init_options(&(channelInfo->channel), &options, optmask);
     if (status != ARES_SUCCESS)
@@ -82,6 +83,10 @@ QStringList DnsResolver::lookupBlocked(const QString &hostname, const QStringLis
     }
 
     ares_destroy(channelInfo->channel);
+    if (outErrorCode)
+    {
+        *outErrorCode = userArg.errorCode;
+    }
     return userArg.ips;
 }
 
@@ -113,7 +118,7 @@ void DnsResolver::run()
             else
             {
                 bool bSuccess = QMetaObject::invokeMethod(ri.object.get(), "onResolved",
-                                          Qt::QueuedConnection, Q_ARG(QStringList, QStringList()));
+                                          Qt::QueuedConnection, Q_ARG(QStringList, QStringList()), Q_ARG(int, ARES_ENOTINITIALIZED));
                 Q_ASSERT(bSuccess);
             }
         }
@@ -179,21 +184,21 @@ QStringList DnsResolver::getDnsIps(const QStringList &ips)
     return ips;
 }
 
-void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, ares_options &options, int &optmask, CHANNEL_INFO *channelInfo)
+void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, int timeoutMs, ares_options &options, int &optmask, CHANNEL_INFO *channelInfo)
 {
     memset(&options, 0, sizeof(options));
-    optmask = 0;
 
     if (dnsIps.isEmpty())
     {
-        optmask |= ARES_OPT_TRIES;
+        optmask = ARES_OPT_TRIES | ARES_OPT_TIMEOUTMS;
         options.tries = 1;
+        options.timeout = timeoutMs;
     }
     else
     {
-        optmask |= ARES_OPT_SERVERS;
-        optmask |= ARES_OPT_TRIES;
+        optmask = ARES_OPT_TRIES | ARES_OPT_SERVERS | ARES_OPT_TIMEOUTMS;
         options.tries = 1;
+        options.timeout = timeoutMs;
 
         struct sockaddr_in sa;
 
@@ -224,7 +229,7 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
     if (status != ARES_SUCCESS)
     {
         bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
-                                  Qt::QueuedConnection, Q_ARG(QStringList, QStringList()));
+                                  Qt::QueuedConnection, Q_ARG(QStringList, QStringList()), Q_ARG(int, status));
         Q_ASSERT(bSuccess);
         delete userArg;
         return;
@@ -240,7 +245,7 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
     }
 
     bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
-                              Qt::QueuedConnection, Q_ARG(QStringList, addresses));
+                              Qt::QueuedConnection, Q_ARG(QStringList, addresses), Q_ARG(int, status));
     Q_ASSERT(bSuccess);
 
     delete userArg;
@@ -251,7 +256,7 @@ void DnsResolver::callbackForBlocked(void *arg, int status, int timeouts, hosten
     Q_UNUSED(timeouts);
     USER_ARG_FOR_BLOCKED *userArg = static_cast<USER_ARG_FOR_BLOCKED *>(arg);
 
-    if(status == ARES_SUCCESS)
+    if (status == ARES_SUCCESS)
     {
         QStringList addresses;
         for (char **p = host->h_addr_list; *p; p++)
@@ -268,6 +273,7 @@ void DnsResolver::callbackForBlocked(void *arg, int status, int timeouts, hosten
     {
         userArg->ips.clear();
     }
+    userArg->errorCode = status;
 }
 
 bool DnsResolver::processChannel(ares_channel channel)
@@ -301,7 +307,7 @@ bool DnsResolver::initChannel(const REQUEST_INFO &ri, CHANNEL_INFO &outChannelIn
     struct ares_options options;
     int optmask = 0;
 
-    createOptionsForAresChannel(getDnsIps(ri.dnsServers), options, optmask, &outChannelInfo);
+    createOptionsForAresChannel(getDnsIps(ri.dnsServers), ri.timeoutMs, options, optmask, &outChannelInfo);
     int status = ares_init_options(&outChannelInfo.channel, &options, optmask);
     if (status != ARES_SUCCESS)
     {
@@ -318,3 +324,6 @@ bool DnsResolver::initChannel(const REQUEST_INFO &ri, CHANNEL_INFO &outChannelIn
         return true;
     }
 }
+
+
+

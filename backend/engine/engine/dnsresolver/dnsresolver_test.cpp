@@ -1,7 +1,6 @@
 #include "dnsresolver_test.h"
-#include "dnsresolver.h"
+#include "dnsrequest.h"
 #include <QtConcurrent/QtConcurrent>
-#include "utils/utils.h"
 
 DnsResolver_test::DnsResolver_test(QObject *parent) : QObject(parent), bStopped_(false)
 {
@@ -2012,19 +2011,38 @@ DnsResolver_test::DnsResolver_test(QObject *parent) : QObject(parent), bStopped_
         domains_ << QString::fromStdString(s);
     }
 
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QStringList,void*)), SLOT(onResolved(QString,QStringList,void*)));
+    resolved_ = 0;
+}
+
+DnsResolver_test::~DnsResolver_test()
+{
+    qDebug() << resolved_;
 }
 
 void DnsResolver_test::runTests()
 {
-    /*for (int i = 0; i < 10; i++)
-    {
-        QtConcurrent::run([=](){
-            if (!bStopped_)
-                DnsResolver::instance().lookup(getRandomDomain(), this);
+    QElapsedTimer timer;
+    timer.start();
 
+    for (int i = 0; i < 10; i++)
+    {
+        DnsRequest *dnsRequest = new DnsRequest(this, getRandomDomain());
+        dnsRequest->lookupBlocked();
+        qDebug() << "onResolved blocked:" << dnsRequest->hostname() << dnsRequest->ips();
+        delete dnsRequest;
+    }
+
+    for (int i = 0; i < 1000; i++)
+    {
+        DnsRequest *dnsRequest = new DnsRequest(this, getRandomDomain());
+        this->connect(dnsRequest, SIGNAL(finished()), SLOT(onResolved()));
+
+        QtConcurrent::run([=](){
+            dnsRequest->lookup();
         });
-    }*/
+    }
+
+    qDebug() << "Run tests time:" << timer.elapsed();
 }
 
 void DnsResolver_test::stop()
@@ -2032,7 +2050,24 @@ void DnsResolver_test::stop()
     bStopped_ = true;
 }
 
-void DnsResolver_test::onResolved(const QString &hostname, const QStringList &hostInfo, void *userPointer)
+void DnsResolver_test::onResolved()
+{
+    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
+    Q_ASSERT(dnsRequest);
+
+    qDebug() << "onResolved:" << dnsRequest->hostname() << dnsRequest->ips();
+
+    resolved_++;
+    dnsRequest->deleteLater();
+
+    DnsRequest *dnsRequest2 = new DnsRequest(this, getRandomDomain());
+    this->connect(dnsRequest2, SIGNAL(finished()), SLOT(onResolved()));
+    QtConcurrent::run([=](){
+       dnsRequest2->lookup();
+    });
+
+}
+/*void DnsResolver_test::onResolved(const QString &hostname, const QStringList &hostInfo, void *userPointer)
 {
     if (userPointer == this)
     {
@@ -2046,10 +2081,37 @@ void DnsResolver_test::onResolved(const QString &hostname, const QStringList &ho
             }
         });
     }
-}
+}*/
 
 QString DnsResolver_test::getRandomDomain()
 {
     QMutexLocker locker(&mutex_);
-    return domains_[Utils::generateIntegerRandom(10, domains_.size() - 1)];
+    return domains_[generateIntegerRandom(10, domains_.size() - 1)];
+}
+
+#ifdef Q_OS_WIN
+    __declspec(thread) char _generator_backing_double[sizeof(std::mt19937)];
+    __declspec(thread) std::mt19937* _generator_double;
+    __declspec(thread) char _generator_backing_int[sizeof(std::mt19937)];
+    __declspec(thread) std::mt19937* _generator_int;
+#endif
+
+int DnsResolver_test::generateIntegerRandom(const int &min, const int &max)
+{
+    std::uniform_int_distribution<int> distribution(min, max);
+
+    #ifdef Q_OS_WIN
+        static __declspec(thread) bool inited = false;
+        if (!inited)
+        {
+            _generator_int = new(_generator_backing_int) std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
+            inited = true;
+        }
+        return distribution(*_generator_int);
+    #else
+        static thread_local std::mt19937* generator = nullptr;
+        if (!generator) generator = new std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
+        return distribution(*generator);
+    #endif
+
 }

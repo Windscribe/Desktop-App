@@ -13,6 +13,9 @@ public:
 
 private slots:
     void test_get();
+    void test_post();
+    void test_put();
+    void test_delete();
 
 };
 

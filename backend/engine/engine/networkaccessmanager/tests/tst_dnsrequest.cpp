@@ -1765,6 +1765,27 @@ TestDnsRequest::~TestDnsRequest()
 
 }
 
+/*void TestDnsRequest::test_simple()
+{
+    DnsRequest *request = new DnsRequest(this, "windscribe.com");
+
+
+    QSignalSpy spySignal(request, SIGNAL(destroyed()));
+    request->lookup();
+
+    QTime dieTime = QTime::currentTime().addMSecs(5000);
+    while (QTime::currentTime() < dieTime)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
+        if (spySignal.count() == 1)
+        {
+            //break;
+        }
+    }
+
+    //QCOMPARE(spySignal.count(), 1);
+}*/
+
 void TestDnsRequest::test_async()
 {
     // run 100 requests async
@@ -1783,7 +1804,7 @@ void TestDnsRequest::test_async()
                 request->deleteLater();
             });
 
-            QSignalSpy spySignal(request, SIGNAL(finished()));
+            QSignalSpy spySignal(request, SIGNAL(destroyed()));
             request->lookup();
 
             spySignal.wait(10000);
@@ -1809,7 +1830,7 @@ void TestDnsRequest::test_async()
 
 void TestDnsRequest::test_blocked()
 {
-    DnsRequest *request = new DnsRequest(NULL, "1.2.3.4");
+    DnsRequest *request = new DnsRequest(this, "1.2.3.4");
     request->lookupBlocked();
     QCOMPARE(request->isError(), false);
     QCOMPARE(request->ips().count(), 1);
@@ -1818,12 +1839,12 @@ void TestDnsRequest::test_blocked()
 
 void TestDnsRequest::test_incorrect()
 {
-    DnsRequest *request = new DnsRequest(NULL, "incorrectdomain");
+    DnsRequest *request = new DnsRequest(this, "incorrectdomain");
     request->lookupBlocked();
     QCOMPARE(request->isError(), true);
     QCOMPARE(request->ips().count(), 0);
 
-    DnsRequest *request2 = new DnsRequest(NULL, "192.126.1.256");
+    DnsRequest *request2 = new DnsRequest(this, "192.126.1.256");
     request2->lookupBlocked();
     QCOMPARE(request2->isError(), true);
     QCOMPARE(request2->ips().count(), 0);
@@ -1831,7 +1852,7 @@ void TestDnsRequest::test_incorrect()
 
 void TestDnsRequest::test_subdomain()
 {
-    DnsRequest *request = new DnsRequest(NULL, "blog.hubspot.com");
+    DnsRequest *request = new DnsRequest(this, "blog.hubspot.com");
     request->lookupBlocked();
     QCOMPARE(request->isError(), false);
     QVERIFY(request->ips().count() != 0);
@@ -1843,7 +1864,7 @@ void TestDnsRequest::test_timeout()
     timer.start();
 
 
-    DnsRequest *request = new DnsRequest(NULL, "google.com", QStringList() << "192.0.2.10", 2000);
+    DnsRequest *request = new DnsRequest(this, "google.com", QStringList() << "192.0.2.10", 2000);
 
     connect(
         request, &DnsRequest::finished,
@@ -1858,16 +1879,16 @@ void TestDnsRequest::test_timeout()
     spySignal.wait(10000);
     QCOMPARE(spySignal.count(), 1);
 
-    QVERIFY(timer.elapsed() >= 2000 && timer.elapsed() <= 3000);
+    QVERIFY(timer.elapsed() >= 1800 && timer.elapsed() <= 2200);
 }
 
 void TestDnsRequest::test_timeout_blocked()
 {
     QElapsedTimer timer;
     timer.start();
-    DnsRequest *request = new DnsRequest(NULL, "google.com", QStringList() << "192.0.2.10", 2000);
+    DnsRequest *request = new DnsRequest(this, "google.com", QStringList() << "192.0.2.10", 2000);
     request->lookupBlocked();
-    QVERIFY(timer.elapsed() >= 2000 && timer.elapsed() <= 3000);
+    QVERIFY(timer.elapsed() >= 1800 && timer.elapsed() <= 2200);
 }
 
 
@@ -1902,6 +1923,6 @@ int TestDnsRequest::generateIntegerRandom(const int &min, const int &max)
         static thread_local std::mt19937* generator = nullptr;
         if (!generator) generator = new std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
         return distribution(*generator);
-    #endif
+#endif
 }
 

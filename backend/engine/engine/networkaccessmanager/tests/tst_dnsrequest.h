@@ -12,6 +12,7 @@ public:
     TestDnsRequest();
     ~TestDnsRequest();
 
+    //void test_simple();
 private slots:
     void test_async();
     void test_blocked();

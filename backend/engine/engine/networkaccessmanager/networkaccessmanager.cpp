@@ -6,28 +6,37 @@ std::atomic<quint64> NetworkAccessManager::nextId_ = 0;
 NetworkAccessManager::NetworkAccessManager(QObject *parent) : QObject(parent)
 {
     curlNetworkManager_ = new CurlNetworkManager(this);
+    dnsCache_ = new DnsCache(this);
+    connect(dnsCache_, SIGNAL(resolved(bool,QStringList,quint64,bool, int)), SLOT(onResolved(bool,QStringList,quint64,bool, int)));
+    connect(dnsCache_, SIGNAL(whitelistIpsChanged(QSet<QString>)), SIGNAL(whitelistIpsChanged(QSet<QString>)));
+}
+
+NetworkAccessManager::~NetworkAccessManager()
+{
 }
 
 NetworkReply *NetworkAccessManager::get(const NetworkRequest &request)
 {
     Q_ASSERT(QThread::currentThread() == this->thread());
+    return invokeHandleRequest(REQUEST_GET, request, QByteArray());
+}
 
-    quint64 id = nextId_++;
-    NetworkReply *reply = new NetworkReply(this);
-    reply->setProperty("replyId", id);
+NetworkReply *NetworkAccessManager::post(const NetworkRequest &request, const QByteArray &data)
+{
+    Q_ASSERT(QThread::currentThread() == this->thread());
+    return invokeHandleRequest(REQUEST_POST, request, data);
+}
 
-    QSharedPointer<RequestData> requestData(new RequestData);
-    requestData->id = id;
-    requestData->type = REQUEST_GET;
-    requestData->request = request;
-    requestData->reply = reply;
+NetworkReply *NetworkAccessManager::put(const NetworkRequest &request, const QByteArray &data)
+{
+    Q_ASSERT(QThread::currentThread() == this->thread());
+    return invokeHandleRequest(REQUEST_PUT, request, data);
+}
 
-    Q_ASSERT(!activeRequests_.contains(id));
-    activeRequests_[id] = requestData;
-
-    QMetaObject::invokeMethod(this, "handleRequest", Qt::QueuedConnection, Q_ARG(quint64, id));
-
-    return reply;
+NetworkReply *NetworkAccessManager::deleteResource(const NetworkRequest &request)
+{
+    Q_ASSERT(QThread::currentThread() == this->thread());
+    return invokeHandleRequest(REQUEST_DELETE, request, QByteArray());
 }
 
 void NetworkAccessManager::abort(NetworkReply *reply)
@@ -55,52 +64,8 @@ void NetworkAccessManager::handleRequest(quint64 id)
     {
         QSharedPointer<RequestData> requestData = it.value();
         QString hostname = requestData->request.url().host();
-        DnsRequest *dnsRequest = new DnsRequest(this, hostname);
-        dnsRequest->setProperty("replyId", requestData->id);
-        connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
-        dnsRequest->lookup();
+        dnsCache_->resolve(hostname, requestData->id, !requestData->request.isUseDnsCache(), requestData->request.dnsServers(), requestData->request.timeout());
     }
-}
-
-void NetworkAccessManager::onDnsRequestFinished()
-{
-    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    Q_ASSERT(dnsRequest);
-
-    quint64 replyId = dnsRequest->property("replyId").toULongLong();
-    auto it = activeRequests_.find(replyId);
-    if (it != activeRequests_.end())
-    {
-        QSet<QString> whitelistIps = lastWhitelistIps_;
-        QSharedPointer<RequestData> requestData = it.value();
-
-        if (!dnsRequest->isError())
-        {
-            for (auto ip : dnsRequest->ips())
-            {
-                whitelistIps.insert(ip);
-            }
-
-            if (whitelistIps != lastWhitelistIps_)
-            {
-                emit whitelistIpsChanged(whitelistIps);
-                lastWhitelistIps_ = whitelistIps;
-            }
-
-            CurlReply *curlReply = curlNetworkManager_->get(requestData->request, dnsRequest->ips());
-            curlReply->setProperty("replyId", replyId);
-            requestData->reply->setCurlReply(curlReply);
-
-            connect(curlReply, SIGNAL(finished()), SLOT(onCurlReplyFinished()));
-            connect(curlReply, SIGNAL(progress(qint64,qint64)), SLOT(onCurlProgress(qint64,qint64)));
-            connect(curlReply, SIGNAL(readyRead()), SLOT(onCurlReadyRead()));
-        }
-        else
-        {
-
-        }
-    }
-    dnsRequest->deleteLater();
 }
 
 void NetworkAccessManager::onCurlReplyFinished()
@@ -135,6 +100,91 @@ void NetworkAccessManager::onCurlReadyRead()
         emit requestData->reply->readyRead();
     }
 
+}
+
+void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
+{
+    auto it = activeRequests_.find(id);
+    if (it != activeRequests_.end())
+    {
+        QSharedPointer<RequestData> requestData = it.value();
+
+        if (success)
+        {
+            if (requestData->request.timeout() - timeMs > 0)
+            {
+                requestData->request.setTimeout(requestData->request.timeout() - timeMs);
+
+                CurlReply *curlReply;
+
+                if (requestData->type == REQUEST_GET)
+                {
+                    curlReply = curlNetworkManager_->get(requestData->request, ips);
+                }
+                else if (requestData->type == REQUEST_POST)
+                {
+                    curlReply = curlNetworkManager_->post(requestData->request, requestData->data, ips);
+                }
+                else if (requestData->type == REQUEST_PUT)
+                {
+                    curlReply = curlNetworkManager_->put(requestData->request, requestData->data, ips);
+                }
+                else if (requestData->type == REQUEST_DELETE)
+                {
+                    curlReply = curlNetworkManager_->deleteResource(requestData->request, ips);
+                }
+                else
+                {
+                    Q_ASSERT(false);
+                }
+
+
+                curlReply->setProperty("replyId", id);
+                requestData->reply->setCurlReply(curlReply);
+
+                connect(curlReply, SIGNAL(finished()), SLOT(onCurlReplyFinished()));
+                connect(curlReply, SIGNAL(progress(qint64,qint64)), SLOT(onCurlProgress(qint64,qint64)));
+                connect(curlReply, SIGNAL(readyRead()), SLOT(onCurlReadyRead()));
+            }
+            // timeout exceed
+            else
+            {
+                requestData->reply->setError(NetworkReply::TimeoutExceed);
+                emit requestData->reply->finished();
+            }
+        }
+        else
+        {
+            requestData->reply->setError(NetworkReply::DnsResolveError);
+            emit requestData->reply->finished();
+        }
+    }
+}
+
+quint64 NetworkAccessManager::getNextId()
+{
+    return nextId_++;
+}
+
+NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data)
+{
+    quint64 id = getNextId();
+    NetworkReply *reply = new NetworkReply(this);
+    reply->setProperty("replyId", id);
+
+    QSharedPointer<RequestData> requestData(new RequestData);
+    requestData->id = id;
+    requestData->type = type;
+    requestData->request = request;
+    requestData->reply = reply;
+    requestData->data = data;
+
+    Q_ASSERT(!activeRequests_.contains(id));
+    activeRequests_[id] = requestData;
+
+    QMetaObject::invokeMethod(this, "handleRequest", Qt::QueuedConnection, Q_ARG(quint64, id));
+
+    return reply;
 }
 
 NetworkReply::NetworkReply(NetworkAccessManager *parent) : QObject(parent), curlReply_(NULL), manager_(parent)
@@ -193,4 +243,9 @@ void NetworkReply::abortCurl()
     {
         curlReply_->abort();
     }
+}
+
+void NetworkReply::setError(NetworkReply::NetworkError err)
+{
+    error_ = err;
 }
