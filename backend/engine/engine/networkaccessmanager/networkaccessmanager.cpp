@@ -1,12 +1,12 @@
 #include "networkaccessmanager.h"
-#include "dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsrequest.h"
 
 std::atomic<quint64> NetworkAccessManager::nextId_ = 0;
 
 NetworkAccessManager::NetworkAccessManager(QObject *parent) : QObject(parent)
 {
-    curlNetworkManager_ = new CurlNetworkManager(this);
-    dnsCache_ = new DnsCache(this);
+    curlNetworkManager_ = new CurlNetworkManager2(this);
+    dnsCache_ = new DnsCache2(this);
     connect(dnsCache_, SIGNAL(resolved(bool,QStringList,quint64,bool, int)), SLOT(onResolved(bool,QStringList,quint64,bool, int)));
     connect(dnsCache_, SIGNAL(whitelistIpsChanged(QSet<QString>)), SIGNAL(whitelistIpsChanged(QSet<QString>)));
 }
@@ -53,6 +53,8 @@ void NetworkAccessManager::abort(NetworkReply *reply)
         requestData->reply->abortCurl();
         activeRequests_.erase(it);
     }
+
+    dnsCache_->notifyFinished(id);
 }
 
 void NetworkAccessManager::handleRequest(quint64 id)
@@ -75,7 +77,9 @@ void NetworkAccessManager::onCurlReplyFinished()
     if (it != activeRequests_.end())
     {
         QSharedPointer<RequestData> requestData = it.value();
+        requestData->reply->checkForCurlError();
         emit requestData->reply->finished();
+        dnsCache_->notifyFinished(replyId);
     }
 }
 
@@ -104,6 +108,7 @@ void NetworkAccessManager::onCurlReadyRead()
 
 void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
 {
+    Q_UNUSED(bFromCache);
     auto it = activeRequests_.find(id);
     if (it != activeRequests_.end())
     {
@@ -187,7 +192,7 @@ NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::RE
     return reply;
 }
 
-NetworkReply::NetworkReply(NetworkAccessManager *parent) : QObject(parent), curlReply_(NULL), manager_(parent)
+NetworkReply::NetworkReply(NetworkAccessManager *parent) : QObject(parent), curlReply_(NULL), manager_(parent), error_(NetworkReply::NoError)
 {
 
 }
@@ -222,14 +227,7 @@ QByteArray NetworkReply::readAll()
 
 bool NetworkReply::isSuccess() const
 {
-    if (curlReply_)
-    {
-        return curlReply_->isSuccess();
-    }
-    else
-    {
-        return false;
-    }
+    return error_ == NoError;
 }
 
 void NetworkReply::setCurlReply(CurlReply *curlReply)
@@ -242,6 +240,14 @@ void NetworkReply::abortCurl()
     if (curlReply_)
     {
         curlReply_->abort();
+    }
+}
+
+void NetworkReply::checkForCurlError()
+{
+    if (curlReply_ && !curlReply_->isSuccess())
+    {
+        error_ = CurlError;
     }
 }
 

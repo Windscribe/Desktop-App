@@ -37,6 +37,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     helper_(nullptr),
     networkStateManager_(nullptr),
     firewallController_(nullptr),
+    networkAccessManager_(nullptr),
     serverAPI_(nullptr),
     connectionManager_(nullptr),
     connectStateController_(nullptr),
@@ -555,6 +556,9 @@ void Engine::init()
 
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
 
+    networkAccessManager_ = new NetworkAccessManager(this);
+    connect(networkAccessManager_, SIGNAL(whitelistIpsChanged(QSet<QString>)), SLOT(onWhitelistedIPsChanged(QSet<QString>)));
+
     serverAPI_ = new ServerAPI(this, networkStateManager_);
     connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)),
                         SLOT(onSessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), Qt::QueuedConnection);
@@ -624,7 +628,7 @@ void Engine::init()
     notificationsUpdateTimer_ = new QTimer(this);
     connect(notificationsUpdateTimer_, SIGNAL(timeout()), SLOT(getNewNotifications()));
 
-    downloadHelper_ = new DownloadHelper(this);
+    downloadHelper_ = new DownloadHelper(this, networkAccessManager_);
     connect(downloadHelper_, SIGNAL(finished(DownloadHelper::DownloadState)), SLOT(onDownloadHelperFinished(DownloadHelper::DownloadState)));
     connect(downloadHelper_, SIGNAL(progressChanged(uint)), SLOT(onDownloadHelperProgressChanged(uint)));
 
@@ -861,6 +865,8 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(locationsModel_);
     SAFE_DELETE(networkStateManager_);
     SAFE_DELETE(networkDetectionManager_);
+    SAFE_DELETE(downloadHelper_);
+    SAFE_DELETE(networkAccessManager_);
     isCleanupFinished_ = true;
     emit cleanupFinished();
     qCDebug(LOG_BASIC) << "Cleanup finished";
@@ -1429,6 +1435,13 @@ void Engine::onCheckUpdateAnswer(bool available, const QString &version, const P
             QTimer::singleShot(60000, this, SLOT(onStartCheckUpdate()));
         }
     }
+}
+
+void Engine::onWhitelistedIPsChanged(const QSet<QString> &ips)
+{
+    qCDebug(LOG_BASIC) << "on whitelisted ips changed event:" << ips;
+    firewallExceptions_.setWhiteListedIPs(ips);
+    updateFirewallSettings();
 }
 
 void Engine::onHostIPsChanged(const QStringList &hostIps)

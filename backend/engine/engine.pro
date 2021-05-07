@@ -321,7 +321,6 @@ SOURCES += main.cpp \
     engine/logincontroller/getapiaccessips.cpp \
     engine/helper/initializehelper.cpp \
     engine/refetchservercredentialshelper.cpp \
-    engine/curlinitcontroller.cpp \
     localhttpserver/localhttpserver.cpp \
     engine/vpnshare/httpproxyserver/httpproxyserver.cpp \
     engine/vpnshare/httpproxyserver/httpproxyconnectionmanager.cpp \
@@ -347,7 +346,6 @@ SOURCES += main.cpp \
     engine/serverapi/curlrequest.cpp \
     engine/serverapi/dnscache.cpp \
     engine/serverapi/serverapi.cpp \
-    engine/serverapi/certmanager.cpp \
     utils/ipvalidation.cpp \
     engine/hardcodedsettings.cpp \
     engine/engine.cpp \
@@ -386,7 +384,14 @@ SOURCES += main.cpp \
     clientconnectiondescr.cpp \
     $$COMMON_PATH/ipc/tcpconnection.cpp \
     $$COMMON_PATH/ipc/tcpserver.cpp \
-    engine/connectionmanager/finishactiveconnections.cpp
+    engine/connectionmanager/finishactiveconnections.cpp \
+    engine/networkaccessmanager/certmanager.cpp \
+    engine/networkaccessmanager/curlinitcontroller.cpp \
+    engine/networkaccessmanager/curlnetworkmanager2.cpp \
+    engine/networkaccessmanager/curlreply.cpp \
+    engine/networkaccessmanager/networkrequest.cpp \
+    engine/networkaccessmanager/dnscache2.cpp \
+    engine/networkaccessmanager/networkaccessmanager.cpp
 
 HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/locationsmodel/apilocationsmodel.h \
@@ -468,7 +473,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/logincontroller/getapiaccessips.h \
     engine/helper/initializehelper.h \
     engine/refetchservercredentialshelper.h \
-    engine/curlinitcontroller.h \
     localhttpserver/localhttpserver.h \
     engine/connectionmanager/availableport.h \
     engine/vpnshare/httpproxyserver/httpproxyserver.h \
@@ -497,7 +501,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/serverapi/curlrequest.h \
     engine/serverapi/dnscache.h \
     engine/serverapi/serverapi.h \
-    engine/serverapi/certmanager.h \
     utils/ipvalidation.h \
     engine/hardcodedsettings.h \
     engine/engine.h \
@@ -544,7 +547,14 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     clientconnectiondescr.h \
     $$COMMON_PATH/ipc/tcpconnection.h \
     $$COMMON_PATH/ipc/tcpserver.h \
-    engine/connectionmanager/finishactiveconnections.h
+    engine/connectionmanager/finishactiveconnections.h \
+    engine/networkaccessmanager/certmanager.h \
+    engine/networkaccessmanager/curlinitcontroller.h \
+    engine/networkaccessmanager/curlnetworkmanager2.h \
+    engine/networkaccessmanager/curlreply.h \
+    engine/networkaccessmanager/networkrequest.h \
+    engine/networkaccessmanager/dnscache2.h \
+    engine/networkaccessmanager/networkaccessmanager.h
 
 RESOURCES += \
     engine.qrc

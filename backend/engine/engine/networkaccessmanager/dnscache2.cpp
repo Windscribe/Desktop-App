@@ -1,10 +1,10 @@
-#include "dnscache.h"
+#include "dnscache2.h"
 #include <QDateTime>
 #include <QTimer>
 #include "utils/ipvalidation.h"
-#include "dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsrequest.h"
 
-class DnsCache::Usages
+class DnsCache2::Usages
 {
 public:
     void addUsage(const QString &hostname, quint64 id)
@@ -37,7 +37,7 @@ private:
     QMap<QString, quint64> map_;
 };
 
-DnsCache::DnsCache(QObject *parent, int cacheTimeoutMs /*= 60000*/, int reviewCacheIntervalMs /*= 1000*/) : QObject(parent), usages_(new Usages),
+DnsCache2::DnsCache2(QObject *parent, int cacheTimeoutMs /*= 60000*/, int reviewCacheIntervalMs /*= 1000*/) : QObject(parent), usages_(new Usages),
     cacheTimeoutMs_(cacheTimeoutMs)
 {
     QTimer *timer = new QTimer(this);
@@ -45,7 +45,7 @@ DnsCache::DnsCache(QObject *parent, int cacheTimeoutMs /*= 60000*/, int reviewCa
     timer->start(reviewCacheIntervalMs);
 }
 
-void DnsCache::resolve(const QString &hostname, quint64 id, bool bypassCache /*= false*/, const QStringList &dnsServers /*= QStringList()*/, int timeoutMs /*= 5000*/)
+void DnsCache2::resolve(const QString &hostname, quint64 id, bool bypassCache /*= false*/, const QStringList &dnsServers /*= QStringList()*/, int timeoutMs /*= 5000*/)
 {
     usages_->addUsage(hostname, id);
 
@@ -66,18 +66,18 @@ void DnsCache::resolve(const QString &hostname, quint64 id, bool bypassCache /*=
     dnsRequest->lookup();
 }
 
-void DnsCache::notifyFinished(quint64 id)
+void DnsCache2::notifyFinished(quint64 id)
 {
     usages_->deleteUsage(id);
     QTimer::singleShot(0, this, SLOT(checkForNewIps()));
 }
 
-const QSet<QString> &DnsCache::whitelistIps() const
+const QSet<QString> &DnsCache2::whitelistIps() const
 {
     return lastWhitelistIps_;
 }
 
-void DnsCache::onDnsRequestFinished()
+void DnsCache2::onDnsRequestFinished()
 {
     DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
     Q_ASSERT(dnsRequest != nullptr);
@@ -105,7 +105,7 @@ void DnsCache::onDnsRequestFinished()
     dnsRequest->deleteLater();
 }
 
-void DnsCache::onTimer()
+void DnsCache2::onTimer()
 {
     bool bChanged = false;
     // delete outdated and unused IPs from cache
@@ -130,7 +130,7 @@ void DnsCache::onTimer()
     }
 }
 
-void DnsCache::checkForNewIps()
+void DnsCache2::checkForNewIps()
 {
     QSet<QString> setIps;
 

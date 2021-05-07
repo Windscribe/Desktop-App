@@ -5,9 +5,11 @@
 #include <QFile>
 #include <QDir>
 #include "names.h"
+#include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "utils/utils.h"
 
-DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
+DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager) : QObject(parent)
+  , networkAccessManager_(networkAccessManager)
   , reply_(nullptr)
   , file_(nullptr)
   , progressPercent_(0)
@@ -62,14 +64,12 @@ void DownloadHelper::get(const QString url)
         return;
     }
 
-    QNetworkRequest request(url);
+    NetworkRequest request(QUrl(url), 60000 * 5, true);     // timeout 5 mins
 
-    QNetworkReply *reply = networkAccessManager_.get(request);
-    connect(reply, SIGNAL(downloadProgress(qint64,qint64)), SLOT(onReplyDownloadProgress(qint64,qint64)));
-    connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(onReplyError(QNetworkReply::NetworkError)));
-    connect(reply, SIGNAL(readyRead()), SLOT(onReplyReadyRead()));
-    reply_ = reply;
+    reply_ = networkAccessManager_->get(request);
+    connect(reply_, SIGNAL(finished()), SLOT(onReplyFinished()));
+    connect(reply_, SIGNAL(progress(qint64,qint64)), SLOT(onReplyDownloadProgress(qint64,qint64)));
+    connect(reply_, SIGNAL(readyRead()), SLOT(onReplyReadyRead()));
 }
 
 void DownloadHelper::stop()
@@ -81,7 +81,9 @@ void DownloadHelper::stop()
     }
 
     qCDebug(LOG_DOWNLOADER) << "Stopping download";
-    reply_->abort(); // should fire the finished signal for cleanup
+    reply_->abort();
+    reply_->deleteLater();
+    reply_ = nullptr;
 }
 
 DownloadHelper::DownloadState DownloadHelper::state()
@@ -92,7 +94,7 @@ DownloadHelper::DownloadState DownloadHelper::state()
 void DownloadHelper::onReplyFinished()
 {
     DownloadState state;
-    if (reply_->error() == QNetworkReply::NoError)
+    if (reply_->isSuccess())
     {
         qCDebug(LOG_DOWNLOADER) << "Download finished successfully";
         state = DOWNLOAD_STATE_SUCCESS;
@@ -116,11 +118,6 @@ void DownloadHelper::onReplyDownloadProgress(qint64 bytesReceived, qint64 bytesT
 
     // qCDebug(LOG_DOWNLOADER) << "Downloading: " << progressPercent_;
     emit progressChanged(progressPercent_);
-}
-
-void DownloadHelper::onReplyError(QNetworkReply::NetworkError error)
-{
-    qCDebug(LOG_DOWNLOADER) << "Download error occurred: " << error;
 }
 
 void DownloadHelper::onReplyReadyRead()

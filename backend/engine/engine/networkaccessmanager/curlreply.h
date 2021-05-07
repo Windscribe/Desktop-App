@@ -5,7 +5,7 @@
 #include "networkrequest.h"
 #include <curl/curl.h>
 
-class CurlNetworkManager;
+class CurlNetworkManager2;
 
 class CurlReply : public QObject
 {
@@ -28,7 +28,7 @@ signals:
 private:
     enum REQUEST_TYPE { REQUEST_GET, REQUEST_POST, REQUEST_PUT, REQUEST_DELETE};
 
-    explicit CurlReply(QObject *parent, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData, CurlNetworkManager *manager);
+    explicit CurlReply(QObject *parent, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData, CurlNetworkManager2 *manager);
 
     const NetworkRequest &networkRequest() const;
     QStringList ips() const;
@@ -50,11 +50,11 @@ private:
     QByteArray postData_;
 
     REQUEST_TYPE requestType_;
-    CurlNetworkManager *manager_;
+    CurlNetworkManager2 *manager_;
     QVector<struct curl_slist *> curlLists_;
 
 
-    friend class CurlNetworkManager;    // CurlNetworkManager class uses private functions to store internal data
+    friend class CurlNetworkManager2;    // CurlNetworkManager class uses private functions to store internal data
 };
 
 

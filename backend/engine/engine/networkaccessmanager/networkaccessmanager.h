@@ -3,9 +3,9 @@
 
 #include <QObject>
 #include <QUrl>
-#include "proxy/proxysettings.h"
-#include "curlnetworkmanager.h"
-#include "dnscache.h"
+#include "engine/proxy/proxysettings.h"
+#include "curlnetworkmanager2.h"
+#include "dnscache2.h"
 
 class NetworkAccessManager;
 
@@ -32,6 +32,7 @@ signals:
 private:
     void setCurlReply(CurlReply *curlReply);
     void abortCurl();
+    void checkForCurlError();
 
     void setError(NetworkError err);
 
@@ -88,8 +89,8 @@ private:
     };
 
     QMap<quint64, QSharedPointer<RequestData> > activeRequests_;
-    CurlNetworkManager *curlNetworkManager_;
-    DnsCache *dnsCache_;
+    CurlNetworkManager2 *curlNetworkManager_;
+    DnsCache2 *dnsCache_;
 
     quint64 getNextId();
 

@@ -9,6 +9,11 @@ void FirewallExceptions::setHostIPs(const QStringList &hostIPs)
     hostIPs_ = hostIPs;
 }
 
+void FirewallExceptions::setWhiteListedIPs(const QSet<QString> &ips)
+{
+    whitelistedIPs_ = ips;
+}
+
 void FirewallExceptions::setProxyIP(const ProxySettings &proxySettings)
 {
     if (proxySettings.option() == PROXY_OPTION_NONE)
@@ -111,6 +116,14 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
     }
 
     for (const QString &s : hostIPs_)
+    {
+        if (!s.isEmpty())
+        {
+            ipList.add(s);
+        }
+    }
+
+    for (const QString &s : whitelistedIPs_)
     {
         if (!s.isEmpty())
         {

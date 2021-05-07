@@ -2,7 +2,7 @@
 #define NETWORKREQUEST_H
 
 #include <QUrl>
-#include "proxy/proxysettings.h"
+#include "engine/proxy/proxysettings.h"
 
 class NetworkRequest
 {

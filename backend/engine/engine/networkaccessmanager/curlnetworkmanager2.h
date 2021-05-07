@@ -1,5 +1,5 @@
-#ifndef CURLNETWORKMANAGER_H
-#define CURLNETWORKMANAGER_H
+#ifndef CURLNETWORKMANAGER2_H
+#define CURLNETWORKMANAGER2_H
 
 #include <QQueue>
 #include <QThread>
@@ -15,12 +15,12 @@
 //#define MAKE_CURL_LOG_FILE      1
 
 // Implementing queries with curl library. Don't use it directly, use NetworkAccessManager instead.
-class CurlNetworkManager : public QThread
+class CurlNetworkManager2 : public QThread
 {
     Q_OBJECT
 public:
-    explicit CurlNetworkManager(QObject *parent = 0);
-    virtual ~CurlNetworkManager();
+    explicit CurlNetworkManager2(QObject *parent = 0);
+    virtual ~CurlNetworkManager2();
     CurlReply *get(const NetworkRequest &request, const QStringList &ips);
     CurlReply *post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips);
     CurlReply *put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips);
@@ -67,8 +67,9 @@ private:
     bool setupSslVerification(CurlReply *curlReply, CURL *curl);
     bool setupProxy(CurlReply *curlReply, CURL *curl);
 
+    static CURLcode sslctx_function(CURL *curl, void *sslctx, void *parm);
     static size_t writeDataCallback(void *ptr, size_t size, size_t count, void *id);
     static int progressCallback(void *id,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow);
 };
 
-#endif // CURLNETWORKMANAGER_H
+#endif // CURLNETWORKMANAGER2_H
