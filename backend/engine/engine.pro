@@ -358,7 +358,6 @@ SOURCES += main.cpp \
     engine/dnsresolver/dnsrequest.cpp \
     engine/dnsresolver/dnsserversconfiguration.cpp \
     engine/dnsresolver/dnsresolver.cpp \
-    engine/dnsresolver/dnsresolver_test.cpp \
     engine/types/protocoltype.cpp \
     engine/connectionmanager/ikev2connection_test.cpp \
     engine/helper/simple_xor_crypt.cpp \
@@ -510,7 +509,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/dnsresolver/dnsrequest.h \
     engine/dnsresolver/dnsserversconfiguration.h \
     engine/dnsresolver/dnsresolver.h \
-    engine/dnsresolver/dnsresolver_test.h \
     engine/types/protocoltype.h \
     engine/connectionmanager/ikev2connection_test.h \
     engine/helper/simple_xor_crypt.h \

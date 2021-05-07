@@ -2,6 +2,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "engine/hardcodedsettings.h"
 
 KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController) : QObject(parent),
@@ -17,7 +18,7 @@ void KeepAliveManager::setEnabled(bool isEnabled)
     isEnabled_ = isEnabled;
     if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
     {
-        DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl());
+        DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl(), DnsServersConfiguration::instance().getCurrentDnsServers());
         connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
         dnsRequest->lookup();
     }
@@ -36,7 +37,7 @@ void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REA
     curConnectState_ = state;
     if (state == CONNECT_STATE_CONNECTED && isEnabled_)
     {
-        DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl());
+        DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl(), DnsServersConfiguration::instance().getCurrentDnsServers());
         connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
         dnsRequest->lookup();
     }
@@ -86,7 +87,7 @@ void KeepAliveManager::onDnsRequestFinished()
     {
         if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
         {
-            DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl());
+            DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl(), DnsServersConfiguration::instance().getCurrentDnsServers());
             connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
             dnsRequest->lookup();
         }

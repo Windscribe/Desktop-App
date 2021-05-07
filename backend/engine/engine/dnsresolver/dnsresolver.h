@@ -9,7 +9,6 @@
 #include <QVector>
 #include "areslibraryinit.h"
 #include "ares.h"
-#include "dnsresolver_test.h"
 
 // singleton for dns requests. Do not use it directly. Use DnsLookup instead
 class DnsResolver : public QThread

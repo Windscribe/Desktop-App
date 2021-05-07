@@ -2403,7 +2403,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
             // make DNS-resolution for add IP to firewall exceptions
             qCDebug(LOG_BASIC) << "Make DNS-resolution for" << strHost;
 
-            DnsRequest dnsRequest(this, strHost);
+            DnsRequest dnsRequest(this, strHost, DnsServersConfiguration::instance().getCurrentDnsServers());
             dnsRequest.lookupBlocked();
             if (!dnsRequest.isError())
             {

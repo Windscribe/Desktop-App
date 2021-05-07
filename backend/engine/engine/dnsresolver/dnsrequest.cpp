@@ -2,7 +2,7 @@
 #include "dnsresolver.h"
 #include <QDebug>
 
-DnsRequest::DnsRequest(QObject *parent, const QString &hostname, const QStringList &dnsServers /*= QStringList()*/, int timeoutMs /*= 5000*/)
+DnsRequest::DnsRequest(QObject *parent, const QString &hostname, const QStringList &dnsServers, int timeoutMs /*= 5000*/)
     : QObject(parent), hostname_(hostname), dnsServers_(dnsServers), timeoutMs_(timeoutMs), aresErrorCode_(ARES_SUCCESS)
 {
 

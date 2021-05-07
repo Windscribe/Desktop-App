@@ -8,6 +8,7 @@
 #include "customconfiglocationinfo.h"
 #include "nodeselectionalgorithm.h"
 #include "engine/dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsserversconfiguration.h"
 
 
 namespace locationsmodel {
@@ -70,7 +71,7 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
     {
         for (const QString &hostname : hostnamesForResolve)
         {
-            DnsRequest *dnsRequest = new DnsRequest(this, hostname);
+            DnsRequest *dnsRequest = new DnsRequest(this, hostname, DnsServersConfiguration::instance().getCurrentDnsServers());
             connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
             dnsRequest->lookup();
         }

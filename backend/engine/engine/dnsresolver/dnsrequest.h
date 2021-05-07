@@ -20,7 +20,7 @@ class DnsRequest : public QObject
 {
     Q_OBJECT
 public:
-    explicit DnsRequest(QObject *parent, const QString &hostname, const QStringList &dnsServers = QStringList(), int timeoutMs = 5000);
+    explicit DnsRequest(QObject *parent, const QString &hostname, const QStringList &dnsServers, int timeoutMs = 5000);
     virtual ~DnsRequest();
 
     QStringList ips() const;

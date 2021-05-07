@@ -2,6 +2,7 @@
 #include "utils/ipvalidation.h"
 #include "utils/logger.h"
 #include "engine/dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "engine/customconfigs/ovpncustomconfig.h"
 #include "engine/customconfigs/wireguardcustomconfig.h"
 
@@ -91,7 +92,7 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
             rd.isResolved = false;
             isExistsHostnames = true;
 
-            DnsRequest *dnsRequest = new DnsRequest(this, remote);
+            DnsRequest *dnsRequest = new DnsRequest(this, remote, DnsServersConfiguration::instance().getCurrentDnsServers());
             connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
             dnsRequest->lookup();
         }
@@ -147,7 +148,7 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
 
             isExistsHostnames = true;
 
-            DnsRequest *dnsRequest = new DnsRequest(this, remote.hostname);
+            DnsRequest *dnsRequest = new DnsRequest(this, remote.hostname, DnsServersConfiguration::instance().getCurrentDnsServers());
             connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
             dnsRequest->lookup();
         }

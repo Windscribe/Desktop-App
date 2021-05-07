@@ -2,6 +2,8 @@
 #include <QDateTime>
 #include "utils/ipvalidation.h"
 #include "engine/dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsserversconfiguration.h"
+
 
 DnsCache::DnsCache(QObject *parent) : QObject(parent)
 {
@@ -50,7 +52,7 @@ void DnsCache::resolve(const QString &hostname, int cacheTimeout, void *userData
     if (!resolvingHostsInProgress_.contains(hostname))
     {
         resolvingHostsInProgress_ << hostname;
-        DnsRequest *dnsRequest = new DnsRequest(this, hostname);
+        DnsRequest *dnsRequest = new DnsRequest(this, hostname, DnsServersConfiguration::instance().getCurrentDnsServers());
         connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
         dnsRequest->lookup();
     }
