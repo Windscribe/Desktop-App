@@ -5,7 +5,7 @@
 
 namespace MacUtils
 {
-    void setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry);
+    bool setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry);
 }
 
 #endif /* macutils_h */

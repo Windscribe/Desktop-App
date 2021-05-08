@@ -1138,6 +1138,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
 
     if (isDnsWhileConnectedChanged)
     {
+        // tell connection manager about new settings (it will use them onConnect)
         connectionManager_->setDnsWhileConnectedInfo(engineSettings.getDnsWhileConnectedInfo());
     }
 
@@ -1551,9 +1552,12 @@ void Engine::onConnectionManagerConnected()
 
     if (connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
     {
-        helper_->setCustomDnsWhileConnected(engineSettings_.connectionSettings().protocol().isIkev2Protocol(),
+         if (!helper_->setCustomDnsWhileConnected(engineSettings_.connectionSettings().protocol().isIkev2Protocol(),
                                             connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                            QString::fromStdString(connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.ip_address()));
+                                            QString::fromStdString(connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.ip_address())))
+         {
+             qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
+         }
     }
 
     helper_->setIPv6EnabledInFirewall(false);

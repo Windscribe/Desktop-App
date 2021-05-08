@@ -307,8 +307,14 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
         CMD_APPLY_CUSTOM_DNS cmd;
         ia >> cmd;
         
-        MacUtils::setDnsOfDynamicStoreEntry(cmd.ipAddress, cmd.networkService);
-        outCmdAnswer.executed = 1;
+        if (MacUtils::setDnsOfDynamicStoreEntry(cmd.ipAddress, cmd.networkService))
+        {
+            outCmdAnswer.executed = 1;
+        }
+        else
+        {
+            outCmdAnswer.executed = 0;
+        }
     }
 
     buf->consume(headerSize + length);

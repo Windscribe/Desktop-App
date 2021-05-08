@@ -876,7 +876,7 @@ QStringList MacUtils::getListOfDnsNetworkServiceEntries()
     QStringList result;
     QString command = "echo 'list' | scutil | grep /Network/Service | grep DNS";
     QString cmdOutput = QString::fromStdString(execCmd(command.toStdString().c_str())).trimmed();
-    qDebug() << "Raw result: " << cmdOutput;
+    // qDebug() << "Raw result: " << cmdOutput;
 
     QStringList lines = cmdOutput.split('\n');
     for (QString line : lines)

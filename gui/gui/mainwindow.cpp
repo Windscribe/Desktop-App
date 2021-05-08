@@ -1140,9 +1140,12 @@ void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChann
 
 void MainWindow::onPreferencesReportErrorToUser(const QString &title, const QString &desc)
 {
-    mainWindowController_->getGeneralMessageWindow()->setTitle(title);
-    mainWindowController_->getGeneralMessageWindow()->setDescription(desc);
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
+    // avoid race condition that allows clicking through the general message overlay
+    QTimer::singleShot(0, [this, title, desc](){
+        mainWindowController_->getGeneralMessageWindow()->setTitle(title);
+        mainWindowController_->getGeneralMessageWindow()->setDescription(desc);
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
+    });
 }
 
 void MainWindow::onPreferencesCollapsed()

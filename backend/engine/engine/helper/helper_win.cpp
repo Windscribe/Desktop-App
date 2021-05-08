@@ -714,7 +714,7 @@ void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
 }
 
-void Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
+bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
 {
     Q_UNUSED(isIkev2)
 
@@ -729,7 +729,7 @@ void Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
     oa << cmd;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DNS_WHILE_CONNECTED, stream.str());
-    // return mpr.exitCode;
+    return mpr.success;
 }
 
 bool Helper_win::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties)

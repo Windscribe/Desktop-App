@@ -7,7 +7,7 @@
 namespace MacUtils
 {
 
-void setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
+bool setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
 {
     // get current dns entry
     SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("WindscribeDnsSetter"), NULL, NULL);
@@ -23,7 +23,6 @@ void setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
 
     // apply
     bool success = SCDynamicStoreSetValue(dynRef, (CFStringRef) entryNsString, newdnskey);
-    // qDebug() << "Setting dns: " << success << " on " << entry;
 
     if (!success)
     {
@@ -34,7 +33,7 @@ void setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
     CFRelease(newdnskey);
     CFRelease(dnsserveraddresses);
     CFRelease(dynRef);
-    // return success;
+    return success;
 }
 
 } // namespace MacUtils

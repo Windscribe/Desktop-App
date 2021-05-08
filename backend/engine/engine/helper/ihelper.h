@@ -89,7 +89,7 @@ public:
     virtual bool isSupportedICS() = 0;
 #endif
 
-    virtual void setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
+    virtual bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
 
     // mac specific functions
     virtual QStringList getActiveNetworkInterfaces_mac() = 0;

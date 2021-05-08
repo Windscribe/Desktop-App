@@ -815,14 +815,13 @@ void Helper_mac::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool
     }
 }
 
-void Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
+bool Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
 {
     Q_UNUSED(ifIndex)
     Q_UNUSED(overrideDnsIpAddress)
 
     // get list of entries of interest
     QStringList networkServices = MacUtils::getListOfDnsNetworkServiceEntries();
-    qDebug() << "List of DNS network services: " << networkServices;
 
     // filter list to only SetByWindscribe entries
     QStringList dnsNetworkServices;
@@ -849,19 +848,27 @@ void Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
             }
         }
     }
-    qDebug() << "List of DNS network services: " << dnsNetworkServices;
+    qCDebug(LOG_CONNECTED_DNS) << "Applying custom 'while connected' DNS change to network services: " << dnsNetworkServices;
+
+    if (dnsNetworkServices.isEmpty())
+    {
+        qCDebug(LOG_CONNECTED_DNS) << "No network services to confirgure 'while connected' DNS";
+        return false;
+    }
 
     // change DNS on each entry
     bool successAll = true;
     for (QString service : dnsNetworkServices)
     {
-        successAll = successAll && Helper_mac::setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service);
+        if (!Helper_mac::setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service))
+        {
+            successAll = false;
+            qCDebug(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;
+            break;
+        }
     }
 
-    if (!successAll)
-    {
-        qDebug() << "Failed to set all the DNS network services";
-    }
+    return successAll;
 }
 
 bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry)
@@ -881,23 +888,16 @@ bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QStri
 
     if (!sendCmdToHelper(HELPER_CMD_APPLY_CUSTOM_DNS, stream.str()))
     {
-        return RET_DISCONNECTED;
-    }
-    else
-    {
-//        CMD_ANSWER answerCmd;
-//        if (!readAnswer(answerCmd))
-//        {
-//            return RET_DISCONNECTED;
-//        }
-//        else
-//        {
-//            *bExecuted = (answerCmd.executed == 1);
-//            return RET_SUCCESS;
-//        }
+        return false;
     }
 
-    return true;
+    CMD_ANSWER answerCmd;
+    if (!readAnswer(answerCmd))
+    {
+        return false;
+    }
+
+    return answerCmd.executed != 0;
 }
 
 
