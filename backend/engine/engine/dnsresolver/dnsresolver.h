@@ -1,17 +1,16 @@
 #ifndef DNSRESOLVER_H
 #define DNSRESOLVER_H
 
-#include <QHostInfo>
 #include <QQueue>
 #include <QThread>
 #include <QWaitCondition>
 #include <QMutex>
+#include <QSharedPointer>
 #include <QVector>
 #include "areslibraryinit.h"
 #include "ares.h"
-#include "engine/types/types.h"
-#include "engine/networkstatemanager/inetworkstatemanager.h"
 
+// singleton for dns requests. Do not use it directly. Use DnsLookup instead
 class DnsResolver : public QThread
 {
     Q_OBJECT
@@ -23,19 +22,8 @@ public:
         return s;
     }
 
-    void init(INetworkStateManager *networkStateManager);
-    void stop();
-    void setDnsPolicy(DNS_POLICY_TYPE dnsPolicyType);
-    void recreateDefaultDnsChannel();
-
-    void setUseCustomDns(bool bUseCustomDns);
-
-    void lookup(const QString &hostname, void *userPointer);
-
-    QHostInfo lookupBlocked(const QString &hostname);
-
-private slots:
-    void onNetworkStateChanged(bool isAlive, const QString &networkInterface);
+    void lookup(const QString &hostname, QSharedPointer<QObject> object, const QStringList &dnsServers, int timeoutMs);
+    QStringList lookupBlocked(const QString &hostname, const QStringList &dnsServers, int timeoutMs, int *outErrorCode);
 
 private:
     explicit DnsResolver(QObject *parent = nullptr);
@@ -44,54 +32,55 @@ private:
 protected:
     virtual void run();
 
-signals:
-    void resolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
-
 private:
-
     struct USER_ARG
     {
-        void *userPointer;
+        QSharedPointer<QObject> object;
         QString hostname;
     };
 
     struct USER_ARG_FOR_BLOCKED
     {
-        QHostInfo ha;
+        QStringList ips;
+        int errorCode;
     };
 
+    struct REQUEST_INFO
+    {
+        QString hostname;
+        QStringList dnsServers;
+        QSharedPointer<QObject> object;
+        int timeoutMs;
+    };
+
+    struct CHANNEL_INFO
+    {
+        ares_channel channel;
+
+#ifdef Q_OS_WIN
+        QVector<IN_ADDR> dnsServers;
+#else
+        QVector<in_addr> dnsServers;
+#endif
+    };
+
+    AresLibraryInit aresLibraryInit_;
     bool bStopCalled_;
+    QQueue<REQUEST_INFO> queue_;
+
     QMutex mutex_;
-    QMutex mutexWait_;
     QWaitCondition waitCondition_;
     bool bNeedFinish_;
-    AresLibraryInit aresLibraryInit_;
-    ares_channel channel_;
-    ares_channel channelCustomDns_;
-
-    DNS_POLICY_TYPE dnsPolicyType_;
-    char szDomain_[128];
-    char *domainPtr_;
-#ifdef Q_OS_WIN
-    QVector<IN_ADDR> dnsServers_;
-#else
-    QVector<in_addr> dnsServers_;
-#endif
-
-    std::atomic_bool isUseCustomDns_;
-
 
     static DnsResolver *this_;
 
-    void recreateCustomDnsChannel();
-    QStringList getCustomDnsIps();
-
-    void createOptionsForAresChannel(const QStringList &dnsIps, struct ares_options &options, int &optmask);
-
+    QStringList getDnsIps(const QStringList &ips);
+    void createOptionsForAresChannel(const QStringList &dnsIps, int timeoutMs, struct ares_options &options, int &optmask, CHANNEL_INFO *channelInfo);
     static void callback(void *arg, int status, int timeouts, struct hostent *host);
     static void callbackForBlocked(void *arg, int status, int timeouts, struct hostent *host);
     // return false, if nothing to process more
     bool processChannel(ares_channel channel);
+    bool initChannel(const REQUEST_INFO &ri, CHANNEL_INFO &outChannelInfo);
 };
 
 #endif // DNSRESOLVER_H

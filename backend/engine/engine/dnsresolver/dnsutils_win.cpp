@@ -1,6 +1,5 @@
-#include "dnsutils.h"
-
 #include <QtGlobal>
+#include "dnsutils.h"
 
 #ifdef Q_OS_WIN
     #include <winsock2.h>
@@ -11,7 +10,7 @@
 namespace DnsUtils
 {
 
-std::vector<std::wstring> getDnsServers()
+std::vector<std::wstring> getOSDefaultDnsServers()
 {
     std::vector<std::wstring> dnsServers;
 

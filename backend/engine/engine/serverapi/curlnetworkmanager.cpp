@@ -14,8 +14,6 @@ CurlNetworkManager::CurlNetworkManager(QObject *parent) : QThread(parent),
     , certPath_(QCoreApplication::applicationDirPath() + "/../Resources/cert.pem")
 #endif
 {
-    qCDebug(LOG_BASIC) << "Curl version:" << curl_version();
-
 #ifdef MAKE_CURL_LOG_FILE
     logFilePath_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     logFilePath_ += "/curl_log.txt";

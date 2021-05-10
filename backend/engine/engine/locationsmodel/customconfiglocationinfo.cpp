@@ -1,7 +1,8 @@
 #include "customconfiglocationinfo.h"
 #include "utils/ipvalidation.h"
 #include "utils/logger.h"
-#include "engine/dnsresolver/dnsresolver.h"
+#include "engine/dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "engine/customconfigs/ovpncustomconfig.h"
 #include "engine/customconfigs/wireguardcustomconfig.h"
 
@@ -10,7 +11,6 @@ namespace locationsmodel {
 CustomConfigLocationInfo::CustomConfigLocationInfo(const LocationID &locationId, QSharedPointer<const customconfigs::ICustomConfig> config) :
     BaseLocationInfo(locationId, config->filename()), config_(config), globalPort_(0), bAllResolved_(false), selected_(0), selectedHostname_(0)
 {
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void*)), SLOT(onResolved(QString,QHostInfo,void*)));
 }
 
 bool CustomConfigLocationInfo::isExistSelectedNode() const
@@ -91,7 +91,10 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
             rd.isHostname = true;
             rd.isResolved = false;
             isExistsHostnames = true;
-            DnsResolver::instance().lookup(remote, this);
+
+            DnsRequest *dnsRequest = new DnsRequest(this, remote, DnsServersConfiguration::instance().getCurrentDnsServers());
+            connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+            dnsRequest->lookup();
         }
         remotes_ << rd;
     }
@@ -144,7 +147,10 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
             remotes_ << rd;
 
             isExistsHostnames = true;
-            DnsResolver::instance().lookup(remote.hostname, this);
+
+            DnsRequest *dnsRequest = new DnsRequest(this, remote.hostname, DnsServersConfiguration::instance().getCurrentDnsServers());
+            connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+            dnsRequest->lookup();
         }
     }
     if (!isExistsHostnames)
@@ -282,34 +288,34 @@ QString CustomConfigLocationInfo::getLogString() const
     return ret;
 }
 
-void CustomConfigLocationInfo::onResolved(const QString &hostname, const QHostInfo &hostInfo,
-                                          void *userPointer)
+void CustomConfigLocationInfo::onDnsRequestFinished()
 {
-    if (userPointer == this)
+    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
+    Q_ASSERT(dnsRequest != nullptr);
+
+    for (int i = 0; i < remotes_.count(); ++i)
     {
-        for (int i = 0; i < remotes_.count(); ++i)
+        if (remotes_[i].isHostname && remotes_[i].ipOrHostname_ == dnsRequest->hostname())
         {
-            if (remotes_[i].isHostname && remotes_[i].ipOrHostname_ == hostname)
+            QString strIps;
+            for (const QString &ip : dnsRequest->ips())
             {
-                QString strIps;
-                for (const QHostAddress &ha : hostInfo.addresses())
-                {
-                    remotes_[i].ipsForHostname_ << ha.toString();
-                    strIps += ha.toString() + "; ";
-                }
-
-                qCDebug(LOG_CONNECTION) << "Hostname:" << hostname << " resolved -> " << strIps;
-                remotes_[i].isResolved = true;
-                break;
+                remotes_[i].ipsForHostname_ << ip;
+                strIps += ip + "; ";
             }
-        }
 
-        if (isAllResolved())
-        {
-            bAllResolved_ = true;
-            emit hostnamesResolved();
+            qCDebug(LOG_CONNECTION) << "Hostname:" << dnsRequest->hostname() << " resolved -> " << strIps;
+            remotes_[i].isResolved = true;
+            break;
         }
     }
+
+    if (isAllResolved())
+    {
+        bAllResolved_ = true;
+        emit hostnamesResolved();
+    }
+    dnsRequest->deleteLater();
 }
 
 bool CustomConfigLocationInfo::isAllResolved() const

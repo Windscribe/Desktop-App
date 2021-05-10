@@ -38,7 +38,7 @@ signals:
     void hostnamesResolved();
 
 private slots:
-    void onResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
+    void onDnsRequestFinished();
 
 private:
     struct RemoteDescr

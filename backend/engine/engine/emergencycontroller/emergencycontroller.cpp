@@ -3,7 +3,8 @@
 #include "utils/utils.h"
 #include "engine/connectionmanager/openvpnconnection.h"
 #include "engine/hardcodedsettings.h"
-#include "engine/dnsresolver/dnsresolver.h"
+#include "engine/dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsserversconfiguration.h"
 #include <QFile>
 #include <QCoreApplication>
 #include "utils/extraconfig.h"
@@ -37,8 +38,6 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
      connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);
 
      makeOVPNFile_ = new MakeOVPNFile();
-
-     connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *)), SLOT(onDnsResolved(QString, QHostInfo,void *)));
 }
 
 EmergencyController::~EmergencyController()
@@ -56,7 +55,10 @@ void EmergencyController::clickConnect(const ProxySettings &proxySettings)
 
     QString hashedDomain = HardcodedSettings::instance().generateRandomDomain("econnect.");
     qCDebug(LOG_EMERGENCY_CONNECT) << "Generated hashed domain for emergency connect:" << hashedDomain;
-    DnsResolver::instance().lookup(hashedDomain, this);
+
+    DnsRequest *dnsRequest = new DnsRequest(this, hashedDomain, DnsServersConfiguration::instance().getCurrentDnsServers());
+    connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+    dnsRequest->lookup();
 }
 
 void EmergencyController::clickDisconnect()
@@ -116,7 +118,6 @@ void EmergencyController::blockingDisconnect()
             }
             connector_->blockSignals(false);
             doMacRestoreProcedures();
-            DnsResolver::instance().recreateDefaultDnsChannel();
             state_ = STATE_DISCONNECTED;
         }
     }
@@ -133,54 +134,53 @@ void EmergencyController::setPacketSize(ProtoTypes::PacketSize ps)
     packetSize_ = ps;
 }
 
-void EmergencyController::onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
+void EmergencyController::onDnsRequestFinished()
 {
-    Q_UNUSED(hostname);
-    if (userPointer == this)
+    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
+    Q_ASSERT(dnsRequest != nullptr);
+
+    attempts_.clear();
+
+    if (!dnsRequest->isError())
     {
+        qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolved:" << dnsRequest->ips();
 
-        attempts_.clear();
-
-        if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
+        // generate connect attempts array
+        std::vector<QString> randomVecIps;
+        for (const QString &ip :  dnsRequest->ips())
         {
-            qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolved:" << hostInfo.addresses();
-
-            // generate connect attempts array
-            std::vector<QString> randomVecIps;
-            for (int i = 0; i < hostInfo.addresses().count(); ++i)
-            {
-                randomVecIps.push_back(hostInfo.addresses()[i].toString());
-            }
-
-            std::random_device rd;
-            std::mt19937 g(rd());
-            std::shuffle(randomVecIps.begin(), randomVecIps.end(), rd);
-
-            for (std::vector<QString>::iterator it = randomVecIps.begin(); it != randomVecIps.end(); ++it)
-            {
-                CONNECT_ATTEMPT_INFO info1;
-                info1.ip = *it;
-                info1.port = 443;
-                info1.protocol = "udp";
-
-                CONNECT_ATTEMPT_INFO info2;
-                info2.ip = *it;
-                info2.port = 443;
-                info2.protocol = "tcp";
-
-                attempts_ << info1;
-                attempts_ << info2;
-            }
-
-            addRandomHardcodedIpsToAttempts();
+            randomVecIps.push_back(ip);
         }
-        else
+
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(randomVecIps.begin(), randomVecIps.end(), rd);
+
+        for (std::vector<QString>::iterator it = randomVecIps.begin(); it != randomVecIps.end(); ++it)
         {
-            qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolve failed";
-            addRandomHardcodedIpsToAttempts();
+            CONNECT_ATTEMPT_INFO info1;
+            info1.ip = *it;
+            info1.port = 443;
+            info1.protocol = "udp";
+
+            CONNECT_ATTEMPT_INFO info2;
+            info2.ip = *it;
+            info2.port = 443;
+            info2.protocol = "tcp";
+
+            attempts_ << info1;
+            attempts_ << info2;
         }
-        doConnect();
+
+        addRandomHardcodedIpsToAttempts();
     }
+    else
+    {
+        qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolve failed";
+        addRandomHardcodedIpsToAttempts();
+    }
+    doConnect();
+    dnsRequest->deleteLater();
 }
 
 void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo)
@@ -189,8 +189,6 @@ void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connec
 
     vpnAdapterInfo_ = connectionAdapterInfo;
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
-
-    DnsResolver::instance().recreateDefaultDnsChannel();
 
     state_ = STATE_CONNECTED;
     emit connected();
@@ -201,7 +199,6 @@ void EmergencyController::onConnectionDisconnected()
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionDisconnected(), state_ =" << state_;
 
     doMacRestoreProcedures();
-    DnsResolver::instance().recreateDefaultDnsChannel();
 
     switch (state_)
     {

@@ -3,7 +3,6 @@
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "utils/utils.h"
-#include "engine/dnsresolver/dnsresolver.h"
 #include "nodeselectionalgorithm.h"
 
 namespace locationsmodel {

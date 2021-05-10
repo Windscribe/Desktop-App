@@ -10,6 +10,7 @@ public:
 
     virtual QGraphicsObject *getGraphicsObject() = 0;
 
+    virtual void setClickable(bool isClickable) = 0;
     virtual void setVersion(QString version,int buildNumber) = 0;
     virtual void setProgress(int progressPercent) = 0;
     virtual void changeToDownloadingScreen() = 0;

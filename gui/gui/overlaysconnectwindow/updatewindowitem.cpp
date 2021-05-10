@@ -140,6 +140,12 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     pSpinner->draw(-SPINNER_HALF_WIDTH * G_SCALE,-SPINNER_HALF_HEIGHT * G_SCALE, painter);
 }
 
+void UpdateWindowItem::setClickable(bool isClickable)
+{
+    acceptButton_->setClickable(isClickable);
+    cancelButton_->setClickable(isClickable);
+}
+
 void UpdateWindowItem::setVersion(QString version, int buildNumber)
 {
     curVersion_ = version;

@@ -2,7 +2,6 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/openvpnversioncontroller.h"
-#include "engine/curlinitcontroller.h"
 #include "engine/engine.h"
 #include "engineserver.h"
 #include "qconsolelistener.h"
@@ -46,9 +45,6 @@ int main(int argc, char *argv[])
     // These values are used for QSettings by default
     WindscribeApplication::setOrganizationName("Windscribe");
     WindscribeApplication::setApplicationName("Windscribe2");
-
-    CurlInitController curlInitController;
-    curlInitController.init();
 
     Logger::instance().install("engine", true);
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();

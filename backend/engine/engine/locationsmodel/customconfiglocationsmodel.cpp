@@ -7,7 +7,8 @@
 #include "utils/ipvalidation.h"
 #include "customconfiglocationinfo.h"
 #include "nodeselectionalgorithm.h"
-#include "engine/dnsresolver/dnsresolver.h"
+#include "engine/dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsserversconfiguration.h"
 
 
 namespace locationsmodel {
@@ -19,8 +20,6 @@ CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnect
     connect(&pingIpsController_, SIGNAL(pingInfoChanged(QString,int, bool)), SLOT(onPingInfoChanged(QString,int, bool)));
     connect(&pingIpsController_, SIGNAL(needIncrementPingIteration()), SLOT(onNeedIncrementPingIteration()));
     pingStorage_.incIteration();
-
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void*)), SLOT(onResolved(QString,QHostInfo,void*)));
 }
 
 void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<const customconfigs::ICustomConfig> > &customConfigs)
@@ -72,7 +71,9 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
     {
         for (const QString &hostname : hostnamesForResolve)
         {
-            DnsResolver::instance().lookup(hostname, this);
+            DnsRequest *dnsRequest = new DnsRequest(this, hostname, DnsServersConfiguration::instance().getCurrentDnsServers());
+            connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+            dnsRequest->lookup();
         }
     }
 }
@@ -119,36 +120,37 @@ void CustomConfigLocationsModel::onNeedIncrementPingIteration()
     pingStorage_.incIteration();
 }
 
-void CustomConfigLocationsModel::onResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
+void CustomConfigLocationsModel::onDnsRequestFinished()
 {
-    if (userPointer == this)
+    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
+    Q_ASSERT(dnsRequest != nullptr);
+
+    for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {
-        for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
+        for (auto remoteIt = it->remotes.begin(); remoteIt != it->remotes.end(); ++remoteIt)
         {
-            for (auto remoteIt = it->remotes.begin(); remoteIt != it->remotes.end(); ++remoteIt)
+            if (remoteIt->isHostname && remoteIt->ipOrHostname.ip == dnsRequest->hostname())
             {
-                if (remoteIt->isHostname && remoteIt->ipOrHostname.ip == hostname)
+                remoteIt->isResolved = true;
+                remoteIt->ips.clear();
+
+                for (const QString &ip : dnsRequest->ips())
                 {
-                    remoteIt->isResolved = true;
-                    remoteIt->ips.clear();
+                    IpItem ipItem;
+                    ipItem.ip = ip;
+                    ipItem.pingTime = pingStorage_.getNodeSpeed(ipItem.ip);
+                    remoteIt->ips << ipItem;
 
-                    for (const QHostAddress &ha : hostInfo.addresses())
-                    {
-                        IpItem ipItem;
-                        ipItem.ip = ha.toString();
-                        ipItem.pingTime = pingStorage_.getNodeSpeed(ipItem.ip);
-                        remoteIt->ips << ipItem;
-
-                        emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
-                    }
+                    emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
                 }
             }
         }
-        if (isAllResolved())
-        {
-            startPingAndWhitelistIps();
-        }
     }
+    if (isAllResolved())
+    {
+        startPingAndWhitelistIps();
+    }
+    dnsRequest->deleteLater();
 }
 
 bool CustomConfigLocationsModel::isAllResolved() const

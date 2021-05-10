@@ -3,16 +3,16 @@
 
 #include <QString>
 #include <QObject>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QFile>
 
+class NetworkAccessManager;
+class NetworkReply;
 
 class DownloadHelper : public QObject
 {
     Q_OBJECT
 public:
-    explicit DownloadHelper(QObject *parent = nullptr);
+    explicit DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager);
 
     enum DownloadState {
         DOWNLOAD_STATE_INIT,
@@ -34,12 +34,11 @@ signals:
 private slots:
     void onReplyFinished();
     void onReplyDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
-    void onReplyError(QNetworkReply::NetworkError error);
     void onReplyReadyRead();
 
 private:
-    QNetworkAccessManager networkAccessManager_;
-    QNetworkReply *reply_;
+    NetworkAccessManager *networkAccessManager_;
+    NetworkReply *reply_;
     QFile *file_;
 
     QString downloadPath_;

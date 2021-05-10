@@ -6,7 +6,8 @@
 #include <QWaitCondition>
 #include <QMutex>
 #include "curlrequest.h"
-#include "certmanager.h"
+#include "engine/networkaccessmanager/certmanager.h"
+#include "engine/networkaccessmanager/curlinitcontroller.h"
 #include "engine/proxy/proxysettings.h"
 
 // comment, if no need log file from curl
@@ -39,6 +40,7 @@ protected:
     virtual void run();
 
 private:
+    CurlInitController curlInit_;
     CertManager certManager_;
     bool bIgnoreSslErrors_;
     QQueue<CurlRequest *> queue_;

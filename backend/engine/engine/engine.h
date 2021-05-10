@@ -27,6 +27,7 @@
 #include "packetsizecontroller.h"
 #include "autoupdater/downloadhelper.h"
 #include "autoupdater/autoupdaterhelper_mac.h"
+#include "networkaccessmanager/networkaccessmanager.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
@@ -229,6 +230,7 @@ private slots:
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void onCheckUpdateAnswer(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
     void onHostIPsChanged(const QStringList &hostIps);
+    void onWhitelistedIPsChanged(const QSet<QString> &ips);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
@@ -299,6 +301,7 @@ private:
     IHelper *helper_;
     INetworkStateManager *networkStateManager_;
     FirewallController *firewallController_;
+    NetworkAccessManager *networkAccessManager_;
     ServerAPI *serverAPI_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
