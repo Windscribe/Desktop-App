@@ -729,12 +729,13 @@ bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
     oa << cmd;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DNS_WHILE_CONNECTED, stream.str());
-    return mpr.success;
+    return mpr.exitCode == 0;
 }
 
 bool Helper_win::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties)
 {
     // nothing to do
+    return false;
 }
 
 bool Helper_win::setKextPath(const QString &/*kextPath*/)

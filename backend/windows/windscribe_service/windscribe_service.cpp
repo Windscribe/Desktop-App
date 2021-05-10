@@ -875,9 +875,11 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		wchar_t logBuf[1024];
 		wcscpy(logBuf, L"AA_COMMAND_DNS_WHILE_CONNECTED: ");
 		wcscat(logBuf, szBuf);
+		wcscat(logBuf, L" ");
+		wcscat(logBuf, mpr.success ? L"Success" : L"Failure");
+		wcscat(logBuf, L" ");
+		wcscat(logBuf, std::to_wstring(mpr.exitCode).c_str());
 		Logger::instance().out(logBuf);
-
-		mpr.success = true;
 	}
 	else if (cmdId == AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE)
 	{
