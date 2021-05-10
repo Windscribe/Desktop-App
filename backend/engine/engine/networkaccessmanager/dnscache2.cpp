@@ -34,15 +34,21 @@ public:
     }
 
 private:
-    QMap<QString, quint64> map_;
+    QMultiMap<QString, quint64> map_;
 };
 
-DnsCache2::DnsCache2(QObject *parent, int cacheTimeoutMs /*= 60000*/, int reviewCacheIntervalMs /*= 1000*/) : QObject(parent), usages_(new Usages),
+DnsCache2::DnsCache2(QObject *parent, int cacheTimeoutMs /*= 60000*/, int reviewCacheIntervalMs /*= 1000*/) : QObject(parent),
     cacheTimeoutMs_(cacheTimeoutMs)
 {
+    usages_ = new Usages;
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), SLOT(onTimer()));
     timer->start(reviewCacheIntervalMs);
+}
+
+DnsCache2::~DnsCache2()
+{
+    delete usages_;
 }
 
 void DnsCache2::resolve(const QString &hostname, quint64 id, bool bypassCache /*= false*/, const QStringList &dnsServers /*= QStringList()*/, int timeoutMs /*= 5000*/)

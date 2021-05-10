@@ -1,7 +1,7 @@
 #include "networkaccessmanager.h"
 #include "engine/dnsresolver/dnsrequest.h"
 
-std::atomic<quint64> NetworkAccessManager::nextId_ = 0;
+std::atomic<quint64> NetworkAccessManager::nextId_(0);
 
 NetworkAccessManager::NetworkAccessManager(QObject *parent) : QObject(parent)
 {

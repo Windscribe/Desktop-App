@@ -12,6 +12,7 @@ public:
     class Usages;
 
     explicit DnsCache2(QObject *parent, int cacheTimeoutMs = 60000, int reviewCacheIntervalMs = 1000);
+    virtual ~DnsCache2();
 
     void resolve(const QString &hostname, quint64 id, bool bypassCache = false, const QStringList &dnsServers = QStringList(), int timeoutMs = 5000);
     void notifyFinished(quint64 id);
@@ -43,7 +44,7 @@ private:
     };
 
     QMap<QString, CacheItem> cache_;
-    QScopedPointer<Usages> usages_;
+    Usages *usages_;
     QSet<QString> lastWhitelistIps_;
     int cacheTimeoutMs_;
 
