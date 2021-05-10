@@ -1241,7 +1241,8 @@ void MainWindow::onUpgradeAccountCancel()
 
 void MainWindow::onGeneralMessageWindowAccept()
 {
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+    // currently GeneralMessageWindow only uses for WINDOW_ID_UPDATE
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
 }
 
 void MainWindow::onExitWindowAccept()
@@ -2165,7 +2166,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 mainWindowController_->getUpdateWindow()->stopAnimation();
                 mainWindowController_->getUpdateWindow()->changeToPromptScreen();
 
-                QString titleText = tr("Auto-Updater installation has failed");
+                QString titleText = tr("Auto-Update has failed");
                 QString descText = tr("Please contact support");
                 if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
                 {
@@ -2195,7 +2196,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 {
                     descText = tr("Auto-Updater has failed to run installer.");
                 }
-                QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
+                mainWindowController_->getGeneralMessageWindow()->setErrorMode(true);
+                mainWindowController_->getGeneralMessageWindow()->setTitle(titleText);
+                mainWindowController_->getGeneralMessageWindow()->setDescription(descText);
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
             }
         }
         else

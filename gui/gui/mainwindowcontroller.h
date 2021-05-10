@@ -187,8 +187,6 @@ private:
     static constexpr int SCREEN_SWITCH_OPACITY_ANIMATION_DURATION = 150;
     static constexpr int EXPAND_PREFERENCES_OPACITY_DURATION = 200;
     static constexpr int EXPAND_PREFERENCES_RESIZE_DURATION = 250;
-    //static constexpr int EXPAND_PREFERENCES_OPACITY_DURATION = 2000;
-    //static constexpr int EXPAND_PREFERENCES_RESIZE_DURATION = 2500;
     static constexpr int EXPAND_ANIMATION_DURATION = 250;
     static constexpr int HIDE_BOTTOM_INFO_ANIMATION_DURATION = 150;
     static constexpr int BOTTOM_INFO_POS_Y_SHOWING = 287;

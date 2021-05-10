@@ -1700,7 +1700,14 @@ void MainWindowController::gotoUpdateWindow()
     functionOnAnimationFinished_ = [this, saveCurWindow]()
     {
         updateWindow_->getGraphicsObject()->setOpacity(0.0);
-        connectWindow_->getGraphicsObject()->stackBefore(updateWindow_->getGraphicsObject());
+        if (saveCurWindow == WINDOW_ID_GENERAL_MESSAGE)
+        {
+            generalMessageWindow_->getGraphicsObject()->stackBefore(updateWindow_->getGraphicsObject());
+        }
+        else
+        {
+            connectWindow_->getGraphicsObject()->stackBefore(updateWindow_->getGraphicsObject());
+        }
         updateWindow_->getGraphicsObject()->show();
 
         QPropertyAnimation *anim1 = new QPropertyAnimation(this);
@@ -1747,7 +1754,7 @@ void MainWindowController::gotoUpdateWindow()
         {
             anim4 = new QPropertyAnimation(this);
             anim4->setTargetObject(generalMessageWindow_->getGraphicsObject());
-            anim4->setPropertyName("opacity");
+            //anim4->setPropertyName("opacity");
             anim4->setStartValue(generalMessageWindow_->getGraphicsObject()->opacity());
             anim4->setEndValue(0.0);
             anim4->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
@@ -1755,6 +1762,7 @@ void MainWindowController::gotoUpdateWindow()
             connect(anim4, &QPropertyAnimation::finished, [this]()
             {
                 generalMessageWindow_->getGraphicsObject()->hide();
+                updateWindow_->setClickable(true);
             });
         }
 
@@ -1845,19 +1853,43 @@ void MainWindowController::gotoUpgradeWindow()
 
 void MainWindowController::gotoGeneralMessageWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
+    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT || curWindow_ == WINDOW_ID_UPDATE);
 
     isAtomicAnimationActive_ = true;
+    WINDOW_ID saveCurWindow = curWindow_;
     curWindow_ = WINDOW_ID_GENERAL_MESSAGE;
 
     TooltipController::instance().hideAllTooltips();
-    connectWindow_->setClickable(false);
+    if (saveCurWindow == WINDOW_ID_CONNECT)
+    {
+        connectWindow_->setClickable(false);
+    }
+    else if (saveCurWindow == WINDOW_ID_UPDATE)
+    {
+        updateWindow_->setClickable(false);
+    }
+    else
+    {
+        Q_ASSERT(false);
+    }
+
     bottomInfoWindow_->setClickable(false);
 
-    functionOnAnimationFinished_ = [this]()
+    functionOnAnimationFinished_ = [this, saveCurWindow]()
     {
         generalMessageWindow_->getGraphicsObject()->setOpacity(0.0);
-        connectWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        if (saveCurWindow == WINDOW_ID_CONNECT)
+        {
+            connectWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        }
+        else if (saveCurWindow == WINDOW_ID_UPDATE)
+        {
+            updateWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
         generalMessageWindow_->getGraphicsObject()->show();
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
