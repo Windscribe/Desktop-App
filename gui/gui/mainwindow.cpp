@@ -2166,11 +2166,11 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 mainWindowController_->getUpdateWindow()->stopAnimation();
                 mainWindowController_->getUpdateWindow()->changeToPromptScreen();
 
-                QString titleText = tr("Auto-Update has failed");
+                QString titleText = tr("Auto-Update Failed");
                 QString descText = tr("Please contact support");
                 if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
                 {
-                    descText = tr("Download has failed to complete. Please try again over a strong internet connection.");
+                    descText = tr("Please try again using a different network connection.");
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
                 {
@@ -2186,7 +2186,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL)
                 {
-                    descText = tr("Cannot overwrite a pre-existing temporary installer");
+                    descText = tr("Cannot overwrite a pre-existing temporary installer.");
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COPY_FAIL)
                 {
