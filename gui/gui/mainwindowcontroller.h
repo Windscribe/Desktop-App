@@ -62,7 +62,6 @@ public:
 
     void setWindowPosFromPersistent();
     void setIsDockedToTray(bool isDocked);
-    void setIsShowCountryFlags(bool isShowCountryFlags);
 
     bool preferencesVisible();
     WINDOW_ID currentWindow();

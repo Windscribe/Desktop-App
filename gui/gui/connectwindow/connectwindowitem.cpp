@@ -14,7 +14,7 @@
 
 namespace ConnectWindow {
 
-ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
+ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject (parent),
       preferencesHelper_(preferencesHelper),
       networkName_(""),
@@ -195,11 +195,6 @@ void ConnectWindowItem::setFirewallBlock(bool isFirewallBlocked)
 void ConnectWindowItem::setTestTunnelResult(bool success)
 {
     connectStateProtocolPort_->setTestTunnelResult(success);
-}
-
-void ConnectWindowItem::setIsShowCountryFlags(bool isShowCountryFlags)
-{
-    background_->setShowCountryFlags(isShowCountryFlags);
 }
 
 void ConnectWindowItem::updateScaling()

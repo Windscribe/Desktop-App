@@ -25,7 +25,6 @@ ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &captio
     button_->setClickable(true);
     connect(button_, SIGNAL(clicked()), SLOT(onMenuOpened()));
     button_->setFont(FontDescr(12, false));
-    button_->setPos(boundingRect().width()  - button_->boundingRect().width() - 12, (boundingRect().height() - 3 - button_->boundingRect().height()) / 2);
     connect(button_, SIGNAL(widthChanged(int)), this, SLOT(onButtonWidthChanged(int)));
     connect(button_, SIGNAL(hoverEnter()), SIGNAL(buttonHoverEnter()));
     connect(button_, SIGNAL(hoverLeave()), SIGNAL(buttonHoverLeave()));
@@ -310,8 +309,7 @@ void ComboBoxItem::onButtonWidthChanged(int newWidth)
 {
     Q_UNUSED(newWidth);
 
-    button_->setPos(boundingRect().width()  - button_->boundingRect().width() - 12,
-                    (boundingRect().height() - 3 - button_->boundingRect().height()) / 2);
+    button_->setPos(boundingRect().width()  - button_->boundingRect().width() - 12*G_SCALE, (boundingRect().height() - 3*G_SCALE - button_->boundingRect().height()) / 2);
 }
 
 } // namespace PreferencesWindow

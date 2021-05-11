@@ -114,18 +114,18 @@ void Preferences::setShowNotifications(bool b)
     }
 }
 
-bool Preferences::isShowCountryFlags() const
+ProtoTypes::BackgroundSettings Preferences::backgroundSettings() const
 {
-    return guiSettings_.is_show_country_flags();
+    return guiSettings_.background_settings();
 }
 
-void Preferences::setShowCountryFlags(bool b)
+void Preferences::setBackgroundSettings(const ProtoTypes::BackgroundSettings &backgroundSettings)
 {
-    if (guiSettings_.is_show_country_flags() != b)
+    if (!google::protobuf::util::MessageDifferencer::Equals(guiSettings_.background_settings(), backgroundSettings))
     {
-        guiSettings_.set_is_show_country_flags(b);
+        *guiSettings_.mutable_background_settings() = backgroundSettings;
         saveGuiSettings();
-        emit isShowCountryFlagsChanged(guiSettings_.is_show_country_flags());
+        emit backgroundSettingsChanged(backgroundSettings);
     }
 }
 

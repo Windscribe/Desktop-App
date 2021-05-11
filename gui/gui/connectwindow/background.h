@@ -28,15 +28,6 @@ public:
     void setDarkMode(bool dark);
     void setShowCountryFlags(bool isShowCountryFlags);
 
-    qreal opacityConnecting();
-    void setOpacityConnecting(qreal v);
-
-    qreal opacityConnected();
-    void setOpacityConnected(qreal v);
-
-    qreal opacityDisconnected();
-    void setOpacityDisconnected(qreal v);
-
     QPixmap getShadowPixmap();
 
 private slots:
@@ -72,6 +63,15 @@ private:
     QString bottomLeftHorizDivider_;
 
     bool isShowCountryFlags_;
+
+    qreal opacityConnecting();
+    void setOpacityConnecting(qreal v);
+
+    qreal opacityConnected();
+    void setOpacityConnected(qreal v);
+
+    qreal opacityDisconnected();
+    void setOpacityDisconnected(qreal v);
 };
 
 } //namespace ConnectWindow

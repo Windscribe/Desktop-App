@@ -238,6 +238,8 @@ SOURCES += \
     overlaysconnectwindow/generalmessagewindowitem.cpp \
     overlaysconnectwindow/updateappitem.cpp \
     preferenceswindow/debugwindow/apiresolutionitem.cpp \
+    preferenceswindow/generalwindow/backgroundsettingsitem.cpp \
+    preferenceswindow/generalwindow/selectimageitem.cpp \
     preferenceswindow/generalwindow/versioninfoitem.cpp \
     preferenceswindow/networkwhitelistwindow/currentnetworkitem.cpp \
     preferenceswindow/networkwhitelistwindow/networklistitem.cpp \
@@ -479,6 +481,8 @@ HEADERS += \
     loginwindow/initwindowitem.h \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.h \
     preferenceswindow/debugwindow/apiresolutionitem.h \
+    preferenceswindow/generalwindow/backgroundsettingsitem.h \
+    preferenceswindow/generalwindow/selectimageitem.h \
     preferenceswindow/generalwindow/versioninfoitem.h \
     preferenceswindow/networkwhitelistwindow/currentnetworkitem.h \
     preferenceswindow/networkwhitelistwindow/networklistitem.h \

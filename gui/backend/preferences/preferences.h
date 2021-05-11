@@ -32,8 +32,8 @@ public:
     bool isShowNotifications() const;
     void setShowNotifications(bool b);
 
-    bool isShowCountryFlags() const;
-    void setShowCountryFlags(bool b);
+    ProtoTypes::BackgroundSettings backgroundSettings() const;
+    void setBackgroundSettings(const ProtoTypes::BackgroundSettings &backgroundSettings);
 
     bool isDockedToTray() const;
     void setDockedToTray(bool b);
@@ -128,7 +128,8 @@ signals:
     void isAutoConnectChanged(bool b);
     void isAllowLanTrafficChanged(bool b);
     void isShowNotificationsChanged(bool b);
-    void isShowCountryFlagsChanged(bool b);
+    void backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings);
+
     void isDockedToTrayChanged(bool b);
     void languageChanged(const QString &lang);
     void locationOrderChanged(ProtoTypes::OrderLocationType o);

@@ -19,7 +19,6 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onIsLaunchOnStartupPreferencesChanged(bool)));
     connect(preferences, SIGNAL(isAutoConnectChanged(bool)), SLOT(onIsAutoConnectPreferencesChanged(bool)));
     connect(preferences, SIGNAL(isShowNotificationsChanged(bool)), SLOT(onIsShowNotificationsPreferencesChanged(bool)));
-    connect(preferences, SIGNAL(isShowCountryFlagsChanged(bool)), SLOT(onIsShowCountryFlagsPreferencesChanged(bool)));
     connect(preferences, SIGNAL(isDockedToTrayChanged(bool)), SLOT(onIsDockedToTrayPreferencesChanged(bool)));
     connect(preferences, SIGNAL(languageChanged(QString)), SLOT(onLanguagePreferencesChanged(QString)));
     connect(preferences, SIGNAL(locationOrderChanged(ProtoTypes::OrderLocationType)), SLOT(onLocationOrderPreferencesChanged(ProtoTypes::OrderLocationType)));
@@ -58,10 +57,12 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(checkBoxShowNotifications_, SIGNAL(stateChanged(bool)), SLOT(onIsShowNotificationsClicked(bool)));
     addItem(checkBoxShowNotifications_);
 
-    checkBoxShowCountryFlags_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show country flags"), QString());
+    backgroundSettingsItem_ = new BackgroundSettingsItem(this);
+    addItem(backgroundSettingsItem_);
+    /*checkBoxShowCountryFlags_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show country flags"), QString());
     checkBoxShowCountryFlags_->setState(preferences->isShowCountryFlags());
     connect(checkBoxShowCountryFlags_, SIGNAL(stateChanged(bool)), SLOT(onIsShowCountryFlagsClicked(bool)));
-    addItem(checkBoxShowCountryFlags_);
+    addItem(checkBoxShowCountryFlags_);*/
 
     checkBoxDockedToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Docked"), QString());
     checkBoxDockedToTray_->setState(preferences->isDockedToTray());
@@ -175,15 +176,6 @@ void GeneralWindowItem::onIsShowNotificationsClicked(bool b)
     preferences_->setShowNotifications(b);
 }
 
-void GeneralWindowItem::onIsShowCountryFlagsPreferencesChanged(bool b)
-{
-    checkBoxShowCountryFlags_->setState(b);
-}
-
-void GeneralWindowItem::onIsShowCountryFlagsClicked(bool b)
-{
-    preferences_->setShowCountryFlags(b);
-}
 
 void GeneralWindowItem::onIsDockedToTrayPreferencesChanged(bool b)
 {
@@ -272,10 +264,6 @@ void GeneralWindowItem::onLanguageChanged()
 void GeneralWindowItem::updateScaling()
 {
     BasePage::updateScaling();
-    /*comboBoxLanguage_->updateScaling();
-    comboBoxLocationOrder_->updateScaling();
-    comboBoxLatencyDisplay_->updateScaling();
-    comboBoxUpdateChannel_->updateScaling();*/
 }
 
 void GeneralWindowItem::hideOpenPopups()

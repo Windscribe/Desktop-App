@@ -68,7 +68,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     loginWindow_ = new LoginWindow::LoginWindowItem(nullptr, preferencesHelper);
     loggingInWindow_ = new LoginWindow::LoggingInWindowItem();
     initWindow_ = new LoginWindow::InitWindowItem();
-    connectWindow_ = new ConnectWindow::ConnectWindowItem(nullptr, preferencesHelper);
+    connectWindow_ = new ConnectWindow::ConnectWindowItem(nullptr, preferences, preferencesHelper);
     emergencyConnectWindow_ = new EmergencyConnectWindow::EmergencyConnectWindowItem(nullptr, preferencesHelper);
     externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem(nullptr, preferencesHelper);
     twoFactorAuthWindow_ = new TwoFactorAuthWindow::TwoFactorAuthWindowItem(nullptr, preferencesHelper);
@@ -304,11 +304,6 @@ void MainWindowController::setIsDockedToTray(bool isDocked)
 {
     preferencesHelper_->setIsDockedToTray(isDocked);
     updateMainAndViewGeometry(true);
-}
-
-void MainWindowController::setIsShowCountryFlags(bool isShowCountryFlags)
-{
-    connectWindow_->setIsShowCountryFlags(isShowCountryFlags);
 }
 
 bool MainWindowController::preferencesVisible()

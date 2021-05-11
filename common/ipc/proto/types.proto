@@ -465,6 +465,24 @@ message NetworkWhiteList
   repeated NetworkInterface networks = 1;
 }
 
+
+enum BackgroundType
+{
+  BACKGROUND_TYPE_NONE = 0;
+  BACKGROUND_TYPE_COUNTRY_FLAGS = 1;
+  BACKGROUND_TYPE_CUSTOM = 2;
+}
+
+
+message BackgroundSettings
+{
+  optional BackgroundType background_type = 1 [default = BACKGROUND_TYPE_COUNTRY_FLAGS];
+  optional bool is_show_custom_background = 2 [default = false];
+  optional string background_image_disconnected = 3;
+  optional string background_image_connected = 4;
+}
+
+
 // gui settings, which can be changed by user
 message GuiSettings
 {
@@ -479,7 +497,8 @@ message GuiSettings
   optional SplitTunneling split_tunneling = 9;
   optional bool is_docked_to_tray = 10 [default = false];
   optional bool is_minimize_and_close_to_tray = 11 [default = false];
-  optional bool is_show_country_flags = 12 [default = true];
+  optional bool is_show_country_flags = 12 [deprecated=true];
+  optional BackgroundSettings background_settings = 13; 
 }
 
 

@@ -5,6 +5,7 @@
 #include "../checkboxitem.h"
 #include "../comboboxitem.h"
 #include "versioninfoitem.h"
+#include "backgroundsettingsitem.h"
 #include "../backend/preferences/preferenceshelper.h"
 #include "../backend/preferences/preferences.h"
 
@@ -37,8 +38,8 @@ private slots:
     void onIsShowNotificationsPreferencesChanged(bool b);
     void onIsShowNotificationsClicked(bool b);
 
-    void onIsShowCountryFlagsPreferencesChanged(bool b);
-    void onIsShowCountryFlagsClicked(bool b);
+    ///void onIsShowCountryFlagsPreferencesChanged(bool b);
+    ///void onIsShowCountryFlagsClicked(bool b);
 
     void onIsDockedToTrayPreferencesChanged(bool b);
     void onDockedToTrayChanged(bool b);
@@ -69,7 +70,7 @@ private:
     CheckBoxItem *checkBoxLaunchOnStart_;
     CheckBoxItem *checkBoxAutoConnect_;
     CheckBoxItem *checkBoxShowNotifications_;
-    CheckBoxItem *checkBoxShowCountryFlags_;
+    BackgroundSettingsItem *backgroundSettingsItem_;
     CheckBoxItem *checkBoxDockedToTray_;
 
 #ifdef Q_OS_WIN
