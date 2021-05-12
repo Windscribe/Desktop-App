@@ -3,9 +3,13 @@
 #include <QPainter>
 #include "../basepage.h"
 #include "graphicresources/fontmanager.h"
+#include <QFileDialog>
 #include <time.h>
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
+#include "showingdialogstate.h"
+
+extern QWidget *g_mainWindow;
 
 namespace PreferencesWindow {
 
@@ -37,8 +41,6 @@ void SelectImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    //painter->fillRect(boundingRect(), Qt::red);
-
     qreal initOpacity = painter->opacity();
     painter->setOpacity(0.5 * initOpacity);
 
@@ -49,7 +51,7 @@ void SelectImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     QRectF rcText = boundingRect().adjusted(24*G_SCALE, 0, -16*G_SCALE, -BODY_HEIGHT*G_SCALE);
     painter->drawText(rcText, Qt::AlignLeft | Qt::AlignVCenter, caption_);
-    font = FontManager::instance().getFont(12, false);
+    font = FontManager::instance().getFont(11, false);
     painter->setFont(*font);
     painter->drawText(rcText, Qt::AlignRight | Qt::AlignVCenter, "664x352");
 
@@ -66,13 +68,15 @@ void SelectImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     rcText = boundingRect().adjusted((24 + 8)*G_SCALE, TITLE_HEIGHT*G_SCALE, -16*G_SCALE*2 -8*G_SCALE, -3*G_SCALE);
     QFontMetrics fm(*font);
-    QString elidedPath = fm.elidedText(path_, Qt::ElideRight, rcText.width());
+    QString elidedPath = fm.elidedText(filenameForShow_, Qt::ElideRight, rcText.width());
     painter->drawText(rcText, Qt::AlignLeft | Qt::AlignVCenter, elidedPath);
 }
 
 void SelectImageItem::setPath(const QString &path)
 {
     path_ = path;
+    QFileInfo fileInfo(path);
+    filenameForShow_ = fileInfo.fileName();
     update();
 }
 
@@ -84,7 +88,20 @@ void SelectImageItem::updateScaling()
 
 void SelectImageItem::onOpenClick()
 {
+    QString filename;
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
+    filename = QFileDialog::getOpenFileName(g_mainWindow, tr("Select an image"), QString(), "Images (*.png *.jpg *.gif)");
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
+    if (!filename.isEmpty())
+    {
+        QString prevPath = path_;
+        setPath(filename);
+        if (prevPath != path_)
+        {
+            emit pathChanged(path_);
+        }
+    }
 }
 
 

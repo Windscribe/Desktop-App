@@ -33,7 +33,7 @@ void IconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     qreal initialOpacity = painter->opacity();
     painter->setOpacity(curOpacity_ * initialOpacity);
 
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     int rcW = static_cast<int>(boundingRect().width() );
     int rcH = static_cast<int>(boundingRect().height());
     int w = static_cast<int>(p->width());
@@ -50,7 +50,7 @@ void IconButton::setIcon(QString imagePath)
 {
     imagePath_ = imagePath;
     prepareGeometryChange();
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     width_ = p->width()/G_SCALE;
     height_ = p->height()/G_SCALE;
 

@@ -109,15 +109,15 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     // main background
     painter->setOpacity(curBackgroundOpacity_ * initialOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(mainBackground_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(mainBackground_);
     p->draw(0, 0, painter);
 
     // header background
     painter->setOpacity(initialOpacity);
-    IndependentPixmap *p3 = ImageResourcesSvg::instance().getIndependentPixmap(headerBackground_);
+    QSharedPointer<IndependentPixmap> p3 = ImageResourcesSvg::instance().getIndependentPixmap(headerBackground_);
     p3->draw(0, 27*G_SCALE, painter);
 
-    IndependentPixmap *p4 = ImageResourcesSvg::instance().getIndependentPixmap(locationButtonBG_);
+    QSharedPointer<IndependentPixmap> p4 = ImageResourcesSvg::instance().getIndependentPixmap(locationButtonBG_);
     p4->draw(93*G_SCALE, 242*G_SCALE, painter);
 
     // Message header

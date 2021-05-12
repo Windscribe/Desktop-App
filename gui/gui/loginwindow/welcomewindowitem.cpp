@@ -156,12 +156,12 @@ void WelcomeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
     painter->save();
 
-    IndependentPixmap *pixmap_background = ImageResourcesJpg::instance().getIndependentPixmap("welcome", WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE);
+    QSharedPointer<IndependentPixmap> pixmap_background = ImageResourcesJpg::instance().getIndependentPixmap("welcome", WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE);
     pixmap_background->draw(0, 0, WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE, painter);
 
     painter->setOpacity(initOpacity);
 
-    IndependentPixmap *pixmap_badge = ImageResourcesSvg::instance().getIndependentPixmap("BADGE_ICON");
+    QSharedPointer<IndependentPixmap> pixmap_badge = ImageResourcesSvg::instance().getIndependentPixmap("BADGE_ICON");
     pixmap_badge->draw(curBadgePosX_ * G_SCALE, curBadgePosY_* G_SCALE, BADGE_WIDTH_BIG * G_SCALE, BADGE_HEIGHT_BIG * G_SCALE, painter);
 
     painter->setFont(*FontManager::instance().getFont(24, true));

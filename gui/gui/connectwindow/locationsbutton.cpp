@@ -49,7 +49,7 @@ QRectF LocationsButton::boundingRect() const
 
 QPainterPath LocationsButton::shape() const
 {
-    IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(backgroundDark_);
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(backgroundDark_);
 
     QPainterPath path;
     path.addRegion(QRegion(pixmap->mask()));
@@ -64,11 +64,11 @@ void LocationsButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     //painter->fillRect(boundingRect(), QBrush(QColor(0, 25, 255)));
     double initOpacity = painter->opacity();
     painter->setOpacity(backgroundDarkOpacity_ * initOpacity);
-    IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(backgroundDark_);
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(backgroundDark_);
     pixmap->draw(0, 0, painter);
 
     painter->setOpacity(backgroundLightOpacity_ * initOpacity);
-    IndependentPixmap *pixmapLight = ImageResourcesSvg::instance().getIndependentPixmap(backgroundLight_);
+    QSharedPointer<IndependentPixmap> pixmapLight = ImageResourcesSvg::instance().getIndependentPixmap(backgroundLight_);
     pixmapLight->draw(0, 0, painter);
 
     painter->setOpacity(initOpacity);

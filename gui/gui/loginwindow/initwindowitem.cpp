@@ -74,7 +74,7 @@ void InitWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     // logo
     //const int logoPosX = WINDOW_WIDTH/2*G_SCALE - 20 * G_SCALE;
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("login/BADGE_ICON");
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("login/BADGE_ICON");
     int logoPosX = (boundingRect().width() - p->width()) / 2;
     p->draw(logoPosX, curLogoPosY_ * G_SCALE, painter);
 

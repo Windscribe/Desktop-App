@@ -26,11 +26,11 @@ public:
     void clearHashAndStartPreloading();
     void finishGracefully();
 
-    IndependentPixmap *getIndependentPixmap(const QString &name);
-    IndependentPixmap *getIconIndependentPixmap(const QString &name);
+    QSharedPointer<IndependentPixmap> getIndependentPixmap(const QString &name);
+    QSharedPointer<IndependentPixmap> getIconIndependentPixmap(const QString &name);
 
-    IndependentPixmap *getFlag(const QString &flagName);
-    IndependentPixmap *getScaledFlag(const QString &flagName, int width, int height, int flags = 0);
+    QSharedPointer<IndependentPixmap> getFlag(const QString &flagName);
+    QSharedPointer<IndependentPixmap> getScaledFlag(const QString &flagName, int width, int height, int flags = 0);
 
 protected:
     void run() override;
@@ -39,8 +39,8 @@ private:
     ImageResourcesSvg();
     virtual ~ImageResourcesSvg();
 
-    QHash<QString, IndependentPixmap *> iconHashes_;
-    QHash<QString, IndependentPixmap *> hashIndependent_;
+    QHash<QString, QSharedPointer<IndependentPixmap> > iconHashes_;
+    QHash<QString, QSharedPointer<IndependentPixmap> > hashIndependent_;
     std::atomic<bool> bNeedFinish_;
     bool bFininishedGracefully_;
     QMutex mutex_;
@@ -49,7 +49,7 @@ private:
     bool loadIconFromResource(const QString &name);
     bool loadFromResource(const QString &name);
     bool loadFromResourceWithCustomSize(const QString &name, int width, int height, int flags);
-    IndependentPixmap *getIndependentPixmapScaled(const QString &name, int width, int height, int flags);
+    QSharedPointer<IndependentPixmap> getIndependentPixmapScaled(const QString &name, int width, int height, int flags);
     void clearHash();
 };
 

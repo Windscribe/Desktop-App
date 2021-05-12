@@ -243,7 +243,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     if (cityModelItem_.id.isStaticIpsLocation())
     {
         // static ip icon
-        IndependentPixmap *datacenterPixmap = nullptr;
+        QSharedPointer<IndependentPixmap> datacenterPixmap;
         if (cityModelItem_.staticIpType.compare("dc", Qt::CaseInsensitive) == 0)
         {
             datacenterPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/DATACENTER_ICON");
@@ -273,7 +273,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     else if (isForbidden())
     {
         // pro star
-        IndependentPixmap *premiumStarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_CITY_STAR");
+        QSharedPointer<IndependentPixmap> premiumStarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_CITY_STAR");
         premiumStarPixmap->draw(LOCATION_ITEM_MARGIN * G_SCALE,
                                 (LOCATION_ITEM_HEIGHT*G_SCALE - premiumStarPixmap->height()) / 2, &painter);
     }
@@ -282,7 +282,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
         QString type = cityModelItem_.customConfigType;
         if (!type.isEmpty())
         {
-            IndependentPixmap *configPixmap = ImageResourcesSvg::instance().getIndependentPixmap(
+            QSharedPointer<IndependentPixmap> configPixmap = ImageResourcesSvg::instance().getIndependentPixmap(
                 QString("locations/%1_ICON").arg(type.toUpper()));
             if (configPixmap) {
                 painter.setOpacity(curTextOpacity_);
@@ -293,7 +293,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     }
     else // fav
     {
-        IndependentPixmap *fIcon = ImageResourcesSvg::instance().getIndependentPixmap(favLightWidget_->icon());
+        QSharedPointer<IndependentPixmap> fIcon = ImageResourcesSvg::instance().getIndependentPixmap(favLightWidget_->icon());
         if (fIcon)
         {
             painter.setOpacity(favLightWidget_->opacity());
@@ -320,7 +320,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
 
     if (disabled)
     {
-        IndependentPixmap *consIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/UNDER_CONSTRUCTION_ICON");
+        QSharedPointer<IndependentPixmap> consIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/UNDER_CONSTRUCTION_ICON");
         if (consIcon)
         {
             painter.setOpacity(OPACITY_HALF);
@@ -332,7 +332,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     else if (isBrokenConfig())
     {
         painter.save();
-        IndependentPixmap *pingIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/ERROR_ICON");
+        QSharedPointer<IndependentPixmap> pingIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/ERROR_ICON");
         pingIcon->draw(pingIconLightWidget_->rect().x(), pingIconLightWidget_->rect().y(), &painter);
         painter.restore();
     }
@@ -364,7 +364,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     }
     else if (showPingIcon_)
     {
-        IndependentPixmap *pingIcon = ImageResourcesSvg::instance().getIndependentPixmap(pingIconLightWidget_->icon());
+        QSharedPointer<IndependentPixmap> pingIcon = ImageResourcesSvg::instance().getIndependentPixmap(pingIconLightWidget_->icon());
         if (pingIcon)
         {
             painter.save();

@@ -11,14 +11,14 @@ IconWidget::IconWidget(const QString &imagePath, QWidget *parent) : QWidget(pare
 
 int IconWidget::width()
 {
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     if (p) return p->width();
     return 0;
 }
 
 int IconWidget::height()
 {
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     if (p) return p->height();
     return 0;
 }
@@ -42,7 +42,7 @@ void IconWidget::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     qreal initOpacity = painter.opacity();
     painter.setOpacity(curOpacity_ * initOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     p->draw(0,0,&painter);
 }
 

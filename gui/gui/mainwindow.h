@@ -322,7 +322,6 @@ private:
     bool internetConnected_;
 
     bool currentlyShowingUserWarningMessage_;
-    bool currentlyShowingExternalDialog_;
 
     void activateAndShow();
     void deactivateAndHide();

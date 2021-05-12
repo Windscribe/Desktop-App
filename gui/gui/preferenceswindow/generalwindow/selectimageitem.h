@@ -36,6 +36,7 @@ private:
 
     QString caption_;
     QString path_;
+    QString filenameForShow_;
     IconButton *btnOpen_;
     DividerLine *dividerLine_;
 

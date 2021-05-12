@@ -7,6 +7,7 @@
 #include "../backend/types/types.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "utils/protobuf_includes.h"
+#include "backgroundimage/backgroundimage.h"
 
 namespace ConnectWindow {
 
@@ -17,7 +18,7 @@ class Background : public ScalableGraphicsObject
     Q_PROPERTY(qreal opacityDisconnected READ opacityDisconnected WRITE setOpacityDisconnected)
     Q_OBJECT
 public:
-    explicit Background(ScalableGraphicsObject *parent);
+    explicit Background(ScalableGraphicsObject *parent, Preferences *preferences);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -26,12 +27,11 @@ public:
     void onLocationSelected(const QString &countryCode);
 
     void setDarkMode(bool dark);
-    void setShowCountryFlags(bool isShowCountryFlags);
 
     QPixmap getShadowPixmap();
 
 private slots:
-     void onFlagOpacityChanged(const QVariant &value);
+     void doUpdate();
 
 private:
     static constexpr int ANIMATION_DURATION = 600;
@@ -44,11 +44,7 @@ private:
     QPropertyAnimation opacityConnectedAnimation_;
     QPropertyAnimation opacityDisconnectedAnimation_;
 
-    QString prevCountryCode_;
-    QString countryCode_;
-    QVariantAnimation opacityFlagAnimation_;
-    qreal opacityCurFlag_;
-    qreal opacityPrevFlag_;
+    BackgroundImage backgroundImage_;
 
     QString topFrameBG_         ;
     QString flagGradient_       ;
@@ -61,8 +57,6 @@ private:
 
     QString midRightVertDivider_;
     QString bottomLeftHorizDivider_;
-
-    bool isShowCountryFlags_;
 
     qreal opacityConnecting();
     void setOpacityConnecting(qreal v);

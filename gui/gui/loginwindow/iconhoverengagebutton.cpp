@@ -42,7 +42,7 @@ void IconHoverEngageButton::paint(QPainter *painter, const QStyleOptionGraphicsI
     qreal initialOpacity = painter->opacity();
 
     painter->setOpacity(curOpacity_ * initialOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     p->draw(0, 0, painter);
 }
 

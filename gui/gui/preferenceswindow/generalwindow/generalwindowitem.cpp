@@ -24,6 +24,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, SIGNAL(locationOrderChanged(ProtoTypes::OrderLocationType)), SLOT(onLocationOrderPreferencesChanged(ProtoTypes::OrderLocationType)));
     connect(preferences, SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType)));
     connect(preferences, SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onUpdateChannelPreferencesChanged(ProtoTypes::UpdateChannel)));
+    connect(preferences, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onPreferencesBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
 #ifdef Q_OS_WIN
     connect(preferences, SIGNAL(minimizeAndCloseToTrayChanged(bool)), SLOT(onMinimizeAndCloseToTrayPreferencesChanged(bool)));
 #elif defined Q_OS_MAC
@@ -58,11 +59,9 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     addItem(checkBoxShowNotifications_);
 
     backgroundSettingsItem_ = new BackgroundSettingsItem(this);
+    backgroundSettingsItem_->setBackgroundSettings(preferences->backgroundSettings());
+    connect(backgroundSettingsItem_, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
     addItem(backgroundSettingsItem_);
-    /*checkBoxShowCountryFlags_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show country flags"), QString());
-    checkBoxShowCountryFlags_->setState(preferences->isShowCountryFlags());
-    connect(checkBoxShowCountryFlags_, SIGNAL(stateChanged(bool)), SLOT(onIsShowCountryFlagsClicked(bool)));
-    addItem(checkBoxShowCountryFlags_);*/
 
     checkBoxDockedToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Docked"), QString());
     checkBoxDockedToTray_->setState(preferences->isDockedToTray());
@@ -227,6 +226,16 @@ void GeneralWindowItem::onUpdateChannelPreferencesChanged(const ProtoTypes::Upda
 void GeneralWindowItem::onUpdateChannelItemChanged(QVariant o)
 {
     preferences_->setUpdateChannel((ProtoTypes::UpdateChannel)o.toInt());
+}
+
+void GeneralWindowItem::onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings)
+{
+    preferences_->setBackgroundSettings(settings);
+}
+
+void GeneralWindowItem::onPreferencesBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings)
+{
+    backgroundSettingsItem_->setBackgroundSettings(settings);
 }
 
 void GeneralWindowItem::onLanguageChanged()

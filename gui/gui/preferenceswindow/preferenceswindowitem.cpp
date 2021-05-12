@@ -52,6 +52,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     scrollAreaItem_ = new ScrollAreaItem(this, curHeight_  - 102 );
 
     generalWindowItem_ = new GeneralWindowItem(nullptr, preferences, preferencesHelper);
+
     accountWindowItem_ = new AccountWindowItem(nullptr, accountInfo);
     accountWindowItem_->setLoggedIn(false);
     connect(accountWindowItem_, SIGNAL(sendConfirmEmailClick()), SIGNAL(sendConfirmEmailClick()));
@@ -143,9 +144,9 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->fillRect(boundingRect().adjusted(0, 286*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
 
     // base background
-    IndependentPixmap *pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
+    QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
     pixmapBaseBackground->draw(0, 0, painter);
-    IndependentPixmap *pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
+    QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
     pixmapHeader->draw(0, 27*G_SCALE, painter);
 
     // draw page caption

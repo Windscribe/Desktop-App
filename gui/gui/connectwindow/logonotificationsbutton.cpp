@@ -37,7 +37,7 @@ void LogoNotificationsButton::paint(QPainter *painter, const QStyleOptionGraphic
     painter->setRenderHint(QPainter::Antialiasing);
 
     // LOGO
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("LOGO");
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("LOGO");
     p->draw(0, 10*G_SCALE, painter);
 
     const int notificationXOffset = 120*G_SCALE;

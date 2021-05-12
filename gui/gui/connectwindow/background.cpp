@@ -12,9 +12,8 @@
 namespace ConnectWindow {
 
 
-Background::Background(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
-    opacityConnecting_(0), opacityConnected_(0), opacityDisconnected_(1), opacityCurFlag_(1.0),
-    opacityPrevFlag_(0.0), isShowCountryFlags_(true)
+Background::Background(ScalableGraphicsObject *parent, Preferences *preferences) : ScalableGraphicsObject(parent),
+    opacityConnecting_(0), opacityConnected_(0), opacityDisconnected_(1), backgroundImage_(this, preferences)
 {
     opacityConnectingAnimation_.setTargetObject(this);
     opacityConnectingAnimation_.setPropertyName("opacityConnecting");
@@ -34,10 +33,7 @@ Background::Background(ScalableGraphicsObject *parent) : ScalableGraphicsObject(
     opacityDisconnectedAnimation_.setEndValue(0.0);
     opacityDisconnectedAnimation_.setDuration(ANIMATION_DURATION);
 
-    opacityFlagAnimation_.setStartValue(0.0);
-    opacityFlagAnimation_.setEndValue(1.0);
-    opacityFlagAnimation_.setDuration(500);
-    connect(&opacityFlagAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onFlagOpacityChanged(QVariant)));
+    connect(&backgroundImage_, SIGNAL(updated()), SLOT(doUpdate()));
 
     topFrameBG_         = "background/WIN_MAIN_BG";
     connectingGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING";
@@ -75,100 +71,71 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     // MAIN BG
     {
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(topFrameBG_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(topFrameBG_);
         pixmap->draw(0, 0, painter);
     }
 
-    // FLAG
+    // Background (FLAG, custom background, ...)
     {
-        QPixmap pixmap(WIDTH * G_SCALE, 176 * G_SCALE);
-        pixmap.fill(Qt::transparent);
-        QPainter p(&pixmap);
-
-        if (isShowCountryFlags_)
+        QPixmap *backgroundPixmap = backgroundImage_.currentPixmap();
+        if (backgroundPixmap)
         {
-            if (!prevCountryCode_.isEmpty())
-            {
-                IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(
-                    prevCountryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
-                p.setOpacity(opacityPrevFlag_);
-                if (indPix)
-                    indPix->draw(0, 0, &p);
-            }
-
-            if (!countryCode_.isEmpty())
-            {
-                IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(
-                    countryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
-                p.setOpacity(opacityCurFlag_);
-                if (indPix)
-                    indPix->draw(0, 0, &p);
-            }
+            painter->setOpacity(0.4);
+            painter->drawPixmap(0, 50*G_SCALE, *backgroundPixmap);
         }
-        else
-        {
-            IndependentPixmap *indPix = ImageResourcesSvg::instance().getScaledFlag(
-                "noflag", WIDTH * G_SCALE, 176 * G_SCALE);
-            p.setOpacity(opacityCurFlag_);
-            if (indPix)
-                indPix->draw(0, 0, &p);
-        }
-
-        painter->setOpacity(0.4);
-        painter->drawPixmap(0, 50*G_SCALE, pixmap);
     }
 
     // FLAG GRADIENT
     {
         painter->setOpacity(1.0);
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(flagGradient_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(flagGradient_);
         pixmap->draw(0, 50 * G_SCALE, painter);
     }
 
     // TOP GRADIENT
     {
         painter->setOpacity(opacityConnecting_);
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(connectingGradient_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(connectingGradient_);
         pixmap->draw(0, 0, painter);
     }
     {
         painter->setOpacity(opacityConnected_);
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(connectedGradient_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(connectedGradient_);
         pixmap->draw(0, 0, painter);
     }
 
     // HEADER
     {
         painter->setOpacity(opacityDisconnected_);
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerDisconnected_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerDisconnected_);
         pixmap->draw(0, 27*G_SCALE, painter);
     }
     {
         painter->setOpacity(opacityConnected_);
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnected_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnected_);
         pixmap->draw(0, 27*G_SCALE, painter);
     }
     {
         painter->setOpacity(opacityConnecting_);
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnecting_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnecting_);
         pixmap->draw(0, 27*G_SCALE, painter);
     }
 
     // BOTTOM
     {
         painter->setOpacity(1);
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(bottomFrameBG_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(bottomFrameBG_);
         pixmap->draw(0, 194*G_SCALE, painter);
     }
 
     // DIVIDERS
     {
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(midRightVertDivider_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(midRightVertDivider_);
         pixmap->draw(boundingRect().width() - 54 * G_SCALE, 166 * G_SCALE, painter);
     }
     {
         painter->setOpacity(0.1);
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(bottomLeftHorizDivider_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(bottomLeftHorizDivider_);
         pixmap->draw(0, 248 * G_SCALE, painter);
     }
 }
@@ -176,6 +143,8 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState)
 {
     Q_UNUSED(prevConnectState);
+
+    backgroundImage_.setIsConnected(newConnectState == ProtoTypes::CONNECTED);
 
     if (newConnectState == ProtoTypes::CONNECTING || newConnectState == ProtoTypes::DISCONNECTING)
     {
@@ -271,22 +240,7 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
 
 void Background::onLocationSelected(const QString &countryCode)
 {
-    if (countryCode_.isEmpty())
-    {
-        countryCode_ = countryCode;
-        opacityPrevFlag_ = 0.0;
-        opacityCurFlag_ = 1.0;
-        update();
-    }
-    else if (countryCode_ != countryCode)
-    {
-        prevCountryCode_ = countryCode_;
-        countryCode_ = countryCode;
-        opacityPrevFlag_ = 1.0;
-        opacityCurFlag_ = 0.0;
-        opacityFlagAnimation_.start();
-        update();
-    }
+    backgroundImage_.changeFlag(countryCode);
 }
 
 void Background::setDarkMode(bool dark)
@@ -300,12 +254,6 @@ void Background::setDarkMode(bool dark)
         bottomLeftHorizDivider_ = "BOTTOMLEFT_HORIZ_DIVIDER";
     }
 
-    update();
-}
-
-void Background::setShowCountryFlags(bool isShowCountryFlags)
-{
-    isShowCountryFlags_ = isShowCountryFlags;
     update();
 }
 
@@ -349,7 +297,7 @@ QPixmap Background::getShadowPixmap()
 
     QPainter painter(&tempPixmap);
     {
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(topFrameBG_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(topFrameBG_);
         pixmap->draw(0, 0, &painter);
     }
 
@@ -357,10 +305,8 @@ QPixmap Background::getShadowPixmap()
 }
 
 
-void Background::onFlagOpacityChanged(const QVariant &value)
+void Background::doUpdate()
 {
-    opacityPrevFlag_ = 1.0 - value.toDouble();
-    opacityCurFlag_ = value.toDouble();
     update();
 }
 

@@ -49,13 +49,13 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     qreal initOpacity = painter->opacity();
 
     // badge
-    IndependentPixmap *badgeBgPixmap = ImageResourcesSvg::instance().getIndependentPixmap(badgeIconBg_);
+    QSharedPointer<IndependentPixmap> badgeBgPixmap = ImageResourcesSvg::instance().getIndependentPixmap(badgeIconBg_);
     badgeBgPixmap->draw(0,0, painter);
 
     // connection badge dots made to show during connecting
     if (badgeIconFg_ != "")
     {
-        IndependentPixmap *badgeFgPixmap = ImageResourcesSvg::instance().getIndependentPixmap(badgeIconFg_);
+        QSharedPointer<IndependentPixmap> badgeFgPixmap = ImageResourcesSvg::instance().getIndependentPixmap(badgeIconFg_);
         int widthOffset = badgeBgPixmap->width()/2 - badgeFgPixmap->width()/2;
         badgeFgPixmap->draw(widthOffset, badgeBgPixmap->height()/2 - badgeFgPixmap->height()/2, painter);
     }

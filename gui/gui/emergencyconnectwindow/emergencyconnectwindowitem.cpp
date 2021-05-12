@@ -115,7 +115,7 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
 
     // Icon
     painter->setOpacity(curIconOpacity_*initialOpacity);
-    IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyConnect/EMERGENCY_CONNECT_ICON");
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyConnect/EMERGENCY_CONNECT_ICON");
     pixmap->draw((WINDOW_WIDTH/2 - 20)*G_SCALE, ICON_POS_Y*G_SCALE, painter);
 
     painter->setPen(QColor(255,255,255));

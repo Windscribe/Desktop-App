@@ -113,7 +113,7 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
     // Icon
     painter->setPen(QColor(255, 255, 255));
     painter->setOpacity(curTextOpacity_ * initialOpacity);
-    IndependentPixmap *pixmap =
+    QSharedPointer<IndependentPixmap> pixmap =
         ImageResourcesSvg::instance().getIndependentPixmap("login/TWOFA_ICON");
     pixmap->draw((WINDOW_WIDTH / 2 - 20)*G_SCALE, (HEADER_HEIGHT - 40)*G_SCALE, painter);
 

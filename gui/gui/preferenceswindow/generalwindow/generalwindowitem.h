@@ -56,6 +56,9 @@ private slots:
     void onUpdateChannelPreferencesChanged(const ProtoTypes::UpdateChannel &c);
     void onUpdateChannelItemChanged(QVariant o);
 
+    void onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings);
+    void onPreferencesBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings);
+
     void onLanguageChanged();
 
 signals:

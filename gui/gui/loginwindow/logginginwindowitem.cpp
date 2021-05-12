@@ -70,7 +70,7 @@ void LoggingInWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     painter->save();
     painter->translate((LOGIN_WIDTH - LOGIN_BUTTON_WIDTH - WINDOW_MARGIN +LOGIN_SPINNER_OFFSET)*G_SCALE, (LOGIN_BUTTON_POS_Y+LOGIN_SPINNER_OFFSET)*G_SCALE);
     painter->rotate(curSpinnerRotation_);
-    IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap("login/SPINNER");
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap("login/SPINNER");
     pixmap->draw(-LOGIN_SPINNER_OFFSET/2*G_SCALE, -LOGIN_SPINNER_OFFSET/2*G_SCALE, painter);
     painter->restore();
 

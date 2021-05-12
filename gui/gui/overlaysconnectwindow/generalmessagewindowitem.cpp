@@ -54,7 +54,7 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     // background:
     painter->setOpacity(curBackgroundOpacity_ * initialOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(background_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background_);
     p->draw(0, 0, painter);
 
     // title

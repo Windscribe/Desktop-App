@@ -19,14 +19,14 @@ void ImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     p->draw(0, 0, painter);
 }
 
 void ImageItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     width_ = p->width();
     height_ = p->height();
 }

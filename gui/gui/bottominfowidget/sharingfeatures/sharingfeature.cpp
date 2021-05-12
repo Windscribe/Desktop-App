@@ -60,12 +60,12 @@ void SharingFeature::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     const int MARGIN_Y = 16;
     const int MAIN_ICON_POS_Y = 12;
 
-    IndependentPixmap *primaryPixmap = ImageResourcesSvg::instance().getIndependentPixmap(primaryIcon_);
+    QSharedPointer<IndependentPixmap> primaryPixmap = ImageResourcesSvg::instance().getIndependentPixmap(primaryIcon_);
     primaryPixmap->draw(MARGIN_X*G_SCALE, MAIN_ICON_POS_Y*G_SCALE, painter);
 
     // Account Icon
     painter->setOpacity(OPACITY_UNHOVER_ICON_TEXT_DARK * curDefaultOpacity_);
-    IndependentPixmap *secondaryPixmap = ImageResourcesSvg::instance().getIndependentPixmap(secondaryIcon_);
+    QSharedPointer<IndependentPixmap> secondaryPixmap = ImageResourcesSvg::instance().getIndependentPixmap(secondaryIcon_);
     secondaryPixmap->draw(SECONDARY_ICON_POS_X*G_SCALE, MARGIN_Y*G_SCALE, painter);
 
     // User number

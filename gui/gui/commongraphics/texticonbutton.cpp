@@ -45,7 +45,7 @@ void TextIconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     // Right Arrow
     painter->setOpacity(curIconOpacity_ * initOpacity);
-    IndependentPixmap *iconPixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
+    QSharedPointer<IndependentPixmap> iconPixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
     iconPixmap->draw(CommonGraphics::textWidth(text_, *font) + spacerWidth_, 0, painter);
 
 }
@@ -138,7 +138,7 @@ void TextIconButton::onIconOpacityChanged(const QVariant &value)
 
 void TextIconButton::recalcWidth()
 {
-    IndependentPixmap *iconPixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
+    QSharedPointer<IndependentPixmap> iconPixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
 
     QFont *font = FontManager::instance().getFont(fontDescr_);
     int newWidth = iconPixmap->width();

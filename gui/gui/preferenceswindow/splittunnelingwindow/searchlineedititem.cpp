@@ -53,7 +53,7 @@ void SearchLineEditItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     qreal initOpacity = painter->opacity();
 
     painter->setOpacity(searchIconOpacity_ * initOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/VIEW_LOG_ICON");
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/VIEW_LOG_ICON");
     p->draw(16*G_SCALE, 14*G_SCALE, painter);
 }
 

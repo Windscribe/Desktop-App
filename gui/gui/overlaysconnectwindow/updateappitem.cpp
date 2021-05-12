@@ -65,7 +65,7 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     // icon
     painter->save();
     painter->setOpacity(curVersionOpacity_ * initOpacity);
-    IndependentPixmap * pixmap = ImageResourcesSvg::instance().getIndependentPixmap("update/INFO_ICON");
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap("update/INFO_ICON");
     pixmap->draw(2*G_SCALE, 2*G_SCALE, painter);
     painter->restore();
 

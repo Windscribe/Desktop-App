@@ -16,13 +16,13 @@ public:
 
     void clearHash();
 
-    IndependentPixmap *getIndependentPixmap(const QString &name, int width, int height);
+    QSharedPointer<IndependentPixmap> getIndependentPixmap(const QString &name, int width, int height);
 
 private:
     ImageResourcesJpg();
     virtual ~ImageResourcesJpg();
 
-    QHash<QString, IndependentPixmap *> hashIndependent_;
+    QHash<QString, QSharedPointer<IndependentPixmap> > hashIndependent_;
 
     struct FilenameDescr
     {

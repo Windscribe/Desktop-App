@@ -26,7 +26,7 @@ void ServerRatingIndicator::paint(QPainter *painter, const QStyleOptionGraphicsI
     qreal initOpacity = painter->opacity();
 
     //painter->fillRect(boundingRect(), QBrush(QColor(0, 255, 255)));
-    IndependentPixmap *pixmap = NULL;
+    QSharedPointer<IndependentPixmap> pixmap;
     if (connectState_ == ProtoTypes::CONNECTED)
     {
         painter->setOpacity(1.0);
@@ -108,7 +108,7 @@ void ServerRatingIndicator::updateScaling()
 
 void ServerRatingIndicator::updateDimensions()
 {
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("PING_ON_FULL");
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("PING_ON_FULL");
     width_ = p->width();
     height_ = p->height();
 }

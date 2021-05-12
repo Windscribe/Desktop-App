@@ -208,6 +208,8 @@ SOURCES += \
     commonwidgets/combomenuwidgetbutton.cpp \
     commonwidgets/iconwidget.cpp \
     commonwidgets/lightwidget.cpp \
+    connectwindow/backgroundimage/backgroundimage.cpp \
+    connectwindow/backgroundimage/imagechanger.cpp \
     connectwindow/connectionbadgedots.cpp \
     connectwindow/connectstateprotocolport.cpp \
     connectwindow/ipaddressitem/ipaddressitem.cpp \
@@ -257,6 +259,7 @@ SOURCES += \
     preferenceswindow/splittunnelingwindow/splittunnelingipsandhostnamesitem.cpp \
     preferenceswindow/splittunnelingwindow/splittunnelingitem.cpp \
     preferenceswindow/splittunnelingwindow/splittunnelingswitchitem.cpp \
+    showingdialogstate.cpp \
     tooltips/itooltip.cpp \
     tooltips/serverratingstooltip.cpp \
     tooltips/tooltipbasic.cpp \
@@ -443,6 +446,8 @@ HEADERS += \
     commonwidgets/combomenuwidgetbutton.h \
     commonwidgets/iconwidget.h \
     commonwidgets/lightwidget.h \
+    connectwindow/backgroundimage/backgroundimage.h \
+    connectwindow/backgroundimage/imagechanger.h \
     connectwindow/connectionbadgedots.h \
     connectwindow/connectstateprotocolport.h \
     connectwindow/ipaddressitem/ipaddressitem.h \
@@ -500,6 +505,7 @@ HEADERS += \
     preferenceswindow/splittunnelingwindow/splittunnelingipsandhostnamesitem.h \
     preferenceswindow/splittunnelingwindow/splittunnelingitem.h \
     preferenceswindow/splittunnelingwindow/splittunnelingswitchitem.h \
+    showingdialogstate.h \
     tooltips/itooltip.h \
     tooltips/serverratingstooltip.h \
     tooltips/tooltipbasic.h \

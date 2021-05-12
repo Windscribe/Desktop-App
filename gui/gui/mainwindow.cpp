@@ -31,6 +31,7 @@
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 #include "launchonstartup/launchonstartup.h"
+#include "showingdialogstate.h"
 
 #ifdef Q_OS_WIN
     #include "utils/winutils.h"
@@ -69,7 +70,6 @@ MainWindow::MainWindow() :
     revealingConnectWindow_(false),
     internetConnected_(false),
     currentlyShowingUserWarningMessage_(false),
-    currentlyShowingExternalDialog_(false),
     backendAppActiveState_(true),
 #ifdef Q_OS_MAC
     hideShowDockIconTimer_(this),
@@ -1308,10 +1308,11 @@ void MainWindow::onLocationsClearCustomConfigClicked()
 
 void MainWindow::onLocationsAddCustomConfigClicked()
 {
-    currentlyShowingExternalDialog_ = true;
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
     QString path = QFileDialog::getExistingDirectory(
         this, tr("Select Custom Config Folder"), "", QFileDialog::ShowDirsOnly);
-    currentlyShowingExternalDialog_ = false;
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
+
     if (!path.isEmpty()) {
         // qCDebug(LOG_BASIC) << "User selected custom config path:" << path;
         backend_->getPreferences()->setCustomOvpnConfigsPath(path);
@@ -2781,7 +2782,7 @@ void MainWindow::onNativeInfoErrorMessage(QString title, QString desc)
 void MainWindow::onSplitTunnelingAppsAddButtonClick()
 {
     QString filename;
-    currentlyShowingExternalDialog_ = true;
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
 #if defined(Q_OS_WIN)
     QProcess getOpenFileNameProcess;
     QString changeIcsExePath = QCoreApplication::applicationDirPath() + "/ChangeIcs.exe";
@@ -2793,7 +2794,7 @@ void MainWindow::onSplitTunnelingAppsAddButtonClick()
             if (getOpenFileNameProcess.waitForFinished(kRefreshGuiMs)) {
                 filename = getOpenFileNameProcess.readAll().trimmed();
                 if (filename.isEmpty()) {
-                    currentlyShowingExternalDialog_ = false;
+                    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
                     return;
                 }
             }
@@ -2802,7 +2803,7 @@ void MainWindow::onSplitTunnelingAppsAddButtonClick()
 #endif  // Q_OS_WIN
     if (filename.isEmpty())
         filename = QFileDialog::getOpenFileName(this, tr("Select an application"), "C:\\");
-    currentlyShowingExternalDialog_ = false;
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
     if (!filename.isEmpty()) // TODO: validation
     {
@@ -2999,7 +3000,7 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
     // window in docked mode. Otherwise, closing the MessageBox/Log Window/etc. will lead to an
     // unwanted app termination.
     const bool kIsTrayIconClicked = trayIconRect().contains(QCursor::pos());
-    if (!focusWindow && !kIsTrayIconClicked && !currentlyShowingExternalDialog_ && !logViewerWindow_) {
+    if (!focusWindow && !kIsTrayIconClicked && !ShowingDialogState::instance().isCurrentlyShowingExternalDialog() && !logViewerWindow_) {
         if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray()) {
             const int kDeactivationDelayMs = 100;
             deactivationTimer_.start(kDeactivationDelayMs);

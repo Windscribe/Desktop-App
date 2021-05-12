@@ -93,7 +93,7 @@ void ExternalConfigWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     // Icon
     painter->setOpacity(curTextOpacity_ * initialOpacity);
     //QPixmap *pixmap = ImageResourcesSvg::instance().getPixmap(curIconPath_);
-    IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(curIconPath_);
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(curIconPath_);
     pixmap->draw((WINDOW_WIDTH/2 - 20)*G_SCALE, ICON_POS_Y*G_SCALE, painter);
 
     // title

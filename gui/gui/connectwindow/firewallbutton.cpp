@@ -32,7 +32,7 @@ void FirewallButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     //painter->fillRect(boundingRect(), QBrush(QColor(0, 255, 255)));
     {
-        IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("firewall/BLACK_TOGGLE_BG");
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("firewall/BLACK_TOGGLE_BG");
         p->draw(0, 0, painter);
         painter->setOpacity(animation_.currentValue().toDouble() * initOpacity);
         p = ImageResourcesSvg::instance().getIndependentPixmap("firewall/BLUE_TOGGLE_BG");
@@ -41,7 +41,7 @@ void FirewallButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     painter->setOpacity(1.0 * initOpacity);
     {
-        IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("firewall/TOGGLE_BUTTON_WHITE");
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("firewall/TOGGLE_BUTTON_WHITE");
         double d = animation_.currentValue().toDouble();
         p->draw(static_cast<int>((2 + d*20.0)*G_SCALE), 2*G_SCALE, painter);
     }

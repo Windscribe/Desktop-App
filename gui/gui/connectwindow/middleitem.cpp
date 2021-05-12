@@ -37,7 +37,7 @@ void MiddleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->drawText(boundingRect().adjusted(16*G_SCALE, 0, 0, 0), tr("Firewall"));
 
     {
-        IndependentPixmap *p;
+        QSharedPointer<IndependentPixmap> p;
         if (isSecured_)
         {
             p = ImageResourcesSvg::instance().getIndependentPixmap("IP_LOCK_SECURE");

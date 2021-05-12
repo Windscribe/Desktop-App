@@ -18,21 +18,18 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
     void setBackgroundSettings(const ProtoTypes::BackgroundSettings &settings);
-    //void setFirewallMode(const ProtoTypes::FirewallSettings &fm);
-    //void setFirewallBlock(bool isFirewallBlocked);
-
     void updateScaling() override;
+
 signals:
     void backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings);
-    //void firewallModeChanged(const ProtoTypes::FirewallSettings &fm);
-    void buttonHoverEnter();
-    void buttonHoverLeave();
 
 private slots:
     void onBackgroundModeChanged(QVariant v);
     void onExpandAnimationValueChanged(const QVariant &value);
-
     void onLanguageChanged();
+
+    void onDisconnectedPathChanged(const QString &path);
+    void onConnectedPathChanged(const QString &path);
 
 protected:
     void hideOpenPopups() override;

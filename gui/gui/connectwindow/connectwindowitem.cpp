@@ -27,7 +27,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
       isFirewallBlocked_(false)
 {
     Q_ASSERT(preferencesHelper_);
-    background_ = new Background(this);
+    background_ = new Background(this, preferences);
 
 #ifdef Q_OS_WIN
     closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", this);

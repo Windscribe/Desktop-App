@@ -477,9 +477,8 @@ enum BackgroundType
 message BackgroundSettings
 {
   optional BackgroundType background_type = 1 [default = BACKGROUND_TYPE_COUNTRY_FLAGS];
-  optional bool is_show_custom_background = 2 [default = false];
-  optional string background_image_disconnected = 3;
-  optional string background_image_connected = 4;
+  optional string background_image_disconnected = 2;
+  optional string background_image_connected = 3;
 }
 
 

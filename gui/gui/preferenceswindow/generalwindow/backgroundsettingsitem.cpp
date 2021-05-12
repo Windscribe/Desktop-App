@@ -19,31 +19,13 @@ BackgroundSettingsItem::BackgroundSettingsItem(ScalableGraphicsObject *parent) :
     comboBoxMode_->addItem(tr("Custom"), ProtoTypes::BackgroundType::BACKGROUND_TYPE_CUSTOM);
     comboBoxMode_->setCurrentItem(ProtoTypes::BackgroundType::BACKGROUND_TYPE_COUNTRY_FLAGS);
     connect(comboBoxMode_, SIGNAL(currentItemChanged(QVariant)), SLOT(onBackgroundModeChanged(QVariant)));
-    //connect(comboBoxFirewallMode_, SIGNAL(buttonHoverEnter()), SIGNAL(buttonHoverEnter()));
-    //connect(comboBoxFirewallMode_, SIGNAL(buttonHoverLeave()), SIGNAL(buttonHoverLeave()));
-
 
     imageItemDisconnected_ = new SelectImageItem(this, tr("Disconnected"), true);
-    imageItemDisconnected_->setPath("disconnected_imagegfgffghhghggfhfghfghfgfghgj.png");
+    connect(imageItemDisconnected_, SIGNAL(pathChanged(QString)), SLOT(onDisconnectedPathChanged(QString)));
     imageItemConnected_ = new SelectImageItem(this, tr("Connected"), false);
-    imageItemConnected_->setPath("connected_image.png");
-
-    /*comboBoxFirewallWhen_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "When?"), "", 43, QColor(16, 22, 40), 24, true);
-
-    const QList< QPair<QString, int> > whens = ProtoEnumToString::instance().getEnums(ProtoTypes::FirewallWhen_descriptor());
-    for (const auto v : whens)
-    {
-        comboBoxFirewallWhen_->addItem(v.first, v.second);
-    }
-    comboBoxFirewallWhen_->setCurrentItem(curFirewallMode_.when());
-
-
-    connect(comboBoxFirewallWhen_, SIGNAL(currentItemChanged(QVariant)), SLOT(onFirewallWhenChanged(QVariant)));
-
-    comboBoxFirewallWhen_->setPos(0, COLLAPSED_HEIGHT + 38);*/
+    connect(imageItemConnected_, SIGNAL(pathChanged(QString)), SLOT(onConnectedPathChanged(QString)));
 
     dividerLine_ = new DividerLine(this, 276);
-    dividerLine_->setPos(24, 50 - dividerLine_->boundingRect().height());
 
     expandEnimation_.setStartValue(COLLAPSED_HEIGHT);
     expandEnimation_.setEndValue(EXPANDED_HEIGHT);
@@ -62,27 +44,18 @@ void BackgroundSettingsItem::onExpandAnimationValueChanged(const QVariant &value
 
 void BackgroundSettingsItem::onLanguageChanged()
 {
-    // Mode
-    //QVariant mode = comboBoxFirewallMode_->currentItem();
-    //comboBoxFirewallMode_->clear();
+}
 
-    /*const QList<FirewallModeType> modes = FirewallModeType::allAvailableTypes();
-    for (const FirewallModeType &v : modes)
-    {
-        comboBoxFirewallMode_->addItem(v.toString(), (int)v.type());
-    }
-    comboBoxFirewallMode_->setCurrentItem(mode.toInt());
+void BackgroundSettingsItem::onDisconnectedPathChanged(const QString &path)
+{
+    curBackgroundSettings_.set_background_image_disconnected(path.toStdString());
+    emit backgroundSettingsChanged(curBackgroundSettings_);
+}
 
-    // When
-    QVariant when = comboBoxFirewallWhen_->currentItem();
-    comboBoxFirewallWhen_->clear();
-
-    const QList<FirewallWhenType> whens = FirewallWhenType::allAvailableTypes();
-    for (const FirewallWhenType &w : whens)
-    {
-        comboBoxFirewallWhen_->addItem(w.toString(), (int)w.type());
-    }
-    comboBoxFirewallWhen_->setCurrentItem(when.toInt());*/
+void BackgroundSettingsItem::onConnectedPathChanged(const QString &path)
+{
+    curBackgroundSettings_.set_background_image_connected(path.toStdString());
+    emit backgroundSettingsChanged(curBackgroundSettings_);
 }
 
 void BackgroundSettingsItem::hideOpenPopups()
@@ -92,31 +65,17 @@ void BackgroundSettingsItem::hideOpenPopups()
 
 void BackgroundSettingsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    Q_UNUSED(painter);
     Q_UNUSED(option);
     Q_UNUSED(widget);
-
-    /*qreal initOpacity = painter->opacity();
-
-    painter->setPen(QColor(255, 255, 255));
-    QRectF bottomHalfRect = boundingRect().adjusted(16*G_SCALE, 44*G_SCALE, -40*G_SCALE, 0);
-
-    painter->setOpacity(0.5 * curDescrTextOpacity_ * initOpacity);
-    QFont *fontSmall = FontManager::instance().getFont(12, false);
-    painter->setFont(*fontSmall);
-    painter->drawText(bottomHalfRect, tr("Recommended size: 664x352."));*/
 }
 
 void BackgroundSettingsItem::setBackgroundSettings(const ProtoTypes::BackgroundSettings &settings)
 {
-
-}
-
-/*void BackgroundSettingsItem::setFirewallMode(const ProtoTypes::FirewallSettings &fm)
-{
-    if(!google::protobuf::util::MessageDifferencer::Equals(curFirewallMode_, fm))
+    if(!google::protobuf::util::MessageDifferencer::Equals(curBackgroundSettings_, settings))
     {
-        curFirewallMode_ = fm;
-        if (curFirewallMode_.mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC)
+        curBackgroundSettings_ = settings;
+        if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_CUSTOM)
         {
             isExpanded_ = true;
             onExpandAnimationValueChanged(EXPANDED_HEIGHT);
@@ -126,15 +85,11 @@ void BackgroundSettingsItem::setBackgroundSettings(const ProtoTypes::BackgroundS
             isExpanded_ = false;
             onExpandAnimationValueChanged(COLLAPSED_HEIGHT);
         }
-        comboBoxFirewallMode_->setCurrentItem(curFirewallMode_.mode());
-        comboBoxFirewallWhen_->setCurrentItem(curFirewallMode_.when());
+        comboBoxMode_->setCurrentItem(curBackgroundSettings_.background_type());
+        imageItemDisconnected_->setPath(QString::fromStdString(curBackgroundSettings_.background_image_disconnected()));
+        imageItemConnected_->setPath(QString::fromStdString(curBackgroundSettings_.background_image_connected()));
     }
 }
-
-void BackgroundSettingsItem::setFirewallBlock(bool isFirewallBlocked)
-{
-    //comboBoxFirewallMode_->setClickable(!isFirewallBlocked);
-}*/
 
 void BackgroundSettingsItem::updateScaling()
 {

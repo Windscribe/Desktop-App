@@ -442,7 +442,7 @@ void WidgetCities::paintEvent(QPaintEvent *event)
         if (!emptyListDisplayIcon_.isEmpty())
         {
             // qDebug() << "Drawing Broken Heart";
-            IndependentPixmap *brokenHeartPixmap =
+            QSharedPointer<IndependentPixmap> brokenHeartPixmap =
                 ImageResourcesSvg::instance().getIndependentPixmap(emptyListDisplayIcon_);
             brokenHeartPixmap->draw(width() / 2 - 16 * G_SCALE,
                 height() / 2 - (kVerticalOffset + 32) * G_SCALE, &painter);

@@ -36,7 +36,7 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     // app icon
     painter->save();
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIconIndependentPixmap(appIcon_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(appIcon_);
     if (p)
     {
 #ifdef Q_OS_WIN
@@ -49,7 +49,7 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     }
     else
     {
-        IndependentPixmap *ip = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
+        QSharedPointer<IndependentPixmap> ip = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
         ip->draw(16*G_SCALE, 12*G_SCALE, painter);
     }
     painter->restore();

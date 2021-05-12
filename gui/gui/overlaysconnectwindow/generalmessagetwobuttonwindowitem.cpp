@@ -65,7 +65,7 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
     // background
     if (shapedToConnectWindow_)
     {
-        IndependentPixmap *bkgdPix = ImageResourcesSvg::instance().getIndependentPixmap(backgroundIcon_);
+        QSharedPointer<IndependentPixmap> bkgdPix = ImageResourcesSvg::instance().getIndependentPixmap(backgroundIcon_);
         bkgdPix->draw(0, 0, painter);
     }
     else
@@ -84,7 +84,7 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
     if (!isShutdownAnimationMode_)
     {
         // icon
-        IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(icon_);
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(icon_);
         p->draw((WINDOW_WIDTH/2 - 20) * G_SCALE, iconPosY_*G_SCALE, painter);
 
         // title
@@ -106,7 +106,7 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
         curLogoPosY_ = LOGO_POS_CENTER;
 
         const int logoPosX = WINDOW_WIDTH/2 - 20;
-        IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("login/BADGE_ICON");
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("login/BADGE_ICON");
         p->draw(logoPosX * G_SCALE, curLogoPosY_ * G_SCALE, painter);
 
         // spinner

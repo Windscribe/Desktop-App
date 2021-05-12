@@ -190,7 +190,7 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
                      FontManager::instance().getMidnightColor());
 
     // flag
-    IndependentPixmap *flag = ImageResourcesSvg::instance().getFlag(countryCode_);
+    QSharedPointer<IndependentPixmap> flag = ImageResourcesSvg::instance().getFlag(countryCode_);
     if (flag)
     {
         const int pixmapFlagHeight = flag->height();
@@ -200,7 +200,7 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
     // pro star
     if (widgetLocationsInfo_->isFreeSessionStatus() && isPremiumOnly_)
     {
-        IndependentPixmap *proRegionStar = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_REGION_STAR_LIGHT");
+        QSharedPointer<IndependentPixmap> proRegionStar = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_REGION_STAR_LIGHT");
         proRegionStar->draw(8 * G_SCALE,  (LOCATION_ITEM_HEIGHT*G_SCALE - 16*G_SCALE) / 2 - 9*G_SCALE, &painter);
     }
 
@@ -217,7 +217,7 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
         painter.setOpacity(OPACITY_HALF);
 
         QRect p2pr = p2pRect();
-        IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
         if (p) p->draw(p2pr.x(),p2pr.y(),&painter);
     }
 
@@ -225,7 +225,7 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
     if (!locationID_.isBestLocation())
     {
         painter.setOpacity(plusIconOpacity_);
-        IndependentPixmap *expandPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
+        QSharedPointer<IndependentPixmap> expandPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
 
         // this part is kind of magical - could use some more clear math
         painter.save();
@@ -361,7 +361,7 @@ void ItemWidgetHeader::recreateTextLayout()
 
 QRect ItemWidgetHeader::p2pRect()
 {
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
 
     return QRect((WINDOW_WIDTH - 65)*G_SCALE,
                  (LOCATION_ITEM_HEIGHT*G_SCALE - p->height())/2,
