@@ -91,12 +91,12 @@ bool ImageResourcesJpg::loadFromResourceWithCustomSize(const QString &name, int 
     Q_ASSERT(img.width() == fd.width);
     Q_ASSERT(img.height() == fd.height);
 
-    QPixmap *pixmap = new QPixmap(QSize(width, height) * DpiScaleManager::instance().curDevicePixelRatio());
-    pixmap->fill(Qt::transparent);
-    QPainter painter(pixmap);
+    QPixmap pixmap(QSize(width, height) * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.drawImage(QRect(0, 0, pixmap->width(), pixmap->height()), img, QRect(0, 0, img.width(), img.height()));
-    pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    painter.drawImage(QRect(0, 0, pixmap.width(), pixmap.height()), img, QRect(0, 0, img.width(), img.height()));
+    pixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
     hashIndependent_[name + "_" + QString::number(width) + "_" + QString::number(height)] = QSharedPointer<IndependentPixmap>(new IndependentPixmap(pixmap));
     return true;
 }

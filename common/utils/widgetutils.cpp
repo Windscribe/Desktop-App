@@ -15,7 +15,7 @@
 Q_GUI_EXPORT QPixmap qt_pixmapFromWinHICON(HICON icon);
 #endif
 
-QPixmap *WidgetUtils::extractProgramIcon(QString filePath)
+QPixmap WidgetUtils::extractProgramIcon(QString filePath)
 {
 #ifdef Q_OS_WIN
     if (filePath.contains("WindowsApps"))

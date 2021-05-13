@@ -74,11 +74,11 @@ void NumbersPixmap::rescale()
 
     dotWidth_ = fm.horizontalAdvance(".");
 
-    QPixmap *pixmap = new QPixmap(QSize(itemWidth_, itemHeight_ * 11) * DpiScaleManager::instance().curDevicePixelRatio());
-    pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-    pixmap->fill(QColor(Qt::transparent));
+    QPixmap pixmap(QSize(itemWidth_, itemHeight_ * 11) * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap.fill(QColor(Qt::transparent));
 
-    QPainter painter(pixmap);
+    QPainter painter(&pixmap);
     painter.setFont(font_);
     painter.setPen(Qt::white);
     painter.setOpacity(0.5);
@@ -97,10 +97,10 @@ void NumbersPixmap::rescale()
 
     pixmap_ = new IndependentPixmap(pixmap);
 
-    QPixmap *dotPixmap = new QPixmap(QSize(dotWidth_, itemHeight_) * DpiScaleManager::instance().curDevicePixelRatio());
-    dotPixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-    dotPixmap->fill(QColor(Qt::transparent));
-    QPainter painter2(dotPixmap);
+    QPixmap dotPixmap(QSize(dotWidth_, itemHeight_) * DpiScaleManager::instance().curDevicePixelRatio());
+    dotPixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    dotPixmap.fill(QColor(Qt::transparent));
+    QPainter painter2(&dotPixmap);
     painter2.setFont(font_);
     painter2.setPen(Qt::white);
     painter2.setOpacity(0.5);
@@ -108,10 +108,10 @@ void NumbersPixmap::rescale()
     dotPixmap_ = new IndependentPixmap(dotPixmap);
 
     int naWidth = fm.horizontalAdvance("N/A");
-    QPixmap *naPixmap = new QPixmap(QSize(naWidth, itemHeight_) * DpiScaleManager::instance().curDevicePixelRatio());
-    naPixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-    naPixmap->fill(QColor(Qt::transparent));
-    QPainter painter3(naPixmap);
+    QPixmap naPixmap(QSize(naWidth, itemHeight_) * DpiScaleManager::instance().curDevicePixelRatio());
+    naPixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    naPixmap.fill(QColor(Qt::transparent));
+    QPainter painter3(&naPixmap);
     painter3.setFont(font_);
     painter3.setPen(Qt::white);
     painter3.setOpacity(0.5);

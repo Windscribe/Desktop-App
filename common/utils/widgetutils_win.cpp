@@ -11,16 +11,16 @@
 Q_GUI_EXPORT QPixmap qt_pixmapFromWinHICON(HICON icon);
 Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &p);
 
-QPixmap *WidgetUtils_win::extractProgramIcon(QString filePath)
+QPixmap WidgetUtils_win::extractProgramIcon(QString filePath)
 {
     HICON icon;
     HINSTANCE instance = NULL;
     icon = ExtractIconA(instance, (LPSTR)filePath.toLocal8Bit().constData(), 0);
 
-    QPixmap *p = NULL;
+    QPixmap p;
     if (icon != NULL && (int) icon != 1)
     {
-        p = new QPixmap(qt_pixmapFromWinHICON(icon));
+        p = QPixmap(qt_pixmapFromWinHICON(icon));
     }
     else
     {
@@ -32,7 +32,7 @@ QPixmap *WidgetUtils_win::extractProgramIcon(QString filePath)
     return p;
 }
 
-QPixmap *WidgetUtils_win::extractWindowsAppProgramIcon(QString filePath)
+QPixmap WidgetUtils_win::extractWindowsAppProgramIcon(QString filePath)
 {
     // Get Manifest XML filename -- it contains location of logo
     QDir d = QFileInfo(filePath).absoluteDir();
@@ -104,24 +104,24 @@ QPixmap *WidgetUtils_win::extractWindowsAppProgramIcon(QString filePath)
         }
     }
 
-    std::unique_ptr<QPixmap> logoPixmap;
+    QPixmap logoPixmap;
     if (!logoFilePathScaled.isEmpty())
-        logoPixmap.reset(new QPixmap(logoFilePathScaled));
+        logoPixmap = QPixmap(logoFilePathScaled);
     else if (!logoFilePath.isEmpty())
-        logoPixmap.reset(new QPixmap(logoFilePath));
+        logoPixmap = QPixmap(logoFilePath);
 
-    if (logoPixmap) {
+    if (!logoPixmap.isNull()) {
         // Fill transparent background with a WindowsApps background color.
         // This should also be parsed from the manifest, but apparently it is always the same.
-        QPixmap *filledPixmap = new QPixmap(logoPixmap->size());
-        filledPixmap->fill(QColor("#0078D4"));
-        QPainter painter(filledPixmap);
-        painter.drawPixmap(0, 0, *logoPixmap);
+        QPixmap filledPixmap(logoPixmap.size());
+        filledPixmap.fill(QColor("#0078D4"));
+        QPainter painter(&filledPixmap);
+        painter.drawPixmap(0, 0, logoPixmap);
         painter.end();
-        logoPixmap.reset(filledPixmap);
+        logoPixmap = filledPixmap;
     }
 
-    return logoPixmap.release();
+    return logoPixmap;
 }
 
 namespace

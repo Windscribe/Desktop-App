@@ -139,8 +139,8 @@ bool ImageResourcesSvg::loadIconFromResource(const QString &name)
 {
     if (QFile::exists(name))
     {
-        QPixmap *p = WidgetUtils::extractProgramIcon(name);
-        if (p)
+        QPixmap p = WidgetUtils::extractProgramIcon(name);
+        if (!p.isNull())
         {
             iconHashes_[name] = QSharedPointer<IndependentPixmap>(new IndependentPixmap(p));
             return true;
@@ -157,12 +157,12 @@ bool ImageResourcesSvg::loadFromResource(const QString &name)
     {
         return false;
     }
-    QPixmap *pixmap = new QPixmap(render.defaultSize() * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio());
-    pixmap->fill(Qt::transparent);
-    QPainter painter(pixmap);
+    QPixmap pixmap(render.defaultSize() * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
     render.render(&painter);
 
-    pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
     hashIndependent_[name] = QSharedPointer<IndependentPixmap>(new IndependentPixmap(pixmap));
     return true;
 }
@@ -183,16 +183,16 @@ bool ImageResourcesSvg::loadFromResourceWithCustomSize(const QString &name, int 
         else
             realSize.setWidth(realSize.height());
     }
-    QPixmap *pixmap = new QPixmap(realSize);
-    pixmap->fill(Qt::transparent);
+    QPixmap pixmap(realSize);
+    pixmap.fill(Qt::transparent);
     {
         QRectF rc(0, 0, width * sizeScale, height * sizeScale);
         rc.moveTo((realSize.width() - rc.width()) / 2, (realSize.height() - rc.height()) / 2);
-        QPainter painter(pixmap);
+        QPainter painter(&pixmap);
         render.render(&painter,rc);
     }
     if (flags & IMAGE_FLAG_GRAYED) {
-        auto image = pixmap->toImage();
+        auto image = pixmap.toImage();
         for (int i = 0; i < image.height(); ++i) {
             auto *scanline = reinterpret_cast<QRgb*>(image.scanLine(i));
             for (int j = 0; j < image.width(); ++j) {
@@ -201,10 +201,10 @@ bool ImageResourcesSvg::loadFromResourceWithCustomSize(const QString &name, int 
                 scanline[j] = QColor(gray, gray, gray, alpha).lighter(200).rgba();
             }
         }
-        *pixmap = QPixmap::fromImage(image);
+        pixmap = QPixmap::fromImage(image);
     }
 
-    pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
 
     QString modifiedName = name + "_" + QString::number(width) + "_" + QString::number(height);
     if (flags) modifiedName += "_" + QString::number(flags);

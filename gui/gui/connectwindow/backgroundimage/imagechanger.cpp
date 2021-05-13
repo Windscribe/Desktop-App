@@ -72,7 +72,8 @@ void ImageChanger::updatePixmap()
 {
     SAFE_DELETE(pixmap_);
 
-    pixmap_ = new QPixmap(WIDTH * G_SCALE, 176 * G_SCALE);
+    pixmap_ = new QPixmap(WIDTH * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio(), 176 * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap_->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
     pixmap_->fill(Qt::transparent);
     {
         QPainter p(pixmap_);

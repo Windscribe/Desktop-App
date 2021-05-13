@@ -82,16 +82,15 @@ void BackgroundImage::handleBackgroundsChange()
         }
         else
         {
-            QPixmap *pixmap = new QPixmap();
-            if (!pixmap->load(disconnectedPath))
+            QPixmap pixmap;
+            if (!pixmap.load(disconnectedPath))
             {
-                delete pixmap;
                 disconnectedImage_.reset();
             }
             else
             {
-                QPixmap scaledPixmap = pixmap->scaled(WIDTH * G_SCALE, 176 * G_SCALE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-                *pixmap = scaledPixmap;
+                pixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+                pixmap = pixmap.scaled(WIDTH * G_SCALE, 176 * G_SCALE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 disconnectedImage_ = QSharedPointer<IndependentPixmap>(new IndependentPixmap(pixmap));
             }
         }
@@ -102,16 +101,15 @@ void BackgroundImage::handleBackgroundsChange()
         }
         else
         {
-            QPixmap *pixmap = new QPixmap();
-            if (!pixmap->load(connectedPath))
+            QPixmap pixmap;
+            if (!pixmap.load(connectedPath))
             {
-                delete pixmap;
                 connectedImage_.reset();
             }
             else
             {
-                QPixmap scaledPixmap = pixmap->scaled(WIDTH * G_SCALE, 176 * G_SCALE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-                *pixmap = scaledPixmap;
+                pixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+                pixmap = pixmap.scaled(WIDTH * G_SCALE, 176 * G_SCALE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 connectedImage_ = QSharedPointer<IndependentPixmap>(new IndependentPixmap(pixmap));
             }
         }
