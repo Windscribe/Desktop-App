@@ -35,7 +35,6 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
         prevImage_.clear(this);
         curImage_.isMovie = false;
         curImage_.pixmap = pixmap;
-        curImage_.movie.reset();
         opacityPrevImage_ = 0.0;
         opacityCurImage_ = 1.0;
         updatePixmap();
@@ -44,7 +43,7 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
     {
         prevImage_ = curImage_;
 
-        curImage_.clear(this);
+        curImage_.clear(nullptr);
         curImage_.pixmap = pixmap;
 
         opacityPrevImage_ = 1.0;
@@ -62,7 +61,6 @@ void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAn
         curImage_.clear(this);
         prevImage_.clear(this);
         curImage_.isMovie = true;
-        curImage_.pixmap.reset();
         curImage_.movie = movie;
         opacityPrevImage_ = 0.0;
         opacityCurImage_ = 1.0;
@@ -73,15 +71,15 @@ void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAn
     {
         prevImage_ = curImage_;
 
-        curImage_.clear(this);
+        curImage_.clear(nullptr);
         curImage_.isMovie = true;
         curImage_.movie = movie;
 
-        connect(curImage_.movie.get(), SIGNAL(updated(QRect)), SLOT(updatePixmap()));
-        curImage_.movie->start();
-
         opacityPrevImage_ = 1.0;
         opacityCurImage_ = 0.0;
+
+        connect(curImage_.movie.get(), SIGNAL(updated(QRect)), SLOT(updatePixmap()));
+        curImage_.movie->start();
         opacityAnimation_.start();
     }
     onMainWindowIsActiveChanged(MainWindowState::instance().isActive());

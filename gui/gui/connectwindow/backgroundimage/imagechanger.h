@@ -58,7 +58,7 @@ private:
 
         void clear(QObject *parent)
         {
-            if (isMovie && movie)
+            if (isMovie && movie && parent)
             {
                 movie->disconnect(parent);
                 movie->stop();
