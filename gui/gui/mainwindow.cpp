@@ -2535,6 +2535,7 @@ void MainWindow::activateAndShow()
 
 void MainWindow::deactivateAndHide()
 {
+    MainWindowState::instance().setActive(false);
 #ifdef Q_OS_MAC
     hide();
 #elif defined Q_OS_WIN
