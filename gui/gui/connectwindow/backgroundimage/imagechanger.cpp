@@ -1,6 +1,7 @@
 #include "imagechanger.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
+#include <QMovie>
 
 namespace ConnectWindow {
 
@@ -30,6 +31,7 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
     {
         curImage_.isMovie = false;
         curImage_.pixmap = pixmap;
+        curImage_.movie.reset();
         opacityPrevImage_ = 0.0;
         opacityCurImage_ = 1.0;
         updatePixmap();
@@ -48,9 +50,33 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
     }
 }
 
-void ImageChanger::setMovie(QSharedPointer<QMovie> movie)
+void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAnimation)
 {
+    if (!curImage_.isValid() || !bShowPrevChangeAnimation)
+    {
+        curImage_.isMovie = true;
+        curImage_.pixmap.reset();
+        curImage_.movie = movie;
+        opacityPrevImage_ = 0.0;
+        opacityCurImage_ = 1.0;
+        connect(curImage_.movie.get(), SIGNAL(updated(QRect)), SLOT(updatePixmap()));
+        curImage_.movie->start();
+    }
+    else
+    {
+        prevImage_ = curImage_;
 
+        curImage_.clear();
+        curImage_.isMovie = true;
+        curImage_.movie = movie;
+
+        connect(curImage_.movie.get(), SIGNAL(updated(QRect)), SLOT(updatePixmap()));
+        curImage_.movie->start();
+
+        opacityPrevImage_ = 1.0;
+        opacityCurImage_ = 0.0;
+        opacityAnimation_.start();
+    }
 }
 
 void ImageChanger::onOpacityChanged(const QVariant &value)
@@ -64,7 +90,16 @@ void ImageChanger::onOpacityFinished()
 {
     opacityPrevImage_ = 0.0;
     opacityCurImage_ = 1.0;
-    prevImage_.clear();
+
+    if (prevImage_.isValid())
+    {
+        if (prevImage_.isMovie)
+        {
+            prevImage_.movie->disconnect(this);
+            prevImage_.movie->stop();
+        }
+        prevImage_.clear();
+    }
     updatePixmap();
 }
 
@@ -80,12 +115,32 @@ void ImageChanger::updatePixmap()
         if (prevImage_.isValid())
         {
             p.setOpacity(opacityPrevImage_);
-            prevImage_.pixmap->draw(0, 0, &p);
+
+            if (!prevImage_.isMovie)
+            {
+                prevImage_.pixmap->draw(0, 0, &p);
+            }
+            else
+            {
+                QPixmap framePixmap = prevImage_.movie->currentPixmap();
+                framePixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+                p.drawPixmap(0, 0, framePixmap);
+            }
         }
         if (curImage_.isValid())
         {
             p.setOpacity(opacityCurImage_);
-            curImage_.pixmap->draw(0, 0, &p);
+
+            if (!curImage_.isMovie)
+            {
+                curImage_.pixmap->draw(0, 0, &p);
+            }
+            else
+            {
+                QPixmap framePixmap = curImage_.movie->currentPixmap();
+                framePixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+                p.drawPixmap(0, 0, framePixmap);
+            }
         }
     }
     emit updated();

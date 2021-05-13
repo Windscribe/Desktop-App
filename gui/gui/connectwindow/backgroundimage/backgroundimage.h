@@ -32,9 +32,10 @@ private:
 
     Preferences *preferences_;
     ProtoTypes::BackgroundSettings curBackgroundSettings_;
+    bool isDisconnectedAndConnectedImagesTheSame_;
 
-    QSharedPointer<IndependentPixmap> disconnectedImage_;
-    QSharedPointer<IndependentPixmap> connectedImage_;
+    QSharedPointer<QMovie> disconnectedMovie_;
+    QSharedPointer<QMovie> connectedMovie_;
 
     ImageChanger imageChanger_;
 
@@ -42,9 +43,8 @@ private:
     QString countryCode_;
     bool isConnected_;
 
-
-    QSharedPointer<IndependentPixmap> safeGetDisconnectedImage();
-    QSharedPointer<IndependentPixmap> safeGetConnectedImage();
+    void safeChangeToDisconnectedImage(bool bShowPrevChangeAnimation);
+    void safeChangeToConnectedImage(bool bShowPrevChangeAnimation);
 };
 
 } //namespace ConnectWindow

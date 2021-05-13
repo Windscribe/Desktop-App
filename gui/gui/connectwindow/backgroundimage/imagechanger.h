@@ -17,7 +17,7 @@ public:
 
     QPixmap *currentPixmap();
     void setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShowPrevChangeAnimation);
-    void setMovie(QSharedPointer<QMovie> movie);       // for gif
+    void setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAnimation);
 
 signals:
     void updated();
@@ -25,6 +25,7 @@ signals:
 private slots:
     void onOpacityChanged(const QVariant &value);
     void onOpacityFinished();
+    void updatePixmap();
 
 private:
     static constexpr int WIDTH = 332;
@@ -64,7 +65,6 @@ private:
     ImageInfo curImage_;
     ImageInfo prevImage_;
 
-    void updatePixmap();
 };
 
 } //namespace ConnectWindow
