@@ -27,6 +27,7 @@ private slots:
     void onOpacityChanged(const QVariant &value);
     void onOpacityFinished();
     void updatePixmap();
+    void onMainWindowIsActiveChanged(bool isActive);
 
 private:
     static constexpr int WIDTH = 332;

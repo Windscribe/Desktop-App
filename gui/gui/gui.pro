@@ -233,6 +233,7 @@ SOURCES += \
     locationswindow/widgetlocations/widgetcitieslist.cpp \
     locationswindow/widgetlocations/widgetlocations.cpp \
     locationswindow/widgetlocations/widgetlocationslist.cpp \
+    mainwindowstate.cpp \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.cpp \
     overlaysconnectwindow//upgradewindowitem.cpp \
     overlaysconnectwindow/updatewindowitem.cpp \
@@ -468,6 +469,7 @@ HEADERS += \
     locationswindow/widgetlocations/widgetcitieslist.h \
     locationswindow/widgetlocations/widgetlocations.h \
     locationswindow/widgetlocations/widgetlocationslist.h \
+    mainwindowstate.h \
     overlaysconnectwindow/generalmessagetwobuttonwindowitem.h \
     overlaysconnectwindow/igeneralmessagetwobuttonwindow.h \
     overlaysconnectwindow/generalmessagewindowitem.h \

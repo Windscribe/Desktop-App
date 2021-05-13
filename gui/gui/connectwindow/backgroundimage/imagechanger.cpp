@@ -1,6 +1,7 @@
 #include "imagechanger.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
+#include "mainwindowstate.h"
 
 namespace ConnectWindow {
 
@@ -12,6 +13,8 @@ ImageChanger::ImageChanger(QObject *parent) : QObject(parent),
     opacityAnimation_.setDuration(500);
     connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOpacityChanged(QVariant)));
     connect(&opacityAnimation_, SIGNAL(finished()), SLOT(onOpacityFinished()));
+
+    connect(&MainWindowState::instance(), SIGNAL(isActiveChanged(bool)), SLOT(onMainWindowIsActiveChanged(bool)));
 }
 
 ImageChanger::~ImageChanger()
@@ -49,6 +52,7 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
         opacityAnimation_.start();
         updatePixmap();
     }
+    onMainWindowIsActiveChanged(MainWindowState::instance().isActive());
 }
 
 void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAnimation)
@@ -80,6 +84,7 @@ void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAn
         opacityCurImage_ = 0.0;
         opacityAnimation_.start();
     }
+    onMainWindowIsActiveChanged(MainWindowState::instance().isActive());
 }
 
 void ImageChanger::onOpacityChanged(const QVariant &value)
@@ -142,6 +147,18 @@ void ImageChanger::updatePixmap()
         }
     }
     emit updated();
+}
+
+void ImageChanger::onMainWindowIsActiveChanged(bool isActive)
+{
+    if (curImage_.isValid() && curImage_.isMovie && curImage_.movie)
+    {
+        curImage_.movie->setPaused(!isActive);
+    }
+    if (prevImage_.isValid() && prevImage_.isMovie && prevImage_.movie)
+    {
+        prevImage_.movie->setPaused(!isActive);
+    }
 }
 
 

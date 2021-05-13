@@ -32,6 +32,7 @@
 #include "dpiscalemanager.h"
 #include "launchonstartup/launchonstartup.h"
 #include "showingdialogstate.h"
+#include "mainwindowstate.h"
 
 #ifdef Q_OS_WIN
     #include "utils/winutils.h"
@@ -519,6 +520,7 @@ void MainWindow::minimizeToTray()
 {
     trayIcon_.show();
     QTimer::singleShot(0, this, SLOT(hide()));
+    MainWindowState::instance().setActive(false);
 }
 
 bool MainWindow::event(QEvent *event)
@@ -526,6 +528,15 @@ bool MainWindow::event(QEvent *event)
     // qDebug() << "Event Type: " << event->type();
 
     if (event->type() == QEvent::WindowStateChange) {
+
+        {
+            if (this->windowState() == Qt::WindowMinimized)
+            {
+                MainWindowState::instance().setActive(false);
+            }
+        }
+
+
         deactivationTimer_.stop();
 #if defined Q_OS_WIN
         if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
@@ -551,6 +562,7 @@ bool MainWindow::event(QEvent *event)
 
     if (event->type() == QEvent::WindowActivate)
     {
+         MainWindowState::instance().setActive(true);
         // qDebug() << "WindowActivate";
         if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray())
             activateAndShow();
