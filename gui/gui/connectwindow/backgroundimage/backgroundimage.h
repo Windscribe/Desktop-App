@@ -20,6 +20,8 @@ public:
     void changeFlag(const QString &countryCode);
     void setIsConnected(bool isConnected);
 
+    void updateScaling();
+
 signals:
     void updated();
 

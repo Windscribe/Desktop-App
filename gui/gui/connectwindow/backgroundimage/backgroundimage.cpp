@@ -64,6 +64,11 @@ void BackgroundImage::setIsConnected(bool isConnected)
     }
 }
 
+void BackgroundImage::updateScaling()
+{
+    handleBackgroundsChange();
+}
+
 void BackgroundImage::onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings)
 {
     curBackgroundSettings_ = backgroundSettings;

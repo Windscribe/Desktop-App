@@ -304,6 +304,12 @@ QPixmap Background::getShadowPixmap()
     return tempPixmap;
 }
 
+void Background::updateScaling()
+{
+    backgroundImage_.updateScaling();
+    ScalableGraphicsObject::updateScaling();
+}
+
 
 void Background::doUpdate()
 {

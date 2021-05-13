@@ -1,7 +1,6 @@
 #include "imagechanger.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
-#include <QMovie>
 
 namespace ConnectWindow {
 
@@ -29,6 +28,8 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
 {
     if (!curImage_.isValid() || !bShowPrevChangeAnimation)
     {
+        curImage_.clear(this);
+        prevImage_.clear(this);
         curImage_.isMovie = false;
         curImage_.pixmap = pixmap;
         curImage_.movie.reset();
@@ -40,7 +41,7 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
     {
         prevImage_ = curImage_;
 
-        curImage_.clear();
+        curImage_.clear(this);
         curImage_.pixmap = pixmap;
 
         opacityPrevImage_ = 1.0;
@@ -54,6 +55,8 @@ void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAn
 {
     if (!curImage_.isValid() || !bShowPrevChangeAnimation)
     {
+        curImage_.clear(this);
+        prevImage_.clear(this);
         curImage_.isMovie = true;
         curImage_.pixmap.reset();
         curImage_.movie = movie;
@@ -66,7 +69,7 @@ void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAn
     {
         prevImage_ = curImage_;
 
-        curImage_.clear();
+        curImage_.clear(this);
         curImage_.isMovie = true;
         curImage_.movie = movie;
 
@@ -93,12 +96,7 @@ void ImageChanger::onOpacityFinished()
 
     if (prevImage_.isValid())
     {
-        if (prevImage_.isMovie)
-        {
-            prevImage_.movie->disconnect(this);
-            prevImage_.movie->stop();
-        }
-        prevImage_.clear();
+        prevImage_.clear(this);
     }
     updatePixmap();
 }

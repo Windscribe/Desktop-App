@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVariantAnimation>
+#include <QMovie>
 #include "graphicresources/independentpixmap.h"
 
 namespace ConnectWindow {
@@ -54,8 +55,14 @@ private:
             }
         }
 
-        void clear()
+        void clear(QObject *parent)
         {
+            if (isMovie && movie)
+            {
+                movie->disconnect(parent);
+                movie->stop();
+            }
+
             pixmap.reset();
             movie.reset();
             isMovie = false;

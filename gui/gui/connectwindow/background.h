@@ -25,10 +25,10 @@ public:
 
     void onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState);
     void onLocationSelected(const QString &countryCode);
-
     void setDarkMode(bool dark);
-
     QPixmap getShadowPixmap();
+
+    void updateScaling() override;
 
 private slots:
      void doUpdate();
