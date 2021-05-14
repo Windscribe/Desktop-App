@@ -1,61 +1,39 @@
 #include "ipaddressitem.h"
+#include "dpiscalemanager.h"
 
-IPAddressItem::IPAddressItem(QObject *parent) : QObject(parent),
+#include <QCursor>
+
+IPAddressItem::IPAddressItem(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
     isValid_(false)
 {
     for (int i = 0; i < 4; ++i)
     {
         octetItems_[i] = new OctetItem(this, &numbersPixmap_);
-        connect(octetItems_[i], SIGNAL(needUpdate()), SIGNAL(needUpdate()));
+        connect(octetItems_[i], SIGNAL(needUpdate()), SLOT(doUpdate()));
         connect(octetItems_[i], SIGNAL(widthChanged()), SLOT(onOctetWidthChanged()));
     }
     onOctetWidthChanged();
+
+    setGraphicsEffect(&blurEffect_);
+    blurEffect_.setEnabled(false);
+    setAcceptHoverEvents(true);
 }
 
-void IPAddressItem::setIpAddress(const QString &ip, bool bWithAnimation)
+QRectF IPAddressItem::boundingRect() const
 {
-    if (ip != ipAddress_)
-    {
-        ipAddress_ = ip;
-        bool prevIsValid = isValid_;
-
-        QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
-        QRegExp ipRegex ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
-        isValid_ = ipRegex.exactMatch(ip);
-
-        if (isValid_)
-        {
-            QStringList list = ip.split(".");
-
-            for (int i = 0; i < 4; ++i)
-            {
-                octetItems_[i]->setOctetNumber(list[i].toInt(), prevIsValid && bWithAnimation);
-            }
-
-            if (!prevIsValid)
-            {
-                emit needUpdate();
-            }
-        }
-        else
-        {
-            emit needUpdate();
-        }
-    }
+    return QRectF(0, 0, curWidth_, numbersPixmap_.height());
 }
 
-int IPAddressItem::width() const
+void IPAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    return curWidth_;
-}
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
 
-int IPAddressItem::height() const
-{
-    return numbersPixmap_.height();
-}
+    //painter->fillRect(boundingRect(), QBrush(QColor(255, 55, 255)));
 
-void IPAddressItem::draw(QPainter *painter, int x, int y)
-{
+    int x = 0;
+    int y = 0;
+
     if (!isValid_)
     {
         numbersPixmap_.getNAPixmap()->draw(x + curWidth_ - numbersPixmap_.getNAPixmap()->width(), y, painter);
@@ -77,8 +55,42 @@ void IPAddressItem::draw(QPainter *painter, int x, int y)
     }
 }
 
-void IPAddressItem::setScale(double /*scale*/)
+void IPAddressItem::setIpAddress(const QString &ip, bool bWithAnimation)
 {
+    if (ip != ipAddress_)
+    {
+        ipAddress_ = ip;
+        bool prevIsValid = isValid_;
+
+        QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
+        QRegExp ipRegex ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
+        isValid_ = ipRegex.exactMatch(ip);
+
+        if (isValid_)
+        {
+            QStringList list = ipAddress_.split(".");
+
+            for (int i = 0; i < 4; ++i)
+            {
+                octetItems_[i]->setOctetNumber(list[i].toInt(), prevIsValid && bWithAnimation);
+            }
+
+            if (!prevIsValid)
+            {
+                update();
+            }
+        }
+        else
+        {
+            update();
+        }
+    }
+}
+
+void IPAddressItem::updateScaling()
+{
+    ScalableGraphicsObject::updateScaling();
+
     numbersPixmap_.rescale();
 
     // update ip
@@ -90,7 +102,13 @@ void IPAddressItem::setScale(double /*scale*/)
     {
         octetItems_[i]->recalcSizes();
     }
+    blurEffect_.setBlurRadius(12*G_SCALE);
     onOctetWidthChanged();
+}
+
+void IPAddressItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    blurEffect_.setEnabled(!blurEffect_.isEnabled());
 }
 
 void IPAddressItem::onOctetWidthChanged()
@@ -105,8 +123,25 @@ void IPAddressItem::onOctetWidthChanged()
     {
         curWidth_ = newWidth;
         emit widthChanged(curWidth_);
-        emit needUpdate();
+        update();
     }
+}
+
+void IPAddressItem::doUpdate()
+{
+    update();
+}
+
+void IPAddressItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+    setCursor(Qt::PointingHandCursor);
+}
+
+void IPAddressItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+    setCursor(Qt::ArrowCursor);
 }
 
 
