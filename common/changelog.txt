@@ -1,3 +1,11 @@
+2.03.01 (14/05/2021)
+* Prevent deactivate main windows when log viewer dialog is opened what led to crash. #439
+* Installer errors out with silly error if firewall is ON while disconnected - fixed. #441
+* A crash on OS X Sierra (10.12) fixed. #446
+* Custom DNS server support. #124
+* Ability to upload custom background images. #394
+* Added ability to blur IP with the mouse double click. #469
+
 2.02.10 (31/03/2021)
 * The detection of the authorization error for IKEv2 made more specific. #398
 * Reduced logs and ping_long_custom_configs.txt size. #434
