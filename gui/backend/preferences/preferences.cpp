@@ -5,6 +5,7 @@
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "utils/ipvalidation.h"
 #include <QSettings>
 
 Preferences::Preferences(QObject *parent) : QObject(parent)
@@ -412,6 +413,22 @@ void Preferences::setDnsPolicy(ProtoTypes::DnsPolicy d)
     }
 }
 
+DnsWhileConnectedInfo Preferences::dnsWhileConnectedInfo() const
+{
+   return DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info());
+}
+
+void Preferences::setDnsWhileConnectedInfo(DnsWhileConnectedInfo d)
+{
+    ProtoTypes::DnsWhileConnectedInfo protoDNS = d.toProtobuf();
+    if (!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.dns_while_connected_info(), protoDNS))
+    {
+        *engineSettings_.mutable_dns_while_connected_info() = protoDNS;
+        emit dnsWhileConnectedInfoChanged(d);
+        emit updateEngineSettings();
+    }
+}
+
 bool Preferences::keepAlive() const
 {
     return engineSettings_.is_keep_alive_enabled();
@@ -538,6 +555,7 @@ void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
     setDnsPolicy(es.dns_policy());
     setKeepAlive(es.is_keep_alive_enabled());
     setCustomOvpnConfigsPath(QString::fromStdString(es.customovpnconfigspath()));
+    setDnsWhileConnectedInfo(DnsWhileConnectedInfo(es.dns_while_connected_info()));
     receivingEngineSettings_ = false;
 }
 
@@ -594,6 +612,18 @@ void Preferences::validateAndUpdateIfNeeded()
         engineSettings_.api_resolution().manual_ip().empty()) {
         engineSettings_.mutable_api_resolution()->set_is_automatic(true);
         emit apiResolutionChanged(engineSettings_.api_resolution());
+        is_update_needed = true;
+    }
+
+    if (engineSettings_.dns_while_connected_info().type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM &&
+            !IpValidation::instance().isIp(QString::fromStdString(engineSettings_.dns_while_connected_info().ip_address())))
+    {
+        ProtoTypes::DnsWhileConnectedInfo protoDns;
+        protoDns.set_type(ProtoTypes::DNS_WHILE_CONNECTED_TYPE_ROBERT);
+        protoDns.set_ip_address("");
+        *engineSettings_.mutable_dns_while_connected_info() = protoDns;
+        emit dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info()));
+        emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
         is_update_needed = true;
     }
 

@@ -41,6 +41,23 @@ bool IpValidation::isValidIpForCidr(const QString &str)
     return (ip_value & ip_mask) == ip_value;
 }
 
+QString IpValidation::getRemoteIdFromDomain(const QString &str)
+{
+    int ind1 = str.indexOf('-');
+    if(ind1 == -1)
+    {
+        return str;
+    }
+    int ind2 = str.indexOf('.', ind1);
+    if(ind2 == -1)
+    {
+        return str;
+    }
+    QString s = str;
+    s = s.remove(ind1, ind2 - ind1);
+    return s;
+}
+
 IpValidation::IpValidation()
 {
     QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";

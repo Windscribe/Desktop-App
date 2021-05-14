@@ -17,6 +17,7 @@
 #include "engine/types/wireguardtypes.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/types/protocoltype.h"
+#include "utils/macutils.h"
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 
@@ -813,6 +814,92 @@ void Helper_mac::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool
         }
     }
 }
+
+bool Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
+{
+    Q_UNUSED(ifIndex)
+    Q_UNUSED(overrideDnsIpAddress)
+
+    // get list of entries of interest
+    QStringList networkServices = MacUtils::getListOfDnsNetworkServiceEntries();
+
+    // filter list to only SetByWindscribe entries
+    QStringList dnsNetworkServices;
+
+    if (isIkev2)
+    {
+        // IKEv2 is slightly different -- look for "ConfirmedServiceID" key in each DNS dictionary
+        for (QString service : networkServices)
+        {
+            if (MacUtils::dynamicStoreEntryHasKey(service, "ConfirmedServiceID"))
+            {
+                dnsNetworkServices.append(service);
+            }
+        }
+    }
+    else
+    {
+        // WG and openVPN: just look for 'SetByWindscribe' key in each DNS dictionary
+        for (QString service : networkServices)
+        {
+            if (MacUtils::dynamicStoreEntryHasKey(service, "SetByWindscribe"))
+            {
+                dnsNetworkServices.append(service);
+            }
+        }
+    }
+    qCDebug(LOG_CONNECTED_DNS) << "Applying custom 'while connected' DNS change to network services: " << dnsNetworkServices;
+
+    if (dnsNetworkServices.isEmpty())
+    {
+        qCDebug(LOG_CONNECTED_DNS) << "No network services to confirgure 'while connected' DNS";
+        return false;
+    }
+
+    // change DNS on each entry
+    bool successAll = true;
+    for (QString service : dnsNetworkServices)
+    {
+        if (!Helper_mac::setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service))
+        {
+            successAll = false;
+            qCDebug(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;
+            break;
+        }
+    }
+
+    return successAll;
+}
+
+bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_APPLY_CUSTOM_DNS cmd;
+    cmd.ipAddress = ipAddress.toStdString();
+    cmd.networkService = entry.toStdString();
+
+    if (!isHelperConnected())
+        return false;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    if (!sendCmdToHelper(HELPER_CMD_APPLY_CUSTOM_DNS, stream.str()))
+    {
+        return false;
+    }
+
+    CMD_ANSWER answerCmd;
+    if (!readAnswer(answerCmd))
+    {
+        return false;
+    }
+
+    return answerCmd.executed != 0;
+}
+
 
 bool Helper_mac::setKextPath(const QString &kextPath)
 {

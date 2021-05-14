@@ -190,6 +190,7 @@ SOURCES += \
     ../backend/types/pingtime.cpp \
     ../backend/types/types.cpp \
     ../backend/types/upgrademodetype.cpp \
+    ../backend/types/dnswhileconnectedinfo.cpp \
     $$COMMON_PATH/utils/clean_sensitive_info.cpp \
     $$COMMON_PATH/utils/extraconfig.cpp \
     $$COMMON_PATH/utils/languagesutil.cpp \
@@ -198,6 +199,7 @@ SOURCES += \
     $$COMMON_PATH/utils/utils.cpp \
     $$COMMON_PATH/utils/widgetutils.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
+    $$COMMON_PATH/utils/ipvalidation.cpp \
     $$COMMON_PATH/version/appversion.cpp \
     ../backend/persistentstate.cpp \
     application/windowsnativeeventfilter.cpp \
@@ -267,7 +269,6 @@ SOURCES += \
     tooltips/tooltipcontroller.cpp \
     tooltips/tooltipdescriptive.cpp \
     tooltips/tooltiputil.cpp \
-    utils/ipvalidation.cpp \
     utils/protoenumtostring.cpp \
     commonwidgets/custommenuwidget.cpp \
     commonwidgets/customtexteditwidget.cpp \
@@ -390,7 +391,6 @@ SOURCES += \
     commongraphics/iconbutton.cpp \
     preferenceswindow/textitem.cpp \
     connectwindow/logonotificationsbutton.cpp \
-    types/dnswhileconnectedtype.cpp \
     preferenceswindow/connectionwindow/dnswhileconnecteditem.cpp \
     languagecontroller.cpp \
     locationswindow/widgetlocations/staticipdeviceinfo.cpp \
@@ -426,6 +426,7 @@ HEADERS += \
     ../backend/types/pingtime.h \
     ../backend/types/types.h \
     ../backend/types/upgrademodetype.h \
+    ../backend/types/dnswhileconnectedinfo.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/utils/languagesutil.h \
@@ -436,6 +437,7 @@ HEADERS += \
     $$COMMON_PATH/utils/protobuf_includes.h \
     $$COMMON_PATH/utils/widgetutils.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
+    $$COMMON_PATH/utils/ipvalidation.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     ../backend/persistentstate.h \
@@ -515,7 +517,6 @@ HEADERS += \
     tooltips/tooltipdescriptive.h \
     tooltips/tooltiptypes.h \
     tooltips/tooltiputil.h \
-    utils/ipvalidation.h \
     utils/protoenumtostring.h \
     commonwidgets/custommenuwidget.h \
     commonwidgets/customtexteditwidget.h \
@@ -654,7 +655,6 @@ HEADERS += \
     commongraphics/iconbutton.h \
     preferenceswindow/textitem.h \
     connectwindow/logonotificationsbutton.h \
-    types/dnswhileconnectedtype.h \
     preferenceswindow/connectionwindow/dnswhileconnecteditem.h \
     languagecontroller.h \
     locationswindow/widgetlocations/staticipdeviceinfo.h \

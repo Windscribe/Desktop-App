@@ -90,6 +90,8 @@ public:
                            const QString &connectedIp, const ProtocolType &protocol) override;
 
     bool setKextPath(const QString &kextPath) override;
+    bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
+    bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties) override;
 
     bool startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;

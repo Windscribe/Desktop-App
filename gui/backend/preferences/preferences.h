@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "../types/types.h"
+#include "../types/dnswhileconnectedinfo.h"
 #include "utils/protobuf_includes.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
@@ -98,6 +99,9 @@ public:
     ProtoTypes::DnsPolicy dnsPolicy() const;
     void setDnsPolicy(ProtoTypes::DnsPolicy d);
 
+    DnsWhileConnectedInfo dnsWhileConnectedInfo() const;
+    void setDnsWhileConnectedInfo(DnsWhileConnectedInfo d);
+
     bool keepAlive() const;
     void setKeepAlive(bool bEnabled);
 
@@ -157,10 +161,13 @@ signals:
     void shareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);
     void debugAdvancedParametersChanged(const QString &pars);
     void dnsPolicyChanged(ProtoTypes::DnsPolicy d);
+    void dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo dnsWcInfo);
     void networkWhiteListChanged(ProtoTypes::NetworkWhiteList l);
     void splitTunnelingChanged(ProtoTypes::SplitTunneling st);
     void keepAliveChanged(bool b);
     void updateEngineSettings();
+
+    void reportErrorToUser(QString title, QString desc);
 
 private:
     ProtoTypes::EngineSettings engineSettings_;

@@ -63,6 +63,7 @@ macx {
     LIBS += -framework CoreFoundation
     LIBS += -framework CoreServices
     LIBS += -framework Security
+    LIBS += -framework SystemConfiguration
 
     INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
     LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
@@ -81,6 +82,7 @@ QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
 }
 
 SOURCES += \
+        ../../common/utils/ipvalidation.cpp \
         ../backend/backend.cpp \
         ../backend/connectstatehelper.cpp \
         ../backend/firewallstatehelper.cpp \
@@ -108,6 +110,7 @@ SOURCES += \
         ../backend/preferences/preferences.cpp \
         ../backend/preferences/preferenceshelper.cpp \
         $$COMMON_PATH/types/locationid.cpp \
+        ../backend/types/dnswhileconnectedinfo.cpp \
         ../backend/types/pingtime.cpp \
         ../backend/types/types.cpp \
         ../backend/types/upgrademodetype.cpp \
@@ -129,6 +132,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    ../../common/utils/ipvalidation.h \
     ../backend/backend.h \
     ../backend/connectstatehelper.h \
     ../backend/firewallstatehelper.h \
@@ -162,6 +166,7 @@ HEADERS += \
     ../backend/preferences/preferences.h \
     ../backend/preferences/preferenceshelper.h \
     $$COMMON_PATH/types/locationid.h \
+    ../backend/types/dnswhileconnectedinfo.h \
     ../backend/types/pingtime.h \
     ../backend/types/types.h \
     ../backend/types/upgrademodetype.h \

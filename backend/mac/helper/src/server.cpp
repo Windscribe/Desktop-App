@@ -17,6 +17,7 @@
 #include "keychain_utils.h"
 #include "ipc/helper_commands_serialize.h"
 #include "ipc/helper_security.h"
+#include "macutils.h"
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 
@@ -299,6 +300,20 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                 delete files_;
                 files_ = NULL;
             }
+        }
+    }
+    else if (cmdId == HELPER_CMD_APPLY_CUSTOM_DNS)
+    {
+        CMD_APPLY_CUSTOM_DNS cmd;
+        ia >> cmd;
+        
+        if (MacUtils::setDnsOfDynamicStoreEntry(cmd.ipAddress, cmd.networkService))
+        {
+            outCmdAnswer.executed = 1;
+        }
+        else
+        {
+            outCmdAnswer.executed = 0;
         }
     }
 

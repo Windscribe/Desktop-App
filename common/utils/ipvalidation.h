@@ -19,6 +19,8 @@ public:
     bool isIpCidrOrDomain(const QString &str);
     bool isValidIpForCidr(const QString &str);
 
+    QString getRemoteIdFromDomain(const QString &str);
+
 #if defined(QT_DEBUG)
     void runTests();
 #endif

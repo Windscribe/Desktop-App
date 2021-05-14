@@ -89,10 +89,13 @@ public:
     virtual bool isSupportedICS() = 0;
 #endif
 
+    virtual bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
+
     // mac specific functions
     virtual QStringList getActiveNetworkInterfaces_mac() = 0;
     virtual bool setKeychainUsernamePassword(const QString &username, const QString &password) = 0;
     virtual bool setKextPath(const QString &kextPath) = 0;
+    virtual bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties) = 0;
 
     // WireGuard functions
     virtual bool startWireGuard(const QString &exeName, const QString &deviceName) = 0;

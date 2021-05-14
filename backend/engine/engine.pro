@@ -265,6 +265,7 @@ SOURCES += main.cpp \
     $$COMMON_PATH/utils/logger.cpp \
     $$COMMON_PATH/utils/mergelog.cpp \
     $$COMMON_PATH/utils/extraconfig.cpp \
+    $$COMMON_PATH/utils/ipvalidation.cpp \
     $$COMMON_PATH/version/appversion.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
     application/windowsnativeeventfilter.cpp \
@@ -349,7 +350,6 @@ SOURCES += main.cpp \
     engine/serverapi/curlrequest.cpp \
     engine/serverapi/dnscache.cpp \
     engine/serverapi/serverapi.cpp \
-    utils/ipvalidation.cpp \
     engine/hardcodedsettings.cpp \
     engine/engine.cpp \
     engine/crossplatformobjectfactory.cpp \
@@ -423,6 +423,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
+    $$COMMON_PATH/utils/ipvalidation.h \
     ../../common/names.h \
     application/windowsnativeeventfilter.h \
     application/windscribeapplication.h \
@@ -504,7 +505,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/serverapi/curlrequest.h \
     engine/serverapi/dnscache.h \
     engine/serverapi/serverapi.h \
-    utils/ipvalidation.h \
     engine/hardcodedsettings.h \
     engine/engine.h \
     engine/crossplatformobjectfactory.h \

@@ -163,6 +163,13 @@ void serialize(Archive & ar, CMD_CONNECT_STATUS & a, const unsigned int version)
     ar & a.remoteIp;
 }
 
+template<class Archive>
+void serialize(Archive & ar, CMD_DNS_WHILE_CONNECTED & g, const unsigned int version)
+{
+        UNREFERENCED_PARAMETER(version);
+        ar & g.ifIndex;
+        ar & g.szDnsIpAddress;
+}
 
 template<class Archive>
 void serialize(Archive & ar, CMD_CLOSE_TCP_CONNECTIONS & g, const unsigned int version)

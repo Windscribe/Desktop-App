@@ -583,6 +583,7 @@ void Engine::init()
 
     connectionManager_ = new ConnectionManager(this, helper_, networkStateManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
     connectionManager_->setPacketSize(packetSize_);
+    connectionManager_->setDnsWhileConnectedInfo(engineSettings_.getDnsWhileConnectedInfo());
     connect(connectionManager_, SIGNAL(connected()), SLOT(onConnectionManagerConnected()));
     connect(connectionManager_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onConnectionManagerDisconnected(DISCONNECT_REASON)));
     connect(connectionManager_, SIGNAL(reconnecting()), SLOT(onConnectionManagerReconnecting()));
@@ -1132,6 +1133,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     bool isCustomOvpnConfigsPathChanged = engineSettings_.getCustomOvpnConfigsPath() != engineSettings.getCustomOvpnConfigsPath();
     bool isMACSpoofingChanged = !google::protobuf::util::MessageDifferencer::Equals(engineSettings_.getMacAddrSpoofing(), engineSettings.getMacAddrSpoofing());
     bool isPacketSizeChanged =  !google::protobuf::util::MessageDifferencer::Equals(engineSettings_.getPacketSize(),      engineSettings.getPacketSize());
+    bool isDnsWhileConnectedChanged = !google::protobuf::util::MessageDifferencer::Equals(engineSettings_.getDnsWhileConnectedInfo(), engineSettings.getDnsWhileConnectedInfo());
     engineSettings_ = engineSettings;
 
     if (isDnsPolicyChanged)
@@ -1141,6 +1143,12 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
         {
             DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
         }
+    }
+
+    if (isDnsWhileConnectedChanged)
+    {
+        // tell connection manager about new settings (it will use them onConnect)
+        connectionManager_->setDnsWhileConnectedInfo(engineSettings.getDnsWhileConnectedInfo());
     }
 
     if (isAllowLanTrafficChanged || isDnsPolicyChanged)
@@ -1550,11 +1558,22 @@ void Engine::onConnectionManagerConnected()
     firewallController_->setInterfaceToSkip_mac(adapterName);
 #endif
 
-    helper_->sendConnectStatus(true, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(), connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
+    helper_->sendConnectStatus(true, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(),
+                               connectionManager_->getDefaultAdapterInfo(), connectionManager_->getCustomDnsAdapterGatewayInfo().adapterInfo, connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
 
     if (firewallController_->firewallActualState())
     {
         firewallController_->firewallChange(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic());
+    }
+
+    if (connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
+    {
+         if (!helper_->setCustomDnsWhileConnected(engineSettings_.connectionSettings().protocol().isIkev2Protocol(),
+                                            connectionManager_->getVpnAdapterInfo().ifIndex(),
+                                            QString::fromStdString(connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.ip_address())))
+         {
+             qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
+         }
     }
 
     helper_->setIPv6EnabledInFirewall(false);
