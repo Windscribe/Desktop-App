@@ -53,7 +53,7 @@ void SelectImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     painter->drawText(rcText, Qt::AlignLeft | Qt::AlignVCenter, caption_);
     font = FontManager::instance().getFont(11, false);
     painter->setFont(*font);
-    painter->drawText(rcText, Qt::AlignRight | Qt::AlignVCenter, "664x352");
+    painter->drawText(rcText, Qt::AlignRight | Qt::AlignVCenter, "664x274");
 
 
     painter->setOpacity(initOpacity);

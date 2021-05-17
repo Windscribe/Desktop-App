@@ -31,6 +31,7 @@ private slots:
 
 private:
     static constexpr int WIDTH = 332;
+    static constexpr int ANIMATION_DURATION = 500;
 
     QPixmap *pixmap_;
     QVariantAnimation opacityAnimation_;
@@ -72,6 +73,10 @@ private:
 
     ImageInfo curImage_;
     ImageInfo prevImage_;
+
+    QPixmap customGradient_;
+
+    void generateCustomGradient(const QSize &size);
 
 };
 

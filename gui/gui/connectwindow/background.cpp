@@ -43,7 +43,6 @@ Background::Background(ScalableGraphicsObject *parent, Preferences *preferences)
     headerConnecting_   = "background/WIN_HEADER_BG_CONNECTED"; // same as connected
     bottomFrameBG_      = "background/WIN_BOTTOM_BG";
 
-    flagGradient_       = "background/FLAG_GRADIENT";
     midRightVertDivider_ = "MIDRIGHT_VERT_DIVIDER";
     bottomLeftHorizDivider_ = "BOTTOMLEFT_HORIZ_DIVIDER_WHITE";
 
@@ -80,16 +79,9 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         QPixmap *backgroundPixmap = backgroundImage_.currentPixmap();
         if (backgroundPixmap)
         {
-            painter->setOpacity(0.4);
+            painter->setOpacity(1.0);
             painter->drawPixmap(0, 50*G_SCALE, *backgroundPixmap);
         }
-    }
-
-    // FLAG GRADIENT
-    {
-        painter->setOpacity(1.0);
-        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(flagGradient_);
-        pixmap->draw(0, 50 * G_SCALE, painter);
     }
 
     // TOP GRADIENT

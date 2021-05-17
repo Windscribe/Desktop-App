@@ -47,7 +47,6 @@ private:
     BackgroundImage backgroundImage_;
 
     QString topFrameBG_         ;
-    QString flagGradient_       ;
     QString connectingGradient_ ;
     QString connectedGradient_  ;
     QString headerDisconnected_ ;

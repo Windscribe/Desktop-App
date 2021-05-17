@@ -29,17 +29,17 @@ void BackgroundImage::changeFlag(const QString &countryCode)
 {
     if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_COUNTRY_FLAGS)
     {
-        if (countryCode_ != countryCode)
-        {
-            QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
-                   countryCode, WIDTH * G_SCALE, 176 * G_SCALE);
-            imageChanger_.setImage(indPix, true);
-        }
-        else if (countryCode_.isEmpty())
+        if (countryCode_.isEmpty())
         {
             QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
                    countryCode, WIDTH * G_SCALE, 176 * G_SCALE);
             imageChanger_.setImage(indPix, false);
+        }
+        else if (countryCode_ != countryCode)
+        {
+            QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
+                   countryCode, WIDTH * G_SCALE, 176 * G_SCALE);
+            imageChanger_.setImage(indPix, true);
         }
     }
     countryCode_ = countryCode;
@@ -97,7 +97,7 @@ void BackgroundImage::handleBackgroundsChange()
             }
             else
             {
-                movie->setScaledSize(QSize(WIDTH * G_SCALE, 176 * G_SCALE) * DpiScaleManager::instance().curDevicePixelRatio());
+                movie->setScaledSize(QSize(WIDTH * G_SCALE, 137 * G_SCALE) * DpiScaleManager::instance().curDevicePixelRatio());
                 disconnectedMovie_ = movie;
             }
         }
@@ -116,7 +116,7 @@ void BackgroundImage::handleBackgroundsChange()
             }
             else
             {
-                movie->setScaledSize(QSize(WIDTH * G_SCALE, 176 * G_SCALE) * DpiScaleManager::instance().curDevicePixelRatio());
+                movie->setScaledSize(QSize(WIDTH * G_SCALE, 137 * G_SCALE) * DpiScaleManager::instance().curDevicePixelRatio());
                 connectedMovie_ = movie;
             }
         }

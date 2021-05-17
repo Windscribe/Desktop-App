@@ -2,15 +2,13 @@
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
 #include "mainwindowstate.h"
+#include "graphicresources/imageresourcessvg.h"
 
 namespace ConnectWindow {
 
 ImageChanger::ImageChanger(QObject *parent) : QObject(parent),
     pixmap_(nullptr), opacityCurImage_(1.0), opacityPrevImage_(0.0)
 {
-    opacityAnimation_.setStartValue(0.0);
-    opacityAnimation_.setEndValue(1.0);
-    opacityAnimation_.setDuration(500);
     connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOpacityChanged(QVariant)));
     connect(&opacityAnimation_, SIGNAL(finished()), SLOT(onOpacityFinished()));
 
@@ -46,8 +44,18 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
         curImage_.clear(nullptr);
         curImage_.pixmap = pixmap;
 
-        opacityPrevImage_ = 1.0;
-        opacityCurImage_ = 0.0;
+        opacityPrevImage_ = opacityCurImage_;
+        opacityCurImage_ = 1.0 - opacityPrevImage_;
+
+        if (opacityAnimation_.state() == QVariantAnimation::Running)
+        {
+            opacityAnimation_.stop();
+        }
+
+        opacityAnimation_.setStartValue(opacityCurImage_);
+        opacityAnimation_.setEndValue(1.0);
+        opacityAnimation_.setDuration((1.0 - opacityCurImage_) * ANIMATION_DURATION);
+
         opacityAnimation_.start();
         updatePixmap();
     }
@@ -56,6 +64,8 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
 
 void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAnimation)
 {
+    generateCustomGradient(movie->scaledSize());
+
     if (!curImage_.isValid() || !bShowPrevChangeAnimation)
     {
         curImage_.clear(this);
@@ -75,8 +85,17 @@ void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAn
         curImage_.isMovie = true;
         curImage_.movie = movie;
 
-        opacityPrevImage_ = 1.0;
-        opacityCurImage_ = 0.0;
+        opacityPrevImage_ = opacityCurImage_;
+        opacityCurImage_ = 1.0 - opacityPrevImage_;
+
+        if (opacityAnimation_.state() == QVariantAnimation::Running)
+        {
+            opacityAnimation_.stop();
+        }
+
+        opacityAnimation_.setStartValue(opacityCurImage_);
+        opacityAnimation_.setEndValue(1.0);
+        opacityAnimation_.setDuration((1.0 - opacityCurImage_) * ANIMATION_DURATION);
 
         connect(curImage_.movie.get(), SIGNAL(updated(QRect)), SLOT(updatePixmap()));
         curImage_.movie->start();
@@ -110,37 +129,93 @@ void ImageChanger::updatePixmap()
 
     pixmap_ = new QPixmap(WIDTH * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio(), 176 * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio());
     pixmap_->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-    pixmap_->fill(Qt::transparent);
+    pixmap_->fill(QColor(2, 13, 28));
+
+    // prev and current gradient info
+    enum GRADIENT { GRADIENT_NONE, GRADIENT_FLAG, GRADIENT_CUSTOM_BACKGROUND };
+    GRADIENT prevGradient = GRADIENT_NONE;
+    GRADIENT curGradient = GRADIENT_NONE;
+    if (prevImage_.isValid())
+    {
+        if (!prevImage_.isMovie)
+            prevGradient = GRADIENT_FLAG;
+        else
+            prevGradient = GRADIENT_CUSTOM_BACKGROUND;
+    }
+    if (curImage_.isValid())
+    {
+        if (!curImage_.isMovie)
+            curGradient = GRADIENT_FLAG;
+        else
+            curGradient = GRADIENT_CUSTOM_BACKGROUND;
+    }
+
     {
         QPainter p(pixmap_);
+
         if (prevImage_.isValid())
         {
-            p.setOpacity(opacityPrevImage_);
-
             if (!prevImage_.isMovie)
             {
+                p.setOpacity(opacityPrevImage_  * 0.4);
                 prevImage_.pixmap->draw(0, 0, &p);
+
+                if (curGradient != GRADIENT_FLAG)
+                {
+                    p.setOpacity(opacityPrevImage_);
+                    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap("background/FLAG_GRADIENT");
+                    pixmap->draw(0, 0, &p);
+                }
             }
             else
             {
+                p.setOpacity(opacityPrevImage_);
                 QPixmap framePixmap = prevImage_.movie->currentPixmap();
                 framePixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-                p.drawPixmap(0, 0, framePixmap);
+                p.drawPixmap(0, ceil(7.0 * G_SCALE), framePixmap);
+
+                if (curGradient != GRADIENT_CUSTOM_BACKGROUND)
+                {
+                    p.setOpacity(opacityPrevImage_);
+                    p.drawPixmap(0, ceil(7.0 * G_SCALE), customGradient_);
+                }
             }
         }
         if (curImage_.isValid())
         {
-            p.setOpacity(opacityCurImage_);
-
             if (!curImage_.isMovie)
             {
+                p.setOpacity(opacityCurImage_  * 0.4);
                 curImage_.pixmap->draw(0, 0, &p);
+
+                // for non-movie (not custom background draw flag gradient)
+                if (prevGradient == GRADIENT_CUSTOM_BACKGROUND)
+                {
+                    p.setOpacity(opacityCurImage_);
+                }
+                else
+                {
+                    p.setOpacity(1.0);
+                }
+                QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap("background/FLAG_GRADIENT");
+                pixmap->draw(0, 0, &p);
             }
             else
             {
+                p.setOpacity(opacityCurImage_);
                 QPixmap framePixmap = curImage_.movie->currentPixmap();
                 framePixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-                p.drawPixmap(0, 0, framePixmap);
+                p.drawPixmap(0, ceil(7.0 * G_SCALE), framePixmap);
+
+                if (prevGradient == GRADIENT_FLAG)
+                {
+                    p.setOpacity(opacityCurImage_);
+                }
+                else
+                {
+                    p.setOpacity(1.0);
+                }
+                p.drawPixmap(0, ceil(7.0 * G_SCALE), customGradient_);
             }
         }
     }
@@ -156,6 +231,22 @@ void ImageChanger::onMainWindowIsActiveChanged(bool isActive)
     if (prevImage_.isValid() && prevImage_.isMovie && prevImage_.movie)
     {
         prevImage_.movie->setPaused(!isActive);
+    }
+}
+
+void ImageChanger::generateCustomGradient(const QSize &size)
+{
+    if (customGradient_.isNull() || customGradient_.size() != size)
+    {
+        customGradient_ = QPixmap(size);
+        customGradient_.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+        customGradient_.fill(Qt::transparent);
+        QPainter p(&customGradient_);
+
+        QLinearGradient gradient(0, 0, 0, size.height() * 0.2);
+        gradient.setColorAt(0, QColor(2, 13, 28, 255));
+        gradient.setColorAt(1, QColor(2, 13, 28, 0));
+        p.fillRect(QRect(0, 0, size.width(), size.height() * 0.2), gradient);
     }
 }
 
