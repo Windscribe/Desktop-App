@@ -103,6 +103,7 @@ void ConnectionWindowItem::updateScaling()
 {
     BasePage::updateScaling();
     packetSizeItem_->updateScaling();
+    dnsWhileConnectedItem_->updateScaling();
 }
 
 CONNECTION_SCREEN_TYPE ConnectionWindowItem::getScreen()

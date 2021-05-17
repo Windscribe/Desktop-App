@@ -44,12 +44,12 @@ private:
 
     ComboBoxItem *comboBoxDNS_;
     EditBoxItem *editBoxIP_;
+    DividerLine *dividerLine_;
 
     QVariantAnimation expandEnimation_;
     bool isExpanded_;
 
     DnsWhileConnectedInfo curDNSWhileConnected_;
-    DividerLine *dividerLine_;
 
     void updateHeight(DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE type);
     void setHeightAndLinePos(int height);
