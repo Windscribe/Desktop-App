@@ -1,5 +1,7 @@
 #include "dnswhileconnecteditem.h"
 
+#include "dpiscalemanager.h"
+
 namespace PreferencesWindow {
 
 DnsWhileConnectedItem::DnsWhileConnectedItem(ScalableGraphicsObject *parent) : BaseItem(parent, 50),
@@ -19,8 +21,6 @@ DnsWhileConnectedItem::DnsWhileConnectedItem(ScalableGraphicsObject *parent) : B
 
     editBoxIP_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "IP Address"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter IP"), false);
     connect(editBoxIP_, SIGNAL(textChanged(QString)), SLOT(onDNSWhileConnectedIPChanged(QString)));
-    // TODO: validate on "enter" pressed
-
     editBoxIP_->setPos(0, COLLAPSED_HEIGHT);
 
     QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
@@ -46,6 +46,10 @@ void DnsWhileConnectedItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
 void DnsWhileConnectedItem::updateScaling()
 {
+    BaseItem::updateScaling();
+    int height = isExpanded_ ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT;
+    editBoxIP_->setPos(0, COLLAPSED_HEIGHT*G_SCALE);
+    setHeightAndLinePos(height);
     comboBoxDNS_->updateScaling();
 }
 
@@ -98,8 +102,8 @@ void PreferencesWindow::DnsWhileConnectedItem::updateHeight(DnsWhileConnectedInf
 
 void DnsWhileConnectedItem::setHeightAndLinePos(int height)
 {
-    setHeight(height);
-    dividerLine_->setPos(24, height - dividerLine_->boundingRect().height());
+    setHeight(height*G_SCALE);
+    dividerLine_->setPos(24*G_SCALE, height*G_SCALE - dividerLine_->boundingRect().height());
 }
 
 void DnsWhileConnectedItem::onDNSWhileConnectedModeChanged(QVariant v)
