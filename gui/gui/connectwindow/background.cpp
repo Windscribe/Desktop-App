@@ -36,8 +36,6 @@ Background::Background(ScalableGraphicsObject *parent, Preferences *preferences)
     connect(&backgroundImage_, SIGNAL(updated()), SLOT(doUpdate()));
 
     topFrameBG_         = "background/WIN_MAIN_BG";
-    connectingGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING";
-    connectedGradient_  = "background/WIN_TOP_GRADIENT_BG_CONNECTED";
     headerDisconnected_ = "background/WIN_HEADER_BG_DISCONNECTED";
     headerConnected_    = "background/WIN_HEADER_BG_CONNECTED";
     headerConnecting_   = "background/WIN_HEADER_BG_CONNECTED"; // same as connected
@@ -48,8 +46,6 @@ Background::Background(ScalableGraphicsObject *parent, Preferences *preferences)
 
 #ifdef Q_OS_MAC
     topFrameBG_         = "background/MAC_MAIN_BG";
-    connectingGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING";
-    connectedGradient_  = "background/MAC_TOP_GRADIENT_BG_CONNECTED";
     headerDisconnected_ = "background/MAC_HEADER_BG_DISCONNECTED";
     headerConnected_    = "background/MAC_HEADER_BG_CONNECTED";
     headerConnecting_   = "background/MAC_HEADER_BG_CONNECTED"; // same as connected
@@ -86,31 +82,51 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     // TOP GRADIENT
     {
-        painter->setOpacity(opacityConnecting_);
-        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(connectingGradient_);
-        pixmap->draw(0, 0, painter);
-    }
-    {
-        painter->setOpacity(opacityConnected_);
-        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(connectedGradient_);
-        pixmap->draw(0, 0, painter);
+        if (!qFuzzyIsNull(opacityConnecting_))
+        {
+            QPixmap *connectingPixmap = backgroundImage_.currentConnectingPixmap();
+            if (connectingPixmap)
+            {
+                painter->setOpacity(opacityConnecting_);
+                painter->drawPixmap(0, 0, *connectingPixmap);
+            }
+        }
+
+        if (!qFuzzyIsNull(opacityConnected_))
+        {
+            QPixmap *connectedPixmap = backgroundImage_.currentConnectedPixmap();
+            if (connectedPixmap)
+            {
+                painter->setOpacity(opacityConnected_);
+                painter->drawPixmap(0, 0, *connectedPixmap);
+            }
+        }
     }
 
     // HEADER
     {
-        painter->setOpacity(opacityDisconnected_);
-        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerDisconnected_);
-        pixmap->draw(0, 27*G_SCALE, painter);
+        if (!qFuzzyIsNull(opacityDisconnected_))
+        {
+            painter->setOpacity(opacityDisconnected_);
+            QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerDisconnected_);
+            pixmap->draw(0, 27*G_SCALE, painter);
+        }
     }
     {
-        painter->setOpacity(opacityConnected_);
-        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnected_);
-        pixmap->draw(0, 27*G_SCALE, painter);
+        if (!qFuzzyIsNull(opacityConnected_))
+        {
+            painter->setOpacity(opacityConnected_);
+            QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnected_);
+            pixmap->draw(0, 27*G_SCALE, painter);
+        }
     }
     {
-        painter->setOpacity(opacityConnecting_);
-        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnecting_);
-        pixmap->draw(0, 27*G_SCALE, painter);
+        if (!qFuzzyIsNull(opacityConnecting_))
+        {
+            painter->setOpacity(opacityConnecting_);
+            QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnecting_);
+            pixmap->draw(0, 27*G_SCALE, painter);
+        }
     }
 
     // BOTTOM
@@ -135,8 +151,6 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState)
 {
     Q_UNUSED(prevConnectState);
-
-    backgroundImage_.setIsConnected(newConnectState == ProtoTypes::CONNECTED);
 
     if (newConnectState == ProtoTypes::CONNECTING || newConnectState == ProtoTypes::DISCONNECTING)
     {
@@ -228,6 +242,8 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
                 opacityConnectedAnimation_.stop();
         }
     }
+
+    backgroundImage_.setIsConnected(newConnectState == ProtoTypes::CONNECTED);
 }
 
 void Background::onLocationSelected(const QString &countryCode)

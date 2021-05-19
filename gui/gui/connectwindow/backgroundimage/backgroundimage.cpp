@@ -9,9 +9,23 @@
 namespace ConnectWindow {
 
 BackgroundImage::BackgroundImage(QObject *parent, Preferences *preferences) : QObject(parent), preferences_(preferences), isDisconnectedAndConnectedImagesTheSame_(false),
-    imageChanger_(this), isConnected_(false)
+    imageChanger_(this, ANIMATION_DURATION), connectingGradientChanger_(this, ANIMATION_DURATION), connectedGradientChanger_(this, ANIMATION_DURATION), isConnected_(false)
 {
+#ifdef Q_OS_WIN
+    connectingGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING";
+    connectedGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTED";
+    connectingCustomGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM";
+    connectedCustomGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM";
+#else
+    connectingGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING";
+    connectedGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTED";
+    connectingCustomGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM";
+    connectedCustomGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM";
+#endif
+
     connect(&imageChanger_, SIGNAL(updated()), SIGNAL(updated()));
+    connect(&connectingGradientChanger_, SIGNAL(updated()), SIGNAL(updated()));
+    connect(&connectedGradientChanger_, SIGNAL(updated()), SIGNAL(updated()));
     connect(preferences_, SIGNAL(backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &)), SLOT(onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &)));
     onBackgroundSettingsChanged(preferences_->backgroundSettings());
 }
@@ -25,6 +39,16 @@ QPixmap *BackgroundImage::currentPixmap()
     return imageChanger_.currentPixmap();
 }
 
+QPixmap *BackgroundImage::currentConnectingPixmap()
+{
+    return connectingGradientChanger_.currentPixmap();
+}
+
+QPixmap *BackgroundImage::currentConnectedPixmap()
+{
+    return connectedGradientChanger_.currentPixmap();
+}
+
 void BackgroundImage::changeFlag(const QString &countryCode)
 {
     if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_COUNTRY_FLAGS)
@@ -34,12 +58,14 @@ void BackgroundImage::changeFlag(const QString &countryCode)
             QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
                    countryCode, WIDTH * G_SCALE, 176 * G_SCALE);
             imageChanger_.setImage(indPix, false);
+            switchConnectGradient(false);
         }
         else if (countryCode_ != countryCode)
         {
             QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
                    countryCode, WIDTH * G_SCALE, 176 * G_SCALE);
             imageChanger_.setImage(indPix, true);
+            switchConnectGradient(false);
         }
     }
     countryCode_ = countryCode;
@@ -140,12 +166,14 @@ void BackgroundImage::handleBackgroundsChange()
         QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
             "noflag", WIDTH * G_SCALE, 176 * G_SCALE);
         imageChanger_.setImage(indPix, false);
+        switchConnectGradient(false);
     }
     else if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_COUNTRY_FLAGS)
     {
         QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
             countryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
         imageChanger_.setImage(indPix, false);
+        switchConnectGradient(false);
     }
     else
     {
@@ -158,11 +186,13 @@ void BackgroundImage::safeChangeToDisconnectedImage(bool bShowPrevChangeAnimatio
     if (disconnectedMovie_)
     {
         imageChanger_.setMovie(disconnectedMovie_, bShowPrevChangeAnimation);
+        switchConnectGradient(true);
     }
     else
     {
         imageChanger_.setImage(ImageResourcesSvg::instance().getScaledFlag(
                                    "noflag", WIDTH * G_SCALE, 176 * G_SCALE), bShowPrevChangeAnimation);
+        switchConnectGradient(false);
     }
 }
 
@@ -171,14 +201,29 @@ void BackgroundImage::safeChangeToConnectedImage(bool bShowPrevChangeAnimation)
     if (connectedMovie_)
     {
         imageChanger_.setMovie(connectedMovie_, bShowPrevChangeAnimation);
+        switchConnectGradient(true);
     }
     else
     {
         imageChanger_.setImage(ImageResourcesSvg::instance().getScaledFlag(
                                    "noflag", WIDTH * G_SCALE, 176 * G_SCALE), bShowPrevChangeAnimation);
+        switchConnectGradient(false);
     }
 }
 
+void BackgroundImage::switchConnectGradient(bool isCustomBackground)
+{
+    if (isCustomBackground)
+    {
+        connectingGradientChanger_.setImage(ImageResourcesSvg::instance().getIndependentPixmap(connectingCustomGradient_), true);
+        connectedGradientChanger_.setImage(ImageResourcesSvg::instance().getIndependentPixmap(connectedCustomGradient_), true);
+    }
+    else
+    {
+        connectingGradientChanger_.setImage(ImageResourcesSvg::instance().getIndependentPixmap(connectingGradient_), true);
+        connectedGradientChanger_.setImage(ImageResourcesSvg::instance().getIndependentPixmap(connectedGradient_), true);
+    }
+}
 
 
 

@@ -6,6 +6,7 @@
 #include "graphicresources/independentpixmap.h"
 #include "../backend/preferences/preferences.h"
 #include "imagechanger.h"
+#include "simpleimagechanger.h"
 
 namespace ConnectWindow {
 
@@ -17,6 +18,10 @@ public:
     virtual ~BackgroundImage();
 
     QPixmap *currentPixmap();
+
+    QPixmap *currentConnectingPixmap();
+    QPixmap *currentConnectedPixmap();
+
     void changeFlag(const QString &countryCode);
     void setIsConnected(bool isConnected);
 
@@ -31,6 +36,12 @@ private slots:
 
 private:
     static constexpr int WIDTH = 332;
+    static constexpr int ANIMATION_DURATION = 500;
+
+    QString connectingGradient_;
+    QString connectedGradient_;
+    QString connectingCustomGradient_;
+    QString connectedCustomGradient_;
 
     Preferences *preferences_;
     ProtoTypes::BackgroundSettings curBackgroundSettings_;
@@ -40,6 +51,8 @@ private:
     QSharedPointer<QMovie> connectedMovie_;
 
     ImageChanger imageChanger_;
+    SimpleImageChanger connectingGradientChanger_;
+    SimpleImageChanger connectedGradientChanger_;
 
     QString prevCountryCode_;
     QString countryCode_;
@@ -47,6 +60,7 @@ private:
 
     void safeChangeToDisconnectedImage(bool bShowPrevChangeAnimation);
     void safeChangeToConnectedImage(bool bShowPrevChangeAnimation);
+    void switchConnectGradient(bool isCustomBackground);
 };
 
 } //namespace ConnectWindow

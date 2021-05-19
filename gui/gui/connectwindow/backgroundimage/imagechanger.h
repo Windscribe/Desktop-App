@@ -13,7 +13,7 @@ class ImageChanger : public QObject
 {
     Q_OBJECT
 public:
-    explicit ImageChanger(QObject *parent);
+    explicit ImageChanger(QObject *parent, int animationDuration);
     virtual ~ImageChanger();
 
     QPixmap *currentPixmap();
@@ -31,9 +31,9 @@ private slots:
 
 private:
     static constexpr int WIDTH = 332;
-    static constexpr int ANIMATION_DURATION = 500;
 
     QPixmap *pixmap_;
+    int animationDuration_;
     QVariantAnimation opacityAnimation_;
     qreal opacityCurImage_;
     qreal opacityPrevImage_;

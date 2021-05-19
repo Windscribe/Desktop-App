@@ -221,10 +221,14 @@
         <file>svg/background/WIN_MASK_TOP_GRADIENT_CONNECTED.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM.svg</file>
         <file>svg/background/MAC_LOCATION_BUTTON_BG_BRIGHT.svg</file>
         <file>svg/background/MAC_LOCATION_BUTTON_BG_DARK.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM.svg</file>
         <file>svg/background/WIN_HEADER_BG_CONNECTED.svg</file>
         <file>svg/background/WIN_HEADER_BG_DISCONNECTED.svg</file>
         <file>svg/background/MAC_HEADER_BG_CONNECTED.svg</file>

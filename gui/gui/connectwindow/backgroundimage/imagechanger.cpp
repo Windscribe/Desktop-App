@@ -6,8 +6,8 @@
 
 namespace ConnectWindow {
 
-ImageChanger::ImageChanger(QObject *parent) : QObject(parent),
-    pixmap_(nullptr), opacityCurImage_(1.0), opacityPrevImage_(0.0)
+ImageChanger::ImageChanger(QObject *parent, int animationDuration) : QObject(parent),
+    pixmap_(nullptr), opacityCurImage_(1.0), opacityPrevImage_(0.0), animationDuration_(animationDuration)
 {
     connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOpacityChanged(QVariant)));
     connect(&opacityAnimation_, SIGNAL(finished()), SLOT(onOpacityFinished()));
@@ -54,7 +54,7 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
 
         opacityAnimation_.setStartValue(opacityCurImage_);
         opacityAnimation_.setEndValue(1.0);
-        opacityAnimation_.setDuration((1.0 - opacityCurImage_) * ANIMATION_DURATION);
+        opacityAnimation_.setDuration((1.0 - opacityCurImage_) * animationDuration_);
 
         opacityAnimation_.start();
         updatePixmap();
@@ -95,7 +95,7 @@ void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAn
 
         opacityAnimation_.setStartValue(opacityCurImage_);
         opacityAnimation_.setEndValue(1.0);
-        opacityAnimation_.setDuration((1.0 - opacityCurImage_) * ANIMATION_DURATION);
+        opacityAnimation_.setDuration((1.0 - opacityCurImage_) * animationDuration_);
 
         connect(curImage_.movie.get(), SIGNAL(updated(QRect)), SLOT(updatePixmap()));
         curImage_.movie->start();

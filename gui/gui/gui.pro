@@ -212,6 +212,7 @@ SOURCES += \
     commonwidgets/lightwidget.cpp \
     connectwindow/backgroundimage/backgroundimage.cpp \
     connectwindow/backgroundimage/imagechanger.cpp \
+    connectwindow/backgroundimage/simpleimagechanger.cpp \
     connectwindow/connectionbadgedots.cpp \
     connectwindow/connectstateprotocolport.cpp \
     connectwindow/ipaddressitem/ipaddressitem.cpp \
@@ -451,6 +452,7 @@ HEADERS += \
     commonwidgets/lightwidget.h \
     connectwindow/backgroundimage/backgroundimage.h \
     connectwindow/backgroundimage/imagechanger.h \
+    connectwindow/backgroundimage/simpleimagechanger.h \
     connectwindow/connectionbadgedots.h \
     connectwindow/connectstateprotocolport.h \
     connectwindow/ipaddressitem/ipaddressitem.h \
