@@ -325,6 +325,8 @@ private:
 
     bool currentlyShowingUserWarningMessage_;
 
+    bool bGotoUpdateWindowAfterGeneralMessage_;
+
     void activateAndShow();
     void deactivateAndHide();
     void loadTrayMenuItems();

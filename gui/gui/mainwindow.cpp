@@ -71,6 +71,7 @@ MainWindow::MainWindow() :
     revealingConnectWindow_(false),
     internetConnected_(false),
     currentlyShowingUserWarningMessage_(false),
+    bGotoUpdateWindowAfterGeneralMessage_(false),
     backendAppActiveState_(true),
 #ifdef Q_OS_MAC
     hideShowDockIconTimer_(this),
@@ -1154,6 +1155,7 @@ void MainWindow::onPreferencesReportErrorToUser(const QString &title, const QStr
     QTimer::singleShot(0, [this, title, desc](){
         mainWindowController_->getGeneralMessageWindow()->setTitle(title);
         mainWindowController_->getGeneralMessageWindow()->setDescription(desc);
+        bGotoUpdateWindowAfterGeneralMessage_ = false;
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
     });
 }
@@ -1262,8 +1264,10 @@ void MainWindow::onUpgradeAccountCancel()
 
 void MainWindow::onGeneralMessageWindowAccept()
 {
-    // currently GeneralMessageWindow only uses for WINDOW_ID_UPDATE
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
+    if (bGotoUpdateWindowAfterGeneralMessage_)
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
+    else
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
 }
 
 void MainWindow::onExitWindowAccept()
@@ -2221,6 +2225,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 mainWindowController_->getGeneralMessageWindow()->setErrorMode(true);
                 mainWindowController_->getGeneralMessageWindow()->setTitle(titleText);
                 mainWindowController_->getGeneralMessageWindow()->setDescription(descText);
+                bGotoUpdateWindowAfterGeneralMessage_ = true;
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
             }
         }
