@@ -213,8 +213,9 @@ SOURCES += \
     connectwindow/backgroundimage/backgroundimage.cpp \
     connectwindow/backgroundimage/imagechanger.cpp \
     connectwindow/backgroundimage/simpleimagechanger.cpp \
-    connectwindow/connectionbadgedots.cpp \
-    connectwindow/connectstateprotocolport.cpp \
+    connectwindow/connectstateprotocolport/badgepixmap.cpp \
+    connectwindow/connectstateprotocolport/connectionbadgedots.cpp \
+    connectwindow/connectstateprotocolport/connectstateprotocolport.cpp \
     connectwindow/ipaddressitem/ipaddressitem.cpp \
     connectwindow/ipaddressitem/numberitem.cpp \
     connectwindow/ipaddressitem/numberspixmap.cpp \
@@ -270,6 +271,7 @@ SOURCES += \
     tooltips/tooltipcontroller.cpp \
     tooltips/tooltipdescriptive.cpp \
     tooltips/tooltiputil.cpp \
+    utils/imagewithshadow.cpp \
     utils/protoenumtostring.cpp \
     commonwidgets/custommenuwidget.cpp \
     commonwidgets/customtexteditwidget.cpp \
@@ -454,8 +456,9 @@ HEADERS += \
     connectwindow/backgroundimage/backgroundimage.h \
     connectwindow/backgroundimage/imagechanger.h \
     connectwindow/backgroundimage/simpleimagechanger.h \
-    connectwindow/connectionbadgedots.h \
-    connectwindow/connectstateprotocolport.h \
+    connectwindow/connectstateprotocolport/badgepixmap.h \
+    connectwindow/connectstateprotocolport/connectionbadgedots.h \
+    connectwindow/connectstateprotocolport/connectstateprotocolport.h \
     connectwindow/ipaddressitem/ipaddressitem.h \
     connectwindow/ipaddressitem/numberitem.h \
     connectwindow/ipaddressitem/numberspixmap.h \
@@ -520,6 +523,7 @@ HEADERS += \
     tooltips/tooltipdescriptive.h \
     tooltips/tooltiptypes.h \
     tooltips/tooltiputil.h \
+    utils/imagewithshadow.h \
     utils/protoenumtostring.h \
     commonwidgets/custommenuwidget.h \
     commonwidgets/customtexteditwidget.h \

@@ -9,7 +9,9 @@
 #include "../backend/preferences/preferences.h"
 #include "graphicresources/fontdescr.h"
 #include "utils/textshadow.h"
+#include "utils/imagewithshadow.h"
 #include "connectionbadgedots.h"
+#include "badgepixmap.h"
 
 namespace ConnectWindow {
 
@@ -56,11 +58,14 @@ private:
 
     QColor textColor_;
     double textOpacity_;
-    QString badgeIconBg_;
-    QString badgeIconFg_;
+    //QString badgeIconFg_;
+    QScopedPointer<ImageWithShadow> badgeFgImage_;
 
     TextShadow textShadowProtocol_;
     TextShadow textShadowPort_;
+
+    QColor badgeBgColor_;
+    BadgePixmap badgePixmap_;
 
     int width_;
     int height_;

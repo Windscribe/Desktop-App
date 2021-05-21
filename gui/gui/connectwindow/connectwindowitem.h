@@ -6,7 +6,7 @@
 #include "background.h"
 #include "../backend/backend.h"
 #include "connectbutton.h"
-#include "connectstateprotocolport.h"
+#include "connectstateprotocolport/connectstateprotocolport.h"
 #include "locationsbutton.h"
 #include "serverratingindicator.h"
 #include "wifiname.h"

@@ -273,13 +273,12 @@
         <file>svg/NETWORK_WIFI_UNSECURED.svg</file>
         <file>svg/IP_LOCK_SECURE.svg</file>
         <file>svg/IP_LOCK_UNSECURE.svg</file>
-        <file>svg/CONNECTION_BADGE_BG_CONNECTING.svg</file>
-        <file>svg/CONNECTION_BADGE_BG_OFF.svg</file>
-        <file>svg/CONNECTION_BADGE_BG_ON.svg</file>
-        <file>svg/CONNECTION_BADGE_FG_OFF.svg</file>
-        <file>svg/CONNECTION_BADGE_FG_ON.svg</file>
-        <file>svg/CONNECTION_BADGE_FG_SPINNER.svg</file>
-        <file>svg/CONNECTION_BADGE_FG_NO_INT.svg</file>
+        <file>svg/connection-badge/OFF.svg</file>
+        <file>svg/connection-badge/ON.svg</file>
+        <file>svg/connection-badge/NO_INT.svg</file>
+        <file>svg/connection-badge/OFF_SHADOW.svg</file>
+        <file>svg/connection-badge/ON_SHADOW.svg</file>
+        <file>svg/connection-badge/NO_INT_SHADOW.svg</file>
         <file>svg/RING_CONNECTED_SPLIT_ROUTING.svg</file>
         <file>svg/RING_CONNECTED.svg</file>
         <file>svg/RING_CONNECTING.svg</file>
