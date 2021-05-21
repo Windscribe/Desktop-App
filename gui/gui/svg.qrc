@@ -209,12 +209,13 @@
         <file>svg/ARROW_DOWN_WHITE.svg</file>
         <file>svg/BOTTOMLEFT_HORIZ_DIVIDER_WHITE.svg</file>
         <file>svg/background/MAC_BOTTOM_BG.svg</file>
-        <file>svg/PING_OFF_FULL.svg</file>
-        <file>svg/PING_OFF_HALF.svg</file>
-        <file>svg/PING_OFF_LOW.svg</file>
-        <file>svg/PING_ON_FULL.svg</file>
-        <file>svg/PING_ON_HALF.svg</file>
-        <file>svg/PING_ON_LOW.svg</file>
+        <file>svg/pingbar/OFF_FULL.svg</file>
+        <file>svg/pingbar/OFF_HALF.svg</file>
+        <file>svg/pingbar/OFF_LOW.svg</file>
+        <file>svg/pingbar/ON_FULL.svg</file>
+        <file>svg/pingbar/ON_HALF.svg</file>
+        <file>svg/pingbar/ON_LOW.svg</file>
+        <file>svg/pingbar/SHADOW.svg</file>
         <file>svg/background/WIN_BOTTOM_BG.svg</file>
         <file>svg/background/WIN_LOCATION_BUTTON_BG_BRIGHT.svg</file>
         <file>svg/background/WIN_LOCATION_BUTTON_BG_DARK.svg</file>

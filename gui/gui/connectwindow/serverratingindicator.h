@@ -6,6 +6,7 @@
 #include "../backend/types/pingtime.h"
 #include "commongraphics/clickablegraphicsobject.h"
 #include "utils/protobuf_includes.h"
+#include "utils/imagewithshadow.h"
 
 namespace ConnectWindow {
 
@@ -32,6 +33,13 @@ private:
     int height_;
     ProtoTypes::ConnectStateType connectState_;
     PingTime pingTime_;
+
+    QScopedPointer<ImageWithShadow> pingOnFull_;
+    QScopedPointer<ImageWithShadow> pingOnLow_;
+    QScopedPointer<ImageWithShadow> pingOnHalf_;
+    QScopedPointer<ImageWithShadow> pingOffFull_;
+    QScopedPointer<ImageWithShadow> pingOffLow_;
+    QScopedPointer<ImageWithShadow> pingOffHalf_;
 
     void updateDimensions();
 };
