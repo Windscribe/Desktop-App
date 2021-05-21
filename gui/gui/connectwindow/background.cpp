@@ -41,8 +41,9 @@ Background::Background(ScalableGraphicsObject *parent, Preferences *preferences)
     headerConnecting_   = "background/WIN_HEADER_BG_CONNECTED"; // same as connected
     bottomFrameBG_      = "background/WIN_BOTTOM_BG";
 
-    midRightVertDivider_ = "MIDRIGHT_VERT_DIVIDER";
     bottomLeftHorizDivider_ = "BOTTOMLEFT_HORIZ_DIVIDER_WHITE";
+
+    midRightVertDivider_.reset(new ImageWithShadow("MIDRIGHT_VERT_DIVIDER", "MIDRIGHT_VERT_DIVIDER_SHADOW"));
 
 #ifdef Q_OS_MAC
     topFrameBG_         = "background/MAC_MAIN_BG";
@@ -136,10 +137,9 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         pixmap->draw(0, 194*G_SCALE, painter);
     }
 
-    // DIVIDERS
+    // DIVIDER
     {
-        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(midRightVertDivider_);
-        pixmap->draw(boundingRect().width() - 54 * G_SCALE, 166 * G_SCALE, painter);
+        midRightVertDivider_->draw(painter, boundingRect().width() - 54 * G_SCALE, 166 * G_SCALE);
     }
     {
         painter->setOpacity(0.1);
@@ -315,6 +315,7 @@ QPixmap Background::getShadowPixmap()
 void Background::updateScaling()
 {
     backgroundImage_.updateScaling();
+    midRightVertDivider_.reset(new ImageWithShadow("MIDRIGHT_VERT_DIVIDER", "MIDRIGHT_VERT_DIVIDER_SHADOW"));
     ScalableGraphicsObject::updateScaling();
 }
 

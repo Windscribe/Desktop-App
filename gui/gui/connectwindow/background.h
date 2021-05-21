@@ -8,6 +8,7 @@
 #include "commongraphics/scalablegraphicsobject.h"
 #include "utils/protobuf_includes.h"
 #include "backgroundimage/backgroundimage.h"
+#include "utils/imagewithshadow.h"
 
 namespace ConnectWindow {
 
@@ -52,8 +53,9 @@ private:
     QString headerConnecting_   ;
     QString bottomFrameBG_      ;
 
-    QString midRightVertDivider_;
     QString bottomLeftHorizDivider_;
+
+    QScopedPointer<ImageWithShadow> midRightVertDivider_;
 
     qreal opacityConnecting();
     void setOpacityConnecting(qreal v);

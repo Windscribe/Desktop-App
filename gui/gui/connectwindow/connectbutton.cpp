@@ -25,6 +25,9 @@ ConnectButton::ConnectButton(ScalableGraphicsObject *parent) : ClickableGraphics
     svgItemConnectedSplitRoutingRing_ = new ImageItem(this, "ring/CONNECTED_SPLIT_ROUTING", "ring/CONNECTED_SPLIT_ROUTING_SHADOW");
     svgItemConnectedSplitRoutingRing_->setOpacity(0.0);
 
+    svgItemConnectingRingShadow_ = new ImageItem(this, "ring/CONNECTING_SHADOW");
+    svgItemConnectingRingShadow_->setOpacity(0.0);
+
     svgItemConnectingRing_ = new ImageItem(this, "ring/CONNECTING");
     svgItemConnectingRing_->setOpacity(0.0);
 
@@ -44,6 +47,7 @@ ConnectButton::ConnectButton(ScalableGraphicsObject *parent) : ClickableGraphics
     connectingRingRotationAnimation_.setEndValue(360);
     connectingRingRotationAnimation_.setDuration(1200);
     connectingRingRotationAnimation_.setLoopCount(-1);
+    connect(&connectingRingRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onConnectingRingRotationAnimationValueChanged(QVariant)));
 
     connectingRingOpacityAnimation_.setTargetObject(svgItemConnectingRing_);
     connectingRingOpacityAnimation_.setPropertyName("opacity");
@@ -51,6 +55,7 @@ ConnectButton::ConnectButton(ScalableGraphicsObject *parent) : ClickableGraphics
     connectingRingOpacityAnimation_.setEndValue(1.0);
     connectingRingOpacityAnimation_.setDuration(200);
     connect(&connectingRingOpacityAnimation_, SIGNAL(finished()), SLOT(onConnectingRingOpacityAnimationFinished()));
+    connect(&connectingRingOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onConnectingRingOpacityAnimationValueChanged(QVariant)));
 
     noInternetRingRotationAnimation_.setTargetObject(svgItemConnectingNoInternetRing_);
     noInternetRingRotationAnimation_.setPropertyName("rotation");
@@ -252,6 +257,8 @@ void ConnectButton::updatePositions()
 
     svgItemConnectingRing_->setPos(0, 0);
     svgItemConnectingRing_->setTransformOriginPoint(transformOrigin, transformOrigin);
+    svgItemConnectingRingShadow_->setPos(2, 2);
+    svgItemConnectingRingShadow_->setTransformOriginPoint(transformOrigin, transformOrigin);
 
     svgItemConnectingNoInternetRing_->setPos(0, 0);
     svgItemConnectingNoInternetRing_->setTransformOriginPoint(transformOrigin, transformOrigin);
@@ -268,6 +275,16 @@ void ConnectButton::onNoInternetRingOpacityAnimationFinished()
 void ConnectButton::onButtonRotationAnimationValueChanged(const QVariant &value)
 {
     svgItemButtonShadow_->setRotation(value.toDouble());
+}
+
+void ConnectButton::onConnectingRingRotationAnimationValueChanged(const QVariant &value)
+{
+    svgItemConnectingRingShadow_->setRotation(value.toDouble());
+}
+
+void ConnectButton::onConnectingRingOpacityAnimationValueChanged(const QVariant &value)
+{
+    svgItemConnectingRingShadow_->setOpacity(value.toDouble() * 0.5);
 }
 
 

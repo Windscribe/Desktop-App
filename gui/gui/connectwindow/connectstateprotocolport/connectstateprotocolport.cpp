@@ -129,7 +129,7 @@ void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState conne
         {
             badgeBgColor_ = QColor(255, 255, 255, 39);
             badgeFgImage_.reset(new ImageWithShadow("connection-badge/OFF", "connection-badge/OFF_SHADOW"));
-            textOpacity_ = 0.5;
+            textOpacity_ = 0.8;
             textColor_ = Qt::white;
             connectionBadgeDots_->hide();
             connectionBadgeDots_->stop();

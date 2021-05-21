@@ -11,6 +11,7 @@
         <file>svg/LOGO.svg</file>
         <file>svg/MENU_ICON.svg</file>
         <file>svg/MIDRIGHT_VERT_DIVIDER.svg</file>
+        <file>svg/MIDRIGHT_VERT_DIVIDER_SHADOW.svg</file>
         <file>svg/NOTIFICATION_ICON.svg</file>
         <file>svg/ring/ON_BUTTON.svg</file>
         <file>svg/ring/ON_BUTTON_SHADOW.svg</file>
@@ -290,6 +291,7 @@
         <file>svg/ring/CONNECTED.svg</file>
         <file>svg/ring/CONNECTED_SHADOW.svg</file>
         <file>svg/ring/CONNECTING.svg</file>
+        <file>svg/ring/CONNECTING_SHADOW.svg</file>
         <file>svg/ring/NO_INTERNET.svg</file>
         <file>svg/locations/PRO_CITY_STAR.svg</file>
         <file>svg/locations/PRO_REGION_STAR_DARK.svg</file>
