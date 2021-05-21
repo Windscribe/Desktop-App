@@ -3,9 +3,13 @@
 #include <QPainter>
 #include "graphicresources/imageresourcessvg.h"
 
-ImageItem::ImageItem(const QString &imagePath, ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
-  imagePath_(imagePath)
+ImageItem::ImageItem(ScalableGraphicsObject *parent, const QString &imagePath, const QString &shadowImagePath) : ScalableGraphicsObject(parent),
+  imagePath_(imagePath), shadowImagePath_(shadowImagePath)
 {
+    if (!shadowImagePath_.isEmpty())
+    {
+        imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowImagePath_));
+    }
     updateScaling();
 }
 
@@ -19,15 +23,31 @@ void ImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
-    p->draw(0, 0, painter);
+    if (imageWithShadow_)
+    {
+        imageWithShadow_->draw(painter, 0, 0);
+    }
+    else
+    {
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+        p->draw(0, 0, painter);
+    }
 }
 
 void ImageItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
-    width_ = p->width();
-    height_ = p->height();
+    if (imageWithShadow_)
+    {
+        imageWithShadow_->updatePixmap();
+        width_ = imageWithShadow_->width();
+        height_ = imageWithShadow_->height();
+    }
+    else
+    {
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+        width_ = p->width();
+        height_ = p->height();
+    }
 }
 

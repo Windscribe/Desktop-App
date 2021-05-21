@@ -12,7 +12,8 @@
         <file>svg/MENU_ICON.svg</file>
         <file>svg/MIDRIGHT_VERT_DIVIDER.svg</file>
         <file>svg/NOTIFICATION_ICON.svg</file>
-        <file>svg/ON_BUTTON.svg</file>
+        <file>svg/ring/ON_BUTTON.svg</file>
+        <file>svg/ring/ON_BUTTON_SHADOW.svg</file>
         <file>svg/SHADOW.svg</file>
         <file>svg/WINDOWS_CLOSE_ICON.svg</file>
         <file>svg/firewall/BLACK_TOGGLE_BG.svg</file>
@@ -279,10 +280,12 @@
         <file>svg/connection-badge/OFF_SHADOW.svg</file>
         <file>svg/connection-badge/ON_SHADOW.svg</file>
         <file>svg/connection-badge/NO_INT_SHADOW.svg</file>
-        <file>svg/RING_CONNECTED_SPLIT_ROUTING.svg</file>
-        <file>svg/RING_CONNECTED.svg</file>
-        <file>svg/RING_CONNECTING.svg</file>
-        <file>svg/RING_NO_INTERNET.svg</file>
+        <file>svg/ring/CONNECTED_SPLIT_ROUTING.svg</file>
+        <file>svg/ring/CONNECTED_SPLIT_ROUTING_SHADOW.svg</file>
+        <file>svg/ring/CONNECTED.svg</file>
+        <file>svg/ring/CONNECTED_SHADOW.svg</file>
+        <file>svg/ring/CONNECTING.svg</file>
+        <file>svg/ring/NO_INTERNET.svg</file>
         <file>svg/locations/PRO_CITY_STAR.svg</file>
         <file>svg/locations/PRO_REGION_STAR_DARK.svg</file>
         <file>svg/locations/PRO_REGION_STAR_LIGHT.svg</file>

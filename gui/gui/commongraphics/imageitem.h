@@ -2,13 +2,14 @@
 #define IMAGEITEM_H
 
 #include "commongraphics/scalablegraphicsobject.h"
+#include "utils/imagewithshadow.h"
 
 class ImageItem : public ScalableGraphicsObject
 {
     Q_OBJECT
 public:
 
-    explicit ImageItem(const QString &imagePath, ScalableGraphicsObject * parent = nullptr);
+    explicit ImageItem(ScalableGraphicsObject * parent, const QString &imagePath, const QString &shadowImagePath = QString());
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -17,6 +18,8 @@ public:
 
 private:
     QString imagePath_;
+    QString shadowImagePath_;
+    QScopedPointer<ImageWithShadow> imageWithShadow_;
     int width_;
     int height_;
 };

@@ -23,7 +23,7 @@ LocationsButton::LocationsButton(ScalableGraphicsObject *parent) : ClickableGrap
 #endif
     curTextColor_(Qt::white), isExpanded_(false)
 {
-    arrowItem_ = new ImageItem("ARROW_DOWN_WHITE", this);
+    arrowItem_ = new ImageItem(this, "ARROW_DOWN_WHITE");
     //arrowItem_->setTransformationMode(Qt::SmoothTransformation);
     arrowItem_->setOpacity(0.5);
 
