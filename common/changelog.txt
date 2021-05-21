@@ -1,3 +1,8 @@
+2.03.03 (21/05/2021)
+* The invalid custom DNS message return to the connect screen bug fixed.
+* Added shadows for some texts and controls.
+* Removed all gradient overlays for the custom backgrounds.
+
 2.03.02 (17/05/2021)
 * The custom DNS UI scaling issue is fixed.
 * The position and transparency of the custom background is fixed.
