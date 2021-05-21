@@ -34,13 +34,13 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
     minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
 #else //if Q_OS_MAC
-    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
+    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(true);
 
-    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", this);
+    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });

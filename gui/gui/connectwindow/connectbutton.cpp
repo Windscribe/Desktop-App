@@ -246,7 +246,7 @@ void ConnectButton::updatePositions()
     svgItemButton_->setPos(buttonPos, buttonPos);
     svgItemButton_->setTransformOriginPoint(buttonTransform, buttonTransform);
 
-    svgItemButtonShadow_->setPos(buttonPos + 2,buttonPos + 2);
+    svgItemButtonShadow_->setPos(buttonPos + ceil(G_SCALE),buttonPos + ceil(G_SCALE));
     svgItemButtonShadow_->setTransformOriginPoint(buttonTransform, buttonTransform);
 
     svgItemConnectedRing_->setPos(0, 0);
@@ -257,7 +257,7 @@ void ConnectButton::updatePositions()
 
     svgItemConnectingRing_->setPos(0, 0);
     svgItemConnectingRing_->setTransformOriginPoint(transformOrigin, transformOrigin);
-    svgItemConnectingRingShadow_->setPos(2, 2);
+    svgItemConnectingRingShadow_->setPos(ceil(G_SCALE), ceil(G_SCALE));
     svgItemConnectingRingShadow_->setTransformOriginPoint(transformOrigin, transformOrigin);
 
     svgItemConnectingNoInternetRing_->setPos(0, 0);

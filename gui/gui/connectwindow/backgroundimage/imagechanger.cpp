@@ -64,7 +64,7 @@ void ImageChanger::setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShow
 
 void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAnimation)
 {
-    generateCustomGradient(movie->scaledSize());
+    generateCustomGradient(movie->scaledSize() / DpiScaleManager::instance().curDevicePixelRatio());
 
     if (!curImage_.isValid() || !bShowPrevChangeAnimation)
     {
@@ -238,7 +238,7 @@ void ImageChanger::generateCustomGradient(const QSize &size)
 {
     if (customGradient_.isNull() || customGradient_.size() != size)
     {
-        customGradient_ = QPixmap(size);
+        customGradient_ = QPixmap(size * DpiScaleManager::instance().curDevicePixelRatio());
         customGradient_.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
         customGradient_.fill(Qt::transparent);
         QPainter p(&customGradient_);

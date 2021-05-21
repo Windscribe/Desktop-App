@@ -33,6 +33,7 @@ int TextShadow::height() const
 
 void TextShadow::updatePixmap()
 {
+    const int SHADOW_OFFSET = ceil(G_SCALE);
     QFontMetrics fm(lastFont_);
     lastBoundingRect_ = fm.boundingRect(lastRect_, lastFlags_, lastText_);
 

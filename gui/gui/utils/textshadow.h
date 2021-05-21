@@ -14,8 +14,6 @@ public:
     int height() const;
 
 private:
-    static constexpr int SHADOW_OFFSET = 2;
-
     QColor shadowColor_;
     QRect lastRect_;
     QRect lastBoundingRect_;

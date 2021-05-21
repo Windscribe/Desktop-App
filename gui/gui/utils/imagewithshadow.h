@@ -14,7 +14,6 @@ public:
     void updatePixmap();
 
 private:
-    static constexpr int SHADOW_OFFSET = 2;
     QString originalName_;
     QString shadowName_;
     QPixmap pixmap_;

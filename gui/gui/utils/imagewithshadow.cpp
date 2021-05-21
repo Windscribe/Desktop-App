@@ -27,6 +27,7 @@ int ImageWithShadow::height() const
 
 void ImageWithShadow::updatePixmap()
 {
+    const int SHADOW_OFFSET = ceil(G_SCALE);
     QSharedPointer<IndependentPixmap> originalImg = ImageResourcesSvg::instance().getIndependentPixmap(originalName_);
     QSharedPointer<IndependentPixmap> shadowImg = ImageResourcesSvg::instance().getIndependentPixmap(shadowName_);
     Q_ASSERT(originalImg->width() == shadowImg->width());
@@ -34,7 +35,7 @@ void ImageWithShadow::updatePixmap()
 
 
     QSize sz = originalImg->originalPixmapSize();
-    pixmap_ = QPixmap(QSize(sz.width() + SHADOW_OFFSET, sz.height() + SHADOW_OFFSET) * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap_ = QPixmap(QSize(sz.width() + SHADOW_OFFSET * DpiScaleManager::instance().curDevicePixelRatio(), sz.height() + SHADOW_OFFSET *DpiScaleManager::instance().curDevicePixelRatio()));
     pixmap_.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
     pixmap_.fill(Qt::transparent);
     {
