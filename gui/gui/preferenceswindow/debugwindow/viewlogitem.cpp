@@ -13,12 +13,12 @@ ViewLogItem::ViewLogItem(ScalableGraphicsObject *parent) : BaseItem(parent, 50)
 {
     line_ = new DividerLine(this, 276);
 
-    btnSendLog_ = new IconButton(16, 16, "preferences/SEND_LOG_ICON", this);
+    btnSendLog_ = new IconButton(16, 16, "preferences/SEND_LOG_ICON", "", this);
     connect(btnSendLog_, SIGNAL(hoverEnter()), SIGNAL(sendButtonHoverEnter()));
     connect(btnSendLog_, SIGNAL(hoverLeave()), SIGNAL(buttonHoverLeave()));
     connect(btnSendLog_, SIGNAL(clicked()), SIGNAL(sendLogClicked()));
 
-    btnViewLog_ = new IconButton(16, 16, "preferences/VIEW_LOG_ICON", this);
+    btnViewLog_ = new IconButton(16, 16, "preferences/VIEW_LOG_ICON", "", this);
     connect(btnViewLog_, SIGNAL(hoverEnter()), SIGNAL(viewButtonHoverEnter()));
     connect(btnViewLog_, SIGNAL(hoverLeave()), SIGNAL(buttonHoverLeave()));
     connect(btnViewLog_, SIGNAL(clicked()), SIGNAL(viewLogClicked()));

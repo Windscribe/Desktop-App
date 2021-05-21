@@ -26,12 +26,12 @@ PacketSizeEditBoxItem::PacketSizeEditBoxItem(ScalableGraphicsObject *parent, con
 {
     line_ = new DividerLine(this, isDrawFullBottomDivider ? 276 : 264);
 
-    btnEdit_ = new IconButton(16, 16, "preferences/EDIT_ICON", this);
+    btnEdit_ = new IconButton(16, 16, "preferences/EDIT_ICON", "", this);
     connect(btnEdit_, SIGNAL(clicked()), SLOT(onEditClick()));
 
     if (!additionalButtonIcon.isEmpty())
     {
-        btnAdditional_ = new IconButton(16, 16, additionalButtonIcon, this);
+        btnAdditional_ = new IconButton(16, 16, additionalButtonIcon, "", this);
         connect(btnAdditional_, SIGNAL(clicked()), SIGNAL(additionalButtonClicked()));
         connect(btnAdditional_, SIGNAL(hoverEnter()), SIGNAL(additionalButtonHoverEnter()));
         connect(btnAdditional_, SIGNAL(hoverLeave()), SIGNAL(additionalButtonHoverLeave()));
@@ -41,7 +41,7 @@ PacketSizeEditBoxItem::PacketSizeEditBoxItem(ScalableGraphicsObject *parent, con
     connect(&busySpinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onBusySpinnerRotationAnimationChanged(QVariant)));
     connect(&busySpinnerRotationAnimation_, SIGNAL(finished()), SLOT(onBusySpinnerRotationAnimationFinished()));
     connect(&additionalButtonOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onAdditionalButtonOpacityAnimationValueChanged(QVariant)));
-    btnConfirm_ = new IconButton(16, 16, "preferences/CONFIRM_ICON", this);
+    btnConfirm_ = new IconButton(16, 16, "preferences/CONFIRM_ICON", "", this);
     btnConfirm_->hide();
     connect(btnConfirm_, SIGNAL(clicked()), SLOT(onConfirmClick()));
 
@@ -49,7 +49,7 @@ PacketSizeEditBoxItem::PacketSizeEditBoxItem(ScalableGraphicsObject *parent, con
     busySpinnerTimer_.setInterval(ADDITIONAL_BUTTON_OPACITY_ANIMATION_TIME / 3);
     connect(&busySpinnerTimer_, SIGNAL(timeout()), SLOT(onBusySpinnerStartSpinning()));
 
-    btnUndo_ = new IconButton(16, 16, "preferences/UNDO_ICON", this);
+    btnUndo_ = new IconButton(16, 16, "preferences/UNDO_ICON", "", this);
     btnUndo_->hide();
     connect(btnUndo_, SIGNAL(clicked()), SLOT(onUndoClick()));
 

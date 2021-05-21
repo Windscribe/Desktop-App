@@ -28,10 +28,10 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
     connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
 
 #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", this);
+    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
 
-    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
 #else //if Q_OS_MAC
     closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);

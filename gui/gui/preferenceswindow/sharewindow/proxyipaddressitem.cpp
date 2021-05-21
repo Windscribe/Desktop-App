@@ -19,7 +19,7 @@ ProxyIpAddressItem::ProxyIpAddressItem(ScalableGraphicsObject *parent, bool isDr
 {
     line_ = new DividerLine(this, isDrawFullBottomDivider ? 276 : 264);
 
-    btnCopy_ = new IconButton(16, 16, "preferences/COPY_ICON", this);
+    btnCopy_ = new IconButton(16, 16, "preferences/COPY_ICON", "", this);
     connect(btnCopy_, SIGNAL(clicked()), SLOT(onCopyClick()));
 
     updatePositions();

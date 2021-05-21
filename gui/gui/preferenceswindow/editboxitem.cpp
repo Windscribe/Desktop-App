@@ -17,14 +17,14 @@ EditBoxItem::EditBoxItem(ScalableGraphicsObject *parent, const QString &caption,
 {
     line_ = new DividerLine(this, isDrawFullBottomDivider ? 276 : 264);
 
-    btnEdit_ = new IconButton(16, 16, "preferences/EDIT_ICON", this);
+    btnEdit_ = new IconButton(16, 16, "preferences/EDIT_ICON", "", this);
     connect(btnEdit_, SIGNAL(clicked()), SLOT(onEditClick()));
 
-    btnConfirm_ = new IconButton(16, 16, "preferences/CONFIRM_ICON", this);
+    btnConfirm_ = new IconButton(16, 16, "preferences/CONFIRM_ICON", "", this);
     btnConfirm_->hide();
     connect(btnConfirm_, SIGNAL(clicked()), SLOT(onConfirmClick()));
 
-    btnUndo_ = new IconButton(16, 16, "preferences/UNDO_ICON", this);
+    btnUndo_ = new IconButton(16, 16, "preferences/UNDO_ICON", "", this);
     btnUndo_->hide();
     connect(btnUndo_, SIGNAL(clicked()), SLOT(onUndoClick()));
 

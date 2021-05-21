@@ -44,14 +44,14 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
     curDefaultOpacity_ = OPACITY_FULL;
 
     // upper buttons
-    backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", this);
+    backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", "", this);
     connect(backArrowButton_, SIGNAL(clicked()), SLOT(onBackArrowButtonClicked()));
 
 #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", this);
+    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
 
-    minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
 #elif defined Q_OS_MAC
 
@@ -69,11 +69,11 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
     closeButton_->setSelected(false);
 #endif
     // bottom right buttons
-    rightArrowButton_ = new IconButton(16, 16, "newsfeed/RIGHT_ARROW", this);
+    rightArrowButton_ = new IconButton(16, 16, "newsfeed/RIGHT_ARROW", "", this);
     rightArrowButton_->animateOpacityChange(OPACITY_UNHOVER_ICON_STANDALONE, 50);
     connect(rightArrowButton_, SIGNAL(clicked()), SLOT(onRightClick()));
 
-    leftArrowButton_ = new IconButton(16, 16, "newsfeed/LEFT_ARROW", this);
+    leftArrowButton_ = new IconButton(16, 16, "newsfeed/LEFT_ARROW", "", this);
     leftArrowButton_->animateOpacityChange(OPACITY_UNHOVER_ICON_STANDALONE, 50);
     connect(leftArrowButton_, SIGNAL(clicked()), SLOT(onLeftClick()));
 

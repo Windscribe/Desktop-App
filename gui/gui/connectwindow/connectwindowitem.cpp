@@ -30,9 +30,9 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     background_ = new Background(this, preferences);
 
 #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", this);
+    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
-    minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
 #else
 
@@ -76,7 +76,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(cityName2Text_, SIGNAL(hoverEnter()), this, SLOT(onSecondNameHoverEnter()));
     connect(cityName2Text_, SIGNAL(hoverLeave()), this, SLOT(onFirstOrSecondNameHoverLeave()));
 
-    preferencesButton_ = new IconButton(20, 24, "MENU_ICON", this, 0.5);
+    preferencesButton_ = new IconButton(20, 24, "MENU_ICON", "", this, 0.5);
     connect(preferencesButton_, SIGNAL(clicked()), SIGNAL(preferencesClick()));
 
     locationsButton_ = new LocationsButton(this);
@@ -88,7 +88,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(serverRatingIndicator_, SIGNAL(hoverEnter()), SLOT(onServerRatingIndicatorHoverEnter()));
     connect(serverRatingIndicator_, SIGNAL(hoverLeave()), SLOT(onServerRatingIndicatorHoverLeave()));
 
-    networkTrustButton_ = new IconButton(28, 22, "NETWORK_WIFI_UNSECURED", this, OPACITY_FULL);
+    networkTrustButton_ = new IconButton(28, 22, "network/WIFI_UNSECURED", "network/WIFI_UNSECURED_SHADOW", this, OPACITY_FULL);
     networkTrustButton_->setOpacity(.2);
     connect(networkTrustButton_, SIGNAL(clicked()), SIGNAL(networkButtonClick()));
     connect(networkTrustButton_, SIGNAL(hoverEnter()), SLOT(onNetworkHoverEnter()));
@@ -101,7 +101,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(firewallButton_, SIGNAL(hoverEnter()), SLOT(onFirewallButtonHoverEnter()));
     connect(firewallButton_, SIGNAL(hoverLeave()), SLOT(onFirewallButtonHoverLeave()));
 
-    firewallInfo_ = new IconButton(16, 16, "INFO_ICON", this, 0.25, 0.25);
+    firewallInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, 0.25, 0.25);
     firewallInfo_->setClickableHoverable(false, true);
     connect(firewallInfo_, SIGNAL(hoverEnter()), SLOT(onFirewallInfoHoverEnter()));
     connect(firewallInfo_, SIGNAL(hoverLeave()), SLOT(onFirewallInfoHoverLeave()));
@@ -290,11 +290,11 @@ void ConnectWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
         QString icon = "";
         if (type == ProtoTypes::NETWORK_INTERFACE_WIFI)
         {
-            icon += "NETWORK_WIFI_";
+            icon += "network/WIFI_";
         }
         else if (type == ProtoTypes::NETWORK_INTERFACE_ETH)
         {
-            icon += "NETWORK_ETHERNET_";
+            icon += "network/ETHERNET_";
         }
 
         if (networkActive)
@@ -317,7 +317,7 @@ void ConnectWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
                 icon += "SECURED";
             }
 
-            networkTrustButton_->setIcon(icon);
+            networkTrustButton_->setIcon(icon, icon + "_SHADOW");
         }
     }
 

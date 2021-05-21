@@ -269,10 +269,14 @@
         <file>svg/flags/noflag.svg</file>
         <file>svg/flags/pa.svg</file>
         <file>svg/flags/pe.svg</file>
-        <file>svg/NETWORK_ETHERNET_SECURED.svg</file>
-        <file>svg/NETWORK_ETHERNET_UNSECURED.svg</file>
-        <file>svg/NETWORK_WIFI_SECURED.svg</file>
-        <file>svg/NETWORK_WIFI_UNSECURED.svg</file>
+        <file>svg/network/ETHERNET_SECURED.svg</file>
+        <file>svg/network/ETHERNET_UNSECURED.svg</file>
+        <file>svg/network/ETHERNET_SECURED_SHADOW.svg</file>
+        <file>svg/network/ETHERNET_UNSECURED_SHADOW.svg</file>
+        <file>svg/network/WIFI_SECURED.svg</file>
+        <file>svg/network/WIFI_UNSECURED.svg</file>
+        <file>svg/network/WIFI_SECURED_SHADOW.svg</file>
+        <file>svg/network/WIFI_UNSECURED_SHADOW.svg</file>
         <file>svg/IP_LOCK_SECURE.svg</file>
         <file>svg/IP_LOCK_UNSECURE.svg</file>
         <file>svg/connection-badge/OFF.svg</file>

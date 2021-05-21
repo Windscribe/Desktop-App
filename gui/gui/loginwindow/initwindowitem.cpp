@@ -20,7 +20,7 @@ InitWindowItem::InitWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject
   , isgMsgSmallFont_(false)
 {
 #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", this);
+    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(abortClicked()));
 #else
     closeButton_ = new IconButton(14, 14, "MAC_CLOSE_DEFAULT", this);

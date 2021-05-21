@@ -9,7 +9,7 @@ namespace PreferencesWindow {
 IpOrHostnameItem::IpOrHostnameItem(ProtoTypes::SplitTunnelingNetworkRoute route, ScalableGraphicsObject *parent) : BaseItem(parent, 50)
     , route_(route)
 {
-    deleteButton_ = new IconButton(16, 16, "preferences/DELETE_ICON", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
+    deleteButton_ = new IconButton(16, 16, "preferences/DELETE_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
     deleteButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     deleteButton_->setHoverOpacity(OPACITY_FULL);
     connect(deleteButton_, SIGNAL(clicked()), SIGNAL(deleteClicked()));

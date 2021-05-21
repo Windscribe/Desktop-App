@@ -14,12 +14,12 @@ SearchLineEditItem::SearchLineEditItem(ScalableGraphicsObject *parent) : BaseIte
     , searchIconOpacity_(OPACITY_UNHOVER_ICON_STANDALONE)
     , editing_(false)
 {
-    closeButton_ = new IconButton(16, 16, "preferences/CLOSE_ICON", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
+    closeButton_ = new IconButton(16, 16, "preferences/CLOSE_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
     closeButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     closeButton_->setHoverOpacity(OPACITY_FULL);
     connect(closeButton_, SIGNAL(clicked()), SLOT(onCancelClicked()));
 
-    clearTextButton_ = new IconButton(16, 16, "preferences/CLEAR_ICON", this,OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
+    clearTextButton_ = new IconButton(16, 16, "preferences/CLEAR_ICON", "", this,OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
     clearTextButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     clearTextButton_->setHoverOpacity(OPACITY_FULL);
     connect(clearTextButton_, SIGNAL(clicked()), SLOT(onClearTextClicked()));

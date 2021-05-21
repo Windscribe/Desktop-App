@@ -47,10 +47,10 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     connect(&loginTextOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLoginTextOpacityChanged(QVariant)));
 
  #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", this);
+    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
 
-    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
 #else //if Q_OS_MAC
 
@@ -88,12 +88,12 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     connect(&errorAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onErrorChanged(QVariant)));
 
     // Lower Region:
-    settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, this);
+    settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, "", this);
     connect(settingsButton_, SIGNAL(clicked()), SLOT(onSettingsButtonClick()));
     connect(settingsButton_, SIGNAL(hoverEnter()), SLOT(onSettingsHoverEnter()));
     connect(settingsButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
 
-    configButton_ = new IconButton(24, 24, CONFIG_ICON_PATH, this);
+    configButton_ = new IconButton(24, 24, CONFIG_ICON_PATH, "", this);
     connect(configButton_, SIGNAL(clicked()), SLOT(onConfigButtonClick()));
     connect(configButton_, SIGNAL(hoverEnter()), SLOT(onConfigHoverEnter()));
     connect(configButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));

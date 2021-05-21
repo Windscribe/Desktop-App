@@ -22,38 +22,38 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
     height_ = 303;
     curLineStartPos_ = TOP_BUTTON_Y;
 
-    generalButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/GENERAL_ICON", this);
+    generalButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/GENERAL_ICON", "", this);
 
     generalButton_->setStickySelection(true);
     connect(generalButton_, SIGNAL(clicked()), SLOT(onGeneralButtonClicked()));
     connect(generalButton_, SIGNAL(hoverEnter()), SLOT(onGeneralHoverEnter()));
     connect(generalButton_, SIGNAL(hoverLeave()), SLOT(onButtonHoverLeave()));
 
-    accountButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/ACCOUNT_ICON", this);
+    accountButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/ACCOUNT_ICON", "", this);
     connect(accountButton_, SIGNAL(clicked()), SLOT(onAccountButtonClicked()));
     connect(accountButton_, SIGNAL(hoverEnter()), SLOT(onAccountHoverEnter()));
     connect(accountButton_, SIGNAL(hoverLeave()), SLOT(onButtonHoverLeave()));
 
-    connectionButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/CONNECTION_ICON", this);
+    connectionButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/CONNECTION_ICON", "", this);
     connect(connectionButton_, SIGNAL(clicked()), SLOT(onConnectionButtonClicked()));
     connect(connectionButton_, SIGNAL(hoverEnter()), SLOT(onConnectionHoverEnter()));
     connect(connectionButton_, SIGNAL(hoverLeave()), SLOT(onButtonHoverLeave()));
 
-    shareButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/SHARING_ICON", this);
+    shareButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/SHARING_ICON", "", this);
     connect(shareButton_, SIGNAL(clicked()), SLOT(onShareButtonClicked()));
     connect(shareButton_, SIGNAL(hoverEnter()), SLOT(onShareHoverEnter()));
     connect(shareButton_, SIGNAL(hoverLeave()), SLOT(onButtonHoverLeave()));
 
-    debugButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/DEBUG_ICON", this);
+    debugButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/DEBUG_ICON", "", this);
     connect(debugButton_, SIGNAL(clicked()), SLOT(onDebugButtonClicked()));
     connect(debugButton_, SIGNAL(hoverEnter()), SLOT(onDebugHoverEnter()));
     connect(debugButton_, SIGNAL(hoverLeave()), SLOT(onButtonHoverLeave()));
 
     updateTopAnchoredButtonsPos();
 
-    helpButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/HELP_ICON", this, OPACITY_FULL);
-    signOutButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/SIGN_OUT_ICON", this, OPACITY_FULL);
-    quitButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/QUIT_ICON", this, OPACITY_FULL);
+    helpButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/HELP_ICON", "", this, OPACITY_FULL);
+    signOutButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/SIGN_OUT_ICON", "", this, OPACITY_FULL);
+    quitButton_ = new IconButton(BUTTON_WIDTH,16, "preferences/QUIT_ICON", "", this, OPACITY_FULL);
 
     connect(helpButton_, SIGNAL(clicked()), SLOT(onHelpButtonClicked()));
     connect(helpButton_, SIGNAL(hoverEnter()), SLOT(onHelpHoverEnter()));

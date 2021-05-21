@@ -40,7 +40,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(loginClick()), SIGNAL(loginClick()));
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(quitClick()), SIGNAL(quitAppClick()));
 
-    backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", this);
+    backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", "", this);
     // backArrowButton_->hide();
     connect(backArrowButton_, SIGNAL(clicked()), SLOT(onBackArrowButtonClicked()));
 

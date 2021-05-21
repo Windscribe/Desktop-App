@@ -23,7 +23,7 @@ SelectImageItem::SelectImageItem(ScalableGraphicsObject *parent, const QString &
         dividerLine_ = new DividerLine(this, 264);
     }
 
-    btnOpen_ = new IconButton(16, 16, "locations/EDIT_ICON", this);
+    btnOpen_ = new IconButton(16, 16, "locations/EDIT_ICON", "", this);
     connect(btnOpen_, SIGNAL(clicked()), SLOT(onOpenClick()));
 
     path_ = "filename1.png";
