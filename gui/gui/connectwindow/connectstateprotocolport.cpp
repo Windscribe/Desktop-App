@@ -70,25 +70,24 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     const int posYBot = posYTop + textHeight;
     const int separatorMinusProtocolPosX = badgeBgPixmap->width() + (protocolSeparatorPadding + badgeProtocolPadding)*G_SCALE;
 
-    // protocol
-    const QString protocolString = ProtoEnumToString::instance().toString(protocol_);
-    painter->drawText(QPoint(badgeBgPixmap->width() + badgeProtocolPadding * G_SCALE, posYBot), protocolString);
-
-    // qDebug() << "G_SCALE: " << G_SCALE;
-    // qDebug() << "Protocol width: " << protocolWidth;
+    // protocol and port string
+    QString protocolString = ProtoEnumToString::instance().toString(protocol_);
+    textShadowProtocol_.drawText(painter, QRect(badgeBgPixmap->width() + badgeProtocolPadding * G_SCALE, 0, INT_MAX, badgeBgPixmap->height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, &font, textColor_ );
 
     // port
-    QFontMetrics fm = painter->fontMetrics();
-    const int protocolWidth = fm.horizontalAdvance(protocolString);
     const QString portString = QString::number(port_);
-    const int portPosX = separatorMinusProtocolPosX + (separatorPortPadding + 1) * G_SCALE + protocolWidth;
-    painter->drawText(QPoint(portPosX, posYBot), portString);
+    const int portPosX = separatorMinusProtocolPosX + (separatorPortPadding + 1) * G_SCALE + textShadowProtocol_.width();
+    textShadowPort_.drawText(painter, QRect(portPosX, 0, INT_MAX, badgeBgPixmap->height()), Qt::AlignLeft | Qt::AlignVCenter, portString, &font, textColor_ );
 
     // separator
     painter->setPen(Qt::white);
     painter->setOpacity(0.15 * initOpacity);
-    painter->drawLine(QPoint(separatorMinusProtocolPosX + protocolWidth, posYTop),
-                      QPoint(separatorMinusProtocolPosX + protocolWidth, posYBot));
+    painter->drawLine(QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width(), posYTop),
+                      QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width(), posYBot));
+
+    painter->setPen(QColor(0x02, 0x0D, 0x1C));
+    painter->drawLine(QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width()+1, posYTop),
+                      QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width()+1, posYBot));
 }
 
 void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState connectState)

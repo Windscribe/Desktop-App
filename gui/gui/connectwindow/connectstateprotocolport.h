@@ -8,6 +8,7 @@
 #include "commongraphics/scalablegraphicsobject.h"
 #include "../backend/preferences/preferences.h"
 #include "graphicresources/fontdescr.h"
+#include "utils/textshadow.h"
 #include "connectionbadgedots.h"
 
 namespace ConnectWindow {
@@ -57,6 +58,9 @@ private:
     double textOpacity_;
     QString badgeIconBg_;
     QString badgeIconFg_;
+
+    TextShadow textShadowProtocol_;
+    TextShadow textShadowPort_;
 
     int width_;
     int height_;

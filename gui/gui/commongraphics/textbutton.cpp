@@ -9,11 +9,16 @@
 
 namespace CommonGraphics {
 
-TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent, int addWidth) : ClickableGraphicsObject(parent),
+TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent, int addWidth, bool bDrawWithShadow) : ClickableGraphicsObject(parent),
     text_(text), color_(color), fontDescr_(fd), width_(0), height_(0), addWidth_(addWidth),
     curTextOpacity_(OPACITY_UNHOVER_TEXT), unhoverOpacity_(OPACITY_UNHOVER_TEXT), isHovered_(false),
     textAlignment_(Qt::AlignLeft | Qt::AlignVCenter)
 {
+    if (bDrawWithShadow)
+    {
+        textShadow_.reset(new TextShadow());
+    }
+
     connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextHoverOpacityChanged(QVariant)));
 
     // Direct constructor call to ClickableGraphicsObject::setCursor() crashes due to "pure virtual function call" for some reason only in this class...
@@ -36,10 +41,17 @@ void TextButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     painter->setOpacity(curTextOpacity_ * initialOpacity);
     QFont *font = FontManager::instance().getFont(fontDescr_);
-    painter->setFont(*font);
-    painter->setPen(color_);
 
-    painter->drawText(boundingRect(), textAlignment_ , text_);
+    if (textShadow_)
+    {
+        textShadow_->drawText(painter, boundingRect().toRect(), textAlignment_, text_, font, color_);
+    }
+    else
+    {
+        painter->setFont(*font);
+        painter->setPen(color_);
+        painter->drawText(boundingRect(), textAlignment_ , text_);
+    }
 }
 
 double TextButton::getOpacity() const

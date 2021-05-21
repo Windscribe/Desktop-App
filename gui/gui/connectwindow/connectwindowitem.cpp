@@ -62,14 +62,14 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(connectStateProtocolPort_, SIGNAL(hoverEnter()), SLOT(onConnectStateTextHoverEnter()));
     connect(connectStateProtocolPort_, SIGNAL(hoverLeave()), SLOT(onConnectStateTextHoverLeave()));
 
-    cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(28, true), Qt::white, true, this);
+    cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(28, true), Qt::white, true, this, 0, true);
     cityName1Text_->setUnhoverOpacity(OPACITY_FULL);
     cityName1Text_->setCurrentOpacity(OPACITY_FULL);
     cityName1Text_->setClickableHoverable(false, true);
     connect(cityName1Text_, SIGNAL(hoverEnter()), this, SLOT(onFirstNameHoverEnter()));
     connect(cityName1Text_, SIGNAL(hoverLeave()), this, SLOT(onFirstOrSecondNameHoverLeave()));
 
-    cityName2Text_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this);
+    cityName2Text_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this, 0, true);
     cityName2Text_->setUnhoverOpacity(OPACITY_FULL);
     cityName2Text_->setCurrentOpacity(OPACITY_FULL);
     cityName2Text_->setClickableHoverable(false, true);

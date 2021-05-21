@@ -280,6 +280,7 @@ SOURCES += \
     preferenceswindow/debugwindow/advancedparameterswindowitem.cpp \
     utils/hardcodedsettings.cpp \
     utils/simplecrypt.cpp \
+    utils/textshadow.cpp \
     utils/writeaccessrightschecker.cpp \
     blockconnect.cpp \
     dpiscaleawarewidget.cpp \
@@ -528,6 +529,7 @@ HEADERS += \
     preferenceswindow/debugwindow/advancedparameterswindowitem.h \
     utils/hardcodedsettings.h \
     utils/simplecrypt.h \
+    utils/textshadow.h \
     utils/writeaccessrightschecker.h \
     blockconnect.h \
     dpiscaleawarewidget.h \
