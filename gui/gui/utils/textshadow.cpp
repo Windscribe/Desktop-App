@@ -1,4 +1,5 @@
 #include "textshadow.h"
+#include "dpiscalemanager.h"
 
 TextShadow::TextShadow() : shadowColor_(0x02, 0x0D, 0x1C, 128), lastFlags_(0)
 {
@@ -21,13 +22,13 @@ void TextShadow::drawText(QPainter *painter, const QRect &rect, int flags, const
 int TextShadow::width() const
 {
     Q_ASSERT(!pixmap_.isNull());
-    return pixmap_.width();
+    return pixmap_.width() / DpiScaleManager::instance().curDevicePixelRatio();
 }
 
 int TextShadow::height() const
 {
     Q_ASSERT(!pixmap_.isNull());
-    return pixmap_.height();
+    return pixmap_.height() / DpiScaleManager::instance().curDevicePixelRatio();
 }
 
 void TextShadow::updatePixmap()
@@ -35,7 +36,8 @@ void TextShadow::updatePixmap()
     QFontMetrics fm(lastFont_);
     lastBoundingRect_ = fm.boundingRect(lastRect_, lastFlags_, lastText_);
 
-    pixmap_ = QPixmap(lastBoundingRect_.width() + SHADOW_OFFSET, lastBoundingRect_.height() + SHADOW_OFFSET);
+    pixmap_ = QPixmap(QSize(lastBoundingRect_.width() + SHADOW_OFFSET, lastBoundingRect_.height() + SHADOW_OFFSET) * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap_.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
     pixmap_.fill(Qt::transparent);
     {
         QPainter painter(&pixmap_);
