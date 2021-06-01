@@ -26,8 +26,12 @@ QPixmap WidgetUtils::extractProgramIcon(QString filePath)
     {
         return WidgetUtils_win::extractProgramIcon(filePath);
     }
-#else 
+#elif defined Q_OS_MAC
     return WidgetUtils_mac::extractProgramIcon(filePath);
+#elif defined Q_OS_LINUX
+    //todo linux
+    Q_ASSERT(false);
+    return QPixmap();
 #endif 
 }
 

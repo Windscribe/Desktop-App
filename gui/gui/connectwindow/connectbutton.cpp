@@ -1,6 +1,7 @@
 #include "connectbutton.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <math.h>
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 

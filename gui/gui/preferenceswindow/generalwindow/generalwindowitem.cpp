@@ -45,12 +45,14 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     checkBoxMinimizeAndCloseToTray_->setState(preferences->isMinimizeAndCloseToTray());
     connect(checkBoxMinimizeAndCloseToTray_, SIGNAL(stateChanged(bool)), SLOT(onMinimizeAndCloseToTrayClicked(bool)));
     addItem(checkBoxMinimizeAndCloseToTray_);
-
-#else
+#elif defined Q_OS_MAC
     checkBoxHideFromDock_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Hide from dock"), QString());
     checkBoxHideFromDock_->setState(preferences->isHideFromDock());
     connect(checkBoxHideFromDock_, SIGNAL(stateChanged(bool)), SLOT(onHideFromDockClicked(bool)));
     addItem(checkBoxHideFromDock_);
+#elif defined Q_OS_LINUX
+        //todo linux
+        Q_ASSERT(false);
 #endif
 
     checkBoxShowNotifications_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show notifications"), QString());

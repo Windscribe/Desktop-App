@@ -165,6 +165,13 @@ RESOURCES += \
 
 } # macx
 
+unix {
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
+
+} # unix
+
 
 SOURCES += \
     ../backend/backend.cpp \
