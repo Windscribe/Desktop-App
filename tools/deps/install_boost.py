@@ -19,7 +19,7 @@ import installutils as iutl
 
 # Dependency-specific settings.
 DEP_TITLE = "Boost"
-DEP_URL = "https://dl.bintray.com/boostorg/release/"
+DEP_URL = "https://boostorg.jfrog.io/artifactory/main/release/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["include/**", "lib/**"]
 
