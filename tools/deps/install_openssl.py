@@ -46,10 +46,10 @@ def BuildDependencyMSVC(outpath):
   utl.CopyFile("{}/lib/libssl.lib".format(outpath), "{}/lib/ssleay32.lib".format(outpath))
 
 
-def BuildDependencyGNU(outpath):
+def BuildDependencyGNU(outpath, compiler_params):
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
-  buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
+  buildenv.update({ "CC" : "cc {}".format(compiler_params) })
   # Configure.
   is_testing_ok = "-test" in sys.argv
   configure_cmd = ["./config", "--shared", "no-asm"]
@@ -95,8 +95,10 @@ def InstallDependency():
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
     if utl.GetCurrentOS() == "win32":
       BuildDependencyMSVC(outpath)
+    elif utl.GetCurrentOS() == "macos":
+      BuildDependencyGNU(outpath,"-mmacosx-version-min=10.11")
     else:
-      BuildDependencyGNU(outpath)
+      BuildDependencyGNU(outpath, "")
   # Copy the dependency to output directory and to a zip file, if needed.
   aflist = [outpath]
   if "-zip" in sys.argv:

@@ -46,7 +46,8 @@ def BuildDependencyGNU(openssl_root, lzo_root, outpath):
   buildenv.update({ "CFLAGS" : "-I{}/include -I{}/include".format(openssl_root, lzo_root) })
   buildenv.update({ "CPPFLAGS" : "-I{}/include -I{}/include".format(openssl_root, lzo_root) })
   buildenv.update({ "LDFLAGS" : "-L{}/lib -L{}/lib".format(openssl_root, lzo_root) })
-  buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
+  if utl.GetCurrentOS() == "macos":
+    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
   # Configure.
   configure_cmd = ["./configure", "--with-crypto-library=openssl"]
   configure_cmd.append("--prefix={}".format(outpath))

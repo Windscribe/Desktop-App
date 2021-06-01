@@ -15,6 +15,7 @@ CONFIG_NAME = os.path.join("vars", "gtest.yml")
 
 CMAKE_BINARY_WIN = "C:\\Program Files\\CMake\\bin\\cmake.exe"
 CMAKE_BINARY_MAC = "/Applications/CMake.app/Contents/bin/cmake"
+CMAKE_BINARY_LINUX = "cmake"
 
 import base.messages as msg
 import base.utils as utl
@@ -55,16 +56,23 @@ def BuildDependencyGNU(outpath):
   currend_wd = os.getcwd()
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
-  buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
+  if utl.GetCurrentOS() == "macos":
+    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
   # Build and install.
   msg.HeadPrint("Building: {}".format(DEP_TITLE))
   current_wd = os.getcwd()
   buildpath = os.path.join(current_wd, "build")
   utl.CreateDirectory(buildpath)
   os.chdir(buildpath)
-  cmake_cmd = [ CMAKE_BINARY_MAC, "..",
-                "-Dgtest_force_shared_crt=ON",
-                "-DCMAKE_INSTALL_PREFIX={}".format(outpath)]
+
+  if utl.GetCurrentOS() == "macos":
+    cmake_cmd = [ CMAKE_BINARY_MAC, "..",
+                  "-Dgtest_force_shared_crt=ON",
+                  "-DCMAKE_INSTALL_PREFIX={}".format(outpath)]
+  else:
+    cmake_cmd = [ CMAKE_BINARY_LINUX, "..",
+                  "-Dgtest_force_shared_crt=ON",
+                  "-DCMAKE_INSTALL_PREFIX={}".format(outpath)]
   iutl.RunCommand(cmake_cmd, env=buildenv)
   iutl.RunCommand(["make"], env=buildenv)
   iutl.RunCommand(["make", "install"], env=buildenv)

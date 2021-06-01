@@ -61,7 +61,8 @@ def BuildDependencyMSVC(zlib_root, outpath):
 def BuildDependencyGNU(outpath):
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
-  buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
+  if utl.GetCurrentOS() == "macos":
+    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
   # Configure.
   iutl.RunCommand("./autogen.sh", env=buildenv)
   configure_cmd = ["./configure"]

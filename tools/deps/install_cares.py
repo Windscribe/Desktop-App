@@ -55,7 +55,10 @@ def BuildDependencyGNU(outpath):
   global DEP_FILE_MASK
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
-  buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
+  args = ""
+  if utl.GetCurrentOS() == "macos":
+    args = "-mmacosx-version-min=10.11"
+  buildenv.update({ "CC" : "cc {}".format(args)})
   # Configure.
   configure_cmd = ["./configure"]
   configure_cmd.append("--prefix={}".format(outpath))

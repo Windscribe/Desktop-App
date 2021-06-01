@@ -60,6 +60,8 @@ def BuildDependencyGNU(installpath, openssl_root, outpath):
   configure_cmd.append("-openssl-linked")
   configure_cmd.append("-I{}/include".format(openssl_root))
   configure_cmd.extend(["-prefix", installpath])
+  if utl.GetCurrentOS() == "linux":
+      configure_cmd.append("-no-opengl")
   if QT_SKIP_MODULES:
     configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
   iutl.RunCommand(configure_cmd, env=buildenv)
