@@ -22,13 +22,13 @@ void TextShadow::drawText(QPainter *painter, const QRect &rect, int flags, const
 int TextShadow::width() const
 {
     Q_ASSERT(!pixmap_.isNull());
-    return pixmap_.width() / DpiScaleManager::instance().curDevicePixelRatio();
+    return pixmap_.width() / pixmap_.devicePixelRatio();
 }
 
 int TextShadow::height() const
 {
     Q_ASSERT(!pixmap_.isNull());
-    return pixmap_.height() / DpiScaleManager::instance().curDevicePixelRatio();
+    return pixmap_.height() / pixmap_.devicePixelRatio();
 }
 
 void TextShadow::updatePixmap()
