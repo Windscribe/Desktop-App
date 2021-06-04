@@ -43,13 +43,13 @@ void BadgePixmap::setSize(const QSize &size, int radius)
 int BadgePixmap::width() const
 {
     Q_ASSERT(!pixmap_.isNull());
-    return pixmap_.width() / DpiScaleManager::instance().curDevicePixelRatio();
+    return pixmap_.width() / pixmap_.devicePixelRatio();
 }
 
 int BadgePixmap::height() const
 {
     Q_ASSERT(!pixmap_.isNull());
-    return pixmap_.height() / DpiScaleManager::instance().curDevicePixelRatio();
+    return pixmap_.height() / pixmap_.devicePixelRatio();
 }
 
 void BadgePixmap::updatePixmap()
