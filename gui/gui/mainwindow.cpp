@@ -21,6 +21,7 @@
 #include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
+#include "utils/writeaccessrightschecker.h"
 #include "languagecontroller.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "dialogs/dialoggetusernamepassword.h"
@@ -1342,6 +1343,29 @@ void MainWindow::onLocationsAddCustomConfigClicked()
 
     if (!path.isEmpty()) {
         // qCDebug(LOG_BASIC) << "User selected custom config path:" << path;
+
+        WriteAccessRightsChecker checker(path);
+        if (checker.isWriteable())
+        {
+            if (!checker.isElevated())
+            {
+                qCDebug(LOG_BASIC) << "Cannot change path when non-system directory when windscribe is not elevated.";
+                const QString desc = tr(
+                    "Cannot select this directory because it is writeable for non-privileged users. "
+                    "Custom configs in this directory may pose a potential security risk. "
+                    "Please restart Windscribe as admin to select this directory.");
+                QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+                return;
+            }
+
+            // warn, but still allow path setting
+            const QString desc = tr(
+                "The selected directory is writeable for non-privileged users. "
+                "Custom configs in this directory may pose a potential security risk.");
+            QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+        }
+
+        // set the path
         backend_->getPreferences()->setCustomOvpnConfigsPath(path);
         backend_->sendEngineSettingsIfChanged();
     }

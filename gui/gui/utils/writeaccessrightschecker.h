@@ -11,9 +11,9 @@ class WriteAccessRightsChecker : public QTemporaryFile
 public:
     explicit WriteAccessRightsChecker(const QString &dirname);
     bool isWriteable() const;
+    bool isElevated() const;
 
 private:
-    bool isElevated() const;
     void testWrite();
 
     bool is_writeable_;

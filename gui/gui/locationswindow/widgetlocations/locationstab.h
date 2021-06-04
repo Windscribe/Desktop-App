@@ -141,8 +141,6 @@ private:
     int curWhiteLinePos_;
     QVariantAnimation whiteLineAnimation_;
 
-    bool checkCustomConfigPathAccessRights_;
-
     int countOfVisibleItemSlots_;
     int currentLocationListHeight_;
     bool isRibbonVisible_;
