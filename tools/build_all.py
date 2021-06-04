@@ -62,16 +62,19 @@ def ExtractAppVersion():
 def UpdateVersionInPlist(plistfilename):
   with open(plistfilename, "r") as file:
     filedata = file.read()
+  # update Bundle Version
   filedata = re.sub("<key>CFBundleVersion</key>\n[^\n]+",
     "<key>CFBundleVersion</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRINGS[1]),
     filedata, flags = re.M)
+  # update Bundle Version (short)
+  filedata = re.sub("<key>CFBundleShortVersionString</key>\n[^\n]+",
+    "<key>CFBundleShortVersionString</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRINGS[1]),
+    filedata, flags = re.M)  
   with open(plistfilename, "w") as file:
     file.write(filedata)
 
-
 def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(ROOT_DIR, subdir_name, project_name))
-
 
 def GenerateProtobuf():
   proto_root = iutl.GetDependencyBuildRoot("protobuf")
@@ -212,7 +215,18 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
         build_cmd.append("OTHER_CFLAGS={}".format(buildenv["ExternalCompilerOptions"]))
       build_cmd.extend(["clean", "build"])
       os.chdir(os.path.join(ROOT_DIR, c_subdir))
+      # use temp file to update version info so change isn't observed by version control
+      temp_info_plist = ""
+      if component["name"] == "Installer":
+        utl.CopyFile("installer/Info.plist", "installer/temp_Info.plist")
+        UpdateVersionInPlist("installer/temp_Info.plist")
+        temp_info_plist = os.path.join(ROOT_DIR, c_subdir, "installer", "temp_Info.plist")
+        build_cmd.extend(["INFOPLIST_FILE={}".format(temp_info_plist)])
+      # build the project
       iutl.RunCommand(build_cmd, env=buildenv)
+      # remove temp file -- no longer needed
+      if temp_info_plist and os.path.exists(temp_info_plist):
+        utl.RemoveFile(temp_info_plist)
       if c_target:
         outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | " \
                                           "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " \
