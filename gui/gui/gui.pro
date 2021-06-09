@@ -109,6 +109,7 @@ OBJECTIVE_SOURCES += \
                 application/openlocationshandler_mac.mm \
                 launchonstartup/launchonstartup_mac.mm \
                 utils/interfaceutils_mac.mm \
+                utils/authchecker_mac.mm \
                 $$COMMON_PATH/exithandler_mac.mm \
                 $$COMMON_PATH/utils/widgetutils_mac.mm \
                 $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm
@@ -120,6 +121,7 @@ HEADERS += \
            application/openlocationshandler_mac.h \
            launchonstartup/launchonstartup_mac.h \
            utils/interfaceutils_mac.h \
+           utils/authchecker_mac.h \
            $$COMMON_PATH/exithandler_mac.h \
            $$COMMON_PATH/utils/widgetutils_mac.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h

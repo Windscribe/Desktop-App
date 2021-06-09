@@ -100,6 +100,7 @@ private slots:
 	void onPreferencesCycleMacAddressClick();
     void onPreferencesWindowDetectAppropriatePacketSizeButtonClicked();
     void onPreferencesAdvancedParametersClicked();
+    void onPreferencesCustomConfigsPathChanged(QString path);
 
     // emergency window signals
     void onEmergencyConnectClick();

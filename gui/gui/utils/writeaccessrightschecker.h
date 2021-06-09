@@ -15,6 +15,9 @@ public:
 
 private:
     void testWrite();
+#ifdef Q_OS_MAC
+    int realUid();
+#endif
 
     bool is_writeable_;
 };
