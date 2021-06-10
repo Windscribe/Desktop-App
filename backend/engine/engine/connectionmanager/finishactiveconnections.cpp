@@ -17,8 +17,11 @@ void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
 {
 #ifdef Q_OS_WIN
     finishAllActiveConnections_win(helper);
-#else
+#elif defined Q_OS_MAC
     finishAllActiveConnections_mac(helper);
+#elif defined Q_OS_LINUX
+    //todo linux
+    Q_ASSERT(false);
 #endif
 }
 
@@ -63,7 +66,7 @@ void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *help
     helper->executeTaskKill(strWireGuardExe);
     helper->stopWireGuard();  // This will also reset route monitoring.
 }
-#else
+#elif defined Q_OS_MAC
 void FinishActiveConnections::finishAllActiveConnections_mac(IHelper *helper)
 {
     finishOpenVpnActiveConnections_mac(helper);

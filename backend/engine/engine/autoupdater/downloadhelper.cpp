@@ -21,6 +21,10 @@ DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAcc
     const QString tempDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     const QString path = tempDir + "/installer.dmg";
 
+#elif defined Q_OS_LINUX
+    //todo linux
+    Q_ASSERT(false);
+    const QString path;
 #endif
     qCDebug(LOG_DOWNLOADER) << "Setting download location: " << Utils::cleanSensitiveInfo(path);
     downloadPath_ = path;

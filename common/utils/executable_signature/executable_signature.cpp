@@ -2,8 +2,10 @@
 
 #ifdef Q_OS_WIN
     #include "executable_signature_win.h"
-#else
+#elif defined Q_OS_MAC
     #include "executable_signature_mac.h"
+#elif defined Q_OS_LINUX
+    //todo linux
 #endif
 
 bool ExecutableSignature::isParentProcessGui()
@@ -13,8 +15,11 @@ bool ExecutableSignature::isParentProcessGui()
 #else
     #ifdef Q_OS_WIN
         return ExecutableSignature_win::isParentProcessGui();
-    #else
+    #elif defined Q_OS_MAC
         return ExecutableSignature_mac::isParentProcessGui();
+    #elif defined Q_OS_LINUX
+        //todo linux
+        return false;
     #endif
 #endif
 }
@@ -27,8 +32,11 @@ bool ExecutableSignature::verify(const QString &executablePath)
 #else
     #ifdef Q_OS_WIN
         return ExecutableSignature_win::verify(executablePath);
-    #else
+    #elif defined Q_OS_MAC
         return ExecutableSignature_mac::verify(executablePath);
+    #elif defined Q_OS_LINUX
+        //todo linux
+        return false;
     #endif
 #endif
 }
@@ -41,8 +49,11 @@ bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
 #else
     #ifdef Q_OS_WIN
         return ExecutableSignature_win::verify(executable);
-    #else
+    #elif defined Q_OS_MAC
         return ExecutableSignature_mac::verifyWithSignCheck(executable);
+    #elif defined Q_OS_LINUX
+        //todo linux
+        return false;
     #endif
 #endif
 }

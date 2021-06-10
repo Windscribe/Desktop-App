@@ -15,10 +15,13 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo()
 
 #ifdef Q_OS_WIN
     cai = AdapterUtils_win::getDefaultAdapterInfo();
-#else
+#elif defined Q_OS_MAC
     MacUtils::getDefaultRoute(cai.gateway_, cai.adapterName_);
     cai.adapterIp_ = MacUtils::ipAddressByInterfaceName(cai.adapterName_);
     cai.dnsServers_ = MacUtils::getDnsServersForInterface(cai.adapterName_);
+#elif defined Q_OS_LINUX
+    //todo linux
+    Q_ASSERT(false);
 #endif
 
     return cai;

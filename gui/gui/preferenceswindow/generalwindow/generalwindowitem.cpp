@@ -52,7 +52,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     addItem(checkBoxHideFromDock_);
 #elif defined Q_OS_LINUX
         //todo linux
-        Q_ASSERT(false);
+        //Q_ASSERT(false);
 #endif
 
     checkBoxShowNotifications_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show notifications"), QString());

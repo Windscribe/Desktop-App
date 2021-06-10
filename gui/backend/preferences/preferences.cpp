@@ -97,6 +97,8 @@ void Preferences::setHideFromDock(bool b)
         emit hideFromDockChanged(guiSettings_.is_hide_from_dock());
     }
 }
+#elif defined Q_OS_LINUX
+
 #endif
 
 

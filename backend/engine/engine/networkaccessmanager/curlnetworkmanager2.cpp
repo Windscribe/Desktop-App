@@ -13,7 +13,7 @@ CurlNetworkManager2 *g_this = nullptr;
 CurlNetworkManager2::CurlNetworkManager2(QObject *parent) : QThread(parent),
     bNeedFinish_(false)
 #ifdef Q_OS_MAC
-    , certPath_(QCoreApplication::applicationDirPath() + "/../Resources/cert.pem")
+    , certPath_(QCoreApplication::applicationDirPath() + "/../resources/cert.pem")
 #endif
 {
 

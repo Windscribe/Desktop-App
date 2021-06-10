@@ -7,8 +7,9 @@
 
 #ifdef Q_OS_WIN
     #include "widgetutils_win.h"
-#else
+#elif defined Q_OS_MAC
     #include "widgetutils_mac.h"
+#elif defined Q_OS_LINUX
 #endif
 
 #ifdef Q_OS_WIN

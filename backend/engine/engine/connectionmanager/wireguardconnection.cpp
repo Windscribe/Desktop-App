@@ -187,7 +187,7 @@ QString WireGuardConnection::getWireGuardAdapterName()
 {
 #if defined(Q_OS_WIN)
     return QString("WindscribeWireGuard420");
-#else
+#elif defined(Q_OS_MAC)
     return QString("utun420");
 #endif
 }

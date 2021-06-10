@@ -170,6 +170,11 @@ unix {
 INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
 LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
+SOURCES += \
+           $$COMMON_PATH/utils/linuxutils.cpp
+
+HEADERS += \
+           $$COMMON_PATH/utils/linuxutils.h
 } # unix
 
 

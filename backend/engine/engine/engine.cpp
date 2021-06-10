@@ -1554,7 +1554,7 @@ void Engine::onConnectionManagerConnected()
 
 #ifdef Q_OS_WIN
     AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);    
-#else
+#elif defined Q_OS_MAC
     firewallController_->setInterfaceToSkip_mac(adapterName);
 #endif
 

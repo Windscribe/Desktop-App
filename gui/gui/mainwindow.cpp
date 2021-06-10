@@ -1,4 +1,4 @@
-    #include "mainwindow.h"
+#include "mainwindow.h"
 
 #include <QMouseEvent>
 #include <QTimer>
@@ -105,9 +105,11 @@ MainWindow::MainWindow() :
         while (trayIcon_.geometry().isEmpty())
             qApp->processEvents();
     }
-#else
+#elif defined Q_OS_WIN
     while (trayIcon_.geometry().isEmpty())
         qApp->processEvents();
+#elif defined Q_OS_LINUX
+    //todo Linux
 #endif
     qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
 

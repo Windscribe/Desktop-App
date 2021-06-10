@@ -14,6 +14,9 @@
     #include <math.h>
     #include <unistd.h>
     #include <ApplicationServices/ApplicationServices.h>
+#elif defined Q_OS_LINUX
+    #include "linuxutils.h"
+    #include <unistd.h>
 #endif
 
 using namespace Utils;
@@ -26,10 +29,8 @@ QString Utils::getOSVersion()
     return WinUtils::getWinVersionString();
 #elif defined Q_OS_MAC
     return ("OS X " + MacUtils::getOsVersion());
-#elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-    return "";
+#elif defined Q_OS_LINUX    
+    return LinuxUtils::getOsVersionString();
 #endif
 }
 
@@ -381,12 +382,8 @@ unsigned long Utils::getCurrentPid()
 {
 #ifdef Q_OS_WIN
     return GetCurrentProcessId();
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MAC || defined(Q_OS_LINUX)
     return static_cast<unsigned long>(getpid());
-#elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-    return 0;
 #endif
 }
 
