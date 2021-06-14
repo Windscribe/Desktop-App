@@ -81,6 +81,7 @@ unsigned int AvailablePort::getAvailablePort(unsigned int defaultPort)
     return retPort;
 #elif defined Q_OS_LINUX
     //todo linux
-    Q_ASSERT(false);
+    //Q_ASSERT(false);
+    return 45445;
 #endif
 }

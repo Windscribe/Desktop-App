@@ -102,7 +102,7 @@ void IPAddressItem::updateScaling()
     {
         octetItems_[i]->recalcSizes();
     }
-    blurEffect_.setBlurRadius(12*G_SCALE);
+    blurEffect_.setBlurRadius(16*G_SCALE);
     onOctetWidthChanged();
 }
 

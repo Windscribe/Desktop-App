@@ -171,10 +171,12 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
 LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
 SOURCES += \
-           $$COMMON_PATH/utils/linuxutils.cpp
+           $$COMMON_PATH/utils/linuxutils.cpp \
+           multipleaccountdetection/multipleaccountdetection_linux.cpp
 
 HEADERS += \
-           $$COMMON_PATH/utils/linuxutils.h
+           $$COMMON_PATH/utils/linuxutils.h \
+           multipleaccountdetection/multipleaccountdetection_linux.h
 } # unix
 
 

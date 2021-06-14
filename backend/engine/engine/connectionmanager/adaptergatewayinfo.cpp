@@ -21,7 +21,7 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo()
     cai.dnsServers_ = MacUtils::getDnsServersForInterface(cai.adapterName_);
 #elif defined Q_OS_LINUX
     //todo linux
-    Q_ASSERT(false);
+    //Q_ASSERT(false);
 #endif
 
     return cai;

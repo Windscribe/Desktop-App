@@ -238,7 +238,7 @@ void CurlNetworkManager::run()
                             Q_ASSERT(false);
                         }
                         // check if gzip compression used
-                        Q_ASSERT(download < 30000);
+                        //Q_ASSERT(download < 30000);
 
                         curlRequest->setCurlRetCode(m->data.result);
                         emit finished(curlRequest);

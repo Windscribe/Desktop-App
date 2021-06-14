@@ -79,8 +79,9 @@ QString GetPlatformName()
     return "windows";
 #elif defined Q_OS_MAC
     return "osx";
-#else
-    return "";
+#elif defined Q_OS_LINUX
+    //todo
+    return "linux";
 #endif
 }
 

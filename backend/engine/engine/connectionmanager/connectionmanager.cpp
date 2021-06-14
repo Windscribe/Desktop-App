@@ -32,6 +32,8 @@
     #include "ikev2connection_mac.h"
 #endif
 
+#include "openvpnconnection_linux.h"
+
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
 
 ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager,
@@ -1069,7 +1071,11 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
 
         if (protocol.isOpenVpnProtocol())
         {
+#ifdef Q_OS_LINUX
+            connector_ = new OpenVPNConnection_linux(this, helper_);
+#else
             connector_ = new OpenVPNConnection(this, helper_);
+#endif
         }
         else if (protocol.isIkev2Protocol())
         {

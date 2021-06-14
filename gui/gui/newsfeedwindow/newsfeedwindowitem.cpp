@@ -26,7 +26,7 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
     int scrollWidth = WINDOW_WIDTH - 15;
     messageItem_ = new ScrollableMessage(scrollWidth, 115, this);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     mainBackground_   = "background/WIN_MAIN_BG";
     locationButtonBG_ = "background/WIN_LOCATION_BUTTON_BG_BRIGHT";
     headerBackground_ = "background/WIN_HEADER_BG_OVERLAY";
@@ -47,7 +47,7 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
     backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", "", this);
     connect(backArrowButton_, SIGNAL(clicked()), SLOT(onBackArrowButtonClicked()));
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
 
@@ -321,7 +321,7 @@ void NewsFeedWindowItem::updatePositions()
 
     backArrowButton_->setPos(16*G_SCALE, 45*G_SCALE);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     int closePosX = (WINDOW_WIDTH - WINDOW_MARGIN)*G_SCALE - closeButton_->boundingRect().width();
     closeButton_->setPos(closePosX, 14*G_SCALE);
     minimizeButton_->setPos(closePosX - 26*G_SCALE - minimizeButton_->boundingRect().width(), 14*G_SCALE);

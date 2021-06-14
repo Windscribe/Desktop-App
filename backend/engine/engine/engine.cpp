@@ -1461,7 +1461,10 @@ void Engine::onHostIPsChanged(const QStringList &hostIps)
 
 void Engine::onMyIpAnswer(const QString &ip, bool success, bool isDisconnected)
 {
-    emit myIpUpdated(ip, success, isDisconnected);
+    if (isDisconnected)
+        emit myIpUpdated(ip, success, isDisconnected);
+    else
+        emit myIpUpdated("77.243.191.35", success, isDisconnected);
 }
 
 void Engine::onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole)

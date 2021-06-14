@@ -280,11 +280,23 @@ LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
 SOURCES += \
            $$COMMON_PATH/utils/linuxutils.cpp \
            engine/ping/pinghost_icmp_mac.cpp \
-           engine/dnsresolver/dnsutils_linux.cpp
+           engine/dnsresolver/dnsutils_linux.cpp \
+           engine/helper/helper_linux.cpp \
+           engine/networkstatemanager/networkstatemanager_linux.cpp \
+           engine/firewall/firewallcontroller_linux.cpp \
+           engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
+           engine/macaddresscontroller/macaddresscontroller_linux.cpp \
+           engine/connectionmanager/openvpnconnection_linux.cpp
 
 HEADERS += \
            $$COMMON_PATH/utils/linuxutils.h \
-           engine/ping/pinghost_icmp_mac.h
+           engine/ping/pinghost_icmp_mac.h \
+           engine/helper/helper_linux.h \
+           engine/networkstatemanager/networkstatemanager_linux.h \
+           engine/firewall/firewallcontroller_linux.h \
+           engine/networkdetectionmanager/networkdetectionmanager_linux.h \
+           engine/macaddresscontroller/macaddresscontroller_linux.h \
+           engine/connectionmanager/openvpnconnection_linux.h
 } # unix
 
 

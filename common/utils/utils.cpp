@@ -72,7 +72,8 @@ void Utils::getOSVersionAndBuild(QString &osVersion, QString &build)
     MacUtils::getOSVersionAndBuild(osVersion, build);
 #elif defined Q_OS_LINUX
     //todo linux
-    Q_ASSERT(false);
+    osVersion = "";
+    build = "";
 #endif
 }
 
@@ -261,7 +262,7 @@ bool Utils::reportGuiEngineInit()
     return MacUtils::reportGuiEngineInit();
 #elif defined Q_OS_LINUX
     //todo linux
-    Q_ASSERT(false);
+    //Q_ASSERT(false);
     return true;
 #endif
 }
@@ -319,7 +320,7 @@ const ProtoTypes::NetworkInterfaces Utils::currentNetworkInterfaces(bool include
     return MacUtils::currentNetworkInterfaces(includeNoInterface);
 #elif defined Q_OS_LINUX
     //todo linux
-    Q_ASSERT(false);
+    //Q_ASSERT(false);
     return ProtoTypes::NetworkInterfaces();
 #endif
 }
@@ -373,7 +374,7 @@ QString Utils::getLocalIP()
     return MacUtils::getLocalIP();
 #elif defined Q_OS_LINUX
     //todo linux
-    Q_ASSERT(false);
+    //Q_ASSERT(false);
     return "";
 #endif
 }

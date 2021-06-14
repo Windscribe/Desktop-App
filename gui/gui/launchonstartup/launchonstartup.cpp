@@ -16,7 +16,7 @@ void LaunchOnStartup::setLaunchOnStartup(bool enable)
     LaunchOnStartup_mac::setLaunchOnStartup(enable);
 #elif defined Q_OS_LINUX
         //todo linux
-        Q_ASSERT(false);
+        //Q_ASSERT(false);
 #endif
 }
 

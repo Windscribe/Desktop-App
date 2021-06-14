@@ -23,7 +23,7 @@ DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAcc
 
 #elif defined Q_OS_LINUX
     //todo linux
-    Q_ASSERT(false);
+    //Q_ASSERT(false);
     const QString path;
 #endif
     qCDebug(LOG_DOWNLOADER) << "Setting download location: " << Utils::cleanSensitiveInfo(path);
