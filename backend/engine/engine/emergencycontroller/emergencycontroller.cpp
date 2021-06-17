@@ -20,7 +20,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
     serverApiUserRole_(0),
     state_(STATE_DISCONNECTED)
 {
-    QFile file(":/Resources/ovpn/emergency.ovpn");
+    QFile file(":/resources/ovpn/emergency.ovpn");
     if (file.open(QIODevice::ReadOnly))
     {
         ovpnConfig_ = file.readAll();

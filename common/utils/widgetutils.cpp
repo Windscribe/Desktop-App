@@ -7,8 +7,9 @@
 
 #ifdef Q_OS_WIN
     #include "widgetutils_win.h"
-#else
+#elif defined Q_OS_MAC
     #include "widgetutils_mac.h"
+#elif defined Q_OS_LINUX
 #endif
 
 #ifdef Q_OS_WIN
@@ -26,8 +27,12 @@ QPixmap WidgetUtils::extractProgramIcon(QString filePath)
     {
         return WidgetUtils_win::extractProgramIcon(filePath);
     }
-#else 
+#elif defined Q_OS_MAC
     return WidgetUtils_mac::extractProgramIcon(filePath);
+#elif defined Q_OS_LINUX
+    //todo linux
+    Q_ASSERT(false);
+    return QPixmap();
 #endif 
 }
 

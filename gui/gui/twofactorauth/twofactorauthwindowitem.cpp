@@ -27,7 +27,7 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
     escButton_ = new PreferencesWindow::EscapeButton(this);
     connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
 
@@ -84,7 +84,7 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
     painter->setRenderHint(QPainter::Antialiasing);
     const qreal initialOpacity = painter->opacity();
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     const int pushDownSquare = 0;
 #else
     const int pushDownSquare = 5;
@@ -206,7 +206,7 @@ void TwoFactorAuthWindowItem::setClickable(bool isClickable)
     escButton_->setClickable(isClickable);
     okButton_->setClickable(isClickable && !codeEntry_->getText().isEmpty());
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_->setClickable(isClickable);
     minimizeButton_->setClickable(isClickable);
 #endif
@@ -305,7 +305,7 @@ void TwoFactorAuthWindowItem::onEscTextOpacityChange(const QVariant &value)
 
 void TwoFactorAuthWindowItem::updatePositions()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_->setPos((LOGIN_WIDTH - 16 - WINDOW_MARGIN)*G_SCALE, 14*G_SCALE);
     minimizeButton_->setPos((LOGIN_WIDTH - 16 - WINDOW_MARGIN -32)*G_SCALE, 14*G_SCALE);
     escButton_->setPos(WINDOW_MARGIN*G_SCALE, WINDOW_MARGIN*G_SCALE);

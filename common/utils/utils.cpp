@@ -14,6 +14,9 @@
     #include <math.h>
     #include <unistd.h>
     #include <ApplicationServices/ApplicationServices.h>
+#elif defined Q_OS_LINUX
+    #include "linuxutils.h"
+    #include <unistd.h>
 #endif
 
 using namespace Utils;
@@ -26,6 +29,8 @@ QString Utils::getOSVersion()
     return WinUtils::getWinVersionString();
 #elif defined Q_OS_MAC
     return ("OS X " + MacUtils::getOsVersion());
+#elif defined Q_OS_LINUX    
+    return LinuxUtils::getOsVersionString();
 #endif
 }
 
@@ -65,6 +70,10 @@ void Utils::getOSVersionAndBuild(QString &osVersion, QString &build)
     WinUtils::getOSVersionAndBuild(osVersion, build);
 #elif defined Q_OS_MAC
     MacUtils::getOSVersionAndBuild(osVersion, build);
+#elif defined Q_OS_LINUX
+    //todo linux
+    osVersion = "";
+    build = "";
 #endif
 }
 
@@ -225,8 +234,11 @@ bool Utils::giveFocusToGui()
 {
 #ifdef Q_OS_WIN
     return WinUtils::giveFocusToGui();
-#else
+#elif defined Q_OS_MAC
     return MacUtils::giveFocusToGui();
+#elif defined Q_OS_LINUX
+    //todo linux
+    return false;
 #endif
 }
 
@@ -234,9 +246,11 @@ void Utils::openGuiLocations()
 {
 #ifdef Q_OS_WIN
     WinUtils::openGuiLocations();
-#else
+#elif defined Q_OS_MAC
     MacUtils::openGuiLocations();
-
+#elif defined Q_OS_LINUX
+    //todo linux
+    Q_ASSERT(false);
 #endif
 }
 
@@ -244,8 +258,12 @@ bool Utils::reportGuiEngineInit()
 {
 #ifdef Q_OS_WIN
     return WinUtils::reportGuiEngineInit();
-#else
+#elif defined Q_OS_MAC
     return MacUtils::reportGuiEngineInit();
+#elif defined Q_OS_LINUX
+    //todo linux
+    //Q_ASSERT(false);
+    return true;
 #endif
 }
 
@@ -253,8 +271,12 @@ bool Utils::isGuiAlreadyRunning()
 {
 #ifdef Q_OS_WIN
     return WinUtils::isGuiAlreadyRunning();
-#else
+#elif defined Q_OS_MAC
     return MacUtils::isGuiAlreadyRunning();
+#elif defined Q_OS_LINUX
+    //todo linux
+    Q_ASSERT(false);
+    return true;
 #endif
 }
 
@@ -281,8 +303,12 @@ const ProtoTypes::NetworkInterface Utils::currentNetworkInterface()
 {
 #ifdef Q_OS_WIN
     return WinUtils::currentNetworkInterface();
-#else
+#elif defined Q_OS_MAC
     return MacUtils::currentNetworkInterface();
+#elif defined Q_OS_LINUX
+    //todo linux
+    Q_ASSERT(false);
+    return ProtoTypes::NetworkInterface();
 #endif
 }
 
@@ -290,8 +316,12 @@ const ProtoTypes::NetworkInterfaces Utils::currentNetworkInterfaces(bool include
 {
 #ifdef Q_OS_WIN
     return WinUtils::currentNetworkInterfaces(includeNoInterface);
-#else
+#elif defined Q_OS_MAC
     return MacUtils::currentNetworkInterfaces(includeNoInterface);
+#elif defined Q_OS_LINUX
+    //todo linux
+    //Q_ASSERT(false);
+    return ProtoTypes::NetworkInterfaces();
 #endif
 }
 
@@ -325,28 +355,36 @@ const ProtoTypes::NetworkInterfaces Utils::interfacesExceptOne(const ProtoTypes:
 
 bool Utils::pingWithMtu(const QString &url, int mtu)
 {
-#ifdef Q_OS_MAC
-    return MacUtils::pingWithMtu(url, mtu);
-#else
+#ifdef Q_OS_WIN
     return WinUtils::pingWithMtu(url, mtu);
+#elif defined Q_OS_MAC
+    return MacUtils::pingWithMtu(url, mtu);
+#elif defined Q_OS_LINUX
+    //todo linux
+    Q_ASSERT(false);
+    return true;
 #endif
 }
 
 QString Utils::getLocalIP()
 {
-#ifdef Q_OS_MAC
-    return MacUtils::getLocalIP();
-#else
+#ifdef Q_OS_WIN
     return WinUtils::getLocalIP();
+#elif defined Q_OS_MAC
+    return MacUtils::getLocalIP();
+#elif defined Q_OS_LINUX
+    //todo linux
+    //Q_ASSERT(false);
+    return "";
 #endif
 }
 
 unsigned long Utils::getCurrentPid()
 {
-#ifdef Q_OS_MAC
-    return static_cast<unsigned long>(getpid());
-#else
+#ifdef Q_OS_WIN
     return GetCurrentProcessId();
+#elif defined Q_OS_MAC || defined(Q_OS_LINUX)
+    return static_cast<unsigned long>(getpid());
 #endif
 }
 

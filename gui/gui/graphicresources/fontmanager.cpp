@@ -156,8 +156,8 @@ QColor FontManager::getSeaGreenColor()
 
 FontManager::FontManager()
 {
-    QFontDatabase::addApplicationFont(":/Resources/fonts/IBMPlexSans-Bold.ttf");
-    QFontDatabase::addApplicationFont(":/Resources/fonts/IBMPlexSans-Regular.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/ibmplexsans-bold.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/ibmplexsans-regular.ttf");
 }
 
 FontManager::~FontManager()

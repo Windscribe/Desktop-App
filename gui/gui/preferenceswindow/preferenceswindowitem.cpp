@@ -19,7 +19,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
 
     curHeight_ = (MIN_HEIGHT - 100);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     backgroundBase_ = "background/WIN_TOP_BG";
     backgroundHeader_ = "background/WIN_HEADER_BG_OVERLAY";
     roundedFooter_ = false;

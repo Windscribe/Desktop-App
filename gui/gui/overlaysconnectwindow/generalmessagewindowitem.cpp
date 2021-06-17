@@ -17,7 +17,7 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(bool errorMode, QGraphicsObje
     curTitleOpacity_            = OPACITY_FULL;
     curDescriptionOpacity_      = OPACITY_FULL;
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     background_ = "background/WIN_MAIN_BG";
 #else
     background_ = "background/MAC_MAIN_BG";

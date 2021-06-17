@@ -1,4 +1,4 @@
-    #include "mainwindow.h"
+#include "mainwindow.h"
 
 #include <QMouseEvent>
 #include <QTimer>
@@ -105,9 +105,11 @@ MainWindow::MainWindow() :
         while (trayIcon_.geometry().isEmpty())
             qApp->processEvents();
     }
-#else
+#elif defined Q_OS_WIN
     while (trayIcon_.geometry().isEmpty())
         qApp->processEvents();
+#elif defined Q_OS_LINUX
+    //todo Linux
 #endif
     qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
 
@@ -2259,8 +2261,11 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
 #ifdef Q_OS_WIN
             center_x = geometry().x() + geometry().width() / 2;
             center_y = geometry().y() + geometry().height() / 2;
-#else
+#elif defined Q_OS_MAC
             MacUtils::getNSWindowCenter((void *)this->winId(), center_x, center_y);
+#elif defined Q_OS_LINUX
+        //todo linux
+        Q_ASSERT(false);
 #endif
         }
         backend_->sendUpdateWindowInfo(center_x, center_y);

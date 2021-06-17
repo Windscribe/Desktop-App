@@ -32,6 +32,8 @@
     #include "ikev2connection_mac.h"
 #endif
 
+#include "openvpnconnection_linux.h"
+
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
 
 ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager,
@@ -78,8 +80,10 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkS
     connect(networkStateManager_, SIGNAL(stateChanged(bool, QString)), SLOT(onNetworkStateChanged(bool, QString)));
 #endif
 
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     connect(sleepEvents_, SIGNAL(gotoSleep()), SLOT(onSleepMode()));
     connect(sleepEvents_, SIGNAL(gotoWake()), SLOT(onWakeMode()));
+#endif
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
 }
@@ -662,7 +666,7 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &netwo
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkChanged(), isAlive =" << isAlive << ", primary network interface =" << networkInterface << ", state_ =" << state_;
 #ifdef Q_OS_WIN
     emit internetConnectivityChanged(isAlive);
-#else
+#elif defined Q_OS_MAC
     emit internetConnectivityChanged(isAlive);
 
     bLastIsOnline_ = isAlive;
@@ -733,6 +737,9 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &netwo
         default:
             Q_ASSERT(false);
     }
+#elif defined Q_OS_LINUX
+        //todo linux
+        emit internetConnectivityChanged(isAlive);
 #endif
 }
 
@@ -1064,7 +1071,11 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
 
         if (protocol.isOpenVpnProtocol())
         {
+#ifdef Q_OS_LINUX
+            connector_ = new OpenVPNConnection_linux(this, helper_);
+#else
             connector_ = new OpenVPNConnection(this, helper_);
+#endif
         }
         else if (protocol.isIkev2Protocol())
         {

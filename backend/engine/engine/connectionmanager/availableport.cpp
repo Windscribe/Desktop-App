@@ -79,5 +79,9 @@ unsigned int AvailablePort::getAvailablePort(unsigned int defaultPort)
     unsigned int retPort = ntohs(serv_addr.sin_port);
     close (sock);
     return retPort;
+#elif defined Q_OS_LINUX
+    //todo linux
+    //Q_ASSERT(false);
+    return 45445;
 #endif
 }

@@ -48,7 +48,7 @@ void UpgradeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
     // background:
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     QString background = "background/WIN_MAIN_BG";
 #else
     QString background = "background/MAC_MAIN_BG";

@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>Resources/cert/cert.crt</file>
-        <file>Resources/ovpn/emergency.ovpn</file>
-        <file>Resources/cert/certs_bundle.pem</file>
+        <file>resources/cert/cert.crt</file>
+        <file>resources/ovpn/emergency.ovpn</file>
+        <file>resources/cert/certs_bundle.pem</file>
     </qresource>
 </RCC>

@@ -17,6 +17,9 @@ bool ProxyServerController::updateProxySettings(const ProxySettings &proxySettin
         ProxySettings autoProxySettings = AutoDetectProxy_win::detect(bSuccess);
 #elif defined Q_OS_MAC
         ProxySettings autoProxySettings = AutoDetectProxy_mac::detect(bSuccess);
+#elif defined Q_OS_LINUX
+        //todo linux
+        ProxySettings autoProxySettings;
 #endif
         if (!bSuccess)
         {

@@ -66,8 +66,11 @@ void Backend::init()
 
 #ifdef Q_OS_WIN
     QString engineExePath = QCoreApplication::applicationDirPath() + "/WindscribeEngine.exe";
-#else
+#elif defined Q_OS_MAC
     QString engineExePath = QCoreApplication::applicationDirPath() + "/../Library/WindscribeEngine.app";
+#elif defined Q_OS_LINUX
+    QString engineExePath;
+    Q_ASSERT(false);
 #endif
 
     qCDebug(LOG_BASIC()) << "Calling Engine at: " << Utils::cleanSensitiveInfo(engineExePath);

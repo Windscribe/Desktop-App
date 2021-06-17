@@ -23,6 +23,10 @@ void LanguageController::setLanguage(const QString &language)
             filename = "C:/work/client-desktop-gui/NewVersion/WindscribeGUI/languages/" + language + ".qm";
 #elif defined Q_OS_MAC
             QString filename = QApplication::applicationDirPath() + "/../Languages/" + language + ".qm";
+#elif defined Q_OS_LINUX
+        //todo linux
+        QString filename;
+        Q_ASSERT(false);
 #endif
 
             if (translator_.load(filename))

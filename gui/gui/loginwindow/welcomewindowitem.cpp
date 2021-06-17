@@ -46,7 +46,7 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     curLoginTextOpacity_ = OPACITY_HIDDEN;
     connect(&loginTextOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLoginTextOpacityChanged(QVariant)));
 
- #ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
 
@@ -201,7 +201,7 @@ void WelcomeWindowItem::setClickable(bool enabled)
     configButton_->setClickable(enabled);
     emergencyButton_->setClickable(enabled);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     minimizeButton_->setClickable(enabled);
     closeButton_->setClickable(enabled);
 #endif
@@ -358,7 +358,7 @@ void WelcomeWindowItem::onDockedModeChanged(bool bIsDockedToTray)
 
 void WelcomeWindowItem::updatePositions()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_->setPos((LOGIN_WIDTH - 16 - 16)*G_SCALE, 14*G_SCALE);
     minimizeButton_->setPos((LOGIN_WIDTH - 16 - 16 - 32)*G_SCALE, 14*G_SCALE);
     firewallTurnOffButton_->setPos(8*G_SCALE, 0);

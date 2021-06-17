@@ -18,8 +18,8 @@ Server::~Server()
 bool Server::start()
 {
 
-#ifdef Q_OS_MAC
-    // remove socket file, if already exists (for Mac)
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    // remove socket file, if already exists (for Mac/Linux)
     QString connectingPathName = QDir::tempPath();
     connectingPathName += QLatin1Char('/') + "Windscribe8rM7bza5OR";
     QFile::remove(connectingPathName);

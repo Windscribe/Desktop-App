@@ -79,8 +79,9 @@ QString GetPlatformName()
     return "windows";
 #elif defined Q_OS_MAC
     return "osx";
-#else
-    return "";
+#elif defined Q_OS_LINUX
+    //todo
+    return "linux";
 #endif
 }
 
@@ -1232,6 +1233,9 @@ void ServerAPI::handleRecordInstallDnsResolve(BaseRequest *rd, bool success, con
     QUrl url("https://" + crd->getHostname() + "/RecordInstall/app/win");
 #elif defined Q_OS_MAC
     QUrl url("https://" + crd->getHostname() + "/RecordInstall/app/mac");
+#elif defined Q_OS_LINUX
+    //todo linux
+    QUrl url("https://" + crd->getHostname() + "/RecordInstall/app/linux");
 #endif
     time_t timestamp;
     time(&timestamp);
@@ -1494,8 +1498,10 @@ void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const Q
 
 #ifdef Q_OS_WIN
     QString strOs = "win";
-#else
+#elif defined Q_OS_MAC
     QString strOs = "mac";
+#elif defined Q_OS_LINUX
+    QString strOs = "linux";
 #endif
 
     qDebug() << "device_id for StaticIps request:" << crd->getDeviceId();

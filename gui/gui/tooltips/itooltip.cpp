@@ -105,7 +105,7 @@ void ITooltip::triangleLeftPointXY(int &tailLeftPtX, int &tailLeftPtY)
 
 void ITooltip::initWindowFlags()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
 #else
     // Removed Qt::Tooltip since inner Qt::Popup seems to cause very rare crash when telling tooltip to show()
