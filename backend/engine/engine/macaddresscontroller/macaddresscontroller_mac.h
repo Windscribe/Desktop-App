@@ -3,7 +3,7 @@
 
 #include <QDateTime>
 #include "imacaddresscontroller.h"
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper_mac.h"
 #include "../networkdetectionmanager/networkdetectionmanager_mac.h"
 
 class MacAddressController_mac : public IMacAddressController
@@ -27,7 +27,7 @@ private slots:
     void onWifiAdapterChaged(bool adapterUp);
 
 private:
-    IHelper *helper_;
+    Helper_mac *helper_;
     bool autoRotate_;
     bool actuallyAutoRotate_;
     int lastSpoofIndex_;

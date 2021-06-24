@@ -11,6 +11,7 @@
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
     #include "ikev2connection_mac.h"
+    #include "engine/helper/helper_mac.h"
 #endif
 
 void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
@@ -79,13 +80,14 @@ void FinishActiveConnections::finishAllActiveConnections_mac(IHelper *helper)
 
 void FinishActiveConnections::finishOpenVpnActiveConnections_mac(IHelper *helper)
 {
+    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper);
     const QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();
     for (const QString &strExe : strOpenVpnExeList)
     {
-        helper->executeTaskKill(strExe);
+        helper_mac->executeTaskKill(strExe);
     }
-    helper->executeTaskKill("windscribestunnel");
-    helper->executeTaskKill("windscribewstunnel");
+    helper_mac->executeTaskKill("windscribestunnel");
+    helper_mac->executeTaskKill("windscribewstunnel");
     RestoreDNSManager_mac::restoreState(helper);
 }
 void FinishActiveConnections::finishWireGuardActiveConnections_mac(IHelper *helper)

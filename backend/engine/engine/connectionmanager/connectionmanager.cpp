@@ -28,6 +28,7 @@
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
+    #include "engine/helper/helper_mac.h"
 #endif
 
 #include "openvpnconnection_linux.h"
@@ -1032,7 +1033,8 @@ void ConnectionManager::doMacRestoreProcedures()
     {
         QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
         qCDebug(LOG_CONNECTION) << "Execute command: " << delRouteCommand;
-        QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
+        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+        QString cmdAnswer = helper_mac->executeRootCommand(delRouteCommand);
         qCDebug(LOG_CONNECTION) << "Output from route delete command: " << cmdAnswer;
     }
     if (connection_type == ConnectionType::OPENVPN || connection_type == ConnectionType::WIREGUARD)

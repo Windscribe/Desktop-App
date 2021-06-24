@@ -10,6 +10,8 @@
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
     #include "engine/helper/helper_win.h"
+#elif defined (Q_OS_MAC)
+    #include "engine/helper/helper_mac.h"
 #endif
 
 class WireGuardConnectionImpl
@@ -292,7 +294,10 @@ void WireGuardConnection::onProcessKillTimeout()
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
     helper_win->executeTaskKill(getWireGuardExeName());
 #elif defined(Q_OS_MAC)
-    helper_->executeRootCommand("pkill -f \"" + getWireGuardExeName() + "\"");
+    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+    helper_mac->executeRootCommand("pkill -f \"" + getWireGuardExeName() + "\"");
+#elif defined(Q_OS_LINUX)
+    Q_ASSERT(false);
 #endif
 }
 

@@ -257,7 +257,7 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 } # end macx
 
 
-unix {
+linux {
 
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include

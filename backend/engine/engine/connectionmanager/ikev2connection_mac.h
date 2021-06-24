@@ -5,6 +5,7 @@
 #include <QTimer>
 #include "iconnection.h"
 #include "networkextensionlog_mac.h"
+#include "engine/helper/helper_mac.h"
 
 class IKEv2Connection_mac : public IConnection
 {
@@ -37,6 +38,7 @@ private:
 
     int state_;
 
+    Helper_mac *helper_;
     bool bConnected_;
     mutable QMutex mutex_;
     void *notificationId_;

@@ -10,6 +10,8 @@
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
     #include "engine/helper/helper_win.h"
+#elif defined (Q_OS_MAC)
+    #include "engine/helper/helper_mac.h"
 #endif
 
 OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent), helper_(helper),
@@ -145,7 +147,6 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxy
     qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
 
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    Q_ASSERT(helper_win);
     return helper_win->executeOpenVPN(configPath_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId);
 
 #elif defined Q_OS_MAC
@@ -168,7 +169,8 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxy
     std::wstring strOvpnConfigPath = Utils::getDirPathFromFullPath(configPath_.toStdWString());
     QString qstrOvpnConfigPath = QString::fromStdWString(strOvpnConfigPath);
 
-    return helper_->executeOpenVPN(strCommand, qstrOvpnConfigPath, outCmdId);
+    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+    return helper_mac->executeOpenVPN(strCommand, qstrOvpnConfigPath, outCmdId);
 #endif
 }
 
@@ -187,10 +189,10 @@ void OpenVPNConnection::onKillControllerTimer()
     killControllerTimer_.stop();
 #ifdef Q_OS_WIN
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    Q_ASSERT(helper_win);
     helper_win->executeTaskKill(OpenVpnVersionController::instance().getSelectedOpenVpnExecutable());
 #elif defined Q_OS_MAC
-    helper_->executeRootCommand("pkill -f \"" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable() + "\"");
+    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+    helper_mac->executeRootCommand("pkill -f \"" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable() + "\"");
 #endif
 }
 

@@ -675,7 +675,8 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 #ifdef Q_OS_MAC
         QString kextPath = QCoreApplication::applicationDirPath() + "/../Helpers/WindscribeKext.kext";
         kextPath = QDir::cleanPath(kextPath);
-        if (helper_->setKextPath(kextPath))
+        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+        if (helper_mac->setKextPath(kextPath))
         {
             qCDebug(LOG_BASIC) << "Kext path set:" << Utils::cleanSensitiveInfo(kextPath);
         }
@@ -798,7 +799,8 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                 if (isLaunchOnStart)
                 {
 #ifdef Q_OS_MAC
-                    helper_->enableFirewallOnBoot(true);
+                    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                    helper_mac->enableFirewallOnBoot(true);
 #endif
                 }
                 else
@@ -806,13 +808,15 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                     if (isFirewallAlwaysOn)
                     {
 #ifdef Q_OS_MAC
-                        helper_->enableFirewallOnBoot(true);
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(true);
 #endif
                     }
                     else
                     {
 #ifdef Q_OS_MAC
-                        helper_->enableFirewallOnBoot(false);
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(false);
 #endif
                         firewallController_->firewallOff();
                     }
@@ -825,13 +829,15 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                     if (isFirewallAlwaysOn)
                     {
 #ifdef Q_OS_MAC
-                        helper_->enableFirewallOnBoot(true);
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(true);
 #endif
                     }
                     else
                     {
 #ifdef Q_OS_MAC
-                        helper_->enableFirewallOnBoot(false);
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(false);
 #endif
                         firewallController_->firewallOff();
                     }
@@ -841,13 +847,15 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                     if (isFirewallAlwaysOn)
                     {
 #ifdef Q_OS_MAC
-                        helper_->enableFirewallOnBoot(true);
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(true);
 #endif
                     }
                     else
                     {
 #ifdef Q_OS_MAC
-                        helper_->enableFirewallOnBoot(false);
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(false);
 #endif
                         firewallController_->firewallOff();
                     }
@@ -858,7 +866,8 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         {
             firewallController_->firewallOff();
 #ifdef Q_OS_MAC
-            helper_->enableFirewallOnBoot(false);
+            Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+            helper_mac->enableFirewallOnBoot(false);
 #endif
         }
 #ifdef Q_OS_WIN
@@ -1062,7 +1071,8 @@ void Engine::signOutImplAfterDisconnect()
     prevSessionForLogging_.clear();
 
 #ifdef Q_OS_MAC
-    helper_->enableFirewallOnBoot(false);
+    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+    helper_mac->enableFirewallOnBoot(false);
 #endif
 
     if (!apiInfo_.isNull())
@@ -1639,7 +1649,8 @@ void Engine::onConnectionManagerConnected()
                 qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << adapterName << ": " << mtuForProtocol;
     #ifdef Q_OS_MAC
                 const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(adapterName).arg(mtuForProtocol);
-                helper_->executeRootCommand(setIkev2MtuCmd);
+                Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                helper_mac->executeRootCommand(setIkev2MtuCmd);
     #elif defined(Q_OS_WIN)
                 Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
                 helper_win->executeChangeMtu(adapterName, mtuForProtocol);

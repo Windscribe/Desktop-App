@@ -15,88 +15,42 @@ public:
     explicit Helper_mac(QObject *parent = 0);
     ~Helper_mac() override;
 
+    // Common functions
     void startInstallHelper() override;
-    QString executeRootCommand(const QString &commandLine) override;
-    bool executeRootUnblockingCommand(const QString &commandLine, unsigned long &outCmdId, const QString &eventName) override;
-    bool executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId) override;
-    bool executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
-                        const QString &socksProxy, unsigned int socksPort,
-                        unsigned long &outCmdId) override;
-    bool executeTaskKill(const QString &executableName) override;
-    bool executeResetTap(const QString &tapName) override;
-    QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber) override;
-    QString executeWmicEnable(const QString &adapterName) override;
-    QString executeWmicGetConfigManagerErrorCode(const QString &adapterName) override;
-    bool executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid,
-                          unsigned long &outCmdId, const QString &eventName) override;
-    bool executeChangeMtu(const QString &adapter, int mtu) override;
-
-    bool clearDnsOnTap() override;
-    QString enableBFE() override;
-    QString resetAndStartRAS() override;
-
-    void setIPv6EnabledInFirewall(bool b) override;
-    void setIPv6EnabledInOS(bool b) override;
-    bool IPv6StateInOS() override;
-
     bool isHelperConnected() override;
-    bool isFailedConnectToHelper() override { return bFailedConnectToHelper_; }
-
-    void setNeedFinish() override
-    {
-        bNeedFinish_ = true;
-    }
-
-    QString getHelperVersion() override;
-
-    void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress) override;
-
-    void enableFirewallOnBoot(bool bEnable) override;
-    bool removeWindscribeUrlsFromHosts() override;
-    bool addHosts(const QString &hosts) override;
-    bool removeHosts() override;
-
+    bool isFailedConnectToHelper() override { return bFailedConnectToHelper_; };
     bool reinstallHelper() override;
-
-    void closeAllTcpConnections(bool isKeepLocalSockets) override;
-    QStringList getProcessesList() override;
-
-    bool whitelistPorts(const QString &ports) override;
-    bool deleteWhitelistPorts() override;
+    void setNeedFinish() override;
+    QString getHelperVersion() override;
 
     void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
     void clearUnblockingCmd(unsigned long cmdId) override;
     void suspendUnblockingCmd(unsigned long cmdId) override;
-    void enableDnsLeaksProtection() override;
-    void disableDnsLeaksProtection() override;
-    bool reinstallWanIkev2() override;
-    bool enableWanIkev2() override;
-
-    QStringList getActiveNetworkInterfaces_mac() override;
-    bool setKeychainUsernamePassword(const QString &username, const QString &password) override;
-
-    bool setMacAddressRegistryValueSz(QString subkeyInterfaceName, QString value) override;
-    bool removeMacAddressRegistryProperty(QString subkeyInterfaceName) override;
-    bool resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp) override;
-    bool addIKEv2DefaultRoute() override;
-    bool removeWindscribeNetworkProfiles() override;
-    void setIKEv2IPSecParameters() override;
 
     bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts) override;
     void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const ProtocolType &protocol) override;
-
-    bool setKextPath(const QString &kextPath) override;
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
-    bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties) override;
 
+     // WireGuard functions
     bool startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;
     bool getWireGuardStatus(WireGuardStatus *status) override;
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
+
+    // Mac specific functions
+    QString executeRootCommand(const QString &commandLine);
+    bool executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId);
+    bool executeTaskKill(const QString &executableName);
+    void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress);
+    void enableFirewallOnBoot(bool bEnable);
+    QStringList getActiveNetworkInterfaces();
+    bool setKeychainUsernamePassword(const QString &username, const QString &password);
+    bool setKextPath(const QString &kextPath);
+    bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
 
 protected:
     void run() override;
