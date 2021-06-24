@@ -39,7 +39,6 @@ public:
     void setIPv6EnabledInOS(bool b) override;
     bool IPv6StateInOS() override;
 
-
     bool isHelperConnected() override;
     bool isFailedConnectToHelper() override { return bFailedConnectToHelper_; }
 

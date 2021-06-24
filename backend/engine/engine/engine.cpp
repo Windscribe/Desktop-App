@@ -208,14 +208,20 @@ void Engine::sendDebugLog()
 
 void Engine::setIPv6EnabledInOS(bool b)
 {
+#ifdef Q_OS_WIN
     QMutexLocker locker(&mutex_);
     helper_->setIPv6EnabledInOS(b);
+#endif
 }
 
 bool Engine::IPv6StateInOS()
 {
+#ifdef Q_OS_WIN
     QMutexLocker locker(&mutex_);
     return helper_->IPv6StateInOS();
+#else
+    return true;
+#endif
 }
 
 LoginSettings Engine::getLastLoginSettings()
@@ -791,17 +797,23 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
             {
                 if (isLaunchOnStart)
                 {
+#ifdef Q_OS_MAC
                     helper_->enableFirewallOnBoot(true);
+#endif
                 }
                 else
                 {
                     if (isFirewallAlwaysOn)
                     {
+#ifdef Q_OS_MAC
                         helper_->enableFirewallOnBoot(true);
+#endif
                     }
                     else
                     {
+#ifdef Q_OS_MAC
                         helper_->enableFirewallOnBoot(false);
+#endif
                         firewallController_->firewallOff();
                     }
                 }
@@ -812,11 +824,15 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                 {
                     if (isFirewallAlwaysOn)
                     {
+#ifdef Q_OS_MAC
                         helper_->enableFirewallOnBoot(true);
+#endif
                     }
                     else
                     {
+#ifdef Q_OS_MAC
                         helper_->enableFirewallOnBoot(false);
+#endif
                         firewallController_->firewallOff();
                     }
                 }
@@ -824,11 +840,15 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                 {
                     if (isFirewallAlwaysOn)
                     {
+#ifdef Q_OS_MAC
                         helper_->enableFirewallOnBoot(true);
+#endif
                     }
                     else
                     {
+#ifdef Q_OS_MAC
                         helper_->enableFirewallOnBoot(false);
+#endif
                         firewallController_->firewallOff();
                     }
                 }
@@ -837,13 +857,17 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         else  // if (!isFirewallChecked)
         {
             firewallController_->firewallOff();
+#ifdef Q_OS_MAC
             helper_->enableFirewallOnBoot(false);
+#endif
         }
-
+#ifdef Q_OS_WIN
         helper_->setIPv6EnabledInFirewall(true);
-    #ifdef Q_OS_MAC
+#endif
+
+#ifdef Q_OS_MAC
         Ipv6Controller_mac::instance().restoreIpv6();
-    #endif
+#endif
     }
 
     SAFE_DELETE(vpnShareController_);
@@ -1036,7 +1060,9 @@ void Engine::signOutImplAfterDisconnect()
     prevSessionStatus_.clear();
     prevSessionForLogging_.clear();
 
+#ifdef Q_OS_MAC
     helper_->enableFirewallOnBoot(false);
+#endif
 
     if (!apiInfo_.isNull())
     {
@@ -1579,7 +1605,9 @@ void Engine::onConnectionManagerConnected()
          }
     }
 
+#ifdef Q_OS_WIN
     helper_->setIPv6EnabledInFirewall(false);
+#endif
 
     if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
         engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
@@ -1610,7 +1638,7 @@ void Engine::onConnectionManagerConnected()
     #ifdef Q_OS_MAC
                 const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(adapterName).arg(mtuForProtocol);
                 helper_->executeRootCommand(setIkev2MtuCmd);
-    #else
+    #elif defined(Q_OS_WIN)
                 helper_->executeChangeMtu(adapterName, mtuForProtocol);
     #endif
             }
@@ -1650,7 +1678,9 @@ void Engine::onConnectionManagerConnected()
 
     if (engineSettings_.isCloseTcpSockets())
     {
+#ifdef Q_OS_WIN
         helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
+#endif
     }
 
     connectionManager_->startTunnelTests();
@@ -2594,7 +2624,10 @@ void Engine::doDisconnectRestoreStuff()
         firewallController_->firewallChange(ips, engineSettings_.isAllowLanTraffic());
     }
 
+#ifdef Q_OS_WIN
     helper_->setIPv6EnabledInFirewall(true);
+#endif
+
 #ifdef Q_OS_MAC
     Ipv6Controller_mac::instance().restoreIpv6();
 #endif
