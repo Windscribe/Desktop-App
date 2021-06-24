@@ -20,8 +20,6 @@
 #include "connsettingspolicy/customconfigconnsettingspolicy.h"
 
 
-#include "ikev2connection_test.h"
-
 #ifdef Q_OS_WIN
     #include "sleepevents_win.h"
     #include "adapterutils_win.h"

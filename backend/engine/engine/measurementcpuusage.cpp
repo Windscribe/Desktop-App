@@ -3,8 +3,10 @@
 #include "Utils/logger.h"
 
 MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController) : QObject(parent),
-    helper_(helper), bEnabled_(false)
+    bEnabled_(false)
 {
+    helper_ = dynamic_cast<Helper_win *>(helper);
+    Q_ASSERT(helper_);
     connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
 

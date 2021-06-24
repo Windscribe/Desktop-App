@@ -35,15 +35,17 @@ void FinishActiveConnections::finishAllActiveConnections_win(IHelper *helper)
 
 void FinishActiveConnections::finishOpenVpnActiveConnections_win(IHelper *helper)
 {
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
     const QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();
     for (const QString &strExe : strOpenVpnExeList)
     {
-        helper->executeTaskKill(strExe);
+        helper_win->executeTaskKill(strExe);
     }
 }
 
 void FinishActiveConnections::finishIkev2ActiveConnections_win(IHelper *helper)
 {
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
     const QVector<HRASCONN> v = IKEv2Connection_win::getActiveWindscribeConnections();
 
     if (!v.isEmpty())
@@ -53,18 +55,19 @@ void FinishActiveConnections::finishIkev2ActiveConnections_win(IHelper *helper)
             IKEv2ConnectionDisconnectLogic_win::blockingDisconnect(hRas);
         }
 
-        helper->disableDnsLeaksProtection();
-        helper->removeHosts();
+        helper_win->disableDnsLeaksProtection();
+        helper_win->removeHosts();
     }
 }
 
 void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *helper)
 {
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
     QString strWireGuardExe = WireGuardConnection::getWireGuardExeName();
     if (!strWireGuardExe.endsWith(".exe"))
         strWireGuardExe.append(".exe");
-    helper->executeTaskKill(strWireGuardExe);
-    helper->stopWireGuard();  // This will also reset route monitoring.
+    helper_win->executeTaskKill(strWireGuardExe);
+    helper_win->stopWireGuard();  // This will also reset route monitoring.
 }
 #elif defined Q_OS_MAC
 void FinishActiveConnections::finishAllActiveConnections_mac(IHelper *helper)

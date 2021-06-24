@@ -3,7 +3,7 @@
 
 #include <QThread>
 #include <QMutex>
-#include "Engine/Helper/ihelper.h"
+#include "Engine/Helper/helper_win.h"
 #include <QFile>
 #include <QWaitCondition>
 #include <Rpc.h>
@@ -25,7 +25,7 @@ public:
     bool isUpdateIcsInProgress();
 
 private:
-    IHelper *helper_;
+    Helper_win *helper_;
 
     QString path_;
     QString updateIcsExePath_;

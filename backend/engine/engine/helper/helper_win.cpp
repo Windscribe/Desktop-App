@@ -71,24 +71,6 @@ void Helper_win::startInstallHelper()
     start(QThread::LowPriority);
 }
 
-QString Helper_win::executeRootCommand(const QString &/*commandLine*/)
-{
-    Q_ASSERT(false);
-    return "";
-}
-
-bool Helper_win::executeRootUnblockingCommand(const QString &/*commandLine*/, unsigned long &/*outCmdId*/, const QString &/*eventName*/)
-{
-    Q_ASSERT(false);
-    return false;
-}
-
-bool Helper_win::executeOpenVPN(const QString &/*commandLine*/, const QString &/*pathToOvpnConfig*/, unsigned long &/*outCmdId*/)
-{
-    Q_ASSERT(false);
-    return false;
-}
-
 bool Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId)
 {
     QMutexLocker locker(&mutex_);
@@ -337,16 +319,6 @@ QString Helper_win::getHelperVersion()
     }
 }
 
-void Helper_win::enableMacSpoofingOnBoot(bool /*bEnable*/, QString /*interfaceName*/, QString /*macAddress*/)
-{
-    // do nothing on windows
-}
-
-void Helper_win::enableFirewallOnBoot(bool bEnable)
-{
-    Q_UNUSED(bEnable);
-}
-
 bool Helper_win::removeWindscribeUrlsFromHosts()
 {
     QMutexLocker locker(&mutex_);
@@ -509,20 +481,6 @@ bool Helper_win::isSupportedICS()
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_IS_SUPPORTED_ICS, std::string());
     return mpr.exitCode;
-}
-
-QStringList Helper_win::getActiveNetworkInterfaces_mac()
-{
-    //nothing todo for Windows
-    return QStringList();
-}
-
-bool Helper_win::setKeychainUsernamePassword(const QString &username, const QString &password)
-{
-    Q_UNUSED(username);
-    Q_UNUSED(password);
-    //nothing todo for Windows
-    return false;
 }
 
 void Helper_win::enableDnsLeaksProtection()
@@ -732,17 +690,6 @@ bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
     return mpr.exitCode == 0;
 }
 
-bool Helper_win::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties)
-{
-    // nothing to do
-    return false;
-}
-
-bool Helper_win::setKextPath(const QString &/*kextPath*/)
-{
-    // nothing todo for Windows
-    return true;
-}
 
 bool Helper_win::startWireGuard(const QString &exeName, const QString &deviceName)
 {

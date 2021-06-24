@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <QMutex>
 #include <atomic>
-#include <Windows.h>
+#include <windows.h>
 #include "../../../windows/windscribe_service/ipc/servicecommunication.h"
 #include "../../../windows/windscribe_service/ipc/serialize_structs.h"
 
@@ -17,28 +17,25 @@ public:
     ~Helper_win() override;
 
     void startInstallHelper() override;
-    QString executeRootCommand(const QString &commandLine) override;
-    bool executeRootUnblockingCommand(const QString &commandLine, unsigned long &outCmdId, const QString &eventName) override;
-    bool executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId) override;
     bool executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
                         const QString &socksProxy, unsigned int socksPort,
-                        unsigned long &outCmdId) override;
-    bool executeTaskKill(const QString &executableName) override;
-    bool executeResetTap(const QString &tapName) override;
-    QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber) override;
-    QString executeWmicEnable(const QString &adapterName) override;
-    QString executeWmicGetConfigManagerErrorCode(const QString &adapterName) override;
+                        unsigned long &outCmdId);
+    bool executeTaskKill(const QString &executableName);
+    bool executeResetTap(const QString &tapName);
+    QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
+    QString executeWmicEnable(const QString &adapterName);
+    QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
     bool executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid,
-                          unsigned long &outCmdId, const QString &eventName) override;
-    bool executeChangeMtu(const QString &adapter, int mtu) override;
+                          unsigned long &outCmdId, const QString &eventName);
+    bool executeChangeMtu(const QString &adapter, int mtu);
 
-    bool clearDnsOnTap() override;
-    QString enableBFE() override;
-    QString resetAndStartRAS() override;
+    bool clearDnsOnTap();
+    QString enableBFE();
+    QString resetAndStartRAS();
 
-    void setIPv6EnabledInFirewall(bool b) override;
-    void setIPv6EnabledInOS(bool b) override;
-    bool IPv6StateInOS() override;
+    void setIPv6EnabledInFirewall(bool b);
+    void setIPv6EnabledInOS(bool b);
+    bool IPv6StateInOS();
 
     bool isHelperConnected() override;
     bool isFailedConnectToHelper() override;
@@ -46,39 +43,33 @@ public:
     void setNeedFinish() override;
     QString getHelperVersion() override;
 
-    void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress) override;
-    void enableFirewallOnBoot(bool bEnable) override;
-
-    bool removeWindscribeUrlsFromHosts() override;
-    bool addHosts(const QString &hosts) override;
-    bool removeHosts() override;
+    bool removeWindscribeUrlsFromHosts();
+    bool addHosts(const QString &hosts);
+    bool removeHosts();
 
     bool reinstallHelper() override;
 
-    void closeAllTcpConnections(bool isKeepLocalSockets) override;
-    QStringList getProcessesList() override;
+    void closeAllTcpConnections(bool isKeepLocalSockets);
+    QStringList getProcessesList();
 
-    bool whitelistPorts(const QString &ports) override;
-    bool deleteWhitelistPorts() override;
+    bool whitelistPorts(const QString &ports);
+    bool deleteWhitelistPorts();
 
     void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
     void clearUnblockingCmd(unsigned long cmdId) override;
     void suspendUnblockingCmd(unsigned long cmdId) override;
 
-    bool isSupportedICS() override;
+    bool isSupportedICS();
 
-    QStringList getActiveNetworkInterfaces_mac() override;
-    bool setKeychainUsernamePassword(const QString &username, const QString &password) override;
+    void enableDnsLeaksProtection();
+    void disableDnsLeaksProtection();
 
-    void enableDnsLeaksProtection() override;
-    void disableDnsLeaksProtection() override;
+    bool reinstallWanIkev2();
+    bool enableWanIkev2();
 
-    bool reinstallWanIkev2() override;
-    bool enableWanIkev2() override;
-
-    bool setMacAddressRegistryValueSz(QString subkeyInterfaceName, QString value) override;
-    bool removeMacAddressRegistryProperty(QString subkeyInterfaceName) override;
-    bool resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp) override;
+    bool setMacAddressRegistryValueSz(QString subkeyInterfaceName, QString value);
+    bool removeMacAddressRegistryProperty(QString subkeyInterfaceName);
+    bool resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp);
 
     bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
                                    const QStringList &files, const QStringList &ips,
@@ -88,12 +79,10 @@ public:
                            const QString &connectedIp, const ProtocolType &protocol) override;
 
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
-    bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties) override;
 
-    bool addIKEv2DefaultRoute() override;
-    bool removeWindscribeNetworkProfiles() override;
-    void setIKEv2IPSecParameters() override;
-    bool setKextPath(const QString &kextPath) override;
+    bool addIKEv2DefaultRoute();
+    bool removeWindscribeNetworkProfiles();
+    void setIKEv2IPSecParameters();
 
     bool startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;

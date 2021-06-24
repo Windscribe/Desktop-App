@@ -210,7 +210,8 @@ void Engine::setIPv6EnabledInOS(bool b)
 {
 #ifdef Q_OS_WIN
     QMutexLocker locker(&mutex_);
-    helper_->setIPv6EnabledInOS(b);
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->setIPv6EnabledInOS(b);
 #endif
 }
 
@@ -218,7 +219,8 @@ bool Engine::IPv6StateInOS()
 {
 #ifdef Q_OS_WIN
     QMutexLocker locker(&mutex_);
-    return helper_->IPv6StateInOS();
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    return helper_win->IPv6StateInOS();
 #else
     return true;
 #endif
@@ -777,10 +779,8 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 #ifdef Q_OS_WIN
-    if (helper_)
-    {
-        helper_->removeWindscribeNetworkProfiles();
-    }
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->removeWindscribeNetworkProfiles();
 #endif
 
     if (!isExitWithRestart)
@@ -862,7 +862,8 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 #endif
         }
 #ifdef Q_OS_WIN
-        helper_->setIPv6EnabledInFirewall(true);
+        Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+        helper_win->setIPv6EnabledInFirewall(true);
 #endif
 
 #ifdef Q_OS_MAC
@@ -1606,7 +1607,8 @@ void Engine::onConnectionManagerConnected()
     }
 
 #ifdef Q_OS_WIN
-    helper_->setIPv6EnabledInFirewall(false);
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->setIPv6EnabledInFirewall(false);
 #endif
 
     if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
@@ -1639,7 +1641,8 @@ void Engine::onConnectionManagerConnected()
                 const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(adapterName).arg(mtuForProtocol);
                 helper_->executeRootCommand(setIkev2MtuCmd);
     #elif defined(Q_OS_WIN)
-                helper_->executeChangeMtu(adapterName, mtuForProtocol);
+                Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+                helper_win->executeChangeMtu(adapterName, mtuForProtocol);
     #endif
             }
             else
@@ -1679,7 +1682,8 @@ void Engine::onConnectionManagerConnected()
     if (engineSettings_.isCloseTcpSockets())
     {
 #ifdef Q_OS_WIN
-        helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
+        Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+        helper_win->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
 #endif
     }
 
@@ -2529,7 +2533,8 @@ void Engine::doConnect(bool bEmitAuthError)
     locationName_ = bli->getName();
 
 #ifdef Q_OS_WIN
-    helper_->clearDnsOnTap();
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->clearDnsOnTap();
     CheckAdapterEnable::enableIfNeed(helper_, "Windscribe VPN");
 #endif
 
@@ -2625,7 +2630,8 @@ void Engine::doDisconnectRestoreStuff()
     }
 
 #ifdef Q_OS_WIN
-    helper_->setIPv6EnabledInFirewall(true);
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->setIPv6EnabledInFirewall(true);
 #endif
 
 #ifdef Q_OS_MAC
