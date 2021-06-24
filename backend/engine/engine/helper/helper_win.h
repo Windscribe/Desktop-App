@@ -17,6 +17,31 @@ public:
     ~Helper_win() override;
 
     void startInstallHelper() override;
+    bool isHelperConnected() override;
+    bool isFailedConnectToHelper() override;
+    bool reinstallHelper() override;
+    void setNeedFinish() override;
+    QString getHelperVersion() override;
+
+    void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
+    void clearUnblockingCmd(unsigned long cmdId) override;
+    void suspendUnblockingCmd(unsigned long cmdId) override;
+
+    bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
+                                   const QStringList &files, const QStringList &ips,
+                                   const QStringList &hosts) override;
+    void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                           const QString &connectedIp, const ProtocolType &protocol) override;
+    bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
+
+     // WireGuard functions
+    bool startWireGuard(const QString &exeName, const QString &deviceName) override;
+    bool stopWireGuard() override;
+    bool configureWireGuard(const WireGuardConfig &config) override;
+    bool getWireGuardStatus(WireGuardStatus *status) override;
+    void setDefaultWireGuardDeviceName(const QString &deviceName) override;
+
+    // Windows specific functions
     bool executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
                         const QString &socksProxy, unsigned int socksPort,
                         unsigned long &outCmdId);
@@ -37,27 +62,15 @@ public:
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
 
-    bool isHelperConnected() override;
-    bool isFailedConnectToHelper() override;
-
-    void setNeedFinish() override;
-    QString getHelperVersion() override;
-
     bool removeWindscribeUrlsFromHosts();
     bool addHosts(const QString &hosts);
     bool removeHosts();
-
-    bool reinstallHelper() override;
 
     void closeAllTcpConnections(bool isKeepLocalSockets);
     QStringList getProcessesList();
 
     bool whitelistPorts(const QString &ports);
     bool deleteWhitelistPorts();
-
-    void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
-    void clearUnblockingCmd(unsigned long cmdId) override;
-    void suspendUnblockingCmd(unsigned long cmdId) override;
 
     bool isSupportedICS();
 
@@ -71,24 +84,9 @@ public:
     bool removeMacAddressRegistryProperty(QString subkeyInterfaceName);
     bool resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp);
 
-    bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
-                                   const QStringList &files, const QStringList &ips,
-                                   const QStringList &hosts) override;
-
-    void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                           const QString &connectedIp, const ProtocolType &protocol) override;
-
-    bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
-
     bool addIKEv2DefaultRoute();
     bool removeWindscribeNetworkProfiles();
     void setIKEv2IPSecParameters();
-
-    bool startWireGuard(const QString &exeName, const QString &deviceName) override;
-    bool stopWireGuard() override;
-    bool configureWireGuard(const WireGuardConfig &config) override;
-    bool getWireGuardStatus(WireGuardStatus *status) override;
-    void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
 protected:
     void run() override;
