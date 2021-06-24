@@ -2,9 +2,8 @@
 #include <QStandardPaths>
 #include <QDir>
 #include "Utils/logger.h"
-#include "Engine/Helper/ihelper.h"
 
-FirewallController_win::FirewallController_win(QObject *parent, IHelper *helper) : FirewallController(parent, helper)
+FirewallController_win::FirewallController_win(QObject *parent, IHelper *helper) : FirewallController(parent)
 {
     helper_win_ = dynamic_cast<Helper_win *>(helper);
     Q_ASSERT(helper_win_);
