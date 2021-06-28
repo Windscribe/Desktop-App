@@ -1,5 +1,5 @@
 #include "FontResources.h"
-#include "../../resource.h"
+#include "../resource.h"
 #include "Application.h"
 
 FontResources::FontResources()
