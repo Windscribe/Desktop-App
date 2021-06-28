@@ -2,6 +2,8 @@
 #include "dpiscalemanager.h"
 #include "graphicresources/imageresourcessvg.h"
 
+#include <math.h>
+
 ImageWithShadow::ImageWithShadow(const QString &originalName, const QString &shadowName): originalName_(originalName), shadowName_(shadowName)
 {
     updatePixmap();

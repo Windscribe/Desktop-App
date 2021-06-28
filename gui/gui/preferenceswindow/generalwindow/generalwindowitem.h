@@ -28,6 +28,9 @@ private slots:
     void onIsAutoConnectClicked(bool isChecked);
     void onIsAutoConnectPreferencesChanged(bool b);
 
+    void onStartMinimizedPreferencesChanged(bool b);
+    void onStartMinimizedClicked(bool b);
+
 #ifdef Q_OS_WIN
     void onMinimizeAndCloseToTrayPreferencesChanged(bool b);
     void onMinimizeAndCloseToTrayClicked(bool b);
@@ -75,6 +78,7 @@ private:
     CheckBoxItem *checkBoxShowNotifications_;
     BackgroundSettingsItem *backgroundSettingsItem_;
     CheckBoxItem *checkBoxDockedToTray_;
+    CheckBoxItem *checkBoxStartMinimized_;
 
 #ifdef Q_OS_WIN
     CheckBoxItem *checkBoxMinimizeAndCloseToTray_;

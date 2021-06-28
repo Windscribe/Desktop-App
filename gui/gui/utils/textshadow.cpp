@@ -1,6 +1,8 @@
 #include "textshadow.h"
 #include "dpiscalemanager.h"
 
+#include <math.h>
+
 TextShadow::TextShadow() : shadowColor_(0x02, 0x0D, 0x1C, 128), lastFlags_(0)
 {
 }
