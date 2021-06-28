@@ -1,7 +1,7 @@
 #include "openvpnconnection_linux.h"
 
 
-OpenVPNConnection_linux::OpenVPNConnection_linux(QObject *parent, IHelper *helper) : IConnection(parent, helper)
+OpenVPNConnection_linux::OpenVPNConnection_linux(QObject *parent, IHelper *helper) : IConnection(parent)
 {
     isConnected_ = false;
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));

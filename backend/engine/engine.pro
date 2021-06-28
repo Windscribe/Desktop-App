@@ -281,6 +281,7 @@ SOURCES += \
            $$COMMON_PATH/utils/linuxutils.cpp \
            engine/ping/pinghost_icmp_mac.cpp \
            engine/dnsresolver/dnsutils_linux.cpp \
+           engine/helper/helper_posix.cpp \
            engine/helper/helper_linux.cpp \
            engine/networkstatemanager/networkstatemanager_linux.cpp \
            engine/firewall/firewallcontroller_linux.cpp \
@@ -291,6 +292,7 @@ SOURCES += \
 HEADERS += \
            $$COMMON_PATH/utils/linuxutils.h \
            engine/ping/pinghost_icmp_mac.h \
+           engine/helper/helper_posix.h \
            engine/helper/helper_linux.h \
            engine/networkstatemanager/networkstatemanager_linux.h \
            engine/firewall/firewallcontroller_linux.h \
