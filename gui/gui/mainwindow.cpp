@@ -850,6 +850,8 @@ void MainWindow::onCloseClick()
     }
 #elif defined Q_OS_MAC
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
+#elif defined Q_OS_LINUX
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
 #endif
 }
 

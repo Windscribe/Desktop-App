@@ -569,7 +569,11 @@ bool Helper_posix::executeOpenVPN(const QString &commandLine, const QString &pat
     // get path to openvpn util
     QString strOpenVpnPath = "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
 
+#ifdef Q_OS_MAC
     QString helpersPath = QCoreApplication::applicationDirPath() + "/../Helpers";
+#elif defined Q_OS_LINUX
+    QString helpersPath = QCoreApplication::applicationDirPath() + "/";
+#endif
     QString pathToOpenVPN = helpersPath + strOpenVpnPath;
     QString cmdOpenVPN = QString("cd '%1' && %2 %3").arg(pathToOvpnConfig, pathToOpenVPN, commandLine);
 

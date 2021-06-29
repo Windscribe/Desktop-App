@@ -286,8 +286,7 @@ SOURCES += \
            engine/networkstatemanager/networkstatemanager_linux.cpp \
            engine/firewall/firewallcontroller_linux.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
-           engine/macaddresscontroller/macaddresscontroller_linux.cpp \
-           engine/connectionmanager/openvpnconnection_linux.cpp
+           engine/macaddresscontroller/macaddresscontroller_linux.cpp
 
 HEADERS += \
            $$COMMON_PATH/utils/linuxutils.h \
@@ -297,8 +296,7 @@ HEADERS += \
            engine/networkstatemanager/networkstatemanager_linux.h \
            engine/firewall/firewallcontroller_linux.h \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
-           engine/macaddresscontroller/macaddresscontroller_linux.h \
-           engine/connectionmanager/openvpnconnection_linux.h
+           engine/macaddresscontroller/macaddresscontroller_linux.h
 } # unix
 
 
