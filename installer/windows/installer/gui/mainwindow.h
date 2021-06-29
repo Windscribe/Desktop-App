@@ -9,8 +9,8 @@
 #include "PathControl.h"
 #include "DesktopShortcutControl.h"
 #include "EscButton.h"
-#include "../../Installer/installer.h"
-#include "../../messages.h"
+#include "../Installer/installer.h"
+#include "../messages.h"
 
 
 class MainWindow

@@ -379,8 +379,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::showAfterLaunch()
 {
+    if(!backend_){
+        qCDebug(LOG_BASIC) << "Backend is nullptr!";
+    }
+
+    if(backend_ && backend_->getPreferences()->isStartMinimized()){
+        showMinimized();
+        return;
+    }
 #ifdef Q_OS_WIN
-    if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
+    else if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
         QCommandLineParser cmdParser;
         cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
         QCommandLineOption osRestartOption("os_restart");
@@ -537,7 +545,6 @@ bool MainWindow::event(QEvent *event)
                 MainWindowState::instance().setActive(false);
             }
         }
-
 
         deactivationTimer_.stop();
 #if defined Q_OS_WIN

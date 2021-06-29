@@ -25,6 +25,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType)));
     connect(preferences, SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onUpdateChannelPreferencesChanged(ProtoTypes::UpdateChannel)));
     connect(preferences, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onPreferencesBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
+    connect(preferences, SIGNAL(isStartMinimizedChanged(bool)), SLOT(onStartMinimizedPreferencesChanged(bool)));
 #ifdef Q_OS_WIN
     connect(preferences, SIGNAL(minimizeAndCloseToTrayChanged(bool)), SLOT(onMinimizeAndCloseToTrayPreferencesChanged(bool)));
 #elif defined Q_OS_MAC
@@ -39,6 +40,11 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     checkBoxAutoConnect_->setState(preferences->isAutoConnect());
     connect(checkBoxAutoConnect_, SIGNAL(stateChanged(bool)), SLOT(onIsAutoConnectClicked(bool)));
     addItem(checkBoxAutoConnect_);
+
+    checkBoxStartMinimized_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("Preferences::CheckBoxStartMinimized", "Start minimized"), QString());
+    checkBoxStartMinimized_->setState(preferences->isStartMinimized());
+    connect(checkBoxStartMinimized_, SIGNAL(stateChanged(bool)), SLOT(onStartMinimizedClicked(bool)));
+    addItem(checkBoxStartMinimized_);
 
 #ifdef Q_OS_WIN
     checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Minimize and close to tray"), QString());
@@ -140,6 +146,17 @@ void GeneralWindowItem::onIsAutoConnectClicked(bool isChecked)
 void GeneralWindowItem::onIsAutoConnectPreferencesChanged(bool b)
 {
     checkBoxAutoConnect_->setState(b);
+}
+
+void GeneralWindowItem::onStartMinimizedPreferencesChanged(bool b)
+{
+    checkBoxStartMinimized_->setState(b);
+}
+
+void GeneralWindowItem::onStartMinimizedClicked(bool b)
+{
+    if(preferences_)
+        preferences_->setStartMinimized(b);
 }
 
 #ifdef Q_OS_WIN

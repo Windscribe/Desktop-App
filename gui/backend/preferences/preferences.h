@@ -30,6 +30,9 @@ public:
     void setHideFromDock(bool b);
 #endif
 
+    bool isStartMinimized() const;
+    void setStartMinimized(bool b);
+
     bool isShowNotifications() const;
     void setShowNotifications(bool b);
 
@@ -134,6 +137,7 @@ signals:
     void isShowNotificationsChanged(bool b);
     void backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings);
 
+    void isStartMinimizedChanged(bool b);
     void isDockedToTrayChanged(bool b);
     void languageChanged(const QString &lang);
     void locationOrderChanged(ProtoTypes::OrderLocationType o);

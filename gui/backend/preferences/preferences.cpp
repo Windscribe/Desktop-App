@@ -99,6 +99,21 @@ void Preferences::setHideFromDock(bool b)
 }
 #endif
 
+bool Preferences::isStartMinimized() const
+{
+    return guiSettings_.is_start_minimized();
+}
+
+void Preferences::setStartMinimized(bool b)
+{
+    if(guiSettings_.is_start_minimized() != b)
+    {
+        guiSettings_.set_is_start_minimized(b);
+        saveGuiSettings();
+        emit isStartMinimizedChanged(b);
+    }
+}
+
 
 bool Preferences::isShowNotifications() const
 {
