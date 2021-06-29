@@ -1361,6 +1361,10 @@ void MainWindow::onLocationsAddCustomConfigClicked()
                 AuthChecker_mac authChecker;
                 authenticated = authChecker.authenticate();
                 authChecker.deauthenticate();
+#elif defined Q_OS_WIN
+                authenticated = WinUtils::authorizeWithUac();
+#else
+                // TODO: linux
 #endif
 
                 if (!authenticated)

@@ -96,6 +96,7 @@ void WriteAccessRightsChecker::testWrite()
     is_writeable_ = open(QIODevice::WriteOnly);
 }
 
+#if defined(Q_OS_MAC)
 int WriteAccessRightsChecker::realUid()
 {
     std::string username(getlogin());
@@ -106,3 +107,4 @@ int WriteAccessRightsChecker::realUid()
     }
     return pwd->pw_uid;
 }
+#endif

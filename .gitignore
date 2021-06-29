@@ -6,6 +6,12 @@ temp/
 .vs/
 *.pyc
 *.DS_Store
+*.aps
 installer/windows/tests_output.log
 installer/windows/temp-tests/*
 test-exe/*
+
+gui/authhelper/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_h.h
+gui/authhelper/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_i.c
+gui/authhelper/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_p.c
+gui/authhelper/ws_proxy_stub/ws_proxy_stub/dlldata.c

@@ -1,0 +1,12 @@
+LIBRARY ws_com.dll
+
+; exporting without PRIVATE seems to cause compilation warning
+; however with PRIVATE prevents regsvr32 access 
+; perhaps way to silence warnings?
+EXPORTS
+	DllGetClassObject    
+	DllCanUnloadNow	     
+	DllRegisterServer	 
+	DllUnregisterServer  
+	StartFactories
+	StopFactories
