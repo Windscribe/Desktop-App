@@ -1,4 +1,4 @@
-#include "helper_mac.h"
+#include "helper_posix.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include <QElapsedTimer>
@@ -12,7 +12,7 @@
 #include "engine/tempscripts_mac.h"
 #include "../openvpnversioncontroller.h"
 #include "installhelper_mac.h"
-#include "../mac/helper/src/ipc/helper_commands_serialize.h"
+#include "../posix_common/helper_commands_serialize.h"
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
@@ -23,16 +23,16 @@
 
 using namespace boost::asio;
 
-Helper_mac *g_this_ = NULL;
+Helper_posix *g_this_ = NULL;
 
-Helper_mac::Helper_mac(QObject *parent) : IHelper(parent), bIPV6State_(true), cmdId_(0), lastOpenVPNCmdId_(0), bFailedConnectToHelper_(false), ep_(SOCK_PATH), bHelperConnectedEmitted_(false),
+Helper_posix::Helper_posix(QObject *parent) : IHelper(parent), bIPV6State_(true), cmdId_(0), lastOpenVPNCmdId_(0), bFailedConnectToHelper_(false), ep_(SOCK_PATH), bHelperConnectedEmitted_(false),
     bHelperConnected_(false), bNeedFinish_(false)
 {
     Q_ASSERT(g_this_ == NULL);
     g_this_ = this;
 }
 
-Helper_mac::~Helper_mac()
+Helper_posix::~Helper_posix()
 {
     io_service_.stop();
     setNeedFinish();
@@ -40,7 +40,7 @@ Helper_mac::~Helper_mac()
     g_this_ = NULL;
 }
 
-void Helper_mac::startInstallHelper()
+/*void Helper_posix::startInstallHelper()
 {
     if (InstallHelper_mac::installHelper())
     {
@@ -50,32 +50,32 @@ void Helper_mac::startInstallHelper()
     {
         bFailedConnectToHelper_ = true;
     }
-}
+}*/
 
-bool Helper_mac::isHelperConnected()
+bool Helper_posix::isHelperConnected()
 {
     QMutexLocker locker(&mutexHelperConnected_);
     return bHelperConnected_;
 }
 
-bool Helper_mac::reinstallHelper()
+/*bool Helper_posix::reinstallHelper()
 {
     QString strUninstallUtilPath = QCoreApplication::applicationDirPath() + "/../Resources/uninstallHelper.sh";
     InstallHelper_mac::runScriptWithAdminRights(strUninstallUtilPath);
     return true;
-}
+}*/
 
-void Helper_mac::setNeedFinish()
+void Helper_posix::setNeedFinish()
 {
     bNeedFinish_ = true;
 }
 
-QString Helper_mac::getHelperVersion()
+/*QString Helper_posix::getHelperVersion()
 {
     return "";
-}
+}*/
 
-void Helper_mac::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished)
+void Helper_posix::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished)
 {
     QMutexLocker locker(&mutex_);
 
@@ -114,7 +114,7 @@ void Helper_mac::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bo
     }
 }
 
-void Helper_mac::clearUnblockingCmd(unsigned long cmdId)
+void Helper_posix::clearUnblockingCmd(unsigned long cmdId)
 {
     Q_UNUSED(cmdId);
 
@@ -147,13 +147,13 @@ void Helper_mac::clearUnblockingCmd(unsigned long cmdId)
     }
 }
 
-void Helper_mac::suspendUnblockingCmd(unsigned long cmdId)
+void Helper_posix::suspendUnblockingCmd(unsigned long cmdId)
 {
     // On Mac, this is the same as clearing a cmd.
     clearUnblockingCmd(cmdId);
 }
 
-bool Helper_mac::setSplitTunnelingSettings(bool isActive, bool isExclude,
+bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
                                            bool /*isKeepLocalSockets*/, const QStringList &files,
                                            const QStringList &ips, const QStringList &hosts)
 {
@@ -205,7 +205,7 @@ bool Helper_mac::setSplitTunnelingSettings(bool isActive, bool isExclude,
     return true;
 }
 
-void Helper_mac::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+void Helper_posix::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                                    const QString &connectedIp, const ProtocolType &protocol)
 {
     Q_UNUSED(isCloseTcpSocket);
@@ -282,7 +282,7 @@ void Helper_mac::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool
     }
 }
 
-bool Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
+/*bool Helper_posix::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
 {
     Q_UNUSED(ifIndex)
     Q_UNUSED(overrideDnsIpAddress)
@@ -327,7 +327,7 @@ bool Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
     bool successAll = true;
     for (QString service : dnsNetworkServices)
     {
-        if (!Helper_mac::setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service))
+        if (!Helper_posix::setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service))
         {
             successAll = false;
             qCDebug(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;
@@ -337,8 +337,8 @@ bool Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
 
     return successAll;
 }
-
-bool Helper_mac::startWireGuard(const QString &exeName, const QString &deviceName)
+*/
+bool Helper_posix::startWireGuard(const QString &exeName, const QString &deviceName)
 {
     // Make sure the device socket is closed.
     auto result = executeRootCommand("rm -f /var/run/wireguard/" + deviceName + ".sock");
@@ -378,7 +378,7 @@ bool Helper_mac::startWireGuard(const QString &exeName, const QString &deviceNam
     return answerCmd.executed != 0;
 }
 
-bool Helper_mac::stopWireGuard()
+bool Helper_posix::stopWireGuard()
 {
     if (wireGuardDeviceName_.isEmpty())
         return true;
@@ -416,7 +416,7 @@ bool Helper_mac::stopWireGuard()
     return true;
 }
 
-bool Helper_mac::configureWireGuard(const WireGuardConfig &config)
+bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
 {
     QMutexLocker locker(&mutex_);
 
@@ -452,7 +452,7 @@ bool Helper_mac::configureWireGuard(const WireGuardConfig &config)
     return answerCmd.executed != 0;
 }
 
-bool Helper_mac::getWireGuardStatus(WireGuardStatus *status)
+bool Helper_posix::getWireGuardStatus(WireGuardStatus *status)
 {
     QMutexLocker locker(&mutex_);
 
@@ -508,7 +508,7 @@ bool Helper_mac::getWireGuardStatus(WireGuardStatus *status)
     return true;
 }
 
-void Helper_mac::setDefaultWireGuardDeviceName(const QString &deviceName)
+void Helper_posix::setDefaultWireGuardDeviceName(const QString &deviceName)
 {
     // If we don't have an active WireGuard device, assign the default device name. It is important
     // for a subsequent call to stopWireGuard(), to stop the device created during the last session.
@@ -516,7 +516,7 @@ void Helper_mac::setDefaultWireGuardDeviceName(const QString &deviceName)
         wireGuardDeviceName_ = deviceName;
 }
 
-QString Helper_mac::executeRootCommand(const QString &commandLine)
+QString Helper_posix::executeRootCommand(const QString &commandLine)
 {
     QMutexLocker locker(&mutex_);
 
@@ -557,7 +557,7 @@ QString Helper_mac::executeRootCommand(const QString &commandLine)
     return "";
 }
 
-bool Helper_mac::executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId)
+bool Helper_posix::executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId)
 {
     QMutexLocker locker(&mutex_);
 
@@ -569,7 +569,11 @@ bool Helper_mac::executeOpenVPN(const QString &commandLine, const QString &pathT
     // get path to openvpn util
     QString strOpenVpnPath = "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
 
+#ifdef Q_OS_MAC
     QString helpersPath = QCoreApplication::applicationDirPath() + "/../Helpers";
+#elif defined Q_OS_LINUX
+    QString helpersPath = QCoreApplication::applicationDirPath() + "/";
+#endif
     QString pathToOpenVPN = helpersPath + strOpenVpnPath;
     QString cmdOpenVPN = QString("cd '%1' && %2 %3").arg(pathToOvpnConfig, pathToOpenVPN, commandLine);
 
@@ -603,7 +607,7 @@ bool Helper_mac::executeOpenVPN(const QString &commandLine, const QString &pathT
     }
 }
 
-bool Helper_mac::executeTaskKill(const QString &executableName)
+bool Helper_posix::executeTaskKill(const QString &executableName)
 {
     QString killCmd = "pkill " + executableName;
     executeRootCommand(killCmd);
@@ -611,7 +615,7 @@ bool Helper_mac::executeTaskKill(const QString &executableName)
 }
 
 
-void Helper_mac::enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress)
+/*void Helper_posix::enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress)
 {
     qCDebug(LOG_BASIC) << "Enable MAC spoofing on boot, bEnable =" << bEnable;
     QString strTempFilePath = QString::fromLocal8Bit(getenv("TMPDIR")) + "windscribetemp.plist";
@@ -703,9 +707,9 @@ void Helper_mac::enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QS
                            << "rm " + Utils::cleanSensitiveInfo(macSpoofingScript);
         executeRootCommand("rm \"" + macSpoofingScript + "\"");
     }
-}
+}*/
 
-void Helper_mac::enableFirewallOnBoot(bool bEnable)
+/*void Helper_posix::enableFirewallOnBoot(bool bEnable)
 {
     qCDebug(LOG_BASIC) << "Enable firewall on boot, bEnable =" << bEnable;
     QString strTempFilePath = QString::fromLocal8Bit(getenv("TMPDIR")) + "windscribetemp.plist";
@@ -797,9 +801,9 @@ void Helper_mac::enableFirewallOnBoot(bool bEnable)
                            << "rm " + Utils::cleanSensitiveInfo(pfBashScriptFile);
         executeRootCommand("rm \"" + pfBashScriptFile + "\"");
     }
-}
+}*/
 
-QStringList Helper_mac::getActiveNetworkInterfaces()
+/*QStringList Helper_posix::getActiveNetworkInterfaces()
 {
     const QString answer = executeRootCommand("ifconfig -a");
     const QStringList lines = answer.split("\n");
@@ -817,9 +821,9 @@ QStringList Helper_mac::getActiveNetworkInterfaces()
     }
 
     return res;
-}
+}*/
 
-bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QString &password)
+/*bool Helper_posix::setKeychainUsernamePassword(const QString &username, const QString &password)
 {
     QMutexLocker locker(&mutex_);
 
@@ -857,9 +861,9 @@ bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QStr
 
     qCDebug(LOG_BASIC) << "setKeychainUsernamePassword() failed";
     return false;
-}
+}*/
 
-bool Helper_mac::setKextPath(const QString &kextPath)
+/*bool Helper_posix::setKextPath(const QString &kextPath)
 {
     QMutexLocker locker(&mutex_);
 
@@ -888,9 +892,9 @@ bool Helper_mac::setKextPath(const QString &kextPath)
         }
     }
     return true;
-}
+}*/
 
-bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry)
+/*bool Helper_posix::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry)
 {
     QMutexLocker locker(&mutex_);
 
@@ -917,14 +921,9 @@ bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QStri
     }
 
     return answerCmd.executed != 0;
-}
+}*/
 
-
-
-
-
-
-int Helper_mac::executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer)
+int Helper_posix::executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer)
 {
     CMD_EXECUTE cmd;
     cmd.cmdline = commandLine.toStdString();
@@ -953,7 +952,7 @@ int Helper_mac::executeRootCommandImpl(const QString &commandLine, bool *bExecut
     }
 }
 
-bool Helper_mac::setKeychainUsernamePasswordImpl(const QString &username, const QString &password, bool *bExecuted)
+/*bool Helper_posix::setKeychainUsernamePasswordImpl(const QString &username, const QString &password, bool *bExecuted)
 {
     CMD_SET_KEYCHAIN_ITEM cmd;
     cmd.username = username.toStdString();
@@ -980,9 +979,9 @@ bool Helper_mac::setKeychainUsernamePasswordImpl(const QString &username, const 
             return RET_SUCCESS;
         }
     }
-}
+}*/
 
-void Helper_mac::run()
+void Helper_posix::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
     io_service_.reset();
@@ -992,7 +991,7 @@ void Helper_mac::run()
     io_service_.run();
 }
 
-void Helper_mac::connectHandler(const boost::system::error_code &ec)
+void Helper_posix::connectHandler(const boost::system::error_code &ec)
 {
     if (!ec)
     {
@@ -1030,7 +1029,7 @@ void Helper_mac::connectHandler(const boost::system::error_code &ec)
     }
 }
 
-void Helper_mac::doDisconnectAndReconnect()
+void Helper_posix::doDisconnectAndReconnect()
 {
     if (!isRunning())
     {
@@ -1040,7 +1039,7 @@ void Helper_mac::doDisconnectAndReconnect()
     }
 }
 
-bool Helper_mac::readAnswer(CMD_ANSWER &outAnswer)
+bool Helper_posix::readAnswer(CMD_ANSWER &outAnswer)
 {
     boost::system::error_code ec;
     int length;
@@ -1069,7 +1068,7 @@ bool Helper_mac::readAnswer(CMD_ANSWER &outAnswer)
     return true;
 }
 
-bool Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
+bool Helper_posix::sendCmdToHelper(int cmdId, const std::string &data)
 {
     int length = data.size();
     boost::system::error_code ec;

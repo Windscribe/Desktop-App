@@ -1,27 +1,29 @@
-#ifndef HELPER_MAC_H
-#define HELPER_MAC_H
+#ifndef HELPER_POSIX_H
+#define HELPER_POSIX_H
 
 #include <QElapsedTimer>
 #include <QThread>
 #include <QWaitCondition>
+#include <QMutex>
 #include "ihelper.h"
 #include "utils/boost_includes.h"
-#include "../mac/helper/src/ipc/helper_commands.h"
+#include "../posix_common/helper_commands.h"
 
-class Helper_mac : public IHelper
+// common base helper for Linux/Mac
+class Helper_posix : public IHelper
 {
     Q_OBJECT
 public:
-    explicit Helper_mac(QObject *parent = 0);
-    ~Helper_mac() override;
+    explicit Helper_posix(QObject *parent = 0);
+    ~Helper_posix() override;
 
     // Common functions
-    void startInstallHelper() override;
+    //void startInstallHelper() override;
     bool isHelperConnected() override;
     bool isFailedConnectToHelper() override { return bFailedConnectToHelper_; };
-    bool reinstallHelper() override;
+    //bool reinstallHelper() override;
     void setNeedFinish() override;
-    QString getHelperVersion() override;
+    //QString getHelperVersion() override;
 
     void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
     void clearUnblockingCmd(unsigned long cmdId) override;
@@ -32,7 +34,7 @@ public:
                                    const QStringList &hosts) override;
     void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const ProtocolType &protocol) override;
-    bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
+    //bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 
      // WireGuard functions
     bool startWireGuard(const QString &exeName, const QString &deviceName) override;
@@ -41,21 +43,21 @@ public:
     bool getWireGuardStatus(WireGuardStatus *status) override;
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
-    // Mac specific functions
+    // Posix specific functions
     QString executeRootCommand(const QString &commandLine);
     bool executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId);
     bool executeTaskKill(const QString &executableName);
-    void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress);
-    void enableFirewallOnBoot(bool bEnable);
-    QStringList getActiveNetworkInterfaces();
-    bool setKeychainUsernamePassword(const QString &username, const QString &password);
-    bool setKextPath(const QString &kextPath);
-    bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
+    //void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress);
+    //void enableFirewallOnBoot(bool bEnable);
+    //QStringList getActiveNetworkInterfaces();
+    //bool setKeychainUsernamePassword(const QString &username, const QString &password);
+    //bool setKextPath(const QString &kextPath);
+    //bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
 
 protected:
     void run() override;
 
-private:
+protected:
 
     typedef struct WAITING_DATA
     {
@@ -115,7 +117,7 @@ private:
 
     enum { RET_SUCCESS, RET_DISCONNECTED };
     int executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer);
-    bool setKeychainUsernamePasswordImpl(const QString &username, const QString &password, bool *bExecuted);
+    //bool setKeychainUsernamePasswordImpl(const QString &username, const QString &password, bool *bExecuted);
 
     static void connectHandler(const boost::system::error_code &ec);
     void doDisconnectAndReconnect();
@@ -124,4 +126,4 @@ private:
     bool sendCmdToHelper(int cmdId, const std::string &data);
 };
 
-#endif // HELPER_MAC_H
+#endif // HELPER_POSIX_H

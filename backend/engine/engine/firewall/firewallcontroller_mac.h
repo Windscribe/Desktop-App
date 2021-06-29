@@ -2,6 +2,7 @@
 #define FIREWALLCONTROLLER_MAC_H
 
 #include "firewallcontroller.h"
+#include "engine/helper/helper_mac.h"
 
 //thread safe
 class FirewallController_mac : public FirewallController
@@ -22,6 +23,7 @@ public:
     void setInterfaceToSkip_mac(const QString &interfaceToSkip) override;
 
 private:
+    Helper_mac *helper_;
     QString interfaceToSkip_;
     bool forceUpdateInterfaceToSkip_;
     QMutex mutex_;

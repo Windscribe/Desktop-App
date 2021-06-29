@@ -9,6 +9,9 @@
 
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
+    #include "engine/helper/helper_win.h"
+#elif defined (Q_OS_MAC)
+    #include "engine/helper/helper_mac.h"
 #endif
 
 class WireGuardConnectionImpl
@@ -99,7 +102,8 @@ bool WireGuardConnectionImpl::getStatus(WireGuardStatus *status)
 
 
 WireGuardConnection::WireGuardConnection(QObject *parent, IHelper *helper)
-    : IConnection(parent, helper),
+    : IConnection(parent),
+      helper_(helper),
       pimpl_(new WireGuardConnectionImpl(this)),
       current_state_(ConnectionState::DISCONNECTED),
       do_stop_thread_(false)
@@ -202,8 +206,12 @@ void WireGuardConnection::run()
 
     BIND_CRASH_HANDLER_FOR_THREAD();
 
+#if defined(Q_OS_WIN)
     qCDebug(LOG_WIREGUARD) << "Enable dns leak protection";
-    helper_->enableDnsLeaksProtection();
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    Q_ASSERT(helper_win);
+    helper_win->enableDnsLeaksProtection();
+#endif
 
     for (pimpl_->connect();;) {
         if (do_stop_thread_) {
@@ -270,8 +278,10 @@ void WireGuardConnection::run()
     }
 
 
+#if defined(Q_OS_WIN)
     qCDebug(LOG_WIREGUARD) << "Disable dns leak protection";
-    helper_->disableDnsLeaksProtection();
+    helper_win->disableDnsLeaksProtection();
+#endif
 }
 
 void WireGuardConnection::onProcessKillTimeout()
@@ -281,9 +291,13 @@ void WireGuardConnection::onProcessKillTimeout()
     qCDebug(LOG_CONNECTION) << "kill the WireGuard process";
     kill_process_timer_.stop();
 #if defined(Q_OS_WIN)
-    helper_->executeTaskKill(getWireGuardExeName());
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->executeTaskKill(getWireGuardExeName());
 #elif defined(Q_OS_MAC)
-    helper_->executeRootCommand("pkill -f \"" + getWireGuardExeName() + "\"");
+    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+    helper_mac->executeRootCommand("pkill -f \"" + getWireGuardExeName() + "\"");
+#elif defined(Q_OS_LINUX)
+    Q_ASSERT(false);
 #endif
 }
 

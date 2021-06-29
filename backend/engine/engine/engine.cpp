@@ -208,14 +208,22 @@ void Engine::sendDebugLog()
 
 void Engine::setIPv6EnabledInOS(bool b)
 {
+#ifdef Q_OS_WIN
     QMutexLocker locker(&mutex_);
-    helper_->setIPv6EnabledInOS(b);
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->setIPv6EnabledInOS(b);
+#endif
 }
 
 bool Engine::IPv6StateInOS()
 {
+#ifdef Q_OS_WIN
     QMutexLocker locker(&mutex_);
-    return helper_->IPv6StateInOS();
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    return helper_win->IPv6StateInOS();
+#else
+    return true;
+#endif
 }
 
 LoginSettings Engine::getLastLoginSettings()
@@ -667,7 +675,8 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 #ifdef Q_OS_MAC
         QString kextPath = QCoreApplication::applicationDirPath() + "/../Helpers/WindscribeKext.kext";
         kextPath = QDir::cleanPath(kextPath);
-        if (helper_->setKextPath(kextPath))
+        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+        if (helper_mac->setKextPath(kextPath))
         {
             qCDebug(LOG_BASIC) << "Kext path set:" << Utils::cleanSensitiveInfo(kextPath);
         }
@@ -771,10 +780,8 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 #ifdef Q_OS_WIN
-    if (helper_)
-    {
-        helper_->removeWindscribeNetworkProfiles();
-    }
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->removeWindscribeNetworkProfiles();
 #endif
 
     if (!isExitWithRestart)
@@ -791,17 +798,26 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
             {
                 if (isLaunchOnStart)
                 {
-                    helper_->enableFirewallOnBoot(true);
+#ifdef Q_OS_MAC
+                    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                    helper_mac->enableFirewallOnBoot(true);
+#endif
                 }
                 else
                 {
                     if (isFirewallAlwaysOn)
                     {
-                        helper_->enableFirewallOnBoot(true);
+#ifdef Q_OS_MAC
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(true);
+#endif
                     }
                     else
                     {
-                        helper_->enableFirewallOnBoot(false);
+#ifdef Q_OS_MAC
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(false);
+#endif
                         firewallController_->firewallOff();
                     }
                 }
@@ -812,11 +828,17 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                 {
                     if (isFirewallAlwaysOn)
                     {
-                        helper_->enableFirewallOnBoot(true);
+#ifdef Q_OS_MAC
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(true);
+#endif
                     }
                     else
                     {
-                        helper_->enableFirewallOnBoot(false);
+#ifdef Q_OS_MAC
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(false);
+#endif
                         firewallController_->firewallOff();
                     }
                 }
@@ -824,11 +846,17 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                 {
                     if (isFirewallAlwaysOn)
                     {
-                        helper_->enableFirewallOnBoot(true);
+#ifdef Q_OS_MAC
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(true);
+#endif
                     }
                     else
                     {
-                        helper_->enableFirewallOnBoot(false);
+#ifdef Q_OS_MAC
+                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                        helper_mac->enableFirewallOnBoot(false);
+#endif
                         firewallController_->firewallOff();
                     }
                 }
@@ -837,13 +865,19 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         else  // if (!isFirewallChecked)
         {
             firewallController_->firewallOff();
-            helper_->enableFirewallOnBoot(false);
+#ifdef Q_OS_MAC
+            Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+            helper_mac->enableFirewallOnBoot(false);
+#endif
         }
+#ifdef Q_OS_WIN
+        Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+        helper_win->setIPv6EnabledInFirewall(true);
+#endif
 
-        helper_->setIPv6EnabledInFirewall(true);
-    #ifdef Q_OS_MAC
+#ifdef Q_OS_MAC
         Ipv6Controller_mac::instance().restoreIpv6();
-    #endif
+#endif
     }
 
     SAFE_DELETE(vpnShareController_);
@@ -1036,7 +1070,10 @@ void Engine::signOutImplAfterDisconnect()
     prevSessionStatus_.clear();
     prevSessionForLogging_.clear();
 
-    helper_->enableFirewallOnBoot(false);
+#ifdef Q_OS_MAC
+    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+    helper_mac->enableFirewallOnBoot(false);
+#endif
 
     if (!apiInfo_.isNull())
     {
@@ -1579,7 +1616,10 @@ void Engine::onConnectionManagerConnected()
          }
     }
 
-    helper_->setIPv6EnabledInFirewall(false);
+#ifdef Q_OS_WIN
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->setIPv6EnabledInFirewall(false);
+#endif
 
     if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
         engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
@@ -1609,9 +1649,11 @@ void Engine::onConnectionManagerConnected()
                 qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << adapterName << ": " << mtuForProtocol;
     #ifdef Q_OS_MAC
                 const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(adapterName).arg(mtuForProtocol);
-                helper_->executeRootCommand(setIkev2MtuCmd);
-    #else
-                helper_->executeChangeMtu(adapterName, mtuForProtocol);
+                Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+                helper_mac->executeRootCommand(setIkev2MtuCmd);
+    #elif defined(Q_OS_WIN)
+                Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+                helper_win->executeChangeMtu(adapterName, mtuForProtocol);
     #endif
             }
             else
@@ -1650,7 +1692,10 @@ void Engine::onConnectionManagerConnected()
 
     if (engineSettings_.isCloseTcpSockets())
     {
-        helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
+#ifdef Q_OS_WIN
+        Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+        helper_win->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
+#endif
     }
 
     connectionManager_->startTunnelTests();
@@ -2499,7 +2544,8 @@ void Engine::doConnect(bool bEmitAuthError)
     locationName_ = bli->getName();
 
 #ifdef Q_OS_WIN
-    helper_->clearDnsOnTap();
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->clearDnsOnTap();
     CheckAdapterEnable::enableIfNeed(helper_, "Windscribe VPN");
 #endif
 
@@ -2594,7 +2640,11 @@ void Engine::doDisconnectRestoreStuff()
         firewallController_->firewallChange(ips, engineSettings_.isAllowLanTraffic());
     }
 
-    helper_->setIPv6EnabledInFirewall(true);
+#ifdef Q_OS_WIN
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->setIPv6EnabledInFirewall(true);
+#endif
+
 #ifdef Q_OS_MAC
     Ipv6Controller_mac::instance().restoreIpv6();
 #endif

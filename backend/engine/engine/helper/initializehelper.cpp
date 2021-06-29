@@ -61,8 +61,6 @@ void InitializeHelper::handleHelperInit()
     {
         qCDebug(LOG_BASIC) << "OpenVPN helper connected ok";
         printHelperVersion();
-        //qCDebug(LOG_BASIC) << "Remove windscribe urls from hosts file";
-        //helper_->removeWindscribeUrlsFromHosts();
         emit finished(INIT_HELPER_SUCCESS);
     }
     else

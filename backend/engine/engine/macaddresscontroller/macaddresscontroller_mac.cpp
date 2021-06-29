@@ -10,12 +10,12 @@ const int typeIdUserWarningType = qRegisterMetaType<ProtoTypes::Protocol>("Proto
 
 
 MacAddressController_mac::MacAddressController_mac(QObject *parent, NetworkDetectionManager_mac *ndManager, IHelper *helper) : IMacAddressController (parent)
-  , helper_(helper)
   , autoRotate_(false)
   , actuallyAutoRotate_(false)
   , lastSpoofIndex_(-1)
   , networkDetectionManager_(ndManager)
 {
+    helper_ = dynamic_cast<Helper_mac *>(helper);
     connect(networkDetectionManager_, SIGNAL(primaryAdapterUp(ProtoTypes::NetworkInterface)), SLOT(onPrimaryAdapterUp(ProtoTypes::NetworkInterface)));
     connect(networkDetectionManager_, SIGNAL(primaryAdapterDown(ProtoTypes::NetworkInterface)), SLOT(onPrimaryAdapterDown(ProtoTypes::NetworkInterface)));
     connect(networkDetectionManager_, SIGNAL(primaryAdapterChanged(ProtoTypes::NetworkInterface)), SLOT(onPrimaryAdapterChanged(ProtoTypes::NetworkInterface)));

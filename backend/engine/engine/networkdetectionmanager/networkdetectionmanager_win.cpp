@@ -9,7 +9,8 @@ const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterfac
 
 NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
 {
-    helper_ = helper;
+    helper_ = dynamic_cast<Helper_win *>(helper);
+    Q_ASSERT(helper_);
     networkWorker_ = new NetworkChangeWorkerThread(this);
 
     connect(networkWorker_, &NetworkChangeWorkerThread::finished, networkWorker_, &QObject::deleteLater);

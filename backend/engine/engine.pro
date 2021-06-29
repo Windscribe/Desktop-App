@@ -257,7 +257,7 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 } # end macx
 
 
-unix {
+linux {
 
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
@@ -281,22 +281,22 @@ SOURCES += \
            $$COMMON_PATH/utils/linuxutils.cpp \
            engine/ping/pinghost_icmp_mac.cpp \
            engine/dnsresolver/dnsutils_linux.cpp \
+           engine/helper/helper_posix.cpp \
            engine/helper/helper_linux.cpp \
            engine/networkstatemanager/networkstatemanager_linux.cpp \
            engine/firewall/firewallcontroller_linux.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
-           engine/macaddresscontroller/macaddresscontroller_linux.cpp \
-           engine/connectionmanager/openvpnconnection_linux.cpp
+           engine/macaddresscontroller/macaddresscontroller_linux.cpp
 
 HEADERS += \
            $$COMMON_PATH/utils/linuxutils.h \
            engine/ping/pinghost_icmp_mac.h \
+           engine/helper/helper_posix.h \
            engine/helper/helper_linux.h \
            engine/networkstatemanager/networkstatemanager_linux.h \
            engine/firewall/firewallcontroller_linux.h \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
-           engine/macaddresscontroller/macaddresscontroller_linux.h \
-           engine/connectionmanager/openvpnconnection_linux.h
+           engine/macaddresscontroller/macaddresscontroller_linux.h
 } # unix
 
 
@@ -404,7 +404,6 @@ SOURCES += main.cpp \
     engine/dnsresolver/dnsserversconfiguration.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
-    engine/connectionmanager/ikev2connection_test.cpp \
     engine/helper/simple_xor_crypt.cpp \
     engine/tests/sessionandlocations_test.cpp \
     engine/sessionstatustimer.cpp \
@@ -559,7 +558,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/dnsresolver/dnsserversconfiguration.h \
     engine/dnsresolver/dnsresolver.h \
     engine/types/protocoltype.h \
-    engine/connectionmanager/ikev2connection_test.h \
     engine/helper/simple_xor_crypt.h \
     engine/tests/sessionandlocations_test.h \
     engine/sessionstatustimer.h \

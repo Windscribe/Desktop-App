@@ -1,8 +1,8 @@
 #include "firewallcontroller.h"
 #include "engine/helper/ihelper.h"
 
-FirewallController::FirewallController(QObject *parent, IHelper *helper) : QObject(parent),
-    helper_(helper), latestAllowLanTraffic_(false), latestEnabledState_(false),
+FirewallController::FirewallController(QObject *parent) : QObject(parent),
+    latestAllowLanTraffic_(false), latestEnabledState_(false),
     bInitialized_(false), bStateChanged_(false)
 {
 }

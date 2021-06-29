@@ -5,7 +5,7 @@
 #include "engine/helper/ihelper.h"
 
 FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
-    FirewallController(parent, helper)
+    FirewallController(parent)
 {
 
 }
