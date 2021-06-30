@@ -10,8 +10,8 @@
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
     #include "engine/helper/helper_win.h"
-#elif defined (Q_OS_MAC)
-    #include "engine/helper/helper_mac.h"
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    #include "engine/helper/helper_posix.h"
 #endif
 
 class WireGuardConnectionImpl
@@ -191,7 +191,7 @@ QString WireGuardConnection::getWireGuardAdapterName()
 {
 #if defined(Q_OS_WIN)
     return QString("WindscribeWireGuard420");
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     return QString("utun420");
 #endif
 }
@@ -293,9 +293,9 @@ void WireGuardConnection::onProcessKillTimeout()
 #if defined(Q_OS_WIN)
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
     helper_win->executeTaskKill(getWireGuardExeName());
-#elif defined(Q_OS_MAC)
-    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-    helper_mac->executeRootCommand("pkill -f \"" + getWireGuardExeName() + "\"");
+#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
+    helper_posix->executeRootCommand("pkill -f \"" + getWireGuardExeName() + "\"");
 #elif defined(Q_OS_LINUX)
     Q_ASSERT(false);
 #endif

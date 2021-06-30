@@ -10,6 +10,10 @@
 #include <list>
 
 #include "../../posix_common/helper_commands.h"
+#include "wireguard/defaultroutemonitor.h"
+#include "wireguard/wireguardadapter.h"
+#include "wireguard/wireguardcontroller.h"
+
 
 typedef boost::shared_ptr<boost::asio::local::stream_protocol::socket> socket_ptr;
 
@@ -23,7 +27,7 @@ public:
   
 private:
     //SplitTunneling splitTunneling_;
-    //WireGuardController wireGuardController_;
+    WireGuardController wireGuardController_;
     boost::asio::io_service service_;
     boost::asio::local::stream_protocol::acceptor *acceptor_;
     

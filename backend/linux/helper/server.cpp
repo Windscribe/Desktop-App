@@ -180,16 +180,16 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
     }
     else if (cmdId == HELPER_CMD_START_WIREGUARD)
     {
-        /*CMD_START_WIREGUARD cmd;
+        CMD_START_WIREGUARD cmd;
         ia >> cmd;
         const std::string strFullCmd(cmd.exePath + " -f " + cmd.deviceName);
         outCmdAnswer.cmdId = ExecuteCmd::instance().execute(strFullCmd.c_str());
         wireGuardController_.init(cmd.deviceName, outCmdAnswer.cmdId);
-        outCmdAnswer.executed = 1;*/
+        outCmdAnswer.executed = 1;
     }
     else if (cmdId == HELPER_CMD_STOP_WIREGUARD)
     {
-        /*bool is_daemon_dead = true;
+        bool is_daemon_dead = true;
         std::string log;
         ExecuteCmd::instance().getStatus(wireGuardController_.getDaemonCmdId(), is_daemon_dead,
                                          log);
@@ -197,11 +197,11 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
             wireGuardController_.reset();
             outCmdAnswer.executed = 1;
             outCmdAnswer.body = log;
-        }*/
+        }
     }
     else if (cmdId == HELPER_CMD_CONFIGURE_WIREGUARD)
     {
-        /*CMD_CONFIGURE_WIREGUARD cmd;
+        CMD_CONFIGURE_WIREGUARD cmd;
         ia >> cmd;
 
         outCmdAnswer.executed = 0;
@@ -233,11 +233,11 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                 }
                 outCmdAnswer.executed = 1;
             } while (0);
-        }*/
+        }
     }
     else if (cmdId == HELPER_CMD_GET_WIREGUARD_STATUS)
     {
-        /*outCmdAnswer.executed = 1;
+        outCmdAnswer.executed = 1;
         if (!wireGuardController_.isInitialized()) {
             outCmdAnswer.cmdId = WIREGUARD_STATE_NONE;
         } else {
@@ -262,7 +262,7 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                     outCmdAnswer.customInfoValue[1] = bytesTransmitted;
                 }
             }
-        }*/
+        }
     }
     else if (cmdId == HELPER_CMD_KILL_PROCESS)
     {

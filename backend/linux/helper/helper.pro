@@ -19,7 +19,12 @@ SOURCES += \
         execute_cmd.cpp \
         logger.cpp \
         main.cpp \
-        server.cpp
+        server.cpp \
+        utils.cpp \
+        wireguard/defaultroutemonitor.cpp \
+        wireguard/wireguardadapter.cpp \
+        wireguard/wireguardcommunicator.cpp \
+        wireguard/wireguardcontroller.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -29,6 +34,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     ../../posix_common/helper_commands.h \
     ../../posix_common/helper_commands_serialize.h \
+    3rdparty/pstream.h \
     execute_cmd.h \
     logger.h \
-    server.h
+    server.h \
+    utils.h \
+    wireguard/defaultroutemonitor.h \
+    wireguard/wireguardadapter.h \
+    wireguard/wireguardcommunicator.h \
+    wireguard/wireguardcontroller.h

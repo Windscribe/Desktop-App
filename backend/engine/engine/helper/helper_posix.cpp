@@ -355,7 +355,13 @@ bool Helper_posix::startWireGuard(const QString &exeName, const QString &deviceN
         return false;
 
     CMD_START_WIREGUARD cmd;
+#ifdef Q_OS_MAC
     cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/" + exeName).toStdString();
+#elif defined Q_OS_LINUX
+    cmd.exePath = (QCoreApplication::applicationDirPath() + "/" + exeName).toStdString();
+#else
+    Q_ASSERT(false);
+#endif
     cmd.deviceName = deviceName.toStdString();
 
     std::stringstream stream;
