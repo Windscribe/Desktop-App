@@ -11,6 +11,8 @@ STDAPI DllCanUnloadNow();
 STDAPI DllRegisterServer();
 STDAPI DllUnregisterServer();
 
+STDAPI RegisterServerWithTargetPaths(const wchar_t * comPath, const wchar_t * proxyPath, const wchar_t * serverPath);
+
 STDAPI StartFactories();
 STDAPI StopFactories();
 

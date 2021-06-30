@@ -8,5 +8,6 @@ EXPORTS
 	DllCanUnloadNow	     
 	DllRegisterServer	 
 	DllUnregisterServer  
+	RegisterServerWithTargetPaths
 	StartFactories
 	StopFactories
