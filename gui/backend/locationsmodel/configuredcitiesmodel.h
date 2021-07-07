@@ -10,6 +10,9 @@ public:
     explicit ConfiguredCitiesModel(QObject *parent = nullptr);
 
     void update(QVector<QSharedPointer<LocationModelItem> > locations) override;
+
+protected:
+    void sort(QVector<CityModelItem *> &cities) override;
 };
 
 #endif // CONFIGUREDCITIESMODEL_H
