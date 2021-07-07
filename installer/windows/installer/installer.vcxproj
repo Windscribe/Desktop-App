@@ -54,6 +54,7 @@
     <ClCompile Include="gui\settingsbutton.cpp" />
     <ClCompile Include="gui\svg\svgimage.cpp" />
     <ClCompile Include="gui\textitem.cpp" />
+    <ClCompile Include="installer\blocks\install_authhelper.cpp" />
     <ClCompile Include="installer\downloader.cpp" />
     <ClCompile Include="installer\iinstall_block.cpp" />
     <ClCompile Include="installer\installer.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="gui\svg\stb_image_write.h" />
     <ClInclude Include="gui\svg\svgimage.h" />
     <ClInclude Include="gui\textitem.h" />
+    <ClInclude Include="installer\blocks\install_authhelper.h" />
     <ClInclude Include="installer\downloader.h" />
     <ClInclude Include="installer\iinstall_block.h" />
     <ClInclude Include="installer\installer.h" />

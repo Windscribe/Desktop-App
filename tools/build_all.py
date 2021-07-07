@@ -73,6 +73,10 @@ def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(ROOT_DIR, subdir_name, project_name))
 
 
+def GetProjectFolder(subdir_name):
+  return os.path.normpath(os.path.join(ROOT_DIR, subdir_name))
+
+
 def GenerateProtobuf():
   proto_root = iutl.GetDependencyBuildRoot("protobuf")
   if not proto_root:
@@ -295,6 +299,43 @@ def BuildComponents(configdata, targetlist, qt_root):
         BuildComponent(configdata[target], is_64bit, qt_root, buildenv, macdeployfixes)
 
 
+def BuildAuthHelperWin32(configdata, targetlist):
+  # setup env
+  buildenv = os.environ.copy()
+  buildenv.update({"MAKEFLAGS": "S"})
+  buildenv.update(iutl.GetVisualStudioEnvironment())
+  buildenv.update({"CL": "/MP"})
+
+  with utl.PushDir() as current_wd:
+    msg.Print("Current working dir: " + current_wd)
+
+    # create target location
+    tempTargetDir = BUILD_INSTALLER_FILES
+    # utl.CreateDirectory(tempTargetDir)
+
+    # ws_com, ws_com_server, ws_proxy_stub
+    for target in targetlist:
+      component = configdata[target]
+      c_project = component["project"]
+      c_subdir = component["subdir"]
+
+      # creates structure similar to visual studio
+      # >> important since authhelper components are dependent on ws_com.lib headers and links (specified inside project file)
+      # >> work/client-desktop/gui/authhelper/<projectname>/Release/<libs>
+      build_cmd = [
+        "msbuild.exe", GetProjectFile(c_subdir, c_project),
+        "/p:OutDir=..\Release{}".format(os.sep),
+        "/p:Configuration={}".format("Release"), "-nologo", "-verbosity:m"
+      ]
+      iutl.RunCommand(build_cmd, env=buildenv, shell=True)
+
+      # move necessary outputs to InstallerFiles (for deployment)
+      srcTargetName = os.path.normpath(os.path.join(GetProjectFolder(c_subdir), "..", "Release", component["target"]))
+      destTargetName = os.path.join(tempTargetDir, component["target"])
+      msg.Verbose("Moving " + srcTargetName + " -> " + destTargetName)
+      utl.CopyFile(srcTargetName, destTargetName)
+
+
 def PackSymbols():
   msg.Info("Packing symbols...")
   symbols_archive_name = "WindscribeSymbols_{}.zip".format(BUILD_APP_VERSION_STRINGS[0])
@@ -319,6 +360,8 @@ def SignExecutablesWin32(filename_to_sign=None):
   else:
     iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
                     "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "*.exe")])
+    iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
+                    "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "*.dll")])
     iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
                     "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "x32", "*.exe")])
     iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
@@ -443,6 +486,7 @@ def BuildAll():
     if configdata["targets"][current_os]:
       BuildComponents(configdata, configdata["targets"][current_os], qt_root)
     if current_os == "win32":
+      BuildAuthHelperWin32(configdata, configdata["targets"]["authhelper"])
       BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
     elif current_os == "macos":
       BuildInstallerMac(configdata, qt_root)

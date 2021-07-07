@@ -15,8 +15,6 @@ extern "C" {          // we need to export the C interface
 
 STDAPI DllGetClassObject(const CLSID &clsid, const IID &iid, void **ppv)
 {
-	std::cout << "DllGetClassObject() called" << std::endl;
-
 	if (clsid != CLSID_AUTH_HELPER)
 	{
 		return CLASS_E_CLASSNOTAVAILABLE;

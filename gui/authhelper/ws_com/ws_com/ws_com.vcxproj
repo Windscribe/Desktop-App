@@ -177,6 +177,9 @@
   <ItemGroup>
     <ResourceCompile Include="ws_com.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\gui\windscribe.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
