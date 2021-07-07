@@ -510,6 +510,7 @@ void WidgetCities::onItemsUpdated(QVector<CityModelItem *> items)
 {
     // qCDebug(LOG_LOCATION_LIST) << "Items updated: " << name_;
     updateWidgetList(items);
+    update();
 }
 
 void WidgetCities::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
