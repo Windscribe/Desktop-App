@@ -38,6 +38,7 @@ int InstallAuthHelper::executeStep()
 		{
 			Log::instance().out("Call to Proxy Stub DllRegisterServer failed");
 			lastError_ = L"An error occurred when calling Proxy Stub DllRegisterServer";
+			FreeLibrary(hProxyStubLib);
 			return -1;
 		}
 	}
@@ -45,8 +46,11 @@ int InstallAuthHelper::executeStep()
 	{
 		Log::instance().out("Failed to get proxy stub DllRegisterServer");
 		lastError_ = L"An error occurred when getting proxy stub DllRegisterServer";
+		FreeLibrary(hProxyStubLib);
 		return -1;
 	}
+	FreeLibrary(hProxyStubLib);
+
 
 	// Register the ws_com lib
 	std::wstring authLib = Path::AddBackslash(installPath_) + L"ws_com.dll";
@@ -56,7 +60,6 @@ int InstallAuthHelper::executeStep()
 	{
 		Log::instance().out("Failed to load Auth Helper Library");
 		lastError_ = L"An error occurred when loading the Auth Helper library: ";
-
 		return -1;
 	}
 
@@ -71,6 +74,7 @@ int InstallAuthHelper::executeStep()
 		{
 			Log::instance().out("Call to RegisterServerWithTargetPaths failed");
 			lastError_ = L"An error occurred when calling RegisterServerWithTargetPaths: ";
+			FreeLibrary(hLib);
 			return -1;
 		}
 	}
@@ -78,9 +82,10 @@ int InstallAuthHelper::executeStep()
 	{
 		Log::instance().out("Failed to get reg server function");
 		lastError_ = L"An error occurred when getting RegisterServerWithTargetPaths: ";
+		FreeLibrary(hLib);
 		return -1;
 	}
-
+	FreeLibrary(hLib);
 	Log::instance().out("Auth helper installed successfully");
 	return 100;
 }

@@ -30,6 +30,7 @@ fi
 files_for_cppcheck=$(git diff-index --cached $against | \
   grep -v 'common[\/\\]prepare_build_environment[\/\\]' | \
   grep -v 'common[\/\\]wintun[\/\\]' | \
+  grep -v 'installer[\/\\]' | \
   grep -E '[MA]	.*\.(c|cpp|cc|cxx)$' | cut -d'	' -f 2)
 
 if [ -n "$files_for_cppcheck" ]; then
