@@ -1,13 +1,7 @@
 #ifndef SERVERAPI_H
 #define SERVERAPI_H
 
-#ifdef _MSC_VER
-// Disable Qt deprecation warning: QLinkedList.
-#pragma warning(disable: 4996)
-#endif
-
 #include <QObject>
-#include <QLinkedList>
 #include <QTimer>
 #include "engine/types/wireguardconfig.h"
 #include "engine/apiinfo/apiinfo.h"
@@ -17,6 +11,8 @@
 #include "engine/proxy/proxysettings.h"
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
+
+#include <list>
 
 class INetworkStateManager;
 
@@ -138,7 +134,7 @@ private:
         auto *request = new RequestType(std::forward<RequestArgs>( args )...);
         // if (request)
         {
-            activeRequests_.append(request);
+            activeRequests_.push_back(request);
         }
         return request;
     }
@@ -204,7 +200,7 @@ private:
     uint curUserRole_;
     bool bIgnoreSslErrors_;
 
-    QLinkedList<BaseRequest*> activeRequests_;
+    std::list<BaseRequest*> activeRequests_;
     QMap<const CurlRequest*, BaseRequest*> curlToRequestMap_;
     HandleDnsResolveFunc handleDnsResolveFuncTable_[NUM_REPLY_TYPES];
     HandleCurlReplyFunc handleCurlReplyFuncTable_[NUM_REPLY_TYPES];
