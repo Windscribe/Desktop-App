@@ -3150,8 +3150,15 @@ QString MainWindow::getConnectionTime()
 {
     if (connectionElapsedTimer_.isValid())
     {
-        QTime time(0, 0);
-        return time.addMSecs(connectionElapsedTimer_.elapsed()).toString();
+        const auto totalSeconds = connectionElapsedTimer_.elapsed() / 1000;
+        const auto hours = totalSeconds / 3600;
+        const auto minutes = (totalSeconds - hours * 3600) / 60;
+        const auto seconds = (totalSeconds - hours * 3600) % 60;
+
+        return QString("%1:%2:%3")
+                .arg(hours   < 10 ? QString("0%1").arg(hours)   : QString::number(hours))
+                .arg(minutes < 10 ? QString("0%1").arg(minutes) : QString::number(minutes))
+                .arg(seconds < 10 ? QString("0%1").arg(seconds) : QString::number(seconds));
     }
     else
     {
