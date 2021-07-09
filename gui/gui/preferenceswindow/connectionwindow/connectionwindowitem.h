@@ -62,7 +62,7 @@ private slots:
     void onInvalidLanAddressNotification(QString address);
     void onIsFirewallBlockedChanged(bool bFirewallBlocked);
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     void onKillTcpSocketsPreferencesChanged(bool b);
     void onKillTcpSocketsStateChanged(bool isChecked);
 #endif
@@ -86,7 +86,7 @@ private:
     MacSpoofingItem *macSpoofingItem_;
     CheckBoxItem *checkBoxAllowLanTraffic_;
     DnsWhileConnectedItem *dnsWhileConnectedItem_;
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     CheckBoxItem *cbKillTcp_;
 #endif
 

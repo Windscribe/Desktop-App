@@ -28,7 +28,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, SIGNAL(dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedPreferencesChanged(DnsWhileConnectedInfo)));
     connect(preferencesHelper, SIGNAL(isFirewallBlockedChanged(bool)), SLOT(onIsFirewallBlockedChanged(bool)));
     connect(preferencesHelper, SIGNAL(isExternalConfigModeChanged(bool)), SLOT(onIsExternalConfigModeChanged(bool)));
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     connect(preferences, SIGNAL(isKillTcpSocketsChanged(bool)), SLOT(onKillTcpSocketsPreferencesChanged(bool)));
 #endif
 
@@ -85,7 +85,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(macSpoofingItem_, SIGNAL(cycleMacAddressClick()), SIGNAL(cycleMacAddressClick()));
     addItem(macSpoofingItem_);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     cbKillTcp_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Kill TCP sockets after connection"), "");
     cbKillTcp_->setState(preferences->isKillTcpSockets());
     connect(cbKillTcp_, SIGNAL(stateChanged(bool)), SLOT(onKillTcpSocketsStateChanged(bool)));
@@ -206,7 +206,7 @@ void ConnectionWindowItem::onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpo
     preferences_->setMacAddrSpoofing(mas);
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 void ConnectionWindowItem::onKillTcpSocketsStateChanged(bool isChecked)
 {
     preferences_->setKillTcpSockets(isChecked);
@@ -239,7 +239,7 @@ void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const ProtoTypes:
     }
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 void ConnectionWindowItem::onKillTcpSocketsPreferencesChanged(bool b)
 {
     cbKillTcp_->setState(b);

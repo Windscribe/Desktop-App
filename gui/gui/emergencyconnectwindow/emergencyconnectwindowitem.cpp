@@ -115,7 +115,7 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
 
     // Icon
     painter->setOpacity(curIconOpacity_*initialOpacity);
-    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyConnect/EMERGENCY_CONNECT_ICON");
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyconnect/EMERGENCY_CONNECT_ICON");
     pixmap->draw((WINDOW_WIDTH/2 - 20)*G_SCALE, ICON_POS_Y*G_SCALE, painter);
 
     painter->setPen(QColor(255,255,255));
@@ -158,7 +158,7 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
 
     // spinner
     painter->save();
-    pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyConnect/BIG_SPINNER");
+    pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyconnect/BIG_SPINNER");
     painter->translate(WINDOW_WIDTH/2 * G_SCALE, (SPINNER_POS_Y* G_SCALE) +pixmap->height() / 2);
     painter->rotate(curSpinnerRotation_);
     pixmap->draw(-pixmap->width() / 2,-pixmap->height() / 2, painter);

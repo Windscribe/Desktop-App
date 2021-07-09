@@ -81,7 +81,7 @@ public:
     bool isIgnoreSslErrors() const;
     void setIgnoreSslErrors(bool b);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     bool isKillTcpSockets() const;
     void setKillTcpSockets(bool b);
 #endif
@@ -153,7 +153,7 @@ signals:
     void invalidLanAddressNotification(QString address);
     void customConfigsPathChanged(QString path);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     void minimizeAndCloseToTrayChanged(bool b);
     void isKillTcpSocketsChanged(bool b);
     void tapAdapterChanged(ProtoTypes::TapAdapterType tapAdapter);

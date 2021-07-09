@@ -1,6 +1,7 @@
 #include "imagewithshadow.h"
 #include "dpiscalemanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include <math.h>
 
 #include <math.h>
 

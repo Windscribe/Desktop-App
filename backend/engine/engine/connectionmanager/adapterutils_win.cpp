@@ -1,14 +1,16 @@
 #include "adapterutils_win.h"
 #include <QProcess>
 #include "Utils/logger.h"
-#include "Engine/Helper/ihelper.h"
 #include <winsock2.h>
 #include <iphlpapi.h>
+#include "Engine/Helper/helper_win.h"
 
 void AdapterUtils_win::resetAdapter(IHelper *helper, const QString &tapName)
 {
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
+    Q_ASSERT(helper_win);
     qCDebug(LOG_BASIC) << "Reset TAP adapter:" << tapName;
-    helper->executeResetTap(tapName);
+    helper_win->executeResetTap(tapName);
 }
 
 AdapterGatewayInfo AdapterUtils_win::getWindscribeConnectedAdapterInfo()

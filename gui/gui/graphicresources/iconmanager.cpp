@@ -10,9 +10,9 @@
 IconManager::IconManager()
 {
     const char *kIconPaths[NUM_ICON_TYPES] = {
-        ":/Resources/icons/icon_disconnected.ico",  // ICON_APP_DISCONNECTED
-        ":/Resources/icons/icon_connecting.ico",    // ICON_APP_CONNECTING
-        ":/Resources/icons/icon_connected.ico",     // ICON_APP_CONNECTED
+        ":/resources/icons/icon_disconnected.ico",  // ICON_APP_DISCONNECTED
+        ":/resources/icons/icon_connecting.ico",    // ICON_APP_CONNECTING
+        ":/resources/icons/icon_connected.ico",     // ICON_APP_CONNECTED
 #if defined(Q_OS_MAC)
         // Provided we are using Qt 5.12.11 or greater there is no need to provide different icns for BigSur
         ":/Resources/icons/menubar/os10/off_dark.icns",    // ICON_MAC_OSX_DISCONNECTED_DARK

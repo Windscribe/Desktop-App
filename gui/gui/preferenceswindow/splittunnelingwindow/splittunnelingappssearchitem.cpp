@@ -272,10 +272,13 @@ void SplitTunnelingAppsSearchItem::drawItemsAndUpdateHeight(int baseHeight, QLis
     {
         QString iconPath = QString::fromStdString(app.full_name());
 
-#ifdef Q_OS_MAC
-        iconPath = MacUtils::iconPathFromBinPath(iconPath);
-#else
+#ifdef Q_OS_WIN
         iconPath = WinUtils::iconPathFromBinPath(iconPath);
+#elif defined Q_OS_MAC
+        iconPath = MacUtils::iconPathFromBinPath(iconPath);
+#elif defined Q_OS_LINUX
+        //todo linux
+        Q_ASSERT(false);
 #endif
 
         QSharedPointer<AppSearchItem> appItem = QSharedPointer<AppSearchItem>(new AppSearchItem(app, iconPath, this), &QObject::deleteLater);
@@ -336,7 +339,7 @@ void SplitTunnelingAppsSearchItem::updateSystemApps()
             systemApps_.append(app);
         }
     }
-#else
+#elif defined Q_OS_MAC
     const auto installedPrograms = MacUtils::enumerateInstalledPrograms();
     for (const QString &binPath : installedPrograms)
     {
@@ -352,7 +355,9 @@ void SplitTunnelingAppsSearchItem::updateSystemApps()
             systemApps_.append(app);
         }
     }
-
+#elif defined Q_OS_LINUX
+        //todo linux
+        //Q_ASSERT(false);
 #endif
 }
 

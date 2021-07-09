@@ -47,6 +47,7 @@ private:
     void setCurrentStateAndEmitSignal(ConnectionState state);
     void setError(CONNECTION_ERROR err);
 
+    IHelper *helper_;
     std::unique_ptr<WireGuardConnectionImpl> pimpl_;
     ConnectionState current_state_;
     mutable QMutex current_state_mutex_;

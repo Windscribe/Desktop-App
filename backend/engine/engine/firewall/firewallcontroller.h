@@ -12,7 +12,7 @@ class FirewallController : public QObject
 {
     Q_OBJECT
 public:
-    explicit FirewallController(QObject *parent, IHelper *helper);
+    explicit FirewallController(QObject *parent);
     virtual ~FirewallController() {}
 
     virtual bool firewallOn(const QString &ip, bool bAllowLanTraffic);
@@ -30,7 +30,6 @@ protected:
     bool isStateChanged();
     int countIps(const QString &ips);
 
-    IHelper *helper_;
     QString latestIp_;
     bool latestAllowLanTraffic_;
     bool latestEnabledState_;

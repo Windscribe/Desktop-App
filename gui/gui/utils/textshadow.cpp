@@ -1,5 +1,6 @@
 #include "textshadow.h"
 #include "dpiscalemanager.h"
+#include <math.h>
 
 #include <math.h>
 

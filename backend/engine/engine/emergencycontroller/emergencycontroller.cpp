@@ -13,6 +13,7 @@
 
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"
+    #include "engine/helper/helper_mac.h"
 #endif
 
 EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QObject(parent),
@@ -20,7 +21,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
     serverApiUserRole_(0),
     state_(STATE_DISCONNECTED)
 {
-    QFile file(":/Resources/ovpn/emergency.ovpn");
+    QFile file(":/resources/ovpn/emergency.ovpn");
     if (file.open(QIODevice::ReadOnly))
     {
         ovpnConfig_ = file.readAll();
@@ -352,9 +353,11 @@ void EmergencyController::doConnect()
 void EmergencyController::doMacRestoreProcedures()
 {
 #ifdef Q_OS_MAC
+    // todo: move this to utils (code duplicate in ConnecionManager class)
     QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
     qCDebug(LOG_EMERGENCY_CONNECT) << "Execute command: " << delRouteCommand;
-    QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
+    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+    QString cmdAnswer = helper_mac->executeRootCommand(delRouteCommand);
     qCDebug(LOG_EMERGENCY_CONNECT) << "Output from route delete command: " << cmdAnswer;
     RestoreDNSManager_mac::restoreState(helper_);
 #endif

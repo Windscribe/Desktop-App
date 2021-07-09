@@ -10,7 +10,7 @@
 #include <windows.h>
 #include <ras.h>
 #include <raserror.h>
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper_win.h"
 #include "ikev2connectiondisconnectlogic_win.h"
 
 
@@ -50,6 +50,7 @@ private:
          };
 
     int state_;
+    Helper_win *helper_;
 
     QString initialUrl_;
     QString initialIp_;

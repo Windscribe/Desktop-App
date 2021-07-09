@@ -248,10 +248,13 @@ void SplitTunnelingAppsItem::drawItemsAndUpdateHeight()
     {
         QString iconPath = QString::fromStdString(app.full_name());
 
-#ifdef Q_OS_MAC
-        iconPath = MacUtils::iconPathFromBinPath(iconPath);
-#else
+#ifdef Q_OS_WIN
         iconPath = WinUtils::iconPathFromBinPath(iconPath);
+#elif defined Q_OS_MAC
+        iconPath = MacUtils::iconPathFromBinPath(iconPath);
+#elif defined Q_OS_LINUX
+        //todo linux
+        Q_ASSERT(false);
 #endif
 
         QSharedPointer<AppIncludedItem> appItem = QSharedPointer<AppIncludedItem>(new AppIncludedItem(app, iconPath, this), &QObject::deleteLater);

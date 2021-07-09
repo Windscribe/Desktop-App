@@ -20,8 +20,6 @@
 #include "connsettingspolicy/customconfigconnsettingspolicy.h"
 
 
-#include "ikev2connection_test.h"
-
 #ifdef Q_OS_WIN
     #include "sleepevents_win.h"
     #include "adapterutils_win.h"
@@ -30,6 +28,7 @@
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
+    #include "engine/helper/helper_mac.h"
 #endif
 
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
@@ -78,8 +77,10 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkS
     connect(networkStateManager_, SIGNAL(stateChanged(bool, QString)), SLOT(onNetworkStateChanged(bool, QString)));
 #endif
 
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     connect(sleepEvents_, SIGNAL(gotoSleep()), SLOT(onSleepMode()));
     connect(sleepEvents_, SIGNAL(gotoWake()), SLOT(onWakeMode()));
+#endif
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
 }
@@ -662,7 +663,7 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &netwo
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkChanged(), isAlive =" << isAlive << ", primary network interface =" << networkInterface << ", state_ =" << state_;
 #ifdef Q_OS_WIN
     emit internetConnectivityChanged(isAlive);
-#else
+#elif defined Q_OS_MAC
     emit internetConnectivityChanged(isAlive);
 
     bLastIsOnline_ = isAlive;
@@ -733,6 +734,9 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &netwo
         default:
             Q_ASSERT(false);
     }
+#elif defined Q_OS_LINUX
+        //todo linux
+        emit internetConnectivityChanged(isAlive);
 #endif
 }
 
@@ -1027,7 +1031,8 @@ void ConnectionManager::doMacRestoreProcedures()
     {
         QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
         qCDebug(LOG_CONNECTION) << "Execute command: " << delRouteCommand;
-        QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
+        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+        QString cmdAnswer = helper_mac->executeRootCommand(delRouteCommand);
         qCDebug(LOG_CONNECTION) << "Output from route delete command: " << cmdAnswer;
     }
     if (connection_type == ConnectionType::OPENVPN || connection_type == ConnectionType::WIREGUARD)

@@ -41,6 +41,7 @@ private:
     static constexpr int DEFAULT_PORT = 9544;
     static constexpr int MAX_WAIT_OPENVPN_ON_START = 20000;
 
+    IHelper *helper_;
     std::atomic<bool> bStopThread_;
 
     boost::asio::io_service io_service_;

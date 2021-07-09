@@ -66,7 +66,7 @@ void Preferences::setAllowLanTraffic(bool b)
     }
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
 bool Preferences::isMinimizeAndCloseToTray() const
 {
     return guiSettings_.is_minimize_and_close_to_tray();
@@ -97,6 +97,8 @@ void Preferences::setHideFromDock(bool b)
         emit hideFromDockChanged(guiSettings_.is_hide_from_dock());
     }
 }
+#elif defined Q_OS_LINUX
+
 #endif
 
 bool Preferences::isStartMinimized() const
@@ -338,7 +340,7 @@ void Preferences::setIgnoreSslErrors(bool b)
     }
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 bool Preferences::isKillTcpSockets() const
 {
     return engineSettings_.is_close_tcp_sockets();

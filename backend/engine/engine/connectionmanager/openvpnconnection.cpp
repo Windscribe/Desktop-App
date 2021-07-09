@@ -9,9 +9,12 @@
 
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
+    #include "engine/helper/helper_win.h"
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    #include "engine/helper/helper_posix.h"
 #endif
 
-OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent, helper),
+OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent), helper_(helper),
     bStopThread_(false), currentState_(STATUS_DISCONNECTED),
     isAllowFirewallAfterCustomConfigConnection_(false)
 {
@@ -143,9 +146,10 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxy
 
     qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
 
-    return helper_->executeOpenVPN(configPath_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId);
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    return helper_win->executeOpenVPN(configPath_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId);
 
-#elif defined Q_OS_MAC
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     QString strCommand = "--config \"" + configPath_ + "\" --management 127.0.0.1 " + QString::number(port) + " --management-query-passwords --management-hold";
     if (proxySettings.option() == PROXY_OPTION_HTTP)
     {
@@ -165,7 +169,8 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxy
     std::wstring strOvpnConfigPath = Utils::getDirPathFromFullPath(configPath_.toStdWString());
     QString qstrOvpnConfigPath = QString::fromStdWString(strOvpnConfigPath);
 
-    return helper_->executeOpenVPN(strCommand, qstrOvpnConfigPath, outCmdId);
+    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
+    return helper_posix->executeOpenVPN(strCommand, qstrOvpnConfigPath, outCmdId);
 #endif
 }
 
@@ -183,9 +188,11 @@ void OpenVPNConnection::onKillControllerTimer()
     qCDebug(LOG_CONNECTION) << "kill the openvpn process";
     killControllerTimer_.stop();
 #ifdef Q_OS_WIN
-    helper_->executeTaskKill(OpenVpnVersionController::instance().getSelectedOpenVpnExecutable());
-#elif defined Q_OS_MAC
-    helper_->executeRootCommand("pkill -f \"" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable() + "\"");
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->executeTaskKill(OpenVpnVersionController::instance().getSelectedOpenVpnExecutable());
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
+    helper_posix->executeRootCommand("pkill -f \"" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable() + "\"");
 #endif
 }
 
@@ -510,7 +517,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             {
                 emit error(INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS);
             }
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
             else if (serverReply.contains("device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
             {
                 QString driverName, deviceName;

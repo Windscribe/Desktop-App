@@ -3,6 +3,7 @@
 #include "dpiscalemanager.h"
 #include "mainwindowstate.h"
 #include "graphicresources/imageresourcessvg.h"
+#include <math.h>
 
 namespace ConnectWindow {
 

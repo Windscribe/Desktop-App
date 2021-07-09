@@ -12,8 +12,11 @@ void LaunchOnStartup::setLaunchOnStartup(bool enable)
 {
 #ifdef Q_OS_WIN
     LaunchOnStartup_win::setLaunchOnStartup(enable);
-#else
+#elif defined Q_OS_MAC
     LaunchOnStartup_mac::setLaunchOnStartup(enable);
+#elif defined Q_OS_LINUX
+        //todo linux
+        //Q_ASSERT(false);
 #endif
 }
 
