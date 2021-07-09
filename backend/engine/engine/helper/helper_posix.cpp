@@ -434,7 +434,11 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
         QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex().data();
     cmd.clientIpAddress = config.clientIpAddress().toLatin1().data();
     cmd.clientDnsAddressList = config.clientDnsAddress().toLatin1().data();
+#ifdef Q_OS_MAC
     cmd.clientDnsScriptName = TempScripts_mac::instance().dnsScriptPath().toLatin1().data();
+#elif defined(Q_OS_LINUX)
+    // no script for Linux
+#endif
     cmd.peerEndpoint = config.peerEndpoint().toLatin1().data();
     cmd.peerPublicKey = QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex().data();
     cmd.peerPresharedKey

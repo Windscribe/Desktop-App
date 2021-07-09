@@ -10,7 +10,6 @@
 #include <list>
 
 #include "../../posix_common/helper_commands.h"
-#include "wireguard/defaultroutemonitor.h"
 #include "wireguard/wireguardadapter.h"
 #include "wireguard/wireguardcontroller.h"
 

@@ -140,19 +140,7 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
     }
     else if (cmdId == HELPER_CMD_SET_KEYCHAIN_ITEM)
     {
-        /*CMD_SET_KEYCHAIN_ITEM cmd;
-        ia >> cmd;
-        
-        bool bSuccess = KeyChainUtils::setUsernameAndPassword("Windscribe IKEv2", "Windscribe IKEv2", "Windscribe IKEv2 password", cmd.username.c_str(), cmd.password.c_str());
-        
-        if (bSuccess)
-        {
-            outCmdAnswer.executed = 1;
-        }
-        else
-        {
-            outCmdAnswer.executed = 0;
-        }*/
+        // not used for linux
     }
     else if (cmdId == HELPER_CMD_SPLIT_TUNNELING_SETTINGS)
     {
@@ -213,24 +201,26 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                     LOG("WireGuard: invalid AllowedIps \"%s\"", cmd.allowedIps.c_str());
                     break;
                 }
-                if (!wireGuardController_.configureAdapter(cmd.clientIpAddress,
-                                                           cmd.clientDnsAddressList,
-                                                           cmd.clientDnsScriptName,
-                                                           allowed_ips_vector)) {
-                    LOG("WireGuard: configureAdapter() failed");
-                    break;
-                }
-                
-                if (!wireGuardController_.configureDefaultRouteMonitor(cmd.peerEndpoint)) {
-                    LOG("WireGuard: configureDefaultRouteMonitor() failed");
-                    break;
-                }
+
+                uint32_t fwmark = wireGuardController_.getFwmark();
+                LOG("Fwmark = %u", fwmark);
+
                 if (!wireGuardController_.configureDaemon(cmd.clientPrivateKey,
                                                           cmd.peerPublicKey, cmd.peerPresharedKey,
-                                                          cmd.peerEndpoint, allowed_ips_vector)) {
+                                                          cmd.peerEndpoint, allowed_ips_vector, fwmark)) {
                     LOG("WireGuard: configureDaemon() failed");
                     break;
                 }
+
+
+                if (!wireGuardController_.configureAdapter(cmd.clientIpAddress,
+                                                           cmd.clientDnsAddressList,
+                                                           cmd.clientDnsScriptName,
+                                                           allowed_ips_vector, fwmark)) {
+                    LOG("WireGuard: configureAdapter() failed");
+                    break;
+                }
+
                 outCmdAnswer.executed = 1;
             } while (0);
         }
@@ -272,34 +262,15 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
     }
     else if (cmdId == HELPER_CMD_INSTALLER_SET_PATH)
     {
-        /*CMD_INSTALLER_FILES_SET_PATH cmd;
-        ia >> cmd;
-        
-        if (files_)
-        {
-            delete files_;
-        }
-        files_ = new Files(cmd.archivePath, cmd.installPath, cmd.userId, cmd.groupId);
-        outCmdAnswer.executed = 1;*/
+        // not used for linux
     }
     else if (cmdId == HELPER_CMD_INSTALLER_EXECUTE_COPY_FILE)
     {
-        /*if (files_)
-        {
-            outCmdAnswer.executed = files_->executeStep();
-            if (outCmdAnswer.executed == -1)
-            {
-                outCmdAnswer.body = files_->getLastError();
-            }
-            if (outCmdAnswer.executed == -1 || outCmdAnswer.executed == 100)
-            {
-                delete files_;
-                files_ = NULL;
-            }
-        }*/
+        // not used for linux
     }
     else if (cmdId == HELPER_CMD_APPLY_CUSTOM_DNS)
     {
+        //todo
         /*CMD_APPLY_CUSTOM_DNS cmd;
         ia >> cmd;
         

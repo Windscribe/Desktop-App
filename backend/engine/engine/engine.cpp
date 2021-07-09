@@ -1654,6 +1654,8 @@ void Engine::onConnectionManagerConnected()
     #elif defined(Q_OS_WIN)
                 Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
                 helper_win->executeChangeMtu(adapterName, mtuForProtocol);
+    #elif defined(Q_OS_LINUX)
+                //todo
     #endif
             }
             else

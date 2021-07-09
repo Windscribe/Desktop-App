@@ -13,7 +13,7 @@ public:
     void setDeviceName(const std::string &deviceName);
     bool configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
         const std::string &peerPresharedKey, const std::string &peerEndpoint,
-        const std::vector<std::string> &allowedIps);
+        const std::vector<std::string> &allowedIps, uint32_t fwmark);
     unsigned long getStatus(unsigned int *errorCode, unsigned long long *bytesReceived,
                             unsigned long long *bytesTransmitted);
 

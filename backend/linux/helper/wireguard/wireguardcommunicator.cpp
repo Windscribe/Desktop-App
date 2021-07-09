@@ -141,7 +141,7 @@ void WireGuardCommunicator::setDeviceName(const std::string &deviceName)
 
 bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
-    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps)
+    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps, uint32_t fwmark)
 {
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
@@ -152,12 +152,13 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
     // Send set command.
     fputs("set=1\n", connection);
     fprintf(connection,
+        "fwmark=%u\n"
         "private_key=%s\n"
         "replace_peers=true\n"
         "public_key=%s\n"
         "endpoint=%s\n"
         "persistent_keepalive_interval=0\n",
-        clientPrivateKey.c_str(), peerPublicKey.c_str(), peerEndpoint.c_str());
+        fwmark, clientPrivateKey.c_str(), peerPublicKey.c_str(), peerEndpoint.c_str());
     if (!peerPresharedKey.empty())
         fprintf(connection, "preshared_key=%s\n", peerPresharedKey.c_str());
     fprintf(connection, "%s", "replace_allowed_ips=true\n");
@@ -169,6 +170,10 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
     // Check results.
     Connection::ResultMap results{ std::make_pair("errno", "") };
     bool success = connection.getOutput(&results);
+    for (auto it = results.begin(); it != results.end(); ++it)
+        {
+            LOG("%s = %s", it->first.c_str(), it->second.c_str());
+        }
     if (success)
         success = stringToValue<int>(results["errno"]) == 0;
     return success;

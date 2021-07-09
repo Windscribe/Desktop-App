@@ -11,20 +11,6 @@
 
 namespace
 {
-std::string GetNetMaskFromCidr(int cidr) 
-{
-    std::stringstream netmask;
-    for (int byte_index = 0; byte_index < 4; ++byte_index) {
-        int byte_value = 0;
-        const int test = std::min( 8, cidr - byte_index * 8 );
-        for (int bit_index = 0; bit_index < test; ++bit_index)
-            byte_value |= 1 << (7-bit_index);
-        if (byte_index > 0)
-            netmask << ".";
-        netmask << byte_value;
-    }
-    return netmask.str();
-}
 
 bool RunBlockingCommands(const std::vector<std::string> &cmdlist)
 {
@@ -44,7 +30,7 @@ bool RunBlockingCommands(const std::vector<std::string> &cmdlist)
 }
 
 WireGuardAdapter::WireGuardAdapter(const std::string &name)
-    : name_(name), is_dns_server_set_(false), has_default_route_(false)
+    : name_(name), is_dns_server_set_(false), has_default_route_(false), fwmark_(0)
 {
 }
 
@@ -55,15 +41,9 @@ WireGuardAdapter::~WireGuardAdapter()
 
 bool WireGuardAdapter::setIpAddress(const std::string &address)
 {
-    std::vector<std::string> address_and_cidr;
-    boost::split(address_and_cidr, address, boost::is_any_of("/"), boost::token_compress_on);
-    int cidr = 32;
-    if (address_and_cidr.size() > 1)
-        cidr = static_cast<int>(strtol(address_and_cidr[1].c_str(), nullptr, 10));
     std::vector<std::string> cmdlist;
-    cmdlist.push_back("ifconfig " + getName() + " inet " + address + " " + address_and_cidr[0]
-                      + " netmask " + GetNetMaskFromCidr(cidr));
-    cmdlist.push_back("ifconfig " + getName() + " up");
+    cmdlist.push_back("ip -4 address add " + address + " dev " + getName());
+    cmdlist.push_back("ip link set up dev " + getName());
     return RunBlockingCommands(cmdlist);
 }
 
@@ -88,19 +68,83 @@ bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::
     return RunBlockingCommands(cmdlist);
 }
 
-bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps)
+bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps, uint32_t fwmark)
 {
+    allowedIps_ = allowedIps;
+    fwmark_ = fwmark;
+
     std::vector<std::string> cmdlist;
     for (const auto &ip : allowedIps) {
         if (boost::algorithm::ends_with(ip, "/0")) {
             has_default_route_ = true;
-            cmdlist.push_back("route -n add 0.0.0.0/1 dev " + getName());
-            cmdlist.push_back("route -n add 128.0.0.0/1 dev " + getName());
+            cmdlist.push_back("ip -4 route add " + ip + " dev " + getName() + " table " + std::to_string(fwmark));
+            cmdlist.push_back("ip -4 rule add not fwmark " + std::to_string(fwmark) + " table " + std::to_string(fwmark));
+            cmdlist.push_back("ip -4 rule add table main suppress_prefixlength 0");
         } else {
-            cmdlist.push_back("route -n add \"" + ip + "\" dev " + getName());
+
+            std::vector<std::string> args;
+            args.push_back("-4");
+            args.push_back("route");
+            args.push_back("show");
+            args.push_back("dev");
+            args.push_back(getName());
+            args.push_back("match");
+            args.push_back(ip);
+
+            std::string output;
+            Utils::executeCommand("ip", args, &output, false);
+            if (output.empty())
+            {
+                cmdlist.push_back("ip -4 route add " + ip + " dev " + getName());
+            }
         }
     }
     return RunBlockingCommands(cmdlist);
+}
+
+bool WireGuardAdapter::disableRouting()
+{
+    if (allowedIps_.empty() && fwmark_ == 0)
+    {
+        return true;
+    }
+
+    while (true)
+    {
+        std::vector<std::string> args;
+        args.push_back("-4");
+        args.push_back("rule");
+        args.push_back("show");
+
+        std::string output;
+        Utils::executeCommand("ip", args, &output, false);
+
+        std::string match_str = "lookup " + std::to_string(fwmark_);
+        std::string match_str2 = "from all lookup main suppress_prefixlength 0";
+        bool bContinue = false;
+
+        if (output.find(match_str) != std::string::npos)
+        {
+            std::vector<std::string> cmdlist;
+            cmdlist.push_back("ip -4 rule delete table "+ std::to_string(fwmark_));
+            RunBlockingCommands(cmdlist);
+            bContinue = true;
+        }
+        if (output.find(match_str2) != std::string::npos)
+        {
+            std::vector<std::string> cmdlist;
+            cmdlist.push_back("ip -4 rule delete table main suppress_prefixlength 0");
+            RunBlockingCommands(cmdlist);
+            bContinue = true;
+        }
+
+        if (!bContinue)
+        {
+            break;
+        }
+    }
+
+    return true;
 }
 
 bool WireGuardAdapter::flushDnsServer()

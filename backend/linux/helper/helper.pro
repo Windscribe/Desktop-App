@@ -21,7 +21,6 @@ SOURCES += \
         main.cpp \
         server.cpp \
         utils.cpp \
-        wireguard/defaultroutemonitor.cpp \
         wireguard/wireguardadapter.cpp \
         wireguard/wireguardcommunicator.cpp \
         wireguard/wireguardcontroller.cpp
@@ -39,7 +38,6 @@ HEADERS += \
     logger.h \
     server.h \
     utils.h \
-    wireguard/defaultroutemonitor.h \
     wireguard/wireguardadapter.h \
     wireguard/wireguardcommunicator.h \
     wireguard/wireguardcontroller.h

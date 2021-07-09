@@ -16,8 +16,6 @@ unsigned long ExecuteCmd::execute(const char *cmd)
     std::string str = cmd;
     boost::thread(runCmd, curCmdId_, str);
     
-    //syslog(LOG_NOTICE, "ExecuteCmd::execute, %ld", curCmdId_);
-    
     return curCmdId_;
 }
 
@@ -40,8 +38,6 @@ void ExecuteCmd::getStatus(unsigned long cmdId, bool &bFinished, std::string &lo
         }
     }
     mutex_.unlock();
-    
-    //syslog(LOG_NOTICE, "ExecuteCmd::getStatus, %ld, %d", curCmdId_, bFinished);
 }
 
 void ExecuteCmd::clearCmds()
@@ -53,8 +49,6 @@ void ExecuteCmd::clearCmds()
     }
     executingCmds_.clear();
     mutex_.unlock();
-    
-    //syslog(LOG_NOTICE, "ExecuteCmd::clearCmds");
 }
 
 
