@@ -118,6 +118,9 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
             str = QString("route %1 255.255.255.255 %2\r\n").arg(ip).arg(defaultGateway);
             file_.write(str.toLocal8Bit());
         }
+    #elif defined(Q_OS_LINUX)
+        str = QString("route %1 255.255.255.255 192.168.1.1\r\n").arg(ip);
+        file_.write(str.toLocal8Bit());
     #endif
 
     }
@@ -133,6 +136,13 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
     QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
     QString cmd1 = "\nup \"" + strDnsPath + " -up\"\n";
     file_.write(cmd1.toUtf8());
+#elif defined(Q_OS_LINUX)
+    str = "--script-security 2\r\n";
+    file_.write(str.toLocal8Bit());
+    QString cmd1 = "\nup /etc/openvpn/update-resolv-conf\n";
+    QString cmd2 = "\ndown /etc/openvpn/update-resolv-conf\n";
+    file_.write(cmd1.toUtf8());
+    file_.write(cmd2.toUtf8());
 #endif
 
     // concatenate with windscribe_extra.conf file, if it exists

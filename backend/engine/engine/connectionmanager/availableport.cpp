@@ -4,7 +4,7 @@
 #ifdef Q_OS_WIN
     #include <winsock2.h>
     #include <ws2tcpip.h>
-#elif defined Q_OS_MAC
+#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     #include <netdb.h>
     #include <unistd.h>
 #endif
@@ -51,7 +51,7 @@ unsigned int AvailablePort::getAvailablePort(unsigned int defaultPort)
     freeaddrinfo(result);
     closesocket(sock);
     return retPort;
-#elif defined Q_OS_MAC
+#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if  (sock < 0)
     {
@@ -79,9 +79,5 @@ unsigned int AvailablePort::getAvailablePort(unsigned int defaultPort)
     unsigned int retPort = ntohs(serv_addr.sin_port);
     close (sock);
     return retPort;
-#elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    return 45445;
 #endif
 }
