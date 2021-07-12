@@ -20,6 +20,10 @@ int InstallAuthHelper::executeStep()
 	// First register the proxy stub lib
 	std::wstring authProxyStubLib = Path::AddBackslash(installPath_) + L"ws_proxy_stub.dll";
 
+	// Intentionally linking via "LoadLibrary" method to reduce compile/static link time dependencies:
+	// * authhelper ws_com exports.h
+	// * authhelper ws_com ws_com.lib
+	// We still require run-time dynamic linking with DLL at executable location
 	HINSTANCE hProxyStubLib = LoadLibrary(authProxyStubLib.c_str());
 	if (hProxyStubLib == NULL)
 	{
@@ -62,13 +66,14 @@ int InstallAuthHelper::executeStep()
 		lastError_ = L"An error occurred when loading the Auth Helper library: ";
 		return -1;
 	}
-
-	typedef HRESULT (*someFunc) (const wchar_t *, const wchar_t *, const wchar_t *);
+	
+	typedef HRESULT(__stdcall *someFunc) (const std::wstring &, const std::wstring &, const std::wstring &);
 	someFunc RegisterServerWithTargetPaths = (someFunc)::GetProcAddress(hLib, "RegisterServerWithTargetPaths");
 
 	if (RegisterServerWithTargetPaths != NULL)
 	{
-		HRESULT result = RegisterServerWithTargetPaths(installPath_.c_str(), installPath_.c_str(), installPath_.c_str());
+
+		HRESULT result = RegisterServerWithTargetPaths(installPath_, installPath_, installPath_);
 
 		if (FAILED(result))
 		{

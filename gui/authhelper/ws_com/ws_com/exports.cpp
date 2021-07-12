@@ -40,7 +40,7 @@ STDAPI DllCanUnloadNow()
 	return S_FALSE;
 }
 
-STDAPI RegisterServerWithTargetPaths(const wchar_t * comPath, const wchar_t * proxyPath, const wchar_t * serverPath)
+STDAPI RegisterServerWithTargetPaths(const std::wstring &comPath, const std::wstring &proxyPath, const std::wstring &serverPath)
 {
 	// startConsole();
 	// CLSID reg entries are added to registry by default by running regsvr32 against this dll
@@ -50,12 +50,14 @@ STDAPI RegisterServerWithTargetPaths(const wchar_t * comPath, const wchar_t * pr
 	WCHAR szClsid[MAX_PATH] = L"";
 	StringFromCLSID(CLSID_AUTH_HELPER, &lpwszClsid);
 	wsprintf(szClsid, L"%s", lpwszClsid);
+	CoTaskMemFree(lpwszClsid);
 
 	// get iid authhelper
 	WCHAR *lpwszIidComponentInterface;
 	StringFromCLSID(IID_AUTH_HELPER, &lpwszIidComponentInterface);
 	WCHAR szIid[MAX_PATH] = L"";
 	wsprintf(szIid, L"%s", lpwszIidComponentInterface);
+	CoTaskMemFree(lpwszIidComponentInterface);
 
 	// CLSID subkey
 	WCHAR szClsidSubKey[MAX_PATH] = L"";
@@ -80,9 +82,9 @@ STDAPI RegisterServerWithTargetPaths(const wchar_t * comPath, const wchar_t * pr
 	WCHAR szComDllPath[MAX_PATH] = L"";
 	WCHAR szStubProxyPath[MAX_PATH] = L"";
 	WCHAR szComServerPath[MAX_PATH] = L"";
-	wsprintf(szComDllPath, L"%s\\%s", comPath, comDllName.c_str());
-	wsprintf(szStubProxyPath, L"%s\\%s", proxyPath, comProxyStubName.c_str());
-	wsprintf(szComServerPath, L"%s\\%s", serverPath, comServerName.c_str());
+	wsprintf(szComDllPath, L"%s\\%s", comPath.c_str(), comDllName.c_str());
+	wsprintf(szStubProxyPath, L"%s\\%s", proxyPath.c_str(), comProxyStubName.c_str());
+	wsprintf(szComServerPath, L"%s\\%s", serverPath.c_str(), comServerName.c_str());
 
 	wsprintf(szLocalizedString, L"@%s,-101", szComDllPath);
 	wsprintf(szIconReferenceString, L"@%s,-102", szComDllPath);
@@ -134,12 +136,12 @@ STDAPI RegisterServerWithTargetPaths(const wchar_t * comPath, const wchar_t * pr
 STDAPI DllRegisterServer()
 {
 #ifdef NDEBUG
-	RegisterServerWithTargetPaths(installPath.c_str(), installPath.c_str(), installPath.c_str());
+	RegisterServerWithTargetPaths(installPath, installPath, installPath);
 #else
 	const std::wstring comDllPath       = L"C:\\work\\client-desktop\\gui\\authhelper\\ws_com\\Debug";
 	const std::wstring comProxyStubPath = L"C:\\work\\client-desktop\\gui\\authhelper\\ws_proxy_stub\\Debug";
 	const std::wstring comServerPath    = L"C:\\work\\client-desktop\\gui\\authhelper\\ws_com_server\\Debug";
-	RegisterServerWithTargetPaths(comDllPath.c_str(), comProxyStubPath.c_str(), comServerPath.c_str());
+	RegisterServerWithTargetPaths(comDllPath, comProxyStubPath, comServerPath);
 #endif
 	return S_OK;
 }
@@ -151,6 +153,7 @@ STDAPI DllUnregisterServer()
 	WCHAR szClsid[MAX_PATH] = L"";
 	StringFromCLSID(CLSID_AUTH_HELPER, &lpwszClsid);
 	wsprintf(szClsid, L"%s", lpwszClsid);
+	CoTaskMemFree(lpwszClsid);
 
 	WCHAR szClsidSubKey[MAX_PATH] = L"";
 	wsprintf(szClsidSubKey, L"%s\\%s", L"CLSID", szClsid);
@@ -166,6 +169,7 @@ STDAPI DllUnregisterServer()
 	StringFromCLSID(IID_AUTH_HELPER, &lpwszIidComponentInterface);
 	WCHAR szIid[MAX_PATH] = L"";
 	wsprintf(szIid, L"%s", lpwszIidComponentInterface);
+	CoTaskMemFree(lpwszIidComponentInterface);
 
 	WCHAR szIidSubKey[MAX_PATH] = L"";
 	wsprintf(szIidSubKey, L"%s\\%s", L"Interface", szIid);

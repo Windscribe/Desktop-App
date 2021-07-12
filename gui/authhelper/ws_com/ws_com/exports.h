@@ -1,6 +1,7 @@
 #pragma once
 
 #include <objbase.h>
+#include <string>
 
 #ifdef __cplusplus    // If used by C++ code, 
 extern "C" {          // we need to export the C interface
@@ -11,7 +12,7 @@ STDAPI DllCanUnloadNow();
 STDAPI DllRegisterServer();
 STDAPI DllUnregisterServer();
 
-STDAPI RegisterServerWithTargetPaths(const wchar_t * comPath, const wchar_t * proxyPath, const wchar_t * serverPath);
+STDAPI RegisterServerWithTargetPaths(const std::wstring &comPath, const std::wstring &proxyPath, const std::wstring &serverPath);
 
 STDAPI StartFactories();
 STDAPI StopFactories();
