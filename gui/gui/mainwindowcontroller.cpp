@@ -3029,7 +3029,8 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
     {
         if ((!bottomInfoWindow_->isUpgradeWidgetVisible() && !bottomInfoWindow_->isSharingFeatureVisible())
                 || (curWindow_ != WINDOW_ID_CONNECT && curWindow_ != WINDOW_ID_NOTIFICATIONS)
-                || isLocationsExpanded())
+                || isLocationsExpanded()
+                || (curWindow_ == WINDOW_ID_CONNECT && preferencesState_ != PREFERENCES_STATE_COLLAPSED))
         {
             bottomInfoWindow_->getGraphicsObject()->hide();
             bottomInfoWindow_->setClickable(false);
