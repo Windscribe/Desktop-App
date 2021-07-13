@@ -1,5 +1,5 @@
 #include "wireguardadapter.h"
-#include "../ipc/helper_commands.h"
+#include "../../../../posix_common/helper_commands.h"
 #include "execute_cmd.h"
 #include "utils.h"
 #include "logger.h"

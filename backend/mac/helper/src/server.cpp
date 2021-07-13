@@ -15,7 +15,7 @@
 #include "logger.h"
 #include "execute_cmd.h"
 #include "keychain_utils.h"
-#include "ipc/helper_commands_serialize.h"
+#include "../../../posix_common/helper_commands_serialize.h"
 #include "ipc/helper_security.h"
 #include "macutils.h"
 

@@ -178,6 +178,7 @@ SOURCES += engine/networkstatemanager/networkstatemanager_mac.cpp \
            engine/connectionmanager/networkextensionlog_mac.cpp \
            engine/ping/pinghost_icmp_mac.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_mac.cpp \
+           engine/helper/helper_posix.cpp \
            engine/helper/helper_mac.cpp \
            engine/dnsresolver/dnsutils_mac.cpp \
            engine/macaddresscontroller/macaddresscontroller_mac.cpp
@@ -187,6 +188,7 @@ HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/networkstatemanager/reachabilityevents.h \
                engine/connectionmanager/restorednsmanager_mac.h \
                engine/networkstatemanager/networkstatemanager_mac.h \
+               engine/helper/helper_posix.h \
                engine/helper/helper_mac.h \
                engine/helper/installhelper_mac.h \
                engine/proxy/pmachelpers.h \
