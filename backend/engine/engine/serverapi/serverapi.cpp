@@ -16,6 +16,8 @@
 #include "version/appversion.h"
 #include "../tests/sessionandlocations_test.h"
 
+#include <algorithm>
+
 const int typeIdWireGuardConfig = qRegisterMetaType<QSharedPointer<WireGuardConfig> >("QSharedPointer<WireGuardConfig>");
 
 class ServerAPI::BaseRequest
@@ -479,9 +481,9 @@ void ServerAPI::onRequestTimer()
     const auto current_time = QDateTime::currentMSecsSinceEpoch();
 
     // Remove inactive and timed out requests.
-    QMutableLinkedListIterator<BaseRequest*> it(activeRequests_);
-    while (it.hasNext()) {
-        auto *rd = it.next();
+    auto it = activeRequests_.begin();
+    while (it != activeRequests_.end()) {
+        auto *rd = *it;
         bool inactive = false;
         bool timeout = false;
         if (!rd->isActive()) {
@@ -499,7 +501,10 @@ void ServerAPI::onRequestTimer()
                 handleRequestTimeout(rd);
             }
             delete rd;
-            it.remove();
+            it = activeRequests_.erase(it);
+        }
+        else {
+            ++it;
         }
     }
 }
@@ -907,7 +912,8 @@ void ServerAPI::onDnsResolved(bool success, void *userData, const QStringList &i
     // Make sure the request is pending. This will also handle the case when the request was deleted
     // by the polling thread, so that |userData| became invalid.
     auto *rd = static_cast<BaseRequest*>(userData);
-    if (!activeRequests_.contains(rd) || !rd->isActive())
+    const auto it = std::find(activeRequests_.cbegin(), activeRequests_.cend(), rd);
+    if (it == activeRequests_.cend() || !rd->isActive())
         return;
 
     const auto reply_type = rd->getReplyType();
