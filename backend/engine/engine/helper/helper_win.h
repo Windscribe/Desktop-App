@@ -101,6 +101,8 @@ public:
     bool getWireGuardStatus(WireGuardStatus *status) override;
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
+    bool makeHostsFileWritable();
+
 protected:
     void run() override;
 

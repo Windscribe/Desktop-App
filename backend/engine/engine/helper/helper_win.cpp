@@ -18,7 +18,7 @@
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
 //  the program to connect to the helper socket without starting the service (uncomment for debug purpose)
-//#define DEBUG_DONT_USE_SERVICE
+// #define DEBUG_DONT_USE_SERVICE
 
 SC_HANDLE schSCManager_ = NULL;
 SC_HANDLE schService_ = NULL;
@@ -854,6 +854,20 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
 void Helper_win::setDefaultWireGuardDeviceName(const QString & /*deviceName*/)
 {
     // Nothing to do.
+}
+
+bool Helper_win::makeHostsFileWritable()
+{
+    QMutexLocker locker(&mutex_);
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE, "");
+    if(mpr.success) {
+        qCDebug(LOG_BASIC) << "\"hosts\" file is writable now.";
+    }
+    else {
+        qCDebug(LOG_BASIC) << "Was not able to change \"hosts\" file permissions from read-only.";
+    }
+    return mpr.success;
 }
 
 void Helper_win::run()

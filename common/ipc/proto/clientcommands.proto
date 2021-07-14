@@ -177,42 +177,6 @@ message UpdateWindowInfo
   optional int32 window_center_y = 2 [ default = 2147483647 ];
 }
 
-void Backend::sendMakeHostsFilesWritableWin()
+message MakeHostsWritableWin
 {
-    if (isInitFinished())
-    {
-        IPC::ProtobufCommand<IPCClientCommands::MakeHostsWritableWin> cmd;
-        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
-        connection_->sendCommand(cmd);
-    }
 }
-
-    void sendMakeHostsFilesWritableWin();
-    
-    
-    
-    
-    QMessageBox msgBox;
-    const auto* yesButton = msgBox.addButton(tr("Fix Issue"), QMessageBox::YesRole);
-    msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
-    msgBox.setWindowTitle(QApplication::applicationName());
-    msgBox.setText(tr("Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?"));
-    msgBox.exec();
-    if(msgBox.clickedButton() == yesButton) {
-        if(backend_) {
-            backend_->sendMakeHostsFilesWritableWin();
-        }
-    }
-    return;
-    
-    
-    
-    
-    else if (command->getStringId() == IPCClientCommands::MakeHostsWritableWin::descriptor()->full_name()) {
-#ifdef Q_OS_WIN
-        engine_->makeHostsFileWritableWin();
-#endif
-    }
-    
-    
-    

@@ -119,6 +119,8 @@ public:
     void updateVersion(qint32 windowHandle);
     void stopUpdateVersion();
 
+    void makeHostsFileWritableWin();
+
 public slots:
     void init();
 

@@ -407,6 +407,11 @@ bool EngineServer::handleCommand(IPC::Command *command)
         IPC::ProtobufCommand<IPCClientCommands::UpdateWindowInfo> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::UpdateWindowInfo> *>(command);
         engine_->updateWindowInfo(cmd->getProtoObj().window_center_x(), cmd->getProtoObj().window_center_y());
     }
+    else if (command->getStringId() == IPCClientCommands::MakeHostsWritableWin::descriptor()->full_name()) {
+#ifdef Q_OS_WIN
+        engine_->makeHostsFileWritableWin();
+#endif
+    }
 
     return false;
 }

@@ -1007,6 +1007,19 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
             }
         }
     }
+	else if (cmdId == AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE)
+	{
+		const auto hostsPath = L"C:\\Windows\\System32\\drivers\\etc\\hosts";
+		if (SetFileAttributes(hostsPath, GetFileAttributes(hostsPath) & ~FILE_ATTRIBUTE_READONLY))
+		{
+			mpr.success = true;
+		}
+		else
+		{
+			Logger::instance().out(L"Can't change permissions of \"hosts\" file.");
+			mpr.success = false;
+		}
+	}
 	
 	return mpr;
 }

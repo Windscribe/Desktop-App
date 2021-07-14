@@ -26,6 +26,7 @@
     #include "engine/taputils/checkadapterenable.h"
     #include "engine/taputils/tapinstall_win.h"
     #include "engine/adaptermetricscontroller_win.h"
+    #include "helper/helper_win.h"
 #elif defined Q_OS_MAC
     #include "ipv6controller_mac.h"
     #include "utils/macutils.h"
@@ -510,6 +511,16 @@ void Engine::updateVersion(qint32 windowHandle)
 void Engine::stopUpdateVersion()
 {
     QMetaObject::invokeMethod(this, "stopUpdateVersionImpl");
+}
+
+void Engine::makeHostsFileWritableWin()
+{
+#ifdef Q_OS_WIN
+    const auto winHelper = dynamic_cast<Helper_win*>(helper_);
+    if(winHelper) {
+        winHelper->makeHostsFileWritable();
+    }
+#endif
 }
 
 void Engine::init()
