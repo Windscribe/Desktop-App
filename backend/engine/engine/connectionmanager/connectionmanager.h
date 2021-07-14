@@ -82,7 +82,7 @@ signals:
     void connected();
     void connectingToHostname(const QString &hostname, const QString &ip);
     void disconnected(DISCONNECT_REASON reason);
-    void errorDuringConnection(CONNECTION_ERROR errorCode);
+    void errorDuringConnection(ProtoTypes::ConnectError errorCode);
     void reconnecting();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
@@ -99,7 +99,7 @@ private slots:
     void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
-    void onConnectionError(CONNECTION_ERROR err);
+    void onConnectionError(ProtoTypes::ConnectError err);
     void onConnectionStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionInterfaceUpdated(const QString &interfaceName);
 
@@ -159,7 +159,7 @@ private:
     bool bNeedResetTap_;
     bool bIgnoreConnectionErrorsForOpenVpn_;
     bool bWasSuccessfullyConnectionAttempt_;
-    CONNECTION_ERROR latestConnectionError_;
+    ProtoTypes::ConnectError latestConnectionError_;
 
     QTimer timerReconnection_;
     enum { MAX_RECONNECTION_TIME = 60 * 60 * 1000 };  // 1 hour

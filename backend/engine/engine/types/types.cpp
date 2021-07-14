@@ -1,7 +1,7 @@
 #include "types.h"
 #include <QMetaType>
 
-const int typeIdOpenVpnError = qRegisterMetaType<CONNECTION_ERROR>("CONNECTION_ERROR");
+const int typeIdOpenVpnError = qRegisterMetaType<ProtoTypes::ConnectError>("ProtoTypes::ConnectError");
 const int typeIdProxyOption = qRegisterMetaType<PROXY_OPTION>("PROXY_OPTION");
 const int typeIdLoginRet = qRegisterMetaType<LOGIN_RET>("LOGIN_RET");
 const int typeIdLoginMessage = qRegisterMetaType<LOGIN_MESSAGE>("LOGIN_MESSAGE");

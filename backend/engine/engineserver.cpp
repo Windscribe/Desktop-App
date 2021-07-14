@@ -81,13 +81,13 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
             connect(engine_, SIGNAL(sessionStatusUpdated(apiinfo::SessionStatus)), SLOT(onEngineUpdateSessionStatus(apiinfo::SessionStatus)));
             connect(engine_, SIGNAL(sessionDeleted()), SLOT(onEngineSessionDeleted()));
-            connect(engine_->getConnectStateController(), SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)),
-                    SLOT(onEngineConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)));
+            connect(engine_->getConnectStateController(), SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)),
+                    SLOT(onEngineConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)));
             connect(engine_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onEngineProtocolPortChanged(ProtoTypes::Protocol, uint)));
             connect(engine_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onEngineStatisticsUpdated(quint64,quint64, bool)));
             connect(engine_, SIGNAL(emergencyConnected()), SLOT(onEngineEmergencyConnected()));
             connect(engine_, SIGNAL(emergencyDisconnected()), SLOT(onEngineEmergencyDisconnected()));
-            connect(engine_, SIGNAL(emergencyConnectError(CONNECTION_ERROR)), SLOT(onEngineEmergencyConnectError(CONNECTION_ERROR)));
+            connect(engine_, SIGNAL(emergencyConnectError(ProtoTypes::ConnectError)), SLOT(onEngineEmergencyConnectError(ProtoTypes::ConnectError)));
             connect(engine_, SIGNAL(testTunnelResult(bool)), SLOT(onEngineTestTunnelResult(bool)));
             connect(engine_, SIGNAL(lostConnectionToHelper()), SLOT(onEngineLostConnectionToHelper()));
             connect(engine_, SIGNAL(proxySharingStateChanged(bool, PROXY_SHARING_TYPE)), SLOT(onEngineProxySharingStateChanged(bool, PROXY_SHARING_TYPE)));
@@ -708,7 +708,7 @@ void EngineServer::onEngineMyIpUpdated(const QString &ip, bool /*success*/, bool
     sendCmdToAllAuthorizedAndGetStateClients(cmd, !isDisconnected); // only non-user IP
 }
 
-void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &locationId)
+void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId)
 {
     IPC::ProtobufCommand<IPCServerCommands::ConnectStateChanged> cmd;
 
@@ -739,7 +739,7 @@ void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASO
         cmd.getProtoObj().mutable_connect_state()->set_disconnect_reason((ProtoTypes::DisconnectReason)reason);
         if (reason == DISCONNECTED_WITH_ERROR)
         {
-            cmd.getProtoObj().mutable_connect_state()->set_connect_error((ProtoTypes::ConnectError)err);
+            cmd.getProtoObj().mutable_connect_state()->set_connect_error(err);
         }
     }
     else if (state == CONNECT_STATE_CONNECTED || state == CONNECT_STATE_CONNECTING)
@@ -753,7 +753,7 @@ void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASO
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &locationId)
+void EngineServer::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId)
 {
     sendConnectStateChanged(state, reason, err, locationId);
 }
@@ -789,12 +789,12 @@ void EngineServer::onEngineEmergencyDisconnected()
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineEmergencyConnectError(CONNECTION_ERROR err)
+void EngineServer::onEngineEmergencyConnectError(ProtoTypes::ConnectError err)
 {
     IPC::ProtobufCommand<IPCServerCommands::EmergencyConnectStateChanged> cmd;
     cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_state_type(ProtoTypes::DISCONNECTED);
     cmd.getProtoObj().mutable_emergency_connect_state()->set_disconnect_reason(ProtoTypes::DISCONNECTED_WITH_ERROR);
-    cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_error((ProtoTypes::ConnectError)err);
+    cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_error(err);
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 

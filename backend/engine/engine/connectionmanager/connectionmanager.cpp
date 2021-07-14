@@ -478,7 +478,7 @@ void ConnectionManager::onConnectionReconnecting()
     }
 }
 
-void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
+void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
 {
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_RECONNECTION_TIME_EXCEED ||
         state_ == STATE_AUTO_DISCONNECT || state_ == STATE_ERROR_DURING_CONNECTION)
@@ -489,28 +489,48 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), state_ =" << state_ << ", error =" << (int)err;
     testVPNTunnel_->stopTests();
 
-    if ((err == AUTH_ERROR && bEmitAuthError_) || err == CANT_RUN_OPENVPN || err == NO_OPENVPN_SOCKET ||
-        err == NO_INSTALLED_TUN_TAP || err == ALL_TAP_IN_USE || err == WIREGUARD_CONNECTION_ERROR)
+    if ((err == ProtoTypes::ConnectError::AUTH_ERROR && bEmitAuthError_)
+            || err == ProtoTypes::ConnectError::CANT_RUN_OPENVPN
+            || err == ProtoTypes::ConnectError::NO_OPENVPN_SOCKET
+            || err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP
+            || err == ProtoTypes::ConnectError::ALL_TAP_IN_USE
+            || err == ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR)
     {
         // emit error in disconnected event
         latestConnectionError_ = err;
         state_ = STATE_ERROR_DURING_CONNECTION;
         timerReconnection_.stop();
     }
-    else if ( (!connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NOT_FOUND_WIN || err == IKEV_FAILED_SET_ENTRY_WIN || err == IKEV_FAILED_MODIFY_HOSTS_WIN) ) ||
-              (!connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||
-                                                                       err == IKEV_FAILED_START_MAC || err == IKEV_FAILED_LOAD_PREFERENCES_MAC || err == IKEV_FAILED_SAVE_PREFERENCES_MAC)))
+    else if ( (!connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NOT_FOUND_WIN
+                                                           || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN
+                                                           || err == ProtoTypes::ConnectError::IKEV_FAILED_MODIFY_HOSTS_WIN) )
+            || (!connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_START_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC)))
     {
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
         emit errorDuringConnection(err);
     }
-    else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == WINTUN_OVER_CAPACITY || err == TCP_ERROR ||
-             err == CONNECTED_ERROR || err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS || err == IKEV_FAILED_TO_CONNECT ||
-             (connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NOT_FOUND_WIN || err == IKEV_FAILED_SET_ENTRY_WIN || err == IKEV_FAILED_MODIFY_HOSTS_WIN)) ||
-             (connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||
-                                                                    err == IKEV_FAILED_START_MAC || err == IKEV_FAILED_LOAD_PREFERENCES_MAC || err == IKEV_FAILED_SAVE_PREFERENCES_MAC)) ||
-             (err == AUTH_ERROR && !bEmitAuthError_))
+    else if (err == ProtoTypes::ConnectError::UDP_CANT_ASSIGN
+             || err == ProtoTypes::ConnectError::UDP_NO_BUFFER_SPACE
+             || err == ProtoTypes::ConnectError::UDP_NETWORK_DOWN
+             || err == ProtoTypes::ConnectError::WINTUN_OVER_CAPACITY
+             || err == ProtoTypes::ConnectError::TCP_ERROR
+             || err == ProtoTypes::ConnectError::CONNECTED_ERROR
+             || err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS
+             || err == ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT
+             || (connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NOT_FOUND_WIN
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_MODIFY_HOSTS_WIN))
+             || (connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_START_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC))
+             || (err == ProtoTypes::ConnectError::AUTH_ERROR && !bEmitAuthError_))
     {
         // bIgnoreConnectionErrorsForOpenVpn_ need to prevent handle multiple error messages from openvpn
         if (!bIgnoreConnectionErrorsForOpenVpn_)
@@ -522,12 +542,12 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
                 emit reconnecting();
                 state_ = STATE_RECONNECTING;
                 startReconnectionTimer();
-                if (err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
+                if (err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
                 {
                     bNeedResetTap_ = true;
                 }
                 // for AUTH_ERROR signal disconnected will be emitted automatically
-                if (err != AUTH_ERROR)
+                if (err != ProtoTypes::ConnectError::AUTH_ERROR)
                 {
                     connector_->startDisconnect();
                 }
@@ -548,12 +568,12 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
                         state_ = STATE_RECONNECTING;
                         startReconnectionTimer();
                     }
-                    if (err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
+                    if (err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
                     {
                         bNeedResetTap_ = true;
                     }
                     // for AUTH_ERROR signal disconnected will be emitted automatically
-                    if (err != AUTH_ERROR)
+                    if (err != ProtoTypes::ConnectError::AUTH_ERROR)
                     {
                         connector_->startDisconnect();
                     }
@@ -561,7 +581,7 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
                 else
                 {
                     state_ = STATE_AUTO_DISCONNECT;
-                    if (err != AUTH_ERROR)
+                    if (err != ProtoTypes::ConnectError::AUTH_ERROR)
                     {
                         connector_->startDisconnect();
                     }
@@ -809,7 +829,7 @@ void ConnectionManager::doConnectPart2()
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
-        emit errorDuringConnection(LOCATION_NO_ACTIVE_NODES);
+        emit errorDuringConnection(ProtoTypes::ConnectError::LOCATION_NO_ACTIVE_NODES);
         return;
     }
 
@@ -914,7 +934,7 @@ void ConnectionManager::doConnectPart2()
                 //Q_ASSERT(false);
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                emit errorDuringConnection(CANNOT_OPEN_CUSTOM_CONFIG);
+                emit errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
         } else if (currentConnectionDescr_.protocol.isWireGuardProtocol()) {
@@ -924,7 +944,7 @@ void ConnectionManager::doConnectPart2()
                                         << currentConnectionDescr_.customConfigFilename;
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                emit errorDuringConnection(CANNOT_OPEN_CUSTOM_CONFIG);
+                emit errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
         }
@@ -1086,7 +1106,7 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
         connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
-        connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);
+        connect(connector_, SIGNAL(error(ProtoTypes::ConnectError)), SLOT(onConnectionError(ProtoTypes::ConnectError)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionStatisticsUpdated(quint64,quint64, bool)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionInterfaceUpdated(QString)), Qt::QueuedConnection);
 

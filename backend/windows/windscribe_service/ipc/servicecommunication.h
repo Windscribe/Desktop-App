@@ -55,6 +55,9 @@
 
 #define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
 
+#include <string>
+#include <vector>
+
 struct CMD_FIREWALL_ON
 {
 	bool allowLanTraffic = false;

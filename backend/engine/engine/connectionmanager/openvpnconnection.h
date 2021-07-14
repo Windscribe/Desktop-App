@@ -56,7 +56,7 @@ private:
 
     void setCurrentState(CONNECTION_STATUS state);
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
-    void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECTION_ERROR err);
+    void setCurrentStateAndEmitError(CONNECTION_STATUS state, ProtoTypes::ConnectError err);
     CONNECTION_STATUS getCurrentState() const;
     bool runOpenVPN(unsigned int port, const ProxySettings &proxySettings, unsigned long &outCmdId);
 

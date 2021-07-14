@@ -3240,7 +3240,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     }
     else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_MODIFY_HOSTS_WIN)
     {
-        msg = tr("IKEv2 connection failed, hosts file is not writable. You can switch to UDP or TCP connection modes and try to connect again.");
+
     }
     else if (connectState.connect_error() == ProtoTypes::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC)
     {

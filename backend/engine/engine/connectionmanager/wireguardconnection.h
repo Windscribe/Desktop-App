@@ -45,7 +45,7 @@ private:
     ConnectionState getCurrentState() const;
     void setCurrentState(ConnectionState state);
     void setCurrentStateAndEmitSignal(ConnectionState state);
-    void setError(CONNECTION_ERROR err);
+    void setError(ProtoTypes::ConnectError err);
 
     std::unique_ptr<WireGuardConnectionImpl> pimpl_;
     ConnectionState current_state_;

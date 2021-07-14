@@ -145,7 +145,7 @@ signals:
 
     void emergencyConnected();
     void emergencyDisconnected();
-    void emergencyConnectError(CONNECTION_ERROR err);
+    void emergencyConnectError(ProtoTypes::ConnectError err);
 
     void sendDebugLogFinished(bool bSuccess);
     void confirmEmailFinished(bool bSuccess);
@@ -244,7 +244,7 @@ private slots:
     void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
     void onConnectionManagerReconnecting();
-    void onConnectionManagerError(CONNECTION_ERROR err);
+    void onConnectionManagerError(ProtoTypes::ConnectError err);
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
@@ -270,7 +270,7 @@ private slots:
 
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
-    void onEmergencyControllerError(CONNECTION_ERROR err);
+    void onEmergencyControllerError(ProtoTypes::ConnectError err);
 
     void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials);
 
@@ -290,7 +290,7 @@ private slots:
 
     void stopPacketDetectionImpl();
 
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
 
     void fetchWireGuardConfig();
 

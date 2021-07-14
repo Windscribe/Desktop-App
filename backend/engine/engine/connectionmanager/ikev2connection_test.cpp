@@ -7,7 +7,7 @@
 // void connected();
 // void disconnected();
 // void reconnecting();
-// void error(CONNECTION_ERROR err);
+// void error(ProtoTypes::ConnectError err);
 // void statisticsUpdated(quint64 bytesIn, quint64 bytesOut);
 
 // errors for win
@@ -62,7 +62,7 @@ void IKEv2Connection_test::startConnect(const QString &configPathOrUrl, const QS
     connect(state1, &QState::entered, this, [this]
     {
         QThread::msleep(2000);
-        emit error(IKEV_FAILED_TO_CONNECT);
+        emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
         //emit error(AUTH_ERROR);
         //isConnected_ = false;
         //emit disconnected();

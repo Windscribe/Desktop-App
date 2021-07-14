@@ -57,6 +57,7 @@ enum ConnectError
   WIREGUARD_CONNECTION_ERROR = 32;
   // emergency
   EMERGENCY_FAILED_CONNECT = 33;
+  WINTUN_OVER_CAPACITY = 34;
 }
 
 enum DisconnectReason

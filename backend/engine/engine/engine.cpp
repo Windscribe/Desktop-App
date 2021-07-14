@@ -80,7 +80,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     guiWindowHandle_(0)
 {
     connectStateController_ = new ConnectStateController(nullptr);
-    connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
+    connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)));
     emergencyConnectStateController_ = new ConnectStateController(nullptr);
     OpenVpnVersionController::instance().setUseWinTun(engineSettings.isUseWintun());
 }
@@ -345,7 +345,7 @@ void Engine::emergencyConnectClick()
     }
     else
     {
-        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, NO_CONNECT_ERROR);
+        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
         emit emergencyDisconnected();
     }
 }
@@ -360,7 +360,7 @@ void Engine::emergencyDisconnectClick()
     }
     else
     {
-        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, NO_CONNECT_ERROR);
+        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
         emit emergencyDisconnected();
     }
 }
@@ -587,7 +587,7 @@ void Engine::init()
     connect(connectionManager_, SIGNAL(connected()), SLOT(onConnectionManagerConnected()));
     connect(connectionManager_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onConnectionManagerDisconnected(DISCONNECT_REASON)));
     connect(connectionManager_, SIGNAL(reconnecting()), SLOT(onConnectionManagerReconnecting()));
-    connect(connectionManager_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onConnectionManagerError(CONNECTION_ERROR)));
+    connect(connectionManager_, SIGNAL(errorDuringConnection(ProtoTypes::ConnectError)), SLOT(onConnectionManagerError(ProtoTypes::ConnectError)));
     connect(connectionManager_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionManagerStatisticsUpdated(quint64,quint64, bool)));
     connect(connectionManager_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionManagerInterfaceUpdated(QString)));
     connect(connectionManager_, SIGNAL(testTunnelResult(bool, QString)), SLOT(onConnectionManagerTestTunnelResult(bool, QString)));
@@ -616,7 +616,7 @@ void Engine::init()
     emergencyController_->setPacketSize(packetSize_);
     connect(emergencyController_, SIGNAL(connected()), SLOT(onEmergencyControllerConnected()));
     connect(emergencyController_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onEmergencyControllerDisconnected(DISCONNECT_REASON)));
-    connect(emergencyController_, SIGNAL(errorDuringConnection(CONNECTION_ERROR)), SLOT(onEmergencyControllerError(CONNECTION_ERROR)));
+    connect(emergencyController_, SIGNAL(errorDuringConnection(ProtoTypes::ConnectError)), SLOT(onEmergencyControllerError(ProtoTypes::ConnectError)));
 
     customConfigs_ = new customconfigs::CustomConfigs(this);
     customConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
@@ -956,7 +956,7 @@ void Engine::connectClickImpl(const LocationID &locationId)
 
     if (isBlockConnect_ && !locationId_.isCustomConfigsLocation())
     {
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECTION_BLOCKED);
+        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ProtoTypes::ConnectError::CONNECTION_BLOCKED);
         getMyIPController_->getIPFromDisconnectedState(1);
         return;
     }
@@ -1236,7 +1236,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
         if (!emergencyController_->isDisconnected())
         {
             emergencyController_->blockingDisconnect();
-            emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, NO_CONNECT_ERROR);
+            emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
             emit emergencyDisconnected();
 
             qCDebug(LOG_BASIC) << "Update ip after emergency connect";
@@ -1705,7 +1705,7 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
         getMyIPController_->getIPFromDisconnectedState(1);
     }
 
-    connectStateController_->setDisconnectedState(reason, NO_CONNECT_ERROR);
+    connectStateController_->setDisconnectedState(reason, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
 }
 
 void Engine::onConnectionManagerReconnecting()
@@ -1720,9 +1720,9 @@ void Engine::onConnectionManagerReconnecting()
     connectStateController_->setConnectingState(LocationID());
 }
 
-void Engine::onConnectionManagerError(CONNECTION_ERROR err)
+void Engine::onConnectionManagerError(ProtoTypes::ConnectError err)
 {
-    if (err == AUTH_ERROR)
+    if (err == ProtoTypes::ConnectError::AUTH_ERROR)
     {
         if (connectionManager_->isCustomOvpnConfigCurrentConnection())
         {
@@ -1771,11 +1771,11 @@ void Engine::onConnectionManagerError(CONNECTION_ERROR err)
         emit connectError(IKEV_FAILED_REINSTALL_WAN_WIN);
     }*/
 #ifdef Q_OS_WIN
-    else if (err == NO_INSTALLED_TUN_TAP)
+    else if (err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP)
     {
         //emit connectError(NO_INSTALLED_TUN_TAP);
     }
-    else if (err == ALL_TAP_IN_USE)
+    else if (err == ProtoTypes::ConnectError::ALL_TAP_IN_USE)
     {
         /*if (CheckAdapterEnable::isAdapterDisabled(helper_, "Windscribe VPN"))
         {
@@ -2099,11 +2099,11 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     serverAPI_->enableProxy();
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
 
-    emergencyConnectStateController_->setDisconnectedState(reason, NO_CONNECT_ERROR);
+    emergencyConnectStateController_->setDisconnectedState(reason, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
     emit emergencyDisconnected();
 }
 
-void Engine::onEmergencyControllerError(CONNECTION_ERROR err)
+void Engine::onEmergencyControllerError(ProtoTypes::ConnectError err)
 {
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerError(), err =" << err;
     emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err);
@@ -2126,7 +2126,7 @@ void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::Ser
     {
         qCDebug(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, failed";
         getMyIPController_->getIPFromDisconnectedState(1);
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, COULD_NOT_FETCH_CREDENTAILS);
+        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ProtoTypes::ConnectError::COULD_NOT_FETCH_CREDENTAILS);
     }
 }
 
@@ -2480,14 +2480,14 @@ void Engine::doConnect(bool bEmitAuthError)
     QSharedPointer<locationsmodel::BaseLocationInfo> bli = locationsModel_->getMutableLocationInfoById(locationId_);
     if (bli.isNull())
     {
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, LOCATION_NOT_EXIST);
+        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ProtoTypes::ConnectError::LOCATION_NOT_EXIST);
         getMyIPController_->getIPFromDisconnectedState(1);
         qCDebug(LOG_BASIC) << "Engine::connectError(LOCATION_NOT_EXIST)";
         return;
     }
     if (!bli->isExistSelectedNode())
     {
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, LOCATION_NO_ACTIVE_NODES);
+        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ProtoTypes::ConnectError::LOCATION_NO_ACTIVE_NODES);
         getMyIPController_->getIPFromDisconnectedState(1);
         qCDebug(LOG_BASIC) << "Engine::connectError(LOCATION_NO_ACTIVE_NODES)";
         return;
@@ -2602,7 +2602,7 @@ void Engine::stopPacketDetectionImpl()
     packetSizeController_->earlyStop();
 }
 
-void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECTION_ERROR /*err*/, const LocationID & /*location*/)
+void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ProtoTypes::ConnectError /*err*/, const LocationID & /*location*/)
 {
     if (helper_)
     {

@@ -35,7 +35,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
      connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
      connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
      connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
-     connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);
+     connect(connector_, SIGNAL(error(ProtoTypes::ConnectError)), SLOT(onConnectionError(ProtoTypes::ConnectError)), Qt::QueuedConnection);
 
      makeOVPNFile_ = new MakeOVPNFile();
 }
@@ -216,7 +216,7 @@ void EmergencyController::onConnectionDisconnected()
             }
             else
             {
-                emit errorDuringConnection(EMERGENCY_FAILED_CONNECT);
+                emit errorDuringConnection(ProtoTypes::ConnectError::EMERGENCY_FAILED_CONNECT);
                 state_ = STATE_DISCONNECTED;
             }
             break;
@@ -244,19 +244,27 @@ void EmergencyController::onConnectionReconnecting()
     }
 }
 
-void EmergencyController::onConnectionError(CONNECTION_ERROR err)
+void EmergencyController::onConnectionError(ProtoTypes::ConnectError err)
 {
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionError(), err =" << err;
 
     connector_->startDisconnect();
-    if (err == AUTH_ERROR || err == CANT_RUN_OPENVPN || err == NO_OPENVPN_SOCKET ||
-        err == NO_INSTALLED_TUN_TAP || err == ALL_TAP_IN_USE)
+    if (err == ProtoTypes::ConnectError::AUTH_ERROR
+            || err == ProtoTypes::ConnectError::CANT_RUN_OPENVPN
+            || err == ProtoTypes::ConnectError::NO_OPENVPN_SOCKET
+            || err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP
+            || err == ProtoTypes::ConnectError::ALL_TAP_IN_USE)
     {
         // emit error in disconnected event
         state_ = STATE_ERROR_DURING_CONNECTION;
     }
-    else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == WINTUN_OVER_CAPACITY || err == TCP_ERROR ||
-             err == CONNECTED_ERROR || err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
+    else if (err == ProtoTypes::ConnectError::UDP_CANT_ASSIGN
+             || err == ProtoTypes::ConnectError::UDP_NO_BUFFER_SPACE
+             || err == ProtoTypes::ConnectError::UDP_NETWORK_DOWN
+             || err == ProtoTypes::ConnectError::WINTUN_OVER_CAPACITY
+             || err == ProtoTypes::ConnectError::TCP_ERROR
+             || err == ProtoTypes::ConnectError::CONNECTED_ERROR
+             || err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
     {
         if (state_ == STATE_CONNECTED)
         {
