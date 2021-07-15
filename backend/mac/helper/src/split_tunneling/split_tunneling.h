@@ -8,7 +8,7 @@
 #include "../routes_manager/routes_manager.h"
 #include "../ip_hostnames/ip_hostnames_manager.h"
 #include "routes.h"
-#include "../ipc/helper_commands.h"
+#include "../../../../posix_common/helper_commands.h"
 
 class SplitTunneling
 {

@@ -9,7 +9,7 @@
 #include <boost/thread.hpp>
 #include <list>
 
-#include "helper_commands.h"
+#include "../../../posix_common/helper_commands.h"
 #include "split_tunneling.h"
 #include "defaultroutemonitor.h"
 #include "wireguardadapter.h"

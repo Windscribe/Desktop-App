@@ -178,6 +178,7 @@ SOURCES += engine/networkstatemanager/networkstatemanager_mac.cpp \
            engine/connectionmanager/networkextensionlog_mac.cpp \
            engine/ping/pinghost_icmp_mac.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_mac.cpp \
+           engine/helper/helper_posix.cpp \
            engine/helper/helper_mac.cpp \
            engine/dnsresolver/dnsutils_mac.cpp \
            engine/macaddresscontroller/macaddresscontroller_mac.cpp
@@ -187,6 +188,7 @@ HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/networkstatemanager/reachabilityevents.h \
                engine/connectionmanager/restorednsmanager_mac.h \
                engine/networkstatemanager/networkstatemanager_mac.h \
+               engine/helper/helper_posix.h \
                engine/helper/helper_mac.h \
                engine/helper/installhelper_mac.h \
                engine/proxy/pmachelpers.h \
@@ -257,6 +259,51 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 } # end macx
 
 
+linux {
+
+#boost include and libs
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_system.a
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
+LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
+LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
+
+#protobuf include and libs
+INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
+
+#c-ares library
+INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
+LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
+
+SOURCES += \
+           $$COMMON_PATH/utils/linuxutils.cpp \
+           engine/ping/pinghost_icmp_mac.cpp \
+           engine/dnsresolver/dnsutils_linux.cpp \
+           engine/helper/helper_posix.cpp \
+           engine/helper/helper_linux.cpp \
+           engine/networkstatemanager/networkstatemanager_linux.cpp \
+           engine/firewall/firewallcontroller_linux.cpp \
+           engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
+           engine/macaddresscontroller/macaddresscontroller_linux.cpp
+
+HEADERS += \
+           $$COMMON_PATH/utils/linuxutils.h \
+           engine/ping/pinghost_icmp_mac.h \
+           engine/helper/helper_posix.h \
+           engine/helper/helper_linux.h \
+           engine/networkstatemanager/networkstatemanager_linux.h \
+           engine/firewall/firewallcontroller_linux.h \
+           engine/networkdetectionmanager/networkdetectionmanager_linux.h \
+           engine/macaddresscontroller/macaddresscontroller_linux.h
+} # unix
+
+
+
+
 SOURCES += main.cpp \
     $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.cc \
@@ -325,7 +372,6 @@ SOURCES += main.cpp \
     engine/logincontroller/getapiaccessips.cpp \
     engine/helper/initializehelper.cpp \
     engine/refetchservercredentialshelper.cpp \
-    localhttpserver/localhttpserver.cpp \
     engine/vpnshare/httpproxyserver/httpproxyserver.cpp \
     engine/vpnshare/httpproxyserver/httpproxyconnectionmanager.cpp \
     engine/vpnshare/httpproxyserver/httpproxyconnection.cpp \
@@ -360,7 +406,6 @@ SOURCES += main.cpp \
     engine/dnsresolver/dnsserversconfiguration.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
-    engine/connectionmanager/ikev2connection_test.cpp \
     engine/helper/simple_xor_crypt.cpp \
     engine/tests/sessionandlocations_test.cpp \
     engine/sessionstatustimer.cpp \
@@ -477,7 +522,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/logincontroller/getapiaccessips.h \
     engine/helper/initializehelper.h \
     engine/refetchservercredentialshelper.h \
-    localhttpserver/localhttpserver.h \
     engine/connectionmanager/availableport.h \
     engine/vpnshare/httpproxyserver/httpproxyserver.h \
     engine/vpnshare/httpproxyserver/httpproxyconnectionmanager.h \
@@ -516,7 +560,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/dnsresolver/dnsserversconfiguration.h \
     engine/dnsresolver/dnsresolver.h \
     engine/types/protocoltype.h \
-    engine/connectionmanager/ikev2connection_test.h \
     engine/helper/simple_xor_crypt.h \
     engine/tests/sessionandlocations_test.h \
     engine/sessionstatustimer.h \

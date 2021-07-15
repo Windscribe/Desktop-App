@@ -1,4 +1,4 @@
-    #include "mainwindow.h"
+#include "mainwindow.h"
 
 #include <QMouseEvent>
 #include <QTimer>
@@ -107,9 +107,11 @@ MainWindow::MainWindow() :
         while (trayIcon_.geometry().isEmpty())
             qApp->processEvents();
     }
-#else
+#elif defined Q_OS_WIN
     while (trayIcon_.geometry().isEmpty())
         qApp->processEvents();
+#elif defined Q_OS_LINUX
+    //todo Linux
 #endif
     qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
 
@@ -381,8 +383,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::showAfterLaunch()
 {
+    if(!backend_){
+        qCDebug(LOG_BASIC) << "Backend is nullptr!";
+    }
+
+    if(backend_ && backend_->getPreferences()->isStartMinimized()){
+        showMinimized();
+        return;
+    }
 #ifdef Q_OS_WIN
-    if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
+    else if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
         QCommandLineParser cmdParser;
         cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
         QCommandLineOption osRestartOption("os_restart");
@@ -539,7 +549,6 @@ bool MainWindow::event(QEvent *event)
                 MainWindowState::instance().setActive(false);
             }
         }
-
 
         deactivationTimer_.stop();
 #if defined Q_OS_WIN
@@ -849,6 +858,8 @@ void MainWindow::onCloseClick()
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
     }
 #elif defined Q_OS_MAC
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
+#elif defined Q_OS_LINUX
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
 #endif
 }
@@ -2304,8 +2315,11 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
 #ifdef Q_OS_WIN
             center_x = geometry().x() + geometry().width() / 2;
             center_y = geometry().y() + geometry().height() / 2;
-#else
+#elif defined Q_OS_MAC
             MacUtils::getNSWindowCenter((void *)this->winId(), center_x, center_y);
+#elif defined Q_OS_LINUX
+        //todo linux
+        Q_ASSERT(false);
 #endif
         }
         backend_->sendUpdateWindowInfo(center_x, center_y);
@@ -3188,8 +3202,15 @@ QString MainWindow::getConnectionTime()
 {
     if (connectionElapsedTimer_.isValid())
     {
-        QTime time(0, 0);
-        return time.addMSecs(connectionElapsedTimer_.elapsed()).toString();
+        const auto totalSeconds = connectionElapsedTimer_.elapsed() / 1000;
+        const auto hours = totalSeconds / 3600;
+        const auto minutes = (totalSeconds - hours * 3600) / 60;
+        const auto seconds = (totalSeconds - hours * 3600) % 60;
+
+        return QString("%1:%2:%3")
+                .arg(hours   < 10 ? QString("0%1").arg(hours)   : QString::number(hours))
+                .arg(minutes < 10 ? QString("0%1").arg(minutes) : QString::number(minutes))
+                .arg(seconds < 10 ? QString("0%1").arg(seconds) : QString::number(seconds));
     }
     else
     {

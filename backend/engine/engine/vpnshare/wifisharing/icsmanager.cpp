@@ -6,9 +6,11 @@
 
 #define WINDSCRIBE_UPDATE_ICS_EVENT_NAME L"Global\\WindscribeUpdateIcsEvent1034"
 
-IcsManager::IcsManager(QObject *parent, IHelper *helper) : QThread(parent), helper_(helper),
+IcsManager::IcsManager(QObject *parent, IHelper *helper) : QThread(parent),
     bNeedFinish_(false), isUpdateIcsCmdInProgress_(false), cmdIdInProgress_(0), hWaitFunc_(0)
 {
+    helper_ = dynamic_cast<Helper_win *>(helper);
+    Q_ASSERT(helper_);
     QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QDir dir(strPath);
     dir.mkpath(strPath);

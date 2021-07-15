@@ -2,12 +2,11 @@
 #include <QStandardPaths>
 #include "utils/logger.h"
 #include <QDir>
-#include "engine/helper/ihelper.h"
 
 FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper) :
-    FirewallController(parent, helper), forceUpdateInterfaceToSkip_(false)
+    FirewallController(parent), forceUpdateInterfaceToSkip_(false)
 {
-
+    helper_ = dynamic_cast<Helper_mac *>(helper);
 }
 
 FirewallController_mac::~FirewallController_mac()
@@ -210,7 +209,6 @@ bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTra
         QTextStream ts(&f);
         ts << pf;
         f.close();
-
 
         QString reply = helper_->executeRootCommand("pfctl -v -F all -f \"" + pfConfigFilePath + "\"");
         Q_UNUSED(reply);

@@ -2,7 +2,7 @@
 #define HELPER_MAC_H
 
 #include <string>
-#include "../../../../../backend/mac/helper/src/ipc/helper_commands.h"
+#include "../../../../../backend/posix_common/helper_commands.h"
 
 class Helper_mac
 {

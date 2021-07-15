@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QHash>
-#include "Helper/ihelper.h"
-#include "ConnectStateController/iconnectstatecontroller.h"
+#include "helper/helper_win.h"
+#include "connectstatecontroller/iconnectstatecontroller.h"
 #include <pdh.h>
 
 class MeasurementCpuUsage : public QObject
@@ -24,7 +24,7 @@ private slots:
     void onTimer();
 
 private:
-    IHelper *helper_;
+    Helper_win *helper_;
     PDH_HQUERY hQuery_;
     bool bEnabled_;
 

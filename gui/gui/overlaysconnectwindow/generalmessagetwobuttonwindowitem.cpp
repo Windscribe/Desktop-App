@@ -39,7 +39,7 @@ GeneralMessageTwoButtonWindowItem::GeneralMessageTwoButtonWindowItem(const QStri
     connect(rejectButton_, SIGNAL(hoverEnter()), SLOT(onHoverReject()));
     connect(rejectButton_, SIGNAL(hoverLeave()), SLOT(onHoverLeaveReject()));
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     backgroundIcon_ = "background/WIN_MAIN_BG";
 #else
     backgroundIcon_ = "background/MAC_MAIN_BG";
@@ -72,7 +72,7 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
     {
         QColor black = FontManager::instance().getMidnightColor();
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         painter->fillRect(boundingRect(), black);
 #else
         painter->setPen(black);

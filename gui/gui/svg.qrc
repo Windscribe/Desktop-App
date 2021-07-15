@@ -153,9 +153,9 @@
         <file>svg/macos-windowbuttons/RESIZE_HOVER.svg</file>
         <file>svg/login/EMERGENCY_ICON_ENABLED.svg</file>
         <file>svg/login/EMERGENCY_ICON_DISABLED.svg</file>
-        <file>svg/emergencyConnect/EMERGENCY_CONNECT_ICON.svg</file>
-        <file>svg/emergencyConnect/BIG_SPINNER.svg</file>
-        <file>svg/emergencyConnect/ESC_BUTTON.svg</file>
+        <file>svg/emergencyconnect/EMERGENCY_CONNECT_ICON.svg</file>
+        <file>svg/emergencyconnect/BIG_SPINNER.svg</file>
+        <file>svg/emergencyconnect/ESC_BUTTON.svg</file>
         <file>svg/MAC_CLOSE_DEFAULT.svg</file>
         <file>svg/MAC_CLOSE_HOVER.svg</file>
         <file>svg/MAC_EMPTY_DEFAULT.svg</file>

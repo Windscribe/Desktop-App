@@ -3,7 +3,7 @@
 
 #include <thread>
 #include "kext_monitor.h"
-#include "../ipc/helper_commands.h"
+#include "../../../../posix_common/helper_commands.h"
 
 class KextClient
 {

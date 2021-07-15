@@ -6,7 +6,7 @@
 
 #ifdef Q_OS_WIN
     #include "pinghost_icmp_win.h"
-#else
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     #include "pinghost_icmp_mac.h"
 #endif
 
@@ -42,7 +42,7 @@ private:
     PingHost_TCP pingHostTcp_;
 #ifdef Q_OS_WIN
     PingHost_ICMP_win pingHostIcmp_;
-#else
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     PingHost_ICMP_mac pingHostIcmp_;
 #endif
 

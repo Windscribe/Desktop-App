@@ -30,6 +30,9 @@ public:
     void setHideFromDock(bool b);
 #endif
 
+    bool isStartMinimized() const;
+    void setStartMinimized(bool b);
+
     bool isShowNotifications() const;
     void setShowNotifications(bool b);
 
@@ -78,7 +81,7 @@ public:
     bool isIgnoreSslErrors() const;
     void setIgnoreSslErrors(bool b);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     bool isKillTcpSockets() const;
     void setKillTcpSockets(bool b);
 #endif
@@ -134,6 +137,7 @@ signals:
     void isShowNotificationsChanged(bool b);
     void backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings);
 
+    void isStartMinimizedChanged(bool b);
     void isDockedToTrayChanged(bool b);
     void languageChanged(const QString &lang);
     void locationOrderChanged(ProtoTypes::OrderLocationType o);
@@ -149,7 +153,7 @@ signals:
     void invalidLanAddressNotification(QString address);
     void customConfigsPathChanged(QString path);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     void minimizeAndCloseToTrayChanged(bool b);
     void isKillTcpSocketsChanged(bool b);
     void tapAdapterChanged(ProtoTypes::TapAdapterType tapAdapter);

@@ -22,6 +22,9 @@ WstunnelManager::WstunnelManager(QObject *parent) : QObject(parent), bProcessSta
 #elif defined Q_OS_MAC
     wstunelExePath_ = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewstunnel";
     qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(wstunelExePath_);
+#elif defined Q_OS_LINUX
+    wstunelExePath_ = QCoreApplication::applicationDirPath() + "/windscribewstunnel";
+    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(wstunelExePath_);
 #endif
 }
 
@@ -58,8 +61,8 @@ void WstunnelManager::killProcess()
         bProcessStarted_ = false;
         process_->close();
 
-        // for Mac send kill command
-    #if defined Q_OS_MAC
+        // for Mac/Linux send kill command
+    #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
         QProcess killCmd(this);
         killCmd.execute("killall", QStringList() << "windscribewstunnel");
         killCmd.waitForFinished(-1);

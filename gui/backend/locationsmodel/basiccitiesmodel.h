@@ -35,7 +35,7 @@ protected:
     bool isFreeSessionStatus_;
 
     void clearCities();
-    void sort(QVector<CityModelItem *> &cities);
+    virtual void sort(QVector<CityModelItem *> &cities);
 };
 
 #endif // BASICCITIESMODEL_H

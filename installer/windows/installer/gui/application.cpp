@@ -1,8 +1,8 @@
 #include "Application.h"
 #include "ImageResources.h"
 #include "../../Utils/applicationinfo.h"
-#include "../../installer/downloader.h"
-#include "../../installer/installer.h"
+#include "../installer/downloader.h"
+#include "../installer/installer.h"
 #include <shlobj_core.h>
 #include <VersionHelpers.h>
 

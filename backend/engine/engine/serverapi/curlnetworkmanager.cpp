@@ -11,7 +11,7 @@
 CurlNetworkManager::CurlNetworkManager(QObject *parent) : QThread(parent),
     bIgnoreSslErrors_(false), bNeedFinish_(false), bProxyEnabled_(true)
 #ifdef Q_OS_MAC
-    , certPath_(QCoreApplication::applicationDirPath() + "/../Resources/cert.pem")
+    , certPath_(QCoreApplication::applicationDirPath() + "/../resources/cert.pem")
 #endif
 {
 #ifdef MAKE_CURL_LOG_FILE
@@ -238,7 +238,7 @@ void CurlNetworkManager::run()
                             Q_ASSERT(false);
                         }
                         // check if gzip compression used
-                        Q_ASSERT(download < 30000);
+                        //Q_ASSERT(download < 30000);
 
                         curlRequest->setCurlRetCode(m->data.result);
                         emit finished(curlRequest);

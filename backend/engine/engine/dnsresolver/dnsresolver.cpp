@@ -3,7 +3,7 @@
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     #include <netinet/in.h>
     #include <arpa/inet.h>
     #include <netdb.h>

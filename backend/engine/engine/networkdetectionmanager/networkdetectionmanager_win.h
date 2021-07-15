@@ -3,7 +3,7 @@
 
 #include "inetworkdetectionmanager.h"
 #include "networkchangeworkerthread.h"
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper_win.h"
 
 class NetworkDetectionManager_win : public INetworkDetectionManager
 {
@@ -24,7 +24,7 @@ private slots:
     void onNetworkChanged();
 
 private:
-    IHelper *helper_;
+    Helper_win *helper_;
     NetworkChangeWorkerThread *networkWorker_;
     ProtoTypes::NetworkInterface lastSentNetworkInterface_;
 

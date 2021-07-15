@@ -77,8 +77,6 @@
 		000B36D224B8C39300717275 /* bound_route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bound_route.h; sourceTree = "<group>"; };
 		000B36D424B8CB1500717275 /* routes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = routes.h; sourceTree = "<group>"; };
 		000B36D524B8CB1500717275 /* routes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = routes.cpp; sourceTree = "<group>"; };
-		001EE77724B88F9B004624BE /* helper_commands_serialize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_commands_serialize.h; sourceTree = "<group>"; };
-		001EE77824B88F9B004624BE /* helper_commands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_commands.h; sourceTree = "<group>"; };
 		001EE78224B89075004624BE /* kext_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_client.cpp; sourceTree = "<group>"; };
 		001EE78324B89075004624BE /* kext_monitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kext_monitor.h; sourceTree = "<group>"; };
 		001EE78424B89075004624BE /* kext_monitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_monitor.cpp; sourceTree = "<group>"; };
@@ -128,6 +126,8 @@
 		00352E8C25E549CE00E5ED2C /* LzmaDec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LzmaDec.h; sourceTree = "<group>"; };
 		00352E8D25E549CE00E5ED2C /* 7zCrcOpt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = 7zCrcOpt.c; sourceTree = "<group>"; };
 		00352E8E25E549CE00E5ED2C /* 7zBuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = 7zBuf.c; sourceTree = "<group>"; };
+		0087082F269DCADF0084DA1B /* helper_commands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = helper_commands.h; path = ../../../../posix_common/helper_commands.h; sourceTree = "<group>"; };
+		00870830269DCADF0084DA1B /* helper_commands_serialize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = helper_commands_serialize.h; path = ../../../../posix_common/helper_commands_serialize.h; sourceTree = "<group>"; };
 		00AB62AC249142610085A20F /* utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
 		00AB62AD249142610085A20F /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		00B1BA2F25E4E3F60099A124 /* files.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = files.cpp; sourceTree = "<group>"; };
@@ -178,10 +178,10 @@
 		001EE77624B88F52004624BE /* ipc */ = {
 			isa = PBXGroup;
 			children = (
+				00870830269DCADF0084DA1B /* helper_commands_serialize.h */,
+				0087082F269DCADF0084DA1B /* helper_commands.h */,
 				94DCA9A32559C2510052E65B /* helper_security.h */,
 				94DCA9A22559C2510052E65B /* helper_security.mm */,
-				001EE77824B88F9B004624BE /* helper_commands.h */,
-				001EE77724B88F9B004624BE /* helper_commands_serialize.h */,
 			);
 			path = ipc;
 			sourceTree = "<group>";

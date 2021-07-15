@@ -142,6 +142,8 @@ QString OpenVpnVersionController::getOpenVpnBinaryPath()
     QString path = QCoreApplication::applicationDirPath();
 #elif defined Q_OS_MAC
     QString path = QCoreApplication::applicationDirPath() + "/../Helpers";
+#elif defined Q_OS_LINUX
+    QString path = QCoreApplication::applicationDirPath();
 #endif
     return path;
 }

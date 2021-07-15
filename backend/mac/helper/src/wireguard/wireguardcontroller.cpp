@@ -2,7 +2,7 @@
 #include "wireguardadapter.h"
 #include "wireguardcommunicator.h"
 #include "defaultroutemonitor.h"
-#include "../ipc/helper_commands.h"
+#include "../../../../posix_common/helper_commands.h"
 #include "utils.h"
 #include "logger.h"
 #include <boost/algorithm/string/classification.hpp>

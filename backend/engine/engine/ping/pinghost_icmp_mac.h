@@ -7,6 +7,7 @@
 #include <QQueue>
 #include <QMap>
 #include <QProcess>
+#include <QMutex>
 
 // todo proxy support for icmp ping
 class PingHost_ICMP_mac : public QObject

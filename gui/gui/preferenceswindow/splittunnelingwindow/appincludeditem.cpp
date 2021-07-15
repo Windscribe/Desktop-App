@@ -39,7 +39,7 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(appIcon_);
     if (p)
     {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         int size = 18*G_SCALE;
 #elif defined Q_OS_MAC
         int size = p->originalPixmapSize().width();

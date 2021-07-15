@@ -6,7 +6,7 @@
 #include <sys/un.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include "../../../../../backend/mac/helper/src/ipc/helper_commands_serialize.h"
+#include "../../../../../backend/posix_common/helper_commands_serialize.h"
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <sstream>

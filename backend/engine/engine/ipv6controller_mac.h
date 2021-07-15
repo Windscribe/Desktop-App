@@ -1,7 +1,7 @@
 #ifndef IPV6CONTROLLER_MAC_H
 #define IPV6CONTROLLER_MAC_H
 
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper_mac.h"
 
 #include <QMap>
 
@@ -23,7 +23,7 @@ private:
     ~Ipv6Controller_mac();
 
     bool bIsDisabled_;
-    IHelper *helper_;
+    Helper_mac *helper_;
 
 
     QMap<QString, QString> ipv6States_;

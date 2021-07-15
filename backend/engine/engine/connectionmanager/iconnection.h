@@ -16,7 +16,7 @@ class IConnection : public QThread
     Q_OBJECT
 
 public:
-    explicit IConnection(QObject *parent, IHelper *helper): QThread(parent), helper_(helper) {}
+    explicit IConnection(QObject *parent): QThread(parent) {}
     virtual ~IConnection() {}
 
     // config path for openvpn, url for ikev2
@@ -42,9 +42,6 @@ signals:
 
     void requestUsername();
     void requestPassword();
-
-protected:
-    IHelper *helper_;
 };
 
 #endif // ICONNECTION_H

@@ -4,8 +4,8 @@
 #include "MainWindow.h"
 #include "ImageResources.h"
 #include "FontResources.h"
-#include "../../installer/installer_base.h"
-#include "../../installer/settings.h"
+#include "../installer/installer_base.h"
+#include "../installer/settings.h"
 
 class Application
 {

@@ -13,6 +13,12 @@
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "firewall/firewallcontroller_mac.h"
     #include "macaddresscontroller/macaddresscontroller_mac.h"
+#elif defined Q_OS_LINUX
+    #include "helper/helper_linux.h"
+    #include "networkstatemanager/networkstatemanager_linux.h"
+    #include "networkdetectionmanager/networkdetectionmanager_linux.h"
+    #include "firewall/firewallcontroller_linux.h"
+    #include "macaddresscontroller/macaddresscontroller_linux.h"
 #endif
 
 IHelper *CrossPlatformObjectFactory::createHelper(QObject *parent)
@@ -21,6 +27,8 @@ IHelper *CrossPlatformObjectFactory::createHelper(QObject *parent)
     return new Helper_win(parent);
 #elif defined Q_OS_MAC
     return new Helper_mac(parent);
+#elif defined Q_OS_LINUX
+    return new Helper_linux(parent);
 #endif
 }
 
@@ -31,6 +39,9 @@ INetworkStateManager *CrossPlatformObjectFactory::createNetworkStateManager(QObj
 #elif defined Q_OS_MAC
     Q_UNUSED(networkDetectionManager);
     return new NetworkStateManager_mac(parent);
+#elif defined Q_OS_LINUX
+    Q_UNUSED(networkDetectionManager);
+    return new NetworkStateManager_linux(parent);
 #endif
 }
 
@@ -40,6 +51,8 @@ FirewallController *CrossPlatformObjectFactory::createFirewallController(QObject
     return new FirewallController_win(parent, helper);
 #elif defined Q_OS_MAC
     return new FirewallController_mac(parent, helper);
+#elif defined Q_OS_LINUX
+    return new FirewallController_linux(parent, helper);
 #endif
 
 }
@@ -50,6 +63,8 @@ INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionMana
     return new NetworkDetectionManager_win(parent, helper);
 #elif defined Q_OS_MAC
     return new NetworkDetectionManager_mac(parent, helper);
+#elif defined Q_OS_LINUX
+    return new NetworkDetectionManager_linux(parent, helper);
 #endif
 }
 
@@ -60,5 +75,7 @@ IMacAddressController *CrossPlatformObjectFactory::createMacAddressController(QO
     return new MacAddressController_win(parent, static_cast<NetworkDetectionManager_win*>(ndManager));
 #elif defined Q_OS_MAC
     return new MacAddressController_mac(parent, static_cast<NetworkDetectionManager_mac*>(ndManager), helper);
+#elif defined Q_OS_LINUX
+    return new MacAddressController_linux(parent, static_cast<NetworkDetectionManager_linux*>(ndManager), helper);
 #endif
 }
