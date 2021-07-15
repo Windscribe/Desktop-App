@@ -64,11 +64,10 @@ SOURCES += multipleaccountdetection/multipleaccountdetection_win.cpp \
            $$COMMON_PATH/utils/winutils.cpp \
            $$COMMON_PATH/utils/widgetutils_win.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
+           utils/authchecker_win.cpp \
            utils/scaleutils_win.cpp \
            launchonstartup/launchonstartup_win.cpp \
            application/preventmultipleinstances_win.cpp
-
-
 
 HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
            multipleaccountdetection/secretvalue_win.h \
@@ -77,6 +76,7 @@ HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
            $$COMMON_PATH/utils/winutils.h \
            $$COMMON_PATH/utils/widgetutils_win.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
+           utils/authchecker_win.h \
            utils/scaleutils_win.h \
            launchonstartup/launchonstartup_win.h \
            application/preventmultipleinstances_win.h
@@ -287,6 +287,7 @@ SOURCES += \
     tooltips/tooltipcontroller.cpp \
     tooltips/tooltipdescriptive.cpp \
     tooltips/tooltiputil.cpp \
+    utils/authchecker_linux.cpp \
     utils/imagewithshadow.cpp \
     utils/protoenumtostring.cpp \
     commonwidgets/custommenuwidget.cpp \
@@ -539,6 +540,9 @@ HEADERS += \
     tooltips/tooltipdescriptive.h \
     tooltips/tooltiptypes.h \
     tooltips/tooltiputil.h \
+    utils/authchecker_linux.h \
+    utils/authcheckerfactory.h \
+    utils/iauthchecker.h \
     utils/imagewithshadow.h \
     utils/protoenumtostring.h \
     commonwidgets/custommenuwidget.h \

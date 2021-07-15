@@ -194,19 +194,8 @@ bool AuthChecker_mac::authenticate()
 {
     NSArray *cmds = [[NSArray alloc] initWithObjects:dummyCommandForAuthCheck, nil];
     bool success = [g_macAuthCheckerHandler authenticate:cmds];
-    [cmds release];
-    return success;
-}
-
-void AuthChecker_mac::deauthenticate()
-{
     [g_macAuthCheckerHandler deauthenticate];
-}
-
-bool AuthChecker_mac::isAuthenticated()
-{
-    NSArray *cmds = [[NSArray alloc] initWithObjects:dummyCommandForAuthCheck, nil];
-    bool success = [g_macAuthCheckerHandler isAuthenticated:cmds];
     [cmds release];
     return success;
 }
+

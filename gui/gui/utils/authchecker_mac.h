@@ -2,18 +2,16 @@
 #define AUTHCHECKER_MAC_H
 
 #include <QObject>
+#include "iauthchecker.h"
 
-class AuthChecker_mac : public QObject
+class AuthChecker_mac : public IAuthChecker, QObject
 {
     Q_OBJECT
 public:
     explicit AuthChecker_mac(QObject *parent = 0);
     ~AuthChecker_mac();
 
-    bool authenticate();
-    void deauthenticate();
-    bool isAuthenticated();
-
+    bool authenticate() override;
 };
 
 #endif

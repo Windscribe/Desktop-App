@@ -34,11 +34,15 @@
 #include "launchonstartup/launchonstartup.h"
 #include "showingdialogstate.h"
 #include "mainwindowstate.h"
+#include "utils/iauthchecker.h"
+#include "utils/authcheckerfactory.h"
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     #include "utils/winutils.h"
     #include "utils/widgetutils_win.h"
     #include <windows.h>
+#elif defined(Q_OS_LINUX)
+    #include "utils/authchecker_linux.h"
 #else
     #include "utils/interfaceutils_mac.h"
     #include "utils/macutils.h"
@@ -1366,19 +1370,9 @@ void MainWindow::onLocationsAddCustomConfigClicked()
         {
             if (!checker.isElevated())
             {
-                bool authenticated = false;
+                std::unique_ptr<IAuthChecker> authChecker = AuthCheckerFactory::createAuthChecker();
 
-#ifdef Q_OS_MAC
-                AuthChecker_mac authChecker;
-                authenticated = authChecker.authenticate();
-                authChecker.deauthenticate();
-#elif defined Q_OS_WIN
-                authenticated = WinUtils::authorizeWithUac();
-#else
-                // TODO: linux
-#endif
-
-                if (!authenticated)
+                if (!authChecker->authenticate())
                 {
                     qCDebug(LOG_BASIC) << "Cannot change path when non-system directory when windscribe is not elevated.";
                     const QString desc = tr(
