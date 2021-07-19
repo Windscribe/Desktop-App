@@ -1,6 +1,8 @@
 #include "authchecker_linux.h"
 
+#include <QCoreApplication>
 #include "utils/logger.h"
+#include "utils/executable_signature/executable_signature.h"
 
 AuthChecker_linux::AuthChecker_linux(QObject *parent) : IAuthChecker(parent)
 {
@@ -9,8 +11,21 @@ AuthChecker_linux::AuthChecker_linux(QObject *parent) : IAuthChecker(parent)
 
 bool AuthChecker_linux::authenticate()
 {
+#ifdef QT_DEBUG
+    QString authHelperPath = "/usr/bin/windscribe-authhelper";
+#else
+    QString appDir = QCoreApplication::applicationDirPath();
+    QString authHelperPath = appDir + "/windscribe-authhelper";
+#endif
+
+    if (!ExecutableSignature::verify(authHelperPath))
+    {
+        qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, executable may be corrupted";
+        return false;
+    }
+
     QStringList args;
-    args << "/usr/bin/echo";
+    args << authHelperPath;
 
     qCDebug(LOG_AUTH_HELPER) << "Authenticating...";
     process_->start("/usr/bin/pkexec", args);
