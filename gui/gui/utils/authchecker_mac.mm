@@ -190,12 +190,14 @@ AuthChecker_mac::~AuthChecker_mac()
     [g_macAuthCheckerHandler dealloc];
 }
 
-bool AuthChecker_mac::authenticate()
+AuthCheckerError AuthChecker_mac::authenticate()
 {
     NSArray *cmds = [[NSArray alloc] initWithObjects:dummyCommandForAuthCheck, nil];
     bool success = [g_macAuthCheckerHandler authenticate:cmds];
-    [g_macAuthCheckerHandler deauthenticate];
+    [g_macAuthCheckerHandler deauthenticate]; // no need to maintain authentication
     [cmds release];
-    return success;
+    return success ?
+                AuthCheckerError::NO_ERROR :
+                AuthCheckerError::AUTHENTICATION_ERROR;
 }
 

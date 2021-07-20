@@ -174,11 +174,13 @@ LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
 SOURCES += \
            $$COMMON_PATH/utils/linuxutils.cpp \
-           multipleaccountdetection/multipleaccountdetection_linux.cpp
+           multipleaccountdetection/multipleaccountdetection_linux.cpp \
+           utils/authchecker_linux.cpp
 
 HEADERS += \
            $$COMMON_PATH/utils/linuxutils.h \
-           multipleaccountdetection/multipleaccountdetection_linux.h
+           multipleaccountdetection/multipleaccountdetection_linux.h \
+           utils/authchecker_linux.h
 } # unix
 
 
@@ -287,7 +289,6 @@ SOURCES += \
     tooltips/tooltipcontroller.cpp \
     tooltips/tooltipdescriptive.cpp \
     tooltips/tooltiputil.cpp \
-    utils/authchecker_linux.cpp \
     utils/imagewithshadow.cpp \
     utils/protoenumtostring.cpp \
     commonwidgets/custommenuwidget.cpp \
@@ -540,7 +541,6 @@ HEADERS += \
     tooltips/tooltipdescriptive.h \
     tooltips/tooltiptypes.h \
     tooltips/tooltiputil.h \
-    utils/authchecker_linux.h \
     utils/authcheckerfactory.h \
     utils/iauthchecker.h \
     utils/imagewithshadow.h \

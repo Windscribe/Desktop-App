@@ -26,7 +26,7 @@
 #include "utils.h"
 #include "logger.h"
 
-#include "../../gui/authhelper/ws_com/ws_com/guids.h"
+#include "../../gui/authhelper/win/ws_com/ws_com/guids.h"
 
 #pragma comment(lib, "wlanapi.lib")
 

@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "authchecker_linux.h"
-// #include "authchecker_win.h"
+#include "authchecker_win.h"
 #include "authchecker_mac.h"
 
 namespace AuthCheckerFactory

@@ -16,3 +16,7 @@ gui/authhelper/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_h.h
 gui/authhelper/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_i.c
 gui/authhelper/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_p.c
 gui/authhelper/ws_proxy_stub/ws_proxy_stub/dlldata.c
+/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/dlldata.c
+/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_h.h
+/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_i.c
+/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_p.c

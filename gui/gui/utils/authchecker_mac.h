@@ -10,7 +10,7 @@ class AuthChecker_mac : public IAuthChecker
 public:
     explicit AuthChecker_mac(QObject *parent = nullptr);
     ~AuthChecker_mac() override;
-    bool authenticate() override;
+    AuthCheckerError authenticate() override;
 };
 
 #endif

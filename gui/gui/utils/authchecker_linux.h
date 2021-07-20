@@ -11,7 +11,7 @@ class AuthChecker_linux : public IAuthChecker
 public:
     explicit AuthChecker_linux(QObject *parent = nullptr);
     ~AuthChecker_linux() override { delete process_; }
-    bool authenticate() override;
+    AuthCheckerError authenticate() override;
 private:
     QProcess *process_;
 };

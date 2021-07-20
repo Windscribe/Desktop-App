@@ -63,19 +63,19 @@ changeics64:
 authhelper_com:
   name: ws_com
   project: ws_com.vcxproj
-  subdir: gui/authhelper/ws_com/ws_com
+  subdir: gui/authhelper/win/ws_com/ws_com
   target: ws_com.dll
 
 authhelper_com_server:
   name: ws_com_server
   project: ws_com_server.vcxproj
-  subdir: gui/authhelper/ws_com_server/ws_com_server
+  subdir: gui/authhelper/win/ws_com_server/ws_com_server
   target: ws_com_server.exe
 
 authhelper_com_proxy_stub:
   name: ws_proxy_stub
   project: ws_proxy_stub.vcxproj
-  subdir: gui/authhelper/ws_proxy_stub/ws_proxy_stub
+  subdir: gui/authhelper/win/ws_proxy_stub/ws_proxy_stub
   target: ws_proxy_stub.dll
 
 installhelper:

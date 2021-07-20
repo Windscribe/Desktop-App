@@ -1372,13 +1372,23 @@ void MainWindow::onLocationsAddCustomConfigClicked()
             {
                 std::unique_ptr<IAuthChecker> authChecker = AuthCheckerFactory::createAuthChecker();
 
-                if (!authChecker->authenticate())
+                AuthCheckerError err = authChecker->authenticate();
+                if (err == AuthCheckerError::AUTHENTICATION_ERROR)
                 {
                     qCDebug(LOG_BASIC) << "Cannot change path when non-system directory when windscribe is not elevated.";
                     const QString desc = tr(
                         "Cannot select this directory because it is writeable for non-privileged users. "
                         "Custom configs in this directory may pose a potential security risk. "
                         "Please authenticate with an admin user to select this directory.");
+                    QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+                    return;
+                }
+                else if (err == AuthCheckerError::HELPER_ERROR)
+                {
+                    qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, binary may be corrupted.";
+                    const QString desc = tr(
+                        "Failed to verify AuthHelper, binary may be corrupted. "
+                        "Please reinstall application to repair.");
                     QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
                     return;
                 }
@@ -2297,14 +2307,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
     {
         // Send main window center coordinates from the GUI, to position the installer properly.
         const bool is_visible = isVisible() && !isMinimized();
-        qint32 center_x;
-        qint32 center_y;
-        if (!is_visible)
-        {
-            center_x = INT_MAX;
-            center_y = INT_MAX;
-        }
-        else
+        qint32 center_x = INT_MAX;
+        qint32 center_y = INT_MAX;
+
+        if (is_visible)
         {
 #ifdef Q_OS_WIN
             center_x = geometry().x() + geometry().width() / 2;

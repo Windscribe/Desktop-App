@@ -3,13 +3,15 @@
 
 #include <QObject>
 
+enum class AuthCheckerError { NO_ERROR, HELPER_ERROR, AUTHENTICATION_ERROR };
+
 class IAuthChecker : public QObject
 {
     Q_OBJECT
 public:
     explicit IAuthChecker(QObject *parent = nullptr) : QObject(parent) {}
     virtual ~IAuthChecker() {}
-    virtual bool authenticate() = 0;
+    virtual AuthCheckerError authenticate() = 0;
 };
 
 Q_DECLARE_INTERFACE(IAuthChecker, "IAuthChecker")

@@ -10,7 +10,7 @@ class AuthChecker_win : public IAuthChecker
 public:
     explicit AuthChecker_win(QObject *parent = nullptr);
     ~AuthChecker_win() override {}
-    bool authenticate() override;
+    AuthCheckerError authenticate() override;
 };
 
 #endif // AUTHCHECKER_WIN_H
