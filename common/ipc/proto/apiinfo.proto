@@ -21,6 +21,7 @@ message Group
   optional string wg_pubkey = 6;
   repeated Node nodes = 7;
   optional string dns_hostname = 8; // if not empty this overrides dns_hostname from Location
+  optional string ovpn_x509 = 9;
 }
 
 message Location
@@ -80,6 +81,8 @@ message StaticIpDescr
   optional string wg_ip = 15;
   optional string wg_pubkey = 16;
   repeated StaticIpPortDescr ports = 17;
+  optional string ovpn_x509 = 18;
+
 }
 
 message StaticIps

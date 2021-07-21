@@ -863,7 +863,7 @@ void ConnectionManager::doConnectPart2()
 
             bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port,
-                                                        portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway());
+                                                        portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(), currentConnectionDescr_.verifyX509name);
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";

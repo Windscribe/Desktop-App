@@ -19,11 +19,12 @@ class MutableLocationInfo : public BaseLocationInfo
 public:
     explicit MutableLocationInfo(const LocationID &locationId, const QString &name,
                                  const QVector< QSharedPointer<const BaseNode> > &nodes, int selectedNode,
-                                 const QString &dnsHostName);
+                                 const QString &dnsHostName, const QString &verifyX509name);
 
 
     QString getDnsName() const;
     bool isExistSelectedNode() const override;
+    QString getVerifyX509name() const override;
     QString getLogString() const override;
 
     int nodesCount() const;
@@ -47,6 +48,7 @@ private:
     QVector< QSharedPointer<const BaseNode> > nodes_;
     int selectedNode_;
     QString dnsHostName_;
+    QString verifyX509name_;
 
     QString getLogForNode(int ind) const;
 

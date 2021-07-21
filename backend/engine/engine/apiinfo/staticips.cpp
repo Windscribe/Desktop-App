@@ -35,6 +35,7 @@ bool StaticIps::initFromJson(QJsonObject &init_obj)
             sid.serverId = obj["server_id"].toDouble();
             sid.wgIp = obj["wg_ip"].toString();
             sid.wgPubKey = obj["wg_pubkey"].toString();
+            sid.ovpnX509 = obj["ovpn_x509"].toString();
 
             QJsonObject objNode = obj["node"].toObject();
             if (objNode.contains("ip") && objNode.contains("ip2") && objNode.contains("ip3") &&
@@ -134,7 +135,7 @@ void StaticIps::initFromProtoBuf(const ProtoApiInfo::StaticIps &staticIps)
         sid.password = QString::fromStdString(sd.password());
         sid.wgIp = QString::fromStdString(sd.wg_ip());
         sid.wgPubKey = QString::fromStdString(sd.wg_pubkey());
-
+        sid.ovpnX509 = QString::fromStdString(sd.ovpn_x509());
         for (int p = 0; p < sd.ports_size(); ++p)
         {
             StaticIpPortDescr portDescr;
@@ -171,6 +172,7 @@ ProtoApiInfo::StaticIps StaticIps::getProtoBuf() const
         pi->set_password(sid.password.toStdString());
         pi->set_wg_ip(sid.wgIp.toStdString());
         pi->set_wg_pubkey(sid.wgPubKey.toStdString());
+        pi->set_ovpn_x509(sid.ovpnX509.toStdString());
 
         for (const StaticIpPortDescr &portDescr : sid.ports)
         {

@@ -22,6 +22,7 @@ public:
     const LocationID &locationId() const;
     QString getName() const;
     virtual bool isExistSelectedNode() const = 0;
+    virtual QString getVerifyX509name() const = 0;
 
     virtual QString getLogString() const = 0;
 
