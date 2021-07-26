@@ -15,6 +15,8 @@
 #include "execute_cmd.h"
 #include "../../posix_common/helper_commands_serialize.h"
 
+#include "utils.h"
+
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 
 Server::Server()
@@ -291,6 +293,8 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
 
 void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::streambuf> buf, const boost::system::error_code& ec, std::size_t bytes_transferred)
 {
+    UNUSED(bytes_transferred);
+
     if (!ec.value())
     {
         // read and handle commands
@@ -375,7 +379,8 @@ bool Server::sendAnswerCmd(socket_ptr sock, const CMD_ANSWER &cmdAnswer)
 
 void Server::run()
 {
-    system("mkdir -p /var/run");
+    auto res = system("mkdir -p /var/run"); // res is necessary to avoid no-discard warning.
+    UNUSED(res);
 
     ::unlink(SOCK_PATH);
 

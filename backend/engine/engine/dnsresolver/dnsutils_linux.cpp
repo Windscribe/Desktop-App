@@ -3,7 +3,6 @@
 
 #include <QProcess>
 
-
 namespace DnsUtils
 {
 

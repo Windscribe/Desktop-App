@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif
+
 namespace Utils
 {
     // execute cmd with args and return output from stdout and stderror to pOutputStr (if pOutputStr != NULL)

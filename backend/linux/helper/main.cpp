@@ -2,17 +2,22 @@
 #include <signal.h>
 #include "server.h"
 #include "logger.h"
+#include "utils.h"
 
 Server server;
 
 void handler_sigterm(int signum)
 {
+    UNUSED(signum);
     LOG("Windscribe helper terminated");
     server.stop();
 }
 
 int main(int argc, const char *argv[])
 {
+    UNUSED(argc);
+    UNUSED(argv);
+
     signal(SIGSEGV, handler_sigterm);
     signal(SIGFPE, handler_sigterm);
     signal(SIGABRT, handler_sigterm);

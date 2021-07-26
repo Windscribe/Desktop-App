@@ -44,6 +44,8 @@ struct LocationItem
     // set default values
     LocationItem() : isPremiumOnly(false), p2p(0) {}
 
+    LocationItem& operator=(const LocationItem&) = default;
+
     void fillProtobuf(ProtoTypes::Location *l) const
     {
         *l->mutable_id() = id.toProtobuf();

@@ -127,6 +127,23 @@ def InstallDependency():
   # Cleanup.
   msg.Print("Cleaning temporary directory...")
   utl.RemoveDirectory(temp_dir)
+  
+  
+def ExcludeWarnings():
+  dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
+  dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", DEP_TITLE.lower()))
+  outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+      
+  if utl.GetCurrentOS() == "linux":
+    include_dir_core = os.path.join(outpath, "include", "QtCore")
+    include_dir_gui  = os.path.join(outpath, "include", "QtGui")
+    files = []
+    for path in ["QtCore", "QtGui", "QtWidgets"]:
+      dir = os.path.join(outpath, "include", path)
+      files.extend([os.path.join(dir, f) for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f)) and f.endswith(".h")])
+    for file_name in files:
+      iutl.AddWarningSuppressionGcc(file_name, ["-Wdeprecated-copy"])
+
 
 if __name__ == "__main__":
   start_time = time.time()
@@ -137,6 +154,7 @@ if __name__ == "__main__":
   try:
     msg.Print("Installing {}...".format(DEP_TITLE))
     InstallDependency()
+    ExcludeWarnings()
     exitcode = 0
   except iutl.InstallError as e:
     msg.Error(e)

@@ -9,10 +9,12 @@ MultipleAccountDetection_linux::MultipleAccountDetection_linux()
 
 void MultipleAccountDetection_linux::userBecomeExpired(const QString &username)
 {
+    Q_UNUSED(username);
 }
 
 bool MultipleAccountDetection_linux::entryIsPresent(QString &username)
 {
+    Q_UNUSED(username);
     return false;
 }
 

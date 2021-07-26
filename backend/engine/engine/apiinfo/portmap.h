@@ -51,6 +51,8 @@ public:
     QVector<PortItem> &items();
     const QVector<PortItem> &const_items() const;
 
+    PortMap& operator=(const PortMap&) = default;
+
 
 private:
     QSharedDataPointer<PortMapData> d;

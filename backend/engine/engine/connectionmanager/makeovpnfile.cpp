@@ -28,7 +28,7 @@ MakeOVPNFile::~MakeOVPNFile()
 
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port, uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway)
 {
-#ifdef Q_OS_WIN
+#ifndef Q_OS_MAC
     Q_UNUSED(defaultGateway);
 #endif
 

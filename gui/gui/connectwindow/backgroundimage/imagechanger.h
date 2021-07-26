@@ -33,10 +33,10 @@ private:
     static constexpr int WIDTH = 332;
 
     QPixmap *pixmap_;
-    int animationDuration_;
-    QVariantAnimation opacityAnimation_;
     qreal opacityCurImage_;
     qreal opacityPrevImage_;
+    int animationDuration_;
+    QVariantAnimation opacityAnimation_;
 
     struct ImageInfo
     {

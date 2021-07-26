@@ -662,7 +662,7 @@ QStringList Helper_win::getProcessesList()
         QString curStr;
         while (pos < str.length())
         {
-            if (str[pos] == '\0')
+            if (str.at(pos) == static_cast<QChar>('\0'))
             {
                 list << curStr;
                 curStr.clear();

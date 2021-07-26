@@ -17,6 +17,7 @@ void LaunchOnStartup::setLaunchOnStartup(bool enable)
 #elif defined Q_OS_LINUX
         //todo linux
         //Q_ASSERT(false);
+    Q_UNUSED(enable);
 #endif
 }
 

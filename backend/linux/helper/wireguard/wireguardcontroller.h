@@ -19,7 +19,7 @@ public:
 
     bool configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList,
         const std::string &dnsScriptName, const std::vector<std::string> &allowedIps, uint32_t fwmark);
-    const std::string getAdapterName() const;
+    std::string getAdapterName() const;
     bool configureDaemon(const std::string &clientPrivateKey, const std::string &peerPublicKey,
         const std::string &peerPresharedKey, const std::string &peerEndpoint,
         const std::vector<std::string> &allowedIps, uint32_t fwmark);

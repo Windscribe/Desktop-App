@@ -236,7 +236,7 @@ void ConnectionModeItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE stat
 
 void ConnectionModeItem::onFirewallWhenChanged(QVariant v)
 {
-
+    Q_UNUSED(v);
 }
 
 

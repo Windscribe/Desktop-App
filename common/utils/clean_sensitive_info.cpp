@@ -8,7 +8,7 @@ namespace Utils {
 
 namespace {
 
-template<typename T> T QStringCast(QString source) { return std::move(source); }
+template<typename T> T QStringCast(QString source) { return source; }
 template<> std::string QStringCast(QString source) { return source.toStdString(); }
 template<> std::wstring QStringCast(QString source) { return source.toStdWString(); }
 

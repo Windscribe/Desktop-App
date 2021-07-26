@@ -30,6 +30,8 @@ public:
         return *this;
     }
 
+    LocationID(const LocationID&) = default;
+
     bool operator== (const LocationID &other) const
     {
         return (type_ == other.type_ && id_ == other.id_ && city_ == other.city_);

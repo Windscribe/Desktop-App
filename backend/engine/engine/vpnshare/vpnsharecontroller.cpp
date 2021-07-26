@@ -96,6 +96,8 @@ bool VpnShareController::isWifiSharingEnabled()
     return wifiSharing_->isSharingStarted();
 #elif defined Q_OS_MAC
     return false;
+#else
+    return false;
 #endif
 }
 
@@ -151,7 +153,7 @@ void VpnShareController::startWifiSharing(const QString &ssid, const QString &pa
     {
         wifiSharing_->startSharing(ssid, password);
     }
-#elif defined Q_OS_MAC
+#else
     Q_UNUSED(ssid);
     Q_UNUSED(password);
 #endif
@@ -216,6 +218,8 @@ bool VpnShareController::isWifiSharingSupported()
     return wifiSharing_->isSupported();
 #elif defined Q_OS_MAC
     return false;
+#else
+    return false;
 #endif
 }
 
@@ -227,6 +231,8 @@ void VpnShareController::onConnectingOrConnectedToVPNEvent(const QString &vpnAda
     {
         wifiSharing_->switchSharingForConnectingOrConnected(vpnAdapterName);
     }
+#else
+    Q_UNUSED(vpnAdapterName);
 #endif
     if (httpProxyServer_)
     {

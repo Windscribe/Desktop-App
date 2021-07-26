@@ -314,6 +314,8 @@ const ProtoTypes::NetworkInterface Utils::currentNetworkInterface()
 
 const ProtoTypes::NetworkInterfaces Utils::currentNetworkInterfaces(bool includeNoInterface)
 {
+    Q_UNUSED(includeNoInterface);
+
 #ifdef Q_OS_WIN
     return WinUtils::currentNetworkInterfaces(includeNoInterface);
 #elif defined Q_OS_MAC
@@ -362,6 +364,8 @@ bool Utils::pingWithMtu(const QString &url, int mtu)
 #elif defined Q_OS_LINUX
     //todo linux
     Q_ASSERT(false);
+    Q_UNUSED(url);
+    Q_UNUSED(mtu);
     return true;
 #endif
 }

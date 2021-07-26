@@ -130,6 +130,8 @@ public:
         return !operator==(other);
     }
 
+    StaticIps& operator=(const StaticIps&) = default;
+
 private:
     QSharedDataPointer<StaticIpsData> d;
 };

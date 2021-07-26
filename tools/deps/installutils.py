@@ -228,3 +228,16 @@ def InstallArtifacts(directory, filemasks, installpath, zipfilename):
   if zipfilename:
     zf.close()
   return aflist
+
+        
+def AddWarningSuppressionGcc(file_name, codes):
+  if os.path.isfile(file_name):
+    with open(file_name, 'r+') as f:
+      content = f.read()
+      if not content.startswith("// Directive is added during installation.\n"):
+        line = "// Directive is added during installation.\n"
+        line += "#pragma GCC diagnostic push\n"
+        for code in codes:
+          line += "#pragma GCC diagnostic ignored \"{}\"\n".format(code)
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content + "\n#pragma GCC diagnostic pop")

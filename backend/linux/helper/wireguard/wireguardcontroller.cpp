@@ -32,9 +32,13 @@ void WireGuardController::reset()
 }
 
 bool WireGuardController::configureAdapter(const std::string &ipAddress,
-    const std::string &dnsAddressList, const std::string &dnsScriptName,
+    const std::string &dnsAddressList,
+    const std::string &dnsScriptName,
     const std::vector<std::string> &allowedIps, uint32_t fwmark)
 {
+    UNUSED(dnsScriptName);
+    UNUSED(dnsAddressList);
+
     if (!is_initialized_ || !adapter_.get())
         return false;
     return adapter_->setIpAddress(ipAddress)
@@ -42,7 +46,7 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress,
            && adapter_->enableRouting(allowedIps, fwmark);
 }
 
-const std::string WireGuardController::getAdapterName() const
+ std::string WireGuardController::getAdapterName() const
 {
     if (!is_initialized_ || !adapter_.get())
         return "";

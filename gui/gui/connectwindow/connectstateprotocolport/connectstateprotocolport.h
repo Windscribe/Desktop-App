@@ -55,9 +55,10 @@ private:
     bool connectivity_;
     ProtoTypes::Protocol protocol_;
     uint port_;
-
     QColor textColor_;
     double textOpacity_;
+    bool receivedTunnelTestResult_;
+
     //QString badgeIconFg_;
     QScopedPointer<ImageWithShadow> badgeFgImage_;
 
@@ -76,7 +77,6 @@ private:
     static constexpr int protocolSeparatorPadding = 7;
     static constexpr int separatorPortPadding = 8;
 
-    bool receivedTunnelTestResult_;
     QTimer protocolTestTunnelTimer_;
     QVariantAnimation protocolOpacityAnimation_;
 

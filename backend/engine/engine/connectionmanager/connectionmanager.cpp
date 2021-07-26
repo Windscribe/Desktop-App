@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QCoreApplication>
 #include <QDateTime>
+#include "isleepevents.h"
 #include "openvpnconnection.h"
 #include "wireguardconnection.h"
 

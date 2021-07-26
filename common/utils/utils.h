@@ -5,8 +5,8 @@
 #include <QStringList>
 #include "protobuf_includes.h"
 
-#define SAFE_DELETE(x) if (x) { delete x; x = NULL; }
-#define SAFE_DELETE_LATER(x) if (x) { x->deleteLater(); x = NULL; }
+#define SAFE_DELETE(x) if (x) { delete x; x = nullptr; }
+#define SAFE_DELETE_LATER(x) if (x) { x->deleteLater(); x = nullptr; }
 
 #define CONNECTION_MODE_DEFAULT     0
 #define CONNECTION_MODE_BACKUP      1

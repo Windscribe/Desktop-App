@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     #ifdef Q_OS_WIN
         // For Windows an empty list means searching plugins in the executable folder
         QCoreApplication::setLibraryPaths(QStringList());
-    #else
+    #elif defined (Q_OS_MACOS)
         QStringList pluginsPath;
         pluginsPath << MacUtils::getBundlePath() + "/Contents/PlugIns";
         QCoreApplication::setLibraryPaths(pluginsPath);

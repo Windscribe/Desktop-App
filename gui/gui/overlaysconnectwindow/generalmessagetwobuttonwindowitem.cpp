@@ -146,14 +146,10 @@ void GeneralMessageTwoButtonWindowItem::setBackgroundShapedToConnectWindow(bool 
 
     int titlePos = RECT_TITLE_POS_Y;
     int iconPos = RECT_ICON_POS_Y;
-    int acceptPos = RECT_ACCEPT_BUTTON_POS_Y;
-    int rejectPos = RECT_REJECT_BUTTON_POS_Y;
     if (shapedToConnectWindow)
     {
         titlePos = SHAPED_TITLE_POS_Y;
         iconPos =  SHAPED_ICON_POS_Y;
-        acceptPos = SHAPED_ACCEPT_BUTTON_POS_Y;
-        rejectPos = SHAPED_REJECT_BUTTON_POS_Y;
     }
 
     titlePosY_ = titlePos;
