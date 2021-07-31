@@ -22,6 +22,7 @@ struct CurrentConnectionDescr
     ProtocolType protocol;
     QString hostname;
     QString dnsHostName;
+    QString verifyX509name;
 
     // fields for CONNECTION_NODE_CUSTOM_CONFIG
     QString ovpnData;

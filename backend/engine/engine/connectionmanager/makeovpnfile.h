@@ -10,7 +10,7 @@ public:
     virtual ~MakeOVPNFile();
 
     bool generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port,
-                  uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway);
+                  uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509);
     QString path() { return path_; }
 
 private:

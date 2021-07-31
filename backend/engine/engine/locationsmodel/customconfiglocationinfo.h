@@ -19,6 +19,7 @@ public:
 
     bool isExistSelectedNode() const override;
     QString getLogString() const override;
+    QString getVerifyX509name() const override { return ""; }
 
     void resolveHostnames();
 

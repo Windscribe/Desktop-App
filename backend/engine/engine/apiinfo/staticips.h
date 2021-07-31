@@ -42,6 +42,7 @@ struct StaticIpDescr
     QString password;
     QString wgIp;
     QString wgPubKey;
+    QString ovpnX509;
     QVector<StaticIpPortDescr> ports;
 
     const QString& getPingIp() const { return nodeIP1; }
@@ -76,6 +77,7 @@ struct StaticIpDescr
                password == other.password &&
                wgIp == other.wgIp &&
                wgPubKey == other.wgPubKey &&
+               ovpnX509 == other.ovpnX509 &&
                ports == other.ports;
     }
 

@@ -18,6 +18,7 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     d->pro_ = obj["pro"].toInt();
     d->pingIp_ = obj["ping_ip"].toString();
     d->wg_pubkey_ = obj["wg_pubkey"].toString();
+    d->ovpn_x509_ = obj["ovpn_x509"].toString();
 
     if (obj.contains("nodes"))
     {
@@ -56,6 +57,7 @@ void Group::initFromProtoBuf(const ProtoApiInfo::Group &g)
     d->pingIp_ = QString::fromStdString(g.ping_ip());
     d->wg_pubkey_ = QString::fromStdString(g.wg_pubkey());
     d->dnsHostName_ = QString::fromStdString(g.dns_hostname());
+    d->ovpn_x509_ = QString::fromStdString(g.ovpn_x509());
 
     for (int i = 0; i < g.nodes_size(); ++i)
     {
@@ -79,6 +81,7 @@ ProtoApiInfo::Group Group::getProtoBuf() const
     group.set_ping_ip(d->pingIp_.toStdString());
     group.set_wg_pubkey(d->wg_pubkey_.toStdString());
     group.set_dns_hostname(d->dnsHostName_.toStdString());
+    group.set_ovpn_x509(d->ovpn_x509_.toStdString());
     for (const Node &node : d->nodes_)
     {
         *group.add_nodes() = node.getProtoBuf();

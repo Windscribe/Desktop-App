@@ -26,7 +26,8 @@ MakeOVPNFile::~MakeOVPNFile()
     file_.remove();
 }
 
-bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port, uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway)
+bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port,
+                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509)
 {
 #ifdef Q_OS_WIN
     Q_UNUSED(defaultGateway);
@@ -127,6 +128,12 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
     else
     {
         Q_ASSERT(false);
+    }
+
+    if (openVpnX509 != "")
+    {
+        str = QString("verify-x509-name %1 name\r\n").arg(openVpnX509);
+        file_.write(str.toLocal8Bit());
     }
 
 #ifdef Q_OS_MAC
