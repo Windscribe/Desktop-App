@@ -55,7 +55,7 @@ void WireGuardConnectionImpl::connect()
             WireGuardConnection::getWireGuardExeName(), adapterName_)) {
             if (retry >= 2) {
                 qCDebug(LOG_WIREGUARD) << "Can't start WireGuard daemon after" << retry << "retries";
-                host_->setError(WIREGUARD_CONNECTION_ERROR);
+                host_->setError(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
                 return;
             }
             ++retry;
@@ -73,7 +73,7 @@ void WireGuardConnectionImpl::configure()
     // Configure the client and the peer.
     if (!host_->helper_->configureWireGuard(config_)) {
         qCDebug(LOG_WIREGUARD) << "Failed to configure WireGuard daemon";
-        host_->setError(WIREGUARD_CONNECTION_ERROR);
+        host_->setError(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
     }
 }
 
@@ -330,7 +330,7 @@ void WireGuardConnection::setCurrentStateAndEmitSignal(ConnectionState state)
     }
 }
 
-void WireGuardConnection::setError(CONNECTION_ERROR err)
+void WireGuardConnection::setError(ProtoTypes::ConnectError err)
 {
     QMutexLocker locker(&current_state_mutex_);
     current_state_ = ConnectionState::DISCONNECTED;

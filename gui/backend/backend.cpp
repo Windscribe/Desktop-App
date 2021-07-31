@@ -1133,6 +1133,16 @@ void Backend::cancelUpdateVersion()
     }
 }
 
+void Backend::sendMakeHostsFilesWritableWin()
+{
+    if (isInitFinished())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::MakeHostsWritableWin> cmd;
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        connection_->sendCommand(cmd);
+    }
+}
+
 QString Backend::generateNewFriendlyName()
 {
     QList<QString> friendlyNames;

@@ -87,6 +87,7 @@ public:
     bool addIKEv2DefaultRoute();
     bool removeWindscribeNetworkProfiles();
     void setIKEv2IPSecParameters();
+    bool makeHostsFileWritable();
 
 protected:
     void run() override;

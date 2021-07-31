@@ -197,7 +197,7 @@ void IKEv2Connection_win::handleAuthError()
     // auth error
     doBlockingDisconnect();
     connHandle_ = NULL;
-    emit error(AUTH_ERROR);
+    emit error(ProtoTypes::ConnectError::AUTH_ERROR);
     helper_->disableDnsLeaksProtection();
     helper_->removeHosts();
     state_ = STATE_DISCONNECTED;
@@ -227,7 +227,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
         if (cntFailedConnectionAttempts_ >= (MAX_FAILED_CONNECTION_ATTEMPTS_FOR_AUTOMATIC_MODE))
         {
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_TO_CONNECT);
+            emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
         }
         else
         {
@@ -256,7 +256,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
                     else
                     {
                         state_ = STATE_DISCONNECTED;
-                        emit error(IKEV_FAILED_TO_CONNECT);
+                        emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
                     }
                 }
             }
@@ -284,13 +284,13 @@ void IKEv2Connection_win::handleErrorReinstallWan()
             else
             {
                 state_ = STATE_DISCONNECTED;
-                emit error(IKEV_FAILED_TO_CONNECT);
+                emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
             }
         }
         else if (cntFailedConnectionAttempts_ >= MAX_FAILED_CONNECTION_ATTEMPTS)
         {
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_TO_CONNECT);
+            emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
         }
         else
         {
@@ -348,7 +348,7 @@ void IKEv2Connection_win::doConnect()
     if (!ikev2DeviceInitialized)
     {
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_NOT_FOUND_WIN);
+        emit error(ProtoTypes::ConnectError::IKEV_NOT_FOUND_WIN);
         return;
     }
 
@@ -395,7 +395,7 @@ void IKEv2Connection_win::doConnect()
         {
             qCDebug(LOG_IKEV2) << "RasSetEntryProperties failed with error:" << dwErr;
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_SET_ENTRY_WIN);
+            emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN);
             return;
         }
     }
@@ -415,7 +415,7 @@ void IKEv2Connection_win::doConnect()
     {
         qCDebug(LOG_IKEV2) << "RasSetEntryDialParams failed with error:" << dwErr;
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN);
         return;
     }
 
@@ -423,7 +423,7 @@ void IKEv2Connection_win::doConnect()
     {
         qCDebug(LOG_IKEV2) << "Can't modify hosts file";
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_FAILED_MODIFY_HOSTS_WIN);
+        emit error(ProtoTypes::ConnectError::IKEV_FAILED_MODIFY_HOSTS_WIN);
         return;
     }
 
@@ -441,7 +441,7 @@ void IKEv2Connection_win::doConnect()
         helper_->disableDnsLeaksProtection();
         helper_->removeHosts();
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN);
         return;
     }
 }

@@ -21,7 +21,7 @@ public:
     void setEnabled(bool isEnabled);
 
 private slots:
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
     void onTimer();
     void onDnsRequestFinished();
     void onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);

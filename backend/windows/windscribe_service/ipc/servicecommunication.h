@@ -52,8 +52,12 @@
 #define AA_COMMAND_CONNECT_STATUS                           48
 #define AA_COMMAND_SUSPEND_UNBLOCKING_CMD                   49
 #define AA_COMMAND_DNS_WHILE_CONNECTED                      50
+#define AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE                 51
 
 #define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
+
+#include <string>
+#include <vector>
 
 struct CMD_FIREWALL_ON
 {

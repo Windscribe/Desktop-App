@@ -41,13 +41,13 @@ private slots:
     void onEngineCheckUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported);
     void onEngineUpdateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
     void onEngineMyIpUpdated(const QString &ip, bool success, bool isDisconnected);
-    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &locationId);
+    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId);
     void onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onEngineProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
 
     void onEngineEmergencyConnected();
     void onEngineEmergencyDisconnected();
-    void onEngineEmergencyConnectError(CONNECTION_ERROR err);
+    void onEngineEmergencyConnectError(ProtoTypes::ConnectError err);
 
     void onEngineTestTunnelResult(bool bSuccess);
     void onEngineLostConnectionToHelper();
@@ -94,7 +94,7 @@ private:
     //void serverCallbackAcceptFunction(IPC::IConnection *connection);
     bool handleCommand(IPC::Command *command);
     void sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode);
-    void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &locationId);
+    void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId);
 
     void sendFirewallStateChanged(bool isEnabled);
 };

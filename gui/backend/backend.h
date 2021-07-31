@@ -112,6 +112,8 @@ public:
     void sendUpdateVersion(qint32 mainWindowHandle);
     void cancelUpdateVersion();
 
+    void sendMakeHostsFilesWritableWin();
+
 private slots:
     void onProcessStarted();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);

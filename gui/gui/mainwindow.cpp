@@ -3254,7 +3254,18 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     }
     else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_MODIFY_HOSTS_WIN)
     {
-        msg = tr("IKEv2 connection failed, hosts file is not writable. You can switch to UDP or TCP connection modes and try to connect again.");
+        QMessageBox msgBox;
+        const auto* yesButton = msgBox.addButton(tr("Fix Issue"), QMessageBox::YesRole);
+        msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
+        msgBox.setWindowTitle(QApplication::applicationName());
+        msgBox.setText(tr("Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?"));
+        msgBox.exec();
+        if(msgBox.clickedButton() == yesButton) {
+            if(backend_) {
+                backend_->sendMakeHostsFilesWritableWin();
+            }
+        }
+        return;
     }
     else if (connectState.connect_error() == ProtoTypes::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC)
     {
