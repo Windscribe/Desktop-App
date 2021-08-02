@@ -165,7 +165,9 @@ RESOURCES += \
 
 } # macx
 
-unix {
+linux {
+#remove linux deprecated copy warnings
+QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
 LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
@@ -177,7 +179,7 @@ SOURCES += \
 HEADERS += \
            $$COMMON_PATH/utils/linuxutils.h \
            multipleaccountdetection/multipleaccountdetection_linux.h
-} # unix
+} # linux
 
 
 SOURCES += \

@@ -261,6 +261,10 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 
 linux {
 
+#remove linux deprecated copy warnings
+QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
+
+
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_system.a
