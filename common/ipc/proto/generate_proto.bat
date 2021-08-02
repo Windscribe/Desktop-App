@@ -13,7 +13,7 @@ set PATH=%oldpath%
 rem removing warnings for MSVC
 SET headstring1="#ifdef _MSC_VER"
 SET headstring2="#pragma warning^(push^)"
-SET headstring3="#pragma warning^(disable: 4018 4100 4267 4244^)"
+SET headstring3="#pragma warning^(disable: 4244^)"
 SET headstring4="#endif"
 
 SET endstring1="#ifdef _MSC_VER"
