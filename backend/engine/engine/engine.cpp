@@ -213,6 +213,8 @@ void Engine::setIPv6EnabledInOS(bool b)
     QMutexLocker locker(&mutex_);
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
     helper_win->setIPv6EnabledInOS(b);
+#else
+    Q_UNUSED(b)
 #endif
 }
 
@@ -2130,6 +2132,9 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
+#else
+    Q_UNUSED(windowCenterX);
+    Q_UNUSED(windowCenterY);
 #endif
 
     qCDebug(LOG_AUTO_UPDATER) << "Installer valid and executed";

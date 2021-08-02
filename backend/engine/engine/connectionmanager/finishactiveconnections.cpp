@@ -23,6 +23,7 @@ void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
 #elif defined Q_OS_LINUX
     //todo linux
     //Q_ASSERT(false);
+    Q_UNUSED(helper);
 #endif
 }
 

@@ -51,7 +51,8 @@ WriteAccessRightsChecker::WriteAccessRightsChecker(const QString &dirname) :
             // We are running the app as root, revert to the real uid temporarily.
             if (seteuid(current_uid) != -1) {
                 testWrite();
-                seteuid(saved_euid);
+                auto res = seteuid(saved_euid); // avoid no-discard warning.
+                Q_UNUSED(res);
                 is_elevated_check_ok = true;
             }
         }

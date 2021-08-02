@@ -36,6 +36,7 @@ bool ExecutableSignature::verify(const QString &executablePath)
         return ExecutableSignature_mac::verify(executablePath);
     #elif defined Q_OS_LINUX
         //todo linux
+        Q_UNUSED(executablePath);
         return false;
     #endif
 #endif
@@ -53,6 +54,7 @@ bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
         return ExecutableSignature_mac::verifyWithSignCheck(executable);
     #elif defined Q_OS_LINUX
         //todo linux
+        Q_UNUSED(executable);
         return false;
     #endif
 #endif

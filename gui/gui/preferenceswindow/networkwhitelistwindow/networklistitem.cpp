@@ -115,6 +115,8 @@ void NetworkListItem::setCurrentNetwork(ProtoTypes::NetworkInterface network)
 
 void NetworkListItem::onNetworkItemChanged(QVariant data)
 {
+    Q_UNUSED(data);
+
     ComboBoxItem *item = dynamic_cast<ComboBoxItem *>(sender());
 
     if (item->currentItem() == ProtoTypes::NETWORK_FORGET)

@@ -44,12 +44,11 @@ private:
     mutable QMutex mutex_;
     CURLcode curlErrorCode_;
 
+    quint64 id_;
     NetworkRequest networkRequest_;
     QStringList ips_;
-    quint64 id_;
-    QByteArray postData_;
-
     REQUEST_TYPE requestType_;
+    QByteArray postData_;
     CurlNetworkManager2 *manager_;
     QVector<struct curl_slist *> curlLists_;
 

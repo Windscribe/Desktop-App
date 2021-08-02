@@ -11,7 +11,7 @@ void logOut(const char *str, ...)
     int cnt = vsnprintf(buf, sizeof(buf), str, args);
     va_end (args);
     
-    if (cnt >= 0 && cnt < sizeof(buf))
+    if (cnt >= 0 && static_cast<long unsigned int>(cnt) < sizeof(buf))
     {
         printf("%s\n", buf);
         //syslog(LOG_NOTICE, buf);

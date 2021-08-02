@@ -10,6 +10,7 @@ const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterfac
 
 NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
 {
+    Q_UNUSED(helper);
 }
 
 NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
@@ -18,7 +19,7 @@ NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
 
 void NetworkDetectionManager_linux::updateCurrentNetworkInterface(bool requested)
 {
-
+    Q_UNUSED(requested);
 }
 
 bool NetworkDetectionManager_linux::isOnline()

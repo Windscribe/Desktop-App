@@ -108,6 +108,7 @@ void IPAddressItem::updateScaling()
 
 void IPAddressItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
+    Q_UNUSED(event);
     blurEffect_.setEnabled(!blurEffect_.isEnabled());
 }
 

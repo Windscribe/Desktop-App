@@ -25,6 +25,9 @@ QString Helper_linux::getHelperVersion()
 
 bool Helper_linux::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
 {
+    Q_UNUSED(isIkev2);
+    Q_UNUSED(ifIndex);
+    Q_UNUSED(overrideDnsIpAddress);
     return false;
 }
 

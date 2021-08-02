@@ -120,7 +120,7 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
             {
                 requestData->request.setTimeout(requestData->request.timeout() - timeMs);
 
-                CurlReply *curlReply;
+                CurlReply *curlReply{ nullptr };
 
                 if (requestData->type == REQUEST_GET)
                 {

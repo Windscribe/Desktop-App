@@ -32,6 +32,7 @@ QPixmap WidgetUtils::extractProgramIcon(QString filePath)
 #elif defined Q_OS_LINUX
     //todo linux
     Q_ASSERT(false);
+    Q_UNUSED(filePath);
     return QPixmap();
 #endif 
 }
