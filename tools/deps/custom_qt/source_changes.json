@@ -1,0 +1,16 @@
+[
+
+{
+	"ref" : "https://codereview.qt-project.org/c/qt/qtbase/+/342607",
+	"file" : "qtbase/src/3rdparty/harfbuzz-ng/src/hb-coretext.h",
+	"old_code" : "#define HB_CORETEXT_TAG_MORT HB_TAG('m','o','r','t')\n#define HB_CORETEXT_TAG_MORX HB_TAG('m','o','r','x')\n#define HB_CORETEXT_TAG_KERX HB_TAG('k','e','r','x')",
+	"new_code" : "#define HB_CORETEXT_TAG_MORT HB_TAG('m','o','r','t')\n#define HB_CORETEXT_TAG_MORX HB_TAG('m','o','r','x')\n#define HB_CORETEXT_TAG_KERX HB_TAG('k','e','r','x')\n#define HB_CORETEXT_TAG_TRAK HB_TAG('t','r','a','k')\n"
+},
+{
+	"ref" : "https://codereview.qt-project.org/c/qt/qtbase/+/342607",
+	"file" : "qtbase/src/3rdparty/harfbuzz-ng/src/hb-coretext.cc",
+	"old_code" : "_hb_coretext_aat_shaper_face_data_create (hb_face_t *face)\n{\n  static const hb_tag_t tags[] = {HB_CORETEXT_TAG_MORX, HB_CORETEXT_TAG_MORT, HB_CORETEXT_TAG_KERX};",
+	"new_code" : "_hb_coretext_aat_shaper_face_data_create (hb_face_t *face)\n{\n  static const hb_tag_t tags[] = {HB_CORETEXT_TAG_MORX, HB_CORETEXT_TAG_MORT, HB_CORETEXT_TAG_KERX, HB_CORETEXT_TAG_TRAK};"
+}
+
+]
