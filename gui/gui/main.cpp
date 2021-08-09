@@ -13,8 +13,12 @@
     #include "application/preventmultipleinstances_win.h"
     #include "utils/scaleutils_win.h"
     #include "utils/crashhandler.h"
-#else
+#elif defined (Q_OS_MACOS)
     #include "utils/macutils.h"
+#elif defined (Q_OS_LINUX)
+    #include <libgen.h>         // dirname
+    #include <unistd.h>         // readlink
+    #include <linux/limits.h>   // PATH_MAX
 #endif
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
@@ -57,6 +61,17 @@ int main(int argc, char *argv[])
     #elif defined (Q_OS_MACOS)
         QStringList pluginsPath;
         pluginsPath << MacUtils::getBundlePath() + "/Contents/PlugIns";
+        QCoreApplication::setLibraryPaths(pluginsPath);
+    #elif defined (Q_OS_LINUX)
+        //todo move to LinuxUtils
+        char result[PATH_MAX] = {};
+        ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+        const char *path;
+        if (count != -1) {
+            path = dirname(result);
+        }
+        QStringList pluginsPath;
+        pluginsPath << QString::fromStdString(path) + "/plugins";
         QCoreApplication::setLibraryPaths(pluginsPath);
     #endif
 #endif

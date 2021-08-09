@@ -96,6 +96,13 @@ helper:
     - OTHER_CODE_SIGN_FLAGS=--timestamp
     - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
 
+helper_linux:
+  name:     Helper
+  project:  helper.pro
+  subdir:   backend/linux/helper
+  target:   helper
+  
+
 launcher_mac:
   name:     Launcher
   project:  windscribelauncher.xcodeproj
@@ -114,6 +121,8 @@ installer_mac:
   xcflags:
     - OTHER_CODE_SIGN_FLAGS=--timestamp
     - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+
+installer_linux:
 
 
 targets:
@@ -134,10 +143,15 @@ targets:
     - launcher_mac
     - cli
     - gui
+  linux:
+    - helper_linux
+    - engine
+    - gui
 
 installer:
   win32: installer_win
   macos: installer_mac
+  linux: installer_linux
 
 
 qt_files:
@@ -153,6 +167,55 @@ qt_files:
   - plugins/imageformats/qico.dll
   - plugins/imageformats/qsvg.dll
   - plugins/imageformats/qjpeg.dll
+
+qt_files_linux:
+  - lib/libQt5Core.so.5
+  - lib/libQt5Network.so.5
+  - lib/libQt5Svg.so.5
+  - lib/libQt5Widgets.so.5
+  - lib/libQt5Gui.so.5
+  - lib/libQt5XcbQpa.so.5
+  - lib/libQt5DBus.so.5
+
+lib_files_linux:
+  qt:
+    - lib/libQt5Core.so.5 -> lib/libQt5Core.so.5 
+    - lib/libQt5Network.so.5 -> lib/libQt5Network.so.5
+    - lib/libQt5Svg.so.5 -> lib/libQt5Svg.so.5
+    - lib/libQt5Widgets.so.5 -> lib/libQt5Widgets.so.5
+    - lib/libQt5Gui.so.5 -> lib/libQt5Gui.so.5
+    - lib/libQt5XcbQpa.so.5 -> lib/libQt5XcbQpa.so.5
+    - lib/libQt5DBus.so.5 -> lib/libQt5DBus.so.5
+    - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
+    - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
+
+  cares:
+    - lib/libcares.so.2 -> lib/libcares.so.2
+  curl:
+    - lib/libcurl.so.4 -> lib/libcurl.so.4
+  openssl: 
+    - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
+    - lib/libssl.so.1.1 -> lib/libssl.so.1.1
+  protobuf:
+    - lib/libprotobuf.so.28 -> lib/libprotobuf.so.28
+  openvpn:
+    - openvpn -> windscribeopenvpn
+  stunnel:
+    - stunnel -> windscribestunnel
+  wireguard:
+    - windscribewireguard -> windscribewireguard
+
+files_fix_rpath_linux:
+  - lib/libQt5Network.so.5 -> $ORIGIN
+  - lib/libQt5XcbQpa.so.5 -> $ORIGIN
+  - lib/libQt5DBus.so.5 -> $ORIGIN
+  - lib/libcurl.so.4 -> $ORIGIN
+  - lib/libssl.so.1.1 -> $ORIGIN
+  - windscribestunnel -> $ORIGIN/lib
+  - windscribeopenvpn -> $ORIGIN/lib
+  - WindscribeEngine -> $ORIGIN/lib
+  - Windscribe -> $ORIGIN/lib
+  
 
 msvc_files:
   - concrt140.dll

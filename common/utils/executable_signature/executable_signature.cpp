@@ -19,7 +19,7 @@ bool ExecutableSignature::isParentProcessGui()
         return ExecutableSignature_mac::isParentProcessGui();
     #elif defined Q_OS_LINUX
         //todo linux
-        return false;
+        return true;
     #endif
 #endif
 }
@@ -37,7 +37,7 @@ bool ExecutableSignature::verify(const QString &executablePath)
     #elif defined Q_OS_LINUX
         //todo linux
         Q_UNUSED(executablePath);
-        return false;
+        return true;
     #endif
 #endif
 }

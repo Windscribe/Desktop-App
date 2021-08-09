@@ -27,7 +27,7 @@ import deps.installutils as iutl
 # Windscribe settings.
 BUILD_TITLE = "Windscribe"
 BUILD_CFGNAME = "build_all.yml"
-BUILD_OS_LIST = ["win32", "macos"]
+BUILD_OS_LIST = ["win32", "macos", "linux"]
 BUILD_CERT_PASSWORD = "fBafQVi0RC4Ts4zMUFOE" # TODO: keep elsewhere!
 BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
@@ -109,6 +109,11 @@ def CopyFiles(title, filelist, srcdir, dstdir, strip_first_dir=False):
   for filename in filelist:
     CopyFile(filename, srcdir, dstdir, strip_first_dir)
 
+def FixRpathLinux(filename):
+  parts = filename.split("->")
+  srcfilename = parts[0].strip()
+  rpath = "" if len(parts) == 1 else parts[1].strip()
+  iutl.RunCommand(["patchelf", "--set-rpath", rpath, srcfilename])
 
 def ApplyMacDeployFixes(appname, fixlist):
   # Special deploy fixes for Mac.
@@ -407,6 +412,19 @@ def BuildInstallerMac(configdata, qt_root):
   final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRINGS[0])))
   utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
+def BuildInstallerLinux(configdata, qt_root):
+  if "lib_files_linux" in configdata:
+    for k, v in configdata["lib_files_linux"].iteritems():
+      lib_root = iutl.GetDependencyBuildRoot(k)
+      if not lib_root:
+        raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+      CopyFiles(k, v, lib_root, BUILD_INSTALLER_FILES)
+
+  if "files_fix_rpath_linux" in configdata:
+    for k in configdata["files_fix_rpath_linux"]:
+      dstfile = os.path.join(BUILD_INSTALLER_FILES, k)
+      FixRpathLinux(dstfile)
+
 
 def BuildAll():
   # Load config.
@@ -460,9 +478,12 @@ def BuildAll():
       BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
     elif current_os == "macos":
       BuildInstallerMac(configdata, qt_root)
+    elif current_os == "linux":
+      BuildInstallerLinux(configdata, qt_root)
   # Copy artifacts.
   msg.Print("Installing artifacts...")
   utl.CreateDirectory(artifact_dir, True)
+
   if current_os == "macos":
     artifact_path = BUILD_INSTALLER_FILES
     installer_info = configdata[configdata["installer"]["macos"]]
@@ -470,12 +491,16 @@ def BuildAll():
       artifact_path = os.path.join(artifact_path, installer_info["outdir"])
   else:
     artifact_path = temp_dir
-  for filename in glob2.glob(artifact_path + os.sep + "*"):
-    if os.path.isdir(filename):
-      continue
-    filetitle = os.path.basename(filename)
-    utl.CopyFile(filename, os.path.join(artifact_dir, filetitle))
-    msg.HeadPrint("Ready: \"{}\"".format(filetitle))
+
+  if current_os == "linux":
+    utl.CopyAllFiles(BUILD_INSTALLER_FILES, artifact_dir)
+  else:
+    for filename in glob2.glob(artifact_path + os.sep + "*"):
+      if os.path.isdir(filename):
+        continue
+      filetitle = os.path.basename(filename)
+      utl.CopyFile(filename, os.path.join(artifact_dir, filetitle))
+      msg.HeadPrint("Ready: \"{}\"".format(filetitle))
   # Cleanup.
   msg.Print("Cleaning temporary directory...")
   utl.RemoveDirectory(temp_dir)

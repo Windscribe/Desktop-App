@@ -69,8 +69,7 @@ void Backend::init()
 #elif defined Q_OS_MAC
     QString engineExePath = QCoreApplication::applicationDirPath() + "/../Library/WindscribeEngine.app";
 #elif defined Q_OS_LINUX
-    QString engineExePath;
-    Q_ASSERT(false);
+    QString engineExePath = QCoreApplication::applicationDirPath() + "/WindscribeEngine";
 #endif
 
     qCDebug(LOG_BASIC()) << "Calling Engine at: " << Utils::cleanSensitiveInfo(engineExePath);
@@ -357,7 +356,7 @@ void Backend::startWifiSharing(const QString &ssid, const QString &password)
 
 void Backend::stopWifiSharing()
 {
-    Q_ASSERT(isInitFinished());
+    //Q_ASSERT(isInitFinished());
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::StopWifiSharing> cmd;

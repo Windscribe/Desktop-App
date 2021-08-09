@@ -172,6 +172,9 @@ QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
 LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
+INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
+LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+
 SOURCES += \
            $$COMMON_PATH/utils/linuxutils.cpp \
            multipleaccountdetection/multipleaccountdetection_linux.cpp
