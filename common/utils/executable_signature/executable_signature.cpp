@@ -55,7 +55,7 @@ bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
     #elif defined Q_OS_LINUX
         //todo linux
         Q_UNUSED(executable);
-        return false;
+        return true;
     #endif
 #endif
 }

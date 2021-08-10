@@ -146,8 +146,8 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
 #elif defined(Q_OS_LINUX)
     str = "--script-security 2\r\n";
     file_.write(str.toLocal8Bit());
-    QString cmd1 = "\nup /etc/openvpn/update-resolv-conf\n";
-    QString cmd2 = "\ndown /etc/openvpn/update-resolv-conf\n";
+    QString cmd1 = "\nup /etc/windscribe/update-resolv-conf\n";
+    QString cmd2 = "\ndown /etc/windscribe/update-resolv-conf\n";
     file_.write(cmd1.toUtf8());
     file_.write(cmd2.toUtf8());
 #endif
