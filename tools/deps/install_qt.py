@@ -4,6 +4,7 @@
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs Qt.
+import json
 import os
 import sys
 import time
@@ -30,6 +31,28 @@ QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtc
   "qtremoteobjects", "qtscript", "qtscxml", "qtserialbus", "qtserialport", "qtspeech",
   "qtvirtualkeyboard", "qtwayland", "qtwebchannel", "qtwebengine", "qtwebglplugin", "qtwebsockets",
   "qtwebview"]
+
+QT_SOURCE_CHANGES_JSON_PATH = "deps/custom_qt/source_changes.json"
+
+def ReplaceSourceCode(qt_source_dir):
+  
+  f = open(os.path.join(TOOLS_DIR, os.path.relpath(QT_SOURCE_CHANGES_JSON_PATH)), 'r')
+  source_changes = json.load(f)
+  for change in source_changes:
+    file_path = os.path.join(os.path.abspath(qt_source_dir), os.path.relpath(change["file"]))
+    with open(file_path, "r") as f_in:
+      contents = f_in.read().decode("utf8")
+      if contents.find(change["old_code"]) != -1:
+        contents = contents.replace(change["old_code"], change["new_code"])
+        f_in.close()
+        with open(file_path, "w") as f_out:
+          f_out.write(contents.encode("utf8"))
+          f_out.close()
+          print("Replaced source code according to {}".format(change["ref"]))
+      else:
+        sys.exit("Code {} doesn't exist in {}".format(change["old_code"], file_path))
+
+  f.close()
 
 def BuildDependencyMSVC(installpath, openssl_root, outpath):
   # Create an environment with VS vars.
@@ -102,6 +125,8 @@ def InstallDependency():
     utl.RenameDirectory(os.path.join(temp_dir, archivetitle), os.path.join(temp_dir, extracteddir))
   else:
     extracteddir = archivetitle
+  # Replace source code if necessary
+  ReplaceSourceCode(os.path.join(temp_dir, extracteddir))
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
@@ -112,7 +137,7 @@ def InstallDependency():
       BuildDependencyMSVC(outpath, openssl_root, temp_dir)
     else:
       BuildDependencyGNU(outpath, openssl_root, temp_dir)
-    # add qt.conf to override the built-in QT_INSTALL_PREFIX 
+    # add qt.conf to override the built-in QT_INSTALL_PREFIX
     qt_conf_path = os.path.join(outpath, "bin", "qt.conf")
     utl.CreateFileWithContents(qt_conf_path, "[Paths]\nPrefix = ..", True)
   # Copy the dependency to a zip file, if needed.
@@ -129,7 +154,9 @@ def InstallDependency():
   msg.Print("Cleaning temporary directory...")
   utl.RemoveDirectory(temp_dir)
 
+
 if __name__ == "__main__":
+
   start_time = time.time()
   current_os = utl.GetCurrentOS()
   if current_os not in DEP_OS_LIST:
