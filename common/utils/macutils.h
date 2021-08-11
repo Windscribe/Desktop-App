@@ -79,6 +79,8 @@ namespace MacUtils
 
     QStringList getListOfDnsNetworkServiceEntries();
     bool dynamicStoreEntryHasKey(const QString &entry, const QString &key);
+
+    bool verifyAppBundleIntegrity();
 }
 
 
