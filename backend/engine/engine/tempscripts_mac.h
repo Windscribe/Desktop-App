@@ -14,15 +14,12 @@ public:
     }
 
     QString dnsScriptPath();
-    QString removeHostsScriptPath();
-
 
 private:
     TempScripts_mac();
     ~TempScripts_mac();
 
     QString dnsScriptPath_;
-    QString removeHostsScriptPath_;
 };
 
 #endif // TEMPSCRIPTS_MAC_H

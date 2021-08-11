@@ -17,20 +17,6 @@ QString TempScripts_mac::dnsScriptPath()
     return dnsScriptPath_;
 }
 
-QString TempScripts_mac::removeHostsScriptPath()
-{
-    if (removeHostsScriptPath_.isEmpty() || !QFile::exists(removeHostsScriptPath_))
-    {
-        QString strTemp = QString::fromLocal8Bit(getenv("TMPDIR"));
-
-        removeHostsScriptPath_ = strTemp + "windscriberemovehosts.sh";
-        QString src = QCoreApplication::applicationDirPath() + "/manage-etc-hosts.sh";
-        QFile::remove(removeHostsScriptPath_);
-        QFile::copy(src, removeHostsScriptPath_);
-    }
-    return removeHostsScriptPath_;
-}
-
 TempScripts_mac::TempScripts_mac()
 {
 }
@@ -41,13 +27,6 @@ TempScripts_mac::~TempScripts_mac()
         if (!dnsScriptPath_.isEmpty())
         {
             QFile file(dnsScriptPath_);
-            file.remove();
-        }
-    }
-    {
-        if (!removeHostsScriptPath_.isEmpty())
-        {
-            QFile file(removeHostsScriptPath_);
             file.remove();
         }
     }

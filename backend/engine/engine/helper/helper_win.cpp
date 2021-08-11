@@ -606,13 +606,6 @@ bool Helper_win::IPv6StateInOS()
     return mpr.exitCode;
 }
 
-bool Helper_win::removeWindscribeUrlsFromHosts()
-{
-    QMutexLocker locker(&mutex_);
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_WINDSCRIBE_FROM_HOSTS, std::string());
-    return mpr.success;
-}
-
 bool Helper_win::addHosts(const QString &hosts)
 {
     QMutexLocker locker(&mutex_);
