@@ -44,7 +44,7 @@ Server::~Server()
     unlink(SOCK_PATH);
 }
 
-bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer)
+bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer)
 {
     // not enough data for read command
     if (buf->size() < sizeof(int)*3)
@@ -70,8 +70,16 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
         return false;
     }
 
+    pid_t pidPeer = -1;
+    socklen_t lenPidPeer = sizeof(pidPeer);
+    if (getsockopt(sock->native_handle(), SOL_LOCAL, LOCAL_PEERPID, &pidPeer, &lenPidPeer) != 0)
+    {
+        LOG("getsockopt(LOCAL_PEERID) failed (%d).", errno);
+        return false;
+    }
+
     // check process id
-    if (!HelperSecurity::instance().verifyProcessId(pid))
+    if (!HelperSecurity::instance().verifyProcessId(pidPeer))
     {
         return false;
     }
@@ -330,7 +338,7 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
         while (true)
         {
             CMD_ANSWER cmdAnswer;
-            if (!readAndHandleCommand(buf.get(), cmdAnswer))
+            if (!readAndHandleCommand(sock, buf.get(), cmdAnswer))
             {
                 // goto receive next commands
                 boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),
