@@ -84,9 +84,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         return false;
     }
 
-    std::vector<char> vector(length);
-    memcpy(&vector[0], bufPtr + headerSize, length);
-    std::string str(vector.begin(), vector.end());
+    std::string str(bufPtr + headerSize, length);
     std::istringstream stream(str);
     boost::archive::text_iarchive ia(stream, boost::archive::no_header);
     
