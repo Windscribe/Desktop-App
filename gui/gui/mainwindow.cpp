@@ -3212,11 +3212,11 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     QString msg;
     if (connectState.connect_error() == ProtoTypes::NO_OPENVPN_SOCKET)
     {
-        msg = tr("Can't connect to openvpn process");
+        msg = tr("Can't connect to openvpn process.");
     }
     else if (connectState.connect_error() == ProtoTypes::CANT_RUN_OPENVPN)
     {
-        msg = tr("Can't start openvpn process");
+        msg = tr("Can't start openvpn process.");
     }
     else if (connectState.connect_error() == ProtoTypes::COULD_NOT_FETCH_CREDENTAILS)
     {
@@ -3289,7 +3289,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     }
     else if (connectState.connect_error() == ProtoTypes::WIREGUARD_CONNECTION_ERROR)
     {
-        msg = tr("Failed to setup WireGuard connection");
+        msg = tr("Failed to setup WireGuard connection.");
     }
 #ifdef Q_OS_WIN
     else if (connectState.connect_error() == ProtoTypes::NO_INSTALLED_TUN_TAP)
@@ -3329,6 +3329,8 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
                     li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
         }
+
+        msg = tr("Failed to setup custom openvpn configuration.");
     }
     else
     {
