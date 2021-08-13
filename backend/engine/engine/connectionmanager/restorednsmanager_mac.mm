@@ -12,6 +12,9 @@ bool RestoreDNSManager_mac::restoreState(IHelper *helper)
     qCDebug(LOG_BASIC) << "=== RestoreDNSManager::restoreState() ===";
 
     QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
+    if (strDnsPath.isEmpty()) {
+        return false;
+    }
     QString strAnswer = helper_mac->executeRootCommand(strDnsPath + " -down");
     qCDebug(LOG_BASIC) << "Output from dns.sh -down: " << strAnswer;
 

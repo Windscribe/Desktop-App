@@ -141,6 +141,9 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
     file_.write(str.toLocal8Bit());
 
     QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
+    if (strDnsPath.isEmpty()) {
+        return false;
+    }
     QString cmd1 = "\nup \"" + strDnsPath + " -up\"\n";
     file_.write(cmd1.toUtf8());
 #elif defined(Q_OS_LINUX)

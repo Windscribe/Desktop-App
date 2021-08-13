@@ -20,6 +20,8 @@ private:
     ~TempScripts_mac();
 
     QString dnsScriptPath_;
+
+    QByteArray hashFile(const QString& file) const;
 };
 
 #endif // TEMPSCRIPTS_MAC_H

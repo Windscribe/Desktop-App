@@ -435,7 +435,11 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
     cmd.clientIpAddress = config.clientIpAddress().toLatin1().data();
     cmd.clientDnsAddressList = config.clientDnsAddress().toLatin1().data();
 #ifdef Q_OS_MAC
-    cmd.clientDnsScriptName = TempScripts_mac::instance().dnsScriptPath().toLatin1().data();
+    QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
+    if (strDnsPath.isEmpty()) {
+        return false;
+    }
+    cmd.clientDnsScriptName = strDnsPath.toLatin1().data();
 #elif defined(Q_OS_LINUX)
     // no script for Linux
 #endif
