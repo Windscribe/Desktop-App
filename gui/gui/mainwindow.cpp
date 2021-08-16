@@ -3332,6 +3332,14 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
 
         msg = tr("Failed to setup custom openvpn configuration.");
     }
+    else if(connectState.connect_error() == ProtoTypes::WINTUN_DRIVER_REINSTALLATION_ERROR)
+    {
+        msg = tr("Wintun driver fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.");
+    }
+    else if(connectState.connect_error() == ProtoTypes::TAP_DRIVER_REINSTALLATION_ERROR)
+    {
+        msg = tr("Tap driver Fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.");
+    }
     else
     {
          msg = tr("Error during connection (%1)").arg(QString::number(connectState.connect_error()));

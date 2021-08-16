@@ -1845,38 +1845,27 @@ void Engine::onConnectionManagerError(ProtoTypes::ConnectError err)
     }
     else if (err == ProtoTypes::ConnectError::ALL_TAP_IN_USE)
     {
-        /*if (CheckAdapterEnable::isAdapterDisabled(helper_, "Windscribe VPN"))
-        {
-            qCDebug(LOG_BASIC) << "Detected TAP-adapter disabled or broken, try reinstall it";
-            //CheckAdapterEnable::enable(helper_, "Windscribe VPN");
-
-#ifdef Q_OS_WIN
-            if (!TapInstall_win::reinstallTap(TapInstall_win::TAP6))
-            {
-                qCDebug(LOG_BASIC) << "Failed reinstall TAP-adapter";
-                qCDebug(LOG_BASIC) << "Try install legacy TAP5-adapter";
-                if (!TapInstall_win::reinstallTap(TapInstall_win::TAP5))
-                {
-                    qCDebug(LOG_BASIC) << "Failed reinstall legacy TAP-adapter";
-                }
-                else
-                {
-                    qCDebug(LOG_BASIC) << "Legacy TAP5-adapter reinstalled successfully";
-                }
-            }
-            else
-            {
-                qCDebug(LOG_BASIC) << "TAP-adapter reinstalled successfully";
-            }
-#endif
-
+        if(dynamic_cast<Helper_win*>(helper_)->reinstallTapDriver(QCoreApplication::applicationDirPath() + "/tap")) {
+            qCDebug(LOG_BASIC) << "Tap driver was re-installed successfully.";
             doConnect(true);
-            return;
         }
-        else
-        {
-            //emit connectError(ALL_TAP_IN_USE);
-        }*/
+        else {
+            qCDebug(LOG_BASIC) << "Failed to re-install tap driver";
+            connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ProtoTypes::ConnectError::TAP_DRIVER_REINSTALLATION_ERROR);
+        }
+        return;
+    }
+    else if (err == ProtoTypes::ConnectError::WINTUN_FATAL_ERROR)
+    {
+        if(dynamic_cast<Helper_win*>(helper_)->reinstallWintunDriver(QCoreApplication::applicationDirPath() + "/wintun")) {
+            qCDebug(LOG_BASIC) << "Wintun driver was re-installed successfully.";
+            doConnect(true);
+        }
+        else {
+            qCDebug(LOG_BASIC) << "Failed to re-install tap driver";
+            connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ProtoTypes::ConnectError::WINTUN_DRIVER_REINSTALLATION_ERROR);
+        }
+        return;
     }
 #endif
     else

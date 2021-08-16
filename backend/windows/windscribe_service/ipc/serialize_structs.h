@@ -229,6 +229,13 @@ void serialize(Archive & ar, MessagePacketResult & g, const unsigned int version
 	ar & g.additionalString;
 }
 
+template<class Archive>
+void serialize(Archive& ar, CMD_REINSTALL_TUN_DRIVER& g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar& g.driverDir;
+}
+
 } // namespace serialization
 } // namespace boost
 

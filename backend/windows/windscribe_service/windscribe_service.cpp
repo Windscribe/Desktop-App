@@ -25,6 +25,7 @@
 #include "wireguard/defaultroutemonitor.h"
 #include "wireguard/wireguardadapter.h"
 #include "wireguard/wireguardcontroller.h"
+#include "reinstall_tun_drivers.h"
 #include <conio.h>
 #include "../../../common/utils/executable_signature/executable_signature_win.h"
 #include "../../../common/utils/crashhandler.h"
@@ -1017,6 +1018,34 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		else
 		{
 			Logger::instance().out(L"Can't change permissions of \"hosts\" file.");
+			mpr.success = false;
+		}
+	}
+	else if (cmdId == AA_COMMAND_REINSTALL_TAP_DRIVER) 
+	{
+		CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
+		ia >> cmdReinstallTunDriver;
+
+		if (ReinstallTunDrivers::reinstallDriver(ReinstallTunDrivers::Type::TAP, cmdReinstallTunDriver.driverDir.c_str()))
+		{
+			mpr.success = true;
+		}
+		else 
+		{
+			mpr.success = false;
+		}
+	}
+	else if (cmdId == AA_COMMAND_REINSTALL_WINTUN_DRIVER)
+	{
+		CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
+		ia >> cmdReinstallTunDriver;
+
+		if (ReinstallTunDrivers::reinstallDriver(ReinstallTunDrivers::Type::WINTUN, cmdReinstallTunDriver.driverDir.c_str()))
+		{
+			mpr.success = true;
+		}
+		else
+		{
 			mpr.success = false;
 		}
 	}
