@@ -30,6 +30,8 @@
     #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
     #include "engine/helper/helper_mac.h"
+#elif defined Q_OS_LINUX
+    #include "ikev2connection_linux.h"
 #endif
 
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
@@ -1098,6 +1100,8 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
             connector_ = new IKEv2Connection_win(this, helper_);
 #elif defined Q_OS_MAC
             connector_ = new IKEv2Connection_mac(this, helper_);
+#elif defined Q_OS_LINUX
+            connector_ = new IKEv2Connection_linux(this, helper_);
 #endif
         }
         else if (protocol.isWireGuardProtocol())

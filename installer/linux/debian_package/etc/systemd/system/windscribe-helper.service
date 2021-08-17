@@ -1,0 +1,10 @@
+[Unit]
+Description=Windscribe helper service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/windscribe/helper
+
+[Install]
+WantedBy=multi-user.target

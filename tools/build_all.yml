@@ -123,7 +123,8 @@ installer_mac:
     - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
 
 installer_linux:
-
+  name:     Installer
+  
 
 targets:
   win32:
@@ -187,7 +188,12 @@ lib_files_linux:
     - lib/libQt5XcbQpa.so.5 -> lib/libQt5XcbQpa.so.5
     - lib/libQt5DBus.so.5 -> lib/libQt5DBus.so.5
     - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
+    - plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so -> plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
+    - plugins/platforminputcontexts/libibusplatforminputcontextplugin.so -> plugins/platforminputcontexts/libibusplatforminputcontextplugin.so
     - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
+    - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
+    - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
+    - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
 
   cares:
     - lib/libcares.so.2 -> lib/libcares.so.2

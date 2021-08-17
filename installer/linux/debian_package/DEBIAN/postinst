@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+systemctl enable windscribe-helper
+systemctl start windscribe-helper

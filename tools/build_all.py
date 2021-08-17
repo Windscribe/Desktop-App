@@ -413,6 +413,7 @@ def BuildInstallerMac(configdata, qt_root):
   utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
 def BuildInstallerLinux(configdata, qt_root):
+  msg.Info("Copying lib_files_linux...")
   if "lib_files_linux" in configdata:
     for k, v in configdata["lib_files_linux"].iteritems():
       lib_root = iutl.GetDependencyBuildRoot(k)
@@ -420,10 +421,24 @@ def BuildInstallerLinux(configdata, qt_root):
         raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
       CopyFiles(k, v, lib_root, BUILD_INSTALLER_FILES)
 
+  msg.Info("Fixing rpaths...")
   if "files_fix_rpath_linux" in configdata:
     for k in configdata["files_fix_rpath_linux"]:
       dstfile = os.path.join(BUILD_INSTALLER_FILES, k)
       FixRpathLinux(dstfile)
+
+  # Copy wstunnel
+  msg.Info("Copying wstunnel...")
+  wstunnel_dir = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "wstunnel")
+  CopyFile("windscribewstunnel",wstunnel_dir, BUILD_INSTALLER_FILES)
+
+  msg.Info("Creating Debian package...")
+  src_package_path = os.path.join(ROOT_DIR, "installer", "linux", "debian_package")
+  dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_2.3-4_amd64")
+  utl.CopyAllFiles(src_package_path, dest_package_path)
+  utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "usr", "local", "windscribe"))
+
+  iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
 
 
 def BuildAll():
@@ -492,15 +507,15 @@ def BuildAll():
   else:
     artifact_path = temp_dir
 
-  if current_os == "linux":
-    utl.CopyAllFiles(BUILD_INSTALLER_FILES, artifact_dir)
-  else:
-    for filename in glob2.glob(artifact_path + os.sep + "*"):
-      if os.path.isdir(filename):
-        continue
-      filetitle = os.path.basename(filename)
-      utl.CopyFile(filename, os.path.join(artifact_dir, filetitle))
-      msg.HeadPrint("Ready: \"{}\"".format(filetitle))
+  #if current_os == "linux":
+  #  utl.CopyAllFiles(BUILD_INSTALLER_FILES, artifact_dir)
+  #else:
+  for filename in glob2.glob(artifact_path + os.sep + "*"):
+    if os.path.isdir(filename):
+      continue
+    filetitle = os.path.basename(filename)
+    utl.CopyFile(filename, os.path.join(artifact_dir, filetitle))
+    msg.HeadPrint("Ready: \"{}\"".format(filetitle))
   # Cleanup.
   msg.Print("Cleaning temporary directory...")
   utl.RemoveDirectory(temp_dir)

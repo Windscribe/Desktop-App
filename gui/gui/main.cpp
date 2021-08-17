@@ -85,6 +85,9 @@ int main(int argc, char *argv[])
 
 #ifdef Q_OS_MAC
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#elif defined (Q_OS_LINUX)
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
     WindscribeApplication a(argc, argv);

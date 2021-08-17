@@ -291,6 +291,7 @@ SOURCES += \
            engine/helper/helper_linux.cpp \
            engine/networkstatemanager/networkstatemanager_linux.cpp \
            engine/firewall/firewallcontroller_linux.cpp \
+           engine/connectionmanager/ikev2connection_linux.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
            engine/macaddresscontroller/macaddresscontroller_linux.cpp
 
@@ -301,6 +302,7 @@ HEADERS += \
            engine/helper/helper_linux.h \
            engine/networkstatemanager/networkstatemanager_linux.h \
            engine/firewall/firewallcontroller_linux.h \
+           engine/connectionmanager/ikev2connection_linux.h \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
            engine/macaddresscontroller/macaddresscontroller_linux.h
 } # unix
