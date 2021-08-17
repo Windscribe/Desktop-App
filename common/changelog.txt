@@ -1,3 +1,19 @@
+2.03.04 (9/08/2021)
+* Connect Info scaling issue on Mac fixed. #472
+* Added CFBundleShortVersionString to Mac plist. #461
+* Fixed system icon issues on Big Sur. #463
+* Added "Start minimized" option. #477
+* Incorrect bandwidth used notification on MacOS fixed. #478
+* Custom config UI not re-rendered - fixed. #484
+* Custom configs don't get sorted by latency - fixed. #486
+* Click event on Upgrade button bleeds through to the Preferences screen - fixed. #483
+* Hosts file not writable - show correct error to user. #454
+* Accelerated the openvpn connection on Windows. #494
+* Injected verify-x509-name into OpenVPN config. #492
+* ChangeIcs.exe will not run on x64 (possible issues Vpn Sharing feature) - fixed. #500
+* Mac OS message boxes do not display spaces after periods - fixed. #501
+
+
 2.03.03 (21/05/2021)
 * The invalid custom DNS message return to the connect screen bug fixed.
 * Added shadows for some texts and controls.
