@@ -1,0 +1,68 @@
+; SPDX-License-Identifier: GPL-2.0
+;
+; Copyright (C) 2018-2020 WireGuard LLC. All Rights Reserved.
+
+[Version]
+Signature = "$Windows NT$"
+Class = Net
+ClassGUID = {4D36E972-E325-11CE-BFC1-08002BE10318}
+Provider = %Windtun420.CompanyName%
+CatalogFile.NT = windtun420.cat
+DriverVer = 11/30/2020,0.9.0.0
+
+[Manufacturer]
+%Windtun420.CompanyName% = %Windtun420.Name%, NTamd64
+
+[SourceDisksNames]
+1 = %Windtun420.DiskDesc%, "", ,
+
+[SourceDisksFiles]
+windtun420.sys = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+Windtun.CopyFiles.Sys = 12
+
+[Windtun420.CopyFiles.Sys]
+windtun420.sys, , , 0x00004002 ; COPYFLG_IN_USE_RENAME | COPYFLG_NOSKIP
+
+[Windtun420.NTamd64]
+%Windtun420.DeviceDesc% = Windtun420.Install, Windtun420
+
+[Windtun420.Install]
+Characteristics = 0x1 ; NCF_VIRTUAL
+AddReg = Windtun420.Ndi
+CopyFiles = Windtun420.CopyFiles.Sys
+*IfType = 53 ; IF_TYPE_PROP_VIRTUAL
+*MediaType = 19 ; NdisMediumIP
+*PhysicalMediaType = 0 ; NdisPhysicalMediumUnspecified
+EnableDhcp = 0 ; Disable DHCP
+
+[Windtun420.Install.Services]
+AddService = windtun420, 2, Windtun420.Service, Windtun420.EventLog ; 2=SPSVCINST_ASSOCSERVICE
+
+[Windtun420.Ndi]
+HKR, , DeviceVxDs, , windtun420.sys
+HKR, Ndi, Service, 0, windtun420
+HKR, Ndi\Interfaces, UpperRange, , "ndis5"
+HKR, Ndi\Interfaces, LowerRange, , "nolower"
+
+[Windtun420.Service]
+DisplayName = %Windtun420.Name%
+Description = %Windtun420.DeviceDesc%
+ServiceType = 1 ; SERVICE_KERNEL_DRIVER
+StartType = 3 ; SERVICE_DEMAND_START
+ErrorControl = 1 ; SERVICE_ERROR_NORMAL
+ServiceBinary = %12%\windtun420.sys
+LoadOrderGroup = NDIS
+
+[Windtun420.EventLog]
+HKR, , EventMessageFile, 0x00020000, "%11%\IoLogMsg.dll;%12%\windtun420.sys"
+HKR, , TypesSupported, 0x00010001, 7
+
+[Strings]
+Windtun420.Name = "Windtun420"
+Windtun420.DiskDesc = "Windtun420 Driver Install Disk"
+Windtun420.DeviceDesc = "Windscribe Windtun420"
+Windtun420.CompanyName = "Windscribe Limited"
+

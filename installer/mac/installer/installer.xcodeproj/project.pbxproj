@@ -1,0 +1,618 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		000EF4A124DC3BF200A2E1B1 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000EF4A024DC3BF200A2E1B1 /* ServiceManagement.framework */; };
+		000EF4A624DC3C8C00A2E1B1 /* SVGKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000EF4A424DC3C8900A2E1B1 /* SVGKit.framework */; };
+		000EF4A724DC3C8C00A2E1B1 /* SVGKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 000EF4A424DC3C8900A2E1B1 /* SVGKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		000EF4AA24DC3C9900A2E1B1 /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000EF4A824DC3C9600A2E1B1 /* CocoaLumberjack.framework */; };
+		000EF4AB24DC3C9900A2E1B1 /* CocoaLumberjack.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 000EF4A824DC3C9600A2E1B1 /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		000EF4BB24DC3CF600A2E1B1 /* SETTINGS_ICON.svg in Resources */ = {isa = PBXBuildFile; fileRef = 000EF4B024DC3CF600A2E1B1 /* SETTINGS_ICON.svg */; };
+		000EF4BE24DC3CF600A2E1B1 /* FRWRD_ARROW_ICON.svg in Resources */ = {isa = PBXBuildFile; fileRef = 000EF4B324DC3CF600A2E1B1 /* FRWRD_ARROW_ICON.svg */; };
+		000EF4BF24DC3CF600A2E1B1 /* BADGE_ICON.svg in Resources */ = {isa = PBXBuildFile; fileRef = 000EF4B424DC3CF600A2E1B1 /* BADGE_ICON.svg */; };
+		000EF4C124DC3CF600A2E1B1 /* GREEN_TOGGLE_BG.svg in Resources */ = {isa = PBXBuildFile; fileRef = 000EF4B624DC3CF600A2E1B1 /* GREEN_TOGGLE_BG.svg */; };
+		000EF4C224DC3CF600A2E1B1 /* WHITE_TOGGLE_BG.svg in Resources */ = {isa = PBXBuildFile; fileRef = 000EF4B724DC3CF600A2E1B1 /* WHITE_TOGGLE_BG.svg */; };
+		000EF4C424DC3DDF00A2E1B1 /* com.windscribe.helper.macos in Resources */ = {isa = PBXBuildFile; fileRef = 000EF4C324DC3DDF00A2E1B1 /* com.windscribe.helper.macos */; };
+		000EF4C624DC3E2000A2E1B1 /* com.windscribe.helper.macos in CopyFiles */ = {isa = PBXBuildFile; fileRef = 000EF4C324DC3DDF00A2E1B1 /* com.windscribe.helper.macos */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		0025016025E52D520084CB76 /* installhelper_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0025015D25E52D520084CB76 /* installhelper_mac.mm */; };
+		0025016125E52D520084CB76 /* helper_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0025015F25E52D520084CB76 /* helper_mac.cpp */; };
+		002AE95425DC33290071C290 /* CHECK_ICON.svg in Resources */ = {isa = PBXBuildFile; fileRef = 002AE95325DC33290071C290 /* CHECK_ICON.svg */; };
+		006FDBD625E9530500673A3F /* base_installer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 006FDBD525E9530500673A3F /* base_installer.mm */; };
+		006FDBD925E96B1400673A3F /* downloader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 006FDBD825E96B1400673A3F /* downloader.mm */; };
+		00869A7425E82B1300AFC985 /* processes_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00869A7225E82B1300AFC985 /* processes_helper.cpp */; };
+		00A4A8E824DC68AB00B4DDC2 /* LoggerHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00A4A8E424DC68AB00B4DDC2 /* LoggerHelper.mm */; };
+		00A4A8E924DC68AB00B4DDC2 /* Logger.m in Sources */ = {isa = PBXBuildFile; fileRef = 00A4A8E524DC68AB00B4DDC2 /* Logger.m */; };
+		00A8EAD125842B54003E263E /* background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 00A8EACE25842B54003E263E /* background@2x.png */; };
+		00A8EAD225842B54003E263E /* background@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 00A8EACF25842B54003E263E /* background@3x.png */; };
+		00A8EAD325842B54003E263E /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = 00A8EAD025842B54003E263E /* background.png */; };
+		00B0E80F24DC1E330014B1B9 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E80E24DC1E330014B1B9 /* AppDelegate.mm */; };
+		00B0E81124DC1E340014B1B9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00B0E81024DC1E340014B1B9 /* Assets.xcassets */; };
+		00B0E81424DC1E340014B1B9 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 00B0E81224DC1E340014B1B9 /* MainMenu.xib */; };
+		00B0E81724DC1E340014B1B9 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E81624DC1E340014B1B9 /* main.mm */; };
+		00B0E82224DC20480014B1B9 /* windscribe.icns in Resources */ = {isa = PBXBuildFile; fileRef = 00B0E82024DC20480014B1B9 /* windscribe.icns */; };
+		00B0E82B24DC240A0014B1B9 /* MainView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E82324DC240A0014B1B9 /* MainView.mm */; };
+		00B0E82C24DC240A0014B1B9 /* PathTextField.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E82424DC240A0014B1B9 /* PathTextField.mm */; };
+		00B0E82D24DC240A0014B1B9 /* MainWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E82524DC240A0014B1B9 /* MainWindow.mm */; };
+		00B0E82E24DC240A0014B1B9 /* ProgressView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E82824DC240A0014B1B9 /* ProgressView.mm */; };
+		00B0E83424DC24330014B1B9 /* HoverButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E83224DC24320014B1B9 /* HoverButton.m */; };
+		00B0E83524DC24330014B1B9 /* ButtonsCells.m in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E83324DC24320014B1B9 /* ButtonsCells.m */; };
+		00B0E83924DC24790014B1B9 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 00B0E83724DC24790014B1B9 /* IBMPlexSans-Regular.ttf */; };
+		00B0E83A24DC24790014B1B9 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 00B0E83824DC24790014B1B9 /* IBMPlexSans-Bold.ttf */; };
+		00B0E84124DC24FF0014B1B9 /* installer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E83C24DC24FE0014B1B9 /* installer.mm */; };
+		00B0E88324DC2A300014B1B9 /* ImageResources.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E88224DC2A2F0014B1B9 /* ImageResources.mm */; };
+		00B1BA3425E4EC0E0099A124 /* windscribe.7z in Resources */ = {isa = PBXBuildFile; fileRef = 00B1BA3325E4EC0D0099A124 /* windscribe.7z */; };
+		8853DAD124EC715C00938900 /* ForegroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8853DAD024EC715C00938900 /* ForegroundView.m */; };
+		8853DAD324EC9E6000938900 /* FOLDER_ICON.svg in Resources */ = {isa = PBXBuildFile; fileRef = 8853DAD224EC9E6000938900 /* FOLDER_ICON.svg */; };
+		88C7794825239C5D00968CCD /* QuietModeHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88C7794725239C5D00968CCD /* QuietModeHelper.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		000EF4C524DC3DF200A2E1B1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LaunchServices;
+			dstSubfolderSpec = 1;
+			files = (
+				000EF4C624DC3E2000A2E1B1 /* com.windscribe.helper.macos in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		00B0E91C24DC2B2B0014B1B9 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				000EF4AB24DC3C9900A2E1B1 /* CocoaLumberjack.framework in Embed Frameworks */,
+				000EF4A724DC3C8C00A2E1B1 /* SVGKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		000EF4A024DC3BF200A2E1B1 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
+		000EF4A424DC3C8900A2E1B1 /* SVGKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SVGKit.framework; path = installer/Frameworks/SVGKit.framework; sourceTree = "<group>"; };
+		000EF4A824DC3C9600A2E1B1 /* CocoaLumberjack.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CocoaLumberjack.framework; path = installer/Frameworks/CocoaLumberjack.framework; sourceTree = "<group>"; };
+		000EF4B024DC3CF600A2E1B1 /* SETTINGS_ICON.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = SETTINGS_ICON.svg; sourceTree = "<group>"; };
+		000EF4B324DC3CF600A2E1B1 /* FRWRD_ARROW_ICON.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = FRWRD_ARROW_ICON.svg; sourceTree = "<group>"; };
+		000EF4B424DC3CF600A2E1B1 /* BADGE_ICON.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = BADGE_ICON.svg; sourceTree = "<group>"; };
+		000EF4B624DC3CF600A2E1B1 /* GREEN_TOGGLE_BG.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = GREEN_TOGGLE_BG.svg; sourceTree = "<group>"; };
+		000EF4B724DC3CF600A2E1B1 /* WHITE_TOGGLE_BG.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = WHITE_TOGGLE_BG.svg; sourceTree = "<group>"; };
+		000EF4C324DC3DDF00A2E1B1 /* com.windscribe.helper.macos */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = com.windscribe.helper.macos; path = ../binaries/helper/com.windscribe.helper.macos; sourceTree = "<group>"; };
+		0025015C25E52D520084CB76 /* helper_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_mac.h; sourceTree = "<group>"; };
+		0025015D25E52D520084CB76 /* installhelper_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = installhelper_mac.mm; sourceTree = "<group>"; };
+		0025015E25E52D520084CB76 /* installhelper_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = installhelper_mac.h; sourceTree = "<group>"; };
+		0025015F25E52D520084CB76 /* helper_mac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = helper_mac.cpp; sourceTree = "<group>"; };
+		002AE95325DC33290071C290 /* CHECK_ICON.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CHECK_ICON.svg; sourceTree = "<group>"; };
+		006FDBD425E9530500673A3F /* base_installer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = base_installer.hpp; sourceTree = "<group>"; };
+		006FDBD525E9530500673A3F /* base_installer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = base_installer.mm; sourceTree = "<group>"; };
+		006FDBD725E96B1300673A3F /* downloader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = downloader.hpp; sourceTree = "<group>"; };
+		006FDBD825E96B1400673A3F /* downloader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = downloader.mm; sourceTree = "<group>"; };
+		00869A7225E82B1300AFC985 /* processes_helper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = processes_helper.cpp; sourceTree = "<group>"; };
+		00869A7325E82B1300AFC985 /* processes_helper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = processes_helper.h; sourceTree = "<group>"; };
+		00A4A8E424DC68AB00B4DDC2 /* LoggerHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoggerHelper.mm; sourceTree = "<group>"; };
+		00A4A8E524DC68AB00B4DDC2 /* Logger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Logger.m; sourceTree = "<group>"; };
+		00A4A8E624DC68AB00B4DDC2 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
+		00A4A8E724DC68AB00B4DDC2 /* LoggerHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoggerHelper.h; sourceTree = "<group>"; };
+		00A8EACE25842B54003E263E /* background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "background@2x.png"; sourceTree = "<group>"; };
+		00A8EACF25842B54003E263E /* background@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "background@3x.png"; sourceTree = "<group>"; };
+		00A8EAD025842B54003E263E /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
+		00B0E80A24DC1E330014B1B9 /* installer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = installer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		00B0E80D24DC1E330014B1B9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		00B0E80E24DC1E330014B1B9 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
+		00B0E81024DC1E340014B1B9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		00B0E81324DC1E340014B1B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		00B0E81524DC1E340014B1B9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		00B0E81624DC1E340014B1B9 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		00B0E81824DC1E340014B1B9 /* installer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = installer.entitlements; sourceTree = "<group>"; };
+		00B0E82024DC20480014B1B9 /* windscribe.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = windscribe.icns; sourceTree = "<group>"; };
+		00B0E82324DC240A0014B1B9 /* MainView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MainView.mm; sourceTree = "<group>"; };
+		00B0E82424DC240A0014B1B9 /* PathTextField.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PathTextField.mm; sourceTree = "<group>"; };
+		00B0E82524DC240A0014B1B9 /* MainWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MainWindow.mm; sourceTree = "<group>"; };
+		00B0E82624DC240A0014B1B9 /* PathTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathTextField.h; sourceTree = "<group>"; };
+		00B0E82724DC240A0014B1B9 /* MainView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainView.h; sourceTree = "<group>"; };
+		00B0E82824DC240A0014B1B9 /* ProgressView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ProgressView.mm; sourceTree = "<group>"; };
+		00B0E82924DC240A0014B1B9 /* MainWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainWindow.h; sourceTree = "<group>"; };
+		00B0E82A24DC240A0014B1B9 /* ProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressView.h; sourceTree = "<group>"; };
+		00B0E83024DC24320014B1B9 /* HoverButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HoverButton.h; sourceTree = "<group>"; };
+		00B0E83124DC24320014B1B9 /* ButtonsCells.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ButtonsCells.h; sourceTree = "<group>"; };
+		00B0E83224DC24320014B1B9 /* HoverButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HoverButton.m; sourceTree = "<group>"; };
+		00B0E83324DC24320014B1B9 /* ButtonsCells.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ButtonsCells.m; sourceTree = "<group>"; };
+		00B0E83724DC24790014B1B9 /* IBMPlexSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexSans-Regular.ttf"; sourceTree = "<group>"; };
+		00B0E83824DC24790014B1B9 /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; };
+		00B0E83C24DC24FE0014B1B9 /* installer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = installer.mm; sourceTree = "<group>"; };
+		00B0E83E24DC24FF0014B1B9 /* installer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = installer.hpp; sourceTree = "<group>"; };
+		00B0E88124DC2A2F0014B1B9 /* ImageResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageResources.h; sourceTree = "<group>"; };
+		00B0E88224DC2A2F0014B1B9 /* ImageResources.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ImageResources.mm; sourceTree = "<group>"; };
+		00B1BA3325E4EC0D0099A124 /* windscribe.7z */ = {isa = PBXFileReference; lastKnownFileType = file; path = windscribe.7z; sourceTree = "<group>"; };
+		8853DACF24EC715C00938900 /* ForegroundView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ForegroundView.h; sourceTree = "<group>"; };
+		8853DAD024EC715C00938900 /* ForegroundView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ForegroundView.m; sourceTree = "<group>"; };
+		8853DAD224EC9E6000938900 /* FOLDER_ICON.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = FOLDER_ICON.svg; sourceTree = "<group>"; };
+		88C7794725239C5D00968CCD /* QuietModeHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = QuietModeHelper.mm; sourceTree = "<group>"; };
+		88C7794925239CCC00968CCD /* QuietModeHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuietModeHelper.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		00B0E80724DC1E330014B1B9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000EF4A624DC3C8C00A2E1B1 /* SVGKit.framework in Frameworks */,
+				000EF4AA24DC3C9900A2E1B1 /* CocoaLumberjack.framework in Frameworks */,
+				000EF4A124DC3BF200A2E1B1 /* ServiceManagement.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		000EF4AC24DC3CF600A2E1B1 /* svg */ = {
+			isa = PBXGroup;
+			children = (
+				002AE95325DC33290071C290 /* CHECK_ICON.svg */,
+				8853DAD224EC9E6000938900 /* FOLDER_ICON.svg */,
+				000EF4B024DC3CF600A2E1B1 /* SETTINGS_ICON.svg */,
+				000EF4B324DC3CF600A2E1B1 /* FRWRD_ARROW_ICON.svg */,
+				000EF4B424DC3CF600A2E1B1 /* BADGE_ICON.svg */,
+				000EF4B624DC3CF600A2E1B1 /* GREEN_TOGGLE_BG.svg */,
+				000EF4B724DC3CF600A2E1B1 /* WHITE_TOGGLE_BG.svg */,
+			);
+			path = svg;
+			sourceTree = "<group>";
+		};
+		0025015B25E52D520084CB76 /* helper */ = {
+			isa = PBXGroup;
+			children = (
+				0025015C25E52D520084CB76 /* helper_mac.h */,
+				0025015D25E52D520084CB76 /* installhelper_mac.mm */,
+				0025015E25E52D520084CB76 /* installhelper_mac.h */,
+				0025015F25E52D520084CB76 /* helper_mac.cpp */,
+			);
+			path = helper;
+			sourceTree = "<group>";
+		};
+		00B0E80124DC1E330014B1B9 = {
+			isa = PBXGroup;
+			children = (
+				000EF4C324DC3DDF00A2E1B1 /* com.windscribe.helper.macos */,
+				00B0E81E24DC20480014B1B9 /* resources */,
+				00B0E80C24DC1E330014B1B9 /* installer */,
+				00B0E80B24DC1E330014B1B9 /* Products */,
+				00B0E88424DC2A870014B1B9 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		00B0E80B24DC1E330014B1B9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				00B0E80A24DC1E330014B1B9 /* installer.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		00B0E80C24DC1E330014B1B9 /* installer */ = {
+			isa = PBXGroup;
+			children = (
+				0025015B25E52D520084CB76 /* helper */,
+				00A4A8E624DC68AB00B4DDC2 /* Logger.h */,
+				00A4A8E524DC68AB00B4DDC2 /* Logger.m */,
+				00A4A8E724DC68AB00B4DDC2 /* LoggerHelper.h */,
+				00A4A8E424DC68AB00B4DDC2 /* LoggerHelper.mm */,
+				000EF4AC24DC3CF600A2E1B1 /* svg */,
+				00B0E88124DC2A2F0014B1B9 /* ImageResources.h */,
+				00B0E88224DC2A2F0014B1B9 /* ImageResources.mm */,
+				00B0E83B24DC24FE0014B1B9 /* installer */,
+				00B0E83624DC24790014B1B9 /* fonts */,
+				00B0E82F24DC24320014B1B9 /* Buttons */,
+				00B0E82724DC240A0014B1B9 /* MainView.h */,
+				00B0E82324DC240A0014B1B9 /* MainView.mm */,
+				00B0E82924DC240A0014B1B9 /* MainWindow.h */,
+				00B0E82524DC240A0014B1B9 /* MainWindow.mm */,
+				00B0E82624DC240A0014B1B9 /* PathTextField.h */,
+				00B0E82424DC240A0014B1B9 /* PathTextField.mm */,
+				00B0E82A24DC240A0014B1B9 /* ProgressView.h */,
+				00B0E82824DC240A0014B1B9 /* ProgressView.mm */,
+				00B0E80D24DC1E330014B1B9 /* AppDelegate.h */,
+				00B0E80E24DC1E330014B1B9 /* AppDelegate.mm */,
+				00B0E81024DC1E340014B1B9 /* Assets.xcassets */,
+				00B0E81224DC1E340014B1B9 /* MainMenu.xib */,
+				00B0E81524DC1E340014B1B9 /* Info.plist */,
+				00B0E81624DC1E340014B1B9 /* main.mm */,
+				00B0E81824DC1E340014B1B9 /* installer.entitlements */,
+				8853DACF24EC715C00938900 /* ForegroundView.h */,
+				8853DAD024EC715C00938900 /* ForegroundView.m */,
+				88C7794725239C5D00968CCD /* QuietModeHelper.mm */,
+				88C7794925239CCC00968CCD /* QuietModeHelper.h */,
+			);
+			path = installer;
+			sourceTree = "<group>";
+		};
+		00B0E81E24DC20480014B1B9 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				00B1BA3325E4EC0D0099A124 /* windscribe.7z */,
+				00A8EAD025842B54003E263E /* background.png */,
+				00A8EACE25842B54003E263E /* background@2x.png */,
+				00A8EACF25842B54003E263E /* background@3x.png */,
+				00B0E82024DC20480014B1B9 /* windscribe.icns */,
+			);
+			name = resources;
+			path = installer/resources;
+			sourceTree = "<group>";
+		};
+		00B0E82F24DC24320014B1B9 /* Buttons */ = {
+			isa = PBXGroup;
+			children = (
+				00B0E83024DC24320014B1B9 /* HoverButton.h */,
+				00B0E83124DC24320014B1B9 /* ButtonsCells.h */,
+				00B0E83224DC24320014B1B9 /* HoverButton.m */,
+				00B0E83324DC24320014B1B9 /* ButtonsCells.m */,
+			);
+			path = Buttons;
+			sourceTree = "<group>";
+		};
+		00B0E83624DC24790014B1B9 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				00B0E83724DC24790014B1B9 /* IBMPlexSans-Regular.ttf */,
+				00B0E83824DC24790014B1B9 /* IBMPlexSans-Bold.ttf */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+		00B0E83B24DC24FE0014B1B9 /* installer */ = {
+			isa = PBXGroup;
+			children = (
+				006FDBD725E96B1300673A3F /* downloader.hpp */,
+				006FDBD825E96B1400673A3F /* downloader.mm */,
+				006FDBD425E9530500673A3F /* base_installer.hpp */,
+				006FDBD525E9530500673A3F /* base_installer.mm */,
+				00B0E83C24DC24FE0014B1B9 /* installer.mm */,
+				00B0E83E24DC24FF0014B1B9 /* installer.hpp */,
+				00869A7225E82B1300AFC985 /* processes_helper.cpp */,
+				00869A7325E82B1300AFC985 /* processes_helper.h */,
+			);
+			path = installer;
+			sourceTree = "<group>";
+		};
+		00B0E88424DC2A870014B1B9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				000EF4A824DC3C9600A2E1B1 /* CocoaLumberjack.framework */,
+				000EF4A424DC3C8900A2E1B1 /* SVGKit.framework */,
+				000EF4A024DC3BF200A2E1B1 /* ServiceManagement.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		00B0E80924DC1E330014B1B9 /* installer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00B0E81B24DC1E340014B1B9 /* Build configuration list for PBXNativeTarget "installer" */;
+			buildPhases = (
+				00B0E80624DC1E330014B1B9 /* Sources */,
+				00B0E80724DC1E330014B1B9 /* Frameworks */,
+				00B0E80824DC1E330014B1B9 /* Resources */,
+				00B0E91C24DC2B2B0014B1B9 /* Embed Frameworks */,
+				000EF4C524DC3DF200A2E1B1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = installer;
+			productName = installer;
+			productReference = 00B0E80A24DC1E330014B1B9 /* installer.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		00B0E80224DC1E330014B1B9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1130;
+				ORGANIZATIONNAME = "Alexey Azanov";
+				TargetAttributes = {
+					00B0E80924DC1E330014B1B9 = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 00B0E80524DC1E330014B1B9 /* Build configuration list for PBXProject "installer" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 00B0E80124DC1E330014B1B9;
+			productRefGroup = 00B0E80B24DC1E330014B1B9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				00B0E80924DC1E330014B1B9 /* installer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		00B0E80824DC1E330014B1B9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8853DAD324EC9E6000938900 /* FOLDER_ICON.svg in Resources */,
+				00A8EAD325842B54003E263E /* background.png in Resources */,
+				002AE95425DC33290071C290 /* CHECK_ICON.svg in Resources */,
+				000EF4C124DC3CF600A2E1B1 /* GREEN_TOGGLE_BG.svg in Resources */,
+				000EF4BF24DC3CF600A2E1B1 /* BADGE_ICON.svg in Resources */,
+				000EF4BB24DC3CF600A2E1B1 /* SETTINGS_ICON.svg in Resources */,
+				00B0E82224DC20480014B1B9 /* windscribe.icns in Resources */,
+				00B0E81124DC1E340014B1B9 /* Assets.xcassets in Resources */,
+				00B1BA3425E4EC0E0099A124 /* windscribe.7z in Resources */,
+				00B0E83A24DC24790014B1B9 /* IBMPlexSans-Bold.ttf in Resources */,
+				000EF4BE24DC3CF600A2E1B1 /* FRWRD_ARROW_ICON.svg in Resources */,
+				00B0E83924DC24790014B1B9 /* IBMPlexSans-Regular.ttf in Resources */,
+				00B0E81424DC1E340014B1B9 /* MainMenu.xib in Resources */,
+				000EF4C224DC3CF600A2E1B1 /* WHITE_TOGGLE_BG.svg in Resources */,
+				00A8EAD125842B54003E263E /* background@2x.png in Resources */,
+				000EF4C424DC3DDF00A2E1B1 /* com.windscribe.helper.macos in Resources */,
+				00A8EAD225842B54003E263E /* background@3x.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		00B0E80624DC1E330014B1B9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				006FDBD925E96B1400673A3F /* downloader.mm in Sources */,
+				00B0E81724DC1E340014B1B9 /* main.mm in Sources */,
+				0025016025E52D520084CB76 /* installhelper_mac.mm in Sources */,
+				00B0E82E24DC240A0014B1B9 /* ProgressView.mm in Sources */,
+				00B0E82B24DC240A0014B1B9 /* MainView.mm in Sources */,
+				00B0E88324DC2A300014B1B9 /* ImageResources.mm in Sources */,
+				00869A7425E82B1300AFC985 /* processes_helper.cpp in Sources */,
+				00B0E83524DC24330014B1B9 /* ButtonsCells.m in Sources */,
+				00B0E83424DC24330014B1B9 /* HoverButton.m in Sources */,
+				0025016125E52D520084CB76 /* helper_mac.cpp in Sources */,
+				006FDBD625E9530500673A3F /* base_installer.mm in Sources */,
+				00B0E82C24DC240A0014B1B9 /* PathTextField.mm in Sources */,
+				00A4A8E924DC68AB00B4DDC2 /* Logger.m in Sources */,
+				8853DAD124EC715C00938900 /* ForegroundView.m in Sources */,
+				00A4A8E824DC68AB00B4DDC2 /* LoggerHelper.mm in Sources */,
+				00B0E80F24DC1E330014B1B9 /* AppDelegate.mm in Sources */,
+				00B0E84124DC24FF0014B1B9 /* installer.mm in Sources */,
+				00B0E82D24DC240A0014B1B9 /* MainWindow.mm in Sources */,
+				88C7794825239C5D00968CCD /* QuietModeHelper.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		00B0E81224DC1E340014B1B9 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				00B0E81324DC1E340014B1B9 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		00B0E81924DC1E340014B1B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		00B0E81A24DC1E340014B1B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		00B0E81C24DC1E340014B1B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = installer/installer.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = GYZJYS7XUG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/installer/Frameworks",
+					"$(PROJECT_DIR)",
+				);
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../build-libs/boost/include";
+				INFOPLIST_FILE = installer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/installer/Frameworks/SVGKit.framework/Versions/A",
+					"$(PROJECT_DIR)/../../../build-libs/boost/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				OTHER_LDFLAGS = "-lboost_serialization";
+				PRODUCT_BUNDLE_IDENTIFIER = com.windscribe.installer.macos;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Debug;
+		};
+		00B0E81D24DC1E340014B1B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = installer/installer.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = GYZJYS7XUG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/installer/Frameworks",
+					"$(PROJECT_DIR)",
+				);
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../build-libs/boost/include";
+				INFOPLIST_FILE = installer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/installer/Frameworks/SVGKit.framework/Versions/A",
+					"$(PROJECT_DIR)/../../../build-libs/boost/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				OTHER_LDFLAGS = "-lboost_serialization";
+				PRODUCT_BUNDLE_IDENTIFIER = com.windscribe.installer.macos;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		00B0E80524DC1E330014B1B9 /* Build configuration list for PBXProject "installer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00B0E81924DC1E340014B1B9 /* Debug */,
+				00B0E81A24DC1E340014B1B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00B0E81B24DC1E340014B1B9 /* Build configuration list for PBXNativeTarget "installer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00B0E81C24DC1E340014B1B9 /* Debug */,
+				00B0E81D24DC1E340014B1B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 00B0E80224DC1E330014B1B9 /* Project object */;
+}

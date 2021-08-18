@@ -1,0 +1,19 @@
+# Visual Studio Local Files
+.vs/
+*.user
+
+# Build Output
+/dist
+/Debug
+/Release
+
+# Static Driver Verifier Output
+/driver/sdv
+/driver/smvbuild.log
+/driver/smvstats.txt
+
+# Driver Verification Log
+/driver/wintun.DVL.XML
+
+# Temporary files
+*~

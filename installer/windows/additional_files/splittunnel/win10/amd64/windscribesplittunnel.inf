@@ -1,0 +1,52 @@
+[Version]
+	Signature = "$Windows NT$"
+	Class = WFPCALLOUTS
+	ClassGuid = {58465043-616C-6C6F-7574-5F636C617372}
+	Provider = %ManufacturerName%
+	CatalogFile = "WindscribeSplitTunnel.cat"
+DriverVer = 01/22/2020,8.50.40.201
+
+[SourceDisksNames]
+	1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+	WindscribeSplitTunnel.sys = 1,,
+
+[DestinationDirs]
+	DefaultDestDir = 12 ; %windir%\system32\drivers
+	WindscribeSplitTunnel.DriverFiles = 12 ; %windir%\system32\drivers
+
+[DefaultInstall]
+	OptionDesc = %ServiceDesc%
+	CopyFiles = WindscribeSplitTunnel.CopyDriverFiles
+
+[DefaultInstall.Services]
+	AddService = %ServiceName%,,WindscribeSplitTunnel.Service
+
+[DefaultUninstall]
+	DelFiles = WindscribeSplitTunnel.DeleteDriverFiles
+
+[DefaultUninstall.Services]
+	DelService = %ServiceName%,0x200 ; SPSVCINST_STOPSERVICE
+
+[WindscribeSplitTunnel.DeleteDriverFiles]
+	WindscribeSplitTunnel.sys,,,0x00010001 ;(DELFLG_IN_USE | DELFLG_IN_USE1)
+
+[WindscribeSplitTunnel.CopyDriverFiles]
+	WindscribeSplitTunnel.sys,,,0x00000040 ; COPYFLG_OVERWRITE_OLDER_ONLY
+
+[WindscribeSplitTunnel.Service]
+	DisplayName = %ServiceName%
+	Description = %ServiceDesc%
+	ServiceType = 1  ; SERVICE_KERNEL_DRIVER;
+	StartType = 3    ; SERVICE_BOOT_START(0) or SERVICE_DEMAND_START(3) 
+	ErrorControl = 1 ; SERVICE_ERROR_NORMAL
+	ServiceBinary = %12%\WindscribeSplitTunnel.sys
+    LoadOrderGroup = NDIS
+    Dependencies = TCPIP
+
+[Strings]
+	ManufacturerName = "Windscribe Limited"
+	DiskName = "Windscribe Split Tunnel Installation Disk"
+	ServiceName = "WindscribeSplitTunnel"
+	ServiceDesc = "Windscribe Split Tunnel Callout Driver"

@@ -1,0 +1,296 @@
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+gui:
+  name:     GUI
+  project:  gui.pro
+  subdir:   gui/gui
+  target:   Windscribe.exe
+  symbols:  Windscribe.pdb
+  macapp:   Windscribe.app
+
+cli:
+  name:     CLI
+  project:  cli.pro
+  subdir:   gui/cli
+  target:   windscribe-cli.exe
+  symbols:  windscribe-cli.pdb
+
+engine:
+  name:     Engine
+  project:  engine.pro
+  subdir:   backend/engine
+  target:   WindscribeEngine.exe
+  symbols:  WindscribeEngine.pdb
+  macapp:   WindscribeEngine.app
+  plugins:  no
+
+service32:
+  name:     Service
+  project:  windscribe_service.vcxproj
+  subdir:   backend/windows/windscribe_service
+  target:   WindscribeService.exe
+  symbols:  WindscribeService.pdb
+  outdir:   x32
+
+service64:
+  name:     Service
+  project:  windscribe_service.vcxproj
+  subdir:   backend/windows/windscribe_service
+  target:   WindscribeService.exe
+  symbols:  WindscribeService.pdb
+  outdir:   x64
+  is64bit:  yes
+
+changeics32:
+  name:     ChangeICS
+  project:  changeics.vcxproj
+  subdir:   backend/windows/changeics
+  target:   ChangeIcs.exe
+  symbols:  ChangeIcs.pdb
+  outdir:   x32
+
+changeics64:
+  name:     ChangeICS
+  project:  changeics.vcxproj
+  subdir:   backend/windows/changeics
+  target:   ChangeIcs.exe
+  symbols:  ChangeIcs.pdb
+  outdir:   x64
+  is64bit:  yes
+
+installhelper:
+  name:     "Install Helper"
+  project:  windscribe_install_helper.vcxproj
+  subdir:   backend/windows/windscribe_install_helper
+  target:   WindscribeInstallHelper.exe
+  symbols:  WindscribeInstallHelper.pdb
+
+launcher_win:
+  name:     Launcher
+  project:  windscribelauncher.pro
+  subdir:   gui/launcher/win
+  target:   WindscribeLauncher.exe
+
+uninstaller:
+  name:     Uninstaller
+  project:  uninstall.vcxproj
+  subdir:   installer/windows/uninstaller
+  target:   uninstall.exe
+
+installer_win:
+  name:     Installer
+  project:  installer.vcxproj
+  subdir:   installer/windows/installer
+  target:   installer.exe
+
+helper:
+  name:     Helper
+  project:  helper.xcodeproj
+  subdir:   backend/mac/helper
+  target:   com.windscribe.helper.macos
+  scheme:   com.windscribe.helper.macos
+  outdir:   helper
+  xcflags:
+    - OTHER_CODE_SIGN_FLAGS=--timestamp
+    - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+
+helper_linux:
+  name:     Helper
+  project:  helper.pro
+  subdir:   backend/linux/helper
+  target:   helper
+  
+
+launcher_mac:
+  name:     Launcher
+  project:  windscribelauncher.xcodeproj
+  subdir:   gui/launcher/mac
+  target:   WindscribeLauncher.app
+  scheme:   WindscribeLauncher
+  outdir:   launcher
+
+installer_mac:
+  name:     Installer
+  project:  installer.xcodeproj
+  subdir:   installer/mac/installer
+  target:   installer.app
+  scheme:   installer
+  outdir:   installer
+  xcflags:
+    - OTHER_CODE_SIGN_FLAGS=--timestamp
+    - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+
+installer_linux:
+  name:     Installer
+  
+
+targets:
+  win32:
+    - gui
+    - cli
+    - engine
+    - service32
+    - service64
+    - changeics32
+    - changeics64
+    - installhelper
+    - launcher_win
+    - uninstaller
+  macos:
+    - helper
+    - engine
+    - launcher_mac
+    - cli
+    - gui
+  linux:
+    - helper_linux
+    - engine
+    - gui
+
+installer:
+  win32: installer_win
+  macos: installer_mac
+  linux: installer_linux
+
+#windows_signing_cert:
+#  path_signtool: 
+#  path_cert: installer/windows/signing/code_signing.pfx
+#  password_cert: 
+#  timestamp: 
+
+qt_files:
+  - bin/libEGL.dll
+  - bin/libGLESV2.dll
+  - bin/Qt5Core.dll
+  - bin/Qt5Gui.dll
+  - bin/Qt5Network.dll
+  - bin/Qt5Svg.dll
+  - bin/Qt5Widgets.dll
+  - plugins/platforms/qwindows.dll
+  - plugins/imageformats/qgif.dll
+  - plugins/imageformats/qico.dll
+  - plugins/imageformats/qsvg.dll
+  - plugins/imageformats/qjpeg.dll
+
+qt_files_linux:
+  - lib/libQt5Core.so.5
+  - lib/libQt5Network.so.5
+  - lib/libQt5Svg.so.5
+  - lib/libQt5Widgets.so.5
+  - lib/libQt5Gui.so.5
+  - lib/libQt5XcbQpa.so.5
+  - lib/libQt5DBus.so.5
+
+lib_files_linux:
+  qt:
+    - lib/libQt5Core.so.5 -> lib/libQt5Core.so.5 
+    - lib/libQt5Network.so.5 -> lib/libQt5Network.so.5
+    - lib/libQt5Svg.so.5 -> lib/libQt5Svg.so.5
+    - lib/libQt5Widgets.so.5 -> lib/libQt5Widgets.so.5
+    - lib/libQt5Gui.so.5 -> lib/libQt5Gui.so.5
+    - lib/libQt5XcbQpa.so.5 -> lib/libQt5XcbQpa.so.5
+    - lib/libQt5DBus.so.5 -> lib/libQt5DBus.so.5
+    - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
+    - plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so -> plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
+    - plugins/platforminputcontexts/libibusplatforminputcontextplugin.so -> plugins/platforminputcontexts/libibusplatforminputcontextplugin.so
+    - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
+    - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
+    - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
+    - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
+
+  cares:
+    - lib/libcares.so.2 -> lib/libcares.so.2
+  curl:
+    - lib/libcurl.so.4 -> lib/libcurl.so.4
+  openssl: 
+    - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
+    - lib/libssl.so.1.1 -> lib/libssl.so.1.1
+  protobuf:
+    - lib/libprotobuf.so.28 -> lib/libprotobuf.so.28
+  openvpn:
+    - openvpn -> windscribeopenvpn
+  stunnel:
+    - stunnel -> windscribestunnel
+  wireguard:
+    - windscribewireguard -> windscribewireguard
+
+files_fix_rpath_linux:
+  - lib/libQt5Network.so.5 -> $ORIGIN
+  - lib/libQt5XcbQpa.so.5 -> $ORIGIN
+  - lib/libQt5DBus.so.5 -> $ORIGIN
+  - lib/libcurl.so.4 -> $ORIGIN
+  - lib/libssl.so.1.1 -> $ORIGIN
+  - windscribestunnel -> $ORIGIN/lib
+  - windscribeopenvpn -> $ORIGIN/lib
+  - WindscribeEngine -> $ORIGIN/lib
+  - Windscribe -> $ORIGIN/lib
+  
+
+msvc_files:
+  - concrt140.dll
+  - msvcp140.dll
+  - vccorlib140.dll
+  - vcruntime140.dll
+
+additional_files:
+  - tap6/
+  - wintun/
+  - splittunnel/
+  - wgsupport/i386/ -> x32
+  - wgsupport/amd64/ -> x64
+  - wstunnel/wstunnel.exe -> wstunnel.exe
+  - subinacl.exe
+
+lib_files:
+  cares:
+    - dll_x32/lib/cares.dll -> cares.dll
+  curl:
+    - bin/libcurl.dll -> libcurl.dll
+  openssl: 
+    - bin/libcrypto-1_1.dll -> libcrypto-1_1.dll
+    - bin/libssl-1_1.dll -> libssl-1_1.dll
+  stunnel:
+    - tstunnel.exe -> tstunnel.exe
+  zlib:
+    - lib/zlib1.dll -> zlib1.dll
+  openvpn:
+    - openvpn.exe -> windscribeopenvpn_2_5_0.exe
+  wireguard:
+    - windscribewireguard_x86.exe -> x32/windscribewireguard.exe
+    - windscribewireguard_x64.exe -> x64/windscribewireguard.exe
+
+macdeployfixes:
+  engine:
+    copy_libs:
+      openssl:
+        - lib/libcrypto.1.1.dylib -> Contents/Helpers/libcrypto.1.1.dylib
+        - lib/libssl.1.1.dylib -> Contents/Helpers/libssl.1.1.dylib
+    rpathfix:
+      Contents/Helpers/windscribeopenvpn_2_5_0:
+        openssl:
+          - lib/libssl.1.1.dylib -> libssl.1.1.dylib
+          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+      Contents/Helpers/windscribestunnel:
+        openssl:
+          - lib/libssl.1.1.dylib -> libssl.1.1.dylib
+          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+      Contents/Helpers/libssl.1.1.dylib:
+        openssl:
+          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+    codesign:
+      sign_app: no
+      #entitlements_binary: Contents/MacOS/WindscribeEngine
+      #entitlements_file: backend/engine/mac/windscribe_engine.entitlements
+  gui:
+    remove_files:
+      # Remove unused Qt frameworks.
+      - Contents/Frameworks/QtQml.framework
+      - Contents/Frameworks/QtQuick.framework
+    rpathfix:
+      Contents/MacOS/windscribe-cli:
+        protobuf:
+          - lib/libprotobuf.25.dylib -> ../Frameworks/libprotobuf.25.dylib
+    codesign:
+      sign_app: no

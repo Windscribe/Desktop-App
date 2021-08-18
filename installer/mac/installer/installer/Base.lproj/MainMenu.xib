@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
+            <connections>
+                <outlet property="delegate" destination="Voe-Tx-rLC" id="K1S-xC-4yv"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customObject id="Voe-Tx-rLC" customClass="AppDelegate"/>
+        <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" tabbingIdentifier="MainWindow" titlebarAppearsTransparent="YES" id="QvC-M9-y7g" customClass="MainWindow">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" fullSizeContentView="YES"/>
+            <rect key="contentRect" x="674" y="320" width="350" height="353"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="875"/>
+            <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ" customClass="MainView">
+                <rect key="frame" x="0.0" y="0.0" width="350" height="353"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="txg-Kj-LPO" customClass="HoverButton">
+                        <rect key="frame" x="118" y="137" width="114" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="square" title="Install" bezelStyle="shadowlessSquare" alignment="center" borderStyle="border" inset="2" id="FEJ-Rt-hJn" customClass="InstallButtonCell">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="onInstallClick:" target="EiT-Mj-1SZ" id="Mpz-oc-HZJ"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="19T-bc-b57" customClass="HoverButton">
+                        <rect key="frame" x="141" y="39" width="69" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="square" title="Button" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="ex4-Pr-eO5" customClass="SettingsButtonCell">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="onSettingsClick:" target="EiT-Mj-1SZ" id="zy9-o0-zjC"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8Ii-cP-6NA" customClass="HoverButton">
+                        <rect key="frame" x="128" y="6" width="96" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="bevel" title="Read EULA" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="uMp-1V-Ecd" customClass="EulaButtonCell">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="onEulaClick:" target="EiT-Mj-1SZ" id="JAM-kq-1xB"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HWc-H4-MpI" customClass="HoverButton">
+                        <rect key="frame" x="142" y="80" width="69" height="24"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="square" title="OK" bezelStyle="shadowlessSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="V3E-Dj-5uv" customClass="EscButtonCell">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="miniSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="onEscClick:" target="EiT-Mj-1SZ" id="Kyc-AB-jGk"/>
+                        </connections>
+                    </button>
+                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m4j-yf-mKd" customClass="PathTextField">
+                        <rect key="frame" x="20" y="166" width="264" height="21"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" usesSingleLineMode="YES" id="mU5-sR-5me">
+                            <font key="font" metaFont="cellTitle"/>
+                            <color key="textColor" red="0.75406885150000003" green="0.75408679249999999" blue="0.75407713649999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nj0-rs-P0J" customClass="HoverButton">
+                        <rect key="frame" x="292" y="169" width="38" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="square" title="Button" bezelStyle="shadowlessSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ATR-ro-8FH" customClass="PathButtonCell">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="onSelectPathClick:" target="EiT-Mj-1SZ" id="in0-R0-Dni"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <connections>
+                    <outlet property="appDelegate" destination="Voe-Tx-rLC" id="8AH-gw-NCk"/>
+                    <outlet property="escButton" destination="HWc-H4-MpI" id="4se-uN-mpD"/>
+                    <outlet property="eulaButton" destination="8Ii-cP-6NA" id="1nE-4S-LaW"/>
+                    <outlet property="installButton" destination="txg-Kj-LPO" id="T54-rC-Vsq"/>
+                    <outlet property="pathField" destination="m4j-yf-mKd" id="ISH-mz-lsf"/>
+                    <outlet property="selectPathButton" destination="nj0-rs-P0J" id="BzR-PP-yf3"/>
+                    <outlet property="settingsButton" destination="19T-bc-b57" id="5fZ-8q-jp1"/>
+                </connections>
+            </view>
+            <point key="canvasLocation" x="138" y="-120.5"/>
+        </window>
+    </objects>
+</document>

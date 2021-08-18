@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="1">
+    <builddir>build-cppcheck</builddir>
+    <platform>Unspecified</platform>
+    <analyze-all-vs-configs>false</analyze-all-vs-configs>
+    <check-headers>true</check-headers>
+    <check-unused-templates>false</check-unused-templates>
+    <max-ctu-depth>10</max-ctu-depth>
+    <paths>
+        <dir name="backend/engine"/>
+        <dir name="backend/windows/changeics"/>
+        <dir name="backend/windows/windscribe_install_helper"/>
+        <dir name="backend/windows/windscribe_service"/>
+        <dir name="common/ipc"/>
+        <dir name="common/utils"/>
+        <dir name="common/version"/>
+        <dir name="gui/backend"/>
+        <dir name="gui/cli"/>
+        <dir name="gui/gui"/>
+        <dir name="gui/wsappcontrol"/>
+    </paths>
+    <exclude>
+        <path name="backend/engine/debug/"/>
+        <path name="backend/engine/release/"/>
+        <path name="gui/cli/debug/"/>
+        <path name="gui/cli/release/"/>
+        <path name="gui/gui/debug/"/>
+        <path name="gui/gui/release/"/>
+        <path name="common/ipc/generated_proto/"/>
+    </exclude>
+    <libraries>
+        <library>boost</library>
+        <library>qt</library>
+        <library>windows</library>
+    </libraries>
+    <suppressions>
+        <suppression>objectIndex</suppression>
+        <suppression>ignoredReturnValue</suppression>
+        <suppression>passedByValue</suppression>
+        <suppression>unusedFunction</suppression>
+        <suppression>unusedPrivateFunction</suppression>
+        <suppression>useStlAlgorithm</suppression>
+        <suppression>qSortCalled</suppression>
+        <suppression>unreadVariable</suppression>
+        <suppression>redundantInitialization</suppression>
+        <suppression>redundantAssignment</suppression>
+        <suppression>constParameter</suppression>
+        <suppression>knownConditionTrueFalse</suppression>
+    </suppressions>
+</project>

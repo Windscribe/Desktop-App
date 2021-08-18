@@ -1,0 +1,464 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\archive">
+      <UniqueIdentifier>{713e9c7d-c10d-4a09-8fc8-4be3a3011da8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\archive">
+      <UniqueIdentifier>{c6a92ea5-4f50-45b7-9559-9265099ce4c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\archive\LZMA_SDK">
+      <UniqueIdentifier>{c6979281-c7a9-4c2b-be22-1fd6f0a602c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\archive\LZMA_SDK">
+      <UniqueIdentifier>{4c746f56-9b9a-4830-accb-62d965ff9b99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{7e6872f3-f84a-47f4-8b07-f0dd0bd126ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui">
+      <UniqueIdentifier>{7be6d854-7857-4489-8bd8-920274523d58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{5db4718c-ebfa-42e7-9e15-33fec5b577e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\svg">
+      <UniqueIdentifier>{ad9d0188-b4e3-4503-a7e3-85382c06e22f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\svg">
+      <UniqueIdentifier>{ee619fac-b6b3-478e-8a59-73dfed19e9b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{1b04a67e-8128-440b-809e-f9c335aef702}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\installer">
+      <UniqueIdentifier>{285feb68-13a4-47e3-a261-9bbe8c11e33a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\installer\blocks">
+      <UniqueIdentifier>{bea95a24-3e98-4a38-91a5-ac6d180caea2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\installer">
+      <UniqueIdentifier>{b37e65c6-abfb-41e5-b281-fc4dae0a62bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\installer\blocks">
+      <UniqueIdentifier>{634de347-eeeb-4d27-b855-c270b474ec6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\png">
+      <UniqueIdentifier>{7fdcff7f-968b-42e2-8cf2-726692beaa31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\png">
+      <UniqueIdentifier>{5d25c9de-e4b9-468a-9608-46cf2c3f9653}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="archive\archive.cpp">
+      <Filter>Source Files\archive</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\7zAlloc.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\7zArcIn.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\7zBuf.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\7zCrc.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\7zCrcOpt.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\7zDec.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\7zFile.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\7zStream.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\Bcj2.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\Bra.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\Bra86.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\BraIA64.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\CpuArch.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\Delta.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\Lzma2Dec.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\LzmaDec.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="archive\LZMA_SDK\C\Ppmd7.c">
+      <Filter>Source Files\archive\LZMA_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\svg\svgimage.cpp">
+      <Filter>Source Files\gui\svg</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\iinstall_block.cpp">
+      <Filter>Source Files\installer</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\installer.cpp">
+      <Filter>Source Files\installer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\applicationinfo.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\directories_of_a_windows.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\directory.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\logger.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\path.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\paths_to_folders.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\process1.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\redirection.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\registry.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\services.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\version_os.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\uninstallprev.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\files.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\uninstall_info.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\icons.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\service.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\install_tap.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\install_wintun.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\install_splittunnel.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\shellexecuteasuser.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\blocks\fixadaptername.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\png\pngimage.cpp">
+      <Filter>Source Files\gui\png</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\application.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\closebutton.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\desktopshortcutcontrol.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\dpiscale.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\escbutton.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\eulabutton.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\fontresources.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\imageresources.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\installbutton.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\mainwindow.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\minimizebutton.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\pathcontrol.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\settingsbutton.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\textitem.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\settings.cpp">
+      <Filter>Source Files\installer</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\installer_base.cpp">
+      <Filter>Source Files\installer</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\downloader.cpp">
+      <Filter>Source Files\installer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\base64codec.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="archive\archive.h">
+      <Filter>Header Files\archive</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\7z.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\7zAlloc.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\7zBuf.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\7zCrc.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\7zFile.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\7zTypes.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\7zVersion.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\Bcj2.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\Bra.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\Compiler.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\CpuArch.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\Delta.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\Lzma2Dec.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\LzmaDec.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\Ppmd.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\Ppmd7.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="archive\LZMA_SDK\C\Precomp.h">
+      <Filter>Header Files\archive\LZMA_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\svg\nanosvg.h">
+      <Filter>Header Files\gui\svg</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\svg\nanosvgrast.h">
+      <Filter>Header Files\gui\svg</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\svg\svgimage.h">
+      <Filter>Header Files\gui\svg</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\svg\stb_image_write.h">
+      <Filter>Header Files\gui\svg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\utils.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\iinstall_block.h">
+      <Filter>Header Files\installer</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\installer.h">
+      <Filter>Header Files\installer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\applicationinfo.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\directories_of_a_windows.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\directory.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\logger.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\path.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\paths_to_folders.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\process1.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\redirection.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\reg_view.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\registry.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\services.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\version_os.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\uninstallprev.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\files.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\uninstall_info.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\icons.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\service.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\install_tap.h">
+      <Filter>Header Files\installer</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\install_wintun.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\install_splittunnel.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\shellexecuteasuser.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="messages.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\fixadaptername.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\png\pngimage.h">
+      <Filter>Header Files\gui\png</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\application.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\closebutton.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\desktopshortcutcontrol.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\dpiscale.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\escbutton.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\eulabutton.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\fontresources.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\imageresources.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\installbutton.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\mainwindow.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\minimizebutton.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\pathcontrol.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\settingsbutton.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\textitem.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\settings.h">
+      <Filter>Header Files\installer</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\installer_base.h">
+      <Filter>Header Files\installer</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\downloader.h">
+      <Filter>Header Files\installer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\base64codec.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="installer.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="version.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

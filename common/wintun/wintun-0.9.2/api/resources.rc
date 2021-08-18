@@ -1,0 +1,44 @@
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * Copyright (C) 2018-2020 WireGuard LLC. All Rights Reserved.
+ */
+
+#include <windows.h>
+#include <ntverp.h>
+
+#if defined(_M_IX86)
+wgsupport-amd64.dll RCDATA "amd64\\wgsupport.dll"
+#endif
+// #if defined(_M_IX86) || defined(_M_AMD64) || defined(_M_ARM)
+// wgsupport-arm64.dll RCDATA "arm64\\wgsupport.dll"
+// #endif
+
+#define STRINGIZE(x) #x
+#define EXPAND(x) STRINGIZE(x)
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION    WINTUN_VERSION_MAJ, WINTUN_VERSION_MIN, 0, 0
+PRODUCTVERSION WINTUN_VERSION_MAJ, WINTUN_VERSION_MIN, 0, 0
+FILEOS         VOS_NT_WINDOWS32
+FILETYPE       VFT_DLL
+FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904b0"
+    BEGIN
+      VALUE "CompanyName", "Windscribe Limited"
+      VALUE "FileDescription", "Custom Wintun API Library for Windscribe WireGuard"
+      VALUE "FileVersion", EXPAND(WINTUN_VERSION_STR)
+      VALUE "InternalName", "wgsupport.dll"
+      VALUE "LegalCopyright", "Copyright \xa9 2018-2020 Windscribe Limited. All Rights Reserved."
+      VALUE "OriginalFilename", "wgsupport.dll"
+      VALUE "ProductName", "Custom Wintun API Library"
+      VALUE "ProductVersion", EXPAND(WINTUN_VERSION_STR)
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1200
+  END
+END

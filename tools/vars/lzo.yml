@@ -1,0 +1,9 @@
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+variables:
+  VERSION_LZO: '2.10'
+  BUILDROOT_LZO: 'build-libs/lzo'
+  ARTIFACT_LZO: 'lzo.zip'
+

@@ -1,0 +1,7 @@
+build-*
+*.user
+release/
+debug/
+.vs/
+*.pyc
+*.DS_Store

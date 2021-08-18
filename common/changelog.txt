@@ -1,0 +1,430 @@
+2.02.10 (31/03/2021)
+* The detection of the authorization error for IKEv2 made more specific. #398
+* Reduced logs and ping_long_custom_configs.txt size. #434
+* The description on the emergency connection screen has been updated.
+
+
+2.02.9 (22/03/2021)
+* Removed some more log spam and log errors. #414
+* Large post data send bug fixed. #427
+* Log merge speed increased (for large files 5-10 times). #427
+* Cut out the part of the log if the count of lines exceeds 100k (keep 10% begin and 90% end of log). #427
+* Added Export Log button. #429
+* Do not close sockets for applications that do not use a VPN. #426
+* Set "TCP socket termination" option ON by default.
+* Linked option "TCP socket termination" with closing sockets in split tunneling. #426
+* Hotspot fix for openVPN, disable hotspot for WireGuard. #432
+
+
+2.02.8 (12/03/2021)
+* Updated remoteid for IKEv2 profiles on Mac. #420
+* Inclusive split routing issue on Mac - should be fixed. #398
+* Removed useless(spam) messages from log (GUI side). #414 
+* Prevented keypress navigation to other locations from config-only mode.
+* Fixed auto-hide of docked app on showing external OS dialogs. #396
+* Fixed negative remaining bytes issue. #370
+* Open newsfeed to the first unread message, if any. #371
+
+
+2.02.5 (03/03/2021)
+* Windscribe beta installer fails on macOS standard accounts - fixed. #369
+* Detect legacy OS version, download legacy installer (Windows/Mac). #3 and #6
+* Remove the helper from version 1 when installing 2.0 (Mac). #5
+* Launch update installer at the same screen position as app (Windows/Mac). #7 and #8
+* Auto-update the application (Mac) - fixes.
+* Trackpad scrolling on Big Sur is wonky - fixes. #342
+* Removed account tab from preferences in external config mode. #365
+
+* Improvements to preferences and combobox menus. #118
+	-> Increased scroll bar widths.
+	-> Fixed trackpad sensitivities on Mac and Windows.
+	-> Fixed [Escape] key press navigations.
+* Fixed rare crash on Mac when using comboboxes and tooltips. #118
+* Improvements to location window. #118
+	-> Tab transitions: animations and logging
+	-> Added navigation to search tab when you start typing
+ 	-> Improved key-press navigation and cursor integration
+	-> Fixed footer size
+	-> Fixed view offset that happens at the bottom of the each list
+	-> Fixed error messages and connection prevention for bad vpn configs
+	-> Fixed drag-scrolling to bottom and top of list
+	-> Fixed scaling issues on 125% and 175%
+	-> Other minor bug fixes
+
+* Fixed latency display always as bars on some screens. #372
+* Fixed OVPN custom config issues with protocol names. #374
+* Fixed custom config error message. #375
+* Added SIGTERM signal processing for Mac. #379
+* Fixed incorrect timestamps in service log. #378
+* Finish all active connections on app start(Mac). #380
+* The program hangs on the welcome screen on Mac when installed in the folder with spaces - fixed. #383
+* Custom config does not change DNS server on MacOS - fixed. #384
+* Fixed WireGuard on wake connect issue. #385
+* Fixed Cmd+Q shortcut confirmation regression on Mac. #11
+
+2.02.4 (16/02/2021)
+* Autoupdate from older versions of the program (prior 2.02 build 1) fixed.
+
+2.02.3 (16/02/2021)
+* Updated text on external config mode window. #365
+* Removed sensitive info from logs. #366
+* App locks up when the file explorer is shown - fixed. #353
+* List of locations fixes. #118
+	- Search animations on text change
+	- touchpad scrolling slow to stop on Mac by tap
+ 	- Added searchbox clearing on tab change and locations drawer hiding
+	- Fixed location expanding animation bug (big lists and bottom items)
+	- Fixed size of locations tab-area in search tab
+	- Fixed ultra-sensitive touchpad on some Windows machines
+	- Fixed locations search for nicknames
+* Fixed locations ribbon UI regression. #341
+* PingTest grows debug log - fixed. #362
+* Added workaround for openvpn error "write_wintun(): head/tail value is over capacity". #368
+* Check correctness of IP/CIDR combination in GUI. #363
+* Updated "esc" button in the installer. #354
+
+2.02.2 (10/02/2021)
+* Improved domain name validation in GUI preferences. #333
+* Fixed GUI and DPI scaling issues for API resolution in GUI preferences. #326
+* Fixed network level split routing defaults to /32 bug. #337
+* Removed initialization timeout in GUI. #339
+* Fixed Mac UI bug with static ips and custom configs ribbon. #341
+* Recreate DNS-resolver when network state changes (app fails over to direct IP API when started with no Internet access). #122
+* Fixed Hyper-V host network bridge detection. #334
+* Fixed the auto-update algorithm on Windows (sometimes update fails with "removing unsigned installer" error). #321
+* Fixed OVPN pipe-related deadlock issue. #335
+* Refetch WG config after logout. #345
+* Improved service logging, log merging and improved readability in GUI internal viewer. #346
+* Added year to logs. #350
+* WindscribeLogViewer - standalone log viewer app made for internal debug purposes. #352
+* Fixed custom configs OVPN protocol detection. #355
+* Localhost blocked in inclusive Split Routing mode, issue fixed. #167
+* Added split tunneling for the inclusive mode for hostnames (Windows). #238
+* Inclusive split tunneling breaks BattleNet agent - fixed. #344
+* Fixed default cipher problem with OVPN custom configs. #356
+* Disabled TAP custom configs on Mac. #356
+* Gui crash on Mac when opening or closing laptop lid - fixed. #318
+* Fix reconnect on external IKEv2 failure, fix DNS server list size issue. #359
+* Locations list refactored, location search tab added. #118
+* Hide "Connection settings" in external config mode. #361
+* Fixed EXE selection for a WoW64 GUI process. #353
+* Updated split tunneling driver for support Win7. #180
+
+2.02.1 (12/01/2021)
+* Split tunneling driver updated for support Win7/Win8. #338, #180
+* Implemented show flags preference. #314
+* Fixed WireGuard custom config issues. #319
+* Added support for Unicode SSIDs. #323
+* Formated WireGuard output to be readable. #325
+* Updated edit account link. #327
+* Attempt to fix not displaying the static ip device name.
+* "Service error 29" removed from service. #330.
+* Prevent blank manual IP in API resolution. 326
+* Fixed Win32 service WireGuard issues and added crashdump support for the service. #324
+* By default use udp protocol for custom OVPN configs. #331
+* Fixed blinking cursor on BlockableQLineEdit not in focus. #322
+* Clicking on a premium location should open browser. #238
+* Fixed favourites not saved on shutdown. #336
+* Show static ip as sublocation name. #332
+* Refactored TAP-adapter detection for split tunneling (Windows). Split tunneling gets disabled with WG should be fixed. #320
+* Extended tray menu to show Static IPs, Custom Configs and favorites. #119
+
+
+2.01.3 (24/12/2020)
+* Fixed docked positioning with auto-hiding menubar on Mac. #311
+* Added connection badge animated dots. #46
+* Firewall frozen in incorrect state across sign out/in fixed. #35
+* UI hover login button bug fixed on welcome screen.
+* GUI crash on Mac when opening or closing laptop lid. #318
+* Attempt to fix IPC server listen error. #316
+
+
+2.01.2 (23/12/2020)
+* Damaged signature on Mac fixed. #315
+* Attempt to fix incorrect offline state and extended logs added. #308
+* Added IPC server listen error logging. #316
+
+2.01.1 (23/12/2020)
+* Possible IP leak when firewall state changes fixed. #306
+* Upgrading version leaks IP during install with Always On firewall - fixed. #305
+* Fixed OS default DNS problem after reboot on Mac. #301
+* Fixed Location tab background color. #24
+* Fixed fullscreen bug for app hidden from dock. #144
+* Added auto-popup to API specified notifications. #309
+* Start minimized after reboot if minimize to tray option is on. #307
+* Disable firewall in auto mode for certain custom configs. #141
+* Allow AirDrop when firewall is enabled. #312
+* Stunnel updated to latest version 5.57.
+* Protobuf updated to latest version 3.14.0.
+
+
+2.0.41 (16/12/2020)
+* Bottom artefact on welcome screen fixed.
+
+2.0.40 (16/12/2020)
+* Beta popup message removed from installer.
+* Removed debug log spam.
+* Fixed background issues on connect screen (#274).
+* Updated logged out background images.
+* Static IP icons swapped (#303).
+* Update screen text fixed.
+
+2.0.39 (15/12/2020)
+* Updated logged out launch screen to new style.
+* Updated installer and DMG background image.
+* Dynamic DPI change bug fixed (#286).
+* Wireguard DNS-leak fixed.
+* Show tooltip on FW toggle in Always On mode.
+* Changed the text in the update window.
+* Add tooltip on packet detection error (#292).
+* Prevent browser uninstall popup, when autoupdate from the app.
+* Fixed broken OpenVPN connection for certain configs (#298).
+* Docked mode off by default on Mac.
+* Fixed UI placement and tray icon click in docked mode.
+* Fixed Mac firewall parameters. #291
+* Made native-like tray locations dropdown.
+* Fixed WireGuard MTU issues.
+
+
+2.0.38 (04/12/2020)
+* Updated c-ares lib to the latest version.
+* Updated OpenVPN to the latest version 2.5.0.
+* Removed OpenVPN 2.4.8 and use wintun by default.
+* Updated wintun to the latest version 0.9.2.
+* Updated WireGuard to the latest version v0.0.20201118. 
+* Fixed tunnel test fails for IKEv2 on Windows.
+* Mac keychain issue - fixed.
+* Fixed incorrect engine shutdown on Windows.
+* Added new flags, fixed no-flag GUI crash.
+* Added new menubar icons and dark mode detection.
+* UI text fixes (#255).
+* Fixed external config mode problems (#271).
+* All app icons updated.
+* Fixed login button behaviour(#285).
+* Replaced custom advanced parameters with native dialog.
+* Fixed cli inability to connect to locations.
+* Fixed GUI crash related to tray icon.
+* Fixed preferences expanding animation issue on login screen.
+* Increased the waiting time for connecting to the engine in gui to 20 seconds (should fix the possible bug on Mac boot).
+* MTU hashed domain failover fixed. (#245)
+* Prevent browser popup on uninstall during installation on Windows.
+* Fixed missing installer log. (#205)
+
+
+2.0.37 (25/11/2020)
+* Possible crashes in the gui are fixed.
+* Tunnel tests issues are fixed.
+* Password field invisible until activating it - fixed.
+* DNS for WireGuard is made so that it is not saved when the OS is rebooted.
+* UI fixes (#204 and #224).
+
+
+2.0.36 (20/11/2020)
+* Keychain crash on Mac - fixed.
+* Credentials refetch bug - fixed.
+* Crash minidump added on Windows.
+* Possible GUI crashes - fixed.
+* Prevent SplitTunneling from being enabled on BigSur.
+* Connection problem for WINDFLIX locations - fixed.
+* Removed minimize button in docked mode on Mac.
+* Added the protection of socket helper Mac from vulnerabilities.
+* Tray icon bring to front fixed.
+
+2.0.35 (09/10/2020)
+* OVPN custom configs permission issue - fixed.
+* WireGuard takes too long to connect with firewall enabled - fixed.
+* Sometimes program hangs in connecting/disconnecting states - fixes made, but still need to test.
+* "Failed set password to keychain" error on Mac after sleep mode - fixes made, but still need to test.
+
+2.0.34 (04/10/2020)
+* Security fixes for custom configs and advanced parameters.
+* Firewall leak on boot - fixed.
+* Engine closes ungracefully in release mode - fixed.
+* Wireguard split tunnelling support for inclusive mode for Mac.
+* Sometimes split tunneling does't work after app restart on Windows - fixed.
+* WireGuard takes too long to connect with firewall enabled - fixed.
+
+
+2.0.33 (29/09/2020)
+* Wireguard does not  auto-connect after OS reboot, with auto-connect enabled - fixed.
+* New install with no existing account, firewall should be automatic by default - fixed.
+* MacOS: App doesn't start after OS reboot with Preference to do so - fixed.
+* MacOS: Split tunneling hostnames fixed for exclusive mode.you connect
+* Win: WG split routing sometimes doesn't work after app restart - fixed.
+* App creates a new connection profile for WireGuard every time - fixed.
+* Incorrect latency - fixed.
+* MTU fixes.
+* New splittunneling hostname and ip items cutoff on Windows high scaling - fixed.
+* Custom configs UI footer changes.
+
+2.0.32 (23/09/2020)
+* Mac DMG the typo fix.
+* Don't collapse the location list when you disconnect. 
+
+2.0.31 (23/09/2020)
+* Extra auth files in OVPN-config issue - fixed.
+* The protocol switch issue - fixed.
+* Favourites save/restore issue - fixed.
+* GUI improvement for empty CustomConfig/StaticIP.
+* Removed spam in the log when determining the best location.
+
+2.0.30 (21/09/2020)
+* Custom configs UI improvements (more details in #218).
+* Static background in the installer (temporarily to reduce the size of the installer).
+* Program window outside the screen (Mac) - fixed (#227)
+* Preloading SVG-images in the separate thread. Should slightly increase the speed of the UI animations. (#228)
+
+2.0.29 (16/09/2020)
+* WireGuard improvements/fixes (more details in #213).
+* Custom configs (multiple remotes support, wireguard custom configs support).
+* Changed best location picking logic based on lowest city latency (not a drop-down list).
+* MSS/MTU auto behaviour and ikev2 mtu value change - fixed.
+* App crashes on Mac when the log window closes - fixed.
+* Updated IKEv2 params to mimic the params supplied in the PowerShell.
+* Server name shortening bugs - fixed.
+* Decoupled currently connected Best Location from detected Best Location in server list (more details in #120).
+* "Add Config Location" button fixes (it's always on top and not overlap the list and scrollbar).
+* Locations tray menu fixes.
+* Extended protocol option menu, so now all protocol items are visible.
+* Added animated background of the installer.
+* Automatic updater.
+* Other internal improvements.
+
+
+2.0.28 (23/09/2020)
+* Fixed Wireguard bugs.
+* The selected connection location doesn't get updated until it actually fully connects - fixed.
+
+2.0.27 (22/09/2020)
+* Basic WireGuard implementation.
+* Migrated to new servers format.
+* Ping IP picking logic changed.
+* Best Location selection algorithm changed.
+* Various UI fixes.
+
+
+2.0.26 (19/08/2020)
+* Fixed installer crash on Big Sur.
+* Made app-kill more robust - stray openvpn process no longer will cause failure to kill (and hang).
+* UI freezes when minimized - fixed.
+* Can't favorite Best Location datacenter - fixed.
+* "You're out of data" GUI behaviour - fixed.
+* Added exit confirm dialog on Alt+F4(Win) and Ctrl+Q(Mac). Also, the app now can be closed without confirmation from Task Manager.
+* Added exit confirm dialog when click exit from Preferences screen.
+
+
+
+2.0.25 (16/08/2020)
+* Added tooltips for connection settings on first login screen.
+* Bad app icon (split tunneling) scaling in VM - fixed.
+* Background sometimes visible on Mac - fixed.
+* The app version is incorrect in program/log.
+* Helper version updated to 15.
+* Issue with disable split tunneling state when app close fixed.
+* wsappcontrol crash on Mac - fixed.
+* Out of data screen DPI-issue - fixed.
+
+2.0.24 (12/08/2020)
+* Fixed/checked vulnerabilities - Qt plugins path, CVE-2019-5443(curl/openssl).
+* Hardened the app against common vulnerabilities raised in audits of other VPNs.
+* Openvpn doesn't work for Mac - fixed.
+* Bug with hiding the window when it is deactivated - fixed.
+* [Windows] Blurry icon in taskbar - fixed.
+* Fixes for "RasEnumDevices failed with error: x.
+* Added whitelist loopback + multicast IP ranges in the firewall when "LAN bypass" is enabled.
+* Don't do MTU detection while connected.
+* Taskbar/tray issues in docked mode.
+* Mac fails to delete old app during install - fixed.
+* Added tooltip for no-firewall during split routing on Mac.
+* Certificates in wsappcontrol  are replaced.
+
+2.0.23 (06/08/2020)
+* Bug fix for tunnel connectivity test (Bypass DNS cache for ping requests).
+* Selected tab marker does not match the selected server list on Mac - fixed.
+* Tab button on preferences screen doesn't return from submenu - fixed.
+* Ping bar icon blinks when the program starts - fixed.
+* Wintun driver renamed to windtun420.
+* LAN IP detection randomly picks the loopback interface on a Mac - fixed.
+* Background sometimes visible on Mac (should be fixed, but not 100% sure, not able to reproduce).
+* Incorrect scaling in "Advanced parameters" tab - fixed.
+* The cursor does not change when the mouse wheel is scrolled on Mac - fixed.
+* Docked mode fixes (window positioning issues).
+* GUI crash - fixed.
+* Program hung at exit - fixed.
+* Location list in tray menu is redrawn incorrectly on Mac - fixed.
+* Removed streaming(windflix) tab from location list.
+* Mac installer fixes(hang, crash).
+
+
+2.0.22 (15/07/2020)
+* Added "docked" mode switch to preferences.
+* Fixed "Hide from dock" on Mac.
+* Added "Minimize and close to tray" on Windows.
+* Added system tray menu on Windows and Mac.
+* Fixed premium star display and disabled icon for free users.
+* Fixed connect ring wobble.
+* Removed user password plaintext from log.
+* Improved connectivity test algorithm.
+* URLs clickable in the "News Feed" window.
+* Increase width of clickable region of preferences tab control.
+* Advanced Parameters scroll bar not visible - fixed.
+* Fixed bottom info window not shown at startup.
+* First displayed notification is not marked as read - fixed.
+* Proxy settings fixes.
+* Fixed incorrect DPI scaling in Advanced Parameters window.
+* Updating connection bar on connect window - fixed.
+* Exclude LAN from "Force close all TCP sockets after connection".
+* Long combobox menus can go offscreen - fixed.
+* Free account ran out of data issue fixed.
+* Various tooltip problems fixed.
+* Hideable region of auto/manual widget hides during scaling change - fixed.
+* Locations items misalign during scaling - fixed.
+* Right-click context menu's don't scale with OS - fixed.
+* Network whitelist icon on app start changes the state with a delay - fixed.
+* Fixed Launcher "As Admin" issue.
+* Notification read flags don't get saved on reboot - fixed.
+* Added firewall button on login screen.
+* Added decimal accuracy to remaining data.
+* Split tunneling feature added for Mac.
+* Upgrade widget animation issue when collapsing locations list - fixed.
+* Added expanding animation for upgrade widget at the start of the program.
+* Password in proxy settings masked for security reasons.
+* Handling the app activate/deactivate events in GUI and send to engine (for prevent session status calls) - fixes.
+* The shadow on the background image of the installer has been removed.
+* CLI fixes, added symlink in /usr/local/bin so cli can be called from anywhere without full path.
+
+2.0.21 (08/05/2020)
+* Added binary signature verification
+* Updated connection state UI design
+* Updated order of logs sent to API
+* Mac installer UI fixes for dark mode
+* Added communication with browser
+* Improved communication between GUI/Engine/CLI
+* Fixed crash in CLI on closedown
+* Fixed crash on first run when no previously installed app
+* Made MSS detection not delay startup
+* Added feedback for MSS and log sending
+* Improved MAC spoofing warnings
+* Fixed custom config reseting between restarts
+* Hid Windows-only features on Mac
+* Fixed scaling of Split routing icons on Windows
+* Fixed connection button ring wobble
+* Fixed non-latin text
+* Fixed cli open locations drawing bug
+* Fixed split routing text disappearing
+* Improved install and build scripts for CI/CD
+
+2.0.20 (27/04/2020) - Since 2.0.19:
+* Mac feature parity with Windows (Doesn't include split routing, CLI):
+-> Network Whitelist
+-> MAC Spoofing
+-> Launch on startup
+-> Custom Installer
+* GUI fixes (Mac):
+-> Init, Login, LoggingIn, Locations and overlay screen sizing/positioning
+-> IP-address pixelation
+-> Shadow fixes
+-> Minimize/Close buttons
+* MSS/MTU detection (Mac & Win)
+* Added No flag, peru and panama flags (Mac & Win)
+
