@@ -876,6 +876,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
         IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> *>(command);
         emit updateVersionChanged(cmd->getProtoObj().progress(), cmd->getProtoObj().state(), cmd->getProtoObj().error());
     }
+    else if (command->getStringId() == IPCServerCommands::HostsFileBecameWritable::descriptor()->full_name())
+    {
+        qCDebug(LOG_BASIC) << "Hosts file became writable -- Connecting..";
+        sendConnect(PersistentState::instance().lastLocation());
+    }
 }
 
 void Backend::abortInitialization()

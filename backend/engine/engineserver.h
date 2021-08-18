@@ -82,6 +82,8 @@ private slots:
     void onEnginePacketSizeChanged(bool isAuto, int mtu);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
 
+    void onHostsFileBecameWritable();
+
 private:
     IPC::IServer *server_;
 

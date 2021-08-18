@@ -528,7 +528,12 @@ void Engine::makeHostsFileWritableWin()
 #ifdef Q_OS_WIN
     const auto winHelper = dynamic_cast<Helper_win*>(helper_);
     if(winHelper) {
-        winHelper->makeHostsFileWritable();
+        if(winHelper->makeHostsFileWritable()) {
+            emit hostsFileBecameWritable();
+        }
+        else {
+            qCDebug(LOG_BASIC) << "Error: was not able to make 'hosts' file writable.";
+        }
     }
 #endif
 }

@@ -174,6 +174,8 @@ signals:
     void packetSizeChanged(bool isAuto, int mtu);
     void packetSizeDetectionStateChanged(bool on, bool isError);
 
+    void hostsFileBecameWritable();
+
 private slots:
     void onLostConnectionToHelper();
     void onInitializeHelper(INIT_HELPER_RET ret);
