@@ -14,7 +14,7 @@ NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelpe
     networkWorker_ = new NetworkChangeWorkerThread(this);
 
     connect(networkWorker_, &NetworkChangeWorkerThread::finished, networkWorker_, &QObject::deleteLater);
-    connect(networkWorker_, &NetworkChangeWorkerThread::networkChanged, this, &NetworkDetectionManager_win::onNetworkChanged);
+    connect(networkWorker_, &NetworkChangeWorkerThread::networkChanged, this, &NetworkDetectionManager_win::onNetworkChanged, Qt::QueuedConnection);
 
     networkWorker_->start();
 }
