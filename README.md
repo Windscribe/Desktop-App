@@ -1,5 +1,8 @@
-# Windows
-## Requirements before installation:
+# Windscribe 2.0 Desktop Application
+This repo contains the complete source code for the Windscribe 2.0 app. This includes installer, service/helper, backend process and GUI. 
+
+## Windows
+### Requirements before installation:
 
 - Windows 10.
 - Recommended 120+ GB of storage.
@@ -18,14 +21,14 @@
     - C:\Program Files\Git\cmd
     - C:\Program Files\Cppcheck
 
-## Install build script dependencies:
+### Install build script dependencies:
 - python tools/bin/get-pip.py
 - python -m pip install -r tools/requirements.txt
 
-## Install signing certificate:
+### Install signing certificate:
 - copy your PFX-file installer/windows/signing/code_signing.pfx.
 
-## Build libraries:
+### Build libraries:
 
 Go to subfolder tools/deps and run the following scripts in order. Libraries will be placed in client-desktop\build-libs.
 
@@ -46,8 +49,8 @@ Notes:
 - Some libraries depends on others. Jom is installed first and speeds up further builds. Almost all of the libraries depends on openssl. Openvpn depends on LZO. Curl depends on openssl and zlib.
 - If you notice install or build scripts fail for seemingly no reason, try running each script from a fresh shell instance (CMD or gitbash). It appears to have something to do with a character limit on PATH or ENV variables.
 
-# Mac
-## Build Environment Pre-Requisites
+## Mac
+### Build Environment Pre-Requisites
 
 - MacOS Catalina or MacOS Big Sur (We recommend building/developing only on a native machine. VM setups are not well tested)
 - Recommended 120 GB of storage (Need to take a closer look at this number, we may be able to get away with as little as 80GB)
@@ -78,7 +81,7 @@ Notes:
         - python tools/bin/get-pip.py
         - python -m pip install -r tools/requirements.txt
 
-## Build Dependencies
+### Build Dependencies
 1. Clone project repositories to local disk (See below: "Clone Desktop 2.0 repos").
 2. Goto subfolder "client-desktop/tools/deps".
 3. Run install_openssl
@@ -93,17 +96,17 @@ Notes:
 12. Run install_protobuf
 13. Run install_gtest
 
-## Notes on building libraries:
+### Notes on building libraries:
     - Some libraries depends on others. Almost all of the libraries depends on openssl. Openvpn depends on LZO.
     - If you run the BASH-script without parameters, then it builds libraries and puts output binaries in ~/LibsWindscribe/xxx (for example, ~/LibsWindscribe/boost ~/LibsWindscribe/curl, etc...). Only Qt is placed in a separate folder ~/Qt. 
     
-## Install Auto-Tools and 7-Zip (via HomeBrew):
+### Install Auto-Tools and 7-Zip (via HomeBrew):
     - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     - brew install libtool
     - brew install automake
     - brew install p7zip
 
-## Notes on building Windscribe
+### Notes on building Windscribe
 To disable executable signature checks in helper, please run the build script with "private" argument. E.g.:
     ./build_all.sh private
 
