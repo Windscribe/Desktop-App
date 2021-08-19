@@ -2,7 +2,7 @@
 This repo contains the complete source code for the Windscribe 2.0 app. This includes installer, service/helper, backend process and GUI. 
 
 ## Windows
-### Requirements before installation:
+### Prerequisites
 
 - Windows 10.
 - Recommended 120+ GB of storage.
@@ -21,14 +21,14 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
     - C:\Program Files\Git\cmd
     - C:\Program Files\Cppcheck
 
-### Install build script dependencies:
+### Install build script dependencies
 - python tools/bin/get-pip.py
 - python -m pip install -r tools/requirements.txt
 
-### Install signing certificate:
+### Install signing certificate
 - copy your PFX-file installer/windows/signing/code_signing.pfx.
 
-### Build libraries:
+### Build libraries
 
 Go to subfolder tools/deps and run the following scripts in order. Libraries will be placed in client-desktop\build-libs.
 
@@ -45,12 +45,12 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 11. install_stunnel
 12. install_protobuf
 
-Notes:
+#### Notes
 - Some libraries depends on others. Jom is installed first and speeds up further builds. Almost all of the libraries depends on openssl. Openvpn depends on LZO. Curl depends on openssl and zlib.
 - If you notice install or build scripts fail for seemingly no reason, try running each script from a fresh shell instance (CMD or gitbash). It appears to have something to do with a character limit on PATH or ENV variables.
 
 ## Mac
-### Build Environment Pre-Requisites
+### Prerequisites
 
 - MacOS Catalina or MacOS Big Sur (We recommend building/developing only on a native machine. VM setups are not well tested)
 - Recommended 120 GB of storage (Need to take a closer look at this number, we may be able to get away with as little as 80GB)
