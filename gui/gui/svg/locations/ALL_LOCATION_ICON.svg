@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>ALL_LOCATION_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Artboard-Copy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-582.000000, -314.000000)">
+        <path d="M590,328 C593.313708,328 596,325.313708 596,322 C596,318.686292 593.313708,316 590,316 C586.686292,316 584,318.686292 584,322 C584,325.313708 586.686292,328 590,328 Z M590,330 C585.581722,330 582,326.418278 582,322 C582,317.581722 585.581722,314 590,314 C594.418278,314 598,317.581722 598,322 C598,326.418278 594.418278,330 590,330 Z M586,326 L588,320 L594,318 L592,324 L586,326 Z" id="ALL_LOCATION_ICON" fill="#FFFFFF" fill-rule="nonzero"></path>
+    </g>
+</svg>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>EXPAND_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Artboard-Copy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-582.000000, -364.000000)">
+        <path d="M589,371 L589,365 C589,364.447715 589.447715,364 590,364 L590,364 C590.552285,364 591,364.447715 591,365 L591,371 L597,371 C597.552285,371 598,371.447715 598,372 L598,372 C598,372.552285 597.552285,373 597,373 L591,373 L591,379 C591,379.552285 590.552285,380 590,380 L590,380 C589.447715,380 589,379.552285 589,379 L589,373 L583,373 C582.447715,373 582,372.552285 582,372 L582,372 C582,371.447715 582.447715,371 583,371 L589,371 Z" id="EXPAND_ICON" fill="#FFFFFF"></path>
+    </g>
+</svg>

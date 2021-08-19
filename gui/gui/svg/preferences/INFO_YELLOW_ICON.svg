@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>INFO_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-324.000000, -592.000000)">
+        <path d="M332,608 C327.581722,608 324,604.418278 324,600 C324,595.581722 327.581722,592 332,592 C336.418278,592 340,595.581722 340,600 C340,604.418278 336.418278,608 332,608 Z M332,606 C335.313708,606 338,603.313708 338,600 C338,596.686292 335.313708,594 332,594 C328.686292,594 326,596.686292 326,600 C326,603.313708 328.686292,606 332,606 Z M331,599 L333,599 L333,604 L331,604 L331,599 Z M331,596 L333,596 L333,598 L331,598 L331,596 Z" id="INFO_ICON" fill="#FDEF00" fill-rule="nonzero"></path>
+    </g>
+</svg>

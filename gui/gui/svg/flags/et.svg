@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16">
+  <g fill="none" fill-rule="evenodd">
+    <polygon fill="#DA121A" fill-rule="nonzero" points="32 8 0 8 0 16 32 16"/>
+    <polygon fill="#078930" fill-rule="nonzero" points="32 0 0 0 0 8 32 8"/>
+    <polygon fill="#FCDD09" fill-rule="nonzero" points="32 5 0 5 0 11 32 11"/>
+    <g fill-rule="nonzero" transform="translate(11 3)">
+      <circle cx="5" cy="5" r="5" fill="#0F47AF"/>
+      <polygon fill="#FFDA44" points="4.999 2 5.544 3.712 6.387 2.53 6.964 2.957 6.063 4.219 8 4.22 6.612 5.246 7.821 5.647 7.601 6.338 6.238 5.886 6.857 7.818 5.356 6.705 5.356 8 4.644 8 4.643 6.704 3.144 7.816 3.76 5.886 2.399 6.338 2.179 5.647 3.387 5.246 2 4.22 3.936 4.219 3.036 2.957 3.613 2.53 4.453 3.711"/>
+    </g>
+  </g>
+</svg>

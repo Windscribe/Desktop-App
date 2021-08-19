@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>LOCATION_PING_BARS_LOW</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Artboard-Copy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-582.000000, -514.000000)">
+        <g id="LOCATION_PING_BARS_LOW" transform="translate(582.000000, 514.000000)" fill="#FFFFFF">
+            <rect id="bar3" x="4" y="12" width="2" height="4"></rect>
+            <rect id="bar2" opacity="0.502490942" x="9" y="7" width="2" height="9"></rect>
+            <rect id="bar1" opacity="0.500849185" x="14" y="0" width="2" height="16"></rect>
+        </g>
+    </g>
+</svg>

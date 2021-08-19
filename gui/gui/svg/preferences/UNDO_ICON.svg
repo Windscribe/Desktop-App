@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>UNDO_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="desktop_flow_04" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-1275.000000, -6724.000000)">
+        <g id="Group-37-Copy" transform="translate(1275.000000, 6724.000000)" fill="#FF3B3B" fill-rule="nonzero">
+            <g id="Group-11-Copy-2">
+                <path d="M8,14 C11.3137085,14 14,11.3137085 14,8 C14,4.6862915 11.3137085,2 8,2 C4.6862915,2 2,4.6862915 2,8 C2,11.3137085 4.6862915,14 8,14 Z M8,16 C3.581722,16 0,12.418278 0,8 C0,3.581722 3.581722,0 8,0 C12.418278,0 16,3.581722 16,8 C16,12.418278 12.418278,16 8,16 Z M4.20710678,13.2071068 L2.79289322,11.7928932 L11.7928932,2.79289322 L13.2071068,4.20710678 L4.20710678,13.2071068 Z" id="UNDO_ICON"></path>
+            </g>
+        </g>
+    </g>
+</svg>

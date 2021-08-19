@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="350" height="122" viewBox="0 0 350 122">
+  <defs>
+    <linearGradient id="bottom_frame_bg_windows-a" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF"/>
+      <stop offset="100%" stop-color="#FFF"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#bottom_frame_bg_windows-a)" fill-rule="evenodd" d="M82.3617167,112.94105 C79.6952846,118.479024 74.0921542,122 67.94569,122 L0,122 L0,0 L350,0 L350,96 L93,96 L82.3617167,112.94105 Z"/>
+</svg>
