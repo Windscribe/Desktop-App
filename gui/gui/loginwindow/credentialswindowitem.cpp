@@ -13,7 +13,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
-#include "utils/globalconstants.h"
+#include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
@@ -417,7 +417,7 @@ void CredentialsWindowItem::onGotoLoginButtonClick()
 
 void CredentialsWindowItem::onGetStartedButtonClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/signup?cpid=app_windows").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/signup?cpid=app_windows").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void CredentialsWindowItem::onTwoFactorAuthClick()
@@ -430,7 +430,7 @@ void CredentialsWindowItem::onTwoFactorAuthClick()
 
 void CredentialsWindowItem::onForgotPassClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/forgotpassword").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/forgotpassword").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void CredentialsWindowItem::onSettingsButtonClick()

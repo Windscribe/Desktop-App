@@ -1,7 +1,7 @@
 #include "firewallexceptions.h"
 #include "uniqueiplist.h"
 #include <QThread>
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "engine/dnsresolver/dnsutils.h"
 
 void FirewallExceptions::setHostIPs(const QStringList &hostIPs)

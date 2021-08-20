@@ -4,7 +4,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QTextDocument>
-#include "utils/globalconstants.h"
+#include "utils/hardcodedsettings.h"
 #include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
@@ -129,12 +129,12 @@ void AccountWindowItem::onAuthHashChanged(const QString &authHash)
 
 void AccountWindowItem::onEditAccountDetailsClicked()
 {
-    QDesktopServices::openUrl(QUrl(QString("https://%1/myaccount?app_session=%2").arg(GlobalConstants::instance().serverUrl(), authHash_)));
+    QDesktopServices::openUrl(QUrl(QString("https://%1/myaccount?app_session=%2").arg(HardcodedSettings::instance().serverUrl(), authHash_)));
 }
 
 void AccountWindowItem::onUpgradeClicked()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void AccountWindowItem::onLanguageChanged()

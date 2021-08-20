@@ -265,8 +265,7 @@ SOURCES += \
     loginwindow/initwindowitem.cpp \
     log/logviewerwindow.cpp \
     preferenceswindow/debugwindow/advancedparameterswindowitem.cpp \
-    utils/globalconstants.cpp \
-    utils/simplecrypt.cpp \
+    $$COMMON_PATH/utils/simplecrypt.cpp \
     utils/writeaccessrightschecker.cpp \
     blockconnect.cpp \
     dpiscaleawarewidget.cpp \
@@ -310,6 +309,7 @@ SOURCES += \
     $$COMMON_PATH/ipc/tcpserver.cpp \
     $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
+    $$COMMON_PATH/utils/hardcodedsettings.cpp \
     connectwindow/background.cpp \
     connectwindow/connectbutton.cpp \
     connectwindow/locationsbutton.cpp \
@@ -506,8 +506,7 @@ HEADERS += \
     commonwidgets/verticalscrollbarwidget.h \
     log/logviewerwindow.h \
     preferenceswindow/debugwindow/advancedparameterswindowitem.h \
-    utils/globalconstants.h \
-    utils/simplecrypt.h \
+    $$COMMON_PATH/utils/simplecrypt.h \
     utils/writeaccessrightschecker.h \
     blockconnect.h \
     dpiscaleawarewidget.h \
@@ -544,6 +543,7 @@ HEADERS += \
     $$COMMON_PATH/ipc/tcpserver.h \
     $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
+    $$COMMON_PATH/utils/hardcodedsettings.h \
     connectwindow/connectbutton.h \
     connectwindow/background.h \
     connectwindow/locationsbutton.h \

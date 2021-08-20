@@ -1,6 +1,6 @@
 #include "dnsresolver.h"
 #include "dnsutils.h"
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 

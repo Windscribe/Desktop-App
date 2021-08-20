@@ -1,6 +1,8 @@
 #include "executable_signature_win.h"
+#include "utils/hardcodedsettings.h"
 #include <tlhelp32.h>
 #include <psapi.h>
+
 
 #ifdef QT_CORE_LIB
 #include <QCoreApplication>
@@ -10,10 +12,15 @@
 #pragma comment (lib, "wintrust")
 #pragma comment(lib, "crypt32.lib")
 
-const wchar_t g_szCertSubjectName[] = L"Windscribe Limited";
-
 bool ExecutableSignature_win::verify(const wchar_t *szExePath)
 {
+    if (HardcodedSettings::instance().windowsCertName().isEmpty())
+    {
+	return true;
+    }
+
+
+
 	if (!verifyEmbeddedSignature(szExePath))
 	{
 		return false;
@@ -133,7 +140,14 @@ bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertCon
 		return false;
 	}
 
-	fReturn = (wcscmp(szName, g_szCertSubjectName) == 0);
+    if (!HardcodedSettings::instance().windowsCertName().isEmpty())
+    {
+        fReturn = (wcscmp(szName, HardcodedSettings::instance().windowsCertName().toStdWString().c_str()) == 0);
+    }
+    else
+    {
+        fReturn = true;
+    }
 
 	LocalFree(szName);
 

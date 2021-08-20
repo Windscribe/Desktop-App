@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+	<file>../../common/utils/hardcodedsettings.ini</file>
         <file>Resources/fonts/IBMPlexSans-Bold.ttf</file>
         <file>Resources/fonts/IBMPlexSans-Regular.ttf</file>
         <file>Resources/icons/icon_connected.ico</file>

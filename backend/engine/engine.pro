@@ -291,7 +291,7 @@ SOURCES += main.cpp \
     engine/enginesettings.cpp \
     engine/autoupdater/autoupdaterhelper_mac.cpp \
     engine/tempscripts_mac.cpp \
-    utils/simplecrypt.cpp \
+    $$COMMON_PATH/utils/simplecrypt.cpp \
     engine/logincontroller/logincontroller.cpp \
     engine/logincontroller/getallconfigscontroller.cpp \
     engine/proxy/proxysettings.cpp \
@@ -345,7 +345,7 @@ SOURCES += main.cpp \
     engine/serverapi/serverapi.cpp \
     engine/serverapi/certmanager.cpp \
     utils/ipvalidation.cpp \
-    engine/hardcodedsettings.cpp \
+    $$COMMON_PATH/utils/hardcodedsettings.cpp \
     engine/engine.cpp \
     engine/crossplatformobjectfactory.cpp \
     engine/types/loginsettings.cpp \
@@ -435,7 +435,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \
     engine/networkstatemanager/inetworkstatemanager.h \
-    utils/simplecrypt.h \
+    $$COMMON_PATH/utils/simplecrypt.h \
     engine/logincontroller/logincontroller.h \
     engine/logincontroller/getallconfigscontroller.h \
     engine/proxy/proxysettings.h \
@@ -494,7 +494,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/serverapi/serverapi.h \
     engine/serverapi/certmanager.h \
     utils/ipvalidation.h \
-    engine/hardcodedsettings.h \
+    $$COMMON_PATH/utils/hardcodedsettings.h \
     engine/engine.h \
     engine/crossplatformobjectfactory.h \
     engine/types/loginsettings.h \

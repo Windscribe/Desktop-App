@@ -18,7 +18,7 @@
 #include "commongraphics/commongraphics.h"
 #include "../backend/persistentstate.h"
 
-#include "utils/globalconstants.h"
+#include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "languagecontroller.h"
@@ -993,7 +993,7 @@ void MainWindow::onPreferencesLoginClick()
 
 void MainWindow::onPreferencesHelpClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void MainWindow::cleanupLogViewerWindow()
@@ -1145,7 +1145,7 @@ void MainWindow::onEmergencyDisconnectClick()
 
 void MainWindow::onEmergencyWindscribeLinkClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void MainWindow::onExternalConfigWindowNextClick()
@@ -1451,7 +1451,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
         backend_->recordInstall();
         // open first start URL
         QString curUserId = QString::fromStdString(backend_->getSessionStatus().user_id());
-        QDesktopServices::openUrl(QUrl( QString("https://%1/installed/desktop?%2").arg(GlobalConstants::instance().serverUrl()).arg(curUserId)));
+        QDesktopServices::openUrl(QUrl( QString("https://%1/installed/desktop?%2").arg(HardcodedSettings::instance().serverUrl()).arg(curUserId)));
     }
     PersistentState::instance().setFirstLogin(false);
 }
@@ -2751,7 +2751,7 @@ void MainWindow::onTrayMenuShow()
 
 void MainWindow::onTrayMenuHelpMe()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void MainWindow::onTrayMenuQuit()
@@ -3283,12 +3283,12 @@ void MainWindow::setVariablesToInitState()
 
 void MainWindow::openStaticIpExternalWindow()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/staticips?cpid=app_windows").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/staticips?cpid=app_windows").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void MainWindow::openUpgradeExternalWindow()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void MainWindow::gotoLoginWindow()

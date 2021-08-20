@@ -5,7 +5,7 @@
 #include "engine/serverapi/serverapi.h"
 #include "utils/utils.h"
 #include "engine/networkstatemanager/inetworkstatemanager.h"
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "engine/getdeviceid.h"
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,

@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <QUrl>
 #include <QStyle>
-#include "utils/globalconstants.h"
+#include "utils/hardcodedsettings.h"
 
 extern double g_ui_scale;
 
@@ -70,5 +70,5 @@ void DialogMessageCpuUsage::onNoClicked()
 
 void DialogMessageCpuUsage::onHelpClicked()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/support/article/20/tcp-socket-termination").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/support/article/20/tcp-socket-termination").arg(HardcodedSettings::instance().serverUrl())));
 }

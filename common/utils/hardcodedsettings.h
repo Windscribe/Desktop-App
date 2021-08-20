@@ -30,6 +30,9 @@ public:
     QString emergencyPassword() const { return emergencyPassword_; }
     const QStringList emergencyIps() const { return emergencyIps_; }
 
+    QString windowsCertName() const { return windowsCertName_; }
+    QString macCertName() const { return macCertName_; }
+
     QString generateDomain(const QString &prefix);
 
 private:
@@ -44,6 +47,8 @@ private:
     QString emergencyPassword_;
     QStringList emergencyIps_;
     QByteArray passwordForRandomDomain_;
+    QString windowsCertName_;
+    QString macCertName_;
 
     SimpleCrypt simpleCrypt_;
 

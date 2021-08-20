@@ -119,6 +119,8 @@ SOURCES += \
         $$COMMON_PATH/version/appversion.cpp \
         $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
         $$COMMON_PATH/utils/clean_sensitive_info.cpp \
+        $$COMMON_PATH/utils/hardcodedsettings.cpp \
+        $$COMMON_PATH/utils/simplecrypt.cpp \
         ../backend/persistentstate.cpp \
         backendcommander.cpp \
         cliapplication.cpp \
@@ -174,6 +176,10 @@ HEADERS += \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
+    $$COMMON_PATH/utils/hardcodedsettings.h \
+    $$COMMON_PATH/utils/simplecrypt.h \
     ../backend/persistentstate.h \
     backendcommander.h \
     cliapplication.h
+
+RESOURCES += windscribe.qrc

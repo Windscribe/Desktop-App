@@ -14,7 +14,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/imageresourcesjpg.h"
 #include "languagecontroller.h"
-#include "utils/globalconstants.h"
+#include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
@@ -231,7 +231,7 @@ void WelcomeWindowItem::onGotoLoginButtonClick()
 
 void WelcomeWindowItem::onGetStartedButtonClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/signup?cpid=app_windows").arg(GlobalConstants::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/signup?cpid=app_windows").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void WelcomeWindowItem::onSettingsButtonClick()

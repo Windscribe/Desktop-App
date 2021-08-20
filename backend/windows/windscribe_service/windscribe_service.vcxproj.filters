@@ -156,9 +156,6 @@
     <ClInclude Include="ikev2ipsec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature_win.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\common\utils\crashdump.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -294,9 +291,6 @@
       <Filter>Source Files\wireguard</Filter>
     </ClCompile>
     <ClCompile Include="ikev2ipsec.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\utils\crashdump.cpp">

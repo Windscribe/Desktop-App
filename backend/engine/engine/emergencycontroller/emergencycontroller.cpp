@@ -2,7 +2,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/connectionmanager/openvpnconnection.h"
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "engine/dnsresolver/dnsresolver.h"
 #include <QFile>
 #include <QCoreApplication>

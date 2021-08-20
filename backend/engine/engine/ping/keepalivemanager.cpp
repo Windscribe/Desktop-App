@@ -2,7 +2,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/dnsresolver/dnsresolver.h"
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 
 KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController) : QObject(parent),
     isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED), pingHostIcmp_(this, stateController)

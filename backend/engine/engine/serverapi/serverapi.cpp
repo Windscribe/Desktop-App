@@ -8,7 +8,7 @@
 #include <QUrl>
 #include <QUrlQuery>
 #include "engine/networkstatemanager/inetworkstatemanager.h"
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "engine/openvpnversioncontroller.h"
 #include "utils/logger.h"
 #include "utils/utils.h"

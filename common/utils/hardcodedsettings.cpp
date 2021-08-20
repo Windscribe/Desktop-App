@@ -36,7 +36,7 @@ QString HardcodedSettings::generateDomain(const QString &prefix)
 
 HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
 {
-    QSettings settings(":/hardcodedsettings.ini", QSettings::IniFormat);
+    QSettings settings(":/common/utils/hardcodedsettings.ini", QSettings::IniFormat);
 
     // some INI strings are crypted
 #ifdef WINDSCRIBE_IS_STAGING
@@ -47,6 +47,9 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
     serverUrl_ = settings.value("basic/serverUrl").toString();
     serverSharedKey_ = settings.value("basic/serverSharedKey").toString();
     serverTunnelTestUrl_ = settings.value("basic/serverTunnelTestUrl").toString();
+
+    windowsCertName_ = settings.value("certificateName/windows").toString();
+    macCertName_ = settings.value("certificateName/mac").toString();
 
     apiIps_ = readArrayFromIni(settings, "apiIps", "ip", true);
 
