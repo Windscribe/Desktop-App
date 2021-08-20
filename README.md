@@ -14,7 +14,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
     - powershell -Command "& $([scriptblock]::Create((New-Object Net.WebClient).DownloadString('https://platform.activestate.com/dl/cli/w20598w01/install.ps1'))) -activate-default ActiveState/Perl-5.32"
 - CMake (run install_cmake.bat from common/prepare_build_environment/windows).
 - CppCheck (run install_cppcheck.bat with admin rights from common/prepare_build_environment/windows).
-- The install_python.bat and install_perl.bat scripts may not update your System PATH environment variable. Reboot, then verify the following entries are in your System PATH environment variable. If they are not, add them to the System PATH environment variable and reboot again.
+- Verify the following entries are in your System PATH environment variable. If they are not, add them to the System PATH environment variable and reboot.
     - C:\Python27
     - C:\Python27\Scripts
     - C:\Perl64\site\bin
@@ -27,11 +27,11 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - python -m pip install -r tools/requirements.txt
 
 ### Install signing certificate
-- copy your PFX-file installer/windows/signing/code_signing.pfx.
+- Copy your PFX code signing file to installer/windows/signing/code_signing.pfx.
 
 ### Build libraries
 
-Go to subfolder tools/deps and run the following scripts in order. Libraries will be placed in client-desktop\build-libs.
+Go to subfolder tools/deps and run the following scripts in order. Libraries will be placed in build-libs.
 
 1. install_jom 
 2. install_openssl
@@ -49,6 +49,10 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 #### Notes
 - Some libraries depends on others. Jom is installed first and speeds up further builds. Almost all of the libraries depends on openssl. Openvpn depends on LZO. Curl depends on openssl and zlib.
 - If you notice install or build scripts fail for seemingly no reason, try running each script from a fresh shell instance (CMD or gitbash). It appears to have something to do with a character limit on PATH or ENV variables.
+
+### Build the Windscribe 2.0 app
+
+Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all debug' for a debug build.
 
 ## Mac
 ### Prerequisites
