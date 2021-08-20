@@ -2315,6 +2315,7 @@ void MainWindowController::expandPreferencesFromConnect()
             preferencesState_ = PREFERENCES_STATE_EXPANDED;
             clearMaskForGraphicsView();
             updateBottomInfoWindowVisibilityAndPos();
+            bottomInfoWindow_->setClickable(false);
             updateExpandAnimationParameters();
             invalidateShadow_mac();
             preferencesWindow_->setScrollBarVisibility(true);
@@ -2344,7 +2345,6 @@ void MainWindowController::expandPreferencesFromConnect()
     isAtomicAnimationActive_ = true;
 
     connectWindow_->setClickable(false);
-    bottomInfoWindow_->setClickable(false);
 
     // hide locations or bottomInfo before running preferences expand
     if (isLocationsExpanded())
@@ -3029,8 +3029,7 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
     {
         if ((!bottomInfoWindow_->isUpgradeWidgetVisible() && !bottomInfoWindow_->isSharingFeatureVisible())
                 || (curWindow_ != WINDOW_ID_CONNECT && curWindow_ != WINDOW_ID_NOTIFICATIONS)
-                || isLocationsExpanded()
-                || (curWindow_ == WINDOW_ID_CONNECT && preferencesState_ != PREFERENCES_STATE_COLLAPSED))
+                || isLocationsExpanded())
         {
             bottomInfoWindow_->getGraphicsObject()->hide();
             bottomInfoWindow_->setClickable(false);
