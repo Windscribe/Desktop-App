@@ -5,6 +5,7 @@
 #include <libproc.h>
 #include <string.h>
 #include "utils/logger.h"
+#include "utils/hardcodedsettings.h"
 
 #import <Security/Security.h>
 #import <SystemConfiguration/SystemConfiguration.h>
@@ -28,6 +29,10 @@ bool ExecutableSignature_mac::isParentProcessGui()
 
 bool ExecutableSignature_mac::verify(const QString &executablePath)
 {
+    if (HardcodedSettings::instance().macCertName().isEmpty())
+    {
+        return true;
+    }
     //create static code ref via path
     SecStaticCodeRef staticCode = NULL;
     NSString* path = executablePath.toNSString();
@@ -65,7 +70,8 @@ bool ExecutableSignature_mac::verify(const QString &executablePath)
         SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
         if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
         {
-            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@"Developer ID Application: Windscribe Limited (GYZJYS7XUG)"))
+            QString certName = HardcodedSettings::instance().macCertName();
+            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)certName.toCFString()))
             {
                 return true;
             }
@@ -78,6 +84,11 @@ bool ExecutableSignature_mac::verify(const QString &executablePath)
 // TODO: convert all uses of this to verify(...) once signature checking has been fixed for gui/engine check
 bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
 {
+    if (HardcodedSettings::instance().macCertName().isEmpty())
+    {
+        return true;
+    }
+
     //create static code ref via path
     SecStaticCodeRef staticCode = NULL;
     NSString* path = executablePath.toNSString();
@@ -116,7 +127,8 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
         SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
         if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
         {
-            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@"Developer ID Application: Windscribe Limited (GYZJYS7XUG)"))
+            QString certName = HardcodedSettings::instance().macCertName();
+            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)certName.toCFString()))
             {
                 return true;
             }
