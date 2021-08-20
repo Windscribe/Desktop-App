@@ -154,11 +154,11 @@ installer:
   macos: installer_mac
   linux: installer_linux
 
-#windows_signing_cert:
-#  path_signtool: 
-#  path_cert: installer/windows/signing/code_signing.pfx
-#  password_cert: 
-#  timestamp: 
+windows_signing_cert:
+  path_signtool: installer/windows/signing/signtool.exe
+  path_cert: installer/windows/signing/code_signing.pfx
+  password_cert: 
+  timestamp: http://timestamp.comodoca.com/?td=sha256
 
 qt_files:
   - bin/libEGL.dll
