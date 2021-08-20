@@ -28,6 +28,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 
 ### Install signing certificate
 - Copy your PFX code signing file to installer/windows/signing/code_signing.pfx.
+- Edit tools/build_all.yml and enter the password for your PFX file in the password_cert field of the windows_signing_cert section.
 
 ### Build libraries
 
