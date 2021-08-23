@@ -543,7 +543,9 @@ void IKEv2Connection_mac::onStatisticsTimer()
             }
         }
         free(buf);
-        emit statisticsUpdated(totalibytes, totalobytes, true);
+        if(state_ == STATE_CONNECTED) {
+            emit statisticsUpdated(totalibytes, totalobytes, true);
+        }
     }
 
 }
