@@ -62,7 +62,6 @@ public:
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
 
-    bool removeWindscribeUrlsFromHosts();
     bool addHosts(const QString &hosts);
     bool removeHosts();
 

@@ -889,3 +889,47 @@ QStringList MacUtils::getListOfDnsNetworkServiceEntries()
     }
     return result;
 }
+
+bool MacUtils::verifyAppBundleIntegrity()
+{
+    // Following code adapted from genSignatureForFileAndArch in signature.mm of the OSQuery project.
+#ifdef QT_DEBUG
+    return true;
+#else
+    QString mainBundlePath = getBundlePath();
+
+    qCDebug(LOG_BASIC) << "verifyAppBundleIntegrity on " << mainBundlePath;
+
+    // Create a URL that points to this file.
+    auto url = (__bridge CFURLRef)[NSURL fileURLWithPath:@(qPrintable(mainBundlePath))];
+    if (url == nullptr)
+    {
+        qCDebug(LOG_BASIC) << "verifyAppBundleIntegrity: could not create URL from file";
+        return false;
+    }
+
+    // Create the static code object.
+    SecStaticCodeRef static_code = nullptr;
+    OSStatus result = SecStaticCodeCreateWithPath(url, kSecCSDefaultFlags, &static_code);
+
+    if (result != errSecSuccess)
+    {
+        if (static_code != nullptr)
+        {
+            CFRelease(static_code);
+        }
+
+        qCDebug(LOG_BASIC) << "verifyAppBundleIntegrity: could not create static code object";
+        return false;
+    }
+
+    SecCSFlags flags = kSecCSStrictValidate | kSecCSCheckAllArchitectures | kSecCSCheckNestedCode;
+    result = SecStaticCodeCheckValidityWithErrors(static_code, flags, nullptr, nullptr);
+
+    CFRelease(static_code);
+
+    qCDebug(LOG_BASIC) << "verifyAppBundleIntegrity completed successfully";
+
+    return (result == errSecSuccess);
+#endif
+}

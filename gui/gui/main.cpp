@@ -120,6 +120,15 @@ int main(int argc, char *argv[])
         msgBox.exec();
         return 0;
     }
+
+    if (!MacUtils::verifyAppBundleIntegrity())
+    {
+        QMessageBox msgBox;
+        msgBox.setText( QObject::tr("One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.") );
+        msgBox.setIcon( QMessageBox::Critical );
+        msgBox.exec();
+        return 0;
+    }
 #endif
     a.setStyle("fusion");
 
