@@ -307,6 +307,11 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCServerCommands::UpdateVersionChanged>(buf, size);
     }
+    else if (strId == IPCServerCommands::HostsFileBecameWritable::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCServerCommands::HostsFileBecameWritable>(buf, size);
+    }
+
     Q_ASSERT(false);
     return NULL;
 }

@@ -107,6 +107,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onEngineInternetConnectivityChanged(bool)));
             connect(engine_, SIGNAL(packetSizeChanged(bool, int)), SLOT(onEnginePacketSizeChanged(bool, int)));
             connect(engine_, SIGNAL(packetSizeDetectionStateChanged(bool,bool)), SLOT(onEnginePacketSizeDetectionStateChanged(bool,bool)));
+            connect(engine_, SIGNAL(hostsFileBecameWritable()), SLOT(onHostsFileBecameWritable()));
             threadEngine_->start(QThread::LowPriority);
 
         }
@@ -1010,6 +1011,12 @@ void EngineServer::onEnginePacketSizeDetectionStateChanged(bool on, bool isError
     IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> cmd;
     cmd.getProtoObj().set_on(on);
     cmd.getProtoObj().set_is_error(isError);
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+}
+
+void EngineServer::onHostsFileBecameWritable()
+{
+    IPC::ProtobufCommand<IPCServerCommands::HostsFileBecameWritable> cmd;
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
