@@ -1,3 +1,12 @@
+2.03.05 (24/08/2021)
+* Fixed resolution changes causes app crash. #445
+* Reconnect after hosts file repaired. #454
+* Fixed small openVPN connection delay on Windows. #505
+* Fixed macos privilege escalation vulnerabilities. #471
+* Fixed blank message box displayed when custom config cannot be opened. #508
+* Fixed click event on Upgrade button bleeds through to Preferences screen. #483
+* Fixed incorrect network statistics when disconnecting ikev2. #478
+
 2.03.04 (9/08/2021)
 * Connect Info scaling issue on Mac fixed. #472
 * Added CFBundleShortVersionString to Mac plist. #461
