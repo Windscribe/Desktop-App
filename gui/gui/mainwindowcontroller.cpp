@@ -2726,7 +2726,16 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
     // qDebug() << "TaskbarLocation: " << taskbarLocation;
 
     QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
-    QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
+
+    // Screen is sometimes not found because QSystemTrayIcon is invalid or not contained in screen
+    // list during monitor change, screen resolution change, or opening/closing laptop lid.
+    QScreen *screen = WidgetUtils::slightlySaferScreenAt(rcIcon.center());
+    if (!screen)
+    {
+        // qDebug() << "Still no screen found -- not updating geometry and scene";
+        return QRect();
+    }
+
     QRect desktopAvailableRc = screen->availableGeometry();
     const int kRightOffset = 16 * G_SCALE;
 
@@ -2925,27 +2934,12 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     if (preferencesHelper_->isDockedToTray())
     {
-
-#ifdef Q_OS_WIN
         const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
         const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
 
-        QScreen *screen = QGuiApplication::screenAt(iconCenter);
-
-        const QRect desktopAvailableRc = screen->availableGeometry();
-        geo = taskbarAwareDockedGeometry_win(width, shadowSize, widthWithShadow, heightWithShadow);
-
-        const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
-        if (geo.right() > kMaxGeometryRightPosition)
-            geo.moveRight(kMaxGeometryRightPosition);
-
-#elif defined Q_OS_MAC
-
-        const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
-        const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
-
-        // On Mac: screen is sometimes not found because QSystemTrayIcon is invalid or not contained in screen list
-        // during monitor change or opening/closing laptop lid
+        // On Windows and Mac: screen is sometimes not found because QSystemTrayIcon is invalid or not
+        // contained in screen list during monitor change, screen resolution change, or opening/closing
+        // laptop lid.
         // Safer screen check prevents a crash when the trayIcon is invalid
         QScreen *screen = WidgetUtils::slightlySaferScreenAt(iconCenter);
         if (!screen)
@@ -2955,6 +2949,19 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         }
 
         const QRect desktopAvailableRc = screen->availableGeometry();
+
+#ifdef Q_OS_WIN
+
+        geo = taskbarAwareDockedGeometry_win(width, shadowSize, widthWithShadow, heightWithShadow);
+        if (!geo.isValid()) {
+            return;
+        }
+
+        const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
+        if (geo.right() > kMaxGeometryRightPosition)
+            geo.moveRight(kMaxGeometryRightPosition);
+
+#elif defined Q_OS_MAC
 
         // center ear on tray
         int rightEarCenterOffset = static_cast<int>(41 * G_SCALE);
