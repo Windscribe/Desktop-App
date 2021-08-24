@@ -15,12 +15,12 @@ public:
     void startRefetch();
 
 signals:
-    void finished(bool success, const apiinfo::ServerCredentials &serverCredentials);
+    void finished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
 private slots:
     void onTimerWaitServerAPIReady();
     void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, ProtocolType protocol, uint userRole);
-
+    void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
 
 private:
     QString authHash_;
@@ -30,13 +30,18 @@ private:
     int refetchServerCredentialsState_;
     bool isOpenVpnProtocolReceived_;
     bool isIkev2ProtocolReceived_;
+    bool isServerConfigsAnswerReceived_;
     SERVER_API_RET_CODE retCodeOpenVpn_;
     SERVER_API_RET_CODE retCodeIkev2_;
+    SERVER_API_RET_CODE retCodeServerConfigs_;
     QString radiusUsernameOpenVpn_;
     QString radiusPasswordOpenVpn_;
     QString radiusUsernameIkev2_;
     QString radiusPasswordIkev2_;
+    QString serverConfig_;
 
+    void checkFinished();
+    void fetchServerCredentials();
     void putFail();
 };
 

@@ -361,16 +361,15 @@ void LoginController::getAllConfigs()
     getAllConfigsController_ = new GetAllConfigsController(this);
     connect(getAllConfigsController_, SIGNAL(allConfigsReceived(SERVER_API_RET_CODE)), SLOT(onAllConfigsReceived(SERVER_API_RET_CODE)));
     serverAPI_->serverConfigs(newAuthHash_, serverApiUserRole_, false);
+    serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP), false);
 
     if (!loginSettings_.getServerCredentials().isInitialized())
     {
-        serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP), false);
         serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_IKEV2), false);
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Using saved server credentials";
-        getAllConfigsController_->putServerCredentialsOpenVpnAnswer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForOpenVpn(), loginSettings_.getServerCredentials().passwordForOpenVpn());
+        qCDebug(LOG_BASIC) << "Using saved server credentials for IKEv2";
         getAllConfigsController_->putServerCredentialsIkev2Answer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForIkev2(), loginSettings_.getServerCredentials().passwordForIkev2());
     }
 

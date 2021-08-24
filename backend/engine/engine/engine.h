@@ -274,7 +274,7 @@ private slots:
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
     void onEmergencyControllerError(ProtoTypes::ConnectError err);
 
-    void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials);
+    void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
     void getNewNotifications();
 

@@ -1814,7 +1814,7 @@ void Engine::onConnectionManagerError(ProtoTypes::ConnectError err)
                 serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 
                 refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
-                connect(refetchServerCredentialsHelper_, SIGNAL(finished(bool,apiinfo::ServerCredentials)), SLOT(onRefetchServerCredentialsFinished(bool,apiinfo::ServerCredentials)));
+                connect(refetchServerCredentialsHelper_, &RefetchServerCredentialsHelper::finished, this, &Engine::onRefetchServerCredentialsFinished);
                 refetchServerCredentialsHelper_->setProperty("fromAuthError", true);
                 refetchServerCredentialsHelper_->startRefetch();
             }
@@ -2176,7 +2176,7 @@ void Engine::onEmergencyControllerError(ProtoTypes::ConnectError err)
     emit emergencyConnectError(err);
 }
 
-void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials)
+void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig)
 {
     bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
     refetchServerCredentialsHelper_->deleteLater();
@@ -2186,6 +2186,7 @@ void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::Ser
     {
         qCDebug(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, successfully";
         apiInfo_->setServerCredentials(serverCredentials);
+        apiInfo_->setOvpnConfig(serverConfig);
         doConnect(!bFromAuthError);
     }
     else
@@ -2576,7 +2577,7 @@ void Engine::doConnect(bool bEmitAuthError)
             if (refetchServerCredentialsHelper_ == NULL)
             {
                 refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
-                connect(refetchServerCredentialsHelper_, SIGNAL(finished(bool,ServerCredentials)), SLOT(onRefetchServerCredentialsFinished(bool,ServerCredentials)));
+                connect(refetchServerCredentialsHelper_, &RefetchServerCredentialsHelper::finished, this, &Engine::onRefetchServerCredentialsFinished);
                 refetchServerCredentialsHelper_->startRefetch();
             }
         }
