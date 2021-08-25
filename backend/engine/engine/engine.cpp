@@ -2570,9 +2570,9 @@ void Engine::doConnect(bool bEmitAuthError)
 
     if (!apiInfo_.isNull())
     {
-        if (!apiInfo_->getServerCredentials().isInitialized() && !locationId_.isCustomConfigsLocation())
+        if ((!apiInfo_->getServerCredentials().isInitialized() || apiInfo_->ovpnConfigRefetchRequired()) && !locationId_.isCustomConfigsLocation())
         {
-            qCDebug(LOG_BASIC) << "radius username/password empty, refetch server credentials";
+            qCDebug(LOG_BASIC) << "radius username/password empty or ovpn refetch config required, refetch server config and credentials";
 
             if (refetchServerCredentialsHelper_ == NULL)
             {

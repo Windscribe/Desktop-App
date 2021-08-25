@@ -34,6 +34,7 @@ public:
 
     QString getOvpnConfig() const;
     void setOvpnConfig(const QString &value);
+    bool ovpnConfigRefetchRequired() const;
 
     // auth hash is stored in a separate value in QSettings
     static QString getAuthHash();
@@ -64,6 +65,8 @@ private:
 
     // for check thread id, access to the class must be from a single thread
     Qt::HANDLE threadId_;
+
+    QDateTime ovpnConfigSetTimestamp_;
 };
 
 } //namespace apiinfo
