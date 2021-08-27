@@ -72,6 +72,7 @@ void ApiInfo::setOvpnConfig(const QString &value)
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
     ovpnConfig_ = value;
+    ovpnConfigSetTimestamp_ = QDateTime::currentDateTimeUtc();
 }
 
 // return empty string if auth hash not exist in the settings
@@ -255,6 +256,11 @@ void ApiInfo::mergeWindflixLocations()
         }
         itm.remove();
     }
+}
+
+bool ApiInfo::ovpnConfigRefetchRequired() const
+{
+    return ovpnConfigSetTimestamp_.isValid() && (ovpnConfigSetTimestamp_.secsTo(QDateTime::currentDateTimeUtc()) >= 60*60*24);
 }
 
 } //namespace apiinfo
