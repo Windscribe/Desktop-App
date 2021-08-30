@@ -53,6 +53,8 @@
 #define AA_COMMAND_SUSPEND_UNBLOCKING_CMD                   49
 #define AA_COMMAND_DNS_WHILE_CONNECTED                      50
 #define AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE                 51
+#define AA_COMMAND_REINSTALL_TAP_DRIVER                     52
+#define AA_COMMAND_REINSTALL_WINTUN_DRIVER                  53
 
 #define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
 
@@ -69,7 +71,6 @@ struct CMD_ADD_HOSTS
 {
     std::wstring hosts;
 };
-
 
 struct CMD_CHECK_UNBLOCKING_CMD_STATUS
 {
@@ -240,6 +241,11 @@ struct CMD_CONFIGURE_WIREGUARD
     std::string     peerPresharedKey;
     std::string     peerEndpoint;
     std::string     allowedIps;
+};
+
+struct CMD_REINSTALL_TUN_DRIVER
+{
+    std::wstring driverDir;
 };
 
 enum WireGuardServiceState

@@ -498,7 +498,10 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
             || err == ProtoTypes::ConnectError::NO_OPENVPN_SOCKET
             || err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP
             || err == ProtoTypes::ConnectError::ALL_TAP_IN_USE
-            || err == ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR)
+            || err == ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR
+            || err == ProtoTypes::ConnectError::WINTUN_DRIVER_REINSTALLATION_ERROR
+            || err == ProtoTypes::ConnectError::TAP_DRIVER_REINSTALLATION_ERROR
+            || err == ProtoTypes::ConnectError::WINTUN_FATAL_ERROR)
     {
         // emit error in disconnected event
         latestConnectionError_ = err;

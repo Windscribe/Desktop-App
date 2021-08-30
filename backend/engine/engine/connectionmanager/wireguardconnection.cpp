@@ -23,6 +23,7 @@ public:
     void configure();
     void disconnect();
     bool getStatus(WireGuardStatus *status);
+    bool stopWireGuard();
 
     QString getAdapterName() const { return adapterName_; }
  
@@ -79,19 +80,8 @@ void WireGuardConnectionImpl::configure()
 
 void WireGuardConnectionImpl::disconnect()
 {
-    if (isDaemonRunning_) {
-        int retry = 0;
-        while (!host_->helper_->stopWireGuard()) {
-            if (retry >= 4) {
-                qCDebug(LOG_WIREGUARD) << "Can't stop WireGuard daemon after" << retry << "retries";
-                return;
-            }
-            ++retry;
-            QThread::msleep(500);
-        }
-        qCDebug(LOG_WIREGUARD) << "WireGuard daemon stopped after" << retry << "retries";
-        isDaemonRunning_ = false;
-    }
+    if(!stopWireGuard())
+        return;
     host_->setCurrentStateAndEmitSignal(WireGuardConnection::ConnectionState::DISCONNECTED);
 }
 
@@ -100,6 +90,23 @@ bool WireGuardConnectionImpl::getStatus(WireGuardStatus *status)
     return isDaemonRunning_ && host_->helper_->getWireGuardStatus(status);
 }
 
+bool WireGuardConnectionImpl::stopWireGuard()
+{
+    if (isDaemonRunning_) {
+        int retry = 0;
+        while (!host_->helper_->stopWireGuard()) {
+            if (retry >= 4) {
+                qCDebug(LOG_WIREGUARD) << "Can't stop WireGuard daemon after" << retry << "retries";
+                return false;
+            }
+            ++retry;
+            QThread::msleep(500);
+        }
+        qCDebug(LOG_WIREGUARD) << "WireGuard daemon stopped after" << retry << "retries";
+        isDaemonRunning_ = false;
+    }
+    return true;
+}
 
 WireGuardConnection::WireGuardConnection(QObject *parent, IHelper *helper)
     : IConnection(parent),
@@ -233,6 +240,14 @@ void WireGuardConnection::run()
             case WireGuardState::FAILURE:
                 // Error state.
                 qCDebug(LOG_WIREGUARD) << "WireGuard daemon error:" << status.errorCode;
+#if defined(Q_OS_WIN)
+                if(status.errorCode == 666u) {
+                    // Stop daemon for sure before wintun driver reinstallation.
+                    if(pimpl_->stopWireGuard()) {
+                        setError(ProtoTypes::ConnectError::WINTUN_FATAL_ERROR);
+                    }
+                }
+#endif
                 do_stop_thread_ = true;
                 break;
             case WireGuardState::STARTING:

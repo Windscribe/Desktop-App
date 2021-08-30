@@ -375,6 +375,7 @@
     <ClInclude Include="ip_address\ip4_address_and_mask.h" />
     <ClInclude Include="registry.h" />
     <ClInclude Include="reinstall_wan_ikev2.h" />
+    <ClInclude Include="reinstall_tun_drivers.h" />
     <ClInclude Include="remove_windscribe_network_profiles.h" />
     <ClInclude Include="simple_xor_crypt.h" />
     <ClInclude Include="split_tunneling\callout_filter.h" />
@@ -427,6 +428,7 @@
     <ClCompile Include="pipe_for_process.cpp" />
     <ClCompile Include="registry.cpp" />
     <ClCompile Include="reinstall_wan_ikev2.cpp" />
+    <ClCompile Include="reinstall_tun_drivers.cpp" />
     <ClCompile Include="remove_windscribe_network_profiles.cpp" />
     <ClCompile Include="simple_xor_crypt.cpp" />
     <ClCompile Include="split_tunneling\callout_filter.cpp" />

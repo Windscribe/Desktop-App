@@ -87,6 +87,8 @@ public:
     bool removeWindscribeNetworkProfiles();
     void setIKEv2IPSecParameters();
     bool makeHostsFileWritable();
+    bool reinstallTapDriver(const QString& tapDriverDir);
+    bool reinstallWintunDriver(const QString& wintunDriverDir);
 
 protected:
     void run() override;

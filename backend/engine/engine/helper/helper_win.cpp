@@ -809,6 +809,50 @@ bool Helper_win::makeHostsFileWritable()
     return mpr.success;
 }
 
+bool Helper_win::reinstallTapDriver(const QString &tapDriverDir)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
+    cmdReinstallTunDriver.driverDir.resize(tapDriverDir.size());
+    tapDriverDir.toWCharArray(const_cast<wchar_t*>(cmdReinstallTunDriver.driverDir.data()));
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdReinstallTunDriver;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REINSTALL_TAP_DRIVER, stream.str());
+    if(mpr.success) {
+        qCDebug(LOG_BASIC) << "Tap driver was successfully re-installed.";
+    }
+    else {
+        qCDebug(LOG_BASIC) << "Error to re-install tap driver.";
+    }
+    return mpr.success;
+}
+
+bool Helper_win::reinstallWintunDriver(const QString &wintunDriverDir)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
+    cmdReinstallTunDriver.driverDir.resize(wintunDriverDir.size());
+    wintunDriverDir.toWCharArray(const_cast<wchar_t*>(cmdReinstallTunDriver.driverDir.data()));
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdReinstallTunDriver;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REINSTALL_WINTUN_DRIVER, stream.str());
+    if(mpr.success) {
+        qCDebug(LOG_BASIC) << "Wintun driver was successfully re-installed.";
+    }
+    else {
+        qCDebug(LOG_BASIC) << "Error to re-install wintun driver.";
+    }
+    return mpr.success;
+}
+
 void Helper_win::run()
 {
 #ifndef DEBUG_DONT_USE_SERVICE
