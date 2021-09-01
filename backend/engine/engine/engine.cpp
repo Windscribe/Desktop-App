@@ -1883,8 +1883,8 @@ void Engine::onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytes
 
 void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
 {
-#ifdef Q_OS_MAC
-    firewallController_->setInterfaceToSkip_mac(interfaceName);
+#if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
+    firewallController_->setInterfaceToSkip_posix(interfaceName);
     updateFirewallSettings();
 #else
     Q_UNUSED(interfaceName);
@@ -2635,8 +2635,8 @@ void Engine::doDisconnectRestoreStuff()
     locationsModel_->enableProxy();
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
 
-#ifdef Q_OS_MAC
-    firewallController_->setInterfaceToSkip_mac("");
+#if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
+    firewallController_->setInterfaceToSkip_posix("");
 #endif
     if (firewallController_->firewallActualState())
     {

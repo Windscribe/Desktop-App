@@ -2,6 +2,7 @@
 #include <QStandardPaths>
 #include "utils/logger.h"
 #include <QDir>
+#include <QCoreApplication>
 
 FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper) :
     FirewallController(parent), forceUpdateInterfaceToSkip_(false)
@@ -272,7 +273,7 @@ void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
                 file.close();
 
                 // set executable flag
-                executeRootCommand("chmod +x \"" + pfBashScriptFile + "\"");
+                helper_->executeRootCommand("chmod +x \"" + pfBashScriptFile + "\"");
             }
         }
 
@@ -307,8 +308,8 @@ void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
 
             file.close();
 
-            executeRootCommand("cp " + strTempFilePath + " " + filePath);
-            executeRootCommand("launchctl load -w " + filePath);
+            helper_->executeRootCommand("cp " + strTempFilePath + " " + filePath);
+            helper_->executeRootCommand("launchctl load -w " + filePath);
         }
         else
         {
@@ -319,11 +320,11 @@ void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
     {
         qCDebug(LOG_BASIC) << "Execute command: "
                            << "launchctl unload " + Utils::cleanSensitiveInfo(filePath);
-        executeRootCommand("launchctl unload " + filePath);
+        helper_->executeRootCommand("launchctl unload " + filePath);
         qCDebug(LOG_BASIC) << "Execute command: " << "rm " + Utils::cleanSensitiveInfo(filePath);
-        executeRootCommand("rm " + filePath);
+        helper_->executeRootCommand("rm " + filePath);
         qCDebug(LOG_BASIC) << "Execute command: "
                            << "rm " + Utils::cleanSensitiveInfo(pfBashScriptFile);
-        executeRootCommand("rm \"" + pfBashScriptFile + "\"");
+        helper_->executeRootCommand("rm \"" + pfBashScriptFile + "\"");
     }
 }
