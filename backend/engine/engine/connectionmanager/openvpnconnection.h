@@ -126,7 +126,7 @@ private:
     void continueWithPasswordImpl();
 
     bool parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway);
-    bool parseDeviceOpenedReply(const QString &reply, QString &outDriverName, QString &outDeviceName);
+    bool parseDeviceOpenedReply(const QString &reply, QString &outDeviceName);
     bool parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp);
 };
 

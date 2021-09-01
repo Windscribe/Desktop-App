@@ -103,7 +103,8 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
             {
                 strReply += szLine;
             }
-            pclose(file);
+            int retCode = pclose(file);
+	    outCmdAnswer.exitCode = WEXITSTATUS(retCode);
             outCmdAnswer.executed = 1;
             outCmdAnswer.body = strReply;
         }

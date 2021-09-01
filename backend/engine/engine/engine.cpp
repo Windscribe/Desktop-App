@@ -816,25 +816,22 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
             {
                 if (isLaunchOnStart)
                 {
-#ifdef Q_OS_MAC
-                    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-                    helper_mac->enableFirewallOnBoot(true);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                    firewallController_->enableFirewallOnBoot(true);
 #endif
                 }
                 else
                 {
                     if (isFirewallAlwaysOn)
                     {
-#ifdef Q_OS_MAC
-                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-                        helper_mac->enableFirewallOnBoot(true);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                        firewallController_->enableFirewallOnBoot(true);
 #endif
                     }
                     else
                     {
-#ifdef Q_OS_MAC
-                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-                        helper_mac->enableFirewallOnBoot(false);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                        firewallController_->enableFirewallOnBoot(false);
 #endif
                         firewallController_->firewallOff();
                     }
@@ -846,16 +843,14 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                 {
                     if (isFirewallAlwaysOn)
                     {
-#ifdef Q_OS_MAC
-                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-                        helper_mac->enableFirewallOnBoot(true);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                        firewallController_->enableFirewallOnBoot(true);
 #endif
                     }
                     else
                     {
-#ifdef Q_OS_MAC
-                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-                        helper_mac->enableFirewallOnBoot(false);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                        firewallController_->enableFirewallOnBoot(false);
 #endif
                         firewallController_->firewallOff();
                     }
@@ -864,16 +859,14 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                 {
                     if (isFirewallAlwaysOn)
                     {
-#ifdef Q_OS_MAC
-                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-                        helper_mac->enableFirewallOnBoot(true);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                        firewallController_->enableFirewallOnBoot(true);
 #endif
                     }
                     else
                     {
-#ifdef Q_OS_MAC
-                        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-                        helper_mac->enableFirewallOnBoot(false);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                        firewallController_->enableFirewallOnBoot(false);
 #endif
                         firewallController_->firewallOff();
                     }
@@ -883,9 +876,8 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         else  // if (!isFirewallChecked)
         {
             firewallController_->firewallOff();
-#ifdef Q_OS_MAC
-            Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-            helper_mac->enableFirewallOnBoot(false);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+            firewallController_->enableFirewallOnBoot(false);
 #endif
         }
 #ifdef Q_OS_WIN
@@ -1088,9 +1080,8 @@ void Engine::signOutImplAfterDisconnect()
     prevSessionStatus_.clear();
     prevSessionForLogging_.clear();
 
-#ifdef Q_OS_MAC
-    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-    helper_mac->enableFirewallOnBoot(false);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    firewallController_->enableFirewallOnBoot(false);
 #endif
 
     if (!apiInfo_.isNull())
@@ -1612,8 +1603,8 @@ void Engine::onConnectionManagerConnected()
 
 #ifdef Q_OS_WIN
     AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);    
-#elif defined Q_OS_MAC
-    firewallController_->setInterfaceToSkip_mac(adapterName);
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    firewallController_->setInterfaceToSkip_posix(adapterName);
 #endif
 
     helper_->sendConnectStatus(true, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(),

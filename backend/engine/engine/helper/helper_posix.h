@@ -44,15 +44,10 @@ public:
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
     // Posix specific functions
-    QString executeRootCommand(const QString &commandLine);
+    QString executeRootCommand(const QString &commandLine, int *exitCode = nullptr);
     bool executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId);
     bool executeTaskKill(const QString &executableName);
-    //void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress);
-    //void enableFirewallOnBoot(bool bEnable);
-    //QStringList getActiveNetworkInterfaces();
-    //bool setKeychainUsernamePassword(const QString &username, const QString &password);
-    //bool setKextPath(const QString &kextPath);
-    //bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
+
 
 protected:
     void run() override;
@@ -116,7 +111,7 @@ protected:
     }
 
     enum { RET_SUCCESS, RET_DISCONNECTED };
-    int executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer);
+    int executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer, int *exitCode = nullptr);
     //bool setKeychainUsernamePasswordImpl(const QString &username, const QString &password, bool *bExecuted);
 
     static void connectHandler(const boost::system::error_code &ec);

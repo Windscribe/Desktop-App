@@ -127,8 +127,9 @@ struct CMD_ANSWER
     int    executed;            // 0 - failed, 1 - executed, 2 - still executing (for openvpn)
     unsigned long long customInfoValue[2];
     std::string body;
+    int exitCode;
 
-    CMD_ANSWER() : cmdId(0), executed(0), customInfoValue(), body() {}
+    CMD_ANSWER() : cmdId(0), executed(0), customInfoValue(), body(), exitCode(-1) {}
 };
 
 enum WireGuardServiceState

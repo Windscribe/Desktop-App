@@ -23,8 +23,9 @@ public:
     virtual bool whitelistPorts(const apiinfo::StaticIpPortsVector &ports);
     virtual bool deleteWhitelistPorts();
 
-    // mac specific functions
-    virtual void setInterfaceToSkip_mac(const QString &interfaceToSkip) = 0;
+    // Mac/Linux specific functions
+    virtual void setInterfaceToSkip_posix(const QString &interfaceToSkip) = 0;
+    virtual void enableFirewallOnBoot(bool bEnable) = 0;
 
 protected:
     bool isStateChanged();

@@ -95,7 +95,8 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
             {
                 strReply += szLine;
             }
-            pclose(file);
+            int retCode = pclose(file);
+            outCmdAnswer.exitCode = WEXITSTATUS(retCode);
             outCmdAnswer.executed = 1;
             outCmdAnswer.body = strReply;
         }

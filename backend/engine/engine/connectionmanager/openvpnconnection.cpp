@@ -520,8 +520,8 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
 #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
             else if (serverReply.contains("device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
             {
-                QString driverName, deviceName;
-                if (parseDeviceOpenedReply(serverReply, driverName, deviceName))
+                QString deviceName;
+                if (parseDeviceOpenedReply(serverReply, deviceName))
                 {
                     connectionAdapterInfo_.setAdapterName(deviceName);
                 }
@@ -718,7 +718,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
     return true;
 }
 
-bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &outDriverName, QString &outDeviceName)
+bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &outDeviceName)
 {
     QStringRef str(&reply);
     const QVector<QStringRef> v = str.split(',');
@@ -733,9 +733,14 @@ bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &ou
         qCDebug(LOG_CONNECTION) << "Can't parse opened device message (divide into 4 strings)";
         return false;
     }
-    outDriverName = v2[1].toString();
+#ifdef Q_OS_MAC
     outDeviceName = v2[3].toString();
-    return !outDriverName.isEmpty() && !outDeviceName.isEmpty();
+#elif defined (Q_OS_LINUX)
+    outDeviceName = v2[2].toString();
+#endif
+
+    Q_ASSERT(outDeviceName.contains("tun"));
+    return !outDeviceName.isEmpty();
 }
 
 bool OpenVPNConnection::parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp)

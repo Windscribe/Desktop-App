@@ -19,7 +19,6 @@ public:
 
     // Mac specific functions
     void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress);
-    void enableFirewallOnBoot(bool bEnable);
     QStringList getActiveNetworkInterfaces();
     bool setKeychainUsernamePassword(const QString &username, const QString &password);
     bool setKextPath(const QString &kextPath);

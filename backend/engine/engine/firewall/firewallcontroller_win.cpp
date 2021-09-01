@@ -77,8 +77,15 @@ bool FirewallController_win::deleteWhitelistPorts()
     return helper_win_->deleteWhitelistPorts();
 }
 
-void FirewallController_win::setInterfaceToSkip_mac(const QString &interfaceToSkip)
+void FirewallController_win::setInterfaceToSkip_posix(const QString &interfaceToSkip)
 {
     Q_UNUSED(interfaceToSkip);
     //nothing todo for Windows
+}
+
+void FirewallController_win::enableFirewallOnBoot(bool bEnable)
+{
+    Q_UNUSED(bEnable);
+    //nothing todo for Windows
+
 }

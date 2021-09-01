@@ -224,12 +224,106 @@ bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTra
     }
 }
 
-void FirewallController_mac::setInterfaceToSkip_mac(const QString &interfaceToSkip)
+void FirewallController_mac::setInterfaceToSkip_posix(const QString &interfaceToSkip)
 {
     QMutexLocker locker(&mutex_);
-    qCDebug(LOG_BASIC) << "FirewallController_mac::setInterfaceToSkip_mac ->" << interfaceToSkip;
+    qCDebug(LOG_BASIC) << "FirewallController_mac::setInterfaceToSkip_posix ->" << interfaceToSkip;
     if (interfaceToSkip_ != interfaceToSkip) {
         interfaceToSkip_ = interfaceToSkip;
         forceUpdateInterfaceToSkip_ = true;
+    }
+}
+
+void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
+{
+    qCDebug(LOG_BASIC) << "Enable firewall on boot, bEnable =" << bEnable;
+    QString strTempFilePath = QString::fromLocal8Bit(getenv("TMPDIR")) + "windscribetemp.plist";
+    QString filePath = "/Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist";
+
+    QString pfConfFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString pfBashScriptFile = pfConfFilePath + "/windscribe_pf.sh";
+    pfConfFilePath = pfConfFilePath + "/pf.conf";
+
+    if (bEnable)
+    {
+        //create bash script
+        {
+            QString exePath = QCoreApplication::applicationFilePath();
+            QFile file(pfBashScriptFile);
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+                file.resize(0);
+                QTextStream in(&file);
+                in << "#!/bin/bash\n";
+                in << "FILE=\"" << exePath << "\"\n";
+                in << "if [ ! -f \"$FILE\" ]\n";
+                in << "then\n";
+                in << "echo \"File $FILE does not exists\"\n";
+                in << "launchctl stop com.aaa.windscribe.firewall_on\n";
+                in << "launchctl unload " << filePath << "\n";
+                in << "launchctl remove com.aaa.windscribe.firewall_on\n";
+                in << "srm \"$0\"\n";
+                //in << "rm " << filePath << "\n";
+                in << "else\n";
+                in << "echo \"File $FILE exists\"\n";
+                in << "ipconfig waitall\n";
+                in << "/sbin/pfctl -e -f \"" << pfConfFilePath << "\"\n";
+                in << "fi\n";
+                file.close();
+
+                // set executable flag
+                executeRootCommand("chmod +x \"" + pfBashScriptFile + "\"");
+            }
+        }
+
+        // create plist
+        QFile file(strTempFilePath);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            file.resize(0);
+            QTextStream in(&file);
+            in << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+            in << "<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
+            in << "<plist version=\"1.0\">\n";
+            in << "<dict>\n";
+            in << "<key>Label</key>\n";
+            in << "<string>com.aaa.windscribe.firewall_on</string>\n";
+
+            in << "<key>ProgramArguments</key>\n";
+            in << "<array>\n";
+            in << "<string>/bin/bash</string>\n";
+            in << "<string>" << pfBashScriptFile << "</string>\n";
+            in << "</array>\n";
+
+            in << "<key>StandardErrorPath</key>\n";
+            in << "<string>/var/log/windscribe_pf.log</string>\n";
+            in << "<key>StandardOutPath</key>\n";
+            in << "<string>/var/log/windscribe_pf.log</string>\n";
+
+            in << "<key>RunAtLoad</key>\n";
+            in << "<true/>\n";
+            in << "</dict>\n";
+            in << "</plist>\n";
+
+            file.close();
+
+            executeRootCommand("cp " + strTempFilePath + " " + filePath);
+            executeRootCommand("launchctl load -w " + filePath);
+        }
+        else
+        {
+            qCDebug(LOG_BASIC) << "Can't create plist file for startup firewall: " << filePath;
+        }
+    }
+    else
+    {
+        qCDebug(LOG_BASIC) << "Execute command: "
+                           << "launchctl unload " + Utils::cleanSensitiveInfo(filePath);
+        executeRootCommand("launchctl unload " + filePath);
+        qCDebug(LOG_BASIC) << "Execute command: " << "rm " + Utils::cleanSensitiveInfo(filePath);
+        executeRootCommand("rm " + filePath);
+        qCDebug(LOG_BASIC) << "Execute command: "
+                           << "rm " + Utils::cleanSensitiveInfo(pfBashScriptFile);
+        executeRootCommand("rm \"" + pfBashScriptFile + "\"");
     }
 }

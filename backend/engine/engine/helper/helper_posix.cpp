@@ -530,7 +530,7 @@ void Helper_posix::setDefaultWireGuardDeviceName(const QString &deviceName)
         wireGuardDeviceName_ = deviceName;
 }
 
-QString Helper_posix::executeRootCommand(const QString &commandLine)
+QString Helper_posix::executeRootCommand(const QString &commandLine, int *exitCode /* = nullptr*/)
 {
     QMutexLocker locker(&mutex_);
 
@@ -541,7 +541,7 @@ QString Helper_posix::executeRootCommand(const QString &commandLine)
 
     bool bExecuted;
     QString log;
-    int ret = executeRootCommandImpl(commandLine, &bExecuted, log);
+    int ret = executeRootCommandImpl(commandLine, &bExecuted, log, exitCode);
     if (ret == RET_SUCCESS)
     {
         return log;
@@ -557,7 +557,7 @@ QString Helper_posix::executeRootCommand(const QString &commandLine)
         {
             if (isHelperConnected())
             {
-                ret = executeRootCommandImpl(commandLine, &bExecuted, log);
+                ret = executeRootCommandImpl(commandLine, &bExecuted, log, exitCode);
                 if (ret == RET_SUCCESS)
                 {
                     return log;
@@ -937,7 +937,7 @@ bool Helper_posix::executeTaskKill(const QString &executableName)
     return answerCmd.executed != 0;
 }*/
 
-int Helper_posix::executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer)
+int Helper_posix::executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer, int *exitCode /*= nullptr*/)
 {
     CMD_EXECUTE cmd;
     cmd.cmdline = commandLine.toStdString();
@@ -961,6 +961,10 @@ int Helper_posix::executeRootCommandImpl(const QString &commandLine, bool *bExec
         {
             *bExecuted = true;
             answer = QString::fromStdString(answerCmd.body);
+            if (exitCode)
+            {
+                *exitCode = answerCmd.exitCode;
+            }
             return RET_SUCCESS;
         }
     }

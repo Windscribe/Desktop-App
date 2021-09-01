@@ -20,7 +20,8 @@ public:
     bool whitelistPorts(const apiinfo::StaticIpPortsVector &ports) override;
     bool deleteWhitelistPorts() override;
 
-    void setInterfaceToSkip_mac(const QString &interfaceToSkip) override;
+    void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
+    void enableFirewallOnBoot(bool bEnable) override;
 
 private:
     Helper_mac *helper_;

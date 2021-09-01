@@ -17,6 +17,7 @@ void serialize(Archive &ar, CMD_ANSWER &a, const unsigned int version)
     ar & a.customInfoValue[0];
     ar & a.customInfoValue[1];
     ar & a.body;
+    ar & a.exitCode;
 }
 
 template<class Archive>

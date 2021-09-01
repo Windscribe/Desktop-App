@@ -2,6 +2,7 @@
 #define FIREWALLCONTROLLER_LINUX_H
 
 #include "firewallcontroller.h"
+#include "engine/helper/helper_linux.h"
 
 //thread safe
 class FirewallController_linux : public FirewallController
@@ -19,7 +20,18 @@ public:
     bool whitelistPorts(const apiinfo::StaticIpPortsVector &ports) override;
     bool deleteWhitelistPorts() override;
 
-    void setInterfaceToSkip_mac(const QString &interfaceToSkip) override;
+    void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
+    void enableFirewallOnBoot(bool bEnable) override;
+
+private:
+    Helper_linux *helper_;
+    QString interfaceToSkip_;
+    bool forceUpdateInterfaceToSkip_;
+    QMutex mutex_;
+    QString pathToIp4SavedTable_;
+    QString pathToIp6SavedTable_;
+
+    bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports);
 };
 
 #endif // FIREWALLCONTROLLER_LINUX_H
