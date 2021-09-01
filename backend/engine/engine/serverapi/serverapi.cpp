@@ -291,16 +291,12 @@ ServerAPI::ServerAPI(QObject *parent, INetworkStateManager *networkStateManager)
     handleCurlReplyFuncTable_(),
     requestTimer_(this)
 {
-    connect(&curlNetworkManager_, SIGNAL(finished(CurlRequest*)),
-            SLOT(onCurlNetworkRequestFinished(CurlRequest*)));
-    connect(networkStateManager_, SIGNAL(stateChanged(bool, QString)),
-            SLOT(onNetworkAccessibleChanged(bool)));
+    connect(&curlNetworkManager_, &CurlNetworkManager::finished, this, &ServerAPI::onCurlNetworkRequestFinished);
+    connect(networkStateManager_, &INetworkStateManager::stateChanged, this, &ServerAPI::onNetworkAccessibleChanged);
 
     dnsCache_ = new DnsCache(this);
-    connect(dnsCache_, SIGNAL(resolved(bool,void*,QStringList)),
-            SLOT(onDnsResolved(bool,void*,QStringList)));
-    connect(dnsCache_, SIGNAL(ipsInCachChanged(QStringList)),
-            SIGNAL(hostIpsChanged(QStringList)), Qt::DirectConnection);
+    connect(dnsCache_, &DnsCache::resolved, this, &ServerAPI::onDnsResolved);
+    connect(dnsCache_, &DnsCache::ipsInCachChanged, this, &ServerAPI::hostIpsChanged, Qt::DirectConnection);
 
     if (QSslSocket::supportsSsl())
     {
@@ -426,11 +422,11 @@ void ServerAPI::submitDnsRequest(BaseRequest *request, const QString &forceHostn
         request->setWaitingHandlerType(BaseRequest::HandlerType::DNS);
         if (forceHostname.isEmpty())
         {
-            dnsCache_->resolve(hostname_, request->getDnsCachingTimeout(), request);
+            dnsCache_->resolve(hostname_, request->getDnsCachingTimeout(), request, request->getStartTime());
         }
         else
         {
-            dnsCache_->resolve(forceHostname, request->getDnsCachingTimeout(), request);
+            dnsCache_->resolve(forceHostname, request->getDnsCachingTimeout(), request, request->getStartTime());
         }
     }
 }
@@ -489,10 +485,12 @@ void ServerAPI::onRequestTimer()
         if (!rd->isActive()) {
             inactive = true;
         } else if (current_time > rd->getStartTime() + rd->getTimeout()) {
+            rd->setActive(false);
             inactive = true;
             timeout = true;
         }
         if (inactive) {
+            it = activeRequests_.erase(it);
             const auto *curlRequest = rd->getCurlRequest();
             if (curlRequest)
                 curlToRequestMap_.remove(curlRequest);
@@ -501,7 +499,6 @@ void ServerAPI::onRequestTimer()
                 handleRequestTimeout(rd);
             }
             delete rd;
-            it = activeRequests_.erase(it);
         }
         else {
             ++it;
@@ -907,14 +904,19 @@ void ServerAPI::setIgnoreSslErrors(bool bIgnore)
     curlNetworkManager_.setIgnoreSslErrors(bIgnore);
 }
 
-void ServerAPI::onDnsResolved(bool success, void *userData, const QStringList &ips)
+void ServerAPI::onDnsResolved(bool success, void *userData, qint64 requestStartTime, const QStringList &ips)
 {
-    // Make sure the request is pending. This will also handle the case when the request was deleted
-    // by the polling thread, so that |userData| became invalid.
+    // Make sure the request is active, has not been timed out by onRequestTimer(), and the request
+    // timestamps match.  The latter check covers the edge case where onRequestTimer() deletes a request
+    // due to timeout, a subsequent new request is allocated with the same address as the deleted request,
+    // and this slot is invoked for the old, deleted request.
     auto *rd = static_cast<BaseRequest*>(userData);
     const auto it = std::find(activeRequests_.cbegin(), activeRequests_.cend(), rd);
-    if (it == activeRequests_.cend() || !rd->isActive())
+    if (it == activeRequests_.cend() || !rd->isActive() || rd->getStartTime() != requestStartTime)
+    {
+        qDebug() << "Leaving onDnsResolved: request not found, inactive, or timestamp mismatch" << (int)rd << rd->getStartTime() << requestStartTime;
         return;
+    }
 
     const auto reply_type = rd->getReplyType();
     Q_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
@@ -962,9 +964,10 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
     rd->setActive(false);
 }
 
-void ServerAPI::onNetworkAccessibleChanged(bool isOnline)
+void ServerAPI::onNetworkAccessibleChanged(bool isOnline, const QString &networkInterface)
 {
     Q_UNUSED(isOnline);
+    Q_UNUSED(networkInterface);
     //bIsOnline_ = isOnline;
 }
 

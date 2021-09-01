@@ -13,18 +13,18 @@ DnsCache::~DnsCache()
 {
 }
 
-void DnsCache::resolve(const QString &hostname, void *userData)
+void DnsCache::resolve(const QString &hostname, void *userData, qint64 requestStartTime)
 {
-    resolve(hostname, -1, userData);
+    resolve(hostname, -1, userData, requestStartTime);
 }
 
-void DnsCache::resolve(const QString &hostname, int cacheTimeout, void *userData)
+void DnsCache::resolve(const QString &hostname, int cacheTimeout, void *userData, qint64 requestStartTime)
 {
     // if hostname this is IP then return immediatelly
     if (IpValidation::instance().isIp(hostname))
     {
         checkForNewIps(hostname);
-        emit resolved(true, userData, QStringList() << hostname);
+        emit resolved(true, userData, requestStartTime, QStringList() << hostname);
         return;
     }
 
@@ -38,7 +38,7 @@ void DnsCache::resolve(const QString &hostname, int cacheTimeout, void *userData
             qint64 curTime = QDateTime::currentMSecsSinceEpoch();
             if ((curTime - it.value().time) <= cacheTimeout)
             {
-                emit resolved(true, userData, it.value().ips);
+                emit resolved(true, userData, requestStartTime, it.value().ips);
                 return;
             }
         }
@@ -47,6 +47,7 @@ void DnsCache::resolve(const QString &hostname, int cacheTimeout, void *userData
     PendingResolvingHosts prh;
     prh.hostname = hostname;
     prh.userData = userData;
+    prh.requestStartTime = requestStartTime;
     pendingHosts_ << prh;
 
     if (!resolvingHostsInProgress_.contains(hostname))
@@ -85,7 +86,7 @@ void DnsCache::onDnsRequestFinished()
     {
         if (it->hostname == dnsRequest->hostname())
         {
-            emit resolved(bSuccess, it->userData, ips);
+            emit resolved(bSuccess, it->userData, it->requestStartTime, ips);
             it = pendingHosts_.erase(it);
         }
         else

@@ -94,9 +94,9 @@ signals:
     void hostIpsChanged(const QStringList &hostIps);
 
 private slots:
-    void onDnsResolved(bool success, void *userData, const QStringList &ips);
+    void onDnsResolved(bool success, void *userData, qint64 requestStartTime, const QStringList &ips);
     void onCurlNetworkRequestFinished(CurlRequest *curlRequest);
-    void onNetworkAccessibleChanged(bool isOnline);
+    void onNetworkAccessibleChanged(bool isOnline, const QString &networkInterface);
     void onRequestTimer();
 
 private:

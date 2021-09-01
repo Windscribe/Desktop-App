@@ -12,11 +12,11 @@ public:
     explicit DnsCache(QObject *parent = 0);
     virtual ~DnsCache();
 
-    void resolve(const QString &hostname, void *userData);
-    void resolve(const QString &hostname, int cacheTimeout, void *userData);
+    void resolve(const QString &hostname, void *userData, qint64 requestStartTime);
+    void resolve(const QString &hostname, int cacheTimeout, void *userData, qint64 requestStartTime);
 
 signals:
-    void resolved(bool success, void *userData, const QStringList &ips);
+    void resolved(bool success, void *userData, qint64 requestStartTime, const QStringList &ips);
     void ipsInCachChanged(const QStringList &ips);
 
 private slots:
@@ -38,6 +38,7 @@ private:
     {
         QString hostname;
         void *userData;
+        qint64 requestStartTime;
     };
 
     QSet<QString> resolvingHostsInProgress_;
