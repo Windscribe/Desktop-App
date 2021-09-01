@@ -1,3 +1,8 @@
+2.03.06 (01/09/2021)
+* Always fetch ovpn server credentials and configs together. #482
+* Reinstallation of tap/wintun drivers (Windows). #504
+* Firewall implementation added (Linux). #511
+
 2.03.05 (24/08/2021)
 * Fixed resolution changes causes app crash. #445
 * Reconnect after hosts file repaired. #454
