@@ -234,17 +234,17 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         return false;
     }
 
-    /*QStringList cmds;
-    cmds << "iptables -P INPUT DROP";
-    cmds << "iptables -P OUTPUT DROP";
-    cmds << "iptables -P FORWARD DROP";
+    QStringList cmds;
+    //cmds << "iptables -P INPUT DROP";
+    //cmds << "iptables -P OUTPUT DROP";
+    //cmds << "iptables -P FORWARD DROP";
 
     cmds << "ip6tables -P INPUT DROP";
     cmds << "ip6tables -P OUTPUT DROP";
     cmds << "ip6tables -P FORWARD DROP";
 
 
-    cmds << "iptables -Z";
+    /*cmds << "iptables -Z";
     cmds << "iptables -F";
     cmds << "iptables -X";
 
@@ -298,7 +298,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
 
         // Multicast addresses
         cmds << "iptables -A INPUT -s 224.0.0.0/4 -j ACCEPT";
-    }
+    }*/
 
     for (auto &cmd : cmds)
     {
@@ -308,7 +308,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
         }
-    }*/
+    }
 
     /*int exitCode;
     QString cmd = "iptables-save > /home/aaa/Documents/rules.txt";

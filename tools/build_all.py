@@ -52,7 +52,7 @@ def ExtractAppVersion():
         if matched:
           values[i] = int(matched.group(1)) if matched.lastindex > 0 else 1
           break
-  version_string_1 = "{:d}_{:02d}_build{:d}".format(values[0], values[1], values[2])
+  version_string_1 = "{:d}_{:d}_build{:d}".format(values[0], values[1], values[2])
   version_string_2 = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
   if values[3]:
     version_string_1 += "_beta"
@@ -434,7 +434,7 @@ def BuildInstallerLinux(configdata, qt_root):
 
   msg.Info("Creating Debian package...")
   src_package_path = os.path.join(ROOT_DIR, "installer", "linux", "debian_package")
-  dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_2.3-4_amd64")
+  dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_2.3-6_amd64")
   utl.CopyAllFiles(src_package_path, dest_package_path)
   utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "usr", "local", "windscribe"))
 
