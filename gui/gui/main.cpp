@@ -19,21 +19,24 @@
     #include <libgen.h>         // dirname
     #include <unistd.h>         // readlink
     #include <linux/limits.h>   // PATH_MAX
+    #include<signal.h>
 #endif
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
 
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
 MainWindow *g_MainWindow = NULL;
     void handler_sigterm(int signum)
     {
-        Q_UNUSED(signum);
-        qCDebug(LOG_BASIC) << "SIGTERM signal received";
-        if (g_MainWindow)
+        if (signum == SIGTERM)
         {
-            g_MainWindow->doClose(NULL, true);
+            qCDebug(LOG_BASIC) << "SIGTERM signal received";
+            if (g_MainWindow)
+            {
+                g_MainWindow->doClose(NULL, true);
+            }
+            exit(0);
         }
-        exit(0);
     }
 #endif
 
@@ -48,7 +51,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     signal(SIGTERM, handler_sigterm);
 #endif
 
@@ -135,7 +138,7 @@ int main(int argc, char *argv[])
     DpiScaleManager::instance();    // init dpi scale manager
 
     MainWindow w;
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     g_MainWindow = &w;
 #endif
     w.showAfterLaunch();
@@ -144,7 +147,7 @@ int main(int argc, char *argv[])
     multipleInstances.unlock();
 #endif
     int ret = a.exec();
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     g_MainWindow = nullptr;
 #endif
     ImageResourcesSvg::instance().finishGracefully();

@@ -14,9 +14,11 @@ FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *hel
     QDir dir(pathToIp4SavedTable_);
     dir.mkpath(pathToIp4SavedTable_);
     pathToIp6SavedTable_ = pathToIp4SavedTable_;
+    pathToOurTable_ = pathToIp4SavedTable_;
 
     pathToIp4SavedTable_ += "/ip4table_saved.txt";
     pathToIp6SavedTable_ += "/ip6table_saved.txt";
+    pathToOurTable_ += "/windscribe_table.txt";
 }
 
 FirewallController_linux::~FirewallController_linux()
@@ -151,11 +153,88 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         }
     }
 
-
-
     forceUpdateInterfaceToSkip_ = false;
 
-    QStringList cmds;
+    QFile file(pathToOurTable_);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QTextStream stream(&file);
+
+        stream << "*filter\n";
+        stream << ":INPUT DROP [0:0]\n";
+        stream << ":FORWARD DROP [0:0]\n";
+        stream << ":OUTPUT DROP [0:0]\n";
+        stream << ":windscribe - [0:0]\n";
+
+        //stream << "-A INPUT -p tcp -m tcp ! --tcp-flags SYN,RST,ACK SYN -m state --state NEW -j DROP\n";
+        stream << "-A INPUT -m state --state INVALID -j windscribe\n";
+        //stream << "-A INPUT -p tcp -m tcp --sport 1:65535 --tcp-flags FIN,SYN,RST,PSH,ACK,URG NONE -j windscribe\n";
+        stream << "-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n";
+        stream << "-A INPUT -i lo -j ACCEPT\n";
+        stream << "-A OUTPUT -o lo -j ACCEPT\n";
+        stream << "-A FORWARD -o lo -j ACCEPT\n";
+
+
+        //stream << "-A OUTPUT -p tcp -m tcp ! --tcp-flags SYN,RST,ACK SYN -m state --state NEW -j DROP\n";
+        stream << "-A OUTPUT -m state --state INVALID -j windscribe\n";
+        //stream << "-A OUTPUT -p tcp -m tcp ! --tcp-flags SYN,RST,ACK SYN -m state --state NEW -j DROP\n";
+        stream << "-A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n";
+
+        if (!interfaceToSkip_.isEmpty())
+        {
+            stream << "-A INPUT -i " + interfaceToSkip_ + " -j ACCEPT\n";
+            stream << "-A OUTPUT -o " + interfaceToSkip_ + " -j ACCEPT\n";
+            stream << "-A FORWARD -o " + interfaceToSkip_ + " -j ACCEPT\n";
+        }
+
+        const QStringList ips = ip.split(';');
+        for (auto &i : ips)
+        {
+            stream << "-A INPUT -s " + i + "/32 -j ACCEPT\n";
+            stream << "-A OUTPUT -d " + i + "/32 -j ACCEPT\n";
+        }
+
+        if (bAllowLanTraffic)
+        {
+            // Local Network
+            stream << "-A INPUT -s 192.168.0.0/16 -j ACCEPT\n";
+            stream << "-A OUTPUT -d 192.168.0.0/16 -j ACCEPT\n";
+
+            stream << "-A INPUT -s 172.16.0.0/12 -j ACCEPT\n";
+            stream << "-A OUTPUT -d 172.16.0.0/12 -j ACCEPT\n";
+
+            stream << "-A INPUT -s 10.0.0.0/8 -j ACCEPT\n";
+            stream << "-A OUTPUT -d 10.0.0.0/8 -j ACCEPT\n";
+
+            // Loopback addresses to the local host
+            stream << "-A INPUT -s 127.0.0.0/8 -j ACCEPT\n";
+
+            // Multicast addresses
+            stream << "-A INPUT -s 224.0.0.0/4 -j ACCEPT\n";
+        }
+
+        stream << "-A windscribe -j DROP\n";
+        stream << "COMMIT\n";
+
+        file.close();
+
+
+        int exitCode;
+        QString cmd = "iptables-restore < " + pathToOurTable_;
+        helper_->executeRootCommand(cmd, &exitCode);
+        if (exitCode != 0)
+        {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
+        }
+        return true;
+    }
+    else
+    {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't create file:" << pathToOurTable_;
+        return false;
+    }
+
+    /*QStringList cmds;
     cmds << "iptables -P INPUT DROP";
     cmds << "iptables -P OUTPUT DROP";
     cmds << "iptables -P FORWARD DROP";
@@ -229,7 +308,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
         }
-    }
+    }*/
 
     /*int exitCode;
     QString cmd = "iptables-save > /home/aaa/Documents/rules.txt";
@@ -239,6 +318,4 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
     }*/
 
-
-    return true;
 }

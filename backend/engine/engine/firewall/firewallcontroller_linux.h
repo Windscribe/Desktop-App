@@ -30,6 +30,7 @@ private:
     QMutex mutex_;
     QString pathToIp4SavedTable_;
     QString pathToIp6SavedTable_;
+    QString pathToOurTable_;
 
     bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports);
 };

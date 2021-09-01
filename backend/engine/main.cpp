@@ -17,8 +17,23 @@
     #include "engine/helper/installhelper_mac.h"
 #endif
 
+
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    void handler_sigterm(int signum)
+    {
+        if (signum == SIGTERM)
+        {
+            qCDebug(LOG_BASIC) << "SIGTERM signal received";
+        }
+    }
+#endif
+
 int main(int argc, char *argv[])
 {
+
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    signal(SIGTERM, handler_sigterm);
+#endif
 
 #ifdef Q_OS_WIN
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
