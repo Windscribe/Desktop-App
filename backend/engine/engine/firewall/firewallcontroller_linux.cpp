@@ -86,6 +86,10 @@ bool FirewallController_linux::firewallOff()
         cmd = "rm " + pathToIp6SavedTable_;
         helper_->executeRootCommand(cmd);
 
+        QFile::remove(pathToIp4SavedTable_);
+        QFile::remove(pathToIp6SavedTable_);
+        QFile::remove(pathToOurTable_);
+
         return true;
     }
     else
@@ -166,24 +170,16 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         stream << ":OUTPUT DROP [0:0]\n";
         stream << ":windscribe - [0:0]\n";
 
-        //stream << "-A INPUT -p tcp -m tcp ! --tcp-flags SYN,RST,ACK SYN -m state --state NEW -j DROP\n";
-        stream << "-A INPUT -m state --state INVALID -j windscribe\n";
-        //stream << "-A INPUT -p tcp -m tcp --sport 1:65535 --tcp-flags FIN,SYN,RST,PSH,ACK,URG NONE -j windscribe\n";
-        stream << "-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n";
         stream << "-A INPUT -i lo -j ACCEPT\n";
         stream << "-A OUTPUT -o lo -j ACCEPT\n";
+        stream << "-A FORWARD -i lo -j ACCEPT\n";
         stream << "-A FORWARD -o lo -j ACCEPT\n";
-
-
-        //stream << "-A OUTPUT -p tcp -m tcp ! --tcp-flags SYN,RST,ACK SYN -m state --state NEW -j DROP\n";
-        stream << "-A OUTPUT -m state --state INVALID -j windscribe\n";
-        //stream << "-A OUTPUT -p tcp -m tcp ! --tcp-flags SYN,RST,ACK SYN -m state --state NEW -j DROP\n";
-        stream << "-A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n";
 
         if (!interfaceToSkip_.isEmpty())
         {
             stream << "-A INPUT -i " + interfaceToSkip_ + " -j ACCEPT\n";
             stream << "-A OUTPUT -o " + interfaceToSkip_ + " -j ACCEPT\n";
+            stream << "-A FORWARD -i " + interfaceToSkip_ + " -j ACCEPT\n";
             stream << "-A FORWARD -o " + interfaceToSkip_ + " -j ACCEPT\n";
         }
 
@@ -234,71 +230,11 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         return false;
     }
 
+    // disable IPv6
     QStringList cmds;
-    //cmds << "iptables -P INPUT DROP";
-    //cmds << "iptables -P OUTPUT DROP";
-    //cmds << "iptables -P FORWARD DROP";
-
     cmds << "ip6tables -P INPUT DROP";
     cmds << "ip6tables -P OUTPUT DROP";
     cmds << "ip6tables -P FORWARD DROP";
-
-
-    /*cmds << "iptables -Z";
-    cmds << "iptables -F";
-    cmds << "iptables -X";
-
-    cmds << "iptables -A INPUT -p tcp -m tcp ! --tcp-flags SYN,RST,ACK SYN -m state --state NEW -j DROP";
-    cmds << "iptables -A OUTPUT -p tcp -m tcp ! --tcp-flags SYN,RST,ACK SYN -m state --state NEW -j DROP";
-
-    cmds << "iptables -N windscribe";
-    cmds << "iptables -A OUTPUT -m state --state INVALID  -j windscribe";
-    cmds << "iptables -A INPUT -m state --state INVALID  -j windscribe";
-    cmds << "iptables -A INPUT -p tcp -m tcp --sport 1:65535 --tcp-flags FIN,SYN,RST,PSH,ACK,URG NONE -j windscribe";
-    cmds << "iptables -A windscribe -j DROP";
-
-    cmds << "iptables -A INPUT  -m state --state ESTABLISHED,RELATED  -j ACCEPT";
-
-    cmds << "iptables -A INPUT -i lo -j ACCEPT";
-    cmds << "iptables -A OUTPUT -o lo -j ACCEPT";
-    cmds << "iptables -A FORWARD -o lo -j ACCEPT";
-
-    if (!interfaceToSkip_.isEmpty())
-    {
-        cmds << "iptables -A INPUT -i " + interfaceToSkip_ + " -j ACCEPT";
-        cmds << "iptables -A OUTPUT -o " + interfaceToSkip_ + " -j ACCEPT";
-    }
-
-    cmds << "iptables -A OUTPUT -p tcp -m tcp ! --tcp-flags SYN,RST,ACK SYN -m state --state NEW -j DROP";
-
-    cmds << "iptables -A OUTPUT  -m state --state ESTABLISHED,RELATED  -j ACCEPT";
-
-
-    const QStringList ips = ip.split(';');
-    for (auto &i : ips)
-    {
-        cmds << "iptables -A INPUT -s " + i + " -j ACCEPT";
-        cmds << "iptables -A OUTPUT -d " + i + " -j ACCEPT";
-    }
-
-    if (bAllowLanTraffic)
-    {
-        // Local Network
-        cmds << "iptables -A INPUT -s 192.168.0.0/16 -j ACCEPT";
-        cmds << "iptables -A OUTPUT -d 192.168.0.0/16 -j ACCEPT";
-
-        cmds << "iptables -A INPUT -s 172.16.0.0/12 -j ACCEPT";
-        cmds << "iptables -A OUTPUT -d 172.16.0.0/12 -j ACCEPT";
-
-        cmds << "iptables -A INPUT -s 10.0.0.0/8 -j ACCEPT";
-        cmds << "iptables -A OUTPUT -d 10.0.0.0/8 -j ACCEPT";
-
-        // Loopback addresses to the local host
-        cmds << "iptables -A INPUT -s 127.0.0.0/8 -j ACCEPT";
-
-        // Multicast addresses
-        cmds << "iptables -A INPUT -s 224.0.0.0/4 -j ACCEPT";
-    }*/
 
     for (auto &cmd : cmds)
     {
