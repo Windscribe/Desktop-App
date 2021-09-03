@@ -147,7 +147,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     pimpl_->setConfig(wireGuardConfig);
 
     // for windows adapterGatewayInfo_ filled on emit connected below
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     // note: route gateway not used for WireGuard in AdapterGatewayInfo
     adapterGatewayInfo_.clear();
     adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
