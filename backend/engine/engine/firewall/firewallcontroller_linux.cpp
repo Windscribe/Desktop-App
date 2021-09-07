@@ -74,7 +74,7 @@ bool FirewallController_linux::firewallOff()
         {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
         }
-        cmd = "ip6tables-save < " + pathToIp6SavedTable_;
+        cmd = "ip6tables-restore < " + pathToIp6SavedTable_;
         helper_->executeRootCommand(cmd, &exitCode);
         if (exitCode != 0)
         {
@@ -222,7 +222,6 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
         }
-        return true;
     }
     else
     {
@@ -235,6 +234,9 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
     cmds << "ip6tables -P INPUT DROP";
     cmds << "ip6tables -P OUTPUT DROP";
     cmds << "ip6tables -P FORWARD DROP";
+    cmds << "ip6tables -Z";
+    cmds << "ip6tables -F";
+    cmds << "ip6tables -X";
 
     for (auto &cmd : cmds)
     {
@@ -254,4 +256,5 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
     }*/
 
+    return true;
 }
