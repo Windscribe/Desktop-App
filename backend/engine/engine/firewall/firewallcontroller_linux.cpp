@@ -107,7 +107,7 @@ bool FirewallController_linux::firewallActualState()
     }
 
     int exitCode;
-    helper_->executeRootCommand("iptables -L windscribe", &exitCode);
+    helper_->executeRootCommand("iptables -L windscribe_input", &exitCode);
     return exitCode == 0;
 }
 
@@ -165,51 +165,49 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         QTextStream stream(&file);
 
         stream << "*filter\n";
-        stream << ":INPUT DROP [0:0]\n";
-        stream << ":FORWARD DROP [0:0]\n";
-        stream << ":OUTPUT DROP [0:0]\n";
-        stream << ":windscribe - [0:0]\n";
+        stream << ":windscribe_input - [0:0]\n";
+        stream << ":windscribe_output - [0:0]\n";
 
-        stream << "-A INPUT -i lo -j ACCEPT\n";
-        stream << "-A OUTPUT -o lo -j ACCEPT\n";
-        stream << "-A FORWARD -i lo -j ACCEPT\n";
-        stream << "-A FORWARD -o lo -j ACCEPT\n";
+        stream << "-A INPUT -j windscribe_input\n";
+        stream << "-A OUTPUT -j windscribe_output\n";
+
+        stream << "-A windscribe_input -i lo -j ACCEPT\n";
+        stream << "-A windscribe_output -o lo -j ACCEPT\n";
 
         if (!interfaceToSkip_.isEmpty())
         {
-            stream << "-A INPUT -i " + interfaceToSkip_ + " -j ACCEPT\n";
-            stream << "-A OUTPUT -o " + interfaceToSkip_ + " -j ACCEPT\n";
-            stream << "-A FORWARD -i " + interfaceToSkip_ + " -j ACCEPT\n";
-            stream << "-A FORWARD -o " + interfaceToSkip_ + " -j ACCEPT\n";
+            stream << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT\n";
+            stream << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT\n";
         }
 
         const QStringList ips = ip.split(';');
         for (auto &i : ips)
         {
-            stream << "-A INPUT -s " + i + "/32 -j ACCEPT\n";
-            stream << "-A OUTPUT -d " + i + "/32 -j ACCEPT\n";
+            stream << "-A windscribe_input -s " + i + "/32 -j ACCEPT\n";
+            stream << "-A windscribe_output -d " + i + "/32 -j ACCEPT\n";
         }
 
         if (bAllowLanTraffic)
         {
             // Local Network
-            stream << "-A INPUT -s 192.168.0.0/16 -j ACCEPT\n";
-            stream << "-A OUTPUT -d 192.168.0.0/16 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 192.168.0.0/16 -j ACCEPT\n";
+            stream << "-A windscribe_output -d 192.168.0.0/16 -j ACCEPT\n";
 
-            stream << "-A INPUT -s 172.16.0.0/12 -j ACCEPT\n";
-            stream << "-A OUTPUT -d 172.16.0.0/12 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 172.16.0.0/12 -j ACCEPT\n";
+            stream << "-A windscribe_output -d 172.16.0.0/12 -j ACCEPT\n";
 
-            stream << "-A INPUT -s 10.0.0.0/8 -j ACCEPT\n";
-            stream << "-A OUTPUT -d 10.0.0.0/8 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT\n";
+            stream << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT\n";
 
             // Loopback addresses to the local host
-            stream << "-A INPUT -s 127.0.0.0/8 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT\n";
 
             // Multicast addresses
-            stream << "-A INPUT -s 224.0.0.0/4 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 224.0.0.0/4 -j ACCEPT\n";
         }
 
-        stream << "-A windscribe -j DROP\n";
+        stream << "-A windscribe_input -j DROP\n";
+        stream << "-A windscribe_output -j DROP\n";
         stream << "COMMIT\n";
 
         file.close();

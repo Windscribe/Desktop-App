@@ -13,11 +13,12 @@ public:
 
     bool setIpAddress(const std::string &address);
     bool setDnsServers(const std::string &addressList, const std::string &scriptName);
-    bool enableRouting(const std::vector<std::string> &allowedIps, uint32_t fwmark);
+    bool enableRouting(const std::string &ipAddress, const std::vector<std::string> &allowedIps, uint32_t fwmark);
     bool disableRouting();
 
     const std::string getName() const { return name_; }
     bool hasDefaultRoute() const { return has_default_route_; }
+
 
 private:
     bool flushDnsServer();
@@ -29,6 +30,9 @@ private:
 
     std::vector<std::string> allowedIps_;
     uint32_t fwmark_;
+
+    bool addFirewallRules(const std::string &ipAddress, uint32_t fwmark);
+    bool removeFirewallRules();
 };
 
 #endif  // WireGuardAdapter_h

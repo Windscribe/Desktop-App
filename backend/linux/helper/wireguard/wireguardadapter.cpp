@@ -68,7 +68,7 @@ bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::
     return RunBlockingCommands(cmdlist);
 }
 
-bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps, uint32_t fwmark)
+bool WireGuardAdapter::enableRouting(const std::string &ipAddress, const std::vector<std::string> &allowedIps, uint32_t fwmark)
 {
     allowedIps_ = allowedIps;
     fwmark_ = fwmark;
@@ -80,6 +80,10 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps,
             cmdlist.push_back("ip -4 route add " + ip + " dev " + getName() + " table " + std::to_string(fwmark));
             cmdlist.push_back("ip -4 rule add not fwmark " + std::to_string(fwmark) + " table " + std::to_string(fwmark));
             cmdlist.push_back("ip -4 rule add table main suppress_prefixlength 0");
+            if (!addFirewallRules(ipAddress, fwmark))
+            {
+                return false;
+            }
         } else {
 
             std::vector<std::string> args;
@@ -144,6 +148,8 @@ bool WireGuardAdapter::disableRouting()
         }
     }
 
+    removeFirewallRules();
+
     return true;
 }
 
@@ -157,4 +163,81 @@ bool WireGuardAdapter::flushDnsServer()
         cmdlist.push_back("chmod +x \"" + dns_script_name_ + "\"");
     cmdlist.push_back(dns_script_name_ + " -down");
     return RunBlockingCommands(cmdlist);
+}
+
+bool WireGuardAdapter::addFirewallRules(const std::string &ipAddress, uint32_t fwmark)
+{
+    FILE *file = popen("iptables-restore -n", "w");
+    if(file == NULL)
+    {
+        LOG("iptables-restore not found");
+        return false;
+    }
+
+    std::vector<std::string> lines;
+    lines.push_back("*raw");
+    lines.push_back("-I PREROUTING ! -i " +  getName() + " -d " + ipAddress + " -m addrtype ! --src-type LOCAL -j DROP -m comment --comment \"wg-quick(8) rule for utun420\"");
+    lines.push_back("COMMIT");
+    lines.push_back("*mangle");
+    lines.push_back("-I POSTROUTING -m mark --mark " + std::to_string(fwmark) + " -p udp -j CONNMARK --save-mark -m comment --comment \"wg-quick(8) rule for utun420\"");
+    lines.push_back("-I PREROUTING -p udp -j CONNMARK --restore-mark -m comment --comment \"wg-quick(8) rule for utun420\"");
+    lines.push_back("COMMIT");
+
+    for (auto &line : lines)
+    {
+        fputs(line.c_str(), file);
+        fputs("\n", file);
+    }
+
+    fclose(file);
+    return true;
+}
+
+bool WireGuardAdapter::removeFirewallRules()
+{
+    FILE *file = popen("iptables-save", "r");
+    if(file == NULL)
+    {
+        LOG("iptables-save not found");
+        return false;
+    }
+
+    std::vector<std::string> lines;
+    char szLine[10000];
+    bool bFound = false;
+    while(fgets(szLine, sizeof(szLine), file) != 0)
+    {
+        std::string line = szLine;
+        if ((line.rfind("*", 0) == 0) || // string starts with "*"
+            (line.find("COMMIT") != std::string::npos) ||
+            ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment \"wg-quick(8) rule for utun420\"") != std::string::npos)) )
+        {
+            if (line.rfind("-A", 0) == 0)
+            {
+                line[1] = 'D';
+                bFound = true;
+            }
+            lines.push_back(line);
+        }
+    }
+    fclose(file);
+
+    if (bFound)
+    {
+        file = popen("iptables-restore -n", "w");
+        if(file == NULL)
+        {
+            LOG("iptables-restore not found");
+            return false;
+        }
+
+        for (auto &line : lines)
+        {
+            fputs(line.c_str(), file);
+            fputs("\n", file);
+        }
+        fclose(file);
+    }
+
+    return true;
 }
