@@ -392,7 +392,11 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 	}
 	else if (cmdId == AA_COMMAND_DISABLE_DNS_TRAFFIC)
 	{
+		CMD_DISABLE_DNS_TRAFFIC cmdDissableDnsTraffic;
+		ia >> cmdDissableDnsTraffic;
+
 		Logger::instance().out(L"AA_COMMAND_DISABLE_DNS_TRAFFIC");
+		dnsFirewall.setExcludeIps(cmdDissableDnsTraffic.excludedIps);
 		dnsFirewall.enable();
 		mpr.success = true;
 		mpr.exitCode = 0;

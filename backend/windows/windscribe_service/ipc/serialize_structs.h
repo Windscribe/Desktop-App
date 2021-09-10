@@ -236,6 +236,13 @@ void serialize(Archive& ar, CMD_REINSTALL_TUN_DRIVER& g, const unsigned int vers
     ar& g.driverDir;
 }
 
+template<class Archive>
+void serialize(Archive& ar, CMD_DISABLE_DNS_TRAFFIC& g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar& g.excludedIps;
+}
+
 } // namespace serialization
 } // namespace boost
 

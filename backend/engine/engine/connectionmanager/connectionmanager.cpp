@@ -247,6 +247,11 @@ const ConnectionManager::CustomDnsAdapterGatewayInfo &ConnectionManager::getCust
 void ConnectionManager::setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info)
 {
     customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo = info;
+#ifdef Q_OS_WIN
+    if(helper_) {
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.ip_address().c_str());
+    }
+#endif
 }
 
 void ConnectionManager::removeIkev2ConnectionFromOS()
@@ -1017,7 +1022,8 @@ void ConnectionManager::doConnectPart3()
             }
 
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_IKEV2));
-            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_, nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
+            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
+                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
