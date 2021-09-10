@@ -80,6 +80,13 @@ bool WireGuardAdapter::enableRouting(const std::string &ipAddress, const std::ve
             cmdlist.push_back("ip -4 route add " + ip + " dev " + getName() + " table " + std::to_string(fwmark));
             cmdlist.push_back("ip -4 rule add not fwmark " + std::to_string(fwmark) + " table " + std::to_string(fwmark));
             cmdlist.push_back("ip -4 rule add table main suppress_prefixlength 0");
+
+            if (!RunBlockingCommands(cmdlist))
+            {
+                return false;
+            }
+            cmdlist.clear();
+
             if (!addFirewallRules(ipAddress, fwmark))
             {
                 return false;
@@ -167,6 +174,8 @@ bool WireGuardAdapter::flushDnsServer()
 
 bool WireGuardAdapter::addFirewallRules(const std::string &ipAddress, uint32_t fwmark)
 {
+    Utils::executeCommand("sysctl -q net.ipv4.conf.all.src_valid_mark=1");
+
     FILE *file = popen("iptables-restore -n", "w");
     if(file == NULL)
     {

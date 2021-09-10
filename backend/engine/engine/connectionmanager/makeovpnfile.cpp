@@ -9,6 +9,8 @@
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"
     #include "engine/tempscripts_mac.h"
+#elif defined(Q_OS_LINUX)
+    #include "utils/dnsscripts_linux.h"
 #endif
 
 MakeOVPNFile::MakeOVPNFile()
@@ -147,6 +149,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
     QString cmd1 = "\nup \"" + strDnsPath + " -up\"\n";
     file_.write(cmd1.toUtf8());
 #elif defined(Q_OS_LINUX)
+    DnsScripts_linux::instance();
     str = "--script-security 2\r\n";
     file_.write(str.toLocal8Bit());
     QString cmd1 = "\nup /etc/windscribe/update-resolv-conf\n";
