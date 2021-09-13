@@ -32,6 +32,7 @@ bool RunBlockingCommands(const std::vector<std::string> &cmdlist)
 WireGuardAdapter::WireGuardAdapter(const std::string &name)
     : name_(name), is_dns_server_set_(false), has_default_route_(false), fwmark_(0)
 {
+    comment_ = "\"Windscribe daemon rule for " + name_ + "\"";
 }
 
 WireGuardAdapter::~WireGuardAdapter()
@@ -185,11 +186,11 @@ bool WireGuardAdapter::addFirewallRules(const std::string &ipAddress, uint32_t f
 
     std::vector<std::string> lines;
     lines.push_back("*raw");
-    lines.push_back("-I PREROUTING ! -i " +  getName() + " -d " + ipAddress + " -m addrtype ! --src-type LOCAL -j DROP -m comment --comment \"wg-quick(8) rule for utun420\"");
+    lines.push_back("-I PREROUTING ! -i " +  getName() + " -d " + ipAddress + " -m addrtype ! --src-type LOCAL -j DROP -m comment --comment " + comment_);
     lines.push_back("COMMIT");
     lines.push_back("*mangle");
-    lines.push_back("-I POSTROUTING -m mark --mark " + std::to_string(fwmark) + " -p udp -j CONNMARK --save-mark -m comment --comment \"wg-quick(8) rule for utun420\"");
-    lines.push_back("-I PREROUTING -p udp -j CONNMARK --restore-mark -m comment --comment \"wg-quick(8) rule for utun420\"");
+    lines.push_back("-I POSTROUTING -m mark --mark " + std::to_string(fwmark) + " -p udp -j CONNMARK --save-mark -m comment --comment " + comment_);
+    lines.push_back("-I PREROUTING -p udp -j CONNMARK --restore-mark -m comment --comment " + comment_);
     lines.push_back("COMMIT");
 
     for (auto &line : lines)
@@ -219,7 +220,7 @@ bool WireGuardAdapter::removeFirewallRules()
         std::string line = szLine;
         if ((line.rfind("*", 0) == 0) || // string starts with "*"
             (line.find("COMMIT") != std::string::npos) ||
-            ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment \"wg-quick(8) rule for utun420\"") != std::string::npos)) )
+            ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment " + comment_) != std::string::npos)) )
         {
             if (line.rfind("-A", 0) == 0)
             {

@@ -24,6 +24,7 @@ private:
     bool flushDnsServer();
 
     std::string name_;
+    std::string comment_;
     std::string dns_script_name_;
     bool is_dns_server_set_;
     bool has_default_route_;

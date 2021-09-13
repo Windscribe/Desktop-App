@@ -6,7 +6,8 @@
 #include "engine/helper/ihelper.h"
 
 FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
-    FirewallController(parent), forceUpdateInterfaceToSkip_(false), mutex_(QMutex::Recursive)
+    FirewallController(parent), forceUpdateInterfaceToSkip_(false), mutex_(QMutex::Recursive),
+    comment_("\"Windscribe client rule\"")
 {
     helper_ = dynamic_cast<Helper_linux *>(helper);
 
@@ -107,7 +108,7 @@ bool FirewallController_linux::firewallActualState()
     }
 
     int exitCode;
-    helper_->executeRootCommand("iptables -L windscribe_input", &exitCode);
+    helper_->executeRootCommand("iptables --check INPUT -j windscribe_input -m comment --comment \"WindscribeApp rule\"", &exitCode);
     return exitCode == 0;
 }
 
@@ -168,46 +169,46 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         stream << ":windscribe_input - [0:0]\n";
         stream << ":windscribe_output - [0:0]\n";
 
-        stream << "-A INPUT -j windscribe_input\n";
-        stream << "-A OUTPUT -j windscribe_output\n";
+        stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
+        stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
 
-        stream << "-A windscribe_input -i lo -j ACCEPT\n";
-        stream << "-A windscribe_output -o lo -j ACCEPT\n";
+        stream << "-A windscribe_input -i lo -j ACCEPT -m comment --comment " + comment_ + "\n";
+        stream << "-A windscribe_output -o lo -j ACCEPT -m comment --comment " + comment_ + "\n";
 
         if (!interfaceToSkip_.isEmpty())
         {
-            stream << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT\n";
-            stream << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT\n";
+            stream << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment " + comment_ + "\n";
+            stream << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment " + comment_ + "\n";
         }
 
         const QStringList ips = ip.split(';');
         for (auto &i : ips)
         {
-            stream << "-A windscribe_input -s " + i + "/32 -j ACCEPT\n";
-            stream << "-A windscribe_output -d " + i + "/32 -j ACCEPT\n";
+            stream << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            stream << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";
         }
 
         if (bAllowLanTraffic)
         {
             // Local Network
-            stream << "-A windscribe_input -s 192.168.0.0/16 -j ACCEPT\n";
-            stream << "-A windscribe_output -d 192.168.0.0/16 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 192.168.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            stream << "-A windscribe_output -d 192.168.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
-            stream << "-A windscribe_input -s 172.16.0.0/12 -j ACCEPT\n";
-            stream << "-A windscribe_output -d 172.16.0.0/12 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            stream << "-A windscribe_output -d 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
-            stream << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT\n";
-            stream << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            stream << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
             // Loopback addresses to the local host
-            stream << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
             // Multicast addresses
-            stream << "-A windscribe_input -s 224.0.0.0/4 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 224.0.0.0/4 -j ACCEPT -m comment --comment " + comment_ + "\n";
         }
 
-        stream << "-A windscribe_input -j DROP\n";
-        stream << "-A windscribe_output -j DROP\n";
+        stream << "-A windscribe_input -j DROP -m comment --comment " + comment_ + "\n";
+        stream << "-A windscribe_output -j DROP -m comment --comment " + comment_ + "\n";
         stream << "COMMIT\n";
 
         file.close();
@@ -246,13 +247,10 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         }
     }
 
-    /*int exitCode;
-    QString cmd = "iptables-save > /home/aaa/Documents/rules.txt";
-    helper_->executeRootCommand(cmd, &exitCode);
-    if (exitCode != 0)
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-    }*/
-
     return true;
+}
+
+QString FirewallController_linux::getWireguardFirewallRules()
+{
+    return "";
 }

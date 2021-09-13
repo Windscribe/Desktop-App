@@ -31,8 +31,10 @@ private:
     QString pathToIp4SavedTable_;
     QString pathToIp6SavedTable_;
     QString pathToOurTable_;
+    QString comment_;
 
     bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports);
+    QString getWireguardFirewallRules();
 };
 
 #endif // FIREWALLCONTROLLER_LINUX_H
