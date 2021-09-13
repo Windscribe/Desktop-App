@@ -88,7 +88,24 @@ void Connection::onSocketConnected()
 
 void Connection::onSocketDisconnected()
 {
-    emit stateChanged(CONNECTION_DISCONNECTED, this);
+    // qDebug() << "Socket disconnected";
+
+    // Only emit disconnect if socket has not already errored out:
+    // * On MacOS socket will error and then disconnect when Engine is forcibly terminated
+    // * The "duplicate" state changes prevent the gui from waiting for engine recovery and thus tear down the entire application
+    // * This doesn't occur on Windows as forcibly killing the engine doesn't trigger socket error
+    if (localSocket_)
+    {
+        if (localSocket_->error() == QLocalSocket::UnknownSocketError)
+        {
+            emit stateChanged(CONNECTION_DISCONNECTED, this);
+        }
+    }
+    else
+    {
+        // user manually closes app -- local socket is cleaned up by close()
+        emit stateChanged(CONNECTION_DISCONNECTED, this);
+    }
 }
 
 void Connection::onSocketBytesWritten(qint64 bytes)
@@ -124,8 +141,9 @@ void Connection::onReadyRead()
     }
 }
 
-void Connection::onSocketError(QLocalSocket::LocalSocketError /*socketError*/)
+void Connection::onSocketError(QLocalSocket::LocalSocketError socketError)
 {
+    // qDebug() << "Socket error: " << socketError;
     emit stateChanged(CONNECTION_ERROR, this);
 }
 
