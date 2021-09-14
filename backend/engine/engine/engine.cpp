@@ -1150,8 +1150,14 @@ void Engine::updateCurrentNetworkInterfaceImpl(bool requested)
 
 void Engine::firewallOnImpl()
 {
-    QString ips = firewallExceptions_.getIPAddressesForFirewall();
-    firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
+    if (connectStateController_->currentState() != CONNECT_STATE_CONNECTED)
+    {
+        firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+    }
+    else
+    {
+        firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic());
+    }
     emit firewallStateChanged(true);
 }
 
@@ -1572,6 +1578,15 @@ void Engine::onUpdateSessionStatusTimer()
 
 void Engine::onConnectionManagerConnected()
 {
+    QString adapterName = connectionManager_->getVpnAdapterInfo().adapterName();
+
+#ifdef Q_OS_WIN
+    AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);    
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    firewallController_->setInterfaceToSkip_posix(adapterName);
+#endif
+
+    bool isFirewallAlreadyEnabled = false;
     if (engineSettings_.firewallSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC) {
         const bool isAllowFirewallAfterConnection =
             connectionManager_->isAllowFirewallAfterConnection();
@@ -1582,9 +1597,10 @@ void Engine::onConnectionManagerConnected()
             if (!firewallController_->firewallActualState())
             {
                 qCDebug(LOG_BASIC) << "Automatic enable firewall after connection";
-                QString ips = firewallExceptions_.getIPAddressesForFirewall();
+                QString ips = firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp());
                 firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
                 emit firewallStateChanged(true);
+                isFirewallAlreadyEnabled = true;
             }
         }
         else if (!isAllowFirewallAfterConnection &&
@@ -1599,20 +1615,12 @@ void Engine::onConnectionManagerConnected()
         }
     }
 
-    QString adapterName = connectionManager_->getVpnAdapterInfo().adapterName();
-
-#ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);    
-#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
-    firewallController_->setInterfaceToSkip_posix(adapterName);
-#endif
-
     helper_->sendConnectStatus(true, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(),
                                connectionManager_->getDefaultAdapterInfo(), connectionManager_->getCustomDnsAdapterGatewayInfo().adapterInfo, connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
 
-    if (firewallController_->firewallActualState())
+    if (firewallController_->firewallActualState() && !isFirewallAlreadyEnabled)
     {
-        firewallController_->firewallChange(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic());
+        firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic());
     }
 
     if (connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
@@ -1773,7 +1781,7 @@ void Engine::onConnectionManagerReconnecting()
 
     if (firewallController_->firewallActualState())
     {
-        firewallController_->firewallChange(firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+        firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
     }
 
     connectStateController_->setConnectingState(LocationID());
@@ -2463,11 +2471,11 @@ void Engine::updateFirewallSettings()
     {
         if (connectStateController_->currentState() != CONNECT_STATE_CONNECTED)
         {
-            firewallController_->firewallChange(firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+            firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
         }
         else
         {
-            firewallController_->firewallChange(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic());
+            firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic());
         }
     }
 }
@@ -2641,7 +2649,7 @@ void Engine::doDisconnectRestoreStuff()
     if (firewallController_->firewallActualState())
     {
         QString ips = firewallExceptions_.getIPAddressesForFirewall();
-        firewallController_->firewallChange(ips, engineSettings_.isAllowLanTraffic());
+        firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
     }
 
 #ifdef Q_OS_WIN

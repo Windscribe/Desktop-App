@@ -24,12 +24,6 @@ bool FirewallController::firewallOn(const QString &ip, bool bAllowLanTraffic)
     return true;
 }
 
-bool FirewallController::firewallChange(const QString &ip, bool bAllowLanTraffic)
-{
-    // the same logic as in firewallOn
-    return FirewallController::firewallOn(ip, bAllowLanTraffic);
-}
-
 bool FirewallController::firewallOff()
 {
     if (!bInitialized_)
