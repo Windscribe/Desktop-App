@@ -27,7 +27,7 @@ MakeOVPNFile::~MakeOVPNFile()
 }
 
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port,
-                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509)
+                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509, bool blockOutsideDnsOption)
 {
 #ifndef Q_OS_MAC
     Q_UNUSED(defaultGateway);
@@ -56,8 +56,11 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
     QString str;
 
 #ifdef Q_OS_WIN
-    str = "\r\nblock-outside-dns\r\n";
-    file_.write(str.toLocal8Bit());
+
+    if(blockOutsideDnsOption) {
+        str = "\r\nblock-outside-dns\r\n";
+        file_.write(str.toLocal8Bit());
+    }
 
     if (OpenVpnVersionController::instance().isUseWinTun())
     {

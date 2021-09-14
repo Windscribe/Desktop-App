@@ -56,6 +56,7 @@ public:
         ProtoTypes::DnsWhileConnectedInfo dnsWhileConnectedInfo;
     };
     const CustomDnsAdapterGatewayInfo &getCustomDnsAdapterGatewayInfo() const;
+    QString getCustomDnsIp() const;
     void setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info);
 
     void removeIkev2ConnectionFromOS();

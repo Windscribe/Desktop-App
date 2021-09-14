@@ -248,6 +248,11 @@ struct CMD_REINSTALL_TUN_DRIVER
     std::wstring driverDir;
 };
 
+struct CMD_DISABLE_DNS_TRAFFIC
+{
+    std::vector<std::wstring> excludedIps;
+};
+
 enum WireGuardServiceState
 {
     WIREGUARD_STATE_NONE,       // WireGuard is not started.

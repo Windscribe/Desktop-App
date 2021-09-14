@@ -30,7 +30,7 @@ void DnsFirewall::disable()
 
 		fwmpWrapper_.beginTransaction();
 		bCurrentState_ = false;
-
+		
 		if (Utils::deleteSublayerAndAllFilters(hEngine, &subLayerGUID_))
 		{
 			Logger::instance().out(L"DnsFirewall::disable(), all filters deleted");
@@ -80,12 +80,21 @@ void DnsFirewall::enable()
 	bCurrentState_ = true;
 }
 
+void DnsFirewall::setExcludeIps(const std::vector<std::wstring>& ips)
+{
+	excludeIps_ = std::unordered_set<std::wstring>(ips.cbegin(), ips.cend());
+}
+
 void DnsFirewall::addFilters(HANDLE engineHandle)
 {
 	std::vector<std::wstring> dnsServers = getDnsServers();
 	// add block filter for DNS ips for protocol UDP port 53
 	for (size_t i = 0; i < dnsServers.size(); ++i)
 	{
+		if (excludeIps_.find(dnsServers[i]) != excludeIps_.cend()) {
+			Logger::instance().out(L"DnsFirewall::addFilters(), ip excluded: ", dnsServers[i].c_str());
+			continue;
+		}
 		std::vector<FWPM_FILTER_CONDITION0> condition(2);
 		FWP_V4_ADDR_AND_MASK addrMask;
 		memset(&condition[0], 0, sizeof(FWPM_FILTER_CONDITION0) * 2);

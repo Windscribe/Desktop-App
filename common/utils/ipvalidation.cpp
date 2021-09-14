@@ -41,6 +41,25 @@ bool IpValidation::isValidIpForCidr(const QString &str)
     return (ip_value & ip_mask) == ip_value;
 }
 
+bool IpValidation::isLocalIp(const QString &str)
+{
+    // Rules are given from https://en.wikipedia.org/wiki/Private_network
+    if(str.startsWith("127.") || str.startsWith("10.") || str.startsWith("192.168.")) {
+        return true;
+    }
+    else if(str.startsWith("172"))
+    {
+        const auto octets = str.split(".");
+        if(octets.size() == 4) {
+            const auto octet2 = octets.at(1).toInt();
+            if(octet2 >= 16 && octet2 <= 31) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 QString IpValidation::getRemoteIdFromDomain(const QString &str)
 {
     int ind1 = str.indexOf('-');

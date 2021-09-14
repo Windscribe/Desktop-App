@@ -230,6 +230,8 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
     {
         bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
                                   Qt::QueuedConnection, Q_ARG(QStringList, QStringList()), Q_ARG(int, status));
+
+        qCDebug(LOG_BASIC) << ares_strerror(status);
         Q_ASSERT(bSuccess);
         delete userArg;
         return;

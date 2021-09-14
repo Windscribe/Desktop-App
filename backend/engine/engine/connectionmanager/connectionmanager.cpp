@@ -244,9 +244,19 @@ const ConnectionManager::CustomDnsAdapterGatewayInfo &ConnectionManager::getCust
     return customDnsAdapterGatewayInfo_;
 }
 
+QString ConnectionManager::getCustomDnsIp() const
+{
+    return QString(customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ip_address().c_str());
+}
+
 void ConnectionManager::setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info)
 {
     customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo = info;
+#ifdef Q_OS_WIN
+    if(helper_) {
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.ip_address().c_str());
+    }
+#endif
 }
 
 void ConnectionManager::removeIkev2ConnectionFromOS()
@@ -887,9 +897,10 @@ void ConnectionManager::doConnectPart2()
             uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
                         (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
 
-            bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
-                                                        currentConnectionDescr_.port,
-                                                        portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(), currentConnectionDescr_.verifyX509name);
+            const bool blockOutsideDnsOption = !IpValidation::instance().isLocalIp(getCustomDnsIp());
+            const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
+                                                        currentConnectionDescr_.port, portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(),
+                                                        currentConnectionDescr_.verifyX509name, blockOutsideDnsOption);
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
@@ -1017,7 +1028,8 @@ void ConnectionManager::doConnectPart3()
             }
 
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_IKEV2));
-            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_, nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
+            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
+                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {

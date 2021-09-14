@@ -703,7 +703,17 @@ bool Helper_win::isSupportedICS()
 void Helper_win::enableDnsLeaksProtection()
 {
     QMutexLocker locker(&mutex_);
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DISABLE_DNS_TRAFFIC, std::string());
+
+    CMD_DISABLE_DNS_TRAFFIC cmdDisableDnsTraffic;
+    if(!customDnsIp_.isEmpty()) {
+        cmdDisableDnsTraffic.excludedIps.push_back(customDnsIp_.toStdWString());
+    }
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdDisableDnsTraffic;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DISABLE_DNS_TRAFFIC, stream.str());
 }
 
 void Helper_win::disableDnsLeaksProtection()
@@ -851,6 +861,11 @@ bool Helper_win::reinstallWintunDriver(const QString &wintunDriverDir)
         qCDebug(LOG_BASIC) << "Error to re-install wintun driver.";
     }
     return mpr.success;
+}
+
+void Helper_win::setCustomDnsIp(const QString &ip)
+{
+    customDnsIp_ = ip;
 }
 
 void Helper_win::run()
