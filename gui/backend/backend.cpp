@@ -597,7 +597,7 @@ void Backend::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
     {
         return;
     }
-    qCDebug(LOG_BASIC) << "Backend::onProcessFinished()" << exitCode << (int)exitStatus;
+    qCDebug(LOG_BASIC) << "Backend::onProcessFinished()" << exitCode <<  " " << exitStatus;
     if (ipcState_ == IPC_STARTING_PROCESS || ipcState_ == IPC_CONNECTING || ipcState_ == IPC_CONNECTED)
     {
         ipcState_ = IPC_INIT_STATE;
@@ -612,7 +612,7 @@ void Backend::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
     {
         if (!bRecoveringState_)
         {
-            qCDebug(LOG_BASIC) << "Start engine recovery.";
+            qCDebug(LOG_BASIC) << "Start engine recovery. (process finished)";
             engineCrashedDoRecovery();
         }
     }
@@ -899,6 +899,7 @@ void Backend::abortInitialization()
 
 void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connection*/)
 {
+    // qDebug() << "Connection state changed: " << connection << " " << state;
     if (state == IPC::CONNECTION_CONNECTED)
     {
         qCDebug(LOG_BASIC) << "Connected to engine server";
@@ -938,11 +939,10 @@ void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connectio
         {
             if (!bRecoveringState_)
             {
-                qCDebug(LOG_BASIC) << "Start engine recovery.";
+                qCDebug(LOG_BASIC) << "Start engine recovery. (ipc connection disconnected)";
                 engineCrashedDoRecovery();
             }
         }
-
     }
     else if (state == IPC::CONNECTION_ERROR)
     {
@@ -1194,6 +1194,8 @@ void Backend::getOpenVpnVersionsFromInitCommand(const IPCServerCommands::InitFin
 
 void Backend::engineCrashedDoRecovery()
 {
+    // qDebug() << "Backend::engineCrashedDoRecovery";
+
     bRecoveringState_ = true;
     emit engineCrash();
 
