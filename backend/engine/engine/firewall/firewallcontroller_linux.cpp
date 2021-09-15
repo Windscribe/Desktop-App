@@ -6,19 +6,18 @@
 #include "engine/helper/ihelper.h"
 
 FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
-    FirewallController(parent), forceUpdateInterfaceToSkip_(false), mutex_(QMutex::Recursive)
+    FirewallController(parent), forceUpdateInterfaceToSkip_(false), mutex_(QMutex::Recursive),
+    comment_("\"Windscribe client rule\"")
 {
     helper_ = dynamic_cast<Helper_linux *>(helper);
 
-    pathToIp4SavedTable_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QDir dir(pathToIp4SavedTable_);
-    dir.mkpath(pathToIp4SavedTable_);
-    pathToIp6SavedTable_ = pathToIp4SavedTable_;
-    pathToOurTable_ = pathToIp4SavedTable_;
+    pathToIp6SavedTable_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QDir dir(pathToIp6SavedTable_);
+    dir.mkpath(pathToIp6SavedTable_);
+    pathToTempTable_ = pathToIp6SavedTable_;
 
-    pathToIp4SavedTable_ += "/ip4table_saved.txt";
     pathToIp6SavedTable_ += "/ip6table_saved.txt";
-    pathToOurTable_ += "/windscribe_table.txt";
+    pathToTempTable_ += "/windscribe_table.txt";
 }
 
 FirewallController_linux::~FirewallController_linux()
@@ -32,21 +31,6 @@ bool FirewallController_linux::firewallOn(const QString &ip, bool bAllowLanTraff
     if (isStateChanged())
     {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << countIps(ip);
-        return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
-    }
-    else
-    {
-        return true;
-    }
-}
-
-bool FirewallController_linux::firewallChange(const QString &ip, bool bAllowLanTraffic)
-{
-    QMutexLocker locker(&mutex_);
-    FirewallController::firewallChange(ip, bAllowLanTraffic);
-    if (isStateChanged())
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed with ips count:" << countIps(ip);
         return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
     }
     else if (forceUpdateInterfaceToSkip_)
@@ -66,9 +50,67 @@ bool FirewallController_linux::firewallOff()
     FirewallController::firewallOff();
     if (isStateChanged())
     {
-
+        // get current rules to temp file
         int exitCode;
-        QString cmd = "iptables-restore < " + pathToIp4SavedTable_;
+        QString cmd = "iptables-save > " + pathToTempTable_;
+        helper_->executeRootCommand(cmd, &exitCode);
+        if (exitCode != 0)
+        {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
+            return false;
+        }
+        // Get Windscribe rules
+        QStringList rules;
+        QFile file(pathToTempTable_);
+        if (!file.open(QIODevice::ReadOnly))
+        {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't open file:" << pathToTempTable_;
+            return false;
+        }
+
+        QTextStream in(&file);
+        bool bFound = false;
+        while (!in.atEnd())
+        {
+            std::string line = in.readLine().toStdString();
+            if ((line.rfind("*", 0) == 0) || // string starts with "*"
+                (line.find("COMMIT") != std::string::npos) ||
+                ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment " + comment_.toStdString()) != std::string::npos)) )
+            {
+                if (line.rfind("-A", 0) == 0)
+                {
+                    line[1] = 'D';
+                    bFound = true;
+                }
+                rules << QString::fromStdString(line);
+            }
+
+        }
+        file.close();
+
+        // delete Windscribe rules, if found
+        if (bFound && !rules.isEmpty())
+        {
+            if (rules.last().contains("COMMIT"))
+            {
+                rules.insert(rules.count() - 1, "-X windscribe_input");
+                rules.insert(rules.count() - 1, "-X windscribe_output");
+            }
+
+            file.remove();
+            QFile file2(pathToTempTable_);
+            if (file2.open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+                QTextStream out(&file2);
+                for (const auto &l : rules)
+                {
+                    out << l << "\n";
+                }
+                file2.close();
+            }
+        }
+
+        cmd = "iptables-restore -n < " + pathToTempTable_;
         helper_->executeRootCommand(cmd, &exitCode);
         if (exitCode != 0)
         {
@@ -81,14 +123,8 @@ bool FirewallController_linux::firewallOff()
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
         }
 
-        cmd = "rm " + pathToIp4SavedTable_;
-        helper_->executeRootCommand(cmd);
-        cmd = "rm " + pathToIp6SavedTable_;
-        helper_->executeRootCommand(cmd);
-
-        QFile::remove(pathToIp4SavedTable_);
         QFile::remove(pathToIp6SavedTable_);
-        QFile::remove(pathToOurTable_);
+        QFile::remove(pathToTempTable_);
 
         return true;
     }
@@ -107,7 +143,7 @@ bool FirewallController_linux::firewallActualState()
     }
 
     int exitCode;
-    helper_->executeRootCommand("iptables -L windscribe", &exitCode);
+    helper_->executeRootCommand("iptables --check INPUT -j windscribe_input -m comment --comment " + comment_, &exitCode);
     return exitCode == 0;
 }
 
@@ -143,13 +179,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
     if (!firewallActualState())
     {
         int exitCode;
-        QString cmd = "iptables-save > " + pathToIp4SavedTable_;
-        helper_->executeRootCommand(cmd, &exitCode);
-        if (exitCode != 0)
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-        }
-        cmd = "ip6tables-save > " + pathToIp6SavedTable_;
+        QString cmd = "ip6tables-save > " + pathToIp6SavedTable_;
         helper_->executeRootCommand(cmd, &exitCode);
         if (exitCode != 0)
         {
@@ -159,73 +189,73 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
 
     forceUpdateInterfaceToSkip_ = false;
 
-    QFile file(pathToOurTable_);
+    QFile file(pathToTempTable_);
     if (file.open(QIODevice::WriteOnly))
     {
         QTextStream stream(&file);
 
         stream << "*filter\n";
-        stream << ":INPUT DROP [0:0]\n";
-        stream << ":FORWARD DROP [0:0]\n";
-        stream << ":OUTPUT DROP [0:0]\n";
-        stream << ":windscribe - [0:0]\n";
+        stream << ":windscribe_input - [0:0]\n";
+        stream << ":windscribe_output - [0:0]\n";
 
-        stream << "-A INPUT -i lo -j ACCEPT\n";
-        stream << "-A OUTPUT -o lo -j ACCEPT\n";
-        stream << "-A FORWARD -i lo -j ACCEPT\n";
-        stream << "-A FORWARD -o lo -j ACCEPT\n";
+        stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
+        stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
+
+        stream << "-A windscribe_input -i lo -j ACCEPT -m comment --comment " + comment_ + "\n";
+        stream << "-A windscribe_output -o lo -j ACCEPT -m comment --comment " + comment_ + "\n";
 
         if (!interfaceToSkip_.isEmpty())
         {
-            stream << "-A INPUT -i " + interfaceToSkip_ + " -j ACCEPT\n";
-            stream << "-A OUTPUT -o " + interfaceToSkip_ + " -j ACCEPT\n";
-            stream << "-A FORWARD -i " + interfaceToSkip_ + " -j ACCEPT\n";
-            stream << "-A FORWARD -o " + interfaceToSkip_ + " -j ACCEPT\n";
+            stream << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment " + comment_ + "\n";
+            stream << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment " + comment_ + "\n";
         }
 
         const QStringList ips = ip.split(';');
         for (auto &i : ips)
         {
-            stream << "-A INPUT -s " + i + "/32 -j ACCEPT\n";
-            stream << "-A OUTPUT -d " + i + "/32 -j ACCEPT\n";
+            stream << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            stream << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";
         }
 
         if (bAllowLanTraffic)
         {
             // Local Network
-            stream << "-A INPUT -s 192.168.0.0/16 -j ACCEPT\n";
-            stream << "-A OUTPUT -d 192.168.0.0/16 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 192.168.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            stream << "-A windscribe_output -d 192.168.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
-            stream << "-A INPUT -s 172.16.0.0/12 -j ACCEPT\n";
-            stream << "-A OUTPUT -d 172.16.0.0/12 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            stream << "-A windscribe_output -d 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
-            stream << "-A INPUT -s 10.0.0.0/8 -j ACCEPT\n";
-            stream << "-A OUTPUT -d 10.0.0.0/8 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            stream << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
             // Loopback addresses to the local host
-            stream << "-A INPUT -s 127.0.0.0/8 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
             // Multicast addresses
-            stream << "-A INPUT -s 224.0.0.0/4 -j ACCEPT\n";
+            stream << "-A windscribe_input -s 224.0.0.0/4 -j ACCEPT -m comment --comment " + comment_ + "\n";
         }
 
-        stream << "-A windscribe -j DROP\n";
+        stream << "-A windscribe_input -j DROP -m comment --comment " + comment_ + "\n";
+        stream << "-A windscribe_output -j DROP -m comment --comment " + comment_ + "\n";
         stream << "COMMIT\n";
 
         file.close();
 
 
         int exitCode;
-        QString cmd = "iptables-restore < " + pathToOurTable_;
+        QString cmd = "iptables-restore < " + pathToTempTable_;
         helper_->executeRootCommand(cmd, &exitCode);
         if (exitCode != 0)
         {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
         }
+
+        file.remove();
     }
     else
     {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't create file:" << pathToOurTable_;
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't create file:" << pathToTempTable_;
         return false;
     }
 
@@ -247,14 +277,6 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
         }
     }
-
-    /*int exitCode;
-    QString cmd = "iptables-save > /home/aaa/Documents/rules.txt";
-    helper_->executeRootCommand(cmd, &exitCode);
-    if (exitCode != 0)
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-    }*/
 
     return true;
 }

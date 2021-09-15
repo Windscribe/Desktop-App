@@ -9,6 +9,8 @@
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"
     #include "engine/tempscripts_mac.h"
+#elif defined(Q_OS_LINUX)
+    #include "utils/dnsscripts_linux.h"
 #endif
 
 MakeOVPNFile::MakeOVPNFile()
@@ -115,16 +117,13 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
         str = "\r\nproto tcp\r\n";
         file_.write(str.toLocal8Bit());
 
-    #ifdef Q_OS_MAC
+    #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
         if (!defaultGateway.isEmpty())
         {
             qCDebug(LOG_CONNECTION) << "defaultGateway for stunnel/wstunnel ovpn config: " << defaultGateway;
             str = QString("route %1 255.255.255.255 %2\r\n").arg(ip).arg(defaultGateway);
             file_.write(str.toLocal8Bit());
         }
-    #elif defined(Q_OS_LINUX)
-        str = QString("route %1 255.255.255.255 192.168.1.1\r\n").arg(ip);
-        file_.write(str.toLocal8Bit());
     #endif
 
     }
@@ -152,10 +151,15 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
 #elif defined(Q_OS_LINUX)
     str = "--script-security 2\r\n";
     file_.write(str.toLocal8Bit());
-    QString cmd1 = "\nup /etc/windscribe/update-resolv-conf\n";
-    QString cmd2 = "\ndown /etc/windscribe/update-resolv-conf\n";
+
+    QString cmd1 = "\nup " + DnsScripts_linux::instance().scriptPath() + "\n";
+    QString cmd2 = "down " + DnsScripts_linux::instance().scriptPath() + "\n";
+    QString cmd3 = "down-pre\n";
+    QString cmd4 = "dhcp-option DOMAIN-ROUTE .\n";   // prevent DNS leakage  and without it doesn't work update-systemd-resolved script
     file_.write(cmd1.toUtf8());
     file_.write(cmd2.toUtf8());
+    file_.write(cmd3.toUtf8());
+    file_.write(cmd4.toUtf8());
 #endif
 
     // concatenate with windscribe_extra.conf file, if it exists

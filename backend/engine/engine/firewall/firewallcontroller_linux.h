@@ -13,7 +13,6 @@ public:
     ~FirewallController_linux() override;
 
     bool firewallOn(const QString &ip, bool bAllowLanTraffic) override;
-    bool firewallChange(const QString &ip, bool bAllowLanTraffic) override;
     bool firewallOff() override;
     bool firewallActualState() override;
 
@@ -28,9 +27,9 @@ private:
     QString interfaceToSkip_;
     bool forceUpdateInterfaceToSkip_;
     QMutex mutex_;
-    QString pathToIp4SavedTable_;
     QString pathToIp6SavedTable_;
-    QString pathToOurTable_;
+    QString pathToTempTable_;
+    QString comment_;
 
     bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports);
 };

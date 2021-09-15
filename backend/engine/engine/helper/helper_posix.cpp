@@ -19,6 +19,10 @@
 #include "engine/types/protocoltype.h"
 #include "utils/macutils.h"
 
+#ifdef Q_OS_LINUX
+    #include "utils/dnsscripts_linux.h"
+#endif
+
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 
 using namespace boost::asio;
@@ -436,13 +440,14 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
     cmd.clientDnsAddressList = config.clientDnsAddress().toLatin1().data();
 #ifdef Q_OS_MAC
     QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
+#elif defined(Q_OS_LINUX)
+    QString strDnsPath = DnsScripts_linux::instance().scriptPath();
+#endif
     if (strDnsPath.isEmpty()) {
         return false;
     }
     cmd.clientDnsScriptName = strDnsPath.toLatin1().data();
-#elif defined(Q_OS_LINUX)
-    // no script for Linux
-#endif
+
     cmd.peerEndpoint = config.peerEndpoint().toLatin1().data();
     cmd.peerPublicKey = QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex().data();
     cmd.peerPresharedKey

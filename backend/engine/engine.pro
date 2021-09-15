@@ -285,6 +285,7 @@ LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
 
 SOURCES += \
            $$COMMON_PATH/utils/linuxutils.cpp \
+           utils/dnsscripts_linux.cpp \
            engine/ping/pinghost_icmp_mac.cpp \
            engine/dnsresolver/dnsutils_linux.cpp \
            engine/helper/helper_posix.cpp \
@@ -297,6 +298,7 @@ SOURCES += \
 
 HEADERS += \
            $$COMMON_PATH/utils/linuxutils.h \
+           utils/dnsscripts_linux.h \
            engine/ping/pinghost_icmp_mac.h \
            engine/helper/helper_posix.h \
            engine/helper/helper_linux.h \

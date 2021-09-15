@@ -39,11 +39,13 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress,
     UNUSED(dnsScriptName);
     UNUSED(dnsAddressList);
 
+    LOG("DNS: \"%s\"", dnsAddressList.c_str());
+
     if (!is_initialized_ || !adapter_.get())
         return false;
     return adapter_->setIpAddress(ipAddress)
-           //&& adapter_->setDnsServers(dnsAddressList, dnsScriptName)
-           && adapter_->enableRouting(allowedIps, fwmark);
+           && adapter_->setDnsServers(dnsAddressList, dnsScriptName)
+           && adapter_->enableRouting(ipAddress, allowedIps, fwmark);
 }
 
  std::string WireGuardController::getAdapterName() const

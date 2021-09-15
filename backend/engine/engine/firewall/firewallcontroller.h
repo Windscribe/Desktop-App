@@ -15,8 +15,8 @@ public:
     explicit FirewallController(QObject *parent);
     virtual ~FirewallController() {}
 
+    // this function also uses for change firewall ips, then it is already enabled
     virtual bool firewallOn(const QString &ip, bool bAllowLanTraffic);
-    virtual bool firewallChange(const QString &ip, bool bAllowLanTraffic);
     virtual bool firewallOff();
     virtual bool firewallActualState() = 0;
 

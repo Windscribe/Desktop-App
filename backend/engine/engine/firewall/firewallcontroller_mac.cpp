@@ -21,21 +21,6 @@ bool FirewallController_mac::firewallOn(const QString &ip, bool bAllowLanTraffic
     FirewallController::firewallOn(ip, bAllowLanTraffic);
     if (isStateChanged())
     {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << countIps(ip);
-        return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
-    }
-    else
-    {
-        return true;
-    }
-}
-
-bool FirewallController_mac::firewallChange(const QString &ip, bool bAllowLanTraffic)
-{
-    QMutexLocker locker(&mutex_);
-    FirewallController::firewallChange(ip, bAllowLanTraffic);
-    if (isStateChanged())
-    {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed with ips count:" << countIps(ip);
         return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
     }

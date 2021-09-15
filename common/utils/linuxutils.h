@@ -8,6 +8,7 @@
 namespace LinuxUtils
 {
     QString getOsVersionString();
+    void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName);
 }
 
 
