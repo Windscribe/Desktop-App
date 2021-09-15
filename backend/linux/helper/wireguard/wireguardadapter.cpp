@@ -57,15 +57,18 @@ bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::
         return true;
 
     std::string env_block;
+    env_block.append("foreign_option_0=\"dhcp-option DOMAIN-ROUTE .\" "); // prevent DNS leakage  and without it doesn't work update-systemd-resolved script
     for (size_t i = 0; i < dns_servers_list.size(); ++i) {
-        env_block.append("foreign_option_" + std::to_string(i) + "=\"dhcp-option DNS "
+        env_block.append("foreign_option_" + std::to_string(i+1) + "=\"dhcp-option DNS "
                          + dns_servers_list[i] + "\" ");
     }
     is_dns_server_set_ = true;
     std::vector<std::string> cmdlist;
     if (access(dns_script_name_.c_str(), X_OK) != 0)
         cmdlist.push_back("chmod +x \"" + dns_script_name_ + "\"");
-    cmdlist.push_back(env_block + dns_script_name_ + " -up");
+    dns_script_command_ = "is_wireguard=\"1\" dev=\"" + getName() + "\" " + env_block + dns_script_name_;
+    cmdlist.push_back("script_type=\"up\" " + dns_script_command_);
+    LOG("%s", cmdlist[0].c_str());
     return RunBlockingCommands(cmdlist);
 }
 
@@ -169,7 +172,7 @@ bool WireGuardAdapter::flushDnsServer()
     std::vector<std::string> cmdlist;
     if (access(dns_script_name_.c_str(), X_OK) != 0)
         cmdlist.push_back("chmod +x \"" + dns_script_name_ + "\"");
-    cmdlist.push_back(dns_script_name_ + " -down");
+    cmdlist.push_back("script_type=\"down\" " + dns_script_command_);
     return RunBlockingCommands(cmdlist);
 }
 

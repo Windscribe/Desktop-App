@@ -2,15 +2,16 @@
 #include "utils/logger.h"
 #include <QProcess>
 
-QString DnsScripts_linux::upScriptPath() const
+QString DnsScripts_linux::scriptPath() const
 {
-    return "/etc/windscribe/update-resolv-conf";
-
-}
-
-QString DnsScripts_linux::downScriptPath() const
-{
-    return "/etc/windscribe/update-resolv-conf";
+    if (isResolvConfInstalled_)
+    {
+        return "/etc/windscribe/update-resolv-conf";
+    }
+    else
+    {
+        return "/etc/windscribe/update-systemd-resolved";
+    }
 }
 
 DnsScripts_linux::DnsScripts_linux()

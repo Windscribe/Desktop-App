@@ -49,10 +49,21 @@ case "$script_type" in
         	R="${R}nameserver $NS
 "
 	done
-	echo -n "$R" | /sbin/resolvconf -a "${dev}.openvpn"
+
+	if [[ -z "${is_wireguard}" ]]; then
+		echo -n "$R" | /sbin/resolvconf -a "${dev}.openvpn"
+	else
+		echo -n "$R" | /sbin/resolvconf -a "tun.${dev}" -m 0 -x
+	fi
+
 	;;
   down)
-	/sbin/resolvconf -d "${dev}.openvpn"
+	if [[ -z "${is_wireguard}" ]]; then
+  		/sbin/resolvconf -d "${dev}.openvpn"
+	else
+  		/sbin/resolvconf -d "tun.${dev}" -f
+	fi
+
 	;;
 esac
 

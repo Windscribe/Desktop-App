@@ -17,8 +17,7 @@ public:
         return s;
     }
 
-    QString upScriptPath() const;
-    QString downScriptPath() const;
+    QString scriptPath() const;
 
 private:
     DnsScripts_linux();

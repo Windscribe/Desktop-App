@@ -44,7 +44,7 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress,
     if (!is_initialized_ || !adapter_.get())
         return false;
     return adapter_->setIpAddress(ipAddress)
-           //&& adapter_->setDnsServers(dnsAddressList, dnsScriptName)
+           && adapter_->setDnsServers(dnsAddressList, dnsScriptName)
            && adapter_->enableRouting(ipAddress, allowedIps, fwmark);
 }
 

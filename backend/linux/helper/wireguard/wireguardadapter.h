@@ -27,6 +27,7 @@ private:
     std::string comment_;
     std::string dns_script_name_;
     bool is_dns_server_set_;
+    std::string dns_script_command_;
     bool has_default_route_;
 
     std::vector<std::string> allowedIps_;
