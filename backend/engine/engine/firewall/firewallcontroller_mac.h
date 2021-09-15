@@ -13,7 +13,6 @@ public:
     ~FirewallController_mac() override;
 
     bool firewallOn(const QString &ip, bool bAllowLanTraffic) override;
-    bool firewallChange(const QString &ip, bool bAllowLanTraffic) override;
     bool firewallOff() override;
     bool firewallActualState() override;
 
