@@ -29,21 +29,6 @@ bool FirewallController_win::firewallOn(const QString &ip, bool bAllowLanTraffic
     }
 }
 
-bool FirewallController_win::firewallChange(const QString &ip, bool bAllowLanTraffic)
-{
-    QMutexLocker locker(&mutex_);
-    FirewallController::firewallChange(ip, bAllowLanTraffic);
-    if (isStateChanged())
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed with ips count :" << countIps(ip);
-        return helper_win_->firewallChange(ip, bAllowLanTraffic);
-    }
-    else
-    {
-        return true;
-    }
-}
-
 bool FirewallController_win::firewallOff()
 {
     QMutexLocker locker(&mutex_);
