@@ -914,7 +914,7 @@ void ServerAPI::onDnsResolved(bool success, void *userData, qint64 requestStartT
     const auto it = std::find(activeRequests_.cbegin(), activeRequests_.cend(), rd);
     if (it == activeRequests_.cend() || !rd->isActive() || rd->getStartTime() != requestStartTime)
     {
-        qDebug() << "Leaving onDnsResolved: request not found, inactive, or timestamp mismatch" << (int)rd << rd->getStartTime() << requestStartTime;
+        qDebug() << "Leaving onDnsResolved: request not found, inactive, or timestamp mismatch" << (long)rd << rd->getStartTime() << requestStartTime;
         return;
     }
 
