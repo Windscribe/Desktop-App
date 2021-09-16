@@ -211,9 +211,13 @@ bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTra
         ts << pf;
         f.close();
 
-        QString reply = helper_->executeRootCommand("pfctl -v -F all -f \"" + pfConfigFilePath + "\"");
+        // Note:
+        // Be careful adding '-F all' to this command to fix an issue.  Adding it will prevent the
+        // OpenVPN over TCP and Stealth protocols from completing their connection setup.
+
+        QString reply = helper_->executeRootCommand("pfctl -v -f \"" + pfConfigFilePath + "\"");
+        //qCDebug(LOG_FIREWALL_CONTROLLER) << "Firewall on pfctl result:" << reply;
         Q_UNUSED(reply);
-        //qCDebug(LOG_BASIC) << reply;
 
         helper_->executeRootCommand("pfctl -e");
 
