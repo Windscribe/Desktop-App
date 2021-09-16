@@ -1,3 +1,9 @@
+2.03.09 (15/09/2021)
+* Linux firewall, wireguard, dns, resolvconf fixes. #511, #515, #519, #523
+* Fixed assert in engine server API.#514
+* The local DNS server while connected doesn't work. #512
+* MacOS hard crash fixed. #518
+
 2.03.06 (01/09/2021)
 * Always fetch ovpn server credentials and configs together. #482
 * Reinstallation of tap/wintun drivers (Windows). #504
