@@ -54,9 +54,10 @@ def ExtractAppVersion():
           break
   version_string_1 = "{:d}_{:d}_build{:d}".format(values[0], values[1], values[2])
   version_string_2 = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
+  version_string_3 = "{:d}.{:d}-{:d}".format(values[0], values[1], values[2])
   if values[3]:
     version_string_1 += "_beta"
-  return (version_string_1, version_string_2)
+  return (version_string_1, version_string_2, version_string_3)
 
 
 def UpdateVersionInPlist(plistfilename):
@@ -72,6 +73,18 @@ def UpdateVersionInPlist(plistfilename):
     filedata, flags = re.M)  
   with open(plistfilename, "w") as file:
     file.write(filedata)
+
+
+def UpdateVersionInDebianControl(filename):
+  with open(filename, "r") as file:
+    filedata = file.read()
+  # update Bundle Version
+  filedata = re.sub("Version:[^\n]+",
+    "Version: {}".format(BUILD_APP_VERSION_STRINGS[2]),
+    filedata, flags = re.M)
+  with open(filename, "w") as file:
+    file.write(filedata)
+
 
 def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(ROOT_DIR, subdir_name, project_name))
@@ -434,9 +447,12 @@ def BuildInstallerLinux(configdata, qt_root):
 
   msg.Info("Creating Debian package...")
   src_package_path = os.path.join(ROOT_DIR, "installer", "linux", "debian_package")
-  dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_2.3-6_amd64")
+  dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_{}_amd64".format(BUILD_APP_VERSION_STRINGS[2]))
+
   utl.CopyAllFiles(src_package_path, dest_package_path)
   utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "usr", "local", "windscribe"))
+
+  UpdateVersionInDebianControl(os.path.join(dest_package_path, "DEBIAN", "control"))
 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
 
