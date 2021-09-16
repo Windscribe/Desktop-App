@@ -1,5 +1,5 @@
 Package: Windscribe
-Version: 2.3-6
+Version: 2.3-9
 Section: misc
 Architecture: amd64
 Depends: bash, iptables
