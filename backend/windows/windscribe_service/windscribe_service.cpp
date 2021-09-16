@@ -549,7 +549,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		ia >> cmdTaskKill;
 
 		wchar_t killCmd[MAX_PATH];
-		wcscpy(killCmd, L"taskkill /f /im ");
+		wcscpy(killCmd, L"taskkill /f /t /im ");
 		wcscat(killCmd, cmdTaskKill.szExecutableName.c_str());
 		Logger::instance().out(L"AA_COMMAND_TASK_KILL, cmd=%s", killCmd);
 		mpr = ExecuteCmd::instance().executeBlockingCmd(killCmd);
