@@ -1283,7 +1283,17 @@ void ConnectionManager::setPacketSize(ProtoTypes::PacketSize ps)
 
 void ConnectionManager::startTunnelTests()
 {
-    testVPNTunnel_->startTests();
+    bool advParamExists = false;
+    int delay = ExtraConfig::instance().getTunnelTestStartDelay(advParamExists);
+
+    if (advParamExists)
+    {
+        qCDebug(LOG_CONNECTION) << "Delaying tunnel test start for" << delay << "ms";
+        QTimer::singleShot(delay, testVPNTunnel_, &TestVPNTunnel::startTests);
+    }
+    else {
+        testVPNTunnel_->startTests();
+    }
 }
 
 bool ConnectionManager::isAllowFirewallAfterConnection() const

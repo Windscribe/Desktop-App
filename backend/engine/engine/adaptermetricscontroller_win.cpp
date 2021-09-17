@@ -13,7 +13,7 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
 
     if (adapterName.isEmpty())
     {
-        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::onConnected(), Error, adapterName is empty";
+        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, adapterName is empty";
         Q_ASSERT(false);
         return;
     }
@@ -70,7 +70,7 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
             if (bTapAdapterFound)     // check for duplicate adapters
             {
                 Q_ASSERT(false);
-                qCDebug(LOG_BASIC) << "AdapterMetricsController_win::onConnected(), Error, two adapters with the same name found";
+                qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, two adapters with the same name found";
             }
             bTapAdapterFound = true;
         }
@@ -118,6 +118,6 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
     }
     else
     {
-        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::onConnected(), TAP-adapter not found";
+        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), TAP-adapter not found";
     }
 }

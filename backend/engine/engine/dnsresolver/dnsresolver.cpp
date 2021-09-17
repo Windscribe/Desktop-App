@@ -228,10 +228,9 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
     USER_ARG *userArg = static_cast<USER_ARG *>(arg);
     if (status != ARES_SUCCESS)
     {
+        qCDebug(LOG_BASIC) << "DnsResolver::callback, request failed:" << status << timeouts;
         bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
                                   Qt::QueuedConnection, Q_ARG(QStringList, QStringList()), Q_ARG(int, status));
-
-        qCDebug(LOG_BASIC) << ares_strerror(status);
         Q_ASSERT(bSuccess);
         delete userArg;
         return;
@@ -245,6 +244,8 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
         ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
         addresses << QString::fromStdString(addr_buf);
     }
+
+    qCDebug(LOG_BASIC) << "DnsResolver::callback, request success:" << userArg->hostname << addresses;
 
     bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
                               Qt::QueuedConnection, Q_ARG(QStringList, addresses), Q_ARG(int, status));
@@ -322,10 +323,9 @@ bool DnsResolver::initChannel(const REQUEST_INFO &ri, CHANNEL_INFO &outChannelIn
         userArg->hostname = ri.hostname;
         userArg->object = ri.object;
 
+        qCDebug(LOG_BASIC) << "DnsResolver::initChannel:" << ri.hostname;
+
         ares_gethostbyname(outChannelInfo.channel, ri.hostname.toStdString().c_str(), AF_INET, callback, userArg);
         return true;
     }
 }
-
-
-
