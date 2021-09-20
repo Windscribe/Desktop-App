@@ -19,6 +19,8 @@ sys.path.insert(0, TOOLS_DIR)
 NOTARIZE_FLAG = "--notarize"
 CI_MODE_FLAG = "--ci-mode"
 
+OPTION_CLEAN = "clean"
+
 import base.messages as msg
 import base.process as proc
 import base.utils as utl
@@ -37,6 +39,46 @@ BUILD_MACDEPLOY = ""
 BUILD_INSTALLER_FILES = ""
 BUILD_SYMBOL_FILES = ""
 
+
+def RemoveFiles(files):
+  for f in files:
+    try:
+      if os.path.isfile(f):
+        os.remove(f)
+    except OSError as e:
+      print("Error: %s : %s" % (f, e.strerror))
+
+def RemoveEmptyDirs(dirs):
+  for d in dirs:
+    try:
+      if len(os.listdir(d)) == 0 and os.path.isdir(d):
+        os.rmdir(d)
+      else:
+        subdirs = []
+        for subd in os.listdir(d):
+          subdirs.append(os.path.join(d, subd))
+        RemoveEmptyDirs(subdirs)
+        os.rmdir(d)
+    except OSError as e:
+      print("Error: %s : %s" % (d, e.strerror))
+
+def DeleteAllFiles(root_dir, dir_pattern):
+  dirs_to_clean = glob2.glob(root_dir + os.sep + dir_pattern + "*")
+  for dir in dirs_to_clean:
+    RemoveFiles(glob2.glob(dir + "*/**/*" , recursive=True))
+    RemoveFiles(glob2.glob(dir + "*/**/.*", recursive=True))
+  RemoveEmptyDirs(dirs_to_clean)
+
+def CleanAll():
+  current_os = utl.GetCurrentOS()
+  DeleteAllFiles(os.path.join(ROOT_DIR, "gui"), "build-gui-")
+  DeleteAllFiles(os.path.join(ROOT_DIR, "backend"), "build-engine-")
+  DeleteAllFiles(ROOT_DIR, "build-exe")
+  DeleteAllFiles(ROOT_DIR, "temp")
+  DeleteAllFiles(os.path.join(COMMON_DIR, "ipc"), "generated_proto")
+  if current_os == "win32":
+    DeleteAllFiles(os.path.join(ROOT_DIR, "backend", "windows", "windscribe_service"), "debug")
+    DeleteAllFiles(os.path.join(ROOT_DIR, "backend", "windows", "windscribe_service"), "release")
 
 def ExtractAppVersion():
   version_file = os.path.join(COMMON_DIR, "version", "windscribe_version.h")
@@ -544,11 +586,15 @@ if __name__ == "__main__":
     msg.Print("{} is not needed on {}, skipping.".format(BUILD_TITLE, current_os))
     sys.exit(0)
   try:
-    if current_os == "macos" and NOTARIZE_FLAG in sys.argv and not (CI_MODE_FLAG in sys.argv):
-      msg.Print("Cannot notarize from build_all. Use manual notarization if necessary (may break offline notarizing check for user), but notarization should be done by the CI for permissions reasons.")
-      sys.exit(0)
-    msg.Print("Building {}...".format(BUILD_TITLE))
-    BuildAll()
+    if OPTION_CLEAN in sys.argv:
+      msg.Print("Cleaning...")
+      CleanAll()
+    else:
+      if current_os == "macos" and NOTARIZE_FLAG in sys.argv and not (CI_MODE_FLAG in sys.argv):
+        msg.Print("Cannot notarize from build_all. Use manual notarization if necessary (may break offline notarizing check for user), but notarization should be done by the CI for permissions reasons.")
+        sys.exit(0)
+      msg.Print("Building {}...".format(BUILD_TITLE))
+      BuildAll()
     exitcode = 0
   except iutl.InstallError as e:
     msg.Error(e)
