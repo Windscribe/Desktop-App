@@ -25,6 +25,7 @@
     #include "sleepevents_win.h"
     #include "adapterutils_win.h"
     #include "ikev2connection_win.h"
+    #include "../openvpnversioncontroller.h"
 #elif defined Q_OS_MAC
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
@@ -1283,17 +1284,24 @@ void ConnectionManager::setPacketSize(ProtoTypes::PacketSize ps)
 
 void ConnectionManager::startTunnelTests()
 {
-    bool advParamExists = false;
-    int delay = ExtraConfig::instance().getTunnelTestStartDelay(advParamExists);
-
-    if (advParamExists)
+    #if defined(Q_OS_WINDOWS)
+    // Issue 516.  Need to delay the start of the tunnel tests when using OpenVPN and Wintun on Windows.
+    if (currentConnectionDescr_.protocol.isOpenVpnProtocol() && OpenVpnVersionController::instance().isUseWinTun())
     {
+        bool advParamExists = false;
+        int delay = ExtraConfig::instance().getTunnelTestStartDelay(advParamExists);
+
+        if (!advParamExists) {
+            delay = 3000;
+        }
+
         qCDebug(LOG_CONNECTION) << "Delaying tunnel test start for" << delay << "ms";
         QTimer::singleShot(delay, testVPNTunnel_, &TestVPNTunnel::startTests);
+        return;
     }
-    else {
-        testVPNTunnel_->startTests();
-    }
+    #endif
+
+    testVPNTunnel_->startTests();
 }
 
 bool ConnectionManager::isAllowFirewallAfterConnection() const

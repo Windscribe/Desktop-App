@@ -5,7 +5,7 @@
 #include "utils/extraconfig.h"
 
 TestVPNTunnel::TestVPNTunnel(QObject *parent, ServerAPI *serverAPI) : QObject(parent),
-    serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0)
+    serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0), doCustomTunnelTest_(false)
 {
     connect(serverAPI_, &ServerAPI::pingTestAnswer, this, &TestVPNTunnel::onPingTestAnswer, Qt::QueuedConnection);
 }
