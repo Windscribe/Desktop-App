@@ -26,6 +26,7 @@ public:
     void setWasRestartOSFlag() { bWasRestartOS_ = true; }
     void clearWasRestartOSFlag() { bWasRestartOS_ = false; }
     bool isExitWithRestart();
+    bool isRecoveryMode() { return bIsRecoveryMode_; }
 
     bool isNeedAskClose() { return bNeedAskClose_; }
     void setNeedAskClose() { bNeedAskClose_ = true; }
@@ -37,6 +38,7 @@ signals:
 private:
     bool bNeedAskClose_;
     bool bWasRestartOS_;
+    bool bIsRecoveryMode_;
 #ifdef Q_OS_WIN
     WindowsNativeEventFilter windowsNativeEventFilter_;
 #endif

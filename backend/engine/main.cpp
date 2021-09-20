@@ -61,7 +61,8 @@ int main(int argc, char *argv[])
     WindscribeApplication::setOrganizationName("Windscribe");
     WindscribeApplication::setApplicationName("Windscribe2");
 
-    Logger::instance().install("engine", true);
+    Logger::instance().install("engine", true, a.isRecoveryMode());
+    if (a.isRecoveryMode()) qCDebug(LOG_BASIC) << "Engine started in recovery mode.";
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
 

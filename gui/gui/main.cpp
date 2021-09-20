@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     a.setApplicationDisplayName("Windscribe");
 
 
-    Logger::instance().install("gui", true);
+    Logger::instance().install("gui", true, false);
 
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
