@@ -192,7 +192,7 @@ void OpenVPNConnection::onKillControllerTimer()
     helper_win->executeTaskKill(OpenVpnVersionController::instance().getSelectedOpenVpnExecutable());
 #elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    helper_posix->executeRootCommand("pkill -f \"" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable() + "\"");
+    helper_posix->executeRootCommand("pkill -9 -f \"" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable() + "\"");
 #endif
 }
 
