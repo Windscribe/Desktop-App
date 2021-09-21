@@ -35,11 +35,13 @@ private:
     quint64 cmdId_;
     QElapsedTimer elapsed_;
     QTime lastTimeForCallWithLog_;
+    int testRetryDelay_;
+    bool doCustomTunnelTest_;
 
     enum {
            PING_TEST_TIMEOUT_1 = 2000,
            PING_TEST_TIMEOUT_2 = 4000,
-           PING_TEST_TIMEOUT_3 = 8000,
+           PING_TEST_TIMEOUT_3 = 8000
        };
     QVector<uint> timeouts_;
 };

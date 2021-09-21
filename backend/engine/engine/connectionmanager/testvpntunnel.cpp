@@ -2,12 +2,12 @@
 #include "engine/serverapi/serverapi.h"
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
+#include "utils/extraconfig.h"
 
 TestVPNTunnel::TestVPNTunnel(QObject *parent, ServerAPI *serverAPI) : QObject(parent),
-    serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0)
+    serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0), doCustomTunnelTest_(false)
 {
-    timeouts_ << PING_TEST_TIMEOUT_1 << PING_TEST_TIMEOUT_2 << PING_TEST_TIMEOUT_3;
-    connect(serverAPI_, SIGNAL(pingTestAnswer(SERVER_API_RET_CODE,QString)), SLOT(onPingTestAnswer(SERVER_API_RET_CODE,QString)), Qt::QueuedConnection);
+    connect(serverAPI_, &ServerAPI::pingTestAnswer, this, &TestVPNTunnel::onPingTestAnswer, Qt::QueuedConnection);
 }
 
 void TestVPNTunnel::startTests()
@@ -19,6 +19,32 @@ void TestVPNTunnel::startTests()
         qCDebug(LOG_CONNECTION) << "tests already running, stop previous";
         serverAPI_->cancelPingTest(cmdId_);
         bRunning_ = false;
+    }
+
+    timeouts_.clear();
+
+    int timeout = ExtraConfig::instance().getTunnelTestTimeout(doCustomTunnelTest_);
+
+    if (doCustomTunnelTest_)
+    {
+        bool advParamExists;
+        int attempts = ExtraConfig::instance().getTunnelTestAttempts(advParamExists);
+        if (!advParamExists) {
+            attempts = 3;
+        }
+
+        testRetryDelay_ = ExtraConfig::instance().getTunnelTestRetryDelay(advParamExists);
+        if (!advParamExists) {
+            testRetryDelay_ = 0;
+        }
+
+        qCDebug(LOG_CONNECTION) << "Running custom tunnel test with" << attempts << "attempts, timeout of" << timeout << "ms, and retry delay of" << testRetryDelay_ << "ms";
+
+        timeouts_.fill(timeout, attempts);
+    }
+    else
+    {
+        timeouts_ << PING_TEST_TIMEOUT_1 << PING_TEST_TIMEOUT_2 << PING_TEST_TIMEOUT_3;
     }
 
     // start first test
@@ -54,24 +80,41 @@ void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString 
         }
         else
         {
-            if (elapsed_.elapsed() < timeouts_[curTest_-1])
-            {
-                // next ping attempt after 100 ms
-                QTimer::singleShot(100, this, SLOT(doNextPingTest()));
-            }
-            else
+            if (doCustomTunnelTest_)
             {
                 qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "failed";
 
-                if (curTest_ < 3)
+                if (curTest_ < timeouts_.size())
                 {
                     curTest_++;
-                    elapsed_.start();
-                    doNextPingTest();
+                    QTimer::singleShot(testRetryDelay_, this, &TestVPNTunnel::doNextPingTest);
                 }
                 else
                 {
                     emit testsFinished(false, "");
+                }
+            }
+            else
+            {
+                if (elapsed_.elapsed() < timeouts_[curTest_-1])
+                {
+                    // next ping attempt after 100 ms
+                    QTimer::singleShot(100, this, &TestVPNTunnel::doNextPingTest);
+                }
+                else
+                {
+                    qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "failed";
+
+                    if (curTest_ < timeouts_.size())
+                    {
+                        curTest_++;
+                        elapsed_.start();
+                        doNextPingTest();
+                    }
+                    else
+                    {
+                        emit testsFinished(false, "");
+                    }
                 }
             }
         }
@@ -80,23 +123,31 @@ void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString 
 
 void TestVPNTunnel::doNextPingTest()
 {
-    if (bRunning_ && curTest_ >= 1 && curTest_ <= 3)
+    if (bRunning_ && curTest_ >= 1 && curTest_ <= timeouts_.size())
     {
-        // reduce log output (maximum 1 log output per 1 sec)
-        bool bWriteLog = lastTimeForCallWithLog_.msecsTo(QTime::currentTime()) > 1000;
-        if (bWriteLog)
-        {
-            lastTimeForCallWithLog_ = QTime::currentTime();
-        }
-
         cmdId_++;
-        if ((timeouts_[curTest_-1] - elapsed_.elapsed()) > 0)
+
+        if (doCustomTunnelTest_)
         {
-            serverAPI_->pingTest(cmdId_, timeouts_[curTest_-1] - elapsed_.elapsed(), bWriteLog);
+            serverAPI_->pingTest(cmdId_, timeouts_[curTest_-1], true);
         }
         else
         {
-            serverAPI_->pingTest(cmdId_, 100, bWriteLog);
+            // reduce log output (maximum 1 log output per 1 sec)
+            bool bWriteLog = lastTimeForCallWithLog_.msecsTo(QTime::currentTime()) > 1000;
+            if (bWriteLog)
+            {
+                lastTimeForCallWithLog_ = QTime::currentTime();
+            }
+
+            if ((timeouts_[curTest_-1] - elapsed_.elapsed()) > 0)
+            {
+                serverAPI_->pingTest(cmdId_, timeouts_[curTest_-1] - elapsed_.elapsed(), bWriteLog);
+            }
+            else
+            {
+                serverAPI_->pingTest(cmdId_, 100, bWriteLog);
+            }
         }
     }
 }
