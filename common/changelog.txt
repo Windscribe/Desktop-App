@@ -1,3 +1,10 @@
+2.03.10 (21/09/2021)
+* Improve task kill process for windscribeopenvpn. #517
+* Clean flag for Windows. #499
+* Fix stealth protocol not working for some users. #457
+* Delay tunnel test start for 3s when using OpenVPN+Wintun. #516
+* Prevent loss of engine log during engine recovery. #474
+
 2.03.09 (15/09/2021)
 * Linux firewall, wireguard, dns, resolvconf fixes. #511, #515, #519, #523
 * Fixed assert in engine server API.#514
