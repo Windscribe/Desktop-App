@@ -49,7 +49,7 @@ public:
         return l;
     }
 
-    void install(const QString &name, bool consoleOutput);
+    void install(const QString &name, bool consoleOutput, bool recoveryMode);
     void setConsoleOutput(bool on);
     QString getLogStr();
     QString getCurrentLogStr();

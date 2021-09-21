@@ -51,7 +51,7 @@ Backend::~Backend()
     }
 }
 
-void Backend::init()
+void Backend::init(bool recovery)
 {
     qCDebug(LOG_BASIC) << "Backend::init()";
 
@@ -72,7 +72,11 @@ void Backend::init()
     QString engineExePath = QCoreApplication::applicationDirPath() + "/WindscribeEngine";
 #endif
 
-    qCDebug(LOG_BASIC()) << "Calling Engine at: " << Utils::cleanSensitiveInfo(engineExePath);
+    const QString recoveryArg = "--recovery";
+    QString callLogEntry = "Calling Engine at: " + Utils::cleanSensitiveInfo(engineExePath);
+    if (recovery) callLogEntry += " " + recoveryArg;
+    qCDebug(LOG_BASIC()) << callLogEntry;
+
     if (!ExecutableSignature::verify(engineExePath))
     {
         qCDebug(LOG_BASIC()) << "Engine signature invalid";
@@ -85,6 +89,8 @@ void Backend::init()
     connect(process_, SIGNAL(started()), SLOT(onProcessStarted()));
 
     process_->setProgram(engineExePath);
+    if (recovery) process_->setArguments({recoveryArg});
+
     process_->setWorkingDirectory(QCoreApplication::applicationDirPath());
     ipcState_ = IPC_STARTING_PROCESS;
     process_->start();
@@ -1216,5 +1222,5 @@ void Backend::engineCrashedDoRecovery()
     connectStateHelper_.setConnectStateFromEngine(cs);
     emergencyConnectStateHelper_.setConnectStateFromEngine(cs);
 
-    init();
+    init(true);
 }

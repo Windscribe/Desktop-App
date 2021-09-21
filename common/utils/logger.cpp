@@ -40,7 +40,7 @@ Q_LOGGING_CATEGORY(LOG_USER,  "user")
 Q_LOGGING_CATEGORY(LOG_LOCATION_LIST, "loclist");
 Q_LOGGING_CATEGORY(LOG_PREFERENCES, "prefs")
 
-void Logger::install(const QString &name, bool consoleOutput)
+void Logger::install(const QString &name, bool consoleOutput, bool recoveryMode)
 {
     //QLoggingCategory::setFilterRules("basic=false\nipc=false\nserver_api=false");
 
@@ -50,14 +50,20 @@ void Logger::install(const QString &name, bool consoleOutput)
     prevLogPath_ = logFilePath + "/prev_log_" + name + ".txt";
     logFilePath += "/log_" + name + ".txt";
     logPath_ = logFilePath;
-    copyToPrevLog();
+
+    // in recovery mode do not move the log_engine to be prev_log_engine to preserve the potential crash log
+    // recovery mode only relevant for engine
+    QIODevice::OpenModeFlag openModeFlag = QIODevice::Append;
+    if (!recoveryMode)
+    {
+        copyToPrevLog();
+        openModeFlag = QIODevice::WriteOnly;
+    }
+
     QMutexLocker lock(&mutex_);
     file_ = new QFile(logFilePath);
-    file_->open(QIODevice::WriteOnly);
-
+    file_->open(openModeFlag);
     consoleOutput_ = consoleOutput;
-
-
     prevMessageHandler_ = qInstallMessageHandler(myMessageHandler);
 }
 
