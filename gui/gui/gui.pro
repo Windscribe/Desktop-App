@@ -66,9 +66,8 @@ SOURCES += multipleaccountdetection/multipleaccountdetection_win.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
            utils/scaleutils_win.cpp \
            launchonstartup/launchonstartup_win.cpp \
-           application/preventmultipleinstances_win.cpp
-
-
+           application/preventmultipleinstances_win.cpp \
+           utils/interfaceutils_win.cpp
 
 HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
            multipleaccountdetection/secretvalue_win.h \
@@ -119,7 +118,6 @@ HEADERS += \
            application/checkrunningapp/checkrunningapp_mac.h \
            application/openlocationshandler_mac.h \
            launchonstartup/launchonstartup_mac.h \
-           utils/interfaceutils_mac.h \
            $$COMMON_PATH/exithandler_mac.h \
            $$COMMON_PATH/utils/widgetutils_mac.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
@@ -177,7 +175,8 @@ LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 
 SOURCES += \
            $$COMMON_PATH/utils/linuxutils.cpp \
-           multipleaccountdetection/multipleaccountdetection_linux.cpp
+           multipleaccountdetection/multipleaccountdetection_linux.cpp \
+           utils/interfaceutils_linux.cpp
 
 HEADERS += \
            $$COMMON_PATH/utils/linuxutils.h \
@@ -554,6 +553,7 @@ HEADERS += \
     utils/simplecrypt.h \
     utils/textshadow.h \
     utils/writeaccessrightschecker.h \
+    utils/interfaceutils.h \
     blockconnect.h \
     dpiscaleawarewidget.h \
     dpiscalemanager.h \

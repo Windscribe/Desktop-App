@@ -215,6 +215,9 @@ private slots:
     void onAppShouldTerminate_mac();
     void onReceivedOpenLocationsMessage();
     void onAppCloseRequest();
+#if defined(Q_OS_WIN)
+    void onAppWinIniChanged();
+#endif
 
     void showShutdownWindow();
 
@@ -334,12 +337,13 @@ private:
     bool backendAppActiveState_;
     void setBackendAppActiveState(bool state);
 
+    bool isRunningInDarkMode_;
+
 #if defined(Q_OS_MAC)
     void hideShowDockIcon(bool hideFromDock);
     QTimer hideShowDockIconTimer_;
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
-    bool isRunningInDarkMode_;
 
     typedef QRect TrayIconRelativeGeometry ;
     QMap<QString, TrayIconRelativeGeometry> systemTrayIconRelativeGeoScreenHistory_;

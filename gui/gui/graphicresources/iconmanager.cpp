@@ -15,13 +15,20 @@ IconManager::IconManager()
         ":/resources/icons/icon_connected.ico",     // ICON_APP_CONNECTED
 #if defined(Q_OS_MAC)
         // Provided we are using Qt 5.12.11 or greater there is no need to provide different icns for BigSur
-        ":/Resources/icons/menubar/os10/off_dark.icns",    // ICON_MAC_OSX_DISCONNECTED_DARK
-        ":/Resources/icons/menubar/os10/off_light.icns",   // ICON_MAC_OSX_DISCONNECTED_LIGHT
-        ":/Resources/icons/menubar/os10/conn_dark.icns",   // ICON_MAC_OSX_CONNECTING_DARK
-        ":/Resources/icons/menubar/os10/conn_light.icns",  // ICON_MAC_OSX_CONNECTING_LIGHT
-        ":/Resources/icons/menubar/os10/on_dark.icns",     // ICON_MAC_OSX_CONNECTED_DARK
-        ":/Resources/icons/menubar/os10/on_light.icns",    // ICON_MAC_OSX_CONNECTED_LIGHT
-#endif  // Q_OS_MAC
+        ":/Resources/icons/menubar/os10/off_dark.icns",    // ICON_TRAY_DISCONNECTED_DARK
+        ":/Resources/icons/menubar/os10/off_light.icns",   // ICON_TRAY_DISCONNECTED_LIGHT
+        ":/Resources/icons/menubar/os10/conn_dark.icns",   // ICON_TRAY_CONNECTING_DARK
+        ":/Resources/icons/menubar/os10/conn_light.icns",  // ICON_TRAY_CONNECTING_LIGHT
+        ":/Resources/icons/menubar/os10/on_dark.icns",     // ICON_TRAY_CONNECTED_DARK
+        ":/Resources/icons/menubar/os10/on_light.icns",    // ICON_TRAY_CONNECTED_LIGHT
+#elif defined(Q_OS_WIN)
+        ":/resources/icons/win/OFF_WHITE.ico",        // ICON_TRAY_DISCONNECTED_DARK
+        ":/resources/icons/win/OFF_BLACK.ico",        // ICON_TRAY_DISCONNECTED_LIGHT
+        ":/resources/icons/win/CONNECTING_WHITE.ico", // ICON_TRAY_CONNECTING_DARK
+        ":/resources/icons/win/CONNECTING_BLACK.ico", // ICON_TRAY_CONNECTING_LIGHT
+        ":/resources/icons/win/ON_WHITE.ico",         // ICON_TRAY_CONNECTED_DARK
+        ":/resources/icons/win/ON_BLACK.ico",         // ICON_TRAY_CONNECTED_LIGHT
+#endif
     };
 
 #if defined(Q_OS_MAC)
@@ -41,21 +48,21 @@ IconManager::IconManager()
 #endif
 }
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
 
-const QIcon *IconManager::getDisconnectedTrayIconForMac(bool isDarkMode) const
+const QIcon *IconManager::getDisconnectedTrayIcon(bool isDarkMode) const
 {
-    return &icons_[isDarkMode ? ICON_MAC_OSX_DISCONNECTED_DARK : ICON_MAC_OSX_DISCONNECTED_LIGHT];
+    return &icons_[isDarkMode ? ICON_TRAY_DISCONNECTED_DARK : ICON_TRAY_DISCONNECTED_LIGHT];
 }
 
-const QIcon *IconManager::getConnectingTrayIconForMac(bool isDarkMode) const
+const QIcon *IconManager::getConnectingTrayIcon(bool isDarkMode) const
 {
-    return &icons_[isDarkMode ? ICON_MAC_OSX_CONNECTING_DARK : ICON_MAC_OSX_CONNECTING_LIGHT];
+    return &icons_[isDarkMode ? ICON_TRAY_CONNECTING_DARK : ICON_TRAY_CONNECTING_LIGHT];
 }
 
-const QIcon *IconManager::getConnectedTrayIconForMac(bool isDarkMode) const
+const QIcon *IconManager::getConnectedTrayIcon(bool isDarkMode) const
 {
-    return &icons_[isDarkMode ? ICON_MAC_OSX_CONNECTED_DARK : ICON_MAC_OSX_CONNECTED_LIGHT];
+    return &icons_[isDarkMode ? ICON_TRAY_CONNECTED_DARK : ICON_TRAY_CONNECTED_LIGHT];
 }
 
 #endif

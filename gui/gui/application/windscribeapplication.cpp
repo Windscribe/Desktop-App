@@ -153,6 +153,13 @@ void WindscribeApplication::onOpenLocationsFromAnotherInstance()
     emit openLocationsFromAnotherInstance();
 }
 
+#ifdef Q_OS_WIN
+void WindscribeApplication::onWinIniChanged()
+{
+    emit winIniChanged();
+}
+#endif
+
 bool WindscribeApplication::event(QEvent *e)
 {
     if (e->type() == QEvent::Close)
