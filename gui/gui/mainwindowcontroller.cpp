@@ -1271,12 +1271,20 @@ void MainWindowController::gotoConnectWindow()
         updateExpandAnimationParameters();
         handleNextWindowChange();
     }
-    else if (curWindow_ == WINDOW_ID_INITIALIZATION)
+    else if (curWindow_ == WINDOW_ID_INITIALIZATION
+             || (curWindow_ == WINDOW_ID_EXIT && windowBeforeExit_ == WINDOW_ID_INITIALIZATION))
     {
         // qDebug() << "Init -> Connect";
         initWindow_->getGraphicsObject()->stackBefore(connectWindow_->getGraphicsObject());
 
         isAtomicAnimationActive_ = true;
+
+        // The second condition occurs when engine crashes and user tries to exit app using hot keys but then selects "No".
+        // In this case it is necessary to set windowBeforeExit_ to WINDOW_ID_CONNECT because it will be necessary to enter
+        // connect window after closing exit dialog.
+        if(curWindow_ == WINDOW_ID_EXIT) {
+            windowBeforeExit_ = WINDOW_ID_CONNECT;
+        }
 
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_INIT_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
@@ -2135,6 +2143,28 @@ void MainWindowController::closeExitWindow()
     else if (windowBeforeExit_ == WINDOW_ID_NOTIFICATIONS)
     {
         curWindow_ = WINDOW_ID_NOTIFICATIONS;
+        isAtomicAnimationActive_ = true;
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(exitWindow_->getGraphicsObject());
+        anim->setPropertyName("opacity");
+        anim->setStartValue(exitWindow_->getGraphicsObject()->opacity());
+        anim->setEndValue(0.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            exitWindow_->getGraphicsObject()->hide();
+            newsFeedWindow_->setClickable(true);
+            isAtomicAnimationActive_ = false;
+            updateBottomInfoWindowVisibilityAndPos();
+            handleNextWindowChange();
+        });
+
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    }
+    else if (windowBeforeExit_ == WINDOW_ID_INITIALIZATION)
+    {
+        curWindow_ = WINDOW_ID_INITIALIZATION;
         isAtomicAnimationActive_ = true;
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
