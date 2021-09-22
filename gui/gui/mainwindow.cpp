@@ -565,7 +565,7 @@ bool MainWindow::event(QEvent *event)
     }
 
 #if defined(Q_OS_MAC)
-    if (event->type() == QEvent::PaletteChange) // palette changes when light/dark mode updated on MacOS
+    if (event->type() == QEvent::PaletteChange)
     {
         isRunningInDarkMode_ = InterfaceUtils::isDarkMode();
         qCDebug(LOG_BASIC) << "PaletteChanged, dark mode: " << isRunningInDarkMode_;
@@ -3432,7 +3432,6 @@ void MainWindow::updateAppIconType(AppIconType type)
 void MainWindow::updateTrayIconType(AppIconType type)
 {
     const QIcon *icon = nullptr;
-#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
     switch (type) {
     case AppIconType::DISCONNECTED:
         icon = IconManager::instance().getDisconnectedTrayIcon(isRunningInDarkMode_);
@@ -3446,21 +3445,6 @@ void MainWindow::updateTrayIconType(AppIconType type)
     default:
         break;
     }
-#else
-    switch (type) {
-    case AppIconType::DISCONNECTED:
-        icon = IconManager::instance().getDisconnectedIcon();
-        break;
-    case AppIconType::CONNECTING:
-        icon = IconManager::instance().getConnectingIcon();
-        break;
-    case AppIconType::CONNECTED:
-        icon = IconManager::instance().getConnectedIcon();
-        break;
-    default:
-        break;
-    }
-#endif
 
      if (icon) {
 #if defined(Q_OS_WIN)

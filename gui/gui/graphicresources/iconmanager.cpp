@@ -21,7 +21,7 @@ IconManager::IconManager()
         ":/Resources/icons/menubar/os10/conn_light.icns",  // ICON_TRAY_CONNECTING_LIGHT
         ":/Resources/icons/menubar/os10/on_dark.icns",     // ICON_TRAY_CONNECTED_DARK
         ":/Resources/icons/menubar/os10/on_light.icns",    // ICON_TRAY_CONNECTED_LIGHT
-#elif defined(Q_OS_WIN)
+#else // windows and linux
         ":/resources/icons/win/OFF_WHITE.ico",        // ICON_TRAY_DISCONNECTED_DARK
         ":/resources/icons/win/OFF_BLACK.ico",        // ICON_TRAY_DISCONNECTED_LIGHT
         ":/resources/icons/win/CONNECTING_WHITE.ico", // ICON_TRAY_CONNECTING_DARK
@@ -41,14 +41,12 @@ IconManager::IconManager()
         icon.setIsMask(true); //  same as NSImage::setTemplate(true) - this provides light, dark and tinting switching
         icons_[i] = icon;
     }
-#else
+#else // windows and linux
     for (int i = 0; i < NUM_ICON_TYPES; ++i) {
         icons_[i] = QIcon(kIconPaths[i]);
     }
 #endif
 }
-
-#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
 
 const QIcon *IconManager::getDisconnectedTrayIcon(bool isDarkMode) const
 {
@@ -64,5 +62,3 @@ const QIcon *IconManager::getConnectedTrayIcon(bool isDarkMode) const
 {
     return &icons_[isDarkMode ? ICON_TRAY_CONNECTED_DARK : ICON_TRAY_CONNECTED_LIGHT];
 }
-
-#endif
