@@ -29,8 +29,9 @@ using namespace boost::asio;
 
 Helper_posix *g_this_ = NULL;
 
-Helper_posix::Helper_posix(QObject *parent) : IHelper(parent), bIPV6State_(true), cmdId_(0), lastOpenVPNCmdId_(0), bFailedConnectToHelper_(false), ep_(SOCK_PATH), bHelperConnectedEmitted_(false),
-    bHelperConnected_(false), bNeedFinish_(false)
+Helper_posix::Helper_posix(QObject *parent) : IHelper(parent), bIPV6State_(true), cmdId_(0), lastOpenVPNCmdId_(0)
+  , bFailedConnectToHelper_(false), ep_(SOCK_PATH), bHelperConnectedEmitted_(false)
+  , bHelperConnected_(false), bNeedFinish_(false), firstConnectToHelperErrorReported_(false)
 {
     Q_ASSERT(g_this_ == NULL);
     g_this_ = this;
@@ -1007,6 +1008,7 @@ int Helper_posix::executeRootCommandImpl(const QString &commandLine, bool *bExec
 void Helper_posix::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
+    firstConnectToHelperErrorReported_ = false;
     io_service_.reset();
     reconnectElapsedTimer_.start();
     g_this_->socket_.reset(new boost::asio::local::stream_protocol::socket(io_service_));
@@ -1029,10 +1031,19 @@ void Helper_posix::connectHandler(const boost::system::error_code &ec)
     }
     else
     {
+        // only report the first error while connecting to helper in order to prevent log bloat
+        // we want to see first error in case it is different than all following errors
+        if (!g_this_->firstConnectToHelperErrorReported_)
+        {
+            qCDebug(LOG_BASIC) << "Error while connecting to helper (first): " << ec.value();
+            g_this_->firstConnectToHelperErrorReported_ = true;
+        }
+
         if (g_this_->reconnectElapsedTimer_.elapsed() > MAX_WAIT_HELPER)
         {
             if (!g_this_->bHelperConnectedEmitted_)
             {
+                qCDebug(LOG_BASIC) << "Error while connecting to helper: " << ec.value();
                 g_this_->bFailedConnectToHelper_ = true;
             }
             else
