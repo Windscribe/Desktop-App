@@ -1,4 +1,3 @@
-#include "connectionmanager.h"
 #include "utils/logger.h"
 #include <QStandardPaths>
 #include <QThread>
@@ -20,12 +19,14 @@
 #include "connsettingspolicy/manualconnsettingspolicy.h"
 #include "connsettingspolicy/customconfigconnsettingspolicy.h"
 
+// Had to move this here to prevent a compile error with boost already including winsock.h
+#include "connectionmanager.h"
+
 
 #ifdef Q_OS_WIN
     #include "sleepevents_win.h"
     #include "adapterutils_win.h"
     #include "ikev2connection_win.h"
-    #include "../openvpnversioncontroller.h"
 #elif defined Q_OS_MAC
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
@@ -1284,24 +1285,7 @@ void ConnectionManager::setPacketSize(ProtoTypes::PacketSize ps)
 
 void ConnectionManager::startTunnelTests()
 {
-    #if defined(Q_OS_WINDOWS)
-    // Issue 516.  Need to delay the start of the tunnel tests when using OpenVPN and Wintun on Windows.
-    if (currentConnectionDescr_.protocol.isOpenVpnProtocol() && OpenVpnVersionController::instance().isUseWinTun())
-    {
-        bool advParamExists = false;
-        int delay = ExtraConfig::instance().getTunnelTestStartDelay(advParamExists);
-
-        if (!advParamExists) {
-            delay = 3000;
-        }
-
-        qCDebug(LOG_CONNECTION) << "Delaying tunnel test start for" << delay << "ms";
-        QTimer::singleShot(delay, testVPNTunnel_, &TestVPNTunnel::startTests);
-        return;
-    }
-    #endif
-
-    testVPNTunnel_->startTests();
+    testVPNTunnel_->startTests(currentConnectionDescr_.protocol);
 }
 
 bool ConnectionManager::isAllowFirewallAfterConnection() const

@@ -71,6 +71,8 @@ public:
 
     void setIgnoreSslErrors(bool bIgnore);
 
+    void onTunnelTestDnsResolve(const QStringList &ips);
+
 signals:
     void accessIpsAnswer(SERVER_API_RET_CODE retCode, const QStringList &hosts, uint userRole);
     void loginAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash, uint userRole);
