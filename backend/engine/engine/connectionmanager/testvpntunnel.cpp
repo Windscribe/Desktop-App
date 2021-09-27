@@ -438,7 +438,7 @@ bool TestVPNTunnel::initiateWin32TunnelTest()
         return false;
     }
 
-    DNS_STATUS result = ::DnsQueryEx(&request, dnsQueryContext_->queryResult(), dnsQueryContext_->cancelHandle());
+    DNS_STATUS result = DnsQueryEx_f(&request, dnsQueryContext_->queryResult(), dnsQueryContext_->cancelHandle());
 
     if (result != DNS_REQUEST_PENDING)
     {
