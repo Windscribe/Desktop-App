@@ -31,6 +31,8 @@
     #include "ipv6controller_mac.h"
     #include "utils/macutils.h"
     #include "networkstatemanager/reachabilityevents.h"
+#elif defined Q_OS_LINUX
+    #include "helper/helper_linux.h"
 #endif
 
 Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
@@ -2135,9 +2137,16 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
-#else
+#else // Linux
     Q_UNUSED(windowCenterX);
     Q_UNUSED(windowCenterY);
+
+    if(helper_) {
+        if(!dynamic_cast<Helper_linux*>(helper_)->installUpdate(installerPath_)) {
+            emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
+            return;
+        }
+    }
 #endif
 
     qCDebug(LOG_AUTO_UPDATER) << "Installer valid and executed";

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+end=$((SECONDS+10))
+
+while :
+do
+  if [ -z "$(ps -eo args | grep WindscribeEngine | grep -v grep)" ]; then
+    echo "No WidnscribeEngine running"
+    break
+  fi
+  
+  if [ $SECONDS -gt $end ]; then
+    echo 'Error during Windscribe installation. WindscribeEngine is running. Please re-launch Windscribe. And try to update again.'
+    exit 1
+  fi
+done
+
+systemctl stop windscribe-helper
+systemctl disable windscribe-helper
+echo "Finish pre-install script"

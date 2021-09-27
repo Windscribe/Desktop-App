@@ -2204,6 +2204,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
             if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
             {
                 // nothing todo, because installer will close app here
+#ifdef Q_OS_LINUX
+                // Close Windscribe in order to continue installation of the .deb or .rpm package.
+                close();
+#endif
             }
             else // Error
             {
@@ -2270,14 +2274,11 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         qint32 center_y = INT_MAX;
         if (is_visible)
         {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             center_x = geometry().x() + geometry().width() / 2;
             center_y = geometry().y() + geometry().height() / 2;
 #elif defined Q_OS_MAC
             MacUtils::getNSWindowCenter((void *)this->winId(), center_x, center_y);
-#elif defined Q_OS_LINUX
-        //todo linux
-        Q_ASSERT(false);
 #endif
         }
         backend_->sendUpdateWindowInfo(center_x, center_y);

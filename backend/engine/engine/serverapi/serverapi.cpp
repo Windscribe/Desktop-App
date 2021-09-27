@@ -18,6 +18,10 @@
 
 #include <algorithm>
 
+#ifdef Q_OS_LINUX
+    #include "utils/linuxutils.h"
+#endif
+
 const int typeIdWireGuardConfig = qRegisterMetaType<QSharedPointer<WireGuardConfig> >("QSharedPointer<WireGuardConfig>");
 
 class ServerAPI::BaseRequest
@@ -82,7 +86,7 @@ QString GetPlatformName()
 #elif defined Q_OS_MAC
     return "osx";
 #elif defined Q_OS_LINUX
-    return "linux";
+    return LinuxUtils::getPlatformName();
 #endif
 }
 

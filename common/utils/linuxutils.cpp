@@ -10,13 +10,19 @@
 #include <sys/ioctl.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
+#include <linux/version.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <stdlib.h>
+
+#include <QRegExp>
 
 namespace  {
 
 const int BUFSIZE = 8192;
+const QString DEB_PLATFORM_NAME = QString("linux_deb_x64");
+const QString RPM_PLATFORM_NAME = QString("linux_rpm_x64");
 
 struct route_info {
     struct in_addr dstAddr;
@@ -166,4 +172,44 @@ void LinuxUtils::getDefaultRoute(QString &outGatewayIp, QString &outInterfaceNam
     outInterfaceName = QString::fromStdString(ri.ifName);
 }
 
+QString LinuxUtils::getLinuxKernelVersion()
+{
+    struct utsname unameData;
+    if (uname(&unameData) == 0)
+    {
+        QRegExp rx("(\\d+\\.\\d+(\\.\\d+)*)");
+        if(rx.indexIn(unameData.release, 0) != -1) {
+            return rx.cap(1);
+        }
+    }
 
+    return QString("Can't detect Linux Kernel version");
+}
+
+QString LinuxUtils::getPlatformName()
+{
+    int exitCode = system("dpkg --version");
+    if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
+        exitCode = system("rpm --version");
+        if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
+            return QString("Could not define Linux platform");
+        }
+        else {
+            return RPM_PLATFORM_NAME;
+        }
+    }
+    else {
+        return DEB_PLATFORM_NAME;
+    }
+}
+
+bool LinuxUtils::isDeb()
+{
+    int exitCode = system("dpkg --version");
+    if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
