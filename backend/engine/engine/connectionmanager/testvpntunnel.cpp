@@ -45,8 +45,9 @@ bool DnsQueryContext::initialize()
 {
     release();
 
-    // Due to the alignment spec of DNS_QUERY_CANCEL, we need to use the Win32 heap rather than
-    // using new.  I was getting memory corruption issues in the class instance when using new.
+    // Due to the alignment spec of DNS_QUERY_CANCEL in WinDNS.h, we need to use the Win32 heap
+    // rather than using new.  I was getting memory corruption issues in the class instance
+    // immediately after using new to allocate the DNS_QUERY_CANCEL structure.
 
     result_ = (DNS_QUERY_RESULT*)::HeapAlloc(::GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(DNS_QUERY_RESULT));
     if (result_ == NULL)
@@ -217,26 +218,27 @@ void TestVPNTunnel::startTestImpl()
 
 void TestVPNTunnel::stopTests()
 {
-    #if defined(Q_OS_WINDOWS)
-    if (doWin32TunnelTest_)
-    {
-        doWin32TunnelTest_ = false;
-        dnsQueryTimeout_.stop();
-
-        if (!dnsQueryContext_.isNull() && dnsQueryContext_->canCancel()) {
-            DnsCancelQuery_f(dnsQueryContext_->cancelHandle());
-        }
-    }
-    #endif
-
     if (bRunning_)
     {
-        qCDebug(LOG_CONNECTION) << "Tunnel tests stopped";
         bRunning_ = false;
 
-        if (!doWin32TunnelTest_) {
+        if (doWin32TunnelTest_)
+        {
+            doWin32TunnelTest_ = false;
+
+            #if defined(Q_OS_WINDOWS)
+            dnsQueryTimeout_.stop();
+
+            if (!dnsQueryContext_.isNull() && dnsQueryContext_->canCancel()) {
+                DnsCancelQuery_f(dnsQueryContext_->cancelHandle());
+            }
+            #endif
+        }
+        else {
             serverAPI_->cancelPingTest(cmdId_);
         }
+
+        qCDebug(LOG_CONNECTION) << "Tunnel tests stopped";
     }
 }
 
@@ -249,24 +251,27 @@ void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString 
         {
             qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData;
             bRunning_ = false;
-            emit testsFinished(true, trimmedData);
+            doWin32TunnelTest_ = false;
 
             #if defined(Q_OS_WINDOWS)
-            doWin32TunnelTest_ = false;
             dnsQueryTimeout_.stop();
             #endif
+
+            emit testsFinished(true, trimmedData);
         }
         else
         {
             if (doWin32TunnelTest_)
             {
                 bRunning_ = false;
-                emit testsFinished(false, "");
+                doWin32TunnelTest_ = false;
 
                 #if defined(Q_OS_WINDOWS)
-                doWin32TunnelTest_ = false;
                 dnsQueryTimeout_.stop();
                 #endif
+
+                emit testsFinished(true, trimmedData);
+
                 return;
             }
 
@@ -364,6 +369,8 @@ bool TestVPNTunnel::loadWinDnsApiEndpoints()
         if (DnsQueryEx_f == NULL)
         {
             qCDebug(LOG_CONNECTION) << "TestVPNTunnel failed to load DnsQueryEx:" << ::GetLastError();
+            ::FreeLibrary(dllHandle_);
+            dllHandle_ = NULL;
             return false;
         }
     }
@@ -375,6 +382,9 @@ bool TestVPNTunnel::loadWinDnsApiEndpoints()
         if (DnsCancelQuery_f == NULL)
         {
             qCDebug(LOG_CONNECTION) << "TestVPNTunnel failed to load DnsCancelQuery:" << ::GetLastError();
+            ::FreeLibrary(dllHandle_);
+            dllHandle_ = NULL;
+            DnsQueryEx_f = NULL;
             return false;
         }
     }
@@ -446,8 +456,6 @@ void TestVPNTunnel::onWin32DnsQueryCompleted()
         dnsQueryContext_.reset();
         return;
     }
-
-    // TODO: make sure this doesn't break the Linux/MacOS builds.
 
     if (dnsQueryContext_->queryStatus() == ERROR_SUCCESS)
     {
