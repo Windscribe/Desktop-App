@@ -143,6 +143,7 @@ void Connection::onReadyRead()
 
 void Connection::onSocketError(QLocalSocket::LocalSocketError socketError)
 {
+    Q_UNUSED(socketError)
     // qDebug() << "Socket error: " << socketError;
     emit stateChanged(CONNECTION_ERROR, this);
 }

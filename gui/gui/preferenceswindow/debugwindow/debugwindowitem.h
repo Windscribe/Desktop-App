@@ -11,6 +11,7 @@
 #include "../backend/preferences/preferenceshelper.h"
 #include "apiresolutionitem.h"
 #include "tooltips/tooltiptypes.h"
+#include "../openurlitem.h"
 
 
 enum DEBUG_SCREEN { DEBUG_SCREEN_HOME, DEBUG_SCREEN_ADVANCED_PARAMETERS };
@@ -74,6 +75,7 @@ private:
     CheckBoxItem *cbIgnoreSslErrors_;
     CheckBoxItem *cbKeepAlive_;
     ComboBoxItem *comboBoxAppInternalDns_;
+    OpenUrlItem *viewLicensesItem_;
 
     Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;

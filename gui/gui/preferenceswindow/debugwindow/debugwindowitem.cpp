@@ -10,6 +10,7 @@
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/logger.h"
+#include "utils/hardcodedsettings.h"
 
 extern QWidget *g_mainWindow;
 
@@ -73,7 +74,7 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 
     comboBoxAppInternalDns_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Internal DNS"), QString(), 50, Qt::transparent, 0, true);
     const QList< QPair<QString, int> > dnsTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::DnsPolicy_descriptor());
-    for (const auto d : dnsTypes)
+    for (const auto &d : dnsTypes)
     {
         comboBoxAppInternalDns_->addItem(d.first, d.second);
     }
@@ -81,6 +82,11 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     comboBoxAppInternalDns_->setCurrentItem(preferences->dnsPolicy());
     connect(comboBoxAppInternalDns_, SIGNAL(currentItemChanged(QVariant)), SLOT(onAppInternalDnsItemChanged(QVariant)));
     addItem(comboBoxAppInternalDns_);
+
+    viewLicensesItem_ = new OpenUrlItem(this);
+    viewLicensesItem_->setText(tr("View Licenses"));
+    viewLicensesItem_->setUrl(QString("https://%1/terms/oss").arg(HardcodedSettings::instance().serverUrl()));
+    addItem(viewLicensesItem_);
 }
 
 QString DebugWindowItem::caption()

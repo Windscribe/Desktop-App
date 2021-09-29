@@ -371,7 +371,6 @@ SOURCES += \
     preferenceswindow/accountwindow/emailitem.cpp \
     preferenceswindow/accountwindow/planitem.cpp \
     preferenceswindow/accountwindow/expiredateitem.cpp \
-    preferenceswindow/accountwindow/editaccountitem.cpp \
     preferenceswindow/connectionwindow/subpageitem.cpp \
     preferenceswindow/basepage.cpp \
     preferenceswindow/baseitem.cpp \
@@ -419,7 +418,8 @@ SOURCES += \
     locationswindow/widgetlocations/staticipdeviceinfo.cpp \
     locationswindow/widgetlocations/configfooterinfo.cpp \
     mainwindowcontroller.cpp \
-    multipleaccountdetection/multipleaccountdetectionfactory.cpp
+    multipleaccountdetection/multipleaccountdetectionfactory.cpp \
+    preferenceswindow/openurlitem.cpp
 
 
 HEADERS += \
@@ -635,7 +635,6 @@ HEADERS += \
     preferenceswindow/accountwindow/emailitem.h \
     preferenceswindow/accountwindow/planitem.h \
     preferenceswindow/accountwindow/expiredateitem.h \
-    preferenceswindow/accountwindow/editaccountitem.h \
     preferenceswindow/connectionwindow/subpageitem.h \
     preferenceswindow/basepage.h \
     preferenceswindow/baseitem.h \
@@ -688,7 +687,8 @@ HEADERS += \
     locationswindow/widgetlocations/configfooterinfo.h \
     mainwindowcontroller.h \
     multipleaccountdetection/imultipleaccountdetection.h \
-    multipleaccountdetection/multipleaccountdetectionfactory.h
+    multipleaccountdetection/multipleaccountdetectionfactory.h \
+    preferenceswindow/openurlitem.h
 
 RESOURCES += \
     svg.qrc \

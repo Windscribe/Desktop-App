@@ -43,11 +43,12 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     expireDateItem_->setDate(accountInfo->expireDate());
     addItem(expireDateItem_);
 
-    editAccountItem_ = new EditAccountItem(this);
-    connect(editAccountItem_, SIGNAL(clicked()), SLOT(onEditAccountDetailsClicked()));
-    addItem(editAccountItem_);
-
     authHash_ = accountInfo->authHash();
+
+    editAccountItem_ = new OpenUrlItem(this);
+    editAccountItem_->setText(tr("Edit Account Details"));
+    editAccountItem_->setUrl([this]{ return QString("https://%1/myaccount?app_session=%2").arg(HardcodedSettings::instance().serverUrl(), authHash_); });
+    addItem(editAccountItem_);
 
     textItem_ = new QGraphicsTextItem(this);
     textItem_->setPlainText(tr("Login to view your account info"));
@@ -125,11 +126,6 @@ void AccountWindowItem::onExpireDateChanged(const QString &date)
 void AccountWindowItem::onAuthHashChanged(const QString &authHash)
 {
     authHash_ = authHash;
-}
-
-void AccountWindowItem::onEditAccountDetailsClicked()
-{
-    QDesktopServices::openUrl(QUrl(QString("https://%1/myaccount?app_session=%2").arg(HardcodedSettings::instance().serverUrl(), authHash_)));
 }
 
 void AccountWindowItem::onUpgradeClicked()
