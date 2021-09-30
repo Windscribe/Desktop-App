@@ -14,6 +14,8 @@ IPAddressItem::IPAddressItem(ScalableGraphicsObject *parent) : ScalableGraphicsO
     }
     onOctetWidthChanged();
 
+    blurEffect_.setBlurHints(defaultBlurHints_);
+    setBlurRadius();
     setGraphicsEffect(&blurEffect_);
     blurEffect_.setEnabled(false);
     setAcceptHoverEvents(true);
@@ -102,7 +104,7 @@ void IPAddressItem::updateScaling()
     {
         octetItems_[i]->recalcSizes();
     }
-    blurEffect_.setBlurRadius(16*G_SCALE);
+    setBlurRadius();
     onOctetWidthChanged();
 }
 
@@ -143,6 +145,15 @@ void IPAddressItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
     setCursor(Qt::ArrowCursor);
+}
+
+void IPAddressItem::setBlurRadius()
+{
+    auto blurRadius = defaultBlurRadius_ * G_SCALE;
+    if(blurRadius < minBlurRadius_)
+        blurEffect_.setBlurRadius(minBlurRadius_);
+    else
+        blurEffect_.setBlurRadius(blurRadius);
 }
 
 

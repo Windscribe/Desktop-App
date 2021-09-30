@@ -24,6 +24,9 @@ protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
+private:
+    void setBlurRadius();
+
 private slots:
     void onOctetWidthChanged();
     void doUpdate();
@@ -39,6 +42,10 @@ private:
 
     QString ipAddress_;
     bool isValid_;
+
+    const int defaultBlurRadius_ = 20;
+    const int minBlurRadius_ = 20;
+    const QGraphicsBlurEffect::BlurHints defaultBlurHints_ = QGraphicsBlurEffect::QualityHint;
 };
 
 #endif // IPADDRESSITEM_H
