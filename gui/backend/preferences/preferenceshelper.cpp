@@ -71,6 +71,12 @@ QVector<ProtoTypes::Protocol> PreferencesHelper::getAvailableProtocols()
     QVector<ProtoTypes::Protocol> p;
     for (int i = 0; i < portMap_.port_map_item_size(); ++i)
     {
+#ifdef Q_OS_LINUX
+        const auto protocol = portMap_.port_map_item(i).protocol();
+        if(protocol == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
+            continue;
+        }
+#endif
         p << portMap_.port_map_item(i).protocol();
     }
     return p;
