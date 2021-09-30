@@ -195,7 +195,6 @@ QString regGetLocalMachineRegistryValueSz(HKEY rootKey, QString keyPath, QString
     return result;
 }
 
-
 QList<QString> enumerateSubkeyNames(HKEY rootKey, QString keyPath, bool wow64)
 {
     QList<QString> result;
@@ -407,6 +406,29 @@ bool WinUtils::regHasLocalMachineSubkeyProperty(QString keyPath, QString propert
     if (nError == ERROR_SUCCESS)
     {
         nError = RegQueryValueEx(hKey, propertyName.toStdWString().c_str(), nullptr, REG_NONE, nullptr, nullptr); // contents not required
+
+        if(nError == ERROR_SUCCESS)
+        {
+            result = true;
+        }
+
+        RegCloseKey(hKey);
+    }
+
+    return result;
+}
+
+bool WinUtils::regGetCurrentUserRegistryDword(QString keyPath, QString propertyName, int &dwordValue)
+{
+    bool result = false;
+    HKEY hKey;
+    LONG nError = RegOpenKeyEx(HKEY_CURRENT_USER, keyPath.toStdWString().c_str(),
+                               NULL, KEY_READ, &hKey);
+    if (nError == ERROR_SUCCESS)
+    {
+        DWORD dwBufSize = sizeof(dwordValue);
+        nError = RegQueryValueEx(hKey, propertyName.toStdWString().c_str(),
+                                 nullptr, nullptr, (LPBYTE) &dwordValue, &dwBufSize);
 
         if(nError == ERROR_SUCCESS)
         {

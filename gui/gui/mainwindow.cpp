@@ -33,13 +33,13 @@
 #include "launchonstartup/launchonstartup.h"
 #include "showingdialogstate.h"
 #include "mainwindowstate.h"
+#include "utils/interfaceutils.h"
 
 #ifdef Q_OS_WIN
     #include "utils/winutils.h"
     #include "utils/widgetutils_win.h"
     #include <windows.h>
 #else
-    #include "utils/interfaceutils_mac.h"
     #include "utils/macutils.h"
     #include "utils/widgetutils_mac.h"
 #endif
@@ -96,8 +96,11 @@ MainWindow::MainWindow() :
     savedTrayIconRect_.setTopLeft(QPoint(desktopAvailableRc.right() - WINDOW_WIDTH * G_SCALE, 0));
     savedTrayIconRect_.setSize(QSize(22, 22));
 
+    isRunningInDarkMode_ = InterfaceUtils::isDarkMode();
+    qCDebug(LOG_BASIC) << "OS in dark mode: " << isRunningInDarkMode_;
+
     // Init and show tray icon.
-    trayIcon_.setIcon(*IconManager::instance().getDisconnectedIcon());
+    trayIcon_.setIcon(*IconManager::instance().getDisconnectedTrayIcon(isRunningInDarkMode_));
     trayIcon_.show();
 #ifdef Q_OS_MAC
     const QRect desktopScreenRc = screen->geometry();
@@ -332,16 +335,15 @@ MainWindow::MainWindow() :
     connect(app, SIGNAL(receivedOpenLocationsMessage()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(focusWindowChanged(QWindow*)), SLOT(onFocusWindowChanged(QWindow*)));
     connect(app, SIGNAL(applicationCloseRequest()), SLOT(onAppCloseRequest()));
-
+#if defined(Q_OS_WIN)
+    connect(app, SIGNAL(winIniChanged()), SLOT(onAppWinIniChanged()));
+#endif
     /*connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged())); */
 
     mainWindowController_->getViewport()->installEventFilter(this);
     connect(mainWindowController_, SIGNAL(shadowUpdated()), SLOT(update()));
     connect(mainWindowController_, SIGNAL(revealConnectWindowStateChanged(bool)), this, SLOT(onRevealConnectStateChanged(bool)));
 
-#if defined(Q_OS_MAC)
-    isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
-#endif
     setupTrayIcon();
 
     backend_->getLocationsModel()->setOrderLocationsType(backend_->getPreferences()->locationOrder());
@@ -565,7 +567,8 @@ bool MainWindow::event(QEvent *event)
 #if defined(Q_OS_MAC)
     if (event->type() == QEvent::PaletteChange)
     {
-        isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
+        isRunningInDarkMode_ = InterfaceUtils::isDarkMode();
+        qCDebug(LOG_BASIC) << "PaletteChanged, dark mode: " << isRunningInDarkMode_;
         if (!MacUtils::isOsVersionIsBigSur_or_greater())
             updateTrayIconType(currentAppIconType_);
     }
@@ -2258,14 +2261,9 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
     {
         // Send main window center coordinates from the GUI, to position the installer properly.
         const bool is_visible = isVisible() && !isMinimized();
-        qint32 center_x;
-        qint32 center_y;
-        if (!is_visible)
-        {
-            center_x = INT_MAX;
-            center_y = INT_MAX;
-        }
-        else
+        qint32 center_x = INT_MAX;
+        qint32 center_y = INT_MAX;
+        if (is_visible)
         {
 #ifdef Q_OS_WIN
             center_x = geometry().x() + geometry().width() / 2;
@@ -2669,6 +2667,19 @@ void MainWindow::onAppCloseRequest()
     if (!isVisible())
         activateAndShow();
 }
+
+#if defined(Q_OS_WIN)
+void MainWindow::onAppWinIniChanged()
+{
+    bool newDarkMode = InterfaceUtils::isDarkMode();
+    if (newDarkMode != isRunningInDarkMode_)
+    {
+        isRunningInDarkMode_ = newDarkMode;
+        qCDebug(LOG_BASIC) << "updating dark mode: " << isRunningInDarkMode_;
+        updateTrayIconType(currentAppIconType_);
+    }
+}
+#endif
 
 void MainWindow::showShutdownWindow()
 {
@@ -3421,35 +3432,19 @@ void MainWindow::updateAppIconType(AppIconType type)
 void MainWindow::updateTrayIconType(AppIconType type)
 {
     const QIcon *icon = nullptr;
-#if defined(Q_OS_MAC)
     switch (type) {
     case AppIconType::DISCONNECTED:
-        icon = IconManager::instance().getDisconnectedTrayIconForMac(isRunningInDarkMode_);
+        icon = IconManager::instance().getDisconnectedTrayIcon(isRunningInDarkMode_);
         break;
     case AppIconType::CONNECTING:
-        icon = IconManager::instance().getConnectingTrayIconForMac(isRunningInDarkMode_);
+        icon = IconManager::instance().getConnectingTrayIcon(isRunningInDarkMode_);
         break;
     case AppIconType::CONNECTED:
-        icon = IconManager::instance().getConnectedTrayIconForMac(isRunningInDarkMode_);
+        icon = IconManager::instance().getConnectedTrayIcon(isRunningInDarkMode_);
         break;
     default:
         break;
     }
-#else
-    switch (type) {
-    case AppIconType::DISCONNECTED:
-        icon = IconManager::instance().getDisconnectedIcon();
-        break;
-    case AppIconType::CONNECTING:
-        icon = IconManager::instance().getConnectingIcon();
-        break;
-    case AppIconType::CONNECTED:
-        icon = IconManager::instance().getConnectedIcon();
-        break;
-    default:
-        break;
-    }
-#endif
 
      if (icon) {
 #if defined(Q_OS_WIN)

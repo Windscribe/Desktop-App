@@ -35,6 +35,7 @@ namespace WinUtils
     // Registry Adapters
     bool regHasLocalMachineSubkeyProperty(QString keyPath, QString propertyName);
     QString regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName);
+    bool regGetCurrentUserRegistryDword(QString keyPath, QString propertyName, int &dwordValue);
 
     // Network
     const ProtoTypes::NetworkInterface currentNetworkInterface();

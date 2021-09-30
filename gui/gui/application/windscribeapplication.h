@@ -37,6 +37,9 @@ public:
 
     void onActivateFromAnotherInstance();
     void onOpenLocationsFromAnotherInstance();
+#ifdef Q_OS_WIN
+    void onWinIniChanged();
+#endif
 
 signals:
     void clickOnDock();
@@ -45,6 +48,9 @@ signals:
     void shouldTerminate_mac();
     void receivedOpenLocationsMessage();
     void applicationCloseRequest();
+#ifdef Q_OS_WIN
+    void winIniChanged();
+#endif
 
 protected:
     bool event(QEvent *e) override;
