@@ -490,6 +490,10 @@ def BuildInstallerLinux(configdata, qt_root):
   wstunnel_dir = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "wstunnel")
   CopyFile("windscribewstunnel",wstunnel_dir, BUILD_INSTALLER_FILES)
 
+  if "license_files" in configdata:
+    license_dir = os.path.join(COMMON_DIR, "licenses")
+    CopyFiles("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
+
   msg.Info("Creating Debian package...")
   src_package_path = os.path.join(ROOT_DIR, "installer", "linux", "debian_package")
   dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_{}_amd64".format(BUILD_APP_VERSION_STRINGS[2]))
