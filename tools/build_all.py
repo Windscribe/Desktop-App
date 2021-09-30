@@ -415,6 +415,9 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
       if not lib_root:
         raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
       CopyFiles(k, v, lib_root, BUILD_INSTALLER_FILES)
+  if "license_files" in configdata:
+    license_dir = os.path.join(COMMON_DIR, "licenses")
+    CopyFiles("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
   # Pack symbols for crashdump analysis.
   PackSymbols()
   # Sign executable files with a certificate.

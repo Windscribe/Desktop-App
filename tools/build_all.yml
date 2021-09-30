@@ -238,6 +238,9 @@ additional_files:
   - wstunnel/wstunnel.exe -> wstunnel.exe
   - subinacl.exe
 
+license_files:
+  - open_source_licenses.txt
+
 lib_files:
   cares:
     - dll_x32/lib/cares.dll -> cares.dll
