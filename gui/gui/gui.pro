@@ -158,6 +158,10 @@ CONFIG(release, debug|release) {
     first.depends += copydata4
     export(copydata4.commands)
     QMAKE_EXTRA_TARGETS += copydata4
+
+    osslicense.files = $$COMMON_PATH/licenses/open_source_licenses.txt
+    osslicense.path  = Contents/Resources
+    QMAKE_BUNDLE_DATA += osslicense
 }
 
 RESOURCES += \
