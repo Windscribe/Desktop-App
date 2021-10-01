@@ -10,8 +10,10 @@
 
 CurlNetworkManager::CurlNetworkManager(QObject *parent) : QThread(parent),
     bIgnoreSslErrors_(false), bNeedFinish_(false), bProxyEnabled_(true)
-#ifdef Q_OS_MAC
-    , certPath_(QCoreApplication::applicationDirPath() + "/../resources/cert.pem")
+#if defined(Q_OS_MAC)
+  , certPath_(QCoreApplication::applicationDirPath() + "/../resources/cert.pem")
+#elif defined (Q_OS_LINUX)
+  , certPath_("/etc/windscribe/cert.pem")
 #endif
 {
 #ifdef MAKE_CURL_LOG_FILE
@@ -437,7 +439,7 @@ bool CurlNetworkManager::setupResolveHosts(CurlRequest *curlRequest, CURL *curl)
 bool CurlNetworkManager::setupSslVerification(CURL *curl)
 {
     QMutexLocker lock(&mutexAccess_);
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) || defined (Q_OS_LINUX)
     if (curl_easy_setopt(curl, CURLOPT_CAINFO, certPath_.toStdString().c_str()) != CURLE_OK) return false;
 #endif
     if (bIgnoreSslErrors_)

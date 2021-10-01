@@ -43,7 +43,7 @@ private:
     QMap<quint64, CurlReply *> activeRequests_;
     QMutex mutex_;
 
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) || defined (Q_OS_LINUX)
     QString certPath_;
 #endif
 

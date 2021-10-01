@@ -12,9 +12,11 @@ CurlNetworkManager2 *g_this = nullptr;
 
 CurlNetworkManager2::CurlNetworkManager2(QObject *parent) : QThread(parent),
     bNeedFinish_(false)
-#ifdef Q_OS_MAC
+  #if defined(Q_OS_MAC)
     , certPath_(QCoreApplication::applicationDirPath() + "/../resources/cert.pem")
-#endif
+  #elif defined (Q_OS_LINUX)
+    , certPath_("/etc/windscribe/cert.pem")
+  #endif
 {
 
 #ifdef MAKE_CURL_LOG_FILE
@@ -495,7 +497,7 @@ bool CurlNetworkManager2::setupResolveHosts(CurlReply *curlReply, CURL *curl)
 
 bool CurlNetworkManager2::setupSslVerification(CurlReply *curlReply, CURL *curl)
 {
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) || defined (Q_OS_LINUX)
     if (curl_easy_setopt(curl, CURLOPT_CAINFO, certPath_.toStdString().c_str()) != CURLE_OK) return false;
 #endif
     if (curlReply->networkRequest().isIgnoreSslErrors())
