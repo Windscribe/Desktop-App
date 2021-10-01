@@ -1,10 +1,10 @@
 #import <Cocoa/Cocoa.h>
 #include <AppKit/AppKit.h>
 
-#include "interfaceutils_mac.h"
+#include "interfaceutils.h"
 #include "utils/macutils.h"
 
-namespace InterfaceUtils_mac {
+namespace InterfaceUtils {
 
 bool isDarkMode()
 {

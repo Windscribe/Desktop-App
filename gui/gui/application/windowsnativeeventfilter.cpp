@@ -66,6 +66,12 @@ bool WindowsNativeEventFilter::nativeEventFilter(const QByteArray &b, void *mess
         WindscribeApplication::instance()->onOpenLocationsFromAnotherInstance();
         return true;
     }
+    else if (msg->message == WM_WININICHANGE)
+    {
+		// WM_WININICHANGE fires when OS light/dark mode is updated
+        WindscribeApplication::instance()->onWinIniChanged();
+        return true;
+    }
 #else
     Q_UNUSED(b);
     Q_UNUSED(message);

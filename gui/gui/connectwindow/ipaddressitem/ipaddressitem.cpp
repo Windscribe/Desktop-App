@@ -102,7 +102,7 @@ void IPAddressItem::updateScaling()
     {
         octetItems_[i]->recalcSizes();
     }
-    blurEffect_.setBlurRadius(16*G_SCALE);
+    blurEffect_.setBlurRadius(defaultBlurRadius_ *  DpiScaleManager::instance().curDevicePixelRatio());
     onOctetWidthChanged();
 }
 
@@ -144,5 +144,3 @@ void IPAddressItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     Q_UNUSED(event);
     setCursor(Qt::ArrowCursor);
 }
-
-

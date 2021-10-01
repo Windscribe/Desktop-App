@@ -34,6 +34,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 
+#ifndef Q_OS_LINUX
     networkWhitelistItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Network Whitelist"), true);
     connect(networkWhitelistItem_, SIGNAL(clicked()), SIGNAL(networkWhitelistPageClick()));
     addItem(networkWhitelistItem_);
@@ -41,6 +42,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     splitTunnelingItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Split Tunneling"), true);
     connect(splitTunnelingItem_, SIGNAL(clicked()), SIGNAL(splitTunnelingPageClick()));
     addItem(splitTunnelingItem_);
+#endif
 
     proxySettingsItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Proxy Settings"), true);
     connect(proxySettingsItem_, SIGNAL(clicked()), SIGNAL(proxySettingsPageClick()));
@@ -64,6 +66,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
         SLOT(onConnectionModeHoverLeave(ConnectionModeItem::ButtonType)));
     addItem(connectionModeItem_);
 
+#ifndef Q_OS_LINUX
     packetSizeItem_ = new PacketSizeItem(this);
     packetSizeItem_->setPacketSize(preferences->packetSize());
     connect(packetSizeItem_, SIGNAL(packetSizeChanged(ProtoTypes::PacketSize)), SLOT(onPacketSizeChanged(ProtoTypes::PacketSize)));
@@ -73,6 +76,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     dnsWhileConnectedItem_ = new DnsWhileConnectedItem(this);
     connect(dnsWhileConnectedItem_, SIGNAL(dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo)));
     addItem(dnsWhileConnectedItem_);
+#endif
 
     checkBoxAllowLanTraffic_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN traffic"), QString());
     checkBoxAllowLanTraffic_->setState(preferences->isAllowLanTraffic());
@@ -80,10 +84,12 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(checkBoxAllowLanTraffic_, SIGNAL(buttonHoverLeave()), SLOT(onAllowLanTrafficButtonHoverLeave()));
     addItem(checkBoxAllowLanTraffic_);
 
+#ifndef Q_OS_LINUX
     macSpoofingItem_ = new MacSpoofingItem(this);
     connect(macSpoofingItem_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
     connect(macSpoofingItem_, SIGNAL(cycleMacAddressClick()), SIGNAL(cycleMacAddressClick()));
     addItem(macSpoofingItem_);
+#endif
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     cbKillTcp_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Kill TCP sockets after connection"), "");
@@ -102,8 +108,12 @@ QString ConnectionWindowItem::caption()
 void ConnectionWindowItem::updateScaling()
 {
     BasePage::updateScaling();
-    packetSizeItem_->updateScaling();
-    dnsWhileConnectedItem_->updateScaling();
+    if(packetSizeItem_) {
+        packetSizeItem_->updateScaling();
+    }
+    if(dnsWhileConnectedItem_) {
+        dnsWhileConnectedItem_->updateScaling();
+    }
 }
 
 CONNECTION_SCREEN_TYPE ConnectionWindowItem::getScreen()
@@ -118,18 +128,24 @@ void ConnectionWindowItem::setScreen(CONNECTION_SCREEN_TYPE subScreen)
 
 void ConnectionWindowItem::setCurrentNetwork(const ProtoTypes::NetworkInterface &networkInterface)
 {
-    macSpoofingItem_->setCurrentNetwork(networkInterface);
+    if(macSpoofingItem_) {
+        macSpoofingItem_->setCurrentNetwork(networkInterface);
+    }
 }
 
 void ConnectionWindowItem::setPacketSizeDetectionState(bool on)
 {
-    packetSizeItem_->setPacketSizeDetectionState(on);
+    if(packetSizeItem_) {
+        packetSizeItem_->setPacketSizeDetectionState(on);
+    }
 }
 
 void ConnectionWindowItem::showPacketSizeDetectionError(const QString &title,
                                                         const QString &message)
 {
-    packetSizeItem_->showPacketSizeDetectionError(title, message);
+    if(packetSizeItem_) {
+        packetSizeItem_->showPacketSizeDetectionError(title, message);
+    }
 }
 
 void ConnectionWindowItem::onFirewallModeChanged(const ProtoTypes::FirewallSettings &fm)
@@ -225,17 +241,21 @@ void ConnectionWindowItem::onConnectionModePreferencesChanged(const ProtoTypes::
 
 void ConnectionWindowItem::onPacketSizePreferencesChanged(const ProtoTypes::PacketSize &ps)
 {
-    packetSizeItem_->setPacketSize(ps);
+    if(packetSizeItem_) {
+        packetSizeItem_->setPacketSize(ps);
+    }
 }
 
 void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const ProtoTypes::MacAddrSpoofing &mas)
 {
-    macSpoofingItem_->setMacAddrSpoofing(mas);
+    if(macSpoofingItem_) {
+        macSpoofingItem_->setMacAddrSpoofing(mas);
 
-    if (mas.is_enabled()) // only scroll when opening
-    {
-        // magic number is expanded height
-        emit scrollToPosition(static_cast<int>(macSpoofingItem_->y()) + 50 + 43 + 43);
+        if (mas.is_enabled()) // only scroll when opening
+        {
+            // magic number is expanded height
+            emit scrollToPosition(static_cast<int>(macSpoofingItem_->y()) + 50 + 43 + 43);
+        }
     }
 }
 
@@ -299,12 +319,14 @@ void ConnectionWindowItem::onIsExternalConfigModeChanged(bool bIsExternalConfigM
 
 void ConnectionWindowItem::onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns)
 {
-    dnsWhileConnectedItem_->setDNSWhileConnected(dns);
+    if(dnsWhileConnectedItem_) {
+        dnsWhileConnectedItem_->setDNSWhileConnected(dns);
 
-    if (dns.type() == DnsWhileConnectedInfo::CUSTOM)
-    {
-        // magic number is expanded height
-        emit scrollToPosition(static_cast<int>(dnsWhileConnectedItem_->y()) + 50 + 43);
+        if (dns.type() == DnsWhileConnectedInfo::CUSTOM)
+        {
+            // magic number is expanded height
+            emit scrollToPosition(static_cast<int>(dnsWhileConnectedItem_->y()) + 50 + 43);
+        }
     }
 }
 

@@ -2513,3 +2513,22 @@ void ServerAPI::handleStaticIpsCurl(BaseRequest *rd, bool success)
         emit staticIpsAnswer(SERVER_RETURN_SUCCESS, staticIps, userRole);
     }
 }
+
+void ServerAPI::onTunnelTestDnsResolve(const QStringList &ips)
+{
+    auto *rd = createRequest<PingRequest>(QDateTime::currentMSecsSinceEpoch(),
+                                          HardcodedSettings::instance().serverTunnelTestUrl(),
+                                          REPLY_PING_TEST, NETWORK_TIMEOUT, 0, true);
+    if (rd)
+    {
+        QString strUrl = QString("https://") + rd->getHostname();
+        QUrl url(strUrl);
+
+        auto *curl_request = rd->createCurlRequest();
+        curl_request->setGetData(url.toString());
+        submitCurlRequest(rd, CurlRequest::METHOD_GET, QString(), rd->getHostname(), ips);
+    }
+    else {
+        qCDebug(LOG_SERVER_API) << "ServerAPI::onTunnelTestDnsResolve could not allocate a PingRequest object";
+    }
+}

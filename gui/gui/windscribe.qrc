@@ -6,5 +6,11 @@
         <file>resources/icons/icon_connected.ico</file>
         <file>resources/icons/icon_connecting.ico</file>
         <file>resources/icons/icon_disconnected.ico</file>
+        <file>resources/icons/win/CONNECTING_BLACK.ico</file>
+        <file>resources/icons/win/CONNECTING_WHITE.ico</file>
+        <file>resources/icons/win/OFF_BLACK.ico</file>
+        <file>resources/icons/win/OFF_WHITE.ico</file>
+        <file>resources/icons/win/ON_BLACK.ico</file>
+        <file>resources/icons/win/ON_WHITE.ico</file>
     </qresource>
 </RCC>

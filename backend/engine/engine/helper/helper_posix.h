@@ -119,6 +119,9 @@ protected:
 
     bool readAnswer(CMD_ANSWER &outAnswer);
     bool sendCmdToHelper(int cmdId, const std::string &data);
+
+private:
+    bool firstConnectToHelperErrorReported_;
 };
 
 #endif // HELPER_POSIX_H

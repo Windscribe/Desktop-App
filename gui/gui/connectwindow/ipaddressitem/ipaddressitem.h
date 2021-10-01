@@ -39,6 +39,8 @@ private:
 
     QString ipAddress_;
     bool isValid_;
+
+    const int defaultBlurRadius_ = 16;
 };
 
 #endif // IPADDRESSITEM_H
