@@ -497,6 +497,8 @@ def BuildInstallerLinux(configdata, qt_root):
   UpdateVersionInDebianControl(os.path.join(dest_package_path, "DEBIAN", "control"))
 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
+  msg.Info("Creating RPM package...")
+  iutl.RunCommand(["fpm", "-s", "deb", "-t", "rpm", dest_package_path + ".deb"])
 
 
 def BuildAll():
