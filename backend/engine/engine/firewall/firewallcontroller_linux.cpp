@@ -108,23 +108,29 @@ bool FirewallController_linux::firewallOff()
                 }
                 file2.close();
             }
-        }
 
-        cmd = "iptables-restore -n < " + pathToTempTable_;
-        helper_->executeRootCommand(cmd, &exitCode);
-        if (exitCode != 0)
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-        }
-        cmd = "ip6tables-restore < " + pathToIp6SavedTable_;
-        helper_->executeRootCommand(cmd, &exitCode);
-        if (exitCode != 0)
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-        }
 
-        QFile::remove(pathToIp6SavedTable_);
+            cmd = "iptables-restore -n < " + pathToTempTable_;
+            helper_->executeRootCommand(cmd, &exitCode);
+            if (exitCode != 0)
+            {
+                qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
+            }
+        }
         QFile::remove(pathToTempTable_);
+
+        if (QFile::exists(pathToIp6SavedTable_))
+        {
+            cmd = "ip6tables-restore < " + pathToIp6SavedTable_;
+            helper_->executeRootCommand(cmd, &exitCode);
+            if (exitCode != 0)
+            {
+                qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
+            }
+
+            QFile::remove(pathToIp6SavedTable_);
+        }
+
 
         return true;
     }
@@ -143,7 +149,7 @@ bool FirewallController_linux::firewallActualState()
     }
 
     int exitCode;
-    helper_->executeRootCommand("iptables --check INPUT -j windscribe_input -m comment --comment " + comment_, &exitCode);
+    helper_->executeRootCommand("iptables --check INPUT -j windscribe_input -m comment --comment " + comment_ + " 2>&-", &exitCode);
     return exitCode == 0;
 }
 
