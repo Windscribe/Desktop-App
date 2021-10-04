@@ -19,6 +19,15 @@
 [ "$script_type" ] || exit 0
 [ "$dev" ] || exit 0
 
+resolvconf_iface_prefix() {
+	[[ -f /etc/resolvconf/interface-order ]] || return 0
+	local iface
+	while read -r iface; do
+		[[ $iface =~ ^([A-Za-z0-9-]+)\*$ ]] || continue
+		echo "${BASH_REMATCH[1]}." && return 0
+	done < /etc/resolvconf/interface-order
+}
+
 split_into_parts()
 {
 	part1="$1"
@@ -53,7 +62,7 @@ case "$script_type" in
 	if [[ -z "${is_wireguard}" ]]; then
 		echo -n "$R" | /sbin/resolvconf -a "${dev}.openvpn"
 	else
-		echo -n "$R" | /sbin/resolvconf -a "tun.${dev}" -m 0 -x
+		echo -n "$R" | /sbin/resolvconf -a "$(resolvconf_iface_prefix)${dev}" -m 0 -x
 	fi
 
 	;;
@@ -61,7 +70,7 @@ case "$script_type" in
 	if [[ -z "${is_wireguard}" ]]; then
   		/sbin/resolvconf -d "${dev}.openvpn"
 	else
-  		/sbin/resolvconf -d "tun.${dev}" -f
+  		/sbin/resolvconf -d "$(resolvconf_iface_prefix)${dev}" -f
 	fi
 
 	;;
