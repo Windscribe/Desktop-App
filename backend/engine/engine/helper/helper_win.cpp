@@ -9,11 +9,11 @@
 #include <sstream>
 #include "windscribeinstallhelper_win.h"
 #include "engine/openvpnversioncontroller.h"
-#include "simple_xor_crypt.h"
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/types/protocoltype.h"
+#include "utils/win32handle.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
@@ -321,15 +321,15 @@ bool Helper_win::configureWireGuard(const WireGuardConfig &config)
 
     CMD_CONFIGURE_WIREGUARD cmdConfigureWireGuard;
     cmdConfigureWireGuard.clientPrivateKey =
-        QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex();
-    cmdConfigureWireGuard.clientIpAddress = config.clientIpAddress().toLatin1();
-    cmdConfigureWireGuard.clientDnsAddressList = config.clientDnsAddress().toLatin1();
-    cmdConfigureWireGuard.peerEndpoint = config.peerEndpoint().toLatin1();
+        QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex().toStdString();
+    cmdConfigureWireGuard.clientIpAddress = config.clientIpAddress().toStdString();
+    cmdConfigureWireGuard.clientDnsAddressList = config.clientDnsAddress().toStdString();
+    cmdConfigureWireGuard.peerEndpoint = config.peerEndpoint().toStdString();
     cmdConfigureWireGuard.peerPublicKey =
-        QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex();
+        QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex().toStdString();
     cmdConfigureWireGuard.peerPresharedKey =
-        QByteArray::fromBase64(config.peerPresharedKey().toLatin1()).toHex();
-    cmdConfigureWireGuard.allowedIps = config.peerAllowedIps().toLatin1();
+        QByteArray::fromBase64(config.peerPresharedKey().toLatin1()).toHex().toStdString();
+    cmdConfigureWireGuard.allowedIps = config.peerAllowedIps().toStdString();
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -960,36 +960,26 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
         {
             return MessagePacketResult();
         }
-        else
+
+        hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+        if (hPipe == INVALID_HANDLE_VALUE)
         {
-            hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-            if (hPipe == INVALID_HANDLE_VALUE)
-            {
-                return MessagePacketResult();
-            }
+            return MessagePacketResult();
         }
     }
+
+    WinUtils::Win32Handle closePipe(hPipe);
 
     // first 4 bytes - cmdId
     if (!writeAllToPipe(hPipe, (char *)&cmdId, sizeof(cmdId)))
     {
-        CloseHandle(hPipe);
         return MessagePacketResult();
     }
 
-    // second 4 bytes - pid
-    unsigned long pid = GetCurrentProcessId();
-    if (!writeAllToPipe(hPipe, (char *)&pid, sizeof(pid)))
-    {
-        CloseHandle(hPipe);
-        return MessagePacketResult();
-    }
-
-    // third 4 bytes - size of buffer
+    // second 4 bytes - size of buffer
     unsigned long sizeOfBuf = data.size();
     if (!writeAllToPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
     {
-        CloseHandle(hPipe);
         return MessagePacketResult();
     }
 
@@ -998,7 +988,6 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     {
         if (!writeAllToPipe(hPipe, data.c_str(), sizeOfBuf))
         {
-            CloseHandle(hPipe);
             return MessagePacketResult();
         }
     }
@@ -1007,7 +996,6 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     MessagePacketResult mpr;
     if (!readAllFromPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
     {
-        CloseHandle(hPipe);
         return mpr;
     }
 
@@ -1016,7 +1004,6 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
         QScopedArrayPointer<char> buf(new char[sizeOfBuf]);
         if (!readAllFromPipe(hPipe, buf.data(), sizeOfBuf))
         {
-            CloseHandle(hPipe);
             return mpr;
         }
 
@@ -1152,18 +1139,12 @@ bool Helper_win::readAllFromPipe(HANDLE hPipe, char *buf, DWORD len)
         }
     }
 
-    std::string s(buf, len);
-    std::string d = SimpleXorCrypt::decrypt(s, ENCRYPT_KEY);
-    memcpy(buf, d.data(), len);
     return true;
 }
 
 bool Helper_win::writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len)
 {
-    std::string src(buf, len);
-    std::string encodedSrc = SimpleXorCrypt::encrypt(src, ENCRYPT_KEY);
-
-    const char *ptr = encodedSrc.data();
+    const char *ptr = buf;
     DWORD dwWrite = 0;
     while (len > 0)
     {

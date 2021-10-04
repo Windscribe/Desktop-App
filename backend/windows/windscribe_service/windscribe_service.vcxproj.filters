@@ -99,9 +99,6 @@
     <ClInclude Include="cleardns_on_tap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="simple_xor_crypt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="registry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -246,9 +243,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cleardns_on_tap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simple_xor_crypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="registry.cpp">

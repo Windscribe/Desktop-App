@@ -414,7 +414,6 @@ SOURCES += main.cpp \
     engine/dnsresolver/dnsserversconfiguration.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
-    engine/helper/simple_xor_crypt.cpp \
     engine/tests/sessionandlocations_test.cpp \
     engine/sessionstatustimer.cpp \
     engine/connectionmanager/wstunnelmanager.cpp \
@@ -568,7 +567,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/dnsresolver/dnsserversconfiguration.h \
     engine/dnsresolver/dnsresolver.h \
     engine/types/protocoltype.h \
-    engine/helper/simple_xor_crypt.h \
     engine/tests/sessionandlocations_test.h \
     engine/sessionstatustimer.h \
     engine/connectionmanager/wstunnelmanager.h \

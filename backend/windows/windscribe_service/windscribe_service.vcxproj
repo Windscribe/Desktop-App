@@ -377,7 +377,6 @@
     <ClInclude Include="reinstall_wan_ikev2.h" />
     <ClInclude Include="reinstall_tun_drivers.h" />
     <ClInclude Include="remove_windscribe_network_profiles.h" />
-    <ClInclude Include="simple_xor_crypt.h" />
     <ClInclude Include="split_tunneling\callout_filter.h" />
     <ClInclude Include="split_tunneling\hostnames_manager\ares_library_init.h" />
     <ClInclude Include="split_tunneling\hostnames_manager\dns_resolver.h" />
@@ -430,7 +429,6 @@
     <ClCompile Include="reinstall_wan_ikev2.cpp" />
     <ClCompile Include="reinstall_tun_drivers.cpp" />
     <ClCompile Include="remove_windscribe_network_profiles.cpp" />
-    <ClCompile Include="simple_xor_crypt.cpp" />
     <ClCompile Include="split_tunneling\callout_filter.cpp" />
     <ClCompile Include="split_tunneling\hostnames_manager\ares_library_init.cpp" />
     <ClCompile Include="split_tunneling\hostnames_manager\dns_resolver.cpp" />
