@@ -11,9 +11,23 @@ import sys
 import time
 import zipfile
 
+# Hierarchy tree (linux):
+# client-desktop                      (ROOT_DIR)
+#     build-exe                       (artifact_dir)
+#     common                          (COMMON_DIR)
+#     installer 
+#         linux                       (LINUX_INSTALLER_ROOT)
+#             debian_package          (src_package_path)
+#     temp 
+#         installer
+#             InstallerFiles          (BUILD_INSTALLER_FILES)
+#                 signatures
+#             windscribe_<version>_amd64  (dest_package_path)
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(TOOLS_DIR)
 COMMON_DIR = os.path.join(ROOT_DIR, "common")
+TEMP_DIR = os.path.join(ROOT_DIR, "temp")
+TEMP_INSTALLER_DIR = os.path.join(TEMP_DIR, "installer")
 sys.path.insert(0, TOOLS_DIR)
 
 NOTARIZE_FLAG = "--notarize"
@@ -131,6 +145,7 @@ def UpdateVersionInDebianControl(filename):
 def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(ROOT_DIR, subdir_name, project_name))
 
+
 def GenerateProtobuf():
   proto_root = iutl.GetDependencyBuildRoot("protobuf")
   if not proto_root:
@@ -164,11 +179,13 @@ def CopyFiles(title, filelist, srcdir, dstdir, strip_first_dir=False):
   for filename in filelist:
     CopyFile(filename, srcdir, dstdir, strip_first_dir)
 
+
 def FixRpathLinux(filename):
   parts = filename.split("->")
   srcfilename = parts[0].strip()
   rpath = "" if len(parts) == 1 else parts[1].strip()
   iutl.RunCommand(["patchelf", "--set-rpath", rpath, srcfilename])
+
 
 def ApplyMacDeployFixes(appname, fixlist):
   # Special deploy fixes for Mac.
@@ -470,6 +487,15 @@ def BuildInstallerMac(configdata, qt_root):
   final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRINGS[0])))
   utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
+
+def CodeSignLinux(binary_name, binary_dir, signature_output_dir):
+  binary = binary_dir + "/" + binary_name
+  private_key = ROOT_DIR + "/common/keys/linux/key.pem"
+  signature = signature_output_dir + "/" + binary_name + ".sig"
+  msg.Info("Signing " + binary + " with " + private_key + " -> " + signature)
+  iutl.RunCommand(["openssl", "dgst", "-sign", private_key, "-keyform", "PEM", "-sha256", "-out", signature, "-binary", binary])
+
+
 def BuildInstallerLinux(configdata, qt_root):
   msg.Info("Copying lib_files_linux...")
   if "lib_files_linux" in configdata:
@@ -485,6 +511,15 @@ def BuildInstallerLinux(configdata, qt_root):
       dstfile = os.path.join(BUILD_INSTALLER_FILES, k)
       FixRpathLinux(dstfile)
 
+  # sign supplementary binaries and move the signatures into InstallerFiles/signatures
+  if not "debug" in sys.argv:
+    signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")
+    msg.Print("Creating signatures path: " + signatures_dir)
+    utl.CreateDirectory(signatures_dir, True)
+    if "files_codesign_linux" in configdata:
+      for binary_name in configdata["files_codesign_linux"]:
+        CodeSignLinux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
+
   # Copy wstunnel
   msg.Info("Copying wstunnel...")
   wstunnel_dir = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "wstunnel")
@@ -496,16 +531,22 @@ def BuildInstallerLinux(configdata, qt_root):
 
   msg.Info("Creating Debian package...")
   src_package_path = os.path.join(ROOT_DIR, "installer", "linux", "debian_package")
-  dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_{}_amd64".format(BUILD_APP_VERSION_STRINGS[2]))
+  dest_package_name = "windscribe_{}_amd64".format(BUILD_APP_VERSION_STRINGS[2])
+  dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
 
+  # copy debian_package and InstallerFiles into dest_package 
   utl.CopyAllFiles(src_package_path, dest_package_path)
   utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "usr", "local", "windscribe"))
 
   UpdateVersionInDebianControl(os.path.join(dest_package_path, "DEBIAN", "control"))
 
+  # create and sign .deb with dest_package 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
-  msg.Info("Creating RPM package...")
-  iutl.RunCommand(["fpm", "-s", "deb", "-t", "rpm", dest_package_path + ".deb"])
+  CodeSignLinux(dest_package_name + ".deb", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
+
+  # create RPM from deb
+  # msg.Info("Creating RPM package...")
+  # iutl.RunCommand(["fpm", "-s", "deb", "-t", "rpm", dest_package_path + ".deb"])
 
 
 def BuildAll():

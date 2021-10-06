@@ -221,7 +221,11 @@ files_fix_rpath_linux:
   - windscribeopenvpn -> $ORIGIN/lib
   - WindscribeEngine -> $ORIGIN/lib
   - Windscribe -> $ORIGIN/lib
-  
+
+files_codesign_linux:
+  - windscribestunnel
+  - windscribeopenvpn
+  - WindscribeEngine
 
 msvc_files:
   - concrt140.dll

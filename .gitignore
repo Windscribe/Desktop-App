@@ -10,3 +10,5 @@ installer/windows/tests_output.log
 installer/windows/temp-tests/*
 installer/mac/installer/installer/temp_Info.plist
 test-exe/*
+common/keys/linux/key.pem
+common/keys/linux/key.pub
