@@ -5,7 +5,7 @@
  *             packet encryption, packet authentication, and
  *             packet compression.
  *
- *  Copyright (C) 2002-2018 OpenVPN Inc <sales@openvpn.net>
+ *  Copyright (C) 2002-2021 OpenVPN Inc <sales@openvpn.net>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -5240,7 +5240,6 @@ ipconfig_register_dns(const struct env_set *es)
                 WIN_IPCONFIG_PATH_SUFFIX);
     argv_msg(D_TUNTAP_INFO, &argv);
     openvpn_execve_check(&argv, es, 0, err);
-    argv_free(&argv);
 
     argv_printf(&argv, "%s%s /registerdns",
                 get_win_sys_path(),
@@ -6160,34 +6159,34 @@ tuntap_set_ip_addr(struct tuntap *tt,
                 status,
                 strerror_win32(status, &gc));
         }
-    }
 
-    /*
-     * If the TAP-Windows driver is masquerading as a DHCP server
-     * make sure the TCP/IP properties for the adapter are
-     * set correctly.
-     */
-    if (dhcp_masq_post)
-    {
-        /* check dhcp enable status */
-        if (dhcp_status(index) == DHCP_STATUS_DISABLED)
+        /*
+         * If the TAP-Windows driver is masquerading as a DHCP server
+         * make sure the TCP/IP properties for the adapter are
+         * set correctly.
+         */
+        if (dhcp_masq_post)
         {
-            msg(M_WARN, "WARNING: You have selected '--ip-win32 dynamic', which will not work unless the TAP-Windows TCP/IP properties are set to 'Obtain an IP address automatically'");
-        }
+            /* check dhcp enable status */
+            if (dhcp_status(index) == DHCP_STATUS_DISABLED)
+            {
+                msg(M_WARN, "WARNING: You have selected '--ip-win32 dynamic', which will not work unless the TAP-Windows TCP/IP properties are set to 'Obtain an IP address automatically'");
+            }
 
-        /* force an explicit DHCP lease renewal on TAP adapter? */
-        if (tt->options.dhcp_pre_release)
-        {
-            dhcp_release(tt);
+            /* force an explicit DHCP lease renewal on TAP adapter? */
+            if (tt->options.dhcp_pre_release)
+            {
+                dhcp_release(tt);
+            }
+            if (tt->options.dhcp_renew)
+            {
+                dhcp_renew(tt);
+            }
         }
-        if (tt->options.dhcp_renew)
+        else
         {
-            dhcp_renew(tt);
+            fork_dhcp_action(tt);
         }
-    }
-    else
-    {
-        fork_dhcp_action(tt);
     }
 
     if (tt->did_ifconfig_setup && tt->options.ip_win32_type == IPW32_SET_IPAPI)

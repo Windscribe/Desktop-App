@@ -251,7 +251,7 @@ lib_files:
   zlib:
     - lib/zlib1.dll -> zlib1.dll
   openvpn:
-    - openvpn.exe -> windscribeopenvpn_2_5_0.exe
+    - openvpn.exe -> windscribeopenvpn_2_5_4.exe
   wireguard:
     - windscribewireguard_x86.exe -> x32/windscribewireguard.exe
     - windscribewireguard_x64.exe -> x64/windscribewireguard.exe
@@ -263,7 +263,7 @@ macdeployfixes:
         - lib/libcrypto.1.1.dylib -> Contents/Helpers/libcrypto.1.1.dylib
         - lib/libssl.1.1.dylib -> Contents/Helpers/libssl.1.1.dylib
     rpathfix:
-      Contents/Helpers/windscribeopenvpn_2_5_0:
+      Contents/Helpers/windscribeopenvpn_2_5_4:
         openssl:
           - lib/libssl.1.1.dylib -> libssl.1.1.dylib
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib

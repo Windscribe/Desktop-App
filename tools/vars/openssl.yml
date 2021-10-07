@@ -3,6 +3,6 @@
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_OPENSSL: '1.1.1d'
+  VERSION_OPENSSL: '1.1.1l'
   BUILDROOT_OPENSSL: 'build-libs/openssl'
   ARTIFACT_OPENSSL: 'openssl.zip'
