@@ -56,8 +56,6 @@
 #define AA_COMMAND_REINSTALL_TAP_DRIVER                     52
 #define AA_COMMAND_REINSTALL_WINTUN_DRIVER                  53
 
-#define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
-
 #include <string>
 #include <vector>
 

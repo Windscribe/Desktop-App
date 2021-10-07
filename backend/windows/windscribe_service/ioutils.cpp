@@ -1,6 +1,5 @@
 #include "all_headers.h"
 #include "ioutils.h"
-#include "ipc/servicecommunication.h"
 
 bool IOUtils::readAll(HANDLE hPipe, char *buf, DWORD len)
 {
