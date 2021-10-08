@@ -41,6 +41,7 @@ void StunnelManager::runProcess()
 {
     if (!ExecutableSignature::verifyWithSignCheck(stunelExePath_))
     {
+        qCDebug(LOG_BASIC) << "Failed to verify stunnel signature";
         return;
     }
 

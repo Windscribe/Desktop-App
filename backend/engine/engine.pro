@@ -284,6 +284,7 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
 LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
 
 SOURCES += \
+           $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
            $$COMMON_PATH/utils/linuxutils.cpp \
            utils/dnsscripts_linux.cpp \
            engine/ping/pinghost_icmp_mac.cpp \
@@ -297,6 +298,7 @@ SOURCES += \
            engine/macaddresscontroller/macaddresscontroller_linux.cpp
 
 HEADERS += \
+           $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
            $$COMMON_PATH/utils/linuxutils.h \
            utils/dnsscripts_linux.h \
            engine/ping/pinghost_icmp_mac.h \

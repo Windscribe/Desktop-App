@@ -224,7 +224,9 @@ files_fix_rpath_linux:
 
 files_codesign_linux:
   - windscribestunnel
+  - windscribewstunnel
   - windscribeopenvpn
+  - windscribewireguard 
   - WindscribeEngine
 
 msvc_files:

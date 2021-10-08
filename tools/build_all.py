@@ -511,6 +511,11 @@ def BuildInstallerLinux(configdata, qt_root):
       dstfile = os.path.join(BUILD_INSTALLER_FILES, k)
       FixRpathLinux(dstfile)
 
+  # Copy wstunnel into InstallerFiles
+  msg.Info("Copying wstunnel...")
+  wstunnel_dir = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "wstunnel")
+  CopyFile("windscribewstunnel",wstunnel_dir, BUILD_INSTALLER_FILES)
+
   # sign supplementary binaries and move the signatures into InstallerFiles/signatures
   if not "debug" in sys.argv:
     signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")

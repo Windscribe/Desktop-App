@@ -80,7 +80,7 @@ HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
            launchonstartup/launchonstartup_win.h \
            application/preventmultipleinstances_win.h
 
-}
+} # win32
 
 
 macx {
@@ -178,13 +178,15 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
 LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 
 SOURCES += \
-           $$COMMON_PATH/utils/linuxutils.cpp \
-           multipleaccountdetection/multipleaccountdetection_linux.cpp \
-           utils/interfaceutils_linux.cpp
+    $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
+    $$COMMON_PATH/utils/linuxutils.cpp \
+    multipleaccountdetection/multipleaccountdetection_linux.cpp \
+    utils/interfaceutils_linux.cpp
 
 HEADERS += \
-           $$COMMON_PATH/utils/linuxutils.h \
-           multipleaccountdetection/multipleaccountdetection_linux.h
+    $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
+    $$COMMON_PATH/utils/linuxutils.h \
+    multipleaccountdetection/multipleaccountdetection_linux.h
 } # linux
 
 
