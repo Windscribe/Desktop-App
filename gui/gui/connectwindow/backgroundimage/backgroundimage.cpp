@@ -171,7 +171,7 @@ void BackgroundImage::handleBackgroundsChange()
     else if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_COUNTRY_FLAGS)
     {
         QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
-            countryCode_, WIDTH * G_SCALE, 176 * G_SCALE);
+            (countryCode_.isEmpty() ? "noflag" : countryCode_), WIDTH * G_SCALE, 176 * G_SCALE);
         imageChanger_.setImage(indPix, false);
         switchConnectGradient(false);
     }
