@@ -7,8 +7,8 @@
 #include "emailitem.h"
 #include "planitem.h"
 #include "expiredateitem.h"
-#include "editaccountitem.h"
 #include "commongraphics/bubblebuttondark.h"
+#include "../openurlitem.h"
 
 namespace PreferencesWindow {
 
@@ -32,7 +32,6 @@ private slots:
     void onExpireDateChanged(const QString &date);
     void onAuthHashChanged(const QString &authHash);
 
-    void onEditAccountDetailsClicked();
     void onUpgradeClicked();
 
     void onLanguageChanged();
@@ -46,13 +45,12 @@ private:
     EmailItem *emailItem_;
     PlanItem *planItem_;
     ExpireDateItem *expireDateItem_;
-    EditAccountItem *editAccountItem_;
+    OpenUrlItem *editAccountItem_;
     QString authHash_;
 
     QGraphicsTextItem *textItem_;
     CommonGraphics::BubbleButtonDark *loginButton_;
     void updateWidgetPos();
-
 };
 
 } // namespace PreferencesWindow

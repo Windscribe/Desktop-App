@@ -95,6 +95,7 @@ void Backend::init(bool recovery)
     ipcState_ = IPC_STARTING_PROCESS;
     process_->start();
 #else
+    Q_UNUSED(recovery)
     ipcState_ = IPC_CONNECTING;
     connectingTimer_.start();
     connection_->connect();
