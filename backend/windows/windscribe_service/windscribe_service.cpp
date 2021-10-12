@@ -27,7 +27,6 @@
 #include "wireguard/wireguardcontroller.h"
 #include "reinstall_tun_drivers.h"
 #include <conio.h>
-#include "../../../common/utils/executable_signature/executable_signature_win.h"
 #include "../../../common/utils/crashhandler.h"
 
 #define SERVICE_NAME  (L"WindscribeService")
@@ -1144,40 +1143,34 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 		}
 		else if (dwWait == (WAIT_OBJECT_0 + 1))
 		{
-			int cmdId;
-			unsigned long pid;
-			unsigned long sizeOfBuf;
-			if (IOUtils::readAll(hPipe, (char *)&cmdId, sizeof(cmdId)))
-			{
-				if (IOUtils::readAll(hPipe, (char *)&pid, sizeof(pid)))
-				{
-					if (IOUtils::readAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
-					{
-						std::string strData;
-						if (sizeOfBuf > 0)
-						{
-							std::vector<char> buffer(sizeOfBuf);
-							if (IOUtils::readAll(hPipe, buffer.data(), sizeOfBuf))
-							{
-								strData = std::string(buffer.begin(), buffer.end());
-							}
-						}
-
-						// check process executable by pid (for security), should be windscribe.exe
 #ifndef _DEBUG
 #ifndef SKIP_PID_CHECK
-						if (Utils::verifyWindscribeProcessPath(pid))
+         if (Utils::verifyWindscribeProcessPath(hPipe))
 #endif
 #endif
-						{
-							MessagePacketResult mpr = processMessagePacket(cmdId, strData, icsManager, firewallFilter, ipv6Firewall, dnsFirewall,
-																			sysIpv6Controller, hostsEdit, getActiveProcesses, splitTunnelling, wireGuardController);
-							writeMessagePacketResult(hPipe, mpr);
-						}
+         {
+            int cmdId;
+            unsigned long sizeOfBuf;
+            if (IOUtils::readAll(hPipe, (char *)&cmdId, sizeof(cmdId)))
+            {
+               if (IOUtils::readAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
+               {
+                  std::string strData;
+                  if (sizeOfBuf > 0)
+                  {
+                     std::vector<char> buffer(sizeOfBuf);
+                     if (IOUtils::readAll(hPipe, buffer.data(), sizeOfBuf))
+                     {
+                        strData = std::string(buffer.begin(), buffer.end());
+                     }
+                  }
 
-					}
-				}
-			}
+                  MessagePacketResult mpr = processMessagePacket(cmdId, strData, icsManager, firewallFilter, ipv6Firewall, dnsFirewall,
+                     sysIpv6Controller, hostsEdit, getActiveProcesses, splitTunnelling, wireGuardController);
+                  writeMessagePacketResult(hPipe, mpr);
+               }
+            }
+         }
 
 			::FlushFileBuffers(hPipe);
 			::DisconnectNamedPipe(hPipe);

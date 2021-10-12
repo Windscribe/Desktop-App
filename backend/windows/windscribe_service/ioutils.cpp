@@ -1,7 +1,5 @@
 #include "all_headers.h"
 #include "ioutils.h"
-#include "simple_xor_crypt.h"
-#include "ipc/servicecommunication.h"
 
 bool IOUtils::readAll(HANDLE hPipe, char *buf, DWORD len)
 {
@@ -21,19 +19,12 @@ bool IOUtils::readAll(HANDLE hPipe, char *buf, DWORD len)
         }
     }
 
-	std::string s(buf, len);
-	std::string d = SimpleXorCrypt::decrypt(s, ENCRYPT_KEY);
-	memcpy(buf, d.data(), len);
-
     return true;
 }
 
 bool IOUtils::writeAll(HANDLE hPipe, const char *buf, DWORD len)
 {
-	std::string s(buf, len);
-	std::string d = SimpleXorCrypt::encrypt(s, ENCRYPT_KEY);
-
-	const char *ptr = d.data();
+	const char *ptr = buf;
     DWORD dwWrite = 0;
     while (len > 0)
     {
