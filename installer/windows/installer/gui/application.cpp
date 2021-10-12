@@ -5,16 +5,18 @@
 #include "../installer/installer.h"
 #include <shlobj_core.h>
 #include <VersionHelpers.h>
+#include "../../utils/directory.h"
 
 #pragma comment(lib, "gdiplus.lib")
 
 
 Application *g_application = NULL;
 
-Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMode) :
+Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMode, bool isSilent, const std::wstring& installPath) :
 	hInstance_(hInstance),
 	nCmdShow_(nCmdShow),
 	isAutoUpdateMode_(isAutoUpdateMode),
+    isSilent_(isSilent),
     isLegacyOS_(!IsWindows7OrGreater())
 {
 	g_application = this;
@@ -32,25 +34,31 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
 		gdiplusToken_ = NULL;
 	}
 
-	if (!isAutoUpdateMode || !settings_.readFromRegistry())
-	{
-		// set default install path
-		TCHAR programFilesPath[MAX_PATH];
-		SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILES, FALSE);
-		std::wstring installPath = std::wstring(programFilesPath) + L"\\" + ApplicationInfo::instance().getName();
-		settings_.setPath(installPath);
-	}
+    settings_.readFromRegistry();
+
+    if (!isAutoUpdateMode_ && !installPath.empty()) {
+        settings_.setPath(installPath);
+    }
+    else if (settings_.getPath().empty() || !Directory::DirExists(settings_.getPath()))
+    {
+        // We don't have an install folder specified in the Registry, or the folder specified
+        // in the Registry no longer exists, indicating the user uninstalled the app.
+        TCHAR programFilesPath[MAX_PATH];
+        SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILES, FALSE);
+        std::wstring defaultInstallPath = std::wstring(programFilesPath) + L"\\" + ApplicationInfo::instance().getName();
+        settings_.setPath(defaultInstallPath);
+    }
 
 	imageResources_ = new ImageResources();
 	fontResources_ = new FontResources();
-	mainwWindow_ = new MainWindow(isLegacyOS_);
+	mainWindow_ = new MainWindow(isLegacyOS_);
 }
 
 Application::~Application()
 {
 	g_application = NULL;
 
-	delete mainwWindow_;
+	delete mainWindow_;
 	delete fontResources_;
 	delete imageResources_;
 
@@ -82,11 +90,16 @@ bool Application::init(int windowCenterX, int windowCenterY)
 		return false;
 	}
 
-	bool bSuccess = mainwWindow_->create(windowCenterX, windowCenterY);
+	bool bSuccess = mainWindow_->create(windowCenterX, windowCenterY);
 
-	if (bSuccess && isAutoUpdateMode_)
+	if (bSuccess)
 	{
-		mainwWindow_->gotoAutoUpdateMode();
+        if (isAutoUpdateMode_) {
+            mainWindow_->gotoAutoUpdateMode();
+        }
+        else if (isSilent_) {
+            mainWindow_->gotoSilentInstall();
+        }
 	}
 
 	return bSuccess;
@@ -109,5 +122,5 @@ int Application::exec()
 void Application::installerCallback(unsigned int progress, INSTALLER_CURRENT_STATE state)
 {
 	// transform to window messages
-	PostMessage(mainwWindow_->getHwnd(), WI_INSTALLER_STATE, progress, state);
+	PostMessage(mainWindow_->getHwnd(), WI_INSTALLER_STATE, progress, state);
 }

@@ -912,3 +912,8 @@ void MainWindow::updateRegion()
 		SetWindowRgn(hwnd_, CreateRectRgnIndirect(&rgn_), TRUE);
 
 }
+
+void MainWindow::gotoSilentInstall()
+{
+    onInstallClick(false);
+}
