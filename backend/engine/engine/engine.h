@@ -123,7 +123,6 @@ public:
 
 public slots:
     void init();
-
     void stopPacketDetection();
 
 signals:
@@ -299,6 +298,7 @@ private slots:
     void fetchWireGuardConfig();
 
 private:
+    void initPart2();
     void updateProxySettings();
 
     EngineSettings engineSettings_;

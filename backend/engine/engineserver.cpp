@@ -462,6 +462,11 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
         cmd.getProtoObj().set_init_state(ProtoTypes::INIT_BFE_SERVICE_NOT_STARTED);
         sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
     }
+    else if (retCode == ENGINE_INIT_HELPER_USER_CANCELED)
+    {
+        cmd.getProtoObj().set_init_state(ProtoTypes::INIT_HELPER_USER_CANCELED);
+        sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+    }
     else
     {
         Q_ASSERT(false);

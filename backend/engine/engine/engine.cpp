@@ -546,6 +546,14 @@ void Engine::init()
     connect(helper_, SIGNAL(lostConnectionToHelper()), SLOT(onLostConnectionToHelper()));
     helper_->startInstallHelper();
 
+    inititalizeHelper_ = new InitializeHelper(this, helper_);
+    connect(inititalizeHelper_, SIGNAL(finished(INIT_HELPER_RET)), SLOT(onInitializeHelper(INIT_HELPER_RET)));
+    inititalizeHelper_->start();
+}
+
+// init part2 (after helper initialized)
+void Engine::initPart2()
+{
 #ifdef Q_OS_MAC
     Ipv6Controller_mac::instance().setHelper(helper_);
     ReachAbilityEvents::instance().init();
@@ -670,10 +678,6 @@ void Engine::init()
 #endif
 
     updateProxySettings();
-
-    inititalizeHelper_ = new InitializeHelper(this, helper_);
-    connect(inititalizeHelper_, SIGNAL(finished(INIT_HELPER_RET)), SLOT(onInitializeHelper(INIT_HELPER_RET)));
-    inititalizeHelper_->start();
 }
 
 void Engine::onLostConnectionToHelper()
@@ -687,6 +691,8 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
     {
         QMutexLocker locker(&mutex_);
         bInitialized_ = true;
+
+        initPart2();
 
         FinishActiveConnections::finishAllActiveConnections(helper_);
 
@@ -727,6 +733,10 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
     else if (ret == INIT_HELPER_FAILED)
     {
         emit initFinished(ENGINE_INIT_HELPER_FAILED);
+    }
+    else if (ret == INIT_HELPER_USER_CANCELED)
+    {
+        emit initFinished(ENGINE_INIT_HELPER_USER_CANCELED);
     }
     else
     {
@@ -804,8 +814,11 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 
     if (!isExitWithRestart)
     {
-        vpnShareController_->stopWifiSharing();
-        vpnShareController_->stopProxySharing();
+        if (vpnShareController_)
+        {
+            vpnShareController_->stopWifiSharing();
+            vpnShareController_->stopProxySharing();
+        }
     }
 
     if (helper_ && firewallController_)

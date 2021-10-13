@@ -18,8 +18,7 @@ public:
     ~Helper_posix() override;
 
     // Common functions
-    bool isHelperConnected() override;
-    bool isFailedConnectToHelper() override { return bFailedConnectToHelper_; };
+    STATE currentState() const override;
     void setNeedFinish() override;
 
     void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
@@ -82,7 +81,6 @@ protected:
     unsigned long cmdId_;
 
     std::atomic<unsigned long> lastOpenVPNCmdId_;
-    std::atomic<bool> bFailedConnectToHelper_;
 
     boost::asio::io_service io_service_;
     boost::asio::local::stream_protocol::endpoint ep_;
@@ -92,13 +90,7 @@ protected:
     QElapsedTimer reconnectElapsedTimer_;
     bool bHelperConnectedEmitted_;
 
-    bool bHelperConnected_;
-    QMutex mutexHelperConnected_;
-    void setHelperConnected(bool b)
-    {
-        QMutexLocker locker(&mutexHelperConnected_);
-        bHelperConnected_ = b;
-    }
+    std::atomic<STATE> curState_;
 
     std::atomic<bool> bNeedFinish_;
     bool isNeedFinish()

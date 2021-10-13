@@ -6,8 +6,9 @@
 #import <ServiceManagement/ServiceManagement.h>
 #import <Security/Authorization.h>
 
-bool InstallHelper_mac::installHelper()
+bool InstallHelper_mac::installHelper(bool &isUserCanceled)
 {
+    isUserCanceled = false;
     NSString *helperLabel = @HELPER_BUNDLE_ID;
     BOOL result = NO;
 
@@ -57,6 +58,7 @@ bool InstallHelper_mac::installHelper()
     if (status != errAuthorizationSuccess)
     {
         qCDebug(LOG_BASIC) << "Failed to create AuthorizationRef. Error code:" << (int)status;
+        isUserCanceled = true;
     }
     else
     {

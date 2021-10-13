@@ -30,8 +30,8 @@ using namespace boost::asio;
 Helper_posix *g_this_ = NULL;
 
 Helper_posix::Helper_posix(QObject *parent) : IHelper(parent), bIPV6State_(true), cmdId_(0), lastOpenVPNCmdId_(0)
-  , bFailedConnectToHelper_(false), ep_(SOCK_PATH), bHelperConnectedEmitted_(false)
-  , bHelperConnected_(false), bNeedFinish_(false), firstConnectToHelperErrorReported_(false)
+  , ep_(SOCK_PATH), bHelperConnectedEmitted_(false)
+  , curState_(STATE_INIT), bNeedFinish_(false), firstConnectToHelperErrorReported_(false)
 {
     Q_ASSERT(g_this_ == NULL);
     g_this_ = this;
@@ -45,10 +45,9 @@ Helper_posix::~Helper_posix()
     g_this_ = NULL;
 }
 
-bool Helper_posix::isHelperConnected()
+Helper_posix::STATE Helper_posix::currentState() const
 {
-    QMutexLocker locker(&mutexHelperConnected_);
-    return bHelperConnected_;
+    return curState_;
 }
 
 void Helper_posix::setNeedFinish()
@@ -61,7 +60,7 @@ void Helper_posix::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, 
     QMutexLocker locker(&mutex_);
 
     outFinished = false;
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
     {
         return;
     }
@@ -101,7 +100,7 @@ void Helper_posix::clearUnblockingCmd(unsigned long cmdId)
 
     QMutexLocker locker(&mutex_);
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
     {
         return;
     }
@@ -140,7 +139,7 @@ bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
 {
     QMutexLocker locker(&mutex_);
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
     {
         return false;
     }
@@ -193,7 +192,7 @@ void Helper_posix::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bo
     Q_UNUSED(isKeepLocalSocket);
     QMutexLocker locker(&mutex_);
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
     {
         return;
     }
@@ -277,7 +276,7 @@ bool Helper_posix::startWireGuard(const QString &exeName, const QString &deviceN
     wireGuardExeName_ = exeName;
     wireGuardDeviceName_.clear();
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
         return false;
 
     CMD_START_WIREGUARD cmd;
@@ -326,7 +325,7 @@ bool Helper_posix::stopWireGuard()
         return false;
     }
 
-    if (isHelperConnected()) {
+    if (curState_ == STATE_CONNECTED) {
         QMutexLocker locker(&mutex_);
 
         if (!sendCmdToHelper(HELPER_CMD_STOP_WIREGUARD, "")) {
@@ -352,7 +351,7 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
 {
     QMutexLocker locker(&mutex_);
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
         return false;
 
     CMD_CONFIGURE_WIREGUARD cmd;
@@ -402,7 +401,7 @@ bool Helper_posix::getWireGuardStatus(WireGuardStatus *status)
         status->errorCode = 0;
         status->bytesReceived = status->bytesTransmitted = 0;
     }
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
         return false;
 
     if (!sendCmdToHelper(HELPER_CMD_GET_WIREGUARD_STATUS, "")) {
@@ -461,7 +460,7 @@ QString Helper_posix::executeRootCommand(const QString &commandLine, int *exitCo
 {
     QMutexLocker locker(&mutex_);
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
     {
         return "";
     }
@@ -482,7 +481,7 @@ QString Helper_posix::executeRootCommand(const QString &commandLine, int *exitCo
         elapsedTimer.start();
         while (elapsedTimer.elapsed() < MAX_WAIT_HELPER && !isNeedFinish())
         {
-            if (isHelperConnected())
+            if (curState_ == STATE_CONNECTED)
             {
                 ret = executeRootCommandImpl(commandLine, &bExecuted, log, exitCode);
                 if (ret == RET_SUCCESS)
@@ -502,7 +501,7 @@ bool Helper_posix::executeOpenVPN(const QString &commandLine, const QString &pat
 {
     QMutexLocker locker(&mutex_);
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
     {
         return false;
     }
@@ -604,7 +603,7 @@ void Helper_posix::connectHandler(const boost::system::error_code &ec)
     if (!ec)
     {
         // we connected
-        g_this_->setHelperConnected(true);
+        g_this_->curState_ = STATE_CONNECTED;
         //emit signal only once on first run
         if (!g_this_->bHelperConnectedEmitted_)
         {
@@ -627,7 +626,7 @@ void Helper_posix::connectHandler(const boost::system::error_code &ec)
             if (!g_this_->bHelperConnectedEmitted_)
             {
                 qCDebug(LOG_BASIC) << "Error while connecting to helper: " << ec.value();
-                g_this_->bFailedConnectToHelper_ = true;
+                g_this_->curState_ = STATE_FAILED_CONNECT;
             }
             else
             {
@@ -651,7 +650,7 @@ void Helper_posix::doDisconnectAndReconnect()
     if (!isRunning())
     {
         qCDebug(LOG_BASIC) << "Disconnected from helper socket, try reconnect";
-        g_this_->setHelperConnected(false);
+        g_this_->curState_ = STATE_INIT;
         start(QThread::LowPriority);
     }
 }

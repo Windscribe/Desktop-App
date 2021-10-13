@@ -17,7 +17,7 @@ void InitializeHelper::start()
 void InitializeHelper::onTimerControlHelper()
 {
     QTimer *timer = (QTimer *)sender();
-    if (helper_->isHelperConnected())
+    if (helper_->currentState() == IHelper::STATE_CONNECTED)
     {
         qCDebug(LOG_BASIC) << "OpenVPN helper connected ok";
         timer->stop();
@@ -25,7 +25,7 @@ void InitializeHelper::onTimerControlHelper()
         printHelperVersion();
         emit finished(INIT_HELPER_SUCCESS);
     }
-    else if (helper_->isFailedConnectToHelper())
+    else if (helper_->currentState() == IHelper::STATE_FAILED_CONNECT || helper_->currentState() == IHelper::STATE_INSTALL_FAILED)
     {
         timer->stop();
         timer->deleteLater();
@@ -53,11 +53,18 @@ void InitializeHelper::onTimerControlHelper()
             }
         }
     }
+    else if (helper_->currentState() == IHelper::STATE_USER_CANCELED)
+    {
+        timer->stop();
+        timer->deleteLater();
+        qCDebug(LOG_BASIC) << "Failed install helper (user canceled)";
+        emit finished(INIT_HELPER_USER_CANCELED);
+    }
 }
 
 void InitializeHelper::handleHelperInit()
 {
-    if (helper_->isHelperConnected())
+    if (helper_->currentState() == IHelper::STATE_CONNECTED)
     {
         qCDebug(LOG_BASIC) << "OpenVPN helper connected ok";
         printHelperVersion();

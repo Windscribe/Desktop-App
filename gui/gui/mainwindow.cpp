@@ -1446,6 +1446,11 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
         QMessageBox::information(nullptr, QApplication::applicationName(), tr("Windscribe helper initialize error. Please reinstall the application or contact support."));
         QTimer::singleShot(0, this, SLOT(close()));
     }
+    else if (initState == ProtoTypes::INIT_HELPER_USER_CANCELED)
+    {
+        // close without message box
+        QTimer::singleShot(0, this, SLOT(close()));
+    }
     else
     {
         if (!isInitializationAborted_)

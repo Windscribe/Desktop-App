@@ -15,12 +15,13 @@ class IHelper : public QThread
 {
     Q_OBJECT
 public:
+    enum STATE { STATE_INIT, STATE_CONNECTED, STATE_FAILED_CONNECT, STATE_USER_CANCELED, STATE_INSTALL_FAILED };
+
     explicit IHelper(QObject *parent = 0) : QThread(parent) {}
     virtual ~IHelper() {}
 
     virtual void startInstallHelper() = 0;
-    virtual bool isHelperConnected() = 0;
-    virtual bool isFailedConnectToHelper() = 0;
+    virtual STATE currentState() const = 0;
     virtual bool reinstallHelper() = 0;
     virtual void setNeedFinish() = 0;
     virtual QString getHelperVersion() = 0;

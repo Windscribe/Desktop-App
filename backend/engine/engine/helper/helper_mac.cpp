@@ -18,13 +18,21 @@ Helper_mac::~Helper_mac()
 
 void Helper_mac::startInstallHelper()
 {
-    if (InstallHelper_mac::installHelper())
+    bool isUserCanceled;
+    if (InstallHelper_mac::installHelper(isUserCanceled))
     {
         start(QThread::LowPriority);
     }
     else
     {
-        bFailedConnectToHelper_ = true;
+        if (isUserCanceled)
+        {
+            curState_ = STATE_USER_CANCELED;
+        }
+        else
+        {
+            curState_ = STATE_INSTALL_FAILED;
+        }
     }
 }
 
@@ -217,7 +225,7 @@ bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QStr
 {
     QMutexLocker locker(&mutex_);
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
     {
         return false;
     }
@@ -237,7 +245,7 @@ bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QStr
         elapsedTimer.start();
         while (elapsedTimer.elapsed() < MAX_WAIT_HELPER && !isNeedFinish())
         {
-            if (isHelperConnected())
+            if (curState_ == STATE_CONNECTED)
             {
                 ret = setKeychainUsernamePasswordImpl(username, password, &bExecuted);
                 if (ret == RET_SUCCESS)
@@ -257,7 +265,7 @@ bool Helper_mac::setKextPath(const QString &kextPath)
 {
     QMutexLocker locker(&mutex_);
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
     {
         return false;
     }
@@ -292,7 +300,7 @@ bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QStri
     cmd.ipAddress = ipAddress.toStdString();
     cmd.networkService = entry.toStdString();
 
-    if (!isHelperConnected())
+    if (curState_ != STATE_CONNECTED)
         return false;
 
     std::stringstream stream;

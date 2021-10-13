@@ -63,7 +63,7 @@ bool FirewallController_mac::firewallOff()
 bool FirewallController_mac::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
-    if (!helper_->isHelperConnected())
+    if (helper_->currentState() != IHelper::STATE_CONNECTED)
     {
         return false;
     }
