@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>keys/linux/key.pub</file>
+    </qresource>
+</RCC>

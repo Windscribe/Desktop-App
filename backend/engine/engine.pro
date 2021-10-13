@@ -309,7 +309,11 @@ HEADERS += \
            engine/connectionmanager/ikev2connection_linux.h \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
            engine/macaddresscontroller/macaddresscontroller_linux.h
-} # unix
+
+RESOURCES += \
+    $$COMMON_PATH/common_linux.qrc
+
+} # linux
 
 
 

@@ -11,6 +11,8 @@ public:
 #ifdef QT_CORE_LIB
     static bool isParentProcessGui();
     static bool verify(const QString &executablePath);
+    static bool verifyWithPublicKeyFromResources(const QString &executablePath, const QString &signaturePath, const QString &publicKeyPath);
+    static bool verifyWithPublicKeyFromFilesystem(const QString &executablePath, const QString &signaturePath, const QString &publicKeyPath);
 #endif
 };
 

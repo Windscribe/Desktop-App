@@ -187,6 +187,10 @@ HEADERS += \
     $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
     $$COMMON_PATH/utils/linuxutils.h \
     multipleaccountdetection/multipleaccountdetection_linux.h
+
+RESOURCES += \
+    $$COMMON_PATH/common_linux.qrc
+
 } # linux
 
 
@@ -760,4 +764,3 @@ DISTFILES += \
 FORMS += \
     dialogs/dialoggetusernamepassword.ui \
     dialogs/dialogmessagecpuusage.ui
-
