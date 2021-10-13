@@ -34,7 +34,7 @@ Helper_win::~Helper_win()
     wait();
 
 #if defined QT_DEBUG
-    if (isHelperConnected())
+    if (curState_ == STATE_CONNECTED)
     {
         debugGetActiveUnblockingCmdCount();
         qCDebug(LOG_BASIC) << "Active unblocking commands in helper on exit:" << debugGetActiveUnblockingCmdCount();
@@ -64,21 +64,16 @@ void Helper_win::startInstallHelper()
     if (!ExecutableSignature::verify(serviceExePath))
     {
         qCDebug(LOG_BASIC) << "WindscribeService signature incorrect";
-        bFailedConnectToHelper_ = true;
+        curState_ = STATE_USER_CANCELED;
         return;
     }
 
     start(QThread::LowPriority);
 }
 
-bool Helper_win::isHelperConnected()
+Helper_win::STATE Helper_win::currentState() const
 {
-    return bHelperConnected_;
-}
-
-bool Helper_win::isFailedConnectToHelper()
-{
-    return bFailedConnectToHelper_;
+    return curState_;
 }
 
 bool Helper_win::reinstallHelper()
@@ -385,6 +380,11 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
 void Helper_win::setDefaultWireGuardDeviceName(const QString & /*deviceName*/)
 {
     // Nothing to do.
+}
+
+bool Helper_win::isHelperConnected() const
+{
+    return curState_ == STATE_CONNECTED;
 }
 
 bool Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId)
@@ -877,7 +877,7 @@ void Helper_win::run()
     {
         DWORD err = GetLastError();
         qCDebug(LOG_BASIC) << "OpenSCManager failed: " << err;
-        bFailedConnectToHelper_ = true;
+        curState_ = STATE_FAILED_CONNECT;
         return;
     }
 
@@ -897,7 +897,7 @@ void Helper_win::run()
         if (elapsedTimer.elapsed() > MAX_WAIT_TIME_FOR_HELPER)
         {
             qCDebug(LOG_BASIC) << "OpenService failed: " << err;
-            bFailedConnectToHelper_ = true;
+            curState_ = STATE_FAILED_CONNECT;
             return;
         }
         if (bStopThread_)
@@ -917,7 +917,7 @@ void Helper_win::run()
                     (LPBYTE) &ssStatus, sizeof(SERVICE_STATUS_PROCESS), &dwBytesNeeded ))
         {
             qCDebug(LOG_BASIC) << "QueryServiceStatusEx failed: " << GetLastError();
-            bFailedConnectToHelper_ = true;
+            curState_ = STATE_FAILED_CONNECT;
             return;
         }
 
@@ -939,7 +939,7 @@ void Helper_win::run()
         if (elapsedTimer.elapsed() > MAX_WAIT_TIME_FOR_HELPER)
         {
             qCDebug(LOG_BASIC) << "Timer for QueryServiceStatusEx exceed";
-            bFailedConnectToHelper_ = true;
+            curState_ = STATE_FAILED_CONNECT;
             return;
         }
         if (bStopThread_)
@@ -948,7 +948,7 @@ void Helper_win::run()
         }
     }
 #endif
-    bHelperConnected_ = true;
+    curState_ = STATE_CONNECTED;
 }
 
 MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &data)
@@ -1115,8 +1115,7 @@ void Helper_win::initVariables()
         CloseServiceHandle(schSCManager_);
         schSCManager_ = NULL;
     }
-    bFailedConnectToHelper_ = false;
-    bHelperConnected_ = false;
+    curState_= STATE_INIT;
     bStopThread_ = false;
     bIPV6State_ = true;
 }

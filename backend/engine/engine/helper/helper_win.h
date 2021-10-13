@@ -17,8 +17,7 @@ public:
     ~Helper_win() override;
 
     void startInstallHelper() override;
-    bool isHelperConnected() override;
-    bool isFailedConnectToHelper() override;
+    STATE currentState() const override;
     bool reinstallHelper() override;
     void setNeedFinish() override;
     QString getHelperVersion() override;
@@ -42,6 +41,7 @@ public:
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
     // Windows specific functions
+    bool isHelperConnected() const;
     bool executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
                         const QString &socksProxy, unsigned int socksPort,
                         unsigned long &outCmdId);
@@ -102,8 +102,7 @@ private:
 
     QString helperLabel_;
     QString customDnsIp_;
-    std::atomic<bool> bFailedConnectToHelper_;
-    std::atomic<bool> bHelperConnected_;
+    std::atomic<STATE> curState_;
     std::atomic<bool> bStopThread_;
 
     bool bIPV6State_;
