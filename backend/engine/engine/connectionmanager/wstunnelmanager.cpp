@@ -33,12 +33,12 @@ WstunnelManager::~WstunnelManager()
     killProcess();
 }
 
-void WstunnelManager::runProcess(const QString &hostname, unsigned int port, bool isUdp)
+bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, bool isUdp)
 {
     if (!ExecutableSignature::verifyWithSignCheck(wstunelExePath_))
     {
         qCDebug(LOG_BASIC) << "Failed to verify wstunnel signature";
-        return;
+        return false;
     }
 
     inputArr_.clear();
@@ -53,6 +53,7 @@ void WstunnelManager::runProcess(const QString &hostname, unsigned int port, boo
         args << "-u";
     }
     process_->start(wstunelExePath_, args);
+    return true;
 }
 
 void WstunnelManager::killProcess()

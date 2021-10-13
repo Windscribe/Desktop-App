@@ -37,10 +37,11 @@ bool ExecutableSignature_linux::verify(const QString &executablePath)
 #ifdef QT_DEBUG
     Q_UNUSED(executablePath)
     Q_UNUSED(keyPath)
+    // testing only
     // This debug block should never be called, but keeping around for testing
     // assumes we have an installed version of windscribe with matching signature in /usr/local/windscribe
-//    const QString &sigfile = "/usr/local/windscribe/signatures/WindscribeEngine.sig";
-//    const QString &executablePath2 = "/usr/local/windscribe/WindscribeEngine";
+//    const QString &sigfile = "/usr/local/windscribe/signatures/windscribestunnel.sig";
+//    const QString &executablePath2 = "/usr/local/windscribe/windscribestunnel";
 //    return verifyWithPublicKeyFromResources(executablePath2, sigfile, keyPath);
     return true; // if we somehow call in debug mode
 #else

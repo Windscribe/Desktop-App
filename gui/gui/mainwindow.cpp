@@ -3368,6 +3368,22 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     {
         msg = tr("Tap driver Fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.");
     }
+    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_WSTUNNEL_ERROR)
+    {
+        msg = tr("WSTunnel binary failed verification. Please re-install windscribe from trusted source.");
+    }
+    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_STUNNEL_ERROR)
+    {
+        msg = tr("STunnel binary failed verification. Please re-install windscribe from trusted source.");
+    }
+    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_WIREGUARD_ERROR)
+    {
+        msg = tr("Wireguard binary failed verification. Please re-install windscribe from trusted source.");
+    }
+    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_OPENVPN_ERROR)
+    {
+        msg = tr("OpenVPN binary failed verification. Please re-install windscribe from trusted source.");
+    }
     else
     {
          msg = tr("Error during connection (%1)").arg(QString::number(connectState.connect_error()));
