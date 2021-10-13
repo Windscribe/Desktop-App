@@ -18,12 +18,9 @@ public:
     ~Helper_posix() override;
 
     // Common functions
-    //void startInstallHelper() override;
     bool isHelperConnected() override;
     bool isFailedConnectToHelper() override { return bFailedConnectToHelper_; };
-    //bool reinstallHelper() override;
     void setNeedFinish() override;
-    //QString getHelperVersion() override;
 
     void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
     void clearUnblockingCmd(unsigned long cmdId) override;
@@ -34,7 +31,6 @@ public:
                                    const QStringList &hosts) override;
     void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const ProtocolType &protocol) override;
-    //bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 
      // WireGuard functions
     bool startWireGuard(const QString &exeName, const QString &deviceName) override;
@@ -112,7 +108,6 @@ protected:
 
     enum { RET_SUCCESS, RET_DISCONNECTED };
     int executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer, int *exitCode = nullptr);
-    //bool setKeychainUsernamePasswordImpl(const QString &username, const QString &password, bool *bExecuted);
 
     static void connectHandler(const boost::system::error_code &ec);
     void doDisconnectAndReconnect();
