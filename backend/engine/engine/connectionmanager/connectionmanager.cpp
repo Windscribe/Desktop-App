@@ -552,8 +552,6 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
                                                             || err == ProtoTypes::ConnectError::IKEV_FAILED_START_MAC
                                                             || err == ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC
                                                             || err == ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC))
-             || (connSettingsPolicy_->isAutomaticMode() && err == ProtoTypes::ConnectError::EXE_VERIFY_OPENVPN_ERROR)
-             || (connSettingsPolicy_->isAutomaticMode() && err == ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR)
              || (err == ProtoTypes::ConnectError::AUTH_ERROR && !bEmitAuthError_))
     {
         // bIgnoreConnectionErrorsForOpenVpn_ need to prevent handle multiple error messages from openvpn
