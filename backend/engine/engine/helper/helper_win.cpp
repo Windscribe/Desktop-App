@@ -270,7 +270,7 @@ bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
     return mpr.exitCode == 0;
 }
 
-bool Helper_win::startWireGuard(const QString &exeName, const QString &deviceName)
+IHelper::ExecuteError Helper_win::startWireGuard(const QString &exeName, const QString &deviceName)
 {
     QMutexLocker locker(&mutex_);
 
@@ -279,7 +279,7 @@ bool Helper_win::startWireGuard(const QString &exeName, const QString &deviceNam
     if (!ExecutableSignature::verify(wireGuardExePath))
     {
         qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect";
-        return false;
+        return IHelper::EXECUTE_VERIFY_ERROR;
     }
 
     CMD_START_WIREGUARD cmdStartWireGuard;
@@ -291,7 +291,7 @@ bool Helper_win::startWireGuard(const QString &exeName, const QString &deviceNam
     oa << cmdStartWireGuard;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_START_WIREGUARD, stream.str());
-    return mpr.success;
+    return mpr.success ? IHelper::EXECUTE_SUCCESS : IHelper::EXECUTE_ERROR;
 }
 
 bool Helper_win::stopWireGuard()
@@ -387,7 +387,7 @@ bool Helper_win::isHelperConnected() const
     return curState_ == STATE_CONNECTED;
 }
 
-bool Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId)
+IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId)
 {
     QMutexLocker locker(&mutex_);
 
@@ -396,7 +396,7 @@ bool Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumb
     if (!ExecutableSignature::verify(openVpnExePath))
     {
         qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect";
-        return false;
+        return IHelper::EXECUTE_VERIFY_ERROR;
     }
 
     CMD_RUN_OPENVPN cmdRunOpenVpn;
@@ -415,7 +415,7 @@ bool Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumb
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RUN_OPENVPN, stream.str());
     outCmdId = mpr.blockingCmdId;
 
-    return mpr.success;
+    return mpr.success ? IHelper::EXECUTE_SUCCESS : IHelper::EXECUTE_ERROR;
 }
 
 bool Helper_win::executeTaskKill(const QString &executableName)

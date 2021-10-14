@@ -123,7 +123,7 @@ OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
     return currentState_;
 }
 
-bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxySettings, unsigned long &outCmdId)
+IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxySettings, unsigned long &outCmdId)
 {
 #ifdef Q_OS_WIN
     QString httpProxy, socksProxy;
@@ -205,9 +205,18 @@ void OpenVPNConnection::funcRunOpenVPN()
     int retries = 0;
 
     // run openvpn process
-    while(!runOpenVPN(stateVariables_.openVpnPort, proxySettings_, stateVariables_.lastCmdId))
+    IHelper::ExecuteError err;
+    while((err = runOpenVPN(stateVariables_.openVpnPort, proxySettings_, stateVariables_.lastCmdId)) != IHelper::EXECUTE_SUCCESS)
     {
         qCDebug(LOG_CONNECTION) << "Can't run OpenVPN";
+
+        // don't bother re-attempting if signature is invalid
+        if (err == IHelper::EXECUTE_VERIFY_ERROR)
+        {
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, ProtoTypes::ConnectError::EXE_VERIFY_OPENVPN_ERROR);
+            return;
+        }
+
         if (retries >= 2)
         {
             qCDebug(LOG_CONNECTION) << "Can't run openvpn process";

@@ -32,7 +32,7 @@ public:
                            const QString &connectedIp, const ProtocolType &protocol) override;
 
      // WireGuard functions
-    bool startWireGuard(const QString &exeName, const QString &deviceName) override;
+    IHelper::ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;
     bool getWireGuardStatus(WireGuardStatus *status) override;
@@ -40,7 +40,7 @@ public:
 
     // Posix specific functions
     QString executeRootCommand(const QString &commandLine, int *exitCode = nullptr);
-    bool executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId);
+    IHelper::ExecuteError executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId);
     bool executeTaskKill(const QString &executableName);
 
 
