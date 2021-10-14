@@ -143,7 +143,7 @@ bool FirewallController_linux::firewallOff()
 bool FirewallController_linux::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
-    if (!helper_->isHelperConnected())
+    if (helper_->currentState() != IHelper::STATE_CONNECTED)
     {
         return false;
     }
