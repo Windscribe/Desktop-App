@@ -267,7 +267,6 @@ QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
-LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_system.a
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
