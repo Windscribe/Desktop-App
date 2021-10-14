@@ -27,6 +27,7 @@
 #include <aclapi.h>
 
 // boost headers
+#define BOOST_AUTO_LINK_TAGGED 1
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/vector.hpp>

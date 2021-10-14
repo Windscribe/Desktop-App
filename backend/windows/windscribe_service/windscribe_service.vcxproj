@@ -186,7 +186,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;_CRT_SECURE_NO_WARNINGS;CARES_STATICLIB;WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x32\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x32\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>all_headers.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -209,7 +209,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -230,7 +230,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -247,7 +247,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;CARES_STATICLIB;WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -267,7 +267,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;_CRT_SECURE_NO_WARNINGS;CARES_STATICLIB;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x32\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x32\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
@@ -293,7 +293,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;CARES_STATICLIB;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -315,7 +315,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -341,7 +341,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;CARES_STATICLIB;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

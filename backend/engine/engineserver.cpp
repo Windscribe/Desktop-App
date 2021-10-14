@@ -42,7 +42,7 @@ void EngineServer::run()
     if (!server_->start())
     {
         qCDebug(LOG_IPC) << "Can't start IPC server, exit";
-        emit finished();
+        Q_EMIT finished();
     }
     else
     {
@@ -143,7 +143,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
 
         if (engine_ == NULL)
         {
-            emit finished();
+            Q_EMIT finished();
         }
         else
         {
@@ -348,7 +348,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             curEngineSettings_.saveToSettings();
 
             //todo ?
-            //emit engineSettingsChanged(curEngineSettings_, connection);
+            //Q_EMIT engineSettingsChanged(curEngineSettings_, connection);
         }
         return true;
     }
@@ -547,7 +547,7 @@ void EngineServer::onConnectionStateCallback(int state, IPC::IConnection *connec
         if (connections_.isEmpty())
         {
             qCDebug(LOG_IPC) << "All of the clients are disconnected";
-            emit finished();
+            Q_EMIT finished();
         }
     }
     else

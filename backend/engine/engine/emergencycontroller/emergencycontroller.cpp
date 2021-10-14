@@ -78,7 +78,7 @@ void EmergencyController::clickDisconnect()
         else
         {
             state_ = STATE_DISCONNECTED;
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
         }
     }
 }
@@ -192,7 +192,7 @@ void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connec
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     state_ = STATE_CONNECTED;
-    emit connected();
+    Q_EMIT connected();
 }
 
 void EmergencyController::onConnectionDisconnected()
@@ -206,7 +206,7 @@ void EmergencyController::onConnectionDisconnected()
         case STATE_DISCONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
             state_ = STATE_DISCONNECTED;
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_ERROR_DURING_CONNECTION:
@@ -217,7 +217,7 @@ void EmergencyController::onConnectionDisconnected()
             }
             else
             {
-                emit errorDuringConnection(ProtoTypes::ConnectError::EMERGENCY_FAILED_CONNECT);
+                Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EMERGENCY_FAILED_CONNECT);
                 state_ = STATE_DISCONNECTED;
             }
             break;
@@ -234,7 +234,7 @@ void EmergencyController::onConnectionReconnecting()
     {
         case STATE_CONNECTED:
             state_ = STATE_DISCONNECTED;
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
             state_ = STATE_ERROR_DURING_CONNECTION;
@@ -256,7 +256,7 @@ void EmergencyController::onConnectionError(ProtoTypes::ConnectError err)
             || err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP
             || err == ProtoTypes::ConnectError::ALL_TAP_IN_USE)
     {
-        // emit error in disconnected event
+        // Q_EMIT error in disconnected event
         state_ = STATE_ERROR_DURING_CONNECTION;
     }
     else if (err == ProtoTypes::ConnectError::UDP_CANT_ASSIGN
@@ -287,7 +287,7 @@ void EmergencyController::onConnectionError(ProtoTypes::ConnectError err)
             {
                 if (state_ != STATE_RECONNECTING)
                 {
-                    emit reconnecting();
+                    Q_EMIT reconnecting();
                     state_ = STATE_RECONNECTING;
                     startReconnectionTimer();
                 }
@@ -301,7 +301,7 @@ void EmergencyController::onConnectionError(ProtoTypes::ConnectError err)
             {
                 state_ = STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
+                Q_EMIT showFailedAutomaticConnectionMessage();
             }
         }*/
     }

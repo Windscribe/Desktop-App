@@ -86,11 +86,11 @@ VOID NTAPI PingHost_ICMP_win::icmpCallback(IN PVOID ApcContext, IN PIO_STATUS_BL
         delete pingInfo;
         if (timeMs != -1)
         {
-            emit userArg->this_->pingFinished(true, timeMs, ip, bFromDisconnectedState);
+            Q_EMIT userArg->this_->pingFinished(true, timeMs, ip, bFromDisconnectedState);
         }
         else
         {
-            emit userArg->this_->pingFinished(false, 0, ip, bFromDisconnectedState);
+            Q_EMIT userArg->this_->pingFinished(false, 0, ip, bFromDisconnectedState);
         }
     }
     userArg->this_->waitingPingsQueue_.removeAll(ip);
@@ -125,7 +125,7 @@ void PingHost_ICMP_win::processNextPings()
         {
             qCDebug(LOG_PING) << "IcmpCreateFile failed:" << GetLastError();
 
-            emit pingFinished(false, 0, ip, pingInfo->isFromDisconnectedState_);
+            Q_EMIT pingFinished(false, 0, ip, pingInfo->isFromDisconnectedState_);
             delete pingInfo;
             waitingPingsQueue_.removeAll(ip);
             processNextPings();

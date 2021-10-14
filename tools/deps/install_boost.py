@@ -24,7 +24,7 @@ DEP_URL = "https://boostorg.jfrog.io/artifactory/main/release/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["include/**", "lib/**"]
 
-BOOST_WITH_MODULES = ["date_time", "regex", "serialization", "system", "thread"]
+BOOST_WITH_MODULES = ["regex", "serialization", "thread"]
 
 
 def BuildDependencyMSVC(installpath, outpath):
@@ -34,8 +34,8 @@ def BuildDependencyMSVC(installpath, outpath):
   buildenv.update({ "CL" : "/MP" })
   # Configure.
   iutl.RunCommand(["bootstrap.bat"], env=buildenv, shell=True)
-  # Build and install.
-  b2cmd = [".\\b2", "install", "-q", "link=static", "--build-type=complete", "--abbreviate-paths"]
+  # Build and install.  Use tagged layout to get installpath folder structure similar to MacOS/Linux.
+  b2cmd = [".\\b2", "install", "-q", "link=static", "--build-type=complete", "--abbreviate-paths", "--layout=tagged"]
   b2cmd.append("--prefix={}".format(installpath))
   if BOOST_WITH_MODULES:
     b2cmd.extend(["--with-" + m for m in BOOST_WITH_MODULES])
@@ -96,6 +96,8 @@ def InstallDependency():
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+  # Clean the output folder to ensure no conflicts when we're updating to a newer boost version.
+  utl.RemoveDirectory(outpath)
   with utl.PushDir(os.path.join(temp_dir, archivetitle)):
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
     if utl.GetCurrentOS() == "win32":

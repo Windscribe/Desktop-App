@@ -3,9 +3,11 @@
 
 #if defined __cplusplus
 
+#define BOOST_AUTO_LINK_TAGGED 1
+
 #include <boost/asio.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/array.hpp>
@@ -18,6 +20,8 @@
 #include <boost/serialization/vector.hpp>
 
 typedef boost::shared_ptr<boost::asio::ip::tcp::socket> socket_ptr;
+
+using namespace boost::placeholders;
 
 #endif
 
