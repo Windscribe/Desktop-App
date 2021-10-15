@@ -109,7 +109,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(packetSizeDetectionStateChanged(bool,bool)), SLOT(onEnginePacketSizeDetectionStateChanged(bool,bool)));
             connect(engine_, SIGNAL(hostsFileBecameWritable()), SLOT(onHostsFileBecameWritable()));
             threadEngine_->start(QThread::LowPriority);
-
         }
         else
         {

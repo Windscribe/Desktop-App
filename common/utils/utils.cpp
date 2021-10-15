@@ -71,8 +71,7 @@ void Utils::getOSVersionAndBuild(QString &osVersion, QString &build)
 #elif defined Q_OS_MAC
     MacUtils::getOSVersionAndBuild(osVersion, build);
 #elif defined Q_OS_LINUX
-    //todo linux
-    osVersion = "";
+    osVersion = LinuxUtils::getLinuxKernelVersion();
     build = "";
 #endif
 }

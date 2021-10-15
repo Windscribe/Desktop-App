@@ -16,6 +16,12 @@ public:
     QString getHelperVersion() override;
 
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
+
+    bool installUpdate(const QString& package) const;
+
+private:
+    const static QString WINDSCRIBE_PATH;
+    const static QString USER_ENTER_PASSWORD_STRING;
 };
 
 #endif // HELPER_LINUX_H

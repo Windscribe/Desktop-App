@@ -8,6 +8,10 @@
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "utils/utils.h"
 
+#ifdef Q_OS_LINUX
+#include "utils/linuxutils.h"
+#endif
+
 DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager) : QObject(parent)
   , networkAccessManager_(networkAccessManager)
   , reply_(nullptr)
@@ -22,9 +26,13 @@ DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAcc
     const QString path = tempDir + "/installer.dmg";
 
 #elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    const QString path;
+    QString path;
+    if(LinuxUtils::isDeb()) {
+        path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/update.deb";
+    }
+    else {
+        path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/update.rpm";
+    }
 #endif
     qCDebug(LOG_DOWNLOADER) << "Setting download location: " << Utils::cleanSensitiveInfo(path);
     downloadPath_ = path;
