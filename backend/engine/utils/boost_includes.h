@@ -3,7 +3,10 @@
 
 #if defined __cplusplus
 
+#ifdef WIN32
+// Required due to --layout=tagged being added to install_boost.py
 #define BOOST_AUTO_LINK_TAGGED 1
+#endif
 
 #include <boost/asio.hpp>
 #include <boost/scoped_ptr.hpp>
