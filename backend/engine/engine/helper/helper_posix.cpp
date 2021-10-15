@@ -332,8 +332,14 @@ IHelper::ExecuteError Helper_posix::startWireGuard(const QString &exeName, const
     QMutexLocker locker(&mutex_);
 
     // check executable signature
-    QString wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName;
-    if (!ExecutableSignature::verify(wireGuardExePath))
+    // no need for windows implementation in posix file
+#if defined Q_OS_LINUX
+    const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName;
+#else
+    const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewireguard";
+#endif
+
+    if (!ExecutableSignature::verifyWithSignCheck(wireGuardExePath))
     {
         qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect";
         return IHelper::EXECUTE_VERIFY_ERROR;
@@ -570,8 +576,14 @@ IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &commandLine, c
     QMutexLocker locker(&mutex_);
 
     // check openvpn executable signature
-    QString openVpnExePath = QCoreApplication::applicationDirPath() + "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
-    if (!ExecutableSignature::verify(openVpnExePath))
+    // no need for windows implementation in posix file
+#if defined Q_OS_LINUX
+    const QString &openVpnExePath = QCoreApplication::applicationDirPath() + "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
+#else
+    const QString &openVpnExePath = QCoreApplication::applicationDirPath() + "/../Helpers/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
+#endif
+
+    if (!ExecutableSignature::verifyWithSignCheck(openVpnExePath))
     {
         qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect";
         return IHelper::EXECUTE_VERIFY_ERROR;
