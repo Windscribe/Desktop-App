@@ -265,12 +265,17 @@ private:
     AdvancedParametersDialog *advParametersWindow_;
 
     QMenu trayMenu_;
+
+#ifndef Q_OS_LINUX
+
 #if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     LocationsTrayMenuNative locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
 #else
     QMenu locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
     QWidgetAction *listWidgetAction_[LOCATIONS_TRAY_MENU_NUM_TYPES];
     LocationsTrayMenuWidget *locationsTrayMenuWidget_[LOCATIONS_TRAY_MENU_NUM_TYPES];
+#endif
+
 #endif
 
     enum class AppIconType { DISCONNECTED, CONNECTING, CONNECTED };

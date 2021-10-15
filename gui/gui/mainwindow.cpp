@@ -52,10 +52,12 @@ MainWindow::MainWindow() :
     backend_(NULL),
     logViewerWindow_(nullptr),
     advParametersWindow_(nullptr),
+#ifndef Q_OS_LINUX
     locationsMenu_(),
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     listWidgetAction_(),
     locationsTrayMenuWidget_(),
+#endif
 #endif
     currentAppIconType_(AppIconType::DISCONNECTED),
     trayIcon_(),
@@ -2901,6 +2903,7 @@ void MainWindow::loadTrayMenuItems()
         }
         trayMenu_.addSeparator();
 
+#ifndef Q_OS_LINUX
         const auto *lm = backend_->getLocationsModel();
         if (lm->getNumGenericLocations() > 0)
             trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_GENERIC]);
@@ -2912,6 +2915,7 @@ void MainWindow::loadTrayMenuItems()
             trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS]);
 
         trayMenu_.addSeparator();
+#endif
     }
 
     if (!mainWindowController_->preferencesVisible())
@@ -2927,6 +2931,7 @@ void MainWindow::loadTrayMenuItems()
     trayMenu_.addAction(tr("Help"), this, SLOT(onTrayMenuHelpMe()));
     trayMenu_.addAction(tr("Exit"), this, SLOT(onTrayMenuQuit()));
 
+#ifndef Q_OS_LINUX
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     for (int i = 0; i < LOCATIONS_TRAY_MENU_NUM_TYPES; ++i) {
         locationsTrayMenuWidget_[i]->setFontForItems(trayMenu_.font());
@@ -2935,6 +2940,7 @@ void MainWindow::loadTrayMenuItems()
         QResizeEvent resizeEvent(locationsTrayMenuWidget_[i]->size(), locationsMenu_[i].size());
         qApp->sendEvent(&locationsMenu_[i], &resizeEvent);
     }
+#endif
 #endif
 }
 
@@ -2962,7 +2968,9 @@ void MainWindow::onLocationsTrayMenuLocationSelected(int type, QString locationT
 #ifdef Q_OS_WIN
     trayMenu_.close();
 #elif !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    listWidgetAction_[type]->trigger(); // close doesn't work by default on mac
+    #ifndef Q_OS_LINUX
+        listWidgetAction_[type]->trigger(); // close doesn't work by default on mac
+    #endif
 #endif
 
     const LocationsModel *lm = backend_->getLocationsModel();
@@ -3136,6 +3144,7 @@ void MainWindow::setupTrayIcon()
     trayIcon_.setContextMenu(&trayMenu_);
     connect(&trayMenu_, SIGNAL(aboutToShow()), SLOT(onTrayMenuAboutToShow()));
 
+#ifndef Q_OS_LINUX
     const QString kLocationTrayMenuNames[] = {
       tr("Locations"),   // LOCATIONS_TRAY_MENU_TYPE_GENERIC
       tr("Favourites"),  // LOCATIONS_TRAY_MENU_TYPE_FAVORITES
@@ -3161,6 +3170,8 @@ void MainWindow::setupTrayIcon()
             SLOT(onLocationsTrayMenuLocationSelected(int, QString, int)));
 #endif  // USE_LOCATIONS_TRAY_MENU_NATIVE
     }
+
+#endif
 
     updateAppIconType(AppIconType::DISCONNECTED);
     updateTrayIconType(AppIconType::DISCONNECTED);
