@@ -1,3 +1,29 @@
+2.03.11 (15/10/2021)
+* Updated system tray icons on Windows and Linux. #395
+* Fixed GUI lock. #522
+* Fixed incorrect external IP. #536
+* Hide all non-functional preferences in Linux build. #533
+* Make IP blurring more blurry in MacOS. #534
+* Improved tunnel test algorithm on Windows. #539
+* Added "View Licenses" button to Debug Preferences menu. #543
+* No API connectivity - Fedora / certificate store issue fixed. #527
+* Linux RPM package. #532
+* Fedora WG support. #529
+* Linux firewall failure. #526
+* Fixed named pipe security flaw on Windows. #546
+* Add silent install flag to installer (Windows). #481
+* Updated dependencies/libraries. #552
+	- OpenSSL: updated to 1.1.1L
+	- C-Ares: updated to 1.17.2
+	- Curl: updated to 7.79.1
+	- OpenVPN: updated to 2.5.4
+	- Stunnel: updated to 5.60
+* Linux auto updater functionality (debian and rpm packages). #531
+* Fixed "Cannot open file ':/svg/flags/.svg'" in log. #554
+* Mac install helper issue fixed. #551, #479
+* Temporarily disabled locations tray menu for Linux. #528
+
+
 2.03.10 (21/09/2021)
 * Improve task kill process for windscribeopenvpn. #517
 * Clean flag for Windows. #499
