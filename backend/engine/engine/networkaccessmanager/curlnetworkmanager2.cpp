@@ -482,7 +482,7 @@ bool CurlNetworkManager2::setupResolveHosts(CurlReply *curlReply, CURL *curl)
 {
     if (!curlReply->ips().isEmpty())
     {
-        QString strResolve = curlReply->networkRequest().url().host() + ":443" + ":" + curlReply->ips().join(";");
+        QString strResolve = curlReply->networkRequest().url().host() + ":443" + ":" + curlReply->ips().join(",");
         struct curl_slist *hosts = curl_slist_append(NULL, strResolve.toStdString().c_str());
         if (hosts == NULL) return false;
         curlReply->addCurlListForFreeLater(hosts);
