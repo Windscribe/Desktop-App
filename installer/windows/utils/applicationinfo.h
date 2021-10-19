@@ -30,7 +30,6 @@ private:
 
 	const std::wstring id = L"{fa690e90-ddb0-4f0c-b3f1-136c084e5fc7}";
 	const std::wstring name = L"Windscribe";
-	const std::wstring version = L"1.83 Build 18";
 	const std::wstring publisher = L"Windscribe Limited";
 	const std::wstring url = L"http://www.windscribe.com/";
 	const std::wstring publisherUrl = L"http://www.windscribe.com/";

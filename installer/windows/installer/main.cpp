@@ -4,6 +4,8 @@
 #include <algorithm>
 
 #include "gui/application.h"
+#include "../utils/applicationinfo.h"
+#include "../utils/logger.h"
 
 namespace
 {
@@ -13,14 +15,14 @@ LPWSTR *argList = nullptr;
 int
 WSMessageBox(HWND hOwner, LPCTSTR szTitle, UINT nStyle, LPCTSTR szFormat, ...)
 {
-    va_list argList;
-    va_start(argList, szFormat);
+    va_list arg_list;
+    va_start(arg_list, szFormat);
 
     TCHAR Buf[1024];
-    _vsntprintf(Buf, 1023, szFormat, argList);
+    _vsntprintf(Buf, 1023, szFormat, arg_list);
     Buf[1023] = _T('\0');
 
-    va_end(argList);
+    va_end(arg_list);
 
     int nResult = ::MessageBox(hOwner, Buf, szTitle, nStyle);
 
@@ -122,6 +124,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
             _T("Incorrect number of arguments passed to installer.\n\nUse the -help argument to see available arguments and their format."));
         return 0;
     }
+
+    Log::instance().init(true);
+    Log::instance().out(L"Installing Windscribe version %ls", ApplicationInfo::instance().getVersion().c_str());
+    Log::instance().out(L"Command-line args: %ls", ::GetCommandLine());
 
     Application app(hInstance, nCmdShow, isUpdateMode, isSilent, installPath);
     if (app.init(window_center_x, window_center_y))

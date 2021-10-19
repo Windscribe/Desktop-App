@@ -30,6 +30,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpszCmdParam);
 
+    Log::instance().init(false);
+
 	Uninstaller uninstaller;
 
 	bool isSecondPhase = false;

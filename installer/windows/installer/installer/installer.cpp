@@ -71,6 +71,8 @@ void Installer::executionImpl()
 		DWORD initTick = GetTickCount();
 		IInstallBlock *block = *it;
 
+        Log::instance().out(L"Installing %ls...", block->getName().c_str());
+
 		while (true)
 		{
 			{
@@ -95,14 +97,16 @@ void Installer::executionImpl()
 				overallProgress = prevOverallProgress + (int)(100.0 * block->getWeight());
 				callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
 				ticks.push_back(GetTickCount() - initTick);
-				break;
+                Log::instance().out(L"Installed %ls", block->getName().c_str());
+                break;
 			}
 			// error from block?
 			else if (progressOfBlock < 0)
 			{
 				strLastError_ = block->getLastError();
 				callbackState_(static_cast<unsigned int>(overallProgress), STATE_FATAL_ERROR);
-				return;
+                Log::instance().out(strLastError_);
+                return;
 			}
 			else
 			{
@@ -121,7 +125,8 @@ void Installer::runLauncherImpl()
 {
  #ifdef _WIN32
 	wstring pathLauncher = installPath_ + L"\\WindscribeLauncher.exe";
-	ShellExecuteAsUser::shellExecuteFromExplorer(pathLauncher.c_str(), NULL, NULL, NULL, SW_RESTORE);
+    Log::instance().out(L"Running launcher: %ls", pathLauncher.c_str());
+    ShellExecuteAsUser::shellExecuteFromExplorer(pathLauncher.c_str(), NULL, NULL, NULL, SW_RESTORE);
 	//ShellExecute(nullptr, nullptr, pathLauncher.c_str(), nullptr, nullptr, SW_RESTORE);
  #endif
 }

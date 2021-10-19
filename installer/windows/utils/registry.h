@@ -1,8 +1,10 @@
 #ifndef REGISTRY_H
 #define REGISTRY_H
 
+#include <windows.h>
+#include <vector>
+
 #include "reg_view.h"
-#include "logger.h"
 
 
 class Registry

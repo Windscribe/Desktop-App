@@ -73,7 +73,7 @@ bool Services::serviceExists(wstring AService)
  }
  else
  {
-  Log::instance().out(L"(services) OpenSCManager() looks OK.\n");
+  Log::instance().out(L"(services) OpenSCManager() looks OK.");
 
 
  SC_HANDLE schService;
@@ -113,7 +113,7 @@ bool Services::serviceExists(wstring AService)
     }
     else
     {
-     Log::instance().out(L"(services) CloseServiceHandle() looks OK.\n");
+     Log::instance().out(L"(services) CloseServiceHandle() looks OK.");
     }
    }
 
@@ -134,7 +134,7 @@ bool Services::serviceExists(wstring AService)
      }
      else
      {
-      Log::instance().out(L"(services) CloseServiceHandle() looks OK.\n");
+      Log::instance().out(L"(services) CloseServiceHandle() looks OK.");
      }
  }
 
