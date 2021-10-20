@@ -179,6 +179,8 @@ bool iequals(const std::wstring &a, const std::wstring &b)
 
 bool verifyWindscribeProcessPath(HANDLE hPipe)
 {
+   // NOTE: a test project is archived with issue 546 for testing this method.
+    
    static DWORD pidVerified = 0;
    
    std::wstring output;

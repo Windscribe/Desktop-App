@@ -290,6 +290,11 @@ HANDLE CreatePipe()
 			PIPE_READMODE_MESSAGE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
 			1, 4096,
 			4096, NMPWAIT_USE_DEFAULT_WAIT, &sa);
+
+        if (hPipe == INVALID_HANDLE_VALUE) {
+            Logger::instance().out(L"CreateNamedPipe failed (%lu)", ::GetLastError());
+        }
+
 		return hPipe;
 	}
 	else
