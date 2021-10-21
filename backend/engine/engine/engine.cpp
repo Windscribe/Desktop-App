@@ -2036,7 +2036,13 @@ void Engine::updateVersionImpl(qint32 windowHandle)
 
     if (installerUrl_ != "")
     {
-        downloadHelper_->get(installerUrl_);
+        QMap<QString, QString> downloads;
+        downloads.insert(installerUrl_, downloadHelper_->downloadInstallerPath());
+#ifdef Q_OS_LINUX
+        // downloads.insert(installerUrl_ + ".sig", downloadHelper_->signatureInstallPath());
+        // downloads.insert(installerUrl_ + ".key", downloadHelper_->publicKeyInstallPath());
+#endif
+        downloadHelper_->get(downloads);
     }
 }
 
@@ -2057,7 +2063,7 @@ void Engine::onDownloadHelperProgressChanged(uint progressPercent)
 void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state)
 {
     lastDownloadProgress_ = 100;
-    installerPath_ = downloadHelper_->downloadPath();
+    installerPath_ = downloadHelper_->downloadInstallerPath();
 
     if (state != DownloadHelper::DOWNLOAD_STATE_SUCCESS)
     {
