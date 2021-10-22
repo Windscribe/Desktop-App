@@ -66,7 +66,6 @@ SOURCES += multipleaccountdetection/multipleaccountdetection_win.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
            utils/scaleutils_win.cpp \
            launchonstartup/launchonstartup_win.cpp \
-           application/preventmultipleinstances_win.cpp \
            utils/interfaceutils_win.cpp
 
 HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
@@ -77,8 +76,7 @@ HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
            $$COMMON_PATH/utils/widgetutils_win.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
            utils/scaleutils_win.h \
-           launchonstartup/launchonstartup_win.h \
-           application/preventmultipleinstances_win.h
+           launchonstartup/launchonstartup_win.h
 
 }
 
@@ -422,7 +420,8 @@ SOURCES += \
     locationswindow/widgetlocations/configfooterinfo.cpp \
     mainwindowcontroller.cpp \
     multipleaccountdetection/multipleaccountdetectionfactory.cpp \
-    preferenceswindow/openurlitem.cpp
+    preferenceswindow/openurlitem.cpp \
+    application/singleappinstance.cpp
 
 
 HEADERS += \
@@ -692,7 +691,9 @@ HEADERS += \
     mainwindowcontroller.h \
     multipleaccountdetection/imultipleaccountdetection.h \
     multipleaccountdetection/multipleaccountdetectionfactory.h \
-    preferenceswindow/openurlitem.h
+    preferenceswindow/openurlitem.h \
+    application/singleappinstance.h \
+    application/singleappinstance_p.h
 
 RESOURCES += \
     svg.qrc \

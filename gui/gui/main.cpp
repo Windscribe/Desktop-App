@@ -8,9 +8,9 @@
 #include "utils/utils.h"
 #include "application/windscribeapplication.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "application/singleappinstance.h"
 
 #ifdef Q_OS_WIN
-    #include "application/preventmultipleinstances_win.h"
     #include "utils/scaleutils_win.h"
     #include "utils/crashhandler.h"
 #elif defined (Q_OS_MACOS)
@@ -19,7 +19,7 @@
     #include <libgen.h>         // dirname
     #include <unistd.h>         // readlink
     #include <linux/limits.h>   // PATH_MAX
-    #include<signal.h>
+    #include <signal.h>
 #endif
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
@@ -42,14 +42,20 @@ MainWindow *g_MainWindow = NULL;
 
 int main(int argc, char *argv[])
 {
-#ifdef Q_OS_WIN
-    // prevent multiple instances of process for Windows
-    PreventMultipleInstances_win multipleInstances;
-    if (!multipleInstances.lock())
+    windscribe::SingleAppInstance appSingleInstGuard;
+    if (appSingleInstGuard.isRunning())
     {
+        if (!appSingleInstGuard.activatedRunningInstance())
+        {
+            QMessageBox msgBox;
+            msgBox.setText(QObject::tr("Windscribe is already running on your computer, but appears to not be responding."));
+            msgBox.setInformativeText(QObject::tr("You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue."));
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
+
         return 0;
     }
-#endif
 
 #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     signal(SIGTERM, handler_sigterm);
@@ -95,13 +101,6 @@ int main(int argc, char *argv[])
 
     WindscribeApplication a(argc, argv);
 
-    bool guiInstanceAlreadyRunning = Utils::giveFocusToGui();
-    if (guiInstanceAlreadyRunning)
-    {
-        qCDebug(LOG_BASIC) << "GUI appears to be running -- quitting";
-        return 0;
-    }
-
     // These values are used for QSettings by default
     a.setOrganizationName("Windscribe");
     a.setApplicationName("Windscribe2");
@@ -135,6 +134,11 @@ int main(int argc, char *argv[])
 #endif
     a.setStyle("fusion");
 
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    QObject::connect(&appSingleInstGuard, &windscribe::SingleAppInstance::anotherInstanceRunning,
+                     &a, &WindscribeApplication::activateFromAnotherInstance);
+#endif
+
     DpiScaleManager::instance();    // init dpi scale manager
 
     MainWindow w;
@@ -143,14 +147,14 @@ int main(int argc, char *argv[])
 #endif
     w.showAfterLaunch();
 
-#ifdef Q_OS_WIN
-    multipleInstances.unlock();
-#endif
     int ret = a.exec();
 #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     g_MainWindow = nullptr;
 #endif
     ImageResourcesSvg::instance().finishGracefully();
+
+    appSingleInstGuard.release();
+
     return ret;
 }
 

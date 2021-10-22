@@ -2619,11 +2619,10 @@ void MainWindow::toggleVisibilityIfDocked()
 void MainWindow::onAppActivateFromAnotherInstance()
 {
     // qDebug() << "on App activate from another instance";
-#ifdef Q_OS_WIN
     this->showNormal();
+    this->raise();
     this->activateWindow();
     // SetForegroundWindow must be called from the caller process
-#endif
 }
 
 void MainWindow::onAppShouldTerminate_mac()
