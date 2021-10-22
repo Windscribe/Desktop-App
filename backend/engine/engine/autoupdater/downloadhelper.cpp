@@ -231,7 +231,7 @@ bool DownloadHelper::allRepliesDone()
 {
     for (const auto &reply : replies_.keys())
     {
-        if (!reply->isSuccess())
+        if (!reply->isDone())
         {
             return false;
         }
@@ -262,7 +262,7 @@ OptionalSharedNetworkReply DownloadHelper::replyFromSender(QObject *sender)
 
 const QString DownloadHelper::publicKeyInstallPath()
 {
-    return downloadDirectory_ + "/key.pub";
+    return downloadInstallerPath() + ".key";
 }
 
 const QString DownloadHelper::signatureInstallPath()

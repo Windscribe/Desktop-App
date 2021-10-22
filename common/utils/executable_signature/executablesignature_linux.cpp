@@ -179,6 +179,13 @@ bool ExecutableSignature_linux::verifyWithPublicKeyFromFilesystem(const QString 
     FILE* pubkey = fopen(pubkeyfile, "r");
     RSA* rsa_pubkey = PEM_read_RSA_PUBKEY(pubkey, NULL, NULL, NULL);
 
+    // rsa_pubkey == NULL on failure, failure will occur when feeding 404 html into this function
+    if (!rsa_pubkey)
+    {
+        qCDebug(LOG_BASIC) << "Failed to read in public key";
+        return false;
+    }
+
     // Decrypt signature (in buffer) and verify it matches
     // with the digest calculated from data file.
     int result = RSA_verify(NID_sha256, digest, SHA256_DIGEST_LENGTH,

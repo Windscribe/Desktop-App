@@ -241,6 +241,11 @@ bool NetworkReply::isSuccess() const
     return error_ == NoError;
 }
 
+bool NetworkReply::isDone() const
+{
+    return networkState_ != Init;
+}
+
 void NetworkReply::setCurlReply(CurlReply *curlReply)
 {
     curlReply_ = curlReply;

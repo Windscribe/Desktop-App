@@ -24,6 +24,7 @@ public:
     QByteArray readAll();
     NetworkError error() const;
     bool isSuccess() const;
+    bool isDone() const;
 
 signals:
     void finished();

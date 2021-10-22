@@ -548,6 +548,10 @@ def BuildInstallerLinux(configdata, qt_root):
   # create and sign .deb with dest_package 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
   CodeSignLinux(dest_package_name + ".deb", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
+ 
+  key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
+  key_dest = os.path.join(TEMP_INSTALLER_DIR, dest_package_name+".deb"+".key")
+  utl.CopyFile(key_src, key_dest)
 
   # create RPM from deb
   # msg.Info("Creating RPM package...")

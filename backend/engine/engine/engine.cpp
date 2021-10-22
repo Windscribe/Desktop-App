@@ -33,6 +33,7 @@
     #include "networkstatemanager/reachabilityevents.h"
 #elif defined Q_OS_LINUX
     #include "helper/helper_linux.h"
+    #include "utils/executable_signature/executablesignature_linux.h"
 #endif
 
 Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
@@ -2039,8 +2040,8 @@ void Engine::updateVersionImpl(qint32 windowHandle)
         QMap<QString, QString> downloads;
         downloads.insert(installerUrl_, downloadHelper_->downloadInstallerPath());
 #ifdef Q_OS_LINUX
-        // downloads.insert(installerUrl_ + ".sig", downloadHelper_->signatureInstallPath());
-        // downloads.insert(installerUrl_ + ".key", downloadHelper_->publicKeyInstallPath());
+        downloads.insert(installerUrl_ + ".sig", downloadHelper_->signatureInstallPath());
+        downloads.insert(installerUrl_ + ".key", downloadHelper_->publicKeyInstallPath());
 #endif
         downloadHelper_->get(downloads);
     }
@@ -2095,6 +2096,21 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
         return;
     }
     installerPath_ = tempInstallerFilename;
+#elif defined Q_OS_LINUX
+    if (!ExecutableSignature_linux::verifyWithPublicKeyFromFilesystem(installerPath_,
+                                                                      downloadHelper_->signatureInstallPath(),
+                                                                      downloadHelper_->publicKeyInstallPath()))
+    {
+        qCDebug(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer";
+        if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
+        if (QFile::exists(downloadHelper_->signatureInstallPath())) QFile::remove(downloadHelper_->signatureInstallPath());
+        if (QFile::exists(downloadHelper_->publicKeyInstallPath())) QFile::remove(downloadHelper_->publicKeyInstallPath());
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
+        return;
+    }
+    // no need for key and signature anymore and they must exist
+    QFile::remove(downloadHelper_->signatureInstallPath());
+    QFile::remove(downloadHelper_->publicKeyInstallPath());
 #endif
 
     emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
