@@ -5,11 +5,12 @@
 #include <tchar.h>
 #include "utils/winutils.h"
 #else
+#include <QLocalSocket>
+#endif
+
 #include <QDateTime>
 #include <QFile>
-#include <QLocalSocket>
 #include <QStandardPaths>
-#endif
 
 namespace windscribe {
 
@@ -151,6 +152,9 @@ void SingleAppInstancePrivate::release()
 
 void SingleAppInstancePrivate::debugOut(const char *format, ...)
 {
+    // The second instance of the app cannot write to gui log file, as it is
+    // locked by the first instance.
+
     va_list arg_list;
     va_start(arg_list, format);
 
@@ -161,8 +165,8 @@ void SingleAppInstancePrivate::debugOut(const char *format, ...)
 
     if (sMsg.size() > 0)
     {
-        QString sFilename = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at(0);
-        sFilename += QLatin1String("/WindscribeSingleInstanceLog.txt");
+        QString sFilename = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        sFilename += QLatin1String("/log_singleappinstanceguard.txt");
 
         QFile fileLog(sFilename);
         bool bOpened = fileLog.open(QIODevice::WriteOnly | QIODevice::Text  | QIODevice::Append);
