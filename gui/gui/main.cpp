@@ -42,25 +42,9 @@ MainWindow *g_MainWindow = NULL;
 
 int main(int argc, char *argv[])
 {
-    windscribe::SingleAppInstance appSingleInstGuard;
-    if (appSingleInstGuard.isRunning())
-    {
-        if (!appSingleInstGuard.activatedRunningInstance())
-        {
-            QMessageBox msgBox;
-            msgBox.setText(QObject::tr("Windscribe is already running on your computer, but appears to not be responding."));
-            msgBox.setInformativeText(QObject::tr("You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue."));
-            msgBox.setIcon(QMessageBox::Critical);
-            msgBox.exec();
-        }
-
-        return 0;
-    }
-
 #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     signal(SIGTERM, handler_sigterm);
 #endif
-
 
     // set Qt plugin library paths for release build
 #ifndef QT_DEBUG
@@ -107,6 +91,27 @@ int main(int argc, char *argv[])
 
     a.setApplicationDisplayName("Windscribe");
 
+    // This guard must be created after WindscribeApplication, or its objects will not
+    // participate in the main event loop.
+    windscribe::SingleAppInstance appSingleInstGuard;
+    if (appSingleInstGuard.isRunning())
+    {
+        if (!appSingleInstGuard.activatedRunningInstance())
+        {
+            QMessageBox msgBox;
+            msgBox.setText(QObject::tr("Windscribe is already running on your computer, but appears to not be responding."));
+            msgBox.setInformativeText(QObject::tr("You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue."));
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
+
+        return 0;
+    }
+
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    QObject::connect(&appSingleInstGuard, &windscribe::SingleAppInstance::anotherInstanceRunning,
+                     &a, &WindscribeApplication::activateFromAnotherInstance);
+#endif
 
     Logger::instance().install("gui", true, false);
 
@@ -133,11 +138,6 @@ int main(int argc, char *argv[])
     }
 #endif
     a.setStyle("fusion");
-
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
-    QObject::connect(&appSingleInstGuard, &windscribe::SingleAppInstance::anotherInstanceRunning,
-                     &a, &WindscribeApplication::activateFromAnotherInstance);
-#endif
 
     DpiScaleManager::instance();    // init dpi scale manager
 

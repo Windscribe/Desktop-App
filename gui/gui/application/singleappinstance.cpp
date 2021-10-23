@@ -5,6 +5,8 @@
 #include <tchar.h>
 #include "utils/winutils.h"
 #else
+#include <QDateTime>
+#include <QFile>
 #include <QLocalSocket>
 #include <QStandardPaths>
 #endif
@@ -48,17 +50,26 @@ bool SingleAppInstancePrivate::activateRunningInstance()
         client.connectToServer(socketName_);
         if (client.waitForConnected(500))
         {
+            debugOut("Connected to running Windscribe GUI instance.");
             client.abort();
             return true;
         }
     }
 
+    debugOut("SingleAppInstance could not contact the running app instance.");
+
     // If we get here, the original instance is not responding or has crashed.
     lockFile_->removeStaleLockFile();
     lockFile_->tryLock();
-    localServer_.listen(socketName_);
 
-    qDebug() << "SingleAppInstance could not contact the running app instance.";
+    if (!localServer_.listen(socketName_))
+    {
+        if (localServer_.serverError() == QAbstractSocket::AddressInUseError)
+        {
+            QFile::remove(localServer_.fullServerName());
+            return false;
+        }
+    }
 
     return true;
 
@@ -91,27 +102,30 @@ bool SingleAppInstancePrivate::isRunning()
 
     #else
 
-    QString lockName("windscribe-singleappistance.lock");
-    socketName_ = QLatin1String("windscribe-singleappistance.socket");
-
-    lockFile_.reset(new QLockFile(QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/" + lockName));
-    lockFile_->setStaleLockTime(0);
-    lockFile_->tryLock();
-
-    localServer_.setSocketOptions(QLocalServer::UserAccessOption);
-    connect(&localServer_, &QLocalServer::newConnection, this, &SingleAppInstancePrivate::anotherInstanceRunning);
-
-    if (lockFile_->error() == QLockFile::LockFailedError) {
-        return true;
-    }
-
-    if (lockFile_->error() == QLockFile::NoError)
+    if (lockFile_.isNull())
     {
-        // No existing lock was found, so we must be the only instance running.
-        localServer_.listen(socketName_);
-    }
-    else {
-        qDebug() << "SingleAppInstance could not create the lock file. A new instance will be launched.";
+        socketName_ = QLatin1String("windscribe-singleappistance.socket");
+
+        lockFile_.reset(new QLockFile(QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
+                                      QLatin1String("/windscribe-singleappistance.lock")));
+        lockFile_->setStaleLockTime(0);
+        lockFile_->tryLock();
+
+        localServer_.setSocketOptions(QLocalServer::UserAccessOption);
+        connect(&localServer_, &QLocalServer::newConnection, this, &SingleAppInstancePrivate::anotherInstanceRunning);
+
+        if (lockFile_->error() == QLockFile::LockFailedError) {
+            return true;
+        }
+
+        if (lockFile_->error() == QLockFile::NoError)
+        {
+            // No existing lock was found, so we must be the only instance running.
+            localServer_.listen(socketName_);
+        }
+        else {
+            debugOut("SingleAppInstance could not create the lock file. A new instance will be launched.");
+        }
     }
 
     return false;
@@ -133,6 +147,33 @@ void SingleAppInstancePrivate::release()
         lockFile_->unlock();
     }
     #endif
+}
+
+void SingleAppInstancePrivate::debugOut(const char *format, ...)
+{
+    va_list arg_list;
+    va_start(arg_list, format);
+
+    QString sMsg;
+    sMsg.vsprintf(format, arg_list);
+
+    va_end(arg_list);
+
+    if (sMsg.size() > 0)
+    {
+        QString sFilename = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at(0);
+        sFilename += QLatin1String("/WindscribeSingleInstanceLog.txt");
+
+        QFile fileLog(sFilename);
+        bool bOpened = fileLog.open(QIODevice::WriteOnly | QIODevice::Text  | QIODevice::Append);
+
+        if (bOpened)
+        {
+            QTextStream out(&fileLog);
+            out << QDateTime::currentDateTime().toString(Qt::ISODate) << ' ' << sMsg << endl;
+            fileLog.close();
+        }
+    }
 }
 
 SingleAppInstance::SingleAppInstance()

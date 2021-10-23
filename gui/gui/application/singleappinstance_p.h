@@ -35,6 +35,8 @@ private:
     QScopedPointer< QLockFile > lockFile_;
     QLocalServer localServer_;
     #endif
+
+    void debugOut(const char *format, ...);
 };
 
 }
