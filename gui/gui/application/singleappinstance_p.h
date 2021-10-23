@@ -4,7 +4,7 @@
 #include <QObject>
 
 #if defined(Q_OS_WINDOWS)
-#include <qt_windows.h>
+#include "utils/win32handle.h"
 #else
 #include <QLockFile>
 #include <QLocalServer>
@@ -29,7 +29,7 @@ Q_SIGNALS:
 
 private:
     #if defined(Q_OS_WINDOWS)
-    HANDLE hEventCurrentApp_;
+    WinUtils::Win32Handle appSingletonObj_;
     #else
     QString socketName_;
     QScopedPointer< QLockFile > lockFile_;

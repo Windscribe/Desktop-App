@@ -17,9 +17,6 @@ namespace windscribe {
 
 SingleAppInstancePrivate::SingleAppInstancePrivate() : QObject()
 {
-    #if defined(Q_OS_WINDOWS)
-    hEventCurrentApp_ = NULL;
-    #endif
 }
 
 SingleAppInstancePrivate::~SingleAppInstancePrivate()
@@ -81,11 +78,12 @@ bool SingleAppInstancePrivate::isRunning()
 {
     #if defined(Q_OS_WINDOWS)
 
-    if (hEventCurrentApp_ == NULL)
+    if (!appSingletonObj_.isValid())
     {
-        hEventCurrentApp_ = ::CreateEvent(NULL, TRUE, FALSE, _T("WINDSCRIBE_SINGLEAPPINSTANCE_EVENT"));
+        appSingletonObj_.setHandle(::CreateEvent(NULL, TRUE, FALSE, _T("WINDSCRIBE_SINGLEAPPINSTANCE_EVENT")));
 
-        if (hEventCurrentApp_ == NULL) {
+        if (!appSingletonObj_.isValid())
+        {
             // Bad things are going on with the OS if we can't create the event.
             qDebug() << "SingleAppInstance could not create the app singleton event object.";
             return true;
@@ -93,8 +91,7 @@ bool SingleAppInstancePrivate::isRunning()
 
         if (::GetLastError() == ERROR_ALREADY_EXISTS)
         {
-            ::CloseHandle(hEventCurrentApp_);
-            hEventCurrentApp_ = NULL;
+            appSingletonObj_.closeHandle();
             return true;
         }
     }
@@ -137,11 +134,7 @@ bool SingleAppInstancePrivate::isRunning()
 void SingleAppInstancePrivate::release()
 {
     #if defined(Q_OS_WINDOWS)
-    if (hEventCurrentApp_ != NULL)
-    {
-        ::CloseHandle(hEventCurrentApp_);
-        hEventCurrentApp_ = NULL;
-    }
+    appSingletonObj_.closeHandle();
     #else
     localServer_.close();
     if (!lockFile_.isNull()) {
