@@ -92,7 +92,9 @@ int main(int argc, char *argv[])
     a.setApplicationDisplayName("Windscribe");
 
     // This guard must be created after WindscribeApplication, or its objects will not
-    // participate in the main event loop.
+    // participate in the main event loop.  It must also be created before the Logger
+    // so, if this is the second instance to run, it does not copy the current instance's
+    // log_gui to prev_log_gui.
     windscribe::SingleAppInstance appSingleInstGuard;
     if (appSingleInstGuard.isRunning())
     {

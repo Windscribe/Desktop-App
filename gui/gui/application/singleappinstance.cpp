@@ -145,8 +145,8 @@ void SingleAppInstancePrivate::release()
 
 void SingleAppInstancePrivate::debugOut(const char *format, ...)
 {
-    // The second instance of the app cannot write to gui log file, as it is
-    // locked by the first instance.
+    // The second instance of the app cannot use the Logger, as that would step on
+    // the first instance's copy of the log.
 
     va_list arg_list;
     va_start(arg_list, format);
@@ -162,12 +162,19 @@ void SingleAppInstancePrivate::debugOut(const char *format, ...)
         sFilename += QLatin1String("/log_singleappinstanceguard.txt");
 
         QFile fileLog(sFilename);
-        bool bOpened = fileLog.open(QIODevice::WriteOnly | QIODevice::Text  | QIODevice::Append);
+        QFile::OpenMode openMode = QIODevice::WriteOnly | QIODevice::Text;
 
-        if (bOpened)
+        if (fileLog.size() > 524288) {
+           openMode |= QIODevice::Truncate;
+        }
+        else {
+           openMode |= QIODevice::Append;
+        }
+
+        if (fileLog.open(openMode))
         {
             QTextStream out(&fileLog);
-            out << QDateTime::currentDateTime().toString(Qt::ISODate) << ' ' << sMsg << endl;
+            out << QDateTime::currentDateTimeUtc().toString(Qt::ISODate) << ' ' << sMsg << endl;
             fileLog.close();
         }
     }
