@@ -46,10 +46,10 @@ void WstunnelManager::runProcess(const QString &hostname, unsigned int port, boo
     QStringList args;
     QString addr = QString("127.0.0.1:%1:127.0.0.1:1194").arg(port_);
     QString hostaddr = QString("wss://%1:%2").arg(hostname).arg(port);
-    args << "-L" << addr << hostaddr << "-v";
+    args << "--localToRemote" << addr << hostaddr << "--verbose" << "--upgradePathPrefix=/";
     if (isUdp)
     {
-        args << "-u";
+        args << "--udp";
     }
     process_->start(wstunelExePath_, args);
 }
