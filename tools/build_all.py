@@ -555,8 +555,11 @@ def BuildInstallerLinux(configdata, qt_root):
 
   # create RPM from deb
   # msg.Info("Creating RPM package...")
-  # iutl.RunCommand(["fpm", "-s", "deb", "-t", "rpm", dest_package_path + ".deb"])
-
+  iutl.RunCommand(["fpm", "-s", "deb", "-t", "rpm", dest_package_path + ".deb"])
+  rpm_package_name = "windscribe-{}.x86_64".format(BUILD_APP_VERSION_STRINGS[2])
+  CodeSignLinux(rpm_package_name + ".rpm", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
+  rpm_key_dest = os.path.join(TEMP_INSTALLER_DIR, rpm_package_name + ".rpm" + ".key")
+  utl.CopyFile(key_src, rpm_key_dest)
 
 def BuildAll():
   # Load config.
