@@ -8,6 +8,10 @@
 #include "utils/ipvalidation.h"
 #include <QSettings>
 
+#if defined(Q_OS_WINDOWS)
+#include "utils/winutils.h"
+#endif
+
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
 {
@@ -643,6 +647,19 @@ void Preferences::validateAndUpdateIfNeeded()
         emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
         is_update_needed = true;
     }
+
+    #if defined(Q_OS_WINDOWS)
+    ProtoTypes::ConnectionSettings connSettings = engineSettings_.connection_settings();
+    if ((connSettings.protocol() == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL) && !WinUtils::isWindows64Bit())
+    {
+        connSettings.set_protocol(ProtoTypes::Protocol::PROTOCOL_IKEV2);
+        connSettings.set_port(500);
+        *engineSettings_.mutable_connection_settings() = connSettings;
+        emit connectionSettingsChanged(engineSettings_.connection_settings());
+        emit reportErrorToUser("WStunnel Not Supported", "The WStunnel protocol is no longer supported on 32-bit Windows. The 'Connection Mode' protocol has been changed to IKEv2.");
+        is_update_needed = true;
+    }
+    #endif
 
     if (is_update_needed)
         emit updateEngineSettings();
