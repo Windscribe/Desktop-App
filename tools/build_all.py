@@ -110,7 +110,7 @@ def ExtractAppVersion():
           break
   version_string_1 = "{:d}_{:d}_build{:d}".format(values[0], values[1], values[2])
   version_string_2 = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
-  version_string_3 = "{:d}.{:d}-{:d}".format(values[0], values[1], values[2])
+  version_string_3 = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
   if values[3]:
     version_string_1 += "_beta"
   return (version_string_1, version_string_2, version_string_3)
@@ -497,6 +497,13 @@ def CodeSignLinux(binary_name, binary_dir, signature_output_dir):
 
 
 def BuildInstallerLinux(configdata, qt_root):
+
+  # Creates the following:
+  # * windscribe_2.x.y_amd64.deb
+  # * windscribe_2.x.y_amd64.deb.sig
+  # * windscribe-2.x.y-x86_64.rpm
+  # * windscribe-2.x.y-x86_64.rpm.sig
+  # * windscribe_2.x.y_amd64.key
   msg.Info("Copying lib_files_linux...")
   if "lib_files_linux" in configdata:
     for k, v in configdata["lib_files_linux"].iteritems():
@@ -548,18 +555,19 @@ def BuildInstallerLinux(configdata, qt_root):
   # create and sign .deb with dest_package 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
   CodeSignLinux(dest_package_name + ".deb", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
- 
+
+  # include key in target package 
   key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-  key_dest = os.path.join(TEMP_INSTALLER_DIR, dest_package_name+".deb"+".key")
+  key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRINGS[2])
+  key_dest = os.path.join(TEMP_INSTALLER_DIR, key_package_name)
   utl.CopyFile(key_src, key_dest)
 
   # create RPM from deb
   # msg.Info("Creating RPM package...")
-  iutl.RunCommand(["fpm", "-s", "deb", "-t", "rpm", dest_package_path + ".deb"])
-  rpm_package_name = "windscribe-{}.x86_64".format(BUILD_APP_VERSION_STRINGS[2])
-  CodeSignLinux(rpm_package_name + ".rpm", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
-  rpm_key_dest = os.path.join(TEMP_INSTALLER_DIR, rpm_package_name + ".rpm" + ".key")
-  utl.CopyFile(key_src, rpm_key_dest)
+  rpm_package_name = "windscribe_{}_x86_64.rpm".format(BUILD_APP_VERSION_STRINGS[2])
+  iutl.RunCommand(["fpm", "-s", "deb", "-p", rpm_package_name, "-t", "rpm", dest_package_path + ".deb"])
+  CodeSignLinux(rpm_package_name, TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
+  rpm_key_dest = os.path.join(TEMP_INSTALLER_DIR, rpm_package_name + ".key")
 
 def BuildAll():
   # Load config.

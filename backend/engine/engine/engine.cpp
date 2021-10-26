@@ -19,6 +19,8 @@
 #include <QDir>
 #include "utils/executable_signature/executable_signature.h"
 #include "names.h"
+#include "version/appversion.h"
+#include "utils/linuxutils.h"
 
 #ifdef Q_OS_WIN
     #include "utils/bfe_service_win.h"
@@ -1503,6 +1505,17 @@ void Engine::onCheckUpdateAnswer(bool available, const QString &version, const P
         if (!bNetworkErrorOccured)
         {
             installerUrl_ = url;
+
+#ifdef Q_OS_LINUX
+            // testing only
+//            if(LinuxUtils::isDeb()) {
+//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_amd64.deb";
+//            }
+//            else
+//            {
+//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_x86_64.rpm";
+//            }
+#endif
             qCDebug(LOG_BASIC) << "Installer URL: " << url;
             emit checkUpdateUpdated(available, version, updateChannel, latestBuild, url, supported);
         }
@@ -2041,7 +2054,8 @@ void Engine::updateVersionImpl(qint32 windowHandle)
         downloads.insert(installerUrl_, downloadHelper_->downloadInstallerPath());
 #ifdef Q_OS_LINUX
         downloads.insert(installerUrl_ + ".sig", downloadHelper_->signatureInstallPath());
-        downloads.insert(installerUrl_ + ".key", downloadHelper_->publicKeyInstallPath());
+        downloads.insert(Utils::getDirPathFromFullPath(installerUrl_) + "/windscribe_" + AppVersion::instance().semanticVersionString() + ".key",
+                         downloadHelper_->publicKeyInstallPath());
 #endif
         downloadHelper_->get(downloads);
     }

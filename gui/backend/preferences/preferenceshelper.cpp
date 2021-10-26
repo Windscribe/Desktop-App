@@ -13,7 +13,7 @@ PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
 
 QString PreferencesHelper::buildVersion()
 {
-    return AppVersion::instance().getFullString();
+    return AppVersion::instance().fullVersionString();
 }
 
 QList<QPair<QString, QString> > PreferencesHelper::availableLanguages() const

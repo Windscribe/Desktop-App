@@ -13,16 +13,18 @@ public:
         return s;
     }
 
-    QString version() const;
+    QString version() const; // 2.x
+    QString major() const;
+    QString minor() const;
     QString build() const;
-    QString getFullString() const;
+
+    QString fullVersionString() const;     // v2.x.y (Beta) (staging)
+    QString semanticVersionString() const; // 2.x.y
 
 private:
     AppVersion();
 
-    QString version_;
-    QString build_;
-
+    QString version_; // 2.x
     ProtoTypes::UpdateChannel buildChannel_;
 };
 

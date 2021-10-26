@@ -23,6 +23,7 @@ namespace Utils {
     int generateIntegerRandom(const int &min, const int &max);
     bool isSubdomainsEqual(const QString &hostname1, const QString &hostname2);
     std::wstring getDirPathFromFullPath(const std::wstring &fullPath);
+    QString getDirPathFromFullPath(const QString &fullPath);
     QString fileNameFromFullPath(const QString &fullPath);
     QList<ProtoTypes::SplitTunnelingApp> insertionSort(QList<ProtoTypes::SplitTunnelingApp> apps);
     bool accessibilityPermissions();

@@ -26,17 +26,29 @@ DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAcc
 const QString DownloadHelper::downloadInstallerPath()
 {
 #ifdef Q_OS_WIN
-    const QString path = downloadDirectory_ + "/installer.exe";
+    const QString path = downloadInstallerPathWithoutExtension() + ".exe";
 #elif defined Q_OS_MAC
-    const QString path = downloadDirectory_ + "/installer.dmg";
+    const QString path = downloadInstallerPathWithoutExtension() + ".dmg";
 #elif defined Q_OS_LINUX
     QString path;
     if(LinuxUtils::isDeb()) {
-        path = downloadDirectory_ + "/update.deb";
+        path = downloadInstallerPathWithoutExtension() + ".deb";
     }
     else {
-        path = downloadDirectory_ + "/update.rpm";
+        path = downloadInstallerPathWithoutExtension() + ".rpm";
     }
+#endif
+    return path;
+}
+
+const QString DownloadHelper::downloadInstallerPathWithoutExtension()
+{
+#ifdef Q_OS_WIN
+    const QString path = downloadDirectory_ + "/installer";
+#elif defined Q_OS_MAC
+    const QString path = downloadDirectory_ + "/installer";
+#elif defined Q_OS_LINUX
+    const QString path = downloadDirectory_ + "/update";
 #endif
     return path;
 }
@@ -262,7 +274,7 @@ OptionalSharedNetworkReply DownloadHelper::replyFromSender(QObject *sender)
 
 const QString DownloadHelper::publicKeyInstallPath()
 {
-    return downloadInstallerPath() + ".key";
+    return downloadInstallerPathWithoutExtension() + ".key";
 }
 
 const QString DownloadHelper::signatureInstallPath()

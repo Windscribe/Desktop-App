@@ -31,6 +31,7 @@ public:
     };
 
     const QString downloadInstallerPath();
+    const QString downloadInstallerPathWithoutExtension();
     const QString publicKeyInstallPath();
     const QString signatureInstallPath();
 
