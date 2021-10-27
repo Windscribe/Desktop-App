@@ -933,3 +933,8 @@ bool MacUtils::verifyAppBundleIntegrity()
     return (result == errSecSuccess);
 #endif
 }
+
+bool MacUtils::checkMacAddr(const QString &interfaceName, const QString &macAddr)
+{
+    return macAddressFromInterfaceName(interfaceName).toUpper().remove(':') == macAddr;
+}

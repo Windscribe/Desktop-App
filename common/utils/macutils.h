@@ -65,6 +65,7 @@ namespace MacUtils
     ProtoTypes::NetworkInterfaces currentlyUpWifiInterfaces();
 
     bool interfaceSpoofed(const QString &interfaceName);
+    bool checkMacAddr(const QString& interfaceName, const QString& macAddr);
 
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
