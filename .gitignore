@@ -12,3 +12,4 @@ installer/mac/installer/installer/temp_Info.plist
 test-exe/*
 common/keys/linux/key.pem
 common/keys/linux/key.pub
+drawings/*/*.png
