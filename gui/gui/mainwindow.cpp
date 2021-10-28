@@ -21,6 +21,7 @@
 #include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
+#include "utils/writeaccessrightschecker.h"
 #include "languagecontroller.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "dialogs/dialoggetusernamepassword.h"
@@ -34,14 +35,19 @@
 #include "showingdialogstate.h"
 #include "mainwindowstate.h"
 #include "utils/interfaceutils.h"
+#include "utils/iauthchecker.h"
+#include "utils/authcheckerfactory.h"
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     #include "utils/winutils.h"
     #include "utils/widgetutils_win.h"
     #include <windows.h>
+#elif defined(Q_OS_LINUX)
+    #include "utils/authchecker_linux.h"
 #else
     #include "utils/macutils.h"
     #include "utils/widgetutils_mac.h"
+    #include "utils/authchecker_mac.h"
 #endif
 #include "utils/widgetutils.h"
 
@@ -187,7 +193,6 @@ MainWindow::MainWindow() :
     connect(locationsWindow_, SIGNAL(addCustomConfigClicked()), SLOT(onLocationsAddCustomConfigClicked()));
     locationsWindow_->setLatencyDisplay(backend_->getPreferences()->latencyDisplay());
     locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(setLatencyDisplay(ProtoTypes::LatencyDisplayType)) );
-    locationsWindow_->connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(setCustomConfigsPath(QString)));
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -322,6 +327,7 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings)));
     connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
+    connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(onPreferencesCustomConfigsPathChanged(QString)));
 
     connect(backend_->getPreferences(), SIGNAL(reportErrorToUser(QString,QString)), SLOT(onPreferencesReportErrorToUser(QString,QString)));
 #ifdef Q_OS_MAC
@@ -1157,6 +1163,11 @@ void MainWindow::onPreferencesAdvancedParametersClicked()
     advParametersWindow_->show();
 }
 
+void MainWindow::onPreferencesCustomConfigsPathChanged(QString path)
+{
+    locationsWindow_->setCustomConfigsPath(path);
+}
+
 void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
 {
     Q_UNUSED(updateChannel);
@@ -1358,6 +1369,44 @@ void MainWindow::onLocationsAddCustomConfigClicked()
 
     if (!path.isEmpty()) {
         // qCDebug(LOG_BASIC) << "User selected custom config path:" << path;
+
+        WriteAccessRightsChecker checker(path);
+        if (checker.isWriteable())
+        {
+            if (!checker.isElevated())
+            {
+                std::unique_ptr<IAuthChecker> authChecker = AuthCheckerFactory::createAuthChecker();
+
+                AuthCheckerError err = authChecker->authenticate();
+                if (err == AuthCheckerError::AUTHENTICATION_ERROR)
+                {
+                    qCDebug(LOG_BASIC) << "Cannot change path when non-system directory when windscribe is not elevated.";
+                    const QString desc = tr(
+                        "Cannot select this directory because it is writeable for non-privileged users. "
+                        "Custom configs in this directory may pose a potential security risk. "
+                        "Please authenticate with an admin user to select this directory.");
+                    QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+                    return;
+                }
+                else if (err == AuthCheckerError::HELPER_ERROR)
+                {
+                    qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, binary may be corrupted.";
+                    const QString desc = tr(
+                        "Failed to verify AuthHelper, binary may be corrupted. "
+                        "Please reinstall application to repair.");
+                    QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+                    return;
+                }
+            }
+
+            // warn, but still allow path setting
+            const QString desc = tr(
+                "The selected directory is writeable for non-privileged users. "
+                "Custom configs in this directory may pose a potential security risk.");
+            QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+        }
+
+        // set the path
         backend_->getPreferences()->setCustomOvpnConfigsPath(path);
         backend_->sendEngineSettingsIfChanged();
     }
@@ -2274,6 +2323,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         const bool is_visible = isVisible() && !isMinimized();
         qint32 center_x = INT_MAX;
         qint32 center_y = INT_MAX;
+
         if (is_visible)
         {
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)

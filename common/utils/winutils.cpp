@@ -6,6 +6,7 @@
 #include <shellapi.h>
 #include <psapi.h>
 #include <tchar.h>
+#include <strsafe.h>
 
 #include <iostream>
 
@@ -24,6 +25,8 @@
 
 #include "utils.h"
 #include "logger.h"
+
+#include "../../gui/authhelper/win/ws_com/ws_com/guids.h"
 
 #pragma comment(lib, "wlanapi.lib")
 
@@ -1471,3 +1474,59 @@ QString WinUtils::iconPathFromBinPath(const QString &binPath)
     }
     return result;
 }
+
+HRESULT CoCreateInstanceAsAdmin(HWND hwnd, REFCLSID rclsid, REFIID riid, __out void ** ppv)
+{
+    BIND_OPTS3 bo;
+    WCHAR  wszCLSID[50];
+    WCHAR  wszMonikerName[300];
+
+    StringFromGUID2(rclsid, wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0]));
+    HRESULT hr = StringCchPrintf(wszMonikerName, sizeof(wszMonikerName) / sizeof(wszMonikerName[0]), L"Elevation:Administrator!new:%s", wszCLSID);
+    if (FAILED(hr))
+        return hr;
+    // std::wcout << L"Moniker name: " << wszMonikerName << std::endl;
+
+    memset(&bo, 0, sizeof(bo));
+    bo.cbStruct = sizeof(bo);
+    bo.hwnd = hwnd;
+    bo.dwClassContext = CLSCTX_LOCAL_SERVER;
+    return CoGetObject(wszMonikerName, &bo, riid, ppv);
+}
+
+bool WinUtils::authorizeWithUac()
+{
+    bool result = false;
+    CoInitializeEx(0, COINIT_APARTMENTTHREADED);
+
+    IUnknown *pThing = NULL;
+    HRESULT hr = CoCreateInstanceAsAdmin(NULL, CLSID_AUTH_HELPER, IID_AUTH_HELPER, (void**)&pThing);
+    if (FAILED(hr))
+    {
+        if (HRESULT_CODE(hr) == ERROR_CANCELLED)
+        {
+            std::cout << "Authentication failed due to user selection" << std::endl;
+        }
+        else
+        {
+            // Can fail here if StubProxyDll isn't in CLSID\InprocServer32
+            void * pMsgBuf;
+            int facility = HRESULT_FACILITY(hr); // If returns 4 (FACILITY_ITF) then error codes are interface specific
+            int errorCode = HRESULT_CODE(hr);
+            ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+                NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+            std::cout << "Failed to CoCreateInstance of MyThing, facility: " << facility << ", code: " << errorCode << std::endl;
+            std::cout << " (" << hr << "): " << (LPTSTR)pMsgBuf << std::endl;
+        }
+    }
+    else
+    {
+        // CoCreateInstanceAsAdmin will return S_OK if authorization was successful
+        std::cout << "Helper process is Authorized" << std::endl;
+        result = true;
+    }
+
+    CoUninitialize();
+    return result;
+}
+

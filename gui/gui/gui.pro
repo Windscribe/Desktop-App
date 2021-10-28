@@ -64,6 +64,7 @@ SOURCES += multipleaccountdetection/multipleaccountdetection_win.cpp \
            $$COMMON_PATH/utils/winutils.cpp \
            $$COMMON_PATH/utils/widgetutils_win.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
+           utils/authchecker_win.cpp \
            utils/scaleutils_win.cpp \
            launchonstartup/launchonstartup_win.cpp \
            application/preventmultipleinstances_win.cpp \
@@ -76,6 +77,7 @@ HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
            $$COMMON_PATH/utils/winutils.h \
            $$COMMON_PATH/utils/widgetutils_win.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
+           utils/authchecker_win.h \
            utils/scaleutils_win.h \
            launchonstartup/launchonstartup_win.h \
            application/preventmultipleinstances_win.h
@@ -108,6 +110,7 @@ OBJECTIVE_SOURCES += \
                 application/openlocationshandler_mac.mm \
                 launchonstartup/launchonstartup_mac.mm \
                 utils/interfaceutils_mac.mm \
+                utils/authchecker_mac.mm \
                 $$COMMON_PATH/exithandler_mac.mm \
                 $$COMMON_PATH/utils/widgetutils_mac.mm \
                 $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm
@@ -118,6 +121,8 @@ HEADERS += \
            application/checkrunningapp/checkrunningapp_mac.h \
            application/openlocationshandler_mac.h \
            launchonstartup/launchonstartup_mac.h \
+           utils/interfaceutils_mac.h \
+           utils/authchecker_mac.h \
            $$COMMON_PATH/exithandler_mac.h \
            $$COMMON_PATH/utils/widgetutils_mac.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
@@ -181,12 +186,14 @@ SOURCES += \
     $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
     $$COMMON_PATH/utils/linuxutils.cpp \
     multipleaccountdetection/multipleaccountdetection_linux.cpp \
-    utils/interfaceutils_linux.cpp
+    utils/interfaceutils_linux.cpp \
+    utils/authchecker_linux.cpp
 
 HEADERS += \
     $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
     $$COMMON_PATH/utils/linuxutils.h \
-    multipleaccountdetection/multipleaccountdetection_linux.h
+    multipleaccountdetection/multipleaccountdetection_linux.h \
+    utils/authchecker_linux.h
 
 RESOURCES += \
     $$COMMON_PATH/common_linux.qrc
@@ -551,6 +558,8 @@ HEADERS += \
     tooltips/tooltipdescriptive.h \
     tooltips/tooltiptypes.h \
     tooltips/tooltiputil.h \
+    utils/authcheckerfactory.h \
+    utils/iauthchecker.h \
     utils/imagewithshadow.h \
     utils/protoenumtostring.h \
     commonwidgets/custommenuwidget.h \

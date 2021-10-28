@@ -11,10 +11,13 @@ class WriteAccessRightsChecker : public QTemporaryFile
 public:
     explicit WriteAccessRightsChecker(const QString &dirname);
     bool isWriteable() const;
+    bool isElevated() const;
 
 private:
-    bool isElevated() const;
     void testWrite();
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    int realUid();
+#endif
 
     bool is_writeable_;
 };

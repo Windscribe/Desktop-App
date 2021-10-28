@@ -52,6 +52,10 @@ BUILD_QMAKE_EXE = ""
 BUILD_MACDEPLOY = ""
 BUILD_INSTALLER_FILES = ""
 BUILD_SYMBOL_FILES = ""
+global NO_POST_CLEAN # bool
+global BUILD_APP # bool
+global BUILD_COM # bool
+global BUILD_INSTALLER # bool
 
 
 def RemoveFiles(files):
@@ -145,6 +149,8 @@ def UpdateVersionInDebianControl(filename):
 def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(ROOT_DIR, subdir_name, project_name))
 
+def GetProjectFolder(subdir_name):
+  return os.path.normpath(os.path.join(ROOT_DIR, subdir_name))
 
 def GenerateProtobuf():
   proto_root = iutl.GetDependencyBuildRoot("protobuf")
@@ -386,6 +392,39 @@ def BuildComponents(configdata, targetlist, qt_root):
         BuildComponent(configdata[target], is_64bit, qt_root, buildenv, macdeployfixes)
 
 
+def BuildAuthHelperWin32(configdata, targetlist):
+  # setup env
+  buildenv = os.environ.copy()
+  buildenv.update({"MAKEFLAGS": "S"})
+  buildenv.update(iutl.GetVisualStudioEnvironment())
+  buildenv.update({"CL": "/MP"})
+
+  with utl.PushDir() as current_wd:
+    msg.Print("Current working dir: " + current_wd)
+
+    # ws_com, ws_com_server, ws_proxy_stub
+    for target in targetlist:
+      component = configdata[target]
+      c_project = component["project"]
+      c_subdir = component["subdir"]
+
+      # creates structure similar to visual studio
+      # >> important since authhelper components are dependent on ws_com.lib headers and links (specified inside project file)
+      # >> work/client-desktop/gui/authhelper/<projectname>/Release/<libs>
+      build_cmd = [
+        "msbuild.exe", GetProjectFile(c_subdir, c_project),
+        "/p:OutDir=..\Release{}".format(os.sep),
+        "/p:Configuration={}".format("Release"), "-nologo", "-verbosity:m"
+      ]
+      iutl.RunCommand(build_cmd, env=buildenv, shell=True)
+
+      # move necessary outputs to InstallerFiles (for deployment)
+      srcTargetName = os.path.normpath(os.path.join(GetProjectFolder(c_subdir), "..", "Release", component["target"]))
+      destTargetName = os.path.join(BUILD_INSTALLER_FILES, component["target"])
+      msg.Verbose("Moving " + srcTargetName + " -> " + destTargetName)
+      utl.CopyFile(srcTargetName, destTargetName)
+
+
 def PackSymbols():
   msg.Info("Packing symbols...")
   symbols_archive_name = "WindscribeSymbols_{}.zip".format(BUILD_APP_VERSION_STRINGS[0])
@@ -410,6 +449,8 @@ def SignExecutablesWin32(filename_to_sign=None):
   else:
     iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
                     "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "*.exe")])
+    iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
+                    "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "*.dll")])
     iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
                     "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "x32", "*.exe")])
     iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
@@ -453,7 +494,8 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   buildenv.update(iutl.GetVisualStudioEnvironment())
   buildenv.update({ "CL" : "/MP" })
   BuildComponent(installer_info, False, qt_root, buildenv)
-  utl.RemoveFile(archive_filename)
+  if not NO_POST_CLEAN:
+    utl.RemoveFile(archive_filename)
   final_installer_name = os.path.normpath(os.path.join(os.getcwd(),
     "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRINGS[0])))
   utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
@@ -466,7 +508,8 @@ def BuildInstallerMac(configdata, qt_root):
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["macos"]]
   archive_filename = os.path.normpath(os.path.join(ROOT_DIR, installer_info["subdir"], "installer", "resources", "windscribe.7z"))
-  utl.RemoveFile(archive_filename)
+  if not NO_POST_CLEAN:
+    utl.RemoveFile(archive_filename)
   iutl.RunCommand(["7z", "a", archive_filename,
                    os.path.join(BUILD_INSTALLER_FILES, "Windscribe.app"),
                    "-y", "-bso0", "-bsp2"])
@@ -601,32 +644,40 @@ def BuildAll():
       raise iutl.InstallError("CRT files not found.")
   # Prepare output.
   artifact_dir = os.path.join(ROOT_DIR, "build-exe")
-  utl.RemoveDirectory(artifact_dir)
+  if not NO_POST_CLEAN:
+    utl.RemoveDirectory(artifact_dir)
   temp_dir = iutl.PrepareTempDirectory("installer")
   global BUILD_INSTALLER_FILES, BUILD_SYMBOL_FILES
   if current_os == "macos":
     BUILD_INSTALLER_FILES = os.path.join(ROOT_DIR, "installer", "mac", "binaries")
   else:
     BUILD_INSTALLER_FILES = os.path.join(temp_dir, "InstallerFiles")
-  utl.CreateDirectory(BUILD_INSTALLER_FILES, True)
+  utl.CreateDirectory(BUILD_INSTALLER_FILES, False if NO_POST_CLEAN else True)
   if current_os == "win32": 
     BUILD_SYMBOL_FILES = os.path.join(temp_dir, "SymbolFiles")
-    utl.CreateDirectory(BUILD_SYMBOL_FILES, True)
+    utl.CreateDirectory(BUILD_SYMBOL_FILES, False if NO_POST_CLEAN else True)
   # Build the components.
   GenerateProtobuf()
   with utl.PushDir(temp_dir):
-    if configdata["targets"][current_os]:
-      BuildComponents(configdata, configdata["targets"][current_os], qt_root)
+    if BUILD_APP:
+      if configdata["targets"][current_os]:
+        BuildComponents(configdata, configdata["targets"][current_os], qt_root)
     if current_os == "win32":
-      BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
+      if BUILD_COM:
+        BuildAuthHelperWin32(configdata, configdata["targets"]["authhelper"])
+      if BUILD_INSTALLER:
+        BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
     elif current_os == "macos":
-      BuildInstallerMac(configdata, qt_root)
+      if BUILD_INSTALLER:
+        BuildInstallerMac(configdata, qt_root)
     elif current_os == "linux":
       BuildInstallerLinux(configdata, qt_root)
   # Copy artifacts.
   msg.Print("Installing artifacts...")
-  utl.CreateDirectory(artifact_dir, True)
+  utl.CreateDirectory(artifact_dir, False if NO_POST_CLEAN else True)
 
+  # Copy artifacts.
+  msg.Print("Installing artifacts...")
   if current_os == "macos":
     artifact_path = BUILD_INSTALLER_FILES
     installer_info = configdata[configdata["installer"]["macos"]]
@@ -645,13 +696,20 @@ def BuildAll():
     utl.CopyFile(filename, os.path.join(artifact_dir, filetitle))
     msg.HeadPrint("Ready: \"{}\"".format(filetitle))
   # Cleanup.
-  msg.Print("Cleaning temporary directory...")
-  utl.RemoveDirectory(temp_dir)
+  if not NO_POST_CLEAN:
+    msg.Print("Cleaning temporary directory...")
+    utl.RemoveDirectory(temp_dir)
 
 
 if __name__ == "__main__":
   start_time = time.time()
   current_os = utl.GetCurrentOS()
+
+  NO_POST_CLEAN = "--no-clean" in sys.argv
+  BUILD_APP = not ("--no-app" in sys.argv)
+  BUILD_COM = not ("--no-com" in sys.argv)
+  BUILD_INSTALLER = not ("--no-installer" in sys.argv)
+
   if current_os not in BUILD_OS_LIST:
     msg.Print("{} is not needed on {}, skipping.".format(BUILD_TITLE, current_os))
     sys.exit(0)

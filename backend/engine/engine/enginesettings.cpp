@@ -4,11 +4,13 @@
 
 const int typeIdEngineSettings = qRegisterMetaType<EngineSettings>("EngineSettings");
 
-EngineSettings::EngineSettings()
+EngineSettings::EngineSettings() : simpleCrypt_(0x4572A4ACF31A31BA)
 {
 }
 
-EngineSettings::EngineSettings(const ProtoTypes::EngineSettings &s) : engineSettings_(s)
+EngineSettings::EngineSettings(const ProtoTypes::EngineSettings &s) :
+    engineSettings_(s)
+  , simpleCrypt_(0x4572A4ACF31A31BA)
 {
 }
 
@@ -20,7 +22,7 @@ void EngineSettings::saveToSettings()
     QByteArray arr(size, Qt::Uninitialized);
     engineSettings_.SerializeToArray(arr.data(), size);
 
-    settings.setValue("engineSettings", arr);
+    settings.setValue("engineSettings", simpleCrypt_.encryptToString(arr));
 }
 
 void EngineSettings::loadFromSettings()
@@ -29,8 +31,24 @@ void EngineSettings::loadFromSettings()
 
     if (settings.contains("engineSettings"))
     {
-        QByteArray arr = settings.value("engineSettings").toByteArray();
-        engineSettings_.ParseFromArray(arr.data(), arr.size());
+        // qCDebug(LOG_BASIC) << "Decrypting Engine Settings...";
+
+        QString s = settings.value("engineSettings", "").toString();
+        QByteArray arr = simpleCrypt_.decryptToByteArray(s);
+
+        // this check is necessary for migration from versions <= 2.3.3 to newer builds
+        // following versions encrypt engine settings to protect custom config path
+        // it can probably be removed at some point during beta -> full release transition
+        if (simpleCrypt_.lastError() != SimpleCrypt::ErrorNoError)
+        {
+            qCDebug(LOG_BASIC) << "EngineSettings is not encrypted -- deserializing";
+            arr = settings.value("engineSettings").toByteArray();
+        }
+
+        if (!engineSettings_.ParseFromArray(arr.data(), arr.size()))
+        {
+            qCDebug(LOG_BASIC) << "Deserialization of EngineSettings has failed";
+        }
     }
     // try load settings from version 1
     else

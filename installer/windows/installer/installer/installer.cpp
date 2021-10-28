@@ -9,6 +9,7 @@
 #include "blocks/install_tap.h"
 #include "blocks/install_wintun.h"
 #include "blocks/install_splittunnel.h"
+#include "blocks/install_authhelper.h"
 #include "blocks/ShellExecuteAsUser.h"
 
 using namespace std;
@@ -35,7 +36,7 @@ void Installer::startImpl(HWND hwnd, const Settings &settings)
 {
     installPath_ = settings.getPath();
 #ifdef _WIN32
-    blocks_.push_back(new UninstallPrev(0.15));
+    blocks_.push_back(new UninstallPrev(0.10));
     blocks_.push_back(new Files(installPath_, 0.4));
     blocks_.push_back(new Service(installPath_, 0.05));
     blocks_.push_back(new InstallTap(installPath_, 0.1));
@@ -43,6 +44,7 @@ void Installer::startImpl(HWND hwnd, const Settings &settings)
     blocks_.push_back(new InstallSplitTunnel(installPath_, 0.1, hwnd));
     blocks_.push_back(new UninstallInfo(installPath_, 0.05));
     blocks_.push_back(new Icons(installPath_, settings.getCreateShortcut(), 0.05));
+	blocks_.push_back(new InstallAuthHelper(installPath_, 0.05));
 #endif
 }
 

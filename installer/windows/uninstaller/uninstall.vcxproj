@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Utils\applicationinfo.cpp" />
+    <ClCompile Include="..\utils\authhelper.cpp" />
     <ClCompile Include="..\Utils\directories_of_a_windows.cpp" />
     <ClCompile Include="..\Utils\directory.cpp" />
     <ClCompile Include="..\Utils\logger.cpp" />
@@ -37,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Utils\applicationinfo.h" />
+    <ClInclude Include="..\utils\authhelper.h" />
     <ClInclude Include="..\Utils\directories_of_a_windows.h" />
     <ClInclude Include="..\Utils\directory.h" />
     <ClInclude Include="..\Utils\logger.h" />

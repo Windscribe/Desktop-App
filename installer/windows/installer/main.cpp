@@ -79,6 +79,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
                 "Overrides the default installation directory."));
         return 0;
     }
+	
+    // Useful for debugging
+	// AllocConsole();
+	// FILE *stream;
+	// freopen_s(&stream, "CONOUT$", "w+t", stdout);
 
     const bool isUpdateMode =
         CheckCommandLineArgument(L"-update") || CheckCommandLineArgument(L"-q");

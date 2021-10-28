@@ -1,6 +1,7 @@
 #include "uninstall.h"
 #include <VersionHelpers.h>
 #include <setupapi.h>
+#include "../utils/authhelper.h"
 
 #pragma comment(lib, "Setupapi.lib")
 
@@ -475,6 +476,8 @@ void Uninstaller::RunSecondPhase(HWND hwnd)
 	wstring path_for_installation;
 
 	path_for_installation = path.PathExtractDir(UninstExeFile);
+
+	AuthHelper::removeRegEntriesForAuthHelper(path_for_installation);
 
 	Process process;
 
