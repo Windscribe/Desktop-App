@@ -11,7 +11,7 @@ class NetworkAccessManager;
 class NetworkReply;
 
 struct OptionalSharedNetworkReply{
-    OptionalSharedNetworkReply(const QSharedPointer<NetworkReply> &reply) : reply(reply), valid(true) {}
+    explicit OptionalSharedNetworkReply(const QSharedPointer<NetworkReply> &reply) : reply(reply), valid(true) {}
     OptionalSharedNetworkReply() : valid(false) {}
     QSharedPointer<NetworkReply> reply;
     bool valid;

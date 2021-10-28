@@ -67,9 +67,9 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
 
 #ifdef Q_OS_WIN
-    qCDebug(LOG_BASIC) << "Windscribe Windows version: " << AppVersion::instance().getFullString();
+    qCDebug(LOG_BASIC) << "Windscribe Windows version: " << AppVersion::instance().fullVersionString();
 #elif defined Q_OS_MAC
-    qCDebug(LOG_BASIC) << "Windscribe Mac version: " << AppVersion::instance().getFullString();
+    qCDebug(LOG_BASIC) << "Windscribe Mac version: " << AppVersion::instance().fullVersionString();
 #endif
 
     if (!ExecutableSignature::isParentProcessGui())

@@ -15,11 +15,11 @@
 DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager) : QObject(parent)
   , networkAccessManager_(networkAccessManager)
   , busy_(false)
+  , downloadDirectory_(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
   , progressPercent_(0)
   , state_(DOWNLOAD_STATE_INIT)
+
 {
-    // qCDebug(LOG_DOWNLOADER) << "Setting download location: " << Utils::cleanSensitiveInfo(path);
-    downloadDirectory_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     removeAutoUpdateInstallerFiles();
 }
 
@@ -234,7 +234,7 @@ void DownloadHelper::removeAutoUpdateInstallerFiles()
     if (QFile::exists(installerApp))
     {
         qCDebug(LOG_DOWNLOADER) << "Removing auto-update temporary installer app";
-        Utils::removeDirectory();
+        Utils::removeDirectory(installerApp);
     }
 #endif
 }
