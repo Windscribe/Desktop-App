@@ -78,6 +78,12 @@ authhelper_com_proxy_stub:
   subdir: gui/authhelper/win/ws_proxy_stub/ws_proxy_stub
   target: ws_proxy_stub.dll
 
+authhelper_linux:
+  name: windscribe-authhelper
+  project: AuthHelper.pro 
+  subdir: gui/authhelper/linux/AuthHelper
+  target: windscribe-authhelper
+
 installhelper:
   name:     "Install Helper"
   project:  windscribe_install_helper.vcxproj
@@ -166,7 +172,8 @@ targets:
     - helper_linux
     - engine
     - gui
-  authhelper:
+    - authhelper_linux
+  authhelper_win:
     - authhelper_com
     - authhelper_com_server
     - authhelper_com_proxy_stub
@@ -241,6 +248,7 @@ files_fix_rpath_linux:
   - lib/libssl.so.1.1 -> $ORIGIN
   - windscribestunnel -> $ORIGIN/lib
   - windscribeopenvpn -> $ORIGIN/lib
+  - windscribe-authhelper -> $ORIGIN/lib
   - WindscribeEngine -> $ORIGIN/lib
   - Windscribe -> $ORIGIN/lib
 
@@ -248,6 +256,7 @@ files_codesign_linux:
   - windscribestunnel
   - windscribewstunnel
   - windscribeopenvpn
+  - windscribe-authhelper
   - windscribewireguard 
   - WindscribeEngine
 

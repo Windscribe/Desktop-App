@@ -540,7 +540,6 @@ def CodeSignLinux(binary_name, binary_dir, signature_output_dir):
 
 
 def BuildInstallerLinux(configdata, qt_root):
-
   # Creates the following:
   # * windscribe_2.x.y_amd64.deb
   # * windscribe_2.x.y_amd64.deb.sig
@@ -664,7 +663,7 @@ def BuildAll():
         BuildComponents(configdata, configdata["targets"][current_os], qt_root)
     if current_os == "win32":
       if BUILD_COM:
-        BuildAuthHelperWin32(configdata, configdata["targets"]["authhelper"])
+        BuildAuthHelperWin32(configdata, configdata["targets"]["authhelper_win"])
       if BUILD_INSTALLER:
         BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
     elif current_os == "macos":

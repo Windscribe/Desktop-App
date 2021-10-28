@@ -5,7 +5,7 @@ end=$((SECONDS+10))
 while :
 do
   if [ -z "$(ps -eo args | grep WindscribeEngine | grep -v grep)" ]; then
-    echo "No WidnscribeEngine running"
+    echo "No WindscribeEngine running"
     break
   fi
   

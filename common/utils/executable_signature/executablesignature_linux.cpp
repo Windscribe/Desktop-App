@@ -30,7 +30,6 @@ bool ExecutableSignature_linux::isParentProcessGui()
 bool ExecutableSignature_linux::verify(const QString &executablePath)
 {
     // TODO: bring files into memory at application start up so we don't have to parse/process on the fly
-    // TODO: add ExecutableSignature::verify() for openvpn and wireguard
 
     const QString &keyPath = ":/keys/linux/key.pub";
 
