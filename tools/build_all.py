@@ -47,7 +47,7 @@ BUILD_OS_LIST = ["win32", "macos", "linux"]
 BUILD_CERT_PASSWORD = "fBafQVi0RC4Ts4zMUFOE" # TODO: keep elsewhere!
 BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
-BUILD_APP_VERSION_STRINGS = ()
+BUILD_APP_VERSION_STRING = ""
 BUILD_QMAKE_EXE = ""
 BUILD_MACDEPLOY = ""
 BUILD_INSTALLER_FILES = ""
@@ -112,12 +112,10 @@ def ExtractAppVersion():
         if matched:
           values[i] = int(matched.group(1)) if matched.lastindex > 0 else 1
           break
-  version_string_1 = "{:d}_{:d}_build{:d}".format(values[0], values[1], values[2])
-  version_string_2 = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
-  version_string_3 = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
+  version_string = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
   if values[3]:
-    version_string_1 += "_beta"
-  return (version_string_1, version_string_2, version_string_3)
+    version_string += "_beta"
+  return version_string
 
 
 def UpdateVersionInPlist(plistfilename):
@@ -125,11 +123,11 @@ def UpdateVersionInPlist(plistfilename):
     filedata = file.read()
   # update Bundle Version
   filedata = re.sub("<key>CFBundleVersion</key>\n[^\n]+",
-    "<key>CFBundleVersion</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRINGS[1]),
+    "<key>CFBundleVersion</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRING),
     filedata, flags = re.M)
   # update Bundle Version (short)
   filedata = re.sub("<key>CFBundleShortVersionString</key>\n[^\n]+",
-    "<key>CFBundleShortVersionString</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRINGS[1]),
+    "<key>CFBundleShortVersionString</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRING),
     filedata, flags = re.M)  
   with open(plistfilename, "w") as file:
     file.write(filedata)
@@ -140,7 +138,7 @@ def UpdateVersionInDebianControl(filename):
     filedata = file.read()
   # update Bundle Version
   filedata = re.sub("Version:[^\n]+",
-    "Version: {}".format(BUILD_APP_VERSION_STRINGS[2]),
+    "Version: {}".format(BUILD_APP_VERSION_STRING),
     filedata, flags = re.M)
   with open(filename, "w") as file:
     file.write(filedata)
@@ -427,7 +425,7 @@ def BuildAuthHelperWin32(configdata, targetlist):
 
 def PackSymbols():
   msg.Info("Packing symbols...")
-  symbols_archive_name = "WindscribeSymbols_{}.zip".format(BUILD_APP_VERSION_STRINGS[0])
+  symbols_archive_name = "WindscribeSymbols_{}.zip".format(BUILD_APP_VERSION_STRING)
   zf = zipfile.ZipFile(symbols_archive_name, "w", zipfile.ZIP_DEFLATED)
   skiplen = len(BUILD_SYMBOL_FILES) + 1
   for filename in glob2.glob(BUILD_SYMBOL_FILES + os.sep + "**"):
@@ -497,7 +495,7 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   if not NO_POST_CLEAN:
     utl.RemoveFile(archive_filename)
   final_installer_name = os.path.normpath(os.path.join(os.getcwd(),
-    "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRINGS[0])))
+    "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRING)))
   utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                   installer_info["target"])), final_installer_name)
   SignExecutablesWin32(final_installer_name)
@@ -527,7 +525,7 @@ def BuildInstallerMac(configdata, qt_root):
     dmg_dir = os.path.join(dmg_dir, installer_info["outdir"])
   with utl.PushDir(dmg_dir):
     iutl.RunCommand(["dropdmg", "--config-name=Windscribe2", installer_app_override])
-  final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRINGS[0])))
+  final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRING)))
   utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
 
@@ -585,7 +583,7 @@ def BuildInstallerLinux(configdata, qt_root):
 
   msg.Info("Creating Debian package...")
   src_package_path = os.path.join(ROOT_DIR, "installer", "linux", "debian_package")
-  dest_package_name = "windscribe_{}_amd64".format(BUILD_APP_VERSION_STRINGS[2])
+  dest_package_name = "windscribe_{}_amd64".format(BUILD_APP_VERSION_STRING)
   dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
 
   # copy debian_package and InstallerFiles into dest_package 
@@ -600,13 +598,13 @@ def BuildInstallerLinux(configdata, qt_root):
 
   # include key in target package 
   key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-  key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRINGS[2])
+  key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRING)
   key_dest = os.path.join(TEMP_INSTALLER_DIR, key_package_name)
   utl.CopyFile(key_src, key_dest)
 
   # create RPM from deb
   # msg.Info("Creating RPM package...")
-  rpm_package_name = "windscribe_{}_x86_64.rpm".format(BUILD_APP_VERSION_STRINGS[2])
+  rpm_package_name = "windscribe_{}_x86_64.rpm".format(BUILD_APP_VERSION_STRING)
   iutl.RunCommand(["fpm", "-s", "deb", "-p", rpm_package_name, "-t", "rpm", dest_package_path + ".deb"])
   CodeSignLinux(rpm_package_name, TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
   rpm_key_dest = os.path.join(TEMP_INSTALLER_DIR, rpm_package_name + ".key")
@@ -624,9 +622,9 @@ def BuildAll():
       configdata["installer"][current_os] not in configdata:
     raise iutl.InstallError("Missing {} installer target in \"{}\".".format(current_os, BUILD_CFGNAME))
   # Extract app version.
-  global BUILD_APP_VERSION_STRINGS
-  BUILD_APP_VERSION_STRINGS = ExtractAppVersion()
-  msg.Info("App version extracted: \"{}\"".format(BUILD_APP_VERSION_STRINGS[0]))
+  global BUILD_APP_VERSION_STRING
+  BUILD_APP_VERSION_STRING = ExtractAppVersion()
+  msg.Info("App version extracted: \"{}\"".format(BUILD_APP_VERSION_STRING))
   # Get Qt directory.
   qt_root = iutl.GetDependencyBuildRoot("qt")
   if not qt_root:
