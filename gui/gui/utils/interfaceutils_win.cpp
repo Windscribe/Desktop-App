@@ -11,9 +11,9 @@ bool isDarkMode()
     const QString subKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
     if (!WinUtils::regGetCurrentUserRegistryDword(subKey, "SystemUsesLightTheme", dwordValue))
     {
-        qCDebug(LOG_BASIC) << "Error: failed to get dark mode value from registry";
-        Q_ASSERT(false);
-        return false;
+        // Commented out because this will spam the logs
+        // qCDebug(LOG_BASIC) << "Info: Didn't find dark mode registry entry, might be old version of windows";
+        return true;
     }
     return dwordValue != 1;
 }
