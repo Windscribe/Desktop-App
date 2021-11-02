@@ -286,6 +286,7 @@ void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString 
                 }
                 else
                 {
+                    bRunning_ = false;
                     emit testsFinished(false, "");
                 }
             }
@@ -308,6 +309,7 @@ void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString 
                     }
                     else
                     {
+                        bRunning_ = false;
                         emit testsFinished(false, "");
                     }
                 }
