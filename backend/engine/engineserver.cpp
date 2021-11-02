@@ -354,7 +354,11 @@ bool EngineServer::handleCommand(IPC::Command *command)
     else if (command->getStringId() == IPCClientCommands::SetBlockConnect::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCClientCommands::SetBlockConnect> *blockConnectCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::SetBlockConnect> *>(command);
-        engine_->setBlockConnect(blockConnectCmd->getProtoObj().is_block_connect());
+        if (engine_->isBlockConnect() != blockConnectCmd->getProtoObj().is_block_connect())
+        {
+            qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
+            engine_->setBlockConnect(blockConnectCmd->getProtoObj().is_block_connect());
+        }
         return true;
     }
     else if (command->getStringId() == IPCClientCommands::ClearCredentials::descriptor()->full_name())
@@ -484,8 +488,12 @@ void EngineServer::onServerCallbackAcceptFunction(IPC::IConnection *connection)
 
 void EngineServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConnection *connection)
 {
-    if (command->getStringId() != IPCClientCommands::Login::descriptor()->full_name())
+    if ((command->getStringId() != IPCClientCommands::Login::descriptor()->full_name()) &&
+        (command->getStringId() != IPCClientCommands::SetBlockConnect::descriptor()->full_name()))
     {
+        // The SetBlockConnect command is received every minute.  handleCommand will log it if the value
+        // has changed, so that we don't flood the log with this entry when the app is up for an
+        // extended period of time.
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
     }
 
@@ -1026,21 +1034,31 @@ void EngineServer::onHostsFileBecameWritable()
 
 void EngineServer::sendCmdToAllAuthorizedAndGetStateClients(const IPC::Command &cmd, bool bWithLog)
 {
-    sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, bWithLog, ProtoTypes::CLIENT_ID_GUI);
-    sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, bWithLog, ProtoTypes::CLIENT_ID_CLI);
-}
+    // Only log this command one time.
+    bool bLogged = false;
 
-void EngineServer::sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Command &cmd, bool bWithLog, unsigned int clientId)
-{
-    if (bWithLog)
-    {
+    sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, bWithLog, ProtoTypes::CLIENT_ID_GUI, &bLogged);
+    sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, bWithLog, ProtoTypes::CLIENT_ID_CLI, &bLogged);
+
+    if (bWithLog && !bLogged) {
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     }
+}
 
+void EngineServer::sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Command &cmd, bool bWithLog, unsigned int clientId, bool *bLogged)
+{
     for (auto it = connections_.begin(); it != connections_.end(); ++it)
     {
         if (it.key() && it.value().bClientAuthReceived_ && it.value().clientId_ == clientId)
         {
+            if (bWithLog)
+            {
+                qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+                if (bLogged != nullptr) {
+                    *bLogged = true;
+                }
+            }
+
             it.key()->sendCommand(cmd);
         }
     }

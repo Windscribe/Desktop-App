@@ -1771,7 +1771,9 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         }
         else
         {
-            qCDebug(LOG_SERVER_API) << "API request Session successfully executed";
+            // Commented debug entry out as this request occurs every minute and we don't
+            // need to flood the log with this info.
+            //qCDebug(LOG_SERVER_API) << "API request Session successfully executed";
             emit sessionAnswer(SERVER_RETURN_SUCCESS, sessionStatus, userRole);
         }
     }

@@ -245,8 +245,6 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
         addresses << QString::fromStdString(addr_buf);
     }
 
-    qCDebug(LOG_BASIC) << "DnsResolver::callback, request success:" << userArg->hostname << addresses;
-
     bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
                               Qt::QueuedConnection, Q_ARG(QStringList, addresses), Q_ARG(int, status));
     Q_ASSERT(bSuccess);
@@ -322,8 +320,6 @@ bool DnsResolver::initChannel(const REQUEST_INFO &ri, CHANNEL_INFO &outChannelIn
         USER_ARG *userArg = new USER_ARG();
         userArg->hostname = ri.hostname;
         userArg->object = ri.object;
-
-        qCDebug(LOG_BASIC) << "DnsResolver::initChannel:" << ri.hostname;
 
         ares_gethostbyname(outChannelInfo.channel, ri.hostname.toStdString().c_str(), AF_INET, callback, userArg);
         return true;

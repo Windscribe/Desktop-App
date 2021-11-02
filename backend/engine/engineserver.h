@@ -15,7 +15,7 @@ public:
     virtual ~EngineServer();
 
     void sendCmdToAllAuthorizedAndGetStateClients(const IPC::Command &cmd, bool bWithLog);
-    void sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Command &cmd, bool bWithLog, unsigned int clientId);
+    void sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Command &cmd, bool bWithLog, unsigned int clientId, bool* bLogged = nullptr);
 
 public slots:
     void run();

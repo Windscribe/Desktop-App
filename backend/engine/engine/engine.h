@@ -80,6 +80,7 @@ public:
     void connectClick(const LocationID &locationId);
     void disconnectClick();
 
+    bool isBlockConnect() const;
     void setBlockConnect(bool isBlockConnect);
 
     void recordInstall();
