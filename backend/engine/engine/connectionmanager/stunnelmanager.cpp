@@ -33,8 +33,10 @@ StunnelManager::StunnelManager(QObject *parent) : QObject(parent), bProcessStart
 StunnelManager::~StunnelManager()
 {
     killProcess();
-    QFile file(path_);
-    file.remove();
+
+    if (QFile::exists(path_)) {
+        QFile::remove(path_);
+    }
 }
 
 void StunnelManager::runProcess()
