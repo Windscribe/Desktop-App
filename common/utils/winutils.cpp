@@ -1471,3 +1471,19 @@ QString WinUtils::iconPathFromBinPath(const QString &binPath)
     }
     return result;
 }
+
+unsigned long
+WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize)
+{
+    DWORD nLength = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM    |
+                                    FORMAT_MESSAGE_IGNORE_INSERTS |
+                                    FORMAT_MESSAGE_MAX_WIDTH_MASK,
+                                    NULL, errorCode,
+                                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                                    buffer, bufferSize, NULL);
+    if (nLength == 0) {
+       nLength = _snwprintf_s(buffer, bufferSize, _TRUNCATE, L"Unknown error code [%lu].", errorCode);
+    }
+
+    return nLength;
+}

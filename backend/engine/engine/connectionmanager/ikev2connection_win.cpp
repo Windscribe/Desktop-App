@@ -28,8 +28,8 @@ IKEv2Connection_win::IKEv2Connection_win(QObject *parent, IHelper *helper) : ICo
     this_ = this;
     initMapConnStates();
     timerControlConnection_.setInterval(CONTROL_TIMER_PERIOD);
-    connect(&timerControlConnection_, SIGNAL(timeout()), SLOT(onTimerControlConnection()));
-    connect(&disconnectLogic_, SIGNAL(disconnected()), SLOT(onHandleDisconnectLogic()));
+    connect(&timerControlConnection_, &QTimer::timeout, this, &IKEv2Connection_win::onTimerControlConnection);
+    connect(&disconnectLogic_, &IKEv2ConnectionDisconnectLogic_win::disconnected, this, &IKEv2Connection_win::onHandleDisconnectLogic);
     Q_ASSERT(state_ == STATE_DISCONNECTED);
 }
 
@@ -220,6 +220,12 @@ void IKEv2Connection_win::handleErrorReinstallWan()
     helper_->disableDnsLeaksProtection();
     helper_->removeHosts();
 
+    // With issues 498 and 576, it was found that only restarting the app would rectify the
+    // AuthNotify error.  When exiting the app, we run this method, so hopefully running
+    // it here helps with the aforementioned issues, which are not reproducible, and does
+    // no harm elsewhere.
+    removeIkev2ConnectionFromOS();
+
     if (isAutomaticConnectionMode_)
     {
         cntFailedConnectionAttempts_++;
@@ -358,9 +364,9 @@ void IKEv2Connection_win::doConnect()
     rasEntry.dwSize = offsetof(RASENTRY, ipv6addr);
     //rasEntry.dwSize = sizeof(RASENTRY);
 
-    wcscpy(rasEntry.szLocalPhoneNumber, initialUrl_.toStdWString().c_str());
-    wcscpy(rasEntry.szDeviceName, devInfo.szDeviceName);
-    wcscpy(rasEntry.szDeviceType, devInfo.szDeviceType);
+    wcscpy_s(rasEntry.szLocalPhoneNumber, initialUrl_.toStdWString().c_str());
+    wcscpy_s(rasEntry.szDeviceName, devInfo.szDeviceName);
+    wcscpy_s(rasEntry.szDeviceType, devInfo.szDeviceType);
 
     rasEntry.dwfOptions = RASEO_RequireEAP  /*| RASEO_RemoteDefaultGateway*/;
     if (initialEnableIkev2Compression_)
@@ -406,9 +412,9 @@ void IKEv2Connection_win::doConnect()
     memset(&dialparams, 0, sizeof(dialparams));
     dialparams.dwSize = sizeof(dialparams);
 
-    wcscpy(dialparams.szEntryName, IKEV2_CONNECTION_NAME);
-    wcscpy(dialparams.szUserName, (wchar_t *)initialUsername_.utf16());
-    wcscpy(dialparams.szPassword, (wchar_t *)initialPassword_.utf16());
+    wcscpy_s(dialparams.szEntryName, IKEV2_CONNECTION_NAME);
+    wcscpy_s(dialparams.szUserName, initialUsername_.toStdWString().c_str());
+    wcscpy_s(dialparams.szPassword, initialPassword_.toStdWString().c_str());
 
     dwErr = RasSetEntryDialParams(NULL, &dialparams, FALSE);
     if (dwErr != ERROR_SUCCESS)
@@ -463,7 +469,13 @@ void IKEv2Connection_win::rasDialFuncCallback(HRASCONN hrasconn, UINT unMsg, tag
     else
     {
         wchar_t strErr[1024];
-        RasGetErrorString(dwError, strErr, 1024);
+        DWORD result = ::RasGetErrorString(dwError, strErr, 1024);
+        if (result != ERROR_SUCCESS)
+        {
+            // RasGetErrorString will fail if provided a non-RAS error code (e.g. ERROR_IPSEC_IKE_AUTH_FAIL, ERROR_IPSEC_IKE_POLICY_CHANGE)
+            WinUtils::Win32GetErrorString(dwError, strErr, _countof(strErr));
+        }
+
         qCDebug(LOG_IKEV2) << "RasDial state:" << str << "Error code:" << dwError << QString::fromWCharArray(strErr) << "(" << state_ << ")";
     }
 
