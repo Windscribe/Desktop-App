@@ -52,8 +52,15 @@ void WireGuardConnectionImpl::connect()
     // Start daemon, if not running.
     if (!isDaemonRunning_) {
         int retry = 0;
-        while (!host_->helper_->startWireGuard(
-            WireGuardConnection::getWireGuardExeName(), adapterName_)) {
+        IHelper::ExecuteError err;
+        while ((err = host_->helper_->startWireGuard(WireGuardConnection::getWireGuardExeName(), adapterName_)) != IHelper::EXECUTE_SUCCESS)
+        {
+            // don't bother another attempt if signature is invalid
+            if (err == IHelper::EXECUTE_VERIFY_ERROR)
+            {
+                host_->setError(ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR);
+                return;
+            }
             if (retry >= 2) {
                 qCDebug(LOG_WIREGUARD) << "Can't start WireGuard daemon after" << retry << "retries";
                 host_->setError(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);

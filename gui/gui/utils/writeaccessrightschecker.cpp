@@ -3,10 +3,12 @@
 #include <QTemporaryFile>
 
 #if defined(Q_OS_WIN)
-#include <Windows.h>
+    #include <Windows.h>
 #else
-#include <unistd.h>
+    #include <unistd.h>
+    #include <pwd.h>
 #endif
+
 
 WriteAccessRightsChecker::WriteAccessRightsChecker(const QString &dirname) :
     QTemporaryFile(dirname + "/FileAccessTest_XXXXXX"), is_writeable_(false)
@@ -44,19 +46,20 @@ WriteAccessRightsChecker::WriteAccessRightsChecker(const QString &dirname) :
             }
             CloseHandle(process_token);
         }
-#else  // Q_OS_WIN
-        const int current_uid = getuid();
+#else  // Q_OS_MAC
         const int saved_euid = geteuid();
-        if (current_uid != 0) {
+        const int real_uid = realUid(); // geteuid() will return 0 (root) when the application was called via sudo -- must get real uid manually
+
+        if (real_uid > 0) {
             // We are running the app as root, revert to the real uid temporarily.
-            if (seteuid(current_uid) != -1) {
+            if (seteuid(real_uid) != -1) {
                 testWrite();
                 auto res = seteuid(saved_euid); // avoid no-discard warning.
                 Q_UNUSED(res);
                 is_elevated_check_ok = true;
             }
         }
-#endif  // Q_OS_WIN
+#endif
     }
     // Generic user privileges mean that we can do a simple test. We can also make it to here if we
     // failed to check access under restricted privileges.
@@ -82,10 +85,10 @@ bool WriteAccessRightsChecker::isElevated() const
             result = token_elevation_data.TokenIsElevated != 0;
         CloseHandle(process_token);
     }
-#else  // Q_OS_WIN
+#else  // Q_OS_MAC
     if (geteuid() == 0)
         result = true;
-#endif  // Q_OS_WIN
+#endif
     return result;
 }
 
@@ -93,3 +96,16 @@ void WriteAccessRightsChecker::testWrite()
 {
     is_writeable_ = open(QIODevice::WriteOnly);
 }
+
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+int WriteAccessRightsChecker::realUid()
+{
+    std::string username(getlogin());
+    struct passwd *pwd = getpwnam(username.c_str());
+    if (pwd == nullptr)
+    {
+        return -1;
+    }
+    return pwd->pw_uid;
+}
+#endif

@@ -14,6 +14,7 @@ class NetworkReply : public QObject
     Q_OBJECT
 
     enum NetworkError { NoError, TimeoutExceed, DnsResolveError, CurlError };
+    enum NetworkState { Init, Aborting, Done };
 
 public:
     explicit NetworkReply(NetworkAccessManager *parent);
@@ -23,6 +24,7 @@ public:
     QByteArray readAll();
     NetworkError error() const;
     bool isSuccess() const;
+    bool isDone() const;
 
 signals:
     void finished();
@@ -33,9 +35,11 @@ private:
     void setCurlReply(CurlReply *curlReply);
     void abortCurl();
     void checkForCurlError();
+    void setNetworkState(NetworkState state);
 
     void setError(NetworkError err);
 
+    NetworkState networkState_;
     CurlReply *curlReply_;
     NetworkAccessManager *manager_;
     NetworkError error_;
@@ -54,10 +58,10 @@ public:
     explicit NetworkAccessManager(QObject *parent = nullptr);
     virtual ~NetworkAccessManager();
 
-    NetworkReply *get(const NetworkRequest &request);
-    NetworkReply *post(const NetworkRequest &request, const QByteArray &data);
-    NetworkReply *put(const NetworkRequest &request, const QByteArray &data);
-    NetworkReply *deleteResource(const NetworkRequest &request);
+    QSharedPointer<NetworkReply> get(const NetworkRequest &request);
+    QSharedPointer<NetworkReply> post(const NetworkRequest &request, const QByteArray &data);
+    QSharedPointer<NetworkReply> put(const NetworkRequest &request, const QByteArray &data);
+    QSharedPointer<NetworkReply> deleteResource(const NetworkRequest &request);
 
     void abort(NetworkReply *reply);
 
@@ -84,7 +88,7 @@ private:
         quint64 id;
         REQUEST_TYPE type;
         NetworkRequest request;
-        NetworkReply *reply;
+        QSharedPointer<NetworkReply> reply;
         QByteArray data;
     };
 
@@ -94,7 +98,7 @@ private:
 
     quint64 getNextId();
 
-    NetworkReply *invokeHandleRequest(REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data);
+    QSharedPointer<NetworkReply> invokeHandleRequest(REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data);
 };
 
 

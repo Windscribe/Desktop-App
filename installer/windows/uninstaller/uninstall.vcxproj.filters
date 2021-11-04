@@ -66,6 +66,9 @@
     <ClCompile Include="..\Utils\version_os.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\utils\authhelper.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -120,6 +123,9 @@
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\window_parameters.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\authhelper.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>

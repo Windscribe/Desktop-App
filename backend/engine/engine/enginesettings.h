@@ -8,6 +8,7 @@
 #include "engine/types/dnsresolutionsettings.h"
 #include "engine/proxy/proxysettings.h"
 #include "ipc/command.h"
+#include "utils/simplecrypt.h"
 
 class EngineSettings
 {
@@ -49,6 +50,8 @@ public:
 
 private:
     ProtoTypes::EngineSettings engineSettings_;
+
+    SimpleCrypt simpleCrypt_;
 
     void loadFromVersion1();
 };

@@ -1,0 +1,75 @@
+@startuml
+title "Linux Code Signing - Build and Sign"
+'skinparam linetype otho
+
+note as keygen
+    create_new_linux_keypair.sh
+    * openssl genrsa -out key.pem 4096          // gen private key
+    * openssl rsa -in key.pem -pubout > key.pub // extract public key
+end note
+
+rectangle " " as keys_ {
+
+(key.pem) as privkey
+(key.pub) as pubkey
+
+}
+keygen -> keys_ : "creates/overwrites -- only use when invalidating previous keypair"
+
+/' client-desktop tree '/
+together {
+artifact "client-desktop" as root
+artifact common
+artifact gui
+artifact backend
+artifact installer
+artifact "build-exe" as build_exe
+}
+artifact linux
+artifact keys
+artifact tools
+root -- common
+root -- gui
+root -- backend
+root -- installer
+root -- tools
+root -- build_exe
+common -- linux
+linux -- keys
+keys -- keys_
+tools -- keygen
+
+database 1password
+database nexus
+
+keys_ -down-> 1password : manual backup
+
+rectangle installPackage {
+  note as gensig 
+    // creates signature 
+   openssl dgst -sign key.pem -keyform PEM -sha256 -out data.zip.sign -binary data.zip 
+  end note
+
+rectangle " " as artifacts {
+  rectangle "binaries - pubkey as resource" as binaries {
+    circle deb
+    circle rpm
+  }
+    rectangle signatures{
+      circle deb.sig
+      circle rpm.sig
+    }
+  
+  circle key.pub
+}
+gensig -[hidden]d-> artifacts
+
+}
+
+
+/' install package links '/
+build_exe -[hidden]- installPackage
+pubkey -- installPackage :  ./tools/build_all creates install package
+build_exe -- installPackage
+artifacts -right-> nexus : "Upload install package contents to nexus to deploy (& Update admin panel)"
+@enduml

@@ -11,9 +11,23 @@ import sys
 import time
 import zipfile
 
+# Hierarchy tree (linux):
+# client-desktop                      (ROOT_DIR)
+#     build-exe                       (artifact_dir)
+#     common                          (COMMON_DIR)
+#     installer 
+#         linux                       (LINUX_INSTALLER_ROOT)
+#             debian_package          (src_package_path)
+#     temp 
+#         installer
+#             InstallerFiles          (BUILD_INSTALLER_FILES)
+#                 signatures
+#             windscribe_<version>_amd64  (dest_package_path)
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(TOOLS_DIR)
 COMMON_DIR = os.path.join(ROOT_DIR, "common")
+TEMP_DIR = os.path.join(ROOT_DIR, "temp")
+TEMP_INSTALLER_DIR = os.path.join(TEMP_DIR, "installer")
 sys.path.insert(0, TOOLS_DIR)
 
 NOTARIZE_FLAG = "--notarize"
@@ -33,11 +47,15 @@ BUILD_OS_LIST = ["win32", "macos", "linux"]
 BUILD_CERT_PASSWORD = "fBafQVi0RC4Ts4zMUFOE" # TODO: keep elsewhere!
 BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
-BUILD_APP_VERSION_STRINGS = ()
+BUILD_APP_VERSION_STRING = ""
 BUILD_QMAKE_EXE = ""
 BUILD_MACDEPLOY = ""
 BUILD_INSTALLER_FILES = ""
 BUILD_SYMBOL_FILES = ""
+global NO_POST_CLEAN # bool
+global BUILD_APP # bool
+global BUILD_COM # bool
+global BUILD_INSTALLER # bool
 
 
 def RemoveFiles(files):
@@ -94,12 +112,10 @@ def ExtractAppVersion():
         if matched:
           values[i] = int(matched.group(1)) if matched.lastindex > 0 else 1
           break
-  version_string_1 = "{:d}_{:d}_build{:d}".format(values[0], values[1], values[2])
-  version_string_2 = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
-  version_string_3 = "{:d}.{:d}-{:d}".format(values[0], values[1], values[2])
+  version_string = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
   if values[3]:
-    version_string_1 += "_beta"
-  return (version_string_1, version_string_2, version_string_3)
+    version_string += "_beta"
+  return version_string
 
 
 def UpdateVersionInPlist(plistfilename):
@@ -107,11 +123,11 @@ def UpdateVersionInPlist(plistfilename):
     filedata = file.read()
   # update Bundle Version
   filedata = re.sub("<key>CFBundleVersion</key>\n[^\n]+",
-    "<key>CFBundleVersion</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRINGS[1]),
+    "<key>CFBundleVersion</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRING),
     filedata, flags = re.M)
   # update Bundle Version (short)
   filedata = re.sub("<key>CFBundleShortVersionString</key>\n[^\n]+",
-    "<key>CFBundleShortVersionString</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRINGS[1]),
+    "<key>CFBundleShortVersionString</key>\n\t<string>{}</string>".format(BUILD_APP_VERSION_STRING),
     filedata, flags = re.M)  
   with open(plistfilename, "w") as file:
     file.write(filedata)
@@ -122,7 +138,7 @@ def UpdateVersionInDebianControl(filename):
     filedata = file.read()
   # update Bundle Version
   filedata = re.sub("Version:[^\n]+",
-    "Version: {}".format(BUILD_APP_VERSION_STRINGS[2]),
+    "Version: {}".format(BUILD_APP_VERSION_STRING),
     filedata, flags = re.M)
   with open(filename, "w") as file:
     file.write(filedata)
@@ -130,6 +146,9 @@ def UpdateVersionInDebianControl(filename):
 
 def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(ROOT_DIR, subdir_name, project_name))
+
+def GetProjectFolder(subdir_name):
+  return os.path.normpath(os.path.join(ROOT_DIR, subdir_name))
 
 def GenerateProtobuf():
   proto_root = iutl.GetDependencyBuildRoot("protobuf")
@@ -164,11 +183,13 @@ def CopyFiles(title, filelist, srcdir, dstdir, strip_first_dir=False):
   for filename in filelist:
     CopyFile(filename, srcdir, dstdir, strip_first_dir)
 
+
 def FixRpathLinux(filename):
   parts = filename.split("->")
   srcfilename = parts[0].strip()
   rpath = "" if len(parts) == 1 else parts[1].strip()
   iutl.RunCommand(["patchelf", "--set-rpath", rpath, srcfilename])
+
 
 def ApplyMacDeployFixes(appname, fixlist):
   # Special deploy fixes for Mac.
@@ -369,9 +390,42 @@ def BuildComponents(configdata, targetlist, qt_root):
         BuildComponent(configdata[target], is_64bit, qt_root, buildenv, macdeployfixes)
 
 
+def BuildAuthHelperWin32(configdata, targetlist):
+  # setup env
+  buildenv = os.environ.copy()
+  buildenv.update({"MAKEFLAGS": "S"})
+  buildenv.update(iutl.GetVisualStudioEnvironment())
+  buildenv.update({"CL": "/MP"})
+
+  with utl.PushDir() as current_wd:
+    msg.Print("Current working dir: " + current_wd)
+
+    # ws_com, ws_com_server, ws_proxy_stub
+    for target in targetlist:
+      component = configdata[target]
+      c_project = component["project"]
+      c_subdir = component["subdir"]
+
+      # creates structure similar to visual studio
+      # >> important since authhelper components are dependent on ws_com.lib headers and links (specified inside project file)
+      # >> work/client-desktop/gui/authhelper/<projectname>/Release/<libs>
+      build_cmd = [
+        "msbuild.exe", GetProjectFile(c_subdir, c_project),
+        "/p:OutDir=..\Release{}".format(os.sep),
+        "/p:Configuration={}".format("Release"), "-nologo", "-verbosity:m"
+      ]
+      iutl.RunCommand(build_cmd, env=buildenv, shell=True)
+
+      # move necessary outputs to InstallerFiles (for deployment)
+      srcTargetName = os.path.normpath(os.path.join(GetProjectFolder(c_subdir), "..", "Release", component["target"]))
+      destTargetName = os.path.join(BUILD_INSTALLER_FILES, component["target"])
+      msg.Verbose("Moving " + srcTargetName + " -> " + destTargetName)
+      utl.CopyFile(srcTargetName, destTargetName)
+
+
 def PackSymbols():
   msg.Info("Packing symbols...")
-  symbols_archive_name = "WindscribeSymbols_{}.zip".format(BUILD_APP_VERSION_STRINGS[0])
+  symbols_archive_name = "WindscribeSymbols_{}.zip".format(BUILD_APP_VERSION_STRING)
   zf = zipfile.ZipFile(symbols_archive_name, "w", zipfile.ZIP_DEFLATED)
   skiplen = len(BUILD_SYMBOL_FILES) + 1
   for filename in glob2.glob(BUILD_SYMBOL_FILES + os.sep + "**"):
@@ -393,6 +447,8 @@ def SignExecutablesWin32(filename_to_sign=None):
   else:
     iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
                     "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "*.exe")])
+    iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
+                    "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "*.dll")])
     iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
                     "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "x32", "*.exe")])
     iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
@@ -436,9 +492,10 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   buildenv.update(iutl.GetVisualStudioEnvironment())
   buildenv.update({ "CL" : "/MP" })
   BuildComponent(installer_info, False, qt_root, buildenv)
-  utl.RemoveFile(archive_filename)
+  if not NO_POST_CLEAN:
+    utl.RemoveFile(archive_filename)
   final_installer_name = os.path.normpath(os.path.join(os.getcwd(),
-    "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRINGS[0])))
+    "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRING)))
   utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                   installer_info["target"])), final_installer_name)
   SignExecutablesWin32(final_installer_name)
@@ -449,7 +506,8 @@ def BuildInstallerMac(configdata, qt_root):
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["macos"]]
   archive_filename = os.path.normpath(os.path.join(ROOT_DIR, installer_info["subdir"], "installer", "resources", "windscribe.7z"))
-  utl.RemoveFile(archive_filename)
+  if not NO_POST_CLEAN:
+    utl.RemoveFile(archive_filename)
   iutl.RunCommand(["7z", "a", archive_filename,
                    os.path.join(BUILD_INSTALLER_FILES, "Windscribe.app"),
                    "-y", "-bso0", "-bsp2"])
@@ -467,10 +525,25 @@ def BuildInstallerMac(configdata, qt_root):
     dmg_dir = os.path.join(dmg_dir, installer_info["outdir"])
   with utl.PushDir(dmg_dir):
     iutl.RunCommand(["dropdmg", "--config-name=Windscribe2", installer_app_override])
-  final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRINGS[0])))
+  final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRING)))
   utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
+
+def CodeSignLinux(binary_name, binary_dir, signature_output_dir):
+  binary = binary_dir + "/" + binary_name
+  private_key = ROOT_DIR + "/common/keys/linux/key.pem"
+  signature = signature_output_dir + "/" + binary_name + ".sig"
+  msg.Info("Signing " + binary + " with " + private_key + " -> " + signature)
+  iutl.RunCommand(["openssl", "dgst", "-sign", private_key, "-keyform", "PEM", "-sha256", "-out", signature, "-binary", binary])
+
+
 def BuildInstallerLinux(configdata, qt_root):
+  # Creates the following:
+  # * windscribe_2.x.y_amd64.deb
+  # * windscribe_2.x.y_amd64.deb.sig
+  # * windscribe-2.x.y-x86_64.rpm
+  # * windscribe-2.x.y-x86_64.rpm.sig
+  # * windscribe_2.x.y_amd64.key
   msg.Info("Copying lib_files_linux...")
   if "lib_files_linux" in configdata:
     for k, v in configdata["lib_files_linux"].iteritems():
@@ -485,6 +558,20 @@ def BuildInstallerLinux(configdata, qt_root):
       dstfile = os.path.join(BUILD_INSTALLER_FILES, k)
       FixRpathLinux(dstfile)
 
+  # Copy wstunnel into InstallerFiles
+  msg.Info("Copying wstunnel...")
+  wstunnel_dir = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "wstunnel")
+  CopyFile("windscribewstunnel",wstunnel_dir, BUILD_INSTALLER_FILES)
+
+  # sign supplementary binaries and move the signatures into InstallerFiles/signatures
+  if not "debug" in sys.argv:
+    signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")
+    msg.Print("Creating signatures path: " + signatures_dir)
+    utl.CreateDirectory(signatures_dir, True)
+    if "files_codesign_linux" in configdata:
+      for binary_name in configdata["files_codesign_linux"]:
+        CodeSignLinux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
+
   # Copy wstunnel
   msg.Info("Copying wstunnel...")
   wstunnel_dir = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "wstunnel")
@@ -496,17 +583,31 @@ def BuildInstallerLinux(configdata, qt_root):
 
   msg.Info("Creating Debian package...")
   src_package_path = os.path.join(ROOT_DIR, "installer", "linux", "debian_package")
-  dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_{}_amd64".format(BUILD_APP_VERSION_STRINGS[2]))
+  dest_package_name = "windscribe_{}_amd64".format(BUILD_APP_VERSION_STRING)
+  dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
 
+  # copy debian_package and InstallerFiles into dest_package 
   utl.CopyAllFiles(src_package_path, dest_package_path)
   utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "usr", "local", "windscribe"))
 
   UpdateVersionInDebianControl(os.path.join(dest_package_path, "DEBIAN", "control"))
 
+  # create and sign .deb with dest_package 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
-  msg.Info("Creating RPM package...")
-  iutl.RunCommand(["fpm", "-s", "deb", "-t", "rpm", dest_package_path + ".deb"])
+  CodeSignLinux(dest_package_name + ".deb", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
 
+  # include key in target package 
+  key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
+  key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRING)
+  key_dest = os.path.join(TEMP_INSTALLER_DIR, key_package_name)
+  utl.CopyFile(key_src, key_dest)
+
+  # create RPM from deb
+  # msg.Info("Creating RPM package...")
+  rpm_package_name = "windscribe_{}_x86_64.rpm".format(BUILD_APP_VERSION_STRING)
+  iutl.RunCommand(["fpm", "-s", "deb", "-p", rpm_package_name, "-t", "rpm", dest_package_path + ".deb"])
+  CodeSignLinux(rpm_package_name, TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
+  rpm_key_dest = os.path.join(TEMP_INSTALLER_DIR, rpm_package_name + ".key")
 
 def BuildAll():
   # Load config.
@@ -521,9 +622,9 @@ def BuildAll():
       configdata["installer"][current_os] not in configdata:
     raise iutl.InstallError("Missing {} installer target in \"{}\".".format(current_os, BUILD_CFGNAME))
   # Extract app version.
-  global BUILD_APP_VERSION_STRINGS
-  BUILD_APP_VERSION_STRINGS = ExtractAppVersion()
-  msg.Info("App version extracted: \"{}\"".format(BUILD_APP_VERSION_STRINGS[0]))
+  global BUILD_APP_VERSION_STRING
+  BUILD_APP_VERSION_STRING = ExtractAppVersion()
+  msg.Info("App version extracted: \"{}\"".format(BUILD_APP_VERSION_STRING))
   # Get Qt directory.
   qt_root = iutl.GetDependencyBuildRoot("qt")
   if not qt_root:
@@ -540,32 +641,40 @@ def BuildAll():
       raise iutl.InstallError("CRT files not found.")
   # Prepare output.
   artifact_dir = os.path.join(ROOT_DIR, "build-exe")
-  utl.RemoveDirectory(artifact_dir)
+  if not NO_POST_CLEAN:
+    utl.RemoveDirectory(artifact_dir)
   temp_dir = iutl.PrepareTempDirectory("installer")
   global BUILD_INSTALLER_FILES, BUILD_SYMBOL_FILES
   if current_os == "macos":
     BUILD_INSTALLER_FILES = os.path.join(ROOT_DIR, "installer", "mac", "binaries")
   else:
     BUILD_INSTALLER_FILES = os.path.join(temp_dir, "InstallerFiles")
-  utl.CreateDirectory(BUILD_INSTALLER_FILES, True)
+  utl.CreateDirectory(BUILD_INSTALLER_FILES, False if NO_POST_CLEAN else True)
   if current_os == "win32": 
     BUILD_SYMBOL_FILES = os.path.join(temp_dir, "SymbolFiles")
-    utl.CreateDirectory(BUILD_SYMBOL_FILES, True)
+    utl.CreateDirectory(BUILD_SYMBOL_FILES, False if NO_POST_CLEAN else True)
   # Build the components.
   GenerateProtobuf()
   with utl.PushDir(temp_dir):
-    if configdata["targets"][current_os]:
-      BuildComponents(configdata, configdata["targets"][current_os], qt_root)
+    if BUILD_APP:
+      if configdata["targets"][current_os]:
+        BuildComponents(configdata, configdata["targets"][current_os], qt_root)
     if current_os == "win32":
-      BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
+      if BUILD_COM:
+        BuildAuthHelperWin32(configdata, configdata["targets"]["authhelper_win"])
+      if BUILD_INSTALLER:
+        BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root)
     elif current_os == "macos":
-      BuildInstallerMac(configdata, qt_root)
+      if BUILD_INSTALLER:
+        BuildInstallerMac(configdata, qt_root)
     elif current_os == "linux":
       BuildInstallerLinux(configdata, qt_root)
   # Copy artifacts.
   msg.Print("Installing artifacts...")
-  utl.CreateDirectory(artifact_dir, True)
+  utl.CreateDirectory(artifact_dir, False if NO_POST_CLEAN else True)
 
+  # Copy artifacts.
+  msg.Print("Installing artifacts...")
   if current_os == "macos":
     artifact_path = BUILD_INSTALLER_FILES
     installer_info = configdata[configdata["installer"]["macos"]]
@@ -584,13 +693,20 @@ def BuildAll():
     utl.CopyFile(filename, os.path.join(artifact_dir, filetitle))
     msg.HeadPrint("Ready: \"{}\"".format(filetitle))
   # Cleanup.
-  msg.Print("Cleaning temporary directory...")
-  utl.RemoveDirectory(temp_dir)
+  if not NO_POST_CLEAN:
+    msg.Print("Cleaning temporary directory...")
+    utl.RemoveDirectory(temp_dir)
 
 
 if __name__ == "__main__":
   start_time = time.time()
   current_os = utl.GetCurrentOS()
+
+  NO_POST_CLEAN = "--no-clean" in sys.argv
+  BUILD_APP = not ("--no-app" in sys.argv)
+  BUILD_COM = not ("--no-com" in sys.argv)
+  BUILD_INSTALLER = not ("--no-installer" in sys.argv)
+
   if current_os not in BUILD_OS_LIST:
     msg.Print("{} is not needed on {}, skipping.".format(BUILD_TITLE, current_os))
     sys.exit(0)

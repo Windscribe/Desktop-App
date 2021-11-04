@@ -18,6 +18,7 @@
 #include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/types/protocoltype.h"
 #include "utils/macutils.h"
+#include "utils/executable_signature/executable_signature.h"
 
 #ifdef Q_OS_LINUX
     #include "utils/dnsscripts_linux.h"
@@ -262,22 +263,95 @@ void Helper_posix::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bo
     }
 }
 
+/*bool Helper_posix::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
+{
+    Q_UNUSED(ifIndex)
+    Q_UNUSED(overrideDnsIpAddress)
 
-bool Helper_posix::startWireGuard(const QString &exeName, const QString &deviceName)
+    // get list of entries of interest
+    QStringList networkServices = MacUtils::getListOfDnsNetworkServiceEntries();
+
+    // filter list to only SetByWindscribe entries
+    QStringList dnsNetworkServices;
+
+    if (isIkev2)
+    {
+        // IKEv2 is slightly different -- look for "ConfirmedServiceID" key in each DNS dictionary
+        for (QString service : networkServices)
+        {
+            if (MacUtils::dynamicStoreEntryHasKey(service, "ConfirmedServiceID"))
+            {
+                dnsNetworkServices.append(service);
+            }
+        }
+    }
+    else
+    {
+        // WG and openVPN: just look for 'SetByWindscribe' key in each DNS dictionary
+        for (QString service : networkServices)
+        {
+            if (MacUtils::dynamicStoreEntryHasKey(service, "SetByWindscribe"))
+            {
+                dnsNetworkServices.append(service);
+            }
+        }
+    }
+    qCDebug(LOG_CONNECTED_DNS) << "Applying custom 'while connected' DNS change to network services: " << dnsNetworkServices;
+
+    if (dnsNetworkServices.isEmpty())
+    {
+        qCDebug(LOG_CONNECTED_DNS) << "No network services to confirgure 'while connected' DNS";
+        return false;
+    }
+
+    // change DNS on each entry
+    bool successAll = true;
+    for (QString service : dnsNetworkServices)
+    {
+        if (!Helper_posix::setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service))
+        {
+            successAll = false;
+            qCDebug(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;
+            break;
+        }
+    }
+
+    return successAll;
+}
+*/
+
+IHelper::ExecuteError Helper_posix::startWireGuard(const QString &exeName, const QString &deviceName)
 {
     // Make sure the device socket is closed.
     auto result = executeRootCommand("rm -f /var/run/wireguard/" + deviceName + ".sock");
     if (!result.isEmpty()) {
         qCDebug(LOG_WIREGUARD) << "Helper_mac: sock rm failed:" << result;
-        return false;
+        return IHelper::EXECUTE_ERROR;
     }
 
     QMutexLocker locker(&mutex_);
+
+    // check executable signature
+    // no need for windows implementation in posix file
+#if defined Q_OS_LINUX
+    const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName;
+#else
+    const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewireguard";
+#endif
+
+    if (!ExecutableSignature::verifyWithSignCheck(wireGuardExePath))
+    {
+        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect";
+        return IHelper::EXECUTE_VERIFY_ERROR;
+    }
+
     wireGuardExeName_ = exeName;
     wireGuardDeviceName_.clear();
 
     if (curState_ != STATE_CONNECTED)
-        return false;
+    {
+        return IHelper::EXECUTE_ERROR;
+    }
 
     CMD_START_WIREGUARD cmd;
 #ifdef Q_OS_MAC
@@ -295,18 +369,18 @@ bool Helper_posix::startWireGuard(const QString &exeName, const QString &deviceN
 
     if (!sendCmdToHelper(HELPER_CMD_START_WIREGUARD, stream.str())) {
         doDisconnectAndReconnect();
-        return false;
+        return IHelper::EXECUTE_ERROR;
     }
     CMD_ANSWER answerCmd;
     if (!readAnswer(answerCmd)) {
         doDisconnectAndReconnect();
-        return false;
+        return IHelper::EXECUTE_ERROR;
     }
 
     if (answerCmd.executed)
         wireGuardDeviceName_ = deviceName;
 
-    return answerCmd.executed != 0;
+    return answerCmd.executed != 0 ? IHelper::EXECUTE_SUCCESS : IHelper::EXECUTE_ERROR;
 }
 
 bool Helper_posix::stopWireGuard()
@@ -497,13 +571,27 @@ QString Helper_posix::executeRootCommand(const QString &commandLine, int *exitCo
     return "";
 }
 
-bool Helper_posix::executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId)
+IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId)
 {
     QMutexLocker locker(&mutex_);
 
+    // check openvpn executable signature
+    // no need for windows implementation in posix file
+#if defined Q_OS_LINUX
+    const QString &openVpnExePath = QCoreApplication::applicationDirPath() + "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
+#else
+    const QString &openVpnExePath = QCoreApplication::applicationDirPath() + "/../Helpers/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
+#endif
+
+    if (!ExecutableSignature::verifyWithSignCheck(openVpnExePath))
+    {
+        qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect";
+        return IHelper::EXECUTE_VERIFY_ERROR;
+    }
+
     if (curState_ != STATE_CONNECTED)
     {
-        return false;
+        return IHelper::EXECUTE_ERROR;
     }
 
     // get path to openvpn util
@@ -529,7 +617,7 @@ bool Helper_posix::executeOpenVPN(const QString &commandLine, const QString &pat
     if (!sendCmdToHelper(HELPER_CMD_EXECUTE_OPENVPN, stream.str()))
     {
         doDisconnectAndReconnect();
-        return false;
+        return IHelper::EXECUTE_ERROR;
     }
     else
     {
@@ -537,12 +625,12 @@ bool Helper_posix::executeOpenVPN(const QString &commandLine, const QString &pat
         if (!readAnswer(answerCmd))
         {
             doDisconnectAndReconnect();
-            return false;
+            return IHelper::EXECUTE_ERROR;
         }
         else
         {
             outCmdId = answerCmd.cmdId;
-            return true;
+            return IHelper::EXECUTE_SUCCESS;
         }
     }
 }

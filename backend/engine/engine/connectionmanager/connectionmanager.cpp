@@ -527,8 +527,11 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
                                                             || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC
                                                             || err == ProtoTypes::ConnectError::IKEV_FAILED_START_MAC
                                                             || err == ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC)))
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC))
+            || (!connSettingsPolicy_->isAutomaticMode() && err == ProtoTypes::ConnectError::EXE_VERIFY_OPENVPN_ERROR)
+            || (!connSettingsPolicy_->isAutomaticMode() && err == ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR))
     {
+        // immediately stop trying to connect
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
         emit errorDuringConnection(err);
@@ -912,11 +915,23 @@ void ConnectionManager::doConnectPart2()
 
             if (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL)
             {
-                stunnelManager_->runProcess();
+                if(!stunnelManager_->runProcess())
+                {
+                    state_ = STATE_DISCONNECTED;
+                    timerReconnection_.stop();
+                    emit errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_STUNNEL_ERROR);
+                    return;
+                }
             }
             else if (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_WSTUNNEL)
             {
-                wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port, false);
+                if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port, false))
+                {
+                    state_ = STATE_DISCONNECTED;
+                    timerReconnection_.stop();
+                    emit errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_WSTUNNEL_ERROR);
+                    return;
+                }
                 // call doConnectPart2 in onWstunnelStarted slot
                 return;
             }

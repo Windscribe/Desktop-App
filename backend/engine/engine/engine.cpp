@@ -19,6 +19,8 @@
 #include <QDir>
 #include "utils/executable_signature/executable_signature.h"
 #include "names.h"
+#include "version/appversion.h"
+#include "utils/linuxutils.h"
 
 #ifdef Q_OS_WIN
     #include "utils/bfe_service_win.h"
@@ -33,6 +35,7 @@
     #include "networkstatemanager/reachabilityevents.h"
 #elif defined Q_OS_LINUX
     #include "helper/helper_linux.h"
+    #include "utils/executable_signature/executablesignature_linux.h"
 #endif
 
 Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
@@ -1502,6 +1505,17 @@ void Engine::onCheckUpdateAnswer(bool available, const QString &version, const P
         if (!bNetworkErrorOccured)
         {
             installerUrl_ = url;
+
+#ifdef Q_OS_LINUX
+            // testing only
+//            if(LinuxUtils::isDeb()) {
+//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_amd64.deb";
+//            }
+//            else
+//            {
+//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_x86_64.rpm";
+//            }
+#endif
             qCDebug(LOG_BASIC) << "Installer URL: " << url;
             emit checkUpdateUpdated(available, version, updateChannel, latestBuild, url, supported);
         }
@@ -2036,7 +2050,14 @@ void Engine::updateVersionImpl(qint32 windowHandle)
 
     if (installerUrl_ != "")
     {
-        downloadHelper_->get(installerUrl_);
+        QMap<QString, QString> downloads;
+        downloads.insert(installerUrl_, downloadHelper_->downloadInstallerPath());
+#ifdef Q_OS_LINUX
+        downloads.insert(installerUrl_ + ".sig", downloadHelper_->signatureInstallPath());
+        downloads.insert(Utils::getDirPathFromFullPath(installerUrl_) + "/windscribe_" + AppVersion::instance().semanticVersionString() + ".key",
+                         downloadHelper_->publicKeyInstallPath());
+#endif
+        downloadHelper_->get(downloads);
     }
 }
 
@@ -2057,7 +2078,7 @@ void Engine::onDownloadHelperProgressChanged(uint progressPercent)
 void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state)
 {
     lastDownloadProgress_ = 100;
-    installerPath_ = downloadHelper_->downloadPath();
+    installerPath_ = downloadHelper_->downloadInstallerPath();
 
     if (state != DownloadHelper::DOWNLOAD_STATE_SUCCESS)
     {
@@ -2089,6 +2110,21 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
         return;
     }
     installerPath_ = tempInstallerFilename;
+#elif defined Q_OS_LINUX
+    if (!ExecutableSignature_linux::verifyWithPublicKeyFromFilesystem(installerPath_,
+                                                                      downloadHelper_->signatureInstallPath(),
+                                                                      downloadHelper_->publicKeyInstallPath()))
+    {
+        qCDebug(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer";
+        if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
+        if (QFile::exists(downloadHelper_->signatureInstallPath())) QFile::remove(downloadHelper_->signatureInstallPath());
+        if (QFile::exists(downloadHelper_->publicKeyInstallPath())) QFile::remove(downloadHelper_->publicKeyInstallPath());
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
+        return;
+    }
+    // no need for key and signature anymore and they must exist
+    QFile::remove(downloadHelper_->signatureInstallPath());
+    QFile::remove(downloadHelper_->publicKeyInstallPath());
 #endif
 
     emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);

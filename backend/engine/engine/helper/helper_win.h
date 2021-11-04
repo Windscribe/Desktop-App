@@ -34,7 +34,7 @@ public:
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 
      // WireGuard functions
-    bool startWireGuard(const QString &exeName, const QString &deviceName) override;
+    IHelper::ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;
     bool getWireGuardStatus(WireGuardStatus *status) override;
@@ -42,7 +42,7 @@ public:
 
     // Windows specific functions
     bool isHelperConnected() const;
-    bool executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
+    IHelper::ExecuteError executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
                         const QString &socksProxy, unsigned int socksPort,
                         unsigned long &outCmdId);
     bool executeTaskKill(const QString &executableName);

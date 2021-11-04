@@ -20,6 +20,8 @@ public:
     explicit IHelper(QObject *parent = 0) : QThread(parent) {}
     virtual ~IHelper() {}
 
+    enum ExecuteError { EXECUTE_SUCCESS, EXECUTE_ERROR, EXECUTE_VERIFY_ERROR };
+
     virtual void startInstallHelper() = 0;
     virtual STATE currentState() const = 0;
     virtual bool reinstallHelper() = 0;
@@ -38,7 +40,7 @@ public:
     virtual bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
 
     // WireGuard functions
-    virtual bool startWireGuard(const QString &exeName, const QString &deviceName) = 0;
+    virtual ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) = 0;
     virtual bool stopWireGuard() = 0;
     virtual bool configureWireGuard(const WireGuardConfig &config) = 0;
     virtual bool getWireGuardStatus(WireGuardStatus *status) = 0;

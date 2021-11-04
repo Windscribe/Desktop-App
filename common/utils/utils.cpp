@@ -479,3 +479,18 @@ bool Utils::accessibilityPermissions()
     return true;
 #endif
 }
+
+QString Utils::getDirPathFromFullPath(const QString &fullPath)
+{
+    int index = fullPath.lastIndexOf(QDir::separator());
+
+    if (index < 0)
+    {
+        qCDebug(LOG_BASIC) << "Failed to find index of delimiter";
+        Q_ASSERT(false);
+        return fullPath;
+    }
+
+    // exludes the "/" tail
+    return fullPath.mid(0, index);
+}
