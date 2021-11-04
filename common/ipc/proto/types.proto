@@ -456,6 +456,8 @@ enum UserWarningType
 {
   USER_WARNING_MAC_SPOOFING_FAILURE_HARD = 0;
   USER_WARNING_MAC_SPOOFING_FAILURE_SOFT = 1;
+  USER_WARNING_SEND_LOG_FILE_TOO_BIG = 2;
+  USER_WARNING_VIEW_LOG_FILE_TOO_BIG = 3;
 }
 
 // === GUI settings (use only in GUI-part) ================================

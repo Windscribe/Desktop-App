@@ -375,6 +375,7 @@ private:
     void cleanupLogViewerWindow();
 
     QRect guessTrayIconLocationOnScreen(QScreen *screen);
+    void showUserWarning(ProtoTypes::UserWarningType userWarningType);
 };
 
 #endif // MAINWINDOW_H
