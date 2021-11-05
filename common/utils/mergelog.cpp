@@ -14,7 +14,10 @@
 namespace
 {
 
-const quint64 MAX_FILE_SIZE = 500000000; // 500MB
+// Application seems to crash reliably (in debug mode) at 630MB
+// Selecting a slightly lower max combined file size to prevent app from crashing
+// Even at 500MB, application is very slow to load (5-10s) and UI background glitches are obivous
+const quint64 MAX_COMBINED_LOG_SIZE = 500000000; // 500MB
 
 bool isYearInDatePresent(const std::string &dateline)
 {
@@ -106,7 +109,7 @@ bool MergeLog::canMerge()
     QFileInfo prevServiceLogInfo(prevServiceLogLocation());
     mergedFileSize += prevServiceLogInfo.size() * 2; // why are we merging twice though, is this a bug?
 
-    return mergedFileSize < MAX_FILE_SIZE;
+    return mergedFileSize < MAX_COMBINED_LOG_SIZE;
 }
 
 int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QString>> *lines, const QString *filename, LineSource source, bool useMinMax, QDateTime min, QDateTime max)
@@ -166,13 +169,13 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
 const QString MergeLog::guiLogLocation()
 {
     QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    return path + "/log_gui_big.txt";
+    return path + "/log_gui.txt";
 }
 
 const QString MergeLog::engineLogLocation()
 {
     QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    return path + "/log_engine_big.txt";
+    return path + "/log_engine.txt";
 }
 
 const QString MergeLog::serviceLogLocation()
