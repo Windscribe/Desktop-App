@@ -13,7 +13,8 @@
 
 namespace
 {
-
+// On Linux and Mac: big files take a while to load but can be loaded. Tested with 2GB (on linux) and 10GB file on OSX
+// On Windows only:
 // Application seems to crash reliably (in debug mode) at 630MB
 // Selecting a slightly lower max combined file size to prevent app from crashing
 // Even at 500MB, application is very slow to load (5-10s) and UI background glitches are obivous
