@@ -1,7 +1,7 @@
 #include "networkdetectionmanager_mac.h"
 
 #include <QRegularExpression>
-#include "../networkstatemanager/reachabilityevents.h"
+#include "../networkdetectionmanager/reachabilityevents.h"
 #include "utils/macutils.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -35,12 +35,12 @@ const ProtoTypes::NetworkInterface NetworkDetectionManager_mac::lastNetworkInter
     return lastNetworkInterface_;
 }
 
-void NetworkDetectionManager_mac::updateCurrentNetworkInterface(bool requested)
+void NetworkDetectionManager_mac::updateCurrentNetworkInterface()
 {
     QMutexLocker locker(&mutex_);
 
     ProtoTypes::NetworkInterface networkInterface = MacUtils::currentNetworkInterface();
-    networkInterface.set_requested(requested);
+    networkInterface.set_requested(false);
     lastNetworkInterface_ = networkInterface;
 
     emit networkChanged(networkInterface);

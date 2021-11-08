@@ -170,8 +170,7 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
 LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
 
 
-SOURCES += engine/networkstatemanager/networkstatemanager_mac.cpp \
-           engine/firewall/firewallcontroller_mac.cpp \
+SOURCES += engine/firewall/firewallcontroller_mac.cpp \
            engine/ipv6controller_mac.cpp \
            engine/connectionmanager/networkextensionlog_mac.cpp \
            engine/ping/pinghost_icmp_mac.cpp \
@@ -183,9 +182,8 @@ SOURCES += engine/networkstatemanager/networkstatemanager_mac.cpp \
 
 HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/connectionmanager/sleepevents_mac.h \
-               engine/networkstatemanager/reachabilityevents.h \
+               engine/networkdetectionmanager/reachabilityevents.h \
                engine/connectionmanager/restorednsmanager_mac.h \
-               engine/networkstatemanager/networkstatemanager_mac.h \
                engine/helper/helper_posix.h \
                engine/helper/helper_mac.h \
                engine/helper/installhelper_mac.h \
@@ -201,13 +199,13 @@ HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
 
 OBJECTIVE_HEADERS += \
-               engine/networkstatemanager/reachability.h \
+               engine/networkdetectionmanager/reachability.h \
                $$COMMON_PATH/exithandler_mac.h
 
 OBJECTIVE_SOURCES += $$COMMON_PATH/utils/macutils.mm \
                      engine/connectionmanager/sleepevents_mac.mm \
-                     engine/networkstatemanager/reachability.m \
-                     engine/networkstatemanager/reachabilityevents.mm \
+                     engine/networkdetectionmanager/reachability.m \
+                     engine/networkdetectionmanager/reachabilityevents.mm \
                      engine/connectionmanager/restorednsmanager_mac.mm \
                      engine/helper/installhelper_mac.mm \
                      engine/proxy/pmachelpers.mm \

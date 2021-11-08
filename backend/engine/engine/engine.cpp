@@ -32,7 +32,7 @@
 #elif defined Q_OS_MAC
     #include "ipv6controller_mac.h"
     #include "utils/macutils.h"
-    #include "networkstatemanager/reachabilityevents.h"
+    #include "networkdetectionmanager/reachabilityevents.h"
 #elif defined Q_OS_LINUX
     #include "helper/helper_linux.h"
     #include "utils/executable_signature/executablesignature_linux.h"
