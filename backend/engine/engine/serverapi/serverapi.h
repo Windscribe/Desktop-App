@@ -23,7 +23,7 @@ class ServerAPI : public QObject
 public:
     class BaseRequest;
 
-    explicit ServerAPI(QObject *parent, INetworkStateManager *networkStateManager);
+    explicit ServerAPI(QObject *parent);
     virtual ~ServerAPI();
 
     uint getAvailableUserRole();
@@ -67,8 +67,6 @@ public:
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
 
-    bool isOnline();
-
     void setIgnoreSslErrors(bool bIgnore);
 
     void onTunnelTestDnsResolve(const QStringList &ips);
@@ -98,7 +96,6 @@ signals:
 private slots:
     void onDnsResolved(bool success, void *userData, qint64 requestStartTime, const QStringList &ips);
     void onCurlNetworkRequestFinished(CurlRequest *curlRequest);
-    void onNetworkAccessibleChanged(bool isOnline, const QString &networkInterface);
     void onRequestTimer();
 
 private:
@@ -183,10 +180,7 @@ private:
     void handleStaticIpsCurl(BaseRequest *rd, bool success);
     void handleWireGuardConfigCurl(BaseRequest *rd, bool success);
 
-    INetworkStateManager *networkStateManager_;
     CurlNetworkManager curlNetworkManager_;
-
-    bool bIsOnline_;
 
     QString lastLocationsLanguage_;
 

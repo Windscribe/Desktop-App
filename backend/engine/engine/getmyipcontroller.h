@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QQueue>
 #include <QTimer>
-#include "engine/networkstatemanager/inetworkstatemanager.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 
 class ServerAPI;
 
@@ -12,7 +12,7 @@ class GetMyIPController : public QObject
 {
     Q_OBJECT
 public:
-    explicit GetMyIPController(QObject *parent, ServerAPI *serverAPI, INetworkStateManager *networkStateManager);
+    explicit GetMyIPController(QObject *parent, ServerAPI *serverAPI, INetworkDetectionManager *networkDetectionManager);
 
     void getIPFromConnectedState(int timeoutMs);
     void getIPFromDisconnectedState(int timeoutMs);
@@ -26,7 +26,7 @@ private slots:
 
 private:
     ServerAPI *serverAPI_;
-    INetworkStateManager *networkStateManager_;
+    INetworkDetectionManager *networkDetectionManager_;
     uint serverApiUserRole_;
 
     bool requestForTimerIsDisconnected_;

@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "3rdparty/pstream.h"
+#include <sys/stat.h>
 
 namespace Utils
 {
@@ -63,6 +64,12 @@ size_t findCaseInsensitive(std::string data, std::string toSearch, size_t pos)
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
     std::transform(toSearch.begin(), toSearch.end(), toSearch.begin(), ::tolower);
     return data.find(toSearch, pos);
+}
+
+bool isFileExists(const std::string &name)
+{
+    struct stat buffer;
+    return (stat (name.c_str(), &buffer) == 0);
 }
 
 }

@@ -9,9 +9,9 @@
 
 namespace locationsmodel {
 
-ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost) : QObject(parent),
+ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost) : QObject(parent),
     pingStorage_("pingStorage"),
-    pingIpsController_(this, stateController, networkStateManager, pingHost, "ping_log.txt")
+    pingIpsController_(this, stateController, networkDetectionManager, pingHost, "ping_log.txt")
 {
     connect(&pingIpsController_, SIGNAL(pingInfoChanged(QString,int, bool)), SLOT(onPingInfoChanged(QString,int, bool)));
     connect(&pingIpsController_, SIGNAL(needIncrementPingIteration()), SLOT(onNeedIncrementPingIteration()));

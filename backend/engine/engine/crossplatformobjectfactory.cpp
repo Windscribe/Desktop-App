@@ -2,20 +2,17 @@
 
 #ifdef Q_OS_WIN
     #include "helper/helper_win.h"
-    #include "networkstatemanager/networkstatemanager_win.h"
     #include "networkdetectionmanager/networkdetectionmanager_win.h"
     #include "firewall/firewallcontroller_win.h"
     #include "macaddresscontroller/macaddresscontroller_win.h"
 
 #elif defined Q_OS_MAC
     #include "helper/helper_mac.h"
-    #include "networkstatemanager/networkstatemanager_mac.h"
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "firewall/firewallcontroller_mac.h"
     #include "macaddresscontroller/macaddresscontroller_mac.h"
 #elif defined Q_OS_LINUX
     #include "helper/helper_linux.h"
-    #include "networkstatemanager/networkstatemanager_linux.h"
     #include "networkdetectionmanager/networkdetectionmanager_linux.h"
     #include "firewall/firewallcontroller_linux.h"
     #include "macaddresscontroller/macaddresscontroller_linux.h"
@@ -29,19 +26,6 @@ IHelper *CrossPlatformObjectFactory::createHelper(QObject *parent)
     return new Helper_mac(parent);
 #elif defined Q_OS_LINUX
     return new Helper_linux(parent);
-#endif
-}
-
-INetworkStateManager *CrossPlatformObjectFactory::createNetworkStateManager(QObject *parent, INetworkDetectionManager *networkDetectionManager)
-{
-#ifdef Q_OS_WIN
-    return new NetworkStateManager_win(parent, networkDetectionManager);
-#elif defined Q_OS_MAC
-    Q_UNUSED(networkDetectionManager);
-    return new NetworkStateManager_mac(parent);
-#elif defined Q_OS_LINUX
-    Q_UNUSED(networkDetectionManager);
-    return new NetworkStateManager_linux(parent);
 #endif
 }
 

@@ -7,7 +7,6 @@
 #include <QThread>
 #include <QUrl>
 #include <QUrlQuery>
-#include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "engine/hardcodedsettings.h"
 #include "engine/openvpnversioncontroller.h"
 #include "utils/logger.h"
@@ -284,9 +283,7 @@ private:
 };
 } // namespace
 
-ServerAPI::ServerAPI(QObject *parent, INetworkStateManager *networkStateManager) : QObject(parent),
-    networkStateManager_(networkStateManager),
-    bIsOnline_(true),
+ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
     hostMode_(HOST_MODE_HOSTNAME),
     bIsRequestsEnabled_(false),
     curUserRole_(0),
@@ -296,7 +293,6 @@ ServerAPI::ServerAPI(QObject *parent, INetworkStateManager *networkStateManager)
     requestTimer_(this)
 {
     connect(&curlNetworkManager_, &CurlNetworkManager::finished, this, &ServerAPI::onCurlNetworkRequestFinished);
-    connect(networkStateManager_, &INetworkStateManager::stateChanged, this, &ServerAPI::onNetworkAccessibleChanged);
 
     dnsCache_ = new DnsCache(this);
     connect(dnsCache_, &DnsCache::resolved, this, &ServerAPI::onDnsResolved);
@@ -519,12 +515,6 @@ void ServerAPI::accessIps(const QString &hostIp, uint userRole, bool isNeedCheck
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        emit accessIpsAnswer(SERVER_RETURN_NETWORK_ERROR, QStringList(), userRole);
-        return;
-    }
-
     QUrl url("https://" + hostIp + "/ApiAccessIps");
     url.setQuery(MakeQuery(""));
 
@@ -546,12 +536,6 @@ void ServerAPI::login(const QString &username, const QString &password, const QS
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", userRole);
-        return;
-    }
-
     submitDnsRequest( createRequest<LoginRequest>(
         username, password, code2fa, hostname_, REPLY_LOGIN, NETWORK_TIMEOUT, userRole) );
  }
@@ -561,12 +545,6 @@ void ServerAPI::session(const QString &authHash, uint userRole, bool isNeedCheck
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
         emit sessionAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::SessionStatus(), userRole);
-        return;
-    }
-
-    if (!bIsOnline_)
-    {
-        emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), userRole);
         return;
     }
 
@@ -580,12 +558,6 @@ void ServerAPI::serverLocations(const QString &authHash, const QString &language
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
         emit serverLocationsAnswer(SERVER_RETURN_API_NOT_READY, QVector<apiinfo::Location>(), QStringList(), userRole);
-        return;
-    }
-
-    if (!bIsOnline_)
-    {
-        emit serverLocationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<apiinfo::Location>(), QStringList(), userRole);
         return;
     }
 
@@ -624,12 +596,6 @@ void ServerAPI::serverCredentials(const QString &authHash, uint userRole, Protoc
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        emit serverCredentialsAnswer(SERVER_RETURN_NETWORK_ERROR, "", "", protocol, userRole);
-        return;
-    }
-
     submitDnsRequest(createRequest<ServerCredentialsRequest>(
         authHash, protocol, hostname_, REPLY_SERVER_CREDENTIALS, NETWORK_TIMEOUT, userRole));
 }
@@ -639,12 +605,6 @@ void ServerAPI::deleteSession(const QString &authHash, uint userRole, bool isNee
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
         qCDebug(LOG_SERVER_API) << "API request DeleteSession failed: API not ready";
-        return;
-    }
-
-    if (!bIsOnline_)
-    {
-        qCDebug(LOG_SERVER_API) << "API request DeleteSession failed: no network connectivity";
         return;
     }
 
@@ -660,12 +620,6 @@ void ServerAPI::serverConfigs(const QString &authHash, uint userRole, bool isNee
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        emit serverConfigsAnswer(SERVER_RETURN_NETWORK_ERROR, QByteArray(), userRole);
-        return;
-    }
-
     submitDnsRequest(createRequest<AuthenticatedRequest>(
         authHash, hostname_, REPLY_SERVER_CONFIGS, NETWORK_TIMEOUT, userRole));
 }
@@ -675,12 +629,6 @@ void ServerAPI::portMap(const QString &authHash, uint userRole, bool isNeedCheck
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
         emit portMapAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::PortMap(), userRole);
-        return;
-    }
-
-    if (!bIsOnline_)
-    {
-        emit portMapAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::PortMap(), userRole);
         return;
     }
 
@@ -696,12 +644,6 @@ void ServerAPI::recordInstall(uint userRole, bool isNeedCheckRequestsEnabled)
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        qCDebug(LOG_SERVER_API) << "API request RecordInstall failed: no network connectivity";
-        return;
-    }
-
     submitDnsRequest(createRequest<GenericRequest>(
         hostname_, REPLY_RECORD_INSTALL, NETWORK_TIMEOUT, userRole));
 }
@@ -711,12 +653,6 @@ void ServerAPI::confirmEmail(uint userRole, const QString &authHash, bool isNeed
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
         qCDebug(LOG_SERVER_API) << "API request Users failed: API not ready";
-        return;
-    }
-
-    if (!bIsOnline_)
-    {
-        qCDebug(LOG_SERVER_API) << "API request Users failed: no network connectivity";
         return;
     }
 
@@ -739,12 +675,6 @@ void ServerAPI::myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequest
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        emit myIPAnswer("N/A", false, isDisconnected, userRole);
-        return;
-    }
-
     submitDnsRequest(createRequest<GetMyIpRequest>(
         isDisconnected, hostname_, REPLY_MY_IP, GET_MY_IP_TIMEOUT, userRole));
 }
@@ -754,13 +684,6 @@ void ServerAPI::checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint 
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
         qCDebug(LOG_SERVER_API) << "Check update failed: API not ready";
-        emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, true, userRole);
-        return;
-    }
-
-    if (!bIsOnline_)
-    {
-        qCDebug(LOG_SERVER_API) << "Check update failed: no network connectivity";
         emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, true, userRole);
         return;
     }
@@ -777,12 +700,6 @@ void ServerAPI::debugLog(const QString &username, const QString &strLog, uint us
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        emit debugLogAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
-        return;
-    }
-
     submitDnsRequest(createRequest<DebugLogRequest>(
         username, strLog, hostname_, REPLY_DEBUG_LOG, NETWORK_TIMEOUT, userRole));
 }
@@ -792,12 +709,6 @@ void ServerAPI::speedRating(const QString &authHash, const QString &speedRatingH
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
         qCDebug(LOG_SERVER_API) << "SpeedRating request failed: API not ready";
-        return;
-    }
-
-    if (!bIsOnline_)
-    {
-        qCDebug(LOG_SERVER_API) << "SpeedRating request failed: no network connectivity";
         return;
     }
 
@@ -813,28 +724,12 @@ void ServerAPI::staticIps(const QString &authHash, const QString &deviceId, uint
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        emit staticIpsAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::StaticIps(), userRole);
-        return;
-    }
-
     submitDnsRequest(createRequest<StaticIpsRequest>(
         authHash, deviceId, hostname_, REPLY_STATIC_IPS, NETWORK_TIMEOUT, userRole));
 }
 
 void ServerAPI::pingTest(quint64 cmdId, uint timeout, bool bWriteLog)
 {
-    if (!bIsOnline_)
-    {
-        if (bWriteLog)
-        {
-            qCDebug(LOG_SERVER_API) << "PingTest request failed: no network connectivity";
-        }
-        emit pingTestAnswer(SERVER_RETURN_NETWORK_ERROR, "");
-        return;
-    }
-
     const QString kCheckIpHostname = HardcodedSettings::instance().serverTunnelTestUrl();
 
     if (bWriteLog)
@@ -866,12 +761,6 @@ void ServerAPI::notifications(const QString &authHash, uint userRole, bool isNee
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        emit notificationsAnswer(SERVER_RETURN_NETWORK_ERROR, QVector<apiinfo::Notification>(), userRole);
-        return;
-    }
-
     submitDnsRequest(createRequest<AuthenticatedRequest>(
         authHash, hostname_, REPLY_NOTIFICATIONS, NETWORK_TIMEOUT, userRole));
 }
@@ -885,21 +774,8 @@ void ServerAPI::getWireGuardConfig(const QString &authHash, uint userRole, bool 
         return;
     }
 
-    if (!bIsOnline_)
-    {
-        emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR,
-            QSharedPointer<WireGuardConfig>(), userRole);
-        return;
-    }
-
     submitDnsRequest(createRequest<AuthenticatedRequest>(
         authHash, hostname_, REPLY_WIREGUARD_CONFIG, NETWORK_TIMEOUT, userRole));
-}
-
-bool ServerAPI::isOnline()
-{
-    bIsOnline_ = networkStateManager_->isOnline();
-    return bIsOnline_;
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
@@ -966,13 +842,6 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
     // We are done with this request.
     rd->setCurlRequestSubmitted(false);
     rd->setActive(false);
-}
-
-void ServerAPI::onNetworkAccessibleChanged(bool isOnline, const QString &networkInterface)
-{
-    Q_UNUSED(isOnline);
-    Q_UNUSED(networkInterface);
-    //bIsOnline_ = isOnline;
 }
 
 void ServerAPI::handleRequestTimeout(BaseRequest *rd)

@@ -2,7 +2,6 @@
 #define IMACADDRESSCONTROLLER_H
 
 #include <QObject>
-#include "../networkstatemanager/inetworkstatemanager.h"
 #include "utils/protobuf_includes.h"
 
 class IMacAddressController : public QObject

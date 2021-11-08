@@ -78,16 +78,15 @@ void NetworkDetectionManager_win::resetAdapter(int ifIndex, bool bringBackUp)
 }
 
 
-
 void NetworkDetectionManager_win::onNetworkChanged()
 {
     updateCurrentNetworkInterface();
 }
 
-void NetworkDetectionManager_win::updateCurrentNetworkInterface(bool requested)
+void NetworkDetectionManager_win::updateCurrentNetworkInterface()
 {
     ProtoTypes::NetworkInterface curNetworkInterface = WinUtils::currentNetworkInterface();
-    curNetworkInterface.set_requested(requested);
+    curNetworkInterface.set_requested(false);
 
     // Only report a changed, properly formed
     if (lastSentNetworkInterface_.active() != curNetworkInterface.active()
@@ -103,13 +102,13 @@ void NetworkDetectionManager_win::updateCurrentNetworkInterface(bool requested)
                 if (!isOnline())
                 {
                     lastSentNetworkInterface_ = curNetworkInterface;
-                    emit networkChanged(curNetworkInterface);
+                    emit networkChanged(false, curNetworkInterface);
                 }
             }
             else
             {
                 lastSentNetworkInterface_ = curNetworkInterface;
-                emit networkChanged(curNetworkInterface);
+                emit networkChanged(isOnline(), curNetworkInterface);
             }
         }
         else

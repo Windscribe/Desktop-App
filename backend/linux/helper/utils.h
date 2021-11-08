@@ -17,6 +17,9 @@ namespace Utils
 
     // find case insensitive sub string in a given substring
     size_t findCaseInsensitive(std::string data, std::string toSearch, size_t pos = 0);
+
+    bool isFileExists(const std::string &name);
+
 };
 
 #endif

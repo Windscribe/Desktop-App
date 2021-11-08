@@ -31,6 +31,12 @@ MainWindow *g_MainWindow = NULL;
         if (signum == SIGTERM)
         {
             qCDebug(LOG_BASIC) << "SIGTERM signal received";
+
+            // on linux we consider the SIGTERM as a reboot of the OS, because there is no other option.
+            #ifdef Q_OS_LINUX
+                WindscribeApplication::instance()->setWasRestartOSFlag();
+            #endif
+
             if (g_MainWindow)
             {
                 g_MainWindow->doClose(NULL, true);

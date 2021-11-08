@@ -41,7 +41,6 @@
 Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     engineSettings_(engineSettings),
     helper_(nullptr),
-    networkStateManager_(nullptr),
     firewallController_(nullptr),
     networkAccessManager_(nullptr),
     serverAPI_(nullptr),
@@ -484,9 +483,9 @@ void Engine::forceUpdateServerLocations()
     QMetaObject::invokeMethod(this, "forceUpdateServerLocationsImpl");
 }
 
-void Engine::updateCurrentNetworkInterface(bool requested)
+void Engine::updateCurrentNetworkInterface()
 {
-    QMetaObject::invokeMethod(this, "updateCurrentNetworkInterfaceImpl", Q_ARG(bool, requested));
+    QMetaObject::invokeMethod(this, "updateCurrentNetworkInterfaceImpl");
 }
 
 void Engine::updateCurrentInternetConnectivity()
@@ -565,7 +564,6 @@ void Engine::initPart2()
 #endif
 
     networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_);
-    networkStateManager_ = CrossPlatformObjectFactory::createNetworkStateManager(this, networkDetectionManager_);
 
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
     firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
@@ -574,8 +572,7 @@ void Engine::initPart2()
     *macAddrSpoofing.mutable_network_interfaces() = Utils::currentNetworkInterfaces(true);
     setSettingsMacAddressSpoofing(macAddrSpoofing);
 
-    connect(networkDetectionManager_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChange(ProtoTypes::NetworkInterface)));
-    connect(networkStateManager_, SIGNAL(stateChanged(bool,QString)), SLOT(onNetworkStateManagerStateChanged(bool, QString)));
+    connect(networkDetectionManager_, SIGNAL(networkChanged(bool, ProtoTypes::NetworkInterface)), SLOT(onNetworkChange(bool, ProtoTypes::NetworkInterface)));
 
     macAddressController_ = CrossPlatformObjectFactory::createMacAddressController(this, networkDetectionManager_, helper_);
     macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
@@ -598,7 +595,7 @@ void Engine::initPart2()
     networkAccessManager_ = new NetworkAccessManager(this);
     connect(networkAccessManager_, SIGNAL(whitelistIpsChanged(QSet<QString>)), SLOT(onWhitelistedIPsChanged(QSet<QString>)));
 
-    serverAPI_ = new ServerAPI(this, networkStateManager_);
+    serverAPI_ = new ServerAPI(this);
     connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)),
                         SLOT(onSessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(checkUpdateAnswer(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool,bool,uint)), SLOT(onCheckUpdateAnswer(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool,bool,uint)), Qt::QueuedConnection);
@@ -620,7 +617,7 @@ void Engine::initPart2()
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
-    connectionManager_ = new ConnectionManager(this, helper_, networkStateManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
+    connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
     connectionManager_->setPacketSize(packetSize_);
     connectionManager_->setDnsWhileConnectedInfo(engineSettings_.getDnsWhileConnectedInfo());
     connect(connectionManager_, SIGNAL(connected()), SLOT(onConnectionManagerConnected()));
@@ -637,11 +634,11 @@ void Engine::initPart2()
     connect(connectionManager_, SIGNAL(requestUsername(QString)), SLOT(onConnectionManagerRequestUsername(QString)));
     connect(connectionManager_, SIGNAL(requestPassword(QString)), SLOT(onConnectionManagerRequestPassword(QString)));
 
-    locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkStateManager_);
+    locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_);
     connect(locationsModel_, SIGNAL(whitelistLocationsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistIpsChanged(QStringList)));
     connect(locationsModel_, SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistCustomConfigIpsChanged(QStringList)));
 
-    getMyIPController_ = new GetMyIPController(this, serverAPI_, networkStateManager_);
+    getMyIPController_ = new GetMyIPController(this, serverAPI_, networkDetectionManager_);
     connect(getMyIPController_, SIGNAL(answerMyIP(QString,bool,bool)), SLOT(onMyIpAnswer(QString,bool,bool)));
 
     vpnShareController_ = new VpnShareController(this, helper_);
@@ -926,7 +923,6 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(updateSessionStatusTimer_);
     SAFE_DELETE(notificationsUpdateTimer_);
     SAFE_DELETE(locationsModel_);
-    SAFE_DELETE(networkStateManager_);
     SAFE_DELETE(networkDetectionManager_);
     SAFE_DELETE(downloadHelper_);
     SAFE_DELETE(networkAccessManager_);
@@ -1157,13 +1153,13 @@ void Engine::gotoCustomOvpnConfigModeImpl()
 
 void Engine::updateCurrentInternetConnectivityImpl()
 {
-    online_ = networkStateManager_->isOnline();
+    online_ = networkDetectionManager_->isOnline();
     emit internetConnectivityChanged(online_);
 }
 
-void Engine::updateCurrentNetworkInterfaceImpl(bool requested)
+void Engine::updateCurrentNetworkInterfaceImpl()
 {
-    networkDetectionManager_->updateCurrentNetworkInterface(requested);
+    networkDetectionManager_->updateCurrentNetworkInterface();
 }
 
 void Engine::firewallOnImpl()
@@ -2268,23 +2264,20 @@ void Engine::onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &
     updateFirewallSettings();
 }
 
-void Engine::onNetworkChange(ProtoTypes::NetworkInterface networkInterface)
+void Engine::onNetworkChange(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface)
 {
+    if (!isOnline && runningPacketDetection_)
+    {
+        qCDebug(LOG_BASIC) << "Internet lost during packet size detection -- stopping";
+        stopPacketDetection();
+    }
+
     emit networkChanged(networkInterface);
 }
 
 void Engine::stopPacketDetection()
 {
     QMetaObject::invokeMethod(this, "stopPacketDetectionImpl");
-}
-
-void Engine::onNetworkStateManagerStateChanged(bool isActive, const QString & /*networkInterface*/)
-{
-    if (!isActive && runningPacketDetection_)
-    {
-        qCDebug(LOG_BASIC) << "Internet lost during packet size detection -- stopping";
-        stopPacketDetection();
-    }
 }
 
 void Engine::onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
@@ -2442,7 +2435,7 @@ void Engine::startLoginController(const LoginSettings &loginSettings, bool bFrom
 {
     Q_ASSERT(loginController_ == NULL);
     Q_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
-    loginController_ = new LoginController(this, helper_, networkStateManager_, serverAPI_, engineSettings_.language(), engineSettings_.connectionSettings().protocol());
+    loginController_ = new LoginController(this, helper_, networkDetectionManager_, serverAPI_, engineSettings_.language(), engineSettings_.connectionSettings().protocol());
     connect(loginController_, SIGNAL(finished(LOGIN_RET, apiinfo::ApiInfo, bool)), SLOT(onLoginControllerFinished(LOGIN_RET, apiinfo::ApiInfo, bool)));
     connect(loginController_, SIGNAL(readyForNetworkRequests()), SLOT(onReadyForNetworkRequests()));
     connect(loginController_, SIGNAL(stepMessage(LOGIN_MESSAGE)), SLOT(onLoginControllerStepMessage(LOGIN_MESSAGE)));

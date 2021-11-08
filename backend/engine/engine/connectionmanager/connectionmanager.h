@@ -10,7 +10,6 @@
 #include "makeovpnfilefromcustom.h"
 
 #include "iconnection.h"
-#include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "testvpntunnel.h"
 #include "engine/types/protocoltype.h"
 #include "engine/types/wireguardconfig.h"
@@ -25,6 +24,7 @@
 #endif
 
 
+class INetworkDetectionManager;
 class ISleepEvents;
 class IKEv2Connection;
 
@@ -34,7 +34,7 @@ class ConnectionManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ConnectionManager(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager,
+    explicit ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
                                ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
@@ -110,7 +110,7 @@ private slots:
     void onSleepMode();
     void onWakeMode();
 
-    void onNetworkStateChanged(bool isAlive, const QString &networkInterface);
+    void onNetworkStateChanged(bool isAlive, const ProtoTypes::NetworkInterface &networkInterface);
 
     void onTimerReconnection();
 
@@ -129,7 +129,7 @@ private:
           STATE_SLEEP_MODE_NEED_RECONNECT, STATE_WAKEUP_RECONNECTING, STATE_AUTO_DISCONNECT, STATE_ERROR_DURING_CONNECTION};
 
     IHelper *helper_;
-    INetworkStateManager *networkStateManager_;
+    INetworkDetectionManager *networkDetectionManager_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
 
     IConnection *connector_;

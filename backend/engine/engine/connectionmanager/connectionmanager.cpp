@@ -11,7 +11,7 @@
 #include "engine/types/types.h"
 #include "engine/types/connectionsettings.h"
 
-#include "engine/networkstatemanager/inetworkstatemanager.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
 
@@ -38,10 +38,10 @@
 
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
 
-ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager,
+ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
                                              ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
     helper_(helper),
-    networkStateManager_(networkStateManager),
+    networkDetectionManager_(networkDetectionManager),
     customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
     connector_(NULL),
     sleepEvents_(NULL),
@@ -76,11 +76,11 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkS
 
 #ifdef Q_OS_WIN
     sleepEvents_ = new SleepEvents_win(this);
-    connect(networkStateManager_, SIGNAL(stateChanged(bool, QString)), SLOT(onNetworkStateChanged(bool, QString)));
 #elif defined Q_OS_MAC
     sleepEvents_ = new SleepEvents_mac(this);
-    connect(networkStateManager_, SIGNAL(stateChanged(bool, QString)), SLOT(onNetworkStateChanged(bool, QString)));
 #endif
+
+    connect(networkDetectionManager_, SIGNAL(networkChanged(bool, ProtoTypes::NetworkInterface)), SLOT(onNetworkStateChanged(bool, ProtoTypes::NetworkInterface)));
 
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     connect(sleepEvents_, SIGNAL(gotoSleep()), SLOT(onSleepMode()));
@@ -699,9 +699,9 @@ void ConnectionManager::onWakeMode()
     }
 }
 
-void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &networkInterface)
+void ConnectionManager::onNetworkStateChanged(bool isAlive, const ProtoTypes::NetworkInterface &networkInterface)
 {
-    qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkChanged(), isAlive =" << isAlive << ", primary network interface =" << networkInterface << ", state_ =" << state_;
+    qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkChanged(), isAlive =" << isAlive << ", primary network interface =" << QString::fromStdString(networkInterface.interface_name()) << ", state_ =" << state_;
 #ifdef Q_OS_WIN
     emit internetConnectivityChanged(isAlive);
 #elif defined Q_OS_MAC
@@ -776,7 +776,6 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &netwo
             Q_ASSERT(false);
     }
 #elif defined Q_OS_LINUX
-        //todo linux
         emit internetConnectivityChanged(isAlive);
 #endif
 }
@@ -830,7 +829,7 @@ void ConnectionManager::onWstunnelStarted()
 
 void ConnectionManager::doConnect()
 {
-    if (!networkStateManager_->isOnline())
+    if (!networkDetectionManager_->isOnline())
     {
         startReconnectionTimer();
         waitForNetworkConnectivity();
@@ -1218,7 +1217,7 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
 
 void ConnectionManager::onTimerWaitNetworkConnectivity()
 {
-    if (networkStateManager_->isOnline())
+    if (networkDetectionManager_->isOnline())
     {
         qCDebug(LOG_CONNECTION) << "We online, make the connection";
         timerWaitNetworkConnectivity_.stop();

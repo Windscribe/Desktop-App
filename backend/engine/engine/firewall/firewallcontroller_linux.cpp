@@ -132,6 +132,21 @@ bool FirewallController_linux::firewallOff()
         }
 
 
+        // remove rules from /etc/windscribe directory to avoid enabling them on OS reboot
+        cmd = "rm -f /etc/windscribe/rules.v4";
+        helper_->executeRootCommand(cmd, &exitCode);
+        if (exitCode != 0)
+        {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
+        }
+        cmd = "rm -f /etc/windscribe/rules.v6";
+        helper_->executeRootCommand(cmd, &exitCode);
+        if (exitCode != 0)
+        {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
+        }
+
+
         return true;
     }
     else
@@ -176,7 +191,8 @@ void FirewallController_linux::setInterfaceToSkip_posix(const QString &interface
 
 void FirewallController_linux::enableFirewallOnBoot(bool bEnable)
 {
-
+    Q_UNUSED(bEnable);
+    //nothing todo for Linux
 }
 
 bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports)
@@ -282,6 +298,22 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
         }
+    }
+
+    // save current rules to /etc/windscribe directory to make it restorable on OS boot with windscribe-helper
+    int exitCode;
+    QString cmd = "iptables-save > /etc/windscribe/rules.v4";
+    helper_->executeRootCommand(cmd, &exitCode);
+    if (exitCode != 0)
+    {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
+    }
+
+    cmd = "ip6tables-save > /etc/windscribe/rules.v6";
+    helper_->executeRootCommand(cmd, &exitCode);
+    if (exitCode != 0)
+    {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
     }
 
     return true;

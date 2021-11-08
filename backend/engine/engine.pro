@@ -40,8 +40,7 @@ DEFINES += "WINVER=0x0601"
 DEFINES += "_WIN32_WINNT=0x0601"
 DEFINES += "PIO_APC_ROUTINE_DEFINED"
 
-SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
-           engine/connectionmanager/adapterutils_win.cpp \
+SOURCES += engine/connectionmanager/adapterutils_win.cpp \
            engine/dnsinfo_win.cpp \
            engine/taputils/tapinstall_win.cpp \
            engine/helper/helper_win.cpp \
@@ -71,8 +70,7 @@ SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp
 
 
-HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
-           engine/connectionmanager/adapterutils_win.h \
+HEADERS += engine/connectionmanager/adapterutils_win.h \
            engine/dnsinfo_win.h \
            engine/taputils/tapinstall_win.h \
            engine/helper/helper_win.h \
@@ -291,7 +289,6 @@ SOURCES += \
            engine/dnsresolver/dnsutils_linux.cpp \
            engine/helper/helper_posix.cpp \
            engine/helper/helper_linux.cpp \
-           engine/networkstatemanager/networkstatemanager_linux.cpp \
            engine/firewall/firewallcontroller_linux.cpp \
            engine/connectionmanager/ikev2connection_linux.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
@@ -304,7 +301,6 @@ HEADERS += \
            engine/ping/pinghost_icmp_mac.h \
            engine/helper/helper_posix.h \
            engine/helper/helper_linux.h \
-           engine/networkstatemanager/networkstatemanager_linux.h \
            engine/firewall/firewallcontroller_linux.h \
            engine/connectionmanager/ikev2connection_linux.h \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
@@ -506,7 +502,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/autoupdater/autoupdaterhelper_mac.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \
-    engine/networkstatemanager/inetworkstatemanager.h \
     utils/simplecrypt.h \
     engine/logincontroller/logincontroller.h \
     engine/logincontroller/getallconfigscontroller.h \

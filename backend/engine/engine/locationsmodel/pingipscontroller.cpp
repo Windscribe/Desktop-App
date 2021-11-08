@@ -6,8 +6,8 @@
 
 namespace locationsmodel {
 
-PingIpsController::PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost, const QString &log_filename) : QObject(parent),
-    connectStateController_(stateController), networkStateManager_(networkStateManager),
+PingIpsController::PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost, const QString &log_filename) : QObject(parent),
+    connectStateController_(stateController), networkDetectionManager_(networkDetectionManager),
     pingLog_(log_filename), pingHost_(pingHost)
 {
     connect(pingHost_, SIGNAL(pingFinished(bool,int,QString, bool)), SLOT(onPingFinished(bool,int,QString, bool)));
@@ -87,7 +87,7 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
 
 void PingIpsController::onPingTimer()
 {
-    if (!networkStateManager_->isOnline())
+    if (!networkDetectionManager_->isOnline())
     {
         return;
     }

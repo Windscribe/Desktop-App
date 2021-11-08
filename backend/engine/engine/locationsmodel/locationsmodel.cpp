@@ -10,15 +10,15 @@
 
 namespace locationsmodel {
 
-LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager) : QObject(parent)
+LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent)
 {
     pingThread_ = new QThread(this);
     pingHost_ = new PingHost(nullptr, stateController);
     pingHost_->moveToThread(pingThread_);
     pingThread_->start(QThread::HighPriority);
 
-    apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkStateManager, pingHost_);
-    customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkStateManager, pingHost_);
+    apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager, pingHost_);
+    customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkDetectionManager, pingHost_);
 
     connect(apiLocationsModel_, SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<locationsmodel::LocationItem> >)), SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
     connect(apiLocationsModel_, SIGNAL(locationsUpdatedCliOnly(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)), SIGNAL(locationsUpdatedCliOnly(LocationID,QSharedPointer<QVector<locationsmodel::LocationItem> >)));

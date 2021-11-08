@@ -1,6 +1,7 @@
 [Unit]
 Description=Windscribe helper service
-After=network.target
+Before=network-pre.target
+Wants=network-pre.target
 
 [Service]
 Type=simple

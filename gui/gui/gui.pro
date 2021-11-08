@@ -186,6 +186,7 @@ SOURCES += \
     $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
     $$COMMON_PATH/utils/linuxutils.cpp \
     multipleaccountdetection/multipleaccountdetection_linux.cpp \
+    launchonstartup/launchonstartup_linux.cpp \
     utils/interfaceutils_linux.cpp \
     utils/authchecker_linux.cpp
 
@@ -193,6 +194,7 @@ HEADERS += \
     $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
     $$COMMON_PATH/utils/linuxutils.h \
     multipleaccountdetection/multipleaccountdetection_linux.h \
+    launchonstartup/launchonstartup_linux.h \
     utils/authchecker_linux.h
 
 RESOURCES += \

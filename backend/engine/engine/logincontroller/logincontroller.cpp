@@ -4,15 +4,14 @@
 #include "engine/helper/ihelper.h"
 #include "engine/serverapi/serverapi.h"
 #include "utils/utils.h"
-#include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "engine/hardcodedsettings.h"
 #include "engine/getdeviceid.h"
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,
-                                 INetworkStateManager *networkStateManager, ServerAPI *serverAPI,
+                                 INetworkDetectionManager *networkDetectionManager, ServerAPI *serverAPI,
                                  const QString &language, ProtocolType protocol) : QObject(parent),
     helper_(helper), serverAPI_(serverAPI),
-    getApiAccessIps_(NULL), networkStateManager_(networkStateManager), language_(language),
+    getApiAccessIps_(NULL), networkDetectionManager_(networkDetectionManager), language_(language),
     protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL),
     loginStep_(LOGIN_STEP1), readyForNetworkRequestsEmitted_(false)
 {
@@ -387,7 +386,7 @@ void LoginController::getAllConfigs()
 
 void LoginController::handleNetworkConnection()
 {
-    if (networkStateManager_->isOnline())
+    if (networkDetectionManager_->isOnline())
     {
         if (dnsResolutionSettings_.getIsAutomatic())
         {

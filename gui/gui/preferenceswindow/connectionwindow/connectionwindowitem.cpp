@@ -34,11 +34,11 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
 
-#ifndef Q_OS_LINUX
     networkWhitelistItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Network Whitelist"), true);
     connect(networkWhitelistItem_, SIGNAL(clicked()), SIGNAL(networkWhitelistPageClick()));
     addItem(networkWhitelistItem_);
 
+#ifndef Q_OS_LINUX
     splitTunnelingItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Split Tunneling"), true);
     connect(splitTunnelingItem_, SIGNAL(clicked()), SIGNAL(splitTunnelingPageClick()));
     addItem(splitTunnelingItem_);

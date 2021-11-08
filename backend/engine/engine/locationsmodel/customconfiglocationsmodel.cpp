@@ -13,9 +13,9 @@
 
 namespace locationsmodel {
 
-CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost) : QObject(parent),
+CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost) : QObject(parent),
     pingStorage_("pingStorageCustomConfigs"),
-    pingIpsController_(this, stateController, networkStateManager, pingHost, "ping_log_custom_configs.txt")
+    pingIpsController_(this, stateController, networkDetectionManager, pingHost, "ping_log_custom_configs.txt")
 {
     connect(&pingIpsController_, SIGNAL(pingInfoChanged(QString,int, bool)), SLOT(onPingInfoChanged(QString,int, bool)));
     connect(&pingIpsController_, SIGNAL(needIncrementPingIteration()), SLOT(onNeedIncrementPingIteration()));
