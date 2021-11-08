@@ -113,8 +113,8 @@ def ExtractAppVersion():
           values[i] = int(matched.group(1)) if matched.lastindex > 0 else 1
           break
   version_string = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
-  if values[3]:
-    version_string += "_beta"
+#  if values[3]:
+#    version_string += "_beta"
   return version_string
 
 
