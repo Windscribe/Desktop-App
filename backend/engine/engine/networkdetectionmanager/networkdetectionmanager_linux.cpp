@@ -1,7 +1,6 @@
 #include "networkdetectionmanager_linux.h"
 
 #include <QRegularExpression>
-#include "../networkstatemanager/reachabilityevents.h"
 #include "utils/macutils.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
