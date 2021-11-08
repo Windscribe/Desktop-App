@@ -83,7 +83,7 @@ void CustomConfigLocationsModel::clear()
     pingInfos_.clear();
     pingIpsController_.updateIps(QVector<PingIpInfo>());
     QSharedPointer<QVector<locationsmodel::LocationItem> > empty(new QVector<locationsmodel::LocationItem>());
-    emit locationsUpdated(empty);
+    Q_EMIT locationsUpdated(empty);
 }
 
 QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationInfoById(const LocationID &locationId)
@@ -110,7 +110,7 @@ void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems
     {
         if (it->setPingTime(ip, timems))
         {
-            emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
+            Q_EMIT locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
         }
     }
 }
@@ -141,7 +141,7 @@ void CustomConfigLocationsModel::onDnsRequestFinished()
                     ipItem.pingTime = pingStorage_.getNodeSpeed(ipItem.ip);
                     remoteIt->ips << ipItem;
 
-                    emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
+                    Q_EMIT locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
                 }
             }
         }
@@ -192,7 +192,7 @@ void CustomConfigLocationsModel::startPingAndWhitelistIps()
             }
         }
     }
-    emit whitelistIpsChanged(strListIps);
+    Q_EMIT whitelistIpsChanged(strListIps);
     pingIpsController_.updateIps(allIps);
 }
 
@@ -228,7 +228,7 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
         *items << item;
     }
 
-    emit locationsUpdated(items);
+    Q_EMIT locationsUpdated(items);
 }
 
 PingTime CustomConfigLocationsModel::CustomConfigWithPingInfo::getPing() const

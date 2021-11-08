@@ -104,7 +104,7 @@ LIBS += Ws2_32.lib Advapi32.lib Iphlpapi.lib \
     Ole32.lib Shlwapi.lib Version.lib Psapi.lib \
     rasapi32.lib Pdh.lib Shell32.lib netapi32.lib msi.lib
 
-INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include/boost-1_69
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
 LIBS += -L"$$BUILD_LIBS_PATH/boost/lib"
 
 INCLUDEPATH += "$$BUILD_LIBS_PATH/curl/include"
@@ -152,7 +152,6 @@ QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
-LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_system.a
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
@@ -263,7 +262,6 @@ QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
-LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_system.a
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include

@@ -126,7 +126,7 @@ void VpnShareController::onWifiUsersCountChanged()
             cntUsers += wifiSharing_->getConnectedUsersCount();
         }
     #endif
-        emit connectedWifiUsersChanged(cntUsers);
+        Q_EMIT connectedWifiUsersChanged(cntUsers);
 }
 
 void VpnShareController::onProxyUsersCountChanged()
@@ -142,7 +142,7 @@ void VpnShareController::onProxyUsersCountChanged()
     {
         cntUsers += socksProxyServer_->getConnectedUsersCount();
     }
-    emit connectedProxyUsersChanged(cntUsers);
+    Q_EMIT connectedProxyUsersChanged(cntUsers);
 }
 
 void VpnShareController::startWifiSharing(const QString &ssid, const QString &password)

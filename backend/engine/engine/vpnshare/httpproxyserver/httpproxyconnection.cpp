@@ -240,7 +240,7 @@ void HttpProxyConnection::closeSocketsAndEmitFinished()
         {
             socketExternal_->close();
         }
-        emit finished(hostname_);
+        Q_EMIT finished(hostname_);
     }
 }
 

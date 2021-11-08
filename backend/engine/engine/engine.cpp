@@ -361,7 +361,7 @@ void Engine::emergencyConnectClick()
     else
     {
         emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
-        emit emergencyDisconnected();
+        Q_EMIT emergencyDisconnected();
     }
 }
 
@@ -376,7 +376,7 @@ void Engine::emergencyDisconnectClick()
     else
     {
         emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
-        emit emergencyDisconnected();
+        Q_EMIT emergencyDisconnected();
     }
 }
 
@@ -533,7 +533,7 @@ void Engine::makeHostsFileWritableWin()
     const auto winHelper = dynamic_cast<Helper_win*>(helper_);
     if(winHelper) {
         if(winHelper->makeHostsFileWritable()) {
-            emit hostsFileBecameWritable();
+            Q_EMIT hostsFileBecameWritable();
         }
         else {
             qCDebug(LOG_BASIC) << "Error: was not able to make 'hosts' file writable.";
@@ -684,7 +684,7 @@ void Engine::initPart2()
 
 void Engine::onLostConnectionToHelper()
 {
-    emit lostConnectionToHelper();
+    Q_EMIT lostConnectionToHelper();
 }
 
 void Engine::onInitializeHelper(INIT_HELPER_RET ret)
@@ -709,7 +709,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         else
         {
             qCDebug(LOG_BASIC) << "Kext path set failed";
-            emit initFinished(ENGINE_INIT_HELPER_FAILED);
+            Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED);
         }
 #endif
 
@@ -722,23 +722,23 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         // check BFE service status
         if (!BFE_Service_win::instance().isBFEEnabled())
         {
-            emit initFinished(ENGINE_INIT_BFE_SERVICE_FAILED);
+            Q_EMIT initFinished(ENGINE_INIT_BFE_SERVICE_FAILED);
         }
         else
         {
-            emit initFinished(ENGINE_INIT_SUCCESS);
+            Q_EMIT initFinished(ENGINE_INIT_SUCCESS);
         }
     #else
-        emit initFinished(ENGINE_INIT_SUCCESS);
+        Q_EMIT initFinished(ENGINE_INIT_SUCCESS);
     #endif
     }
     else if (ret == INIT_HELPER_FAILED)
     {
-        emit initFinished(ENGINE_INIT_HELPER_FAILED);
+        Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED);
     }
     else if (ret == INIT_HELPER_USER_CANCELED)
     {
-        emit initFinished(ENGINE_INIT_HELPER_USER_CANCELED);
+        Q_EMIT initFinished(ENGINE_INIT_HELPER_USER_CANCELED);
     }
     else
     {
@@ -927,7 +927,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(downloadHelper_);
     SAFE_DELETE(networkAccessManager_);
     isCleanupFinished_ = true;
-    emit cleanupFinished();
+    Q_EMIT cleanupFinished();
     qCDebug(LOG_BASIC) << "Cleanup finished";
 }
 
@@ -945,11 +945,11 @@ void Engine::enableBFE_winImpl()
     bool bSuccess = BFE_Service_win::instance().checkAndEnableBFE(helper_);
     if (bSuccess)
     {
-        emit bfeEnableFinished(ENGINE_INIT_SUCCESS);
+        Q_EMIT bfeEnableFinished(ENGINE_INIT_SUCCESS);
     }
     else
     {
-        emit bfeEnableFinished(ENGINE_INIT_BFE_SERVICE_FAILED);
+        Q_EMIT bfeEnableFinished(ENGINE_INIT_BFE_SERVICE_FAILED);
     }
 #endif
 }
@@ -975,7 +975,7 @@ void Engine::loginImpl(bool bSkipLoadingFromSettings)
             updateSessionStatus();
             updateServerLocations();
             updateCurrentNetworkInterface();
-            emit loginFinished(true, authHash, apiInfo_->getPortMap());
+            Q_EMIT loginFinished(true, authHash, apiInfo_->getPortMap());
         }
     }
 
@@ -1037,7 +1037,7 @@ void Engine::connectClickImpl(const LocationID &locationId)
             qCDebug(LOG_BASIC) << "Automatic enable firewall before connection";
             QString ips = firewallExceptions_.getIPAddressesForFirewall();
             firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
-            emit firewallStateChanged(true);
+            Q_EMIT firewallStateChanged(true);
         }
     }
     doConnect(true);
@@ -1106,9 +1106,9 @@ void Engine::signOutImplAfterDisconnect()
     apiinfo::ApiInfo::removeFromSettings();
 
     firewallController_->firewallOff();
-    emit firewallStateChanged(false);
+    Q_EMIT firewallStateChanged(false);
 
-    emit signOutFinished();
+    Q_EMIT signOutFinished();
 }
 
 void Engine::continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave)
@@ -1148,13 +1148,13 @@ void Engine::continueWithPasswordImpl(const QString &password, bool bSave)
 void Engine::gotoCustomOvpnConfigModeImpl()
 {
     updateServerLocations();
-    emit gotoCustomOvpnConfigModeFinished();
+    Q_EMIT gotoCustomOvpnConfigModeFinished();
 }
 
 void Engine::updateCurrentInternetConnectivityImpl()
 {
     online_ = networkDetectionManager_->isOnline();
-    emit internetConnectivityChanged(online_);
+    Q_EMIT internetConnectivityChanged(online_);
 }
 
 void Engine::updateCurrentNetworkInterfaceImpl()
@@ -1172,13 +1172,13 @@ void Engine::firewallOnImpl()
     {
         firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic());
     }
-    emit firewallStateChanged(true);
+    Q_EMIT firewallStateChanged(true);
 }
 
 void Engine::firewallOffImpl()
 {
     firewallController_->firewallOff();
-    emit firewallStateChanged(false);
+    Q_EMIT firewallStateChanged(false);
 }
 
 void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
@@ -1303,7 +1303,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
         {
             emergencyController_->blockingDisconnect();
             emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
-            emit emergencyDisconnected();
+            Q_EMIT emergencyDisconnected();
 
             qCDebug(LOG_BASIC) << "Update ip after emergency connect";
             getMyIPController_->getIPFromDisconnectedState(1);
@@ -1338,17 +1338,17 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
             loginState_ = LOGIN_FINISHED;
         }
         updateCurrentNetworkInterface();
-        emit loginFinished(false, apiInfo_->getAuthHash(), apiInfo_->getPortMap());
+        Q_EMIT loginFinished(false, apiInfo_->getAuthHash(), apiInfo_->getPortMap());
     }
     else if (retCode == LOGIN_NO_CONNECTIVITY)
     {
         loginState_ = LOGIN_NONE;
-        emit loginError(LOGIN_NO_CONNECTIVITY);
+        Q_EMIT loginError(LOGIN_NO_CONNECTIVITY);
     }
     else if (retCode == LOGIN_NO_API_CONNECTIVITY)
     {
         loginState_ = LOGIN_NONE;
-        emit loginError(LOGIN_NO_API_CONNECTIVITY);
+        Q_EMIT loginError(LOGIN_NO_API_CONNECTIVITY);
 
         if (bFromConnectedToVPNState)
         {
@@ -1362,12 +1362,12 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
     else if (retCode == LOGIN_PROXY_AUTH_NEED)
     {
         loginState_ = LOGIN_NONE;
-        emit loginError(LOGIN_PROXY_AUTH_NEED);
+        Q_EMIT loginError(LOGIN_PROXY_AUTH_NEED);
     }
     else if (retCode == LOGIN_INCORRECT_JSON)
     {
         loginState_ = LOGIN_NONE;
-        emit loginError(LOGIN_INCORRECT_JSON);
+        Q_EMIT loginError(LOGIN_INCORRECT_JSON);
     }
     else if (retCode == LOGIN_SSL_ERROR)
     {
@@ -1384,14 +1384,14 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
         else
         {
             loginState_ = LOGIN_NONE;
-            emit loginError(LOGIN_SSL_ERROR);
+            Q_EMIT loginError(LOGIN_SSL_ERROR);
         }
     }
     else if (retCode == LOGIN_BAD_USERNAME || retCode == LOGIN_BAD_CODE2FA
              || retCode == LOGIN_MISSING_CODE2FA)
     {
         loginState_ = LOGIN_NONE;
-        emit loginError(retCode);
+        Q_EMIT loginError(retCode);
     }
     else
     {
@@ -1420,7 +1420,7 @@ void Engine::onReadyForNetworkRequests()
 
 void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
 {
-    emit loginStepMessage(msg);
+    Q_EMIT loginStepMessage(msg);
 }
 
 void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
@@ -1459,7 +1459,7 @@ void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::Session
         }
         else if (retCode == SERVER_RETURN_BAD_USERNAME)
         {
-            emit sessionDeleted();
+            Q_EMIT sessionDeleted();
         }
      }
 }
@@ -1470,7 +1470,7 @@ void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ap
     {
         if (retCode == SERVER_RETURN_SUCCESS)
         {
-            emit notificationsUpdated(notifications);
+            Q_EMIT notificationsUpdated(notifications);
         }
     }
 }
@@ -1513,7 +1513,7 @@ void Engine::onCheckUpdateAnswer(bool available, const QString &version, const P
 //            }
 #endif
             qCDebug(LOG_BASIC) << "Installer URL: " << url;
-            emit checkUpdateUpdated(available, version, updateChannel, latestBuild, url, supported);
+            Q_EMIT checkUpdateUpdated(available, version, updateChannel, latestBuild, url, supported);
         }
         else
         {
@@ -1538,14 +1538,14 @@ void Engine::onHostIPsChanged(const QStringList &hostIps)
 
 void Engine::onMyIpAnswer(const QString &ip, bool success, bool isDisconnected)
 {
-    emit myIpUpdated(ip, success, isDisconnected);
+    Q_EMIT myIpUpdated(ip, success, isDisconnected);
 }
 
 void Engine::onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
-        emit sendDebugLogFinished(retCode == SERVER_RETURN_SUCCESS);
+        Q_EMIT sendDebugLogFinished(retCode == SERVER_RETURN_SUCCESS);
     }
 }
 
@@ -1553,7 +1553,7 @@ void Engine::onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
-        emit confirmEmailFinished(retCode == SERVER_RETURN_SUCCESS);
+        Q_EMIT confirmEmailFinished(retCode == SERVER_RETURN_SUCCESS);
     }
 }
 
@@ -1621,7 +1621,7 @@ void Engine::onConnectionManagerConnected()
                 qCDebug(LOG_BASIC) << "Automatic enable firewall after connection";
                 QString ips = firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp());
                 firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
-                emit firewallStateChanged(true);
+                Q_EMIT firewallStateChanged(true);
                 isFirewallAlreadyEnabled = true;
             }
         }
@@ -1632,7 +1632,7 @@ void Engine::onConnectionManagerConnected()
             {
                 qCDebug(LOG_BASIC) << "Automatic disable firewall after connection";
                 firewallController_->firewallOff();
-                emit firewallStateChanged(false);
+                Q_EMIT firewallStateChanged(false);
             }
         }
     }
@@ -1829,7 +1829,7 @@ void Engine::onConnectionManagerError(ProtoTypes::ConnectError err)
             customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFileName());
 
             isNeedReconnectAfterRequestUsernameAndPassword_ = true;
-            emit requestUsername();
+            Q_EMIT requestUsername();
         }
         else
         {
@@ -1857,12 +1857,12 @@ void Engine::onConnectionManagerError(ProtoTypes::ConnectError err)
         qCDebug(LOG_BASIC) << "RAS error other than ERROR_AUTHENTICATION_FAILURE (691)";
         getMyIPController_->getIPFromDisconnectedState(1);
         connectStateController_->setDisconnectedState();
-        emit connectError(IKEV_FAILED_REINSTALL_WAN_WIN);
+        Q_EMIT connectError(IKEV_FAILED_REINSTALL_WAN_WIN);
     }*/
 #ifdef Q_OS_WIN
     else if (err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP)
     {
-        //emit connectError(NO_INSTALLED_TUN_TAP);
+        //Q_EMIT connectError(NO_INSTALLED_TUN_TAP);
     }
     else if (err == ProtoTypes::ConnectError::ALL_TAP_IN_USE)
     {
@@ -1891,7 +1891,7 @@ void Engine::onConnectionManagerError(ProtoTypes::ConnectError err)
 #endif
     else
     {
-        //emit connectError(err);
+        //Q_EMIT connectError(err);
     }
 
 #ifdef Q_OS_MAC
@@ -1903,12 +1903,12 @@ void Engine::onConnectionManagerError(ProtoTypes::ConnectError err)
 void Engine::onConnectionManagerInternetConnectivityChanged(bool connectivity)
 {
     online_ = connectivity;
-    emit internetConnectivityChanged(connectivity);
+    Q_EMIT internetConnectivityChanged(connectivity);
 }
 
 void Engine::onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
 {
-    emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
+    Q_EMIT statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
 }
 
 void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
@@ -1938,13 +1938,13 @@ void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, co
 void Engine::onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port)
 {
     lastConnectingProtocol_ = protocol;
-    emit protocolPortChanged(protocol, port);
+    Q_EMIT protocolPortChanged(protocol, port);
 }
 
 void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ipAddress)
 {
-    emit testTunnelResult(success); // stops protocol/port flashing
-    emit myIpUpdated(ipAddress, success, false); // sends IP address to UI // test should only occur in connected state
+    Q_EMIT testTunnelResult(success); // stops protocol/port flashing
+    Q_EMIT myIpUpdated(ipAddress, success, false); // sends IP address to UI // test should only occur in connected state
 }
 
 void Engine::onConnectionManagerGetWireGuardConfig()
@@ -1980,7 +1980,7 @@ void Engine::onConnectionManagerRequestUsername(const QString &pathCustomOvpnCon
     else
     {
         isNeedReconnectAfterRequestUsernameAndPassword_ = false;
-        emit requestUsername();
+        Q_EMIT requestUsername();
     }
 }
 
@@ -1995,7 +1995,7 @@ void Engine::onConnectionManagerRequestPassword(const QString &pathCustomOvpnCon
     else
     {
         isNeedReconnectAfterRequestUsernameAndPassword_ = false;
-        emit requestPassword();
+        Q_EMIT requestPassword();
     }
 }
 
@@ -2017,7 +2017,7 @@ void Engine::detectAppropriatePacketSizeImpl()
         {
             qCDebug(LOG_PACKET_SIZE) << "Detecting appropriate packet size";
             runningPacketDetection_ = true;
-            emit packetSizeDetectionStateChanged(true, false);
+            Q_EMIT packetSizeDetectionStateChanged(true, false);
             packetSizeController_->detectAppropriatePacketSize(serverAPI_->getHostname());
         }
         else
@@ -2067,7 +2067,7 @@ void Engine::onDownloadHelperProgressChanged(uint progressPercent)
     if (lastDownloadProgress_ != progressPercent)
     {
         lastDownloadProgress_ = progressPercent;
-        emit updateVersionChanged(progressPercent, ProtoTypes::UPDATE_VERSION_STATE_DOWNLOADING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+        Q_EMIT updateVersionChanged(progressPercent, ProtoTypes::UPDATE_VERSION_STATE_DOWNLOADING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
     }
 }
 
@@ -2080,7 +2080,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     {
         qCDebug(LOG_DOWNLOADER) << "Removing incomplete installer";
         QFile::remove(installerPath_);
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
+        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
         return;
     }
     qCDebug(LOG_DOWNLOADER) << "Successful download to: " << installerPath_;
@@ -2091,7 +2091,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     {
         qCDebug(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer";
         QFile::remove(installerPath_);
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
+        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;
     }
     qCDebug(LOG_AUTO_UPDATER) << "Installer signature valid";
@@ -2102,7 +2102,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
     if (tempInstallerFilename == "")
     {
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
+        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
     installerPath_ = tempInstallerFilename;
@@ -2123,7 +2123,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     QFile::remove(downloadHelper_->publicKeyInstallPath());
 #endif
 
-    emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+    Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
 }
 
 void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
@@ -2154,7 +2154,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
         DWORD lastError = GetLastError();
         qCDebug(LOG_AUTO_UPDATER) << "Can't start installer: errorCode = " << lastError;
         QFile::remove(installerPath_);
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
+        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
         return;
     }
 
@@ -2166,7 +2166,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     bool verifiedAndRan = autoUpdaterHelper_->verifyAndRun(installerPath_, additionalArgs);
     if (!verifiedAndRan)
     {
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
+        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
 #else // Linux
@@ -2184,7 +2184,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     qCDebug(LOG_AUTO_UPDATER) << "Installer valid and executed";
     installerPath_.clear();
 
-    emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+    Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
 }
 
 void Engine::onEmergencyControllerConnected()
@@ -2199,7 +2199,7 @@ void Engine::onEmergencyControllerConnected()
     DnsServersConfiguration::instance().setDnsServersPolicy(DNS_TYPE_OS_DEFAULT);
 
     emergencyConnectStateController_->setConnectedState(LocationID());
-    emit emergencyConnected();
+    Q_EMIT emergencyConnected();
 }
 
 void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
@@ -2210,14 +2210,14 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
 
     emergencyConnectStateController_->setDisconnectedState(reason, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
-    emit emergencyDisconnected();
+    Q_EMIT emergencyDisconnected();
 }
 
 void Engine::onEmergencyControllerError(ProtoTypes::ConnectError err)
 {
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerError(), err =" << err;
     emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err);
-    emit emergencyConnectError(err);
+    Q_EMIT emergencyConnectError(err);
 }
 
 void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig)
@@ -2272,7 +2272,7 @@ void Engine::onNetworkChange(bool isOnline, const ProtoTypes::NetworkInterface &
         stopPacketDetection();
     }
 
-    emit networkChanged(networkInterface);
+    Q_EMIT networkChanged(networkInterface);
 }
 
 void Engine::stopPacketDetection()
@@ -2306,19 +2306,19 @@ void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
 
         // Connection to EngineServer is chewing the parameters to garbage when passed as ProtoTypes::PacketSize
         // Probably has something to do with EngineThread
-        emit packetSizeChanged(packetSize.is_automatic(), packetSize.mtu());
+        Q_EMIT packetSizeChanged(packetSize.is_automatic(), packetSize.mtu());
     }
 }
 
 void Engine::onPacketSizeControllerFinishedSizeDetection(bool isError)
 {
     runningPacketDetection_ = false;
-    emit packetSizeDetectionStateChanged(false, isError);
+    Q_EMIT packetSizeDetectionStateChanged(false, isError);
 }
 
 void Engine::onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType)
 {
-    emit sendUserWarning(userWarningType);
+    Q_EMIT sendUserWarning(userWarningType);
 }
 
 void Engine::updateServerConfigsImpl()
@@ -2376,29 +2376,29 @@ void Engine::forceUpdateServerLocationsImpl()
 void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType)
 {
     vpnShareController_->startProxySharing(proxySharingType);
-    emit proxySharingStateChanged(true, proxySharingType);
+    Q_EMIT proxySharingStateChanged(true, proxySharingType);
 }
 
 void Engine::stopProxySharingImpl()
 {
     vpnShareController_->stopProxySharing();
-    emit proxySharingStateChanged(false, PROXY_SHARING_HTTP);
+    Q_EMIT proxySharingStateChanged(false, PROXY_SHARING_HTTP);
 }
 
 void Engine::startWifiSharingImpl(const QString &ssid, const QString &password)
 {
     vpnShareController_->stopWifiSharing(); //  need to stop it first
     vpnShareController_->startWifiSharing(ssid, password);
-    emit wifiSharingStateChanged(true, ssid);
+    Q_EMIT wifiSharingStateChanged(true, ssid);
 }
 
 void Engine::stopWifiSharingImpl()
 {
     bool bInitialState = vpnShareController_->isWifiSharingEnabled();
     vpnShareController_->stopWifiSharing();
-    if (bInitialState == true)  // emit signal if state changed
+    if (bInitialState == true)  // Q_EMIT signal if state changed
     {
-        emit wifiSharingStateChanged(false, "");
+        Q_EMIT wifiSharingStateChanged(false, "");
     }
 }
 
@@ -2421,7 +2421,7 @@ void Engine::applicationDeactivatedImpl()
 void Engine::setSettingsMacAddressSpoofingImpl(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
 {
     engineSettings_.setMacAddrSpoofing(macAddrSpoofing);
-    emit macAddrSpoofingChanged(macAddrSpoofing);
+    Q_EMIT macAddrSpoofingChanged(macAddrSpoofing);
 }
 
 void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files, const QStringList &ips, const QStringList &hosts)
@@ -2463,7 +2463,7 @@ void Engine::updateSessionStatus()
         }
 
 
-        emit sessionStatusUpdated(ss);
+        Q_EMIT sessionStatusUpdated(ss);
 
         if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.getStaticIpsCount() != ss.getStaticIpsCount() ||
                 ss.isContainsStaticDeviceId(GetDeviceId::instance().getDeviceId()))

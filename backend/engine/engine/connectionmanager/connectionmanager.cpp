@@ -169,7 +169,7 @@ void ConnectionManager::clickDisconnect()
                 connSettingsPolicy_->reset();
             }
             timerReconnection_.stop();
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
         }
     }
 }
@@ -325,7 +325,7 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
 
     timerReconnection_.stop();
     state_ = STATE_CONNECTED;
-    emit connected();
+    Q_EMIT connected();
 }
 
 void ConnectionManager::onConnectionDisconnected()
@@ -344,21 +344,21 @@ void ConnectionManager::onConnectionDisconnected()
             state_ = STATE_DISCONNECTED;
             connSettingsPolicy_->reset();
             timerReconnection_.stop();
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTED:
             // goto reconnection state, start reconnection timer and do connection again
             Q_ASSERT(!timerReconnection_.isActive());
             timerReconnection_.start(MAX_RECONNECTION_TIME);
             state_ = STATE_RECONNECTING;
-            emit reconnecting();
+            Q_EMIT reconnecting();
             doConnect();
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_AUTO_DISCONNECT:
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
-            emit disconnected(DISCONNECTED_ITSELF);
+            Q_EMIT disconnected(DISCONNECTED_ITSELF);
             break;
         case STATE_DISCONNECTED:
         case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
@@ -367,7 +367,7 @@ void ConnectionManager::onConnectionDisconnected()
 
         case STATE_ERROR_DURING_CONNECTION:
             state_ = STATE_DISCONNECTED;
-            emit errorDuringConnection(latestConnectionError_);
+            Q_EMIT errorDuringConnection(latestConnectionError_);
             break;
 
         case STATE_RECONNECTING:
@@ -383,7 +383,7 @@ void ConnectionManager::onConnectionDisconnected()
         case STATE_RECONNECTION_TIME_EXCEED:
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
-            emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
+            Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
             break;
 
         case STATE_SLEEP_MODE_NEED_RECONNECT:
@@ -430,7 +430,7 @@ void ConnectionManager::onConnectionReconnecting()
                     connSettingsPolicy_->reset();
                 }
                 state_ = STATE_RECONNECTING;
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 startReconnectionTimer();
                 connector_->startDisconnect();
             }
@@ -438,7 +438,7 @@ void ConnectionManager::onConnectionReconnecting()
             {
                 state_ = STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
+                Q_EMIT showFailedAutomaticConnectionMessage();
             }
             break;
 
@@ -449,7 +449,7 @@ void ConnectionManager::onConnectionReconnecting()
             {
                 if (state_ != STATE_RECONNECTING)
                 {
-                    emit reconnecting();
+                    Q_EMIT reconnecting();
                     state_ = STATE_RECONNECTING;
                     timerReconnection_.start(MAX_RECONNECTION_TIME);
                 }
@@ -482,7 +482,7 @@ void ConnectionManager::onConnectionReconnecting()
             {
                 state_ = STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
+                Q_EMIT showFailedAutomaticConnectionMessage();
             }
             break;
         case STATE_SLEEP_MODE_NEED_RECONNECT:
@@ -534,7 +534,7 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
         // immediately stop trying to connect
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
-        emit errorDuringConnection(err);
+        Q_EMIT errorDuringConnection(err);
     }
     else if (err == ProtoTypes::ConnectError::UDP_CANT_ASSIGN
              || err == ProtoTypes::ConnectError::UDP_NO_BUFFER_SPACE
@@ -561,7 +561,7 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
 
             if (state_ == STATE_CONNECTED)
             {
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 state_ = STATE_RECONNECTING;
                 startReconnectionTimer();
                 if (err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
@@ -586,7 +586,7 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
 
                     if (state_ != STATE_RECONNECTING)
                     {
-                        emit reconnecting();
+                        Q_EMIT reconnecting();
                         state_ = STATE_RECONNECTING;
                         startReconnectionTimer();
                     }
@@ -607,7 +607,7 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
                     {
                         connector_->startDisconnect();
                     }
-                    emit showFailedAutomaticConnectionMessage();
+                    Q_EMIT showFailedAutomaticConnectionMessage();
                 }
             }
         }
@@ -620,22 +620,22 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
 
 void ConnectionManager::onConnectionStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
 {
-    emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
+    Q_EMIT statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
 }
 
 void ConnectionManager::onConnectionInterfaceUpdated(const QString &interfaceName)
 {
-    emit interfaceUpdated(interfaceName);
+    Q_EMIT interfaceUpdated(interfaceName);
 }
 
 void ConnectionManager::onConnectionRequestUsername()
 {
-    emit requestUsername(currentConnectionDescr_.customConfigFilename);
+    Q_EMIT requestUsername(currentConnectionDescr_.customConfigFilename);
 }
 
 void ConnectionManager::onConnectionRequestPassword()
 {
-    emit requestPassword(currentConnectionDescr_.customConfigFilename);
+    Q_EMIT requestPassword(currentConnectionDescr_.customConfigFilename);
 }
 
 void ConnectionManager::onSleepMode()
@@ -652,7 +652,7 @@ void ConnectionManager::onSleepMode()
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
         case STATE_RECONNECTING:
-            emit reconnecting();
+            Q_EMIT reconnecting();
             blockingDisconnect();
             qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), connection blocking disconnected";
             state_ = STATE_SLEEP_MODE_NEED_RECONNECT;
@@ -703,9 +703,9 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const ProtoTypes::Ne
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkChanged(), isAlive =" << isAlive << ", primary network interface =" << QString::fromStdString(networkInterface.interface_name()) << ", state_ =" << state_;
 #ifdef Q_OS_WIN
-    emit internetConnectivityChanged(isAlive);
+    Q_EMIT internetConnectivityChanged(isAlive);
 #elif defined Q_OS_MAC
-    emit internetConnectivityChanged(isAlive);
+    Q_EMIT internetConnectivityChanged(isAlive);
 
     bLastIsOnline_ = isAlive;
 
@@ -726,7 +726,7 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const ProtoTypes::Ne
         case STATE_CONNECTED:
             if (!isAlive)
             {
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
                 Q_ASSERT(!timerReconnection_.isActive());
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
@@ -734,7 +734,7 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const ProtoTypes::Ne
             }
             else
             {
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 state_ = STATE_RECONNECTING;
                 Q_ASSERT(!timerReconnection_.isActive());
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
@@ -776,7 +776,7 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const ProtoTypes::Ne
             Q_ASSERT(false);
     }
 #elif defined Q_OS_LINUX
-        emit internetConnectivityChanged(isAlive);
+        Q_EMIT internetConnectivityChanged(isAlive);
 #endif
 }
 
@@ -791,7 +791,7 @@ void ConnectionManager::onTimerReconnection()
     else
     {
         state_ = STATE_DISCONNECTED;
-        emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
+        Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
     }
     timerReconnection_.stop();
 }
@@ -853,7 +853,7 @@ void ConnectionManager::doConnectPart2()
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
-        emit errorDuringConnection(ProtoTypes::ConnectError::LOCATION_NO_ACTIVE_NODES);
+        Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::LOCATION_NO_ACTIVE_NODES);
         return;
     }
 
@@ -918,7 +918,7 @@ void ConnectionManager::doConnectPart2()
                 {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
-                    emit errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_STUNNEL_ERROR);
+                    Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_STUNNEL_ERROR);
                     return;
                 }
             }
@@ -928,7 +928,7 @@ void ConnectionManager::doConnectPart2()
                 {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
-                    emit errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_WSTUNNEL_ERROR);
+                    Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_WSTUNNEL_ERROR);
                     return;
                 }
                 // call doConnectPart2 in onWstunnelStarted slot
@@ -952,7 +952,7 @@ void ConnectionManager::doConnectPart2()
             // If WireGuard config data don't exist, fetch it now.
             if (!wireGuardConfig_) {
                 qCDebug(LOG_CONNECTION) << "Missing WireGuard user config, requesting a new one";
-                emit getWireGuardConfig();
+                Q_EMIT getWireGuardConfig();
                 return;
             }
             qCDebug(LOG_CONNECTION) << "Using existing WireGuard user config";
@@ -971,7 +971,7 @@ void ConnectionManager::doConnectPart2()
                 //Q_ASSERT(false);
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                emit errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
+                Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
         } else if (currentConnectionDescr_.protocol.isWireGuardProtocol()) {
@@ -981,7 +981,7 @@ void ConnectionManager::doConnectPart2()
                                         << currentConnectionDescr_.customConfigFilename;
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                emit errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
+                Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
         }
@@ -997,8 +997,8 @@ void ConnectionManager::doConnectPart2()
 void ConnectionManager::doConnectPart3()
 {
     qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
-    emit protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
-    emit connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip);
+    Q_EMIT protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
+    Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip);
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
@@ -1189,7 +1189,7 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
                     connSettingsPolicy_->reset();
                 }
                 state_ = STATE_RECONNECTING;
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 startReconnectionTimer();
                 connector_->startDisconnect();
              }
@@ -1197,17 +1197,17 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
              {
                 state_= STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
+                Q_EMIT showFailedAutomaticConnectionMessage();
              }
         }
         else
         {
-            emit testTunnelResult(false, "");
+            Q_EMIT testTunnelResult(false, "");
         }
     }
     else
     {
-        emit testTunnelResult(true, ipAddress);
+        Q_EMIT testTunnelResult(true, ipAddress);
 
         // if connection mode is automatic, save last successfully connection settings
         bWasSuccessfullyConnectionAttempt_ = true;
@@ -1231,7 +1231,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
             timerWaitNetworkConnectivity_.stop();
             timerReconnection_.stop();
             state_ = STATE_DISCONNECTED;
-            emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
+            Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
         }
     }
 }
