@@ -305,21 +305,27 @@ void MacAddressController_mac::applyMacAddressSpoof(const QString &interfaceName
     // ifconfig command could error or simply fail to update the MAC address
     if (result.contains("success")) // detect ifconfig error
     {
-        // apply to boot script if successful
         // can verify MAC spoof immediately on Mac (no need to wait for adapter reset like on Windows)
-        if (MacUtils::interfaceSpoofed(interfaceName)) // detect failure to update MAC address
+        if (!MacUtils::interfaceSpoofed(interfaceName) || !MacUtils::checkMacAddr(interfaceName, macAddress)) // detect failure to update MAC address
         {
-            lastSpoofTime_ = QDateTime::currentDateTime();
+            // Try another robust command.
+            command = "/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport -z; ifconfig "
+                + interfaceName + " ether " + macAddress + "; ifconfig " + interfaceName + " up;";
+            result = helper_->executeRootCommand(command);
 
-            qCDebug(LOG_BASIC) << "Successfully updated MAC address: " << interfaceName << " : " << macAddress;
-            helper_->enableMacSpoofingOnBoot(true, interfaceName, macAddress);
+            if (!MacUtils::interfaceSpoofed(interfaceName) || !MacUtils::checkMacAddr(interfaceName, macAddress)) // detect failure to update MAC address
+            {
+                qCDebug(LOG_BASIC) << "Could not spoof MAC address, try updating your OS to the latest version. : " <<  interfaceName;
+                helper_->enableMacSpoofingOnBoot(false, "", "");
+                emit sendUserWarning(ProtoTypes::USER_WARNING_MAC_SPOOFING_FAILURE_SOFT);
+                return;
+            }
         }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Could not spoof MAC address, try updating your OS to the latest version. : " <<  interfaceName;
-            helper_->enableMacSpoofingOnBoot(false, "", "");
-            emit sendUserWarning(ProtoTypes::USER_WARNING_MAC_SPOOFING_FAILURE_SOFT);
-        }
+
+        // apply to boot script if successful
+        lastSpoofTime_ = QDateTime::currentDateTime();
+        qCDebug(LOG_BASIC) << "Successfully updated MAC address: " << interfaceName << " : " << macAddress;
+        helper_->enableMacSpoofingOnBoot(true, interfaceName, macAddress);
     }
     else
     {

@@ -1107,7 +1107,7 @@ void MainWindow::onPreferencesCycleMacAddressClick()
 {
     int confirm = QMessageBox::Yes;
 
-    if (!backend_->isDisconnected())
+    if (internetConnected_)
     {
         QString title = tr("VPN is active");
         QString desc = tr("Rotating your MAC address will result in a disconnect event from the current network. Are you sure?");
