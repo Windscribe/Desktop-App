@@ -49,7 +49,7 @@ bool Helper_linux::installUpdate(const QString &package) const
         bashCmd = QString("echo \"%1 Auto-update.\"; "
                                         "sudo dpkg -i %2; "
                                         "if [ $? -eq 0 ]; "
-                                        "then (nohup %3 &) && bash exec; "
+                                        "then (nohup %3 &) && exec bash; "
                                         "else notify-send \"Error during update.\" \"Please relaunch Windscribe and try again.\"; exec bash; "
                                         "fi;").arg(USER_ENTER_PASSWORD_STRING, package, WINDSCRIBE_PATH);
     }
@@ -57,7 +57,7 @@ bool Helper_linux::installUpdate(const QString &package) const
         bashCmd = QString("echo \"%1 Auto-update.\"; "
                                         "sudo rpm -i --replacefiles --replacepkgs %2; "
                                         "if [ $? -eq 0 ]; "
-                                        "then (nohup %3 &) && bash exec; "
+                                        "then (nohup %3 &) && exec bash; "
                                         "else notify-send \"Error during update.\" \"Please relaunch Windscribe and try again.\"; exec bash; "
                                         "fi;").arg(USER_ENTER_PASSWORD_STRING, package, WINDSCRIBE_PATH);
     }
