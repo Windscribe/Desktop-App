@@ -29,14 +29,13 @@ private slots:
     void onPreferencesHelperWifiSharingSupportedChanged(bool bSupported);
 
 private:
-    SecureHotspotItem *secureHotspotItem_;
-    ProxyGatewayItem *proxyGatewayItem_;
-    Preferences *preferences_;
+    Preferences* const preferences_;
     bool isWifiSharingSupported_;
+    SecureHotspotItem *secureHotspotItem_{ nullptr };
+    ProxyGatewayItem *proxyGatewayItem_{ nullptr };
 
     bool isIkev2OrAutomaticConnectionMode(const ProtoTypes::ConnectionSettings &cs) const;
     void updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic);
-
 };
 
 } // namespace PreferencesWindow
