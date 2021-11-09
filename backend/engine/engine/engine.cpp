@@ -1506,15 +1506,19 @@ void Engine::onCheckUpdateAnswer(bool available, const QString &version, const P
         {
             installerUrl_ = url;
 
-#ifdef Q_OS_LINUX
             // testing only
+#ifdef Q_OS_LINUX
 //            if(LinuxUtils::isDeb()) {
-//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_amd64.deb";
+//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_beta_amd64.deb";
 //            }
 //            else
 //            {
-//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_x86_64.rpm";
+//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_beta_x86_64.rpm";
 //            }
+#elif defined Q_OS_MAC
+//            installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/Windscribe_2.3.11_beta.dmg";
+#else
+//           installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/Windscribe_2.3.11_beta.exe";
 #endif
             qCDebug(LOG_BASIC) << "Installer URL: " << url;
             emit checkUpdateUpdated(available, version, updateChannel, latestBuild, url, supported);
