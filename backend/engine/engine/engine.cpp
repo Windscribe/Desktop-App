@@ -315,6 +315,11 @@ void Engine::disconnectClick()
     }
 }
 
+bool Engine::isBlockConnect() const
+{
+    return isBlockConnect_;
+}
+
 void Engine::setBlockConnect(bool isBlockConnect)
 {
     isBlockConnect_ = isBlockConnect;
@@ -2459,7 +2464,9 @@ void Engine::updateSessionStatus()
         }
         else
         {
-            qCDebug(LOG_BASIC) << "update session status, no changes since last call";
+            // Commented debug entry out as this method is called every minute and we don't
+            // need to flood the log with this info.
+            //qCDebug(LOG_BASIC) << "update session status, no changes since last call";
         }
 
 

@@ -203,7 +203,9 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
     int minLatency = INT_MAX;
     LocationID locationIdWithMinLatency;
 
-    qCDebug(LOG_BEST_LOCATION) << "LocationsModel::detectBestLocation, isAllNodesInDisconnectedState=" << isAllNodesInDisconnectedState;
+    // Commented debug entry out as this method is potentially called every minute and we don't
+    // need to flood the log with this info.
+    // qCDebug(LOG_BEST_LOCATION) << "LocationsModel::detectBestLocation, isAllNodesInDisconnectedState=" << isAllNodesInDisconnectedState;
 
     int prevBestLocationLatency = INT_MAX;
 
@@ -250,13 +252,17 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
     if (bestLocation_.isValid())
     {
         prevBestLocationId = bestLocation_.getId();
-        qCDebug(LOG_BEST_LOCATION) << "prevBestLocationId=" << prevBestLocationId.getHashString() << "; prevBestLocationLatency=" << prevBestLocationLatency;
+        // Commented debug entry out as this method is potentially called every minute and we don't
+        // need to flood the log with this info.  We will log it if the location actually changes.
+        //qCDebug(LOG_BEST_LOCATION) << "prevBestLocationId=" << prevBestLocationId.getHashString() << "; prevBestLocationLatency=" << prevBestLocationLatency;
     }
 
 
     if (locationIdWithMinLatency.isValid())      // new best location found
     {
-        qCDebug(LOG_BEST_LOCATION) << "Detected min latency=" << minLatency << "; id=" << locationIdWithMinLatency.getHashString();
+        // Commented debug entry out as this method is potentially called every minute and we don't
+        // need to flood the log with this info.  We will log it if the location actually changes.
+        //qCDebug(LOG_BEST_LOCATION) << "Detected min latency=" << minLatency << "; id=" << locationIdWithMinLatency.getHashString();
 
         // check whether best location needs to be changed
         if (!bestLocation_.isValid())
@@ -293,6 +299,14 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
     // send the signal to the GUI only if the location has actually changed
     if (bestLocation_.isValid() && prevBestLocationId != bestLocation_.getId())
     {
+        if (prevBestLocationId.isValid()) {
+            qCDebug(LOG_BEST_LOCATION) << "prevBestLocationId=" << prevBestLocationId.getHashString() << "; prevBestLocationLatency=" << prevBestLocationLatency;
+        }
+
+        if (locationIdWithMinLatency.isValid()) {
+            qCDebug(LOG_BEST_LOCATION) << "Detected min latency=" << minLatency << "; id=" << locationIdWithMinLatency.getHashString();
+        }
+
         qCDebug(LOG_BEST_LOCATION) << "Best location changed to " << bestLocation_.getId().getHashString();
         Q_EMIT bestLocationUpdated(bestLocation_.getId().apiLocationToBestLocation());
     }
