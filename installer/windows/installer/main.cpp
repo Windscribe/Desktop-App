@@ -27,6 +27,8 @@ WSMessageBox(HWND hOwner, LPCTSTR szTitle, UINT nStyle, LPCTSTR szFormat, ...)
     return nResult;
 }
 
+// This function cannot handle negative coordinates passed with the -center option; -dir option seems to break sometimes too
+// For now (we can make this better later) we assume 2 additional args will be passed with -center and 1 for -dir
 bool CheckCommandLineArgument(LPCWSTR argumentToCheck, int *valueIndex = nullptr,
                               int *valueCount = nullptr)
 {
@@ -60,6 +62,26 @@ bool CheckCommandLineArgument(LPCWSTR argumentToCheck, int *valueIndex = nullptr
     }
     return result;
 }
+
+bool GetCommandLineArgumentIndex(LPCWSTR argumentToCheck, int *valueIndex)
+{
+	if (!argumentToCheck)
+		return false;
+
+	if (!argList)
+		argList = CommandLineToArgvW(GetCommandLine(), &argCount);
+
+	bool result = false;
+	for (int i = 0; i < argCount; ++i) {
+		if (wcscmp(argList[i], argumentToCheck))
+			continue;
+		result = true;
+
+		*valueIndex = i + 1;
+	}
+	return result;
+}
+
 }  // namespace
 
 
@@ -90,13 +112,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     int expectedArgumentCount = isUpdateMode ? 2 : 1;
 
     int window_center_x = -1, window_center_y = -1;
-    int center_coord_index = 0, center_coord_count = 0;
-    if (CheckCommandLineArgument(L"-center", &center_coord_index, &center_coord_count)) {
-        if (center_coord_count > 0)
+    int center_coord_index = 0;
+    if (GetCommandLineArgumentIndex(L"-center", &center_coord_index)) {
             window_center_x = _wtoi(argList[center_coord_index]);
-        if (center_coord_count > 1)
             window_center_y = _wtoi(argList[center_coord_index+1]);
-        expectedArgumentCount += 1 + center_coord_count;
+        expectedArgumentCount += 3;
     }
 
     bool isSilent = false;
@@ -109,10 +129,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
            expectedArgumentCount += 1;
        }
 
-       int install_path_index, install_path_count;
-       if (CheckCommandLineArgument(L"-dir", &install_path_index, &install_path_count))
+       int install_path_index = 0, install_path_count;
+       if (GetCommandLineArgumentIndex(L"-dir", &install_path_index))
        {
-           if (install_path_index > 0 && install_path_count == 1)
+           if (install_path_index > 0)
            {
                installPath = argList[install_path_index];
                std::replace(installPath.begin(), installPath.end(), L'/', L'\\');
