@@ -10,7 +10,7 @@ class Win32Handle
 {
 public:
     explicit
-    Win32Handle(HANDLE hWin32Handle) : win32Handle_(hWin32Handle) {}
+    Win32Handle(HANDLE hWin32Handle = nullptr) : win32Handle_(hWin32Handle) {}
 
     ~Win32Handle(void) {
         closeHandle();

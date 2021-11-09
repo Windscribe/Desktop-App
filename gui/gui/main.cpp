@@ -8,9 +8,9 @@
 #include "utils/utils.h"
 #include "application/windscribeapplication.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "application/singleappinstance.h"
 
 #ifdef Q_OS_WIN
-    #include "application/preventmultipleinstances_win.h"
     #include "utils/scaleutils_win.h"
     #include "utils/crashhandler.h"
 #elif defined (Q_OS_MACOS)
@@ -19,7 +19,7 @@
     #include <libgen.h>         // dirname
     #include <unistd.h>         // readlink
     #include <linux/limits.h>   // PATH_MAX
-    #include<signal.h>
+    #include <signal.h>
 #endif
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
@@ -48,19 +48,9 @@ MainWindow *g_MainWindow = NULL;
 
 int main(int argc, char *argv[])
 {
-#ifdef Q_OS_WIN
-    // prevent multiple instances of process for Windows
-    PreventMultipleInstances_win multipleInstances;
-    if (!multipleInstances.lock())
-    {
-        return 0;
-    }
-#endif
-
 #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     signal(SIGTERM, handler_sigterm);
 #endif
-
 
     // set Qt plugin library paths for release build
 #ifndef QT_DEBUG
@@ -101,19 +91,35 @@ int main(int argc, char *argv[])
 
     WindscribeApplication a(argc, argv);
 
-    bool guiInstanceAlreadyRunning = Utils::giveFocusToGui();
-    if (guiInstanceAlreadyRunning)
-    {
-        qCDebug(LOG_BASIC) << "GUI appears to be running -- quitting";
-        return 0;
-    }
-
     // These values are used for QSettings by default
     a.setOrganizationName("Windscribe");
     a.setApplicationName("Windscribe2");
 
     a.setApplicationDisplayName("Windscribe");
 
+    // This guard must be created after WindscribeApplication, or its objects will not
+    // participate in the main event loop.  It must also be created before the Logger
+    // so, if this is the second instance to run, it does not copy the current instance's
+    // log_gui to prev_log_gui.
+    windscribe::SingleAppInstance appSingleInstGuard;
+    if (appSingleInstGuard.isRunning())
+    {
+        if (!appSingleInstGuard.activatedRunningInstance())
+        {
+            QMessageBox msgBox;
+            msgBox.setText(QObject::tr("Windscribe is already running on your computer, but appears to not be responding."));
+            msgBox.setInformativeText(QObject::tr("You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue."));
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
+
+        return 0;
+    }
+
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    QObject::connect(&appSingleInstGuard, &windscribe::SingleAppInstance::anotherInstanceRunning,
+                     &a, &WindscribeApplication::activateFromAnotherInstance);
+#endif
 
     Logger::instance().install("gui", true, false);
 
@@ -149,14 +155,14 @@ int main(int argc, char *argv[])
 #endif
     w.showAfterLaunch();
 
-#ifdef Q_OS_WIN
-    multipleInstances.unlock();
-#endif
     int ret = a.exec();
 #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     g_MainWindow = nullptr;
 #endif
     ImageResourcesSvg::instance().finishGracefully();
+
+    appSingleInstGuard.release();
+
     return ret;
 }
 
