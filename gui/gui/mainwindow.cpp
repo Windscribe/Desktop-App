@@ -1178,13 +1178,24 @@ void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChann
 
 void MainWindow::onPreferencesReportErrorToUser(const QString &title, const QString &desc)
 {
-    // avoid race condition that allows clicking through the general message overlay
-    QTimer::singleShot(0, [this, title, desc](){
-        mainWindowController_->getGeneralMessageWindow()->setTitle(title);
-        mainWindowController_->getGeneralMessageWindow()->setDescription(desc);
-        bGotoUpdateWindowAfterGeneralMessage_ = false;
-        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
-    });
+    // The main window controller will assert if we are not on one of these windows, but we may
+    // get here when on a different window if Preferences::validateAndUpdateIfNeeded() emits its
+    // reportErrorToUser signal.
+    if ((mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT ||
+         mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_UPDATE))
+    {
+        // avoid race condition that allows clicking through the general message overlay
+        QTimer::singleShot(0, [this, title, desc](){
+            mainWindowController_->getGeneralMessageWindow()->setTitle(title);
+            mainWindowController_->getGeneralMessageWindow()->setDescription(desc);
+            bGotoUpdateWindowAfterGeneralMessage_ = false;
+            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
+        });
+    }
+    else
+    {
+        QMessageBox::warning(nullptr, title, desc);
+    }
 }
 
 void MainWindow::onPreferencesCollapsed()

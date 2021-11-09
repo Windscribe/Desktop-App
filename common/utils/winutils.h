@@ -64,6 +64,7 @@ namespace WinUtils
     QString getLocalIP();
 
     bool authorizeWithUac();
+    bool isWindows64Bit();
 }
 
 

@@ -1530,3 +1530,17 @@ bool WinUtils::authorizeWithUac()
     return result;
 }
 
+bool WinUtils::isWindows64Bit()
+{
+    bool is_64_bit = true;
+
+    if (::GetSystemWow64DirectoryW(nullptr, 0u) == FALSE)
+    {
+        const DWORD last_error = ::GetLastError();
+        if (last_error == ERROR_CALL_NOT_IMPLEMENTED) {
+            is_64_bit = false;
+        }
+    }
+
+    return is_64_bit;
+}
