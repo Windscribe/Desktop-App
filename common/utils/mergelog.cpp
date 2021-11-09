@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QFileInfo>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -12,6 +13,13 @@
 
 namespace
 {
+// On Linux and Mac: big files take a while to load but can be loaded. Tested with 2GB (on linux) and 10GB file on OSX
+// On Windows only:
+// Application seems to crash reliably (in debug mode) at 630MB
+// Selecting a slightly lower max combined file size to prevent app from crashing
+// Even at 500MB, application is very slow to load (5-10s) and UI background glitches are obivous
+const quint64 MAX_COMBINED_LOG_SIZE = 500000000; // 500MB
+
 bool isYearInDatePresent(const std::string &dateline)
 {
     const int scan = qMin(6, (int)dateline.size());
@@ -56,25 +64,53 @@ QDateTime parseDateTimeFormat2(const std::string &datestr)
 
 QString MergeLog::mergeLogs(bool doMergePerLine)
 {
-    const QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-
-    const QString guiLogFilename = path + "/log_gui.txt";
-    const QString engineLogFilename = path + "/log_engine.txt";
-    const QString serviceLogFilename1 = qApp->applicationDirPath() + "/windscribeservice.log";
-    const QString serviceLogFilename2 = qApp->applicationDirPath() + "/windscribeservice_prev.log";
+    const QString guiLogFilename = guiLogLocation();
+    const QString engineLogFilename = engineLogLocation();
+    const QString serviceLogFilename1 = serviceLogLocation();
+    const QString serviceLogFilename2 = prevServiceLogLocation();
     return merge(guiLogFilename, engineLogFilename, serviceLogFilename1, serviceLogFilename2,
                  doMergePerLine);
 }
 
 QString MergeLog::mergePrevLogs(bool doMergePerLine)
 {
-    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    const QString guiLogFilename = path + "/prev_log_gui.txt";
-    const QString engineLogFilename = path + "/prev_log_engine.txt";
-    const QString serviceLogFilename1 = qApp->applicationDirPath() + "/windscribeservice.log";
-    const QString serviceLogFilename2 = qApp->applicationDirPath() + "/windscribeservice_prev.log";
+    const QString guiLogFilename = prevGuiLogLocation();
+    const QString engineLogFilename = prevEngineLogLocation();
+    const QString serviceLogFilename1 = serviceLogLocation();
+    const QString serviceLogFilename2 = prevServiceLogLocation();
     return merge(guiLogFilename, engineLogFilename, serviceLogFilename1, serviceLogFilename2,
                  doMergePerLine);
+}
+
+bool MergeLog::canMerge()
+{
+    quint64 mergedFileSize = 0;
+
+    // gui
+    QFileInfo guiLogInfo(guiLogLocation());
+    mergedFileSize += guiLogInfo.size();
+
+    // engine
+    QFileInfo engineLogInfo(engineLogLocation());
+    mergedFileSize += engineLogInfo.size();
+
+    // prev gui
+    QFileInfo prevGuiLogInfo(prevGuiLogLocation());
+    mergedFileSize += prevGuiLogInfo.size();
+
+    // prev engine
+    QFileInfo prevEngineLogInfo(prevEngineLogLocation());
+    mergedFileSize += prevEngineLogInfo.size();
+
+    // service (twice)
+    QFileInfo serviceLogInfo(serviceLogLocation());
+    mergedFileSize += serviceLogInfo.size() * 2; // why are we merging twice though, is this a bug?
+
+    // prev service (twice)
+    QFileInfo prevServiceLogInfo(prevServiceLogLocation());
+    mergedFileSize += prevServiceLogInfo.size() * 2; // why are we merging twice though, is this a bug?
+
+    return mergedFileSize < MAX_COMBINED_LOG_SIZE;
 }
 
 int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QString>> *lines, const QString *filename, LineSource source, bool useMinMax, QDateTime min, QDateTime max)
@@ -129,6 +165,40 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
         datasize += line.length() + 3;
     }
     return datasize;
+}
+
+const QString MergeLog::guiLogLocation()
+{
+    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    return path + "/log_gui.txt";
+}
+
+const QString MergeLog::engineLogLocation()
+{
+    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    return path + "/log_engine.txt";
+}
+
+const QString MergeLog::serviceLogLocation()
+{
+    return qApp->applicationDirPath() + "/windscribeservice.log";
+}
+
+const QString MergeLog::prevGuiLogLocation()
+{
+    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    return path + "/prev_log_gui.txt";
+}
+
+const QString MergeLog::prevEngineLogLocation()
+{
+    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    return path + "/prev_log_engine.txt";
+}
+
+const QString MergeLog::prevServiceLogLocation()
+{
+    return qApp->applicationDirPath() + "/windscribeservice_prev.log";
 }
 
 QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogFilename,

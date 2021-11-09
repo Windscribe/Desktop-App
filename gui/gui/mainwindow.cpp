@@ -22,6 +22,7 @@
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/writeaccessrightschecker.h"
+#include "utils/mergelog.h"
 #include "languagecontroller.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "dialogs/dialoggetusernamepassword.h"
@@ -1056,6 +1057,14 @@ void MainWindow::onPreferencesViewLogClick()
 {
     // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
     cleanupLogViewerWindow();
+
+#ifdef Q_OS_WIN
+    if (!MergeLog::canMerge())
+    {
+        showUserWarning(ProtoTypes::USER_WARNING_VIEW_LOG_FILE_TOO_BIG);
+        return;
+    }
+#endif
 
     logViewerWindow_ = new LogViewer::LogViewerWindow(this);
     logViewerWindow_->setAttribute( Qt::WA_DeleteOnClose );
@@ -2205,9 +2214,8 @@ void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
     }
 }
 
-void MainWindow::onBackendUserWarning(ProtoTypes::UserWarningType userWarningType)
+void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
 {
-
     QString titleText = "";
     QString descText = "";
     if (userWarningType == ProtoTypes::USER_WARNING_MAC_SPOOFING_FAILURE_HARD)
@@ -2220,6 +2228,16 @@ void MainWindow::onBackendUserWarning(ProtoTypes::UserWarningType userWarningTyp
         titleText = tr("MAC Spoofing Failed");
         descText = tr("Could not spoof MAC address, try updating your OS to the latest version.");
     }
+    else if (userWarningType == ProtoTypes::USER_WARNING_SEND_LOG_FILE_TOO_BIG)
+    {
+        titleText = tr("Logs too large to send");
+        descText = tr("Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.");
+    }
+    else if (userWarningType == ProtoTypes::USER_WARNING_VIEW_LOG_FILE_TOO_BIG)
+    {
+        titleText = tr("Logs too large to view");
+        descText = tr("Could not view the logs because they are too big. You may want to try viewing manually.");
+    }
 
     if (titleText != "" || descText != "")
     {
@@ -2230,6 +2248,11 @@ void MainWindow::onBackendUserWarning(ProtoTypes::UserWarningType userWarningTyp
             currentlyShowingUserWarningMessage_ = false;
         }
     }
+}
+
+void MainWindow::onBackendUserWarning(ProtoTypes::UserWarningType userWarningType)
+{
+    showUserWarning(userWarningType);
 }
 
 void MainWindow::onBackendInternetConnectivityChanged(bool connectivity)
