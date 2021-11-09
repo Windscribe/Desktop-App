@@ -1066,7 +1066,7 @@ void Engine::sendDebugLogImpl()
 #ifdef Q_OS_WIN
     if (!MergeLog::canMerge())
     {
-        emit sendUserWarning(ProtoTypes::USER_WARNING_SEND_LOG_FILE_TOO_BIG);
+        Q_EMIT sendUserWarning(ProtoTypes::USER_WARNING_SEND_LOG_FILE_TOO_BIG);
         return;
     }
 #endif
