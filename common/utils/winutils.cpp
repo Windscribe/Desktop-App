@@ -1543,6 +1543,7 @@ bool WinUtils::isWindows64Bit()
     }
 
     return is_64_bit;
+}
 
 unsigned long WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize)
 {
