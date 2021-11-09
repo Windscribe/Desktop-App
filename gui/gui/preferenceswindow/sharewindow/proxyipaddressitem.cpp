@@ -42,7 +42,7 @@ void ProxyIpAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     QFont *font = FontManager::instance().getFont(12, true);
     painter->setFont(*font);
     painter->setPen(QColor(255, 255, 255));
-    painter->drawText(boundingRect().adjusted(40*G_SCALE, 0, 0, -3*G_SCALE), Qt::AlignVCenter, tr("Connect To"));
+    painter->drawText(boundingRect().adjusted(40*G_SCALE, 0, 0, -3*G_SCALE), Qt::AlignVCenter, tr("IP"));
 
     painter->setOpacity(0.5 * initialOpacity);
     painter->drawText(boundingRect().adjusted(40*G_SCALE, 0, -48*G_SCALE, -3*G_SCALE), Qt::AlignRight | Qt::AlignVCenter, strIP_);
