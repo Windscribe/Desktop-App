@@ -715,7 +715,7 @@ void EngineServer::onEngineMyIpUpdated(const QString &ip, bool /*success*/, bool
     cmd.getProtoObj().mutable_my_ip_info()->set_ip(ip.toStdString());
     cmd.getProtoObj().mutable_my_ip_info()->set_is_disconnected_state(isDisconnected);
 
-    sendCmdToAllAuthorizedAndGetStateClients(cmd, !isDisconnected); // only non-user IP
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, false); // only non-user IP
 }
 
 void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId)
