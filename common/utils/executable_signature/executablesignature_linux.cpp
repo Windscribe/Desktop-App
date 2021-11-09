@@ -22,6 +22,12 @@ bool ExecutableSignature_linux::verifyWithPublicKey(const std::string &exePath, 
 {
     // read public key into openssl bio abstraction
     BIO *bioPublicKey = BIO_new(BIO_s_mem());
+    if (pubKeyBytes.length() > BUFFER_SIZE)
+    {
+        std::cout << "Public key is incorrect size, cannot read in";
+        return false;
+    }
+
     if (BIO_write(bioPublicKey, pubKeyBytes.data(), pubKeyBytes.length()) <= 0)
     {
         std::cout << "Failed to write public key resource to bio";
