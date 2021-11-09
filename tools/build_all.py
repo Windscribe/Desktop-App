@@ -57,6 +57,7 @@ global NO_POST_CLEAN # bool
 global BUILD_APP # bool
 global BUILD_COM # bool
 global BUILD_INSTALLER # bool
+global NO_SIGN_LINUX  
 
 
 def RemoveFiles(files):
@@ -544,9 +545,9 @@ def BuildInstallerLinux(configdata, qt_root):
   # Creates the following:
   # * windscribe_2.x.y_amd64.deb
   # * windscribe_2.x.y_amd64.deb.sig
-  # * windscribe-2.x.y-x86_64.rpm
-  # * windscribe-2.x.y-x86_64.rpm.sig
-  # * windscribe_2.x.y_amd64.key
+  # * windscribe_2.x.y_x86_64.rpm
+  # * windscribe_2.x.y_x86_64.rpm.sig
+  # * windscribe_2.x.y.key
   msg.Info("Copying lib_files_linux...")
   if "lib_files_linux" in configdata:
     for k, v in configdata["lib_files_linux"].iteritems():
@@ -597,20 +598,22 @@ def BuildInstallerLinux(configdata, qt_root):
 
   # create and sign .deb with dest_package 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
-  CodeSignLinux(dest_package_name + ".deb", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
+  if not NO_SIGN_LINUX:
+    CodeSignLinux(dest_package_name + ".deb", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
 
   # include key in target package 
-  key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-  key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRING)
-  key_dest = os.path.join(TEMP_INSTALLER_DIR, key_package_name)
-  utl.CopyFile(key_src, key_dest)
+  if not NO_SIGN_LINUX:
+    key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
+    key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRING)
+    key_dest = os.path.join(TEMP_INSTALLER_DIR, key_package_name)
+    utl.CopyFile(key_src, key_dest)
 
   # create RPM from deb
   # msg.Info("Creating RPM package...")
   rpm_package_name = "windscribe_{}_x86_64.rpm".format(BUILD_APP_VERSION_STRING_FULL)
   iutl.RunCommand(["fpm", "-s", "deb", "-p", rpm_package_name, "-t", "rpm", dest_package_path + ".deb"])
-  CodeSignLinux(rpm_package_name, TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
-  rpm_key_dest = os.path.join(TEMP_INSTALLER_DIR, rpm_package_name + ".key")
+  if not NO_SIGN_LINUX:
+    CodeSignLinux(rpm_package_name, TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
 
 def BuildAll():
   # Load config.
@@ -624,6 +627,8 @@ def BuildAll():
       current_os not in configdata["installer"] or \
       configdata["installer"][current_os] not in configdata:
     raise iutl.InstallError("Missing {} installer target in \"{}\".".format(current_os, BUILD_CFGNAME))
+  
+  
   # Extract app version.
   global BUILD_APP_VERSION_STRING
   global BUILD_APP_VERSION_STRING_FULL
@@ -711,6 +716,17 @@ if __name__ == "__main__":
   BUILD_COM = not ("--no-com" in sys.argv)
   BUILD_INSTALLER = not ("--no-installer" in sys.argv)
 
+  # on linux we need keypair to sign -- check that they exists in the correct location
+  NO_SIGN_LINUX = False
+  if current_os == "linux":
+    NO_SIGN_LINUX = "--no-sign" in sys.argv
+    if not NO_SIGN_LINUX:
+      pubkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
+      privkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pem")
+      if not os.path.exists(pubkey) or not os.path.exists(privkey):
+        msg.Print("No keypair found to sign with. Consider running with '--no-sign'")
+        sys.exit(0);
+      
   if current_os not in BUILD_OS_LIST:
     msg.Print("{} is not needed on {}, skipping.".format(BUILD_TITLE, current_os))
     sys.exit(0)
