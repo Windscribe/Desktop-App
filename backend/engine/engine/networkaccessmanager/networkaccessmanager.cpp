@@ -15,25 +15,25 @@ NetworkAccessManager::~NetworkAccessManager()
 {
 }
 
-QSharedPointer<NetworkReply> NetworkAccessManager::get(const NetworkRequest &request)
+NetworkReply *NetworkAccessManager::get(const NetworkRequest &request)
 {
     Q_ASSERT(QThread::currentThread() == this->thread());
     return invokeHandleRequest(REQUEST_GET, request, QByteArray());
 }
 
-QSharedPointer<NetworkReply> NetworkAccessManager::post(const NetworkRequest &request, const QByteArray &data)
+NetworkReply *NetworkAccessManager::post(const NetworkRequest &request, const QByteArray &data)
 {
     Q_ASSERT(QThread::currentThread() == this->thread());
     return invokeHandleRequest(REQUEST_POST, request, data);
 }
 
-QSharedPointer<NetworkReply> NetworkAccessManager::put(const NetworkRequest &request, const QByteArray &data)
+NetworkReply *NetworkAccessManager::put(const NetworkRequest &request, const QByteArray &data)
 {
     Q_ASSERT(QThread::currentThread() == this->thread());
     return invokeHandleRequest(REQUEST_PUT, request, data);
 }
 
-QSharedPointer<NetworkReply> NetworkAccessManager::deleteResource(const NetworkRequest &request)
+NetworkReply *NetworkAccessManager::deleteResource(const NetworkRequest &request)
 {
     Q_ASSERT(QThread::currentThread() == this->thread());
     return invokeHandleRequest(REQUEST_DELETE, request, QByteArray());
@@ -77,7 +77,6 @@ void NetworkAccessManager::onCurlReplyFinished()
     if (it != activeRequests_.end())
     {
         QSharedPointer<RequestData> requestData = it.value();
-        requestData->reply->setNetworkState(NetworkReply::Done);
         requestData->reply->checkForCurlError();
         emit requestData->reply->finished();
         dnsCache_->notifyFinished(replyId);
@@ -172,10 +171,10 @@ quint64 NetworkAccessManager::getNextId()
     return nextId_++;
 }
 
-QSharedPointer<NetworkReply> NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data)
+NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data)
 {
     quint64 id = getNextId();
-    auto reply = QSharedPointer<NetworkReply>::create(this);
+    NetworkReply *reply = new NetworkReply(this);
     reply->setProperty("replyId", id);
 
     QSharedPointer<RequestData> requestData(new RequestData);
@@ -193,33 +192,23 @@ QSharedPointer<NetworkReply> NetworkAccessManager::invokeHandleRequest(NetworkAc
     return reply;
 }
 
-NetworkReply::NetworkReply(NetworkAccessManager *parent) : QObject(parent)
-  , curlReply_(NULL)
-  , manager_(parent)
-  , error_(NetworkReply::NoError)
-  , networkState_(Init)
+NetworkReply::NetworkReply(NetworkAccessManager *parent) : QObject(parent), curlReply_(NULL), manager_(parent), error_(NetworkReply::NoError)
 {
 
 }
 
 NetworkReply::~NetworkReply()
 {
-    // qDebug() << "Destroying network reply: " << property("replyId");
     abort();
 }
 
 void NetworkReply::abort()
 {
-    if (networkState_ == Init)
+    manager_->abort(this);
+    if (curlReply_)
     {
-        networkState_ = Aborting;
-        // qDebug() << "aborting: " << property("replyId");
-        manager_->abort(this);
-        if (curlReply_)
-        {
-            curlReply_->deleteLater();
-            curlReply_ = nullptr;
-        }
+        curlReply_->deleteLater();
+        curlReply_ = nullptr;
     }
 }
 
@@ -241,11 +230,6 @@ bool NetworkReply::isSuccess() const
     return error_ == NoError;
 }
 
-bool NetworkReply::isDone() const
-{
-    return networkState_ != Init;
-}
-
 void NetworkReply::setCurlReply(CurlReply *curlReply)
 {
     curlReply_ = curlReply;
@@ -265,11 +249,6 @@ void NetworkReply::checkForCurlError()
     {
         error_ = CurlError;
     }
-}
-
-void NetworkReply::setNetworkState(NetworkReply::NetworkState state)
-{
-    networkState_ = state;
 }
 
 void NetworkReply::setError(NetworkReply::NetworkError err)
