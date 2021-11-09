@@ -11,7 +11,7 @@ bool FixAdapterName::applyFix(LPCWSTR hwid)
 {
     HDEVINFO device_info = SetupDiGetClassDevs(&GUID_DEVCLASS_NET, nullptr, nullptr, DIGCF_PRESENT);
     if (device_info == INVALID_HANDLE_VALUE) {
-        Log::instance().out("FixAdapterName: SetupDiGetClassDevs failed");
+        Log::instance().out("FixAdapterName: SetupDiGetClassDevs failed (%lu)", ::GetLastError());
         return false;
     }
 
@@ -49,7 +49,7 @@ bool FixAdapterName::applyFix(LPCWSTR hwid)
             &device_desc_size)) {
             device_ok = false;
             Log::instance().out(
-                "FixAdapterName: SetupDiGetDeviceRegistryProperty(SPDRP_DEVICEDESC) failed");
+                "FixAdapterName: SetupDiGetDeviceRegistryProperty(SPDRP_DEVICEDESC) failed (%lu)", ::GetLastError());
             break;
         }
         if (!SetupDiGetDeviceRegistryProperty(device_info, &device_info_data, SPDRP_FRIENDLYNAME,
@@ -57,7 +57,7 @@ bool FixAdapterName::applyFix(LPCWSTR hwid)
             &datasize)) {
             device_ok = false;
             Log::instance().out(
-                "FixAdapterName: SetupDiGetDeviceRegistryProperty(SPDRP_FRIENDLYNAME) failed");
+                "FixAdapterName: SetupDiGetDeviceRegistryProperty(SPDRP_FRIENDLYNAME) failed (%lu)", ::GetLastError());
             break;
         }
         // Check if device description and friendly name don't match. If that's the case, change the
@@ -71,7 +71,7 @@ bool FixAdapterName::applyFix(LPCWSTR hwid)
             reinterpret_cast<const BYTE*>(device_desc), device_desc_size)) {
             device_ok = false;
             Log::instance().out(
-                "FixAdapterName: SetupDiSetDeviceRegistryProperty(SPDRP_FRIENDLYNAME) failed");
+                "FixAdapterName: SetupDiSetDeviceRegistryProperty(SPDRP_FRIENDLYNAME) failed (%lu)", ::GetLastError());
             break;
         }
         Log::instance().out("FixAdapterName: \"%ls\" name fixed:", hwid);

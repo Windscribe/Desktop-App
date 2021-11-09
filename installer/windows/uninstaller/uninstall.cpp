@@ -47,7 +47,6 @@ void Uninstaller::setUninstExeFile(const wstring &exe_file, bool bFirstPhase)
 
  UninstallExitCode = 1;
 
- Log::instance().setFilePath(path.PathExtractPath(UninstExeFile) + L"\\log\\windscribe_uninstall.log");
  /*if (bFirstPhase)
 	Log::instance().setFilePath(L"c:\\11\\windscribe_uninstall_1.log");
  else
