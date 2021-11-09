@@ -601,7 +601,7 @@ def BuildInstallerLinux(configdata, qt_root):
 
   # include key in target package 
   key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-  key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRING_FULL)
+  key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRING)
   key_dest = os.path.join(TEMP_INSTALLER_DIR, key_package_name)
   utl.CopyFile(key_src, key_dest)
 

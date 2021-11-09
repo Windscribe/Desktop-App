@@ -10,6 +10,8 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <Foundation/Foundation.h>
 
+#ifdef QT_CORE_LIB
+
 bool ExecutableSignature_mac::isParentProcessGui()
 {
     pid_t pid = getppid();
@@ -126,3 +128,4 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
     return false;
 }
 
+#endif

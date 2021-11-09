@@ -10,18 +10,12 @@
 class NetworkAccessManager;
 class NetworkReply;
 
-struct OptionalSharedNetworkReply{
-    explicit OptionalSharedNetworkReply(const QSharedPointer<NetworkReply> &reply) : reply(reply), valid(true) {}
-    OptionalSharedNetworkReply() : valid(false) {}
-    QSharedPointer<NetworkReply> reply;
-    bool valid;
-};
-
 class DownloadHelper : public QObject
 {
     Q_OBJECT
 public:
     explicit DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager);
+    ~DownloadHelper();
 
     enum DownloadState {
         DOWNLOAD_STATE_INIT,
@@ -56,9 +50,10 @@ private:
         QSharedPointer<QFile> file;
         qint64 bytesReceived = 0;
         qint64 bytesTotal = 0;
+        bool done = false;
     };
 
-    QMap<QSharedPointer<NetworkReply>, FileAndProgress> replies_;
+    QMap<NetworkReply*, FileAndProgress> replies_;
     bool busy_;
 
     QString downloadDirectory_;
@@ -69,8 +64,7 @@ private:
     void removeAutoUpdateInstallerFiles();
     bool allRepliesDone();
     void abortAllReplies();
-
-    OptionalSharedNetworkReply replyFromSender(QObject *sender);
+    void deleteAllReplies();
 
 };
 
