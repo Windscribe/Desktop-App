@@ -229,7 +229,7 @@ def ApplyMacDeployFixes(appname, fixlist):
   # 4. Code signing.
   if "codesign" in fixlist:
     # Signing the whole app.
-    if "sign_app" in fixlist["codesign"] and fixlist["codesign"]["sign_app"]:
+    if "sign_app" in fixlist["codesign"] and fixlist["codesign"]["sign_app"] == "yes":
       msg.Info("Signing the app bundle...")
       iutl.RunCommand(["codesign", "--deep", appname, "--options", "runtime", "--timestamp",
                        "-s", BUILD_DEVELOPER_MAC])
