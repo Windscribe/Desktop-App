@@ -68,7 +68,7 @@ Go to subfolder tools and run 'build_all'. Assuming all goes well with the build
     - https://download.developer.apple.com/Developer_Tools/Xcode_11.7/Xcode_11.7.xip
     - https://download.developer.apple.com/Developer_Tools/Xcode_11.3.1/Xcode_11.3.1.xip
 
-- git (https://git-scm.com/downloads)
+- git (https://git-scm.com/downloads). This step is optional, as git is bundled with Xcode.
     - brew install git
 
 - Install your signing certificate in the Keychain
