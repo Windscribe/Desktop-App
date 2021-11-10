@@ -8,7 +8,6 @@ RemoveDirectory1::RemoveDirectory1()
 }
 
 
-//D:\DISTR\issrc\Projects\InstFunc.pas
 bool RemoveDirectory1::DelTree(const bool DisableFsRedir, const wstring Path,
   const bool IsDir, const bool DeleteFiles, const bool DeleteSubdirsAlso, const bool breakOnError,
   const P_DeleteDirProc DeleteDirProc, const P_DeleteFileProc DeleteFileProc,

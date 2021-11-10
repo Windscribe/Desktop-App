@@ -141,7 +141,6 @@ bool Redirection::MoveFileExRedir(const bool DisableFsRedir,
   return Result;
 }
 
-//D:\DISTR\issrc\Projects\ISPP\RedirFunc.pas
 bool Redirection::CreateProcessRedir(const wchar_t *lpApplicationName, const wchar_t *lpCommandLine,
   const LPSECURITY_ATTRIBUTES lpProcessAttributes,const LPSECURITY_ATTRIBUTES lpThreadAttributes,
   const bool bInheritHandles, const DWORD dwCreationFlags,
@@ -179,7 +178,6 @@ bool Redirection::CreateProcessRedir(const wchar_t *lpApplicationName, const wch
 }
 
 
-//D:\DISTR\issrc\Projects\ISPP\RedirFunc.pas
 bool Redirection::DisableFsRedirectionIf(const bool Disable, TPreviousFsRedirectionState PreviousState)
 {
 //{ If Disable is false, the function does not change the redirection state and

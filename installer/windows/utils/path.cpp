@@ -4,8 +4,6 @@ using namespace std;
 
 wstring Path::PathExpand(const wstring Filename)
 {
- //{ Like Delphi's ExpandFileName, but does proper error checking. }
-
  DWORD Res;
 
  TCHAR** FilePart={nullptr};

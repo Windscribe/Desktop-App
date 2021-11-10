@@ -10,7 +10,6 @@ Process::Process()
 
 }
 
-//D:\DISTR\issrc\Projects\ISPP\InstFunc.pas
 void Process::HandleProcessWait(HANDLE ProcessHandle, const TExecWait Wait, unsigned long &ResultCode)
 {
  /*if(Wait == ewWaitUntilIdle)
@@ -43,7 +42,6 @@ void Process::HandleProcessWait(HANDLE ProcessHandle, const TExecWait Wait, unsi
 
 
 
-//D:\DISTR\issrc\Projects\ISPP\InstFunc.pas
 bool Process::InstExec(const wstring Filename, const wstring Params,
   wstring WorkingDir, const TExecWait Wait, const WORD ShowCmd,
   unsigned long &ResultCode)

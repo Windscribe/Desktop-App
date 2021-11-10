@@ -7,7 +7,6 @@ using namespace std;
 
 bool Registry::InternalRegQueryStringValue(HKEY H, const wchar_t *Name, wstring &ResultStr, DWORD Type1, DWORD Type2)
 {
-//D:\DISTR\issrc\Projects\CmnFunc2.pas
   DWORD Typ, Size;
   unsigned int Len;
   long ErrorCode;
@@ -78,7 +77,6 @@ bool Registry::InternalRegQueryStringValue(HKEY H, const wchar_t *Name, wstring 
   return Result;
 }
 
-//D:\DISTR\issrc\Projects\CScriptFunc_R.pas
 bool Registry::RegQueryStringValue(HKEY H, const wchar_t *SubKeyName, wstring ValueName, wstring &ResultStr)
 // Queries the specified REG_SZ or REG_EXPAND_SZ registry key/value, and returns
 //  the value in ResultStr. Returns true if successful. When false is returned,
