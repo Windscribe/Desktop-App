@@ -11,6 +11,8 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <Foundation/Foundation.h>
 
+#ifdef QT_CORE_LIB
+
 bool ExecutableSignature_mac::isParentProcessGui()
 {
     pid_t pid = getppid();
@@ -70,7 +72,7 @@ bool ExecutableSignature_mac::verify(const QString &executablePath)
         SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
         if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
         {
-            QString certName = HardcodedSettings::instance().macCertName();
+	    QString certName = HardcodedSettings::instance().macCertName();
             if (CFEqual((CFTypeRef)commonName, (CFTypeRef)certName.toCFString()))
             {
                 return true;
@@ -88,7 +90,6 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
     {
         return true;
     }
-
     //create static code ref via path
     SecStaticCodeRef staticCode = NULL;
     NSString* path = executablePath.toNSString();
@@ -127,14 +128,15 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
         SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
         if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
         {
-            QString certName = HardcodedSettings::instance().macCertName();
+	    QString certName = HardcodedSettings::instance().macCertName();
             if (CFEqual((CFTypeRef)commonName, (CFTypeRef)certName.toCFString()))
             {
                 return true;
-            }
-         }
+            }         
+	}
     }
 
     return false;
 }
 
+#endif

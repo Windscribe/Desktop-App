@@ -14,7 +14,7 @@ MacAddressController_win::MacAddressController_win(QObject *parent, NetworkDetec
   , lastSpoofIndex_(-1)
   , networkDetectionManager_(ndManager)
 {
-    connect(networkDetectionManager_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChange(ProtoTypes::NetworkInterface)));
+    connect(networkDetectionManager_, SIGNAL(networkChanged(bool, ProtoTypes::NetworkInterface)), SLOT(onNetworkChange(bool, ProtoTypes::NetworkInterface)));
 }
 
 MacAddressController_win::~MacAddressController_win()
@@ -156,7 +156,7 @@ void MacAddressController_win::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
     }
 }
 
-void MacAddressController_win::onNetworkChange(ProtoTypes::NetworkInterface /*networkInterface*/)
+void MacAddressController_win::onNetworkChange(bool /*isOnline*/, ProtoTypes::NetworkInterface /*networkInterface*/)
 {
     // filter network events when adapters are being reset
     ProtoTypes::NetworkInterfaces networkInterfaces = Utils::currentNetworkInterfaces(true);

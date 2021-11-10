@@ -41,6 +41,7 @@ private:
     static constexpr int DEFAULT_PORT = 9544;
     static constexpr int MAX_WAIT_OPENVPN_ON_START = 20000;
 
+    IHelper *helper_;
     std::atomic<bool> bStopThread_;
 
     boost::asio::io_service io_service_;
@@ -56,9 +57,9 @@ private:
 
     void setCurrentState(CONNECTION_STATUS state);
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
-    void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECTION_ERROR err);
+    void setCurrentStateAndEmitError(CONNECTION_STATUS state, ProtoTypes::ConnectError err);
     CONNECTION_STATUS getCurrentState() const;
-    bool runOpenVPN(unsigned int port, const ProxySettings &proxySettings, unsigned long &outCmdId);
+    IHelper::ExecuteError runOpenVPN(unsigned int port, const ProxySettings &proxySettings, unsigned long &outCmdId);
 
     struct StateVariables
     {
@@ -125,7 +126,7 @@ private:
     void continueWithPasswordImpl();
 
     bool parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway);
-    bool parseDeviceOpenedReply(const QString &reply, QString &outDriverName, QString &outDeviceName);
+    bool parseDeviceOpenedReply(const QString &reply, QString &outDeviceName);
     bool parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp);
 };
 

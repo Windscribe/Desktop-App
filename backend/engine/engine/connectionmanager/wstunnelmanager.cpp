@@ -22,6 +22,9 @@ WstunnelManager::WstunnelManager(QObject *parent) : QObject(parent), bProcessSta
 #elif defined Q_OS_MAC
     wstunelExePath_ = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewstunnel";
     qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(wstunelExePath_);
+#elif defined Q_OS_LINUX
+    wstunelExePath_ = QCoreApplication::applicationDirPath() + "/windscribewstunnel";
+    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(wstunelExePath_);
 #endif
 }
 
@@ -30,11 +33,12 @@ WstunnelManager::~WstunnelManager()
     killProcess();
 }
 
-void WstunnelManager::runProcess(const QString &hostname, unsigned int port, bool isUdp)
+bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, bool isUdp)
 {
     if (!ExecutableSignature::verifyWithSignCheck(wstunelExePath_))
     {
-        return;
+        qCDebug(LOG_BASIC) << "Failed to verify wstunnel signature";
+        return false;
     }
 
     inputArr_.clear();
@@ -43,12 +47,13 @@ void WstunnelManager::runProcess(const QString &hostname, unsigned int port, boo
     QStringList args;
     QString addr = QString("127.0.0.1:%1:127.0.0.1:1194").arg(port_);
     QString hostaddr = QString("wss://%1:%2").arg(hostname).arg(port);
-    args << "-L" << addr << hostaddr << "-v";
+    args << "--localToRemote" << addr << hostaddr << "--verbose" << "--upgradePathPrefix=/";
     if (isUdp)
     {
-        args << "-u";
+        args << "--udp";
     }
     process_->start(wstunelExePath_, args);
+    return true;
 }
 
 void WstunnelManager::killProcess()
@@ -58,8 +63,8 @@ void WstunnelManager::killProcess()
         bProcessStarted_ = false;
         process_->close();
 
-        // for Mac send kill command
-    #if defined Q_OS_MAC
+        // for Mac/Linux send kill command
+    #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
         QProcess killCmd(this);
         killCmd.execute("killall", QStringList() << "windscribewstunnel");
         killCmd.waitForFinished(-1);

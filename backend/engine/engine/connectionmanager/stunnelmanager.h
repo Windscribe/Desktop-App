@@ -12,7 +12,7 @@ public:
     virtual ~StunnelManager();
 
     bool setConfig(const QString &hostname, uint port);
-    void runProcess();
+    bool runProcess();
     void killProcess();
 
     unsigned int getStunnelPort();

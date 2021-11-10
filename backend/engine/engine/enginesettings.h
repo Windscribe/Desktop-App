@@ -8,6 +8,7 @@
 #include "engine/types/dnsresolutionsettings.h"
 #include "engine/proxy/proxysettings.h"
 #include "ipc/command.h"
+#include "utils/simplecrypt.h"
 
 class EngineSettings
 {
@@ -37,6 +38,7 @@ public:
     ProtoTypes::MacAddrSpoofing getMacAddrSpoofing() const;
     ProtoTypes::PacketSize getPacketSize() const;
     ProtoTypes::UpdateChannel getUpdateChannel() const;
+    ProtoTypes::DnsWhileConnectedInfo getDnsWhileConnectedInfo() const;
 
     bool isUseWintun() const;
     QString getCustomOvpnConfigsPath() const;
@@ -48,6 +50,8 @@ public:
 
 private:
     ProtoTypes::EngineSettings engineSettings_;
+
+    SimpleCrypt simpleCrypt_;
 
     void loadFromVersion1();
 };

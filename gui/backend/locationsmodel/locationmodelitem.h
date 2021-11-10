@@ -9,6 +9,7 @@
 //note regarding this todo: passing qsharedpointer's via signal/slots may be a bit tricky (probably need to inform the moc)
 struct CityModelItem
 {
+    int initialInd_;        // ind of item without sorting
     LocationID id;
     QString city;
     QString nick;

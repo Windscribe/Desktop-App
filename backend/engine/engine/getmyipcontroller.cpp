@@ -2,8 +2,8 @@
 #include "engine/serverapi/serverapi.h"
 #include <QTimer>
 
-GetMyIPController::GetMyIPController(QObject *parent, ServerAPI *serverAPI, INetworkStateManager *networkStateManager) : QObject(parent),
-    serverAPI_(serverAPI), networkStateManager_(networkStateManager), requestForTimerIsDisconnected_(false)
+GetMyIPController::GetMyIPController(QObject *parent, ServerAPI *serverAPI, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
+    serverAPI_(serverAPI), networkDetectionManager_(networkDetectionManager), requestForTimerIsDisconnected_(false)
 {
     connect(serverAPI_, SIGNAL(myIPAnswer(QString,bool,bool,uint)), SLOT(onMyIpAnswer(QString,bool,bool,uint)), Qt::QueuedConnection);
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
@@ -35,7 +35,7 @@ void GetMyIPController::getIPFromDisconnectedState(int timeoutMs)
 
 void GetMyIPController::onTimer()
 {
-    if (networkStateManager_->isOnline())
+    if (networkDetectionManager_->isOnline())
     {
         serverAPI_->myIP(requestForTimerIsDisconnected_, serverApiUserRole_, true);
     }

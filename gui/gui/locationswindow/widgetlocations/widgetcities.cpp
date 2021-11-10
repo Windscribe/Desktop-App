@@ -441,8 +441,7 @@ void WidgetCities::paintEvent(QPaintEvent *event)
         const int kVerticalOffset = emptyListButton_->text().isEmpty() ? 0 : 16;
         if (!emptyListDisplayIcon_.isEmpty())
         {
-            // qDebug() << "Drawing Broken Heart";
-            IndependentPixmap *brokenHeartPixmap =
+            QSharedPointer<IndependentPixmap> brokenHeartPixmap =
                 ImageResourcesSvg::instance().getIndependentPixmap(emptyListDisplayIcon_);
             brokenHeartPixmap->draw(width() / 2 - 16 * G_SCALE,
                 height() / 2 - (kVerticalOffset + 32) * G_SCALE, &painter);
@@ -510,6 +509,7 @@ void WidgetCities::onItemsUpdated(QVector<CityModelItem *> items)
 {
     // qCDebug(LOG_LOCATION_LIST) << "Items updated: " << name_;
     updateWidgetList(items);
+    update();
 }
 
 void WidgetCities::onConnectionSpeedChanged(LocationID id, PingTime timeMs)

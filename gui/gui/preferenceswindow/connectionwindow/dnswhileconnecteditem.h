@@ -6,26 +6,26 @@
 #include "../comboboxitem.h"
 #include "../editboxitem.h"
 #include "../dividerline.h"
-#include "types/dnswhileconnectedtype.h"
+#include "../backend/types/dnswhileconnectedinfo.h"
 
 #include <QVariantAnimation>
 
 namespace PreferencesWindow {
 
-class DNSWhileConnectedItem : public BaseItem
+class DnsWhileConnectedItem : public BaseItem
 {
     Q_OBJECT
 public:
-    explicit DNSWhileConnectedItem(ScalableGraphicsObject *parent);
+    explicit DnsWhileConnectedItem(ScalableGraphicsObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    //void setDNSWhileConnected(const DNSWhileConnected &dns);
+    void setDNSWhileConnected(const DnsWhileConnectedInfo &dns);
 
     void updateScaling() override;
     bool hasItemWithFocus() override;
 
 signals:
-    //void dnsWhileConnectedChanged(const DNSWhileConnected &dns);
+    void dnsWhileConnectedInfoChanged(const DnsWhileConnectedInfo &dns);
 
 private slots:
     void onDNSWhileConnectedModeChanged(QVariant v);
@@ -44,13 +44,15 @@ private:
 
     ComboBoxItem *comboBoxDNS_;
     EditBoxItem *editBoxIP_;
+    DividerLine *dividerLine_;
 
     QVariantAnimation expandEnimation_;
     bool isExpanded_;
 
-    //DNSWhileConnected curDNSWhileConnected_;
-    DividerLine *dividerLine_;
+    DnsWhileConnectedInfo curDNSWhileConnected_;
 
+    void updateHeight(DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE type);
+    void setHeightAndLinePos(int height);
 };
 
 }

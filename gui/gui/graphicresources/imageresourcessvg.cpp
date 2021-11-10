@@ -21,16 +21,7 @@ ImageResourcesSvg::~ImageResourcesSvg()
 
 void ImageResourcesSvg::clearHash()
 {
-    for (auto it = hashIndependent_.begin(); it != hashIndependent_.end(); ++it)
-    {
-        delete it.value();
-    }
     hashIndependent_.clear();
-
-    for (auto it = iconHashes_.begin(); it != iconHashes_.end(); ++it)
-    {
-        delete it.value();
-    }
     iconHashes_.clear();
 }
 
@@ -53,7 +44,7 @@ void ImageResourcesSvg::finishGracefully()
 }
 
 // get pixmap with original size
-IndependentPixmap *ImageResourcesSvg::getIndependentPixmap(const QString &name)
+QSharedPointer<IndependentPixmap> ImageResourcesSvg::getIndependentPixmap(const QString &name)
 {
     QMutexLocker locker(&mutex_);
     auto it = hashIndependent_.find(name);
@@ -75,7 +66,7 @@ IndependentPixmap *ImageResourcesSvg::getIndependentPixmap(const QString &name)
     }
 }
 
-IndependentPixmap *ImageResourcesSvg::getIconIndependentPixmap(const QString &name)
+QSharedPointer<IndependentPixmap> ImageResourcesSvg::getIconIndependentPixmap(const QString &name)
 {
     QMutexLocker locker(&mutex_);
     auto it = iconHashes_.find(name);
@@ -98,10 +89,10 @@ IndependentPixmap *ImageResourcesSvg::getIconIndependentPixmap(const QString &na
     }
 }
 
-IndependentPixmap *ImageResourcesSvg::getFlag(const QString &flagName)
+QSharedPointer<IndependentPixmap> ImageResourcesSvg::getFlag(const QString &flagName)
 {
     QMutexLocker locker(&mutex_);
-    IndependentPixmap *ret = getIndependentPixmap("flags/" + flagName);
+    QSharedPointer<IndependentPixmap> ret = getIndependentPixmap("flags/" + flagName);
     if (ret)
     {
         return ret;
@@ -112,11 +103,11 @@ IndependentPixmap *ImageResourcesSvg::getFlag(const QString &flagName)
     }
 }
 
-IndependentPixmap *ImageResourcesSvg::getScaledFlag(const QString &flagName, int width, int height,
+QSharedPointer<IndependentPixmap> ImageResourcesSvg::getScaledFlag(const QString &flagName, int width, int height,
                                                     int flags)
 {
     QMutexLocker locker(&mutex_);
-    IndependentPixmap *ret = getIndependentPixmapScaled("flags/" + flagName, width, height, flags);
+    QSharedPointer<IndependentPixmap> ret = getIndependentPixmapScaled("flags/" + flagName, width, height, flags);
     if (ret)
     {
         return ret;
@@ -148,10 +139,10 @@ bool ImageResourcesSvg::loadIconFromResource(const QString &name)
 {
     if (QFile::exists(name))
     {
-        QPixmap *p = WidgetUtils::extractProgramIcon(name);
-        if (p)
+        QPixmap p = WidgetUtils::extractProgramIcon(name);
+        if (!p.isNull())
         {
-            iconHashes_[name] = new IndependentPixmap(p);
+            iconHashes_[name] = QSharedPointer<IndependentPixmap>(new IndependentPixmap(p));
             return true;
         }
     }
@@ -166,13 +157,13 @@ bool ImageResourcesSvg::loadFromResource(const QString &name)
     {
         return false;
     }
-    QPixmap *pixmap = new QPixmap(render.defaultSize() * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio());
-    pixmap->fill(Qt::transparent);
-    QPainter painter(pixmap);
+    QPixmap pixmap(render.defaultSize() * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
     render.render(&painter);
 
-    pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-    hashIndependent_[name] = new IndependentPixmap(pixmap);
+    pixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    hashIndependent_[name] = QSharedPointer<IndependentPixmap>(new IndependentPixmap(pixmap));
     return true;
 }
 
@@ -192,16 +183,16 @@ bool ImageResourcesSvg::loadFromResourceWithCustomSize(const QString &name, int 
         else
             realSize.setWidth(realSize.height());
     }
-    QPixmap *pixmap = new QPixmap(realSize);
-    pixmap->fill(Qt::transparent);
+    QPixmap pixmap(realSize);
+    pixmap.fill(Qt::transparent);
     {
         QRectF rc(0, 0, width * sizeScale, height * sizeScale);
         rc.moveTo((realSize.width() - rc.width()) / 2, (realSize.height() - rc.height()) / 2);
-        QPainter painter(pixmap);
+        QPainter painter(&pixmap);
         render.render(&painter,rc);
     }
     if (flags & IMAGE_FLAG_GRAYED) {
-        auto image = pixmap->toImage();
+        auto image = pixmap.toImage();
         for (int i = 0; i < image.height(); ++i) {
             auto *scanline = reinterpret_cast<QRgb*>(image.scanLine(i));
             for (int j = 0; j < image.width(); ++j) {
@@ -210,18 +201,18 @@ bool ImageResourcesSvg::loadFromResourceWithCustomSize(const QString &name, int 
                 scanline[j] = QColor(gray, gray, gray, alpha).lighter(200).rgba();
             }
         }
-        *pixmap = QPixmap::fromImage(image);
+        pixmap = QPixmap::fromImage(image);
     }
 
-    pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
 
     QString modifiedName = name + "_" + QString::number(width) + "_" + QString::number(height);
     if (flags) modifiedName += "_" + QString::number(flags);
-    hashIndependent_[modifiedName] = new IndependentPixmap(pixmap);
+    hashIndependent_[modifiedName] = QSharedPointer<IndependentPixmap>(new IndependentPixmap(pixmap));
     return true;
 }
 
-IndependentPixmap *ImageResourcesSvg::getIndependentPixmapScaled(const QString &name, int width,
+QSharedPointer<IndependentPixmap> ImageResourcesSvg::getIndependentPixmapScaled(const QString &name, int width,
                                                                  int height, int flags)
 {
     QString modifiedName = name + "_" + QString::number(width) + "_" + QString::number(height);

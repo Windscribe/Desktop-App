@@ -9,16 +9,16 @@
 #include <sstream>
 #include "windscribeinstallhelper_win.h"
 #include "engine/openvpnversioncontroller.h"
-#include "simple_xor_crypt.h"
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/types/protocoltype.h"
+#include "utils/win32handle.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
 //  the program to connect to the helper socket without starting the service (uncomment for debug purpose)
-//#define DEBUG_DONT_USE_SERVICE
+// #define DEBUG_DONT_USE_SERVICE
 
 SC_HANDLE schSCManager_ = NULL;
 SC_HANDLE schService_ = NULL;
@@ -34,7 +34,7 @@ Helper_win::~Helper_win()
     wait();
 
 #if defined QT_DEBUG
-    if (isHelperConnected())
+    if (curState_ == STATE_CONNECTED)
     {
         debugGetActiveUnblockingCmdCount();
         qCDebug(LOG_BASIC) << "Active unblocking commands in helper on exit:" << debugGetActiveUnblockingCmdCount();
@@ -64,32 +64,330 @@ void Helper_win::startInstallHelper()
     if (!ExecutableSignature::verify(serviceExePath))
     {
         qCDebug(LOG_BASIC) << "WindscribeService signature incorrect";
-        bFailedConnectToHelper_ = true;
+        curState_ = STATE_USER_CANCELED;
         return;
     }
 
     start(QThread::LowPriority);
 }
 
-QString Helper_win::executeRootCommand(const QString &/*commandLine*/)
+Helper_win::STATE Helper_win::currentState() const
 {
-    Q_ASSERT(false);
-    return "";
+    return curState_;
 }
 
-bool Helper_win::executeRootUnblockingCommand(const QString &/*commandLine*/, unsigned long &/*outCmdId*/, const QString &/*eventName*/)
+bool Helper_win::reinstallHelper()
 {
-    Q_ASSERT(false);
-    return false;
+    QString servicePath = QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
+    QString subinaclPath = QCoreApplication::applicationDirPath() + "/subinacl.exe";
+    return WindscribeInstallHelper_win::executeInstallHelperCmd(servicePath, subinaclPath);
 }
 
-bool Helper_win::executeOpenVPN(const QString &/*commandLine*/, const QString &/*pathToOvpnConfig*/, unsigned long &/*outCmdId*/)
+void Helper_win::setNeedFinish()
 {
-    Q_ASSERT(false);
-    return false;
+    //nothing todo for Windows
 }
 
-bool Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId)
+QString Helper_win::getHelperVersion()
+{
+    QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_HELPER_VERSION, std::string());
+    if (mpr.success)
+    {
+        return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
+    }
+    else
+    {
+        return "failed detect";
+    }
+}
+
+void Helper_win::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_CHECK_UNBLOCKING_CMD_STATUS cmdCheckUnblockingCmdStatus;
+    cmdCheckUnblockingCmdStatus.cmdId = cmdId;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdCheckUnblockingCmdStatus;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CHECK_UNBLOCKING_CMD_STATUS, stream.str());
+
+    if (mpr.success)
+    {
+        outFinished = mpr.blockingCmdFinished;
+        if (outFinished)
+        {
+            outLog = QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
+        }
+    }
+    else
+    {
+        outFinished = false;
+        outLog.clear();
+    }
+}
+
+void Helper_win::clearUnblockingCmd(unsigned long cmdId)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_CLEAR_UNBLOCKING_CMD cmdClearUnblockingCmd;
+    cmdClearUnblockingCmd.blockingCmdId = cmdId;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdClearUnblockingCmd;
+
+    sendCmdToHelper(AA_COMMAND_CLEAR_UNBLOCKING_CMD, stream.str());
+}
+
+void Helper_win::suspendUnblockingCmd(unsigned long cmdId)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_SUSPEND_UNBLOCKING_CMD cmdSuspendUnblockingCmd;
+    cmdSuspendUnblockingCmd.blockingCmdId = cmdId;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdSuspendUnblockingCmd;
+
+    sendCmdToHelper(AA_COMMAND_SUSPEND_UNBLOCKING_CMD, stream.str());
+}
+
+bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
+                                           const QStringList &files, const QStringList &ips,
+                                           const QStringList &hosts)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_SPLIT_TUNNELING_SETTINGS cmdSplitTunnelingSettings;
+    cmdSplitTunnelingSettings.isActive = isActive;
+    cmdSplitTunnelingSettings.isExclude = isExclude;
+    cmdSplitTunnelingSettings.isKeepLocalSockets = isKeepLocalSockets;
+
+    for (int i = 0; i < files.count(); ++i)
+    {
+        cmdSplitTunnelingSettings.files.push_back(files[i].toStdWString());
+    }
+
+    for (int i = 0; i < ips.count(); ++i)
+    {
+        cmdSplitTunnelingSettings.ips.push_back(ips[i].toStdWString());
+    }
+
+    for (int i = 0; i < hosts.count(); ++i)
+    {
+        cmdSplitTunnelingSettings.hosts.push_back(hosts[i].toStdString());
+    }
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdSplitTunnelingSettings;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SPLIT_TUNNELING_SETTINGS, stream.str());
+    return mpr.exitCode;
+}
+
+void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                                   const QString &connectedIp, const ProtocolType &protocol)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_CONNECT_STATUS cmd;
+    cmd.isConnected = isConnected;
+    cmd.isCloseTcpSocket = isCloseTcpSocket;
+    cmd.isKeepLocalSocket = isKeepLocalSocket;
+
+    if (isConnected)
+    {
+        if (protocol.isStunnelOrWStunnelProtocol())
+        {
+            cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
+        }
+        else if (protocol.isIkev2Protocol())
+        {
+            cmd.protocol = CMD_PROTOCOL_IKEV2;
+        }
+        else if (protocol.isWireGuardProtocol())
+        {
+            cmd.protocol = CMD_PROTOCOL_WIREGUARD;
+        }
+        else if (protocol.isOpenVpnProtocol())
+        {
+            cmd.protocol = CMD_PROTOCOL_OPENVPN;
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
+
+        auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
+        {
+            out.adapterName = a.adapterName().toStdString();
+            out.adapterIp = a.adapterIp().toStdString();
+            out.gatewayIp = a.gateway().toStdString();
+            out.ifIndex = a.ifIndex();
+            const QStringList dns = a.dnsServers();
+            for(auto ip : dns)
+            {
+                out.dnsServers.push_back(ip.toStdString());
+            }
+        };
+
+        fillAdapterInfo(defaultAdapter, cmd.defaultAdapter);
+        fillAdapterInfo(vpnAdapter, cmd.vpnAdapter);
+
+        cmd.connectedIp = connectedIp.toStdString();
+        cmd.remoteIp = vpnAdapter.remoteIp().toStdString();
+    }
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
+}
+
+bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
+{
+    Q_UNUSED(isIkev2)
+
+    QMutexLocker locker(&mutex_);
+
+    CMD_DNS_WHILE_CONNECTED cmd;
+    cmd.ifIndex = ifIndex;
+    cmd.szDnsIpAddress = overrideDnsIpAddress.toStdWString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DNS_WHILE_CONNECTED, stream.str());
+    return mpr.exitCode == 0;
+}
+
+IHelper::ExecuteError Helper_win::startWireGuard(const QString &exeName, const QString &deviceName)
+{
+    QMutexLocker locker(&mutex_);
+
+    // check executable signature
+    QString wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName + ".exe";
+    if (!ExecutableSignature::verify(wireGuardExePath))
+    {
+        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect";
+        return IHelper::EXECUTE_VERIFY_ERROR;
+    }
+
+    CMD_START_WIREGUARD cmdStartWireGuard;
+    cmdStartWireGuard.szExecutable = exeName.toStdWString();
+    cmdStartWireGuard.szDeviceName = deviceName.toStdWString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdStartWireGuard;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_START_WIREGUARD, stream.str());
+    return mpr.success ? IHelper::EXECUTE_SUCCESS : IHelper::EXECUTE_ERROR;
+}
+
+bool Helper_win::stopWireGuard()
+{
+    QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_STOP_WIREGUARD, std::string());
+    if (mpr.success) {
+        // Daemon was running, check if it's been terminated.
+        if (mpr.blockingCmdFinished && (!mpr.additionalString.empty())) {
+            qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
+                << QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
+        }
+        return mpr.blockingCmdFinished;
+    }
+    // Daemon was not running.
+    return true;
+}
+
+bool Helper_win::configureWireGuard(const WireGuardConfig &config)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_CONFIGURE_WIREGUARD cmdConfigureWireGuard;
+    cmdConfigureWireGuard.clientPrivateKey =
+        QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex().toStdString();
+    cmdConfigureWireGuard.clientIpAddress = config.clientIpAddress().toStdString();
+    cmdConfigureWireGuard.clientDnsAddressList = config.clientDnsAddress().toStdString();
+    cmdConfigureWireGuard.peerEndpoint = config.peerEndpoint().toStdString();
+    cmdConfigureWireGuard.peerPublicKey =
+        QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex().toStdString();
+    cmdConfigureWireGuard.peerPresharedKey =
+        QByteArray::fromBase64(config.peerPresharedKey().toLatin1()).toHex().toStdString();
+    cmdConfigureWireGuard.allowedIps = config.peerAllowedIps().toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdConfigureWireGuard;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONFIGURE_WIREGUARD, stream.str());
+    if (!mpr.success) {
+        qCDebug(LOG_WIREGUARD) << "WireGuard configuration failed, error code =" << mpr.exitCode;
+    }
+    return mpr.success;
+}
+
+bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
+{
+    QMutexLocker locker(&mutex_);
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_WIREGUARD_STATUS, std::string());
+    if (mpr.success && status) {
+        status->errorCode = 0;
+        status->bytesReceived = status->bytesTransmitted = 0;
+        switch (mpr.exitCode) {
+        default:
+        case WIREGUARD_STATE_NONE:
+            status->state = WireGuardState::NONE;
+            break;
+        case WIREGUARD_STATE_ERROR:
+            status->state = WireGuardState::FAILURE;
+            status->errorCode = mpr.customInfoValue[0];
+            break;
+        case WIREGUARD_STATE_STARTING:
+            status->state = WireGuardState::STARTING;
+            break;
+        case WIREGUARD_STATE_LISTENING:
+            status->state = WireGuardState::LISTENING;
+            break;
+        case WIREGUARD_STATE_CONNECTING:
+            status->state = WireGuardState::CONNECTING;
+            break;
+        case WIREGUARD_STATE_ACTIVE:
+            status->state = WireGuardState::ACTIVE;
+            status->bytesReceived = mpr.customInfoValue[0];
+            status->bytesTransmitted = mpr.customInfoValue[1];
+            break;
+        }
+    }
+    if (!mpr.additionalString.empty()) {
+        qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
+            << QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
+    }
+    return mpr.success;
+}
+
+void Helper_win::setDefaultWireGuardDeviceName(const QString & /*deviceName*/)
+{
+    // Nothing to do.
+}
+
+bool Helper_win::isHelperConnected() const
+{
+    return curState_ == STATE_CONNECTED;
+}
+
+IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId)
 {
     QMutexLocker locker(&mutex_);
 
@@ -98,7 +396,7 @@ bool Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumb
     if (!ExecutableSignature::verify(openVpnExePath))
     {
         qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect";
-        return false;
+        return IHelper::EXECUTE_VERIFY_ERROR;
     }
 
     CMD_RUN_OPENVPN cmdRunOpenVpn;
@@ -117,7 +415,7 @@ bool Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumb
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RUN_OPENVPN, stream.str());
     outCmdId = mpr.blockingCmdId;
 
-    return mpr.success;
+    return mpr.success ? IHelper::EXECUTE_SUCCESS : IHelper::EXECUTE_ERROR;
 }
 
 bool Helper_win::executeTaskKill(const QString &executableName)
@@ -308,52 +606,6 @@ bool Helper_win::IPv6StateInOS()
     return mpr.exitCode;
 }
 
-bool Helper_win::isHelperConnected()
-{
-    return bHelperConnected_;
-}
-
-bool Helper_win::isFailedConnectToHelper()
-{
-    return bFailedConnectToHelper_;
-}
-
-void Helper_win::setNeedFinish()
-{
-    //nothing todo for Windows
-}
-
-QString Helper_win::getHelperVersion()
-{
-    QMutexLocker locker(&mutex_);
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_HELPER_VERSION, std::string());
-    if (mpr.success)
-    {
-        return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
-    }
-    else
-    {
-        return "failed detect";
-    }
-}
-
-void Helper_win::enableMacSpoofingOnBoot(bool /*bEnable*/, QString /*interfaceName*/, QString /*macAddress*/)
-{
-    // do nothing on windows
-}
-
-void Helper_win::enableFirewallOnBoot(bool bEnable)
-{
-    Q_UNUSED(bEnable);
-}
-
-bool Helper_win::removeWindscribeUrlsFromHosts()
-{
-    QMutexLocker locker(&mutex_);
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_WINDSCRIBE_FROM_HOSTS, std::string());
-    return mpr.success;
-}
-
 bool Helper_win::addHosts(const QString &hosts)
 {
     QMutexLocker locker(&mutex_);
@@ -373,13 +625,6 @@ bool Helper_win::removeHosts()
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_HOSTS, std::string());
     return mpr.success;
-}
-
-bool Helper_win::reinstallHelper()
-{
-    QString servicePath = QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
-    QString subinaclPath = QCoreApplication::applicationDirPath() + "/subinacl.exe";
-    return WindscribeInstallHelper_win::executeInstallHelperCmd(servicePath, subinaclPath);
 }
 
 void Helper_win::closeAllTcpConnections(bool isKeepLocalSockets)
@@ -410,7 +655,7 @@ QStringList Helper_win::getProcessesList()
         QString curStr;
         while (pos < str.length())
         {
-            if (str[pos] == '\0')
+            if (str.at(pos) == static_cast<QChar>('\0'))
             {
                 list << curStr;
                 curStr.clear();
@@ -447,62 +692,6 @@ bool Helper_win::deleteWhitelistPorts()
     return mpr.success;
 }
 
-void Helper_win::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_CHECK_UNBLOCKING_CMD_STATUS cmdCheckUnblockingCmdStatus;
-    cmdCheckUnblockingCmdStatus.cmdId = cmdId;
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdCheckUnblockingCmdStatus;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CHECK_UNBLOCKING_CMD_STATUS, stream.str());
-
-    if (mpr.success)
-    {
-        outFinished = mpr.blockingCmdFinished;
-        if (outFinished)
-        {
-            outLog = QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
-        }
-    }
-    else
-    {
-        outFinished = false;
-        outLog.clear();
-    }
-}
-
-void Helper_win::clearUnblockingCmd(unsigned long cmdId)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_CLEAR_UNBLOCKING_CMD cmdClearUnblockingCmd;
-    cmdClearUnblockingCmd.blockingCmdId = cmdId;
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdClearUnblockingCmd;
-
-    sendCmdToHelper(AA_COMMAND_CLEAR_UNBLOCKING_CMD, stream.str());
-}
-
-void Helper_win::suspendUnblockingCmd(unsigned long cmdId)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_SUSPEND_UNBLOCKING_CMD cmdSuspendUnblockingCmd;
-    cmdSuspendUnblockingCmd.blockingCmdId = cmdId;
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdSuspendUnblockingCmd;
-
-    sendCmdToHelper(AA_COMMAND_SUSPEND_UNBLOCKING_CMD, stream.str());
-}
-
 bool Helper_win::isSupportedICS()
 {
     QMutexLocker locker(&mutex_);
@@ -511,24 +700,20 @@ bool Helper_win::isSupportedICS()
     return mpr.exitCode;
 }
 
-QStringList Helper_win::getActiveNetworkInterfaces_mac()
-{
-    //nothing todo for Windows
-    return QStringList();
-}
-
-bool Helper_win::setKeychainUsernamePassword(const QString &username, const QString &password)
-{
-    Q_UNUSED(username);
-    Q_UNUSED(password);
-    //nothing todo for Windows
-    return false;
-}
-
 void Helper_win::enableDnsLeaksProtection()
 {
     QMutexLocker locker(&mutex_);
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DISABLE_DNS_TRAFFIC, std::string());
+
+    CMD_DISABLE_DNS_TRAFFIC cmdDisableDnsTraffic;
+    if(!customDnsIp_.isEmpty()) {
+        cmdDisableDnsTraffic.excludedIps.push_back(customDnsIp_.toStdWString());
+    }
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdDisableDnsTraffic;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DISABLE_DNS_TRAFFIC, stream.str());
 }
 
 void Helper_win::disableDnsLeaksProtection()
@@ -600,40 +785,6 @@ bool Helper_win::resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdap
     return mpr.exitCode;
 }
 
-bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
-                                           const QStringList &files, const QStringList &ips,
-                                           const QStringList &hosts)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_SPLIT_TUNNELING_SETTINGS cmdSplitTunnelingSettings;
-    cmdSplitTunnelingSettings.isActive = isActive;
-    cmdSplitTunnelingSettings.isExclude = isExclude;
-    cmdSplitTunnelingSettings.isKeepLocalSockets = isKeepLocalSockets;
-
-    for (int i = 0; i < files.count(); ++i)
-    {
-        cmdSplitTunnelingSettings.files.push_back(files[i].toStdWString());
-    }
-
-    for (int i = 0; i < ips.count(); ++i)
-    {
-        cmdSplitTunnelingSettings.ips.push_back(ips[i].toStdWString());
-    }
-
-    for (int i = 0; i < hosts.count(); ++i)
-    {
-        cmdSplitTunnelingSettings.hosts.push_back(hosts[i].toStdString());
-    }
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdSplitTunnelingSettings;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SPLIT_TUNNELING_SETTINGS, stream.str());
-    return mpr.exitCode;
-}
-
 bool Helper_win::addIKEv2DefaultRoute()
 {
     QMutexLocker locker(&mutex_);
@@ -654,183 +805,67 @@ void Helper_win::setIKEv2IPSecParameters()
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS, std::string());
 }
 
-void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                                   const QString &connectedIp, const ProtocolType &protocol)
+bool Helper_win::makeHostsFileWritable()
 {
     QMutexLocker locker(&mutex_);
 
-    CMD_CONNECT_STATUS cmd;
-    cmd.isConnected = isConnected;
-    cmd.isCloseTcpSocket = isCloseTcpSocket;
-    cmd.isKeepLocalSocket = isKeepLocalSocket;
-
-    if (isConnected)
-    {
-        if (protocol.isStunnelOrWStunnelProtocol())
-        {
-            cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
-        }
-        else if (protocol.isIkev2Protocol())
-        {
-            cmd.protocol = CMD_PROTOCOL_IKEV2;
-        }
-        else if (protocol.isWireGuardProtocol())
-        {
-            cmd.protocol = CMD_PROTOCOL_WIREGUARD;
-        }
-        else if (protocol.isOpenVpnProtocol())
-        {
-            cmd.protocol = CMD_PROTOCOL_OPENVPN;
-        }
-        else
-        {
-            Q_ASSERT(false);
-        }
-
-        auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
-        {
-            out.adapterName = a.adapterName().toStdString();
-            out.adapterIp = a.adapterIp().toStdString();
-            out.gatewayIp = a.gateway().toStdString();
-            out.ifIndex = a.ifIndex();
-            const QStringList dns = a.dnsServers();
-            for(auto ip : dns)
-            {
-                out.dnsServers.push_back(ip.toStdString());
-            }
-        };
-
-        fillAdapterInfo(defaultAdapter, cmd.defaultAdapter);
-        fillAdapterInfo(vpnAdapter, cmd.vpnAdapter);
-
-        cmd.connectedIp = connectedIp.toStdString();
-        cmd.remoteIp = vpnAdapter.remoteIp().toStdString();
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE, "");
+    if(mpr.success) {
+        qCDebug(LOG_BASIC) << "\"hosts\" file is writable now.";
     }
-
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmd;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
-}
-
-bool Helper_win::setKextPath(const QString &/*kextPath*/)
-{
-    // nothing todo for Windows
-    return true;
-}
-
-bool Helper_win::startWireGuard(const QString &exeName, const QString &deviceName)
-{
-    QMutexLocker locker(&mutex_);
-
-    // check executable signature
-    QString wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName + ".exe";
-    if (!ExecutableSignature::verify(wireGuardExePath))
-    {
-        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect";
-        return false;
-    }
-
-    CMD_START_WIREGUARD cmdStartWireGuard;
-    cmdStartWireGuard.szExecutable = exeName.toStdWString();
-    cmdStartWireGuard.szDeviceName = deviceName.toStdWString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdStartWireGuard;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_START_WIREGUARD, stream.str());
-    return mpr.success;
-}
-
-bool Helper_win::stopWireGuard()
-{
-    QMutexLocker locker(&mutex_);
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_STOP_WIREGUARD, std::string());
-    if (mpr.success) {
-        // Daemon was running, check if it's been terminated.
-        if (mpr.blockingCmdFinished && (!mpr.additionalString.empty())) {
-            qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-                << QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
-        }
-        return mpr.blockingCmdFinished;
-    }
-    // Daemon was not running.
-    return true;
-}
-
-bool Helper_win::configureWireGuard(const WireGuardConfig &config)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_CONFIGURE_WIREGUARD cmdConfigureWireGuard;
-    cmdConfigureWireGuard.clientPrivateKey =
-        QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex();
-    cmdConfigureWireGuard.clientIpAddress = config.clientIpAddress().toLatin1();
-    cmdConfigureWireGuard.clientDnsAddressList = config.clientDnsAddress().toLatin1();
-    cmdConfigureWireGuard.peerEndpoint = config.peerEndpoint().toLatin1();
-    cmdConfigureWireGuard.peerPublicKey =
-        QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex();
-    cmdConfigureWireGuard.peerPresharedKey =
-        QByteArray::fromBase64(config.peerPresharedKey().toLatin1()).toHex();
-    cmdConfigureWireGuard.allowedIps = config.peerAllowedIps().toLatin1();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdConfigureWireGuard;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONFIGURE_WIREGUARD, stream.str());
-    if (!mpr.success) {
-        qCDebug(LOG_WIREGUARD) << "WireGuard configuration failed, error code =" << mpr.exitCode;
+    else {
+        qCDebug(LOG_BASIC) << "Was not able to change \"hosts\" file permissions from read-only.";
     }
     return mpr.success;
 }
 
-bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
+bool Helper_win::reinstallTapDriver(const QString &tapDriverDir)
 {
     QMutexLocker locker(&mutex_);
 
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_WIREGUARD_STATUS, std::string());
-    if (mpr.success && status) {
-        status->errorCode = 0;
-        status->bytesReceived = status->bytesTransmitted = 0;
-        switch (mpr.exitCode) {
-        default:
-        case WIREGUARD_STATE_NONE:
-            status->state = WireGuardState::NONE;
-            break;
-        case WIREGUARD_STATE_ERROR:
-            status->state = WireGuardState::FAILURE;
-            status->errorCode = mpr.customInfoValue[0];
-            break;
-        case WIREGUARD_STATE_STARTING:
-            status->state = WireGuardState::STARTING;
-            break;
-        case WIREGUARD_STATE_LISTENING:
-            status->state = WireGuardState::LISTENING;
-            break;
-        case WIREGUARD_STATE_CONNECTING:
-            status->state = WireGuardState::CONNECTING;
-            break;
-        case WIREGUARD_STATE_ACTIVE:
-            status->state = WireGuardState::ACTIVE;
-            status->bytesReceived = mpr.customInfoValue[0];
-            status->bytesTransmitted = mpr.customInfoValue[1];
-            break;
-        }
+    CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
+    cmdReinstallTunDriver.driverDir.resize(tapDriverDir.size());
+    tapDriverDir.toWCharArray(const_cast<wchar_t*>(cmdReinstallTunDriver.driverDir.data()));
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdReinstallTunDriver;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REINSTALL_TAP_DRIVER, stream.str());
+    if(mpr.success) {
+        qCDebug(LOG_BASIC) << "Tap driver was successfully re-installed.";
     }
-    if (!mpr.additionalString.empty()) {
-        qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-            << QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
+    else {
+        qCDebug(LOG_BASIC) << "Error to re-install tap driver.";
     }
     return mpr.success;
 }
 
-void Helper_win::setDefaultWireGuardDeviceName(const QString & /*deviceName*/)
+bool Helper_win::reinstallWintunDriver(const QString &wintunDriverDir)
 {
-    // Nothing to do.
+    QMutexLocker locker(&mutex_);
+
+    CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
+    cmdReinstallTunDriver.driverDir.resize(wintunDriverDir.size());
+    wintunDriverDir.toWCharArray(const_cast<wchar_t*>(cmdReinstallTunDriver.driverDir.data()));
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdReinstallTunDriver;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REINSTALL_WINTUN_DRIVER, stream.str());
+    if(mpr.success) {
+        qCDebug(LOG_BASIC) << "Wintun driver was successfully re-installed.";
+    }
+    else {
+        qCDebug(LOG_BASIC) << "Error to re-install wintun driver.";
+    }
+    return mpr.success;
+}
+
+void Helper_win::setCustomDnsIp(const QString &ip)
+{
+    customDnsIp_ = ip;
 }
 
 void Helper_win::run()
@@ -842,7 +877,7 @@ void Helper_win::run()
     {
         DWORD err = GetLastError();
         qCDebug(LOG_BASIC) << "OpenSCManager failed: " << err;
-        bFailedConnectToHelper_ = true;
+        curState_ = STATE_FAILED_CONNECT;
         return;
     }
 
@@ -862,7 +897,7 @@ void Helper_win::run()
         if (elapsedTimer.elapsed() > MAX_WAIT_TIME_FOR_HELPER)
         {
             qCDebug(LOG_BASIC) << "OpenService failed: " << err;
-            bFailedConnectToHelper_ = true;
+            curState_ = STATE_FAILED_CONNECT;
             return;
         }
         if (bStopThread_)
@@ -882,7 +917,7 @@ void Helper_win::run()
                     (LPBYTE) &ssStatus, sizeof(SERVICE_STATUS_PROCESS), &dwBytesNeeded ))
         {
             qCDebug(LOG_BASIC) << "QueryServiceStatusEx failed: " << GetLastError();
-            bFailedConnectToHelper_ = true;
+            curState_ = STATE_FAILED_CONNECT;
             return;
         }
 
@@ -904,7 +939,7 @@ void Helper_win::run()
         if (elapsedTimer.elapsed() > MAX_WAIT_TIME_FOR_HELPER)
         {
             qCDebug(LOG_BASIC) << "Timer for QueryServiceStatusEx exceed";
-            bFailedConnectToHelper_ = true;
+            curState_ = STATE_FAILED_CONNECT;
             return;
         }
         if (bStopThread_)
@@ -913,7 +948,7 @@ void Helper_win::run()
         }
     }
 #endif
-    bHelperConnected_ = true;
+    curState_ = STATE_CONNECTED;
 }
 
 MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &data)
@@ -925,36 +960,26 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
         {
             return MessagePacketResult();
         }
-        else
+
+        hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+        if (hPipe == INVALID_HANDLE_VALUE)
         {
-            hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-            if (hPipe == INVALID_HANDLE_VALUE)
-            {
-                return MessagePacketResult();
-            }
+            return MessagePacketResult();
         }
     }
+
+    WinUtils::Win32Handle closePipe(hPipe);
 
     // first 4 bytes - cmdId
     if (!writeAllToPipe(hPipe, (char *)&cmdId, sizeof(cmdId)))
     {
-        CloseHandle(hPipe);
         return MessagePacketResult();
     }
 
-    // second 4 bytes - pid
-    unsigned long pid = GetCurrentProcessId();
-    if (!writeAllToPipe(hPipe, (char *)&pid, sizeof(pid)))
-    {
-        CloseHandle(hPipe);
-        return MessagePacketResult();
-    }
-
-    // third 4 bytes - size of buffer
+    // second 4 bytes - size of buffer
     unsigned long sizeOfBuf = data.size();
     if (!writeAllToPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
     {
-        CloseHandle(hPipe);
         return MessagePacketResult();
     }
 
@@ -963,7 +988,6 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     {
         if (!writeAllToPipe(hPipe, data.c_str(), sizeOfBuf))
         {
-            CloseHandle(hPipe);
             return MessagePacketResult();
         }
     }
@@ -972,7 +996,6 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     MessagePacketResult mpr;
     if (!readAllFromPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
     {
-        CloseHandle(hPipe);
         return mpr;
     }
 
@@ -981,7 +1004,6 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
         QScopedArrayPointer<char> buf(new char[sizeOfBuf]);
         if (!readAllFromPipe(hPipe, buf.data(), sizeOfBuf))
         {
-            CloseHandle(hPipe);
             return mpr;
         }
 
@@ -1093,8 +1115,7 @@ void Helper_win::initVariables()
         CloseServiceHandle(schSCManager_);
         schSCManager_ = NULL;
     }
-    bFailedConnectToHelper_ = false;
-    bHelperConnected_ = false;
+    curState_= STATE_INIT;
     bStopThread_ = false;
     bIPV6State_ = true;
 }
@@ -1117,18 +1138,12 @@ bool Helper_win::readAllFromPipe(HANDLE hPipe, char *buf, DWORD len)
         }
     }
 
-    std::string s(buf, len);
-    std::string d = SimpleXorCrypt::decrypt(s, ENCRYPT_KEY);
-    memcpy(buf, d.data(), len);
     return true;
 }
 
 bool Helper_win::writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len)
 {
-    std::string src(buf, len);
-    std::string encodedSrc = SimpleXorCrypt::encrypt(src, ENCRYPT_KEY);
-
-    const char *ptr = encodedSrc.data();
+    const char *ptr = buf;
     DWORD dwWrite = 0;
     while (len > 0)
     {

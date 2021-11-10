@@ -23,7 +23,7 @@ void SocksProxyConnectionManager::newConnection(qintptr socketDescriptor)
 #ifdef Q_OS_WIN
     SOCKADDR_IN  addr = {0};
     int addr_len = sizeof(addr);
-#elif defined Q_OS_MAC
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     sockaddr_in addr;
     socklen_t addr_len = sizeof(addr);
 #endif

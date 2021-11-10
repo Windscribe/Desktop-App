@@ -3,6 +3,8 @@
 #include "logger.h"
 #include <comdef.h>
 #include <WbemIdl.h>
+#include "../../../common/utils/executable_signature/executable_signature_win.h"
+#include "../../../common/utils/win32handle.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -175,21 +177,67 @@ bool iequals(const std::wstring &a, const std::wstring &b)
 	return _wcsnicmp(a.c_str(), b.c_str(), sz) == 0;
 }
 
-bool verifyWindscribeProcessPath(DWORD pid)
+bool verifyWindscribeProcessPath(HANDLE hPipe)
 {
-	bool bRes = false;
-	HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
-	if (processHandle != NULL)
-	{
-		wchar_t path[MAX_PATH];
-		if (GetModuleFileNameEx(processHandle, NULL, path, MAX_PATH) != 0)
-		{
-			std::wstring windscribeExePath = getExePath() + L"\\WindscribeEngine.exe";
-			bRes = iequals(windscribeExePath, path);
-		}
-		CloseHandle(processHandle);
-	}
-	return bRes;
+	// todo: move this cert name to settings (HardCodedSettings class from Qt?)
+	// change cert name if you use another certificate
+	const wchar_t szCertSubjectName[] = L"Windscribe Limited";
+   // NOTE: a test project is archived with issue 546 for testing this method.
+    
+   static DWORD pidVerified = 0;
+   
+   std::wstring output;
+
+   DWORD pidClient = 0;
+   BOOL result = ::GetNamedPipeClientProcessId(hPipe, &pidClient);
+   if (result == FALSE)
+   {
+      output = std::wstring(L"GetNamedPipeClientProcessId failed. Err = ") + std::to_wstring(::GetLastError());
+      Logger::instance().out(output.c_str());
+      return false;
+   }
+
+   if ((pidClient > 0) && (pidClient == pidVerified)) {
+      return true;
+   }
+
+   WinUtils::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
+   if (!processHandle.isValid())
+   {
+      output = std::wstring(L"OpenProcess failed. Err = ") + std::to_wstring(::GetLastError());
+      Logger::instance().out(output.c_str());
+      return false;
+   }
+
+   wchar_t path[MAX_PATH];
+   if (::GetModuleFileNameEx(processHandle.getHandle(), NULL, path, MAX_PATH) == 0)
+   {
+      output = std::wstring(L"GetModuleFileNameEx failed. Err = ") + std::to_wstring(::GetLastError());
+      Logger::instance().out(output.c_str());
+      return false;
+   }
+
+   std::wstring windscribeExePath = getExePath() + std::wstring(L"\\WindscribeEngine.exe");
+
+   if (!iequals(windscribeExePath, path))
+   {
+      output = std::wstring(L"verifyWindscribeProcessPath invalid process path: ") + std::wstring(path);
+      Logger::instance().out(output.c_str());
+      return false;
+   }
+
+   if (!ExecutableSignature_win::verify(path, szCertSubjectName))
+   {
+      output = std::wstring(L"verifyWindscribeProcessPath signature verify failed for ") + std::wstring(path);
+      Logger::instance().out(output.c_str());
+      return false;
+   }
+
+   //output = std::wstring(L"verifyWindscribeProcessPath signature verified for ") + std::wstring(path);
+   //Logger::instance().out(output.c_str());
+
+   pidVerified = pidClient;
+   return true;
 }
 
 void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName)

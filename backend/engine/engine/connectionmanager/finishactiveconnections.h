@@ -14,7 +14,7 @@ private:
     static void finishOpenVpnActiveConnections_win(IHelper *helper);
     static void finishIkev2ActiveConnections_win(IHelper *helper);
     static void finishWireGuardActiveConnections_win(IHelper *helper);
-#else
+#elif defined Q_OS_MAC
     static void finishAllActiveConnections_mac(IHelper *helper);
     static void finishOpenVpnActiveConnections_mac(IHelper *helper);
     static void finishWireGuardActiveConnections_mac(IHelper *helper);

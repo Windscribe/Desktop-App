@@ -1,6 +1,6 @@
 #include "basiccitiesmodel.h"
 
-BasicCitiesModel::BasicCitiesModel(QObject *parent) : QObject(parent), isFreeSessionStatus_(false)
+BasicCitiesModel::BasicCitiesModel(QObject *parent) : QObject(parent), orderLocationsType_(ProtoTypes::ORDER_LOCATION_BY_GEOGRAPHY), isFreeSessionStatus_(false)
 {
 
 }

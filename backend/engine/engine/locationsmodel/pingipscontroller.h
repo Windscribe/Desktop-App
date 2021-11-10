@@ -8,8 +8,7 @@
 #include "engine/ping/pinghost.h"
 #include "pinglog.h"
 #include "failedpinglogcontroller.h"
-#include "engine/networkstatemanager/inetworkstatemanager.h"
-
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 
 namespace locationsmodel {
 
@@ -30,7 +29,7 @@ class PingIpsController : public QObject
     Q_OBJECT
 public:
 
-    explicit PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost, const QString &log_filename);
+    explicit PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost, const QString &log_filename);
 
     void updateIps(const QVector<PingIpInfo> &ips);
 
@@ -62,7 +61,7 @@ private:
     FailedPingLogController failedPingLogController_;
 
     IConnectStateController *connectStateController_;
-    INetworkStateManager *networkStateManager_;
+    INetworkDetectionManager *networkDetectionManager_;
     PingLog pingLog_;
 
     QHash<QString, PingNodeInfo> ips_;

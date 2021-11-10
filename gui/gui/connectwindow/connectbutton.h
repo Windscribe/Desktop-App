@@ -28,6 +28,9 @@ public:
 private slots:
     void onConnectingRingOpacityAnimationFinished();
     void onNoInternetRingOpacityAnimationFinished();
+    void onButtonRotationAnimationValueChanged(const QVariant &value);
+    void onConnectingRingRotationAnimationValueChanged(const QVariant &value);
+    void onConnectingRingOpacityAnimationValueChanged(const QVariant &value);
 
 private:
     ProtoTypes::ConnectStateType connectStateType_;
@@ -36,7 +39,9 @@ private:
     ImageItem *svgItemConnectedRing_;
     ImageItem *svgItemConnectedSplitRoutingRing_;
     ImageItem *svgItemConnectingRing_;
+    ImageItem *svgItemConnectingRingShadow_;
     ImageItem *svgItemConnectingNoInternetRing_;
+    ImageItem *svgItemButtonShadow_;
     bool online_;
     bool splitRouting_;
 

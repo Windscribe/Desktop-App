@@ -7,6 +7,7 @@
 #include <QColor>
 #include "clickablegraphicsobject.h"
 #include "graphicresources/fontdescr.h"
+#include "utils/textshadow.h"
 
 namespace CommonGraphics {
 
@@ -14,7 +15,7 @@ class TextButton : public ClickableGraphicsObject
 {
     Q_OBJECT
 public:
-    explicit TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent = nullptr, int addWidth = 0);
+    explicit TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent = nullptr, int addWidth = 0, bool bDrawWithShadow = false);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -52,6 +53,7 @@ private:
     QString text_;
     QColor color_;
     FontDescr fontDescr_;
+    QScopedPointer<TextShadow> textShadow_;
 
     int width_;
     int height_;

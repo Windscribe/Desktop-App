@@ -36,16 +36,12 @@ ImageResourcesJpg::~ImageResourcesJpg()
 
 void ImageResourcesJpg::clearHash()
 {
-    for (auto it = hashIndependent_.begin(); it != hashIndependent_.end(); ++it)
-    {
-        delete it.value();
-    }
     hashIndependent_.clear();
 }
 
 
 // get pixmap with custom size
-IndependentPixmap *ImageResourcesJpg::getIndependentPixmap(const QString &name, int width, int height)
+QSharedPointer<IndependentPixmap> ImageResourcesJpg::getIndependentPixmap(const QString &name, int width, int height)
 {
     QString uniqName = name + "_" + QString::number(width) + "_" + QString::number(height);
     auto it = hashIndependent_.find(uniqName);
@@ -95,13 +91,13 @@ bool ImageResourcesJpg::loadFromResourceWithCustomSize(const QString &name, int 
     Q_ASSERT(img.width() == fd.width);
     Q_ASSERT(img.height() == fd.height);
 
-    QPixmap *pixmap = new QPixmap(QSize(width, height) * DpiScaleManager::instance().curDevicePixelRatio());
-    pixmap->fill(Qt::transparent);
-    QPainter painter(pixmap);
+    QPixmap pixmap(QSize(width, height) * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.drawImage(QRect(0, 0, pixmap->width(), pixmap->height()), img, QRect(0, 0, img.width(), img.height()));
-    pixmap->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-    hashIndependent_[name + "_" + QString::number(width) + "_" + QString::number(height)] = new IndependentPixmap(pixmap);
+    painter.drawImage(QRect(0, 0, pixmap.width(), pixmap.height()), img, QRect(0, 0, img.width(), img.height()));
+    pixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    hashIndependent_[name + "_" + QString::number(width) + "_" + QString::number(height)] = QSharedPointer<IndependentPixmap>(new IndependentPixmap(pixmap));
     return true;
 }
 

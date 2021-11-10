@@ -9,6 +9,11 @@ void FirewallExceptions::setHostIPs(const QStringList &hostIPs)
     hostIPs_ = hostIPs;
 }
 
+void FirewallExceptions::setWhiteListedIPs(const QSet<QString> &ips)
+{
+    whitelistedIPs_ = ips;
+}
+
 void FirewallExceptions::setProxyIP(const ProxySettings &proxySettings)
 {
     if (proxySettings.option() == PROXY_OPTION_NONE)
@@ -76,7 +81,7 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
     // add dns servers
     if (dnsPolicyType_ == DNS_TYPE_OS_DEFAULT)
     {
-        std::vector<std::wstring> listDns = DnsUtils::getDnsServers();
+        std::vector<std::wstring> listDns = DnsUtils::getOSDefaultDnsServers();
         for (std::vector<std::wstring>::iterator it = listDns.begin(); it != listDns.end(); ++it)
         {
             ipList.add(QString::fromStdWString(*it));
@@ -111,6 +116,14 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
     }
 
     for (const QString &s : hostIPs_)
+    {
+        if (!s.isEmpty())
+        {
+            ipList.add(s);
+        }
+    }
+
+    for (const QString &s : whitelistedIPs_)
     {
         if (!s.isEmpty())
         {

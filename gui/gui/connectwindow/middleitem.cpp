@@ -12,7 +12,7 @@ MiddleItem::MiddleItem(ScalableGraphicsObject *parent, const QString &ipAddress)
     ipAddress_(ipAddress), isSecured_(false), curTextColor_(Qt::white)
 {
     ipAddressItem_ = new IPAddressItem(this);
-    connect(ipAddressItem_, SIGNAL(needUpdate()), SLOT(onUpdate()));
+    connect(ipAddressItem_, SIGNAL(widthChanged(int)), SLOT(onIpAddressWidthChanged(int)));
 
     updateScaling();
 }
@@ -37,7 +37,7 @@ void MiddleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->drawText(boundingRect().adjusted(16*G_SCALE, 0, 0, 0), tr("Firewall"));
 
     {
-        IndependentPixmap *p;
+        QSharedPointer<IndependentPixmap> p;
         if (isSecured_)
         {
             p = ImageResourcesSvg::instance().getIndependentPixmap("IP_LOCK_SECURE");
@@ -49,10 +49,6 @@ void MiddleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         painter->setOpacity(OPACITY_UNHOVER_ICON_STANDALONE * initOpacity);
         p->draw(301*G_SCALE, 2*G_SCALE, painter);
     }
-
-    painter->setOpacity(initOpacity);
-    QRectF rc = boundingRect().adjusted(0, 0, -38*G_SCALE, 0);
-    ipAddressItem_->draw(painter, rc.right() - ipAddressItem_->width(), rc.top());
 }
 
 void MiddleItem::setTextColor(QColor color)
@@ -64,7 +60,8 @@ void MiddleItem::setTextColor(QColor color)
 void MiddleItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
-    ipAddressItem_->setScale(G_SCALE);
+    QRectF rc = boundingRect().adjusted(0, 0, -38*G_SCALE, 0);
+    ipAddressItem_->setPos(rc.right() - ipAddressItem_->boundingRect().width(), rc.top());
 }
 
 void MiddleItem::setIpAddress(const QString &ipAddress)
@@ -79,9 +76,10 @@ void MiddleItem::setIsSecured(bool isSecured)
     update();
 }
 
-void MiddleItem::onUpdate()
+void MiddleItem::onIpAddressWidthChanged(int width)
 {
-    update();
+    QRectF rc = boundingRect().adjusted(0, 0, -38*G_SCALE, 0);
+    ipAddressItem_->setPos(rc.right() - width, rc.top());
 }
 
 

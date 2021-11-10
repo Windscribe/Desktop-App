@@ -32,7 +32,7 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
     QString text = index.model()->data(index, Qt::DisplayRole).toString();
     const int flags = index.model()->data(index, LocationsTrayMenuWidget::USER_ROLE_FLAGS).toInt();
     const bool bEnabled = flags & LocationsTrayMenuWidget::ITEM_FLAG_IS_ENABLED;
-    IndependentPixmap *flag = nullptr;
+    QSharedPointer<IndependentPixmap> flag = nullptr;
 
     if (flags & LocationsTrayMenuWidget::ITEM_FLAG_HAS_COUNTRY) {
         flag = ImageResourcesSvg::instance().getScaledFlag(

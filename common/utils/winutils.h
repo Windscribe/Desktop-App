@@ -35,6 +35,7 @@ namespace WinUtils
     // Registry Adapters
     bool regHasLocalMachineSubkeyProperty(QString keyPath, QString propertyName);
     QString regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName);
+    bool regGetCurrentUserRegistryDword(QString keyPath, QString propertyName, int &dwordValue);
 
     // Network
     const ProtoTypes::NetworkInterface currentNetworkInterface();
@@ -61,6 +62,10 @@ namespace WinUtils
 
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
+
+    bool authorizeWithUac();
+    bool isWindows64Bit();
+    unsigned long Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize);
 }
 
 

@@ -9,9 +9,12 @@
 
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
+    #include "engine/helper/helper_win.h"
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    #include "engine/helper/helper_posix.h"
 #endif
 
-OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent, helper),
+OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent), helper_(helper),
     bStopThread_(false), currentState_(STATUS_DISCONNECTED),
     isAllowFirewallAfterCustomConfigConnection_(false)
 {
@@ -56,7 +59,7 @@ void OpenVPNConnection::startDisconnect()
 {
     if (isDisconnected())
     {
-        emit disconnected();
+        Q_EMIT disconnected();
     }
     else
     {
@@ -104,14 +107,14 @@ void OpenVPNConnection::setCurrentStateAndEmitDisconnected(OpenVPNConnection::CO
     QMutexLocker locker(&mutexCurrentState_);
     QTimer::singleShot(0, &killControllerTimer_, SLOT(stop()));
     currentState_ = state;
-    emit disconnected();
+    Q_EMIT disconnected();
 }
 
-void OpenVPNConnection::setCurrentStateAndEmitError(OpenVPNConnection::CONNECTION_STATUS state, CONNECTION_ERROR err)
+void OpenVPNConnection::setCurrentStateAndEmitError(OpenVPNConnection::CONNECTION_STATUS state, ProtoTypes::ConnectError err)
 {
     QMutexLocker locker(&mutexCurrentState_);
     currentState_ = state;
-    emit error(err);
+    Q_EMIT error(err);
 }
 
 OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
@@ -120,7 +123,7 @@ OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
     return currentState_;
 }
 
-bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxySettings, unsigned long &outCmdId)
+IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxySettings, unsigned long &outCmdId)
 {
 #ifdef Q_OS_WIN
     QString httpProxy, socksProxy;
@@ -143,9 +146,10 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxy
 
     qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
 
-    return helper_->executeOpenVPN(configPath_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId);
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    return helper_win->executeOpenVPN(configPath_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId);
 
-#elif defined Q_OS_MAC
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     QString strCommand = "--config \"" + configPath_ + "\" --management 127.0.0.1 " + QString::number(port) + " --management-query-passwords --management-hold";
     if (proxySettings.option() == PROXY_OPTION_HTTP)
     {
@@ -165,7 +169,8 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxy
     std::wstring strOvpnConfigPath = Utils::getDirPathFromFullPath(configPath_.toStdWString());
     QString qstrOvpnConfigPath = QString::fromStdWString(strOvpnConfigPath);
 
-    return helper_->executeOpenVPN(strCommand, qstrOvpnConfigPath, outCmdId);
+    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
+    return helper_posix->executeOpenVPN(strCommand, qstrOvpnConfigPath, outCmdId);
 #endif
 }
 
@@ -183,9 +188,11 @@ void OpenVPNConnection::onKillControllerTimer()
     qCDebug(LOG_CONNECTION) << "kill the openvpn process";
     killControllerTimer_.stop();
 #ifdef Q_OS_WIN
-    helper_->executeTaskKill(OpenVpnVersionController::instance().getSelectedOpenVpnExecutable());
-#elif defined Q_OS_MAC
-    helper_->executeRootCommand("pkill -f \"" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable() + "\"");
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->executeTaskKill(OpenVpnVersionController::instance().getSelectedOpenVpnExecutable());
+#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
+    helper_posix->executeRootCommand("pkill -9 -f \"" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable() + "\"");
 #endif
 }
 
@@ -198,13 +205,22 @@ void OpenVPNConnection::funcRunOpenVPN()
     int retries = 0;
 
     // run openvpn process
-    while(!runOpenVPN(stateVariables_.openVpnPort, proxySettings_, stateVariables_.lastCmdId))
+    IHelper::ExecuteError err;
+    while((err = runOpenVPN(stateVariables_.openVpnPort, proxySettings_, stateVariables_.lastCmdId)) != IHelper::EXECUTE_SUCCESS)
     {
         qCDebug(LOG_CONNECTION) << "Can't run OpenVPN";
+
+        // don't bother re-attempting if signature is invalid
+        if (err == IHelper::EXECUTE_VERIFY_ERROR)
+        {
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, ProtoTypes::ConnectError::EXE_VERIFY_OPENVPN_ERROR);
+            return;
+        }
+
         if (retries >= 2)
         {
             qCDebug(LOG_CONNECTION) << "Can't run openvpn process";
-            setCurrentStateAndEmitError(STATUS_DISCONNECTED, CANT_RUN_OPENVPN);
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, ProtoTypes::ConnectError::CANT_RUN_OPENVPN);
             return;
         }
         if (bStopThread_)
@@ -254,7 +270,7 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
             qCDebug(LOG_CONNECTION) << "Can't connect to openvpn socket during"
                                     << (MAX_WAIT_OPENVPN_ON_START/1000) << "secs";
             helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
-            setCurrentStateAndEmitError(STATUS_DISCONNECTED, NO_OPENVPN_SOCKET);
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, ProtoTypes::ConnectError::NO_OPENVPN_SOCKET);
             return;
         }
 
@@ -285,7 +301,7 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
             }
             else
             {
-                setCurrentStateAndEmitError(STATUS_DISCONNECTED, NO_OPENVPN_SOCKET);
+                setCurrentStateAndEmitError(STATUS_DISCONNECTED, ProtoTypes::ConnectError::NO_OPENVPN_SOCKET);
                 return;
             }
         }
@@ -348,7 +364,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             }
             else
             {
-                emit requestUsername();
+                Q_EMIT requestUsername();
             }
         }
         else if (serverReply.contains("PASSWORD:Need 'HTTP Proxy' username/password", Qt::CaseInsensitive))
@@ -373,12 +389,12 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             }
             else
             {
-                emit requestPassword();
+                Q_EMIT requestPassword();
             }
         }
         else if (serverReply.contains("PASSWORD:Verification Failed: 'Auth'", Qt::CaseInsensitive))
         {
-            emit error(AUTH_ERROR);
+            Q_EMIT error(ProtoTypes::ConnectError::AUTH_ERROR);
             if (!stateVariables_.bSigTermSent)
             {
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
@@ -390,7 +406,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         {
             if (!stateVariables_.bTapErrorEmited)
             {
-                emit error(NO_INSTALLED_TUN_TAP);
+                Q_EMIT error(ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP);
                 stateVariables_.bTapErrorEmited = true;
                 if (!stateVariables_.bSigTermSent)
                 {
@@ -414,12 +430,12 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                     {
                         stateVariables_.prevBytesRcved = l1;
                         stateVariables_.prevBytesXmited = l2;
-                        emit statisticsUpdated(stateVariables_.prevBytesRcved, stateVariables_.prevBytesXmited, false);
+                        Q_EMIT statisticsUpdated(stateVariables_.prevBytesRcved, stateVariables_.prevBytesXmited, false);
                         stateVariables_.bFirstCalcStat = false;
                     }
                     else
                     {
-                        emit statisticsUpdated(l1 - stateVariables_.prevBytesRcved, l2 - stateVariables_.prevBytesXmited, false);
+                        Q_EMIT statisticsUpdated(l1 - stateVariables_.prevBytesRcved, l2 - stateVariables_.prevBytesXmited, false);
                         stateVariables_.prevBytesRcved = l1;
                         stateVariables_.prevBytesXmited = l2;
                     }
@@ -460,19 +476,19 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                     qCDebug(LOG_CONNECTION) << "Can't parse CONNECTED,SUCCESS control message";
                 }
                 setCurrentState(STATUS_CONNECTED);
-                emit connected(connectionAdapterInfo_);
+                Q_EMIT connected(connectionAdapterInfo_);
             }
             else if (serverReply.contains("CONNECTED,ERROR", Qt::CaseInsensitive))
             {
                 setCurrentState(STATUS_CONNECTED);
-                emit error(CONNECTED_ERROR);
+                Q_EMIT error(ProtoTypes::ConnectError::CONNECTED_ERROR);
             }
             else if (serverReply.contains("RECONNECTING", Qt::CaseInsensitive))
             {
                 stateVariables_.isAcceptSigTermCommand_ = false;
                 stateVariables_.bWasStateNotification = false;
                 setCurrentState(STATUS_CONNECTED_TO_SOCKET);
-                emit reconnecting();
+                Q_EMIT reconnecting();
             }
         }
         else if (serverReply.startsWith(">LOG:", Qt::CaseInsensitive))
@@ -480,41 +496,41 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             bool bContainsUDPWord = serverReply.contains("UDP", Qt::CaseInsensitive);
             if (bContainsUDPWord && serverReply.contains("No buffer space available (WSAENOBUFS) (code=10055)", Qt::CaseInsensitive))
             {
-                emit error(UDP_CANT_ASSIGN);
+                Q_EMIT error(ProtoTypes::ConnectError::UDP_CANT_ASSIGN);
             }
             else if (bContainsUDPWord && serverReply.contains("No Route to Host (WSAEHOSTUNREACH) (code=10065)", Qt::CaseInsensitive))
             {
-                emit error(UDP_CANT_ASSIGN);
+                Q_EMIT error(ProtoTypes::ConnectError::UDP_CANT_ASSIGN);
             }
             else if (bContainsUDPWord && serverReply.contains("Can't assign requested address (code=49)", Qt::CaseInsensitive))
             {
-                emit error(UDP_CANT_ASSIGN);
+                Q_EMIT error(ProtoTypes::ConnectError::UDP_CANT_ASSIGN);
             }
             else if (bContainsUDPWord && serverReply.contains("No buffer space available (code=55)", Qt::CaseInsensitive))
             {
-                emit error(UDP_NO_BUFFER_SPACE);
+                Q_EMIT error(ProtoTypes::ConnectError::UDP_NO_BUFFER_SPACE);
             }
             else if (bContainsUDPWord && serverReply.contains("Network is down (code=50)", Qt::CaseInsensitive))
             {
-                emit error(UDP_NETWORK_DOWN);
+                Q_EMIT error(ProtoTypes::ConnectError::UDP_NETWORK_DOWN);
             }
             else if (serverReply.contains("write_wintun", Qt::CaseInsensitive) && serverReply.contains("head/tail value is over capacity", Qt::CaseInsensitive))
             {
-                emit error(WINTUN_OVER_CAPACITY);
+                Q_EMIT error(ProtoTypes::ConnectError::WINTUN_OVER_CAPACITY);
             }
             else if (serverReply.contains("TCP", Qt::CaseInsensitive) && serverReply.contains("failed", Qt::CaseInsensitive))
             {
-                emit error(TCP_ERROR);
+                Q_EMIT error(ProtoTypes::ConnectError::TCP_ERROR);
             }
             else if (serverReply.contains("Initialization Sequence Completed With Errors", Qt::CaseInsensitive))
             {
-                emit error(INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS);
+                Q_EMIT error(ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS);
             }
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
             else if (serverReply.contains("device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
             {
-                QString driverName, deviceName;
-                if (parseDeviceOpenedReply(serverReply, driverName, deviceName))
+                QString deviceName;
+                if (parseDeviceOpenedReply(serverReply, deviceName))
                 {
                     connectionAdapterInfo_.setAdapterName(deviceName);
                 }
@@ -538,7 +554,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         }
         else if (serverReply.contains(">FATAL:All TAP-Windows adapters on this system are currently in use", Qt::CaseInsensitive))
         {
-            emit error(ALL_TAP_IN_USE);
+            Q_EMIT error(ProtoTypes::ConnectError::ALL_TAP_IN_USE);
         }
 
         checkErrorAndContinue(write_error, true);
@@ -711,7 +727,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
     return true;
 }
 
-bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &outDriverName, QString &outDeviceName)
+bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &outDeviceName)
 {
     QStringRef str(&reply);
     const QVector<QStringRef> v = str.split(',');
@@ -726,9 +742,14 @@ bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &ou
         qCDebug(LOG_CONNECTION) << "Can't parse opened device message (divide into 4 strings)";
         return false;
     }
-    outDriverName = v2[1].toString();
+#ifdef Q_OS_MAC
     outDeviceName = v2[3].toString();
-    return !outDriverName.isEmpty() && !outDeviceName.isEmpty();
+#elif defined (Q_OS_LINUX)
+    outDeviceName = v2[2].toString();
+#endif
+
+    Q_ASSERT(outDeviceName.contains("tun"));
+    return !outDeviceName.isEmpty();
 }
 
 bool OpenVPNConnection::parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp)

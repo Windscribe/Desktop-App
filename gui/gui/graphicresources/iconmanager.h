@@ -6,20 +6,17 @@
 class IconManager
 {
     enum {
+        // dock/task bar icons
         ICON_APP_DISCONNECTED,
         ICON_APP_CONNECTING,
         ICON_APP_CONNECTED,
-#if defined(Q_OS_MAC)
-        ICON_MAC_OSX_DISCONNECTED_DARK,
-        ICON_MAC_OSX_DISCONNECTED_LIGHT,
-        ICON_MAC_OSX_CONNECTING_DARK,
-        ICON_MAC_OSX_CONNECTING_LIGHT,
-        ICON_MAC_OSX_CONNECTED_DARK,
-        ICON_MAC_OSX_CONNECTED_LIGHT,
-        ICON_MAC_OS11_DISCONNECTED,
-        ICON_MAC_OS11_CONNECTING,
-        ICON_MAC_OS11_CONNECTED,
-#endif  // Q_OS_MAC
+        // needed for tray icons
+        ICON_TRAY_DISCONNECTED_DARK,
+        ICON_TRAY_DISCONNECTED_LIGHT,
+        ICON_TRAY_CONNECTING_DARK,
+        ICON_TRAY_CONNECTING_LIGHT,
+        ICON_TRAY_CONNECTED_DARK,
+        ICON_TRAY_CONNECTED_LIGHT,
         NUM_ICON_TYPES
     };
 
@@ -31,15 +28,15 @@ public:
         return im;
     }
 
+    // dock/taskbar
     const QIcon *getDisconnectedIcon() const { return &icons_[ICON_APP_DISCONNECTED]; }
     const QIcon *getConnectingIcon() const { return &icons_[ICON_APP_CONNECTING]; }
     const QIcon *getConnectedIcon() const { return &icons_[ICON_APP_CONNECTED]; }
 
-#if defined(Q_OS_MAC)
-    const QIcon *getDisconnectedTrayIconForMac(bool isDarkMode) const;
-    const QIcon *getConnectingTrayIconForMac(bool isDarkMode) const;
-    const QIcon *getConnectedTrayIconForMac(bool isDarkMode) const;
-#endif  // Q_OS_MAC
+    // tray
+    const QIcon *getDisconnectedTrayIcon(bool isDarkMode) const;
+    const QIcon *getConnectingTrayIcon(bool isDarkMode) const;
+    const QIcon *getConnectedTrayIcon(bool isDarkMode) const;
 
 private:
     explicit IconManager();

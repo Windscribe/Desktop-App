@@ -1,7 +1,8 @@
 #ifndef REMOVEDIRECTORY_H
 #define REMOVEDIRECTORY_H
 
-#include "logger.h"
+#include <list>
+
 #include "redirection.h"
 #include "path.h"
 #include "directory.h"

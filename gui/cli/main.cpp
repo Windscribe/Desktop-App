@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Windscribe");
     QCoreApplication::setOrganizationName("Windscribe");
 
-    Logger::instance().install("cli", false);
+    Logger::instance().install("cli", false, false);
 
     qCDebug(LOG_BASIC) << "CLI start time:" << QDateTime::currentDateTime().toString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();

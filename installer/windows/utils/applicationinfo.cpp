@@ -1,4 +1,5 @@
 #include "applicationinfo.h"
+#include "../../../common/version/windscribe_version.h"
 
 ApplicationInfo::ApplicationInfo()
 {
@@ -12,7 +13,7 @@ std::wstring ApplicationInfo::getName() const
 
 std::wstring ApplicationInfo::getVersion() const
 {
-	return version;
+	return WINDSCRIBE_VERSION_STR_UNICODE;
 }
 
 std::wstring ApplicationInfo::getUninstall() const

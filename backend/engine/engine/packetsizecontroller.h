@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QMutex>
-#include "networkstatemanager/inetworkstatemanager.h"
 #include "utils/protobuf_includes.h"
 
 class PacketSizeController : public QObject

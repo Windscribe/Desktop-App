@@ -3,7 +3,7 @@
 
 void Ipv6Controller_mac::setHelper(IHelper *helper)
 {
-    helper_ = helper;
+    helper_ = dynamic_cast<Helper_mac *>(helper);
 }
 
 void Ipv6Controller_mac::disableIpv6()

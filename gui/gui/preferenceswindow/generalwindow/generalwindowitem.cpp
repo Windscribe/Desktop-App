@@ -19,12 +19,13 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onIsLaunchOnStartupPreferencesChanged(bool)));
     connect(preferences, SIGNAL(isAutoConnectChanged(bool)), SLOT(onIsAutoConnectPreferencesChanged(bool)));
     connect(preferences, SIGNAL(isShowNotificationsChanged(bool)), SLOT(onIsShowNotificationsPreferencesChanged(bool)));
-    connect(preferences, SIGNAL(isShowCountryFlagsChanged(bool)), SLOT(onIsShowCountryFlagsPreferencesChanged(bool)));
     connect(preferences, SIGNAL(isDockedToTrayChanged(bool)), SLOT(onIsDockedToTrayPreferencesChanged(bool)));
     connect(preferences, SIGNAL(languageChanged(QString)), SLOT(onLanguagePreferencesChanged(QString)));
     connect(preferences, SIGNAL(locationOrderChanged(ProtoTypes::OrderLocationType)), SLOT(onLocationOrderPreferencesChanged(ProtoTypes::OrderLocationType)));
     connect(preferences, SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType)));
     connect(preferences, SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onUpdateChannelPreferencesChanged(ProtoTypes::UpdateChannel)));
+    connect(preferences, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onPreferencesBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
+    connect(preferences, SIGNAL(isStartMinimizedChanged(bool)), SLOT(onStartMinimizedPreferencesChanged(bool)));
 #ifdef Q_OS_WIN
     connect(preferences, SIGNAL(minimizeAndCloseToTrayChanged(bool)), SLOT(onMinimizeAndCloseToTrayPreferencesChanged(bool)));
 #elif defined Q_OS_MAC
@@ -40,17 +41,24 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(checkBoxAutoConnect_, SIGNAL(stateChanged(bool)), SLOT(onIsAutoConnectClicked(bool)));
     addItem(checkBoxAutoConnect_);
 
+    checkBoxStartMinimized_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("Preferences::CheckBoxStartMinimized", "Start minimized"), QString());
+    checkBoxStartMinimized_->setState(preferences->isStartMinimized());
+    connect(checkBoxStartMinimized_, SIGNAL(stateChanged(bool)), SLOT(onStartMinimizedClicked(bool)));
+    addItem(checkBoxStartMinimized_);
+
 #ifdef Q_OS_WIN
     checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Minimize and close to tray"), QString());
     checkBoxMinimizeAndCloseToTray_->setState(preferences->isMinimizeAndCloseToTray());
     connect(checkBoxMinimizeAndCloseToTray_, SIGNAL(stateChanged(bool)), SLOT(onMinimizeAndCloseToTrayClicked(bool)));
     addItem(checkBoxMinimizeAndCloseToTray_);
-
-#else
+#elif defined Q_OS_MAC
     checkBoxHideFromDock_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Hide from dock"), QString());
     checkBoxHideFromDock_->setState(preferences->isHideFromDock());
     connect(checkBoxHideFromDock_, SIGNAL(stateChanged(bool)), SLOT(onHideFromDockClicked(bool)));
     addItem(checkBoxHideFromDock_);
+#elif defined Q_OS_LINUX
+        //todo linux
+        //Q_ASSERT(false);
 #endif
 
     checkBoxShowNotifications_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show notifications"), QString());
@@ -58,10 +66,10 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(checkBoxShowNotifications_, SIGNAL(stateChanged(bool)), SLOT(onIsShowNotificationsClicked(bool)));
     addItem(checkBoxShowNotifications_);
 
-    checkBoxShowCountryFlags_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show country flags"), QString());
-    checkBoxShowCountryFlags_->setState(preferences->isShowCountryFlags());
-    connect(checkBoxShowCountryFlags_, SIGNAL(stateChanged(bool)), SLOT(onIsShowCountryFlagsClicked(bool)));
-    addItem(checkBoxShowCountryFlags_);
+    backgroundSettingsItem_ = new BackgroundSettingsItem(this);
+    backgroundSettingsItem_->setBackgroundSettings(preferences->backgroundSettings());
+    connect(backgroundSettingsItem_, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
+    addItem(backgroundSettingsItem_);
 
     checkBoxDockedToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Docked"), QString());
     checkBoxDockedToTray_->setState(preferences->isDockedToTray());
@@ -142,6 +150,17 @@ void GeneralWindowItem::onIsAutoConnectPreferencesChanged(bool b)
     checkBoxAutoConnect_->setState(b);
 }
 
+void GeneralWindowItem::onStartMinimizedPreferencesChanged(bool b)
+{
+    checkBoxStartMinimized_->setState(b);
+}
+
+void GeneralWindowItem::onStartMinimizedClicked(bool b)
+{
+    if(preferences_)
+        preferences_->setStartMinimized(b);
+}
+
 #ifdef Q_OS_WIN
 void GeneralWindowItem::onMinimizeAndCloseToTrayPreferencesChanged(bool b)
 {
@@ -175,15 +194,6 @@ void GeneralWindowItem::onIsShowNotificationsClicked(bool b)
     preferences_->setShowNotifications(b);
 }
 
-void GeneralWindowItem::onIsShowCountryFlagsPreferencesChanged(bool b)
-{
-    checkBoxShowCountryFlags_->setState(b);
-}
-
-void GeneralWindowItem::onIsShowCountryFlagsClicked(bool b)
-{
-    preferences_->setShowCountryFlags(b);
-}
 
 void GeneralWindowItem::onIsDockedToTrayPreferencesChanged(bool b)
 {
@@ -237,6 +247,16 @@ void GeneralWindowItem::onUpdateChannelItemChanged(QVariant o)
     preferences_->setUpdateChannel((ProtoTypes::UpdateChannel)o.toInt());
 }
 
+void GeneralWindowItem::onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings)
+{
+    preferences_->setBackgroundSettings(settings);
+}
+
+void GeneralWindowItem::onPreferencesBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings)
+{
+    backgroundSettingsItem_->setBackgroundSettings(settings);
+}
+
 void GeneralWindowItem::onLanguageChanged()
 {
     /*QVariant order = comboBoxLocationOrder_->currentItem();
@@ -272,10 +292,6 @@ void GeneralWindowItem::onLanguageChanged()
 void GeneralWindowItem::updateScaling()
 {
     BasePage::updateScaling();
-    /*comboBoxLanguage_->updateScaling();
-    comboBoxLocationOrder_->updateScaling();
-    comboBoxLatencyDisplay_->updateScaling();
-    comboBoxUpdateChannel_->updateScaling();*/
 }
 
 void GeneralWindowItem::hideOpenPopups()

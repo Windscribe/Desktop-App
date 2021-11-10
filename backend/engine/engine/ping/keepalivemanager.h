@@ -7,7 +7,7 @@
 
 #ifdef Q_OS_WIN
     #include "pinghost_icmp_win.h"
-#else
+#elif defined (Q_OS_MAC) || defined(Q_OS_LINUX)
     #include "pinghost_icmp_mac.h"
 #endif
 
@@ -21,9 +21,9 @@ public:
     void setEnabled(bool isEnabled);
 
 private slots:
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
     void onTimer();
-    void onDnsResolvedFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
+    void onDnsRequestFinished();
     void onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
 
 private:
@@ -46,7 +46,7 @@ private:
 
 #ifdef Q_OS_WIN
     PingHost_ICMP_win pingHostIcmp_;
-#else
+#elif defined (Q_OS_MAC) || defined(Q_OS_LINUX)
     PingHost_ICMP_mac pingHostIcmp_;
 #endif
 };

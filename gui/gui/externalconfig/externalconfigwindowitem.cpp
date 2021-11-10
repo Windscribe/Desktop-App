@@ -33,10 +33,10 @@ ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent,
     connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
 
 #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", this);
+    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
 
-    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
 #else //if Q_OS_MAC
     /*closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
@@ -93,7 +93,7 @@ void ExternalConfigWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     // Icon
     painter->setOpacity(curTextOpacity_ * initialOpacity);
     //QPixmap *pixmap = ImageResourcesSvg::instance().getPixmap(curIconPath_);
-    IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(curIconPath_);
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(curIconPath_);
     pixmap->draw((WINDOW_WIDTH/2 - 20)*G_SCALE, ICON_POS_Y*G_SCALE, painter);
 
     // title
@@ -110,7 +110,7 @@ void ExternalConfigWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     QString descriptionText = tr("Use the Windscribe app without an account to connect to any OpenVPN or WireGuard server.");
     QFontMetrics fm = painter->fontMetrics();
-    int width = fm.width(descriptionText)/3; // 3 lines
+    int width = fm.horizontalAdvance(descriptionText)/3; // 3 lines
     if (width < DESCRIPTION_WIDTH_MIN*G_SCALE) width = DESCRIPTION_WIDTH_MIN*G_SCALE;
     else if (width > LOGIN_WIDTH*G_SCALE) width = LOGIN_WIDTH*G_SCALE;
     painter->drawText(CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, width), DESCRIPTION_POS_Y*G_SCALE,

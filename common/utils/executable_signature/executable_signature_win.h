@@ -14,14 +14,14 @@ class ExecutableSignature_win
 {
 public:
 #ifdef QT_CORE_LIB
-    static bool isParentProcessGui();
-    static bool verify(const QString &executablePath);
+    static bool isParentProcessGui(const QString &certName);
+    static bool verify(const QString &executablePath, const QString &certName);
 #endif
-	static bool verify(const wchar_t *szExePath);
+    static bool verify(const wchar_t *szExePath, const wchar_t *szCertName);
 
 private:
     static bool verifyEmbeddedSignature(const wchar_t *pwszSourceFile);
-    static bool checkWindscribeCertificate(PCCERT_CONTEXT pCertContext);
+    static bool checkWindscribeCertificate(PCCERT_CONTEXT pCertContext, const wchar_t *szCertName);
 };
 
 #endif // EXECUTABLE_SIGNATURE_WIN_H

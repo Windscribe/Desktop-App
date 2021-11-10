@@ -3,7 +3,7 @@
 
 #include "inetworkdetectionmanager.h"
 #include "networkchangeworkerthread.h"
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper_win.h"
 
 class NetworkDetectionManager_win : public INetworkDetectionManager
 {
@@ -12,7 +12,7 @@ public:
     NetworkDetectionManager_win(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_win() override;
 
-    void updateCurrentNetworkInterface(bool requested = false) override;
+    void updateCurrentNetworkInterface() override;
     bool isOnline() override;
 
     bool interfaceEnabled(int interfaceIndex);
@@ -24,7 +24,7 @@ private slots:
     void onNetworkChanged();
 
 private:
-    IHelper *helper_;
+    Helper_win *helper_;
     NetworkChangeWorkerThread *networkWorker_;
     ProtoTypes::NetworkInterface lastSentNetworkInterface_;
 

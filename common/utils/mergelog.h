@@ -13,6 +13,8 @@ public:
     static QString mergeLogs(bool doMergePerLine);
     static QString mergePrevLogs(bool doMergePerLine);
 
+    // This is a quick hack to prevent GUI crash as result of merging files that are too large for the program
+    static bool canMerge();
 private:
     static constexpr int MAX_COUNT_OF_LINES = 100000;
     static QString merge(const QString &guiLogFilename, const QString &engineLogFilename,
@@ -21,6 +23,14 @@ private:
 
     enum class LineSource { GUI, ENGINE, SERVICE, NUM_LINE_SOURCES };
     static int mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QString>> *lines, const QString *filename, LineSource source, bool useMinMax, QDateTime min, QDateTime max);
+
+    static const QString guiLogLocation();
+    static const QString engineLogLocation();
+    static const QString serviceLogLocation();
+
+    static const QString prevGuiLogLocation();
+    static const QString prevEngineLogLocation();
+    static const QString prevServiceLogLocation();
 };
 
 

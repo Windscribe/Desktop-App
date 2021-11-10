@@ -209,7 +209,7 @@ void LocationsTrayMenuNative::rebuildMenu()
         if ((desc.flags & ITEM_FLAG_IS_PREMIUM_ONLY) && bIsFreeSession_)
             itemName += " (Pro)";
 
-        IndependentPixmap *flag = nullptr;
+        QSharedPointer<IndependentPixmap> flag;
         if (!desc.countryCode.isEmpty()) {
 #if defined(Q_OS_MAC)
             const int flags = ImageResourcesSvg::IMAGE_FLAG_SQUARE;

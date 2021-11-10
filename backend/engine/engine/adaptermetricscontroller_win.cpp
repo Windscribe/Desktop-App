@@ -4,13 +4,16 @@
 #include <windows.h>
 #include <iphlpapi.h>
 #include "utils/winutils.h"
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper_win.h"
 
 void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHelper *helper)
 {
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
+    Q_ASSERT(helper_win);
+
     if (adapterName.isEmpty())
     {
-        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::onConnected(), Error, adapterName is empty";
+        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, adapterName is empty";
         Q_ASSERT(false);
         return;
     }
@@ -67,7 +70,7 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
             if (bTapAdapterFound)     // check for duplicate adapters
             {
                 Q_ASSERT(false);
-                qCDebug(LOG_BASIC) << "AdapterMetricsController_win::onConnected(), Error, two adapters with the same name found";
+                qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, two adapters with the same name found";
             }
             bTapAdapterFound = true;
         }
@@ -97,7 +100,7 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
             }
             QString cmd = "netsh int ipv4 set interface interface=\"" + tapFriendlyName + "\" metric=" + QString::number(setupIPv4Metric);
             qCDebug(LOG_BASIC) << "Execute cmd:" << cmd;
-            QString answer = helper->executeSetMetric("ipv4", tapFriendlyName, QString::number(setupIPv4Metric));
+            QString answer = helper_win->executeSetMetric("ipv4", tapFriendlyName, QString::number(setupIPv4Metric));
             qCDebug(LOG_BASIC) << "Answer from netsh cmd:" << answer;
         }
         if (tapAdapterIPv6Enabled && tapAdapterIPv6Metric >= minIPv6Metric)
@@ -109,12 +112,12 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
             }
             QString cmd = "netsh int ipv6 set interface interface=\"" + tapFriendlyName + "\" metric=" + QString::number(setupIPv6Metric);
             qCDebug(LOG_BASIC) << "Execute cmd:" << cmd;
-            QString answer = helper->executeSetMetric("ipv6", tapFriendlyName, QString::number(setupIPv6Metric));
+            QString answer = helper_win->executeSetMetric("ipv6", tapFriendlyName, QString::number(setupIPv6Metric));
             qCDebug(LOG_BASIC) << "Answer from netsh cmd:" << answer;
         }
     }
     else
     {
-        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::onConnected(), TAP-adapter not found";
+        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), TAP-adapter not found";
     }
 }

@@ -13,14 +13,14 @@ public:
     ~FirewallController_win() override;
 
     bool firewallOn(const QString &ip, bool bAllowLanTraffic) override;
-    bool firewallChange(const QString &ip, bool bAllowLanTraffic) override;
     bool firewallOff() override;
     bool firewallActualState() override;
 
     bool whitelistPorts(const apiinfo::StaticIpPortsVector &ports) override;
     bool deleteWhitelistPorts() override;
 
-    void setInterfaceToSkip_mac(const QString &interfaceToSkip) override;
+    void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
+    void enableFirewallOnBoot(bool bEnable) override;
 
 private:
     Helper_win *helper_win_;

@@ -70,7 +70,7 @@ void FirewallTurnOffButton::onPositionChanged(QVariant position)
     setPos(x(), position.toReal());
 
     if (position == animation_.endValue()) {
-        setVisible(animation_.endValue() > animation_.startValue());
+        setVisible(animation_.endValue().toReal() > animation_.startValue().toReal());
         is_animating_ = false;
     }
 }

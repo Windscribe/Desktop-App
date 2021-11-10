@@ -1,18 +1,17 @@
-#include "connectionmanager.h"
 #include "utils/logger.h"
 #include <QStandardPaths>
 #include <QThread>
 #include <QCoreApplication>
 #include <QDateTime>
+#include "isleepevents.h"
 #include "openvpnconnection.h"
 #include "wireguardconnection.h"
 
 #include "utils/utils.h"
 #include "engine/types/types.h"
 #include "engine/types/connectionsettings.h"
-#include "engine/dnsresolver/dnsresolver.h"
 
-#include "engine/networkstatemanager/inetworkstatemanager.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
 
@@ -20,8 +19,9 @@
 #include "connsettingspolicy/manualconnsettingspolicy.h"
 #include "connsettingspolicy/customconfigconnsettingspolicy.h"
 
+// Had to move this here to prevent a compile error with boost already including winsock.h
+#include "connectionmanager.h"
 
-#include "ikev2connection_test.h"
 
 #ifdef Q_OS_WIN
     #include "sleepevents_win.h"
@@ -31,14 +31,17 @@
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
+    #include "engine/helper/helper_mac.h"
+#elif defined Q_OS_LINUX
+    #include "ikev2connection_linux.h"
 #endif
 
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
 
-ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager,
+ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
                                              ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
     helper_(helper),
-    networkStateManager_(networkStateManager),
+    networkDetectionManager_(networkDetectionManager),
     customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
     connector_(NULL),
     sleepEvents_(NULL),
@@ -73,14 +76,16 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkS
 
 #ifdef Q_OS_WIN
     sleepEvents_ = new SleepEvents_win(this);
-    connect(networkStateManager_, SIGNAL(stateChanged(bool, QString)), SLOT(onNetworkStateChanged(bool, QString)));
 #elif defined Q_OS_MAC
     sleepEvents_ = new SleepEvents_mac(this);
-    connect(networkStateManager_, SIGNAL(stateChanged(bool, QString)), SLOT(onNetworkStateChanged(bool, QString)));
 #endif
 
+    connect(networkDetectionManager_, SIGNAL(networkChanged(bool, ProtoTypes::NetworkInterface)), SLOT(onNetworkStateChanged(bool, ProtoTypes::NetworkInterface)));
+
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     connect(sleepEvents_, SIGNAL(gotoSleep()), SLOT(onSleepMode()));
     connect(sleepEvents_, SIGNAL(gotoWake()), SLOT(onWakeMode()));
+#endif
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
 }
@@ -164,7 +169,7 @@ void ConnectionManager::clickDisconnect()
                 connSettingsPolicy_->reset();
             }
             timerReconnection_.stop();
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
         }
     }
 }
@@ -202,8 +207,6 @@ void ConnectionManager::blockingDisconnect()
                 connSettingsPolicy_->reset();
             }
 
-            DnsResolver::instance().recreateDefaultDnsChannel();
-
             state_ = STATE_DISCONNECTED;
         }
     }
@@ -237,6 +240,26 @@ const AdapterGatewayInfo &ConnectionManager::getVpnAdapterInfo() const
     return vpnAdapterInfo_;
 }
 
+const ConnectionManager::CustomDnsAdapterGatewayInfo &ConnectionManager::getCustomDnsAdapterGatewayInfo() const
+{
+    Q_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
+    return customDnsAdapterGatewayInfo_;
+}
+
+QString ConnectionManager::getCustomDnsIp() const
+{
+    return QString(customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ip_address().c_str());
+}
+
+void ConnectionManager::setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info)
+{
+    customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo = info;
+#ifdef Q_OS_WIN
+    if(helper_) {
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.ip_address().c_str());
+    }
+#endif
+}
 
 void ConnectionManager::removeIkev2ConnectionFromOS()
 {
@@ -282,7 +305,17 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionConnected(), state_ =" << state_;
 
     vpnAdapterInfo_ = connectionAdapterInfo;
+    customDnsAdapterGatewayInfo_.adapterInfo = connectionAdapterInfo;
+
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
+
+    // override the DNS if we are using custom
+    if (customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
+    {
+        QString customDnsIp = QString::fromStdString(customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ip_address());
+        customDnsAdapterGatewayInfo_.adapterInfo.setDnsServers(QStringList() << customDnsIp);
+        qCDebug(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
+    }
 
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK)
     {
@@ -290,10 +323,9 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
         return;
     }
 
-    DnsResolver::instance().recreateDefaultDnsChannel();
     timerReconnection_.stop();
     state_ = STATE_CONNECTED;
-    emit connected();
+    Q_EMIT connected();
 }
 
 void ConnectionManager::onConnectionDisconnected()
@@ -306,29 +338,27 @@ void ConnectionManager::onConnectionDisconnected()
     wstunnelManager_->killProcess();
     timerWaitNetworkConnectivity_.stop();
 
-    DnsResolver::instance().recreateDefaultDnsChannel();
-
     switch (state_)
     {
         case STATE_DISCONNECTING_FROM_USER_CLICK:
             state_ = STATE_DISCONNECTED;
             connSettingsPolicy_->reset();
             timerReconnection_.stop();
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTED:
             // goto reconnection state, start reconnection timer and do connection again
             Q_ASSERT(!timerReconnection_.isActive());
             timerReconnection_.start(MAX_RECONNECTION_TIME);
             state_ = STATE_RECONNECTING;
-            emit reconnecting();
+            Q_EMIT reconnecting();
             doConnect();
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_AUTO_DISCONNECT:
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
-            emit disconnected(DISCONNECTED_ITSELF);
+            Q_EMIT disconnected(DISCONNECTED_ITSELF);
             break;
         case STATE_DISCONNECTED:
         case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
@@ -337,7 +367,7 @@ void ConnectionManager::onConnectionDisconnected()
 
         case STATE_ERROR_DURING_CONNECTION:
             state_ = STATE_DISCONNECTED;
-            emit errorDuringConnection(latestConnectionError_);
+            Q_EMIT errorDuringConnection(latestConnectionError_);
             break;
 
         case STATE_RECONNECTING:
@@ -353,7 +383,7 @@ void ConnectionManager::onConnectionDisconnected()
         case STATE_RECONNECTION_TIME_EXCEED:
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
-            emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
+            Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
             break;
 
         case STATE_SLEEP_MODE_NEED_RECONNECT:
@@ -400,7 +430,7 @@ void ConnectionManager::onConnectionReconnecting()
                     connSettingsPolicy_->reset();
                 }
                 state_ = STATE_RECONNECTING;
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 startReconnectionTimer();
                 connector_->startDisconnect();
             }
@@ -408,7 +438,7 @@ void ConnectionManager::onConnectionReconnecting()
             {
                 state_ = STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
+                Q_EMIT showFailedAutomaticConnectionMessage();
             }
             break;
 
@@ -419,7 +449,7 @@ void ConnectionManager::onConnectionReconnecting()
             {
                 if (state_ != STATE_RECONNECTING)
                 {
-                    emit reconnecting();
+                    Q_EMIT reconnecting();
                     state_ = STATE_RECONNECTING;
                     timerReconnection_.start(MAX_RECONNECTION_TIME);
                 }
@@ -452,7 +482,7 @@ void ConnectionManager::onConnectionReconnecting()
             {
                 state_ = STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
+                Q_EMIT showFailedAutomaticConnectionMessage();
             }
             break;
         case STATE_SLEEP_MODE_NEED_RECONNECT:
@@ -464,7 +494,7 @@ void ConnectionManager::onConnectionReconnecting()
     }
 }
 
-void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
+void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
 {
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_RECONNECTION_TIME_EXCEED ||
         state_ == STATE_AUTO_DISCONNECT || state_ == STATE_ERROR_DURING_CONNECTION)
@@ -475,28 +505,54 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), state_ =" << state_ << ", error =" << (int)err;
     testVPNTunnel_->stopTests();
 
-    if ((err == AUTH_ERROR && bEmitAuthError_) || err == CANT_RUN_OPENVPN || err == NO_OPENVPN_SOCKET ||
-        err == NO_INSTALLED_TUN_TAP || err == ALL_TAP_IN_USE || err == WIREGUARD_CONNECTION_ERROR)
+    if ((err == ProtoTypes::ConnectError::AUTH_ERROR && bEmitAuthError_)
+            || err == ProtoTypes::ConnectError::CANT_RUN_OPENVPN
+            || err == ProtoTypes::ConnectError::NO_OPENVPN_SOCKET
+            || err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP
+            || err == ProtoTypes::ConnectError::ALL_TAP_IN_USE
+            || err == ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR
+            || err == ProtoTypes::ConnectError::WINTUN_DRIVER_REINSTALLATION_ERROR
+            || err == ProtoTypes::ConnectError::TAP_DRIVER_REINSTALLATION_ERROR
+            || err == ProtoTypes::ConnectError::WINTUN_FATAL_ERROR)
     {
         // emit error in disconnected event
         latestConnectionError_ = err;
         state_ = STATE_ERROR_DURING_CONNECTION;
         timerReconnection_.stop();
     }
-    else if ( (!connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NOT_FOUND_WIN || err == IKEV_FAILED_SET_ENTRY_WIN || err == IKEV_FAILED_MODIFY_HOSTS_WIN) ) ||
-              (!connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||
-                                                                       err == IKEV_FAILED_START_MAC || err == IKEV_FAILED_LOAD_PREFERENCES_MAC || err == IKEV_FAILED_SAVE_PREFERENCES_MAC)))
+    else if ( (!connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NOT_FOUND_WIN
+                                                           || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN
+                                                           || err == ProtoTypes::ConnectError::IKEV_FAILED_MODIFY_HOSTS_WIN) )
+            || (!connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_START_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC))
+            || (!connSettingsPolicy_->isAutomaticMode() && err == ProtoTypes::ConnectError::EXE_VERIFY_OPENVPN_ERROR)
+            || (!connSettingsPolicy_->isAutomaticMode() && err == ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR))
     {
+        // immediately stop trying to connect
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
-        emit errorDuringConnection(err);
+        Q_EMIT errorDuringConnection(err);
     }
-    else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == WINTUN_OVER_CAPACITY || err == TCP_ERROR ||
-             err == CONNECTED_ERROR || err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS || err == IKEV_FAILED_TO_CONNECT ||
-             (connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NOT_FOUND_WIN || err == IKEV_FAILED_SET_ENTRY_WIN || err == IKEV_FAILED_MODIFY_HOSTS_WIN)) ||
-             (connSettingsPolicy_->isAutomaticMode() && (err == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC || err == IKEV_FAILED_SET_KEYCHAIN_MAC ||
-                                                                    err == IKEV_FAILED_START_MAC || err == IKEV_FAILED_LOAD_PREFERENCES_MAC || err == IKEV_FAILED_SAVE_PREFERENCES_MAC)) ||
-             (err == AUTH_ERROR && !bEmitAuthError_))
+    else if (err == ProtoTypes::ConnectError::UDP_CANT_ASSIGN
+             || err == ProtoTypes::ConnectError::UDP_NO_BUFFER_SPACE
+             || err == ProtoTypes::ConnectError::UDP_NETWORK_DOWN
+             || err == ProtoTypes::ConnectError::WINTUN_OVER_CAPACITY
+             || err == ProtoTypes::ConnectError::TCP_ERROR
+             || err == ProtoTypes::ConnectError::CONNECTED_ERROR
+             || err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS
+             || err == ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT
+             || (connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NOT_FOUND_WIN
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_MODIFY_HOSTS_WIN))
+             || (connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_START_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC
+                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC))
+             || (err == ProtoTypes::ConnectError::AUTH_ERROR && !bEmitAuthError_))
     {
         // bIgnoreConnectionErrorsForOpenVpn_ need to prevent handle multiple error messages from openvpn
         if (!bIgnoreConnectionErrorsForOpenVpn_)
@@ -505,15 +561,15 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
 
             if (state_ == STATE_CONNECTED)
             {
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 state_ = STATE_RECONNECTING;
                 startReconnectionTimer();
-                if (err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
+                if (err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
                 {
                     bNeedResetTap_ = true;
                 }
                 // for AUTH_ERROR signal disconnected will be emitted automatically
-                if (err != AUTH_ERROR)
+                if (err != ProtoTypes::ConnectError::AUTH_ERROR)
                 {
                     connector_->startDisconnect();
                 }
@@ -530,16 +586,16 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
 
                     if (state_ != STATE_RECONNECTING)
                     {
-                        emit reconnecting();
+                        Q_EMIT reconnecting();
                         state_ = STATE_RECONNECTING;
                         startReconnectionTimer();
                     }
-                    if (err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
+                    if (err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
                     {
                         bNeedResetTap_ = true;
                     }
                     // for AUTH_ERROR signal disconnected will be emitted automatically
-                    if (err != AUTH_ERROR)
+                    if (err != ProtoTypes::ConnectError::AUTH_ERROR)
                     {
                         connector_->startDisconnect();
                     }
@@ -547,11 +603,11 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
                 else
                 {
                     state_ = STATE_AUTO_DISCONNECT;
-                    if (err != AUTH_ERROR)
+                    if (err != ProtoTypes::ConnectError::AUTH_ERROR)
                     {
                         connector_->startDisconnect();
                     }
-                    emit showFailedAutomaticConnectionMessage();
+                    Q_EMIT showFailedAutomaticConnectionMessage();
                 }
             }
         }
@@ -564,22 +620,22 @@ void ConnectionManager::onConnectionError(CONNECTION_ERROR err)
 
 void ConnectionManager::onConnectionStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
 {
-    emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
+    Q_EMIT statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
 }
 
 void ConnectionManager::onConnectionInterfaceUpdated(const QString &interfaceName)
 {
-    emit interfaceUpdated(interfaceName);
+    Q_EMIT interfaceUpdated(interfaceName);
 }
 
 void ConnectionManager::onConnectionRequestUsername()
 {
-    emit requestUsername(currentConnectionDescr_.customConfigFilename);
+    Q_EMIT requestUsername(currentConnectionDescr_.customConfigFilename);
 }
 
 void ConnectionManager::onConnectionRequestPassword()
 {
-    emit requestPassword(currentConnectionDescr_.customConfigFilename);
+    Q_EMIT requestPassword(currentConnectionDescr_.customConfigFilename);
 }
 
 void ConnectionManager::onSleepMode()
@@ -596,7 +652,7 @@ void ConnectionManager::onSleepMode()
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
         case STATE_RECONNECTING:
-            emit reconnecting();
+            Q_EMIT reconnecting();
             blockingDisconnect();
             qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), connection blocking disconnected";
             state_ = STATE_SLEEP_MODE_NEED_RECONNECT;
@@ -643,13 +699,13 @@ void ConnectionManager::onWakeMode()
     }
 }
 
-void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &networkInterface)
+void ConnectionManager::onNetworkStateChanged(bool isAlive, const ProtoTypes::NetworkInterface &networkInterface)
 {
-    qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkChanged(), isAlive =" << isAlive << ", primary network interface =" << networkInterface << ", state_ =" << state_;
+    qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkChanged(), isAlive =" << isAlive << ", primary network interface =" << QString::fromStdString(networkInterface.interface_name()) << ", state_ =" << state_;
 #ifdef Q_OS_WIN
-    emit internetConnectivityChanged(isAlive);
-#else
-    emit internetConnectivityChanged(isAlive);
+    Q_EMIT internetConnectivityChanged(isAlive);
+#elif defined Q_OS_MAC
+    Q_EMIT internetConnectivityChanged(isAlive);
 
     bLastIsOnline_ = isAlive;
 
@@ -670,7 +726,7 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &netwo
         case STATE_CONNECTED:
             if (!isAlive)
             {
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
                 Q_ASSERT(!timerReconnection_.isActive());
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
@@ -678,7 +734,7 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &netwo
             }
             else
             {
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 state_ = STATE_RECONNECTING;
                 Q_ASSERT(!timerReconnection_.isActive());
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
@@ -719,6 +775,8 @@ void ConnectionManager::onNetworkStateChanged(bool isAlive, const QString &netwo
         default:
             Q_ASSERT(false);
     }
+#elif defined Q_OS_LINUX
+        Q_EMIT internetConnectivityChanged(isAlive);
 #endif
 }
 
@@ -733,7 +791,7 @@ void ConnectionManager::onTimerReconnection()
     else
     {
         state_ = STATE_DISCONNECTED;
-        emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
+        Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
     }
     timerReconnection_.stop();
 }
@@ -771,7 +829,7 @@ void ConnectionManager::onWstunnelStarted()
 
 void ConnectionManager::doConnect()
 {
-    if (!networkStateManager_->isOnline())
+    if (!networkDetectionManager_->isOnline())
     {
         startReconnectionTimer();
         waitForNetworkConnectivity();
@@ -795,7 +853,7 @@ void ConnectionManager::doConnectPart2()
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
-        emit errorDuringConnection(LOCATION_NO_ACTIVE_NODES);
+        Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::LOCATION_NO_ACTIVE_NODES);
         return;
     }
 
@@ -843,9 +901,10 @@ void ConnectionManager::doConnectPart2()
             uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
                         (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
 
-            bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
-                                                        currentConnectionDescr_.port,
-                                                        portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway());
+            const bool blockOutsideDnsOption = !IpValidation::instance().isLocalIp(getCustomDnsIp());
+            const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
+                                                        currentConnectionDescr_.port, portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(),
+                                                        currentConnectionDescr_.verifyX509name, blockOutsideDnsOption);
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
@@ -855,11 +914,23 @@ void ConnectionManager::doConnectPart2()
 
             if (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL)
             {
-                stunnelManager_->runProcess();
+                if(!stunnelManager_->runProcess())
+                {
+                    state_ = STATE_DISCONNECTED;
+                    timerReconnection_.stop();
+                    Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_STUNNEL_ERROR);
+                    return;
+                }
             }
             else if (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_WSTUNNEL)
             {
-                wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port, false);
+                if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port, false))
+                {
+                    state_ = STATE_DISCONNECTED;
+                    timerReconnection_.stop();
+                    Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_WSTUNNEL_ERROR);
+                    return;
+                }
                 // call doConnectPart2 in onWstunnelStarted slot
                 return;
             }
@@ -881,7 +952,7 @@ void ConnectionManager::doConnectPart2()
             // If WireGuard config data don't exist, fetch it now.
             if (!wireGuardConfig_) {
                 qCDebug(LOG_CONNECTION) << "Missing WireGuard user config, requesting a new one";
-                emit getWireGuardConfig();
+                Q_EMIT getWireGuardConfig();
                 return;
             }
             qCDebug(LOG_CONNECTION) << "Using existing WireGuard user config";
@@ -900,7 +971,7 @@ void ConnectionManager::doConnectPart2()
                 //Q_ASSERT(false);
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                emit errorDuringConnection(CANNOT_OPEN_CUSTOM_CONFIG);
+                Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
         } else if (currentConnectionDescr_.protocol.isWireGuardProtocol()) {
@@ -910,7 +981,7 @@ void ConnectionManager::doConnectPart2()
                                         << currentConnectionDescr_.customConfigFilename;
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                emit errorDuringConnection(CANNOT_OPEN_CUSTOM_CONFIG);
+                Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
         }
@@ -926,8 +997,8 @@ void ConnectionManager::doConnectPart2()
 void ConnectionManager::doConnectPart3()
 {
     qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
-    emit protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
-    emit connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip);
+    Q_EMIT protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
+    Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip);
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
@@ -973,7 +1044,8 @@ void ConnectionManager::doConnectPart3()
             }
 
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_IKEV2));
-            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_, nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
+            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
+                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
@@ -1013,7 +1085,8 @@ void ConnectionManager::doMacRestoreProcedures()
     {
         QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
         qCDebug(LOG_CONNECTION) << "Execute command: " << delRouteCommand;
-        QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
+        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+        QString cmdAnswer = helper_mac->executeRootCommand(delRouteCommand);
         qCDebug(LOG_CONNECTION) << "Output from route delete command: " << cmdAnswer;
     }
     if (connection_type == ConnectionType::OPENVPN || connection_type == ConnectionType::WIREGUARD)
@@ -1058,6 +1131,8 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
             connector_ = new IKEv2Connection_win(this, helper_);
 #elif defined Q_OS_MAC
             connector_ = new IKEv2Connection_mac(this, helper_);
+#elif defined Q_OS_LINUX
+            connector_ = new IKEv2Connection_linux(this, helper_);
 #endif
         }
         else if (protocol.isWireGuardProtocol())
@@ -1072,7 +1147,7 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
         connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
-        connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);
+        connect(connector_, SIGNAL(error(ProtoTypes::ConnectError)), SLOT(onConnectionError(ProtoTypes::ConnectError)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionStatisticsUpdated(quint64,quint64, bool)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionInterfaceUpdated(QString)), Qt::QueuedConnection);
 
@@ -1114,7 +1189,7 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
                     connSettingsPolicy_->reset();
                 }
                 state_ = STATE_RECONNECTING;
-                emit reconnecting();
+                Q_EMIT reconnecting();
                 startReconnectionTimer();
                 connector_->startDisconnect();
              }
@@ -1122,17 +1197,17 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
              {
                 state_= STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
+                Q_EMIT showFailedAutomaticConnectionMessage();
              }
         }
         else
         {
-            emit testTunnelResult(false, "");
+            Q_EMIT testTunnelResult(false, "");
         }
     }
     else
     {
-        emit testTunnelResult(true, ipAddress);
+        Q_EMIT testTunnelResult(true, ipAddress);
 
         // if connection mode is automatic, save last successfully connection settings
         bWasSuccessfullyConnectionAttempt_ = true;
@@ -1142,7 +1217,7 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
 
 void ConnectionManager::onTimerWaitNetworkConnectivity()
 {
-    if (networkStateManager_->isOnline())
+    if (networkDetectionManager_->isOnline())
     {
         qCDebug(LOG_CONNECTION) << "We online, make the connection";
         timerWaitNetworkConnectivity_.stop();
@@ -1156,7 +1231,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
             timerWaitNetworkConnectivity_.stop();
             timerReconnection_.stop();
             state_ = STATE_DISCONNECTED;
-            emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
+            Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
         }
     }
 }
@@ -1224,7 +1299,7 @@ void ConnectionManager::setPacketSize(ProtoTypes::PacketSize ps)
 
 void ConnectionManager::startTunnelTests()
 {
-    testVPNTunnel_->startTests();
+    testVPNTunnel_->startTests(currentConnectionDescr_.protocol);
 }
 
 bool ConnectionManager::isAllowFirewallAfterConnection() const

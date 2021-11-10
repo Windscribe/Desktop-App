@@ -8,7 +8,6 @@
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
-#include "utils/writeaccessrightschecker.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/logger.h"
 
@@ -25,7 +24,6 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
   , filterText_("")
   , searchTabSelected_(false)
   , curTabMouseOver_(LOCATION_TAB_NONE)
-  , checkCustomConfigPathAccessRights_(false)
   , countOfVisibleItemSlots_(7)
   , currentLocationListHeight_(0)
   , isRibbonVisible_(false)
@@ -496,7 +494,6 @@ void LocationsTab::onDeviceNameChanged(const QString &deviceName)
 
 void LocationsTab::onAddCustomConfigClicked()
 {
-    checkCustomConfigPathAccessRights_ = true;
     emit addCustomConfigClicked();
 }
 
@@ -588,24 +585,24 @@ void LocationsTab::drawTabRegion(QPainter &painter, const QRect &rc)
 
         // Draw Icons
         {
-            IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/CONFIG_ICON");
+            QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/CONFIG_ICON");
             painter.setOpacity(curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
             p->draw(rcConfiguredLocationsIcon_.left(), rcConfiguredLocationsIcon_.top(), &painter);
         }
         if (showAllTabs_)
         {
             {
-                IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/STATIC_IP_ICON");
+                QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/STATIC_IP_ICON");
                 painter.setOpacity(curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
                 p->draw(rcStaticIpsLocationsIcon_.left(), rcStaticIpsLocationsIcon_.top(), &painter);
             }
             {
-                IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON");
+                QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON");
                 painter.setOpacity(curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
                 p->draw(rcFavoriteLocationsIcon_.left(), rcFavoriteLocationsIcon_.top(), &painter);
             }
             {
-                IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("locations/ALL_LOCATION_ICON");
+                QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/ALL_LOCATION_ICON");
                 painter.setOpacity(curTab_ == LOCATION_TAB_ALL_LOCATIONS ? 1.0 : TAB_OPACITY_DIM);
                 p->draw(rcAllLocationsIcon_.left(), rcAllLocationsIcon_.top(), &painter);
             }
@@ -946,19 +943,6 @@ void LocationsTab::setCustomConfigsPath(QString path)
     configFooterInfo_->setText(path);
     updateCustomConfigsEmptyListVisibility();
     updateRibbonVisibility();
-
-    if (checkCustomConfigPathAccessRights_) {
-        WriteAccessRightsChecker checker(path);
-        if (checker.isWriteable()) {
-            const QString desc = tr(
-                "The selected directory is writeable for non-privileged users.\n"
-                "Custom configs in this directory may pose a potential security risk.\n"
-                "Directory: \"%1\"")
-                .arg(path);
-            QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
-        }
-        checkCustomConfigPathAccessRights_ = false;
-    }
 }
 
 void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, int offsetY)

@@ -78,7 +78,7 @@ void TooltipBasic::paintEvent(QPaintEvent * /*event*/)
 void TooltipBasic::recalcWidth()
 {
     QFontMetrics fm(font_);
-    int textWidthScaled = fm.width(text_);
+    int textWidthScaled = fm.horizontalAdvance(text_);
     int otherWidth = MARGIN_WIDTH * 2 * G_SCALE; // margins + spacing
     width_ = textWidthScaled + otherWidth + additionalTailWidth();
 }

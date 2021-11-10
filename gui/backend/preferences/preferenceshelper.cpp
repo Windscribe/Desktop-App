@@ -2,6 +2,10 @@
 #include "utils/languagesutil.h"
 #include "version/appversion.h"
 
+#if defined(Q_OS_WINDOWS)
+#include "utils/winutils.h"
+#endif
+
 PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
     isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false),
     isDockedToTray_(false), isExternalConfigMode_(false)
@@ -13,7 +17,7 @@ PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
 
 QString PreferencesHelper::buildVersion()
 {
-    return AppVersion::instance().getFullString();
+    return AppVersion::instance().fullVersionString();
 }
 
 QList<QPair<QString, QString> > PreferencesHelper::availableLanguages() const
@@ -71,6 +75,17 @@ QVector<ProtoTypes::Protocol> PreferencesHelper::getAvailableProtocols()
     QVector<ProtoTypes::Protocol> p;
     for (int i = 0; i < portMap_.port_map_item_size(); ++i)
     {
+#if defined(Q_OS_LINUX)
+        const auto protocol = portMap_.port_map_item(i).protocol();
+        if (protocol == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
+            continue;
+        }
+#elif defined(Q_OS_WINDOWS)
+        const auto protocol = portMap_.port_map_item(i).protocol();
+        if ((protocol == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL) && !WinUtils::isWindows64Bit()) {
+            continue;
+        }
+#endif
         p << portMap_.port_map_item(i).protocol();
     }
     return p;

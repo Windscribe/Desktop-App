@@ -90,12 +90,12 @@ void ConfigFooterInfo::paintEvent(QPaintEvent * /*event*/)
         painter.drawText(displayTextRect_, Qt::AlignVCenter, displayText_);
     }
 
-    IndependentPixmap *pixmap_clear =
+    QSharedPointer<IndependentPixmap> pixmap_clear =
         ImageResourcesSvg::instance().getIndependentPixmap("locations/CLEAR_ICON");
     painter.setOpacity(initOpacity * iconButtons_[ICON_CLEAR].opacity);
     pixmap_clear->draw(iconButtons_[ICON_CLEAR].rect, &painter);
 
-    IndependentPixmap *pixmap_choose =
+    QSharedPointer<IndependentPixmap> pixmap_choose =
         ImageResourcesSvg::instance().getIndependentPixmap("locations/EDIT_ICON");
     painter.setOpacity(initOpacity * iconButtons_[ICON_CHOOSE].opacity);
     pixmap_choose->draw(iconButtons_[ICON_CHOOSE].rect, &painter);

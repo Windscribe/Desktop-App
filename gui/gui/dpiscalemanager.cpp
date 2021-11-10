@@ -59,6 +59,7 @@ double DpiScaleManager::scaleOfScreen(const QScreen *screen) const
     scale = (double)dpi / (double)LOWEST_LDPI;
 #else
     // for Mac curScale always == 1
+    Q_UNUSED(screen);
     scale = 1;
 #endif
     return scale;

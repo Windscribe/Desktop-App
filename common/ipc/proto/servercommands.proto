@@ -211,3 +211,6 @@ message UpdateVersionChanged
   optional ProtoTypes.UpdateVersionError error = 3;
 }
 
+message HostsFileBecameWritable
+{
+}

@@ -11,7 +11,7 @@ namespace PreferencesWindow {
 
 EscapeButton::EscapeButton(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent)
 {
-    iconButton_ = new IconButton(BUTTON_SIZE, BUTTON_SIZE, "preferences/ESC_BUTTON", this);
+    iconButton_ = new IconButton(BUTTON_SIZE, BUTTON_SIZE, "preferences/ESC_BUTTON", "", this);
     connect(iconButton_, SIGNAL(clicked()), SIGNAL(clicked()));
 }
 

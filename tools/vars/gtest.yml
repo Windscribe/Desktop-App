@@ -3,6 +3,6 @@
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_GTEST: '1.10.0'
+  VERSION_GTEST: '1.11.0'
   BUILDROOT_GTEST: 'build-libs/gtest'
   ARTIFACT_GTEST: 'gtest.zip'

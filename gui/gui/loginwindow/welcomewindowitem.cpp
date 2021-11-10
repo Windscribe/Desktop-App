@@ -46,21 +46,21 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     curLoginTextOpacity_ = OPACITY_HIDDEN;
     connect(&loginTextOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLoginTextOpacityChanged(QVariant)));
 
- #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", this);
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
 
-    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
 #else //if Q_OS_MAC
 
-    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
+    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
     connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(true);
 
-    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", this);
+    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
@@ -88,12 +88,12 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     connect(&errorAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onErrorChanged(QVariant)));
 
     // Lower Region:
-    settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, this);
+    settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, "", this);
     connect(settingsButton_, SIGNAL(clicked()), SLOT(onSettingsButtonClick()));
     connect(settingsButton_, SIGNAL(hoverEnter()), SLOT(onSettingsHoverEnter()));
     connect(settingsButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
 
-    configButton_ = new IconButton(24, 24, CONFIG_ICON_PATH, this);
+    configButton_ = new IconButton(24, 24, CONFIG_ICON_PATH, "", this);
     connect(configButton_, SIGNAL(clicked()), SLOT(onConfigButtonClick()));
     connect(configButton_, SIGNAL(hoverEnter()), SLOT(onConfigHoverEnter()));
     connect(configButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
@@ -156,12 +156,12 @@ void WelcomeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
     painter->save();
 
-    IndependentPixmap *pixmap_background = ImageResourcesJpg::instance().getIndependentPixmap("welcome", WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE);
+    QSharedPointer<IndependentPixmap> pixmap_background = ImageResourcesJpg::instance().getIndependentPixmap("welcome", WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE);
     pixmap_background->draw(0, 0, WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE, painter);
 
     painter->setOpacity(initOpacity);
 
-    IndependentPixmap *pixmap_badge = ImageResourcesSvg::instance().getIndependentPixmap("BADGE_ICON");
+    QSharedPointer<IndependentPixmap> pixmap_badge = ImageResourcesSvg::instance().getIndependentPixmap("BADGE_ICON");
     pixmap_badge->draw(curBadgePosX_ * G_SCALE, curBadgePosY_* G_SCALE, BADGE_WIDTH_BIG * G_SCALE, BADGE_HEIGHT_BIG * G_SCALE, painter);
 
     painter->setFont(*FontManager::instance().getFont(24, true));
@@ -201,7 +201,7 @@ void WelcomeWindowItem::setClickable(bool enabled)
     configButton_->setClickable(enabled);
     emergencyButton_->setClickable(enabled);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     minimizeButton_->setClickable(enabled);
     closeButton_->setClickable(enabled);
 #endif
@@ -358,7 +358,7 @@ void WelcomeWindowItem::onDockedModeChanged(bool bIsDockedToTray)
 
 void WelcomeWindowItem::updatePositions()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_->setPos((LOGIN_WIDTH - 16 - 16)*G_SCALE, 14*G_SCALE);
     minimizeButton_->setPos((LOGIN_WIDTH - 16 - 16 - 32)*G_SCALE, 14*G_SCALE);
     firewallTurnOffButton_->setPos(8*G_SCALE, 0);

@@ -68,7 +68,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     loginWindow_ = new LoginWindow::LoginWindowItem(nullptr, preferencesHelper);
     loggingInWindow_ = new LoginWindow::LoggingInWindowItem();
     initWindow_ = new LoginWindow::InitWindowItem();
-    connectWindow_ = new ConnectWindow::ConnectWindowItem(nullptr, preferencesHelper);
+    connectWindow_ = new ConnectWindow::ConnectWindowItem(nullptr, preferences, preferencesHelper);
     emergencyConnectWindow_ = new EmergencyConnectWindow::EmergencyConnectWindowItem(nullptr, preferencesHelper);
     externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem(nullptr, preferencesHelper);
     twoFactorAuthWindow_ = new TwoFactorAuthWindow::TwoFactorAuthWindowItem(nullptr, preferencesHelper);
@@ -304,11 +304,6 @@ void MainWindowController::setIsDockedToTray(bool isDocked)
 {
     preferencesHelper_->setIsDockedToTray(isDocked);
     updateMainAndViewGeometry(true);
-}
-
-void MainWindowController::setIsShowCountryFlags(bool isShowCountryFlags)
-{
-    connectWindow_->setIsShowCountryFlags(isShowCountryFlags);
 }
 
 bool MainWindowController::preferencesVisible()
@@ -1276,12 +1271,20 @@ void MainWindowController::gotoConnectWindow()
         updateExpandAnimationParameters();
         handleNextWindowChange();
     }
-    else if (curWindow_ == WINDOW_ID_INITIALIZATION)
+    else if (curWindow_ == WINDOW_ID_INITIALIZATION
+             || (curWindow_ == WINDOW_ID_EXIT && windowBeforeExit_ == WINDOW_ID_INITIALIZATION))
     {
         // qDebug() << "Init -> Connect";
         initWindow_->getGraphicsObject()->stackBefore(connectWindow_->getGraphicsObject());
 
         isAtomicAnimationActive_ = true;
+
+        // The second condition occurs when engine crashes and user tries to exit app using hot keys but then selects "No".
+        // In this case it is necessary to set windowBeforeExit_ to WINDOW_ID_CONNECT because it will be necessary to enter
+        // connect window after closing exit dialog.
+        if(curWindow_ == WINDOW_ID_EXIT) {
+            windowBeforeExit_ = WINDOW_ID_CONNECT;
+        }
 
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_INIT_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
@@ -1700,7 +1703,14 @@ void MainWindowController::gotoUpdateWindow()
     functionOnAnimationFinished_ = [this, saveCurWindow]()
     {
         updateWindow_->getGraphicsObject()->setOpacity(0.0);
-        connectWindow_->getGraphicsObject()->stackBefore(updateWindow_->getGraphicsObject());
+        if (saveCurWindow == WINDOW_ID_GENERAL_MESSAGE)
+        {
+            generalMessageWindow_->getGraphicsObject()->stackBefore(updateWindow_->getGraphicsObject());
+        }
+        else
+        {
+            connectWindow_->getGraphicsObject()->stackBefore(updateWindow_->getGraphicsObject());
+        }
         updateWindow_->getGraphicsObject()->show();
 
         QPropertyAnimation *anim1 = new QPropertyAnimation(this);
@@ -1747,7 +1757,7 @@ void MainWindowController::gotoUpdateWindow()
         {
             anim4 = new QPropertyAnimation(this);
             anim4->setTargetObject(generalMessageWindow_->getGraphicsObject());
-            anim4->setPropertyName("opacity");
+            //anim4->setPropertyName("opacity");
             anim4->setStartValue(generalMessageWindow_->getGraphicsObject()->opacity());
             anim4->setEndValue(0.0);
             anim4->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
@@ -1755,6 +1765,7 @@ void MainWindowController::gotoUpdateWindow()
             connect(anim4, &QPropertyAnimation::finished, [this]()
             {
                 generalMessageWindow_->getGraphicsObject()->hide();
+                updateWindow_->setClickable(true);
             });
         }
 
@@ -1845,19 +1856,43 @@ void MainWindowController::gotoUpgradeWindow()
 
 void MainWindowController::gotoGeneralMessageWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
+    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT || curWindow_ == WINDOW_ID_UPDATE);
 
     isAtomicAnimationActive_ = true;
+    WINDOW_ID saveCurWindow = curWindow_;
     curWindow_ = WINDOW_ID_GENERAL_MESSAGE;
 
     TooltipController::instance().hideAllTooltips();
-    connectWindow_->setClickable(false);
+    if (saveCurWindow == WINDOW_ID_CONNECT)
+    {
+        connectWindow_->setClickable(false);
+    }
+    else if (saveCurWindow == WINDOW_ID_UPDATE)
+    {
+        updateWindow_->setClickable(false);
+    }
+    else
+    {
+        Q_ASSERT(false);
+    }
+
     bottomInfoWindow_->setClickable(false);
 
-    functionOnAnimationFinished_ = [this]()
+    functionOnAnimationFinished_ = [this, saveCurWindow]()
     {
         generalMessageWindow_->getGraphicsObject()->setOpacity(0.0);
-        connectWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        if (saveCurWindow == WINDOW_ID_CONNECT)
+        {
+            connectWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        }
+        else if (saveCurWindow == WINDOW_ID_UPDATE)
+        {
+            updateWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
         generalMessageWindow_->getGraphicsObject()->show();
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
@@ -2127,6 +2162,28 @@ void MainWindowController::closeExitWindow()
 
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     }
+    else if (windowBeforeExit_ == WINDOW_ID_INITIALIZATION)
+    {
+        curWindow_ = WINDOW_ID_INITIALIZATION;
+        isAtomicAnimationActive_ = true;
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(exitWindow_->getGraphicsObject());
+        anim->setPropertyName("opacity");
+        anim->setStartValue(exitWindow_->getGraphicsObject()->opacity());
+        anim->setEndValue(0.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            exitWindow_->getGraphicsObject()->hide();
+            newsFeedWindow_->setClickable(true);
+            isAtomicAnimationActive_ = false;
+            updateBottomInfoWindowVisibilityAndPos();
+            handleNextWindowChange();
+        });
+
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    }
 }
 
 void MainWindowController::expandPreferencesFromLogin()
@@ -2288,6 +2345,7 @@ void MainWindowController::expandPreferencesFromConnect()
             preferencesState_ = PREFERENCES_STATE_EXPANDED;
             clearMaskForGraphicsView();
             updateBottomInfoWindowVisibilityAndPos();
+            bottomInfoWindow_->setClickable(false);
             updateExpandAnimationParameters();
             invalidateShadow_mac();
             preferencesWindow_->setScrollBarVisibility(true);
@@ -2317,7 +2375,6 @@ void MainWindowController::expandPreferencesFromConnect()
     isAtomicAnimationActive_ = true;
 
     connectWindow_->setClickable(false);
-    bottomInfoWindow_->setClickable(false);
 
     // hide locations or bottomInfo before running preferences expand
     if (isLocationsExpanded())
@@ -2699,7 +2756,16 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
     // qDebug() << "TaskbarLocation: " << taskbarLocation;
 
     QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
-    QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
+
+    // Screen is sometimes not found because QSystemTrayIcon is invalid or not contained in screen
+    // list during monitor change, screen resolution change, or opening/closing laptop lid.
+    QScreen *screen = WidgetUtils::slightlySaferScreenAt(rcIcon.center());
+    if (!screen)
+    {
+        // qDebug() << "Still no screen found -- not updating geometry and scene";
+        return QRect();
+    }
+
     QRect desktopAvailableRc = screen->availableGeometry();
     const int kRightOffset = 16 * G_SCALE;
 
@@ -2898,27 +2964,12 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     if (preferencesHelper_->isDockedToTray())
     {
-
-#ifdef Q_OS_WIN
         const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
         const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
 
-        QScreen *screen = QGuiApplication::screenAt(iconCenter);
-
-        const QRect desktopAvailableRc = screen->availableGeometry();
-        geo = taskbarAwareDockedGeometry_win(width, shadowSize, widthWithShadow, heightWithShadow);
-
-        const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
-        if (geo.right() > kMaxGeometryRightPosition)
-            geo.moveRight(kMaxGeometryRightPosition);
-
-#elif defined Q_OS_MAC
-
-        const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
-        const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
-
-        // On Mac: screen is sometimes not found because QSystemTrayIcon is invalid or not contained in screen list
-        // during monitor change or opening/closing laptop lid
+        // On Windows and Mac: screen is sometimes not found because QSystemTrayIcon is invalid or not
+        // contained in screen list during monitor change, screen resolution change, or opening/closing
+        // laptop lid.
         // Safer screen check prevents a crash when the trayIcon is invalid
         QScreen *screen = WidgetUtils::slightlySaferScreenAt(iconCenter);
         if (!screen)
@@ -2928,6 +2979,19 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         }
 
         const QRect desktopAvailableRc = screen->availableGeometry();
+
+#ifdef Q_OS_WIN
+
+        geo = taskbarAwareDockedGeometry_win(width, shadowSize, widthWithShadow, heightWithShadow);
+        if (!geo.isValid()) {
+            return;
+        }
+
+        const int kMaxGeometryRightPosition = desktopAvailableRc.right() + shadowSize;
+        if (geo.right() > kMaxGeometryRightPosition)
+            geo.moveRight(kMaxGeometryRightPosition);
+
+#elif defined Q_OS_MAC
 
         // center ear on tray
         int rightEarCenterOffset = static_cast<int>(41 * G_SCALE);
@@ -3070,7 +3134,7 @@ bool MainWindowController::isBottomInfoCollapsed() const
 
 void MainWindowController::updateCursorInViewport()
 {
-    QMouseEvent event(QEvent::MouseMove, QCursor::pos(), Qt::NoButton, 0, 0);
+    QMouseEvent event(QEvent::MouseMove, QCursor::pos(), Qt::NoButton, Qt::MouseButtons(), Qt::KeyboardModifiers());
     QApplication::sendEvent(view_->viewport(), &event);
 }
 

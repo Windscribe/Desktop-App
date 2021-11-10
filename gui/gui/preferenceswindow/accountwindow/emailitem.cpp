@@ -46,12 +46,12 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     if (isNeedConfirmEmail_ && !email_.isEmpty())
     {
         QFontMetrics fm(*font);
-        int textWidth = fm.width(tr("Email"));
+        int textWidth = fm.horizontalAdvance(tr("Email"));
         painter->setPen(QColor(253, 239, 0));
         QRectF rcText = boundingRect().adjusted(16*G_SCALE, 0, 0, -32*G_SCALE);
         painter->drawText(rcText, Qt::AlignVCenter, tr("Email"));
 
-        IndependentPixmap *pixmapInfoIcon = ImageResourcesSvg::instance().getIndependentPixmap("preferences/INFO_YELLOW_ICON");
+        QSharedPointer<IndependentPixmap> pixmapInfoIcon = ImageResourcesSvg::instance().getIndependentPixmap("preferences/INFO_YELLOW_ICON");
         int pixmapHeight = pixmapInfoIcon->height();
         pixmapInfoIcon->draw(16*G_SCALE + textWidth + 8*G_SCALE, static_cast<int>((rcText.height() - pixmapHeight) / 2), painter);
 

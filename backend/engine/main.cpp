@@ -2,7 +2,6 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/openvpnversioncontroller.h"
-#include "engine/curlinitcontroller.h"
 #include "engine/engine.h"
 #include "engineserver.h"
 #include "qconsolelistener.h"
@@ -18,8 +17,23 @@
     #include "engine/helper/installhelper_mac.h"
 #endif
 
+
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    void handler_sigterm(int signum)
+    {
+        if (signum == SIGTERM)
+        {
+            qCDebug(LOG_BASIC) << "SIGTERM signal received";
+        }
+    }
+#endif
+
 int main(int argc, char *argv[])
 {
+
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    signal(SIGTERM, handler_sigterm);
+#endif
 
 #ifdef Q_OS_WIN
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
@@ -47,22 +61,20 @@ int main(int argc, char *argv[])
     WindscribeApplication::setOrganizationName("Windscribe");
     WindscribeApplication::setApplicationName("Windscribe2");
 
-    CurlInitController curlInitController;
-    curlInitController.init();
-
-    Logger::instance().install("engine", true);
+    Logger::instance().install("engine", true, a.isRecoveryMode());
+    if (a.isRecoveryMode()) qCDebug(LOG_BASIC) << "Engine started in recovery mode.";
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
 
 #ifdef Q_OS_WIN
-    qCDebug(LOG_BASIC) << "Windscribe Windows version: " << AppVersion::instance().getFullString();
+    qCDebug(LOG_BASIC) << "Windscribe Windows version: " << AppVersion::instance().fullVersionString();
 #elif defined Q_OS_MAC
-    qCDebug(LOG_BASIC) << "Windscribe Mac version: " << AppVersion::instance().getFullString();
+    qCDebug(LOG_BASIC) << "Windscribe Mac version: " << AppVersion::instance().fullVersionString();
 #endif
 
     if (!ExecutableSignature::isParentProcessGui())
     {
-        qCDebug(LOG_BASIC) << "abd444";  // a meaningless message which may be useful
+        qCDebug(LOG_BASIC) << "abd444";  // a meaningless message which may be usefull
         return 0;
     }
 

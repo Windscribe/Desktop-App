@@ -12,8 +12,7 @@
 class IndependentPixmap
 {
 public:
-    // takes ownership over pixmap
-    explicit IndependentPixmap(QPixmap *pixmap);
+    explicit IndependentPixmap(const QPixmap &pixmap);
     virtual ~IndependentPixmap();
 
     QSize originalPixmapSize() const;
@@ -33,7 +32,7 @@ public:
     QBitmap mask() const;
 
 private:
-    QPixmap *pixmap_;
+    QPixmap pixmap_;
 };
 
 #endif // INDEPENDENTPIXMAP_H

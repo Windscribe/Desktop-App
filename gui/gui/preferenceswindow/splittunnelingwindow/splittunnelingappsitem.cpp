@@ -20,14 +20,14 @@ SplitTunnelingAppsItem::SplitTunnelingAppsItem(ScalableGraphicsObject *parent) :
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
 
-    searchButton_ = new IconButton(16, 16, "preferences/VIEW_LOG_ICON", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
+    searchButton_ = new IconButton(16, 16, "preferences/VIEW_LOG_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
     searchButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     searchButton_->setHoverOpacity(OPACITY_FULL);
     connect(searchButton_, SIGNAL(clicked()), SIGNAL(searchClicked()));
     connect(searchButton_, SIGNAL(selectionChanged(bool)), SLOT(onSelectionChanged(bool)));
     connect(searchButton_, SIGNAL(hoverEnter()), SLOT(onButtonHoverEnter()));
 
-    addButton_ = new IconButton(16, 16, "locations/EXPAND_ICON", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
+    addButton_ = new IconButton(16, 16, "locations/EXPAND_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
     addButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     addButton_->setHoverOpacity(OPACITY_FULL);
     connect(addButton_, SIGNAL(clicked()), SLOT(onAddClicked()));
@@ -248,10 +248,13 @@ void SplitTunnelingAppsItem::drawItemsAndUpdateHeight()
     {
         QString iconPath = QString::fromStdString(app.full_name());
 
-#ifdef Q_OS_MAC
-        iconPath = MacUtils::iconPathFromBinPath(iconPath);
-#else
+#ifdef Q_OS_WIN
         iconPath = WinUtils::iconPathFromBinPath(iconPath);
+#elif defined Q_OS_MAC
+        iconPath = MacUtils::iconPathFromBinPath(iconPath);
+#elif defined Q_OS_LINUX
+        //todo linux
+        Q_ASSERT(false);
 #endif
 
         QSharedPointer<AppIncludedItem> appItem = QSharedPointer<AppIncludedItem>(new AppIncludedItem(app, iconPath, this), &QObject::deleteLater);

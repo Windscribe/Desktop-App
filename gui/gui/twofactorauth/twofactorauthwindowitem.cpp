@@ -27,20 +27,20 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
     escButton_ = new PreferencesWindow::EscapeButton(this);
     connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
 
-#ifdef Q_OS_WIN
-    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", this);
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
 
-    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
 #else //if Q_OS_MAC
-    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
+    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(true);
 
-    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", this);
+    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
@@ -84,7 +84,7 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
     painter->setRenderHint(QPainter::Antialiasing);
     const qreal initialOpacity = painter->opacity();
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     const int pushDownSquare = 0;
 #else
     const int pushDownSquare = 5;
@@ -113,7 +113,7 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
     // Icon
     painter->setPen(QColor(255, 255, 255));
     painter->setOpacity(curTextOpacity_ * initialOpacity);
-    IndependentPixmap *pixmap =
+    QSharedPointer<IndependentPixmap> pixmap =
         ImageResourcesSvg::instance().getIndependentPixmap("login/TWOFA_ICON");
     pixmap->draw((WINDOW_WIDTH / 2 - 20)*G_SCALE, (HEADER_HEIGHT - 40)*G_SCALE, painter);
 
@@ -206,7 +206,7 @@ void TwoFactorAuthWindowItem::setClickable(bool isClickable)
     escButton_->setClickable(isClickable);
     okButton_->setClickable(isClickable && !codeEntry_->getText().isEmpty());
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_->setClickable(isClickable);
     minimizeButton_->setClickable(isClickable);
 #endif
@@ -305,7 +305,7 @@ void TwoFactorAuthWindowItem::onEscTextOpacityChange(const QVariant &value)
 
 void TwoFactorAuthWindowItem::updatePositions()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_->setPos((LOGIN_WIDTH - 16 - WINDOW_MARGIN)*G_SCALE, 14*G_SCALE);
     minimizeButton_->setPos((LOGIN_WIDTH - 16 - WINDOW_MARGIN -32)*G_SCALE, 14*G_SCALE);
     escButton_->setPos(WINDOW_MARGIN*G_SCALE, WINDOW_MARGIN*G_SCALE);

@@ -1,4 +1,3 @@
-#-------------------------------------------------
 QT       += core network
 QT       -= gui
 
@@ -13,6 +12,7 @@ COMMON_PATH = $$PWD/../../common
 BUILD_LIBS_PATH = $$PWD/../../build-libs
 
 INCLUDEPATH += $$COMMON_PATH
+
 
 win32 {
 
@@ -31,10 +31,10 @@ QMAKE_LFLAGS += /DEBUG
 
 # Windows 7 platform
 DEFINES += "WINVER=0x0601"
+DEFINES += "_WIN32_WINNT=0x0601"
 DEFINES += "PIO_APC_ROUTINE_DEFINED"
 
-SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
-           engine/connectionmanager/adapterutils_win.cpp \
+SOURCES += engine/connectionmanager/adapterutils_win.cpp \
            engine/dnsinfo_win.cpp \
            engine/taputils/tapinstall_win.cpp \
            engine/helper/helper_win.cpp \
@@ -64,8 +64,7 @@ SOURCES += engine/networkstatemanager/networkstatemanager_win.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp
 
 
-HEADERS += engine/networkstatemanager/networkstatemanager_win.h \
-           engine/connectionmanager/adapterutils_win.h \
+HEADERS += engine/connectionmanager/adapterutils_win.h \
            engine/dnsinfo_win.h \
            engine/taputils/tapinstall_win.h \
            engine/helper/helper_win.h \
@@ -99,7 +98,7 @@ LIBS += Ws2_32.lib Advapi32.lib Iphlpapi.lib \
     Ole32.lib Shlwapi.lib Version.lib Psapi.lib \
     rasapi32.lib Pdh.lib Shell32.lib netapi32.lib msi.lib
 
-INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include/boost-1_69
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
 LIBS += -L"$$BUILD_LIBS_PATH/boost/lib"
 
 INCLUDEPATH += "$$BUILD_LIBS_PATH/curl/include"
@@ -147,7 +146,6 @@ QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
-LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_system.a
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
@@ -165,21 +163,21 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
 LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
 
 
-SOURCES += engine/networkstatemanager/networkstatemanager_mac.cpp \
-           engine/firewall/firewallcontroller_mac.cpp \
+SOURCES += engine/firewall/firewallcontroller_mac.cpp \
            engine/ipv6controller_mac.cpp \
            engine/connectionmanager/networkextensionlog_mac.cpp \
            engine/ping/pinghost_icmp_mac.cpp \
            engine/networkdetectionmanager/networkdetectionmanager_mac.cpp \
+           engine/helper/helper_posix.cpp \
            engine/helper/helper_mac.cpp \
            engine/dnsresolver/dnsutils_mac.cpp \
            engine/macaddresscontroller/macaddresscontroller_mac.cpp
 
 HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/connectionmanager/sleepevents_mac.h \
-               engine/networkstatemanager/reachabilityevents.h \
+               engine/networkdetectionmanager/reachabilityevents.h \
                engine/connectionmanager/restorednsmanager_mac.h \
-               engine/networkstatemanager/networkstatemanager_mac.h \
+               engine/helper/helper_posix.h \
                engine/helper/helper_mac.h \
                engine/helper/installhelper_mac.h \
                engine/proxy/pmachelpers.h \
@@ -194,13 +192,13 @@ HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
 
 OBJECTIVE_HEADERS += \
-               engine/networkstatemanager/reachability.h \
+               engine/networkdetectionmanager/reachability.h \
                $$COMMON_PATH/exithandler_mac.h
 
 OBJECTIVE_SOURCES += $$COMMON_PATH/utils/macutils.mm \
                      engine/connectionmanager/sleepevents_mac.mm \
-                     engine/networkstatemanager/reachability.m \
-                     engine/networkstatemanager/reachabilityevents.mm \
+                     engine/networkdetectionmanager/reachability.m \
+                     engine/networkdetectionmanager/reachabilityevents.mm \
                      engine/connectionmanager/restorednsmanager_mac.mm \
                      engine/helper/installhelper_mac.mm \
                      engine/proxy/pmachelpers.mm \
@@ -226,7 +224,7 @@ mkdir_launch_services.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Content
 copy_helper.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/helper/com.windscribe.helper.macos $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
 copy_profile.commands = $(COPY_DIR) $$PWD/../mac/provisioning_profile/embedded.provisionprofile $$OUT_PWD/WindscribeEngine.app/Contents
 mkdir_helpers.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Helpers
-copy_openvpn.commands = cp $$BUILD_LIBS_PATH/openvpn_2_5_0/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_5_0
+copy_openvpn.commands = cp $$BUILD_LIBS_PATH/openvpn_2_5_4/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_5_4
 copy_stunnel.commands = cp $$BUILD_LIBS_PATH/stunnel/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel
 copy_wstunnel.commands = cp $$PWD/../mac/wstunnel/windscribewstunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewstunnel
 copy_kext.commands = $(COPY_DIR) $$PWD/../mac/kext/Binary/WindscribeKext.kext $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/WindscribeKext.kext
@@ -250,6 +248,67 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 } # end macx
 
 
+linux {
+
+# uncomment for use signature checking on Linux
+#DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+
+#remove linux deprecated copy warnings
+QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
+
+
+#boost include and libs
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
+LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
+LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
+
+#protobuf include and libs
+INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
+
+#c-ares library
+INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
+LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
+
+SOURCES += \
+           $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
+           $$COMMON_PATH/utils/linuxutils.cpp \
+           utils/dnsscripts_linux.cpp \
+           engine/ping/pinghost_icmp_mac.cpp \
+           engine/dnsresolver/dnsutils_linux.cpp \
+           engine/helper/helper_posix.cpp \
+           engine/helper/helper_linux.cpp \
+           engine/firewall/firewallcontroller_linux.cpp \
+           engine/connectionmanager/ikev2connection_linux.cpp \
+           engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
+           engine/macaddresscontroller/macaddresscontroller_linux.cpp
+
+HEADERS += \
+           $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
+           $$COMMON_PATH/utils/linuxutils.h \
+           utils/dnsscripts_linux.h \
+           engine/ping/pinghost_icmp_mac.h \
+           engine/helper/helper_posix.h \
+           engine/helper/helper_linux.h \
+           engine/firewall/firewallcontroller_linux.h \
+           engine/connectionmanager/ikev2connection_linux.h \
+           engine/networkdetectionmanager/networkdetectionmanager_linux.h \
+           engine/macaddresscontroller/macaddresscontroller_linux.h
+
+contains(DEFINES, USE_SIGNATURE_CHECK_ON_LINUX) {
+    RESOURCES += \
+        $$COMMON_PATH/common_linux.qrc
+}
+
+} # linux
+
+
+
+
 SOURCES += main.cpp \
     $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.cc \
@@ -258,6 +317,7 @@ SOURCES += main.cpp \
     $$COMMON_PATH/utils/logger.cpp \
     $$COMMON_PATH/utils/mergelog.cpp \
     $$COMMON_PATH/utils/extraconfig.cpp \
+    $$COMMON_PATH/utils/ipvalidation.cpp \
     $$COMMON_PATH/version/appversion.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
     application/windowsnativeeventfilter.cpp \
@@ -317,8 +377,6 @@ SOURCES += main.cpp \
     engine/logincontroller/getapiaccessips.cpp \
     engine/helper/initializehelper.cpp \
     engine/refetchservercredentialshelper.cpp \
-    engine/curlinitcontroller.cpp \
-    localhttpserver/localhttpserver.cpp \
     engine/vpnshare/httpproxyserver/httpproxyserver.cpp \
     engine/vpnshare/httpproxyserver/httpproxyconnectionmanager.cpp \
     engine/vpnshare/httpproxyserver/httpproxyconnection.cpp \
@@ -343,18 +401,16 @@ SOURCES += main.cpp \
     engine/serverapi/curlrequest.cpp \
     engine/serverapi/dnscache.cpp \
     engine/serverapi/serverapi.cpp \
-    engine/serverapi/certmanager.cpp \
-    utils/ipvalidation.cpp \
     $$COMMON_PATH/utils/hardcodedsettings.cpp \
     engine/engine.cpp \
     engine/crossplatformobjectfactory.cpp \
     engine/types/loginsettings.cpp \
     engine/emergencycontroller/emergencycontroller.cpp \
     engine/dnsresolver/areslibraryinit.cpp \
+    engine/dnsresolver/dnsrequest.cpp \
+    engine/dnsresolver/dnsserversconfiguration.cpp \
     engine/dnsresolver/dnsresolver.cpp \
     engine/types/protocoltype.cpp \
-    engine/connectionmanager/ikev2connection_test.cpp \
-    engine/helper/simple_xor_crypt.cpp \
     engine/tests/sessionandlocations_test.cpp \
     engine/sessionstatustimer.cpp \
     engine/connectionmanager/wstunnelmanager.cpp \
@@ -380,7 +436,14 @@ SOURCES += main.cpp \
     clientconnectiondescr.cpp \
     $$COMMON_PATH/ipc/tcpconnection.cpp \
     $$COMMON_PATH/ipc/tcpserver.cpp \
-    engine/connectionmanager/finishactiveconnections.cpp
+    engine/connectionmanager/finishactiveconnections.cpp \
+    engine/networkaccessmanager/certmanager.cpp \
+    engine/networkaccessmanager/curlinitcontroller.cpp \
+    engine/networkaccessmanager/curlnetworkmanager2.cpp \
+    engine/networkaccessmanager/curlreply.cpp \
+    engine/networkaccessmanager/networkrequest.cpp \
+    engine/networkaccessmanager/dnscache2.cpp \
+    engine/networkaccessmanager/networkaccessmanager.cpp
 
 HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/locationsmodel/apilocationsmodel.h \
@@ -409,6 +472,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
+    $$COMMON_PATH/utils/ipvalidation.h \
     ../../common/names.h \
     application/windowsnativeeventfilter.h \
     application/windscribeapplication.h \
@@ -423,7 +487,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/apiinfo/servercredentials.h \
     engine/connectionmanager/adaptergatewayinfo.h \
     engine/connectionmanager/makeovpnfile.h \
-    engine/dnsresolver/dnsutils.h \
     engine/autoupdater/downloadhelper.h \
     engine/macaddresscontroller/imacaddresscontroller.h \
     engine/networkdetectionmanager/inetworkdetectionmanager.h \
@@ -434,7 +497,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/autoupdater/autoupdaterhelper_mac.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \
-    engine/networkstatemanager/inetworkstatemanager.h \
     $$COMMON_PATH/utils/simplecrypt.h \
     engine/logincontroller/logincontroller.h \
     engine/logincontroller/getallconfigscontroller.h \
@@ -463,8 +525,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/logincontroller/getapiaccessips.h \
     engine/helper/initializehelper.h \
     engine/refetchservercredentialshelper.h \
-    engine/curlinitcontroller.h \
-    localhttpserver/localhttpserver.h \
     engine/connectionmanager/availableport.h \
     engine/vpnshare/httpproxyserver/httpproxyserver.h \
     engine/vpnshare/httpproxyserver/httpproxyconnectionmanager.h \
@@ -492,18 +552,17 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/serverapi/curlrequest.h \
     engine/serverapi/dnscache.h \
     engine/serverapi/serverapi.h \
-    engine/serverapi/certmanager.h \
-    utils/ipvalidation.h \
     $$COMMON_PATH/utils/hardcodedsettings.h \
     engine/engine.h \
     engine/crossplatformobjectfactory.h \
     engine/types/loginsettings.h \
     engine/emergencycontroller/emergencycontroller.h \
     engine/dnsresolver/areslibraryinit.h \
+    engine/dnsresolver/dnsutils.h \
+    engine/dnsresolver/dnsrequest.h \
+    engine/dnsresolver/dnsserversconfiguration.h \
     engine/dnsresolver/dnsresolver.h \
     engine/types/protocoltype.h \
-    engine/connectionmanager/ikev2connection_test.h \
-    engine/helper/simple_xor_crypt.h \
     engine/tests/sessionandlocations_test.h \
     engine/sessionstatustimer.h \
     engine/connectionmanager/wstunnelmanager.h \
@@ -536,7 +595,14 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     clientconnectiondescr.h \
     $$COMMON_PATH/ipc/tcpconnection.h \
     $$COMMON_PATH/ipc/tcpserver.h \
-    engine/connectionmanager/finishactiveconnections.h
+    engine/connectionmanager/finishactiveconnections.h \
+    engine/networkaccessmanager/certmanager.h \
+    engine/networkaccessmanager/curlinitcontroller.h \
+    engine/networkaccessmanager/curlnetworkmanager2.h \
+    engine/networkaccessmanager/curlreply.h \
+    engine/networkaccessmanager/networkrequest.h \
+    engine/networkaccessmanager/dnscache2.h \
+    engine/networkaccessmanager/networkaccessmanager.h
 
 RESOURCES += \
     engine.qrc

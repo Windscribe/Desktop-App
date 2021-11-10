@@ -14,7 +14,7 @@
 
 namespace ConnectWindow {
 
-ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
+ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject (parent),
       preferencesHelper_(preferencesHelper),
       networkName_(""),
@@ -27,12 +27,12 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
       isFirewallBlocked_(false)
 {
     Q_ASSERT(preferencesHelper_);
-    background_ = new Background(this);
+    background_ = new Background(this, preferences);
 
-#ifdef Q_OS_WIN
-    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", this);
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
-    minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
 #else
 
@@ -40,14 +40,14 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
 
     //fullScreenButton_->setSelected(true);
     //fullScreenButton_->setClickable(false);
-    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", this);
+    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
     minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
     minimizeButton_->setSelected(true);
 
-    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
+    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
@@ -62,21 +62,21 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
     connect(connectStateProtocolPort_, SIGNAL(hoverEnter()), SLOT(onConnectStateTextHoverEnter()));
     connect(connectStateProtocolPort_, SIGNAL(hoverLeave()), SLOT(onConnectStateTextHoverLeave()));
 
-    cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(28, true), Qt::white, true, this);
+    cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(28, true), Qt::white, true, this, 0, true);
     cityName1Text_->setUnhoverOpacity(OPACITY_FULL);
     cityName1Text_->setCurrentOpacity(OPACITY_FULL);
     cityName1Text_->setClickableHoverable(false, true);
     connect(cityName1Text_, SIGNAL(hoverEnter()), this, SLOT(onFirstNameHoverEnter()));
     connect(cityName1Text_, SIGNAL(hoverLeave()), this, SLOT(onFirstOrSecondNameHoverLeave()));
 
-    cityName2Text_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this);
+    cityName2Text_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this, 0, true);
     cityName2Text_->setUnhoverOpacity(OPACITY_FULL);
     cityName2Text_->setCurrentOpacity(OPACITY_FULL);
     cityName2Text_->setClickableHoverable(false, true);
     connect(cityName2Text_, SIGNAL(hoverEnter()), this, SLOT(onSecondNameHoverEnter()));
     connect(cityName2Text_, SIGNAL(hoverLeave()), this, SLOT(onFirstOrSecondNameHoverLeave()));
 
-    preferencesButton_ = new IconButton(20, 24, "MENU_ICON", this, 0.5);
+    preferencesButton_ = new IconButton(20, 24, "MENU_ICON", "", this, 0.5);
     connect(preferencesButton_, SIGNAL(clicked()), SIGNAL(preferencesClick()));
 
     locationsButton_ = new LocationsButton(this);
@@ -88,7 +88,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
     connect(serverRatingIndicator_, SIGNAL(hoverEnter()), SLOT(onServerRatingIndicatorHoverEnter()));
     connect(serverRatingIndicator_, SIGNAL(hoverLeave()), SLOT(onServerRatingIndicatorHoverLeave()));
 
-    networkTrustButton_ = new IconButton(28, 22, "NETWORK_WIFI_UNSECURED", this, OPACITY_FULL);
+    networkTrustButton_ = new IconButton(28, 22, "network/WIFI_UNSECURED", "network/WIFI_UNSECURED_SHADOW", this, OPACITY_FULL);
     networkTrustButton_->setOpacity(.2);
     connect(networkTrustButton_, SIGNAL(clicked()), SIGNAL(networkButtonClick()));
     connect(networkTrustButton_, SIGNAL(hoverEnter()), SLOT(onNetworkHoverEnter()));
@@ -101,7 +101,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper 
     connect(firewallButton_, SIGNAL(hoverEnter()), SLOT(onFirewallButtonHoverEnter()));
     connect(firewallButton_, SIGNAL(hoverLeave()), SLOT(onFirewallButtonHoverLeave()));
 
-    firewallInfo_ = new IconButton(16, 16, "INFO_ICON", this, 0.25, 0.25);
+    firewallInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, 0.25, 0.25);
     firewallInfo_->setClickableHoverable(false, true);
     connect(firewallInfo_, SIGNAL(hoverEnter()), SLOT(onFirewallInfoHoverEnter()));
     connect(firewallInfo_, SIGNAL(hoverLeave()), SLOT(onFirewallInfoHoverLeave()));
@@ -197,11 +197,6 @@ void ConnectWindowItem::setTestTunnelResult(bool success)
     connectStateProtocolPort_->setTestTunnelResult(success);
 }
 
-void ConnectWindowItem::setIsShowCountryFlags(bool isShowCountryFlags)
-{
-    background_->setShowCountryFlags(isShowCountryFlags);
-}
-
 void ConnectWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
@@ -295,11 +290,11 @@ void ConnectWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
         QString icon = "";
         if (type == ProtoTypes::NETWORK_INTERFACE_WIFI)
         {
-            icon += "NETWORK_WIFI_";
+            icon += "network/WIFI_";
         }
         else if (type == ProtoTypes::NETWORK_INTERFACE_ETH)
         {
-            icon += "NETWORK_ETHERNET_";
+            icon += "network/ETHERNET_";
         }
 
         if (networkActive)
@@ -322,7 +317,7 @@ void ConnectWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
                 icon += "SECURED";
             }
 
-            networkTrustButton_->setIcon(icon);
+            networkTrustButton_->setIcon(icon, icon + "_SHADOW");
         }
     }
 
@@ -405,7 +400,7 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
 
             if (prevConnectState_.connect_state_type() == ProtoTypes::DISCONNECTED)
             {
-                QString text = QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Connection to Windscribe has been terminated.") +
+                QString text = QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Connection to Windscribe has been terminated. ") +
                         dataTransferred_ + QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", " transferred in ") +
                         connectionTime_;
 
@@ -607,7 +602,7 @@ void ConnectWindowItem::onServerRatingIndicatorHoverLeave()
 
 void ConnectWindowItem::updatePositions()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     int closePosY = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
     closeButton_->setPos(closePosY, 14*G_SCALE);
     minimizeButton_->setPos(closePosY - minimizeButton_->boundingRect().width() - 26*G_SCALE, 14*G_SCALE);

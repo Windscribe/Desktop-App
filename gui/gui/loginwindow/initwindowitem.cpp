@@ -20,10 +20,10 @@ InitWindowItem::InitWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject
   , isgMsgSmallFont_(false)
 {
 #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", this);
+    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(abortClicked()));
 #else
-    closeButton_ = new IconButton(14, 14, "MAC_CLOSE_DEFAULT", this);
+    closeButton_ = new IconButton(14, 14, "MAC_CLOSE_DEFAULT", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(abortClicked()));
     connect(closeButton_, &IconButton::hoverEnter, [=]() { closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=]() { closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
@@ -74,7 +74,7 @@ void InitWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     // logo
     //const int logoPosX = WINDOW_WIDTH/2*G_SCALE - 20 * G_SCALE;
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("login/BADGE_ICON");
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("login/BADGE_ICON");
     int logoPosX = (boundingRect().width() - p->width()) / 2;
     p->draw(logoPosX, curLogoPosY_ * G_SCALE, painter);
 

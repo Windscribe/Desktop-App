@@ -2,9 +2,8 @@
 #include <QStandardPaths>
 #include <QDir>
 #include "Utils/logger.h"
-#include "Engine/Helper/ihelper.h"
 
-FirewallController_win::FirewallController_win(QObject *parent, IHelper *helper) : FirewallController(parent, helper)
+FirewallController_win::FirewallController_win(QObject *parent, IHelper *helper) : FirewallController(parent)
 {
     helper_win_ = dynamic_cast<Helper_win *>(helper);
     Q_ASSERT(helper_win_);
@@ -23,21 +22,6 @@ bool FirewallController_win::firewallOn(const QString &ip, bool bAllowLanTraffic
     {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << countIps(ip);
         return helper_win_->firewallOn(ip, bAllowLanTraffic);
-    }
-    else
-    {
-        return true;
-    }
-}
-
-bool FirewallController_win::firewallChange(const QString &ip, bool bAllowLanTraffic)
-{
-    QMutexLocker locker(&mutex_);
-    FirewallController::firewallChange(ip, bAllowLanTraffic);
-    if (isStateChanged())
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed with ips count :" << countIps(ip);
-        return helper_win_->firewallChange(ip, bAllowLanTraffic);
     }
     else
     {
@@ -78,8 +62,15 @@ bool FirewallController_win::deleteWhitelistPorts()
     return helper_win_->deleteWhitelistPorts();
 }
 
-void FirewallController_win::setInterfaceToSkip_mac(const QString &interfaceToSkip)
+void FirewallController_win::setInterfaceToSkip_posix(const QString &interfaceToSkip)
 {
     Q_UNUSED(interfaceToSkip);
     //nothing todo for Windows
+}
+
+void FirewallController_win::enableFirewallOnBoot(bool bEnable)
+{
+    Q_UNUSED(bEnable);
+    //nothing todo for Windows
+
 }

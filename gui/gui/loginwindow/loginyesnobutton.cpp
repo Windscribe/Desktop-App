@@ -56,7 +56,7 @@ void LoginYesNoButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     painter->save();
     painter->setOpacity(curIconOpacity_ * initOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("login/FRWRD_ARROW_ICON");
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("login/FRWRD_ARROW_ICON");
     p->draw(static_cast<int>(boundingRect().width()-WINDOW_MARGIN*2*G_SCALE), 5*G_SCALE, painter);
     painter->restore();
 

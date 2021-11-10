@@ -56,6 +56,8 @@ public:
 
     bool isChangedForLogging(const SessionStatus &session) const;
 
+    SessionStatus& operator=(const SessionStatus&) = default;
+
 private:
     QSharedDataPointer<SessionStatusData> d;
 };

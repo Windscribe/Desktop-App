@@ -71,7 +71,7 @@ void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
     painter.drawText(QRect(0,0, rightmostStaticText, height()), Qt::AlignRight | Qt::AlignVCenter, addStaticText);
 
     // External Pixmap
-    IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
     int iconHeight = pixmap->height();
     painter.setOpacity(initOpacity * curIconOpacity_);
     pixmap->draw((rightmostMargin),

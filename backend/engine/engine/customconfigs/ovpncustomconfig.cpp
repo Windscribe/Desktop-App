@@ -106,6 +106,11 @@ QString OvpnCustomConfig::getOvpnData() const
 // removed "remote" commands are saved in remotes_ (to restore the config with changed hostnames/IPs before connect)
 void OvpnCustomConfig::process()
 {
+#ifdef Q_OS_LINUX
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
+
     QFile file(filepath_);
     if (file.open(QIODevice::ReadOnly))
     {
@@ -114,8 +119,8 @@ void OvpnCustomConfig::process()
         bool bFoundAtLeastOneRemote = false;
         bool bFoundVerbCommand = false;
         bool bFoundScriptSecurityCommand = false;
-        bool bHasValidCipher = false;
         bool isTapDevice = false;
+        bool bHasValidCipher = false;
         QString currentProtocol{ "udp" };
         QTextStream in(&file);
         while (!in.atEnd())
@@ -192,7 +197,6 @@ void OvpnCustomConfig::process()
                 {
                     if (!openVpnLine.protocol.trimmed().compare("tap", Qt::CaseInsensitive))
                         isTapDevice = true;
-
                 }
 
                 ovpnData_ += line + "\n";
@@ -254,6 +258,10 @@ void OvpnCustomConfig::process()
         isCorrect_ = false;
         errMessage_ = "Failed to open file";
     }
+
+#ifdef Q_OS_LINUX
+#pragma GCC diagnostic pop
+#endif
 }
 
 

@@ -11,7 +11,7 @@ namespace PreferencesWindow {
 AppIncludedItem::AppIncludedItem(ProtoTypes::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent) : BaseItem (parent, 50)
     , appIcon_(iconPath), app_(app)
 {
-    deleteButton_ = new IconButton(16, 16, "preferences/DELETE_ICON", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
+    deleteButton_ = new IconButton(16, 16, "preferences/DELETE_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
     deleteButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     deleteButton_->setHoverOpacity(OPACITY_FULL);
     connect(deleteButton_, SIGNAL(clicked()), SIGNAL(deleteClicked()));
@@ -36,10 +36,10 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     // app icon
     painter->save();
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIconIndependentPixmap(appIcon_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(appIcon_);
     if (p)
     {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         int size = 18*G_SCALE;
 #elif defined Q_OS_MAC
         int size = p->originalPixmapSize().width();
@@ -49,7 +49,7 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     }
     else
     {
-        IndependentPixmap *ip = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
+        QSharedPointer<IndependentPixmap> ip = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
         ip->draw(16*G_SCALE, 12*G_SCALE, painter);
     }
     painter->restore();

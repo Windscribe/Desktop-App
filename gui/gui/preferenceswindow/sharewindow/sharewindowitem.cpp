@@ -9,19 +9,21 @@ ShareWindowItem::ShareWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
 
-    connect(preferences_, SIGNAL(shareSecureHotspotChanged(ProtoTypes::ShareSecureHotspot)), SLOT(onSecureHotspotParsPreferencesChanged(ProtoTypes::ShareSecureHotspot)));
-    connect(preferences_, SIGNAL(shareProxyGatewayChanged(ProtoTypes::ShareProxyGateway)), SLOT(onProxyGatewayParsPreferencesChanged(ProtoTypes::ShareProxyGateway)));
-    connect(preferences_, SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onConnectionSettingsPreferencesChanged(ProtoTypes::ConnectionSettings)));
-    connect(preferencesHelper, SIGNAL(wifiSharingSupportedChanged(bool)), SLOT(onPreferencesHelperWifiSharingSupportedChanged(bool)));
+    connect(preferences_, &Preferences::shareSecureHotspotChanged, this, &ShareWindowItem::onSecureHotspotParsPreferencesChanged);
+    connect(preferences_, &Preferences::shareProxyGatewayChanged, this, &ShareWindowItem::onProxyGatewayParsPreferencesChanged);
+    connect(preferences_, &Preferences::connectionSettingsChanged, this, &ShareWindowItem::onConnectionSettingsPreferencesChanged);
+    connect(preferencesHelper, &PreferencesHelper::wifiSharingSupportedChanged, this, &ShareWindowItem::onPreferencesHelperWifiSharingSupportedChanged);
 
+#ifndef Q_OS_LINUX
     secureHotspotItem_ = new SecureHotspotItem(this);
-    connect(secureHotspotItem_, SIGNAL(secureHotspotParsChanged(ProtoTypes::ShareSecureHotspot)), SLOT(onSecureHotspotParsChanged(ProtoTypes::ShareSecureHotspot)));
+    connect(secureHotspotItem_, &SecureHotspotItem::secureHotspotParsChanged, this, &ShareWindowItem::onSecureHotspotParsChanged);
     //updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(preferences_->getEngineSettings().connection_settings()));
     secureHotspotItem_->setSecureHotspotPars(preferences->shareSecureHotspot());
     addItem(secureHotspotItem_);
+#endif
 
     proxyGatewayItem_ = new ProxyGatewayItem(this, preferencesHelper);
-    connect(proxyGatewayItem_, SIGNAL(proxyGatewayParsChanged(ProtoTypes::ShareProxyGateway)), SLOT(onProxyGatewayParsChanged(ProtoTypes::ShareProxyGateway)));
+    connect(proxyGatewayItem_, &ProxyGatewayItem::proxyGatewayParsChanged, this, &ShareWindowItem::onProxyGatewayParsChanged);
     proxyGatewayItem_->setProxyGatewayPars(preferences->shareProxyGateway());
     addItem(proxyGatewayItem_);
 }
@@ -38,7 +40,9 @@ void ShareWindowItem::onSecureHotspotParsChanged(const ProtoTypes::ShareSecureHo
 
 void ShareWindowItem::onSecureHotspotParsPreferencesChanged(const ProtoTypes::ShareSecureHotspot &ss)
 {
-    secureHotspotItem_->setSecureHotspotPars(ss);
+    if (secureHotspotItem_) {
+        secureHotspotItem_->setSecureHotspotPars(ss);
+    }
 }
 
 void ShareWindowItem::onConnectionSettingsPreferencesChanged(const ProtoTypes::ConnectionSettings &cs)
@@ -69,17 +73,19 @@ bool ShareWindowItem::isIkev2OrAutomaticConnectionMode(const ProtoTypes::Connect
 
 void ShareWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic)
 {
-    if (!isWifiSharingSupported)
-    {
-        secureHotspotItem_->setSupported(SecureHotspotItem::HOTSPOT_NOT_SUPPORTED);
-    }
-    else if (isIkev2OrAutomatic)
-    {
-        secureHotspotItem_->setSupported(SecureHotspotItem::HOTSPOT_NOT_SUPPORTED_BY_IKEV2);
-    }
-    else
-    {
-        secureHotspotItem_->setSupported(SecureHotspotItem::HOTSPOT_SUPPORTED);
+    if (secureHotspotItem_) {
+        if (!isWifiSharingSupported)
+        {
+            secureHotspotItem_->setSupported(SecureHotspotItem::HOTSPOT_NOT_SUPPORTED);
+        }
+        else if (isIkev2OrAutomatic)
+        {
+            secureHotspotItem_->setSupported(SecureHotspotItem::HOTSPOT_NOT_SUPPORTED_BY_IKEV2);
+        }
+        else
+        {
+            secureHotspotItem_->setSupported(SecureHotspotItem::HOTSPOT_SUPPORTED);
+        }
     }
 }
 

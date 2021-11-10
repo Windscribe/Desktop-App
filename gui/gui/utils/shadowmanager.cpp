@@ -175,7 +175,7 @@ QPixmap &ShadowManager::getCurrentShadowPixmap()
 
 int ShadowManager::getShadowMargin() const
 {
- #ifdef Q_OS_WIN
+ #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     return SHADOW_MARGIN;
 #else
     return 0;
@@ -184,7 +184,7 @@ int ShadowManager::getShadowMargin() const
 
 bool ShadowManager::isNeedShadow() const
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     return true;
 #else
     return false;

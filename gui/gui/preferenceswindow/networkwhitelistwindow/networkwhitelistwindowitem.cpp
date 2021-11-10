@@ -167,6 +167,7 @@ void NetworkWhiteListWindowItem::onLanguageChanged()
 
 void NetworkWhiteListWindowItem::onNetworkListChanged(ProtoTypes::NetworkInterface network)
 {
+    Q_UNUSED(network);
     updateDescription();
     preferences_->setNetworkWhiteList(networkListItem_->networkWhiteList());
 }

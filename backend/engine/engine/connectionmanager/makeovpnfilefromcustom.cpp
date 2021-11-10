@@ -13,6 +13,9 @@
 
 MakeOVPNFileFromCustom::MakeOVPNFileFromCustom()
 {
+    path_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+          + "/windscribe_temp_config.ovpn";
+    file_.setFileName(path_);
 }
 
 MakeOVPNFileFromCustom::~MakeOVPNFileFromCustom()
@@ -29,10 +32,6 @@ bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QSt
         file_.close();
         file_.remove();
     }
-
-    path_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
-          + "/windscribe_temp_config.ovpn";
-    file_.setFileName(path_);
 
     if (!file_.open(QIODevice::WriteOnly))
     {
@@ -60,6 +59,9 @@ bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QSt
 #ifdef Q_OS_MAC
     // No need to set "script-security" here, because it is handled in the config parsing code.
     QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
+    if (strDnsPath.isEmpty()) {
+        return false;
+    }
     QString cmd1 = "\nup \"" + strDnsPath + " -up\"\n";
     file_.write(cmd1.toUtf8());
 #endif

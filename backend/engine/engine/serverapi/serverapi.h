@@ -2,7 +2,6 @@
 #define SERVERAPI_H
 
 #include <QObject>
-#include <QLinkedList>
 #include <QTimer>
 #include "engine/types/wireguardconfig.h"
 #include "engine/apiinfo/apiinfo.h"
@@ -13,6 +12,8 @@
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
 
+#include <list>
+
 class INetworkStateManager;
 
 // access to API endpoint with custom DNS-resolution
@@ -22,7 +23,7 @@ class ServerAPI : public QObject
 public:
     class BaseRequest;
 
-    explicit ServerAPI(QObject *parent, INetworkStateManager *networkStateManager);
+    explicit ServerAPI(QObject *parent);
     virtual ~ServerAPI();
 
     uint getAvailableUserRole();
@@ -66,9 +67,9 @@ public:
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
 
-    bool isOnline();
-
     void setIgnoreSslErrors(bool bIgnore);
+
+    void onTunnelTestDnsResolve(const QStringList &ips);
 
 signals:
     void accessIpsAnswer(SERVER_API_RET_CODE retCode, const QStringList &hosts, uint userRole);
@@ -93,9 +94,8 @@ signals:
     void hostIpsChanged(const QStringList &hostIps);
 
 private slots:
-    void onDnsResolved(bool success, void *userData, const QStringList &ips);
+    void onDnsResolved(bool success, void *userData, qint64 requestStartTime, const QStringList &ips);
     void onCurlNetworkRequestFinished(CurlRequest *curlRequest);
-    void onNetworkAccessibleChanged(bool isOnline);
     void onRequestTimer();
 
 private:
@@ -131,8 +131,10 @@ private:
     template<typename RequestType, typename... RequestArgs>
     RequestType *createRequest(RequestArgs &&... args) {
         auto *request = new RequestType(std::forward<RequestArgs>( args )...);
-        if (request)
-            activeRequests_.append(request);
+        // if (request)
+        {
+            activeRequests_.push_back(request);
+        }
         return request;
     }
     void submitDnsRequest(BaseRequest *request, const QString &forceHostname = QString());
@@ -178,10 +180,7 @@ private:
     void handleStaticIpsCurl(BaseRequest *rd, bool success);
     void handleWireGuardConfigCurl(BaseRequest *rd, bool success);
 
-    INetworkStateManager *networkStateManager_;
     CurlNetworkManager curlNetworkManager_;
-
-    bool bIsOnline_;
 
     QString lastLocationsLanguage_;
 
@@ -197,7 +196,7 @@ private:
     uint curUserRole_;
     bool bIgnoreSslErrors_;
 
-    QLinkedList<BaseRequest*> activeRequests_;
+    std::list<BaseRequest*> activeRequests_;
     QMap<const CurlRequest*, BaseRequest*> curlToRequestMap_;
     HandleDnsResolveFunc handleDnsResolveFuncTable_[NUM_REPLY_TYPES];
     HandleCurlReplyFunc handleCurlReplyFuncTable_[NUM_REPLY_TYPES];

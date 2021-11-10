@@ -6,9 +6,8 @@
 #include "engine/types/types.h"
 
 class IHelper;
-class INetworkStateManager;
 
-// wait for initialize helper and network connectivity
+// wait for initialize helper
 class InitializeHelper : public QObject
 {
     Q_OBJECT

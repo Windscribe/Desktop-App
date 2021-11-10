@@ -41,6 +41,8 @@
 		8434C1081FD5B99C00B7030D /* keychain_utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8434C1071FD5B99C00B7030D /* keychain_utils.mm */; };
 		8434C10D1FD5BA1400B7030D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8434C10C1FD5BA1400B7030D /* Security.framework */; };
 		84DA0AED1B1D7ED000260E8F /* helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84DA0AEC1B1D7ED000260E8F /* helper.cpp */; };
+		8888384D26432C7100FE5C25 /* macutils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8888384C26432C7100FE5C25 /* macutils.mm */; };
+		888838512644773D00FE5C25 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8888384F2643340200FE5C25 /* SystemConfiguration.framework */; };
 		946225E625140DD70032A070 /* defaultroutemonitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225DE25140DD70032A070 /* defaultroutemonitor.cpp */; };
 		946225E725140DD70032A070 /* wireguardadapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225DF25140DD70032A070 /* wireguardadapter.cpp */; };
 		946225E825140DD70032A070 /* wireguardcommunicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225E225140DD70032A070 /* wireguardcommunicator.cpp */; };
@@ -75,8 +77,6 @@
 		000B36D224B8C39300717275 /* bound_route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bound_route.h; sourceTree = "<group>"; };
 		000B36D424B8CB1500717275 /* routes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = routes.h; sourceTree = "<group>"; };
 		000B36D524B8CB1500717275 /* routes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = routes.cpp; sourceTree = "<group>"; };
-		001EE77724B88F9B004624BE /* helper_commands_serialize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_commands_serialize.h; sourceTree = "<group>"; };
-		001EE77824B88F9B004624BE /* helper_commands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_commands.h; sourceTree = "<group>"; };
 		001EE78224B89075004624BE /* kext_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_client.cpp; sourceTree = "<group>"; };
 		001EE78324B89075004624BE /* kext_monitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kext_monitor.h; sourceTree = "<group>"; };
 		001EE78424B89075004624BE /* kext_monitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_monitor.cpp; sourceTree = "<group>"; };
@@ -126,6 +126,8 @@
 		00352E8C25E549CE00E5ED2C /* LzmaDec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LzmaDec.h; sourceTree = "<group>"; };
 		00352E8D25E549CE00E5ED2C /* 7zCrcOpt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = 7zCrcOpt.c; sourceTree = "<group>"; };
 		00352E8E25E549CE00E5ED2C /* 7zBuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = 7zBuf.c; sourceTree = "<group>"; };
+		0087082F269DCADF0084DA1B /* helper_commands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = helper_commands.h; path = ../../../../posix_common/helper_commands.h; sourceTree = "<group>"; };
+		00870830269DCADF0084DA1B /* helper_commands_serialize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = helper_commands_serialize.h; path = ../../../../posix_common/helper_commands_serialize.h; sourceTree = "<group>"; };
 		00AB62AC249142610085A20F /* utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
 		00AB62AD249142610085A20F /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		00B1BA2F25E4E3F60099A124 /* files.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = files.cpp; sourceTree = "<group>"; };
@@ -145,6 +147,9 @@
 		84DA0AEA1B1D7ED000260E8F /* helper-info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "helper-info.plist"; sourceTree = "<group>"; };
 		84DA0AEB1B1D7ED000260E8F /* helper-launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "helper-launchd.plist"; sourceTree = "<group>"; };
 		84DA0AEC1B1D7ED000260E8F /* helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = helper.cpp; sourceTree = "<group>"; };
+		8888384C26432C7100FE5C25 /* macutils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = macutils.mm; sourceTree = "<group>"; };
+		8888384E26432CA900FE5C25 /* macutils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macutils.h; sourceTree = "<group>"; };
+		8888384F2643340200FE5C25 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		946225DE25140DD70032A070 /* defaultroutemonitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = defaultroutemonitor.cpp; sourceTree = "<group>"; };
 		946225DF25140DD70032A070 /* wireguardadapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wireguardadapter.cpp; sourceTree = "<group>"; };
 		946225E025140DD70032A070 /* wireguardadapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wireguardadapter.h; sourceTree = "<group>"; };
@@ -162,6 +167,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				888838512644773D00FE5C25 /* SystemConfiguration.framework in Frameworks */,
 				8434C10D1FD5BA1400B7030D /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -172,10 +178,10 @@
 		001EE77624B88F52004624BE /* ipc */ = {
 			isa = PBXGroup;
 			children = (
+				00870830269DCADF0084DA1B /* helper_commands_serialize.h */,
+				0087082F269DCADF0084DA1B /* helper_commands.h */,
 				94DCA9A32559C2510052E65B /* helper_security.h */,
 				94DCA9A22559C2510052E65B /* helper_security.mm */,
-				001EE77824B88F9B004624BE /* helper_commands.h */,
-				001EE77724B88F9B004624BE /* helper_commands_serialize.h */,
 			);
 			path = ipc;
 			sourceTree = "<group>";
@@ -315,6 +321,7 @@
 		8434C1091FD5B9D800B7030D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8888384F2643340200FE5C25 /* SystemConfiguration.framework */,
 				8434C10C1FD5BA1400B7030D /* Security.framework */,
 				8434C10A1FD5B9D800B7030D /* CoreFoundation.framework */,
 			);
@@ -344,6 +351,8 @@
 				00AB62AC249142610085A20F /* utils.cpp */,
 				00AB62AD249142610085A20F /* utils.h */,
 				840B29561D6BBE88007D9519 /* server.h */,
+				8888384C26432C7100FE5C25 /* macutils.mm */,
+				8888384E26432CA900FE5C25 /* macutils.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -455,6 +464,7 @@
 				00352E9A25E549CE00E5ED2C /* 7zStream.c in Sources */,
 				00352E9F25E549CE00E5ED2C /* 7zCrcOpt.c in Sources */,
 				00352EA025E549CE00E5ED2C /* 7zBuf.c in Sources */,
+				8888384D26432C7100FE5C25 /* macutils.mm in Sources */,
 				00352E9125E549CE00E5ED2C /* Bcj2.c in Sources */,
 				84DA0AED1B1D7ED000260E8F /* helper.cpp in Sources */,
 				946225E825140DD70032A070 /* wireguardcommunicator.cpp in Sources */,
@@ -585,11 +595,6 @@
 					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(PROJECT_DIR)/../../../build-libs/boost/include",
-				);
-				"HEADER_SEARCH_PATHS[arch=*]" = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(PROJECT_DIR)/../../../build-libs/boost/include",

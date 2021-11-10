@@ -6,7 +6,6 @@
 #include "logincontroller/logincontroller.h"
 #include "helper/ihelper.h"
 #include "helper/initializehelper.h"
-#include "networkstatemanager/inetworkstatemanager.h"
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
 #include "firewall/firewallcontroller.h"
 #include "serverapi/serverapi.h"
@@ -27,6 +26,7 @@
 #include "packetsizecontroller.h"
 #include "autoupdater/downloadhelper.h"
 #include "autoupdater/autoupdaterhelper_mac.h"
+#include "networkaccessmanager/networkaccessmanager.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
@@ -79,6 +79,7 @@ public:
     void connectClick(const LocationID &locationId);
     void disconnectClick();
 
+    bool isBlockConnect() const;
     void setBlockConnect(bool isBlockConnect);
 
     void recordInstall();
@@ -87,7 +88,7 @@ public:
     void speedRating(int rating, const QString &localExternalIp);  //rate current connection(0 - down, 1 - up)
 
     void updateServerConfigs();
-    void updateCurrentNetworkInterface(bool requested = false);
+    void updateCurrentNetworkInterface();
     void updateCurrentInternetConnectivity();
 
     // emergency connect functions
@@ -118,9 +119,10 @@ public:
     void updateVersion(qint32 windowHandle);
     void stopUpdateVersion();
 
+    void makeHostsFileWritableWin();
+
 public slots:
     void init();
-
     void stopPacketDetection();
 
 signals:
@@ -144,7 +146,7 @@ signals:
 
     void emergencyConnected();
     void emergencyDisconnected();
-    void emergencyConnectError(CONNECTION_ERROR err);
+    void emergencyConnectError(ProtoTypes::ConnectError err);
 
     void sendDebugLogFinished(bool bSuccess);
     void confirmEmailFinished(bool bSuccess);
@@ -171,6 +173,8 @@ signals:
     void packetSizeChanged(bool isAuto, int mtu);
     void packetSizeDetectionStateChanged(bool on, bool isError);
 
+    void hostsFileBecameWritable();
+
 private slots:
     void onLostConnectionToHelper();
     void onInitializeHelper(INIT_HELPER_RET ret);
@@ -193,7 +197,7 @@ private slots:
     void gotoCustomOvpnConfigModeImpl();
 
     void updateCurrentInternetConnectivityImpl();
-    void updateCurrentNetworkInterfaceImpl(bool requested);
+    void updateCurrentNetworkInterfaceImpl();
 
     void firewallOnImpl();
     void firewallOffImpl();
@@ -229,6 +233,7 @@ private slots:
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void onCheckUpdateAnswer(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
     void onHostIPsChanged(const QStringList &hostIps);
+    void onWhitelistedIPsChanged(const QSet<QString> &ips);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
@@ -242,7 +247,7 @@ private slots:
     void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
     void onConnectionManagerReconnecting();
-    void onConnectionManagerError(CONNECTION_ERROR err);
+    void onConnectionManagerError(ProtoTypes::ConnectError err);
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
@@ -268,9 +273,9 @@ private slots:
 
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
-    void onEmergencyControllerError(CONNECTION_ERROR err);
+    void onEmergencyControllerError(ProtoTypes::ConnectError err);
 
-    void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials);
+    void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
     void getNewNotifications();
 
@@ -279,8 +284,7 @@ private slots:
     void onLocationsModelWhitelistIpsChanged(const QStringList &ips);
     void onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips);
 
-    void onNetworkChange(ProtoTypes::NetworkInterface networkInterface);
-    void onNetworkStateManagerStateChanged(bool isActive, const QString &networkInterface);
+    void onNetworkChange(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface);
     void onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu);
     void onPacketSizeControllerFinishedSizeDetection(bool isError);
@@ -288,17 +292,18 @@ private slots:
 
     void stopPacketDetectionImpl();
 
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
 
     void fetchWireGuardConfig();
 
 private:
+    void initPart2();
     void updateProxySettings();
 
     EngineSettings engineSettings_;
     IHelper *helper_;
-    INetworkStateManager *networkStateManager_;
     FirewallController *firewallController_;
+    NetworkAccessManager *networkAccessManager_;
     ServerAPI *serverAPI_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;

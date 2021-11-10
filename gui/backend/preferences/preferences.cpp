@@ -5,7 +5,12 @@
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "utils/ipvalidation.h"
 #include <QSettings>
+
+#if defined(Q_OS_WINDOWS)
+#include "utils/winutils.h"
+#endif
 
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
@@ -65,7 +70,7 @@ void Preferences::setAllowLanTraffic(bool b)
     }
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
 bool Preferences::isMinimizeAndCloseToTray() const
 {
     return guiSettings_.is_minimize_and_close_to_tray();
@@ -96,7 +101,24 @@ void Preferences::setHideFromDock(bool b)
         emit hideFromDockChanged(guiSettings_.is_hide_from_dock());
     }
 }
+#elif defined Q_OS_LINUX
+
 #endif
+
+bool Preferences::isStartMinimized() const
+{
+    return guiSettings_.is_start_minimized();
+}
+
+void Preferences::setStartMinimized(bool b)
+{
+    if(guiSettings_.is_start_minimized() != b)
+    {
+        guiSettings_.set_is_start_minimized(b);
+        saveGuiSettings();
+        emit isStartMinimizedChanged(b);
+    }
+}
 
 
 bool Preferences::isShowNotifications() const
@@ -114,18 +136,18 @@ void Preferences::setShowNotifications(bool b)
     }
 }
 
-bool Preferences::isShowCountryFlags() const
+ProtoTypes::BackgroundSettings Preferences::backgroundSettings() const
 {
-    return guiSettings_.is_show_country_flags();
+    return guiSettings_.background_settings();
 }
 
-void Preferences::setShowCountryFlags(bool b)
+void Preferences::setBackgroundSettings(const ProtoTypes::BackgroundSettings &backgroundSettings)
 {
-    if (guiSettings_.is_show_country_flags() != b)
+    if (!google::protobuf::util::MessageDifferencer::Equals(guiSettings_.background_settings(), backgroundSettings))
     {
-        guiSettings_.set_is_show_country_flags(b);
+        *guiSettings_.mutable_background_settings() = backgroundSettings;
         saveGuiSettings();
-        emit isShowCountryFlagsChanged(guiSettings_.is_show_country_flags());
+        emit backgroundSettingsChanged(backgroundSettings);
     }
 }
 
@@ -322,7 +344,7 @@ void Preferences::setIgnoreSslErrors(bool b)
     }
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 bool Preferences::isKillTcpSockets() const
 {
     return engineSettings_.is_close_tcp_sockets();
@@ -408,6 +430,22 @@ void Preferences::setDnsPolicy(ProtoTypes::DnsPolicy d)
     {
         engineSettings_.set_dns_policy(d);
         emit dnsPolicyChanged(d);
+        emit updateEngineSettings();
+    }
+}
+
+DnsWhileConnectedInfo Preferences::dnsWhileConnectedInfo() const
+{
+   return DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info());
+}
+
+void Preferences::setDnsWhileConnectedInfo(DnsWhileConnectedInfo d)
+{
+    ProtoTypes::DnsWhileConnectedInfo protoDNS = d.toProtobuf();
+    if (!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.dns_while_connected_info(), protoDNS))
+    {
+        *engineSettings_.mutable_dns_while_connected_info() = protoDNS;
+        emit dnsWhileConnectedInfoChanged(d);
         emit updateEngineSettings();
     }
 }
@@ -538,6 +576,7 @@ void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
     setDnsPolicy(es.dns_policy());
     setKeepAlive(es.is_keep_alive_enabled());
     setCustomOvpnConfigsPath(QString::fromStdString(es.customovpnconfigspath()));
+    setDnsWhileConnectedInfo(DnsWhileConnectedInfo(es.dns_while_connected_info()));
     receivingEngineSettings_ = false;
 }
 
@@ -596,6 +635,31 @@ void Preferences::validateAndUpdateIfNeeded()
         emit apiResolutionChanged(engineSettings_.api_resolution());
         is_update_needed = true;
     }
+
+    if (engineSettings_.dns_while_connected_info().type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM &&
+            !IpValidation::instance().isIp(QString::fromStdString(engineSettings_.dns_while_connected_info().ip_address())))
+    {
+        ProtoTypes::DnsWhileConnectedInfo protoDns;
+        protoDns.set_type(ProtoTypes::DNS_WHILE_CONNECTED_TYPE_ROBERT);
+        protoDns.set_ip_address("");
+        *engineSettings_.mutable_dns_while_connected_info() = protoDns;
+        emit dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info()));
+        emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
+        is_update_needed = true;
+    }
+
+    #if defined(Q_OS_WINDOWS)
+    ProtoTypes::ConnectionSettings connSettings = engineSettings_.connection_settings();
+    if ((connSettings.protocol() == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL) && !WinUtils::isWindows64Bit())
+    {
+        connSettings.set_protocol(ProtoTypes::Protocol::PROTOCOL_IKEV2);
+        connSettings.set_port(500);
+        *engineSettings_.mutable_connection_settings() = connSettings;
+        emit connectionSettingsChanged(engineSettings_.connection_settings());
+        emit reportErrorToUser("WStunnel Not Supported", "The WStunnel protocol is no longer supported on 32-bit Windows. The 'Connection Mode' protocol has been changed to IKEv2.");
+        is_update_needed = true;
+    }
+    #endif
 
     if (is_update_needed)
         emit updateEngineSettings();

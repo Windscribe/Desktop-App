@@ -5,7 +5,6 @@
 #include <QObject>
 #include <QHostInfo>
 
-// used by NetworkManagerCustomDns for custom DNS resolver
 class DnsCache : public QObject
 {
     Q_OBJECT
@@ -13,15 +12,15 @@ public:
     explicit DnsCache(QObject *parent = 0);
     virtual ~DnsCache();
 
-    void resolve(const QString &hostname, void *userData);
-    void resolve(const QString &hostname, int cacheTimeout, void *userData);
+    void resolve(const QString &hostname, void *userData, qint64 requestStartTime);
+    void resolve(const QString &hostname, int cacheTimeout, void *userData, qint64 requestStartTime);
 
 signals:
-    void resolved(bool success, void *userData, const QStringList &ips);
+    void resolved(bool success, void *userData, qint64 requestStartTime, const QStringList &ips);
     void ipsInCachChanged(const QStringList &ips);
 
 private slots:
-    void onDnsResolverFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
+    void onDnsRequestFinished();
 
 private:
 
@@ -39,12 +38,13 @@ private:
     {
         QString hostname;
         void *userData;
+        qint64 requestStartTime;
     };
 
     QSet<QString> resolvingHostsInProgress_;
     QVector<PendingResolvingHosts> pendingHosts_;
 
-    void checkForNewIps(const QHostInfo &hostInfo);
+    void checkForNewIps(const QStringList &newIps);
     void checkForNewIps(const QString &ip);
 };
 

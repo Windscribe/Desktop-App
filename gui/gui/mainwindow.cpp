@@ -1,4 +1,4 @@
-    #include "mainwindow.h"
+#include "mainwindow.h"
 
 #include <QMouseEvent>
 #include <QTimer>
@@ -21,6 +21,8 @@
 #include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
+#include "utils/writeaccessrightschecker.h"
+#include "utils/mergelog.h"
 #include "languagecontroller.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "dialogs/dialoggetusernamepassword.h"
@@ -31,15 +33,22 @@
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 #include "launchonstartup/launchonstartup.h"
+#include "showingdialogstate.h"
+#include "mainwindowstate.h"
+#include "utils/interfaceutils.h"
+#include "utils/iauthchecker.h"
+#include "utils/authcheckerfactory.h"
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     #include "utils/winutils.h"
     #include "utils/widgetutils_win.h"
     #include <windows.h>
+#elif defined(Q_OS_LINUX)
+    #include "utils/authchecker_linux.h"
 #else
-    #include "utils/interfaceutils_mac.h"
     #include "utils/macutils.h"
     #include "utils/widgetutils_mac.h"
+    #include "utils/authchecker_mac.h"
 #endif
 #include "utils/widgetutils.h"
 
@@ -50,10 +59,12 @@ MainWindow::MainWindow() :
     backend_(NULL),
     logViewerWindow_(nullptr),
     advParametersWindow_(nullptr),
+#ifndef Q_OS_LINUX
     locationsMenu_(),
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     listWidgetAction_(),
     locationsTrayMenuWidget_(),
+#endif
 #endif
     currentAppIconType_(AppIconType::DISCONNECTED),
     trayIcon_(),
@@ -69,7 +80,7 @@ MainWindow::MainWindow() :
     revealingConnectWindow_(false),
     internetConnected_(false),
     currentlyShowingUserWarningMessage_(false),
-    currentlyShowingExternalDialog_(false),
+    bGotoUpdateWindowAfterGeneralMessage_(false),
     backendAppActiveState_(true),
 #ifdef Q_OS_MAC
     hideShowDockIconTimer_(this),
@@ -94,8 +105,11 @@ MainWindow::MainWindow() :
     savedTrayIconRect_.setTopLeft(QPoint(desktopAvailableRc.right() - WINDOW_WIDTH * G_SCALE, 0));
     savedTrayIconRect_.setSize(QSize(22, 22));
 
+    isRunningInDarkMode_ = InterfaceUtils::isDarkMode();
+    qCDebug(LOG_BASIC) << "OS in dark mode: " << isRunningInDarkMode_;
+
     // Init and show tray icon.
-    trayIcon_.setIcon(*IconManager::instance().getDisconnectedIcon());
+    trayIcon_.setIcon(*IconManager::instance().getDisconnectedTrayIcon(isRunningInDarkMode_));
     trayIcon_.show();
 #ifdef Q_OS_MAC
     const QRect desktopScreenRc = screen->geometry();
@@ -103,9 +117,11 @@ MainWindow::MainWindow() :
         while (trayIcon_.geometry().isEmpty())
             qApp->processEvents();
     }
-#else
+#elif defined Q_OS_WIN
     while (trayIcon_.geometry().isEmpty())
         qApp->processEvents();
+#elif defined Q_OS_LINUX
+    //todo Linux
 #endif
     qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
 
@@ -178,7 +194,6 @@ MainWindow::MainWindow() :
     connect(locationsWindow_, SIGNAL(addCustomConfigClicked()), SLOT(onLocationsAddCustomConfigClicked()));
     locationsWindow_->setLatencyDisplay(backend_->getPreferences()->latencyDisplay());
     locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(setLatencyDisplay(ProtoTypes::LatencyDisplayType)) );
-    locationsWindow_->connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(setCustomConfigsPath(QString)));
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -312,9 +327,10 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onPreferencesLaunchOnStartupChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings)));
     connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
-    connect(backend_->getPreferences(), SIGNAL(isShowCountryFlagsChanged(bool)), SLOT(onPreferencesIsShowCountryFlagsChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
+    connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(onPreferencesCustomConfigsPathChanged(QString)));
 
+    connect(backend_->getPreferences(), SIGNAL(reportErrorToUser(QString,QString)), SLOT(onPreferencesReportErrorToUser(QString,QString)));
 #ifdef Q_OS_MAC
     connect(backend_->getPreferences(), SIGNAL(hideFromDockChanged(bool)), SLOT(onPreferencesHideFromDockChanged(bool)));
 #endif
@@ -328,16 +344,15 @@ MainWindow::MainWindow() :
     connect(app, SIGNAL(receivedOpenLocationsMessage()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(focusWindowChanged(QWindow*)), SLOT(onFocusWindowChanged(QWindow*)));
     connect(app, SIGNAL(applicationCloseRequest()), SLOT(onAppCloseRequest()));
-
+#if defined(Q_OS_WIN)
+    connect(app, SIGNAL(winIniChanged()), SLOT(onAppWinIniChanged()));
+#endif
     /*connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged())); */
 
     mainWindowController_->getViewport()->installEventFilter(this);
     connect(mainWindowController_, SIGNAL(shadowUpdated()), SLOT(update()));
     connect(mainWindowController_, SIGNAL(revealConnectWindowStateChanged(bool)), this, SLOT(onRevealConnectStateChanged(bool)));
 
-#if defined(Q_OS_MAC)
-    isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
-#endif
     setupTrayIcon();
 
     backend_->getLocationsModel()->setOrderLocationsType(backend_->getPreferences()->locationOrder());
@@ -350,7 +365,6 @@ MainWindow::MainWindow() :
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
     mainWindowController_->getInitWindow()->startWaitingAnimation();
 
-    mainWindowController_->setIsShowCountryFlags(backend_->getPreferences()->isShowCountryFlags());
     mainWindowController_->setIsDockedToTray(backend_->getPreferences()->isDockedToTray());
     bMoveEnabled_ = !backend_->getPreferences()->isDockedToTray();
 
@@ -378,8 +392,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::showAfterLaunch()
 {
+    if(!backend_){
+        qCDebug(LOG_BASIC) << "Backend is nullptr!";
+    }
+
+    if(backend_ && backend_->getPreferences()->isStartMinimized()){
+        showMinimized();
+        return;
+    }
 #ifdef Q_OS_WIN
-    if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
+    else if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
         QCommandLineParser cmdParser;
         cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
         QCommandLineOption osRestartOption("os_restart");
@@ -521,6 +543,7 @@ void MainWindow::minimizeToTray()
 {
     trayIcon_.show();
     QTimer::singleShot(0, this, SLOT(hide()));
+    MainWindowState::instance().setActive(false);
 }
 
 bool MainWindow::event(QEvent *event)
@@ -528,6 +551,14 @@ bool MainWindow::event(QEvent *event)
     // qDebug() << "Event Type: " << event->type();
 
     if (event->type() == QEvent::WindowStateChange) {
+
+        {
+            if (this->windowState() == Qt::WindowMinimized)
+            {
+                MainWindowState::instance().setActive(false);
+            }
+        }
+
         deactivationTimer_.stop();
 #if defined Q_OS_WIN
         if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
@@ -545,7 +576,8 @@ bool MainWindow::event(QEvent *event)
 #if defined(Q_OS_MAC)
     if (event->type() == QEvent::PaletteChange)
     {
-        isRunningInDarkMode_ = InterfaceUtils_mac::isDarkMode();
+        isRunningInDarkMode_ = InterfaceUtils::isDarkMode();
+        qCDebug(LOG_BASIC) << "PaletteChanged, dark mode: " << isRunningInDarkMode_;
         if (!MacUtils::isOsVersionIsBigSur_or_greater())
             updateTrayIconType(currentAppIconType_);
     }
@@ -553,6 +585,7 @@ bool MainWindow::event(QEvent *event)
 
     if (event->type() == QEvent::WindowActivate)
     {
+         MainWindowState::instance().setActive(true);
         // qDebug() << "WindowActivate";
         if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray())
             activateAndShow();
@@ -836,6 +869,8 @@ void MainWindow::onCloseClick()
     }
 #elif defined Q_OS_MAC
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
+#elif defined Q_OS_LINUX
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
 #endif
 }
 
@@ -1023,7 +1058,24 @@ void MainWindow::onPreferencesViewLogClick()
     // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
     cleanupLogViewerWindow();
 
+#ifdef Q_OS_WIN
+    if (!MergeLog::canMerge())
+    {
+        showUserWarning(ProtoTypes::USER_WARNING_VIEW_LOG_FILE_TOO_BIG);
+        return;
+    }
+#endif
+
     logViewerWindow_ = new LogViewer::LogViewerWindow(this);
+    logViewerWindow_->setAttribute( Qt::WA_DeleteOnClose );
+
+    connect(
+        logViewerWindow_, &LogViewer::LogViewerWindow::destroyed,
+        [=]( QObject* )  {
+            logViewerWindow_ = nullptr;
+        }
+    );
+
     logViewerWindow_->show();
 }
 
@@ -1064,7 +1116,7 @@ void MainWindow::onPreferencesCycleMacAddressClick()
 {
     int confirm = QMessageBox::Yes;
 
-    if (!backend_->isDisconnected())
+    if (internetConnected_)
     {
         QString title = tr("VPN is active");
         QString desc = tr("Rotating your MAC address will result in a disconnect event from the current network. Are you sure?");
@@ -1120,12 +1172,39 @@ void MainWindow::onPreferencesAdvancedParametersClicked()
     advParametersWindow_->show();
 }
 
+void MainWindow::onPreferencesCustomConfigsPathChanged(QString path)
+{
+    locationsWindow_->setCustomConfigsPath(path);
+}
+
 void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
 {
     Q_UNUSED(updateChannel);
 
     ignoreUpdateUntilNextRun_ = false;
     // updates engine through engineSettings
+}
+
+void MainWindow::onPreferencesReportErrorToUser(const QString &title, const QString &desc)
+{
+    // The main window controller will assert if we are not on one of these windows, but we may
+    // get here when on a different window if Preferences::validateAndUpdateIfNeeded() emits its
+    // reportErrorToUser signal.
+    if ((mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT ||
+         mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_UPDATE))
+    {
+        // avoid race condition that allows clicking through the general message overlay
+        QTimer::singleShot(0, [this, title, desc](){
+            mainWindowController_->getGeneralMessageWindow()->setTitle(title);
+            mainWindowController_->getGeneralMessageWindow()->setDescription(desc);
+            bGotoUpdateWindowAfterGeneralMessage_ = false;
+            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
+        });
+    }
+    else
+    {
+        QMessageBox::warning(nullptr, title, desc);
+    }
 }
 
 void MainWindow::onPreferencesCollapsed()
@@ -1232,7 +1311,10 @@ void MainWindow::onUpgradeAccountCancel()
 
 void MainWindow::onGeneralMessageWindowAccept()
 {
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+    if (bGotoUpdateWindowAfterGeneralMessage_)
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
+    else
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
 }
 
 void MainWindow::onExitWindowAccept()
@@ -1300,12 +1382,51 @@ void MainWindow::onLocationsClearCustomConfigClicked()
 
 void MainWindow::onLocationsAddCustomConfigClicked()
 {
-    currentlyShowingExternalDialog_ = true;
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
     QString path = QFileDialog::getExistingDirectory(
         this, tr("Select Custom Config Folder"), "", QFileDialog::ShowDirsOnly);
-    currentlyShowingExternalDialog_ = false;
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
+
     if (!path.isEmpty()) {
         // qCDebug(LOG_BASIC) << "User selected custom config path:" << path;
+
+        WriteAccessRightsChecker checker(path);
+        if (checker.isWriteable())
+        {
+            if (!checker.isElevated())
+            {
+                std::unique_ptr<IAuthChecker> authChecker = AuthCheckerFactory::createAuthChecker();
+
+                AuthCheckerError err = authChecker->authenticate();
+                if (err == AuthCheckerError::AUTHENTICATION_ERROR)
+                {
+                    qCDebug(LOG_BASIC) << "Cannot change path when non-system directory when windscribe is not elevated.";
+                    const QString desc = tr(
+                        "Cannot select this directory because it is writeable for non-privileged users. "
+                        "Custom configs in this directory may pose a potential security risk. "
+                        "Please authenticate with an admin user to select this directory.");
+                    QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+                    return;
+                }
+                else if (err == AuthCheckerError::HELPER_ERROR)
+                {
+                    qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, binary may be corrupted.";
+                    const QString desc = tr(
+                        "Failed to verify AuthHelper, binary may be corrupted. "
+                        "Please reinstall application to repair.");
+                    QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+                    return;
+                }
+            }
+
+            // warn, but still allow path setting
+            const QString desc = tr(
+                "The selected directory is writeable for non-privileged users. "
+                "Custom configs in this directory may pose a potential security risk.");
+            QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
+        }
+
+        // set the path
         backend_->getPreferences()->setCustomOvpnConfigsPath(path);
         backend_->sendEngineSettingsIfChanged();
     }
@@ -1394,6 +1515,11 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
     else if (initState == ProtoTypes::INIT_HELPER_FAILED)
     {
         QMessageBox::information(nullptr, QApplication::applicationName(), tr("Windscribe helper initialize error. Please reinstall the application or contact support."));
+        QTimer::singleShot(0, this, SLOT(close()));
+    }
+    else if (initState == ProtoTypes::INIT_HELPER_USER_CANCELED)
+    {
+        // close without message box
         QTimer::singleShot(0, this, SLOT(close()));
     }
     else
@@ -2088,9 +2214,8 @@ void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
     }
 }
 
-void MainWindow::onBackendUserWarning(ProtoTypes::UserWarningType userWarningType)
+void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
 {
-
     QString titleText = "";
     QString descText = "";
     if (userWarningType == ProtoTypes::USER_WARNING_MAC_SPOOFING_FAILURE_HARD)
@@ -2103,6 +2228,16 @@ void MainWindow::onBackendUserWarning(ProtoTypes::UserWarningType userWarningTyp
         titleText = tr("MAC Spoofing Failed");
         descText = tr("Could not spoof MAC address, try updating your OS to the latest version.");
     }
+    else if (userWarningType == ProtoTypes::USER_WARNING_SEND_LOG_FILE_TOO_BIG)
+    {
+        titleText = tr("Logs too large to send");
+        descText = tr("Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.");
+    }
+    else if (userWarningType == ProtoTypes::USER_WARNING_VIEW_LOG_FILE_TOO_BIG)
+    {
+        titleText = tr("Logs too large to view");
+        descText = tr("Could not view the logs because they are too big. You may want to try viewing manually.");
+    }
 
     if (titleText != "" || descText != "")
     {
@@ -2113,6 +2248,11 @@ void MainWindow::onBackendUserWarning(ProtoTypes::UserWarningType userWarningTyp
             currentlyShowingUserWarningMessage_ = false;
         }
     }
+}
+
+void MainWindow::onBackendUserWarning(ProtoTypes::UserWarningType userWarningType)
+{
+    showUserWarning(userWarningType);
 }
 
 void MainWindow::onBackendInternetConnectivityChanged(bool connectivity)
@@ -2149,6 +2289,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
             if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
             {
                 // nothing todo, because installer will close app here
+#ifdef Q_OS_LINUX
+                // Close Windscribe in order to continue installation of the .deb or .rpm package.
+                close();
+#endif
             }
             else // Error
             {
@@ -2156,11 +2300,11 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 mainWindowController_->getUpdateWindow()->stopAnimation();
                 mainWindowController_->getUpdateWindow()->changeToPromptScreen();
 
-                QString titleText = tr("Auto-Updater installation has failed");
+                QString titleText = tr("Auto-Update Failed");
                 QString descText = tr("Please contact support");
                 if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
                 {
-                    descText = tr("Download has failed to complete. Please try again over a strong internet connection.");
+                    descText = tr("Please try again using a different network connection.");
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
                 {
@@ -2176,7 +2320,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL)
                 {
-                    descText = tr("Cannot overwrite a pre-existing temporary installer");
+                    descText = tr("Cannot overwrite a pre-existing temporary installer.");
                 }
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COPY_FAIL)
                 {
@@ -2186,7 +2330,11 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 {
                     descText = tr("Auto-Updater has failed to run installer.");
                 }
-                QMessageBox::warning(nullptr, titleText, descText, QMessageBox::Ok);
+                mainWindowController_->getGeneralMessageWindow()->setErrorMode(true);
+                mainWindowController_->getGeneralMessageWindow()->setTitle(titleText);
+                mainWindowController_->getGeneralMessageWindow()->setDescription(descText);
+                bGotoUpdateWindowAfterGeneralMessage_ = true;
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
             }
         }
         else
@@ -2207,19 +2355,15 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
     {
         // Send main window center coordinates from the GUI, to position the installer properly.
         const bool is_visible = isVisible() && !isMinimized();
-        qint32 center_x;
-        qint32 center_y;
-        if (!is_visible)
+        qint32 center_x = INT_MAX;
+        qint32 center_y = INT_MAX;
+
+        if (is_visible)
         {
-            center_x = INT_MAX;
-            center_y = INT_MAX;
-        }
-        else
-        {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             center_x = geometry().x() + geometry().width() / 2;
             center_y = geometry().y() + geometry().height() / 2;
-#else
+#elif defined Q_OS_MAC
             MacUtils::getNSWindowCenter((void *)this->winId(), center_x, center_y);
 #endif
         }
@@ -2392,11 +2536,6 @@ void MainWindow::onPreferencesIsDockedToTrayChanged(bool isDocked)
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
-void MainWindow::onPreferencesIsShowCountryFlagsChanged(bool isShowCountryFlags)
-{
-    mainWindowController_->setIsShowCountryFlags(isShowCountryFlags);
-}
-
 #ifdef Q_OS_MAC
 void MainWindow::hideShowDockIcon(bool hideFromDock)
 {
@@ -2516,6 +2655,7 @@ void MainWindow::activateAndShow()
 
 void MainWindow::deactivateAndHide()
 {
+    MainWindowState::instance().setActive(false);
 #ifdef Q_OS_MAC
     hide();
 #elif defined Q_OS_WIN
@@ -2562,12 +2702,8 @@ void MainWindow::toggleVisibilityIfDocked()
 
 void MainWindow::onAppActivateFromAnotherInstance()
 {
-    // qDebug() << "on App activate from another instance";
-#ifdef Q_OS_WIN
-    this->showNormal();
-    this->activateWindow();
-    // SetForegroundWindow must be called from the caller process
-#endif
+    //qDebug() << "on App activate from another instance";
+    activateAndShow();
 }
 
 void MainWindow::onAppShouldTerminate_mac()
@@ -2619,6 +2755,19 @@ void MainWindow::onAppCloseRequest()
     if (!isVisible())
         activateAndShow();
 }
+
+#if defined(Q_OS_WIN)
+void MainWindow::onAppWinIniChanged()
+{
+    bool newDarkMode = InterfaceUtils::isDarkMode();
+    if (newDarkMode != isRunningInDarkMode_)
+    {
+        isRunningInDarkMode_ = newDarkMode;
+        qCDebug(LOG_BASIC) << "updating dark mode: " << isRunningInDarkMode_;
+        updateTrayIconType(currentAppIconType_);
+    }
+}
+#endif
 
 void MainWindow::showShutdownWindow()
 {
@@ -2775,7 +2924,7 @@ void MainWindow::onNativeInfoErrorMessage(QString title, QString desc)
 void MainWindow::onSplitTunnelingAppsAddButtonClick()
 {
     QString filename;
-    currentlyShowingExternalDialog_ = true;
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
 #if defined(Q_OS_WIN)
     QProcess getOpenFileNameProcess;
     QString changeIcsExePath = QCoreApplication::applicationDirPath() + "/ChangeIcs.exe";
@@ -2787,7 +2936,7 @@ void MainWindow::onSplitTunnelingAppsAddButtonClick()
             if (getOpenFileNameProcess.waitForFinished(kRefreshGuiMs)) {
                 filename = getOpenFileNameProcess.readAll().trimmed();
                 if (filename.isEmpty()) {
-                    currentlyShowingExternalDialog_ = false;
+                    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
                     return;
                 }
             }
@@ -2796,7 +2945,7 @@ void MainWindow::onSplitTunnelingAppsAddButtonClick()
 #endif  // Q_OS_WIN
     if (filename.isEmpty())
         filename = QFileDialog::getOpenFileName(this, tr("Select an application"), "C:\\");
-    currentlyShowingExternalDialog_ = false;
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
     if (!filename.isEmpty()) // TODO: validation
     {
@@ -2834,6 +2983,7 @@ void MainWindow::loadTrayMenuItems()
         }
         trayMenu_.addSeparator();
 
+#ifndef Q_OS_LINUX
         const auto *lm = backend_->getLocationsModel();
         if (lm->getNumGenericLocations() > 0)
             trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_GENERIC]);
@@ -2845,6 +2995,7 @@ void MainWindow::loadTrayMenuItems()
             trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS]);
 
         trayMenu_.addSeparator();
+#endif
     }
 
     if (!mainWindowController_->preferencesVisible())
@@ -2860,6 +3011,7 @@ void MainWindow::loadTrayMenuItems()
     trayMenu_.addAction(tr("Help"), this, SLOT(onTrayMenuHelpMe()));
     trayMenu_.addAction(tr("Exit"), this, SLOT(onTrayMenuQuit()));
 
+#ifndef Q_OS_LINUX
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     for (int i = 0; i < LOCATIONS_TRAY_MENU_NUM_TYPES; ++i) {
         locationsTrayMenuWidget_[i]->setFontForItems(trayMenu_.font());
@@ -2868,6 +3020,7 @@ void MainWindow::loadTrayMenuItems()
         QResizeEvent resizeEvent(locationsTrayMenuWidget_[i]->size(), locationsMenu_[i].size());
         qApp->sendEvent(&locationsMenu_[i], &resizeEvent);
     }
+#endif
 #endif
 }
 
@@ -2895,7 +3048,9 @@ void MainWindow::onLocationsTrayMenuLocationSelected(int type, QString locationT
 #ifdef Q_OS_WIN
     trayMenu_.close();
 #elif !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    listWidgetAction_[type]->trigger(); // close doesn't work by default on mac
+    #ifndef Q_OS_LINUX
+        listWidgetAction_[type]->trigger(); // close doesn't work by default on mac
+    #endif
 #endif
 
     const LocationsModel *lm = backend_->getLocationsModel();
@@ -2993,7 +3148,7 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
     // window in docked mode. Otherwise, closing the MessageBox/Log Window/etc. will lead to an
     // unwanted app termination.
     const bool kIsTrayIconClicked = trayIconRect().contains(QCursor::pos());
-    if (!focusWindow && !kIsTrayIconClicked && !currentlyShowingExternalDialog_) {
+    if (!focusWindow && !kIsTrayIconClicked && !ShowingDialogState::instance().isCurrentlyShowingExternalDialog() && !logViewerWindow_) {
         if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray()) {
             const int kDeactivationDelayMs = 100;
             deactivationTimer_.start(kDeactivationDelayMs);
@@ -3069,6 +3224,7 @@ void MainWindow::setupTrayIcon()
     trayIcon_.setContextMenu(&trayMenu_);
     connect(&trayMenu_, SIGNAL(aboutToShow()), SLOT(onTrayMenuAboutToShow()));
 
+#ifndef Q_OS_LINUX
     const QString kLocationTrayMenuNames[] = {
       tr("Locations"),   // LOCATIONS_TRAY_MENU_TYPE_GENERIC
       tr("Favourites"),  // LOCATIONS_TRAY_MENU_TYPE_FAVORITES
@@ -3095,6 +3251,8 @@ void MainWindow::setupTrayIcon()
 #endif  // USE_LOCATIONS_TRAY_MENU_NATIVE
     }
 
+#endif
+
     updateAppIconType(AppIconType::DISCONNECTED);
     updateTrayIconType(AppIconType::DISCONNECTED);
     trayIcon_.show();
@@ -3107,8 +3265,15 @@ QString MainWindow::getConnectionTime()
 {
     if (connectionElapsedTimer_.isValid())
     {
-        QTime time(0, 0);
-        return time.addMSecs(connectionElapsedTimer_.elapsed()).toString();
+        const auto totalSeconds = connectionElapsedTimer_.elapsed() / 1000;
+        const auto hours = totalSeconds / 3600;
+        const auto minutes = (totalSeconds - hours * 3600) / 60;
+        const auto seconds = (totalSeconds - hours * 3600) % 60;
+
+        return QString("%1:%2:%3")
+                .arg(hours   < 10 ? QString("0%1").arg(hours)   : QString::number(hours))
+                .arg(minutes < 10 ? QString("0%1").arg(minutes) : QString::number(minutes))
+                .arg(seconds < 10 ? QString("0%1").arg(seconds) : QString::number(seconds));
     }
     else
     {
@@ -3155,11 +3320,11 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     QString msg;
     if (connectState.connect_error() == ProtoTypes::NO_OPENVPN_SOCKET)
     {
-        msg = tr("Can't connect to openvpn process");
+        msg = tr("Can't connect to openvpn process.");
     }
     else if (connectState.connect_error() == ProtoTypes::CANT_RUN_OPENVPN)
     {
-        msg = tr("Can't start openvpn process");
+        msg = tr("Can't start openvpn process.");
     }
     else if (connectState.connect_error() == ProtoTypes::COULD_NOT_FETCH_CREDENTAILS)
     {
@@ -3197,7 +3362,18 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     }
     else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_MODIFY_HOSTS_WIN)
     {
-        msg = tr("IKEv2 connection failed, hosts file is not writable. You can switch to UDP or TCP connection modes and try to connect again.");
+        QMessageBox msgBox;
+        const auto* yesButton = msgBox.addButton(tr("Fix Issue"), QMessageBox::YesRole);
+        msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
+        msgBox.setWindowTitle(QApplication::applicationName());
+        msgBox.setText(tr("Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?"));
+        msgBox.exec();
+        if(msgBox.clickedButton() == yesButton) {
+            if(backend_) {
+                backend_->sendMakeHostsFilesWritableWin();
+            }
+        }
+        return;
     }
     else if (connectState.connect_error() == ProtoTypes::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC)
     {
@@ -3221,7 +3397,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
     }
     else if (connectState.connect_error() == ProtoTypes::WIREGUARD_CONNECTION_ERROR)
     {
-        msg = tr("Failed to setup WireGuard connection");
+        msg = tr("Failed to setup WireGuard connection.");
     }
 #ifdef Q_OS_WIN
     else if (connectState.connect_error() == ProtoTypes::NO_INSTALLED_TUN_TAP)
@@ -3261,6 +3437,32 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
                     li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
             }
         }
+
+        msg = tr("Failed to setup custom openvpn configuration.");
+    }
+    else if(connectState.connect_error() == ProtoTypes::WINTUN_DRIVER_REINSTALLATION_ERROR)
+    {
+        msg = tr("Wintun driver fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.");
+    }
+    else if(connectState.connect_error() == ProtoTypes::TAP_DRIVER_REINSTALLATION_ERROR)
+    {
+        msg = tr("Tap driver Fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.");
+    }
+    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_WSTUNNEL_ERROR)
+    {
+        msg = tr("WSTunnel binary failed verification. Please re-install windscribe from trusted source.");
+    }
+    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_STUNNEL_ERROR)
+    {
+        msg = tr("STunnel binary failed verification. Please re-install windscribe from trusted source.");
+    }
+    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_WIREGUARD_ERROR)
+    {
+        msg = tr("Wireguard binary failed verification. Please re-install windscribe from trusted source.");
+    }
+    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_OPENVPN_ERROR)
+    {
+        msg = tr("OpenVPN binary failed verification. Please re-install windscribe from trusted source.");
     }
     else
     {
@@ -3343,35 +3545,19 @@ void MainWindow::updateAppIconType(AppIconType type)
 void MainWindow::updateTrayIconType(AppIconType type)
 {
     const QIcon *icon = nullptr;
-#if defined(Q_OS_MAC)
     switch (type) {
     case AppIconType::DISCONNECTED:
-        icon = IconManager::instance().getDisconnectedTrayIconForMac(isRunningInDarkMode_);
+        icon = IconManager::instance().getDisconnectedTrayIcon(isRunningInDarkMode_);
         break;
     case AppIconType::CONNECTING:
-        icon = IconManager::instance().getConnectingTrayIconForMac(isRunningInDarkMode_);
+        icon = IconManager::instance().getConnectingTrayIcon(isRunningInDarkMode_);
         break;
     case AppIconType::CONNECTED:
-        icon = IconManager::instance().getConnectedTrayIconForMac(isRunningInDarkMode_);
+        icon = IconManager::instance().getConnectedTrayIcon(isRunningInDarkMode_);
         break;
     default:
         break;
     }
-#else
-    switch (type) {
-    case AppIconType::DISCONNECTED:
-        icon = IconManager::instance().getDisconnectedIcon();
-        break;
-    case AppIconType::CONNECTING:
-        icon = IconManager::instance().getConnectingIcon();
-        break;
-    case AppIconType::CONNECTED:
-        icon = IconManager::instance().getConnectedIcon();
-        break;
-    default:
-        break;
-    }
-#endif
 
      if (icon) {
 #if defined(Q_OS_WIN)

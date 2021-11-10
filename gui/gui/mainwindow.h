@@ -100,6 +100,7 @@ private slots:
 	void onPreferencesCycleMacAddressClick();
     void onPreferencesWindowDetectAppropriatePacketSizeButtonClicked();
     void onPreferencesAdvancedParametersClicked();
+    void onPreferencesCustomConfigsPathChanged(QString path);
 
     // emergency window signals
     void onEmergencyConnectClick();
@@ -199,8 +200,9 @@ private slots:
     void onPreferencesLaunchOnStartupChanged(bool bEnabled);
     void onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings connectionSettings);
     void onPreferencesIsDockedToTrayChanged(bool isDocked);
-    void onPreferencesIsShowCountryFlagsChanged(bool isShowCountryFlags);
     void onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel);
+
+    void onPreferencesReportErrorToUser(const QString &title, const QString &desc);
 
     void onPreferencesCollapsed();
 
@@ -214,6 +216,9 @@ private slots:
     void onAppShouldTerminate_mac();
     void onReceivedOpenLocationsMessage();
     void onAppCloseRequest();
+#if defined(Q_OS_WIN)
+    void onAppWinIniChanged();
+#endif
 
     void showShutdownWindow();
 
@@ -261,12 +266,17 @@ private:
     AdvancedParametersDialog *advParametersWindow_;
 
     QMenu trayMenu_;
+
+#ifndef Q_OS_LINUX
+
 #if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     LocationsTrayMenuNative locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
 #else
     QMenu locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
     QWidgetAction *listWidgetAction_[LOCATIONS_TRAY_MENU_NUM_TYPES];
     LocationsTrayMenuWidget *locationsTrayMenuWidget_[LOCATIONS_TRAY_MENU_NUM_TYPES];
+#endif
+
 #endif
 
     enum class AppIconType { DISCONNECTED, CONNECTING, CONNECTED };
@@ -323,7 +333,8 @@ private:
     bool internetConnected_;
 
     bool currentlyShowingUserWarningMessage_;
-    bool currentlyShowingExternalDialog_;
+
+    bool bGotoUpdateWindowAfterGeneralMessage_;
 
     void activateAndShow();
     void deactivateAndHide();
@@ -332,12 +343,13 @@ private:
     bool backendAppActiveState_;
     void setBackendAppActiveState(bool state);
 
+    bool isRunningInDarkMode_;
+
 #if defined(Q_OS_MAC)
     void hideShowDockIcon(bool hideFromDock);
     QTimer hideShowDockIconTimer_;
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
-    bool isRunningInDarkMode_;
 
     typedef QRect TrayIconRelativeGeometry ;
     QMap<QString, TrayIconRelativeGeometry> systemTrayIconRelativeGeoScreenHistory_;
@@ -364,6 +376,7 @@ private:
     void cleanupLogViewerWindow();
 
     QRect guessTrayIconLocationOnScreen(QScreen *screen);
+    void showUserWarning(ProtoTypes::UserWarningType userWarningType);
 };
 
 #endif // MAINWINDOW_H

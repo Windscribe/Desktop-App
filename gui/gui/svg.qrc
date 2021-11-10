@@ -11,8 +11,10 @@
         <file>svg/LOGO.svg</file>
         <file>svg/MENU_ICON.svg</file>
         <file>svg/MIDRIGHT_VERT_DIVIDER.svg</file>
+        <file>svg/MIDRIGHT_VERT_DIVIDER_SHADOW.svg</file>
         <file>svg/NOTIFICATION_ICON.svg</file>
-        <file>svg/ON_BUTTON.svg</file>
+        <file>svg/ring/ON_BUTTON.svg</file>
+        <file>svg/ring/ON_BUTTON_SHADOW.svg</file>
         <file>svg/SHADOW.svg</file>
         <file>svg/WINDOWS_CLOSE_ICON.svg</file>
         <file>svg/firewall/BLACK_TOGGLE_BG.svg</file>
@@ -151,9 +153,9 @@
         <file>svg/macos-windowbuttons/RESIZE_HOVER.svg</file>
         <file>svg/login/EMERGENCY_ICON_ENABLED.svg</file>
         <file>svg/login/EMERGENCY_ICON_DISABLED.svg</file>
-        <file>svg/emergencyConnect/EMERGENCY_CONNECT_ICON.svg</file>
-        <file>svg/emergencyConnect/BIG_SPINNER.svg</file>
-        <file>svg/emergencyConnect/ESC_BUTTON.svg</file>
+        <file>svg/emergencyconnect/EMERGENCY_CONNECT_ICON.svg</file>
+        <file>svg/emergencyconnect/BIG_SPINNER.svg</file>
+        <file>svg/emergencyconnect/ESC_BUTTON.svg</file>
         <file>svg/MAC_CLOSE_DEFAULT.svg</file>
         <file>svg/MAC_CLOSE_HOVER.svg</file>
         <file>svg/MAC_EMPTY_DEFAULT.svg</file>
@@ -208,12 +210,13 @@
         <file>svg/ARROW_DOWN_WHITE.svg</file>
         <file>svg/BOTTOMLEFT_HORIZ_DIVIDER_WHITE.svg</file>
         <file>svg/background/MAC_BOTTOM_BG.svg</file>
-        <file>svg/PING_OFF_FULL.svg</file>
-        <file>svg/PING_OFF_HALF.svg</file>
-        <file>svg/PING_OFF_LOW.svg</file>
-        <file>svg/PING_ON_FULL.svg</file>
-        <file>svg/PING_ON_HALF.svg</file>
-        <file>svg/PING_ON_LOW.svg</file>
+        <file>svg/pingbar/OFF_FULL.svg</file>
+        <file>svg/pingbar/OFF_HALF.svg</file>
+        <file>svg/pingbar/OFF_LOW.svg</file>
+        <file>svg/pingbar/ON_FULL.svg</file>
+        <file>svg/pingbar/ON_HALF.svg</file>
+        <file>svg/pingbar/ON_LOW.svg</file>
+        <file>svg/pingbar/SHADOW.svg</file>
         <file>svg/background/WIN_BOTTOM_BG.svg</file>
         <file>svg/background/WIN_LOCATION_BUTTON_BG_BRIGHT.svg</file>
         <file>svg/background/WIN_LOCATION_BUTTON_BG_DARK.svg</file>
@@ -221,10 +224,14 @@
         <file>svg/background/WIN_MASK_TOP_GRADIENT_CONNECTED.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM.svg</file>
         <file>svg/background/MAC_LOCATION_BUTTON_BG_BRIGHT.svg</file>
         <file>svg/background/MAC_LOCATION_BUTTON_BG_DARK.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM.svg</file>
         <file>svg/background/WIN_HEADER_BG_CONNECTED.svg</file>
         <file>svg/background/WIN_HEADER_BG_DISCONNECTED.svg</file>
         <file>svg/background/MAC_HEADER_BG_CONNECTED.svg</file>
@@ -263,23 +270,29 @@
         <file>svg/flags/noflag.svg</file>
         <file>svg/flags/pa.svg</file>
         <file>svg/flags/pe.svg</file>
-        <file>svg/NETWORK_ETHERNET_SECURED.svg</file>
-        <file>svg/NETWORK_ETHERNET_UNSECURED.svg</file>
-        <file>svg/NETWORK_WIFI_SECURED.svg</file>
-        <file>svg/NETWORK_WIFI_UNSECURED.svg</file>
+        <file>svg/network/ETHERNET_SECURED.svg</file>
+        <file>svg/network/ETHERNET_UNSECURED.svg</file>
+        <file>svg/network/ETHERNET_SECURED_SHADOW.svg</file>
+        <file>svg/network/ETHERNET_UNSECURED_SHADOW.svg</file>
+        <file>svg/network/WIFI_SECURED.svg</file>
+        <file>svg/network/WIFI_UNSECURED.svg</file>
+        <file>svg/network/WIFI_SECURED_SHADOW.svg</file>
+        <file>svg/network/WIFI_UNSECURED_SHADOW.svg</file>
         <file>svg/IP_LOCK_SECURE.svg</file>
         <file>svg/IP_LOCK_UNSECURE.svg</file>
-        <file>svg/CONNECTION_BADGE_BG_CONNECTING.svg</file>
-        <file>svg/CONNECTION_BADGE_BG_OFF.svg</file>
-        <file>svg/CONNECTION_BADGE_BG_ON.svg</file>
-        <file>svg/CONNECTION_BADGE_FG_OFF.svg</file>
-        <file>svg/CONNECTION_BADGE_FG_ON.svg</file>
-        <file>svg/CONNECTION_BADGE_FG_SPINNER.svg</file>
-        <file>svg/CONNECTION_BADGE_FG_NO_INT.svg</file>
-        <file>svg/RING_CONNECTED_SPLIT_ROUTING.svg</file>
-        <file>svg/RING_CONNECTED.svg</file>
-        <file>svg/RING_CONNECTING.svg</file>
-        <file>svg/RING_NO_INTERNET.svg</file>
+        <file>svg/connection-badge/OFF.svg</file>
+        <file>svg/connection-badge/ON.svg</file>
+        <file>svg/connection-badge/NO_INT.svg</file>
+        <file>svg/connection-badge/OFF_SHADOW.svg</file>
+        <file>svg/connection-badge/ON_SHADOW.svg</file>
+        <file>svg/connection-badge/NO_INT_SHADOW.svg</file>
+        <file>svg/ring/CONNECTED_SPLIT_ROUTING.svg</file>
+        <file>svg/ring/CONNECTED_SPLIT_ROUTING_SHADOW.svg</file>
+        <file>svg/ring/CONNECTED.svg</file>
+        <file>svg/ring/CONNECTED_SHADOW.svg</file>
+        <file>svg/ring/CONNECTING.svg</file>
+        <file>svg/ring/CONNECTING_SHADOW.svg</file>
+        <file>svg/ring/NO_INTERNET.svg</file>
         <file>svg/locations/PRO_CITY_STAR.svg</file>
         <file>svg/locations/PRO_REGION_STAR_DARK.svg</file>
         <file>svg/locations/PRO_REGION_STAR_LIGHT.svg</file>

@@ -53,7 +53,7 @@ void IconButtonWidget::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     qreal initOpacity = painter.opacity();
     painter.setOpacity(curOpacity_ * initOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     p->draw(0,0,&painter);
 }
 
@@ -81,7 +81,7 @@ void IconButtonWidget::onOpacityChanged(const QVariant &value)
 
 void IconButtonWidget::updateSize()
 {
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
 
     if (p != nullptr)
     {

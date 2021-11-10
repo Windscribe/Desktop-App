@@ -87,6 +87,9 @@
     <ClInclude Include="reinstall_wan_ikev2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="reinstall_tun_drivers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="close_tcp_connections.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -94,9 +97,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cleardns_on_tap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="simple_xor_crypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="registry.h">
@@ -154,6 +154,9 @@
       <Filter>Header Files\wireguard</Filter>
     </ClInclude>
     <ClInclude Include="ikev2ipsec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature_win.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\common\utils\crashdump.h">
@@ -230,6 +233,9 @@
     <ClCompile Include="reinstall_wan_ikev2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="reinstall_tun_drivers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="close_tcp_connections.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -237,9 +243,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cleardns_on_tap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simple_xor_crypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="registry.cpp">
@@ -291,6 +294,9 @@
       <Filter>Source Files\wireguard</Filter>
     </ClCompile>
     <ClCompile Include="ikev2ipsec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\utils\crashdump.cpp">

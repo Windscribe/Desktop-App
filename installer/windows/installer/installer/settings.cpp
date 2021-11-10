@@ -1,5 +1,5 @@
 #include "settings.h"
-#include "../../../Utils/registry.h"
+#include "../../Utils/registry.h"
 
 Settings::Settings() : isCreateShortcut_(true)
 {

@@ -144,10 +144,11 @@ namespace KeyChainUtils
     }
 }
 
-IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, IHelper *helper) : IConnection(parent, helper),
+IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, IHelper *helper) : IConnection(parent),
     state_(STATE_DISCONNECTED), bConnected_(false), mutex_(QMutex::Recursive), notificationId_(NULL), isStateConnectingAfterClick_(false), isDisconnectClicked_(false),
     isPrevConnectionStatusInitialized_(false)
 {
+    helper_ = dynamic_cast<Helper_mac *>(helper);
     networkExtensionLog_.collectNext();
     connect(&statisticsTimer_, SIGNAL(timeout()), SLOT(onStatisticsTimer()));
 }
@@ -179,7 +180,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
     if (!setKeyChain(username, password))
     {
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
+        emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC);
         mutexLocal.unlock();
         return;
     }
@@ -198,7 +199,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
         {
             qCDebug(LOG_IKEV2) << "Load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_LOAD_PREFERENCES_MAC);
+            emit error(ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC);
             waitConditionLocal.wakeAll();
             mutexLocal.unlock();
         }
@@ -247,7 +248,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                 {
                     qCDebug(LOG_IKEV2) << "Save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                     state_ = STATE_DISCONNECTED;
-                    emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                    emit error(ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC);
                     waitConditionLocal.wakeAll();
                     mutexLocal.unlock();
                 }
@@ -261,7 +262,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                         {
                             qCDebug(LOG_IKEV2) << "load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                             state_ = STATE_DISCONNECTED;
-                            emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                            emit error(ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC);
                             waitConditionLocal.wakeAll();
                             mutexLocal.unlock();
                         }
@@ -283,7 +284,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                         {
                             qCDebug(LOG_IKEV2) << "Error staring ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
                             state_ = STATE_DISCONNECTED;
-                            emit error(IKEV_FAILED_START_MAC);
+                            emit error(ProtoTypes::ConnectError::IKEV_FAILED_START_MAC);
                         }
                         waitConditionLocal.wakeAll();
                         mutexLocal.unlock();
@@ -405,13 +406,13 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
         {
             [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_TO_CONNECT);
+            emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
         }
         else if (state_ != STATE_DISCONNECTED)
         {
             if (state_ == STATE_DISCONNECTING_AUTH_ERROR)
             {
-                emit error(AUTH_ERROR);
+                emit error(ProtoTypes::ConnectError::AUTH_ERROR);
             }
 
             [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
@@ -519,7 +520,9 @@ void IKEv2Connection_mac::onStatisticsTimer()
             }
         }
         free(buf);
-        emit statisticsUpdated(totalibytes, totalobytes, true);
+        if(state_ == STATE_CONNECTED) {
+            emit statisticsUpdated(totalibytes, totalobytes, true);
+        }
     }
 
 }

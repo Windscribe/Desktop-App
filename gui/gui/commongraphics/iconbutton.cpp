@@ -10,9 +10,14 @@
 
 #include <QDebug>
 
-IconButton::IconButton(int width, int height, const QString &imagePath, ScalableGraphicsObject *parent, double unhoverOpacity, double hoverOpacity) : ClickableGraphicsObject(parent),
-  imagePath_(imagePath), width_(width), height_(height), curOpacity_(unhoverOpacity), unhoverOpacity_(unhoverOpacity), hoverOpacity_(hoverOpacity)
+IconButton::IconButton(int width, int height, const QString &imagePath, const QString &shadowPath, ScalableGraphicsObject *parent, double unhoverOpacity, double hoverOpacity) : ClickableGraphicsObject(parent),
+  imagePath_(imagePath), shadowPath_(shadowPath), width_(width), height_(height), curOpacity_(unhoverOpacity), unhoverOpacity_(unhoverOpacity), hoverOpacity_(hoverOpacity)
 {
+    if (!shadowPath_.isEmpty())
+    {
+        imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowPath_));
+    }
+
     connect(&imageOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onImageHoverOpacityChanged(QVariant)));
     connect(this, SIGNAL(hoverEnter()), SLOT(onHoverEnter()));
     connect(this, SIGNAL(hoverLeave()), SLOT(onHoverLeave()));
@@ -32,13 +37,22 @@ void IconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     qreal initialOpacity = painter->opacity();
     painter->setOpacity(curOpacity_ * initialOpacity);
-
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     int rcW = static_cast<int>(boundingRect().width() );
     int rcH = static_cast<int>(boundingRect().height());
-    int w = static_cast<int>(p->width());
-    int h = static_cast<int>(p->height());
-    p->draw((rcW - w) / 2, (rcH - h) / 2, painter);
+
+    if (imageWithShadow_)
+    {
+        int w = static_cast<int>(imageWithShadow_->width());
+        int h = static_cast<int>(imageWithShadow_->height());
+        imageWithShadow_->draw(painter, (rcW - w) / 2, (rcH - h) / 2);
+    }
+    else
+    {
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+        int w = static_cast<int>(p->width());
+        int h = static_cast<int>(p->height());
+        p->draw((rcW - w) / 2, (rcH - h) / 2, painter);
+    }
 }
 
 void IconButton::animateOpacityChange(double newOpacity, int animationSpeed)
@@ -46,15 +60,27 @@ void IconButton::animateOpacityChange(double newOpacity, int animationSpeed)
     startAnAnimation<double>(imageOpacityAnimation_, curOpacity_, newOpacity, animationSpeed);
 }
 
-void IconButton::setIcon(QString imagePath)
+void IconButton::setIcon(const QString &imagePath)
 {
     imagePath_ = imagePath;
+    shadowPath_.clear();
+    imageWithShadow_.reset();
     prepareGeometryChange();
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     width_ = p->width()/G_SCALE;
     height_ = p->height()/G_SCALE;
 
     // qDebug() << "New Width: " << width_;
+}
+
+void IconButton::setIcon(const QString &imagePath, const QString &shadowPath)
+{
+    imagePath_ = imagePath;
+    shadowPath_ = shadowPath;
+    imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowPath_));
+    prepareGeometryChange();
+    width_ = imageWithShadow_->width()/G_SCALE;
+    height_ = imageWithShadow_->height()/G_SCALE;
 }
 
 void IconButton::setSelected(bool selected)
@@ -80,6 +106,15 @@ void IconButton::setUnhoverOpacity(double unhoverOpacity)
 void IconButton::setHoverOpacity(double hoverOpacity)
 {
     hoverOpacity_ = hoverOpacity;
+}
+
+void IconButton::updateScaling()
+{
+    ClickableGraphicsObject::updateScaling();
+    if (!shadowPath_.isEmpty())
+    {
+        imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowPath_));
+    }
 }
 
 void IconButton::onHoverEnter()

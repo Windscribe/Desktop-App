@@ -30,6 +30,8 @@ public:
         return *this;
     }
 
+    LocationID(const LocationID&) = default;
+
     bool operator== (const LocationID &other) const
     {
         return (type_ == other.type_ && id_ == other.id_ && city_ == other.city_);
@@ -42,7 +44,7 @@ public:
 
     inline bool isValid() const { return type_ != INVALID_LOCATION; }
     inline bool isBestLocation() const { Q_ASSERT(type_ != INVALID_LOCATION); return type_ == BEST_LOCATION; }
-    inline bool isCustomConfigsLocation() const { Q_ASSERT(type_ != INVALID_LOCATION); return type_ == CUSTOM_CONFIGS_LOCATION; }
+    inline bool isCustomConfigsLocation() const { /*Q_ASSERT(type_ != INVALID_LOCATION);*/ return type_ == CUSTOM_CONFIGS_LOCATION; }
     inline bool isStaticIpsLocation() const { Q_ASSERT(type_ != INVALID_LOCATION); return type_ == STATIC_IPS_LOCATION; }
     bool isTopLevelLocation() const;
 

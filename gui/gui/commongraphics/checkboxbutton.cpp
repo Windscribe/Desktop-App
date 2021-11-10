@@ -33,9 +33,9 @@ void CheckBoxButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     qreal initialOpacity = painter->opacity();
 
-    IndependentPixmap *pixmapGreen = ImageResourcesSvg::instance().getIndependentPixmap("preferences/GREEN_TOGGLE_BG");
-    IndependentPixmap *pixmapWhite = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_TOGGLE_BG");
-    IndependentPixmap *pixmapButton = ImageResourcesSvg::instance().getIndependentPixmap("preferences/TOGGLE_BUTTON_BLACK");
+    QSharedPointer<IndependentPixmap> pixmapGreen = ImageResourcesSvg::instance().getIndependentPixmap("preferences/GREEN_TOGGLE_BG");
+    QSharedPointer<IndependentPixmap> pixmapWhite = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_TOGGLE_BG");
+    QSharedPointer<IndependentPixmap> pixmapButton = ImageResourcesSvg::instance().getIndependentPixmap("preferences/TOGGLE_BUTTON_BLACK");
 
     pixmapWhite->draw(0, 0, painter);
 

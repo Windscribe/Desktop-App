@@ -3,9 +3,11 @@
 #include "Utils/logger.h"
 
 MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController) : QObject(parent),
-    helper_(helper), bEnabled_(false)
+    bEnabled_(false)
 {
-    connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)));
+    helper_ = dynamic_cast<Helper_win *>(helper);
+    Q_ASSERT(helper_);
+    connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
 
     if (PdhOpenQuery(NULL, 0, &hQuery_) == ERROR_SUCCESS)
@@ -43,7 +45,7 @@ void MeasurementCpuUsage::setEnabled(bool bEnabled)
     }
 }
 
-void MeasurementCpuUsage::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECTION_ERROR /*err*/, const LocationID & /*location*/)
+void MeasurementCpuUsage::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ProtoTypes::ConnectError /*err*/, const LocationID & /*location*/)
 {
     if (bEnabled_)
     {
@@ -273,7 +275,7 @@ void MeasurementCpuUsage::onTimer()
 
         if (!processesForPopup.isEmpty())
         {
-            qSort(processesForPopup);
+            std::sort(processesForPopup.begin(), processesForPopup.end());
             emit detectionCpuUsageAfterConnected(processesForPopup);
         }
     }

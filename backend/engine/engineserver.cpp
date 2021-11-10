@@ -42,7 +42,7 @@ void EngineServer::run()
     if (!server_->start())
     {
         qCDebug(LOG_IPC) << "Can't start IPC server, exit";
-        emit finished();
+        Q_EMIT finished();
     }
     else
     {
@@ -81,13 +81,13 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
             connect(engine_, SIGNAL(sessionStatusUpdated(apiinfo::SessionStatus)), SLOT(onEngineUpdateSessionStatus(apiinfo::SessionStatus)));
             connect(engine_, SIGNAL(sessionDeleted()), SLOT(onEngineSessionDeleted()));
-            connect(engine_->getConnectStateController(), SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)),
-                    SLOT(onEngineConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECTION_ERROR, LocationID)));
+            connect(engine_->getConnectStateController(), SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)),
+                    SLOT(onEngineConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)));
             connect(engine_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onEngineProtocolPortChanged(ProtoTypes::Protocol, uint)));
             connect(engine_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onEngineStatisticsUpdated(quint64,quint64, bool)));
             connect(engine_, SIGNAL(emergencyConnected()), SLOT(onEngineEmergencyConnected()));
             connect(engine_, SIGNAL(emergencyDisconnected()), SLOT(onEngineEmergencyDisconnected()));
-            connect(engine_, SIGNAL(emergencyConnectError(CONNECTION_ERROR)), SLOT(onEngineEmergencyConnectError(CONNECTION_ERROR)));
+            connect(engine_, SIGNAL(emergencyConnectError(ProtoTypes::ConnectError)), SLOT(onEngineEmergencyConnectError(ProtoTypes::ConnectError)));
             connect(engine_, SIGNAL(testTunnelResult(bool)), SLOT(onEngineTestTunnelResult(bool)));
             connect(engine_, SIGNAL(lostConnectionToHelper()), SLOT(onEngineLostConnectionToHelper()));
             connect(engine_, SIGNAL(proxySharingStateChanged(bool, PROXY_SHARING_TYPE)), SLOT(onEngineProxySharingStateChanged(bool, PROXY_SHARING_TYPE)));
@@ -107,8 +107,8 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onEngineInternetConnectivityChanged(bool)));
             connect(engine_, SIGNAL(packetSizeChanged(bool, int)), SLOT(onEnginePacketSizeChanged(bool, int)));
             connect(engine_, SIGNAL(packetSizeDetectionStateChanged(bool,bool)), SLOT(onEnginePacketSizeDetectionStateChanged(bool,bool)));
+            connect(engine_, SIGNAL(hostsFileBecameWritable()), SLOT(onHostsFileBecameWritable()));
             threadEngine_->start(QThread::LowPriority);
-
         }
         else
         {
@@ -142,7 +142,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
 
         if (engine_ == NULL)
         {
-            emit finished();
+            Q_EMIT finished();
         }
         else
         {
@@ -347,14 +347,18 @@ bool EngineServer::handleCommand(IPC::Command *command)
             curEngineSettings_.saveToSettings();
 
             //todo ?
-            //emit engineSettingsChanged(curEngineSettings_, connection);
+            //Q_EMIT engineSettingsChanged(curEngineSettings_, connection);
         }
         return true;
     }
     else if (command->getStringId() == IPCClientCommands::SetBlockConnect::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCClientCommands::SetBlockConnect> *blockConnectCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::SetBlockConnect> *>(command);
-        engine_->setBlockConnect(blockConnectCmd->getProtoObj().is_block_connect());
+        if (engine_->isBlockConnect() != blockConnectCmd->getProtoObj().is_block_connect())
+        {
+            qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
+            engine_->setBlockConnect(blockConnectCmd->getProtoObj().is_block_connect());
+        }
         return true;
     }
     else if (command->getStringId() == IPCClientCommands::ClearCredentials::descriptor()->full_name())
@@ -407,6 +411,11 @@ bool EngineServer::handleCommand(IPC::Command *command)
         IPC::ProtobufCommand<IPCClientCommands::UpdateWindowInfo> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::UpdateWindowInfo> *>(command);
         engine_->updateWindowInfo(cmd->getProtoObj().window_center_x(), cmd->getProtoObj().window_center_y());
     }
+    else if (command->getStringId() == IPCClientCommands::MakeHostsWritableWin::descriptor()->full_name()) {
+#ifdef Q_OS_WIN
+        engine_->makeHostsFileWritableWin();
+#endif
+    }
 
     return false;
 }
@@ -456,6 +465,11 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
         cmd.getProtoObj().set_init_state(ProtoTypes::INIT_BFE_SERVICE_NOT_STARTED);
         sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
     }
+    else if (retCode == ENGINE_INIT_HELPER_USER_CANCELED)
+    {
+        cmd.getProtoObj().set_init_state(ProtoTypes::INIT_HELPER_USER_CANCELED);
+        sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+    }
     else
     {
         Q_ASSERT(false);
@@ -474,8 +488,12 @@ void EngineServer::onServerCallbackAcceptFunction(IPC::IConnection *connection)
 
 void EngineServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConnection *connection)
 {
-    if (command->getStringId() != IPCClientCommands::Login::descriptor()->full_name())
+    if ((command->getStringId() != IPCClientCommands::Login::descriptor()->full_name()) &&
+        (command->getStringId() != IPCClientCommands::SetBlockConnect::descriptor()->full_name()))
     {
+        // The SetBlockConnect command is received every minute.  handleCommand will log it if the value
+        // has changed, so that we don't flood the log with this entry when the app is up for an
+        // extended period of time.
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
     }
 
@@ -541,7 +559,7 @@ void EngineServer::onConnectionStateCallback(int state, IPC::IConnection *connec
         if (connections_.isEmpty())
         {
             qCDebug(LOG_IPC) << "All of the clients are disconnected";
-            emit finished();
+            Q_EMIT finished();
         }
     }
     else
@@ -705,10 +723,10 @@ void EngineServer::onEngineMyIpUpdated(const QString &ip, bool /*success*/, bool
     cmd.getProtoObj().mutable_my_ip_info()->set_ip(ip.toStdString());
     cmd.getProtoObj().mutable_my_ip_info()->set_is_disconnected_state(isDisconnected);
 
-    sendCmdToAllAuthorizedAndGetStateClients(cmd, !isDisconnected); // only non-user IP
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, false); // only non-user IP
 }
 
-void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &locationId)
+void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId)
 {
     IPC::ProtobufCommand<IPCServerCommands::ConnectStateChanged> cmd;
 
@@ -739,7 +757,7 @@ void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASO
         cmd.getProtoObj().mutable_connect_state()->set_disconnect_reason((ProtoTypes::DisconnectReason)reason);
         if (reason == DISCONNECTED_WITH_ERROR)
         {
-            cmd.getProtoObj().mutable_connect_state()->set_connect_error((ProtoTypes::ConnectError)err);
+            cmd.getProtoObj().mutable_connect_state()->set_connect_error(err);
         }
     }
     else if (state == CONNECT_STATE_CONNECTED || state == CONNECT_STATE_CONNECTING)
@@ -753,7 +771,7 @@ void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASO
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &locationId)
+void EngineServer::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId)
 {
     sendConnectStateChanged(state, reason, err, locationId);
 }
@@ -789,12 +807,12 @@ void EngineServer::onEngineEmergencyDisconnected()
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineEmergencyConnectError(CONNECTION_ERROR err)
+void EngineServer::onEngineEmergencyConnectError(ProtoTypes::ConnectError err)
 {
     IPC::ProtobufCommand<IPCServerCommands::EmergencyConnectStateChanged> cmd;
     cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_state_type(ProtoTypes::DISCONNECTED);
     cmd.getProtoObj().mutable_emergency_connect_state()->set_disconnect_reason(ProtoTypes::DISCONNECTED_WITH_ERROR);
-    cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_error((ProtoTypes::ConnectError)err);
+    cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_error(err);
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
@@ -1008,23 +1026,39 @@ void EngineServer::onEnginePacketSizeDetectionStateChanged(bool on, bool isError
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::sendCmdToAllAuthorizedAndGetStateClients(const IPC::Command &cmd, bool bWithLog)
+void EngineServer::onHostsFileBecameWritable()
 {
-    sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, bWithLog, ProtoTypes::CLIENT_ID_GUI);
-    sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, bWithLog, ProtoTypes::CLIENT_ID_CLI);
+    IPC::ProtobufCommand<IPCServerCommands::HostsFileBecameWritable> cmd;
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Command &cmd, bool bWithLog, unsigned int clientId)
+void EngineServer::sendCmdToAllAuthorizedAndGetStateClients(const IPC::Command &cmd, bool bWithLog)
 {
-    if (bWithLog)
-    {
+    // Only log this command one time.
+    bool bLogged = false;
+
+    sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, bWithLog, ProtoTypes::CLIENT_ID_GUI, &bLogged);
+    sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, bWithLog, ProtoTypes::CLIENT_ID_CLI, &bLogged);
+
+    if (bWithLog && !bLogged) {
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     }
+}
 
+void EngineServer::sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Command &cmd, bool bWithLog, unsigned int clientId, bool *bLogged)
+{
     for (auto it = connections_.begin(); it != connections_.end(); ++it)
     {
         if (it.key() && it.value().bClientAuthReceived_ && it.value().clientId_ == clientId)
         {
+            if (bWithLog)
+            {
+                qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+                if (bLogged != nullptr) {
+                    *bLogged = true;
+                }
+            }
+
             it.key()->sendCommand(cmd);
         }
     }

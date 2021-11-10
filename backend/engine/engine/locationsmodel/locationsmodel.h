@@ -22,7 +22,7 @@ class LocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager);
+    explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager);
     ~LocationsModel() override;
 
     void forceSendLocationsToCli();

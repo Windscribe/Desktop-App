@@ -57,6 +57,14 @@ enum ConnectError
   WIREGUARD_CONNECTION_ERROR = 32;
   // emergency
   EMERGENCY_FAILED_CONNECT = 33;
+  WINTUN_OVER_CAPACITY = 34;
+  WINTUN_DRIVER_REINSTALLATION_ERROR = 35;
+  TAP_DRIVER_REINSTALLATION_ERROR = 36;
+  WINTUN_FATAL_ERROR = 37;
+  EXE_VERIFY_WSTUNNEL_ERROR = 38;
+  EXE_VERIFY_STUNNEL_ERROR = 39;  
+  EXE_VERIFY_OPENVPN_ERROR = 40;
+  EXE_VERIFY_WIREGUARD_ERROR = 41;
 }
 
 enum DisconnectReason
@@ -72,8 +80,9 @@ enum InitState
   INIT_CLEAN   = 0;
   INIT_SUCCESS = 1;
   INIT_HELPER_FAILED = 2;
-  INIT_BFE_SERVICE_NOT_STARTED = 3;
-  INIT_BFE_SERVICE_FAILED_TO_START = 4;
+  INIT_HELPER_USER_CANCELED = 3;
+  INIT_BFE_SERVICE_NOT_STARTED = 4;
+  INIT_BFE_SERVICE_FAILED_TO_START = 5;
 }
 
 enum LoginState
@@ -347,6 +356,18 @@ enum DnsPolicy
    DNS_POLICY_GOOGLE = 3;
 }
 
+enum DnsWhileConnectedType
+{
+   DNS_WHILE_CONNECTED_TYPE_ROBERT = 0;
+   DNS_WHILE_CONNECTED_TYPE_CUSTOM = 1;
+}
+
+message DnsWhileConnectedInfo
+{
+   optional DnsWhileConnectedType type = 1 [default = DNS_WHILE_CONNECTED_TYPE_ROBERT];
+   optional string ip_address = 2 [default = ""];
+}
+
 // engine settings, which can be changed by user from GUI
 message EngineSettings
 {
@@ -370,6 +391,7 @@ message EngineSettings
   optional TapAdapterType tap_adapter = 17 [default = WINTUN_ADAPTER];
   optional string customOvpnConfigsPath = 18;
   optional bool is_keep_alive_enabled = 19 [default = false];
+  optional DnsWhileConnectedInfo dns_while_connected_info = 20;
 }
 
 message ProxySharingInfo
@@ -438,6 +460,8 @@ enum UserWarningType
 {
   USER_WARNING_MAC_SPOOFING_FAILURE_HARD = 0;
   USER_WARNING_MAC_SPOOFING_FAILURE_SOFT = 1;
+  USER_WARNING_SEND_LOG_FILE_TOO_BIG = 2;
+  USER_WARNING_VIEW_LOG_FILE_TOO_BIG = 3;
 }
 
 // === GUI settings (use only in GUI-part) ================================
@@ -465,6 +489,23 @@ message NetworkWhiteList
   repeated NetworkInterface networks = 1;
 }
 
+
+enum BackgroundType
+{
+  BACKGROUND_TYPE_NONE = 0;
+  BACKGROUND_TYPE_COUNTRY_FLAGS = 1;
+  BACKGROUND_TYPE_CUSTOM = 2;
+}
+
+
+message BackgroundSettings
+{
+  optional BackgroundType background_type = 1 [default = BACKGROUND_TYPE_COUNTRY_FLAGS];
+  optional string background_image_disconnected = 2;
+  optional string background_image_connected = 3;
+}
+
+
 // gui settings, which can be changed by user
 message GuiSettings
 {
@@ -479,7 +520,9 @@ message GuiSettings
   optional SplitTunneling split_tunneling = 9;
   optional bool is_docked_to_tray = 10 [default = false];
   optional bool is_minimize_and_close_to_tray = 11 [default = false];
-  optional bool is_show_country_flags = 12 [default = true];
+  optional bool is_show_country_flags = 12 [deprecated=true];
+  optional BackgroundSettings background_settings = 13; 
+  optional bool is_start_minimized = 14 [default = false];
 }
 
 

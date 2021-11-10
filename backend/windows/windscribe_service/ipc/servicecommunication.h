@@ -51,8 +51,13 @@
 #define AA_COMMAND_GET_WIREGUARD_STATUS                     47
 #define AA_COMMAND_CONNECT_STATUS                           48
 #define AA_COMMAND_SUSPEND_UNBLOCKING_CMD                   49
+#define AA_COMMAND_DNS_WHILE_CONNECTED                      50
+#define AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE                 51
+#define AA_COMMAND_REINSTALL_TAP_DRIVER                     52
+#define AA_COMMAND_REINSTALL_WINTUN_DRIVER                  53
 
-#define ENCRYPT_KEY "4WabPvORMXAEsgjdVU0C9MmcwOVHyjAiEBIn0dX5"
+#include <string>
+#include <vector>
 
 struct CMD_FIREWALL_ON
 {
@@ -64,7 +69,6 @@ struct CMD_ADD_HOSTS
 {
     std::wstring hosts;
 };
-
 
 struct CMD_CHECK_UNBLOCKING_CMD_STATUS
 {
@@ -202,6 +206,12 @@ struct CMD_CONNECT_STATUS
 	std::string remoteIp;
 };
 
+struct CMD_DNS_WHILE_CONNECTED
+{
+    unsigned long ifIndex = 0;
+    std::wstring szDnsIpAddress;
+};
+
 struct CMD_CLOSE_TCP_CONNECTIONS
 {
     bool isKeepLocalSockets;
@@ -229,6 +239,16 @@ struct CMD_CONFIGURE_WIREGUARD
     std::string     peerPresharedKey;
     std::string     peerEndpoint;
     std::string     allowedIps;
+};
+
+struct CMD_REINSTALL_TUN_DRIVER
+{
+    std::wstring driverDir;
+};
+
+struct CMD_DISABLE_DNS_TRAFFIC
+{
+    std::vector<std::wstring> excludedIps;
 };
 
 enum WireGuardServiceState

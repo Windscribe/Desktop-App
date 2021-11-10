@@ -14,6 +14,8 @@
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
 
+class INetworkDetectionManager;
+
 namespace locationsmodel {
 
 // Managing locations (generic API-locations and static IPs locations). Converts the apiinfo::Location vector to LocationItem vector.
@@ -22,7 +24,7 @@ class CustomConfigLocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost);
+    explicit CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost);
 
     void setCustomConfigs(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
@@ -41,7 +43,7 @@ signals:
 private slots:
     void onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
     void onNeedIncrementPingIteration();
-    void onResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
+    void onDnsRequestFinished();
 
 private:
     PingStorage pingStorage_;

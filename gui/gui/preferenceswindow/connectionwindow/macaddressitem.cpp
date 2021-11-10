@@ -16,7 +16,7 @@ MacAddressItem::MacAddressItem(ScalableGraphicsObject *parent, const QString &ca
 {
     dividerLine_ = new DividerLine(this, 264);
 
-    btnUpdate_ = new IconButton(16, 16, "preferences/REFRESH_ICON", this);
+    btnUpdate_ = new IconButton(16, 16, "preferences/REFRESH_ICON", "", this);
     connect(btnUpdate_, SIGNAL(clicked()), SLOT(onUpdateClick()));
     updatePositions();
 }

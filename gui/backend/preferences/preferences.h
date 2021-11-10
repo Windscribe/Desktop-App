@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "../types/types.h"
+#include "../types/dnswhileconnectedinfo.h"
 #include "utils/protobuf_includes.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
@@ -29,11 +30,14 @@ public:
     void setHideFromDock(bool b);
 #endif
 
+    bool isStartMinimized() const;
+    void setStartMinimized(bool b);
+
     bool isShowNotifications() const;
     void setShowNotifications(bool b);
 
-    bool isShowCountryFlags() const;
-    void setShowCountryFlags(bool b);
+    ProtoTypes::BackgroundSettings backgroundSettings() const;
+    void setBackgroundSettings(const ProtoTypes::BackgroundSettings &backgroundSettings);
 
     bool isDockedToTray() const;
     void setDockedToTray(bool b);
@@ -77,7 +81,7 @@ public:
     bool isIgnoreSslErrors() const;
     void setIgnoreSslErrors(bool b);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     bool isKillTcpSockets() const;
     void setKillTcpSockets(bool b);
 #endif
@@ -97,6 +101,9 @@ public:
 #endif
     ProtoTypes::DnsPolicy dnsPolicy() const;
     void setDnsPolicy(ProtoTypes::DnsPolicy d);
+
+    DnsWhileConnectedInfo dnsWhileConnectedInfo() const;
+    void setDnsWhileConnectedInfo(DnsWhileConnectedInfo d);
 
     bool keepAlive() const;
     void setKeepAlive(bool bEnabled);
@@ -128,7 +135,9 @@ signals:
     void isAutoConnectChanged(bool b);
     void isAllowLanTrafficChanged(bool b);
     void isShowNotificationsChanged(bool b);
-    void isShowCountryFlagsChanged(bool b);
+    void backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings);
+
+    void isStartMinimizedChanged(bool b);
     void isDockedToTrayChanged(bool b);
     void languageChanged(const QString &lang);
     void locationOrderChanged(ProtoTypes::OrderLocationType o);
@@ -144,7 +153,7 @@ signals:
     void invalidLanAddressNotification(QString address);
     void customConfigsPathChanged(QString path);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     void minimizeAndCloseToTrayChanged(bool b);
     void isKillTcpSocketsChanged(bool b);
     void tapAdapterChanged(ProtoTypes::TapAdapterType tapAdapter);
@@ -156,10 +165,13 @@ signals:
     void shareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);
     void debugAdvancedParametersChanged(const QString &pars);
     void dnsPolicyChanged(ProtoTypes::DnsPolicy d);
+    void dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo dnsWcInfo);
     void networkWhiteListChanged(ProtoTypes::NetworkWhiteList l);
     void splitTunnelingChanged(ProtoTypes::SplitTunneling st);
     void keepAliveChanged(bool b);
     void updateEngineSettings();
+
+    void reportErrorToUser(QString title, QString desc);
 
 private:
     ProtoTypes::EngineSettings engineSettings_;

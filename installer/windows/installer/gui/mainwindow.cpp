@@ -1,10 +1,10 @@
 #include "MainWindow.h"
 #include "Application.h"
-#include "../../resource.h"
+#include "../resource.h"
 #include "ImageResources.h"
 #include "DPIScale.h"
-#include "../../../Utils/utils.h"
-#include "../../../Utils/applicationinfo.h"
+#include "../../Utils/utils.h"
+#include "../../Utils/applicationinfo.h"
 #include <Windowsx.h>
 #include <uxtheme.h>
 #include <dwmapi.h>
@@ -911,4 +911,9 @@ void MainWindow::updateRegion()
 	else
 		SetWindowRgn(hwnd_, CreateRectRgnIndirect(&rgn_), TRUE);
 
+}
+
+void MainWindow::gotoSilentInstall()
+{
+    onInstallClick(false);
 }

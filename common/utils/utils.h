@@ -5,8 +5,8 @@
 #include <QStringList>
 #include "protobuf_includes.h"
 
-#define SAFE_DELETE(x) if (x) { delete x; x = NULL; }
-#define SAFE_DELETE_LATER(x) if (x) { x->deleteLater(); x = NULL; }
+#define SAFE_DELETE(x) if (x) { delete x; x = nullptr; }
+#define SAFE_DELETE_LATER(x) if (x) { x->deleteLater(); x = nullptr; }
 
 #define CONNECTION_MODE_DEFAULT     0
 #define CONNECTION_MODE_BACKUP      1
@@ -23,6 +23,7 @@ namespace Utils {
     int generateIntegerRandom(const int &min, const int &max);
     bool isSubdomainsEqual(const QString &hostname1, const QString &hostname2);
     std::wstring getDirPathFromFullPath(const std::wstring &fullPath);
+    QString getDirPathFromFullPath(const QString &fullPath);
     QString fileNameFromFullPath(const QString &fullPath);
     QList<ProtoTypes::SplitTunnelingApp> insertionSort(QList<ProtoTypes::SplitTunnelingApp> apps);
     bool accessibilityPermissions();

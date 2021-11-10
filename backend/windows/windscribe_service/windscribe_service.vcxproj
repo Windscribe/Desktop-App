@@ -186,7 +186,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;_CRT_SECURE_NO_WARNINGS;CARES_STATICLIB;WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x32\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x32\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>all_headers.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -209,7 +209,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -230,7 +230,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -247,7 +247,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;CARES_STATICLIB;WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -267,7 +267,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;_CRT_SECURE_NO_WARNINGS;CARES_STATICLIB;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x32\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x32\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
@@ -293,7 +293,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;CARES_STATICLIB;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -315,7 +315,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -341,7 +341,7 @@
       <PreprocessorDefinitions>WINDSCRIBE_SERVICE;CARES_STATICLIB;WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include\boost-1_69;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\build-libs\cares\static_x64\include;$(SolutionDir)..\..\..\build-libs\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -355,6 +355,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\common\utils\crashdump.h" />
     <ClInclude Include="..\..\..\common\utils\crashhandler.h" />
+    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature_win.h" />
     <ClInclude Include="adapters_info.h" />
     <ClInclude Include="all_headers.h" />
     <ClInclude Include="apps_ids.h" />
@@ -374,8 +375,8 @@
     <ClInclude Include="ip_address\ip4_address_and_mask.h" />
     <ClInclude Include="registry.h" />
     <ClInclude Include="reinstall_wan_ikev2.h" />
+    <ClInclude Include="reinstall_tun_drivers.h" />
     <ClInclude Include="remove_windscribe_network_profiles.h" />
-    <ClInclude Include="simple_xor_crypt.h" />
     <ClInclude Include="split_tunneling\callout_filter.h" />
     <ClInclude Include="split_tunneling\hostnames_manager\ares_library_init.h" />
     <ClInclude Include="split_tunneling\hostnames_manager\dns_resolver.h" />
@@ -404,6 +405,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\common\utils\crashdump.cpp" />
     <ClCompile Include="..\..\..\common\utils\crashhandler.cpp" />
+    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp" />
     <ClCompile Include="adapters_info.cpp" />
     <ClCompile Include="apps_ids.cpp" />
     <ClCompile Include="cleardns_on_tap.cpp" />
@@ -425,8 +427,8 @@
     <ClCompile Include="pipe_for_process.cpp" />
     <ClCompile Include="registry.cpp" />
     <ClCompile Include="reinstall_wan_ikev2.cpp" />
+    <ClCompile Include="reinstall_tun_drivers.cpp" />
     <ClCompile Include="remove_windscribe_network_profiles.cpp" />
-    <ClCompile Include="simple_xor_crypt.cpp" />
     <ClCompile Include="split_tunneling\callout_filter.cpp" />
     <ClCompile Include="split_tunneling\hostnames_manager\ares_library_init.cpp" />
     <ClCompile Include="split_tunneling\hostnames_manager\dns_resolver.cpp" />

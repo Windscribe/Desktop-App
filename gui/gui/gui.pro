@@ -1,4 +1,3 @@
-#-------------------------------------------------
 QT       += core gui network svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -26,7 +25,7 @@ INCLUDEPATH += $$COMMON_PATH
 
 CONFIG(release, debug|release) {
     DEFINES += WINDSCRIBE_EMBEDDED_ENGINE
-    }
+}
 
 win32 {
     CONFIG(release, debug|release){
@@ -59,11 +58,10 @@ SOURCES += multipleaccountdetection/multipleaccountdetection_win.cpp \
            $$COMMON_PATH/utils/winutils.cpp \
            $$COMMON_PATH/utils/widgetutils_win.cpp \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
+           utils/authchecker_win.cpp \
            utils/scaleutils_win.cpp \
            launchonstartup/launchonstartup_win.cpp \
-           application/preventmultipleinstances_win.cpp
-
-
+           utils/interfaceutils_win.cpp
 
 HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
            multipleaccountdetection/secretvalue_win.h \
@@ -72,11 +70,11 @@ HEADERS += multipleaccountdetection/multipleaccountdetection_win.h \
            $$COMMON_PATH/utils/winutils.h \
            $$COMMON_PATH/utils/widgetutils_win.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
+           utils/authchecker_win.h \
            utils/scaleutils_win.h \
-           launchonstartup/launchonstartup_win.h \
-           application/preventmultipleinstances_win.h
+           launchonstartup/launchonstartup_win.h
 
-}
+} # win32
 
 
 macx {
@@ -104,6 +102,7 @@ OBJECTIVE_SOURCES += \
                 application/openlocationshandler_mac.mm \
                 launchonstartup/launchonstartup_mac.mm \
                 utils/interfaceutils_mac.mm \
+                utils/authchecker_mac.mm \
                 $$COMMON_PATH/exithandler_mac.mm \
                 $$COMMON_PATH/utils/widgetutils_mac.mm \
                 $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm
@@ -115,6 +114,7 @@ HEADERS += \
            application/openlocationshandler_mac.h \
            launchonstartup/launchonstartup_mac.h \
            utils/interfaceutils_mac.h \
+           utils/authchecker_mac.h \
            $$COMMON_PATH/exithandler_mac.h \
            $$COMMON_PATH/utils/widgetutils_mac.h \
            $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
@@ -153,12 +153,52 @@ CONFIG(release, debug|release) {
     first.depends += copydata4
     export(copydata4.commands)
     QMAKE_EXTRA_TARGETS += copydata4
+
+    osslicense.files = $$COMMON_PATH/licenses/open_source_licenses.txt
+    osslicense.path  = Contents/Resources
+    QMAKE_BUNDLE_DATA += osslicense
 }
 
 RESOURCES += \
     windscribe_mac.qrc
 
 } # macx
+
+linux {
+# uncomment for use signature checking on Linux
+#DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+
+#remove linux deprecated copy warnings
+QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
+LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+
+SOURCES += \
+    $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
+    $$COMMON_PATH/utils/linuxutils.cpp \
+    multipleaccountdetection/multipleaccountdetection_linux.cpp \
+    launchonstartup/launchonstartup_linux.cpp \
+    utils/interfaceutils_linux.cpp \
+    utils/authchecker_linux.cpp
+
+HEADERS += \
+    $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
+    $$COMMON_PATH/utils/linuxutils.h \
+    multipleaccountdetection/multipleaccountdetection_linux.h \
+    launchonstartup/launchonstartup_linux.h \
+    utils/authchecker_linux.h
+
+contains(DEFINES, USE_SIGNATURE_CHECK_ON_LINUX) {
+    RESOURCES += \
+        $$COMMON_PATH/common_linux.qrc
+}
+
+
+} # linux
 
 
 SOURCES += \
@@ -185,6 +225,7 @@ SOURCES += \
     ../backend/types/pingtime.cpp \
     ../backend/types/types.cpp \
     ../backend/types/upgrademodetype.cpp \
+    ../backend/types/dnswhileconnectedinfo.cpp \
     $$COMMON_PATH/utils/clean_sensitive_info.cpp \
     $$COMMON_PATH/utils/extraconfig.cpp \
     $$COMMON_PATH/utils/languagesutil.cpp \
@@ -193,6 +234,7 @@ SOURCES += \
     $$COMMON_PATH/utils/utils.cpp \
     $$COMMON_PATH/utils/widgetutils.cpp \
     $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
+    $$COMMON_PATH/utils/ipvalidation.cpp \
     $$COMMON_PATH/version/appversion.cpp \
     ../backend/persistentstate.cpp \
     application/windowsnativeeventfilter.cpp \
@@ -203,8 +245,12 @@ SOURCES += \
     commonwidgets/combomenuwidgetbutton.cpp \
     commonwidgets/iconwidget.cpp \
     commonwidgets/lightwidget.cpp \
-    connectwindow/connectionbadgedots.cpp \
-    connectwindow/connectstateprotocolport.cpp \
+    connectwindow/backgroundimage/backgroundimage.cpp \
+    connectwindow/backgroundimage/imagechanger.cpp \
+    connectwindow/backgroundimage/simpleimagechanger.cpp \
+    connectwindow/connectstateprotocolport/badgepixmap.cpp \
+    connectwindow/connectstateprotocolport/connectionbadgedots.cpp \
+    connectwindow/connectstateprotocolport/connectstateprotocolport.cpp \
     connectwindow/ipaddressitem/ipaddressitem.cpp \
     connectwindow/ipaddressitem/numberitem.cpp \
     connectwindow/ipaddressitem/numberspixmap.cpp \
@@ -226,6 +272,7 @@ SOURCES += \
     locationswindow/widgetlocations/widgetcitieslist.cpp \
     locationswindow/widgetlocations/widgetlocations.cpp \
     locationswindow/widgetlocations/widgetlocationslist.cpp \
+    mainwindowstate.cpp \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.cpp \
     overlaysconnectwindow//upgradewindowitem.cpp \
     overlaysconnectwindow/updatewindowitem.cpp \
@@ -233,6 +280,8 @@ SOURCES += \
     overlaysconnectwindow/generalmessagewindowitem.cpp \
     overlaysconnectwindow/updateappitem.cpp \
     preferenceswindow/debugwindow/apiresolutionitem.cpp \
+    preferenceswindow/generalwindow/backgroundsettingsitem.cpp \
+    preferenceswindow/generalwindow/selectimageitem.cpp \
     preferenceswindow/generalwindow/versioninfoitem.cpp \
     preferenceswindow/networkwhitelistwindow/currentnetworkitem.cpp \
     preferenceswindow/networkwhitelistwindow/networklistitem.cpp \
@@ -250,13 +299,14 @@ SOURCES += \
     preferenceswindow/splittunnelingwindow/splittunnelingipsandhostnamesitem.cpp \
     preferenceswindow/splittunnelingwindow/splittunnelingitem.cpp \
     preferenceswindow/splittunnelingwindow/splittunnelingswitchitem.cpp \
+    showingdialogstate.cpp \
     tooltips/itooltip.cpp \
     tooltips/serverratingstooltip.cpp \
     tooltips/tooltipbasic.cpp \
     tooltips/tooltipcontroller.cpp \
     tooltips/tooltipdescriptive.cpp \
     tooltips/tooltiputil.cpp \
-    utils/ipvalidation.cpp \
+    utils/imagewithshadow.cpp \
     utils/protoenumtostring.cpp \
     commonwidgets/custommenuwidget.cpp \
     commonwidgets/customtexteditwidget.cpp \
@@ -265,7 +315,9 @@ SOURCES += \
     loginwindow/initwindowitem.cpp \
     log/logviewerwindow.cpp \
     preferenceswindow/debugwindow/advancedparameterswindowitem.cpp \
+    $$COMMON_PATH/utils/hardcodedsettings.cpp \
     $$COMMON_PATH/utils/simplecrypt.cpp \
+    utils/textshadow.cpp \
     utils/writeaccessrightschecker.cpp \
     blockconnect.cpp \
     dpiscaleawarewidget.cpp \
@@ -309,7 +361,6 @@ SOURCES += \
     $$COMMON_PATH/ipc/tcpserver.cpp \
     $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
-    $$COMMON_PATH/utils/hardcodedsettings.cpp \
     connectwindow/background.cpp \
     connectwindow/connectbutton.cpp \
     connectwindow/locationsbutton.cpp \
@@ -336,7 +387,6 @@ SOURCES += \
     preferenceswindow/accountwindow/emailitem.cpp \
     preferenceswindow/accountwindow/planitem.cpp \
     preferenceswindow/accountwindow/expiredateitem.cpp \
-    preferenceswindow/accountwindow/editaccountitem.cpp \
     preferenceswindow/connectionwindow/subpageitem.cpp \
     preferenceswindow/basepage.cpp \
     preferenceswindow/baseitem.cpp \
@@ -379,13 +429,14 @@ SOURCES += \
     commongraphics/iconbutton.cpp \
     preferenceswindow/textitem.cpp \
     connectwindow/logonotificationsbutton.cpp \
-    types/dnswhileconnectedtype.cpp \
     preferenceswindow/connectionwindow/dnswhileconnecteditem.cpp \
     languagecontroller.cpp \
     locationswindow/widgetlocations/staticipdeviceinfo.cpp \
     locationswindow/widgetlocations/configfooterinfo.cpp \
     mainwindowcontroller.cpp \
-    multipleaccountdetection/multipleaccountdetectionfactory.cpp
+    multipleaccountdetection/multipleaccountdetectionfactory.cpp \
+    preferenceswindow/openurlitem.cpp \
+    application/singleappinstance.cpp
 
 
 HEADERS += \
@@ -415,6 +466,7 @@ HEADERS += \
     ../backend/types/pingtime.h \
     ../backend/types/types.h \
     ../backend/types/upgrademodetype.h \
+    ../backend/types/dnswhileconnectedinfo.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/utils/languagesutil.h \
@@ -425,6 +477,7 @@ HEADERS += \
     $$COMMON_PATH/utils/protobuf_includes.h \
     $$COMMON_PATH/utils/widgetutils.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
+    $$COMMON_PATH/utils/ipvalidation.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     ../backend/persistentstate.h \
@@ -436,8 +489,12 @@ HEADERS += \
     commonwidgets/combomenuwidgetbutton.h \
     commonwidgets/iconwidget.h \
     commonwidgets/lightwidget.h \
-    connectwindow/connectionbadgedots.h \
-    connectwindow/connectstateprotocolport.h \
+    connectwindow/backgroundimage/backgroundimage.h \
+    connectwindow/backgroundimage/imagechanger.h \
+    connectwindow/backgroundimage/simpleimagechanger.h \
+    connectwindow/connectstateprotocolport/badgepixmap.h \
+    connectwindow/connectstateprotocolport/connectionbadgedots.h \
+    connectwindow/connectstateprotocolport/connectstateprotocolport.h \
     connectwindow/ipaddressitem/ipaddressitem.h \
     connectwindow/ipaddressitem/numberitem.h \
     connectwindow/ipaddressitem/numberspixmap.h \
@@ -456,6 +513,7 @@ HEADERS += \
     locationswindow/widgetlocations/widgetcitieslist.h \
     locationswindow/widgetlocations/widgetlocations.h \
     locationswindow/widgetlocations/widgetlocationslist.h \
+    mainwindowstate.h \
     overlaysconnectwindow/generalmessagetwobuttonwindowitem.h \
     overlaysconnectwindow/igeneralmessagetwobuttonwindow.h \
     overlaysconnectwindow/generalmessagewindowitem.h \
@@ -474,6 +532,8 @@ HEADERS += \
     loginwindow/initwindowitem.h \
     preferenceswindow/connectionwindow/packetsizeeditboxitem.h \
     preferenceswindow/debugwindow/apiresolutionitem.h \
+    preferenceswindow/generalwindow/backgroundsettingsitem.h \
+    preferenceswindow/generalwindow/selectimageitem.h \
     preferenceswindow/generalwindow/versioninfoitem.h \
     preferenceswindow/networkwhitelistwindow/currentnetworkitem.h \
     preferenceswindow/networkwhitelistwindow/networklistitem.h \
@@ -491,6 +551,7 @@ HEADERS += \
     preferenceswindow/splittunnelingwindow/splittunnelingipsandhostnamesitem.h \
     preferenceswindow/splittunnelingwindow/splittunnelingitem.h \
     preferenceswindow/splittunnelingwindow/splittunnelingswitchitem.h \
+    showingdialogstate.h \
     tooltips/itooltip.h \
     tooltips/serverratingstooltip.h \
     tooltips/tooltipbasic.h \
@@ -498,7 +559,9 @@ HEADERS += \
     tooltips/tooltipdescriptive.h \
     tooltips/tooltiptypes.h \
     tooltips/tooltiputil.h \
-    utils/ipvalidation.h \
+    utils/authcheckerfactory.h \
+    utils/iauthchecker.h \
+    utils/imagewithshadow.h \
     utils/protoenumtostring.h \
     commonwidgets/custommenuwidget.h \
     commonwidgets/customtexteditwidget.h \
@@ -506,8 +569,11 @@ HEADERS += \
     commonwidgets/verticalscrollbarwidget.h \
     log/logviewerwindow.h \
     preferenceswindow/debugwindow/advancedparameterswindowitem.h \
+    $$COMMON_PATH/utils/hardcodedsettings.h \
     $$COMMON_PATH/utils/simplecrypt.h \
+    utils/textshadow.h \
     utils/writeaccessrightschecker.h \
+    utils/interfaceutils.h \
     blockconnect.h \
     dpiscaleawarewidget.h \
     dpiscalemanager.h \
@@ -543,7 +609,6 @@ HEADERS += \
     $$COMMON_PATH/ipc/tcpserver.h \
     $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
-    $$COMMON_PATH/utils/hardcodedsettings.h \
     connectwindow/connectbutton.h \
     connectwindow/background.h \
     connectwindow/locationsbutton.h \
@@ -590,7 +655,6 @@ HEADERS += \
     preferenceswindow/accountwindow/emailitem.h \
     preferenceswindow/accountwindow/planitem.h \
     preferenceswindow/accountwindow/expiredateitem.h \
-    preferenceswindow/accountwindow/editaccountitem.h \
     preferenceswindow/connectionwindow/subpageitem.h \
     preferenceswindow/basepage.h \
     preferenceswindow/baseitem.h \
@@ -637,14 +701,16 @@ HEADERS += \
     commongraphics/iconbutton.h \
     preferenceswindow/textitem.h \
     connectwindow/logonotificationsbutton.h \
-    types/dnswhileconnectedtype.h \
     preferenceswindow/connectionwindow/dnswhileconnecteditem.h \
     languagecontroller.h \
     locationswindow/widgetlocations/staticipdeviceinfo.h \
     locationswindow/widgetlocations/configfooterinfo.h \
     mainwindowcontroller.h \
     multipleaccountdetection/imultipleaccountdetection.h \
-    multipleaccountdetection/multipleaccountdetectionfactory.h
+    multipleaccountdetection/multipleaccountdetectionfactory.h \
+    preferenceswindow/openurlitem.h \
+    application/singleappinstance.h \
+    application/singleappinstance_p.h
 
 RESOURCES += \
     svg.qrc \
@@ -710,4 +776,3 @@ DISTFILES += \
 FORMS += \
     dialogs/dialoggetusernamepassword.ui \
     dialogs/dialogmessagecpuusage.ui
-

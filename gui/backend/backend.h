@@ -34,7 +34,7 @@ public:
     explicit Backend(unsigned int clientId, unsigned long clientPid, const QString &clientName, QObject *parent);
     virtual ~Backend();
 
-    void init();
+    void init(bool recovery = false);
     void basicInit();
     void basicClose();
     void cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
@@ -111,6 +111,8 @@ public:
     void sendUpdateWindowInfo(qint32 mainWindowCenterX, qint32 mainWindowCenterY);
     void sendUpdateVersion(qint32 mainWindowHandle);
     void cancelUpdateVersion();
+
+    void sendMakeHostsFilesWritableWin();
 
 private slots:
     void onProcessStarted();

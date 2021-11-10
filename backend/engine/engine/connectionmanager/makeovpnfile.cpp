@@ -9,6 +9,8 @@
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"
     #include "engine/tempscripts_mac.h"
+#elif defined(Q_OS_LINUX)
+    #include "utils/dnsscripts_linux.h"
 #endif
 
 MakeOVPNFile::MakeOVPNFile()
@@ -26,9 +28,10 @@ MakeOVPNFile::~MakeOVPNFile()
     file_.remove();
 }
 
-bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port, uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway)
+bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port,
+                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509, bool blockOutsideDnsOption)
 {
-#ifdef Q_OS_WIN
+#ifndef Q_OS_MAC
     Q_UNUSED(defaultGateway);
 #endif
 
@@ -55,8 +58,11 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
     QString str;
 
 #ifdef Q_OS_WIN
-    str = "\r\nblock-outside-dns\r\n";
-    file_.write(str.toLocal8Bit());
+
+    if(blockOutsideDnsOption) {
+        str = "\r\nblock-outside-dns\r\n";
+        file_.write(str.toLocal8Bit());
+    }
 
     if (OpenVpnVersionController::instance().isUseWinTun())
     {
@@ -111,7 +117,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
         str = "\r\nproto tcp\r\n";
         file_.write(str.toLocal8Bit());
 
-    #ifdef Q_OS_MAC
+    #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
         if (!defaultGateway.isEmpty())
         {
             qCDebug(LOG_CONNECTION) << "defaultGateway for stunnel/wstunnel ovpn config: " << defaultGateway;
@@ -126,13 +132,34 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
         Q_ASSERT(false);
     }
 
+    if (openVpnX509 != "")
+    {
+        str = QString("verify-x509-name %1 name\r\n").arg(openVpnX509);
+        file_.write(str.toLocal8Bit());
+    }
+
 #ifdef Q_OS_MAC
     str = "--script-security 2\r\n";
     file_.write(str.toLocal8Bit());
 
     QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
+    if (strDnsPath.isEmpty()) {
+        return false;
+    }
     QString cmd1 = "\nup \"" + strDnsPath + " -up\"\n";
     file_.write(cmd1.toUtf8());
+#elif defined(Q_OS_LINUX)
+    str = "--script-security 2\r\n";
+    file_.write(str.toLocal8Bit());
+
+    QString cmd1 = "\nup " + DnsScripts_linux::instance().scriptPath() + "\n";
+    QString cmd2 = "down " + DnsScripts_linux::instance().scriptPath() + "\n";
+    QString cmd3 = "down-pre\n";
+    QString cmd4 = "dhcp-option DOMAIN-ROUTE .\n";   // prevent DNS leakage  and without it doesn't work update-systemd-resolved script
+    file_.write(cmd1.toUtf8());
+    file_.write(cmd2.toUtf8());
+    file_.write(cmd3.toUtf8());
+    file_.write(cmd4.toUtf8());
 #endif
 
     // concatenate with windscribe_extra.conf file, if it exists

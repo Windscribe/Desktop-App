@@ -22,6 +22,8 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    void setClickable(bool isClickable) override;
+
     void startAnimation() override;
     void stopAnimation() override;
     void updateScaling() override;

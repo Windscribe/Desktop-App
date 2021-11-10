@@ -12,7 +12,8 @@ public:
     virtual ~NetworkChangeWorkerThread();
 
     void earlyExit();
-    void postUpdate();
+
+    void SignalIpInterfaceChange() const;
 
 signals:
     void networkChanged();
@@ -22,7 +23,7 @@ public slots:
 
 private:
     void *hExitEvent_;
-
+    void *hIpInterfaceChange_;
 };
 
 #endif // NETWORKCHANGEWORKERTHREAD_H

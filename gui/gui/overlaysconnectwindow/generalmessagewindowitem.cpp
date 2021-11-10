@@ -17,7 +17,7 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(bool errorMode, QGraphicsObje
     curTitleOpacity_            = OPACITY_FULL;
     curDescriptionOpacity_      = OPACITY_FULL;
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     background_ = "background/WIN_MAIN_BG";
 #else
     background_ = "background/MAC_MAIN_BG";
@@ -54,7 +54,7 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     // background:
     painter->setOpacity(curBackgroundOpacity_ * initialOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(background_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background_);
     p->draw(0, 0, painter);
 
     // title

@@ -66,11 +66,11 @@
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <QtInstall>5.12.6</QtInstall>
+    <QtInstall>5.15.2</QtInstall>
     <QtModules>core;network;gui</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <QtInstall>5.12.6</QtInstall>
+    <QtInstall>5.15.2</QtInstall>
     <QtModules>core;network;gui</QtModules>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
@@ -78,7 +78,7 @@
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\common;c:\libs\protobuf_debug\include;debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\common;$(SolutionDir)build-libs\protobuf\debug\include;debug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -96,7 +96,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>c:\libs\protobuf_debug\lib\libprotobufd.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\user32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Iphlpapi.lib";$(QTDIR)\lib\libEGLd.lib;$(QTDIR)\lib\libGLESv2d.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)build-libs\protobuf\debug\lib\libprotobufd.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\user32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Iphlpapi.lib";$(QTDIR)\lib\libEGLd.lib;$(QTDIR)\lib\libGLESv2d.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>c:\libs\protobuf_debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" /IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -126,7 +126,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\common;c:\libs\protobuf_release\include;release;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\..\common;$(SolutionDir)build-libs\protobuf\release\include;release;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -146,7 +146,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>c:\libs\protobuf_release\lib\libprotobuf.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\user32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Iphlpapi.lib";$(QTDIR)\lib\libEGL.lib;$(QTDIR)\lib\libGLESv2.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)build-libs\protobuf\release\lib\libprotobuf.lib;"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\user32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Iphlpapi.lib";$(QTDIR)\lib\libEGL.lib;$(QTDIR)\lib\libGLESv2.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>c:\libs\protobuf_release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -176,6 +176,8 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\common\types\locationid.cpp" />
+    <ClCompile Include="..\..\common\utils\clean_sensitive_info.cpp" />
     <ClCompile Include="..\backend\preferences\accountinfo.cpp" />
     <ClCompile Include="..\backend\locationsmodel\alllocationsmodel.cpp" />
     <ClCompile Include="..\..\common\version\appversion.cpp" />
@@ -198,7 +200,6 @@
     <ClCompile Include="..\backend\firewallstatehelper.cpp" />
     <ClCompile Include="..\backend\preferences\guisettingsfromver1.cpp" />
     <ClCompile Include="..\..\common\utils\languagesutil.cpp" />
-    <ClCompile Include="..\backend\types\locationid.cpp" />
     <ClCompile Include="..\backend\locationsmodel\locationsmodel.cpp" />
     <ClCompile Include="..\..\common\utils\logger.cpp" />
     <ClCompile Include="main.cpp" />
@@ -224,6 +225,8 @@
     </QtMoc>
     <QtMoc Include="..\backend\locationsmodel\alllocationsmodel.h">
     </QtMoc>
+    <ClInclude Include="..\..\common\types\locationid.h" />
+    <ClInclude Include="..\..\common\utils\clean_sensitive_info.h" />
     <ClInclude Include="..\..\common\version\appversion.h" />
     <QtMoc Include="..\backend\backend.h">
     </QtMoc>
@@ -258,7 +261,6 @@
     <ClInclude Include="..\..\common\ipc\iconnection.h" />
     <ClInclude Include="..\..\common\ipc\iserver.h" />
     <ClInclude Include="..\..\common\utils\languagesutil.h" />
-    <ClInclude Include="..\backend\types\locationid.h" />
     <ClInclude Include="..\backend\locationsmodel\locationmodelitem.h" />
     <QtMoc Include="..\backend\locationsmodel\locationsmodel.h">
     </QtMoc>

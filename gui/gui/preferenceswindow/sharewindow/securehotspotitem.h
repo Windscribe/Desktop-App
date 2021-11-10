@@ -7,8 +7,6 @@
 #include "../dividerline.h"
 #include "../backend/preferences/preferences.h"
 #include "commongraphics/checkboxbutton.h"
-#include "../editboxitem.h"
-#include <QVariantAnimation>
 
 namespace PreferencesWindow {
 
@@ -17,7 +15,7 @@ class SecureHotspotItem : public BaseItem
     Q_OBJECT
 
 public:
-    enum HOTSPOT_SUPPORT_TYPE {HOTSPOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED_BY_IKEV2 };
+    enum HOTSPOT_SUPPORT_TYPE { HOTSPOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED_BY_IKEV2 };
 
     explicit SecureHotspotItem(ScalableGraphicsObject *parent);
 

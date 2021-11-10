@@ -48,13 +48,13 @@ void UpgradeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
     // background:
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     QString background = "background/WIN_MAIN_BG";
 #else
     QString background = "background/MAC_MAIN_BG";
 #endif
     painter->setOpacity(OPACITY_FULL * initialOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(background);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background);
     p->draw(0, 0, painter);
 
     // title

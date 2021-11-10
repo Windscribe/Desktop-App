@@ -3,14 +3,17 @@
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "utils/utils.h"
-#include "engine/dnsresolver/dnsresolver.h"
 #include "nodeselectionalgorithm.h"
 
 namespace locationsmodel {
 
 MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name, const QVector< QSharedPointer<const BaseNode> > &nodes, int selectedNode,
-                                         const QString &dnsHostName)
-    : BaseLocationInfo(locationId, name), nodes_(nodes), selectedNode_(selectedNode), dnsHostName_(dnsHostName)
+                                         const QString &dnsHostName, const QString &verifyX509name)
+    : BaseLocationInfo(locationId, name)
+    , nodes_(nodes)
+    , selectedNode_(selectedNode)
+    , dnsHostName_(dnsHostName)
+    , verifyX509name_(verifyX509name)
 {
 
     QString strNodes;
@@ -47,6 +50,11 @@ QString MutableLocationInfo::getDnsName() const
 bool MutableLocationInfo::isExistSelectedNode() const
 {
     return selectedNode_ != -1;
+}
+
+QString MutableLocationInfo::getVerifyX509name() const
+{
+    return verifyX509name_;
 }
 
 QString MutableLocationInfo::getLogString() const

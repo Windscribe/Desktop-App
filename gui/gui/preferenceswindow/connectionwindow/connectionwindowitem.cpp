@@ -25,10 +25,10 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, SIGNAL(isAllowLanTrafficChanged(bool)), SLOT(onIsAllowLanTrafficPreferencedChanged(bool)));
     connect(preferences, SIGNAL(invalidLanAddressNotification(QString)), SLOT(onInvalidLanAddressNotification(QString)));
     connect(preferences, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingPreferencesChanged(ProtoTypes::MacAddrSpoofing)));
-    //connect(preferences, SIGNAL(dnsWhileConnectedChanged(DNSWhileConnected)), SLOT(onDNSWhileConnectedPreferencesChanged(DNSWhileConnected)));
+    connect(preferences, SIGNAL(dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedPreferencesChanged(DnsWhileConnectedInfo)));
     connect(preferencesHelper, SIGNAL(isFirewallBlockedChanged(bool)), SLOT(onIsFirewallBlockedChanged(bool)));
     connect(preferencesHelper, SIGNAL(isExternalConfigModeChanged(bool)), SLOT(onIsExternalConfigModeChanged(bool)));
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     connect(preferences, SIGNAL(isKillTcpSocketsChanged(bool)), SLOT(onKillTcpSocketsPreferencesChanged(bool)));
 #endif
 
@@ -38,9 +38,11 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(networkWhitelistItem_, SIGNAL(clicked()), SIGNAL(networkWhitelistPageClick()));
     addItem(networkWhitelistItem_);
 
+#ifndef Q_OS_LINUX
     splitTunnelingItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Split Tunneling"), true);
     connect(splitTunnelingItem_, SIGNAL(clicked()), SIGNAL(splitTunnelingPageClick()));
     addItem(splitTunnelingItem_);
+#endif
 
     proxySettingsItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Proxy Settings"), true);
     connect(proxySettingsItem_, SIGNAL(clicked()), SIGNAL(proxySettingsPageClick()));
@@ -64,11 +66,17 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
         SLOT(onConnectionModeHoverLeave(ConnectionModeItem::ButtonType)));
     addItem(connectionModeItem_);
 
+#ifndef Q_OS_LINUX
     packetSizeItem_ = new PacketSizeItem(this);
     packetSizeItem_->setPacketSize(preferences->packetSize());
     connect(packetSizeItem_, SIGNAL(packetSizeChanged(ProtoTypes::PacketSize)), SLOT(onPacketSizeChanged(ProtoTypes::PacketSize)));
     connect(packetSizeItem_, SIGNAL(detectAppropriatePacketSizeButtonClicked()), SIGNAL(detectAppropriatePacketSizeButtonClicked()));
     addItem(packetSizeItem_);
+
+    dnsWhileConnectedItem_ = new DnsWhileConnectedItem(this);
+    connect(dnsWhileConnectedItem_, SIGNAL(dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo)));
+    addItem(dnsWhileConnectedItem_);
+#endif
 
     checkBoxAllowLanTraffic_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN traffic"), QString());
     checkBoxAllowLanTraffic_->setState(preferences->isAllowLanTraffic());
@@ -76,22 +84,20 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(checkBoxAllowLanTraffic_, SIGNAL(buttonHoverLeave()), SLOT(onAllowLanTrafficButtonHoverLeave()));
     addItem(checkBoxAllowLanTraffic_);
 
+#ifndef Q_OS_LINUX
     macSpoofingItem_ = new MacSpoofingItem(this);
     connect(macSpoofingItem_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
     connect(macSpoofingItem_, SIGNAL(cycleMacAddressClick()), SIGNAL(cycleMacAddressClick()));
     addItem(macSpoofingItem_);
+#endif
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     cbKillTcp_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Kill TCP sockets after connection"), "");
     cbKillTcp_->setState(preferences->isKillTcpSockets());
     connect(cbKillTcp_, SIGNAL(stateChanged(bool)), SLOT(onKillTcpSocketsStateChanged(bool)));
     addItem(cbKillTcp_);
 #endif
 
-    /* dnsWhileConnectedItem_ = new DNSWhileConnectedItem(this);
-     connect(dnsWhileConnectedItem_, SIGNAL(dnsWhileConnectedChanged(DNSWhileConnected)), SLOT(onDNSWhileConnectedItemChanged(DNSWhileConnected)));
-     dnsWhileConnectedItem_->setDNSWhileConnected(preferences->dnsWhileConnected());
-     addItem(dnsWhileConnectedItem_);*/
 }
 
 QString ConnectionWindowItem::caption()
@@ -102,7 +108,12 @@ QString ConnectionWindowItem::caption()
 void ConnectionWindowItem::updateScaling()
 {
     BasePage::updateScaling();
-    packetSizeItem_->updateScaling();
+    if(packetSizeItem_) {
+        packetSizeItem_->updateScaling();
+    }
+    if(dnsWhileConnectedItem_) {
+        dnsWhileConnectedItem_->updateScaling();
+    }
 }
 
 CONNECTION_SCREEN_TYPE ConnectionWindowItem::getScreen()
@@ -117,18 +128,24 @@ void ConnectionWindowItem::setScreen(CONNECTION_SCREEN_TYPE subScreen)
 
 void ConnectionWindowItem::setCurrentNetwork(const ProtoTypes::NetworkInterface &networkInterface)
 {
-    macSpoofingItem_->setCurrentNetwork(networkInterface);
+    if(macSpoofingItem_) {
+        macSpoofingItem_->setCurrentNetwork(networkInterface);
+    }
 }
 
 void ConnectionWindowItem::setPacketSizeDetectionState(bool on)
 {
-    packetSizeItem_->setPacketSizeDetectionState(on);
+    if(packetSizeItem_) {
+        packetSizeItem_->setPacketSizeDetectionState(on);
+    }
 }
 
 void ConnectionWindowItem::showPacketSizeDetectionError(const QString &title,
                                                         const QString &message)
 {
-    packetSizeItem_->showPacketSizeDetectionError(title, message);
+    if(packetSizeItem_) {
+        packetSizeItem_->showPacketSizeDetectionError(title, message);
+    }
 }
 
 void ConnectionWindowItem::onFirewallModeChanged(const ProtoTypes::FirewallSettings &fm)
@@ -205,7 +222,7 @@ void ConnectionWindowItem::onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpo
     preferences_->setMacAddrSpoofing(mas);
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 void ConnectionWindowItem::onKillTcpSocketsStateChanged(bool isChecked)
 {
     preferences_->setKillTcpSockets(isChecked);
@@ -224,21 +241,25 @@ void ConnectionWindowItem::onConnectionModePreferencesChanged(const ProtoTypes::
 
 void ConnectionWindowItem::onPacketSizePreferencesChanged(const ProtoTypes::PacketSize &ps)
 {
-    packetSizeItem_->setPacketSize(ps);
+    if(packetSizeItem_) {
+        packetSizeItem_->setPacketSize(ps);
+    }
 }
 
 void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const ProtoTypes::MacAddrSpoofing &mas)
 {
-    macSpoofingItem_->setMacAddrSpoofing(mas);
+    if(macSpoofingItem_) {
+        macSpoofingItem_->setMacAddrSpoofing(mas);
 
-    if (mas.is_enabled()) // only scroll when opening
-    {
-        // magic number is expanded height
-        emit scrollToPosition(static_cast<int>(macSpoofingItem_->y()) + 50 + 43 + 43);
+        if (mas.is_enabled()) // only scroll when opening
+        {
+            // magic number is expanded height
+            emit scrollToPosition(static_cast<int>(macSpoofingItem_->y()) + 50 + 43 + 43);
+        }
     }
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 void ConnectionWindowItem::onKillTcpSocketsPreferencesChanged(bool b)
 {
     cbKillTcp_->setState(b);
@@ -296,17 +317,18 @@ void ConnectionWindowItem::onIsExternalConfigModeChanged(bool bIsExternalConfigM
     connectionModeItem_->setVisible(!bIsExternalConfigMode);
 }
 
-/*
-void ConnectionWindowItem::onDNSWhileConnectedPreferencesChanged(const DNSWhileConnected &dns)
+void ConnectionWindowItem::onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns)
 {
-    dnsWhileConnectedItem_->setDNSWhileConnected(dns);
+    if(dnsWhileConnectedItem_) {
+        dnsWhileConnectedItem_->setDNSWhileConnected(dns);
 
-    if (dns.type == DNSWhileConnectedType::CUSTOM)
-    {
-        // magic number is expanded height
-        emit scrollToItemBottom(static_cast<int>(dnsWhileConnectedItem_->y()) + 50 + 43);
+        if (dns.type() == DnsWhileConnectedInfo::CUSTOM)
+        {
+            // magic number is expanded height
+            emit scrollToPosition(static_cast<int>(dnsWhileConnectedItem_->y()) + 50 + 43);
+        }
     }
-}*/
+}
 
 void ConnectionWindowItem::onLanguageChanged()
 {
@@ -318,10 +340,10 @@ void ConnectionWindowItem::onIsAllowLanTrafficClicked(bool b)
     preferences_->setAllowLanTraffic(b);
 }
 
-/*void ConnectionWindowItem::onDNSWhileConnectedItemChanged(DNSWhileConnected dns)
+void ConnectionWindowItem::onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo dns)
 {
-    preferences_->setDNSWhileConnected(dns);
-}*/
+    preferences_->setDnsWhileConnectedInfo(dns);
+}
 
 void ConnectionWindowItem::hideOpenPopups()
 {

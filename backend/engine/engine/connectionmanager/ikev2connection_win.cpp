@@ -16,17 +16,20 @@ IKEv2Connection_win *IKEv2Connection_win::this_ = NULL;
 bool IKEv2Connection_win::wanReinstalled_ = false;
 
 
-IKEv2Connection_win::IKEv2Connection_win(QObject *parent, IHelper *helper) : IConnection(parent, helper),
+IKEv2Connection_win::IKEv2Connection_win(QObject *parent, IHelper *helper) : IConnection(parent),
     state_(STATE_DISCONNECTED), initialEnableIkev2Compression_(false),
     isAutomaticConnectionMode_(false), connHandle_(NULL), mutex_(QMutex::Recursive),
     disconnectLogic_(this), cntFailedConnectionAttempts_(0)
 {
+    helper_ = dynamic_cast<Helper_win *>(helper);
+    Q_ASSERT(helper_);
+
     Q_ASSERT(this_ == NULL);
     this_ = this;
     initMapConnStates();
     timerControlConnection_.setInterval(CONTROL_TIMER_PERIOD);
-    connect(&timerControlConnection_, SIGNAL(timeout()), SLOT(onTimerControlConnection()));
-    connect(&disconnectLogic_, SIGNAL(disconnected()), SLOT(onHandleDisconnectLogic()));
+    connect(&timerControlConnection_, &QTimer::timeout, this, &IKEv2Connection_win::onTimerControlConnection);
+    connect(&disconnectLogic_, &IKEv2ConnectionDisconnectLogic_win::disconnected, this, &IKEv2Connection_win::onHandleDisconnectLogic);
     Q_ASSERT(state_ == STATE_DISCONNECTED);
 }
 
@@ -194,7 +197,7 @@ void IKEv2Connection_win::handleAuthError()
     // auth error
     doBlockingDisconnect();
     connHandle_ = NULL;
-    emit error(AUTH_ERROR);
+    emit error(ProtoTypes::ConnectError::AUTH_ERROR);
     helper_->disableDnsLeaksProtection();
     helper_->removeHosts();
     state_ = STATE_DISCONNECTED;
@@ -217,6 +220,12 @@ void IKEv2Connection_win::handleErrorReinstallWan()
     helper_->disableDnsLeaksProtection();
     helper_->removeHosts();
 
+    // With issues 498 and 576, it was found that only restarting the app would rectify the
+    // AuthNotify error.  When exiting the app, we run this method, so hopefully running
+    // it here helps with the aforementioned issues, which are not reproducible, and does
+    // no harm elsewhere.
+    removeIkev2ConnectionFromOS();
+
     if (isAutomaticConnectionMode_)
     {
         cntFailedConnectionAttempts_++;
@@ -224,7 +233,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
         if (cntFailedConnectionAttempts_ >= (MAX_FAILED_CONNECTION_ATTEMPTS_FOR_AUTOMATIC_MODE))
         {
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_TO_CONNECT);
+            emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
         }
         else
         {
@@ -253,7 +262,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
                     else
                     {
                         state_ = STATE_DISCONNECTED;
-                        emit error(IKEV_FAILED_TO_CONNECT);
+                        emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
                     }
                 }
             }
@@ -281,13 +290,13 @@ void IKEv2Connection_win::handleErrorReinstallWan()
             else
             {
                 state_ = STATE_DISCONNECTED;
-                emit error(IKEV_FAILED_TO_CONNECT);
+                emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
             }
         }
         else if (cntFailedConnectionAttempts_ >= MAX_FAILED_CONNECTION_ATTEMPTS)
         {
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_TO_CONNECT);
+            emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
         }
         else
         {
@@ -345,7 +354,7 @@ void IKEv2Connection_win::doConnect()
     if (!ikev2DeviceInitialized)
     {
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_NOT_FOUND_WIN);
+        emit error(ProtoTypes::ConnectError::IKEV_NOT_FOUND_WIN);
         return;
     }
 
@@ -355,9 +364,9 @@ void IKEv2Connection_win::doConnect()
     rasEntry.dwSize = offsetof(RASENTRY, ipv6addr);
     //rasEntry.dwSize = sizeof(RASENTRY);
 
-    wcscpy(rasEntry.szLocalPhoneNumber, initialUrl_.toStdWString().c_str());
-    wcscpy(rasEntry.szDeviceName, devInfo.szDeviceName);
-    wcscpy(rasEntry.szDeviceType, devInfo.szDeviceType);
+    wcscpy_s(rasEntry.szLocalPhoneNumber, initialUrl_.toStdWString().c_str());
+    wcscpy_s(rasEntry.szDeviceName, devInfo.szDeviceName);
+    wcscpy_s(rasEntry.szDeviceType, devInfo.szDeviceType);
 
     rasEntry.dwfOptions = RASEO_RequireEAP  /*| RASEO_RemoteDefaultGateway*/;
     if (initialEnableIkev2Compression_)
@@ -392,7 +401,7 @@ void IKEv2Connection_win::doConnect()
         {
             qCDebug(LOG_IKEV2) << "RasSetEntryProperties failed with error:" << dwErr;
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_SET_ENTRY_WIN);
+            emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN);
             return;
         }
     }
@@ -403,16 +412,16 @@ void IKEv2Connection_win::doConnect()
     memset(&dialparams, 0, sizeof(dialparams));
     dialparams.dwSize = sizeof(dialparams);
 
-    wcscpy(dialparams.szEntryName, IKEV2_CONNECTION_NAME);
-    wcscpy(dialparams.szUserName, (wchar_t *)initialUsername_.utf16());
-    wcscpy(dialparams.szPassword, (wchar_t *)initialPassword_.utf16());
+    wcscpy_s(dialparams.szEntryName, IKEV2_CONNECTION_NAME);
+    wcscpy_s(dialparams.szUserName, initialUsername_.toStdWString().c_str());
+    wcscpy_s(dialparams.szPassword, initialPassword_.toStdWString().c_str());
 
     dwErr = RasSetEntryDialParams(NULL, &dialparams, FALSE);
     if (dwErr != ERROR_SUCCESS)
     {
         qCDebug(LOG_IKEV2) << "RasSetEntryDialParams failed with error:" << dwErr;
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN);
         return;
     }
 
@@ -420,7 +429,7 @@ void IKEv2Connection_win::doConnect()
     {
         qCDebug(LOG_IKEV2) << "Can't modify hosts file";
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_FAILED_MODIFY_HOSTS_WIN);
+        emit error(ProtoTypes::ConnectError::IKEV_FAILED_MODIFY_HOSTS_WIN);
         return;
     }
 
@@ -438,7 +447,7 @@ void IKEv2Connection_win::doConnect()
         helper_->disableDnsLeaksProtection();
         helper_->removeHosts();
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN);
         return;
     }
 }
@@ -460,7 +469,13 @@ void IKEv2Connection_win::rasDialFuncCallback(HRASCONN hrasconn, UINT unMsg, tag
     else
     {
         wchar_t strErr[1024];
-        RasGetErrorString(dwError, strErr, 1024);
+        DWORD result = ::RasGetErrorString(dwError, strErr, 1024);
+        if (result != ERROR_SUCCESS)
+        {
+            // RasGetErrorString will fail if provided a non-RAS error code (e.g. ERROR_IPSEC_IKE_AUTH_FAIL, ERROR_IPSEC_IKE_POLICY_CHANGE)
+            WinUtils::Win32GetErrorString(dwError, strErr, _countof(strErr));
+        }
+
         qCDebug(LOG_IKEV2) << "RasDial state:" << str << "Error code:" << dwError << QString::fromWCharArray(strErr) << "(" << state_ << ")";
     }
 

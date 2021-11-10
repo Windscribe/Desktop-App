@@ -15,8 +15,9 @@
 #include "logger.h"
 #include "execute_cmd.h"
 #include "keychain_utils.h"
-#include "ipc/helper_commands_serialize.h"
+#include "../../../posix_common/helper_commands_serialize.h"
 #include "ipc/helper_security.h"
+#include "macutils.h"
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 
@@ -43,7 +44,7 @@ Server::~Server()
     unlink(SOCK_PATH);
 }
 
-bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer)
+bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer)
 {
     // not enough data for read command
     if (buf->size() < sizeof(int)*3)
@@ -69,15 +70,21 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
         return false;
     }
 
+    pid_t pidPeer = -1;
+    socklen_t lenPidPeer = sizeof(pidPeer);
+    if (getsockopt(sock->native_handle(), SOL_LOCAL, LOCAL_PEERPID, &pidPeer, &lenPidPeer) != 0)
+    {
+        LOG("getsockopt(LOCAL_PEERID) failed (%d).", errno);
+        return false;
+    }
+
     // check process id
-    if (!HelperSecurity::instance().verifyProcessId(pid))
+    if (!HelperSecurity::instance().verifyProcessId(pidPeer))
     {
         return false;
     }
 
-    std::vector<char> vector(length);
-    memcpy(&vector[0], bufPtr + headerSize, length);
-    std::string str(vector.begin(), vector.end());
+    std::string str(bufPtr + headerSize, length);
     std::istringstream stream(str);
     boost::archive::text_iarchive ia(stream, boost::archive::no_header);
     
@@ -96,7 +103,8 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
             {
                 strReply += szLine;
             }
-            pclose(file);
+            int retCode = pclose(file);
+	    outCmdAnswer.exitCode = WEXITSTATUS(retCode);
             outCmdAnswer.executed = 1;
             outCmdAnswer.body = strReply;
         }
@@ -301,6 +309,20 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
             }
         }
     }
+    else if (cmdId == HELPER_CMD_APPLY_CUSTOM_DNS)
+    {
+        CMD_APPLY_CUSTOM_DNS cmd;
+        ia >> cmd;
+        
+        if (MacUtils::setDnsOfDynamicStoreEntry(cmd.ipAddress, cmd.networkService))
+        {
+            outCmdAnswer.executed = 1;
+        }
+        else
+        {
+            outCmdAnswer.executed = 0;
+        }
+    }
 
     buf->consume(headerSize + length);
 
@@ -315,7 +337,7 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
         while (true)
         {
             CMD_ANSWER cmdAnswer;
-            if (!readAndHandleCommand(buf.get(), cmdAnswer))
+            if (!readAndHandleCommand(sock, buf.get(), cmdAnswer))
             {
                 // goto receive next commands
                 boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),

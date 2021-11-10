@@ -6,8 +6,8 @@
 
 namespace locationsmodel {
 
-PingIpsController::PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost, const QString &log_filename) : QObject(parent),
-    connectStateController_(stateController), networkStateManager_(networkStateManager),
+PingIpsController::PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost, const QString &log_filename) : QObject(parent),
+    connectStateController_(stateController), networkDetectionManager_(networkDetectionManager),
     pingLog_(log_filename), pingHost_(pingHost)
 {
     connect(pingHost_, SIGNAL(pingFinished(bool,int,QString, bool)), SLOT(onPingFinished(bool,int,QString, bool)));
@@ -87,7 +87,7 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
 
 void PingIpsController::onPingTimer()
 {
-    if (!networkStateManager_->isOnline())
+    if (!networkDetectionManager_->isOnline())
     {
         return;
     }
@@ -99,7 +99,7 @@ void PingIpsController::onPingTimer()
         //dtNextPingTime_ = dtNextPingTime_.addSecs(20);      // for testing
         qCDebug(LOG_BASIC) << "Ping all nodes by time";
         pingLog_.addLog("PingIpsController::onPingTimer", "it's ping time, set next ping time to:" + dtNextPingTime_.toString("ddMMyyyy HH:mm:ss"));
-        emit needIncrementPingIteration();
+        Q_EMIT needIncrementPingIteration();
     }
 
     CONNECT_STATE curConnectState = connectStateController_->currentState();
@@ -168,7 +168,7 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
                 itNode.value().latestPingFailed_ = false;
                 itNode.value().latestPingFromDisconnectedState_ = true;
                 itNode.value().failedPingsInRow = 0;
-                emit pingInfoChanged(ip, timems, true);
+                Q_EMIT pingInfoChanged(ip, timems, true);
             }
             else
             {
@@ -177,7 +177,7 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
                 itNode.value().latestPingFailed_ = false;
                 itNode.value().latestPingFromDisconnectedState_ = false;
                 itNode.value().failedPingsInRow = 0;
-                emit pingInfoChanged(ip, timems, false);
+                Q_EMIT pingInfoChanged(ip, timems, false);
             }
         }
         else
@@ -192,7 +192,7 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
                 itNode.value().failedPingsInRow = 0;
                 // next ping attempt in 1 mins
                 itNode.value().nextTimeForFailedPing_ = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
-                emit pingInfoChanged(ip, PingTime::PING_FAILED, isFromDisconnectedState);
+                Q_EMIT pingInfoChanged(ip, PingTime::PING_FAILED, isFromDisconnectedState);
                 if (failedPingLogController_.logFailedIPs(ip))
                 {
                     pingLog_.addLog("PingIpsController::onPingFinished", "ping failed: " + ip);

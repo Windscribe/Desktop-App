@@ -42,10 +42,10 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
 
 #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", this);
+    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
 
-    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
 #else //if Q_OS_MAC
 
@@ -115,7 +115,7 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
 
     // Icon
     painter->setOpacity(curIconOpacity_*initialOpacity);
-    IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyConnect/EMERGENCY_CONNECT_ICON");
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyconnect/EMERGENCY_CONNECT_ICON");
     pixmap->draw((WINDOW_WIDTH/2 - 20)*G_SCALE, ICON_POS_Y*G_SCALE, painter);
 
     painter->setPen(QColor(255,255,255));
@@ -145,7 +145,7 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
     }
 
     QFontMetrics fm = painter->fontMetrics();
-    int width = fm.width(descriptionText)/desiredLines; // 3 lines
+    int width = fm.horizontalAdvance(descriptionText)/desiredLines; // 3 lines
     if (width < DESCRIPTION_WIDTH_MIN*G_SCALE) width = DESCRIPTION_WIDTH_MIN*G_SCALE;
     else if (width > LOGIN_WIDTH*G_SCALE) width = LOGIN_WIDTH*G_SCALE;
     painter->drawText(CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, width), DESCRIPTION_POS_Y*G_SCALE,
@@ -158,7 +158,7 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
 
     // spinner
     painter->save();
-    pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyConnect/BIG_SPINNER");
+    pixmap = ImageResourcesSvg::instance().getIndependentPixmap("emergencyconnect/BIG_SPINNER");
     painter->translate(WINDOW_WIDTH/2 * G_SCALE, (SPINNER_POS_Y* G_SCALE) +pixmap->height() / 2);
     painter->rotate(curSpinnerRotation_);
     pixmap->draw(-pixmap->width() / 2,-pixmap->height() / 2, painter);

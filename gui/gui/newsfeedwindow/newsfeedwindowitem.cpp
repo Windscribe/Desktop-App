@@ -26,7 +26,7 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
     int scrollWidth = WINDOW_WIDTH - 15;
     messageItem_ = new ScrollableMessage(scrollWidth, 115, this);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     mainBackground_   = "background/WIN_MAIN_BG";
     locationButtonBG_ = "background/WIN_LOCATION_BUTTON_BG_BRIGHT";
     headerBackground_ = "background/WIN_HEADER_BG_OVERLAY";
@@ -44,36 +44,36 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
     curDefaultOpacity_ = OPACITY_FULL;
 
     // upper buttons
-    backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", this);
+    backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", "", this);
     connect(backArrowButton_, SIGNAL(clicked()), SLOT(onBackArrowButtonClicked()));
 
-#ifdef Q_OS_WIN
-    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", this);
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
 
-    minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
 #elif defined Q_OS_MAC
 
-    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", this);
+    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
     minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
     minimizeButton_->setSelected(false);
 
-    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
+    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
     connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(false);
 #endif
     // bottom right buttons
-    rightArrowButton_ = new IconButton(16, 16, "newsfeed/RIGHT_ARROW", this);
+    rightArrowButton_ = new IconButton(16, 16, "newsfeed/RIGHT_ARROW", "", this);
     rightArrowButton_->animateOpacityChange(OPACITY_UNHOVER_ICON_STANDALONE, 50);
     connect(rightArrowButton_, SIGNAL(clicked()), SLOT(onRightClick()));
 
-    leftArrowButton_ = new IconButton(16, 16, "newsfeed/LEFT_ARROW", this);
+    leftArrowButton_ = new IconButton(16, 16, "newsfeed/LEFT_ARROW", "", this);
     leftArrowButton_->animateOpacityChange(OPACITY_UNHOVER_ICON_STANDALONE, 50);
     connect(leftArrowButton_, SIGNAL(clicked()), SLOT(onLeftClick()));
 
@@ -109,15 +109,15 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     // main background
     painter->setOpacity(curBackgroundOpacity_ * initialOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(mainBackground_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(mainBackground_);
     p->draw(0, 0, painter);
 
     // header background
     painter->setOpacity(initialOpacity);
-    IndependentPixmap *p3 = ImageResourcesSvg::instance().getIndependentPixmap(headerBackground_);
+    QSharedPointer<IndependentPixmap> p3 = ImageResourcesSvg::instance().getIndependentPixmap(headerBackground_);
     p3->draw(0, 27*G_SCALE, painter);
 
-    IndependentPixmap *p4 = ImageResourcesSvg::instance().getIndependentPixmap(locationButtonBG_);
+    QSharedPointer<IndependentPixmap> p4 = ImageResourcesSvg::instance().getIndependentPixmap(locationButtonBG_);
     p4->draw(93*G_SCALE, 242*G_SCALE, painter);
 
     // Message header
@@ -321,7 +321,7 @@ void NewsFeedWindowItem::updatePositions()
 
     backArrowButton_->setPos(16*G_SCALE, 45*G_SCALE);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     int closePosX = (WINDOW_WIDTH - WINDOW_MARGIN)*G_SCALE - closeButton_->boundingRect().width();
     closeButton_->setPos(closePosX, 14*G_SCALE);
     minimizeButton_->setPos(closePosX - 26*G_SCALE - minimizeButton_->boundingRect().width(), 14*G_SCALE);

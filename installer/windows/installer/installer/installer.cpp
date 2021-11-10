@@ -9,6 +9,7 @@
 #include "blocks/install_tap.h"
 #include "blocks/install_wintun.h"
 #include "blocks/install_splittunnel.h"
+#include "blocks/install_authhelper.h"
 #include "blocks/ShellExecuteAsUser.h"
 
 using namespace std;
@@ -35,7 +36,7 @@ void Installer::startImpl(HWND hwnd, const Settings &settings)
 {
     installPath_ = settings.getPath();
 #ifdef _WIN32
-    blocks_.push_back(new UninstallPrev(0.15));
+    blocks_.push_back(new UninstallPrev(0.10));
     blocks_.push_back(new Files(installPath_, 0.4));
     blocks_.push_back(new Service(installPath_, 0.05));
     blocks_.push_back(new InstallTap(installPath_, 0.1));
@@ -43,6 +44,7 @@ void Installer::startImpl(HWND hwnd, const Settings &settings)
     blocks_.push_back(new InstallSplitTunnel(installPath_, 0.1, hwnd));
     blocks_.push_back(new UninstallInfo(installPath_, 0.05));
     blocks_.push_back(new Icons(installPath_, settings.getCreateShortcut(), 0.05));
+	blocks_.push_back(new InstallAuthHelper(installPath_, 0.05));
 #endif
 }
 
@@ -71,6 +73,8 @@ void Installer::executionImpl()
 		DWORD initTick = GetTickCount();
 		IInstallBlock *block = *it;
 
+        Log::instance().out(L"Installing %ls...", block->getName().c_str());
+
 		while (true)
 		{
 			{
@@ -95,14 +99,16 @@ void Installer::executionImpl()
 				overallProgress = prevOverallProgress + (int)(100.0 * block->getWeight());
 				callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
 				ticks.push_back(GetTickCount() - initTick);
-				break;
+                Log::instance().out(L"Installed %ls", block->getName().c_str());
+                break;
 			}
 			// error from block?
 			else if (progressOfBlock < 0)
 			{
 				strLastError_ = block->getLastError();
 				callbackState_(static_cast<unsigned int>(overallProgress), STATE_FATAL_ERROR);
-				return;
+                Log::instance().out(strLastError_);
+                return;
 			}
 			else
 			{
@@ -121,7 +127,8 @@ void Installer::runLauncherImpl()
 {
  #ifdef _WIN32
 	wstring pathLauncher = installPath_ + L"\\WindscribeLauncher.exe";
-	ShellExecuteAsUser::shellExecuteFromExplorer(pathLauncher.c_str(), NULL, NULL, NULL, SW_RESTORE);
+    Log::instance().out(L"Running launcher: %ls", pathLauncher.c_str());
+    ShellExecuteAsUser::shellExecuteFromExplorer(pathLauncher.c_str(), NULL, NULL, NULL, SW_RESTORE);
 	//ShellExecute(nullptr, nullptr, pathLauncher.c_str(), nullptr, nullptr, SW_RESTORE);
  #endif
 }

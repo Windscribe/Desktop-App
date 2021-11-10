@@ -40,7 +40,7 @@ void SubPageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
     // arrow
     painter->setOpacity(curArrowOpacity_ * initOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/FRWRD_ARROW_WHITE_ICON");
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/FRWRD_ARROW_WHITE_ICON");
     p->draw(static_cast<int>(boundingRect().width() - p->width() - 16*G_SCALE), static_cast<int>((boundingRect().height() - p->height()) / 2), painter);
 
     // arrow text

@@ -32,27 +32,27 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     // Header Region:
-    backButton_ = new IconButton(16,16, "login/BACK_ARROW", this);
+    backButton_ = new IconButton(16,16, "login/BACK_ARROW", "", this);
     connect(backButton_, SIGNAL(clicked()), SLOT(onBackClick()));
 
     curLoginTextOpacity_ = OPACITY_HIDDEN;
     connect(&loginTextOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLoginTextOpacityChanged(QVariant)));
 
  #ifdef Q_OS_WIN
-    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", this);
+    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
 
-    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", this);
+    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
 #else //if Q_OS_MAC
 
-    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
+    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
     connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(true);
 
-    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", this);
+    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
@@ -95,12 +95,12 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
     connect(loginButton_, SIGNAL(clicked()), SLOT(onLoginClick()));
 
     // Lower Region:
-    settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, this);
+    settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, "", this);
     connect(settingsButton_, SIGNAL(clicked()), SLOT(onSettingsButtonClick()));
     connect(settingsButton_, SIGNAL(hoverEnter()), SLOT(onSettingsHoverEnter()));
     connect(settingsButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
 
-    configButton_ = new IconButton(24, 24, CONFIG_ICON_PATH, this);
+    configButton_ = new IconButton(24, 24, CONFIG_ICON_PATH, "", this);
     connect(configButton_, SIGNAL(clicked()), SLOT(onConfigButtonClick()));
     connect(configButton_, SIGNAL(hoverEnter()), SLOT(onConfigHoverEnter()));
     connect(configButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
@@ -260,7 +260,7 @@ void CredentialsWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
         QString loginText = tr("Login");
         QFontMetrics fm = painter->fontMetrics();
-        const int loginTextWidth = fm.width(loginText);
+        const int loginTextWidth = fm.horizontalAdvance(loginText);
         painter->drawText(centeredOffset(WINDOW_WIDTH*G_SCALE, loginTextWidth),
                           (HEADER_HEIGHT/2 + LOGIN_TEXT_HEIGHT/2)*G_SCALE,
                           loginText);

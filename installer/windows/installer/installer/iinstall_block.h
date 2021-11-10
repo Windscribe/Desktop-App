@@ -21,6 +21,7 @@ public:
 	// -1       error
 	virtual int executeStep() = 0;
 	std::wstring getLastError() { return lastError_; }
+    std::wstring getName() const { return name_; }
 };
 
 #endif // IINSTALL_BLOCK_H

@@ -176,6 +176,7 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
     ccd.hostname = locationInfo_->getHostnameForSelectedNode();
     ccd.dnsHostName = locationInfo_->getDnsName();
     ccd.wgPublicKey = locationInfo_->getWgPubKeyForSelectedNode();
+    ccd.verifyX509name = locationInfo_->getVerifyX509name();
 
     // for static IP set additional fields
     if (locationInfo_->locationId().isStaticIpsLocation())

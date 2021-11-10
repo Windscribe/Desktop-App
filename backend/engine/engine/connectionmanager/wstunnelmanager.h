@@ -11,7 +11,7 @@ public:
     explicit WstunnelManager(QObject *parent = 0);
     virtual ~WstunnelManager();
 
-    void runProcess(const QString &hostname, unsigned int port, bool isUdp);
+    bool runProcess(const QString &hostname, unsigned int port, bool isUdp);
     void killProcess();
 
     unsigned int getPort();

@@ -22,6 +22,7 @@ public:
           pro_(other.pro_),
           pingIp_(other.pingIp_),
           wg_pubkey_(other.wg_pubkey_),
+          ovpn_x509_(other.ovpn_x509_),
           nodes_(other.nodes_),
           isValid_(other.isValid_) {}
     ~GroupData() {}
@@ -32,6 +33,7 @@ public:
     int pro_;       // 0 - for free account, 1 - for pro account
     QString pingIp_;
     QString wg_pubkey_;
+    QString ovpn_x509_;
 
     QVector<Node> nodes_;
 
@@ -60,6 +62,7 @@ public:
     bool isDisabled() const { Q_ASSERT(d->isValid_); return d->nodes_.isEmpty(); }
     QString getPingIp() const { Q_ASSERT(d->isValid_); return d->pingIp_; }
     QString getWgPubKey() const { Q_ASSERT(d->isValid_); return d->wg_pubkey_; }
+    QString getOvpnX509() const { Q_ASSERT(d->isValid_); return d->ovpn_x509_; }
 
     int getNodesCount() const { Q_ASSERT(d->isValid_); return d->nodes_.count(); }
     const Node &getNode(int ind) const { Q_ASSERT(d->isValid_); return d->nodes_[ind]; }
@@ -76,6 +79,7 @@ public:
                d->pro_ == other.d->pro_ &&
                d->pingIp_ == other.d->pingIp_ &&
                d->wg_pubkey_ == other.d->wg_pubkey_ &&
+               d->ovpn_x509_ == other.d->ovpn_x509_ &&
                d->nodes_ == other.d->nodes_ &&
                d->dnsHostName_ == other.d->dnsHostName_ &&
                d->isValid_ == other.d->isValid_;

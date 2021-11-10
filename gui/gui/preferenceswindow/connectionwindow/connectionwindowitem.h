@@ -52,7 +52,7 @@ private slots:
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
     void onIsAllowLanTrafficClicked(bool b);
     void onAllowLanTrafficButtonHoverLeave();
-    //void onDNSWhileConnectedItemChanged(DNSWhileConnected dns);
+    void onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo dns);
 
     void onFirewallModePreferencesChanged(const ProtoTypes::FirewallSettings &fm);
     void onConnectionModePreferencesChanged(const ProtoTypes::ConnectionSettings &cm);
@@ -62,12 +62,12 @@ private slots:
     void onInvalidLanAddressNotification(QString address);
     void onIsFirewallBlockedChanged(bool bFirewallBlocked);
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     void onKillTcpSocketsPreferencesChanged(bool b);
     void onKillTcpSocketsStateChanged(bool isChecked);
 #endif
 
-    //void onDNSWhileConnectedPreferencesChanged(const DNSWhileConnected &dns);
+    void onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns);
 
     void onLanguageChanged();
 
@@ -75,18 +75,18 @@ protected:
     void hideOpenPopups() override;
 
 private:
-    Preferences *preferences_;
-    PreferencesHelper *preferencesHelper_;
-    SubPageItem *networkWhitelistItem_;
-    SubPageItem *splitTunnelingItem_;
-    SubPageItem *proxySettingsItem_;
-    FirewallModeItem *firewallModeItem_;
-    ConnectionModeItem *connectionModeItem_;
-    PacketSizeItem *packetSizeItem_;
-    MacSpoofingItem *macSpoofingItem_;
-    CheckBoxItem *checkBoxAllowLanTraffic_;
-    // DNSWhileConnectedItem *dnsWhileConnectedItem_;
-#ifdef Q_OS_WIN
+    Preferences *preferences_{ nullptr };
+    PreferencesHelper *preferencesHelper_{ nullptr };
+    SubPageItem *networkWhitelistItem_{ nullptr };
+    SubPageItem *splitTunnelingItem_{ nullptr };
+    SubPageItem *proxySettingsItem_{ nullptr };
+    FirewallModeItem *firewallModeItem_{ nullptr };
+    ConnectionModeItem *connectionModeItem_{ nullptr };
+    PacketSizeItem *packetSizeItem_{ nullptr };
+    MacSpoofingItem *macSpoofingItem_{ nullptr };
+    CheckBoxItem *checkBoxAllowLanTraffic_{ nullptr };
+    DnsWhileConnectedItem *dnsWhileConnectedItem_{ nullptr };
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     CheckBoxItem *cbKillTcp_;
 #endif
 

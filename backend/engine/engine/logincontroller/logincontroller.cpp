@@ -4,15 +4,14 @@
 #include "engine/helper/ihelper.h"
 #include "engine/serverapi/serverapi.h"
 #include "utils/utils.h"
-#include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "utils/hardcodedsettings.h"
 #include "engine/getdeviceid.h"
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,
-                                 INetworkStateManager *networkStateManager, ServerAPI *serverAPI,
+                                 INetworkDetectionManager *networkDetectionManager, ServerAPI *serverAPI,
                                  const QString &language, ProtocolType protocol) : QObject(parent),
     helper_(helper), serverAPI_(serverAPI),
-    getApiAccessIps_(NULL), networkStateManager_(networkStateManager), language_(language),
+    getApiAccessIps_(NULL), networkDetectionManager_(networkDetectionManager), language_(language),
     protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL),
     loginStep_(LOGIN_STEP1), readyForNetworkRequestsEmitted_(false)
 {
@@ -361,16 +360,15 @@ void LoginController::getAllConfigs()
     getAllConfigsController_ = new GetAllConfigsController(this);
     connect(getAllConfigsController_, SIGNAL(allConfigsReceived(SERVER_API_RET_CODE)), SLOT(onAllConfigsReceived(SERVER_API_RET_CODE)));
     serverAPI_->serverConfigs(newAuthHash_, serverApiUserRole_, false);
+    serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP), false);
 
     if (!loginSettings_.getServerCredentials().isInitialized())
     {
-        serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP), false);
         serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_IKEV2), false);
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Using saved server credentials";
-        getAllConfigsController_->putServerCredentialsOpenVpnAnswer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForOpenVpn(), loginSettings_.getServerCredentials().passwordForOpenVpn());
+        qCDebug(LOG_BASIC) << "Using saved server credentials for IKEv2";
         getAllConfigsController_->putServerCredentialsIkev2Answer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForIkev2(), loginSettings_.getServerCredentials().passwordForIkev2());
     }
 
@@ -388,7 +386,7 @@ void LoginController::getAllConfigs()
 
 void LoginController::handleNetworkConnection()
 {
-    if (networkStateManager_->isOnline())
+    if (networkDetectionManager_->isOnline())
     {
         if (dnsResolutionSettings_.getIsAutomatic())
         {

@@ -19,6 +19,9 @@ StunnelManager::StunnelManager(QObject *parent) : QObject(parent), bProcessStart
 #elif defined Q_OS_MAC
     stunelExePath_ = QCoreApplication::applicationDirPath() + "/../Helpers/windscribestunnel";
     qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(stunelExePath_);
+#elif defined Q_OS_LINUX
+    stunelExePath_ = QCoreApplication::applicationDirPath() + "/windscribestunnel";
+    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(stunelExePath_);
 #endif
 
     QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
@@ -30,15 +33,18 @@ StunnelManager::StunnelManager(QObject *parent) : QObject(parent), bProcessStart
 StunnelManager::~StunnelManager()
 {
     killProcess();
-    QFile file(path_);
-    file.remove();
+
+    if (QFile::exists(path_)) {
+        QFile::remove(path_);
+    }
 }
 
-void StunnelManager::runProcess()
+bool StunnelManager::runProcess()
 {
     if (!ExecutableSignature::verifyWithSignCheck(stunelExePath_))
     {
-        return;
+        qCDebug(LOG_BASIC) << "Failed to verify stunnel signature";
+        return false;
     }
 
     bProcessStarted_ = true;
@@ -46,6 +52,7 @@ void StunnelManager::runProcess()
     args << path_;
     process_->start(stunelExePath_, args);
     qCDebug(LOG_BASIC) << "stunnel started";
+    return true;
 }
 
 bool StunnelManager::setConfig(const QString &hostname, uint port)
@@ -68,8 +75,8 @@ void StunnelManager::killProcess()
         bProcessStarted_ = false;
         process_->close();
 
-        // for Mac send kill command
-    #if defined Q_OS_MAC
+        // for Mac/Linux send kill command
+    #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
         QProcess killCmd(this);
         killCmd.execute("killall", QStringList() << "windscribestunnel");
         killCmd.waitForFinished(-1);

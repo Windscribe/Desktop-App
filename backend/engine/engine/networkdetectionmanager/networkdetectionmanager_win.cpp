@@ -9,11 +9,12 @@ const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterfac
 
 NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
 {
-    helper_ = helper;
+    helper_ = dynamic_cast<Helper_win *>(helper);
+    Q_ASSERT(helper_);
     networkWorker_ = new NetworkChangeWorkerThread(this);
 
     connect(networkWorker_, &NetworkChangeWorkerThread::finished, networkWorker_, &QObject::deleteLater);
-    connect(networkWorker_, &NetworkChangeWorkerThread::networkChanged, this, &NetworkDetectionManager_win::onNetworkChanged);
+    connect(networkWorker_, &NetworkChangeWorkerThread::networkChanged, this, &NetworkDetectionManager_win::onNetworkChanged, Qt::QueuedConnection);
 
     networkWorker_->start();
 }
@@ -77,16 +78,15 @@ void NetworkDetectionManager_win::resetAdapter(int ifIndex, bool bringBackUp)
 }
 
 
-
 void NetworkDetectionManager_win::onNetworkChanged()
 {
     updateCurrentNetworkInterface();
 }
 
-void NetworkDetectionManager_win::updateCurrentNetworkInterface(bool requested)
+void NetworkDetectionManager_win::updateCurrentNetworkInterface()
 {
     ProtoTypes::NetworkInterface curNetworkInterface = WinUtils::currentNetworkInterface();
-    curNetworkInterface.set_requested(requested);
+    curNetworkInterface.set_requested(false);
 
     // Only report a changed, properly formed
     if (lastSentNetworkInterface_.active() != curNetworkInterface.active()
@@ -102,13 +102,13 @@ void NetworkDetectionManager_win::updateCurrentNetworkInterface(bool requested)
                 if (!isOnline())
                 {
                     lastSentNetworkInterface_ = curNetworkInterface;
-                    emit networkChanged(curNetworkInterface);
+                    emit networkChanged(false, curNetworkInterface);
                 }
             }
             else
             {
                 lastSentNetworkInterface_ = curNetworkInterface;
-                emit networkChanged(curNetworkInterface);
+                emit networkChanged(isOnline(), curNetworkInterface);
             }
         }
         else

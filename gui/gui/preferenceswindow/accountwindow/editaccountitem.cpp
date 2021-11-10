@@ -8,7 +8,7 @@ namespace PreferencesWindow {
 
 EditAccountItem::EditAccountItem(ScalableGraphicsObject *parent) : BaseItem(parent, 50)
 {
-    button_ = new IconButton(16, 16, "preferences/EXTERNAL_LINK_ICON", this);
+    button_ = new IconButton(16, 16, "preferences/EXTERNAL_LINK_ICON", "", this);
     button_->setPos(boundingRect().width() - button_->boundingRect().width() - 16, (boundingRect().height() - button_->boundingRect().height()) / 2);
     connect(button_, SIGNAL(clicked()), SIGNAL(clicked()));
 }

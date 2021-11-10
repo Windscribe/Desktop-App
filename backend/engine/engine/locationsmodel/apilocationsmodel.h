@@ -12,6 +12,7 @@
 #include "bestlocation.h"
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 
 namespace locationsmodel {
 
@@ -27,7 +28,7 @@ class ApiLocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkStateManager *networkStateManager, PingHost *pingHost);
+    explicit ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost);
 
     void generateLocationsUpdatedForCliOnly();
     void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);

@@ -5,83 +5,89 @@
 #include <QFile>
 #include <QDir>
 #include "names.h"
+#include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "utils/utils.h"
 
-DownloadHelper::DownloadHelper(QObject *parent) : QObject(parent)
-  , reply_(nullptr)
-  , file_(nullptr)
+#ifdef Q_OS_LINUX
+#include "utils/linuxutils.h"
+#endif
+
+DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager) : QObject(parent)
+  , networkAccessManager_(networkAccessManager)
+  , busy_(false)
+  , downloadDirectory_(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
   , progressPercent_(0)
   , state_(DOWNLOAD_STATE_INIT)
+
+{
+    removeAutoUpdateInstallerFiles();
+}
+
+DownloadHelper::~DownloadHelper()
+{
+    abortAllReplies();
+    deleteAllReplies();
+}
+
+const QString DownloadHelper::downloadInstallerPath()
 {
 #ifdef Q_OS_WIN
-    const QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/installer.exe";
+    const QString path = downloadInstallerPathWithoutExtension() + ".exe";
 #elif defined Q_OS_MAC
-    const QString tempDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    const QString path = tempDir + "/installer.dmg";
-
+    const QString path = downloadInstallerPathWithoutExtension() + ".dmg";
+#elif defined Q_OS_LINUX
+    QString path;
+    if(LinuxUtils::isDeb()) {
+        path = downloadInstallerPathWithoutExtension() + ".deb";
+    }
+    else {
+        path = downloadInstallerPathWithoutExtension() + ".rpm";
+    }
 #endif
-    qCDebug(LOG_DOWNLOADER) << "Setting download location: " << Utils::cleanSensitiveInfo(path);
-    downloadPath_ = path;
-
-    // remove a previously used auto-update installer/dmg upon app startup if it exists
-    QFile::remove(downloadPath_);
-
-    // remove temp installer.app on mac
-#ifdef Q_OS_MAC
-    QString tempInstallerFilename = tempDir + "/" + INSTALLER_FILENAME_MAC_APP;
-    Utils::removeDirectory(tempInstallerFilename);
-#endif
+    return path;
 }
 
-const QString &DownloadHelper::downloadPath()
+const QString DownloadHelper::downloadInstallerPathWithoutExtension()
 {
-    return downloadPath_;
+#ifdef Q_OS_WIN
+    const QString path = downloadDirectory_ + "/installer";
+#elif defined Q_OS_MAC
+    const QString path = downloadDirectory_ + "/installer";
+#elif defined Q_OS_LINUX
+    const QString path = downloadDirectory_ + "/update";
+#endif
+    return path;
 }
 
-void DownloadHelper::get(const QString url)
+void DownloadHelper::get(QMap<QString, QString> downloads)
 {
-    if (reply_)
+    // assume get() should only run one set of downloads at a time
+    if (busy_)
     {
         qCDebug(LOG_DOWNLOADER) << "Downloader is busy. Try again later";
         return;
     }
 
-    // remove a previously used auto-update installer/dmg upon app startup if it exists
-    QFile::remove(downloadPath_);
-
+    busy_ = true;
     progressPercent_ = 0;
-
-    qCDebug(LOG_DOWNLOADER) << "Starting download from url: " << url;
-
-    file_ = new QFile(downloadPath_);
-    if (!file_->open(QIODevice::WriteOnly))
+    for (const auto & download : downloads.keys())
     {
-        qCDebug(LOG_DOWNLOADER) << "Failed to open file for download" << url;
-        file_->deleteLater();
-        file_ = nullptr;
-        return;
+        getInner(download, downloads[download]);
     }
-
-    QNetworkRequest request(url);
-
-    QNetworkReply *reply = networkAccessManager_.get(request);
-    connect(reply, SIGNAL(downloadProgress(qint64,qint64)), SLOT(onReplyDownloadProgress(qint64,qint64)));
-    connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(onReplyError(QNetworkReply::NetworkError)));
-    connect(reply, SIGNAL(readyRead()), SLOT(onReplyReadyRead()));
-    reply_ = reply;
 }
 
 void DownloadHelper::stop()
 {
-    if (!reply_)
+    if (!busy_)
     {
         qCDebug(LOG_DOWNLOADER) << "No download to stop";
         return;
     }
 
     qCDebug(LOG_DOWNLOADER) << "Stopping download";
-    reply_->abort(); // should fire the finished signal for cleanup
+    abortAllReplies();
+    deleteAllReplies();
+    busy_ = false;
 }
 
 DownloadHelper::DownloadState DownloadHelper::state()
@@ -91,47 +97,81 @@ DownloadHelper::DownloadState DownloadHelper::state()
 
 void DownloadHelper::onReplyFinished()
 {
-    DownloadState state;
-    if (reply_->error() == QNetworkReply::NoError)
+    NetworkReply *reply = static_cast<NetworkReply*>(sender());
+    if (!replies_.contains(reply))
     {
-        qCDebug(LOG_DOWNLOADER) << "Download finished successfully";
-        state = DOWNLOAD_STATE_SUCCESS;
+        qCDebug(LOG_DOWNLOADER) << "Failed to find reply that finished in monitored replies list";
+        return;
     }
-    else
+    replies_[reply].done = true;
+
+    // if any reply fails, we fail
+    if (!reply->isSuccess())
     {
         qCDebug(LOG_DOWNLOADER) << "Download failed";
-        state = DOWNLOAD_STATE_FAIL;
+        abortAllReplies();
+        deleteAllReplies();
+        busy_ = false;
+        emit finished(DOWNLOAD_STATE_FAIL);
+        return;
     }
-    safeCloseFileAndDeleteObj();
-    emit finished(state);
 
-    reply_->deleteLater();
-    reply_ = nullptr;
+    if (allRepliesDone())
+    {
+        qCDebug(LOG_DOWNLOADER) << "Download finished successfully";
+        deleteAllReplies();
+        busy_ = false;
+        emit finished(DOWNLOAD_STATE_SUCCESS);
+        return;
+    }
+
+    // still waiting on replies
+    qCDebug(LOG_DOWNLOADER) << "Download single file successful";
 }
 
 void DownloadHelper::onReplyDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
+    NetworkReply *reply = static_cast<NetworkReply*>(sender());
+    if (!replies_.contains(reply))
+    {
+        qCDebug(LOG_DOWNLOADER) << "Failed to find reply that progressed in monitored replies list";
+        return;
+    }
+    replies_[reply].bytesReceived = bytesReceived;
+    replies_[reply].bytesTotal = bytesTotal;
+
+    // recompute total progress
+    qint64 sum = 0;
+    qint64 total = 0;
+    for (const auto & fileAndProgress : replies_.values())
+    {
+        sum += fileAndProgress.bytesReceived;
+        total += fileAndProgress.bytesTotal;
+    }
+
     // qCDebug(LOG_DOWNLOADER) << "Bytes received: " << bytesReceived << ", Bytes Total: " << bytesTotal;
-    progressPercent_ = (double) bytesReceived / (double) bytesTotal * 100;
+    progressPercent_ = (double) sum / (double) total * 100;
 
     // qCDebug(LOG_DOWNLOADER) << "Downloading: " << progressPercent_;
     emit progressChanged(progressPercent_);
 }
 
-void DownloadHelper::onReplyError(QNetworkReply::NetworkError error)
-{
-    qCDebug(LOG_DOWNLOADER) << "Download error occurred: " << error;
-}
-
 void DownloadHelper::onReplyReadyRead()
 {
-    QByteArray arr = reply_->readAll();
+    NetworkReply *reply = static_cast<NetworkReply*>(sender());
+    if (!replies_.contains(reply))
+    {
+        qCDebug(LOG_DOWNLOADER) << "Failed to find reply that emitted ready read in monitored replies list";
+        return;
+    }
+    QByteArray arr = reply->readAll();
 
     if (!arr.isEmpty())
     {
-        if (file_->isOpen())
+        auto &file = replies_[reply].file;
+        if (file->isOpen())
         {
-            file_->write(arr);
+            file->write(arr);
         }
         else
         {
@@ -140,12 +180,104 @@ void DownloadHelper::onReplyReadyRead()
     }
 }
 
-void DownloadHelper::safeCloseFileAndDeleteObj()
+void DownloadHelper::getInner(const QString url, const QString targetFilenamePath)
 {
-    if (file_)
+    // remove a previously used file if it exists
+    QFile::remove(targetFilenamePath);
+    qCDebug(LOG_DOWNLOADER) << "Starting download from url: " << url;
+
+    FileAndProgress fileAndProgess;
+    fileAndProgess.file = QSharedPointer<QFile>::create(targetFilenamePath); // unnecessary copy?
+    if (!fileAndProgess.file->open(QIODevice::WriteOnly))
     {
-        file_->close();
-        file_->deleteLater();
-        file_ = nullptr;
+        qCDebug(LOG_DOWNLOADER) << "Failed to open file for download" << url;
+        return;
     }
+
+    NetworkRequest request(QUrl(url), 60000 * 5, true);     // timeout 5 mins
+
+    NetworkReply *reply = networkAccessManager_->get(request);
+    replies_.insert(reply, fileAndProgess);
+    connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
+    connect(reply, SIGNAL(progress(qint64,qint64)), SLOT(onReplyDownloadProgress(qint64,qint64)));
+    connect(reply, SIGNAL(readyRead()), SLOT(onReplyReadyRead()));
+}
+
+void DownloadHelper::removeAutoUpdateInstallerFiles()
+{
+    // remove a previously used auto-update installer/dmg upon app startup if it exists
+    const QString installerPath = downloadInstallerPath();
+    if (QFile::exists(installerPath))
+    {
+        qCDebug(LOG_DOWNLOADER) << "Removing auto-update installer";
+        QFile::remove(installerPath);
+    }
+
+#ifdef Q_OS_LINUX
+    // remove pre-existing signature and public key:
+    // | signature and key were required to verify the auto-update installer
+    const QString &signaturePath = signatureInstallPath();
+    if (QFile::exists(signaturePath))
+    {
+        qCDebug(LOG_DOWNLOADER) << "Removing auto-update installer signature";
+        QFile::remove(signaturePath);
+    }
+    const QString &publicKeyPath = publicKeyInstallPath();
+    if (QFile::exists(publicKeyPath))
+    {
+        qCDebug(LOG_DOWNLOADER) << "Removing auto-update installer key";
+        QFile::remove(publicKeyPath);
+    }
+#elif defined Q_OS_MAC
+    // remove temp installer.app on mac:
+    // | installer.app was unpacked from above .dmg
+    const QString & installerApp = downloadDirectory_ + "/" + INSTALLER_FILENAME_MAC_APP;
+    if (QFile::exists(installerApp))
+    {
+        qCDebug(LOG_DOWNLOADER) << "Removing auto-update temporary installer app";
+        Utils::removeDirectory(installerApp);
+    }
+#endif
+}
+
+bool DownloadHelper::allRepliesDone()
+{
+    for (const auto &fp : replies_.values())
+    {
+        // breaks
+        if (!fp.done)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void DownloadHelper::abortAllReplies()
+{
+    for (const auto &reply : replies_.keys())
+    {
+        reply->abort();
+    }
+}
+
+void DownloadHelper::deleteAllReplies()
+{
+    while (!replies_.empty())
+    {
+        NetworkReply *reply = replies_.firstKey();
+        disconnect(reply);
+        replies_.remove(reply);
+        reply->deleteLater();
+    }
+}
+
+const QString DownloadHelper::publicKeyInstallPath()
+{
+    return downloadInstallerPathWithoutExtension() + ".key";
+}
+
+const QString DownloadHelper::signatureInstallPath()
+{
+    return downloadInstallerPath() + ".sig";
 }

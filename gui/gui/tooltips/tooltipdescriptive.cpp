@@ -91,7 +91,7 @@ void TooltipDescriptive::paintEvent(QPaintEvent * /*event*/)
         painter.setPen(Qt::white);
         painter.setFont(fontTitle_);
         painter.setOpacity(OPACITY_FULL);
-        painter.drawText((additionalTailWidth() + width_/2) - fm.width(textTitle_)/2, MARGIN_HEIGHT*G_SCALE + fm.height(), textTitle_);
+        painter.drawText((additionalTailWidth() + width_/2) - fm.horizontalAdvance(textTitle_)/2, MARGIN_HEIGHT*G_SCALE + fm.height(), textTitle_);
     }
 
     // desc drawn implicitly

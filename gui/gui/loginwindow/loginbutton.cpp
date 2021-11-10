@@ -46,7 +46,7 @@ void LoginButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     qreal initOpacity = painter->opacity();
     painter->setOpacity(initOpacity);
 
-    IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
     pixmap->draw(0, 0, painter);
 }
 

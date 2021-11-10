@@ -14,15 +14,14 @@ public:
     }
 
     QString dnsScriptPath();
-    QString removeHostsScriptPath();
-
 
 private:
     TempScripts_mac();
     ~TempScripts_mac();
 
     QString dnsScriptPath_;
-    QString removeHostsScriptPath_;
+
+    QByteArray hashFile(const QString& file) const;
 };
 
 #endif // TEMPSCRIPTS_MAC_H

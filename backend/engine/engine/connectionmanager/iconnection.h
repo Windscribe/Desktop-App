@@ -16,7 +16,7 @@ class IConnection : public QThread
     Q_OBJECT
 
 public:
-    explicit IConnection(QObject *parent, IHelper *helper): QThread(parent), helper_(helper) {}
+    explicit IConnection(QObject *parent): QThread(parent) {}
     virtual ~IConnection() {}
 
     // config path for openvpn, url for ikev2
@@ -36,15 +36,12 @@ signals:
     void connected(const AdapterGatewayInfo &connectionAdapterInfo);
     void disconnected();
     void reconnecting();
-    void error(CONNECTION_ERROR err);
+    void error(ProtoTypes::ConnectError err);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
 
     void requestUsername();
     void requestPassword();
-
-protected:
-    IHelper *helper_;
 };
 
 #endif // ICONNECTION_H

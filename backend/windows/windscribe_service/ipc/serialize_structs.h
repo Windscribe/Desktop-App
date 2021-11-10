@@ -163,6 +163,13 @@ void serialize(Archive & ar, CMD_CONNECT_STATUS & a, const unsigned int version)
     ar & a.remoteIp;
 }
 
+template<class Archive>
+void serialize(Archive & ar, CMD_DNS_WHILE_CONNECTED & g, const unsigned int version)
+{
+        UNREFERENCED_PARAMETER(version);
+        ar & g.ifIndex;
+        ar & g.szDnsIpAddress;
+}
 
 template<class Archive>
 void serialize(Archive & ar, CMD_CLOSE_TCP_CONNECTIONS & g, const unsigned int version)
@@ -220,6 +227,20 @@ void serialize(Archive & ar, MessagePacketResult & g, const unsigned int version
 	ar & g.blockingCmdFinished;
 	ar & g.customInfoValue;
 	ar & g.additionalString;
+}
+
+template<class Archive>
+void serialize(Archive& ar, CMD_REINSTALL_TUN_DRIVER& g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar& g.driverDir;
+}
+
+template<class Archive>
+void serialize(Archive& ar, CMD_DISABLE_DNS_TRAFFIC& g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar& g.excludedIps;
 }
 
 } // namespace serialization

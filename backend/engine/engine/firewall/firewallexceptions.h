@@ -10,6 +10,7 @@ public:
     FirewallExceptions();
 
     void setHostIPs(const QStringList &hostIPs);
+    void setWhiteListedIPs(const QSet<QString> &ips);
     void setProxyIP(const ProxySettings &proxySettings);
 
     void setCustomRemoteIp(const QString &remoteIP, bool &bChanged);
@@ -26,6 +27,7 @@ public:
 
 private:
     QStringList hostIPs_;
+    QSet<QString> whitelistedIPs_;
     QString proxyIP_;
     QString remoteIP_;
     QStringList locationsPingIPs_;

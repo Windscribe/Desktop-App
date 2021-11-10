@@ -38,7 +38,7 @@ SplitTunnelingSwitchItem::SplitTunnelingSwitchItem(ScalableGraphicsObject *paren
     ipsAndHostnamesSubPageItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","IPs & Hostnames"), true);
     connect(ipsAndHostnamesSubPageItem_, SIGNAL(clicked()), SIGNAL(ipsAndHostnamesPageClick()));
 
-    modeInfo_ = new IconButton(16, 16, "INFO_ICON", this, 0.25, 0.25);
+    modeInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, 0.25, 0.25);
     modeInfo_->setClickableHoverable(false, true);
     connect(modeInfo_, SIGNAL(hoverEnter()), SLOT(onModeInfoHoverEnter()));
     connect(modeInfo_, SIGNAL(hoverLeave()), SLOT(onModeInfoHoverLeave()));

@@ -5,6 +5,7 @@
 #include "../checkboxitem.h"
 #include "../comboboxitem.h"
 #include "versioninfoitem.h"
+#include "backgroundsettingsitem.h"
 #include "../backend/preferences/preferenceshelper.h"
 #include "../backend/preferences/preferences.h"
 
@@ -27,6 +28,9 @@ private slots:
     void onIsAutoConnectClicked(bool isChecked);
     void onIsAutoConnectPreferencesChanged(bool b);
 
+    void onStartMinimizedPreferencesChanged(bool b);
+    void onStartMinimizedClicked(bool b);
+
 #ifdef Q_OS_WIN
     void onMinimizeAndCloseToTrayPreferencesChanged(bool b);
     void onMinimizeAndCloseToTrayClicked(bool b);
@@ -37,8 +41,8 @@ private slots:
     void onIsShowNotificationsPreferencesChanged(bool b);
     void onIsShowNotificationsClicked(bool b);
 
-    void onIsShowCountryFlagsPreferencesChanged(bool b);
-    void onIsShowCountryFlagsClicked(bool b);
+    ///void onIsShowCountryFlagsPreferencesChanged(bool b);
+    ///void onIsShowCountryFlagsClicked(bool b);
 
     void onIsDockedToTrayPreferencesChanged(bool b);
     void onDockedToTrayChanged(bool b);
@@ -55,6 +59,9 @@ private slots:
     void onUpdateChannelPreferencesChanged(const ProtoTypes::UpdateChannel &c);
     void onUpdateChannelItemChanged(QVariant o);
 
+    void onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings);
+    void onPreferencesBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings);
+
     void onLanguageChanged();
 
 signals:
@@ -69,8 +76,9 @@ private:
     CheckBoxItem *checkBoxLaunchOnStart_;
     CheckBoxItem *checkBoxAutoConnect_;
     CheckBoxItem *checkBoxShowNotifications_;
-    CheckBoxItem *checkBoxShowCountryFlags_;
+    BackgroundSettingsItem *backgroundSettingsItem_;
     CheckBoxItem *checkBoxDockedToTray_;
+    CheckBoxItem *checkBoxStartMinimized_;
 
 #ifdef Q_OS_WIN
     CheckBoxItem *checkBoxMinimizeAndCloseToTray_;

@@ -10,7 +10,6 @@
 #include "makeovpnfilefromcustom.h"
 
 #include "iconnection.h"
-#include "engine/networkstatemanager/inetworkstatemanager.h"
 #include "testvpntunnel.h"
 #include "engine/types/protocoltype.h"
 #include "engine/types/wireguardconfig.h"
@@ -25,6 +24,7 @@
 #endif
 
 
+class INetworkDetectionManager;
 class ISleepEvents;
 class IKEv2Connection;
 
@@ -34,7 +34,7 @@ class ConnectionManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ConnectionManager(QObject *parent, IHelper *helper, INetworkStateManager *networkStateManager,
+    explicit ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
                                ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
@@ -51,6 +51,13 @@ public:
     const AdapterGatewayInfo &getDefaultAdapterInfo() const;
     const AdapterGatewayInfo &getVpnAdapterInfo() const;
 
+    struct CustomDnsAdapterGatewayInfo {
+        AdapterGatewayInfo adapterInfo;
+        ProtoTypes::DnsWhileConnectedInfo dnsWhileConnectedInfo;
+    };
+    const CustomDnsAdapterGatewayInfo &getCustomDnsAdapterGatewayInfo() const;
+    QString getCustomDnsIp() const;
+    void setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info);
 
     void removeIkev2ConnectionFromOS();
 
@@ -76,7 +83,7 @@ signals:
     void connected();
     void connectingToHostname(const QString &hostname, const QString &ip);
     void disconnected(DISCONNECT_REASON reason);
-    void errorDuringConnection(CONNECTION_ERROR errorCode);
+    void errorDuringConnection(ProtoTypes::ConnectError errorCode);
     void reconnecting();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
@@ -93,7 +100,7 @@ private slots:
     void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
-    void onConnectionError(CONNECTION_ERROR err);
+    void onConnectionError(ProtoTypes::ConnectError err);
     void onConnectionStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionInterfaceUpdated(const QString &interfaceName);
 
@@ -103,7 +110,7 @@ private slots:
     void onSleepMode();
     void onWakeMode();
 
-    void onNetworkStateChanged(bool isAlive, const QString &networkInterface);
+    void onNetworkStateChanged(bool isAlive, const ProtoTypes::NetworkInterface &networkInterface);
 
     void onTimerReconnection();
 
@@ -122,7 +129,7 @@ private:
           STATE_SLEEP_MODE_NEED_RECONNECT, STATE_WAKEUP_RECONNECTING, STATE_AUTO_DISCONNECT, STATE_ERROR_DURING_CONNECTION};
 
     IHelper *helper_;
-    INetworkStateManager *networkStateManager_;
+    INetworkDetectionManager *networkDetectionManager_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
 
     IConnection *connector_;
@@ -153,7 +160,7 @@ private:
     bool bNeedResetTap_;
     bool bIgnoreConnectionErrorsForOpenVpn_;
     bool bWasSuccessfullyConnectionAttempt_;
-    CONNECTION_ERROR latestConnectionError_;
+    ProtoTypes::ConnectError latestConnectionError_;
 
     QTimer timerReconnection_;
     enum { MAX_RECONNECTION_TIME = 60 * 60 * 1000 };  // 1 hour
@@ -175,6 +182,8 @@ private:
 
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;
+
+    CustomDnsAdapterGatewayInfo customDnsAdapterGatewayInfo_;
 
     void doConnect();
     void doConnectPart2();

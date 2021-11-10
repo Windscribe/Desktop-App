@@ -26,7 +26,7 @@ public slots:
     void setIsSecured(bool isSecured);
 
 private slots:
-    void onUpdate();
+    void onIpAddressWidthChanged(int width);
 
 private:
     QString ipAddress_;

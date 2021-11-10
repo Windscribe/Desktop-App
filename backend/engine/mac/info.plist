@@ -25,6 +25,8 @@
 	<true/>
 	<key>CFBundleVersion</key>
 	<string>1.82.0.12</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.82.0</string>
 	<key>CFBundleName</key>
 	<string>WindscribeEngine</string>
 	<key>NSHumanReadableCopyright</key>

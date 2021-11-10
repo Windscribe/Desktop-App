@@ -3,7 +3,8 @@
 #include "utils/utils.h"
 #include "engine/connectionmanager/openvpnconnection.h"
 #include "utils/hardcodedsettings.h"
-#include "engine/dnsresolver/dnsresolver.h"
+#include "engine/dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsserversconfiguration.h"
 #include <QFile>
 #include <QCoreApplication>
 #include "utils/extraconfig.h"
@@ -12,6 +13,7 @@
 
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"
+    #include "engine/helper/helper_mac.h"
 #endif
 
 EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QObject(parent),
@@ -19,7 +21,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
     serverApiUserRole_(0),
     state_(STATE_DISCONNECTED)
 {
-    QFile file(":/Resources/ovpn/emergency.ovpn");
+    QFile file(":/resources/ovpn/emergency.ovpn");
     if (file.open(QIODevice::ReadOnly))
     {
         ovpnConfig_ = file.readAll();
@@ -34,11 +36,9 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
      connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
      connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
      connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
-     connect(connector_, SIGNAL(error(CONNECTION_ERROR)), SLOT(onConnectionError(CONNECTION_ERROR)), Qt::QueuedConnection);
+     connect(connector_, SIGNAL(error(ProtoTypes::ConnectError)), SLOT(onConnectionError(ProtoTypes::ConnectError)), Qt::QueuedConnection);
 
      makeOVPNFile_ = new MakeOVPNFile();
-
-     connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *)), SLOT(onDnsResolved(QString, QHostInfo,void *)));
 }
 
 EmergencyController::~EmergencyController()
@@ -56,7 +56,10 @@ void EmergencyController::clickConnect(const ProxySettings &proxySettings)
 
     QString hashedDomain = HardcodedSettings::instance().generateDomain("econnect.");
     qCDebug(LOG_EMERGENCY_CONNECT) << "Generated hashed domain for emergency connect:" << hashedDomain;
-    DnsResolver::instance().lookup(hashedDomain, this);
+
+    DnsRequest *dnsRequest = new DnsRequest(this, hashedDomain, DnsServersConfiguration::instance().getCurrentDnsServers());
+    connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+    dnsRequest->lookup();
 }
 
 void EmergencyController::clickDisconnect()
@@ -75,7 +78,7 @@ void EmergencyController::clickDisconnect()
         else
         {
             state_ = STATE_DISCONNECTED;
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
         }
     }
 }
@@ -116,7 +119,6 @@ void EmergencyController::blockingDisconnect()
             }
             connector_->blockSignals(false);
             doMacRestoreProcedures();
-            DnsResolver::instance().recreateDefaultDnsChannel();
             state_ = STATE_DISCONNECTED;
         }
     }
@@ -133,54 +135,53 @@ void EmergencyController::setPacketSize(ProtoTypes::PacketSize ps)
     packetSize_ = ps;
 }
 
-void EmergencyController::onDnsResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
+void EmergencyController::onDnsRequestFinished()
 {
-    Q_UNUSED(hostname);
-    if (userPointer == this)
+    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
+    Q_ASSERT(dnsRequest != nullptr);
+
+    attempts_.clear();
+
+    if (!dnsRequest->isError())
     {
+        qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolved:" << dnsRequest->ips();
 
-        attempts_.clear();
-
-        if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
+        // generate connect attempts array
+        std::vector<QString> randomVecIps;
+        for (const QString &ip :  dnsRequest->ips())
         {
-            qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolved:" << hostInfo.addresses();
-
-            // generate connect attempts array
-            std::vector<QString> randomVecIps;
-            for (int i = 0; i < hostInfo.addresses().count(); ++i)
-            {
-                randomVecIps.push_back(hostInfo.addresses()[i].toString());
-            }
-
-            std::random_device rd;
-            std::mt19937 g(rd());
-            std::shuffle(randomVecIps.begin(), randomVecIps.end(), rd);
-
-            for (std::vector<QString>::iterator it = randomVecIps.begin(); it != randomVecIps.end(); ++it)
-            {
-                CONNECT_ATTEMPT_INFO info1;
-                info1.ip = *it;
-                info1.port = 443;
-                info1.protocol = "udp";
-
-                CONNECT_ATTEMPT_INFO info2;
-                info2.ip = *it;
-                info2.port = 443;
-                info2.protocol = "tcp";
-
-                attempts_ << info1;
-                attempts_ << info2;
-            }
-
-            addRandomHardcodedIpsToAttempts();
+            randomVecIps.push_back(ip);
         }
-        else
+
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(randomVecIps.begin(), randomVecIps.end(), rd);
+
+        for (std::vector<QString>::iterator it = randomVecIps.begin(); it != randomVecIps.end(); ++it)
         {
-            qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolve failed";
-            addRandomHardcodedIpsToAttempts();
+            CONNECT_ATTEMPT_INFO info1;
+            info1.ip = *it;
+            info1.port = 443;
+            info1.protocol = "udp";
+
+            CONNECT_ATTEMPT_INFO info2;
+            info2.ip = *it;
+            info2.port = 443;
+            info2.protocol = "tcp";
+
+            attempts_ << info1;
+            attempts_ << info2;
         }
-        doConnect();
+
+        addRandomHardcodedIpsToAttempts();
     }
+    else
+    {
+        qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolve failed";
+        addRandomHardcodedIpsToAttempts();
+    }
+    doConnect();
+    dnsRequest->deleteLater();
 }
 
 void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo)
@@ -190,10 +191,8 @@ void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connec
     vpnAdapterInfo_ = connectionAdapterInfo;
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
-    DnsResolver::instance().recreateDefaultDnsChannel();
-
     state_ = STATE_CONNECTED;
-    emit connected();
+    Q_EMIT connected();
 }
 
 void EmergencyController::onConnectionDisconnected()
@@ -201,14 +200,13 @@ void EmergencyController::onConnectionDisconnected()
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionDisconnected(), state_ =" << state_;
 
     doMacRestoreProcedures();
-    DnsResolver::instance().recreateDefaultDnsChannel();
 
     switch (state_)
     {
         case STATE_DISCONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
             state_ = STATE_DISCONNECTED;
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_ERROR_DURING_CONNECTION:
@@ -219,7 +217,7 @@ void EmergencyController::onConnectionDisconnected()
             }
             else
             {
-                emit errorDuringConnection(EMERGENCY_FAILED_CONNECT);
+                Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EMERGENCY_FAILED_CONNECT);
                 state_ = STATE_DISCONNECTED;
             }
             break;
@@ -236,7 +234,7 @@ void EmergencyController::onConnectionReconnecting()
     {
         case STATE_CONNECTED:
             state_ = STATE_DISCONNECTED;
-            emit disconnected(DISCONNECTED_BY_USER);
+            Q_EMIT disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
             state_ = STATE_ERROR_DURING_CONNECTION;
@@ -247,19 +245,27 @@ void EmergencyController::onConnectionReconnecting()
     }
 }
 
-void EmergencyController::onConnectionError(CONNECTION_ERROR err)
+void EmergencyController::onConnectionError(ProtoTypes::ConnectError err)
 {
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionError(), err =" << err;
 
     connector_->startDisconnect();
-    if (err == AUTH_ERROR || err == CANT_RUN_OPENVPN || err == NO_OPENVPN_SOCKET ||
-        err == NO_INSTALLED_TUN_TAP || err == ALL_TAP_IN_USE)
+    if (err == ProtoTypes::ConnectError::AUTH_ERROR
+            || err == ProtoTypes::ConnectError::CANT_RUN_OPENVPN
+            || err == ProtoTypes::ConnectError::NO_OPENVPN_SOCKET
+            || err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP
+            || err == ProtoTypes::ConnectError::ALL_TAP_IN_USE)
     {
-        // emit error in disconnected event
+        // Q_EMIT error in disconnected event
         state_ = STATE_ERROR_DURING_CONNECTION;
     }
-    else if (err == UDP_CANT_ASSIGN || err == UDP_NO_BUFFER_SPACE || err == UDP_NETWORK_DOWN || err == WINTUN_OVER_CAPACITY || err == TCP_ERROR ||
-             err == CONNECTED_ERROR || err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
+    else if (err == ProtoTypes::ConnectError::UDP_CANT_ASSIGN
+             || err == ProtoTypes::ConnectError::UDP_NO_BUFFER_SPACE
+             || err == ProtoTypes::ConnectError::UDP_NETWORK_DOWN
+             || err == ProtoTypes::ConnectError::WINTUN_OVER_CAPACITY
+             || err == ProtoTypes::ConnectError::TCP_ERROR
+             || err == ProtoTypes::ConnectError::CONNECTED_ERROR
+             || err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
     {
         if (state_ == STATE_CONNECTED)
         {
@@ -281,7 +287,7 @@ void EmergencyController::onConnectionError(CONNECTION_ERROR err)
             {
                 if (state_ != STATE_RECONNECTING)
                 {
-                    emit reconnecting();
+                    Q_EMIT reconnecting();
                     state_ = STATE_RECONNECTING;
                     startReconnectionTimer();
                 }
@@ -295,7 +301,7 @@ void EmergencyController::onConnectionError(CONNECTION_ERROR err)
             {
                 state_ = STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
+                Q_EMIT showFailedAutomaticConnectionMessage();
             }
         }*/
     }
@@ -339,7 +345,7 @@ void EmergencyController::doConnect()
     }
 
 
-    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, attempt.protocol, attempt.port, 0, mss, defaultAdapterInfo_.gateway());
+    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, attempt.protocol, attempt.port, 0, mss, defaultAdapterInfo_.gateway(), "");
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
@@ -355,9 +361,11 @@ void EmergencyController::doConnect()
 void EmergencyController::doMacRestoreProcedures()
 {
 #ifdef Q_OS_MAC
+    // todo: move this to utils (code duplicate in ConnecionManager class)
     QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
     qCDebug(LOG_EMERGENCY_CONNECT) << "Execute command: " << delRouteCommand;
-    QString cmdAnswer = helper_->executeRootCommand(delRouteCommand);
+    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
+    QString cmdAnswer = helper_mac->executeRootCommand(delRouteCommand);
     qCDebug(LOG_EMERGENCY_CONNECT) << "Output from route delete command: " << cmdAnswer;
     RestoreDNSManager_mac::restoreState(helper_);
 #endif

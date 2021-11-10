@@ -84,7 +84,7 @@ void UpgradeWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     {
         // Data Icon
         painter->setOpacity(curDataRemainingIconOpacity_ * initOpacity);
-        IndependentPixmap *pixmap = ImageResourcesSvg::instance().getIndependentPixmap(curDataIconPath_);
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(curDataIconPath_);
         pixmap->draw(3*G_SCALE+0.5, 3*G_SCALE+0.5, painter);
     }
 }

@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QHash>
-#include "Helper/ihelper.h"
-#include "ConnectStateController/iconnectstatecontroller.h"
+#include "helper/helper_win.h"
+#include "connectstatecontroller/iconnectstatecontroller.h"
 #include <pdh.h>
 
 class MeasurementCpuUsage : public QObject
@@ -20,11 +20,11 @@ signals:
     void detectionCpuUsageAfterConnected(QStringList processesList);
 
 private slots:
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
     void onTimer();
 
 private:
-    IHelper *helper_;
+    Helper_win *helper_;
     PDH_HQUERY hQuery_;
     bool bEnabled_;
 

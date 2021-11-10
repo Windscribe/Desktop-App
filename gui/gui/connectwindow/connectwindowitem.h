@@ -6,7 +6,7 @@
 #include "background.h"
 #include "../backend/backend.h"
 #include "connectbutton.h"
-#include "connectstateprotocolport.h"
+#include "connectstateprotocolport/connectstateprotocolport.h"
 #include "locationsbutton.h"
 #include "serverratingindicator.h"
 #include "wifiname.h"
@@ -25,7 +25,7 @@ class ConnectWindowItem : public ScalableGraphicsObject, public IConnectWindow
     Q_OBJECT
     Q_INTERFACES(IConnectWindow)
 public:
-    explicit ConnectWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
+    explicit ConnectWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -41,7 +41,6 @@ public:
     void setFirewallAlwaysOn(bool isFirewallAlwaysOn) override;
     void setFirewallBlock(bool isFirewallBlocked) override;
     void setTestTunnelResult(bool success) override;
-    void setIsShowCountryFlags(bool isShowCountryFlags) override;
 
     void updateScaling() override;
 

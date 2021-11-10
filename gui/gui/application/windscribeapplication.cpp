@@ -122,7 +122,10 @@ QString WindscribeApplication::changeLanguage(const QString &lang)
         QString filename = QApplication::applicationDirPath() + "/languages/" + lang + ".qm";
 #elif defined Q_OS_MAC
         QString filename = QApplication::applicationDirPath() + "/../Languages/" + lang + ".qm";
+#elif defined Q_OS_LINUX
+        QString filename = QApplication::applicationDirPath() + "/../Languages/" + lang + ".qm";
 #endif
+
         if (translator.load(filename))
         {
             qCDebug(LOG_BASIC) << "Language changed:" << lang;
@@ -149,6 +152,13 @@ void WindscribeApplication::onOpenLocationsFromAnotherInstance()
 {
     emit openLocationsFromAnotherInstance();
 }
+
+#ifdef Q_OS_WIN
+void WindscribeApplication::onWinIniChanged()
+{
+    emit winIniChanged();
+}
+#endif
 
 bool WindscribeApplication::event(QEvent *e)
 {

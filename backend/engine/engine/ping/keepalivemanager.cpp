@@ -1,14 +1,14 @@
 #include "keepalivemanager.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
-#include "engine/dnsresolver/dnsresolver.h"
+#include "engine/dnsresolver/dnsrequest.h"
+#include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "utils/hardcodedsettings.h"
 
 KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController) : QObject(parent),
     isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED), pingHostIcmp_(this, stateController)
 {
-    connect(&DnsResolver::instance(), SIGNAL(resolved(QString,QHostInfo,void *)), SLOT(onDnsResolvedFinished(QString, QHostInfo,void *)));
-    connect(stateController, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECTION_ERROR,LocationID)));
+    connect(stateController, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
     connect(&pingHostIcmp_, SIGNAL(pingFinished(bool,int,QString,bool)), SLOT(onPingFinished(bool,int,QString,bool)));
 }
@@ -18,7 +18,9 @@ void KeepAliveManager::setEnabled(bool isEnabled)
     isEnabled_ = isEnabled;
     if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
     {
-        DnsResolver::instance().lookup(HardcodedSettings::instance().serverUrl(), this);
+        DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl(), DnsServersConfiguration::instance().getCurrentDnsServers());
+        connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+        dnsRequest->lookup();
     }
     else
     {
@@ -26,7 +28,7 @@ void KeepAliveManager::setEnabled(bool isEnabled)
     }
 }
 
-void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECTION_ERROR err, const LocationID &location)
+void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location)
 {
     Q_UNUSED(reason);
     Q_UNUSED(err);
@@ -35,7 +37,9 @@ void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REA
     curConnectState_ = state;
     if (state == CONNECT_STATE_CONNECTED && isEnabled_)
     {
-        DnsResolver::instance().lookup(HardcodedSettings::instance().serverUrl(), this);
+        DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl(), DnsServersConfiguration::instance().getCurrentDnsServers());
+        connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+        dnsRequest->lookup();
     }
     else
     {
@@ -61,33 +65,34 @@ void KeepAliveManager::onTimer()
     }
 }
 
-void KeepAliveManager::onDnsResolvedFinished(const QString &hostname, const QHostInfo &hostInfo, void *userPointer)
+void KeepAliveManager::onDnsRequestFinished()
 {
-    Q_UNUSED(hostname);
+    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
+    Q_ASSERT(dnsRequest != nullptr);
 
-    if (userPointer == this)
+    if (!dnsRequest->isError())
     {
-        if (hostInfo.error() == QHostInfo::NoError && hostInfo.addresses().count() > 0)
+        ips_.clear();
+        for (const QString &ip : dnsRequest->ips())
         {
-            ips_.clear();
-            for (int i = 0; i < hostInfo.addresses().count(); ++i)
-            {
-                ips_ << IP_DESCR(hostInfo.addresses()[i].toString());
-            }
-
-            if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
-            {
-                timer_.start(KEEP_ALIVE_TIMEOUT);
-            }
+            ips_ << IP_DESCR(ip);
         }
-        else
+
+        if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
         {
-            if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
-            {
-                DnsResolver::instance().lookup(HardcodedSettings::instance().serverUrl(), this);
-            }
+            timer_.start(KEEP_ALIVE_TIMEOUT);
         }
     }
+    else
+    {
+        if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
+        {
+            DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl(), DnsServersConfiguration::instance().getCurrentDnsServers());
+            connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+            dnsRequest->lookup();
+        }
+    }
+    dnsRequest->deleteLater();
 }
 
 void KeepAliveManager::onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState)

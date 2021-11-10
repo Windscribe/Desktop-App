@@ -19,6 +19,7 @@ public:
 
     bool isExistSelectedNode() const override;
     QString getLogString() const override;
+    QString getVerifyX509name() const override { return ""; }
 
     void resolveHostnames();
 
@@ -38,7 +39,7 @@ signals:
     void hostnamesResolved();
 
 private slots:
-    void onResolved(const QString &hostname, const QHostInfo &hostInfo, void *userPointer);
+    void onDnsRequestFinished();
 
 private:
     struct RemoteDescr

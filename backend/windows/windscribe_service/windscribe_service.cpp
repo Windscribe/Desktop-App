@@ -25,8 +25,8 @@
 #include "wireguard/defaultroutemonitor.h"
 #include "wireguard/wireguardadapter.h"
 #include "wireguard/wireguardcontroller.h"
+#include "reinstall_tun_drivers.h"
 #include <conio.h>
-#include "../../../common/utils/executable_signature/executable_signature_win.h"
 #include "../../../common/utils/crashhandler.h"
 
 #define SERVICE_NAME  (L"WindscribeService")
@@ -290,6 +290,11 @@ HANDLE CreatePipe()
 			PIPE_READMODE_MESSAGE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
 			1, 4096,
 			4096, NMPWAIT_USE_DEFAULT_WAIT, &sa);
+
+        if (hPipe == INVALID_HANDLE_VALUE) {
+            Logger::instance().out(L"CreateNamedPipe failed (%lu)", ::GetLastError());
+        }
+
 		return hPipe;
 	}
 	else
@@ -391,7 +396,11 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 	}
 	else if (cmdId == AA_COMMAND_DISABLE_DNS_TRAFFIC)
 	{
+		CMD_DISABLE_DNS_TRAFFIC cmdDissableDnsTraffic;
+		ia >> cmdDissableDnsTraffic;
+
 		Logger::instance().out(L"AA_COMMAND_DISABLE_DNS_TRAFFIC");
+		dnsFirewall.setExcludeIps(cmdDissableDnsTraffic.excludedIps);
 		dnsFirewall.enable();
 		mpr.success = true;
 		mpr.exitCode = 0;
@@ -548,7 +557,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		ia >> cmdTaskKill;
 
 		wchar_t killCmd[MAX_PATH];
-		wcscpy(killCmd, L"taskkill /f /im ");
+		wcscpy(killCmd, L"taskkill /f /t /im ");
 		wcscat(killCmd, cmdTaskKill.szExecutableName.c_str());
 		Logger::instance().out(L"AA_COMMAND_TASK_KILL, cmd=%s", killCmd);
 		mpr = ExecuteCmd::instance().executeBlockingCmd(killCmd);
@@ -860,6 +869,27 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		splitTunnelling.setConnectStatus(cmdConnectStatus);
 		g_SplitTunnelingPars.isVpnConnected = cmdConnectStatus.isConnected;
 	}
+	else if (cmdId == AA_COMMAND_DNS_WHILE_CONNECTED)
+	{
+		CMD_DNS_WHILE_CONNECTED cmdDnsWhileConnected;
+		ia >> cmdDnsWhileConnected;
+
+		wchar_t szBuf[1024];
+		wcscpy(szBuf, L"netsh interface ipv4 set dns \"");
+		wcscat(szBuf, std::to_wstring(cmdDnsWhileConnected.ifIndex).c_str());
+		wcscat(szBuf, L"\" static ");
+		wcscat(szBuf, cmdDnsWhileConnected.szDnsIpAddress.c_str());
+		mpr = ExecuteCmd::instance().executeBlockingCmd(szBuf);
+
+		wchar_t logBuf[1024];
+		wcscpy(logBuf, L"AA_COMMAND_DNS_WHILE_CONNECTED: ");
+		wcscat(logBuf, szBuf);
+		wcscat(logBuf, L" ");
+		wcscat(logBuf, mpr.success ? L"Success" : L"Failure");
+		wcscat(logBuf, L" ");
+		wcscat(logBuf, std::to_wstring(mpr.exitCode).c_str());
+		Logger::instance().out(logBuf);
+	}
 	else if (cmdId == AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE)
 	{
 		mpr.success = IKEv2Route::addRouteForIKEv2();
@@ -986,6 +1016,47 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
             }
         }
     }
+	else if (cmdId == AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE)
+	{
+		const auto hostsPath = L"C:\\Windows\\System32\\drivers\\etc\\hosts";
+		if (SetFileAttributes(hostsPath, GetFileAttributes(hostsPath) & ~FILE_ATTRIBUTE_READONLY))
+		{
+			mpr.success = true;
+		}
+		else
+		{
+			Logger::instance().out(L"Can't change permissions of \"hosts\" file.");
+			mpr.success = false;
+		}
+	}
+	else if (cmdId == AA_COMMAND_REINSTALL_TAP_DRIVER) 
+	{
+		CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
+		ia >> cmdReinstallTunDriver;
+
+		if (ReinstallTunDrivers::reinstallDriver(ReinstallTunDrivers::Type::TAP, cmdReinstallTunDriver.driverDir.c_str()))
+		{
+			mpr.success = true;
+		}
+		else 
+		{
+			mpr.success = false;
+		}
+	}
+	else if (cmdId == AA_COMMAND_REINSTALL_WINTUN_DRIVER)
+	{
+		CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
+		ia >> cmdReinstallTunDriver;
+
+		if (ReinstallTunDrivers::reinstallDriver(ReinstallTunDrivers::Type::WINTUN, cmdReinstallTunDriver.driverDir.c_str()))
+		{
+			mpr.success = true;
+		}
+		else
+		{
+			mpr.success = false;
+		}
+	}
 	
 	return mpr;
 }
@@ -996,9 +1067,9 @@ bool writeMessagePacketResult(HANDLE hPipe, MessagePacketResult &mpr)
 	boost::archive::text_oarchive oa(stream, boost::archive::no_header);
 	oa << mpr;
 	const std::string str = stream.str();
-	
+
 	// first 4 bytes - size of buffer
-	const unsigned long sizeOfBuf = str.size();
+	const auto sizeOfBuf = static_cast<unsigned long>(str.size());
 	if (IOUtils::writeAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
 	{
 		if (sizeOfBuf > 0)
@@ -1077,40 +1148,34 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 		}
 		else if (dwWait == (WAIT_OBJECT_0 + 1))
 		{
-			int cmdId;
-			unsigned long pid;
-			unsigned long sizeOfBuf;
-			if (IOUtils::readAll(hPipe, (char *)&cmdId, sizeof(cmdId)))
-			{
-				if (IOUtils::readAll(hPipe, (char *)&pid, sizeof(pid)))
-				{
-					if (IOUtils::readAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
-					{
-						std::string strData;
-						if (sizeOfBuf > 0)
-						{
-							std::vector<char> buffer(sizeOfBuf);
-							if (IOUtils::readAll(hPipe, buffer.data(), sizeOfBuf))
-							{
-								strData = std::string(buffer.begin(), buffer.end());
-							}
-						}
-
-						// check process executable by pid (for security), should be windscribe.exe
 #ifndef _DEBUG
 #ifndef SKIP_PID_CHECK
-						if (Utils::verifyWindscribeProcessPath(pid))
+         if (Utils::verifyWindscribeProcessPath(hPipe))
 #endif
 #endif
-						{
-							MessagePacketResult mpr = processMessagePacket(cmdId, strData, icsManager, firewallFilter, ipv6Firewall, dnsFirewall,
-																			sysIpv6Controller, hostsEdit, getActiveProcesses, splitTunnelling, wireGuardController);
-							writeMessagePacketResult(hPipe, mpr);
-						}
+         {
+            int cmdId;
+            unsigned long sizeOfBuf;
+            if (IOUtils::readAll(hPipe, (char *)&cmdId, sizeof(cmdId)))
+            {
+               if (IOUtils::readAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
+               {
+                  std::string strData;
+                  if (sizeOfBuf > 0)
+                  {
+                     std::vector<char> buffer(sizeOfBuf);
+                     if (IOUtils::readAll(hPipe, buffer.data(), sizeOfBuf))
+                     {
+                        strData = std::string(buffer.begin(), buffer.end());
+                     }
+                  }
 
-					}
-				}
-			}
+                  MessagePacketResult mpr = processMessagePacket(cmdId, strData, icsManager, firewallFilter, ipv6Firewall, dnsFirewall,
+                     sysIpv6Controller, hostsEdit, getActiveProcesses, splitTunnelling, wireGuardController);
+                  writeMessagePacketResult(hPipe, mpr);
+               }
+            }
+         }
 
 			::FlushFileBuffers(hPipe);
 			::DisconnectNamedPipe(hPipe);

@@ -1,6 +1,7 @@
 #include "uninstall.h"
 #include <VersionHelpers.h>
 #include <setupapi.h>
+#include "../utils/authhelper.h"
 
 #pragma comment(lib, "Setupapi.lib")
 
@@ -46,7 +47,6 @@ void Uninstaller::setUninstExeFile(const wstring &exe_file, bool bFirstPhase)
 
  UninstallExitCode = 1;
 
- Log::instance().setFilePath(path.PathExtractPath(UninstExeFile) + L"\\log\\windscribe_uninstall.log");
  /*if (bFirstPhase)
 	Log::instance().setFilePath(L"c:\\11\\windscribe_uninstall_1.log");
  else
@@ -144,7 +144,7 @@ DWORD Uninstaller::RunFirstPhase(HINSTANCE hInstance,LPSTR lpszCmdParam)
 {
   DirectoriesOfAWindows dir_win;
   wstring TempFile;
-  HWND Wnd;
+  //HWND Wnd;
   HANDLE ProcessHandle;
 
   Log::instance().out(L"RunFirstPhase");
@@ -277,9 +277,9 @@ void Uninstaller::DelayDeleteFile(const bool DisableFsRedir, const wstring Filen
 
 void Uninstaller::DeleteUninstallDataFiles()
 {
- HWND ProcessWnd;
- DWORD ProcessID;
- HANDLE Process;
+ //HWND ProcessWnd;
+ //DWORD ProcessID;
+ //HANDLE Process;
 
 
  Log::instance().out("Deleting Uninstall data files.");
@@ -475,6 +475,8 @@ void Uninstaller::RunSecondPhase(HWND hwnd)
 	wstring path_for_installation;
 
 	path_for_installation = path.PathExtractDir(UninstExeFile);
+
+	AuthHelper::removeRegEntriesForAuthHelper(path_for_installation);
 
 	Process process;
 

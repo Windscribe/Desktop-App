@@ -9,7 +9,7 @@
 #include <boost/thread.hpp>
 #include <list>
 
-#include "helper_commands.h"
+#include "../../../posix_common/helper_commands.h"
 #include "split_tunneling.h"
 #include "defaultroutemonitor.h"
 #include "wireguardadapter.h"
@@ -33,7 +33,7 @@ private:
     
     Files *files_;
    
-    bool readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer);
+    bool readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer);
     
     void receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::streambuf> buf, const boost::system::error_code& ec, std::size_t bytes_transferred);
     void acceptHandler(const boost::system::error_code & ec, socket_ptr sock);

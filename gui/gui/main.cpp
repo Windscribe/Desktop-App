@@ -8,55 +8,69 @@
 #include "utils/utils.h"
 #include "application/windscribeapplication.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "application/singleappinstance.h"
 
 #ifdef Q_OS_WIN
-    #include "application/preventmultipleinstances_win.h"
     #include "utils/scaleutils_win.h"
     #include "utils/crashhandler.h"
-#else
+#elif defined (Q_OS_MACOS)
     #include "utils/macutils.h"
+#elif defined (Q_OS_LINUX)
+    #include <libgen.h>         // dirname
+    #include <unistd.h>         // readlink
+    #include <linux/limits.h>   // PATH_MAX
+    #include <signal.h>
 #endif
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
 
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
 MainWindow *g_MainWindow = NULL;
     void handler_sigterm(int signum)
     {
-        Q_UNUSED(signum);
-        qCDebug(LOG_BASIC) << "SIGTERM signal received";
-        if (g_MainWindow)
+        if (signum == SIGTERM)
         {
-            g_MainWindow->doClose(NULL, true);
+            qCDebug(LOG_BASIC) << "SIGTERM signal received";
+
+            // on linux we consider the SIGTERM as a reboot of the OS, because there is no other option.
+            #ifdef Q_OS_LINUX
+                WindscribeApplication::instance()->setWasRestartOSFlag();
+            #endif
+
+            if (g_MainWindow)
+            {
+                g_MainWindow->doClose(NULL, true);
+            }
+            exit(0);
         }
-        exit(0);
     }
 #endif
 
 int main(int argc, char *argv[])
 {
-#ifdef Q_OS_WIN
-    // prevent multiple instances of process for Windows
-    PreventMultipleInstances_win multipleInstances;
-    if (!multipleInstances.lock())
-    {
-        return 0;
-    }
-#endif
-
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     signal(SIGTERM, handler_sigterm);
 #endif
-
 
     // set Qt plugin library paths for release build
 #ifndef QT_DEBUG
     #ifdef Q_OS_WIN
         // For Windows an empty list means searching plugins in the executable folder
         QCoreApplication::setLibraryPaths(QStringList());
-    #else
+    #elif defined (Q_OS_MACOS)
         QStringList pluginsPath;
         pluginsPath << MacUtils::getBundlePath() + "/Contents/PlugIns";
+        QCoreApplication::setLibraryPaths(pluginsPath);
+    #elif defined (Q_OS_LINUX)
+        //todo move to LinuxUtils
+        char result[PATH_MAX] = {};
+        ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+        const char *path;
+        if (count != -1) {
+            path = dirname(result);
+        }
+        QStringList pluginsPath;
+        pluginsPath << QString::fromStdString(path) + "/plugins";
         QCoreApplication::setLibraryPaths(pluginsPath);
     #endif
 #endif
@@ -70,16 +84,12 @@ int main(int argc, char *argv[])
 
 #ifdef Q_OS_MAC
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#elif defined (Q_OS_LINUX)
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
     WindscribeApplication a(argc, argv);
-
-    bool guiInstanceAlreadyRunning = Utils::giveFocusToGui();
-    if (guiInstanceAlreadyRunning)
-    {
-        qCDebug(LOG_BASIC) << "GUI appears to be running -- quitting";
-        return 0;
-    }
 
     // These values are used for QSettings by default
     a.setOrganizationName("Windscribe");
@@ -87,8 +97,31 @@ int main(int argc, char *argv[])
 
     a.setApplicationDisplayName("Windscribe");
 
+    // This guard must be created after WindscribeApplication, or its objects will not
+    // participate in the main event loop.  It must also be created before the Logger
+    // so, if this is the second instance to run, it does not copy the current instance's
+    // log_gui to prev_log_gui.
+    windscribe::SingleAppInstance appSingleInstGuard;
+    if (appSingleInstGuard.isRunning())
+    {
+        if (!appSingleInstGuard.activatedRunningInstance())
+        {
+            QMessageBox msgBox;
+            msgBox.setText(QObject::tr("Windscribe is already running on your computer, but appears to not be responding."));
+            msgBox.setInformativeText(QObject::tr("You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue."));
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
 
-    Logger::instance().install("gui", true);
+        return 0;
+    }
+
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    QObject::connect(&appSingleInstGuard, &windscribe::SingleAppInstance::anotherInstanceRunning,
+                     &a, &WindscribeApplication::activateFromAnotherInstance);
+#endif
+
+    Logger::instance().install("gui", true, false);
 
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
@@ -102,25 +135,34 @@ int main(int argc, char *argv[])
         msgBox.exec();
         return 0;
     }
+
+    if (!MacUtils::verifyAppBundleIntegrity())
+    {
+        QMessageBox msgBox;
+        msgBox.setText( QObject::tr("One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.") );
+        msgBox.setIcon( QMessageBox::Critical );
+        msgBox.exec();
+        return 0;
+    }
 #endif
     a.setStyle("fusion");
 
     DpiScaleManager::instance();    // init dpi scale manager
 
     MainWindow w;
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     g_MainWindow = &w;
 #endif
     w.showAfterLaunch();
 
-#ifdef Q_OS_WIN
-    multipleInstances.unlock();
-#endif
     int ret = a.exec();
-#ifdef Q_OS_MAC
+#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     g_MainWindow = nullptr;
 #endif
     ImageResourcesSvg::instance().finishGracefully();
+
+    appSingleInstGuard.release();
+
     return ret;
 }
 

@@ -10,12 +10,12 @@ namespace PreferencesWindow {
 NewIpOrHostnameItem::NewIpOrHostnameItem(ScalableGraphicsObject *parent) : BaseItem (parent, 50)
     , editing_(false)
 {
-    addIpOrHostnameButton_ = new IconButton(16, 16, "locations/EXPAND_ICON", this, OPACITY_UNHOVER_ICON_STANDALONE, OPACITY_FULL);
+    addIpOrHostnameButton_ = new IconButton(16, 16, "locations/EXPAND_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE, OPACITY_FULL);
     addIpOrHostnameButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     addIpOrHostnameButton_->setHoverOpacity(OPACITY_FULL);
     connect(addIpOrHostnameButton_, SIGNAL(clicked()), SLOT(onAddIpOrHostnameClicked()));
 
-    cancelTextButton_ = new IconButton(16, 16, "preferences/CLEAR_ICON", this, OPACITY_UNHOVER_ICON_STANDALONE, OPACITY_FULL);
+    cancelTextButton_ = new IconButton(16, 16, "preferences/CLEAR_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE, OPACITY_FULL);
     cancelTextButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     cancelTextButton_->setHoverOpacity(OPACITY_FULL);
     connect(cancelTextButton_, SIGNAL(clicked()), SLOT(onCancelClicked()));

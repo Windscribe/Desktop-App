@@ -8,6 +8,11 @@ const QString WS_MTU_OFFSET_IKEV_STR = "ws-mtu-offset-ikev2";
 const QString WS_MTU_OFFSET_OPENVPN_STR = "ws-mtu-offset-openvpn";
 const QString WS_MTU_OFFSET_WG_STR = "ws-mtu-offset-wg";
 
+const QString WS_TT_START_DELAY_STR = "tunnel-test-start-delay";
+const QString WS_TT_TIMEOUT_STR = "tunnel-test-timeout";
+const QString WS_TT_RETRY_DELAY_STR = "tunnel-test-retry-delay";
+const QString WS_TT_ATTEMPTS_STR = "tunnel-test-attempts";
+
 void ExtraConfig::writeConfig(const QString &cfg)
 {
     QMutexLocker locker(&mutex_);
@@ -148,6 +153,26 @@ int ExtraConfig::getMtuOffsetWireguard(bool &success)
     return getIntFromExtraConfigLines(WS_MTU_OFFSET_WG_STR, success);
 }
 
+int ExtraConfig::getTunnelTestStartDelay(bool &success)
+{
+    return getIntFromExtraConfigLines(WS_TT_START_DELAY_STR, success);
+}
+
+int ExtraConfig::getTunnelTestTimeout(bool &success)
+{
+    return getIntFromExtraConfigLines(WS_TT_TIMEOUT_STR, success);
+}
+
+int ExtraConfig::getTunnelTestRetryDelay(bool &success)
+{
+    return getIntFromExtraConfigLines(WS_TT_RETRY_DELAY_STR, success);
+}
+
+int ExtraConfig::getTunnelTestAttempts(bool &success)
+{
+    return getIntFromExtraConfigLines(WS_TT_ATTEMPTS_STR, success);
+}
+
 int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)
 {
     int endOfId = line.indexOf(str, Qt::CaseInsensitive) + str.length();
@@ -165,6 +190,8 @@ int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &st
 
 int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &success)
 {
+    success = false;
+
     const QString strExtraConfig = getExtraConfig();
     const QStringList strs = strExtraConfig.split("\n");
 
@@ -192,8 +219,9 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
     if (trimmed_command.isEmpty())
         return false;
 
-    // Filter out IKEv2 and mtu related commands.
+    // Filter out IKEv2, mtu, and tunnel test related commands.
     if (trimmed_command.startsWith("--ikev2", Qt::CaseInsensitive)
+        || trimmed_command.startsWith("tunnel-test-", Qt::CaseInsensitive)
         || trimmed_command.contains(WS_MTU_OFFSET_IKEV_STR, Qt::CaseInsensitive)
         || trimmed_command.contains(WS_MTU_OFFSET_WG_STR, Qt::CaseInsensitive)
         || trimmed_command.contains(WS_MTU_OFFSET_OPENVPN_STR, Qt::CaseInsensitive))

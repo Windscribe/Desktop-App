@@ -1,6 +1,7 @@
 #include "adaptergatewayinfo.h"
 #include "utils/logger.h"
 #include "utils/macutils.h"
+#include "utils/linuxutils.h"
 
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
@@ -15,10 +16,15 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo()
 
 #ifdef Q_OS_WIN
     cai = AdapterUtils_win::getDefaultAdapterInfo();
-#else
+#elif defined Q_OS_MAC
     MacUtils::getDefaultRoute(cai.gateway_, cai.adapterName_);
     cai.adapterIp_ = MacUtils::ipAddressByInterfaceName(cai.adapterName_);
     cai.dnsServers_ = MacUtils::getDnsServersForInterface(cai.adapterName_);
+#elif defined Q_OS_LINUX
+    LinuxUtils::getDefaultRoute(cai.gateway_, cai.adapterName_);
+    // todo: for split tunneling
+    // cai.adapterIp_ =
+    //cai.dnsServers_ =
 #endif
 
     return cai;

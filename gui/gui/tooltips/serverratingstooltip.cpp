@@ -198,7 +198,7 @@ void ServerRatingsTooltip::onRateDownButtonHoverEnter()
 void ServerRatingsTooltip::recalcWidth()
 {
     QFontMetrics fm(font_);
-    int textWidthScaled = fm.width(translatedText());
+    int textWidthScaled = fm.horizontalAdvance(translatedText());
     int otherWidth = (MARGIN_WIDTH *2 + TEXT_BUTTON_SPACING + BUTTON_BUTTON_SPACING + BUTTON_WIDTH*2) * G_SCALE; // margins + spacing
     width_ = textWidthScaled + otherWidth + additionalTailWidth();
 }
@@ -211,7 +211,7 @@ void ServerRatingsTooltip::recalcHeight()
 void ServerRatingsTooltip::updatePositions()
 {
     QFontMetrics fm(font_);
-    int textWidth = fm.width(translatedText());
+    int textWidth = fm.horizontalAdvance(translatedText());
     int padding = MARGIN_WIDTH *G_SCALE + TEXT_BUTTON_SPACING*G_SCALE + additionalTailWidth();
 
     rateUpButton_->updateSize();

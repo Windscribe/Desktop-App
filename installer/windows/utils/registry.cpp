@@ -1,4 +1,5 @@
 #include "registry.h"
+#include "logger.h"
 
 using namespace std;
 
@@ -158,7 +159,8 @@ void Registry::CrackCodeRootKey(HKEY CodeRootKey, TRegView &RegView, HKEY &RootK
 
  if(((CodeRootKey1 >> 31) != 1) || (((CodeRootKey1 & CodeRootKeyFlagMask)!=0) && ((~CodeRootKeyValidFlags) != 0)))
  {
-	Log::instance().out("(registry) Invalid RootKey value");
+	// I commented this out because it is logging HKEY_LOCAL_MACHINE and HKEY_CURRENT_USER as invalid.
+     //Log::instance().out("(registry) Invalid RootKey value (%d)", CodeRootKey1);
  }
 
  if ((CodeRootKey!=nullptr) && (CodeRootKeyFlag32Bit != 0))

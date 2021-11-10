@@ -9,8 +9,8 @@
 #include "PathControl.h"
 #include "DesktopShortcutControl.h"
 #include "EscButton.h"
-#include "../../Installer/installer.h"
-#include "../../messages.h"
+#include "../Installer/installer.h"
+#include "../messages.h"
 
 
 class MainWindow
@@ -23,6 +23,7 @@ public:
 	HWND getHwnd() { return hwnd_; }
 	void drawBackground(Gdiplus::Graphics *graphics, int sx, int sy, int w, int h);
 	void gotoAutoUpdateMode();
+    void gotoSilentInstall();
 
 private:
 	HWND hwnd_;

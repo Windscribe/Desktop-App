@@ -68,13 +68,13 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     qreal initialOpacity = painter->opacity();
 
     // background:
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     const QString background = "background/WIN_MAIN_BG";
 #else
     const QString background = "background/MAC_MAIN_BG";
 #endif
     painter->setOpacity(OPACITY_FULL * initialOpacity);
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(background);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background);
     p->draw(0, 0, painter);
 
     // Text:
@@ -136,8 +136,14 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     const int spinnerPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, SPINNER_HALF_WIDTH * 2 * G_SCALE);
     painter->translate(spinnerPosX+SPINNER_HALF_WIDTH * G_SCALE, SPINNER_POS_Y * G_SCALE+SPINNER_HALF_HEIGHT * G_SCALE);
     painter->rotate(spinnerRotation_);
-    IndependentPixmap *pSpinner = ImageResourcesSvg::instance().getIndependentPixmap("update/UPDATING_SPINNER");
+    QSharedPointer<IndependentPixmap> pSpinner = ImageResourcesSvg::instance().getIndependentPixmap("update/UPDATING_SPINNER");
     pSpinner->draw(-SPINNER_HALF_WIDTH * G_SCALE,-SPINNER_HALF_HEIGHT * G_SCALE, painter);
+}
+
+void UpdateWindowItem::setClickable(bool isClickable)
+{
+    acceptButton_->setClickable(isClickable);
+    cancelButton_->setClickable(isClickable);
 }
 
 void UpdateWindowItem::setVersion(QString version, int buildNumber)

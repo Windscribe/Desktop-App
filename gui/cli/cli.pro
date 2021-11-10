@@ -63,10 +63,10 @@ macx {
     LIBS += -framework CoreFoundation
     LIBS += -framework CoreServices
     LIBS += -framework Security
+    LIBS += -framework SystemConfiguration
 
     INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
     LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
-
 
     OBJECTIVE_SOURCES += \
             $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm \
@@ -82,6 +82,7 @@ QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
 }
 
 SOURCES += \
+        ../../common/utils/ipvalidation.cpp \
         ../backend/backend.cpp \
         ../backend/connectstatehelper.cpp \
         ../backend/firewallstatehelper.cpp \
@@ -109,6 +110,7 @@ SOURCES += \
         ../backend/preferences/preferences.cpp \
         ../backend/preferences/preferenceshelper.cpp \
         $$COMMON_PATH/types/locationid.cpp \
+        ../backend/types/dnswhileconnectedinfo.cpp \
         ../backend/types/pingtime.cpp \
         ../backend/types/types.cpp \
         ../backend/types/upgrademodetype.cpp \
@@ -116,11 +118,11 @@ SOURCES += \
         $$COMMON_PATH/utils/languagesutil.cpp \
         $$COMMON_PATH/utils/logger.cpp \
         $$COMMON_PATH/utils/utils.cpp \
+        $$COMMON_PATH/utils/hardcodedsettings.cpp \
+        $$COMMON_PATH/utils/simplecrypt.cpp \
         $$COMMON_PATH/version/appversion.cpp \
         $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
         $$COMMON_PATH/utils/clean_sensitive_info.cpp \
-        $$COMMON_PATH/utils/hardcodedsettings.cpp \
-        $$COMMON_PATH/utils/simplecrypt.cpp \
         ../backend/persistentstate.cpp \
         backendcommander.cpp \
         cliapplication.cpp \
@@ -132,6 +134,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    ../../common/utils/ipvalidation.h \
     ../backend/backend.h \
     ../backend/connectstatehelper.h \
     ../backend/firewallstatehelper.h \
@@ -165,6 +168,7 @@ HEADERS += \
     ../backend/preferences/preferences.h \
     ../backend/preferences/preferenceshelper.h \
     $$COMMON_PATH/types/locationid.h \
+    ../backend/types/dnswhileconnectedinfo.h \
     ../backend/types/pingtime.h \
     ../backend/types/types.h \
     ../backend/types/upgrademodetype.h \
@@ -172,12 +176,12 @@ HEADERS += \
     $$COMMON_PATH/utils/languagesutil.h \
     $$COMMON_PATH/utils/logger.h \
     $$COMMON_PATH/utils/utils.h \
+    $$COMMON_PATH/utils/hardcodedsettings.h \
+    $$COMMON_PATH/utils/simplecrypt.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
-    $$COMMON_PATH/utils/hardcodedsettings.h \
-    $$COMMON_PATH/utils/simplecrypt.h \
     ../backend/persistentstate.h \
     backendcommander.h \
     cliapplication.h

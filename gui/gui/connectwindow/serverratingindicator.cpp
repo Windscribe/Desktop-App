@@ -10,7 +10,6 @@ ServerRatingIndicator::ServerRatingIndicator(ScalableGraphicsObject *parent)
       connectState_(ProtoTypes::DISCONNECTED), pingTime_(PingTime::PING_FAILED)
 {
     setClickable(true);
-    updateDimensions();
 }
 
 QRectF ServerRatingIndicator::boundingRect() const
@@ -26,29 +25,28 @@ void ServerRatingIndicator::paint(QPainter *painter, const QStyleOptionGraphicsI
     qreal initOpacity = painter->opacity();
 
     //painter->fillRect(boundingRect(), QBrush(QColor(0, 255, 255)));
-    IndependentPixmap *pixmap = NULL;
     if (connectState_ == ProtoTypes::CONNECTED)
     {
         painter->setOpacity(1.0);
         if (pingTime_.toConnectionSpeed() == 0)
         {
             painter->setOpacity(0.5 * initOpacity);
-            pixmap = ImageResourcesSvg::instance().getIndependentPixmap("PING_ON_FULL");
+            pingOnFull_->draw(painter, 0, 0);
         }
         else if (pingTime_.toConnectionSpeed() == 1)
         {
             painter->setOpacity(1.0 * initOpacity);
-            pixmap = ImageResourcesSvg::instance().getIndependentPixmap("PING_ON_LOW");
+            pingOnLow_->draw(painter, 0, 0);
         }
         else if (pingTime_.toConnectionSpeed() == 2)
         {
             painter->setOpacity(1.0 * initOpacity);
-            pixmap = ImageResourcesSvg::instance().getIndependentPixmap("PING_ON_HALF");
+            pingOnHalf_->draw(painter, 0, 0);
         }
         else if (pingTime_.toConnectionSpeed() == 3)
         {
             painter->setOpacity(1.0 * initOpacity);
-            pixmap = ImageResourcesSvg::instance().getIndependentPixmap("PING_ON_FULL");
+            pingOnFull_->draw(painter, 0, 0);
         }
     }
     else
@@ -56,32 +54,23 @@ void ServerRatingIndicator::paint(QPainter *painter, const QStyleOptionGraphicsI
         if (pingTime_.toConnectionSpeed() == 0)
         {
             painter->setOpacity(0.5 * initOpacity);
-            pixmap = ImageResourcesSvg::instance().getIndependentPixmap("PING_OFF_FULL");
+            pingOffFull_->draw(painter, 0, 0);
         }
         else if (pingTime_.toConnectionSpeed() == 1)
         {
             painter->setOpacity(1.0 * initOpacity);
-            pixmap = ImageResourcesSvg::instance().getIndependentPixmap("PING_OFF_LOW");
+            pingOffLow_->draw(painter, 0, 0);
         }
         else if (pingTime_.toConnectionSpeed() == 2)
         {
             painter->setOpacity(1.0 * initOpacity);
-            pixmap = ImageResourcesSvg::instance().getIndependentPixmap("PING_OFF_HALF");
+            pingOffHalf_->draw(painter, 0, 0);
         }
         else if (pingTime_.toConnectionSpeed() == 3)
         {
             painter->setOpacity(1.0 * initOpacity);
-            pixmap = ImageResourcesSvg::instance().getIndependentPixmap("PING_OFF_FULL");
+            pingOffFull_->draw(painter, 0, 0);
         }
-    }
-
-    if (pixmap)
-    {
-        pixmap->draw(0, 0, painter);
-    }
-    else
-    {
-        Q_ASSERT(false);
     }
 }
 
@@ -102,15 +91,21 @@ void ServerRatingIndicator::setPingTime(const PingTime &pingTime)
 void ServerRatingIndicator::updateScaling()
 {
     ClickableGraphicsObject::updateScaling();
+    pingOnFull_.reset(new ImageWithShadow("pingbar/ON_FULL","pingbar/SHADOW"));
+    pingOnLow_.reset(new ImageWithShadow("pingbar/ON_LOW","pingbar/SHADOW"));
+    pingOnHalf_.reset(new ImageWithShadow("pingbar/ON_HALF","pingbar/SHADOW"));
+    pingOffFull_.reset(new ImageWithShadow("pingbar/OFF_FULL","pingbar/SHADOW"));
+    pingOffLow_.reset(new ImageWithShadow("pingbar/OFF_LOW","pingbar/SHADOW"));
+    pingOffHalf_.reset(new ImageWithShadow("pingbar/OFF_HALF","pingbar/SHADOW"));
+
     updateDimensions();
 }
 
 
 void ServerRatingIndicator::updateDimensions()
 {
-    IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("PING_ON_FULL");
-    width_ = p->width();
-    height_ = p->height();
+    width_ = pingOnFull_->width();
+    height_ = pingOnFull_->height();
 }
 
 } //namespace ConnectWindow

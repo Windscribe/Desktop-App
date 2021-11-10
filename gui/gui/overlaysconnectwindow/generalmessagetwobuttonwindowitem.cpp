@@ -39,7 +39,7 @@ GeneralMessageTwoButtonWindowItem::GeneralMessageTwoButtonWindowItem(const QStri
     connect(rejectButton_, SIGNAL(hoverEnter()), SLOT(onHoverReject()));
     connect(rejectButton_, SIGNAL(hoverLeave()), SLOT(onHoverLeaveReject()));
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     backgroundIcon_ = "background/WIN_MAIN_BG";
 #else
     backgroundIcon_ = "background/MAC_MAIN_BG";
@@ -65,14 +65,14 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
     // background
     if (shapedToConnectWindow_)
     {
-        IndependentPixmap *bkgdPix = ImageResourcesSvg::instance().getIndependentPixmap(backgroundIcon_);
+        QSharedPointer<IndependentPixmap> bkgdPix = ImageResourcesSvg::instance().getIndependentPixmap(backgroundIcon_);
         bkgdPix->draw(0, 0, painter);
     }
     else
     {
         QColor black = FontManager::instance().getMidnightColor();
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         painter->fillRect(boundingRect(), black);
 #else
         painter->setPen(black);
@@ -84,7 +84,7 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
     if (!isShutdownAnimationMode_)
     {
         // icon
-        IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap(icon_);
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(icon_);
         p->draw((WINDOW_WIDTH/2 - 20) * G_SCALE, iconPosY_*G_SCALE, painter);
 
         // title
@@ -106,7 +106,7 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
         curLogoPosY_ = LOGO_POS_CENTER;
 
         const int logoPosX = WINDOW_WIDTH/2 - 20;
-        IndependentPixmap *p = ImageResourcesSvg::instance().getIndependentPixmap("login/BADGE_ICON");
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("login/BADGE_ICON");
         p->draw(logoPosX * G_SCALE, curLogoPosY_ * G_SCALE, painter);
 
         // spinner
@@ -146,14 +146,10 @@ void GeneralMessageTwoButtonWindowItem::setBackgroundShapedToConnectWindow(bool 
 
     int titlePos = RECT_TITLE_POS_Y;
     int iconPos = RECT_ICON_POS_Y;
-    int acceptPos = RECT_ACCEPT_BUTTON_POS_Y;
-    int rejectPos = RECT_REJECT_BUTTON_POS_Y;
     if (shapedToConnectWindow)
     {
         titlePos = SHAPED_TITLE_POS_Y;
         iconPos =  SHAPED_ICON_POS_Y;
-        acceptPos = SHAPED_ACCEPT_BUTTON_POS_Y;
-        rejectPos = SHAPED_REJECT_BUTTON_POS_Y;
     }
 
     titlePosY_ = titlePos;

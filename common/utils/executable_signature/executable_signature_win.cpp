@@ -1,8 +1,6 @@
 #include "executable_signature_win.h"
-#include "utils/hardcodedsettings.h"
 #include <tlhelp32.h>
 #include <psapi.h>
-
 
 #ifdef QT_CORE_LIB
 #include <QCoreApplication>
@@ -12,14 +10,13 @@
 #pragma comment (lib, "wintrust")
 #pragma comment(lib, "crypt32.lib")
 
-bool ExecutableSignature_win::verify(const wchar_t *szExePath)
+bool ExecutableSignature_win::verify(const wchar_t *szExePath, const wchar_t *szCertName)
 {
-    if (HardcodedSettings::instance().windowsCertName().isEmpty())
+    // szCertName is empty ?
+    if ((szCertName != NULL) && (szCertName[0] == L'\0'))
     {
-	return true;
+        return true;
     }
-
-
 
 	if (!verifyEmbeddedSignature(szExePath))
 	{
@@ -71,7 +68,7 @@ bool ExecutableSignature_win::verify(const wchar_t *szExePath)
 		goto finish;
 	}
 
-	isValid = checkWindscribeCertificate(pCertContext);
+    isValid = checkWindscribeCertificate(pCertContext, szCertName);
 
 finish:
 	if (pSignerInfo != NULL) LocalFree(pSignerInfo);
@@ -120,7 +117,7 @@ bool ExecutableSignature_win::verifyEmbeddedSignature(const wchar_t *pwszSourceF
 	return isValid;
 }
 
-bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertContext)
+bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertContext, const wchar_t *szCertName)
 {
 	bool fReturn = false;
 	LPTSTR szName = NULL;
@@ -140,14 +137,7 @@ bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertCon
 		return false;
 	}
 
-    if (!HardcodedSettings::instance().windowsCertName().isEmpty())
-    {
-        fReturn = (wcscmp(szName, HardcodedSettings::instance().windowsCertName().toStdWString().c_str()) == 0);
-    }
-    else
-    {
-        fReturn = true;
-    }
+    fReturn = (wcscmp(szName, szCertName) == 0);
 
 	LocalFree(szName);
 
@@ -156,7 +146,7 @@ bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertCon
 
 #ifdef QT_CORE_LIB
 
-bool ExecutableSignature_win::isParentProcessGui()
+bool ExecutableSignature_win::isParentProcessGui(const QString &certName)
 {
     HANDLE hSnapshot;
     PROCESSENTRY32 pe32;
@@ -209,12 +199,12 @@ bool ExecutableSignature_win::isParentProcessGui()
     QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe.exe";
     guiPath = QDir::toNativeSeparators(QDir::cleanPath(guiPath));
 
-    return (parentPath.compare(guiPath, Qt::CaseInsensitive) == 0) && verify(parentPath);
+    return (parentPath.compare(guiPath, Qt::CaseInsensitive) == 0) && verify(parentPath, certName);
 }
 
-bool ExecutableSignature_win::verify(const QString &executablePath)
+bool ExecutableSignature_win::verify(const QString &executablePath, const QString &certName)
 {
-    return verify(executablePath.toStdWString().c_str());
+    return verify(executablePath.toStdWString().c_str(), certName.toStdWString().c_str());
 }
 
 #endif

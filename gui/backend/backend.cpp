@@ -51,7 +51,7 @@ Backend::~Backend()
     }
 }
 
-void Backend::init()
+void Backend::init(bool recovery)
 {
     qCDebug(LOG_BASIC) << "Backend::init()";
 
@@ -66,11 +66,17 @@ void Backend::init()
 
 #ifdef Q_OS_WIN
     QString engineExePath = QCoreApplication::applicationDirPath() + "/WindscribeEngine.exe";
-#else
+#elif defined Q_OS_MAC
     QString engineExePath = QCoreApplication::applicationDirPath() + "/../Library/WindscribeEngine.app";
+#elif defined Q_OS_LINUX
+    QString engineExePath = QCoreApplication::applicationDirPath() + "/WindscribeEngine";
 #endif
 
-    qCDebug(LOG_BASIC()) << "Calling Engine at: " << Utils::cleanSensitiveInfo(engineExePath);
+    const QString recoveryArg = "--recovery";
+    QString callLogEntry = "Calling Engine at: " + Utils::cleanSensitiveInfo(engineExePath);
+    if (recovery) callLogEntry += " " + recoveryArg;
+    qCDebug(LOG_BASIC()) << callLogEntry;
+
     if (!ExecutableSignature::verify(engineExePath))
     {
         qCDebug(LOG_BASIC()) << "Engine signature invalid";
@@ -83,10 +89,13 @@ void Backend::init()
     connect(process_, SIGNAL(started()), SLOT(onProcessStarted()));
 
     process_->setProgram(engineExePath);
+    if (recovery) process_->setArguments({recoveryArg});
+
     process_->setWorkingDirectory(QCoreApplication::applicationDirPath());
     ipcState_ = IPC_STARTING_PROCESS;
     process_->start();
 #else
+    Q_UNUSED(recovery)
     ipcState_ = IPC_CONNECTING;
     connectingTimer_.start();
     connection_->connect();
@@ -354,7 +363,7 @@ void Backend::startWifiSharing(const QString &ssid, const QString &password)
 
 void Backend::stopWifiSharing()
 {
-    Q_ASSERT(isInitFinished());
+    //Q_ASSERT(isInitFinished());
     if (isInitFinished())
     {
         IPC::ProtobufCommand<IPCClientCommands::StopWifiSharing> cmd;
@@ -595,7 +604,7 @@ void Backend::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
     {
         return;
     }
-    qCDebug(LOG_BASIC) << "Backend::onProcessFinished()" << exitCode << (int)exitStatus;
+    qCDebug(LOG_BASIC) << "Backend::onProcessFinished()" << exitCode <<  " " << exitStatus;
     if (ipcState_ == IPC_STARTING_PROCESS || ipcState_ == IPC_CONNECTING || ipcState_ == IPC_CONNECTED)
     {
         ipcState_ = IPC_INIT_STATE;
@@ -610,7 +619,7 @@ void Backend::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
     {
         if (!bRecoveringState_)
         {
-            qCDebug(LOG_BASIC) << "Start engine recovery.";
+            qCDebug(LOG_BASIC) << "Start engine recovery. (process finished)";
             engineCrashedDoRecovery();
         }
     }
@@ -874,6 +883,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
         IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> *>(command);
         emit updateVersionChanged(cmd->getProtoObj().progress(), cmd->getProtoObj().state(), cmd->getProtoObj().error());
     }
+    else if (command->getStringId() == IPCServerCommands::HostsFileBecameWritable::descriptor()->full_name())
+    {
+        qCDebug(LOG_BASIC) << "Hosts file became writable -- Connecting..";
+        sendConnect(PersistentState::instance().lastLocation());
+    }
 }
 
 void Backend::abortInitialization()
@@ -892,6 +906,7 @@ void Backend::abortInitialization()
 
 void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connection*/)
 {
+    // qDebug() << "Connection state changed: " << connection << " " << state;
     if (state == IPC::CONNECTION_CONNECTED)
     {
         qCDebug(LOG_BASIC) << "Connected to engine server";
@@ -931,11 +946,10 @@ void Backend::onConnectionStateChanged(int state, IPC::IConnection * /*connectio
         {
             if (!bRecoveringState_)
             {
-                qCDebug(LOG_BASIC) << "Start engine recovery.";
+                qCDebug(LOG_BASIC) << "Start engine recovery. (ipc connection disconnected)";
                 engineCrashedDoRecovery();
             }
         }
-
     }
     else if (state == IPC::CONNECTION_ERROR)
     {
@@ -1130,6 +1144,16 @@ void Backend::cancelUpdateVersion()
     }
 }
 
+void Backend::sendMakeHostsFilesWritableWin()
+{
+    if (isInitFinished())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::MakeHostsWritableWin> cmd;
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        connection_->sendCommand(cmd);
+    }
+}
+
 QString Backend::generateNewFriendlyName()
 {
     QList<QString> friendlyNames;
@@ -1177,6 +1201,8 @@ void Backend::getOpenVpnVersionsFromInitCommand(const IPCServerCommands::InitFin
 
 void Backend::engineCrashedDoRecovery()
 {
+    // qDebug() << "Backend::engineCrashedDoRecovery";
+
     bRecoveringState_ = true;
     emit engineCrash();
 
@@ -1197,5 +1223,5 @@ void Backend::engineCrashedDoRecovery()
     connectStateHelper_.setConnectStateFromEngine(cs);
     emergencyConnectStateHelper_.setConnectStateFromEngine(cs);
 
-    init();
+    init(true);
 }

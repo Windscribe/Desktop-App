@@ -249,6 +249,9 @@
     <ClCompile Include="..\utils\base64codec.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="installer\blocks\install_authhelper.cpp">
+      <Filter>Source Files\installer\blocks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="archive\archive.h">
@@ -451,6 +454,9 @@
     </ClInclude>
     <ClInclude Include="..\utils\base64codec.h">
       <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\install_authhelper.h">
+      <Filter>Header Files\installer\blocks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

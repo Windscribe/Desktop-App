@@ -44,6 +44,7 @@ void PingHost_ICMP_mac::clearPings()
 void PingHost_ICMP_mac::setProxySettings(const ProxySettings &proxySettings)
 {
     //todo
+    Q_UNUSED(proxySettings);
 }
 
 void PingHost_ICMP_mac::disableProxy()
@@ -58,6 +59,8 @@ void PingHost_ICMP_mac::enableProxy()
 
 void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
+    Q_UNUSED(exitStatus);
+
     int timeMs = -1;
     QProcess *process = (QProcess *)sender();
     if (exitCode == 0)

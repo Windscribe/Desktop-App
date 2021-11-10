@@ -3,16 +3,19 @@
 
 #include <QString>
 #include <QObject>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QFile>
+#include <QSharedPointer>
+#include <QMap>
 
+class NetworkAccessManager;
+class NetworkReply;
 
 class DownloadHelper : public QObject
 {
     Q_OBJECT
 public:
-    explicit DownloadHelper(QObject *parent = nullptr);
+    explicit DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager);
+    ~DownloadHelper();
 
     enum DownloadState {
         DOWNLOAD_STATE_INIT,
@@ -21,8 +24,12 @@ public:
         DOWNLOAD_STATE_FAIL
     };
 
-    const QString &downloadPath();
-    void get(const QString url);
+    const QString downloadInstallerPath();
+    const QString downloadInstallerPathWithoutExtension();
+    const QString publicKeyInstallPath();
+    const QString signatureInstallPath();
+
+    void get(QMap<QString, QString> downloads);
     void stop();
 
     DownloadState state();
@@ -34,19 +41,31 @@ signals:
 private slots:
     void onReplyFinished();
     void onReplyDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
-    void onReplyError(QNetworkReply::NetworkError error);
     void onReplyReadyRead();
 
 private:
-    QNetworkAccessManager networkAccessManager_;
-    QNetworkReply *reply_;
-    QFile *file_;
+    NetworkAccessManager *networkAccessManager_;
 
-    QString downloadPath_;
+    struct FileAndProgress {
+        QSharedPointer<QFile> file;
+        qint64 bytesReceived = 0;
+        qint64 bytesTotal = 0;
+        bool done = false;
+    };
+
+    QMap<NetworkReply*, FileAndProgress> replies_;
+    bool busy_;
+
+    QString downloadDirectory_;
     uint progressPercent_;
     DownloadState state_;
 
-    void safeCloseFileAndDeleteObj();
+    void getInner(const QString url, const QString targetFilenamePath);
+    void removeAutoUpdateInstallerFiles();
+    bool allRepliesDone();
+    void abortAllReplies();
+    void deleteAllReplies();
+
 };
 
 #endif // DOWNLOADHELPER_H
