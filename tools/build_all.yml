@@ -333,4 +333,4 @@ macdeployfixes:
         protobuf:
           - lib/libprotobuf.25.dylib -> ../Frameworks/libprotobuf.25.dylib
     codesign:
-      sign_app: yes
+      sign_app: no

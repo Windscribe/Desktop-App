@@ -5,6 +5,7 @@
 #include <libproc.h>
 #include <string.h>
 #include "utils/logger.h"
+#include "utils/hardcodedsettings.h"
 
 #import <Security/Security.h>
 #import <SystemConfiguration/SystemConfiguration.h>
