@@ -1,7 +1,6 @@
 #include "ikev2connection_linux.h"
 #include "utils/logger.h"
 #include <QCoreApplication>
-#include "engine/hardcodedsettings.h"
 
 
 
