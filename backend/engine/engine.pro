@@ -251,7 +251,7 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 linux {
 
 # uncomment for use signature checking on Linux
-DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+#DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
 
 #remove linux deprecated copy warnings
 QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
