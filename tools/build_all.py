@@ -44,7 +44,6 @@ import deps.installutils as iutl
 BUILD_TITLE = "Windscribe"
 BUILD_CFGNAME = "build_all.yml"
 BUILD_OS_LIST = ["win32", "macos", "linux"]
-BUILD_CERT_PASSWORD = "fBafQVi0RC4Ts4zMUFOE" # TODO: keep elsewhere!
 BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
 BUILD_APP_VERSION_STRING = ""
@@ -441,23 +440,26 @@ def PackSymbols():
   zf.close()
 
 
-def SignExecutablesWin32(filename_to_sign=None):
-  msg.Info("Signing...")
-  signtool = os.path.join(ROOT_DIR, "installer", "windows", "signing", "signtool.exe")
-  certfile = os.path.join(ROOT_DIR, "installer", "windows", "signing", "code_signing.pfx")
-  if filename_to_sign:
-    iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
-                   "/p", BUILD_CERT_PASSWORD, filename_to_sign])
+def SignExecutablesWin32(configdata, filename_to_sign=None):
+  if "windows_signing_cert" in configdata and "path_signtool" in configdata["windows_signing_cert"] and "path_cert" in configdata["windows_signing_cert"] and "password_cert" in configdata["windows_signing_cert"] and "timestamp" in configdata["windows_signing_cert"]:
+    signtool = os.path.join(ROOT_DIR, configdata["windows_signing_cert"]["path_signtool"])
+    certfile = os.path.join(ROOT_DIR, configdata["windows_signing_cert"]["path_cert"])
+    passw_cert = configdata["windows_signing_cert"]["password_cert"]
+    timestamp = configdata["windows_signing_cert"]["timestamp"]
+    
+    msg.Info("Signing...")
+    if filename_to_sign:
+      iutl.RunCommand([signtool, "sign", "/t", timestamp, "/f", certfile,
+                   "/p", passw_cert, filename_to_sign])
+    else:
+      iutl.RunCommand([signtool, "sign", "/t", timestamp, "/f", certfile,
+                    "/p", passw_cert, os.path.join(BUILD_INSTALLER_FILES, "*.exe")])
+      iutl.RunCommand([signtool, "sign", "/t", timestamp, "/f", certfile,
+                    "/p", passw_cert, os.path.join(BUILD_INSTALLER_FILES, "x32", "*.exe")])
+      iutl.RunCommand([signtool, "sign", "/t", timestamp, "/f", certfile,
+                    "/p", passw_cert, os.path.join(BUILD_INSTALLER_FILES, "x64", "*.exe")])
   else:
-    iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
-                    "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "*.exe")])
-    iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
-                    "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "*.dll")])
-    iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
-                    "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "x32", "*.exe")])
-    iutl.RunCommand([signtool, "sign", "/t", "http://timestamp.digicert.com", "/f", certfile,
-                    "/p", BUILD_CERT_PASSWORD, os.path.join(BUILD_INSTALLER_FILES, "x64", "*.exe")])
-
+    msg.Info("Skip signing. The signing data is not set in YML.")
 
 def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   # Copy Windows files.
@@ -481,7 +483,7 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   # Pack symbols for crashdump analysis.
   PackSymbols()
   # Sign executable files with a certificate.
-  SignExecutablesWin32()
+  SignExecutablesWin32(configdata)
   # Place everything in a 7z archive.
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["win32"]]
@@ -502,7 +504,7 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
     "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRING_FULL)))
   utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                   installer_info["target"])), final_installer_name)
-  SignExecutablesWin32(final_installer_name)
+  SignExecutablesWin32(configdata, final_installer_name)
 
 
 def BuildInstallerMac(configdata, qt_root):
