@@ -256,6 +256,9 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 
 linux {
 
+# uncomment for use signature checking on Linux
+DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+
 #remove linux deprecated copy warnings
 QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 
@@ -302,8 +305,10 @@ HEADERS += \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
            engine/macaddresscontroller/macaddresscontroller_linux.h
 
-RESOURCES += \
-    $$COMMON_PATH/common_linux.qrc
+contains(DEFINES, USE_SIGNATURE_CHECK_ON_LINUX) {
+    RESOURCES += \
+        $$COMMON_PATH/common_linux.qrc
+}
 
 } # linux
 
