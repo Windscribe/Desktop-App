@@ -214,36 +214,6 @@ errno_t ws_ctl_set(kern_ctl_ref ctl_ref, u_int32_t unit, void *unitinfo, int opt
     return ret;
 }
 
-/*int send_message_nowait(struct ProcQuery *proc_query)
-{
-    // Unique identifier for messages
-    OSIncrementAtomic(&messageId);
-    proc_query->needs_reply = 0;
-    proc_query->id = messageId;
-    
-    if(!is_daemon_connected())
-    {
-        // Logging here that we failed to find a connection to send a message is really noisy
-        // So let's not log in this situation, and only log when we encounter an error on sending (as in ctl_enqueuedata)
-        return -1;
-    }
-    
-    // ctl_enqueuedata is not threadsafe
-    lck_mtx_lock(g_message_mutex);
-    int err = ctl_enqueuedata(ctl_ref, ctl_unit, (void*)proc_query, sizeof(ProcQuery), CTL_DATA_EOR);
-    lck_mtx_unlock(g_message_mutex);
-    
-    log_debug("message_id: %d Sent message", proc_query->id);
-    
-    if(err)
-    {
-        log("Could not enqueue data, error code %d\n", err);
-        return -1;
-    }
-    
-    return 0;
-}*/
-
 int send_message_and_wait_for_reply(struct ProcQuery *proc_query, struct ProcQuery *proc_response)
 {
     // 200000000 nanoseconds = 0.2 seconds

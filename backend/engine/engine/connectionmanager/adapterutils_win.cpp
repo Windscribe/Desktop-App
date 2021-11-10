@@ -22,7 +22,7 @@ AdapterGatewayInfo AdapterUtils_win::getDefaultAdapterInfo()
 {
     AdapterGatewayInfo info;
     DWORD  bestIfIndex;
-    IPAddr ipAddr = htonl(0x08080808); // "8.8.8.8" is well-knowon Google DNS Server IP.
+    IPAddr ipAddr = htonl(0x08080808); // "8.8.8.8" is well-known Google DNS Server IP.
     if (GetBestInterface(ipAddr, &bestIfIndex) == NO_ERROR)
     {
         info = getAdapterInfo(true, bestIfIndex);

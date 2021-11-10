@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
     if (!ExecutableSignature::isParentProcessGui())
     {
-        qCDebug(LOG_BASIC) << "abd444";  // a meaningless message that is useful for us, but not for hackers
+        qCDebug(LOG_BASIC) << "abd444";  // a meaningless message which may be usefull
         return 0;
     }
 

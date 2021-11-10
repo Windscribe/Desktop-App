@@ -349,29 +349,6 @@ void IKEv2Connection_mac::continueWithPassword(const QString &password)
 void IKEv2Connection_mac::removeIkev2ConnectionFromOS()
 {
     KeyChainUtils::removeKeychainItem();
-    /*static QWaitCondition waitCondition;
-    static QMutex mutex;
-
-    mutex.lock();
-
-    NEVPNManager *manager = [NEVPNManager sharedManager];
-    [manager removeFromPreferencesWithCompletionHandler :^(NSError *err)
-    {
-        mutex.lock();
-        if (err)
-        {
-            qCDebug(LOG_IKEV2) << "remove IKEv2 setting from preferences failed:" << QString::fromNSString(err.localizedDescription);
-        }
-        else
-        {
-            qCDebug(LOG_IKEV2) << "remove IKEv2 setting from preferences ok";
-        }
-        waitCondition.wakeAll();
-        mutex.unlock();
-    }];
-
-    waitCondition.wait(&mutex);
-    mutex.unlock();*/
 }
 
 void IKEv2Connection_mac::closeWindscribeActiveConnection()
