@@ -12,7 +12,7 @@
 class ExecutableSignature_linux
 {
 public:
-    static bool verifyWithPublicKey(const std::string &exePath, const std::string &sigPath, const std::string &pubKeyBytes);
+    bool verifyWithPublicKey(const std::string &exePath, const std::string &sigPath, const std::string &pubKeyBytes);
 
 #ifdef QT_CORE_LIB
     static bool isParentProcessGui();
@@ -20,6 +20,11 @@ public:
     static bool verifyWithPublicKeyFromResources(const QString &executablePath, const QString &signaturePath, const QString &publicKeyPath);
     static bool verifyWithPublicKeyFromFilesystem(const QString &executablePath, const QString &signaturePath, const QString &publicKeyPath);
 #endif
+
+    const std::string& lastError() const { return lastError_; }
+
+private:
+    std::string lastError_;
 };
 
 #endif // EXECUTABLESIGNATURE_LINUX_H
