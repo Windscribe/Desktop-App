@@ -568,13 +568,14 @@ def BuildInstallerLinux(configdata, qt_root):
   CopyFile("windscribewstunnel",wstunnel_dir, BUILD_INSTALLER_FILES)
 
   # sign supplementary binaries and move the signatures into InstallerFiles/signatures
-  if not "debug" in sys.argv:
-    signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")
-    msg.Print("Creating signatures path: " + signatures_dir)
-    utl.CreateDirectory(signatures_dir, True)
-    if "files_codesign_linux" in configdata:
-      for binary_name in configdata["files_codesign_linux"]:
-        CodeSignLinux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
+  if not NO_SIGN_LINUX:
+    if not "debug" in sys.argv:
+      signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")
+      msg.Print("Creating signatures path: " + signatures_dir)
+      utl.CreateDirectory(signatures_dir, True)
+      if "files_codesign_linux" in configdata:
+        for binary_name in configdata["files_codesign_linux"]:
+          CodeSignLinux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
 
   # Copy wstunnel
   msg.Info("Copying wstunnel...")

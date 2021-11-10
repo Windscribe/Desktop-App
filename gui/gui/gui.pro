@@ -171,6 +171,9 @@ RESOURCES += \
 } # macx
 
 linux {
+# uncomment for use signature checking on Linux
+DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+
 #remove linux deprecated copy warnings
 QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 
@@ -195,8 +198,11 @@ HEADERS += \
     launchonstartup/launchonstartup_linux.h \
     utils/authchecker_linux.h
 
-RESOURCES += \
-    $$COMMON_PATH/common_linux.qrc
+contains(DEFINES, USE_SIGNATURE_CHECK_ON_LINUX) {
+    RESOURCES += \
+        $$COMMON_PATH/common_linux.qrc
+}
+
 
 } # linux
 
