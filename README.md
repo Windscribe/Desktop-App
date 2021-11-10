@@ -18,8 +18,8 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - Verify the following entries are in your System PATH environment variable. If they are not, add them to the System PATH environment variable and reboot.
     - C:\Python27
     - C:\Python27\Scripts
-    - C:\Perl64\site\bin
-    - C:\Perl64\bin
+    - C:\Perl64\site\bin (or equivalent Strawberry Perl site\bin folder)
+    - C:\Perl64\bin (or equivalent Strawberry Perl bin folder)
     - C:\Program Files\Git\cmd
     - C:\Program Files\Cppcheck
 
