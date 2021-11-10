@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+// TODO: must make this thread safe
 void logOut(const char *str, ...)
 {
     va_list args;

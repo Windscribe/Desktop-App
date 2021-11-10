@@ -19,6 +19,7 @@ LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
+DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
 
 SOURCES += \
         ../../../common/utils/executable_signature/executablesignature_linux.cpp \

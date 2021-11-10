@@ -57,7 +57,7 @@ bool ExecutableSignature_linux::verifyWithPublicKey(const std::string &exePath, 
 
     // Read binary data in chunks and feed it to OpenSSL SHA256
     unsigned bytes = 0;
-    while((bytes = fread(buffer, 1, BUFFER_SIZE, datafile)))
+    while ((bytes = fread(buffer, 1, BUFFER_SIZE, datafile)))
     {
         SHA256_Update(&ctx, buffer, bytes);
     }
@@ -93,12 +93,7 @@ bool ExecutableSignature_linux::verifyWithPublicKey(const std::string &exePath, 
     RSA_free(rsa_pubkey);
     BIO_free(bioPublicKey);
 
-    if (result != 1)
-    {
-        return false;
-    }
-
-    return true;
+    return (result == 1);
 }
 
 #ifdef QT_CORE_LIB
@@ -119,7 +114,7 @@ bool ExecutableSignature_linux::verify(const QString &executablePath)
 {
     // TODO: bring files into memory at application start up so we don't have to parse/process on the fly
 
-#ifdef QT_DEBUG
+#if defined(QT_DEBUG) || !defined (USE_SIGNATURE_CHECK_ON_LINUX)
     Q_UNUSED(executablePath)
     // testing only
     // This debug block should never be called, but keeping around for testing
