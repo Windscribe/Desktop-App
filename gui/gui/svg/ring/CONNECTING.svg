@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="82px" height="82px" viewBox="0 0 82 82" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>CONNECTING_RING</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-524.000000, -314.000000)">
+        <g id="ON_BUTTON" transform="translate(524.000000, 314.000000)" fill="#A0FEDA" fill-rule="nonzero">
+            <path d="M78.5310288,43 L81.9520736,43 C80.909054,64.7147633 62.9731186,82 41,82 C19.0268814,82 1.09094605,64.7147633 0.0479275492,43.0000235 L3.46897119,43 C4.50854549,62.8268946 20.914216,78.5833333 41,78.5833333 C61.085784,78.5833333 77.4914545,62.8268946 78.5310288,43 Z M78.5310288,39 C77.4914545,19.1731054 61.085784,3.41666667 41,3.41666667 C20.914216,3.41666667 4.50854549,19.1731054 3.46897119,39 L0.0479264199,39 C1.09094605,17.2852367 19.0268814,0 41,0 C62.9731186,0 80.909054,17.2852367 81.9520725,38.9999765 L78.5310288,39 Z" id="CONNECTING_RING"></path>
+        </g>
+    </g>
+</svg>
