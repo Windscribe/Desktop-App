@@ -1,7 +1,7 @@
 #include "firewallexceptions.h"
 #include "uniqueiplist.h"
 #include <QThread>
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "engine/dnsresolver/dnsutils.h"
 
 void FirewallExceptions::setHostIPs(const QStringList &hostIPs)
@@ -89,7 +89,7 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
     }
     else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS)
     {
-        for (const QString &s : HardcodedSettings::instance().customDns())
+        for (const QString &s : HardcodedSettings::instance().openDns())
         {
             ipList.add(s);
         }

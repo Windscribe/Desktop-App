@@ -2,7 +2,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/connectionmanager/openvpnconnection.h"
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "engine/dnsresolver/dnsrequest.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 #include <QFile>
@@ -54,7 +54,7 @@ void EmergencyController::clickConnect(const ProxySettings &proxySettings)
 
     proxySettings_ = proxySettings;
 
-    QString hashedDomain = HardcodedSettings::instance().generateRandomDomain("econnect.");
+    QString hashedDomain = HardcodedSettings::instance().generateDomain("econnect.");
     qCDebug(LOG_EMERGENCY_CONNECT) << "Generated hashed domain for emergency connect:" << hashedDomain;
 
     DnsRequest *dnsRequest = new DnsRequest(this, hashedDomain, DnsServersConfiguration::instance().getCurrentDnsServers());

@@ -315,8 +315,8 @@ SOURCES += \
     loginwindow/initwindowitem.cpp \
     log/logviewerwindow.cpp \
     preferenceswindow/debugwindow/advancedparameterswindowitem.cpp \
-    utils/hardcodedsettings.cpp \
-    utils/simplecrypt.cpp \
+    $$COMMON_PATH/utils/hardcodedsettings.cpp \
+    $$COMMON_PATH/utils/simplecrypt.cpp \
     utils/textshadow.cpp \
     utils/writeaccessrightschecker.cpp \
     blockconnect.cpp \
@@ -569,8 +569,8 @@ HEADERS += \
     commonwidgets/verticalscrollbarwidget.h \
     log/logviewerwindow.h \
     preferenceswindow/debugwindow/advancedparameterswindowitem.h \
-    utils/hardcodedsettings.h \
-    utils/simplecrypt.h \
+    $$COMMON_PATH/utils/hardcodedsettings.h \
+    $$COMMON_PATH/utils/simplecrypt.h \
     utils/textshadow.h \
     utils/writeaccessrightschecker.h \
     utils/interfaceutils.h \

@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <windns.h>
 #include <QCoreApplication>
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "engine/taputils/checkadapterenable.h"
 #include "utils/winutils.h"
 #include "utils/ras_service_win.h"

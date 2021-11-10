@@ -5,7 +5,7 @@
 #include "utils/extraconfig.h"
 
 #if defined(Q_OS_WINDOWS)
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "../openvpnversioncontroller.h"
 #endif
 

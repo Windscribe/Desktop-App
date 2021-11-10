@@ -1,5 +1,5 @@
 #include "dnsserversconfiguration.h"
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
 #include <QMutexLocker>
 
@@ -31,7 +31,7 @@ QStringList DnsServersConfiguration::dnsPolicyTypeToStringList(DNS_POLICY_TYPE d
     }
     else if (dnsPolicyType == DNS_TYPE_OPEN_DNS)
     {
-        return HardcodedSettings::instance().customDns();
+        return HardcodedSettings::instance().openDns();
     }
     else if (dnsPolicyType == DNS_TYPE_CLOUDFLARE)
     {

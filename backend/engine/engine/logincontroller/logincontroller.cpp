@@ -4,7 +4,7 @@
 #include "engine/helper/ihelper.h"
 #include "engine/serverapi/serverapi.h"
 #include "utils/utils.h"
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "engine/getdeviceid.h"
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,
@@ -312,7 +312,7 @@ void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
             loginStep_ = LOGIN_STEP2;
             //emit stepMessage(tr("Trying Backup Endpoints 1/2"));
             emit stepMessage(LOGIN_MESSAGE_TRYING_BACKUP1);
-            makeLoginRequest(HardcodedSettings::instance().generateRandomDomain("api."));
+            makeLoginRequest(HardcodedSettings::instance().generateDomain("api."));
         }
         else if (loginStep_ == LOGIN_STEP2)
         {

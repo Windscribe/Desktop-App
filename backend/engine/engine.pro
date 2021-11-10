@@ -352,7 +352,7 @@ SOURCES += main.cpp \
     engine/enginesettings.cpp \
     engine/autoupdater/autoupdaterhelper_mac.cpp \
     engine/tempscripts_mac.cpp \
-    utils/simplecrypt.cpp \
+    $$COMMON_PATH/utils/simplecrypt.cpp \
     engine/logincontroller/logincontroller.cpp \
     engine/logincontroller/getallconfigscontroller.cpp \
     engine/proxy/proxysettings.cpp \
@@ -402,7 +402,7 @@ SOURCES += main.cpp \
     engine/serverapi/curlrequest.cpp \
     engine/serverapi/dnscache.cpp \
     engine/serverapi/serverapi.cpp \
-    engine/hardcodedsettings.cpp \
+    $$COMMON_PATH/utils/hardcodedsettings.cpp \
     engine/engine.cpp \
     engine/crossplatformobjectfactory.cpp \
     engine/types/loginsettings.cpp \
@@ -498,7 +498,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/autoupdater/autoupdaterhelper_mac.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \
-    utils/simplecrypt.h \
+    $$COMMON_PATH/utils/simplecrypt.h \
     engine/logincontroller/logincontroller.h \
     engine/logincontroller/getallconfigscontroller.h \
     engine/proxy/proxysettings.h \
@@ -553,7 +553,7 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/serverapi/curlrequest.h \
     engine/serverapi/dnscache.h \
     engine/serverapi/serverapi.h \
-    engine/hardcodedsettings.h \
+    $$COMMON_PATH/utils/hardcodedsettings.h \
     engine/engine.h \
     engine/crossplatformobjectfactory.h \
     engine/types/loginsettings.h \

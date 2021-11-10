@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>locations.dat</file>
+	<file>../../common/utils/hardcodedsettings.ini</file>
         <file>resources/fonts/ibmplexsans-bold.ttf</file>
         <file>resources/fonts/ibmplexsans-regular.ttf</file>
         <file>resources/icons/icon_connected.ico</file>

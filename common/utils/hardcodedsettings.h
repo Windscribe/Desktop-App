@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QSettings>
 #include "utils/simplecrypt.h"
 
 class HardcodedSettings
@@ -20,7 +21,7 @@ public:
     QString serverSharedKey() const { return serverSharedKey_; }
     QString serverTunnelTestUrl() const { return serverTunnelTestUrl_; }
 
-    const QStringList customDns() const { return customDns_; }
+    const QStringList openDns() const;
     const QStringList googleDns() const;
     const QStringList cloudflareDns() const;
     const QStringList apiIps() const { return apiIps_; }
@@ -29,7 +30,10 @@ public:
     QString emergencyPassword() const { return emergencyPassword_; }
     const QStringList emergencyIps() const { return emergencyIps_; }
 
-    QString generateRandomDomain(const QString &prefix);
+    QString windowsCertName() const { return windowsCertName_; }
+    QString macCertName() const { return macCertName_; }
+
+    QString generateDomain(const QString &prefix);
 
 private:
     HardcodedSettings();
@@ -38,14 +42,17 @@ private:
     QString serverUrl_;
     QString serverSharedKey_;
     QString serverTunnelTestUrl_;
-    QStringList customDns_;
     QStringList apiIps_;
     QString emergencyUsername_;
     QString emergencyPassword_;
     QStringList emergencyIps_;
     QByteArray passwordForRandomDomain_;
+    QString windowsCertName_;
+    QString macCertName_;
 
     SimpleCrypt simpleCrypt_;
+
+    QStringList readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDescrypt);
 };
 
 #endif // HARDCODEDSETTINGS_H

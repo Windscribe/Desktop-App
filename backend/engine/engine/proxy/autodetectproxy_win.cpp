@@ -1,7 +1,7 @@
 #include "autodetectproxy_win.h"
 #include "Utils/logger.h"
 #include <QNetworkProxy>
-#include "engine/hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 
 ProxySettings AutoDetectProxy_win::detect(bool &bSuccessfully)
 {
