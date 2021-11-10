@@ -13,7 +13,14 @@ void logOut(const char *str, ...)
     
     if (cnt >= 0 && static_cast<long unsigned int>(cnt) < sizeof(buf))
     {
-        printf("%s\n", buf);
+        FILE* logFile = fopen("/usr/local/windscribe/helper_log.txt", "w+");
+        if (logFile != NULL)
+        {
+            fprintf(logFile, "%s\n", buf);
+            fflush(logFile);
+            fclose(logFile);
+        }
+
         //syslog(LOG_NOTICE, buf);
     }
 }
