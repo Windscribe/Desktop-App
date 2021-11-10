@@ -15,7 +15,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
     - Alternately, you can install Strawberry Perl from https://strawberryperl.com/
 - CMake (run install_cmake.bat from common/prepare_build_environment/windows).
 - CppCheck (run install_cppcheck.bat with admin rights from common/prepare_build_environment/windows).
-- Verify the following entries are in your System PATH environment variable. If they are not, add them to the System PATH environment variable and reboot.
+- Verify the following entries are in your System PATH environment variable. If they are not, add them to the System PATH environment variable.  Reboot.
     - C:\Python27
     - C:\Python27\Scripts
     - C:\Perl64\site\bin (or equivalent Strawberry Perl site\bin folder)
@@ -24,6 +24,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
     - C:\Program Files\Cppcheck
 
 ### Install build script dependencies
+- On Windows 10, you will have to go to 'Manage App Execution Aliases' in System Settings and disable app installer for python.exe and python3.exe
 - python tools/bin/get-pip.py
 - python -m pip install -r tools/requirements.txt
 
