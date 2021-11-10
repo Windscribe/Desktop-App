@@ -2,6 +2,7 @@
 
 #ifdef Q_OS_WIN
     #include "executable_signature_win.h"
+    #include "utils/hardcodedsettings.h"
 #elif defined Q_OS_MAC
     #include "executable_signature_mac.h"
 #elif defined Q_OS_LINUX
@@ -14,7 +15,7 @@ bool ExecutableSignature::isParentProcessGui()
     return true;
 #else
     #ifdef Q_OS_WIN
-        return ExecutableSignature_win::isParentProcessGui();
+        return ExecutableSignature_win::isParentProcessGui(HardcodedSettings::instance().windowsCertName());
     #elif defined Q_OS_MAC
         return ExecutableSignature_mac::isParentProcessGui();
     #elif defined Q_OS_LINUX
@@ -30,7 +31,7 @@ bool ExecutableSignature::verify(const QString &executablePath)
     return true;
 #else
     #ifdef Q_OS_WIN
-        return ExecutableSignature_win::verify(executablePath);
+        return ExecutableSignature_win::verify(executablePath, HardcodedSettings::instance().windowsCertName());
     #elif defined Q_OS_MAC
         return ExecutableSignature_mac::verify(executablePath);
     #elif defined Q_OS_LINUX
@@ -46,7 +47,7 @@ bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
     return true;
 #else
     #ifdef Q_OS_WIN
-        return ExecutableSignature_win::verify(executable);
+        return ExecutableSignature_win::verify(executable, HardcodedSettings::instance().windowsCertName());
     #elif defined Q_OS_MAC
         return ExecutableSignature_mac::verifyWithSignCheck(executable);
     #elif defined Q_OS_LINUX
