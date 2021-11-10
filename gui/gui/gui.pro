@@ -1,9 +1,3 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2019-01-26T04:48:17
-#
-#-------------------------------------------------
-
 QT       += core gui network svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
