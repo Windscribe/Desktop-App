@@ -1,9 +1,0 @@
-# ------------------------------------------------------------------------------
-# Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
-# ------------------------------------------------------------------------------
-
-app-bundle: com.windscribe.installer.macos
-apple-id-email: yegor@windscribe.com
-apple-id-password: omum-ikfp-msed-negh
-  
