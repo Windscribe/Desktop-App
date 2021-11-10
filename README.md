@@ -12,6 +12,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - Python 2.7x (run install_python.bat with admin rights from common/prepare_build_environment/windows).
 - Active Perl (install from https://www.activestate.com/products/perl/downloads/ or execute this code snippet).
     - powershell -Command "& $([scriptblock]::Create((New-Object Net.WebClient).DownloadString('https://platform.activestate.com/dl/cli/w20598w01/install.ps1'))) -activate-default ActiveState/Perl-5.32"
+    - Alternately, you can install Strawberry Perl from https://strawberryperl.com/
 - CMake (run install_cmake.bat from common/prepare_build_environment/windows).
 - CppCheck (run install_cppcheck.bat with admin rights from common/prepare_build_environment/windows).
 - Verify the following entries are in your System PATH environment variable. If they are not, add them to the System PATH environment variable and reboot.
