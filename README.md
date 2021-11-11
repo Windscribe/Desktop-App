@@ -76,24 +76,27 @@ Note that a debug build is required to connect the VPN when building without cod
 - git (https://git-scm.com/downloads). This step is optional, as git is bundled with Xcode.
     - brew install git
 - Clone the repository.
-- Install your signing certificate in the Keychain.  This step is not required if you will only be making debug builds.
 - Install Auto-Tools and 7-Zip (See below "Install Auto-Tools")
-- Install Wireguard build tools (brew install swiftlint go)
+- Install Wireguard build tools (brew install go)
 - Install CppCheck (brew install cppcheck)
 - Install dropDMG from: https://c-command.com/dropdmg/
     - Create symlink for dropdmg
         - ln -s /Applications/DropDMG.app/Contents/Frameworks/DropDMGFramework.framework/Versions/A/dropdmg /usr/local/bin/dropdmg
+    - Run the DropDMG app and accept the update command-line tools prompt
     - Disable auto-update
-    - Enable "Quit when done"
-    - Run once and accept the update command
-    - Copy $REPO/common/prepare_build_environment/mac/DropDMG/Configurations and Layouts into ~HOME/Library/Application Support/DropDMG/Configurations and Layouts
+    - Enable "Quit when done" in Preferences->Advanced
+    - Copy desktop-v2/common/prepare_build_environment/mac/DropDMG/Configurations and Layouts into ~HOME/Library/Application Support/DropDMG/Configurations and Layouts
     - Install cmake (3.20.1 last tested) from: https://cmake.org/download/ 
     - Install python deps:
         - python tools/bin/get-pip.py
         - python -m pip install -r tools/requirements.txt
 
+### Set up code signing for release builds
+- Install your Developer ID signing certificate in the Keychain.
+- TBD...
+
 ### Build Dependencies
-- Goto subfolder "client-desktop/tools/deps".
+- Open a terminal in desktop-v2/tools/deps:
 - Run install_openssl
 - Run install_qt
 - Run install_cares
@@ -108,15 +111,13 @@ Note that a debug build is required to connect the VPN when building without cod
 
 ### Notes on building libraries:
     - Some libraries depends on others. Almost all of the libraries depends on openssl. Openvpn depends on LZO.
-    - If you run the BASH-script without parameters, then it builds libraries and puts output binaries in ~/LibsWindscribe/xxx (for example, ~/LibsWindscribe/boost ~/LibsWindscribe/curl, etc...). Only Qt is placed in a separate folder ~/Qt. 
-    
+    - The install scripts put the dependencies in desktop-v2/build-libs.
+
+### Build the Windscribe 2.0 app
+
+Open a terminal in desktop-v2/tools and run './build_all' for a release build, or './build_all debug' for a debug build.  Please note that a release build requires you to have completed the 'Set up code signing' section above.  Assuming all goes well with the build, the installer will be placed in desktop-v2/build-exe.
+
 ### Install Auto-Tools and 7-Zip (via HomeBrew):
     - brew install libtool
     - brew install automake
     - brew install p7zip
-
-### Notes on building Windscribe
-To disable executable signature checks in helper, please run the build script with "debug" argument. E.g.:
-    ./build_all.sh debug
-
-
