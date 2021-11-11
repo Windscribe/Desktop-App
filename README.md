@@ -1,5 +1,6 @@
 # Windscribe 2.0 Desktop Application
 This repo contains the complete source code for the Windscribe 2.0 app. This includes installer, service/helper, backend process and GUI. 
+Please note that this is a work-in-progress, your mileage may vary.
 
 ## Windows
 ### Prerequisites
@@ -31,6 +32,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 ### Install signing certificate
 - Copy your PFX code signing file to installer/windows/signing/code_signing.pfx.
 - Edit tools/build_all.yml and enter the password for your PFX file in the password_cert field of the windows_signing_cert section.
+- Note that the application will still build and run without these signatures, but using the VPN without signatures will require a debug build.
 
 ### Build libraries
 
@@ -55,7 +57,8 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all debug' for a debug build.
+Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all debug' for a debug build. 
+Note that a debug build is required to connect the VPN when building without code signing.
 
 ## Mac
 ### Prerequisites
@@ -115,7 +118,7 @@ Go to subfolder tools and run 'build_all'. Assuming all goes well with the build
     - brew install p7zip
 
 ### Notes on building Windscribe
-To disable executable signature checks in helper, please run the build script with "private" argument. E.g.:
-    ./build_all.sh private
+To disable executable signature checks in helper, please run the build script with "debug" argument. E.g.:
+    ./build_all.sh debug
 
 
