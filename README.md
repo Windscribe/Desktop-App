@@ -86,10 +86,10 @@ Note that a debug build is required to connect the VPN when building without cod
     - Disable auto-update
     - Enable "Quit when done" in Preferences->Advanced
     - Copy desktop-v2/common/prepare_build_environment/mac/DropDMG/Configurations and Layouts into ~HOME/Library/Application Support/DropDMG/Configurations and Layouts
-    - Install cmake (3.20.1 last tested) from: https://cmake.org/download/ 
-    - Install python deps:
-        - python tools/bin/get-pip.py
-        - python -m pip install -r tools/requirements.txt
+- Install cmake (3.20.1 last tested) from: https://cmake.org/download/ 
+- Install python deps:
+  - python tools/bin/get-pip.py
+  - python -m pip install -r tools/requirements.txt
 
 ### Set up code signing for release builds
 - Install your Developer ID signing certificate in the Keychain.
