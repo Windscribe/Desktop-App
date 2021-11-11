@@ -67,15 +67,16 @@ Note that a debug build is required to connect the VPN when building without cod
 - Recommended 120 GB of storage (Need to take a closer look at this number, we may be able to get away with as little as 80GB)
 - Install brew (brew.sh)
     - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-- Xcode 11.3.1 (See below "Install Xcode") (MacOS Catalina) / 11.7 (Big Sur)
+- Install Xcode 11.3.1 if using MacOS Catalina, or Xcode 11.7 if using Big Sur
     - Note: these downloads will require successful AppleID login:
     - https://download.developer.apple.com/Developer_Tools/Xcode_11.7/Xcode_11.7.xip
     - https://download.developer.apple.com/Developer_Tools/Xcode_11.3.1/Xcode_11.3.1.xip
+    - The brew install step above will have installed the Xcode command-line tools.  Make sure to run Xcode after installing it, and set the Command Line Tools in Preferences->Locations to the version of Xcode you installed.
 
 - git (https://git-scm.com/downloads). This step is optional, as git is bundled with Xcode.
     - brew install git
-
-- Install your signing certificate in the Keychain
+- Clone the repository.
+- Install your signing certificate in the Keychain.  This step is not required if you will only be making debug builds.
 - Install Auto-Tools and 7-Zip (See below "Install Auto-Tools")
 - Install Wireguard build tools (brew install swiftlint go)
 - Install CppCheck (brew install cppcheck)
@@ -86,33 +87,30 @@ Note that a debug build is required to connect the VPN when building without cod
     - Enable "Quit when done"
     - Run once and accept the update command
     - Copy $REPO/common/prepare_build_environment/mac/DropDMG/Configurations and Layouts into ~HOME/Library/Application Support/DropDMG/Configurations and Layouts
-    - See below for additional CI-runner setup
     - Install cmake (3.20.1 last tested) from: https://cmake.org/download/ 
     - Install python deps:
         - python tools/bin/get-pip.py
         - python -m pip install -r tools/requirements.txt
 
 ### Build Dependencies
-1. Clone project repositories to local disk (See below: "Clone Desktop 2.0 repos").
-2. Goto subfolder "client-desktop/tools/deps".
-3. Run install_openssl
-4. Run install_qt
-5. Run install_cares
-6. Run install_boost
-7. Run install_curl
-8. Run install_lzo
-9. Run install_openvpn
-10. Run install_wireguard
-11. Run install_stunnel
-12. Run install_protobuf
-13. Run install_gtest
+- Goto subfolder "client-desktop/tools/deps".
+- Run install_openssl
+- Run install_qt
+- Run install_cares
+- Run install_boost
+- Run install_curl
+- Run install_lzo
+- Run install_openvpn
+- Run install_wireguard
+- Run install_stunnel
+- Run install_protobuf
+- Run install_gtest
 
 ### Notes on building libraries:
     - Some libraries depends on others. Almost all of the libraries depends on openssl. Openvpn depends on LZO.
     - If you run the BASH-script without parameters, then it builds libraries and puts output binaries in ~/LibsWindscribe/xxx (for example, ~/LibsWindscribe/boost ~/LibsWindscribe/curl, etc...). Only Qt is placed in a separate folder ~/Qt. 
     
 ### Install Auto-Tools and 7-Zip (via HomeBrew):
-    - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     - brew install libtool
     - brew install automake
     - brew install p7zip
