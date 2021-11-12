@@ -78,7 +78,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
 
     if ((retCode != 0) || (lenPeerCred != sizeof(peerCred)))
     {
-        LOG("getsockopt(SO_PEERCRED) failed (%d).", errno);
+        Logger::instance().out("getsockopt(SO_PEERCRED) failed (%d).", errno);
         return false;
     }
 
@@ -215,17 +215,17 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
                 std::vector<std::string> allowed_ips_vector =
                     wireGuardController_.splitAndDeduplicateAllowedIps(cmd.allowedIps);
                 if (allowed_ips_vector.size() < 1) {
-                    LOG("WireGuard: invalid AllowedIps \"%s\"", cmd.allowedIps.c_str());
+                    Logger::instance().out("WireGuard: invalid AllowedIps \"%s\"", cmd.allowedIps.c_str());
                     break;
                 }
 
                 uint32_t fwmark = wireGuardController_.getFwmark();
-                LOG("Fwmark = %u", fwmark);
+                Logger::instance().out("Fwmark = %u", fwmark);
 
                 if (!wireGuardController_.configureDaemon(cmd.clientPrivateKey,
                                                           cmd.peerPublicKey, cmd.peerPresharedKey,
                                                           cmd.peerEndpoint, allowed_ips_vector, fwmark)) {
-                    LOG("WireGuard: configureDaemon() failed");
+                    Logger::instance().out("WireGuard: configureDaemon() failed");
                     break;
                 }
 
@@ -234,7 +234,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
                                                            cmd.clientDnsAddressList,
                                                            cmd.clientDnsScriptName,
                                                            allowed_ips_vector, fwmark)) {
-                    LOG("WireGuard: configureAdapter() failed");
+                    Logger::instance().out("WireGuard: configureAdapter() failed");
                     break;
                 }
 
@@ -327,7 +327,7 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
             {
                 if (!sendAnswerCmd(sock, cmdAnswer))
                 {
-                    LOG("client app disconnected");
+                    Logger::instance().out("client app disconnected");
                     HelperSecurity::instance().reset();
                     return;
                 }
@@ -336,7 +336,7 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
     }
     else
     {
-        LOG("client app disconnected");
+        Logger::instance().out("client app disconnected");
         HelperSecurity::instance().reset();
     }
 }
@@ -345,7 +345,7 @@ void Server::acceptHandler(const boost::system::error_code & ec, socket_ptr sock
 {
     if (!ec.value())
     {
-        LOG("client app connected");
+        Logger::instance().out("client app connected");
                 
         HelperSecurity::instance().reset();
         boost::shared_ptr<boost::asio::streambuf> buf(new boost::asio::streambuf);

@@ -20,9 +20,9 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
     getDefaultRouteInterface(isOnline_);
 
     ncm_ = new QNetworkConfigurationManager(this);
-    connect(ncm_, SIGNAL(configurationAdded(QNetworkConfiguration)), SLOT(onNetworkUpdated()));
-    connect(ncm_, SIGNAL(configurationChanged(QNetworkConfiguration)), SLOT(onNetworkUpdated()));
-    connect(ncm_, SIGNAL(configurationRemoved(QNetworkConfiguration)), SLOT(onNetworkUpdated()));
+    connect(ncm_, &QNetworkConfigurationManager::configurationAdded, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    connect(ncm_, &QNetworkConfigurationManager::configurationChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    connect(ncm_, &QNetworkConfigurationManager::configurationRemoved, this, &NetworkDetectionManager_linux::onNetworkUpdated);
 }
 
 NetworkDetectionManager_linux::~NetworkDetectionManager_linux()

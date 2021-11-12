@@ -16,7 +16,7 @@
 // - See if we can use something like https://github.com/graphitemaster/incbin/
 
 #if defined(USE_SIGNATURE_CHECK_ON_LINUX)
-static const char* g_PublicKeyData =
+static const char g_PublicKeyData[] =
     "-----BEGIN PUBLIC KEY-----\n"
     "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAxjYavNvrEtNV2kccwb3k\n"
     "RzTBRmBzD8TnllPo4rBH2L0XWjP9y1u3ZztTl0366uMRYLrWYIpKqCWloOfdydFa\n"
@@ -105,18 +105,17 @@ bool HelperSecurity::verifyProcessId(pid_t pid)
     if (it != pid_validity_cache_.end())
         return it->second;
 
-    LOG("HelperSecurity::verifyProcessId: new PID %u", static_cast<unsigned int>(pid));
     return verifyProcessIdImpl(pid);
 }
 
 bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
 {
-    LOG("Getting exe path and name for PID %i", pid);
+    //Logger::instance().out("Getting exe path and name for PID %i", pid);
 
     const std::string clientAppPath = getProcessPath(pid);
     if (clientAppPath.empty())
     {
-        LOG("Failed to get exe path and name for PID %i, errno %d", pid, errno);
+        Logger::instance().out("Failed to get exe path and name for PID %i, errno %d", pid, errno);
         pid_validity_cache_[pid] = false;
         return false;
     }
@@ -124,11 +123,11 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
     const std::string appDirPath    = applicationDirPath();
     const std::string engineExePath = appDirPath + "/WindscribeEngine";
 
-    LOG("Engine exe path and name: %s", engineExePath.c_str());
+    //Logger::instance().out("Checking exe path matches engine's: %s", clientAppPath.c_str());
 
     if (engineExePath.compare(clientAppPath) != 0)
     {
-        LOG("Invalid calling application for PID %i, %s", pid, clientAppPath.c_str());
+        Logger::instance().out("Invalid calling application for PID %i, %s", pid, clientAppPath.c_str());
         pid_validity_cache_[pid] = false;
         return false;
     }
@@ -136,13 +135,13 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
     #if defined(USE_SIGNATURE_CHECK_ON_LINUX)
     const std::string sigPath = appDirPath + "/signatures/WindscribeEngine.sig";
 
-    LOG("Verifying signature...");
+    //Logger::instance().out("Verifying signature...");
 
     ExecutableSignature_linux verifySignature;
     bool result = verifySignature.verifyWithPublicKey(engineExePath, sigPath, g_PublicKeyData);
 
     if (!result) {
-        LOG("Signature verification failed for PID %i, %s", pid, verifySignature.lastError().c_str());
+        Logger::instance().out("Signature verification failed for PID %i, %s", pid, verifySignature.lastError().c_str());
     }
 
     pid_validity_cache_[pid] = result;

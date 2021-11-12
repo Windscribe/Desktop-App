@@ -19,11 +19,11 @@ bool RunBlockingCommands(const std::vector<std::string> &cmdlist)
         output.clear();
         const auto status = Utils::executeCommand(cmd, {}, &output);
         if (status != 0) {
-            LOG("Failed to run command: \"%s\" (exit status %i)", cmd.c_str(), status);
+            Logger::instance().out("Failed to run command: \"%s\" (exit status %i)", cmd.c_str(), status);
             return false;
         }
         if (!output.empty())
-            LOG("%s", output.c_str());
+            Logger::instance().out("%s", output.c_str());
     }
     return true;
 }
@@ -68,7 +68,7 @@ bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::
         cmdlist.push_back("chmod +x \"" + dns_script_name_ + "\"");
     dns_script_command_ = "is_wireguard=\"1\" dev=\"" + getName() + "\" " + env_block + dns_script_name_;
     cmdlist.push_back("script_type=\"up\" " + dns_script_command_);
-    LOG("%s", cmdlist[0].c_str());
+    Logger::instance().out("%s", cmdlist[0].c_str());
     return RunBlockingCommands(cmdlist);
 }
 
@@ -183,7 +183,7 @@ bool WireGuardAdapter::addFirewallRules(const std::string &ipAddress, uint32_t f
     FILE *file = popen("iptables-restore -n", "w");
     if(file == NULL)
     {
-        LOG("iptables-restore not found");
+        Logger::instance().out("iptables-restore not found");
         return false;
     }
 
@@ -211,7 +211,7 @@ bool WireGuardAdapter::removeFirewallRules()
     FILE *file = popen("iptables-save", "r");
     if(file == NULL)
     {
-        LOG("iptables-save not found");
+        Logger::instance().out("iptables-save not found");
         return false;
     }
 
@@ -240,7 +240,7 @@ bool WireGuardAdapter::removeFirewallRules()
         file = popen("iptables-restore -n", "w");
         if(file == NULL)
         {
-            LOG("iptables-restore not found");
+            Logger::instance().out("iptables-restore not found");
             return false;
         }
 
