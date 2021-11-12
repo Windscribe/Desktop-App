@@ -121,3 +121,68 @@ Open a terminal in desktop-v2/tools and run './build_all' for a release build, o
     - brew install libtool
     - brew install automake
     - brew install p7zip
+
+## Linux
+### Prerequisites
+
+Build process tested on Ubuntu 16.04, Ubuntu 20.04, and ZorinOS 16.
+
+- Install git:
+  - sudo apt install git
+
+- Install curl binary (for downloading archives):
+  - sudo apt install curl
+
+- Install patchelf (for fixing rpaths during packaging):
+  - sudo apt install patchelf
+
+- Install fpm (for making an .rpm package):
+  - sudo apt-get install ruby-dev build-essential rpm && sudo gem i fpm -f
+
+- Install libpam (required for building openvpn):
+  - sudo apt-get install libpam0g-dev
+
+- Install golang (required for building wireguard):
+  - sudo apt-get install golang-go
+
+- Install autoconf (required for building protobuf):
+  - sudo apt-get install autoconf
+
+- Install libtool (required for building protobuf):
+  - sudo apt-get install libtool
+
+- Install cmake (required for building gtests):
+  - sudo apt-get install cmake
+
+- Install fakeroot:
+  - sudo apt-get install fakeroot
+
+- Install Qt platform plugin dependencies (https://doc.qt.io/qt-5/linux-requirements.html#platform-plugin-dependencies):
+  - sudo apt-get install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxkbcommon-dev libxkbcommon-x11-dev
+
+- Clone the repository.
+
+- Install python2 (and build-system dependencies):
+  - sudo apt install python2
+  - NOTE: the following symlink will affect any pre-existing python-calling code that relies on python3
+  - sudo ln -s /usr/bin/python2 /usr/bin/python
+  - python tools/bin/get-pip.py
+  - python -m pip install -r tools/requirements.txt
+
+### Build Dependencies
+- Open a terminal in desktop-v2/tools/deps:
+- Run install_openssl
+- Run install_qt
+- Run install_cares
+- Run install_boost
+- Run install_curl
+- Run install_lzo
+- Run install_openvpn
+- Run install_wireguard
+- Run install_stunnel
+- Run install_protobuf
+- Run install_gtest
+
+### Build the Windscribe 2.0 app
+
+Open a terminal in desktop-v2/tools and run './build_all --no-sign' for a release build, or './build_all debug --no-sign' for a debug build.  Assuming all goes well with the build, the installer will be placed in desktop-v2/build-exe.
