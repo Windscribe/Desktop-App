@@ -15,10 +15,10 @@ void Logger::out(const char *str, ...)
 {
     time_t tNow;
     ::time(&tNow);
-    struct tm* ptNow = ::localtime(&tNow);
+    struct tm* ptNow = ::gmtime(&tNow);
 
     char buf[4096];
-    size_t bytesOut = ::strftime(buf, 128, "%d%m%C %H:%M:%S ", ptNow);
+    size_t bytesOut = ::strftime(buf, 128, "[%d%m%y %H:%M:%S:000] [service]\t ", ptNow);
 
     va_list args;
     va_start (args, str);

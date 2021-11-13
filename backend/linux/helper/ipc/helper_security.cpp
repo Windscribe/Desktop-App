@@ -15,7 +15,6 @@
 // - Add Qt core support to the helper so we can use the Qt resource system, or
 // - See if we can use something like https://github.com/graphitemaster/incbin/
 
-#if defined(USE_SIGNATURE_CHECK_ON_LINUX)
 static const char g_PublicKeyData[] =
     "-----BEGIN PUBLIC KEY-----\n"
     "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAxjYavNvrEtNV2kccwb3k\n"
@@ -31,7 +30,6 @@ static const char g_PublicKeyData[] =
     "6qmkgVrSBw67KwxCOEfIjwNjsCyDypRLEAfIU0sVSOknKXNpPgBqRkADRCD/F14n\n"
     "36htEHoGyqRdFOaURnR9lB0CAwEAAQ==\n"
     "-----END PUBLIC KEY-----";
-#endif
 
 // Expects symLink to reference /path/*/exe, where * can be 'self', or a pid, or
 // and exe name.
@@ -101,11 +99,16 @@ void HelperSecurity::reset()
 
 bool HelperSecurity::verifyProcessId(pid_t pid)
 {
+#if defined(USE_SIGNATURE_CHECK_ON_LINUX)
     const auto it = pid_validity_cache_.find(pid);
     if (it != pid_validity_cache_.end())
         return it->second;
 
     return verifyProcessIdImpl(pid);
+#else
+    (void)pid;
+    return true;
+#endif
 }
 
 bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
@@ -132,7 +135,6 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
         return false;
     }
 
-    #if defined(USE_SIGNATURE_CHECK_ON_LINUX)
     const std::string sigPath = appDirPath + "/signatures/WindscribeEngine.sig";
 
     //Logger::instance().out("Verifying signature...");
@@ -147,8 +149,4 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
     pid_validity_cache_[pid] = result;
 
     return result;
-    #else
-    pid_validity_cache_[pid] = true;
-    return true;
-    #endif
 }

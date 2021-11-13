@@ -19,7 +19,10 @@ LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
-DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+
+CONFIG(release, debug|release){
+    DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+}
 
 SOURCES += \
         ../../../common/utils/executable_signature/executablesignature_linux.cpp \
@@ -32,11 +35,6 @@ SOURCES += \
         wireguard/wireguardadapter.cpp \
         wireguard/wireguardcommunicator.cpp \
         wireguard/wireguardcontroller.cpp
-
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
     ../../../common/utils/executable_signature/executablesignature_linux.h \
