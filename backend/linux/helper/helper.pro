@@ -20,8 +20,11 @@ LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 
 DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
 
-CONFIG(release, debug|release){
-    DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+# build_all.py adds 'build_all_debug' to the CONFIG environment when invoked with the 'debug' flag.
+!contains(CONFIG, build_all_debug) {
+    CONFIG(release, debug|release) {
+        DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+    }
 }
 
 SOURCES += \
