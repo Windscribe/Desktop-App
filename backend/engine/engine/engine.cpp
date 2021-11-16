@@ -22,6 +22,9 @@
 #include "version/appversion.h"
 #include "utils/linuxutils.h"
 
+// For testing merge log functionality
+//#include <QStandardPaths>
+
 #ifdef Q_OS_WIN
     #include "utils/bfe_service_win.h"
     #include "engine/dnsinfo_win.h"
@@ -1075,6 +1078,19 @@ void Engine::sendDebugLogImpl()
     log += "================================================================================================================================================================================================\n";
     log += "================================================================================================================================================================================================\n";
     log += MergeLog::mergeLogs(true);
+
+    /*
+    // For testing merge log functionality
+    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    path += "/merged_logs.txt";
+    QFile file(path);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    {
+        file.write(log.toLatin1());
+        file.close();
+    }
+    */
+
     serverAPI_->debugLog(userName, log, serverApiUserRole_, true);
 }
 

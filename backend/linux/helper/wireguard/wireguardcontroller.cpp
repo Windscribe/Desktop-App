@@ -39,7 +39,7 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress,
     UNUSED(dnsScriptName);
     UNUSED(dnsAddressList);
 
-    LOG("DNS: \"%s\"", dnsAddressList.c_str());
+    Logger::instance().out("DNS: \"%s\"", dnsAddressList.c_str());
 
     if (!is_initialized_ || !adapter_.get())
         return false;

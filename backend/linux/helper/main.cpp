@@ -9,7 +9,7 @@ Server server;
 void handler_sigterm(int signum)
 {
     UNUSED(signum);
-    LOG("Windscribe helper terminated");
+    Logger::instance().out("Windscribe helper terminated");
     server.stop();
 }
 
@@ -25,6 +25,7 @@ int main(int argc, const char *argv[])
     signal(SIGINT, handler_sigterm);
     signal(SIGTERM, handler_sigterm);
 
+    Logger::instance().checkLogSize();
 
     // restore firewall setting on OS reboot, if there are saved rules on /etc/windscribe dir
 
@@ -39,6 +40,6 @@ int main(int argc, const char *argv[])
 
     server.run();
 
-    LOG("Windscribe helper finished");
+    Logger::instance().out("Windscribe helper finished");
     return EXIT_SUCCESS;
 }

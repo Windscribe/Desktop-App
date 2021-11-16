@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
@@ -18,22 +19,61 @@
 #define BUFFER_SIZE 512
 static unsigned char buffer[BUFFER_SIZE];
 
+class EvpBioCharBuf
+{
+public:
+   EvpBioCharBuf(void);
+   ~EvpBioCharBuf(void);
+
+   bool isValid(void) const { return pBIO_ != NULL; }
+   BIO* getBIO() const { return pBIO_; }
+   int write(const void *data, int dlen);
+
+private:
+   BIO* pBIO_;
+};
+
+EvpBioCharBuf::EvpBioCharBuf(void)
+{
+   pBIO_ = BIO_new(BIO_s_mem());
+}
+
+EvpBioCharBuf::~EvpBioCharBuf(void)
+{
+   if (pBIO_ != NULL) {
+      BIO_free_all(pBIO_);
+   }
+}
+
+int EvpBioCharBuf::write(const void *data, int dlen)
+{
+    if (pBIO_ != NULL) {
+        return BIO_write(pBIO_, data, dlen);
+    }
+
+    return 0;
+}
+
 bool ExecutableSignature_linux::verifyWithPublicKey(const std::string &exePath, const std::string &sigPath, const std::string &pubKeyBytes)
 {
     // key.pub is 800 bytes on disk
     if (pubKeyBytes.length() > 800)
     {
-        lastError_ = "Public key is incorrect size, cannot read in: " + std::to_string(pubKeyBytes.length());
+        lastError_ = "Invalid public key, size is too large: " + std::to_string(pubKeyBytes.length());
         return false;
     }
 
     // read public key into openssl bio abstraction
-    BIO *bioPublicKey = BIO_new(BIO_s_mem());
+    EvpBioCharBuf bioPublicKey;
+    if (!bioPublicKey.isValid())
+    {
+        lastError_ = "Failed to allocate an OpenSSL BIO buffer";
+        return false;
+    }
 
-    if (BIO_write(bioPublicKey, pubKeyBytes.data(), pubKeyBytes.length()) <= 0)
+    if (bioPublicKey.write(pubKeyBytes.data(), pubKeyBytes.length()) <= 0)
     {
         lastError_ = "Failed to write public key resource to bio";
-        BIO_free(bioPublicKey);
         return false;
     }
 
@@ -45,8 +85,7 @@ bool ExecutableSignature_linux::verifyWithPublicKey(const std::string &exePath, 
     FILE* datafile = fopen(filenamePath , "rb");
     if (datafile == NULL)
     {
-        lastError_ = "Failed to open executable for reading";
-        BIO_free(bioPublicKey);
+        lastError_ = "Failed to open executable for reading: " + std::to_string(errno);
         return false;
     }
 
@@ -57,7 +96,7 @@ bool ExecutableSignature_linux::verifyWithPublicKey(const std::string &exePath, 
 
     // Read binary data in chunks and feed it to OpenSSL SHA256
     unsigned bytes = 0;
-    while((bytes = fread(buffer, 1, BUFFER_SIZE, datafile)))
+    while ((bytes = fread(buffer, 1, BUFFER_SIZE, datafile)))
     {
         SHA256_Update(&ctx, buffer, bytes);
     }
@@ -68,37 +107,39 @@ bool ExecutableSignature_linux::verifyWithPublicKey(const std::string &exePath, 
     FILE* sign = fopen(sigfile , "r");
     if (sign == NULL)
     {
-        lastError_ = "Failed to open signature for reading";
-        BIO_free(bioPublicKey);
+        lastError_ = "Failed to open signature file for reading: " + std::to_string(errno);
         return false;
     }
 
-    // TODO: should check if this failed or not
     bytes = fread(buffer, 1, BUFFER_SIZE, sign);
     fclose(sign);
 
+    if (bytes != BUFFER_SIZE)
+    {
+        std::ostringstream stream;
+        stream << "Signature file is an invalid size, or failed to read entire file. Expected " << BUFFER_SIZE << "bytes, read " << bytes << ".";
+        lastError_ = stream.str();
+        return false;
+    }
+
     // Verify that calculated digest and signature match
-    RSA* rsa_pubkey = PEM_read_bio_RSA_PUBKEY(bioPublicKey, NULL, NULL, NULL);
+    RSA* rsa_pubkey = PEM_read_bio_RSA_PUBKEY(bioPublicKey.getBIO(), NULL, NULL, NULL);
     if (rsa_pubkey == NULL)
     {
         lastError_ = "Failed to read the RSA public key";
-        BIO_free(bioPublicKey);
         return false;
     }
 
     // Decrypt signature (in buffer) and verify it matches
     // with the digest calculated from data file.
-    int result = RSA_verify(NID_sha256, digest, SHA256_DIGEST_LENGTH,
-                            buffer, bytes, rsa_pubkey);
+    int result = RSA_verify(NID_sha256, digest, SHA256_DIGEST_LENGTH, buffer, bytes, rsa_pubkey);
     RSA_free(rsa_pubkey);
-    BIO_free(bioPublicKey);
 
-    if (result != 1)
-    {
-        return false;
+    if (result != 1) {
+        lastError_ = "Executable's signature does not match signature file";
     }
 
-    return true;
+    return (result == 1);
 }
 
 #ifdef QT_CORE_LIB

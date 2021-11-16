@@ -267,6 +267,9 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
     if c_project.endswith(".pro"):
       # Build Qt project.
       build_cmd = [BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release silent"]
+      if "debug" in sys.argv:
+          # Allows us to check in the .pro file if build_all invoked with 'debug' flag.
+          build_cmd.extend(["CONFIG+=build_all_debug"])
       if c_iswin:
         build_cmd.extend(["-spec", "win32-msvc"])
       iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
