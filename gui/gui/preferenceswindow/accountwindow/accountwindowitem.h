@@ -31,6 +31,7 @@ private slots:
     void onPlanChanged(qint64 plan);
     void onExpireDateChanged(const QString &date);
     void onAuthHashChanged(const QString &authHash);
+    void onEditAccountDetailsClicked();
 
     void onUpgradeClicked();
 

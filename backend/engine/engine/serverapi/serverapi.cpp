@@ -324,6 +324,7 @@ ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
     handleDnsResolveFuncTable_[REPLY_STATIC_IPS] = &ServerAPI::handleStaticIpsDnsResolve;
     handleDnsResolveFuncTable_[REPLY_CONFIRM_EMAIL] = &ServerAPI::handleConfirmEmailDnsResolve;
     handleDnsResolveFuncTable_[REPLY_WIREGUARD_CONFIG] = &ServerAPI::handleWireGuardConfigDnsResolve;
+    handleDnsResolveFuncTable_[REPLY_WEB_SESSION] = &ServerAPI::handleWebSessionDnsResolve;
 
     handleCurlReplyFuncTable_[REPLY_ACCESS_IPS] = &ServerAPI::handleAccessIpsCurl;
     handleCurlReplyFuncTable_[REPLY_LOGIN] = &ServerAPI::handleSessionReplyCurl;
@@ -343,6 +344,7 @@ ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
     handleCurlReplyFuncTable_[REPLY_STATIC_IPS] = &ServerAPI::handleStaticIpsCurl;
     handleCurlReplyFuncTable_[REPLY_CONFIRM_EMAIL] = &ServerAPI::handleConfirmEmailCurl;
     handleCurlReplyFuncTable_[REPLY_WIREGUARD_CONFIG] = &ServerAPI::handleWireGuardConfigCurl;
+    handleCurlReplyFuncTable_[REPLY_WEB_SESSION] = &ServerAPI::handleWebSessionCurl;
 
     connect(&requestTimer_, SIGNAL(timeout()), SLOT(onRequestTimer()));
     requestTimer_.start(REQUEST_POLL_INTERVAL_MS);
@@ -657,7 +659,19 @@ void ServerAPI::confirmEmail(uint userRole, const QString &authHash, bool isNeed
     }
 
     submitDnsRequest(createRequest<AuthenticatedRequest>(
-        authHash, hostname_, REPLY_CONFIRM_EMAIL, NETWORK_TIMEOUT, userRole));
+                         authHash, hostname_, REPLY_CONFIRM_EMAIL, NETWORK_TIMEOUT, userRole));
+}
+
+void ServerAPI::webSession(const QString authHash, uint userRole, bool isNeedCheckRequestsEnabled)
+{
+    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
+    {
+        qCDebug(LOG_SERVER_API) << "API request WebSession failed: API not ready";
+        return;
+    }
+
+    submitDnsRequest(createRequest<AuthenticatedRequest>(
+                         authHash, hostname_, REPLY_WEB_SESSION, NETWORK_TIMEOUT, userRole));
 }
 
 void ServerAPI::myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequestsEnabled)
@@ -1357,6 +1371,40 @@ void ServerAPI::handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, c
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
     submitCurlRequest(crd, CurlRequest::METHOD_GET, QString(), crd->getHostname(), ips);
+}
+
+void ServerAPI::handleWebSessionDnsResolve(ServerAPI::BaseRequest *rd, bool success, const QStringList &ips)
+{
+    auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
+    Q_ASSERT(crd);
+
+    if (!success) {
+        qCDebug(LOG_SERVER_API) << "API request WebSession failed: DNS-resolution failed";
+        emit webSessionAnswer(SERVER_RETURN_NETWORK_ERROR, QString(),
+                           crd->getUserRole());
+        return;
+    }
+
+    time_t timestamp;
+    time(&timestamp);
+    QString strTimestamp = QString::number(timestamp);
+    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
+    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
+    QUrl url("https://" + crd->getHostname() + "/WebSession");
+
+    QUrlQuery postData;
+    postData.addQueryItem("temp_session", "1");
+    postData.addQueryItem("session_type_id", "1");
+    postData.addQueryItem("time", strTimestamp);
+    postData.addQueryItem("session_auth_hash", crd->getAuthHash());
+    postData.addQueryItem("client_auth_hash", md5Hash);
+    postData.addQueryItem("platform", GetPlatformName());
+
+    auto *curl_request = crd->createCurlRequest();
+    curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
+    curl_request->setUrl(url.toString());
+    submitCurlRequest(crd, CurlRequest::METHOD_POST, "Content-type: text/html; charset=utf-8",
+                      crd->getHostname(), ips);
 }
 
 void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
@@ -2336,6 +2384,52 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
 
         qCDebug(LOG_SERVER_API) << "WgConfigs request successfully executed";
         emit getWireGuardConfigAnswer(SERVER_RETURN_SUCCESS, userconfig, userRole);
+    }
+}
+
+void ServerAPI::handleWebSessionCurl(ServerAPI::BaseRequest *rd, bool success)
+{
+    const int userRole = rd->getUserRole();
+    const auto *curlRequest = rd->getCurlRequest();
+    CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
+
+    if (curlRetCode != CURLE_OK)
+    {
+        qCDebug(LOG_SERVER_API) << "API request WebSession failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        emit webSessionAnswer(SERVER_RETURN_NETWORK_ERROR, QString(), userRole);
+    }
+    else
+    {
+        QByteArray arr = curlRequest->getAnswer();
+        //qCDebugMultiline(LOG_SERVER_API) << arr;
+
+        QJsonParseError errCode;
+        QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
+        if (errCode.error != QJsonParseError::NoError || !doc.isObject())
+        {
+            qCDebug(LOG_SERVER_API) << "API request WebSession incorrect json";
+            emit webSessionAnswer(SERVER_RETURN_INCORRECT_JSON, QString(), userRole);
+            return;
+        }
+        QJsonObject jsonObject = doc.object();
+        if (!jsonObject.contains("data"))
+        {
+            qCDebug(LOG_SERVER_API) << "API request WebSession incorrect json (data field not found)";
+            emit webSessionAnswer(SERVER_RETURN_INCORRECT_JSON, QString(), userRole);
+            return;
+        }
+        QJsonObject jsonData =  jsonObject["data"].toObject();
+        if (!jsonData.contains("temp_session"))
+        {
+            qCDebug(LOG_SERVER_API) << "API request WebSession incorrect json (temp_session field not found)";
+            emit webSessionAnswer(SERVER_RETURN_INCORRECT_JSON, QString(), userRole);
+            return;
+        }
+
+        const QString temp_session_token = jsonData["temp_session"].toString();
+
+        qCDebug(LOG_SERVER_API) << "API request WebSession successfully executed";
+        emit webSessionAnswer(SERVER_RETURN_SUCCESS, temp_session_token, userRole);
     }
 }
 

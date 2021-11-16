@@ -182,6 +182,7 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
             SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(webSessionToken(QString)), SLOT(onBackendWebSessionToken(QString)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
 
@@ -2375,6 +2376,15 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         }
         backend_->sendUpdateWindowInfo(center_x, center_y);
     }
+}
+
+void MainWindow::onBackendWebSessionToken(const QString &tempSessionToken)
+{
+    QString getUrl = QString("https://%1/myaccount?temp_session=%2")
+                        .arg(HardcodedSettings::instance().serverUrl())
+                        .arg(tempSessionToken);
+    // qCDebug(LOG_BASIC) << "Opening external link: " << getUrl;
+    QDesktopServices::openUrl(QUrl(getUrl));
 }
 
 void MainWindow::onBackendEngineCrash()

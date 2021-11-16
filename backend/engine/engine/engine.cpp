@@ -615,7 +615,7 @@ void Engine::initPart2()
     connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString,uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString,uint)));
     connect(serverAPI_, SIGNAL(debugLogAnswer(SERVER_API_RET_CODE,uint)), SLOT(onDebugLogAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(confirmEmailAnswer(SERVER_API_RET_CODE,uint)), SLOT(onConfirmEmailAnswer(SERVER_API_RET_CODE,uint)));
-
+    connect(serverAPI_, SIGNAL(webSessionAnswer(SERVER_API_RET_CODE, QString, uint)), SLOT(onWebSessionAnswer(SERVER_API_RET_CODE, QString, uint)));
     connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
                         SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
@@ -1085,23 +1085,7 @@ void Engine::sendDebugLogImpl()
 
 void Engine::editAccountDetailsImpl()
 {
-    // networkAccessManager_->post()
-
-    editAccountDetailsUrl_ = "";
-
-    QString urlString = QString("https://windscribe.com/myaccount");
-
-    QString data = QString("app_session=%1").arg(getLastLoginSettings().authHash());
-    qDebug() << "Edit account details with: " << urlString;
-
-    QUrl qurl = QUrl(urlString);
-    NetworkRequest request(qurl, 60000 * 5, false);     // timeout 5 mins
-
-    NetworkReply *reply = networkAccessManager_->post(request, data.toUtf8());
-
-    connect(reply, SIGNAL(finished()), SLOT(onEditAccountDetailsReplyFinished()));
-    connect(reply, SIGNAL(readyRead()), SLOT(onEditAccountDetailsReplyReadyRead()));
-
+    serverAPI_->webSession(getLastLoginSettings().authHash(), serverApiUserRole_, true);
 }
 
 void Engine::onEditAccountDetailsReplyFinished()
@@ -1657,6 +1641,17 @@ void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPoin
         connectionManager_->setWireGuardConfig(config);
     else
         connectionManager_->setWireGuardConfig(QSharedPointer<WireGuardConfig>());
+}
+
+void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        if (retCode == SERVER_RETURN_SUCCESS)
+        {
+            Q_EMIT webSessionToken(token);
+        }
+    }
 }
 
 void Engine::onStartCheckUpdate()

@@ -151,6 +151,7 @@ signals:
 
     void sendDebugLogFinished(bool bSuccess);
     void confirmEmailFinished(bool bSuccess);
+    void webSessionToken(const QString &tempSessionToken);
     void firewallStateChanged(bool isEnabled);
     void testTunnelResult(bool bSuccess);
     void lostConnectionToHelper();
@@ -243,6 +244,7 @@ private slots:
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
+    void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     void onStartCheckUpdate();
     void onStartStaticIpsUpdate();

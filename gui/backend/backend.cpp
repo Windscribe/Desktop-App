@@ -899,6 +899,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
         qCDebug(LOG_BASIC) << "Hosts file became writable -- Connecting..";
         sendConnect(PersistentState::instance().lastLocation());
     }
+    else if (command->getStringId() == IPCServerCommands::WebSessionToken::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> *>(command);
+        emit webSessionToken(QString::fromStdString(cmd->getProtoObj().temp_session_token()));
+    }
 }
 
 void Backend::abortInitialization()

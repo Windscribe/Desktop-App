@@ -154,6 +154,7 @@ signals:
 
     void proxySharingInfoChanged(const ProtoTypes::ProxySharingInfo &psi);
     void wifiSharingInfoChanged(const ProtoTypes::WifiSharingInfo &wsi);
+    void webSessionToken(const QString &temp_session_token);
 
     void requestCustomOvpnConfigCredentials();
 

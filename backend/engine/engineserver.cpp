@@ -102,6 +102,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onEngineNetworkChanged(ProtoTypes::NetworkInterface)));
             connect(engine_, SIGNAL(confirmEmailFinished(bool)), SLOT(onEngineConfirmEmailFinished(bool)));
             connect(engine_, SIGNAL(sendDebugLogFinished(bool)), SLOT(onEngineSendDebugLogFinished(bool)));
+            connect(engine_, SIGNAL(webSessionToken(QString)), SLOT(onEngineWebSessionToken(QString)));
             connect(engine_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
             connect(engine_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SLOT(onEngineSendUserWarning(ProtoTypes::UserWarningType)));
             connect(engine_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onEngineInternetConnectivityChanged(bool)));
@@ -932,6 +933,13 @@ void EngineServer::onEngineConfirmEmailFinished(bool bSuccess)
 {
     IPC::ProtobufCommand<IPCServerCommands::ConfirmEmailResult> cmd;
     cmd.getProtoObj().set_success(bSuccess);
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+}
+
+void EngineServer::onEngineWebSessionToken(const QString &token)
+{
+    IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> cmd;
+    cmd.getProtoObj().set_temp_session_token(token.toStdString());
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 

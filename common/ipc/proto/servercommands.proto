@@ -39,6 +39,11 @@ message LoginFinished
    optional string auth_hash = 3;
 }
 
+message WebSessionToken
+{
+  optional string temp_session_token = 1;
+}
+
 message SignOutFinished
 {
 }

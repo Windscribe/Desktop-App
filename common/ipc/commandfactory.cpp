@@ -315,6 +315,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCServerCommands::HostsFileBecameWritable>(buf, size);
     }
+    else if (strId == IPCServerCommands::WebSessionToken::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCServerCommands::WebSessionToken>(buf, size);
+    }
 
     Q_ASSERT(false);
     return NULL;
