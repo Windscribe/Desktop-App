@@ -129,6 +129,12 @@ void AccountWindowItem::onAuthHashChanged(const QString &authHash)
     authHash_ = authHash;
 }
 
+void AccountWindowItem::onEditAccountDetailsClicked()
+{
+    emit editAccountDetails();
+    // QDesktopServices::openUrl(QUrl(QString("https://%1/myaccount?app_session=%2").arg(HardcodedSettings::instance().serverUrl(), authHash_)));
+}
+
 void AccountWindowItem::onUpgradeClicked()
 {
     QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));

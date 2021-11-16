@@ -64,6 +64,7 @@ public:
     void sendDebugLog();
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
+    void editAccountDetails();
 
     LoginSettings getLastLoginSettings();
     QString getAuthHash();
@@ -189,6 +190,9 @@ private slots:
     void connectClickImpl(const LocationID &locationId);
     void disconnectClickImpl();
     void sendDebugLogImpl();
+    void editAccountDetailsImpl();
+    void onEditAccountDetailsReplyFinished();
+    void onEditAccountDetailsReplyReadyRead();
     void signOutImpl();
     void signOutImplAfterDisconnect();
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
@@ -389,6 +393,8 @@ private:
     QString installerUrl_;
     QString installerPath_;
     qint32 guiWindowHandle_;
+
+    QString editAccountDetailsUrl_;
 };
 
 #endif // ENGINE_H

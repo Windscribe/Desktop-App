@@ -98,6 +98,10 @@ message SendDebugLog
 {
 }
 
+message EditAccountDetails
+{
+}
+
 message SetBlockConnect
 {
    optional bool is_block_connect = 1 [default = false];

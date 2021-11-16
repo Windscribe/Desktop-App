@@ -462,6 +462,17 @@ void Backend::sendDebugLog()
     }
 }
 
+void Backend::editAccountDetails()
+{
+    Q_ASSERT(isInitFinished());
+    if (isInitFinished())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::EditAccountDetails> cmd;
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        connection_->sendCommand(cmd);
+    }
+}
+
 void Backend::speedRating(int rating, const QString &localExternalIp)
 {
     Q_ASSERT(isInitFinished());

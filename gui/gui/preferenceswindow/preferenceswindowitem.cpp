@@ -57,6 +57,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     accountWindowItem_->setLoggedIn(false);
     connect(accountWindowItem_, SIGNAL(sendConfirmEmailClick()), SIGNAL(sendConfirmEmailClick()));
     connect(accountWindowItem_, SIGNAL(noAccountLoginClick()), SIGNAL(noAccountLoginClick()));
+    connect(accountWindowItem_, SIGNAL(editAccountDetails()), SIGNAL(editAccountDetails()));
 
     connectionWindowItem_ = new ConnectionWindowItem(nullptr, preferences, preferencesHelper);
     shareWindowItem_ = new ShareWindowItem(nullptr, preferences, preferencesHelper);

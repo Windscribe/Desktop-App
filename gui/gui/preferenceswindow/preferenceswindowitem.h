@@ -79,6 +79,7 @@ signals:
     void sendConfirmEmailClick() override;
     void sendDebugLogClick() override;
     void noAccountLoginClick() override;
+    void editAccountDetails() override;
 
     void currentNetworkUpdated(ProtoTypes::NetworkInterface) override;
     void cycleMacAddressClick();

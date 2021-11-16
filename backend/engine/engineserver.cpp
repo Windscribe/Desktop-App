@@ -265,6 +265,11 @@ bool EngineServer::handleCommand(IPC::Command *command)
         engine_->sendDebugLog();
         return true;
     }
+    else if (command->getStringId() == IPCClientCommands::EditAccountDetails::descriptor()->full_name())
+    {
+        engine_->editAccountDetails();
+        return true;
+    }
     else if (command->getStringId() == IPCClientCommands::SendConfirmEmail::descriptor()->full_name())
     {
         engine_->sendConfirmEmail();

@@ -39,6 +39,7 @@ private slots:
 signals:
     void sendConfirmEmailClick();
     void noAccountLoginClick();
+    void editAccountDetails();
 
 private:
     UsernameItem *usernameItem_;

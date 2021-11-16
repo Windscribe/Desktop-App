@@ -76,6 +76,7 @@ public:
     void recordInstall();
     void sendConfirmEmail();
     void sendDebugLog();
+    void editAccountDetails();
 
     void speedRating(int rating, const QString &localExternalIp);
 

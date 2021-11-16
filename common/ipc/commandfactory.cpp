@@ -78,6 +78,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCClientCommands::SendDebugLog>(buf, size);
     }
+    else if (strId == IPCClientCommands::EditAccountDetails::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCClientCommands::EditAccountDetails>(buf, size);
+    }
     else if (strId == IPCClientCommands::SetBlockConnect::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCClientCommands::SetBlockConnect>(buf, size);

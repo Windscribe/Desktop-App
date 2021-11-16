@@ -233,6 +233,11 @@ bool Engine::IPv6StateInOS()
 #endif
 }
 
+void Engine::editAccountDetails()
+{
+    QMetaObject::invokeMethod(this, "editAccountDetailsImpl");
+}
+
 LoginSettings Engine::getLastLoginSettings()
 {
     QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
@@ -1076,6 +1081,59 @@ void Engine::sendDebugLogImpl()
     log += "================================================================================================================================================================================================\n";
     log += MergeLog::mergeLogs(true);
     serverAPI_->debugLog(userName, log, serverApiUserRole_, true);
+}
+
+void Engine::editAccountDetailsImpl()
+{
+    // networkAccessManager_->post()
+
+    editAccountDetailsUrl_ = "";
+
+    QString urlString = QString("https://windscribe.com/myaccount");
+
+    QString data = QString("app_session=%1").arg(getLastLoginSettings().authHash());
+    qDebug() << "Edit account details with: " << urlString;
+
+    QUrl qurl = QUrl(urlString);
+    NetworkRequest request(qurl, 60000 * 5, false);     // timeout 5 mins
+
+    NetworkReply *reply = networkAccessManager_->post(request, data.toUtf8());
+
+    connect(reply, SIGNAL(finished()), SLOT(onEditAccountDetailsReplyFinished()));
+    connect(reply, SIGNAL(readyRead()), SLOT(onEditAccountDetailsReplyReadyRead()));
+
+}
+
+void Engine::onEditAccountDetailsReplyFinished()
+{
+    qDebug() << "Edit account details reply finished";
+    NetworkReply *reply = static_cast<NetworkReply*>(sender());
+
+    if (!reply->isSuccess())
+    {
+        qCDebug(LOG_BASIC) << "Failed to get Edit Account Details reply";
+        disconnect(reply);
+        reply->deleteLater();
+        return;
+    }
+
+    editAccountDetailsUrl_ = reply->readAll();
+    qCDebug(LOG_BASIC) << "Recived the contents: " << editAccountDetailsUrl_;
+    //disconnect(reply);
+    //reply->deleteLater();
+}
+
+void Engine::onEditAccountDetailsReplyReadyRead()
+{
+    qDebug() << "Ready reading";
+    NetworkReply *reply = static_cast<NetworkReply*>(sender());
+
+//    QByteArray arr = reply->readAll();
+
+//    if (!arr.isEmpty())
+//    {
+//        editAccountDetailsUrl_ += QString(arr);
+//    }
 }
 
 // function consists of two parts (first - disconnect if need, second - do other signout stuff)

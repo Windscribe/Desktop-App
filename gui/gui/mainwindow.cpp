@@ -257,6 +257,7 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkUpdated(ProtoTypes::NetworkInterface)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(editAccountDetails()), SLOT(onPreferencesEditAccountDetails()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(noAccountLoginClick()), SLOT(onPreferencesNoAccountLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(cycleMacAddressClick()), SLOT(onPreferencesCycleMacAddressClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(detectAppropriatePacketSizeButtonClicked()), SLOT(onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()));
@@ -1087,6 +1088,11 @@ void MainWindow::onPreferencesSendConfirmEmailClick()
 void MainWindow::onPreferencesSendDebugLogClick()
 {
     backend_->sendDebugLog();
+}
+
+void MainWindow::onPreferencesEditAccountDetails()
+{
+    backend_->editAccountDetails();
 }
 
 void MainWindow::onPreferencesQuitAppClick()

@@ -94,6 +94,7 @@ private slots:
     void onPreferencesViewLogClick();
     void onPreferencesSendConfirmEmailClick();
     void onPreferencesSendDebugLogClick();
+    void onPreferencesEditAccountDetails();
     void onPreferencesQuitAppClick();
     void onPreferencesNoAccountLoginClick();
     void onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow);
