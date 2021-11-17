@@ -57,8 +57,7 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all debug' for a debug build. 
-Note that a debug build is required to connect the VPN when building without code signing.
+Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all debug' for an unsigned build.  Note that an unsigned build is required to connect the VPN when building without code signing.
 
 ## Mac
 ### Prerequisites
@@ -115,7 +114,7 @@ Note that a debug build is required to connect the VPN when building without cod
 
 ### Build the Windscribe 2.0 app
 
-Open a terminal in desktop-v2/tools and run './build_all' for a release build, or './build_all debug' for a debug build.  Please note that a release build requires you to have completed the 'Set up code signing' section above.  Assuming all goes well with the build, the installer will be placed in desktop-v2/build-exe.
+Open a terminal in desktop-v2/tools and run './build_all' for a signed build, or './build_all debug' for an unsigned build.  Please note that a signed build requires you to have completed the 'Set up code signing' section above.  Assuming all goes well with the build, the installer will be placed in desktop-v2/build-exe.
 
 ### Install Auto-Tools and 7-Zip (via HomeBrew):
     - brew install libtool
@@ -188,4 +187,6 @@ Build process tested on Ubuntu 16.04 (gcc 5.4.0) and Ubuntu 20.04/ZorinOS 16 (gc
 
 ### Build the Windscribe 2.0 app
 
-Open a terminal in desktop-v2/tools and run './build_all --no-sign' for a release build, or './build_all debug --no-sign' for a debug build.  Assuming all goes well with the build, the installer will be placed in desktop-v2/build-exe.
+Open a terminal in desktop-v2/tools and run './build_all --no-sign'.  Assuming all goes well with the build, the installer will be placed in desktop-v2/build-exe.
+
+The application installs to /usr/local/windscribe.  You will find the logs in ~/.local/share/Windscribe/Windscribe2.
