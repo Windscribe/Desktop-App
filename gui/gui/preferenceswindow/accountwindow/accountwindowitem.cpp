@@ -30,8 +30,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     emailItem_->setEmail(accountInfo->email());
     emailItem_->setNeedConfirmEmail(accountInfo->isNeedConfirmEmail());
 
-    connect(emailItem_, &EmailItem::emptyEmailButtonClick, this,
-        [this]{ QDesktopServices::openUrl(QUrl(QString("https://%1/myaccount?app_session=%2").arg(HardcodedSettings::instance().serverUrl(), authHash_))); });
+    connect(emailItem_, &EmailItem::emptyEmailButtonClick, this, &AccountWindowItem::addEmailButtonClick);
     connect(emailItem_, &EmailItem::sendEmailClick, this, &AccountWindowItem::sendConfirmEmailClick);
     addItem(emailItem_);
 
@@ -52,7 +51,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     // can be safetly used in a GET command 
     editAccountItem_ = new OpenUrlItem(this);
     editAccountItem_->setText(tr("Edit Account Details"));
-    connect(editAccountItem_, SIGNAL(clicked()), SIGNAL(editAccountDetails()));
+    connect(editAccountItem_, SIGNAL(clicked()), SIGNAL(editAccountDetailsClick()));
     addItem(editAccountItem_);
 
     textItem_ = new QGraphicsTextItem(this);
@@ -131,11 +130,6 @@ void AccountWindowItem::onExpireDateChanged(const QString &date)
 void AccountWindowItem::onAuthHashChanged(const QString &authHash)
 {
     authHash_ = authHash;
-}
-
-void AccountWindowItem::onEditAccountDetailsClicked()
-{
-    Q_EMIT editAccountDetails();
 }
 
 void AccountWindowItem::onUpgradeClicked()

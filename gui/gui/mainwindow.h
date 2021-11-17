@@ -94,7 +94,8 @@ private slots:
     void onPreferencesViewLogClick();
     void onPreferencesSendConfirmEmailClick();
     void onPreferencesSendDebugLogClick();
-    void onPreferencesEditAccountDetails();
+    void onPreferencesEditAccountDetailsClick();
+    void onPreferencesAddEmailButtonClick();
     void onPreferencesQuitAppClick();
     void onPreferencesNoAccountLoginClick();
     void onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow);
@@ -184,7 +185,9 @@ private slots:
     void onBackendProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onBackendPacketSizeDetectionStateChanged(bool on, bool isError);
     void onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
-    void onBackendWebSessionToken(const QString &tempSessionToken);
+    void onBackendWebSessionTokenForEditAccountDetails(const QString &tempSessionToken);
+    void onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken);
+
     void onBackendEngineCrash();
     void onBackendLocationsUpdated();
 
@@ -379,6 +382,7 @@ private:
 
     QRect guessTrayIconLocationOnScreen(QScreen *screen);
     void showUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void openBrowserToMyAccountWithToken(const QString &tempSessionToken);
 };
 
 #endif // MAINWINDOW_H

@@ -659,7 +659,7 @@ void ServerAPI::confirmEmail(uint userRole, const QString &authHash, bool isNeed
     }
 
     submitDnsRequest(createRequest<AuthenticatedRequest>(
-                         authHash, hostname_, REPLY_CONFIRM_EMAIL, NETWORK_TIMEOUT, userRole));
+        authHash, hostname_, REPLY_CONFIRM_EMAIL, NETWORK_TIMEOUT, userRole));
 }
 
 void ServerAPI::webSession(const QString authHash, uint userRole, bool isNeedCheckRequestsEnabled)
@@ -2401,7 +2401,7 @@ void ServerAPI::handleWebSessionCurl(ServerAPI::BaseRequest *rd, bool success)
     else
     {
         QByteArray arr = curlRequest->getAnswer();
-        //qCDebugMultiline(LOG_SERVER_API) << arr;
+        qCDebugMultiline(LOG_SERVER_API) << arr;
 
         QJsonParseError errCode;
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);

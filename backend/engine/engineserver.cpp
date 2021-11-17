@@ -102,7 +102,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onEngineNetworkChanged(ProtoTypes::NetworkInterface)));
             connect(engine_, SIGNAL(confirmEmailFinished(bool)), SLOT(onEngineConfirmEmailFinished(bool)));
             connect(engine_, SIGNAL(sendDebugLogFinished(bool)), SLOT(onEngineSendDebugLogFinished(bool)));
-            connect(engine_, SIGNAL(webSessionToken(QString)), SLOT(onEngineWebSessionToken(QString)));
+            connect(engine_, SIGNAL(webSessionToken(ProtoTypes::WebSessionPurpose, QString)), SLOT(onEngineWebSessionToken(ProtoTypes::WebSessionPurpose, QString)));
             connect(engine_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
             connect(engine_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SLOT(onEngineSendUserWarning(ProtoTypes::UserWarningType)));
             connect(engine_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onEngineInternetConnectivityChanged(bool)));
@@ -266,9 +266,10 @@ bool EngineServer::handleCommand(IPC::Command *command)
         engine_->sendDebugLog();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::EditAccountDetails::descriptor()->full_name())
+    else if (command->getStringId() == IPCClientCommands::GetWebSessionToken::descriptor()->full_name())
     {
-        engine_->editAccountDetails();
+        IPC::ProtobufCommand<IPCClientCommands::GetWebSessionToken> cmd;
+        engine_->getWebSessionToken(cmd.getProtoObj().purpose());
         return true;
     }
     else if (command->getStringId() == IPCClientCommands::SendConfirmEmail::descriptor()->full_name())
@@ -936,9 +937,10 @@ void EngineServer::onEngineConfirmEmailFinished(bool bSuccess)
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
-void EngineServer::onEngineWebSessionToken(const QString &token)
+void EngineServer::onEngineWebSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &token)
 {
     IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> cmd;
+    cmd.getProtoObj().set_purpose(purpose);
     cmd.getProtoObj().set_temp_session_token(token.toStdString());
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }

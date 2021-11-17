@@ -76,7 +76,8 @@ public:
     void recordInstall();
     void sendConfirmEmail();
     void sendDebugLog();
-    void editAccountDetails();
+    void getWebSessionTokenForEditAccountDetails();
+    void getWebSessionTokenForAddEmail();
 
     void speedRating(int rating, const QString &localExternalIp);
 
@@ -154,7 +155,8 @@ signals:
 
     void proxySharingInfoChanged(const ProtoTypes::ProxySharingInfo &psi);
     void wifiSharingInfoChanged(const ProtoTypes::WifiSharingInfo &wsi);
-    void webSessionToken(const QString &temp_session_token);
+    void webSessionTokenForEditAccountDetails(const QString &temp_session_token);
+    void webSessionTokenForAddEmail(const QString &temp_session_token);
 
     void requestCustomOvpnConfigCredentials();
 

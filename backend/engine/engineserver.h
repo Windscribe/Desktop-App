@@ -70,7 +70,7 @@ private slots:
 
     void onEngineSendDebugLogFinished(bool bSuccess);
     void onEngineConfirmEmailFinished(bool bSuccess);
-    void onEngineWebSessionToken(const QString &token);
+    void onEngineWebSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &token);
 
     void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer< QVector<locationsmodel::LocationItem> > items);
     void onEngineLocationsModelItemsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer< QVector<locationsmodel::LocationItem> > items);

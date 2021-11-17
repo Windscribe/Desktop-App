@@ -41,7 +41,8 @@ message LoginFinished
 
 message WebSessionToken
 {
-  optional string temp_session_token = 1;
+  optional ProtoTypes.WebSessionPurpose purpose = 1;
+  optional string temp_session_token = 2;
 }
 
 message SignOutFinished

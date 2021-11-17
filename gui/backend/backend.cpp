@@ -462,12 +462,25 @@ void Backend::sendDebugLog()
     }
 }
 
-void Backend::editAccountDetails()
+void Backend::getWebSessionTokenForEditAccountDetails()
 {
     Q_ASSERT(isInitFinished());
     if (isInitFinished())
     {
-        IPC::ProtobufCommand<IPCClientCommands::EditAccountDetails> cmd;
+        IPC::ProtobufCommand<IPCClientCommands::GetWebSessionToken> cmd;
+        cmd.getProtoObj().set_purpose(ProtoTypes::WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS);
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        connection_->sendCommand(cmd);
+    }
+}
+
+void Backend::getWebSessionTokenForAddEmail()
+{
+    Q_ASSERT(isInitFinished());
+    if (isInitFinished())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::GetWebSessionToken> cmd;
+        cmd.getProtoObj().set_purpose(ProtoTypes::WEB_SESSION_PURPOSE_ADD_EMAIL);
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
@@ -902,7 +915,14 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     else if (command->getStringId() == IPCServerCommands::WebSessionToken::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> *>(command);
-        emit webSessionToken(QString::fromStdString(cmd->getProtoObj().temp_session_token()));
+        if (cmd->getProtoObj().purpose() == ProtoTypes::WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS)
+        {
+            emit webSessionTokenForEditAccountDetails(QString::fromStdString(cmd->getProtoObj().temp_session_token()));
+        }
+        else if (cmd->getProtoObj().purpose() == ProtoTypes::WEB_SESSION_PURPOSE_ADD_EMAIL)
+        {
+            emit webSessionTokenForAddEmail(QString::fromStdString(cmd->getProtoObj().temp_session_token()));
+        }
     }
 }
 

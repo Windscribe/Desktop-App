@@ -47,6 +47,8 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     connectionManager_(nullptr),
     connectStateController_(nullptr),
     serverApiUserRole_(0),
+    serverApiEditAccountDetailsUserRole_(0),
+    serverApiAddEmailUserRole_(0),
     getMyIPController_(nullptr),
     vpnShareController_(nullptr),
     emergencyController_(nullptr),
@@ -233,9 +235,9 @@ bool Engine::IPv6StateInOS()
 #endif
 }
 
-void Engine::editAccountDetails()
+void Engine::getWebSessionToken(ProtoTypes::WebSessionPurpose purpose)
 {
-    QMetaObject::invokeMethod(this, "editAccountDetailsImpl");
+    QMetaObject::invokeMethod(this, "getWebSessionTokenImpl", Q_ARG(ProtoTypes::WebSessionPurpose, purpose));
 }
 
 LoginSettings Engine::getLastLoginSettings()
@@ -624,6 +626,8 @@ void Engine::initPart2()
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
+    serverApiEditAccountDetailsUserRole_ = serverAPI_->getAvailableUserRole();
+    serverApiAddEmailUserRole_ = serverAPI_->getAvailableUserRole();
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
@@ -1083,41 +1087,11 @@ void Engine::sendDebugLogImpl()
     serverAPI_->debugLog(userName, log, serverApiUserRole_, true);
 }
 
-void Engine::editAccountDetailsImpl()
+void Engine::getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose)
 {
-    serverAPI_->webSession(getLastLoginSettings().authHash(), serverApiUserRole_, true);
-}
-
-void Engine::onEditAccountDetailsReplyFinished()
-{
-    qDebug() << "Edit account details reply finished";
-    NetworkReply *reply = static_cast<NetworkReply*>(sender());
-
-    if (!reply->isSuccess())
-    {
-        qCDebug(LOG_BASIC) << "Failed to get Edit Account Details reply";
-        disconnect(reply);
-        reply->deleteLater();
-        return;
-    }
-
-    editAccountDetailsUrl_ = reply->readAll();
-    qCDebug(LOG_BASIC) << "Recived the contents: " << editAccountDetailsUrl_;
-    //disconnect(reply);
-    //reply->deleteLater();
-}
-
-void Engine::onEditAccountDetailsReplyReadyRead()
-{
-    qDebug() << "Ready reading";
-    NetworkReply *reply = static_cast<NetworkReply*>(sender());
-
-//    QByteArray arr = reply->readAll();
-
-//    if (!arr.isEmpty())
-//    {
-//        editAccountDetailsUrl_ += QString(arr);
-//    }
+    uint userRole = serverApiEditAccountDetailsUserRole_;
+    if (purpose == ProtoTypes::WEB_SESSION_PURPOSE_ADD_EMAIL) userRole = serverApiAddEmailUserRole_;
+    serverAPI_->webSession(apiInfo_->getAuthHash(), userRole, true);
 }
 
 // function consists of two parts (first - disconnect if need, second - do other signout stuff)
@@ -1645,11 +1619,15 @@ void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPoin
 
 void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole)
 {
-    if (userRole == serverApiUserRole_)
+    if (retCode == SERVER_RETURN_SUCCESS)
     {
-        if (retCode == SERVER_RETURN_SUCCESS)
+        if (userRole == serverApiEditAccountDetailsUserRole_)
         {
-            Q_EMIT webSessionToken(token);
+            Q_EMIT webSessionToken(ProtoTypes::WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS, token);
+        }
+        if (userRole == serverApiAddEmailUserRole_)
+        {
+            Q_EMIT webSessionToken(ProtoTypes::WEB_SESSION_PURPOSE_ADD_EMAIL, token);
         }
     }
 }

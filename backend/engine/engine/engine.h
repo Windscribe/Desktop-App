@@ -64,7 +64,7 @@ public:
     void sendDebugLog();
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
-    void editAccountDetails();
+    void getWebSessionToken(ProtoTypes::WebSessionPurpose purpose);
 
     LoginSettings getLastLoginSettings();
     QString getAuthHash();
@@ -151,7 +151,7 @@ signals:
 
     void sendDebugLogFinished(bool bSuccess);
     void confirmEmailFinished(bool bSuccess);
-    void webSessionToken(const QString &tempSessionToken);
+    void webSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &tempSessionToken);
     void firewallStateChanged(bool isEnabled);
     void testTunnelResult(bool bSuccess);
     void lostConnectionToHelper();
@@ -191,9 +191,7 @@ private slots:
     void connectClickImpl(const LocationID &locationId);
     void disconnectClickImpl();
     void sendDebugLogImpl();
-    void editAccountDetailsImpl();
-    void onEditAccountDetailsReplyFinished();
-    void onEditAccountDetailsReplyReadyRead();
+    void getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose);
     void signOutImpl();
     void signOutImplAfterDisconnect();
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
@@ -314,6 +312,8 @@ private:
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
+    uint serverApiEditAccountDetailsUserRole_;
+    uint serverApiAddEmailUserRole_;
     GetMyIPController *getMyIPController_;
     VpnShareController *vpnShareController_;
     EmergencyController *emergencyController_;
@@ -395,8 +395,6 @@ private:
     QString installerUrl_;
     QString installerPath_;
     qint32 guiWindowHandle_;
-
-    QString editAccountDetailsUrl_;
 };
 
 #endif // ENGINE_H
