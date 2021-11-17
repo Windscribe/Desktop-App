@@ -127,6 +127,9 @@ Open a terminal in desktop-v2/tools and run './build_all' for a release build, o
 
 Build process tested on Ubuntu 16.04 (gcc 5.4.0) and Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
 
+- Install build tools:
+  - sudo apt install build-essential
+
 - Install git:
   - sudo apt install git
 
