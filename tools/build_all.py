@@ -229,19 +229,20 @@ def ApplyMacDeployFixes(appname, fixlist):
   # 4. Code signing.
   if "codesign" in fixlist:
     # Signing the whole app.
-    if "sign_app" in fixlist["codesign"] and fixlist["codesign"]["sign_app"] == "yes":
+    if "sign_app" in fixlist["codesign"] and fixlist["codesign"]["sign_app"]:
       msg.Info("Signing the app bundle...")
       iutl.RunCommand(["codesign", "--deep", appname, "--options", "runtime", "--timestamp",
                        "-s", BUILD_DEVELOPER_MAC])
       # This validation is optional.
       iutl.RunCommand(["codesign", "-v", appname])
-    if "entitlements_binary" in fixlist["codesign"]:
-      msg.Info("Signing a binary with entitlements...")
-      entitlements_binary = os.path.join(appname, fixlist["codesign"]["entitlements_binary"])
-      entitlements_file = os.path.join(ROOT_DIR, fixlist["codesign"]["entitlements_file"])
-      iutl.RunCommand(["codesign", "--entitlements", entitlements_file, "-f",
-                       "-s", BUILD_DEVELOPER_MAC, "--options", "runtime", "--timestamp",
-                       entitlements_binary])
+      # Only sign with entitlements if code signing is enabled.
+      if "entitlements_binary" in fixlist["codesign"]:
+        msg.Info("Signing a binary with entitlements...")
+        entitlements_binary = os.path.join(appname, fixlist["codesign"]["entitlements_binary"])
+        entitlements_file = os.path.join(ROOT_DIR, fixlist["codesign"]["entitlements_file"])
+        iutl.RunCommand(["codesign", "--entitlements", entitlements_file, "-f",
+                        "-s", BUILD_DEVELOPER_MAC, "--options", "runtime", "--timestamp",
+                        entitlements_binary])
 
 
 def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=None, target_name_override=None):

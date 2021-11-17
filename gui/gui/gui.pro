@@ -113,7 +113,6 @@ HEADERS += \
            application/checkrunningapp/checkrunningapp_mac.h \
            application/openlocationshandler_mac.h \
            launchonstartup/launchonstartup_mac.h \
-           utils/interfaceutils_mac.h \
            utils/authchecker_mac.h \
            $$COMMON_PATH/exithandler_mac.h \
            $$COMMON_PATH/utils/widgetutils_mac.h \
@@ -165,8 +164,6 @@ RESOURCES += \
 } # macx
 
 linux {
-# uncomment for use signature checking on Linux
-DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
 
 # build_all.py adds 'build_all_debug' to the CONFIG environment when invoked with the 'debug' flag.
 !contains(CONFIG, build_all_debug) {

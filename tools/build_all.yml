@@ -322,9 +322,9 @@ macdeployfixes:
         openssl:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
     codesign:
-      sign_app: no
-      #entitlements_binary: Contents/MacOS/WindscribeEngine
-      #entitlements_file: backend/engine/mac/windscribe_engine.entitlements
+      sign_app: yes
+      entitlements_binary: Contents/MacOS/WindscribeEngine
+      entitlements_file: backend/engine/mac/windscribe_engine.entitlements
   gui:
     remove_files:
       # Remove unused Qt frameworks.

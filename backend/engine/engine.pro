@@ -250,9 +250,6 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 
 linux {
 
-# uncomment for use signature checking on Linux
-DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
-
 # build_all.py adds 'build_all_debug' to the CONFIG environment when invoked with the 'debug' flag.
 !contains(CONFIG, build_all_debug) {
     CONFIG(release, debug|release) {
