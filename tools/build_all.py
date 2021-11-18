@@ -488,6 +488,10 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   PackSymbols()
   # Sign executable files with a certificate.
   SignExecutablesWin32(configdata)
+  # Sign AuthHelper DLLs
+  if BUILD_COM:
+    SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com"]["target"]))
+    SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com_proxy_stub"]["target"]))
   # Place everything in a 7z archive.
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["win32"]]
