@@ -5,7 +5,6 @@ end=$((SECONDS+10))
 while :
 do
   if [ -z "$(ps -eo args | grep WindscribeEngine | grep -v grep)" ]; then
-    echo "No WindscribeEngine running"
     break
   fi
   
@@ -15,8 +14,8 @@ do
   fi
 done
 
-systemctl stop windscribe-helper
-systemctl disable windscribe-helper
+systemctl stop windscribe-helper > /dev/null 2>&1
+systemctl disable windscribe-helper > /dev/null 2>&1
 
 # Stop and disable firewalld service if it is active, otherwise it will conflict with iptables on OS reboot
 # Relevant for Fedora distributions
