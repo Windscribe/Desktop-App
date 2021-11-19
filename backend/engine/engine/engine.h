@@ -64,6 +64,7 @@ public:
     void sendDebugLog();
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
+    void getWebSessionToken(ProtoTypes::WebSessionPurpose purpose);
 
     LoginSettings getLastLoginSettings();
     QString getAuthHash();
@@ -150,6 +151,7 @@ signals:
 
     void sendDebugLogFinished(bool bSuccess);
     void confirmEmailFinished(bool bSuccess);
+    void webSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &tempSessionToken);
     void firewallStateChanged(bool isEnabled);
     void testTunnelResult(bool bSuccess);
     void lostConnectionToHelper();
@@ -189,6 +191,7 @@ private slots:
     void connectClickImpl(const LocationID &locationId);
     void disconnectClickImpl();
     void sendDebugLogImpl();
+    void getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose);
     void signOutImpl();
     void signOutImplAfterDisconnect();
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
@@ -239,6 +242,7 @@ private slots:
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
+    void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     void onStartCheckUpdate();
     void onStartStaticIpsUpdate();
@@ -308,6 +312,8 @@ private:
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
+    uint serverApiEditAccountDetailsUserRole_;
+    uint serverApiAddEmailUserRole_;
     GetMyIPController *getMyIPController_;
     VpnShareController *vpnShareController_;
     EmergencyController *emergencyController_;

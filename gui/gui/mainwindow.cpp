@@ -182,6 +182,8 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
             SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(webSessionTokenForEditAccountDetails(QString)), SLOT(onBackendWebSessionTokenForEditAccountDetails(QString)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(webSessionTokenForAddEmail(QString)), SLOT(onBackendWebSessionTokenForAddEmail(QString)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
 
@@ -257,6 +259,8 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkUpdated(ProtoTypes::NetworkInterface)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(editAccountDetailsClick()), SLOT(onPreferencesEditAccountDetailsClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(addEmailButtonClick()), SLOT(onPreferencesAddEmailButtonClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(noAccountLoginClick()), SLOT(onPreferencesNoAccountLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(cycleMacAddressClick()), SLOT(onPreferencesCycleMacAddressClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(detectAppropriatePacketSizeButtonClicked()), SLOT(onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()));
@@ -1087,6 +1091,16 @@ void MainWindow::onPreferencesSendConfirmEmailClick()
 void MainWindow::onPreferencesSendDebugLogClick()
 {
     backend_->sendDebugLog();
+}
+
+void MainWindow::onPreferencesEditAccountDetailsClick()
+{
+    backend_->getWebSessionTokenForEditAccountDetails();
+}
+
+void MainWindow::onPreferencesAddEmailButtonClick()
+{
+    backend_->getWebSessionTokenForAddEmail();
 }
 
 void MainWindow::onPreferencesQuitAppClick()
@@ -2369,6 +2383,25 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         }
         backend_->sendUpdateWindowInfo(center_x, center_y);
     }
+}
+
+void MainWindow::openBrowserToMyAccountWithToken(const QString &tempSessionToken)
+{
+    QString getUrl = QString("https://%1/myaccount?temp_session=%2")
+                        .arg(HardcodedSettings::instance().serverUrl())
+                        .arg(tempSessionToken);
+    // qCDebug(LOG_BASIC) << "Opening external link: " << getUrl;
+    QDesktopServices::openUrl(QUrl(getUrl));
+}
+
+void MainWindow::onBackendWebSessionTokenForEditAccountDetails(const QString &tempSessionToken)
+{
+    openBrowserToMyAccountWithToken(tempSessionToken);
+}
+
+void MainWindow::onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken)
+{
+    openBrowserToMyAccountWithToken(tempSessionToken);
 }
 
 void MainWindow::onBackendEngineCrash()

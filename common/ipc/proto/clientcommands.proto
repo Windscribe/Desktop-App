@@ -98,6 +98,11 @@ message SendDebugLog
 {
 }
 
+message GetWebSessionToken
+{
+  optional ProtoTypes.WebSessionPurpose purpose = 1;
+}
+
 message SetBlockConnect
 {
    optional bool is_block_connect = 1 [default = false];

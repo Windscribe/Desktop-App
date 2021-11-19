@@ -41,10 +41,12 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
     // some INI strings are crypted
 #ifdef WINDSCRIBE_IS_STAGING
     serverApiUrl_ = settings.value("basic/serverApiUrlStaging").toString();
+    serverUrl_ = settings.value("basic/serverUrlStaging").toString();
 #else
     serverApiUrl_ = settings.value("basic/serverApiUrl").toString();
-#endif
     serverUrl_ = settings.value("basic/serverUrl").toString();
+#endif
+
     serverSharedKey_ = settings.value("basic/serverSharedKey").toString();
     serverTunnelTestUrl_ = settings.value("basic/serverTunnelTestUrl").toString();
 

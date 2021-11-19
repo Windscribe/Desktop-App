@@ -52,6 +52,7 @@ public:
     void portMap(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void recordInstall(uint userRole, bool isNeedCheckRequestsEnabled);
     void confirmEmail(uint userRole, const QString &authHash, bool isNeedCheckRequestsEnabled);
+    void webSession(const QString authHash, uint userRole, bool isNeedCheckRequestsEnabled);
 
     void myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequestsEnabled);
 
@@ -89,6 +90,7 @@ signals:
     void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
     void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<apiinfo::Notification> notifications, uint userRole);
     void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
+    void webSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     // need for add to firewall rules
     void hostIpsChanged(const QStringList &hostIps);
@@ -125,6 +127,7 @@ private:
         REPLY_STATIC_IPS,
         REPLY_CONFIRM_EMAIL,
         REPLY_WIREGUARD_CONFIG,
+        REPLY_WEB_SESSION,
         NUM_REPLY_TYPES
     };
 
@@ -161,6 +164,7 @@ private:
     void handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handlePingTestDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
+    void handleWebSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
 
     void handleAccessIpsCurl(BaseRequest *rd, bool success);
     void handleSessionReplyCurl(BaseRequest *rd, bool success);
@@ -179,6 +183,7 @@ private:
     void handleNotificationsCurl(BaseRequest *rd, bool success);
     void handleStaticIpsCurl(BaseRequest *rd, bool success);
     void handleWireGuardConfigCurl(BaseRequest *rd, bool success);
+    void handleWebSessionCurl(BaseRequest *rd, bool success);
 
     CurlNetworkManager curlNetworkManager_;
 

@@ -50,6 +50,8 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     connectionManager_(nullptr),
     connectStateController_(nullptr),
     serverApiUserRole_(0),
+    serverApiEditAccountDetailsUserRole_(0),
+    serverApiAddEmailUserRole_(0),
     getMyIPController_(nullptr),
     vpnShareController_(nullptr),
     emergencyController_(nullptr),
@@ -234,6 +236,11 @@ bool Engine::IPv6StateInOS()
 #else
     return true;
 #endif
+}
+
+void Engine::getWebSessionToken(ProtoTypes::WebSessionPurpose purpose)
+{
+    QMetaObject::invokeMethod(this, "getWebSessionTokenImpl", Q_ARG(ProtoTypes::WebSessionPurpose, purpose));
 }
 
 LoginSettings Engine::getLastLoginSettings()
@@ -613,7 +620,7 @@ void Engine::initPart2()
     connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString,uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString,uint)));
     connect(serverAPI_, SIGNAL(debugLogAnswer(SERVER_API_RET_CODE,uint)), SLOT(onDebugLogAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(confirmEmailAnswer(SERVER_API_RET_CODE,uint)), SLOT(onConfirmEmailAnswer(SERVER_API_RET_CODE,uint)));
-
+    connect(serverAPI_, SIGNAL(webSessionAnswer(SERVER_API_RET_CODE, QString, uint)), SLOT(onWebSessionAnswer(SERVER_API_RET_CODE, QString, uint)));
     connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
                         SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
@@ -622,6 +629,8 @@ void Engine::initPart2()
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
+    serverApiEditAccountDetailsUserRole_ = serverAPI_->getAvailableUserRole();
+    serverApiAddEmailUserRole_ = serverAPI_->getAvailableUserRole();
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
@@ -1092,6 +1101,13 @@ void Engine::sendDebugLogImpl()
     */
 
     serverAPI_->debugLog(userName, log, serverApiUserRole_, true);
+}
+
+void Engine::getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose)
+{
+    uint userRole = serverApiEditAccountDetailsUserRole_;
+    if (purpose == ProtoTypes::WEB_SESSION_PURPOSE_ADD_EMAIL) userRole = serverApiAddEmailUserRole_;
+    serverAPI_->webSession(apiInfo_->getAuthHash(), userRole, true);
 }
 
 // function consists of two parts (first - disconnect if need, second - do other signout stuff)
@@ -1615,6 +1631,21 @@ void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPoin
         connectionManager_->setWireGuardConfig(config);
     else
         connectionManager_->setWireGuardConfig(QSharedPointer<WireGuardConfig>());
+}
+
+void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole)
+{
+    if (retCode == SERVER_RETURN_SUCCESS)
+    {
+        if (userRole == serverApiEditAccountDetailsUserRole_)
+        {
+            Q_EMIT webSessionToken(ProtoTypes::WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS, token);
+        }
+        if (userRole == serverApiAddEmailUserRole_)
+        {
+            Q_EMIT webSessionToken(ProtoTypes::WEB_SESSION_PURPOSE_ADD_EMAIL, token);
+        }
+    }
 }
 
 void Engine::onStartCheckUpdate()
