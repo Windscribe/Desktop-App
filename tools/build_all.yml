@@ -230,6 +230,9 @@ lib_files_linux:
     - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
     - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
     - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
+    - plugins/bearer/libqconnmanbearer.so -> plugins/bearer/libqconnmanbearer.so
+    - plugins/bearer/libqgenericbearer.so -> plugins/bearer/libqgenericbearer.so
+    - plugins/bearer/libqnmbearer.so -> plugins/bearer/libqnmbearer.so
 
   cares:
     - lib/libcares.so.2 -> lib/libcares.so.2
@@ -258,6 +261,7 @@ files_fix_rpath_linux:
   - windscribe-authhelper -> $ORIGIN/lib
   - WindscribeEngine -> $ORIGIN/lib
   - Windscribe -> $ORIGIN/lib
+  - helper -> $ORIGIN/lib
 
 files_codesign_linux:
   - windscribestunnel

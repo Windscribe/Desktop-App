@@ -31,7 +31,7 @@ NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
 
 void NetworkDetectionManager_linux::updateCurrentNetworkInterface()
 {
-    onNetworkUpdated();
+    onNetworkUpdated(QNetworkConfiguration());
 }
 
 bool NetworkDetectionManager_linux::isOnline()
@@ -39,7 +39,7 @@ bool NetworkDetectionManager_linux::isOnline()
     return isOnline_;
 }
 
-void NetworkDetectionManager_linux::onNetworkUpdated()
+void NetworkDetectionManager_linux::onNetworkUpdated(const QNetworkConfiguration &/*config*/)
 {
     bool newIsOnline;
     QString ifname = getDefaultRouteInterface(newIsOnline);
@@ -60,7 +60,7 @@ void NetworkDetectionManager_linux::onNetworkUpdated()
 QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
 {
     QString strReply;
-    FILE *file = popen("/sbin/route -n | grep '^0\\.0\\.0\\.0'", "r");
+    FILE *file = popen("/etc/windscribe/route -n | grep '^0\\.0\\.0\\.0'", "r");
     if (file)
     {
         char szLine[4096];
