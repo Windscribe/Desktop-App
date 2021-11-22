@@ -160,7 +160,12 @@ bool ExecutableSignature_linux::verify(const QString &executablePath)
 {
     // TODO: bring files into memory at application start up so we don't have to parse/process on the fly
 
-#if defined(QT_DEBUG) || !defined (USE_SIGNATURE_CHECK_ON_LINUX)
+#if defined(USE_SIGNATURE_CHECK)
+    const QString &keyPath = ":/keys/linux/key.pub";
+    const QString &filename = executablePath.mid(executablePath.lastIndexOf("/")+1);
+    const QString &sigfile = QCoreApplication::applicationDirPath() + "/signatures/" + filename + ".sig";
+    return verifyWithPublicKeyFromResources(executablePath, sigfile, keyPath);
+#else
     Q_UNUSED(executablePath)
     // testing only
     // This debug block should never be called, but keeping around for testing
@@ -171,11 +176,6 @@ bool ExecutableSignature_linux::verify(const QString &executablePath)
 //    const QString &keyPath = "/home/parallels/work/client-desktop/common/keys/linux/key.pub";
 //    return verifyWithPublicKeyFromFilesystem(executablePath2, sigfile, keyPath);
     return true; // if we somehow call in debug mode
-#else
-    const QString &keyPath = ":/keys/linux/key.pub";
-    const QString &filename = executablePath.mid(executablePath.lastIndexOf("/")+1);
-    const QString &sigfile = QCoreApplication::applicationDirPath() + "/signatures/" + filename + ".sig";
-    return verifyWithPublicKeyFromResources(executablePath, sigfile, keyPath);
 #endif
 
 }
