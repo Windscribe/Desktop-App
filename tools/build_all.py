@@ -44,6 +44,7 @@ import deps.installutils as iutl
 BUILD_TITLE = "Windscribe"
 BUILD_CFGNAME = "build_all.yml"
 BUILD_OS_LIST = ["win32", "macos", "linux"]
+# TODO: allow user to pass this on the command-line, like macdeployqt does.
 BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
 BUILD_APP_VERSION_STRING = ""
@@ -56,7 +57,7 @@ global NO_POST_CLEAN # bool
 global BUILD_APP # bool
 global BUILD_COM # bool
 global BUILD_INSTALLER # bool
-global NO_SIGN_LINUX  
+global SIGN_APP # bool
 
 
 def RemoveFiles(files):
@@ -268,9 +269,8 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
     if c_project.endswith(".pro"):
       # Build Qt project.
       build_cmd = [BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release silent"]
-      if "debug" in sys.argv:
-          # Allows us to check in the .pro file if build_all invoked with 'debug' flag.
-          build_cmd.extend(["CONFIG+=build_all_debug"])
+      if SIGN_APP:
+          build_cmd.extend(["CONFIG+=use_signature_check"])
       if c_iswin:
         build_cmd.extend(["-spec", "win32-msvc"])
       iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
@@ -366,10 +366,12 @@ def BuildComponents(configdata, targetlist, qt_root):
     buildenv.update({ "MAKEFLAGS" : "S" })
     buildenv.update(iutl.GetVisualStudioEnvironment())
     buildenv.update({ "CL" : "/MP" })
-    if "debug" in sys.argv:
+    if not SIGN_APP:
+      #TODO: change this to use USE_SIGNATURE_CHECK
       buildenv.update({ "ExternalCompilerOptions" : "/DSKIP_PID_CHECK" })
   else:
-    if "debug" in sys.argv:
+    if not SIGN_APP:
+      #TODO: change this to use USE_SIGNATURE_CHECK
       buildenv.update({ "ExternalCompilerOptions" : "-DDISABLE_HELPER_SECURITY_CHECK=1" })
   # Build all components needed.
   has_64bit = False
@@ -578,14 +580,13 @@ def BuildInstallerLinux(configdata, qt_root):
   CopyFile("windscribewstunnel",wstunnel_dir, BUILD_INSTALLER_FILES)
 
   # sign supplementary binaries and move the signatures into InstallerFiles/signatures
-  if not NO_SIGN_LINUX:
-    if not "debug" in sys.argv:
-      signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")
-      msg.Print("Creating signatures path: " + signatures_dir)
-      utl.CreateDirectory(signatures_dir, True)
-      if "files_codesign_linux" in configdata:
-        for binary_name in configdata["files_codesign_linux"]:
-          CodeSignLinux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
+  if SIGN_APP:
+    signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")
+    msg.Print("Creating signatures path: " + signatures_dir)
+    utl.CreateDirectory(signatures_dir, True)
+    if "files_codesign_linux" in configdata:
+      for binary_name in configdata["files_codesign_linux"]:
+        CodeSignLinux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
 
   # Copy wstunnel
   msg.Info("Copying wstunnel...")
@@ -609,11 +610,11 @@ def BuildInstallerLinux(configdata, qt_root):
 
   # create and sign .deb with dest_package 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
-  if not NO_SIGN_LINUX:
+  if SIGN_APP:
     CodeSignLinux(dest_package_name + ".deb", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
 
   # include key in target package 
-  if not NO_SIGN_LINUX:
+  if SIGN_APP:
     key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
     key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRING)
     key_dest = os.path.join(TEMP_INSTALLER_DIR, key_package_name)
@@ -623,7 +624,7 @@ def BuildInstallerLinux(configdata, qt_root):
   # msg.Info("Creating RPM package...")
   rpm_package_name = "windscribe_{}_x86_64.rpm".format(BUILD_APP_VERSION_STRING_FULL)
   iutl.RunCommand(["fpm", "-s", "deb", "-p", rpm_package_name, "-t", "rpm", dest_package_path + ".deb"])
-  if not NO_SIGN_LINUX:
+  if SIGN_APP:
     CodeSignLinux(rpm_package_name, TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
 
 def BuildAll():
@@ -726,17 +727,15 @@ if __name__ == "__main__":
   BUILD_APP = not ("--no-app" in sys.argv)
   BUILD_COM = not ("--no-com" in sys.argv)
   BUILD_INSTALLER = not ("--no-installer" in sys.argv)
+  SIGN_APP = not ("--no-sign" in sys.argv)
 
-  # on linux we need keypair to sign -- check that they exists in the correct location
-  NO_SIGN_LINUX = False
-  if current_os == "linux":
-    NO_SIGN_LINUX = "--no-sign" in sys.argv
-    if not NO_SIGN_LINUX:
-      pubkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-      privkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pem")
-      if not os.path.exists(pubkey) or not os.path.exists(privkey):
-        msg.Print("No keypair found to sign with. Consider running with '--no-sign'")
-        sys.exit(0);
+  # on linux we need keypair to sign -- check that they exist in the correct location
+  if SIGN_APP and current_os == "linux":
+    pubkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
+    privkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pem")
+    if not os.path.exists(pubkey) or not os.path.exists(privkey):
+      msg.Print("Code signing is enabled but key.pub and/or key.pem were not found in '{}'. Pass '--no-sign' to this script to disable code signing.".format(COMMON_DIR))
+      sys.exit(0);
       
   if current_os not in BUILD_OS_LIST:
     msg.Print("{} is not needed on {}, skipping.".format(BUILD_TITLE, current_os))

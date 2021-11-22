@@ -99,7 +99,7 @@ void HelperSecurity::reset()
 
 bool HelperSecurity::verifyProcessId(pid_t pid)
 {
-#if defined(USE_SIGNATURE_CHECK_ON_LINUX)
+#if defined(USE_SIGNATURE_CHECK)
     const auto it = pid_validity_cache_.find(pid);
     if (it != pid_validity_cache_.end())
         return it->second;

@@ -27,6 +27,13 @@ CONFIG(release, debug|release) {
     DEFINES += WINDSCRIBE_EMBEDDED_ENGINE
 }
 
+# build_all.py adds 'use_signature_check' to the CONFIG environment when invoked without the '--no-sign' flag.
+contains(CONFIG, use_signature_check) {
+    CONFIG(release, debug|release) {
+        DEFINES += USE_SIGNATURE_CHECK
+    }
+}
+
 win32 {
     CONFIG(release, debug|release){
         INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/release/include
@@ -165,13 +172,6 @@ RESOURCES += \
 
 linux {
 
-# build_all.py adds 'build_all_debug' to the CONFIG environment when invoked with the 'debug' flag.
-!contains(CONFIG, build_all_debug) {
-    CONFIG(release, debug|release) {
-        DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
-    }
-}
-
 #remove linux deprecated copy warnings
 QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 
@@ -196,7 +196,7 @@ HEADERS += \
     launchonstartup/launchonstartup_linux.h \
     utils/authchecker_linux.h
 
-contains(DEFINES, USE_SIGNATURE_CHECK_ON_LINUX) {
+contains(DEFINES, USE_SIGNATURE_CHECK) {
     RESOURCES += \
         $$COMMON_PATH/common_linux.qrc
 }

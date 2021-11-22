@@ -13,6 +13,13 @@ BUILD_LIBS_PATH = $$PWD/../../build-libs
 
 INCLUDEPATH += $$COMMON_PATH
 
+# build_all.py adds 'use_signature_check' to the CONFIG environment when invoked without the '--no-sign' flag.
+contains(CONFIG, use_signature_check) {
+    CONFIG(release, debug|release) {
+        DEFINES += USE_SIGNATURE_CHECK
+    }
+}
+
 
 win32 {
 
@@ -250,16 +257,8 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 
 linux {
 
-# build_all.py adds 'build_all_debug' to the CONFIG environment when invoked with the 'debug' flag.
-!contains(CONFIG, build_all_debug) {
-    CONFIG(release, debug|release) {
-        DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
-    }
-}
-
 #remove linux deprecated copy warnings
 QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
-
 
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
@@ -303,7 +302,7 @@ HEADERS += \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
            engine/macaddresscontroller/macaddresscontroller_linux.h
 
-contains(DEFINES, USE_SIGNATURE_CHECK_ON_LINUX) {
+contains(DEFINES, USE_SIGNATURE_CHECK) {
     RESOURCES += \
         $$COMMON_PATH/common_linux.qrc
 }
