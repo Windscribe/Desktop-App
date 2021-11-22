@@ -229,19 +229,20 @@ def ApplyMacDeployFixes(appname, fixlist):
   # 4. Code signing.
   if "codesign" in fixlist:
     # Signing the whole app.
-    if "sign_app" in fixlist["codesign"] and fixlist["codesign"]["sign_app"] == "yes":
+    if "sign_app" in fixlist["codesign"] and fixlist["codesign"]["sign_app"]:
       msg.Info("Signing the app bundle...")
       iutl.RunCommand(["codesign", "--deep", appname, "--options", "runtime", "--timestamp",
                        "-s", BUILD_DEVELOPER_MAC])
       # This validation is optional.
       iutl.RunCommand(["codesign", "-v", appname])
-    if "entitlements_binary" in fixlist["codesign"]:
-      msg.Info("Signing a binary with entitlements...")
-      entitlements_binary = os.path.join(appname, fixlist["codesign"]["entitlements_binary"])
-      entitlements_file = os.path.join(ROOT_DIR, fixlist["codesign"]["entitlements_file"])
-      iutl.RunCommand(["codesign", "--entitlements", entitlements_file, "-f",
-                       "-s", BUILD_DEVELOPER_MAC, "--options", "runtime", "--timestamp",
-                       entitlements_binary])
+      # Only sign with entitlements if code signing is enabled.
+      if "entitlements_binary" in fixlist["codesign"]:
+        msg.Info("Signing a binary with entitlements...")
+        entitlements_binary = os.path.join(appname, fixlist["codesign"]["entitlements_binary"])
+        entitlements_file = os.path.join(ROOT_DIR, fixlist["codesign"]["entitlements_file"])
+        iutl.RunCommand(["codesign", "--entitlements", entitlements_file, "-f",
+                        "-s", BUILD_DEVELOPER_MAC, "--options", "runtime", "--timestamp",
+                        entitlements_binary])
 
 
 def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=None, target_name_override=None):
@@ -267,6 +268,9 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
     if c_project.endswith(".pro"):
       # Build Qt project.
       build_cmd = [BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release silent"]
+      if "debug" in sys.argv:
+          # Allows us to check in the .pro file if build_all invoked with 'debug' flag.
+          build_cmd.extend(["CONFIG+=build_all_debug"])
       if c_iswin:
         build_cmd.extend(["-spec", "win32-msvc"])
       iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
@@ -484,6 +488,10 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
   PackSymbols()
   # Sign executable files with a certificate.
   SignExecutablesWin32(configdata)
+  # Sign AuthHelper DLLs
+  if BUILD_COM:
+    SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com"]["target"]))
+    SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com_proxy_stub"]["target"]))
   # Place everything in a 7z archive.
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["win32"]]

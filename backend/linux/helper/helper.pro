@@ -6,9 +6,13 @@ CONFIG -= app_bundle
 BUILD_LIBS_PATH = $$PWD/../../../build-libs
 
 #boost include and libs
-INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include \
+               $$BUILD_LIBS_PATH/openssl/include
+
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_thread.a
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_filesystem.a
+LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -16,8 +20,17 @@ LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_thread.a
 
 DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
 
+# build_all.py adds 'build_all_debug' to the CONFIG environment when invoked with the 'debug' flag.
+!contains(CONFIG, build_all_debug) {
+    CONFIG(release, debug|release) {
+        DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
+    }
+}
+
 SOURCES += \
+        ../../../common/utils/executable_signature/executablesignature_linux.cpp \
         execute_cmd.cpp \
+        ipc/helper_security.cpp \
         logger.cpp \
         main.cpp \
         server.cpp \
@@ -26,16 +39,13 @@ SOURCES += \
         wireguard/wireguardcommunicator.cpp \
         wireguard/wireguardcontroller.cpp
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
-
 HEADERS += \
+    ../../../common/utils/executable_signature/executablesignature_linux.h \
     ../../posix_common/helper_commands.h \
     ../../posix_common/helper_commands_serialize.h \
     3rdparty/pstream.h \
     execute_cmd.h \
+    ipc/helper_security.h \
     logger.h \
     server.h \
     utils.h \

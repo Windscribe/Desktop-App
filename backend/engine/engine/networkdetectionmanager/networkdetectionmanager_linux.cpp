@@ -20,9 +20,9 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
     getDefaultRouteInterface(isOnline_);
 
     ncm_ = new QNetworkConfigurationManager(this);
-    connect(ncm_, SIGNAL(configurationAdded(QNetworkConfiguration)), SLOT(onNetworkUpdated()));
-    connect(ncm_, SIGNAL(configurationChanged(QNetworkConfiguration)), SLOT(onNetworkUpdated()));
-    connect(ncm_, SIGNAL(configurationRemoved(QNetworkConfiguration)), SLOT(onNetworkUpdated()));
+    connect(ncm_, &QNetworkConfigurationManager::configurationAdded, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    connect(ncm_, &QNetworkConfigurationManager::configurationChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    connect(ncm_, &QNetworkConfigurationManager::configurationRemoved, this, &NetworkDetectionManager_linux::onNetworkUpdated);
 }
 
 NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
@@ -31,7 +31,7 @@ NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
 
 void NetworkDetectionManager_linux::updateCurrentNetworkInterface()
 {
-    onNetworkUpdated();
+    onNetworkUpdated(QNetworkConfiguration());
 }
 
 bool NetworkDetectionManager_linux::isOnline()
@@ -39,7 +39,7 @@ bool NetworkDetectionManager_linux::isOnline()
     return isOnline_;
 }
 
-void NetworkDetectionManager_linux::onNetworkUpdated()
+void NetworkDetectionManager_linux::onNetworkUpdated(const QNetworkConfiguration &/*config*/)
 {
     bool newIsOnline;
     QString ifname = getDefaultRouteInterface(newIsOnline);
@@ -60,7 +60,7 @@ void NetworkDetectionManager_linux::onNetworkUpdated()
 QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
 {
     QString strReply;
-    FILE *file = popen("/sbin/route -n | grep '^0\\.0\\.0\\.0'", "r");
+    FILE *file = popen("/etc/windscribe/route -n | grep '^0\\.0\\.0\\.0'", "r");
     if (file)
     {
         char szLine[4096];

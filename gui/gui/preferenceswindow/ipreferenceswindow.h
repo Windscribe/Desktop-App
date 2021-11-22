@@ -47,6 +47,8 @@ signals:
     virtual void sendConfirmEmailClick() = 0;
     virtual void sendDebugLogClick() = 0;
     virtual void noAccountLoginClick() = 0;
+    virtual void editAccountDetailsClick() = 0;
+    virtual void addEmailButtonClick() = 0;
 
     virtual void currentNetworkUpdated(ProtoTypes::NetworkInterface) = 0;
 

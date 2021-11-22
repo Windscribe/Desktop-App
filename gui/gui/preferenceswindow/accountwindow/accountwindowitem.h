@@ -30,7 +30,7 @@ private slots:
     void onIsNeedConfirmEmailChanged(bool bNeedConfirm);
     void onPlanChanged(qint64 plan);
     void onExpireDateChanged(const QString &date);
-    void onAuthHashChanged(const QString &authHash);
+    void onAuthHashChanged(const QString &authHash);    
 
     void onUpgradeClicked();
 
@@ -39,6 +39,8 @@ private slots:
 signals:
     void sendConfirmEmailClick();
     void noAccountLoginClick();
+    void editAccountDetailsClick();
+    void addEmailButtonClick();
 
 private:
     UsernameItem *usernameItem_;

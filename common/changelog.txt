@@ -1,3 +1,32 @@
+2.03.12 (22/11/2021)
+* Autoupdate download issue fixed. #531
+* Change proxy gateway "Connect To" text to "IP". #564
+* Log installer debug output to file. #560
+* Code signing on linux. #538
+* Log failure to create the IPC named pipe on Windows. #547
+* Prevent duplicate launches of the app in Linux. #559
+* Updated wstunnel binary to v4. #491
+* Launch on startup / auto-connect flags fixed. #558
+* Network whitelist feature added for Linux. #558
+* "Always On" firewall on reboot fixed. #558
+* Segfault on Linux (ZorinOS) fixed. #568
+* MAC Spoofing not functional on Big Sur fixed. #537
+* Require elevated privilege to accept insecure custom config dir. #465
+* Auto update authentication failure. #566
+* Removed log with user's ip. #575
+* Made dark mode default sensible based on older versions of windows not having window themes. #395
+* App kills itself after running for a while - fixes. #571
+* IKEv2 RasDial AuthNotify error 13801 on Windows 7. #576
+* GUI crash. #574
+* Fixed superuser validation on Mac and Linux. #542
+* Edit account details hide auth hash. #584
+* Windows 7 installation error fixed. #588
+* AuthHelper support DLLs signed. #598
+* Wireguard fix for Windows 7. #565
+* Removed all "Failed..." logs from Linux debian install script and typo fix..
+* Make udp default connection on Linux. #583
+
+
 2.03.11 (15/10/2021)
 * Updated system tray icons on Windows and Linux. #395
 * Fixed GUI lock. #522

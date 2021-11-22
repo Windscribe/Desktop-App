@@ -13,6 +13,7 @@ const int typeIdProxySharingType = qRegisterMetaType<PROXY_SHARING_TYPE>("PROXY_
 const int typeIdUpdateVersionState = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UpdateVersionState");
 const int typeIdUpdateVersionError = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UpdateVersionError");
 const int typeIdUpdateChannel = qRegisterMetaType<ProtoTypes::UpdateChannel>("ProtoTypes::UpdateChannel");
+const int typeIdWebSessionPurpose = qRegisterMetaType<ProtoTypes::WebSessionPurpose>("ProtoTypes::WebSessionPurpose");
 
 QString loginRetToString(LOGIN_RET ret)
 {

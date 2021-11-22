@@ -16,7 +16,7 @@ public:
     bool isOnline() override;
 
 private slots:
-    void onNetworkUpdated();
+    void onNetworkUpdated(const QNetworkConfiguration &config);
 
 private:
     bool isOnline_;

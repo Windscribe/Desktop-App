@@ -17,13 +17,19 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     , fontDescr_(11,true, 100)
     , hoverable_(false)
     , connectivity_(false)
-    , protocol_(ProtoTypes::PROTOCOL_IKEV2)
     , port_(500)
     , textColor_(QColor(255, 255, 255))
     , textOpacity_(0.5)
     , receivedTunnelTestResult_  (false)
     , badgePixmap_(QSize(36*G_SCALE, 20*G_SCALE), 10*G_SCALE)
 {
+
+#if defined(Q_OS_LINUX)
+    protocol_ = ProtoTypes::Protocol::PROTOCOL_UDP;
+#else
+    protocol_ = ProtoTypes::Protocol::PROTOCOL_IKEV2;
+#endif
+
     badgeFgImage_.reset(new ImageWithShadow("connection-badge/OFF", "connection-badge/OFF_SHADOW"));
     setAcceptHoverEvents(true);
     protocolTestTunnelTimer_.setInterval(PROTOCOL_OPACITY_ANIMATION_DURATION);
