@@ -5,8 +5,6 @@
 #include "utils/macutils.h"
 
 const int MINIMUM_TIME_AUTO_SPOOF = 5000;
-const int typeIdMacAddrSpoofing = qRegisterMetaType<ProtoTypes::MacAddrSpoofing>("ProtoTypes::MacAddrSpoofing");
-const int typeIdUserWarningType = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UserWarningType");
 
 
 MacAddressController_mac::MacAddressController_mac(QObject *parent, NetworkDetectionManager_mac *ndManager, IHelper *helper) : IMacAddressController (parent)

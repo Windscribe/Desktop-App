@@ -377,6 +377,7 @@ SOURCES += main.cpp \
     engine/connectionmanager/connectionmanager.cpp \
     engine/connectionmanager/availableport.cpp \
     engine/connectionmanager/wireguardconnection.cpp \
+    engine/macaddresscontroller/imacaddresscontroller.cpp \
     $$COMMON_PATH/types/locationid.cpp \
     engine/logincontroller/getapiaccessips.cpp \
     engine/helper/initializehelper.cpp \
