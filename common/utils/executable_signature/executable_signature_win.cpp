@@ -1,3 +1,4 @@
+#include "executable_signature_defs.h"
 #include "executable_signature_win.h"
 #include <tlhelp32.h>
 #include <psapi.h>
@@ -9,8 +10,6 @@
 
 #pragma comment (lib, "wintrust")
 #pragma comment(lib, "crypt32.lib")
-
-const wchar_t g_szCertSubjectName[] = L"Windscribe Limited";
 
 bool ExecutableSignature_win::verify(const wchar_t *szExePath)
 {
@@ -133,7 +132,7 @@ bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertCon
 		return false;
 	}
 
-	fReturn = (wcscmp(szName, g_szCertSubjectName) == 0);
+    fReturn = (wcscmp(szName, WINDOWS_CERT_SUBJECT_NAME) == 0);
 
 	LocalFree(szName);
 

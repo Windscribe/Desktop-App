@@ -179,7 +179,8 @@ bool iequals(const std::wstring &a, const std::wstring &b)
 
 bool verifyWindscribeProcessPath(HANDLE hPipe)
 {
-   // NOTE: a test project is archived with issue 546 for testing this method.
+#if defined(USE_SIGNATURE_CHECK)
+    // NOTE: a test project is archived with issue 546 for testing this method.
     
    static DWORD pidVerified = 0;
    
@@ -235,6 +236,10 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
 
    pidVerified = pidClient;
    return true;
+#else
+    (void)hPipe;
+   return true;
+#endif
 }
 
 void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName)

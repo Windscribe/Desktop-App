@@ -44,7 +44,7 @@ import deps.installutils as iutl
 BUILD_TITLE = "Windscribe"
 BUILD_CFGNAME = "build_all.yml"
 BUILD_OS_LIST = ["win32", "macos", "linux"]
-# TODO: allow user to pass this on the command-line, like macdeployqt does.
+# TODO: allow user to pass this on the command-line, like macdeployqt does?
 BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
 BUILD_APP_VERSION_STRING = ""
@@ -366,9 +366,9 @@ def BuildComponents(configdata, targetlist, qt_root):
     buildenv.update({ "MAKEFLAGS" : "S" })
     buildenv.update(iutl.GetVisualStudioEnvironment())
     buildenv.update({ "CL" : "/MP" })
-    if not SIGN_APP:
-      #TODO: change this to use USE_SIGNATURE_CHECK
-      buildenv.update({ "ExternalCompilerOptions" : "/DSKIP_PID_CHECK" })
+    if SIGN_APP:
+      # Used by the windscribe_service Visual Studio project to enabled signature checking.
+      buildenv.update({ "ExternalCompilerOptions" : "/DUSE_SIGNATURE_CHECK" })
   else:
     if not SIGN_APP:
       #TODO: change this to use USE_SIGNATURE_CHECK
@@ -488,12 +488,13 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
     CopyFiles("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
   # Pack symbols for crashdump analysis.
   PackSymbols()
-  # Sign executable files with a certificate.
-  SignExecutablesWin32(configdata)
-  # Sign AuthHelper DLLs
-  if BUILD_COM:
-    SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com"]["target"]))
-    SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com_proxy_stub"]["target"]))
+  if SIGN_APP:
+    # Sign executable files with a certificate.
+    SignExecutablesWin32(configdata)
+    # Sign AuthHelper DLLs
+    if BUILD_COM:
+      SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com"]["target"]))
+      SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com_proxy_stub"]["target"]))
   # Place everything in a 7z archive.
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["win32"]]
@@ -514,7 +515,8 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
     "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRING_FULL)))
   utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                   installer_info["target"])), final_installer_name)
-  SignExecutablesWin32(configdata, final_installer_name)
+  if SIGN_APP:
+    SignExecutablesWin32(configdata, final_installer_name)
 
 
 def BuildInstallerMac(configdata, qt_root):

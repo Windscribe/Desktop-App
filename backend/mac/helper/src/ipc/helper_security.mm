@@ -90,7 +90,7 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
                 (__bridge SecCertificateRef)([certificateChain objectAtIndex:i]);
             if (errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName) && commonName) {
                 if (CFEqual((CFTypeRef)commonName,
-                            (CFTypeRef)@"Developer ID Application: Windscribe Limited (GYZJYS7XUG)")) {
+                            (CFTypeRef)@MACOS_CERT_DEVELOPER_ID)) {
                     result = true;
                     break;
                 }

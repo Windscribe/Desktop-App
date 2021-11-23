@@ -1148,11 +1148,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 		}
 		else if (dwWait == (WAIT_OBJECT_0 + 1))
 		{
-#ifndef _DEBUG
-#ifndef SKIP_PID_CHECK
          if (Utils::verifyWindscribeProcessPath(hPipe))
-#endif
-#endif
          {
             int cmdId;
             unsigned long sizeOfBuf;

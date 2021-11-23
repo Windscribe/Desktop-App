@@ -67,7 +67,7 @@ bool ExecutableSignature_mac::verify(const QString &executablePath)
         SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
         if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
         {
-            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@"Developer ID Application: Windscribe Limited (GYZJYS7XUG)"))
+            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID))
             {
                 return true;
             }
@@ -118,7 +118,7 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
         SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
         if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
         {
-            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@"Developer ID Application: Windscribe Limited (GYZJYS7XUG)"))
+            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID))
             {
                 return true;
             }
