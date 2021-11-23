@@ -15,6 +15,11 @@ ConnectionModeItem::ConnectionModeItem(ScalableGraphicsObject *parent, Preferenc
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
+#if defined(Q_OS_LINUX)
+    curConnectionMode_.set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
+    curConnectionMode_.set_port(443);
+#endif
+
     connect(dynamic_cast<QObject*>(preferencesHelper), SIGNAL(portMapChanged()), SLOT(onPortMapChanged()));
 
     // default connection mode

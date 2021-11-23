@@ -49,6 +49,15 @@ void EngineSettings::loadFromSettings()
         {
             qCDebug(LOG_BASIC) << "Deserialization of EngineSettings has failed";
         }
+
+#if defined(Q_OS_LINUX)
+        // IKEv2 is dissabled on linux but is default protocol in ProtoTypes::ConnectionSettings.
+        // UDP should be default on Linux.
+        if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
+            engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
+            engineSettings_.mutable_connection_settings()->set_port(443);
+        }
+#endif
     }
     // try load settings from version 1
     else
