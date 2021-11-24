@@ -23,6 +23,17 @@ using namespace Utils;
 
 const int NO_INTERFACE_INDEX = -1;
 
+QString Utils::getPlatformName()
+{
+#ifdef Q_OS_WIN
+    return "windows";
+#elif defined Q_OS_MAC
+    return "osx";
+#elif defined Q_OS_LINUX
+    return LinuxUtils::getLastInstallPlatform();
+#endif
+}
+
 QString Utils::getOSVersion()
 {
 #ifdef Q_OS_WIN

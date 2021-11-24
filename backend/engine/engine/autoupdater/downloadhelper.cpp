@@ -12,9 +12,10 @@
 #include "utils/linuxutils.h"
 #endif
 
-DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager) : QObject(parent)
+DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &platform) : QObject(parent)
   , networkAccessManager_(networkAccessManager)
   , busy_(false)
+  , platform_(platform)
   , downloadDirectory_(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
   , progressPercent_(0)
   , state_(DOWNLOAD_STATE_INIT)
@@ -37,7 +38,7 @@ const QString DownloadHelper::downloadInstallerPath()
     const QString path = downloadInstallerPathWithoutExtension() + ".dmg";
 #elif defined Q_OS_LINUX
     QString path;
-    if(LinuxUtils::isDeb()) {
+    if(platform_ == LinuxUtils::DEB_PLATFORM_NAME) { // if getPlatformName() fails, we should never get this far anyway
         path = downloadInstallerPathWithoutExtension() + ".deb";
     }
     else {

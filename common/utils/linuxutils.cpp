@@ -16,13 +16,15 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 
+#include "logger.h"
 #include <QRegExp>
+#include <QCoreApplication>
+#include <QFile>
 
 namespace  {
 
 const int BUFSIZE = 8192;
-const QString DEB_PLATFORM_NAME = QString("linux_deb_x64");
-const QString RPM_PLATFORM_NAME = QString("linux_rpm_x64");
+
 
 struct route_info {
     struct in_addr dstAddr;
@@ -186,11 +188,20 @@ QString LinuxUtils::getLinuxKernelVersion()
     return QString("Can't detect Linux Kernel version");
 }
 
-QString LinuxUtils::getPlatformName()
+QString LinuxUtils::getPlatformNameBestGuess()
 {
-    int exitCode = system("dpkg --version");
+    // This check assumes that it is not possible to:
+    // * install a debian package on an rpm system with dpkg
+    // * install an rpm package on a debian system with rpm
+    // And assumes that:
+    // * the system has the default package manager installed
+    // So we simply ask the default package manager for the package that contains the currently running Windscribe
+    const QString runningApplicationPath = QCoreApplication::applicationDirPath() + "/Windscribe";
+    const QString debInstallCheck = QString("dpkg -S %1").arg(runningApplicationPath);
+    int exitCode = system(debInstallCheck.toStdString().c_str());
     if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
-        exitCode = system("rpm --version");
+        const QString rpmInstallCheck = QString("rpm -q --whatprovides %1").arg(runningApplicationPath);
+        exitCode = system(rpmInstallCheck.toStdString().c_str());
         if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
             return QString("Could not define Linux platform");
         }
@@ -203,13 +214,28 @@ QString LinuxUtils::getPlatformName()
     }
 }
 
-bool LinuxUtils::isDeb()
+const QString LinuxUtils::getLastInstallPlatform()
 {
-    int exitCode = system("dpkg --version");
-    if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
-        return false;
+    static QString linuxPlatformName;
+    static bool tried = false;
+
+    if (tried) return linuxPlatformName;
+    tried = true;
+
+    if (!QFile::exists(LAST_INSTALL_PLATFORM_FILE))
+    {
+        qCDebug(LOG_BASIC) << "Couldn't find previous install platform file: " << LAST_INSTALL_PLATFORM_FILE;
+        return "";
     }
-    else {
-        return true;
+
+    QFile lastInstallPlatform(LAST_INSTALL_PLATFORM_FILE);
+
+    if (!lastInstallPlatform.open(QIODevice::ReadOnly))
+    {
+        qCDebug(LOG_BASIC) << "Couldn't open previous install platform file: " << LAST_INSTALL_PLATFORM_FILE;
+        return "";
     }
+
+    linuxPlatformName = lastInstallPlatform.readAll();
+    return linuxPlatformName;
 }
