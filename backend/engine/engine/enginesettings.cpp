@@ -1,6 +1,7 @@
 #include "enginesettings.h"
 #include "ipc/protobufcommand.h"
 #include "utils/logger.h"
+#include "utils/winutils.h"
 
 const int typeIdEngineSettings = qRegisterMetaType<EngineSettings>("EngineSettings");
 
@@ -56,6 +57,15 @@ void EngineSettings::loadFromSettings()
         if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
             engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
             engineSettings_.mutable_connection_settings()->set_port(443);
+        }
+#elif defined(Q_OS_WINDOWS)
+        // Wireguard connection mode was disabled on Windows 7 32-bit since 2.3.12 13th build.
+        // If it was saved in settings since the last build it is necessary to reset it.
+        if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_WIREGUARD) {
+            if(WinUtils::isWindows7() && !WinUtils::isWindows64Bit()) {
+                engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_IKEV2);
+                engineSettings_.mutable_connection_settings()->set_port(500);
+            }
         }
 #endif
     }
