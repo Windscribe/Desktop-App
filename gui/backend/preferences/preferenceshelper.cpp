@@ -85,6 +85,10 @@ QVector<ProtoTypes::Protocol> PreferencesHelper::getAvailableProtocols()
         if ((protocol == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL) && !WinUtils::isWindows64Bit()) {
             continue;
         }
+        else if((protocol == ProtoTypes::Protocol::PROTOCOL_WIREGUARD)
+                && !WinUtils::isWindows64Bit() && WinUtils::isWindows7()) {
+            continue;
+        }
 #endif
         p << portMap_.port_map_item(i).protocol();
     }
