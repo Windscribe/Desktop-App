@@ -17,7 +17,7 @@ public:
     const ProtoTypes::NetworkInterface lastNetworkInterface();
 
 signals:
-    void networkChanged(ProtoTypes::NetworkInterface networkInterface); // remove once inherited from INetworkDetectionManager
+    void networkChanged(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface); // remove once inherited from INetworkDetectionManager
     void networkListChanged(const ProtoTypes::NetworkInterfaces &networkInterfaces);
     void primaryAdapterUp(const ProtoTypes::NetworkInterface &currentAdapter);
     void primaryAdapterDown(const ProtoTypes::NetworkInterface &lastAdapter);
