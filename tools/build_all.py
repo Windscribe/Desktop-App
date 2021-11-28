@@ -44,8 +44,6 @@ import deps.installutils as iutl
 BUILD_TITLE = "Windscribe"
 BUILD_CFGNAME = "build_all.yml"
 BUILD_OS_LIST = ["win32", "macos", "linux"]
-# TODO: allow user to pass this on the command-line, like macdeployqt does?
-BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
 BUILD_APP_VERSION_STRING = ""
 BUILD_APP_VERSION_STRING_FULL = ""
@@ -53,6 +51,8 @@ BUILD_QMAKE_EXE = ""
 BUILD_MACDEPLOY = ""
 BUILD_INSTALLER_FILES = ""
 BUILD_SYMBOL_FILES = ""
+MAC_DEVELOPER_ID_KEY_NAME = ""
+MAC_DEVELOPER_TEAM_ID = ""
 global NO_POST_CLEAN # bool
 global BUILD_APP # bool
 global BUILD_COM # bool
@@ -121,6 +121,27 @@ def ExtractAppVersion():
   version_strings = (version_only, version_with_beta)
   return version_strings
 
+def ExtractMacSigningParams():
+  version_file = os.path.join(COMMON_DIR, "utils", "executable_signature", "executable_signature_defs.h")
+  pattern = re.compile("^#define\\s+MACOS_CERT_DEVELOPER_ID\\s+")
+  key_name = ""
+  with open(version_file, "r") as f:
+    for line in f:
+      matched = pattern.search(line)
+      if matched:
+        key_name = line[len(matched.group(0)):].strip("\"\n")
+        break
+  if len(key_name) == 0:
+    raise IOError("The MACOS_CERT_DEVELOPER_ID define was not found in '{}'. This entry is required for code signing and runtime signature verification.".format(version_file))
+  team_id = ""
+  pattern = re.compile("\(([^]]+)\)")
+  matched = pattern.search(key_name)
+  if matched:
+    team_id = matched.group(0).strip("()")
+  if len(team_id) == 0:
+    raise IOError("The Team ID could not be extracted from '{}'. This entry is required for code signing and runtime signature verification.".format(key_name))
+  developer_strings = (key_name, team_id)
+  return developer_strings
 
 def UpdateVersionInPlist(plistfilename):
   with open(plistfilename, "r") as file:
@@ -228,22 +249,18 @@ def ApplyMacDeployFixes(appname, fixlist):
             change_lib_to = "@executable_path/{}".format(dstv)
             iutl.RunCommand(["install_name_tool", "-change", change_lib_from, change_lib_to, fs[1]])
   # 4. Code signing.
-  if "codesign" in fixlist:
-    # Signing the whole app.
-    if "sign_app" in fixlist["codesign"] and fixlist["codesign"]["sign_app"]:
-      msg.Info("Signing the app bundle...")
-      iutl.RunCommand(["codesign", "--deep", appname, "--options", "runtime", "--timestamp",
-                       "-s", BUILD_DEVELOPER_MAC])
-      # This validation is optional.
-      iutl.RunCommand(["codesign", "-v", appname])
-      # Only sign with entitlements if code signing is enabled.
-      if "entitlements_binary" in fixlist["codesign"]:
-        msg.Info("Signing a binary with entitlements...")
-        entitlements_binary = os.path.join(appname, fixlist["codesign"]["entitlements_binary"])
-        entitlements_file = os.path.join(ROOT_DIR, fixlist["codesign"]["entitlements_file"])
-        iutl.RunCommand(["codesign", "--entitlements", entitlements_file, "-f",
-                        "-s", BUILD_DEVELOPER_MAC, "--options", "runtime", "--timestamp",
-                        entitlements_binary])
+  # The Mac app must be signed in order to install and operate properly.
+  msg.Info("Signing the app bundle...")
+  iutl.RunCommand(["codesign", "--deep", appname, "--options", "runtime", "--timestamp", "-s", MAC_DEVELOPER_ID_KEY_NAME])
+  # This validation is optional.
+  iutl.RunCommand(["codesign", "-v", appname])
+  if "entitlements" in fixlist and "entitlements_binary" in fixlist["entitlements"] and "entitlements_file" in fixlist["entitlements"]:
+    msg.Info("Signing a binary with entitlements...")
+    entitlements_binary = os.path.join(appname, fixlist["entitlements"]["entitlements_binary"])
+    entitlements_file = os.path.join(ROOT_DIR, fixlist["entitlements"]["entitlements_file"])
+    iutl.RunCommand(["codesign", "--entitlements", entitlements_file, "-f",
+                    "-s", MAC_DEVELOPER_ID_KEY_NAME, "--options", "runtime", "--timestamp",
+                    entitlements_binary])
 
 
 def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=None, target_name_override=None):
@@ -296,11 +313,22 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
       target_location = "release-{}".format(c_bits)
     elif c_project.endswith(".xcodeproj"):
       # Build Xcode project.
-      build_cmd = ["xcodebuild", "-scheme", component["scheme"], "-configuration", "Release", "-quiet"]
+      build_cmd = ["xcodebuild", "-scheme", component["scheme"], "-configuration", "Release", "-quiet", "DEVELOPMENT_TEAM={}".format(MAC_DEVELOPER_TEAM_ID)]
       if "xcflags" in component:
         build_cmd.extend(component["xcflags"])
-      if buildenv and "ExternalCompilerOptions" in buildenv:
-        build_cmd.append("OTHER_CFLAGS={}".format(buildenv["ExternalCompilerOptions"]))
+      other_cflags = ""
+      if SIGN_APP:
+        other_cflags += "-DUSE_SIGNATURE_CHECK"
+      if component["name"] == "Helper":
+        # TODO: clean up all the warnings generated in the helper project.  They impede our ability to spot legitimate warnings.
+        other_cflags += " -Wno-incompatible-pointer-types-discards-qualifiers -Wno-strict-prototypes -Wno-enum-conversion -Wno-shorten-64-to-32 -Wno-incompatible-pointer-types"
+        msg.Warn("Compiler warnings suppressed for this project.")
+      elif component["name"] == "Installer":
+        # TODO: clean this warning at some point.
+        other_cflags += " -Wno-deprecated-declarations"
+        msg.Warn("Compiler warnings suppressed for this project.")
+      if other_cflags:
+        build_cmd.append("OTHER_CFLAGS=$(inherited) " + other_cflags)
       build_cmd.extend(["clean", "build"])
       os.chdir(os.path.join(ROOT_DIR, c_subdir))
       # use temp file to update version info so change isn't observed by version control
@@ -369,10 +397,6 @@ def BuildComponents(configdata, targetlist, qt_root):
     if SIGN_APP:
       # Used by the windscribe_service Visual Studio project to enabled signature checking.
       buildenv.update({ "ExternalCompilerOptions" : "/DUSE_SIGNATURE_CHECK" })
-  else:
-    if not SIGN_APP:
-      #TODO: change this to use USE_SIGNATURE_CHECK
-      buildenv.update({ "ExternalCompilerOptions" : "-DDISABLE_HELPER_SECURITY_CHECK=1" })
   # Build all components needed.
   has_64bit = False
   for target in targetlist:
@@ -731,18 +755,22 @@ if __name__ == "__main__":
   BUILD_INSTALLER = not ("--no-installer" in sys.argv)
   SIGN_APP = not ("--no-sign" in sys.argv)
 
+  if current_os not in BUILD_OS_LIST:
+    msg.Error("Building {} is not supported on {}.".format(BUILD_TITLE, current_os))
+    sys.exit(0)
+
   # on linux we need keypair to sign -- check that they exist in the correct location
   if SIGN_APP and current_os == "linux":
-    pubkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-    privkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pem")
+    keypath = os.path.join(COMMON_DIR, "keys", "linux")
+    pubkey = os.path.join(keypath, "key.pub")
+    privkey = os.path.join(keypath, "key.pem")
     if not os.path.exists(pubkey) or not os.path.exists(privkey):
-      msg.Print("Code signing is enabled but key.pub and/or key.pem were not found in '{}'. Pass '--no-sign' to this script to disable code signing.".format(COMMON_DIR))
+      msg.Print("Code signing is enabled but key.pub and/or key.pem were not found in '{}'. Pass '--no-sign' to this script to disable code signing.".format(keypath))
       sys.exit(0);
-      
-  if current_os not in BUILD_OS_LIST:
-    msg.Print("{} is not needed on {}, skipping.".format(BUILD_TITLE, current_os))
-    sys.exit(0)
+
   try:
+    if current_os == "macos":
+      MAC_DEVELOPER_ID_KEY_NAME, MAC_DEVELOPER_TEAM_ID = ExtractMacSigningParams()
     if OPTION_CLEAN in sys.argv:
       msg.Print("Cleaning...")
       CleanAll()

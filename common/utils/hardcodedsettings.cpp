@@ -50,9 +50,6 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
     serverSharedKey_ = settings.value("basic/serverSharedKey").toString();
     serverTunnelTestUrl_ = settings.value("basic/serverTunnelTestUrl").toString();
 
-    windowsCertName_ = settings.value("certificateName/windows").toString();
-    macCertName_ = settings.value("certificateName/mac").toString();
-
     apiIps_ = readArrayFromIni(settings, "apiIps", "ip", true);
 
     emergencyUsername_ = simpleCrypt_.decryptToString(settings.value("emergency/username").toString());
