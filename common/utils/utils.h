@@ -14,6 +14,7 @@
 
 namespace Utils {
     QString getPlatformName();
+    QString getPlatformNameSafe();
     QString getOSVersion();
     QString humanReadableByteCount(double bytes, bool isUseSpace, bool isDecimal = false);
     void parseVersionString(const QString &version, int &major, int &minor, bool &bSuccess);

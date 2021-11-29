@@ -505,3 +505,10 @@ QString Utils::getDirPathFromFullPath(const QString &fullPath)
     // exludes the "/" tail
     return fullPath.mid(0, index);
 }
+
+QString Utils::getPlatformNameSafe()
+{
+    QString platform = getPlatformName();
+    if (platform == "") return LinuxUtils::DEB_PLATFORM_NAME; // default to debian so most of our API calls don't fail if we cannot find the /etc/windscribe/platform file (someone would have to manually delete)
+    return platform;
+}

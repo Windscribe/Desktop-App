@@ -219,6 +219,7 @@ const QString LinuxUtils::getLastInstallPlatform()
     static QString linuxPlatformName;
     static bool tried = false;
 
+    // only read in file once, cache the result
     if (tried) return linuxPlatformName;
     tried = true;
 
@@ -236,6 +237,6 @@ const QString LinuxUtils::getLastInstallPlatform()
         return "";
     }
 
-    linuxPlatformName = lastInstallPlatform.readAll();
+    linuxPlatformName = lastInstallPlatform.readAll().trimmed(); // remove newline
     return linuxPlatformName;
 }

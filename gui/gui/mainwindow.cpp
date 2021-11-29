@@ -2254,8 +2254,12 @@ void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
     }
     else if (userWarningType == ProtoTypes::USER_WARNING_CHECK_UPDATE_INVALID_PLATFORM)
     {
-        titleText = tr("Check for update failed");
-        descText = tr("Windscribe could not check for update due to an invalid platfrom config. You may want to try manually updating your installation.");
+        if (!alreadyShownWarnings_.contains(userWarningType)) // only show this once per run
+        {
+            alreadyShownWarnings_.insert(userWarningType);
+            titleText = tr("Check for update failed");
+            descText = tr("Windscribe could not check for update due to an invalid platfrom config. You may want to try manually updating your installation.");
+        }
     }
 
     if (titleText != "" || descText != "")

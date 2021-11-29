@@ -338,6 +338,7 @@ private:
     bool internetConnected_;
 
     bool currentlyShowingUserWarningMessage_;
+    QSet<ProtoTypes::UserWarningType> alreadyShownWarnings_;
 
     bool bGotoUpdateWindowAfterGeneralMessage_;
 
