@@ -143,6 +143,14 @@ def ExtractMacSigningParams():
   developer_strings = (key_name, team_id)
   return developer_strings
 
+def GenerateIncludeFileFromPubKey(keypath, pubkey):
+  with open(pubkey, "r") as infile:
+    with open(os.path.join(keypath, "key_pub.txt"), "w") as outfile:
+      outfile.write("R\"(")
+      for line in infile:
+        outfile.write(line)
+      outfile.write(")\"")
+
 def UpdateVersionInPlist(plistfilename):
   with open(plistfilename, "r") as file:
     filedata = file.read()
@@ -755,29 +763,27 @@ if __name__ == "__main__":
   BUILD_INSTALLER = not ("--no-installer" in sys.argv)
   SIGN_APP = not ("--no-sign" in sys.argv)
 
-  if current_os not in BUILD_OS_LIST:
-    msg.Error("Building {} is not supported on {}.".format(BUILD_TITLE, current_os))
-    sys.exit(0)
-
-  # on linux we need keypair to sign -- check that they exist in the correct location
-  if SIGN_APP and current_os == "linux":
-    keypath = os.path.join(COMMON_DIR, "keys", "linux")
-    pubkey = os.path.join(keypath, "key.pub")
-    privkey = os.path.join(keypath, "key.pem")
-    if not os.path.exists(pubkey) or not os.path.exists(privkey):
-      msg.Print("Code signing is enabled but key.pub and/or key.pem were not found in '{}'. Pass '--no-sign' to this script to disable code signing.".format(keypath))
-      sys.exit(0);
-
   try:
-    if current_os == "macos":
-      MAC_DEVELOPER_ID_KEY_NAME, MAC_DEVELOPER_TEAM_ID = ExtractMacSigningParams()
+    if current_os not in BUILD_OS_LIST:
+      raise IOError("Building {} is not supported on {}.".format(BUILD_TITLE, current_os))
+
     if OPTION_CLEAN in sys.argv:
       msg.Print("Cleaning...")
       CleanAll()
     else:
-      if current_os == "macos" and NOTARIZE_FLAG in sys.argv and not (CI_MODE_FLAG in sys.argv):
-        msg.Print("Cannot notarize from build_all. Use manual notarization if necessary (may break offline notarizing check for user), but notarization should be done by the CI for permissions reasons.")
-        sys.exit(0)
+      # on linux we need keypair to sign -- check that they exist in the correct location
+      if SIGN_APP and current_os == "linux":
+        keypath = os.path.join(COMMON_DIR, "keys", "linux")
+        pubkey = os.path.join(keypath, "key.pub")
+        privkey = os.path.join(keypath, "key.pem")
+        if not os.path.exists(pubkey) or not os.path.exists(privkey):
+          raise IOError("Code signing is enabled but key.pub and/or key.pem were not found in '{}'. Pass '--no-sign' to this script to disable code signing.".format(keypath))
+        GenerateIncludeFileFromPubKey(keypath, pubkey)
+
+      if current_os == "macos":
+        MAC_DEVELOPER_ID_KEY_NAME, MAC_DEVELOPER_TEAM_ID = ExtractMacSigningParams()
+        if NOTARIZE_FLAG in sys.argv and not (CI_MODE_FLAG in sys.argv):
+          raise IOError("Cannot notarize from build_all. Use manual notarization if necessary (may break offline notarizing check for user), but notarization should be done by the CI for permissions reasons.")
       msg.Print("Building {}...".format(BUILD_TITLE))
       BuildAll()
     exitcode = 0
@@ -787,9 +793,10 @@ if __name__ == "__main__":
   except IOError as e:
     msg.Error(e)
     exitcode = 1
-  elapsed_time = time.time() - start_time
-  if elapsed_time >= 60:
-    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
-  else:
-    msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
+  if exitcode == 0:
+    elapsed_time = time.time() - start_time
+    if elapsed_time >= 60:
+      msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
+    else:
+      msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
   sys.exit(exitcode)
