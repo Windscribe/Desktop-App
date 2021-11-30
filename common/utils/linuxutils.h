@@ -10,7 +10,6 @@ namespace LinuxUtils
     QString getOsVersionString();
     void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName);
     QString getLinuxKernelVersion();
-    QString getPlatformNameBestGuess();
     const QString getLastInstallPlatform();
 
     const QString LAST_INSTALL_PLATFORM_FILE = "/etc/windscribe/platform";

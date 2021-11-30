@@ -188,32 +188,6 @@ QString LinuxUtils::getLinuxKernelVersion()
     return QString("Can't detect Linux Kernel version");
 }
 
-QString LinuxUtils::getPlatformNameBestGuess()
-{
-    // This check assumes that it is not possible to:
-    // * install a debian package on an rpm system with dpkg
-    // * install an rpm package on a debian system with rpm
-    // And assumes that:
-    // * the system has the default package manager installed
-    // So we simply ask the default package manager for the package that contains the currently running Windscribe
-    const QString runningApplicationPath = QCoreApplication::applicationDirPath() + "/Windscribe";
-    const QString debInstallCheck = QString("dpkg -S %1").arg(runningApplicationPath);
-    int exitCode = system(debInstallCheck.toStdString().c_str());
-    if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
-        const QString rpmInstallCheck = QString("rpm -q --whatprovides %1").arg(runningApplicationPath);
-        exitCode = system(rpmInstallCheck.toStdString().c_str());
-        if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
-            return QString("Could not define Linux platform");
-        }
-        else {
-            return RPM_PLATFORM_NAME;
-        }
-    }
-    else {
-        return DEB_PLATFORM_NAME;
-    }
-}
-
 const QString LinuxUtils::getLastInstallPlatform()
 {
     static QString linuxPlatformName;
