@@ -657,7 +657,12 @@ def BuildInstallerLinux(configdata, qt_root):
   # create RPM from deb
   # msg.Info("Creating RPM package...")
   rpm_package_name = "windscribe_{}_x86_64.rpm".format(BUILD_APP_VERSION_STRING_FULL)
-  iutl.RunCommand(["fpm", "-s", "deb", "-p", rpm_package_name, "-t", "rpm", dest_package_path + ".deb"])
+  postinst_rpm_script = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "postinst_rpm")
+  iutl.RunCommand(["fpm", "--after-install", postinst_rpm_script,
+                          "-s", "deb",
+                          "-p", rpm_package_name,
+                          "-t", "rpm",
+                          dest_package_path + ".deb"])
   if SIGN_APP:
     CodeSignLinux(rpm_package_name, TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
 
