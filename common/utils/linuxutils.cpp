@@ -16,13 +16,15 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 
+#include "logger.h"
 #include <QRegExp>
+#include <QCoreApplication>
+#include <QFile>
 
 namespace  {
 
 const int BUFSIZE = 8192;
-const QString DEB_PLATFORM_NAME = QString("linux_deb_x64");
-const QString RPM_PLATFORM_NAME = QString("linux_rpm_x64");
+
 
 struct route_info {
     struct in_addr dstAddr;
@@ -186,30 +188,29 @@ QString LinuxUtils::getLinuxKernelVersion()
     return QString("Can't detect Linux Kernel version");
 }
 
-QString LinuxUtils::getPlatformName()
+const QString LinuxUtils::getLastInstallPlatform()
 {
-    int exitCode = system("dpkg --version");
-    if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
-        exitCode = system("rpm --version");
-        if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
-            return QString("Could not define Linux platform");
-        }
-        else {
-            return RPM_PLATFORM_NAME;
-        }
-    }
-    else {
-        return DEB_PLATFORM_NAME;
-    }
-}
+    static QString linuxPlatformName;
+    static bool tried = false;
 
-bool LinuxUtils::isDeb()
-{
-    int exitCode = system("dpkg --version");
-    if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
-        return false;
+    // only read in file once, cache the result
+    if (tried) return linuxPlatformName;
+    tried = true;
+
+    if (!QFile::exists(LAST_INSTALL_PLATFORM_FILE))
+    {
+        qCDebug(LOG_BASIC) << "Couldn't find previous install platform file: " << LAST_INSTALL_PLATFORM_FILE;
+        return "";
     }
-    else {
-        return true;
+
+    QFile lastInstallPlatform(LAST_INSTALL_PLATFORM_FILE);
+
+    if (!lastInstallPlatform.open(QIODevice::ReadOnly))
+    {
+        qCDebug(LOG_BASIC) << "Couldn't open previous install platform file: " << LAST_INSTALL_PLATFORM_FILE;
+        return "";
     }
+
+    linuxPlatformName = lastInstallPlatform.readAll().trimmed(); // remove newline
+    return linuxPlatformName;
 }

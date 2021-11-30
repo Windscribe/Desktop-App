@@ -626,6 +626,7 @@ void Engine::initPart2()
                         SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(getWireGuardConfigAnswer(SERVER_API_RET_CODE, QSharedPointer<WireGuardConfig>, uint)),
         SLOT(onGetWireGuardConfigAnswer(SERVER_API_RET_CODE, QSharedPointer<WireGuardConfig>, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)));
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
@@ -682,7 +683,7 @@ void Engine::initPart2()
     notificationsUpdateTimer_ = new QTimer(this);
     connect(notificationsUpdateTimer_, SIGNAL(timeout()), SLOT(getNewNotifications()));
 
-    downloadHelper_ = new DownloadHelper(this, networkAccessManager_);
+    downloadHelper_ = new DownloadHelper(this, networkAccessManager_, Utils::getPlatformName());
     connect(downloadHelper_, SIGNAL(finished(DownloadHelper::DownloadState)), SLOT(onDownloadHelperFinished(DownloadHelper::DownloadState)));
     connect(downloadHelper_, SIGNAL(progressChanged(uint)), SLOT(onDownloadHelperProgressChanged(uint)));
 

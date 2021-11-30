@@ -91,6 +91,7 @@ signals:
     void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<apiinfo::Notification> notifications, uint userRole);
     void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
     void webSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
+    void sendUserWarning(ProtoTypes::UserWarningType warning);
 
     // need for add to firewall rules
     void hostIpsChanged(const QStringList &hostIps);
