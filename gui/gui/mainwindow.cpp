@@ -489,8 +489,11 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
         }
         else // non-restart close
         {
-            qCDebug(LOG_BASIC) << "Setting firewall persistence to false for non-restart auto-mode";
-            PersistentState::instance().setFirewallState(false);
+            if (!backend_->getPreferences()->isAutoConnect())
+            {
+                qCDebug(LOG_BASIC) << "Setting firewall persistence to false for non-restart auto-mode";
+                PersistentState::instance().setFirewallState(false);
+            }
         }
     }
     qCDebug(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
