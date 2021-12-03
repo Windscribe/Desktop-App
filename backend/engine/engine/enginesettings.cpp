@@ -55,6 +55,7 @@ void EngineSettings::loadFromSettings()
             {
                 qCDebug(LOG_BASIC) << "EngineSettings::loadFromSettings Loading of EngineSettings failed.";
             }
+            settings.remove("engineSettings");
         }
 
 #if defined(Q_OS_LINUX)
