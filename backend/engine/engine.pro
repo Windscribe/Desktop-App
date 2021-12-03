@@ -327,6 +327,7 @@ SOURCES += main.cpp \
     application/windowsnativeeventfilter.cpp \
     application/windscribeapplication.cpp \
     engine/apiinfo/apiinfo.cpp \
+    engine/apiinfo/checkupdate.cpp \
     engine/apiinfo/sessionstatus.cpp \
     engine/apiinfo/location.cpp \
     engine/apiinfo/group.cpp \
@@ -451,6 +452,7 @@ SOURCES += main.cpp \
     engine/networkaccessmanager/networkaccessmanager.cpp
 
 HEADERS  +=  engine/locationsmodel/locationsmodel.h \
+    engine/apiinfo/checkupdate.h \
     engine/locationsmodel/apilocationsmodel.h \
     engine/locationsmodel/customconfiglocationsmodel.h \
     engine/locationsmodel/locationitem.h \

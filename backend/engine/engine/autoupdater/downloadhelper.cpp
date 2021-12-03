@@ -214,22 +214,7 @@ void DownloadHelper::removeAutoUpdateInstallerFiles()
         QFile::remove(installerPath);
     }
 
-#ifdef Q_OS_LINUX
-    // remove pre-existing signature and public key:
-    // | signature and key were required to verify the auto-update installer
-    const QString &signaturePath = signatureInstallPath();
-    if (QFile::exists(signaturePath))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Removing auto-update installer signature";
-        QFile::remove(signaturePath);
-    }
-    const QString &publicKeyPath = publicKeyInstallPath();
-    if (QFile::exists(publicKeyPath))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Removing auto-update installer key";
-        QFile::remove(publicKeyPath);
-    }
-#elif defined Q_OS_MAC
+#ifdef Q_OS_MAC
     // remove temp installer.app on mac:
     // | installer.app was unpacked from above .dmg
     const QString & installerApp = downloadDirectory_ + "/" + INSTALLER_FILENAME_MAC_APP;
@@ -271,14 +256,4 @@ void DownloadHelper::deleteAllReplies()
         replies_.remove(reply);
         reply->deleteLater();
     }
-}
-
-const QString DownloadHelper::publicKeyInstallPath()
-{
-    return downloadInstallerPathWithoutExtension() + ".key";
-}
-
-const QString DownloadHelper::signatureInstallPath()
-{
-    return downloadInstallerPath() + ".sig";
 }

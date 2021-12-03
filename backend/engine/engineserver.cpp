@@ -76,7 +76,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(loginError(LOGIN_RET)), SLOT(onEngineLoginError(LOGIN_RET)));
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
             connect(engine_, SIGNAL(notificationsUpdated(QVector<apiinfo::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<apiinfo::Notification>)));
-            connect(engine_, SIGNAL(checkUpdateUpdated(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool)), SLOT(onEngineCheckUpdateUpdated(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool)));
+            connect(engine_, SIGNAL(checkUpdateUpdated(apiinfo::CheckUpdate)), SLOT(onEngineCheckUpdateUpdated(apiinfo::CheckUpdate)));
             connect(engine_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)), SLOT(onEngineUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
             connect(engine_, SIGNAL(sessionStatusUpdated(apiinfo::SessionStatus)), SLOT(onEngineUpdateSessionStatus(apiinfo::SessionStatus)));
@@ -692,15 +692,10 @@ void EngineServer::onEngineNotificationsUpdated(const QVector<apiinfo::Notificat
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
-void EngineServer::onEngineCheckUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported)
+void EngineServer::onEngineCheckUpdateUpdated(const apiinfo::CheckUpdate &checkUpdate)
 {
     IPC::ProtobufCommand<IPCServerCommands::CheckUpdateInfoUpdated> cmd;
-    cmd.getProtoObj().mutable_check_update_info()->set_is_available(available);
-    cmd.getProtoObj().mutable_check_update_info()->set_version(version.toStdString());
-    cmd.getProtoObj().mutable_check_update_info()->set_update_channel(updateChannel);
-    cmd.getProtoObj().mutable_check_update_info()->set_latest_build(latestBuild);
-    cmd.getProtoObj().mutable_check_update_info()->set_url(url.toStdString());
-    cmd.getProtoObj().mutable_check_update_info()->set_is_supported(supported);
+    *cmd.getProtoObj().mutable_check_update_info() = checkUpdate.getProtoBuf();
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 

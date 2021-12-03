@@ -38,7 +38,7 @@ private slots:
     void onEngineSessionDeleted();
     void onEngineUpdateSessionStatus(const apiinfo::SessionStatus &sessionStatus);
     void onEngineNotificationsUpdated(const QVector<apiinfo::Notification> &notifications);
-    void onEngineCheckUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported);
+    void onEngineCheckUpdateUpdated(const apiinfo::CheckUpdate &checkUpdate);
     void onEngineUpdateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
     void onEngineMyIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId);

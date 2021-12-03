@@ -2353,6 +2353,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 {
                     descText = tr("Auto-Updater has failed to run installer.");
                 }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL)
+                {
+                    descText = tr("Cannot run the downloaded installer. It does not have the expected hash.");
+                }
                 mainWindowController_->getGeneralMessageWindow()->setErrorMode(true);
                 mainWindowController_->getGeneralMessageWindow()->setTitle(titleText);
                 mainWindowController_->getGeneralMessageWindow()->setDescription(descText);

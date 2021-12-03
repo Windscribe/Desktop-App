@@ -13,6 +13,8 @@ const QString WS_TT_TIMEOUT_STR = "tunnel-test-timeout";
 const QString WS_TT_RETRY_DELAY_STR = "tunnel-test-retry-delay";
 const QString WS_TT_ATTEMPTS_STR = "tunnel-test-attempts";
 
+const QString WS_UPDATE_CHANNEL_INTERNAL = "override-update-channel-internal";
+
 void ExtraConfig::writeConfig(const QString &cfg)
 {
     QMutexLocker locker(&mutex_);
@@ -173,6 +175,11 @@ int ExtraConfig::getTunnelTestAttempts(bool &success)
     return getIntFromExtraConfigLines(WS_TT_ATTEMPTS_STR, success);
 }
 
+bool ExtraConfig::getOverrideUpdateChannelToInternal()
+{
+    return getFlagFromExtraConfigLines(WS_UPDATE_CHANNEL_INTERNAL);
+}
+
 int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)
 {
     int endOfId = line.indexOf(str, Qt::CaseInsensitive) + str.length();
@@ -211,6 +218,23 @@ int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &s
     }
 
     return 0;
+}
+
+bool ExtraConfig::getFlagFromExtraConfigLines(const QString &flagName)
+{
+    const QString strExtraConfig = getExtraConfig();
+    const QStringList strs = strExtraConfig.split("\n");
+
+    for (const QString &line : strs)
+    {
+        QString lineTrimmed = line.trimmed();
+        if (lineTrimmed.startsWith(flagName, Qt::CaseInsensitive))
+        {
+            return true;
+        }
+    }
+    return false;
+
 }
 
 bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
