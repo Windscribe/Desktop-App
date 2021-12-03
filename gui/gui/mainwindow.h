@@ -103,6 +103,7 @@ private slots:
     void onPreferencesWindowDetectAppropriatePacketSizeButtonClicked();
     void onPreferencesAdvancedParametersClicked();
     void onPreferencesCustomConfigsPathChanged(QString path);
+    void onPreferencesdebugAdvancedParametersChanged(const QString &advParams);
 
     // emergency window signals
     void onEmergencyConnectClick();

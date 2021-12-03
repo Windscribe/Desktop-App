@@ -333,6 +333,8 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
     connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(onPreferencesCustomConfigsPathChanged(QString)));
+    connect(backend_->getPreferences(), SIGNAL(debugAdvancedParametersChanged(QString)), SLOT(onPreferencesdebugAdvancedParametersChanged(QString)));
+
 
     connect(backend_->getPreferences(), SIGNAL(reportErrorToUser(QString,QString)), SLOT(onPreferencesReportErrorToUser(QString,QString)));
 #ifdef Q_OS_MAC
@@ -1189,6 +1191,12 @@ void MainWindow::onPreferencesAdvancedParametersClicked()
 void MainWindow::onPreferencesCustomConfigsPathChanged(QString path)
 {
     locationsWindow_->setCustomConfigsPath(path);
+}
+
+void MainWindow::onPreferencesdebugAdvancedParametersChanged(const QString &advParams)
+{
+    Q_UNUSED(advParams);
+    backend_->sendAdvancedParametersChanged();
 }
 
 void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
@@ -2356,6 +2364,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL)
                 {
                     descText = tr("Cannot run the downloaded installer. It does not have the expected hash.");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_API_HASH_INVALID)
+                {
+                    descText = tr("Windscribe API has returned an invalid hash for downloaded installer. Please contact support.");
                 }
                 mainWindowController_->getGeneralMessageWindow()->setErrorMode(true);
                 mainWindowController_->getGeneralMessageWindow()->setTitle(titleText);

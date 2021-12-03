@@ -423,6 +423,11 @@ bool EngineServer::handleCommand(IPC::Command *command)
         engine_->makeHostsFileWritableWin();
 #endif
     }
+    else if (command->getStringId() == IPCClientCommands::AdvancedParametersChanged::descriptor()->full_name())
+    {
+        engine_->updateAdvancedParams();
+    }
+
 
     return false;
 }

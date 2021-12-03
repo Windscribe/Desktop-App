@@ -89,7 +89,8 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     runningPacketDetection_(false),
     lastDownloadProgress_(0),
     installerUrl_(""),
-    guiWindowHandle_(0)
+    guiWindowHandle_(0),
+    overrideUpdateChannelWithInternal_(false)
 {
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)));
@@ -539,6 +540,11 @@ void Engine::updateVersion(qint32 windowHandle)
     QMetaObject::invokeMethod(this, "updateVersionImpl", Q_ARG(qint32, windowHandle));
 }
 
+void Engine::updateAdvancedParams()
+{
+    QMetaObject::invokeMethod(this, "updateAdvancedParamsImpl");
+}
+
 void Engine::stopUpdateVersion()
 {
     QMetaObject::invokeMethod(this, "stopUpdateVersionImpl");
@@ -701,6 +707,7 @@ void Engine::initPart2()
 #endif
 
     updateProxySettings();
+    updateAdvancedParams();
 }
 
 void Engine::onLostConnectionToHelper()
@@ -1274,7 +1281,13 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
 
     if (isUpdateChannelChanged)
     {
-        serverAPI_->checkUpdate(engineSettings_.getUpdateChannel(), serverApiUserRole_, true);
+        ProtoTypes::UpdateChannel channel =   engineSettings_.getUpdateChannel();
+        if (overrideUpdateChannelWithInternal_)
+        {
+            qCDebug(LOG_BASIC) << "Overriding update channel: internal";
+            channel = ProtoTypes::UPDATE_CHANNEL_INTERNAL;
+        }
+        serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
     }
     if (isLanguageChanged || isProtocolChanged)
     {
@@ -1657,7 +1670,13 @@ void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &toke
 
 void Engine::onStartCheckUpdate()
 {
-    serverAPI_->checkUpdate(engineSettings_.getUpdateChannel(), serverApiUserRole_, true);
+    ProtoTypes::UpdateChannel channel =   engineSettings_.getUpdateChannel();
+    if (overrideUpdateChannelWithInternal_)
+    {
+        qCDebug(LOG_BASIC) << "Overriding update channel: internal";
+        channel = ProtoTypes::UPDATE_CHANNEL_INTERNAL;
+    }
+    serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
 }
 
 void Engine::onStartStaticIpsUpdate()
@@ -2129,6 +2148,25 @@ void Engine::stopUpdateVersionImpl()
     downloadHelper_->stop();
 }
 
+void Engine::updateAdvancedParamsImpl()
+{
+    bool newOverrideUpdateChannel = ExtraConfig::instance().getOverrideUpdateChannelToInternal();
+
+    // only trigger the check update if override changed
+    if (overrideUpdateChannelWithInternal_ != newOverrideUpdateChannel)
+    {
+        overrideUpdateChannelWithInternal_ = newOverrideUpdateChannel;
+
+        ProtoTypes::UpdateChannel channel =   engineSettings_.getUpdateChannel();
+        if (overrideUpdateChannelWithInternal_)
+        {
+            qCDebug(LOG_BASIC) << "Overriding update channel: internal";
+            channel = ProtoTypes::UPDATE_CHANNEL_INTERNAL;
+        }
+        serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
+    }
+}
+
 void Engine::onDownloadHelperProgressChanged(uint progressPercent)
 {
     if (lastDownloadProgress_ != progressPercent)
@@ -2179,7 +2217,8 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     if (installerHash_ == "")
     {
         qCDebug(LOG_BASIC) << "Hash from API is empty -- cannot verify";
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL);
+        if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_API_HASH_INVALID);
         return;
     }
 

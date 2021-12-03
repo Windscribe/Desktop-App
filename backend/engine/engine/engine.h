@@ -119,6 +119,7 @@ public:
     void updateWindowInfo(qint32 windowCenterX, qint32 windowCenterY);
     void updateVersion(qint32 windowHandle);
     void stopUpdateVersion();
+    void updateAdvancedParams();
 
     void makeHostsFileWritableWin();
 
@@ -271,6 +272,7 @@ private slots:
     void updateWindowInfoImpl(qint32 windowCenterX, qint32 windowCenterY);
     void updateVersionImpl(qint32 windowHandle);
     void stopUpdateVersionImpl();
+    void updateAdvancedParamsImpl();
     void onDownloadHelperProgressChanged(uint progressPercent);
     void onDownloadHelperFinished(const DownloadHelper::DownloadState &state);
     void updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY);
@@ -397,6 +399,8 @@ private:
     QString installerPath_;
     QString installerHash_;
     qint32 guiWindowHandle_;
+
+    bool overrideUpdateChannelWithInternal_;
 };
 
 #endif // ENGINE_H

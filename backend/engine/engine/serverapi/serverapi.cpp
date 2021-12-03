@@ -701,15 +701,6 @@ void ServerAPI::checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint 
         return;
     }
 
-    // override the UI-specified channel with internal
-    if (ExtraConfig::instance().getOverrideUpdateChannelToInternal())
-    {
-        qDebug() << "Requesting internal build";
-        submitDnsRequest(createRequest<CheckUpdateRequest>(
-            ProtoTypes::UPDATE_CHANNEL_INTERNAL, hostname_, REPLY_CHECK_UPDATE, NETWORK_TIMEOUT, userRole));
-        return;
-    }
-
     submitDnsRequest(createRequest<CheckUpdateRequest>(
         updateChannel, hostname_, REPLY_CHECK_UPDATE, NETWORK_TIMEOUT, userRole));
 }
@@ -1243,6 +1234,10 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     {
         query.addQueryItem("beta", "2");
     }
+    else if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_INTERNAL)
+    {
+        query.addQueryItem("beta", "3");
+    }
 
     // add OS version and build
     QString osVersion, osBuild;
@@ -1257,6 +1252,8 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     }
 
     url.setQuery(query);
+
+    // qCDebug(LOG_BASIC) << "Check update query: " << url;
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
