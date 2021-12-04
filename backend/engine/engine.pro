@@ -221,9 +221,10 @@ QMAKE_INFO_PLIST = mac/info.plist
 
 #QMAKE_LFLAGS += -sectcreate __TEXT __info_plist $$shell_quote($$PWD/Mac/Info.plist)
 
-MY_ENTITLEMENTS.name = CODE_SIGN_ENTITLEMENTS
-MY_ENTITLEMENTS.value = $$PWD/mac/windscribe.entitlements
-QMAKE_MAC_XCODE_SETTINGS += MY_ENTITLEMENTS
+# The referenced file doesn't exist... perhaps this is old debugging code?
+#MY_ENTITLEMENTS.name = CODE_SIGN_ENTITLEMENTS
+#MY_ENTITLEMENTS.value = $$PWD/mac/windscribe.entitlements
+#QMAKE_MAC_XCODE_SETTINGS += MY_ENTITLEMENTS
 
 #postbuild copy commands
 copy_resources.commands = $(COPY_DIR) $$PWD/mac/resources $$OUT_PWD/WindscribeEngine.app/Contents

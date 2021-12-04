@@ -165,7 +165,6 @@ def UpdateVersionInPlist(plistfilename):
   with open(plistfilename, "w") as file:
     file.write(filedata)
 
-
 def UpdateVersionInDebianControl(filename):
   with open(filename, "r") as file:
     filedata = file.read()
@@ -176,6 +175,19 @@ def UpdateVersionInDebianControl(filename):
   with open(filename, "w") as file:
     file.write(filedata)
 
+def UpdateTeamID(filename):
+  with open(filename, "r") as file:
+    filedata = file.read()
+  outdata = filedata.replace("$(DEVELOPMENT_TEAM)", MAC_DEVELOPER_TEAM_ID)
+  with open(filename, "w") as file:
+    file.write(outdata)
+
+def RestoreHelperInfoPList(filename):
+  with open(filename, "r") as file:
+    filedata = file.read()
+  outdata = filedata.replace(MAC_DEVELOPER_TEAM_ID, "$(DEVELOPMENT_TEAM)")
+  with open(filename, "w") as file:
+    file.write(outdata)
 
 def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(ROOT_DIR, subdir_name, project_name))
@@ -263,12 +275,22 @@ def ApplyMacDeployFixes(appname, fixlist):
   # This validation is optional.
   iutl.RunCommand(["codesign", "-v", appname])
   if "entitlements" in fixlist and "entitlements_binary" in fixlist["entitlements"] and "entitlements_file" in fixlist["entitlements"]:
-    msg.Info("Signing a binary with entitlements...")
-    entitlements_binary = os.path.join(appname, fixlist["entitlements"]["entitlements_binary"])
-    entitlements_file = os.path.join(ROOT_DIR, fixlist["entitlements"]["entitlements_file"])
-    iutl.RunCommand(["codesign", "--entitlements", entitlements_file, "-f",
-                    "-s", MAC_DEVELOPER_ID_KEY_NAME, "--options", "runtime", "--timestamp",
-                    entitlements_binary])
+    # Can only sign with entitlements if the embedded provisioning file exists.  The engine will segfault on
+    # launch otherwise with a "EXC_CRASH (Code Signature Invalid)" exception type.
+    embedded_prov_file = os.path.join(ROOT_DIR, "backend", "mac", "provisioning_profile", "embedded.provisionprofile")
+    if os.path.exists(embedded_prov_file):
+      msg.Info("Signing a binary with entitlements...")
+      entitlements_binary = os.path.join(appname, fixlist["entitlements"]["entitlements_binary"])
+      entitlements_file = os.path.join(ROOT_DIR, fixlist["entitlements"]["entitlements_file"])
+      entitlements_file_temp = entitlements_file + "_temp"
+      utl.CopyFile(entitlements_file, entitlements_file_temp)
+      UpdateTeamID(entitlements_file_temp)
+      iutl.RunCommand(["codesign", "--entitlements", entitlements_file_temp, "-f",
+                      "-s", MAC_DEVELOPER_ID_KEY_NAME, "--options", "runtime", "--timestamp",
+                      entitlements_binary])
+      utl.RemoveFile(entitlements_file_temp)
+    else:
+      msg.Warn("No embedded.provisionprofile found for this project.  IKEv2 will not function in this build.")
 
 
 def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=None, target_name_override=None):
@@ -298,6 +320,8 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
           build_cmd.extend(["CONFIG+=use_signature_check"])
       if c_iswin:
         build_cmd.extend(["-spec", "win32-msvc"])
+      if c_ismac:
+        build_cmd.extend(["DEVELOPMENT_TEAM={}".format(MAC_DEVELOPER_TEAM_ID)])
       iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
       iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=c_iswin)
       target_location = "release" if c_iswin else ""
@@ -307,6 +331,9 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
           deploy_cmd.append("-no-plugins")
         iutl.RunCommand(deploy_cmd, env=buildenv)
         UpdateVersionInPlist(os.path.join(temp_wd,component["macapp"], "Contents", "Info.plist"))
+        if component["name"] == "Engine":
+          # Could not find an automated way to do this like we could with the xcodebuild below.
+          UpdateTeamID(os.path.join(temp_wd,component["macapp"], "Contents", "Info.plist"))
     elif c_project.endswith(".vcxproj"):
       # Build MSVC project.
       conf = "Release_x64" if is_64bit else "Release"
@@ -331,6 +358,9 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
         # TODO: clean up all the warnings generated in the helper project.  They impede our ability to spot legitimate warnings.
         other_cflags += " -Wno-incompatible-pointer-types-discards-qualifiers -Wno-strict-prototypes -Wno-enum-conversion -Wno-shorten-64-to-32 -Wno-incompatible-pointer-types"
         msg.Warn("Compiler warnings suppressed for this project.")
+        # Update the team ID in the helper's plist.  xcodebuild won't do it for us as we are embedding the
+        # plist via the Other Linker Flags section of the Xcode project.
+        UpdateTeamID(os.path.join(ROOT_DIR, c_subdir, "src", "helper-info.plist"))
       elif component["name"] == "Installer":
         # TODO: clean this warning at some point.
         other_cflags += " -Wno-deprecated-declarations"
@@ -351,6 +381,9 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
       # remove temp file -- no longer needed
       if temp_info_plist and os.path.exists(temp_info_plist):
         utl.RemoveFile(temp_info_plist)
+      if component["name"] == "Helper":
+        # Undo what UpdateTeamID did above so version control doesn't see the change.
+        RestoreHelperInfoPList(os.path.join(ROOT_DIR, c_subdir, "src", "helper-info.plist"))
       if c_target:
         outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | " \
                                           "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " \
@@ -787,6 +820,7 @@ if __name__ == "__main__":
 
       if current_os == "macos":
         MAC_DEVELOPER_ID_KEY_NAME, MAC_DEVELOPER_TEAM_ID = ExtractMacSigningParams()
+        msg.Info("using signing identity - " + MAC_DEVELOPER_ID_KEY_NAME)
         if NOTARIZE_FLAG in sys.argv and not (CI_MODE_FLAG in sys.argv):
           raise IOError("Cannot notarize from build_all. Use manual notarization if necessary (may break offline notarizing check for user), but notarization should be done by the CI for permissions reasons.")
       msg.Print("Building {}...".format(BUILD_TITLE))
