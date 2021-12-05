@@ -655,11 +655,6 @@ def BuildInstallerLinux(configdata, qt_root):
       for binary_name in configdata["files_codesign_linux"]:
         CodeSignLinux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
 
-  # Copy wstunnel
-  msg.Info("Copying wstunnel...")
-  wstunnel_dir = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "wstunnel")
-  CopyFile("windscribewstunnel",wstunnel_dir, BUILD_INSTALLER_FILES)
-
   if "license_files" in configdata:
     license_dir = os.path.join(COMMON_DIR, "licenses")
     CopyFiles("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
