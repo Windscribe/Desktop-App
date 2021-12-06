@@ -2224,7 +2224,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
     if (!verifyContentsSha256(installerPath_, installerHash_)) // installerPath_
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Incorrect hash, removing unsigned installer";
+        qCDebug(LOG_AUTO_UPDATER) << "Incorrect hash, removing installer";
         if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
         emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL);
         return;
@@ -2854,7 +2854,7 @@ bool Engine::verifyContentsSha256(const QString &filename, const QString &compar
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly))
     {
-        qCDebug(LOG_BASIC) << "Failed to open deb for reading";
+        qCDebug(LOG_BASIC) << "Failed to open installer for reading";
         return false;
     }
     QByteArray contentsBytes = file.readAll();
