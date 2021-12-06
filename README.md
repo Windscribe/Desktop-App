@@ -145,7 +145,12 @@ Build process tested on Ubuntu 16.04 (gcc 5.4.0) and Ubuntu 20.04/ZorinOS 16 (gc
   - sudo apt-get install libpam0g-dev
 
 - Install golang (required for building wireguard):
-  - sudo apt-get install golang-go
+  - If on Ubuntu 20.04 or newer:
+    - sudo apt-get install golang-go
+  - If on an older version of Ubuntu, you'll need a newer version of golang than what is available in the default repo (tested on Ubuntu 16.04):
+    - sudo add-apt-repository ppa:longsleep/golang-backports
+    - sudo apt-get update
+    - sudo apt-get install golang-go
 
 - Install autoconf (required for building protobuf):
   - sudo apt-get install autoconf
