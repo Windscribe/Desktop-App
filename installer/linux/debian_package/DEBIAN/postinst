@@ -1,4 +1,8 @@
 #!/bin/bash
 set -e
+
+chmod +x /etc/windscribe/update-resolv-conf /etc/windscribe/update-systemd-resolved
+chmod +x /usr/local/windscribe/windscribewstunnel
+
 systemctl enable windscribe-helper
 systemctl start windscribe-helper
