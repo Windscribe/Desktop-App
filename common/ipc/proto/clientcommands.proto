@@ -185,3 +185,7 @@ message UpdateWindowInfo
 message MakeHostsWritableWin
 {
 }
+
+message AdvancedParametersChanged
+{
+}

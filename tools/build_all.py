@@ -554,10 +554,7 @@ def CodeSignLinux(binary_name, binary_dir, signature_output_dir):
 def BuildInstallerLinux(configdata, qt_root):
   # Creates the following:
   # * windscribe_2.x.y_amd64.deb
-  # * windscribe_2.x.y_amd64.deb.sig
   # * windscribe_2.x.y_x86_64.rpm
-  # * windscribe_2.x.y_x86_64.rpm.sig
-  # * windscribe_2.x.y.key
   msg.Info("Copying lib_files_linux...")
   if "lib_files_linux" in configdata:
     for k, v in configdata["lib_files_linux"].iteritems():
@@ -607,17 +604,8 @@ def BuildInstallerLinux(configdata, qt_root):
 
   UpdateVersionInDebianControl(os.path.join(dest_package_path, "DEBIAN", "control"))
 
-  # create and sign .deb with dest_package 
+  # create .deb with dest_package 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
-  if not NO_SIGN_LINUX:
-    CodeSignLinux(dest_package_name + ".deb", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
-
-  # include key in target package 
-  if not NO_SIGN_LINUX:
-    key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-    key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRING)
-    key_dest = os.path.join(TEMP_INSTALLER_DIR, key_package_name)
-    utl.CopyFile(key_src, key_dest)
 
   # create RPM from deb
   # msg.Info("Creating RPM package...")
@@ -628,8 +616,7 @@ def BuildInstallerLinux(configdata, qt_root):
                           "-p", rpm_package_name, 
                           "-t", "rpm", 
                           dest_package_path + ".deb"])
-  if not NO_SIGN_LINUX:
-    CodeSignLinux(rpm_package_name, TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
+
 
 def BuildAll():
   # Load config.

@@ -89,6 +89,7 @@ public:
 
     void continueWithCredentialsForOvpnConfig(const QString &username, const QString &password, bool bSave);
 
+    void sendAdvancedParametersChanged();
     void sendEngineSettingsIfChanged();
 
     LocationsModel *getLocationsModel();

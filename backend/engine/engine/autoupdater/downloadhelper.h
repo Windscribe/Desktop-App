@@ -26,8 +26,6 @@ public:
 
     const QString downloadInstallerPath();
     const QString downloadInstallerPathWithoutExtension();
-    const QString publicKeyInstallPath();
-    const QString signatureInstallPath();
 
     void get(QMap<QString, QString> downloads);
     void stop();
