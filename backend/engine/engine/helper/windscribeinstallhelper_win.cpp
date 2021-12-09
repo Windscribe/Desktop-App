@@ -14,13 +14,12 @@ bool WindscribeInstallHelper_win::checkWindscribeInstallHelper(QString &outPath)
     QString strPath = QCoreApplication::applicationDirPath();
     strPath += "/WindscribeInstallHelper.exe";
 
-    // check executable signature
-    if (!ExecutableSignature::verify(strPath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(strPath.toStdWString()))
     {
-        qCDebug(LOG_BASIC) << "WindscribeInstallHelper.exe incorrect signature";
+        qCDebug(LOG_BASIC) << "WindscribeInstallHelper.exe incorrect signature: " << sigCheck.lastError();
         return false;
     }
-
 
     outPath = strPath;
     return QFile::exists(strPath);

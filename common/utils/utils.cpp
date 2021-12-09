@@ -494,3 +494,14 @@ QString Utils::getDirPathFromFullPath(const QString &fullPath)
     // exludes the "/" tail
     return fullPath.mid(0, index);
 }
+
+bool Utils::isParentProcessGui()
+{
+#if defined Q_OS_WIN
+    return WinUtils::isParentProcessGui();
+#elif defined Q_OS_MAC
+    return MacUtils::isParentProcessGui();
+#elif defined Q_OS_LINUX
+    return true;
+#endif
+}

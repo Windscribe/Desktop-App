@@ -7,6 +7,7 @@
 #include <psapi.h>
 #include <tchar.h>
 #include <strsafe.h>
+#include <tlhelp32.h>
 
 #include <iostream>
 
@@ -27,6 +28,8 @@
 #include "logger.h"
 
 #include "../../gui/authhelper/win/ws_com/ws_com/guids.h"
+
+#include "executable_signature/executable_signature.h"
 
 #pragma comment(lib, "wlanapi.lib")
 
@@ -1558,4 +1561,71 @@ unsigned long WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *bu
     }
 
     return nLength;
+}
+
+bool WinUtils::isParentProcessGui()
+{
+    HANDLE hSnapshot;
+    PROCESSENTRY32 pe32;
+    DWORD ppid = 0, pid = GetCurrentProcessId();
+
+    hSnapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+    if (hSnapshot == INVALID_HANDLE_VALUE)
+    {
+        return false;
+    }
+
+    ZeroMemory( &pe32, sizeof( pe32 ) );
+    pe32.dwSize = sizeof( pe32 );
+    if( !Process32First( hSnapshot, &pe32 ) )
+    {
+        CloseHandle(hSnapshot);
+        return false;
+    }
+
+    do {
+        if( pe32.th32ProcessID == pid )
+        {
+            ppid = pe32.th32ParentProcessID;
+            break;
+        }
+    } while( Process32Next( hSnapshot, &pe32 ) );
+
+    CloseHandle( hSnapshot );
+
+    if (ppid == 0)
+    {
+        return false;
+    }
+
+    HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, ppid);
+    if (processHandle == NULL)
+    {
+        return false;
+    }
+
+    wchar_t filename[MAX_PATH];
+    if (GetModuleFileNameEx(processHandle, NULL, filename, MAX_PATH) == 0)
+    {
+        CloseHandle(processHandle);
+        return false;
+    }
+    CloseHandle(processHandle);
+
+    QString parentPath = QString::fromStdWString(filename);
+    QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe.exe";
+    guiPath = QDir::toNativeSeparators(QDir::cleanPath(guiPath));
+
+    if (parentPath.compare(guiPath, Qt::CaseInsensitive) != 0) {
+        return false;
+    }
+
+    ExecutableSignature sigCheck;
+    bool verified = sigCheck.verify(parentPath.toStdWString());
+
+    if (!verified) {
+        qCDebug(LOG_BASIC) << "isParentProcessGui incorrect signature: " << sigCheck.lastError();
+    }
+
+    return verified;
 }

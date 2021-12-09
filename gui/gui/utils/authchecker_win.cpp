@@ -14,24 +14,26 @@ AuthCheckerError AuthChecker_win::authenticate()
 {
     QString appDir = QCoreApplication::applicationDirPath();
 
+    ExecutableSignature sigCheck;
+
     QString comServerPath = appDir + "/ws_com_server.exe";
-    if (!ExecutableSignature::verify(comServerPath))
+    if (!sigCheck.verify(comServerPath.toStdWString()))
     {
-        qCDebug(LOG_AUTH_HELPER) << "Could not verify " << comServerPath << ". File may be corrupted.";
+        qCDebug(LOG_AUTH_HELPER) << "Could not verify " << comServerPath << ". File may be corrupted. " << sigCheck.lastError();
         return AuthCheckerError::HELPER_ERROR;
     }
 
     QString comDllPath    = appDir + "/ws_com.dll";
-    if (!ExecutableSignature::verify(comDllPath))
+    if (!sigCheck.verify(comDllPath.toStdWString()))
     {
-        qCDebug(LOG_AUTH_HELPER) << "Could not verify " << comDllPath << ". File may be corrupted.";
+        qCDebug(LOG_AUTH_HELPER) << "Could not verify " << comDllPath << ". File may be corrupted. " << sigCheck.lastError();
         return AuthCheckerError::HELPER_ERROR;
     }
 
     QString comStubPath   = appDir + "/ws_proxy_stub.dll";
-    if (!ExecutableSignature::verify(comStubPath))
+    if (!sigCheck.verify(comStubPath.toStdWString()))
     {
-        qCDebug(LOG_AUTH_HELPER) << "Could not verify " << comStubPath << ". File may be corrupted.";
+        qCDebug(LOG_AUTH_HELPER) << "Could not verify " << comStubPath << ". File may be corrupted. " << sigCheck.lastError();
         return AuthCheckerError::HELPER_ERROR;
     }
     return WinUtils::authorizeWithUac() ?

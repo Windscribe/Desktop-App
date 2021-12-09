@@ -3,7 +3,7 @@
 #include "logger.h"
 #include <comdef.h>
 #include <WbemIdl.h>
-#include "../../../common/utils/executable_signature/executable_signature_win.h"
+#include "../../../common/utils/executable_signature/executable_signature.h"
 #include "../../../common/utils/win32handle.h"
 
 #pragma comment(lib, "wbemuuid.lib")
@@ -224,9 +224,10 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
       return false;
    }
 
-   if (!ExecutableSignature_win::verify(path))
+   ExecutableSignature sigCheck;
+   if (!sigCheck.verify(path))
    {
-      output = std::wstring(L"verifyWindscribeProcessPath signature verify failed for ") + std::wstring(path);
+      output = std::wstring(L"verifyWindscribeProcessPath signature verify failed. Err = ") + sigCheck.lastError();
       Logger::instance().out(output.c_str());
       return false;
    }

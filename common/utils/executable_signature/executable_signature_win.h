@@ -2,25 +2,25 @@
 #define EXECUTABLE_SIGNATURE_WIN_H
 
 #include <Windows.h>
-#include <Softpub.h>
-#include <wintrust.h>
+#include <wincrypt.h>
+#include <string>
 
-#ifdef QT_CORE_LIB
-#include <QString>
-#endif
+class ExecutableSignature;
 
-class ExecutableSignature_win
+class ExecutableSignaturePrivate
 {
 public:
-#ifdef QT_CORE_LIB
-    static bool isParentProcessGui();
-    static bool verify(const QString &executablePath);
-#endif
-	static bool verify(const wchar_t *szExePath);
+    explicit ExecutableSignaturePrivate(ExecutableSignature* const q);
+    ~ExecutableSignaturePrivate();
+
+    bool verify(const std::wstring &exePath);
 
 private:
-    static bool verifyEmbeddedSignature(const wchar_t *pwszSourceFile);
-    static bool checkWindscribeCertificate(PCCERT_CONTEXT pCertContext);
+    bool verifyEmbeddedSignature(const std::wstring &exePath);
+    bool checkWindscribeCertificate(PCCERT_CONTEXT pCertContext);
+
+private:
+    ExecutableSignature* const q_ptr;
 };
 
 #endif // EXECUTABLE_SIGNATURE_WIN_H

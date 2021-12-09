@@ -79,22 +79,6 @@ bool ExecutableSignature_mac::verify(const std::string &exePath)
 
 #ifdef QT_CORE_LIB
 
-bool ExecutableSignature_mac::isParentProcessGui()
-{
-    pid_t pid = getppid();
-    char pathBuffer[PROC_PIDPATHINFO_MAXSIZE] = {0};
-    int status = proc_pidpath(pid, pathBuffer, sizeof(pathBuffer));
-    if ((status != 0) && (strlen(pathBuffer) != 0))
-    {
-        QString parentPath = QString::fromStdString(pathBuffer);
-        QString guiPath = QCoreApplication::applicationDirPath() + "/../../../../MacOS/Windscribe";
-        guiPath = QDir::cleanPath(guiPath);
-
-        return (parentPath.compare(guiPath, Qt::CaseInsensitive) == 0) && verify(parentPath);
-    }
-    return false;
-}
-
 bool ExecutableSignature_mac::verify(const QString &executablePath)
 {
     ExecutableSignature_mac verifySignature;

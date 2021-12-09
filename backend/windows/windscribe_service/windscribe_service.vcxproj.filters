@@ -192,6 +192,9 @@
     <ClInclude Include="split_tunneling\hostnames_manager\ares_library_init.h">
       <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windscribe_service.cpp">
@@ -328,6 +331,9 @@
     </ClCompile>
     <ClCompile Include="split_tunneling\hostnames_manager\ares_library_init.cpp">
       <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

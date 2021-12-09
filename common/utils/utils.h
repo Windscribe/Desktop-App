@@ -55,6 +55,7 @@ namespace Utils {
     bool copyDirectoryRecursive(QString fromDir, QString toDir);
     bool removeDirectory(const QString dir);
 
-
+    // TODO: remove this function when the gui and engine are merged.
+    bool isParentProcessGui();
 }
 #endif // UTILS_H

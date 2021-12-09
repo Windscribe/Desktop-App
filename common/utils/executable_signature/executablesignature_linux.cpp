@@ -144,12 +144,6 @@ bool ExecutableSignature_linux::verifyWithPublicKey(const std::string &exePath, 
 
 #ifdef QT_CORE_LIB
 
-bool ExecutableSignature_linux::isParentProcessGui()
-{
-    // TODO
-    return true;
-}
-
 // Assumed hierarchy:
 /* INSTALL_LOCATION = /usr/local/windscribe (default)
  *      signatures/

@@ -1,19 +1,27 @@
-#include "executable_signature_defs.h"
 #include "executable_signature_win.h"
-#include <tlhelp32.h>
-#include <psapi.h>
 
-#ifdef QT_CORE_LIB
-#include <QCoreApplication>
-#include <QDir>
-#endif
+#include <WinTrust.h>
+#include <SoftPub.h>
 
-#pragma comment (lib, "wintrust")
+#include <codecvt>
+
+#include "executable_signature_defs.h"
+#include "executable_signature.h"
+
+#pragma comment(lib, "wintrust")
 #pragma comment(lib, "crypt32.lib")
 
-bool ExecutableSignature_win::verify(const wchar_t *szExePath)
+ExecutableSignaturePrivate::ExecutableSignaturePrivate(ExecutableSignature* const q) : q_ptr(q)
 {
-	if (!verifyEmbeddedSignature(szExePath))
+}
+
+ExecutableSignaturePrivate::~ExecutableSignaturePrivate()
+{
+}
+
+bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
+{
+    if (!verifyEmbeddedSignature(exePath))
 	{
 		return false;
 	}
@@ -28,10 +36,11 @@ bool ExecutableSignature_win::verify(const wchar_t *szExePath)
 	DWORD dwEncoding, dwContentType, dwFormatType;
 	CERT_INFO CertInfo;
 
-	BOOL fResult = CryptQueryObject(CERT_QUERY_OBJECT_FILE, szExePath, CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED_EMBED, CERT_QUERY_FORMAT_FLAG_BINARY,
+    BOOL fResult = CryptQueryObject(CERT_QUERY_OBJECT_FILE, exePath.c_str(), CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED_EMBED, CERT_QUERY_FORMAT_FLAG_BINARY,
 									0, &dwEncoding, &dwContentType, &dwFormatType, &hStore, &hMsg, NULL);
 	if (!fResult)
 	{
+        q_ptr->setLastError(L"CryptoQueryObject failed: " + std::to_wstring(::GetLastError()));
 		return false;
 	}
 
@@ -39,7 +48,8 @@ bool ExecutableSignature_win::verify(const wchar_t *szExePath)
 	fResult = CryptMsgGetParam(hMsg, CMSG_SIGNER_INFO_PARAM, 0, NULL, &dwSignerInfo);
 	if (!fResult)
 	{
-		goto finish;
+        q_ptr->setLastError(L"CryptMsgGetParam(size check) failed: " + std::to_wstring(::GetLastError()));
+        goto finish;
 	}
 
     // cppcheck-suppress LocalAllocCalled
@@ -50,7 +60,8 @@ bool ExecutableSignature_win::verify(const wchar_t *szExePath)
 	fResult = CryptMsgGetParam(hMsg, CMSG_SIGNER_INFO_PARAM, 0,	(PVOID)pSignerInfo,	&dwSignerInfo);
 	if (!fResult)
 	{
-		goto finish;
+        q_ptr->setLastError(L"CryptMsgGetParam failed: " + std::to_wstring(::GetLastError()));
+        goto finish;
 	}
 
 	// Search for the signer certificate in the temporary  certificate store.
@@ -60,7 +71,8 @@ bool ExecutableSignature_win::verify(const wchar_t *szExePath)
 	pCertContext = CertFindCertificateInStore(hStore, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,	0, CERT_FIND_SUBJECT_CERT, (PVOID)&CertInfo,NULL);
 	if (!pCertContext)
 	{
-		goto finish;
+        q_ptr->setLastError(L"CertFindCertificateInStore failed: " + std::to_wstring(::GetLastError()));
+        goto finish;
 	}
 
 	isValid = checkWindscribeCertificate(pCertContext);
@@ -74,14 +86,14 @@ finish:
 	return isValid;
 }
 
-bool ExecutableSignature_win::verifyEmbeddedSignature(const wchar_t *pwszSourceFile)
+bool ExecutableSignaturePrivate::verifyEmbeddedSignature(const std::wstring &exePath)
 {
 	bool isValid = false;
 
 	WINTRUST_FILE_INFO FileData;
 	memset(&FileData, 0, sizeof(FileData));
 	FileData.cbStruct = sizeof(WINTRUST_FILE_INFO);
-	FileData.pcwszFilePath = pwszSourceFile;
+    FileData.pcwszFilePath = exePath.c_str();
 	FileData.hFile = NULL;
 	FileData.pgKnownSubject = NULL;
 
@@ -107,21 +119,26 @@ bool ExecutableSignature_win::verifyEmbeddedSignature(const wchar_t *pwszSourceF
 
 	// Any hWVTStateData must be released by a call with close.
 	WinTrustData.dwStateAction = WTD_STATEACTION_CLOSE;
-	lStatus = WinVerifyTrust(NULL, &WVTPolicyGUID, &WinTrustData);
+    WinVerifyTrust(NULL, &WVTPolicyGUID, &WinTrustData);
+
+    if (!isValid) {
+        q_ptr->setLastError(L"WinVerifyTrust returned: " + std::to_wstring(lStatus));
+    }
 
 	return isValid;
 }
 
-bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertContext)
+bool ExecutableSignaturePrivate::checkWindscribeCertificate(PCCERT_CONTEXT pCertContext)
 {
 	bool fReturn = false;
 	LPTSTR szName = NULL;
 
-	// Get Subject name size.
+    // Get Subject name size.
     DWORD dwData = CertGetNameString(pCertContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, NULL, 0);
 	if (!dwData)
 	{
-		return false;
+        q_ptr->setLastError(L"CertGetNameString(size check) failed");
+        return false;
 	}
 	
     // cppcheck-suppress LocalAllocCalled
@@ -129,7 +146,8 @@ bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertCon
 	if (!(CertGetNameString(pCertContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, szName, dwData)))
 	{
 		LocalFree(szName);
-		return false;
+        q_ptr->setLastError(L"CertGetNameString failed");
+        return false;
 	}
 
     fReturn = (wcscmp(szName, WINDOWS_CERT_SUBJECT_NAME) == 0);
@@ -138,68 +156,3 @@ bool ExecutableSignature_win::checkWindscribeCertificate(PCCERT_CONTEXT pCertCon
 
 	return fReturn;
 }
-
-#ifdef QT_CORE_LIB
-
-bool ExecutableSignature_win::isParentProcessGui()
-{
-    HANDLE hSnapshot;
-    PROCESSENTRY32 pe32;
-    DWORD ppid = 0, pid = GetCurrentProcessId();
-
-    hSnapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
-    if (hSnapshot == INVALID_HANDLE_VALUE)
-    {
-        return false;
-    }
-
-    ZeroMemory( &pe32, sizeof( pe32 ) );
-    pe32.dwSize = sizeof( pe32 );
-    if( !Process32First( hSnapshot, &pe32 ) )
-    {
-        CloseHandle(hSnapshot);
-        return false;
-    }
-
-    do {
-        if( pe32.th32ProcessID == pid )
-        {
-            ppid = pe32.th32ParentProcessID;
-            break;
-        }
-    } while( Process32Next( hSnapshot, &pe32 ) );
-
-    CloseHandle( hSnapshot );
-
-    if (ppid == 0)
-    {
-        return false;
-    }
-
-    HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, ppid);
-    if (processHandle == NULL)
-    {
-        return false;
-    }
-
-    wchar_t filename[MAX_PATH];
-    if (GetModuleFileNameEx(processHandle, NULL, filename, MAX_PATH) == 0)
-    {
-        CloseHandle(processHandle);
-        return false;
-    }
-    CloseHandle(processHandle);
-
-    QString parentPath = QString::fromStdWString(filename);
-    QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe.exe";
-    guiPath = QDir::toNativeSeparators(QDir::cleanPath(guiPath));
-
-    return (parentPath.compare(guiPath, Qt::CaseInsensitive) == 0) && verify(parentPath);
-}
-
-bool ExecutableSignature_win::verify(const QString &executablePath)
-{
-    return verify(executablePath.toStdWString().c_str());
-}
-
-#endif
