@@ -40,7 +40,6 @@ void NetworkDetectionManager_mac::updateCurrentNetworkInterface()
     QMutexLocker locker(&mutex_);
 
     ProtoTypes::NetworkInterface networkInterface = MacUtils::currentNetworkInterface();
-    networkInterface.set_requested(false);
     lastNetworkInterface_ = networkInterface;
 
     QString strNetworkInterface;
@@ -51,7 +50,6 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
 {
     const ProtoTypes::NetworkInterface &networkInterface = MacUtils::currentNetworkInterface();
     const ProtoTypes::NetworkInterfaces &networkList = MacUtils::currentNetworkInterfaces(true);
-
     const ProtoTypes::NetworkInterfaces &wifiInterfaces = MacUtils::currentlyUpWifiInterfaces();
     bool wifiAdapterUp = wifiInterfaces.networks_size() > 0;
 
