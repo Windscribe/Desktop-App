@@ -8,6 +8,7 @@
 #include "engine/apiinfo/notification.h"
 #include "engine/apiinfo/portmap.h"
 #include "engine/apiinfo/staticips.h"
+#include "engine/apiinfo/checkupdate.h"
 #include "engine/proxy/proxysettings.h"
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
@@ -83,7 +84,7 @@ signals:
     void serverConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void portMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap, uint userRole);
     void myIPAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);
-    void checkUpdateAnswer(bool bAvailable, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
+    void checkUpdateAnswer(const apiinfo::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
     void debugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void confirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void staticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
@@ -91,6 +92,7 @@ signals:
     void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<apiinfo::Notification> notifications, uint userRole);
     void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
     void webSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
+    void sendUserWarning(ProtoTypes::UserWarningType warning);
 
     // need for add to firewall rules
     void hostIpsChanged(const QStringList &hostIps);

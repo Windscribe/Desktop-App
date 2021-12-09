@@ -1,6 +1,7 @@
 #include "enginesettings.h"
 #include "ipc/protobufcommand.h"
 #include "utils/logger.h"
+#include "utils/winutils.h"
 
 const int typeIdEngineSettings = qRegisterMetaType<EngineSettings>("EngineSettings");
 
@@ -22,33 +23,58 @@ void EngineSettings::saveToSettings()
     QByteArray arr(size, Qt::Uninitialized);
     engineSettings_.SerializeToArray(arr.data(), size);
 
-    settings.setValue("engineSettings", simpleCrypt_.encryptToString(arr));
+    // Changed engineSettings to engineSettings2 when settings enrcyption was added.
+    settings.setValue("engineSettings2", simpleCrypt_.encryptToString(arr));
 }
 
 void EngineSettings::loadFromSettings()
 {
     QSettings settings;
 
-    if (settings.contains("engineSettings"))
+    const bool containsEncryptedSettings = settings.contains("engineSettings2");
+    const bool containsSettings = settings.contains("engineSettings");
+
+    if (containsEncryptedSettings || containsSettings)
     {
-        // qCDebug(LOG_BASIC) << "Decrypting Engine Settings...";
+        if(containsEncryptedSettings) {
+            qCDebug(LOG_BASIC) << "EngineSettings::loadFromSettings Engine Settings are encrypted. Decrypting Engine Settings...";
 
-        QString s = settings.value("engineSettings", "").toString();
-        QByteArray arr = simpleCrypt_.decryptToByteArray(s);
+            const QString s = settings.value("engineSettings2", "").toString();
+            const QByteArray arr = simpleCrypt_.decryptToByteArray(s);
 
-        // this check is necessary for migration from versions <= 2.3.3 to newer builds
-        // following versions encrypt engine settings to protect custom config path
-        // it can probably be removed at some point during beta -> full release transition
-        if (simpleCrypt_.lastError() != SimpleCrypt::ErrorNoError)
-        {
-            qCDebug(LOG_BASIC) << "EngineSettings is not encrypted -- deserializing";
-            arr = settings.value("engineSettings").toByteArray();
+            if (!engineSettings_.ParseFromArray(arr.data(), arr.size()))
+            {
+                qCDebug(LOG_BASIC) << "Deserialization of EngineSettings has failed";
+            }
+        }
+        else if(containsSettings) {
+            qCDebug(LOG_BASIC) << "EngineSettings::loadFromSettings Engine Settings are not encrypted. Loading Engine Settings...";
+
+            const QByteArray arr = settings.value("engineSettings", "").toByteArray();
+            if (!engineSettings_.ParseFromArray(arr.data(), arr.size()))
+            {
+                qCDebug(LOG_BASIC) << "EngineSettings::loadFromSettings Loading of EngineSettings failed.";
+            }
+            settings.remove("engineSettings");
         }
 
-        if (!engineSettings_.ParseFromArray(arr.data(), arr.size()))
-        {
-            qCDebug(LOG_BASIC) << "Deserialization of EngineSettings has failed";
+#if defined(Q_OS_LINUX)
+        // IKEv2 is dissabled on linux but is default protocol in ProtoTypes::ConnectionSettings.
+        // UDP should be default on Linux.
+        if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
+            engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
+            engineSettings_.mutable_connection_settings()->set_port(443);
         }
+#elif defined(Q_OS_WINDOWS)
+        // Wireguard connection mode was disabled on Windows 7 32-bit since 2.3.12 13th build.
+        // If it was saved in settings since the last build it is necessary to reset it.
+        if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_WIREGUARD) {
+            if(WinUtils::isWindows7() && !WinUtils::isWindows64Bit()) {
+                engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_IKEV2);
+                engineSettings_.mutable_connection_settings()->set_port(500);
+            }
+        }
+#endif
     }
     // try load settings from version 1
     else

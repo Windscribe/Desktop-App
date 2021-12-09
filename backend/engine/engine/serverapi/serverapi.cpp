@@ -14,7 +14,7 @@
 #include "utils/ipvalidation.h"
 #include "version/appversion.h"
 #include "../tests/sessionandlocations_test.h"
-
+#include "utils/extraconfig.h"
 #include <algorithm>
 
 #ifdef Q_OS_LINUX
@@ -78,16 +78,7 @@ namespace
 // Interval, in ms, between polling requests, to remove expired and timed out.
 const int REQUEST_POLL_INTERVAL_MS = 100;
 
-QString GetPlatformName()
-{
-#ifdef Q_OS_WIN
-    return "windows";
-#elif defined Q_OS_MAC
-    return "osx";
-#elif defined Q_OS_LINUX
-    return LinuxUtils::getPlatformName();
-#endif
-}
+
 
 QUrlQuery MakeQuery(const QString &authHash, bool bAddOpenVpnVersion = false)
 {
@@ -105,7 +96,7 @@ QUrlQuery MakeQuery(const QString &authHash, bool bAddOpenVpnVersion = false)
     if (bAddOpenVpnVersion)
         query.addQueryItem("ovpn_version",
                            OpenVpnVersionController::instance().getSelectedOpenVpnVersion());
-    query.addQueryItem("platform", GetPlatformName());
+    query.addQueryItem("platform", Utils::getPlatformNameSafe());
 
     return query;
 }
@@ -695,10 +686,18 @@ void ServerAPI::myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequest
 
 void ServerAPI::checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint userRole, bool isNeedCheckRequestsEnabled)
 {
+    // This check will only be useful in the case that we expand our supported linux OSes and the platform flag is not added for that OS
+    if (Utils::getPlatformName() == "")
+    {
+        qCDebug(LOG_SERVER_API) << "Check update failed: Platform name is invalid";
+        Q_EMIT sendUserWarning(ProtoTypes::USER_WARNING_CHECK_UPDATE_INVALID_PLATFORM);
+        return;
+    }
+
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
         qCDebug(LOG_SERVER_API) << "Check update failed: API not ready";
-        emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, true, userRole);
+        emit checkUpdateAnswer(apiinfo::CheckUpdate(), true, userRole);
         return;
     }
 
@@ -901,7 +900,7 @@ void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStri
     postData.addQueryItem("session_type_id", "3");
     postData.addQueryItem("time", strTimestamp);
     postData.addQueryItem("client_auth_hash", md5Hash);
-    postData.addQueryItem("platform", GetPlatformName());
+    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -929,7 +928,7 @@ void ServerAPI::handleSessionDnsResolve(BaseRequest *rd, bool success, const QSt
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
     QUrl url("https://" + crd->getHostname() + "/Session?session_type_id=3&time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + GetPlatformName());
+             + "&platform=" + Utils::getPlatformNameSafe());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -979,7 +978,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         }
 
         query.addQueryItem("browser", "mobike");
-        query.addQueryItem("platform", GetPlatformName());
+        query.addQueryItem("platform", Utils::getPlatformNameSafe());
 
         // add alc parameter in query, if not empty
         if (!alcField.isEmpty())
@@ -1009,7 +1008,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         if (!alcField.isEmpty())
         {
             QUrlQuery query;
-            query.addQueryItem("platform", GetPlatformName());
+            query.addQueryItem("platform", Utils::getPlatformNameSafe());
             query.addQueryItem("alc", alcField);
             url.setQuery(query);
         }
@@ -1138,7 +1137,7 @@ void ServerAPI::handleRecordInstallDnsResolve(BaseRequest *rd, bool success, con
     QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
     QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash
-                + "&platform=" + GetPlatformName();
+                + "&platform=" + Utils::getPlatformNameSafe();
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(str.toUtf8());
@@ -1169,7 +1168,7 @@ void ServerAPI::handleConfirmEmailDnsResolve(BaseRequest *rd, bool success, cons
     postData.addQueryItem("time", strTimestamp);
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("session_auth_hash", crd->getAuthHash());
-    postData.addQueryItem("platform", GetPlatformName());
+    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1195,7 +1194,7 @@ void ServerAPI::handleMyIPDnsResolve(BaseRequest *rd, bool success, const QStrin
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
 
     QUrl url("https://" + crd->getHostname() + "/MyIp?time=" + strTimestamp + "&client_auth_hash="
-             + md5Hash + "&platform=" + GetPlatformName());
+             + md5Hash + "&platform=" + Utils::getPlatformNameSafe());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1209,7 +1208,7 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request CheckUpdate failed: DNS-resolution failed";
-        emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, true, crd->getUserRole());
+        emit checkUpdateAnswer(apiinfo::CheckUpdate(), true, crd->getUserRole());
         return;
     }
 
@@ -1223,7 +1222,7 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     QUrlQuery query;
     query.addQueryItem("time", strTimestamp);
     query.addQueryItem("client_auth_hash", md5Hash);
-    query.addQueryItem("platform", GetPlatformName());
+    query.addQueryItem("platform", Utils::getPlatformNameSafe());
 
     query.addQueryItem("version", AppVersion::instance().version());
     query.addQueryItem("build", AppVersion::instance().build());
@@ -1234,6 +1233,10 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     else if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
     {
         query.addQueryItem("beta", "2");
+    }
+    else if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_INTERNAL)
+    {
+        query.addQueryItem("beta", "3");
     }
 
     // add OS version and build
@@ -1249,6 +1252,8 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     }
 
     url.setQuery(query);
+
+    // qCDebug(LOG_BASIC) << "Check update query: " << url;
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1281,7 +1286,7 @@ void ServerAPI::handleDebugLogDnsResolve(BaseRequest *rd, bool success, const QS
     postData.addQueryItem("logfile", ba.toBase64());
     if (!crd->getUsername().isEmpty())
         postData.addQueryItem("username", crd->getUsername());
-    postData.addQueryItem("platform", GetPlatformName());
+    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1310,7 +1315,7 @@ void ServerAPI::handleSpeedRatingDnsResolve(BaseRequest *rd, bool success, const
     QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash + "&session_auth_hash="
                   + crd->getAuthHash() + "&hostname=" + crd->getSpeedRatingHostname() + "&rating="
                   + QString::number(crd->getRating()) + "&ip=" + crd->getIp()
-                  + "&platform=" + GetPlatformName();
+                  + "&platform=" + Utils::getPlatformNameSafe();
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(str.toUtf8());
@@ -1339,7 +1344,7 @@ void ServerAPI::handleNotificationsDnsResolve(BaseRequest *rd, bool success, con
 
     QUrl url("https://" + crd->getHostname() + "/Notifications?time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + GetPlatformName());
+             + "&platform=" + Utils::getPlatformNameSafe());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1366,7 +1371,7 @@ void ServerAPI::handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, c
 
     QUrl url("https://" + crd->getHostname() + "/WgConfigs?time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + GetPlatformName());
+             + "&platform=" + Utils::getPlatformNameSafe());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1398,7 +1403,7 @@ void ServerAPI::handleWebSessionDnsResolve(ServerAPI::BaseRequest *rd, bool succ
     postData.addQueryItem("time", strTimestamp);
     postData.addQueryItem("session_auth_hash", crd->getAuthHash());
     postData.addQueryItem("client_auth_hash", md5Hash);
-    postData.addQueryItem("platform", GetPlatformName());
+    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1437,7 +1442,7 @@ void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const Q
     QUrl url("https://" + crd->getHostname() + "/StaticIps?time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
              + "&device_id=" + crd->getDeviceId() + "&os=" + strOs
-             + "&platform=" + GetPlatformName());
+             + "&platform=" + Utils::getPlatformNameSafe());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -2026,7 +2031,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
     if (curlRetCode != CURLE_OK)
     {
         qCDebug(LOG_SERVER_API) << "Check update failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-        emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, true, userRole);
+        emit checkUpdateAnswer(apiinfo::CheckUpdate(), true, userRole);
     }
     else
     {
@@ -2038,7 +2043,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
             return;
         }
 
@@ -2046,7 +2051,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
 
         if (jsonObject.contains("errorCode"))
         {
-            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
             return;
         }
 
@@ -2054,7 +2059,7 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
             return;
         }
         QJsonObject jsonData =  jsonObject["data"].toObject();
@@ -2062,14 +2067,14 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
             return;
         }
 
         int updateNeeded = jsonData["update_needed_flag"].toInt();
         if (updateNeeded != 1)
         {
-            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
             return;
         }
 
@@ -2077,38 +2082,27 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
             return;
         }
         if (!jsonData.contains("update_url"))
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(false, "", ProtoTypes::UPDATE_CHANNEL_RELEASE, 0, "", true, false, userRole);
+            emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
             return;
         }
-        int supported = true;
-        if (jsonData.contains("supported"))
+
+        apiinfo::CheckUpdate cu;
+        QString err;
+        if (!cu.initFromJson(jsonData,err))
         {
-            supported = jsonData["supported"].toInt();
+            qCDebug(LOG_SERVER_API) << err;
+            emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
+            return;
         }
 
-        ProtoTypes::UpdateChannel updateChannel = ProtoTypes::UPDATE_CHANNEL_RELEASE;
-        if (jsonData.contains("is_beta"))
-        {
-            updateChannel = static_cast<ProtoTypes::UpdateChannel>(jsonData["is_beta"].toInt());
-        }
-
-        int latestBuild = 0;
-        if (jsonData.contains("latest_build"))
-        {
-            latestBuild = jsonData["latest_build"].toInt();
-        }
-
-        QString latestVersion = jsonData["latest_version"].toString();
-        QString updateUrl = jsonData["update_url"].toString();
-
-        emit checkUpdateAnswer(true, latestVersion, updateChannel, latestBuild, updateUrl, supported == 1, false, userRole);
+        emit checkUpdateAnswer(cu, false, userRole);
     }
 }
 

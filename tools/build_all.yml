@@ -323,8 +323,7 @@ macdeployfixes:
       Contents/Helpers/libssl.1.1.dylib:
         openssl:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
-    codesign:
-      sign_app: yes
+    entitlements:
       entitlements_binary: Contents/MacOS/WindscribeEngine
       entitlements_file: backend/engine/mac/windscribe_engine.entitlements
   gui:
@@ -336,5 +335,4 @@ macdeployfixes:
       Contents/MacOS/windscribe-cli:
         protobuf:
           - lib/libprotobuf.25.dylib -> ../Frameworks/libprotobuf.25.dylib
-    codesign:
-      sign_app: no
+

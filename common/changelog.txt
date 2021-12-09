@@ -1,3 +1,14 @@
+2.03.13 (08/12/2021)
+* Set udp as default protocol in engine on Linux. #583
+* Added application changes for auto-update platform detection fix. #553
+* Disabled wireguard for windows 7 32-bit. #565
+* Auto-connect feature fixed on Mac. #603
+* Preferences being reset on upgrade to build 12. #605
+* Updated the method for detecting systemd-resolved utility. #608
+* Added a dependency on the autoconnect state for the initial firewall state. #611
+* Added hash verification, removed installer signatures and public key on Linux, and added internal build channel override. #538
+* Fixed MAC spoofing failure. #537
+
 2.03.12 (22/11/2021)
 * Autoupdate download issue fixed. #531
 * Change proxy gateway "Connect To" text to "IP". #564

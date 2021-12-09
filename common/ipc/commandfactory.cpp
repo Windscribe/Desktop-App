@@ -158,6 +158,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCClientCommands::MakeHostsWritableWin>(buf, size);
     }
+    else if (strId == IPCClientCommands::AdvancedParametersChanged::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCClientCommands::AdvancedParametersChanged>(buf, size);
+    }
     // servers commands
     else if (strId == IPCServerCommands::AuthReply::descriptor()->full_name())
     {

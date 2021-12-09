@@ -11,9 +11,7 @@
 
 bool ExecutableSignature::isParentProcessGui()
 {
-#ifdef QT_DEBUG
-    return true;
-#else
+#ifdef USE_SIGNATURE_CHECK
     #ifdef Q_OS_WIN
         return ExecutableSignature_win::isParentProcessGui(HardcodedSettings::instance().windowsCertName());
     #elif defined Q_OS_MAC
@@ -21,15 +19,14 @@ bool ExecutableSignature::isParentProcessGui()
     #elif defined Q_OS_LINUX
         return ExecutableSignature_linux::isParentProcessGui();
     #endif
+#else
+    return true;
 #endif
 }
 
 bool ExecutableSignature::verify(const QString &executablePath)
 {
-#ifdef QT_DEBUG
-    Q_UNUSED(executablePath);
-    return true;
-#else
+#ifdef USE_SIGNATURE_CHECK
     #ifdef Q_OS_WIN
         return ExecutableSignature_win::verify(executablePath, HardcodedSettings::instance().windowsCertName());
     #elif defined Q_OS_MAC
@@ -37,15 +34,15 @@ bool ExecutableSignature::verify(const QString &executablePath)
     #elif defined Q_OS_LINUX
         return ExecutableSignature_linux::verify(executablePath);
     #endif
+#else
+    Q_UNUSED(executablePath);
+    return true;
 #endif
 }
 
 bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
 {
-#ifdef QT_DEBUG
-    Q_UNUSED(executable);
-    return true;
-#else
+#ifdef USE_SIGNATURE_CHECK
     #ifdef Q_OS_WIN
         return ExecutableSignature_win::verify(executable, HardcodedSettings::instance().windowsCertName());
     #elif defined Q_OS_MAC
@@ -53,5 +50,8 @@ bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
     #elif defined Q_OS_LINUX
         return ExecutableSignature_linux::verify(executable);
     #endif
+#else
+    Q_UNUSED(executable);
+    return true;
 #endif
 }

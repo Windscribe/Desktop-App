@@ -17,13 +17,12 @@ public:
         return s;
     }
 
-    QString scriptPath() const;
+    QString scriptPath();
 
 private:
     DnsScripts_linux();
-
-    bool isResolvConfInstalled_;
-
+    bool isUseResolvConf(bool bForceLogging);
+    bool lastIsResolvConf_;
 };
 
 #endif // DNS_SCRIPTS_LINUX_H

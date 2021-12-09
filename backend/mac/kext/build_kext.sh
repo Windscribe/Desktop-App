@@ -19,7 +19,7 @@ mkdir -p "$CUR_PATH/Binary"
 cp -a "${OUT_DIR}/WindscribeKext.kext" "$CUR_PATH/Binary/WindscribeKext.kext"
 
 
-codesign --force --deep "$CUR_PATH/Binary/WindscribeKext.kext" -s "Developer ID Application: Windscribe Limited (GYZJYS7XUG)" --options runtime --timestamp
+codesign --force --deep "$CUR_PATH/Binary/WindscribeKext.kext" -s "$SIGNING_IDENTITY" --options runtime --timestamp
 
 popd
 echo "Kext build succeeded"

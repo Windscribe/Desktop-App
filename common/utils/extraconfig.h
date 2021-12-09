@@ -40,6 +40,8 @@ public:
     int getTunnelTestRetryDelay(bool &success);
     int getTunnelTestAttempts(bool &success);
 
+    bool getOverrideUpdateChannelToInternal();
+
 private:
     ExtraConfig();
 
@@ -50,6 +52,8 @@ private:
 
     int getIntFromLineWithString(const QString &line, const QString &str, bool &success);
     int getIntFromExtraConfigLines(const QString &variableName, bool &success);
+    bool getFlagFromExtraConfigLines(const QString &flagName);
+
     bool isLegalOpenVpnCommand(const QString &command) const;
 
 };

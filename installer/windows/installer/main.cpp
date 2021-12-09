@@ -131,7 +131,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
            expectedArgumentCount += 1;
        }
 
-       int install_path_index = 0, install_path_count;
+       int install_path_index = 0;
        if (GetCommandLineArgumentIndex(L"-dir", &install_path_index))
        {
            if (install_path_index > 0)

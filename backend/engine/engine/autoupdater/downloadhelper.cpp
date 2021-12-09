@@ -12,9 +12,10 @@
 #include "utils/linuxutils.h"
 #endif
 
-DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager) : QObject(parent)
+DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &platform) : QObject(parent)
   , networkAccessManager_(networkAccessManager)
   , busy_(false)
+  , platform_(platform)
   , downloadDirectory_(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
   , progressPercent_(0)
   , state_(DOWNLOAD_STATE_INIT)
@@ -37,7 +38,7 @@ const QString DownloadHelper::downloadInstallerPath()
     const QString path = downloadInstallerPathWithoutExtension() + ".dmg";
 #elif defined Q_OS_LINUX
     QString path;
-    if(LinuxUtils::isDeb()) {
+    if(platform_ == LinuxUtils::DEB_PLATFORM_NAME) { // if getPlatformName() fails, we should never get this far anyway
         path = downloadInstallerPathWithoutExtension() + ".deb";
     }
     else {
@@ -213,22 +214,7 @@ void DownloadHelper::removeAutoUpdateInstallerFiles()
         QFile::remove(installerPath);
     }
 
-#ifdef Q_OS_LINUX
-    // remove pre-existing signature and public key:
-    // | signature and key were required to verify the auto-update installer
-    const QString &signaturePath = signatureInstallPath();
-    if (QFile::exists(signaturePath))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Removing auto-update installer signature";
-        QFile::remove(signaturePath);
-    }
-    const QString &publicKeyPath = publicKeyInstallPath();
-    if (QFile::exists(publicKeyPath))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Removing auto-update installer key";
-        QFile::remove(publicKeyPath);
-    }
-#elif defined Q_OS_MAC
+#ifdef Q_OS_MAC
     // remove temp installer.app on mac:
     // | installer.app was unpacked from above .dmg
     const QString & installerApp = downloadDirectory_ + "/" + INSTALLER_FILENAME_MAC_APP;
@@ -270,14 +256,4 @@ void DownloadHelper::deleteAllReplies()
         replies_.remove(reply);
         reply->deleteLater();
     }
-}
-
-const QString DownloadHelper::publicKeyInstallPath()
-{
-    return downloadInstallerPathWithoutExtension() + ".key";
-}
-
-const QString DownloadHelper::signatureInstallPath()
-{
-    return downloadInstallerPath() + ".sig";
 }
