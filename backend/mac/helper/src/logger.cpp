@@ -14,7 +14,7 @@ void logOut(const char *str, ...)
     if (cnt >= 0 && cnt < sizeof(buf))
     {
         printf("%s\n", buf);
-        syslog(LOG_NOTICE, buf);
+        syslog(LOG_NOTICE, "%s", buf);
     }
 }
 

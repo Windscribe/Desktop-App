@@ -9,7 +9,6 @@
 #include <QString>
 #endif
 
-// check that the exe-file is signed with the "Windscribe Limited" certificate
 class ExecutableSignature_win
 {
 public:

@@ -8,6 +8,8 @@
 #include <string>
 #include <mach-o/dyld.h>
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS 1
+
 #include <boost/bind.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>

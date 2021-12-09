@@ -183,7 +183,6 @@ installer:
   macos: installer_mac
   linux: installer_linux
 
-# don't forget to clean for open source
 windows_signing_cert:
   path_signtool: installer/windows/signing/signtool.exe
   path_cert: installer/windows/signing/code_signing.pfx
@@ -325,8 +324,7 @@ macdeployfixes:
       Contents/Helpers/libssl.1.1.dylib:
         openssl:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
-    codesign:
-      sign_app: yes
+    entitlements:
       entitlements_binary: Contents/MacOS/WindscribeEngine
       entitlements_file: backend/engine/mac/windscribe_engine.entitlements
   gui:
@@ -338,5 +336,3 @@ macdeployfixes:
       Contents/MacOS/windscribe-cli:
         protobuf:
           - lib/libprotobuf.25.dylib -> ../Frameworks/libprotobuf.25.dylib
-    codesign:
-      sign_app: yes

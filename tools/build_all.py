@@ -44,7 +44,6 @@ import deps.installutils as iutl
 BUILD_TITLE = "Windscribe"
 BUILD_CFGNAME = "build_all.yml"
 BUILD_OS_LIST = ["win32", "macos", "linux"]
-BUILD_DEVELOPER_MAC = "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
 
 BUILD_APP_VERSION_STRING = ""
 BUILD_APP_VERSION_STRING_FULL = ""
@@ -52,11 +51,13 @@ BUILD_QMAKE_EXE = ""
 BUILD_MACDEPLOY = ""
 BUILD_INSTALLER_FILES = ""
 BUILD_SYMBOL_FILES = ""
+MAC_DEVELOPER_ID_KEY_NAME = ""
+MAC_DEVELOPER_TEAM_ID = ""
 global NO_POST_CLEAN # bool
 global BUILD_APP # bool
 global BUILD_COM # bool
 global BUILD_INSTALLER # bool
-global NO_SIGN_LINUX  
+global SIGN_APP # bool
 
 
 def RemoveFiles(files):
@@ -120,6 +121,35 @@ def ExtractAppVersion():
   version_strings = (version_only, version_with_beta)
   return version_strings
 
+def ExtractMacSigningParams():
+  version_file = os.path.join(COMMON_DIR, "utils", "executable_signature", "executable_signature_defs.h")
+  pattern = re.compile("^#define\\s+MACOS_CERT_DEVELOPER_ID\\s+")
+  key_name = ""
+  with open(version_file, "r") as f:
+    for line in f:
+      matched = pattern.search(line)
+      if matched:
+        key_name = line[len(matched.group(0)):].strip("\"\n")
+        break
+  if len(key_name) == 0:
+    raise IOError("The MACOS_CERT_DEVELOPER_ID define was not found in '{}'. This entry is required for code signing and runtime signature verification.".format(version_file))
+  team_id = ""
+  pattern = re.compile("\(([^]]+)\)")
+  matched = pattern.search(key_name)
+  if matched:
+    team_id = matched.group(0).strip("()")
+  if len(team_id) == 0:
+    raise IOError("The Team ID could not be extracted from '{}'. This entry is required for code signing and runtime signature verification.".format(key_name))
+  developer_strings = (key_name, team_id)
+  return developer_strings
+
+def GenerateIncludeFileFromPubKey(keypath, pubkey):
+  with open(pubkey, "r") as infile:
+    with open(os.path.join(keypath, "key_pub.txt"), "w") as outfile:
+      outfile.write("R\"(")
+      for line in infile:
+        outfile.write(line)
+      outfile.write(")\"")
 
 def UpdateVersionInPlist(plistfilename):
   with open(plistfilename, "r") as file:
@@ -135,7 +165,6 @@ def UpdateVersionInPlist(plistfilename):
   with open(plistfilename, "w") as file:
     file.write(filedata)
 
-
 def UpdateVersionInDebianControl(filename):
   with open(filename, "r") as file:
     filedata = file.read()
@@ -146,6 +175,19 @@ def UpdateVersionInDebianControl(filename):
   with open(filename, "w") as file:
     file.write(filedata)
 
+def UpdateTeamID(filename):
+  with open(filename, "r") as file:
+    filedata = file.read()
+  outdata = filedata.replace("$(DEVELOPMENT_TEAM)", MAC_DEVELOPER_TEAM_ID)
+  with open(filename, "w") as file:
+    file.write(outdata)
+
+def RestoreHelperInfoPList(filename):
+  with open(filename, "r") as file:
+    filedata = file.read()
+  outdata = filedata.replace(MAC_DEVELOPER_TEAM_ID, "$(DEVELOPMENT_TEAM)")
+  with open(filename, "w") as file:
+    file.write(outdata)
 
 def GetProjectFile(subdir_name, project_name):
   return os.path.normpath(os.path.join(ROOT_DIR, subdir_name, project_name))
@@ -227,22 +269,28 @@ def ApplyMacDeployFixes(appname, fixlist):
             change_lib_to = "@executable_path/{}".format(dstv)
             iutl.RunCommand(["install_name_tool", "-change", change_lib_from, change_lib_to, fs[1]])
   # 4. Code signing.
-  if "codesign" in fixlist:
-    # Signing the whole app.
-    if "sign_app" in fixlist["codesign"] and fixlist["codesign"]["sign_app"]:
-      msg.Info("Signing the app bundle...")
-      iutl.RunCommand(["codesign", "--deep", appname, "--options", "runtime", "--timestamp",
-                       "-s", BUILD_DEVELOPER_MAC])
-      # This validation is optional.
-      iutl.RunCommand(["codesign", "-v", appname])
-      # Only sign with entitlements if code signing is enabled.
-      if "entitlements_binary" in fixlist["codesign"]:
-        msg.Info("Signing a binary with entitlements...")
-        entitlements_binary = os.path.join(appname, fixlist["codesign"]["entitlements_binary"])
-        entitlements_file = os.path.join(ROOT_DIR, fixlist["codesign"]["entitlements_file"])
-        iutl.RunCommand(["codesign", "--entitlements", entitlements_file, "-f",
-                        "-s", BUILD_DEVELOPER_MAC, "--options", "runtime", "--timestamp",
-                        entitlements_binary])
+  # The Mac app must be signed in order to install and operate properly.
+  msg.Info("Signing the app bundle...")
+  iutl.RunCommand(["codesign", "--deep", appname, "--options", "runtime", "--timestamp", "-s", MAC_DEVELOPER_ID_KEY_NAME])
+  # This validation is optional.
+  iutl.RunCommand(["codesign", "-v", appname])
+  if "entitlements" in fixlist and "entitlements_binary" in fixlist["entitlements"] and "entitlements_file" in fixlist["entitlements"]:
+    # Can only sign with entitlements if the embedded provisioning file exists.  The engine will segfault on
+    # launch otherwise with a "EXC_CRASH (Code Signature Invalid)" exception type.
+    embedded_prov_file = os.path.join(ROOT_DIR, "backend", "mac", "provisioning_profile", "embedded.provisionprofile")
+    if os.path.exists(embedded_prov_file):
+      msg.Info("Signing a binary with entitlements...")
+      entitlements_binary = os.path.join(appname, fixlist["entitlements"]["entitlements_binary"])
+      entitlements_file = os.path.join(ROOT_DIR, fixlist["entitlements"]["entitlements_file"])
+      entitlements_file_temp = entitlements_file + "_temp"
+      utl.CopyFile(entitlements_file, entitlements_file_temp)
+      UpdateTeamID(entitlements_file_temp)
+      iutl.RunCommand(["codesign", "--entitlements", entitlements_file_temp, "-f",
+                      "-s", MAC_DEVELOPER_ID_KEY_NAME, "--options", "runtime", "--timestamp",
+                      entitlements_binary])
+      utl.RemoveFile(entitlements_file_temp)
+    else:
+      msg.Warn("No embedded.provisionprofile found for this project.  IKEv2 will not function in this build.")
 
 
 def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=None, target_name_override=None):
@@ -268,11 +316,12 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
     if c_project.endswith(".pro"):
       # Build Qt project.
       build_cmd = [BUILD_QMAKE_EXE, GetProjectFile(c_subdir, c_project), "CONFIG+=release silent"]
-      if "debug" in sys.argv:
-          # Allows us to check in the .pro file if build_all invoked with 'debug' flag.
-          build_cmd.extend(["CONFIG+=build_all_debug"])
+      if SIGN_APP:
+          build_cmd.extend(["CONFIG+=use_signature_check"])
       if c_iswin:
         build_cmd.extend(["-spec", "win32-msvc"])
+      if c_ismac:
+        build_cmd.extend(["DEVELOPMENT_TEAM={}".format(MAC_DEVELOPER_TEAM_ID)])
       iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
       iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=c_iswin)
       target_location = "release" if c_iswin else ""
@@ -282,6 +331,9 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
           deploy_cmd.append("-no-plugins")
         iutl.RunCommand(deploy_cmd, env=buildenv)
         UpdateVersionInPlist(os.path.join(temp_wd,component["macapp"], "Contents", "Info.plist"))
+        if component["name"] == "Engine":
+          # Could not find an automated way to do this like we could with the xcodebuild below.
+          UpdateTeamID(os.path.join(temp_wd,component["macapp"], "Contents", "Info.plist"))
     elif c_project.endswith(".vcxproj"):
       # Build MSVC project.
       conf = "Release_x64" if is_64bit else "Release"
@@ -296,11 +348,25 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
       target_location = "release-{}".format(c_bits)
     elif c_project.endswith(".xcodeproj"):
       # Build Xcode project.
-      build_cmd = ["xcodebuild", "-scheme", component["scheme"], "-configuration", "Release", "-quiet"]
+      build_cmd = ["xcodebuild", "-scheme", component["scheme"], "-configuration", "Release", "-quiet", "DEVELOPMENT_TEAM={}".format(MAC_DEVELOPER_TEAM_ID)]
       if "xcflags" in component:
         build_cmd.extend(component["xcflags"])
-      if buildenv and "ExternalCompilerOptions" in buildenv:
-        build_cmd.append("OTHER_CFLAGS={}".format(buildenv["ExternalCompilerOptions"]))
+      other_cflags = ""
+      if SIGN_APP:
+        other_cflags += "-DUSE_SIGNATURE_CHECK"
+      if component["name"] == "Helper":
+        # TODO: clean up all the warnings generated in the helper project.  They impede our ability to spot legitimate warnings.
+        other_cflags += " -Wno-incompatible-pointer-types-discards-qualifiers -Wno-strict-prototypes -Wno-enum-conversion -Wno-shorten-64-to-32 -Wno-incompatible-pointer-types"
+        msg.Warn("Compiler warnings suppressed for this project.")
+        # Update the team ID in the helper's plist.  xcodebuild won't do it for us as we are embedding the
+        # plist via the Other Linker Flags section of the Xcode project.
+        UpdateTeamID(os.path.join(ROOT_DIR, c_subdir, "src", "helper-info.plist"))
+      elif component["name"] == "Installer":
+        # TODO: clean this warning at some point.
+        other_cflags += " -Wno-deprecated-declarations"
+        msg.Warn("Compiler warnings suppressed for this project.")
+      if other_cflags:
+        build_cmd.append("OTHER_CFLAGS=$(inherited) " + other_cflags)
       build_cmd.extend(["clean", "build"])
       os.chdir(os.path.join(ROOT_DIR, c_subdir))
       # use temp file to update version info so change isn't observed by version control
@@ -315,6 +381,9 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
       # remove temp file -- no longer needed
       if temp_info_plist and os.path.exists(temp_info_plist):
         utl.RemoveFile(temp_info_plist)
+      if component["name"] == "Helper":
+        # Undo what UpdateTeamID did above so version control doesn't see the change.
+        RestoreHelperInfoPList(os.path.join(ROOT_DIR, c_subdir, "src", "helper-info.plist"))
       if c_target:
         outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | " \
                                           "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " \
@@ -366,11 +435,9 @@ def BuildComponents(configdata, targetlist, qt_root):
     buildenv.update({ "MAKEFLAGS" : "S" })
     buildenv.update(iutl.GetVisualStudioEnvironment())
     buildenv.update({ "CL" : "/MP" })
-    if "debug" in sys.argv:
-      buildenv.update({ "ExternalCompilerOptions" : "/DSKIP_PID_CHECK" })
-  else:
-    if "debug" in sys.argv:
-      buildenv.update({ "ExternalCompilerOptions" : "-DDISABLE_HELPER_SECURITY_CHECK=1" })
+    if SIGN_APP:
+      # Used by the windscribe_service Visual Studio project to enabled signature checking.
+      buildenv.update({ "ExternalCompilerOptions" : "/DUSE_SIGNATURE_CHECK" })
   # Build all components needed.
   has_64bit = False
   for target in targetlist:
@@ -486,12 +553,13 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
     CopyFiles("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
   # Pack symbols for crashdump analysis.
   PackSymbols()
-  # Sign executable files with a certificate.
-  SignExecutablesWin32(configdata)
-  # Sign AuthHelper DLLs
-  if BUILD_COM:
-    SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com"]["target"]))
-    SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com_proxy_stub"]["target"]))
+  if SIGN_APP:
+    # Sign executable files with a certificate.
+    SignExecutablesWin32(configdata)
+    # Sign AuthHelper DLLs
+    if BUILD_COM:
+      SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com"]["target"]))
+      SignExecutablesWin32(configdata, os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com_proxy_stub"]["target"]))
   # Place everything in a 7z archive.
   msg.Info("Zipping...")
   installer_info = configdata[configdata["installer"]["win32"]]
@@ -512,7 +580,8 @@ def BuildInstallerWin32(configdata, qt_root, msvc_root, crt_root):
     "Windscribe_{}.exe".format(BUILD_APP_VERSION_STRING_FULL)))
   utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                   installer_info["target"])), final_installer_name)
-  SignExecutablesWin32(configdata, final_installer_name)
+  if SIGN_APP:
+    SignExecutablesWin32(configdata, final_installer_name)
 
 
 def BuildInstallerMac(configdata, qt_root):
@@ -575,19 +644,13 @@ def BuildInstallerLinux(configdata, qt_root):
   CopyFile("windscribewstunnel",wstunnel_dir, BUILD_INSTALLER_FILES)
 
   # sign supplementary binaries and move the signatures into InstallerFiles/signatures
-  if not NO_SIGN_LINUX:
-    if not "debug" in sys.argv:
-      signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")
-      msg.Print("Creating signatures path: " + signatures_dir)
-      utl.CreateDirectory(signatures_dir, True)
-      if "files_codesign_linux" in configdata:
-        for binary_name in configdata["files_codesign_linux"]:
-          CodeSignLinux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
-
-  # Copy wstunnel
-  msg.Info("Copying wstunnel...")
-  wstunnel_dir = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "wstunnel")
-  CopyFile("windscribewstunnel",wstunnel_dir, BUILD_INSTALLER_FILES)
+  if SIGN_APP:
+    signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")
+    msg.Print("Creating signatures path: " + signatures_dir)
+    utl.CreateDirectory(signatures_dir, True)
+    if "files_codesign_linux" in configdata:
+      for binary_name in configdata["files_codesign_linux"]:
+        CodeSignLinux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
 
   if "license_files" in configdata:
     license_dir = os.path.join(COMMON_DIR, "licenses")
@@ -718,29 +781,30 @@ if __name__ == "__main__":
   BUILD_APP = not ("--no-app" in sys.argv)
   BUILD_COM = not ("--no-com" in sys.argv)
   BUILD_INSTALLER = not ("--no-installer" in sys.argv)
+  SIGN_APP = not ("--no-sign" in sys.argv)
 
-  # on linux we need keypair to sign -- check that they exists in the correct location
-  NO_SIGN_LINUX = False
-  if current_os == "linux":
-    NO_SIGN_LINUX = "--no-sign" in sys.argv
-    if not NO_SIGN_LINUX:
-      pubkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-      privkey = os.path.join(COMMON_DIR, "keys", "linux", "key.pem")
-      if not os.path.exists(pubkey) or not os.path.exists(privkey):
-        msg.Print("No keypair found to sign with. Consider running with '--no-sign'")
-        sys.exit(0);
-      
-  if current_os not in BUILD_OS_LIST:
-    msg.Print("{} is not needed on {}, skipping.".format(BUILD_TITLE, current_os))
-    sys.exit(0)
   try:
+    if current_os not in BUILD_OS_LIST:
+      raise IOError("Building {} is not supported on {}.".format(BUILD_TITLE, current_os))
+
     if OPTION_CLEAN in sys.argv:
       msg.Print("Cleaning...")
       CleanAll()
     else:
-      if current_os == "macos" and NOTARIZE_FLAG in sys.argv and not (CI_MODE_FLAG in sys.argv):
-        msg.Print("Cannot notarize from build_all. Use manual notarization if necessary (may break offline notarizing check for user), but notarization should be done by the CI for permissions reasons.")
-        sys.exit(0)
+      # on linux we need keypair to sign -- check that they exist in the correct location
+      if SIGN_APP and current_os == "linux":
+        keypath = os.path.join(COMMON_DIR, "keys", "linux")
+        pubkey = os.path.join(keypath, "key.pub")
+        privkey = os.path.join(keypath, "key.pem")
+        if not os.path.exists(pubkey) or not os.path.exists(privkey):
+          raise IOError("Code signing is enabled but key.pub and/or key.pem were not found in '{}'. Pass '--no-sign' to this script to disable code signing.".format(keypath))
+        GenerateIncludeFileFromPubKey(keypath, pubkey)
+
+      if current_os == "macos":
+        MAC_DEVELOPER_ID_KEY_NAME, MAC_DEVELOPER_TEAM_ID = ExtractMacSigningParams()
+        msg.Info("using signing identity - " + MAC_DEVELOPER_ID_KEY_NAME)
+        if NOTARIZE_FLAG in sys.argv and not (CI_MODE_FLAG in sys.argv):
+          raise IOError("Cannot notarize from build_all. Use manual notarization if necessary (may break offline notarizing check for user), but notarization should be done by the CI for permissions reasons.")
       msg.Print("Building {}...".format(BUILD_TITLE))
       BuildAll()
     exitcode = 0
@@ -750,9 +814,10 @@ if __name__ == "__main__":
   except IOError as e:
     msg.Error(e)
     exitcode = 1
-  elapsed_time = time.time() - start_time
-  if elapsed_time >= 60:
-    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
-  else:
-    msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
+  if exitcode == 0:
+    elapsed_time = time.time() - start_time
+    if elapsed_time >= 60:
+      msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
+    else:
+      msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
   sys.exit(exitcode)

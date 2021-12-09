@@ -3,8 +3,6 @@
 
 #include <QString>
 
-// Check that the executable file/process is signed with the "Windscribe Limited" certificate
-// Works only in release build
 // The class has the implementations:
 // * ExecutableSignature_win
 // * ExecutableSignature_mac
