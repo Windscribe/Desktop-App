@@ -11,12 +11,19 @@
 #pragma comment(lib, "wintrust")
 #pragma comment(lib, "crypt32.lib")
 
-ExecutableSignaturePrivate::ExecutableSignaturePrivate(ExecutableSignature* const q) : q_ptr(q)
+ExecutableSignaturePrivate::ExecutableSignaturePrivate(ExecutableSignature* const q) : ExecutableSignaturePrivateBase(q)
 {
 }
 
 ExecutableSignaturePrivate::~ExecutableSignaturePrivate()
 {
+}
+
+bool ExecutableSignaturePrivate::verify(const std::string& exePath)
+{
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::wstring converted = converter.from_bytes(exePath);
+    return verify(converted);
 }
 
 bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
@@ -40,7 +47,7 @@ bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 									0, &dwEncoding, &dwContentType, &dwFormatType, &hStore, &hMsg, NULL);
 	if (!fResult)
 	{
-        q_ptr->setLastError(L"CryptoQueryObject failed: " + std::to_wstring(::GetLastError()));
+        lastError_ << "CryptoQueryObject failed: " << ::GetLastError();
 		return false;
 	}
 
@@ -48,7 +55,7 @@ bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 	fResult = CryptMsgGetParam(hMsg, CMSG_SIGNER_INFO_PARAM, 0, NULL, &dwSignerInfo);
 	if (!fResult)
 	{
-        q_ptr->setLastError(L"CryptMsgGetParam(size check) failed: " + std::to_wstring(::GetLastError()));
+        lastError_ << "CryptMsgGetParam(size check) failed: " << (::GetLastError();
         goto finish;
 	}
 
@@ -60,7 +67,7 @@ bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 	fResult = CryptMsgGetParam(hMsg, CMSG_SIGNER_INFO_PARAM, 0,	(PVOID)pSignerInfo,	&dwSignerInfo);
 	if (!fResult)
 	{
-        q_ptr->setLastError(L"CryptMsgGetParam failed: " + std::to_wstring(::GetLastError()));
+        lastError_ << "CryptMsgGetParam failed: " << ::GetLastError();
         goto finish;
 	}
 
@@ -71,7 +78,7 @@ bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 	pCertContext = CertFindCertificateInStore(hStore, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,	0, CERT_FIND_SUBJECT_CERT, (PVOID)&CertInfo,NULL);
 	if (!pCertContext)
 	{
-        q_ptr->setLastError(L"CertFindCertificateInStore failed: " + std::to_wstring(::GetLastError()));
+        lastError_ << "CertFindCertificateInStore failed: " << ::GetLastError();
         goto finish;
 	}
 
@@ -122,7 +129,7 @@ bool ExecutableSignaturePrivate::verifyEmbeddedSignature(const std::wstring &exe
     WinVerifyTrust(NULL, &WVTPolicyGUID, &WinTrustData);
 
     if (!isValid) {
-        q_ptr->setLastError(L"WinVerifyTrust returned: " + std::to_wstring(lStatus));
+        lastError_ << "WinVerifyTrust returned: " << lStatus;
     }
 
 	return isValid;
@@ -137,7 +144,7 @@ bool ExecutableSignaturePrivate::checkWindscribeCertificate(PCCERT_CONTEXT pCert
     DWORD dwData = CertGetNameString(pCertContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, NULL, 0);
 	if (!dwData)
 	{
-        q_ptr->setLastError(L"CertGetNameString(size check) failed");
+        lastError_ << "CertGetNameString(size check) failed";
         return false;
 	}
 	
@@ -146,7 +153,7 @@ bool ExecutableSignaturePrivate::checkWindscribeCertificate(PCCERT_CONTEXT pCert
 	if (!(CertGetNameString(pCertContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, szName, dwData)))
 	{
 		LocalFree(szName);
-        q_ptr->setLastError(L"CertGetNameString failed");
+        lastError_ << "CertGetNameString failed";
         return false;
 	}
 

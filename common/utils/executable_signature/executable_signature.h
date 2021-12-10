@@ -27,6 +27,10 @@ class ExecutableSignaturePrivate;
     - You can use tools/create_new_linux_keypair.sh to create a key pair used to sign
       the binaries and verify their signature.  The key pair will be created in the
       common/keys/linux folder.
+    - The signature file used to validate an executable should be installed in a
+      'signatures' subfolder relative to the executable.
+      For example: to validate /usr/local/windscribe/windscribeapp, the signature file
+      must be in /usr/local/windscribe/signatures/windscribeapp.sig
 
 - ExecutableSignaturePrivate implemented for each platform in:
   - ExecutableSignature_win
@@ -41,17 +45,19 @@ public:
     explicit ExecutableSignature();
     ~ExecutableSignature();
 
+    // For use with Unicode file systems (MacOS/Windows).
     bool verify(const std::wstring &exePath);
+
+    // For use with non-Unicode file systems (Linux/FAT/etc).
+    bool verify(const std::string &exePath);
 
     // TODO: See ticket #614
     bool verifyWithSignCheck(const std::wstring &exePath);
 
-    const std::wstring& lastError() const;
-    void setLastError(const std::wstring& error);
+    std::string lastError() const;
 
 private:
     ExecutableSignaturePrivate* d_ptr;
-    std::wstring lastError_;
 };
 
 #endif // EXECUTABLE_SIGNATURE_H

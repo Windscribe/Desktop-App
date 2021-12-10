@@ -80,7 +80,7 @@ void Backend::init(bool recovery)
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(engineExePath.toStdWString()))
     {
-        qCDebug(LOG_BASIC()) << "Engine signature invalid: " << sigCheck.lastError();
+        qCDebug(LOG_BASIC()) << "Engine signature invalid: " << QString::fromStdString(sigCheck.lastError());
         emit initFinished(ProtoTypes::INIT_CLEAN);
         return;
     }

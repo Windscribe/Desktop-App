@@ -28,6 +28,7 @@ contains(CONFIG, use_signature_check) {
 }
 
 SOURCES += \
+        ../../../common/utils/executable_signature/executable_signature.cpp \
         ../../../common/utils/executable_signature/executablesignature_linux.cpp \
         execute_cmd.cpp \
         ipc/helper_security.cpp \
@@ -40,6 +41,7 @@ SOURCES += \
         wireguard/wireguardcontroller.cpp
 
 HEADERS += \
+    ../../../common/utils/executable_signature/executable_signature.h \
     ../../../common/utils/executable_signature/executablesignature_linux.h \
     ../../posix_common/helper_commands.h \
     ../../posix_common/helper_commands_serialize.h \

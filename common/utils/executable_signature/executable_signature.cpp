@@ -36,6 +36,16 @@ bool ExecutableSignature::verify(const std::wstring &exePath)
 #endif
 }
 
+bool ExecutableSignature::verify(const std::string &exePath)
+{
+#ifdef USE_SIGNATURE_CHECK
+    return d_ptr->verify(exePath);
+#else
+    (void)exePath;
+    return true;
+#endif
+}
+
 bool ExecutableSignature::verifyWithSignCheck(const std::wstring &exePath)
 {
 #ifdef USE_SIGNATURE_CHECK
@@ -50,12 +60,11 @@ bool ExecutableSignature::verifyWithSignCheck(const std::wstring &exePath)
 #endif
 }
 
-const std::wstring& ExecutableSignature::lastError() const
+std::string ExecutableSignature::lastError() const
 {
-    return lastError_;
-}
+    if (d_ptr != nullptr) {
+        return d_ptr->lastError();
+    }
 
-void ExecutableSignature::setLastError(const std::wstring& error)
-{
-    lastError_ = error;
+    return std::string("signature veification disabled");
 }

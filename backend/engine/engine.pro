@@ -267,9 +267,10 @@ QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_filesystem.a
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
-LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+LIBS +=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
 LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
 
@@ -305,11 +306,6 @@ HEADERS += \
            engine/connectionmanager/ikev2connection_linux.h \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
            engine/macaddresscontroller/macaddresscontroller_linux.h
-
-contains(DEFINES, USE_SIGNATURE_CHECK) {
-    RESOURCES += \
-        $$COMMON_PATH/common_linux.qrc
-}
 
 } # linux
 
