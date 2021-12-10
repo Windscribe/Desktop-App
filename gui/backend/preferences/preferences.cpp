@@ -15,7 +15,14 @@
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
 {
-
+#if defined(Q_OS_LINUX)
+    // ProtoTypes::ConnectionSettings has IKEv2 as default protocol in default instance.
+    // But Linux doesn't support IKEv2. It is necessary to change with UDP.
+    auto settings = engineSettings_.connection_settings();
+    settings.set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
+    settings.set_port(443);
+    *engineSettings_.mutable_connection_settings() = settings;
+#endif
 }
 
 bool Preferences::isLaunchOnStartup() const
