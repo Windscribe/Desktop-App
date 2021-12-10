@@ -1,3 +1,10 @@
+2.03.14 (10/12/2021)
+* Added 'ws-' prefix to windscribe advanced parameters and added 'ws-' ignoring by openvpn. #616
+* Reconnect loop on Mac fixed. #603
+* Remove IKEv2 from Linux. #583
+* Keep the firewall state on update if autoconnect option is enabled. #615
+
+
 2.03.13 (08/12/2021)
 * Set udp as default protocol in engine on Linux. #583
 * Added application changes for auto-update platform detection fix. #553
