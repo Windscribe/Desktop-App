@@ -669,39 +669,16 @@ def BuildInstallerLinux(configdata, qt_root):
 
   # create .deb with dest_package 
   iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
-<<<<<<< HEAD
-  if SIGN_APP:
-    CodeSignLinux(dest_package_name + ".deb", TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
-
-  # include key in target package 
-  if SIGN_APP:
-    key_src = os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-    key_package_name = "windscribe_{}.key".format(BUILD_APP_VERSION_STRING)
-    key_dest = os.path.join(TEMP_INSTALLER_DIR, key_package_name)
-    utl.CopyFile(key_src, key_dest)
-=======
->>>>>>> develop
 
   # create RPM from deb
   # msg.Info("Creating RPM package...")
   rpm_package_name = "windscribe_{}_x86_64.rpm".format(BUILD_APP_VERSION_STRING_FULL)
   postinst_rpm_script = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "postinst_rpm")
-<<<<<<< HEAD
-  iutl.RunCommand(["fpm", "--after-install", postinst_rpm_script,
-                          "-s", "deb",
-                          "-p", rpm_package_name,
-                          "-t", "rpm",
-                          dest_package_path + ".deb"])
-  if SIGN_APP:
-    CodeSignLinux(rpm_package_name, TEMP_INSTALLER_DIR, TEMP_INSTALLER_DIR)
-=======
   iutl.RunCommand(["fpm", "--after-install", postinst_rpm_script, 
                           "-s", "deb", 
                           "-p", rpm_package_name, 
                           "-t", "rpm", 
                           dest_package_path + ".deb"])
-
->>>>>>> develop
 
 def BuildAll():
   # Load config.

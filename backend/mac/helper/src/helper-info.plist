@@ -11,11 +11,7 @@
 	<key>CFBundleVersion</key>
         <string>31</string>
 	<key>NSHumanReadableCopyright</key>
-<<<<<<< HEAD
-	<string>Copyright © 2020  Windscribe Limited. All rights reserved.</string>
-=======
-	<string>Copyright © 2021  Windscribe Limited. All rights reserved.</string>
->>>>>>> develop
+	<string>Copyright © 2021  Windscribe Limited. All rights reserved.</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.11</string>
 	<key>SMAuthorizedClients</key>

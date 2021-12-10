@@ -506,7 +506,6 @@ QString Utils::getDirPathFromFullPath(const QString &fullPath)
     return fullPath.mid(0, index);
 }
 
-<<<<<<< HEAD
 bool Utils::isParentProcessGui()
 {
 #if defined Q_OS_WIN
@@ -516,7 +515,8 @@ bool Utils::isParentProcessGui()
 #elif defined Q_OS_LINUX
     return true;
 #endif
-=======
+}
+
 QString Utils::getPlatformNameSafe()
 {
     QString platform = getPlatformName();
@@ -524,5 +524,4 @@ QString Utils::getPlatformNameSafe()
     if (platform == "") return LinuxUtils::DEB_PLATFORM_NAME; // default to debian so most of our API calls don't fail if we cannot find the /etc/windscribe/platform file (someone would have to manually delete)
 #endif
     return platform;
->>>>>>> develop
 }
