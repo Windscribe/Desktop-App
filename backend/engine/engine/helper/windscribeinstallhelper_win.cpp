@@ -17,7 +17,7 @@ bool WindscribeInstallHelper_win::checkWindscribeInstallHelper(QString &outPath)
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(strPath.toStdWString()))
     {
-        qCDebug(LOG_BASIC) << "WindscribeInstallHelper.exe incorrect signature: " << sigCheck.lastError();
+        qCDebug(LOG_BASIC) << "WindscribeInstallHelper.exe incorrect signature: " << QString::fromStdString(sigCheck.lastError());
         return false;
     }
 

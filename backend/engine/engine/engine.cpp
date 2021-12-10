@@ -2155,7 +2155,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(installerPath_.toStdWString()))
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer: " << sigCheck.lastError();
+        qCDebug(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer: " << QString::fromStdString(sigCheck.lastError());
         QFile::remove(installerPath_);
         Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;

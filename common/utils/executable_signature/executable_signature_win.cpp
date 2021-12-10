@@ -55,7 +55,7 @@ bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 	fResult = CryptMsgGetParam(hMsg, CMSG_SIGNER_INFO_PARAM, 0, NULL, &dwSignerInfo);
 	if (!fResult)
 	{
-        lastError_ << "CryptMsgGetParam(size check) failed: " << (::GetLastError();
+        lastError_ << "CryptMsgGetParam(size check) failed: " << ::GetLastError();
         goto finish;
 	}
 

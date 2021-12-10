@@ -1624,7 +1624,7 @@ bool WinUtils::isParentProcessGui()
     bool verified = sigCheck.verify(parentPath.toStdWString());
 
     if (!verified) {
-        qCDebug(LOG_BASIC) << "isParentProcessGui incorrect signature: " << sigCheck.lastError();
+        qCDebug(LOG_BASIC) << "isParentProcessGui incorrect signature: " << QString::fromStdString(sigCheck.lastError());
     }
 
     return verified;

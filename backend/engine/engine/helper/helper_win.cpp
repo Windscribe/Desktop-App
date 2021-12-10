@@ -64,7 +64,7 @@ void Helper_win::startInstallHelper()
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(serviceExePath.toStdWString()))
     {
-        qCDebug(LOG_BASIC) << "WindscribeService signature incorrect: " << sigCheck.lastError();
+        qCDebug(LOG_BASIC) << "WindscribeService signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         curState_ = STATE_USER_CANCELED;
         return;
     }
@@ -280,7 +280,7 @@ IHelper::ExecuteError Helper_win::startWireGuard(const QString &exeName, const Q
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(wireGuardExePath.toStdWString()))
     {
-        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect: " << sigCheck.lastError();
+        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return IHelper::EXECUTE_VERIFY_ERROR;
     }
 
@@ -398,7 +398,7 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &configPath, unsi
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(openVpnExePath.toStdWString()))
     {
-        qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect: " << sigCheck.lastError();
+        qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return IHelper::EXECUTE_VERIFY_ERROR;
     }
 
@@ -508,7 +508,7 @@ bool Helper_win::executeChangeIcs(int cmd, const QString &configPath, const QStr
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(updateIcsExePath.toStdWString()))
     {
-        qCDebug(LOG_CONNECTION) << "ChangeIcs executable signature incorrect: " << sigCheck.lastError();
+        qCDebug(LOG_CONNECTION) << "ChangeIcs executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return false;
     }
 
