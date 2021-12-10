@@ -7,12 +7,18 @@ const int typeIdEngineSettings = qRegisterMetaType<EngineSettings>("EngineSettin
 
 EngineSettings::EngineSettings() : simpleCrypt_(0x4572A4ACF31A31BA)
 {
+#if defined(Q_OS_LINUX)
+    repairEngineSettings();
+#endif
 }
 
 EngineSettings::EngineSettings(const ProtoTypes::EngineSettings &s) :
     engineSettings_(s)
   , simpleCrypt_(0x4572A4ACF31A31BA)
 {
+#if defined(Q_OS_LINUX)
+    repairEngineSettings();
+#endif
 }
 
 void EngineSettings::saveToSettings()
@@ -59,12 +65,7 @@ void EngineSettings::loadFromSettings()
         }
 
 #if defined(Q_OS_LINUX)
-        // IKEv2 is dissabled on linux but is default protocol in ProtoTypes::ConnectionSettings.
-        // UDP should be default on Linux.
-        if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
-            engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
-            engineSettings_.mutable_connection_settings()->set_port(443);
-        }
+        repairEngineSettings();
 #elif defined(Q_OS_WINDOWS)
         // Wireguard connection mode was disabled on Windows 7 32-bit since 2.3.12 13th build.
         // If it was saved in settings since the last build it is necessary to reset it.
@@ -250,3 +251,21 @@ void EngineSettings::loadFromVersion1()
     *engineSettings_.mutable_proxy_settings() = ps.convertToProtobuf();
 
 }
+
+#if defined(Q_OS_LINUX)
+void EngineSettings::repairEngineSettings()
+{
+    // IKEv2 is dissabled on linux but is default protocol in ProtoTypes::ConnectionSettings.
+    // UDP should be default on Linux.
+    if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
+        engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
+        engineSettings_.mutable_connection_settings()->set_port(443);
+    }
+    else if(!engineSettings_.has_connection_settings()) {
+        auto settings = engineSettings_.connection_settings();
+        settings.set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
+        settings.set_port(443);
+        *engineSettings_.mutable_connection_settings() = settings;
+    }
+}
+#endif

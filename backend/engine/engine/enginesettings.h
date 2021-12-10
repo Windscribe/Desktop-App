@@ -54,6 +54,10 @@ private:
     SimpleCrypt simpleCrypt_;
 
     void loadFromVersion1();
+
+#if defined(Q_OS_LINUX)
+    void repairEngineSettings();
+#endif
 };
 
 #endif // ENGINESETTINGS_H
