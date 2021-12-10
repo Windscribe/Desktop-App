@@ -882,37 +882,18 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
             }
             else  // if exit without restart
             {
-                if (isLaunchOnStart)
+                if (isFirewallAlwaysOn)
                 {
-                    if (isFirewallAlwaysOn)
-                    {
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(true);
+                    firewallController_->enableFirewallOnBoot(true);
 #endif
-                    }
-                    else
-                    {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(false);
-#endif
-                        firewallController_->firewallOff();
-                    }
                 }
                 else
                 {
-                    if (isFirewallAlwaysOn)
-                    {
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(true);
+                    firewallController_->enableFirewallOnBoot(false);
 #endif
-                    }
-                    else
-                    {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(false);
-#endif
-                        firewallController_->firewallOff();
-                    }
+                    firewallController_->firewallOff();
                 }
             }
         }
