@@ -1,8 +1,8 @@
 #!/bin/bash
-# This file will be overwritten by rpm specific script which is passed to fpm in build script
+# This file overwrites the debian-specific postinst during fpm call in build script 
 # So if multi-platform change is needed remember to change that file as well
 set -e
 systemctl enable windscribe-helper
 systemctl start windscribe-helper
-echo linux_deb_x64 > ../etc/windscribe/platform # debian-specific
+echo linux_rpm_x64 > ../etc/windscribe/platform # platform-specific
 

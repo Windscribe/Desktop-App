@@ -106,6 +106,19 @@ bool WinUtils::isWindows10orGreater()
     return false;
 }
 
+bool WinUtils::isWindows7()
+{
+    RTL_OSVERSIONINFOEXW rtlOsVer;
+    if (getWinVersion(&rtlOsVer))
+    {
+        if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 1)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 QString WinUtils::getWinVersionString()
 {
     QString ret;

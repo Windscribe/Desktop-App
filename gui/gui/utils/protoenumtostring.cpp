@@ -37,6 +37,7 @@ ProtoEnumToString::ProtoEnumToString()
     map_["UPDATE_CHANNEL_RELEASE"] = "Release";
     map_["UPDATE_CHANNEL_BETA"] = "Beta";
     map_["UPDATE_CHANNEL_GUINEA_PIG"] = "Guinea Pig";
+    map_["UPDATE_CHANNEL_INTERNAL"] = "Internal";
 
     map_["FIREWALL_MODE_MANUAL"] = "Manual";
     map_["FIREWALL_MODE_AUTOMATIC"] = "Automatic";

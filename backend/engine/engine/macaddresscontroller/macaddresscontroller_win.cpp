@@ -5,9 +5,6 @@
 #include "utils/logger.h"
 #include "utils/protobuf_includes.h"
 
-const int typeIdMacAddrSpoofing = qRegisterMetaType<ProtoTypes::MacAddrSpoofing>("ProtoTypes::MacAddrSpoofing");
-const int typeIdUserWarningType = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UserWarningType");
-
 MacAddressController_win::MacAddressController_win(QObject *parent, NetworkDetectionManager_win *ndManager) : IMacAddressController (parent)
   , autoRotate_(false)
   , actuallyAutoRotate_(false)

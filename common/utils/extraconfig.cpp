@@ -4,14 +4,19 @@
 #include <QStandardPaths>
 #include "../utils/logger.h"
 
-const QString WS_MTU_OFFSET_IKEV_STR = "ws-mtu-offset-ikev2";
-const QString WS_MTU_OFFSET_OPENVPN_STR = "ws-mtu-offset-openvpn";
-const QString WS_MTU_OFFSET_WG_STR = "ws-mtu-offset-wg";
+// non-filtered windscribe-specific advanced settings will cause error when connecting with openvpn
+// configs prefixed with "ws-" will be ignored by openvpn profile
+const QString WS_PREFIX = "ws-";
+const QString WS_MTU_OFFSET_IKEV_STR     = WS_PREFIX + "mtu-offset-ikev2";
+const QString WS_MTU_OFFSET_OPENVPN_STR  = WS_PREFIX + "mtu-offset-openvpn";
+const QString WS_MTU_OFFSET_WG_STR       = WS_PREFIX + "mtu-offset-wg";
+const QString WS_UPDATE_CHANNEL_INTERNAL = WS_PREFIX + "override-update-channel-internal";
 
-const QString WS_TT_START_DELAY_STR = "tunnel-test-start-delay";
-const QString WS_TT_TIMEOUT_STR = "tunnel-test-timeout";
-const QString WS_TT_RETRY_DELAY_STR = "tunnel-test-retry-delay";
-const QString WS_TT_ATTEMPTS_STR = "tunnel-test-attempts";
+const QString WS_TT_START_DELAY_STR = WS_PREFIX + "tunnel-test-start-delay";
+const QString WS_TT_TIMEOUT_STR     = WS_PREFIX + "tunnel-test-timeout";
+const QString WS_TT_RETRY_DELAY_STR = WS_PREFIX + "tunnel-test-retry-delay";
+const QString WS_TT_ATTEMPTS_STR    = WS_PREFIX + "tunnel-test-attempts";
+
 
 void ExtraConfig::writeConfig(const QString &cfg)
 {
@@ -173,6 +178,11 @@ int ExtraConfig::getTunnelTestAttempts(bool &success)
     return getIntFromExtraConfigLines(WS_TT_ATTEMPTS_STR, success);
 }
 
+bool ExtraConfig::getOverrideUpdateChannelToInternal()
+{
+    return getFlagFromExtraConfigLines(WS_UPDATE_CHANNEL_INTERNAL);
+}
+
 int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)
 {
     int endOfId = line.indexOf(str, Qt::CaseInsensitive) + str.length();
@@ -213,6 +223,23 @@ int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &s
     return 0;
 }
 
+bool ExtraConfig::getFlagFromExtraConfigLines(const QString &flagName)
+{
+    const QString strExtraConfig = getExtraConfig();
+    const QStringList strs = strExtraConfig.split("\n");
+
+    for (const QString &line : strs)
+    {
+        QString lineTrimmed = line.trimmed();
+        if (lineTrimmed.startsWith(flagName, Qt::CaseInsensitive))
+        {
+            return true;
+        }
+    }
+    return false;
+
+}
+
 bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
 {
     const QString trimmed_command = command.trimmed();
@@ -221,10 +248,7 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
 
     // Filter out IKEv2, mtu, and tunnel test related commands.
     if (trimmed_command.startsWith("--ikev2", Qt::CaseInsensitive)
-        || trimmed_command.startsWith("tunnel-test-", Qt::CaseInsensitive)
-        || trimmed_command.contains(WS_MTU_OFFSET_IKEV_STR, Qt::CaseInsensitive)
-        || trimmed_command.contains(WS_MTU_OFFSET_WG_STR, Qt::CaseInsensitive)
-        || trimmed_command.contains(WS_MTU_OFFSET_OPENVPN_STR, Qt::CaseInsensitive))
+        || trimmed_command.startsWith(WS_PREFIX, Qt::CaseInsensitive))
         return false;
 
     // Filter out potentially malicious commands.

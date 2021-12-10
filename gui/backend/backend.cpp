@@ -547,6 +547,13 @@ void Backend::continueWithCredentialsForOvpnConfig(const QString &username, cons
     }
 }
 
+void Backend::sendAdvancedParametersChanged()
+{
+    IPC::ProtobufCommand<IPCClientCommands::AdvancedParametersChanged> cmd;
+    qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    connection_->sendCommand(cmd);
+}
+
 void Backend::sendEngineSettingsIfChanged()
 {
     if(!google::protobuf::util::MessageDifferencer::Equals(preferences_.getEngineSettings(), latestEngineSettings_))

@@ -5,8 +5,6 @@
 #include "utils/macutils.h"
 
 const int MINIMUM_TIME_AUTO_SPOOF = 5000;
-const int typeIdMacAddrSpoofing = qRegisterMetaType<ProtoTypes::MacAddrSpoofing>("ProtoTypes::MacAddrSpoofing");
-const int typeIdUserWarningType = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UserWarningType");
 
 
 MacAddressController_mac::MacAddressController_mac(QObject *parent, NetworkDetectionManager_mac *ndManager, IHelper *helper) : IMacAddressController (parent)
@@ -48,7 +46,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
 {
     if (!google::protobuf::util::MessageDifferencer::Equals(macAddrSpoofing, macAddrSpoofing_))
     {
-        qCDebug(LOG_BASIC) << "MacAddrSpoofing has changed";
+        qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing MacAddrSpoofing has changed. actuallyAutoRotate_=" << actuallyAutoRotate_;
         qCDebug(LOG_BASIC) << QString::fromStdString(macAddrSpoofing.DebugString());
 
         ProtoTypes::NetworkInterface currentAdapter = MacUtils::currentNetworkInterface();
@@ -66,7 +64,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
                 if (spoofIndex != -1)
                 {
                     lastSpoofIndex_ = spoofIndex;
-                    qCDebug(LOG_BASIC) << "Auto-rotating spoof on interface: " << spoofIndex;
+                    qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing Auto-rotating spoof on interface: " << spoofIndex;
                     const QString macAddress(QString::fromStdString(macAddrSpoofing.mac_address()));
 
                     const QString lastInterfaceName = QString::fromStdString(lastInterface.interface_name());
@@ -76,7 +74,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
                     }
                     else
                     {
-                        qCDebug(LOG_BASIC) << "Can't auto-rotate - adapter not up";
+                        qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing Can't auto-rotate - adapter not up";
                     }
 
                     // remove all but last
@@ -90,7 +88,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
                 }
                 else
                 {
-                    qCDebug(LOG_BASIC) << "Cannot Auto-rotate on No Interface";
+                    qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing Cannot Auto-rotate on No Interface";
                 }
             }
             else // Manual press or Update
@@ -107,19 +105,19 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
                         // valid adapter
                         if (currentAdapter.interface_index() != Utils::noNetworkInterface().interface_index())
                         {
-                            int spoofIndex = currentAdapter.interface_index();
-                            lastSpoofIndex_ = spoofIndex;
-                            QString macAddress(QString::fromStdString(macAddrSpoofing.mac_address()));
-                            qCDebug(LOG_BASIC) << "Manual spoof on interface: " << spoofIndex;
-
+                            lastSpoofIndex_ = currentAdapter.interface_index();
+                            const QString macAddress(QString::fromStdString(macAddrSpoofing.mac_address()));
                             const QString currentInterfaceName = QString::fromStdString(currentAdapter.interface_name());
+
+                            qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing Manual spoof on interface: " << currentInterfaceName;
+
                             if (MacUtils::isAdapterUp(QString::fromStdString(currentAdapter.interface_name()))) // apply-able interface
                             {
                                 spoofsToApply.insert(currentInterfaceName, macAddress); // latest address will be spoofed in the case of duplicates
                             }
                             else
                             {
-                                qCDebug(LOG_BASIC) << "Adapter not up -- cannot apply spoof";
+                                qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing dapter not up -- cannot apply spoof";
                             }
 
                             // remove all spoofs except current
@@ -131,17 +129,17 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
                         }
                         else
                         {
-                            qCDebug(LOG_BASIC) << "Can't spoof No Interface";
+                            qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing Can't spoof No Interface";
                         }
                     }
                     else
                     {
-                        qCDebug(LOG_BASIC) << "Selected adapter is different than Current";
+                        qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing Selected adapter is different than Current";
                     }
                 }
                 else
                 {
-                    qCDebug(LOG_BASIC) << "Non-triggering MacAddrSpoofing change";
+                    qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing Non-triggering MacAddrSpoofing change";
                 }
             }
 
@@ -150,7 +148,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
         }
         else
         {
-            qCDebug(LOG_BASIC) << "MAC spoofing is disabled";
+            qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing MAC spoofing is disabled";
 
             QMap<QString, QString> spoofsToRemove;
             const ProtoTypes::NetworkInterfaces spoofs = MacUtils::currentSpoofedInterfaces();
@@ -302,34 +300,43 @@ void MacAddressController_mac::applyMacAddressSpoof(const QString &interfaceName
     QString command = "ifconfig " + interfaceName + " ether " + macAddress + " 2> /dev/null && echo success";
     QString result = helper_->executeRootCommand(command);
 
-    // ifconfig command could error or simply fail to update the MAC address
-    if (result.contains("success")) // detect ifconfig error
-    {
-        // can verify MAC spoof immediately on Mac (no need to wait for adapter reset like on Windows)
-        if (!MacUtils::interfaceSpoofed(interfaceName) || !MacUtils::checkMacAddr(interfaceName, macAddress)) // detect failure to update MAC address
-        {
-            // Try another robust command.
-            command = "/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport -z; ifconfig "
-                + interfaceName + " ether " + macAddress + "; ifconfig " + interfaceName + " up;";
-            result = helper_->executeRootCommand(command);
+    bool success{ true };
 
-            if (!MacUtils::interfaceSpoofed(interfaceName) || !MacUtils::checkMacAddr(interfaceName, macAddress)) // detect failure to update MAC address
-            {
-                qCDebug(LOG_BASIC) << "Could not spoof MAC address, try updating your OS to the latest version. : " <<  interfaceName;
-                helper_->enableMacSpoofingOnBoot(false, "", "");
-                emit sendUserWarning(ProtoTypes::USER_WARNING_MAC_SPOOFING_FAILURE_SOFT);
-                return;
-            }
+    // Can verify MAC spoof immediately on Mac (no need to wait for adapter reset like on Windows).
+    if (!MacUtils::interfaceSpoofed(interfaceName) || !MacUtils::checkMacAddr(interfaceName, macAddress))
+    {
+        // Check if ifconfig command faild
+        if (result.contains("success"))
+        {
+            qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof Command \"" << command << "\" succeeded but MAC address not changed.";
+        }
+        else {
+            qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof Command \"" << command << "\" failed.";
         }
 
-        // apply to boot script if successful
+        // Try another robust command.
+        command = "/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport -z; ifconfig "
+            + interfaceName + " ether " + macAddress + "; ifconfig " + interfaceName + " up;";
+        result = helper_->executeRootCommand(command);
+
+        if (!MacUtils::interfaceSpoofed(interfaceName) || !MacUtils::checkMacAddr(interfaceName, macAddress))
+        {
+            qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof Command \"" << command << "\" failed too.";
+            success = false;
+        }
+        else{
+            success = true;
+        }
+    }
+
+    if(success) {
+        // Apply to boot script if successful
         lastSpoofTime_ = QDateTime::currentDateTime();
-        qCDebug(LOG_BASIC) << "Successfully updated MAC address: " << interfaceName << " : " << macAddress;
+        qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof Successfully updated MAC address: " << interfaceName << " : " << macAddress;
         helper_->enableMacSpoofingOnBoot(true, interfaceName, macAddress);
     }
-    else
-    {
-        qCDebug(LOG_BASIC) << "Ifconfig failed on: " << interfaceName;
+    else {
+        qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof Was not able to spoof MAC-address on: " << interfaceName;
         emit sendUserWarning(ProtoTypes::USER_WARNING_MAC_SPOOFING_FAILURE_HARD);
     }
 }

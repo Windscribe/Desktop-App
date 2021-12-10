@@ -113,7 +113,10 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     const QList< QPair<QString, int> > allUpdateChannelTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::UpdateChannel_descriptor());
     for (const auto u : allUpdateChannelTypes)
     {
-        comboBoxUpdateChannel_->addItem(u.first, u.second);
+        if (u.first != "Internal") // don't display internal channel -- this will be specified by advanced parameters
+        {
+            comboBoxUpdateChannel_->addItem(u.first, u.second);
+        }
     }
     comboBoxUpdateChannel_->setCurrentItem((int)preferences->updateChannel());
     connect(comboBoxUpdateChannel_, SIGNAL(currentItemChanged(QVariant)), SLOT(onUpdateChannelItemChanged(QVariant)));

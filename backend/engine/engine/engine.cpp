@@ -1,26 +1,28 @@
 #include "engine.h"
+
+#include <QCoreApplication>
+#include <QDir>
+#include <QCryptographicHash>
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/mergelog.h"
-#include "crossplatformobjectfactory.h"
+#include "utils/extraconfig.h"
+#include "utils/ipvalidation.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "utils/linuxutils.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/finishactiveconnections.h"
 #include "proxy/proxyservercontroller.h"
-#include "openvpnversioncontroller.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "dnsresolver/dnsserversconfiguration.h"
 #include "dnsresolver/dnsrequest.h"
 #include "dnsresolver/dnsutils.h"
+#include "crossplatformobjectfactory.h"
 #include "openvpnversioncontroller.h"
-#include "utils/extraconfig.h"
-#include "utils/ipvalidation.h"
+#include "openvpnversioncontroller.h"
 #include "getdeviceid.h"
-#include <QCoreApplication>
-#include <QDir>
-#include "utils/executable_signature/executable_signature.h"
 #include "names.h"
 #include "version/appversion.h"
-#include "utils/linuxutils.h"
 
 // For testing merge log functionality
 //#include <QStandardPaths>
@@ -87,7 +89,8 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     runningPacketDetection_(false),
     lastDownloadProgress_(0),
     installerUrl_(""),
-    guiWindowHandle_(0)
+    guiWindowHandle_(0),
+    overrideUpdateChannelWithInternal_(false)
 {
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)));
@@ -537,6 +540,11 @@ void Engine::updateVersion(qint32 windowHandle)
     QMetaObject::invokeMethod(this, "updateVersionImpl", Q_ARG(qint32, windowHandle));
 }
 
+void Engine::updateAdvancedParams()
+{
+    QMetaObject::invokeMethod(this, "updateAdvancedParamsImpl");
+}
+
 void Engine::stopUpdateVersion()
 {
     QMetaObject::invokeMethod(this, "stopUpdateVersionImpl");
@@ -613,7 +621,8 @@ void Engine::initPart2()
     serverAPI_ = new ServerAPI(this);
     connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)),
                         SLOT(onSessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(checkUpdateAnswer(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool,bool,uint)), SLOT(onCheckUpdateAnswer(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool,bool,uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(checkUpdateAnswer(apiinfo::CheckUpdate,bool,uint)),
+                        SLOT(onCheckUpdateAnswer(apiinfo::CheckUpdate,bool,uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(hostIpsChanged(QStringList)), SLOT(onHostIPsChanged(QStringList)));
     connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Notification>,uint)),
                         SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Notification>,uint)));
@@ -626,6 +635,7 @@ void Engine::initPart2()
                         SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(getWireGuardConfigAnswer(SERVER_API_RET_CODE, QSharedPointer<WireGuardConfig>, uint)),
         SLOT(onGetWireGuardConfigAnswer(SERVER_API_RET_CODE, QSharedPointer<WireGuardConfig>, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)));
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
@@ -682,7 +692,7 @@ void Engine::initPart2()
     notificationsUpdateTimer_ = new QTimer(this);
     connect(notificationsUpdateTimer_, SIGNAL(timeout()), SLOT(getNewNotifications()));
 
-    downloadHelper_ = new DownloadHelper(this, networkAccessManager_);
+    downloadHelper_ = new DownloadHelper(this, networkAccessManager_, Utils::getPlatformName());
     connect(downloadHelper_, SIGNAL(finished(DownloadHelper::DownloadState)), SLOT(onDownloadHelperFinished(DownloadHelper::DownloadState)));
     connect(downloadHelper_, SIGNAL(progressChanged(uint)), SLOT(onDownloadHelperProgressChanged(uint)));
 
@@ -697,6 +707,7 @@ void Engine::initPart2()
 #endif
 
     updateProxySettings();
+    updateAdvancedParams();
 }
 
 void Engine::onLostConnectionToHelper()
@@ -871,37 +882,18 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
             }
             else  // if exit without restart
             {
-                if (isLaunchOnStart)
+                if (isFirewallAlwaysOn)
                 {
-                    if (isFirewallAlwaysOn)
-                    {
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(true);
+                    firewallController_->enableFirewallOnBoot(true);
 #endif
-                    }
-                    else
-                    {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(false);
-#endif
-                        firewallController_->firewallOff();
-                    }
                 }
                 else
                 {
-                    if (isFirewallAlwaysOn)
-                    {
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(true);
+                    firewallController_->enableFirewallOnBoot(false);
 #endif
-                    }
-                    else
-                    {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(false);
-#endif
-                        firewallController_->firewallOff();
-                    }
+                    firewallController_->firewallOff();
                 }
             }
         }
@@ -1270,7 +1262,13 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
 
     if (isUpdateChannelChanged)
     {
-        serverAPI_->checkUpdate(engineSettings_.getUpdateChannel(), serverApiUserRole_, true);
+        ProtoTypes::UpdateChannel channel =   engineSettings_.getUpdateChannel();
+        if (overrideUpdateChannelWithInternal_)
+        {
+            qCDebug(LOG_BASIC) << "Overriding update channel: internal";
+            channel = ProtoTypes::UPDATE_CHANNEL_INTERNAL;
+        }
+        serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
     }
     if (isLanguageChanged || isProtocolChanged)
     {
@@ -1538,36 +1536,39 @@ void Engine::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &c
     }
 }
 
-void Engine::onCheckUpdateAnswer(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole)
+void Engine::onCheckUpdateAnswer(const apiinfo::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole)
 {
     qCDebug(LOG_BASIC) << "Received Check Update Answer";
 
     if (userRole == serverApiUserRole_)
     {
-        if (!bNetworkErrorOccured)
-        {
-            installerUrl_ = url;
-
-            // testing only
-#ifdef Q_OS_LINUX
-//            if(LinuxUtils::isDeb()) {
-//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_beta_amd64.deb";
-//            }
-//            else
-//            {
-//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_beta_x86_64.rpm";
-//            }
-#elif defined Q_OS_MAC
-//            installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/Windscribe_2.3.11_beta.dmg";
-#else
-//           installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/Windscribe_2.3.11_beta.exe";
-#endif
-            qCDebug(LOG_BASIC) << "Installer URL: " << url;
-            Q_EMIT checkUpdateUpdated(available, version, updateChannel, latestBuild, url, supported);
-        }
-        else
+        if (bNetworkErrorOccured)
         {
             QTimer::singleShot(60000, this, SLOT(onStartCheckUpdate()));
+            return;
+        }
+
+        if (checkUpdate.isInitialized())
+        {
+            installerUrl_ = checkUpdate.getUrl();
+            installerHash_ = checkUpdate.getSha256();
+
+            // testing only
+//#ifdef Q_OS_LINUX
+//            if(LinuxUtils::isDeb()) {
+//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_beta_amd64.deb";
+//             }
+//             else {
+//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_beta_x86_64.rpm";
+//             }
+//#elif defined Q_OS_MAC
+//             installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/Windscribe_2.3.11_beta.dmg";
+//#else
+//             installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/Windscribe_2.3.11_beta.exe";
+//#endif
+            qCDebug(LOG_BASIC) << "Installer URL: " << installerUrl_;
+            qCDebug(LOG_BASIC) << "Installer Hash: " << installerHash_;
+            Q_EMIT checkUpdateUpdated(checkUpdate);
         }
     }
 }
@@ -1650,7 +1651,13 @@ void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &toke
 
 void Engine::onStartCheckUpdate()
 {
-    serverAPI_->checkUpdate(engineSettings_.getUpdateChannel(), serverApiUserRole_, true);
+    ProtoTypes::UpdateChannel channel =   engineSettings_.getUpdateChannel();
+    if (overrideUpdateChannelWithInternal_)
+    {
+        qCDebug(LOG_BASIC) << "Overriding update channel: internal";
+        channel = ProtoTypes::UPDATE_CHANNEL_INTERNAL;
+    }
+    serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
 }
 
 void Engine::onStartStaticIpsUpdate()
@@ -2113,11 +2120,6 @@ void Engine::updateVersionImpl(qint32 windowHandle)
     {
         QMap<QString, QString> downloads;
         downloads.insert(installerUrl_, downloadHelper_->downloadInstallerPath());
-#ifdef Q_OS_LINUX
-        downloads.insert(installerUrl_ + ".sig", downloadHelper_->signatureInstallPath());
-        downloads.insert(Utils::getDirPathFromFullPath(installerUrl_) + "/windscribe_" + AppVersion::instance().semanticVersionString() + ".key",
-                         downloadHelper_->publicKeyInstallPath());
-#endif
         downloadHelper_->get(downloads);
     }
 }
@@ -2125,6 +2127,25 @@ void Engine::updateVersionImpl(qint32 windowHandle)
 void Engine::stopUpdateVersionImpl()
 {
     downloadHelper_->stop();
+}
+
+void Engine::updateAdvancedParamsImpl()
+{
+    bool newOverrideUpdateChannel = ExtraConfig::instance().getOverrideUpdateChannelToInternal();
+
+    // only trigger the check update if override changed
+    if (overrideUpdateChannelWithInternal_ != newOverrideUpdateChannel)
+    {
+        overrideUpdateChannelWithInternal_ = newOverrideUpdateChannel;
+
+        ProtoTypes::UpdateChannel channel =   engineSettings_.getUpdateChannel();
+        if (overrideUpdateChannelWithInternal_)
+        {
+            qCDebug(LOG_BASIC) << "Overriding update channel: internal";
+            channel = ProtoTypes::UPDATE_CHANNEL_INTERNAL;
+        }
+        serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
+    }
 }
 
 void Engine::onDownloadHelperProgressChanged(uint progressPercent)
@@ -2173,20 +2194,23 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     }
     installerPath_ = tempInstallerFilename;
 #elif defined Q_OS_LINUX
-    if (!ExecutableSignature_linux::verifyWithPublicKeyFromFilesystem(installerPath_,
-                                                                      downloadHelper_->signatureInstallPath(),
-                                                                      downloadHelper_->publicKeyInstallPath()))
+
+    // if api for some reason doesn't return sha256 field
+    if (installerHash_ == "")
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer";
+        qCDebug(LOG_BASIC) << "Hash from API is empty -- cannot verify";
         if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
-        if (QFile::exists(downloadHelper_->signatureInstallPath())) QFile::remove(downloadHelper_->signatureInstallPath());
-        if (QFile::exists(downloadHelper_->publicKeyInstallPath())) QFile::remove(downloadHelper_->publicKeyInstallPath());
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_API_HASH_INVALID);
         return;
     }
-    // no need for key and signature anymore and they must exist
-    QFile::remove(downloadHelper_->signatureInstallPath());
-    QFile::remove(downloadHelper_->publicKeyInstallPath());
+
+    if (!verifyContentsSha256(installerPath_, installerHash_)) // installerPath_
+    {
+        qCDebug(LOG_AUTO_UPDATER) << "Incorrect hash, removing installer";
+        if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
+        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL);
+        return;
+    }
 #endif
 
     Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
@@ -2805,4 +2829,21 @@ void Engine::updateProxySettings()
         if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED)
             getMyIPController_->getIPFromDisconnectedState(500);
     }
+}
+
+bool Engine::verifyContentsSha256(const QString &filename, const QString &compareHash)
+{
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qCDebug(LOG_BASIC) << "Failed to open installer for reading";
+        return false;
+    }
+    QByteArray contentsBytes = file.readAll();
+    QString sha256Hash = QCryptographicHash::hash(contentsBytes, QCryptographicHash::Sha256).toHex();
+    if (sha256Hash == compareHash)
+    {
+        return true;
+    }
+    return false;
 }

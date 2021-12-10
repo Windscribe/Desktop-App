@@ -103,6 +103,7 @@ private slots:
     void onPreferencesWindowDetectAppropriatePacketSizeButtonClicked();
     void onPreferencesAdvancedParametersClicked();
     void onPreferencesCustomConfigsPathChanged(QString path);
+    void onPreferencesdebugAdvancedParametersChanged(const QString &advParams);
 
     // emergency window signals
     void onEmergencyConnectClick();
@@ -338,6 +339,7 @@ private:
     bool internetConnected_;
 
     bool currentlyShowingUserWarningMessage_;
+    QSet<ProtoTypes::UserWarningType> alreadyShownWarnings_;
 
     bool bGotoUpdateWindowAfterGeneralMessage_;
 
@@ -372,6 +374,7 @@ private:
 
     bool isExitingFromPreferences_;
     bool isSpontaneousCloseEvent_;
+    bool isExitingAfterUpdate_;
 
     void minimizeToTray();
 
