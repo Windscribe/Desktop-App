@@ -16,7 +16,8 @@ class ExecutableSignaturePrivate;
   - MacOS:
     - Ensure the Developer ID Application certificate from your team's Apple Developer
       account is installed in your keychain.  Also ensure the MACOS_CERT_DEVELOPER_ID
-      in executable_signature_defs.h matches this certificate.
+      in executable_signature_defs.h matches this certificate's 'Name' as indicated in
+      Keychain Access.
 
   - Windows:
     - Ensure your code signing certificate is in the installer/windows/signing folder

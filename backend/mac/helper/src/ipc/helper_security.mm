@@ -1,7 +1,7 @@
 #include "helper_security.h"
 #include "logger.h"
 #include "utils.h"
-#include "executable_signature_mac.h"
+#include "executable_signature.h"
 #include <boost/algorithm/string.hpp>
 #include <libproc.h>
 #import <Foundation/Foundation.h>
@@ -63,11 +63,11 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
         return false;
     }
 
-    ExecutableSignature_mac verifySignature;
-    bool result = verifySignature.verify(app_name);
+    ExecutableSignature sigCheck;
+    bool result = sigCheck.verify(app_name);
 
     if (!result) {
-        LOG("Signature verification failed for PID %i, %s", pid, verifySignature.lastError().c_str());
+        LOG("Signature verification failed for PID %i, %s", pid, sigCheck.lastError().c_str());
     }
 
     pid_validity_cache_[pid] = result;

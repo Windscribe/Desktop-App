@@ -363,7 +363,7 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
         UpdateTeamID(os.path.join(ROOT_DIR, c_subdir, "src", "helper-info.plist"))
       elif component["name"] == "Installer":
         # TODO: clean this warning at some point.
-        other_cflags += " -Wno-deprecated-declarations"
+        other_cflags += " -Wno-deprecated-declarations -Wno-incomplete-umbrella"
         msg.Warn("Compiler warnings suppressed for this project.")
       if other_cflags:
         build_cmd.append("OTHER_CFLAGS=$(inherited) " + other_cflags)

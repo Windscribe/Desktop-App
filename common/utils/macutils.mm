@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QProcess>
 #include <QDir>
+#include <QCoreApplication>
 #include <google/protobuf/repeated_field.h>
 #include <semaphore.h>
 
@@ -16,6 +17,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <unistd.h>
+#include <libproc.h>
+
+#include "executable_signature/executable_signature.h"
 
 void MacUtils::activateApp()
 {
@@ -957,7 +962,7 @@ bool MacUtils::isParentProcessGui()
                 return true;
             }
 
-            qCDebug(LOG_BASIC) << "isParentProcessGui incorrect signature: " << sigCheck.lastError();
+            qCDebug(LOG_BASIC) << "isParentProcessGui incorrect signature: " << QString::fromStdString(sigCheck.lastError());
         }
     }
     return false;

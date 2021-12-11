@@ -1,19 +1,21 @@
 #include "executable_signature_mac.h"
-#include "executable_signature_defs.h"
-#include <unistd.h>
-#include <libproc.h>
 
-#import <Security/Security.h>
-#import <SystemConfiguration/SystemConfiguration.h>
 #import <Foundation/Foundation.h>
 
-#ifdef QT_CORE_LIB
-#include <QCoreApplication>
-#include <QDir>
-#include "utils/logger.h"
-#endif
+#include <codecvt>
 
-bool ExecutableSignature_mac::verify(const std::string &exePath)
+#include "executable_signature.h"
+#include "executable_signature_defs.h"
+
+ExecutableSignaturePrivate::ExecutableSignaturePrivate(ExecutableSignature* const q) : ExecutableSignaturePrivateBase(q)
+{
+}
+
+ExecutableSignaturePrivate::~ExecutableSignaturePrivate()
+{
+}
+
+bool ExecutableSignaturePrivate::verify(const std::string &exePath)
 {
     // Check code signature.
     SecStaticCodeRef staticCode = NULL;
@@ -24,7 +26,7 @@ bool ExecutableSignature_mac::verify(const std::string &exePath)
 
     if (status != errSecSuccess)
     {
-        lastError_ = "SecStaticCodeCreateWithPath failed: " + std::to_string(status);
+        lastError_ << "SecStaticCodeCreateWithPath failed: " << status;
         return false;
     }
 
@@ -42,7 +44,7 @@ bool ExecutableSignature_mac::verify(const std::string &exePath)
     status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingDetails);
     if (status != errSecSuccess)
     {
-        lastError_ = "SecCodeCopySigningInformation failed: " + std::to_string(status);
+        lastError_ << "SecCodeCopySigningInformation failed: " << status;
         return false;
     }
 
@@ -50,7 +52,7 @@ bool ExecutableSignature_mac::verify(const std::string &exePath)
                                  objectForKey: (__bridge NSString*)kSecCodeInfoCertificates];
     if (certificateChain.count == 0)
     {
-        lastError_ = "certificate chain is empty";
+        lastError_ << "certificate chain is empty";
         return false;
     }
 
@@ -71,31 +73,30 @@ bool ExecutableSignature_mac::verify(const std::string &exePath)
     }
 
     if (!certNameMatches) {
-        lastError_ = std::string("No certificate common name matches for ") + std::string(MACOS_CERT_DEVELOPER_ID);
+        lastError_ << "No certificate common name matches for " << MACOS_CERT_DEVELOPER_ID;
     }
 
     return certNameMatches;
 }
 
-#ifdef QT_CORE_LIB
-
-bool ExecutableSignature_mac::verify(const QString &executablePath)
+bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 {
-    ExecutableSignature_mac verifySignature;
-    bool result = verifySignature.verify(executablePath.toStdString());
-    if (!result) {
-        qCDebug(LOG_BASIC) << verifySignature.lastError().c_str();
-    }
-    return result;
-
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::string converted = converter.to_bytes(exePath);
+    return verify(converted);
 }
 
 // TODO: convert all uses of this to verify(...) once signature checking has been fixed for gui/engine check
-bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
+bool ExecutableSignaturePrivate::verifyWithSignCheck(const std::wstring &exePath)
 {
-    //create static code ref via path
     SecStaticCodeRef staticCode = NULL;
-    NSString* path = executablePath.toNSString();
+
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::string converted = converter.to_bytes(exePath);
+
+    NSString* path = [NSString stringWithCString:converted.c_str()
+                               encoding:[NSString defaultCStringEncoding]];
+
     OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);
     if (status != errSecSuccess)
     {
@@ -106,7 +107,7 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
     status = SecStaticCodeCheckValidity(staticCode, flags, NULL);
     if (status != errSecSuccess)
     {
-        qDebug() << "Failed Signature Check";
+        lastError_ << "Failed Signature Check";
         return false;
     }
 
@@ -139,5 +140,3 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
 
     return false;
 }
-
-#endif
