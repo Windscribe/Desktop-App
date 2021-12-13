@@ -6,11 +6,15 @@
 class ExecutableSignaturePrivate : public ExecutableSignaturePrivateBase
 {
 public:
-    explicit ExecutableSignaturePrivate(ExecutableSignature* const q);
     ~ExecutableSignaturePrivate();
 
     bool verify(const std::wstring &exePath);
     bool verify(const std::string &exePath);
+
+private:
+    explicit ExecutableSignaturePrivate(ExecutableSignature* const q);
+
+    friend class ExecutableSignature;
 };
 
 #endif // EXECUTABLESIGNATURE_LINUX_H

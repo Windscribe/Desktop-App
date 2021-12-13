@@ -58,6 +58,8 @@ public:
     std::string lastError() const;
 
 private:
+    // This member, and its q_ptr counterpart, are part of a design pattern called the
+    // d-pointer (also called the opaque pointer).
     ExecutableSignaturePrivate* d_ptr;
 };
 
