@@ -11,10 +11,8 @@ class NetworkDetectionManager_mac : public INetworkDetectionManager
 public:
     NetworkDetectionManager_mac(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_mac() override;
-    void updateCurrentNetworkInterface() override;
+    void getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface) override;
     bool isOnline() override;
-
-    const ProtoTypes::NetworkInterface lastNetworkInterface();
 
 signals:
     void networkChanged(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface); // remove once inherited from INetworkDetectionManager
