@@ -90,7 +90,8 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     lastDownloadProgress_(0),
     installerUrl_(""),
     guiWindowHandle_(0),
-    overrideUpdateChannelWithInternal_(false)
+    overrideUpdateChannelWithInternal_(false),
+    bPrevNetworkInterfaceInitialized_(false)
 {
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)));
@@ -499,11 +500,6 @@ void Engine::applicationDeactivated()
 void Engine::forceUpdateServerLocations()
 {
     QMetaObject::invokeMethod(this, "forceUpdateServerLocationsImpl");
-}
-
-void Engine::updateCurrentNetworkInterface()
-{
-    QMetaObject::invokeMethod(this, "updateCurrentNetworkInterfaceImpl");
 }
 
 void Engine::updateCurrentInternetConnectivity()
@@ -983,7 +979,7 @@ void Engine::loginImpl(bool bSkipLoadingFromSettings)
 
             updateSessionStatus();
             updateServerLocations();
-            updateCurrentNetworkInterface();
+            updateCurrentNetworkInterfaceImpl();
             Q_EMIT loginFinished(true, authHash, apiInfo_->getPortMap());
         }
     }
@@ -1197,7 +1193,15 @@ void Engine::updateCurrentInternetConnectivityImpl()
 
 void Engine::updateCurrentNetworkInterfaceImpl()
 {
-    networkDetectionManager_->updateCurrentNetworkInterface();
+    ProtoTypes::NetworkInterface networkInterface;
+    networkDetectionManager_->getCurrentNetworkInterface(networkInterface);
+
+    if (!bPrevNetworkInterfaceInitialized_ || !google::protobuf::util::MessageDifferencer::Equals(networkInterface, prevNetworkInterface_))
+    {
+        prevNetworkInterface_ = networkInterface;
+        bPrevNetworkInterfaceInitialized_ = true;
+        Q_EMIT networkChanged(networkInterface);
+    }
 }
 
 void Engine::firewallOnImpl()
@@ -1381,7 +1385,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
         {
             loginState_ = LOGIN_FINISHED;
         }
-        updateCurrentNetworkInterface();
+        updateCurrentNetworkInterfaceImpl();
         Q_EMIT loginFinished(false, apiInfo_->getAuthHash(), apiInfo_->getPortMap());
     }
     else if (retCode == LOGIN_NO_CONNECTIVITY)
