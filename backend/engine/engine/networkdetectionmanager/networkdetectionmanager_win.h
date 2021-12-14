@@ -12,7 +12,7 @@ public:
     NetworkDetectionManager_win(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_win() override;
 
-    void updateCurrentNetworkInterface() override;
+    void getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface) override;
     bool isOnline() override;
 
     bool interfaceEnabled(int interfaceIndex);
@@ -26,7 +26,7 @@ private slots:
 private:
     Helper_win *helper_;
     NetworkChangeWorkerThread *networkWorker_;
-    ProtoTypes::NetworkInterface lastSentNetworkInterface_;
+    ProtoTypes::NetworkInterface curNetworkInterface_;
 
 };
 

@@ -59,7 +59,8 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
 
             if (actuallyAutoRotate_) // auto-rotate
             {
-                const ProtoTypes::NetworkInterface lastInterface = networkDetectionManager_->lastNetworkInterface();
+                ProtoTypes::NetworkInterface lastInterface;
+                networkDetectionManager_->getCurrentNetworkInterface(lastInterface);
                 int spoofIndex = lastInterface.interface_index();
                 if (spoofIndex != -1)
                 {
@@ -244,8 +245,11 @@ void MacAddressController_mac::autoRotateUpdateMacSpoof()
 {
     ProtoTypes::MacAddrSpoofing updatedMacAddrSpoofing = macAddrSpoofingWithUpdatedNetworkList();
 
-    bool lastIsSameAsSelected = networkDetectionManager_->lastNetworkInterface().interface_index() == updatedMacAddrSpoofing.selected_network_interface().interface_index();
-    bool lastUp = MacUtils::isAdapterUp(QString::fromStdString(networkDetectionManager_->lastNetworkInterface().interface_name()));
+    ProtoTypes::NetworkInterface lastInterface;
+    networkDetectionManager_->getCurrentNetworkInterface(lastInterface);
+
+    bool lastIsSameAsSelected = lastInterface.interface_index() == updatedMacAddrSpoofing.selected_network_interface().interface_index();
+    bool lastUp = MacUtils::isAdapterUp(QString::fromStdString(lastInterface.interface_name()));
 
     if (autoRotate_ && lastIsSameAsSelected && lastUp) // apply-able interface
     {
@@ -259,7 +263,7 @@ void MacAddressController_mac::autoRotateUpdateMacSpoof()
         qCDebug(LOG_BASIC) << "Couldn't rotate";
         qCDebug(LOG_BASIC) << "Auto rotate ON: " << autoRotate_;
         qCDebug(LOG_BASIC) << "Last is same as selected: " << lastIsSameAsSelected << " "
-                           << QString::fromStdString(networkDetectionManager_->lastNetworkInterface().interface_name()) << " (last) "
+                           << QString::fromStdString(lastInterface.interface_name()) << " (last) "
                            << QString::fromStdString(updatedMacAddrSpoofing.selected_network_interface().interface_name()) << "(selected)";
         qCDebug(LOG_BASIC) << "Last is up?: " << lastUp;
     }
