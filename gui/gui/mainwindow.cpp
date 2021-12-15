@@ -92,6 +92,7 @@ MainWindow::MainWindow() :
     lastWindowStateChange_(0),
     isExitingFromPreferences_(false),
     isSpontaneousCloseEvent_(false),
+    isExitingAfterUpdate_(false),
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false)
 {
@@ -472,7 +473,7 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     LaunchOnStartup::instance().setLaunchOnStartup(backend_->getPreferences()->isLaunchOnStartup());
 
     backend_->cleanup(WindscribeApplication::instance()->isExitWithRestart(), PersistentState::instance().isFirewallOn(),
-                      backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON,
+                      backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
                       backend_->getPreferences()->isLaunchOnStartup());
 
     // Backend handles setting firewall state after app closes
@@ -2322,6 +2323,8 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         {
             if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
             {
+                isExitingAfterUpdate_ = true; // the flag for prevent firewall off for some states
+
                 // nothing todo, because installer will close app here
 #ifdef Q_OS_LINUX
                 // Close Windscribe in order to continue installation of the .deb or .rpm package.

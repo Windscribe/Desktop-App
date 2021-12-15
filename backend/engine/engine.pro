@@ -20,7 +20,6 @@ contains(CONFIG, use_signature_check) {
     }
 }
 
-
 win32 {
 
 QMAKE_CXXFLAGS_RELEASE -= -Zc:strictStrings
@@ -178,7 +177,8 @@ SOURCES += engine/firewall/firewallcontroller_mac.cpp \
            engine/helper/helper_posix.cpp \
            engine/helper/helper_mac.cpp \
            engine/dnsresolver/dnsutils_mac.cpp \
-           engine/macaddresscontroller/macaddresscontroller_mac.cpp
+           engine/macaddresscontroller/macaddresscontroller_mac.cpp \
+           engine/autoupdater/autoupdaterhelper_mac.cpp
 
 HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/connectionmanager/sleepevents_mac.h \
@@ -196,7 +196,8 @@ HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/ping/pinghost_icmp_mac.h \
                engine/networkdetectionmanager/networkdetectionmanager_mac.h \
                engine/macaddresscontroller/macaddresscontroller_mac.h \
-               $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
+               $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h \
+               engine/autoupdater/autoupdaterhelper_mac.h
 
 OBJECTIVE_HEADERS += \
                engine/networkdetectionmanager/reachability.h \
@@ -266,9 +267,10 @@ QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_filesystem.a
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
-LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+LIBS +=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
 LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
 
@@ -304,11 +306,6 @@ HEADERS += \
            engine/connectionmanager/ikev2connection_linux.h \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
            engine/macaddresscontroller/macaddresscontroller_linux.h
-
-contains(DEFINES, USE_SIGNATURE_CHECK) {
-    RESOURCES += \
-        $$COMMON_PATH/common_linux.qrc
-}
 
 } # linux
 
@@ -356,7 +353,6 @@ SOURCES += main.cpp \
     engine/locationsmodel/nodeselectionalgorithm.cpp \
     engine/packetsizecontroller.cpp \
     engine/enginesettings.cpp \
-    engine/autoupdater/autoupdaterhelper_mac.cpp \
     engine/tempscripts_mac.cpp \
     $$COMMON_PATH/utils/simplecrypt.cpp \
     engine/logincontroller/logincontroller.cpp \
@@ -503,7 +499,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/ping/keepalivemanager.h \
     engine/packetsizecontroller.h \
     engine/enginesettings.h \
-    engine/autoupdater/autoupdaterhelper_mac.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \
     $$COMMON_PATH/utils/simplecrypt.h \

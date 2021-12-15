@@ -21,9 +21,10 @@ AuthCheckerError AuthChecker_linux::authenticate()
     // TODO: uncomment this verify check once the following are complete:
     // * installer installs windscribe-authhelper and policy file
     // * build_all script builds and signs windscribe-authhelper
-    if (!ExecutableSignature::verify(authHelperPath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(authHelperPath.toStdString()))
     {
-        qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, executable may be corrupted";
+        qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, executable may be corrupted: " << QString::fromStdString(sigCheck.lastError());
         return AuthCheckerError::HELPER_ERROR;
     }
 

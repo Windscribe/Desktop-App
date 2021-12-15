@@ -17,7 +17,6 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     , fontDescr_(11,true, 100)
     , hoverable_(false)
     , connectivity_(false)
-    , port_(500)
     , textColor_(QColor(255, 255, 255))
     , textOpacity_(0.5)
     , receivedTunnelTestResult_  (false)
@@ -26,8 +25,10 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
 
 #if defined(Q_OS_LINUX)
     protocol_ = ProtoTypes::Protocol::PROTOCOL_UDP;
+    port_ = 443;
 #else
     protocol_ = ProtoTypes::Protocol::PROTOCOL_IKEV2;
+    port_ = 500;
 #endif
 
     badgeFgImage_.reset(new ImageWithShadow("connection-badge/OFF", "connection-badge/OFF_SHADOW"));

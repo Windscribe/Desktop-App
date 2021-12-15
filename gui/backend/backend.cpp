@@ -77,9 +77,10 @@ void Backend::init(bool recovery)
     if (recovery) callLogEntry += " " + recoveryArg;
     qCDebug(LOG_BASIC()) << callLogEntry;
 
-    if (!ExecutableSignature::verify(engineExePath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(engineExePath.toStdWString()))
     {
-        qCDebug(LOG_BASIC()) << "Engine signature invalid";
+        qCDebug(LOG_BASIC()) << "Engine signature invalid: " << QString::fromStdString(sigCheck.lastError());
         emit initFinished(ProtoTypes::INIT_CLEAN);
         return;
     }

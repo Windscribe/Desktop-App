@@ -37,6 +37,7 @@
 		00B1BA3225E4E3F60099A124 /* files.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B1BA2F25E4E3F60099A124 /* files.cpp */; };
 		00EBAA04247D254400C86F6F /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EBAA02247D254400C86F6F /* logger.cpp */; };
 		6211D32C274EFFA800533D65 /* executable_signature_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6211D32A274EFFA800533D65 /* executable_signature_mac.mm */; };
+		62BB9E1D27642AC00021F51F /* executable_signature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62BB9E1B27642AC00021F51F /* executable_signature.cpp */; };
 		840B29571D6BBE88007D9519 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B29551D6BBE88007D9519 /* server.cpp */; };
 		843077AD1DE3AE26002405EA /* execute_cmd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 843077AB1DE3AE26002405EA /* execute_cmd.cpp */; };
 		8434C1081FD5B99C00B7030D /* keychain_utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8434C1071FD5B99C00B7030D /* keychain_utils.mm */; };
@@ -138,6 +139,8 @@
 		00EBAA03247D254400C86F6F /* logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = logger.h; sourceTree = "<group>"; };
 		6211D32A274EFFA800533D65 /* executable_signature_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = executable_signature_mac.mm; path = ../../../../common/utils/executable_signature/executable_signature_mac.mm; sourceTree = "<group>"; };
 		6211D32B274EFFA800533D65 /* executable_signature_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature_mac.h; path = ../../../../common/utils/executable_signature/executable_signature_mac.h; sourceTree = "<group>"; };
+		62BB9E1B27642AC00021F51F /* executable_signature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = executable_signature.cpp; path = ../../../../common/utils/executable_signature/executable_signature.cpp; sourceTree = "<group>"; };
+		62BB9E1C27642AC00021F51F /* executable_signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature.h; path = ../../../../common/utils/executable_signature/executable_signature.h; sourceTree = "<group>"; };
 		840B29551D6BBE88007D9519 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
 		840B29561D6BBE88007D9519 /* server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = server.h; sourceTree = "<group>"; };
 		843077AB1DE3AE26002405EA /* execute_cmd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = execute_cmd.cpp; sourceTree = "<group>"; };
@@ -334,6 +337,8 @@
 		84DA0AE41B1D7EB600260E8F /* src */ = {
 			isa = PBXGroup;
 			children = (
+				62BB9E1B27642AC00021F51F /* executable_signature.cpp */,
+				62BB9E1C27642AC00021F51F /* executable_signature.h */,
 				6211D32B274EFFA800533D65 /* executable_signature_mac.h */,
 				6211D32A274EFFA800533D65 /* executable_signature_mac.mm */,
 				00B1B9F425E4E3900099A124 /* installer */,
@@ -470,6 +475,7 @@
 				00352E9F25E549CE00E5ED2C /* 7zCrcOpt.c in Sources */,
 				00352EA025E549CE00E5ED2C /* 7zBuf.c in Sources */,
 				8888384D26432C7100FE5C25 /* macutils.mm in Sources */,
+				62BB9E1D27642AC00021F51F /* executable_signature.cpp in Sources */,
 				00352E9125E549CE00E5ED2C /* Bcj2.c in Sources */,
 				84DA0AED1B1D7ED000260E8F /* helper.cpp in Sources */,
 				946225E825140DD70032A070 /* wireguardcommunicator.cpp in Sources */,

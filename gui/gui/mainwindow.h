@@ -374,6 +374,7 @@ private:
 
     bool isExitingFromPreferences_;
     bool isSpontaneousCloseEvent_;
+    bool isExitingAfterUpdate_;
 
     void minimizeToTray();
 

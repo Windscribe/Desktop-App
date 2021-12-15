@@ -179,7 +179,10 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
 LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
-LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_filesystem.a
 
 SOURCES += \
     $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
@@ -195,12 +198,6 @@ HEADERS += \
     multipleaccountdetection/multipleaccountdetection_linux.h \
     launchonstartup/launchonstartup_linux.h \
     utils/authchecker_linux.h
-
-contains(DEFINES, USE_SIGNATURE_CHECK) {
-    RESOURCES += \
-        $$COMMON_PATH/common_linux.qrc
-}
-
 
 } # linux
 
