@@ -39,6 +39,7 @@ import base.messages as msg
 import base.process as proc
 import base.utils as utl
 import deps.installutils as iutl
+import base.signreq as signreq
 
 # Windscribe settings.
 BUILD_TITLE = "Windscribe"
@@ -694,7 +695,6 @@ def BuildAll():
       configdata["installer"][current_os] not in configdata:
     raise iutl.InstallError("Missing {} installer target in \"{}\".".format(current_os, BUILD_CFGNAME))
   
-  
   # Extract app version.
   global BUILD_APP_VERSION_STRING
   global BUILD_APP_VERSION_STRING_FULL
@@ -714,6 +714,16 @@ def BuildAll():
       raise iutl.InstallError("MSVS installation not found.")
     if not os.path.exists(crt_root):
       raise iutl.InstallError("CRT files not found.")
+
+    # verify we can sign if sign build requested
+    if SIGN_APP:
+      signing_cert_password = configdata["windows_signing_cert"]["password_cert"]
+      signing_cert_filename = os.path.join(ROOT_DIR, configdata["windows_signing_cert"]["path_cert"])
+      msg.Print(signing_cert_filename)
+      signing_requirements = signreq.SigningRequirements_win(signing_cert_password, signing_cert_filename)
+      if not signing_requirements.able_to_sign():
+        raise iutl.InstallError("Signing requirements not met. Check password_cert is present in build_all.yml and code_signing.pfx in installer/windows/signing or use '--no-sign' option")
+
   # Prepare output.
   artifact_dir = os.path.join(ROOT_DIR, "build-exe")
   if not NO_POST_CLEAN:
