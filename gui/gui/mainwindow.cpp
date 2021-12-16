@@ -1932,10 +1932,16 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
 
     if (connectState.connect_state_type() == ProtoTypes::CONNECTED)
     {
+        bytesTransferred_ = 0;
+        connectionElapsedTimer_.start();
+
+        // Ensure the icon has been updated, as QSystemTrayIcon::showMessage displays this icon
+        // in the notification window on Windows.
+        updateAppIconType(AppIconType::CONNECTED);
+        updateTrayIconType(AppIconType::CONNECTED);
+
         if (backend_->getPreferences()->isShowNotifications())
         {
-            //LocationID lid = LocationID(PersistentState::instance().state.lastlocation().location_id(),
-            //                            QString::fromStdString(PersistentState::instance().state.lastlocation().city()));
             if (!bNotificationConnectedShowed_)
             {
                 LocationsModel::LocationInfo li;
@@ -1946,12 +1952,6 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
                 }
             }
         }
-
-        bytesTransferred_ = 0;
-        connectionElapsedTimer_.start();
-
-        updateAppIconType(AppIconType::CONNECTED);
-        updateTrayIconType(AppIconType::CONNECTED);
     }
     else if (connectState.connect_state_type() == ProtoTypes::CONNECTING || connectState.connect_state_type() == ProtoTypes::DISCONNECTING)
     {
@@ -1961,6 +1961,11 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
     }
     else if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
     {
+        // Ensure the icon has been updated, as QSystemTrayIcon::showMessage displays this icon
+        // in the notification window on Windows.
+        updateAppIconType(AppIconType::DISCONNECTED);
+        updateTrayIconType(AppIconType::DISCONNECTED);
+
         if (bNotificationConnectedShowed_)
         {
             if (backend_->getPreferences()->isShowNotifications())
@@ -1969,8 +1974,6 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
             }
             bNotificationConnectedShowed_ = false;
         }
-        updateAppIconType(AppIconType::DISCONNECTED);
-        updateTrayIconType(AppIconType::DISCONNECTED);
 
         if (connectState.disconnect_reason() == ProtoTypes::DISCONNECTED_WITH_ERROR)
         {
@@ -3628,6 +3631,10 @@ void MainWindow::updateTrayIconType(AppIconType type)
     }
 
      if (icon) {
+         // We must call setIcon so calls to QSystemTrayIcon::showMessage will use the
+         // correct icon.  Otherwise, the singleShot call below may cause showMessage
+         // to pick up the old icon.
+         trayIcon_.setIcon(*icon);
 #if defined(Q_OS_WIN)
          const QPixmap pm = icon->pixmap(QSize(16, 16) * G_SCALE);
          if (!pm.isNull()) {
@@ -3635,8 +3642,6 @@ void MainWindow::updateTrayIconType(AppIconType type)
                  WidgetUtils_win::updateSystemTrayIcon(pm, QString());
              });
          }
-#else
-         trayIcon_.setIcon(*icon);
 #endif
     }
 }
