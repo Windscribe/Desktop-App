@@ -77,6 +77,8 @@ up() {
   shift
   local if_index="$1"
   shift
+  local dev="$1"
+  shift
 
   info "Link '$link' coming up"
 
@@ -134,12 +136,18 @@ up() {
       busctl_call SetLinkDNSSEC 'is' "$if_index" "${dns_sec}" || return $?
     fi
   fi
+
+  SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+  DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
+  "$DNS_LEAK_SCRIPT" "up" ${dev}
 }
 
 down() {
   local link="$1"
   shift
   local if_index="$1"
+  shift
+  local dev="$1"
   shift
 
   info "Link '$link' going down"
@@ -149,6 +157,10 @@ down() {
   else
     busctl_call RevertLink i "$if_index"
   fi
+
+  SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+  DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
+  "$DNS_LEAK_SCRIPT" "down"
 }
 
 process_dns() {
@@ -419,7 +431,7 @@ main() {
       return 1
     fi
 
-    "$script_type" "$link" "$if_index" "$@" || return 1
+    "$script_type" "$link" "$if_index" "$dev" "$@" || return 1
     # Flush the DNS cache
     systemd-resolve --flush-caches
   fi
