@@ -41,6 +41,10 @@ QStringList DnsServersConfiguration::dnsPolicyTypeToStringList(DNS_POLICY_TYPE d
     {
         return QStringList() << HardcodedSettings::instance().googleDns();
     }
+    else if (dnsPolicyType == DNS_TYPE_CONTROLD)
+    {
+        return QStringList() << HardcodedSettings::instance().controldDns();
+    }
     else
     {
         Q_ASSERT(false);

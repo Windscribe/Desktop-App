@@ -55,6 +55,7 @@ ProtoEnumToString::ProtoEnumToString()
     map_["DNS_POLICY_OPEN_DNS"] = "Open DNS";
     map_["DNS_POLICY_CLOUDFLARE"] = "Cloudflare";
     map_["DNS_POLICY_GOOGLE"] = "Google";
+    map_["DNS_POLICY_CONTROLD"] = "ControlD";
 
     map_["TAP_ADAPTER_NOT_INSTALLED"] = "Not installed";
     map_["TAP_ADAPTER_5"] = "Legacy Driver (NDIS5)";

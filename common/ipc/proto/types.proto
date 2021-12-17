@@ -356,6 +356,7 @@ enum DnsPolicy
    DNS_POLICY_OPEN_DNS = 1;
    DNS_POLICY_CLOUDFLARE = 2;
    DNS_POLICY_GOOGLE = 3;
+   DNS_POLICY_CONTROLD = 4;
 }
 
 enum DnsWhileConnectedType

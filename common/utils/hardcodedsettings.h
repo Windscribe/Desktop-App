@@ -24,6 +24,7 @@ public:
     const QStringList openDns() const;
     const QStringList googleDns() const;
     const QStringList cloudflareDns() const;
+    const QStringList controldDns() const;
     const QStringList apiIps() const { return apiIps_; }
 
     QString emergencyUsername() const { return emergencyUsername_; }
