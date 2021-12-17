@@ -14,6 +14,10 @@
     #include "engine/helper/helper_mac.h"
 #endif
 
+#ifdef Q_OS_LINUX
+    #include "engine/helper/helper_posix.h"
+#endif
+
 void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
 {
 #ifdef Q_OS_WIN
@@ -21,9 +25,7 @@ void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
 #elif defined Q_OS_MAC
     finishAllActiveConnections_mac(helper);
 #elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    Q_UNUSED(helper);
+    finishAllActiveConnections_linux(helper);
 #endif
 }
 
@@ -96,4 +98,22 @@ void FinishActiveConnections::finishWireGuardActiveConnections_mac(IHelper *help
     helper->setDefaultWireGuardDeviceName(WireGuardConnection::getWireGuardAdapterName());
     helper->stopWireGuard();
 }
+#elif defined Q_OS_LINUX
+
+void FinishActiveConnections::finishAllActiveConnections_linux(IHelper *helper)
+{
+    // todo: kill openvpn, wireguard for Linux
+    removeDnsLeaksprotection_linux(helper);
+}
+
+void FinishActiveConnections::removeDnsLeaksprotection_linux(IHelper *helper)
+{
+    Helper_posix *helperPosix = dynamic_cast<Helper_posix *>(helper);
+    int exitCode;
+    helperPosix->executeRootCommand("/etc/windscribe/dns-leak-protect down", &exitCode);
+}
+
 #endif
+
+
+
