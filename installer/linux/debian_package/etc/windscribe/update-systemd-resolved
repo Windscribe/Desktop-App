@@ -428,6 +428,13 @@ main() {
   else
     if ! read -r link if_index _ < <(get_link_info "$dev"); then
       usage "Invalid device name: '$dev'"
+
+      # execute down script for DNS-leaks rules anyway
+      if [[ "${script_type}" == "down" ]]; then
+        SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+        DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
+        "$DNS_LEAK_SCRIPT" "down"     
+      fi
       return 1
     fi
 
