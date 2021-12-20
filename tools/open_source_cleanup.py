@@ -95,6 +95,20 @@ def removeGeneralSecrets():
   utl.RemoveDirectory(git_hooks)
   overwriteHardcodedSettingsWithOpenSourceVersion()
 
+  # for pfx
+  base64_decode = os.path.join(ROOT_DIR, ".base64_decode.ps1")
+  utl.RemoveFile(base64_decode)
+
+  # remove CI stuff
+  ci_yml = os.path.join(ROOT_DIR, ".gitlab-ci.yml")
+  utl.RemoveFile(ci_yml)
+  ci_vars = os.path.join(ROOT_DIR, "vars.yml")
+  utl.RemoveFile(ci_vars)
+
+  # high level windows project 
+  windscribe_sln = os.path.join(ROOT_DIR, "windscribe.sln")
+  utl.RemoveFile(windscribe_sln)
+
 
 if __name__ == "__main__":
   start_time = time.time()
