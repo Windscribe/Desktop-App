@@ -1,0 +1,7 @@
+[*.{c,h,inf,rc}]
+indent_style = space
+indent_style = 4
+
+[*.{proj,props,vcxproj,wixproj,wxs}]
+indent_style = space
+indent_size = 2

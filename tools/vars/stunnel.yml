@@ -1,0 +1,8 @@
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+variables:
+  VERSION_STUNNEL: '5.60'
+  BUILDROOT_STUNNEL: 'build-libs/stunnel'
+  ARTIFACT_STUNNEL: 'stunnel.zip'

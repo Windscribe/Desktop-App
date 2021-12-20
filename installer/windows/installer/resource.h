@@ -1,0 +1,9 @@
+#ifndef RESOURCE_H
+#define RESOURCE_H
+
+#define IDI_ICON1 100001
+#define IDR_PLEXFONT_REGULAR 	100002
+#define IDR_PLEXFONT_BOLD 	100003
+
+
+#endif // RESOURCE_H

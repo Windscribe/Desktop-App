@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+	<file>../../common/utils/hardcodedsettings.ini</file>
+        <file>resources/cert/cert.crt</file>
+        <file>resources/ovpn/emergency.ovpn</file>
+        <file>resources/cert/certs_bundle.pem</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="16px" viewBox="0 0 18 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 61.2 (89653) - https://sketch.com -->
+    <title>pro_flag_dark</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="ws-android-hm-splitrouting" transform="translate(-151.000000, -514.000000)">
+            <g id="pro_flag_dark" transform="translate(151.000000, 514.000000)">
+                <rect id="Rectangle-2" fill="#020D1C" opacity="0.151381341" x="8" y="14" width="8" height="2"></rect>
+                <rect id="Rectangle-3" fill-opacity="0.152796649" fill="#020D1C" x="16" y="8" width="2" height="8"></rect>
+                <polygon id="Rectangle" fill="#FFFFFF" points="0 0 16 0 16 14 8 14 8 16 0 14"></polygon>
+                <polygon id="Path-7" fill="#020D1C" points="5 11.5 8 9.5 11 11.5 10 8 13 5.5 9.5 5.5 8 2 6.5 5.5 3 5.5 6 8"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

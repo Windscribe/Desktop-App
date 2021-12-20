@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="257px" height="48px" viewBox="0 0 257 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>LOCATION_BUTTON_BG</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-365.000000, -550.000000)" opacity="1">
+        <path d="M403.867962,550 L622,550 L622,598 L365,598 L390.299989,557.520017 C393.223803,552.841915 398.351322,550 403.867962,550 Z" id="LOCATION_BUTTON_BG" fill="#020D1C"></path>
+    </g>
+</svg>

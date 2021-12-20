@@ -1,0 +1,87 @@
+#ifndef CONNECTSTATETEXT_H
+#define CONNECTSTATETEXT_H
+
+#include <QFont>
+#include <QTimer>
+#include <QVariantAnimation>
+#include "../backend/types/types.h"
+#include "commongraphics/scalablegraphicsobject.h"
+#include "../backend/preferences/preferences.h"
+#include "graphicresources/fontdescr.h"
+#include "utils/textshadow.h"
+#include "utils/imagewithshadow.h"
+#include "connectionbadgedots.h"
+#include "badgepixmap.h"
+
+namespace ConnectWindow {
+
+class ConnectStateProtocolPort : public ScalableGraphicsObject
+{
+    Q_OBJECT
+public:
+    explicit ConnectStateProtocolPort(ScalableGraphicsObject *parent = nullptr);
+
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+
+    void onConnectStateChanged(ProtoTypes::ConnectState newConnectState, ProtoTypes::ConnectState prevConnectState);
+
+    void setHoverable(bool hoverable);
+    void setInternetConnectivity(bool connectivity);
+    void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port);
+    void setTestTunnelResult(bool success);
+
+    void updateScaling() override;
+
+signals:
+    void hoverEnter();
+    void hoverLeave();
+
+protected:
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
+
+private slots:
+    void onProtocolTestTunnelTimerTick();
+    void onProtocolOpacityAnimationChanged(const QVariant &value);
+
+private:
+    ConnectionBadgeDots * connectionBadgeDots_;
+
+    FontDescr fontDescr_;
+    ProtoTypes::ConnectState connectState_;
+    ProtoTypes::ConnectState prevConnectState_;
+    bool hoverable_;
+    bool connectivity_;
+    ProtoTypes::Protocol protocol_;
+    uint port_;
+    QColor textColor_;
+    double textOpacity_;
+    bool receivedTunnelTestResult_;
+
+    //QString badgeIconFg_;
+    QScopedPointer<ImageWithShadow> badgeFgImage_;
+
+    TextShadow textShadowProtocol_;
+    TextShadow textShadowPort_;
+
+    QColor badgeBgColor_;
+    BadgePixmap badgePixmap_;
+
+    int width_;
+    int height_;
+    void recalcSize();
+    void updateStateDisplay(ProtoTypes::ConnectState newConnectState);
+
+    static constexpr int badgeProtocolPadding = 10;
+    static constexpr int protocolSeparatorPadding = 7;
+    static constexpr int separatorPortPadding = 8;
+
+    QTimer protocolTestTunnelTimer_;
+    QVariantAnimation protocolOpacityAnimation_;
+
+};
+
+} //namespace ConnectWindow
+
+#endif // CONNECTSTATETEXT_H

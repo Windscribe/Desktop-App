@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>EMERGENCY_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="desktop_flow_01" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-692.000000, -1554.000000)">
+        <path d="M698,1556 C695.790861,1556 694,1557.79086 694,1560 L694,1572 C694,1574.20914 695.790861,1576 698,1576 L710,1576 C712.209139,1576 714,1574.20914 714,1572 L714,1560 C714,1557.79086 712.209139,1556 710,1556 L698,1556 Z M698,1554 L710,1554 C713.313708,1554 716,1556.68629 716,1560 L716,1572 C716,1575.31371 713.313708,1578 710,1578 L698,1578 C694.686292,1578 692,1575.31371 692,1572 L692,1560 C692,1556.68629 694.686292,1554 698,1554 Z M705,1565 L705,1561 L703,1561 L703,1565 L699,1565 L699,1567 L703,1567 L703,1571 L705,1571 L705,1567 L709,1567 L709,1565 L705,1565 Z M707,1563 L711,1563 L711,1569 L707,1569 L707,1573 L701,1573 L701,1569 L697,1569 L697,1563 L701,1563 L701,1559 L707,1559 L707,1563 Z" id="EMERGENCY_ICON" fill="#fff" fill-rule="nonzero"></path>
+    </g>
+</svg>

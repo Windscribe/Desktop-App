@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="450" height="452" viewBox="0 0 450 452">
+  <defs>
+    <rect id="macos-login-shadow-selected-b" width="350" height="352" x="50" y="25"/>
+    <filter id="macos-login-shadow-selected-a" width="150%" height="149.7%" x="-25%" y="-17.8%" filterUnits="objectBoundingBox">
+      <feOffset dy="25" in="SourceAlpha" result="shadowOffsetOuter1"/>
+      <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="25"/>
+      <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.603657156 0"/>
+    </filter>
+  </defs>
+  <use fill-rule="evenodd" filter="url(#macos-login-shadow-selected-a)" xlink:href="#macos-login-shadow-selected-b"/>
+</svg>

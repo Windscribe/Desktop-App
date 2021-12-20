@@ -1,0 +1,9 @@
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+variables:
+  VERSION_CARES: '1.17.2'
+  BUILDROOT_CARES: 'build-libs/cares'
+  ARTIFACT_CARES: 'cares.zip'
+

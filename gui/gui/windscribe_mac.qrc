@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Resources/icons/menubar/os10/conn_dark.icns</file>
+        <file>Resources/icons/menubar/os10/conn_light.icns</file>
+        <file>Resources/icons/menubar/os10/off_dark.icns</file>
+        <file>Resources/icons/menubar/os10/off_light.icns</file>
+        <file>Resources/icons/menubar/os10/on_dark.icns</file>
+        <file>Resources/icons/menubar/os10/on_light.icns</file>
+    </qresource>
+</RCC>

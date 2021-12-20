@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="350px" height="122px" viewBox="0 0 350 122" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>BOTTOM_BG</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-272.000000, -502.000000)">
+        <g id="BOTTOM_BG" transform="translate(272.000000, 502.000000)" fill="url(#linearGradient-1)">
+            <path d="M82.3617167,112.94105 C79.6952846,118.479024 74.0921542,122 67.94569,122 L0,122 L0,0 L350,0 L350,96 L93,96 L82.3617167,112.94105 Z"></path>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,8 @@
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+variables:
+  VERSION_OPENVPN: '2.5.4'
+  BUILDROOT_OPENVPN: 'build-libs/openvpn_2_5_4'
+  ARTIFACT_OPENVPN: 'openvpn_2_5_4.zip'

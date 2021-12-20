@@ -1,0 +1,1 @@
+Don't forget to set different minimum target version for Win7 and Win10, before building.

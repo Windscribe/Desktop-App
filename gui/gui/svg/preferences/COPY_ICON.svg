@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>COPY_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="desktop_flow_04" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-857.000000, -7354.000000)">
+        <g id="icons-copy" transform="translate(857.000000, 7354.000000)" fill="#FFFFFF" fill-rule="nonzero">
+            <path d="M2,6 L2,14 L10,14 L10,6 L2,6 Z M16,2 L16,12 L14,12 L14,2 L4,2 L4,0 L16,0 L16,2 Z M0,4 L12,4 L12,16 L0,16 L0,4 Z" id="COPY_ICON"></path>
+        </g>
+    </g>
+</svg>

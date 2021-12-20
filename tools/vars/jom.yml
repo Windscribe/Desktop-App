@@ -1,0 +1,10 @@
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+variables:
+  VERSION_JOM: '1_1_3'
+  BUILDROOT_JOM: 'build-libs/jom'
+  ARTIFACT_JOM: 'jom.zip'
+
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>SEND_LOG_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="desktop_flow_04" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-857.000000, -7792.000000)">
+        <g id="SEND_LOG_ICON" transform="translate(857.000000, 7792.000000)" fill="#FFFFFF" fill-rule="nonzero">
+            <path d="M5.3181309,7.99989077 L3.83065001,11.9665956 L11.7638814,7.99989077 L3.83065001,4.03318591 L5.3181309,7.99989077 Z M2.44740676,1.10547071 L14.4471309,7.10546759 C14.9411071,7.35246128 15.1413261,7.95313612 14.8943324,8.4471124 C14.7975697,8.64063343 14.6406519,8.79755125 14.4471309,8.89431394 L2.44740676,14.8943108 C1.95343049,15.1413045 1.35275565,14.9410856 1.10576196,14.4471093 C0.981403324,14.1983976 0.96621861,13.9091363 1.06385336,13.6487711 L3.18213589,7.99989077 L1.06385336,2.3510104 C0.869937055,1.83388865 1.13194685,1.25747841 1.6490686,1.06356211 C1.90943378,0.965927362 2.19869509,0.981112076 2.44740676,1.10547071 Z"></path>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,344 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\split_tunneling">
+      <UniqueIdentifier>{f1ed9ddb-2d34-47c9-8625-e73e09938810}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\split_tunneling">
+      <UniqueIdentifier>{89c4d02d-b7b1-46b5-b3ad-0c1be1bbc8a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ipc">
+      <UniqueIdentifier>{7bbc84c5-f90a-4d65-85b4-70286d9cc0cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\wireguard">
+      <UniqueIdentifier>{f55807f5-a73c-4190-a670-650b899c8727}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\wireguard">
+      <UniqueIdentifier>{174f724d-1905-4caf-ab85-c25ba301d545}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{cc8fa197-db2f-408a-b69c-54fde19671ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{4043dde5-5696-4f67-80f7-0995a19d37ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ip_address">
+      <UniqueIdentifier>{bfa95710-8f34-4208-85be-610fbe9c9406}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ip_address">
+      <UniqueIdentifier>{32286b8b-0fc4-4dbc-ae4b-231320d0851f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\split_tunneling\hostnames_manager">
+      <UniqueIdentifier>{4080f6c5-360f-4e4e-b31a-59a07174aea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\split_tunneling\hostnames_manager">
+      <UniqueIdentifier>{2e5326c0-d981-4256-bc1b-47dc8f9df2af}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="executecmd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="firewallfilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hostsedit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ioutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sys_ipv6_controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_for_process.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="icsmanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ipv6_firewall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dns_firewall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="reinstall_wan_ikev2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="reinstall_tun_drivers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="close_tcp_connections.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="get_active_processes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cleardns_on_tap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="registry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\callout_filter.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\ip_address_table.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\split_tunneling.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\split_tunnel_service_manager.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="ipc\serialize_structs.h">
+      <Filter>Header Files\IPC</Filter>
+    </ClInclude>
+    <ClInclude Include="ipc\servicecommunication.h">
+      <Filter>Header Files\IPC</Filter>
+    </ClInclude>
+    <ClInclude Include="ikev2route.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="all_headers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="apps_ids.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fwpm_wrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\routes_manager.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="remove_windscribe_network_profiles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wireguard\privilegehelper.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="wireguard\wireguardcommunicator.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="wireguard\wireguardcontroller.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="wireguard\wireguardadapter.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="wireguard\defaultroutemonitor.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="ikev2ipsec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature_win.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\utils\crashdump.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\utils\crashhandler.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="ip_address\ip4_address_and_mask.h">
+      <Filter>Header Files\ip_address</Filter>
+    </ClInclude>
+    <ClInclude Include="date_time_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\ip_forward_table.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\routes.h">
+      <Filter>Header Files\split_tunneling</Filter>
+    </ClInclude>
+    <ClInclude Include="adapters_info.h">
+      <Filter>Header Files\wireguard</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\hostnames_manager\dns_resolver.h">
+      <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\hostnames_manager\hostnames_manager.h">
+      <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\hostnames_manager\ip_routes.h">
+      <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
+    </ClInclude>
+    <ClInclude Include="split_tunneling\hostnames_manager\ares_library_init.h">
+      <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="windscribe_service.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="executecmd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="firewallfilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hostsedit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ioutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_ipv6_controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe_for_process.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="icsmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ipv6_firewall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dns_firewall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="reinstall_wan_ikev2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="reinstall_tun_drivers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="close_tcp_connections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="get_active_processes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cleardns_on_tap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="registry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\callout_filter.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\ip_address_table.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\split_tunneling.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\split_tunnel_service_manager.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="ikev2route.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="adapters_info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="apps_ids.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fwpm_wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\routes_manager.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="remove_windscribe_network_profiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\wireguardcommunicator.cpp">
+      <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\privilegehelper.cpp">
+      <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\wireguardcontroller.cpp">
+      <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\wireguardadapter.cpp">
+      <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="wireguard\defaultroutemonitor.cpp">
+      <Filter>Source Files\wireguard</Filter>
+    </ClCompile>
+    <ClCompile Include="ikev2ipsec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\crashdump.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\crashhandler.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="ip_address\ip4_address_and_mask.cpp">
+      <Filter>Source Files\ip_address</Filter>
+    </ClCompile>
+    <ClCompile Include="date_time_helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\ip_forward_table.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\routes.cpp">
+      <Filter>Source Files\split_tunneling</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\hostnames_manager\dns_resolver.cpp">
+      <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\hostnames_manager\hostnames_manager.cpp">
+      <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\hostnames_manager\ip_routes.cpp">
+      <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
+    </ClCompile>
+    <ClCompile Include="split_tunneling\hostnames_manager\ares_library_init.cpp">
+      <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="windscribe_service.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

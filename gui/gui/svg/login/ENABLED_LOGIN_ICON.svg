@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>ENABLED_LOGIN_ICON</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="desktop_flow_01" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-831.000000, -1468.000000)" opacity="1.0">
+        <path d="M847,1500 C838.163444,1500 831,1492.83656 831,1484 C831,1475.16344 838.163444,1468 847,1468 C855.836556,1468 863,1475.16344 863,1484 C863,1492.83656 855.836556,1500 847,1500 Z M844.324,1491.71997 C844.721,1492.09314 845.339,1492.09314 845.736,1491.71997 L854,1484.00343 L845.736,1476.27988 C845.339,1475.90671 844.721,1475.90671 844.324,1476.27988 C843.892,1476.68707 843.892,1477.37338 844.324,1477.77957 L850.996,1484.00343 L844.324,1490.22028 C843.892,1490.62647 843.892,1491.31278 844.324,1491.71997 Z" id="DISABLED_LOGIN_ICON" fill="#55ff8a"></path>
+    </g>
+</svg>
