@@ -89,7 +89,6 @@ public:
     void speedRating(int rating, const QString &localExternalIp);  //rate current connection(0 - down, 1 - up)
 
     void updateServerConfigs();
-    void updateCurrentNetworkInterface();
     void updateCurrentInternetConnectivity();
 
     // emergency connect functions
@@ -401,6 +400,8 @@ private:
     qint32 guiWindowHandle_;
 
     bool overrideUpdateChannelWithInternal_;
+    bool bPrevNetworkInterfaceInitialized_;
+    ProtoTypes::NetworkInterface prevNetworkInterface_;
 };
 
 #endif // ENGINE_H

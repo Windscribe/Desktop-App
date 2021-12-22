@@ -32,6 +32,7 @@ private:
     QString comment_;
 
     bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports);
+    QStringList getWindscribeRules(const QString &comment, bool modifyForDelete);
 };
 
 #endif // FIREWALLCONTROLLER_LINUX_H

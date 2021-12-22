@@ -35,6 +35,10 @@ split_into_parts()
 	part3="$3"
 }
 
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
+
 case "$script_type" in
   up)
 	NMSRVRS=""
@@ -65,6 +69,8 @@ case "$script_type" in
 		echo -n "$R" | /sbin/resolvconf -a "$(resolvconf_iface_prefix)${dev}" -m 0 -x
 	fi
 
+  "$DNS_LEAK_SCRIPT" "up" ${dev}
+
 	;;
   down)
 	if [[ -z "${is_wireguard}" ]]; then
@@ -73,6 +79,9 @@ case "$script_type" in
   		/sbin/resolvconf -d "$(resolvconf_iface_prefix)${dev}" -f
 	fi
 
+	"$DNS_LEAK_SCRIPT" "down"
+
 	;;
 esac
+
 

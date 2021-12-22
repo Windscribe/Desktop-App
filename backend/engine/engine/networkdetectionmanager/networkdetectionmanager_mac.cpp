@@ -30,22 +30,6 @@ bool NetworkDetectionManager_mac::isOnline()
     return b;
 }
 
-const ProtoTypes::NetworkInterface NetworkDetectionManager_mac::lastNetworkInterface()
-{
-    return lastNetworkInterface_;
-}
-
-void NetworkDetectionManager_mac::updateCurrentNetworkInterface()
-{
-    QMutexLocker locker(&mutex_);
-
-    ProtoTypes::NetworkInterface networkInterface = MacUtils::currentNetworkInterface();
-    lastNetworkInterface_ = networkInterface;
-
-    QString strNetworkInterface;
-    emit networkChanged(checkOnline(strNetworkInterface), networkInterface);
-}
-
 void NetworkDetectionManager_mac::onNetworkStateChanged()
 {
     const ProtoTypes::NetworkInterface &networkInterface = MacUtils::currentNetworkInterface();
@@ -149,3 +133,8 @@ bool NetworkDetectionManager_mac::checkOnline(QString &networkInterface)
     }
 }
 
+
+void NetworkDetectionManager_mac::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
+{
+    networkInterface = lastNetworkInterface_;
+}

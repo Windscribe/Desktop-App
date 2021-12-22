@@ -18,6 +18,7 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
 
     networkInterface_ = Utils::noNetworkInterface();
     getDefaultRouteInterface(isOnline_);
+    updateNetworkInfo(false);
 
     ncm_ = new QNetworkConfigurationManager(this);
     connect(ncm_, &QNetworkConfigurationManager::configurationAdded, this, &NetworkDetectionManager_linux::onNetworkUpdated);
@@ -29,9 +30,9 @@ NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
 {
 }
 
-void NetworkDetectionManager_linux::updateCurrentNetworkInterface()
+void NetworkDetectionManager_linux::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
 {
-    onNetworkUpdated(QNetworkConfiguration());
+    networkInterface = networkInterface_;
 }
 
 bool NetworkDetectionManager_linux::isOnline()
@@ -40,6 +41,11 @@ bool NetworkDetectionManager_linux::isOnline()
 }
 
 void NetworkDetectionManager_linux::onNetworkUpdated(const QNetworkConfiguration &/*config*/)
+{
+    updateNetworkInfo(true);
+}
+
+void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
 {
     bool newIsOnline;
     QString ifname = getDefaultRouteInterface(newIsOnline);
@@ -53,7 +59,10 @@ void NetworkDetectionManager_linux::onNetworkUpdated(const QNetworkConfiguration
     {
         isOnline_ = newIsOnline;
         networkInterface_ = newNetworkInterface;
-        emit networkChanged(isOnline_, networkInterface_);
+        if (bWithEmitSignal)
+        {
+            emit networkChanged(isOnline_, networkInterface_);
+        }
     }
 }
 

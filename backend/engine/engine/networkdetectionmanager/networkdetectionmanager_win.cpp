@@ -11,6 +11,9 @@ NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelpe
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
     Q_ASSERT(helper_);
+
+    curNetworkInterface_ = WinUtils::currentNetworkInterface();
+
     networkWorker_ = new NetworkChangeWorkerThread(this);
 
     connect(networkWorker_, &NetworkChangeWorkerThread::finished, networkWorker_, &QObject::deleteLater);
@@ -80,45 +83,45 @@ void NetworkDetectionManager_win::resetAdapter(int ifIndex, bool bringBackUp)
 
 void NetworkDetectionManager_win::onNetworkChanged()
 {
-    updateCurrentNetworkInterface();
-}
-
-void NetworkDetectionManager_win::updateCurrentNetworkInterface()
-{
-    ProtoTypes::NetworkInterface curNetworkInterface = WinUtils::currentNetworkInterface();
-    curNetworkInterface.set_requested(false);
+    ProtoTypes::NetworkInterface newNetworkInterface = WinUtils::currentNetworkInterface();
+    newNetworkInterface.set_requested(false);
 
     // Only report a changed, properly formed
-    if (lastSentNetworkInterface_.active() != curNetworkInterface.active()
-        || !Utils::sameNetworkInterface(lastSentNetworkInterface_, curNetworkInterface))
+    if (curNetworkInterface_.active() != newNetworkInterface.active()
+        || !Utils::sameNetworkInterface(curNetworkInterface_, newNetworkInterface))
     {
-        const QString name = QString::fromStdString(curNetworkInterface.network_or_ssid());
+        const QString name = QString::fromStdString(newNetworkInterface.network_or_ssid());
         if (name != "Unidentified network" && name != "Identifying...")
         {
             // if still online: Don't send the NoInterface since this can happen during
             // VPN CONNECTING
-            if (curNetworkInterface.interface_index() == -1)
+            if (newNetworkInterface.interface_index() == -1)
             {
                 if (!isOnline())
                 {
-                    lastSentNetworkInterface_ = curNetworkInterface;
-                    emit networkChanged(false, curNetworkInterface);
+                    curNetworkInterface_ = newNetworkInterface;
+                    emit networkChanged(false, curNetworkInterface_);
                 }
             }
             else
             {
-                lastSentNetworkInterface_ = curNetworkInterface;
-                emit networkChanged(isOnline(), curNetworkInterface);
+                curNetworkInterface_ = newNetworkInterface;
+                emit networkChanged(isOnline(), curNetworkInterface_);
             }
         }
         else
         {
             qCDebug(LOG_BASIC) << "Network update skipped: unidentified network (interface ="
-                << curNetworkInterface.friendly_name().c_str() << "id ="
-                << curNetworkInterface.interface_index() << " active ="
-                << curNetworkInterface.active() << ")";
+                << newNetworkInterface.friendly_name().c_str() << "id ="
+                << newNetworkInterface.interface_index() << " active ="
+                << newNetworkInterface.active() << ")";
         }
     }
+}
+
+void NetworkDetectionManager_win::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
+{
+    networkInterface = curNetworkInterface_;
 }
 
 bool NetworkDetectionManager_win::isOnline()
