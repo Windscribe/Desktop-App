@@ -508,11 +508,15 @@ QString Utils::getDirPathFromFullPath(const QString &fullPath)
 
 bool Utils::isParentProcessGui()
 {
+#if defined USE_SIGNATURE_CHECK
 #if defined Q_OS_WIN
     return WinUtils::isParentProcessGui();
 #elif defined Q_OS_MAC
     return MacUtils::isParentProcessGui();
 #elif defined Q_OS_LINUX
+    return true;
+#endif
+#else
     return true;
 #endif
 }
