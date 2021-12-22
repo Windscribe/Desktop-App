@@ -50,46 +50,12 @@ bool FirewallController_linux::firewallOff()
     FirewallController::firewallOff();
     if (isStateChanged())
     {
-        // get current rules to temp file
+        QString cmd;
         int exitCode;
-        QString cmd = "iptables-save > " + pathToTempTable_;
-        helper_->executeRootCommand(cmd, &exitCode);
-        if (exitCode != 0)
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-            return false;
-        }
-        // Get Windscribe rules
-        QStringList rules;
-        QFile file(pathToTempTable_);
-        if (!file.open(QIODevice::ReadOnly))
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't open file:" << pathToTempTable_;
-            return false;
-        }
-
-        QTextStream in(&file);
-        bool bFound = false;
-        while (!in.atEnd())
-        {
-            std::string line = in.readLine().toStdString();
-            if ((line.rfind("*", 0) == 0) || // string starts with "*"
-                (line.find("COMMIT") != std::string::npos) ||
-                ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment " + comment_.toStdString()) != std::string::npos)) )
-            {
-                if (line.rfind("-A", 0) == 0)
-                {
-                    line[1] = 'D';
-                    bFound = true;
-                }
-                rules << QString::fromStdString(line);
-            }
-
-        }
-        file.close();
+        QStringList rules = getWindscribeRules(comment_, true);
 
         // delete Windscribe rules, if found
-        if (bFound && !rules.isEmpty())
+        if (!rules.isEmpty())
         {
             if (rules.last().contains("COMMIT"))
             {
@@ -97,7 +63,6 @@ bool FirewallController_linux::firewallOff()
                 rules.insert(rules.count() - 1, "-X windscribe_output");
             }
 
-            file.remove();
             QFile file2(pathToTempTable_);
             if (file2.open(QIODevice::WriteOnly | QIODevice::Text))
             {
@@ -145,7 +110,6 @@ bool FirewallController_linux::firewallOff()
         {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
         }
-
 
         return true;
     }
@@ -197,6 +161,9 @@ void FirewallController_linux::enableFirewallOnBoot(bool bEnable)
 
 bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports)
 {
+    // TODO: this is need for Linux?
+    Q_UNUSED(ports);
+
     // if the firewall is not installed by the program, then save iptables to file in order to restore when will we turn off the firewall
     if (!firewallActualState())
     {
@@ -209,6 +176,10 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         }
     }
 
+    // get firewall rules, which could have been installed by a script update-resolv-conf/update-systemd-resolved to avoid DNS-leaks
+    // if these rules exist, then we should leave(not delete) them.
+    const QStringList dnsLeaksRules = getWindscribeRules("\"Windscribe client dns leak protection\"", false);
+
     forceUpdateInterfaceToSkip_ = false;
 
     QFile file(pathToTempTable_);
@@ -219,6 +190,18 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         stream << "*filter\n";
         stream << ":windscribe_input - [0:0]\n";
         stream << ":windscribe_output - [0:0]\n";
+
+        if (!dnsLeaksRules.isEmpty())
+        {
+            stream << ":windscribe_dnsleaks - [0:0]\n";
+            for (auto &rule : dnsLeaksRules)
+            {
+                if (rule.startsWith("-A"))
+                {
+                    stream << rule + "\n";
+                }
+            }
+        }
 
         stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
         stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
@@ -317,4 +300,52 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
     }
 
     return true;
+}
+
+// Extract rules from iptables with comment.If modifyForDelete == true, then replace commands for delete.
+QStringList FirewallController_linux::getWindscribeRules(const QString &comment, bool modifyForDelete)
+{
+    QStringList rules;
+    int exitCode;
+    QString cmd = "iptables-save > " + pathToTempTable_;
+    helper_->executeRootCommand(cmd, &exitCode);
+    if (exitCode != 0)
+    {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
+    }
+    // Get Windscribe rules
+    QFile file(pathToTempTable_);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't open file:" << pathToTempTable_;
+    }
+
+    QTextStream in(&file);
+    bool bFound = false;
+    while (!in.atEnd())
+    {
+        std::string line = in.readLine().toStdString();
+        if ((line.rfind("*", 0) == 0) || // string starts with "*"
+            (line.find("COMMIT") != std::string::npos) ||
+            ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment " + comment.toStdString()) != std::string::npos)) )
+        {
+            if (line.rfind("-A", 0) == 0)
+            {
+                if (modifyForDelete)
+                {
+                    line[1] = 'D';
+                }
+                bFound = true;
+            }
+            rules << QString::fromStdString(line);
+        }
+    }
+
+    file.close();
+    file.remove();
+    if (!bFound)
+    {
+        rules.clear();
+    }
+    return rules;
 }

@@ -18,6 +18,9 @@ private:
     static void finishAllActiveConnections_mac(IHelper *helper);
     static void finishOpenVpnActiveConnections_mac(IHelper *helper);
     static void finishWireGuardActiveConnections_mac(IHelper *helper);
+#elif defined Q_OS_LINUX
+    static void finishAllActiveConnections_linux(IHelper *helper);
+    static void removeDnsLeaksprotection_linux(IHelper *helper);
 #endif
 };
 
