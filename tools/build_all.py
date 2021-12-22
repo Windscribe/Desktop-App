@@ -604,8 +604,10 @@ def BuildInstallerLinux(configdata, qt_root):
 
   UpdateVersionInDebianControl(os.path.join(dest_package_path, "DEBIAN", "control"))
 
-  # create .deb with dest_package 
-  iutl.RunCommand(["fakeroot", "dpkg-deb", "-Zgzip", "--build", dest_package_path])
+  # create .deb with dest_package
+  # Force use of 'xz' compression.  dpkg on Ubuntu 21.10 defaulting to zstd compression,
+  # which fpm currently cannot handle. 
+  iutl.RunCommand(["fakeroot", "dpkg-deb", "-Zxz", "--build", dest_package_path])
 
   # create RPM from deb
   msg.Info("Creating RPM package...")
