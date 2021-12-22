@@ -6,7 +6,6 @@
 #include "engineserver.h"
 #include "qconsolelistener.h"
 #include "version/appversion.h"
-#include "utils/executable_signature/executable_signature.h"
 
 #ifdef Q_OS_WIN
     #include "engine/taputils/tapinstall_win.h"
@@ -89,7 +88,7 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "Windscribe Mac version: " << AppVersion::instance().fullVersionString();
 #endif
 
-    if (!ExecutableSignature::isParentProcessGui())
+    if (!Utils::isParentProcessGui())
     {
         qCDebug(LOG_BASIC) << "abd444";  // a meaningless message which may be usefull
         return 0;

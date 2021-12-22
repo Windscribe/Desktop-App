@@ -26,16 +26,18 @@
     imgSize = imageResources_.badgeIcon.NSImage.size;
     CGFloat xLogo = (clientRect.size.width - imgSize.width) / 2;
     CGFloat yLogo = clientRect.size.height - 16 - imgSize.height;
-    CGFloat margin = 3;
 
     // 1) fill with black circle
-    /*[imageResources_.backgroundColor setStroke];
+    /*
+    CGFloat margin = 3;
+    [imageResources_.backgroundColor setStroke];
     [imageResources_.backgroundColor setFill];
     NSRect rect = NSMakeRect(xLogo + margin, yLogo + margin, imgSize.width - margin * 2, imgSize.height - margin * 2);
     NSBezierPath* circlePath = [NSBezierPath bezierPath];
     [circlePath appendBezierPathWithOvalInRect: rect];
     [circlePath stroke];
-    [circlePath fill];*/
+    [circlePath fill];
+     */
 
     // 2) logo icon
     rc = CGRectMake(xLogo, yLogo, imgSize.width, imgSize.height);

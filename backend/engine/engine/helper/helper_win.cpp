@@ -61,9 +61,10 @@ void Helper_win::startInstallHelper()
 
     // check WindscribeService.exe signature
     QString serviceExePath = QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
-    if (!ExecutableSignature::verify(serviceExePath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(serviceExePath.toStdWString()))
     {
-        qCDebug(LOG_BASIC) << "WindscribeService signature incorrect";
+        qCDebug(LOG_BASIC) << "WindscribeService signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         curState_ = STATE_USER_CANCELED;
         return;
     }
@@ -276,9 +277,10 @@ IHelper::ExecuteError Helper_win::startWireGuard(const QString &exeName, const Q
 
     // check executable signature
     QString wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName + ".exe";
-    if (!ExecutableSignature::verify(wireGuardExePath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(wireGuardExePath.toStdWString()))
     {
-        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect";
+        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return IHelper::EXECUTE_VERIFY_ERROR;
     }
 
@@ -393,9 +395,10 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &configPath, unsi
 
     // check openvpn executable signature
     QString openVpnExePath = QCoreApplication::applicationDirPath() + "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
-    if (!ExecutableSignature::verify(openVpnExePath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(openVpnExePath.toStdWString()))
     {
-        qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect";
+        qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return IHelper::EXECUTE_VERIFY_ERROR;
     }
 
@@ -502,9 +505,10 @@ bool Helper_win::executeChangeIcs(int cmd, const QString &configPath, const QStr
 
     // check executable signature
     QString updateIcsExePath = QCoreApplication::applicationDirPath() + "/ChangeIcs.exe";
-    if (!ExecutableSignature::verify(updateIcsExePath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(updateIcsExePath.toStdWString()))
     {
-        qCDebug(LOG_BASIC) << "ChangeIcs.exe incorrect signature";
+        qCDebug(LOG_CONNECTION) << "ChangeIcs executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return false;
     }
 

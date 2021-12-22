@@ -69,7 +69,7 @@ bool InstallHelper_mac::installHelper()
         result = SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel, authRef, &outError);
         if (outError)
         {
-            NSError *error = (__bridge NSError *)outError;
+            //NSError *error = (__bridge NSError *)outError;
             //qCDebug(LOG_BASIC) << QString::fromCFString((CFStringRef)[error localizedDescription]);
             CFRelease(outError);
         }

@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QProcess>
 #include <QDir>
+#include <QCoreApplication>
 #include <google/protobuf/repeated_field.h>
 #include <semaphore.h>
 
@@ -16,6 +17,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <unistd.h>
+#include <libproc.h>
+
+#include "executable_signature/executable_signature.h"
 
 void MacUtils::activateApp()
 {
@@ -937,4 +942,28 @@ bool MacUtils::verifyAppBundleIntegrity()
 bool MacUtils::checkMacAddr(const QString &interfaceName, const QString &macAddr)
 {
     return macAddressFromInterfaceName(interfaceName).toUpper().remove(':') == macAddr;
+}
+
+bool MacUtils::isParentProcessGui()
+{
+    pid_t pid = getppid();
+    char pathBuffer[PROC_PIDPATHINFO_MAXSIZE] = {0};
+    int status = proc_pidpath(pid, pathBuffer, sizeof(pathBuffer));
+    if ((status != 0) && (strlen(pathBuffer) != 0))
+    {
+        QString parentPath = QString::fromStdString(pathBuffer);
+        QString guiPath = QCoreApplication::applicationDirPath() + "/../../../../MacOS/Windscribe";
+        guiPath = QDir::cleanPath(guiPath);
+
+        if (parentPath.compare(guiPath, Qt::CaseInsensitive) == 0)
+        {
+            ExecutableSignature sigCheck;
+            if (sigCheck.verify(parentPath.toStdWString())) {
+                return true;
+            }
+
+            qCDebug(LOG_BASIC) << "isParentProcessGui incorrect signature: " << QString::fromStdString(sigCheck.lastError());
+        }
+    }
+    return false;
 }

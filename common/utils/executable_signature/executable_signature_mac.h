@@ -1,15 +1,22 @@
 #ifndef EXECUTABLE_SIGNATURE_MAC_H
 #define EXECUTABLE_SIGNATURE_MAC_H
-#include <QString>
 
-class ExecutableSignature_mac
+#include "executablesignature_p.h"
+
+class ExecutableSignaturePrivate : public ExecutableSignaturePrivateBase
 {
 public:
-#ifdef QT_CORE_LIB
-    static bool isParentProcessGui();
-    static bool verify(const QString &executablePath);
-    static bool verifyWithSignCheck(const QString &executablePath);
-#endif
+    ~ExecutableSignaturePrivate();
+
+    bool verify(const std::wstring &exePath);
+    bool verify(const std::string &exePath);
+
+    bool verifyWithSignCheck(const std::wstring &exePath);
+
+private:
+    explicit ExecutableSignaturePrivate(ExecutableSignature* const q);
+
+    friend class ExecutableSignature;
 };
 
 #endif // EXECUTABLE_SIGNATURE_MAC_H

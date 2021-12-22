@@ -1,100 +1,113 @@
 #include "executable_signature_mac.h"
-#include <QCoreApplication>
-#include <QDir>
-#include <unistd.h>
-#include <libproc.h>
-#include <string.h>
-#include "utils/logger.h"
 
-#import <Security/Security.h>
-#import <SystemConfiguration/SystemConfiguration.h>
 #import <Foundation/Foundation.h>
 
-#ifdef QT_CORE_LIB
+#include <codecvt>
 
-bool ExecutableSignature_mac::isParentProcessGui()
+#include "executable_signature.h"
+#include "executable_signature_defs.h"
+
+ExecutableSignaturePrivate::ExecutableSignaturePrivate(ExecutableSignature* const q) : ExecutableSignaturePrivateBase(q)
 {
-    pid_t pid = getppid();
-    char pathBuffer[PROC_PIDPATHINFO_MAXSIZE] = {0};
-    int status = proc_pidpath(pid, pathBuffer, sizeof(pathBuffer));
-    if ((status != 0) && (strlen(pathBuffer) != 0))
-    {
-        QString parentPath = QString::fromStdString(pathBuffer);
-        QString guiPath = QCoreApplication::applicationDirPath() + "/../../../../MacOS/Windscribe";
-        guiPath = QDir::cleanPath(guiPath);
-
-        return (parentPath.compare(guiPath, Qt::CaseInsensitive) == 0) && verify(parentPath);
-    }
-    return false;
 }
 
-bool ExecutableSignature_mac::verify(const QString &executablePath)
+ExecutableSignaturePrivate::~ExecutableSignaturePrivate()
 {
-    //create static code ref via path
-    SecStaticCodeRef staticCode = NULL;
-    NSString* path = executablePath.toNSString();
-    OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);
-    if (status != errSecSuccess)
-    {
-        return false;
-    }
-
-    //check signature (for some reason it doesn't work after extract app bundle with installer, so commented)
-    /*SecCSFlags flags = kSecCSDefaultFlags;
-    status = SecStaticCodeCheckValidity(staticCode, flags, NULL);
-    if (status != errSecSuccess)
-    {
-        return false;
-    }*/
-
-    CFDictionaryRef signingDetails = NULL;
-    status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingDetails);
-    if (status != errSecSuccess)
-    {
-        return false;
-    }
-
-    NSArray *certificateChain = [((__bridge NSDictionary*)signingDetails) objectForKey: (__bridge NSString*)kSecCodeInfoCertificates];
-    if (certificateChain.count == 0)
-    {
-        // no certs
-        return false;
-    }
-
-    CFStringRef commonName = NULL;
-    for (NSUInteger index = 0; index < certificateChain.count; index++)
-    {
-        SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
-        if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
-        {
-            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@"Developer ID Application: Windscribe Limited (GYZJYS7XUG)"))
-            {
-                return true;
-            }
-         }
-    }
-
-    return false;
 }
 
-// TODO: convert all uses of this to verify(...) once signature checking has been fixed for gui/engine check
-bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
+bool ExecutableSignaturePrivate::verify(const std::string &exePath)
 {
-    //create static code ref via path
+    // Check code signature.
     SecStaticCodeRef staticCode = NULL;
-    NSString* path = executablePath.toNSString();
+    NSString* path = [NSString stringWithCString:exePath.c_str()
+                               encoding:[NSString defaultCStringEncoding]];
+
     OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);
+
     if (status != errSecSuccess)
     {
+        lastError_ << "SecStaticCodeCreateWithPath failed: " << status;
         return false;
     }
 
-    //check signature (for some reason it doesn't work after extract app bundle with installer, so commented)
+    // TODO: check signature (for some reason it doesn't work after extract app bundle with installer, so commented)
+    /*
     SecCSFlags flags = kSecCSDefaultFlags;
     status = SecStaticCodeCheckValidity(staticCode, flags, NULL);
     if (status != errSecSuccess)
     {
-        qDebug() << "Failed Signature Check";
+        return false;
+    }
+    */
+
+    CFDictionaryRef signingDetails = NULL;
+    status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingDetails);
+    if (status != errSecSuccess)
+    {
+        lastError_ << "SecCodeCopySigningInformation failed: " << status;
+        return false;
+    }
+
+    NSArray *certificateChain = [((__bridge NSDictionary*)signingDetails)
+                                 objectForKey: (__bridge NSString*)kSecCodeInfoCertificates];
+    if (certificateChain.count == 0)
+    {
+        lastError_ << "certificate chain is empty";
+        return false;
+    }
+
+    bool certNameMatches = false;
+
+    CFStringRef commonName = NULL;
+    for (NSUInteger index = 0; index < certificateChain.count; index++)
+    {
+        SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
+        if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
+        {
+            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID))
+            {
+                certNameMatches = true;
+                break;
+            }
+         }
+    }
+
+    if (!certNameMatches) {
+        lastError_ << "No certificate common name matches for " << MACOS_CERT_DEVELOPER_ID;
+    }
+
+    return certNameMatches;
+}
+
+bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
+{
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::string converted = converter.to_bytes(exePath);
+    return verify(converted);
+}
+
+// TODO: convert all uses of this to verify(...) once signature checking has been fixed for gui/engine check
+bool ExecutableSignaturePrivate::verifyWithSignCheck(const std::wstring &exePath)
+{
+    SecStaticCodeRef staticCode = NULL;
+
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::string converted = converter.to_bytes(exePath);
+
+    NSString* path = [NSString stringWithCString:converted.c_str()
+                               encoding:[NSString defaultCStringEncoding]];
+
+    OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);
+    if (status != errSecSuccess)
+    {
+        return false;
+    }
+
+    SecCSFlags flags = kSecCSDefaultFlags;
+    status = SecStaticCodeCheckValidity(staticCode, flags, NULL);
+    if (status != errSecSuccess)
+    {
+        lastError_ << "Failed Signature Check";
         return false;
     }
 
@@ -118,7 +131,7 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
         SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
         if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
         {
-            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@"Developer ID Application: Windscribe Limited (GYZJYS7XUG)"))
+            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID))
             {
                 return true;
             }
@@ -127,5 +140,3 @@ bool ExecutableSignature_mac::verifyWithSignCheck(const QString &executablePath)
 
     return false;
 }
-
-#endif

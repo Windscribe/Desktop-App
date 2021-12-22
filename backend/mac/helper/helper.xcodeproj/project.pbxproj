@@ -36,6 +36,8 @@
 		00AB62AE249142610085A20F /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00AB62AC249142610085A20F /* utils.cpp */; };
 		00B1BA3225E4E3F60099A124 /* files.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B1BA2F25E4E3F60099A124 /* files.cpp */; };
 		00EBAA04247D254400C86F6F /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EBAA02247D254400C86F6F /* logger.cpp */; };
+		6211D32C274EFFA800533D65 /* executable_signature_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6211D32A274EFFA800533D65 /* executable_signature_mac.mm */; };
+		62BB9E1D27642AC00021F51F /* executable_signature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62BB9E1B27642AC00021F51F /* executable_signature.cpp */; };
 		840B29571D6BBE88007D9519 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B29551D6BBE88007D9519 /* server.cpp */; };
 		843077AD1DE3AE26002405EA /* execute_cmd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 843077AB1DE3AE26002405EA /* execute_cmd.cpp */; };
 		8434C1081FD5B99C00B7030D /* keychain_utils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8434C1071FD5B99C00B7030D /* keychain_utils.mm */; };
@@ -135,6 +137,10 @@
 		00B1BA3125E4E3F60099A124 /* iinstall_block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iinstall_block.h; sourceTree = "<group>"; };
 		00EBAA02247D254400C86F6F /* logger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = logger.cpp; sourceTree = "<group>"; };
 		00EBAA03247D254400C86F6F /* logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = logger.h; sourceTree = "<group>"; };
+		6211D32A274EFFA800533D65 /* executable_signature_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = executable_signature_mac.mm; path = ../../../../common/utils/executable_signature/executable_signature_mac.mm; sourceTree = "<group>"; };
+		6211D32B274EFFA800533D65 /* executable_signature_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature_mac.h; path = ../../../../common/utils/executable_signature/executable_signature_mac.h; sourceTree = "<group>"; };
+		62BB9E1B27642AC00021F51F /* executable_signature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = executable_signature.cpp; path = ../../../../common/utils/executable_signature/executable_signature.cpp; sourceTree = "<group>"; };
+		62BB9E1C27642AC00021F51F /* executable_signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature.h; path = ../../../../common/utils/executable_signature/executable_signature.h; sourceTree = "<group>"; };
 		840B29551D6BBE88007D9519 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
 		840B29561D6BBE88007D9519 /* server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = server.h; sourceTree = "<group>"; };
 		843077AB1DE3AE26002405EA /* execute_cmd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = execute_cmd.cpp; sourceTree = "<group>"; };
@@ -331,6 +337,10 @@
 		84DA0AE41B1D7EB600260E8F /* src */ = {
 			isa = PBXGroup;
 			children = (
+				62BB9E1B27642AC00021F51F /* executable_signature.cpp */,
+				62BB9E1C27642AC00021F51F /* executable_signature.h */,
+				6211D32B274EFFA800533D65 /* executable_signature_mac.h */,
+				6211D32A274EFFA800533D65 /* executable_signature_mac.mm */,
 				00B1B9F425E4E3900099A124 /* installer */,
 				946225DD25140DD70032A070 /* wireguard */,
 				001F82D224BCEAAE0081515F /* ip_hostnames */,
@@ -404,7 +414,6 @@
 				TargetAttributes = {
 					84DA0AE21B1D7EB600260E8F = {
 						CreatedOnToolsVersion = 6.3.1;
-						DevelopmentTeam = GYZJYS7XUG;
 						ProvisioningStyle = Manual;
 					};
 				};
@@ -447,6 +456,7 @@
 				001EE78724B89075004624BE /* kext_monitor.cpp in Sources */,
 				843077AD1DE3AE26002405EA /* execute_cmd.cpp in Sources */,
 				00AB62AE249142610085A20F /* utils.cpp in Sources */,
+				6211D32C274EFFA800533D65 /* executable_signature_mac.mm in Sources */,
 				00352E9525E549CE00E5ED2C /* 7zArcIn.c in Sources */,
 				001EE79524B893D1004624BE /* routes_manager.cpp in Sources */,
 				00352E9E25E549CE00E5ED2C /* CpuArch.c in Sources */,
@@ -465,6 +475,7 @@
 				00352E9F25E549CE00E5ED2C /* 7zCrcOpt.c in Sources */,
 				00352EA025E549CE00E5ED2C /* 7zBuf.c in Sources */,
 				8888384D26432C7100FE5C25 /* macutils.mm in Sources */,
+				62BB9E1D27642AC00021F51F /* executable_signature.cpp in Sources */,
 				00352E9125E549CE00E5ED2C /* Bcj2.c in Sources */,
 				84DA0AED1B1D7ED000260E8F /* helper.cpp in Sources */,
 				946225E825140DD70032A070 /* wireguardcommunicator.cpp in Sources */,
@@ -506,7 +517,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: Alexey Azanov (35NMW3MET5)";
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -561,7 +572,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: Alexey Azanov (35NMW3MET5)";
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -588,7 +599,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = GYZJYS7XUG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -628,7 +639,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = GYZJYS7XUG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

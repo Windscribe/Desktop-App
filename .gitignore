@@ -13,6 +13,7 @@ installer/mac/installer/installer/temp_Info.plist
 test-exe/*
 common/keys/linux/key.pem
 common/keys/linux/key.pub
+common/keys/linux/key_pub.txt
 drawings/*/*.png
 /gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/dlldata.c
 /gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_h.h
