@@ -605,10 +605,10 @@ def BuildInstallerLinux(configdata, qt_root):
   UpdateVersionInDebianControl(os.path.join(dest_package_path, "DEBIAN", "control"))
 
   # create .deb with dest_package 
-  iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
+  iutl.RunCommand(["fakeroot", "dpkg-deb", "-Zgzip", "--build", dest_package_path])
 
   # create RPM from deb
-  # msg.Info("Creating RPM package...")
+  msg.Info("Creating RPM package...")
   rpm_package_name = "windscribe_{}_x86_64.rpm".format(BUILD_APP_VERSION_STRING_FULL)
   postinst_rpm_script = os.path.join(ROOT_DIR, "installer", "linux", "additional_files", "postinst_rpm")
   iutl.RunCommand(["fpm", "--after-install", postinst_rpm_script, 
