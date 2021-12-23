@@ -339,9 +339,10 @@ IHelper::ExecuteError Helper_posix::startWireGuard(const QString &exeName, const
     const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewireguard";
 #endif
 
-    if (!ExecutableSignature::verifyWithSignCheck(wireGuardExePath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verifyWithSignCheck(wireGuardExePath.toStdWString()))
     {
-        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect";
+        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return IHelper::EXECUTE_VERIFY_ERROR;
     }
 
@@ -583,9 +584,10 @@ IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &commandLine, c
     const QString &openVpnExePath = QCoreApplication::applicationDirPath() + "/../Helpers/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
 #endif
 
-    if (!ExecutableSignature::verifyWithSignCheck(openVpnExePath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verifyWithSignCheck(openVpnExePath.toStdWString()))
     {
-        qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect";
+        qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return IHelper::EXECUTE_VERIFY_ERROR;
     }
 

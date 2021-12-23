@@ -15,6 +15,7 @@ namespace WinUtils
 
     bool reboot();
     bool isWindows10orGreater();
+    bool isWindows7();
     QString getWinVersionString();
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     QMap<QString,QString> enumerateInstalledProgramIconLocations();
@@ -66,6 +67,8 @@ namespace WinUtils
     bool authorizeWithUac();
     bool isWindows64Bit();
     unsigned long Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize);
+
+    bool isParentProcessGui();
 }
 
 

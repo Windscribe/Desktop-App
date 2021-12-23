@@ -6,7 +6,6 @@
 #include "engineserver.h"
 #include "qconsolelistener.h"
 #include "version/appversion.h"
-#include "utils/executable_signature/executable_signature.h"
 
 #ifdef Q_OS_WIN
     #include "engine/taputils/tapinstall_win.h"
@@ -15,6 +14,8 @@
 #elif defined Q_OS_MAC
     #include "utils/macutils.h"
     #include "engine/helper/installhelper_mac.h"
+#elif defined Q_OS_LINUX
+    #include <libgen.h>         // dirname
 #endif
 
 
@@ -47,9 +48,24 @@ int main(int argc, char *argv[])
     Debug::CrashHandler::instance().bindToProcess();
 #endif
 
-    // clear Qt plugin library paths for release build
 #ifndef QT_DEBUG
+    // set Qt plugin library path for release build (for Linux need bearer)
+#if defined (Q_OS_LINUX)
+    //todo move to LinuxUtils
+    char result[PATH_MAX] = {};
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    const char *path;
+    if (count != -1) {
+        path = dirname(result);
+    }
+    QStringList pluginsPath;
+    pluginsPath << QString::fromStdString(path) + "/plugins";
+    QCoreApplication::setLibraryPaths(pluginsPath);
+#else
+    // clear Qt plugin library paths for release build (for Win and Mac)
     QCoreApplication::setLibraryPaths(QStringList());
+#endif
+
 #endif
 
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
@@ -72,7 +88,7 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "Windscribe Mac version: " << AppVersion::instance().fullVersionString();
 #endif
 
-    if (!ExecutableSignature::isParentProcessGui())
+    if (!Utils::isParentProcessGui())
     {
         qCDebug(LOG_BASIC) << "abd444";  // a meaningless message which may be usefull
         return 0;

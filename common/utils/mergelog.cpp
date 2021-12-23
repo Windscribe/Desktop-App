@@ -147,7 +147,6 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
             timestamp = 0;
         }
 
-
         // In QMultiMap, elements with the same key will be placed in a reverse order.
         // https://doc.qt.io/qt-5/qmap-iterator.html#details
         // To deal with the issue, we create a compound key: 44 bits for a timestamp, 2 bits
@@ -181,7 +180,14 @@ const QString MergeLog::engineLogLocation()
 
 const QString MergeLog::serviceLogLocation()
 {
+#if defined(Q_OS_LINUX)
+    return qApp->applicationDirPath() + "/helper_log.txt";
+#elif defined(Q_OS_MACOS)
+    // The Mac helper does not currently log to file
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/helper_no_log.txt";
+#else
     return qApp->applicationDirPath() + "/windscribeservice.log";
+#endif
 }
 
 const QString MergeLog::prevGuiLogLocation()
@@ -198,7 +204,16 @@ const QString MergeLog::prevEngineLogLocation()
 
 const QString MergeLog::prevServiceLogLocation()
 {
+#if defined(Q_OS_LINUX)
+    // The Linux helper does not currently maintain a previous log file, as it doesn't log
+    // very much information, except during a failure condition.
+    return qApp->applicationDirPath() + "/helper_no_prev_log.txt";
+#elif defined(Q_OS_MACOS)
+    // The Mac helper does not currently log to file
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/helper_no_prev_log.txt";
+#else
     return qApp->applicationDirPath() + "/windscribeservice_prev.log";
+#endif
 }
 
 QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogFilename,

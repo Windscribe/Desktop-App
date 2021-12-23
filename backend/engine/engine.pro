@@ -13,6 +13,12 @@ BUILD_LIBS_PATH = $$PWD/../../build-libs
 
 INCLUDEPATH += $$COMMON_PATH
 
+# build_all.py adds 'use_signature_check' to the CONFIG environment when invoked without the '--no-sign' flag.
+contains(CONFIG, use_signature_check) {
+    CONFIG(release, debug|release) {
+        DEFINES += USE_SIGNATURE_CHECK
+    }
+}
 
 win32 {
 
@@ -142,7 +148,7 @@ LIBS += -framework NetworkExtension
 #QMAKE_OBJECTIVE_CFLAGS += -fobjc-arc
 
 #remove unused parameter warnings
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Wno-deprecated-declarations
 
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
@@ -171,7 +177,8 @@ SOURCES += engine/firewall/firewallcontroller_mac.cpp \
            engine/helper/helper_posix.cpp \
            engine/helper/helper_mac.cpp \
            engine/dnsresolver/dnsutils_mac.cpp \
-           engine/macaddresscontroller/macaddresscontroller_mac.cpp
+           engine/macaddresscontroller/macaddresscontroller_mac.cpp \
+           engine/autoupdater/autoupdaterhelper_mac.cpp
 
 HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/connectionmanager/sleepevents_mac.h \
@@ -189,7 +196,8 @@ HEADERS +=     $$COMMON_PATH/utils/macutils.h \
                engine/ping/pinghost_icmp_mac.h \
                engine/networkdetectionmanager/networkdetectionmanager_mac.h \
                engine/macaddresscontroller/macaddresscontroller_mac.h \
-               $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
+               $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h \
+               engine/autoupdater/autoupdaterhelper_mac.h
 
 OBJECTIVE_HEADERS += \
                engine/networkdetectionmanager/reachability.h \
@@ -214,15 +222,15 @@ QMAKE_INFO_PLIST = mac/info.plist
 
 #QMAKE_LFLAGS += -sectcreate __TEXT __info_plist $$shell_quote($$PWD/Mac/Info.plist)
 
-MY_ENTITLEMENTS.name = CODE_SIGN_ENTITLEMENTS
-MY_ENTITLEMENTS.value = $$PWD/mac/windscribe.entitlements
-QMAKE_MAC_XCODE_SETTINGS += MY_ENTITLEMENTS
+# The referenced file doesn't exist... perhaps this is old debugging code?
+#MY_ENTITLEMENTS.name = CODE_SIGN_ENTITLEMENTS
+#MY_ENTITLEMENTS.value = $$PWD/mac/windscribe.entitlements
+#QMAKE_MAC_XCODE_SETTINGS += MY_ENTITLEMENTS
 
 #postbuild copy commands
 copy_resources.commands = $(COPY_DIR) $$PWD/mac/resources $$OUT_PWD/WindscribeEngine.app/Contents
 mkdir_launch_services.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
 copy_helper.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/helper/com.windscribe.helper.macos $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
-copy_profile.commands = $(COPY_DIR) $$PWD/../mac/provisioning_profile/embedded.provisionprofile $$OUT_PWD/WindscribeEngine.app/Contents
 mkdir_helpers.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Helpers
 copy_openvpn.commands = cp $$BUILD_LIBS_PATH/openvpn_2_5_4/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_5_4
 copy_stunnel.commands = cp $$BUILD_LIBS_PATH/stunnel/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel
@@ -230,6 +238,9 @@ copy_wstunnel.commands = cp $$PWD/../mac/wstunnel/windscribewstunnel $$OUT_PWD/W
 copy_kext.commands = $(COPY_DIR) $$PWD/../mac/kext/Binary/WindscribeKext.kext $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/WindscribeKext.kext
 copy_wireguard.commands = cp $$BUILD_LIBS_PATH/wireguard/windscribewireguard $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewireguard
 
+exists( $$PWD/../mac/provisioning_profile/embedded.provisionprofile ) {
+    copy_profile.commands = $(COPY_DIR) $$PWD/../mac/provisioning_profile/embedded.provisionprofile $$OUT_PWD/WindscribeEngine.app/Contents
+}
 
 first.depends = $(first) copy_resources mkdir_launch_services copy_helper copy_profile mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_wireguard copy_kext
 export(first.depends)
@@ -250,19 +261,16 @@ QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper co
 
 linux {
 
-# uncomment for use signature checking on Linux
-#DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
-
 #remove linux deprecated copy warnings
 QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
-
 
 #boost include and libs
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_filesystem.a
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
-LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+LIBS +=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
 LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
 
@@ -299,11 +307,6 @@ HEADERS += \
            engine/networkdetectionmanager/networkdetectionmanager_linux.h \
            engine/macaddresscontroller/macaddresscontroller_linux.h
 
-contains(DEFINES, USE_SIGNATURE_CHECK_ON_LINUX) {
-    RESOURCES += \
-        $$COMMON_PATH/common_linux.qrc
-}
-
 } # linux
 
 
@@ -323,6 +326,7 @@ SOURCES += main.cpp \
     application/windowsnativeeventfilter.cpp \
     application/windscribeapplication.cpp \
     engine/apiinfo/apiinfo.cpp \
+    engine/apiinfo/checkupdate.cpp \
     engine/apiinfo/sessionstatus.cpp \
     engine/apiinfo/location.cpp \
     engine/apiinfo/group.cpp \
@@ -349,7 +353,6 @@ SOURCES += main.cpp \
     engine/locationsmodel/nodeselectionalgorithm.cpp \
     engine/packetsizecontroller.cpp \
     engine/enginesettings.cpp \
-    engine/autoupdater/autoupdaterhelper_mac.cpp \
     engine/tempscripts_mac.cpp \
     $$COMMON_PATH/utils/simplecrypt.cpp \
     engine/logincontroller/logincontroller.cpp \
@@ -373,6 +376,7 @@ SOURCES += main.cpp \
     engine/connectionmanager/connectionmanager.cpp \
     engine/connectionmanager/availableport.cpp \
     engine/connectionmanager/wireguardconnection.cpp \
+    engine/macaddresscontroller/imacaddresscontroller.cpp \
     $$COMMON_PATH/types/locationid.cpp \
     engine/logincontroller/getapiaccessips.cpp \
     engine/helper/initializehelper.cpp \
@@ -446,6 +450,7 @@ SOURCES += main.cpp \
     engine/networkaccessmanager/networkaccessmanager.cpp
 
 HEADERS  +=  engine/locationsmodel/locationsmodel.h \
+    engine/apiinfo/checkupdate.h \
     engine/locationsmodel/apilocationsmodel.h \
     engine/locationsmodel/customconfiglocationsmodel.h \
     engine/locationsmodel/locationitem.h \
@@ -494,7 +499,6 @@ HEADERS  +=  engine/locationsmodel/locationsmodel.h \
     engine/ping/keepalivemanager.h \
     engine/packetsizecontroller.h \
     engine/enginesettings.h \
-    engine/autoupdater/autoupdaterhelper_mac.h \
     engine/connectionmanager/stunnelmanager.h \
     engine/tempscripts_mac.h \
     $$COMMON_PATH/utils/simplecrypt.h \

@@ -14,7 +14,7 @@ class DownloadHelper : public QObject
 {
     Q_OBJECT
 public:
-    explicit DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager);
+    explicit DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &platform);
     ~DownloadHelper();
 
     enum DownloadState {
@@ -26,8 +26,6 @@ public:
 
     const QString downloadInstallerPath();
     const QString downloadInstallerPathWithoutExtension();
-    const QString publicKeyInstallPath();
-    const QString signatureInstallPath();
 
     void get(QMap<QString, QString> downloads);
     void stop();
@@ -55,6 +53,7 @@ private:
 
     QMap<NetworkReply*, FileAndProgress> replies_;
     bool busy_;
+    const QString platform_;
 
     QString downloadDirectory_;
     uint progressPercent_;

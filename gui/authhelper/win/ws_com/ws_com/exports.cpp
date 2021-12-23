@@ -4,7 +4,13 @@
 
 #include <strsafe.h>
 
+// This hardcoded path is overwritten by the installer with a call to RegisterServerWithTargetPaths(...) with the correct install path
+// * installer calls DllRegisterServer() and RegisterServerWithTargetPaths() because 
+// * for some reason calling RegisterServerWithTargetPaths() alone is insufficient for the OS to recognize the location of the com_server
+// * this hardcoded installPath should only be used by regSvr32 for registering 
+// * we should probably investigate a way to pass regSvr32 a path instead of doing this
 const std::wstring installPath = L"C:\\Program Files (x86)\\Windscribe";
+
 const std::wstring comDllName       = L"ws_com.dll";
 const std::wstring comProxyStubName = L"ws_proxy_stub.dll";
 const std::wstring comServerName    = L"ws_com_server.exe";

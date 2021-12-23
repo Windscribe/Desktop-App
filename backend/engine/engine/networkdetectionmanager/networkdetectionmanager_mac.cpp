@@ -30,27 +30,10 @@ bool NetworkDetectionManager_mac::isOnline()
     return b;
 }
 
-const ProtoTypes::NetworkInterface NetworkDetectionManager_mac::lastNetworkInterface()
-{
-    return lastNetworkInterface_;
-}
-
-void NetworkDetectionManager_mac::updateCurrentNetworkInterface()
-{
-    QMutexLocker locker(&mutex_);
-
-    ProtoTypes::NetworkInterface networkInterface = MacUtils::currentNetworkInterface();
-    networkInterface.set_requested(false);
-    lastNetworkInterface_ = networkInterface;
-
-    emit networkChanged(networkInterface);
-}
-
 void NetworkDetectionManager_mac::onNetworkStateChanged()
 {
     const ProtoTypes::NetworkInterface &networkInterface = MacUtils::currentNetworkInterface();
     const ProtoTypes::NetworkInterfaces &networkList = MacUtils::currentNetworkInterfaces(true);
-
     const ProtoTypes::NetworkInterfaces &wifiInterfaces = MacUtils::currentlyUpWifiInterfaces();
     bool wifiAdapterUp = wifiInterfaces.networks_size() > 0;
 
@@ -94,7 +77,9 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         }
 
         lastNetworkInterface_ = networkInterface;
-        emit networkChanged(networkInterface);
+
+        QString strNetworkInterface;
+        emit networkChanged(checkOnline(strNetworkInterface), networkInterface);
     }
     else if (wifiAdapterUp != lastWifiAdapterUp_)
     {
@@ -104,13 +89,15 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
             qCDebug(LOG_BASIC) << "Wifi adapter (primary) up state changed: " << wifiAdapterUp;
             emit wifiAdapterChanged(wifiAdapterUp);
         }
-        emit networkChanged(networkInterface);
+        QString strNetworkInterface;
+        emit networkChanged(checkOnline(strNetworkInterface), networkInterface);
     }
     else if (!google::protobuf::util::MessageDifferencer::Equals(networkList, lastNetworkList_))
     {
         qCDebug(LOG_BASIC) << "Network list changed";
         emit networkListChanged(networkList);
-        emit networkChanged(networkInterface);
+        QString strNetworkInterface;
+        emit networkChanged(checkOnline(strNetworkInterface), networkInterface);
     }
 
     lastNetworkList_ = networkList;
@@ -146,3 +133,8 @@ bool NetworkDetectionManager_mac::checkOnline(QString &networkInterface)
     }
 }
 
+
+void NetworkDetectionManager_mac::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
+{
+    networkInterface = lastNetworkInterface_;
+}

@@ -30,8 +30,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     emailItem_->setEmail(accountInfo->email());
     emailItem_->setNeedConfirmEmail(accountInfo->isNeedConfirmEmail());
 
-    connect(emailItem_, &EmailItem::emptyEmailButtonClick, this,
-        [this]{ QDesktopServices::openUrl(QUrl(QString("https://%1/myaccount?app_session=%2").arg(HardcodedSettings::instance().serverUrl(), authHash_))); });
+    connect(emailItem_, &EmailItem::emptyEmailButtonClick, this, &AccountWindowItem::addEmailButtonClick);
     connect(emailItem_, &EmailItem::sendEmailClick, this, &AccountWindowItem::sendConfirmEmailClick);
     addItem(emailItem_);
 
@@ -46,9 +45,13 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
 
     authHash_ = accountInfo->authHash();
 
+    // don't set url on this since we need to first grab the temp_session_token from the api first
+    // this is because we want to obscure user auth info by POST request to API rather than QDesktopServices HTTP GET
+    // for the POST we use the ServerAPI in the backend and we get a temporary one-time token back from the API that
+    // can be safetly used in a GET command 
     editAccountItem_ = new OpenUrlItem(this);
     editAccountItem_->setText(tr("Edit Account Details"));
-    editAccountItem_->setUrl([this]{ return QString("https://%1/myaccount?app_session=%2").arg(HardcodedSettings::instance().serverUrl(), authHash_); });
+    connect(editAccountItem_, SIGNAL(clicked()), SIGNAL(editAccountDetailsClick()));
     addItem(editAccountItem_);
 
     textItem_ = new QGraphicsTextItem(this);

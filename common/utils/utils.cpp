@@ -23,6 +23,17 @@ using namespace Utils;
 
 const int NO_INTERFACE_INDEX = -1;
 
+QString Utils::getPlatformName()
+{
+#ifdef Q_OS_WIN
+    return "windows";
+#elif defined Q_OS_MAC
+    return "osx";
+#elif defined Q_OS_LINUX
+    return LinuxUtils::getLastInstallPlatform();
+#endif
+}
+
 QString Utils::getOSVersion()
 {
 #ifdef Q_OS_WIN
@@ -493,4 +504,28 @@ QString Utils::getDirPathFromFullPath(const QString &fullPath)
 
     // exludes the "/" tail
     return fullPath.mid(0, index);
+}
+
+bool Utils::isParentProcessGui()
+{
+#if defined USE_SIGNATURE_CHECK
+#if defined Q_OS_WIN
+    return WinUtils::isParentProcessGui();
+#elif defined Q_OS_MAC
+    return MacUtils::isParentProcessGui();
+#elif defined Q_OS_LINUX
+    return true;
+#endif
+#else
+    return true;
+#endif
+}
+
+QString Utils::getPlatformNameSafe()
+{
+    QString platform = getPlatformName();
+#ifdef Q_OS_LINUX
+    if (platform == "") return LinuxUtils::DEB_PLATFORM_NAME; // default to debian so most of our API calls don't fail if we cannot find the /etc/windscribe/platform file (someone would have to manually delete)
+#endif
+    return platform;
 }

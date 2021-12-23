@@ -76,6 +76,8 @@ public:
     void recordInstall();
     void sendConfirmEmail();
     void sendDebugLog();
+    void getWebSessionTokenForEditAccountDetails();
+    void getWebSessionTokenForAddEmail();
 
     void speedRating(int rating, const QString &localExternalIp);
 
@@ -87,6 +89,7 @@ public:
 
     void continueWithCredentialsForOvpnConfig(const QString &username, const QString &password, bool bSave);
 
+    void sendAdvancedParametersChanged();
     void sendEngineSettingsIfChanged();
 
     LocationsModel *getLocationsModel();
@@ -153,6 +156,8 @@ signals:
 
     void proxySharingInfoChanged(const ProtoTypes::ProxySharingInfo &psi);
     void wifiSharingInfoChanged(const ProtoTypes::WifiSharingInfo &wsi);
+    void webSessionTokenForEditAccountDetails(const QString &temp_session_token);
+    void webSessionTokenForAddEmail(const QString &temp_session_token);
 
     void requestCustomOvpnConfigCredentials();
 

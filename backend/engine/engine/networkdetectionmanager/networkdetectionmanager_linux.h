@@ -12,11 +12,11 @@ class NetworkDetectionManager_linux : public INetworkDetectionManager
 public:
     NetworkDetectionManager_linux(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_linux() override;
-    void updateCurrentNetworkInterface() override;
+    void getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface) override;
     bool isOnline() override;
 
 private slots:
-    void onNetworkUpdated();
+    void onNetworkUpdated(const QNetworkConfiguration &config);
 
 private:
     bool isOnline_;
@@ -24,6 +24,7 @@ private:
     QNetworkConfigurationManager *ncm_;
 
 
+    void updateNetworkInfo(bool bWithEmitSignal);
     QString getDefaultRouteInterface(bool &isOnline);
     void getInterfacePars(const QString &ifname, ProtoTypes::NetworkInterface &outNetworkInterface);
     QString getMacAddressByIfName(const QString &ifname);

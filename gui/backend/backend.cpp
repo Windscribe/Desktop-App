@@ -77,9 +77,10 @@ void Backend::init(bool recovery)
     if (recovery) callLogEntry += " " + recoveryArg;
     qCDebug(LOG_BASIC()) << callLogEntry;
 
-    if (!ExecutableSignature::verify(engineExePath))
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(engineExePath.toStdWString()))
     {
-        qCDebug(LOG_BASIC()) << "Engine signature invalid";
+        qCDebug(LOG_BASIC()) << "Engine signature invalid: " << QString::fromStdString(sigCheck.lastError());
         emit initFinished(ProtoTypes::INIT_CLEAN);
         return;
     }
@@ -462,6 +463,30 @@ void Backend::sendDebugLog()
     }
 }
 
+void Backend::getWebSessionTokenForEditAccountDetails()
+{
+    Q_ASSERT(isInitFinished());
+    if (isInitFinished())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::GetWebSessionToken> cmd;
+        cmd.getProtoObj().set_purpose(ProtoTypes::WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS);
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        connection_->sendCommand(cmd);
+    }
+}
+
+void Backend::getWebSessionTokenForAddEmail()
+{
+    Q_ASSERT(isInitFinished());
+    if (isInitFinished())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::GetWebSessionToken> cmd;
+        cmd.getProtoObj().set_purpose(ProtoTypes::WEB_SESSION_PURPOSE_ADD_EMAIL);
+        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        connection_->sendCommand(cmd);
+    }
+}
+
 void Backend::speedRating(int rating, const QString &localExternalIp)
 {
     Q_ASSERT(isInitFinished());
@@ -520,6 +545,13 @@ void Backend::continueWithCredentialsForOvpnConfig(const QString &username, cons
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         connection_->sendCommand(cmd);
     }
+}
+
+void Backend::sendAdvancedParametersChanged()
+{
+    IPC::ProtobufCommand<IPCClientCommands::AdvancedParametersChanged> cmd;
+    qCDebug(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    connection_->sendCommand(cmd);
 }
 
 void Backend::sendEngineSettingsIfChanged()
@@ -887,6 +919,18 @@ void Backend::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /
     {
         qCDebug(LOG_BASIC) << "Hosts file became writable -- Connecting..";
         sendConnect(PersistentState::instance().lastLocation());
+    }
+    else if (command->getStringId() == IPCServerCommands::WebSessionToken::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> *>(command);
+        if (cmd->getProtoObj().purpose() == ProtoTypes::WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS)
+        {
+            emit webSessionTokenForEditAccountDetails(QString::fromStdString(cmd->getProtoObj().temp_session_token()));
+        }
+        else if (cmd->getProtoObj().purpose() == ProtoTypes::WEB_SESSION_PURPOSE_ADD_EMAIL)
+        {
+            emit webSessionTokenForAddEmail(QString::fromStdString(cmd->getProtoObj().temp_session_token()));
+        }
     }
 }
 

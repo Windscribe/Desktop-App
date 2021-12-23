@@ -16,6 +16,10 @@
 #include "../../posix_common/helper_commands_serialize.h"
 
 #include "utils.h"
+#include "ipc/helper_security.h"
+
+// For debugging
+//#define SOCK_PATH "/tmp/windscribe_helper_socket2"
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 
@@ -42,7 +46,7 @@ Server::~Server()
     unlink(SOCK_PATH);
 }
 
-bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer)
+bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer)
 {
     // not enough data for read command
     if (buf->size() < sizeof(int)*3)
@@ -68,11 +72,21 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
         return false;
     }
 
+    struct ucred peerCred;
+    socklen_t lenPeerCred = sizeof(peerCred);
+    int retCode = getsockopt(sock->native_handle(), SOL_SOCKET, SO_PEERCRED, &peerCred, &lenPeerCred);
+
+    if ((retCode != 0) || (lenPeerCred != sizeof(peerCred)))
+    {
+        Logger::instance().out("getsockopt(SO_PEERCRED) failed (%d).", errno);
+        return false;
+    }
+
     // check process id
-    //if (!HelperSecurity::instance().verifyProcessId(pid))
-    //{
-    //    return false;
-    //}
+    if (!HelperSecurity::instance().verifyProcessId(peerCred.pid))
+    {
+        return false;
+    }
 
     std::vector<char> vector(length);
     memcpy(&vector[0], bufPtr + headerSize, length);
@@ -95,7 +109,7 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
             {
                 strReply += szLine;
             }
-            int retCode = pclose(file);
+            retCode = pclose(file);
             outCmdAnswer.exitCode = WEXITSTATUS(retCode);
             outCmdAnswer.executed = 1;
             outCmdAnswer.body = strReply;
@@ -201,17 +215,17 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                 std::vector<std::string> allowed_ips_vector =
                     wireGuardController_.splitAndDeduplicateAllowedIps(cmd.allowedIps);
                 if (allowed_ips_vector.size() < 1) {
-                    LOG("WireGuard: invalid AllowedIps \"%s\"", cmd.allowedIps.c_str());
+                    Logger::instance().out("WireGuard: invalid AllowedIps \"%s\"", cmd.allowedIps.c_str());
                     break;
                 }
 
                 uint32_t fwmark = wireGuardController_.getFwmark();
-                LOG("Fwmark = %u", fwmark);
+                Logger::instance().out("Fwmark = %u", fwmark);
 
                 if (!wireGuardController_.configureDaemon(cmd.clientPrivateKey,
                                                           cmd.peerPublicKey, cmd.peerPresharedKey,
                                                           cmd.peerEndpoint, allowed_ips_vector, fwmark)) {
-                    LOG("WireGuard: configureDaemon() failed");
+                    Logger::instance().out("WireGuard: configureDaemon() failed");
                     break;
                 }
 
@@ -220,7 +234,7 @@ bool Server::readAndHandleCommand(boost::asio::streambuf *buf, CMD_ANSWER &outCm
                                                            cmd.clientDnsAddressList,
                                                            cmd.clientDnsScriptName,
                                                            allowed_ips_vector, fwmark)) {
-                    LOG("WireGuard: configureAdapter() failed");
+                    Logger::instance().out("WireGuard: configureAdapter() failed");
                     break;
                 }
 
@@ -302,7 +316,7 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
         while (true)
         {
             CMD_ANSWER cmdAnswer;
-            if (!readAndHandleCommand(buf.get(), cmdAnswer))
+            if (!readAndHandleCommand(sock, buf.get(), cmdAnswer))
             {
                 // goto receive next commands
                 boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),
@@ -313,8 +327,8 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
             {
                 if (!sendAnswerCmd(sock, cmdAnswer))
                 {
-                    LOG("client app disconnected");
-                    //HelperSecurity::instance().reset();
+                    Logger::instance().out("client app disconnected");
+                    HelperSecurity::instance().reset();
                     return;
                 }
             }
@@ -322,8 +336,8 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
     }
     else
     {
-        LOG("client app disconnected");
-        //HelperSecurity::instance().reset();
+        Logger::instance().out("client app disconnected");
+        HelperSecurity::instance().reset();
     }
 }
 
@@ -331,9 +345,9 @@ void Server::acceptHandler(const boost::system::error_code & ec, socket_ptr sock
 {
     if (!ec.value())
     {
-        LOG("client app connected");
+        Logger::instance().out("client app connected");
                 
-        //HelperSecurity::instance().reset();
+        HelperSecurity::instance().reset();
         boost::shared_ptr<boost::asio::streambuf> buf(new boost::asio::streambuf);
         boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),
                                     boost::bind(&Server::receiveCmdHandle, this, sock, buf, _1, _2));

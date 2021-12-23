@@ -31,7 +31,7 @@ BEGIN
       VALUE "FileDescription", "Custom Wintun API Library for Windscribe WireGuard"
       VALUE "FileVersion", EXPAND(WINTUN_VERSION_STR)
       VALUE "InternalName", "wgsupport.dll"
-      VALUE "LegalCopyright", "Copyright \xa9 2018-2020 Windscribe Limited. All Rights Reserved."
+      VALUE "LegalCopyright", "Copyright \xa9 2018-2021 Windscribe Limited. All Rights Reserved."
       VALUE "OriginalFilename", "wgsupport.dll"
       VALUE "ProductName", "Custom Wintun API Library"
       VALUE "ProductVersion", EXPAND(WINTUN_VERSION_STR)

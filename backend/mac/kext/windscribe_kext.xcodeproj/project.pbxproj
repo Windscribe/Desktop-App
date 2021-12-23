@@ -79,8 +79,8 @@
 				00C7A8A72472B0B700DCEA10 /* info.plist */,
 				00DC7C3A247D44D6004EB68D /* mutexes.h */,
 				00DC7C3B247D44D6004EB68D /* mutexes.c */,
-				00D5BEA8247E68AF00850C40 /* socketFilter.h */,
-				00D5BEA9247E68AF00850C40 /* socketFilter.c */,
+				00D5BEA8247E68AF00850C40 /* socket_filter.h */,
+				00D5BEA9247E68AF00850C40 /* socket_filter.c */,
 			);
 			path = windscribe_kext;
 			sourceTree = "<group>";
@@ -104,15 +104,14 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		00C7A8A12472B0B700DCEA10 /* windscribe_kext */ = {
+		00C7A8A12472B0B700DCEA10 /* WindscribeKext */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00C7A8AA2472B0B700DCEA10 /* Build configuration list for PBXNativeTarget "windscribe_kext" */;
+			buildConfigurationList = 00C7A8AA2472B0B700DCEA10 /* Build configuration list for PBXNativeTarget "WindscribeKext" */;
 			buildPhases = (
 				00C7A89D2472B0B700DCEA10 /* Headers */,
 				00C7A89E2472B0B700DCEA10 /* Sources */,
 				00C7A89F2472B0B700DCEA10 /* Frameworks */,
 				00C7A8A02472B0B700DCEA10 /* Resources */,
-				005C03952475C55800CD758F /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -137,7 +136,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 00C7A89C2472B0B700DCEA10 /* Build configuration list for PBXProject "WindscribeKext" */;
+			buildConfigurationList = 00C7A89C2472B0B700DCEA10 /* Build configuration list for PBXProject "windscribe_kext" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -164,26 +163,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		005C03952475C55800CD758F /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexit 0\nexport SUDO_ASKPASS=/Users/aaa/Documents/askpassword.sh\nsudo -A rm -rf \"/Users/aaa/Documents/WindscribeKext/WindscribeKext.kext\"\ncp -a $BUILD_DIR/Debug/WindscribeKext.kext /Users/aaa/Documents/WindscribeKext/WindscribeKext.kext\ncodesign --force --deep \"/Users/aaa/Documents/WindscribeKext/WindscribeKext.kext\" -s \"Developer ID Application: Windscribe Limited (GYZJYS7XUG)\" --options runtime --timestamp\nsudo chown -R root:wheel \"/Users/aaa/Documents/WindscribeKext/WindscribeKext.kext\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		00C7A89E2472B0B700DCEA10 /* Sources */ = {
@@ -354,7 +333,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00C7A89C2472B0B700DCEA10 /* Build configuration list for PBXProject "WindscribeKext" */ = {
+		00C7A89C2472B0B700DCEA10 /* Build configuration list for PBXProject "windscribe_kext" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00C7A8A82472B0B700DCEA10 /* Debug */,

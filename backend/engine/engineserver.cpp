@@ -76,7 +76,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(loginError(LOGIN_RET)), SLOT(onEngineLoginError(LOGIN_RET)));
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
             connect(engine_, SIGNAL(notificationsUpdated(QVector<apiinfo::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<apiinfo::Notification>)));
-            connect(engine_, SIGNAL(checkUpdateUpdated(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool)), SLOT(onEngineCheckUpdateUpdated(bool,QString,ProtoTypes::UpdateChannel,int,QString,bool)));
+            connect(engine_, SIGNAL(checkUpdateUpdated(apiinfo::CheckUpdate)), SLOT(onEngineCheckUpdateUpdated(apiinfo::CheckUpdate)));
             connect(engine_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)), SLOT(onEngineUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
             connect(engine_, SIGNAL(sessionStatusUpdated(apiinfo::SessionStatus)), SLOT(onEngineUpdateSessionStatus(apiinfo::SessionStatus)));
@@ -102,6 +102,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onEngineNetworkChanged(ProtoTypes::NetworkInterface)));
             connect(engine_, SIGNAL(confirmEmailFinished(bool)), SLOT(onEngineConfirmEmailFinished(bool)));
             connect(engine_, SIGNAL(sendDebugLogFinished(bool)), SLOT(onEngineSendDebugLogFinished(bool)));
+            connect(engine_, SIGNAL(webSessionToken(ProtoTypes::WebSessionPurpose, QString)), SLOT(onEngineWebSessionToken(ProtoTypes::WebSessionPurpose, QString)));
             connect(engine_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
             connect(engine_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SLOT(onEngineSendUserWarning(ProtoTypes::UserWarningType)));
             connect(engine_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onEngineInternetConnectivityChanged(bool)));
@@ -265,6 +266,12 @@ bool EngineServer::handleCommand(IPC::Command *command)
         engine_->sendDebugLog();
         return true;
     }
+    else if (command->getStringId() == IPCClientCommands::GetWebSessionToken::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<IPCClientCommands::GetWebSessionToken> cmd;
+        engine_->getWebSessionToken(cmd.getProtoObj().purpose());
+        return true;
+    }
     else if (command->getStringId() == IPCClientCommands::SendConfirmEmail::descriptor()->full_name())
     {
         engine_->sendConfirmEmail();
@@ -416,6 +423,11 @@ bool EngineServer::handleCommand(IPC::Command *command)
         engine_->makeHostsFileWritableWin();
 #endif
     }
+    else if (command->getStringId() == IPCClientCommands::AdvancedParametersChanged::descriptor()->full_name())
+    {
+        engine_->updateAdvancedParams();
+    }
+
 
     return false;
 }
@@ -685,15 +697,10 @@ void EngineServer::onEngineNotificationsUpdated(const QVector<apiinfo::Notificat
     sendCmdToAllAuthorizedAndGetStateClients(cmd, false);
 }
 
-void EngineServer::onEngineCheckUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported)
+void EngineServer::onEngineCheckUpdateUpdated(const apiinfo::CheckUpdate &checkUpdate)
 {
     IPC::ProtobufCommand<IPCServerCommands::CheckUpdateInfoUpdated> cmd;
-    cmd.getProtoObj().mutable_check_update_info()->set_is_available(available);
-    cmd.getProtoObj().mutable_check_update_info()->set_version(version.toStdString());
-    cmd.getProtoObj().mutable_check_update_info()->set_update_channel(updateChannel);
-    cmd.getProtoObj().mutable_check_update_info()->set_latest_build(latestBuild);
-    cmd.getProtoObj().mutable_check_update_info()->set_url(url.toStdString());
-    cmd.getProtoObj().mutable_check_update_info()->set_is_supported(supported);
+    *cmd.getProtoObj().mutable_check_update_info() = checkUpdate.getProtoBuf();
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 
@@ -927,6 +934,14 @@ void EngineServer::onEngineConfirmEmailFinished(bool bSuccess)
 {
     IPC::ProtobufCommand<IPCServerCommands::ConfirmEmailResult> cmd;
     cmd.getProtoObj().set_success(bSuccess);
+    sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
+}
+
+void EngineServer::onEngineWebSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &token)
+{
+    IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> cmd;
+    cmd.getProtoObj().set_purpose(purpose);
+    cmd.getProtoObj().set_temp_session_token(token.toStdString());
     sendCmdToAllAuthorizedAndGetStateClients(cmd, true);
 }
 

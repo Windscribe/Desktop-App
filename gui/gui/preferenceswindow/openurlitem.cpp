@@ -16,6 +16,7 @@ OpenUrlItem::OpenUrlItem(ScalableGraphicsObject *parent)
     button_ = new IconButton(16, 16, "preferences/EXTERNAL_LINK_ICON", "", this);
     button_->setPos(boundingRect().width() - button_->boundingRect().width() - 16, (boundingRect().height() - button_->boundingRect().height()) / 2);
     connect(button_, &IconButton::clicked, this, &OpenUrlItem::onOpenUrl);
+    connect(button_, &IconButton::clicked, this, &OpenUrlItem::clicked);
 }
 
 void OpenUrlItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -66,6 +67,7 @@ void OpenUrlItem::onOpenUrl()
         url = QUrl(url_);
     }
 
+    // this call does nothing when url is empty string, as is the case for edit account details
     QDesktopServices::openUrl(url);
 }
 

@@ -183,11 +183,11 @@ installer:
   macos: installer_mac
   linux: installer_linux
 
-#windows_signing_cert:
-  #path_signtool: installer/windows/signing/signtool.exe
-  #path_cert: installer/windows/signing/code_signing.pfx
-  #password_cert:
-  #timestamp: http://timestamp.digicert.com
+windows_signing_cert:
+  path_signtool: installer/windows/signing/signtool.exe
+  path_cert: installer/windows/signing/code_signing.pfx
+  password_cert:
+  timestamp: http://timestamp.digicert.com
 
 qt_files:
   - bin/libEGL.dll
@@ -228,6 +228,9 @@ lib_files_linux:
     - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
     - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
     - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
+    - plugins/bearer/libqconnmanbearer.so -> plugins/bearer/libqconnmanbearer.so
+    - plugins/bearer/libqgenericbearer.so -> plugins/bearer/libqgenericbearer.so
+    - plugins/bearer/libqnmbearer.so -> plugins/bearer/libqnmbearer.so
 
   cares:
     - lib/libcares.so.2 -> lib/libcares.so.2
@@ -256,6 +259,7 @@ files_fix_rpath_linux:
   - windscribe-authhelper -> $ORIGIN/lib
   - WindscribeEngine -> $ORIGIN/lib
   - Windscribe -> $ORIGIN/lib
+  - helper -> $ORIGIN/lib
 
 files_codesign_linux:
   - windscribestunnel
@@ -319,10 +323,9 @@ macdeployfixes:
       Contents/Helpers/libssl.1.1.dylib:
         openssl:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
-    codesign:
-      sign_app: no
-      #entitlements_binary: Contents/MacOS/WindscribeEngine
-      #entitlements_file: backend/engine/mac/windscribe_engine.entitlements
+    entitlements:
+      entitlements_binary: Contents/MacOS/WindscribeEngine
+      entitlements_file: backend/engine/mac/windscribe_engine.entitlements
   gui:
     remove_files:
       # Remove unused Qt frameworks.
@@ -332,5 +335,4 @@ macdeployfixes:
       Contents/MacOS/windscribe-cli:
         protobuf:
           - lib/libprotobuf.25.dylib -> ../Frameworks/libprotobuf.25.dylib
-    codesign:
-      sign_app: no
+

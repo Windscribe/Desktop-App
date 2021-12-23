@@ -13,7 +13,8 @@
 #define CONNECTION_MODE_STUNNEL     2
 
 namespace Utils {
-
+    QString getPlatformName();
+    QString getPlatformNameSafe();
     QString getOSVersion();
     QString humanReadableByteCount(double bytes, bool isUseSpace, bool isDecimal = false);
     void parseVersionString(const QString &version, int &major, int &minor, bool &bSuccess);
@@ -55,6 +56,7 @@ namespace Utils {
     bool copyDirectoryRecursive(QString fromDir, QString toDir);
     bool removeDirectory(const QString dir);
 
-
+    // TODO: remove this function when the gui and engine are merged.
+    bool isParentProcessGui();
 }
 #endif // UTILS_H

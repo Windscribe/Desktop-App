@@ -27,6 +27,13 @@ CONFIG(release, debug|release) {
     DEFINES += WINDSCRIBE_EMBEDDED_ENGINE
 }
 
+# build_all.py adds 'use_signature_check' to the CONFIG environment when invoked without the '--no-sign' flag.
+contains(CONFIG, use_signature_check) {
+    CONFIG(release, debug|release) {
+        DEFINES += USE_SIGNATURE_CHECK
+    }
+}
+
 win32 {
     CONFIG(release, debug|release){
         INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/release/include
@@ -113,7 +120,6 @@ HEADERS += \
            application/checkrunningapp/checkrunningapp_mac.h \
            application/openlocationshandler_mac.h \
            launchonstartup/launchonstartup_mac.h \
-           utils/interfaceutils_mac.h \
            utils/authchecker_mac.h \
            $$COMMON_PATH/exithandler_mac.h \
            $$COMMON_PATH/utils/widgetutils_mac.h \
@@ -165,8 +171,6 @@ RESOURCES += \
 } # macx
 
 linux {
-# uncomment for use signature checking on Linux
-#DEFINES += USE_SIGNATURE_CHECK_ON_LINUX
 
 #remove linux deprecated copy warnings
 QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
@@ -175,7 +179,10 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
 LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
-LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_filesystem.a
 
 SOURCES += \
     $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
@@ -191,12 +198,6 @@ HEADERS += \
     multipleaccountdetection/multipleaccountdetection_linux.h \
     launchonstartup/launchonstartup_linux.h \
     utils/authchecker_linux.h
-
-contains(DEFINES, USE_SIGNATURE_CHECK_ON_LINUX) {
-    RESOURCES += \
-        $$COMMON_PATH/common_linux.qrc
-}
-
 
 } # linux
 

@@ -1,9 +1,27 @@
 #ifndef Logger_h
 #define Logger_h
 
-#define LOG(str, ...) logOut("[%s:%d] " str, __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#include <mutex>
 
+class Logger
+{
+public:
+    static Logger &instance()
+    {
+        static Logger i;
+        return i;
+    }
 
-void logOut(const char *str, ...);
+    void checkLogSize() const;
+    void out(const char *format, ...);
+
+private:
+    Logger();
+    ~Logger();
+    Logger(const Logger &) = delete;
+    Logger &operator=(const Logger &) = delete;
+
+    std::mutex mutex_;
+};
 
 #endif // Logger_h

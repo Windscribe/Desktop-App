@@ -24,7 +24,7 @@ DEP_URL = "https://boostorg.jfrog.io/artifactory/main/release/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["include/**", "lib/**"]
 
-BOOST_WITH_MODULES = ["regex", "serialization", "thread"]
+BOOST_WITH_MODULES = ["regex", "serialization", "thread", "filesystem"]
 
 
 def BuildDependencyMSVC(installpath, outpath):

@@ -64,6 +64,7 @@ public:
     void sendDebugLog();
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
+    void getWebSessionToken(ProtoTypes::WebSessionPurpose purpose);
 
     LoginSettings getLastLoginSettings();
     QString getAuthHash();
@@ -88,7 +89,6 @@ public:
     void speedRating(int rating, const QString &localExternalIp);  //rate current connection(0 - down, 1 - up)
 
     void updateServerConfigs();
-    void updateCurrentNetworkInterface();
     void updateCurrentInternetConnectivity();
 
     // emergency connect functions
@@ -118,6 +118,7 @@ public:
     void updateWindowInfo(qint32 windowCenterX, qint32 windowCenterY);
     void updateVersion(qint32 windowHandle);
     void stopUpdateVersion();
+    void updateAdvancedParams();
 
     void makeHostsFileWritableWin();
 
@@ -135,7 +136,7 @@ signals:
     void sessionDeleted();
     void sessionStatusUpdated(const apiinfo::SessionStatus &sessionStatus);
     void notificationsUpdated(const QVector<apiinfo::Notification> &notifications);
-    void checkUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported);
+    void checkUpdateUpdated(const apiinfo::CheckUpdate &checkUpdate);
     void updateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
@@ -150,6 +151,7 @@ signals:
 
     void sendDebugLogFinished(bool bSuccess);
     void confirmEmailFinished(bool bSuccess);
+    void webSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &tempSessionToken);
     void firewallStateChanged(bool isEnabled);
     void testTunnelResult(bool bSuccess);
     void lostConnectionToHelper();
@@ -189,6 +191,7 @@ private slots:
     void connectClickImpl(const LocationID &locationId);
     void disconnectClickImpl();
     void sendDebugLogImpl();
+    void getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose);
     void signOutImpl();
     void signOutImplAfterDisconnect();
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
@@ -231,7 +234,7 @@ private slots:
     void onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
     void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Notification> &notifications, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
-    void onCheckUpdateAnswer(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported, bool bNetworkErrorOccured, uint userRole);
+    void onCheckUpdateAnswer(const apiinfo::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
     void onHostIPsChanged(const QStringList &hostIps);
     void onWhitelistedIPsChanged(const QSet<QString> &ips);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
@@ -239,6 +242,7 @@ private slots:
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
+    void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     void onStartCheckUpdate();
     void onStartStaticIpsUpdate();
@@ -267,6 +271,7 @@ private slots:
     void updateWindowInfoImpl(qint32 windowCenterX, qint32 windowCenterY);
     void updateVersionImpl(qint32 windowHandle);
     void stopUpdateVersionImpl();
+    void updateAdvancedParamsImpl();
     void onDownloadHelperProgressChanged(uint progressPercent);
     void onDownloadHelperFinished(const DownloadHelper::DownloadState &state);
     void updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY);
@@ -299,6 +304,7 @@ private slots:
 private:
     void initPart2();
     void updateProxySettings();
+    bool verifyContentsSha256(const QString &filename, const QString &compareHash);
 
     EngineSettings engineSettings_;
     IHelper *helper_;
@@ -308,6 +314,8 @@ private:
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
+    uint serverApiEditAccountDetailsUserRole_;
+    uint serverApiAddEmailUserRole_;
     GetMyIPController *getMyIPController_;
     VpnShareController *vpnShareController_;
     EmergencyController *emergencyController_;
@@ -388,7 +396,12 @@ private:
     uint lastDownloadProgress_;
     QString installerUrl_;
     QString installerPath_;
+    QString installerHash_;
     qint32 guiWindowHandle_;
+
+    bool overrideUpdateChannelWithInternal_;
+    bool bPrevNetworkInterfaceInitialized_;
+    ProtoTypes::NetworkInterface prevNetworkInterface_;
 };
 
 #endif // ENGINE_H

@@ -1,57 +1,70 @@
 #include "executable_signature.h"
 
-#ifdef Q_OS_WIN
+#if defined _WIN32
     #include "executable_signature_win.h"
-    #include "utils/hardcodedsettings.h"
-#elif defined Q_OS_MAC
+#elif defined __APPLE__
     #include "executable_signature_mac.h"
-#elif defined Q_OS_LINUX
+#elif defined(linux) || defined(__linux__)
     #include "executablesignature_linux.h"
+#else
+    #error platform detection macro not defined
 #endif
 
-bool ExecutableSignature::isParentProcessGui()
+ExecutableSignature::ExecutableSignature()
 {
-#ifdef QT_DEBUG
-    return true;
+#ifdef USE_SIGNATURE_CHECK
+    d_ptr = new ExecutableSignaturePrivate(this);
 #else
-    #ifdef Q_OS_WIN
-        return ExecutableSignature_win::isParentProcessGui(HardcodedSettings::instance().windowsCertName());
-    #elif defined Q_OS_MAC
-        return ExecutableSignature_mac::isParentProcessGui();
-    #elif defined Q_OS_LINUX
-        return ExecutableSignature_linux::isParentProcessGui();
-    #endif
+    d_ptr = nullptr;
 #endif
 }
 
-bool ExecutableSignature::verify(const QString &executablePath)
+ExecutableSignature::~ExecutableSignature()
 {
-#ifdef QT_DEBUG
-    Q_UNUSED(executablePath);
-    return true;
+    if (d_ptr != nullptr) {
+        delete d_ptr;
+    }
+}
+
+bool ExecutableSignature::verify(const std::wstring &exePath)
+{
+#ifdef USE_SIGNATURE_CHECK
+    return d_ptr->verify(exePath);
 #else
-    #ifdef Q_OS_WIN
-        return ExecutableSignature_win::verify(executablePath, HardcodedSettings::instance().windowsCertName());
-    #elif defined Q_OS_MAC
-        return ExecutableSignature_mac::verify(executablePath);
-    #elif defined Q_OS_LINUX
-        return ExecutableSignature_linux::verify(executablePath);
-    #endif
+    (void)exePath;
+    return true;
 #endif
 }
 
-bool ExecutableSignature::verifyWithSignCheck(const QString &executable)
+bool ExecutableSignature::verify(const std::string &exePath)
 {
-#ifdef QT_DEBUG
-    Q_UNUSED(executable);
-    return true;
+#ifdef USE_SIGNATURE_CHECK
+    return d_ptr->verify(exePath);
 #else
-    #ifdef Q_OS_WIN
-        return ExecutableSignature_win::verify(executable, HardcodedSettings::instance().windowsCertName());
-    #elif defined Q_OS_MAC
-        return ExecutableSignature_mac::verifyWithSignCheck(executable);
-    #elif defined Q_OS_LINUX
-        return ExecutableSignature_linux::verify(executable);
-    #endif
+    (void)exePath;
+    return true;
 #endif
+}
+
+bool ExecutableSignature::verifyWithSignCheck(const std::wstring &exePath)
+{
+#ifdef USE_SIGNATURE_CHECK
+    #if defined __APPLE__
+        return d_ptr->verifyWithSignCheck(exePath);
+    #else
+        return d_ptr->verify(exePath);
+    #endif
+#else
+    (void)exePath;
+    return true;
+#endif
+}
+
+std::string ExecutableSignature::lastError() const
+{
+    if (d_ptr != nullptr) {
+        return d_ptr->lastError();
+    }
+
+    return std::string("signature veification disabled");
 }

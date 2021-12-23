@@ -78,6 +78,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCClientCommands::SendDebugLog>(buf, size);
     }
+    else if (strId == IPCClientCommands::GetWebSessionToken::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCClientCommands::GetWebSessionToken>(buf, size);
+    }
     else if (strId == IPCClientCommands::SetBlockConnect::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCClientCommands::SetBlockConnect>(buf, size);
@@ -153,6 +157,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     else if (strId == IPCClientCommands::MakeHostsWritableWin::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCClientCommands::MakeHostsWritableWin>(buf, size);
+    }
+    else if (strId == IPCClientCommands::AdvancedParametersChanged::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCClientCommands::AdvancedParametersChanged>(buf, size);
     }
     // servers commands
     else if (strId == IPCServerCommands::AuthReply::descriptor()->full_name())
@@ -310,6 +318,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     else if (strId == IPCServerCommands::HostsFileBecameWritable::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCServerCommands::HostsFileBecameWritable>(buf, size);
+    }
+    else if (strId == IPCServerCommands::WebSessionToken::descriptor()->full_name())
+    {
+        return new ProtobufCommand<IPCServerCommands::WebSessionToken>(buf, size);
     }
 
     Q_ASSERT(false);

@@ -92,6 +92,7 @@ MainWindow::MainWindow() :
     lastWindowStateChange_(0),
     isExitingFromPreferences_(false),
     isSpontaneousCloseEvent_(false),
+    isExitingAfterUpdate_(false),
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false)
 {
@@ -182,6 +183,8 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
             SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(webSessionTokenForEditAccountDetails(QString)), SLOT(onBackendWebSessionTokenForEditAccountDetails(QString)));
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(webSessionTokenForAddEmail(QString)), SLOT(onBackendWebSessionTokenForAddEmail(QString)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
 
@@ -257,6 +260,8 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkUpdated(ProtoTypes::NetworkInterface)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(editAccountDetailsClick()), SLOT(onPreferencesEditAccountDetailsClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(addEmailButtonClick()), SLOT(onPreferencesAddEmailButtonClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(noAccountLoginClick()), SLOT(onPreferencesNoAccountLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(cycleMacAddressClick()), SLOT(onPreferencesCycleMacAddressClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(detectAppropriatePacketSizeButtonClicked()), SLOT(onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()));
@@ -329,6 +334,8 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
     connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
     connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(onPreferencesCustomConfigsPathChanged(QString)));
+    connect(backend_->getPreferences(), SIGNAL(debugAdvancedParametersChanged(QString)), SLOT(onPreferencesdebugAdvancedParametersChanged(QString)));
+
 
     connect(backend_->getPreferences(), SIGNAL(reportErrorToUser(QString,QString)), SLOT(onPreferencesReportErrorToUser(QString,QString)));
 #ifdef Q_OS_MAC
@@ -466,7 +473,7 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     LaunchOnStartup::instance().setLaunchOnStartup(backend_->getPreferences()->isLaunchOnStartup());
 
     backend_->cleanup(WindscribeApplication::instance()->isExitWithRestart(), PersistentState::instance().isFirewallOn(),
-                      backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON,
+                      backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
                       backend_->getPreferences()->isLaunchOnStartup());
 
     // Backend handles setting firewall state after app closes
@@ -485,8 +492,11 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
         }
         else // non-restart close
         {
-            qCDebug(LOG_BASIC) << "Setting firewall persistence to false for non-restart auto-mode";
-            PersistentState::instance().setFirewallState(false);
+            if (!backend_->getPreferences()->isAutoConnect())
+            {
+                qCDebug(LOG_BASIC) << "Setting firewall persistence to false for non-restart auto-mode";
+                PersistentState::instance().setFirewallState(false);
+            }
         }
     }
     qCDebug(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
@@ -1089,6 +1099,16 @@ void MainWindow::onPreferencesSendDebugLogClick()
     backend_->sendDebugLog();
 }
 
+void MainWindow::onPreferencesEditAccountDetailsClick()
+{
+    backend_->getWebSessionTokenForEditAccountDetails();
+}
+
+void MainWindow::onPreferencesAddEmailButtonClick()
+{
+    backend_->getWebSessionTokenForAddEmail();
+}
+
 void MainWindow::onPreferencesQuitAppClick()
 {
     gotoExitWindow();
@@ -1175,6 +1195,12 @@ void MainWindow::onPreferencesAdvancedParametersClicked()
 void MainWindow::onPreferencesCustomConfigsPathChanged(QString path)
 {
     locationsWindow_->setCustomConfigsPath(path);
+}
+
+void MainWindow::onPreferencesdebugAdvancedParametersChanged(const QString &advParams)
+{
+    Q_UNUSED(advParams);
+    backend_->sendAdvancedParametersChanged();
 }
 
 void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
@@ -2238,6 +2264,15 @@ void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
         titleText = tr("Logs too large to view");
         descText = tr("Could not view the logs because they are too big. You may want to try viewing manually.");
     }
+    else if (userWarningType == ProtoTypes::USER_WARNING_CHECK_UPDATE_INVALID_PLATFORM)
+    {
+        if (!alreadyShownWarnings_.contains(userWarningType)) // only show this once per run
+        {
+            alreadyShownWarnings_.insert(userWarningType);
+            titleText = tr("Check for update failed");
+            descText = tr("Windscribe could not check for update due to an invalid platfrom config. You may want to try manually updating your installation.");
+        }
+    }
 
     if (titleText != "" || descText != "")
     {
@@ -2288,6 +2323,8 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         {
             if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
             {
+                isExitingAfterUpdate_ = true; // the flag for prevent firewall off for some states
+
                 // nothing todo, because installer will close app here
 #ifdef Q_OS_LINUX
                 // Close Windscribe in order to continue installation of the .deb or .rpm package.
@@ -2330,6 +2367,14 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
                 {
                     descText = tr("Auto-Updater has failed to run installer.");
                 }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL)
+                {
+                    descText = tr("Cannot run the downloaded installer. It does not have the expected hash.");
+                }
+                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_API_HASH_INVALID)
+                {
+                    descText = tr("Windscribe API has returned an invalid hash for downloaded installer. Please contact support.");
+                }
                 mainWindowController_->getGeneralMessageWindow()->setErrorMode(true);
                 mainWindowController_->getGeneralMessageWindow()->setTitle(titleText);
                 mainWindowController_->getGeneralMessageWindow()->setDescription(descText);
@@ -2369,6 +2414,25 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         }
         backend_->sendUpdateWindowInfo(center_x, center_y);
     }
+}
+
+void MainWindow::openBrowserToMyAccountWithToken(const QString &tempSessionToken)
+{
+    QString getUrl = QString("https://%1/myaccount?temp_session=%2")
+                        .arg(HardcodedSettings::instance().serverUrl())
+                        .arg(tempSessionToken);
+    // qCDebug(LOG_BASIC) << "Opening external link: " << getUrl;
+    QDesktopServices::openUrl(QUrl(getUrl));
+}
+
+void MainWindow::onBackendWebSessionTokenForEditAccountDetails(const QString &tempSessionToken)
+{
+    openBrowserToMyAccountWithToken(tempSessionToken);
+}
+
+void MainWindow::onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken)
+{
+    openBrowserToMyAccountWithToken(tempSessionToken);
 }
 
 void MainWindow::onBackendEngineCrash()
@@ -2513,7 +2577,11 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay(ProtoTypes::Connect
 {
     if (connectionSettings.is_automatic())
     {
+#if defined(Q_OS_LINUX)
+        mainWindowController_->getConnectWindow()->setProtocolPort(ProtoTypes::PROTOCOL_UDP, 443);
+#else
         mainWindowController_->getConnectWindow()->setProtocolPort(ProtoTypes::PROTOCOL_IKEV2, 500);
+#endif
     }
     else
     {

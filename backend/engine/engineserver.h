@@ -38,7 +38,7 @@ private slots:
     void onEngineSessionDeleted();
     void onEngineUpdateSessionStatus(const apiinfo::SessionStatus &sessionStatus);
     void onEngineNotificationsUpdated(const QVector<apiinfo::Notification> &notifications);
-    void onEngineCheckUpdateUpdated(bool available, const QString &version, const ProtoTypes::UpdateChannel updateChannel, int latestBuild, const QString &url, bool supported);
+    void onEngineCheckUpdateUpdated(const apiinfo::CheckUpdate &checkUpdate);
     void onEngineUpdateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
     void onEngineMyIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId);
@@ -70,6 +70,7 @@ private slots:
 
     void onEngineSendDebugLogFinished(bool bSuccess);
     void onEngineConfirmEmailFinished(bool bSuccess);
+    void onEngineWebSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &token);
 
     void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer< QVector<locationsmodel::LocationItem> > items);
     void onEngineLocationsModelItemsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer< QVector<locationsmodel::LocationItem> > items);

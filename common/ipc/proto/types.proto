@@ -195,6 +195,7 @@ message CheckUpdateInfo
   optional int32 latest_build = 4;
   optional string url = 5;
   optional bool is_supported = 6;
+  optional string sha256 = 7;
 }
 
 message MyIpInfo
@@ -312,6 +313,7 @@ enum UpdateChannel
   UPDATE_CHANNEL_RELEASE = 0;
   UPDATE_CHANNEL_BETA = 1;
   UPDATE_CHANNEL_GUINEA_PIG = 2;
+  UPDATE_CHANNEL_INTERNAL = 3;
 }
 
 message ShareSecureHotspot
@@ -462,6 +464,7 @@ enum UserWarningType
   USER_WARNING_MAC_SPOOFING_FAILURE_SOFT = 1;
   USER_WARNING_SEND_LOG_FILE_TOO_BIG = 2;
   USER_WARNING_VIEW_LOG_FILE_TOO_BIG = 3;
+  USER_WARNING_CHECK_UPDATE_INVALID_PLATFORM = 4;
 }
 
 // === GUI settings (use only in GUI-part) ================================
@@ -604,4 +607,12 @@ enum UpdateVersionError
     UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL = 6;
     UPDATE_VERSION_ERROR_COPY_FAIL = 7;
     UPDATE_VERSION_ERROR_START_INSTALLER_FAIL = 8;
+    UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL = 9;
+    UPDATE_VERSION_ERROR_API_HASH_INVALID = 10;
+}
+
+enum WebSessionPurpose
+{
+  WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS = 0;
+  WEB_SESSION_PURPOSE_ADD_EMAIL = 1;
 }
