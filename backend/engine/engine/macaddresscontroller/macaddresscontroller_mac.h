@@ -46,6 +46,11 @@ private:
     void removeSpoofs(QMap<QString, QString> spoofsToRemove);
 
     void filterAndRotateOrUpdateList();
+
+    // Some OSX systems don't seem to spoof with a simple ifconfig command
+    // This is observed on MacBookPro 2018, 13" on Catalina, BigSur and Monterey (and maybe other similar systems)
+    // Use this "robust" command sequence to achieve the spoof, which may temporarily bring the network card down
+    void robustMacAddressSpoof(const QString &interfaceName, const QString &macAddress);
 };
 
 #endif // MACADDRESSCONTROLLER_MAC_H

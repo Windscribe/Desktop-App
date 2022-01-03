@@ -80,6 +80,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     downloadHelper_(nullptr),
 #ifdef Q_OS_MAC
     autoUpdaterHelper_(nullptr),
+    robustMacSpoofTimer_(nullptr),
 #endif
     isBlockConnect_(false),
     isCleanupFinished_(false),
@@ -597,6 +598,7 @@ void Engine::initPart2()
     macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
     connect(macAddressController_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddressSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
     connect(macAddressController_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SLOT(onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType)));
+    connect(macAddressController_, SIGNAL(robustMacSpoofApplied()), SLOT(onMacAddressControllerRobustMacSpoofApplied()));
 
     packetSizeControllerThread_ = new QThread(this);
 
@@ -694,6 +696,10 @@ void Engine::initPart2()
 
 #ifdef Q_OS_MAC
     autoUpdaterHelper_ = new AutoUpdaterHelper_mac();
+
+    robustMacSpoofTimer_ = new QTimer(this);
+    connect(robustMacSpoofTimer_, SIGNAL(timeout()), SLOT(onRobustMacSpoofTimerTick()));
+    robustMacSpoofTimer_->setInterval(1000);
 #endif
 
 #ifdef Q_OS_WIN
@@ -2045,6 +2051,24 @@ void Engine::fetchWireGuardConfig()
     }
 }
 
+#ifdef Q_OS_MAC
+void Engine::onRobustMacSpoofTimerTick()
+{
+    QDateTime now = QDateTime::currentDateTime();
+
+    // When using MAC spoofing robust method the WindscribeNetworkListener may not trigger when the network comes back up
+    // So force a connectivity check for 15 seconds after the spoof
+    // Not elegant, but lower risk as additional changes to the networkdetection module may affect network whitelisting
+    if (robustTimerStart_.secsTo(now) > 15)
+    {
+        robustMacSpoofTimer_->stop();
+        return;
+    }
+
+    updateCurrentInternetConnectivity();
+}
+#endif
+
 void Engine::onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig)
 {
     CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pathCustomOvpnConfig);
@@ -2413,6 +2437,14 @@ void Engine::onPacketSizeControllerFinishedSizeDetection(bool isError)
 void Engine::onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType)
 {
     Q_EMIT sendUserWarning(userWarningType);
+}
+
+void Engine::onMacAddressControllerRobustMacSpoofApplied()
+{
+    // Robust MAC-spoofing can confuse the app into thinking it is offline
+    // Update the connectivity check to fix this
+    robustTimerStart_ = QDateTime::currentDateTime();
+    robustMacSpoofTimer_->start();
 }
 
 void Engine::updateServerConfigsImpl()
