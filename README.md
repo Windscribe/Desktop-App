@@ -55,9 +55,9 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder tools and run 'build_all --no-sign'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all' for a signed build using the certificate from the 'Install signing certificate' section above.  Note that an unsigned build must be installed on your PC if you intend to debug the engine or gui projects using Qt Creator.
+Go to subfolder tools and run 'build_all --no-sign'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all' for a code-signed build, using the certificate from the 'Install signing certificate' section above, which will perform run-time signature verification checks on the executables.  Note that a '--no-sign' build must be installed on your PC if you intend to debug the engine or gui projects using Qt Creator.
 
-You will find the application logs in C:/Users/<USER>/AppData/Local/Windscribe/Windscribe2.
+You will find the application logs in C:/Users/USER/AppData/Local/Windscribe/Windscribe2.
 
 ## Mac
 ### Prerequisites
@@ -86,7 +86,7 @@ You will find the application logs in C:/Users/<USER>/AppData/Local/Windscribe/W
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
 
-### Install signing certificate (optional)
+### Install signing certificate (required)
 - Install your Developer ID Application signing certificate from your Apple Developer account in Keychain Access.
 - Edit common/utils/executable_signature/executable_signature_defs.h and set the MACOS_CERT_DEVELOPER_ID entry to match your Developer ID Application signing certificate.
 
@@ -111,7 +111,7 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder tools and run 'build_all --no-sign'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all' for a signed build using the certificate from the 'Install signing certificate' section above.  Note that an unsigned build must be installed on your Mac if you intend to debug the engine or gui projects using Qt Creator.
+Go to subfolder tools and run 'build_all --no-sign'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all' for a production build which will perform run-time signature verification checks on the executables.  Note that a '--no-sign' build must be installed on your Mac if you intend to debug the engine or gui projects using Qt Creator.
 
 If you make any changes to the helper source code (backend/mac/helper/src), you must increase the CFBundleVersion in backend/mac/helper/src/helper-info.plist. The installer only updates the helper if this bundle version number has changed.
 

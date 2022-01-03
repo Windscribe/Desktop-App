@@ -376,14 +376,20 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
         UpdateVersionInPlist("installer/temp_Info.plist")
         temp_info_plist = os.path.join(ROOT_DIR, c_subdir, "installer", "temp_Info.plist")
         build_cmd.extend(["INFOPLIST_FILE={}".format(temp_info_plist)])
-      # build the project
-      iutl.RunCommand(build_cmd, env=buildenv)
+      build_exception = ""
+      try:
+        # build the project
+        iutl.RunCommand(build_cmd, env=buildenv)
+      except iutl.InstallError as e:
+        build_exception = str(e)
       # remove temp file -- no longer needed
       if temp_info_plist and os.path.exists(temp_info_plist):
         utl.RemoveFile(temp_info_plist)
       if component["name"] == "Helper":
         # Undo what UpdateTeamID did above so version control doesn't see the change.
         RestoreHelperInfoPList(os.path.join(ROOT_DIR, c_subdir, "src", "helper-info.plist"))
+      if build_exception:
+        raise iutl.InstallError(build_exception)
       if c_target:
         outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | " \
                                           "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " \
