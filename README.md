@@ -117,7 +117,7 @@ You will find the application logs in ~/Library/Application Support/Windscribe/W
 
 ### Platform Notes:
     - If you make any changes to the helper source code (backend/mac/helper/src), you must increase the CFBundleVersion in backend/mac/helper/src/helper-info.plist. The installer only updates the helper if this bundle version number has changed.
-    - The IKEv2 protocol will only function in builds produced by Windscribe.  It's implementation on MacOS utilizes the NEVPNManager API, which requires the 'Personal VPN' entitlement (com.apple.developer.networking.vpn.api) and an embedded provisioning profile file.  If you wish to enable IKEv2 functionality, you will have to create an embedded provisioning file in your Apple Developer account and use it in the engine project (See 'embedded.provisionprofile' in backend/engine/engine.pro).
+    - The IKEv2 protocol will only function in builds produced by Windscribe.  Its implementation on MacOS utilizes the NEVPNManager API, which requires the 'Personal VPN' entitlement (com.apple.developer.networking.vpn.api) and an embedded provisioning profile file.  If you wish to enable IKEv2 functionality, you will have to create an embedded provisioning file in your Apple Developer account and use it in the engine project (See 'embedded.provisionprofile' in backend/engine/engine.pro).
 
 ## Linux
 ### Prerequisites
