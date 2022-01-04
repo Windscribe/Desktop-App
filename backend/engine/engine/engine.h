@@ -295,7 +295,9 @@ private slots:
 
     void onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType);
+#ifdef Q_OS_MAC
     void onMacAddressControllerRobustMacSpoofApplied();
+#endif
 
     void stopPacketDetectionImpl();
 

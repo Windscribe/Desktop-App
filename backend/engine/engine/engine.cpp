@@ -598,7 +598,9 @@ void Engine::initPart2()
     macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
     connect(macAddressController_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddressSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
     connect(macAddressController_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SLOT(onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType)));
+#ifdef Q_OS_MAC
     connect(macAddressController_, SIGNAL(robustMacSpoofApplied()), SLOT(onMacAddressControllerRobustMacSpoofApplied()));
+#endif
 
     packetSizeControllerThread_ = new QThread(this);
 
@@ -2439,6 +2441,7 @@ void Engine::onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType u
     Q_EMIT sendUserWarning(userWarningType);
 }
 
+#ifdef Q_OS_MAC
 void Engine::onMacAddressControllerRobustMacSpoofApplied()
 {
     // Robust MAC-spoofing can confuse the app into thinking it is offline
@@ -2446,6 +2449,7 @@ void Engine::onMacAddressControllerRobustMacSpoofApplied()
     robustTimerStart_ = QDateTime::currentDateTime();
     robustMacSpoofTimer_->start();
 }
+#endif
 
 void Engine::updateServerConfigsImpl()
 {
