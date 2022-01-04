@@ -113,9 +113,11 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 
 Go to subfolder tools and run 'build_all --no-sign'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all' for a production build which will perform run-time signature verification checks on the executables.  Note that a '--no-sign' build must be installed on your Mac if you intend to debug the engine or gui projects using Qt Creator.
 
-If you make any changes to the helper source code (backend/mac/helper/src), you must increase the CFBundleVersion in backend/mac/helper/src/helper-info.plist. The installer only updates the helper if this bundle version number has changed.
-
 You will find the application logs in ~/Library/Application Support/Windscribe/Windscribe2.
+
+### Platform Notes:
+    - If you make any changes to the helper source code (backend/mac/helper/src), you must increase the CFBundleVersion in backend/mac/helper/src/helper-info.plist. The installer only updates the helper if this bundle version number has changed.
+    - The IKEv2 protocol will only function in builds produced by Windscribe.  It's implementation on MacOS utilizes the NEVPNManager API, which requires the 'Personal VPN' entitlement (com.apple.developer.networking.vpn.api) and an embedded provisioning profile file.  If you wish to enable IKEv2 functionality, you will have to create an embedded provisioning file in your Apple Developer account and use it in the engine project (See 'embedded.provisionprofile' in backend/engine/engine.pro).
 
 ## Linux
 ### Prerequisites
