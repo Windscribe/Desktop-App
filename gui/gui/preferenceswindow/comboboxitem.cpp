@@ -193,7 +193,6 @@ void ComboBoxItem::setColorScheme(bool /*darkMode*/)
 void ComboBoxItem::setClickable(bool clickable)
 {
     button_->setClickableHoverable(clickable, true);
-    BaseItem::setClickable(clickable);
 }
 
 void ComboBoxItem::updateScaling()
