@@ -108,6 +108,13 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
             ipList.add(s);
         }
     }
+    else if (dnsPolicyType_ == DNS_TYPE_CONTROLD)
+    {
+        for (const QString &s : HardcodedSettings::instance().controldDns())
+        {
+            ipList.add(s);
+        }
+    }
 
     // add hardcoded IPs
     for (const QString &s : HardcodedSettings::instance().apiIps())

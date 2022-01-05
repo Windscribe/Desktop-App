@@ -123,6 +123,10 @@ QString dnsPolicyTypeToString(DNS_POLICY_TYPE d)
     {
         return "Google";
     }
+    else if (d == DNS_TYPE_CONTROLD)
+    {
+        return "ControlD";
+    }
     else
     {
         Q_ASSERT(false);
