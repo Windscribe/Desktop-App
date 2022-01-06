@@ -20,6 +20,15 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     d->wg_pubkey_ = obj["wg_pubkey"].toString();
     d->ovpn_x509_ = obj["ovpn_x509"].toString();
 
+    if (obj.contains("link_speed"))
+    {
+        bool bConverted;
+        d->link_speed_ = obj["link_speed"].toString().toInt(&bConverted);
+        if (!bConverted) {
+            d->link_speed_ = 100;
+        }
+    }
+
     if (obj.contains("nodes"))
     {
         const auto nodesArray = obj["nodes"].toArray();
@@ -58,6 +67,7 @@ void Group::initFromProtoBuf(const ProtoApiInfo::Group &g)
     d->wg_pubkey_ = QString::fromStdString(g.wg_pubkey());
     d->dnsHostName_ = QString::fromStdString(g.dns_hostname());
     d->ovpn_x509_ = QString::fromStdString(g.ovpn_x509());
+    d->link_speed_ = g.link_speed();
 
     for (int i = 0; i < g.nodes_size(); ++i)
     {
@@ -82,6 +92,7 @@ ProtoApiInfo::Group Group::getProtoBuf() const
     group.set_wg_pubkey(d->wg_pubkey_.toStdString());
     group.set_dns_hostname(d->dnsHostName_.toStdString());
     group.set_ovpn_x509(d->ovpn_x509_.toStdString());
+    group.set_link_speed(d->link_speed_);
     for (const Node &node : d->nodes_)
     {
         *group.add_nodes() = node.getProtoBuf();

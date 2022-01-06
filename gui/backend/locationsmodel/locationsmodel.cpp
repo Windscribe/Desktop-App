@@ -46,6 +46,7 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
         lmi->isShowP2P = location.is_p2p_supported();
         lmi->countryCode = QString::fromStdString(location.country_code()).toLower();
         lmi->isPremiumOnly = location.is_premium_only();
+        lmi->is10gbps = false;
 
         int cities_cnt = location.cities_size();
         for (int c = 0; c < cities_cnt; ++c)
@@ -63,6 +64,7 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
             cmi.staticIpCountryCode = QString::fromStdString(city.static_ip_country_code());
             cmi.staticIpType = QString::fromStdString(city.static_ip_type());
             cmi.staticIp = QString::fromStdString(city.static_ip());
+            cmi.linkSpeed = city.link_speed();
             lmi->cities << cmi;
 
             // if this is the best location then insert it to top list
@@ -75,6 +77,7 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
                 lmiBestLocation->countryCode = lmi->countryCode;
                 lmiBestLocation->isShowP2P = lmi->isShowP2P;
                 lmiBestLocation->isPremiumOnly = lmi->isPremiumOnly;
+                lmiBestLocation->is10gbps = (city.link_speed() == 10000);
 
                 apiLocations_.insert(0, lmiBestLocation);
                 isBestLocationInserted = true;
