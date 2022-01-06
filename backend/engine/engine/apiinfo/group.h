@@ -12,7 +12,7 @@ namespace apiinfo {
 class GroupData : public QSharedData
 {
 public:
-    GroupData() : id_(0), pro_(0), isValid_(false) {}
+    GroupData() : id_(0), pro_(0), link_speed_(100), isValid_(false) {}
 
     GroupData(const GroupData &other)
         : QSharedData(other),
@@ -34,6 +34,7 @@ public:
     QString pingIp_;
     QString wg_pubkey_;
     QString ovpn_x509_;
+    int link_speed_;
 
     QVector<Node> nodes_;
 
@@ -63,6 +64,7 @@ public:
     QString getPingIp() const { Q_ASSERT(d->isValid_); return d->pingIp_; }
     QString getWgPubKey() const { Q_ASSERT(d->isValid_); return d->wg_pubkey_; }
     QString getOvpnX509() const { Q_ASSERT(d->isValid_); return d->ovpn_x509_; }
+    int getLinkSpeed() const { Q_ASSERT(d->isValid_); return d->link_speed_; }
 
     int getNodesCount() const { Q_ASSERT(d->isValid_); return d->nodes_.count(); }
     const Node &getNode(int ind) const { Q_ASSERT(d->isValid_); return d->nodes_[ind]; }
@@ -80,6 +82,7 @@ public:
                d->pingIp_ == other.d->pingIp_ &&
                d->wg_pubkey_ == other.d->wg_pubkey_ &&
                d->ovpn_x509_ == other.d->ovpn_x509_ &&
+               d->link_speed_ == other.d->link_speed_ &&
                d->nodes_ == other.d->nodes_ &&
                d->dnsHostName_ == other.d->dnsHostName_ &&
                d->isValid_ == other.d->isValid_;

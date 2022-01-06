@@ -145,6 +145,7 @@ message City
   optional CustomConfigType custom_config_type = 10;
   optional bool custom_config_is_correct = 11;
   optional string custom_config_error_message = 12;   // not empty if custom_config_is_correct == false
+  optional int32 link_speed = 13;
 }
 
 message Location
