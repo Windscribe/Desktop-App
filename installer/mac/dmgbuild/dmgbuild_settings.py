@@ -85,7 +85,7 @@ show_sidebar = False
 sidebar_width = 180
 
 # Window position in ((x, y), (w, h)) format
-window_rect = ((100, 100), (355, 380))
+window_rect = ((100, 425), (350, 375))
 
 # Select the default view; must be one of
 #
