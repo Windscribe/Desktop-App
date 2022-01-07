@@ -376,14 +376,20 @@ def BuildComponent(component, is_64bit, qt_root, buildenv=None, macdeployfixes=N
         UpdateVersionInPlist("installer/temp_Info.plist")
         temp_info_plist = os.path.join(ROOT_DIR, c_subdir, "installer", "temp_Info.plist")
         build_cmd.extend(["INFOPLIST_FILE={}".format(temp_info_plist)])
-      # build the project
-      iutl.RunCommand(build_cmd, env=buildenv)
+      build_exception = ""
+      try:
+        # build the project
+        iutl.RunCommand(build_cmd, env=buildenv)
+      except iutl.InstallError as e:
+        build_exception = str(e)
       # remove temp file -- no longer needed
       if temp_info_plist and os.path.exists(temp_info_plist):
         utl.RemoveFile(temp_info_plist)
       if component["name"] == "Helper":
         # Undo what UpdateTeamID did above so version control doesn't see the change.
         RestoreHelperInfoPList(os.path.join(ROOT_DIR, c_subdir, "src", "helper-info.plist"))
+      if build_exception:
+        raise iutl.InstallError(build_exception)
       if c_target:
         outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | " \
                                           "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " \
@@ -601,13 +607,15 @@ def BuildInstallerMac(configdata, qt_root):
     msg.Print("Notarizing...")
     notarize_script = os.path.join(TOOLS_DIR, "notarize.sh")
     iutl.RunCommand([notarize_script, CI_MODE_FLAG])
-  # Drop DMG.
+  # Prepare the disk image
   msg.Print("Preparing dmg...")
   dmg_dir = BUILD_INSTALLER_FILES
   if "outdir" in installer_info:
     dmg_dir = os.path.join(dmg_dir, installer_info["outdir"])
   with utl.PushDir(dmg_dir):
-    iutl.RunCommand(["dropdmg", "--config-name=Windscribe2", installer_app_override])
+    iutl.RunCommand(["python", "-m", "dmgbuild", "-s", ROOT_DIR + "/installer/mac/dmgbuild/dmgbuild_settings.py", "WindscribeInstaller",
+                     "WindscribeInstaller.dmg", "-D", "app=" + installer_app_override, "-D",
+                     "background=" + ROOT_DIR + "/installer/mac/dmgbuild/osx_install_background.tiff"])
   final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg".format(BUILD_APP_VERSION_STRING_FULL)))
   utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
@@ -750,7 +758,6 @@ def BuildAll():
   utl.CreateDirectory(artifact_dir, False if NO_POST_CLEAN else True)
 
   # Copy artifacts.
-  msg.Print("Installing artifacts...")
   if current_os == "macos":
     artifact_path = BUILD_INSTALLER_FILES
     installer_info = configdata[configdata["installer"]["macos"]]
