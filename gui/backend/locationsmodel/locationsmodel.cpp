@@ -26,7 +26,8 @@ LocationsModel::~LocationsModel()
     favoriteLocationsStorage_.writeToSettings();
 }
 
-void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName, const ProtoTypes::ArrayLocations &locations)
+void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName,
+                                        const ProtoTypes::ArrayLocations &locations, bool isPremiumSession)
 {
     apiLocations_.clear();
 
@@ -49,8 +50,9 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
         lmi->is10gbps = false;
 
         qreal locationLoadSum = 0.0;
-        int cities_cnt = location.cities_size();
-        for (int c = 0; c < cities_cnt; ++c)
+        int locationLoadCount = 0;
+
+        for (int c = 0; c < location.cities_size(); ++c)
         {
             const ProtoTypes::City &city = location.cities(c);
             CityModelItem cmi;
@@ -69,7 +71,11 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
             cmi.locationLoad = city.health();
             lmi->cities << cmi;
 
-            locationLoadSum += cmi.locationLoad;
+            if (isPremiumSession || !city.is_premium_only())
+            {
+                locationLoadSum += cmi.locationLoad;
+                locationLoadCount += 1;
+            }
 
             // if this is the best location then insert it to top list
             if (!isBestLocationInserted && !lmi->id.isStaticIpsLocation() && !lmi->id.isCustomConfigsLocation() && cmi.id.apiLocationToBestLocation() == bestLocationId_)
@@ -89,8 +95,8 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
             }
         }
 
-        if (cities_cnt > 0) {
-            lmi->locationLoad = qRound(locationLoadSum / cities_cnt);
+        if (locationLoadCount > 0) {
+            lmi->locationLoad = qRound(locationLoadSum / locationLoadCount);
         }
         else {
             lmi->locationLoad = 0;
