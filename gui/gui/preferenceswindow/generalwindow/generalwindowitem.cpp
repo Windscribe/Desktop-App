@@ -26,12 +26,15 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onUpdateChannelPreferencesChanged(ProtoTypes::UpdateChannel)));
     connect(preferences, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onPreferencesBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
     connect(preferences, SIGNAL(isStartMinimizedChanged(bool)), SLOT(onStartMinimizedPreferencesChanged(bool)));
+    connect(preferences, &Preferences::showLocationLoadChanged, this, &GeneralWindowItem::onShowLocationLoadPreferencesChanged);
+
 #ifdef Q_OS_WIN
     connect(preferences, SIGNAL(minimizeAndCloseToTrayChanged(bool)), SLOT(onMinimizeAndCloseToTrayPreferencesChanged(bool)));
 #elif defined Q_OS_MAC
     connect(preferences, SIGNAL(hideFromDockChanged(bool)), SLOT(onHideFromDockPreferecesChanged(bool)));
 #endif
-    checkBoxLaunchOnStart_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Launch on startup"), QString());
+
+    checkBoxLaunchOnStart_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Launch on Startup"), QString());
     checkBoxLaunchOnStart_->setState(preferences->isLaunchOnStartup());
     connect(checkBoxLaunchOnStart_, SIGNAL(stateChanged(bool)), SLOT(onIsLaunchOnStartupClicked(bool)));
     addItem(checkBoxLaunchOnStart_);
@@ -41,13 +44,13 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(checkBoxAutoConnect_, SIGNAL(stateChanged(bool)), SLOT(onIsAutoConnectClicked(bool)));
     addItem(checkBoxAutoConnect_);
 
-    checkBoxStartMinimized_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("Preferences::CheckBoxStartMinimized", "Start minimized"), QString());
+    checkBoxStartMinimized_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("Preferences::CheckBoxStartMinimized", "Start Minimized"), QString());
     checkBoxStartMinimized_->setState(preferences->isStartMinimized());
     connect(checkBoxStartMinimized_, SIGNAL(stateChanged(bool)), SLOT(onStartMinimizedClicked(bool)));
     addItem(checkBoxStartMinimized_);
 
 #ifdef Q_OS_WIN
-    checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Minimize and close to tray"), QString());
+    checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Minimize and Close to Tray"), QString());
     checkBoxMinimizeAndCloseToTray_->setState(preferences->isMinimizeAndCloseToTray());
     connect(checkBoxMinimizeAndCloseToTray_, SIGNAL(stateChanged(bool)), SLOT(onMinimizeAndCloseToTrayClicked(bool)));
     addItem(checkBoxMinimizeAndCloseToTray_);
@@ -61,7 +64,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
         //Q_ASSERT(false);
 #endif
 
-    checkBoxShowNotifications_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show notifications"), QString());
+    checkBoxShowNotifications_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show Notifications"), QString());
     checkBoxShowNotifications_->setState(preferences->isShowNotifications());
     connect(checkBoxShowNotifications_, SIGNAL(stateChanged(bool)), SLOT(onIsShowNotificationsClicked(bool)));
     addItem(checkBoxShowNotifications_);
@@ -86,7 +89,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(comboBoxLanguage_, SIGNAL(currentItemChanged(QVariant)), SLOT(onLanguageItemChanged(QVariant)));
     addItem(comboBoxLanguage_);
 
-    comboBoxLocationOrder_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Location order"), QString(), 50, Qt::transparent, 0, true);
+    comboBoxLocationOrder_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Location Order"), QString(), 50, Qt::transparent, 0, true);
 
     const QList< QPair<QString, int> > allOrderTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::OrderLocationType_descriptor());
     for (const auto o : allOrderTypes)
@@ -108,6 +111,10 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(comboBoxLatencyDisplay_, SIGNAL(currentItemChanged(QVariant)), SLOT(onLatencyItemChanged(QVariant)));
     addItem(comboBoxLatencyDisplay_);
 
+    checkBoxShowLocationLoad_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show Location Load"), QString());
+    checkBoxShowLocationLoad_->setState(preferences->isShowLocationLoad());
+    connect(checkBoxShowLocationLoad_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onShowLocationLoadClicked);
+    addItem(checkBoxShowLocationLoad_);
 
     comboBoxUpdateChannel_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Update Channel"), QString(), 50, Qt::transparent, 0, true);
     const QList< QPair<QString, int> > allUpdateChannelTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::UpdateChannel_descriptor());
@@ -306,6 +313,16 @@ void GeneralWindowItem::hideOpenPopups()
     comboBoxLocationOrder_ ->hideMenu();
     comboBoxLatencyDisplay_->hideMenu();
     comboBoxUpdateChannel_ ->hideMenu();
+}
+
+void GeneralWindowItem::onShowLocationLoadClicked(bool b)
+{
+    preferences_->setShowLocationLoad(b);
+}
+
+void GeneralWindowItem::onShowLocationLoadPreferencesChanged(bool b)
+{
+    checkBoxShowLocationLoad_->setState(b);
 }
 
 } // namespace PreferencesWindow

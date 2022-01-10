@@ -410,6 +410,28 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
     painter.drawLine(left, bottom - 1, right, bottom - 1);
     painter.drawLine(left, bottom, right, bottom);
+
+    if (widgetLocationsInfo_->isShowLocationLoad() && cityModelItem_.locationLoad > 0)
+    {
+        Qt::GlobalColor penColor;
+        if (cityModelItem_.locationLoad < 60) {
+            penColor = Qt::green;
+        }
+        else if (cityModelItem_.locationLoad < 90) {
+            penColor = Qt::yellow;
+        }
+        else {
+            penColor = Qt::red;
+        }
+        int rightX = left + ((right - left) * cityModelItem_.locationLoad / 100);
+        QPen penLoad(penColor);
+        penLoad.setWidth(1);
+        painter.setOpacity(curTextOpacity_);
+        painter.setPen(penLoad);
+        painter.drawLine(left, bottom - 1, rightX, bottom - 1);
+        painter.drawLine(left, bottom, rightX, bottom);
+        painter.setOpacity(1.0);
+    }
 }
 
 void ItemWidgetCity::enterEvent(QEvent *event)

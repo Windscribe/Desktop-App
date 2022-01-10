@@ -32,6 +32,7 @@ public slots:
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
     void setCustomConfigsPath(QString path);
     void onLanguageChanged();
+    void setShowLocationLoad(bool showLocationLoad);
 
 signals:
     void heightChanged();

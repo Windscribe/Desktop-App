@@ -64,6 +64,9 @@ private slots:
 
     void onLanguageChanged();
 
+    void onShowLocationLoadPreferencesChanged(bool b);
+    void onShowLocationLoadClicked(bool b);
+
 signals:
     void languageChanged();
 
@@ -79,6 +82,7 @@ private:
     BackgroundSettingsItem *backgroundSettingsItem_;
     CheckBoxItem *checkBoxDockedToTray_;
     CheckBoxItem *checkBoxStartMinimized_;
+    CheckBoxItem *checkBoxShowLocationLoad_;
 
 #ifdef Q_OS_WIN
     CheckBoxItem *checkBoxMinimizeAndCloseToTray_;

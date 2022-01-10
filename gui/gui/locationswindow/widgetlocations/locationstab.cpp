@@ -938,6 +938,18 @@ void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
     }
 }
 
+void LocationsTab::setShowLocationLoad(bool showLocationLoad)
+{
+    if (showLocationLoad != widgetAllLocations_->isShowLocationLoad())
+    {
+        widgetAllLocations_       ->setShowLocationLoad(showLocationLoad);
+        widgetConfiguredLocations_->setShowLocationLoad(showLocationLoad);
+        widgetStaticIpsLocations_ ->setShowLocationLoad(showLocationLoad);
+        widgetFavoriteLocations_  ->setShowLocationLoad(showLocationLoad);
+        widgetSearchLocations_    ->setShowLocationLoad(showLocationLoad);
+    }
+}
+
 void LocationsTab::setCustomConfigsPath(QString path)
 {
     configFooterInfo_->setText(path);

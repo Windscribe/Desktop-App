@@ -33,6 +33,7 @@ WidgetLocations::WidgetLocations(QWidget *parent, const QString name) : QScrollA
   , currentScale_(G_SCALE)
   , lastScrollPos_(0)
   , animationScollTarget_(0)
+  , showLocationLoad_(false)
   , heightChanging_(false)
 {
     setFrameStyle(QFrame::NoFrame);
@@ -228,6 +229,16 @@ void WidgetLocations::setShowLatencyInMs(bool showLatencyInMs)
     {
         w->setShowLatencyMs(showLatencyInMs);
     }
+}
+
+bool WidgetLocations::isShowLocationLoad()
+{
+    return showLocationLoad_;
+}
+
+void WidgetLocations::setShowLocationLoad(bool showLocationLoad)
+{
+    showLocationLoad_ = showLocationLoad;
 }
 
 bool WidgetLocations::isFreeSessionStatus()

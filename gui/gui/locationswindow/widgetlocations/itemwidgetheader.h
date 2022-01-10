@@ -65,6 +65,7 @@ private:
     bool accented_;
     bool selectable_;
     bool show10gbpsIcon_;
+    int locationLoad_;
 
     // opacity animation
     double plusIconOpacity_;

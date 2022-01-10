@@ -28,6 +28,7 @@ struct CityModelItem
     QString customConfigErrorMessage;
 
     int linkSpeed;
+    int locationLoad;
 
     QString makeTitle() const
     {
@@ -55,6 +56,7 @@ struct LocationModelItem
     bool isShowP2P;
     bool isPremiumOnly;
     bool is10gbps;
+    int locationLoad;
     QVector<CityModelItem> cities;
 
 
@@ -87,7 +89,6 @@ struct LocationModelItem
             return -1;
         }
     }
-
 };
 
 #endif // LOCATIONMODELITEM_H

@@ -53,6 +53,9 @@ public:
 
     int gestureScrollingElapsedTime() override;
 
+    bool isShowLocationLoad() override;
+    void setShowLocationLoad(bool showLocationLoad) override;
+
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;
     virtual void scrollContentsBy(int dx, int dy)          override;
@@ -106,6 +109,8 @@ private:
     QVariantAnimation scrollAnimationForKeyPress_;
 
     QElapsedTimer gestureScrollingElapsedTimer_;
+
+    bool showLocationLoad_;
 
     void updateWidgetList(QVector<LocationModelItem *> items);
 

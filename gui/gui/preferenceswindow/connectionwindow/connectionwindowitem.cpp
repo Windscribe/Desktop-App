@@ -92,7 +92,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #endif
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    cbKillTcp_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Kill TCP sockets after connection"), "");
+    cbKillTcp_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Kill TCP Sockets After Connection"), "");
     cbKillTcp_->setState(preferences->isKillTcpSockets());
     connect(cbKillTcp_, SIGNAL(stateChanged(bool)), SLOT(onKillTcpSocketsStateChanged(bool)));
     addItem(cbKillTcp_);

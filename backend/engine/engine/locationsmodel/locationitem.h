@@ -29,9 +29,10 @@ struct CityItem
     QString customConfigErrorMessage;
 
     int link_speed;
+    int health;
 
     // set default values
-    CityItem() : isPro(false), isDisabled(false), customConfigType(customconfigs::CUSTOM_CONFIG_OPENVPN), customConfigIsCorrect(false), link_speed(100) {}
+    CityItem() : isPro(false), isDisabled(false), customConfigType(customconfigs::CUSTOM_CONFIG_OPENVPN), customConfigIsCorrect(false), link_speed(100), health(0) {}
 };
 
 struct LocationItem
@@ -74,6 +75,7 @@ struct LocationItem
             city->set_custom_config_is_correct(ci.customConfigIsCorrect);
             city->set_custom_config_error_message(ci.customConfigErrorMessage.toStdString());
             city->set_link_speed(ci.link_speed);
+            city->set_health(ci.health);
         }
     }
 };
