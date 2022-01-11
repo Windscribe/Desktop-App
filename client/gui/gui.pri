@@ -4,11 +4,6 @@ win32 {
 
 SOURCES += $$PWD/multipleaccountdetection/multipleaccountdetection_win.cpp \
            $$PWD/multipleaccountdetection/secretvalue_win.cpp \
-           $$COMMON_PATH/utils/crashdump.cpp \
-           $$COMMON_PATH/utils/crashhandler.cpp \
-           $$COMMON_PATH/utils/winutils.cpp \
-           $$COMMON_PATH/utils/widgetutils_win.cpp \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
            $$PWD/utils/authchecker_win.cpp \
            $$PWD/utils/scaleutils_win.cpp \
            $$PWD/launchonstartup/launchonstartup_win.cpp \
@@ -16,11 +11,6 @@ SOURCES += $$PWD/multipleaccountdetection/multipleaccountdetection_win.cpp \
 
 HEADERS += $$PWD/multipleaccountdetection/multipleaccountdetection_win.h \
            $$PWD/multipleaccountdetection/secretvalue_win.h \
-           $$COMMON_PATH/utils/crashdump.h \
-           $$COMMON_PATH/utils/crashhandler.h \
-           $$COMMON_PATH/utils/winutils.h \
-           $$COMMON_PATH/utils/widgetutils_win.h \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
            $$PWD/utils/authchecker_win.h \
            $$PWD/utils/scaleutils_win.h \
            $$PWD/launchonstartup/launchonstartup_win.h
@@ -78,12 +68,10 @@ HEADERS += \
 } # linux
 
 
-SOURCES += \
-    $$PWD/backend/backend.cpp \
+SOURCES += $$PWD/backend/backend.cpp \
     $$PWD/backend/connectstatehelper.cpp \
     $$PWD/backend/firewallstatehelper.cpp \
     $$PWD/backend/notificationscontroller.cpp \
-    $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$PWD/backend/locationsmodel/alllocationsmodel.cpp \
     $$PWD/backend/locationsmodel/basiccitiesmodel.cpp \
     $$PWD/backend/locationsmodel/basiclocationsmodel.cpp \
@@ -98,20 +86,8 @@ SOURCES += \
     $$PWD/backend/preferences/guisettingsfromver1.cpp \
     $$PWD/backend/preferences/preferences.cpp \
     $$PWD/backend/preferences/preferenceshelper.cpp \
-    $$COMMON_PATH/types/locationid.cpp \
-    $$COMMON_PATH/types/pingtime.cpp \
     $$PWD/backend/types/upgrademodetype.cpp \
     $$PWD/backend/types/dnswhileconnectedinfo.cpp \
-    $$COMMON_PATH/utils/clean_sensitive_info.cpp \
-    $$COMMON_PATH/utils/extraconfig.cpp \
-    $$COMMON_PATH/utils/languagesutil.cpp \
-    $$COMMON_PATH/utils/logger.cpp \
-    $$COMMON_PATH/utils/mergelog.cpp \
-    $$COMMON_PATH/utils/utils.cpp \
-    $$COMMON_PATH/utils/widgetutils.cpp \
-    $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
-    $$COMMON_PATH/utils/ipvalidation.cpp \
-    $$COMMON_PATH/version/appversion.cpp \
     $$PWD/backend/persistentstate.cpp \
     $$PWD/application/windowsnativeeventfilter.cpp \
     $$PWD/application/windscribeapplication.cpp \
@@ -191,8 +167,6 @@ SOURCES += \
     $$PWD/loginwindow/initwindowitem.cpp \
     $$PWD/log/logviewerwindow.cpp \
     $$PWD/preferenceswindow/debugwindow/advancedparameterswindowitem.cpp \
-    $$COMMON_PATH/utils/hardcodedsettings.cpp \
-    $$COMMON_PATH/utils/simplecrypt.cpp \
     $$PWD/utils/textshadow.cpp \
     $$PWD/utils/writeaccessrightschecker.cpp \
     $$PWD/blockconnect.cpp \
@@ -229,13 +203,6 @@ SOURCES += \
     $$PWD/locationswindow/widgetlocations/locationstab.cpp \
     $$PWD/locationswindow/widgetlocations/widgetcities.cpp \
     $$PWD/locationswindow/widgetlocations/widgetlocationssizes.cpp \
-    $$COMMON_PATH/ipc/commandfactory.cpp \
-    $$COMMON_PATH/ipc/connection.cpp \
-    $$COMMON_PATH/ipc/server.cpp \
-    $$COMMON_PATH/ipc/tcpconnection.cpp \
-    $$COMMON_PATH/ipc/tcpserver.cpp \
-    $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
-    $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
     $$PWD/connectwindow/background.cpp \
     $$PWD/connectwindow/connectbutton.cpp \
     $$PWD/connectwindow/locationsbutton.cpp \
@@ -314,14 +281,11 @@ SOURCES += \
     $$PWD/application/singleappinstance.cpp
 
 
-HEADERS += \
-    $$COMMON_PATH/names.h \
-    $$PWD/backend/backend.h \
+HEADERS += $$PWD/backend/backend.h \
     $$PWD/backend/connectstatehelper.h \
     $$PWD/backend/firewallstatehelper.h \
     $$PWD/backend/ibackend.h \
     $$PWD/backend/notificationscontroller.h \
-    $$COMMON_PATH/ipc/generated_proto/types.pb.h \
     $$PWD/backend/locationsmodel/alllocationsmodel.h \
     $$PWD/backend/locationsmodel/basiccitiesmodel.h \
     $$PWD/backend/locationsmodel/basiclocationsmodel.h \
@@ -337,23 +301,8 @@ HEADERS += \
     $$PWD/backend/preferences/guisettingsfromver1.h \
     $$PWD/backend/preferences/preferences.h \
     $$PWD/backend/preferences/preferenceshelper.h \
-    $$COMMON_PATH/types/locationid.h \
-    $$COMMON_PATH/types/pingtime.h \
     $$PWD/backend/types/upgrademodetype.h \
     $$PWD/backend/types/dnswhileconnectedinfo.h \
-    $$COMMON_PATH/utils/clean_sensitive_info.h \
-    $$COMMON_PATH/utils/extraconfig.h \
-    $$COMMON_PATH/utils/languagesutil.h \
-    $$COMMON_PATH/utils/logger.h \
-    $$COMMON_PATH/utils/mergelog.h \
-    $$COMMON_PATH/utils/multiline_message_logger.h \
-    $$COMMON_PATH/utils/utils.h \
-    $$COMMON_PATH/utils/protobuf_includes.h \
-    $$COMMON_PATH/utils/widgetutils.h \
-    $$COMMON_PATH/utils/executable_signature/executable_signature.h \
-    $$COMMON_PATH/utils/ipvalidation.h \
-    $$COMMON_PATH/version/appversion.h \
-    $$COMMON_PATH/version/windscribe_version.h \
     $$PWD/backend/persistentstate.h \
     $$PWD/application/windowsnativeeventfilter.h \
     $$PWD/application/windscribeapplication.h \
@@ -443,8 +392,6 @@ HEADERS += \
     $$PWD/commonwidgets/verticalscrollbarwidget.h \
     $$PWD/log/logviewerwindow.h \
     $$PWD/preferenceswindow/debugwindow/advancedparameterswindowitem.h \
-    $$COMMON_PATH/utils/hardcodedsettings.h \
-    $$COMMON_PATH/utils/simplecrypt.h \
     $$PWD/utils/textshadow.h \
     $$PWD/utils/writeaccessrightschecker.h \
     $$PWD/utils/interfaceutils.h \
@@ -472,17 +419,6 @@ HEADERS += \
     $$PWD/locationswindow/widgetlocations/locationstab.h \
     $$PWD/locationswindow/widgetlocations/widgetcities.h \
     $$PWD/locationswindow/widgetlocations/widgetlocationssizes.h \
-    $$COMMON_PATH/ipc/command.h \
-    $$COMMON_PATH/ipc/commandfactory.h \
-    $$COMMON_PATH/ipc/connection.h \
-    $$COMMON_PATH/ipc/iconnection.h \
-    $$COMMON_PATH/ipc/iserver.h \
-    $$COMMON_PATH/ipc/protobufcommand.h \
-    $$COMMON_PATH/ipc/server.h \
-    $$COMMON_PATH/ipc/tcpconnection.h \
-    $$COMMON_PATH/ipc/tcpserver.h \
-    $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
     $$PWD/connectwindow/connectbutton.h \
     $$PWD/connectwindow/background.h \
     $$PWD/connectwindow/locationsbutton.h \

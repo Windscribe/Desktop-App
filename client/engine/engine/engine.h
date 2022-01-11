@@ -9,7 +9,7 @@
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
 #include "firewall/firewallcontroller.h"
 #include "serverapi/serverapi.h"
-#include "locationsmodel/locationsmodel.h"
+#include "locationsmodel/enginelocationsmodel.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "engine/refetchservercredentialshelper.h"

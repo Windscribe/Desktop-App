@@ -25,12 +25,7 @@ SOURCES += $$PWD/engine/connectionmanager/adapterutils_win.cpp \
            $$PWD/engine/connectionmanager/ikev2connectiondisconnectlogic_win.cpp \
            $$PWD/engine/macaddresscontroller/macaddresscontroller_win.cpp \
            $$PWD/engine/networkdetectionmanager/networkdetectionmanager_win.cpp \
-           $$PWD/engine/networkdetectionmanager/networkchangeworkerthread.cpp \
-           $$COMMON_PATH/utils/crashdump.cpp \
-           $$COMMON_PATH/utils/crashhandler.cpp \
-           $$COMMON_PATH/utils/winutils.cpp \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp
-
+           $$PWD/engine/networkdetectionmanager/networkchangeworkerthread.cpp
 
 HEADERS += $$PWD/engine/connectionmanager/adapterutils_win.h \
            $$PWD/engine/dnsinfo_win.h \
@@ -54,11 +49,7 @@ HEADERS += $$PWD/engine/connectionmanager/adapterutils_win.h \
            $$PWD/engine/connectionmanager/ikev2connectiondisconnectlogic_win.h \
            $$PWD/engine/macaddresscontroller/macaddresscontroller_win.h \
            $$PWD/engine/networkdetectionmanager/networkdetectionmanager_win.h \
-           $$PWD/engine/networkdetectionmanager/networkchangeworkerthread.h \
-           $$COMMON_PATH/utils/crashdump.h \
-           $$COMMON_PATH/utils/crashhandler.h \
-           $$COMMON_PATH/utils/winutils.h \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_win.h
+           $$PWD/engine/networkdetectionmanager/networkchangeworkerthread.h
 } #end win32
 
 macx {
@@ -243,17 +234,7 @@ HEADERS += \
 
 
 
-SOURCES += $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
-    $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.cc \
-    $$COMMON_PATH/utils/clean_sensitive_info.cpp \
-    $$COMMON_PATH/utils/utils.cpp \
-    $$COMMON_PATH/utils/logger.cpp \
-    $$COMMON_PATH/utils/mergelog.cpp \
-    $$COMMON_PATH/utils/extraconfig.cpp \
-    $$COMMON_PATH/utils/ipvalidation.cpp \
-    $$COMMON_PATH/version/appversion.cpp \
-    $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
-    $$PWD/engine/apiinfo/apiinfo.cpp \
+SOURCES += $$PWD/engine/apiinfo/apiinfo.cpp \
     $$PWD/engine/apiinfo/checkupdate.cpp \
     $$PWD/engine/apiinfo/sessionstatus.cpp \
     $$PWD/engine/apiinfo/location.cpp \
@@ -265,7 +246,7 @@ SOURCES += $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$PWD/engine/apiinfo/servercredentials.cpp \
     $$PWD/engine/autoupdater/downloadhelper.cpp \
     $$PWD/engine/ping/keepalivemanager.cpp \
-    $$PWD/engine/locationsmodel/locationsmodel.cpp \
+    $$PWD/engine/locationsmodel/enginelocationsmodel.cpp \
     $$PWD/engine/locationsmodel/apilocationsmodel.cpp \
     $$PWD/engine/locationsmodel/customconfiglocationsmodel.cpp \
     $$PWD/engine/locationsmodel/locationitem.cpp \
@@ -275,14 +256,12 @@ SOURCES += $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$PWD/engine/locationsmodel/baselocationinfo.cpp \
     $$PWD/engine/locationsmodel/mutablelocationinfo.cpp \
     $$PWD/engine/locationsmodel/customconfiglocationinfo.cpp \
-    $$COMMON_PATH/types/pingtime.cpp \
     $$PWD/engine/locationsmodel/pinglog.cpp \
     $$PWD/engine/locationsmodel/failedpinglogcontroller.cpp \
     $$PWD/engine/locationsmodel/nodeselectionalgorithm.cpp \
     $$PWD/engine/packetsizecontroller.cpp \
     $$PWD/engine/enginesettings.cpp \
     $$PWD/engine/tempscripts_mac.cpp \
-    $$COMMON_PATH/utils/simplecrypt.cpp \
     $$PWD/engine/logincontroller/logincontroller.cpp \
     $$PWD/engine/logincontroller/getallconfigscontroller.cpp \
     $$PWD/engine/proxy/proxysettings.cpp \
@@ -305,7 +284,6 @@ SOURCES += $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$PWD/engine/connectionmanager/availableport.cpp \
     $$PWD/engine/connectionmanager/wireguardconnection.cpp \
     $$PWD/engine/macaddresscontroller/imacaddresscontroller.cpp \
-    $$COMMON_PATH/types/locationid.cpp \
     $$PWD/engine/logincontroller/getapiaccessips.cpp \
     $$PWD/engine/helper/initializehelper.cpp \
     $$PWD/engine/refetchservercredentialshelper.cpp \
@@ -333,7 +311,6 @@ SOURCES += $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$PWD/engine/serverapi/curlrequest.cpp \
     $$PWD/engine/serverapi/dnscache.cpp \
     $$PWD/engine/serverapi/serverapi.cpp \
-    $$COMMON_PATH/utils/hardcodedsettings.cpp \
     $$PWD/engine/engine.cpp \
     $$PWD/engine/crossplatformobjectfactory.cpp \
     $$PWD/engine/types/loginsettings.cpp \
@@ -359,14 +336,7 @@ SOURCES += $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$PWD/engine/types/wireguardconfig.cpp \
     $$PWD/engine/getdeviceid.cpp \
     $$PWD/engineserver.cpp \
-    $$COMMON_PATH/ipc/commandfactory.cpp \
-    $$COMMON_PATH/ipc/connection.cpp \
-    $$COMMON_PATH/ipc/server.cpp \
-    $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
-    $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
     $$PWD/clientconnectiondescr.cpp \
-    $$COMMON_PATH/ipc/tcpconnection.cpp \
-    $$COMMON_PATH/ipc/tcpserver.cpp \
     $$PWD/engine/connectionmanager/finishactiveconnections.cpp \
     $$PWD/engine/networkaccessmanager/certmanager.cpp \
     $$PWD/engine/networkaccessmanager/curlinitcontroller.cpp \
@@ -376,7 +346,7 @@ SOURCES += $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$PWD/engine/networkaccessmanager/dnscache2.cpp \
     $$PWD/engine/networkaccessmanager/networkaccessmanager.cpp
 
-HEADERS  +=  $$PWD/engine/locationsmodel/locationsmodel.h \
+HEADERS  +=  $$PWD/engine/locationsmodel/enginelocationsmodel.h \
     $$PWD/engine/apiinfo/checkupdate.h \
     $$PWD/engine/locationsmodel/apilocationsmodel.h \
     $$PWD/engine/locationsmodel/customconfiglocationsmodel.h \
@@ -388,24 +358,9 @@ HEADERS  +=  $$PWD/engine/locationsmodel/locationsmodel.h \
     $$PWD/engine/locationsmodel/baselocationinfo.h \
     $$PWD/engine/locationsmodel/mutablelocationinfo.h \
     $$PWD/engine/locationsmodel/customconfiglocationinfo.h \
-    $$COMMON_PATH/types/pingtime.h \
     $$PWD/engine/locationsmodel/pinglog.h \
     $$PWD/engine/locationsmodel/failedpinglogcontroller.h \
     $$PWD/engine/locationsmodel/nodeselectionalgorithm.h \
-    $$COMMON_PATH/ipc/generated_proto/types.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.h \
-    $$COMMON_PATH/utils/clean_sensitive_info.h \
-    $$COMMON_PATH/utils/utils.h \
-    $$COMMON_PATH/utils/protobuf_includes.h \
-    $$COMMON_PATH/utils/logger.h \
-    $$COMMON_PATH/utils/mergelog.h \
-    $$COMMON_PATH/utils/multiline_message_logger.h \
-    $$COMMON_PATH/utils/extraconfig.h \
-    $$COMMON_PATH/version/appversion.h \
-    $$COMMON_PATH/version/windscribe_version.h \
-    $$COMMON_PATH/utils/executable_signature/executable_signature.h \
-    $$COMMON_PATH/utils/ipvalidation.h \
-    $$COMMON_PATH/names.h \
     $$PWD/engine/apiinfo/apiinfo.h \
     $$PWD/engine/apiinfo/sessionstatus.h \
     $$PWD/engine/apiinfo/location.h \
@@ -420,13 +375,11 @@ HEADERS  +=  $$PWD/engine/locationsmodel/locationsmodel.h \
     $$PWD/engine/autoupdater/downloadhelper.h \
     $$PWD/engine/macaddresscontroller/imacaddresscontroller.h \
     $$PWD/engine/networkdetectionmanager/inetworkdetectionmanager.h \
-    $$COMMON_PATH/utils/networktypes.h \
     $$PWD/engine/ping/keepalivemanager.h \
     $$PWD/engine/packetsizecontroller.h \
     $$PWD/engine/enginesettings.h \
     $$PWD/engine/connectionmanager/stunnelmanager.h \
     $$PWD/engine/tempscripts_mac.h \
-    $$COMMON_PATH/utils/simplecrypt.h \
     $$PWD/engine/logincontroller/logincontroller.h \
     $$PWD/engine/logincontroller/getallconfigscontroller.h \
     $$PWD/engine/proxy/proxysettings.h \
@@ -450,7 +403,6 @@ HEADERS  +=  $$PWD/engine/locationsmodel/locationsmodel.h \
     $$PWD/engine/connectionmanager/connsettingspolicy/manualconnsettingspolicy.h \
     $$PWD/engine/connectionmanager/connsettingspolicy/customconfigconnsettingspolicy.h \
     $$PWD/engine/connectionmanager/connectionmanager.h \
-    $$COMMON_PATH/types/locationid.h \
     $$PWD/engine/logincontroller/getapiaccessips.h \
     $$PWD/engine/helper/initializehelper.h \
     $$PWD/engine/refetchservercredentialshelper.h \
@@ -481,7 +433,6 @@ HEADERS  +=  $$PWD/engine/locationsmodel/locationsmodel.h \
     $$PWD/engine/serverapi/curlrequest.h \
     $$PWD/engine/serverapi/dnscache.h \
     $$PWD/engine/serverapi/serverapi.h \
-    $$COMMON_PATH/utils/hardcodedsettings.h \
     $$PWD/engine/engine.h \
     $$PWD/engine/crossplatformobjectfactory.h \
     $$PWD/engine/types/loginsettings.h \
@@ -511,18 +462,7 @@ HEADERS  +=  $$PWD/engine/locationsmodel/locationsmodel.h \
     $$PWD/engine/types/wireguardconfig.h \
     $$PWD/engine/getdeviceid.h \
     $$PWD/engineserver.h \
-    $$COMMON_PATH/ipc/command.h \
-    $$COMMON_PATH/ipc/commandfactory.h \
-    $$COMMON_PATH/ipc/connection.h \
-    $$COMMON_PATH/ipc/iconnection.h \
-    $$COMMON_PATH/ipc/iserver.h \
-    $$COMMON_PATH/ipc/protobufcommand.h \
-    $$COMMON_PATH/ipc/server.h \
-    $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
     $$PWD/clientconnectiondescr.h \
-    $$COMMON_PATH/ipc/tcpconnection.h \
-    $$COMMON_PATH/ipc/tcpserver.h \
     $$PWD/engine/connectionmanager/finishactiveconnections.h \
     $$PWD/engine/networkaccessmanager/certmanager.h \
     $$PWD/engine/networkaccessmanager/curlinitcontroller.h \

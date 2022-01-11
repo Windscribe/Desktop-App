@@ -164,6 +164,7 @@ LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_filesystem.a
 
 SOURCES += main.cpp
 
+include(common.pri)
 include(gui/gui.pri)
 include(engine/engine.pri)
 
