@@ -27,7 +27,7 @@ LocationsModel::~LocationsModel()
 }
 
 void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName,
-                                        const ProtoTypes::ArrayLocations &locations, bool isPremiumSession)
+                                        const ProtoTypes::ArrayLocations &locations)
 {
     apiLocations_.clear();
 
@@ -68,14 +68,21 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
             cmi.staticIpType = QString::fromStdString(city.static_ip_type());
             cmi.staticIp = QString::fromStdString(city.static_ip());
             cmi.linkSpeed = city.link_speed();
-            cmi.locationLoad = city.health();
-            lmi->cities << cmi;
 
-            if (isPremiumSession || !city.is_premium_only())
+            // Engine is using -1 to indicate to us that the load (health) value was invalid/missing,
+            // and therefore this location should be excluded when calculating the region's average
+            // load value.
+            cmi.locationLoad = city.health();
+            if (cmi.locationLoad >= 0 && cmi.locationLoad <= 100)
             {
                 locationLoadSum += cmi.locationLoad;
                 locationLoadCount += 1;
             }
+            else {
+                cmi.locationLoad = 0;
+            }
+
+            lmi->cities << cmi;
 
             // if this is the best location then insert it to top list
             if (!isBestLocationInserted && !lmi->id.isStaticIpsLocation() && !lmi->id.isCustomConfigsLocation() && cmi.id.apiLocationToBestLocation() == bestLocationId_)

@@ -29,15 +29,20 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
         }
     }
 
+    // Using -1 to indicate to the UI logic that the load (health) value was invalid/missing,
+    // and therefore this location should be excluded when calculating the region's average
+    // load value.
+    // Note: the server json does not include a health value for premium locations when the
+    // user is logged into a free account.
     if (obj.contains("health"))
     {
-        d->health_ = obj.value("health").toInt(0);
+        d->health_ = obj.value("health").toInt(-1);
         if ((d->health_ < 0) || (d->health_ > 100)) {
-            d->health_ = 0;
+            d->health_ = -1;
         }
     }
     else {
-        d->health_ = 0;
+        d->health_ = -1;
     }
 
     if (obj.contains("nodes"))

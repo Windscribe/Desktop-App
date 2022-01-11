@@ -25,7 +25,7 @@ public:
     virtual ~LocationsModel();
 
     void updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName,
-                            const ProtoTypes::ArrayLocations &locations, bool isPremiumSession);
+                            const ProtoTypes::ArrayLocations &locations);
     void updateBestLocation(const ProtoTypes::LocationId &bestLocation);
     void updateCustomConfigLocations(const ProtoTypes::ArrayLocations &locations);
 
