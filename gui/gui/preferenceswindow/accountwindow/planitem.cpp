@@ -9,7 +9,7 @@
 namespace PreferencesWindow {
 
 PlanItem::PlanItem(ScalableGraphicsObject *parent) : BaseItem(parent, 78),
-    planBytes_(-1)
+    planBytes_(-1), isPremium_(false)
 {
     generatePlanString();
 
@@ -17,7 +17,7 @@ PlanItem::PlanItem(ScalableGraphicsObject *parent) : BaseItem(parent, 78),
     dividerLine_->setPos(24, 78 - 3);
 
     textButton_ = new CommonGraphics::TextButton(QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Pro"), FontDescr(12, true), QColor(255, 255, 255), true, this);
-    connect(textButton_, SIGNAL(clicked()), SIGNAL(upgradeClicked()));
+    connect(textButton_, &CommonGraphics::TextButton::clicked, this, &PlanItem::upgradeClicked);
     textButton_->setClickable(false);
     updateTextButtonPos();
 }
@@ -43,18 +43,23 @@ void PlanItem::setPlan(qint64 plan)
 {
     planBytes_ = plan;
     generatePlanString();
-    if (planBytes_ < 0)
+    update();
+}
+
+void PlanItem::setIsPremium(bool isPremium)
+{
+    isPremium_ = isPremium;
+    if (isPremium_)
     {
         textButton_->setText(tr("Pro"));
         textButton_->setCurrentOpacity(OPACITY_FULL);
-        textButton_->setClickable(false);
     }
     else
     {
-        textButton_->setText(tr("Get more data"));
+        textButton_->setText(tr("Upgrade"));
         textButton_->setCurrentOpacity(OPACITY_UNHOVER_TEXT);
-        textButton_->setClickable(true);
     }
+    textButton_->setClickable(!isPremium_);
     updateTextButtonPos();
     update();
 }
@@ -69,13 +74,13 @@ void PlanItem::updateScaling()
 
 void PlanItem::onLanguageChanged()
 {
-    if (planBytes_ < 0)
+    if (isPremium_)
     {
         textButton_->setText(tr("Pro"));
     }
     else
     {
-        textButton_->setText(tr("Get more data"));
+        textButton_->setText(tr("Upgrade"));
     }
     updateTextButtonPos();
 }
@@ -84,7 +89,7 @@ void PlanItem::generatePlanString()
 {
     if (planBytes_ < 0)
     {
-        planStr_ = tr("Unlimited GB");
+        planStr_ = tr("Unlimited Data");
     }
     else
     {

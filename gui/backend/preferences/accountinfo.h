@@ -28,6 +28,9 @@ public:
     QString authHash() const;
     void setAuthHash(const QString &authHash);
 
+    bool isPremium() const;
+    void setIsPremium(bool isPremium);
+
 signals:
     void usernameChanged(const QString &username);
     void emailChanged(const QString &email);
@@ -35,6 +38,7 @@ signals:
     void planChanged(qint64 plan);
     void expireDateChanged(const QString &date);
     void authHashChanged(const QString &authHash);
+    void isPremiumChanged(bool isPremium);
 
 private:
     QString username_;
@@ -43,6 +47,7 @@ private:
     qint64 planBytes_;       // -1 -> unlimited
     QString expireDate_;
     QString authHash_;
+    bool isPremium_;
 };
 
 #endif // ACCOUNTINFO_H

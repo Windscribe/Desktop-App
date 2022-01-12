@@ -1226,6 +1226,7 @@ void Backend::updateAccountInfo()
     accountInfo_.setUsername(QString::fromStdString(latestSessionStatus_.username()));
     accountInfo_.setExpireDate(QString::fromStdString(latestSessionStatus_.premium_expire_date()));
     accountInfo_.setPlan(latestSessionStatus_.traffic_max());
+    accountInfo_.setIsPremium(latestSessionStatus_.is_premium());
 }
 
 void Backend::getOpenVpnVersionsFromInitCommand(const IPCServerCommands::InitFinished &cmd)
