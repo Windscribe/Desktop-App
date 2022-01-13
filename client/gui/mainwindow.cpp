@@ -140,7 +140,7 @@ MainWindow::MainWindow() :
 
     unsigned long guiPid = Utils::getCurrentPid();
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
-    backend_ = new Backend(ProtoTypes::CLIENT_ID_GUI, guiPid, "gui app", this);
+    backend_ = new Backend(this);
 
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));

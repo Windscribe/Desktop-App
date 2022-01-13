@@ -16,25 +16,18 @@
 #include "preferences/accountinfo.h"
 #include "connectstatehelper.h"
 #include "firewallstatehelper.h"
+//#include "engine/engineserver.h"
 
-// need to define one of the 3 defines
-#ifdef QT_DEBUG
-    #define BACKEND_BUILTIN_LOCATIONS               // for build GUI without need engine (for testing GUI)
-    //#define BACKEND_WITHOUT_START_ENGINE_PROCESS    // engine must be already running at startup GUI
-    //#define BACKEND_START_ENGINE_PROCESS            // the default behavior of the GUI for release, GUI starts engine process
-#else
-    #define BACKEND_START_ENGINE_PROCESS        // always for release build
-#endif
-
+class EngineServer;
 
 class Backend : public QObject
 {
     Q_OBJECT
 public:
-    explicit Backend(unsigned int clientId, unsigned long clientPid, const QString &clientName, QObject *parent);
+    explicit Backend(QObject *parent);
     virtual ~Backend();
 
-    void init(bool recovery = false);
+    void init();
     void basicInit();
     void basicClose();
     void cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
@@ -84,7 +77,6 @@ public:
     void setBlockConnect(bool isBlockConnect);
     void clearCredentials();
 
-    bool isInitFinished() const;
     bool isAppCanClose() const;
 
     void continueWithCredentialsForOvpnConfig(const QString &username, const QString &password, bool bSave);
@@ -118,12 +110,7 @@ public:
     void sendMakeHostsFilesWritableWin();
 
 private slots:
-    void onProcessStarted();
-    void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
-    void onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection);
-    void onConnectionStateChanged(int state, IPC::IConnection *connection);
-    void onConnectionConnectAttempt();
+    void onConnectionNewCommand(IPC::Command *command);
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
@@ -175,23 +162,8 @@ signals:
     void engineRecoveryFailed();
 
 private:
-
-    enum IPC_STATE { IPC_INIT_STATE, IPC_DOING_CLEANUP, IPC_STARTING_PROCESS, IPC_CONNECTING, IPC_CONNECTED,
-                     IPC_INIT_SENDING, IPC_READY, IPC_FINISHED_STATE };
-    IPC_STATE ipcState_;
-    bool bRecoveringState_;
-
-    unsigned int protocolVersion_;
-    unsigned int clientId_;
-    unsigned long clientPid_;
-    QString clientName_;
-
     bool isSavedApiSettingsExists_;
     bool bLastLoginWithAuthHash_;
-
-    QTimer connectionAttemptTimer_;
-    QElapsedTimer connectingTimer_;
-    static constexpr int TOO_LONG_CONNECTING_TIME = 10000;
 
     ProtoTypes::SessionStatus latestSessionStatus_;
     ProtoTypes::EngineSettings latestEngineSettings_;
@@ -199,8 +171,9 @@ private:
     ConnectStateHelper emergencyConnectStateHelper_;
     FirewallStateHelper firewallStateHelper_;
 
-    QProcess *process_;
-    IPC::IConnection *connection_;
+    EngineServer *engineServer_;
+    bool isCleanupFinished_;
+
     quint32 cmdId_;
 
     LocationsModel *locationsModel_;
@@ -219,7 +192,6 @@ private:
     QString generateNewFriendlyName();
     void updateAccountInfo();
     void getOpenVpnVersionsFromInitCommand(const IPCServerCommands::InitFinished &state);
-    void engineCrashedDoRecovery();
 };
 
 #endif // BACKEND_H

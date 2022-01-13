@@ -6,6 +6,8 @@
 #include "gui/dpiscalemanager.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "version/appversion.h"
+#include "engine/openvpnversioncontroller.h"
 #include "gui/application/windscribeapplication.h"
 #include "gui/graphicresources/imageresourcessvg.h"
 #include "gui/application/singleappinstance.h"
@@ -13,6 +15,8 @@
 #ifdef Q_OS_WIN
     #include "gui/utils/scaleutils_win.h"
     #include "utils/crashhandler.h"
+    #include "utils/installedantiviruses_win.h"
+    #include "engine/taputils/tapinstall_win.h"
 #elif defined (Q_OS_MACOS)
     #include "utils/macutils.h"
 #elif defined (Q_OS_LINUX)
@@ -89,6 +93,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
+    qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
+
     WindscribeApplication a(argc, argv);
 
     // These values are used for QSettings by default
@@ -124,7 +130,34 @@ int main(int argc, char *argv[])
     Logger::instance().install("gui", true, false);
 
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
+    qCDebug(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
+
+
+#ifdef Q_OS_WIN
+    InstalledAntiviruses_win::outToLog();
+#endif
+
+    QStringList strs = OpenVpnVersionController::instance().getAvailableOpenVpnVersions();
+    if (strs.count() > 0)
+    {
+        qCDebug(LOG_BASIC) << "Detected OpenVPN versions:" << strs;
+        qCDebug(LOG_BASIC) << "Selected OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
+    }
+    else
+    {
+        qCDebug(LOG_BASIC) << "OpenVPN executables not found";
+        return 0;
+    }
+
+
+#ifdef Q_OS_WIN
+    QVector<TapInstall_win::TAP_TYPE> tapAdapters = TapInstall_win::detectInstalledTapDriver(true);
+    if (tapAdapters.isEmpty())
+    {
+        qCDebug(LOG_BASIC) << "Can't detect installed TAP-adapter";
+    }
+#endif
 
 #if defined Q_OS_MAC
     if (!MacUtils::isOsVersion10_11_or_greater())

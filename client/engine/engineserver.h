@@ -14,14 +14,16 @@ public:
     explicit EngineServer(QObject *parent = nullptr);
     virtual ~EngineServer();
 
+    bool sendCommand(IPC::Command *command);
     void sendCmdToAllAuthorizedAndGetStateClients(const IPC::Command &cmd, bool bWithLog);
-    void sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Command &cmd, bool bWithLog, unsigned int clientId, bool* bLogged = nullptr);
+    //void sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Command &cmd, bool bWithLog, unsigned int clientId, bool* bLogged = nullptr);
 
 public slots:
     void run();
 
 signals:
     void finished();
+    void emitCommand(IPC::Command *command);
 
 private slots:
     void onServerCallbackAcceptFunction(IPC::IConnection *connection);
@@ -95,7 +97,6 @@ private:
     QHash<IPC::IConnection *, ClientConnectionDescr> connections_;
 
     //void serverCallbackAcceptFunction(IPC::IConnection *connection);
-    bool handleCommand(IPC::Command *command);
     void sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode);
     void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId);
 

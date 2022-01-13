@@ -50,7 +50,7 @@ void EngineServer::run()
     }
 }
 
-bool EngineServer::handleCommand(IPC::Command *command)
+bool EngineServer::sendCommand(IPC::Command *command)
 {
     if (command->getStringId() == IPCClientCommands::Init::descriptor()->full_name())
     {
@@ -162,7 +162,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
         else
         {
             engine_->firewallOff();
-        }
+        }5
         return true;
     }
 
@@ -516,7 +516,7 @@ void EngineServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConn
         ClientConnectionDescr &clientConnectionDescr = connections_[connection];
         if (clientConnectionDescr.bClientAuthReceived_)
         {
-            handleCommand(command);
+            sendCommand(command);
         }
         else
         {

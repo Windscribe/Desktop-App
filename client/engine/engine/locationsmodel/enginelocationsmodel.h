@@ -1,5 +1,5 @@
-#ifndef LOCATIONSMODEL_H
-#define LOCATIONSMODEL_H
+#ifndef ENGINELOCATIONSMODEL_H
+#define ENGINELOCATIONSMODEL_H
 
 #include <QObject>
 #include "engine/apiinfo/location.h"
@@ -56,4 +56,4 @@ private:
 
 } //namespace locationsmodel
 
-#endif // LOCATIONSMODEL_H
+#endif // ENGINELOCATIONSMODEL_H

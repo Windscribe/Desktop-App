@@ -28,7 +28,6 @@ bool WindowsNativeEventFilter::nativeEventFilter(const QByteArray &b, void *mess
 
     if ( msg->message == WM_QUERYENDSESSION || msg->message == WM_ENDSESSION )
     {
-
         if (msg->message == WM_ENDSESSION && msg->wParam == FALSE)
         {
             qCDebug(LOG_BASIC) << "Windows shutdown interrupted by user";
