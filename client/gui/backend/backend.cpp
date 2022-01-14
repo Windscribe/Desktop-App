@@ -443,8 +443,6 @@ const ProtoTypes::SessionStatus &Backend::getSessionStatus() const
 
 void Backend::onConnectionNewCommand(IPC::Command *command)
 {
-    QScopedPointer<IPC::Command> pCommand(command);
-
     if (command->getStringId() == IPCServerCommands::AuthReply::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCClientCommands::Init> cmd;

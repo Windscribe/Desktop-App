@@ -597,7 +597,7 @@ bool MainWindow::event(QEvent *event)
     {
          MainWindowState::instance().setActive(true);
         // qDebug() << "WindowActivate";
-        if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray())
+        if (backend_->getPreferences()->isDockedToTray())
             activateAndShow();
         setBackendAppActiveState(true);
         activeState_ = true;
@@ -2744,7 +2744,7 @@ void MainWindow::setBackendAppActiveState(bool state)
 {
     TooltipController::instance().hideAllTooltips();
 
-    if (backend_->isInitFinished() && backendAppActiveState_ != state) {
+    if (backendAppActiveState_ != state) {
         backendAppActiveState_ = state;
         state ? backend_->applicationActivated() : backend_->applicationDeactivated();
     }
@@ -2976,9 +2976,6 @@ void MainWindow::onTrayMenuHelpMe()
 
 void MainWindow::onTrayMenuQuit()
 {
-    if (!backend_->isInitFinished())
-        onAbortInitialization();
-
     doClose();
 }
 
@@ -3220,7 +3217,7 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
     // unwanted app termination.
     const bool kIsTrayIconClicked = trayIconRect().contains(QCursor::pos());
     if (!focusWindow && !kIsTrayIconClicked && !ShowingDialogState::instance().isCurrentlyShowingExternalDialog() && !logViewerWindow_) {
-        if (backend_->isInitFinished() && backend_->getPreferences()->isDockedToTray()) {
+        if (backend_->getPreferences()->isDockedToTray()) {
             const int kDeactivationDelayMs = 100;
             deactivationTimer_.start(kDeactivationDelayMs);
         }
