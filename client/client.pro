@@ -112,35 +112,52 @@ LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
 INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
 LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
 
-
 #remove unused and deprecated parameter warnings
 QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Wno-deprecated-declarations
-
 
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
 ICON = windscribe.icns
 QMAKE_INFO_PLIST = info.plist
 
-#copy WindscribeLauncher.app to Windscribe.app/Contents/Library/LoginItems folder
-#makedir.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
-#copydata.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/launcher/WindscribeLauncher.app $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
+#postbuild copy commands
+make_login_items.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
+copy_launcher.commands = $(COPY_DIR) $$PWD/../installer/mac/binaries/launcher/WindscribeLauncher.app $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
+copy_resources.commands = $(COPY_DIR) $$PWD/engine/mac/resources $$OUT_PWD/Windscribe.app/Contents
+mkdir_launch_services.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Library/LaunchServices
+copy_helper.commands = $(COPY_DIR) $$PWD/../installer/mac/binaries/helper/com.windscribe.helper.macos $$OUT_PWD/Windscribe.app/Contents/Library/LaunchServices
 
-#first.depends = $(first) makedir copydata
-#export(first.depends)
-#export(makedir.commands)
-#export(copydata.commands)
-#export(makedir4.commands)
-#QMAKE_EXTRA_TARGETS += first makedir copydata #makedir4 copydata4
+mkdir_helpers.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Helpers
+copy_openvpn.commands = cp $$BUILD_LIBS_PATH/openvpn_2_5_4/openvpn $$OUT_PWD/Windscribe.app/Contents/Helpers/windscribeopenvpn_2_5_4
+copy_stunnel.commands = cp $$BUILD_LIBS_PATH/stunnel/stunnel $$OUT_PWD/Windscribe.app/Contents/Helpers/windscribestunnel
+copy_wstunnel.commands = cp $$PWD/../backend/mac/wstunnel/windscribewstunnel $$OUT_PWD/Windscribe.app/Contents/Helpers/windscribewstunnel
+copy_kext.commands = $(COPY_DIR) $$PWD/../backend/mac/kext/Binary/WindscribeKext.kext $$OUT_PWD/Windscribe.app/Contents/Helpers/WindscribeKext.kext
+copy_wireguard.commands = cp $$BUILD_LIBS_PATH/wireguard/windscribewireguard $$OUT_PWD/Windscribe.app/Contents/Helpers/windscribewireguard
+
+exists( $$PWD/../backend/mac/provisioning_profile/embedded.provisionprofile ) {
+    copy_profile.commands = $(COPY_DIR) $$PWD/../backend/mac/provisioning_profile/embedded.provisionprofile $$OUT_PWD/Windscribe.app/Contents
+}
+
+first.depends = $(first) make_login_items copy_launcher copy_resources mkdir_launch_services copy_helper \
+                         mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_kext copy_wireguard copy_profile
+export(first.depends)
+export(make_login_items.commands)
+export(copy_launcher.commands)
+export(copy_resources.commands)
+export(mkdir_launch_services.commands)
+export(copy_helper.commands)
+export(mkdir_helpers.commands)
+export(copy_openvpn.commands)
+export(copy_stunnel.commands)
+export(copy_wstunnel.commands)
+export(copy_kext.commands)
+export(copy_wireguard.commands)
+export(copy_profile.commands)
+QMAKE_EXTRA_TARGETS += first make_login_items copy_launcher copy_resources mkdir_launch_services copy_helper \
+                        mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_kext copy_wireguard copy_profile
 
 # only for release build
 # comment CONFIG... line if need embedded engine and cli for debug purposes
-#CONFIG(release, debug|release) {
-
-    #copy WindscribeEngine.app to Windscribe.app/Contents/Library folder
-#    copydata3.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/WindscribeEngine.app $$OUT_PWD/Windscribe.app/Contents/Library
-#    first.depends += copydata3
-#    export(copydata3.commands)
-#    QMAKE_EXTRA_TARGETS += copydata3
+CONFIG(release, debug|release) {
 
     # package cli inside Windscribe.app/Contents/MacOS
 #    makedir4.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/MacOS
@@ -152,10 +169,10 @@ QMAKE_INFO_PLIST = info.plist
 #    export(copydata4.commands)
 #    QMAKE_EXTRA_TARGETS += copydata4
 
-#    osslicense.files = $$COMMON_PATH/licenses/open_source_licenses.txt
-#    osslicense.path  = Contents/Resources
-#    QMAKE_BUNDLE_DATA += osslicense
-#}
+    osslicense.files = $$COMMON_PATH/licenses/open_source_licenses.txt
+    osslicense.path  = Contents/Resources
+    QMAKE_BUNDLE_DATA += osslicense
+}
 
 } # macx
 
