@@ -12,7 +12,7 @@
 #include "engine/tempscripts_mac.h"
 #include "../openvpnversioncontroller.h"
 #include "installhelper_mac.h"
-#include "../posix_common/helper_commands_serialize.h"
+#include "../../../../backend/posix_common/helper_commands_serialize.h"
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"

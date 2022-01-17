@@ -23,26 +23,19 @@ macx {
 SOURCES += $$PWD/multipleaccountdetection/multipleaccountdetection_mac.cpp
 
 OBJECTIVE_SOURCES += \
-                $$COMMON_PATH//utils/macutils.mm \
                 $$PWD/application/checkrunningapp/checkrunningapp_mac.mm \
                 $$PWD/application/openlocationshandler_mac.mm \
                 $$PWD/launchonstartup/launchonstartup_mac.mm \
                 $$PWD/utils/interfaceutils_mac.mm \
-                $$PWD/utils/authchecker_mac.mm \
-                $$COMMON_PATH/exithandler_mac.mm \
-                $$COMMON_PATH/utils/widgetutils_mac.mm \
-                $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm
+                $$PWD/utils/authchecker_mac.mm
 
 HEADERS += \
-           $$COMMON_PATH//utils/macutils.h \
            $$PWD/multipleaccountdetection/multipleaccountdetection_mac.h \
            $$PWD/application/checkrunningapp/checkrunningapp_mac.h \
            $$PWD/application/openlocationshandler_mac.h \
            $$PWD/launchonstartup/launchonstartup_mac.h \
            $$PWD/utils/authchecker_mac.h \
-           $$COMMON_PATH/exithandler_mac.h \
-           $$COMMON_PATH/utils/widgetutils_mac.h \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
+
 RESOURCES += \
     $$PWD/windscribe_mac.qrc
 

@@ -54,129 +54,45 @@ HEADERS += $$PWD/engine/connectionmanager/adapterutils_win.h \
 
 macx {
 
-HOMEDIR = $$(HOME)
+SOURCES += $$PWD/engine/firewall/firewallcontroller_mac.cpp \
+           $$PWD/engine/ipv6controller_mac.cpp \
+           $$PWD/engine/connectionmanager/networkextensionlog_mac.cpp \
+           $$PWD/engine/ping/pinghost_icmp_mac.cpp \
+           $$PWD/engine/networkdetectionmanager/networkdetectionmanager_mac.cpp \
+           $$PWD/engine/helper/helper_posix.cpp \
+           $$PWD/engine/helper/helper_mac.cpp \
+           $$PWD/engine/dnsresolver/dnsutils_mac.cpp \
+           $$PWD/engine/macaddresscontroller/macaddresscontroller_mac.cpp \
+           $$PWD/engine/autoupdater/autoupdaterhelper_mac.cpp
 
-LIBS += -framework Foundation
-LIBS += -framework CoreFoundation
-LIBS += -framework CoreServices
-LIBS += -framework Security
-LIBS += -framework SystemConfiguration
-LIBS += -framework AppKit
-LIBS += -framework ServiceManagement
-LIBS += -framework NetworkExtension
-
-#LIBS += -L"/Users/admin/Documents/TestLib/TestLib" -ltestlib
-
-#QMAKE_OBJECTIVE_CFLAGS += -fobjc-arc
-
-#remove unused parameter warnings
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Wno-deprecated-declarations
-
-#boost include and libs
-INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
-LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
-
-INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
-LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
-INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
-LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
-
-#protobuf include and libs
-INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
-LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
-
-#c-ares library
-# don't forget remove *.dylib files for static link
-INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
-LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
-
-
-SOURCES += engine/firewall/firewallcontroller_mac.cpp \
-           engine/ipv6controller_mac.cpp \
-           engine/connectionmanager/networkextensionlog_mac.cpp \
-           engine/ping/pinghost_icmp_mac.cpp \
-           engine/networkdetectionmanager/networkdetectionmanager_mac.cpp \
-           engine/helper/helper_posix.cpp \
-           engine/helper/helper_mac.cpp \
-           engine/dnsresolver/dnsutils_mac.cpp \
-           engine/macaddresscontroller/macaddresscontroller_mac.cpp \
-           engine/autoupdater/autoupdaterhelper_mac.cpp
-
-HEADERS +=     $$COMMON_PATH/utils/macutils.h \
-               engine/connectionmanager/sleepevents_mac.h \
-               engine/networkdetectionmanager/reachabilityevents.h \
-               engine/connectionmanager/restorednsmanager_mac.h \
-               engine/helper/helper_posix.h \
-               engine/helper/helper_mac.h \
-               engine/helper/installhelper_mac.h \
-               engine/proxy/pmachelpers.h \
-               engine/proxy/autodetectproxy_mac.h \
-               engine/firewall/firewallcontroller_mac.h \
-               engine/ipv6controller_mac.h \
-               engine/connectionmanager/ikev2connection_mac.h \
-               engine/connectionmanager/networkextensionlog_mac.h \
-               engine/ping/pinghost_icmp_mac.h \
-               engine/networkdetectionmanager/networkdetectionmanager_mac.h \
-               engine/macaddresscontroller/macaddresscontroller_mac.h \
-               $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h \
-               engine/autoupdater/autoupdaterhelper_mac.h
+HEADERS +=     $$PWD/engine/connectionmanager/sleepevents_mac.h \
+               $$PWD/engine/networkdetectionmanager/reachabilityevents.h \
+               $$PWD/engine/connectionmanager/restorednsmanager_mac.h \
+               $$PWD/engine/helper/helper_posix.h \
+               $$PWD/engine/helper/helper_mac.h \
+               $$PWD/engine/helper/installhelper_mac.h \
+               $$PWD/engine/proxy/pmachelpers.h \
+               $$PWD/engine/proxy/autodetectproxy_mac.h \
+               $$PWD/engine/firewall/firewallcontroller_mac.h \
+               $$PWD/engine/ipv6controller_mac.h \
+               $$PWD/engine/connectionmanager/ikev2connection_mac.h \
+               $$PWD/engine/connectionmanager/networkextensionlog_mac.h \
+               $$PWD/engine/ping/pinghost_icmp_mac.h \
+               $$PWD/engine/networkdetectionmanager/networkdetectionmanager_mac.h \
+               $$PWD/engine/macaddresscontroller/macaddresscontroller_mac.h \
+               $$PWD/engine/autoupdater/autoupdaterhelper_mac.h
 
 OBJECTIVE_HEADERS += \
-               engine/networkdetectionmanager/reachability.h \
-               $$COMMON_PATH/exithandler_mac.h
+               $$PWD/engine/networkdetectionmanager/reachability.h
 
-OBJECTIVE_SOURCES += $$COMMON_PATH/utils/macutils.mm \
-                     engine/connectionmanager/sleepevents_mac.mm \
-                     engine/networkdetectionmanager/reachability.m \
-                     engine/networkdetectionmanager/reachabilityevents.mm \
-                     engine/connectionmanager/restorednsmanager_mac.mm \
-                     engine/helper/installhelper_mac.mm \
-                     engine/proxy/pmachelpers.mm \
-                     engine/proxy/autodetectproxy_mac.mm \
-                     engine/connectionmanager/ikev2connection_mac.mm \
-                     $$COMMON_PATH/exithandler_mac.mm \
-                     $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm
-
-QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
-
-ICON = mac/windscribe.icns
-QMAKE_INFO_PLIST = mac/info.plist
-
-#QMAKE_LFLAGS += -sectcreate __TEXT __info_plist $$shell_quote($$PWD/Mac/Info.plist)
-
-# The referenced file doesn't exist... perhaps this is old debugging code?
-#MY_ENTITLEMENTS.name = CODE_SIGN_ENTITLEMENTS
-#MY_ENTITLEMENTS.value = $$PWD/mac/windscribe.entitlements
-#QMAKE_MAC_XCODE_SETTINGS += MY_ENTITLEMENTS
-
-#postbuild copy commands
-copy_resources.commands = $(COPY_DIR) $$PWD/mac/resources $$OUT_PWD/WindscribeEngine.app/Contents
-mkdir_launch_services.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
-copy_helper.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/helper/com.windscribe.helper.macos $$OUT_PWD/WindscribeEngine.app/Contents/Library/LaunchServices
-mkdir_helpers.commands = $(MKDIR) $$OUT_PWD/WindscribeEngine.app/Contents/Helpers
-copy_openvpn.commands = cp $$BUILD_LIBS_PATH/openvpn_2_5_4/openvpn $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribeopenvpn_2_5_4
-copy_stunnel.commands = cp $$BUILD_LIBS_PATH/stunnel/stunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribestunnel
-copy_wstunnel.commands = cp $$PWD/../mac/wstunnel/windscribewstunnel $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewstunnel
-copy_kext.commands = $(COPY_DIR) $$PWD/../mac/kext/Binary/WindscribeKext.kext $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/WindscribeKext.kext
-copy_wireguard.commands = cp $$BUILD_LIBS_PATH/wireguard/windscribewireguard $$OUT_PWD/WindscribeEngine.app/Contents/Helpers/windscribewireguard
-
-exists( $$PWD/../mac/provisioning_profile/embedded.provisionprofile ) {
-    copy_profile.commands = $(COPY_DIR) $$PWD/../mac/provisioning_profile/embedded.provisionprofile $$OUT_PWD/WindscribeEngine.app/Contents
-}
-
-first.depends = $(first) copy_resources mkdir_launch_services copy_helper copy_profile mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_wireguard copy_kext
-export(first.depends)
-export(copy_resources.commands)
-export(mkdir_launch_services.commands)
-export(copy_helper.commands)
-export(copy_profile.commands)
-export(mkdir_helpers.commands)
-export(copy_openvpn.commands)
-export(copy_stunnel.commands)
-export(copy_wstunnel.commands)
-export(copy_kext.commands)
-export(copy_wireguard.commands)
-QMAKE_EXTRA_TARGETS += first copy_resources mkdir_launch_services copy_helper copy_profile mkdir_helpers copy_openvpn copy_stunnel copy_wstunnel copy_wireguard copy_kext
+OBJECTIVE_SOURCES += $$PWD/engine/connectionmanager/sleepevents_mac.mm \
+                     $$PWD/engine/networkdetectionmanager/reachability.m \
+                     $$PWD/engine/networkdetectionmanager/reachabilityevents.mm \
+                     $$PWD/engine/connectionmanager/restorednsmanager_mac.mm \
+                     $$PWD/engine/helper/installhelper_mac.mm \
+                     $$PWD/engine/proxy/pmachelpers.mm \
+                     $$PWD/engine/proxy/autodetectproxy_mac.mm \
+                     $$PWD/engine/connectionmanager/ikev2connection_mac.mm
 
 } # end macx
 

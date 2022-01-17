@@ -1,6 +1,9 @@
 #include "pingtime.h"
 #include <QObject>
 
+constexpr int PingTime::NO_PING_INFO;
+constexpr int PingTime::PING_FAILED;
+
 const int typeIdPingTime = qRegisterMetaType<PingTime>("PingTime");
 
 PingTime::PingTime()

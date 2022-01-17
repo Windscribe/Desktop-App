@@ -7,7 +7,7 @@
 #include <QMutex>
 #include "ihelper.h"
 #include "utils/boost_includes.h"
-#include "../posix_common/helper_commands.h"
+#include "../../../../backend/posix_common/helper_commands.h"
 
 // common base helper for Linux/Mac
 class Helper_posix : public IHelper

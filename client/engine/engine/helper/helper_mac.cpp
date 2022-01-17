@@ -4,7 +4,7 @@
 #include "utils/macutils.h"
 #include <QCoreApplication>
 #include "installhelper_mac.h"
-#include "../posix_common/helper_commands_serialize.h"
+#include "../../../../backend/posix_common/helper_commands_serialize.h"
 
 Helper_mac::Helper_mac(QObject *parent) : Helper_posix(parent)
 {

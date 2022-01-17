@@ -92,52 +92,70 @@ LIBS += -framework Security
 LIBS += -framework SystemConfiguration
 LIBS += -framework ServiceManagement
 LIBS += -framework ApplicationServices
+LIBS += -framework NetworkExtension
+
 
 INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
 LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
-#remove unused parameter warnings
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+#boost include and libs
+INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
+LIBS+=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
+LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
+
+#c-ares library
+# don't forget remove *.dylib files for static link
+INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
+LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
+
+
+#remove unused and deprecated parameter warnings
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Wno-deprecated-declarations
+
 
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
 ICON = windscribe.icns
 QMAKE_INFO_PLIST = info.plist
 
 #copy WindscribeLauncher.app to Windscribe.app/Contents/Library/LoginItems folder
-makedir.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
-copydata.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/launcher/WindscribeLauncher.app $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
+#makedir.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
+#copydata.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/launcher/WindscribeLauncher.app $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
 
-first.depends = $(first) makedir copydata
-export(first.depends)
-export(makedir.commands)
-export(copydata.commands)
+#first.depends = $(first) makedir copydata
+#export(first.depends)
+#export(makedir.commands)
+#export(copydata.commands)
 #export(makedir4.commands)
-QMAKE_EXTRA_TARGETS += first makedir copydata #makedir4 copydata4
+#QMAKE_EXTRA_TARGETS += first makedir copydata #makedir4 copydata4
 
 # only for release build
 # comment CONFIG... line if need embedded engine and cli for debug purposes
-CONFIG(release, debug|release) {
+#CONFIG(release, debug|release) {
 
     #copy WindscribeEngine.app to Windscribe.app/Contents/Library folder
-    copydata3.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/WindscribeEngine.app $$OUT_PWD/Windscribe.app/Contents/Library
-    first.depends += copydata3
-    export(copydata3.commands)
-    QMAKE_EXTRA_TARGETS += copydata3
+#    copydata3.commands = $(COPY_DIR) $$PWD/../../installer/mac/binaries/WindscribeEngine.app $$OUT_PWD/Windscribe.app/Contents/Library
+#    first.depends += copydata3
+#    export(copydata3.commands)
+#    QMAKE_EXTRA_TARGETS += copydata3
 
     # package cli inside Windscribe.app/Contents/MacOS
-    makedir4.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/MacOS
-    first.depends += makedir4
-    export(makedir4.commands)
-    QMAKE_EXTRA_TARGETS += makedir4
-    copydata4.commands = $(COPY_FILE) $$PWD/../../installer/mac/binaries/windscribe-cli $$OUT_PWD/Windscribe.app/Contents/MacOS/windscribe-cli
-    first.depends += copydata4
-    export(copydata4.commands)
-    QMAKE_EXTRA_TARGETS += copydata4
+#    makedir4.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/MacOS
+#    first.depends += makedir4
+#    export(makedir4.commands)
+#    QMAKE_EXTRA_TARGETS += makedir4
+#    copydata4.commands = $(COPY_FILE) $$PWD/../../installer/mac/binaries/windscribe-cli $$OUT_PWD/Windscribe.app/Contents/MacOS/windscribe-cli
+#    first.depends += copydata4
+#    export(copydata4.commands)
+#    QMAKE_EXTRA_TARGETS += copydata4
 
-    osslicense.files = $$COMMON_PATH/licenses/open_source_licenses.txt
-    osslicense.path  = Contents/Resources
-    QMAKE_BUNDLE_DATA += osslicense
-}
+#    osslicense.files = $$COMMON_PATH/licenses/open_source_licenses.txt
+#    osslicense.path  = Contents/Resources
+#    QMAKE_BUNDLE_DATA += osslicense
+#}
 
 } # macx
 
