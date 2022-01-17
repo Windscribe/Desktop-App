@@ -215,7 +215,7 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
       return false;
    }
 
-   std::wstring windscribeExePath = getExePath() + std::wstring(L"\\WindscribeEngine.exe");
+   std::wstring windscribeExePath = getExePath() + std::wstring(L"\\Windscribe.exe");
 
    if (!iequals(windscribeExePath, path))
    {

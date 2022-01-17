@@ -91,8 +91,7 @@ def DeleteAllFiles(root_dir, dir_pattern):
 
 def CleanAll():
   current_os = utl.GetCurrentOS()
-  DeleteAllFiles(os.path.join(ROOT_DIR, "gui"), "build-gui-")
-  DeleteAllFiles(os.path.join(ROOT_DIR, "backend"), "build-engine-")
+  DeleteAllFiles(os.path.join(ROOT_DIR, ""), "build-client-")
   DeleteAllFiles(ROOT_DIR, "build-exe")
   DeleteAllFiles(ROOT_DIR, "temp")
   DeleteAllFiles(os.path.join(COMMON_DIR, "ipc"), "generated_proto")

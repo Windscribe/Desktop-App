@@ -2,10 +2,10 @@
 # Windscribe Build System
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
-gui:
-  name:     GUI
-  project:  gui.pro
-  subdir:   gui/gui
+client:
+  name:     Client
+  project:  client.pro
+  subdir:   client
   target:   Windscribe.exe
   symbols:  Windscribe.pdb
   macapp:   Windscribe.app
@@ -16,15 +16,6 @@ cli:
   subdir:   gui/cli
   target:   windscribe-cli.exe
   symbols:  windscribe-cli.pdb
-
-engine:
-  name:     Engine
-  project:  engine.pro
-  subdir:   backend/engine
-  target:   WindscribeEngine.exe
-  symbols:  WindscribeEngine.pdb
-  macapp:   WindscribeEngine.app
-  plugins:  no
 
 service32:
   name:     Service
@@ -152,9 +143,8 @@ installer_linux:
 
 targets:
   win32:
-    - gui
+    - client
     - cli
-    - engine
     - service32
     - service64
     - changeics32
