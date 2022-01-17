@@ -563,6 +563,14 @@ void Engine::makeHostsFileWritableWin()
 
 void Engine::init()
 {
+#ifdef Q_OS_WIN
+    HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+    if (FAILED(hr))
+    {
+        qCDebug(LOG_BASIC) << "Error: CoInitializeEx failed:" << hr;
+    }
+#endif
+
     isCleanupFinished_ = false;
 
     helper_ = CrossPlatformObjectFactory::createHelper(this);
