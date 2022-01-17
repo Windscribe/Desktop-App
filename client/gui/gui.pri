@@ -44,16 +44,12 @@ RESOURCES += \
 linux {
 
 SOURCES += \
-    $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
-    $$COMMON_PATH/utils/linuxutils.cpp \
     $$PWD/multipleaccountdetection/multipleaccountdetection_linux.cpp \
     $$PWD/launchonstartup/launchonstartup_linux.cpp \
     $$PWD/utils/interfaceutils_linux.cpp \
     $$PWD/utils/authchecker_linux.cpp
 
 HEADERS += \
-    $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
-    $$COMMON_PATH/utils/linuxutils.h \
     $$PWD/multipleaccountdetection/multipleaccountdetection_linux.h \
     $$PWD/launchonstartup/launchonstartup_linux.h \
     $$PWD/utils/authchecker_linux.h

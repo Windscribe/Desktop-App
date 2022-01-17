@@ -99,51 +99,26 @@ OBJECTIVE_SOURCES += $$PWD/engine/connectionmanager/sleepevents_mac.mm \
 
 linux {
 
-#remove linux deprecated copy warnings
-QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
-
-#boost include and libs
-INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
-LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
-LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_filesystem.a
-
-INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
-LIBS +=-L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
-INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
-LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
-
-#protobuf include and libs
-INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
-LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
-
-#c-ares library
-INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
-LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
-
 SOURCES += \
-           $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
-           $$COMMON_PATH/utils/linuxutils.cpp \
-           utils/dnsscripts_linux.cpp \
-           engine/ping/pinghost_icmp_mac.cpp \
-           engine/dnsresolver/dnsutils_linux.cpp \
-           engine/helper/helper_posix.cpp \
-           engine/helper/helper_linux.cpp \
-           engine/firewall/firewallcontroller_linux.cpp \
-           engine/connectionmanager/ikev2connection_linux.cpp \
-           engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
-           engine/macaddresscontroller/macaddresscontroller_linux.cpp
+           $$PWD/utils/dnsscripts_linux.cpp \
+           $$PWD/engine/ping/pinghost_icmp_mac.cpp \
+           $$PWD/engine/dnsresolver/dnsutils_linux.cpp \
+           $$PWD/engine/helper/helper_posix.cpp \
+           $$PWD/engine/helper/helper_linux.cpp \
+           $$PWD/engine/firewall/firewallcontroller_linux.cpp \
+           $$PWD/engine/connectionmanager/ikev2connection_linux.cpp \
+           $$PWD/engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
+           $$PWD/engine/macaddresscontroller/macaddresscontroller_linux.cpp
 
 HEADERS += \
-           $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
-           $$COMMON_PATH/utils/linuxutils.h \
-           utils/dnsscripts_linux.h \
-           engine/ping/pinghost_icmp_mac.h \
-           engine/helper/helper_posix.h \
-           engine/helper/helper_linux.h \
-           engine/firewall/firewallcontroller_linux.h \
-           engine/connectionmanager/ikev2connection_linux.h \
-           engine/networkdetectionmanager/networkdetectionmanager_linux.h \
-           engine/macaddresscontroller/macaddresscontroller_linux.h
+           $$PWD/utils/dnsscripts_linux.h \
+           $$PWD/engine/ping/pinghost_icmp_mac.h \
+           $$PWD/engine/helper/helper_posix.h \
+           $$PWD/engine/helper/helper_linux.h \
+           $$PWD/engine/firewall/firewallcontroller_linux.h \
+           $$PWD/engine/connectionmanager/ikev2connection_linux.h \
+           $$PWD/engine/networkdetectionmanager/networkdetectionmanager_linux.h \
+           $$PWD/engine/macaddresscontroller/macaddresscontroller_linux.h
 
 } # linux
 

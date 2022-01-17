@@ -187,8 +187,15 @@ LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
 LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 
+INCLUDEPATH += $$BUILD_LIBS_PATH/curl/include
+LIBS += -L$$BUILD_LIBS_PATH/curl/lib/ -lcurl
+
+INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
+LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
+
 INCLUDEPATH += $$BUILD_LIBS_PATH/boost/include
 LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_filesystem.a
+LIBS += $$BUILD_LIBS_PATH/boost/lib/libboost_serialization.a
 
 } # linux
 

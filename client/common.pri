@@ -32,7 +32,13 @@ HEADERS += $$COMMON_PATH//utils/macutils.h \
 
 linux {
 
-#todo
+SOURCES += \
+    $$COMMON_PATH/utils/executable_signature/executablesignature_linux.cpp \
+    $$COMMON_PATH/utils/linuxutils.cpp
+
+HEADERS += \
+    $$COMMON_PATH/utils/executable_signature/executablesignature_linux.h \
+    $$COMMON_PATH/utils/linuxutils.h
 
 } # linux
 
