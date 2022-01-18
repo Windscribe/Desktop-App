@@ -31,6 +31,8 @@ public:
     virtual bool isShowLatencyInMs() = 0;
     virtual void setShowLatencyInMs(bool showLatencyInMs) = 0;
     virtual bool isFreeSessionStatus() = 0;
+    virtual bool isShowLocationLoad() = 0;
+    virtual void setShowLocationLoad(bool showLocationLoad) = 0;
 
     // other
     virtual void startAnimationWithPixmap(const QPixmap &pixmap) = 0;

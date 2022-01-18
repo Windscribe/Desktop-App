@@ -61,6 +61,7 @@ private slots:
     void onPingIconLightWidgetHoveringChanged(bool hovering);
     void onCityLightWidgetHoveringChanged(bool hovering);
     void onTextOpacityAnimationValueChanged(const QVariant &value);
+
 private:
     IWidgetLocationsInfo *widgetLocationsInfo_;
     PingTime pingTime_;

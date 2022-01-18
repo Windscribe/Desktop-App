@@ -22,6 +22,7 @@ ItemWidgetHeader::ItemWidgetHeader(IWidgetLocationsInfo *widgetLocationsInfo, Lo
   , accented_(false)
   , selectable_(true)
   , show10gbpsIcon_(locationModelItem->is10gbps)
+  , locationLoad_(locationModelItem->locationLoad)
   , plusIconOpacity_(OPACITY_THIRD)
   , expanded_(false)
   , expandAnimationProgress_(0.0)
@@ -264,6 +265,28 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
     painter.setPen(pen);
     painter.drawLine(left, bottom - 1, right, bottom - 1);
     painter.drawLine(left, bottom, right, bottom);
+
+    if (widgetLocationsInfo_->isShowLocationLoad() && locationLoad_ > 0)
+    {
+        Qt::GlobalColor penColor;
+        if (locationLoad_ < 60) {
+            penColor = Qt::green;
+        }
+        else if (locationLoad_ < 90) {
+            penColor = Qt::yellow;
+        }
+        else {
+            penColor = Qt::red;
+        }
+        int rightX = left + ((right - left) * locationLoad_ / 100);
+        QPen penLoad(penColor);
+        penLoad.setWidth(1);
+        painter.setOpacity(textOpacity_);
+        painter.setPen(penLoad);
+        painter.drawLine(left, bottom - 1, rightX, bottom - 1);
+        painter.drawLine(left, bottom, rightX, bottom);
+        painter.setOpacity(1.0);
+    }
 
     // top-most line (white)
     if( qFabs(1.0 - expandAnimationProgress_) < 0.000001 )

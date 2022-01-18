@@ -105,6 +105,11 @@ void LocationsWindow::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
     locationsTab_->setLatencyDisplay(l);
 }
 
+void LocationsWindow::setShowLocationLoad(bool showLocationLoad)
+{
+    locationsTab_->setShowLocationLoad(showLocationLoad);
+}
+
 void LocationsWindow::setCustomConfigsPath(QString path)
 {
     locationsTab_->setCustomConfigsPath(path);

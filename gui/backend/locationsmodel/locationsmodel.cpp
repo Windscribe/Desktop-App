@@ -26,7 +26,8 @@ LocationsModel::~LocationsModel()
     favoriteLocationsStorage_.writeToSettings();
 }
 
-void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName, const ProtoTypes::ArrayLocations &locations)
+void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName,
+                                        const ProtoTypes::ArrayLocations &locations)
 {
     apiLocations_.clear();
 
@@ -48,8 +49,10 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
         lmi->isPremiumOnly = location.is_premium_only();
         lmi->is10gbps = false;
 
-        int cities_cnt = location.cities_size();
-        for (int c = 0; c < cities_cnt; ++c)
+        qreal locationLoadSum = 0.0;
+        int locationLoadCount = 0;
+
+        for (int c = 0; c < location.cities_size(); ++c)
         {
             const ProtoTypes::City &city = location.cities(c);
             CityModelItem cmi;
@@ -65,6 +68,20 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
             cmi.staticIpType = QString::fromStdString(city.static_ip_type());
             cmi.staticIp = QString::fromStdString(city.static_ip());
             cmi.linkSpeed = city.link_speed();
+
+            // Engine is using -1 to indicate to us that the load (health) value was invalid/missing,
+            // and therefore this location should be excluded when calculating the region's average
+            // load value.
+            cmi.locationLoad = city.health();
+            if (cmi.locationLoad >= 0 && cmi.locationLoad <= 100)
+            {
+                locationLoadSum += cmi.locationLoad;
+                locationLoadCount += 1;
+            }
+            else {
+                cmi.locationLoad = 0;
+            }
+
             lmi->cities << cmi;
 
             // if this is the best location then insert it to top list
@@ -78,10 +95,18 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
                 lmiBestLocation->isShowP2P = lmi->isShowP2P;
                 lmiBestLocation->isPremiumOnly = lmi->isPremiumOnly;
                 lmiBestLocation->is10gbps = (city.link_speed() == 10000);
+                lmiBestLocation->locationLoad = cmi.locationLoad;
 
                 apiLocations_.insert(0, lmiBestLocation);
                 isBestLocationInserted = true;
             }
+        }
+
+        if (locationLoadCount > 0) {
+            lmi->locationLoad = qRound(locationLoadSum / locationLoadCount);
+        }
+        else {
+            lmi->locationLoad = 0;
         }
 
         if (lmi->id.isStaticIpsLocation()) {
@@ -164,6 +189,8 @@ void LocationsModel::updateCustomConfigLocations(const ProtoTypes::ArrayLocation
         lmi->isShowP2P = location.is_p2p_supported();
         lmi->countryCode = QString::fromStdString(location.country_code()).toLower();
         lmi->isPremiumOnly = location.is_premium_only();
+        lmi->is10gbps = false;
+        lmi->locationLoad = 0;
 
         int cities_cnt = location.cities_size();
         for (int c = 0; c < cities_cnt; ++c)
@@ -194,6 +221,8 @@ void LocationsModel::updateCustomConfigLocations(const ProtoTypes::ArrayLocation
                 break;
             }
             cmi.customConfigErrorMessage = QString::fromStdString(city.custom_config_error_message());
+            cmi.linkSpeed = 0;
+            cmi.locationLoad = 0;
             lmi->cities << cmi;
         }
 

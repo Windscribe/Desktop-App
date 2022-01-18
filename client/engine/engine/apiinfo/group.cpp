@@ -23,10 +23,26 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     if (obj.contains("link_speed"))
     {
         bool bConverted;
-        d->link_speed_ = obj["link_speed"].toString().toInt(&bConverted);
+        d->link_speed_ = obj.value("link_speed").toString().toInt(&bConverted);
         if (!bConverted) {
             d->link_speed_ = 100;
         }
+    }
+
+    // Using -1 to indicate to the UI logic that the load (health) value was invalid/missing,
+    // and therefore this location should be excluded when calculating the region's average
+    // load value.
+    // Note: the server json does not include a health value for premium locations when the
+    // user is logged into a free account.
+    if (obj.contains("health"))
+    {
+        d->health_ = obj.value("health").toInt(-1);
+        if ((d->health_ < 0) || (d->health_ > 100)) {
+            d->health_ = -1;
+        }
+    }
+    else {
+        d->health_ = -1;
     }
 
     if (obj.contains("nodes"))
@@ -68,6 +84,7 @@ void Group::initFromProtoBuf(const ProtoApiInfo::Group &g)
     d->dnsHostName_ = QString::fromStdString(g.dns_hostname());
     d->ovpn_x509_ = QString::fromStdString(g.ovpn_x509());
     d->link_speed_ = g.link_speed();
+    d->health_ = g.health();
 
     for (int i = 0; i < g.nodes_size(); ++i)
     {
@@ -93,6 +110,7 @@ ProtoApiInfo::Group Group::getProtoBuf() const
     group.set_dns_hostname(d->dnsHostName_.toStdString());
     group.set_ovpn_x509(d->ovpn_x509_.toStdString());
     group.set_link_speed(d->link_speed_);
+    group.set_health(d->health_);
     for (const Node &node : d->nodes_)
     {
         *group.add_nodes() = node.getProtoBuf();

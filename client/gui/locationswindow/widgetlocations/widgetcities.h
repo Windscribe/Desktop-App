@@ -56,6 +56,9 @@ public:
 
     int gestureScrollingElapsedTime() override;
 
+    bool isShowLocationLoad() override;
+    void setShowLocationLoad(bool showLocationLoad) override;
+
 protected:
     virtual void paintEvent(QPaintEvent *event)            override;
     virtual void scrollContentsBy(int dx, int dy)          override;
@@ -111,6 +114,8 @@ private:
     CommonWidgets::TextButtonWidget *emptyListButton_;
 
     QElapsedTimer gestureScrollingElapsedTimer_;
+
+    bool showLocationLoad_;
 
     void updateEmptyListButton();
     void updateWidgetList(QVector<CityModelItem*> items);

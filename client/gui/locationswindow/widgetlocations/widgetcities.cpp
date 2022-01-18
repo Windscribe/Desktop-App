@@ -38,6 +38,7 @@ WidgetCities::WidgetCities(QWidget *parent, const QString name, int visible_item
   , emptyListDisplayText_("")
   , emptyListDisplayTextWidth_(0)
   , emptyListDisplayTextHeight_(0)
+  , showLocationLoad_(false)
   , heightChanging_(false)
 {
     setFrameStyle(QFrame::NoFrame);
@@ -215,6 +216,16 @@ void WidgetCities::setShowLatencyInMs(bool showLatencyInMs)
 bool WidgetCities::isShowLatencyInMs()
 {
     return bShowLatencyInMs_;
+}
+
+bool WidgetCities::isShowLocationLoad()
+{
+    return showLocationLoad_;
+}
+
+void WidgetCities::setShowLocationLoad(bool showLocationLoad)
+{
+    showLocationLoad_ = showLocationLoad;
 }
 
 bool WidgetCities::isFreeSessionStatus()

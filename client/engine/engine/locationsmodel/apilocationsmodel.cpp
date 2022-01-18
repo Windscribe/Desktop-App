@@ -339,6 +339,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
             city.pingTimeMs = pingStorage_.getNodeSpeed(group.getPingIp());
             city.isDisabled = group.isDisabled();
             city.link_speed = group.getLinkSpeed();
+            city.health = group.getHealth();
             item.cities << city;
 
             if (!isBestLocationValid && bestLocation_.isValid() && bestLocation_.getId() == city.id && !city.isDisabled)
