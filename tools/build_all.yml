@@ -154,10 +154,9 @@ targets:
     - uninstaller
   macos:
     - helper
-    - engine
     - launcher_mac
     - cli
-    - gui
+    - client
   linux:
     - helper_linux
     - engine
@@ -297,7 +296,7 @@ lib_files:
     - windscribewireguard_x64.exe -> x64/windscribewireguard.exe
 
 macdeployfixes:
-  engine:
+  client:
     copy_libs:
       openssl:
         - lib/libcrypto.1.1.dylib -> Contents/Helpers/libcrypto.1.1.dylib
@@ -315,9 +314,8 @@ macdeployfixes:
         openssl:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
     entitlements:
-      entitlements_binary: Contents/MacOS/WindscribeEngine
-      entitlements_file: backend/engine/mac/windscribe_engine.entitlements
-  gui:
+      entitlements_binary: Contents/MacOS/Windscribe
+      entitlements_file: client/engine/mac/windscribe_engine.entitlements
     remove_files:
       # Remove unused Qt frameworks.
       - Contents/Frameworks/QtQml.framework

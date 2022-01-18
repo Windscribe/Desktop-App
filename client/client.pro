@@ -160,14 +160,14 @@ QMAKE_EXTRA_TARGETS += first make_login_items copy_launcher copy_resources mkdir
 CONFIG(release, debug|release) {
 
     # package cli inside Windscribe.app/Contents/MacOS
-#    makedir4.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/MacOS
-#    first.depends += makedir4
-#    export(makedir4.commands)
-#    QMAKE_EXTRA_TARGETS += makedir4
-#    copydata4.commands = $(COPY_FILE) $$PWD/../../installer/mac/binaries/windscribe-cli $$OUT_PWD/Windscribe.app/Contents/MacOS/windscribe-cli
-#    first.depends += copydata4
-#    export(copydata4.commands)
-#    QMAKE_EXTRA_TARGETS += copydata4
+    mkdir_cli.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/MacOS
+    first.depends += mkdir_cli
+    export(mkdir_cli.commands)
+    QMAKE_EXTRA_TARGETS += mkdir_cli
+    copy_cli.commands = $(COPY_FILE) $$PWD/../installer/mac/binaries/windscribe-cli $$OUT_PWD/Windscribe.app/Contents/MacOS/windscribe-cli
+    first.depends += copy_cli
+    export(copy_cli.commands)
+    QMAKE_EXTRA_TARGETS += copy_cli
 
     osslicense.files = $$COMMON_PATH/licenses/open_source_licenses.txt
     osslicense.path  = Contents/Resources
