@@ -21,6 +21,7 @@ ItemWidgetHeader::ItemWidgetHeader(IWidgetLocationsInfo *widgetLocationsInfo, Lo
   , showPlusIcon_(true)
   , accented_(false)
   , selectable_(true)
+  , show10gbpsIcon_(locationModelItem->is10gbps)
   , plusIconOpacity_(OPACITY_THIRD)
   , expanded_(false)
   , expandAnimationProgress_(0.0)
@@ -221,9 +222,23 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
         if (p) p->draw(p2pr.x(),p2pr.y(),&painter);
     }
 
-    // plus/cross
-    if (!locationID_.isBestLocation())
+    if (locationID_.isBestLocation())
     {
+        if (show10gbpsIcon_)
+        {
+            painter.setOpacity(OPACITY_FULL);
+            QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
+
+            // this part is kind of magical - could use some more clear math
+            painter.save();
+            painter.translate(QPoint((WINDOW_WIDTH - LOCATION_ITEM_MARGIN)*G_SCALE - tenGbpsPixmap->width()/2, LOCATION_ITEM_HEIGHT*G_SCALE/2));
+            tenGbpsPixmap->draw(-tenGbpsPixmap->width() / 2, -tenGbpsPixmap->height()/ 2, &painter);
+            painter.restore();
+        }
+    }
+    else
+    {
+        // plus/cross
         painter.setOpacity(plusIconOpacity_);
         QSharedPointer<IndependentPixmap> expandPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
 

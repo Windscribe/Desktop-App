@@ -18,6 +18,7 @@ ItemWidgetCity::ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, const 
   , cityModelItem_(cityModelItem)
   , showFavIcon_(false)
   , showPingIcon_(false)
+  , show10gbpsIcon_(false)
   , showingLatencyAsPingBar_(!widgetLocationsInfo->isShowLatencyInMs())
   , selectable_(false)
   , accented_(false)
@@ -45,6 +46,11 @@ ItemWidgetCity::ItemWidgetCity(IWidgetLocationsInfo *widgetLocationsInfo, const 
     favLightWidget_ = QSharedPointer<LightWidget>(new LightWidget(this));
     favLightWidget_->setIcon("locations/FAV_ICON_DESELECTED");
     updateFavoriteIcon();
+
+    tenGbpsLightWidget_ = QSharedPointer<LightWidget>(new LightWidget(this));
+    tenGbpsLightWidget_->setIcon("locations/10_GBPS_ICON");
+    tenGbpsLightWidget_->setOpacity(OPACITY_FULL);
+    update10gbpsIcon();
 
     textOpacityAnimation_.setDuration(200);
     connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextOpacityAnimationValueChanged(QVariant)));
@@ -226,6 +232,13 @@ void ItemWidgetCity::updateScaling()
                                      (LOCATION_ITEM_HEIGHT*G_SCALE - favoriteHeight)/2,
                                      16 * G_SCALE,
                                      favoriteHeight));
+
+    // 10gbps badge icon
+    int badgeHeight = 14 * G_SCALE;
+    tenGbpsLightWidget_->setRect(QRect(scaledX - (32 * G_SCALE),
+                                     (LOCATION_ITEM_HEIGHT*G_SCALE - badgeHeight)/2,
+                                     16 * G_SCALE,
+                                     badgeHeight));
     update();
 
 }
@@ -293,11 +306,11 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     }
     else // fav
     {
-        QSharedPointer<IndependentPixmap> fIcon = ImageResourcesSvg::instance().getIndependentPixmap(favLightWidget_->icon());
-        if (fIcon)
+        QSharedPointer<IndependentPixmap> favIcon = ImageResourcesSvg::instance().getIndependentPixmap(favLightWidget_->icon());
+        if (favIcon)
         {
             painter.setOpacity(favLightWidget_->opacity());
-            fIcon->draw(favLightWidget_->rect().x(), favLightWidget_->rect().y(), &painter);
+            favIcon->draw(favLightWidget_->rect().x(), favLightWidget_->rect().y(), &painter);
         }
     }
 
@@ -370,6 +383,18 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
             painter.save();
             painter.setOpacity(pingIconLightWidget_->opacity());
             pingIcon->draw(pingIconLightWidget_->rect().x(), pingIconLightWidget_->rect().y(), &painter);
+            painter.restore();
+        }
+    }
+
+    if (show10gbpsIcon_)
+    {
+        QSharedPointer<IndependentPixmap> theIcon = ImageResourcesSvg::instance().getIndependentPixmap(tenGbpsLightWidget_->icon());
+        if (theIcon)
+        {
+            painter.save();
+            painter.setOpacity(tenGbpsLightWidget_->opacity());
+            theIcon->draw(tenGbpsLightWidget_->rect().x(), tenGbpsLightWidget_->rect().y(), &painter);
             painter.restore();
         }
     }
@@ -630,6 +655,12 @@ void ItemWidgetCity::recreateTextLayouts()
     staticIpTextLayout_->createLine();
     staticIpTextLayout_->endLayout();
     staticIpTextLayout_->setCacheEnabled(true);
+}
+
+void ItemWidgetCity::update10gbpsIcon()
+{
+    show10gbpsIcon_ = (cityModelItem_.linkSpeed == 10000);
+    update();
 }
 
 }

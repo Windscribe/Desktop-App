@@ -27,6 +27,8 @@ struct CityModelItem
     QString customConfigType;
     QString customConfigErrorMessage;
 
+    int linkSpeed;
+
     QString makeTitle() const
     {
         if (id.isCustomConfigsLocation())
@@ -52,6 +54,7 @@ struct LocationModelItem
     QString countryCode;
     bool isShowP2P;
     bool isPremiumOnly;
+    bool is10gbps;
     QVector<CityModelItem> cities;
 
 

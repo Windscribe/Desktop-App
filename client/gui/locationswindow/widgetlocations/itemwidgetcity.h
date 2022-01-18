@@ -68,6 +68,7 @@ private:
 
     bool showFavIcon_;
     bool showPingIcon_;
+    bool show10gbpsIcon_;
     bool showingLatencyAsPingBar_;
     bool selectable_;
     bool accented_;
@@ -77,10 +78,12 @@ private:
     const QString pingIconNameString(int connectionSpeedIndex);
     void updatePingBarIcon();
     void updateFavoriteIcon();
+    void update10gbpsIcon();
     void clickFavorite();
 
     QSharedPointer<LightWidget> favLightWidget_;
     QSharedPointer<LightWidget> pingIconLightWidget_;
+    QSharedPointer<LightWidget> tenGbpsLightWidget_;
 
     QSharedPointer<QTextLayout> cityTextLayout_;
     QSharedPointer<LightWidget> cityLightWidget_;
