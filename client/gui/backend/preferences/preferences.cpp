@@ -676,3 +676,18 @@ bool Preferences::isReceivingEngineSettings() const
 {
     return receivingEngineSettings_;
 }
+
+bool Preferences::isShowLocationLoad() const
+{
+    return guiSettings_.is_show_location_health();
+}
+
+void Preferences::setShowLocationLoad(bool b)
+{
+    if (guiSettings_.is_show_location_health() != b)
+    {
+        guiSettings_.set_is_show_location_health(b);
+        saveGuiSettings();
+        emit showLocationLoadChanged(guiSettings_.is_show_location_health());
+    }
+}

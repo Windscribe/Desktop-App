@@ -4,6 +4,7 @@ AccountInfo::AccountInfo(QObject *parent) : QObject(parent)
 {
     isNeedConfirmEmail_ = true;
     planBytes_ = -1;
+    isPremium_ = false;
 }
 
 QString AccountInfo::username() const
@@ -87,5 +88,19 @@ void AccountInfo::setAuthHash(const QString &authHash)
     {
         authHash_ = authHash;
         emit authHashChanged(authHash_);
+    }
+}
+
+bool AccountInfo::isPremium() const
+{
+    return isPremium_;
+}
+
+void AccountInfo::setIsPremium(bool isPremium)
+{
+    if (isPremium != isPremium_)
+    {
+        isPremium_ = isPremium;
+        emit isPremiumChanged(isPremium_);
     }
 }

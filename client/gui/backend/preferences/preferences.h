@@ -2,6 +2,7 @@
 #define PREFERENCES_H
 
 #include <QObject>
+//#include "../types/types.h"
 #include "../types/dnswhileconnectedinfo.h"
 #include "utils/protobuf_includes.h"
 
@@ -129,6 +130,9 @@ public:
 
     bool isReceivingEngineSettings() const;
 
+    bool isShowLocationLoad() const;
+    void setShowLocationLoad(bool b);
+
 signals:
     void isLaunchOnStartupChanged(bool b);
     void isAutoConnectChanged(bool b);
@@ -151,6 +155,7 @@ signals:
     void isIgnoreSslErrorsChanged(bool b);
     void invalidLanAddressNotification(QString address);
     void customConfigsPathChanged(QString path);
+    void showLocationLoadChanged(bool b);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     void minimizeAndCloseToTrayChanged(bool b);
