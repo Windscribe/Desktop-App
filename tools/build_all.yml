@@ -159,8 +159,7 @@ targets:
     - client
   linux:
     - helper_linux
-    - engine
-    - gui
+    - client
     - authhelper_linux
   authhelper_win:
     - authhelper_com
@@ -247,7 +246,6 @@ files_fix_rpath_linux:
   - windscribestunnel -> $ORIGIN/lib
   - windscribeopenvpn -> $ORIGIN/lib
   - windscribe-authhelper -> $ORIGIN/lib
-  - WindscribeEngine -> $ORIGIN/lib
   - Windscribe -> $ORIGIN/lib
   - helper -> $ORIGIN/lib
 
@@ -257,7 +255,7 @@ files_codesign_linux:
   - windscribeopenvpn
   - windscribe-authhelper
   - windscribewireguard 
-  - WindscribeEngine
+  - Windscribe
 
 msvc_files:
   - concrt140.dll

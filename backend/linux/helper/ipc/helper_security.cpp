@@ -100,7 +100,7 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
         return false;
     }
 
-    const std::string engineExePath = applicationDirPath() + "/WindscribeEngine";
+    const std::string engineExePath = applicationDirPath() + "/Windscribe";
 
     //Logger::instance().out("Checking exe path matches engine's: %s", clientAppPath.c_str());
 
