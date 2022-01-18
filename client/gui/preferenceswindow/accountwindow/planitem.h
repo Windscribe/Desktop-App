@@ -16,6 +16,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
 
     void setPlan(qint64 plan);
+    void setIsPremium(bool isPremium);
 
     void updateScaling() override;
 
@@ -28,6 +29,7 @@ private slots:
 private:
     CommonGraphics::TextButton *textButton_;
     qint64 planBytes_;
+    bool isPremium_;
     QString planStr_;
     DividerLine *dividerLine_;
 

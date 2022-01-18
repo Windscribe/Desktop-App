@@ -21,6 +21,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     connect(accountInfo, &AccountInfo::planChanged, this, &AccountWindowItem::onPlanChanged);
     connect(accountInfo, &AccountInfo::expireDateChanged, this, &AccountWindowItem::onExpireDateChanged);
     connect(accountInfo, &AccountInfo::authHashChanged, this, &AccountWindowItem::onAuthHashChanged);
+    connect(accountInfo, &AccountInfo::isPremiumChanged, this, &AccountWindowItem::onIsPremiumChanged);
 
     usernameItem_ = new UsernameItem(this);
     usernameItem_->setUsername(accountInfo->username());
@@ -37,6 +38,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     planItem_ = new PlanItem(this);
     connect(planItem_, &PlanItem::upgradeClicked, this, &AccountWindowItem::onUpgradeClicked);
     planItem_->setPlan(accountInfo->plan());
+    planItem_->setIsPremium(accountInfo->isPremium());
     addItem(planItem_);
 
     expireDateItem_ = new ExpireDateItem(this);
@@ -152,6 +154,11 @@ void AccountWindowItem::updateWidgetPos()
 
     int loginCenterX = static_cast<int>(boundingRect().width()/2 - loginButton_->boundingRect().width()/2);
     loginButton_->setPos(loginCenterX, 155 * G_SCALE);
+}
+
+void AccountWindowItem::onIsPremiumChanged(bool isPremium)
+{
+    planItem_->setIsPremium(isPremium);
 }
 
 } // namespace PreferencesWindow
