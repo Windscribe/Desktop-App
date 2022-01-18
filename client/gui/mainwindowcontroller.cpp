@@ -2768,12 +2768,13 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
 
     QRect desktopAvailableRc = screen->availableGeometry();
     const int kRightOffset = 16 * G_SCALE;
+    const int kVerticalOffset = 16 * G_SCALE;
 
     QRect geo;
     if (taskbarLocation == TASKBAR_TOP)
     {
         geo = QRect(desktopAvailableRc.right() - width - shadowSize - kRightOffset,
-                    desktopAvailableRc.top() - shadowSize,
+                    desktopAvailableRc.top() - shadowSize + kVerticalOffset,
                     widthWithShadow, heightWithShadow);
 
         if (geo.right() > desktopAvailableRc.right() + shadowSize)
@@ -2796,7 +2797,7 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
     else if (taskbarLocation == TASKBAR_BOTTOM)
     {
         geo = QRect(desktopAvailableRc.right() - width - shadowSize - kRightOffset,
-                    desktopAvailableRc.bottom() - heightWithShadow + shadowSize,
+                    desktopAvailableRc.bottom() - heightWithShadow + shadowSize - kVerticalOffset,
                     widthWithShadow, heightWithShadow);
 
         if (geo.right() > desktopAvailableRc.right() + shadowSize)
@@ -2812,10 +2813,10 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
         // determine hidden taskbar location from tray icon
         // BOTTOM and RIGHT use bottom-right corner
         int posX = desktopAvailableRc.right() - width - shadowSize - kRightOffset;
-        int posY = desktopAvailableRc.bottom() - heightWithShadow + shadowSize;
+        int posY = desktopAvailableRc.bottom() - heightWithShadow + shadowSize - kVerticalOffset;
         if (rcIcon.y() == 0) // TOP
         {
-            posY = -shadowSize;
+            posY = -shadowSize + kVerticalOffset;
         }
         else if (rcIcon.x() < desktopAvailableRc.width()/2) // LEFT
         {
