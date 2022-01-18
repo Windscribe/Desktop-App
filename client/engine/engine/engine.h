@@ -290,16 +290,24 @@ private slots:
     void onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips);
 
     void onNetworkChange(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface);
-    void onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu);
     void onPacketSizeControllerFinishedSizeDetection(bool isError);
+
+    void onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType);
+#ifdef Q_OS_MAC
+    void onMacAddressControllerRobustMacSpoofApplied();
+#endif
 
     void stopPacketDetectionImpl();
 
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
 
     void fetchWireGuardConfig();
+
+#ifdef Q_OS_MAC
+    void onRobustMacSpoofTimerTick();
+#endif
 
 private:
     void initPart2();
@@ -402,6 +410,11 @@ private:
     bool overrideUpdateChannelWithInternal_;
     bool bPrevNetworkInterfaceInitialized_;
     ProtoTypes::NetworkInterface prevNetworkInterface_;
+
+#ifdef Q_OS_MAC
+    QDateTime robustTimerStart_;
+    QTimer *robustMacSpoofTimer_;
+#endif
 };
 
 #endif // ENGINE_H

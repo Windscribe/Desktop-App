@@ -17,6 +17,7 @@ public:
 signals:
     void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
     void sendUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void robustMacSpoofApplied();
 };
 
 #endif // IMACADDRESSCONTROLLER_H
