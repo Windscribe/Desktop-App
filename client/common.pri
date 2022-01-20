@@ -63,8 +63,6 @@ SOURCES += \
     $$COMMON_PATH/ipc/commandfactory.cpp \
     $$COMMON_PATH/ipc/connection.cpp \
     $$COMMON_PATH/ipc/server.cpp \
-    $$COMMON_PATH/ipc/tcpconnection.cpp \
-    $$COMMON_PATH/ipc/tcpserver.cpp \
     $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
 
@@ -96,7 +94,5 @@ HEADERS += \
     $$COMMON_PATH/ipc/iserver.h \
     $$COMMON_PATH/ipc/protobufcommand.h \
     $$COMMON_PATH/ipc/server.h \
-    $$COMMON_PATH/ipc/tcpconnection.h \
-    $$COMMON_PATH/ipc/tcpserver.h \
     $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h
