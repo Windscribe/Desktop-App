@@ -267,7 +267,8 @@ SOURCES += $$PWD/backend/backend.cpp \
     $$PWD/mainwindowcontroller.cpp \
     $$PWD/multipleaccountdetection/multipleaccountdetectionfactory.cpp \
     $$PWD/preferenceswindow/openurlitem.cpp \
-    $$PWD/application/singleappinstance.cpp
+    $$PWD/application/singleappinstance.cpp \
+    $$PWD/localipcserver/localipcserver.cpp
 
 
 HEADERS += $$PWD/backend/backend.h \
@@ -509,7 +510,8 @@ HEADERS += $$PWD/backend/backend.h \
     $$PWD/multipleaccountdetection/multipleaccountdetectionfactory.h \
     $$PWD/preferenceswindow/openurlitem.h \
     $$PWD/application/singleappinstance.h \
-    $$PWD/application/singleappinstance_p.h
+    $$PWD/application/singleappinstance_p.h \
+    $$PWD/localipcserver/localipcserver.h
 
 RESOURCES += \
     $$PWD/svg.qrc \

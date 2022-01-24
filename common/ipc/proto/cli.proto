@@ -1,0 +1,34 @@
+syntax = "proto2";
+import "types.proto";
+
+// commands between CLI and GUI
+package CliIpc;
+
+
+// --- commands from CLI ---
+message Connect
+{
+  optional ProtoTypes.LocationId locationdId = 1;
+}
+
+message Disconnect
+{
+}
+
+
+message GetLocations
+{
+
+}
+
+message Firewall
+{
+  optional bool is_enable = 1 [default = false];
+}
+
+message CurrentState
+{
+}
+
+
+// --- answers from GUI ---
