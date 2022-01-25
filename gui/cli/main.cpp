@@ -2,8 +2,9 @@
 
 #include <QObject>
 #include <QProcess>
+#include <QDateTime>
 #include <iostream>
-#include "backendcommander.h"
+//#include "backendcommander.h"
 #include "cliapplication.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -44,12 +45,11 @@ int main(int argc, char *argv[])
     if (a.cliCommand() == CLI_COMMAND_NONE)
     {
         qCDebug(LOG_BASIC) << "CLI args fail: Couldn't determine appropriate command from arguments";
-        QString output = QObject::tr("There appears to be an issue with the provided arguments. Try 'WindscribeCli.exe ?' to see available options");
+        QString output = QObject::tr("There appears to be an issue with the provided arguments. Try 'windscribe-cli ?' to see available options");
         std::cout << output.toStdString() << std::endl;
         return 0;
     }
-
-    if (a.cliCommand() == CLI_COMMAND_HELP)
+    else if (a.cliCommand() == CLI_COMMAND_HELP)
     {
         qCDebug(LOG_BASIC) << "Printing help menu";
         std::cout << "windscribe-cli.exe supports the following commands:" << std::endl;
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    BackendCommander *backendCommander = new BackendCommander(a.cliCommand(), a.location());
+    /*BackendCommander *backendCommander = new BackendCommander(a.cliCommand(), a.location());
 
     bool alreadyRun = false;
     QObject::connect(backendCommander, &BackendCommander::finished, [&](const QString &msg){
@@ -81,17 +81,17 @@ int main(int argc, char *argv[])
 
     QObject::connect(backendCommander, &BackendCommander::report, [&](const QString &msg){
         logAndCout(msg);
-    });
+    });*/
 
     if (Utils::isGuiAlreadyRunning())
     {
         logAndCout(QCoreApplication::tr("GUI detected -- attempting Engine connect"));
-        backendCommander->initAndSend();
+        //backendCommander->initAndSend();
     }
     else
     {
         logAndCout(QCoreApplication::tr("No GUI instance detected, starting one now..."));
-
+/*
         // GUI pathing
 #ifdef Q_OS_WIN
         QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe.exe";
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 
         sem_close(sem);
         sem_unlink(guiStartedStr.c_str());
-#endif
+#endif*/
     }
 
     return a.exec();
