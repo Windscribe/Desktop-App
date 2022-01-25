@@ -26,7 +26,6 @@ namespace WinUtils
     bool isGuiAlreadyRunning();
     bool giveFocusToGui();
     void openGuiLocations();
-    bool reportGuiEngineInit();
 
     bool isServiceRunning(const QString &serviceName);
 

@@ -264,19 +264,6 @@ void Utils::openGuiLocations()
 #endif
 }
 
-bool Utils::reportGuiEngineInit()
-{
-#ifdef Q_OS_WIN
-    return WinUtils::reportGuiEngineInit();
-#elif defined Q_OS_MAC
-    return MacUtils::reportGuiEngineInit();
-#elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    return true;
-#endif
-}
-
 bool Utils::isGuiAlreadyRunning()
 {
 #ifdef Q_OS_WIN

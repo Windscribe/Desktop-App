@@ -200,6 +200,8 @@ MainWindow::MainWindow() :
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
 
+    localIpcServer_ = new LocalIPCServer(this);
+
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
     mainWindowController_->getConnectWindow()->updateMyIp(PersistentState::instance().lastExternalIp());
@@ -1466,14 +1468,7 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
 
     if (initState == ProtoTypes::INIT_SUCCESS)
     {
-        if (Utils::reportGuiEngineInit())
-        {
-            qCDebug(LOG_BASIC) << "Sent GUI-Engine Init signal";
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Failed to send GUI-Engine Init signal";
-        }
+        localIpcServer_->start(); // start local IPC server for receive commands from CLI
 
         setInitialFirewallState();
 

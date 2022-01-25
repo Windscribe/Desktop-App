@@ -87,6 +87,7 @@ SOURCES += \
         $$COMMON_PATH/ipc/connection.cpp \
         $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
         $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
+        $$COMMON_PATH/ipc/generated_proto/cli.pb.cc \
         $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
         $$COMMON_PATH/ipc/server.cpp \
         $$COMMON_PATH/types/locationid.cpp \
@@ -97,7 +98,7 @@ SOURCES += \
         $$COMMON_PATH/version/appversion.cpp \
         $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
         $$COMMON_PATH/utils/clean_sensitive_info.cpp \
-        #backendcommander.cpp \
+        backendcommander.cpp \
         cliapplication.cpp \
         main.cpp
 
@@ -113,6 +114,7 @@ HEADERS += \
     $$COMMON_PATH/ipc/connection.h \
     $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
+    $$COMMON_PATH/ipc/generated_proto/cli.pb.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \
     $$COMMON_PATH/ipc/iconnection.h \
     $$COMMON_PATH/ipc/iserver.h \
@@ -127,5 +129,5 @@ HEADERS += \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
-    #backendcommander.h \
+    backendcommander.h \
     cliapplication.h

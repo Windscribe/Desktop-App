@@ -1,10 +1,11 @@
 #ifndef BACKENDCOMMANDER_H
 #define BACKENDCOMMANDER_H
 
+#include <QElapsedTimer>
 #include <QObject>
 #include "cliapplication.h"
-
-#include "../backend/backend.h"
+#include "ipc/iconnection.h"
+#include "ipc/command.h"
 
 class BackendCommander : public QObject
 {
@@ -14,20 +15,23 @@ public:
     ~BackendCommander();
 
     void initAndSend();
-    void closeBackendConnection();
 
 signals:
-    void finished(QString errorMsg);
+    void finished(const QString &errorMsg);
     void report(const QString &msg);
 
 private slots:
-    void onBackendInitFinished(ProtoTypes::InitState state);
-    void onBackendFirewallStateChanged(bool isEnabled);
-    void onBackendConnectStateChanged(ProtoTypes::ConnectState state);
-    void onBackendLocationsUpdated();
+    void onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection);
+    void onConnectionStateChanged(int state, IPC::IConnection *connection);
+    void onConnectionConnectAttempt();
 
 private:
-    Backend *backend_;
+    enum IPC_STATE { IPC_INIT_STATE, IPC_CONNECTING, IPC_CONNECTED };
+    IPC_STATE ipcState_;
+
+    static constexpr int MAX_WAIT_TIME_MS = 10000;   // 10 sec - maximum waiting time for connection to the GUI
+    IPC::IConnection *connection_;
+    QElapsedTimer connectingTimer_;
     CliCommand command_;
     QString locationStr_;
 

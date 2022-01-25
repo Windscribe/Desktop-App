@@ -8,17 +8,15 @@ package CliIpc;
 // --- commands from CLI ---
 message Connect
 {
-  optional ProtoTypes.LocationId locationdId = 1;
+  optional string location = 1;
 }
 
 message Disconnect
 {
 }
 
-
-message GetLocations
+message ShowLocations
 {
-
 }
 
 message Firewall
@@ -32,3 +30,7 @@ message CurrentState
 
 
 // --- answers from GUI ---
+message StateChanged
+{
+  optional 
+}

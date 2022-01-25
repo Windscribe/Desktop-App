@@ -33,7 +33,6 @@ namespace Utils {
     bool isGuiAlreadyRunning();
     bool giveFocusToGui();
     void openGuiLocations();
-    bool reportGuiEngineInit();
 
     QString generateRandomMacAddress();
     QString formatMacAddress(QString macAddress);

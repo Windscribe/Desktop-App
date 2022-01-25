@@ -323,6 +323,20 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCServerCommands::WebSessionToken>(buf, size);
     }
+    // CLI commands
+    else if (strId == CliIpc::Connect::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::Connect>(buf, size);
+    }
+    else if (strId == CliIpc::Disconnect::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::Disconnect>(buf, size);
+    }
+    else if (strId == CliIpc::ShowLocations::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::ShowLocations>(buf, size);
+    }
+
 
     Q_ASSERT(false);
     return NULL;

@@ -366,17 +366,6 @@ void WinUtils::openGuiLocations()
     }
 }
 
-bool WinUtils::reportGuiEngineInit()
-{
-    HANDLE guiStartedEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("WindscribeGuiStarted"));
-    if (guiStartedEvent != NULL)
-    {
-        SetEvent(guiStartedEvent);
-        CloseHandle(guiStartedEvent);
-    }
-    return GetLastError() == ERROR_SUCCESS;
-}
-
 QString WinUtils::regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName)
 {
     QString result = "";

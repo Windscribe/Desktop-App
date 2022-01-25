@@ -1,11 +1,15 @@
 #include "backendcommander.h"
 
-#include "../backend/persistentstate.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
+#include "ipc/connection.h"
+#include "ipc/protobufcommand.h"
+
+#include <QTimer>
 
 BackendCommander::BackendCommander(CliCommand cmd, const QString &location) : QObject()
-    , backend_(nullptr)
+    , ipcState_(IPC_INIT_STATE)
+    , connection_(nullptr)
     , command_(cmd)
     , locationStr_(location)
     , receivedStateInit_(false)
@@ -14,30 +18,81 @@ BackendCommander::BackendCommander(CliCommand cmd, const QString &location) : QO
 {
     unsigned long cliPid = Utils::getCurrentPid();
     qCDebug(LOG_BASIC) << "CLI pid: " << cliPid;
-    backend_ = new Backend(ProtoTypes::CLIENT_ID_CLI, cliPid, "cli app", this);
+    /*backend_ = new Backend(ProtoTypes::CLIENT_ID_CLI, cliPid, "cli app", this);
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
     connect(dynamic_cast<QObject*>(backend_), SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendConnectStateChanged(ProtoTypes::ConnectState)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
-
+    connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));*/
 }
 
 BackendCommander::~BackendCommander()
 {
+    if (connection_)
+    {
+        connection_->close();
+        delete connection_;
+    }
 }
 
 void BackendCommander::initAndSend()
 {
-    backend_->basicInit();
+    connection_ = new IPC::Connection();
+    connect(dynamic_cast<QObject*>(connection_), SIGNAL(newCommand(IPC::Command *, IPC::IConnection *)), SLOT(onConnectionNewCommand(IPC::Command *, IPC::IConnection *)), Qt::QueuedConnection);
+    connect(dynamic_cast<QObject*>(connection_), SIGNAL(stateChanged(int, IPC::IConnection *)), SLOT(onConnectionStateChanged(int, IPC::IConnection *)), Qt::QueuedConnection);
+    connectingTimer_.start();
+    ipcState_ = IPC_CONNECTING;
+    connection_->connect();
 }
 
-void BackendCommander::closeBackendConnection()
+void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection)
 {
-    emit report("Closing backend connection");
-    backend_->basicClose();
+
 }
 
-void BackendCommander::onBackendInitFinished(ProtoTypes::InitState state)
+void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection *connection)
+{
+    if (state == IPC::CONNECTION_CONNECTED)
+    {
+        qCDebug(LOG_BASIC) << "Connected to GUI server";
+        ipcState_ = IPC_CONNECTED;
+        sendCommand();
+    }
+    else if (state == IPC::CONNECTION_DISCONNECTED)
+    {
+        qCDebug(LOG_BASIC) << "Disconnected from GUI server";
+        emit finished("");
+    }
+    else if (state == IPC::CONNECTION_ERROR)
+    {
+        if (ipcState_ == IPC_CONNECTING)
+        {
+            if (connectingTimer_.isValid() && connectingTimer_.elapsed() > MAX_WAIT_TIME_MS)
+            {
+                connectingTimer_.invalidate();
+                emit finished("Aborting: Gui did not start in time");
+            }
+            else
+            {
+               // Try connect again. Delay is necessary so that Engine process will actually start
+               // running on low resource systems.
+               //connectionAttemptTimer_.start(100);
+                QTimer::singleShot(100, [this]() { connection_->connect(); } );
+            }
+        }
+        else
+        {
+            emit finished("Aborting: IPC communication error");
+        }
+    }
+}
+
+void BackendCommander::onConnectionConnectAttempt()
+{
+
+}
+
+
+/*void BackendCommander::onBackendInitFinished(ProtoTypes::InitState state)
 {
     if (state == ProtoTypes::INIT_SUCCESS)
     {
@@ -116,7 +171,7 @@ void BackendCommander::onBackendLocationsUpdated()
     {
         sendOneCommand();
     }
-}
+}*/
 
 void BackendCommander::sendOneCommand()
 {
@@ -132,10 +187,19 @@ void BackendCommander::sendCommand()
     if (command_ == CLI_COMMAND_CONNECT)
     {
         qCDebug(LOG_BASIC) << "Connecting to last";
-        const LocationID &id = PersistentState::instance().lastLocation();
-        backend_->sendConnect(id);
+
+        IPC::ProtobufCommand<IPCClientCommands::ClientAuth> cmd;
+        //cmd.getProtoObj().set_protocol_version(protocolVersion_);
+        //cmd.getProtoObj().set_client_id(clientId_);
+        //cmd.getProtoObj().set_pid(clientPid_);
+        //cmd.getProtoObj().set_name(clientName_.toStdString());
+        //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+        connection_->sendCommand(cmd);
+
+        //const LocationID &id = PersistentState::instance().lastLocation();
+        //backend_->sendConnect(id);
     }
-    else if (command_ == CLI_COMMAND_CONNECT_BEST)
+    /*else if (command_ == CLI_COMMAND_CONNECT_BEST)
     {
         qCDebug(LOG_BASIC) << "Connecting to best";
         backend_->sendConnect(backend_->getLocationsModel()->getBestLocationId());
@@ -214,6 +278,6 @@ void BackendCommander::sendCommand()
         Utils::giveFocusToGui();
         Utils::openGuiLocations();
         emit finished(tr("Viewing Locations..."));
-    }
+    }*/
 }
 

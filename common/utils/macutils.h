@@ -26,7 +26,6 @@ namespace MacUtils
     std::string execCmd(const char* cmd);
 
     // CLI
-    bool reportGuiEngineInit();
     bool isGuiAlreadyRunning();
     bool giveFocusToGui();
     bool showGui();

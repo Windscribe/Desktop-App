@@ -118,19 +118,6 @@ std::string MacUtils::execCmd(const char *cmd)
     return result;
 }
 
-bool MacUtils::reportGuiEngineInit()
-{
-    sem_t *sem = sem_open("WindscribeGuiStarted", 0);
-    if (sem != SEM_FAILED)
-    {
-        sem_post(sem);
-        sem_close(sem);
-        return true;
-    }
-
-    return false;
-}
-
 bool MacUtils::isGuiAlreadyRunning()
 {
     // Look for process containing "Windscribe" -- exclude grep and Engine

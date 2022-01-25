@@ -8,6 +8,7 @@
 
 #include "locationswindow/locationswindow.h"
 #include "backend/backend.h"
+#include "localipcserver/localipcserver.h"
 #include "backend/notificationscontroller.h"
 #include "log/logviewerwindow.h"
 #include "loginattemptscontroller.h"
@@ -263,6 +264,7 @@ private:
     void collapsePreferences();
 
     Backend *backend_;
+    LocalIPCServer *localIpcServer_;
     NotificationsController notificationsController_;
 
     MainWindowController *mainWindowController_;

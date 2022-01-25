@@ -10,6 +10,7 @@
 #include "ipc/generated_proto/types.pb.h"
 #include "ipc/generated_proto/servercommands.pb.h"
 #include "ipc/generated_proto/clientcommands.pb.h"
+#include "ipc/generated_proto/cli.pb.h"
 #include <google/protobuf/util/message_differencer.h>
 
 #ifdef _MSC_VER
