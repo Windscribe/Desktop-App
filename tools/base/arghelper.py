@@ -147,11 +147,6 @@ class ArgHelper:
             args.remove(ArgHelper.OPTION_HELP)
             if len(args) > 0:
                 return "Cannot use help with any other argument"
-        if self.mode_download_secrets:
-            args = self.args_only[:]
-            args.remove(ArgHelper.OPTION_DOWNLOAD_SECRETS)
-            if len(args) > 0:
-                return "Cannot use download-secrets with any other argument"
         if self.mode_clean_only or self.mode_delete_secrets:
             args = self.args_only[:]
             if args.count(ArgHelper.OPTION_CLEAN_ONLY) > 0:
