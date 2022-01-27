@@ -3,7 +3,11 @@
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 
-app-bundle: com.windscribe.installer.macos
+# this file is used by:
+# * notarize.sh
+# * notarize_kext.sh
+# * build_all.py
 apple-id-email: yegor@windscribe.com
 apple-id-password: omum-ikfp-msed-negh
+windows-signing-cert-password: fBafQVi0RC4Ts4zMUFOE
   

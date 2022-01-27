@@ -186,8 +186,6 @@ installer:
 windows_signing_cert:
   path_signtool: installer/windows/signing/signtool.exe
   path_cert: installer/windows/signing/code_signing.pfx
-  # TODO: keep elsewhere!
-  password_cert: fBafQVi0RC4Ts4zMUFOE
   timestamp: http://timestamp.digicert.com
 
 qt_files:
