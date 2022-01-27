@@ -718,6 +718,13 @@ RESOURCES += \
     jpg.qrc \
     windscribe.qrc
 
+# only include the secrets as resource if they exist (open source builders will not have secrets)
+# this avoids the compilation failure when the file doesn't exist
+# remember to clean -> qmake if the hardcodedsecrets.ini file changes in anyway during local building
+exists($$COMMON_PATH/utils/hardcodedsecrets.ini){
+RESOURCES += secrets.qrc
+}
+
 TRANSLATIONS += \
     languages/ru.ts \
     languages/es.ts \

@@ -45,8 +45,8 @@ class VaultParser:
         sys.stdout.write(notarize_contents) 
 
     @staticmethod
-    def hardcoded_settings():
-        hardcoded_contents = VaultParser.parse_vault_json('data', 'hardcodedsettings.ini')
+    def hardcoded_secrets():
+        hardcoded_contents = VaultParser.parse_vault_json('data', 'hardcodedsecrets.ini')
         sys.stdout.write(hardcoded_contents) 
 
     @staticmethod
@@ -66,8 +66,8 @@ class VaultParser:
 if __name__ == "__main__":
     if "--get-client-token" in sys.argv:
         VaultParser.client_token()
-    elif "--get-hardcoded-settings" in sys.argv:
-        VaultParser.hardcoded_settings()
+    elif "--get-hardcoded-secrets" in sys.argv:
+        VaultParser.hardcoded_secrets()
     elif "--get-windows-cert" in sys.argv:
         VaultParser.windows_cert()
     elif "--get-linux-priv-key" in sys.argv:

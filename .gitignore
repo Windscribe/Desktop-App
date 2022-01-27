@@ -20,6 +20,7 @@ tools/.idea/
 
 # secrets
 tools/notarize.yml
+common/utils/hardcodedsecrets.ini
 common/keys/linux/key.pem
 common/keys/linux/key.pub
 common/keys/linux/key_pub.txt

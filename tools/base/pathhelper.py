@@ -30,8 +30,7 @@ TEMP_INSTALLER_DIR = os.path.join(TEMP_DIR, "installer")
 # some filenames
 NOTARIZE_YML = "notarize.yml"
 NOTARIZE_SCRIPT = "notarize.sh"
-HARDCODED_SETTINGS_INI = "hardcodedsettings.ini"
-HARDCODED_SETTINGS_OPENSOURCE_INI = "hardcodedsettings_opensource.ini"
+HARDCODED_SECRETS_INI = "hardcodedsecrets.ini"
 PROVISION_PROFILE = "embedded.provisionprofile"
 
 
@@ -43,12 +42,8 @@ def notarize_yml_filename_absolute():
 	return os.path.join(TOOLS_DIR, NOTARIZE_YML)
 
 
-def hardcoded_settings_filename_absolute():
-	return os.path.join(COMMON_DIR, "utils", HARDCODED_SETTINGS_INI)
-
-
-def hardcoded_settings_opensource_filename_absolute():
-	return os.path.join(COMMON_DIR, "utils", HARDCODED_SETTINGS_OPENSOURCE_INI)
+def hardcoded_secrets_filename_absolute():
+	return os.path.join(COMMON_DIR, "utils", HARDCODED_SECRETS_INI)
 
 
 def notarize_script_filename_absolute():

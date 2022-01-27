@@ -25,7 +25,7 @@ variables:
   #NEXUS_PASSWORD: ""  # Set in Gitlab variables/vault
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
   NOTARIZE_YML_PATH: 'tools/notarize.yml'
-  HARDCODED_SETTINGS_PATH: 'common/utils/hardcodedsettings.ini'
+  HARDCODED_SECRETS_PATH: 'common/utils/hardcodedsecrets.ini'
   CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH : 'backend/mac/provisioning_profile'
   CODE_SIGNING_PROVISION_PROFILE_PATH: '$CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH/embedded.provisionprofile'
   RUNNING_CI: 1
@@ -195,11 +195,11 @@ build:win:installer:
     # get the secrets JSON and put in VAULT_RESPONS_JSON
     - "Set-Variable -name VAULT_RESPONSE_JSON -value $(tools/bin/curl.exe --cacert tools/cacert.pem -H \"X-Vault-Token: $VAULT_CLIENT_TOKEN\" $VAULT_ADDR/v1/kv/cicd/client-desktop)"
     # parse the secrets
-    - Set-Variable -name HARDCODED_SETTINGS -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-settings)
+    - Set-Variable -name HARDCODED_SECRETS -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
     - Set-Variable -name CODE_SIGNING_PFX_BASE64 -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-windows-cert)
     - Set-Variable -name NOTARIZE_YML -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
     # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
-    - echo $HARDCODED_SETTINGS > $HARDCODED_SETTINGS_PATH
+    - echo $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
     - echo $NOTARIZE_YML > $NOTARIZE_YML_PATH
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
     - Set-Variable -name VERSION -value $(python tools/base/extract.py)
@@ -246,12 +246,12 @@ manual:build:mac:installer:
     # get the secrets JSON and put in VAULT_RESPONS_JSON
     - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
     # parse the secrets
-    - HARDCODED_SETTINGS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-settings)
+    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
     - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-mac-provision-profile)
     - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
     # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
     # use echo -e to print \n as newlines
-    - echo -e $HARDCODED_SETTINGS > $HARDCODED_SETTINGS_PATH
+    - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
     - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
     - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
     - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
@@ -296,12 +296,12 @@ build:mac:installer:
     # get the secrets JSON and put in VAULT_RESPONS_JSON
     - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
     # parse the secrets
-    - HARDCODED_SETTINGS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-settings)
+    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
     - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-mac-provision-profile)
     - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
     # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
     # use echo -e to print \n as newlines
-    - echo -e $HARDCODED_SETTINGS > $HARDCODED_SETTINGS_PATH
+    - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
     - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
     - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
     - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH

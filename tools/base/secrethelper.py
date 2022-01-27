@@ -20,7 +20,7 @@ def download_apps_team_file_from_1password(filename, download_filename, session_
     utl.CreateFileWithContents(download_filename, file_contents, True)
 
 
-def login_and_download_files_from_1password():
+def login_and_download_files_from_1password(arghelper):
     # login and download file from 1password vault
     one_password_session_token = arghelper.one_password_session_token()  # could be empty string
     if not one_password_session_token:
@@ -28,9 +28,9 @@ def login_and_download_files_from_1password():
         one_password_session_token = proc.ExecuteAndGetOutput(signing_1p_cmd)
     msg.Print("Using Session Token: " + one_password_session_token)
 
-    # get hardcoded settings
-    download_apps_team_file_from_1password(pathhelper.HARDCODED_SETTINGS_INI,
-                                           pathhelper.hardcoded_settings_filename_absolute(),
+    # get hardcoded secrets
+    download_apps_team_file_from_1password(pathhelper.HARDCODED_SECRETS_INI,
+                                           pathhelper.hardcoded_secrets_filename_absolute(),
                                            one_password_session_token)
     current_os = utl.GetCurrentOS()
 
@@ -65,19 +65,6 @@ def login_and_download_files_from_1password():
         utl.CreateFileWithContents(pathhelper.linux_public_key_filename_absolute(), public_key_contents, True)
 
 
-# Replaces the hardcoded settings file with the open-source version 
-def overwrite_hardcoded_settings_with_opensource_version():
-    # remove the secret-holding hardcoded settings file
-    if os.path.exists(pathhelper.hardcoded_settings_filename_absolute()):
-        utl.RemoveFile(pathhelper.hardcoded_settings_filename_absolute())
-    # rename the open-source file to replace the deleted one
-    if not os.path.exists(pathhelper.hardcoded_settings_opensource_filename_absolute()):
-        raise Exception("Open-source version of hardcoded settings does not exist: " +
-                        pathhelper.hardcoded_settings_opensource_filename_absolute())
-    utl.CopyFile(pathhelper.hardcoded_settings_opensource_filename_absolute(),
-                 pathhelper.hardcoded_settings_filename_absolute())
-
-
 def cleanup_secrets():
     utl.RemoveFile(pathhelper.notarize_yml_filename_absolute())
     utl.RemoveFile(pathhelper.windows_signing_cert_filename())
@@ -85,4 +72,4 @@ def cleanup_secrets():
     utl.RemoveFile(pathhelper.linux_private_key_filename_absolute())
     utl.RemoveFile(pathhelper.linux_public_key_filename_absolute())
     utl.RemoveFile(pathhelper.linux_include_key_filename_absolute())
-    overwrite_hardcoded_settings_with_opensource_version()
+    utl.RemoveFile(pathhelper.hardcoded_secrets_filename_absolute())
