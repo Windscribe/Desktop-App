@@ -328,6 +328,7 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
                 update_version_in_plist("installer/temp_Info.plist")
                 temp_info_plist = os.path.join(pathhelper.ROOT_DIR, c_subdir, "installer", "temp_Info.plist")
                 build_cmd.extend(["INFOPLIST_FILE={}".format(temp_info_plist)])
+            build_exception = ""
             try:
                 # build the project
                 iutl.RunCommand(build_cmd, env=buildenv)
