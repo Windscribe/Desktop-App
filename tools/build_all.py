@@ -71,8 +71,7 @@ def delete_all_files(root_dir, dir_pattern):
 
 
 def clean_all_temp_and_build_dirs():
-    delete_all_files(os.path.join(pathhelper.ROOT_DIR, "gui"), "build-gui-")
-    delete_all_files(os.path.join(pathhelper.ROOT_DIR, "backend"), "build-engine-")
+    delete_all_files(pathhelper.ROOT_DIR, "build-client-")
     delete_all_files(pathhelper.ROOT_DIR, "build-exe")
     delete_all_files(pathhelper.ROOT_DIR, "temp")
     delete_all_files(os.path.join(pathhelper.COMMON_DIR, "ipc"), "generated_proto")
@@ -329,14 +328,19 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
                 update_version_in_plist("installer/temp_Info.plist")
                 temp_info_plist = os.path.join(pathhelper.ROOT_DIR, c_subdir, "installer", "temp_Info.plist")
                 build_cmd.extend(["INFOPLIST_FILE={}".format(temp_info_plist)])
-            # build the project
-            iutl.RunCommand(build_cmd, env=buildenv)
+            try:
+                # build the project
+                iutl.RunCommand(build_cmd, env=buildenv)
+            except iutl.InstallError as e:
+                build_exception = str(e)
             # remove temp file -- no longer needed
             if temp_info_plist and os.path.exists(temp_info_plist):
                 utl.RemoveFile(temp_info_plist)
             if component["name"] == "Helper":
                 # Undo what UpdateTeamID did above so version control doesn't see the change.
                 restore_helper_info_plist(os.path.join(pathhelper.ROOT_DIR, c_subdir, "src", "helper-info.plist"))
+            if build_exception:
+                raise iutl.InstallError(build_exception)
             if c_target:
                 outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | " 
                                                    "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " 
@@ -568,8 +572,12 @@ def build_installer_mac(configdata, qt_root):
     if "outdir" in installer_info:
         dmg_dir = os.path.join(dmg_dir, installer_info["outdir"])
     with utl.PushDir(dmg_dir):
-        iutl.RunCommand(["dropdmg", "--config-name=Windscribe2", installer_app_override])
-    final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
+        iutl.RunCommand(["python", "-m", "dmgbuild", "-s",
+                         pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/dmgbuild_settings.py",
+                         "WindscribeInstaller",
+                         "WindscribeInstaller.dmg", "-D", "app=" + installer_app_override, "-D",
+                         "background=" + pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/osx_install_background.tiff"])
+        final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
                                                          .format(extractor.app_version())))
     utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
@@ -624,15 +632,16 @@ def build_installer_linux(configdata, qt_root):
     dest_package_name = "windscribe_{}_amd64".format(extractor.app_version())
     dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
 
-    # copy debian_package and InstallerFiles into dest_package
     utl.CopyAllFiles(src_package_path, dest_package_path)
     utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "usr", "local", "windscribe"))
 
     update_version_in_debian_control(os.path.join(dest_package_path, "DEBIAN", "control"))
 
     # create .deb with dest_package
-    iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
-
+    # Force use of 'xz' compression.  dpkg on Ubuntu 21.10 defaulting to zstd compression,
+    # which fpm currently cannot handle.
+    iutl.RunCommand(["fakeroot", "dpkg-deb", "-Zxz", "--build", dest_package_path])
+    
     # create RPM from deb
     # msg.Info("Creating RPM package...")
     rpm_package_name = "windscribe_{}_x86_64.rpm".format(extractor.app_version())

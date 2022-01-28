@@ -21,6 +21,11 @@ const QStringList HardcodedSettings::cloudflareDns() const
     return QStringList() << "1.1.1.1" << "1.0.0.1";
 }
 
+const QStringList HardcodedSettings::controldDns() const
+{
+    return QStringList() << "76.76.2.0" << "76.76.10.0";
+}
+
 QString HardcodedSettings::generateDomain(const QString &prefix)
 {
     int randomNum = Utils::generateIntegerRandom(1, 3); // random number from 1 to 3
