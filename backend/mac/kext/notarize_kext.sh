@@ -7,11 +7,19 @@ fi
 
 CUR_PATH=$(PWD)
 
+ABSOLUTE_KEXT_FOLDER="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ABSOLUTE_PATH_TOOLS=$ABSOLUTE_KEXT_FOLDER/../../../tools
+NOTARIZE_YML=$ABSOLUTE_PATH_TOOLS/notarize.yml
+
 #(time in seconds, default 600 = 10 minutes)
 APPLE_NOTARIZE_TIMEOUT=600
 APP_BUNDLE="com.windscribe.kext.macos"
-APPLE_ID_EMAIL="yegor@windscribe.com"
-APPLE_ID_PASSWORD="omum-ikfp-msed-negh"
+
+# get credentials from yml
+line=($(cat $NOTARIZE_YML | grep "apple-id-email:"))
+APPLE_ID_EMAIL=${line[1]}
+line=($(cat $NOTARIZE_YML | grep "apple-id-password:"))
+APPLE_ID_PASSWORD=${line[1]}
 
 echo "Compressing kext"
 pushd "$CUR_PATH/Binary"

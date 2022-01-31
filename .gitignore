@@ -11,11 +11,18 @@ installer/windows/tests_output.log
 installer/windows/temp-tests/*
 installer/mac/installer/installer/temp_Info.plist
 test-exe/*
-common/keys/linux/key.pem
-common/keys/linux/key.pub
-common/keys/linux/key_pub.txt
 drawings/*/*.png
 /gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/dlldata.c
 /gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_h.h
 /gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_i.c
 /gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_p.c
+tools/.idea/
+
+# secrets
+tools/notarize.yml
+common/utils/hardcodedsecrets.ini
+common/keys/linux/key.pem
+common/keys/linux/key.pub
+common/keys/linux/key_pub.txt
+installer/windows/signing/code_signing.pfx
+backend/mac/provisioning_profile/

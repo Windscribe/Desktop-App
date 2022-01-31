@@ -1,2 +1,0 @@
-Install the certificate from the Apple website on your local machine:
-Windscribe Limited (GYZJYS7XUG) Developer ID Application (With Kext).

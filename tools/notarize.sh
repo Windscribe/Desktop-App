@@ -31,15 +31,13 @@ else
 fi
 
 # get yml variables
-line=($(cat $NOTARIZE_YML | grep "app-bundle:"))
-APP_BUNDLE=${line[1]}
+APP_BUNDLE="com.windscribe.installer.macos"
 line=($(cat $NOTARIZE_YML | grep "apple-id-email:"))
 APPLE_ID_EMAIL=${line[1]}
 line=($(cat $NOTARIZE_YML | grep "apple-id-password:"))
 APPLE_ID_PASSWORD=${line[1]}
 
-
-echo "Compressing kext"
+echo "Compressing installer"
 /usr/bin/ditto -c -k --keepParent "WindscribeInstaller.app" "WindscribeInstaller.zip"
 
 echo "Sending to Apple for notarization"

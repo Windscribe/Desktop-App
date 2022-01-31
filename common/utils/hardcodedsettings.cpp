@@ -55,14 +55,18 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
     serverSharedKey_ = settings.value("basic/serverSharedKey").toString();
     serverTunnelTestUrl_ = settings.value("basic/serverTunnelTestUrl").toString();
 
-    apiIps_ = readArrayFromIni(settings, "apiIps", "ip", true);
+    // If the secrets.ini doesn't exist (open source users) then the strings will be empty
+    // this is the same as having default empty strings in a dummy file
+    QSettings secrets(":/common/utils/hardcodedsecrets.ini", QSettings::IniFormat);
 
-    emergencyUsername_ = simpleCrypt_.decryptToString(settings.value("emergency/username").toString());
-    emergencyPassword_ = simpleCrypt_.decryptToString(settings.value("emergency/password").toString());
+    apiIps_ = readArrayFromIni(secrets, "apiIps", "ip", true);
 
-    emergencyIps_ = readArrayFromIni(settings, "emergencyIps", "ip", true);
+    emergencyUsername_ = simpleCrypt_.decryptToString(secrets.value("emergency/username").toString());
+    emergencyPassword_ = simpleCrypt_.decryptToString(secrets.value("emergency/password").toString());
 
-    passwordForRandomDomain_ = simpleCrypt_.decryptToString(settings.value("emergency/passwordForDomain").toString()).toStdString().c_str();
+    emergencyIps_ = readArrayFromIni(secrets, "emergencyIps", "ip", true);
+
+    passwordForRandomDomain_ = simpleCrypt_.decryptToString(secrets.value("emergency/passwordForDomain").toString()).toStdString().c_str();
 }
 
 QStringList HardcodedSettings::readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDescrypt)
