@@ -2,6 +2,13 @@
 This repo contains the complete source code for the Windscribe 2.0 app. This includes installer, service/helper, backend process and GUI. 
 Please note that this is a work-in-progress, your mileage may vary.
 
+## Build the Windscribe 2.0 app
+
+See below for environement and library prerequisites to build the application on each system.
+
+Simply run `tools/build_all` for an unsigned build. See `build_all --help` for other build options. A successfully build script will place the installer in the `build-exe` directory.  Note that an unsigned build is required to connect the VPN when building without code signing.
+
+
 ## Windows
 ### Prerequisites
 
@@ -55,9 +62,7 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 - Some libraries depends on others. Jom is installed first and speeds up further builds. Almost all of the libraries depends on openssl. Openvpn depends on LZO. Curl depends on openssl and zlib.
 - If you notice install or build scripts fail for seemingly no reason, try running each script from a fresh shell instance (CMD or gitbash). It appears to have something to do with a character limit on PATH or ENV variables.
 
-### Build the Windscribe 2.0 app
 
-Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all debug' for an unsigned build.  Note that an unsigned build is required to connect the VPN when building without code signing.
 
 ## Mac
 ### Prerequisites
@@ -112,9 +117,6 @@ Go to subfolder tools and run 'build_all'. Assuming all goes well with the build
     - Some libraries depends on others. Almost all of the libraries depends on openssl. Openvpn depends on LZO.
     - The install scripts put the dependencies in desktop-v2/build-libs.
 
-### Build the Windscribe 2.0 app
-
-Open a terminal in desktop-v2/tools and run './build_all' for a signed build, or './build_all debug' for an unsigned build.  Please note that a signed build requires you to have completed the 'Set up code signing' section above.  Assuming all goes well with the build, the installer will be placed in desktop-v2/build-exe.
 
 ### Install Auto-Tools and 7-Zip (via HomeBrew):
     - brew install libtool
@@ -190,8 +192,5 @@ Build process tested on Ubuntu 16.04 (gcc 5.4.0) and Ubuntu 20.04/ZorinOS 16 (gc
 - Run install_protobuf
 - Run install_gtest
 
-### Build the Windscribe 2.0 app
-
-Open a terminal in desktop-v2/tools and run './build_all --no-sign'.  Assuming all goes well with the build, the installer will be placed in desktop-v2/build-exe.
-
+### After building and installing
 The application installs to /usr/local/windscribe.  You will find the logs in ~/.local/share/Windscribe/Windscribe2.
