@@ -3,7 +3,6 @@
 #include <QGuiApplication>
 #include <QDebug>
 #include "utils/logger.h"
-#include "dpiscalemanager.h"
 
 #ifdef Q_OS_WIN
     #include "widgetutils_win.h"

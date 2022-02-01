@@ -1,0 +1,317 @@
+# Define Stages
+stages:
+  - Build Dependencies 1
+  - Build Dependencies 2
+  - Build Dependencies 3
+  - Build Tests
+  - Run Tests
+  - Build
+  - Artifact Upload
+
+# Set variables inherited by all jobs
+variables:
+  GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
+  NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
+  NEXUS_PATH_ROOT: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME/'
+  NEXUS_PATH_LATEST: '/latest'
+  NEXUS_PATH_BRANCHES: '/branches'
+  NEXUS_PATH_TAGS: '/tags'
+  NEXUS_PATH_DEPS: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME/dependencies'
+  NEXUS_PATH_DEPS_LATEST: '/latest'
+  NEXUS_PATH_DEPS_BRANCHES: '/branches'
+  NEXUS_PATH_DEPS_TAGS: '/tags'
+  TARGET: '*.exe'
+  #NEXUS_USERNAME: ""  # Set in Gitlab variables/vault
+  #NEXUS_PASSWORD: ""  # Set in Gitlab variables/vault
+  CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
+  NOTARIZE_YML_PATH: 'tools/notarize.yml'
+  HARDCODED_SECRETS_PATH: 'common/utils/hardcodedsecrets.ini'
+  CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH : 'backend/mac/provisioning_profile'
+  CODE_SIGNING_PROVISION_PROFILE_PATH: '$CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH/embedded.provisionprofile'
+  RUNNING_CI: 1
+  BUILDROOT: 'build-libs'
+  TMPROOT: 'temp'
+  ARTIFACT_INSTALLER: 'installer.exe'
+  BUILD_WIN: 'y'
+  BUILD_MAC: 'y'
+  TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
+  TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
+  BUILD_LIBS_EVERYTIME: 'n' #enable to rebuild all the libs
+
+# pull in other yaml files
+include:
+  - local: 'vars.yml'
+  - local: functions.yml
+  - local: build-libs.yml
+
+.template_win10_build: &template_win10_build
+  tags: [win10]
+  before_script:
+    # run this blindly until baked into image
+    - python tools/bin/get-pip.py
+    - python -m pip install -r tools/requirements.txt
+
+.template_mac_build: &template_mac_build
+  tags: [macos11]
+  before_script:
+    # run this blindly until baked into image
+    - python tools/bin/get-pip.py
+    - python -m pip install -r tools/requirements.txt
+
+# Build Tests
+testing:win:buildtestgui:
+  <<: *template_win10_build
+  stage: Build Tests
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    # download necessary libs
+    - !reference [.download_qt_win, script]
+    - !reference [.download_gtest_win, script]
+    - !reference [.download_protobuf_win, script]
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    # extraction and build
+    - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
+    - tools/build_test_gui
+    # upload test gui
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui.exe
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui.exe"
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui.exe
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
+  rules:
+    - if: '$BUILD_WIN == "y" && $TEST_WIN == "y"'
+
+testing:mac:buildtestgui:
+  <<: *template_mac_build
+  stage: Build Tests
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    # download necessary libs
+    - !reference [ .download_qt_mac, script ]
+    - !reference [ .download_gtest_mac, script ]
+    - !reference [ .download_protobuf_mac, script ]
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    # build the test
+    - tools/build_test_gui
+    # upload test-gui
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
+  rules:
+    - if: '$BUILD_MAC == "y" && $TEST_MAC == "y"'
+
+# Run Tests
+testing:win:runtestgui:
+  <<: *template_win10_build
+  stage: Run Tests
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - !reference [ .download_qt_win, script ]
+    - !reference [ .download_openssl_win, script ]
+    - !reference [ .download_gtest_win, script ]
+    - !reference [ .download_protobuf_win, script ]
+    # download testgui
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o test-exe/gui/TestGui.exe
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
+    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    # extractions and run test
+    - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
+    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
+    - tools/run_test_gui
+    # upload logs
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui-$VERSION.log
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui-$VERSION.log"
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui-$VERSION.log
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui-$VERSION.log"
+  rules:
+    - if: '$BUILD_WIN == "y" && $TEST_WIN == "y"'
+
+testing:mac:runtestgui:
+  <<: *template_mac_build
+  stage: Run Tests
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    # download necessary files
+    - !reference [ .download_qt_mac, script ]
+    - !reference [ .download_openssl_mac, script ]
+    - !reference [ .download_gtest_mac, script ]
+    - !reference [ .download_protobuf_mac, script ]
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o test-exe/gui/TestGui
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
+    # extraction and build
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    - VERSION=$(python tools/base/extract.py)
+    - chmod +x test-exe/gui/TestGui
+    - tools/run_test_gui
+    # upload logs
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui-$VERSION.log
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui-$VERSION.log"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui-$VERSION.log
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui-$VERSION.log"
+  rules:
+    - if: '$BUILD_MAC == "y" && $TEST_MAC == "y"'
+
+# Build and Upload Installer
+build:win:installer:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    # download the libs
+    - !reference [.download_jom_win, script]
+    - !reference [.download_cares_win, script ]
+    - !reference [.download_lzo_win, script]
+    - !reference [.download_boost_win, script]
+    - !reference [.download_wireguard_win, script]
+    - !reference [.download_openssl_win, script]
+    - !reference [.download_zlib_win, script]
+    - !reference [.download_curl_win, script]
+    - !reference [.download_openvpn_win, script]
+    - !reference [.download_protobuf_win, script]
+    - !reference [.download_qt_win, script]
+    - !reference [.download_stunnel_win, script]
+    - 'IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {
+        .\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}'
+    # extractions
+    - Set-Variable -name VAULT_CLIENT_TOKEN -value $(tools/bin/curl.exe --cacert tools/cacert.pem
+      --data "{\`"role_id\`":\`"$VAULT_ROLE_ID\`",\`"secret_id\`":\`"$VAULT_SECRET_ID\`"}"
+      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+    # get the secrets JSON and put in VAULT_RESPONS_JSON
+    - "Set-Variable -name VAULT_RESPONSE_JSON -value $(tools/bin/curl.exe --cacert tools/cacert.pem -H \"X-Vault-Token: $VAULT_CLIENT_TOKEN\" $VAULT_ADDR/v1/kv/cicd/client-desktop)"
+    # parse the secrets
+    - Set-Variable -name HARDCODED_SECRETS -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - Set-Variable -name CODE_SIGNING_PFX_BASE64 -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-windows-cert)
+    - Set-Variable -name NOTARIZE_YML -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
+    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
+    - echo $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
+    - echo $NOTARIZE_YML > $NOTARIZE_YML_PATH
+    - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
+    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
+    # build
+    - tools/build_all -zip --ci-mode --sign
+    # upload installer and symbols to nexus
+    - !reference [.upload_installer_to_nexus_commit_win, script ]
+    - !reference [.upload_symbols_to_nexus_commit_win, script ]
+    - !reference [.upload_installer_to_nexus_latest_win, script ]
+    - !reference [.upload_symbols_to_nexus_latest_win, script ]
+  rules:
+    - if: '$BUILD_WIN == "y"'
+
+# build mac installer (manual button)
+# couldn't figure out how to add manual button without interfering with "rules" -- duplicated the job :\
+manual:build:mac:installer:
+  <<: *template_mac_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    # download the libs
+    - !reference [.download_cares_mac, script ]
+    - !reference [.download_lzo_mac, script]
+    - !reference [.download_boost_mac, script]
+    - !reference [.download_wireguard_mac, script]
+    - !reference [.download_openssl_mac, script]
+    - !reference [.download_curl_mac, script]
+    - !reference [.download_openvpn_mac, script]
+    - !reference [.download_protobuf_mac, script]
+    - !reference [.download_qt_mac, script]
+    - !reference [.download_stunnel_mac, script]
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    # Clean out DropDMG Windscribe2 settings and symlink to this repo
+    - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
+    - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
+    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Configurations/Windscribe2.plist ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
+    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Layouts/Windscribe2 ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
+        # extractions
+    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
+      --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
+      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+    # get the secrets JSON and put in VAULT_RESPONS_JSON
+    - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
+    # parse the secrets
+    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-mac-provision-profile)
+    - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
+    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
+    # use echo -e to print \n as newlines
+    - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
+    - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
+    - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
+    - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
+    # build the application/installer
+    - VERSION=$(python tools/base/extract.py)
+    - tools/build_all -zip --ci-mode --notarize --sign
+    # upload dmg to nexus
+    - !reference [.upload_dmg_to_nexus_commit_mac, script ]
+    - !reference [.upload_dmg_to_nexus_latest_mac, script]
+    - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
+    - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
+  when: manual
+
+build:mac:installer:
+  <<: *template_mac_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    # download the libs
+    - !reference [.download_cares_mac, script ]
+    - !reference [.download_lzo_mac, script]
+    - !reference [.download_boost_mac, script]
+    - !reference [.download_wireguard_mac, script]
+    - !reference [.download_openssl_mac, script]
+    - !reference [.download_curl_mac, script]
+    - !reference [.download_openvpn_mac, script]
+    - !reference [.download_protobuf_mac, script]
+    - !reference [.download_qt_mac, script]
+    - !reference [.download_stunnel_mac, script]
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    # Clean out DropDMG Windscribe2 settings and symlink to this repo
+    - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
+    - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
+    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Configurations/Windscribe2.plist ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
+    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Layouts/Windscribe2 ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
+        # extractions
+    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
+      --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
+      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+    # get the secrets JSON and put in VAULT_RESPONS_JSON
+    - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
+    # parse the secrets
+    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-mac-provision-profile)
+    - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
+    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
+    # use echo -e to print \n as newlines
+    - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
+    - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
+    - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
+    - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
+    # build the application/installer
+    - VERSION=$(python tools/base/extract.py)
+    - tools/build_all -zip --ci-mode --notarize --sign
+    # upload dmg to nexus
+    - !reference [.upload_dmg_to_nexus_commit_mac, script ]
+    - !reference [.upload_dmg_to_nexus_latest_mac, script]
+    - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
+    - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
+  rules:
+    - if: '$BUILD_MAC == "y"'

@@ -2,8 +2,7 @@
 
 #include <Windows.h>
 #include "winutils.h"
-#include "dpiscalemanager.h"
-#include "GraphicResources/independentpixmap.h"
+#include <QPainter>
 #include <QDir>
 #include <QFileInfo>
 #include <QXmlStreamReader>

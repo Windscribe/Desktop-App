@@ -1,3 +1,16 @@
+2.4.1 (18/01/2022)
+* Combined the engine and gui into the single process. #562
+* Migrated from DropDMG to opensource CLI utility. #591
+* Fixed MAC rare MAC spoofing failure on some MacOS. #569
+* Maintain same offset in docked mode. #622
+* Do not use pointer cursor on non clickable areas. #269
+* Desktop client Windows connection notification bug fixed. #467
+* Added ControlD to App Internal DNS list. #621
+* Show 10gbps badge next to 10gbps capable datacenters. #618
+* Show location loads. #617
+* Fixed custom plan displays as pro in preferences. #437
+
+
 2.03.15 (17/12/2021)
 * Reconnect loop on Mac Monterey fixed. #603
 * Fedora - slow connect time via WG on app launch. #619

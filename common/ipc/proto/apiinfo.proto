@@ -22,6 +22,8 @@ message Group
   repeated Node nodes = 7;
   optional string dns_hostname = 8; // if not empty this overrides dns_hostname from Location
   optional string ovpn_x509 = 9;
+  optional int32 link_speed = 10;
+  optional int32 health = 11;
 }
 
 message Location

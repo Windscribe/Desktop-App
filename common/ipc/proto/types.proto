@@ -145,6 +145,8 @@ message City
   optional CustomConfigType custom_config_type = 10;
   optional bool custom_config_is_correct = 11;
   optional string custom_config_error_message = 12;   // not empty if custom_config_is_correct == false
+  optional int32 link_speed = 13;
+  optional int32 health = 14;
 }
 
 message Location
@@ -356,6 +358,7 @@ enum DnsPolicy
    DNS_POLICY_OPEN_DNS = 1;
    DNS_POLICY_CLOUDFLARE = 2;
    DNS_POLICY_GOOGLE = 3;
+   DNS_POLICY_CONTROLD = 4;
 }
 
 enum DnsWhileConnectedType
@@ -526,6 +529,7 @@ message GuiSettings
   optional bool is_show_country_flags = 12 [deprecated=true];
   optional BackgroundSettings background_settings = 13; 
   optional bool is_start_minimized = 14 [default = false];
+  optional bool is_show_location_health = 15 [default = false];
 }
 
 

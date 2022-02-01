@@ -40,7 +40,7 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
     std::vector<std::string> endings;
     // Check for a correct ending.
     endings.push_back("/Contents/MacOS/installer");
-    endings.push_back("/WindscribeEngine.app/Contents/MacOS/WindscribeEngine");
+    endings.push_back("/Contents/MacOS/Windscribe");
     
     const auto app_name_length = app_name.length();
 
