@@ -198,13 +198,12 @@ build:win:installer:
     # parse the secrets
     - Set-Variable -name HARDCODED_SECRETS -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
     - Set-Variable -name CODE_SIGNING_PFX_BASE64 -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-windows-cert)
-    - echo $CODE_SIGNING_PFX_BASE64
     - Set-Variable -name NOTARIZE_YML -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
     # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
     - echo $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
     - echo $NOTARIZE_YML > $NOTARIZE_YML_PATH
-    - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
-    - exit 1
+    - echo $CODE_SIGNING_PFX_BASE64 > $CODE_SIGNING_PFX_PATH # write base64 encoded temporarily to file
+    - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1 # overwrite temp base64 contents with decoded version
     - Set-Variable -name VERSION -value $(python tools/base/extract.py)
     # build
     - tools/build_all -zip --ci-mode --sign
