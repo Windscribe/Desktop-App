@@ -12,11 +12,12 @@ stages:
 variables:
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
-  NEXUS_PATH_ROOT: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME/'
+  PROJECT_NAME: client-desktop # temporarily override CI_PROJECT_NAME while using client-desktop-public so we can interact with nexus
+  NEXUS_PATH_ROOT: '/repository/$PROJECT_NAME/$PROJECT_NAME/'
   NEXUS_PATH_LATEST: '/latest'
   NEXUS_PATH_BRANCHES: '/branches'
   NEXUS_PATH_TAGS: '/tags'
-  NEXUS_PATH_DEPS: '/repository/$CI_PROJECT_NAME/$CI_PROJECT_NAME/dependencies'
+  NEXUS_PATH_DEPS: '/repository/$PROJECT_NAME/$PROJECT_NAME/dependencies'
   NEXUS_PATH_DEPS_LATEST: '/latest'
   NEXUS_PATH_DEPS_BRANCHES: '/branches'
   NEXUS_PATH_DEPS_TAGS: '/tags'
