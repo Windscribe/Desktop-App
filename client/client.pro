@@ -206,3 +206,7 @@ include(common.pri)
 include(gui/gui.pri)
 include(engine/engine.pri)
 
+exists($$COMMON_PATH/utils/hardcodedsecrets.ini) {
+    RESOURCES += secrets.qrc
+}
+

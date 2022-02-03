@@ -17,6 +17,9 @@ import messages as msg
 _OS_CURRENT_NAME = None
 _OS_RETRY_COUNT = 20
 
+CURRENT_OS_MAC = "macos"
+CURRENT_OS_LINUX = "linux"
+CURRENT_OS_WIN = "win32"
 
 def GetCurrentOS():
   global _OS_CURRENT_NAME
@@ -114,7 +117,7 @@ def CreateFile(filename, force_recreate=False):
 
 def CreateFileWithContents(filename, text="", force_recreate=False):
   if CreateFile(filename, force_recreate):
-    with open(filename, "w") as file:
+    with open(filename, "wb") as file:
       file.write(text)
     return True
   raise IOError("Can't create file \"{}\"!\nLast error: {}".format(filename, last_error))

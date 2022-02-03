@@ -95,6 +95,8 @@ SOURCES += \
         $$COMMON_PATH/utils/languagesutil.cpp \
         $$COMMON_PATH/utils/logger.cpp \
         $$COMMON_PATH/utils/utils.cpp \
+        $$COMMON_PATH/utils/hardcodedsettings.cpp \
+        $$COMMON_PATH/utils/simplecrypt.cpp \
         $$COMMON_PATH/version/appversion.cpp \
         $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
         $$COMMON_PATH/utils/clean_sensitive_info.cpp \
@@ -125,9 +127,13 @@ HEADERS += \
     $$COMMON_PATH/utils/languagesutil.h \
     $$COMMON_PATH/utils/logger.h \
     $$COMMON_PATH/utils/utils.h \
+    $$COMMON_PATH/utils/hardcodedsettings.h \
+    $$COMMON_PATH/utils/simplecrypt.h \
     $$COMMON_PATH/version/appversion.h \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
     backendcommander.h \
     cliapplication.h
+
+RESOURCES += windscribe.qrc

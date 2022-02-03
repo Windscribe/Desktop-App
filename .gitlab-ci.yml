@@ -8,9 +8,6 @@ stages:
   - Build
   - Artifact Upload
 
-#before_script:
-#  - sample
-
 # Set variables inherited by all jobs
 variables:
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
@@ -24,18 +21,28 @@ variables:
   NEXUS_PATH_DEPS_BRANCHES: '/branches'
   NEXUS_PATH_DEPS_TAGS: '/tags'
   TARGET: '*.exe'
-  #NEXUS_USERNAME: "sample"         # Set in Gitlab variables
-  #NEXUS_PASSWORD: "VhVvMiM3jD04c"  # Set in Gitlab variables
+  #NEXUS_USERNAME: ""  # Set in Gitlab variables/vault
+  #NEXUS_PASSWORD: ""  # Set in Gitlab variables/vault
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
+  NOTARIZE_YML_PATH: 'tools/notarize.yml'
+  HARDCODED_SECRETS_PATH: 'common/utils/hardcodedsecrets.ini'
+  CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH : 'backend/mac/provisioning_profile'
+  CODE_SIGNING_PROVISION_PROFILE_PATH: '$CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH/embedded.provisionprofile'
   RUNNING_CI: 1
   BUILDROOT: 'build-libs'
   TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
   BUILD_WIN: 'y'
   BUILD_MAC: 'y'
+  TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
+  TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
+  BUILD_LIBS_EVERYTIME: 'n' #enable to rebuild all the libs
 
+# pull in other yaml files
 include:
   - local: 'vars.yml'
+  - local: functions.yml
+  - local: build-libs.yml
 
 .template_win10_build: &template_win10_build
   tags: [win10]
@@ -44,458 +51,12 @@ include:
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
 
-
 .template_mac_build: &template_mac_build
   tags: [macos11]
   before_script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
-
-
-# Build Dependency and Upload Jom
-build:win:jom:
-  <<: *template_win10_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_JOM
-  script:
-    - tools/deps/install_jom -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/jom.yml
-
-# No jom for mac
-
-# Build Dependency and Upload Cares
-build:win:cares:
-  <<: *template_win10_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_CARES
-  script:
-    - tools/deps/install_cares -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/cares.yml
-
-
-build:mac:cares:
-  <<: *template_mac_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_CARES
-  script:
-    - tools/deps/install_cares -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/cares.yml
-
-
-# Build Dependency and Upload Lzo
-build:win:lzo:
-  <<: *template_win10_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_LZO
-  script:
-    - tools/deps/install_lzo -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/lzo.yml
-
-
-build:mac:lzo:
-  <<: *template_mac_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_LZO
-  script:
-    - tools/deps/install_lzo -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/lzo.yml
-
-
-# Build Dependency and Upload Boost
-build:win:boost:
-  <<: *template_win10_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_BOOST
-  script:
-    - tools/deps/install_boost -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/boost.yml
-
-
-build:mac:boost:
-  <<: *template_mac_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_BOOST
-  script:
-    - tools/deps/install_boost -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/boost.yml
-
-# Build Dependency and Upload Wireguard
-build:win:wireguard:
-  <<: *template_win10_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_WIREGUARD
-  script:
-    - tools/deps/install_wireguard -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/wireguard.yml
-
-
-build:mac:wireguard:
-  <<: *template_mac_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_WIREGUARD
-  script:
-    - tools/deps/install_wireguard -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/wireguard.yml
-
-# Build Dependency and Upload Gtest
-build:win:gtest:
-  <<: *template_win10_build
-  stage: Build Dependencies 1
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_GTEST
-  script:
-    - tools/deps/install_gtest -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/gtest.yml
-
-
-build:mac:gtest:
- <<: *template_mac_build
- stage: Build Dependencies 1
- variables:
-   GIT_STRATEGY: clone
-   ARTIFACT_PATH: $ARTIFACT_GTEST
- script:
-   - tools/deps/install_gtest -zip
-   - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
- rules:
-   - if: '$BUILD_MAC == "y"'
-     changes:
-       - tools/vars/gtest.yml
-
-
-# Build Dependency and Upload Openssl
-build:win:openssl:
-  <<: *template_win10_build
-  stage: Build Dependencies 2
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_OPENSSL
-  # needs:
-    # - {job: 'build:win:jom', optional: true}
-  script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    - tools/deps/install_openssl -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/openssl.yml
-        - tools/vars/jom.yml
-
-
-build:mac:openssl:
-  <<: *template_mac_build
-  stage: Build Dependencies 2
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_OPENSSL
-  script:
-    - tools/deps/install_openssl -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/openssl.yml
-
-# Build Dependency and Upload Zlib
-build:win:zlib:
-  <<: *template_win10_build
-  stage: Build Dependencies 2
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_ZLIB
-  # needs:
-    # - {job: 'build:win:jom', optional: true}
-  script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    - tools/deps/install_zlib -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/zlib.yml
-        - tools/vars/jom.yml
-
-# No zlib for mac
-
-
-# Build and Upload Curl
-build:win:curl:
-  <<: *template_win10_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_CURL
-  # needs:
-    # - {job: 'build:win:openssl', optional: true}
-    # - {job: 'build:win:zlib', optional: true}
-  script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    - tools/deps/install_curl -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/curl.yml
-        - tools/vars/zlib.yml
-        - tools/vars/openssl.yml
-
-
-build:mac:curl:
-  <<: *template_mac_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_CURL
-  # needs:
-    # - {job: 'build:mac:openssl', optional: true}
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    - tools/deps/install_curl -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/curl.yml
-        - tools/vars/openssl.yml
-
-
-# Build and Upload Openvpn
-build:win:openvpn:
-  <<: *template_win10_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_OPENVPN
-  # needs:
-    # - {job: 'build:win:openssl', optional: true}
-    # - {job: 'build:win:lzo', optional: true}
-  script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_LZO}"
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    - tools/deps/install_openvpn -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/openvpn.yml
-        - tools/vars/openssl.yml
-        - tools/vars/jom.yml
-        - tools/vars/lzo.yml
-
-
-build:mac:openvpn:
-  <<: *template_mac_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_OPENVPN
-  # needs:
-    # - {job: 'build:mac:openssl', optional: true}
-    # - {job: 'build:mac:lzo', optional: true}
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_LZO}"
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    - tools/deps/install_openvpn -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/openvpn.yml
-        - tools/vars/openssl.yml
-        - tools/vars/lzo.yml
-
-
-# Build and Upload Protobuf
-build:win:protobuf:
-  <<: *template_win10_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_PROTOBUF
-  # needs:
-    # - {job: 'build:win:zlib', optional: true}
-  script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    - tools/deps/install_protobuf -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/protobuf.yml
-        - tools/vars/zlib.yml
-
-
-build:mac:protobuf:
-  <<: *template_mac_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_PROTOBUF
-  script:
-    - tools/deps/install_protobuf -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/protobuf.yml
-
-
-# Build and Upload Qt
-build:win:qt:
-  <<: *template_win10_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_QT
-  # needs:
-    # - {job: 'build:win:jom', optional: true}
-    # - {job: 'build:win:openssl', optional: true}
-  script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    - tools/deps/install_qt -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/qt.yml
-        - tools/vars/openssl.yml
-        - tools/vars/jom.yml
-
-
-build:mac:qt:
-  <<: *template_mac_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_QT
-  # needs:
-    # - {job: 'build:mac:openssl', optional: true}
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    - tools/deps/install_qt
-    - (cd ./build-libs/qt; zip --symlinks -r ../qt.zip .)
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/qt.yml
-        - tools/vars/openssl.yml
-
-
-# Build and Upload Stunnel
-build:win:stunnel:
-  <<: *template_win10_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_STUNNEL
-  # needs:
-    # - {job: 'build:win:jom', optional: true}
-    # - {job: 'build:win:openssl', optional: true}
-  script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    - tools/deps/install_stunnel -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_WIN == "y"'
-      changes:
-        - tools/vars/stunnel.yml
-        - tools/vars/openssl.yml
-        - tools/vars/jom.yml
-
-
-build:mac:stunnel:
-  <<: *template_mac_build
-  stage: Build Dependencies 3
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_STUNNEL
-  # needs:
-    # - {job: 'build:mac:openssl', optional: true}
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    - tools/deps/install_stunnel -zip
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
-  rules:
-    - if: '$BUILD_MAC == "y"'
-      changes:
-        - tools/vars/stunnel.yml
-        - tools/vars/openssl.yml
 
 # Build Tests
 testing:win:buildtestgui:
@@ -504,14 +65,23 @@ testing:win:buildtestgui:
   variables:
     GIT_STRATEGY: clone
   script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_GTEST}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PROTOBUF}"
+    # download necessary libs
+    - !reference [.download_qt_win, script]
+    - !reference [.download_gtest_win, script]
+    - !reference [.download_protobuf_win, script]
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    # extraction and build
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
     - tools/build_test_gui
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui.exe"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
+    # upload test gui
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui.exe
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui.exe"
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui.exe
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
+  rules:
+    - if: '$BUILD_WIN == "y" && $TEST_WIN == "y"'
 
 testing:mac:buildtestgui:
   <<: *template_mac_build
@@ -519,13 +89,22 @@ testing:mac:buildtestgui:
   variables:
     GIT_STRATEGY: clone
   script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_GTEST}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PROTOBUF}"
+    # download necessary libs
+    - !reference [ .download_qt_mac, script ]
+    - !reference [ .download_gtest_mac, script ]
+    - !reference [ .download_protobuf_mac, script ]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    # build the test
     - tools/build_test_gui
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
+    # upload test-gui
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
+  rules:
+    - if: '$BUILD_MAC == "y" && $TEST_MAC == "y"'
 
 # Run Tests
 testing:win:runtestgui:
@@ -534,17 +113,28 @@ testing:win:runtestgui:
   variables:
     GIT_STRATEGY: clone
   script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_GTEST}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PROTOBUF}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o test-exe/gui/TestGui.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
+    - !reference [ .download_qt_win, script ]
+    - !reference [ .download_openssl_win, script ]
+    - !reference [ .download_gtest_win, script ]
+    - !reference [ .download_protobuf_win, script ]
+    # download testgui
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o test-exe/gui/TestGui.exe
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    # extractions and run test
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
-    - Set-Variable -name VERSION -value $(python installer/windows/extract_version.py common/version/windscribe_version.h)
+    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
     - tools/run_test_gui
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui-$VERSION.log "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui-$VERSION.log"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui-$VERSION.log "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui-$VERSION.log"
+    # upload logs
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui-$VERSION.log
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui-$VERSION.log"
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui-$VERSION.log
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui-$VERSION.log"
+  rules:
+    - if: '$BUILD_WIN == "y" && $TEST_WIN == "y"'
 
 testing:mac:runtestgui:
   <<: *template_mac_build
@@ -552,17 +142,28 @@ testing:mac:runtestgui:
   variables:
     GIT_STRATEGY: clone
   script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_GTEST}"  
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PROTOBUF}"  
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o test-exe/gui/TestGui "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"    
+    # download necessary files
+    - !reference [ .download_qt_mac, script ]
+    - !reference [ .download_openssl_mac, script ]
+    - !reference [ .download_gtest_mac, script ]
+    - !reference [ .download_protobuf_mac, script ]
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o test-exe/gui/TestGui
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
+    # extraction and build
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    - VERSION=$(python installer/windows/extract_version.py common/version/windscribe_version.h)
+    - VERSION=$(python tools/base/extract.py)
     - chmod +x test-exe/gui/TestGui
     - tools/run_test_gui
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui-$VERSION.log "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui-$VERSION.log"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file test-exe/gui/TestGui-$VERSION.log "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui-$VERSION.log"
+    # upload logs
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui-$VERSION.log
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui-$VERSION.log"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file test-exe/gui/TestGui-$VERSION.log
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui-$VERSION.log"
+  rules:
+    - if: '$BUILD_MAC == "y" && $TEST_MAC == "y"'
 
 # Build and Upload Installer
 build:win:installer:
@@ -571,59 +172,48 @@ build:win:installer:
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
-  # needs:
-    # - {job: 'build:win:jom', optional: true}
-    # - {job: 'build:win:cares', optional: true}
-    # - {job: 'build:win:lzo', optional: true}
-    # - {job: 'build:win:boost', optional: true}
-    # - {job: 'build:win:wireguard', optional: true}
-    # - {job: 'build:win:gtest', optional: true}
-    # - {job: 'build:win:openssl', optional: true}
-    # - {job: 'build:win:zlib', optional: true}
-    # - {job: 'build:win:curl', optional: true}
-    # - {job: 'build:win:openvpn', optional: true}
-    # - {job: 'build:win:protobuf', optional: true}
-    # - {job: 'build:win:qt', optional: true}
-    # - {job: 'build:win:stunnel', optional: true}
   script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_JOM "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_CARES "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_CARES}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_LZO}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_BOOST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_BOOST}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_WIREGUARD "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_WIREGUARD}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_CURL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_CURL}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENVPN}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PROTOBUF}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_STUNNEL}"
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
+    # download the libs
+    - !reference [.download_jom_win, script]
+    - !reference [.download_cares_win, script ]
+    - !reference [.download_lzo_win, script]
+    - !reference [.download_boost_win, script]
+    - !reference [.download_wireguard_win, script]
+    - !reference [.download_openssl_win, script]
+    - !reference [.download_zlib_win, script]
+    - !reference [.download_curl_win, script]
+    - !reference [.download_openvpn_win, script]
+    - !reference [.download_protobuf_win, script]
+    - !reference [.download_qt_win, script]
+    - !reference [.download_stunnel_win, script]
+    - 'IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {
+        .\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}'
+    # extractions
+    - Set-Variable -name VAULT_CLIENT_TOKEN -value $(tools/bin/curl.exe --cacert tools/cacert.pem
+      --data "{\`"role_id\`":\`"$VAULT_ROLE_ID\`",\`"secret_id\`":\`"$VAULT_SECRET_ID\`"}"
+      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+    # get the secrets JSON and put in VAULT_RESPONS_JSON
+    - "Set-Variable -name VAULT_RESPONSE_JSON -value $(tools/bin/curl.exe --cacert tools/cacert.pem -H \"X-Vault-Token: $VAULT_CLIENT_TOKEN\" $VAULT_ADDR/v1/kv/cicd/client-desktop)"
+    # parse the secrets
+    - Set-Variable -name HARDCODED_SECRETS -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - Set-Variable -name CODE_SIGNING_PFX_BASE64 -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-windows-cert)
+    - Set-Variable -name NOTARIZE_YML -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
+    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
+    - echo $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
+    - echo $NOTARIZE_YML > $NOTARIZE_YML_PATH
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
-    - Set-Variable -name VERSION -value $(python installer/windows/extract_version.py common/version/windscribe_version.h)
-    - tools/build_all -zip
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/Windscribe_$VERSION.exe"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/WindscribeSymbols_$VERSION.zip"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/WindscribeSymbols_$VERSION.zip"
+    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
+    # build
+    - tools/build_all -zip --ci-mode --sign
+    # upload installer and symbols to nexus
+    - !reference [.upload_installer_to_nexus_commit_win, script ]
+    - !reference [.upload_symbols_to_nexus_commit_win, script ]
+    - !reference [.upload_installer_to_nexus_latest_win, script ]
+    - !reference [.upload_symbols_to_nexus_latest_win, script ]
   rules:
     - if: '$BUILD_WIN == "y"'
-    # changes:
-      # - '.gitlab-ci.yml'
-      # - tools/vars/jom.yml
-      # - tools/vars/cares.yml
-      # - tools/vars/lzo.yml
-      # - tools/vars/boost.yml
-      # - tools/vars/wireguard.yml
-      # - tools/vars/gtest.yml
-      # - tools/vars/openssl.yml
-      # - tools/vars/zlib.yml
-      # - tools/vars/curl.yml
-      # - tools/vars/openvpn.yml
-      # - tools/vars/protobuf.yml
-      # - tools/vars/qt.yml
-      # - tools/vars/stunnel.yml
 
+# build mac installer (manual button)
 # couldn't figure out how to add manual button without interfering with "rules" -- duplicated the job :\
 manual:build:mac:installer:
   <<: *template_mac_build
@@ -631,40 +221,46 @@ manual:build:mac:installer:
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
-  # needs:
-    # - {job: 'build:mac:cares', optional: true}
-    # - {job: 'build:mac:lzo', optional: true}
-    # - {job: 'build:mac:boost', optional: true}
-    # - {job: 'build:mac:wireguard', optional: true}
-    # - {job: 'build:mac:gtest', optional: true}
-    # - {job: 'build:mac:openssl', optional: true}
-    # - {job: 'build:mac:curl', optional: true}
-    # - {job: 'build:mac:openvpn', optional: true}
-    # - {job: 'build:mac:protobuf', optional: true}
-    # - {job: 'build:mac:qt', optional: true}
-    # - {job: 'build:mac:stunnel', optional: true}
   script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_CARES "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_CARES}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_LZO}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_BOOST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_BOOST}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_WIREGUARD "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_WIREGUARD}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_CURL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_CURL}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENVPN}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PROTOBUF}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_STUNNEL}"
+    # download the libs
+    - !reference [.download_cares_mac, script ]
+    - !reference [.download_lzo_mac, script]
+    - !reference [.download_boost_mac, script]
+    - !reference [.download_wireguard_mac, script]
+    - !reference [.download_openssl_mac, script]
+    - !reference [.download_curl_mac, script]
+    - !reference [.download_openvpn_mac, script]
+    - !reference [.download_protobuf_mac, script]
+    - !reference [.download_qt_mac, script]
+    - !reference [.download_stunnel_mac, script]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
     # Clean out DropDMG Windscribe2 settings and symlink to this repo
     - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
     - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
     - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Configurations/Windscribe2.plist ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
     - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Layouts/Windscribe2 ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
-    # - echo -n "$CODE_SIGNING_PFX_BASE64" | base64 --decode > $CODE_SIGNING_PFX_PATH
-    - VERSION=$(python installer/windows/extract_version.py common/version/windscribe_version.h)
-    - tools/build_all -zip --ci-mode --notarize
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/Windscribe_$VERSION.dmg"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg"
+        # extractions
+    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
+      --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
+      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+    # get the secrets JSON and put in VAULT_RESPONS_JSON
+    - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
+    # parse the secrets
+    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-mac-provision-profile)
+    - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
+    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
+    # use echo -e to print \n as newlines
+    - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
+    - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
+    - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
+    - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
+    # build the application/installer
+    - VERSION=$(python tools/base/extract.py)
+    - tools/build_all -zip --ci-mode --notarize --sign
+    # upload dmg to nexus
+    - !reference [.upload_dmg_to_nexus_commit_mac, script ]
+    - !reference [.upload_dmg_to_nexus_latest_mac, script]
     - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
     - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
   when: manual
@@ -675,57 +271,47 @@ build:mac:installer:
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
-  # needs:
-    # - {job: 'build:mac:cares', optional: true}
-    # - {job: 'build:mac:lzo', optional: true}
-    # - {job: 'build:mac:boost', optional: true}
-    # - {job: 'build:mac:wireguard', optional: true}
-    # - {job: 'build:mac:gtest', optional: true}
-    # - {job: 'build:mac:openssl', optional: true}
-    # - {job: 'build:mac:curl', optional: true}
-    # - {job: 'build:mac:openvpn', optional: true}
-    # - {job: 'build:mac:protobuf', optional: true}
-    # - {job: 'build:mac:qt', optional: true}
-    # - {job: 'build:mac:stunnel', optional: true}
   script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_CARES "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_CARES}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_LZO}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_BOOST "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_BOOST}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_WIREGUARD "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_WIREGUARD}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_CURL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_CURL}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENVPN}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PROTOBUF}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_QT "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_STUNNEL}"
+    # download the libs
+    - !reference [.download_cares_mac, script ]
+    - !reference [.download_lzo_mac, script]
+    - !reference [.download_boost_mac, script]
+    - !reference [.download_wireguard_mac, script]
+    - !reference [.download_openssl_mac, script]
+    - !reference [.download_curl_mac, script]
+    - !reference [.download_openvpn_mac, script]
+    - !reference [.download_protobuf_mac, script]
+    - !reference [.download_qt_mac, script]
+    - !reference [.download_stunnel_mac, script]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
     # Clean out DropDMG Windscribe2 settings and symlink to this repo
     - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
     - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
     - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Configurations/Windscribe2.plist ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
     - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Layouts/Windscribe2 ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
-    # - echo -n "$CODE_SIGNING_PFX_BASE64" | base64 --decode > $CODE_SIGNING_PFX_PATH
-    - VERSION=$(python installer/windows/extract_version.py common/version/windscribe_version.h)
-    - tools/build_all -zip --ci-mode --notarize
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/Windscribe_$VERSION.dmg"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg"
+        # extractions
+    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
+      --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
+      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+    # get the secrets JSON and put in VAULT_RESPONS_JSON
+    - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
+    # parse the secrets
+    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-mac-provision-profile)
+    - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
+    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
+    # use echo -e to print \n as newlines
+    - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
+    - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
+    - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
+    - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
+    # build the application/installer
+    - VERSION=$(python tools/base/extract.py)
+    - tools/build_all -zip --ci-mode --notarize --sign
+    # upload dmg to nexus
+    - !reference [.upload_dmg_to_nexus_commit_mac, script ]
+    - !reference [.upload_dmg_to_nexus_latest_mac, script]
     - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
     - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
   rules:
     - if: '$BUILD_MAC == "y"'
-    # changes:
-      # - '.gitlab-ci.yml'
-      # - tools/vars/jom.yml
-      # - tools/vars/cares.yml
-      # - tools/vars/lzo.yml
-      # - tools/vars/boost.yml
-      # - tools/vars/wireguard.yml
-      # - tools/vars/gtest.yml
-      # - tools/vars/openssl.yml
-      # - tools/vars/zlib.yml
-      # - tools/vars/curl.yml
-      # - tools/vars/openvpn.yml
-      # - tools/vars/protobuf.yml
-      # - tools/vars/qt.yml
-      # - tools/vars/stunnel.yml
-
