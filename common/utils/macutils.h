@@ -27,9 +27,7 @@ namespace MacUtils
 
     // CLI
     bool isGuiAlreadyRunning();
-    bool giveFocusToGui();
     bool showGui();
-    void openGuiLocations();
 
     // Split Routing
     QString iconPathFromBinPath(const QString &binPath);

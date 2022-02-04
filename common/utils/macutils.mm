@@ -653,18 +653,6 @@ NSRunningApplication *guiApplicationByBundleName()
     return NULL;
 }
 
-bool MacUtils::giveFocusToGui()
-{
-    NSRunningApplication *guiApp = guiApplicationByBundleName();
-    if (guiApp != NULL)
-    {
-        [guiApp activateWithOptions: NSApplicationActivateIgnoringOtherApps];
-        return true;
-    }
-    return false;
-}
-
-
 bool MacUtils::showGui()
 {
     NSRunningApplication *guiApp = guiApplicationByBundleName();
@@ -675,11 +663,6 @@ bool MacUtils::showGui()
         return true;
     }
     return false;
-}
-
-void MacUtils::openGuiLocations()
-{
-    [[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"WindscribeGuiOpenLocations" object:nil];
 }
 
 bool MacUtils::isOsVersionIsCatalina_or_greater()

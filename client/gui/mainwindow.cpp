@@ -201,6 +201,7 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
 
     localIpcServer_ = new LocalIPCServer(this);
+    connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onReceivedOpenLocationsMessage);
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -350,7 +351,6 @@ MainWindow::MainWindow() :
     WindscribeApplication * app = WindscribeApplication::instance();
     connect(app, SIGNAL(clickOnDock()), SLOT(toggleVisibilityIfDocked()));
     connect(app, SIGNAL(activateFromAnotherInstance()), SLOT(onAppActivateFromAnotherInstance()));
-    connect(app, SIGNAL(openLocationsFromAnotherInstance()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(shouldTerminate_mac()), SLOT(onAppShouldTerminate_mac()));
     connect(app, SIGNAL(receivedOpenLocationsMessage()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(focusWindowChanged(QWindow*)), SLOT(onFocusWindowChanged(QWindow*)));
@@ -2806,6 +2806,7 @@ void MainWindow::onReceivedOpenLocationsMessage()
     // from a CLI-spawned-GUI (Mac): could fail Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT) in expandLocations
     QTimer::singleShot(500, [this](){
         mainWindowController_->expandLocations();
+        localIpcServer_->sendLocationsShown();
     });
 }
 

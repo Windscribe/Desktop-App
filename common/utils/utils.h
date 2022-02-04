@@ -31,8 +31,6 @@ namespace Utils {
 
     unsigned long getCurrentPid();
     bool isGuiAlreadyRunning();
-    bool giveFocusToGui();
-    void openGuiLocations();
 
     QString generateRandomMacAddress();
     QString formatMacAddress(QString macAddress);

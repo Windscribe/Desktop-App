@@ -2,6 +2,7 @@
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "ipc/server.h"
+#include "ipc/protobufcommand.h"
 
 LocalIPCServer::LocalIPCServer(QObject *parent) : QObject(parent)
   , server_(NULL)
@@ -38,6 +39,15 @@ void LocalIPCServer::start()
     }
 }
 
+void LocalIPCServer::sendLocationsShown()
+{
+    for (IPC::IConnection * connection : connections_)
+    {
+        IPC::ProtobufCommand<CliIpc::LocationsShown> cmd;
+        connection->sendCommand(cmd);
+    }
+}
+
 void LocalIPCServer::onServerCallbackAcceptFunction(IPC::IConnection *connection)
 {
     qCDebug(LOG_IPC) << "Client connected:" << connection;
@@ -50,7 +60,10 @@ void LocalIPCServer::onServerCallbackAcceptFunction(IPC::IConnection *connection
 
 void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConnection *connection)
 {
-
+    if (command->getStringId() == CliIpc::ShowLocations::descriptor()->full_name())
+    {
+        emit showLocations();
+    }
 }
 
 void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *connection)

@@ -24,7 +24,6 @@ SOURCES += $$PWD/multipleaccountdetection/multipleaccountdetection_mac.cpp
 
 OBJECTIVE_SOURCES += \
                 $$PWD/application/checkrunningapp/checkrunningapp_mac.mm \
-                $$PWD/application/openlocationshandler_mac.mm \
                 $$PWD/launchonstartup/launchonstartup_mac.mm \
                 $$PWD/utils/interfaceutils_mac.mm \
                 $$PWD/utils/authchecker_mac.mm
@@ -32,7 +31,6 @@ OBJECTIVE_SOURCES += \
 HEADERS += \
            $$PWD/multipleaccountdetection/multipleaccountdetection_mac.h \
            $$PWD/application/checkrunningapp/checkrunningapp_mac.h \
-           $$PWD/application/openlocationshandler_mac.h \
            $$PWD/launchonstartup/launchonstartup_mac.h \
            $$PWD/utils/authchecker_mac.h \
 

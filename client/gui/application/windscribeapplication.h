@@ -10,7 +10,6 @@
 
 #ifdef Q_OS_MAC
     #include "exithandler_mac.h"
-    #include "openlocationshandler_mac.h"
 #endif
 
 class WindscribeApplication : public QApplication
@@ -25,7 +24,6 @@ public:
     }
 
     void onClickOnDock();
-    void onFocusLoss();
     void setWasRestartOSFlag() { bWasRestartOS_ = true; }
     void clearWasRestartOSFlag() { bWasRestartOS_ = false; }
     bool isExitWithRestart();
@@ -46,7 +44,6 @@ signals:
     void activateFromAnotherInstance();
     void openLocationsFromAnotherInstance();
     void shouldTerminate_mac();
-    void receivedOpenLocationsMessage();
     void applicationCloseRequest();
 #ifdef Q_OS_WIN
     void winIniChanged();
@@ -64,7 +61,6 @@ private:
 
 #ifdef Q_OS_MAC
     ExitHandler_mac exitHanlderMac_;
-    OpenLocationsHandler_mac openLocationsHandlerMac_;
 #endif
     QTranslator translator;
 };

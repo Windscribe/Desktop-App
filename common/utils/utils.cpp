@@ -240,30 +240,6 @@ QString Utils::formatMacAddress(QString macAddress)
     return formattedMac;
 }
 
-bool Utils::giveFocusToGui()
-{
-#ifdef Q_OS_WIN
-    return WinUtils::giveFocusToGui();
-#elif defined Q_OS_MAC
-    return MacUtils::giveFocusToGui();
-#elif defined Q_OS_LINUX
-    //todo linux
-    return false;
-#endif
-}
-
-void Utils::openGuiLocations()
-{
-#ifdef Q_OS_WIN
-    WinUtils::openGuiLocations();
-#elif defined Q_OS_MAC
-    MacUtils::openGuiLocations();
-#elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-#endif
-}
-
 bool Utils::isGuiAlreadyRunning()
 {
 #ifdef Q_OS_WIN

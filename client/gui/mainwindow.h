@@ -221,11 +221,14 @@ private slots:
     void toggleVisibilityIfDocked();
     void onAppActivateFromAnotherInstance();
     void onAppShouldTerminate_mac();
-    void onReceivedOpenLocationsMessage();
     void onAppCloseRequest();
 #if defined(Q_OS_WIN)
     void onAppWinIniChanged();
 #endif
+
+    // LocalIPCServer signals
+    void onReceivedOpenLocationsMessage();
+
 
     void showShutdownWindow();
 

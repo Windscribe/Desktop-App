@@ -336,6 +336,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<CliIpc::ShowLocations>(buf, size);
     }
+    else if (strId == CliIpc::LocationsShown::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::LocationsShown>(buf, size);
+    }
 
 
     Q_ASSERT(false);

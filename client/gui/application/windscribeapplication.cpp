@@ -36,39 +36,6 @@ void setupDockClickHandler()
     }
 }
 
-bool focusLossHandler(id /*self*/, SEL /*_cmd*/,...)
-{
-   static_cast<WindscribeApplication*>(qApp)->onFocusLoss();
-    return true;
-}
-
-void setupFocusLossHandler()
-{
-    id (*performMsgSend)(id, SEL) = (id (*)(id, SEL)) objc_msgSend; // define parametered version of objc_msgSend to mimic previous runtime version's parameters
-
-    Class cls = objc_getClass("NSApplication");
-    id appInst = performMsgSend((id)cls, sel_registerName("sharedApplication"));
-
-    if (appInst != NULL)
-    {
-        id delegate = performMsgSend(appInst, sel_registerName("delegate"));
-        Class delClass = (Class)performMsgSend(delegate,  sel_registerName("class"));
-
-        SEL methodSelector = sel_registerName("applicationDidResignActive:");
-        Method mtdFunc = class_getInstanceMethod(delClass, methodSelector);
-        const char *types = method_getTypeEncoding(mtdFunc);
-
-        if (class_getInstanceMethod(delClass, methodSelector))
-        {
-            class_replaceMethod(delClass, methodSelector, (IMP)focusLossHandler, types);
-        }
-        else
-        {
-            class_addMethod(delClass, methodSelector, (IMP)focusLossHandler, types);
-        }
-    }
-}
-
 #endif
 
 WindscribeApplication::WindscribeApplication(int &argc, char **argv) : QApplication(argc, argv),
@@ -81,22 +48,13 @@ WindscribeApplication::WindscribeApplication(int &argc, char **argv) : QApplicat
 
 #ifdef Q_OS_MAC
     setupDockClickHandler();
-    setupFocusLossHandler();
     connect(&exitHanlderMac_, SIGNAL(shouldTerminate()), SIGNAL(shouldTerminate_mac()));
-    connect(&openLocationsHandlerMac_, SIGNAL(receivedOpenLocationsMessage()), SIGNAL(receivedOpenLocationsMessage()));
 #endif
 }
 
 void WindscribeApplication::onClickOnDock()
 {
     emit clickOnDock();
-}
-
-void WindscribeApplication::onFocusLoss()
-{
-#ifdef Q_OS_MAC
-    openLocationsHandlerMac_.unsuspendObservers();
-#endif
 }
 
 bool WindscribeApplication::isExitWithRestart()

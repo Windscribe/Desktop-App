@@ -14,6 +14,10 @@ public:
     ~LocalIPCServer();
 
     void start();
+    void sendLocationsShown();
+
+signals:
+    void showLocations();
 
 private slots:
     void onServerCallbackAcceptFunction(IPC::IConnection *connection);

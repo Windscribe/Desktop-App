@@ -46,7 +46,10 @@ void BackendCommander::initAndSend()
 
 void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection)
 {
-
+    if (command->getStringId() == CliIpc::LocationsShown::descriptor()->full_name())
+    {
+        emit finished(tr("Viewing Locations..."));
+    }
 }
 
 void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection *connection)
@@ -188,13 +191,13 @@ void BackendCommander::sendCommand()
     {
         qCDebug(LOG_BASIC) << "Connecting to last";
 
-        IPC::ProtobufCommand<IPCClientCommands::ClientAuth> cmd;
+        //IPC::ProtobufCommand<CliIpc::Connect> cmd;
         //cmd.getProtoObj().set_protocol_version(protocolVersion_);
         //cmd.getProtoObj().set_client_id(clientId_);
         //cmd.getProtoObj().set_pid(clientPid_);
         //cmd.getProtoObj().set_name(clientName_.toStdString());
         //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
-        connection_->sendCommand(cmd);
+        //connection_->sendCommand(cmd);
 
         //const LocationID &id = PersistentState::instance().lastLocation();
         //backend_->sendConnect(id);
@@ -272,12 +275,11 @@ void BackendCommander::sendCommand()
                 backend_->firewallOff(false);
             }
         }
-    }
+    }*/
     else if (command_ == CLI_COMMAND_LOCATIONS)
     {
-        Utils::giveFocusToGui();
-        Utils::openGuiLocations();
-        emit finished(tr("Viewing Locations..."));
-    }*/
+        IPC::ProtobufCommand<CliIpc::ShowLocations> cmd;
+        connection_->sendCommand(cmd);
+    }
 }
 

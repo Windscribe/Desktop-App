@@ -46,6 +46,7 @@ HEADERS += \
 SOURCES += \
     $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
     $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.cc \
+    $$COMMON_PATH/ipc/generated_proto/cli.pb.cc \
     $$COMMON_PATH/types/locationid.cpp \
     $$COMMON_PATH/types/pingtime.cpp \
     $$COMMON_PATH/utils/clean_sensitive_info.cpp \
@@ -70,6 +71,7 @@ HEADERS += \
     $$COMMON_PATH/names.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \
     $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.h \
+    $$COMMON_PATH/ipc/generated_proto/cli.pb.h \
     $$COMMON_PATH/types/locationid.h \
     $$COMMON_PATH/types/pingtime.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \

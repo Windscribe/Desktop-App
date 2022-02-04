@@ -32,5 +32,9 @@ message CurrentState
 // --- answers from GUI ---
 message StateChanged
 {
-  optional 
+  
+}
+
+message LocationsShown
+{
 }
