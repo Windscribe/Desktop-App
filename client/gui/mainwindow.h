@@ -228,6 +228,7 @@ private slots:
 
     // LocalIPCServer signals
     void onReceivedOpenLocationsMessage();
+    void onConnectToLocation(const LocationID &id);
 
 
     void showShutdownWindow();

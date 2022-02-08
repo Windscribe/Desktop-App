@@ -106,11 +106,6 @@ void WindscribeApplication::onActivateFromAnotherInstance()
     emit activateFromAnotherInstance();
 }
 
-void WindscribeApplication::onOpenLocationsFromAnotherInstance()
-{
-    emit openLocationsFromAnotherInstance();
-}
-
 #ifdef Q_OS_WIN
 void WindscribeApplication::onWinIniChanged()
 {

@@ -3,12 +3,14 @@
 #include "utils/logger.h"
 #include "ipc/server.h"
 #include "ipc/protobufcommand.h"
+#include "backend/persistentstate.h"
 
-LocalIPCServer::LocalIPCServer(QObject *parent) : QObject(parent)
+LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(parent)
+  , backend_(backend)
   , server_(NULL)
 
 {
-
+    connect(backend_, &Backend::connectStateChanged, this, &LocalIPCServer::onBackendConnectStateChanged);
 }
 
 LocalIPCServer::~LocalIPCServer()
@@ -64,6 +66,67 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
     {
         emit showLocations();
     }
+    else if (command->getStringId() == CliIpc::Connect::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<CliIpc::Connect> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::Connect> *>(command);
+        QString locationStr = QString::fromStdString(cmd->getProtoObj().location());
+        LocationID lid;
+        if (locationStr.isEmpty())
+        {
+            lid = PersistentState::instance().lastLocation();
+        }
+        else if (locationStr == "best")
+        {
+            lid = backend_->getLocationsModel()->getBestLocationId();
+        }
+        else
+        {
+            lid = backend_->getLocationsModel()->findLocationByFilter(locationStr);
+            /*if (lid.isValid())
+            {
+                qCDebug(LOG_BASIC) << "Connecting to" << lid.getHashString();
+                backend_->sendConnect(lid);
+            }
+            else
+            {
+                emit finished(tr("Error: Could not find server matching: \"") + locationStr_ + "\"");
+            }*/
+        }
+
+        for (IPC::IConnection * connection : connections_)
+        {
+            IPC::ProtobufCommand<CliIpc::ConnectToLocationAnswer> cmd;
+            if (lid.isValid())
+            {
+                cmd.getProtoObj().set_is_success(true);
+                cmd.getProtoObj().set_location(lid.city().toStdString());
+            }
+            else
+            {
+                cmd.getProtoObj().set_is_success(false);
+            }
+            connection->sendCommand(cmd);
+        }
+        if (lid.isValid())
+        {
+            emit connectToLocation(lid);
+        }
+    }
+    else if (command->getStringId() == CliIpc::Disconnect::descriptor()->full_name())
+    {
+        if (backend_->isDisconnected())
+        {
+            for (IPC::IConnection * connection : connections_)
+            {
+                IPC::ProtobufCommand<CliIpc::AlreadyDisconnected> cmd;
+                connection->sendCommand(cmd);
+            }
+        }
+        else
+        {
+            backend_->sendDisconnect();
+        }
+    }
 }
 
 void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *connection)
@@ -83,4 +146,14 @@ void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *conn
         delete connection;
     }
 
+}
+
+void LocalIPCServer::onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState)
+{
+    for (IPC::IConnection * connection : connections_)
+    {
+        IPC::ProtobufCommand<CliIpc::ConnectStateChanged> cmd;
+        *cmd.getProtoObj().mutable_connect_state() = connectState;
+        connection->sendCommand(cmd);
+    }
 }

@@ -2,6 +2,7 @@
 
 #include "utils/utils.h"
 #include "utils/logger.h"
+#include "types/locationid.h"
 #include "ipc/connection.h"
 #include "ipc/protobufcommand.h"
 
@@ -12,9 +13,9 @@ BackendCommander::BackendCommander(CliCommand cmd, const QString &location) : QO
     , connection_(nullptr)
     , command_(cmd)
     , locationStr_(location)
+    , bCommandSent_(false)
     , receivedStateInit_(false)
     , receivedLocationsInit_(false)
-    , sent_(false)
 {
     unsigned long cliPid = Utils::getCurrentPid();
     qCDebug(LOG_BASIC) << "CLI pid: " << cliPid;
@@ -46,9 +47,58 @@ void BackendCommander::initAndSend()
 
 void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection)
 {
-    if (command->getStringId() == CliIpc::LocationsShown::descriptor()->full_name())
+    if (bCommandSent_ && command->getStringId() == CliIpc::LocationsShown::descriptor()->full_name())
     {
         emit finished(tr("Viewing Locations..."));
+    }
+    else if (bCommandSent_ && command->getStringId() == CliIpc::ConnectToLocationAnswer::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<CliIpc::ConnectToLocationAnswer> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::ConnectToLocationAnswer> *>(command);
+
+        if (cmd->getProtoObj().is_success())
+        {
+            qCDebug(LOG_BASIC) << "Connecting to" << QString::fromStdString(cmd->getProtoObj().location());
+            emit report("Connecting to " + QString::fromStdString(cmd->getProtoObj().location()));
+        }
+        else
+        {
+            emit finished(tr("Error: Could not find server matching: \"") + locationStr_ + "\"");
+        }
+    }
+    else if (bCommandSent_ && command->getStringId() == CliIpc::ConnectStateChanged::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<CliIpc::ConnectStateChanged> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::ConnectStateChanged> *>(command);
+
+
+        if (command_ >= CLI_COMMAND_CONNECT && command_ <= CLI_COMMAND_DISCONNECT)
+        {
+            if (cmd->getProtoObj().connect_state().connect_state_type() == ProtoTypes::CONNECTED)
+            {
+                if (cmd->getProtoObj().connect_state().has_location())
+                {
+                    LocationID currentLocation = LocationID::createFromProtoBuf(cmd->getProtoObj().connect_state().location());
+
+                    QString locationConnectedTo;
+                    if (currentLocation.isBestLocation())
+                    {
+                        locationConnectedTo = tr("Best Location");
+                    }
+                    else
+                    {
+                        locationConnectedTo = QString::fromStdString(cmd->getProtoObj().connect_state().location().city());
+                    }
+                    emit finished(tr("Connected to ") + locationConnectedTo);
+                }
+            }
+            else if (cmd->getProtoObj().connect_state().connect_state_type() == ProtoTypes::DISCONNECTED)
+            {
+                emit finished(tr("Disconnected"));
+            }
+        }
+    }
+    else if (bCommandSent_ && command->getStringId() == CliIpc::AlreadyDisconnected::descriptor()->full_name())
+    {
+        emit finished(tr("Already Disconnected"));
     }
 }
 
@@ -176,22 +226,15 @@ void BackendCommander::onBackendLocationsUpdated()
     }
 }*/
 
-void BackendCommander::sendOneCommand()
-{
-    if (!sent_)
-    {
-        sent_ = true;
-        sendCommand();
-    }
-}
-
 void BackendCommander::sendCommand()
 {
-    if (command_ == CLI_COMMAND_CONNECT)
+    if (command_ == CLI_COMMAND_CONNECT || command_ == CLI_COMMAND_CONNECT_BEST || command_ == CLI_COMMAND_CONNECT_LOCATION)
     {
         qCDebug(LOG_BASIC) << "Connecting to last";
 
-        //IPC::ProtobufCommand<CliIpc::Connect> cmd;
+        IPC::ProtobufCommand<CliIpc::Connect> cmd;
+        cmd.getProtoObj().set_location(locationStr_.toStdString());
+        connection_->sendCommand(cmd);
         //cmd.getProtoObj().set_protocol_version(protocolVersion_);
         //cmd.getProtoObj().set_client_id(clientId_);
         //cmd.getProtoObj().set_pid(clientPid_);
@@ -226,19 +269,21 @@ void BackendCommander::sendCommand()
         {
             emit finished(tr("Error: Please specify a server region, city or nickname"));
         }
-    }
+    }*/
     else if (command_ == CLI_COMMAND_DISCONNECT)
     {
-        if (backend_->isDisconnected())
+        IPC::ProtobufCommand<CliIpc::Disconnect> cmd;
+        connection_->sendCommand(cmd);
+        /*if (backend_->isDisconnected())
         {
             emit finished(tr("Already Disconnected"));
         }
         else
         {
             backend_->sendDisconnect();
-        }
+        }*/
     }
-    else if (command_ == CLI_COMMAND_FIREWALL_ON)
+    /*else if (command_ == CLI_COMMAND_FIREWALL_ON)
     {
         if (backend_->isFirewallAlwaysOn())
         {
@@ -281,5 +326,6 @@ void BackendCommander::sendCommand()
         IPC::ProtobufCommand<CliIpc::ShowLocations> cmd;
         connection_->sendCommand(cmd);
     }
+    bCommandSent_ = true;
 }
 

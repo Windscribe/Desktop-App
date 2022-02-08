@@ -200,8 +200,9 @@ MainWindow::MainWindow() :
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
 
-    localIpcServer_ = new LocalIPCServer(this);
+    localIpcServer_ = new LocalIPCServer(backend_, this);
     connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onReceivedOpenLocationsMessage);
+    connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onConnectToLocation);
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -352,7 +353,6 @@ MainWindow::MainWindow() :
     connect(app, SIGNAL(clickOnDock()), SLOT(toggleVisibilityIfDocked()));
     connect(app, SIGNAL(activateFromAnotherInstance()), SLOT(onAppActivateFromAnotherInstance()));
     connect(app, SIGNAL(shouldTerminate_mac()), SLOT(onAppShouldTerminate_mac()));
-    connect(app, SIGNAL(receivedOpenLocationsMessage()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(focusWindowChanged(QWindow*)), SLOT(onFocusWindowChanged(QWindow*)));
     connect(app, SIGNAL(applicationCloseRequest()), SLOT(onAppCloseRequest()));
 #if defined(Q_OS_WIN)
@@ -2783,6 +2783,7 @@ void MainWindow::onAppShouldTerminate_mac()
 
 void MainWindow::onReceivedOpenLocationsMessage()
 {
+    activateAndShow();
 
 #ifdef Q_OS_MAC
     // Strange bug on Mac that causes flicker when activateAndShow() is called from a minimized state
@@ -2808,6 +2809,11 @@ void MainWindow::onReceivedOpenLocationsMessage()
         mainWindowController_->expandLocations();
         localIpcServer_->sendLocationsShown();
     });
+}
+
+void MainWindow::onConnectToLocation(const LocationID &id)
+{
+    onLocationSelected(id);
 }
 
 void MainWindow::onAppCloseRequest()

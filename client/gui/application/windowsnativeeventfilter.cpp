@@ -14,7 +14,6 @@ WindowsNativeEventFilter::WindowsNativeEventFilter() : QAbstractNativeEventFilte
     bShutdownAlreadyReceived_ = false;
 #ifdef Q_OS_WIN
     dwActivateMessage_ = RegisterWindowMessage(WinUtils::wmActivateGui.c_str());
-    dwOpenLocations_ = RegisterWindowMessage(WinUtils::wmOpenGuiLocations.c_str());
 #endif
 }
 
@@ -57,12 +56,6 @@ bool WindowsNativeEventFilter::nativeEventFilter(const QByteArray &b, void *mess
     {
         qCDebug(LOG_BASIC) << "Windows activate app message received";
         WindscribeApplication::instance()->onActivateFromAnotherInstance();
-        return true;
-    }
-    else if (msg->message == dwOpenLocations_)
-    {
-        qCDebug(LOG_BASIC) << "Windows open locations message received";
-        WindscribeApplication::instance()->onOpenLocationsFromAnotherInstance();
         return true;
     }
     else if (msg->message == WM_WININICHANGE)

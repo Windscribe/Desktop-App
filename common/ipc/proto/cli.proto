@@ -24,17 +24,28 @@ message Firewall
   optional bool is_enable = 1 [default = false];
 }
 
-message CurrentState
-{
-}
-
 
 // --- answers from GUI ---
-message StateChanged
+message ConnectToLocationAnswer
 {
-  
+   optional bool is_success = 1;
+   optional string location = 2;
+}
+
+message ConnectStateChanged
+{
+   optional ProtoTypes.ConnectState connect_state = 1;
+}
+
+message FirewallStateChanged
+{
+  optional bool is_firewall_enabled = 1;
 }
 
 message LocationsShown
+{
+}
+
+message AlreadyDisconnected
 {
 }

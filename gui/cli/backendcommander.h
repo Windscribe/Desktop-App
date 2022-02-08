@@ -34,13 +34,12 @@ private:
     QElapsedTimer connectingTimer_;
     CliCommand command_;
     QString locationStr_;
+    bool bCommandSent_;
 
-    void sendOneCommand();
     void sendCommand();
 
     bool receivedStateInit_;
     bool receivedLocationsInit_;
-    bool sent_;
 };
 
 #endif // BACKENDCOMMANDER_H

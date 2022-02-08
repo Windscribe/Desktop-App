@@ -24,6 +24,7 @@ CliCommand CliApplication::cliCommand()
                 QString arg2 = args[2].toLower();
                 if (arg2 == "best")
                 {
+                    locationStr_ = "best";
                     command = CLI_COMMAND_CONNECT_BEST;
                 }
                 else

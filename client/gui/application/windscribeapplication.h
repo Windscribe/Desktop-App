@@ -34,7 +34,6 @@ public:
     void clearNeedAskClose() { bNeedAskClose_ = false; }
 
     void onActivateFromAnotherInstance();
-    void onOpenLocationsFromAnotherInstance();
 #ifdef Q_OS_WIN
     void onWinIniChanged();
 #endif
@@ -42,7 +41,6 @@ public:
 signals:
     void clickOnDock();
     void activateFromAnotherInstance();
-    void openLocationsFromAnotherInstance();
     void shouldTerminate_mac();
     void applicationCloseRequest();
 #ifdef Q_OS_WIN
