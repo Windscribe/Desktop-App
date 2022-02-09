@@ -223,7 +223,7 @@ def apply_mac_deploy_fixes(appname, fixlist):
     if "entitlements" in fixlist \
             and "entitlements_binary" in fixlist["entitlements"] \
             and "entitlements_file" in fixlist["entitlements"]:
-        # Can only sign with entitlements if the embedded provisioning file exists.  The engine will segfault on
+        # Can only sign with entitlements if the embedded provisioning file exists.  The client will segfault on
         # launch otherwise with a "EXC_CRASH (Code Signature Invalid)" exception type.
         if os.path.exists(pathhelper.mac_provision_profile_filename_absolute()):
             msg.Info("Signing a binary with entitlements...")
@@ -277,7 +277,7 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
                     deploy_cmd.append("-no-plugins")
                 iutl.RunCommand(deploy_cmd, env=buildenv)
                 update_version_in_plist(os.path.join(temp_wd, component["macapp"], "Contents", "Info.plist"))
-                if component["name"] == "Engine":
+                if component["name"] == "Client":
                     # Could not find an automated way to do this like we could with the xcodebuild below.
                     update_team_id(os.path.join(temp_wd, component["macapp"], "Contents", "Info.plist"))
         elif c_project.endswith(".vcxproj"):
