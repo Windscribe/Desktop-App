@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     if (a.cliCommand() == CLI_COMMAND_NONE)
     {
         qCDebug(LOG_BASIC) << "CLI args fail: Couldn't determine appropriate command from arguments";
-        QString output = QObject::tr("There appears to be an issue with the provided arguments. Try 'windscribe-cli ?' to see available options");
+        QString output = QObject::tr("There appears to be an issue with the provided arguments. Try 'windscribe-cli help' to see available options");
         std::cout << output.toStdString() << std::endl;
         return 0;
     }
@@ -89,49 +89,16 @@ int main(int argc, char *argv[])
 
         // GUI pathing
 #ifdef Q_OS_WIN
-        //QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe.exe";
-        QString guiPath = "C:/Program Files (x86)/Windscribe/Windscribe.exe";
+        QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe.exe";
 #elif defined Q_OS_MAC
         QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe";
 #endif
-        //QString workingDir = QCoreApplication::applicationDirPath();
-        QString workingDir = "C:/Program Files (x86)/Windscribe";
+        QString workingDir = QCoreApplication::applicationDirPath();
 
 #ifdef Q_OS_WIN
-        /*HANDLE guiInitEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("WindscribeGuiStarted"));
-        if (guiInitEvent == NULL)
-        {
-            logAndCout(QCoreApplication::tr("Aborting: Failed to create GuiStarted object"));
-            delete backendCommander;
-            return 0;
-        }*/
-
         QProcess::startDetached(guiPath, QStringList(), workingDir);
         backendCommander->initAndSend();
-
-        /*if (WaitForSingleObject(guiInitEvent, 10000) == WAIT_OBJECT_0)
-        {
-            backendCommander->initAndSend();
-            CloseHandle(guiInitEvent);
-        }
-        else
-        {
-            logAndCout(QCoreApplication::tr("Aborting: Gui did not start in time"));
-            CloseHandle(guiInitEvent);
-            delete backendCommander;
-            return 0;
-        }*/
 #else
-        /*const std::string guiStartedStr = "WindscribeGuiStarted";
-        sem_unlink(guiStartedStr.c_str());
-        sem_t *sem = sem_open(guiStartedStr.c_str(), O_CREAT | O_EXCL, 0666, 0);
-        if (sem == SEM_FAILED)
-        {
-            fprintf(stderr, "sem_open() failed.  errno:%d\n", errno);
-            logAndCout(QCoreApplication::tr("Aborting: Failed to create WindscribeGuiStarted semaphore"));
-            return 0;
-        }
-
         // use non-static start detached to prevent GUI output from polluting cli
         QProcess process;
         process.setProgram(guiPath);
@@ -141,30 +108,7 @@ int main(int argc, char *argv[])
         qint64 pid;
         process.startDetached(&pid);
 
-        // wait for GUI signal for 10s
-        int i = 10;
-        while (i > 0)
-        {
-            if (sem_trywait(sem) == 0)
-            {
-                logAndCout(QCoreApplication::tr("Received GUI signal -- Connecting to Engine"));
-                backendCommander->initAndSend();
-                break;
-            }
-
-            logAndCout("Waiting...");
-            sleep(1);
-            i--;
-        }
-
-        if (i == 0) // failed
-        {
-            logAndCout(QCoreApplication::tr("Aborting: Gui did not start in time"));
-            return 0;
-        }
-
-        sem_close(sem);
-        sem_unlink(guiStartedStr.c_str());*/
+        backendCommander->initAndSend();
 #endif
     }
 
