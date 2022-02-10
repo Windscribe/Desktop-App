@@ -27,10 +27,14 @@ private slots:
     void onConnectionStateCallback(int state, IPC::IConnection *connection);
     void onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState);
 
+    void onBackendLoginFinished(bool isLoginFromSavedSettings);
+    void onBackendSignOutFinished();
+
 private:
     Backend *backend_;
     IPC::IServer *server_;
     QVector<IPC::IConnection *> connections_;
+    bool isLoggedIn_;
 };
 
 #endif // LOCALIPCSERVER_H

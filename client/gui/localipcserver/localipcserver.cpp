@@ -8,9 +8,11 @@
 LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(parent)
   , backend_(backend)
   , server_(NULL)
-
+  , isLoggedIn_(false)
 {
     connect(backend_, &Backend::connectStateChanged, this, &LocalIPCServer::onBackendConnectStateChanged);
+    connect(backend_, &Backend::loginFinished, this, &LocalIPCServer::onBackendLoginFinished);
+    connect(backend_, &Backend::signOutFinished, this, &LocalIPCServer::onBackendSignOutFinished);
 }
 
 LocalIPCServer::~LocalIPCServer()
@@ -127,6 +129,15 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
             backend_->sendDisconnect();
         }
     }
+    else if (command->getStringId() == CliIpc::GetState::descriptor()->full_name())
+    {
+        for (IPC::IConnection * connection : connections_)
+        {
+            IPC::ProtobufCommand<CliIpc::State> cmd;
+            cmd.getProtoObj().set_is_logged_in(isLoggedIn_);
+            connection->sendCommand(cmd);
+        }
+    }
 }
 
 void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *connection)
@@ -156,4 +167,14 @@ void LocalIPCServer::onBackendConnectStateChanged(const ProtoTypes::ConnectState
         *cmd.getProtoObj().mutable_connect_state() = connectState;
         connection->sendCommand(cmd);
     }
+}
+
+void LocalIPCServer::onBackendLoginFinished(bool isLoginFromSavedSettings)
+{
+    isLoggedIn_ = true;
+}
+
+void LocalIPCServer::onBackendSignOutFinished()
+{
+    isLoggedIn_ = false;
 }

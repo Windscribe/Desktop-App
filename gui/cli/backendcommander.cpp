@@ -16,6 +16,7 @@ BackendCommander::BackendCommander(CliCommand cmd, const QString &location) : QO
     , bCommandSent_(false)
     , receivedStateInit_(false)
     , receivedLocationsInit_(false)
+    , bLogginInMessageShown_(false)
 {
     unsigned long cliPid = Utils::getCurrentPid();
     qCDebug(LOG_BASIC) << "CLI pid: " << cliPid;
@@ -100,6 +101,31 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
     {
         emit finished(tr("Already Disconnected"));
     }
+    else if (command->getStringId() == CliIpc::State::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<CliIpc::State> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::State> *>(command);
+        if (cmd->getProtoObj().is_logged_in())
+        {
+            sendCommand();
+        }
+        else
+        {
+            if (loggedInTimer_.isValid() && loggedInTimer_.elapsed() > MAX_LOGIN_TIME_MS)
+            {
+                loggedInTimer_.invalidate();
+                emit finished("Aborting: Gui did not login in time");
+            }
+            else
+            {
+                if (!bLogginInMessageShown_)
+                {
+                    bLogginInMessageShown_ = true;
+                    emit report("GUI is not logged in. Waiting for the login...");
+                }
+                QTimer::singleShot(100, this, &BackendCommander::sendStateCommand);
+            }
+        }
+    }
 }
 
 void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection *connection)
@@ -108,7 +134,8 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection *con
     {
         qCDebug(LOG_BASIC) << "Connected to GUI server";
         ipcState_ = IPC_CONNECTED;
-        sendCommand();
+        loggedInTimer_.start();
+        sendStateCommand();
     }
     else if (state == IPC::CONNECTION_DISCONNECTED)
     {
@@ -128,7 +155,6 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection *con
             {
                // Try connect again. Delay is necessary so that Engine process will actually start
                // running on low resource systems.
-               //connectionAttemptTimer_.start(100);
                 QTimer::singleShot(100, [this]() { connection_->connect(); } );
             }
         }
@@ -327,5 +353,11 @@ void BackendCommander::sendCommand()
         connection_->sendCommand(cmd);
     }
     bCommandSent_ = true;
+}
+
+void BackendCommander::sendStateCommand()
+{
+    IPC::ProtobufCommand<CliIpc::GetState> cmd;
+    connection_->sendCommand(cmd);
 }
 
