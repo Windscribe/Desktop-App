@@ -214,3 +214,28 @@ const QString LinuxUtils::getLastInstallPlatform()
     linuxPlatformName = lastInstallPlatform.readAll().trimmed(); // remove newline
     return linuxPlatformName;
 }
+
+std::string LinuxUtils::execCmd(const char *cmd)
+{
+    char buffer[128];
+    std::string result = "";
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) return "";
+    while (!feof(pipe))
+    {
+        if (fgets(buffer, 128, pipe) != NULL)
+        {
+            result += buffer;
+        }
+    }
+    pclose(pipe);
+    return result;
+}
+
+bool LinuxUtils::isGuiAlreadyRunning()
+{
+    // Look for process containing "Windscribe" -- exclude grep and Engine
+    QString cmd = "ps axco command | grep Windscribe | grep -v grep | grep -v WindscribeEngine | grep -v windscribe-cli";
+    QString response = QString::fromStdString(execCmd(cmd.toStdString().c_str()));
+    return response.trimmed() != "";
+}

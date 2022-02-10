@@ -247,9 +247,7 @@ bool Utils::isGuiAlreadyRunning()
 #elif defined Q_OS_MAC
     return MacUtils::isGuiAlreadyRunning();
 #elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-    return true;
+    return LinuxUtils::isGuiAlreadyRunning();
 #endif
 }
 

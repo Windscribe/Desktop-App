@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
         // GUI pathing
 #ifdef Q_OS_WIN
         QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe.exe";
-#elif defined Q_OS_MAC
+#else
         QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe";
 #endif
         QString workingDir = QCoreApplication::applicationDirPath();

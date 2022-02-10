@@ -1,4 +1,4 @@
-QT += core gui network
+QT += core network
 
 CONFIG += console
 CONFIG -= app_bundle
@@ -54,6 +54,7 @@ win32{
 }
 
 macx {
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
 
     #remove unused parameter warnings
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
@@ -77,8 +78,19 @@ macx {
             $$COMMON_PATH/utils/macutils.h
 }
 
-macx {
-QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
+linux {
+    INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
+    LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+
+    INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+    LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
+
+    SOURCES += \
+        $$COMMON_PATH/utils/linuxutils.cpp
+
+    HEADERS += \
+        $$COMMON_PATH/utils/linuxutils.h
+
 }
 
 SOURCES += \
