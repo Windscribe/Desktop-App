@@ -11,6 +11,7 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
   , isLoggedIn_(false)
 {
     connect(backend_, &Backend::connectStateChanged, this, &LocalIPCServer::onBackendConnectStateChanged);
+    connect(backend_, &Backend::firewallStateChanged, this, &LocalIPCServer::onBackendFirewallStateChanged);
     connect(backend_, &Backend::loginFinished, this, &LocalIPCServer::onBackendLoginFinished);
     connect(backend_, &Backend::signOutFinished, this, &LocalIPCServer::onBackendSignOutFinished);
 }
@@ -62,7 +63,7 @@ void LocalIPCServer::onServerCallbackAcceptFunction(IPC::IConnection *connection
     connect(dynamic_cast<QObject*>(connection), SIGNAL(stateChanged(int, IPC::IConnection *)), SLOT(onConnectionStateCallback(int, IPC::IConnection *)));
 }
 
-void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConnection *connection)
+void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConnection * /*connection*/)
 {
     if (command->getStringId() == CliIpc::ShowLocations::descriptor()->full_name())
     {
@@ -84,31 +85,20 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
         else
         {
             lid = backend_->getLocationsModel()->findLocationByFilter(locationStr);
-            /*if (lid.isValid())
-            {
-                qCDebug(LOG_BASIC) << "Connecting to" << lid.getHashString();
-                backend_->sendConnect(lid);
-            }
-            else
-            {
-                emit finished(tr("Error: Could not find server matching: \"") + locationStr_ + "\"");
-            }*/
         }
 
-        for (IPC::IConnection * connection : connections_)
+        IPC::ProtobufCommand<CliIpc::ConnectToLocationAnswer> cmd_send;
+        if (lid.isValid())
         {
-            IPC::ProtobufCommand<CliIpc::ConnectToLocationAnswer> cmd;
-            if (lid.isValid())
-            {
-                cmd.getProtoObj().set_is_success(true);
-                cmd.getProtoObj().set_location(lid.city().toStdString());
-            }
-            else
-            {
-                cmd.getProtoObj().set_is_success(false);
-            }
-            connection->sendCommand(cmd);
+            cmd_send.getProtoObj().set_is_success(true);
+            cmd_send.getProtoObj().set_location(lid.city().toStdString());
         }
+        else
+        {
+            cmd_send.getProtoObj().set_is_success(false);
+        }
+        sendCommand(cmd_send);
+
         if (lid.isValid())
         {
             emit connectToLocation(lid);
@@ -118,11 +108,8 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
     {
         if (backend_->isDisconnected())
         {
-            for (IPC::IConnection * connection : connections_)
-            {
-                IPC::ProtobufCommand<CliIpc::AlreadyDisconnected> cmd;
-                connection->sendCommand(cmd);
-            }
+            IPC::ProtobufCommand<CliIpc::AlreadyDisconnected> cmd;
+            sendCommand(cmd);
         }
         else
         {
@@ -131,11 +118,47 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
     }
     else if (command->getStringId() == CliIpc::GetState::descriptor()->full_name())
     {
-        for (IPC::IConnection * connection : connections_)
+        IPC::ProtobufCommand<CliIpc::State> cmd;
+        cmd.getProtoObj().set_is_logged_in(isLoggedIn_);
+        sendCommand(cmd);
+    }
+    else if (command->getStringId() == CliIpc::Firewall::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<CliIpc::Firewall> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::Firewall> *>(command);
+        if (cmd->getProtoObj().is_enable())
         {
-            IPC::ProtobufCommand<CliIpc::State> cmd;
-            cmd.getProtoObj().set_is_logged_in(isLoggedIn_);
-            connection->sendCommand(cmd);
+            if (!backend_->isFirewallEnabled())
+            {
+                backend_->firewallOn();
+            }
+            else
+            {
+                IPC::ProtobufCommand<CliIpc::FirewallStateChanged> cmd;
+                cmd.getProtoObj().set_is_firewall_enabled(true);
+                cmd.getProtoObj().set_is_firewall_always_on(backend_->isFirewallAlwaysOn());
+                sendCommand(cmd);
+            }
+        }
+        else
+        {
+            if (!backend_->isFirewallEnabled())
+            {
+                IPC::ProtobufCommand<CliIpc::FirewallStateChanged> cmd;
+                cmd.getProtoObj().set_is_firewall_enabled(false);
+                cmd.getProtoObj().set_is_firewall_always_on(backend_->isFirewallAlwaysOn());
+                sendCommand(cmd);
+            }
+            else if (!backend_->isFirewallAlwaysOn())
+            {
+                backend_->firewallOff();
+            }
+            else
+            {
+                IPC::ProtobufCommand<CliIpc::FirewallStateChanged> cmd;
+                cmd.getProtoObj().set_is_firewall_enabled(true);
+                cmd.getProtoObj().set_is_firewall_always_on(backend_->isFirewallAlwaysOn());
+                sendCommand(cmd);
+            }
         }
     }
 }
@@ -161,15 +184,20 @@ void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *conn
 
 void LocalIPCServer::onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState)
 {
-    for (IPC::IConnection * connection : connections_)
-    {
-        IPC::ProtobufCommand<CliIpc::ConnectStateChanged> cmd;
-        *cmd.getProtoObj().mutable_connect_state() = connectState;
-        connection->sendCommand(cmd);
-    }
+    IPC::ProtobufCommand<CliIpc::ConnectStateChanged> cmd;
+    *cmd.getProtoObj().mutable_connect_state() = connectState;
+    sendCommand(cmd);
 }
 
-void LocalIPCServer::onBackendLoginFinished(bool isLoginFromSavedSettings)
+void LocalIPCServer::onBackendFirewallStateChanged(bool isEnabled)
+{
+    IPC::ProtobufCommand<CliIpc::FirewallStateChanged> cmd;
+    cmd.getProtoObj().set_is_firewall_enabled(isEnabled);
+    cmd.getProtoObj().set_is_firewall_always_on(backend_->isFirewallAlwaysOn());
+    sendCommand(cmd);
+}
+
+void LocalIPCServer::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
 {
     isLoggedIn_ = true;
 }
@@ -177,4 +205,12 @@ void LocalIPCServer::onBackendLoginFinished(bool isLoginFromSavedSettings)
 void LocalIPCServer::onBackendSignOutFinished()
 {
     isLoggedIn_ = false;
+}
+
+void LocalIPCServer::sendCommand(const IPC::Command &command)
+{
+    for (IPC::IConnection * connection : connections_)
+    {
+        connection->sendCommand(command);
+    }
 }

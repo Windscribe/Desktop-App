@@ -23,7 +23,6 @@ signals:
 private slots:
     void onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection);
     void onConnectionStateChanged(int state, IPC::IConnection *connection);
-    void onConnectionConnectAttempt();
 
 private:
     enum IPC_STATE { IPC_INIT_STATE, IPC_CONNECTING, IPC_CONNECTED };
@@ -41,9 +40,6 @@ private:
 
     void sendCommand();
     void sendStateCommand();
-
-    bool receivedStateInit_;
-    bool receivedLocationsInit_;
 };
 
 #endif // BACKENDCOMMANDER_H

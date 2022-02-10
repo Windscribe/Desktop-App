@@ -360,6 +360,14 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<CliIpc::State>(buf, size);
     }
+    else if (strId == CliIpc::Firewall::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::Firewall>(buf, size);
+    }
+    else if (strId == CliIpc::FirewallStateChanged::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::FirewallStateChanged>(buf, size);
+    }
 
 
     Q_ASSERT(false);

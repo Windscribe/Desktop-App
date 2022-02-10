@@ -25,8 +25,9 @@ private slots:
     void onServerCallbackAcceptFunction(IPC::IConnection *connection);
     void onConnectionCommandCallback(IPC::Command *command, IPC::IConnection *connection);
     void onConnectionStateCallback(int state, IPC::IConnection *connection);
-    void onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState);
 
+    void onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState);
+    void onBackendFirewallStateChanged(bool isEnabled);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendSignOutFinished();
 
@@ -35,6 +36,9 @@ private:
     IPC::IServer *server_;
     QVector<IPC::IConnection *> connections_;
     bool isLoggedIn_;
+
+
+    void sendCommand(const IPC::Command &command);
 };
 
 #endif // LOCALIPCSERVER_H

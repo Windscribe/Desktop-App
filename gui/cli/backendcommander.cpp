@@ -14,18 +14,11 @@ BackendCommander::BackendCommander(CliCommand cmd, const QString &location) : QO
     , command_(cmd)
     , locationStr_(location)
     , bCommandSent_(false)
-    , receivedStateInit_(false)
-    , receivedLocationsInit_(false)
     , bLogginInMessageShown_(false)
 {
     unsigned long cliPid = Utils::getCurrentPid();
     qCDebug(LOG_BASIC) << "CLI pid: " << cliPid;
-    /*backend_ = new Backend(ProtoTypes::CLIENT_ID_CLI, cliPid, "cli app", this);
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendConnectStateChanged(ProtoTypes::ConnectState)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));*/
-}
+ }
 
 BackendCommander::~BackendCommander()
 {
@@ -46,7 +39,7 @@ void BackendCommander::initAndSend()
     connection_->connect();
 }
 
-void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection)
+void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /*connection*/)
 {
     if (bCommandSent_ && command->getStringId() == CliIpc::LocationsShown::descriptor()->full_name())
     {
@@ -126,9 +119,28 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
             }
         }
     }
+    else if (command->getStringId() == CliIpc::FirewallStateChanged::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<CliIpc::FirewallStateChanged> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::FirewallStateChanged> *>(command);
+        if (cmd->getProtoObj().is_firewall_enabled())
+        {
+            if (cmd->getProtoObj().is_firewall_always_on())
+            {
+                emit finished(tr("Firewall is in Always On mode and cannot be changed"));
+            }
+            else
+            {
+                emit finished(tr("Firewall is ON"));
+            }
+        }
+        else
+        {
+            emit finished(tr("Firewall is OFF"));
+        }
+    }
 }
 
-void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection *connection)
+void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection * /*connection*/)
 {
     if (state == IPC::CONNECTION_CONNECTED)
     {
@@ -165,93 +177,6 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection *con
     }
 }
 
-void BackendCommander::onConnectionConnectAttempt()
-{
-
-}
-
-
-/*void BackendCommander::onBackendInitFinished(ProtoTypes::InitState state)
-{
-    if (state == ProtoTypes::INIT_SUCCESS)
-    {
-        if (backend_->isCanLoginWithAuthHash()) // Logged in
-        {
-            emit report("Forcing CLI state update");
-            backend_->forceCliStateUpdate();
-        }
-        else
-        {
-            emit finished(tr("Error: Please login in the GUI before issuing commands"));
-        }
-    }
-    else
-    {
-        emit finished(tr("Error: Failed to initialize with Engine"));
-    }
-}
-
-void BackendCommander::onBackendFirewallStateChanged(bool isEnabled)
-{
-    if (sent_ && (command_ == CLI_COMMAND_FIREWALL_ON || command_ == CLI_COMMAND_FIREWALL_OFF))
-    {
-        if (isEnabled)
-        {
-            emit finished(tr("Firewall is ON"));
-        }
-        else
-        {
-            emit finished(tr("Firewall is OFF"));
-        }
-    }
-}
-
-void BackendCommander::onBackendConnectStateChanged(ProtoTypes::ConnectState state)
-{
-    if (sent_ && command_ >= CLI_COMMAND_CONNECT && command_ <= CLI_COMMAND_DISCONNECT)
-    {
-        if (state.connect_state_type() == ProtoTypes::CONNECTED)
-        {
-            if (state.has_location())
-            {
-                LocationID currentLocation = LocationID::createFromProtoBuf(state.location());
-                PersistentState::instance().setLastLocation(currentLocation);
-
-                QString locationConnectedTo;
-                if (currentLocation.isBestLocation())
-                {
-                    locationConnectedTo = tr("Best Location");
-                }
-                else
-                {
-                    locationConnectedTo = QString::fromStdString(state.location().city());
-                }
-                emit finished(tr("Connected to ") + locationConnectedTo);
-            }
-        }
-        else if (state.connect_state_type() == ProtoTypes::DISCONNECTED)
-        {
-            emit finished(tr("Disconnected"));
-        }
-    }
-
-    receivedStateInit_ = true;
-    if (receivedStateInit_ && receivedLocationsInit_)
-    {
-        sendOneCommand();
-    }
-}
-
-void BackendCommander::onBackendLocationsUpdated()
-{
-    qCDebug(LOG_IPC) << "Locations Updated";
-    receivedLocationsInit_ = true;
-    if (receivedStateInit_ && receivedLocationsInit_)
-    {
-        sendOneCommand();
-    }
-}*/
-
 void BackendCommander::sendCommand()
 {
     if (command_ == CLI_COMMAND_CONNECT || command_ == CLI_COMMAND_CONNECT_BEST || command_ == CLI_COMMAND_CONNECT_LOCATION)
@@ -261,92 +186,24 @@ void BackendCommander::sendCommand()
         IPC::ProtobufCommand<CliIpc::Connect> cmd;
         cmd.getProtoObj().set_location(locationStr_.toStdString());
         connection_->sendCommand(cmd);
-        //cmd.getProtoObj().set_protocol_version(protocolVersion_);
-        //cmd.getProtoObj().set_client_id(clientId_);
-        //cmd.getProtoObj().set_pid(clientPid_);
-        //cmd.getProtoObj().set_name(clientName_.toStdString());
-        //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
-        //connection_->sendCommand(cmd);
-
-        //const LocationID &id = PersistentState::instance().lastLocation();
-        //backend_->sendConnect(id);
     }
-    /*else if (command_ == CLI_COMMAND_CONNECT_BEST)
-    {
-        qCDebug(LOG_BASIC) << "Connecting to best";
-        backend_->sendConnect(backend_->getLocationsModel()->getBestLocationId());
-    }
-    else if (command_ == CLI_COMMAND_CONNECT_LOCATION)
-    {
-        if (locationStr_ != "")
-        {
-            LocationID lid = backend_->getLocationsModel()->findLocationByFilter(locationStr_);
-            if (lid.isValid())
-            {
-                qCDebug(LOG_BASIC) << "Connecting to" << lid.getHashString();
-                backend_->sendConnect(lid);
-            }
-            else
-            {
-                emit finished(tr("Error: Could not find server matching: \"") + locationStr_ + "\"");
-            }
-        }
-        else
-        {
-            emit finished(tr("Error: Please specify a server region, city or nickname"));
-        }
-    }*/
     else if (command_ == CLI_COMMAND_DISCONNECT)
     {
         IPC::ProtobufCommand<CliIpc::Disconnect> cmd;
         connection_->sendCommand(cmd);
-        /*if (backend_->isDisconnected())
-        {
-            emit finished(tr("Already Disconnected"));
-        }
-        else
-        {
-            backend_->sendDisconnect();
-        }*/
     }
-    /*else if (command_ == CLI_COMMAND_FIREWALL_ON)
+    else if (command_ == CLI_COMMAND_FIREWALL_ON)
     {
-        if (backend_->isFirewallAlwaysOn())
-        {
-            emit finished(tr("Firewall is in Always On mode and cannot be changed"));
-        }
-        else
-        {
-            if (backend_->isFirewallEnabled()) // already on
-            {
-                emit finished(tr("Firewall is already ON"));
-            }
-            else
-            {
-                qCDebug(LOG_BASIC) << "Sending firewall on";
-                backend_->firewallOn(false);
-            }
-        }
+        IPC::ProtobufCommand<CliIpc::Firewall> cmd;
+        cmd.getProtoObj().set_is_enable(true);
+        connection_->sendCommand(cmd);
     }
     else if (command_ == CLI_COMMAND_FIREWALL_OFF)
     {
-        if (backend_->isFirewallAlwaysOn())
-        {
-            emit finished(tr("Firewall is in Always On mode and cannot be changed"));
-        }
-        else
-        {
-            if (!backend_->isFirewallEnabled()) // already off
-            {
-                emit finished(tr("Firewall is already OFF"));
-            }
-            else
-            {
-                qCDebug(LOG_BASIC) << "Sending firewall off";
-                backend_->firewallOff(false);
-            }
-        }
-    }*/
+        IPC::ProtobufCommand<CliIpc::Firewall> cmd;
+        cmd.getProtoObj().set_is_enable(false);
+        connection_->sendCommand(cmd);
+    }
     else if (command_ == CLI_COMMAND_LOCATIONS)
     {
         IPC::ProtobufCommand<CliIpc::ShowLocations> cmd;

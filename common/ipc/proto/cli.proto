@@ -44,6 +44,7 @@ message ConnectStateChanged
 message FirewallStateChanged
 {
   optional bool is_firewall_enabled = 1;
+  optional bool is_firewall_always_on = 2;
 }
 
 message LocationsShown
