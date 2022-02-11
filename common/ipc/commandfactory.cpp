@@ -323,6 +323,52 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCServerCommands::WebSessionToken>(buf, size);
     }
+    // CLI commands
+    else if (strId == CliIpc::Connect::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::Connect>(buf, size);
+    }
+    else if (strId == CliIpc::ConnectToLocationAnswer::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::ConnectToLocationAnswer>(buf, size);
+    }
+    else if (strId == CliIpc::ConnectStateChanged::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::ConnectStateChanged>(buf, size);
+    }
+    else if (strId == CliIpc::Disconnect::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::Disconnect>(buf, size);
+    }
+    else if (strId == CliIpc::AlreadyDisconnected::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::AlreadyDisconnected>(buf, size);
+    }
+    else if (strId == CliIpc::ShowLocations::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::ShowLocations>(buf, size);
+    }
+    else if (strId == CliIpc::LocationsShown::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::LocationsShown>(buf, size);
+    }
+    else if (strId == CliIpc::GetState::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::GetState>(buf, size);
+    }
+    else if (strId == CliIpc::State::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::State>(buf, size);
+    }
+    else if (strId == CliIpc::Firewall::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::Firewall>(buf, size);
+    }
+    else if (strId == CliIpc::FirewallStateChanged::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::FirewallStateChanged>(buf, size);
+    }
+
 
     Q_ASSERT(false);
     return NULL;

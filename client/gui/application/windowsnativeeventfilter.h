@@ -14,7 +14,6 @@ private:
 
 #ifdef Q_OS_WIN
     unsigned int dwActivateMessage_;
-    unsigned int dwOpenLocations_;
 #endif
 };
 

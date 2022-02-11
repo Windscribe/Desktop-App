@@ -159,6 +159,7 @@ targets:
     - client
   linux:
     - helper_linux
+    - cli
     - client
     - authhelper_linux
   authhelper_win:
@@ -245,6 +246,7 @@ files_fix_rpath_linux:
   - windscribeopenvpn -> $ORIGIN/lib
   - windscribe-authhelper -> $ORIGIN/lib
   - Windscribe -> $ORIGIN/lib
+  - windscribe-cli -> $ORIGIN/lib
   - helper -> $ORIGIN/lib
 
 files_codesign_linux:

@@ -200,6 +200,10 @@ MainWindow::MainWindow() :
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
 
+    localIpcServer_ = new LocalIPCServer(backend_, this);
+    connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onReceivedOpenLocationsMessage);
+    connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onConnectToLocation);
+
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
     mainWindowController_->getConnectWindow()->updateMyIp(PersistentState::instance().lastExternalIp());
@@ -348,9 +352,7 @@ MainWindow::MainWindow() :
     WindscribeApplication * app = WindscribeApplication::instance();
     connect(app, SIGNAL(clickOnDock()), SLOT(toggleVisibilityIfDocked()));
     connect(app, SIGNAL(activateFromAnotherInstance()), SLOT(onAppActivateFromAnotherInstance()));
-    connect(app, SIGNAL(openLocationsFromAnotherInstance()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(shouldTerminate_mac()), SLOT(onAppShouldTerminate_mac()));
-    connect(app, SIGNAL(receivedOpenLocationsMessage()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(focusWindowChanged(QWindow*)), SLOT(onFocusWindowChanged(QWindow*)));
     connect(app, SIGNAL(applicationCloseRequest()), SLOT(onAppCloseRequest()));
 #if defined(Q_OS_WIN)
@@ -1466,14 +1468,7 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
 
     if (initState == ProtoTypes::INIT_SUCCESS)
     {
-        if (Utils::reportGuiEngineInit())
-        {
-            qCDebug(LOG_BASIC) << "Sent GUI-Engine Init signal";
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Failed to send GUI-Engine Init signal";
-        }
+        localIpcServer_->start(); // start local IPC server for receive commands from CLI
 
         setInitialFirewallState();
 
@@ -2788,6 +2783,7 @@ void MainWindow::onAppShouldTerminate_mac()
 
 void MainWindow::onReceivedOpenLocationsMessage()
 {
+    activateAndShow();
 
 #ifdef Q_OS_MAC
     // Strange bug on Mac that causes flicker when activateAndShow() is called from a minimized state
@@ -2811,7 +2807,13 @@ void MainWindow::onReceivedOpenLocationsMessage()
     // from a CLI-spawned-GUI (Mac): could fail Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT) in expandLocations
     QTimer::singleShot(500, [this](){
         mainWindowController_->expandLocations();
+        localIpcServer_->sendLocationsShown();
     });
+}
+
+void MainWindow::onConnectToLocation(const LocationID &id)
+{
+    onLocationSelected(id);
 }
 
 void MainWindow::onAppCloseRequest()

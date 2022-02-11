@@ -11,7 +11,6 @@ namespace WinUtils
     const std::wstring classNameIcon = L"Qt5QWindowIcon";
     const std::wstring wsGuiIcon = L"Windscribe";
     const std::wstring wmActivateGui = L"WindscribeAppActivate";
-    const std::wstring wmOpenGuiLocations = L"WindscribeAppOpenLocations";
 
     bool reboot();
     bool isWindows10orGreater();
@@ -24,9 +23,6 @@ namespace WinUtils
     QString executeBlockingCmd(QString cmd, const QString &params, int timeoutMs = -1);
 
     bool isGuiAlreadyRunning();
-    bool giveFocusToGui();
-    void openGuiLocations();
-    bool reportGuiEngineInit();
 
     bool isServiceRunning(const QString &serviceName);
 

@@ -1,4 +1,4 @@
-QT += core gui network
+QT += core network
 
 CONFIG += console
 CONFIG -= app_bundle
@@ -54,6 +54,7 @@ win32{
 }
 
 macx {
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
 
     #remove unused parameter warnings
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
@@ -77,43 +78,31 @@ macx {
             $$COMMON_PATH/utils/macutils.h
 }
 
-macx {
-QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
+linux {
+    INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
+    LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
+
+    INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
+    LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
+
+    SOURCES += \
+        $$COMMON_PATH/utils/linuxutils.cpp
+
+    HEADERS += \
+        $$COMMON_PATH/utils/linuxutils.h
+
 }
 
 SOURCES += \
         ../../common/utils/ipvalidation.cpp \
-        ../backend/backend.cpp \
-        ../backend/connectstatehelper.cpp \
-        ../backend/firewallstatehelper.cpp \
-        ../backend/notificationscontroller.cpp \
         $$COMMON_PATH/ipc/commandfactory.cpp \
         $$COMMON_PATH/ipc/connection.cpp \
         $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
         $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
+        $$COMMON_PATH/ipc/generated_proto/cli.pb.cc \
         $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
         $$COMMON_PATH/ipc/server.cpp \
-        $$COMMON_PATH/ipc/tcpconnection.cpp \
-        $$COMMON_PATH/ipc/tcpserver.cpp \
-        ../backend/locationsmodel/alllocationsmodel.cpp \
-        ../backend/locationsmodel/basiccitiesmodel.cpp \
-        ../backend/locationsmodel/basiclocationsmodel.cpp \
-        ../backend/locationsmodel/configuredcitiesmodel.cpp \
-        ../backend/locationsmodel/favoritecitiesmodel.cpp \
-        ../backend/locationsmodel/favoritelocationsstorage.cpp \
-        ../backend/locationsmodel/locationsmodel.cpp \
-        ../backend/locationsmodel/sortlocationsalgorithms.cpp \
-        ../backend/locationsmodel/staticipscitiesmodel.cpp \
-        ../backend/preferences/accountinfo.cpp \
-        ../backend/preferences/detectlanrange.cpp \
-        ../backend/preferences/guisettingsfromver1.cpp \
-        ../backend/preferences/preferences.cpp \
-        ../backend/preferences/preferenceshelper.cpp \
         $$COMMON_PATH/types/locationid.cpp \
-        ../backend/types/dnswhileconnectedinfo.cpp \
-        ../backend/types/pingtime.cpp \
-        ../backend/types/types.cpp \
-        ../backend/types/upgrademodetype.cpp \
         $$COMMON_PATH/utils/extraconfig.cpp \
         $$COMMON_PATH/utils/languagesutil.cpp \
         $$COMMON_PATH/utils/logger.cpp \
@@ -123,7 +112,6 @@ SOURCES += \
         $$COMMON_PATH/version/appversion.cpp \
         $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
         $$COMMON_PATH/utils/clean_sensitive_info.cpp \
-        ../backend/persistentstate.cpp \
         backendcommander.cpp \
         cliapplication.cpp \
         main.cpp
@@ -135,43 +123,18 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     ../../common/utils/ipvalidation.h \
-    ../backend/backend.h \
-    ../backend/connectstatehelper.h \
-    ../backend/firewallstatehelper.h \
-    ../backend/ibackend.h \
-    ../backend/notificationscontroller.h \
     $$COMMON_PATH/ipc/command.h \
     $$COMMON_PATH/ipc/commandfactory.h \
     $$COMMON_PATH/ipc/connection.h \
     $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
     $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
+    $$COMMON_PATH/ipc/generated_proto/cli.pb.h \
     $$COMMON_PATH/ipc/generated_proto/types.pb.h \
     $$COMMON_PATH/ipc/iconnection.h \
     $$COMMON_PATH/ipc/iserver.h \
     $$COMMON_PATH/ipc/protobufcommand.h \
     $$COMMON_PATH/ipc/server.h \
-    $$COMMON_PATH/ipc/tcpconnection.h \
-    $$COMMON_PATH/ipc/tcpserver.h \
-    ../backend/locationsmodel/alllocationsmodel.h \
-    ../backend/locationsmodel/basiccitiesmodel.h \
-    ../backend/locationsmodel/basiclocationsmodel.h \
-    ../backend/locationsmodel/configuredcitiesmodel.h \
-    ../backend/locationsmodel/favoritecitiesmodel.h \
-    ../backend/locationsmodel/favoritelocationsstorage.h \
-    ../backend/locationsmodel/locationmodelitem.h \
-    ../backend/locationsmodel/locationsmodel.h \
-    ../backend/locationsmodel/sortlocationsalgorithms.h \
-    ../backend/locationsmodel/staticipscitiesmodel.h \
-    ../backend/preferences/accountinfo.h \
-    ../backend/preferences/detectlanrange.h \
-    ../backend/preferences/guisettingsfromver1.h \
-    ../backend/preferences/preferences.h \
-    ../backend/preferences/preferenceshelper.h \
     $$COMMON_PATH/types/locationid.h \
-    ../backend/types/dnswhileconnectedinfo.h \
-    ../backend/types/pingtime.h \
-    ../backend/types/types.h \
-    ../backend/types/upgrademodetype.h \
     $$COMMON_PATH/utils/extraconfig.h \
     $$COMMON_PATH/utils/languagesutil.h \
     $$COMMON_PATH/utils/logger.h \
@@ -182,7 +145,6 @@ HEADERS += \
     $$COMMON_PATH/version/windscribe_version.h \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
-    ../backend/persistentstate.h \
     backendcommander.h \
     cliapplication.h
 
