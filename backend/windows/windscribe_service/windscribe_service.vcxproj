@@ -408,6 +408,7 @@
     <ClCompile Include="..\..\..\common\utils\crashhandler.cpp" />
     <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature.cpp" />
     <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp" />
+    <ClCompile Include="..\..\..\common\utils\servicecontrolmanager.cpp" />
     <ClCompile Include="adapters_info.cpp" />
     <ClCompile Include="apps_ids.cpp" />
     <ClCompile Include="cleardns_on_tap.cpp" />

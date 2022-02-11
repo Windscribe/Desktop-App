@@ -4,6 +4,7 @@
 #include "wireguardcommunicator.h"
 #include "privilegehelper.h"
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <regex>
 #include <type_traits>
 #include <io.h>
@@ -39,6 +40,7 @@ WireGuardCommunicator::Connection::Connection(const std::wstring &deviceName)
     }
     std::wstring pipe_name(L"\\\\.\\pipe\\ProtectedPrefix\\Administrators\\WireGuard\\");
     pipe_name += deviceName;
+    Logger::instance().out("WireGuard Connection: attempting to open wireguard service status pipe (%ls)", pipe_name.c_str());
     int attempt = 0;
     do {
         if (connect(pipe_name))
@@ -46,14 +48,19 @@ WireGuardCommunicator::Connection::Connection(const std::wstring &deviceName)
         if (++attempt < CONNECTION_ATTEMPT_COUNT)
             Sleep(CONNECTION_BETWEEN_WAIT_MS);
     } while (attempt < CONNECTION_ATTEMPT_COUNT);
-    if (pipeHandle_ == INVALID_HANDLE_VALUE)
+
+    if (pipeHandle_ == INVALID_HANDLE_VALUE) {
+        Logger::instance().out(L"WireGuard Connection: failed to open wireguard service status pipe (%d)", ::GetLastError());
         return;
+    }
+
     if (!elevation.checkElevationForHandle(pipeHandle_)) {
         Logger::instance().out(L"WireGuard Connection: Pipe handle has invalid access rights");
         CloseHandle(pipeHandle_);
         pipeHandle_ = INVALID_HANDLE_VALUE;
         return;
     }
+
     const int fd = _open_osfhandle(reinterpret_cast<intptr_t>(pipeHandle_), _O_RDWR);
     if (fd == -1) {
         Logger::instance().out(L"WireGuard Connection: _open_osfhandle() failed");
@@ -61,6 +68,7 @@ WireGuardCommunicator::Connection::Connection(const std::wstring &deviceName)
         pipeHandle_ = INVALID_HANDLE_VALUE;
         return;
     }
+
     fileHandle_ = _fdopen(fd, "r+");
     if (!fileHandle_) {
         Logger::instance().out(L"WireGuard Connection: _fdopen() failed");
@@ -90,6 +98,12 @@ bool WireGuardCommunicator::Connection::getOutput(ResultMap *results_map) const
         if (c < 0)
             break;
         output.push_back(c);
+
+        // Wireguard service leaves the pipe open so we can issue additional commands.
+        // Thus, we won't get the EOF indicator (c < 0).
+        if (boost::algorithm::ends_with(output, "\n\n")) {
+            break;
+        }
     }
 
 	Logger::instance().out("WireGuardCommunicator::Connection::getOutput(): %s", output.c_str());
@@ -177,16 +191,13 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
     return success;
 }
 
-UINT WireGuardCommunicator::getStatus(UINT32 *errorCode, UINT64 *bytesReceived,
-                                      UINT64 *bytesTransmitted)
+UINT WireGuardCommunicator::getStatus(UINT32 &errorCode, UINT64 &bytesReceived,
+                                      UINT64 &bytesTransmitted)
 {
     Connection connection(deviceName_);
-    const auto connection_status = connection.getStatus();
-    if (connection_status != Connection::Status::OK) {
-        if (connection.getStatus() == Connection::Status::NO_PIPE)
-            return WIREGUARD_STATE_STARTING;
-        if (errorCode)
-            *errorCode = GetLastError();
+    if (connection.getStatus() != Connection::Status::OK)
+    {
+        errorCode = GetLastError();
         return WIREGUARD_STATE_ERROR;
     }
 
@@ -202,35 +213,31 @@ UINT WireGuardCommunicator::getStatus(UINT32 *errorCode, UINT64 *bytesReceived,
         std::make_pair("tx_bytes", ""),
         std::make_pair("last_handshake_time_sec", "")
     };
-    bool success = connection.getOutput(&results);
-    if (!success)
-        return WIREGUARD_STATE_STARTING;
 
-    // Check for errors.
-    const auto errno_value = stringToValue<UINT32>(results["errno"]);
-    if (errno_value != 0) {
-        if (errorCode)
-            *errorCode = errno_value;
+    if (!connection.getOutput(&results))
+    {
+        errorCode = ERROR_INVALID_DATA;
         return WIREGUARD_STATE_ERROR;
     }
 
-    // Check if not yet listening.
-    if (results["listen_port"].empty())
-        return WIREGUARD_STATE_STARTING;
-
-    // Check for handshake.
-    if (stringToValue<UINT64>(results["last_handshake_time_sec"]) > 0) {
-        if (bytesReceived)
-            *bytesReceived = stringToValue<UINT64>(results["rx_bytes"]);
-        if (bytesTransmitted)
-            *bytesTransmitted = stringToValue<UINT64>(results["tx_bytes"]);
-        return WIREGUARD_STATE_ACTIVE;
+    // Check for errors.
+    const auto errno_value = stringToValue<UINT32>(results["errno"]);
+    if (errno_value != 0)
+    {
+        errorCode = errno_value;
+        return WIREGUARD_STATE_ERROR;
     }
 
-    // If endpoint is set, we are connecting, otherwise simply listening.
-    if (!results["public_key"].empty())
-        return WIREGUARD_STATE_CONNECTING;
-    return WIREGUARD_STATE_LISTENING;
+    // Check for handshake.
+    if (stringToValue<UINT64>(results["last_handshake_time_sec"]) <= 0)
+    {
+        ::OutputDebugString(L"WireGuardCommunicator::getStatus did not find last_handshake_time_sec in the response data");
+        return WIREGUARD_STATE_ERROR;
+    }
+
+    bytesReceived = stringToValue<UINT64>(results["rx_bytes"]);
+    bytesTransmitted = stringToValue<UINT64>(results["tx_bytes"]);
+    return WIREGUARD_STATE_ACTIVE;
 }
 
 bool WireGuardCommunicator::bindSockets(UINT if4, UINT if6, BOOL if6blackhole)

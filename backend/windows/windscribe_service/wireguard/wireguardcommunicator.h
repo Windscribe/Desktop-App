@@ -11,7 +11,7 @@ public:
     bool configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
                    const std::string &peerPresharedKey, const std::string &peerEndpoint,
                    const std::vector<std::string> &allowedIps);
-    UINT getStatus(UINT32 *errorCode, UINT64 *bytesReceived, UINT64 *bytesTransmitted);
+    UINT getStatus(UINT32 &errorCode, UINT64 &bytesReceived, UINT64 &bytesTransmitted);
     bool bindSockets(UINT if4, UINT if6, BOOL if6blackhole);
     void quit();
 

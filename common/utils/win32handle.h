@@ -25,7 +25,7 @@ public:
     void setHandle(HANDLE hNewHandle);
     void closeHandle(void);
     HANDLE release(void);
-    DWORD wait(DWORD dwTimeout);
+    DWORD wait(DWORD dwTimeout, BOOL bAlertable = FALSE);
 
 private:
     HANDLE win32Handle_;
@@ -57,9 +57,9 @@ Win32Handle::setHandle(HANDLE hNewHandle)
 }
 
 inline DWORD
-Win32Handle::wait(DWORD dwTimeout)
+Win32Handle::wait(DWORD dwTimeout, BOOL bAlertable)
 {
-    DWORD dwWait = ::WaitForSingleObject(win32Handle_, dwTimeout);
+    DWORD dwWait = ::WaitForSingleObjectEx(win32Handle_, dwTimeout, bAlertable);
     return dwWait;
 }
 

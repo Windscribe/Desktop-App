@@ -521,7 +521,7 @@ void EngineServer::sendCommand(IPC::Command *command)
         // wait for command ClientAuth for authorization of client
         if (command->getStringId() == IPCClientCommands::ClientAuth::descriptor()->full_name())
         {
-            IPC::ProtobufCommand<IPCClientCommands::ClientAuth> *cmdClientAuth = static_cast<IPC::ProtobufCommand<IPCClientCommands::ClientAuth> *>(command);
+            //IPC::ProtobufCommand<IPCClientCommands::ClientAuth> *cmdClientAuth = static_cast<IPC::ProtobufCommand<IPCClientCommands::ClientAuth> *>(command);
 
             bClientAuthReceived_ = true;
             IPC::ProtobufCommand<IPCServerCommands::AuthReply> cmdReply;

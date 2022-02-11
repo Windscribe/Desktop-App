@@ -9,6 +9,7 @@
 
 namespace
 {
+
 std::wstring GetDeviceGuid(const std::wstring &deviceName)
 {
     const std::wstring kNetworkConnectionsKeyName(
@@ -50,24 +51,36 @@ std::wstring GetDeviceGuid(const std::wstring &deviceName)
 
 void CleanupAddressOnDisconnectedInterfaces(const Ip4AddressAndMask &address, UINT8 cidr)
 {
-    const int kMaxTries = 5;
-    ULONG status = NO_ERROR, bufferSize = 15000u;
-    std::vector<BYTE> buffer;
-    buffer.resize(bufferSize);
-    for (int i = 0; i < kMaxTries; ++i) {
-        status = GetAdaptersAddresses(AF_UNSPEC, 0, nullptr,
-            reinterpret_cast<PIP_ADAPTER_ADDRESSES>(*buffer.begin()), &bufferSize);
+    const int kMaxTries = 4;
+    ULONG status = NO_ERROR;
+    ULONG bufferSize = 65536ul;
+    std::unique_ptr<BYTE[]> buffer(new BYTE[bufferSize]);
+    for (int i = 0; i < kMaxTries; ++i)
+    {
+        status = GetAdaptersAddresses(AF_UNSPEC, 0, nullptr, (PIP_ADAPTER_ADDRESSES)buffer.get(), &bufferSize);
+
         if (status == ERROR_BUFFER_OVERFLOW)
-            buffer.resize(bufferSize);
+        {
+            Logger::instance().out(L"GetAdaptersAddresses required buf size = %d", bufferSize);
+            bufferSize = bufferSize + 8192;
+            buffer.reset(new BYTE[bufferSize]);
+        }
         else
             break;
     }
-    if (status != NO_ERROR)
+
+    if (status != NO_ERROR) {
+        Logger::instance().out(L"GetAdaptersAddresses(buf size) failed (%d)", status);
         return;
-    PIP_ADAPTER_ADDRESSES data = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(buffer.data());
-    for (; data; data = data->Next) {
-        if (data->OperStatus == IfOperStatusUp)
+    }
+
+    PIP_ADAPTER_ADDRESSES data = (PIP_ADAPTER_ADDRESSES)buffer.get();
+
+    for (; data; data = data->Next)
+    {
+        if (data->OperStatus == IfOperStatusUp) {
             continue;
+        }
         for (const auto *addr = data->FirstUnicastAddress; addr; addr = addr->Next) {
             if (addr->Address.lpSockaddr->sa_family != AF_INET ||
                 addr->OnLinkPrefixLength != cidr)
@@ -127,9 +140,13 @@ void WireGuardAdapter::initializeOnce()
     guidString_ = GetDeviceGuid(name_);
     if (guidString_.empty())
         return;
-    guid_ = Utils::guidFromString(guidString_);
-    ConvertInterfaceGuidToLuid(&guid_, &luid_);
     Logger::instance().out(L"WireGuardAdapter GUID: \"%ls\"", guidString_.c_str());
+    guid_ = Utils::guidFromString(guidString_);
+    auto status = ConvertInterfaceGuidToLuid(&guid_, &luid_);
+    if (status != NO_ERROR) {
+        Logger::instance().out(L"ConvertInterfaceGuidToLuid failed (%d)", status);
+        return;
+    }
     is_adapter_initialized_ = true;
 }
 
@@ -152,7 +169,7 @@ bool WireGuardAdapter::setIpAddress(const std::string &address, bool isDefault)
     entry.Family = AF_INET;
     auto status = GetIpInterfaceEntry(&entry);
     if (status != NO_ERROR) {
-        Logger::instance().out(L"GetIpInterfaceEntry failed");
+        Logger::instance().out(L"GetIpInterfaceEntry failed (%d)", status);
         return false;
     }
     if (entry.SitePrefixLength > 32)
@@ -164,7 +181,7 @@ bool WireGuardAdapter::setIpAddress(const std::string &address, bool isDefault)
     entry.NlMtu = 1420;  // This should be updated later by the engine.
     status = SetIpInterfaceEntry(&entry);
     if (status != NO_ERROR) {
-        Logger::instance().out(L"SetIpInterfaceEntry failed");
+        Logger::instance().out(L"SetIpInterfaceEntry failed (%d)", status);
         return false;
     }
     MIB_UNICASTIPADDRESS_ROW ipentry;
@@ -175,7 +192,7 @@ bool WireGuardAdapter::setIpAddress(const std::string &address, bool isDefault)
     ipentry.OnLinkPrefixLength = cidr;
     status = CreateUnicastIpAddressEntry(&ipentry);
     if (status != NO_ERROR) {
-        Logger::instance().out(L"CreateUnicastIpAddressEntry failed");
+        Logger::instance().out(L"CreateUnicastIpAddressEntry failed (%d)", status);
         return false;
     }
     return true;

@@ -284,6 +284,8 @@ IHelper::ExecuteError Helper_win::startWireGuard(const QString &exeName, const Q
         return IHelper::EXECUTE_VERIFY_ERROR;
     }
 
+    // We're actually passing the full config file path and name in the deviceName parameter.
+
     CMD_START_WIREGUARD cmdStartWireGuard;
     cmdStartWireGuard.szExecutable = exeName.toStdWString();
     cmdStartWireGuard.szDeviceName = deviceName.toStdWString();
@@ -300,16 +302,7 @@ bool Helper_win::stopWireGuard()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_STOP_WIREGUARD, std::string());
-    if (mpr.success) {
-        // Daemon was running, check if it's been terminated.
-        if (mpr.blockingCmdFinished && (!mpr.additionalString.empty())) {
-            qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-                << QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
-        }
-        return mpr.blockingCmdFinished;
-    }
-    // Daemon was not running.
-    return true;
+    return mpr.success;
 }
 
 bool Helper_win::configureWireGuard(const WireGuardConfig &config)
@@ -344,38 +337,24 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_WIREGUARD_STATUS, std::string());
-    if (mpr.success && status) {
-        status->errorCode = 0;
-        status->bytesReceived = status->bytesTransmitted = 0;
-        switch (mpr.exitCode) {
-        default:
-        case WIREGUARD_STATE_NONE:
-            status->state = WireGuardState::NONE;
-            break;
-        case WIREGUARD_STATE_ERROR:
+    if (mpr.success && status)
+    {
+        if (mpr.exitCode == WIREGUARD_STATE_ERROR)
+        {
             status->state = WireGuardState::FAILURE;
-            status->errorCode = mpr.customInfoValue[0];
-            break;
-        case WIREGUARD_STATE_STARTING:
-            status->state = WireGuardState::STARTING;
-            break;
-        case WIREGUARD_STATE_LISTENING:
-            status->state = WireGuardState::LISTENING;
-            break;
-        case WIREGUARD_STATE_CONNECTING:
-            status->state = WireGuardState::CONNECTING;
-            break;
-        case WIREGUARD_STATE_ACTIVE:
+            status->lastHandshake = 0;
+            status->bytesReceived = 0;
+            status->bytesTransmitted = 0;
+        }
+        else
+        {
             status->state = WireGuardState::ACTIVE;
-            status->bytesReceived = mpr.customInfoValue[0];
+            status->lastHandshake = mpr.customInfoValue[0];
             status->bytesTransmitted = mpr.customInfoValue[1];
-            break;
+            status->bytesReceived = mpr.customInfoValue[2];
         }
     }
-    if (!mpr.additionalString.empty()) {
-        qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-            << QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
-    }
+
     return mpr.success;
 }
 
@@ -1011,7 +990,7 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
             return mpr;
         }
 
-        std::istringstream  stream(std::string(buf.data(), sizeOfBuf));
+        std::istringstream stream(std::string(buf.data(), sizeOfBuf));
         boost::archive::text_iarchive ia(stream, boost::archive::no_header);
 
         ia >> mpr;

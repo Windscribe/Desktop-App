@@ -268,7 +268,7 @@ struct MessagePacketResult
 	DWORD exitCode;
 	unsigned long blockingCmdId;    // id for check status of blocking cmd
 	bool blockingCmdFinished;
-	UINT64 customInfoValue[2];
+	UINT64 customInfoValue[3];
 	std::string additionalString;
 
 	MessagePacketResult() : id(0), success(false), exitCode(0), blockingCmdId(0),

@@ -19,27 +19,21 @@ import installutils as iutl
 
 # Dependency-specific settings.
 DEP_TITLE = "WireGuard"
-DEP_URL = "https://git.zx2c4.com/wireguard-go/snapshot/"
+DEP_URL_WIN = "https://git.zx2c4.com/wireguard-windows/snapshot/"
+DEP_URL_GNU = "https://git.zx2c4.com/wireguard-go/snapshot/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["windscribewireguard*"]
 
-WIREGUARD_CONFIGS = { "386" : "x86", "amd64" : "x64" }
 
-
-def BuildDependencyMSVC(toolpath, outpath):
-  currend_wd = os.getcwd()
-  toolpaths = [os.path.join(toolpath,"go","bin"), os.path.join(toolpath,"bin")]
-  if "PATH" in os.environ:
-    toolpaths.append(os.environ["PATH"])
+def BuildDependencyMSVC(outpath):
   buildenv = os.environ.copy()
-  buildenv.update({ "PATH" : ";".join(toolpaths) })
-  # Build and install.
-  for config, postfix in WIREGUARD_CONFIGS.iteritems():
-    buildenv.update({ "GOARCH" : config })
-    iutl.RunCommand(["make"], env=buildenv, shell=True)
-    utl.CopyFile("{}/wireguard-go".format(currend_wd),
-                 "{}/windscribewireguard_{}.exe".format(outpath, postfix))
-    utl.RemoveFile("{}/wireguard-go".format(currend_wd))
+  with utl.PushDir(os.path.join(os.getcwd(), "embeddable-dll-service")):
+    currend_wd = os.getcwd()
+    iutl.RunCommand(["build.bat"], env=buildenv, shell=True)
+    utl.CopyFile("{}/amd64/tunnel.dll".format(currend_wd),
+                 "{}/tunnel.dll".format(outpath))
+  utl.CopyFile("{}/.deps/wireguard-nt/bin/amd64/wireguard.dll".format(os.getcwd()),
+               "{}/wireguard.dll".format(outpath))
 
 
 def BuildDependencyGNU(outpath):
@@ -53,31 +47,6 @@ def BuildDependencyGNU(outpath):
   utl.CopyFile("{}/wireguard-go".format(currend_wd), "{}/windscribewireguard".format(outpath))
 
 
-def InstallWindowsToolchain(outpath):
-  # Download and unpack go.
-  tool_version_var = "VERSION_WIN32_GO"
-  tool_version_str = os.environ.get(tool_version_var, None)
-  if not tool_version_str:
-    raise iutl.InstallError("{} not defined.".format(tool_version_var))
-  archivename = "go{}.windows-amd64.zip".format(tool_version_str)
-  localfilename = os.path.join(outpath, archivename)
-  msg.HeadPrint("Downloading: \"{}\"".format(archivename))
-  iutl.DownloadFile("{}{}".format("https://dl.google.com/go/", archivename), localfilename)
-  msg.HeadPrint("Extracting: \"{}\"".format(archivename))
-  iutl.ExtractFile(localfilename)
-  # Download and unpack make.
-  tool_version_var = "VERSION_WIN32_MAKE"
-  tool_version_str = os.environ.get(tool_version_var, None)
-  if not tool_version_str:
-    raise iutl.InstallError("{} not defined.".format(tool_version_var))
-  archivename = "make-{}-without-guile-w32-bin.zip".format(tool_version_str)
-  localfilename = os.path.join(outpath, archivename)
-  msg.HeadPrint("Downloading: \"{}\"".format(archivename))
-  iutl.DownloadFile("{}{}".format("https://download.wireguard.com/windows-toolchain/distfiles/", archivename), localfilename)
-  msg.HeadPrint("Extracting: \"{}\"".format(archivename))
-  iutl.ExtractFile(localfilename)
-
-
 def InstallDependency():
   # Load environment.
   msg.HeadPrint("Loading: \"{}\"".format(CONFIG_NAME))
@@ -86,24 +55,23 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
+  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper()) + ("_WIN" if utl.GetCurrentOS() == "win32" else "_GNU")
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))
   # Prepare output.
   temp_dir = iutl.PrepareTempDirectory(dep_name)
-  # Install build tools, if any.
-  if utl.GetCurrentOS() == "win32" == "win32":
-    msg.Print("Installing Windows toolchain...")
-    win32_tooldir = os.path.join(temp_dir, "deps")
-    utl.CreateDirectory(win32_tooldir, True)
-    InstallWindowsToolchain(win32_tooldir)
   # Download and unpack the archive.
-  archivetitle = "wireguard-go-{}".format(dep_version_str)
+  if utl.GetCurrentOS() == "win32":
+    archivetitle = "wireguard-windows-{}".format(dep_version_str)
+    download_url = DEP_URL_WIN;
+  else:
+    archivetitle = "wireguard-go-{}".format(dep_version_str)
+    download_url = DEP_URL_GNU;
   archivename = archivetitle + (".zip" if utl.GetCurrentOS() == "win32" else ".tar.xz")
   localfilename = os.path.join(temp_dir, archivename)
   msg.HeadPrint("Downloading: \"{}\"".format(archivename))
-  iutl.DownloadFile("{}{}".format(DEP_URL, archivename), localfilename)
+  iutl.DownloadFile("{}{}".format(download_url, archivename), localfilename)
   msg.HeadPrint("Extracting: \"{}\"".format(archivename))
   iutl.ExtractFile(localfilename)
   # Copy modified files (Windows only).
@@ -116,7 +84,7 @@ def InstallDependency():
   with utl.PushDir(os.path.join(temp_dir, archivetitle)):
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
     if utl.GetCurrentOS() == "win32":
-      BuildDependencyMSVC(win32_tooldir, outpath)
+      BuildDependencyMSVC(outpath)
     else:
       BuildDependencyGNU(outpath)
   # Copy the dependency to output directory and to a zip file, if needed.

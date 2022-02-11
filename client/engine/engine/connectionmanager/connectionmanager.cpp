@@ -5,7 +5,6 @@
 #include <QDateTime>
 #include "isleepevents.h"
 #include "openvpnconnection.h"
-#include "wireguardconnection.h"
 
 #include "utils/utils.h"
 #include "engine/types/types.h"
@@ -27,13 +26,16 @@
     #include "sleepevents_win.h"
     #include "adapterutils_win.h"
     #include "ikev2connection_win.h"
+    #include "wireguardconnection_win.h"
 #elif defined Q_OS_MAC
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
     #include "engine/helper/helper_mac.h"
+    #include "wireguardconnection_posix.h"
 #elif defined Q_OS_LINUX
     #include "ikev2connection_linux.h"
+    #include "wireguardconnection_posix.h"
 #endif
 
 const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
@@ -1006,6 +1008,7 @@ void ConnectionManager::doConnectPart3()
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
         else
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP));
+
         connector_->startConnect(makeOVPNFileFromCustom_->path(), "", "", usernameForCustomOvpn_,
                                  passwordForCustomOvpn_, lastProxySettings_,
                                  currentConnectionDescr_.wgCustomConfig.get(), false, false);

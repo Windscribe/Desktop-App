@@ -937,27 +937,18 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
     {
         CMD_START_WIREGUARD cmdStartWireGuard;
         ia >> cmdStartWireGuard;
-        // check input parameters
-        if (Utils::isValidFileName(cmdStartWireGuard.szExecutable) &&
-            Utils::noSpacesInString(cmdStartWireGuard.szDeviceName)) {
-            std::wstring exePath = Utils::getExePath();
-            std::wstring strCmd = L"\"" + exePath + L"\\" + cmdStartWireGuard.szExecutable + L"\"";
-            strCmd += L" " + cmdStartWireGuard.szDeviceName;
-            mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), L"", exePath.c_str());
-            if (mpr.success)
-                wireGuardController.init(cmdStartWireGuard.szDeviceName, mpr.blockingCmdId);
-            Logger::instance().out(L"AA_COMMAND_START_WIREGUARD: cmd = %s,success = %d",
-                strCmd.c_str(), mpr.success);
-        }
+
+        mpr.success = wireGuardController.installService(cmdStartWireGuard.szExecutable, cmdStartWireGuard.szDeviceName);
+        Logger::instance().out(L"AA_COMMAND_START_WIREGUARD: success = %d", mpr.success);
     }
     else if (cmdId == AA_COMMAND_STOP_WIREGUARD)
     {
+        mpr.success = wireGuardController.deleteService();
         Logger::instance().out(L"AA_COMMAND_STOP_WIREGUARD");
-        wireGuardController.reset();
-        mpr = ExecuteCmd::instance().getUnblockingCmdStatus(wireGuardController.getDaemonCmdId());
     }
     else if (cmdId == AA_COMMAND_CONFIGURE_WIREGUARD)
     {
+        /*
         CMD_CONFIGURE_WIREGUARD cmdConfigureWireGuard;
         ia >> cmdConfigureWireGuard;
         if (wireGuardController.isInitialized()) {
@@ -989,32 +980,12 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
                 mpr.success = true;
             } while (0);
         }
+        */
     }
     else if (cmdId == AA_COMMAND_GET_WIREGUARD_STATUS)
     {
-        if (!wireGuardController.isInitialized()) {
-            mpr.exitCode = WIREGUARD_STATE_NONE;
-        } else {
-            mpr = ExecuteCmd::instance().getUnblockingCmdStatus(
-                wireGuardController.getDaemonCmdId());
-            if (!mpr.success || mpr.blockingCmdFinished) {
-                // Special error code means the daemon is dead.
-                mpr.exitCode = WIREGUARD_STATE_ERROR;
-                mpr.customInfoValue[0] = 666u;
-            } else {
-                UINT32 errorCode = 0;
-                UINT64 bytesReceived = 0, bytesTransmitted = 0;
-                mpr.success = true;
-                mpr.exitCode =
-                    wireGuardController.getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
-                if (mpr.exitCode == WIREGUARD_STATE_ERROR) {
-                    mpr.customInfoValue[0] = errorCode;
-                } else if (mpr.exitCode == WIREGUARD_STATE_ACTIVE) {
-                    mpr.customInfoValue[0] = bytesReceived;
-                    mpr.customInfoValue[1] = bytesTransmitted;
-                }
-            }
-        }
+        mpr.success = true;
+        mpr.exitCode = wireGuardController.getStatus(mpr.customInfoValue[0], mpr.customInfoValue[1], mpr.customInfoValue[2]);
     }
 	else if (cmdId == AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE)
 	{

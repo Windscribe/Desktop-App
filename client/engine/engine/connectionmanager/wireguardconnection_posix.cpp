@@ -1,4 +1,4 @@
-#include "wireguardconnection.h"
+#include "wireguardconnection_posix.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "utils/utils.h"

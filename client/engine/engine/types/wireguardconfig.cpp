@@ -1,7 +1,9 @@
 #include "wireguardconfig.h"
 
+#include <QFile>
 #include <QJsonObject>
 #include <QStringList>
+#include <QTextStream>
 
 WireGuardConfig::WireGuardConfig()
 {
@@ -66,4 +68,37 @@ QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
 QString WireGuardConfig::stripIpv6Address(const QString &addressList)
 {
     return stripIpv6Address(addressList.split(",", QString::SkipEmptyParts));
+}
+
+bool WireGuardConfig::generateConfigFile(const QString &fileName) const
+{
+    // Design Note:
+    // Tried to use QSettings(fileName, QSettings::IniFormat) to create this file.
+    // Unfortunately, the setValue method double-quotes any string with non-alphanumeric
+    // characters in it, such as the private/public keys which are base64 encoded.
+    // The wireguard service cannot handle these double-quoted entries.
+
+    QFile theFile(fileName);
+    bool bResult = theFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+
+    if (bResult)
+    {
+        QTextStream ts(&theFile);
+        ts << "[Interface]\n";
+        ts << "PrivateKey = " << client_.privateKey << '\n';
+        ts << "Address = " << client_.ipAddress << '\n';
+        ts << "DNS = " << client_.dnsAddress << '\n';
+        ts << '\n';
+        ts << "[Peer]\n";
+        ts << "PublicKey = " << peer_.publicKey << '\n';
+        ts << "AllowedIPs = " << peer_.allowedIps << '\n';
+        ts << "Endpoint = " << peer_.endpoint << '\n';
+        ts << "PresharedKey = " << peer_.presharedKey << '\n';
+        ts.flush();
+
+        theFile.flush();
+        theFile.close();
+    }
+
+    return bResult;
 }
