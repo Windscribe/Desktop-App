@@ -362,7 +362,7 @@ ServiceControlManager::startService() const
         }
 
         throw std::system_error(ERROR_SERVICE_REQUEST_TIMEOUT, std::system_category(),
-            std::string("StartService: the service did not respond to the start request in a timely fashion - ") + m_sServiceName);
+            std::string("StartService: ") + m_sServiceName);
     }
 
     DWORD dwLastError = ::GetLastError();
@@ -416,7 +416,7 @@ ServiceControlManager::startService() const
         break;
 
     case ERROR_SERVICE_REQUEST_TIMEOUT:
-        errorMsg << "StartService: the service did not respond to the start request in a timely fashion - " << m_sServiceName;
+        errorMsg << "StartService: " << m_sServiceName;
         break;
 
     default:
@@ -458,7 +458,7 @@ ServiceControlManager::stopService() const
         }
 
         throw std::system_error(ERROR_SERVICE_REQUEST_TIMEOUT, std::system_category(),
-            std::string("StopService: the service did not respond to the stop request in a timely fashion - ") + m_sServiceName);
+            std::string("StopService: ") + m_sServiceName);
     }
 
     DWORD dwLastError = ::GetLastError();
@@ -492,7 +492,7 @@ ServiceControlManager::stopService() const
         break;
 
     case ERROR_SERVICE_REQUEST_TIMEOUT:
-        errorMsg << "StopService: the service did not respond to the stop request in a timely fashion - " << m_sServiceName;
+        errorMsg << "StopService: " << m_sServiceName;
         break;
 
     default:

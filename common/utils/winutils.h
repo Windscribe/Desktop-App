@@ -67,8 +67,6 @@ namespace WinUtils
     bool authorizeWithUac();
     bool isWindows64Bit();
     unsigned long Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize);
-
-    bool isParentProcessGui();
 }
 
 

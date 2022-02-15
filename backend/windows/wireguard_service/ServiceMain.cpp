@@ -3,6 +3,7 @@
 #include <tlhelp32.h>
 
 #include <codecvt>
+#include <fstream>
 #include <stdio.h>
 #include <sstream>
 
@@ -20,10 +21,44 @@
 // regular command-line app in that case, as tunnel.dll dumps to stderr during startup.
 
 //---------------------------------------------------------------------------
-static void
-DebugOut(const char *str, ...)
+static std::wstring
+getProcessFolder()
 {
-    // TODO: perhaps dump to a file?
+    wchar_t buffer[MAX_PATH];
+    DWORD dwPathLen = ::GetModuleFileName(NULL, buffer, MAX_PATH);
+    if (dwPathLen == 0) {
+        throw std::system_error(::GetLastError(), std::generic_category(),
+            "GetProcessFolder: GetModuleFileName failed");
+    }
+
+    boost::filesystem::path path(buffer);
+    return path.parent_path().native();
+}
+
+//---------------------------------------------------------------------------
+static std::wstring
+logFilename()
+{
+    std::wostringstream stream;
+    stream << getProcessFolder() << L"\\WireguardServiceLog.txt";
+    return stream.str();
+}
+
+//---------------------------------------------------------------------------
+static void
+resetLogFile()
+{
+    std::wstring logFile = logFilename();
+    DWORD dwAttrib = ::GetFileAttributes(logFile.c_str());
+    if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
+        ::DeleteFile(logFile.c_str());
+    }
+}
+
+//---------------------------------------------------------------------------
+static void
+debugOut(const char *str, ...)
+{
     char buf[4096];
 
     va_list args;
@@ -31,9 +66,14 @@ DebugOut(const char *str, ...)
     size_t bytesOut = vsnprintf_s(buf, 4096, str, args);
     va_end(args);
 
-    if (bytesOut > 0) {
-        // TODO: perhaps we should be logging to a text file?
-        ::OutputDebugStringA(buf);
+    if (bytesOut > 0)
+    {
+        //::OutputDebugStringA(buf);
+        std::ofstream ofs;
+        ofs.open(logFilename(), std::ofstream::out | std::ofstream::app);
+        if (ofs.is_open()) {
+            ofs << buf << std::endl;
+        }
     }
 }
 
@@ -41,23 +81,15 @@ DebugOut(const char *str, ...)
 static HANDLE
 getWindscribeClientProcessHandle()
 {
-    wchar_t buffer[MAX_PATH];
-    DWORD dwPathLen = ::GetModuleFileName(NULL, buffer, MAX_PATH);
-    if (dwPathLen == 0) {
-        throw std::system_error(::GetLastError(), std::generic_category(),
-            "getWindscribeClientProcessHandle: GetModuleFileName failed");
-    }
-
     #ifdef USE_SIGNATURE_CHECK
-    boost::filesystem::path path(buffer);
     std::wostringstream stream;
-    stream << path.parent_path().native() << L"\\Windscribe.exe";
+    stream << getProcessFolder() << L"\\Windscribe.exe";
     std::wstring clientExe = stream.str();
     #else
     std::wstring clientExe(L"[any path]/Windscribe.exe");
     #endif
 
-    DebugOut("getWindscribeClientProcessHandle looking for %ls", clientExe.c_str());
+    debugOut("getWindscribeClientProcessHandle looking for %ls", clientExe.c_str());
 
     WinUtils::Win32Handle hProcesses(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
     if (!hProcesses.isValid()) {
@@ -90,7 +122,7 @@ getWindscribeClientProcessHandle()
             // of the Windscribe client being run under the debugger.
             #ifdef USE_SIGNATURE_CHECK
             wchar_t szExePath[MAX_PATH];
-            dwPathLen = ::GetModuleFileNameEx(hProcess.getHandle(), NULL, szExePath, MAX_PATH)
+            DWORD dwPathLen = ::GetModuleFileNameEx(hProcess.getHandle(), NULL, szExePath, MAX_PATH);
             if (dwPathLen == 0) {
                 throw std::system_error(::GetLastError(), std::generic_category(), "getWindscribeClientProcessHandle: GetModuleFileNameEx failed");
             }
@@ -152,10 +184,10 @@ monitorClientStatus(LPVOID lpParam)
     }
     catch (std::system_error& ex)
     {
-        DebugOut("Windscribe wireguard service - %s", ex.what());
+        debugOut("Windscribe wireguard service - %s", ex.what());
     }
 
-    DebugOut("Windscribe wireguard service client monitor thread exiting");
+    debugOut("Windscribe wireguard service client monitor thread exiting");
     return NO_ERROR;
 }
 
@@ -173,25 +205,27 @@ stopMonitorThread(ULONG_PTR lpParam)
 int
 main(int argc, char *argv[])
 {
-    DebugOut("Windscribe wireguard service starting");
+    resetLogFile();
+
+    debugOut("Windscribe wireguard service starting");
 
     if (argc != 2)
     {
-        DebugOut("Windscribe wireguard service - invalid command-line argument count: %d", argc);
+        debugOut("Windscribe wireguard service - invalid command-line argument count: %d", argc);
         return 0;
     }
 
     DWORD dwAttrib = ::GetFileAttributesA(argv[1]);
     if ((dwAttrib == INVALID_FILE_ATTRIBUTES) || (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
     {
-        DebugOut("Windscribe wireguard service - invalid config file path: %s", argv[1]);
+        debugOut("Windscribe wireguard service - invalid config file path: %s", argv[1]);
         return 0;
     }
 
     HMODULE hTunnelDLL = ::LoadLibraryA("tunnel.dll");
     if (hTunnelDLL == NULL)
     {
-        DebugOut("Windscribe wireguard service - failed to load tunnel.dll (%d)", ::GetLastError());
+        debugOut("Windscribe wireguard service - failed to load tunnel.dll (%d)", ::GetLastError());
         return 0;
     }
 
@@ -200,14 +234,14 @@ main(int argc, char *argv[])
     WireGuardTunnelService* tunnelProc = (WireGuardTunnelService*)::GetProcAddress(hTunnelDLL, "WireGuardTunnelService");
     if (tunnelProc == NULL)
     {
-        DebugOut("Windscribe wireguard service - failed to load WireGuardTunnelService entry point from tunnel.dll (%d)", ::GetLastError());
+        debugOut("Windscribe wireguard service - failed to load WireGuardTunnelService entry point from tunnel.dll (%d)", ::GetLastError());
         return 0;
     }
 
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring configFile = converter.from_bytes(argv[1]);
 
-    DebugOut("Starting wireguard tunnel with config file: %ls", configFile.c_str());
+    debugOut("Starting wireguard tunnel with config file: %ls", configFile.c_str());
 
     WinUtils::Win32Handle hMonitorThread(::CreateThread(NULL, 0, monitorClientStatus,
                                                         (LPVOID)argv[1], 0, NULL));
@@ -215,7 +249,7 @@ main(int argc, char *argv[])
     bool bResult = tunnelProc((const unsigned short*)configFile.c_str());
 
     if (!bResult) {
-        DebugOut("Windscribe wireguard service - WireGuardTunnelService from tunnel.dll failed");
+        debugOut("Windscribe wireguard service - WireGuardTunnelService from tunnel.dll failed");
     }
 
     if (hMonitorThread.isValid() && (hMonitorThread.wait(0) != WAIT_OBJECT_0))
@@ -230,7 +264,7 @@ main(int argc, char *argv[])
         ::DeleteFile(configFile.c_str());
     }
 
-    DebugOut("Windscribe wireguard service stopped");
+    debugOut("Windscribe wireguard service stopped");
 
     ::FreeLibrary(hTunnelDLL);
 

@@ -12,7 +12,6 @@
 #include "utils/logger.h"
 
 // TODO: figure out why the firewall doesn't turn off if we throw an exception in startConnect
-// TODO: remove windows-specific code from wireguardconnection_posix.cpp?
 
 // Useful code:
 // - mozilla-vpn-client\src\platforms\windows\daemon\wireguardutilswindows.cpp line 106 has code
@@ -138,6 +137,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     catch (std::system_error& ex)
     {
         qCDebug(LOG_CONNECTION) << ex.what();
+        onWireguardServiceStartupFailure();
         emit error(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
         emit disconnected();
     }
@@ -243,8 +243,8 @@ void WireGuardConnection::onGetWireguardLogUpdates()
 void WireGuardConnection::onGetWireguardStats()
 {
     // TODO: Need to periodically do this in order to retrieve the bytes received/transmitted
-    // Would be nice if we could do this on-demand, as I believe it's only relevant when the user wants to see this
-    // information (see ConnectWindowItem::onConnectStateTextHoverEnter()).
+    // Would be nice if we could do this on-demand, as this information is only relevant when
+    // the user wants to see it (see ConnectWindowItem::onConnectStateTextHoverEnter()).
 
     // We have to ask the helper to do this for us, as this process lacks permission to
     // access the API provided by the wireguard-nt kernel driver instance created by the
@@ -264,6 +264,34 @@ void WireGuardConnection::onGetWireguardStats()
 
             emit statisticsUpdated(status.bytesReceived, status.bytesTransmitted, true);
         }
+    }
+}
+
+void WireGuardConnection::onWireguardServiceStartupFailure() const
+{
+    // Check if our wireguard service logged any startup errors.
+    QFile file(qApp->applicationDirPath() + "/WireguardServiceLog.txt");
+    if (file.exists())
+    {
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            while (!file.atEnd())
+            {
+                QByteArray line = file.readLine();
+                if (!line.isEmpty()) {
+                    qCDebug(LOG_WIREGUARD) << line.trimmed();
+                }
+            }
+        }
+        else
+        {
+            qCDebug(LOG_CONNECTION) << "Could not open" << file.fileName();
+        }
+    }
+
+    // Check if the wireguard-windows code logged anything.
+    if (!wireguardLog_.isNull()) {
+        wireguardLog_->getNewLogEntries();
     }
 }
 

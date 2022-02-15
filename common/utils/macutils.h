@@ -82,8 +82,6 @@ namespace MacUtils
     bool dynamicStoreEntryHasKey(const QString &entry, const QString &key);
 
     bool verifyAppBundleIntegrity();
-
-    bool isParentProcessGui();
 }
 
 

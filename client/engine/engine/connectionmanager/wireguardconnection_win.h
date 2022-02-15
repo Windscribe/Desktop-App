@@ -43,6 +43,9 @@ private:
     wsl::ServiceControlManager serviceCtrlManager_;
     QScopedPointer< wsl::WireguardRingLogger > wireguardLog_;
     bool connectedSignalEmited_ = false;
+
+private:
+    void onWireguardServiceStartupFailure() const;
 };
 
 #endif // WIREGUARDCONNECTION_WIN_H
