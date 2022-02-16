@@ -31,3 +31,8 @@ contains(CONFIG, use_signature_check) {
 }
 
 RC_FILE = wireguard_service.rc
+
+QMAKE_CXXFLAGS_RELEASE -= -MD
+QMAKE_CXXFLAGS_RELEASE += -MT
+QMAKE_CXXFLAGS_DEBUG -= -MDd
+QMAKE_CXXFLAGS_DEBUG += -MTd
