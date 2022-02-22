@@ -176,10 +176,6 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         }
     }
 
-    // get firewall rules, which could have been installed by a script update-resolv-conf/update-systemd-resolved to avoid DNS-leaks
-    // if these rules exist, then we should leave(not delete) them.
-    const QStringList dnsLeaksRules = getWindscribeRules("\"Windscribe client dns leak protection\"", false);
-
     forceUpdateInterfaceToSkip_ = false;
 
     QFile file(pathToTempTable_);
@@ -190,18 +186,6 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
         stream << "*filter\n";
         stream << ":windscribe_input - [0:0]\n";
         stream << ":windscribe_output - [0:0]\n";
-
-        if (!dnsLeaksRules.isEmpty())
-        {
-            stream << ":windscribe_dnsleaks - [0:0]\n";
-            for (auto &rule : dnsLeaksRules)
-            {
-                if (rule.startsWith("-A"))
-                {
-                    stream << rule + "\n";
-                }
-            }
-        }
 
         stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
         stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
@@ -249,7 +233,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
 
 
         int exitCode;
-        QString cmd = "iptables-restore < " + pathToTempTable_;
+        QString cmd = "iptables-restore -n < " + pathToTempTable_;
         helper_->executeRootCommand(cmd, &exitCode);
         if (exitCode != 0)
         {
