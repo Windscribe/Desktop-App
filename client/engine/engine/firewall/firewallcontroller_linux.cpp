@@ -57,10 +57,20 @@ bool FirewallController_linux::firewallOff()
         // delete Windscribe rules, if found
         if (!rules.isEmpty())
         {
-            if (rules.last().contains("COMMIT"))
+            QString curTable;
+            for (int ind = 0; ind < rules.count(); ++ind)
             {
-                rules.insert(rules.count() - 1, "-X windscribe_input");
-                rules.insert(rules.count() - 1, "-X windscribe_output");
+                if (rules[ind].startsWith("*"))
+                {
+                    curTable = rules[ind];
+                }
+
+                if (rules[ind].contains("COMMIT") && curTable.contains("*filter"))
+                {
+                    rules.insert(ind, "-X windscribe_input");
+                    rules.insert(ind+1, "-X windscribe_output");
+                    break;
+                }
             }
 
             QFile file2(pathToTempTable_);
@@ -82,6 +92,7 @@ bool FirewallController_linux::firewallOff()
                 qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
             }
         }
+
         QFile::remove(pathToTempTable_);
 
         if (QFile::exists(pathToIp6SavedTable_))
