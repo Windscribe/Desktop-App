@@ -154,6 +154,8 @@ void LocationsModel::updateBestLocation(const ProtoTypes::LocationId &bestLocati
                         apiLocations_[0]->countryCode = apiLocations_[i]->cities[c].countryCode;
                         apiLocations_[0]->isShowP2P = apiLocations_[i]->isShowP2P;
                         apiLocations_[0]->isPremiumOnly = apiLocations_[i]->isPremiumOnly;
+                        apiLocations_[0]->is10gbps = apiLocations_[i]->is10gbps;
+                        apiLocations_[0]->locationLoad = apiLocations_[i]->locationLoad;
 
                         bestLocationId_ = bestLocationId;
                         allLocations_->update(apiLocations_);
