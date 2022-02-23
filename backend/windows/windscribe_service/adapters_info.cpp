@@ -99,7 +99,6 @@ std::vector<NET_IFINDEX> AdaptersInfo::getTAPAdapters()
     {
         if (isWindscribeAdapter(ai)) {
 			list.push_back(ai->IfIndex);
-            Logger::instance().debugOut("getTAPAdapters - found Windscribe adapter '%ls'", ai->Description);
         }
 		ai = ai->Next;
 	}
