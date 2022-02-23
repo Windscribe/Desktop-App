@@ -51,7 +51,7 @@ private:
    SC_HANDLE m_hService;
 
 private:
-   void grantUserStartRight() const;
+   void grantUserStartPermission() const;
    std::string serverNameForDebug() const;
 };
 

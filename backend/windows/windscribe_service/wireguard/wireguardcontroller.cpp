@@ -22,11 +22,7 @@
 static const DEVPROPKEY WG_DEVP_KEYNAME = DEVPKEY_WG_NAME;
 
 
-// TODO: determine if we need firewallFilter at all.
-
-WireGuardController::WireGuardController(FirewallFilter &firewallFilter)
-    : firewallFilter_(firewallFilter),
-      is_initialized_(false)
+WireGuardController::WireGuardController()
 {
 }
 
@@ -103,7 +99,7 @@ bool WireGuardController::deleteService()
         if (svcCtrl.isServiceInstalled(serviceName_.c_str()))
         {
             Logger::instance().out("WireGuardController::deleteService - deleting wireguard service instance");
-            svcCtrl.deleteService(serviceName_.c_str(), true);
+            svcCtrl.deleteService(serviceName_.c_str());
         }
 
         bServiceDeleted = true;
@@ -281,7 +277,7 @@ HANDLE WireGuardController::getKernelInterfaceHandle() const
         if (hKernelInterface == INVALID_HANDLE_VALUE)
         {
             std::wostringstream stream;
-            stream << L"WireGuardController::getKernelInterfaceHandle - CreateFileW failed to open" << interfaceName.get();
+            stream << L"WireGuardController::getKernelInterfaceHandle - CreateFileW failed to open " << interfaceName.get();
             std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
             throw std::system_error(::GetLastError(), std::generic_category(), converter.to_bytes(stream.str()));
         }

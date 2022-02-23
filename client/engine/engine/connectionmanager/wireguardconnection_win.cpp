@@ -169,10 +169,8 @@ void WireGuardConnection::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
 
-    // TODO: do we need these enable/disable dns leak protection stuff now that we're using the kernel driver?
-    // See C:\Code\ThirdParty\Wireguard\wireguard-windows-0.5.3\docs\netquirk.md
-    //qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - enable dns leak protection";
-    //helper_->enableDnsLeaksProtection();
+    qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - enable dns leak protection";
+    helper_->enableDnsLeaksProtection();
 
     // See if the client-server handshake has happened yet.
     onGetWireguardLogUpdates();
@@ -211,8 +209,8 @@ void WireGuardConnection::run()
 
     emit disconnected();
 
-    //qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - disable dns leak protection";
-    //helper_->disableDnsLeaksProtection();
+    qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - disable dns leak protection";
+    helper_->disableDnsLeaksProtection();
 }
 
 void WireGuardConnection::onCheckServiceRunning()

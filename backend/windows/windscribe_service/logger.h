@@ -14,7 +14,7 @@ public:
 
     void out(const wchar_t *format, ...);
 	void out(const char *format, ...);
-
+    void debugOut(const char *format, ...);
 
 private:
     Logger();

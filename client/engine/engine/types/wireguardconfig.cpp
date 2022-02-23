@@ -76,7 +76,7 @@ bool WireGuardConfig::generateConfigFile(const QString &fileName) const
     // Tried to use QSettings(fileName, QSettings::IniFormat) to create this file.
     // Unfortunately, the setValue method double-quotes any string with non-alphanumeric
     // characters in it, such as the private/public keys which are base64 encoded.
-    // The wireguard service cannot handle these double-quoted entries.
+    // The wireguard-windows service cannot handle these double-quoted entries.
 
     QFile theFile(fileName);
     bool bResult = theFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
@@ -91,9 +91,19 @@ bool WireGuardConfig::generateConfigFile(const QString &fileName) const
         ts << '\n';
         ts << "[Peer]\n";
         ts << "PublicKey = " << peer_.publicKey << '\n';
-        ts << "AllowedIPs = " << peer_.allowedIps << '\n';
         ts << "Endpoint = " << peer_.endpoint << '\n';
         ts << "PresharedKey = " << peer_.presharedKey << '\n';
+
+        // wireguard-windows implements its own 'kill switch' if we pass it 0.0.0.0/0.
+        // https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
+        // We're letting our helper implement that functionality.
+        if (peer_.allowedIps.compare("0.0.0.0/0") == 0) {
+            ts << "AllowedIPs = 0.0.0.0/1, 128.0.0.0/1\n";
+        }
+        else {
+            ts << "AllowedIPs = " << peer_.allowedIps << '\n';
+        }
+
         ts.flush();
 
         theFile.flush();

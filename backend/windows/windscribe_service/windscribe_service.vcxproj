@@ -397,10 +397,6 @@
     <ClInclude Include="pipe_for_process.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="sys_ipv6_controller.h" />
-    <ClInclude Include="wireguard\defaultroutemonitor.h" />
-    <ClInclude Include="wireguard\privilegehelper.h" />
-    <ClInclude Include="wireguard\wireguardadapter.h" />
-    <ClInclude Include="wireguard\wireguardcommunicator.h" />
     <ClInclude Include="wireguard\wireguardcontroller.h" />
   </ItemGroup>
   <ItemGroup>
@@ -446,10 +442,6 @@
     <ClCompile Include="sys_ipv6_controller.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="windscribe_service.cpp" />
-    <ClCompile Include="wireguard\defaultroutemonitor.cpp" />
-    <ClCompile Include="wireguard\privilegehelper.cpp" />
-    <ClCompile Include="wireguard\wireguardadapter.cpp" />
-    <ClCompile Include="wireguard\wireguardcommunicator.cpp" />
     <ClCompile Include="wireguard\wireguardcontroller.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -1,11 +1,9 @@
 #pragma once
 
-#include "../firewallfilter.h"
-
 class WireGuardController final
 {
 public:
-    explicit WireGuardController(FirewallFilter &firewallFilter);
+    explicit WireGuardController();
 
     bool installService(const std::wstring &exeName, const std::wstring &configFile);
     bool deleteService();
@@ -13,8 +11,7 @@ public:
     UINT getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT64& rxBytes) const;
 
 private:
-    FirewallFilter const& firewallFilter_;
-    bool is_initialized_;
+    bool is_initialized_ = false;
 
     std::string serviceName_;
     std::wstring deviceName_;

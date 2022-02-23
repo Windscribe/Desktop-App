@@ -22,8 +22,6 @@
 #include "ipc/serialize_structs.h"
 #include "fwpm_wrapper.h"
 #include "remove_windscribe_network_profiles.h"
-#include "wireguard/defaultroutemonitor.h"
-#include "wireguard/wireguardadapter.h"
 #include "wireguard/wireguardcontroller.h"
 #include "reinstall_tun_drivers.h"
 #include <conio.h>
@@ -948,39 +946,9 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
     }
     else if (cmdId == AA_COMMAND_CONFIGURE_WIREGUARD)
     {
-        /*
-        CMD_CONFIGURE_WIREGUARD cmdConfigureWireGuard;
-        ia >> cmdConfigureWireGuard;
-        if (wireGuardController.isInitialized()) {
-            Logger::instance().out(L"AA_COMMAND_CONFIGURE_WIREGUARD");
-            do {
-                std::vector<std::string> allowed_ips_vector =
-                    wireGuardController.splitAndDeduplicateAllowedIps(
-                        cmdConfigureWireGuard.allowedIps);
-                if (allowed_ips_vector.size() < 1) {
-                    Logger::instance().out(L"invalid AllowedIps \"%s\"",
-                        cmdConfigureWireGuard.allowedIps.c_str());
-                    break;
-                }
-                if (!wireGuardController.configureAdapter(cmdConfigureWireGuard.clientIpAddress,
-                    cmdConfigureWireGuard.clientDnsAddressList, allowed_ips_vector)) {
-                    Logger::instance().out(L"configureAdapter() failed");
-                    break;
-                }
-                if (!wireGuardController.configureDefaultRouteMonitor()) {
-                    Logger::instance().out(L"configureDefaultRouteMonitor() failed");
-                    break;
-                }
-                if (!wireGuardController.configureDaemon(cmdConfigureWireGuard.clientPrivateKey,
-                    cmdConfigureWireGuard.peerPublicKey, cmdConfigureWireGuard.peerPresharedKey,
-                    cmdConfigureWireGuard.peerEndpoint, allowed_ips_vector)) {
-                    Logger::instance().out(L"configureDaemon() failed");
-                    break;
-                }
-                mpr.success = true;
-            } while (0);
-        }
-        */
+        // TODO: remove AA_COMMAND_CONFIGURE_WIREGUARD from the code if we find we don't need it at all.
+        mpr.success = false;
+        Logger::instance().out(L"AA_COMMAND_CONFIGURE_WIREGUARD is not a valid command for wireguard-nt");
     }
     else if (cmdId == AA_COMMAND_GET_WIREGUARD_STATUS)
     {
@@ -1064,15 +1032,15 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 		return 0;
 	}
 
-	IcsManager            icsManager;
-	FirewallFilter        firewallFilter(fwpmHandleWrapper);
-	Ipv6Firewall		  ipv6Firewall(fwpmHandleWrapper);
-	DnsFirewall			  dnsFirewall(fwpmHandleWrapper);
-	SysIpv6Controller     sysIpv6Controller;
-	HostsEdit			  hostsEdit;
-	GetActiveProcesses    getActiveProcesses;
-	SplitTunneling        splitTunnelling(firewallFilter, fwpmHandleWrapper);
-    WireGuardController   wireGuardController(firewallFilter);
+	IcsManager          icsManager;
+	FirewallFilter      firewallFilter(fwpmHandleWrapper);
+	Ipv6Firewall		ipv6Firewall(fwpmHandleWrapper);
+	DnsFirewall			dnsFirewall(fwpmHandleWrapper);
+	SysIpv6Controller   sysIpv6Controller;
+	HostsEdit			hostsEdit;
+	GetActiveProcesses  getActiveProcesses;
+	SplitTunneling      splitTunnelling(firewallFilter, fwpmHandleWrapper);
+    WireGuardController wireGuardController;
 
 	Logger::instance().out(L"Service started");
 

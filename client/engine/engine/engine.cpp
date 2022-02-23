@@ -1695,7 +1695,10 @@ void Engine::onConnectionManagerConnected()
     QString adapterName = connectionManager_->getVpnAdapterInfo().adapterName();
 
 #ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);    
+    // wireguard-nt driver monitors metrics itself.
+    if (!engineSettings_.connectionSettings().protocol().isWireGuardProtocol()) {
+        AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);
+    }
 #elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix(adapterName);
 #endif

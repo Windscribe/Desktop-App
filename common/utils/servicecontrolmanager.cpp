@@ -676,7 +676,7 @@ ServiceControlManager::installService(LPCSTR pszServiceName,  LPCSTR pszBinaryPa
         setServiceDescription(pszDescription);
 
         if (bAllowInteractiveUserStart) {
-            grantUserStartRight();
+            grantUserStartPermission();
         }
 
         return;
@@ -861,7 +861,7 @@ ServiceControlManager::setServiceSIDType(DWORD dwServiceSidType) const
 
 //---------------------------------------------------------------------------
 void
-ServiceControlManager::grantUserStartRight() const
+ServiceControlManager::grantUserStartPermission() const
 {
     char sddl[] = "D:"
       "(A;;CCLCSWRPWPDTLOCRRC;;;SY)"           // default permissions for local system
@@ -881,7 +881,7 @@ ServiceControlManager::grantUserStartRight() const
     {
         DWORD dwLastError = ::GetLastError();
         throw std::system_error(dwLastError, std::system_category(),
-            std::string("grantUserStartRight: ConvertStringSecurityDescriptorToSecurityDescriptorA failed - ") + std::to_string(dwLastError));
+            std::string("grantUserStartPermission: ConvertStringSecurityDescriptorToSecurityDescriptorA failed - ") + std::to_string(dwLastError));
     }
 
     bResult = ::SetServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, sd);
@@ -890,7 +890,7 @@ ServiceControlManager::grantUserStartRight() const
     {
         DWORD dwLastError = ::GetLastError();
         throw std::system_error(dwLastError, std::system_category(),
-            std::string("grantUserStartRight: SetServiceObjectSecurity failed - ") + std::to_string(dwLastError));
+            std::string("grantUserStartPermission: SetServiceObjectSecurity failed - ") + std::to_string(dwLastError));
     }
 }
 

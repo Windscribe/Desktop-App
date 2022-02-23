@@ -1,17 +1,20 @@
 #pragma once
 
-// wrapper for API GetAdaptersInfo and util functions
+// wrapper for API GetAdaptersAddresses and util functions
 class AdaptersInfo
 {
 public:
 	AdaptersInfo();
 
 	bool isWindscribeAdapter(NET_IFINDEX index) const;
-	bool getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::string &outIp);
+	bool getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::wstring &outIp);
 	std::vector<NET_IFINDEX> getTAPAdapters();
 
 private:
-	std::vector<unsigned char> adapterInfoVector_;
-	IP_ADAPTER_INFO *pAdapterInfo_;
+	std::unique_ptr< unsigned char[] > adapterInfoBuffer_;
+    PIP_ADAPTER_ADDRESSES pAdapterInfo_ = NULL;
+
+private:
+    bool isWindscribeAdapter(PIP_ADAPTER_ADDRESSES ai) const;
 };
 
