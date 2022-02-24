@@ -309,5 +309,6 @@
         <file>svg/locations/FAV_ICON_DESELECTED.svg</file>
         <file>svg/locations/FAV_ICON_SELECTED.svg</file>
         <file>svg/locations/10_GBPS_ICON.svg</file>
+        <file>svg/flags/gh.svg</file>
     </qresource>
 </RCC>
