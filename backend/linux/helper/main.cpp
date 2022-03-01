@@ -31,11 +31,11 @@ int main(int argc, const char *argv[])
 
     if (Utils::isFileExists("/etc/windscribe/rules.v4"))
     {
-        Utils::executeCommand("iptables-restore < /etc/windscribe/rules.v4");
+        Utils::executeCommand("iptables-restore -n < /etc/windscribe/rules.v4");
     }
     if (Utils::isFileExists("/etc/windscribe/rules.v6"))
     {
-        Utils::executeCommand("ip6tables-restore < /etc/windscribe/rules.v6");
+        Utils::executeCommand("ip6tables-restore -n < /etc/windscribe/rules.v6");
     }
 
     server.run();
