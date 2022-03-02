@@ -16,6 +16,7 @@ enum class WireGuardState
 struct WireGuardStatus
 {
     WireGuardState state;
+    quint32 errorCode;
     quint64 lastHandshake;
     quint64 bytesTransmitted;
     quint64 bytesReceived;
