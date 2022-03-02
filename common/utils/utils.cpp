@@ -348,9 +348,7 @@ QString Utils::getLocalIP()
 #elif defined Q_OS_MAC
     return MacUtils::getLocalIP();
 #elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    return "";
+    return LinuxUtils::getLocalIP();
 #endif
 }
 

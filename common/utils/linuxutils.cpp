@@ -20,6 +20,8 @@
 #include <QRegExp>
 #include <QCoreApplication>
 #include <QFile>
+#include <QHostAddress>
+#include <QNetworkInterface>
 
 namespace  {
 
@@ -238,4 +240,43 @@ bool LinuxUtils::isGuiAlreadyRunning()
     QString cmd = "ps axco command | grep Windscribe | grep -v grep | grep -v WindscribeEngine | grep -v windscribe-cli";
     QString response = QString::fromStdString(execCmd(cmd.toStdString().c_str()));
     return response.trimmed() != "";
+}
+
+QString LinuxUtils::getLocalIP()
+{
+    // Can't use ifconfig, like we do on MacOS, as it is not installed by default on all distros
+    // (e.g. Ubuntu 20.04 LTS does not have it).
+    // An alternative to investigate if the below Qt implementation does not work out is:
+    // ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p
+
+    QString result;
+    QList<QNetworkInterface> networkInterfaces = QNetworkInterface::allInterfaces();
+    for (const auto& iface : qAsConst(networkInterfaces))
+    {
+        if (iface.isValid() && (iface.flags() & QNetworkInterface::IsUp) &&
+            (iface.type() == QNetworkInterface::Ethernet || iface.type() == QNetworkInterface::Wifi))
+        {
+            QList<QNetworkAddressEntry> addrEntries = iface.addressEntries();
+            for (const auto& addrEntry : qAsConst(addrEntries))
+            {
+                QHostAddress address = addrEntry.ip();
+                if (address.protocol() == QAbstractSocket::IPv4Protocol && address.isGlobal())
+                {
+                    if (address.isInSubnet(QHostAddress::parseSubnet("192.168.0.0/16")) ||
+                        address.isInSubnet(QHostAddress::parseSubnet("10.0.0.0/8")) ||
+                        address.isInSubnet(QHostAddress::parseSubnet("172.16.0.0/12")))
+                    {
+                        result = address.toString();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if (result.isEmpty()) {
+        qCDebug(LOG_BASIC) << "LinuxUtils::getLocalIP() failed to determine the local IP";
+    }
+
+    return result;
 }
