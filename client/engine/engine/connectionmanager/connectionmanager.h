@@ -81,7 +81,7 @@ public:
 
 signals:
     void connected();
-    void connectingToHostname(const QString &hostname, const QString &ip);
+    void connectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
     void disconnected(DISCONNECT_REASON reason);
     void errorDuringConnection(ProtoTypes::ConnectError errorCode);
     void reconnecting();

@@ -1000,7 +1000,16 @@ void ConnectionManager::doConnectPart3()
 {
     qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
     Q_EMIT protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
-    Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip);
+
+    if (currentConnectionDescr_.protocol.isWireGuardProtocol())
+    {
+        Q_ASSERT(wireGuardConfig_ != nullptr);
+        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, wireGuardConfig_->clientDnsAddress());
+    }
+    else
+    {
+        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, "");
+    }
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
