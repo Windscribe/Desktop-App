@@ -29,7 +29,8 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 
 ### Install signing certificate (optional)
 - Copy your PFX code signing file to installer/windows/signing/code_signing.pfx.
-- Edit tools/build_all.yml and enter the password for your PFX file in the password_cert field of the windows_signing_cert section.
+- Edit (create) tools/notarize.yml and add the following line:
+    - windows-signing-cert-password: password-for-code-signing-pfx
 - Edit common/utils/executable_signature/executable_signature_defs.h and set the WINDOWS_CERT_SUBJECT_NAME entry to match your certficate's name of signer field.
 
 ### Build libraries
@@ -55,7 +56,7 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all --sign' for a code-signed build, using the certificate from the 'Install signing certificate' section above, which will perform run-time signature verification checks on the executables.  Note that an unsigned build must be installed on your PC if you intend to debug the project using Qt Creator.
+Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all --sign --use-local-secrets' for a code-signed build, using the certificate from the 'Install signing certificate' section above, which will perform run-time signature verification checks on the executables.  Note that an unsigned build must be installed on your PC if you intend to debug the project using Qt Creator.
 
 See `build_all --help` for other build options.
 
@@ -113,7 +114,7 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.  You can run 'build_all --sign' for a production build which will perform run-time signature verification checks on the executables.  Note that an unsigned build must be installed on your Mac if you intend to debug the project using Qt Creator.
+Go to subfolder tools and run 'build_all'. Assuming all goes well with the build, the installer will be placed in build-exe.
 
 See `build_all --help` for other build options.
 
