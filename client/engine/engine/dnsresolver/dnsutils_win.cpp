@@ -44,6 +44,7 @@ std::vector<std::wstring> getOSDefaultDnsServers()
     PIP_ADAPTER_ADDRESSES pCurrAddresses = (PIP_ADAPTER_ADDRESSES)&arr[0];
     while (pCurrAddresses)
     {
+        // TODO: *jdrm* modify to handle wireguard-nt adapter
         if (wcsstr(pCurrAddresses->Description, L"Windscribe") == 0) // ignore Windscribe TAP and Windscribe Ikev2 adapters
         {
             PIP_ADAPTER_DNS_SERVER_ADDRESS dnsServerAddress = pCurrAddresses->FirstDnsServerAddress;

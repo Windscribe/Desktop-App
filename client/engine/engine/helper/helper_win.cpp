@@ -307,29 +307,10 @@ bool Helper_win::stopWireGuard()
 
 bool Helper_win::configureWireGuard(const WireGuardConfig &config)
 {
-    QMutexLocker locker(&mutex_);
-
-    CMD_CONFIGURE_WIREGUARD cmdConfigureWireGuard;
-    cmdConfigureWireGuard.clientPrivateKey =
-        QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex().toStdString();
-    cmdConfigureWireGuard.clientIpAddress = config.clientIpAddress().toStdString();
-    cmdConfigureWireGuard.clientDnsAddressList = config.clientDnsAddress().toStdString();
-    cmdConfigureWireGuard.peerEndpoint = config.peerEndpoint().toStdString();
-    cmdConfigureWireGuard.peerPublicKey =
-        QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex().toStdString();
-    cmdConfigureWireGuard.peerPresharedKey =
-        QByteArray::fromBase64(config.peerPresharedKey().toLatin1()).toHex().toStdString();
-    cmdConfigureWireGuard.allowedIps = config.peerAllowedIps().toStdString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdConfigureWireGuard;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONFIGURE_WIREGUARD, stream.str());
-    if (!mpr.success) {
-        qCDebug(LOG_WIREGUARD) << "WireGuard configuration failed, error code =" << mpr.exitCode;
-    }
-    return mpr.success;
+    // This method is not required.  The wireguard-nt service and driver are
+    // configured by the startWireGuard() method.
+    Q_UNUSED(config)
+    return true;
 }
 
 bool Helper_win::getWireGuardStatus(WireGuardStatus *status)

@@ -518,10 +518,16 @@ QString processExecutablePath( DWORD processID )
 
 const ProtoTypes::NetworkInterface WinUtils::currentNetworkInterface()
 {
-    IfTableRow row = lowestMetricNonWindscribeIfTableRow(); // todo: check if row not found?
+    ProtoTypes::NetworkInterface curNetworkInterface;
+
+    IfTableRow row = lowestMetricNonWindscribeIfTableRow();
+    if (!row.valid)
+    {
+        qCDebug(LOG_BASIC) << "WinUtils::lowestMetricNonWindscribeIfTableRow failed";
+        return curNetworkInterface;
+    }
 
     ProtoTypes::NetworkInterfaces interfaces = currentNetworkInterfaces(true);
-    ProtoTypes::NetworkInterface curNetworkInterface;
 
     for (int i = 0; i < interfaces.networks_size(); i++)
     {
@@ -641,7 +647,6 @@ IfTableRow WinUtils::lowestMetricNonWindscribeIfTableRow()
     const QList<IpForwardRow> fwdTable = getIpForwardTable();
     const QList<IpAdapter> ipAdapters = getIpAdapterTable();
 
-    int lowestIndex = Utils::noNetworkInterface().interface_index();
     int lowestMetric = 999999;
 
     for (const IpForwardRow &row: fwdTable)
@@ -651,12 +656,12 @@ IfTableRow WinUtils::lowestMetricNonWindscribeIfTableRow()
             if (ipAdapter.index == row.index)
             {
                 IfTableRow ifRow = ifRowByIndex(row.index);
-                if (ifRow.valid && ifRow.dwType != IF_TYPE_PPP && !ifRow.interfaceName.contains("Windscribe")) // filter Windscribe adapters
+                if (ifRow.valid && ifRow.dwType != IF_TYPE_PPP && !ifRow.interfaceName.contains("Windscribe") &&
+                    !ifRow.interfaceName.contains("WireGuard Tunnel")) // filter Windscribe adapters
                 {
                     const auto row_metric = static_cast<int>(row.metric);
                     if (row_metric < lowestMetric)
                     {
-                        lowestIndex =  static_cast<int>(row.index );
                         lowestMetric = static_cast<int>(row_metric);
                         lowestMetricIfRow = ifRow;
                     }
@@ -1042,8 +1047,6 @@ QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
     // default to unspecified address family (both)
     ULONG family = AF_INET;
 
-    LPVOID lpMsgBuf = NULL;
-
     PIP_ADAPTER_ADDRESSES pAddresses = NULL;
     ULONG outBufLen = 0;
     ULONG Iterations = 0;
@@ -1103,21 +1106,15 @@ QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
         }
         else
         {
-            if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                    FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                    NULL, dwRetVal, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                    // Default language
-                    (LPTSTR) & lpMsgBuf, 0, NULL))
-            {
-                printf("\tError: %s", static_cast<char*>(lpMsgBuf));
-                LocalFree(lpMsgBuf);
+            wchar_t strErr[1024];
+            WinUtils::Win32GetErrorString(dwRetVal, strErr, _countof(strErr));
+            printf("\tError: %ls", strErr);
 
-                if (pAddresses)
-                {
-                    FREE(pAddresses);
-                }
-                exit(1);
+            if (pAddresses)
+            {
+                FREE(pAddresses);
             }
+            exit(1);
         }
     }
 
@@ -1417,6 +1414,7 @@ QString WinUtils::getLocalIP()
             if ((ai->Type == MIB_IF_TYPE_ETHERNET) 	// If type is etherent
                 || (ai->Type == IF_TYPE_IEEE80211))   // radio
             {
+                // TODO: *jdrm* do we need to modify this to handle wireguard-nt adapter?
                 if (strstr(ai->Description, "Windscribe VPN") == 0 && strcmp(ai->IpAddressList.IpAddress.String, "0.0.0.0") != 0
                     && strcmp(ai->GatewayList.IpAddress.String, "0.0.0.0") != 0)
                 {
@@ -1526,13 +1524,12 @@ bool WinUtils::authorizeWithUac()
         else
         {
             // Can fail here if StubProxyDll isn't in CLSID\InprocServer32
-            void * pMsgBuf;
             int facility = HRESULT_FACILITY(hr); // If returns 4 (FACILITY_ITF) then error codes are interface specific
             int errorCode = HRESULT_CODE(hr);
-            ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+            wchar_t strErr[1024];
+            WinUtils::Win32GetErrorString(errorCode, strErr, _countof(strErr));
             std::cout << "Failed to CoCreateInstance of MyThing, facility: " << facility << ", code: " << errorCode << std::endl;
-            std::cout << " (" << hr << "): " << (LPTSTR)pMsgBuf << std::endl;
+            std::cout << " (" << hr << "): " << strErr << std::endl;
         }
     }
     else

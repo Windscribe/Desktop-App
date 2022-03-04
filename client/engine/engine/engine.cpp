@@ -2727,6 +2727,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
 void Engine::doConnect(bool bEmitAuthError)
 {
     // before connect, update ICS sharing and wait for update ICS finished
+    // TODO: *jdrm* do we need to modify this to handle wireguard-nt adapter?
     vpnShareController_->onConnectingOrConnectedToVPNEvent(OpenVpnVersionController::instance().isUseWinTun() ? "Windscribe Windtun420" : "Windscribe VPN");
     while (vpnShareController_->isUpdateIcsInProgress())
     {
@@ -2754,6 +2755,7 @@ void Engine::doConnect(bool bEmitAuthError)
     locationName_ = bli->getName();
 
 #ifdef Q_OS_WIN
+    // TODO: *jdrm* do we need to modify this to handle wireguard-nt adapter?
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
     helper_win->clearDnsOnTap();
     CheckAdapterEnable::enableIfNeed(helper_, "Windscribe VPN");

@@ -70,7 +70,7 @@ void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *help
 {
     Q_UNUSED(helper)
     // No need to stop the wireguard service, as it automatically stops if the client exits prematurely.
-    // TODO: But we may need to unwind other changes we may have made (firewall, route monitor, etc.).
+    // TODO: *jdrm* But we may need to unwind other changes we may have made (firewall, route monitor, etc.).
     //Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
     //helper_win->stopWireGuard();  // This will also reset route monitoring.
 }
