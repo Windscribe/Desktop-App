@@ -26,11 +26,8 @@ namespace MacUtils
     std::string execCmd(const char* cmd);
 
     // CLI
-    bool reportGuiEngineInit();
     bool isGuiAlreadyRunning();
-    bool giveFocusToGui();
     bool showGui();
-    void openGuiLocations();
 
     // Split Routing
     QString iconPathFromBinPath(const QString &binPath);

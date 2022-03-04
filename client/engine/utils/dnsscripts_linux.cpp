@@ -4,23 +4,27 @@
 
 QString DnsScripts_linux::scriptPath()
 {
-    lastIsResolvConf_ = isUseResolvConf(false);
-    if (lastIsResolvConf_)
-    {
-        return "/etc/windscribe/update-resolv-conf";
-    }
-    else
+    SCRIPT_TYPE scriptType = detectScript();
+    if (scriptType == SYSTEMD_RESOLVED)
     {
         return "/etc/windscribe/update-systemd-resolved";
     }
+    else if (scriptType == RESOLV_CONF)
+    {
+        return "/etc/windscribe/update-resolv-conf";
+    }
+    else if (scriptType == NETWORK_MANAGER)
+    {
+        return "/etc/windscribe/update-network-manager";
+    }
+    else
+    {
+        Q_ASSERT(false);
+        return "";
+    }
 }
 
-DnsScripts_linux::DnsScripts_linux()
-{
-    lastIsResolvConf_ = isUseResolvConf(true);
-}
-
-bool DnsScripts_linux::isUseResolvConf(bool bForceLogging)
+DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
 {
     // first method: we check if the resolv.conf file is symlinked to determine what is being used
     // and if its symlinked to: /run/systemd/resolve/resolv.conf then we know its systemd-resolved, regardless of which package is installed.
@@ -32,14 +36,9 @@ bool DnsScripts_linux::isUseResolvConf(bool bForceLogging)
         QString reply = process.readAll();
         if (reply.trimmed().compare("/run/systemd/resolve/resolv.conf", Qt::CaseInsensitive) == 0)
         {
-            // log only if last state changed or force logging flag setted
-            if (bForceLogging || lastIsResolvConf_ == true)
-            {
-                qCDebug(LOG_BASIC) << "The DNS installation method based on readlink methos -> systemd-resolve.";
-            }
-            return false;
+            qCDebug(LOG_BASIC) << "The DNS installation method -> systemd-resolve";
+            return SYSTEMD_RESOLVED;
         }
-        process.close();
     }
 
     // second method: based on check that the resolvconf utility is installed.
@@ -51,18 +50,12 @@ bool DnsScripts_linux::isUseResolvConf(bool bForceLogging)
         bool isResolvConfInstalled = (process.error() == QProcess::UnknownError);
         if (isResolvConfInstalled)
         {
-            if (bForceLogging || lastIsResolvConf_ == false)
-            {
-                qCDebug(LOG_BASIC) << "Resolvconf utility found. The DNS installation method -> resolvconf.";
-            }
+            qCDebug(LOG_BASIC) << "The DNS installation method -> resolvconf";
+            return RESOLV_CONF;
         }
-        else
-        {
-            if (bForceLogging || lastIsResolvConf_ == true)
-            {
-                qCDebug(LOG_BASIC) << "Resolvconf utility not found. The DNS installation method -> systemd-resolve.";
-            }
-        }
-        return isResolvConfInstalled;
     }
+
+    // by default use NetworkManager script
+    qCDebug(LOG_BASIC) << "The DNS installation method -> NetworkManager";
+    return NETWORK_MANAGER;
 }

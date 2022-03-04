@@ -213,6 +213,10 @@ def apply_mac_deploy_fixes(appname, fixlist):
                         dstv = srcv if len(parts) == 1 else parts[1].strip()
                         change_lib_from = os.path.join(lib_root, srcv)
                         change_lib_to = "@executable_path/{}".format(dstv)
+                        msg.Info("Fixing rpath: {} to {} for {}".format(change_lib_from, change_lib_to, fs[1]))
+                        # Ensure the lib actually exists (i.e. we have the correct name in build_all.yml)
+                        if not os.path.exists(change_lib_from):
+                            raise IOError("Cannot find file \"{}\"".format(change_lib_from))
                         iutl.RunCommand(["install_name_tool", "-change", change_lib_from, change_lib_to, fs[1]])
     # 4. Code signing.
     # The Mac app must be signed in order to install and operate properly.
@@ -264,6 +268,8 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
             build_cmd = [BUILD_QMAKE_EXE, get_project_file(c_subdir, c_project), "CONFIG+=release silent"]
             if arghelper.sign_app():
                 build_cmd.extend(["CONFIG+=use_signature_check"])
+            if arghelper.staging():
+                build_cmd.extend(["CONFIG+=staging_build"])
             if c_iswin:
                 build_cmd.extend(["-spec", "win32-msvc"])
             if c_ismac:
@@ -786,9 +792,8 @@ def pre_checks_and_build_all():
             pubkey = pathhelper.linux_public_key_filename_absolute()
             privkey = pathhelper.linux_private_key_filename_absolute()
             if not os.path.exists(pubkey) or not os.path.exists(privkey):
-                raise IOError("Code signing is enabled but key.pub and/or key.pem were not found in '{keypath}'. "
-                              "Pass {no_sign} to this script to disable code signing."
-                              .format(keypath=keypath, no_sign=arghelper.OPTION_NO_SIGN))
+                raise IOError("Code signing (--sign) is enabled but key.pub and/or key.pem were not found in '{keypath}'."
+                              .format(keypath=keypath))
             generate_include_file_from_pub_key(pathhelper.linux_include_key_filename_absolute(), pubkey)
 
         # early check for cert password in notarize.yml on windows
@@ -804,7 +809,7 @@ def pre_checks_and_build_all():
         # early check for provision profile on mac
         if CURRENT_OS == utl.CURRENT_OS_MAC:
             if not os.path.exists(pathhelper.mac_provision_profile_filename_absolute()):
-                raise IOError("Cannot sign without proviison profile")
+                raise IOError("Cannot sign without provisioning profile")
 
     # should have everything we need to build with the desired settings
     msg.Print("Building {}...".format(BUILD_TITLE))
@@ -849,8 +854,8 @@ if __name__ == "__main__":
         elif arghelper.download_secrets():
             download_secrets()
         elif arghelper.build_mode():
-            # don't delete secrets in local-secret mode
-            if not arghelper.use_local_secrets():
+            # don't delete secrets in local-secret mode or when doing a developer (non-signed) build.
+            if not arghelper.use_local_secrets() and arghelper.sign_app():
                 delete_secrets = True
             pre_checks_and_build_all()
         else:

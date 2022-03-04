@@ -45,6 +45,8 @@ private:
 
 bool IKEv2IPSec::setIKEv2IPSecParameters()
 {
+    disableMODP2048Support();
+    
     // First, try to add IPSec parameters to the phonebook manually.
     if (setIKEv2IPSecParametersInPhoneBook())
         return true;
@@ -106,4 +108,41 @@ bool IKEv2IPSec::setIKEv2IPSecParametersPowerShell()
             Logger::instance().out("Output: %s", mpr.additionalString.c_str());
     }
     return mpr.success;
+}
+
+void IKEv2IPSec::disableMODP2048Support()
+{
+    // RasDial in the client will fail with error code 13868 if this registry setting is enabled.
+    // See https://wiki.strongswan.org/projects/strongswan/wiki/WindowsClients for more info on this setting.
+
+    HKEY hKey = NULL;
+    LSTATUS result = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"System\\CurrentControlSet\\Services\\Rasman\\Parameters",
+                                    0, KEY_QUERY_VALUE | KEY_SET_VALUE, &hKey);
+    if (result == ERROR_SUCCESS)
+    {
+        DWORD dwValueType = REG_DWORD;
+        DWORD dwValue;
+        DWORD dwValueSize = sizeof(dwValue);
+        result = ::RegQueryValueEx(hKey, L"NegotiateDH2048_AES256", NULL, &dwValueType, (LPBYTE)&dwValue, &dwValueSize);
+
+        if (result == ERROR_SUCCESS)
+        {
+            if (dwValue != 0)
+            {
+                dwValue = 0;
+                result = ::RegSetValueEx(hKey, L"NegotiateDH2048_AES256", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(dwValue));
+                if (result != ERROR_SUCCESS) {
+                    Logger::instance().out("IKEv2IPSec::disableMODP2048Support: failed to set the 'NegotiateDH2048_AES256' value (%lu)", result);
+                }
+            }
+        }
+        else if (result != ERROR_FILE_NOT_FOUND) {
+            Logger::instance().out("IKEv2IPSec::disableMODP2048Support: failed to query the 'NegotiateDH2048_AES256' value (%lu)", result);
+        }
+
+        ::RegCloseKey(hKey);
+    }
+    else {
+        Logger::instance().out("IKEv2IPSec::disableMODP2048Support: failed to open the 'Rasman Parameters' key (%lu)", result);
+    }
 }

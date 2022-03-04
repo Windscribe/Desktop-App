@@ -18,12 +18,12 @@ bool RunBlockingCommands(const std::vector<std::string> &cmdlist)
     for (const auto &cmd : cmdlist) {
         output.clear();
         const auto status = Utils::executeCommand(cmd, {}, &output);
+        if (!output.empty())
+            Logger::instance().out("%s", output.c_str());
         if (status != 0) {
             Logger::instance().out("Failed to run command: \"%s\" (exit status %i)", cmd.c_str(), status);
             return false;
         }
-        if (!output.empty())
-            Logger::instance().out("%s", output.c_str());
     }
     return true;
 }

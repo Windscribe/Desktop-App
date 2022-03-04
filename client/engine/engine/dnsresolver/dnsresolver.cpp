@@ -228,7 +228,7 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
     USER_ARG *userArg = static_cast<USER_ARG *>(arg);
     if (status != ARES_SUCCESS)
     {
-        qCDebug(LOG_BASIC) << "DnsResolver::callback, request failed:" << status << timeouts;
+        //qCDebug(LOG_BASIC) << "DnsResolver::callback, request failed:" << status << timeouts;
         bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
                                   Qt::QueuedConnection, Q_ARG(QStringList, QStringList()), Q_ARG(int, status));
         Q_ASSERT(bSuccess);

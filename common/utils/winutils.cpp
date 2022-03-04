@@ -343,40 +343,6 @@ bool WinUtils::isGuiAlreadyRunning()
     return false;
 }
 
-bool WinUtils::giveFocusToGui()
-{
-    HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-    if (hwnd)
-    {
-        SetForegroundWindow(hwnd);
-        UINT dwActivateMessage = RegisterWindowMessage(wmActivateGui.c_str());
-        PostMessage(hwnd, dwActivateMessage, 0, 0);
-        return true;
-    }
-    return false;
-}
-
-void WinUtils::openGuiLocations()
-{
-    HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-    if (hwnd)
-    {
-        UINT dwActivateMessage = RegisterWindowMessage(wmOpenGuiLocations.c_str());
-        PostMessage(hwnd, dwActivateMessage, 0, 0);
-    }
-}
-
-bool WinUtils::reportGuiEngineInit()
-{
-    HANDLE guiStartedEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("WindscribeGuiStarted"));
-    if (guiStartedEvent != NULL)
-    {
-        SetEvent(guiStartedEvent);
-        CloseHandle(guiStartedEvent);
-    }
-    return GetLastError() == ERROR_SUCCESS;
-}
-
 QString WinUtils::regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName)
 {
     QString result = "";

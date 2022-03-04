@@ -240,43 +240,6 @@ QString Utils::formatMacAddress(QString macAddress)
     return formattedMac;
 }
 
-bool Utils::giveFocusToGui()
-{
-#ifdef Q_OS_WIN
-    return WinUtils::giveFocusToGui();
-#elif defined Q_OS_MAC
-    return MacUtils::giveFocusToGui();
-#elif defined Q_OS_LINUX
-    //todo linux
-    return false;
-#endif
-}
-
-void Utils::openGuiLocations()
-{
-#ifdef Q_OS_WIN
-    WinUtils::openGuiLocations();
-#elif defined Q_OS_MAC
-    MacUtils::openGuiLocations();
-#elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-#endif
-}
-
-bool Utils::reportGuiEngineInit()
-{
-#ifdef Q_OS_WIN
-    return WinUtils::reportGuiEngineInit();
-#elif defined Q_OS_MAC
-    return MacUtils::reportGuiEngineInit();
-#elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    return true;
-#endif
-}
-
 bool Utils::isGuiAlreadyRunning()
 {
 #ifdef Q_OS_WIN
@@ -284,9 +247,7 @@ bool Utils::isGuiAlreadyRunning()
 #elif defined Q_OS_MAC
     return MacUtils::isGuiAlreadyRunning();
 #elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-    return true;
+    return LinuxUtils::isGuiAlreadyRunning();
 #endif
 }
 
@@ -387,9 +348,7 @@ QString Utils::getLocalIP()
 #elif defined Q_OS_MAC
     return MacUtils::getLocalIP();
 #elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    return "";
+    return LinuxUtils::getLocalIP();
 #endif
 }
 

@@ -1,0 +1,61 @@
+syntax = "proto2";
+import "types.proto";
+
+// commands between CLI and GUI
+package CliIpc;
+
+
+// --- commands from CLI ---
+message Connect
+{
+  optional string location = 1;
+}
+
+message Disconnect
+{
+}
+
+message ShowLocations
+{
+}
+
+message Firewall
+{
+  optional bool is_enable = 1 [default = false];
+}
+
+message GetState
+{
+}
+
+
+// --- answers from GUI ---
+message ConnectToLocationAnswer
+{
+   optional bool is_success = 1;
+   optional string location = 2;
+}
+
+message ConnectStateChanged
+{
+   optional ProtoTypes.ConnectState connect_state = 1;
+}
+
+message FirewallStateChanged
+{
+  optional bool is_firewall_enabled = 1;
+  optional bool is_firewall_always_on = 2;
+}
+
+message LocationsShown
+{
+}
+
+message AlreadyDisconnected
+{
+}
+
+message State
+{
+   optional bool is_logged_in = 1  [default = false];
+} 

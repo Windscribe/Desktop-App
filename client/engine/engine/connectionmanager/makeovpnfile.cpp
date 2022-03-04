@@ -152,8 +152,9 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const Pr
     str = "--script-security 2\r\n";
     file_.write(str.toLocal8Bit());
 
-    QString cmd1 = "\nup " + DnsScripts_linux::instance().scriptPath() + "\n";
-    QString cmd2 = "down " + DnsScripts_linux::instance().scriptPath() + "\n";
+    QString dnsScript = DnsScripts_linux::instance().scriptPath();
+    QString cmd1 = "\nup " + dnsScript  + "\n";
+    QString cmd2 = "down " + dnsScript + "\n";
     QString cmd3 = "down-pre\n";
     QString cmd4 = "dhcp-option DOMAIN-ROUTE .\n";   // prevent DNS leakage  and without it doesn't work update-systemd-resolved script
     file_.write(cmd1.toUtf8());

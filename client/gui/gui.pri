@@ -24,7 +24,6 @@ SOURCES += $$PWD/multipleaccountdetection/multipleaccountdetection_mac.cpp
 
 OBJECTIVE_SOURCES += \
                 $$PWD/application/checkrunningapp/checkrunningapp_mac.mm \
-                $$PWD/application/openlocationshandler_mac.mm \
                 $$PWD/launchonstartup/launchonstartup_mac.mm \
                 $$PWD/utils/interfaceutils_mac.mm \
                 $$PWD/utils/authchecker_mac.mm
@@ -32,7 +31,6 @@ OBJECTIVE_SOURCES += \
 HEADERS += \
            $$PWD/multipleaccountdetection/multipleaccountdetection_mac.h \
            $$PWD/application/checkrunningapp/checkrunningapp_mac.h \
-           $$PWD/application/openlocationshandler_mac.h \
            $$PWD/launchonstartup/launchonstartup_mac.h \
            $$PWD/utils/authchecker_mac.h \
 
@@ -267,7 +265,8 @@ SOURCES += $$PWD/backend/backend.cpp \
     $$PWD/mainwindowcontroller.cpp \
     $$PWD/multipleaccountdetection/multipleaccountdetectionfactory.cpp \
     $$PWD/preferenceswindow/openurlitem.cpp \
-    $$PWD/application/singleappinstance.cpp
+    $$PWD/application/singleappinstance.cpp \
+    $$PWD/localipcserver/localipcserver.cpp
 
 
 HEADERS += $$PWD/backend/backend.h \
@@ -509,7 +508,8 @@ HEADERS += $$PWD/backend/backend.h \
     $$PWD/multipleaccountdetection/multipleaccountdetectionfactory.h \
     $$PWD/preferenceswindow/openurlitem.h \
     $$PWD/application/singleappinstance.h \
-    $$PWD/application/singleappinstance_p.h
+    $$PWD/application/singleappinstance_p.h \
+    $$PWD/localipcserver/localipcserver.h
 
 RESOURCES += \
     $$PWD/svg.qrc \

@@ -8,6 +8,7 @@
 
 #include "locationswindow/locationswindow.h"
 #include "backend/backend.h"
+#include "localipcserver/localipcserver.h"
 #include "backend/notificationscontroller.h"
 #include "log/logviewerwindow.h"
 #include "loginattemptscontroller.h"
@@ -220,11 +221,15 @@ private slots:
     void toggleVisibilityIfDocked();
     void onAppActivateFromAnotherInstance();
     void onAppShouldTerminate_mac();
-    void onReceivedOpenLocationsMessage();
     void onAppCloseRequest();
 #if defined(Q_OS_WIN)
     void onAppWinIniChanged();
 #endif
+
+    // LocalIPCServer signals
+    void onReceivedOpenLocationsMessage();
+    void onConnectToLocation(const LocationID &id);
+
 
     void showShutdownWindow();
 
@@ -263,6 +268,7 @@ private:
     void collapsePreferences();
 
     Backend *backend_;
+    LocalIPCServer *localIpcServer_;
     NotificationsController notificationsController_;
 
     MainWindowController *mainWindowController_;

@@ -20,9 +20,9 @@ public:
     QString scriptPath();
 
 private:
-    DnsScripts_linux();
-    bool isUseResolvConf(bool bForceLogging);
-    bool lastIsResolvConf_;
+
+    enum SCRIPT_TYPE { SYSTEMD_RESOLVED, RESOLV_CONF, NETWORK_MANAGER };
+    SCRIPT_TYPE detectScript();
 };
 
 #endif // DNS_SCRIPTS_LINUX_H

@@ -1,0 +1,53 @@
+#!/bin/bash
+# 
+# Parses DHCP options from openvpn to update DNS with NetworkManager method
+# Example envs set from openvpn:
+#
+#     foreign_option_1='dhcp-option DNS 193.43.27.132'
+#     foreign_option_2='dhcp-option DNS 193.43.27.133'
+#     foreign_option_3='dhcp-option DOMAIN be.bnc.ch'
+#
+
+[ "$script_type" ] || exit 0
+[ "$dev" ] || exit 0
+
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
+
+case "$script_type" in
+  up)
+	for optionname in ${!foreign_option_*} ; do
+        option="${!optionname}"
+        echo $option
+        part1=$(echo "$option" | cut -d " " -f 1)
+        if [ "$part1" == "dhcp-option" ] ; then
+            part2=$(echo "$option" | cut -d " " -f 2)
+            part3=$(echo "$option" | cut -d " " -f 3)
+            if [ "$part2" == "DNS" ] ; then
+                IF_DNS_NAMESERVERS="$IF_DNS_NAMESERVERS $part3"
+            fi
+            if [[ "$part2" == "DOMAIN" || "$part2" == "DOMAIN-SEARCH" ]] ; then
+                IF_DNS_SEARCH="$IF_DNS_SEARCH $part3"
+            fi
+        fi
+    done
+    if [ -n "$IF_DNS_SEARCH" ]; then
+        nmcli connection modify "${dev}" ipv4.dns-search "$IF_DNS_SEARCH"
+    fi
+    if [ -n "$IF_DNS_NAMESERVERS" ]; then
+        nmcli connection modify "${dev}" ipv4.dns "$IF_DNS_NAMESERVERS"
+    fi
+    nmcli connection up "${dev}" # Force NM to reevaluate the properties
+
+  "$DNS_LEAK_SCRIPT" "up" ${dev}
+
+	;;
+  down)
+
+	"$DNS_LEAK_SCRIPT" "down"
+
+	;;
+esac
+
+

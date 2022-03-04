@@ -4,5 +4,7 @@
 set -e
 systemctl enable windscribe-helper
 systemctl start windscribe-helper
+ln -s /usr/local/windscribe/windscribe-cli /usr/local/bin/windscribe-cli
+
 echo linux_rpm_x64 > ../etc/windscribe/platform # platform-specific
 

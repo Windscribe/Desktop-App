@@ -11,6 +11,12 @@ namespace LinuxUtils
     void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName);
     QString getLinuxKernelVersion();
     const QString getLastInstallPlatform();
+    QString getLocalIP();
+
+    // CLI
+    bool isGuiAlreadyRunning();
+
+    std::string execCmd(const char *cmd);
 
     const QString LAST_INSTALL_PLATFORM_FILE = "/etc/windscribe/platform";
     const QString DEB_PLATFORM_NAME = QString("linux_deb_x64");
