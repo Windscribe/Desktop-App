@@ -486,7 +486,7 @@ const ProtoTypes::NetworkInterface WinUtils::currentNetworkInterface()
 {
     ProtoTypes::NetworkInterface curNetworkInterface;
 
-    IfTableRow row = lowestMetricNonWindscribeIfTableRow();
+    IfTable2Row row = lowestMetricNonWindscribeIfTableRow();
     if (!row.valid)
     {
         qCDebug(LOG_BASIC) << "WinUtils::lowestMetricNonWindscribeIfTableRow failed";
@@ -606,9 +606,9 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
     return networkInterfaces;
 }
 
-IfTableRow WinUtils::lowestMetricNonWindscribeIfTableRow()
+IfTable2Row WinUtils::lowestMetricNonWindscribeIfTableRow()
 {
-    IfTableRow lowestMetricIfRow;
+    IfTable2Row lowestMetricIfRow;
 
     const QList<IpForwardRow> fwdTable = getIpForwardTable();
     const QList<IpAdapter> ipAdapters = getIpAdapterTable();
@@ -621,9 +621,8 @@ IfTableRow WinUtils::lowestMetricNonWindscribeIfTableRow()
         {
             if (ipAdapter.index == row.index)
             {
-                IfTableRow ifRow = ifRowByIndex(row.index);
-                if (ifRow.valid && ifRow.dwType != IF_TYPE_PPP && !ifRow.interfaceName.contains("Windscribe") &&
-                    !ifRow.interfaceName.contains("WireGuard Tunnel")) // filter Windscribe adapters
+                IfTable2Row ifRow = ifTable2RowByIndex(row.index);
+                if (ifRow.valid && ifRow.interfaceType != IF_TYPE_PPP && !ifRow.isWindscribeAdapter())
                 {
                     const auto row_metric = static_cast<int>(row.metric);
                     if (row_metric < lowestMetric)
@@ -919,17 +918,23 @@ QList<IfTable2Row> WinUtils::getIfTable2()
 
     for (ULONG i = 0; i < pIfTable2->NumEntries; i++)
     {
-        QString guid = guidToQString(pIfTable2->Table[i].InterfaceGuid);
-        QString alias = QString::fromWCharArray(pIfTable2->Table[i].Description);
+        PMIB_IF_ROW2 pEntry = &pIfTable2->Table[i];
+        if (!pEntry->InterfaceAndOperStatusFlags.FilterInterface)
+        {
+            QString guid = guidToQString(pEntry->InterfaceGuid);
+            QString description = QString::fromWCharArray(pEntry->Description);
+            QString alias = QString::fromWCharArray(pEntry->Alias);
 
-        IfTable2Row row(pIfTable2->Table[i].InterfaceIndex,
-                        guid,
-                        alias,
-                        pIfTable2->Table[i].AccessType,
-                        pIfTable2->Table[i].InterfaceAndOperStatusFlags.ConnectorPresent,
-                        pIfTable2->Table[i].InterfaceAndOperStatusFlags.EndPointInterface);
-        if2Table.append(row);
-
+            IfTable2Row row(pEntry->InterfaceIndex,
+                            guid,
+                            description,
+                            alias,
+                            pEntry->AccessType,
+                            pEntry->InterfaceAndOperStatusFlags.ConnectorPresent,
+                            pEntry->InterfaceAndOperStatusFlags.EndPointInterface,
+                            pEntry->Type);
+            if2Table.append(row);
+        }
     }
 
     FreeMibTable(pIfTable2);
@@ -1377,10 +1382,11 @@ QString WinUtils::getLocalIP()
 
         do
         {
-            if ((ai->Type == MIB_IF_TYPE_ETHERNET) 	// If type is etherent
-                || (ai->Type == IF_TYPE_IEEE80211))   // radio
+            if ((ai->Type == MIB_IF_TYPE_ETHERNET) || (ai->Type == IF_TYPE_IEEE80211))
             {
-                // TODO: *jdrm* do we need to modify this to handle wireguard-nt adapter?
+                // JDRM - I don't think this check for "Windscribe VPN" is necessary, as the tun/tap adapters are
+                // Type = 53 (IF_TYPE_PROP_VIRTUAL).  However, if it is, shouldn't we also be checking for
+                // "Windscribe Windtun420" and the wireguard-nt adapters?
                 if (strstr(ai->Description, "Windscribe VPN") == 0 && strcmp(ai->IpAddressList.IpAddress.String, "0.0.0.0") != 0
                     && strcmp(ai->GatewayList.IpAddress.String, "0.0.0.0") != 0)
                 {
@@ -1537,4 +1543,21 @@ unsigned long WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *bu
     }
 
     return nLength;
+}
+
+IfTable2Row WinUtils::ifTable2RowByIndex(int index)
+{
+    IfTable2Row found;
+
+    const auto if_table = getIfTable2();
+    for (IfTable2Row row : if_table)
+    {
+        if (index == static_cast<int>(row.index)) // TODO: convert all ifIndices to int
+        {
+            found = row;
+            break;
+        }
+    }
+
+    return found;
 }

@@ -39,8 +39,9 @@ namespace WinUtils
     ProtoTypes::NetworkInterfaces currentNetworkInterfaces(bool includeNoInterface);
 
     ProtoTypes::NetworkInterface interfaceByIndex(int index, bool &success);
-    IfTableRow lowestMetricNonWindscribeIfTableRow();
+    IfTable2Row lowestMetricNonWindscribeIfTableRow();
     IfTableRow ifRowByIndex(int index);
+    IfTable2Row ifTable2RowByIndex(int index);
 
     QString interfaceSubkeyPath(int interfaceIndex);
     QString interfaceSubkeyName(int interfaceIndex);
