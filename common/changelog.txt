@@ -1,3 +1,15 @@
+2.4.2 (04/03/2022)
+* CLI added for Linux, updated for Win/Mac. #167
+* Firewall broken when ufw is enabled on Ubuntu 20. #157
+* Update 10Gbps badge and location load when best location changes. #145
+* Added Ghana flag image. #180
+* UDP fails to connect on Mac. #175
+* Rasdial error 13868 fixed. #104
+* update-systemd-resolved failure during disconnect on Ubuntu. #153
+* Proxy gateway not showing IP address of listener. #159
+* Can't connect if DNS is managed by NetworkManager. #158
+
+
 2.4.1 (18/01/2022)
 * Combined the engine and gui into the single process. #562
 * Migrated from DropDMG to opensource CLI utility. #591
