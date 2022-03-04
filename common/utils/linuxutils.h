@@ -11,6 +11,7 @@ namespace LinuxUtils
     void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName);
     QString getLinuxKernelVersion();
     const QString getLastInstallPlatform();
+    QString getLocalIP();
 
     // CLI
     bool isGuiAlreadyRunning();
