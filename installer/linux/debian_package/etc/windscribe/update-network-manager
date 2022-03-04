@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-# Parses DHCP options from openvpn to update DNS with NetworkManager method
+# Parses DHCP options from openvpn to update DNS by writing directly to /etc/resolv.conf
 # Example envs set from openvpn:
 #
 #     foreign_option_1='dhcp-option DNS 193.43.27.132'
@@ -17,36 +17,47 @@ DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
 
 case "$script_type" in
   up)
-	for optionname in ${!foreign_option_*} ; do
-        option="${!optionname}"
-        echo $option
-        part1=$(echo "$option" | cut -d " " -f 1)
-        if [ "$part1" == "dhcp-option" ] ; then
-            part2=$(echo "$option" | cut -d " " -f 2)
-            part3=$(echo "$option" | cut -d " " -f 3)
-            if [ "$part2" == "DNS" ] ; then
-                IF_DNS_NAMESERVERS="$IF_DNS_NAMESERVERS $part3"
+    if [ ! -d /tmp/windscribe_openvpn ]; then
+        mkdir /tmp/windscribe_openvpn
+    fi
+    CACHE_NAMESERVER="/tmp/windscribe_openvpn/$DEV.nameserver"
+    echo -n "" > $CACHE_NAMESERVER
+
+    dns=dns
+    for opt in ${!foreign_option_*}
+    do
+        eval "dns=\${$opt#dhcp-option DNS }"
+        if [[ $dns =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
+            if [ ! -f /etc/resolv.conf.default ]; then
+                cp /etc/resolv.conf /etc/resolv.conf.default
             fi
-            if [[ "$part2" == "DOMAIN" || "$part2" == "DOMAIN-SEARCH" ]] ; then
-                IF_DNS_SEARCH="$IF_DNS_SEARCH $part3"
-            fi
+
+            cat /etc/resolv.conf | grep -v ^# | grep -v ^nameserver > /tmp/resolv.conf
+            echo "nameserver $dns" >> /tmp/resolv.conf
+            echo $dns >> $CACHE_NAMESERVER
+            cat /etc/resolv.conf | grep -v ^# | grep -v "nameserver $dns" | grep nameserver >> /tmp/resolv.conf
+            mv /tmp/resolv.conf /etc/resolv.conf
+
         fi
     done
-    if [ -n "$IF_DNS_SEARCH" ]; then
-        nmcli connection modify "${dev}" ipv4.dns-search "$IF_DNS_SEARCH"
-    fi
-    if [ -n "$IF_DNS_NAMESERVERS" ]; then
-        nmcli connection modify "${dev}" ipv4.dns "$IF_DNS_NAMESERVERS"
-    fi
-    nmcli connection up "${dev}" # Force NM to reevaluate the properties
 
-  "$DNS_LEAK_SCRIPT" "up" ${dev}
-
+    "$DNS_LEAK_SCRIPT" "up" ${dev}
 	;;
   down)
 
-	"$DNS_LEAK_SCRIPT" "down"
+    CACHE_NAMESERVER="/tmp/windscribe_openvpn/$DEV.nameserver"
+    echo $CACHE_NAMESERVER
 
+    if [ -f $CACHE_NAMESERVER ]; then
+        for ns in `cat $CACHE_NAMESERVER`; do
+            echo "Removing $ns from /etc/resolv.conf"
+            cat /etc/resolv.conf | grep -v "nameserver $ns" > /tmp/resolv.conf
+            mv /tmp/resolv.conf /etc/resolv.conf
+
+        done
+    fi
+
+	"$DNS_LEAK_SCRIPT" "down"
 	;;
 esac
 

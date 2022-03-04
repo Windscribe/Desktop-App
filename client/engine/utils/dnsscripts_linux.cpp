@@ -34,7 +34,7 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
         process.waitForFinished();
 
         QString reply = process.readAll();
-        if (reply.trimmed().compare("/run/systemd/resolve/resolv.conf", Qt::CaseInsensitive) == 0)
+        if (reply.trimmed().contains("/run/systemd", Qt::CaseInsensitive))
         {
             qCDebug(LOG_BASIC) << "The DNS installation method -> systemd-resolve";
             return SYSTEMD_RESOLVED;
