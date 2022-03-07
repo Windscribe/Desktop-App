@@ -2,8 +2,10 @@
 #include <Psapi.h>
 #include <tlhelp32.h>
 
+#include <chrono>
 #include <codecvt>
 #include <fstream>
+#include <iomanip>
 #include <stdio.h>
 #include <sstream>
 
@@ -19,6 +21,9 @@
 // If the WireGuardTunnelService proc from tunnel.dll is failing during startup, nothing may
 // be displayed in the wireguard ring log to help diagnose the issue.  Run this binary as a
 // regular command-line app in that case, as tunnel.dll dumps to stderr during startup.
+
+static std::chrono::system_clock::time_point PROCESS_START_TIME;
+
 
 //---------------------------------------------------------------------------
 static std::wstring
@@ -37,10 +42,10 @@ getProcessFolder()
 
 //---------------------------------------------------------------------------
 static std::wstring
-logFilename()
+logFilename(bool bPrevious = false)
 {
     std::wostringstream stream;
-    stream << getProcessFolder() << L"\\WireguardServiceLog.txt";
+    stream << getProcessFolder() << (bPrevious ? L"\\WireguardServiceLog_prev.txt" : L"\\WireguardServiceLog.txt");
     return stream.str();
 }
 
@@ -50,7 +55,10 @@ resetLogFile()
 {
     std::wstring logFile = logFilename();
     DWORD dwAttrib = ::GetFileAttributes(logFile.c_str());
-    if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
+    if (dwAttrib != INVALID_FILE_ATTRIBUTES)
+    {
+        std::wstring prevLogFile = logFilename(true);
+        ::CopyFile(logFile.c_str(), prevLogFile.c_str(), FALSE);
         ::DeleteFile(logFile.c_str());
     }
 }
@@ -59,21 +67,34 @@ resetLogFile()
 static void
 debugOut(const char *str, ...)
 {
-    char buf[4096];
+    std::ofstream ofs;
+    ofs.open(logFilename(), std::ofstream::out | std::ofstream::app);
 
-    va_list args;
-    va_start(args, str);
-    size_t bytesOut = vsnprintf_s(buf, 4096, str, args);
-    va_end(args);
-
-    if (bytesOut > 0)
+    if (ofs.is_open())
     {
-        //::OutputDebugStringA(buf);
-        std::ofstream ofs;
-        ofs.open(logFilename(), std::ofstream::out | std::ofstream::app);
-        if (ofs.is_open()) {
-            ofs << buf << std::endl;
+        auto timepoint = std::chrono::system_clock::now();
+        auto coarse    = std::chrono::system_clock::to_time_t(timepoint);
+
+        struct tm tmNow;
+        if (::gmtime_s(&tmNow, &coarse) == 0)
+        {
+            auto msNow   = std::chrono::time_point_cast<std::chrono::milliseconds>(timepoint);
+            auto msStart = std::chrono::time_point_cast<std::chrono::milliseconds>(PROCESS_START_TIME);
+
+            ofs << std::put_time(&tmNow, "[%d%m%y %H:%M:%S:")
+                << std::setw(3) << msNow.time_since_epoch().count() % 1000 << ' '
+                << std::setw(10) << std::setprecision(3) << std::setfill(' ')
+                << (msNow.time_since_epoch().count() - msStart.time_since_epoch().count()) / 1000.0
+                << "] [wg_service]\t ";
         }
+
+        va_list args;
+        va_start (args, str);
+        char buf[1024];
+        vsnprintf_s(buf, sizeof(buf), _TRUNCATE, str, args);
+        va_end (args);
+
+        ofs << buf << std::endl;
     }
 }
 
@@ -205,6 +226,8 @@ stopMonitorThread(ULONG_PTR lpParam)
 int
 main(int argc, char *argv[])
 {
+    PROCESS_START_TIME = std::chrono::system_clock::now();
+
     resetLogFile();
 
     debugOut("Windscribe wireguard service starting");
