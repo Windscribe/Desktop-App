@@ -11,8 +11,6 @@
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 
-// TODO: figure out why the firewall doesn't turn off if we throw an exception in startConnect
-
 // Useful code:
 // - mozilla-vpn-client\src\platforms\windows\daemon\wireguardutilswindows.cpp line 106 has code
 //   for getting the interface LUID from the service name, rather than us having to hunt through

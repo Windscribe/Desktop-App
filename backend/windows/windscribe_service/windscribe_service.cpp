@@ -944,12 +944,6 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         mpr.success = wireGuardController.deleteService();
         Logger::instance().out(L"AA_COMMAND_STOP_WIREGUARD");
     }
-    else if (cmdId == AA_COMMAND_CONFIGURE_WIREGUARD)
-    {
-        // TODO: remove AA_COMMAND_CONFIGURE_WIREGUARD from the code if we find we don't need it at all.
-        mpr.success = false;
-        Logger::instance().out(L"AA_COMMAND_CONFIGURE_WIREGUARD is not a valid command for wireguard-nt");
-    }
     else if (cmdId == AA_COMMAND_GET_WIREGUARD_STATUS)
     {
         mpr.success = true;

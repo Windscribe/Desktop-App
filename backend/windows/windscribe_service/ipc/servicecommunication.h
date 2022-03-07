@@ -47,14 +47,13 @@
 #define AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS               43
 #define AA_COMMAND_START_WIREGUARD                          44
 #define AA_COMMAND_STOP_WIREGUARD                           45
-#define AA_COMMAND_CONFIGURE_WIREGUARD                      46
-#define AA_COMMAND_GET_WIREGUARD_STATUS                     47
-#define AA_COMMAND_CONNECT_STATUS                           48
-#define AA_COMMAND_SUSPEND_UNBLOCKING_CMD                   49
-#define AA_COMMAND_DNS_WHILE_CONNECTED                      50
-#define AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE                 51
-#define AA_COMMAND_REINSTALL_TAP_DRIVER                     52
-#define AA_COMMAND_REINSTALL_WINTUN_DRIVER                  53
+#define AA_COMMAND_GET_WIREGUARD_STATUS                     46
+#define AA_COMMAND_CONNECT_STATUS                           47
+#define AA_COMMAND_SUSPEND_UNBLOCKING_CMD                   48
+#define AA_COMMAND_DNS_WHILE_CONNECTED                      49
+#define AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE                 50
+#define AA_COMMAND_REINSTALL_TAP_DRIVER                     51
+#define AA_COMMAND_REINSTALL_WINTUN_DRIVER                  52
 
 #include <string>
 #include <vector>
