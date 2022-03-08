@@ -68,21 +68,34 @@ struct IfTable2Row
 {
     unsigned long index;
     QString interfaceGuid;
+    QString description;
     QString alias;
     int op_status;
     bool connectorPresent;
     bool endPointInterface;
+    bool valid;
+    unsigned long interfaceType;
 
-    IfTable2Row(): index(0), interfaceGuid(""), alias(""), op_status(0), connectorPresent(false), endPointInterface(false) {}
-    IfTable2Row(unsigned long index, QString guid, QString alias, int op_status, bool connectorPresent, bool endPointInterface) :
-        index(index), interfaceGuid(guid), alias(alias), op_status(op_status), connectorPresent(connectorPresent), endPointInterface(endPointInterface) {}
+    IfTable2Row(): index(0), interfaceGuid(""), description(""), alias(""), op_status(0), connectorPresent(false), endPointInterface(false), valid(false), interfaceType(0) {}
+    IfTable2Row(unsigned long index, QString guid, QString description, QString alias, int op_status, bool connectorPresent, bool endPointInterface, unsigned long interfaceType) :
+        index(index), interfaceGuid(guid), description(description), alias(alias), op_status(op_status), connectorPresent(connectorPresent),
+        endPointInterface(endPointInterface), valid(true), interfaceType(interfaceType) {}
+
+    bool isWindscribeAdapter() const
+    {
+        // Windscribe-built tap/tun adapters have 'windscribe' in their description.
+        // The generic wireguard-nt adapter we're using has it in the alias.
+        return description.contains("windscribe", Qt::CaseInsensitive) || alias.contains("windscribe", Qt::CaseInsensitive);
+    }
 
     void print()
     {
         qDebug() << "IfTable2Row: " << index
                  << ", GUID: " << interfaceGuid
+                 << ", description: " << description
                  << ", alias: " << alias
-                 << ", op status: " << op_status;
+                 << ", op status: " << op_status
+                 << ", interfaceType: " << interfaceType;
     }
 };
 

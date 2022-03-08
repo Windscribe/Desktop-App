@@ -170,11 +170,10 @@ bool noSpacesInString(std::wstring &str)
 
 bool iequals(const std::wstring &a, const std::wstring &b)
 {
-	auto sz = static_cast<unsigned int>(a.size());
-	if (b.size() != sz)
+	if (b.size() != a.size())
 		return false;
 
-	return _wcsnicmp(a.c_str(), b.c_str(), sz) == 0;
+	return _wcsnicmp(a.c_str(), b.c_str(), a.size()) == 0;
 }
 
 bool verifyWindscribeProcessPath(HANDLE hPipe)

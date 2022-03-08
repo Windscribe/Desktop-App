@@ -1,4 +1,4 @@
-#include "wireguardconnection.h"
+#include "wireguardconnection_posix.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -6,13 +6,7 @@
 #include "engine/types/types.h"
 #include "engine/types/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
-
-#ifdef Q_OS_WIN
-    #include "adapterutils_win.h"
-    #include "engine/helper/helper_win.h"
-#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
-    #include "engine/helper/helper_posix.h"
-#endif
+#include "engine/helper/helper_posix.h"
 
 class WireGuardConnectionImpl
 {
@@ -153,8 +147,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
     pimpl_->setConfig(wireGuardConfig);
 
-    // for windows adapterGatewayInfo_ filled on emit connected below
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     // note: route gateway not used for WireGuard in AdapterGatewayInfo
     adapterGatewayInfo_.clear();
     adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
@@ -164,7 +156,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
         adapterGatewayInfo_.setAdapterIp(address_and_cidr[0]);
     }
     adapterGatewayInfo_.setDnsServers(QStringList() << wireGuardConfig->clientDnsAddress());
-#endif
 
     setCurrentState(ConnectionState::CONNECTING);
     start(LowPriority);
@@ -203,11 +194,7 @@ QString WireGuardConnection::getWireGuardExeName()
 // static
 QString WireGuardConnection::getWireGuardAdapterName()
 {
-#if defined(Q_OS_WIN)
-    return QString("WindscribeWireGuard420");
-#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     return QString("utun420");
-#endif
 }
 
 void WireGuardConnection::run()
@@ -219,13 +206,6 @@ void WireGuardConnection::run()
     bool is_connected = false;
 
     BIND_CRASH_HANDLER_FOR_THREAD();
-
-#if defined(Q_OS_WIN)
-    qCDebug(LOG_WIREGUARD) << "Enable dns leak protection";
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    Q_ASSERT(helper_win);
-    helper_win->enableDnsLeaksProtection();
-#endif
 
     for (pimpl_->connect();;) {
         if (do_stop_thread_) {
@@ -246,15 +226,7 @@ void WireGuardConnection::run()
                 break;
             case WireGuardState::FAILURE:
                 // Error state.
-                qCDebug(LOG_WIREGUARD) << "WireGuard daemon error:" << status.errorCode;
-#if defined(Q_OS_WIN)
-                if(status.errorCode == 666u) {
-                    // Stop daemon for sure before wintun driver reinstallation.
-                    if(pimpl_->stopWireGuard()) {
-                        setError(ProtoTypes::ConnectError::WINTUN_FATAL_ERROR);
-                    }
-                }
-#endif
+                qCDebug(LOG_WIREGUARD) << "WireGuard daemon error";
                 do_stop_thread_ = true;
                 break;
             case WireGuardState::STARTING:
@@ -278,10 +250,6 @@ void WireGuardConnection::run()
                 if (!is_connected) {
                     qCDebug(LOG_WIREGUARD) << "WireGuard daemon reported successful handshake";
                     is_connected = true;
-
-#ifdef Q_OS_WIN
-                    adapterGatewayInfo_ = AdapterUtils_win::getWindscribeConnectedAdapterInfo();
-#endif
                     setCurrentStateAndEmitSignal(WireGuardConnection::ConnectionState::CONNECTED);
                 }
                 const auto newBytesReceived = status.bytesReceived - bytesReceived;
@@ -298,12 +266,6 @@ void WireGuardConnection::run()
         }
         QThread::msleep(next_status_check_ms);
     }
-
-
-#if defined(Q_OS_WIN)
-    qCDebug(LOG_WIREGUARD) << "Disable dns leak protection";
-    helper_win->disableDnsLeaksProtection();
-#endif
 }
 
 void WireGuardConnection::onProcessKillTimeout()
@@ -312,15 +274,8 @@ void WireGuardConnection::onProcessKillTimeout()
                             << PROCESS_KILL_TIMEOUT << "ms";
     qCDebug(LOG_CONNECTION) << "kill the WireGuard process";
     kill_process_timer_.stop();
-#if defined(Q_OS_WIN)
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    helper_win->executeTaskKill(getWireGuardExeName());
-#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
     helper_posix->executeRootCommand("pkill -f \"" + getWireGuardExeName() + "\"");
-#elif defined(Q_OS_LINUX)
-    Q_ASSERT(false);
-#endif
 }
 
 WireGuardConnection::ConnectionState WireGuardConnection::getCurrentState() const

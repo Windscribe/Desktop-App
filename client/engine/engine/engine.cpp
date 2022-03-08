@@ -662,7 +662,7 @@ void Engine::initPart2()
     connect(connectionManager_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionManagerStatisticsUpdated(quint64,quint64, bool)));
     connect(connectionManager_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionManagerInterfaceUpdated(QString)));
     connect(connectionManager_, SIGNAL(testTunnelResult(bool, QString)), SLOT(onConnectionManagerTestTunnelResult(bool, QString)));
-    connect(connectionManager_, SIGNAL(connectingToHostname(QString, QString)), SLOT(onConnectionManagerConnectingToHostname(QString, QString)));
+    connect(connectionManager_, SIGNAL(connectingToHostname(QString, QString, QString)), SLOT(onConnectionManagerConnectingToHostname(QString, QString, QString)));
     connect(connectionManager_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onConnectionManagerProtocolPortChanged(ProtoTypes::Protocol, uint)));
     connect(connectionManager_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onConnectionManagerInternetConnectivityChanged(bool)));
     connect(connectionManager_, SIGNAL(getWireGuardConfig()), SLOT(onConnectionManagerGetWireGuardConfig()));
@@ -1695,7 +1695,10 @@ void Engine::onConnectionManagerConnected()
     QString adapterName = connectionManager_->getVpnAdapterInfo().adapterName();
 
 #ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);    
+    // wireguard-nt driver monitors metrics itself.
+    if (!engineSettings_.connectionSettings().protocol().isWireGuardProtocol()) {
+        AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);
+    }
 #elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix(adapterName);
 #endif
@@ -2013,15 +2016,22 @@ void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
 #endif
 }
 
-void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip)
+void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer)
 {
     lastConnectingHostname_ = hostname;
     connectStateController_->setConnectingState(locationId_);
 
     qCDebug(LOG_BASIC) << "Whitelist connecting ip:" << ip;
-    bool bChanged = false;
-    firewallExceptions_.setConnectingIp(ip, bChanged);
-    if (bChanged)
+    if (!dnsServer.isEmpty())
+    {
+        qCDebug(LOG_BASIC) << "Whitelist DNS-server ip:" << dnsServer;
+    }
+
+    bool bChanged1 = false;
+    firewallExceptions_.setConnectingIp(ip, bChanged1);
+    bool bChanged2 = false;
+    firewallExceptions_.setDNSServerIp(dnsServer, bChanged2);
+    if (bChanged1 || bChanged2)
     {
         updateFirewallSettings();
     }
@@ -2834,6 +2844,11 @@ void Engine::doDisconnectRestoreStuff()
 #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix("");
 #endif
+
+    bool bChanged;
+    firewallExceptions_.setConnectingIp("", bChanged);
+    firewallExceptions_.setDNSServerIp("", bChanged);
+
     if (firewallController_->firewallActualState())
     {
         QString ips = firewallExceptions_.getIPAddressesForFirewall();

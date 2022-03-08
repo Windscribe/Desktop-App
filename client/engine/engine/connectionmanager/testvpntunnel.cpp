@@ -148,7 +148,7 @@ void TestVPNTunnel::startTests(const ProtocolType &protocol)
     connect(serverAPI_, &ServerAPI::pingTestAnswer, this, &TestVPNTunnel::onPingTestAnswer, Qt::QueuedConnection);
 
     #if defined(Q_OS_WINDOWS)
-    doWin32TunnelTest_ = protocol.isOpenVpnProtocol() && OpenVpnVersionController::instance().isUseWinTun();
+    doWin32TunnelTest_ = protocol.isWireGuardProtocol() || (protocol.isOpenVpnProtocol() && OpenVpnVersionController::instance().isUseWinTun());
     if (doWin32TunnelTest_)
     {
         serverTunnelTestUrl_ = HardcodedSettings::instance().serverTunnelTestUrl().toStdWString();

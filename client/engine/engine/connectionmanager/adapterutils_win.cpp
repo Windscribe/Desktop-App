@@ -1,9 +1,9 @@
 #include "adapterutils_win.h"
 #include <QProcess>
-#include "Utils/logger.h"
+#include "utils/logger.h"
 #include <winsock2.h>
 #include <iphlpapi.h>
-#include "Engine/Helper/helper_win.h"
+#include "engine/helper/helper_win.h"
 
 void AdapterUtils_win::resetAdapter(IHelper *helper, const QString &tapName)
 {
@@ -15,7 +15,7 @@ void AdapterUtils_win::resetAdapter(IHelper *helper, const QString &tapName)
 
 AdapterGatewayInfo AdapterUtils_win::getWindscribeConnectedAdapterInfo()
 {
-    return getAdapterInfo(false, 0);
+    return getAdapterInfo(false, 0, QString());
 }
 
 AdapterGatewayInfo AdapterUtils_win::getDefaultAdapterInfo()
@@ -25,12 +25,17 @@ AdapterGatewayInfo AdapterUtils_win::getDefaultAdapterInfo()
     IPAddr ipAddr = htonl(0x08080808); // "8.8.8.8" is well-known Google DNS Server IP.
     if (GetBestInterface(ipAddr, &bestIfIndex) == NO_ERROR)
     {
-        info = getAdapterInfo(true, bestIfIndex);
+        info = getAdapterInfo(true, bestIfIndex, QString());
     }
     return info;
 }
 
-AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned long ifIndex)
+AdapterGatewayInfo AdapterUtils_win::getWireguardConnectedAdapterInfo(const QString &serviceIdentifier)
+{
+    return getAdapterInfo(false, 0, serviceIdentifier);
+}
+
+AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned long ifIndex, const QString &serviceIdentifier)
 {
     ULONG sz = sizeof(IP_ADAPTER_ADDRESSES_LH) * 32;
     QByteArray arr(sz, Qt::Uninitialized);
@@ -52,31 +57,39 @@ AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned lon
     IP_ADAPTER_ADDRESSES_LH *aa = (IP_ADAPTER_ADDRESSES_LH *)arr.data();
     while (aa)
     {
-        if ( (byIfIndex && aa->OperStatus == IfOperStatusUp && aa->IfIndex == ifIndex) ||
-            (!byIfIndex && aa->OperStatus == IfOperStatusUp && wcsstr(aa->Description, L"Windscribe") != 0) )
+        if (aa->OperStatus == IfOperStatusUp)
         {
-            info.setIfIndex(aa->IfIndex);
-            info.setAdapterName(QString::fromUtf16((const ushort *)aa->Description));
-
-            QString ip, gateway;
-            getAdapterIpAndGateway(aa->IfIndex, ip, gateway);
-
-            info.setAdapterIp(ip);
-            info.setGateway(gateway);
-
-            IP_ADAPTER_DNS_SERVER_ADDRESS_XP *dns_address = aa->FirstDnsServerAddress;
-            while (dns_address)
+            if ((byIfIndex && aa->IfIndex == ifIndex) ||
+                (!byIfIndex && serviceIdentifier.isEmpty() && wcsstr(aa->Description, L"Windscribe") != 0) ||
+                (!byIfIndex && !serviceIdentifier.isEmpty() && (serviceIdentifier.compare(aa->FriendlyName, Qt::CaseInsensitive) == 0)))
             {
-                char buf[64];
-                DWORD lenStr = sizeof(buf);
-                if (WSAAddressToStringA(dns_address->Address.lpSockaddr, dns_address->Address.iSockaddrLength, nullptr, buf, &lenStr) == NULL)
-                {
-                    info.addDnsServer(buf);
-                }
+                info.setIfIndex(aa->IfIndex);
+                info.setAdapterName(QString::fromUtf16((const ushort *)aa->Description));
 
-                dns_address = dns_address->Next;
+                QString ip, gateway;
+                getAdapterIpAndGateway(aa->IfIndex, ip, gateway);
+
+                info.setAdapterIp(ip);
+                info.setGateway(gateway);
+
+                IP_ADAPTER_DNS_SERVER_ADDRESS_XP *dns_address = aa->FirstDnsServerAddress;
+                while (dns_address)
+                {
+                    char buf[64];
+                    DWORD lenStr = sizeof(buf);
+                    int result = ::WSAAddressToStringA(dns_address->Address.lpSockaddr, dns_address->Address.iSockaddrLength,
+                                                       nullptr, buf, &lenStr);
+                    if (result == ERROR_SUCCESS) {
+                        info.addDnsServer(QString::fromLocal8Bit(buf, lenStr));
+                    }
+                    else {
+                        qCDebug(LOG_CONNECTION) << "AdapterUtils_win::getAdapterInfo - WSAAddressToString failed:" << ::WSAGetLastError();
+                    }
+
+                    dns_address = dns_address->Next;
+                }
+                break;
             }
-            break;
         }
 
         aa = aa->Next;

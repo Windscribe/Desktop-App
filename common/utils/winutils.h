@@ -39,8 +39,9 @@ namespace WinUtils
     ProtoTypes::NetworkInterfaces currentNetworkInterfaces(bool includeNoInterface);
 
     ProtoTypes::NetworkInterface interfaceByIndex(int index, bool &success);
-    IfTableRow lowestMetricNonWindscribeIfTableRow();
+    IfTable2Row lowestMetricNonWindscribeIfTableRow();
     IfTableRow ifRowByIndex(int index);
+    IfTable2Row ifTable2RowByIndex(int index);
 
     QString interfaceSubkeyPath(int interfaceIndex);
     QString interfaceSubkeyName(int interfaceIndex);
@@ -63,8 +64,6 @@ namespace WinUtils
     bool authorizeWithUac();
     bool isWindows64Bit();
     unsigned long Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize);
-
-    bool isParentProcessGui();
 }
 
 

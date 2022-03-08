@@ -4,14 +4,15 @@ SOURCES += $$COMMON_PATH/utils/crashdump.cpp \
            $$COMMON_PATH/utils/crashhandler.cpp \
            $$COMMON_PATH/utils/winutils.cpp \
            $$COMMON_PATH/utils/widgetutils_win.cpp \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp
-
+           $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
+           $$COMMON_PATH/utils/servicecontrolmanager.cpp
 
 HEADERS += $$COMMON_PATH/utils/crashdump.h \
            $$COMMON_PATH/utils/crashhandler.h \
            $$COMMON_PATH/utils/winutils.h \
            $$COMMON_PATH/utils/widgetutils_win.h \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_win.h
+           $$COMMON_PATH/utils/executable_signature/executable_signature_win.h \
+           $$COMMON_PATH/utils/servicecontrolmanager.h
 
 } # win32
 

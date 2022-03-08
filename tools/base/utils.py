@@ -61,6 +61,10 @@ def MakeUnicodePath(filename):
   return unicode(fullpath, 'utf-8')
 
 
+def remove_readonly_handler(func, path, excinfo):
+  os.chmod(path, stat.S_IWRITE)
+  func(path)
+
 def RemoveDirectory(directory):
   msg.Verbose("RemoveDirectory: \"{}\"".format(directory))
   udirectory = MakeUnicodePath(directory)
@@ -70,7 +74,9 @@ def RemoveDirectory(directory):
   last_error = None
   for _ in range(_OS_RETRY_COUNT):
     try:
-      shutil.rmtree(udirectory, True)
+      # shutil.rmtree cannot remove read-only files/folders on Windows.  An 'access denied'
+      # error occurs when it tries to do so.
+      shutil.rmtree(udirectory, onerror=remove_readonly_handler)
       return True
     except EnvironmentError as e:
       last_error = e

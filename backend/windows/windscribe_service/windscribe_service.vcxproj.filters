@@ -138,19 +138,7 @@
     <ClInclude Include="remove_windscribe_network_profiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wireguard\privilegehelper.h">
-      <Filter>Header Files\wireguard</Filter>
-    </ClInclude>
-    <ClInclude Include="wireguard\wireguardcommunicator.h">
-      <Filter>Header Files\wireguard</Filter>
-    </ClInclude>
     <ClInclude Include="wireguard\wireguardcontroller.h">
-      <Filter>Header Files\wireguard</Filter>
-    </ClInclude>
-    <ClInclude Include="wireguard\wireguardadapter.h">
-      <Filter>Header Files\wireguard</Filter>
-    </ClInclude>
-    <ClInclude Include="wireguard\defaultroutemonitor.h">
       <Filter>Header Files\wireguard</Filter>
     </ClInclude>
     <ClInclude Include="ikev2ipsec.h">
@@ -177,9 +165,6 @@
     <ClInclude Include="split_tunneling\routes.h">
       <Filter>Header Files\split_tunneling</Filter>
     </ClInclude>
-    <ClInclude Include="adapters_info.h">
-      <Filter>Header Files\wireguard</Filter>
-    </ClInclude>
     <ClInclude Include="split_tunneling\hostnames_manager\dns_resolver.h">
       <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
     </ClInclude>
@@ -193,6 +178,9 @@
       <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="adapters_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -281,19 +269,7 @@
     <ClCompile Include="remove_windscribe_network_profiles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wireguard\wireguardcommunicator.cpp">
-      <Filter>Source Files\wireguard</Filter>
-    </ClCompile>
-    <ClCompile Include="wireguard\privilegehelper.cpp">
-      <Filter>Source Files\wireguard</Filter>
-    </ClCompile>
     <ClCompile Include="wireguard\wireguardcontroller.cpp">
-      <Filter>Source Files\wireguard</Filter>
-    </ClCompile>
-    <ClCompile Include="wireguard\wireguardadapter.cpp">
-      <Filter>Source Files\wireguard</Filter>
-    </ClCompile>
-    <ClCompile Include="wireguard\defaultroutemonitor.cpp">
       <Filter>Source Files\wireguard</Filter>
     </ClCompile>
     <ClCompile Include="ikev2ipsec.cpp">
@@ -333,6 +309,9 @@
       <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\utils\servicecontrolmanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

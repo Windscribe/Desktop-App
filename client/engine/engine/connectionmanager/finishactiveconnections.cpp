@@ -1,21 +1,23 @@
 #include "finishactiveconnections.h"
 #include "../openvpnversioncontroller.h"
-#include "wireguardconnection.h"
 #include "utils/logger.h"
 
 #ifdef Q_OS_WIN
     #include <windows.h>
     #include "ikev2connection_win.h"
+    #include "wireguardconnection_win.h"
 #endif
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
     #include "ikev2connection_mac.h"
     #include "engine/helper/helper_mac.h"
+    #include "wireguardconnection_posix.h"
 #endif
 
 #ifdef Q_OS_LINUX
     #include "engine/helper/helper_posix.h"
+    #include "wireguardconnection_posix.h"
 #endif
 
 void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
@@ -66,12 +68,8 @@ void FinishActiveConnections::finishIkev2ActiveConnections_win(IHelper *helper)
 
 void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *helper)
 {
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    QString strWireGuardExe = WireGuardConnection::getWireGuardExeName();
-    if (!strWireGuardExe.endsWith(".exe"))
-        strWireGuardExe.append(".exe");
-    helper_win->executeTaskKill(strWireGuardExe);
-    helper_win->stopWireGuard();  // This will also reset route monitoring.
+    Q_UNUSED(helper)
+    // No need to stop the wireguard service, as it automatically stops if the client exits prematurely.
 }
 #elif defined Q_OS_MAC
 void FinishActiveConnections::finishAllActiveConnections_mac(IHelper *helper)

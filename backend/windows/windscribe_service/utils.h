@@ -23,6 +23,7 @@ namespace Utils
 	bool isFileExists(const wchar_t *path);
 	bool noSpacesInString(std::wstring &str);
 	bool verifyWindscribeProcessPath(HANDLE hPipe);
+    bool iequals(const std::wstring &a, const std::wstring &b);
 
 	void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName);
     GUID guidFromString(const std::wstring &str);

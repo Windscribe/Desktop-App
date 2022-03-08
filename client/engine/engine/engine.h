@@ -255,7 +255,7 @@ private slots:
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
-    void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip);
+    void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
     void onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
     void onConnectionManagerGetWireGuardConfig();
