@@ -248,7 +248,8 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
     # Collect settings.
     c_iswin = CURRENT_OS == "win32"
     c_ismac = CURRENT_OS == "macos"
-    c_bits = "64" if (is_64bit or c_ismac) else "32"
+    c_islinux = CURRENT_OS == utl.CURRENT_OS_LINUX;
+    c_bits = "64" if (is_64bit or c_ismac or c_islinux) else "32"
     c_project = component["project"]
     c_subdir = component["subdir"]
     c_target = component.get("target", None)
