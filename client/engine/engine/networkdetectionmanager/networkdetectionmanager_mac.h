@@ -15,7 +15,6 @@ public:
     bool isOnline() override;
 
 signals:
-    void networkChanged(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface); // remove once inherited from INetworkDetectionManager
     void networkListChanged(const ProtoTypes::NetworkInterfaces &networkInterfaces);
     void primaryAdapterUp(const ProtoTypes::NetworkInterface &currentAdapter);
     void primaryAdapterDown(const ProtoTypes::NetworkInterface &lastAdapter);
@@ -32,7 +31,9 @@ private:
     QMutex mutex_;
     ProtoTypes::NetworkInterface lastNetworkInterface_;
     ProtoTypes::NetworkInterfaces lastNetworkList_;
-    bool checkOnline(QString &networkInterface);
+
+    bool isWifiAdapterUp(const ProtoTypes::NetworkInterfaces &networkList);
+
 };
 
 #endif // NETWORKDETECTIONMANAGER_MAC_H

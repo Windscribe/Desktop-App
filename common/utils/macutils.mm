@@ -404,27 +404,6 @@ ProtoTypes::NetworkInterfaces MacUtils::currentNetworkInterfaces(bool includeNoI
     return networkInterfaces;
 }
 
-ProtoTypes::NetworkInterfaces MacUtils::currentlyActiveNetworkInterfaces(bool includeNoInterface)
-{
-    ProtoTypes::NetworkInterfaces interfaces = currentNetworkInterfaces(includeNoInterface);
-
-    ProtoTypes::NetworkInterfaces activeInterfaces;
-    if (includeNoInterface)
-    {
-        *activeInterfaces.add_networks() = Utils::noNetworkInterface();
-    }
-
-    for (const ProtoTypes::NetworkInterface &interface : interfaces.networks())
-    {
-        if (interface.active())
-        {
-            *activeInterfaces.add_networks() = interface;
-        }
-    }
-
-    return activeInterfaces;
-}
-
 QString MacUtils::ssidOfInterface(QString networkInterface)
 {
     QString strReply;
@@ -522,20 +501,6 @@ QString MacUtils::trueMacAddress(const QString &interfaceName)
     return QString::fromStdString(execCmd(cmdGetTrueMAC.toStdString().c_str())).trimmed();
 }
 
-QString MacUtils::currentNetworkHwInterfaceName()
-{
-    const QList<QString> hwInterfaces = currentNetworkHwInterfaces();
-    for (const QString & interface : hwInterfaces)
-    {
-        if (isAdapterUp(interface))
-        {
-            return interface;
-        }
-    }
-
-    return "";
-}
-
 ProtoTypes::NetworkInterfaces MacUtils::currentSpoofedInterfaces()
 {
     ProtoTypes::NetworkInterfaces spoofed;
@@ -602,34 +567,6 @@ ProtoTypes::NetworkInterfaces MacUtils::currentlyUpNetInterfaces()
     return upInterfaces;
 }
 
-ProtoTypes::NetworkInterfaces MacUtils::currentWifiInterfaces()
-{
-    auto isWifi = [](const ProtoTypes::NetworkInterface &ni)
-    {
-        return isWifiAdapter(QString::fromStdString(ni.interface_name()));
-    };
-
-    ProtoTypes::NetworkInterfaces interfaces = currentNetworkInterfaces(false);
-    ProtoTypes::NetworkInterfaces upInterfaces;
-    std::copy_if(interfaces.networks().begin(), interfaces.networks().end(),
-                 google::protobuf::RepeatedFieldBackInserter(upInterfaces.mutable_networks()), isWifi);
-    return upInterfaces;
-}
-
-ProtoTypes::NetworkInterfaces MacUtils::currentlyUpWifiInterfaces()
-{
-    auto isWifiUp = [](const ProtoTypes::NetworkInterface &ni)
-    {
-        return isAdapterUp(QString::fromStdString(ni.interface_name()));
-    };
-
-    ProtoTypes::NetworkInterfaces interfaces = currentWifiInterfaces();
-    ProtoTypes::NetworkInterfaces upInterfaces;
-    std::copy_if(interfaces.networks().begin(), interfaces.networks().end(),
-                 google::protobuf::RepeatedFieldBackInserter(upInterfaces.mutable_networks()), isWifiUp);
-    return upInterfaces;
-}
-
 NSRunningApplication *guiApplicationByBundleName()
 {
     NSRunningApplication *currentApp = [NSRunningApplication currentApplication];
@@ -676,10 +613,39 @@ bool MacUtils::isOsVersionIsBigSur_or_greater()
     return floor(NSAppKitVersionNumber) >= 2000;
 }
 
-const ProtoTypes::NetworkInterface MacUtils::currentNetworkInterface()
+const ProtoTypes::NetworkInterface MacUtils::networkInterfaceByName(const QString &ifname)
 {
-    QString ifname = currentNetworkHwInterfaceName();
-    ProtoTypes::NetworkInterface networkInterface = Utils::interfaceByName(MacUtils::currentlyUpNetInterfaces(), ifname);
+    if (ifname.isEmpty())
+    {
+        return Utils::noNetworkInterface();
+    }
+
+    ProtoTypes::NetworkInterface networkInterface;
+    const QMap<QString, int> interfaceIndexes = currentHardwareInterfaceIndexes();
+
+    int index = 0;
+    if (interfaceIndexes.contains(ifname)) index = interfaceIndexes[ifname];
+    networkInterface.set_interface_index(index);
+    networkInterface.set_interface_name(ifname.toStdString());
+
+    bool wifi = isWifiAdapter(ifname);
+    QString macAddress = macAddressFromInterfaceName(ifname);
+    networkInterface.set_physical_address(macAddress.toStdString());
+
+    if (wifi)
+    {
+        networkInterface.set_interface_type(ProtoTypes::NETWORK_INTERFACE_WIFI);
+        QString ssid = ssidOfInterface(ifname);
+        networkInterface.set_network_or_ssid(ssid.toStdString());
+    }
+    else // Eth
+    {
+        networkInterface.set_interface_type(ProtoTypes::NETWORK_INTERFACE_ETH);
+        networkInterface.set_network_or_ssid(macAddress.toStdString());
+    }
+
+    networkInterface.set_active(isAdapterActive(ifname));
+
     return networkInterface;
 }
 
@@ -913,3 +879,37 @@ bool MacUtils::checkMacAddr(const QString &interfaceName, const QString &macAddr
 {
     return macAddressFromInterfaceName(interfaceName).toUpper().remove(':') == macAddr;
 }
+
+
+bool MacUtils::isParentProcessGui()
+{
+    pid_t pid = getppid();
+    char pathBuffer[PROC_PIDPATHINFO_MAXSIZE] = {0};
+    int status = proc_pidpath(pid, pathBuffer, sizeof(pathBuffer));
+    if ((status != 0) && (strlen(pathBuffer) != 0))
+    {
+        QString parentPath = QString::fromStdString(pathBuffer);
+        QString guiPath = QCoreApplication::applicationDirPath() + "/../../../../MacOS/Windscribe";
+        guiPath = QDir::cleanPath(guiPath);
+
+        if (parentPath.compare(guiPath, Qt::CaseInsensitive) == 0)
+        {
+            ExecutableSignature sigCheck;
+            if (sigCheck.verify(parentPath.toStdWString())) {
+                return true;
+            }
+
+            qCDebug(LOG_BASIC) << "isParentProcessGui incorrect signature: " << QString::fromStdString(sigCheck.lastError());
+        }
+    }
+    return false;
+}
+
+// returns empty string if we offline and no primary network interface
+QString MacUtils::getPrimaryNetworkInterface()
+{
+    QString command = "echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryInterface | sed -e 's/.*PrimaryInterface : //'";
+    QString cmdOutput = QString::fromStdString(execCmd(command.toStdString().c_str())).trimmed();
+    return cmdOutput;
+}
+

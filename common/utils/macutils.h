@@ -45,7 +45,6 @@ namespace MacUtils
     QString macAddressFromIP(QString ipAddr, QString interfaceName);
     QString macAddressFromInterfaceName(QString interfaceName);
     QString trueMacAddress(const QString &interfaceName);
-    QString currentNetworkHwInterfaceName();
 
     bool isWifiAdapter(const QString &networkInterface);
     bool isAdapterUp(const QString &networkInterfaceName);
@@ -53,13 +52,13 @@ namespace MacUtils
 
     QList<QString> currentNetworkHwInterfaces();
     QMap<QString, int> currentHardwareInterfaceIndexes();
-    const ProtoTypes::NetworkInterface currentNetworkInterface();
+
+    const ProtoTypes::NetworkInterface networkInterfaceByName(const QString &ifname);
+    QString getPrimaryNetworkInterface();
+
     ProtoTypes::NetworkInterfaces currentNetworkInterfaces(bool includeNoInterface);
-    ProtoTypes::NetworkInterfaces currentlyActiveNetworkInterfaces(bool includeNoInterface);
     ProtoTypes::NetworkInterfaces currentlyUpNetInterfaces();
     ProtoTypes::NetworkInterfaces currentSpoofedInterfaces();
-    ProtoTypes::NetworkInterfaces currentWifiInterfaces();
-    ProtoTypes::NetworkInterfaces currentlyUpWifiInterfaces();
 
     bool interfaceSpoofed(const QString &interfaceName);
     bool checkMacAddr(const QString& interfaceName, const QString& macAddr);

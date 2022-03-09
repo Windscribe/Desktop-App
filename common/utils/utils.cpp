@@ -275,7 +275,7 @@ const ProtoTypes::NetworkInterface Utils::currentNetworkInterface()
 #ifdef Q_OS_WIN
     return WinUtils::currentNetworkInterface();
 #elif defined Q_OS_MAC
-    return MacUtils::currentNetworkInterface();
+    return MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
 #elif defined Q_OS_LINUX
     //todo linux
     Q_ASSERT(false);
