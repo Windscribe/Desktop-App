@@ -49,7 +49,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
         qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing MacAddrSpoofing has changed. actuallyAutoRotate_=" << actuallyAutoRotate_;
         qCDebug(LOG_BASIC) << QString::fromStdString(macAddrSpoofing.DebugString());
 
-        ProtoTypes::NetworkInterface currentAdapter = MacUtils::currentNetworkInterface();
+        ProtoTypes::NetworkInterface currentAdapter = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
         ProtoTypes::NetworkInterface selectedInterface = macAddrSpoofing.selected_network_interface();
 
         if (macAddrSpoofing.is_enabled())

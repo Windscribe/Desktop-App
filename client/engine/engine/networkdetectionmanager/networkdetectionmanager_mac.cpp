@@ -13,9 +13,9 @@ NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, IHelpe
     , lastWifiAdapterUp_(false)
 {
     connect(&ReachAbilityEvents::instance(), SIGNAL(networkStateChanged()), SLOT(onNetworkStateChanged()));
-    lastNetworkInterface_ = MacUtils::currentNetworkInterface();
+    lastNetworkInterface_ = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
     lastNetworkList_ = MacUtils::currentNetworkInterfaces(true);
-    lastWifiAdapterUp_ = MacUtils::currentlyUpWifiInterfaces().networks_size() > 0;
+    lastWifiAdapterUp_ = isWifiAdapterUp(lastNetworkList_);
 }
 
 NetworkDetectionManager_mac::~NetworkDetectionManager_mac()
@@ -25,17 +25,14 @@ NetworkDetectionManager_mac::~NetworkDetectionManager_mac()
 bool NetworkDetectionManager_mac::isOnline()
 {
     QMutexLocker locker(&mutex_);
-    QString strNetworkInterface;
-    bool b = checkOnline(strNetworkInterface);
-    return b;
+    return !MacUtils::getPrimaryNetworkInterface().isEmpty();
 }
 
 void NetworkDetectionManager_mac::onNetworkStateChanged()
 {
-    const ProtoTypes::NetworkInterface &networkInterface = MacUtils::currentNetworkInterface();
+    const ProtoTypes::NetworkInterface &networkInterface = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
     const ProtoTypes::NetworkInterfaces &networkList = MacUtils::currentNetworkInterfaces(true);
-    const ProtoTypes::NetworkInterfaces &wifiInterfaces = MacUtils::currentlyUpWifiInterfaces();
-    bool wifiAdapterUp = wifiInterfaces.networks_size() > 0;
+    bool wifiAdapterUp = isWifiAdapterUp(networkList);
 
     if (!google::protobuf::util::MessageDifferencer::Equals(networkInterface, lastNetworkInterface_))
     {
@@ -79,7 +76,7 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         lastNetworkInterface_ = networkInterface;
 
         QString strNetworkInterface;
-        emit networkChanged(checkOnline(strNetworkInterface), networkInterface);
+        emit networkChanged(networkInterface.interface_index() != Utils::noNetworkInterface().interface_index(), networkInterface);
     }
     else if (wifiAdapterUp != lastWifiAdapterUp_)
     {
@@ -89,48 +86,27 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
             qCDebug(LOG_BASIC) << "Wifi adapter (primary) up state changed: " << wifiAdapterUp;
             emit wifiAdapterChanged(wifiAdapterUp);
         }
-        QString strNetworkInterface;
-        emit networkChanged(checkOnline(strNetworkInterface), networkInterface);
     }
     else if (!google::protobuf::util::MessageDifferencer::Equals(networkList, lastNetworkList_))
     {
         qCDebug(LOG_BASIC) << "Network list changed";
         emit networkListChanged(networkList);
-        QString strNetworkInterface;
-        emit networkChanged(checkOnline(strNetworkInterface), networkInterface);
     }
 
     lastNetworkList_ = networkList;
     lastWifiAdapterUp_ = wifiAdapterUp;
 }
 
-bool NetworkDetectionManager_mac::checkOnline(QString &networkInterface)
+bool NetworkDetectionManager_mac::isWifiAdapterUp(const ProtoTypes::NetworkInterfaces &networkList)
 {
-    QString strReply;
-#ifdef Q_OS_MAC
-
-    FILE *file = popen("echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryInterface | sed -e 's/.*PrimaryInterface : //'", "r");
-    if (file)
+    for (int i = 0; i < networkList.networks_size(); ++i)
     {
-        char szLine[4096];
-        while(fgets(szLine, sizeof(szLine), file) != 0)
+        if (networkList.networks(i).interface_type() == ProtoTypes::NETWORK_INTERFACE_WIFI)
         {
-            strReply += szLine;
+            return true;
         }
-        pclose(file);
     }
-
-    strReply = strReply.trimmed();
-    networkInterface = strReply;
-#endif
-    if (strReply.isEmpty())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return false;
 }
 
 
