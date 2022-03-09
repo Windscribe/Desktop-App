@@ -270,18 +270,18 @@ ProtoTypes::NetworkInterface Utils::noNetworkInterface()
     return iff;
 }
 
-/*const ProtoTypes::NetworkInterface Utils::currentNetworkInterface()
+const ProtoTypes::NetworkInterface Utils::currentNetworkInterface()
 {
 #ifdef Q_OS_WIN
     return WinUtils::currentNetworkInterface();
 #elif defined Q_OS_MAC
-    return MacUtils::currentNetworkInterface();
+    return MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
 #elif defined Q_OS_LINUX
     //todo linux
     Q_ASSERT(false);
     return ProtoTypes::NetworkInterface();
 #endif
-}*/
+}
 
 const ProtoTypes::NetworkInterfaces Utils::currentNetworkInterfaces(bool includeNoInterface)
 {

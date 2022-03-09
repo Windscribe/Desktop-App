@@ -37,7 +37,7 @@ namespace Utils {
 
     // Network
     ProtoTypes::NetworkInterface noNetworkInterface();
-    //const ProtoTypes::NetworkInterface currentNetworkInterface();
+    const ProtoTypes::NetworkInterface currentNetworkInterface();
     const ProtoTypes::NetworkInterfaces currentNetworkInterfaces(bool includeNoInterface);
     bool sameNetworkInterface(const ProtoTypes::NetworkInterface &interface1, const ProtoTypes::NetworkInterface &interface2);
     ProtoTypes::NetworkInterface interfaceByName(const ProtoTypes::NetworkInterfaces &interfaces, const QString &interfaceName);
