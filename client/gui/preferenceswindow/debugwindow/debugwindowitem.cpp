@@ -29,6 +29,9 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 #endif
     connect(preferences, SIGNAL(apiResolutionChanged(ProtoTypes::ApiResolution)), SLOT(onApiResolutionPreferencesChanged(ProtoTypes::ApiResolution)));
     connect(preferences, SIGNAL(dnsPolicyChanged(ProtoTypes::DnsPolicy)), SLOT(onDnsPolicyPreferencesChanged(ProtoTypes::DnsPolicy)));
+#ifdef Q_OS_LINUX
+    connect(preferences, SIGNAL(dnsManagerChanged(ProtoTypes::DnsManagerType)), SLOT(onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType)));
+#endif
     connect(preferences, SIGNAL(isIgnoreSslErrorsChanged(bool)), SLOT(onIgnoreSslErrorsPreferencesChanged(bool)));
     connect(preferences, SIGNAL(keepAliveChanged(bool)), SLOT(onKeepAlivePreferencesChanged(bool)));
 
@@ -82,6 +85,21 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     comboBoxAppInternalDns_->setCurrentItem(preferences->dnsPolicy());
     connect(comboBoxAppInternalDns_, SIGNAL(currentItemChanged(QVariant)), SLOT(onAppInternalDnsItemChanged(QVariant)));
     addItem(comboBoxAppInternalDns_);
+
+#ifdef Q_OS_LINUX
+    comboBoxDnsManager_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "DNS Manager"), QString(), 50, Qt::transparent, 0, true);;
+    const QList< QPair<QString, int> > dnsManagerTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::DnsManagerType_descriptor());
+    for (const auto &d : dnsManagerTypes)
+    {
+        comboBoxDnsManager_->addItem(d.first, d.second);
+    }
+
+    comboBoxDnsManager_->setCurrentItem(preferences->dnsManager());
+    connect(comboBoxDnsManager_, SIGNAL(currentItemChanged(QVariant)), SLOT(onDnsManagerItemChanged(QVariant)));
+    addItem(comboBoxDnsManager_);
+
+#endif
+
 
     viewLicensesItem_ = new OpenUrlItem(this);
     viewLicensesItem_->setText(tr("View Licenses"));
@@ -190,6 +208,14 @@ void DebugWindowItem::onAppInternalDnsItemChanged(QVariant dns)
     preferences_->setDnsPolicy((ProtoTypes::DnsPolicy)dns.toInt());
 }
 
+#ifdef Q_OS_LINUX
+void DebugWindowItem::onDnsManagerItemChanged(QVariant dns)
+{
+    preferences_->setDnsManager((ProtoTypes::DnsManagerType)dns.toInt());
+}
+#endif
+
+
 void DebugWindowItem::onViewLogItemSendLogClicked()
 {
     // delay so that the hoverLeave->cancel doesn't hide this tooltip
@@ -259,6 +285,14 @@ void DebugWindowItem::onDnsPolicyPreferencesChanged(ProtoTypes::DnsPolicy d)
 {
     comboBoxAppInternalDns_->setCurrentItem((int)d);
 }
+
+#ifdef Q_OS_LINUX
+void DebugWindowItem::onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType d)
+{
+    comboBoxDnsManager_->setCurrentItem((int)d);
+}
+#endif
+
 
 void DebugWindowItem::onApiResolutionPreferencesChanged(const ProtoTypes::ApiResolution &ar)
 {

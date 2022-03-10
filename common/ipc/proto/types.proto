@@ -373,6 +373,15 @@ message DnsWhileConnectedInfo
    optional string ip_address = 2 [default = ""];
 }
 
+enum DnsManagerType
+{
+   DNS_MANAGER_AUTOMATIC = 0;
+   DNS_MANAGER_RESOLV_CONF = 1;
+   DNS_MANAGER_SYSTEMD_RESOLVED = 2;
+   DNS_MANAGER_NETWORK_MANAGER = 3;
+}
+
+
 // engine settings, which can be changed by user from GUI
 message EngineSettings
 {
@@ -397,6 +406,7 @@ message EngineSettings
   optional string customOvpnConfigsPath = 18;
   optional bool is_keep_alive_enabled = 19 [default = false];
   optional DnsWhileConnectedInfo dns_while_connected_info = 20;
+  optional DnsManagerType dns_manager = 21 [default = DNS_MANAGER_AUTOMATIC];
 }
 
 message ProxySharingInfo

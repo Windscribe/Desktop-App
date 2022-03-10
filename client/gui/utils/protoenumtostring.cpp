@@ -57,11 +57,15 @@ ProtoEnumToString::ProtoEnumToString()
     map_["DNS_POLICY_GOOGLE"] = "Google";
     map_["DNS_POLICY_CONTROLD"] = "ControlD";
 
+    map_["DNS_MANAGER_AUTOMATIC"] = "Automatic";
+    map_["DNS_MANAGER_RESOLV_CONF"] = "Resolvconf";
+    map_["DNS_MANAGER_SYSTEMD_RESOLVED"] = "Systemd-resolved";
+    map_["DNS_MANAGER_NETWORK_MANAGER"] = "NetworkManager";
+
     map_["TAP_ADAPTER_NOT_INSTALLED"] = "Not installed";
     map_["TAP_ADAPTER_5"] = "Legacy Driver (NDIS5)";
     map_["TAP_ADAPTER"] = "Windscribe VPN";
     map_["WINTUN_ADAPTER"] = "Wintun";
-
 }
 
 QString ProtoEnumToString::toString(ProtoTypes::Protocol p)

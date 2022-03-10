@@ -441,6 +441,22 @@ void Preferences::setDnsPolicy(ProtoTypes::DnsPolicy d)
     }
 }
 
+#ifdef Q_OS_LINUX
+ProtoTypes::DnsManagerType Preferences::dnsManager() const
+{
+    return engineSettings_.dns_manager();
+}
+void Preferences::setDnsManager(ProtoTypes::DnsManagerType d)
+{
+    if (engineSettings_.dns_manager() != d)
+    {
+        engineSettings_.set_dns_manager(d);
+        emit dnsManagerChanged(d);
+        emit updateEngineSettings();
+    }
+}
+#endif
+
 DnsWhileConnectedInfo Preferences::dnsWhileConnectedInfo() const
 {
    return DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info());
@@ -584,6 +600,7 @@ void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
     setKeepAlive(es.is_keep_alive_enabled());
     setCustomOvpnConfigsPath(QString::fromStdString(es.customovpnconfigspath()));
     setDnsWhileConnectedInfo(DnsWhileConnectedInfo(es.dns_while_connected_info()));
+    setDnsManager(es.dns_manager());
     receivingEngineSettings_ = false;
 }
 
