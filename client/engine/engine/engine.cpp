@@ -9,7 +9,6 @@
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
 #include "utils/executable_signature/executable_signature.h"
-#include "utils/linuxutils.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/finishactiveconnections.h"
 #include "proxy/proxyservercontroller.h"
@@ -41,6 +40,7 @@
 #elif defined Q_OS_LINUX
     #include "helper/helper_linux.h"
     #include "utils/executable_signature/executablesignature_linux.h"
+    #include "utils/linuxutils.h"
 #endif
 
 Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
