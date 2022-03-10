@@ -195,7 +195,6 @@ static void readNetlink(int socket_fd, int seq, char* output, size_t& size)
                 throw std::system_error(errno, std::generic_category(), "could not read from Netlink socket");
             }
 
-            // Bytes were returned by we might need to read more.
             total_bytes += bytes;
             if (latency >= MAX_NETLINK_ATTEMPTS) {
                 throw std::system_error(errno, std::generic_category(), "Netlink socket timeout");
@@ -223,7 +222,6 @@ static void readNetlink(int socket_fd, int seq, char* output, size_t& size)
             break;
         }
 
-        // Move the buffer pointer
         output += bytes;
         message_size += bytes;
         if ((nl_hdr->nlmsg_flags & NLM_F_MULTI) == 0) {
@@ -342,7 +340,7 @@ QList<RoutingTableEntry> getRoutingTable(bool includeZeroMetricEntries)
     {
         int socket_fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
         if (socket_fd < 0) {
-            throw std::system_error(errno, std::generic_category(), "failed to open netlink socket");
+            throw std::system_error(errno, std::generic_category(), "failed to create Netlink socket endpoint");
         }
 
         auto exitGuard = wsl::wsScopeGuard([&]
