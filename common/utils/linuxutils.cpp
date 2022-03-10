@@ -1,119 +1,25 @@
 #include "linuxutils.h"
 #include <sys/utsname.h>
-#include <netinet/in.h>
 #include <net/if.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <linux/netlink.h>
 #include <linux/rtnetlink.h>
-#include <linux/version.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <stdlib.h>
+#include <memory>
 
-#include "logger.h"
-#include <QRegExp>
 #include <QCoreApplication>
 #include <QFile>
 #include <QHostAddress>
-#include <QNetworkInterface>
+#include <QRegExp>
 
-namespace  {
+#include "logger.h"
+#include "wsscopeguard.h"
 
-const int BUFSIZE = 8192;
-
-
-struct route_info {
-    struct in_addr dstAddr;
-    struct in_addr srcAddr;
-    struct in_addr gateWay;
-    char ifName[IF_NAMESIZE];
-};
-
-int readNlSock(int sockFd, char *bufPtr, int seqNum, int pId)
+namespace LinuxUtils
 {
-    struct nlmsghdr *nlHdr;
-    int readLen = 0, msgLen = 0;
 
-    do {
-        // Recieve response from the kernel
-        if ((readLen = recv(sockFd, bufPtr, BUFSIZE - msgLen, 0)) < 0) {
-            return -1;
-        }
+const int MAX_NETLINK_SIZE = 8192;
 
-        nlHdr = (struct nlmsghdr *) bufPtr;
-
-        // Check if the header is valid
-        if ((NLMSG_OK(nlHdr, readLen) == 0)
-            || (nlHdr->nlmsg_type == NLMSG_ERROR)) {
-            return -1;
-        }
-
-        // Check if the its the last message
-        if (nlHdr->nlmsg_type == NLMSG_DONE) {
-            break;
-        } else {
-        // Else move the pointer to buffer appropriately
-            bufPtr += readLen;
-            msgLen += readLen;
-        }
-
-        // Check if its a multi part message
-        if ((nlHdr->nlmsg_flags & NLM_F_MULTI) == 0) {
-           // return if its not
-            break;
-        }
-    } while ((nlHdr->nlmsg_seq != seqNum) || (nlHdr->nlmsg_pid != pId));
-
-    return msgLen;
-}
-
-void parseRoutes(struct nlmsghdr *nlHdr, struct route_info *rtInfo, char *gateway)
-{
-    struct rtmsg *rtMsg;
-    struct rtattr *rtAttr;
-    int rtLen;
-
-    rtMsg = (struct rtmsg *) NLMSG_DATA(nlHdr);
-
-    // If the route is not for AF_INET or does not belong to main routing table then return.
-    if ((rtMsg->rtm_family != AF_INET) || (rtMsg->rtm_table != RT_TABLE_MAIN))
-        return;
-
-    // get the rtattr field
-    rtAttr = (struct rtattr *) RTM_RTA(rtMsg);
-    rtLen = RTM_PAYLOAD(nlHdr);
-    for (; RTA_OK(rtAttr, rtLen); rtAttr = RTA_NEXT(rtAttr, rtLen)) {
-        switch (rtAttr->rta_type) {
-        case RTA_OIF:
-            if_indextoname(*(int *) RTA_DATA(rtAttr), rtInfo->ifName);
-            break;
-        case RTA_GATEWAY:
-            rtInfo->gateWay.s_addr= *(u_int *) RTA_DATA(rtAttr);
-            break;
-        case RTA_PREFSRC:
-            rtInfo->srcAddr.s_addr= *(u_int *) RTA_DATA(rtAttr);
-            break;
-        case RTA_DST:
-            rtInfo->dstAddr .s_addr= *(u_int *) RTA_DATA(rtAttr);
-            break;
-        }
-    }
-
-    if (rtInfo->dstAddr.s_addr == 0)
-        sprintf(gateway, (char *) inet_ntoa(rtInfo->gateWay));
-
-    return;
-}
-}
-
-
-QString LinuxUtils::getOsVersionString()
+QString getOsVersionString()
 {
     struct utsname unameData;
     if (uname(&unameData) == 0)
@@ -126,57 +32,39 @@ QString LinuxUtils::getOsVersionString()
     }
 }
 
-// taken from https://stackoverflow.com/questions/3288065/getting-gateway-to-use-for-a-given-ip-in-ansi-c
-void LinuxUtils::getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName)
+void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp)
 {
-    struct nlmsghdr *nlMsg;
-    struct rtmsg *rtMsg;
-    struct route_info *rtInfo;
-    char msgBuf[BUFSIZE];
+    outInterfaceName.clear();
+    outGatewayIp.clear();
+    outAdapterIp.clear();
 
-    int sock, len, msgSeq = 0;
+    int lowestMetric = INT32_MAX;
 
-    if ((sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE)) < 0)
-        return;
-
-    memset(msgBuf, 0, BUFSIZE);
-
-    // point the header and the msg structure pointers into the buffer
-    nlMsg = (struct nlmsghdr *) msgBuf;
-    rtMsg = (struct rtmsg *) NLMSG_DATA(nlMsg);
-
-    // Fill in the nlmsg header
-    nlMsg->nlmsg_len = NLMSG_LENGTH(sizeof(struct rtmsg));  // Length of message.
-    nlMsg->nlmsg_type = RTM_GETROUTE;   // Get the routes from kernel routing table .
-
-    nlMsg->nlmsg_flags = NLM_F_DUMP | NLM_F_REQUEST;    // The message is a request for dump.
-    nlMsg->nlmsg_seq = msgSeq++;    // Sequence of the message packet.
-    nlMsg->nlmsg_pid = getpid();    // PID of process sending the request.
-
-    // Send the request
-    if (send(sock, nlMsg, nlMsg->nlmsg_len, 0) < 0) {
-        return;
-    }
-
-    // Read the response
-    if ((len = readNlSock(sock, msgBuf, msgSeq, getpid())) < 0)
+    QList<RoutingTableEntry> entries = getRoutingTable(false);
+    for (const RoutingTableEntry& entry : qAsConst(entries))
     {
-        return;
+        if (entry.isIPv4() && !entry.source.isEmpty() && entry.metric < lowestMetric)
+        {
+            lowestMetric = entry.metric;
+            outInterfaceName = entry.interface;
+            outAdapterIp = entry.source;
+        }
     }
 
-    // Parse the response
-    struct route_info ri;
-    char gateway[255] = "\0";
-    memset(&ri, 0, sizeof(struct route_info));
-    parseRoutes(nlMsg, &ri, gateway);
-
-    close(sock);
-
-    outGatewayIp = QString::fromStdString(gateway);
-    outInterfaceName = QString::fromStdString(ri.ifName);
+    if (lowestMetric != INT32_MAX)
+    {
+        for (const RoutingTableEntry& entry : qAsConst(entries))
+        {
+            if (entry.metric == lowestMetric && entry.isIPv4() && !entry.gateway.isEmpty())
+            {
+                outGatewayIp = entry.gateway;
+                break;
+            }
+        }
+    }
 }
 
-QString LinuxUtils::getLinuxKernelVersion()
+QString getLinuxKernelVersion()
 {
     struct utsname unameData;
     if (uname(&unameData) == 0)
@@ -190,7 +78,7 @@ QString LinuxUtils::getLinuxKernelVersion()
     return QString("Can't detect Linux Kernel version");
 }
 
-const QString LinuxUtils::getLastInstallPlatform()
+const QString getLastInstallPlatform()
 {
     static QString linuxPlatformName;
     static bool tried = false;
@@ -217,7 +105,7 @@ const QString LinuxUtils::getLastInstallPlatform()
     return linuxPlatformName;
 }
 
-std::string LinuxUtils::execCmd(const char *cmd)
+std::string execCmd(const char *cmd)
 {
     char buffer[128];
     std::string result = "";
@@ -234,7 +122,7 @@ std::string LinuxUtils::execCmd(const char *cmd)
     return result;
 }
 
-bool LinuxUtils::isGuiAlreadyRunning()
+bool isGuiAlreadyRunning()
 {
     // Look for process containing "Windscribe" -- exclude grep and Engine
     QString cmd = "ps axco command | grep Windscribe | grep -v grep | grep -v WindscribeEngine | grep -v windscribe-cli";
@@ -242,41 +130,258 @@ bool LinuxUtils::isGuiAlreadyRunning()
     return response.trimmed() != "";
 }
 
-QString LinuxUtils::getLocalIP()
+QString getLocalIP()
 {
-    // Can't use ifconfig, like we do on MacOS, as it is not installed by default on all distros
-    // (e.g. Ubuntu 20.04 LTS does not have it).
-    // An alternative to investigate if the below Qt implementation does not work out is:
-    // ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p
+    // Yegor and Clayton found this command to work on many distros, including old ones.
+    QString sLocalIP = QString::fromStdString(execCmd("hostname -I | awk '{print $1}'")).trimmed();
 
-    QString result;
-    QList<QNetworkInterface> networkInterfaces = QNetworkInterface::allInterfaces();
-    for (const auto& iface : qAsConst(networkInterfaces))
+    // Check if we received a valid IPv4 address.
+    QHostAddress addr;
+    if (addr.setAddress(sLocalIP) && addr.protocol() == QAbstractSocket::IPv4Protocol) {
+        return sLocalIP;
+    }
+
+    qCDebug(LOG_BASIC) << "LinuxUtils::getLocalIP() hostname failed:" << sLocalIP;
+
+    // Try to retrieve the address via the Netlink API.
+    sLocalIP.clear();
+    int lowestMetric = INT32_MAX;
+
+    QList<RoutingTableEntry> entries = getRoutingTable(false);
+    for (const RoutingTableEntry& entry : qAsConst(entries))
     {
-        if (iface.isValid() && (iface.flags() & QNetworkInterface::IsUp) &&
-            (iface.type() == QNetworkInterface::Ethernet || iface.type() == QNetworkInterface::Wifi))
+        if (entry.isIPv4() && !entry.source.isEmpty() && entry.metric < lowestMetric)
         {
-            QList<QNetworkAddressEntry> addrEntries = iface.addressEntries();
-            for (const auto& addrEntry : qAsConst(addrEntries))
-            {
-                QHostAddress address = addrEntry.ip();
-                if (address.protocol() == QAbstractSocket::IPv4Protocol && address.isGlobal())
-                {
-                    if (address.isInSubnet(QHostAddress::parseSubnet("192.168.0.0/16")) ||
-                        address.isInSubnet(QHostAddress::parseSubnet("10.0.0.0/8")) ||
-                        address.isInSubnet(QHostAddress::parseSubnet("172.16.0.0/12")))
-                    {
-                        result = address.toString();
-                        break;
-                    }
-                }
-            }
+            lowestMetric = entry.metric;
+            sLocalIP = entry.source;
         }
     }
 
-    if (result.isEmpty()) {
-        qCDebug(LOG_BASIC) << "LinuxUtils::getLocalIP() failed to determine the local IP";
+    if (sLocalIP.isEmpty()) {
+        qCDebug(LOG_BASIC) << "LinuxUtils::getLocalIP() failed to determine the local IP via Netlink";
     }
 
-    return result;
+    return sLocalIP;
 }
+
+static QString getNetlinkIP(int family, const char* buffer)
+{
+    char dst[INET6_ADDRSTRLEN] = {0};
+
+    if (inet_ntop(family, buffer, dst, INET6_ADDRSTRLEN) == nullptr)
+    {
+        qCDebug(LOG_BASIC) << "LinuxUtils::getNetlinkIP() unsupported address family:" << family;
+        return QString("");
+    }
+
+    return QString::fromLatin1(dst).trimmed();
+}
+
+static void readNetlink(int socket_fd, int seq, char* output, size_t& size)
+{
+    const int MAX_NETLINK_ATTEMPTS = 8;
+    struct nlmsghdr* nl_hdr = nullptr;
+
+    size_t message_size = 0;
+    do
+    {
+        size_t latency = 0;
+        size_t total_bytes = 0;
+        ssize_t bytes = 0;
+        while (bytes == 0)
+        {
+            bytes = recv(socket_fd, output, MAX_NETLINK_SIZE - message_size, 0);
+            if (bytes < 0) {
+                throw std::system_error(errno, std::generic_category(), "could not read from Netlink socket");
+            }
+
+            total_bytes += bytes;
+            if (latency >= MAX_NETLINK_ATTEMPTS) {
+                throw std::system_error(errno, std::generic_category(), "Netlink socket timeout");
+            }
+
+            if (bytes == 0)
+            {
+                if (total_bytes > 0) {
+                    // Bytes were read, but now no more are available, attempt to parse
+                    // the received NETLINK message.
+                    break;
+                }
+                ::usleep(20);
+                latency += 1;
+            }
+        }
+
+        // Assure valid header response, and not an error type.
+        nl_hdr = (struct nlmsghdr*)output;
+        if (NLMSG_OK(nl_hdr, bytes) == 0 || nl_hdr->nlmsg_type == NLMSG_ERROR) {
+            throw std::system_error(errno, std::generic_category(), "read invalid Netlink message");
+        }
+
+        if (nl_hdr->nlmsg_type == NLMSG_DONE) {
+            break;
+        }
+
+        output += bytes;
+        message_size += bytes;
+        if ((nl_hdr->nlmsg_flags & NLM_F_MULTI) == 0) {
+            break;
+        }
+    } while (static_cast<pid_t>(nl_hdr->nlmsg_seq) != seq ||
+             static_cast<pid_t>(nl_hdr->nlmsg_pid) != getpid());
+
+    size = message_size;
+}
+
+static void getNetlinkRoutes(const struct nlmsghdr* netlink_msg, QList<RoutingTableEntry>& entries,
+                             bool includeZeroMetricEntries)
+{
+    int mask = 0;
+    char interface[IF_NAMESIZE] = {0};
+
+    struct rtmsg* message = static_cast<struct rtmsg*>(NLMSG_DATA(netlink_msg));
+    struct rtattr* attr = static_cast<struct rtattr*>(RTM_RTA(message));
+    uint32_t attr_size = RTM_PAYLOAD(netlink_msg);
+
+    RoutingTableEntry entry;
+
+    // Iterate over each route in the netlink message
+    bool has_destination = false;
+    while (RTA_OK(attr, attr_size))
+    {
+        switch (attr->rta_type)
+        {
+        case RTA_OIF:
+            if_indextoname(*(int*)RTA_DATA(attr), interface);
+            entry.interface = QString::fromLatin1(interface);
+            break;
+        case RTA_GATEWAY:
+            entry.gateway = getNetlinkIP(message->rtm_family, (char*)RTA_DATA(attr));
+            break;
+        case RTA_PREFSRC:
+            entry.source = getNetlinkIP(message->rtm_family, (char*)RTA_DATA(attr));
+            break;
+        case RTA_DST:
+            if (message->rtm_dst_len != 32 && message->rtm_dst_len != 128) {
+                mask = (int)message->rtm_dst_len;
+            }
+            entry.destination = getNetlinkIP(message->rtm_family, (char*)RTA_DATA(attr));
+            has_destination = true;
+            break;
+        case RTA_PRIORITY:
+            entry.metric = (*(int*)RTA_DATA(attr));
+            break;
+        case RTA_METRICS:
+            struct rtattr* xattr = static_cast<struct rtattr*> RTA_DATA(attr);
+            auto xattr_size = RTA_PAYLOAD(attr);
+            while (RTA_OK(xattr, xattr_size)) {
+                switch (xattr->rta_type) {
+                case RTAX_MTU:
+                    entry.mtu = *reinterpret_cast<int*>(RTA_DATA(xattr));
+                    break;
+                case RTAX_HOPLIMIT:
+                    entry.hopcount = *reinterpret_cast<int*>(RTA_DATA(xattr));
+                    break;
+                }
+                xattr = RTA_NEXT(xattr, xattr_size);
+            }
+            break;
+        }
+        attr = RTA_NEXT(attr, attr_size);
+    }
+
+    if (!has_destination)
+    {
+        switch (message->rtm_family)
+        {
+        case AF_INET:
+            entry.destination = "0.0.0.0";
+            break;
+        case AF_INET6:
+            entry.destination = "::";
+            break;
+        default:
+            break;
+        }
+
+        if (message->rtm_dst_len) {
+            mask = (int)message->rtm_dst_len;
+        }
+    }
+
+    // Route type determination
+    if (message->rtm_type == RTN_UNICAST) {
+        entry.type = "gateway";
+    } else if (message->rtm_type == RTN_LOCAL) {
+        entry.type = "local";
+    } else if (message->rtm_type == RTN_BROADCAST) {
+        entry.type = "broadcast";
+    } else if (message->rtm_type == RTN_ANYCAST) {
+        entry.type = "anycast";
+    } else {
+        entry.type = "other";
+    }
+
+    entry.flags   = message->rtm_flags;
+    entry.netmask = mask;
+    entry.family  = message->rtm_family;
+
+    if (entry.metric > 0 || includeZeroMetricEntries) {
+        entries.append(entry);
+    }
+}
+
+// Adapted from routes.cpp in the osquery project
+QList<RoutingTableEntry> getRoutingTable(bool includeZeroMetricEntries)
+{
+    QList<RoutingTableEntry> entries;
+
+    try
+    {
+        int socket_fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
+        if (socket_fd < 0) {
+            throw std::system_error(errno, std::generic_category(), "failed to create Netlink socket endpoint");
+        }
+
+        auto exitGuard = wsl::wsScopeGuard([&]
+        {
+            close(socket_fd);
+        });
+
+        std::unique_ptr<unsigned char[]> netlink_buffer(new unsigned char[MAX_NETLINK_SIZE]);
+
+        memset(netlink_buffer.get(), 0, MAX_NETLINK_SIZE);
+        auto netlink_msg = (struct nlmsghdr*)netlink_buffer.get();
+        netlink_msg->nlmsg_len   = NLMSG_LENGTH(sizeof(struct rtmsg));
+        netlink_msg->nlmsg_type  = RTM_GETROUTE; // routes from kernel routing table
+        netlink_msg->nlmsg_flags = NLM_F_DUMP | NLM_F_REQUEST | NLM_F_ATOMIC;
+        netlink_msg->nlmsg_seq   = 0;
+        netlink_msg->nlmsg_pid   = getpid();
+
+        if (send(socket_fd, netlink_msg, netlink_msg->nlmsg_len, 0) < 0) {
+            throw std::system_error(errno, std::generic_category(), "send failed");
+        }
+
+        size_t size = 0;
+        readNetlink(socket_fd, 1, (char*)netlink_msg, size);
+
+        while (NLMSG_OK(netlink_msg, size))
+        {
+            getNetlinkRoutes(netlink_msg, entries, includeZeroMetricEntries);
+            netlink_msg = NLMSG_NEXT(netlink_msg, size);
+        }
+    }
+    catch (std::system_error& ex)
+    {
+        qCDebug(LOG_BASIC) << "LinuxUtils::getRoutingTable()" << ex.what();
+    }
+
+    return entries;
+}
+
+bool RoutingTableEntry::isIPv4() const
+{
+    return (family == AF_INET);
+}
+
+} // end namespace LinuxUtils

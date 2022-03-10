@@ -21,7 +21,7 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo()
     cai.adapterIp_ = MacUtils::ipAddressByInterfaceName(cai.adapterName_);
     cai.dnsServers_ = MacUtils::getDnsServersForInterface(cai.adapterName_);
 #elif defined Q_OS_LINUX
-    LinuxUtils::getDefaultRoute(cai.gateway_, cai.adapterName_);
+    LinuxUtils::getDefaultRoute(cai.gateway_, cai.adapterName_, cai.adapterIp_);
     // todo: for split tunneling
     // cai.adapterIp_ =
     //cai.dnsServers_ =
