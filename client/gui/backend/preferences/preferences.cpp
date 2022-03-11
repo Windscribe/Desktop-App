@@ -600,7 +600,9 @@ void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
     setKeepAlive(es.is_keep_alive_enabled());
     setCustomOvpnConfigsPath(QString::fromStdString(es.customovpnconfigspath()));
     setDnsWhileConnectedInfo(DnsWhileConnectedInfo(es.dns_while_connected_info()));
+#ifdef Q_OS_LINUX
     setDnsManager(es.dns_manager());
+#endif
     receivingEngineSettings_ = false;
 }
 
