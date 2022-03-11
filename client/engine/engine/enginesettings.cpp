@@ -153,6 +153,11 @@ DNS_POLICY_TYPE EngineSettings::getDnsPolicy() const
     return (DNS_POLICY_TYPE)engineSettings_.dns_policy();
 }
 
+ProtoTypes::DnsManagerType EngineSettings::getDnsManager() const
+{
+    return engineSettings_.dns_manager();
+}
+
 ProtoTypes::MacAddrSpoofing EngineSettings::getMacAddrSpoofing() const
 {
     return engineSettings_.mac_addr_spoofing();

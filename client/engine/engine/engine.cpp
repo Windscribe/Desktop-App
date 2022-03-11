@@ -41,6 +41,7 @@
 #elif defined Q_OS_LINUX
     #include "helper/helper_linux.h"
     #include "utils/executable_signature/executablesignature_linux.h"
+    #include "utils/dnsscripts_linux.h"
 #endif
 
 Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
@@ -98,6 +99,9 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)));
     emergencyConnectStateController_ = new ConnectStateController(nullptr);
     OpenVpnVersionController::instance().setUseWinTun(engineSettings.isUseWintun());
+#ifdef Q_OS_LINUX
+    DnsScripts_linux::instance().setDnsManager(engineSettings.getDnsManager());
+#endif
 }
 
 Engine::~Engine()
@@ -1246,7 +1250,7 @@ void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 
 void Engine::setSettingsImpl(const EngineSettings &engineSettings)
 {
-    qCDebug(LOG_BASIC) << "Engine::setSettingsImpl";
+    qCDebug(LOG_BASIC) << "Engine::";
 
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
     bool isUpdateChannelChanged = engineSettings_.getUpdateChannel() != engineSettings.getUpdateChannel();
@@ -1259,6 +1263,10 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     bool isPacketSizeChanged =  !google::protobuf::util::MessageDifferencer::Equals(engineSettings_.getPacketSize(),      engineSettings.getPacketSize());
     bool isDnsWhileConnectedChanged = !google::protobuf::util::MessageDifferencer::Equals(engineSettings_.getDnsWhileConnectedInfo(), engineSettings.getDnsWhileConnectedInfo());
     engineSettings_ = engineSettings;
+
+#ifdef Q_OS_LINUX
+    DnsScripts_linux::instance().setDnsManager(engineSettings.getDnsManager());
+#endif
 
     if (isDnsPolicyChanged)
     {
