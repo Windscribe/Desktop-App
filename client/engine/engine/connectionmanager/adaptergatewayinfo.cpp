@@ -1,10 +1,12 @@
 #include "adaptergatewayinfo.h"
 #include "utils/logger.h"
-#include "utils/macutils.h"
-#include "utils/linuxutils.h"
 
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
+#elif defined Q_OS_MAC
+    #include "utils/macutils.h"
+#elif defined Q_OS_LINUX
+    #include "utils/linuxutils.h"
 #endif
 
 const int typeIdAdapterGatewayInfo = qRegisterMetaType<AdapterGatewayInfo>("AdapterGatewayInfo");
