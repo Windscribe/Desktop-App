@@ -1,3 +1,12 @@
+2.4.3 (11/03/2022)
+* Added wireguard NT. #120
+* (Yellow) State bug on MacOS. #186
+* Fedora 35, default install, using systemd-resolve, connect failed. #198
+* Made an option on the Debug tab on Linux DNS manager: automatic/resolvconf/systemd-resolved/NetworkManager. #198
+* App crashed on Emergency Connect - fixed. #203
+* Proxy gateway not showing IP address of listener. #159
+
+
 2.4.2 (04/03/2022)
 * CLI added for Linux, updated for Win/Mac. #167
 * Firewall broken when ufw is enabled on Ubuntu 20. #157
