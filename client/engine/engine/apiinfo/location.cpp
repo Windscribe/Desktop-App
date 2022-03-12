@@ -11,7 +11,7 @@ const int typeIdLocations = qRegisterMetaType<QVector<apiinfo::Location>>("QVect
 namespace apiinfo {
 
 
-bool Location::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
+bool Location::initFromJson(const QJsonObject &obj, QStringList &forceDisconnectNodes)
 {
     if (!obj.contains("id") || !obj.contains("name") || !obj.contains("country_code") ||
             !obj.contains("premium_only") || !obj.contains("p2p") || !obj.contains("groups"))

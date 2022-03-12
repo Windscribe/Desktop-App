@@ -1781,24 +1781,36 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
             QVector<apiinfo::Location> serverLocations;
             QStringList forceDisconnectNodes;
 
-            for (const QJsonValue &value: jsonData)
+            for (int i = 0; i < jsonData.size(); ++i)
             {
-                QJsonObject obj = value.toObject();
-
-                apiinfo::Location sl;
-                if (sl.initFromJson(obj, forceDisconnectNodes))
+                if (jsonData.at(i).isObject())
                 {
-                    serverLocations << sl;
+                    apiinfo::Location sl;
+                    QJsonObject dataElement = jsonData.at(i).toObject();
+                    if (sl.initFromJson(dataElement, forceDisconnectNodes)) {
+                        serverLocations << sl;
+                    }
+                    else
+                    {
+                        QJsonDocument invalidData(dataElement);
+                        qCDebug(LOG_SERVER_API) << "API request ServerLocations skipping invalid/incomplete 'data' element at index" << i
+                                                << "(" << invalidData.toJson(QJsonDocument::Compact) << ")";
+                    }
                 }
-                else
-                {
-                    qCDebugMultiline(LOG_SERVER_API) << arr;
-                    qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
-                    emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
-                    return;
+                else {
+                    qCDebug(LOG_SERVER_API) << "API request ServerLocations skipping non-object 'data' element at index" << i;
                 }
             }
-            emit serverLocationsAnswer(SERVER_RETURN_SUCCESS, serverLocations, forceDisconnectNodes, userRole);
+
+            if (serverLocations.empty())
+            {
+                qCDebugMultiline(LOG_SERVER_API) << arr;
+                qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json, no valid 'data' elements were found";
+                emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, serverLocations, QStringList(), userRole);
+            }
+            else {
+                emit serverLocationsAnswer(SERVER_RETURN_SUCCESS, serverLocations, forceDisconnectNodes, userRole);
+            }
         }
         else
         {
