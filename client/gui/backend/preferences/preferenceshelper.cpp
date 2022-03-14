@@ -72,6 +72,10 @@ void PreferencesHelper::setPortMap(const ProtoTypes::ArrayPortMap &arr)
 
 QVector<ProtoTypes::Protocol> PreferencesHelper::getAvailableProtocols()
 {
+#if defined(Q_OS_WINDOWS)
+    bool is32bit = !WinUtils::isWindows64Bit();
+#endif
+
     QVector<ProtoTypes::Protocol> p;
     for (int i = 0; i < portMap_.port_map_item_size(); ++i)
     {
@@ -82,11 +86,8 @@ QVector<ProtoTypes::Protocol> PreferencesHelper::getAvailableProtocols()
         }
 #elif defined(Q_OS_WINDOWS)
         const auto protocol = portMap_.port_map_item(i).protocol();
-        if ((protocol == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL) && !WinUtils::isWindows64Bit()) {
-            continue;
-        }
-        else if((protocol == ProtoTypes::Protocol::PROTOCOL_WIREGUARD)
-                && !WinUtils::isWindows64Bit() && WinUtils::isWindows7()) {
+        if (is32bit && ((protocol == ProtoTypes::Protocol::PROTOCOL_WIREGUARD) || (protocol == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL)))
+        {
             continue;
         }
 #endif
