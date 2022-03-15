@@ -3,6 +3,7 @@
 #include "logger.h"
 #include <comdef.h>
 #include <WbemIdl.h>
+#include <versionhelpers.h>
 #include "../../../common/utils/executable_signature/executable_signature.h"
 #include "../../../common/utils/win32handle.h"
 
@@ -385,4 +386,15 @@ GUID guidFromString(const std::wstring &str)
 
     return reqGUID;
 }
+
+bool isWindows7()
+{
+    static int isWindows7 = -1;
+    if (isWindows7 == -1) {
+        isWindows7 = (IsWindows8OrGreater() ? 0 : 1);
+    }
+
+    return (isWindows7 == 1);
+}
+
 }

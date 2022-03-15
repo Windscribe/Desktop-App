@@ -27,4 +27,6 @@ namespace Utils
 
 	void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName);
     GUID guidFromString(const std::wstring &str);
+
+    bool isWindows7();
 };

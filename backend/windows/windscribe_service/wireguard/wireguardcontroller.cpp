@@ -194,7 +194,9 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
 
 HANDLE WireGuardController::getKernelInterfaceHandle() const
 {
-    HDEVINFO devInfo = ::SetupDiGetClassDevsExW(&GUID_DEVCLASS_NET, L"SWD\\WireGuard", NULL, DIGCF_PRESENT, NULL, NULL, NULL);
+    HDEVINFO devInfo = ::SetupDiGetClassDevsExW(&GUID_DEVCLASS_NET,
+                                                (Utils::isWindows7() ? L"ROOT\\WIREGUARD" : L"SWD\\WireGuard"),
+                                                NULL, DIGCF_PRESENT, NULL, NULL, NULL);
     if (devInfo == INVALID_HANDLE_VALUE) {
         throw std::system_error(::GetLastError(), std::generic_category(),
             "WireGuardController::getKernelInterfaceHandle - SetupDiGetClassDevsExW failed");
