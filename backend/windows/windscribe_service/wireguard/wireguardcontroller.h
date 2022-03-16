@@ -15,6 +15,7 @@ private:
 
     std::string serviceName_;
     std::wstring deviceName_;
+    std::wstring exeName_;
 
 private:
     HANDLE getKernelInterfaceHandle() const;

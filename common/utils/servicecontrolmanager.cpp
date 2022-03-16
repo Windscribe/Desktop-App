@@ -348,30 +348,36 @@ ServiceControlManager::queryServiceConfig(std::string& sExePath, std::string& sA
 void
 ServiceControlManager::startService() const
 {
+    std::ostringstream errorMsg;
+
+    ULONGLONG elapsedTime;
+    ULONGLONG startTime = ::GetTickCount64();
+
     if (::StartServiceA(m_hService, 0, NULL))
     {
         // Wait for start service command to complete.
         for (int i = 0; i < 40; i++)
         {
-            Sleep(250);
-
             DWORD dwStatus = queryServiceStatus();
             if (dwStatus == SERVICE_RUNNING) {
                 return;
             }
+
+            Sleep(250);
         }
 
-        throw std::system_error(ERROR_SERVICE_REQUEST_TIMEOUT, std::system_category(),
-            std::string("StartService: ") + m_sServiceName);
+        elapsedTime = ::GetTickCount64() - startTime;
+        errorMsg << "StartService(" << m_sServiceName << ") API request succeeded, but the service did not report as running after " << elapsedTime << "ms";
+        throw std::system_error(ERROR_SERVICE_REQUEST_TIMEOUT, std::system_category(), errorMsg.str());
     }
+
+    elapsedTime = ::GetTickCount64() - startTime;
 
     DWORD dwLastError = ::GetLastError();
 
     if (dwLastError == ERROR_SERVICE_ALREADY_RUNNING) {
         return;
     }
-
-    std::ostringstream errorMsg;
 
     switch (dwLastError)
     {
@@ -416,7 +422,7 @@ ServiceControlManager::startService() const
         break;
 
     case ERROR_SERVICE_REQUEST_TIMEOUT:
-        errorMsg << "StartService: " << m_sServiceName;
+        errorMsg << "StartService(" << m_sServiceName << ") API request failed after " << elapsedTime << "ms";
         break;
 
     default:
