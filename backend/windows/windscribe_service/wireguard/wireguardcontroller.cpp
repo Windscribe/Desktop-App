@@ -12,6 +12,7 @@
 
 #include "wireguardcontroller.h"
 #include "wireguard.h"
+#include "../executecmd.h"
 #include "../logger.h"
 #include "../utils.h"
 #include "../ipc/servicecommunication.h"
@@ -31,13 +32,15 @@ bool WireGuardController::installService(const std::wstring &exeName, const std:
     if (!Utils::isFileExists(configFile.c_str()))
     {
         Logger::instance().out(
-            L"WireGuardController::installService - the wireguard configuration file does not exist (%s)", configFile.c_str());
+            L"WireGuardController::installService - the WireGuard configuration file does not exist (%s)", configFile.c_str());
         return false;
     }
 
     is_initialized_ = false;
     try
     {
+        exeName_ = exeName + L".exe";
+
         {
             boost::filesystem::path path(configFile);
             deviceName_ = path.stem().native();
@@ -50,7 +53,7 @@ bool WireGuardController::installService(const std::wstring &exeName, const std:
         std::string serviceCmdLine;
         {
             std::wostringstream stream;
-            stream << L"\"" << Utils::getExePath() << L"\\" << exeName << ".exe\" \"" << configFile << L"\"";
+            stream << L"\"" << Utils::getExePath() << L"\\" << exeName_ << "\" \"" << configFile << L"\"";
             std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
             serviceCmdLine = converter.to_bytes(stream.str());
         }
@@ -60,14 +63,14 @@ bool WireGuardController::installService(const std::wstring &exeName, const std:
 
         if (svcCtrl.isServiceInstalled(serviceName_.c_str()))
         {
-            Logger::instance().out("WireGuardController::installService - deleting existing wireguard service instance");
+            Logger::instance().out("WireGuardController::installService - deleting existing WireGuard service instance");
             svcCtrl.deleteService(serviceName_.c_str());
         }
 
         Logger::instance().out("WireGuardController::installService - command-line: %s", serviceCmdLine.c_str());
 
         svcCtrl.installService(serviceName_.c_str(), serviceCmdLine.c_str(),
-            "Windscribe Wireguard Tunnel", "Manages the Windscribe wireguard tunnel connection",
+            "Windscribe Wireguard Tunnel", "Manages the Windscribe WireGuard tunnel connection",
             SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, "Nsi\0TcpIp\0", true);
 
         svcCtrl.setServiceSIDType(SERVICE_SID_TYPE_UNRESTRICTED);
@@ -98,15 +101,26 @@ bool WireGuardController::deleteService()
 
         if (svcCtrl.isServiceInstalled(serviceName_.c_str()))
         {
-            Logger::instance().out("WireGuardController::deleteService - deleting wireguard service instance");
+            Logger::instance().out("WireGuardController::deleteService - deleting WireGuard service instance");
             svcCtrl.deleteService(serviceName_.c_str());
         }
 
+        serviceName_.clear();
         bServiceDeleted = true;
     }
     catch (std::system_error& ex)
     {
         Logger::instance().out("WireGuardController::deleteService - %s", ex.what());
+    }
+
+    if (!bServiceDeleted && !exeName_.empty())
+    {
+        serviceName_.clear();
+        wchar_t killCmd[MAX_PATH];
+        wcscpy(killCmd, L"taskkill /f /t /im ");
+        wcscat(killCmd, exeName_.c_str());
+        Logger::instance().out("WireGuardController::deleteService - task killing the WireGuard service instance");
+        ExecuteCmd::instance().executeBlockingCmd(killCmd);
     }
 
     return bServiceDeleted;
@@ -120,7 +134,7 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
     {
         if (!is_initialized_) {
             throw std::system_error(ERROR_INVALID_STATE, std::generic_category(),
-                "WireGuardController::getStatus - the wireguard tunnel is not initialized");
+                "WireGuardController::getStatus - the WireGuard tunnel is not initialized");
         }
 
         WinUtils::Win32Handle hDriver(getKernelInterfaceHandle());
@@ -194,7 +208,9 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
 
 HANDLE WireGuardController::getKernelInterfaceHandle() const
 {
-    HDEVINFO devInfo = ::SetupDiGetClassDevsExW(&GUID_DEVCLASS_NET, L"SWD\\WireGuard", NULL, DIGCF_PRESENT, NULL, NULL, NULL);
+    HDEVINFO devInfo = ::SetupDiGetClassDevsExW(&GUID_DEVCLASS_NET,
+                                                (Utils::isWindows7() ? L"ROOT\\WIREGUARD" : L"SWD\\WireGuard"),
+                                                NULL, DIGCF_PRESENT, NULL, NULL, NULL);
     if (devInfo == INVALID_HANDLE_VALUE) {
         throw std::system_error(::GetLastError(), std::generic_category(),
             "WireGuardController::getKernelInterfaceHandle - SetupDiGetClassDevsExW failed");

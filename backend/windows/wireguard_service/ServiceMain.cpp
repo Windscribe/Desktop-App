@@ -133,7 +133,7 @@ getWindscribeClientProcessHandle()
     {
         if (_wcsicmp(pe32.szExeFile, L"Windscribe.exe") == 0)
         {
-            WinUtils::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE, FALSE, pe32.th32ProcessID));
+            WinUtils::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE, FALSE, pe32.th32ProcessID));
 
             if (!hProcess.isValid()) {
                 throw std::system_error(::GetLastError(), std::generic_category(), "getWindscribeClientProcessHandle: OpenProcess failed");

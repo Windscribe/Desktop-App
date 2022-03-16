@@ -50,12 +50,13 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
     QString configFile;
     connectedSignalEmited_ = false;
+    stopRequested_ = false;
 
     auto guard = qScopeGuard([&]
     {
         serviceCtrlManager_.closeSCM();
         if (helper_ != nullptr && !helper_->stopWireGuard()) {
-            qCDebug(LOG_CONNECTION) << "WireGuardConnection::startConnect - windscribe service failed to stop the wireguard service instance";
+            qCDebug(LOG_CONNECTION) << "WireGuardConnection::startConnect - windscribe service failed to stop the WireGuard service instance";
         }
 
         wireguardLog_.reset();
@@ -76,13 +77,16 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
         if (wireGuardConfig == nullptr) {
             throw std::system_error(ERROR_INVALID_PARAMETER, std::generic_category(),
-                std::string("WireGuardConnection::startConnect - the wireguard config parameter is null"));
+                std::string("WireGuardConnection::startConnect - the WireGuard config parameter is null"));
+        }
+
+        if (isRunning())
+        {
+            quit();
+            wait();
         }
 
         qCDebug(LOG_CONNECTION) << "Starting" << getWireGuardExeName();
-
-        quit();
-        wait();
 
         // Design Note:
         // The wireguard embedded DLL service requires that the name of the configuration file we
@@ -107,7 +111,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
             }
 
             throw std::system_error(0, std::generic_category(),
-                std::string("Windscribe service could not install the wireguard service"));
+                std::string("Windscribe service could not install the WireGuard service"));
         }
 
         // The wireguard service creates the log file in the same folder as the config file we passed to it.
@@ -128,6 +132,13 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
         qCDebug(LOG_CONNECTION) << "WireGuard service started";
 
+        // This method is run by worker thread, so it is possible the user, or another thread, has
+        // requested we stop while we were installing/starting the WireGuard service.
+        if (stopRequested_) {
+            throw std::system_error(ERROR_NO_WORK_DONE, std::generic_category(),
+                std::string("WireGuard service startup aborted by user request"));
+        }
+
         guard.dismiss();
 
         start(LowPriority);
@@ -135,15 +146,21 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     catch (std::system_error& ex)
     {
         qCDebug(LOG_CONNECTION) << ex.what();
-        onWireguardServiceStartupFailure();
         emit error(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
         emit disconnected();
+
+        if (ex.code().value() != ERROR_NO_WORK_DONE) {
+            onWireguardServiceStartupFailure();
+        }
     }
 }
 
 void WireGuardConnection::startDisconnect()
 {
-    quit();
+    stopRequested_ = true;
+    if (isRunning()) {
+        quit();
+    }
 }
 
 bool WireGuardConnection::isDisconnected() const
@@ -188,7 +205,9 @@ void WireGuardConnection::run()
     connect(timerGetWireguardLogUpdates.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardLogUpdates);
     timerGetWireguardLogUpdates->start(250);
 
-    exec();
+    if (!stopRequested_) {
+        exec();
+    }
 
     timerGetWireguardStats->stop();
     timerCheckServiceRunning->stop();
@@ -200,7 +219,7 @@ void WireGuardConnection::run()
     onGetWireguardStats();
 
     if (!helper_->stopWireGuard()) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - windscribe service failed to stop the wireguard service instance";
+        qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - windscribe service failed to stop the WireGuard service instance";
     }
 
     wireguardLog_.reset();
@@ -215,7 +234,7 @@ void WireGuardConnection::onCheckServiceRunning()
 {
     if (isDisconnected())
     {
-        qCDebug(LOG_CONNECTION) << "The wireguard service has stopped unexpectedly";
+        qCDebug(LOG_CONNECTION) << "The WireGuard service has stopped unexpectedly";
         quit();
     }
 }
@@ -265,26 +284,6 @@ void WireGuardConnection::onGetWireguardStats()
 
 void WireGuardConnection::onWireguardServiceStartupFailure() const
 {
-    // Check if our wireguard service logged any startup errors.
-    QFile file(qApp->applicationDirPath() + "/WireguardServiceLog.txt");
-    if (file.exists())
-    {
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            while (!file.atEnd())
-            {
-                QByteArray line = file.readLine();
-                if (!line.isEmpty()) {
-                    qCDebug(LOG_WIREGUARD) << line.trimmed();
-                }
-            }
-        }
-        else
-        {
-            qCDebug(LOG_CONNECTION) << "Could not open" << file.fileName();
-        }
-    }
-
     // Check if the wireguard-windows code logged anything.
     if (!wireguardLog_.isNull()) {
         wireguardLog_->getNewLogEntries();

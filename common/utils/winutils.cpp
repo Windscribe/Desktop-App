@@ -126,8 +126,8 @@ QString WinUtils::getWinVersionString()
     RTL_OSVERSIONINFOEXW rtlOsVer;
     if (getWinVersion(&rtlOsVer))
     {
-        if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows 10 Server";
-        else if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = "Windows 10";
+        if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = (rtlOsVer.dwBuildNumber >= 22000 ? "Windows 11" : "Windows 10");
+        else if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows 10 Server";
         else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows Server 2012 R2";
         else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = "Windows 8.1";
         else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 2 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows Server 2012";
@@ -142,7 +142,7 @@ QString WinUtils::getWinVersionString()
         else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 0)   ret = "Windows 2000";
         else ret = "Unknown";
 
-        if (rtlOsVer.szCSDVersion != NULL)
+        if (rtlOsVer.szCSDVersion[0] != L'\0')
         {
             ret += " " + QString::fromStdWString(rtlOsVer.szCSDVersion);
         }
