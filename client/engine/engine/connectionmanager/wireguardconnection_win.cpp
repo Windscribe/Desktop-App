@@ -94,11 +94,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
         // the service using the name WireGuardTunnel$ConfFileName
 
         configFile = tr("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation), serviceIdentifier);
-
-        if (!wireGuardConfig->generateConfigFile(configFile)) {
-            throw std::system_error(0, std::generic_category(),
-                std::string("WireGuardConfig::generateConfigFile could not create file ") + configFile.toStdString());
-        }
+        wireGuardConfig->generateConfigFile(configFile);
 
         // Installing the wireguard service requires admin privilege.
         IHelper::ExecuteError err = helper_->startWireGuard(getWireGuardExeName(), configFile);

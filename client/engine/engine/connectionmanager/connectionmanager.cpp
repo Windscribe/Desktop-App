@@ -1003,8 +1003,9 @@ void ConnectionManager::doConnectPart3()
 
     if (currentConnectionDescr_.protocol.isWireGuardProtocol())
     {
-        Q_ASSERT(wireGuardConfig_ != nullptr);
-        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, wireGuardConfig_->clientDnsAddress());
+        WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : wireGuardConfig_.get());
+        Q_ASSERT(pConfig != nullptr);
+        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, pConfig->clientDnsAddress());
     }
     else
     {

@@ -5,6 +5,10 @@
 #include <QStringList>
 #include <QTextStream>
 
+#include "utils/logger.h"
+#include "utils/openssl_utils.h"
+
+
 WireGuardConfig::WireGuardConfig()
 {
 
@@ -70,7 +74,7 @@ QString WireGuardConfig::stripIpv6Address(const QString &addressList)
     return stripIpv6Address(addressList.split(",", QString::SkipEmptyParts));
 }
 
-bool WireGuardConfig::generateConfigFile(const QString &fileName) const
+void WireGuardConfig::generateConfigFile(const QString &fileName) const
 {
     // Design Note:
     // Tried to use QSettings(fileName, QSettings::IniFormat) to create this file.
@@ -81,34 +85,102 @@ bool WireGuardConfig::generateConfigFile(const QString &fileName) const
     QFile theFile(fileName);
     bool bResult = theFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
 
-    if (bResult)
-    {
-        QTextStream ts(&theFile);
-        ts << "[Interface]\n";
-        ts << "PrivateKey = " << client_.privateKey << '\n';
-        ts << "Address = " << client_.ipAddress << '\n';
-        ts << "DNS = " << client_.dnsAddress << '\n';
-        ts << '\n';
-        ts << "[Peer]\n";
-        ts << "PublicKey = " << peer_.publicKey << '\n';
-        ts << "Endpoint = " << peer_.endpoint << '\n';
-        ts << "PresharedKey = " << peer_.presharedKey << '\n';
-
-        // wireguard-windows implements its own 'kill switch' if we pass it 0.0.0.0/0.
-        // https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
-        // We're letting our helper implement that functionality.
-        if (peer_.allowedIps.compare("0.0.0.0/0") == 0) {
-            ts << "AllowedIPs = 0.0.0.0/1, 128.0.0.0/1\n";
-        }
-        else {
-            ts << "AllowedIPs = " << peer_.allowedIps << '\n';
-        }
-
-        ts.flush();
-
-        theFile.flush();
-        theFile.close();
+    if (!bResult) {
+        throw std::system_error(0, std::generic_category(),
+            std::string("WireGuardConfig::generateConfigFile could not create file ") + fileName.toStdString() +
+            std::string(" (") + theFile.errorString().toStdString() + std::string(")"));
     }
 
-    return bResult;
+    QTextStream ts(&theFile);
+    ts << "[Interface]\n";
+    ts << "PrivateKey = " << client_.privateKey << '\n';
+    ts << "Address = " << client_.ipAddress << '\n';
+    ts << "DNS = " << client_.dnsAddress << '\n';
+    ts << '\n';
+    ts << "[Peer]\n";
+    ts << "PublicKey = " << peer_.publicKey << '\n';
+    ts << "Endpoint = " << peer_.endpoint << '\n';
+    ts << "PresharedKey = " << peer_.presharedKey << '\n';
+
+    // wireguard-windows implements its own 'kill switch' if we pass it 0.0.0.0/0.
+    // https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
+    // We're letting our helper implement that functionality.
+    if (peer_.allowedIps.compare("0.0.0.0/0") == 0) {
+        ts << "AllowedIPs = 0.0.0.0/1, 128.0.0.0/1\n";
+    }
+    else {
+        ts << "AllowedIPs = " << peer_.allowedIps << '\n';
+    }
+
+    ts.flush();
+
+    theFile.flush();
+    theFile.close();
+}
+
+void WireGuardConfig::reset()
+{
+    // TODO: JDRM ensure this method is called when the session API indicates the user's account has been disabled (over GB limit, banned, etc.).
+    client_.privateKey.clear();
+    client_.ipAddress.clear();
+    client_.dnsAddress.clear();
+    peer_.publicKey.clear();
+    peer_.presharedKey.clear();
+    peer_.endpoint.clear();
+    peer_.allowedIps.clear();
+    keyPairGeneratedTimestamp_ = QDateTime();
+}
+
+bool WireGuardConfig::generateKeyPair()
+{
+    reset();
+
+    wsl::EvpPkeyCtx ctxKey(EVP_PKEY_CTX_new_id(EVP_PKEY_X25519, NULL));
+
+    if (!ctxKey.isValid()) {
+        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_CTX_new_id failed";
+        return false;
+    }
+
+    int nResult = EVP_PKEY_keygen_init(ctxKey.context());
+
+    if (nResult <= 0) {
+        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_keygen_init failed:" << nResult;
+        return false;
+    }
+
+    wsl::EvpPkey keyX25519;
+    nResult = EVP_PKEY_keygen(ctxKey.context(), keyX25519.ppkey());
+
+    if (nResult <= 0) {
+        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_keygen failed:" << nResult;
+        return false;
+    }
+
+    unsigned char keyBuf[64];
+    size_t keyBufLen = 64;
+    nResult = EVP_PKEY_get_raw_private_key(keyX25519.pkey(), keyBuf, &keyBufLen);
+
+    if (nResult <= 0) {
+        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_get_raw_private_key failed:" << nResult;
+        return false;
+    }
+
+    QByteArray privateKey = QByteArray::fromRawData((const char*)keyBuf, keyBufLen);
+
+    keyBufLen = 64;
+    nResult = EVP_PKEY_get_raw_public_key(keyX25519.pkey(), keyBuf, &keyBufLen);
+
+    if (nResult <= 0) {
+        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_get_raw_public_key failed:" << nResult;
+        return false;
+    }
+
+    QByteArray publicKey = QByteArray::fromRawData((const char*)keyBuf, keyBufLen);
+
+    client_.privateKey = privateKey.toBase64();
+    peer_.publicKey = publicKey.toBase64();
+    keyPairGeneratedTimestamp_ = QDateTime::currentDateTimeUtc();
+
+    return true;
 }
