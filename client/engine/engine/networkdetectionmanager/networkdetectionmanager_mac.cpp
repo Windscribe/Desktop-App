@@ -38,8 +38,9 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         lastIsOnlineState_ = curIsOnlineState;
         emit onlineStateChanged(curIsOnlineState);
     }
-    /*const ProtoTypes::NetworkInterface &networkInterface = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
-    const ProtoTypes::NetworkInterfaces &networkList = MacUtils::currentNetworkInterfaces(true);
+
+    const ProtoTypes::NetworkInterface &networkInterface = NetworkUtils_mac::currentNetworkInterface();
+    const ProtoTypes::NetworkInterfaces &networkList = NetworkUtils_mac::currentNetworkInterfaces(true);
     bool wifiAdapterUp = isWifiAdapterUp(networkList);
 
     if (!google::protobuf::util::MessageDifferencer::Equals(networkInterface, lastNetworkInterface_))
@@ -82,14 +83,12 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         }
 
         lastNetworkInterface_ = networkInterface;
-
-        QString strNetworkInterface;
-        emit networkChanged(networkInterface.interface_index() != Utils::noNetworkInterface().interface_index(), networkInterface);
+        emit networkChanged(networkInterface);
     }
     else if (wifiAdapterUp != lastWifiAdapterUp_)
     {
-        if (MacUtils::isWifiAdapter(QString::fromStdString(networkInterface.interface_name()))
-                || MacUtils::isWifiAdapter(QString::fromStdString(lastNetworkInterface_.interface_name())))
+        if (NetworkUtils_mac::isWifiAdapter(QString::fromStdString(networkInterface.interface_name()))
+                || NetworkUtils_mac::isWifiAdapter(QString::fromStdString(lastNetworkInterface_.interface_name())))
         {
             qCDebug(LOG_BASIC) << "Wifi adapter (primary) up state changed: " << wifiAdapterUp;
             emit wifiAdapterChanged(wifiAdapterUp);
@@ -102,7 +101,7 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
     }
 
     lastNetworkList_ = networkList;
-    lastWifiAdapterUp_ = wifiAdapterUp;*/
+    lastWifiAdapterUp_ = wifiAdapterUp;
 }
 
 bool NetworkDetectionManager_mac::isWifiAdapterUp(const ProtoTypes::NetworkInterfaces &networkList)
