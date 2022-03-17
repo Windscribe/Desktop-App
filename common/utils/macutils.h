@@ -2,7 +2,6 @@
 
 #include <QString>
 #include <QList>
-#include "utils/protobuf_includes.h"
 
 namespace MacUtils
 {
@@ -32,52 +31,12 @@ namespace MacUtils
     // Split Routing
     QString iconPathFromBinPath(const QString &binPath);
     QList<QString> enumerateInstalledPrograms();
-    QList<QString> listedCmdResults(const QString &cmd);
-
-    // Networking
-    bool isActiveEnInterface(); // still used?
-    QString ipAddressByInterfaceName(const QString &interfaceName);
-    void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName);
-    QString getDefaultGatewayForPrimaryInterface();
-    QString lastConnectedNetworkInterfaceName();
-
-    QString ssidOfInterface(QString networkInterface);
-    QString macAddressFromIP(QString ipAddr, QString interfaceName);
-    QString macAddressFromInterfaceName(QString interfaceName);
-    QString trueMacAddress(const QString &interfaceName);
-
-    bool isWifiAdapter(const QString &networkInterface);
-    bool isAdapterUp(const QString &networkInterfaceName);
-    bool isAdapterActive(const QString &networkInterface);
-
-    QList<QString> currentNetworkHwInterfaces();
-    QMap<QString, int> currentHardwareInterfaceIndexes();
-
-    const ProtoTypes::NetworkInterface networkInterfaceByName(const QString &ifname);
-    QString getPrimaryNetworkInterface();
-
-    ProtoTypes::NetworkInterfaces currentNetworkInterfaces(bool includeNoInterface);
-    ProtoTypes::NetworkInterfaces currentlyUpNetInterfaces();
-    ProtoTypes::NetworkInterfaces currentSpoofedInterfaces();
-
-    bool interfaceSpoofed(const QString &interfaceName);
-    bool checkMacAddr(const QString& interfaceName, const QString& macAddr);
-
-    bool pingWithMtu(const QString &url, int mtu);
-    QString getLocalIP();
 
     void getNSWindowCenter(void *nsView, int &outX, int &outY);
-
-
-    // read DNS-servers for device name (now used for ipsec adapters for ikev2)
-    // implemented with "scutil --dns" command
-    // TODO: do not implement via an external util, as the output format of util may change in OS
-    QStringList getDnsServersForInterface(const QString &interfaceName);
-
-    QStringList getListOfDnsNetworkServiceEntries();
     bool dynamicStoreEntryHasKey(const QString &entry, const QString &key);
-
     bool verifyAppBundleIntegrity();
+
+    bool isParentProcessGui();
 }
 
 

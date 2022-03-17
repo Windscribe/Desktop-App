@@ -2,7 +2,7 @@
 
 #include <QRegularExpression>
 #include "../networkdetectionmanager/reachabilityevents.h"
-#include "utils/macutils.h"
+#include "utils/network_utils/network_utils_mac.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 
@@ -13,9 +13,10 @@ NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, IHelpe
     , lastWifiAdapterUp_(false)
 {
     connect(&ReachAbilityEvents::instance(), SIGNAL(networkStateChanged()), SLOT(onNetworkStateChanged()));
-    lastNetworkInterface_ = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
-    lastNetworkList_ = MacUtils::currentNetworkInterfaces(true);
+    lastNetworkInterface_ = NetworkUtils_mac::currentNetworkInterface();
+    lastNetworkList_ = NetworkUtils_mac::currentNetworkInterfaces(true);
     lastWifiAdapterUp_ = isWifiAdapterUp(lastNetworkList_);
+    lastIsOnlineState_ = isOnlineImpl();
 }
 
 NetworkDetectionManager_mac::~NetworkDetectionManager_mac()
@@ -25,12 +26,18 @@ NetworkDetectionManager_mac::~NetworkDetectionManager_mac()
 bool NetworkDetectionManager_mac::isOnline()
 {
     QMutexLocker locker(&mutex_);
-    return !MacUtils::getPrimaryNetworkInterface().isEmpty();
+    return lastIsOnlineState_;
 }
 
 void NetworkDetectionManager_mac::onNetworkStateChanged()
 {
-    const ProtoTypes::NetworkInterface &networkInterface = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
+    bool curIsOnlineState = isOnlineImpl();
+    if (lastIsOnlineState_ != curIsOnlineState)
+    {
+        lastIsOnlineState_ = curIsOnlineState;
+        emit onlineStateChanged(curIsOnlineState);
+    }
+    /*const ProtoTypes::NetworkInterface &networkInterface = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
     const ProtoTypes::NetworkInterfaces &networkList = MacUtils::currentNetworkInterfaces(true);
     bool wifiAdapterUp = isWifiAdapterUp(networkList);
 
@@ -94,7 +101,7 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
     }
 
     lastNetworkList_ = networkList;
-    lastWifiAdapterUp_ = wifiAdapterUp;
+    lastWifiAdapterUp_ = wifiAdapterUp;*/
 }
 
 bool NetworkDetectionManager_mac::isWifiAdapterUp(const ProtoTypes::NetworkInterfaces &networkList)
@@ -107,6 +114,24 @@ bool NetworkDetectionManager_mac::isWifiAdapterUp(const ProtoTypes::NetworkInter
         }
     }
     return false;
+}
+
+bool NetworkDetectionManager_mac::isOnlineImpl()
+{
+    QString strReply;
+    FILE *file = popen("echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryInterface | sed -e 's/.*PrimaryInterface : //'", "r");
+    if (file)
+    {
+        char szLine[4096];
+        while(fgets(szLine, sizeof(szLine), file) != 0)
+        {
+            strReply += szLine;
+        }
+        pclose(file);
+    }
+
+    strReply = strReply.trimmed();
+    return !strReply.isEmpty();
 }
 
 

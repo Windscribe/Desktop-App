@@ -289,7 +289,8 @@ private slots:
     void onLocationsModelWhitelistIpsChanged(const QStringList &ips);
     void onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips);
 
-    void onNetworkChange(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface);
+    void onNetworkOnlineStateChange(bool isOnline);
+    void onNetworkChange(const ProtoTypes::NetworkInterface &networkInterface);
     void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu);
     void onPacketSizeControllerFinishedSizeDetection(bool isError);
 
@@ -363,6 +364,8 @@ private:
     DownloadHelper *downloadHelper_;
 #ifdef Q_OS_MAC
     AutoUpdaterHelper_mac *autoUpdaterHelper_;
+    QDateTime robustTimerStart_;
+    QTimer *robustMacSpoofTimer_;
 #endif
 
     QMutex mutex_;
@@ -410,11 +413,6 @@ private:
     bool overrideUpdateChannelWithInternal_;
     bool bPrevNetworkInterfaceInitialized_;
     ProtoTypes::NetworkInterface prevNetworkInterface_;
-
-#ifdef Q_OS_MAC
-    QDateTime robustTimerStart_;
-    QTimer *robustMacSpoofTimer_;
-#endif
 };
 
 #endif // ENGINE_H

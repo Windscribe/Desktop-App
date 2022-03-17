@@ -3,6 +3,7 @@
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/macutils.h"
+#include "utils/network_utils/network_utils_mac.h"
 
 const int MINIMUM_TIME_AUTO_SPOOF = 5000;
 
@@ -49,7 +50,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
         qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing MacAddrSpoofing has changed. actuallyAutoRotate_=" << actuallyAutoRotate_;
         qCDebug(LOG_BASIC) << QString::fromStdString(macAddrSpoofing.DebugString());
 
-        ProtoTypes::NetworkInterface currentAdapter = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
+        ProtoTypes::NetworkInterface currentAdapter = NetworkUtils_mac::currentNetworkInterface();
         ProtoTypes::NetworkInterface selectedInterface = macAddrSpoofing.selected_network_interface();
 
         if (macAddrSpoofing.is_enabled())
@@ -69,7 +70,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
                     const QString macAddress(QString::fromStdString(macAddrSpoofing.mac_address()));
 
                     const QString lastInterfaceName = QString::fromStdString(lastInterface.interface_name());
-                    if (MacUtils::isAdapterUp(QString::fromStdString(lastInterface.interface_name()))) // apply-able interface
+                    if (NetworkUtils_mac::isAdapterUp(QString::fromStdString(lastInterface.interface_name()))) // apply-able interface
                     {
                         spoofsToApply.insert(lastInterfaceName, macAddress); // latest address will be spoofed in the case of duplicates
                     }
@@ -79,7 +80,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
                     }
 
                     // remove all but last
-                    const ProtoTypes::NetworkInterfaces spoofedInterfacesExceptLast = Utils::interfacesExceptOne(MacUtils::currentSpoofedInterfaces(), lastInterface);
+                    const ProtoTypes::NetworkInterfaces spoofedInterfacesExceptLast = Utils::interfacesExceptOne(NetworkUtils_mac::currentSpoofedInterfaces(), lastInterface);
                     for (const ProtoTypes::NetworkInterface &networkInterface : spoofedInterfacesExceptLast.networks())
                     {
                         spoofsToRemove.insert(QString::fromStdString(networkInterface.interface_name()), "");
@@ -112,7 +113,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
 
                             qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing Manual spoof on interface: " << currentInterfaceName;
 
-                            if (MacUtils::isAdapterUp(QString::fromStdString(currentAdapter.interface_name()))) // apply-able interface
+                            if (NetworkUtils_mac::isAdapterUp(QString::fromStdString(currentAdapter.interface_name()))) // apply-able interface
                             {
                                 spoofsToApply.insert(currentInterfaceName, macAddress); // latest address will be spoofed in the case of duplicates
                             }
@@ -122,7 +123,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
                             }
 
                             // remove all spoofs except current
-                            const ProtoTypes::NetworkInterfaces spoofedInterfacesExceptLast = Utils::interfacesExceptOne(MacUtils::currentSpoofedInterfaces(), currentAdapter);
+                            const ProtoTypes::NetworkInterfaces spoofedInterfacesExceptLast = Utils::interfacesExceptOne(NetworkUtils_mac::currentSpoofedInterfaces(), currentAdapter);
                             for (const ProtoTypes::NetworkInterface &networkInterface : spoofedInterfacesExceptLast.networks())
                             {
                                 spoofsToRemove.insert(QString::fromStdString(networkInterface.interface_name()), "");
@@ -152,7 +153,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoof
             qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing MAC spoofing is disabled";
 
             QMap<QString, QString> spoofsToRemove;
-            const ProtoTypes::NetworkInterfaces spoofs = MacUtils::currentSpoofedInterfaces();
+            const ProtoTypes::NetworkInterfaces spoofs = NetworkUtils_mac::currentSpoofedInterfaces();
             for (const ProtoTypes::NetworkInterface &networkInterface : spoofs.networks())
             {
                 spoofsToRemove.insert(QString::fromStdString(networkInterface.interface_name()), "");
@@ -175,7 +176,7 @@ void MacAddressController_mac::updateNetworkList()
     emit macAddrSpoofingChanged(updatedMacAddrSpoofing);
 }
 
-void MacAddressController_mac::onPrimaryAdapterUp(const ProtoTypes::NetworkInterface &currentAdapter)
+void MacAddressController_mac::onPrimaryAdapterUp(const ProtoTypes::NetworkInterface &/*currentAdapter*/)
 {
     if (doneFilteringNetworkEvents())
     {
@@ -204,7 +205,7 @@ void MacAddressController_mac::onPrimaryAdapterNetworkLostOrChanged(const ProtoT
     filterAndRotateOrUpdateList();
 }
 
-void MacAddressController_mac::onNetworkListChanged(const ProtoTypes::NetworkInterfaces &adapterList)
+void MacAddressController_mac::onNetworkListChanged(const ProtoTypes::NetworkInterfaces & /*adapterList*/)
 {
     if (doneFilteringNetworkEvents())
     {
@@ -226,12 +227,12 @@ bool MacAddressController_mac::doneFilteringNetworkEvents()
     if (networksBeingUpdated_.size() == 0) return true;
 
     qCDebug(LOG_BASIC) << "Filtering MAC spoofing network events";
-    ProtoTypes::NetworkInterfaces networkInterfaces = MacUtils::currentNetworkInterfaces(true);
+    ProtoTypes::NetworkInterfaces networkInterfaces = NetworkUtils_mac::currentNetworkInterfaces(true);
     for (const ProtoTypes::NetworkInterface &networkInterface : networkInterfaces.networks())
     {
         if (networksBeingUpdated_.contains(QString::fromStdString(networkInterface.interface_name())))
         {
-            if (MacUtils::isAdapterUp(QString::fromStdString(networkInterface.interface_name())))
+            if (NetworkUtils_mac::isAdapterUp(QString::fromStdString(networkInterface.interface_name())))
             {
                 networksBeingUpdated_.removeAll(QString::fromStdString(networkInterface.interface_name()));
             }
@@ -249,7 +250,7 @@ void MacAddressController_mac::autoRotateUpdateMacSpoof()
     networkDetectionManager_->getCurrentNetworkInterface(lastInterface);
 
     bool lastIsSameAsSelected = lastInterface.interface_index() == updatedMacAddrSpoofing.selected_network_interface().interface_index();
-    bool lastUp = MacUtils::isAdapterUp(QString::fromStdString(lastInterface.interface_name()));
+    bool lastUp = NetworkUtils_mac::isAdapterUp(QString::fromStdString(lastInterface.interface_name()));
 
     if (autoRotate_ && lastIsSameAsSelected && lastUp) // apply-able interface
     {
@@ -276,7 +277,7 @@ void MacAddressController_mac::autoRotateUpdateMacSpoof()
 ProtoTypes::MacAddrSpoofing MacAddressController_mac::macAddrSpoofingWithUpdatedNetworkList()
 {
     ProtoTypes::MacAddrSpoofing updatedMacAddrSpoofing = macAddrSpoofing_;
-    ProtoTypes::NetworkInterfaces networkInterfaces = MacUtils::currentNetworkInterfaces(true);
+    ProtoTypes::NetworkInterfaces networkInterfaces = NetworkUtils_mac::currentNetworkInterfaces(true);
 
     // update adapter list
     *updatedMacAddrSpoofing.mutable_network_interfaces() = networkInterfaces;
@@ -307,7 +308,7 @@ void MacAddressController_mac::applyMacAddressSpoof(const QString &interfaceName
     bool success{ true };
 
     // Can verify MAC spoof immediately on Mac (no need to wait for adapter reset like on Windows).
-    if (!MacUtils::interfaceSpoofed(interfaceName) || !MacUtils::checkMacAddr(interfaceName, macAddress))
+    if (!NetworkUtils_mac::isInterfaceSpoofed(interfaceName) || !NetworkUtils_mac::checkMacAddr(interfaceName, macAddress))
     {
         // Check if ifconfig command faild
         if (result.contains("success"))
@@ -321,7 +322,7 @@ void MacAddressController_mac::applyMacAddressSpoof(const QString &interfaceName
         // Use heavier handed spoof command sequence, which may bring down the network interface temporarily
         robustMacAddressSpoof(interfaceName, macAddress);
 
-        if (!MacUtils::interfaceSpoofed(interfaceName) || !MacUtils::checkMacAddr(interfaceName, macAddress))
+        if (!NetworkUtils_mac::isInterfaceSpoofed(interfaceName) || !NetworkUtils_mac::checkMacAddr(interfaceName, macAddress))
         {
             qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof \"robust\" failed too.";
             success = false;
@@ -346,12 +347,12 @@ void MacAddressController_mac::applyMacAddressSpoof(const QString &interfaceName
 void MacAddressController_mac::removeMacAddressSpoof(const QString &interfaceName)
 {
     helper_->enableMacSpoofingOnBoot(false, "", "");
-    QString originalMacAddress = MacUtils::trueMacAddress(interfaceName);
+    QString originalMacAddress = NetworkUtils_mac::trueMacAddress(interfaceName);
     QString commandRemoveSpoofedMacAddress = "ifconfig " + interfaceName + " ether " + originalMacAddress;
     helper_->executeRootCommand(commandRemoveSpoofedMacAddress);
 
     // if MAC address was not reset to the original one, then try the heavy handed reset
-    if (!MacUtils::checkMacAddr(interfaceName, originalMacAddress))
+    if (!NetworkUtils_mac::checkMacAddr(interfaceName, originalMacAddress))
     {
         robustMacAddressSpoof(interfaceName, originalMacAddress);
     }

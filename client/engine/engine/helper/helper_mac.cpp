@@ -1,6 +1,7 @@
 #include "helper_mac.h"
 #include "utils/logger.h"
 #include <QStandardPaths>
+#include "utils/network_utils/network_utils_mac.h"
 #include "utils/macutils.h"
 #include <QCoreApplication>
 #include "installhelper_mac.h"
@@ -55,7 +56,7 @@ bool Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
     Q_UNUSED(overrideDnsIpAddress)
 
     // get list of entries of interest
-    QStringList networkServices = MacUtils::getListOfDnsNetworkServiceEntries();
+    QStringList networkServices = NetworkUtils_mac::getListOfDnsNetworkServiceEntries();
 
     // filter list to only SetByWindscribe entries
     QStringList dnsNetworkServices;
