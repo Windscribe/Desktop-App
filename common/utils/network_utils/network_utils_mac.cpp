@@ -19,44 +19,17 @@
 
 namespace
 {
-QString ssidOfInterface(QString networkInterface)
+QString ssidOfInterface(const QString &networkInterface)
 {
-    QString strReply;
-
     QString command = "echo 'show State:/Network/Interface/" + networkInterface + "/AirPort' | scutil | grep SSID_STR | sed -e 's/.*SSID_STR : //'";
-    FILE *file = popen(command.toStdString().c_str(), "r");
-    if (file)
-    {
-        char szLine[4096];
-        while(fgets(szLine, sizeof(szLine), file) != 0)
-        {
-            strReply += szLine;
-        }
-        pclose(file);
-    }
-
-    strReply = strReply.trimmed();
-    networkInterface = strReply;
-
+    QString strReply = Utils::execCmd(command).trimmed();
     return strReply;
 }
 
 QString macAddressFromInterfaceName(const QString &interfaceName)
 {
-    char strReply[64000];
-    strReply[0] = '\0';
     QString command = "ifconfig " + interfaceName + " | grep 'ether' | awk '{print $2}'";
-    FILE *file = popen(command.toStdString().c_str(), "r");
-    if (file)
-    {
-        char szLine[4096];
-        while(fgets(szLine, sizeof(szLine), file) != 0)
-        {
-            strcat(strReply, szLine);
-        }
-        pclose(file);
-    }
-    QString strIP = QString::fromLocal8Bit(strReply).trimmed();
+    QString strIP = Utils::execCmd(command).trimmed();
     return strIP;
 }
 
@@ -64,7 +37,7 @@ QList<QString> currentNetworkHwInterfaces()
 {
     QList<QString> result;
     QString cmd = "networksetup -listnetworkserviceorder | grep Device | sed -e 's/.*Device: //' -e 's/)//'";
-    QString response = QString::fromStdString(MacUtils::execCmd(cmd.toStdString().c_str()));
+    QString response = Utils::execCmd(cmd);
 
     const QList<QString> lines = response.split("\n");
 
@@ -100,7 +73,7 @@ QString currentNetworkHwInterfaceName()
 bool isAdapterActive(const QString &networkInterface)
 {
     QString cmdInterfaceStatus = "ifconfig " + networkInterface + " | grep status | awk '{print $2}'";
-    QString statusResult = QString::fromStdString(MacUtils::execCmd(cmdInterfaceStatus.toStdString().c_str())).trimmed();
+    QString statusResult = Utils::execCmd(cmdInterfaceStatus).trimmed();
     return statusResult == "active";
 }
 
@@ -108,7 +81,7 @@ QMap<QString, int> currentHardwareInterfaceIndexes()
 {
     QMap<QString, int> result;
     QString cmd = "networksetup -listallhardwareports | grep Device | awk '{print $2}'";
-    QString response = QString::fromStdString(MacUtils::execCmd(cmd.toStdString().c_str()));
+    QString response = Utils::execCmd(cmd);
 
     const QList<QString> lines = response.split("\n");
 
@@ -235,7 +208,7 @@ ProtoTypes::NetworkInterfaces NetworkUtils_mac::currentNetworkInterfaces(bool in
 QString NetworkUtils_mac::trueMacAddress(const QString &interfaceName)
 {
     QString cmdGetTrueMAC = "networksetup -getmacaddress " + interfaceName + " | awk '{print $3}'";
-    return QString::fromStdString(MacUtils::execCmd(cmdGetTrueMAC.toStdString().c_str())).trimmed();
+    return Utils::execCmd(cmdGetTrueMAC).trimmed();
 }
 
 ProtoTypes::NetworkInterfaces NetworkUtils_mac::currentSpoofedInterfaces()
@@ -263,7 +236,7 @@ bool NetworkUtils_mac::isInterfaceSpoofed(const QString &interfaceName)
 bool NetworkUtils_mac::isWifiAdapter(const QString &networkInterface)
 {
     QString command = "echo 'list' | scutil | grep State:/Network/Interface/" + networkInterface + "/AirPort";
-    QString statusResult = QString::fromStdString(MacUtils::execCmd(command.toStdString().c_str())).trimmed();
+    QString statusResult = Utils::execCmd(command).trimmed();
     return statusResult != "";
 }
 
@@ -272,13 +245,13 @@ bool NetworkUtils_mac::isAdapterUp(const QString &networkInterfaceName)
     if (isWifiAdapter(networkInterfaceName))
     {
         QString command = "echo 'show State:/Network/Interface/" + networkInterfaceName + "/AirPort' | scutil | grep 'Power Status' | awk '{print $4}'";
-        QString result = QString::fromStdString(MacUtils::execCmd(command.toStdString().c_str())).trimmed();
+        QString result = Utils::execCmd(command).trimmed();
         return result == "TRUE";
     }
     else
     {
         QString command = "echo 'list' | scutil | grep State:/Network/Interface/" + networkInterfaceName + "/IPv4";
-        QString result = QString::fromStdString(MacUtils::execCmd(command.toStdString().c_str())).trimmed();
+        QString result = Utils::execCmd(command).trimmed();
         return result != "";
     }
 }
@@ -293,7 +266,7 @@ const ProtoTypes::NetworkInterface NetworkUtils_mac::currentNetworkInterface()
 bool NetworkUtils_mac::pingWithMtu(const QString &url, int mtu)
 {
     const QString cmd = QString("ping -c 1 -W 1000 -D -s %1 %2 2> /dev/null").arg(mtu).arg(url);
-    QString result = QString::fromStdString(MacUtils::execCmd(cmd.toStdString().c_str())).trimmed();
+    QString result = Utils::execCmd(cmd).trimmed();
 
     if (result.contains("icmp_seq="))
     {
@@ -304,18 +277,12 @@ bool NetworkUtils_mac::pingWithMtu(const QString &url, int mtu)
 
 QString NetworkUtils_mac::getLocalIP()
 {
-    QString result;
-    FILE *file = popen("ifconfig "
-                       "| grep -E \"([0-9]{1,3}\\.){3}[0-9]{1,3}\" "
-                       "| grep -vE \"127\\.([0-9]{1,3}\\.){2}[0-9]{1,3}\" "
-                       "| awk '{ print $2 }' | cut -f2 -d: | head -n1", "r");
-    if (file) {
-        char line[4096] = {};
-        while (fgets(line, sizeof(line), file) != 0)
-            result.append(QString::fromLocal8Bit(line));
-        pclose(file);
-    }
-    return result.trimmed();
+    QString command = "ifconfig "
+                      "| grep -E \"([0-9]{1,3}\\.){3}[0-9]{1,3}\" "
+                      "| grep -vE \"127\\.([0-9]{1,3}\\.){2}[0-9]{1,3}\" "
+                      "| awk '{ print $2 }' | cut -f2 -d: | head -n1";
+    QString result = Utils::execCmd(command).trimmed();
+    return result;
 }
 
 
@@ -323,18 +290,7 @@ QString NetworkUtils_mac::getLocalIP()
 void NetworkUtils_mac::getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName)
 {
     QString command = "netstat -nr -f inet | sed '1,3 d' | awk 'NR==1 { for (i=1; i<=NF; i++) { f[$i] = i  } } NR>1 && $(f[\"Destination\"])==\"default\" { print $(f[\"Gateway\"]), $(f[\"Netif\"]) ; exit }'";
-
-    QString strReply;
-    FILE *file = popen(command.toStdString().c_str(), "r");
-    if (file)
-    {
-        char szLine[4096];
-        while(fgets(szLine, sizeof(szLine), file) != 0)
-        {
-            strReply += szLine;
-        }
-        pclose(file);
-    }
+    QString strReply = Utils::execCmd(command);
     QStringList result = strReply.split(' ');
     if (result.count() == 2)
     {
@@ -434,7 +390,7 @@ QStringList NetworkUtils_mac::getListOfDnsNetworkServiceEntries()
 {
     QStringList result;
     QString command = "echo 'list' | scutil | grep /Network/Service | grep DNS";
-    QString cmdOutput = QString::fromStdString(MacUtils::execCmd(command.toStdString().c_str())).trimmed();
+    QString cmdOutput = Utils::execCmd(command).trimmed();
     // qDebug() << "Raw result: " << cmdOutput;
 
     QStringList lines = cmdOutput.split('\n');

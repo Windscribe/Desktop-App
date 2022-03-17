@@ -22,8 +22,6 @@ namespace MacUtils
     void setHandCursor();
     void setArrowCursor();
 
-    std::string execCmd(const char* cmd);
-
     // CLI
     bool isGuiAlreadyRunning();
     bool showGui();

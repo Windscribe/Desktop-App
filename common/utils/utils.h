@@ -50,5 +50,8 @@ namespace Utils {
 
     bool copyDirectoryRecursive(QString fromDir, QString toDir);
     bool removeDirectory(const QString dir);
+
+    QString execCmd(const QString &cmd);
+
 }
 #endif // UTILS_H

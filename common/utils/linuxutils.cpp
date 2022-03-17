@@ -105,23 +105,6 @@ const QString getLastInstallPlatform()
     return linuxPlatformName;
 }
 
-std::string execCmd(const char *cmd)
-{
-    char buffer[128];
-    std::string result = "";
-    FILE* pipe = popen(cmd, "r");
-    if (!pipe) return "";
-    while (!feof(pipe))
-    {
-        if (fgets(buffer, 128, pipe) != NULL)
-        {
-            result += buffer;
-        }
-    }
-    pclose(pipe);
-    return result;
-}
-
 bool isGuiAlreadyRunning()
 {
     // Look for process containing "Windscribe" -- exclude grep and Engine

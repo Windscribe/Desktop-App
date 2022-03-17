@@ -69,13 +69,17 @@ macx {
     INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
     LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
 
+    SOURCES += \
+        $$COMMON_PATH/utils/network_utils/network_utils_mac.cpp
+
     OBJECTIVE_SOURCES += \
             $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm \
             $$COMMON_PATH/utils/macutils.mm
 
     HEADERS += \
             $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h \
-            $$COMMON_PATH/utils/macutils.h
+            $$COMMON_PATH/utils/macutils.h \
+            $$COMMON_PATH/utils/network_utils/network_utils_mac.h
 }
 
 linux {

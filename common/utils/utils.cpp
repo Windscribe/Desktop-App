@@ -446,3 +446,20 @@ QString Utils::getPlatformNameSafe()
 #endif
     return platform;
 }
+
+QString Utils::execCmd(const QString &cmd)
+{
+    char buffer[1024];
+    QString result = "";
+    FILE* pipe = popen(cmd.toStdString().c_str(), "r");
+    if (!pipe) return "";
+    while (!feof(pipe))
+    {
+        if (fgets(buffer, 1024, pipe) != NULL)
+        {
+            result += buffer;
+        }
+    }
+    pclose(pipe);
+    return result;
+}

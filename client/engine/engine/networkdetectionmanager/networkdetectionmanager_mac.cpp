@@ -3,6 +3,7 @@
 #include <QRegularExpression>
 #include "../networkdetectionmanager/reachabilityevents.h"
 #include "utils/network_utils/network_utils_mac.h"
+#include "utils/macutils.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 
@@ -118,19 +119,8 @@ bool NetworkDetectionManager_mac::isWifiAdapterUp(const ProtoTypes::NetworkInter
 
 bool NetworkDetectionManager_mac::isOnlineImpl()
 {
-    QString strReply;
-    FILE *file = popen("echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryInterface | sed -e 's/.*PrimaryInterface : //'", "r");
-    if (file)
-    {
-        char szLine[4096];
-        while(fgets(szLine, sizeof(szLine), file) != 0)
-        {
-            strReply += szLine;
-        }
-        pclose(file);
-    }
-
-    strReply = strReply.trimmed();
+    QString command = "netstat -nr -f inet | sed '1,3 d' | awk 'NR==1 { for (i=1; i<=NF; i++) { f[$i] = i  } } NR>1 && $(f[\"Destination\"])==\"default\" { print $(f[\"Gateway\"]), $(f[\"Netif\"]) ; exit }'";
+    QString strReply = Utils::execCmd(command).trimmed();
     return !strReply.isEmpty();
 }
 

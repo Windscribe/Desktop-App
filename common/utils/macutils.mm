@@ -3,6 +3,7 @@
 #include <AppKit/AppKit.h>
 
 #include "logger.h"
+#import "utils.h"
 #import "macutils.h"
 #include "names.h"
 #include <QDir>
@@ -15,7 +16,7 @@ namespace {
 QList<QString> listedCmdResults(const QString &cmd)
 {
     QList<QString> result;
-    QString response = QString::fromStdString(MacUtils::execCmd(cmd.toStdString().c_str()));
+    QString response = Utils::execCmd(cmd);
 
     const QList<QString> lines = response.split("\n");
     for (const QString &line : lines)
@@ -52,8 +53,8 @@ void MacUtils::invalidateCursorRects(void *pNSView)
 
 void MacUtils::getOSVersionAndBuild(QString &osVersion, QString &build)
 {
-    osVersion = QString::fromStdString(execCmd("sw_vers -productVersion")).trimmed();
-    build = QString::fromStdString(execCmd("sw_vers -buildVersion")).trimmed();
+    osVersion = Utils::execCmd("sw_vers -productVersion").trimmed();
+    build = Utils::execCmd("sw_vers -buildVersion").trimmed();
 }
 
 QString MacUtils::getOsVersion()
@@ -110,28 +111,11 @@ void MacUtils::setArrowCursor()
     [[NSCursor arrowCursor] set];
 }
 
-std::string MacUtils::execCmd(const char *cmd)
-{
-    char buffer[128];
-    std::string result = "";
-    FILE* pipe = popen(cmd, "r");
-    if (!pipe) return "";
-    while (!feof(pipe))
-    {
-        if (fgets(buffer, 128, pipe) != NULL)
-        {
-            result += buffer;
-        }
-    }
-    pclose(pipe);
-    return result;
-}
-
 bool MacUtils::isGuiAlreadyRunning()
 {
     // Look for process containing "Windscribe" -- exclude grep and Engine
     QString cmd = "ps axco command | grep Windscribe | grep -v grep | grep -v WindscribeEngine | grep -v windscribe-cli";
-    QString response = QString::fromStdString(execCmd(cmd.toStdString().c_str()));
+    QString response = Utils::execCmd(cmd);
     return response.trimmed() != "";
 }
 
