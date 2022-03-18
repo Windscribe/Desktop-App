@@ -95,11 +95,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
         configFile = tr("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation), serviceIdentifier);
 
-        if (!wireGuardConfig->generateConfigFile(configFile)) {
-            throw std::system_error(0, std::generic_category(),
-                std::string("WireGuardConfig::generateConfigFile could not create file ") + configFile.toStdString());
-        }
-
         // Installing the wireguard service requires admin privilege.
         IHelper::ExecuteError err = helper_->startWireGuard(getWireGuardExeName(), configFile);
         if (err != IHelper::EXECUTE_SUCCESS)
@@ -113,6 +108,11 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
             throw std::system_error(0, std::generic_category(),
                 std::string("Windscribe service could not install the WireGuard service"));
         }
+
+        // If there was a running instance of the wireguard service, the helper (startWireGuard call) will
+        // have stopped it and it will have deleted the existing config file.  Therefore, don't create our
+        // new config file until we're sure the wireguard service is stopped.
+        wireGuardConfig->generateConfigFile(configFile);
 
         // The wireguard service creates the log file in the same folder as the config file we passed to it.
         // We must create this log file watcher before we start the wireguard service to ensure we get

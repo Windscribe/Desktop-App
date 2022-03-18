@@ -24,7 +24,7 @@ public:
     QString peerEndpoint() const { return peer_.endpoint; }
     QString peerAllowedIps() const { return peer_.allowedIps; }
 
-    bool generateConfigFile(const QString &fileName) const;
+    void generateConfigFile(const QString &fileName) const;
 
     static QString stripIpv6Address(const QStringList &addressList);
     static QString stripIpv6Address(const QString &addressList);
