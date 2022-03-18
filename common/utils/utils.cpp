@@ -28,7 +28,7 @@ QString Utils::getPlatformName()
 #ifdef Q_OS_WIN
     return "windows";
 #elif defined Q_OS_MAC
-    return "osx";
+    return "macos";
 #elif defined Q_OS_LINUX
     return LinuxUtils::getLastInstallPlatform();
 #endif

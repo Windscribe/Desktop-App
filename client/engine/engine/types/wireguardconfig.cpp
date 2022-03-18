@@ -87,8 +87,8 @@ void WireGuardConfig::generateConfigFile(const QString &fileName) const
 
     if (!bResult) {
         throw std::system_error(0, std::generic_category(),
-            std::string("WireGuardConfig::generateConfigFile could not create file ") + fileName.toStdString() +
-            std::string(" (") + theFile.errorString().toStdString() + std::string(")"));
+            std::string("WireGuardConfig::generateConfigFile could not create file '") + fileName.toStdString() +
+            std::string("' (") + theFile.errorString().toStdString() + std::string(")"));
     }
 
     QTextStream ts(&theFile);
@@ -128,7 +128,6 @@ void WireGuardConfig::reset()
     peer_.presharedKey.clear();
     peer_.endpoint.clear();
     peer_.allowedIps.clear();
-    keyPairGeneratedTimestamp_ = QDateTime();
 }
 
 bool WireGuardConfig::generateKeyPair()
@@ -180,7 +179,11 @@ bool WireGuardConfig::generateKeyPair()
 
     client_.privateKey = privateKey.toBase64();
     peer_.publicKey = publicKey.toBase64();
-    keyPairGeneratedTimestamp_ = QDateTime::currentDateTimeUtc();
 
     return true;
+}
+
+bool WireGuardConfig::haveKeyPair() const
+{
+    return !client_.privateKey.isEmpty() && !peer_.publicKey.isEmpty();
 }

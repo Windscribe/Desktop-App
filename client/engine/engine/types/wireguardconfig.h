@@ -1,7 +1,6 @@
 #ifndef WIREGUARDCONFIG_H
 #define WIREGUARDCONFIG_H
 
-#include <QDateTime>
 #include <QJsonObject>
 #include <QString>
 
@@ -29,6 +28,7 @@ public:
     void generateConfigFile(const QString &fileName) const;
 
     bool generateKeyPair();
+    bool haveKeyPair() const;
 
     static QString stripIpv6Address(const QStringList &addressList);
     static QString stripIpv6Address(const QString &addressList);
@@ -45,8 +45,6 @@ private:
         QString endpoint;
         QString allowedIps;
     } peer_;
-
-    QDateTime keyPairGeneratedTimestamp_;
 };
 
 #endif // WIREGUARDCONFIG_H

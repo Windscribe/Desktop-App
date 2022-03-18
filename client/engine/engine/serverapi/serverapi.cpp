@@ -272,6 +272,38 @@ private:
     quint64 commandId_;
     bool bWriteLog_;
 };
+
+class WireGuardRequest : public AuthenticatedRequest
+{
+public:
+    WireGuardRequest(const QString &authhash, const QString &hostname,
+                     int replyType, uint timeout, uint userRole, QSharedPointer<WireGuardConfig> config)
+        : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole), wireGuardConfig_(config)
+    {}
+
+    bool generateKeyPair();
+    bool haveKeyPair() const;
+    QString publicKey() const;
+
+private:
+    QSharedPointer<WireGuardConfig> wireGuardConfig_;
+};
+
+bool WireGuardRequest::haveKeyPair() const
+{
+    return wireGuardConfig_->haveKeyPair();
+}
+
+bool WireGuardRequest::generateKeyPair()
+{
+    return wireGuardConfig_->generateKeyPair();
+}
+
+QString WireGuardRequest::publicKey() const
+{
+    return wireGuardConfig_->peerPublicKey();
+}
+
 } // namespace
 
 ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
@@ -314,7 +346,7 @@ ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
     handleDnsResolveFuncTable_[REPLY_NOTIFICATIONS] = &ServerAPI::handleNotificationsDnsResolve;
     handleDnsResolveFuncTable_[REPLY_STATIC_IPS] = &ServerAPI::handleStaticIpsDnsResolve;
     handleDnsResolveFuncTable_[REPLY_CONFIRM_EMAIL] = &ServerAPI::handleConfirmEmailDnsResolve;
-    handleDnsResolveFuncTable_[REPLY_WIREGUARD_CONFIG] = &ServerAPI::handleWireGuardConfigDnsResolve;
+    handleDnsResolveFuncTable_[REPLY_WIREGUARD_INIT] = &ServerAPI::handleWireGuardConfigDnsResolve;
     handleDnsResolveFuncTable_[REPLY_WEB_SESSION] = &ServerAPI::handleWebSessionDnsResolve;
 
     handleCurlReplyFuncTable_[REPLY_ACCESS_IPS] = &ServerAPI::handleAccessIpsCurl;
@@ -334,7 +366,7 @@ ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
     handleCurlReplyFuncTable_[REPLY_NOTIFICATIONS] = &ServerAPI::handleNotificationsCurl;
     handleCurlReplyFuncTable_[REPLY_STATIC_IPS] = &ServerAPI::handleStaticIpsCurl;
     handleCurlReplyFuncTable_[REPLY_CONFIRM_EMAIL] = &ServerAPI::handleConfirmEmailCurl;
-    handleCurlReplyFuncTable_[REPLY_WIREGUARD_CONFIG] = &ServerAPI::handleWireGuardConfigCurl;
+    handleCurlReplyFuncTable_[REPLY_WIREGUARD_INIT] = &ServerAPI::handleWireGuardConfigCurl;
     handleCurlReplyFuncTable_[REPLY_WEB_SESSION] = &ServerAPI::handleWebSessionCurl;
 
     connect(&requestTimer_, SIGNAL(timeout()), SLOT(onRequestTimer()));
@@ -778,7 +810,8 @@ void ServerAPI::notifications(const QString &authHash, uint userRole, bool isNee
         authHash, hostname_, REPLY_NOTIFICATIONS, NETWORK_TIMEOUT, userRole));
 }
 
-void ServerAPI::getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled)
+void ServerAPI::getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled,
+                                   QSharedPointer<WireGuardConfig> config)
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
@@ -787,8 +820,12 @@ void ServerAPI::getWireGuardConfig(const QString &authHash, uint userRole, bool 
         return;
     }
 
-    submitDnsRequest(createRequest<AuthenticatedRequest>(
-        authHash, hostname_, REPLY_WIREGUARD_CONFIG, NETWORK_TIMEOUT, userRole));
+    if (config.isNull()) {
+        config.reset(new WireGuardConfig());
+    }
+
+    submitDnsRequest(createRequest<WireGuardRequest>(
+        authHash, hostname_, REPLY_WIREGUARD_INIT, NETWORK_TIMEOUT, userRole, config));
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
@@ -1353,7 +1390,7 @@ void ServerAPI::handleNotificationsDnsResolve(BaseRequest *rd, bool success, con
 
 void ServerAPI::handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
-    auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
+    auto *crd = dynamic_cast<WireGuardRequest*>(rd);
     Q_ASSERT(crd);
 
     if (!success) {
@@ -1363,19 +1400,32 @@ void ServerAPI::handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, c
         return;
     }
 
+#error Don't need to call /WgConfigs/init if we already have a key-pair, skip to /WgConfigs/connect
+
+    if (!crd->haveKeyPair()) {
+        if (!crd->generateKeyPair()) {
+            emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR,
+                QSharedPointer<WireGuardConfig>(), crd->getUserRole());
+            return;
+        }
+    }
+
     time_t timestamp;
     time(&timestamp);
     QString strTimestamp = QString::number(timestamp);
     QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
 
-    QUrl url("https://" + crd->getHostname() + "/WgConfigs?time=" + strTimestamp
+#error Does publicKey need to be encoded?
+
+    QUrl url("https://" + crd->getHostname() + "/WgConfigs/init?time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + Utils::getPlatformNameSafe());
+             + "&platform=" + Utils::getPlatformNameSafe()
+             + "&wg_pubkey=" + crd->publicKey());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
-    submitCurlRequest(crd, CurlRequest::METHOD_GET, QString(), crd->getHostname(), ips);
+    submitCurlRequest(crd, CurlRequest::METHOD_POST, QString(), crd->getHostname(), ips);
 }
 
 void ServerAPI::handleWebSessionDnsResolve(ServerAPI::BaseRequest *rd, bool success, const QStringList &ips)

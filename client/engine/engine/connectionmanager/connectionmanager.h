@@ -72,6 +72,7 @@ public:
 
     void setWireGuardConfig(QSharedPointer<WireGuardConfig> config);
     void resetWireGuardConfig();
+    QSharedPointer<WireGuardConfig> wireGuardConfig();
 
     void setMss(int mss);
     void setPacketSize(ProtoTypes::PacketSize ps);

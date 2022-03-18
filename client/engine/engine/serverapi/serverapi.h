@@ -67,7 +67,7 @@ public:
     void cancelPingTest(quint64 cmdId);
 
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-    void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
+    void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, QSharedPointer<WireGuardConfig> config);
 
     void setIgnoreSslErrors(bool bIgnore);
 
@@ -128,7 +128,8 @@ private:
         REPLY_NOTIFICATIONS,
         REPLY_STATIC_IPS,
         REPLY_CONFIRM_EMAIL,
-        REPLY_WIREGUARD_CONFIG,
+        REPLY_WIREGUARD_INIT,
+        REPLY_WIREGUARD_CONNECT,
         REPLY_WEB_SESSION,
         NUM_REPLY_TYPES
     };

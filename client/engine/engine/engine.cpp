@@ -2075,7 +2075,7 @@ void Engine::fetchWireGuardConfig()
     if (serverAPI_->isRequestsEnabled()) {
         if (fetchWireguardConfigTimer_)
             fetchWireguardConfigTimer_->stop();
-        serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+        serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true, connectionManager_->wireGuardConfig());
     }
 }
 

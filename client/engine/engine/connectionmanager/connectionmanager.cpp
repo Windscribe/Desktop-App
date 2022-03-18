@@ -951,13 +951,13 @@ void ConnectionManager::doConnectPart2()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            // If WireGuard config data don't exist, fetch it now.
-            if (!wireGuardConfig_) {
-                qCDebug(LOG_CONNECTION) << "Missing WireGuard user config, requesting a new one";
+            if (!wireGuardConfig_)
+            {
+                qCDebug(LOG_CONNECTION) << "Generating WireGuard config";
                 Q_EMIT getWireGuardConfig();
                 return;
             }
-            qCDebug(LOG_CONNECTION) << "Using existing WireGuard user config";
+            qCDebug(LOG_CONNECTION) << "Using existing WireGuard config";
         }
     }
     else if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
@@ -1280,6 +1280,11 @@ void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> confi
 void ConnectionManager::resetWireGuardConfig()
 {
     wireGuardConfig_.reset();
+}
+
+QSharedPointer<WireGuardConfig> ConnectionManager::wireGuardConfig()
+{
+    return wireGuardConfig_;
 }
 
 bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const
