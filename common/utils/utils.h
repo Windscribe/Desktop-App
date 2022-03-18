@@ -51,7 +51,9 @@ namespace Utils {
     bool copyDirectoryRecursive(QString fromDir, QString toDir);
     bool removeDirectory(const QString dir);
 
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     QString execCmd(const QString &cmd);
+#endif
 
 }
 #endif // UTILS_H

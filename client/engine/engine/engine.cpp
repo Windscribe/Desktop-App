@@ -28,6 +28,7 @@
 
 #ifdef Q_OS_WIN
     #include "utils/bfe_service_win.h"
+    #include "utils/winutils.h"
     #include "engine/dnsinfo_win.h"
     #include "engine/taputils/checkadapterenable.h"
     #include "engine/taputils/tapinstall_win.h"
@@ -606,7 +607,7 @@ void Engine::initPart2()
 #ifdef Q_OS_MAC
     *macAddrSpoofing.mutable_network_interfaces() = NetworkUtils_mac::currentNetworkInterfaces(true);
 #elif defined Q_OS_WIN
-    todo
+    *macAddrSpoofing.mutable_network_interfaces() = WinUtils::currentNetworkInterfaces(true);
 #elif define Q_OS_LINUX
     todo
 #endif

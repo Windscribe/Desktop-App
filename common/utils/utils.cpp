@@ -447,6 +447,7 @@ QString Utils::getPlatformNameSafe()
     return platform;
 }
 
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
 QString Utils::execCmd(const QString &cmd)
 {
     char buffer[1024];
@@ -463,3 +464,4 @@ QString Utils::execCmd(const QString &cmd)
     pclose(pipe);
     return result;
 }
+#endif
