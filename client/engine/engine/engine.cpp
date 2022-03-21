@@ -645,8 +645,7 @@ void Engine::initPart2()
     connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
                         SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(getWireGuardConfigAnswer(SERVER_API_RET_CODE, QSharedPointer<WireGuardConfig>, uint)),
-        SLOT(onGetWireGuardConfigAnswer(SERVER_API_RET_CODE, QSharedPointer<WireGuardConfig>, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, &ServerAPI::getWireGuardConfigAnswer, this, &Engine::onGetWireGuardConfigAnswer, Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)));
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
@@ -1654,12 +1653,10 @@ void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::Stati
     }
 }
 
-void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole)
+void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole)
 {
-    if (userRole == serverApiUserRole_ && retCode == SERVER_RETURN_SUCCESS)
-        connectionManager_->setWireGuardConfig(config);
-    else
-        connectionManager_->setWireGuardConfig(QSharedPointer<WireGuardConfig>());
+    bool success = (userRole == serverApiUserRole_ && retCode == SERVER_RETURN_SUCCESS);
+    connectionManager_->onWireGuardConfigRequestComplete(success);
 }
 
 void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole)
@@ -2075,7 +2072,9 @@ void Engine::fetchWireGuardConfig()
     if (serverAPI_->isRequestsEnabled()) {
         if (fetchWireguardConfigTimer_)
             fetchWireguardConfigTimer_->stop();
-        serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true, connectionManager_->wireGuardConfig());
+        serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true,
+                                       connectionManager_->wireGuardConfig(),
+                                       connectionManager_->wireGuardHostname());
     }
 }
 

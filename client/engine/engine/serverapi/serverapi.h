@@ -67,7 +67,7 @@ public:
     void cancelPingTest(quint64 cmdId);
 
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-    void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, QSharedPointer<WireGuardConfig> config);
+    void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, WireGuardConfig &config, const QString &serverName);
 
     void setIgnoreSslErrors(bool bIgnore);
 
@@ -90,7 +90,7 @@ signals:
     void staticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
     void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<apiinfo::Notification> notifications, uint userRole);
-    void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
+    void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void webSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
     void sendUserWarning(ProtoTypes::UserWarningType warning);
 
@@ -185,8 +185,11 @@ private:
     void handlePingTestCurl(BaseRequest *rd, bool success);
     void handleNotificationsCurl(BaseRequest *rd, bool success);
     void handleStaticIpsCurl(BaseRequest *rd, bool success);
-    void handleWireGuardConfigCurl(BaseRequest *rd, bool success);
+    void handleWireGuardInitCurl(BaseRequest *rd, bool success);
+    void handleWireGuardConnectCurl(BaseRequest *rd, bool success);
     void handleWebSessionCurl(BaseRequest *rd, bool success);
+
+    void submitWireGuardConnectRequest(BaseRequest *rd);
 
     CurlNetworkManager curlNetworkManager_;
 

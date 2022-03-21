@@ -31,7 +31,7 @@ struct CurrentConnectionDescr
     bool isAllowFirewallAfterConnection;
 
     // fields for WireGuard
-    // TODO: JDRM why do we have this field when it is part of WireGuardConfig?
+    // TODO: JDRM see if we can get rid of this, since we generate the public key now.
     QString wgPublicKey;
     QSharedPointer<WireGuardConfig> wgCustomConfig;
 

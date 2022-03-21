@@ -29,13 +29,6 @@ WireGuardController::WireGuardController()
 
 bool WireGuardController::installService(const std::wstring &exeName, const std::wstring &configFile)
 {
-    if (!Utils::isFileExists(configFile.c_str()))
-    {
-        Logger::instance().out(
-            L"WireGuardController::installService - the WireGuard configuration file does not exist (%s)", configFile.c_str());
-        return false;
-    }
-
     is_initialized_ = false;
     try
     {

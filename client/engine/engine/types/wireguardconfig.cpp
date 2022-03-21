@@ -27,31 +27,28 @@ WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAdd
     peer_.allowedIps = allowedIps;
 }
 
-bool WireGuardConfig::initFromJson(QJsonObject &init_obj)
+bool WireGuardConfig::onInitResponse(const QJsonObject &obj)
 {
-    if (!init_obj.contains("PrivateKey") ||
-        !init_obj.contains("Address") ||
-        !init_obj.contains("DNS"))
-        return false;
+    if (obj.contains("PresharedKey") && obj.contains("AllowedIPs"))
+    {
+        peer_.presharedKey = obj["PresharedKey"].toString();
+        peer_.allowedIps   = WireGuardConfig::stripIpv6Address(obj["AllowedIPs"].toString());
+        return true;
+    }
 
-    client_.privateKey = init_obj["PrivateKey"].toString();
-    client_.ipAddress = WireGuardConfig::stripIpv6Address(init_obj["Address"].toString());
-    client_.dnsAddress = WireGuardConfig::stripIpv6Address(init_obj["DNS"].toString());
+    return false;
+}
 
-    peer_.publicKey.clear();
-    peer_.endpoint.clear();
+bool WireGuardConfig::onConnectResponse(const QJsonObject &obj)
+{
+    if (obj.contains("Address") && obj.contains("DNS"))
+    {
+        client_.ipAddress  = WireGuardConfig::stripIpv6Address(obj["Address"].toString());
+        client_.dnsAddress = WireGuardConfig::stripIpv6Address(obj["DNS"].toString());
+        return true;
+    }
 
-    if (init_obj.contains("PresharedKey"))
-        peer_.presharedKey = init_obj["PresharedKey"].toString();
-    else
-        peer_.presharedKey.clear();
-
-    if (init_obj.contains("AllowedIPs"))
-        peer_.allowedIps = WireGuardConfig::stripIpv6Address(init_obj["AllowedIPs"].toString());
-    else
-        peer_.allowedIps = "0.0.0.0/0";
-
-    return true;
+    return false;
 }
 
 void WireGuardConfig::updatePeerInfo(const QString &publicKey, const QString &endpoint)
@@ -122,6 +119,7 @@ void WireGuardConfig::reset()
 {
     // TODO: JDRM ensure this method is called when the session API indicates the user's account has been disabled (over GB limit, banned, etc.).
     client_.privateKey.clear();
+    client_.publicKey.clear();
     client_.ipAddress.clear();
     client_.dnsAddress.clear();
     peer_.publicKey.clear();
@@ -165,7 +163,7 @@ bool WireGuardConfig::generateKeyPair()
         return false;
     }
 
-    QByteArray privateKey = QByteArray::fromRawData((const char*)keyBuf, keyBufLen);
+    QByteArray privateKey((const char*)keyBuf, keyBufLen);
 
     keyBufLen = 64;
     nResult = EVP_PKEY_get_raw_public_key(keyX25519.pkey(), keyBuf, &keyBufLen);
@@ -175,15 +173,15 @@ bool WireGuardConfig::generateKeyPair()
         return false;
     }
 
-    QByteArray publicKey = QByteArray::fromRawData((const char*)keyBuf, keyBufLen);
+    QByteArray publicKey((const char*)keyBuf, keyBufLen);
 
     client_.privateKey = privateKey.toBase64();
-    peer_.publicKey = publicKey.toBase64();
+    client_.publicKey = publicKey.toBase64();
 
     return true;
 }
 
 bool WireGuardConfig::haveKeyPair() const
 {
-    return !client_.privateKey.isEmpty() && !peer_.publicKey.isEmpty();
+    return !client_.privateKey.isEmpty() && !client_.publicKey.isEmpty();
 }

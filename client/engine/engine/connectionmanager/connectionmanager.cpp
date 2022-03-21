@@ -951,13 +951,9 @@ void ConnectionManager::doConnectPart2()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            if (!wireGuardConfig_)
-            {
-                qCDebug(LOG_CONNECTION) << "Generating WireGuard config";
-                Q_EMIT getWireGuardConfig();
-                return;
-            }
-            qCDebug(LOG_CONNECTION) << "Using existing WireGuard config";
+            qCDebug(LOG_CONNECTION) << "Requesting WireGuard config from server for hostname=" << currentConnectionDescr_.hostname;
+            Q_EMIT getWireGuardConfig();
+            return;
         }
     }
     else if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
@@ -1062,7 +1058,7 @@ void ConnectionManager::doConnectPart3()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            Q_ASSERT(wireGuardConfig_ != nullptr);
+            Q_ASSERT(!wireGuardConfig_.isNull());
             QString endpointAndPort = QString("%1:%2")
                 .arg(currentConnectionDescr_.ip)
                 .arg(currentConnectionDescr_.port);
@@ -1254,20 +1250,16 @@ void ConnectionManager::onHostnamesResolved()
     doConnectPart2();
 }
 
-void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> config)
+void ConnectionManager::onWireGuardConfigRequestComplete(bool success)
 {
-    if (config) {
-        // Config fetched successfully.
-        wireGuardConfig_ = config;
-    }
-
     // If the protocol has been changed, do nothing.
     if (!currentConnectionDescr_.protocol.isWireGuardProtocol())
         return;
 
-    if (config) {
+    if (success) {
         doConnectPart3();
-    } else {
+    }
+    else {
         // Failed to fetch a config, stop connection.
         state_ = STATE_AUTO_DISCONNECT;
         if (connector_)
@@ -1279,12 +1271,22 @@ void ConnectionManager::setWireGuardConfig(QSharedPointer<WireGuardConfig> confi
 
 void ConnectionManager::resetWireGuardConfig()
 {
-    wireGuardConfig_.reset();
+    if (!wireGuardConfig_.isNull()) {
+        wireGuardConfig_->reset();
+    }
 }
 
-QSharedPointer<WireGuardConfig> ConnectionManager::wireGuardConfig()
+WireGuardConfig &ConnectionManager::wireGuardConfig()
 {
-    return wireGuardConfig_;
+    if (wireGuardConfig_.isNull()) {
+        wireGuardConfig_.reset(new WireGuardConfig());
+    }
+    return *wireGuardConfig_;
+}
+
+QString ConnectionManager::wireGuardHostname() const
+{
+    return currentConnectionDescr_.hostname;
 }
 
 bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const

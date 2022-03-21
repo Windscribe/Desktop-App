@@ -12,11 +12,13 @@ public:
                     const QString &publicKey, const QString &presharedKey, const QString &endpoint,
                     const QString &allowedIps);
 
-    bool initFromJson(QJsonObject &obj);
+    bool onInitResponse(const QJsonObject &obj);
+    bool onConnectResponse(const QJsonObject &obj);
     void updatePeerInfo(const QString &publicKey, const QString &endpoint);
     void reset();
 
     QString clientPrivateKey() const { return client_.privateKey; }
+    QString clientPublicKey() const { return client_.publicKey; }
     QString clientIpAddress() const { return client_.ipAddress; }
     QString clientDnsAddress() const { return client_.dnsAddress; }
 
@@ -36,6 +38,7 @@ public:
 private:
     struct {
         QString privateKey;
+        QString publicKey;
         QString ipAddress;
         QString dnsAddress;
     } client_;

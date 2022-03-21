@@ -70,9 +70,10 @@ public:
     bool isStaticIpsLocation() const;
     apiinfo::StaticIpPortsVector getStatisIps();
 
-    void setWireGuardConfig(QSharedPointer<WireGuardConfig> config);
+    void onWireGuardConfigRequestComplete(bool success);
     void resetWireGuardConfig();
-    QSharedPointer<WireGuardConfig> wireGuardConfig();
+    WireGuardConfig& wireGuardConfig();
+    QString wireGuardHostname() const;
 
     void setMss(int mss);
     void setPacketSize(ProtoTypes::PacketSize ps);
@@ -179,7 +180,7 @@ private:
 
     ProtoTypes::PacketSize packetSize_;
 
-    QSharedPointer<WireGuardConfig> wireGuardConfig_;
+    QScopedPointer<WireGuardConfig> wireGuardConfig_;
 
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;

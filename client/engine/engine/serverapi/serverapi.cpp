@@ -21,8 +21,6 @@
     #include "utils/linuxutils.h"
 #endif
 
-const int typeIdWireGuardConfig = qRegisterMetaType<QSharedPointer<WireGuardConfig> >("QSharedPointer<WireGuardConfig>");
-
 class ServerAPI::BaseRequest
 {
 public:
@@ -42,6 +40,7 @@ public:
     void setActive(bool value) { isActive_ = value; }
     void setCurlRequestSubmitted(bool value) { isCurlRequestSubmitted_ = value; }
     void setWaitingHandlerType(HandlerType type) { handlerType_ = type; }
+    void setReplyType(int type) { replyType_ = type; }
 
     bool isActive() const { return isActive_; }
     bool isCurlRequestSubmitted() const { return isCurlRequestSubmitted_; }
@@ -55,7 +54,9 @@ public:
 
     CurlRequest *getCurlRequest() const { return curlRequest_; }
     CurlRequest *createCurlRequest() {
-        Q_ASSERT(!curlRequest_);
+        if (curlRequest_ != nullptr) {
+            delete curlRequest_;
+        }
         curlRequest_ = new CurlRequest;
         curlRequest_->setTimeout(timeout_);
         return curlRequest_;
@@ -276,32 +277,66 @@ private:
 class WireGuardRequest : public AuthenticatedRequest
 {
 public:
-    WireGuardRequest(const QString &authhash, const QString &hostname,
-                     int replyType, uint timeout, uint userRole, QSharedPointer<WireGuardConfig> config)
-        : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole), wireGuardConfig_(config)
+    WireGuardRequest(const QString &authhash, const QString &hostname, int replyType, uint timeout,
+                     uint userRole, WireGuardConfig& config, const QString &serverName)
+        : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole), wireGuardConfig_(config), serverName_(serverName)
     {}
 
     bool generateKeyPair();
     bool haveKeyPair() const;
     QString publicKey() const;
+    QString serverName() const;
+
+    bool onConnectResponse(const QJsonObject &obj);
+    bool onInitResponse(const QJsonObject &obj);
+
+    const QStringList& ips() const;
+    void setIPs(const QStringList &ips);
 
 private:
-    QSharedPointer<WireGuardConfig> wireGuardConfig_;
+    WireGuardConfig& wireGuardConfig_;
+    QString serverName_;
+    QStringList ips_;
 };
 
 bool WireGuardRequest::haveKeyPair() const
 {
-    return wireGuardConfig_->haveKeyPair();
+    return wireGuardConfig_.haveKeyPair();
 }
 
 bool WireGuardRequest::generateKeyPair()
 {
-    return wireGuardConfig_->generateKeyPair();
+    return wireGuardConfig_.generateKeyPair();
 }
 
 QString WireGuardRequest::publicKey() const
 {
-    return wireGuardConfig_->peerPublicKey();
+    return wireGuardConfig_.clientPublicKey();
+}
+
+bool WireGuardRequest::onInitResponse(const QJsonObject &obj)
+{
+    return wireGuardConfig_.onInitResponse(obj);
+}
+
+bool WireGuardRequest::onConnectResponse(const QJsonObject &obj)
+{
+    return wireGuardConfig_.onConnectResponse(obj);
+}
+
+const QStringList& WireGuardRequest::ips() const
+{
+    return ips_;
+}
+
+void WireGuardRequest::setIPs(const QStringList &ips)
+{
+    ips_ = ips;
+}
+
+QString WireGuardRequest::serverName() const
+{
+    return serverName_;
 }
 
 } // namespace
@@ -366,8 +401,9 @@ ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
     handleCurlReplyFuncTable_[REPLY_NOTIFICATIONS] = &ServerAPI::handleNotificationsCurl;
     handleCurlReplyFuncTable_[REPLY_STATIC_IPS] = &ServerAPI::handleStaticIpsCurl;
     handleCurlReplyFuncTable_[REPLY_CONFIRM_EMAIL] = &ServerAPI::handleConfirmEmailCurl;
-    handleCurlReplyFuncTable_[REPLY_WIREGUARD_INIT] = &ServerAPI::handleWireGuardConfigCurl;
+    handleCurlReplyFuncTable_[REPLY_WIREGUARD_INIT] = &ServerAPI::handleWireGuardInitCurl;
     handleCurlReplyFuncTable_[REPLY_WEB_SESSION] = &ServerAPI::handleWebSessionCurl;
+    handleCurlReplyFuncTable_[REPLY_WIREGUARD_CONNECT] = &ServerAPI::handleWireGuardConnectCurl;
 
     connect(&requestTimer_, SIGNAL(timeout()), SLOT(onRequestTimer()));
     requestTimer_.start(REQUEST_POLL_INTERVAL_MS);
@@ -811,21 +847,16 @@ void ServerAPI::notifications(const QString &authHash, uint userRole, bool isNee
 }
 
 void ServerAPI::getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled,
-                                   QSharedPointer<WireGuardConfig> config)
+                                   WireGuardConfig &config, const QString& serverName)
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit getWireGuardConfigAnswer(SERVER_RETURN_API_NOT_READY,
-            QSharedPointer<WireGuardConfig>(), userRole);
+        emit getWireGuardConfigAnswer(SERVER_RETURN_API_NOT_READY, userRole);
         return;
     }
 
-    if (config.isNull()) {
-        config.reset(new WireGuardConfig());
-    }
-
     submitDnsRequest(createRequest<WireGuardRequest>(
-        authHash, hostname_, REPLY_WIREGUARD_INIT, NETWORK_TIMEOUT, userRole, config));
+        authHash, hostname_, REPLY_WIREGUARD_INIT, NETWORK_TIMEOUT, userRole, config, serverName));
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
@@ -886,12 +917,16 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
             (this->*handleCurlReplyFuncTable_[reply_type])(rd, true);
     }
 
-    if (rd->isWaitingForCurlResponse())
-        rd->setWaitingHandlerType(BaseRequest::HandlerType::NONE);
+    // A changed reply type indicates the handler has initiated another
+    // curl request.
+    if (reply_type == rd->getReplyType()) {
+        if (rd->isWaitingForCurlResponse())
+            rd->setWaitingHandlerType(BaseRequest::HandlerType::NONE);
 
-    // We are done with this request.
-    rd->setCurlRequestSubmitted(false);
-    rd->setActive(false);
+        // We are done with this request.
+        rd->setCurlRequestSubmitted(false);
+        rd->setActive(false);
+    }
 }
 
 void ServerAPI::handleRequestTimeout(BaseRequest *rd)
@@ -1395,37 +1430,47 @@ void ServerAPI::handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, c
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "WgConfigs request failed: DNS-resolution failed";
-        emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR,
-            QSharedPointer<WireGuardConfig>(), crd->getUserRole());
+        emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, crd->getUserRole());
         return;
     }
 
-#error Don't need to call /WgConfigs/init if we already have a key-pair, skip to /WgConfigs/connect
+    crd->setIPs(ips);
 
-    if (!crd->haveKeyPair()) {
-        if (!crd->generateKeyPair()) {
-            emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR,
-                QSharedPointer<WireGuardConfig>(), crd->getUserRole());
+    if (crd->haveKeyPair()) {
+        submitWireGuardConnectRequest(rd);
+    }
+    else
+    {
+        if (!crd->generateKeyPair())
+        {
+            emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, crd->getUserRole());
             return;
         }
+
+        time_t timestamp;
+        time(&timestamp);
+        QString strTimestamp = QString::number(timestamp);
+        QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
+        QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
+
+        QUrl url("https://" + crd->getHostname() + "/WgConfigs/init");
+
+        QUrlQuery postData;
+        postData.addQueryItem("time", strTimestamp);
+        postData.addQueryItem("client_auth_hash", md5Hash);
+        postData.addQueryItem("session_auth_hash", crd->getAuthHash());
+        postData.addQueryItem("wg_pubkey", crd->publicKey());
+        postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+
+        // TODO: JDRM remove this once we've implemented the logic for handling error code 1313
+        postData.addQueryItem("force_init", "1");
+
+        auto *curl_request = crd->createCurlRequest();
+        curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
+        curl_request->setUrl(url.toString());
+        submitCurlRequest(crd, CurlRequest::METHOD_POST,
+            "Content-type: application/x-www-form-urlencoded", crd->getHostname(), ips);
     }
-
-    time_t timestamp;
-    time(&timestamp);
-    QString strTimestamp = QString::number(timestamp);
-    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
-    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
-
-#error Does publicKey need to be encoded?
-
-    QUrl url("https://" + crd->getHostname() + "/WgConfigs/init?time=" + strTimestamp
-             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + Utils::getPlatformNameSafe()
-             + "&wg_pubkey=" + crd->publicKey());
-
-    auto *curl_request = crd->createCurlRequest();
-    curl_request->setGetData(url.toString());
-    submitCurlRequest(crd, CurlRequest::METHOD_POST, QString(), crd->getHostname(), ips);
 }
 
 void ServerAPI::handleWebSessionDnsResolve(ServerAPI::BaseRequest *rd, bool success, const QStringList &ips)
@@ -2373,7 +2418,7 @@ void ServerAPI::handleNotificationsCurl(BaseRequest *rd, bool success)
     }
 }
 
-void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
+void ServerAPI::handleWireGuardInitCurl(BaseRequest *rd, bool success)
 {
     const int userRole = rd->getUserRole();
     const auto *curlRequest = rd->getCurlRequest();
@@ -2381,9 +2426,8 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
 
     if (curlRetCode != CURLE_OK)
     {
-        qCDebug(LOG_SERVER_API) << "WgConfigs request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-        emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR,
-            QSharedPointer<WireGuardConfig>(), userRole);
+        qCDebug(LOG_SERVER_API) << "WgConfigs init request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
     }
     else
     {
@@ -2394,52 +2438,64 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for WgConfigs";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
+            qCDebug(LOG_SERVER_API) << "Failed to parse JSON for WgConfigs init";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
 
         QJsonObject jsonObject = doc.object();
+
+        if (jsonObject.contains("errorCode"))
+        {
+            // TODO: JDRM need specific error handling for each error code as outlined in Yegor's doc
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            int errorCode = jsonObject["errorCode"].toInt();
+            QString errorMsg = jsonObject["errorMessage"].toString();
+            qCDebug(LOG_SERVER_API) << "WgConfigs init failed:" << errorMsg << "(" << errorCode << ")";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
+            return;
+        }
+
         if (!jsonObject.contains("data"))
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for WgConfigs";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
+            qCDebug(LOG_SERVER_API) << "JSON for WgConfigs init is missing the 'data' element";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
+
         QJsonObject jsonData = jsonObject["data"].toObject();
         if (!jsonData.contains("success"))
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for WgConfigs";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
+            qCDebug(LOG_SERVER_API) << "JSON for WgConfigs init is missing the 'success' field in the 'data' element";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
 
         int is_success = jsonData["success"].toInt();
         if (!is_success) {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Bad JSON for WgConfigs: success == 0";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
+            qCDebug(LOG_SERVER_API) << "Bad JSON for WgConfigs init: success == 0";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
+
+        auto *crd = dynamic_cast<WireGuardRequest*>(rd);
+        Q_ASSERT(crd);
 
         QJsonObject jsonConfig = jsonData["config"].toObject();
-        QSharedPointer<WireGuardConfig> userconfig(new WireGuardConfig());
-        if (!userconfig->initFromJson(jsonConfig)) {
+        if (!crd->onInitResponse(jsonConfig)) {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Incorrect JSON for WgConfigs";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
+            qCDebug(LOG_SERVER_API) << "'config' JSON element for WgConfigs init is missing required elements";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
 
-        qCDebug(LOG_SERVER_API) << "WgConfigs request successfully executed";
-        emit getWireGuardConfigAnswer(SERVER_RETURN_SUCCESS, userconfig, userRole);
+        qCDebug(LOG_SERVER_API) << "WgConfigs init request successfully executed";
+        qCDebugMultiline(LOG_SERVER_API) << arr;
+
+        submitWireGuardConnectRequest(rd);
     }
 }
 
@@ -2555,5 +2611,115 @@ void ServerAPI::onTunnelTestDnsResolve(const QStringList &ips)
     }
     else {
         qCDebug(LOG_SERVER_API) << "ServerAPI::onTunnelTestDnsResolve could not allocate a PingRequest object";
+    }
+}
+
+void ServerAPI::submitWireGuardConnectRequest(BaseRequest *rd)
+{
+    auto *crd = dynamic_cast<WireGuardRequest*>(rd);
+    Q_ASSERT(crd);
+
+    crd->setReplyType(REPLY_WIREGUARD_CONNECT);
+
+    time_t timestamp;
+    time(&timestamp);
+    QString strTimestamp = QString::number(timestamp);
+    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
+    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
+
+    QUrl url("https://" + crd->getHostname() + "/WgConfigs/connect");
+
+    QUrlQuery postData;
+    postData.addQueryItem("time", strTimestamp);
+    postData.addQueryItem("client_auth_hash", md5Hash);
+    postData.addQueryItem("session_auth_hash", crd->getAuthHash());
+    postData.addQueryItem("wg_pubkey", crd->publicKey());
+    postData.addQueryItem("hostname", crd->serverName());
+    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+
+    auto *curl_request = crd->createCurlRequest();
+    curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
+    curl_request->setUrl(url.toString());
+    submitCurlRequest(crd, CurlRequest::METHOD_POST,
+        "Content-type: application/x-www-form-urlencoded", crd->getHostname(), crd->ips());
+}
+
+void ServerAPI::handleWireGuardConnectCurl(BaseRequest *rd, bool success)
+{
+    const int userRole = rd->getUserRole();
+    const auto *curlRequest = rd->getCurlRequest();
+    CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
+
+    if (curlRetCode != CURLE_OK)
+    {
+        qCDebug(LOG_SERVER_API) << "WgConfigs request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
+    }
+    else
+    {
+        QByteArray arr = curlRequest->getAnswer();
+
+        QJsonParseError errCode;
+        QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
+        if (errCode.error != QJsonParseError::NoError || !doc.isObject())
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "Failed to parse JSON for WgConfigs connect";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
+            return;
+        }
+
+        QJsonObject jsonObject = doc.object();
+
+        if (jsonObject.contains("errorCode"))
+        {
+            // TODO: JDRM need specific error handling for each error code as outlined in Yegor's doc
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            int errorCode = jsonObject["errorCode"].toInt();
+            QString errorMsg = jsonObject["errorMessage"].toString();
+            qCDebug(LOG_SERVER_API) << "WgConfigs connect failed:" << errorMsg << "(" << errorCode << ")";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
+            return;
+        }
+
+        if (!jsonObject.contains("data"))
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "JSON for WgConfigs connect is missing the 'data' element";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
+            return;
+        }
+
+        QJsonObject jsonData = jsonObject["data"].toObject();
+        if (!jsonData.contains("success"))
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "JSON for WgConfigs connect is missing the 'success' field in the 'data' element";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
+            return;
+        }
+
+        int is_success = jsonData["success"].toInt();
+        if (!is_success) {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "Bad JSON for WgConfigs connect: success == 0";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
+            return;
+        }
+
+        auto *crd = dynamic_cast<WireGuardRequest*>(rd);
+        Q_ASSERT(crd);
+
+        QJsonObject jsonConfig = jsonData["config"].toObject();
+        if (!crd->onConnectResponse(jsonConfig)) {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "'config' JSON element for WgConfigs connect is missing required elements";
+            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
+            return;
+        }
+
+        qCDebug(LOG_SERVER_API) << "WgConfigs connect request successfully executed";
+        qCDebugMultiline(LOG_SERVER_API) << arr;
+        emit getWireGuardConfigAnswer(SERVER_RETURN_SUCCESS, userRole);
     }
 }
