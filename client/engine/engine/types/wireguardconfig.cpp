@@ -51,12 +51,6 @@ bool WireGuardConfig::onConnectResponse(const QJsonObject &obj)
     return false;
 }
 
-void WireGuardConfig::updatePeerInfo(const QString &publicKey, const QString &endpoint)
-{
-    peer_.publicKey = publicKey;
-    peer_.endpoint = endpoint;
-}
-
 // static
 QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
 {
@@ -117,7 +111,6 @@ void WireGuardConfig::generateConfigFile(const QString &fileName) const
 
 void WireGuardConfig::reset()
 {
-    // TODO: JDRM ensure this method is called when the session API indicates the user's account has been disabled (over GB limit, banned, etc.).
     client_.privateKey.clear();
     client_.publicKey.clear();
     client_.ipAddress.clear();
@@ -176,7 +169,7 @@ bool WireGuardConfig::generateKeyPair()
     QByteArray publicKey((const char*)keyBuf, keyBufLen);
 
     client_.privateKey = privateKey.toBase64();
-    client_.publicKey = publicKey.toBase64();
+    client_.publicKey  = publicKey.toBase64();
 
     return true;
 }
@@ -184,4 +177,10 @@ bool WireGuardConfig::generateKeyPair()
 bool WireGuardConfig::haveKeyPair() const
 {
     return !client_.privateKey.isEmpty() && !client_.publicKey.isEmpty();
+}
+
+void WireGuardConfig::setKeyPair(QString& publicKey, QString& privateKey)
+{
+    client_.publicKey  = publicKey;
+    client_.privateKey = privateKey;
 }

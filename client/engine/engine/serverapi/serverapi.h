@@ -190,6 +190,7 @@ private:
     void handleWebSessionCurl(BaseRequest *rd, bool success);
 
     void submitWireGuardConnectRequest(BaseRequest *rd);
+    void submitWireGuardInitRequest(BaseRequest *rd, bool generateKeyPair);
 
     CurlNetworkManager curlNetworkManager_;
 

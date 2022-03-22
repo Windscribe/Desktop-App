@@ -50,6 +50,12 @@ public:
     void saveToSettings();
     static void removeFromSettings();
 
+    static bool getWireGuardKeyPair(QString &publicKey, QString &privateKey);
+    static void setWireGuardKeyPair(const QString &publicKey, const QString &privateKey);
+    static bool getWireGuardPeerInfo(QString &presharedKey, QString &allowedIPs);
+    static void setWireGuardPeerInfo(const QString &presharedKey, const QString &allowedIPs);
+    static void removeWireGuardSettings();
+
 private:
     void mergeWindflixLocations();
 

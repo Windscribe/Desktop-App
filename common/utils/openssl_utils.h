@@ -21,11 +21,13 @@ private:
    EVP_PKEY_CTX* m_pCtx;
 };
 
+inline
 EvpPkeyCtx::EvpPkeyCtx(EVP_PKEY_CTX* pCtx)
    : m_pCtx(pCtx)
 {
 }
 
+inline
 EvpPkeyCtx::~EvpPkeyCtx(void)
 {
    if (isValid()) {
@@ -48,11 +50,13 @@ private:
    EVP_PKEY* m_pKey;
 };
 
+inline
 EvpPkey::EvpPkey(void)
 {
    m_pKey = NULL;
 }
 
+inline
 EvpPkey::~EvpPkey(void)
 {
    if (isValid()) {
@@ -75,11 +79,13 @@ private:
    BIO* pBIO_;
 };
 
+inline
 EvpBioCharBuf::EvpBioCharBuf(void)
 {
    pBIO_ = BIO_new(BIO_s_mem());
 }
 
+inline
 EvpBioCharBuf::~EvpBioCharBuf(void)
 {
    if (pBIO_ != NULL) {
@@ -87,6 +93,7 @@ EvpBioCharBuf::~EvpBioCharBuf(void)
    }
 }
 
+inline
 int EvpBioCharBuf::write(const void *data, int dlen)
 {
     if (pBIO_ != NULL) {

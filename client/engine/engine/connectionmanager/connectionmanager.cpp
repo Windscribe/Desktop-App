@@ -9,6 +9,7 @@
 #include "utils/utils.h"
 #include "engine/types/types.h"
 #include "engine/types/connectionsettings.h"
+#include "engine/apiinfo/apiinfo.h"
 
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "utils/extraconfig.h"
@@ -951,7 +952,19 @@ void ConnectionManager::doConnectPart2()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            qCDebug(LOG_CONNECTION) << "Requesting WireGuard config from server for hostname=" << currentConnectionDescr_.hostname;
+            if (wireGuardConfig_.isNull()) {
+                wireGuardConfig_.reset(new WireGuardConfig());
+            }
+            if (!wireGuardConfig_->haveKeyPair()) {
+                // If we do not have a stored key-pair and peer parameters, they will be generated and stored by the ServerAPI::getWireGuardConfig flow.
+                QString publicKey, privateKey, presharedKey, allowedIPs;
+                if (apiinfo::ApiInfo::getWireGuardKeyPair(publicKey, privateKey) && apiinfo::ApiInfo::getWireGuardPeerInfo(presharedKey, allowedIPs)) {
+                    wireGuardConfig_->setKeyPair(publicKey, privateKey);
+                    wireGuardConfig_->setPeerPresharedKey(presharedKey);
+                    wireGuardConfig_->setPeerAllowedIPs(allowedIPs);
+                }
+            }
+            qCDebug(LOG_CONNECTION) << "Requesting WireGuard config from server API for hostname=" << currentConnectionDescr_.hostname;
             Q_EMIT getWireGuardConfig();
             return;
         }
@@ -1059,10 +1072,9 @@ void ConnectionManager::doConnectPart3()
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
             Q_ASSERT(!wireGuardConfig_.isNull());
-            QString endpointAndPort = QString("%1:%2")
-                .arg(currentConnectionDescr_.ip)
-                .arg(currentConnectionDescr_.port);
-            wireGuardConfig_->updatePeerInfo(currentConnectionDescr_.wgPublicKey, endpointAndPort);
+            QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
+            wireGuardConfig_->setPeerPublicKey(currentConnectionDescr_.wgPublicKey);
+            wireGuardConfig_->setPeerEndpoint(endpointAndPort);
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
@@ -1278,9 +1290,7 @@ void ConnectionManager::resetWireGuardConfig()
 
 WireGuardConfig &ConnectionManager::wireGuardConfig()
 {
-    if (wireGuardConfig_.isNull()) {
-        wireGuardConfig_.reset(new WireGuardConfig());
-    }
+    Q_ASSERT(!wireGuardConfig_.isNull());
     return *wireGuardConfig_;
 }
 
