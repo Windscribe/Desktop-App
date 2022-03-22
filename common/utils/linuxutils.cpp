@@ -1,4 +1,5 @@
 #include "linuxutils.h"
+#include "utils.h"
 #include <sys/utsname.h>
 #include <net/if.h>
 #include <unistd.h>
@@ -109,14 +110,14 @@ bool isGuiAlreadyRunning()
 {
     // Look for process containing "Windscribe" -- exclude grep and Engine
     QString cmd = "ps axco command | grep Windscribe | grep -v grep | grep -v WindscribeEngine | grep -v windscribe-cli";
-    QString response = QString::fromStdString(execCmd(cmd.toStdString().c_str()));
+    QString response = Utils::execCmd(cmd);
     return response.trimmed() != "";
 }
 
 QString getLocalIP()
 {
     // Yegor and Clayton found this command to work on many distros, including old ones.
-    QString sLocalIP = QString::fromStdString(execCmd("hostname -I | awk '{print $1}'")).trimmed();
+    QString sLocalIP = Utils::execCmd("hostname -I | awk '{print $1}'").trimmed();
 
     // Check if we received a valid IPv4 address.
     QHostAddress addr;

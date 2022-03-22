@@ -207,7 +207,7 @@ QStringList Helper_mac::getActiveNetworkInterfaces()
     const QString answer = executeRootCommand("ifconfig -a");
     const QStringList lines = answer.split("\n");
     QStringList res;
-    for (const QString s : lines)
+    for (const QString &s : lines)
     {
         if (s.startsWith("en", Qt::CaseInsensitive))
         {
