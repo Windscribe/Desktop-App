@@ -49,19 +49,26 @@ void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
 {
     bool newIsOnline;
     QString ifname = getDefaultRouteInterface(newIsOnline);
+
+    if (isOnline_ != newIsOnline)
+    {
+        isOnline_ = newIsOnline;
+        emit onlineStateChanged(isOnline_);
+    }
+
+
     ProtoTypes::NetworkInterface newNetworkInterface = Utils::noNetworkInterface();
     if (!ifname.isEmpty())
     {
         getInterfacePars(ifname, newNetworkInterface);
     }
 
-    if (newIsOnline != isOnline_ || !google::protobuf::util::MessageDifferencer::Equals(newNetworkInterface, networkInterface_))
+    if (!google::protobuf::util::MessageDifferencer::Equals(newNetworkInterface, networkInterface_))
     {
-        isOnline_ = newIsOnline;
         networkInterface_ = newNetworkInterface;
         if (bWithEmitSignal)
         {
-            emit networkChanged(isOnline_, networkInterface_);
+            emit networkChanged(networkInterface_);
         }
     }
 }

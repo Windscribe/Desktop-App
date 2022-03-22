@@ -2,6 +2,7 @@
 
 #include <QRegularExpression>
 #include "../networkdetectionmanager/reachabilityevents.h"
+#include "utils/network_utils/network_utils_mac.h"
 #include "utils/macutils.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -13,9 +14,10 @@ NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, IHelpe
     , lastWifiAdapterUp_(false)
 {
     connect(&ReachAbilityEvents::instance(), SIGNAL(networkStateChanged()), SLOT(onNetworkStateChanged()));
-    lastNetworkInterface_ = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
-    lastNetworkList_ = MacUtils::currentNetworkInterfaces(true);
+    lastNetworkInterface_ = NetworkUtils_mac::currentNetworkInterface();
+    lastNetworkList_ = NetworkUtils_mac::currentNetworkInterfaces(true);
     lastWifiAdapterUp_ = isWifiAdapterUp(lastNetworkList_);
+    lastIsOnlineState_ = isOnlineImpl();
 }
 
 NetworkDetectionManager_mac::~NetworkDetectionManager_mac()
@@ -25,13 +27,20 @@ NetworkDetectionManager_mac::~NetworkDetectionManager_mac()
 bool NetworkDetectionManager_mac::isOnline()
 {
     QMutexLocker locker(&mutex_);
-    return !MacUtils::getPrimaryNetworkInterface().isEmpty();
+    return lastIsOnlineState_;
 }
 
 void NetworkDetectionManager_mac::onNetworkStateChanged()
 {
-    const ProtoTypes::NetworkInterface &networkInterface = MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
-    const ProtoTypes::NetworkInterfaces &networkList = MacUtils::currentNetworkInterfaces(true);
+    bool curIsOnlineState = isOnlineImpl();
+    if (lastIsOnlineState_ != curIsOnlineState)
+    {
+        lastIsOnlineState_ = curIsOnlineState;
+        emit onlineStateChanged(curIsOnlineState);
+    }
+
+    const ProtoTypes::NetworkInterface &networkInterface = NetworkUtils_mac::currentNetworkInterface();
+    const ProtoTypes::NetworkInterfaces &networkList = NetworkUtils_mac::currentNetworkInterfaces(true);
     bool wifiAdapterUp = isWifiAdapterUp(networkList);
 
     if (!google::protobuf::util::MessageDifferencer::Equals(networkInterface, lastNetworkInterface_))
@@ -74,14 +83,12 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         }
 
         lastNetworkInterface_ = networkInterface;
-
-        QString strNetworkInterface;
-        emit networkChanged(networkInterface.interface_index() != Utils::noNetworkInterface().interface_index(), networkInterface);
+        emit networkChanged(networkInterface);
     }
     else if (wifiAdapterUp != lastWifiAdapterUp_)
     {
-        if (MacUtils::isWifiAdapter(QString::fromStdString(networkInterface.interface_name()))
-                || MacUtils::isWifiAdapter(QString::fromStdString(lastNetworkInterface_.interface_name())))
+        if (NetworkUtils_mac::isWifiAdapter(QString::fromStdString(networkInterface.interface_name()))
+                || NetworkUtils_mac::isWifiAdapter(QString::fromStdString(lastNetworkInterface_.interface_name())))
         {
             qCDebug(LOG_BASIC) << "Wifi adapter (primary) up state changed: " << wifiAdapterUp;
             emit wifiAdapterChanged(wifiAdapterUp);
@@ -107,6 +114,13 @@ bool NetworkDetectionManager_mac::isWifiAdapterUp(const ProtoTypes::NetworkInter
         }
     }
     return false;
+}
+
+bool NetworkDetectionManager_mac::isOnlineImpl()
+{
+    QString command = "netstat -nr -f inet | sed '1,3 d' | awk 'NR==1 { for (i=1; i<=NF; i++) { f[$i] = i  } } NR>1 && $(f[\"Destination\"])==\"default\" { print $(f[\"Gateway\"]), $(f[\"Netif\"]) ; exit }'";
+    QString strReply = Utils::execCmd(command).trimmed();
+    return !strReply.isEmpty();
 }
 
 

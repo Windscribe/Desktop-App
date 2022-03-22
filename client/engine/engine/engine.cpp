@@ -28,6 +28,7 @@
 
 #ifdef Q_OS_WIN
     #include "utils/bfe_service_win.h"
+    #include "utils/winutils.h"
     #include "engine/dnsinfo_win.h"
     #include "engine/taputils/checkadapterenable.h"
     #include "engine/taputils/tapinstall_win.h"
@@ -36,6 +37,7 @@
 #elif defined Q_OS_MAC
     #include "ipv6controller_mac.h"
     #include "utils/macutils.h"
+    #include "utils/network_utils/network_utils_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
 #elif defined Q_OS_LINUX
     #include "helper/helper_linux.h"
@@ -601,10 +603,18 @@ void Engine::initPart2()
     firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
 
     ProtoTypes::MacAddrSpoofing macAddrSpoofing = engineSettings_.getMacAddrSpoofing();
-    *macAddrSpoofing.mutable_network_interfaces() = Utils::currentNetworkInterfaces(true);
+    //todo refactor
+#ifdef Q_OS_MAC
+    *macAddrSpoofing.mutable_network_interfaces() = NetworkUtils_mac::currentNetworkInterfaces(true);
+#elif defined Q_OS_WIN
+    *macAddrSpoofing.mutable_network_interfaces() = WinUtils::currentNetworkInterfaces(true);
+#elif define Q_OS_LINUX
+    todo
+#endif
     setSettingsMacAddressSpoofing(macAddrSpoofing);
 
-    connect(networkDetectionManager_, SIGNAL(networkChanged(bool, ProtoTypes::NetworkInterface)), SLOT(onNetworkChange(bool, ProtoTypes::NetworkInterface)));
+    connect(networkDetectionManager_, SIGNAL(onlineStateChanged(bool)), SLOT(onNetworkOnlineStateChange(bool)));
+    connect(networkDetectionManager_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChange(ProtoTypes::NetworkInterface)));
 
     macAddressController_ = CrossPlatformObjectFactory::createMacAddressController(this, networkDetectionManager_, helper_);
     macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
@@ -2410,14 +2420,17 @@ void Engine::onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &
     updateFirewallSettings();
 }
 
-void Engine::onNetworkChange(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface)
+void Engine::onNetworkOnlineStateChange(bool isOnline)
 {
     if (!isOnline && runningPacketDetection_)
     {
         qCDebug(LOG_BASIC) << "Internet lost during packet size detection -- stopping";
         stopPacketDetection();
     }
+}
 
+void Engine::onNetworkChange(const ProtoTypes::NetworkInterface &networkInterface)
+{
     Q_EMIT networkChanged(networkInterface);
 }
 

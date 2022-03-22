@@ -10,6 +10,7 @@
 
 #include "utils/logger.h"
 #include "utils/macutils.h"
+#include "utils/network_utils/network_utils_mac.h"
 #include "engine/helper/ihelper.h"
 
 #include <sys/sysctl.h>
@@ -432,10 +433,10 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
 
         // note: route gateway not used for ikev2 in AdapterGatewayInfo
         AdapterGatewayInfo cai;
-        ipsecAdapterName_ = MacUtils::lastConnectedNetworkInterfaceName();
+        ipsecAdapterName_ = NetworkUtils_mac::lastConnectedNetworkInterfaceName();
         cai.setAdapterName(ipsecAdapterName_);
-        cai.setAdapterIp(MacUtils::ipAddressByInterfaceName(ipsecAdapterName_));
-        cai.setDnsServers(MacUtils::getDnsServersForInterface(ipsecAdapterName_));
+        cai.setAdapterIp(NetworkUtils_mac::ipAddressByInterfaceName(ipsecAdapterName_));
+        cai.setDnsServers(NetworkUtils_mac::getDnsServersForInterface(ipsecAdapterName_));
 
         emit connected(cai);
         statisticsTimer_.start(STATISTICS_UPDATE_PERIOD);

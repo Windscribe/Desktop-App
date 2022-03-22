@@ -16,7 +16,7 @@ public:
     void setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing) override;
 
 private slots:
-    void onNetworkChange(bool isOnline, ProtoTypes::NetworkInterface networkInterface); // will fire on any network change
+    void onNetworkChange(ProtoTypes::NetworkInterface networkInterface); // will fire on any network change
 
 private:
     QList<int> networksBeingUpdated_; // used to ignore network changes during an adapter reset

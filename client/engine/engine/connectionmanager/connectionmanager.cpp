@@ -82,7 +82,7 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     sleepEvents_ = new SleepEvents_mac(this);
 #endif
 
-    connect(networkDetectionManager_, SIGNAL(networkChanged(bool, ProtoTypes::NetworkInterface)), SLOT(onNetworkStateChanged(bool, ProtoTypes::NetworkInterface)));
+    connect(networkDetectionManager_, SIGNAL(onlineStateChanged(bool)), SLOT(onNetworkOnlineStateChanged(bool)));
 
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     connect(sleepEvents_, SIGNAL(gotoSleep()), SLOT(onSleepMode()));
@@ -701,9 +701,9 @@ void ConnectionManager::onWakeMode()
     }
 }
 
-void ConnectionManager::onNetworkStateChanged(bool isAlive, const ProtoTypes::NetworkInterface &networkInterface)
+void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
 {
-    qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkChanged(), isAlive =" << isAlive << ", primary network interface =" << QString::fromStdString(networkInterface.interface_name()) << ", state_ =" << state_;
+    qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkOnlineStateChanged(), isAlive =" << isAlive << ", state_ =" << state_;
 #ifdef Q_OS_WIN
     Q_EMIT internetConnectivityChanged(isAlive);
 #elif defined Q_OS_MAC

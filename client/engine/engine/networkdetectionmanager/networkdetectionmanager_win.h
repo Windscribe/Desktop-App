@@ -27,6 +27,9 @@ private:
     Helper_win *helper_;
     NetworkChangeWorkerThread *networkWorker_;
     ProtoTypes::NetworkInterface curNetworkInterface_;
+    bool bLastIsOnline_;
+
+    bool isOnlineImpl();
 
 };
 
