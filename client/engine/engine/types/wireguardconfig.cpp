@@ -5,6 +5,8 @@
 #include <QStringList>
 #include <QTextStream>
 
+#include <system_error>
+
 WireGuardConfig::WireGuardConfig()
 {
 
