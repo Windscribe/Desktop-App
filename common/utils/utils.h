@@ -37,11 +37,9 @@ namespace Utils {
 
     // Network
     ProtoTypes::NetworkInterface noNetworkInterface();
-    const ProtoTypes::NetworkInterface currentNetworkInterface();
-    const ProtoTypes::NetworkInterfaces currentNetworkInterfaces(bool includeNoInterface);
     bool sameNetworkInterface(const ProtoTypes::NetworkInterface &interface1, const ProtoTypes::NetworkInterface &interface2);
     ProtoTypes::NetworkInterface interfaceByName(const ProtoTypes::NetworkInterfaces &interfaces, const QString &interfaceName);
-    const ProtoTypes::NetworkInterfaces interfacesExceptOne(const ProtoTypes::NetworkInterfaces &interfaces, const ProtoTypes::NetworkInterface &exceptInterface);
+    const ProtoTypes::NetworkInterfaces interfacesExceptOne(const ProtoTypes::NetworkInterfaces &interfaces, const ProtoTypes::NetworkInterface &exceptInterface);    
 
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
@@ -52,5 +50,10 @@ namespace Utils {
 
     bool copyDirectoryRecursive(QString fromDir, QString toDir);
     bool removeDirectory(const QString dir);
+
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    QString execCmd(const QString &cmd);
+#endif
+
 }
 #endif // UTILS_H

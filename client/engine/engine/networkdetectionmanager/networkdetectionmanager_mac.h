@@ -28,11 +28,15 @@ private slots:
 private:
     IHelper *helper_;
     bool lastWifiAdapterUp_;
+    bool lastIsOnlineState_;
     QMutex mutex_;
     ProtoTypes::NetworkInterface lastNetworkInterface_;
     ProtoTypes::NetworkInterfaces lastNetworkList_;
 
     bool isWifiAdapterUp(const ProtoTypes::NetworkInterfaces &networkList);
+    const ProtoTypes::NetworkInterface currentNetworkInterfaceFromNetworkList(const ProtoTypes::NetworkInterfaces &networkList);
+
+    bool isOnlineImpl();
 
 };
 

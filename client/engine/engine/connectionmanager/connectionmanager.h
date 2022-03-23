@@ -112,7 +112,7 @@ private slots:
     void onSleepMode();
     void onWakeMode();
 
-    void onNetworkStateChanged(bool isAlive, const ProtoTypes::NetworkInterface &networkInterface);
+    void onNetworkOnlineStateChanged(bool isAlive);
 
     void onTimerReconnection();
 

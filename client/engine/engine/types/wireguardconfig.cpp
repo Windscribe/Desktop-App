@@ -5,6 +5,8 @@
 #include <QStringList>
 #include <QTextStream>
 
+#include <system_error>
+
 #include "utils/logger.h"
 #include "utils/openssl_utils.h"
 

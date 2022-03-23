@@ -11,6 +11,7 @@
     #include "winutils.h"
 #elif defined Q_OS_MAC
     #include "macutils.h"
+    #include "network_utils/network_utils_mac.h"
     #include <math.h>
     #include <unistd.h>
     #include <ApplicationServices/ApplicationServices.h>
@@ -270,34 +271,6 @@ ProtoTypes::NetworkInterface Utils::noNetworkInterface()
     return iff;
 }
 
-const ProtoTypes::NetworkInterface Utils::currentNetworkInterface()
-{
-#ifdef Q_OS_WIN
-    return WinUtils::currentNetworkInterface();
-#elif defined Q_OS_MAC
-    return MacUtils::networkInterfaceByName(MacUtils::getPrimaryNetworkInterface());
-#elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-    return ProtoTypes::NetworkInterface();
-#endif
-}
-
-const ProtoTypes::NetworkInterfaces Utils::currentNetworkInterfaces(bool includeNoInterface)
-{
-    Q_UNUSED(includeNoInterface);
-
-#ifdef Q_OS_WIN
-    return WinUtils::currentNetworkInterfaces(includeNoInterface);
-#elif defined Q_OS_MAC
-    return MacUtils::currentNetworkInterfaces(includeNoInterface);
-#elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    return ProtoTypes::NetworkInterfaces();
-#endif
-}
-
 ProtoTypes::NetworkInterface Utils::interfaceByName(const ProtoTypes::NetworkInterfaces &interfaces, const QString &interfaceName)
 {
     auto sameInterfaceName = [&interfaceName](const ProtoTypes::NetworkInterface &ni)
@@ -331,7 +304,7 @@ bool Utils::pingWithMtu(const QString &url, int mtu)
 #ifdef Q_OS_WIN
     return WinUtils::pingWithMtu(url, mtu);
 #elif defined Q_OS_MAC
-    return MacUtils::pingWithMtu(url, mtu);
+    return NetworkUtils_mac::pingWithMtu(url, mtu);
 #elif defined Q_OS_LINUX
     //todo linux
     Q_ASSERT(false);
@@ -346,7 +319,7 @@ QString Utils::getLocalIP()
 #ifdef Q_OS_WIN
     return WinUtils::getLocalIP();
 #elif defined Q_OS_MAC
-    return MacUtils::getLocalIP();
+    return NetworkUtils_mac::getLocalIP();
 #elif defined Q_OS_LINUX
     return LinuxUtils::getLocalIP();
 #endif
@@ -473,3 +446,22 @@ QString Utils::getPlatformNameSafe()
 #endif
     return platform;
 }
+
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+QString Utils::execCmd(const QString &cmd)
+{
+    char buffer[1024];
+    QString result = "";
+    FILE* pipe = popen(cmd.toStdString().c_str(), "r");
+    if (!pipe) return "";
+    while (!feof(pipe))
+    {
+        if (fgets(buffer, 1024, pipe) != NULL)
+        {
+            result += buffer;
+        }
+    }
+    pclose(pipe);
+    return result;
+}
+#endif

@@ -4,7 +4,6 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 
-
 const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
 
 NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
@@ -13,6 +12,7 @@ NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelpe
     Q_ASSERT(helper_);
 
     curNetworkInterface_ = WinUtils::currentNetworkInterface();
+    bLastIsOnline_ = isOnlineImpl();
 
     networkWorker_ = new NetworkChangeWorkerThread(this);
 
@@ -83,6 +83,13 @@ void NetworkDetectionManager_win::resetAdapter(int ifIndex, bool bringBackUp)
 
 void NetworkDetectionManager_win::onNetworkChanged()
 {
+    bool bCurIsOnline = isOnlineImpl();
+    if (bLastIsOnline_ != bCurIsOnline)
+    {
+        bLastIsOnline_ = bCurIsOnline;
+        emit onlineStateChanged(bLastIsOnline_);
+    }
+
     ProtoTypes::NetworkInterface newNetworkInterface = WinUtils::currentNetworkInterface();
     newNetworkInterface.set_requested(false);
 
@@ -97,16 +104,16 @@ void NetworkDetectionManager_win::onNetworkChanged()
             // VPN CONNECTING
             if (newNetworkInterface.interface_index() == -1)
             {
-                if (!isOnline())
+                if (!bLastIsOnline_)
                 {
                     curNetworkInterface_ = newNetworkInterface;
-                    emit networkChanged(false, curNetworkInterface_);
+                    emit networkChanged(curNetworkInterface_);
                 }
             }
             else
             {
                 curNetworkInterface_ = newNetworkInterface;
-                emit networkChanged(isOnline(), curNetworkInterface_);
+                emit networkChanged(curNetworkInterface_);
             }
         }
         else
@@ -119,12 +126,7 @@ void NetworkDetectionManager_win::onNetworkChanged()
     }
 }
 
-void NetworkDetectionManager_win::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
-{
-    networkInterface = curNetworkInterface_;
-}
-
-bool NetworkDetectionManager_win::isOnline()
+bool NetworkDetectionManager_win::isOnlineImpl()
 {
     bool result = false;
 
@@ -142,4 +144,14 @@ bool NetworkDetectionManager_win::isOnline()
     }
 
     return result;
+}
+
+void NetworkDetectionManager_win::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
+{
+    networkInterface = curNetworkInterface_;
+}
+
+bool NetworkDetectionManager_win::isOnline()
+{
+    return bLastIsOnline_;
 }

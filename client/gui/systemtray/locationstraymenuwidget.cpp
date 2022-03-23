@@ -5,8 +5,9 @@
 #include <QEvent>
 #include <QApplication>
 #include <QVBoxLayout>
+#include <QScreen>
 #include "commongraphics/commongraphics.h"
-#include "dpiscalemanager.h"
+#include "locationstraymenuscalemanager.h"
 
 #ifdef Q_OS_MAC
 #include "utils/widgetutils_mac.h"
@@ -25,7 +26,7 @@ LocationsTrayMenuWidget::LocationsTrayMenuWidget(LocationsTrayMenuType type, QWi
     listWidget_->setStyleSheet("background-color: rgba(255, 255, 255, 0);\nborder-top: none;\nborder-bottom: none;");
     listWidget_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     listWidget_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    listWidget_->setResizeMode(QListView::Fixed);
+    listWidget_->setResizeMode(QListView::Adjust);
     connect(listWidget_, SIGNAL(itemClicked(QListWidgetItem*)),
             SLOT(onListWidgetItemTriggered(QListWidgetItem*)));
 
@@ -109,6 +110,7 @@ void LocationsTrayMenuWidget::setLocationsModel(LocationsModel *locationsModel)
 void LocationsTrayMenuWidget::setFontForItems(const QFont &font)
 {
     locationsTrayMenuItemDelegate_->setFontForItems(font);
+    recalcSize();
     updateShortenedTexts();
 }
 
@@ -192,12 +194,12 @@ void LocationsTrayMenuWidget::recalcSize()
     QStyleOptionMenuItem opt;
     QSize sz;
     sz = QApplication::style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz);
-    const int scaledItemHeight = sz.height() * G_SCALE;
+    const int scaledItemHeight = sz.height() * LocationsTrayMenuScaleManager::instance().scale();
     visibleItemsCount_ = listWidget_->count();
     if (visibleItemsCount_ < 1)
         visibleItemsCount_ = 1;
 
-    const auto *screen = qApp->primaryScreen();
+    QScreen *screen = LocationsTrayMenuScaleManager::instance().screen();
     if (screen) {
         const int availableHeight = screen->geometry().height() -
             upButton_->sizeHint().height() - downButton_->sizeHint().height();
@@ -206,7 +208,7 @@ void LocationsTrayMenuWidget::recalcSize()
             visibleItemsCount_ = maxItemCount;
     }
 
-    listWidget_->setFixedSize(190 * G_SCALE, scaledItemHeight * visibleItemsCount_);
+    listWidget_->setFixedSize(190 * LocationsTrayMenuScaleManager::instance().scale(), scaledItemHeight * visibleItemsCount_);
 }
 
 void LocationsTrayMenuWidget::updateShortenedTexts()
@@ -215,14 +217,12 @@ void LocationsTrayMenuWidget::updateShortenedTexts()
     if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS)
         return;
 
-    recalcSize();
-
     for (int ind = 0; ind < listWidget_->count(); ++ind) {
         QListWidgetItem *item = listWidget_->item(ind);
         QString itemName = CommonGraphics::truncatedText(
             item->data(USER_ROLE_ORIGINAL_NAME).toString(),
             locationsTrayMenuItemDelegate_->getFontForItems(),
-            listWidget_->width()- 30 * G_SCALE);
+            listWidget_->width()- 30 * LocationsTrayMenuScaleManager::instance().scale());
         item->setText(itemName);
     }
 }
