@@ -19,7 +19,8 @@ HEADERS += $$COMMON_PATH/utils/crashdump.h \
 
 macx {
 
-SOURCES += $$COMMON_PATH/utils/network_utils/network_utils_mac.cpp
+SOURCES += $$COMMON_PATH/utils/network_utils/network_utils_mac.cpp \
+           $$COMMON_PATH/utils/network_utils/network_interface.cpp
 
 OBJECTIVE_SOURCES += $$COMMON_PATH/utils/macutils.mm \
                 $$COMMON_PATH/exithandler_mac.mm \
@@ -30,7 +31,8 @@ HEADERS += $$COMMON_PATH//utils/macutils.h \
            $$COMMON_PATH/utils/network_utils/network_utils_mac.h \
            $$COMMON_PATH/exithandler_mac.h \
            $$COMMON_PATH/utils/widgetutils_mac.h \
-           $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h
+           $$COMMON_PATH/utils/executable_signature/executable_signature_mac.h \
+           $$COMMON_PATH/utils/network_utils/network_interface.h
 
 } # macx
 
