@@ -35,7 +35,6 @@ def BuildDependencyMSVC(outpath):
   if not is_testing_ok:
     configure_cmd.extend(["no-unit-test", "no-tests"])
   configure_cmd.append("--prefix={}".format(outpath))
-  configure_cmd.append("--openssldir={}".format(outpath))
   iutl.RunCommand(configure_cmd, env=buildenv, shell=True)
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=True)
