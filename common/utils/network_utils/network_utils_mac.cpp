@@ -56,20 +56,6 @@ QList<QString> currentNetworkHwInterfaces()
     return result;
 }
 
-QString currentNetworkHwInterfaceName()
-{
-    const QList<QString> hwInterfaces = currentNetworkHwInterfaces();
-    for (const QString & interface : hwInterfaces)
-    {
-        if (NetworkUtils_mac::isAdapterUp(interface))
-        {
-            return interface;
-        }
-    }
-
-    return "";
-}
-
 bool isAdapterActive(const QString &networkInterface)
 {
     QString cmdInterfaceStatus = "ifconfig " + networkInterface + " | grep status | awk '{print $2}'";
@@ -91,10 +77,7 @@ QMap<QString, int> currentHardwareInterfaceIndexes()
         const QString iName = line.trimmed();
         if (iName != "")
         {
-            if (NetworkUtils_mac::isAdapterUp(iName))
-            {
-                result.insert(iName, index);
-            }
+            result.insert(iName, index);
         }
         index++;
     }
@@ -258,9 +241,13 @@ bool NetworkUtils_mac::isAdapterUp(const QString &networkInterfaceName)
 
 const ProtoTypes::NetworkInterface NetworkUtils_mac::currentNetworkInterface()
 {
-    QString ifname = currentNetworkHwInterfaceName();
-    ProtoTypes::NetworkInterface networkInterface = Utils::interfaceByName(currentlyUpNetInterfaces(), ifname);
-    return networkInterface;
+    ProtoTypes::NetworkInterfaces ni = currentNetworkInterfaces(false);
+    if (ni.networks_size() > 0)
+    {
+        return ni.networks(0);
+    }
+
+    return Utils::noNetworkInterface();
 }
 
 bool NetworkUtils_mac::pingWithMtu(const QString &url, int mtu)

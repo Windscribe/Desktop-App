@@ -14,8 +14,8 @@ NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, IHelpe
     , lastWifiAdapterUp_(false)
 {
     connect(&ReachAbilityEvents::instance(), SIGNAL(networkStateChanged()), SLOT(onNetworkStateChanged()));
-    lastNetworkInterface_ = NetworkUtils_mac::currentNetworkInterface();
     lastNetworkList_ = NetworkUtils_mac::currentNetworkInterfaces(true);
+    lastNetworkInterface_ = currentNetworkInterfaceFromNetworkList(lastNetworkList_);
     lastWifiAdapterUp_ = isWifiAdapterUp(lastNetworkList_);
     lastIsOnlineState_ = isOnlineImpl();
 }
@@ -39,8 +39,8 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         emit onlineStateChanged(curIsOnlineState);
     }
 
-    const ProtoTypes::NetworkInterface &networkInterface = NetworkUtils_mac::currentNetworkInterface();
     const ProtoTypes::NetworkInterfaces &networkList = NetworkUtils_mac::currentNetworkInterfaces(true);
+    const ProtoTypes::NetworkInterface &networkInterface = currentNetworkInterfaceFromNetworkList(networkList);
     bool wifiAdapterUp = isWifiAdapterUp(networkList);
 
     if (!google::protobuf::util::MessageDifferencer::Equals(networkInterface, lastNetworkInterface_))
@@ -114,6 +114,20 @@ bool NetworkDetectionManager_mac::isWifiAdapterUp(const ProtoTypes::NetworkInter
         }
     }
     return false;
+}
+
+const ProtoTypes::NetworkInterface NetworkDetectionManager_mac::currentNetworkInterfaceFromNetworkList(const ProtoTypes::NetworkInterfaces &networkList)
+{
+    // we assume that the first non-empty adapter is a current network interface
+    for (int i = 0; i < networkList.networks_size(); ++i)
+    {
+        if (networkList.networks(i).interface_index() != -1)
+        {
+            return networkList.networks(i);
+        }
+    }
+
+    return Utils::noNetworkInterface();
 }
 
 bool NetworkDetectionManager_mac::isOnlineImpl()

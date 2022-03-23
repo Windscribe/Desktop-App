@@ -34,6 +34,8 @@ private:
     ProtoTypes::NetworkInterfaces lastNetworkList_;
 
     bool isWifiAdapterUp(const ProtoTypes::NetworkInterfaces &networkList);
+    const ProtoTypes::NetworkInterface currentNetworkInterfaceFromNetworkList(const ProtoTypes::NetworkInterfaces &networkList);
+
     bool isOnlineImpl();
 
 };
