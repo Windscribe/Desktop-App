@@ -19,7 +19,6 @@ protected:
 
 private:
     QFont font_;
-    int menuHeight_;
 };
 
 #endif // LOCATIONSTRAYMENUITEMDELEGATE_H

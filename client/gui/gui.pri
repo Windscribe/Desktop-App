@@ -165,6 +165,7 @@ SOURCES += $$PWD/backend/backend.cpp \
     $$PWD/systemtray/locationstraymenuitemdelegate.cpp \
     $$PWD/systemtray/locationstraymenuwidget.cpp \
     $$PWD/systemtray/locationstraymenunative.cpp \
+    $$PWD/systemtray/locationstraymenuscalemanager.cpp \
     $$PWD/loginattemptscontroller.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/loginwindow/loginwindowitem.cpp \
@@ -392,6 +393,7 @@ HEADERS += $$PWD/backend/backend.h \
     $$PWD/systemtray/locationstraymenuitemdelegate.h \
     $$PWD/systemtray/locationstraymenuwidget.h \
     $$PWD/systemtray/locationstraymenunative.h \
+    $$PWD/systemtray/locationstraymenuscalemanager.h \
     $$PWD/loginattemptscontroller.h \
     $$PWD/mainwindow.h \
     $$PWD/graphicresources/fontmanager.h \

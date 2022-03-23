@@ -38,6 +38,7 @@
 #include "utils/interfaceutils.h"
 #include "utils/iauthchecker.h"
 #include "utils/authcheckerfactory.h"
+#include "systemtray/locationstraymenuscalemanager.h"
 
 #if defined(Q_OS_WIN)
     #include "utils/winutils.h"
@@ -3085,6 +3086,7 @@ void MainWindow::loadTrayMenuItems()
 
 #ifndef Q_OS_LINUX
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
+    LocationsTrayMenuScaleManager::instance().setTrayIconGeometry(trayIcon_.geometry());
     for (int i = 0; i < LOCATIONS_TRAY_MENU_NUM_TYPES; ++i) {
         locationsTrayMenuWidget_[i]->setFontForItems(trayMenu_.font());
         // Force geometry update of the menu, because widget size could have been changed.
