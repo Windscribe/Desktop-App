@@ -31,8 +31,7 @@ struct CurrentConnectionDescr
     bool isAllowFirewallAfterConnection;
 
     // fields for WireGuard
-    // TODO: JDRM see if we can get rid of this, since we generate the public key now.
-    QString wgPublicKey;
+    QString wgPeerPublicKey;
     QSharedPointer<WireGuardConfig> wgCustomConfig;
 
     // fields for static ips

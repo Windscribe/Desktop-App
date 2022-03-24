@@ -125,6 +125,7 @@ public:
 public slots:
     void init();
     void stopPacketDetection();
+    void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
 signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode);
@@ -176,6 +177,8 @@ signals:
     void packetSizeDetectionStateChanged(bool on, bool isError);
 
     void hostsFileBecameWritable();
+
+    void wireGuardAtKeyLimit();
 
 private slots:
     void onLostConnectionToHelper();

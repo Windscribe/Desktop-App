@@ -55,6 +55,9 @@ protected:
 
     virtual void paintEvent(QPaintEvent *event);
 
+Q_SIGNALS:
+    void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
+
 private slots:
     void setWindowToDpiScaleManager();
 
@@ -261,6 +264,8 @@ private slots:
 
     void onAdvancedParametersOkClick();
     void onAdvancedParametersCancelClick();
+
+    void onWireGuardAtKeyLimit();
 
 private:
     void gotoLoginWindow();

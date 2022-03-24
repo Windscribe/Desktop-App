@@ -110,6 +110,8 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(packetSizeChanged(bool, int)), SLOT(onEnginePacketSizeChanged(bool, int)));
             connect(engine_, SIGNAL(packetSizeDetectionStateChanged(bool,bool)), SLOT(onEnginePacketSizeDetectionStateChanged(bool,bool)));
             connect(engine_, SIGNAL(hostsFileBecameWritable()), SLOT(onHostsFileBecameWritable()));
+            connect(engine_, &Engine::wireGuardAtKeyLimit, this, &EngineServer::wireGuardAtKeyLimit);
+            connect(this, &EngineServer::wireGuardKeyLimitUserResponse, engine_, &Engine::onWireGuardKeyLimitUserResponse);
             threadEngine_->start(QThread::LowPriority);
         }
         else
@@ -1035,5 +1037,3 @@ void EngineServer::sendCmdToAllAuthorizedAndGetStateClients(IPC::Command *cmd, b
     ///sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, bWithLog, ProtoTypes::CLIENT_ID_CLI, &bLogged);
 
 }
-
-

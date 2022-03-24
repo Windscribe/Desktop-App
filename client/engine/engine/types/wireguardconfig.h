@@ -29,6 +29,7 @@ public:
     void setPeerEndpoint(const QString &endpoint) { peer_.endpoint = endpoint; }
     void setPeerPresharedKey(const QString &presharedKey) { peer_.presharedKey = presharedKey; }
     void setPeerAllowedIPs(const QString &allowedIPs) { peer_.allowedIps = allowedIPs; }
+    bool haveServerGeneratedPeerParams() const;
 
     void generateConfigFile(const QString &fileName) const;
 

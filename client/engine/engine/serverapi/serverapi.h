@@ -67,7 +67,8 @@ public:
     void cancelPingTest(quint64 cmdId);
 
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-    void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, WireGuardConfig &config, const QString &serverName);
+    void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled,
+                            WireGuardConfig &config, const QString &serverName, bool deleteOldestKey);
 
     void setIgnoreSslErrors(bool bIgnore);
 
@@ -109,6 +110,7 @@ private:
     enum {
         GET_MY_IP_TIMEOUT = 5000,
         NETWORK_TIMEOUT = 10000,
+        WIREGUARD_NETWORK_TIMEOUT = 15000
     };
     enum {
         REPLY_ACCESS_IPS,

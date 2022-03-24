@@ -955,8 +955,9 @@ void ConnectionManager::doConnectPart2()
             if (wireGuardConfig_.isNull()) {
                 wireGuardConfig_.reset(new WireGuardConfig());
             }
-            if (!wireGuardConfig_->haveKeyPair()) {
-                // If we do not have a stored key-pair and peer parameters, they will be generated and stored by the ServerAPI::getWireGuardConfig flow.
+            if (!wireGuardConfig_->haveKeyPair() || !wireGuardConfig_->haveServerGeneratedPeerParams()) {
+                // If we do not have a key-pair and peer parameters stored on disk, they will be generated and stored
+                // by the ServerAPI::getWireGuardConfig flow.
                 QString publicKey, privateKey, presharedKey, allowedIPs;
                 if (apiinfo::ApiInfo::getWireGuardKeyPair(publicKey, privateKey) && apiinfo::ApiInfo::getWireGuardPeerInfo(presharedKey, allowedIPs)) {
                     wireGuardConfig_->setKeyPair(publicKey, privateKey);
@@ -964,7 +965,7 @@ void ConnectionManager::doConnectPart2()
                     wireGuardConfig_->setPeerAllowedIPs(allowedIPs);
                 }
             }
-            qCDebug(LOG_CONNECTION) << "Requesting WireGuard config from server API for hostname=" << currentConnectionDescr_.hostname;
+            qCDebug(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
             Q_EMIT getWireGuardConfig();
             return;
         }
@@ -1073,7 +1074,7 @@ void ConnectionManager::doConnectPart3()
         {
             Q_ASSERT(!wireGuardConfig_.isNull());
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
-            wireGuardConfig_->setPeerPublicKey(currentConnectionDescr_.wgPublicKey);
+            wireGuardConfig_->setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_->setPeerEndpoint(endpointAndPort);
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
             connector_->startConnect(QString(), currentConnectionDescr_.ip,

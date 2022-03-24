@@ -1665,8 +1665,13 @@ void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::Stati
 
 void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole)
 {
-    bool success = (userRole == serverApiUserRole_ && retCode == SERVER_RETURN_SUCCESS);
-    connectionManager_->onWireGuardConfigRequestComplete(success);
+    if (retCode == SERVER_RETURN_WIREGUARD_KEY_LIMIT) {
+        Q_EMIT wireGuardAtKeyLimit();
+    }
+    else {
+        bool success = (userRole == serverApiUserRole_ && retCode == SERVER_RETURN_SUCCESS);
+        connectionManager_->onWireGuardConfigRequestComplete(success);
+    }
 }
 
 void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole)
@@ -2084,7 +2089,7 @@ void Engine::fetchWireGuardConfig()
             fetchWireguardConfigTimer_->stop();
         serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true,
                                        connectionManager_->wireGuardConfig(),
-                                       connectionManager_->wireGuardHostname());
+                                       connectionManager_->wireGuardHostname(), false);
     }
 }
 
@@ -2929,4 +2934,16 @@ bool Engine::verifyContentsSha256(const QString &filename, const QString &compar
         return true;
     }
     return false;
+}
+
+void Engine::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
+{
+    if (deleteOldestKey && serverAPI_->isRequestsEnabled()) {
+        serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true,
+                                       connectionManager_->wireGuardConfig(),
+                                       connectionManager_->wireGuardHostname(), true);
+    }
+    else {
+        connectionManager_->onWireGuardConfigRequestComplete(false);
+    }
 }

@@ -186,3 +186,8 @@ void WireGuardConfig::setKeyPair(QString& publicKey, QString& privateKey)
     client_.publicKey  = publicKey;
     client_.privateKey = privateKey;
 }
+
+bool WireGuardConfig::haveServerGeneratedPeerParams() const
+{
+    return !peer_.presharedKey.isEmpty() && !peer_.allowedIps.isEmpty();
+}

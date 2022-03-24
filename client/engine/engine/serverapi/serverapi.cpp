@@ -41,6 +41,7 @@ public:
     void setCurlRequestSubmitted(bool value) { isCurlRequestSubmitted_ = value; }
     void setWaitingHandlerType(HandlerType type) { handlerType_ = type; }
     void setReplyType(int type) { replyType_ = type; }
+    void setCurlRequestTimestamp(qint64 timeStamp) { curlRequestTimestamp_ = timeStamp; }
 
     bool isActive() const { return isActive_; }
     bool isCurlRequestSubmitted() const { return isCurlRequestSubmitted_; }
@@ -51,6 +52,7 @@ public:
     uint getUserRole() const { return userRole_; }
     qint64 getStartTime() const { return startTime_; }
     const QString &getHostname() const { return hostname_; }
+    qint64 getCurlRequestTimestamp() const { return curlRequestTimestamp_; }
 
     CurlRequest *getCurlRequest() const { return curlRequest_; }
     CurlRequest *createCurlRequest() {
@@ -72,6 +74,7 @@ private:
     CurlRequest *curlRequest_;
     bool isCurlRequestSubmitted_;
     HandlerType handlerType_;
+    qint64 curlRequestTimestamp_ = 0;
 };
 
 namespace
@@ -278,8 +281,9 @@ class WireGuardRequest : public AuthenticatedRequest
 {
 public:
     WireGuardRequest(const QString &authhash, const QString &hostname, int replyType, uint timeout,
-                     uint userRole, WireGuardConfig& config, const QString &serverName)
-        : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole), wireGuardConfig_(config), serverName_(serverName)
+                     uint userRole, WireGuardConfig &config, const QString &serverName, bool deleteOldestKey)
+        : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole), wireGuardConfig_(config),
+                               serverName_(serverName), deleteOldestKey_(deleteOldestKey)
     {}
 
     WireGuardConfig& wireGuardConfig() { return wireGuardConfig_; }
@@ -296,7 +300,7 @@ public:
     void setRetryInitRequest() { retryInitRequest_ = true; }
 
     bool deleleOldestKey() const { return deleteOldestKey_; }
-    void setDeleteOldestKey() { deleteOldestKey_ = true; }
+    void clearDeleteOldestKey() { deleteOldestKey_ = false; }
 
     bool isErrorCode1311Guard() const { return errorCode1311Guard_; }
     void setErrorCode1311Guard() { errorCode1311Guard_ = true; }
@@ -484,6 +488,7 @@ void ServerAPI::submitCurlRequest(BaseRequest *request, CurlRequest::MethodType 
 
     curlToRequestMap_[curl_request] = request;
     request->setCurlRequestSubmitted(true);
+    request->setCurlRequestTimestamp(current_time);
 
     const auto curl_timeout = request->getTimeout() - delay;
 
@@ -819,7 +824,7 @@ void ServerAPI::notifications(const QString &authHash, uint userRole, bool isNee
 }
 
 void ServerAPI::getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled,
-                                   WireGuardConfig &config, const QString& serverName)
+                                   WireGuardConfig &config, const QString& serverName, bool deleteOldestKey)
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
@@ -827,8 +832,11 @@ void ServerAPI::getWireGuardConfig(const QString &authHash, uint userRole, bool 
         return;
     }
 
+    // Giving the WireGuard requests a bit more time, as we may have to make multiple curl requests after
+    // the DNS request completes.  For example, we may make the 'connect' request and receive a 1311 error,
+    // which will then cause us to issue an 'init' request followed by another 'connect' request.
     submitDnsRequest(createRequest<WireGuardRequest>(
-        authHash, hostname_, REPLY_WIREGUARD_INIT, NETWORK_TIMEOUT, userRole, config, serverName));
+        authHash, hostname_, REPLY_WIREGUARD_INIT, WIREGUARD_NETWORK_TIMEOUT, userRole, config, serverName, deleteOldestKey));
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
@@ -881,6 +889,8 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
     const auto reply_type = rd->getReplyType();
     Q_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
 
+    const auto requestTimestamp = rd->getCurlRequestTimestamp();
+
      // If this request is active, call the corresponding handler.
     if (rd->isActive()) {
         Q_ASSERT(rd->isWaitingForCurlResponse());
@@ -889,9 +899,9 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
             (this->*handleCurlReplyFuncTable_[reply_type])(rd, true);
     }
 
-    // A changed reply type indicates the handler has initiated another
-    // curl request.
-    if (reply_type == rd->getReplyType()) {
+    // A changed timestamp indicates the handler has initiated a new curl
+    // request and we should not mark the request object for deletion.
+    if (requestTimestamp == rd->getCurlRequestTimestamp()) {
         if (rd->isWaitingForCurlResponse())
             rd->setWaitingHandlerType(BaseRequest::HandlerType::NONE);
 
@@ -1408,7 +1418,7 @@ void ServerAPI::handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, c
 
     crd->setIPs(ips);
 
-    if (crd->wireGuardConfig().haveKeyPair()) {
+    if (crd->wireGuardConfig().haveKeyPair() && crd->wireGuardConfig().haveServerGeneratedPeerParams()) {
         submitWireGuardConnectRequest(rd);
     }
     else {
@@ -2369,7 +2379,7 @@ void ServerAPI::handleWireGuardInitCurl(BaseRequest *rd, bool success)
 
     if (curlRetCode != CURLE_OK)
     {
-        qCDebug(LOG_SERVER_API) << "WgConfigs init request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        qCDebug(LOG_SERVER_API) << "WgConfigs init curl request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
         emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
     }
     else
@@ -2397,6 +2407,8 @@ void ServerAPI::handleWireGuardInitCurl(BaseRequest *rd, bool success)
             int errorCode = jsonObject["errorCode"].toInt();
             qCDebug(LOG_SERVER_API) << "WgConfigs init failed:" << jsonObject["errorMessage"].toString() << "(" << errorCode << ")";
 
+            SERVER_API_RET_CODE retCode = SERVER_RETURN_NETWORK_ERROR;
+
             if (errorCode == 1310) {
                 // This error indicates the server was unable to generate the preshared key.
                 // Retry the init request one time, then abort the WireGuard connection attempt.
@@ -2409,33 +2421,26 @@ void ServerAPI::handleWireGuardInitCurl(BaseRequest *rd, bool success)
             else if (errorCode == 1313) {
                 // This error indicates the user has used up all of their public key slots on the server.
                 // Ask them if they want to delete their oldest registered key and try again.
+                retCode = SERVER_RETURN_WIREGUARD_KEY_LIMIT;
             }
 
-            emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
+            emit getWireGuardConfigAnswer(retCode, userRole);
             return;
         }
 
         if (!jsonObject.contains("data"))
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "JSON for WgConfigs init is missing the 'data' element";
+            qCDebug(LOG_SERVER_API) << "WgConfigs init JSON is missing the 'data' element";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
 
         QJsonObject jsonData = jsonObject["data"].toObject();
-        if (!jsonData.contains("success"))
+        if (!jsonData.contains("success") || jsonData["success"].toInt(0) == 0)
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "JSON for WgConfigs init is missing the 'success' field in the 'data' element";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
-            return;
-        }
-
-        int is_success = jsonData["success"].toInt();
-        if (!is_success) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Bad JSON for WgConfigs init: success == 0";
+            qCDebug(LOG_SERVER_API) << "WgConfigs init JSON contains a missing or invalid 'success' field";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
@@ -2443,10 +2448,12 @@ void ServerAPI::handleWireGuardInitCurl(BaseRequest *rd, bool success)
         QJsonObject jsonConfig = jsonData["config"].toObject();
         if (!crd->wireGuardConfig().onInitResponse(jsonConfig)) {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "'config' JSON element for WgConfigs init is missing required elements";
+            qCDebug(LOG_SERVER_API) << "WgConfigs init 'config' entry is missing required elements";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
+
+        //qCDebug(LOG_SERVER_API) << "WgConfigs/init json:" << doc.toJson(QJsonDocument::Compact);
 
         // Persist the peer parameters we received.
         apiinfo::ApiInfo::setWireGuardPeerInfo(crd->wireGuardConfig().peerPresharedKey(), crd->wireGuardConfig().peerAllowedIps());
@@ -2606,6 +2613,7 @@ void ServerAPI::submitWireGuardInitRequest(BaseRequest *rd, bool generateKeyPair
 
     if (crd->deleleOldestKey()) {
         postData.addQueryItem("force_init", "1");
+        crd->clearDeleteOldestKey();
     }
 
     auto *curl_request = crd->createCurlRequest();
@@ -2653,7 +2661,7 @@ void ServerAPI::handleWireGuardConnectCurl(BaseRequest *rd, bool success)
 
     if (curlRetCode != CURLE_OK)
     {
-        qCDebug(LOG_SERVER_API) << "WgConfigs request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        qCDebug(LOG_SERVER_API) << "WgConfigs connect curl request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
         emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
     }
     else
@@ -2695,8 +2703,7 @@ void ServerAPI::handleWireGuardConnectCurl(BaseRequest *rd, bool success)
             }
             else if (errorCode == 1312) {
                 // This error is returned when an interface address cannot be assigned. This is likely a major API issue,
-                // since this shouldn't happen. Retry the 'connect' API once.  If it fails again, notify the user in an
-                // alert and abort the connection attempt.
+                // since this shouldn't happen. Retry the 'connect' API once. If it fails again, abort the connection attempt.
                 if (!crd->isRetryConnectRequest()) {
                     crd->setRetryConnectRequest();
                     submitWireGuardConnectRequest(rd);
@@ -2711,24 +2718,16 @@ void ServerAPI::handleWireGuardConnectCurl(BaseRequest *rd, bool success)
         if (!jsonObject.contains("data"))
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "JSON for WgConfigs connect is missing the 'data' element";
+            qCDebug(LOG_SERVER_API) << "WgConfigs connect JSON is missing the 'data' element";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
 
         QJsonObject jsonData = jsonObject["data"].toObject();
-        if (!jsonData.contains("success"))
+        if (!jsonData.contains("success") || jsonData["success"].toInt(0) == 0)
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "JSON for WgConfigs connect is missing the 'success' field in the 'data' element";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
-            return;
-        }
-
-        int is_success = jsonData["success"].toInt();
-        if (!is_success) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Bad JSON for WgConfigs connect: success == 0";
+            qCDebug(LOG_SERVER_API) << "WgConfigs connect JSON contains a missing or invalid 'success' field";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
@@ -2736,7 +2735,7 @@ void ServerAPI::handleWireGuardConnectCurl(BaseRequest *rd, bool success)
         QJsonObject jsonConfig = jsonData["config"].toObject();
         if (!crd->wireGuardConfig().onConnectResponse(jsonConfig)) {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "'config' JSON element for WgConfigs connect is missing required elements";
+            qCDebug(LOG_SERVER_API) << "WgConfigs connect 'config' entry is missing required elements";
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
