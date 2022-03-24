@@ -2453,7 +2453,7 @@ void ServerAPI::handleWireGuardInitCurl(BaseRequest *rd, bool success)
             return;
         }
 
-        //qCDebug(LOG_SERVER_API) << "WgConfigs/init json:" << doc.toJson(QJsonDocument::Compact);
+        qCDebug(LOG_SERVER_API) << "WgConfigs/init json:" << doc.toJson(QJsonDocument::Compact);
 
         // Persist the peer parameters we received.
         apiinfo::ApiInfo::setWireGuardPeerInfo(crd->wireGuardConfig().peerPresharedKey(), crd->wireGuardConfig().peerAllowedIps());
@@ -2608,7 +2608,9 @@ void ServerAPI::submitWireGuardInitRequest(BaseRequest *rd, bool generateKeyPair
     postData.addQueryItem("time", strTimestamp);
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("session_auth_hash", crd->getAuthHash());
-    postData.addQueryItem("wg_pubkey", crd->wireGuardConfig().clientPublicKey());
+    // Must encode the public key in case it has '+' characters in its base64 encoding.  Otherwise the
+    // server API will store the incorrect key and the wireguard handshake will fail due to a key mismatch.
+    postData.addQueryItem("wg_pubkey", QUrl::toPercentEncoding(crd->wireGuardConfig().clientPublicKey()));
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
 
     if (crd->deleleOldestKey()) {
@@ -2620,7 +2622,7 @@ void ServerAPI::submitWireGuardInitRequest(BaseRequest *rd, bool generateKeyPair
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
     curl_request->setUrl(url.toString());
     submitCurlRequest(crd, CurlRequest::METHOD_POST,
-        "Content-type: application/x-www-form-urlencoded", crd->getHostname(), crd->ips());
+        "Content-type: text/html; charset=utf-8", crd->getHostname(), crd->ips());
 }
 
 void ServerAPI::submitWireGuardConnectRequest(BaseRequest *rd)
@@ -2642,7 +2644,9 @@ void ServerAPI::submitWireGuardConnectRequest(BaseRequest *rd)
     postData.addQueryItem("time", strTimestamp);
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("session_auth_hash", crd->getAuthHash());
-    postData.addQueryItem("wg_pubkey", crd->wireGuardConfig().clientPublicKey());
+    // Must encode the public key in case it has '+' characters in its base64 encoding.  Otherwise the
+    // server API will store the incorrect key and the wireguard handshake will fail due to a key mismatch.
+    postData.addQueryItem("wg_pubkey", QUrl::toPercentEncoding(crd->wireGuardConfig().clientPublicKey()));
     postData.addQueryItem("hostname", crd->serverName());
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
 
@@ -2650,7 +2654,7 @@ void ServerAPI::submitWireGuardConnectRequest(BaseRequest *rd)
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
     curl_request->setUrl(url.toString());
     submitCurlRequest(crd, CurlRequest::METHOD_POST,
-        "Content-type: application/x-www-form-urlencoded", crd->getHostname(), crd->ips());
+        "Content-type: text/html; charset=utf-8", crd->getHostname(), crd->ips());
 }
 
 void ServerAPI::handleWireGuardConnectCurl(BaseRequest *rd, bool success)

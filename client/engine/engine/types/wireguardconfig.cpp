@@ -13,7 +13,6 @@
 
 WireGuardConfig::WireGuardConfig()
 {
-
 }
 
 WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAddress,
