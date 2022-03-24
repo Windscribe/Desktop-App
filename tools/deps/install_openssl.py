@@ -55,7 +55,7 @@ def BuildDependencyGNU(outpath, compiler_params):
   if not is_testing_ok:
     configure_cmd.extend(["no-unit-test", "no-tests"])
   configure_cmd.append("--prefix={}".format(outpath))
-  configure_cmd.append("--openssldir={}".format(outpath))
+  configure_cmd.append("--openssldir=/usr/local/ssl")
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
