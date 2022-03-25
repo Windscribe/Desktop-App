@@ -161,6 +161,9 @@ signals:
     void engineCrash();
     void engineRecoveryFailed();
 
+    void wireGuardAtKeyLimit();
+    void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
+
 private:
     bool isSavedApiSettingsExists_;
     bool bLastLoginWithAuthHash_;

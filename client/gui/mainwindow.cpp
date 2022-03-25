@@ -143,51 +143,53 @@ MainWindow::MainWindow() :
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));
+    connect(backend_, SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
+    connect(backend_, SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(loginFinished(bool)), SLOT(onBackendLoginFinished(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(loginStepMessage(ProtoTypes::LoginMessage)), SLOT(onBackendLoginStepMessage(ProtoTypes::LoginMessage)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(loginError(ProtoTypes::LoginError)), SLOT(onBackendLoginError(ProtoTypes::LoginError)));
+    connect(backend_, SIGNAL(loginFinished(bool)), SLOT(onBackendLoginFinished(bool)));
+    connect(backend_, SIGNAL(loginStepMessage(ProtoTypes::LoginMessage)), SLOT(onBackendLoginStepMessage(ProtoTypes::LoginMessage)));
+    connect(backend_, SIGNAL(loginError(ProtoTypes::LoginError)), SLOT(onBackendLoginError(ProtoTypes::LoginError)));
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(signOutFinished()), SLOT(onBackendSignOutFinished()));
+    connect(backend_, SIGNAL(signOutFinished()), SLOT(onBackendSignOutFinished()));
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(sessionStatusChanged(ProtoTypes::SessionStatus)), SLOT(onBackendSessionStatusChanged(ProtoTypes::SessionStatus)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(checkUpdateChanged(ProtoTypes::CheckUpdateInfo)), SLOT(onBackendCheckUpdateChanged(ProtoTypes::CheckUpdateInfo)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(myIpChanged(QString, bool)), SLOT(onBackendMyIpChanged(QString, bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendConnectStateChanged(ProtoTypes::ConnectState)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(emergencyConnectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendEmergencyConnectStateChanged(ProtoTypes::ConnectState)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(confirmEmailResult(bool)), SLOT(onBackendConfirmEmailResult(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(debugLogResult(bool)), SLOT(onBackendDebugLogResult(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChanged(ProtoTypes::NetworkInterface)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(splitTunnelingStateChanged(bool)), SLOT(onSplitTunnelingStateChanged(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(statisticsUpdated(quint64, quint64, bool)), SLOT(onBackendStatisticsUpdated(quint64, quint64, bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(requestCustomOvpnConfigCredentials()), SLOT(onBackendRequestCustomOvpnConfigCredentials()));
-    notificationsController_.connect(dynamic_cast<QObject*>(backend_),SIGNAL(notificationsChanged(ProtoTypes::ArrayApiNotification)), SLOT(updateNotifications(ProtoTypes::ArrayApiNotification)));
+    connect(backend_, SIGNAL(sessionStatusChanged(ProtoTypes::SessionStatus)), SLOT(onBackendSessionStatusChanged(ProtoTypes::SessionStatus)));
+    connect(backend_, SIGNAL(checkUpdateChanged(ProtoTypes::CheckUpdateInfo)), SLOT(onBackendCheckUpdateChanged(ProtoTypes::CheckUpdateInfo)));
+    connect(backend_, SIGNAL(myIpChanged(QString, bool)), SLOT(onBackendMyIpChanged(QString, bool)));
+    connect(backend_, SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendConnectStateChanged(ProtoTypes::ConnectState)));
+    connect(backend_, SIGNAL(emergencyConnectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendEmergencyConnectStateChanged(ProtoTypes::ConnectState)));
+    connect(backend_, SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
+    connect(backend_, SIGNAL(confirmEmailResult(bool)), SLOT(onBackendConfirmEmailResult(bool)));
+    connect(backend_, SIGNAL(debugLogResult(bool)), SLOT(onBackendDebugLogResult(bool)));
+    connect(backend_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChanged(ProtoTypes::NetworkInterface)));
+    connect(backend_, SIGNAL(splitTunnelingStateChanged(bool)), SLOT(onSplitTunnelingStateChanged(bool)));
+    connect(backend_, SIGNAL(statisticsUpdated(quint64, quint64, bool)), SLOT(onBackendStatisticsUpdated(quint64, quint64, bool)));
+    connect(backend_, SIGNAL(requestCustomOvpnConfigCredentials()), SLOT(onBackendRequestCustomOvpnConfigCredentials()));
+    notificationsController_.connect(backend_,SIGNAL(notificationsChanged(ProtoTypes::ArrayApiNotification)), SLOT(updateNotifications(ProtoTypes::ArrayApiNotification)));
 
 #ifdef Q_OS_MAC
     WidgetUtils_mac::allowMinimizeForFramelessWindow(this);
 #endif
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(proxySharingInfoChanged(ProtoTypes::ProxySharingInfo)), SLOT(onBackendProxySharingInfoChanged(ProtoTypes::ProxySharingInfo)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(wifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)), SLOT(onBackendWifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(cleanupFinished()), SLOT(onBackendCleanupFinished()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(gotoCustomOvpnConfigModeFinished()), SLOT(onBackendGotoCustomOvpnConfigModeFinished()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(sessionDeleted()), SLOT(onBackendSessionDeleted()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(testTunnelResult(bool)), SLOT(onBackendTestTunnelResult(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(lostConnectionToHelper()), SLOT(onBackendLostConnectionToHelper()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(highCpuUsage(QStringList)), SLOT(onBackendHighCpuUsage(QStringList)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(userWarning(ProtoTypes::UserWarningType)), SLOT(onBackendUserWarning(ProtoTypes::UserWarningType)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onBackendProtocolPortChanged(ProtoTypes::Protocol, uint)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
+    connect(backend_, SIGNAL(proxySharingInfoChanged(ProtoTypes::ProxySharingInfo)), SLOT(onBackendProxySharingInfoChanged(ProtoTypes::ProxySharingInfo)));
+    connect(backend_, SIGNAL(wifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)), SLOT(onBackendWifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)));
+    connect(backend_, SIGNAL(cleanupFinished()), SLOT(onBackendCleanupFinished()));
+    connect(backend_, SIGNAL(gotoCustomOvpnConfigModeFinished()), SLOT(onBackendGotoCustomOvpnConfigModeFinished()));
+    connect(backend_, SIGNAL(sessionDeleted()), SLOT(onBackendSessionDeleted()));
+    connect(backend_, SIGNAL(testTunnelResult(bool)), SLOT(onBackendTestTunnelResult(bool)));
+    connect(backend_, SIGNAL(lostConnectionToHelper()), SLOT(onBackendLostConnectionToHelper()));
+    connect(backend_, SIGNAL(highCpuUsage(QStringList)), SLOT(onBackendHighCpuUsage(QStringList)));
+    connect(backend_, SIGNAL(userWarning(ProtoTypes::UserWarningType)), SLOT(onBackendUserWarning(ProtoTypes::UserWarningType)));
+    connect(backend_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
+    connect(backend_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onBackendProtocolPortChanged(ProtoTypes::Protocol, uint)));
+    connect(backend_, SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
+    connect(backend_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
             SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(webSessionTokenForEditAccountDetails(QString)), SLOT(onBackendWebSessionTokenForEditAccountDetails(QString)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(webSessionTokenForAddEmail(QString)), SLOT(onBackendWebSessionTokenForAddEmail(QString)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
+    connect(backend_, SIGNAL(webSessionTokenForEditAccountDetails(QString)), SLOT(onBackendWebSessionTokenForEditAccountDetails(QString)));
+    connect(backend_, SIGNAL(webSessionTokenForAddEmail(QString)), SLOT(onBackendWebSessionTokenForAddEmail(QString)));
+    connect(backend_, SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
+    connect(backend_, SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
+    connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainWindow::onWireGuardAtKeyLimit);
+    connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
     locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
     connect(locationsWindow_, SIGNAL(selected(LocationID)), SLOT(onLocationSelected(LocationID)));
@@ -3656,4 +3658,13 @@ void MainWindow::updateTrayTooltip(QString tooltip)
 #else
     trayIcon_.setToolTip(tooltip);
 #endif
+}
+
+void MainWindow::onWireGuardAtKeyLimit()
+{
+    int result = QMessageBox::warning(g_mainWindow, tr("Windscribe"),
+        tr("You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?"),
+        QMessageBox::Ok | QMessageBox::Cancel);
+
+    Q_EMIT wireGuardKeyLimitUserResponse(result == QMessageBox::Ok);
 }

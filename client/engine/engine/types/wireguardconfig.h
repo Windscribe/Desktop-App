@@ -12,10 +12,12 @@ public:
                     const QString &publicKey, const QString &presharedKey, const QString &endpoint,
                     const QString &allowedIps);
 
-    bool initFromJson(QJsonObject &obj);
-    void updatePeerInfo(const QString &publicKey, const QString &endpoint);
+    bool onInitResponse(const QJsonObject &obj);
+    bool onConnectResponse(const QJsonObject &obj);
+    void reset();
 
     QString clientPrivateKey() const { return client_.privateKey; }
+    QString clientPublicKey() const { return client_.publicKey; }
     QString clientIpAddress() const { return client_.ipAddress; }
     QString clientDnsAddress() const { return client_.dnsAddress; }
 
@@ -23,8 +25,17 @@ public:
     QString peerPresharedKey() const { return peer_.presharedKey; }
     QString peerEndpoint() const { return peer_.endpoint; }
     QString peerAllowedIps() const { return peer_.allowedIps; }
+    void setPeerPublicKey(const QString &publicKey) { peer_.publicKey = publicKey; }
+    void setPeerEndpoint(const QString &endpoint) { peer_.endpoint = endpoint; }
+    void setPeerPresharedKey(const QString &presharedKey) { peer_.presharedKey = presharedKey; }
+    void setPeerAllowedIPs(const QString &allowedIPs) { peer_.allowedIps = allowedIPs; }
+    bool haveServerGeneratedPeerParams() const;
 
     void generateConfigFile(const QString &fileName) const;
+
+    bool generateKeyPair();
+    bool haveKeyPair() const;
+    void setKeyPair(QString& publicKey, QString& privateKey);
 
     static QString stripIpv6Address(const QStringList &addressList);
     static QString stripIpv6Address(const QString &addressList);
@@ -32,6 +43,7 @@ public:
 private:
     struct {
         QString privateKey;
+        QString publicKey;
         QString ipAddress;
         QString dnsAddress;
     } client_;

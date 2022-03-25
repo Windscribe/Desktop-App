@@ -125,6 +125,7 @@ public:
 public slots:
     void init();
     void stopPacketDetection();
+    void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
 signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode);
@@ -176,6 +177,8 @@ signals:
     void packetSizeDetectionStateChanged(bool on, bool isError);
 
     void hostsFileBecameWritable();
+
+    void wireGuardAtKeyLimit();
 
 private slots:
     void onLostConnectionToHelper();
@@ -241,7 +244,7 @@ private slots:
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
-    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
+    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     void onStartCheckUpdate();

@@ -31,7 +31,7 @@ struct CurrentConnectionDescr
     bool isAllowFirewallAfterConnection;
 
     // fields for WireGuard
-    QString wgPublicKey;
+    QString wgPeerPublicKey;
     QSharedPointer<WireGuardConfig> wgCustomConfig;
 
     // fields for static ips
