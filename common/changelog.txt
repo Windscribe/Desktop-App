@@ -1,3 +1,13 @@
+2.4.4 (25/03/2022)
+* Fixed crash on bad server locations list. #209
+* Various Wireguard NT fixes. #120
+* OpenVPN on Mac, infinite reconnection loop fixed. #186
+* Dynamic Wireguard Interface Allocation Support. #189
+* DPI fixes for the tray icon for Windows. #208
+* Privilege escalation vulnerability fixed. #214
+* Improved DNS manager automatic selection algorithm on Linux. #198
+
+
 2.4.3 (11/03/2022)
 * Added wireguard NT. #120
 * (Yellow) State bug on MacOS. #186
