@@ -28,6 +28,7 @@ private:
     enum SCRIPT_TYPE { SYSTEMD_RESOLVED, RESOLV_CONF, NETWORK_MANAGER };
     ProtoTypes::DnsManagerType dnsManager_;
     SCRIPT_TYPE detectScript();
+    QString getSymlink(const QString &path);
 };
 
 #endif // DNS_SCRIPTS_LINUX_H

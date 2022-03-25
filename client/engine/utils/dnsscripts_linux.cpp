@@ -55,29 +55,83 @@ DnsScripts_linux::DnsScripts_linux() : dnsManager_(ProtoTypes::DNS_MANAGER_AUTOM
 
 DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
 {
-    // first method: based on check that the resolvconf utility is installed.
+    // collecting information about DNS settings
+    bool isResolvConfInstalled = false;
+    QString resolvConfSymlink;
+    bool isSystemdResolvedServiceRunning = false;
+    QString resolvConfFileSymlink;
+    QString resolvConfFileHeader;
+
+    // check if the resolvconf utility is installed and its symlink.
     {
         QProcess process;
         process.start("resolvconf");
         process.waitForFinished();
-        process.close();
-        bool isResolvConfInstalled = (process.error() == QProcess::UnknownError);
+        isResolvConfInstalled = (process.error() == QProcess::UnknownError);
         if (isResolvConfInstalled)
         {
-            qCDebug(LOG_BASIC) << "The DNS installation method -> resolvconf";
-            return RESOLV_CONF;
+            resolvConfSymlink = getSymlink("/sbin/resolvconf");
         }
+    }
+
+    // check if the systemd-resolved service is running.
+    {
+        QProcess process;
+        process.start("systemctl is-active --quiet systemd-resolved");
+        process.waitForFinished();
+        isSystemdResolvedServiceRunning = (process.exitCode() == 0);
+    }
+
+    // get a symlink to /etc/resolv.conf file
+    resolvConfFileSymlink = getSymlink("/etc/resolv.conf");
+
+    // read a header of /etc/resolv.conf file
+    {
+        QFile file("/etc/resolv.conf");
+        if (file.open(QIODevice::ReadOnly))
+        {
+            QTextStream in(&file);
+            while (!in.atEnd())
+            {
+                QString line = in.readLine();
+                if (line.startsWith("#"))
+                {
+                    resolvConfFileHeader += line;
+                }
+            }
+        }
+        else
+        {
+            qCDebug(LOG_BASIC) << "Can't open /etc/resolv.conf file";
+        }
+    }
+
+    qCDebug(LOG_BASIC) << "DNS-manager configuration: isResolvConfInstalled =" << isResolvConfInstalled << "; resolvConfSymlink =" << resolvConfSymlink <<
+                          "; isSystemdResolvedServiceRunning =" << isSystemdResolvedServiceRunning << "; resolvConfFileSymlink =" << resolvConfFileSymlink;
+    qCDebug(LOG_BASIC) << "/etc/resolv.conf header:" << resolvConfFileHeader;
+
+
+    // choosing a DNS-manager method based on the collected information
+
+    // first method: based on check that the resolvconf utility is installed and it's not a symlink to something else (for example on Fedora it's symlink to resolvectl.
+    if (isResolvConfInstalled && resolvConfSymlink == "/sbin/resolvconf")
+    {
+        qCDebug(LOG_BASIC) << "The DNS installation method -> resolvconf";
+        return RESOLV_CONF;
     }
 
     // second method: we check if the resolv.conf file is symlinked to determine what is being used
     // and if its symlinked to: /run/systemd/resolve/resolv.conf then we know its systemd-resolved, regardless of which package is installed.
+    // also, the systemd-resolved service must be running
+    if (isSystemdResolvedServiceRunning && resolvConfFileSymlink.contains("/run/systemd", Qt::CaseInsensitive))
     {
-        QProcess process;
-        process.start("readlink -f /etc/resolv.conf");
-        process.waitForFinished();
-
-        QString reply = process.readAll();
-        if (reply.trimmed().contains("/run/systemd", Qt::CaseInsensitive))
+        // relevant for Fedora
+        if (isResolvConfInstalled && resolvConfSymlink.contains("resolvectl", Qt::CaseInsensitive))
+        {
+            qCDebug(LOG_BASIC) << "The DNS installation method -> resolvconf";
+            return RESOLV_CONF;
+        }
+        else
         {
             qCDebug(LOG_BASIC) << "The DNS installation method -> systemd-resolve";
             return SYSTEMD_RESOLVED;
@@ -87,4 +141,12 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
     // by default use NetworkManager script
     qCDebug(LOG_BASIC) << "The DNS installation method -> NetworkManager";
     return NETWORK_MANAGER;
+}
+
+QString DnsScripts_linux::getSymlink(const QString &path)
+{
+    QProcess process;
+    process.start("readlink -f " + path);
+    process.waitForFinished();
+    return process.readAll().trimmed();
 }
