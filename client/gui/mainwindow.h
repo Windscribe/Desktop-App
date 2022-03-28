@@ -218,7 +218,7 @@ private slots:
 
 #ifdef Q_OS_MAC
     void onPreferencesHideFromDockChanged(bool hideFromDock);
-    void hideShowDockIconImpl();
+    void hideShowDockIconImpl(bool bAllowActivateAndShow);
 #endif
     // WindscribeApplications signals
     void toggleVisibilityIfDocked();

@@ -14,9 +14,8 @@ void LocationsTrayMenuScaleManager::setTrayIconGeometry(const QRect &geometry)
 
     if (screen_)
     {
-        int curDPI = screen_->logicalDotsPerInch();
-
         #ifdef Q_OS_WIN
+            int curDPI = screen_->logicalDotsPerInch();
             scale_ = (double)curDPI / (double)LOWEST_LDPI;
         #else
             // for Mac curScale always == 1
