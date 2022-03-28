@@ -465,7 +465,7 @@ def build_auth_helper_win32(configdata, targetlist):
 
 def pack_symbols():
     msg.Info("Packing symbols...")
-    symbols_archive_name = "WindscribeSymbols_{}.zip".format(extractor.app_version())
+    symbols_archive_name = "WindscribeSymbols_{}.zip".format(extractor.app_version(True))
     zf = zipfile.ZipFile(symbols_archive_name, "w", zipfile.ZIP_DEFLATED)
     skiplen = len(BUILD_SYMBOL_FILES) + 1
     for filename in glob2.glob(BUILD_SYMBOL_FILES + os.sep + "**"):
@@ -550,7 +550,10 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     if arghelper.post_clean():
         utl.RemoveFile(archive_filename)
     final_installer_name = os.path.normpath(os.path.join(os.getcwd(),
-                                                         "Windscribe_{}.exe".format(extractor.app_version())))
+                                                         "Windscribe_{}.exe".format(extractor.app_version(True))))
+    msg.Info("App version extracted22: \"{}\"".format(extractor.app_version()))
+    msg.Info("App version extracted33: \"{}\"".format(final_installer_name))
+
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                                                  installer_info["target"])), final_installer_name)
     if arghelper.sign_app():
@@ -586,7 +589,7 @@ def build_installer_mac(configdata, qt_root):
                          "WindscribeInstaller.dmg", "-D", "app=" + installer_app_override, "-D",
                          "background=" + pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/osx_install_background.tiff"])
         final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
-                                                         .format(extractor.app_version())))
+                                                         .format(extractor.app_version(True))))
     utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
 
@@ -637,7 +640,7 @@ def build_installer_linux(configdata, qt_root):
 
     msg.Info("Creating Debian package...")
     src_package_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "debian_package")
-    dest_package_name = "windscribe_{}_amd64".format(extractor.app_version())
+    dest_package_name = "windscribe_{}_amd64".format(extractor.app_version(True))
     dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
 
     utl.CopyAllFiles(src_package_path, dest_package_path)
@@ -652,7 +655,7 @@ def build_installer_linux(configdata, qt_root):
     
     # create RPM from deb
     # msg.Info("Creating RPM package...")
-    rpm_package_name = "windscribe_{}_x86_64.rpm".format(extractor.app_version())
+    rpm_package_name = "windscribe_{}_x86_64.rpm".format(extractor.app_version(True))
     postinst_rpm_script = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "additional_files", "postinst_rpm")
     iutl.RunCommand(["fpm", "--after-install", postinst_rpm_script,
                      "-s", "deb",

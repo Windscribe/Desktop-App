@@ -13,15 +13,21 @@ import pathhelper
 class Extractor:
     # memoize so we don't have to read the file more than once per variable
     extracted_app_version = ""
+    extracted_app_version_with_beta_suffix = ""
     extracted_mac_signing_params = ("", "")
 
     def __init__(self):
         pass
 
-    def app_version(self):
-        if not Extractor.extracted_app_version:
-            Extractor.extracted_app_version = self.__extract_app_version()
-        return Extractor.extracted_app_version
+    def app_version(self, inlcude_beta_suffix=False):
+        if not inlcude_beta_suffix:
+            if not Extractor.extracted_app_version:
+                Extractor.extracted_app_version = self.__extract_app_version()
+            return Extractor.extracted_app_version
+        else:
+            if not Extractor.extracted_app_version_with_beta_suffix:
+                Extractor.extracted_app_version_with_beta_suffix = self.__extract_app_version(True)
+            return Extractor.extracted_app_version_with_beta_suffix
 
     def mac_signing_params(self):
         if not Extractor.extracted_app_version:
@@ -29,12 +35,13 @@ class Extractor:
         return Extractor.extracted_mac_signing_params
 
     @staticmethod
-    def __extract_app_version():
+    def __extract_app_version(inlcude_beta_suffix=False):
         version_file = os.path.join(pathhelper.COMMON_DIR, "version", "windscribe_version.h")
-        values = [0] * 3
+        values = [0] * 4
         patterns = [re.compile("\\bWINDSCRIBE_MAJOR_VERSION\\s+(\\d+)"),
                     re.compile("\\bWINDSCRIBE_MINOR_VERSION\\s+(\\d+)"),
-                    re.compile("\\bWINDSCRIBE_BUILD_VERSION\\s+(\\d+)")]
+                    re.compile("\\bWINDSCRIBE_BUILD_VERSION\\s+(\\d+)"),
+                    re.compile("^#define\\s+WINDSCRIBE_IS_BETA")]
         with open(version_file, "r") as f:
             for line in f:
                 for i in range(len(patterns)):
@@ -42,8 +49,15 @@ class Extractor:
                     if matched:
                         values[i] = int(matched.group(1)) if matched.lastindex > 0 else 1
                         break
+        version_only = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
         # version-only: x.y.z
-        return "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
+        if not inlcude_beta_suffix:
+            return version_only
+        else:
+            if values[3]:
+                return version_only + "_beta"
+            else:
+                return version_only
 
     @staticmethod
     def __extract_mac_signing_params():
