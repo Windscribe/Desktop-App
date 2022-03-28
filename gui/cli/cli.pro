@@ -43,6 +43,7 @@ win32{
             $$COMMON_PATH/utils/executable_signature/executable_signature_win.cpp \
             $$COMMON_PATH/utils/winutils.cpp
 
+    RC_FILE = cli.rc
 
     # Supress protobuf linker warnings
     QMAKE_LFLAGS += /IGNORE:4099
