@@ -387,11 +387,9 @@ MainWindow::MainWindow() :
 
 #if defined(Q_OS_MAC)
     hideShowDockIconTimer_.setSingleShot(true);
-    connect(&hideShowDockIconTimer_, SIGNAL(timeout()), SLOT(hideShowDockIconImpl()));
-    if (backend_->getPreferences()->isHideFromDock()) {
-        desiredDockIconVisibility_ = false;
-        hideShowDockIconImpl();
-    }
+    connect(&hideShowDockIconTimer_, &QTimer::timeout, this, [this]() {
+        hideShowDockIconImpl(true);
+    });
 #endif
     deactivationTimer_.setSingleShot(true);
     connect(&deactivationTimer_, SIGNAL(timeout()), SLOT(onWindowDeactivateAndHideImpl()));
@@ -406,15 +404,25 @@ MainWindow::~MainWindow()
 
 void MainWindow::showAfterLaunch()
 {
-    if(!backend_){
+    if (!backend_) {
         qCDebug(LOG_BASIC) << "Backend is nullptr!";
     }
 
-    if(backend_ && backend_->getPreferences()->isStartMinimized()){
+    #ifdef Q_OS_MACOS
+    // Do not showMinimized if hide from dock is enabled.  Otherwise, the app will fail to show
+    // itself when the user selects 'Show' in the app's system tray menu.
+    if (backend_ && backend_->getPreferences()->isHideFromDock()) {
+        desiredDockIconVisibility_ = false;
+        hideShowDockIconImpl(!backend_->getPreferences()->isStartMinimized());
+        return;
+    }
+    #endif
+
+    if (backend_ && backend_->getPreferences()->isStartMinimized()) {
         showMinimized();
         return;
     }
-#ifdef Q_OS_WIN
+    #ifdef Q_OS_WIN
     else if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
         QCommandLineParser cmdParser;
         cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
@@ -426,7 +434,7 @@ void MainWindow::showAfterLaunch()
             return;
         }
     }
-#endif
+    #endif
     show();
 }
 
@@ -2681,25 +2689,29 @@ void MainWindow::onPreferencesHideFromDockChanged(bool hideFromDock)
     hideShowDockIcon(hideFromDock);
 }
 
-void MainWindow::hideShowDockIconImpl()
+void MainWindow::hideShowDockIconImpl(bool bAllowActivateAndShow)
 {
     if (currentDockIconVisibility_ != desiredDockIconVisibility_) {
         currentDockIconVisibility_ = desiredDockIconVisibility_;
         if (currentDockIconVisibility_) {
             MacUtils::showDockIcon();
-        } else {
+        }
+        else {
             // A call to |hideDockIcon| will hide the window, this is annoying but that's how
             // one hides the dock icon on Mac. If there are any GUI events queued, especially
             // those that are going to show some widgets, it may result in a crash. To avoid it, we
             // pump the message loop here, including user input events.
             qApp->processEvents();
             MacUtils::hideDockIcon();
-            // Do not attempt to show the window immediately, it may take some time to transform
-            // process type in |hideDockIcon|.
-            QTimer::singleShot(1, [this]() {
-                activateAndShow();
-                setBackendAppActiveState(true);
-            });
+
+            if (bAllowActivateAndShow) {
+                // Do not attempt to show the window immediately, it may take some time to transform
+                // process type in |hideDockIcon|.
+                QTimer::singleShot(1, this, [this]() {
+                    activateAndShow();
+                    setBackendAppActiveState(true);
+                });
+            }
         }
     }
 }
