@@ -179,6 +179,7 @@ signals:
     void hostsFileBecameWritable();
 
     void wireGuardAtKeyLimit();
+    void initCleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
 
 private slots:
     void onLostConnectionToHelper();

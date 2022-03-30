@@ -125,9 +125,11 @@ void Engine::setSettings(const EngineSettings &engineSettings)
 
 void Engine::cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart)
 {
-    QMutexLocker locker(&mutex_);
-    QMetaObject::invokeMethod(this, "cleanupImpl", Q_ARG(bool, isExitWithRestart), Q_ARG(bool, isFirewallChecked),
-                                                   Q_ARG(bool, isFirewallAlwaysOn), Q_ARG(bool, isLaunchOnStart));
+    // Cannot use invokeMethod("cleanupImpl") here.  Any code called by cleanupImpl causing the message queue
+    // to be processed (e.g. qApp->processEvents() in ConnectionManager::blockingDisconnect) would then cause
+    // cleanupImpl to be invoked repeatedly before the initial call has completed.  One of the cleanupImpl calls
+    // would SAFE_DELETE all the pointers, thereby causing the other pending calls to segfault.
+    Q_EMIT initCleanup(isExitWithRestart, isFirewallChecked, isFirewallAlwaysOn, isLaunchOnStart);
 }
 
 bool Engine::isCleanupFinished()
@@ -579,6 +581,7 @@ void Engine::init()
 #endif
 
     isCleanupFinished_ = false;
+    connect(this, &Engine::initCleanup, this, &Engine::cleanupImpl);
 
     helper_ = CrossPlatformObjectFactory::createHelper(this);
     connect(helper_, SIGNAL(lostConnectionToHelper()), SLOT(onLostConnectionToHelper()));
@@ -801,6 +804,14 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 
 void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart)
 {
+    // Ensure this slot only gets invoked once.
+    disconnect(this, &Engine::initCleanup, nullptr, nullptr);
+
+    if (isCleanupFinished_) {
+        qCDebug(LOG_BASIC) << "WARNING - Engine::cleanupImpl called repeatedly. Verify code logic as this should not happen.";
+        return;
+    }
+
     qCDebug(LOG_BASIC) << "Cleanup started";
 
     if (loginController_)
@@ -859,12 +870,17 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 
     // turn off split tunneling
-    helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
-    helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
+    if (helper_)
+    {
+        helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
+        helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
+    }
 
 #ifdef Q_OS_WIN
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    helper_win->removeWindscribeNetworkProfiles();
+    if (helper_win) {
+        helper_win->removeWindscribeNetworkProfiles();
+    }
 #endif
 
     if (!isExitWithRestart)
