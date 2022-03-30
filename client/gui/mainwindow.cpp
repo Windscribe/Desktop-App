@@ -2281,7 +2281,7 @@ void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
         {
             alreadyShownWarnings_.insert(userWarningType);
             titleText = tr("Check for update failed");
-            descText = tr("Windscribe could not check for update due to an invalid platfrom config. You may want to try manually updating your installation.");
+            descText = tr("Windscribe could not check for update due to an invalid platform config. You may want to try manually updating your installation.");
         }
     }
 
