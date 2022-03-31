@@ -249,7 +249,6 @@ private slots:
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     void onStartCheckUpdate();
-    void onStartStaticIpsUpdate();
     void onUpdateSessionStatusTimer();
 
     void onConnectionManagerConnected();

@@ -1716,11 +1716,6 @@ void Engine::onStartCheckUpdate()
     serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
 }
 
-void Engine::onStartStaticIpsUpdate()
-{
-    serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), serverApiUserRole_, true);
-}
-
 void Engine::onUpdateSessionStatusTimer()
 {
     serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
