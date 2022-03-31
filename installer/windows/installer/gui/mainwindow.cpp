@@ -612,7 +612,23 @@ std::wstring MainWindow::selectPath()
 			imalloc->Release();
 		}
 
-		if (PathIsSystemFolder(path, 0))
+		// is directory exists?
+		bool isDirExists = false;
+		DWORD ftyp = GetFileAttributes(path);
+		if (ftyp != INVALID_FILE_ATTRIBUTES)
+		{
+			if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+				isDirExists = true;
+		}
+		// check if directory empty
+		bool isDirEmpty = false;
+		if (isDirExists)
+		{
+			isDirEmpty = PathIsDirectoryEmpty(path);
+		}
+
+		//  if the selected directory has files in it, append \Windscribe to it
+		if (isDirExists && !isDirEmpty)
 		{
 			if (PathAppend(path, ApplicationInfo::instance().getName().c_str()))
 			{
@@ -623,6 +639,7 @@ std::wstring MainWindow::selectPath()
 				return L"";
 			}
 		}
+
 		return path;
 	}
 

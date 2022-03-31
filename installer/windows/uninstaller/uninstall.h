@@ -23,11 +23,6 @@
 #include "../Utils/remove_directory.h"
 #include "../Utils/paths_to_folders.h"
 
-#include "uninstall_progress.h"
-
-//Uninstall progress for Windows
-extern UninstallProgress* uninstall_progress;
-
 typedef  HRESULT(WINAPI*  P_SHCreateItemFromParsingName)(
     PCWSTR   pszPath,
     IBindCtx *pbc,
@@ -41,14 +36,11 @@ class Uninstaller
  private:
     //static InstallMode install_mode;
     static Services services;
-    Process process;
     static RemoveDirectory1 remove_directory;
     static Path path;
     static Redirection redirection;
 
     bool IsAdmin,IsPowerUserOrAdmin;
-
-    HANDLE Exec(const std::wstring &Filename, const std::wstring &workingDir, const std::wstring &Parms, DWORD &outProcessId);
 
     //static WNDPROC OldWindowProc;
     static const int  WM_KillFirstPhase;
@@ -74,31 +66,19 @@ class Uninstaller
 
     static bool InitializeUninstall();
 
-    static void RestartReplace(const bool DisableFsRedir, std::wstring TempFile, std::wstring DestFile);
-
-	std::wstring IntToBase32(LONG Number);
-
-    bool GenerateNonRandomUniqueFilename(std::wstring Path1, std::wstring &Filename);
-
     static bool UnpinShellLink(const std::wstring Filename);
-
-    static bool FileDelete(const std::wstring Filename, const bool DisableFsRedir, const bool NotifyChange,const bool RestartDelete);
 
     static bool ProcessMsgs();
 
     static std::wstring UninstExeFile;
-    static std::wstring UninstDataFile;
-    //static HWND FirstPhaseWnd;
 	static bool isSilent_;
 
     static P_SHCreateItemFromParsingName SHCreateItemFromParsingNameFunc;
 
  public:
     void setUninstExeFile(const std::wstring &exe_file, bool bFirstPhase);
-    void setFirstPhaseWnd(const HWND &hWnd);
 	void setSilent(bool isSilent);
-    DWORD RunFirstPhase(HINSTANCE hInstance,LPSTR lpszCmdParam);
-    static void RunSecondPhase(HWND hwnd);
+    static void RunSecondPhase();
     Uninstaller();
     ~Uninstaller();
 };
