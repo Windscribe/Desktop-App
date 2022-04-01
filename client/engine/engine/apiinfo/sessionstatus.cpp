@@ -193,4 +193,10 @@ bool SessionStatus::isChangedForLogging(const SessionStatus &session) const
     }
 }
 
+int SessionStatus::getStatus() const
+{
+    Q_ASSERT(d->isInitialized_);
+    return d->ss_.status();
+}
+
 } //namespace apiinfo

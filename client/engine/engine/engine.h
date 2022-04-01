@@ -248,7 +248,7 @@ private slots:
     void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
-    void onStartCheckUpdate();
+    void onUpdateServerResources();
     void onUpdateSessionStatusTimer();
 
     void onConnectionManagerConnected();
@@ -308,6 +308,7 @@ private slots:
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
 
     void fetchWireGuardConfig();
+    void checkForAppUpdate();
 
 #ifdef Q_OS_MAC
     void onRobustMacSpoofTimerTick();
@@ -355,7 +356,7 @@ private:
     LoginSettings loginSettings_;
     QMutex loginSettingsMutex_;
 
-    QTimer *checkUpdateTimer_;
+    QTimer *updateServerResourcesTimer_;
     SessionStatusTimer *updateSessionStatusTimer_;
     QTimer *notificationsUpdateTimer_;
     QTimer *fetchWireguardConfigTimer_;
@@ -394,7 +395,7 @@ private:
     bool runningPacketDetection_;
 
     enum {UPDATE_SESSION_STATUS_PERIOD = 60 * 1000}; // 1 min
-    enum {CHECK_UPDATE_PERIOD = 24 * 60 * 60 * 1000}; // 24 hours
+    enum {UPDATE_SERVER_RESOURCES_PERIOD = 24 * 60 * 60 * 1000}; // 24 hours
     enum {NOTIFICATIONS_UPDATE_PERIOD = 60 * 60 * 1000}; // 1 hour
 
     void startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState);

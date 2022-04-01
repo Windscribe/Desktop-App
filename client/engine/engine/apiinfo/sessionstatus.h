@@ -50,6 +50,7 @@ public:
     QString getUserId() const;
     const ProtoTypes::SessionStatus &getProtoBuf() const;
     int getBillingPlanId() const;
+    int getStatus() const;
 
     bool isInitialized() const;
     void clear();

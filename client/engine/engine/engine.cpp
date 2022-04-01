@@ -74,7 +74,7 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     loginController_(nullptr),
     loginState_(LOGIN_NONE),
     loginSettingsMutex_(QMutex::Recursive),
-    checkUpdateTimer_(nullptr),
+    updateServerResourcesTimer_(nullptr),
     updateSessionStatusTimer_(nullptr),
     notificationsUpdateTimer_(nullptr),
     fetchWireguardConfigTimer_(nullptr),
@@ -709,8 +709,8 @@ void Engine::initPart2()
     customConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
     connect(customConfigs_, SIGNAL(changed()), SLOT(onCustomConfigsChanged()));
 
-    checkUpdateTimer_ = new QTimer(this);
-    connect(checkUpdateTimer_, SIGNAL(timeout()), SLOT(onStartCheckUpdate()));
+    updateServerResourcesTimer_ = new QTimer(this);
+    connect(updateServerResourcesTimer_, &QTimer::timeout, this, &Engine::onUpdateServerResources);
     updateSessionStatusTimer_ = new SessionStatusTimer(this, connectStateController_);
     connect(updateSessionStatusTimer_, SIGNAL(needUpdateRightNow()), SLOT(onUpdateSessionStatusTimer()));
     notificationsUpdateTimer_ = new QTimer(this);
@@ -821,9 +821,9 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 
     // stop timers
-    if (checkUpdateTimer_)
+    if (updateServerResourcesTimer_)
     {
-        checkUpdateTimer_->stop();
+        updateServerResourcesTimer_->stop();
     }
     if (updateSessionStatusTimer_)
     {
@@ -969,7 +969,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(helper_);
     SAFE_DELETE(getMyIPController_);
     SAFE_DELETE(serverAPI_);
-    SAFE_DELETE(checkUpdateTimer_);
+    SAFE_DELETE(updateServerResourcesTimer_);
     SAFE_DELETE(updateSessionStatusTimer_);
     SAFE_DELETE(notificationsUpdateTimer_);
     SAFE_DELETE(locationsModel_);
@@ -1164,7 +1164,7 @@ void Engine::signOutImplAfterDisconnect()
         SAFE_DELETE(loginController_);
         loginState_ = LOGIN_NONE;
     }
-    checkUpdateTimer_->stop();
+    updateServerResourcesTimer_->stop();
     updateSessionStatusTimer_->stop();
     notificationsUpdateTimer_->stop();
     connectionManager_->resetWireGuardConfig();
@@ -1352,7 +1352,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
                 }
             }
             serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(),
-                                                        ss.isPro(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
+                                        ss.isPro(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
         }
     }
 
@@ -1503,8 +1503,9 @@ void Engine::onReadyForNetworkRequests()
 {
     qCDebug(LOG_BASIC) << "Engine::onReadyForNetworkRequests()";
     serverAPI_->setRequestsEnabled(true);
-    checkUpdateTimer_->start(CHECK_UPDATE_PERIOD);
-    onStartCheckUpdate();
+    updateServerResourcesTimer_->start(UPDATE_SERVER_RESOURCES_PERIOD);
+    checkForAppUpdate();
+
     if (connectionManager_->isDisconnected())
     {
         getMyIPController_->getIPFromDisconnectedState(1);
@@ -1597,7 +1598,7 @@ void Engine::onCheckUpdateAnswer(const apiinfo::CheckUpdate &checkUpdate, bool b
     {
         if (bNetworkErrorOccured)
         {
-            QTimer::singleShot(60000, this, SLOT(onStartCheckUpdate()));
+            QTimer::singleShot(60000, this, &Engine::checkForAppUpdate);
             return;
         }
 
@@ -1674,7 +1675,7 @@ void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::Stati
         {
             qCDebug(LOG_BASIC) << "Failed get static ips";
             // try again with 3 sec
-            QTimer::singleShot(3000, this, SLOT(onStartCheckUpdate()));
+            QTimer::singleShot(3000, this, SLOT(onUpdateServerResources()));
         }
     }
 }
@@ -1705,9 +1706,45 @@ void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &toke
     }
 }
 
-void Engine::onStartCheckUpdate()
+void Engine::onUpdateServerResources()
 {
-    ProtoTypes::UpdateChannel channel =   engineSettings_.getUpdateChannel();
+    // Refresh all server resources, and check for a new app version, every 24 hours.
+
+    const apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
+    if (!apiInfo_.isNull() && ss.getStatus() == 1)
+    {
+        qCDebug(LOG_BASIC) << "24 hours have past, refreshing all server API resources.";
+
+        const QString authHash = apiInfo_->getAuthHash();
+        const bool isConnected = (connectStateController_->currentState() == CONNECT_STATE_CONNECTED);
+        const bool isDisconnected = (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
+
+        if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isOpenVpnProtocol()))
+        {
+            serverAPI_->serverConfigs(authHash, serverApiUserRole_, true);
+            serverAPI_->serverCredentials(authHash, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP), true);
+        }
+
+        if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isIkev2Protocol())) {
+            serverAPI_->serverCredentials(authHash, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_IKEV2), true);
+        }
+
+        serverAPI_->serverLocations(authHash, engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(), ss.isPro(),
+                                    connectionManager_->currentProtocol(), ss.getAlc());
+
+        serverAPI_->portMap(authHash, serverApiUserRole_, true);
+
+        if (ss.getStaticIpsCount() > 0) {
+            serverAPI_->staticIps(authHash, GetDeviceId::instance().getDeviceId(), serverApiUserRole_, true);
+        }
+    }
+
+    checkForAppUpdate();
+}
+
+void Engine::checkForAppUpdate()
+{
+    ProtoTypes::UpdateChannel channel = engineSettings_.getUpdateChannel();
     if (overrideUpdateChannelWithInternal_)
     {
         qCDebug(LOG_BASIC) << "Overriding update channel: internal";
@@ -1727,7 +1764,7 @@ void Engine::onConnectionManagerConnected()
 
 #ifdef Q_OS_WIN
     // wireguard-nt driver monitors metrics itself.
-    if (!engineSettings_.connectionSettings().protocol().isWireGuardProtocol()) {
+    if (!connectionManager_->currentProtocol().isWireGuardProtocol()) {
         AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);
     }
 #elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
@@ -1764,7 +1801,8 @@ void Engine::onConnectionManagerConnected()
     }
 
     helper_->sendConnectStatus(true, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(),
-                               connectionManager_->getDefaultAdapterInfo(), connectionManager_->getCustomDnsAdapterGatewayInfo().adapterInfo, connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
+                               connectionManager_->getDefaultAdapterInfo(), connectionManager_->getCustomDnsAdapterGatewayInfo().adapterInfo,
+                               connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
 
     if (firewallController_->firewallActualState() && !isFirewallAlreadyEnabled)
     {
@@ -1773,9 +1811,9 @@ void Engine::onConnectionManagerConnected()
 
     if (connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
     {
-         if (!helper_->setCustomDnsWhileConnected(engineSettings_.connectionSettings().protocol().isIkev2Protocol(),
-                                            connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                            QString::fromStdString(connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.ip_address())))
+         if (!helper_->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),
+                                                  connectionManager_->getVpnAdapterInfo().ifIndex(),
+                                                  QString::fromStdString(connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.ip_address())))
          {
              qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
          }
@@ -1786,13 +1824,12 @@ void Engine::onConnectionManagerConnected()
     helper_win->setIPv6EnabledInFirewall(false);
 #endif
 
-    if (engineSettings_.connectionSettings().protocol().isIkev2Protocol() ||
-        engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
+    if (connectionManager_->currentProtocol().isIkev2Protocol() || connectionManager_->currentProtocol().isWireGuardProtocol())
     {
         if (!packetSize_.is_automatic())
         {
             int mtuForProtocol = 0;
-            if (engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
+            if (connectionManager_->currentProtocol().isWireGuardProtocol())
             {
                 bool advParamWireguardMtuOffset = false;
                 int wgoffset = ExtraConfig::instance().getMtuOffsetWireguard(advParamWireguardMtuOffset);
@@ -2667,11 +2704,10 @@ void Engine::updateSessionStatus()
         }
 
         if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.isPro() != ss.isPro() ||
-            prevSessionStatus_.getAlc() != ss.getAlc())
-
+            prevSessionStatus_.getAlc() != ss.getAlc() || (prevSessionStatus_.getStatus() != 1 && ss.getStatus() == 1))
         {
-            serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(), ss.isPro(),
-                                                        engineSettings_.connectionSettings().protocol(), ss.getAlc());
+            serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true,
+                                        ss.getRevisionHash(), ss.isPro(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
         }
 
         if (prevSessionStatus_.getBillingPlanId() != ss.getBillingPlanId())
