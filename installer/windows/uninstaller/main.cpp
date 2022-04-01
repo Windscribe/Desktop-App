@@ -69,7 +69,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	}
 	else
 	{
-		Log::instance().out(L"Second phase started 1");
+		Log::instance().out(L"Second phase started");
 		Uninstaller uninstaller;
 		uninstaller.setSilent(isSilent);
 		uninstaller.setUninstExeFile(uninstExeFile, false);
@@ -90,13 +90,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 			}
 			else
 			{
-				Log::instance().out(L"Second phase started 2");
 				uninstaller.RunSecondPhase();
 			}
 		 }
 		 else
 		 {
-			Log::instance().out(L"Second phase started silently");
 			uninstaller.RunSecondPhase();
 		 }
     }

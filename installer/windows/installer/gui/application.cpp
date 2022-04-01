@@ -6,6 +6,7 @@
 #include <shlobj_core.h>
 #include <VersionHelpers.h>
 #include "../../utils/directory.h"
+#include "../../utils/registry.h"
 
 #pragma comment(lib, "gdiplus.lib")
 
@@ -123,4 +124,26 @@ void Application::installerCallback(unsigned int progress, INSTALLER_CURRENT_STA
 {
 	// transform to window messages
 	PostMessage(mainWindow_->getHwnd(), WI_INSTALLER_STATE, progress, state);
+}
+
+
+// return path of installed Windscribe app or empty string if not installed
+std::wstring Application::getPreviousInstallPath()
+{
+	HKEY rootKey = HKEY_LOCAL_MACHINE;
+	std::wstring subkeyName = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + ApplicationInfo::instance().getId() + L"_is1";
+
+	bool bRet = false;
+	HKEY hKey;
+	if (Registry::RegOpenKeyExView(rvDefault, rootKey, subkeyName.c_str(), 0, KEY_QUERY_VALUE, hKey) == ERROR_SUCCESS)
+	{
+		std::wstring path;
+		if (Registry::RegQueryStringValue1(hKey, L"InstallLocation", path))
+		{
+			return path;
+		}
+		RegCloseKey(hKey);
+	}
+	return L"";
+
 }

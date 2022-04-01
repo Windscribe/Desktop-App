@@ -5,6 +5,7 @@
 #include "DPIScale.h"
 #include "../../Utils/utils.h"
 #include "../../Utils/applicationinfo.h"
+#include "../../Utils/windscribepathcheck.h"
 #include <Windowsx.h>
 #include <uxtheme.h>
 #include <dwmapi.h>
@@ -537,6 +538,22 @@ void MainWindow::onSettingsClick()
 
 void MainWindow::onEscapeClick()
 {
+	// check path
+	std::wstring path_param = pathControl_->path();
+
+	if (WindscribePathCheck::isNeedAppendWindscribeSubdirectory(path_param, g_application->getPreviousInstallPath()))
+	{
+		MessageBox(hwnd_, L"The specified directory is not empty, the Windscribe subdirectory will be added.",
+			L"Windscribe Installer", MB_OK | MB_ICONINFORMATION);
+		{
+			pathControl_->setPath(WindscribePathCheck::appendToDirectory(path_param, ApplicationInfo::instance().getName()));
+			return;
+		}
+	}
+
+	
+
+
 	incBackgroundOpacity_ = true;
 	SetTimer(hwnd_, OPACITY_TIMER_ID, 10, NULL);
     resetControls();
@@ -612,32 +629,9 @@ std::wstring MainWindow::selectPath()
 			imalloc->Release();
 		}
 
-		// is directory exists?
-		bool isDirExists = false;
-		DWORD ftyp = GetFileAttributes(path);
-		if (ftyp != INVALID_FILE_ATTRIBUTES)
+		if (WindscribePathCheck::isNeedAppendWindscribeSubdirectory(path, g_application->getPreviousInstallPath()))
 		{
-			if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
-				isDirExists = true;
-		}
-		// check if directory empty
-		bool isDirEmpty = false;
-		if (isDirExists)
-		{
-			isDirEmpty = PathIsDirectoryEmpty(path);
-		}
-
-		//  if the selected directory has files in it, append \Windscribe to it
-		if (isDirExists && !isDirEmpty)
-		{
-			if (PathAppend(path, ApplicationInfo::instance().getName().c_str()))
-			{
-				return path;
-			}
-			else
-			{
-				return L"";
-			}
+			return WindscribePathCheck::appendToDirectory(path, ApplicationInfo::instance().getName());
 		}
 
 		return path;
@@ -934,3 +928,4 @@ void MainWindow::gotoSilentInstall()
 {
     onInstallClick(false);
 }
+

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\utils\base64codec.cpp" />
+    <ClCompile Include="..\utils\windscribepathcheck.cpp" />
     <ClCompile Include="archive\archive.cpp" />
     <ClCompile Include="archive\LZMA_SDK\C\7zAlloc.c" />
     <ClCompile Include="archive\LZMA_SDK\C\7zArcIn.c" />
@@ -85,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\utils\base64codec.h" />
+    <ClInclude Include="..\utils\windscribepathcheck.h" />
     <ClInclude Include="archive\archive.h" />
     <ClInclude Include="archive\LZMA_SDK\C\7z.h" />
     <ClInclude Include="archive\LZMA_SDK\C\7zAlloc.h" />

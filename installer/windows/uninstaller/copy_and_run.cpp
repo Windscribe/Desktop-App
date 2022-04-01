@@ -68,7 +68,7 @@ namespace
 		}
 
 		outFilename = FN;
-		return Result;
+		return true;
 	}
 
 	HANDLE exec(const std::wstring &filename, const std::wstring &workingDir, const std::wstring &pars, DWORD &outProcessId)
