@@ -1674,8 +1674,11 @@ void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::Stati
         else
         {
             qCDebug(LOG_BASIC) << "Failed get static ips";
-            // try again with 3 sec
-            QTimer::singleShot(3000, this, SLOT(onUpdateServerResources()));
+            QTimer::singleShot(3000, this, [this]() {
+                if (!apiInfo_.isNull()) {
+                    serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), serverApiUserRole_, true);
+                }
+            });
         }
     }
 }
