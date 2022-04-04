@@ -1713,11 +1713,11 @@ void Engine::onUpdateServerResources()
 {
     // Refresh all server resources, and check for a new app version, every 24 hours.
 
-    const apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
-    if (!apiInfo_.isNull() && ss.getStatus() == 1)
+    if (!apiInfo_.isNull() && apiInfo_->getSessionStatus().getStatus() == 1)
     {
         qCDebug(LOG_BASIC) << "24 hours have past, refreshing all server API resources.";
 
+        const apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
         const QString authHash = apiInfo_->getAuthHash();
         const bool isConnected = (connectStateController_->currentState() == CONNECT_STATE_CONNECTED);
         const bool isDisconnected = (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
