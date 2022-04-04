@@ -101,6 +101,7 @@ QUrlQuery MakeQuery(const QString &authHash, bool bAddOpenVpnVersion = false)
         query.addQueryItem("ovpn_version",
                            OpenVpnVersionController::instance().getSelectedOpenVpnVersion());
     query.addQueryItem("platform", Utils::getPlatformNameSafe());
+    query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     return query;
 }
@@ -955,6 +956,7 @@ void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStri
     postData.addQueryItem("time", strTimestamp);
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -982,7 +984,7 @@ void ServerAPI::handleSessionDnsResolve(BaseRequest *rd, bool success, const QSt
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
     QUrl url("https://" + crd->getHostname() + "/Session?session_type_id=3&time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + Utils::getPlatformNameSafe());
+             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1033,6 +1035,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
 
         query.addQueryItem("browser", "mobike");
         query.addQueryItem("platform", Utils::getPlatformNameSafe());
+        query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
         // add alc parameter in query, if not empty
         if (!alcField.isEmpty())
@@ -1063,6 +1066,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         {
             QUrlQuery query;
             query.addQueryItem("platform", Utils::getPlatformNameSafe());
+            query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
             query.addQueryItem("alc", alcField);
             url.setQuery(query);
         }
@@ -1191,7 +1195,7 @@ void ServerAPI::handleRecordInstallDnsResolve(BaseRequest *rd, bool success, con
     QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
     QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash
-                + "&platform=" + Utils::getPlatformNameSafe();
+                + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString();
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(str.toUtf8());
@@ -1223,6 +1227,7 @@ void ServerAPI::handleConfirmEmailDnsResolve(BaseRequest *rd, bool success, cons
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("session_auth_hash", crd->getAuthHash());
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1248,7 +1253,7 @@ void ServerAPI::handleMyIPDnsResolve(BaseRequest *rd, bool success, const QStrin
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
 
     QUrl url("https://" + crd->getHostname() + "/MyIp?time=" + strTimestamp + "&client_auth_hash="
-             + md5Hash + "&platform=" + Utils::getPlatformNameSafe());
+             + md5Hash + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1277,7 +1282,7 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     query.addQueryItem("time", strTimestamp);
     query.addQueryItem("client_auth_hash", md5Hash);
     query.addQueryItem("platform", Utils::getPlatformNameSafe());
-
+    query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
     query.addQueryItem("version", AppVersion::instance().version());
     query.addQueryItem("build", AppVersion::instance().build());
     if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_BETA)
@@ -1341,6 +1346,7 @@ void ServerAPI::handleDebugLogDnsResolve(BaseRequest *rd, bool success, const QS
     if (!crd->getUsername().isEmpty())
         postData.addQueryItem("username", crd->getUsername());
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1369,7 +1375,7 @@ void ServerAPI::handleSpeedRatingDnsResolve(BaseRequest *rd, bool success, const
     QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash + "&session_auth_hash="
                   + crd->getAuthHash() + "&hostname=" + crd->getSpeedRatingHostname() + "&rating="
                   + QString::number(crd->getRating()) + "&ip=" + crd->getIp()
-                  + "&platform=" + Utils::getPlatformNameSafe();
+                  + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString();
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(str.toUtf8());
@@ -1398,7 +1404,7 @@ void ServerAPI::handleNotificationsDnsResolve(BaseRequest *rd, bool success, con
 
     QUrl url("https://" + crd->getHostname() + "/Notifications?time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + Utils::getPlatformNameSafe());
+             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1452,6 +1458,7 @@ void ServerAPI::handleWebSessionDnsResolve(ServerAPI::BaseRequest *rd, bool succ
     postData.addQueryItem("session_auth_hash", crd->getAuthHash());
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1490,7 +1497,7 @@ void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const Q
     QUrl url("https://" + crd->getHostname() + "/StaticIps?time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
              + "&device_id=" + crd->getDeviceId() + "&os=" + strOs
-             + "&platform=" + Utils::getPlatformNameSafe());
+             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -2612,6 +2619,7 @@ void ServerAPI::submitWireGuardInitRequest(BaseRequest *rd, bool generateKeyPair
     // server API will store the incorrect key and the wireguard handshake will fail due to a key mismatch.
     postData.addQueryItem("wg_pubkey", QUrl::toPercentEncoding(crd->wireGuardConfig().clientPublicKey()));
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     if (crd->deleleOldestKey()) {
         postData.addQueryItem("force_init", "1");
@@ -2649,6 +2657,7 @@ void ServerAPI::submitWireGuardConnectRequest(BaseRequest *rd)
     postData.addQueryItem("wg_pubkey", QUrl::toPercentEncoding(crd->wireGuardConfig().clientPublicKey()));
     postData.addQueryItem("hostname", crd->serverName());
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());

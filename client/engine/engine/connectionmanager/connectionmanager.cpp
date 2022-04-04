@@ -1342,3 +1342,8 @@ bool ConnectionManager::isAllowFirewallAfterConnection() const
     return currentConnectionDescr_.isAllowFirewallAfterConnection
         && connector_->isAllowFirewallAfterCustomConfigConnection();
 }
+
+ProtocolType ConnectionManager::currentProtocol() const
+{
+    return currentProtocol_;
+}
