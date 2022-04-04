@@ -119,13 +119,9 @@ MainWindow::MainWindow() :
         while (trayIcon_.geometry().isEmpty())
             qApp->processEvents();
     }
-#elif defined Q_OS_WIN
-    while (trayIcon_.geometry().isEmpty())
-        qApp->processEvents();
 #elif defined Q_OS_LINUX
     //todo Linux
 #endif
-    qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
 #if defined(Q_OS_WIN)
@@ -407,6 +403,9 @@ void MainWindow::showAfterLaunch()
     if (!backend_) {
         qCDebug(LOG_BASIC) << "Backend is nullptr!";
     }
+
+    // Report the tray geometry after we've given the app some startup time.
+    qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
 
     #ifdef Q_OS_MACOS
     // Do not showMinimized if hide from dock is enabled.  Otherwise, the app will fail to show
@@ -2916,8 +2915,12 @@ QRect MainWindow::trayIconRect()
     // qCDebug(LOG_BASIC) << "Tray Icon not visible -- using last saved TrayIconRect";
 
 #else
-    if (trayIcon_.isVisible())
-        savedTrayIconRect_ = trayIcon_.geometry();
+    if (trayIcon_.isVisible()) {
+        QRect trayIconRect = trayIcon_.geometry();
+        if (trayIconRect.isValid()) {
+            savedTrayIconRect_ = trayIconRect;
+        }
+    }
 #endif
     return savedTrayIconRect_;
 }
