@@ -208,7 +208,20 @@ void LocationsTrayMenuWidget::recalcSize()
             visibleItemsCount_ = maxItemCount;
     }
 
-    listWidget_->setFixedSize(190 * LocationsTrayMenuScaleManager::instance().scale(), scaledItemHeight * visibleItemsCount_);
+    int maxWidth = 190 * LocationsTrayMenuScaleManager::instance().scale(); // set initial mimimum size
+    // if the size of any item exceeds maxWidth, then will increase maxWidth
+    for (int i = 0; i < listWidget_->count(); ++i)
+    {
+        QListWidgetItem *item = listWidget_->item(i);
+        int width = locationsTrayMenuItemDelegate_->calcWidth(item->text(), item->data(LocationsTrayMenuWidget::USER_ROLE_COUNTRY_CODE).toString(),
+                                                  item->data(LocationsTrayMenuWidget::USER_ROLE_FLAGS).toInt());
+        if (width > maxWidth)
+        {
+            maxWidth = width;
+        }
+    }
+
+    listWidget_->setFixedSize(maxWidth, scaledItemHeight * visibleItemsCount_);
 }
 
 void LocationsTrayMenuWidget::updateShortenedTexts()

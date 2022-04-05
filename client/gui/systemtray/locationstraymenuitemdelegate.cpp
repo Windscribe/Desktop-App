@@ -84,10 +84,37 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
 QSize LocationsTrayMenuItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionMenuItem opt;
-    QSize sz2 = QApplication::style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz2);
+    QSize sz(0,0);
+    QSize sz2 = QApplication::style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz);
     int menuHeight = sz2.height() * LocationsTrayMenuScaleManager::instance().scale();
 
-    QSize sz = QItemDelegate::sizeHint(option, index);
+    sz = QItemDelegate::sizeHint(option, index);
     sz.setHeight(menuHeight);
     return sz;
+}
+
+int LocationsTrayMenuItemDelegate::calcWidth(const QString &text, const QString &country, int flags) const
+{
+    QSharedPointer<IndependentPixmap> flag = nullptr;
+    if (flags & LocationsTrayMenuWidget::ITEM_FLAG_HAS_COUNTRY) {
+        flag = ImageResourcesSvg::instance().getScaledFlag( country,
+            20 * LocationsTrayMenuScaleManager::instance().scale(), 10 * LocationsTrayMenuScaleManager::instance().scale(), 0);
+    }
+
+    int width = 10 * LocationsTrayMenuScaleManager::instance().scale();
+    if (flag)
+    {
+        width += flag->width() + 10 * LocationsTrayMenuScaleManager::instance().scale();
+    }
+
+    QFontMetrics fm(font_);
+    QRect rc = fm.boundingRect(text);
+    width += rc.width();
+
+    if (flags & LocationsTrayMenuWidget::ITEM_FLAG_HAS_SUBMENU)
+    {
+        width += 20 * LocationsTrayMenuScaleManager::instance().scale();
+    }
+    width += 10 * LocationsTrayMenuScaleManager::instance().scale();
+    return width;
 }
