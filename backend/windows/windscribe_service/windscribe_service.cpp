@@ -669,7 +669,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 			// make openvpn command
 			std::wstring strCmd = L"\"" + Utils::getExePath() + L"\\" + cmdRunOpenVpn.szOpenVpnExecutable + L"\"";
 			strCmd += L" --config \"" + cmdRunOpenVpn.szConfigPath + L"\" --management 127.0.0.1 ";
-			strCmd += std::to_wstring(cmdRunOpenVpn.portNumber) + L" --management-query-passwords --management-hold";
+            strCmd += std::to_wstring(cmdRunOpenVpn.portNumber) + L" --management-query-passwords --management-hold --verb 3";
 
 			if (wcslen(cmdRunOpenVpn.szHttpProxy.c_str()) > 0)
 			{

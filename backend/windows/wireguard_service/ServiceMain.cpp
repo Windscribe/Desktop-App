@@ -110,8 +110,6 @@ getWindscribeClientProcessHandle()
     std::wstring clientExe(L"[any path]/Windscribe.exe");
     #endif
 
-    debugOut("getWindscribeClientProcessHandle looking for %ls", clientExe.c_str());
-
     WinUtils::Win32Handle hProcesses(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
     if (!hProcesses.isValid()) {
         throw std::system_error(::GetLastError(), std::generic_category(),
@@ -165,6 +163,8 @@ getWindscribeClientProcessHandle()
         throw std::system_error(ERROR_FILE_NOT_FOUND, std::generic_category(),
             "getWindscribeClientProcessHandle: could not locate the Windscribe client process");
     }
+
+    debugOut("Windscribe wireguard service monitoring %ls", clientExe.c_str());
 
     return hWindscribeClient;
 }
