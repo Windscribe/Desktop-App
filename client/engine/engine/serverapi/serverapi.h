@@ -67,8 +67,13 @@ public:
     void cancelPingTest(quint64 cmdId);
 
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
+
+
     void getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled,
-                            WireGuardConfig &config, const QString &serverName, bool deleteOldestKey);
+                            WireGuardConfig &config, const QString &serverName, bool deleteOldestKey);  // todo remove
+    void wgConfigsInit(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey);
+    void wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName);
+
 
     void setIgnoreSslErrors(bool bIgnore);
 
@@ -91,7 +96,11 @@ signals:
     void staticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
     void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<apiinfo::Notification> notifications, uint userRole);
-    void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+
+    void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole); // todo remove
+    void wgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+    void wgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+
     void webSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
     void sendUserWarning(ProtoTypes::UserWarningType warning);
 
@@ -168,7 +177,11 @@ private:
     void handleNotificationsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handlePingTestDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
+
+    void handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, const QStringList &ips); // todo remove
+    void handleWgConfigsInitDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
+    void handleWgConfigsConnectDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
+
     void handleWebSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
 
     void handleAccessIpsCurl(BaseRequest *rd, bool success);
