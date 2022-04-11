@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QTimer>
-#include "engine/types/wireguardconfig.h"
 #include "engine/apiinfo/apiinfo.h"
 #include "engine/apiinfo/notification.h"
 #include "engine/apiinfo/portmap.h"

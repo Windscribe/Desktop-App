@@ -27,6 +27,7 @@
 #include "autoupdater/downloadhelper.h"
 #include "autoupdater/autoupdaterhelper_mac.h"
 #include "networkaccessmanager/networkaccessmanager.h"
+#include "engine/wireguardconfig/getwireguardconfig.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
@@ -245,7 +246,7 @@ private slots:
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
-    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config);
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     void onUpdateServerResources();
@@ -324,6 +325,7 @@ private:
     FirewallController *firewallController_;
     NetworkAccessManager *networkAccessManager_;
     ServerAPI *serverAPI_;
+    GetWireGuardConfig *getWireGuardConfig_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;

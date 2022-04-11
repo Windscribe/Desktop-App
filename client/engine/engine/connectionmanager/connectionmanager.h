@@ -12,7 +12,7 @@
 #include "iconnection.h"
 #include "testvpntunnel.h"
 #include "engine/types/protocoltype.h"
-#include "engine/types/wireguardconfig.h"
+#include "engine/wireguardconfig/wireguardconfig.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
 #include "engine/apiinfo/servercredentials.h"
@@ -70,9 +70,7 @@ public:
     bool isStaticIpsLocation() const;
     apiinfo::StaticIpPortsVector getStatisIps();
 
-    void onWireGuardConfigRequestComplete(bool success);
-    void resetWireGuardConfig();
-    WireGuardConfig& wireGuardConfig();
+    void onWireGuardConfigRequestComplete(bool success, const WireGuardConfig &wgConfig);
     QString wireGuardHostname() const;
 
     void setMss(int mss);
@@ -127,6 +125,8 @@ private slots:
 
     void onHostnamesResolved();
 
+    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+
 private:
     enum {STATE_DISCONNECTED, STATE_CONNECTING_FROM_USER_CLICK, STATE_CONNECTED, STATE_RECONNECTING,
           STATE_DISCONNECTING_FROM_USER_CLICK, STATE_WAIT_FOR_NETWORK_CONNECTIVITY, STATE_RECONNECTION_TIME_EXCEED,
@@ -134,6 +134,8 @@ private:
 
     IHelper *helper_;
     INetworkDetectionManager *networkDetectionManager_;
+    ServerAPI *serverAPI_;
+    uint serverApiUserRole_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
 
     IConnection *connector_;
@@ -182,7 +184,7 @@ private:
 
     ProtoTypes::PacketSize packetSize_;
 
-    QScopedPointer<WireGuardConfig> wireGuardConfig_;
+    WireGuardConfig wireGuardConfig_;
 
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;

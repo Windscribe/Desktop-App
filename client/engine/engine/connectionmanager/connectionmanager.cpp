@@ -10,6 +10,7 @@
 #include "engine/types/types.h"
 #include "engine/types/connectionsettings.h"
 #include "engine/apiinfo/apiinfo.h"
+#include "engine/serverapi/serverapi.h"
 
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "utils/extraconfig.h"
@@ -18,6 +19,7 @@
 #include "connsettingspolicy/autoconnsettingspolicy.h"
 #include "connsettingspolicy/manualconnsettingspolicy.h"
 #include "connsettingspolicy/customconfigconnsettingspolicy.h"
+
 
 // Had to move this here to prevent a compile error with boost already including winsock.h
 #include "connectionmanager.h"
@@ -45,6 +47,7 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
                                              ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
     helper_(helper),
     networkDetectionManager_(networkDetectionManager),
+    serverAPI_(serverAPI),
     customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
     connector_(NULL),
     sleepEvents_(NULL),
@@ -91,6 +94,9 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
 #endif
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
+
+    ///connect(serverAPI_, &ServerAPI::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer, Qt::QueuedConnection);
+    serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 }
 
 ConnectionManager::~ConnectionManager()
@@ -952,19 +958,6 @@ void ConnectionManager::doConnectPart2()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            if (wireGuardConfig_.isNull()) {
-                wireGuardConfig_.reset(new WireGuardConfig());
-            }
-            if (!wireGuardConfig_->haveKeyPair() || !wireGuardConfig_->haveServerGeneratedPeerParams()) {
-                // If we do not have a key-pair and peer parameters stored on disk, they will be generated and stored
-                // by the ServerAPI::getWireGuardConfig flow.
-                QString publicKey, privateKey, presharedKey, allowedIPs;
-                if (apiinfo::ApiInfo::getWireGuardKeyPair(publicKey, privateKey) && apiinfo::ApiInfo::getWireGuardPeerInfo(presharedKey, allowedIPs)) {
-                    wireGuardConfig_->setKeyPair(publicKey, privateKey);
-                    wireGuardConfig_->setPeerPresharedKey(presharedKey);
-                    wireGuardConfig_->setPeerAllowedIPs(allowedIPs);
-                }
-            }
             qCDebug(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
             Q_EMIT getWireGuardConfig();
             return;
@@ -1013,7 +1006,7 @@ void ConnectionManager::doConnectPart3()
 
     if (currentConnectionDescr_.protocol.isWireGuardProtocol())
     {
-        WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : wireGuardConfig_.get());
+        WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : &wireGuardConfig_);
         Q_ASSERT(pConfig != nullptr);
         Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, pConfig->clientDnsAddress());
     }
@@ -1072,14 +1065,13 @@ void ConnectionManager::doConnectPart3()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            Q_ASSERT(!wireGuardConfig_.isNull());
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
-            wireGuardConfig_->setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
-            wireGuardConfig_->setPeerEndpoint(endpointAndPort);
+            wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
+            wireGuardConfig_.setPeerEndpoint(endpointAndPort);
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
-                wireGuardConfig_.get(), false, connSettingsPolicy_->isAutomaticMode());
+                &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode());
         }
         else
         {
@@ -1263,8 +1255,15 @@ void ConnectionManager::onHostnamesResolved()
     doConnectPart2();
 }
 
-void ConnectionManager::onWireGuardConfigRequestComplete(bool success)
+void ConnectionManager::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole)
 {
+    //todo
+}
+
+void ConnectionManager::onWireGuardConfigRequestComplete(bool success, const WireGuardConfig &wgConfig)
+{
+    wireGuardConfig_ = wgConfig;
+
     // If the protocol has been changed, do nothing.
     if (!currentConnectionDescr_.protocol.isWireGuardProtocol())
         return;
@@ -1280,19 +1279,6 @@ void ConnectionManager::onWireGuardConfigRequestComplete(bool success)
         else
             onConnectionDisconnected();
     }
-}
-
-void ConnectionManager::resetWireGuardConfig()
-{
-    if (!wireGuardConfig_.isNull()) {
-        wireGuardConfig_->reset();
-    }
-}
-
-WireGuardConfig &ConnectionManager::wireGuardConfig()
-{
-    Q_ASSERT(!wireGuardConfig_.isNull());
-    return *wireGuardConfig_;
 }
 
 QString ConnectionManager::wireGuardHostname() const

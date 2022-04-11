@@ -2496,7 +2496,7 @@ void ServerAPI::handleWgConfigsInitCurl(BaseRequest *rd, bool success)
         if (jsonConfig.contains("PresharedKey") && jsonConfig.contains("AllowedIPs"))
         {
             QString presharedKey = jsonConfig["PresharedKey"].toString();
-            QString allowedIps   = WireGuardConfig::stripIpv6Address(jsonConfig["AllowedIPs"].toString());
+            QString allowedIps   = jsonConfig["AllowedIPs"].toString();
             qCDebug(LOG_SERVER_API) << "WgConfigs/init json:" << doc.toJson(QJsonDocument::Compact);
             qCDebug(LOG_SERVER_API) << "WgConfigs init request successfully executed";
             emit wgConfigsInitAnswer(SERVER_RETURN_SUCCESS, userRole, false, 0, presharedKey, allowedIps);
@@ -2566,8 +2566,8 @@ void ServerAPI::handleWgConfigsConnectCurl(BaseRequest *rd, bool success)
         QJsonObject jsonConfig = jsonData["config"].toObject();
         if (jsonConfig.contains("Address") && jsonConfig.contains("DNS"))
         {
-            QString ipAddress  = WireGuardConfig::stripIpv6Address(jsonConfig["Address"].toString());
-            QString dnsAddress = WireGuardConfig::stripIpv6Address(jsonConfig["DNS"].toString());
+            QString ipAddress  = jsonConfig["Address"].toString();
+            QString dnsAddress = jsonConfig["DNS"].toString();
             qCDebug(LOG_SERVER_API) << "WgConfigs connect request successfully executed";
             emit wgConfigsConnectAnswer(SERVER_RETURN_SUCCESS, userRole, false, 0, ipAddress, dnsAddress);
 

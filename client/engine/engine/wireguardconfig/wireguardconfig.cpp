@@ -1,7 +1,6 @@
 #include "wireguardconfig.h"
 
 #include <QFile>
-#include <QJsonObject>
 #include <QStringList>
 #include <QTextStream>
 
@@ -26,30 +25,6 @@ WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAdd
     peer_.presharedKey = presharedKey;
     peer_.endpoint = endpoint;
     peer_.allowedIps = allowedIps;
-}
-
-bool WireGuardConfig::onInitResponse(const QJsonObject &obj)
-{
-    if (obj.contains("PresharedKey") && obj.contains("AllowedIPs"))
-    {
-        peer_.presharedKey = obj["PresharedKey"].toString();
-        peer_.allowedIps   = WireGuardConfig::stripIpv6Address(obj["AllowedIPs"].toString());
-        return true;
-    }
-
-    return false;
-}
-
-bool WireGuardConfig::onConnectResponse(const QJsonObject &obj)
-{
-    if (obj.contains("Address") && obj.contains("DNS"))
-    {
-        client_.ipAddress  = WireGuardConfig::stripIpv6Address(obj["Address"].toString());
-        client_.dnsAddress = WireGuardConfig::stripIpv6Address(obj["DNS"].toString());
-        return true;
-    }
-
-    return false;
 }
 
 // static

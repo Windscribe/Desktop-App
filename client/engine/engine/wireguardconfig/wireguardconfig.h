@@ -1,7 +1,6 @@
 #ifndef WIREGUARDCONFIG_H
 #define WIREGUARDCONFIG_H
 
-#include <QJsonObject>
 #include <QString>
 
 class WireGuardConfig
@@ -12,8 +11,6 @@ public:
                     const QString &publicKey, const QString &presharedKey, const QString &endpoint,
                     const QString &allowedIps);
 
-    bool onInitResponse(const QJsonObject &obj);
-    bool onConnectResponse(const QJsonObject &obj);
     void reset();
 
     QString clientPrivateKey() const { return client_.privateKey; }
@@ -29,6 +26,8 @@ public:
     void setPeerEndpoint(const QString &endpoint) { peer_.endpoint = endpoint; }
     void setPeerPresharedKey(const QString &presharedKey) { peer_.presharedKey = presharedKey; }
     void setPeerAllowedIPs(const QString &allowedIPs) { peer_.allowedIps = allowedIPs; }
+    void setClientIpAddress(const QString &ip) { client_.ipAddress = ip; }
+    void setClientDnsAddress(const QString &dns) { client_.dnsAddress = dns; }
     bool haveServerGeneratedPeerParams() const;
 
     void generateConfigFile(const QString &fileName) const;

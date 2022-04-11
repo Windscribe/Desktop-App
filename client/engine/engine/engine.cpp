@@ -658,13 +658,15 @@ void Engine::initPart2()
     connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
                         SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, &ServerAPI::getWireGuardConfigAnswer, this, &Engine::onGetWireGuardConfigAnswer, Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)));
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
     serverApiEditAccountDetailsUserRole_ = serverAPI_->getAvailableUserRole();
     serverApiAddEmailUserRole_ = serverAPI_->getAvailableUserRole();
+
+    getWireGuardConfig_ = new GetWireGuardConfig(this, serverAPI_);
+    connect(getWireGuardConfig_, &GetWireGuardConfig::getWireGuardConfigAnswer, this, &Engine::onGetWireGuardConfigAnswer);
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
@@ -1167,7 +1169,6 @@ void Engine::signOutImplAfterDisconnect()
     updateServerResourcesTimer_->stop();
     updateSessionStatusTimer_->stop();
     notificationsUpdateTimer_->stop();
-    connectionManager_->resetWireGuardConfig();
 
     locationsModel_->clear();
     prevSessionStatus_.clear();
@@ -1683,14 +1684,14 @@ void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::Stati
     }
 }
 
-void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, uint userRole)
+void Engine::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config)
 {
     if (retCode == SERVER_RETURN_WIREGUARD_KEY_LIMIT) {
         Q_EMIT wireGuardAtKeyLimit();
     }
     else {
-        bool success = (userRole == serverApiUserRole_ && retCode == SERVER_RETURN_SUCCESS);
-        connectionManager_->onWireGuardConfigRequestComplete(success);
+        bool success = (retCode == SERVER_RETURN_SUCCESS);
+        connectionManager_->onWireGuardConfigRequestComplete(success, config);
     }
 }
 
@@ -2135,13 +2136,9 @@ void Engine::onConnectionManagerGetWireGuardConfig()
 
 void Engine::fetchWireGuardConfig()
 {
-    if (serverAPI_->isRequestsEnabled()) {
-        if (fetchWireguardConfigTimer_)
-            fetchWireguardConfigTimer_->stop();
-        serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true,
-                                       connectionManager_->wireGuardConfig(),
-                                       connectionManager_->wireGuardHostname(), false);
-    }
+    if (fetchWireguardConfigTimer_)
+        fetchWireguardConfigTimer_->stop();
+    getWireGuardConfig_->getWireGuardConfig(connectionManager_->wireGuardHostname(), false);
 }
 
 #ifdef Q_OS_MAC
@@ -2988,12 +2985,10 @@ bool Engine::verifyContentsSha256(const QString &filename, const QString &compar
 
 void Engine::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
 {
-    if (deleteOldestKey && serverAPI_->isRequestsEnabled()) {
-        serverAPI_->getWireGuardConfig(apiInfo_->getAuthHash(), serverApiUserRole_, true,
-                                       connectionManager_->wireGuardConfig(),
-                                       connectionManager_->wireGuardHostname(), true);
+    if (deleteOldestKey) {
+        getWireGuardConfig_->getWireGuardConfig(connectionManager_->wireGuardHostname(), true);
     }
     else {
-        connectionManager_->onWireGuardConfigRequestComplete(false);
+        connectionManager_->onWireGuardConfigRequestComplete(false, WireGuardConfig());
     }
 }
