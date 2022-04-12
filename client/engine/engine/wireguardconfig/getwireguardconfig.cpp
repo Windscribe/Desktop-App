@@ -1,8 +1,11 @@
 #include "getwireguardconfig.h"
 #include "engine/serverapi/serverapi.h"
+#include "utils/protobuf_includes.h"
+
+const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 
 GetWireGuardConfig::GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI) : QObject(parent), serverAPI_(serverAPI),
-    isRequestAlreadyInProgress_(false)
+    isRequestAlreadyInProgress_(false), simpleCrypt_(0x4572A4ACF31A31BA)
 {
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
     connect(serverAPI_, &ServerAPI::wgConfigsInitAnswer, this, &GetWireGuardConfig::onWgConfigsInitAnswer, Qt::QueuedConnection);
@@ -28,7 +31,7 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
     // restore a key-pair and peer parameters stored on disk
     // if they are not found in settings, they will be generated and saved later by this class flow.
     QString publicKey, privateKey, presharedKey, allowedIPs;
-    if (apiinfo::ApiInfo::getWireGuardKeyPair(publicKey, privateKey) && apiinfo::ApiInfo::getWireGuardPeerInfo(presharedKey, allowedIPs))
+    if (getWireGuardKeyPair(publicKey, privateKey) && getWireGuardPeerInfo(presharedKey, allowedIPs))
     {
         wireGuardConfig_.setKeyPair(publicKey, privateKey);
         wireGuardConfig_.setPeerPresharedKey(presharedKey);
@@ -83,7 +86,7 @@ void GetWireGuardConfig::onWgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint
     wireGuardConfig_.setPeerAllowedIPs(WireGuardConfig::stripIpv6Address(allowedIps));
 
     // Persist the peer parameters we received.
-    apiinfo::ApiInfo::setWireGuardPeerInfo(wireGuardConfig_.peerPresharedKey(), wireGuardConfig_.peerAllowedIps());
+    setWireGuardPeerInfo(wireGuardConfig_.peerPresharedKey(), wireGuardConfig_.peerAllowedIps());
 
     serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_);
 }
@@ -111,7 +114,7 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, u
             if (!isErrorCode1311Guard_) {
                 isErrorCode1311Guard_ = true;
                 wireGuardConfig_.reset();
-                apiinfo::ApiInfo::removeWireGuardSettings();
+                removeWireGuardSettings();
                 submitWireGuardInitRequest(true);
                 return;
              }
@@ -148,7 +151,88 @@ void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
             return;
         }
         // Persist the key-pair we're about to register with the server.
-        apiinfo::ApiInfo::setWireGuardKeyPair(wireGuardConfig_.clientPublicKey(), wireGuardConfig_.clientPrivateKey());
+        setWireGuardKeyPair(wireGuardConfig_.clientPublicKey(), wireGuardConfig_.clientPrivateKey());
     }
     serverAPI_->wgConfigsInit(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), deleteOldestKey_);
+}
+
+bool GetWireGuardConfig::getWireGuardKeyPair(QString &publicKey, QString &privateKey)
+{
+    ProtoApiInfo::WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
+    if (!wgConfig.public_key().empty() && !wgConfig.private_key().empty())
+    {
+        publicKey = QString::fromStdString(wgConfig.public_key());
+        privateKey = QString::fromStdString(wgConfig.private_key());
+        return true;
+    }
+    return false;
+}
+
+void GetWireGuardConfig::setWireGuardKeyPair(const QString &publicKey, const QString &privateKey)
+{
+    ProtoApiInfo::WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
+    wgConfig.set_public_key(publicKey.toStdString());
+    wgConfig.set_private_key(privateKey.toStdString());
+    writeWireGuardConfigToSettings(wgConfig);
+}
+
+bool GetWireGuardConfig::getWireGuardPeerInfo(QString &presharedKey, QString &allowedIPs)
+{
+    ProtoApiInfo::WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
+    if (!wgConfig.preshared_key().empty() && !wgConfig.allowed_ips().empty())
+    {
+        presharedKey = QString::fromStdString(wgConfig.preshared_key());
+        allowedIPs = QString::fromStdString(wgConfig.allowed_ips());
+        return true;
+    }
+    return false;
+}
+
+void GetWireGuardConfig::setWireGuardPeerInfo(const QString &presharedKey, const QString &allowedIPs)
+{
+    ProtoApiInfo::WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
+    wgConfig.set_preshared_key(presharedKey.toStdString());
+    wgConfig.set_allowed_ips(allowedIPs.toStdString());
+    writeWireGuardConfigToSettings(wgConfig);
+}
+
+ProtoApiInfo::WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
+{
+    QSettings settings;
+    if (settings.contains(KEY_WIREGUARD_CONFIG))
+    {
+        QString s = settings.value(KEY_WIREGUARD_CONFIG, "").toString();
+        if (!s.isEmpty())
+        {
+            QByteArray arr = simpleCrypt_.decryptToByteArray(s);
+            ProtoApiInfo::WireGuardConfig wgConfig;
+            if (wgConfig.ParseFromArray(arr.data(), arr.size()))
+            {
+                return wgConfig;
+            }
+        }
+    }
+    return ProtoApiInfo::WireGuardConfig();
+}
+
+void GetWireGuardConfig::writeWireGuardConfigToSettings(const ProtoApiInfo::WireGuardConfig &wgConfig)
+{
+    QSettings settings;
+    size_t size = wgConfig.ByteSizeLong();
+    QByteArray arr(size, Qt::Uninitialized);
+    wgConfig.SerializeToArray(arr.data(), size);
+    settings.setValue(KEY_WIREGUARD_CONFIG, simpleCrypt_.encryptToString(arr));
+}
+
+void GetWireGuardConfig::removeWireGuardSettings()
+{
+    QSettings settings;
+    settings.remove(KEY_WIREGUARD_CONFIG);
+
+    // remove deprecated values
+    // todo remove this code at some point
+    settings.remove("wireguardPublicKey");
+    settings.remove("wireguardPrivateKey");
+    settings.remove("wireguardPresharedKey");
+    settings.remove("wireguardAllowedIPs");
 }

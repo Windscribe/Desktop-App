@@ -4,6 +4,7 @@
 #include <QObject>
 #include "engine/types/types.h"
 #include "wireguardconfig.h"
+#include "utils/simplecrypt.h"
 
 class ServerAPI;
 
@@ -18,6 +19,7 @@ public:
     GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI);
 
     void getWireGuardConfig(const QString &serverName, bool deleteOldestKey);
+    static void removeWireGuardSettings();
 
 signals:
     void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config);
@@ -28,6 +30,7 @@ private slots:
 
 
 private:
+    static const QString KEY_WIREGUARD_CONFIG;
     ServerAPI *serverAPI_;
     uint serverApiUserRole_;
     WireGuardConfig wireGuardConfig_;
@@ -37,8 +40,16 @@ private:
     bool isRetryConnectRequest_;
     bool isRetryInitRequest_;
     bool isRequestAlreadyInProgress_;
+    SimpleCrypt simpleCrypt_;
 
     void submitWireGuardInitRequest(bool generateKeyPair);
+
+    bool getWireGuardKeyPair(QString &publicKey, QString &privateKey);
+    void setWireGuardKeyPair(const QString &publicKey, const QString &privateKey);
+    bool getWireGuardPeerInfo(QString &presharedKey, QString &allowedIPs);
+    void setWireGuardPeerInfo(const QString &presharedKey, const QString &allowedIPs);
+    ProtoApiInfo::WireGuardConfig readWireGuardConfigFromSettings();
+    void writeWireGuardConfigToSettings(const ProtoApiInfo::WireGuardConfig &wgConfig);
 };
 
 #endif // GETWIREGUARDCONFIG_H

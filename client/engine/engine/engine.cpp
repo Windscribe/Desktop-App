@@ -1184,6 +1184,7 @@ void Engine::signOutImplAfterDisconnect()
         apiInfo_.reset();
     }
     apiinfo::ApiInfo::removeFromSettings();
+    GetWireGuardConfig::removeWireGuardSettings();
 
     firewallController_->firewallOff();
     Q_EMIT firewallStateChanged(false);

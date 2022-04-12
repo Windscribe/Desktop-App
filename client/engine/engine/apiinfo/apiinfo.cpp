@@ -7,12 +7,6 @@
 
 namespace apiinfo {
 
-#define KEY_WIREGUARD_PUBLIC_KEY    "wireguardPublicKey"
-#define KEY_WIREGUARD_PRIVATE_KEY   "wireguardPrivateKey"
-#define KEY_WIREGUARD_PRESHARED_KEY "wireguardPresharedKey"
-#define KEY_WIREGUARD_ALLOWED_IPS   "wireguardAllowedIPs"
-
-
 ApiInfo::ApiInfo() : simpleCrypt_(0x4572A4ACF31A31BA), threadId_(QThread::currentThreadId())
 {
 }
@@ -174,8 +168,6 @@ void ApiInfo::removeFromSettings()
         settings1.remove("apiInfo");
         settings1.remove("authHash");
     }
-
-    removeWireGuardSettings();
 }
 
 bool ApiInfo::loadFromSettings()
@@ -268,55 +260,6 @@ void ApiInfo::mergeWindflixLocations()
 bool ApiInfo::ovpnConfigRefetchRequired() const
 {
     return ovpnConfigSetTimestamp_.isValid() && (ovpnConfigSetTimestamp_.secsTo(QDateTime::currentDateTimeUtc()) >= 60*60*24);
-}
-
-bool ApiInfo::getWireGuardKeyPair(QString &publicKey, QString &privateKey)
-{
-    QSettings settings;
-    if (settings.contains(KEY_WIREGUARD_PUBLIC_KEY) && settings.contains(KEY_WIREGUARD_PRIVATE_KEY))
-    {
-        publicKey  = settings.value(KEY_WIREGUARD_PUBLIC_KEY).toString();
-        privateKey = settings.value(KEY_WIREGUARD_PRIVATE_KEY).toString();
-        return true;
-    }
-
-    return false;
-}
-
-void ApiInfo::setWireGuardKeyPair(const QString &publicKey, const QString &privateKey)
-{
-    QSettings settings;
-    settings.setValue(KEY_WIREGUARD_PUBLIC_KEY, publicKey);
-    settings.setValue(KEY_WIREGUARD_PRIVATE_KEY, privateKey);
-}
-
-bool ApiInfo::getWireGuardPeerInfo(QString &presharedKey, QString &allowedIPs)
-{
-    QSettings settings;
-    if (settings.contains(KEY_WIREGUARD_PRESHARED_KEY) && settings.contains(KEY_WIREGUARD_ALLOWED_IPS))
-    {
-        presharedKey = settings.value(KEY_WIREGUARD_PRESHARED_KEY).toString();
-        allowedIPs   = settings.value(KEY_WIREGUARD_ALLOWED_IPS).toString();
-        return true;
-    }
-
-    return false;
-}
-
-void ApiInfo::setWireGuardPeerInfo(const QString &presharedKey, const QString &allowedIPs)
-{
-    QSettings settings;
-    settings.setValue(KEY_WIREGUARD_PRESHARED_KEY, presharedKey);
-    settings.setValue(KEY_WIREGUARD_ALLOWED_IPS, allowedIPs);
-}
-
-void ApiInfo::removeWireGuardSettings()
-{
-    QSettings settings;
-    settings.remove(KEY_WIREGUARD_PUBLIC_KEY);
-    settings.remove(KEY_WIREGUARD_PRIVATE_KEY);
-    settings.remove(KEY_WIREGUARD_PRESHARED_KEY);
-    settings.remove(KEY_WIREGUARD_ALLOWED_IPS);
 }
 
 } //namespace apiinfo
