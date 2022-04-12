@@ -127,11 +127,11 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
     transitionToUsernameScreen();
 }
 
-void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessage)
+void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage)
 {
     bool error = false;
 
-    switch(errorMessage)
+    switch(errorMessageType)
     {
         case ILoginWindow::ERR_MSG_EMPTY:
             curErrorText_.clear();
@@ -165,6 +165,9 @@ void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE err
             break;
         case ILoginWindow::ERR_MSG_SESSION_EXPIRED:
             curErrorText_ = tr("Session is expired. Please login again");
+            break;
+        case ILoginWindow::ERR_MSG_ACCOUNT_DISABLED:
+            curErrorText_ = errorMessage;
             break;
         default:
             Q_ASSERT(false);
@@ -310,7 +313,7 @@ void CredentialsWindowItem::resetState()
     loginButton_->setError(false);
     loginButton_->setClickable(false);
 
-    setErrorMessage(ILoginWindow::ERR_MSG_EMPTY); // reset error state
+    setErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString()); // reset error state
 
     curForgotAnd2FAPosY_ = FORGOT_AND_2FA_POS_Y_DEFAULT;
     twoFactorAuthButton_->setPos(WINDOW_MARGIN * G_SCALE, curForgotAnd2FAPosY_ * G_SCALE);
@@ -383,7 +386,7 @@ void CredentialsWindowItem::attemptLogin()
 
     if (userOrPassError)
     {
-        setErrorMessage(ILoginWindow::ERR_MSG_INCORRECT_LOGIN1);
+        setErrorMessage(ILoginWindow::ERR_MSG_INCORRECT_LOGIN1, QString());
     }
     else
     {

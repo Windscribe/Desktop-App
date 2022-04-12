@@ -162,9 +162,10 @@ bool Backend::isLastLoginWithAuthHash() const
     return bLastLoginWithAuthHash_;
 }
 
-void Backend::signOut()
+void Backend::signOut(bool keepFirewallOn)
 {
     IPC::ProtobufCommand<IPCClientCommands::SignOut> cmd;
+    cmd.getProtoObj().set_is_keep_firewall_on(keepFirewallOn);
     qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     engineServer_->sendCommand(&cmd);
 }
@@ -503,7 +504,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     else if (command->getStringId() == IPCServerCommands::LoginError::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::LoginError> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::LoginError> *>(command);
-        Q_EMIT loginError(cmd->getProtoObj().error());
+        Q_EMIT loginError(cmd->getProtoObj().error(), QString::fromStdString(cmd->getProtoObj().error_message()));
     }
     else if (command->getStringId() == IPCServerCommands::SessionStatusUpdated::descriptor()->full_name())
     {

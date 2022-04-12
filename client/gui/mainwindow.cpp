@@ -144,7 +144,7 @@ MainWindow::MainWindow() :
 
     connect(backend_, SIGNAL(loginFinished(bool)), SLOT(onBackendLoginFinished(bool)));
     connect(backend_, SIGNAL(loginStepMessage(ProtoTypes::LoginMessage)), SLOT(onBackendLoginStepMessage(ProtoTypes::LoginMessage)));
-    connect(backend_, SIGNAL(loginError(ProtoTypes::LoginError)), SLOT(onBackendLoginError(ProtoTypes::LoginError)));
+    connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
 
     connect(backend_, SIGNAL(signOutFinished()), SLOT(onBackendSignOutFinished()));
 
@@ -1041,7 +1041,7 @@ void MainWindow::onPreferencesSignOutClick()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
     signOutReason_ = SIGN_OUT_FROM_MENU;
-    backend_->signOut();
+    backend_->signOut(false);
 }
 
 void MainWindow::onPreferencesLoginClick()
@@ -1629,7 +1629,7 @@ void MainWindow::onBackendLoginStepMessage(ProtoTypes::LoginMessage msg)
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
 }
 
-void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
+void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QString &errorMessage)
 {
     if (loginError == ProtoTypes::LOGIN_ERROR_BAD_USERNAME)
     {
@@ -1637,20 +1637,20 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
         {
             if (!isLoginOkAndConnectWindowVisible_)
             {
-                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY);
+                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString());
                 mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
                 mainWindowController_->getLoginWindow()->resetState();
                 gotoLoginWindow();
             }
             else
             {
-                backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_EMPTY);
+                backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString());
             }
         }
         else
         {
             loginAttemptsController_.pushIncorrectLogin();
-            mainWindowController_->getLoginWindow()->setErrorMessage(loginAttemptsController_.currentMessage());
+            mainWindowController_->getLoginWindow()->setErrorMessage(loginAttemptsController_.currentMessage(), QString());
             gotoLoginWindow();
         }
     }
@@ -1669,7 +1669,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
         if (!isLoginOkAndConnectWindowVisible_)
         {
             //qCDebug(LOG_BASIC) << "Show no connectivity message to user.";
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY);
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY, QString());
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();
         }
@@ -1684,7 +1684,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
         if (!isLoginOkAndConnectWindowVisible_)
         {
             //qCDebug(LOG_BASIC) << "Show No API connectivity message to user.";
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_API_CONNECTIVITY, QString());
             //loginWindow_->setEmergencyConnectState(falseengine_->isEmergencyDisconnected());
             gotoLoginWindow();
         }
@@ -1693,26 +1693,26 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONCE);
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONCE, QString());
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();
         }
         else
         {
-            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH);
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONCE, QString());
         }
     }
     else if (loginError == ProtoTypes::LOGIN_ERROR_PROXY_AUTH_NEED)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH);
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH, QString());
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();
         }
         else
         {
-            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH);
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH, QString());
         }
     }
     else if (loginError == ProtoTypes::LOGIN_ERROR_SSL_ERROR)
@@ -1730,15 +1730,41 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
         {
             if (!isLoginOkAndConnectWindowVisible_)
             {
-                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT);
+                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT, QString());
                 mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
                 gotoLoginWindow();
             }
             else
             {
-                backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT);
+                backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT, QString());
                 return;
             }
+        }
+    }
+    else if (loginError == ProtoTypes::LOGIN_ERROR_ACCOUNT_DISABLED)
+    {
+        if (!isLoginOkAndConnectWindowVisible_)
+        {
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
+            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
+            gotoLoginWindow();
+        }
+        else
+        {
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
+        }
+    }
+    else if (loginError == ProtoTypes::LOGIN_ERROR_SESSION_INVALID)
+    {
+        if (!isLoginOkAndConnectWindowVisible_)
+        {
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
+            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
+            gotoLoginWindow();
+        }
+        else
+        {
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
         }
     }
 }
@@ -1923,15 +1949,6 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
         }
     }
 
-
-    if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED && connectState.disconnect_reason() == ProtoTypes::DISCONNECTED_BY_USER)
-    {
-        if (backend_->isFirewallEnabled() && backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC)
-        {
-            backend_->firewallOff();
-        }
-    }
-
     if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
     {
         updateConnectWindowStateProtocolPortDisplay(backend_->getPreferences()->connectionSettings());
@@ -2037,23 +2054,23 @@ void MainWindow::onBackendSignOutFinished()
     if (signOutReason_ == SIGN_OUT_FROM_MENU)
     {
         mainWindowController_->getLoginWindow()->resetState();
-        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY);
+        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString());
     }
     else if (signOutReason_ == SIGN_OUT_SESSION_EXPIRED)
     {
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
-        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_SESSION_EXPIRED);
+        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
     }
     else if (signOutReason_ == SIGN_OUT_WITH_MESSAGE)
     {
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
-        mainWindowController_->getLoginWindow()->setErrorMessage(signOutMessageType_);
+        mainWindowController_->getLoginWindow()->setErrorMessage(signOutMessageType_, signOutErrorMessage_);
     }
     else
     {
         Q_ASSERT(false);
         mainWindowController_->getLoginWindow()->resetState();
-        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY);
+        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString());
     }
 
     mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
@@ -2198,7 +2215,7 @@ void MainWindow::onBackendSessionDeleted()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
     signOutReason_ = SIGN_OUT_SESSION_EXPIRED;
-    backend_->signOut();
+    backend_->signOut(true);
 }
 
 void MainWindow::onBackendTestTunnelResult(bool success)
@@ -3299,13 +3316,14 @@ void MainWindow::hideSupplementaryWidgets()
     invalidateShadow();*/
 }
 
-void MainWindow::backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessage)
+void MainWindow::backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage)
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
-    signOutMessageType_ = errorMessage;
+    signOutMessageType_ = errorMessageType;
     signOutReason_ = SIGN_OUT_WITH_MESSAGE;
-    backend_->signOut();
+    signOutErrorMessage_ = errorMessage;
+    backend_->signOut(false);
 }
 
 void MainWindow::setupTrayIcon()
@@ -3586,9 +3604,7 @@ void MainWindow::openUpgradeExternalWindow()
 
 void MainWindow::gotoLoginWindow()
 {
-    mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(
-        backend_->isFirewallEnabled());
-
+    mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(backend_->isFirewallEnabled());
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
 }
 
