@@ -1969,6 +1969,8 @@ void Engine::onConnectionManagerReconnecting()
 {
     qCDebug(LOG_BASIC) << "on reconnecting event";
 
+    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
+
     if (firewallController_->firewallActualState())
     {
         firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
