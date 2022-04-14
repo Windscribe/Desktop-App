@@ -161,8 +161,7 @@ private slots:
     //void onBackendLoginInfoChanged(const ProtoTypes::LoginInfo &loginInfo);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendLoginStepMessage(ProtoTypes::LoginMessage msg);
-    void onBackendLoginError(ProtoTypes::LoginError loginError);
-
+    void onBackendLoginError(ProtoTypes::LoginError loginError, const QString &errorMessage);
 
     void onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &sessionStatus);
     void onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &checkUpdateInfo);
@@ -315,6 +314,7 @@ private:
     enum SIGN_OUT_REASON { SIGN_OUT_UNDEFINED, SIGN_OUT_FROM_MENU, SIGN_OUT_SESSION_EXPIRED, SIGN_OUT_WITH_MESSAGE };
     SIGN_OUT_REASON signOutReason_;
     ILoginWindow::ERROR_MESSAGE_TYPE signOutMessageType_;
+    QString signOutErrorMessage_;
 
     LoginAttemptsController loginAttemptsController_;
     GuiTest *guiTest_;
@@ -333,7 +333,7 @@ private:
 
     void hideSupplementaryWidgets();
 
-    void backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessage);
+    void backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
     void setupTrayIcon();
     QString getConnectionTime();
     QString getConnectionTransferred();

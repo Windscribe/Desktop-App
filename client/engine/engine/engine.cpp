@@ -203,9 +203,9 @@ bool Engine::isApiSavedSettingsExists()
     return false;
 }
 
-void Engine::signOut()
+void Engine::signOut(bool keepFirewallOn)
 {
-    QMetaObject::invokeMethod(this, "signOutImpl");
+    QMetaObject::invokeMethod(this, "signOutImpl", Q_ARG(bool, keepFirewallOn));
 }
 
 void Engine::gotoCustomOvpnConfigMode()
@@ -644,8 +644,7 @@ void Engine::initPart2()
     connect(networkAccessManager_, SIGNAL(whitelistIpsChanged(QSet<QString>)), SLOT(onWhitelistedIPsChanged(QSet<QString>)));
 
     serverAPI_ = new ServerAPI(this);
-    connect(serverAPI_, SIGNAL(sessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)),
-                        SLOT(onSessionAnswer(SERVER_API_RET_CODE, apiinfo::SessionStatus, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, &ServerAPI::sessionAnswer, this, &Engine::onSessionAnswer, Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(checkUpdateAnswer(apiinfo::CheckUpdate,bool,uint)),
                         SLOT(onCheckUpdateAnswer(apiinfo::CheckUpdate,bool,uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(hostIpsChanged(QStringList)), SLOT(onHostIPsChanged(QStringList)));
@@ -1144,20 +1143,20 @@ void Engine::getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose)
 }
 
 // function consists of two parts (first - disconnect if need, second - do other signout stuff)
-void Engine::signOutImpl()
+void Engine::signOutImpl(bool keepFirewallOn)
 {
     if (!connectionManager_->isDisconnected())
     {
-        connectionManager_->setProperty("senderSource", "signOutImpl");
+        connectionManager_->setProperty("senderSource", (keepFirewallOn ? "signOutImplKeepFirewallOn" : "signOutImpl"));
         connectionManager_->clickDisconnect();
     }
     else
     {
-        signOutImplAfterDisconnect();
+        signOutImplAfterDisconnect(keepFirewallOn);
     }
 }
 
-void Engine::signOutImplAfterDisconnect()
+void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
 {
     if (loginController_)
     {
@@ -1184,8 +1183,11 @@ void Engine::signOutImplAfterDisconnect()
     }
     apiinfo::ApiInfo::removeFromSettings();
 
-    firewallController_->firewallOff();
-    Q_EMIT firewallStateChanged(false);
+    if (!keepFirewallOn)
+    {
+        firewallController_->firewallOff();
+        Q_EMIT firewallStateChanged(false);
+    }
 
     Q_EMIT signOutFinished();
 }
@@ -1389,9 +1391,10 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     OpenVpnVersionController::instance().setUseWinTun(engineSettings_.isUseWintun());
 }
 
-void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState)
+void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState, const QString &errorMessage)
 {
-    qCDebug(LOG_BASIC) << "onLoginControllerFinished, retCode =" << loginRetToString(retCode) << ";" << "bFromConnectedToVPNState =" << bFromConnectedToVPNState;
+    qCDebug(LOG_BASIC) << "onLoginControllerFinished, retCode =" << loginRetToString(retCode) << ";bFromConnectedToVPNState ="
+                       << bFromConnectedToVPNState << ";errorMessage =" << errorMessage;
 
     Q_ASSERT(loginState_ != LOGIN_FINISHED);
     if (retCode == LOGIN_SUCCESS)
@@ -1440,12 +1443,12 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
     else if (retCode == LOGIN_NO_CONNECTIVITY)
     {
         loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(LOGIN_NO_CONNECTIVITY);
+        Q_EMIT loginError(LOGIN_NO_CONNECTIVITY, QString());
     }
     else if (retCode == LOGIN_NO_API_CONNECTIVITY)
     {
         loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(LOGIN_NO_API_CONNECTIVITY);
+        Q_EMIT loginError(LOGIN_NO_API_CONNECTIVITY, QString());
 
         if (bFromConnectedToVPNState)
         {
@@ -1459,12 +1462,12 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
     else if (retCode == LOGIN_PROXY_AUTH_NEED)
     {
         loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(LOGIN_PROXY_AUTH_NEED);
+        Q_EMIT loginError(LOGIN_PROXY_AUTH_NEED, QString());
     }
     else if (retCode == LOGIN_INCORRECT_JSON)
     {
         loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(LOGIN_INCORRECT_JSON);
+        Q_EMIT loginError(LOGIN_INCORRECT_JSON, QString());
     }
     else if (retCode == LOGIN_SSL_ERROR)
     {
@@ -1481,14 +1484,15 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
         else
         {
             loginState_ = LOGIN_NONE;
-            Q_EMIT loginError(LOGIN_SSL_ERROR);
+            Q_EMIT loginError(LOGIN_SSL_ERROR, QString());
         }
     }
-    else if (retCode == LOGIN_BAD_USERNAME || retCode == LOGIN_BAD_CODE2FA
-             || retCode == LOGIN_MISSING_CODE2FA)
+    else if (retCode == LOGIN_BAD_USERNAME || retCode == LOGIN_BAD_CODE2FA ||
+             retCode == LOGIN_MISSING_CODE2FA || retCode == LOGIN_ACCOUNT_DISABLED ||
+             retCode == LOGIN_SESSION_INVALID)
     {
         loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(retCode);
+        Q_EMIT loginError(retCode, errorMessage);
     }
     else
     {
@@ -1555,7 +1559,7 @@ void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::Session
             updateSessionStatus();
             // updateCurrentNetworkInterface();
         }
-        else if (retCode == SERVER_RETURN_BAD_USERNAME)
+        else if (retCode == SERVER_RETURN_SESSION_INVALID)
         {
             Q_EMIT sessionDeleted();
         }
@@ -1920,7 +1924,7 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
         firewallController_->deleteWhitelistPorts();
     }
 
-    // get sender source for additional actions in this hanlder
+    // get sender source for additional actions in this handler
     QString senderSource;
     if (connectionManager_->property("senderSource").isValid())
     {
@@ -1948,7 +1952,11 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
 
     if (senderSource == "signOutImpl")
     {
-        signOutImplAfterDisconnect();
+        signOutImplAfterDisconnect(false);
+    }
+    else if (senderSource == "signOutImplKeepFirewallOn")
+    {
+        signOutImplAfterDisconnect(true);
     }
     else if (senderSource == "reconnect")
     {
@@ -1958,6 +1966,13 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     else
     {
         getMyIPController_->getIPFromDisconnectedState(1);
+
+        if (reason == DISCONNECTED_BY_USER && engineSettings_.firewallSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC &&
+            firewallController_->firewallActualState())
+        {
+            firewallController_->firewallOff();
+            Q_EMIT firewallStateChanged(false);
+        }
     }
 
     connectStateController_->setDisconnectedState(reason, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
@@ -2660,9 +2675,9 @@ void Engine::startLoginController(const LoginSettings &loginSettings, bool bFrom
     Q_ASSERT(loginController_ == NULL);
     Q_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
     loginController_ = new LoginController(this, helper_, networkDetectionManager_, serverAPI_, engineSettings_.language(), engineSettings_.connectionSettings().protocol());
-    connect(loginController_, SIGNAL(finished(LOGIN_RET, apiinfo::ApiInfo, bool)), SLOT(onLoginControllerFinished(LOGIN_RET, apiinfo::ApiInfo, bool)));
-    connect(loginController_, SIGNAL(readyForNetworkRequests()), SLOT(onReadyForNetworkRequests()));
-    connect(loginController_, SIGNAL(stepMessage(LOGIN_MESSAGE)), SLOT(onLoginControllerStepMessage(LOGIN_MESSAGE)));
+    connect(loginController_, &LoginController::finished, this, &Engine::onLoginControllerFinished);
+    connect(loginController_, &LoginController::readyForNetworkRequests, this, &Engine::onReadyForNetworkRequests);
+    connect(loginController_, &LoginController::stepMessage, this, &Engine::onLoginControllerStepMessage);
     loginController_->startLoginProcess(loginSettings, engineSettings_.dnsResolutionSettings(), bFromConnectedState);
 }
 

@@ -39,9 +39,9 @@ QGraphicsObject *LoginWindowItem::getGraphicsObject()
     return this;
 }
 
-void LoginWindowItem::setErrorMessage(ERROR_MESSAGE_TYPE errorMessage)
+void LoginWindowItem::setErrorMessage(ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage)
 {
-    credentialsWindowItem_->setErrorMessage(errorMessage);
+    credentialsWindowItem_->setErrorMessage(errorMessageType, errorMessage);
 }
 
 void LoginWindowItem::setEmergencyConnectState(bool isEmergencyConnected)

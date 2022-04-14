@@ -13,12 +13,12 @@ public:
                              ERR_MSG_PROXY_REQUIRES_AUTH, ERR_MSG_INVALID_API_RESPONCE,
                              ERR_MSG_INVALID_API_ENDPOINT, ERR_MSG_INCORRECT_LOGIN1,
                              ERR_MSG_INCORRECT_LOGIN2, ERR_MSG_INCORRECT_LOGIN3,
-                             ERR_MSG_SESSION_EXPIRED };
+                             ERR_MSG_SESSION_EXPIRED, ERR_MSG_ACCOUNT_DISABLED };
 
     virtual ~ILoginWindow() {}
     virtual QGraphicsObject *getGraphicsObject() = 0;
 
-    virtual void setErrorMessage(ERROR_MESSAGE_TYPE errorMessage) = 0;    // if errorMessage is empty, then clear error
+    virtual void setErrorMessage(ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage) = 0; // if errorMessageType is ERR_MSG_EMPTY, then clear error
     virtual void setEmergencyConnectState(bool isEmergencyConnected) = 0;
     virtual void setClickable(bool enabled) = 0;
     virtual void setCurrent2FACode(QString code) = 0;

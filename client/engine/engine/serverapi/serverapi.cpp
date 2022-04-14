@@ -571,7 +571,7 @@ void ServerAPI::login(const QString &username, const QString &password, const QS
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit loginAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::SessionStatus(), "", userRole);
+        emit loginAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::SessionStatus(), "", userRole, "");
         return;
     }
 
@@ -935,8 +935,7 @@ void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStri
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request Login failed: DNS-resolution failed";
-        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "",
-                         crd->getUserRole());
+        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", crd->getUserRole(), "");
         return;
     }
 
@@ -1612,7 +1611,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         if (replyType == REPLY_LOGIN)
         {
             qCDebug(LOG_SERVER_API) << "API request Login failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-            emit loginAnswer(retCode, apiinfo::SessionStatus(), "", userRole);
+            emit loginAnswer(retCode, apiinfo::SessionStatus(), "", userRole, "");
         }
         else
         {
@@ -1645,7 +1644,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             if (replyType == REPLY_LOGIN)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole);
+                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole, "");
             }
             else
             {
@@ -1662,17 +1661,60 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         {
             int errorCode = jsonObject["errorCode"].toInt();
 
-            if (errorCode == 701 || errorCode == 702 || errorCode == 703 || errorCode == 706)
+            // 701 - will be returned if the supplied session_auth_hash is invalid. Any authenticated endpoint can
+            //       throw this error.  This can happen if the account gets disabled, or they rotate their session
+            //       secret (pressed Delete Sessions button in the My Account section).  We should terminate the
+            //       tunnel and go to the login screen.
+            // 702 - will be returned ONLY in the login flow, and means the supplied credentials were not valid.
+            //       Currently we disregard the API errorMessage and display the hardcoded ones (this is for
+            //       multi-language support).
+            // 703 - deprecated / never returned anymore, however we should still keep this for future purposes.
+            //       If 703 is thrown on login (and only on login), display the exact errorMessage to the user,
+            //       instead of what we do for 702 errors.
+            // 706 - this is thrown only on login flow, and means the target account is disabled or banned.
+            //       Do exactly the same thing as for 703 - show the errorMessage.
+
+            if (errorCode == 701)
+            {
+                if (replyType == REPLY_LOGIN)
+                {
+                    qCDebug(LOG_SERVER_API) << "API request Login return session auth hash invalid";
+                    emit loginAnswer(SERVER_RETURN_SESSION_INVALID, apiinfo::SessionStatus(), "", userRole, "");
+                }
+                else
+                {
+                    qCDebug(LOG_SERVER_API) << "API request Session return session auth hash invalid";
+                    emit sessionAnswer(SERVER_RETURN_SESSION_INVALID, apiinfo::SessionStatus(), userRole);
+                }
+            }
+            else if (errorCode == 702)
             {
                 if (replyType == REPLY_LOGIN)
                 {
                     qCDebug(LOG_SERVER_API) << "API request Login return bad username";
-                    emit loginAnswer(SERVER_RETURN_BAD_USERNAME, apiinfo::SessionStatus(), "", userRole);
+                    emit loginAnswer(SERVER_RETURN_BAD_USERNAME, apiinfo::SessionStatus(), "", userRole, "");
                 }
                 else
                 {
-                    qCDebug(LOG_SERVER_API) << "API request Session return bad username";
-                    emit sessionAnswer(SERVER_RETURN_BAD_USERNAME, apiinfo::SessionStatus(), userRole);
+                    // According to the server API docs, we should not get here.
+                    qCDebug(LOG_SERVER_API) << "WARNING: API request Session return bad username";
+                    emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), userRole);
+                }
+            }
+            else if (errorCode == 703 || errorCode == 706)
+            {
+                QString errorMessage = jsonObject["errorMessage"].toString();
+
+                if (replyType == REPLY_LOGIN)
+                {
+                    qCDebug(LOG_SERVER_API) << "API request Login return account disabled or banned";
+                    emit loginAnswer(SERVER_RETURN_ACCOUNT_DISABLED, apiinfo::SessionStatus(), "", userRole, errorMessage);
+                }
+                else
+                {
+                    // According to the server API docs, we should not get here.
+                    qCDebug(LOG_SERVER_API) << "WARNING: API request Session return account disabled or banned";
+                    emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), userRole);
                 }
             }
             else
@@ -1682,17 +1724,17 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
                     if (errorCode == 1340)
                     {
                         qCDebug(LOG_SERVER_API) << "API request Login return missing 2FA code";
-                        emit loginAnswer(SERVER_RETURN_MISSING_CODE2FA, apiinfo::SessionStatus(), "", userRole);
+                        emit loginAnswer(SERVER_RETURN_MISSING_CODE2FA, apiinfo::SessionStatus(), "", userRole, "");
                     }
                     else if (errorCode == 1341)
                     {
                         qCDebug(LOG_SERVER_API) << "API request Login return invalid 2FA code";
-                        emit loginAnswer(SERVER_RETURN_BAD_CODE2FA, apiinfo::SessionStatus(), "", userRole);
+                        emit loginAnswer(SERVER_RETURN_BAD_CODE2FA, apiinfo::SessionStatus(), "", userRole, "");
                     }
                     else
                     {
                         qCDebug(LOG_SERVER_API) << "API request Login return error";
-                        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", userRole);
+                        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", userRole, "");
                     }
                 }
                 else
@@ -1709,7 +1751,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             if (replyType == REPLY_LOGIN)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json (data field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole);
+                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole, "");
             }
             else
             {
@@ -1732,7 +1774,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             if (replyType == REPLY_LOGIN)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json:" << outErrorMsg;
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole);
+                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole, "");
             }
             else
             {
@@ -1744,7 +1786,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         if (replyType == REPLY_LOGIN)
         {
             qCDebug(LOG_SERVER_API) << "API request Login successfully executed";
-            emit loginAnswer(SERVER_RETURN_SUCCESS, sessionStatus, authHash, userRole);
+            emit loginAnswer(SERVER_RETURN_SUCCESS, sessionStatus, authHash, userRole, "");
         }
         else
         {
@@ -2459,8 +2501,6 @@ void ServerAPI::handleWireGuardInitCurl(BaseRequest *rd, bool success)
             emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
             return;
         }
-
-        qCDebug(LOG_SERVER_API) << "WgConfigs/init json:" << doc.toJson(QJsonDocument::Compact);
 
         // Persist the peer parameters we received.
         apiinfo::ApiInfo::setWireGuardPeerInfo(crd->wireGuardConfig().peerPresharedKey(), crd->wireGuardConfig().peerAllowedIps());

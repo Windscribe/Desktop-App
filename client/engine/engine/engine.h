@@ -54,7 +54,7 @@ public:
     void loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa);
     void loginWithLastLoginSettings();
     bool isApiSavedSettingsExists();
-    void signOut();
+    void signOut(bool keepFirewallOn);
 
     void gotoCustomOvpnConfigMode();
 
@@ -133,7 +133,7 @@ signals:
     void cleanupFinished();
     void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap);
     void loginStepMessage(LOGIN_MESSAGE msg);
-    void loginError(LOGIN_RET retCode);
+    void loginError(LOGIN_RET retCode, const QString &errorMessage);
     void sessionDeleted();
     void sessionStatusUpdated(const apiinfo::SessionStatus &sessionStatus);
     void notificationsUpdated(const QVector<apiinfo::Notification> &notifications);
@@ -196,8 +196,8 @@ private slots:
     void disconnectClickImpl();
     void sendDebugLogImpl();
     void getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose);
-    void signOutImpl();
-    void signOutImplAfterDisconnect();
+    void signOutImpl(bool keepFirewallOn);
+    void signOutImplAfterDisconnect(bool keepFirewallOn);
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
     void continueWithPasswordImpl(const QString &password, bool bSave);
 
@@ -228,7 +228,7 @@ private slots:
     void setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts);
 
-    void onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState);
+    void onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState, const QString &errorMessage);
     void onReadyForNetworkRequests();
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 

@@ -29,10 +29,10 @@ public:
 signals:
     void readyForNetworkRequests();
     void stepMessage(LOGIN_MESSAGE msg);
-    void finished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState);
+    void finished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState, const QString &errorMessage);
 
 private slots:
-    void onLoginAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash, uint userRole);
+    void onLoginAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash, uint userRole, const QString &errorMessage);
     void onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
     void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole);
     void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, ProtocolType protocol, uint userRole);
@@ -83,7 +83,7 @@ private:
     QStringList ipsForStep3_;
 
     void getApiInfoFromSettings();
-    void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash);
+    void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage);
     void makeLoginRequest(const QString &hostname);
     void makeApiAccessRequest();
     QString selectRandomIpForStep3();

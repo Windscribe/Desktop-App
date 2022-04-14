@@ -58,6 +58,7 @@ message LoginStepMessage
 message LoginError
 {
    optional ProtoTypes.LoginError error = 1;
+   optional string error_message = 2;
 }
 
 message SessionStatusUpdated

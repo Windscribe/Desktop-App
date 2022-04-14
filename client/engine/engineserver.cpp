@@ -74,7 +74,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(bfeEnableFinished(ENGINE_INIT_RET_CODE)), SLOT(onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE)));
             connect(engine_, SIGNAL(firewallStateChanged(bool)), SLOT(onEngineFirewallStateChanged(bool)));
             connect(engine_, SIGNAL(loginFinished(bool, QString, apiinfo::PortMap)), SLOT(onEngineLoginFinished(bool, QString, apiinfo::PortMap)));
-            connect(engine_, SIGNAL(loginError(LOGIN_RET)), SLOT(onEngineLoginError(LOGIN_RET)));
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
             connect(engine_, SIGNAL(notificationsUpdated(QVector<apiinfo::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<apiinfo::Notification>)));
             connect(engine_, SIGNAL(checkUpdateUpdated(apiinfo::CheckUpdate)), SLOT(onEngineCheckUpdateUpdated(apiinfo::CheckUpdate)));
@@ -112,6 +111,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(hostsFileBecameWritable()), SLOT(onHostsFileBecameWritable()));
             connect(engine_, &Engine::wireGuardAtKeyLimit, this, &EngineServer::wireGuardAtKeyLimit);
             connect(this, &EngineServer::wireGuardKeyLimitUserResponse, engine_, &Engine::onWireGuardKeyLimitUserResponse);
+            connect(engine_, &Engine::loginError, this, &EngineServer::onEngineLoginError);
             threadEngine_->start(QThread::LowPriority);
         }
         else
@@ -261,7 +261,8 @@ bool EngineServer::handleCommand(IPC::Command *command)
     }
     else if (command->getStringId() == IPCClientCommands::SignOut::descriptor()->full_name())
     {
-        engine_->signOut();
+        IPC::ProtobufCommand<IPCClientCommands::SignOut> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::SignOut> *>(command);
+        engine_->signOut(cmd->getProtoObj().is_keep_firewall_on());
         return true;
     }
     else if (command->getStringId() == IPCClientCommands::SendDebugLog::descriptor()->full_name())
@@ -622,10 +623,11 @@ void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QS
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineLoginError(LOGIN_RET retCode)
+void EngineServer::onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage)
 {
     IPC::ProtobufCommand<IPCServerCommands::LoginError> cmd;
     cmd.getProtoObj().set_error(loginRetToProtobuf(retCode));
+    cmd.getProtoObj().set_error_message(errorMessage.toStdString());
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
