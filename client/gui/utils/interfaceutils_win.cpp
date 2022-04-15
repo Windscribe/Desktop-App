@@ -7,6 +7,12 @@ namespace InterfaceUtils
 
 bool isDarkMode()
 {
+    // for Windows 7 or 8 always use dark icons
+    if (WinUtils::isWindowsVISTAor7or8())
+    {
+        return false;
+    }
+
     int dwordValue = 0;
     const QString subKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
     if (!WinUtils::regGetCurrentUserRegistryDword(subKey, "SystemUsesLightTheme", dwordValue))

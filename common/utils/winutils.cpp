@@ -119,6 +119,20 @@ bool WinUtils::isWindows7()
     return false;
 }
 
+bool WinUtils::isWindowsVISTAor7or8()
+{
+    RTL_OSVERSIONINFOEXW rtlOsVer;
+    if (getWinVersion(&rtlOsVer))
+    {
+        if (rtlOsVer.dwMajorVersion == 6)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 QString WinUtils::getWinVersionString()
 {
     QString ret;
@@ -1561,3 +1575,4 @@ IfTable2Row WinUtils::ifTable2RowByIndex(int index)
 
     return found;
 }
+

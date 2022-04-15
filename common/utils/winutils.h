@@ -15,6 +15,7 @@ namespace WinUtils
     bool reboot();
     bool isWindows10orGreater();
     bool isWindows7();
+    bool isWindowsVISTAor7or8();
     QString getWinVersionString();
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     QMap<QString,QString> enumerateInstalledProgramIconLocations();
