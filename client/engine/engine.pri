@@ -232,7 +232,9 @@ SOURCES += $$PWD/engine/apiinfo/apiinfo.cpp \
     $$PWD/engine/ping/pinghost_tcp.cpp \
     $$PWD/engine/ping/pinghost.cpp \
     $$PWD/engine/customconfigs/customconfigsdirwatcher.cpp \
-    $$PWD/engine/types/wireguardconfig.cpp \
+    $$PWD/engine/wireguardconfig/wireguardconfig.cpp \
+    $$PWD/engine/wireguardconfig/getwireguardconfig.cpp \
+    $$PWD/engine/wireguardconfig/getwireguardconfiginloop.cpp \
     $$PWD/engine/getdeviceid.cpp \
     $$PWD/engineserver.cpp \
     $$PWD/clientconnectiondescr.cpp \
@@ -357,7 +359,9 @@ HEADERS  +=  $$PWD/engine/locationsmodel/enginelocationsmodel.h \
     $$PWD/engine/ping/pinghost_tcp.h \
     $$PWD/engine/ping/pinghost.h \
     $$PWD/engine/customconfigs/customconfigsdirwatcher.h \
-    $$PWD/engine/types/wireguardconfig.h \
+    $$PWD/engine/wireguardconfig/wireguardconfig.h \
+    $$PWD/engine/wireguardconfig/getwireguardconfig.h \
+    $$PWD/engine/wireguardconfig/getwireguardconfiginloop.h \
     $$PWD/engine/getdeviceid.h \
     $$PWD/engineserver.h \
     $$PWD/clientconnectiondescr.h \

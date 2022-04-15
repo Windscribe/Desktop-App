@@ -9,7 +9,7 @@
 #include <sstream>
 #include "windscribeinstallhelper_win.h"
 #include "engine/openvpnversioncontroller.h"
-#include "engine/types/wireguardconfig.h"
+#include "engine/wireguardconfig/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/types/protocoltype.h"

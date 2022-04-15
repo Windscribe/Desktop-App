@@ -10,6 +10,7 @@
 #include "engine/types/types.h"
 #include "engine/types/connectionsettings.h"
 #include "engine/apiinfo/apiinfo.h"
+#include "engine/serverapi/serverapi.h"
 
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "utils/extraconfig.h"
@@ -18,6 +19,7 @@
 #include "connsettingspolicy/autoconnsettingspolicy.h"
 #include "connsettingspolicy/manualconnsettingspolicy.h"
 #include "connsettingspolicy/customconfigconnsettingspolicy.h"
+
 
 // Had to move this here to prevent a compile error with boost already including winsock.h
 #include "connectionmanager.h"
@@ -91,6 +93,9 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
 #endif
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
+
+    getWireGuardConfigInLoop_ = new GetWireGuardConfigInLoop(this, serverAPI, serverAPI->getAvailableUserRole());
+    connect(getWireGuardConfigInLoop_, &GetWireGuardConfigInLoop::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer);
 }
 
 ConnectionManager::~ConnectionManager()
@@ -102,6 +107,7 @@ ConnectionManager::~ConnectionManager()
     SAFE_DELETE(makeOVPNFile_);
     SAFE_DELETE(makeOVPNFileFromCustom_);
     SAFE_DELETE(sleepEvents_);
+    SAFE_DELETE(getWireGuardConfigInLoop_);
 }
 
 void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
@@ -155,6 +161,7 @@ void ConnectionManager::clickDisconnect()
              state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
 
     timerWaitNetworkConnectivity_.stop();
+    getWireGuardConfigInLoop_->stop();
 
     if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK)
     {
@@ -327,6 +334,7 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     }
 
     timerReconnection_.stop();
+    getWireGuardConfigInLoop_->stop();
     state_ = STATE_CONNECTED;
     Q_EMIT connected();
 }
@@ -340,6 +348,7 @@ void ConnectionManager::onConnectionDisconnected()
     stunnelManager_->killProcess();
     wstunnelManager_->killProcess();
     timerWaitNetworkConnectivity_.stop();
+    getWireGuardConfigInLoop_->stop();
 
     switch (state_)
     {
@@ -537,6 +546,7 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
         // immediately stop trying to connect
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
+        getWireGuardConfigInLoop_->stop();
         Q_EMIT errorDuringConnection(err);
     }
     else if (err == ProtoTypes::ConnectError::UDP_CANT_ASSIGN
@@ -646,6 +656,7 @@ void ConnectionManager::onSleepMode()
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), state_ =" << state_;
 
     timerReconnection_.stop();
+    getWireGuardConfigInLoop_->stop();
     bWakeSignalReceived_ = false;
 
     switch (state_)
@@ -682,6 +693,7 @@ void ConnectionManager::onWakeMode()
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onWakeMode(), state_ =" << state_;
     timerReconnection_.stop();
+    getWireGuardConfigInLoop_->stop();
     bWakeSignalReceived_ = true;
 
     switch (state_)
@@ -856,6 +868,7 @@ void ConnectionManager::doConnectPart2()
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
+        getWireGuardConfigInLoop_->stop();
         Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::LOCATION_NO_ACTIVE_NODES);
         return;
     }
@@ -921,6 +934,7 @@ void ConnectionManager::doConnectPart2()
                 {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
+                    getWireGuardConfigInLoop_->stop();
                     Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_STUNNEL_ERROR);
                     return;
                 }
@@ -931,6 +945,7 @@ void ConnectionManager::doConnectPart2()
                 {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
+                    getWireGuardConfigInLoop_->stop();
                     Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_WSTUNNEL_ERROR);
                     return;
                 }
@@ -952,21 +967,8 @@ void ConnectionManager::doConnectPart2()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            if (wireGuardConfig_.isNull()) {
-                wireGuardConfig_.reset(new WireGuardConfig());
-            }
-            if (!wireGuardConfig_->haveKeyPair() || !wireGuardConfig_->haveServerGeneratedPeerParams()) {
-                // If we do not have a key-pair and peer parameters stored on disk, they will be generated and stored
-                // by the ServerAPI::getWireGuardConfig flow.
-                QString publicKey, privateKey, presharedKey, allowedIPs;
-                if (apiinfo::ApiInfo::getWireGuardKeyPair(publicKey, privateKey) && apiinfo::ApiInfo::getWireGuardPeerInfo(presharedKey, allowedIPs)) {
-                    wireGuardConfig_->setKeyPair(publicKey, privateKey);
-                    wireGuardConfig_->setPeerPresharedKey(presharedKey);
-                    wireGuardConfig_->setPeerAllowedIPs(allowedIPs);
-                }
-            }
             qCDebug(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
-            Q_EMIT getWireGuardConfig();
+            getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, false);
             return;
         }
     }
@@ -983,6 +985,7 @@ void ConnectionManager::doConnectPart2()
                 //Q_ASSERT(false);
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
+                getWireGuardConfigInLoop_->stop();
                 Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
@@ -993,6 +996,7 @@ void ConnectionManager::doConnectPart2()
                                         << currentConnectionDescr_.customConfigFilename;
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
+                getWireGuardConfigInLoop_->stop();
                 Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
@@ -1013,7 +1017,7 @@ void ConnectionManager::doConnectPart3()
 
     if (currentConnectionDescr_.protocol.isWireGuardProtocol())
     {
-        WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : wireGuardConfig_.get());
+        WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : &wireGuardConfig_);
         Q_ASSERT(pConfig != nullptr);
         Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, pConfig->clientDnsAddress());
     }
@@ -1072,14 +1076,13 @@ void ConnectionManager::doConnectPart3()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            Q_ASSERT(!wireGuardConfig_.isNull());
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
-            wireGuardConfig_->setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
-            wireGuardConfig_->setPeerEndpoint(endpointAndPort);
+            wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
+            wireGuardConfig_.setPeerEndpoint(endpointAndPort);
             recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
-                wireGuardConfig_.get(), false, connSettingsPolicy_->isAutomaticMode());
+                &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode());
         }
         else
         {
@@ -1252,6 +1255,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
             qCDebug(LOG_CONNECTION) << "Time for wait network connection exceed";
             timerWaitNetworkConnectivity_.stop();
             timerReconnection_.stop();
+            getWireGuardConfigInLoop_->stop();
             state_ = STATE_DISCONNECTED;
             Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
         }
@@ -1263,41 +1267,29 @@ void ConnectionManager::onHostnamesResolved()
     doConnectPart2();
 }
 
-void ConnectionManager::onWireGuardConfigRequestComplete(bool success)
+void ConnectionManager::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config)
 {
-    // If the protocol has been changed, do nothing.
-    if (!currentConnectionDescr_.protocol.isWireGuardProtocol())
-        return;
+    if (retCode == SERVER_RETURN_WIREGUARD_KEY_LIMIT)
+    {
+        Q_EMIT wireGuardAtKeyLimit();
+    }
+    else if (retCode == SERVER_RETURN_SUCCESS)
+    {
+        wireGuardConfig_ = config;
+        // If the protocol has been changed, do nothing.
+        if (!currentConnectionDescr_.protocol.isWireGuardProtocol())
+        {
+            Q_ASSERT(false);  // this should not happen logically?
+            return;
+        }
 
-    if (success) {
         doConnectPart3();
     }
-    else {
-        // Failed to fetch a config, stop connection.
-        state_ = STATE_AUTO_DISCONNECT;
-        if (connector_)
-            connector_->startDisconnect();
-        else
-            onConnectionDisconnected();
+    else
+    {
+        // this should not happen logically
+        Q_ASSERT(false);
     }
-}
-
-void ConnectionManager::resetWireGuardConfig()
-{
-    if (!wireGuardConfig_.isNull()) {
-        wireGuardConfig_->reset();
-    }
-}
-
-WireGuardConfig &ConnectionManager::wireGuardConfig()
-{
-    Q_ASSERT(!wireGuardConfig_.isNull());
-    return *wireGuardConfig_;
-}
-
-QString ConnectionManager::wireGuardHostname() const
-{
-    return currentConnectionDescr_.hostname;
 }
 
 bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const
@@ -1321,6 +1313,18 @@ apiinfo::StaticIpPortsVector ConnectionManager::getStatisIps()
 {
     Q_ASSERT(isStaticIpsLocation());
     return currentConnectionDescr_.staticIpPorts;
+}
+
+void ConnectionManager::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
+{
+    if (deleteOldestKey)
+    {
+        getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, true);
+    }
+    else
+    {
+        clickDisconnect();
+    }
 }
 
 void ConnectionManager::setPacketSize(ProtoTypes::PacketSize ps)

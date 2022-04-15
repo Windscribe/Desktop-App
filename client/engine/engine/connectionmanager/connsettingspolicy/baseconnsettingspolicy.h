@@ -3,7 +3,7 @@
 
 #include "engine/apiinfo/staticips.h"
 #include "engine/apiinfo/portmap.h"
-#include "engine/types/wireguardconfig.h"
+#include "engine/wireguardconfig/wireguardconfig.h"
 
 enum CONNECTION_NODE_TYPE {
     CONNECTION_NODE_ERROR,

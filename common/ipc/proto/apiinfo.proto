@@ -123,3 +123,11 @@ message BestLocation
   optional ProtoTypes.LocationId location_id = 2;
 }
 
+
+message WireGuardConfig
+{
+  optional string public_key = 1;
+  optional string private_key = 2;
+  optional string preshared_key = 3;
+  optional string allowed_ips = 4;
+}

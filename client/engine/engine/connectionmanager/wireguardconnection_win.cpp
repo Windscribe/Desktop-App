@@ -6,7 +6,7 @@
 #include "wireguardringlogger.h"
 
 #include "adapterutils_win.h"
-#include "engine/types/wireguardconfig.h"
+#include "engine/wireguardconfig/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"

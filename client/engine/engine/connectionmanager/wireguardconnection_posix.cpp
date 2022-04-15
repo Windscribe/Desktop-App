@@ -4,7 +4,7 @@
 #include "utils/utils.h"
 #include "engine/helper/ihelper.h"
 #include "engine/types/types.h"
-#include "engine/types/wireguardconfig.h"
+#include "engine/wireguardconfig/wireguardconfig.h"
 #include "engine/types/wireguardtypes.h"
 #include "engine/helper/helper_posix.h"
 
