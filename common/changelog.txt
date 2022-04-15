@@ -1,3 +1,25 @@
+2.4.5 (15/04/2022)
+* Long favourites location names in the tray menu are cut off. #251
+* Static IPs display issue in tray menu. #208
+* Updated the version info in all Windows executables.
+* The app randomly "fails" upon connecting to locations while already connected. A lot of refactoring has been done regarding the receiving of the WireGuard-config before connecting (many potential bugs have been fixed). #239
+* Mac Application doesn't open. #181
+* Fix app crash when signaled to close by installer. #226
+* Uninstaller wipes the entire folder it is located in. #155
+	- modified the installer to only install into a non-blank directory.
+	- if the selected directory has files in it, append \Windscribe to it.
+	- the uninstaller should only run if it's in the install directory.
+* Checked the API interaction. #96 
+	- added 'app_version' to all server API calls.
+	- refresh all server resources every 24 hours.
+	- fix incorrect handling of static IPs server error response.
+* App main window does not display on Windows 11. #247
+* Fixed OpenVPN works unstably on hardware with Windows 7. #136
+* Fixed firewall deactivated when account status changes to disabled. #248
+* Protocol selection not immediately saved to disk - fixed. #149
+* Replaced tray icons on Windows 7,8 and Mac. #206
+
+
 2.4.4 (25/03/2022)
 * Fixed crash on bad server locations list. #209
 * Various Wireguard NT fixes. #120
