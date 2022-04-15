@@ -287,6 +287,7 @@ void Preferences::setConnectionSettings(const ProtoTypes::ConnectionSettings &cm
     {
         *engineSettings_.mutable_connection_settings() = cm;
         emit connectionSettingsChanged(engineSettings_.connection_settings());
+        emit updateEngineSettings();
     }
 }
 
