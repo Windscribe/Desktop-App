@@ -27,7 +27,6 @@
 #include "autoupdater/downloadhelper.h"
 #include "autoupdater/autoupdaterhelper_mac.h"
 #include "networkaccessmanager/networkaccessmanager.h"
-#include "engine/wireguardconfig/getwireguardconfig.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
@@ -246,7 +245,6 @@ private slots:
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
-    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config);
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     void onUpdateServerResources();
@@ -262,7 +260,7 @@ private slots:
     void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
     void onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
-    void onConnectionManagerGetWireGuardConfig();
+    void onConnectionManagerWireGuardAtKeyLimit();
 
     void onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig);
     void onConnectionManagerRequestPassword(const QString &pathCustomOvpnConfig);
@@ -308,7 +306,6 @@ private slots:
 
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
 
-    void fetchWireGuardConfig();
     void checkForAppUpdate();
 
 #ifdef Q_OS_MAC
@@ -325,7 +322,6 @@ private:
     FirewallController *firewallController_;
     NetworkAccessManager *networkAccessManager_;
     ServerAPI *serverAPI_;
-    GetWireGuardConfig *getWireGuardConfig_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
@@ -361,7 +357,6 @@ private:
     QTimer *updateServerResourcesTimer_;
     SessionStatusTimer *updateSessionStatusTimer_;
     QTimer *notificationsUpdateTimer_;
-    QTimer *fetchWireguardConfigTimer_;
 
     locationsmodel::LocationsModel *locationsModel_;
 

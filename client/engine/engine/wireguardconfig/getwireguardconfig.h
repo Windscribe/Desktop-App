@@ -16,7 +16,7 @@ class GetWireGuardConfig : public QObject
 {
     Q_OBJECT
 public:
-    GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI);
+    GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole);
 
     void getWireGuardConfig(const QString &serverName, bool deleteOldestKey);
     static void removeWireGuardSettings();

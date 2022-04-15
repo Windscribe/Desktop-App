@@ -4,10 +4,10 @@
 
 const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 
-GetWireGuardConfig::GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI) : QObject(parent), serverAPI_(serverAPI),
+GetWireGuardConfig::GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole) : QObject(parent), serverAPI_(serverAPI),
+    serverApiUserRole_(serverApiUserRole),
     isRequestAlreadyInProgress_(false), simpleCrypt_(0x4572A4ACF31A31BA)
 {
-    serverApiUserRole_ = serverAPI_->getAvailableUserRole();
     connect(serverAPI_, &ServerAPI::wgConfigsInitAnswer, this, &GetWireGuardConfig::onWgConfigsInitAnswer, Qt::QueuedConnection);
     connect(serverAPI_, &ServerAPI::wgConfigsConnectAnswer, this, &GetWireGuardConfig::onWgConfigsConnectAnswer, Qt::QueuedConnection);
 }
