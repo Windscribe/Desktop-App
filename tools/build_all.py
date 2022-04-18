@@ -815,6 +815,10 @@ def pre_checks_and_build_all():
             if not os.path.exists(pathhelper.mac_provision_profile_filename_absolute()):
                 raise IOError("Cannot sign without provisioning profile")
 
+	# early check for file hardcodedsecrets.ini
+        if not os.path.exists(pathhelper.hardcoded_secrets_filename_absolute()):
+    	    raise IOError("Cannot build without hardcodedsecrets.ini")
+
     # should have everything we need to build with the desired settings
     msg.Print("Building {}...".format(BUILD_TITLE))
     build_all(win_cert_password)
