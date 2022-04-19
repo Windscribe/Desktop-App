@@ -26,7 +26,7 @@ private:
     QFile wireguardLogFile_;
     uchar* logData_ = nullptr;
     int ringLogIndex_ = -1;
-    quint64 startTime_ = 0;
+    quint64 startTime_ = 0; // nanoseconds
     bool tunnelRunning_ = false;
 
 private:

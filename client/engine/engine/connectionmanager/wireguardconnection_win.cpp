@@ -209,6 +209,10 @@ void WireGuardConnection::run()
         exec();
     }
 
+    disconnect(timerGetWireguardStats.data(), &QTimer::timeout, nullptr, nullptr);
+    disconnect(timerCheckServiceRunning.data(), &QTimer::timeout, nullptr, nullptr);
+    disconnect(timerGetWireguardLogUpdates.data(), &QTimer::timeout, nullptr, nullptr);
+
     timerGetWireguardStats->stop();
     timerCheckServiceRunning->stop();
     timerGetWireguardLogUpdates->stop();
@@ -222,6 +226,7 @@ void WireGuardConnection::run()
         qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - windscribe service failed to stop the WireGuard service instance";
     }
 
+    wireguardLog_->getNewLogEntries();
     wireguardLog_.reset();
 
     emit disconnected();

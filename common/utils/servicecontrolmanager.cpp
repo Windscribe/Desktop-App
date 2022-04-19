@@ -356,7 +356,7 @@ ServiceControlManager::startService() const
     if (::StartServiceA(m_hService, 0, NULL))
     {
         // Wait for start service command to complete.
-        for (int i = 0; i < 40; i++)
+        for (int i = 0; i < 80; i++)
         {
             DWORD dwStatus = queryServiceStatus();
             if (dwStatus == SERVICE_RUNNING) {
