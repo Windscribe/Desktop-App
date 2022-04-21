@@ -100,7 +100,8 @@ void RoutesManager::doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS 
 {
 	// delete wireguard default route
 	IpForwardTable table;
-	wgRoutes_.deleteRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
+	wgRoutes_.deleteRoute(table, "0.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
+	wgRoutes_.deleteRoute(table, "128.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
 	// add routes for DNS servers
 	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
 	{
