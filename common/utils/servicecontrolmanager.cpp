@@ -21,7 +21,8 @@ namespace wsl
 *******************************************************************************/
 ServiceControlManager::ServiceControlManager()
     : m_hSCM(NULL),
-      m_hService(NULL)
+      m_hService(NULL),
+      m_bBlockStartStopRequests(false)
 {
 }
 
@@ -102,18 +103,15 @@ void ServiceControlManager::openSCM(DWORD dwDesiredAccess, LPCSTR pszServerName)
 void
 ServiceControlManager::closeSCM() noexcept
 {
-    if (m_hService != NULL) {
-        ::CloseServiceHandle(m_hService);
-    }
+    closeService();
 
-    if (m_hSCM != NULL) {
+    if (m_hSCM != NULL)
+    {
         ::CloseServiceHandle(m_hSCM);
+        m_hSCM = NULL;
     }
 
-    m_hService = NULL;
-    m_hSCM     = NULL;
     m_sServerName.clear();
-    m_sServiceName.clear();
 }
 
 
@@ -346,8 +344,12 @@ ServiceControlManager::queryServiceConfig(std::string& sExePath, std::string& sA
 * THROWS:  A system_error object.
 *******************************************************************************/
 void
-ServiceControlManager::startService() const
+ServiceControlManager::startService()
 {
+    if (m_bBlockStartStopRequests) {
+        throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("StartService: ") + m_sServiceName);
+    }
+
     std::ostringstream errorMsg;
 
     ULONGLONG elapsedTime;
@@ -356,14 +358,18 @@ ServiceControlManager::startService() const
     if (::StartServiceA(m_hService, 0, NULL))
     {
         // Wait for start service command to complete.
-        for (int i = 0; i < 80; i++)
+        for (int i = 0; !m_bBlockStartStopRequests && i < 80; i++)
         {
             DWORD dwStatus = queryServiceStatus();
             if (dwStatus == SERVICE_RUNNING) {
                 return;
             }
 
-            Sleep(250);
+            ::Sleep(250);
+        }
+
+        if (m_bBlockStartStopRequests) {
+            throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("StartService: ") + m_sServiceName);
         }
 
         elapsedTime = ::GetTickCount64() - startTime;
@@ -445,17 +451,21 @@ ServiceControlManager::startService() const
 * THROWS:  A system_error object.
 *******************************************************************************/
 void
-ServiceControlManager::stopService() const
+ServiceControlManager::stopService()
 {
+    if (m_bBlockStartStopRequests) {
+        throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("StopService: ") + m_sServiceName);
+    }
+
     SERVICE_STATUS status;
     if (::ControlService(m_hService, SERVICE_CONTROL_STOP, &status))
     {
         // Wait for stop service command to complete.
         DWORD dwStatus = status.dwCurrentState;
 
-        for (int i = 0; ((dwStatus != SERVICE_STOPPED) && (i < 40)); i++)
+        for (int i = 0; (!m_bBlockStartStopRequests && (dwStatus != SERVICE_STOPPED) && (i < 80)); i++)
         {
-            Sleep(250);
+            ::Sleep(250);
             dwStatus = queryServiceStatus();
         }
 
@@ -463,8 +473,8 @@ ServiceControlManager::stopService() const
             return;
         }
 
-        throw std::system_error(ERROR_SERVICE_REQUEST_TIMEOUT, std::system_category(),
-            std::string("StopService: ") + m_sServiceName);
+        DWORD dwError = (m_bBlockStartStopRequests ? ERROR_CANCELLED: ERROR_SERVICE_REQUEST_TIMEOUT);
+        throw std::system_error(dwError, std::system_category(), std::string("StopService: ") + m_sServiceName);
     }
 
     DWORD dwLastError = ::GetLastError();

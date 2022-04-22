@@ -3,6 +3,8 @@
 
 #include <QScopedPointer>
 
+#include <atomic>
+
 #include "iconnection.h"
 #include "engine/helper/helper_win.h"
 #include "utils/servicecontrolmanager.h"
@@ -40,10 +42,11 @@ private Q_SLOTS:
 
 private:
     Helper_win* const helper_;
+    const WireGuardConfig* wireGuardConfig_ = nullptr;
     wsl::ServiceControlManager serviceCtrlManager_;
     QScopedPointer< wsl::WireguardRingLogger > wireguardLog_;
     bool connectedSignalEmited_ = false;
-    bool stopRequested_ = false;
+    std::atomic<bool> stopRequested_;
 
 private:
     void onWireguardServiceStartupFailure() const;

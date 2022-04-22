@@ -188,7 +188,7 @@ void TestVPNTunnel::startTestImpl()
     {
         bool advParamExists;
         int attempts = ExtraConfig::instance().getTunnelTestAttempts(advParamExists);
-        if (!advParamExists) {
+        if (!advParamExists || attempts == 0) {
             attempts = 3;
         }
 

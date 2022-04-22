@@ -160,22 +160,42 @@ int ExtraConfig::getMtuOffsetWireguard(bool &success)
 
 int ExtraConfig::getTunnelTestStartDelay(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_TT_START_DELAY_STR, success);
+    int delay = getIntFromExtraConfigLines(WS_TT_START_DELAY_STR, success);
+    if (success && delay < 0) {
+        delay = 0;
+    }
+
+    return delay;
 }
 
 int ExtraConfig::getTunnelTestTimeout(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_TT_TIMEOUT_STR, success);
+    int timeout = getIntFromExtraConfigLines(WS_TT_TIMEOUT_STR, success);
+    if (success && timeout < 0) {
+        timeout = 0;
+    }
+
+    return timeout;
 }
 
 int ExtraConfig::getTunnelTestRetryDelay(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_TT_RETRY_DELAY_STR, success);
+    int delay = getIntFromExtraConfigLines(WS_TT_RETRY_DELAY_STR, success);
+    if (success && delay < 0) {
+        delay = 0;
+    }
+
+    return delay;
 }
 
 int ExtraConfig::getTunnelTestAttempts(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_TT_ATTEMPTS_STR, success);
+    int attempts = getIntFromExtraConfigLines(WS_TT_ATTEMPTS_STR, success);
+    if (success && attempts < 0) {
+        attempts = 0;
+    }
+
+    return attempts;
 }
 
 bool ExtraConfig::getOverrideUpdateChannelToInternal()

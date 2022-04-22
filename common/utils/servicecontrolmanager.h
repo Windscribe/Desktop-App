@@ -2,6 +2,7 @@
 #define SERVICECONTROLMANAGER_H
 
 #include <Windows.h>
+#include <atomic>
 #include <string>
 
 namespace wsl
@@ -39,8 +40,12 @@ public:
    void sendControlCode(DWORD dwCode) const;
    void setServiceDescription(LPCSTR pszDescription) const;
    void setServiceSIDType(DWORD dwServiceSidType) const;
-   void startService() const;
-   void stopService() const;
+   void startService();
+   void stopService();
+
+   // Prevents the initiation of, and aborts any currently running, start/stop requests.
+   void blockStartStopRequests();
+   void unblockStartStopRequests();
 
    LPCSTR getServerName() const;
 
@@ -49,6 +54,7 @@ private:
    std::string m_sServiceName;
    SC_HANDLE m_hSCM;
    SC_HANDLE m_hService;
+   std::atomic<bool> m_bBlockStartStopRequests;
 
 private:
    void grantUserStartPermission() const;
@@ -68,6 +74,18 @@ inline bool
 ServiceControlManager::isServiceOpen() const
 {
    return (m_hService != NULL);
+}
+
+inline void
+ServiceControlManager::blockStartStopRequests()
+{
+    m_bBlockStartStopRequests = true;
+}
+
+inline void
+ServiceControlManager::unblockStartStopRequests()
+{
+    m_bBlockStartStopRequests = false;
 }
 
 //---------------------------------------------------------------------------
