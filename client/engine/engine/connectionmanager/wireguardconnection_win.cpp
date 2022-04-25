@@ -73,6 +73,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
             wait();
         }
 
+        connectedSignalEmited_ = false;
         stopRequested_ = false;
         wireGuardConfig_ = wireGuardConfig;
         serviceCtrlManager_.unblockStartStopRequests();
@@ -120,8 +121,6 @@ void WireGuardConnection::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
 
-    connectedSignalEmited_ = false;
-
     QString configFile;
     bool disableDNSLeakProtection = false;
 
@@ -140,14 +139,8 @@ void WireGuardConnection::run()
         IHelper::ExecuteError err = helper_->startWireGuard(getWireGuardExeName(), configFile);
         if (err != IHelper::EXECUTE_SUCCESS)
         {
-            if (err == IHelper::EXECUTE_VERIFY_ERROR)
-            {
-                emit error(ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR);
-                emit disconnected();
-                return;
-            }
-
-            throw std::system_error(0, std::generic_category(),
+            DWORD errorCode = (err == IHelper::EXECUTE_VERIFY_ERROR ? ERROR_INVALID_IMAGE_HASH : ERROR_BAD_NET_RESP);
+            throw std::system_error(errorCode, std::generic_category(),
                 std::string("Windscribe service could not install the WireGuard service"));
         }
 
@@ -230,11 +223,12 @@ void WireGuardConnection::run()
     catch (std::system_error& ex)
     {
         qCDebug(LOG_CONNECTION) << ex.what();
-        emit error(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
 
-        if (ex.code().value() != ERROR_CANCELLED) {
-            onWireguardServiceStartupFailure();
-        }
+        ProtoTypes::ConnectError err = (ex.code().value() == ERROR_INVALID_IMAGE_HASH ? ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR
+                                                                                      : ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+        emit error(err);
+
+        onWireguardServiceStartupFailure();
     }
 
     wireguardLog_.reset();
