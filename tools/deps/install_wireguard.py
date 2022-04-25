@@ -22,7 +22,7 @@ DEP_TITLE = "WireGuard"
 DEP_URL_WIN = "https://git.zx2c4.com/wireguard-windows/snapshot/"
 DEP_URL_GNU = "https://git.zx2c4.com/wireguard-go/snapshot/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
-DEP_FILE_MASK = ["windscribewireguard*"]
+DEP_FILE_MASK = ["windscribewireguard*", "*.dll"]
 
 
 def BuildDependencyMSVC(outpath):
