@@ -441,7 +441,11 @@ main() {
 
     "$script_type" "$link" "$if_index" "$dev" "$@" || return 1
     # Flush the DNS cache
-    systemd-resolve --flush-caches
+    if command -v resolvectl &>/dev/null; then
+      resolvectl flush-caches
+    else
+      systemd-resolve --flush-caches
+    fi
   fi
 }
 
