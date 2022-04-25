@@ -19,8 +19,8 @@ class Extractor:
     def __init__(self):
         pass
 
-    def app_version(self, inlcude_beta_suffix=False):
-        if not inlcude_beta_suffix:
+    def app_version(self, include_beta_suffix=False):
+        if not include_beta_suffix:
             if not Extractor.extracted_app_version:
                 Extractor.extracted_app_version = self.__extract_app_version()
             return Extractor.extracted_app_version
@@ -35,7 +35,7 @@ class Extractor:
         return Extractor.extracted_mac_signing_params
 
     @staticmethod
-    def __extract_app_version(inlcude_beta_suffix=False):
+    def __extract_app_version(include_beta_suffix=False):
         version_file = os.path.join(pathhelper.COMMON_DIR, "version", "windscribe_version.h")
         values = [0] * 4
         patterns = [re.compile("\\bWINDSCRIBE_MAJOR_VERSION\\s+(\\d+)"),
@@ -51,7 +51,7 @@ class Extractor:
                         break
         version_only = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
         # version-only: x.y.z
-        if not inlcude_beta_suffix:
+        if not include_beta_suffix:
             return version_only
         else:
             if values[3]:
@@ -89,4 +89,5 @@ class Extractor:
 # allows shell to directly call this module to get the version
 if __name__ == "__main__":
     extractor = Extractor()
-    print extractor.app_version()
+    # build_all.py is using True, so must use True here as well so .gitlab-ci.yml retrieves the proper version string.
+    print extractor.app_version(True)
