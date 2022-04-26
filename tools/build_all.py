@@ -551,7 +551,7 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
         utl.RemoveFile(archive_filename)
     final_installer_name = os.path.normpath(os.path.join(os.getcwd(),
                                                          "Windscribe_{}.exe".format(extractor.app_version(True))))
-    msg.Info("App version extracted22: \"{}\"".format(extractor.app_version()))
+    msg.Info("App version extracted22: \"{}\"".format(extractor.app_version(True)))
     msg.Info("App version extracted33: \"{}\"".format(final_installer_name))
 
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
@@ -676,7 +676,7 @@ def build_all(win_cert_password):
             configdata["installer"][CURRENT_OS] not in configdata:
         raise iutl.InstallError("Missing {} installer target in \"{}\".".format(CURRENT_OS, BUILD_CFG_NAME))
 
-    msg.Info("App version extracted: \"{}\"".format(extractor.app_version()))
+    msg.Info("App version extracted: \"{}\"".format(extractor.app_version(True)))
 
     # Get Qt directory.
     qt_root = iutl.GetDependencyBuildRoot("qt")
