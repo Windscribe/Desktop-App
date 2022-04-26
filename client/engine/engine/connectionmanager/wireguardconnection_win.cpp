@@ -24,13 +24,19 @@ static const QString serviceIdentifier("WindscribeWireguard");
 
 WireGuardConnection::WireGuardConnection(QObject *parent, IHelper *helper)
     : IConnection(parent),
-      helper_(dynamic_cast<Helper_win*>(helper))
+      helper_(dynamic_cast<Helper_win*>(helper)),
+      stopRequested_(false)
 {
 }
 
 WireGuardConnection::~WireGuardConnection()
 {
-    wait();
+    if (isRunning())
+    {
+        stopRequested_ = true;
+        quit();
+        wait();
+    }
 }
 
 void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QString &ip,
@@ -48,26 +54,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isAutomaticConnectionMode);
 
-    QString configFile;
-    connectedSignalEmited_ = false;
-    stopRequested_ = false;
-
-    auto guard = qScopeGuard([&]
-    {
-        serviceCtrlManager_.closeSCM();
-        if (helper_ != nullptr && !helper_->stopWireGuard()) {
-            qCDebug(LOG_CONNECTION) << "WireGuardConnection::startConnect - windscribe service failed to stop the WireGuard service instance";
-        }
-
-        wireguardLog_.reset();
-
-        // Ensure the config file is deleted if something goes awry during startup.  If all goes well,
-        // the wireguard service will delete the file when it exits.
-        if (!configFile.isEmpty() && QFile::exists(configFile)) {
-            QFile::remove(configFile);
-        }
-    });
-
     try
     {
         if (helper_ == nullptr) {
@@ -82,64 +68,15 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
         if (isRunning())
         {
+            stopRequested_ = true;
             quit();
             wait();
         }
 
-        qCDebug(LOG_CONNECTION) << "Starting" << getWireGuardExeName();
-
-        // Design Note:
-        // The wireguard embedded DLL service requires that the name of the configuration file we
-        // create matches the name of the service the helper installs.  The helper will install
-        // the service using the name WireGuardTunnel$ConfFileName
-
-        configFile = tr("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation), serviceIdentifier);
-
-        // Installing the wireguard service requires admin privilege.
-        IHelper::ExecuteError err = helper_->startWireGuard(getWireGuardExeName(), configFile);
-        if (err != IHelper::EXECUTE_SUCCESS)
-        {
-            if (err == IHelper::EXECUTE_VERIFY_ERROR)
-            {
-                emit error(ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR);
-                return;
-            }
-
-            throw std::system_error(0, std::generic_category(),
-                std::string("Windscribe service could not install the WireGuard service"));
-        }
-
-        // If there was a running instance of the wireguard service, the helper (startWireGuard call) will
-        // have stopped it and it will have deleted the existing config file.  Therefore, don't create our
-        // new config file until we're sure the wireguard service is stopped.
-        wireGuardConfig->generateConfigFile(configFile);
-
-        // The wireguard service creates the log file in the same folder as the config file we passed to it.
-        // We must create this log file watcher before we start the wireguard service to ensure we get
-        // all log entries.
-        QString logFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + tr("/log.bin");
-        wireguardLog_.reset(new wsl::WireguardRingLogger(logFile));
-
-        QString serviceName = tr("WireGuardTunnel$%1").arg(serviceIdentifier);
-
-        serviceCtrlManager_.openSCM(SC_MANAGER_CONNECT);
-        serviceCtrlManager_.openService(qPrintable(serviceName), SERVICE_QUERY_STATUS | SERVICE_START);
-        serviceCtrlManager_.startService();
-
-        // If the wireguard service indicates that it has started, the adapter and tunnel are up.
-        // The only thing that may not have happened yet is the handshake between the wireguard service
-        // and the server endpoint.  We'll check for the handshake in run().
-
-        qCDebug(LOG_CONNECTION) << "WireGuard service started";
-
-        // This method is run by worker thread, so it is possible the user, or another thread, has
-        // requested we stop while we were installing/starting the WireGuard service.
-        if (stopRequested_) {
-            throw std::system_error(ERROR_NO_WORK_DONE, std::generic_category(),
-                std::string("WireGuard service startup aborted by user request"));
-        }
-
-        guard.dismiss();
+        connectedSignalEmited_ = false;
+        stopRequested_ = false;
+        wireGuardConfig_ = wireGuardConfig;
+        serviceCtrlManager_.unblockStartStopRequests();
 
         start(LowPriority);
     }
@@ -147,19 +84,19 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     {
         qCDebug(LOG_CONNECTION) << ex.what();
         emit error(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
-        emit disconnected();
-
-        if (ex.code().value() != ERROR_NO_WORK_DONE) {
-            onWireguardServiceStartupFailure();
-        }
     }
 }
 
 void WireGuardConnection::startDisconnect()
 {
-    stopRequested_ = true;
-    if (isRunning()) {
+    if (isRunning())
+    {
+        stopRequested_ = true;
+        serviceCtrlManager_.blockStartStopRequests();
         quit();
+    }
+    else if (isDisconnected()) {
+        emit disconnected();
     }
 }
 
@@ -177,57 +114,138 @@ bool WireGuardConnection::isDisconnected() const
         qCDebug(LOG_CONNECTION) << "WireGuardConnection::isDisconnected -" << ex.what();
     }
 
-    return (dwStatus != SERVICE_RUNNING);
+    return (dwStatus == SERVICE_STOPPED || dwStatus == SERVICE_STOP_PENDING);
 }
 
 void WireGuardConnection::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
 
-    qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - enable dns leak protection";
-    helper_->enableDnsLeaksProtection();
+    QString configFile;
+    bool disableDNSLeakProtection = false;
 
-    // See if the client-server handshake has happened yet.
-    onGetWireguardLogUpdates();
-    if (!connectedSignalEmited_) {
+    try
+    {
+        qCDebug(LOG_CONNECTION) << "Starting" << getWireGuardExeName();
+
+        // Design Notes:
+        // The wireguard embedded DLL service requires that the name of the configuration file we
+        // create matches the name of the service the helper installs.  The helper will install
+        // the service using the name WireGuardTunnel$ConfFileName
+
+        configFile = tr("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation), serviceIdentifier);
+
+        // Installing the wireguard service requires admin privilege.
+        IHelper::ExecuteError err = helper_->startWireGuard(getWireGuardExeName(), configFile);
+        if (err != IHelper::EXECUTE_SUCCESS)
+        {
+            DWORD errorCode = (err == IHelper::EXECUTE_VERIFY_ERROR ? ERROR_INVALID_IMAGE_HASH : ERROR_BAD_NET_RESP);
+            throw std::system_error(errorCode, std::generic_category(),
+                std::string("Windscribe service could not install the WireGuard service"));
+        }
+
+        auto stopWireGuard = qScopeGuard([&]
+        {
+            serviceCtrlManager_.closeSCM();
+            helper_->stopWireGuard();
+        });
+
+        // If there was a running instance of the wireguard service, the helper (startWireGuard call) will
+        // have stopped it and it will have deleted the existing config file.  Therefore, don't create our
+        // new config file until we're sure the wireguard service is stopped.
+        wireGuardConfig_->generateConfigFile(configFile);
+
+        // The wireguard service creates the log file in the same folder as the config file we passed to it.
+        // We must create this log file watcher before we start the wireguard service to ensure we get
+        // all log entries.
+        QString logFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + tr("/log.bin");
+        wireguardLog_.reset(new wsl::WireguardRingLogger(logFile));
+
+        QString serviceName = tr("WireGuardTunnel$%1").arg(serviceIdentifier);
+
+        serviceCtrlManager_.openSCM(SC_MANAGER_CONNECT);
+        serviceCtrlManager_.openService(qPrintable(serviceName), SERVICE_QUERY_STATUS | SERVICE_START);
+        serviceCtrlManager_.startService();
+
+        qCDebug(LOG_CONNECTION) << "WireGuardConnection::run WireGuard service started";
+
+        helper_->enableDnsLeaksProtection();
+        disableDNSLeakProtection = true;
+
+        // If the wireguard service indicates that it has started, the adapter and tunnel are up.
+        // Let's check if the client-server handshake, which indicates the tunnel is good-to-go, has happened yet.
+        // onGetWireguardLogUpdates() is much less 'expensive' than calling onGetWireguardStats().
+        onGetWireguardLogUpdates();
+        if (!connectedSignalEmited_) {
+            onGetWireguardStats();
+        }
+
+        QScopedPointer< QTimer > timerGetWireguardStats(new QTimer);
+        connect(timerGetWireguardStats.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardStats);
+        timerGetWireguardStats->start(5000);
+
+        QScopedPointer< QTimer > timerCheckServiceRunning(new QTimer);
+        connect(timerCheckServiceRunning.data(), &QTimer::timeout, this, &WireGuardConnection::onCheckServiceRunning);
+        timerCheckServiceRunning->start(2000);
+
+        QScopedPointer< QTimer > timerGetWireguardLogUpdates(new QTimer);
+        connect(timerGetWireguardLogUpdates.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardLogUpdates);
+        timerGetWireguardLogUpdates->start(250);
+
+        if (!stopRequested_) {
+            exec();
+        }
+
+        disconnect(timerGetWireguardStats.data(), &QTimer::timeout, nullptr, nullptr);
+        disconnect(timerCheckServiceRunning.data(), &QTimer::timeout, nullptr, nullptr);
+        disconnect(timerGetWireguardLogUpdates.data(), &QTimer::timeout, nullptr, nullptr);
+
+        timerGetWireguardStats->stop();
+        timerCheckServiceRunning->stop();
+        timerGetWireguardLogUpdates->stop();
+
+        // Get final receive/transmit byte counts.
         onGetWireguardStats();
+
+        serviceCtrlManager_.closeSCM();
+
+        if (helper_->stopWireGuard()) {
+            configFile.clear();
+        }
+        else {
+            qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - windscribe service failed to stop the WireGuard service instance";
+        }
+
+        stopWireGuard.dismiss();
+
+        wireguardLog_->getNewLogEntries();
     }
+    catch (std::system_error& ex)
+    {
+        qCDebug(LOG_CONNECTION) << ex.what();
 
-    QScopedPointer< QTimer > timerGetWireguardStats(new QTimer);
-    connect(timerGetWireguardStats.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardStats);
-    timerGetWireguardStats->start(5000);
+        ProtoTypes::ConnectError err = (ex.code().value() == ERROR_INVALID_IMAGE_HASH ? ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR
+                                                                                      : ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+        emit error(err);
 
-    QScopedPointer< QTimer > timerCheckServiceRunning(new QTimer);
-    connect(timerCheckServiceRunning.data(), &QTimer::timeout, this, &WireGuardConnection::onCheckServiceRunning);
-    timerCheckServiceRunning->start(2000);
-
-    QScopedPointer< QTimer > timerGetWireguardLogUpdates(new QTimer);
-    connect(timerGetWireguardLogUpdates.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardLogUpdates);
-    timerGetWireguardLogUpdates->start(250);
-
-    if (!stopRequested_) {
-        exec();
-    }
-
-    timerGetWireguardStats->stop();
-    timerCheckServiceRunning->stop();
-    timerGetWireguardLogUpdates->stop();
-
-    serviceCtrlManager_.closeSCM();
-
-    // Get final receive/transmit byte counts.
-    onGetWireguardStats();
-
-    if (!helper_->stopWireGuard()) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - windscribe service failed to stop the WireGuard service instance";
+        onWireguardServiceStartupFailure();
     }
 
     wireguardLog_.reset();
 
+    // Ensure the config file is deleted if something went awry during service install/startup.  If all goes well,
+    // the wireguard service will delete the file when it exits.
+    if (!configFile.isEmpty() && QFile::exists(configFile)) {
+        QFile::remove(configFile);
+    }
+
     emit disconnected();
 
-    qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - disable dns leak protection";
-    helper_->disableDnsLeaksProtection();
+    qCDebug(LOG_CONNECTION) << "WireGuardConnection::run exiting";
+
+    if (disableDNSLeakProtection) {
+        helper_->disableDnsLeaksProtection();
+    }
 }
 
 void WireGuardConnection::onCheckServiceRunning()
@@ -241,17 +259,16 @@ void WireGuardConnection::onCheckServiceRunning()
 
 void WireGuardConnection::onGetWireguardLogUpdates()
 {
-    if (wireguardLog_.isNull()) {
-        return;
-    }
-
-    wireguardLog_->getNewLogEntries();
-
-    if (!connectedSignalEmited_ && wireguardLog_->isTunnelRunning())
+    if (!wireguardLog_.isNull())
     {
-        connectedSignalEmited_ = true;
-        AdapterGatewayInfo info = AdapterUtils_win::getWireguardConnectedAdapterInfo(serviceIdentifier);
-        emit connected(info);
+        wireguardLog_->getNewLogEntries();
+
+        if (!connectedSignalEmited_ && wireguardLog_->isTunnelRunning())
+        {
+            connectedSignalEmited_ = true;
+            AdapterGatewayInfo info = AdapterUtils_win::getWireguardConnectedAdapterInfo(serviceIdentifier);
+            emit connected(info);
+        }
     }
 }
 

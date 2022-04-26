@@ -103,9 +103,7 @@ static HANDLE
 getWindscribeClientProcessHandle()
 {
     #ifdef USE_SIGNATURE_CHECK
-    std::wostringstream stream;
-    stream << getProcessFolder() << L"\\Windscribe.exe";
-    std::wstring clientExe = stream.str();
+    std::wstring clientExe = getProcessFolder() + L"\\Windscribe.exe";
     #else
     std::wstring clientExe(L"[any path]/Windscribe.exe");
     #endif
@@ -164,7 +162,7 @@ getWindscribeClientProcessHandle()
             "getWindscribeClientProcessHandle: could not locate the Windscribe client process");
     }
 
-    debugOut("Windscribe wireguard service monitoring %ls", clientExe.c_str());
+    debugOut("Windscribe WireGuard service monitoring %ls", clientExe.c_str());
 
     return hWindscribeClient;
 }
@@ -205,10 +203,10 @@ monitorClientStatus(LPVOID lpParam)
     }
     catch (std::system_error& ex)
     {
-        debugOut("Windscribe wireguard service - %s", ex.what());
+        debugOut("Windscribe WireGuard service - %s", ex.what());
     }
 
-    debugOut("Windscribe wireguard service client monitor thread exiting");
+    debugOut("Windscribe WireGuard service client monitor thread exiting");
     return NO_ERROR;
 }
 
@@ -230,25 +228,27 @@ main(int argc, char *argv[])
 
     resetLogFile();
 
-    debugOut("Windscribe wireguard service starting");
+    debugOut("Windscribe WireGuard service starting");
 
     if (argc != 2)
     {
-        debugOut("Windscribe wireguard service - invalid command-line argument count: %d", argc);
+        debugOut("Windscribe WireGuard service - invalid command-line argument count: %d", argc);
         return 0;
     }
 
     DWORD dwAttrib = ::GetFileAttributesA(argv[1]);
     if ((dwAttrib == INVALID_FILE_ATTRIBUTES) || (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
     {
-        debugOut("Windscribe wireguard service - invalid config file path: %s", argv[1]);
+        debugOut("Windscribe WireGuard service - invalid config file path: %s", argv[1]);
         return 0;
     }
 
-    HMODULE hTunnelDLL = ::LoadLibraryA("tunnel.dll");
+    std::wstring tunnelDLL = getProcessFolder() + L"\\tunnel.dll";
+
+    HMODULE hTunnelDLL = ::LoadLibrary(tunnelDLL.c_str());
     if (hTunnelDLL == NULL)
     {
-        debugOut("Windscribe wireguard service - failed to load tunnel.dll (%d)", ::GetLastError());
+        debugOut("Windscribe WireGuard service - failed to load %ls (%d)", tunnelDLL.c_str(), ::GetLastError());
         return 0;
     }
 
@@ -257,14 +257,14 @@ main(int argc, char *argv[])
     WireGuardTunnelService* tunnelProc = (WireGuardTunnelService*)::GetProcAddress(hTunnelDLL, "WireGuardTunnelService");
     if (tunnelProc == NULL)
     {
-        debugOut("Windscribe wireguard service - failed to load WireGuardTunnelService entry point from tunnel.dll (%d)", ::GetLastError());
+        debugOut("Windscribe WireGuard service - failed to load WireGuardTunnelService entry point from tunnel.dll (%d)", ::GetLastError());
         return 0;
     }
 
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring configFile = converter.from_bytes(argv[1]);
 
-    debugOut("Starting wireguard tunnel with config file: %ls", configFile.c_str());
+    debugOut("Starting WireGuard tunnel with config file: %ls", configFile.c_str());
 
     WinUtils::Win32Handle hMonitorThread(::CreateThread(NULL, 0, monitorClientStatus,
                                                         (LPVOID)argv[1], 0, NULL));
@@ -272,7 +272,7 @@ main(int argc, char *argv[])
     bool bResult = tunnelProc((const unsigned short*)configFile.c_str());
 
     if (!bResult) {
-        debugOut("Windscribe wireguard service - WireGuardTunnelService from tunnel.dll failed");
+        debugOut("Windscribe WireGuard service - WireGuardTunnelService from tunnel.dll failed");
     }
 
     if (hMonitorThread.isValid() && (hMonitorThread.wait(0) != WAIT_OBJECT_0))
@@ -287,7 +287,7 @@ main(int argc, char *argv[])
         ::DeleteFile(configFile.c_str());
     }
 
-    debugOut("Windscribe wireguard service stopped");
+    debugOut("Windscribe WireGuard service stopped");
 
     ::FreeLibrary(hTunnelDLL);
 

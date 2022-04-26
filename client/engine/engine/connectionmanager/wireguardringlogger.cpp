@@ -124,14 +124,15 @@ void WireguardRingLogger::process(int index)
     size_t offset = index * (WG_LOG_TIMESTAMP_SIZE + WG_LOG_MESSAGE_SIZE);
     uchar* data = logData_ + WG_LOG_HEADER_SIZE + offset;
 
-    quint64 timestamp;
+    quint64 timestamp; // nanoseconds
     memcpy(&timestamp, data, 8);
     if (timestamp <= startTime_) {
         return;
     }
 
+    QDateTime dt = QDateTime::fromMSecsSinceEpoch(timestamp / 1000000, Qt::UTC);
     QByteArray message((const char*)data + WG_LOG_TIMESTAMP_SIZE, WG_LOG_MESSAGE_SIZE);
-    qCDebug(LOG_WIREGUARD()) << QString::fromUtf8(message);
+    qCDebug(LOG_WIREGUARD()) << dt.toString("ddMMyy hh:mm:ss:zzz") << QString::fromUtf8(message);
 
     if (!tunnelRunning_ && message.contains("Keypair 1 created for peer 1")) {
         tunnelRunning_ = true;
