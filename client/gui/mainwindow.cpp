@@ -661,6 +661,11 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
             //event->accept();
             bMousePressed_ = true;
+
+	    if (QGuiApplication::platformName() == "wayland")
+	    {
+                this->window()->windowHandle()->startSystemMove();
+	    }
         }
     }
 }
