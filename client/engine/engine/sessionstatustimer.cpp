@@ -1,114 +1,66 @@
 #include "sessionstatustimer.h"
 
-#include <QDateTime>
 
-SessionStatusTimer::SessionStatusTimer(QObject *parent, IConnectStateController *connectStateController) : QObject(parent),
-    isStarted_(false), msec_(0), isApplicationActivated_(false), isConnected_(false), lastSignalEmitTimeMs_(0)
+SessionStatusTimer::SessionStatusTimer(QObject *parent, IConnectStateController *connectStateController) : QObject(parent)
 {
-    connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)));
-    connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
+    connect(connectStateController, &IConnectStateController::stateChanged, this, &SessionStatusTimer::onConnectStateChanged);
+    connect(&timer_, &QTimer::timeout, this, &SessionStatusTimer::onTimer);
+    timer_.setInterval(TIMER_INTERVAL);
 }
 
 void SessionStatusTimer::applicationActivated()
 {
-    isApplicationActivated_ = true;
-
-    if (isStarted_)
-    {
-        // if disconnected check last time emit signal > msec_
-        if (!isConnected_)
-        {
-            qint64 curTime = QDateTime::currentMSecsSinceEpoch();
-            if (lastSignalEmitTimeMs_ == 0 || ((curTime - lastSignalEmitTimeMs_) > msec_))
-            {
-                emit needUpdateRightNow();
-                lastSignalEmitTimeMs_ = curTime;
-            }
-            if (!timer_.isActive())
-            {
-                timer_.start(TIMER_INTERVAL);
-            }
-        }
+    if (timer_.isActive()) {
+        timer_.start();
+        requestSessionUpdate();
     }
 }
 
 void SessionStatusTimer::applicationDeactivated()
 {
-    isApplicationActivated_ = false;
-
-    if (isStarted_)
-    {
-        if (!isConnected_)
-        {
-            timer_.stop();
-        }
-    }
 }
 
-void SessionStatusTimer::start(int msec)
+void SessionStatusTimer::start()
 {
-    msec_ = msec;
-    isStarted_ = true;
-    lastSignalEmitTimeMs_ = QDateTime::currentMSecsSinceEpoch();
-
-    if (isConnected_)
-    {
-        timer_.start(TIMER_INTERVAL);
-    }
-    else
-    {
-        if (isApplicationActivated_)
-        {
-            timer_.start(TIMER_INTERVAL);
-        }
-    }
+    // So we don't have to check for validity of this member in onTimer.
+    lastSessionUpdateRequest_ = QDateTime::currentDateTimeUtc();
+    timer_.start();
 }
 
 void SessionStatusTimer::stop()
 {
-    isStarted_ = false;
     timer_.stop();
 }
 
 void SessionStatusTimer::onTimer()
 {
-    qint64 curTime = QDateTime::currentMSecsSinceEpoch();
-    if (lastSignalEmitTimeMs_ == 0 || ((curTime - lastSignalEmitTimeMs_) > msec_))
-    {
-        emit needUpdateRightNow();
-        lastSignalEmitTimeMs_ = curTime;
+    /*
+    As specified by the 'Standardize Server API Interactions' document in the Hub, we fetch the session:
+    - On app launch
+      - The LoginController class handles this case.
+    - Every 24 hours
+      - Covered by the check-every-minute or check-every-hour cases.
+    - Every hour
+      - Covered by the check-every-minute case when connected.
+    - Every minute when connected
+    - When the app returns to the foreground (gets focus)
+    */
+
+    if (isConnected_) {
+        requestSessionUpdate();
+    }
+    else if (lastSessionUpdateRequest_.secsTo(QDateTime::currentDateTimeUtc()) >= 60*60) {
+        requestSessionUpdate();
     }
 }
 
 void SessionStatusTimer::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ProtoTypes::ConnectError /*err*/, const LocationID & /*location*/)
 {
-    if (state == CONNECT_STATE_CONNECTED)
-    {
-        isConnected_ = true;
-    }
-    else
-    {
-        isConnected_ = false;
-    }
-    if (isStarted_)
-    {
-        if (isConnected_)
-        {
-            if (!timer_.isActive())
-            {
-                timer_.start(TIMER_INTERVAL);
-            }
-        }
-        else
-        {
-            if (isApplicationActivated_)
-            {
-                if (!timer_.isActive())
-                {
-                    timer_.start(TIMER_INTERVAL);
-                }
-            }
-        }
-    }
+    isConnected_ = (state == CONNECT_STATE_CONNECTED);
 }
 
+void SessionStatusTimer::requestSessionUpdate()
+{
+    emit needUpdateRightNow();
+    lastSessionUpdateRequest_ = QDateTime::currentDateTimeUtc();
+}

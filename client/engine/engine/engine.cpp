@@ -1429,7 +1429,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
         updateSessionStatus();
         getNewNotifications();
         notificationsUpdateTimer_->start(NOTIFICATIONS_UPDATE_PERIOD);
-        updateSessionStatusTimer_->start(UPDATE_SESSION_STATUS_PERIOD);
+        updateSessionStatusTimer_->start();
 
         if (!bFromConnectedToVPNState)
         {
