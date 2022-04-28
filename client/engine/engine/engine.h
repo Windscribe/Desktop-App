@@ -391,7 +391,6 @@ private:
     QThread *packetSizeControllerThread_;
     bool runningPacketDetection_;
 
-    enum {UPDATE_SESSION_STATUS_PERIOD = 60 * 1000}; // 1 min
     enum {UPDATE_SERVER_RESOURCES_PERIOD = 24 * 60 * 60 * 1000}; // 24 hours
     enum {NOTIFICATIONS_UPDATE_PERIOD = 60 * 60 * 1000}; // 1 hour
 

@@ -1851,9 +1851,12 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         }
         else
         {
-            // Commented debug entry out as this request occurs every minute and we don't
-            // need to flood the log with this info.
-            //qCDebug(LOG_SERVER_API) << "API request Session successfully executed";
+            // Commented debug entry out as this request may occur every minute and we don't
+            // need to flood the log with this info.  Enabled it for staging builds to aid
+            // QA in verifying session requests are being made when they're supposed to be.
+            #ifdef WINDSCRIBE_IS_STAGING
+            qCDebug(LOG_SERVER_API) << "API request Session successfully executed";
+            #endif
             emit sessionAnswer(SERVER_RETURN_SUCCESS, sessionStatus, userRole);
         }
     }
