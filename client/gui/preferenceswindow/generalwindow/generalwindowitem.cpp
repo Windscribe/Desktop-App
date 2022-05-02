@@ -4,6 +4,7 @@
 #include "utils/protoenumtostring.h"
 #include "utils/logger.h"
 #include <QPainter>
+#include <QSystemTrayIcon>
 #include "languagecontroller.h"
 #include "../dividerline.h"
 #include "languagecontroller.h"
@@ -28,7 +29,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, SIGNAL(isStartMinimizedChanged(bool)), SLOT(onStartMinimizedPreferencesChanged(bool)));
     connect(preferences, &Preferences::showLocationLoadChanged, this, &GeneralWindowItem::onShowLocationLoadPreferencesChanged);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     connect(preferences, SIGNAL(minimizeAndCloseToTrayChanged(bool)), SLOT(onMinimizeAndCloseToTrayPreferencesChanged(bool)));
 #elif defined Q_OS_MAC
     connect(preferences, SIGNAL(hideFromDockChanged(bool)), SLOT(onHideFromDockPreferecesChanged(bool)));
@@ -49,11 +50,14 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(checkBoxStartMinimized_, SIGNAL(stateChanged(bool)), SLOT(onStartMinimizedClicked(bool)));
     addItem(checkBoxStartMinimized_);
 
-#ifdef Q_OS_WIN
-    checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Minimize and Close to Tray"), QString());
-    checkBoxMinimizeAndCloseToTray_->setState(preferences->isMinimizeAndCloseToTray());
-    connect(checkBoxMinimizeAndCloseToTray_, SIGNAL(stateChanged(bool)), SLOT(onMinimizeAndCloseToTrayClicked(bool)));
-    addItem(checkBoxMinimizeAndCloseToTray_);
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    if (QSystemTrayIcon::isSystemTrayAvailable())
+    {
+        checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Minimize and Close to Tray"), QString());
+        checkBoxMinimizeAndCloseToTray_->setState(preferences->isMinimizeAndCloseToTray());
+        connect(checkBoxMinimizeAndCloseToTray_, SIGNAL(stateChanged(bool)), SLOT(onMinimizeAndCloseToTrayClicked(bool)));
+        addItem(checkBoxMinimizeAndCloseToTray_);
+    }
 #elif defined Q_OS_MAC
     checkBoxHideFromDock_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Hide from dock"), QString());
     checkBoxHideFromDock_->setState(preferences->isHideFromDock());
@@ -171,7 +175,7 @@ void GeneralWindowItem::onStartMinimizedClicked(bool b)
         preferences_->setStartMinimized(b);
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 void GeneralWindowItem::onMinimizeAndCloseToTrayPreferencesChanged(bool b)
 {
     checkBoxMinimizeAndCloseToTray_->setState(b);

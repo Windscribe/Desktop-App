@@ -241,8 +241,7 @@ private slots:
     void onTrayMenuConnect();
     void onTrayMenuDisconnect();
     void onTrayMenuPreferences();
-    void onTrayMenuHide();
-    void onTrayMenuShow();
+    void onTrayMenuShowHide();
     void onTrayMenuHelpMe();
     void onTrayMenuQuit();
     void onTrayMenuAboutToShow();

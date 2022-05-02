@@ -7,6 +7,7 @@
 #include "utils/utils.h"
 #include "utils/ipvalidation.h"
 #include <QSettings>
+#include <QSystemTrayIcon>
 
 #if defined(Q_OS_WINDOWS)
 #include "utils/winutils.h"
@@ -77,10 +78,10 @@ void Preferences::setAllowLanTraffic(bool b)
     }
 }
 
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 bool Preferences::isMinimizeAndCloseToTray() const
 {
-    return guiSettings_.is_minimize_and_close_to_tray();
+    return QSystemTrayIcon::isSystemTrayAvailable() && guiSettings_.is_minimize_and_close_to_tray();
 }
 
 void Preferences::setMinimizeAndCloseToTray(bool b)
