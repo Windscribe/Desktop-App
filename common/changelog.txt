@@ -1,3 +1,15 @@
+2.4.6 (03/05/2022)
+* App crashes on Emergency Connect. #255
+* Increased service start wait time to 20 seconds. #120
+* Refactor wireguard connection to avoid blocking engine thread. #120
+* Inclusive split tunnelling doesn't work properly with WireGuard fixed. #264
+* Windows issue from Discord. #265
+* Use resolvectl instead of systemd-resolve #268
+* Fetch session when app receives focus. #96
+* Firewall silently enabled by itself (should be fixed). #150
+* Sometimes slow reconnect of WireGuard protocol on Ubuntu. #276
+
+
 2.4.5 (15/04/2022)
 * Long favourites location names in the tray menu are cut off. #251
 * Static IPs display issue in tray menu. #208
