@@ -2224,6 +2224,9 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
 
         if (jsonObject.contains("errorCode"))
         {
+            // Putting this debug line here to help us quickly troubleshoot errors returned from the
+            // server API, which hopefully should be few and far between.
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
             return;
         }
