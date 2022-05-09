@@ -269,8 +269,6 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
             build_cmd = [BUILD_QMAKE_EXE, get_project_file(c_subdir, c_project), "CONFIG+=release silent"]
             if arghelper.sign_app():
                 build_cmd.extend(["CONFIG+=use_signature_check"])
-            if arghelper.staging():
-                build_cmd.extend(["CONFIG+=staging_build"])
             if c_iswin:
                 build_cmd.extend(["-spec", "win32-msvc"])
             if c_ismac:

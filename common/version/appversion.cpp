@@ -25,33 +25,36 @@ QString AppVersion::build() const
 
 QString AppVersion::fullVersionString() const
 {
-#ifdef WINDSCRIBE_IS_STAGING
-    if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_BETA)
+    if (isStaging_)
     {
-        return "v" + semanticVersionString() + " (Beta) (Staging)";
-    }
-    else if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
-    {
-        return "v" + semanticVersionString() + " (Guinea Pig) (Staging)";
-    }
-    else
-    {
-        return "v" + semanticVersionString() + " (Staging)";
-    }
-#else
-    if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_BETA)
-    {
-        return "v" + semanticVersionString() + " (Beta)";
-    }
-    else if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
-    {
-        return "v" + semanticVersionString() + " (Guinea Pig)";
+        if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_BETA)
+        {
+            return "v" + semanticVersionString() + " (Beta) (Staging)";
+        }
+        else if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+        {
+            return "v" + semanticVersionString() + " (Guinea Pig) (Staging)";
+        }
+        else
+        {
+            return "v" + semanticVersionString() + " (Staging)";
+        }
     }
     else
     {
-        return "v" + semanticVersionString();
+        if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_BETA)
+        {
+            return "v" + semanticVersionString() + " (Beta)";
+        }
+        else if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+        {
+            return "v" + semanticVersionString() + " (Guinea Pig)";
+        }
+        else
+        {
+            return "v" + semanticVersionString();
+        }
     }
-#endif
 }
 
 QString AppVersion::semanticVersionString() const
@@ -61,6 +64,7 @@ QString AppVersion::semanticVersionString() const
 
 AppVersion::AppVersion() :
     version_(QString::asprintf("%d.%d", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION)),
+    isStaging_(false),
 #ifdef WINDSCRIBE_IS_BETA
     buildChannel_(ProtoTypes::UPDATE_CHANNEL_BETA)
 #elif defined WINDSCRIBE_IS_GUINEA_PIG

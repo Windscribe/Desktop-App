@@ -8,8 +8,6 @@
 #define WINDSCRIBE_IS_BETA
 // #define WINDSCRIBE_IS_GUINEA_PIG
 
-// #define WINDSCRIBE_IS_STAGING
-
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 

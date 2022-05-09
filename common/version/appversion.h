@@ -21,10 +21,14 @@ public:
     QString fullVersionString() const;     // v2.x.y (Beta) (staging)
     QString semanticVersionString() const; // 2.x.y
 
+    void switchToStaging() { isStaging_ = true; }
+    bool isStaging() const { return isStaging_; }
+
 private:
     AppVersion();
 
     QString version_; // 2.x
+    bool isStaging_;
     ProtoTypes::UpdateChannel buildChannel_;
 };
 

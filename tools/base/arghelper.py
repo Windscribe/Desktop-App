@@ -14,7 +14,6 @@ class ArgHelper:
     OPTION_CLEAN_ONLY = "--clean-only"
     OPTION_DELETE_SECRETS_ONLY = "--delete-secrets-only"
     OPTION_DOWNLOAD_SECRETS = "--download-secrets"
-    OPTION_STAGING = "--staging"
     # signing
     OPTION_NOTARIZE = "--notarize"
     OPTION_CI_MODE = "--ci-mode"
@@ -35,7 +34,6 @@ class ArgHelper:
     options.append((OPTION_CLEAN_ONLY, "Cleans the temporary files created during building"))
     options.append((OPTION_DELETE_SECRETS_ONLY, "Deletes secrets needed for signing"))
     options.append((OPTION_DOWNLOAD_SECRETS, "Download secrets from 1password (not recommended)"))
-    options.append((OPTION_STAGING, "Builds a staging application"))
     options.append(("\nSigning", ""))
     options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only, requires --sign)"))
     options.append((OPTION_CI_MODE, "Used to indicate app is building on CI"))
@@ -53,7 +51,6 @@ class ArgHelper:
     def __init__(self, program_arg_list):
         self.args_only = program_arg_list[1:]
         self.mode_ci = ArgHelper.OPTION_CI_MODE in program_arg_list
-        self.staging_build = ArgHelper.OPTION_STAGING in program_arg_list
 
         # 4 main branches
         self.mode_clean_only = ArgHelper.OPTION_CLEAN_ONLY in program_arg_list
@@ -92,9 +89,6 @@ class ArgHelper:
 
     def ci_mode(self):
         return self.mode_ci
-
-    def staging(self):
-        return self.staging_build
 
     def clean_only(self):
         return self.mode_clean_only
