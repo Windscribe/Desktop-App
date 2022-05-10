@@ -37,11 +37,13 @@ class Extractor:
     @staticmethod
     def __extract_app_version(include_beta_suffix=False):
         version_file = os.path.join(pathhelper.COMMON_DIR, "version", "windscribe_version.h")
-        values = [0] * 4
+        values = [0] * 5
         patterns = [re.compile("\\bWINDSCRIBE_MAJOR_VERSION\\s+(\\d+)"),
                     re.compile("\\bWINDSCRIBE_MINOR_VERSION\\s+(\\d+)"),
                     re.compile("\\bWINDSCRIBE_BUILD_VERSION\\s+(\\d+)"),
-                    re.compile("^#define\\s+WINDSCRIBE_IS_BETA")]
+                    re.compile("^#define\\s+WINDSCRIBE_IS_BETA"),
+                    re.compile("^#define\\s+WINDSCRIBE_IS_GUINEA_PIG")]
+
         with open(version_file, "r") as f:
             for line in f:
                 for i in range(len(patterns)):
@@ -56,6 +58,8 @@ class Extractor:
         else:
             if values[3]:
                 return version_only + "_beta"
+            elif values[4]:
+                return version_only + "_guinea_pig"
             else:
                 return version_only
 
