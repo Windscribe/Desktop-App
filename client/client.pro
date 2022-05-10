@@ -30,11 +30,6 @@ contains(CONFIG, use_signature_check) {
     }
 }
 
-# build_all.py adds 'staging_build' to the CONFIG environment when invoked with the '--staging' flag.
-contains(CONFIG, staging_build) {
-    DEFINES += WINDSCRIBE_IS_STAGING
-}
-
 win32 {
     # Windows 7 platform
     DEFINES += "WINVER=0x0601"

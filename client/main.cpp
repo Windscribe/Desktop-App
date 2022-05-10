@@ -6,6 +6,7 @@
 #include "gui/dpiscalemanager.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "utils/extraconfig.h"
 #include "version/appversion.h"
 #include "engine/openvpnversioncontroller.h"
 #include "gui/application/windscribeapplication.h"
@@ -77,6 +78,16 @@ int main(int argc, char *argv[])
         pluginsPath << QString::fromStdString(path) + "/plugins";
         QCoreApplication::setLibraryPaths(pluginsPath);
     #endif
+#endif
+
+    // Switch to staging if necessary. It should be done at the beginning of main function.
+    // Further, in all parts of the program, the staging check is performed by the function AppVersion::instance().isStaging()
+    // Works only for guinea pig builds
+#ifdef WINDSCRIBE_IS_GUINEA_PIG
+    if (ExtraConfig::instance().getIsStaging())
+    {
+        AppVersion::instance().switchToStaging();
+    }
 #endif
 
     qSetMessagePattern("[{gmt_time} %{time process}] [%{category}]\t %{message}");

@@ -6,6 +6,7 @@
 #include "utils/utils.h"
 #include "utils/hardcodedsettings.h"
 #include "engine/getdeviceid.h"
+#include "version/appversion.h"
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,
                                  INetworkDetectionManager *networkDetectionManager, ServerAPI *serverAPI,
@@ -312,7 +313,8 @@ bool LoginController::isAllSslErrors() const
 
 void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
 {
-    if (dnsResolutionSettings_.getIsAutomatic())
+    // We break the staging functionality to not try the hashed domains if the initial login fails, as the hashed domains will hit the production environment.
+    if (!AppVersion::instance().isStaging() && dnsResolutionSettings_.getIsAutomatic())
     {
         if (loginStep_ == LOGIN_STEP1)
         {

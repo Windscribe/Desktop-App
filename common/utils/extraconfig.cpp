@@ -17,6 +17,7 @@ const QString WS_TT_TIMEOUT_STR     = WS_PREFIX + "tunnel-test-timeout";
 const QString WS_TT_RETRY_DELAY_STR = WS_PREFIX + "tunnel-test-retry-delay";
 const QString WS_TT_ATTEMPTS_STR    = WS_PREFIX + "tunnel-test-attempts";
 
+const QString WS_STAGING_STR    = WS_PREFIX + "staging";
 
 void ExtraConfig::writeConfig(const QString &cfg)
 {
@@ -201,6 +202,11 @@ int ExtraConfig::getTunnelTestAttempts(bool &success)
 bool ExtraConfig::getOverrideUpdateChannelToInternal()
 {
     return getFlagFromExtraConfigLines(WS_UPDATE_CHANNEL_INTERNAL);
+}
+
+bool ExtraConfig::getIsStaging()
+{
+    return getFlagFromExtraConfigLines(WS_STAGING_STR);
 }
 
 int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)
