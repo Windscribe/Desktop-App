@@ -2354,8 +2354,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
 
                 // nothing todo, because installer will close app here
 #ifdef Q_OS_LINUX
-                // Close Windscribe in order to continue installation of the .deb or .rpm package.
-                close();
+                // restart the application after update
+                doClose(nullptr, false);
+                qApp->quit();
+                QProcess::startDetached(QApplication::applicationFilePath());
 #endif
             }
             else // Error
