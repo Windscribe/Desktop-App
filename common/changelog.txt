@@ -1,3 +1,9 @@
+2.4.7 (11/05/2022)
+* Replaced ip -> /usr/sbin/ip in the update-systemd-resolved Linux script. #275
+* Log server errors when checking for available updates. #280
+* Added the ws-staging parameter to advanced parameters. #277
+* Fix update flow for users without gnome-terminal.  #282
+
 2.4.6 (03/05/2022)
 * App crashes on Emergency Connect. #255
 * Increased service start wait time to 20 seconds. #120
