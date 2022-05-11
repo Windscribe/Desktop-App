@@ -195,22 +195,14 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
     {
         CMD_START_WIREGUARD cmd;
         ia >> cmd;
-        const std::string strFullCmd(cmd.exePath + " -f " + cmd.deviceName);
-        outCmdAnswer.cmdId = ExecuteCmd::instance().execute(strFullCmd.c_str());
-        wireGuardController_.init(cmd.deviceName, outCmdAnswer.cmdId);
-        outCmdAnswer.executed = 1;
+
+        if (wireGuardController_.start(cmd.exePath, cmd.deviceName))
+            outCmdAnswer.executed = 1;
     }
     else if (cmdId == HELPER_CMD_STOP_WIREGUARD)
     {
-        bool is_daemon_dead = true;
-        std::string log;
-        ExecuteCmd::instance().getStatus(wireGuardController_.getDaemonCmdId(), is_daemon_dead,
-                                         log);
-        if (is_daemon_dead) {
-            wireGuardController_.reset();
+        if (wireGuardController_.stop())
             outCmdAnswer.executed = 1;
-            outCmdAnswer.body = log;
-        }
     }
     else if (cmdId == HELPER_CMD_CONFIGURE_WIREGUARD)
     {
@@ -238,9 +230,9 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
                     LOG("WireGuard: configureDefaultRouteMonitor() failed");
                     break;
                 }
-                if (!wireGuardController_.configureDaemon(cmd.clientPrivateKey,
-                                                          cmd.peerPublicKey, cmd.peerPresharedKey,
-                                                          cmd.peerEndpoint, allowed_ips_vector)) {
+                if (!wireGuardController_.configure(cmd.clientPrivateKey,
+                                                    cmd.peerPublicKey, cmd.peerPresharedKey,
+                                                    cmd.peerEndpoint, allowed_ips_vector)) {
                     LOG("WireGuard: configureDaemon() failed");
                     break;
                 }
@@ -250,31 +242,16 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
     }
     else if (cmdId == HELPER_CMD_GET_WIREGUARD_STATUS)
     {
+        unsigned int errorCode = 0;
+        unsigned long long bytesReceived = 0, bytesTransmitted = 0;
+
         outCmdAnswer.executed = 1;
-        if (!wireGuardController_.isInitialized()) {
-            outCmdAnswer.cmdId = WIREGUARD_STATE_NONE;
-        } else {
-            bool is_daemon_dead = true;
-            std::string log;
-            ExecuteCmd::instance().getStatus(wireGuardController_.getDaemonCmdId(), is_daemon_dead,
-                                             log);
-            if (is_daemon_dead) {
-                outCmdAnswer.cmdId = WIREGUARD_STATE_ERROR;
-                // Special error code means the daemon is dead.
-                outCmdAnswer.customInfoValue[0] = 666u;
-                outCmdAnswer.body = log;
-            } else {
-                unsigned int errorCode = 0;
-                unsigned long long bytesReceived = 0, bytesTransmitted = 0;
-                outCmdAnswer.cmdId = wireGuardController_.getStatus(
-                    &errorCode, &bytesReceived, &bytesTransmitted);
-                if (outCmdAnswer.cmdId == WIREGUARD_STATE_ERROR) {
-                    outCmdAnswer.customInfoValue[0] = errorCode;
-                } else if (outCmdAnswer.cmdId == WIREGUARD_STATE_ACTIVE) {
-                    outCmdAnswer.customInfoValue[0] = bytesReceived;
-                    outCmdAnswer.customInfoValue[1] = bytesTransmitted;
-                }
-            }
+        outCmdAnswer.cmdId = wireGuardController_.getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
+        if (outCmdAnswer.cmdId == WIREGUARD_STATE_ERROR) {
+            outCmdAnswer.customInfoValue[0] = errorCode;
+        } else if (outCmdAnswer.cmdId == WIREGUARD_STATE_ACTIVE) {
+            outCmdAnswer.customInfoValue[0] = bytesReceived;
+            outCmdAnswer.customInfoValue[1] = bytesTransmitted;
         }
     }
     else if (cmdId == HELPER_CMD_KILL_PROCESS)
