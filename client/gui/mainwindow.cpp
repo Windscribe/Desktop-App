@@ -421,7 +421,7 @@ void MainWindow::showAfterLaunch()
         showMinimized();
         return;
     }
-    #ifdef Q_OS_WIN
+    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     else if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
         QCommandLineParser cmdParser;
         cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
@@ -584,7 +584,7 @@ bool MainWindow::event(QEvent *event)
         }
 
         deactivationTimer_.stop();
-#if defined Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
             QWindowStateChangeEvent *e = static_cast<QWindowStateChangeEvent *>(event);
             // make sure we only do this for minimize events
@@ -882,7 +882,7 @@ void MainWindow::onMinimizeClick()
 
 void MainWindow::onCloseClick()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     if (backend_->getPreferences()->isMinimizeAndCloseToTray())
     {
         minimizeToTray();
@@ -892,8 +892,6 @@ void MainWindow::onCloseClick()
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
     }
 #elif defined Q_OS_MAC
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
-#elif defined Q_OS_LINUX
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
 #endif
 }
@@ -2757,9 +2755,9 @@ void MainWindow::activateAndShow()
 void MainWindow::deactivateAndHide()
 {
     MainWindowState::instance().setActive(false);
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
     hide();
-#elif defined Q_OS_WIN
+#elif defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     if (backend_->getPreferences()->isDockedToTray())
     {
         setWindowState(Qt::WindowMinimized);
@@ -2955,7 +2953,7 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
         {
             // qDebug() << "Tray triggered";
             deactivationTimer_.stop();
-#if defined Q_OS_WIN
+#if defined(Q_OS_WIN)
             if (isMinimized() || !backend_->getPreferences()->isDockedToTray()) {
                 activateAndShow();
                 setBackendAppActiveState(true);
@@ -2966,13 +2964,21 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
             // Fix a nasty tray icon double-click bug in Qt.
             if (reason == QSystemTrayIcon::DoubleClick)
                 WidgetUtils_win::fixSystemTrayIconDblClick();
-#elif defined Q_OS_MAC
-
+#elif defined(Q_OS_MAC)
             if (backend_->getPreferences()->isDockedToTray())
             {
                 toggleVisibilityIfDocked();
             }
-
+#elif defined(Q_OS_LINUX)
+            if (backend_->getPreferences()->isDockedToTray())
+            {
+                toggleVisibilityIfDocked();
+            }
+            else if (!isVisible()) // closed to tray
+            {
+                activateAndShow();
+                setBackendAppActiveState(true);
+            }
 #endif
         }
         break;
@@ -2998,16 +3004,18 @@ void MainWindow::onTrayMenuPreferences()
     mainWindowController_->expandPreferences();
 }
 
-void MainWindow::onTrayMenuHide()
+void MainWindow::onTrayMenuShowHide()
 {
-    deactivateAndHide();
-    setBackendAppActiveState(false);
-}
-
-void MainWindow::onTrayMenuShow()
-{
-    activateAndShow();
-    setBackendAppActiveState(true);
+    if (isMinimized() || !isVisible())
+    {
+        activateAndShow();
+        setBackendAppActiveState(true);
+    }
+    else
+    {
+        deactivateAndHide();
+        setBackendAppActiveState(false);
+    }
 }
 
 void MainWindow::onTrayMenuHelpMe()
@@ -3107,15 +3115,14 @@ void MainWindow::loadTrayMenuItems()
 #endif
     }
 
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    trayMenu_.addAction(tr("Show/Hide"), this, SLOT(onTrayMenuShowHide()));
+#endif
+
     if (!mainWindowController_->preferencesVisible())
     {
         trayMenu_.addAction(tr("Preferences"), this, SLOT(onTrayMenuPreferences()));
     }
-
-#ifdef Q_OS_MAC
-    trayMenu_.addAction(tr("Hide"), this, SLOT(onTrayMenuHide()));
-    trayMenu_.addAction(tr("Show"), this, SLOT(onTrayMenuShow()));
-#endif
 
     trayMenu_.addAction(tr("Help"), this, SLOT(onTrayMenuHelpMe()));
     trayMenu_.addAction(tr("Exit"), this, SLOT(onTrayMenuQuit()));
@@ -3147,7 +3154,6 @@ void MainWindow::onTrayMenuAboutToShow()
 #else
     loadTrayMenuItems();
 #endif
-
 }
 
 void MainWindow::onLocationsTrayMenuLocationSelected(int type, QString locationTitle, int cityIndex)

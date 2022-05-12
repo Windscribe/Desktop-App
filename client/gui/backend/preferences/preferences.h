@@ -22,7 +22,7 @@ public:
     bool isAllowLanTraffic() const;
     void setAllowLanTraffic(bool b);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     bool isMinimizeAndCloseToTray() const;
     void setMinimizeAndCloseToTray(bool b);
 #elif defined Q_OS_MAC

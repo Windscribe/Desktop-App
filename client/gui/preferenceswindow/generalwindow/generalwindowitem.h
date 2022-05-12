@@ -31,7 +31,7 @@ private slots:
     void onStartMinimizedPreferencesChanged(bool b);
     void onStartMinimizedClicked(bool b);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     void onMinimizeAndCloseToTrayPreferencesChanged(bool b);
     void onMinimizeAndCloseToTrayClicked(bool b);
 #elif defined Q_OS_MAC
@@ -84,7 +84,7 @@ private:
     CheckBoxItem *checkBoxStartMinimized_;
     CheckBoxItem *checkBoxShowLocationLoad_;
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     CheckBoxItem *checkBoxMinimizeAndCloseToTray_;
 #elif defined Q_OS_MAC
     CheckBoxItem *checkBoxHideFromDock_;
