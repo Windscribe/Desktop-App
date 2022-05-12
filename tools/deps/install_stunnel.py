@@ -19,7 +19,7 @@ import installutils as iutl
 
 # Dependency-specific settings.
 DEP_TITLE = "stunnel"
-DEP_URL = "https://www.stunnel.org/downloads/"
+DEP_URL = "https://www.stunnel.org/archive/5.x/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["tstunnel.exe", "stunnel"]
 
