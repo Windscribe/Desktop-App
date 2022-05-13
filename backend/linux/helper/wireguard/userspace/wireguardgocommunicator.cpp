@@ -71,10 +71,13 @@ bool WireGuardGoCommunicator::Connection::getOutput(ResultMap *results_map) cons
         return false;
     std::string output;
     output.reserve(1024);
+    char prev = 0, c = 0;
     for (;;) {
-        auto c = static_cast<char>(fgetc(fileHandle_));
-        if (c < 0)
+        c = static_cast<char>(fgetc(fileHandle_));
+        if ((c == '\n' && prev == '\n') || feof(fileHandle_)) {
             break;
+        }
+        prev = c;
         output.push_back(c);
     }
     boost::trim(output);

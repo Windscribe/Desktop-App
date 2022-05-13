@@ -76,7 +76,9 @@ include:
     - apt -y install ruby-dev rpm && gem i fpm -f
     - apt -y install libpam0g-dev
     - apt -y install software-properties-common && apt -y update
-    - add-apt-repository ppa:longsleep/golang-backports -y && apt -y update && apt -y install golang-go
+    - apt -y install wget
+    - wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
+    - rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
     - apt -y install autoconf
     - apt -y install libtool
     - apt -y install cmake
