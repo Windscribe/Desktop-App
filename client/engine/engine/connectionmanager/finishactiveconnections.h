@@ -14,12 +14,12 @@ private:
     static void finishOpenVpnActiveConnections_win(IHelper *helper);
     static void finishIkev2ActiveConnections_win(IHelper *helper);
     static void finishWireGuardActiveConnections_win(IHelper *helper);
-#elif defined Q_OS_MAC
-    static void finishAllActiveConnections_mac(IHelper *helper);
-    static void finishOpenVpnActiveConnections_mac(IHelper *helper);
-    static void finishWireGuardActiveConnections_mac(IHelper *helper);
-#elif defined Q_OS_LINUX
-    static void finishAllActiveConnections_linux(IHelper *helper);
+#else
+    static void finishAllActiveConnections_posix(IHelper *helper);
+    static void finishOpenVpnActiveConnections_posix(IHelper *helper);
+    static void finishWireGuardActiveConnections_posix(IHelper *helper);
+#endif
+#if defined Q_OS_LINUX
     static void removeDnsLeaksprotection_linux(IHelper *helper);
 #endif
 };
