@@ -25,6 +25,9 @@ variables:
   #NEXUS_USERNAME: ""  # Set in Gitlab variables/vault
   #NEXUS_PASSWORD: ""  # Set in Gitlab variables/vault
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
+  CODE_SIGNING_LINUX_PATH: 'common/keys/linux'
+  CODE_SIGNING_LINUX_PRIVATE_KEY_FILE: '$CODE_SIGNING_LINUX_PATH/key.pem'
+  CODE_SIGNING_LINUX_PUBLIC_KEY_FILE: '$CODE_SIGNING_LINUX_PATH/key.pub'
   NOTARIZE_YML_PATH: 'tools/notarize.yml'
   HARDCODED_SECRETS_PATH: 'common/utils/hardcodedsecrets.ini'
   CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH : 'backend/mac/provisioning_profile'
@@ -35,8 +38,10 @@ variables:
   ARTIFACT_INSTALLER: 'installer.exe'
   BUILD_WIN: 'y'
   BUILD_MAC: 'y'
+  BUILD_LINUX: 'n'
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
   TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
+  TEST_LINUX: 'n' # tests will only run if BUILD_LINUX also 'y'
   BUILD_LIBS_EVERYTIME: 'n' #enable to rebuild all the libs
 
 # pull in other yaml files
@@ -56,6 +61,28 @@ include:
   tags: [macos11]
   before_script:
     # run this blindly until baked into image
+    - python tools/bin/get-pip.py
+    - python -m pip install -r tools/requirements.txt
+
+.template_linux_build: &template_linux_build
+  image: ubuntu:xenial
+  before_script:
+    # run this blindly until baked into image
+    - apt -y update
+    - apt -y install build-essential
+    - apt -y install git
+    - apt -y install curl
+    - apt -y install patchelf
+    - apt -y install ruby-dev rpm && gem i fpm -f
+    - apt -y install libpam0g-dev
+    - apt -y install software-properties-common && apt -y update
+    - add-apt-repository ppa:longsleep/golang-backports -y && apt -y update && apt -y install golang-go
+    - apt -y install autoconf
+    - apt -y install libtool
+    - apt -y install cmake
+    - apt -y install fakeroot
+    - apt -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxkbcommon-dev libxkbcommon-x11-dev
+    - apt -y install python
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
 
@@ -82,7 +109,7 @@ testing:win:buildtestgui:
       --upload-file test-exe/gui/TestGui.exe
       "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
   rules:
-    - if: '$BUILD_WIN == "y" && $TEST_WIN == "y"'
+    - if: $BUILD_WIN == "y" && $TEST_WIN == "y"
 
 testing:mac:buildtestgui:
   <<: *template_mac_build
@@ -105,7 +132,7 @@ testing:mac:buildtestgui:
       --upload-file test-exe/gui/TestGui
       "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
   rules:
-    - if: '$BUILD_MAC == "y" && $TEST_MAC == "y"'
+    - if: $BUILD_MAC == "y" && $TEST_MAC == "y"
 
 # Run Tests
 testing:win:runtestgui:
@@ -135,7 +162,7 @@ testing:win:runtestgui:
       --upload-file test-exe/gui/TestGui-$VERSION.log
       "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui-$VERSION.log"
   rules:
-    - if: '$BUILD_WIN == "y" && $TEST_WIN == "y"'
+    - if: $BUILD_WIN == "y" && $TEST_WIN == "y"
 
 testing:mac:runtestgui:
   <<: *template_mac_build
@@ -164,7 +191,7 @@ testing:mac:runtestgui:
       --upload-file test-exe/gui/TestGui-$VERSION.log
       "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui-$VERSION.log"
   rules:
-    - if: '$BUILD_MAC == "y" && $TEST_MAC == "y"'
+    - if: $BUILD_MAC == "y" && $TEST_MAC == "y"
 
 # Build and Upload Installer
 build:win:installer:
@@ -200,7 +227,8 @@ build:win:installer:
     - Set-Variable -name CODE_SIGNING_PFX_BASE64 -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-windows-cert)
     - Set-Variable -name NOTARIZE_YML -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
     # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
-    - echo $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
+    # Cannot use echo to write out the hardcoded secrets to file. Powershell 5/6 default to UTF16LE encoding for the file, which will cause a run-time failure in the client app when it tries to access the file as an embedded resource.
+    - write-output $HARDCODED_SECRETS | out-file $HARDCODED_SECRETS_PATH -encoding ascii
     - echo $NOTARIZE_YML > $NOTARIZE_YML_PATH
     - echo $CODE_SIGNING_PFX_BASE64 > $CODE_SIGNING_PFX_PATH # write base64 encoded temporarily to file
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1 # overwrite temp base64 contents with decoded version
@@ -213,7 +241,7 @@ build:win:installer:
     - !reference [.upload_installer_to_nexus_latest_win, script ]
     - !reference [.upload_symbols_to_nexus_latest_win, script ]
   rules:
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_WIN == "y"
 
 # build mac installer (manual button)
 # couldn't figure out how to add manual button without interfering with "rules" -- duplicated the job :\
@@ -236,16 +264,11 @@ manual:build:mac:installer:
     - !reference [.download_qt_mac, script]
     - !reference [.download_stunnel_mac, script]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    # Clean out DropDMG Windscribe2 settings and symlink to this repo
-    - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
-    - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
-    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Configurations/Windscribe2.plist ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
-    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Layouts/Windscribe2 ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
-        # extractions
+    # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
       --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
       $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
-    # get the secrets JSON and put in VAULT_RESPONS_JSON
+    # get the secrets JSON and put in VAULT_RESPONSE_JSON
     - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
     # parse the secrets
     - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
@@ -263,9 +286,9 @@ manual:build:mac:installer:
     # upload dmg to nexus
     - !reference [.upload_dmg_to_nexus_commit_mac, script ]
     - !reference [.upload_dmg_to_nexus_latest_mac, script]
-    - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
-    - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
   when: manual
+  rules:
+    - if: $BUILD_MAC == "y"
 
 build:mac:installer:
   <<: *template_mac_build
@@ -286,16 +309,11 @@ build:mac:installer:
     - !reference [.download_qt_mac, script]
     - !reference [.download_stunnel_mac, script]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    # Clean out DropDMG Windscribe2 settings and symlink to this repo
-    - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
-    - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
-    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Configurations/Windscribe2.plist ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
-    - ln -s $(pwd)/common/prepare_build_environment/mac/DropDMG/Layouts/Windscribe2 ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
-        # extractions
+    # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
       --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
       $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
-    # get the secrets JSON and put in VAULT_RESPONS_JSON
+    # get the secrets JSON and put in VAULT_RESPONSE_JSON
     - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
     # parse the secrets
     - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
@@ -313,7 +331,51 @@ build:mac:installer:
     # upload dmg to nexus
     - !reference [.upload_dmg_to_nexus_commit_mac, script ]
     - !reference [.upload_dmg_to_nexus_latest_mac, script]
-    - rm -rf ~/Library/Application\ Support/DropDMG/Configurations/Windscribe2.plist
-    - rm -rf ~/Library/Application\ Support/DropDMG/Layouts/Windscribe2
   rules:
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_MAC == "y"
+
+build:linux:installer:
+  <<: *template_linux_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    # download the libs
+    - !reference [.download_cares_linux, script ]
+    - !reference [.download_lzo_linux, script]
+    - !reference [.download_boost_linux, script]
+    - !reference [.download_wireguard_linux, script]
+    - !reference [.download_openssl_linux, script]
+    - !reference [.download_curl_linux, script]
+    - !reference [.download_openvpn_linux, script]
+    - !reference [.download_protobuf_linux, script]
+    - !reference [.download_qt_linux, script]
+    - !reference [.download_stunnel_linux, script]
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    # extractions
+    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
+      --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
+      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+    # get the secrets JSON and put in VAULT_RESPONSE_JSON
+    - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
+    # parse the secrets
+    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - LINUX_PRIV_KEY=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-linux-priv-key)
+    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
+    # use echo -e to print \n as newlines
+    - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
+    - mkdir -p $CODE_SIGNING_LINUX_PATH
+    - echo -e $LINUX_PRIV_KEY > $CODE_SIGNING_LINUX_PRIVATE_KEY_FILE
+    # create the public key from the private key
+    - openssl rsa -in $CODE_SIGNING_LINUX_PRIVATE_KEY_FILE -pubout > $CODE_SIGNING_LINUX_PUBLIC_KEY_FILE
+    # build the application/installer
+    - VERSION=$(python tools/base/extract.py)
+    - tools/build_all -zip --ci-mode --sign
+    # upload deb and rpm packages to nexus
+    - !reference [.upload_deb_to_nexus_commit_linux, script ]
+    - !reference [.upload_deb_to_nexus_latest_linux, script ]
+    - !reference [.upload_rpm_to_nexus_commit_linux, script ]
+    - !reference [.upload_rpm_to_nexus_latest_linux, script ]
+  rules:
+    - if: $BUILD_LINUX == "y"
