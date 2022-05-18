@@ -401,7 +401,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 stateVariables_.bSigTermSent = true;
             }
         }
-        else if (serverReply.contains("There are no TAP-Windows adapters on this system", Qt::CaseInsensitive))
+        else if (serverReply.contains("There are no TAP-Windows nor Wintun adapters on this system.", Qt::CaseInsensitive))
         {
             if (!stateVariables_.bTapErrorEmited)
             {
@@ -551,9 +551,13 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 }
             }
         }
-        else if (serverReply.contains(">FATAL:All TAP-Windows adapters on this system are currently in use", Qt::CaseInsensitive))
+        else if (serverReply.contains(">FATAL:All tap-windows6 adapters on this system are currently in use", Qt::CaseInsensitive))
         {
             Q_EMIT error(ProtoTypes::ConnectError::ALL_TAP_IN_USE);
+        }
+        else if (serverReply.contains(">FATAL:All wintun adapters on this system are currently in use", Qt::CaseInsensitive))
+        {
+            Q_EMIT error(ProtoTypes::ConnectError::WINTUN_FATAL_ERROR);
         }
 
         checkErrorAndContinue(write_error, true);

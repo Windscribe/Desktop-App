@@ -2032,7 +2032,25 @@ void Engine::onConnectionManagerError(ProtoTypes::ConnectError err)
 #ifdef Q_OS_WIN
     else if (err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP)
     {
-        //Q_EMIT connectError(NO_INSTALLED_TUN_TAP);
+        if(dynamic_cast<Helper_win*>(helper_)->reinstallWintunDriver(QCoreApplication::applicationDirPath() + "/wintun")) {
+            qCDebug(LOG_BASIC) << "Wintun driver was re-installed successfully.";
+        }
+        else {
+            qCDebug(LOG_BASIC) << "Failed to re-install wintun driver";
+            connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ProtoTypes::ConnectError::WINTUN_DRIVER_REINSTALLATION_ERROR);
+            return;
+        }
+
+        if(dynamic_cast<Helper_win*>(helper_)->reinstallTapDriver(QCoreApplication::applicationDirPath() + "/tap")) {
+            qCDebug(LOG_BASIC) << "Tap driver was re-installed successfully.";
+        }
+        else {
+            qCDebug(LOG_BASIC) << "Failed to re-install tap driver";
+            connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ProtoTypes::ConnectError::TAP_DRIVER_REINSTALLATION_ERROR);
+            return;
+        }
+        doConnect(true);
+        return;
     }
     else if (err == ProtoTypes::ConnectError::ALL_TAP_IN_USE)
     {
@@ -2053,7 +2071,7 @@ void Engine::onConnectionManagerError(ProtoTypes::ConnectError err)
             doConnect(true);
         }
         else {
-            qCDebug(LOG_BASIC) << "Failed to re-install tap driver";
+            qCDebug(LOG_BASIC) << "Failed to re-install wintun driver";
             connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ProtoTypes::ConnectError::WINTUN_DRIVER_REINSTALLATION_ERROR);
         }
         return;
