@@ -574,7 +574,8 @@ void MainWindow::onInstallerCallback(unsigned int progress, INSTALLER_CURRENT_ST
 		InvalidateRect(hwnd_, NULL, TRUE);
 		UpdateWindow(hwnd_);
 
-		g_application->getInstaller()->runLauncher();
+		if (g_application->getSettings().getAutoStart())
+			g_application->getInstaller()->runLauncher();
 		DestroyWindow(hwnd_);
 	}
 	else if (state == STATE_ERROR || state == STATE_FATAL_ERROR)

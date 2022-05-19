@@ -36,15 +36,21 @@ void Installer::startImpl(HWND hwnd, const Settings &settings)
 {
     installPath_ = settings.getPath();
 #ifdef _WIN32
-    blocks_.push_back(new UninstallPrev(0.10));
-    blocks_.push_back(new Files(installPath_, 0.4));
-    blocks_.push_back(new Service(installPath_, 0.05));
-    blocks_.push_back(new InstallTap(installPath_, 0.1));
-    blocks_.push_back(new InstallWinTun(installPath_, 0.1));
-    blocks_.push_back(new InstallSplitTunnel(installPath_, 0.1, hwnd));
-    blocks_.push_back(new UninstallInfo(installPath_, 0.05));
-    blocks_.push_back(new Icons(installPath_, settings.getCreateShortcut(), 0.05));
-	blocks_.push_back(new InstallAuthHelper(installPath_, 0.05));
+    blocks_.push_back(new UninstallPrev(10));
+    blocks_.push_back(new Files(installPath_, 40));
+    blocks_.push_back(new Service(installPath_, 5));
+    if (settings.getInstallDrivers())
+    {
+        blocks_.push_back(new InstallTap(installPath_, 10));
+        blocks_.push_back(new InstallWinTun(installPath_, 10));
+    }
+    blocks_.push_back(new InstallSplitTunnel(installPath_, 10, hwnd));
+    blocks_.push_back(new UninstallInfo(installPath_, 5));
+    blocks_.push_back(new Icons(installPath_, settings.getCreateShortcut(), 5));
+    blocks_.push_back(new InstallAuthHelper(installPath_, 5));
+
+    for (auto block : blocks_)
+        totalWork_ += block->getWeight();
 #endif
 }
 
@@ -96,7 +102,7 @@ void Installer::executionImpl()
 			// block is finished?
 			if (progressOfBlock >= 100)
 			{
-				overallProgress = prevOverallProgress + (int)(100.0 * block->getWeight());
+				overallProgress = prevOverallProgress + (int)(100 * block->getWeight() / totalWork_);
 				callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
 				ticks.push_back(GetTickCount() - initTick);
                 Log::instance().out(L"Installed %ls", block->getName().c_str());
@@ -112,7 +118,7 @@ void Installer::executionImpl()
 			}
 			else
 			{
-				overallProgress = prevOverallProgress + (int)(progressOfBlock * block->getWeight());
+				overallProgress = prevOverallProgress + (int)(progressOfBlock * block->getWeight() / totalWork_);
 				callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
 			}
 		}
