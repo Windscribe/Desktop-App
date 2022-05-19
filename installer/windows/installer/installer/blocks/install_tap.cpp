@@ -7,7 +7,7 @@
 
 using namespace std;
 
-InstallTap::InstallTap(const std::wstring &installPath, double weight) : IInstallBlock(weight, L"Tap")
+InstallTap::InstallTap(const std::wstring &installPath, double weight) : IInstallBlock(weight, L"Tap", false)
 {
 	installPath_ = installPath;
 }
