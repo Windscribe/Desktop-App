@@ -17,6 +17,29 @@
     - python -m pip install -r tools/requirements.txt
 
 
+.template_linux_build: &template_linux_build
+  image: ubuntu:xenial
+  before_script:
+    # run this blindly until baked into image
+    - apt -y update
+    - apt -y install build-essential
+    - apt -y install git
+    - apt -y install curl
+    - apt -y install patchelf
+    - apt -y install ruby-dev rpm && gem i fpm -f
+    - apt -y install libpam0g-dev
+    - apt -y install software-properties-common && apt -y update
+    - add-apt-repository ppa:longsleep/golang-backports -y && apt -y update && apt -y install golang-go
+    - apt -y install autoconf
+    - apt -y install libtool
+    - apt -y install cmake
+    - apt -y install fakeroot
+    - apt -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxkbcommon-dev libxkbcommon-x11-dev
+    - apt -y install python
+    - python tools/bin/get-pip.py
+    - python -m pip install -r tools/requirements.txt
+
+
 # Build Dependency and Upload Jom
 build:win:jom:
   <<: *template_win10_build
@@ -28,12 +51,12 @@ build:win:jom:
     - tools/deps/install_jom -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/jom.yml
 
-# No jom for mac
+# No jom for mac or linux
 
 # Build Dependency and Upload Cares
 build:win:cares:
@@ -46,8 +69,8 @@ build:win:cares:
     - tools/deps/install_cares -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/cares.yml
 
@@ -62,8 +85,24 @@ build:mac:cares:
     - tools/deps/install_cares -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
+      changes:
+        - tools/vars/cares.yml
+
+
+build:linux:cares:
+  <<: *template_linux_build
+  stage: Build Dependencies 1
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_CARES
+  script:
+    - tools/deps/install_cares -zip
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
       changes:
         - tools/vars/cares.yml
 
@@ -79,8 +118,8 @@ build:win:lzo:
     - tools/deps/install_lzo -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/lzo.yml
 
@@ -95,8 +134,24 @@ build:mac:lzo:
     - tools/deps/install_lzo -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
+      changes:
+        - tools/vars/lzo.yml
+
+
+build:linux:lzo:
+  <<: *template_linux_build
+  stage: Build Dependencies 1
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_LZO
+  script:
+    - tools/deps/install_lzo -zip
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
       changes:
         - tools/vars/lzo.yml
 
@@ -112,8 +167,8 @@ build:win:boost:
     - tools/deps/install_boost -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/boost.yml
 
@@ -128,10 +183,27 @@ build:mac:boost:
     - tools/deps/install_boost -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
       changes:
         - tools/vars/boost.yml
+
+
+build:linux:boost:
+  <<: *template_linux_build
+  stage: Build Dependencies 1
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_BOOST
+  script:
+    - tools/deps/install_boost -zip --no-clean
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
+      changes:
+        - tools/vars/boost.yml
+
 
 # Build Dependency and Upload Wireguard
 build:win:wireguard:
@@ -144,8 +216,8 @@ build:win:wireguard:
     - tools/deps/install_wireguard -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/wireguard.yml
 
@@ -160,10 +232,27 @@ build:mac:wireguard:
     - tools/deps/install_wireguard -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
       changes:
         - tools/vars/wireguard.yml
+
+
+build:linux:wireguard:
+  <<: *template_linux_build
+  stage: Build Dependencies 1
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_WIREGUARD
+  script:
+    - tools/deps/install_wireguard -zip
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
+      changes:
+        - tools/vars/wireguard.yml
+
 
 # Build Dependency and Upload Gtest
 build:win:gtest:
@@ -176,8 +265,8 @@ build:win:gtest:
     - tools/deps/install_gtest -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $TEST_WIN == "y"
+    - if: $TEST_WIN == "y"
       changes:
         - tools/vars/gtest.yml
 
@@ -192,8 +281,24 @@ build:mac:gtest:
    - tools/deps/install_gtest -zip
    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
  rules:
-   - if: '$BUILD_LIBS_EVERYTIME == "y"'
-   - if: '$BUILD_MAC == "y"'
+   - if: $BUILD_LIBS_EVERYTIME == "y" && $TEST_MAC == "y"
+   - if: $TEST_MAC == "y"
+     changes:
+       - tools/vars/gtest.yml
+
+
+build:linux:gtest:
+ <<: *template_linux_build
+ stage: Build Dependencies 1
+ variables:
+   GIT_STRATEGY: clone
+   ARTIFACT_PATH: $ARTIFACT_GTEST
+ script:
+   - tools/deps/install_gtest -zip
+   - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+ rules:
+   - if: $BUILD_LIBS_EVERYTIME == "y" && $TEST_LINUX == "y"
+   - if: $TEST_LINUX == "y"
      changes:
        - tools/vars/gtest.yml
 
@@ -213,8 +318,8 @@ build:win:openssl:
     - tools/deps/install_openssl -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/openssl.yml
         - tools/vars/jom.yml
@@ -230,10 +335,27 @@ build:mac:openssl:
     - tools/deps/install_openssl -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
       changes:
         - tools/vars/openssl.yml
+
+
+build:linux:openssl:
+  <<: *template_linux_build
+  stage: Build Dependencies 2
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_OPENSSL
+  script:
+    - tools/deps/install_openssl -zip
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
+      changes:
+        - tools/vars/openssl.yml
+
 
 # Build Dependency and Upload Zlib
 build:win:zlib:
@@ -250,13 +372,13 @@ build:win:zlib:
     - tools/deps/install_zlib -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/zlib.yml
         - tools/vars/jom.yml
 
-# No zlib for mac
+# No zlib for mac or linux
 
 
 # Build and Upload Curl
@@ -276,8 +398,8 @@ build:win:curl:
     - tools/deps/install_curl -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/curl.yml
         - tools/vars/zlib.yml
@@ -298,8 +420,29 @@ build:mac:curl:
     - tools/deps/install_curl -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
+      changes:
+        - tools/vars/curl.yml
+        - tools/vars/openssl.yml
+
+
+build:linux:curl:
+  <<: *template_linux_build
+  stage: Build Dependencies 3
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_CURL
+  # needs:
+    # - {job: 'build:linux:openssl', optional: true}
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_OPENSSL}"
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    - tools/deps/install_curl -zip
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
       changes:
         - tools/vars/curl.yml
         - tools/vars/openssl.yml
@@ -322,8 +465,8 @@ build:win:openvpn:
     - tools/deps/install_openvpn -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/openvpn.yml
         - tools/vars/openssl.yml
@@ -347,8 +490,32 @@ build:mac:openvpn:
     - tools/deps/install_openvpn -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
+      changes:
+        - tools/vars/openvpn.yml
+        - tools/vars/openssl.yml
+        - tools/vars/lzo.yml
+
+
+build:linux:openvpn:
+  <<: *template_linux_build
+  stage: Build Dependencies 3
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_OPENVPN
+  # needs:
+    # - {job: 'build:linux:openssl', optional: true}
+    # - {job: 'build:linux:lzo', optional: true}
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_OPENSSL}"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_LZO "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_LZO}"
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    - tools/deps/install_openvpn -zip
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
       changes:
         - tools/vars/openvpn.yml
         - tools/vars/openssl.yml
@@ -370,8 +537,8 @@ build:win:protobuf:
     - tools/deps/install_protobuf -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/protobuf.yml
         - tools/vars/zlib.yml
@@ -387,8 +554,24 @@ build:mac:protobuf:
     - tools/deps/install_protobuf -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
+      changes:
+        - tools/vars/protobuf.yml
+
+
+build:linux:protobuf:
+  <<: *template_linux_build
+  stage: Build Dependencies 3
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_PROTOBUF
+  script:
+    - tools/deps/install_protobuf -zip
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
       changes:
         - tools/vars/protobuf.yml
 
@@ -410,8 +593,8 @@ build:win:qt:
     - tools/deps/install_qt -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/qt.yml
         - tools/vars/openssl.yml
@@ -433,8 +616,30 @@ build:mac:qt:
     - (cd ./build-libs/qt; zip --symlinks -r ../qt.zip .)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
+      changes:
+        - tools/vars/qt.yml
+        - tools/vars/openssl.yml
+
+
+build:linux:qt:
+  <<: *template_linux_build
+  stage: Build Dependencies 3
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_QT
+  # needs:
+    # - {job: 'build:linux:openssl', optional: true}
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_OPENSSL}"
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    - tools/deps/install_qt
+    - (cd ./build-libs/qt; zip --symlinks -r ../qt.zip .)
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
       changes:
         - tools/vars/qt.yml
         - tools/vars/openssl.yml
@@ -457,8 +662,8 @@ build:win:stunnel:
     - tools/deps/install_stunnel -zip
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_WIN == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y"
       changes:
         - tools/vars/stunnel.yml
         - tools/vars/openssl.yml
@@ -479,8 +684,29 @@ build:mac:stunnel:
     - tools/deps/install_stunnel -zip
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PATH}"
   rules:
-    - if: '$BUILD_LIBS_EVERYTIME == "y"'
-    - if: '$BUILD_MAC == "y"'
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y"
+      changes:
+        - tools/vars/stunnel.yml
+        - tools/vars/openssl.yml
+
+
+build:linux:stunnel:
+  <<: *template_linux_build
+  stage: Build Dependencies 3
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_STUNNEL
+  # needs:
+    # - {job: 'build:linux:openssl', optional: true}
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_OPENSSL}"
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    - tools/deps/install_stunnel -zip
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --upload-file $BUILDROOT/$ARTIFACT_PATH "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PATH}"
+  rules:
+    - if: $BUILD_LIBS_EVERYTIME == "y" && $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y"
       changes:
         - tools/vars/stunnel.yml
         - tools/vars/openssl.yml

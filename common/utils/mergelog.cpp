@@ -175,8 +175,7 @@ const QString MergeLog::serviceLogLocation()
 #if defined(Q_OS_LINUX)
     return qApp->applicationDirPath() + "/helper_log.txt";
 #elif defined(Q_OS_MACOS)
-    // The Mac helper does not currently log to file
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/helper_no_log.txt";
+    return "/Library/Logs/com.windscribe.helper.macos/helper_log.txt";
 #else
     return qApp->applicationDirPath() + "/windscribeservice.log";
 #endif
@@ -206,7 +205,7 @@ const QString MergeLog::prevServiceLogLocation()
     // very much information, except during a failure condition.
     return qApp->applicationDirPath() + "/helper_no_prev_log.txt";
 #elif defined(Q_OS_MACOS)
-    // The Mac helper does not currently log to file
+    // The Mac helper does not currently maintain a previous log file
     return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/helper_no_prev_log.txt";
 #else
     return qApp->applicationDirPath() + "/windscribeservice_prev.log";
