@@ -67,7 +67,10 @@ void WireGuardConfig::generateConfigFile(const QString &fileName) const
     ts << "[Peer]\n";
     ts << "PublicKey = " << peer_.publicKey << '\n';
     ts << "Endpoint = " << peer_.endpoint << '\n';
-    ts << "PresharedKey = " << peer_.presharedKey << '\n';
+
+    if (!peer_.presharedKey.isEmpty()) {
+        ts << "PresharedKey = " << peer_.presharedKey << '\n';
+    }
 
     // wireguard-windows implements its own 'kill switch' if we pass it 0.0.0.0/0.
     // https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
