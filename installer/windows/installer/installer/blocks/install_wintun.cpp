@@ -7,7 +7,7 @@
 
 using namespace std;
 
-InstallWinTun::InstallWinTun(const std::wstring &installPath, double weight) : IInstallBlock(weight, L"wintun")
+InstallWinTun::InstallWinTun(const std::wstring &installPath, double weight) : IInstallBlock(weight, L"wintun", false)
 {
 	installPath_ = installPath;
 }

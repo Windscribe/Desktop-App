@@ -94,13 +94,16 @@ void Installer::executionImpl()
 			int progressOfBlock = block->executeStep();
 			
 			// block is finished?
-			if (progressOfBlock >= 100)
+			if (progressOfBlock >= 100 || (progressOfBlock < 0 && !block->isCritical()))
 			{
 				overallProgress = prevOverallProgress + (int)(100.0 * block->getWeight());
 				callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
 				ticks.push_back(GetTickCount() - initTick);
-                Log::instance().out(L"Installed %ls", block->getName().c_str());
-                break;
+				if (progressOfBlock < 0)
+					Log::instance().out(L"Non-critical error installing %ls", block->getName().c_str());
+				else
+					Log::instance().out(L"Installed %ls", block->getName().c_str());
+				break;
 			}
 			// error from block?
 			else if (progressOfBlock < 0)
