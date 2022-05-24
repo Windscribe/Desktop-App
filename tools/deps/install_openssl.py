@@ -21,7 +21,7 @@ import installutils as iutl
 DEP_TITLE = "OpenSSL"
 DEP_URL = "https://www.openssl.org/source/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
-DEP_FILE_MASK = ["bin/*.dll", "include/**", "lib/*.lib", "lib/*.a", "lib/*.so", "lib/*.dylib"]
+DEP_FILE_MASK = ["bin/*.dll", "include/**", "lib/**"]
 
 
 def BuildDependencyMSVC(outpath):
