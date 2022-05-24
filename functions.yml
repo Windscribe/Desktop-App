@@ -56,23 +56,23 @@
 .upload_deb_to_nexus_commit_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION_amd64.deb
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/linux/Windscribe_$VERSION_amd64.deb"
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/linux/windscribe_${VERSION}_amd64.deb"
 .upload_deb_to_nexus_latest_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION_amd64.deb
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/Windscribe_$VERSION_amd64.deb"
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_amd64.deb"
 .upload_rpm_to_nexus_commit_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION_x86_64.rpm
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/linux/Windscribe_$VERSION_x86_64.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/linux/windscribe_${VERSION}_x86_64.rpm"
 .upload_rpm_to_nexus_latest_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION_x86_64.rpm
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/Windscribe_$VERSION_x86_64.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_x86_64.rpm"
 
 # download lib from nexus (win)
 .download_jom_win:

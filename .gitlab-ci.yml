@@ -38,7 +38,7 @@ variables:
   ARTIFACT_INSTALLER: 'installer.exe'
   BUILD_WIN: 'y'
   BUILD_MAC: 'y'
-  BUILD_LINUX: 'n'
+  BUILD_LINUX: 'y'
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
   TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
   TEST_LINUX: 'n' # tests will only run if BUILD_LINUX also 'y'
@@ -85,6 +85,8 @@ include:
     - apt -y install python
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
+    # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
+    - chmod -R o-w installer/linux
 
 # Build Tests
 testing:win:buildtestgui:
