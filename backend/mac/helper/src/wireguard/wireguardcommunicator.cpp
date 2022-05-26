@@ -1,5 +1,6 @@
 #include "wireguardcommunicator.h"
 #include "../../../../posix_common/helper_commands.h"
+#include "execute_cmd.h"
 #include "utils.h"
 #include "logger.h"
 #include <regex>
@@ -133,10 +134,25 @@ bool WireGuardCommunicator::Connection::connect(struct sockaddr_un *address)
     return true;
 }
 
-void WireGuardCommunicator::setDeviceName(const std::string &deviceName)
+bool WireGuardCommunicator::start(
+    const std::string &exePath,
+    const std::string &deviceName)
 {
     assert(!deviceName.empty());
     deviceName_ = deviceName;
+    exePath_ = exePath;
+
+    ExecuteCmd::instance().execute(("rm -f /var/run/wireguard/" + deviceName_ + ".sock").c_str());
+    const std::string strFullCmd(exePath + " -f " + deviceName_);
+    daemonCmdId_ = ExecuteCmd::instance().execute(strFullCmd.c_str());
+    return true;
+}
+
+bool WireGuardCommunicator::stop()
+{
+    ExecuteCmd::instance().execute(("rm -f /var/run/wireguard/" + deviceName_ + ".sock").c_str());
+    ExecuteCmd::instance().execute(("pkill -f \"" + exePath_ + "\"").c_str());
+    return true;
 }
 
 bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
@@ -177,6 +193,15 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
 unsigned long WireGuardCommunicator::getStatus(unsigned int *errorCode,
     unsigned long long *bytesReceived, unsigned long long *bytesTransmitted)
 {
+    bool is_daemon_dead = true;
+    std::string log;
+    ExecuteCmd::instance().getStatus(daemonCmdId_, is_daemon_dead, log);
+    if (is_daemon_dead) {
+        // Special error code means the daemon is dead.
+        *errorCode = 666u;
+        return WIREGUARD_STATE_ERROR;
+    }
+
     Connection connection(deviceName_);
     const auto connection_status = connection.getStatus();
     if (connection_status != Connection::Status::OK) {

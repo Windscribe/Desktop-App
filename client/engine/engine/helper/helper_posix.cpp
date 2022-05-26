@@ -322,32 +322,28 @@ void Helper_posix::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bo
 
 IHelper::ExecuteError Helper_posix::startWireGuard(const QString &exeName, const QString &deviceName)
 {
-    // Make sure the device socket is closed.
-    auto result = executeRootCommand("rm -f /var/run/wireguard/" + deviceName + ".sock");
-    if (!result.isEmpty()) {
-        qCDebug(LOG_WIREGUARD) << "Helper_mac: sock rm failed:" << result;
-        return IHelper::EXECUTE_ERROR;
-    }
-
     QMutexLocker locker(&mutex_);
 
-    // check executable signature
-    // no need for windows implementation in posix file
+    if (!exeName.isEmpty())
+    {
+        // check executable signature
+        // no need for windows implementation in posix file
 #if defined Q_OS_LINUX
-    const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName;
+        const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName;
 #else
-    const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewireguard";
+        const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewireguard";
 #endif
 
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(wireGuardExePath.toStdWString()))
-    {
-        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
-        return IHelper::EXECUTE_VERIFY_ERROR;
-    }
+        ExecutableSignature sigCheck;
+        if (!sigCheck.verifyWithSignCheck(wireGuardExePath.toStdWString()))
+        {
+            qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
+            return IHelper::EXECUTE_VERIFY_ERROR;
+        }
 
-    wireGuardExeName_ = exeName;
-    wireGuardDeviceName_.clear();
+        wireGuardExeName_ = exeName;
+        wireGuardDeviceName_.clear();
+    }
 
     if (curState_ != STATE_CONNECTED)
     {
@@ -358,7 +354,8 @@ IHelper::ExecuteError Helper_posix::startWireGuard(const QString &exeName, const
 #ifdef Q_OS_MAC
     cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/" + exeName).toStdString();
 #elif defined Q_OS_LINUX
-    cmd.exePath = (QCoreApplication::applicationDirPath() + "/" + exeName).toStdString();
+    if (!exeName.isEmpty())
+        cmd.exePath = (QCoreApplication::applicationDirPath() + "/" + exeName).toStdString();
 #else
     Q_ASSERT(false);
 #endif
@@ -389,17 +386,6 @@ bool Helper_posix::stopWireGuard()
     if (wireGuardDeviceName_.isEmpty())
         return true;
 
-    auto result = executeRootCommand("rm -f /var/run/wireguard/" + wireGuardDeviceName_ + ".sock");
-    if (!result.isEmpty()) {
-        qCDebug(LOG_WIREGUARD) << "Helper_mac: sock rm failed:" << result;
-        return false;
-    }
-    result = executeRootCommand("pkill -f \"" + wireGuardExeName_ + "\"");
-    if (!result.isEmpty()) {
-        qCDebug(LOG_WIREGUARD) << "Helper_mac: pkill failed:" << result;
-        return false;
-    }
-
     if (curState_ == STATE_CONNECTED) {
         QMutexLocker locker(&mutex_);
 
@@ -414,10 +400,6 @@ bool Helper_posix::stopWireGuard()
         }
         if (answerCmd.executed == 0)
             return false;
-        if (!answerCmd.body.empty()) {
-            qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-                                            << QString::fromStdString(answerCmd.body);
-            }
     }
     return true;
 }
@@ -515,10 +497,6 @@ bool Helper_posix::getWireGuardStatus(WireGuardStatus *status)
         status->bytesReceived = answerCmd.customInfoValue[0];
         status->bytesTransmitted = answerCmd.customInfoValue[1];
         break;
-    }
-    if (!answerCmd.body.empty()) {
-        qCDebugMultiline(LOG_WIREGUARD) << "WireGuard daemon output:"
-                                        << QString::fromStdString(answerCmd.body);
     }
     return true;
 }

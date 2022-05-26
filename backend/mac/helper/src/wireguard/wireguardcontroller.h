@@ -14,14 +14,16 @@ class WireGuardController
 public:
     WireGuardController();
 
-    void init(const std::string &deviceName, unsigned long daemonCmdId);
-    void reset();
+    bool start(
+        const std::string &exePath,
+        const std::string &deviceName);
+    bool stop();
 
     bool configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList,
         const std::string &dnsScriptName, const std::vector<std::string> &allowedIps);
     const std::string getAdapterName() const;
     bool configureDefaultRouteMonitor(const std::string &peerEndpoint);
-    bool configureDaemon(const std::string &clientPrivateKey, const std::string &peerPublicKey,
+    bool configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
         const std::string &peerPresharedKey, const std::string &peerEndpoint,
         const std::vector<std::string> &allowedIps);
     bool isInitialized() const { return is_initialized_; }

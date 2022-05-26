@@ -10,25 +10,36 @@
 #include <boost/algorithm/string/split.hpp>
 
 WireGuardController::WireGuardController()
-    : comm_(new WireGuardCommunicator), daemonCmdId_(0), is_initialized_(false)
+    : daemonCmdId_(0), is_initialized_(false)
 {
 }
 
-void WireGuardController::init(const std::string &deviceName, unsigned long daemonCmdId)
+bool WireGuardController::start(
+    const std::string &exePath,
+    const std::string &deviceName)
 {
-    daemonCmdId_ = daemonCmdId;
-    comm_->setDeviceName(deviceName);
     adapter_.reset(new WireGuardAdapter(deviceName));
-    is_initialized_ = true;
+    comm_.reset(new WireGuardCommunicator());
+    if (comm_->start(exePath, deviceName))
+    {
+        is_initialized_ = true;
+        return true;
+    }
+    return false;
 }
 
-void WireGuardController::reset()
+bool WireGuardController::stop()
 {
     if (!is_initialized_)
-        return;
+        return false;
+
+    comm_->stop();
+    comm_.reset();
+
     drm_.reset();
     adapter_.reset();
     is_initialized_ = false;
+    return true;
 }
 
 bool WireGuardController::configureAdapter(const std::string &ipAddress,
@@ -64,7 +75,7 @@ bool WireGuardController::configureDefaultRouteMonitor(const std::string &peerEn
     }
 }
 
-bool WireGuardController::configureDaemon(const std::string &clientPrivateKey,
+bool WireGuardController::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
     const std::string &peerEndpoint, const std::vector<std::string> &allowedIps)
 {

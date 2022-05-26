@@ -1,5 +1,6 @@
-#include "wireguardcommunicator.h"
-#include "../../../posix_common/helper_commands.h"
+#include "wireguardgocommunicator.h"
+#include "../../../../posix_common/helper_commands.h"
+#include "execute_cmd.h"
 #include "utils.h"
 #include "logger.h"
 #include <regex>
@@ -29,7 +30,7 @@ stringToValue(const std::string &str)
 }
 }  // namespace
 
-WireGuardCommunicator::Connection::Connection(const std::string &deviceName)
+WireGuardGoCommunicator::Connection::Connection(const std::string &deviceName)
     : status_(Status::NO_ACCESS), socketHandle_(-1), fileHandle_(nullptr)
 {
     struct sockaddr_un addr;
@@ -56,7 +57,7 @@ WireGuardCommunicator::Connection::Connection(const std::string &deviceName)
     status_ = Status::OK;
 }
 
-WireGuardCommunicator::Connection::~Connection()
+WireGuardGoCommunicator::Connection::~Connection()
 {
     if (fileHandle_)
         fclose(fileHandle_);
@@ -64,7 +65,7 @@ WireGuardCommunicator::Connection::~Connection()
         close(socketHandle_);
 }
 
-bool WireGuardCommunicator::Connection::getOutput(ResultMap *results_map) const
+bool WireGuardGoCommunicator::Connection::getOutput(ResultMap *results_map) const
 {
     if (!fileHandle_)
         return false;
@@ -94,7 +95,7 @@ bool WireGuardCommunicator::Connection::getOutput(ResultMap *results_map) const
     return true;
 }
 
-bool WireGuardCommunicator::Connection::connect(struct sockaddr_un *address)
+bool WireGuardGoCommunicator::Connection::connect(struct sockaddr_un *address)
 {
     struct stat sbuf;
     auto ret = stat(address->sun_path, &sbuf);
@@ -133,19 +134,36 @@ bool WireGuardCommunicator::Connection::connect(struct sockaddr_un *address)
     return true;
 }
 
-void WireGuardCommunicator::setDeviceName(const std::string &deviceName)
+bool WireGuardGoCommunicator::start(
+    const std::string &exePath,
+    const std::string &deviceName)
 {
     assert(!deviceName.empty());
     deviceName_ = deviceName;
+    exePath_ = exePath;
+
+    const std::string strFullCmd(exePath + " -f " + deviceName_);
+    ExecuteCmd::instance().execute(("rm -f /var/run/wireguard/" + deviceName_ + ".sock").c_str());
+    daemonCmdId_ = ExecuteCmd::instance().execute(strFullCmd.c_str()); 
+    return true;
 }
 
-bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
+bool WireGuardGoCommunicator::stop()
+{
+    ExecuteCmd::instance().execute(("rm -f /var/run/wireguard/" + deviceName_ + ".sock").c_str());
+    ExecuteCmd::instance().execute(("pkill -f \"" + exePath_ + "\"").c_str());
+    return true;
+}
+
+bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
     const std::string &peerEndpoint, const std::vector<std::string> &allowedIps, uint32_t fwmark)
 {
+    UNUSED(log);
+
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
-        Logger::instance().out("WireGuardCommunicator::configure(): no connection to daemon");
+        Logger::instance().out("WireGuardGoCommunicator::configure(): no connection to daemon");
         return false;
     }
 
@@ -179,9 +197,18 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
     return success;
 }
 
-unsigned long WireGuardCommunicator::getStatus(unsigned int *errorCode,
+unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
     unsigned long long *bytesReceived, unsigned long long *bytesTransmitted)
 {
+    bool is_daemon_dead = true;
+    std::string log;
+    ExecuteCmd::instance().getStatus(daemonCmdId_, is_daemon_dead, log);
+    if (is_daemon_dead) {
+        // Special error code means the daemon is dead.
+        *errorCode = 666u;
+        return WIREGUARD_STATE_ERROR;
+    }
+
     Connection connection(deviceName_);
     const auto connection_status = connection.getStatus();
     if (connection_status != Connection::Status::OK) {

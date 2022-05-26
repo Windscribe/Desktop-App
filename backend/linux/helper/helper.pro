@@ -37,7 +37,9 @@ SOURCES += \
         server.cpp \
         utils.cpp \
         wireguard/wireguardadapter.cpp \
-        wireguard/wireguardcommunicator.cpp \
+        wireguard/userspace/wireguardgocommunicator.cpp \
+        wireguard/kernelmodule/kernelmodulecommunicator.cpp \
+        wireguard/kernelmodule/wireguard.c \
         wireguard/wireguardcontroller.cpp
 
 HEADERS += \
@@ -52,5 +54,8 @@ HEADERS += \
     server.h \
     utils.h \
     wireguard/wireguardadapter.h \
-    wireguard/wireguardcommunicator.h \
+    wireguard/iwireguardcommunicator.h \
+    wireguard/userspace/wireguardgocommunicator.h \
+    wireguard/kernelmodule/kernelmodulecommunicator.h \
+    wireguard/kernelmodule/wireguard.h \
     wireguard/wireguardcontroller.h

@@ -46,15 +46,16 @@ private:
     void setCurrentState(ConnectionState state);
     void setCurrentStateAndEmitSignal(ConnectionState state);
     void setError(ProtoTypes::ConnectError err);
+    bool checkForKernelModule();
 
     IHelper *helper_;
+    bool using_kernel_module_;
     std::unique_ptr<WireGuardConnectionImpl> pimpl_;
     ConnectionState current_state_;
     mutable QMutex current_state_mutex_;
     std::atomic<bool> do_stop_thread_;
     QTimer kill_process_timer_;
     AdapterGatewayInfo adapterGatewayInfo_;
-
 };
 
 #endif // WIREGUARDCONNECTION_H
