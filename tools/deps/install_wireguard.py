@@ -42,7 +42,6 @@ def BuildDependencyGNU(outpath):
   buildenv = os.environ.copy()
   buildenv.update({ "BINDIR" : "wireguard", "DESTDIR" : os.path.dirname(currend_wd) + os.sep })
   # Build and install.
-  iutl.RunCommand(["go", "get", "-u", "golang.org/x/sys"], env=buildenv)
   iutl.RunCommand(["make"], env=buildenv)
   iutl.RunCommand(["make", "install", "-s"], env=buildenv)
   utl.CopyFile("{}/wireguard-go".format(currend_wd), "{}/windscribewireguard".format(outpath))
