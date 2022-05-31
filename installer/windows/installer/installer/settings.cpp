@@ -14,6 +14,7 @@ std::wstring Settings::getPath() const
 {
 	return path_;
 }
+
 void Settings::setCreateShortcut(bool create_shortcut)
 {
 	isCreateShortcut_ = create_shortcut;
@@ -22,6 +23,26 @@ void Settings::setCreateShortcut(bool create_shortcut)
 bool Settings::getCreateShortcut() const
 {
 	return isCreateShortcut_;
+}
+
+void Settings::setInstallDrivers(bool install)
+{
+	isInstallDrivers_ = install;
+}
+
+bool Settings::getInstallDrivers() const
+{
+	return isInstallDrivers_;
+}
+
+void Settings::setAutoStart(bool autostart)
+{
+	isAutoStart_ = autostart;
+}
+
+bool Settings::getAutoStart() const
+{
+	return isAutoStart_;
 }
 
 bool Settings::readFromRegistry()

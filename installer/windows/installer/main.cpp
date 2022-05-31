@@ -97,8 +97,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
             _T("The Windscribe installer accepts the following optional commmand-line parameters:\n\n"
                "-help\n"
                 "Show this information.\n\n"
+                "-no-auto-start\n"
+                "Do not launch the application after installation.\n\n"
+                "-no-drivers\n"
+                "Instructs the installer to skip installing drivers.\n\n"
                 "-silent\n"
-                "Instructs the installer to hide its user interface.\n\n"
+                "Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.\n\n"
                 "-dir \"x:\\dirname\"\n"
                 "Overrides the default installation directory."));
         return 0;
@@ -122,25 +126,35 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     }
 
     bool isSilent = false;
+    bool noDrivers = false;
+    bool noAutoStart = false;
     std::wstring installPath;
 
     if (!isUpdateMode)
     {
-       isSilent = CheckCommandLineArgument(L"-silent");
-       if (isSilent) {
-           expectedArgumentCount += 1;
-       }
+        isSilent = CheckCommandLineArgument(L"-silent");
+        if (isSilent) {
+            expectedArgumentCount += 1;
+        }
+        noDrivers = CheckCommandLineArgument(L"-no-drivers");
+        if (noDrivers) {
+            expectedArgumentCount += 1;
+        }
+        noAutoStart = CheckCommandLineArgument(L"-no-auto-start");
+        if (noAutoStart) {
+            expectedArgumentCount += 1;
+        }
 
-       int install_path_index = 0;
-       if (GetCommandLineArgumentIndex(L"-dir", &install_path_index))
-       {
-           if (install_path_index > 0)
-           {
-               installPath = argList[install_path_index];
-               std::replace(installPath.begin(), installPath.end(), L'/', L'\\');
-               expectedArgumentCount += 2;
-           }
-       }
+        int install_path_index = 0;
+        if (GetCommandLineArgumentIndex(L"-dir", &install_path_index))
+        {
+            if (install_path_index > 0)
+            {
+                installPath = argList[install_path_index];
+                std::replace(installPath.begin(), installPath.end(), L'/', L'\\');
+                expectedArgumentCount += 2;
+            }
+        }
     }
 
     if (argCount != expectedArgumentCount)
@@ -154,7 +168,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     Log::instance().out(L"Installing Windscribe version %ls", ApplicationInfo::instance().getVersion().c_str());
     Log::instance().out(L"Command-line args: %ls", ::GetCommandLine());
 
-    Application app(hInstance, nCmdShow, isUpdateMode, isSilent, installPath);
+    Application app(hInstance, nCmdShow, isUpdateMode, isSilent, noDrivers, noAutoStart, installPath);
     if (app.init(window_center_x, window_center_y))
         return app.exec();
     return -1;

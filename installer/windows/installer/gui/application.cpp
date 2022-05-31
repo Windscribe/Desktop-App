@@ -13,7 +13,8 @@
 
 Application *g_application = NULL;
 
-Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMode, bool isSilent, const std::wstring& installPath) :
+Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMode,
+                         bool isSilent, bool noDrivers, bool noAutoStart, const std::wstring& installPath) :
 	hInstance_(hInstance),
 	nCmdShow_(nCmdShow),
 	isAutoUpdateMode_(isAutoUpdateMode),
@@ -49,6 +50,9 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
         std::wstring defaultInstallPath = std::wstring(programFilesPath) + L"\\" + ApplicationInfo::instance().getName();
         settings_.setPath(defaultInstallPath);
     }
+
+    settings_.setInstallDrivers(!isSilent_ && !noDrivers);
+    settings_.setAutoStart(!isSilent_ && !noAutoStart);
 
 	imageResources_ = new ImageResources();
 	fontResources_ = new FontResources();
