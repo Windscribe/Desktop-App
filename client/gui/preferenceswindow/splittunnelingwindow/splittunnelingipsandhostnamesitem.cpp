@@ -154,6 +154,11 @@ void SplitTunnelingIpsAndHostnamesItem::validateAndCreateNetworkRoute(QString ip
             errorDesc = "Please enter a valid IPv4 address and/or CIDR notation.\n" \
                         "You entered: " + ipOrHostname;
         }
+        else if (IpValidation::instance().isWindscribeReservedIp(ipOrHostname))
+        {
+            errorTitle = "Reserved IP address range";
+            errorDesc = ipOrHostname + "is a reserved IP range and can not be changed.";
+        }
         else
         {
             ProtoTypes::SplitTunnelingNetworkRouteType type = ProtoTypes::SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;

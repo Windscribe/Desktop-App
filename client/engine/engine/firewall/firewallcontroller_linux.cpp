@@ -125,6 +125,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
     Q_UNUSED(ports);
 
     forceUpdateInterfaceToSkip_ = false;
+    bool bExists = firewallActualState();
 
     // rules for IPv4
     {
@@ -137,8 +138,11 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
             stream << ":windscribe_input - [0:0]\n";
             stream << ":windscribe_output - [0:0]\n";
 
-            stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
-            stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
+            if (!bExists)
+            {
+                stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
+                stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
+            }
 
             stream << "-A windscribe_input -i lo -j ACCEPT -m comment --comment " + comment_ + "\n";
             stream << "-A windscribe_output -o lo -j ACCEPT -m comment --comment " + comment_ + "\n";
@@ -165,6 +169,11 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
                 stream << "-A windscribe_input -s 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
                 stream << "-A windscribe_output -d 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
+                stream << "-A windscribe_input -s 169.254.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_output -d 169.254.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
+
+                stream << "-A windscribe_input -s 10.255.255.0/24 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_output -d 10.255.255.0/24 -j DROP -m comment --comment " + comment_ + "\n";
                 stream << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
                 stream << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
 
@@ -218,8 +227,11 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
             stream << ":windscribe_input - [0:0]\n";
             stream << ":windscribe_output - [0:0]\n";
 
-            stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
-            stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
+            if (!bExists)
+            {
+                stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
+                stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
+            }
 
             stream << "-A windscribe_input -j DROP -m comment --comment " + comment_ + "\n";
             stream << "-A windscribe_output -j DROP -m comment --comment " + comment_ + "\n";

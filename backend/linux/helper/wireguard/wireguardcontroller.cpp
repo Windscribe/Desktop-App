@@ -2,6 +2,7 @@
 #include "wireguardadapter.h"
 #include "userspace/wireguardgocommunicator.h"
 #include "kernelmodule/kernelmodulecommunicator.h"
+#include "defaultroutemonitor.h"
 #include "../../../posix_common/helper_commands.h"
 #include "execute_cmd.h"
 #include "utils.h"
@@ -50,6 +51,7 @@ bool WireGuardController::stop()
 
     adapter_->disableRouting();
     adapter_.reset();
+    drm_.reset();
     is_initialized_ = false;
 
     return true;
@@ -105,6 +107,15 @@ std::string WireGuardController::getAdapterName() const
     if (!is_initialized_ || !adapter_.get())
         return "";
     return adapter_->getName();
+}
+
+bool WireGuardController::configureDefaultRouteMonitor(const std::string &peerEndpoint)
+{
+    if (!is_initialized_ || !adapter_.get())
+        return false;
+    if (!drm_)
+        drm_.reset(new DefaultRouteMonitor(adapter_->getName()));
+    return drm_->start(peerEndpoint);
 }
 
 // static

@@ -42,9 +42,8 @@ bool WireGuardController::stop()
     return true;
 }
 
-bool WireGuardController::configureAdapter(const std::string &ipAddress,
-    const std::string &dnsAddressList, const std::string &dnsScriptName,
-    const std::vector<std::string> &allowedIps)
+bool WireGuardController::configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList,
+    const std::string &dnsScriptName, const std::vector<std::string> &allowedIps)
 {
     if (!is_initialized_ || !adapter_.get())
         return false;
@@ -64,15 +63,9 @@ bool WireGuardController::configureDefaultRouteMonitor(const std::string &peerEn
 {
     if (!is_initialized_ || !adapter_.get())
         return false;
-    if (!adapter_->hasDefaultRoute()) {
-        if (drm_)
-            drm_->stop();
-        return true;
-    } else {
-        if (!drm_)
-            drm_.reset(new DefaultRouteMonitor(adapter_->getName()));
-        return drm_->start(peerEndpoint);
-    }
+    if (!drm_)
+        drm_.reset(new DefaultRouteMonitor(adapter_->getName()));
+    return drm_->start(peerEndpoint);
 }
 
 bool WireGuardController::configure(const std::string &clientPrivateKey,

@@ -40,6 +40,7 @@ public:
         const std::vector<std::string> &allowedIps,
         uint32_t fwmark);
     std::string getAdapterName() const;
+    bool configureDefaultRouteMonitor(const std::string &peerEndpoint);
 
     bool isInitialized() const { return is_initialized_; }
 
@@ -49,6 +50,7 @@ public:
 
 private:
     std::unique_ptr<WireGuardAdapter> adapter_;
+    std::unique_ptr<DefaultRouteMonitor> drm_;
     std::shared_ptr<IWireGuardCommunicator> comm_;
     bool is_initialized_;
 };

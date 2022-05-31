@@ -56,11 +56,13 @@ case "$script_type" in
 		fi
 	done
 	R=""
+	servers=()
 	[ "$SRCHS" ] && R="search $SRCHS
 "
 	for NS in $NMSRVRS ; do
         	R="${R}nameserver $NS
 "
+		servers+=(${NS})
 	done
 
 	if [[ -z "${is_wireguard}" ]]; then
@@ -69,7 +71,7 @@ case "$script_type" in
 		echo -n "$R" | /sbin/resolvconf -a "$(resolvconf_iface_prefix)${dev}" -m 0 -x
 	fi
 
-  "$DNS_LEAK_SCRIPT" "up" ${dev}
+  "$DNS_LEAK_SCRIPT" "up" ${dev} ${servers[@]}
 
 	;;
   down)

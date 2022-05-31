@@ -19,6 +19,7 @@ public:
     bool isIpCidrOrDomain(const QString &str);
     bool isValidIpForCidr(const QString &str);
     bool isLocalIp(const QString &str);
+    bool isWindscribeReservedIp(const QString &str);
 
     QString getRemoteIdFromDomain(const QString &str);
 

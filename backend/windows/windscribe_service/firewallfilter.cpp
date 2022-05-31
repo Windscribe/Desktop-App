@@ -385,7 +385,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
                 Logger::instance().out(L"Error 24 (0x%X)", dwFwAPiRetCode);
             }
         }
-        // 10.0.0.0 - 10.255.255.255
+        // 169.254.0.0 - 169.254.255.255
         {
             FWPM_FILTER0 filter = {0};
             std::vector<FWPM_FILTER_CONDITION0> condition(1);
@@ -407,9 +407,43 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
             condition[0].conditionValue.v4AddrMask = &addrMask;
 
-			Ip4AddressAndMask ipAddress(L"10.0.0.0/8");
-			addrMask.addr = ipAddress.ipHostOrder();
-			addrMask.mask = ipAddress.maskHostOrder();
+            Ip4AddressAndMask ipAddress(L"169.254.0.0/16");
+            addrMask.addr = ipAddress.ipHostOrder();
+            addrMask.mask = ipAddress.maskHostOrder();
+
+            UINT64 filterId;
+            dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
+            if (dwFwAPiRetCode != ERROR_SUCCESS)
+            {
+                Logger::instance().out(L"Error 32 (0x%X)", dwFwAPiRetCode);
+            }
+        }
+        // 10.0.0.0 - 10.254.255.255
+        {
+            FWPM_FILTER0 filter = {0};
+            std::vector<FWPM_FILTER_CONDITION0> condition(1);
+            memset(&condition[0], 0, sizeof(FWPM_FILTER_CONDITION0));
+
+            filter.subLayerKey = subLayerGUID_;
+            filter.displayData.name = (wchar_t *)FIREWALL_SUBLAYER_NAMEW;
+            filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
+			filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
+            filter.action.type = FWP_ACTION_PERMIT;
+            filter.weight.type = FWP_UINT8;
+            filter.weight.uint8 = 0x04;
+            filter.filterCondition = &condition[0];
+            filter.numFilterConditions = 1;
+
+            FWP_RANGE0 range;
+            range.valueLow.type = FWP_UINT32;
+            range.valueHigh.type = FWP_UINT32;
+            range.valueLow.uint32 = 167772160;     // 10.0.0.0
+            range.valueHigh.uint32 = 184483839;    // 10.254.255.255
+
+            condition[0].fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+            condition[0].matchType = FWP_MATCH_RANGE;
+            condition[0].conditionValue.type = FWP_RANGE_TYPE;
+            condition[0].conditionValue.rangeValue = &range;
 
             UINT64 filterId;
             dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
