@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs Google Protobuf.
 import os
@@ -59,13 +59,12 @@ def BuildDependencyMSVC(zlib_root, outpath):
 
 
 def BuildDependencyGNU(outpath):
-  # Create an environment with CC flags.
   buildenv = os.environ.copy()
-  if utl.GetCurrentOS() == "macos":
-    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
   # Configure.
   iutl.RunCommand("./autogen.sh", env=buildenv)
   configure_cmd = ["./configure"]
+  if utl.GetCurrentOS() == "macos":
+    configure_cmd.append("CXXFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.13 -std=c++11")
   configure_cmd.append("--prefix={}".format(outpath))
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.
@@ -105,6 +104,8 @@ def InstallDependency():
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+  # Clean the output folder to ensure no conflicts when we're updating to a newer protobuf version.
+  utl.RemoveDirectory(outpath)
   with utl.PushDir(os.path.join(temp_dir, archivetitle)):
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
     if utl.GetCurrentOS() == "win32":

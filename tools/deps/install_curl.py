@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs CUrl library.
 import os
@@ -42,7 +42,7 @@ def BuildDependencyGNU(openssl_root, outpath):
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
   if utl.GetCurrentOS() == "macos":
-    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
+    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.13 -arch x86_64 -arch arm64"})
   # Configure.
   configure_cmd = ["./configure"]
   configure_cmd.append("--prefix={}".format(outpath))
@@ -86,6 +86,8 @@ def InstallDependency():
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+  # Clean the output folder to ensure no conflicts when we're updating to a newer curl version.
+  utl.RemoveDirectory(outpath)
   with utl.PushDir(os.path.join(temp_dir, archivetitle)):
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
     if utl.GetCurrentOS() == "win32":

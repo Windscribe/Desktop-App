@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs OpenSSL library.
 import os
@@ -45,10 +45,20 @@ def BuildDependencyMSVC(outpath):
   utl.CopyFile("{}/lib/libssl.lib".format(outpath), "{}/lib/ssleay32.lib".format(outpath))
 
 
-def BuildDependencyGNU(outpath, compiler_params):
-  # Create an environment with CC flags.
+def BuildDependencyMacOS(outpath, build_arch, install_dep):
   buildenv = os.environ.copy()
-  buildenv.update({ "CC" : "cc {}".format(compiler_params) })
+  buildenv.update({ "CC" : "cc -mmacosx-version-min=10.13"})
+  configure_cmd = ["./Configure", "darwin64-{}-cc".format(build_arch), "shared", "no-asm", "no-unit-test", "no-tests"]
+  configure_cmd.append("--prefix={}".format(outpath))
+  configure_cmd.append("--openssldir=/usr/local/ssl")
+  iutl.RunCommand(configure_cmd, env=buildenv)
+  iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
+  if install_dep:
+    iutl.RunCommand(["make", "install_dev", "-s"], env=buildenv)
+
+
+def BuildDependencyLinux(outpath):
+  buildenv = os.environ.copy()
   # Configure.
   is_testing_ok = "-test" in sys.argv
   configure_cmd = ["./config", "--shared", "no-asm"]
@@ -66,6 +76,7 @@ def BuildDependencyGNU(outpath, compiler_params):
 
 def InstallDependency():
   # Load environment.
+  c_ismac = utl.GetCurrentOS() == "macos"
   msg.HeadPrint("Loading: \"{}\"".format(CONFIG_NAME))
   configdata = utl.LoadConfig(os.path.join(TOOLS_DIR, CONFIG_NAME))
   if not configdata:
@@ -86,18 +97,38 @@ def InstallDependency():
   iutl.DownloadFile("{}{}".format(DEP_URL, archivename), localfilename)
   msg.HeadPrint("Extracting: \"{}\"".format(archivename))
   iutl.ExtractFile(localfilename)
+  if c_ismac:
+    # Need to configure and build openssl for each target architecture in its own folder.
+    with utl.PushDir(temp_dir):
+      iutl.RunCommand(["mv", archivetitle, archivetitle + "-arm64"])
+      iutl.RunCommand(["cp", "-r", archivetitle + "-arm64", archivetitle + "-x86_64"])
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
-  with utl.PushDir(os.path.join(temp_dir, archivetitle)):
-    msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-    if utl.GetCurrentOS() == "win32":
-      BuildDependencyMSVC(outpath)
-    elif utl.GetCurrentOS() == "macos":
-      BuildDependencyGNU(outpath,"-mmacosx-version-min=10.11")
-    else:
-      BuildDependencyGNU(outpath, "")
+  # Clean the output folder to ensure no conflicts when we're updating to a newer openssl version.
+  utl.RemoveDirectory(outpath)
+  if c_ismac:
+    msg.Info("Building: {} for architecture arm64".format(archivetitle))
+    openssl_src_dir_arm = os.path.join(temp_dir, archivetitle + "-arm64")
+    with utl.PushDir(openssl_src_dir_arm):
+      BuildDependencyMacOS(outpath, "arm64", False)
+    msg.Info("Building: {} for architecture x86_64".format(archivetitle))
+    openssl_src_dir_intel = os.path.join(temp_dir, archivetitle + "-x86_64")
+    with utl.PushDir(openssl_src_dir_intel):
+      BuildDependencyMacOS(outpath, "x86_64", True)
+    with utl.PushDir(temp_dir):
+      iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libcrypto.a", archivetitle + "-x86_64/libcrypto.a", "-output", outpath + "/lib/libcrypto.a"])
+      iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libssl.a", archivetitle + "-x86_64/libssl.a", "-output", outpath + "/lib/libssl.a"])
+      iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libcrypto.1.1.dylib", archivetitle + "-x86_64/libcrypto.1.1.dylib", "-output", outpath + "/lib/libcrypto.1.1.dylib"])
+      iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libssl.1.1.dylib", archivetitle + "-x86_64/libssl.1.1.dylib", "-output", outpath + "/lib/libssl.1.1.dylib"])
+  else:
+    with utl.PushDir(os.path.join(temp_dir, archivetitle)):
+      msg.Info("Building: \"{}\"".format(archivetitle))
+      if utl.GetCurrentOS() == "win32":
+        BuildDependencyMSVC(outpath)
+      else:
+        BuildDependencyLinux(outpath)
   # Copy the dependency to output directory and to a zip file, if needed.
   aflist = [outpath]
   if "-zip" in sys.argv:
