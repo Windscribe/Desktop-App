@@ -47,7 +47,7 @@ def BuildDependencyMSVC(outpath):
 
 def BuildDependencyMacOS(outpath, build_arch, install_dep):
   buildenv = os.environ.copy()
-  buildenv.update({ "CC" : "cc -mmacosx-version-min=10.13"})
+  buildenv.update({ "CC" : "cc -mmacosx-version-min=10.14"})
   configure_cmd = ["./Configure", "darwin64-{}-cc".format(build_arch), "shared", "no-asm", "no-unit-test", "no-tests"]
   configure_cmd.append("--prefix={}".format(outpath))
   configure_cmd.append("--openssldir=/usr/local/ssl")

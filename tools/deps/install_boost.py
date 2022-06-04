@@ -53,9 +53,9 @@ def BuildDependencyMacOS(installpath, build_arch, install_dep):
   iutl.RunCommand(["sh", "bootstrap.sh", "--prefix={}".format(installpath), "--with-toolset=clang",
     "cxxflags=\"-arch {}\"".format(build_arch), "cflags=\"-arch {}\"".format(build_arch), "linkflags=\"-arch {}\"".format(build_arch)])
   b2cmd = ["./b2", "-q", "link=static", "toolset=clang-darwin", "target-os=darwin", "architecture=" + arch_type,
-    "cflags=-mmacosx-version-min=10.13 -arch {}".format(build_arch), "cxxflags=-mmacosx-version-min=10.13 -arch {}".format(build_arch),
-    "mflags=-mmacosx-version-min=10.13 -arch {}".format(build_arch), "mmflags=-mmacosx-version-min=10.13 -arch {}".format(build_arch),
-    "linkflags=-mmacosx-version-min=10.13 -arch {}".format(build_arch)]
+    "cflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch), "cxxflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch),
+    "mflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch), "mmflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch),
+    "linkflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch)]
   b2_install_cmd = ["./b2" , "install"]
   if BOOST_WITH_MODULES:
     module_args = ["--with-" + m for m in BOOST_WITH_MODULES]

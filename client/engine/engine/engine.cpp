@@ -73,7 +73,6 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     bInitialized_(false),
     loginController_(nullptr),
     loginState_(LOGIN_NONE),
-    loginSettingsMutex_(QMutex::Recursive),
     updateServerResourcesTimer_(nullptr),
     updateSessionStatusTimer_(nullptr),
     notificationsUpdateTimer_(nullptr),
@@ -1120,7 +1119,7 @@ void Engine::sendDebugLogImpl()
 
     /*
     // For testing merge log functionality
-    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     path += "/merged_logs.txt";
     QFile file(path);
     if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))

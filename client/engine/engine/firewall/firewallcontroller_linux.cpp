@@ -6,12 +6,12 @@
 #include "engine/helper/ihelper.h"
 
 FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
-    FirewallController(parent), forceUpdateInterfaceToSkip_(false), mutex_(QMutex::Recursive),
+    FirewallController(parent), forceUpdateInterfaceToSkip_(false),
     comment_("\"Windscribe client rule\"")
 {
     helper_ = dynamic_cast<Helper_linux *>(helper);
 
-    pathToTempTable_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    pathToTempTable_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     QDir dir(pathToTempTable_);
     dir.mkpath(pathToTempTable_);
     pathToTempTable_ += "/windscribe_table.txt";

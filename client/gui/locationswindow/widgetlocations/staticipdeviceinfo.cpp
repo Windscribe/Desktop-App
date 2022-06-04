@@ -79,7 +79,7 @@ void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
                   &painter);
 }
 
-void StaticIPDeviceInfo::enterEvent(QEvent *event)
+void StaticIPDeviceInfo::enterEvent(QEnterEvent *event)
 {
     Q_UNUSED(event);
     setCursor(Qt::PointingHandCursor);

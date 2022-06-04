@@ -31,7 +31,7 @@ private:
     DISCONNECT_REASON disconnectReason_;
     ProtoTypes::ConnectError err_;
     LocationID location_;
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
 };
 
 #endif // CONNECTSTATECONTROLLER_H

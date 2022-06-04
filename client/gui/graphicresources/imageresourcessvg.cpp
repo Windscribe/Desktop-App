@@ -10,7 +10,7 @@
 #include "dpiscalemanager.h"
 #include "utils/widgetutils.h"
 
-ImageResourcesSvg::ImageResourcesSvg() : QThread(nullptr), bNeedFinish_(false), bFininishedGracefully_(false), mutex_(QMutex::Recursive)
+ImageResourcesSvg::ImageResourcesSvg() : QThread(nullptr), bNeedFinish_(false), bFininishedGracefully_(false)
 {
 }
 

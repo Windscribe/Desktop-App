@@ -45,7 +45,7 @@ def BuildDependencyGNU(outpath):
   # Configure.
   configure_cmd = ["./configure"]
   if utl.GetCurrentOS() == "macos":
-    configure_cmd.append("CFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.13")
+    configure_cmd.append("CFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.14")
   configure_cmd.append("--prefix={}".format(outpath))
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.

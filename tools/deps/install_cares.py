@@ -55,10 +55,10 @@ def BuildDependencyGNU(outpath):
   global DEP_FILE_MASK
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
-  if utl.GetCurrentOS() == "macos":
-    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.13 -arch x86_64 -arch arm64"})
   # Configure.
   configure_cmd = ["./configure"]
+  if utl.GetCurrentOS() == "macos":
+    configure_cmd.append("CFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.14")
   configure_cmd.append("--prefix={}".format(outpath))
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.

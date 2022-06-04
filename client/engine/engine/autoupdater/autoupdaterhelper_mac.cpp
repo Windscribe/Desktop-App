@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <QProcess>
 #include <QCoreApplication>
+#include <QRegularExpression>
 #include "utils/logger.h"
 #include "names.h"
 #include "utils/utils.h"
@@ -155,11 +156,12 @@ const QString AutoUpdaterHelper_mac::mountDmg(const QString &dmgFilename)
 
     // parse output for volume mount point
     const QString mountingOutput = mountProcess.readAll();
-    const QList<QString> lines = mountingOutput.split("\n", QString::SkipEmptyParts);
+    const QList<QString> lines = mountingOutput.split("\n", Qt::SkipEmptyParts);
     if (lines.length() > 0)
     {
         const QString lastLine = lines[lines.length()-1];
-        QStringList entries = lastLine.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        QRegularExpression regExp("\\s+");
+        QStringList entries = lastLine.split(regExp, Qt::SkipEmptyParts);
 
         if (entries.length() > 2)
         {

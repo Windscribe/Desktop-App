@@ -64,7 +64,7 @@ def BuildDependencyGNU(outpath):
   iutl.RunCommand("./autogen.sh", env=buildenv)
   configure_cmd = ["./configure"]
   if utl.GetCurrentOS() == "macos":
-    configure_cmd.append("CXXFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.13 -std=c++11")
+    configure_cmd.append("CXXFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.14 -std=c++11")
   configure_cmd.append("--prefix={}".format(outpath))
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.

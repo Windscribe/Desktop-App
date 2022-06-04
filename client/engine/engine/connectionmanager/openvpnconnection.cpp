@@ -1,3 +1,5 @@
+#include <QStringRef>
+
 #include "openvpnconnection.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"

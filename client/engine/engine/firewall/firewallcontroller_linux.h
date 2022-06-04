@@ -26,7 +26,7 @@ private:
     Helper_linux *helper_;
     QString interfaceToSkip_;
     bool forceUpdateInterfaceToSkip_;
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
     QString pathToTempTable_;
     QString comment_;
 

@@ -21,7 +21,7 @@ signals:
     void hoverEnter();
 
 protected:
-    virtual void enterEvent(QEvent *e);
+    virtual void enterEvent(QEnterEvent *e);
 
 private:
     int widthUnscaled_;

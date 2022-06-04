@@ -125,7 +125,7 @@ void PacketSizeEditBoxItem::setText(const QString &text)
     update();
 }
 
-void PacketSizeEditBoxItem::setValidator(QRegExpValidator *validator)
+void PacketSizeEditBoxItem::setValidator(QRegularExpressionValidator *validator)
 {
     lineEdit_->setValidator(validator);
 }

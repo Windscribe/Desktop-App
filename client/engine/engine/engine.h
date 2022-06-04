@@ -352,7 +352,7 @@ private:
     FirewallExceptions firewallExceptions_;
 
     LoginSettings loginSettings_;
-    QMutex loginSettingsMutex_;
+    QRecursiveMutex loginSettingsMutex_;
 
     QTimer *updateServerResourcesTimer_;
     SessionStatusTimer *updateSessionStatusTimer_;

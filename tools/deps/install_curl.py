@@ -42,7 +42,7 @@ def BuildDependencyGNU(openssl_root, outpath):
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
   if utl.GetCurrentOS() == "macos":
-    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.13 -arch x86_64 -arch arm64"})
+    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.14 -arch x86_64 -arch arm64"})
   # Configure.
   configure_cmd = ["./configure"]
   configure_cmd.append("--prefix={}".format(outpath))

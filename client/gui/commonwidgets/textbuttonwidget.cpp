@@ -60,7 +60,7 @@ void TextButtonWidget::paintEvent(QPaintEvent *event)
     }
 }
 
-void TextButtonWidget::enterEvent(QEvent *event)
+void TextButtonWidget::enterEvent(QEnterEvent *event)
 {
     Q_UNUSED(event);
     startAnAnimation(opacityAnimation_, curOpacity_, hoverOpacity_, ANIMATION_SPEED_FAST);
