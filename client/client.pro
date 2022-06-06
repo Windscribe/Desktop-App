@@ -119,6 +119,11 @@ QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.14
 ICON = windscribe.icns
 QMAKE_INFO_PLIST = info.plist
 
+# Save compile time in debug builds.  Only create a universal binary in release builds.
+CONFIG(release, debug|release){
+    QMAKE_APPLE_DEVICE_ARCHS = arm64 x86_64
+}
+
 #postbuild copy commands
 make_login_items.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems
 copy_launcher.commands = $(COPY_DIR) $$PWD/../installer/mac/binaries/launcher/WindscribeLauncher.app $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems

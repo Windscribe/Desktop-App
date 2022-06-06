@@ -1,4 +1,4 @@
-QT += core network
+QT += core network core5compat
 
 CONFIG += console
 CONFIG -= app_bundle
@@ -55,7 +55,12 @@ win32{
 }
 
 macx {
-    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.14
+
+    # Save compile time in debug builds.  Only create a universal binary in release builds.
+    CONFIG(release, debug|release){
+        QMAKE_APPLE_DEVICE_ARCHS = arm64 x86_64
+    }
 
     #remove unused parameter warnings
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter

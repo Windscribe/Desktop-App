@@ -143,6 +143,7 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
     qCDebug(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
+    qCDebug(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
 
 
 #ifdef Q_OS_WIN

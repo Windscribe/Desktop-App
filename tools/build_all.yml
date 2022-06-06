@@ -110,6 +110,8 @@ helper:
   xcflags:
     - OTHER_CODE_SIGN_FLAGS=--timestamp
     - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+    - "-destination"
+    - generic/platform=macOS
 
 helper_linux:
   name:     Helper
@@ -124,6 +126,9 @@ launcher_mac:
   target:   WindscribeLauncher.app
   scheme:   WindscribeLauncher
   outdir:   launcher
+  xcflags:
+    - "-destination"
+    - generic/platform=macOS
 
 installer_mac:
   name:     Installer
@@ -319,7 +324,7 @@ macdeployfixes:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
       Contents/MacOS/windscribe-cli:
         protobuf:
-          - lib/libprotobuf.28.dylib -> ../Frameworks/libprotobuf.28.dylib
+          - lib/libprotobuf.32.dylib -> ../Frameworks/libprotobuf.32.dylib
     entitlements:
       entitlements_binary: Contents/MacOS/Windscribe
       entitlements_file: client/engine/mac/windscribe_engine.entitlements
