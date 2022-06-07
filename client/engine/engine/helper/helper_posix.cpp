@@ -617,7 +617,7 @@ IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &commandLine, c
 
 bool Helper_posix::executeTaskKill(const QString &executableName)
 {
-    QString killCmd = "pkill " + executableName;
+    QString killCmd = "pkill -f " + executableName;
     executeRootCommand(killCmd);
     return true;
 }

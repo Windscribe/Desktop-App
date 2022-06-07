@@ -6,7 +6,7 @@ stages:
   - Build Tests
   - Run Tests
   - Build
-  - Artifact Upload
+  - Artifact Links
 
 # Set variables inherited by all jobs
 variables:
@@ -76,7 +76,9 @@ include:
     - apt -y install ruby-dev rpm && gem i fpm -f
     - apt -y install libpam0g-dev
     - apt -y install software-properties-common && apt -y update
-    - add-apt-repository ppa:longsleep/golang-backports -y && apt -y update && apt -y install golang-go
+    - apt -y install wget
+    - wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
+    - rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
     - apt -y install autoconf
     - apt -y install libtool
     - apt -y install cmake
@@ -381,3 +383,13 @@ build:linux:installer:
     - !reference [.upload_rpm_to_nexus_latest_linux, script ]
   rules:
     - if: $BUILD_LINUX == "y"
+
+build:artifact:links:
+  tags: [win10]
+  stage: Artifact Links
+  script:
+    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_amd64.deb
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_x86_64.rpm
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe

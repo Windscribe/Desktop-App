@@ -21,6 +21,7 @@ protected:
 
     std::wstring installPath_;
     std::list<IInstallBlock *> blocks_;
+    int totalWork_;
 
 public:
     Installer(const std::function<void(unsigned int, INSTALLER_CURRENT_STATE)> &callbackState);

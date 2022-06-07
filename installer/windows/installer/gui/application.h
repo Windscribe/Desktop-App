@@ -10,7 +10,8 @@
 class Application
 {
 public:
-	Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMode, bool isSilent, const std::wstring& installPath);
+	Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMode,
+	            bool isSilent, bool noDrivers, bool noAutoStart, const std::wstring& installPath);
 	virtual ~Application();
 
 	bool init(int windowCenterX, int windowCenterY);
