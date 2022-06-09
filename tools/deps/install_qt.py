@@ -30,12 +30,12 @@ QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtc
   "qtremoteobjects", "qtscript", "qtscxml", "qtserialbus", "qtserialport", "qtspeech",
   "qtvirtualkeyboard", "qtwayland", "qtwebchannel", "qtwebengine", "qtwebglplugin", "qtwebsockets",
   "qtwebview", "qtlottie", "qtmqtt", "qtopcua", "qtquicktimeline", "qtquick3d", "qtcoap", "qtpositioning",
-  "qtsensors"]
+  "qtsensors", "qtopengl"]
 
 QT_SOURCE_CHANGES_JSON_PATH = "deps/custom_qt/source_changes.json"
 
+# This was required for Qt 5.12.x.  No longer required for Qt 6.
 def ReplaceSourceCode(qt_source_dir):
-  
   f = open(os.path.join(TOOLS_DIR, os.path.relpath(QT_SOURCE_CHANGES_JSON_PATH)), 'r')
   source_changes = json.load(f)
   for change in source_changes:
@@ -78,16 +78,14 @@ def BuildDependencyGNU(installpath, openssl_root, outpath):
   # Create an environment.
   buildenv = os.environ.copy()
   buildenv.update({ "OPENSSL_ROOT_DIR" : "{}".format(openssl_root) })
-  # OPENSSL_ROOT_DIR
+  if c_ismac:
+    buildenv.update({ "CMAKE_OSX_ARCHITECTURES" : "x86_64;arm64" })
   # Configure.
   configure_cmd = \
     ["./configure", "-opensource", "-confirm-license", "-release", "-nomake", "examples"]
   configure_cmd.append("-openssl-linked")
   configure_cmd.extend(["-prefix", installpath])
-  if c_ismac:
-    configure_cmd.append("-- -DCMAKE_OSX_ARCHITECTURES=\"x86_64;arm64\"")
-  else:
-    configure_cmd.append("-no-opengl")
+  if not c_ismac:
     configure_cmd.append("-qt-libpng")
   if QT_SKIP_MODULES:
     configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
