@@ -36,7 +36,7 @@ def BuildDependencyMSVC(installpath):
   # Configure.
   iutl.RunCommand(["bootstrap.bat"], env=buildenv, shell=True)
   # Build and install.  Use tagged layout to get installpath folder structure similar to MacOS/Linux.
-  b2cmd = [".\\b2", "install", "-q", "link=static", "--build-type=complete", "--abbreviate-paths", "--layout=tagged"]
+  b2cmd = [".\\b2", "install", "-q", "link=static", "--build-type=complete", "--abbreviate-paths", "--layout=tagged", "address-model=64"]
   b2cmd.append("--prefix={}".format(installpath))
   if BOOST_WITH_MODULES:
     b2cmd.extend(["--with-" + m for m in BOOST_WITH_MODULES])

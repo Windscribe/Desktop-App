@@ -31,8 +31,7 @@ def BuildDependencyMSVC(openssl_root, zlib_root):
   buildenv.update(iutl.GetVisualStudioEnvironment())
   # Build and install.
   os.chdir("winbuild")
-  build_cmd = ["nmake", "/F", "Makefile.vc", "mode=dll", "MACHINE=x86", "WITH_SSL=dll",
-               "WITH_ZLIB=dll"]
+  build_cmd = ["nmake", "/F", "Makefile.vc", "mode=dll", "MACHINE=x64", "WITH_SSL=dll", "WITH_ZLIB=dll"]
   build_cmd.append("SSL_PATH={}".format(openssl_root))
   build_cmd.append("ZLIB_PATH={}".format(zlib_root))
   iutl.RunCommand(build_cmd, env=buildenv, shell=True)
@@ -104,7 +103,7 @@ def InstallDependency():
   artifacts_dir = outpath
   install_dir = None
   if utl.GetCurrentOS() == "win32":
-    artifacts_dir = os.path.join(temp_dir, archivetitle, "builds", "libcurl-vc-x86-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
+    artifacts_dir = os.path.join(temp_dir, archivetitle, "builds", "libcurl-vc-x64-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
     install_dir = outpath
   aflist = iutl.InstallArtifacts(artifacts_dir, DEP_FILE_MASK, install_dir, installzipname)
   for af in aflist:

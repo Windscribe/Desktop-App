@@ -31,7 +31,7 @@ def BuildDependencyMSVC(outpath):
   buildenv.update(iutl.GetVisualStudioEnvironment())
   # Configure.
   is_testing_ok = "-test" in sys.argv
-  configure_cmd = ["perl.exe", "Configure", "VC-WIN32", "no-asm", "-FS"]
+  configure_cmd = ["perl.exe", "Configure", "VC-WIN64A", "no-asm", "-FS"]
   if not is_testing_ok:
     configure_cmd.extend(["no-unit-test", "no-tests"])
   configure_cmd.append("--prefix={}".format(outpath))

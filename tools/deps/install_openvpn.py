@@ -36,7 +36,7 @@ def BuildDependencyMSVC(openssl_root, lzo_root, outpath):
   # Build and install.
   iutl.RunCommand("msvc-build.bat", env=buildenv, shell=True)
   currend_wd = os.getcwd()
-  utl.CopyFile("{}/Win32-Output/Release/openvpn.exe".format(currend_wd),
+  utl.CopyFile("{}/x64-Output/Release/openvpn.exe".format(currend_wd),
                "{}/openvpn.exe".format(outpath))
 
 

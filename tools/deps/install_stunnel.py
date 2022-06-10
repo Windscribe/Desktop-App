@@ -37,7 +37,7 @@ def BuildDependencyMSVC(openssl_root, outpath):
   build_cmd = iutl.GetMakeBuildCommand()
   build_cmd.extend(["/F", "vc.mak"])
   iutl.RunCommand(build_cmd, env=buildenv, shell=True)
-  utl.CopyFile("{}/bin/win32/tstunnel.exe".format(currend_wd),
+  utl.CopyFile("{}/bin/win64/tstunnel.exe".format(currend_wd),
                "{}/tstunnel.exe".format(outpath))
 
 

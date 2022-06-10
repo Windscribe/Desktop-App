@@ -24,9 +24,7 @@ DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = []  # filled out later.
 
 CARES_CONFIGS = {
-  "dll_x32" : ["x86", "dll"],
   "dll_x64" : ["x86_amd64", "dll"],
-  "static_x32" : ["x86", "lib"],
   "static_x64" : ["x86_amd64", "lib"],
 }
 
@@ -38,12 +36,14 @@ def BuildDependencyMSVC(outpath):
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
     buildenv.update({ "MAKEFLAGS" : "S" })
+    buildenv.update({ "RTLIBCFG" : "dynamic" })
     buildenv.update({ "INSTALL_DIR" : "{}/{}".format(outpath, prefix) })
     buildenv.update(iutl.GetVisualStudioEnvironment(params[0]))
     buildenv.update({ "CL" : "/D_WINSOCK_DEPRECATED_NO_WARNINGS" })
     # Build and install.
-    for buildcfg in ["debug", "release"]:
-      iutl.RunCommand(["nmake", "/NOLOGO", "/F", "Makefile.msvc", 
+    #for buildcfg in ["debug", "release"]:
+    for buildcfg in ["release"]:
+      iutl.RunCommand(["nmake", "/NOLOGO", "/F", "Makefile.msvc",
                        "CFG={}-{}".format(params[1], buildcfg), "c-ares"], env=buildenv, shell=True)
       iutl.RunCommand(["nmake", "/F", "Makefile.msvc", "CFG={}-{}".format(params[1], buildcfg),
                        "install"], env=buildenv, shell=True)

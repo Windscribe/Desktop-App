@@ -31,7 +31,7 @@ def BuildDependencyMSVC(outpath):
   buildenv.update(iutl.GetVisualStudioEnvironment())
   buildenv.update({ "BECHO" : "n" })
   # Build.
-  iutl.RunCommand("B\\win32\\vc.bat", env=buildenv, shell=True)
+  iutl.RunCommand("B\\win64\\vc.bat", env=buildenv, shell=True)
   currend_wd = os.getcwd()
   utl.CreateDirectory("{}/include".format(outpath), True)
   utl.CopyAllFiles("{}/include".format(currend_wd), "{}/include".format(outpath))
