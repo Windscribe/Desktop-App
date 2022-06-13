@@ -56,8 +56,8 @@ win32 {
     INCLUDEPATH += "$$BUILD_LIBS_PATH/curl/include"
     LIBS += -L"$$BUILD_LIBS_PATH/curl/lib" -llibcurl
 
-    INCLUDEPATH += "$$BUILD_LIBS_PATH/cares/dll_x32/include"
-    LIBS += -L"$$BUILD_LIBS_PATH/cares/dll_x32/lib" -lcares
+    INCLUDEPATH += "$$BUILD_LIBS_PATH/cares/dll_x64/include"
+    LIBS += -L"$$BUILD_LIBS_PATH/cares/dll_x64/lib" -lcares
 
     INCLUDEPATH += "$$BUILD_LIBS_PATH/openssl/include"
     LIBS += -L"$$BUILD_LIBS_PATH/openssl/lib" -llibeay32 -lssleay32
@@ -65,8 +65,10 @@ win32 {
 
     RC_FILE = client.rc
 
-    # Supress protobuf linker warnings
+    # Suppress protobuf linker warnings
     QMAKE_LFLAGS += /IGNORE:4099
+
+    QMAKE_CXXFLAGS += /wd"4267"
 
     QMAKE_CXXFLAGS_RELEASE -= -Zc:strictStrings
     QMAKE_CFLAGS_RELEASE -= -Zc:strictStrings

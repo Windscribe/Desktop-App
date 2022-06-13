@@ -850,7 +850,7 @@ void Backend::sendUpdateWindowInfo(qint32 mainWindowCenterX, qint32 mainWindowCe
     engineServer_->sendCommand(&cmd);
 }
 
-void Backend::sendUpdateVersion(qint32 mainWindowHandle)
+void Backend::sendUpdateVersion(qint64 mainWindowHandle)
 {
     IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> cmd;
     cmd.getProtoObj().set_hwnd(mainWindowHandle);

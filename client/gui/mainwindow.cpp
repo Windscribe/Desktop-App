@@ -1313,7 +1313,7 @@ void MainWindow::onUpdateWindowAccept()
     mainWindowController_->getUpdateWindow()->setProgress(0);
     mainWindowController_->getUpdateWindow()->startAnimation();
     mainWindowController_->getUpdateWindow()->changeToDownloadingScreen();
-    backend_->sendUpdateVersion(static_cast<qint32>(this->winId()));
+    backend_->sendUpdateVersion(static_cast<qint64>(this->winId()));
 }
 
 void MainWindow::onUpdateWindowCancel()

@@ -538,9 +538,9 @@ void Engine::updateWindowInfo(qint32 windowCenterX, qint32 windowCenterY)
                               Q_ARG(qint32, windowCenterX), Q_ARG(qint32, windowCenterY));
 }
 
-void Engine::updateVersion(qint32 windowHandle)
+void Engine::updateVersion(qint64 windowHandle)
 {
-    QMetaObject::invokeMethod(this, "updateVersionImpl", Q_ARG(qint32, windowHandle));
+    QMetaObject::invokeMethod(this, "updateVersionImpl", Q_ARG(qint64, windowHandle));
 }
 
 void Engine::updateAdvancedParams()
@@ -2235,7 +2235,7 @@ void Engine::updateWindowInfoImpl(qint32 windowCenterX, qint32 windowCenterY)
     }
 }
 
-void Engine::updateVersionImpl(qint32 windowHandle)
+void Engine::updateVersionImpl(qint64 windowHandle)
 {
     guiWindowHandle_ = windowHandle;
 

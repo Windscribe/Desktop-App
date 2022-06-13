@@ -145,8 +145,8 @@ void PingHost_ICMP_win::processNextPings()
 
         pingInfo->elapsedTimer.start();
         IcmpSendEcho2(pingInfo->hIcmpFile, NULL, icmpCallback, userArg,
-                                 ipaddr, (LPVOID)dataForSend, sizeof(dataForSend), NULL,
-                                 pingInfo->replyBuffer, pingInfo->replySize, 2000);
+                      ipaddr, (LPVOID)dataForSend, sizeof(dataForSend), NULL,
+                      pingInfo->replyBuffer, pingInfo->replySize, 2000);
     }
 }
 

@@ -48,6 +48,8 @@ win32{
     # Supress protobuf linker warnings
     QMAKE_LFLAGS += /IGNORE:4099
 
+    QMAKE_CXXFLAGS += /wd"4267"
+
     # Generate debug information (symbol files) for Windows
     QMAKE_CXXFLAGS_RELEASE += /Zi
     QMAKE_CXXFLAGS += /Zi
