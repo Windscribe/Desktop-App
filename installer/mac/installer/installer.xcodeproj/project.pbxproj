@@ -49,6 +49,8 @@
 		8853DAD124EC715C00938900 /* ForegroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8853DAD024EC715C00938900 /* ForegroundView.m */; };
 		8853DAD324EC9E6000938900 /* FOLDER_ICON.svg in Resources */ = {isa = PBXBuildFile; fileRef = 8853DAD224EC9E6000938900 /* FOLDER_ICON.svg */; };
 		88C7794825239C5D00968CCD /* QuietModeHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88C7794725239C5D00968CCD /* QuietModeHelper.mm */; };
+		96F7DB8F2857E11A009F13F8 /* BUTTON_BLACK.svg in Resources */ = {isa = PBXBuildFile; fileRef = 96F7DB8E2857E11A009F13F8 /* BUTTON_BLACK.svg */; };
+		96F7DB922858BBEF009F13F8 /* ToggleControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 96F7DB912858BBEF009F13F8 /* ToggleControl.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -137,6 +139,9 @@
 		8853DAD224EC9E6000938900 /* FOLDER_ICON.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = FOLDER_ICON.svg; sourceTree = "<group>"; };
 		88C7794725239C5D00968CCD /* QuietModeHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = QuietModeHelper.mm; sourceTree = "<group>"; };
 		88C7794925239CCC00968CCD /* QuietModeHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuietModeHelper.h; sourceTree = "<group>"; };
+		96F7DB8E2857E11A009F13F8 /* BUTTON_BLACK.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = BUTTON_BLACK.svg; sourceTree = "<group>"; };
+		96F7DB902858BBEF009F13F8 /* ToggleControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToggleControl.h; sourceTree = "<group>"; };
+		96F7DB912858BBEF009F13F8 /* ToggleControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ToggleControl.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +161,7 @@
 		000EF4AC24DC3CF600A2E1B1 /* svg */ = {
 			isa = PBXGroup;
 			children = (
+				96F7DB8E2857E11A009F13F8 /* BUTTON_BLACK.svg */,
 				002AE95325DC33290071C290 /* CHECK_ICON.svg */,
 				8853DAD224EC9E6000938900 /* FOLDER_ICON.svg */,
 				000EF4B024DC3CF600A2E1B1 /* SETTINGS_ICON.svg */,
@@ -200,6 +206,8 @@
 		00B0E80C24DC1E330014B1B9 /* installer */ = {
 			isa = PBXGroup;
 			children = (
+				96F7DB902858BBEF009F13F8 /* ToggleControl.h */,
+				96F7DB912858BBEF009F13F8 /* ToggleControl.mm */,
 				0025015B25E52D520084CB76 /* helper */,
 				00A4A8E624DC68AB00B4DDC2 /* Logger.h */,
 				00A4A8E524DC68AB00B4DDC2 /* Logger.m */,
@@ -367,6 +375,7 @@
 				000EF4C224DC3CF600A2E1B1 /* WHITE_TOGGLE_BG.svg in Resources */,
 				00A8EAD125842B54003E263E /* background@2x.png in Resources */,
 				000EF4C424DC3DDF00A2E1B1 /* com.windscribe.helper.macos in Resources */,
+				96F7DB8F2857E11A009F13F8 /* BUTTON_BLACK.svg in Resources */,
 				00A8EAD225842B54003E263E /* background@3x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -393,6 +402,7 @@
 				00A4A8E924DC68AB00B4DDC2 /* Logger.m in Sources */,
 				8853DAD124EC715C00938900 /* ForegroundView.m in Sources */,
 				00A4A8E824DC68AB00B4DDC2 /* LoggerHelper.mm in Sources */,
+				96F7DB922858BBEF009F13F8 /* ToggleControl.mm in Sources */,
 				00B0E80F24DC1E330014B1B9 /* AppDelegate.mm in Sources */,
 				00B0E84124DC24FF0014B1B9 /* installer.mm in Sources */,
 				00B0E82D24DC240A0014B1B9 /* MainWindow.mm in Sources */,

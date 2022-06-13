@@ -16,6 +16,8 @@ public:
 	bool getInstallDrivers() const;
 	void setAutoStart(bool autostart);
 	bool getAutoStart() const;
+	void setFactoryReset(bool autostart);
+	bool getFactoryReset() const;
 
 	bool readFromRegistry();
 	void writeToRegistry() const;
@@ -25,6 +27,7 @@ private:
 	bool isCreateShortcut_;
 	bool isInstallDrivers_;
 	bool isAutoStart_;
+	bool isFactoryReset_;
 };
 
 

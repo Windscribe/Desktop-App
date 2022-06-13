@@ -45,6 +45,7 @@
     <ClCompile Include="gui\dpiscale.cpp" />
     <ClCompile Include="gui\escbutton.cpp" />
     <ClCompile Include="gui\eulabutton.cpp" />
+    <ClCompile Include="gui\factoryresetcontrol.cpp" />
     <ClCompile Include="gui\fontresources.cpp" />
     <ClCompile Include="gui\imageresources.cpp" />
     <ClCompile Include="gui\installbutton.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="gui\dpiscale.h" />
     <ClInclude Include="gui\escbutton.h" />
     <ClInclude Include="gui\eulabutton.h" />
+    <ClInclude Include="gui\factoryresetcontrol.h" />
     <ClInclude Include="gui\fontresources.h" />
     <ClInclude Include="gui\imageresources.h" />
     <ClInclude Include="gui\installbutton.h" />

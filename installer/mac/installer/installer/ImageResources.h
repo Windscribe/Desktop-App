@@ -10,6 +10,9 @@ NS_ASSUME_NONNULL_BEGIN
     SVGKImage *settingsIcon_;
     SVGKImage *checkIcon_;
     SVGKImage *folderIcon_;
+    SVGKImage *toggleBgWhite_;
+    SVGKImage *toggleBgGreen_;
+    SVGKImage *toggleIndicator_;
     NSColor *backgroundColor_;
     NSImage *backgroundImage_;
 }
@@ -19,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) SVGKImage *settingsIcon;
 @property (nonatomic, readonly) SVGKImage *checkIcon;
 @property (nonatomic, readonly) SVGKImage *folderIcon;
+@property (nonatomic, readonly) SVGKImage *toggleBgWhite;
+@property (nonatomic, readonly) SVGKImage *toggleBgGreen;
+@property (nonatomic, readonly) SVGKImage *toggleIndicator;
 @property (nonatomic, readonly) NSColor *backgroundColor;
 @property (nonatomic, readonly) NSImage *backgroundImage;
 

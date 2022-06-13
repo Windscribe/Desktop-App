@@ -1,5 +1,7 @@
 #import "MainView.h"
 #import <SVGKit/SVGKit.h>
+#import <QuartzCore/QuartzCore.h>
+#include "installhelper_mac.h"
 #import "Logger.h"
 
 @implementation MainView
@@ -119,9 +121,24 @@
     _pathField.stringValue = _appDelegate.installer.path;
     [_pathField.cell setFocusRingType:NSFocusRingTypeNone];
     [_pathField setFrame:NSMakeRect(16, btnY, self.bounds.size.width - btnHeight - 16 * 3, btnHeight)];
-    
+
+    // setup factory reset toggle
+    _factoryResetToggle.hidden = YES;
+
+    btnWidth = imageResources_.toggleBgWhite.size.width;
+    btnHeight = imageResources_.toggleBgWhite.size.height;
+    btnX = self.bounds.size.width - btnWidth - 16;
+    btnY = 100;
+    [_factoryResetToggle setFrame:NSMakeRect(btnX, btnY, btnWidth, btnHeight)];
+    [_factoryResetToggle setImageResources:imageResources_];
+
+     // factory reset text field
+    _factoryResetField.hidden = YES;
+    _factoryResetField.stringValue = @"Factory Reset";
+    [_factoryResetField setFrame:NSMakeRect(16, btnY, self.bounds.size.width - btnHeight - 16 * 3, btnHeight)];
+
     [self updateState];
-    
+
     if (_appDelegate.isUpdateMode)
     {
         [_installButton performClick:self];
@@ -245,6 +262,8 @@
     _settingsButton.hidden = YES;
     _pathField.hidden = NO;
     _selectPathButton.hidden = NO;
+    _factoryResetToggle.hidden = NO;
+    _factoryResetField.hidden = NO;
     opacityTimer_ = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(onOpacityTimer) userInfo:nil repeats:YES];
     [self updateState];
 
@@ -258,8 +277,10 @@
     _eulaButton.hidden = NO;
     _escButton.hidden = YES;
     _settingsButton.hidden = NO;
-     _pathField.hidden = YES;
+    _pathField.hidden = YES;
     _selectPathButton.hidden = YES;
+    _factoryResetToggle.hidden = YES;
+    _factoryResetField.hidden = YES;
     opacityTimer_ = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(onOpacityTimer) userInfo:nil repeats:YES];
     [self updateState];
 }
@@ -275,6 +296,11 @@
         _pathField.stringValue = [[panel URLs] lastObject].path;
         _appDelegate.installer.path = _pathField.stringValue;
     }
+}
+
+- (IBAction)onFactoryResetToggleClick:(id)sender
+{
+    _appDelegate.installer.factoryReset = _factoryResetToggle.checked;
 }
 
 - (void) installerCallback: (id)object

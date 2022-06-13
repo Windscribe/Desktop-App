@@ -104,6 +104,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
                 "Instructs the installer to skip installing drivers.\n\n"
                 "-silent\n"
                 "Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.\n\n"
+                "-factory-reset\n"
+                "Delete existing preferences, logs, and other data, if they exist.\n\n"
                 "-dir \"x:\\dirname\"\n"
                 "Overrides the default installation directory."));
         return 0;
@@ -129,6 +131,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     bool isSilent = false;
     bool noDrivers = false;
     bool noAutoStart = false;
+    bool isFactoryReset = false;
     std::wstring installPath;
 
     if (!isUpdateMode)
@@ -143,6 +146,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         }
         noAutoStart = CheckCommandLineArgument(L"-no-auto-start");
         if (noAutoStart) {
+            expectedArgumentCount += 1;
+        }
+        isFactoryReset = CheckCommandLineArgument(L"-factory-reset");
+        if (isFactoryReset) {
             expectedArgumentCount += 1;
         }
 
@@ -169,7 +176,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     Log::instance().out(L"Installing Windscribe version %ls", ApplicationInfo::instance().getVersion().c_str());
     Log::instance().out(L"Command-line args: %ls", ::GetCommandLine());
 
-    Application app(hInstance, nCmdShow, isUpdateMode, isSilent, noDrivers, noAutoStart, installPath);
+    Application app(hInstance, nCmdShow, isUpdateMode, isSilent, noDrivers, noAutoStart, isFactoryReset, installPath);
     if (app.init(window_center_x, window_center_y))
         return app.exec();
     return -1;

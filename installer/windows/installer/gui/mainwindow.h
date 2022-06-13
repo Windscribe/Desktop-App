@@ -8,6 +8,7 @@
 #include "TextItem.h"
 #include "PathControl.h"
 #include "DesktopShortcutControl.h"
+#include "FactoryResetControl.h"
 #include "EscButton.h"
 #include "../Installer/installer.h"
 #include "../messages.h"
@@ -34,6 +35,7 @@ private:
 	EulaButton *eulaButton_;
 	PathControl *pathControl_;
 	DesktopShortcutControl *desktopShortcutControl_;
+	FactoryResetControl *factoryResetControl_;
 	EscButton *escButton_;
 
 	Gdiplus::Bitmap *backgroundBitmap_;

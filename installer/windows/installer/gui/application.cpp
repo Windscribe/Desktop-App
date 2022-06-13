@@ -14,7 +14,8 @@
 Application *g_application = NULL;
 
 Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMode,
-                         bool isSilent, bool noDrivers, bool noAutoStart, const std::wstring& installPath) :
+                         bool isSilent, bool noDrivers, bool noAutoStart, bool isFactoryReset,
+						 const std::wstring& installPath) :
 	hInstance_(hInstance),
 	nCmdShow_(nCmdShow),
 	isAutoUpdateMode_(isAutoUpdateMode),
@@ -53,6 +54,7 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
 
     settings_.setInstallDrivers(!isSilent_ && !noDrivers);
     settings_.setAutoStart(!isSilent_ && !noAutoStart);
+    settings_.setFactoryReset(isFactoryReset);
 
 	imageResources_ = new ImageResources();
 	fontResources_ = new FontResources();
