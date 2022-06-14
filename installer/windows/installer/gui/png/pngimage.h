@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <vector>
+#include <string>
 #include <gdiplus.h>
 
 extern const int WINDOW_WIDTH;

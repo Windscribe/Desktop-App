@@ -104,25 +104,7 @@ bool Process::InstExec(const wstring Filename, const wstring Params,
 
 std::wstring Process::extractFileDir(std::wstring path)
 {
-	string path1 = string(path.begin(), path.end());
-
-#ifdef _WIN32
-
-	size_t pos = path1.find_last_of("\\/");
-	string dir_str = (std::string::npos == pos)
-		? ""
-		: path1.substr(0, pos);
-
-#else
-	char path2[500];
-	strncpy(path2, path1.c_str(), 500);
-
-	char *dir_str = dirname(path2);
-
-#endif // _WIN32
-
-	wstring dir_str1 = wstring(dir_str.begin(), dir_str.end());
-
-	return dir_str1;
-
+	size_t pos = path.find_last_of(L"\\/");
+	wstring dir_str = (std::wstring::npos == pos) ? L"" : path.substr(0, pos);
+	return dir_str;
 }

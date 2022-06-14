@@ -17,39 +17,19 @@ cli:
   target:   windscribe-cli.exe
   symbols:  windscribe-cli.pdb
 
-service32:
+service:
   name:     Service
   project:  windscribe_service.vcxproj
   subdir:   backend/windows/windscribe_service
   target:   WindscribeService.exe
   symbols:  WindscribeService.pdb
-  outdir:   x32
 
-service64:
-  name:     Service
-  project:  windscribe_service.vcxproj
-  subdir:   backend/windows/windscribe_service
-  target:   WindscribeService.exe
-  symbols:  WindscribeService.pdb
-  outdir:   x64
-  is64bit:  yes
-
-changeics32:
+changeics:
   name:     ChangeICS
   project:  changeics.vcxproj
   subdir:   backend/windows/changeics
   target:   ChangeIcs.exe
   symbols:  ChangeIcs.pdb
-  outdir:   x32
-
-changeics64:
-  name:     ChangeICS
-  project:  changeics.vcxproj
-  subdir:   backend/windows/changeics
-  target:   ChangeIcs.exe
-  symbols:  ChangeIcs.pdb
-  outdir:   x64
-  is64bit:  yes
 
 authhelper_com:
   name: ws_com
@@ -150,21 +130,18 @@ wireguardservice:
   subdir:   backend/windows/wireguard_service
   target:   WireguardService.exe
   symbols:  WireguardService.pdb
-  is64bit:  yes
 
 
 targets:
   win32:
-    - client
     - cli
-    - service32
-    - service64
-    - changeics32
-    - changeics64
+    - service
+    - changeics
     - installhelper
     - launcher_win
     - uninstaller
     - wireguardservice
+    - client
   macos:
     - helper
     - launcher_mac
@@ -191,13 +168,12 @@ windows_signing_cert:
   timestamp: http://timestamp.digicert.com
 
 qt_files:
-  - bin/libEGL.dll
-  - bin/libGLESV2.dll
-  - bin/Qt5Core.dll
-  - bin/Qt5Gui.dll
-  - bin/Qt5Network.dll
-  - bin/Qt5Svg.dll
-  - bin/Qt5Widgets.dll
+  - bin/Qt6Core.dll
+  - bin/Qt6Core5Compat.dll
+  - bin/Qt6Gui.dll
+  - bin/Qt6Network.dll
+  - bin/Qt6Svg.dll
+  - bin/Qt6Widgets.dll
   - plugins/platforms/qwindows.dll
   - plugins/imageformats/qgif.dll
   - plugins/imageformats/qico.dll
@@ -205,23 +181,23 @@ qt_files:
   - plugins/imageformats/qjpeg.dll
 
 qt_files_linux:
-  - lib/libQt5Core.so.5
-  - lib/libQt5Network.so.5
-  - lib/libQt5Svg.so.5
-  - lib/libQt5Widgets.so.5
-  - lib/libQt5Gui.so.5
-  - lib/libQt5XcbQpa.so.5
-  - lib/libQt5DBus.so.5
+  - lib/libQt6Core.so.5
+  - lib/libQt6Network.so.5
+  - lib/libQt6Svg.so.5
+  - lib/libQt6Widgets.so.5
+  - lib/libQt6Gui.so.5
+  - lib/libQt6XcbQpa.so.5
+  - lib/libQt6DBus.so.5
 
 lib_files_linux:
   qt:
-    - lib/libQt5Core.so.5 -> lib/libQt5Core.so.5 
-    - lib/libQt5Network.so.5 -> lib/libQt5Network.so.5
-    - lib/libQt5Svg.so.5 -> lib/libQt5Svg.so.5
-    - lib/libQt5Widgets.so.5 -> lib/libQt5Widgets.so.5
-    - lib/libQt5Gui.so.5 -> lib/libQt5Gui.so.5
-    - lib/libQt5XcbQpa.so.5 -> lib/libQt5XcbQpa.so.5
-    - lib/libQt5DBus.so.5 -> lib/libQt5DBus.so.5
+    - lib/libQt6Core.so.5 -> lib/libQt6Core.so.5
+    - lib/libQt6Network.so.5 -> lib/libQt6Network.so.5
+    - lib/libQt6Svg.so.5 -> lib/libQt6Svg.so.5
+    - lib/libQt6Widgets.so.5 -> lib/libQt6Widgets.so.5
+    - lib/libQt6Gui.so.5 -> lib/libQt6Gui.so.5
+    - lib/libQt6XcbQpa.so.5 -> lib/libQt6XcbQpa.so.5
+    - lib/libQt6DBus.so.5 -> lib/libQt6DBus.so.5
     - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
     - plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so -> plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
     - plugins/platforminputcontexts/libibusplatforminputcontextplugin.so -> plugins/platforminputcontexts/libibusplatforminputcontextplugin.so
@@ -241,7 +217,7 @@ lib_files_linux:
     - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
     - lib/libssl.so.1.1 -> lib/libssl.so.1.1
   protobuf:
-    - lib/libprotobuf.so.28 -> lib/libprotobuf.so.28
+    - lib/libprotobuf.so.32 -> lib/libprotobuf.so.32
   openvpn:
     - openvpn -> windscribeopenvpn
   stunnel:
@@ -250,9 +226,9 @@ lib_files_linux:
     - windscribewireguard -> windscribewireguard
 
 files_fix_rpath_linux:
-  - lib/libQt5Network.so.5 -> $ORIGIN
-  - lib/libQt5XcbQpa.so.5 -> $ORIGIN
-  - lib/libQt5DBus.so.5 -> $ORIGIN
+  - lib/libQt6Network.so.5 -> $ORIGIN
+  - lib/libQt6XcbQpa.so.5 -> $ORIGIN
+  - lib/libQt6DBus.so.5 -> $ORIGIN
   - lib/libcurl.so.4 -> $ORIGIN
   - lib/libssl.so.1.1 -> $ORIGIN
   - windscribestunnel -> $ORIGIN/lib
@@ -273,8 +249,11 @@ files_codesign_linux:
 msvc_files:
   - concrt140.dll
   - msvcp140.dll
+  - msvcp140_1.dll
+  - msvcp140_2.dll
   - vccorlib140.dll
   - vcruntime140.dll
+  - vcruntime140_1.dll
 
 additional_files:
   - tap6/
@@ -288,12 +267,12 @@ license_files:
 
 lib_files:
   cares:
-    - dll_x32/lib/cares.dll -> cares.dll
+    - dll_x64/lib/cares.dll -> cares.dll
   curl:
     - bin/libcurl.dll -> libcurl.dll
   openssl: 
-    - bin/libcrypto-1_1.dll -> libcrypto-1_1.dll
-    - bin/libssl-1_1.dll -> libssl-1_1.dll
+    - bin/libcrypto-1_1-x64.dll -> libcrypto-1_1-x64.dll
+    - bin/libssl-1_1-x64.dll -> libssl-1_1-x64.dll
   stunnel:
     - tstunnel.exe -> tstunnel.exe
   zlib:

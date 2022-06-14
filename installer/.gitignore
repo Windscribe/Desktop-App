@@ -1,5 +1,6 @@
 mac/Binaries
 *.DS_Store
+*.sln
 
 windows/installer/Debug/*
 windows/installer/Release/*

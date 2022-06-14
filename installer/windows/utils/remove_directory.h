@@ -35,7 +35,6 @@ class RemoveDirectory1
     std::list<std::wstring> RestartDeleteDirList[2];
     void RestartDeleteDir(const bool DisableFsRedir, std::wstring Dir);
     bool ListContainsPathOrSubdir(std::list<std::wstring> *List,  const std::wstring Path);
-    bool CompareMem(const void *P1, const void *P2);
 
     RemoveDirectory1();
 };

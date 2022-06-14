@@ -36,7 +36,7 @@ def BuildDependencyMSVC(outpath):
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
     buildenv.update({ "MAKEFLAGS" : "S" })
-    buildenv.update({ "RTLIBCFG" : "dynamic" })
+    buildenv.update({ "RTLIBCFG" : "static" })
     buildenv.update({ "INSTALL_DIR" : "{}/{}".format(outpath, prefix) })
     buildenv.update(iutl.GetVisualStudioEnvironment(params[0]))
     buildenv.update({ "CL" : "/D_WINSOCK_DEPRECATED_NO_WARNINGS" })
