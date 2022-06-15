@@ -90,6 +90,7 @@ bool GetCommandLineArgumentIndex(LPCWSTR argumentToCheck, int *valueIndex)
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
+    SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
 
     if (CheckCommandLineArgument(L"-help"))
     {
