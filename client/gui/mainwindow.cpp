@@ -18,6 +18,7 @@
 #include "commongraphics/commongraphics.h"
 #include "backend/persistentstate.h"
 
+#include "utils/extraconfig.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -2218,7 +2219,7 @@ void MainWindow::onBackendSessionDeleted()
 
 void MainWindow::onBackendTestTunnelResult(bool success)
 {
-    if (!success)
+    if (!ExtraConfig::instance().getIsTunnelTestNoError() && !success)
     {
         QMessageBox::information(nullptr, QApplication::applicationName(),
             tr("We've detected that your network settings may interfere with Windscribe. "

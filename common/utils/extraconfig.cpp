@@ -16,6 +16,7 @@ const QString WS_TT_START_DELAY_STR = WS_PREFIX + "tunnel-test-start-delay";
 const QString WS_TT_TIMEOUT_STR     = WS_PREFIX + "tunnel-test-timeout";
 const QString WS_TT_RETRY_DELAY_STR = WS_PREFIX + "tunnel-test-retry-delay";
 const QString WS_TT_ATTEMPTS_STR    = WS_PREFIX + "tunnel-test-attempts";
+const QString WS_TT_NO_ERROR_STR    = WS_PREFIX + "tunnel-test-no-error";
 
 const QString WS_STAGING_STR    = WS_PREFIX + "staging";
 
@@ -197,6 +198,11 @@ int ExtraConfig::getTunnelTestAttempts(bool &success)
     }
 
     return attempts;
+}
+
+bool ExtraConfig::getIsTunnelTestNoError()
+{
+    return getFlagFromExtraConfigLines(WS_TT_NO_ERROR_STR);
 }
 
 bool ExtraConfig::getOverrideUpdateChannelToInternal()

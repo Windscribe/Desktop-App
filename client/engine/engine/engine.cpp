@@ -2139,7 +2139,10 @@ void Engine::onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &
 void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ipAddress)
 {
     Q_EMIT testTunnelResult(success); // stops protocol/port flashing
-    Q_EMIT myIpUpdated(ipAddress, success, false); // sends IP address to UI // test should only occur in connected state
+    if (!ipAddress.isEmpty())
+    {
+        Q_EMIT myIpUpdated(ipAddress, success, false); // sends IP address to UI // test should only occur in connected state
+    }
 }
 
 void Engine::onConnectionManagerWireGuardAtKeyLimit()

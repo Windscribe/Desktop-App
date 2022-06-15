@@ -39,6 +39,7 @@ public:
     int getTunnelTestTimeout(bool &success);
     int getTunnelTestRetryDelay(bool &success);
     int getTunnelTestAttempts(bool &success);
+    bool getIsTunnelTestNoError();
 
     bool getOverrideUpdateChannelToInternal();
     bool getIsStaging();
