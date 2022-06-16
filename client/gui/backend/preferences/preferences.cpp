@@ -587,8 +587,10 @@ void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
     setLanguage(QString::fromStdString(es.language()));
     setUpdateChannel(es.update_channel());
     setIgnoreSslErrors(es.is_ignore_ssl_errors());
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     setKillTcpSockets(es.is_close_tcp_sockets());
+#endif
+#if defined(Q_OS_WIN)
     setTapAdapter(es.tap_adapter());
 #endif
     setAllowLanTraffic(es.is_allow_lan_traffic());
