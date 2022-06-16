@@ -127,21 +127,27 @@ LSTATUS Registry::RegCreateKeyExView(const TRegView &RegView, HKEY &hKey, LPCWST
   LPSECURITY_ATTRIBUTES lpSecurityAttributes, PHKEY phkResult,
   LPDWORD lpdwDisposition)
 {
-  if (RegView == rv64Bit)
-  {
-    samDesired = samDesired | KEY_WOW64_64KEY;
-  }
-  return RegCreateKeyEx(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
+    if (RegView == rv64Bit) {
+        samDesired = samDesired | KEY_WOW64_64KEY;
+    }
+    else if (RegView == rv32Bit) {
+        samDesired = samDesired | KEY_WOW64_32KEY;
+    }
+    
+    return RegCreateKeyEx(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
 }
 
 
 LSTATUS Registry::RegOpenKeyExView(const TRegView RegView, const HKEY hKey, LPCWSTR lpSubKey, DWORD ulOptions, REGSAM samDesired, HKEY &phkResult)
 {
-  if (RegView == rv64Bit)
-  {
-    samDesired = samDesired | KEY_WOW64_64KEY;
-  }
-  return RegOpenKeyEx(hKey, lpSubKey, ulOptions, samDesired, &phkResult);
+    if (RegView == rv64Bit) {
+        samDesired = samDesired | KEY_WOW64_64KEY;
+    }
+    else if (RegView == rv32Bit) {
+        samDesired = samDesired | KEY_WOW64_32KEY;
+    }
+
+    return RegOpenKeyEx(hKey, lpSubKey, ulOptions, samDesired, &phkResult);
 }
 
 void Registry::CrackCodeRootKey(HKEY CodeRootKey, TRegView &RegView, HKEY &RootKey)
@@ -159,7 +165,7 @@ void Registry::CrackCodeRootKey(HKEY CodeRootKey, TRegView &RegView, HKEY &RootK
 
  if(((CodeRootKey1 >> 31) != 1) || (((CodeRootKey1 & CodeRootKeyFlagMask)!=0) && ((~CodeRootKeyValidFlags) != 0)))
  {
-	// I commented this out because it is logging HKEY_LOCAL_MACHINE and HKEY_CURRENT_USER as invalid.
+    // I commented this out because it is logging HKEY_LOCAL_MACHINE and HKEY_CURRENT_USER as invalid.
      //Log::instance().out("(registry) Invalid RootKey value (%d)", CodeRootKey1);
  }
 
@@ -375,61 +381,59 @@ wstring Registry::GetRegRootKeyName(const HKEY RootKey)
 
 std::vector<std::wstring> Registry::regGetSubkeyChildNames(HKEY h, const wchar_t * subkeyName)
 {
-	std::vector<std::wstring> registryInterfaces;
-	HKEY hKey;
+    std::vector<std::wstring> registryInterfaces;
+    HKEY hKey;
 
-	if (RegOpenKeyEx(h, subkeyName, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
-	{
-		TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
-		DWORD    cbName;                   // size of name string
-		DWORD    cSubKeys = 0;               // number of subkeys
+    if (RegOpenKeyEx(h, subkeyName, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    {
+        TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
+        DWORD    cbName;                   // size of name string
+        DWORD    cSubKeys = 0;               // number of subkeys
 
-		if (RegQueryInfoKey(hKey, NULL, NULL, NULL, &cSubKeys, NULL, NULL, NULL, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-		{
-			for (DWORD i = 0; i < cSubKeys; i++)
-			{
-				cbName = MAX_KEY_LENGTH; // magic -- dont try to initialize with this value
-				LONG error = RegEnumKeyEx(hKey, i, achKey, &cbName, NULL, NULL, NULL, NULL);
-				
-				if (error == ERROR_SUCCESS)
-				{
-					registryInterfaces.push_back(std::wstring(achKey));
-				}
-			}
-		}
-		
-		RegCloseKey(hKey);
-	}
+        if (RegQueryInfoKey(hKey, NULL, NULL, NULL, &cSubKeys, NULL, NULL, NULL, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+        {
+            for (DWORD i = 0; i < cSubKeys; i++)
+            {
+                cbName = MAX_KEY_LENGTH; // magic -- dont try to initialize with this value
+                LONG error = RegEnumKeyEx(hKey, i, achKey, &cbName, NULL, NULL, NULL, NULL);
+                
+                if (error == ERROR_SUCCESS)
+                {
+                    registryInterfaces.push_back(std::wstring(achKey));
+                }
+            }
+        }
+        
+        RegCloseKey(hKey);
+    }
 
-	return registryInterfaces;
+    return registryInterfaces;
 }
 
 bool Registry::regDeleteProperty(HKEY h, const wchar_t * subkeyName, std::wstring valueName)
 {
-	bool ret = false;
-	HKEY K;
+    bool ret = false;
+    HKEY K;
 
-	if (RegOpenKeyEx(h, subkeyName, 0, KEY_SET_VALUE, &K) == ERROR_SUCCESS)
-	{
-		ret = RegDeleteValue(K, valueName.c_str()) == ERROR_SUCCESS;
-		RegCloseKey(K);
-	}
+    if (RegOpenKeyEx(h, subkeyName, 0, KEY_SET_VALUE, &K) == ERROR_SUCCESS)
+    {
+        ret = RegDeleteValue(K, valueName.c_str()) == ERROR_SUCCESS;
+        RegCloseKey(K);
+    }
 
-	return ret;
+    return ret;
 }
 
 bool Registry::regHasSubkeyProperty(HKEY h, const wchar_t * subkeyName, std::wstring valueName)
 {
-	bool result = false;
-	HKEY hKey;
+    bool result = false;
+    HKEY hKey;
 
-	if (RegOpenKeyEx(h, subkeyName, NULL, KEY_READ, &hKey) == ERROR_SUCCESS)
-	{
-		result = RegQueryValueEx(hKey, valueName.c_str(), NULL, REG_NONE, NULL, NULL) == ERROR_SUCCESS; // contents not required
-		RegCloseKey(hKey);
-	}
+    if (RegOpenKeyEx(h, subkeyName, NULL, KEY_READ, &hKey) == ERROR_SUCCESS)
+    {
+        result = RegQueryValueEx(hKey, valueName.c_str(), NULL, REG_NONE, NULL, NULL) == ERROR_SUCCESS; // contents not required
+        RegCloseKey(hKey);
+    }
 
-	return result;
+    return result;
 }
-
-

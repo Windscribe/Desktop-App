@@ -197,103 +197,103 @@ typedef void (*P_DeleteUninstallDataFilesProc)();
 
 bool Uninstaller::PerformUninstall(const P_DeleteUninstallDataFilesProc DeleteUninstallDataFilesProc,const wstring &path_for_installation)
 {
- Log::instance().out(L"Starting the uninstallation process.");
+    Log::instance().out(L"Starting the uninstallation process.");
 
- CoInitialize(nullptr);
- SHCreateItemFromParsingNameFunc = reinterpret_cast<P_SHCreateItemFromParsingName>(GetProcAddress(GetModuleHandle(L"shell32.dll"), "SHCreateItemFromParsingName"));
+    CoInitialize(nullptr);
+    SHCreateItemFromParsingNameFunc = reinterpret_cast<P_SHCreateItemFromParsingName>(GetProcAddress(GetModuleHandle(L"shell32.dll"), "SHCreateItemFromParsingName"));
 
- TRegView RegView;
+    TRegView RegView;
 
- RegView = rvDefault; // install_mode.GetInstallDefaultRegView();
+    RegView = rvDefault; // install_mode.GetInstallDefaultRegView();
 
- HKEY RootKey = HKEY_LOCAL_MACHINE;
+    HKEY RootKey = HKEY_LOCAL_MACHINE;
 
- wstring str = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"+ApplicationInfo::instance().getId()+L"_is1";
+    wstring str = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + ApplicationInfo::instance().getId() + L"_is1";
 
- LSTATUS ret = Registry::RegDeleteKeyIncludingSubkeys1(RegView, RootKey, str.c_str());
+    LSTATUS ret = Registry::RegDeleteKeyIncludingSubkeys1(RegView, RootKey, str.c_str());
 
- if((ret==ERROR_SUCCESS) ||(ret==ERROR_FILE_NOT_FOUND))
-   {
+    if ((ret == ERROR_SUCCESS) || (ret == ERROR_FILE_NOT_FOUND))
+    {
 
-   };
-
-
-
- remove_directory.DelTree(false,path_for_installation, true, true, true,false, nullptr, nullptr, nullptr);
-
- //C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Windscribe\Windscribe.lnk
- /*
- std::ifstream  stream(UninstDataFile.c_str(), std::ifstream::binary);
-
- if(stream)
-   {
-    wchar_t str_buf[1000];
-    memset(str_buf,0,sizeof(str_buf));
-
-    stream.seekg (0, stream.end);
-    long long size = stream.tellg();
-
-    stream.seekg (0, stream.beg);
-
-    unsigned short len;
-
-    while(stream.tellg()<size)
-     {
-      stream.read(reinterpret_cast<char*>(&len),sizeof(unsigned short));
-
-      if(len>=1000)
-       {
-        Log::instance().trace(L"Reading of the list of files. len >= 1000.");
-        break;
-       }
+    };
 
 
-      stream.read(reinterpret_cast<char*>(&str_buf),len*2);
 
-      //file_list.push_back(str_buf);
-      str_buf[len]=0;
+    remove_directory.DelTree(false, path_for_installation, true, true, true, false, nullptr, nullptr, nullptr);
 
-      if(path.PathExtractExt(str_buf).empty()==false)
-       {
-        FileDelete(str_buf,false,true,false);
-       }
-      else
-       {
-        remove_directory.DelTree(false,str_buf,true,false,false,false,DeleteDirProc, DeleteFileProc, nullptr);
-       }
-      uninstall_progress->setProgress(str_buf);
-     }
+    //C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Windscribe\Windscribe.lnk
+    /*
+    std::ifstream  stream(UninstDataFile.c_str(), std::ifstream::binary);
 
-    stream.close();
-   }
-*/
+    if(stream)
+      {
+       wchar_t str_buf[1000];
+       memset(str_buf,0,sizeof(str_buf));
 
+       stream.seekg (0, stream.end);
+       long long size = stream.tellg();
 
-  Log::instance().out(L"Deleting shortcuts.");
+       stream.seekg (0, stream.beg);
 
-  PathsToFolders paths_to_folders;
-  wstring  common_desktop = paths_to_folders.GetShellFolder(true, sfDesktop, false);
+       unsigned short len;
 
+       while(stream.tellg()<size)
+        {
+         stream.read(reinterpret_cast<char*>(&len),sizeof(unsigned short));
 
-  wstring group = paths_to_folders.GetShellFolder(true, sfPrograms, false);
-
-  redirection.DeleteFileRedir(false,common_desktop+L"\\" + ApplicationInfo::instance().getName() + L".lnk");
-  remove_directory.DelTree(false,group+L"\\" + ApplicationInfo::instance().getName(), true, true, true,false, nullptr, nullptr, nullptr);
+         if(len>=1000)
+          {
+           Log::instance().trace(L"Reading of the list of files. len >= 1000.");
+           break;
+          }
 
 
-  if(DeleteUninstallDataFilesProc!=nullptr)
-   {
-    DeleteUninstallDataFilesProc();
-    //{ Now that uninstall data is deleted, try removing the directories it
-    //was in that couldn't be deleted before. }
-    ProcessDirsNotRemoved();
-   }
+         stream.read(reinterpret_cast<char*>(&str_buf),len*2);
 
- CoUninitialize();
+         //file_list.push_back(str_buf);
+         str_buf[len]=0;
 
- Log::instance().out(L"Uninstallation process succeeded.");
+         if(path.PathExtractExt(str_buf).empty()==false)
+          {
+           FileDelete(str_buf,false,true,false);
+          }
+         else
+          {
+           remove_directory.DelTree(false,str_buf,true,false,false,false,DeleteDirProc, DeleteFileProc, nullptr);
+          }
+         uninstall_progress->setProgress(str_buf);
+        }
 
- return true;
+       stream.close();
+      }
+   */
+
+
+    Log::instance().out(L"Deleting shortcuts.");
+
+    PathsToFolders paths_to_folders;
+    wstring  common_desktop = paths_to_folders.GetShellFolder(true, sfDesktop, false);
+
+
+    wstring group = paths_to_folders.GetShellFolder(true, sfPrograms, false);
+
+    redirection.DeleteFileRedir(false, common_desktop + L"\\" + ApplicationInfo::instance().getName() + L".lnk");
+    remove_directory.DelTree(false, group + L"\\" + ApplicationInfo::instance().getName(), true, true, true, false, nullptr, nullptr, nullptr);
+
+
+    if (DeleteUninstallDataFilesProc != nullptr)
+    {
+        DeleteUninstallDataFilesProc();
+        //{ Now that uninstall data is deleted, try removing the directories it
+        //was in that couldn't be deleted before. }
+        ProcessDirsNotRemoved();
+    }
+
+    CoUninitialize();
+
+    Log::instance().out(L"Uninstallation process succeeded.");
+
+    return true;
 }
 
 
@@ -320,6 +320,8 @@ void Uninstaller::RunSecondPhase()
 
 	path_for_installation = path.PathExtractDir(UninstExeFile);
 
+	Log::instance().out(L"Running uninstall second phase with path: %s", path_for_installation.c_str());
+
 	AuthHelper::removeRegEntriesForAuthHelper(path_for_installation);
 
 	Process process;
@@ -345,15 +347,10 @@ void Uninstaller::RunSecondPhase()
 
 	Log::instance().out(L"uninstall split tunnel driver");
 	// uninstall split tunnel driver
-	PVOID oldValue;
-	Wow64DisableWow64FsRedirection(&oldValue);		// need for correct execute 64-bit driver install from 32-bit installer process
 
 	wstring installCmd = L"DefaultUninstall 132 ";
 	installCmd += path_for_installation + L"\\splittunnel\\windscribesplittunnel.inf";
 	InstallHinfSection(nullptr, NULL, installCmd.c_str(), NULL);
-
-	PVOID oldValue2;
-	Wow64DisableWow64FsRedirection(&oldValue2);
 
 	Log::instance().out(L"perform uninstall");
 	PerformUninstall(&DeleteUninstallDataFiles, path_for_installation);
@@ -417,10 +414,17 @@ bool Uninstaller::InitializeUninstall()
 		return true;
 	}
 
-	const std::wstring classNameIcon = L"Qt5QWindowIcon";
+	std::wstring classNameIcon = L"Qt624QWindowIcon";
 	const std::wstring wsGuiIcon = L"Windscribe";
 	HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-	
+
+	if (hwnd == NULL)
+	{
+		// Check if the old Qt 5.12 app is running.
+		classNameIcon = L"Qt5QWindowIcon";
+		hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
+	}
+
 	while (hwnd)
 	{
 		if (MessageBox(nullptr,

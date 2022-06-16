@@ -1,6 +1,7 @@
 #include "windscribepathcheck.h"
 #include <cwctype>
 #include <shlwapi.h>
+#include <shlobj_core.h>
 
 namespace
 {
@@ -86,5 +87,17 @@ namespace WindscribePathCheck
 			}
 		}
 		return L"";
+	}
+
+	// Check if 'path' is a sub-folder of the "Program Files (x86)" folder.
+	bool in32BitProgramFilesFolder(const std::wstring path)
+	{
+		TCHAR programFilesPath[MAX_PATH];
+		bool result = ::SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILESX86, FALSE);
+		if (result) {
+			result = ::PathIsPrefix(programFilesPath, path.c_str());
+		}
+
+		return result;
 	}
 }

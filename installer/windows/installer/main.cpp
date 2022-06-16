@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <tchar.h>
+#include <versionhelpers.h>
 
 #include <algorithm>
 
@@ -90,6 +91,13 @@ bool GetCommandLineArgumentIndex(LPCWSTR argumentToCheck, int *valueIndex)
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
+
+    if (!IsWindows8Point1OrGreater())
+    {
+        WSMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+            _T("The Windscribe app can only be installed on Windows 8.1 or newer."));
+        return 0;
+    }
 
     if (CheckCommandLineArgument(L"-help"))
     {

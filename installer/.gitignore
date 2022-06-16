@@ -4,9 +4,9 @@ mac/Binaries
 
 windows/installer/Debug/*
 windows/installer/Release/*
+windows/installer/x64/*
 windows/temp-installer/*
-windows/uninstaller/x64/Debug/*
-windows/uninstaller/x64/Release/*
+windows/uninstaller/x64/*
 windows/installer/.vs/*
 windows/uninstaller/.vs/*
 windows/builds/*
