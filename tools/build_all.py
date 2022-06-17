@@ -468,7 +468,6 @@ def sign_executables_win32(configdata, cert_password, filename_to_sign=None):
         certfile = os.path.join(pathhelper.ROOT_DIR, configdata["windows_signing_cert"]["path_cert"])
         timestamp = configdata["windows_signing_cert"]["timestamp"]
 
-        msg.Info("Signing...")
         if filename_to_sign:
             iutl.RunCommand([signtool, "sign", "/fd", "SHA256", "/t", timestamp, "/f", certfile,
                              "/p", cert_password, filename_to_sign])
@@ -503,13 +502,17 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
 
     if arghelper.sign_app():
         # Sign executable files with a certificate.
+        msg.Info("Signing executables...")
         sign_executables_win32(configdata, win_cert_password)
-        # Sign AuthHelper DLLs
-        if arghelper.build_com():
-            auth_helper_com_target = os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com"]["target"])
-            sign_executables_win32(configdata, win_cert_password, auth_helper_com_target)
-            com_proxy_stub = os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com_proxy_stub"]["target"])
-            sign_executables_win32(configdata, win_cert_password, com_proxy_stub)
+        # Sign DLLs we created
+        if "files_codesign_windows" in configdata:
+            msg.Info("Signing DLLs...")
+            for binary_name in configdata["files_codesign_windows"]:
+                binary_path = os.path.join(BUILD_INSTALLER_FILES, binary_name)
+                if os.path.exists(binary_path):
+                    sign_executables_win32(configdata, win_cert_password, binary_path)
+                else:
+                    msg.Warn("Skipping signing of {}.  File not found.".format(binary_path))
     # Place everything in a 7z archive.
     msg.Info("Zipping...")
     installer_info = configdata[configdata["installer"]["win32"]]
@@ -534,6 +537,7 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                                                  installer_info["target"])), final_installer_name)
     if arghelper.sign_app():
+        msg.Info("Signing installer...")
         sign_executables_win32(configdata, win_cert_password, final_installer_name)
 
 

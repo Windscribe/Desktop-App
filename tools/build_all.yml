@@ -246,6 +246,16 @@ files_codesign_linux:
   - windscribewireguard 
   - Windscribe
 
+files_codesign_windows:
+  - cares.dll
+  - libcrypto-1_1-x64.dll
+  - libcurl.dll
+  - libssl-1_1-x64.dll
+  - tunnel.dll
+  - ws_com.dll
+  - ws_proxy_stub.dll
+  - zlib1.dll
+
 msvc_files:
   - concrt140.dll
   - msvcp140.dll
