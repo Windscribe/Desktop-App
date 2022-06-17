@@ -236,6 +236,7 @@ private slots:
     void showShutdownWindow();
 
     void onCurrentNetworkUpdated(ProtoTypes::NetworkInterface networkInterface);
+    void onAutoConnectUpdated(bool on);
 
     void onTrayActivated(QSystemTrayIcon::ActivationReason reason);
     void onTrayMenuConnect();

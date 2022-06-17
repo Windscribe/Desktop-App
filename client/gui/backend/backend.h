@@ -95,7 +95,8 @@ public:
 
     const ProtoTypes::SessionStatus &getSessionStatus() const;
 
-    void handleNetworkChange(ProtoTypes::NetworkInterface networkInterface);
+    void handleNetworkChange(ProtoTypes::NetworkInterface networkInterface, bool manual=false);
+    ProtoTypes::NetworkInterface getCurrentNetworkInterface();
 
     virtual void cycleMacAddress();
     void sendDetectPacketSize();
