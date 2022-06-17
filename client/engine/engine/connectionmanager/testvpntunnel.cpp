@@ -147,6 +147,8 @@ void TestVPNTunnel::startTests(const ProtocolType &protocol)
 
     connect(serverAPI_, &ServerAPI::pingTestAnswer, this, &TestVPNTunnel::onPingTestAnswer, Qt::QueuedConnection);
 
+    protocol_ = protocol;
+
     #if defined(Q_OS_WINDOWS)
     doWin32TunnelTest_ = protocol.isWireGuardProtocol() || (protocol.isOpenVpnProtocol() && OpenVpnVersionController::instance().isUseWinTun());
     if (doWin32TunnelTest_)
@@ -427,12 +429,17 @@ bool TestVPNTunnel::initiateWin32TunnelTest()
     request.pQueryContext  = this;
     request.pQueryCompletionCallback = DnsQueryCompleteCallback;
 
-    // Using these options due to a delay issue with OpenVPN+Wintun.  There is a period of
-    // time when the tunnel first comes up in which DNS queries will not be passed over the
-    // tunnel.  The default options use UDP, which will cause the completion callback to
-    // eventually be invoked after ~10s with ERROR_TIMEOUT.  Using TCP, the callback is
-    // invoked almost immediately with WSAENOTCONN.
-    request.QueryOptions = DNS_QUERY_USE_TCP_ONLY | DNS_QUERY_WIRE_ONLY;
+    if (protocol_.isOpenVpnProtocol() && OpenVpnVersionController::instance().isUseWinTun())
+    {
+        // Using these options due to a delay issue with OpenVPN+Wintun.  There is a period of
+        // time when the tunnel first comes up in which DNS queries will not be passed over the
+        // tunnel.  The default options use UDP, which will cause the completion callback to
+        // eventually be invoked after ~10s with ERROR_TIMEOUT.  Using TCP, the callback is
+        // invoked almost immediately with WSAENOTCONN.
+        // However, if the DNS server does not respond to TCP requests, the tunnel tests
+        // may have a false positive where the test fails but the tunnel generally works fine.
+        request.QueryOptions = DNS_QUERY_USE_TCP_ONLY | DNS_QUERY_WIRE_ONLY;
+    }
 
     dnsQueryContext_.reset(new DnsQueryContext);
 

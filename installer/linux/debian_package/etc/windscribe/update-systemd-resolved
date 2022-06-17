@@ -139,7 +139,15 @@ up() {
 
   SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
   DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
-  "$DNS_LEAK_SCRIPT" "up" ${dev}
+
+  servers=()
+  for opt in ${!foreign_option_*}; do
+      eval "dns=\${$opt#dhcp-option DNS }"
+      if [[ $dns =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
+          servers+=($dns)
+      fi
+  done
+  "$DNS_LEAK_SCRIPT" "up" ${dev} ${servers[@]}
 }
 
 down() {

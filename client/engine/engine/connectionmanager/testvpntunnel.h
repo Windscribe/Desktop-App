@@ -64,6 +64,7 @@ private:
     QVector<uint> timeouts_;
 
     bool doWin32TunnelTest_;
+    ProtocolType protocol_;
 
     #if defined(Q_OS_WINDOWS)
     typedef DNS_STATUS WINAPI DnsQueryEx_T(PDNS_QUERY_REQUEST pQueryRequest, PDNS_QUERY_RESULT pQueryResults, PDNS_QUERY_CANCEL pCancelHandle);

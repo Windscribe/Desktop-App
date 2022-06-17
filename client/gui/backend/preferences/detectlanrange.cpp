@@ -25,6 +25,11 @@ bool DetectLanRange::isRfcPrivateAddress(quint32 ip)
     {
         return true;
     }
+    // 169.254.0.0 - 169.254.255.255
+    if ((ip & 0x0000FFFF) == 0xFEA9)
+    {
+        return true;
+    }
     // 10.0.0.0 - 10.255.255.255
     if ((ip & 0xFF) == 0x0A)
     {

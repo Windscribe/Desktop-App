@@ -162,18 +162,22 @@ bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTra
     if (bAllowLanTraffic)
     {
         // Local Network;
-        pf += "pass out quick inet from 192.168.0.0/16 to 192.168.0.0/16 flags S/SA keep state\n";
-        pf += "pass in quick inet from 192.168.0.0/16 to 192.168.0.0/16 flags S/SA keep state\n";
-        pf += "pass out quick inet from 172.16.0.0/12 to 172.16.0.0/12 flags S/SA keep state\n";
-        pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12 flags S/SA keep state\n";
-        pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
-        pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
+        pf += "pass out quick inet from any to 192.168.0.0/16 flags S/SA keep state\n";
+        pf += "pass in quick inet from 192.168.0.0/16 to any flags S/SA keep state\n";
+        pf += "pass out quick inet from any to 172.16.0.0/12 flags S/SA keep state\n";
+        pf += "pass in quick inet from 172.16.0.0/12 to any flags S/SA keep state\n";
+        pf += "pass out quick inet from any to 169.254.0.0/16 flags S/SA keep state\n";
+        pf += "pass in quick inet from 169.254.0.0/16 to any flags S/SA keep state\n";
+        pf += "block out quick inet from any to 10.255.255.0/24\n";
+        pf += "block in quick inet from 10.255.255.0/24 to any\n";
+        pf += "pass out quick inet from any to 10.0.0.0/8 flags S/SA keep state\n";
+        pf += "pass in quick inet from 10.0.0.0/8 to any flags S/SA keep state\n";
 
         // Loopback addresses to the local host
-        pf += "pass in quick inet from 127.0.0.0/8 to 127.0.0.0/8 flags S/SA keep state\n";
+        pf += "pass in quick inet from 127.0.0.0/8 to any flags S/SA keep state\n";
 
         // Multicast addresses
-        pf += "pass in quick inet from 224.0.0.0/4 to 224.0.0.0/4 flags S/SA keep state\n";
+        pf += "pass in quick inet from 224.0.0.0/4 to any flags S/SA keep state\n";
 
         // Allow AirDrop
         pf += "pass in quick on awdl0 inet6 proto udp from any to any port = 5353 keep state\n";

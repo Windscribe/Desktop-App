@@ -36,6 +36,9 @@ SOURCES += \
         main.cpp \
         server.cpp \
         utils.cpp \
+        routes_manager/routes.cpp \
+        routes_manager/routes_manager.cpp \
+        wireguard/defaultroutemonitor.cpp \
         wireguard/wireguardadapter.cpp \
         wireguard/userspace/wireguardgocommunicator.cpp \
         wireguard/kernelmodule/kernelmodulecommunicator.cpp \
@@ -53,6 +56,9 @@ HEADERS += \
     logger.h \
     server.h \
     utils.h \
+    routes_manager/routes.h \
+    routes_manager/routes_manager.h \
+    wireguard/defaultroutemonitor.h \
     wireguard/wireguardadapter.h \
     wireguard/iwireguardcommunicator.h \
     wireguard/userspace/wireguardgocommunicator.h \

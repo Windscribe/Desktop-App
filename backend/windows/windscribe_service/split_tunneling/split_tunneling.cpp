@@ -90,7 +90,14 @@ void SplitTunneling::updateState()
 		{
 			Ip4AddressAndMask ipAddress(connectStatus_.defaultAdapter.adapterIp.c_str());
 			redirectIp = ipAddress.ipNetworkOrder();
-			hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
+			if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+			{
+			    hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
+			}
+			else if ((connectStatus_.protocol == CMD_PROTOCOL_IKEV2 || connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD))
+			{
+			    hostnamesManager_.enable(connectStatus_.defaultAdapter.adapterIp, connectStatus_.defaultAdapter.ifIndex);
+			}
 		}
 		else
 		{

@@ -44,7 +44,7 @@ bool IpValidation::isValidIpForCidr(const QString &str)
 bool IpValidation::isLocalIp(const QString &str)
 {
     // Rules are given from https://en.wikipedia.org/wiki/Private_network
-    if(str.startsWith("127.") || str.startsWith("10.") || str.startsWith("192.168.")) {
+    if(str.startsWith("127.") || str.startsWith("10.") || str.startsWith("192.168.") || str.startsWith("169.254.")) {
         return true;
     }
     else if(str.startsWith("172"))
@@ -58,6 +58,11 @@ bool IpValidation::isLocalIp(const QString &str)
         }
     }
     return false;
+}
+
+bool IpValidation::isWindscribeReservedIp(const QString &str)
+{
+    return str.startsWith("10.255.255.");
 }
 
 QString IpValidation::getRemoteIdFromDomain(const QString &str)

@@ -13,6 +13,7 @@ dnsleak_protection_up()
 {
 
 	local interface_name="$1"
+	shift
 	local marker="-m comment --comment \"Windscribe client dns leak protection\""
 
 	if [ -z "$interface_name" ]
@@ -21,16 +22,18 @@ dnsleak_protection_up()
    		return 0
 	fi
 
-	# disable DNS traffic on interface != utun420
 	local rules=$'*filter\n'
 	printf -v rules '%s:windscribe_dnsleaks - [0:0]\n' "$rules"
-	printf -v rules '%s-A OUTPUT -j windscribe_dnsleaks %s\n' "$rules" "$marker"
-
+	printf -v rules '%s-I OUTPUT 1 -j windscribe_dnsleaks %s\n' "$rules" "$marker"
 	printf -v rules '%s-A windscribe_dnsleaks -o lo -j ACCEPT %s\n' "$rules" "$marker"
-	printf -v rules '%s-A windscribe_dnsleaks ! -o %s -p udp --dport 53 -j DROP %s\n' "$rules" "$interface_name" "$marker"
-	printf -v rules '%s-A windscribe_dnsleaks ! -o %s -p tcp --dport 53 -j DROP %s\n' "$rules" "$interface_name" "$marker"
+	# allow DNS servers that we've configured
+	for i in $@; do
+		printf -v rules '%s-A windscribe_dnsleaks -o %s -d %s -j ACCEPT %s\n' "$rules" "$interface_name" "$i" "$marker"
+	done
+	# disallow all others
+	printf -v rules '%s-A windscribe_dnsleaks -p udp --dport 53 -j DROP %s\n' "$rules" "$marker"
+	printf -v rules '%s-A windscribe_dnsleaks -p tcp --dport 53 -j DROP %s\n' "$rules" "$marker"
 
-	printf -v rules '%s-A windscribe_dnsleaks -j ACCEPT %s\n' "$rules" "$marker"
 	printf -v rules '%sCOMMIT\n' "$rules"
 
 	echo -n "$rules" | cmd "/sbin/iptables-restore" -n
@@ -66,19 +69,16 @@ dnsleak_protection_down()
 
 
 main() {
+	local action="$1"
+	shift
 
-	if [ "$#" -gt 2 ]; then
-    	echo "Usage: dns-leak-protect up|down [interface_name]"
-    	return 1
-	fi
-
-	if [[ $1 == "up" ]]; then
-		dnsleak_protection_up "$2"
-    elif [[ $1 == "down" ]]; then
-    	dnsleak_protection_down
+	if [[ $action == "up" ]]; then
+		dnsleak_protection_up $@
+	elif [[ $action == "down" ]]; then
+		dnsleak_protection_down
 	else
-    	echo "Usage: dns-leak-protect up|down [interface_name]"
-    	return 1
+		echo "Usage: dns-leak-protect up|down [interface_name] [servers_to_allow]"
+		return 1
 	fi
 }
 

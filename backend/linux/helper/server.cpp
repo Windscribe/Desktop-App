@@ -169,11 +169,11 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
     }
     else if (cmdId == HELPER_CMD_SEND_CONNECT_STATUS)
     {
-        /*CMD_SEND_CONNECT_STATUS cmd;
+        CMD_SEND_CONNECT_STATUS cmd;
         ia >> cmd;
         
-        splitTunneling_.setConnectParams(cmd);
-        outCmdAnswer.executed = 1;*/
+        routesManager_.updateState(cmd);
+        outCmdAnswer.executed = 1;
     }
     else if (cmdId == HELPER_CMD_SET_KEXT_PATH)
     {
@@ -221,7 +221,10 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
                     break;
                 }
 
-
+                if (!wireGuardController_.configureDefaultRouteMonitor(cmd.peerEndpoint)) {
+                    Logger::instance().out("WireGuard: configureDefaultRouteMonitor() failed");
+                    break;
+                }
                 if (!wireGuardController_.configureAdapter(cmd.clientIpAddress,
                                                            cmd.clientDnsAddressList,
                                                            cmd.clientDnsScriptName,
