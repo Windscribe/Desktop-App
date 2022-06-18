@@ -33,6 +33,7 @@ void RoutesManager::updateState(const CMD_CONNECT_STATUS &connectStatus, bool is
                 }
             }
         }
+		addDnsRoutes(connectStatus);
     }
     else if (prevIsConnected == true && connectStatus.isConnected == false)
     {
@@ -64,6 +65,7 @@ void RoutesManager::updateState(const CMD_CONNECT_STATUS &connectStatus, bool is
 				}
 			}
 		}
+		addDnsRoutes(connectStatus);
     }
     
     connectStatus_ = connectStatus;
@@ -87,29 +89,20 @@ void RoutesManager::doActionsForInclusiveModeOpenVpn(const CMD_CONNECT_STATUS &c
 	//openVpnRoutes_.deleteRoute(table, connectStatus.remoteIp, "255.255.255.255", connectStatus.defaultAdapter.gatewayIp, connectStatus.defaultAdapter.ifIndex);
 	openVpnRoutes_.deleteRoute(table, "0.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex);
 	openVpnRoutes_.deleteRoute(table, "128.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex);
-
-	// add routes for DNS servers
-	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
-	{
-		dnsServersRoutes_.addRoute(table, *it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
-	}
 	// add bound route
 	boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, true);
 }
+
 void RoutesManager::doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS &connectStatus)
 {
 	// delete wireguard default route
 	IpForwardTable table;
 	wgRoutes_.deleteRoute(table, "0.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
 	wgRoutes_.deleteRoute(table, "128.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
-	// add routes for DNS servers
-	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
-	{
-		dnsServersRoutes_.addRoute(table, *it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
-	}
 	// add bound route
 	boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
 }
+
 void RoutesManager::doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &connectStatus)
 {
 	// delete ikev2 default route
@@ -117,4 +110,18 @@ void RoutesManager::doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &con
 	ikev2Routes_.deleteRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
 	// add bound route
 	boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
+}
+
+void RoutesManager::addDnsRoutes(const CMD_CONNECT_STATUS &connectStatus)
+{
+	IpForwardTable table;
+
+	// 10.255.255.0/24 contains the default DNS servers, on-node APIs, decoy traffic servers, etc
+	// and always goes through the tunnel.
+	dnsServersRoutes_.addRoute(table, "10.255.255.0", "255.255.255.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
+
+	// However the DNS server may fall outside the above range if configured with custom DNS after connecting.
+	// Set a /32 for each DNS server to make sure they are routed correctly.
+	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
+		dnsServersRoutes_.addRoute(table, *it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
 }

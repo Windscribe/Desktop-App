@@ -28,6 +28,7 @@ private:
 	void doActionsForInclusiveModeOpenVpn(const CMD_CONNECT_STATUS &connectStatus);
 	void doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS &connectStatus);
 	void doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &connectStatus);
+	void addDnsRoutes(const CMD_CONNECT_STATUS &connectStatus);
 };
 
 #endif /* RoutesManager_h */
