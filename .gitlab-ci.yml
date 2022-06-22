@@ -214,8 +214,7 @@ build:win:installer:
     - !reference [.download_protobuf_win, script]
     - !reference [.download_qt_win, script]
     - !reference [.download_stunnel_win, script]
-    - 'IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {
-        .\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}'
+    - 'IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -obuild-libs\}}'
     # extractions
     - Set-Variable -name VAULT_CLIENT_TOKEN -value $(tools/bin/curl.exe --cacert tools/cacert.pem
       --data "{\`"role_id\`":\`"$VAULT_ROLE_ID\`",\`"secret_id\`":\`"$VAULT_SECRET_ID\`"}"
