@@ -1,8 +1,5 @@
 # Define Stages
 stages:
-#  - Build Dependencies 1
-#  - Build Dependencies 2
-#  - Build Dependencies 3
   - Build Tests
   - Run Tests
   - Build
@@ -48,7 +45,6 @@ variables:
 include:
   - local: 'vars.yml'
   - local: functions.yml
-  - local: build-libs.yml
 
 .template_win10_build: &template_win10_build
   tags: [win10qty6]
