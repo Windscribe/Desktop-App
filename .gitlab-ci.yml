@@ -1,8 +1,8 @@
 # Define Stages
 stages:
-  - Build Dependencies 1
-  - Build Dependencies 2
-  - Build Dependencies 3
+#  - Build Dependencies 1
+#  - Build Dependencies 2
+#  - Build Dependencies 3
   - Build Tests
   - Run Tests
   - Build
@@ -36,7 +36,7 @@ variables:
   BUILDROOT: 'build-libs'
   TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
-  BUILD_WIN: 'n'
+  BUILD_WIN: 'y'
   BUILD_MAC: 'n'
   BUILD_LINUX: 'n'
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
@@ -51,7 +51,7 @@ include:
   - local: build-libs.yml
 
 .template_win10_build: &template_win10_build
-  tags: [win10]
+  tags: [win10qty6]
   before_script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
@@ -385,7 +385,7 @@ build:linux:installer:
     - if: $BUILD_LINUX == "y"
 
 build:artifact:links:
-  tags: [win10]
+  tags: [win10qty6]
   stage: Artifact Links
   script:
     - Set-Variable -name VERSION -value $(python tools/base/extract.py)
