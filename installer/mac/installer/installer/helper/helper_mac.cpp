@@ -51,6 +51,7 @@ void Helper_mac::stop()
     if (sock_ >= 0)
     {
         close(sock_);
+        sock_ = -1;
     }
 }
 

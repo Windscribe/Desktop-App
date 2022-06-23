@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)cancel;
 - (void)runLauncher;
 - (void)waitForCompletion;
+- (BOOL)connectHelper;
 
 @end
 
