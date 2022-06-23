@@ -4,11 +4,11 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 ## Windows
 ### Prerequisites
 
-- Windows 10.
+- Windows 10/11.
 - Install git (https://git-scm.com/downloads). When installing Git, you can stick with all the default options presented to you by the installer.
 - Clone the repository.
-- Visual Studio Community 2019 (run install_vs.bat with admin rights from /common/prepare_build_environment/windows).
-- Python 2.7.18 (run install_python.bat with admin rights from common/prepare_build_environment/windows).
+- Visual Studio Community Edition 2019 (run install_vs.bat from /common/prepare_build_environment/windows).
+- Python 2.7.18 (run install_python.bat from common/prepare_build_environment/windows).
 - Active Perl (install from https://www.activestate.com/products/perl/downloads/ or execute this code snippet).
     - powershell -Command "& $([scriptblock]::Create((New-Object Net.WebClient).DownloadString('https://platform.activestate.com/dl/cli/w20598w01/install.ps1'))) -activate-default ActiveState/Perl-5.32"
     - Alternately, you can install Strawberry Perl from https://strawberryperl.com/
@@ -21,7 +21,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
     - C:\Program Files\Git\cmd
 
 ### Install build script dependencies
-- On Windows 10, you will have to go to 'Manage App Execution Aliases' in System Settings and disable app installer for python.exe and python3.exe
+- You will have to go to 'Manage App Execution Aliases' in System Settings and disable app installer for python.exe and python3.exe
 - python tools/bin/get-pip.py
 - python -m pip install -r tools/requirements.txt
 
@@ -49,7 +49,7 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 - install_protobuf
 
 #### Notes
-- Some libraries depends on others. Jom is installed first and speeds up further builds. Almost all of the libraries depends on openssl. Openvpn depends on LZO. Curl depends on openssl and zlib.
+- Some libraries depends on others. Jom is installed first and speeds up further builds. Almost all of the libraries depend on openssl. Openvpn depends on LZO. Curl depends on openssl and zlib.
 - If you notice install or build scripts fail for seemingly no reason, try running each script from a fresh shell instance (CMD or gitbash). It appears to have something to do with a character limit on PATH or ENV variables.
 
 ### Build the Windscribe 2.0 app

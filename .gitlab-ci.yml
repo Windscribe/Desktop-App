@@ -10,7 +10,7 @@ variables:
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
   PROJECT_NAME: client-desktop # temporarily override CI_PROJECT_NAME while using client-desktop-public so we can interact with nexus
-  NEXUS_PATH_ROOT: '/repository/$PROJECT_NAME/$PROJECT_NAME/'
+  NEXUS_PATH_ROOT: '/repository/$PROJECT_NAME/$PROJECT_NAME'
   NEXUS_PATH_LATEST: '/latest'
   NEXUS_PATH_BRANCHES: '/branches'
   NEXUS_PATH_TAGS: '/tags'
@@ -33,7 +33,7 @@ variables:
   BUILDROOT: 'build-libs'
   TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
-  BUILD_WIN: 'y'
+  BUILD_WIN: 'n'
   BUILD_MAC: 'n'
   BUILD_LINUX: 'n'
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
