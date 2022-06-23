@@ -53,7 +53,7 @@ private:
         }
     };
 
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
     IConnectStateController *connectStateController_;
 
     static constexpr int MAX_PARALLEL_PINGS = 10;

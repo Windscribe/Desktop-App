@@ -17,7 +17,7 @@ WindowsNativeEventFilter::WindowsNativeEventFilter() : QAbstractNativeEventFilte
 #endif
 }
 
-bool WindowsNativeEventFilter::nativeEventFilter(const QByteArray &b, void *message, long *l)
+bool WindowsNativeEventFilter::nativeEventFilter(const QByteArray &b, void *message, qintptr *l)
 {
     Q_UNUSED(b);
     Q_UNUSED(l);

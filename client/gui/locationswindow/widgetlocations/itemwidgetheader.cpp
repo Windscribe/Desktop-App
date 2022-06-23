@@ -308,7 +308,7 @@ void ItemWidgetHeader::paintEvent(QPaintEvent * /*event*/)
     }
 }
 
-void ItemWidgetHeader::enterEvent(QEvent *event)
+void ItemWidgetHeader::enterEvent(QEnterEvent *event)
 {
     Q_UNUSED(event)
     // qDebug() << "Selection by hover enter";

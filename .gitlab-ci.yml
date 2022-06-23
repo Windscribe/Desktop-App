@@ -1,8 +1,5 @@
 # Define Stages
 stages:
-  - Build Dependencies 1
-  - Build Dependencies 2
-  - Build Dependencies 3
   - Build Tests
   - Run Tests
   - Build
@@ -13,7 +10,7 @@ variables:
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
   PROJECT_NAME: client-desktop # temporarily override CI_PROJECT_NAME while using client-desktop-public so we can interact with nexus
-  NEXUS_PATH_ROOT: '/repository/$PROJECT_NAME/$PROJECT_NAME/'
+  NEXUS_PATH_ROOT: '/repository/$PROJECT_NAME/$PROJECT_NAME'
   NEXUS_PATH_LATEST: '/latest'
   NEXUS_PATH_BRANCHES: '/branches'
   NEXUS_PATH_TAGS: '/tags'
@@ -36,9 +33,9 @@ variables:
   BUILDROOT: 'build-libs'
   TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
-  BUILD_WIN: 'y'
-  BUILD_MAC: 'y'
-  BUILD_LINUX: 'y'
+  BUILD_WIN: 'n'
+  BUILD_MAC: 'n'
+  BUILD_LINUX: 'n'
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
   TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
   TEST_LINUX: 'n' # tests will only run if BUILD_LINUX also 'y'
@@ -48,10 +45,9 @@ variables:
 include:
   - local: 'vars.yml'
   - local: functions.yml
-  - local: build-libs.yml
 
 .template_win10_build: &template_win10_build
-  tags: [win10]
+  tags: [win10qty6]
   before_script:
     # run this blindly until baked into image
     - python tools/bin/get-pip.py
@@ -218,8 +214,7 @@ build:win:installer:
     - !reference [.download_protobuf_win, script]
     - !reference [.download_qt_win, script]
     - !reference [.download_stunnel_win, script]
-    - 'IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {
-        .\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}'
+    - 'IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -obuild-libs\}}'
     # extractions
     - Set-Variable -name VAULT_CLIENT_TOKEN -value $(tools/bin/curl.exe --cacert tools/cacert.pem
       --data "{\`"role_id\`":\`"$VAULT_ROLE_ID\`",\`"secret_id\`":\`"$VAULT_SECRET_ID\`"}"
@@ -385,7 +380,7 @@ build:linux:installer:
     - if: $BUILD_LINUX == "y"
 
 build:artifact:links:
-  tags: [win10]
+  tags: [win10qty6]
   stage: Artifact Links
   script:
     - Set-Variable -name VERSION -value $(python tools/base/extract.py)

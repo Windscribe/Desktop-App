@@ -62,10 +62,10 @@ void HttpProxyConnection::onSocketReadyRead()
             {
                 socketExternal_ = new QTcpSocket(this);
 
-                connect(socketExternal_, SIGNAL(connected()), SLOT(onExternalSocketConnected()));
-                connect(socketExternal_, SIGNAL(disconnected()), SLOT(onExternalSocketDisconnected()));
-                connect(socketExternal_, SIGNAL(readyRead()), SLOT(onExternalSocketReadyRead()));
-                connect(socketExternal_, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(onExternalSocketError(QAbstractSocket::SocketError)));
+                connect(socketExternal_, &QTcpSocket::connected, this, &HttpProxyConnection::onExternalSocketConnected);
+                connect(socketExternal_, &QTcpSocket::disconnected, this, &HttpProxyConnection::onExternalSocketDisconnected);
+                connect(socketExternal_, &QTcpSocket::readyRead, this, &HttpProxyConnection::onExternalSocketReadyRead);
+                connect(socketExternal_, &QTcpSocket::errorOccurred, this, &HttpProxyConnection::onExternalSocketError);
 
                 writeAllSocketExternal_ = new SocketWriteAll(this, socketExternal_);
 

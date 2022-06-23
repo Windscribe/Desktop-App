@@ -1,6 +1,7 @@
 #include "wireguardconfig.h"
 
 #include <QFile>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
 
@@ -30,7 +31,7 @@ WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAdd
 // static
 QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
 {
-    const QRegExp rx("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(.*)$");
+    const QRegularExpression rx("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(.*)$");
     QString s = addressList.filter(rx).join(",");
     return s;
 }
@@ -38,7 +39,7 @@ QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
 // static
 QString WireGuardConfig::stripIpv6Address(const QString &addressList)
 {
-    return stripIpv6Address(addressList.split(",", QString::SkipEmptyParts));
+    return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
 }
 
 void WireGuardConfig::generateConfigFile(const QString &fileName) const

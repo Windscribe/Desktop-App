@@ -3,7 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include "commongraphics/iconbutton.h"
 #include "commonwidgets/custommenulineedit.h"
 #include "dividerline.h"
@@ -21,7 +21,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setText(const QString &text);
-    void setValidator(QRegExpValidator *validator);
+    void setValidator(QRegularExpressionValidator *validator);
 
     void updateScaling() override;
     void setEditButtonClickable(bool clickable);

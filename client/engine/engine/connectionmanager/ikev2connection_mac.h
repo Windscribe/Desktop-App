@@ -40,7 +40,7 @@ private:
 
     Helper_mac *helper_;
     bool bConnected_;
-    mutable QMutex mutex_;
+    mutable QRecursiveMutex mutex_;
     void *notificationId_;
     bool isStateConnectingAfterClick_;
     bool isDisconnectClicked_;

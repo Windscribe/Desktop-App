@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_OPENSSL: '1.1.1l'
+  VERSION_OPENSSL: '1.1.1o'
   BUILDROOT_OPENSSL: 'build-libs/openssl'
   ARTIFACT_OPENSSL: 'openssl.zip'

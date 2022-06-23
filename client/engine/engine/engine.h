@@ -116,7 +116,7 @@ public:
                                    const QStringList &ips, const QStringList &hosts);
 
     void updateWindowInfo(qint32 windowCenterX, qint32 windowCenterY);
-    void updateVersion(qint32 windowHandle);
+    void updateVersion(qint64 windowHandle);
     void stopUpdateVersion();
     void updateAdvancedParams();
 
@@ -271,7 +271,7 @@ private slots:
     void detectAppropriatePacketSizeImpl();
 
     void updateWindowInfoImpl(qint32 windowCenterX, qint32 windowCenterY);
-    void updateVersionImpl(qint32 windowHandle);
+    void updateVersionImpl(qint64 windowHandle);
     void stopUpdateVersionImpl();
     void updateAdvancedParamsImpl();
     void onDownloadHelperProgressChanged(uint progressPercent);
@@ -352,7 +352,7 @@ private:
     FirewallExceptions firewallExceptions_;
 
     LoginSettings loginSettings_;
-    QMutex loginSettingsMutex_;
+    QRecursiveMutex loginSettingsMutex_;
 
     QTimer *updateServerResourcesTimer_;
     SessionStatusTimer *updateSessionStatusTimer_;
@@ -408,7 +408,7 @@ private:
     QString installerUrl_;
     QString installerPath_;
     QString installerHash_;
-    qint32 guiWindowHandle_;
+    qint64 guiWindowHandle_;
 
     bool overrideUpdateChannelWithInternal_;
     bool bPrevNetworkInterfaceInitialized_;

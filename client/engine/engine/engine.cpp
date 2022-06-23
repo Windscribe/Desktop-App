@@ -73,7 +73,6 @@ Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
     bInitialized_(false),
     loginController_(nullptr),
     loginState_(LOGIN_NONE),
-    loginSettingsMutex_(QMutex::Recursive),
     updateServerResourcesTimer_(nullptr),
     updateSessionStatusTimer_(nullptr),
     notificationsUpdateTimer_(nullptr),
@@ -539,9 +538,9 @@ void Engine::updateWindowInfo(qint32 windowCenterX, qint32 windowCenterY)
                               Q_ARG(qint32, windowCenterX), Q_ARG(qint32, windowCenterY));
 }
 
-void Engine::updateVersion(qint32 windowHandle)
+void Engine::updateVersion(qint64 windowHandle)
 {
-    QMetaObject::invokeMethod(this, "updateVersionImpl", Q_ARG(qint32, windowHandle));
+    QMetaObject::invokeMethod(this, "updateVersionImpl", Q_ARG(qint64, windowHandle));
 }
 
 void Engine::updateAdvancedParams()
@@ -1120,7 +1119,7 @@ void Engine::sendDebugLogImpl()
 
     /*
     // For testing merge log functionality
-    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     path += "/merged_logs.txt";
     QFile file(path);
     if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
@@ -2236,7 +2235,7 @@ void Engine::updateWindowInfoImpl(qint32 windowCenterX, qint32 windowCenterY)
     }
 }
 
-void Engine::updateVersionImpl(qint32 windowHandle)
+void Engine::updateVersionImpl(qint64 windowHandle)
 {
     guiWindowHandle_ = windowHandle;
 

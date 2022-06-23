@@ -1,6 +1,7 @@
 #include "windscribepathcheck.h"
 #include <cwctype>
 #include <shlwapi.h>
+#include <shlobj_core.h>
 
 namespace
 {
@@ -24,11 +25,11 @@ namespace
 		if (path1.size() < MAX_PATH && path2.size() < MAX_PATH)
 		{
 			TCHAR buf1[MAX_PATH];
-			wcscpy(buf1, path1.c_str());
+			wcscpy_s(buf1, path1.c_str());
 			PathRemoveBackslash(buf1);
 
 			TCHAR buf2[MAX_PATH];
-			wcscpy(buf2, path2.c_str());
+			wcscpy_s(buf2, path2.c_str());
 			PathRemoveBackslash(buf2);
 
 			return caseInsensitiveStringCompare(buf1, buf2);
@@ -79,12 +80,24 @@ namespace WindscribePathCheck
 		if (dir.size() < MAX_PATH)
 		{
 			TCHAR buf[MAX_PATH];
-			wcscpy(buf, dir.c_str());
+			wcscpy_s(buf, dir.c_str());
 			if (PathAppend(buf, suffix.c_str()))
 			{
 				return buf;
 			}
 		}
 		return L"";
+	}
+
+	// Check if 'path' is a sub-folder of the "Program Files (x86)" folder.
+	bool in32BitProgramFilesFolder(const std::wstring path)
+	{
+		TCHAR programFilesPath[MAX_PATH];
+		bool result = ::SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILESX86, FALSE);
+		if (result) {
+			result = ::PathIsPrefix(programFilesPath, path.c_str());
+		}
+
+		return result;
 	}
 }

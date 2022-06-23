@@ -116,10 +116,10 @@ void PingHost_TCP::processNextPings()
             pingInfo->tcpSocket->setProxy(proxySettings_.getNetworkProxy());
         }
         pingInfo->timer = new QTimer(this);
-        connect(pingInfo->timer, SIGNAL(timeout()), SLOT(onSocketTimeout()));
-        connect(pingInfo->tcpSocket, SIGNAL(connected()), SLOT(onSocketConnected()));
-        connect(pingInfo->tcpSocket, SIGNAL(bytesWritten(qint64)), SLOT(onSocketBytesWritten(qint64)));
-        connect(pingInfo->tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(onSocketError(QAbstractSocket::SocketError)));
+        connect(pingInfo->timer, &QTimer::timeout, this, &PingHost_TCP::onSocketTimeout);
+        connect(pingInfo->tcpSocket, &QTcpSocket::connected, this, &PingHost_TCP::onSocketConnected);
+        connect(pingInfo->tcpSocket, &QTcpSocket::bytesWritten, this, &PingHost_TCP::onSocketBytesWritten);
+        connect(pingInfo->tcpSocket, &QTcpSocket::errorOccurred, this, &PingHost_TCP::onSocketError);
         if (connectStateController_)
         {
             pingInfo->tcpSocket->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED || connectStateController_->currentState() == CONNECT_STATE_CONNECTING);

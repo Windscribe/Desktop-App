@@ -891,13 +891,13 @@ QList<IfTableRow> WinUtils::getIfTable()
             QString interfaceName = "";
             for (DWORD j = 0; j < pIfTable->table[i].dwDescrLen; j++)
             {
-                interfaceName.append(pIfTable->table[i].bDescr[j]);
+                interfaceName.append(static_cast<char>(pIfTable->table[i].bDescr[j]));
             }
 
             QString physicalAddress = "";
             for (DWORD j = 0; j < pIfTable->table[i].dwPhysAddrLen; j++)
             {
-                physicalAddress.append(pIfTable->table[i].bPhysAddr[j]);
+                physicalAddress.append(static_cast<char>(pIfTable->table[i].bPhysAddr[j]));
             }
 
             IfTableRow ifRow(static_cast<int>(pIfTable->table[i].dwIndex),

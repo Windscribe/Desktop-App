@@ -3,6 +3,7 @@
 #include <QDataStream>
 #include <QSettings>
 #include <algorithm>
+#include <QIODevice>
 // #include <QDebug>
 
 NotificationsController::NotificationsController(QObject *parent) : QObject(parent),
