@@ -39,6 +39,7 @@ private slots:
     void onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
     void doNextPingTest();
     void startTestImpl();
+    void onTestsSkipped();
 
     #if defined(Q_OS_WINDOWS)
     bool initiateWin32TunnelTest();
