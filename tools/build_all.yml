@@ -150,8 +150,8 @@ targets:
   linux:
     - helper_linux
     - cli
-    - client
     - authhelper_linux
+    - client
   authhelper_win:
     - authhelper_com
     - authhelper_com_server
@@ -180,34 +180,31 @@ qt_files:
   - plugins/imageformats/qsvg.dll
   - plugins/imageformats/qjpeg.dll
 
-qt_files_linux:
-  - lib/libQt6Core.so.5
-  - lib/libQt6Network.so.5
-  - lib/libQt6Svg.so.5
-  - lib/libQt6Widgets.so.5
-  - lib/libQt6Gui.so.5
-  - lib/libQt6XcbQpa.so.5
-  - lib/libQt6DBus.so.5
-
 lib_files_linux:
   qt:
-    - lib/libQt6Core.so.5 -> lib/libQt6Core.so.5
-    - lib/libQt6Network.so.5 -> lib/libQt6Network.so.5
-    - lib/libQt6Svg.so.5 -> lib/libQt6Svg.so.5
-    - lib/libQt6Widgets.so.5 -> lib/libQt6Widgets.so.5
-    - lib/libQt6Gui.so.5 -> lib/libQt6Gui.so.5
-    - lib/libQt6XcbQpa.so.5 -> lib/libQt6XcbQpa.so.5
-    - lib/libQt6DBus.so.5 -> lib/libQt6DBus.so.5
-    - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
+    - lib/libicui18n.so.56 -> lib/libicui18n.so.56
+    - lib/libicuuc.so.56 -> lib/libicuuc.so.56
+    - lib/libicudata.so.56 -> lib/libicudata.so.56
+    - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
+    - lib/libQt6Core5Compat.so.6 -> lib/libQt6Core5Compat.so.6
+    - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
+    - lib/libQt6Gui.so.6 -> lib/libQt6Gui.so.6
+    - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
+    - lib/libQt6OpenGL.so.6 -> lib/libQt6OpenGL.so.6
+    - lib/libQt6Svg.so.6 -> lib/libQt6Svg.so.6
+    - lib/libQt6Widgets.so.6 -> lib/libQt6Widgets.so.6
+    - lib/libQt6XcbQpa.so.6 -> lib/libQt6XcbQpa.so.6
     - plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so -> plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
     - plugins/platforminputcontexts/libibusplatforminputcontextplugin.so -> plugins/platforminputcontexts/libibusplatforminputcontextplugin.so
     - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
     - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
     - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
     - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
-    - plugins/bearer/libqconnmanbearer.so -> plugins/bearer/libqconnmanbearer.so
-    - plugins/bearer/libqgenericbearer.so -> plugins/bearer/libqgenericbearer.so
-    - plugins/bearer/libqnmbearer.so -> plugins/bearer/libqnmbearer.so
+    - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
+    - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
+    - plugins/tls/libqopensslbackend.so -> plugins/tls/libqopensslbackend.so
+    - plugins/xcbglintegrations/libqxcb-egl-integration.so -> plugins/xcbglintegrations/libqxcb-egl-integration.so
+    - plugins/xcbglintegrations/libqxcb-glx-integration.so -> plugins/xcbglintegrations/libqxcb-glx-integration.so
 
   cares:
     - lib/libcares.so.2 -> lib/libcares.so.2
@@ -226,9 +223,9 @@ lib_files_linux:
     - windscribewireguard -> windscribewireguard
 
 files_fix_rpath_linux:
-  - lib/libQt6Network.so.5 -> $ORIGIN
-  - lib/libQt6XcbQpa.so.5 -> $ORIGIN
-  - lib/libQt6DBus.so.5 -> $ORIGIN
+  - lib/libQt6Network.so.6 -> $ORIGIN
+  - lib/libQt6XcbQpa.so.6 -> $ORIGIN
+  - lib/libQt6DBus.so.6 -> $ORIGIN
   - lib/libcurl.so.4 -> $ORIGIN
   - lib/libssl.so.1.1 -> $ORIGIN
   - windscribestunnel -> $ORIGIN/lib
