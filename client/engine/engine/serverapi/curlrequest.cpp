@@ -116,6 +116,16 @@ QString CurlRequest::getHostname() const
     return hostname_;
 }
 
+void CurlRequest::setFromDisconnectedVPNState(bool bFromDisconnectedVpnState)
+{
+    bFromDisconnectedVpnState_ = bFromDisconnectedVpnState;
+}
+
+bool CurlRequest::isFromDisconnectedVPNState() const
+{
+    return bFromDisconnectedVpnState_;
+}
+
 void CurlRequest::setIps(const QStringList &ips)
 {
     for (const QString &ip : ips)

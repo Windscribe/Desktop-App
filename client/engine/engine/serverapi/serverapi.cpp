@@ -9,6 +9,7 @@
 #include <QUrlQuery>
 #include "utils/hardcodedsettings.h"
 #include "engine/openvpnversioncontroller.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/ipvalidation.h"
@@ -314,7 +315,8 @@ private:
 
 } // namespace
 
-ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
+ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateController) : QObject(parent),
+    connectStateController_(connectStateController),
     hostMode_(HOST_MODE_HOSTNAME),
     bIsRequestsEnabled_(false),
     curUserRole_(0),
@@ -1024,6 +1026,9 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         }
     }
 
+    QSettings settings;
+    QString countryOverride = settings.value("countryOverride", "").toString();
+
     // if this is IP, then use ServerLocations request
     QUrl url;
     if (IpValidation::instance().isIp(hostname_))
@@ -1040,6 +1045,12 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         query.addQueryItem("browser", "mobike");
         query.addQueryItem("platform", Utils::getPlatformNameSafe());
         query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
+
+        if (!countryOverride.isEmpty() && connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
+        {
+            query.addQueryItem("countryOverride", countryOverride);
+            qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
+        }
 
         // add alc parameter in query, if not empty
         if (!alcField.isEmpty())
@@ -1066,18 +1077,24 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         url = QUrl("https://" + modifiedHostname + "/serverlist/mob-v2/" + strIsPro + "/" + crd->getRevision());
 
         // add alc parameter in query, if not empty
+        QUrlQuery query;
         if (!alcField.isEmpty())
         {
-            QUrlQuery query;
             query.addQueryItem("platform", Utils::getPlatformNameSafe());
             query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
             query.addQueryItem("alc", alcField);
-            url.setQuery(query);
         }
+        if (!countryOverride.isEmpty() && connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
+        {
+            query.addQueryItem("country_override", countryOverride);
+            qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
+        }
+        url.setQuery(query);
     }
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
+    curl_request->setFromDisconnectedVPNState(connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED);
     submitCurlRequest(crd, CurlRequest::METHOD_GET, QString(), crd->getHostname(), ips);
 }
 
@@ -1931,6 +1948,27 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         bool isChanged = jsonInfo["changed"].toInt() != 0;
         int newRevision = jsonInfo["revision"].toInt();
         QString revisionHash = jsonInfo["revision_hash"].toString();
+
+        // manage the country override flag according to the documentation
+        // https://gitlab.int.windscribe.com/ws/client/desktop/client-desktop-public/-/issues/354
+        if (jsonInfo.contains("country_override"))
+        {
+            if (curlRequest->isFromDisconnectedVPNState() && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
+            {
+                QSettings settings;
+                settings.setValue("countryOverride", jsonInfo["country_override"].toString());
+                qCDebug(LOG_SERVER_API) << "API request ServerLocations saved countryOverride = " << jsonInfo["country_override"].toString();
+            }
+        }
+        else
+        {
+            if (curlRequest->isFromDisconnectedVPNState() && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
+            {
+                QSettings settings;
+                settings.remove("countryOverride");
+                qCDebug(LOG_SERVER_API) << "API request ServerLocations removed countryOverride flag";
+            }
+        }
 
         if (isChanged)
         {
