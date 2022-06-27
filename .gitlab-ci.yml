@@ -344,6 +344,7 @@ build:linux:installer:
     - !reference [.download_qt_linux, script]
     - !reference [.download_stunnel_linux, script]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
+    - ls -l ./build-libs/protobuf/lib
     - ldd ./build-libs/protobuf/bin/protoc
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
