@@ -33,7 +33,7 @@ variables:
   BUILDROOT: 'build-libs'
   TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
-  BUILD_WIN: 'y'
+  BUILD_WIN: 'n'
   BUILD_MAC: 'n'
   BUILD_LINUX: 'y'
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
@@ -65,22 +65,14 @@ include:
   before_script:
     # run this blindly until baked into image
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - apt-get -y install build-essential
-    - apt-get -y install git
-    - apt-get -y install curl
-    - apt-get -y install patchelf
-    - apt-get -y install ruby-dev rpm && gem i fpm -f
-    - apt-get -y install libpam0g-dev
-    - apt-get -y install software-properties-common && apt-get -y update
-    - apt-get -y install wget
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common
+    - DEBIAN_FRONTEND=noninteractive apt-get -y update
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool cmake fakeroot python
+    # Qt 6 dependencies, only necessary if we're build Qt from source.
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
+    - gem i fpm -f
     - wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
     - rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
-    - apt-get -y install autoconf
-    - apt-get -y install libtool
-    - apt-get -y install cmake
-    - apt-get -y install fakeroot
-    - apt-get -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
-    - apt-get -y install python
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
