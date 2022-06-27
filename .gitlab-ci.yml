@@ -33,7 +33,7 @@ variables:
   BUILDROOT: 'build-libs'
   TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
-  BUILD_WIN: 'n'
+  BUILD_WIN: 'y'
   BUILD_MAC: 'n'
   BUILD_LINUX: 'n'
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
