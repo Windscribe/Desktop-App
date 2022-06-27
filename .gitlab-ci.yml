@@ -68,7 +68,7 @@ include:
     - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
     - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool cmake fakeroot python
-    # Qt 6 dependencies, only necessary if we're build Qt from source.
+    # Qt 6 dependencies, only necessary if we're building Qt from source.
     - DEBIAN_FRONTEND=noninteractive apt-get -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
     - gem i fpm -f
     - wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
@@ -344,6 +344,7 @@ build:linux:installer:
     - !reference [.download_qt_linux, script]
     - !reference [.download_stunnel_linux, script]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
+    - ldd ./build-libs/protobuf/bin/protoc
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
       --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
