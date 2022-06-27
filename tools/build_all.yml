@@ -174,11 +174,15 @@ qt_files:
   - bin/Qt6Network.dll
   - bin/Qt6Svg.dll
   - bin/Qt6Widgets.dll
-  - plugins/platforms/qwindows.dll
   - plugins/imageformats/qgif.dll
   - plugins/imageformats/qico.dll
   - plugins/imageformats/qsvg.dll
   - plugins/imageformats/qjpeg.dll
+  - plugins/networkinformation/qnetworklistmanager.dll
+  - plugins/platforms/qwindows.dll
+  - plugins/styles/qwindowsvistastyle.dll
+  - plugins/tls/qopensslbackend.dll
+  - plugins/tls/qschannelbackend.dll
 
 lib_files_linux:
   qt:
