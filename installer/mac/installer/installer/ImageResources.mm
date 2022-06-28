@@ -8,6 +8,9 @@
 @synthesize settingsIcon = settingsIcon_;
 @synthesize checkIcon = checkIcon_;
 @synthesize folderIcon = folderIcon_;
+@synthesize toggleBgWhite = toggleBgWhite_;
+@synthesize toggleBgGreen = toggleBgGreen_;
+@synthesize toggleIndicator = toggleIndicator_;
 @synthesize backgroundImage = backgroundImage_;
 
 -(id)init
@@ -20,6 +23,9 @@
     forwardArrowIcon_ = [SVGKImage imageNamed: @"FRWRD_ARROW_ICON.svg"];
     settingsIcon_ = [SVGKImage imageNamed: @"SETTINGS_ICON.svg"];
     checkIcon_ = [SVGKImage imageNamed: @"CHECK_ICON.svg"];
+    toggleBgWhite_ = [SVGKImage imageNamed: @"WHITE_TOGGLE_BG.svg"];
+    toggleBgGreen_ = [SVGKImage imageNamed: @"GREEN_TOGGLE_BG.svg"];
+    toggleIndicator_ = [SVGKImage imageNamed: @"BUTTON_BLACK.svg"];
     folderIcon_ = [SVGKImage imageNamed: @"FOLDER_ICON.svg"];
     
     return self;

@@ -1,19 +1,19 @@
-#include "multipleaccountdetection_mac.h"
+#include "multipleaccountdetection_posix.h"
 #include <QSettings>
 #include <QDataStream>
 #include "utils/logger.h"
 
 // the name does not make sense for crypt
-const QString MultipleAccountDetection_mac::entryName_ = "locationData2";
+const QString MultipleAccountDetection_posix::entryName_ = "locationData2";
 
-MultipleAccountDetection_mac::MultipleAccountDetection_mac() : crypt_(0xFA7234AAF37A31BE)
+MultipleAccountDetection_posix::MultipleAccountDetection_posix() : crypt_(0xFA7234AAF37A31BE)
 {
 }
 
-void MultipleAccountDetection_mac::userBecomeExpired(const QString &username)
+void MultipleAccountDetection_posix::userBecomeExpired(const QString &username)
 {
     qCDebug(LOG_BASIC) << "MultipleAccountDetection::userBecomeExpired, username =" << username;
-    MultipleAccountDetection_mac::TEntry entry;
+    MultipleAccountDetection_posix::TEntry entry;
 
     bool bNeedWrite = false;
 
@@ -31,9 +31,9 @@ void MultipleAccountDetection_mac::userBecomeExpired(const QString &username)
     }
 }
 
-bool MultipleAccountDetection_mac::entryIsPresent(QString &username)
+bool MultipleAccountDetection_posix::entryIsPresent(QString &username)
 {
-    QSettings settings;
+    QSettings settings("Windscribe", "location");
     bool bExists = settings.contains(entryName_);
     if (bExists)
     {
@@ -44,16 +44,16 @@ bool MultipleAccountDetection_mac::entryIsPresent(QString &username)
     return bExists;
 }
 
-void MultipleAccountDetection_mac::removeEntry()
+void MultipleAccountDetection_posix::removeEntry()
 {
-    QSettings settings;
+    QSettings settings("Windscribe", "location");
     settings.remove(entryName_);
     qCDebug(LOG_BASIC) << "Abuse detection: Entry for abuse detection removed";
 }
 
-bool MultipleAccountDetection_mac::readEntry(MultipleAccountDetection_mac::TEntry &entry)
+bool MultipleAccountDetection_posix::readEntry(MultipleAccountDetection_posix::TEntry &entry)
 {
-    QSettings settings;
+    QSettings settings("Windscribe", "location");
     if (settings.contains(entryName_))
     {
         QByteArray buf = crypt_.decryptToByteArray(settings.value(entryName_).toByteArray());
@@ -73,7 +73,7 @@ bool MultipleAccountDetection_mac::readEntry(MultipleAccountDetection_mac::TEntr
     }
 }
 
-void MultipleAccountDetection_mac::writeEntry(const MultipleAccountDetection_mac::TEntry &entry)
+void MultipleAccountDetection_posix::writeEntry(const MultipleAccountDetection_posix::TEntry &entry)
 {
     QByteArray buf;
     {
@@ -82,6 +82,6 @@ void MultipleAccountDetection_mac::writeEntry(const MultipleAccountDetection_mac
         stream << entry.date_;
     }
 
-    QSettings settings;
+    QSettings settings("Windscribe", "location");
     settings.setValue(entryName_, crypt_.encryptToByteArray(buf));
 }

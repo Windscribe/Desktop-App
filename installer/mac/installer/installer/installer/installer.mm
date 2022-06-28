@@ -120,11 +120,11 @@
                 kill(pid, SIGTERM);
             }
         }
-        
+
         // get WindscribeEngine processes
         std::vector<pid_t> engineList = processesHelper.getPidsByProcessname("WindscribeEngine");
         processesList.insert(processesList.end(), engineList.begin(), engineList.end());
-        
+
         // wait for finish (maximum 10 sec)
         NSDate *waitingSince_ = [NSDate date];
         while (true)
@@ -163,8 +163,16 @@
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"All Windscribe programs closed"]];
     }
 
+    bool bTemp;
+    if (self.factoryReset && connectedOldHelper)
+    {
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Deleting old helper"]];
+        helper_.executeRootCommand("rm /Library/PrivilegedHelperTools/com.windscribe.helper.macos", bTemp);
+        helper_.executeRootCommand("rm /Library/Logs/com.windscribe.helper.macos/helper_log.txt", bTemp);
+    }
+
     helper_.stop();
-    
+
     // Install new helper now that we are sure the client app has exited. Otherwise we may cause the
     // client app to hang when we pull the old helper out from under it.
     if (!InstallHelper_mac::installHelper())
@@ -230,10 +238,39 @@
     }
     
     // remove helper from version 1
-    bool bTemp;
     helper_.executeRootCommand("launchctl unload /Library/LaunchDaemons/com.aaa.windscribe.OVPNHelper.plist", bTemp);
     helper_.executeRootCommand("rm /Library/LaunchDaemons/com.aaa.windscribe.OVPNHelper.plist", bTemp);
     helper_.executeRootCommand("rm /Library/PrivilegedHelperTools/com.aaa.windscribe.OVPNHelper", bTemp);
+
+    if (self.factoryReset)
+    {
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Executing factory reset"]];
+
+        NSMutableString *cmd = [NSMutableString stringWithString:@"rm \""];
+        [cmd appendString:NSHomeDirectory()];
+        [cmd appendString:@"/Library/Preferences/com.windscribe.Windscribe.plist\""];
+        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+
+        [cmd setString:@"rm \""];
+        [cmd appendString:NSHomeDirectory()];
+        [cmd appendString:@"/Library/Preferences/com.windscribe.Windscribe2.plist\""];
+        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+
+        [cmd setString:@"rm \""];
+        [cmd appendString:NSHomeDirectory()];
+        [cmd appendString:@"/Library/Preferences/com.windscribe.gui.macos.plist\""];
+        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+
+        [cmd setString:@"rm \""];
+        [cmd appendString:NSHomeDirectory()];
+        [cmd appendString:@"/Library/Application Support/windscribe_extra.conf\""];
+        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+
+        [cmd setString:@"rm -r \""];
+        [cmd appendString:NSHomeDirectory()];
+        [cmd appendString:@"/Library/Application Support/Windscribe/Windscribe2\""];
+        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+    }
     
     [[Logger sharedLogger] logAndStdOut:@"Writing blocks"];
     

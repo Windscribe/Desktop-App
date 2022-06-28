@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
+    <title>TOGGLE_BUTTON_BLACK</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="ws-extension-ui-spec-sheet-copy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-606.000000, -1264.000000)">
+        <g id="Firewall-button-Copy-36" transform="translate(590.000000, 1262.000000)" fill="#020D1C">
+            <path d="M22,2 L22,2 C25.3137085,2 28,4.6862915 28,8 L28,8 C28,11.3137085 25.3137085,14 22,14 L22,14 C18.6862915,14 16,11.3137085 16,8 L16,8 C16,4.6862915 18.6862915,2 22,2 Z" id="TOGGLE_BUTTON_BLACK"></path>
+        </g>
+    </g>
+</svg>
