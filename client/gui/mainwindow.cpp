@@ -199,6 +199,7 @@ MainWindow::MainWindow() :
     locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(setLatencyDisplay(ProtoTypes::LatencyDisplayType)) );
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
+    connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainWindow::onAutoConnectUpdated);
 
     localIpcServer_ = new LocalIPCServer(backend_, this);
     connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onReceivedOpenLocationsMessage);
@@ -2885,6 +2886,13 @@ void MainWindow::showShutdownWindow()
 void MainWindow::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface networkInterface)
 {
     mainWindowController_->getConnectWindow()->updateNetworkState(networkInterface);
+    backend_->handleNetworkChange(networkInterface, true);
+}
+
+void MainWindow::onAutoConnectUpdated(bool on)
+{
+    Q_UNUSED(on);
+    backend_->handleNetworkChange(backend_->getCurrentNetworkInterface(), true);
 }
 
 QRect MainWindow::trayIconRect()
