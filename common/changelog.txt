@@ -1,8 +1,48 @@
+2.5.1 (28/06/2022)
+* Create Mac helper text file log (instead of syslog), in the same format as other logs. #57
+* Merge log from Mac helper to program log. #73
+* Reinstall TUN/TAP drivers if removed. #125
+* Make sure OpenVPN/Wireguard connections fully terminated when app starts. #154
+* Update to latest Wireguard (0.0.20220316) for Mac & Linux. #164
+* Add minimize/close-to-tray in Linux. #174
+* Add command-line parameter to skip TUN/TAP driver installation. #184
+* Use wireguard kernel module if it's available. #187
+* Add command-line parameter to prevent automatic app launch in installer. #204
+* Add 'factory reset' option to Windows and macOS installers. #212
+* Continue install if TAP adapter install fails. #254
+* Fix WireGuard service rejects custom config file with no PSK. #266
+* Fix various routing/firewall issues #102 #243 #322 #329 #338
+* Add advanced parameter ws-tunnel-test-no-error and allow ws-tunnel-test-attempts to be 0. #267
+* Limit DLL search path for the installer on Windows to only the system path. #281
+* Trigger connect/disconnect when Network Whitelist/Auto Connect preferences are changed. #288
+* Auto-update on Mac doesn't work correctly. #307
+* Ensure option for Close TCP Connections is read correctly from engineSettings. #343
+* Sticky server list for blocked locations. #354
+* Fixed GUI hang on macOS when app is connected and an in-app upgrade from 2.3.16 to 2.5.1 is performed. #357
+
+
+2.4.11 (23/06/2022)
+* Fixed GUI hang on macOS when app is connected and an in-app upgrade from 2.3.16 to 2.4.10 is performed. #357
+
+
+2.4.10 (31/05/2022)
+* Same as 2.4.9, but produced by CI.
+
+
+2.4.9 (31/05/2022)
+* Same as 2.4.8, but release build.
+
+
+2.4.8 (18/05/2022)
+* Same as 2.4.7, but beta build.
+
+
 2.4.7 (11/05/2022)
 * Replaced ip -> /usr/sbin/ip in the update-systemd-resolved Linux script. #275
 * Log server errors when checking for available updates. #280
 * Added the ws-staging parameter to advanced parameters. #277
 * Fix update flow for users without gnome-terminal.  #282
+
 
 2.4.6 (03/05/2022)
 * App crashes on Emergency Connect. #255
