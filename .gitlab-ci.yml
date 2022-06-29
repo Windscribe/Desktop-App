@@ -42,7 +42,7 @@ variables:
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
   TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
   TEST_LINUX: 'n' # tests will only run if BUILD_LINUX also 'y'
-  BUILD_LIBS_EVERYTIME: 'n' #enable to rebuild all the libs
+  BUILD_LIBS_EVERYTIME: 'y' #enable to rebuild all the libs
 
 # pull in other yaml files
 include:
