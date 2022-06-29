@@ -70,6 +70,12 @@ def BuildDependencyGNU(outpath):
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
   iutl.RunCommand(["make", "install", "-s"], env=buildenv)
+  # Patch rpath to allow protoc to run when protobuf.zip is extracted to any arbitrary folder
+  if utl.GetCurrentOS() == "macos":
+    msg.Warn("The rpath for bin/protoc needs to be updated")
+  else:
+    iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/bin/protoc".format(outpath)])
+    iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/lib/libprotoc.so".format(outpath)])
 
 
 def InstallDependency():

@@ -65,7 +65,7 @@ include:
   before_script:
     # run this blindly until baked into image
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common libgl1-mesa-dev
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
     - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool cmake fakeroot python
     # Qt 6 dependencies, only necessary if we're building Qt from source.
@@ -344,8 +344,6 @@ build:linux:installer:
     - !reference [.download_qt_linux, script]
     - !reference [.download_stunnel_linux, script]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
-    - ls -l ./build-libs/protobuf/lib
-    - ldd ./build-libs/protobuf/bin/protoc
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
       --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
