@@ -56,6 +56,19 @@ void FirewallExceptions::setConnectingIp(const QString &connectingIp, bool &bCha
     }
 }
 
+void FirewallExceptions::setDNSServerIp(const QString &dnsIp, bool &bChanged)
+{
+    if (dnsIp_ != dnsIp)
+    {
+        dnsIp_ = dnsIp;
+        bChanged = true;
+    }
+    else
+    {
+        bChanged = false;
+    }
+}
+
 void FirewallExceptions::setDnsPolicy(DNS_POLICY_TYPE dnsPolicy)
 {
     dnsPolicyType_ = dnsPolicy;
@@ -151,6 +164,11 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
     if (!connectingIp_.isEmpty())
     {
         ipList.add(connectingIp_);
+    }
+
+    if (!dnsIp_.isEmpty())
+    {
+        ipList.add(dnsIp_);
     }
 
     for (const QString &sl : locationsPingIPs_)

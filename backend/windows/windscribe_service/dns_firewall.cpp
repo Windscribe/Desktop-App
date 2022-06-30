@@ -172,7 +172,9 @@ std::vector<std::wstring> DnsFirewall::getDnsServers()
 	PIP_ADAPTER_ADDRESSES pCurrAddresses = (PIP_ADAPTER_ADDRESSES)&arr[0];
 	while (pCurrAddresses)
 	{
-		if (wcsstr(pCurrAddresses->Description, L"Windscribe") == 0) // ignore Windscribe TAP and Windscribe Ikev2 adapters
+        // Warning: we control the FriendlyName of the wireguard-nt adapter, but not the Description.
+		if ((wcsstr(pCurrAddresses->Description, L"Windscribe") == 0) && // ignore Windscribe TAP and Windscribe Ikev2 adapters
+            (wcsstr(pCurrAddresses->FriendlyName, L"Windscribe") == 0)) // ignore Windscribe wireguard-nt tunnel
 		{
 			PIP_ADAPTER_DNS_SERVER_ADDRESS dnsServerAddress = pCurrAddresses->FirstDnsServerAddress;
 			while (dnsServerAddress)

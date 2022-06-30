@@ -1,10 +1,9 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_WIREGUARD: '0.0.20201118'
+  VERSION_WIREGUARD_WIN: '0.5.3'
+  VERSION_WIREGUARD_GNU: '0.0.20201118'
   BUILDROOT_WIREGUARD: 'build-libs/wireguard'
-  VERSION_WIN32_GO: '1.17.3'
-  VERSION_WIN32_MAKE: '4.2.1'
   ARTIFACT_WIREGUARD: 'wireguard.zip'

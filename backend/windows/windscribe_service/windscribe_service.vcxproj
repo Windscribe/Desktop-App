@@ -397,10 +397,6 @@
     <ClInclude Include="pipe_for_process.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="sys_ipv6_controller.h" />
-    <ClInclude Include="wireguard\defaultroutemonitor.h" />
-    <ClInclude Include="wireguard\privilegehelper.h" />
-    <ClInclude Include="wireguard\wireguardadapter.h" />
-    <ClInclude Include="wireguard\wireguardcommunicator.h" />
     <ClInclude Include="wireguard\wireguardcontroller.h" />
   </ItemGroup>
   <ItemGroup>
@@ -408,6 +404,7 @@
     <ClCompile Include="..\..\..\common\utils\crashhandler.cpp" />
     <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature.cpp" />
     <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp" />
+    <ClCompile Include="..\..\..\common\utils\servicecontrolmanager.cpp" />
     <ClCompile Include="adapters_info.cpp" />
     <ClCompile Include="apps_ids.cpp" />
     <ClCompile Include="cleardns_on_tap.cpp" />
@@ -445,10 +442,6 @@
     <ClCompile Include="sys_ipv6_controller.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="windscribe_service.cpp" />
-    <ClCompile Include="wireguard\defaultroutemonitor.cpp" />
-    <ClCompile Include="wireguard\privilegehelper.cpp" />
-    <ClCompile Include="wireguard\wireguardadapter.cpp" />
-    <ClCompile Include="wireguard\wireguardcommunicator.cpp" />
     <ClCompile Include="wireguard\wireguardcontroller.cpp" />
   </ItemGroup>
   <ItemGroup>

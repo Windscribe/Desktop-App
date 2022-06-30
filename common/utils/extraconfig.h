@@ -41,6 +41,7 @@ public:
     int getTunnelTestAttempts(bool &success);
 
     bool getOverrideUpdateChannelToInternal();
+    bool getIsStaging();
 
 private:
     ExtraConfig();

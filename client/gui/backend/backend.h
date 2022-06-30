@@ -39,7 +39,7 @@ public:
     void loginWithAuthHash(const QString &authHash);
     void loginWithLastLoginSettings();
     bool isLastLoginWithAuthHash() const;
-    void signOut();
+    void signOut(bool keepFirewallOn);
     void sendConnect(const LocationID &lid);
     void sendDisconnect();
     bool isDisconnected() const;
@@ -122,7 +122,7 @@ signals:
 
     void loginFinished(bool isLoginFromSavedSettings);
     void loginStepMessage(ProtoTypes::LoginMessage msg);
-    void loginError(ProtoTypes::LoginError loginError);
+    void loginError(ProtoTypes::LoginError loginError, const QString &errorMessage);
 
     void signOutFinished();
 
@@ -160,6 +160,9 @@ signals:
 
     void engineCrash();
     void engineRecoveryFailed();
+
+    void wireGuardAtKeyLimit();
+    void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
 private:
     bool isSavedApiSettingsExists_;

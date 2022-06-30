@@ -8,6 +8,7 @@
 
 #include "locationswindow/locationswindow.h"
 #include "backend/backend.h"
+#include "localipcserver/localipcserver.h"
 #include "backend/notificationscontroller.h"
 #include "log/logviewerwindow.h"
 #include "loginattemptscontroller.h"
@@ -53,6 +54,9 @@ protected:
     virtual void keyReleaseEvent(QKeyEvent *event);
 
     virtual void paintEvent(QPaintEvent *event);
+
+Q_SIGNALS:
+    void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
 private slots:
     void setWindowToDpiScaleManager();
@@ -157,8 +161,7 @@ private slots:
     //void onBackendLoginInfoChanged(const ProtoTypes::LoginInfo &loginInfo);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendLoginStepMessage(ProtoTypes::LoginMessage msg);
-    void onBackendLoginError(ProtoTypes::LoginError loginError);
-
+    void onBackendLoginError(ProtoTypes::LoginError loginError, const QString &errorMessage);
 
     void onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &sessionStatus);
     void onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &checkUpdateInfo);
@@ -214,17 +217,21 @@ private slots:
 
 #ifdef Q_OS_MAC
     void onPreferencesHideFromDockChanged(bool hideFromDock);
-    void hideShowDockIconImpl();
+    void hideShowDockIconImpl(bool bAllowActivateAndShow);
 #endif
     // WindscribeApplications signals
     void toggleVisibilityIfDocked();
     void onAppActivateFromAnotherInstance();
     void onAppShouldTerminate_mac();
-    void onReceivedOpenLocationsMessage();
     void onAppCloseRequest();
 #if defined(Q_OS_WIN)
     void onAppWinIniChanged();
 #endif
+
+    // LocalIPCServer signals
+    void onReceivedOpenLocationsMessage();
+    void onConnectToLocation(const LocationID &id);
+
 
     void showShutdownWindow();
 
@@ -234,8 +241,7 @@ private slots:
     void onTrayMenuConnect();
     void onTrayMenuDisconnect();
     void onTrayMenuPreferences();
-    void onTrayMenuHide();
-    void onTrayMenuShow();
+    void onTrayMenuShowHide();
     void onTrayMenuHelpMe();
     void onTrayMenuQuit();
     void onTrayMenuAboutToShow();
@@ -257,12 +263,15 @@ private slots:
     void onAdvancedParametersOkClick();
     void onAdvancedParametersCancelClick();
 
+    void onWireGuardAtKeyLimit();
+
 private:
     void gotoLoginWindow();
     void gotoExitWindow();
     void collapsePreferences();
 
     Backend *backend_;
+    LocalIPCServer *localIpcServer_;
     NotificationsController notificationsController_;
 
     MainWindowController *mainWindowController_;
@@ -304,6 +313,7 @@ private:
     enum SIGN_OUT_REASON { SIGN_OUT_UNDEFINED, SIGN_OUT_FROM_MENU, SIGN_OUT_SESSION_EXPIRED, SIGN_OUT_WITH_MESSAGE };
     SIGN_OUT_REASON signOutReason_;
     ILoginWindow::ERROR_MESSAGE_TYPE signOutMessageType_;
+    QString signOutErrorMessage_;
 
     LoginAttemptsController loginAttemptsController_;
     GuiTest *guiTest_;
@@ -322,7 +332,7 @@ private:
 
     void hideSupplementaryWidgets();
 
-    void backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessage);
+    void backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
     void setupTrayIcon();
     QString getConnectionTime();
     QString getConnectionTransferred();

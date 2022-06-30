@@ -21,7 +21,7 @@ import installutils as iutl
 DEP_TITLE = "OpenSSL"
 DEP_URL = "https://www.openssl.org/source/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
-DEP_FILE_MASK = ["bin/*.dll", "include/**", "lib/*.lib", "lib/*.a", "lib/*.so", "lib/*.dylib"]
+DEP_FILE_MASK = ["bin/*.dll", "include/**", "lib/**"]
 
 
 def BuildDependencyMSVC(outpath):
@@ -35,7 +35,6 @@ def BuildDependencyMSVC(outpath):
   if not is_testing_ok:
     configure_cmd.extend(["no-unit-test", "no-tests"])
   configure_cmd.append("--prefix={}".format(outpath))
-  configure_cmd.append("--openssldir={}".format(outpath))
   iutl.RunCommand(configure_cmd, env=buildenv, shell=True)
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=True)
@@ -56,7 +55,7 @@ def BuildDependencyGNU(outpath, compiler_params):
   if not is_testing_ok:
     configure_cmd.extend(["no-unit-test", "no-tests"])
   configure_cmd.append("--prefix={}".format(outpath))
-  configure_cmd.append("--openssldir={}".format(outpath))
+  configure_cmd.append("--openssldir=/usr/local/ssl")
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)

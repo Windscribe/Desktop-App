@@ -13,7 +13,12 @@ GetApiAccessIps::GetApiAccessIps(QObject *parent, ServerAPI *serverAPI) : QObjec
 void GetApiAccessIps::get()
 {
     hardcodedIps_ = HardcodedSettings::instance().apiIps();
-    makeRequestToRandomIP();
+    if (hardcodedIps_.count() > 0) {
+        makeRequestToRandomIP();
+    }
+    else {
+        emit finished(SERVER_RETURN_NETWORK_ERROR, QStringList());
+    }
 }
 
 void GetApiAccessIps::onAccessIpsAnswer(SERVER_API_RET_CODE retCode, const QStringList &hosts, uint userRole)

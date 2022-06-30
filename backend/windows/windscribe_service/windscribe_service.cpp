@@ -22,8 +22,6 @@
 #include "ipc/serialize_structs.h"
 #include "fwpm_wrapper.h"
 #include "remove_windscribe_network_profiles.h"
-#include "wireguard/defaultroutemonitor.h"
-#include "wireguard/wireguardadapter.h"
 #include "wireguard/wireguardcontroller.h"
 #include "reinstall_tun_drivers.h"
 #include <conio.h>
@@ -671,7 +669,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 			// make openvpn command
 			std::wstring strCmd = L"\"" + Utils::getExePath() + L"\\" + cmdRunOpenVpn.szOpenVpnExecutable + L"\"";
 			strCmd += L" --config \"" + cmdRunOpenVpn.szConfigPath + L"\" --management 127.0.0.1 ";
-			strCmd += std::to_wstring(cmdRunOpenVpn.portNumber) + L" --management-query-passwords --management-hold";
+            strCmd += std::to_wstring(cmdRunOpenVpn.portNumber) + L" --management-query-passwords --management-hold --verb 3";
 
 			if (wcslen(cmdRunOpenVpn.szHttpProxy.c_str()) > 0)
 			{
@@ -937,84 +935,19 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
     {
         CMD_START_WIREGUARD cmdStartWireGuard;
         ia >> cmdStartWireGuard;
-        // check input parameters
-        if (Utils::isValidFileName(cmdStartWireGuard.szExecutable) &&
-            Utils::noSpacesInString(cmdStartWireGuard.szDeviceName)) {
-            std::wstring exePath = Utils::getExePath();
-            std::wstring strCmd = L"\"" + exePath + L"\\" + cmdStartWireGuard.szExecutable + L"\"";
-            strCmd += L" " + cmdStartWireGuard.szDeviceName;
-            mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), L"", exePath.c_str());
-            if (mpr.success)
-                wireGuardController.init(cmdStartWireGuard.szDeviceName, mpr.blockingCmdId);
-            Logger::instance().out(L"AA_COMMAND_START_WIREGUARD: cmd = %s,success = %d",
-                strCmd.c_str(), mpr.success);
-        }
+
+        mpr.success = wireGuardController.installService(cmdStartWireGuard.szExecutable, cmdStartWireGuard.szDeviceName);
+        Logger::instance().out(L"AA_COMMAND_START_WIREGUARD: success = %d", mpr.success);
     }
     else if (cmdId == AA_COMMAND_STOP_WIREGUARD)
     {
+        mpr.success = wireGuardController.deleteService();
         Logger::instance().out(L"AA_COMMAND_STOP_WIREGUARD");
-        wireGuardController.reset();
-        mpr = ExecuteCmd::instance().getUnblockingCmdStatus(wireGuardController.getDaemonCmdId());
-    }
-    else if (cmdId == AA_COMMAND_CONFIGURE_WIREGUARD)
-    {
-        CMD_CONFIGURE_WIREGUARD cmdConfigureWireGuard;
-        ia >> cmdConfigureWireGuard;
-        if (wireGuardController.isInitialized()) {
-            Logger::instance().out(L"AA_COMMAND_CONFIGURE_WIREGUARD");
-            do {
-                std::vector<std::string> allowed_ips_vector =
-                    wireGuardController.splitAndDeduplicateAllowedIps(
-                        cmdConfigureWireGuard.allowedIps);
-                if (allowed_ips_vector.size() < 1) {
-                    Logger::instance().out(L"invalid AllowedIps \"%s\"",
-                        cmdConfigureWireGuard.allowedIps.c_str());
-                    break;
-                }
-                if (!wireGuardController.configureAdapter(cmdConfigureWireGuard.clientIpAddress,
-                    cmdConfigureWireGuard.clientDnsAddressList, allowed_ips_vector)) {
-                    Logger::instance().out(L"configureAdapter() failed");
-                    break;
-                }
-                if (!wireGuardController.configureDefaultRouteMonitor()) {
-                    Logger::instance().out(L"configureDefaultRouteMonitor() failed");
-                    break;
-                }
-                if (!wireGuardController.configureDaemon(cmdConfigureWireGuard.clientPrivateKey,
-                    cmdConfigureWireGuard.peerPublicKey, cmdConfigureWireGuard.peerPresharedKey,
-                    cmdConfigureWireGuard.peerEndpoint, allowed_ips_vector)) {
-                    Logger::instance().out(L"configureDaemon() failed");
-                    break;
-                }
-                mpr.success = true;
-            } while (0);
-        }
     }
     else if (cmdId == AA_COMMAND_GET_WIREGUARD_STATUS)
     {
-        if (!wireGuardController.isInitialized()) {
-            mpr.exitCode = WIREGUARD_STATE_NONE;
-        } else {
-            mpr = ExecuteCmd::instance().getUnblockingCmdStatus(
-                wireGuardController.getDaemonCmdId());
-            if (!mpr.success || mpr.blockingCmdFinished) {
-                // Special error code means the daemon is dead.
-                mpr.exitCode = WIREGUARD_STATE_ERROR;
-                mpr.customInfoValue[0] = 666u;
-            } else {
-                UINT32 errorCode = 0;
-                UINT64 bytesReceived = 0, bytesTransmitted = 0;
-                mpr.success = true;
-                mpr.exitCode =
-                    wireGuardController.getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
-                if (mpr.exitCode == WIREGUARD_STATE_ERROR) {
-                    mpr.customInfoValue[0] = errorCode;
-                } else if (mpr.exitCode == WIREGUARD_STATE_ACTIVE) {
-                    mpr.customInfoValue[0] = bytesReceived;
-                    mpr.customInfoValue[1] = bytesTransmitted;
-                }
-            }
-        }
+        mpr.success = true;
+        mpr.exitCode = wireGuardController.getStatus(mpr.customInfoValue[0], mpr.customInfoValue[1], mpr.customInfoValue[2]);
     }
 	else if (cmdId == AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE)
 	{
@@ -1093,15 +1026,15 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 		return 0;
 	}
 
-	IcsManager            icsManager;
-	FirewallFilter        firewallFilter(fwpmHandleWrapper);
-	Ipv6Firewall		  ipv6Firewall(fwpmHandleWrapper);
-	DnsFirewall			  dnsFirewall(fwpmHandleWrapper);
-	SysIpv6Controller     sysIpv6Controller;
-	HostsEdit			  hostsEdit;
-	GetActiveProcesses    getActiveProcesses;
-	SplitTunneling        splitTunnelling(firewallFilter, fwpmHandleWrapper);
-    WireGuardController   wireGuardController(firewallFilter);
+	IcsManager          icsManager;
+	FirewallFilter      firewallFilter(fwpmHandleWrapper);
+	Ipv6Firewall		ipv6Firewall(fwpmHandleWrapper);
+	DnsFirewall			dnsFirewall(fwpmHandleWrapper);
+	SysIpv6Controller   sysIpv6Controller;
+	HostsEdit			hostsEdit;
+	GetActiveProcesses  getActiveProcesses;
+	SplitTunneling      splitTunnelling(firewallFilter, fwpmHandleWrapper);
+    WireGuardController wireGuardController;
 
 	Logger::instance().out(L"Service started");
 

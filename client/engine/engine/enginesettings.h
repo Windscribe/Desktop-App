@@ -35,6 +35,7 @@ public:
     DnsResolutionSettings dnsResolutionSettings() const;
     ProxySettings proxySettings() const;
     DNS_POLICY_TYPE getDnsPolicy() const;
+    ProtoTypes::DnsManagerType getDnsManager() const;
     ProtoTypes::MacAddrSpoofing getMacAddrSpoofing() const;
     ProtoTypes::PacketSize getPacketSize() const;
     ProtoTypes::UpdateChannel getUpdateChannel() const;

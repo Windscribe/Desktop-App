@@ -38,6 +38,7 @@
 #include "utils/interfaceutils.h"
 #include "utils/iauthchecker.h"
 #include "utils/authcheckerfactory.h"
+#include "systemtray/locationstraymenuscalemanager.h"
 
 #if defined(Q_OS_WIN)
     #include "utils/winutils.h"
@@ -118,13 +119,9 @@ MainWindow::MainWindow() :
         while (trayIcon_.geometry().isEmpty())
             qApp->processEvents();
     }
-#elif defined Q_OS_WIN
-    while (trayIcon_.geometry().isEmpty())
-        qApp->processEvents();
 #elif defined Q_OS_LINUX
     //todo Linux
 #endif
-    qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
 #if defined(Q_OS_WIN)
@@ -142,51 +139,53 @@ MainWindow::MainWindow() :
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));
+    connect(backend_, SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
+    connect(backend_, SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(loginFinished(bool)), SLOT(onBackendLoginFinished(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(loginStepMessage(ProtoTypes::LoginMessage)), SLOT(onBackendLoginStepMessage(ProtoTypes::LoginMessage)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(loginError(ProtoTypes::LoginError)), SLOT(onBackendLoginError(ProtoTypes::LoginError)));
+    connect(backend_, SIGNAL(loginFinished(bool)), SLOT(onBackendLoginFinished(bool)));
+    connect(backend_, SIGNAL(loginStepMessage(ProtoTypes::LoginMessage)), SLOT(onBackendLoginStepMessage(ProtoTypes::LoginMessage)));
+    connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(signOutFinished()), SLOT(onBackendSignOutFinished()));
+    connect(backend_, SIGNAL(signOutFinished()), SLOT(onBackendSignOutFinished()));
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(sessionStatusChanged(ProtoTypes::SessionStatus)), SLOT(onBackendSessionStatusChanged(ProtoTypes::SessionStatus)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(checkUpdateChanged(ProtoTypes::CheckUpdateInfo)), SLOT(onBackendCheckUpdateChanged(ProtoTypes::CheckUpdateInfo)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(myIpChanged(QString, bool)), SLOT(onBackendMyIpChanged(QString, bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendConnectStateChanged(ProtoTypes::ConnectState)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(emergencyConnectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendEmergencyConnectStateChanged(ProtoTypes::ConnectState)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(confirmEmailResult(bool)), SLOT(onBackendConfirmEmailResult(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(debugLogResult(bool)), SLOT(onBackendDebugLogResult(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChanged(ProtoTypes::NetworkInterface)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(splitTunnelingStateChanged(bool)), SLOT(onSplitTunnelingStateChanged(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(statisticsUpdated(quint64, quint64, bool)), SLOT(onBackendStatisticsUpdated(quint64, quint64, bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(requestCustomOvpnConfigCredentials()), SLOT(onBackendRequestCustomOvpnConfigCredentials()));
-    notificationsController_.connect(dynamic_cast<QObject*>(backend_),SIGNAL(notificationsChanged(ProtoTypes::ArrayApiNotification)), SLOT(updateNotifications(ProtoTypes::ArrayApiNotification)));
+    connect(backend_, SIGNAL(sessionStatusChanged(ProtoTypes::SessionStatus)), SLOT(onBackendSessionStatusChanged(ProtoTypes::SessionStatus)));
+    connect(backend_, SIGNAL(checkUpdateChanged(ProtoTypes::CheckUpdateInfo)), SLOT(onBackendCheckUpdateChanged(ProtoTypes::CheckUpdateInfo)));
+    connect(backend_, SIGNAL(myIpChanged(QString, bool)), SLOT(onBackendMyIpChanged(QString, bool)));
+    connect(backend_, SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendConnectStateChanged(ProtoTypes::ConnectState)));
+    connect(backend_, SIGNAL(emergencyConnectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendEmergencyConnectStateChanged(ProtoTypes::ConnectState)));
+    connect(backend_, SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
+    connect(backend_, SIGNAL(confirmEmailResult(bool)), SLOT(onBackendConfirmEmailResult(bool)));
+    connect(backend_, SIGNAL(debugLogResult(bool)), SLOT(onBackendDebugLogResult(bool)));
+    connect(backend_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChanged(ProtoTypes::NetworkInterface)));
+    connect(backend_, SIGNAL(splitTunnelingStateChanged(bool)), SLOT(onSplitTunnelingStateChanged(bool)));
+    connect(backend_, SIGNAL(statisticsUpdated(quint64, quint64, bool)), SLOT(onBackendStatisticsUpdated(quint64, quint64, bool)));
+    connect(backend_, SIGNAL(requestCustomOvpnConfigCredentials()), SLOT(onBackendRequestCustomOvpnConfigCredentials()));
+    notificationsController_.connect(backend_,SIGNAL(notificationsChanged(ProtoTypes::ArrayApiNotification)), SLOT(updateNotifications(ProtoTypes::ArrayApiNotification)));
 
 #ifdef Q_OS_MAC
     WidgetUtils_mac::allowMinimizeForFramelessWindow(this);
 #endif
 
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(proxySharingInfoChanged(ProtoTypes::ProxySharingInfo)), SLOT(onBackendProxySharingInfoChanged(ProtoTypes::ProxySharingInfo)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(wifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)), SLOT(onBackendWifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(cleanupFinished()), SLOT(onBackendCleanupFinished()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(gotoCustomOvpnConfigModeFinished()), SLOT(onBackendGotoCustomOvpnConfigModeFinished()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(sessionDeleted()), SLOT(onBackendSessionDeleted()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(testTunnelResult(bool)), SLOT(onBackendTestTunnelResult(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(lostConnectionToHelper()), SLOT(onBackendLostConnectionToHelper()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(highCpuUsage(QStringList)), SLOT(onBackendHighCpuUsage(QStringList)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(userWarning(ProtoTypes::UserWarningType)), SLOT(onBackendUserWarning(ProtoTypes::UserWarningType)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onBackendProtocolPortChanged(ProtoTypes::Protocol, uint)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
+    connect(backend_, SIGNAL(proxySharingInfoChanged(ProtoTypes::ProxySharingInfo)), SLOT(onBackendProxySharingInfoChanged(ProtoTypes::ProxySharingInfo)));
+    connect(backend_, SIGNAL(wifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)), SLOT(onBackendWifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)));
+    connect(backend_, SIGNAL(cleanupFinished()), SLOT(onBackendCleanupFinished()));
+    connect(backend_, SIGNAL(gotoCustomOvpnConfigModeFinished()), SLOT(onBackendGotoCustomOvpnConfigModeFinished()));
+    connect(backend_, SIGNAL(sessionDeleted()), SLOT(onBackendSessionDeleted()));
+    connect(backend_, SIGNAL(testTunnelResult(bool)), SLOT(onBackendTestTunnelResult(bool)));
+    connect(backend_, SIGNAL(lostConnectionToHelper()), SLOT(onBackendLostConnectionToHelper()));
+    connect(backend_, SIGNAL(highCpuUsage(QStringList)), SLOT(onBackendHighCpuUsage(QStringList)));
+    connect(backend_, SIGNAL(userWarning(ProtoTypes::UserWarningType)), SLOT(onBackendUserWarning(ProtoTypes::UserWarningType)));
+    connect(backend_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
+    connect(backend_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onBackendProtocolPortChanged(ProtoTypes::Protocol, uint)));
+    connect(backend_, SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
+    connect(backend_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
             SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(webSessionTokenForEditAccountDetails(QString)), SLOT(onBackendWebSessionTokenForEditAccountDetails(QString)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(webSessionTokenForAddEmail(QString)), SLOT(onBackendWebSessionTokenForAddEmail(QString)));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
-    connect(dynamic_cast<QObject*>(backend_), SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
+    connect(backend_, SIGNAL(webSessionTokenForEditAccountDetails(QString)), SLOT(onBackendWebSessionTokenForEditAccountDetails(QString)));
+    connect(backend_, SIGNAL(webSessionTokenForAddEmail(QString)), SLOT(onBackendWebSessionTokenForAddEmail(QString)));
+    connect(backend_, SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
+    connect(backend_, SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
+    connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainWindow::onWireGuardAtKeyLimit);
+    connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
     locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
     connect(locationsWindow_, SIGNAL(selected(LocationID)), SLOT(onLocationSelected(LocationID)));
@@ -199,6 +198,10 @@ MainWindow::MainWindow() :
     locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(setLatencyDisplay(ProtoTypes::LatencyDisplayType)) );
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
+
+    localIpcServer_ = new LocalIPCServer(backend_, this);
+    connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onReceivedOpenLocationsMessage);
+    connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onConnectToLocation);
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -348,9 +351,7 @@ MainWindow::MainWindow() :
     WindscribeApplication * app = WindscribeApplication::instance();
     connect(app, SIGNAL(clickOnDock()), SLOT(toggleVisibilityIfDocked()));
     connect(app, SIGNAL(activateFromAnotherInstance()), SLOT(onAppActivateFromAnotherInstance()));
-    connect(app, SIGNAL(openLocationsFromAnotherInstance()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(shouldTerminate_mac()), SLOT(onAppShouldTerminate_mac()));
-    connect(app, SIGNAL(receivedOpenLocationsMessage()), SLOT(onReceivedOpenLocationsMessage()));
     connect(app, SIGNAL(focusWindowChanged(QWindow*)), SLOT(onFocusWindowChanged(QWindow*)));
     connect(app, SIGNAL(applicationCloseRequest()), SLOT(onAppCloseRequest()));
 #if defined(Q_OS_WIN)
@@ -382,11 +383,9 @@ MainWindow::MainWindow() :
 
 #if defined(Q_OS_MAC)
     hideShowDockIconTimer_.setSingleShot(true);
-    connect(&hideShowDockIconTimer_, SIGNAL(timeout()), SLOT(hideShowDockIconImpl()));
-    if (backend_->getPreferences()->isHideFromDock()) {
-        desiredDockIconVisibility_ = false;
-        hideShowDockIconImpl();
-    }
+    connect(&hideShowDockIconTimer_, &QTimer::timeout, this, [this]() {
+        hideShowDockIconImpl(true);
+    });
 #endif
     deactivationTimer_.setSingleShot(true);
     connect(&deactivationTimer_, SIGNAL(timeout()), SLOT(onWindowDeactivateAndHideImpl()));
@@ -401,15 +400,28 @@ MainWindow::~MainWindow()
 
 void MainWindow::showAfterLaunch()
 {
-    if(!backend_){
+    if (!backend_) {
         qCDebug(LOG_BASIC) << "Backend is nullptr!";
     }
 
-    if(backend_ && backend_->getPreferences()->isStartMinimized()){
+    // Report the tray geometry after we've given the app some startup time.
+    qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
+
+    #ifdef Q_OS_MACOS
+    // Do not showMinimized if hide from dock is enabled.  Otherwise, the app will fail to show
+    // itself when the user selects 'Show' in the app's system tray menu.
+    if (backend_ && backend_->getPreferences()->isHideFromDock()) {
+        desiredDockIconVisibility_ = false;
+        hideShowDockIconImpl(!backend_->getPreferences()->isStartMinimized());
+        return;
+    }
+    #endif
+
+    if (backend_ && backend_->getPreferences()->isStartMinimized()) {
         showMinimized();
         return;
     }
-#ifdef Q_OS_WIN
+    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     else if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
         QCommandLineParser cmdParser;
         cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
@@ -421,7 +433,7 @@ void MainWindow::showAfterLaunch()
             return;
         }
     }
-#endif
+    #endif
     show();
 }
 
@@ -572,7 +584,7 @@ bool MainWindow::event(QEvent *event)
         }
 
         deactivationTimer_.stop();
-#if defined Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
             QWindowStateChangeEvent *e = static_cast<QWindowStateChangeEvent *>(event);
             // make sure we only do this for minimize events
@@ -870,7 +882,7 @@ void MainWindow::onMinimizeClick()
 
 void MainWindow::onCloseClick()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     if (backend_->getPreferences()->isMinimizeAndCloseToTray())
     {
         minimizeToTray();
@@ -880,8 +892,6 @@ void MainWindow::onCloseClick()
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
     }
 #elif defined Q_OS_MAC
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
-#elif defined Q_OS_LINUX
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
 #endif
 }
@@ -1029,7 +1039,7 @@ void MainWindow::onPreferencesSignOutClick()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
     signOutReason_ = SIGN_OUT_FROM_MENU;
-    backend_->signOut();
+    backend_->signOut(false);
 }
 
 void MainWindow::onPreferencesLoginClick()
@@ -1466,14 +1476,7 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
 
     if (initState == ProtoTypes::INIT_SUCCESS)
     {
-        if (Utils::reportGuiEngineInit())
-        {
-            qCDebug(LOG_BASIC) << "Sent GUI-Engine Init signal";
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Failed to send GUI-Engine Init signal";
-        }
+        localIpcServer_->start(); // start local IPC server for receive commands from CLI
 
         setInitialFirewallState();
 
@@ -1624,7 +1627,7 @@ void MainWindow::onBackendLoginStepMessage(ProtoTypes::LoginMessage msg)
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
 }
 
-void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
+void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QString &errorMessage)
 {
     if (loginError == ProtoTypes::LOGIN_ERROR_BAD_USERNAME)
     {
@@ -1632,20 +1635,20 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
         {
             if (!isLoginOkAndConnectWindowVisible_)
             {
-                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY);
+                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString());
                 mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
                 mainWindowController_->getLoginWindow()->resetState();
                 gotoLoginWindow();
             }
             else
             {
-                backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_EMPTY);
+                backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString());
             }
         }
         else
         {
             loginAttemptsController_.pushIncorrectLogin();
-            mainWindowController_->getLoginWindow()->setErrorMessage(loginAttemptsController_.currentMessage());
+            mainWindowController_->getLoginWindow()->setErrorMessage(loginAttemptsController_.currentMessage(), QString());
             gotoLoginWindow();
         }
     }
@@ -1664,7 +1667,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
         if (!isLoginOkAndConnectWindowVisible_)
         {
             //qCDebug(LOG_BASIC) << "Show no connectivity message to user.";
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY);
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY, QString());
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();
         }
@@ -1679,7 +1682,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
         if (!isLoginOkAndConnectWindowVisible_)
         {
             //qCDebug(LOG_BASIC) << "Show No API connectivity message to user.";
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_API_CONNECTIVITY, QString());
             //loginWindow_->setEmergencyConnectState(falseengine_->isEmergencyDisconnected());
             gotoLoginWindow();
         }
@@ -1688,26 +1691,26 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONCE);
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONCE, QString());
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();
         }
         else
         {
-            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH);
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONCE, QString());
         }
     }
     else if (loginError == ProtoTypes::LOGIN_ERROR_PROXY_AUTH_NEED)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH);
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH, QString());
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();
         }
         else
         {
-            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH);
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH, QString());
         }
     }
     else if (loginError == ProtoTypes::LOGIN_ERROR_SSL_ERROR)
@@ -1725,15 +1728,41 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError)
         {
             if (!isLoginOkAndConnectWindowVisible_)
             {
-                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT);
+                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT, QString());
                 mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
                 gotoLoginWindow();
             }
             else
             {
-                backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT);
+                backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT, QString());
                 return;
             }
+        }
+    }
+    else if (loginError == ProtoTypes::LOGIN_ERROR_ACCOUNT_DISABLED)
+    {
+        if (!isLoginOkAndConnectWindowVisible_)
+        {
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
+            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
+            gotoLoginWindow();
+        }
+        else
+        {
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
+        }
+    }
+    else if (loginError == ProtoTypes::LOGIN_ERROR_SESSION_INVALID)
+    {
+        if (!isLoginOkAndConnectWindowVisible_)
+        {
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
+            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
+            gotoLoginWindow();
+        }
+        else
+        {
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
         }
     }
 }
@@ -1918,15 +1947,6 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
         }
     }
 
-
-    if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED && connectState.disconnect_reason() == ProtoTypes::DISCONNECTED_BY_USER)
-    {
-        if (backend_->isFirewallEnabled() && backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC)
-        {
-            backend_->firewallOff();
-        }
-    }
-
     if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
     {
         updateConnectWindowStateProtocolPortDisplay(backend_->getPreferences()->connectionSettings());
@@ -2032,23 +2052,23 @@ void MainWindow::onBackendSignOutFinished()
     if (signOutReason_ == SIGN_OUT_FROM_MENU)
     {
         mainWindowController_->getLoginWindow()->resetState();
-        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY);
+        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString());
     }
     else if (signOutReason_ == SIGN_OUT_SESSION_EXPIRED)
     {
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
-        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_SESSION_EXPIRED);
+        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
     }
     else if (signOutReason_ == SIGN_OUT_WITH_MESSAGE)
     {
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
-        mainWindowController_->getLoginWindow()->setErrorMessage(signOutMessageType_);
+        mainWindowController_->getLoginWindow()->setErrorMessage(signOutMessageType_, signOutErrorMessage_);
     }
     else
     {
         Q_ASSERT(false);
         mainWindowController_->getLoginWindow()->resetState();
-        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY);
+        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString());
     }
 
     mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
@@ -2193,7 +2213,7 @@ void MainWindow::onBackendSessionDeleted()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
     signOutReason_ = SIGN_OUT_SESSION_EXPIRED;
-    backend_->signOut();
+    backend_->signOut(true);
 }
 
 void MainWindow::onBackendTestTunnelResult(bool success)
@@ -2275,7 +2295,7 @@ void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
         {
             alreadyShownWarnings_.insert(userWarningType);
             titleText = tr("Check for update failed");
-            descText = tr("Windscribe could not check for update due to an invalid platfrom config. You may want to try manually updating your installation.");
+            descText = tr("Windscribe could not check for update due to an invalid platform config. You may want to try manually updating your installation.");
         }
     }
 
@@ -2332,8 +2352,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
 
                 // nothing todo, because installer will close app here
 #ifdef Q_OS_LINUX
-                // Close Windscribe in order to continue installation of the .deb or .rpm package.
-                close();
+                // restart the application after update
+                doClose(nullptr, false);
+                qApp->quit();
+                QProcess::startDetached(QApplication::applicationFilePath());
 #endif
             }
             else // Error
@@ -2683,25 +2705,29 @@ void MainWindow::onPreferencesHideFromDockChanged(bool hideFromDock)
     hideShowDockIcon(hideFromDock);
 }
 
-void MainWindow::hideShowDockIconImpl()
+void MainWindow::hideShowDockIconImpl(bool bAllowActivateAndShow)
 {
     if (currentDockIconVisibility_ != desiredDockIconVisibility_) {
         currentDockIconVisibility_ = desiredDockIconVisibility_;
         if (currentDockIconVisibility_) {
             MacUtils::showDockIcon();
-        } else {
+        }
+        else {
             // A call to |hideDockIcon| will hide the window, this is annoying but that's how
             // one hides the dock icon on Mac. If there are any GUI events queued, especially
             // those that are going to show some widgets, it may result in a crash. To avoid it, we
             // pump the message loop here, including user input events.
             qApp->processEvents();
             MacUtils::hideDockIcon();
-            // Do not attempt to show the window immediately, it may take some time to transform
-            // process type in |hideDockIcon|.
-            QTimer::singleShot(1, [this]() {
-                activateAndShow();
-                setBackendAppActiveState(true);
-            });
+
+            if (bAllowActivateAndShow) {
+                // Do not attempt to show the window immediately, it may take some time to transform
+                // process type in |hideDockIcon|.
+                QTimer::singleShot(1, this, [this]() {
+                    activateAndShow();
+                    setBackendAppActiveState(true);
+                });
+            }
         }
     }
 }
@@ -2729,9 +2755,9 @@ void MainWindow::activateAndShow()
 void MainWindow::deactivateAndHide()
 {
     MainWindowState::instance().setActive(false);
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
     hide();
-#elif defined Q_OS_WIN
+#elif defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     if (backend_->getPreferences()->isDockedToTray())
     {
         setWindowState(Qt::WindowMinimized);
@@ -2788,6 +2814,7 @@ void MainWindow::onAppShouldTerminate_mac()
 
 void MainWindow::onReceivedOpenLocationsMessage()
 {
+    activateAndShow();
 
 #ifdef Q_OS_MAC
     // Strange bug on Mac that causes flicker when activateAndShow() is called from a minimized state
@@ -2811,7 +2838,13 @@ void MainWindow::onReceivedOpenLocationsMessage()
     // from a CLI-spawned-GUI (Mac): could fail Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT) in expandLocations
     QTimer::singleShot(500, [this](){
         mainWindowController_->expandLocations();
+        localIpcServer_->sendLocationsShown();
     });
+}
+
+void MainWindow::onConnectToLocation(const LocationID &id)
+{
+    onLocationSelected(id);
 }
 
 void MainWindow::onAppCloseRequest()
@@ -2899,8 +2932,12 @@ QRect MainWindow::trayIconRect()
     // qCDebug(LOG_BASIC) << "Tray Icon not visible -- using last saved TrayIconRect";
 
 #else
-    if (trayIcon_.isVisible())
-        savedTrayIconRect_ = trayIcon_.geometry();
+    if (trayIcon_.isVisible()) {
+        QRect trayIconRect = trayIcon_.geometry();
+        if (trayIconRect.isValid()) {
+            savedTrayIconRect_ = trayIconRect;
+        }
+    }
 #endif
     return savedTrayIconRect_;
 }
@@ -2916,7 +2953,7 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
         {
             // qDebug() << "Tray triggered";
             deactivationTimer_.stop();
-#if defined Q_OS_WIN
+#if defined(Q_OS_WIN)
             if (isMinimized() || !backend_->getPreferences()->isDockedToTray()) {
                 activateAndShow();
                 setBackendAppActiveState(true);
@@ -2927,13 +2964,21 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
             // Fix a nasty tray icon double-click bug in Qt.
             if (reason == QSystemTrayIcon::DoubleClick)
                 WidgetUtils_win::fixSystemTrayIconDblClick();
-#elif defined Q_OS_MAC
-
+#elif defined(Q_OS_MAC)
             if (backend_->getPreferences()->isDockedToTray())
             {
                 toggleVisibilityIfDocked();
             }
-
+#elif defined(Q_OS_LINUX)
+            if (backend_->getPreferences()->isDockedToTray())
+            {
+                toggleVisibilityIfDocked();
+            }
+            else if (!isVisible()) // closed to tray
+            {
+                activateAndShow();
+                setBackendAppActiveState(true);
+            }
 #endif
         }
         break;
@@ -2959,16 +3004,18 @@ void MainWindow::onTrayMenuPreferences()
     mainWindowController_->expandPreferences();
 }
 
-void MainWindow::onTrayMenuHide()
+void MainWindow::onTrayMenuShowHide()
 {
-    deactivateAndHide();
-    setBackendAppActiveState(false);
-}
-
-void MainWindow::onTrayMenuShow()
-{
-    activateAndShow();
-    setBackendAppActiveState(true);
+    if (isMinimized() || !isVisible())
+    {
+        activateAndShow();
+        setBackendAppActiveState(true);
+    }
+    else
+    {
+        deactivateAndHide();
+        setBackendAppActiveState(false);
+    }
 }
 
 void MainWindow::onTrayMenuHelpMe()
@@ -3068,21 +3115,21 @@ void MainWindow::loadTrayMenuItems()
 #endif
     }
 
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    trayMenu_.addAction(tr("Show/Hide"), this, SLOT(onTrayMenuShowHide()));
+#endif
+
     if (!mainWindowController_->preferencesVisible())
     {
         trayMenu_.addAction(tr("Preferences"), this, SLOT(onTrayMenuPreferences()));
     }
-
-#ifdef Q_OS_MAC
-    trayMenu_.addAction(tr("Hide"), this, SLOT(onTrayMenuHide()));
-    trayMenu_.addAction(tr("Show"), this, SLOT(onTrayMenuShow()));
-#endif
 
     trayMenu_.addAction(tr("Help"), this, SLOT(onTrayMenuHelpMe()));
     trayMenu_.addAction(tr("Exit"), this, SLOT(onTrayMenuQuit()));
 
 #ifndef Q_OS_LINUX
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
+    LocationsTrayMenuScaleManager::instance().setTrayIconGeometry(trayIcon_.geometry());
     for (int i = 0; i < LOCATIONS_TRAY_MENU_NUM_TYPES; ++i) {
         locationsTrayMenuWidget_[i]->setFontForItems(trayMenu_.font());
         // Force geometry update of the menu, because widget size could have been changed.
@@ -3107,7 +3154,6 @@ void MainWindow::onTrayMenuAboutToShow()
 #else
     loadTrayMenuItems();
 #endif
-
 }
 
 void MainWindow::onLocationsTrayMenuLocationSelected(int type, QString locationTitle, int cityIndex)
@@ -3278,13 +3324,14 @@ void MainWindow::hideSupplementaryWidgets()
     invalidateShadow();*/
 }
 
-void MainWindow::backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessage)
+void MainWindow::backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage)
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
-    signOutMessageType_ = errorMessage;
+    signOutMessageType_ = errorMessageType;
     signOutReason_ = SIGN_OUT_WITH_MESSAGE;
-    backend_->signOut();
+    signOutErrorMessage_ = errorMessage;
+    backend_->signOut(false);
 }
 
 void MainWindow::setupTrayIcon()
@@ -3565,9 +3612,7 @@ void MainWindow::openUpgradeExternalWindow()
 
 void MainWindow::gotoLoginWindow()
 {
-    mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(
-        backend_->isFirewallEnabled());
-
+    mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(backend_->isFirewallEnabled());
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
 }
 
@@ -3652,4 +3697,13 @@ void MainWindow::updateTrayTooltip(QString tooltip)
 #else
     trayIcon_.setToolTip(tooltip);
 #endif
+}
+
+void MainWindow::onWireGuardAtKeyLimit()
+{
+    int result = QMessageBox::warning(g_mainWindow, tr("Windscribe"),
+        tr("You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?"),
+        QMessageBox::Ok | QMessageBox::Cancel);
+
+    Q_EMIT wireGuardKeyLimitUserResponse(result == QMessageBox::Ok);
 }

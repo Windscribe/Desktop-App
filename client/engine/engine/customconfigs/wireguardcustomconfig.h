@@ -2,7 +2,7 @@
 #define WIREGUARDCUSTOMCONFIG_H
 
 #include "icustomconfig.h"
-#include "engine/types/wireguardconfig.h"
+#include "engine/wireguardconfig/wireguardconfig.h"
 #include <QSharedPointer>
 
 namespace customconfigs {

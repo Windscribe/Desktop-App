@@ -1,7 +1,9 @@
 #ifndef SESSIONSTATUSTIMER_H
 #define SESSIONSTATUSTIMER_H
 
+#include <QDateTime>
 #include <QObject>
+
 #include "connectstatecontroller/iconnectstatecontroller.h"
 
 class SessionStatusTimer : public QObject
@@ -13,9 +15,8 @@ public:
     void applicationActivated();
     void applicationDeactivated();
 
-    void start(int msec);
+    void start();
     void stop();
-
 
 signals:
     void needUpdateRightNow();
@@ -25,15 +26,14 @@ private slots:
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
 
 private:
+    static constexpr int TIMER_INTERVAL = 60000;
 
-    static constexpr int TIMER_INTERVAL = 1000;
-
-    bool isStarted_;
-    int msec_;
-    bool isApplicationActivated_;
-    bool isConnected_;
     QTimer timer_;
-    qint64 lastSignalEmitTimeMs_;
+    bool isConnected_ = false;
+    QDateTime lastSessionUpdateRequest_;
+
+private:
+    void requestSessionUpdate();
 };
 
 #endif // SESSIONSTATUSTIMER_H

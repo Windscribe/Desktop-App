@@ -7,32 +7,25 @@
 
 using namespace std;
 
-//WNDPROC Uninstaller::OldWindowProc;
 int const Uninstaller::WM_KillFirstPhase = WM_USER + 333;
 DWORD Uninstaller::UninstallExitCode;
 
 wstring Uninstaller::UninstExeFile;
-wstring Uninstaller::UninstDataFile;
 bool  Uninstaller::isSilent_ = false;
 
 std::list<wstring> Uninstaller::DirsNotRemoved;
 
 P_SHCreateItemFromParsingName Uninstaller::SHCreateItemFromParsingNameFunc;
 
-UninstallProgress* uninstall_progress;
-
-//HWND Uninstaller::FirstPhaseWnd;
 
 RemoveDirectory1 Uninstaller::remove_directory;
 Redirection Uninstaller::redirection;
 
 Path Uninstaller::path;
 Services Uninstaller::services;
-//InstallMode Uninstaller::install_mode;
 
 Uninstaller::Uninstaller()
 {
- //FirstPhaseWnd=nullptr;
 }
 
 
@@ -43,80 +36,14 @@ Uninstaller::~Uninstaller()
 
 void Uninstaller::setUninstExeFile(const wstring &exe_file, bool bFirstPhase)
 {
- UninstExeFile = exe_file;
-
- UninstallExitCode = 1;
-
- /*if (bFirstPhase)
-	Log::instance().setFilePath(L"c:\\11\\windscribe_uninstall_1.log");
- else
-	Log::instance().setFilePath(L"c:\\11\\windscribe_uninstall_2.log");*/
-
- UninstDataFile = path.PathChangeExt(UninstExeFile, L".dat");
-
-}
-
-void Uninstaller::setFirstPhaseWnd(const HWND &hWnd)
-{
- //FirstPhaseWnd = hWnd;
+	UninstExeFile = exe_file;
+	UninstallExitCode = 1;
 }
 
 void Uninstaller::setSilent(bool isSilent)
 {
 	isSilent_ = isSilent;
 }
-
-HANDLE Uninstaller::Exec(const std::wstring &Filename, const std::wstring &workingDir, const std::wstring &Parms, DWORD &outProcessId)
-{
-  wstring CmdLine;
-  STARTUPINFO StartupInfo;
-  PROCESS_INFORMATION ProcessInfo;
-
-  CmdLine = L"\"" + Filename + L"\" " + Parms;
-
-  ZeroMemory(&StartupInfo, sizeof(StartupInfo));
-  StartupInfo.cb = sizeof(StartupInfo);
-
-  Log::instance().out(CmdLine);
-  Log::instance().out(L"Create process:%s   %s", Filename.c_str(), workingDir.c_str());
-  if (CreateProcess(nullptr, const_cast<wchar_t*>(CmdLine.c_str()), nullptr, nullptr, false, 0, nullptr, workingDir.c_str(), &StartupInfo, &ProcessInfo)==false)
-  {
-	  outProcessId = 0;
-	  return NULL;
-  }
-
-  outProcessId = ProcessInfo.dwProcessId;
-  CloseHandle(ProcessInfo.hThread);
-
-  return ProcessInfo.hProcess;
-}
-
-
-/*LRESULT Uninstaller::FirstPhaseWindowProc(HWND Wnd, UINT Msg,WPARAM wParam, LPARAM lParam)
-{
-  LRESULT Result = 0;
-
-
-  switch(Msg)
-  {
-
-   case WM_QUERYENDSESSION: break;  //{ Return zero to deny any shutdown requests }
-   case WM_KillFirstPhase:
-   {
-        PostQuitMessage(0);
-       // { If we got WM_KillFirstPhase, the second phase must have been
-      //    successful (up until now, at least). Set an exit code of 0. }
-        UninstallExitCode = 0;
-   }
-   break;
-
-   default: Result = CallWindowProc(OldWindowProc, Wnd, Msg, wParam, lParam);
-  }
-
- return Result;
-}*/
-
-
 
 
 bool Uninstaller::ProcessMsgs()
@@ -140,86 +67,12 @@ bool Uninstaller::ProcessMsgs()
  return Result;
 }
 
-DWORD Uninstaller::RunFirstPhase(HINSTANCE hInstance,LPSTR lpszCmdParam)
-{
-  DirectoriesOfAWindows dir_win;
-  wstring TempFile;
-  //HWND Wnd;
-  HANDLE ProcessHandle;
-
-  Log::instance().out(L"RunFirstPhase");
-
-//{ Copy self to TEMP directory with a name like _iu14D2N.tmp. The
-//  actual uninstallation process must be done from somewhere outside
-//  the application directory since EXE's can't delete themselves while
-//  they are running. }
-  if(GenerateNonRandomUniqueFilename(dir_win.GetTempDir(), TempFile)==false)
-  {
-   // try
-      RestartReplace(false, TempFile, L"");
-   // except
-  //    { ignore exceptions }
-  //  end;
-  }
-  if(CopyFile(UninstExeFile.c_str(), TempFile.c_str(), false)==false)
-  {
-    //RaiseLastError(SetupMessages[msgLdrCannotCreateTemp]);
-  }
- // { Don't want any attribute like read-only transferred }
-  SetFileAttributes(TempFile.c_str(), FILE_ATTRIBUTE_NORMAL);
-
-//  { Create first phase window. This window waits for a WM_KillFirstPhase
-//    message from the second phase process, and terminates itself in
-//    response. The reason the first phase doesn't just terminate
-//    immediately is because the Control Panel Add/Remove applet refreshes
-//    its list as soon as the program terminates. So it waits until the
-//    uninstallation is complete before terminating. }
-  //Wnd = CreateWindowEx(0, L"STATIC", L"", 0, 0, 0, 0, 0, HWND_DESKTOP, nullptr,hInstance, nullptr);
-  //OldWindowProc = reinterpret_cast<WNDPROC>(SetWindowLong(Wnd, GWL_WNDPROC, reinterpret_cast<LONG>(&FirstPhaseWindowProc)));
-//  try
-  //  { Hide the application window so that we don't end up with two taskbar
- //     buttons once the second phase starts }
-    //SetWindowPos(Wnd, nullptr, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW);
-
-
-
-//    { Execute the copy of itself ("second phase") }
-    wchar_t buffer[1000];
-    swprintf(buffer,1000, L"/SECONDPHASE=\"%s\" /FIRSTPHASEWND=0x00 ",UninstExeFile.c_str());
-    string str = string(lpszCmdParam);
-    wstring str1 = wstring(str.begin(),str.end());
-	DWORD dwProcessId;
-    ProcessHandle = Exec(TempFile, dir_win.GetTempDir(), wstring(buffer) + str1, dwProcessId);
-
- //   { Wait till the second phase process unexpectedly dies or is ready
- //     for the first phase to terminate. }
-
-    /*while(1)
-    {
-
-     DWORD ret = MsgWaitForMultipleObjects(1, &ProcessHandle, false, INFINITE, QS_ALLINPUT);
-     if((ProcessMsgs()==true) || (ret != (WAIT_OBJECT_0+1)))
-     {
-      break;
-     }
-    }*/
-
-    CloseHandle(ProcessHandle);
- // finally
-    //DestroyWindow(Wnd);
-  //end;
-	Log::instance().out(L"RunFirstPhase finished");
-	return dwProcessId;
-}
-
-
 void Uninstaller::ProcessDirsNotRemoved()
 {
 
 }
 
 
-//D:\DISTR\issrc\Projects\Undo.pas
 bool Uninstaller::DeleteDirProc(const bool DisableFsRedir, const wstring DirName)
 {
  return remove_directory.DeleteDir(DisableFsRedir, DirName, &DirsNotRemoved/*PDeleteDirData(Param)^.DirsNotRemoved*/, nullptr);
@@ -444,16 +297,9 @@ bool Uninstaller::PerformUninstall(const P_DeleteUninstallDataFilesProc DeleteUn
 }
 
 
-void Uninstaller::RunSecondPhase(HWND hwnd)
+void Uninstaller::RunSecondPhase()
 {
-	bool RestartSystem;
-
-	RestartSystem = false;
- 
 	Log::instance().out(L"Original Uninstall EXE: " + UninstExeFile);
-	Log::instance().out(L"Uninstall DAT: " + UninstDataFile);
-
-	//install_mode.Initialize64BitInstallMode(false);
 
 	if (!InitializeUninstall())
 	{
@@ -464,13 +310,11 @@ void Uninstaller::RunSecondPhase(HWND hwnd)
 
 	unsigned long iResultCode;
 
-	Log::instance().out(L"WindscribeService1");
-	if(services.serviceExists(L"WindscribeService")==true)
+	if (services.serviceExists(L"WindscribeService"))
 	{
 		services.simpleStopService(L"WindscribeService", true, true);
 		services.simpleDeleteService(L"WindscribeService");
 	}
-	Log::instance().out(L"WindscribeService2");
 
 	wstring path_for_installation;
 
@@ -506,16 +350,13 @@ void Uninstaller::RunSecondPhase(HWND hwnd)
 
 	wstring installCmd = L"DefaultUninstall 132 ";
 	installCmd += path_for_installation + L"\\splittunnel\\windscribesplittunnel.inf";
-	InstallHinfSection(hwnd, NULL, installCmd.c_str(), NULL);
+	InstallHinfSection(nullptr, NULL, installCmd.c_str(), NULL);
 
 	PVOID oldValue2;
 	Wow64DisableWow64FsRedirection(&oldValue2);
 
 	Log::instance().out(L"perform uninstall");
 	PerformUninstall(&DeleteUninstallDataFiles, path_for_installation);
-
-	delete uninstall_progress;
-	uninstall_progress = nullptr;
 
 	DeleteFile(wstring(path_for_installation+L"\\log\\7zr.log").c_str());
 	DeleteFile(wstring(path_for_installation+L"\\log\\windscribe_installer.log").c_str());
@@ -534,7 +375,7 @@ void Uninstaller::RunSecondPhase(HWND hwnd)
 	if (userId != L"")
 	{
 		urlStr = L"https://windscribe.com/uninstall/desktop?user=" + userId;
-		ShellExecute(hwnd, L"open", urlStr.c_str(), L"", L"", SW_SHOW);
+		ShellExecute(nullptr, L"open", urlStr.c_str(), L"", L"", SW_SHOW);
 	}
 
 	// remove any existing MAC spoofs from registry
@@ -569,7 +410,6 @@ void Uninstaller::RunSecondPhase(HWND hwnd)
 }
 
 
-//https://github.com/jrsoftware/issrc
 bool Uninstaller::InitializeUninstall()
 {
 	if (isSilent_)
@@ -597,110 +437,6 @@ bool Uninstaller::InitializeUninstall()
 	return true;
 }
 
-void Uninstaller::RestartReplace(const bool DisableFsRedir, wstring TempFile, wstring DestFile)
-{
-//{ Renames TempFile to DestFile the next time Windows is started. If DestFile
-//  already existed, it will be overwritten. If DestFile is '' then TempFile
-//  will be deleted, however this is only supported by 95/98 and NT, not
-//  Windows 3.1x. }
-
-  wstring WinDir, WinInitFile, TempWinInitFile;
-
-  TempFile = path.PathExpand(TempFile);
-  if (DestFile != L"")
-  {
-   DestFile = path.PathExpand(DestFile);
-  }
-
-    if (DisableFsRedir==false)
-    {
-      Directory dir;
-//      { Work around WOW64 bug present in the IA64 and x64 editions of Windows
-//        XP (3790) and Server 2003 prior to SP1 RC2: MoveFileEx writes filenames
-//        to the registry verbatim without mapping system32->syswow64. }
-      TempFile = dir.ReplaceSystemDirWithSysWow64(TempFile);
-      if (DestFile != L"")
-      {
-        DestFile = dir.ReplaceSystemDirWithSysWow64(DestFile);
-      }
-    }
-
-    if(redirection.MoveFileExRedir(DisableFsRedir, TempFile, DestFile, MOVEFILE_DELAY_UNTIL_REBOOT | MOVEFILE_REPLACE_EXISTING)==false)
-    {
-    //  Win32ErrorMsg('MoveFileEx');
-    }
-}
-
-
-wstring Uninstaller::IntToBase32(LONG Number)
-{
-  const wchar_t *Table = L"0123456789ABCDEFGHIJKLMNOPQRSTUV";
-
-  wstring Result = L"";
-  for (int I = 0; I <= 4; I++)
-  {
-   Result.insert(0,wstring(&Table[Number & 31],1));
-   Number = Number >> 5;
-  }
-
-  return Result;
-}
-
-
-
-bool Uninstaller::GenerateNonRandomUniqueFilename(wstring Path1, wstring &Filename)
-//{ Returns True if it overwrote an existing file. }
-{
-  long Rand, RandOrig;
-  HANDLE F;
-  bool Success;
-  wstring FN;
-  bool Result;
-
-  Path path;
-  Directory dir;
-
-  Path1 = path.AddBackslash(Path1);
-  RandOrig = 0x123456;
-  Rand = RandOrig;
-  Success = false;
-  Result = false;
-  while(1)
-  {
-    Rand++;
-    if (Rand > 0x1FFFFFF) Rand = 0;
-    if (Rand == RandOrig)
-    {
-    //  { practically impossible to go through 33 million possibilities,
-    //    but check "just in case"... }
-    //  raise Exception.Create(FmtSetupMessage1(msgErrorTooManyFilesInDir, RemoveBackslashUnlessRoot(Path)));
-//    { Generate a random name }
-    }
-    FN = Path1 + L"_iu" + IntToBase32(Rand) + L".tmp";
-    if (dir.DirExists(FN)) continue;
-    Success = true;
-    Result = redirection.NewFileExists(FN);
-
-    if (Result==true)
-    {
-      F = CreateFile(FN.c_str(), GENERIC_READ | GENERIC_WRITE, 0,nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-      Success = (F != INVALID_HANDLE_VALUE);
-      if (Success==true)
-      {
-       CloseHandle(F);
-      }
-    }
-
-    if (Success==true)
-    {
-      break;
-    }
-  }
-
-  Filename = FN;
-
-  return Result;
-}
 
 //{ Attempt to unpin a shortcut. Returns True if the shortcut was successfully
 //  removed from the list of pinned items and/or the taskbar, or if the shortcut
@@ -739,59 +475,6 @@ bool Uninstaller::UnpinShellLink(const wstring Filename)
     {
      ShellItem->Release();
     }
-
- return Result;
-}
-
-bool Uninstaller::FileDelete(const wstring Filename, const bool DisableFsRedir, const bool NotifyChange,const bool RestartDelete)
-{
- DWORD LastError;
-
-
- bool Result = true;
-
- //{ Automatically unpin shortcuts }
-   if(path.PathExtractExt(Filename)==L"lnk")
-   {
-     UnpinShellLink(Filename);
-   }
-
-   if (redirection.NewFileExistsRedir(DisableFsRedir, Filename))
-   {
-     Log::instance().out(L"Deleting file: " + Filename);
-
-     if (redirection.DeleteFileRedir(DisableFsRedir, Filename)==false)
-     {
-       LastError = GetLastError();
-       if (RestartDelete && /*CallFromUninstaller &&*/
-          ((LastError == ERROR_ACCESS_DENIED) || (LastError == ERROR_SHARING_VIOLATION)) &&
-          ((redirection.GetFileAttributesRedir(DisableFsRedir, Filename) & FILE_ATTRIBUTE_READONLY) == 0))
-       {
-         //char buf[100];
-         //sprintf(buf,"%lu",LastError);
-         //Log::instance().trace("The file appears to be in use ("+string(buf)+"). Will delete on restart.");
-
-         RestartReplace(DisableFsRedir, Filename, L"");
-         Result = false;
-       }
-       else
-       {
-        //char buf[100];
-        //sprintf(buf,"%lu",LastError);
-        //Log::instance().trace("Failed to delete the file; it may be in use ("+string(buf)+").");
-        Result = false;
-       }
-     }
-     else
-     {
-      // { Note: It is assumed that DisableFsRedir will be False when NotifyChange is True }
-       if (NotifyChange==true)
-       {
-         SHChangeNotify(SHCNE_DELETE, SHCNF_PATH, Filename.c_str(), nullptr);
-        // ChangeNotifyList.AddIfDoesntExist(PathExtractDir(Filename));
-       }
-     }
-   }
 
  return Result;
 }

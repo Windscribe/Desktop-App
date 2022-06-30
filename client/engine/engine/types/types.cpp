@@ -53,6 +53,14 @@ QString loginRetToString(LOGIN_RET ret)
     {
         return "MISSING_CODE2FA";
     }
+    else if (ret == LOGIN_ACCOUNT_DISABLED)
+    {
+        return "ACCOUNT_DISABLED";
+    }
+    else if (ret == LOGIN_SESSION_INVALID)
+    {
+        return "SESSION_INVALID";
+    }
     else
     {
         Q_ASSERT(false);
@@ -97,6 +105,14 @@ ProtoTypes::LoginError loginRetToProtobuf(LOGIN_RET ret)
     else if (ret == LOGIN_MISSING_CODE2FA)
     {
         return ProtoTypes::LOGIN_ERROR_MISSING_CODE2FA;
+    }
+    else if (ret == LOGIN_ACCOUNT_DISABLED)
+    {
+        return ProtoTypes::LOGIN_ERROR_ACCOUNT_DISABLED;
+    }
+    else if (ret == LOGIN_SESSION_INVALID)
+    {
+        return ProtoTypes::LOGIN_ERROR_SESSION_INVALID;
     }
     else
     {

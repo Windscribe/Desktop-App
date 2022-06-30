@@ -8,7 +8,7 @@
 
 FirewallFilter::FirewallFilter(FwpmWrapper &fwpmWrapper) :
     fwpmWrapper_(fwpmWrapper), lastAllowLocalTraffic_(false), isSplitTunnelingEnabled_(false),
-    isSplitTunnelingExclusiveMode_(false), filterIdWireGuardAdapter_(0)
+    isSplitTunnelingExclusiveMode_(false)
 {
 	UuidFromString((RPC_WSTR)UUID_LAYER, &subLayerGUID_);
 }
@@ -90,7 +90,6 @@ void FirewallFilter::offImpl(HANDLE engineHandle)
 	}
 	filterIdsApps_.clear();
 	filterIdsSplitRoutingIps_.clear();
-    filterIdWireGuardAdapter_ = 0;
 }
 
 void FirewallFilter::setSplitTunnelingEnabled()
@@ -169,47 +168,6 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressA
 		fwpmWrapper_.endTransaction();
 	}
 	fwpmWrapper_.unlock();
-}
-
-void FirewallFilter::addFilterForWireGuardAdapter(NET_LUID luid)
-{
-	Logger::instance().out(L"FirewallFilter::addFilterForWireGuardAdapter(), %llu", luid.Value);
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-
-    HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
-    fwpmWrapper_.beginTransaction();
-
-    if (filterIdWireGuardAdapter_) {
-        FwpmFilterDeleteById0(hEngine, filterIdWireGuardAdapter_);
-        filterIdWireGuardAdapter_ = 0;
-    }
-    if (currentStatusImpl(hEngine) == true) {
-        filterIdWireGuardAdapter_ = addPermitFilterForAdapter(hEngine, luid, 1);
-		Logger::instance().out(L"FirewallFilter::addFilterForWireGuardAdapter(), 2");
-    }
-
-    fwpmWrapper_.endTransaction();
-    fwpmWrapper_.unlock();
-}
-
-void FirewallFilter::removeFilterForWireGuardAdapter()
-{
-    if (!filterIdWireGuardAdapter_)
-        return;
-
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-
-    HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
-    fwpmWrapper_.beginTransaction();
-    DWORD ret = FwpmFilterDeleteById0(hEngine, filterIdWireGuardAdapter_);
-    if (ret != ERROR_SUCCESS) {
-        Logger::instance().out(
-            L"FirewallFilter::removeFilterForWireGuardAdapter(), FwpmFilterDeleteById0 failed");
-    }
-    fwpmWrapper_.endTransaction();
-    fwpmWrapper_.unlock();
-
-    filterIdWireGuardAdapter_ = 0;
 }
 
 void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAllowLocalTraffic)

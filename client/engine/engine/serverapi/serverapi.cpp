@@ -21,8 +21,6 @@
     #include "utils/linuxutils.h"
 #endif
 
-const int typeIdWireGuardConfig = qRegisterMetaType<QSharedPointer<WireGuardConfig> >("QSharedPointer<WireGuardConfig>");
-
 class ServerAPI::BaseRequest
 {
 public:
@@ -42,6 +40,8 @@ public:
     void setActive(bool value) { isActive_ = value; }
     void setCurlRequestSubmitted(bool value) { isCurlRequestSubmitted_ = value; }
     void setWaitingHandlerType(HandlerType type) { handlerType_ = type; }
+    void setReplyType(int type) { replyType_ = type; }
+    void setCurlRequestTimestamp(qint64 timeStamp) { curlRequestTimestamp_ = timeStamp; }
 
     bool isActive() const { return isActive_; }
     bool isCurlRequestSubmitted() const { return isCurlRequestSubmitted_; }
@@ -52,10 +52,13 @@ public:
     uint getUserRole() const { return userRole_; }
     qint64 getStartTime() const { return startTime_; }
     const QString &getHostname() const { return hostname_; }
+    qint64 getCurlRequestTimestamp() const { return curlRequestTimestamp_; }
 
     CurlRequest *getCurlRequest() const { return curlRequest_; }
     CurlRequest *createCurlRequest() {
-        Q_ASSERT(!curlRequest_);
+        if (curlRequest_ != nullptr) {
+            delete curlRequest_;
+        }
         curlRequest_ = new CurlRequest;
         curlRequest_->setTimeout(timeout_);
         return curlRequest_;
@@ -71,6 +74,7 @@ private:
     CurlRequest *curlRequest_;
     bool isCurlRequestSubmitted_;
     HandlerType handlerType_;
+    qint64 curlRequestTimestamp_ = 0;
 };
 
 namespace
@@ -97,6 +101,7 @@ QUrlQuery MakeQuery(const QString &authHash, bool bAddOpenVpnVersion = false)
         query.addQueryItem("ovpn_version",
                            OpenVpnVersionController::instance().getSelectedOpenVpnVersion());
     query.addQueryItem("platform", Utils::getPlatformNameSafe());
+    query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     return query;
 }
@@ -272,6 +277,41 @@ private:
     quint64 commandId_;
     bool bWriteLog_;
 };
+
+class WGConfigsInitRequest : public AuthenticatedRequest
+{
+public:
+    WGConfigsInitRequest(const QString &authhash, const QString &hostname, int replyType, uint timeout,
+                     uint userRole, const QString &clientPublicKey, bool deleteOldestKey)
+        : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole), clientPublicKey_(clientPublicKey), deleteOldestKey_(deleteOldestKey)
+    {}
+
+    QString clientPublicKey() const { return clientPublicKey_; }
+    bool deleleOldestKey() const { return deleteOldestKey_; }
+
+private:
+    const QString clientPublicKey_;
+    bool deleteOldestKey_ = false;
+};
+
+class WGConfigsConnectRequest : public AuthenticatedRequest
+{
+public:
+    WGConfigsConnectRequest(const QString &authhash, const QString &hostname, int replyType, uint timeout,
+                     uint userRole, const QString &clientPublicKey, const QString &serverName)
+        : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole), clientPublicKey_(clientPublicKey), serverName_(serverName)
+    {}
+
+    QString clientPublicKey() const { return clientPublicKey_; }
+    QString serverName() const { return serverName_; }
+
+private:
+    const QString clientPublicKey_;
+    const QString serverName_;
+};
+
+
+
 } // namespace
 
 ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
@@ -314,7 +354,8 @@ ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
     handleDnsResolveFuncTable_[REPLY_NOTIFICATIONS] = &ServerAPI::handleNotificationsDnsResolve;
     handleDnsResolveFuncTable_[REPLY_STATIC_IPS] = &ServerAPI::handleStaticIpsDnsResolve;
     handleDnsResolveFuncTable_[REPLY_CONFIRM_EMAIL] = &ServerAPI::handleConfirmEmailDnsResolve;
-    handleDnsResolveFuncTable_[REPLY_WIREGUARD_CONFIG] = &ServerAPI::handleWireGuardConfigDnsResolve;
+    handleDnsResolveFuncTable_[REPLY_WIREGUARD_INIT] = &ServerAPI::handleWgConfigsInitDnsResolve;
+    handleDnsResolveFuncTable_[REPLY_WIREGUARD_CONNECT] = &ServerAPI::handleWgConfigsConnectDnsResolve;
     handleDnsResolveFuncTable_[REPLY_WEB_SESSION] = &ServerAPI::handleWebSessionDnsResolve;
 
     handleCurlReplyFuncTable_[REPLY_ACCESS_IPS] = &ServerAPI::handleAccessIpsCurl;
@@ -334,7 +375,8 @@ ServerAPI::ServerAPI(QObject *parent) : QObject(parent),
     handleCurlReplyFuncTable_[REPLY_NOTIFICATIONS] = &ServerAPI::handleNotificationsCurl;
     handleCurlReplyFuncTable_[REPLY_STATIC_IPS] = &ServerAPI::handleStaticIpsCurl;
     handleCurlReplyFuncTable_[REPLY_CONFIRM_EMAIL] = &ServerAPI::handleConfirmEmailCurl;
-    handleCurlReplyFuncTable_[REPLY_WIREGUARD_CONFIG] = &ServerAPI::handleWireGuardConfigCurl;
+    handleCurlReplyFuncTable_[REPLY_WIREGUARD_INIT] = &ServerAPI::handleWgConfigsInitCurl;
+    handleCurlReplyFuncTable_[REPLY_WIREGUARD_CONNECT] = &ServerAPI::handleWgConfigsConnectCurl;
     handleCurlReplyFuncTable_[REPLY_WEB_SESSION] = &ServerAPI::handleWebSessionCurl;
 
     connect(&requestTimer_, SIGNAL(timeout()), SLOT(onRequestTimer()));
@@ -444,6 +486,7 @@ void ServerAPI::submitCurlRequest(BaseRequest *request, CurlRequest::MethodType 
 
     curlToRequestMap_[curl_request] = request;
     request->setCurlRequestSubmitted(true);
+    request->setCurlRequestTimestamp(current_time);
 
     const auto curl_timeout = request->getTimeout() - delay;
 
@@ -525,7 +568,7 @@ void ServerAPI::login(const QString &username, const QString &password, const QS
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit loginAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::SessionStatus(), "", userRole);
+        emit loginAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::SessionStatus(), "", userRole, "");
         return;
     }
 
@@ -778,17 +821,28 @@ void ServerAPI::notifications(const QString &authHash, uint userRole, bool isNee
         authHash, hostname_, REPLY_NOTIFICATIONS, NETWORK_TIMEOUT, userRole));
 }
 
-void ServerAPI::getWireGuardConfig(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled)
+void ServerAPI::wgConfigsInit(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey)
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
-        emit getWireGuardConfigAnswer(SERVER_RETURN_API_NOT_READY,
-            QSharedPointer<WireGuardConfig>(), userRole);
+        emit wgConfigsInitAnswer(SERVER_RETURN_API_NOT_READY, userRole, false, 0, QString(), QString());
         return;
     }
 
-    submitDnsRequest(createRequest<AuthenticatedRequest>(
-        authHash, hostname_, REPLY_WIREGUARD_CONFIG, NETWORK_TIMEOUT, userRole));
+    submitDnsRequest(createRequest<WGConfigsInitRequest>(
+        authHash, hostname_, REPLY_WIREGUARD_INIT, NETWORK_TIMEOUT, userRole, clientPublicKey, deleteOldestKey));
+}
+
+void ServerAPI::wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName)
+{
+    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
+    {
+        emit wgConfigsConnectAnswer(SERVER_RETURN_API_NOT_READY, userRole, false, 0, QString(), QString());
+        return;
+    }
+
+    submitDnsRequest(createRequest<WGConfigsConnectRequest>(
+        authHash, hostname_, REPLY_WIREGUARD_CONNECT, NETWORK_TIMEOUT, userRole, clientPublicKey, serverName));
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
@@ -841,6 +895,8 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
     const auto reply_type = rd->getReplyType();
     Q_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
 
+    const auto requestTimestamp = rd->getCurlRequestTimestamp();
+
      // If this request is active, call the corresponding handler.
     if (rd->isActive()) {
         Q_ASSERT(rd->isWaitingForCurlResponse());
@@ -849,12 +905,16 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
             (this->*handleCurlReplyFuncTable_[reply_type])(rd, true);
     }
 
-    if (rd->isWaitingForCurlResponse())
-        rd->setWaitingHandlerType(BaseRequest::HandlerType::NONE);
+    // A changed timestamp indicates the handler has initiated a new curl
+    // request and we should not mark the request object for deletion.
+    if (requestTimestamp == rd->getCurlRequestTimestamp()) {
+        if (rd->isWaitingForCurlResponse())
+            rd->setWaitingHandlerType(BaseRequest::HandlerType::NONE);
 
-    // We are done with this request.
-    rd->setCurlRequestSubmitted(false);
-    rd->setActive(false);
+        // We are done with this request.
+        rd->setCurlRequestSubmitted(false);
+        rd->setActive(false);
+    }
 }
 
 void ServerAPI::handleRequestTimeout(BaseRequest *rd)
@@ -880,8 +940,7 @@ void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStri
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request Login failed: DNS-resolution failed";
-        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "",
-                         crd->getUserRole());
+        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", crd->getUserRole(), "");
         return;
     }
 
@@ -901,6 +960,7 @@ void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStri
     postData.addQueryItem("time", strTimestamp);
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -928,7 +988,7 @@ void ServerAPI::handleSessionDnsResolve(BaseRequest *rd, bool success, const QSt
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
     QUrl url("https://" + crd->getHostname() + "/Session?session_type_id=3&time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + Utils::getPlatformNameSafe());
+             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -979,6 +1039,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
 
         query.addQueryItem("browser", "mobike");
         query.addQueryItem("platform", Utils::getPlatformNameSafe());
+        query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
         // add alc parameter in query, if not empty
         if (!alcField.isEmpty())
@@ -1009,6 +1070,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
         {
             QUrlQuery query;
             query.addQueryItem("platform", Utils::getPlatformNameSafe());
+            query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
             query.addQueryItem("alc", alcField);
             url.setQuery(query);
         }
@@ -1128,7 +1190,6 @@ void ServerAPI::handleRecordInstallDnsResolve(BaseRequest *rd, bool success, con
 #elif defined Q_OS_MAC
     QUrl url("https://" + crd->getHostname() + "/RecordInstall/app/mac");
 #elif defined Q_OS_LINUX
-    //todo linux
     QUrl url("https://" + crd->getHostname() + "/RecordInstall/app/linux");
 #endif
     time_t timestamp;
@@ -1137,7 +1198,7 @@ void ServerAPI::handleRecordInstallDnsResolve(BaseRequest *rd, bool success, con
     QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
     QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash
-                + "&platform=" + Utils::getPlatformNameSafe();
+                + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString();
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(str.toUtf8());
@@ -1169,6 +1230,7 @@ void ServerAPI::handleConfirmEmailDnsResolve(BaseRequest *rd, bool success, cons
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("session_auth_hash", crd->getAuthHash());
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1194,7 +1256,7 @@ void ServerAPI::handleMyIPDnsResolve(BaseRequest *rd, bool success, const QStrin
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
 
     QUrl url("https://" + crd->getHostname() + "/MyIp?time=" + strTimestamp + "&client_auth_hash="
-             + md5Hash + "&platform=" + Utils::getPlatformNameSafe());
+             + md5Hash + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1223,7 +1285,7 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     query.addQueryItem("time", strTimestamp);
     query.addQueryItem("client_auth_hash", md5Hash);
     query.addQueryItem("platform", Utils::getPlatformNameSafe());
-
+    query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
     query.addQueryItem("version", AppVersion::instance().version());
     query.addQueryItem("build", AppVersion::instance().build());
     if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_BETA)
@@ -1287,6 +1349,7 @@ void ServerAPI::handleDebugLogDnsResolve(BaseRequest *rd, bool success, const QS
     if (!crd->getUsername().isEmpty())
         postData.addQueryItem("username", crd->getUsername());
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1315,7 +1378,7 @@ void ServerAPI::handleSpeedRatingDnsResolve(BaseRequest *rd, bool success, const
     QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash + "&session_auth_hash="
                   + crd->getAuthHash() + "&hostname=" + crd->getSpeedRatingHostname() + "&rating="
                   + QString::number(crd->getRating()) + "&ip=" + crd->getIp()
-                  + "&platform=" + Utils::getPlatformNameSafe();
+                  + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString();
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(str.toUtf8());
@@ -1344,22 +1407,21 @@ void ServerAPI::handleNotificationsDnsResolve(BaseRequest *rd, bool success, con
 
     QUrl url("https://" + crd->getHostname() + "/Notifications?time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + Utils::getPlatformNameSafe());
+             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
     submitCurlRequest(crd, CurlRequest::METHOD_GET, QString(), crd->getHostname(), ips);
 }
 
-void ServerAPI::handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
+void ServerAPI::handleWgConfigsInitDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
-    auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
+    auto *crd = dynamic_cast<WGConfigsInitRequest*>(rd);
     Q_ASSERT(crd);
 
     if (!success) {
-        qCDebug(LOG_SERVER_API) << "WgConfigs request failed: DNS-resolution failed";
-        emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR,
-            QSharedPointer<WireGuardConfig>(), crd->getUserRole());
+        qCDebug(LOG_SERVER_API) << "WgConfigs init request failed: DNS-resolution failed";
+        emit wgConfigsInitAnswer(SERVER_RETURN_NETWORK_ERROR, crd->getUserRole(), false, 0, QString(), QString());
         return;
     }
 
@@ -1369,13 +1431,65 @@ void ServerAPI::handleWireGuardConfigDnsResolve(BaseRequest *rd, bool success, c
     QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
     QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
 
-    QUrl url("https://" + crd->getHostname() + "/WgConfigs?time=" + strTimestamp
-             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + Utils::getPlatformNameSafe());
+    QUrl url("https://" + crd->getHostname() + "/WgConfigs/init");
+    QUrlQuery postData;
+    postData.addQueryItem("time", strTimestamp);
+    postData.addQueryItem("client_auth_hash", md5Hash);
+    postData.addQueryItem("session_auth_hash", crd->getAuthHash());
+    // Must encode the public key in case it has '+' characters in its base64 encoding.  Otherwise the
+    // server API will store the incorrect key and the wireguard handshake will fail due to a key mismatch.
+    postData.addQueryItem("wg_pubkey", QUrl::toPercentEncoding(crd->clientPublicKey()));
+    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
+
+    if (crd->deleleOldestKey())
+    {
+        postData.addQueryItem("force_init", "1");
+    }
 
     auto *curl_request = crd->createCurlRequest();
-    curl_request->setGetData(url.toString());
-    submitCurlRequest(crd, CurlRequest::METHOD_GET, QString(), crd->getHostname(), ips);
+    curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
+    curl_request->setUrl(url.toString());
+    submitCurlRequest(crd, CurlRequest::METHOD_POST,
+        "Content-type: text/html; charset=utf-8", crd->getHostname(), ips);
+}
+
+void ServerAPI::handleWgConfigsConnectDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
+{
+    auto *crd = dynamic_cast<WGConfigsConnectRequest*>(rd);
+    Q_ASSERT(crd);
+
+    if (!success) {
+        qCDebug(LOG_SERVER_API) << "WgConfigs connect request failed: DNS-resolution failed";
+        emit wgConfigsConnectAnswer(SERVER_RETURN_NETWORK_ERROR, crd->getUserRole(), false, 0, QString(), QString());
+        return;
+    }
+
+    time_t timestamp;
+    time(&timestamp);
+    QString strTimestamp = QString::number(timestamp);
+    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
+    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
+
+    QUrl url("https://" + crd->getHostname() + "/WgConfigs/connect");
+
+
+    QUrlQuery postData;
+    postData.addQueryItem("time", strTimestamp);
+    postData.addQueryItem("client_auth_hash", md5Hash);
+    postData.addQueryItem("session_auth_hash", crd->getAuthHash());
+    // Must encode the public key in case it has '+' characters in its base64 encoding.  Otherwise the
+    // server API will store the incorrect key and the wireguard handshake will fail due to a key mismatch.
+    postData.addQueryItem("wg_pubkey", QUrl::toPercentEncoding(crd->clientPublicKey()));
+    postData.addQueryItem("hostname", crd->serverName());
+    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
+
+    auto *curl_request = crd->createCurlRequest();
+    curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
+    curl_request->setUrl(url.toString());
+    submitCurlRequest(crd, CurlRequest::METHOD_POST,
+        "Content-type: text/html; charset=utf-8", crd->getHostname(), ips);
 }
 
 void ServerAPI::handleWebSessionDnsResolve(ServerAPI::BaseRequest *rd, bool success, const QStringList &ips)
@@ -1404,6 +1518,7 @@ void ServerAPI::handleWebSessionDnsResolve(ServerAPI::BaseRequest *rd, bool succ
     postData.addQueryItem("session_auth_hash", crd->getAuthHash());
     postData.addQueryItem("client_auth_hash", md5Hash);
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
@@ -1442,7 +1557,7 @@ void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const Q
     QUrl url("https://" + crd->getHostname() + "/StaticIps?time=" + strTimestamp
              + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
              + "&device_id=" + crd->getDeviceId() + "&os=" + strOs
-             + "&platform=" + Utils::getPlatformNameSafe());
+             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
@@ -1557,7 +1672,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         if (replyType == REPLY_LOGIN)
         {
             qCDebug(LOG_SERVER_API) << "API request Login failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-            emit loginAnswer(retCode, apiinfo::SessionStatus(), "", userRole);
+            emit loginAnswer(retCode, apiinfo::SessionStatus(), "", userRole, "");
         }
         else
         {
@@ -1590,7 +1705,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             if (replyType == REPLY_LOGIN)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole);
+                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole, "");
             }
             else
             {
@@ -1607,17 +1722,60 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         {
             int errorCode = jsonObject["errorCode"].toInt();
 
-            if (errorCode == 701 || errorCode == 702 || errorCode == 703 || errorCode == 706)
+            // 701 - will be returned if the supplied session_auth_hash is invalid. Any authenticated endpoint can
+            //       throw this error.  This can happen if the account gets disabled, or they rotate their session
+            //       secret (pressed Delete Sessions button in the My Account section).  We should terminate the
+            //       tunnel and go to the login screen.
+            // 702 - will be returned ONLY in the login flow, and means the supplied credentials were not valid.
+            //       Currently we disregard the API errorMessage and display the hardcoded ones (this is for
+            //       multi-language support).
+            // 703 - deprecated / never returned anymore, however we should still keep this for future purposes.
+            //       If 703 is thrown on login (and only on login), display the exact errorMessage to the user,
+            //       instead of what we do for 702 errors.
+            // 706 - this is thrown only on login flow, and means the target account is disabled or banned.
+            //       Do exactly the same thing as for 703 - show the errorMessage.
+
+            if (errorCode == 701)
+            {
+                if (replyType == REPLY_LOGIN)
+                {
+                    qCDebug(LOG_SERVER_API) << "API request Login return session auth hash invalid";
+                    emit loginAnswer(SERVER_RETURN_SESSION_INVALID, apiinfo::SessionStatus(), "", userRole, "");
+                }
+                else
+                {
+                    qCDebug(LOG_SERVER_API) << "API request Session return session auth hash invalid";
+                    emit sessionAnswer(SERVER_RETURN_SESSION_INVALID, apiinfo::SessionStatus(), userRole);
+                }
+            }
+            else if (errorCode == 702)
             {
                 if (replyType == REPLY_LOGIN)
                 {
                     qCDebug(LOG_SERVER_API) << "API request Login return bad username";
-                    emit loginAnswer(SERVER_RETURN_BAD_USERNAME, apiinfo::SessionStatus(), "", userRole);
+                    emit loginAnswer(SERVER_RETURN_BAD_USERNAME, apiinfo::SessionStatus(), "", userRole, "");
                 }
                 else
                 {
-                    qCDebug(LOG_SERVER_API) << "API request Session return bad username";
-                    emit sessionAnswer(SERVER_RETURN_BAD_USERNAME, apiinfo::SessionStatus(), userRole);
+                    // According to the server API docs, we should not get here.
+                    qCDebug(LOG_SERVER_API) << "WARNING: API request Session return bad username";
+                    emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), userRole);
+                }
+            }
+            else if (errorCode == 703 || errorCode == 706)
+            {
+                QString errorMessage = jsonObject["errorMessage"].toString();
+
+                if (replyType == REPLY_LOGIN)
+                {
+                    qCDebug(LOG_SERVER_API) << "API request Login return account disabled or banned";
+                    emit loginAnswer(SERVER_RETURN_ACCOUNT_DISABLED, apiinfo::SessionStatus(), "", userRole, errorMessage);
+                }
+                else
+                {
+                    // According to the server API docs, we should not get here.
+                    qCDebug(LOG_SERVER_API) << "WARNING: API request Session return account disabled or banned";
+                    emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), userRole);
                 }
             }
             else
@@ -1627,17 +1785,17 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
                     if (errorCode == 1340)
                     {
                         qCDebug(LOG_SERVER_API) << "API request Login return missing 2FA code";
-                        emit loginAnswer(SERVER_RETURN_MISSING_CODE2FA, apiinfo::SessionStatus(), "", userRole);
+                        emit loginAnswer(SERVER_RETURN_MISSING_CODE2FA, apiinfo::SessionStatus(), "", userRole, "");
                     }
                     else if (errorCode == 1341)
                     {
                         qCDebug(LOG_SERVER_API) << "API request Login return invalid 2FA code";
-                        emit loginAnswer(SERVER_RETURN_BAD_CODE2FA, apiinfo::SessionStatus(), "", userRole);
+                        emit loginAnswer(SERVER_RETURN_BAD_CODE2FA, apiinfo::SessionStatus(), "", userRole, "");
                     }
                     else
                     {
                         qCDebug(LOG_SERVER_API) << "API request Login return error";
-                        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", userRole);
+                        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::SessionStatus(), "", userRole, "");
                     }
                 }
                 else
@@ -1654,7 +1812,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             if (replyType == REPLY_LOGIN)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json (data field not found)";
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole);
+                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole, "");
             }
             else
             {
@@ -1677,7 +1835,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             if (replyType == REPLY_LOGIN)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json:" << outErrorMsg;
-                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole);
+                emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::SessionStatus(), "", userRole, "");
             }
             else
             {
@@ -1689,13 +1847,17 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         if (replyType == REPLY_LOGIN)
         {
             qCDebug(LOG_SERVER_API) << "API request Login successfully executed";
-            emit loginAnswer(SERVER_RETURN_SUCCESS, sessionStatus, authHash, userRole);
+            emit loginAnswer(SERVER_RETURN_SUCCESS, sessionStatus, authHash, userRole, "");
         }
         else
         {
-            // Commented debug entry out as this request occurs every minute and we don't
-            // need to flood the log with this info.
-            //qCDebug(LOG_SERVER_API) << "API request Session successfully executed";
+            // Commented debug entry out as this request may occur every minute and we don't
+            // need to flood the log with this info.  Enabled it for staging builds to aid
+            // QA in verifying session requests are being made when they're supposed to be.
+            if (AppVersion::instance().isStaging())
+            {
+                qCDebug(LOG_SERVER_API) << "API request Session successfully executed";
+            }
             emit sessionAnswer(SERVER_RETURN_SUCCESS, sessionStatus, userRole);
         }
     }
@@ -1781,24 +1943,36 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
             QVector<apiinfo::Location> serverLocations;
             QStringList forceDisconnectNodes;
 
-            for (const QJsonValue &value: jsonData)
+            for (int i = 0; i < jsonData.size(); ++i)
             {
-                QJsonObject obj = value.toObject();
-
-                apiinfo::Location sl;
-                if (sl.initFromJson(obj, forceDisconnectNodes))
+                if (jsonData.at(i).isObject())
                 {
-                    serverLocations << sl;
+                    apiinfo::Location sl;
+                    QJsonObject dataElement = jsonData.at(i).toObject();
+                    if (sl.initFromJson(dataElement, forceDisconnectNodes)) {
+                        serverLocations << sl;
+                    }
+                    else
+                    {
+                        QJsonDocument invalidData(dataElement);
+                        qCDebug(LOG_SERVER_API) << "API request ServerLocations skipping invalid/incomplete 'data' element at index" << i
+                                                << "(" << invalidData.toJson(QJsonDocument::Compact) << ")";
+                    }
                 }
-                else
-                {
-                    qCDebugMultiline(LOG_SERVER_API) << arr;
-                    qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
-                    emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, QVector<apiinfo::Location>(), QStringList(), userRole);
-                    return;
+                else {
+                    qCDebug(LOG_SERVER_API) << "API request ServerLocations skipping non-object 'data' element at index" << i;
                 }
             }
-            emit serverLocationsAnswer(SERVER_RETURN_SUCCESS, serverLocations, forceDisconnectNodes, userRole);
+
+            if (serverLocations.empty())
+            {
+                qCDebugMultiline(LOG_SERVER_API) << arr;
+                qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json, no valid 'data' elements were found";
+                emit serverLocationsAnswer(SERVER_RETURN_INCORRECT_JSON, serverLocations, QStringList(), userRole);
+            }
+            else {
+                emit serverLocationsAnswer(SERVER_RETURN_SUCCESS, serverLocations, forceDisconnectNodes, userRole);
+            }
         }
         else
         {
@@ -2051,6 +2225,9 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
 
         if (jsonObject.contains("errorCode"))
         {
+            // Putting this debug line here to help us quickly troubleshoot errors returned from the
+            // server API, which hopefully should be few and far between.
+            qCDebugMultiline(LOG_SERVER_API) << arr;
             emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
             return;
         }
@@ -2311,7 +2488,7 @@ void ServerAPI::handleNotificationsCurl(BaseRequest *rd, bool success)
     }
 }
 
-void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
+void ServerAPI::handleWgConfigsInitCurl(BaseRequest *rd, bool success)
 {
     const int userRole = rd->getUserRole();
     const auto *curlRequest = rd->getCurlRequest();
@@ -2319,9 +2496,8 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
 
     if (curlRetCode != CURLE_OK)
     {
-        qCDebug(LOG_SERVER_API) << "WgConfigs request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-        emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR,
-            QSharedPointer<WireGuardConfig>(), userRole);
+        qCDebug(LOG_SERVER_API) << "WgConfigs init curl request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        emit wgConfigsInitAnswer(SERVER_RETURN_NETWORK_ERROR, userRole, false, 0, QString(), QString());
     }
     else
     {
@@ -2332,52 +2508,125 @@ void ServerAPI::handleWireGuardConfigCurl(BaseRequest *rd, bool success)
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for WgConfigs";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
+            qCDebug(LOG_SERVER_API) << "Failed to parse JSON for WgConfigs init response";
+            emit wgConfigsInitAnswer(SERVER_RETURN_INCORRECT_JSON, userRole, false, 0, QString(), QString());
             return;
         }
 
         QJsonObject jsonObject = doc.object();
-        if (!jsonObject.contains("data"))
+
+        if (jsonObject.contains("errorCode"))
         {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for WgConfigs";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
-            return;
-        }
-        QJsonObject jsonData = jsonObject["data"].toObject();
-        if (!jsonData.contains("success"))
-        {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for WgConfigs";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
+            int errorCode = jsonObject["errorCode"].toInt();
+            qCDebug(LOG_SERVER_API) << "WgConfigs init failed:" << jsonObject["errorMessage"].toString() << "(" << errorCode << ")";
+            emit wgConfigsInitAnswer(SERVER_RETURN_SUCCESS, userRole, true, errorCode, QString(), QString());
             return;
         }
 
-        int is_success = jsonData["success"].toInt();
-        if (!is_success) {
+        if (!jsonObject.contains("data"))
+        {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Bad JSON for WgConfigs: success == 0";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
+            qCDebug(LOG_SERVER_API) << "WgConfigs init JSON is missing the 'data' element";
+            emit wgConfigsInitAnswer(SERVER_RETURN_INCORRECT_JSON, userRole, false, 0, QString(), QString());
+            return;
+        }
+
+        QJsonObject jsonData = jsonObject["data"].toObject();
+        if (!jsonData.contains("success") || jsonData["success"].toInt(0) == 0)
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "WgConfigs init JSON contains a missing or invalid 'success' field";
+            emit wgConfigsInitAnswer(SERVER_RETURN_INCORRECT_JSON, userRole, false, 0, QString(), QString());
             return;
         }
 
         QJsonObject jsonConfig = jsonData["config"].toObject();
-        QSharedPointer<WireGuardConfig> userconfig(new WireGuardConfig());
-        if (!userconfig->initFromJson(jsonConfig)) {
+        if (jsonConfig.contains("PresharedKey") && jsonConfig.contains("AllowedIPs"))
+        {
+            QString presharedKey = jsonConfig["PresharedKey"].toString();
+            QString allowedIps   = jsonConfig["AllowedIPs"].toString();
+            qCDebug(LOG_SERVER_API) << "WgConfigs/init json:" << doc.toJson(QJsonDocument::Compact);
+            qCDebug(LOG_SERVER_API) << "WgConfigs init request successfully executed";
+            emit wgConfigsInitAnswer(SERVER_RETURN_SUCCESS, userRole, false, 0, presharedKey, allowedIps);
+        }
+        else
+        {
             qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Incorrect JSON for WgConfigs";
-            emit getWireGuardConfigAnswer(SERVER_RETURN_INCORRECT_JSON,
-                QSharedPointer<WireGuardConfig>(), userRole);
+            qCDebug(LOG_SERVER_API) << "WgConfigs init 'config' entry is missing required elements";
+            emit wgConfigsInitAnswer(SERVER_RETURN_INCORRECT_JSON, userRole, false, 0, QString(), QString());
+        }
+    }
+}
+
+void ServerAPI::handleWgConfigsConnectCurl(BaseRequest *rd, bool success)
+{
+    const int userRole = rd->getUserRole();
+    const auto *curlRequest = rd->getCurlRequest();
+    CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
+
+    if (curlRetCode != CURLE_OK)
+    {
+        qCDebug(LOG_SERVER_API) << "WgConfigs connect curl request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        emit wgConfigsConnectAnswer(SERVER_RETURN_NETWORK_ERROR, userRole, false, 0, QString(), QString());
+    }
+    else
+    {
+        QByteArray arr = curlRequest->getAnswer();
+
+        QJsonParseError errCode;
+        QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
+        if (errCode.error != QJsonParseError::NoError || !doc.isObject())
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "Failed to parse JSON for WgConfigs connect response";
+            emit wgConfigsConnectAnswer(SERVER_RETURN_INCORRECT_JSON, userRole, false, 0, QString(), QString());
             return;
         }
 
-        qCDebug(LOG_SERVER_API) << "WgConfigs request successfully executed";
-        emit getWireGuardConfigAnswer(SERVER_RETURN_SUCCESS, userconfig, userRole);
+        QJsonObject jsonObject = doc.object();
+
+        if (jsonObject.contains("errorCode"))
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            int errorCode = jsonObject["errorCode"].toInt();
+            qCDebug(LOG_SERVER_API) << "WgConfigs connect failed:" << jsonObject["errorMessage"].toString() << "(" << errorCode << ")";
+            emit wgConfigsConnectAnswer(SERVER_RETURN_SUCCESS, userRole, true, errorCode, QString(), QString());
+            return;
+        }
+
+        if (!jsonObject.contains("data"))
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "WgConfigs connect JSON is missing the 'data' element";
+            emit wgConfigsConnectAnswer(SERVER_RETURN_INCORRECT_JSON, userRole, false, 0, QString(), QString());
+            return;
+        }
+
+        QJsonObject jsonData = jsonObject["data"].toObject();
+        if (!jsonData.contains("success") || jsonData["success"].toInt(0) == 0)
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "WgConfigs connect JSON contains a missing or invalid 'success' field";
+            emit wgConfigsConnectAnswer(SERVER_RETURN_INCORRECT_JSON, userRole, false, 0, QString(), QString());
+            return;
+        }
+
+        QJsonObject jsonConfig = jsonData["config"].toObject();
+        if (jsonConfig.contains("Address") && jsonConfig.contains("DNS"))
+        {
+            QString ipAddress  = jsonConfig["Address"].toString();
+            QString dnsAddress = jsonConfig["DNS"].toString();
+            qCDebug(LOG_SERVER_API) << "WgConfigs connect request successfully executed";
+            emit wgConfigsConnectAnswer(SERVER_RETURN_SUCCESS, userRole, false, 0, ipAddress, dnsAddress);
+
+        }
+        else
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "WgConfigs connect 'config' entry is missing required elements";
+            emit wgConfigsConnectAnswer(SERVER_RETURN_INCORRECT_JSON, userRole, false, 0, QString(), QString());
+        }
     }
 }
 
@@ -2495,3 +2744,4 @@ void ServerAPI::onTunnelTestDnsResolve(const QStringList &ips)
         qCDebug(LOG_SERVER_API) << "ServerAPI::onTunnelTestDnsResolve could not allocate a PingRequest object";
     }
 }
+

@@ -25,10 +25,6 @@ public:
 	void setSplitTunnelingAppsIds(const AppsIds &appsIds, bool isExclusiveMode);
 	void setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips);
 
-	// WireGuard parameters
-	void addFilterForWireGuardAdapter(NET_LUID luid);
-	void removeFilterForWireGuardAdapter();
-
 private:
 	FwpmWrapper &fwpmWrapper_;
     GUID   subLayerGUID_;
@@ -66,8 +62,6 @@ private:
 	
 	std::vector<UINT64> filterIdsApps_;
 	std::vector<UINT64> filterIdsSplitRoutingIps_;
-	UINT64 filterIdWireGuardAdapter_;
-
 };
 
 #endif // FIREWALLFILTER_H

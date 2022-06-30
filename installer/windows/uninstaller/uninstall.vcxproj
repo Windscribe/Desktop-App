@@ -32,9 +32,10 @@
     <ClCompile Include="..\Utils\remove_directory.cpp" />
     <ClCompile Include="..\Utils\services.cpp" />
     <ClCompile Include="..\Utils\version_os.cpp" />
+    <ClCompile Include="arguments_parser.cpp" />
+    <ClCompile Include="copy_and_run.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="uninstall.cpp" />
-    <ClCompile Include="uninstall_progress.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Utils\applicationinfo.h" />
@@ -53,9 +54,10 @@
     <ClInclude Include="..\Utils\utils.h" />
     <ClInclude Include="..\Utils\version_os.h" />
     <ClInclude Include="..\Utils\window_parameters.h" />
+    <ClInclude Include="arguments_parser.h" />
+    <ClInclude Include="copy_and_run.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="uninstall.h" />
-    <ClInclude Include="uninstall_progress.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="uninstall.rc" />

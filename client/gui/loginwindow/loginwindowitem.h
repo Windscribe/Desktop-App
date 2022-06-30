@@ -17,7 +17,7 @@ public:
     explicit LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     QGraphicsObject *getGraphicsObject() override;
-    void setErrorMessage(ERROR_MESSAGE_TYPE errorMessage) override;
+    void setErrorMessage(ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage) override;
     void setEmergencyConnectState(bool isEmergencyConnected) override;
 
     QRectF boundingRect() const override;

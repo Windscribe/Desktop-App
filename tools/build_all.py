@@ -213,6 +213,10 @@ def apply_mac_deploy_fixes(appname, fixlist):
                         dstv = srcv if len(parts) == 1 else parts[1].strip()
                         change_lib_from = os.path.join(lib_root, srcv)
                         change_lib_to = "@executable_path/{}".format(dstv)
+                        msg.Info("Fixing rpath: {} to {} for {}".format(change_lib_from, change_lib_to, fs[1]))
+                        # Ensure the lib actually exists (i.e. we have the correct name in build_all.yml)
+                        if not os.path.exists(change_lib_from):
+                            raise IOError("Cannot find file \"{}\"".format(change_lib_from))
                         iutl.RunCommand(["install_name_tool", "-change", change_lib_from, change_lib_to, fs[1]])
     # 4. Code signing.
     # The Mac app must be signed in order to install and operate properly.
@@ -223,7 +227,7 @@ def apply_mac_deploy_fixes(appname, fixlist):
     if "entitlements" in fixlist \
             and "entitlements_binary" in fixlist["entitlements"] \
             and "entitlements_file" in fixlist["entitlements"]:
-        # Can only sign with entitlements if the embedded provisioning file exists.  The engine will segfault on
+        # Can only sign with entitlements if the embedded provisioning file exists.  The client will segfault on
         # launch otherwise with a "EXC_CRASH (Code Signature Invalid)" exception type.
         if os.path.exists(pathhelper.mac_provision_profile_filename_absolute()):
             msg.Info("Signing a binary with entitlements...")
@@ -244,7 +248,8 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
     # Collect settings.
     c_iswin = CURRENT_OS == "win32"
     c_ismac = CURRENT_OS == "macos"
-    c_bits = "64" if (is_64bit or c_ismac) else "32"
+    c_islinux = CURRENT_OS == utl.CURRENT_OS_LINUX;
+    c_bits = "64" if (is_64bit or c_ismac or c_islinux) else "32"
     c_project = component["project"]
     c_subdir = component["subdir"]
     c_target = component.get("target", None)
@@ -277,7 +282,7 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
                     deploy_cmd.append("-no-plugins")
                 iutl.RunCommand(deploy_cmd, env=buildenv)
                 update_version_in_plist(os.path.join(temp_wd, component["macapp"], "Contents", "Info.plist"))
-                if component["name"] == "Engine":
+                if component["name"] == "Client":
                     # Could not find an automated way to do this like we could with the xcodebuild below.
                     update_team_id(os.path.join(temp_wd, component["macapp"], "Contents", "Info.plist"))
         elif c_project.endswith(".vcxproj"):
@@ -458,7 +463,7 @@ def build_auth_helper_win32(configdata, targetlist):
 
 def pack_symbols():
     msg.Info("Packing symbols...")
-    symbols_archive_name = "WindscribeSymbols_{}.zip".format(extractor.app_version())
+    symbols_archive_name = "WindscribeSymbols_{}.zip".format(extractor.app_version(True))
     zf = zipfile.ZipFile(symbols_archive_name, "w", zipfile.ZIP_DEFLATED)
     skiplen = len(BUILD_SYMBOL_FILES) + 1
     for filename in glob2.glob(BUILD_SYMBOL_FILES + os.sep + "**"):
@@ -543,7 +548,10 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     if arghelper.post_clean():
         utl.RemoveFile(archive_filename)
     final_installer_name = os.path.normpath(os.path.join(os.getcwd(),
-                                                         "Windscribe_{}.exe".format(extractor.app_version())))
+                                                         "Windscribe_{}.exe".format(extractor.app_version(True))))
+    msg.Info("App version extracted22: \"{}\"".format(extractor.app_version(True)))
+    msg.Info("App version extracted33: \"{}\"".format(final_installer_name))
+
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                                                  installer_info["target"])), final_installer_name)
     if arghelper.sign_app():
@@ -579,7 +587,7 @@ def build_installer_mac(configdata, qt_root):
                          "WindscribeInstaller.dmg", "-D", "app=" + installer_app_override, "-D",
                          "background=" + pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/osx_install_background.tiff"])
         final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
-                                                         .format(extractor.app_version())))
+                                                         .format(extractor.app_version(True))))
     utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
 
@@ -630,7 +638,7 @@ def build_installer_linux(configdata, qt_root):
 
     msg.Info("Creating Debian package...")
     src_package_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "debian_package")
-    dest_package_name = "windscribe_{}_amd64".format(extractor.app_version())
+    dest_package_name = "windscribe_{}_amd64".format(extractor.app_version(True))
     dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
 
     utl.CopyAllFiles(src_package_path, dest_package_path)
@@ -645,7 +653,7 @@ def build_installer_linux(configdata, qt_root):
     
     # create RPM from deb
     # msg.Info("Creating RPM package...")
-    rpm_package_name = "windscribe_{}_x86_64.rpm".format(extractor.app_version())
+    rpm_package_name = "windscribe_{}_x86_64.rpm".format(extractor.app_version(True))
     postinst_rpm_script = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "additional_files", "postinst_rpm")
     iutl.RunCommand(["fpm", "--after-install", postinst_rpm_script,
                      "-s", "deb",
@@ -666,7 +674,7 @@ def build_all(win_cert_password):
             configdata["installer"][CURRENT_OS] not in configdata:
         raise iutl.InstallError("Missing {} installer target in \"{}\".".format(CURRENT_OS, BUILD_CFG_NAME))
 
-    msg.Info("App version extracted: \"{}\"".format(extractor.app_version()))
+    msg.Info("App version extracted: \"{}\"".format(extractor.app_version(True)))
 
     # Get Qt directory.
     qt_root = iutl.GetDependencyBuildRoot("qt")
@@ -786,9 +794,8 @@ def pre_checks_and_build_all():
             pubkey = pathhelper.linux_public_key_filename_absolute()
             privkey = pathhelper.linux_private_key_filename_absolute()
             if not os.path.exists(pubkey) or not os.path.exists(privkey):
-                raise IOError("Code signing is enabled but key.pub and/or key.pem were not found in '{keypath}'. "
-                              "Pass {no_sign} to this script to disable code signing."
-                              .format(keypath=keypath, no_sign=arghelper.OPTION_NO_SIGN))
+                raise IOError("Code signing (--sign) is enabled but key.pub and/or key.pem were not found in '{keypath}'."
+                              .format(keypath=keypath))
             generate_include_file_from_pub_key(pathhelper.linux_include_key_filename_absolute(), pubkey)
 
         # early check for cert password in notarize.yml on windows
@@ -804,7 +811,11 @@ def pre_checks_and_build_all():
         # early check for provision profile on mac
         if CURRENT_OS == utl.CURRENT_OS_MAC:
             if not os.path.exists(pathhelper.mac_provision_profile_filename_absolute()):
-                raise IOError("Cannot sign without proviison profile")
+                raise IOError("Cannot sign without provisioning profile")
+
+	# early check for file hardcodedsecrets.ini
+        if not os.path.exists(pathhelper.hardcoded_secrets_filename_absolute()):
+    	    raise IOError("Cannot build without hardcodedsecrets.ini")
 
     # should have everything we need to build with the desired settings
     msg.Print("Building {}...".format(BUILD_TITLE))
@@ -849,8 +860,8 @@ if __name__ == "__main__":
         elif arghelper.download_secrets():
             download_secrets()
         elif arghelper.build_mode():
-            # don't delete secrets in local-secret mode
-            if not arghelper.use_local_secrets():
+            # don't delete secrets in local-secret mode or when doing a developer (non-signed) build.
+            if not arghelper.use_local_secrets() and arghelper.sign_app():
                 delete_secrets = True
             pre_checks_and_build_all()
         else:

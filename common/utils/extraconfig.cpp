@@ -17,6 +17,7 @@ const QString WS_TT_TIMEOUT_STR     = WS_PREFIX + "tunnel-test-timeout";
 const QString WS_TT_RETRY_DELAY_STR = WS_PREFIX + "tunnel-test-retry-delay";
 const QString WS_TT_ATTEMPTS_STR    = WS_PREFIX + "tunnel-test-attempts";
 
+const QString WS_STAGING_STR    = WS_PREFIX + "staging";
 
 void ExtraConfig::writeConfig(const QString &cfg)
 {
@@ -160,27 +161,52 @@ int ExtraConfig::getMtuOffsetWireguard(bool &success)
 
 int ExtraConfig::getTunnelTestStartDelay(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_TT_START_DELAY_STR, success);
+    int delay = getIntFromExtraConfigLines(WS_TT_START_DELAY_STR, success);
+    if (success && delay < 0) {
+        delay = 0;
+    }
+
+    return delay;
 }
 
 int ExtraConfig::getTunnelTestTimeout(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_TT_TIMEOUT_STR, success);
+    int timeout = getIntFromExtraConfigLines(WS_TT_TIMEOUT_STR, success);
+    if (success && timeout < 0) {
+        timeout = 0;
+    }
+
+    return timeout;
 }
 
 int ExtraConfig::getTunnelTestRetryDelay(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_TT_RETRY_DELAY_STR, success);
+    int delay = getIntFromExtraConfigLines(WS_TT_RETRY_DELAY_STR, success);
+    if (success && delay < 0) {
+        delay = 0;
+    }
+
+    return delay;
 }
 
 int ExtraConfig::getTunnelTestAttempts(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_TT_ATTEMPTS_STR, success);
+    int attempts = getIntFromExtraConfigLines(WS_TT_ATTEMPTS_STR, success);
+    if (success && attempts < 0) {
+        attempts = 0;
+    }
+
+    return attempts;
 }
 
 bool ExtraConfig::getOverrideUpdateChannelToInternal()
 {
     return getFlagFromExtraConfigLines(WS_UPDATE_CHANNEL_INTERNAL);
+}
+
+bool ExtraConfig::getIsStaging()
+{
+    return getFlagFromExtraConfigLines(WS_STAGING_STR);
 }
 
 int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)

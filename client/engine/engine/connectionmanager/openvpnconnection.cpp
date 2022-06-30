@@ -150,7 +150,7 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const Pro
     return helper_win->executeOpenVPN(configPath_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId);
 
 #elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
-    QString strCommand = "--config \"" + configPath_ + "\" --management 127.0.0.1 " + QString::number(port) + " --management-query-passwords --management-hold";
+    QString strCommand = "--config \"" + configPath_ + "\" --management 127.0.0.1 " + QString::number(port) + " --management-query-passwords --management-hold --verb 3";
     if (proxySettings.option() == PROXY_OPTION_HTTP)
     {
         strCommand += " --http-proxy " + proxySettings.address() + " " + QString::number(proxySettings.getPort()) + " auto";
@@ -334,7 +334,6 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         }
         if (serverReply.contains("HOLD:Waiting for hold release", Qt::CaseInsensitive))
         {
-            boost::asio::write(*stateVariables_.socket, boost::asio::buffer("verb 3\n"), boost::asio::transfer_all(), write_error);
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer("state on all\n"), boost::asio::transfer_all(), write_error);
         }
         else if (serverReply.startsWith("END") && stateVariables_.bWasStateNotification)

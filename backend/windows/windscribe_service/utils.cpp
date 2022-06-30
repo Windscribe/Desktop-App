@@ -3,6 +3,7 @@
 #include "logger.h"
 #include <comdef.h>
 #include <WbemIdl.h>
+#include <versionhelpers.h>
 #include "../../../common/utils/executable_signature/executable_signature.h"
 #include "../../../common/utils/win32handle.h"
 
@@ -170,11 +171,10 @@ bool noSpacesInString(std::wstring &str)
 
 bool iequals(const std::wstring &a, const std::wstring &b)
 {
-	auto sz = static_cast<unsigned int>(a.size());
-	if (b.size() != sz)
+	if (b.size() != a.size())
 		return false;
 
-	return _wcsnicmp(a.c_str(), b.c_str(), sz) == 0;
+	return _wcsnicmp(a.c_str(), b.c_str(), a.size()) == 0;
 }
 
 bool verifyWindscribeProcessPath(HANDLE hPipe)
@@ -386,4 +386,15 @@ GUID guidFromString(const std::wstring &str)
 
     return reqGUID;
 }
+
+bool isWindows7()
+{
+    static int isWindows7 = -1;
+    if (isWindows7 == -1) {
+        isWindows7 = (IsWindows8OrGreater() ? 0 : 1);
+    }
+
+    return (isWindows7 == 1);
+}
+
 }

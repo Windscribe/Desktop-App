@@ -22,7 +22,7 @@ public:
     bool isAllowLanTraffic() const;
     void setAllowLanTraffic(bool b);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     bool isMinimizeAndCloseToTray() const;
     void setMinimizeAndCloseToTray(bool b);
 #elif defined Q_OS_MAC
@@ -102,6 +102,12 @@ public:
     ProtoTypes::DnsPolicy dnsPolicy() const;
     void setDnsPolicy(ProtoTypes::DnsPolicy d);
 
+#ifdef Q_OS_LINUX
+    ProtoTypes::DnsManagerType dnsManager() const;
+    void setDnsManager(ProtoTypes::DnsManagerType d);
+#endif
+
+
     DnsWhileConnectedInfo dnsWhileConnectedInfo() const;
     void setDnsWhileConnectedInfo(DnsWhileConnectedInfo d);
 
@@ -169,6 +175,11 @@ signals:
     void shareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);
     void debugAdvancedParametersChanged(const QString &pars);
     void dnsPolicyChanged(ProtoTypes::DnsPolicy d);
+
+#if defined(Q_OS_LINUX)
+    void dnsManagerChanged(ProtoTypes::DnsManagerType d);
+#endif
+
     void dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo dnsWcInfo);
     void networkWhiteListChanged(ProtoTypes::NetworkWhiteList l);
     void splitTunnelingChanged(ProtoTypes::SplitTunneling st);

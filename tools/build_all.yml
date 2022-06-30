@@ -116,7 +116,6 @@ helper_linux:
   project:  helper.pro
   subdir:   backend/linux/helper
   target:   helper
-  
 
 launcher_mac:
   name:     Launcher
@@ -139,7 +138,15 @@ installer_mac:
 
 installer_linux:
   name:     Installer
-  
+
+wireguardservice:
+  name:     WireguardService
+  project:  WireguardService.pro
+  subdir:   backend/windows/wireguard_service
+  target:   WireguardService.exe
+  symbols:  WireguardService.pdb
+  is64bit:  yes
+
 
 targets:
   win32:
@@ -152,6 +159,7 @@ targets:
     - installhelper
     - launcher_win
     - uninstaller
+    - wireguardservice
   macos:
     - helper
     - launcher_mac
@@ -159,6 +167,7 @@ targets:
     - client
   linux:
     - helper_linux
+    - cli
     - client
     - authhelper_linux
   authhelper_win:
@@ -245,6 +254,7 @@ files_fix_rpath_linux:
   - windscribeopenvpn -> $ORIGIN/lib
   - windscribe-authhelper -> $ORIGIN/lib
   - Windscribe -> $ORIGIN/lib
+  - windscribe-cli -> $ORIGIN/lib
   - helper -> $ORIGIN/lib
 
 files_codesign_linux:
@@ -265,8 +275,6 @@ additional_files:
   - tap6/
   - wintun/
   - splittunnel/
-  - wgsupport/i386/ -> x32
-  - wgsupport/amd64/ -> x64
   - wstunnel/wstunnel.exe -> wstunnel.exe
   - subinacl.exe
 
@@ -288,8 +296,8 @@ lib_files:
   openvpn:
     - openvpn.exe -> windscribeopenvpn_2_5_4.exe
   wireguard:
-    - windscribewireguard_x86.exe -> x32/windscribewireguard.exe
-    - windscribewireguard_x64.exe -> x64/windscribewireguard.exe
+    - tunnel.dll -> tunnel.dll
+    - wireguard.dll -> wireguard.dll
 
 macdeployfixes:
   client:
@@ -309,6 +317,9 @@ macdeployfixes:
       Contents/Helpers/libssl.1.1.dylib:
         openssl:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+      Contents/MacOS/windscribe-cli:
+        protobuf:
+          - lib/libprotobuf.28.dylib -> ../Frameworks/libprotobuf.28.dylib
     entitlements:
       entitlements_binary: Contents/MacOS/Windscribe
       entitlements_file: client/engine/mac/windscribe_engine.entitlements
@@ -316,7 +327,3 @@ macdeployfixes:
       # Remove unused Qt frameworks.
       - Contents/Frameworks/QtQml.framework
       - Contents/Frameworks/QtQuick.framework
-    rpathfix:
-      Contents/MacOS/windscribe-cli:
-        protobuf:
-          - lib/libprotobuf.25.dylib -> ../Frameworks/libprotobuf.25.dylib

@@ -24,6 +24,8 @@ public slots:
 signals:
     void finished();
     void emitCommand(IPC::Command *command);
+    void wireGuardAtKeyLimit();
+    void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
 private slots:
     void onServerCallbackAcceptFunction(IPC::IConnection *connection);
@@ -34,7 +36,7 @@ private slots:
     void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode);
     void onEngineFirewallStateChanged(bool isEnabled);
     void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap);
-    void onEngineLoginError(LOGIN_RET retCode);
+    void onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage);
     void onEngineLoginMessage(LOGIN_MESSAGE msg);
     void onEngineSessionDeleted();
     void onEngineUpdateSessionStatus(const apiinfo::SessionStatus &sessionStatus);

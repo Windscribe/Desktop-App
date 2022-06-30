@@ -47,6 +47,9 @@ bool FirewallController_mac::firewallOff()
         str = helper_->executeRootCommand("pfctl -d");
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Output from disable firewall command: " << str;
 
+        // force delete the table "windscribe_ips"
+        str = helper_->executeRootCommand("pfctl -t windscribe_ips -T kill");
+
         str = helper_->executeRootCommand("pfctl -si");
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Output from status firewall command: " << str;
 
@@ -68,8 +71,15 @@ bool FirewallController_mac::firewallActualState()
         return false;
     }
 
+    // Additionally check the table "windscribe_ips", which will indicate that the firewall is enabled by our program.
+    QString tableReport = helper_->executeRootCommand("pfctl -t windscribe_ips -T show");
+    if (tableReport.isEmpty())
+    {
+        return false;
+    }
+
     QString report = helper_->executeRootCommand("pfctl -si");
-    if( report.indexOf("Status: Enabled") != -1 )
+    if (report.indexOf("Status: Enabled") != -1)
     {
         return true;
     }

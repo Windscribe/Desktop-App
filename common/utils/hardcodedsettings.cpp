@@ -1,6 +1,7 @@
 #include "hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
+#include "version/appversion.h"
 #include "version/windscribe_version.h"
 #include <QDateTime>
 #include <QStringList>
@@ -44,13 +45,16 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
     QSettings settings(":/common/utils/hardcodedsettings.ini", QSettings::IniFormat);
 
     // some INI strings are crypted
-#ifdef WINDSCRIBE_IS_STAGING
-    serverApiUrl_ = settings.value("basic/serverApiUrlStaging").toString();
-    serverUrl_ = settings.value("basic/serverUrlStaging").toString();
-#else
-    serverApiUrl_ = settings.value("basic/serverApiUrl").toString();
-    serverUrl_ = settings.value("basic/serverUrl").toString();
-#endif
+    if (AppVersion::instance().isStaging())
+    {
+        serverApiUrl_ = settings.value("basic/serverApiUrlStaging").toString();
+        serverUrl_ = settings.value("basic/serverUrlStaging").toString();
+    }
+    else
+    {
+        serverApiUrl_ = settings.value("basic/serverApiUrl").toString();
+        serverUrl_ = settings.value("basic/serverUrl").toString();
+    }
 
     serverSharedKey_ = settings.value("basic/serverSharedKey").toString();
     serverTunnelTestUrl_ = settings.value("basic/serverTunnelTestUrl").toString();

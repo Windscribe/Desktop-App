@@ -1,38 +1,22 @@
 #pragma once
 
-#include "../firewallfilter.h"
-
-#include <memory>
-
-class DefaultRouteMonitor;
-class WireGuardAdapter;
-class WireGuardCommunicator;
-
 class WireGuardController final
 {
 public:
-    explicit WireGuardController(FirewallFilter &firewallFilter);
+    explicit WireGuardController();
 
-    void init(const std::wstring &deviceName, UINT daemonCmdId);
-    void reset();
+    bool installService(const std::wstring &exeName, const std::wstring &configFile);
+    bool deleteService();
 
-    bool configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList,
-                          const std::vector<std::string> &allowedIps);
-    bool configureDefaultRouteMonitor();
-    bool configureDaemon(const std::string &clientPrivateKey, const std::string &peerPublicKey,
-                         const std::string &peerPresharedKey, const std::string &peerEndpoint,
-                         const std::vector<std::string> &allowedIps);
-    bool isInitialized() const { return is_initialized_; }
-    UINT getDaemonCmdId() const { return daemonCmdId_; }
-    UINT getStatus(UINT32 *errorCode, UINT64 *bytesReceived, UINT64 *bytesTransmitted) const;
-
-    static std::vector<std::string> splitAndDeduplicateAllowedIps(const std::string &allowedIps);
+    UINT getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT64& rxBytes) const;
 
 private:
-    std::unique_ptr<WireGuardAdapter> adapter_;
-    std::unique_ptr<DefaultRouteMonitor> drm_;
-    std::shared_ptr<WireGuardCommunicator> comm_;
-    FirewallFilter &firewallFilter_;
-    UINT daemonCmdId_;
-    bool is_initialized_;
+    bool is_initialized_ = false;
+
+    std::string serviceName_;
+    std::wstring deviceName_;
+    std::wstring exeName_;
+
+private:
+    HANDLE getKernelInterfaceHandle() const;
 };

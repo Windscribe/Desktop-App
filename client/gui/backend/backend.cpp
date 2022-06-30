@@ -31,6 +31,8 @@ Backend::Backend(QObject *parent) : QObject(parent),
 
     engineServer_ = new EngineServer(this);
     connect(engineServer_, SIGNAL(emitCommand(IPC::Command*)), SLOT(onConnectionNewCommand(IPC::Command*)));
+    connect(engineServer_, &EngineServer::wireGuardAtKeyLimit, this, &Backend::wireGuardAtKeyLimit);
+    connect(this, &Backend::wireGuardKeyLimitUserResponse, engineServer_, &EngineServer::wireGuardKeyLimitUserResponse);
 }
 
 Backend::~Backend()
@@ -160,9 +162,10 @@ bool Backend::isLastLoginWithAuthHash() const
     return bLastLoginWithAuthHash_;
 }
 
-void Backend::signOut()
+void Backend::signOut(bool keepFirewallOn)
 {
     IPC::ProtobufCommand<IPCClientCommands::SignOut> cmd;
+    cmd.getProtoObj().set_is_keep_firewall_on(keepFirewallOn);
     qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     engineServer_->sendCommand(&cmd);
 }
@@ -501,7 +504,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     else if (command->getStringId() == IPCServerCommands::LoginError::descriptor()->full_name())
     {
         IPC::ProtobufCommand<IPCServerCommands::LoginError> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::LoginError> *>(command);
-        Q_EMIT loginError(cmd->getProtoObj().error());
+        Q_EMIT loginError(cmd->getProtoObj().error(), QString::fromStdString(cmd->getProtoObj().error_message()));
     }
     else if (command->getStringId() == IPCServerCommands::SessionStatusUpdated::descriptor()->full_name())
     {
@@ -898,6 +901,7 @@ void Backend::updateAccountInfo()
     accountInfo_.setUsername(QString::fromStdString(latestSessionStatus_.username()));
     accountInfo_.setExpireDate(QString::fromStdString(latestSessionStatus_.premium_expire_date()));
     accountInfo_.setPlan(latestSessionStatus_.traffic_max());
+    accountInfo_.setIsPremium(latestSessionStatus_.is_premium());
 }
 
 void Backend::getOpenVpnVersionsFromInitCommand(const IPCServerCommands::InitFinished &cmd)

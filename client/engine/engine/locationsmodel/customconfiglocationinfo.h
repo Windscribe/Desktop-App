@@ -5,7 +5,7 @@
 #include <QSharedPointer>
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
-#include "engine/types/wireguardconfig.h"
+#include "engine/wireguardconfig/wireguardconfig.h"
 
 namespace locationsmodel {
 

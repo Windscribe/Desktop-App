@@ -1,6 +1,5 @@
 #import "MainView.h"
 #import <SVGKit/SVGKit.h>
-#include "installhelper_mac.h"
 #import "Logger.h"
 
 @implementation MainView
@@ -199,14 +198,6 @@
 }
 - (IBAction)onInstallClick:(id)sender
 {
-    //install helper
-    if (!InstallHelper_mac::installHelper())
-    {
-        [NSApp terminate:self];
-        return;
-    }
-    
-    
     // check folder already exists
     if ([_appDelegate.installer isFolderAlreadyExist])
     {

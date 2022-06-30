@@ -1,6 +1,6 @@
 #include "dnsrequest.h"
 #include "dnsresolver.h"
-#include <QDebug>
+#include "utils/logger.h"
 
 DnsRequest::DnsRequest(QObject *parent, const QString &hostname, const QStringList &dnsServers, int timeoutMs /*= 5000*/)
     : QObject(parent), hostname_(hostname), dnsServers_(dnsServers), timeoutMs_(timeoutMs), aresErrorCode_(ARES_SUCCESS)
@@ -48,6 +48,7 @@ void DnsRequest::lookupBlocked()
 void DnsRequest::onResolved(const QStringList &ips, int aresErrorCode)
 {
     aresErrorCode_ = aresErrorCode;
+    qCDebug(LOG_DNS_RESOLVER) << "Resolved " << hostname_ << ": " << ips << aresErrorCode;
     ips_ = ips;
     emit finished();
 }

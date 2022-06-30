@@ -10,7 +10,7 @@ bool IKEv2Route::addRouteForIKEv2()
 {
 	AdaptersInfo ai;
 	IF_INDEX ifIndex;
-	std::string ip;
+	std::wstring ip;
 
 	if (ai.getWindscribeIkev2AdapterInfo(ifIndex, ip))
 	{

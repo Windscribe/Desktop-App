@@ -1,3 +1,86 @@
+2.4.11 (23/06/2022)
+* Fixed GUI hang on macOS when app is connected and an in-app upgrade from 2.3.16 to 2.4.10 is performed. #357
+
+2.4.10 (31/05/2022)
+* Same as 2.4.9, but produced by CI.
+
+2.4.9 (31/05/2022)
+* Same as 2.4.8, but release build.
+
+2.4.8 (18/05/2022)
+* Same as 2.4.7, but beta build.
+
+2.4.7 (11/05/2022)
+* Replaced ip -> /usr/sbin/ip in the update-systemd-resolved Linux script. #275
+* Log server errors when checking for available updates. #280
+* Added the ws-staging parameter to advanced parameters. #277
+* Fix update flow for users without gnome-terminal.  #282
+
+2.4.6 (03/05/2022)
+* App crashes on Emergency Connect. #255
+* Increased service start wait time to 20 seconds. #120
+* Refactor wireguard connection to avoid blocking engine thread. #120
+* Inclusive split tunnelling doesn't work properly with WireGuard fixed. #264
+* Windows issue from Discord. #265
+* Use resolvectl instead of systemd-resolve #268
+* Fetch session when app receives focus. #96
+* Firewall silently enabled by itself (should be fixed). #150
+* Sometimes slow reconnect of WireGuard protocol on Ubuntu. #276
+
+
+2.4.5 (15/04/2022)
+* Long favourites location names in the tray menu are cut off. #251
+* Static IPs display issue in tray menu. #208
+* Updated the version info in all Windows executables.
+* The app randomly "fails" upon connecting to locations while already connected. A lot of refactoring has been done regarding the receiving of the WireGuard-config before connecting (many potential bugs have been fixed). #239
+* Mac Application doesn't open. #181
+* Fix app crash when signaled to close by installer. #226
+* Uninstaller wipes the entire folder it is located in. #155
+	- modified the installer to only install into a non-blank directory.
+	- if the selected directory has files in it, append \Windscribe to it.
+	- the uninstaller should only run if it's in the install directory.
+* Checked the API interaction. #96 
+	- added 'app_version' to all server API calls.
+	- refresh all server resources every 24 hours.
+	- fix incorrect handling of static IPs server error response.
+* App main window does not display on Windows 11. #247
+* Fixed OpenVPN works unstably on hardware with Windows 7. #136
+* Fixed firewall deactivated when account status changes to disabled. #248
+* Protocol selection not immediately saved to disk - fixed. #149
+* Replaced tray icons on Windows 7,8 and Mac. #206
+
+
+2.4.4 (25/03/2022)
+* Fixed crash on bad server locations list. #209
+* Various Wireguard NT fixes. #120
+* OpenVPN on Mac, infinite reconnection loop fixed. #186
+* Dynamic Wireguard Interface Allocation Support. #189
+* DPI fixes for the tray icon for Windows. #208
+* Privilege escalation vulnerability fixed. #214
+* Improved DNS manager automatic selection algorithm on Linux. #198
+
+
+2.4.3 (11/03/2022)
+* Added wireguard NT. #120
+* (Yellow) State bug on MacOS. #186
+* Fedora 35, default install, using systemd-resolve, connect failed. #198
+* Made an option on the Debug tab on Linux DNS manager: automatic/resolvconf/systemd-resolved/NetworkManager. #198
+* App crashed on Emergency Connect - fixed. #203
+* Proxy gateway not showing IP address of listener. #159
+
+
+2.4.2 (04/03/2022)
+* CLI added for Linux, updated for Win/Mac. #167
+* Firewall broken when ufw is enabled on Ubuntu 20. #157
+* Update 10Gbps badge and location load when best location changes. #145
+* Added Ghana flag image. #180
+* UDP fails to connect on Mac. #175
+* Rasdial error 13868 fixed. #104
+* update-systemd-resolved failure during disconnect on Ubuntu. #153
+* Proxy gateway not showing IP address of listener. #159
+* Can't connect if DNS is managed by NetworkManager. #158
+
+
 2.4.1 (18/01/2022)
 * Combined the engine and gui into the single process. #562
 * Migrated from DropDMG to opensource CLI utility. #591

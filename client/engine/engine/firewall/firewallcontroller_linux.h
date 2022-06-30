@@ -27,12 +27,12 @@ private:
     QString interfaceToSkip_;
     bool forceUpdateInterfaceToSkip_;
     QMutex mutex_;
-    QString pathToIp6SavedTable_;
     QString pathToTempTable_;
     QString comment_;
 
     bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports);
-    QStringList getWindscribeRules(const QString &comment, bool modifyForDelete);
+    QStringList getWindscribeRules(const QString &comment, bool modifyForDelete, bool isIPv6);
+    void removeWindscribeRules(const QString &comment, bool isIPv6);
 };
 
 #endif // FIREWALLCONTROLLER_LINUX_H

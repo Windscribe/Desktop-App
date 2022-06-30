@@ -25,7 +25,9 @@ SOURCES += $$PWD/engine/connectionmanager/adapterutils_win.cpp \
            $$PWD/engine/connectionmanager/ikev2connectiondisconnectlogic_win.cpp \
            $$PWD/engine/macaddresscontroller/macaddresscontroller_win.cpp \
            $$PWD/engine/networkdetectionmanager/networkdetectionmanager_win.cpp \
-           $$PWD/engine/networkdetectionmanager/networkchangeworkerthread.cpp
+           $$PWD/engine/networkdetectionmanager/networkchangeworkerthread.cpp \
+           $$PWD/engine/connectionmanager/wireguardconnection_win.cpp \
+           $$PWD/engine/connectionmanager/wireguardringlogger.cpp
 
 HEADERS += $$PWD/engine/connectionmanager/adapterutils_win.h \
            $$PWD/engine/dnsinfo_win.h \
@@ -49,7 +51,10 @@ HEADERS += $$PWD/engine/connectionmanager/adapterutils_win.h \
            $$PWD/engine/connectionmanager/ikev2connectiondisconnectlogic_win.h \
            $$PWD/engine/macaddresscontroller/macaddresscontroller_win.h \
            $$PWD/engine/networkdetectionmanager/networkdetectionmanager_win.h \
-           $$PWD/engine/networkdetectionmanager/networkchangeworkerthread.h
+           $$PWD/engine/networkdetectionmanager/networkchangeworkerthread.h \
+           $$PWD/engine/connectionmanager/wireguardconnection_win.h \
+           $$PWD/engine/connectionmanager/wireguardringlogger.h
+
 } #end win32
 
 macx {
@@ -63,7 +68,8 @@ SOURCES += $$PWD/engine/firewall/firewallcontroller_mac.cpp \
            $$PWD/engine/helper/helper_mac.cpp \
            $$PWD/engine/dnsresolver/dnsutils_mac.cpp \
            $$PWD/engine/macaddresscontroller/macaddresscontroller_mac.cpp \
-           $$PWD/engine/autoupdater/autoupdaterhelper_mac.cpp
+           $$PWD/engine/autoupdater/autoupdaterhelper_mac.cpp \
+           $$PWD/engine/connectionmanager/wireguardconnection_posix.cpp
 
 HEADERS +=     $$PWD/engine/connectionmanager/sleepevents_mac.h \
                $$PWD/engine/networkdetectionmanager/reachabilityevents.h \
@@ -80,7 +86,8 @@ HEADERS +=     $$PWD/engine/connectionmanager/sleepevents_mac.h \
                $$PWD/engine/ping/pinghost_icmp_mac.h \
                $$PWD/engine/networkdetectionmanager/networkdetectionmanager_mac.h \
                $$PWD/engine/macaddresscontroller/macaddresscontroller_mac.h \
-               $$PWD/engine/autoupdater/autoupdaterhelper_mac.h
+               $$PWD/engine/autoupdater/autoupdaterhelper_mac.h \
+               $$PWD/engine/connectionmanager/wireguardconnection_posix.h
 
 OBJECTIVE_HEADERS += \
                $$PWD/engine/networkdetectionmanager/reachability.h
@@ -108,7 +115,8 @@ SOURCES += \
            $$PWD/engine/firewall/firewallcontroller_linux.cpp \
            $$PWD/engine/connectionmanager/ikev2connection_linux.cpp \
            $$PWD/engine/networkdetectionmanager/networkdetectionmanager_linux.cpp \
-           $$PWD/engine/macaddresscontroller/macaddresscontroller_linux.cpp
+           $$PWD/engine/macaddresscontroller/macaddresscontroller_linux.cpp \
+           $$PWD/engine/connectionmanager/wireguardconnection_posix.cpp
 
 HEADERS += \
            $$PWD/utils/dnsscripts_linux.h \
@@ -118,7 +126,8 @@ HEADERS += \
            $$PWD/engine/firewall/firewallcontroller_linux.h \
            $$PWD/engine/connectionmanager/ikev2connection_linux.h \
            $$PWD/engine/networkdetectionmanager/networkdetectionmanager_linux.h \
-           $$PWD/engine/macaddresscontroller/macaddresscontroller_linux.h
+           $$PWD/engine/macaddresscontroller/macaddresscontroller_linux.h \
+           $$PWD/engine/connectionmanager/wireguardconnection_posix.h
 
 } # linux
 
@@ -173,7 +182,6 @@ SOURCES += $$PWD/engine/apiinfo/apiinfo.cpp \
     $$PWD/engine/connectionmanager/connsettingspolicy/customconfigconnsettingspolicy.cpp \
     $$PWD/engine/connectionmanager/connectionmanager.cpp \
     $$PWD/engine/connectionmanager/availableport.cpp \
-    $$PWD/engine/connectionmanager/wireguardconnection.cpp \
     $$PWD/engine/macaddresscontroller/imacaddresscontroller.cpp \
     $$PWD/engine/logincontroller/getapiaccessips.cpp \
     $$PWD/engine/helper/initializehelper.cpp \
@@ -224,7 +232,9 @@ SOURCES += $$PWD/engine/apiinfo/apiinfo.cpp \
     $$PWD/engine/ping/pinghost_tcp.cpp \
     $$PWD/engine/ping/pinghost.cpp \
     $$PWD/engine/customconfigs/customconfigsdirwatcher.cpp \
-    $$PWD/engine/types/wireguardconfig.cpp \
+    $$PWD/engine/wireguardconfig/wireguardconfig.cpp \
+    $$PWD/engine/wireguardconfig/getwireguardconfig.cpp \
+    $$PWD/engine/wireguardconfig/getwireguardconfiginloop.cpp \
     $$PWD/engine/getdeviceid.cpp \
     $$PWD/engineserver.cpp \
     $$PWD/clientconnectiondescr.cpp \
@@ -286,7 +296,6 @@ HEADERS  +=  $$PWD/engine/locationsmodel/enginelocationsmodel.h \
     $$PWD/engine/connectionmanager/iconnection.h \
     $$PWD/engine/connectionmanager/openvpnconnection.h \
     $$PWD/engine/connectionmanager/isleepevents.h \
-    $$PWD/engine/connectionmanager/wireguardconnection.h \
     $$PWD/utils/boost_includes.h \
     $$PWD/engine/types/types.h \
     $$PWD/engine/connectionmanager/connsettingspolicy/baseconnsettingspolicy.h \
@@ -350,7 +359,9 @@ HEADERS  +=  $$PWD/engine/locationsmodel/enginelocationsmodel.h \
     $$PWD/engine/ping/pinghost_tcp.h \
     $$PWD/engine/ping/pinghost.h \
     $$PWD/engine/customconfigs/customconfigsdirwatcher.h \
-    $$PWD/engine/types/wireguardconfig.h \
+    $$PWD/engine/wireguardconfig/wireguardconfig.h \
+    $$PWD/engine/wireguardconfig/getwireguardconfig.h \
+    $$PWD/engine/wireguardconfig/getwireguardconfiginloop.h \
     $$PWD/engine/getdeviceid.h \
     $$PWD/engineserver.h \
     $$PWD/clientconnectiondescr.h \

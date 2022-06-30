@@ -25,6 +25,8 @@ public:
     InstallerBase *getInstaller() { return installer_.get(); }
 	Settings &getSettings() { return settings_; }
 
+	std::wstring getPreviousInstallPath();
+
 private:
 	ULONG_PTR gdiplusToken_;
 	HINSTANCE hInstance_;

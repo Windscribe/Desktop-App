@@ -54,7 +54,7 @@ public:
     void loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa);
     void loginWithLastLoginSettings();
     bool isApiSavedSettingsExists();
-    void signOut();
+    void signOut(bool keepFirewallOn);
 
     void gotoCustomOvpnConfigMode();
 
@@ -125,6 +125,7 @@ public:
 public slots:
     void init();
     void stopPacketDetection();
+    void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
 signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode);
@@ -132,7 +133,7 @@ signals:
     void cleanupFinished();
     void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap);
     void loginStepMessage(LOGIN_MESSAGE msg);
-    void loginError(LOGIN_RET retCode);
+    void loginError(LOGIN_RET retCode, const QString &errorMessage);
     void sessionDeleted();
     void sessionStatusUpdated(const apiinfo::SessionStatus &sessionStatus);
     void notificationsUpdated(const QVector<apiinfo::Notification> &notifications);
@@ -177,6 +178,9 @@ signals:
 
     void hostsFileBecameWritable();
 
+    void wireGuardAtKeyLimit();
+    void initCleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
+
 private slots:
     void onLostConnectionToHelper();
     void onInitializeHelper(INIT_HELPER_RET ret);
@@ -192,8 +196,8 @@ private slots:
     void disconnectClickImpl();
     void sendDebugLogImpl();
     void getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose);
-    void signOutImpl();
-    void signOutImplAfterDisconnect();
+    void signOutImpl(bool keepFirewallOn);
+    void signOutImplAfterDisconnect(bool keepFirewallOn);
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
     void continueWithPasswordImpl(const QString &password, bool bSave);
 
@@ -224,7 +228,7 @@ private slots:
     void setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts);
 
-    void onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState);
+    void onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState, const QString &errorMessage);
     void onReadyForNetworkRequests();
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 
@@ -241,11 +245,9 @@ private slots:
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
-    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, QSharedPointer<WireGuardConfig> config, uint userRole);
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
-    void onStartCheckUpdate();
-    void onStartStaticIpsUpdate();
+    void onUpdateServerResources();
     void onUpdateSessionStatusTimer();
 
     void onConnectionManagerConnected();
@@ -255,10 +257,10 @@ private slots:
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
-    void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip);
+    void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
     void onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
-    void onConnectionManagerGetWireGuardConfig();
+    void onConnectionManagerWireGuardAtKeyLimit();
 
     void onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig);
     void onConnectionManagerRequestPassword(const QString &pathCustomOvpnConfig);
@@ -289,7 +291,8 @@ private slots:
     void onLocationsModelWhitelistIpsChanged(const QStringList &ips);
     void onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips);
 
-    void onNetworkChange(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface);
+    void onNetworkOnlineStateChange(bool isOnline);
+    void onNetworkChange(const ProtoTypes::NetworkInterface &networkInterface);
     void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu);
     void onPacketSizeControllerFinishedSizeDetection(bool isError);
 
@@ -303,7 +306,7 @@ private slots:
 
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
 
-    void fetchWireGuardConfig();
+    void checkForAppUpdate();
 
 #ifdef Q_OS_MAC
     void onRobustMacSpoofTimerTick();
@@ -351,10 +354,9 @@ private:
     LoginSettings loginSettings_;
     QMutex loginSettingsMutex_;
 
-    QTimer *checkUpdateTimer_;
+    QTimer *updateServerResourcesTimer_;
     SessionStatusTimer *updateSessionStatusTimer_;
     QTimer *notificationsUpdateTimer_;
-    QTimer *fetchWireguardConfigTimer_;
 
     locationsmodel::LocationsModel *locationsModel_;
 
@@ -363,6 +365,8 @@ private:
     DownloadHelper *downloadHelper_;
 #ifdef Q_OS_MAC
     AutoUpdaterHelper_mac *autoUpdaterHelper_;
+    QDateTime robustTimerStart_;
+    QTimer *robustMacSpoofTimer_;
 #endif
 
     QMutex mutex_;
@@ -387,8 +391,7 @@ private:
     QThread *packetSizeControllerThread_;
     bool runningPacketDetection_;
 
-    enum {UPDATE_SESSION_STATUS_PERIOD = 60 * 1000}; // 1 min
-    enum {CHECK_UPDATE_PERIOD = 24 * 60 * 60 * 1000}; // 24 hours
+    enum {UPDATE_SERVER_RESOURCES_PERIOD = 24 * 60 * 60 * 1000}; // 24 hours
     enum {NOTIFICATIONS_UPDATE_PERIOD = 60 * 60 * 1000}; // 1 hour
 
     void startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState);
@@ -410,11 +413,6 @@ private:
     bool overrideUpdateChannelWithInternal_;
     bool bPrevNetworkInterfaceInitialized_;
     ProtoTypes::NetworkInterface prevNetworkInterface_;
-
-#ifdef Q_OS_MAC
-    QDateTime robustTimerStart_;
-    QTimer *robustMacSpoofTimer_;
-#endif
 };
 
 #endif // ENGINE_H

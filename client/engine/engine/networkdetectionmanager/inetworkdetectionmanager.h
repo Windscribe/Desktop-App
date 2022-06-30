@@ -14,7 +14,8 @@ public:
     virtual bool isOnline() = 0;
 
 signals:
-    void networkChanged(bool isOnline, const ProtoTypes::NetworkInterface &networkInterface);
+    void networkChanged(const ProtoTypes::NetworkInterface &networkInterface);
+    void onlineStateChanged(bool isOnline);
 
 };
 

@@ -27,12 +27,12 @@ class VaultParser:
         json_entry = VaultParser.parse_vault_json_raw(first, second)
 
         # on windows we can replace the actual characters "\" and "n" with newline
+        # macos and linux use echo -e to interpret the "\n" as actual newlines
         if utl.GetCurrentOS() == utl.CURRENT_OS_WIN:
             json_split = json_entry.split("\\n")
-            return "\n".join(json_split)
+            json_entry = "\n".join(json_split)
 
-        # on mac we need to replace escaped double-quotes with just double quotes (linux as well?)
-        # just use echo -e to interpret the "\n" as actual newlines
+        # Replace escaped double-quotes with just double quotes
         return json_entry.replace("\\\"", "\"")
 
     @staticmethod

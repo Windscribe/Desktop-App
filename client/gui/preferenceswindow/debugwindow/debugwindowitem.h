@@ -44,6 +44,9 @@ private slots:
     void onIgnoreSslErrorsStateChanged(bool isChecked);
     void onKeepAliveStateChanged(bool isChecked);
     void onAppInternalDnsItemChanged(QVariant dns);
+#ifdef Q_OS_LINUX
+    void onDnsManagerItemChanged(QVariant dns);
+#endif
 
     void onViewLogItemSendLogClicked();
     void onViewButtonHoverEnter();
@@ -53,6 +56,9 @@ private slots:
     void onIgnoreSslErrorsPreferencesChanged(bool b);
     void onKeepAlivePreferencesChanged(bool b);
     void onDnsPolicyPreferencesChanged(ProtoTypes::DnsPolicy d);
+#ifdef Q_OS_LINUX
+    void onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType d);
+#endif
     void onApiResolutionPreferencesChanged(const ProtoTypes::ApiResolution &ar);
 
     void onLanguageChanged();
@@ -75,6 +81,9 @@ private:
     CheckBoxItem *cbIgnoreSslErrors_;
     CheckBoxItem *cbKeepAlive_;
     ComboBoxItem *comboBoxAppInternalDns_;
+#ifdef Q_OS_LINUX
+    ComboBoxItem *comboBoxDnsManager_;
+#endif
     OpenUrlItem *viewLicensesItem_;
 
     Preferences *preferences_;

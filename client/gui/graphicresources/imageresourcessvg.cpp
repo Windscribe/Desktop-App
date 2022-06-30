@@ -60,7 +60,7 @@ QSharedPointer<IndependentPixmap> ImageResourcesSvg::getIndependentPixmap(const 
         }
         else
         {
-            Q_ASSERT(false);
+            //Q_ASSERT(false);
             return nullptr;
         }
     }

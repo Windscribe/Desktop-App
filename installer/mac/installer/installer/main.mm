@@ -65,20 +65,33 @@ bool removeLastPartOfPath(std::string &path)
 void updatePathToAppFolder(std::string &path)
 {
     std::string lowerCase = path;
-    std::string ending = "/contents/macos";
+    std::string ending_old_versions = "contents/library/windscribeengine.app/contents/macos";
+    std::string ending_new_versions = "contents/macos";
     std::transform(lowerCase.begin(), lowerCase.end(), lowerCase.begin(),
                    [](unsigned char c){ return std::tolower(c); });
     
-    if (hasEnding(lowerCase, ending))
+    int cnt_delete = 0;
+    // for support old versions, when there was a division into modules the engine and gui
+    if (hasEnding(lowerCase, ending_old_versions))
     {
         // example path: "/Applications/Windscribe.app/Contents/Library/WindscribeEngine.app/Contents/MacOS"
         // remove 5 parts of path from ending
-        for (int i = 0; i < 5; ++i)
+        cnt_delete = 5;
+    }
+    // for new versions of app
+    else if (hasEnding(lowerCase, ending_new_versions))
+    {
+        // example path: "/Application/Windscribe.app/Contents/MacOS"
+        // remove 2 parts of path from ending
+        cnt_delete = 2;
+    }
+    
+    // remove cnt_delete parts of path from ending
+    for (int i = 0; i < cnt_delete; ++i)
+    {
+        if (!removeLastPartOfPath(path))
         {
-            if (!removeLastPartOfPath(path))
-            {
-                break;
-            }
+            break;
         }
     }
 }

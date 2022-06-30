@@ -58,7 +58,7 @@ get_link_info() {
   shift
 
   link=''
-  link="$(ip link show dev "$dev")" || return $?
+  link="$(/usr/sbin/ip link show dev "$dev")" || return $?
 
   echo "$dev" "${link%%:*}"
 }
@@ -427,20 +427,25 @@ main() {
     return 1
   else
     if ! read -r link if_index _ < <(get_link_info "$dev"); then
-      usage "Invalid device name: '$dev'"
-
-      # execute down script for DNS-leaks rules anyway
-      if [[ "${script_type}" == "down" ]]; then
+      if [[ "${script_type}" == "up" ]]; then
+        usage "Invalid device name: '$dev'"
+        return 1
+      elif [[ "${script_type}" == "down" ]]; then
+        # The device (adapter) was not found, but execute down script for DNS-leaks rules anyway
         SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
         DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
-        "$DNS_LEAK_SCRIPT" "down"     
+        "$DNS_LEAK_SCRIPT" "down"
+        return 0     
       fi
-      return 1
     fi
 
     "$script_type" "$link" "$if_index" "$dev" "$@" || return 1
     # Flush the DNS cache
-    systemd-resolve --flush-caches
+    if command -v resolvectl &>/dev/null; then
+      resolvectl flush-caches
+    else
+      systemd-resolve --flush-caches
+    fi
   fi
 }
 

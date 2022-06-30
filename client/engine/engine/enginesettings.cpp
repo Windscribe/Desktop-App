@@ -67,13 +67,13 @@ void EngineSettings::loadFromSettings()
 #if defined(Q_OS_LINUX)
         repairEngineSettings();
 #elif defined(Q_OS_WINDOWS)
-        // Wireguard connection mode was disabled on Windows 7 32-bit since 2.3.12 13th build.
+        // Wireguard connection mode disabled on 32-bit Windows as of build 2.4.4.
         // If it was saved in settings since the last build it is necessary to reset it.
-        if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_WIREGUARD) {
-            if(WinUtils::isWindows7() && !WinUtils::isWindows64Bit()) {
-                engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_IKEV2);
-                engineSettings_.mutable_connection_settings()->set_port(500);
-            }
+        if (!WinUtils::isWindows64Bit() && engineSettings_.has_connection_settings() &&
+            (engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_WIREGUARD))
+        {
+            engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_IKEV2);
+            engineSettings_.mutable_connection_settings()->set_port(500);
         }
 #endif
     }
@@ -151,6 +151,11 @@ ProxySettings EngineSettings::proxySettings() const
 DNS_POLICY_TYPE EngineSettings::getDnsPolicy() const
 {
     return (DNS_POLICY_TYPE)engineSettings_.dns_policy();
+}
+
+ProtoTypes::DnsManagerType EngineSettings::getDnsManager() const
+{
+    return engineSettings_.dns_manager();
 }
 
 ProtoTypes::MacAddrSpoofing EngineSettings::getMacAddrSpoofing() const

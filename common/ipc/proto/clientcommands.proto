@@ -57,6 +57,7 @@ message Login
 
 message SignOut           
 {
+  optional bool is_keep_firewall_on = 1;
 }
 
 message Firewall

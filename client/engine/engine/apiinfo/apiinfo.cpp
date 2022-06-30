@@ -168,7 +168,6 @@ void ApiInfo::removeFromSettings()
         settings1.remove("apiInfo");
         settings1.remove("authHash");
     }
-
 }
 
 bool ApiInfo::loadFromSettings()

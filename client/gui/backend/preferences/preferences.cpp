@@ -7,6 +7,7 @@
 #include "utils/utils.h"
 #include "utils/ipvalidation.h"
 #include <QSettings>
+#include <QSystemTrayIcon>
 
 #if defined(Q_OS_WINDOWS)
 #include "utils/winutils.h"
@@ -77,10 +78,10 @@ void Preferences::setAllowLanTraffic(bool b)
     }
 }
 
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 bool Preferences::isMinimizeAndCloseToTray() const
 {
-    return guiSettings_.is_minimize_and_close_to_tray();
+    return QSystemTrayIcon::isSystemTrayAvailable() && guiSettings_.is_minimize_and_close_to_tray();
 }
 
 void Preferences::setMinimizeAndCloseToTray(bool b)
@@ -287,6 +288,7 @@ void Preferences::setConnectionSettings(const ProtoTypes::ConnectionSettings &cm
     {
         *engineSettings_.mutable_connection_settings() = cm;
         emit connectionSettingsChanged(engineSettings_.connection_settings());
+        emit updateEngineSettings();
     }
 }
 
@@ -441,6 +443,22 @@ void Preferences::setDnsPolicy(ProtoTypes::DnsPolicy d)
     }
 }
 
+#ifdef Q_OS_LINUX
+ProtoTypes::DnsManagerType Preferences::dnsManager() const
+{
+    return engineSettings_.dns_manager();
+}
+void Preferences::setDnsManager(ProtoTypes::DnsManagerType d)
+{
+    if (engineSettings_.dns_manager() != d)
+    {
+        engineSettings_.set_dns_manager(d);
+        emit dnsManagerChanged(d);
+        emit updateEngineSettings();
+    }
+}
+#endif
+
 DnsWhileConnectedInfo Preferences::dnsWhileConnectedInfo() const
 {
    return DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info());
@@ -584,6 +602,9 @@ void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
     setKeepAlive(es.is_keep_alive_enabled());
     setCustomOvpnConfigsPath(QString::fromStdString(es.customovpnconfigspath()));
     setDnsWhileConnectedInfo(DnsWhileConnectedInfo(es.dns_while_connected_info()));
+#ifdef Q_OS_LINUX
+    setDnsManager(es.dns_manager());
+#endif
     receivingEngineSettings_ = false;
 }
 
@@ -657,13 +678,15 @@ void Preferences::validateAndUpdateIfNeeded()
 
     #if defined(Q_OS_WINDOWS)
     ProtoTypes::ConnectionSettings connSettings = engineSettings_.connection_settings();
-    if ((connSettings.protocol() == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL) && !WinUtils::isWindows64Bit())
+    if (!WinUtils::isWindows64Bit() &&
+        ((connSettings.protocol() == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL) ||
+         (connSettings.protocol() == ProtoTypes::Protocol::PROTOCOL_WIREGUARD)))
     {
         connSettings.set_protocol(ProtoTypes::Protocol::PROTOCOL_IKEV2);
         connSettings.set_port(500);
         *engineSettings_.mutable_connection_settings() = connSettings;
         emit connectionSettingsChanged(engineSettings_.connection_settings());
-        emit reportErrorToUser("WStunnel Not Supported", "The WStunnel protocol is no longer supported on 32-bit Windows. The 'Connection Mode' protocol has been changed to IKEv2.");
+        emit reportErrorToUser("WireGuard and WStunnel Not Supported", "The WireGuard and WStunnel protocols are no longer supported on 32-bit Windows. The 'Connection Mode' protocol has been changed to IKEv2.");
         is_update_needed = true;
     }
     #endif

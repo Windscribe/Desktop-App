@@ -326,8 +326,7 @@ void SplitTunnelingAppsSearchItem::updateSystemApps()
     for (const QString &exePath : runningPrograms)
     {
         if (!exePath.contains("C:\\Windows")
-                && !exePath.contains("Windscribe.exe")
-                && !exePath.contains("WindscribeEngine.exe"))
+                && !exePath.contains("Windscribe.exe"))
         {
             QFile f(exePath);
             QString name = QFileInfo(f).fileName();

@@ -11,6 +11,7 @@
     #include "winutils.h"
 #elif defined Q_OS_MAC
     #include "macutils.h"
+    #include "network_utils/network_utils_mac.h"
     #include <math.h>
     #include <unistd.h>
     #include <ApplicationServices/ApplicationServices.h>
@@ -28,7 +29,7 @@ QString Utils::getPlatformName()
 #ifdef Q_OS_WIN
     return "windows";
 #elif defined Q_OS_MAC
-    return "osx";
+    return "macos";
 #elif defined Q_OS_LINUX
     return LinuxUtils::getLastInstallPlatform();
 #endif
@@ -240,43 +241,6 @@ QString Utils::formatMacAddress(QString macAddress)
     return formattedMac;
 }
 
-bool Utils::giveFocusToGui()
-{
-#ifdef Q_OS_WIN
-    return WinUtils::giveFocusToGui();
-#elif defined Q_OS_MAC
-    return MacUtils::giveFocusToGui();
-#elif defined Q_OS_LINUX
-    //todo linux
-    return false;
-#endif
-}
-
-void Utils::openGuiLocations()
-{
-#ifdef Q_OS_WIN
-    WinUtils::openGuiLocations();
-#elif defined Q_OS_MAC
-    MacUtils::openGuiLocations();
-#elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-#endif
-}
-
-bool Utils::reportGuiEngineInit()
-{
-#ifdef Q_OS_WIN
-    return WinUtils::reportGuiEngineInit();
-#elif defined Q_OS_MAC
-    return MacUtils::reportGuiEngineInit();
-#elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    return true;
-#endif
-}
-
 bool Utils::isGuiAlreadyRunning()
 {
 #ifdef Q_OS_WIN
@@ -284,9 +248,7 @@ bool Utils::isGuiAlreadyRunning()
 #elif defined Q_OS_MAC
     return MacUtils::isGuiAlreadyRunning();
 #elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-    return true;
+    return LinuxUtils::isGuiAlreadyRunning();
 #endif
 }
 
@@ -307,34 +269,6 @@ ProtoTypes::NetworkInterface Utils::noNetworkInterface()
     iff.set_interface_index(NO_INTERFACE_INDEX);
     iff.set_interface_type(ProtoTypes::NETWORK_INTERFACE_NONE);
     return iff;
-}
-
-const ProtoTypes::NetworkInterface Utils::currentNetworkInterface()
-{
-#ifdef Q_OS_WIN
-    return WinUtils::currentNetworkInterface();
-#elif defined Q_OS_MAC
-    return MacUtils::currentNetworkInterface();
-#elif defined Q_OS_LINUX
-    //todo linux
-    Q_ASSERT(false);
-    return ProtoTypes::NetworkInterface();
-#endif
-}
-
-const ProtoTypes::NetworkInterfaces Utils::currentNetworkInterfaces(bool includeNoInterface)
-{
-    Q_UNUSED(includeNoInterface);
-
-#ifdef Q_OS_WIN
-    return WinUtils::currentNetworkInterfaces(includeNoInterface);
-#elif defined Q_OS_MAC
-    return MacUtils::currentNetworkInterfaces(includeNoInterface);
-#elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    return ProtoTypes::NetworkInterfaces();
-#endif
 }
 
 ProtoTypes::NetworkInterface Utils::interfaceByName(const ProtoTypes::NetworkInterfaces &interfaces, const QString &interfaceName)
@@ -370,7 +304,7 @@ bool Utils::pingWithMtu(const QString &url, int mtu)
 #ifdef Q_OS_WIN
     return WinUtils::pingWithMtu(url, mtu);
 #elif defined Q_OS_MAC
-    return MacUtils::pingWithMtu(url, mtu);
+    return NetworkUtils_mac::pingWithMtu(url, mtu);
 #elif defined Q_OS_LINUX
     //todo linux
     Q_ASSERT(false);
@@ -385,11 +319,9 @@ QString Utils::getLocalIP()
 #ifdef Q_OS_WIN
     return WinUtils::getLocalIP();
 #elif defined Q_OS_MAC
-    return MacUtils::getLocalIP();
+    return NetworkUtils_mac::getLocalIP();
 #elif defined Q_OS_LINUX
-    //todo linux
-    //Q_ASSERT(false);
-    return "";
+    return LinuxUtils::getLocalIP();
 #endif
 }
 
@@ -506,21 +438,6 @@ QString Utils::getDirPathFromFullPath(const QString &fullPath)
     return fullPath.mid(0, index);
 }
 
-bool Utils::isParentProcessGui()
-{
-#if defined USE_SIGNATURE_CHECK
-#if defined Q_OS_WIN
-    return WinUtils::isParentProcessGui();
-#elif defined Q_OS_MAC
-    return MacUtils::isParentProcessGui();
-#elif defined Q_OS_LINUX
-    return true;
-#endif
-#else
-    return true;
-#endif
-}
-
 QString Utils::getPlatformNameSafe()
 {
     QString platform = getPlatformName();
@@ -529,3 +446,22 @@ QString Utils::getPlatformNameSafe()
 #endif
     return platform;
 }
+
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+QString Utils::execCmd(const QString &cmd)
+{
+    char buffer[1024];
+    QString result = "";
+    FILE* pipe = popen(cmd.toStdString().c_str(), "r");
+    if (!pipe) return "";
+    while (!feof(pipe))
+    {
+        if (fgets(buffer, 1024, pipe) != NULL)
+        {
+            result += buffer;
+        }
+    }
+    pclose(pipe);
+    return result;
+}
+#endif

@@ -27,7 +27,7 @@ class CredentialsWindowItem : public ScalableGraphicsObject
 public:
     explicit CredentialsWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
-    void setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessage);
+    void setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
     void setEmergencyConnectState(bool isEmergencyConnected);
 
     QRectF boundingRect() const override;

@@ -65,7 +65,7 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
         ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
         ccd.hostname = locationInfo_->getHostnameForSelectedNode();
         ccd.dnsHostName = locationInfo_->getDnsName();
-        ccd.wgPublicKey = locationInfo_->getWgPubKeyForSelectedNode();
+        ccd.wgPeerPublicKey = locationInfo_->getWgPubKeyForSelectedNode();
         ccd.verifyX509name = locationInfo_->getVerifyX509name();
 
         // for static IP set additional fields

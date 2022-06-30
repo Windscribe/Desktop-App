@@ -119,6 +119,20 @@ bool WinUtils::isWindows7()
     return false;
 }
 
+bool WinUtils::isWindowsVISTAor7or8()
+{
+    RTL_OSVERSIONINFOEXW rtlOsVer;
+    if (getWinVersion(&rtlOsVer))
+    {
+        if (rtlOsVer.dwMajorVersion == 6)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 QString WinUtils::getWinVersionString()
 {
     QString ret;
@@ -126,8 +140,8 @@ QString WinUtils::getWinVersionString()
     RTL_OSVERSIONINFOEXW rtlOsVer;
     if (getWinVersion(&rtlOsVer))
     {
-        if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows 10 Server";
-        else if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = "Windows 10";
+        if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = (rtlOsVer.dwBuildNumber >= 22000 ? "Windows 11" : "Windows 10");
+        else if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows 10 Server";
         else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows Server 2012 R2";
         else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = "Windows 8.1";
         else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 2 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows Server 2012";
@@ -142,7 +156,7 @@ QString WinUtils::getWinVersionString()
         else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 0)   ret = "Windows 2000";
         else ret = "Unknown";
 
-        if (rtlOsVer.szCSDVersion != NULL)
+        if (rtlOsVer.szCSDVersion[0] != L'\0')
         {
             ret += " " + QString::fromStdWString(rtlOsVer.szCSDVersion);
         }
@@ -343,40 +357,6 @@ bool WinUtils::isGuiAlreadyRunning()
     return false;
 }
 
-bool WinUtils::giveFocusToGui()
-{
-    HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-    if (hwnd)
-    {
-        SetForegroundWindow(hwnd);
-        UINT dwActivateMessage = RegisterWindowMessage(wmActivateGui.c_str());
-        PostMessage(hwnd, dwActivateMessage, 0, 0);
-        return true;
-    }
-    return false;
-}
-
-void WinUtils::openGuiLocations()
-{
-    HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-    if (hwnd)
-    {
-        UINT dwActivateMessage = RegisterWindowMessage(wmOpenGuiLocations.c_str());
-        PostMessage(hwnd, dwActivateMessage, 0, 0);
-    }
-}
-
-bool WinUtils::reportGuiEngineInit()
-{
-    HANDLE guiStartedEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("WindscribeGuiStarted"));
-    if (guiStartedEvent != NULL)
-    {
-        SetEvent(guiStartedEvent);
-        CloseHandle(guiStartedEvent);
-    }
-    return GetLastError() == ERROR_SUCCESS;
-}
-
 QString WinUtils::regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName)
 {
     QString result = "";
@@ -518,10 +498,16 @@ QString processExecutablePath( DWORD processID )
 
 const ProtoTypes::NetworkInterface WinUtils::currentNetworkInterface()
 {
-    IfTableRow row = lowestMetricNonWindscribeIfTableRow(); // todo: check if row not found?
+    ProtoTypes::NetworkInterface curNetworkInterface;
+
+    IfTable2Row row = lowestMetricNonWindscribeIfTableRow();
+    if (!row.valid)
+    {
+        qCDebug(LOG_BASIC) << "WinUtils::lowestMetricNonWindscribeIfTableRow failed";
+        return curNetworkInterface;
+    }
 
     ProtoTypes::NetworkInterfaces interfaces = currentNetworkInterfaces(true);
-    ProtoTypes::NetworkInterface curNetworkInterface;
 
     for (int i = 0; i < interfaces.networks_size(); i++)
     {
@@ -634,14 +620,13 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
     return networkInterfaces;
 }
 
-IfTableRow WinUtils::lowestMetricNonWindscribeIfTableRow()
+IfTable2Row WinUtils::lowestMetricNonWindscribeIfTableRow()
 {
-    IfTableRow lowestMetricIfRow;
+    IfTable2Row lowestMetricIfRow;
 
     const QList<IpForwardRow> fwdTable = getIpForwardTable();
     const QList<IpAdapter> ipAdapters = getIpAdapterTable();
 
-    int lowestIndex = Utils::noNetworkInterface().interface_index();
     int lowestMetric = 999999;
 
     for (const IpForwardRow &row: fwdTable)
@@ -650,13 +635,12 @@ IfTableRow WinUtils::lowestMetricNonWindscribeIfTableRow()
         {
             if (ipAdapter.index == row.index)
             {
-                IfTableRow ifRow = ifRowByIndex(row.index);
-                if (ifRow.valid && ifRow.dwType != IF_TYPE_PPP && !ifRow.interfaceName.contains("Windscribe")) // filter Windscribe adapters
+                IfTable2Row ifRow = ifTable2RowByIndex(row.index);
+                if (ifRow.valid && ifRow.interfaceType != IF_TYPE_PPP && !ifRow.isWindscribeAdapter())
                 {
                     const auto row_metric = static_cast<int>(row.metric);
                     if (row_metric < lowestMetric)
                     {
-                        lowestIndex =  static_cast<int>(row.index );
                         lowestMetric = static_cast<int>(row_metric);
                         lowestMetricIfRow = ifRow;
                     }
@@ -948,17 +932,23 @@ QList<IfTable2Row> WinUtils::getIfTable2()
 
     for (ULONG i = 0; i < pIfTable2->NumEntries; i++)
     {
-        QString guid = guidToQString(pIfTable2->Table[i].InterfaceGuid);
-        QString alias = QString::fromWCharArray(pIfTable2->Table[i].Description);
+        PMIB_IF_ROW2 pEntry = &pIfTable2->Table[i];
+        if (!pEntry->InterfaceAndOperStatusFlags.FilterInterface)
+        {
+            QString guid = guidToQString(pEntry->InterfaceGuid);
+            QString description = QString::fromWCharArray(pEntry->Description);
+            QString alias = QString::fromWCharArray(pEntry->Alias);
 
-        IfTable2Row row(pIfTable2->Table[i].InterfaceIndex,
-                        guid,
-                        alias,
-                        pIfTable2->Table[i].AccessType,
-                        pIfTable2->Table[i].InterfaceAndOperStatusFlags.ConnectorPresent,
-                        pIfTable2->Table[i].InterfaceAndOperStatusFlags.EndPointInterface);
-        if2Table.append(row);
-
+            IfTable2Row row(pEntry->InterfaceIndex,
+                            guid,
+                            description,
+                            alias,
+                            pEntry->AccessType,
+                            pEntry->InterfaceAndOperStatusFlags.ConnectorPresent,
+                            pEntry->InterfaceAndOperStatusFlags.EndPointInterface,
+                            pEntry->Type);
+            if2Table.append(row);
+        }
     }
 
     FreeMibTable(pIfTable2);
@@ -1042,8 +1032,6 @@ QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
     // default to unspecified address family (both)
     ULONG family = AF_INET;
 
-    LPVOID lpMsgBuf = NULL;
-
     PIP_ADAPTER_ADDRESSES pAddresses = NULL;
     ULONG outBufLen = 0;
     ULONG Iterations = 0;
@@ -1103,21 +1091,15 @@ QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
         }
         else
         {
-            if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                    FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                    NULL, dwRetVal, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                    // Default language
-                    (LPTSTR) & lpMsgBuf, 0, NULL))
-            {
-                printf("\tError: %s", static_cast<char*>(lpMsgBuf));
-                LocalFree(lpMsgBuf);
+            wchar_t strErr[1024];
+            WinUtils::Win32GetErrorString(dwRetVal, strErr, _countof(strErr));
+            printf("\tError: %ls", strErr);
 
-                if (pAddresses)
-                {
-                    FREE(pAddresses);
-                }
-                exit(1);
+            if (pAddresses)
+            {
+                FREE(pAddresses);
             }
+            exit(1);
         }
     }
 
@@ -1414,9 +1396,11 @@ QString WinUtils::getLocalIP()
 
         do
         {
-            if ((ai->Type == MIB_IF_TYPE_ETHERNET) 	// If type is etherent
-                || (ai->Type == IF_TYPE_IEEE80211))   // radio
+            if ((ai->Type == MIB_IF_TYPE_ETHERNET) || (ai->Type == IF_TYPE_IEEE80211))
             {
+                // JDRM - I don't think this check for "Windscribe VPN" is necessary, as the tun/tap adapters are
+                // Type = 53 (IF_TYPE_PROP_VIRTUAL).  However, if it is, shouldn't we also be checking for
+                // "Windscribe Windtun420" and the wireguard-nt adapters?
                 if (strstr(ai->Description, "Windscribe VPN") == 0 && strcmp(ai->IpAddressList.IpAddress.String, "0.0.0.0") != 0
                     && strcmp(ai->GatewayList.IpAddress.String, "0.0.0.0") != 0)
                 {
@@ -1526,13 +1510,12 @@ bool WinUtils::authorizeWithUac()
         else
         {
             // Can fail here if StubProxyDll isn't in CLSID\InprocServer32
-            void * pMsgBuf;
             int facility = HRESULT_FACILITY(hr); // If returns 4 (FACILITY_ITF) then error codes are interface specific
             int errorCode = HRESULT_CODE(hr);
-            ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pMsgBuf, 0, NULL);
+            wchar_t strErr[1024];
+            WinUtils::Win32GetErrorString(errorCode, strErr, _countof(strErr));
             std::cout << "Failed to CoCreateInstance of MyThing, facility: " << facility << ", code: " << errorCode << std::endl;
-            std::cout << " (" << hr << "): " << (LPTSTR)pMsgBuf << std::endl;
+            std::cout << " (" << hr << "): " << strErr << std::endl;
         }
     }
     else
@@ -1576,69 +1559,20 @@ unsigned long WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *bu
     return nLength;
 }
 
-bool WinUtils::isParentProcessGui()
+IfTable2Row WinUtils::ifTable2RowByIndex(int index)
 {
-    HANDLE hSnapshot;
-    PROCESSENTRY32 pe32;
-    DWORD ppid = 0, pid = GetCurrentProcessId();
+    IfTable2Row found;
 
-    hSnapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
-    if (hSnapshot == INVALID_HANDLE_VALUE)
+    const auto if_table = getIfTable2();
+    for (IfTable2Row row : if_table)
     {
-        return false;
-    }
-
-    ZeroMemory( &pe32, sizeof( pe32 ) );
-    pe32.dwSize = sizeof( pe32 );
-    if( !Process32First( hSnapshot, &pe32 ) )
-    {
-        CloseHandle(hSnapshot);
-        return false;
-    }
-
-    do {
-        if( pe32.th32ProcessID == pid )
+        if (index == static_cast<int>(row.index)) // TODO: convert all ifIndices to int
         {
-            ppid = pe32.th32ParentProcessID;
+            found = row;
             break;
         }
-    } while( Process32Next( hSnapshot, &pe32 ) );
-
-    CloseHandle( hSnapshot );
-
-    if (ppid == 0)
-    {
-        return false;
     }
 
-    HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, ppid);
-    if (processHandle == NULL)
-    {
-        return false;
-    }
-
-    wchar_t filename[MAX_PATH];
-    if (GetModuleFileNameEx(processHandle, NULL, filename, MAX_PATH) == 0)
-    {
-        CloseHandle(processHandle);
-        return false;
-    }
-    CloseHandle(processHandle);
-
-    QString parentPath = QString::fromStdWString(filename);
-    QString guiPath = QCoreApplication::applicationDirPath() + "/Windscribe.exe";
-    guiPath = QDir::toNativeSeparators(QDir::cleanPath(guiPath));
-
-    if (parentPath.compare(guiPath, Qt::CaseInsensitive) != 0) {
-        return false;
-    }
-
-    ExecutableSignature sigCheck;
-    bool verified = sigCheck.verify(parentPath.toStdWString());
-
-    if (!verified) {
-        qCDebug(LOG_BASIC) << "isParentProcessGui incorrect signature: " << QString::fromStdString(sigCheck.lastError());
-    }
-
-    return verified;
+    return found;
 }
+

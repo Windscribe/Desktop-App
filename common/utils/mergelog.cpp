@@ -65,21 +65,21 @@ QDateTime parseDateTimeFormat2(const std::string &datestr)
 QString MergeLog::mergeLogs(bool doMergePerLine)
 {
     const QString guiLogFilename = guiLogLocation();
-    const QString engineLogFilename = engineLogLocation();
     const QString serviceLogFilename1 = serviceLogLocation();
     const QString serviceLogFilename2 = prevServiceLogLocation();
-    return merge(guiLogFilename, engineLogFilename, serviceLogFilename1, serviceLogFilename2,
-                 doMergePerLine);
+    const QString wgServiceLogFilename = wireguardServiceLogLocation();
+    return merge(guiLogFilename, serviceLogFilename1, serviceLogFilename2,
+                 wgServiceLogFilename, doMergePerLine);
 }
 
 QString MergeLog::mergePrevLogs(bool doMergePerLine)
 {
     const QString guiLogFilename = prevGuiLogLocation();
-    const QString engineLogFilename = prevEngineLogLocation();
     const QString serviceLogFilename1 = serviceLogLocation();
     const QString serviceLogFilename2 = prevServiceLogLocation();
-    return merge(guiLogFilename, engineLogFilename, serviceLogFilename1, serviceLogFilename2,
-                 doMergePerLine);
+    const QString wgPrevServiceLogFilename = prevWireguardServiceLogLocation();
+    return merge(guiLogFilename, serviceLogFilename1, serviceLogFilename2,
+                 wgPrevServiceLogFilename, doMergePerLine);
 }
 
 bool MergeLog::canMerge()
@@ -90,17 +90,9 @@ bool MergeLog::canMerge()
     QFileInfo guiLogInfo(guiLogLocation());
     mergedFileSize += guiLogInfo.size();
 
-    // engine
-    QFileInfo engineLogInfo(engineLogLocation());
-    mergedFileSize += engineLogInfo.size();
-
     // prev gui
     QFileInfo prevGuiLogInfo(prevGuiLogLocation());
     mergedFileSize += prevGuiLogInfo.size();
-
-    // prev engine
-    QFileInfo prevEngineLogInfo(prevEngineLogLocation());
-    mergedFileSize += prevEngineLogInfo.size();
 
     // service (twice)
     QFileInfo serviceLogInfo(serviceLogLocation());
@@ -109,6 +101,12 @@ bool MergeLog::canMerge()
     // prev service (twice)
     QFileInfo prevServiceLogInfo(prevServiceLogLocation());
     mergedFileSize += prevServiceLogInfo.size() * 2; // why are we merging twice though, is this a bug?
+
+    QFileInfo wgServiceLog(wireguardServiceLogLocation());
+    mergedFileSize += wgServiceLog.size();
+
+    QFileInfo prevWGServiceLog(prevWireguardServiceLogLocation());
+    mergedFileSize += prevWGServiceLog.size();
 
     return mergedFileSize < MAX_COMBINED_LOG_SIZE;
 }
@@ -172,21 +170,25 @@ const QString MergeLog::guiLogLocation()
     return path + "/log_gui.txt";
 }
 
-const QString MergeLog::engineLogLocation()
-{
-    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    return path + "/log_engine.txt";
-}
-
 const QString MergeLog::serviceLogLocation()
 {
 #if defined(Q_OS_LINUX)
     return qApp->applicationDirPath() + "/helper_log.txt";
 #elif defined(Q_OS_MACOS)
-    // The Mac helper does not currently log to file
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/helper_no_log.txt";
+    return "/Library/Logs/com.windscribe.helper.macos/helper_log.txt";
 #else
     return qApp->applicationDirPath() + "/windscribeservice.log";
+#endif
+}
+
+const QString MergeLog::wireguardServiceLogLocation()
+{
+#if defined(Q_OS_LINUX)
+    return qApp->applicationDirPath() + "/no_wg_service_log_linux.txt";
+#elif defined(Q_OS_MACOS)
+    return qApp->applicationDirPath() + "/no_wg_service_log_macos.txt";
+#else
+    return qApp->applicationDirPath() + "/WireguardServiceLog.txt";
 #endif
 }
 
@@ -196,12 +198,6 @@ const QString MergeLog::prevGuiLogLocation()
     return path + "/prev_log_gui.txt";
 }
 
-const QString MergeLog::prevEngineLogLocation()
-{
-    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    return path + "/prev_log_engine.txt";
-}
-
 const QString MergeLog::prevServiceLogLocation()
 {
 #if defined(Q_OS_LINUX)
@@ -209,15 +205,26 @@ const QString MergeLog::prevServiceLogLocation()
     // very much information, except during a failure condition.
     return qApp->applicationDirPath() + "/helper_no_prev_log.txt";
 #elif defined(Q_OS_MACOS)
-    // The Mac helper does not currently log to file
+    // The Mac helper does not currently maintain a previous log file
     return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/helper_no_prev_log.txt";
 #else
     return qApp->applicationDirPath() + "/windscribeservice_prev.log";
 #endif
 }
 
-QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogFilename,
-                        const QString &serviceLogFilename, const QString &servicePrevLogFilename,
+const QString MergeLog::prevWireguardServiceLogLocation()
+{
+#if defined(Q_OS_LINUX)
+    return qApp->applicationDirPath() + "/no_wg_service_log_linux.txt";
+#elif defined(Q_OS_MACOS)
+    return qApp->applicationDirPath() + "/no_wg_service_log_macos.txt";
+#else
+    return qApp->applicationDirPath() + "/WireguardServiceLog_prev.txt";
+#endif
+}
+
+QString MergeLog::merge(const QString &guiLogFilename, const QString &serviceLogFilename,
+                        const QString &servicePrevLogFilename, const QString &wireguardServiceLogFilename,
                         bool doMergePerLine)
 {
     QMutex mutex;
@@ -225,9 +232,7 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogF
     int estimatedLogSize = 0;
 
     auto futureGuiLog = std::async(MergeLog::mergeTask, &mutex, &lines, &guiLogFilename, LineSource::GUI, false, QDateTime(), QDateTime());
-    auto futureEngineLog = std::async(MergeLog::mergeTask, &mutex, &lines, &engineLogFilename, LineSource::ENGINE, false, QDateTime(), QDateTime());
     estimatedLogSize += futureGuiLog.get();
-    estimatedLogSize += futureEngineLog.get();
 
     QDateTime minDate, maxDate;
     bool isUseMinMaxDate = false;
@@ -242,6 +247,9 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogF
     auto futureServicePrev = std::async(MergeLog::mergeTask, &mutex, &lines, &servicePrevLogFilename, LineSource::SERVICE, isUseMinMaxDate, minDate, maxDate);
     estimatedLogSize += futureService.get() + futureServicePrev.get();
 
+    auto futureWGService = std::async(MergeLog::mergeTask, &mutex, &lines, &wireguardServiceLogFilename, LineSource::WIREGUARD_SERVICE, isUseMinMaxDate, minDate, maxDate);
+    estimatedLogSize += futureWGService.get();
+
     if (!doMergePerLine)
         estimatedLogSize += 400;  // Account for log separation lines.
 
@@ -252,11 +260,11 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &engineLogF
         case LineSource::GUI:
             result.append("G ");
             break;
-        case LineSource::ENGINE:
-            result.append("E ");
-            break;
         case LineSource::SERVICE:
             result.append("S ");
+            break;
+        case LineSource::WIREGUARD_SERVICE:
+            result.append("W ");
             break;
         default:
             break;

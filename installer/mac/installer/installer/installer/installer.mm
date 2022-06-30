@@ -1,6 +1,6 @@
 #import "installer.hpp"
 #import "../Logger.h"
-#include "installhelper_mac.h"
+#include "../helper/installhelper_mac.h"
 #include "processes_helper.h"
 
 @interface Installer()
@@ -96,34 +96,29 @@
     self.progress = 0;
     self.currentState = STATE_EXTRACTING;
     [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
-    
-    // connect to helper
-    NSDate *waitingHelperSince_ = [NSDate date];
-    while (!helper_.connect())
-    {
-        usleep(10000); // 10 milliseconds
-        int seconds = -(int)[waitingHelperSince_ timeIntervalSinceNow];
-        if (seconds > 5)
-        {
-            NSString *errStr = @"Couldn't connect to helper in time";
-            [[Logger sharedLogger] logAndStdOut:errStr];
-            self.lastError = errStr;
-            self.currentState = STATE_ERROR;
-            [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
-            return;
-        }
-    }
-    
-    // kill processes with "Windscribe" name
+
+    BOOL connectedOldHelper = NO;
+
     ProcessesHelper processesHelper;
-    std::vector<pid_t> processesList = processesHelper.getPidsByProcessname("Windscribe");
+    std::vector<pid_t> processesList = processesHelper.getPidsByProcessname("com.windscribe.helper.macos");
+    if (processesList.size() > 0) {
+        connectedOldHelper = self.connectHelper;
+    }
+
+    // kill processes with "Windscribe" name
+    processesList = processesHelper.getPidsByProcessname("Windscribe");
     if (processesList.size() > 0)
     {
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Waiting for Windscribe programs to close..."]];
         
         for (auto pid : processesList)
         {
-            helper_.killProcess(pid);
+            if (connectedOldHelper) {
+                helper_.killProcess(pid);
+            }
+            else {
+                kill(pid, SIGTERM);
+            }
         }
         
         // get WindscribeEngine processes
@@ -162,9 +157,34 @@
             }
         }
     }
+  
     if (processesList.size() > 0)
     {
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"All Windscribe programs closed"]];
+    }
+
+    helper_.stop();
+    
+    // Install new helper now that we are sure the client app has exited. Otherwise we may cause the
+    // client app to hang when we pull the old helper out from under it.
+    if (!InstallHelper_mac::installHelper())
+    {
+        NSString *errStr = @"Couldn't install the helper.";
+        [[Logger sharedLogger] logAndStdOut:errStr];
+        self.lastError = errStr;
+        self.currentState = STATE_ERROR;
+        [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+        return;
+    }
+    
+    if (!self.connectHelper)
+    {
+        NSString *errStr = @"Couldn't connect to new helper in time";
+        [[Logger sharedLogger] logAndStdOut:errStr];
+        self.lastError = errStr;
+        self.currentState = STATE_ERROR;
+        [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+        return;
     }
 
     // remove previously existing application
@@ -320,8 +340,19 @@ NSString* StringWToNSString ( const std::wstring& Str )
     return pString;
 }
 
+- (BOOL)connectHelper
+{
+    NSDate *waitingHelperSince_ = [NSDate date];
+    while (!helper_.connect())
+    {
+        usleep(10000); // 10 milliseconds
+        int seconds = -(int)[waitingHelperSince_ timeIntervalSinceNow];
+        if (seconds > 5) {
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
 @end
-
-
-
-

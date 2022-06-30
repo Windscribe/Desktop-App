@@ -115,8 +115,9 @@ def InstallDependency():
   for af in aflist:
     msg.HeadPrint("Ready: \"{}\"".format(af))
   # Cleanup.
-  msg.Print("Cleaning temporary directory...")
-  utl.RemoveDirectory(temp_dir)
+  if "--no-clean" not in sys.argv:
+    msg.Print("Cleaning temporary directory...")
+    utl.RemoveDirectory(temp_dir)
 
 
 if __name__ == "__main__":

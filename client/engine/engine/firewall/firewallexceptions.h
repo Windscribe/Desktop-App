@@ -15,6 +15,7 @@ public:
 
     void setCustomRemoteIp(const QString &remoteIP, bool &bChanged);
     void setConnectingIp(const QString &connectingIp, bool &bChanged);
+    void setDNSServerIp(const QString &dnsIp, bool &bChanged);
 
 
     void setDnsPolicy(DNS_POLICY_TYPE dnsPolicy);
@@ -33,6 +34,7 @@ private:
     QStringList locationsPingIPs_;
     QStringList customConfigsPingIPs_;
     QString connectingIp_;
+    QString dnsIp_;
     DNS_POLICY_TYPE dnsPolicyType_;
 
 };

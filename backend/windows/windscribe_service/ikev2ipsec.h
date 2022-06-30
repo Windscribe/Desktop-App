@@ -9,6 +9,7 @@ public:
 private:
     static bool setIKEv2IPSecParametersInPhoneBook();
     static bool setIKEv2IPSecParametersPowerShell();
+    static void disableMODP2048Support();
 };
 
 #endif // IKEV2IPSEC_H
