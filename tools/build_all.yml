@@ -322,3 +322,21 @@ macdeployfixes:
       # Remove unused Qt frameworks.
       - Contents/Frameworks/QtQml.framework
       - Contents/Frameworks/QtQuick.framework
+
+files_fix_rpath_macos:
+    # openssl must be patched before curl since curl depends on it.
+    openssl:
+      - lib/libcrypto.1.1.dylib
+      - lib/libssl.1.1.dylib
+    cares:
+      - lib/libcares.2.dylib
+    curl:
+      - lib/libcurl.4.dylib
+    protobuf:
+      - bin/protoc
+      - lib/libprotoc.32.dylib
+      - lib/libprotobuf.32.dylib
+    openvpn:
+      - openvpn
+    stunnel:
+      - stunnel

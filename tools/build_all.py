@@ -7,6 +7,7 @@
 import glob2
 import os
 import re
+import subprocess
 import time
 import zipfile
 
@@ -180,6 +181,48 @@ def fix_rpath_linux(filename):
     srcfilename = parts[0].strip()
     rpath = "" if len(parts) == 1 else parts[1].strip()
     iutl.RunCommand(["patchelf", "--set-rpath", rpath, srcfilename])
+
+
+def fix_rpath_macos(filename):
+    dylib_name = os.path.basename(filename)
+    pipe = subprocess.Popen(['otool', '-L', filename], stdout=subprocess.PIPE)
+    while True:
+        line = pipe.stdout.readline().decode("utf-8").strip()
+        if line == '':
+            break
+        if "/build-libs/" in line and "(compatibility version" in line:
+            old_dylib_path = line[:line.find("(compatibility version")].strip()
+            old_dylib_root = old_dylib_path[:old_dylib_path.find("/build-libs/")]
+            new_dylib_root = filename[:filename.find("/build-libs/")]
+            new_dylib_path = old_dylib_path.replace(old_dylib_root, new_dylib_root)
+            if new_dylib_path != old_dylib_path:
+                msg.HeadPrint("Patching {}: {} -> {}".format(dylib_name, old_dylib_path, new_dylib_path))
+                if os.path.basename(old_dylib_path) == dylib_name:
+                    iutl.RunCommand(["install_name_tool", "-id", new_dylib_path, filename])
+                else:
+                    iutl.RunCommand(["install_name_tool", "-change", old_dylib_path, new_dylib_path, filename])
+
+
+def fix_build_libs_rpaths(configdata):
+    # The build-libs are downloaded and extracted from zips to some arbitrary build path on the
+    # developer/CI machine.  The rpaths stamped into the macOS dylibs and linux shared objects
+    # when they were built will contain the full path of the machine used to create them.  We
+    # need to change these rpaths to those of the machine this script is now running on.
+    if CURRENT_OS == "macos":
+        if "files_fix_rpath_macos" in configdata:
+            for build_lib_name, binaries_to_patch in configdata["files_fix_rpath_macos"].iteritems():
+                build_lib_root = iutl.GetDependencyBuildRoot(build_lib_name)
+                if not os.path.exists(build_lib_root):
+                    raise iutl.InstallError("Cannot fix {} rpath, installation not found at {}".format(build_lib_name, build_lib_root))
+                for binary_name in binaries_to_patch:
+                    fix_rpath_macos(os.path.join(build_lib_root, binary_name))
+    elif CURRENT_OS == "linux":
+        protobuf_root = iutl.GetDependencyBuildRoot("protobuf")
+        if not os.path.exists(protobuf_root):
+            raise iutl.InstallError("Cannot fix protobuf rpath, protobuf installation not found at " + protobuf_root)
+        msg.Print("Patching protobuf rpaths...")
+        iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/bin/protoc".format(protobuf_root)])
+        iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/lib/libprotoc.so".format(protobuf_root)])
 
 
 def apply_mac_deploy_fixes(appname, fixlist):
@@ -691,6 +734,8 @@ def build_all(win_cert_password):
         BUILD_SYMBOL_FILES = os.path.join(temp_dir, "SymbolFiles")
         utl.CreateDirectory(BUILD_SYMBOL_FILES, arghelper.post_clean())
 
+    fix_build_libs_rpaths(configdata)
+
     # Build the components.
     generate_protobuf()
     with utl.PushDir(temp_dir):
@@ -711,7 +756,6 @@ def build_all(win_cert_password):
     # Copy artifacts.
     msg.Print("Installing artifacts...")
     utl.CreateDirectory(artifact_dir, arghelper.post_clean())
-    msg.Print("Installing artifacts...")
     if CURRENT_OS == "macos":
         artifact_path = BUILD_INSTALLER_FILES
         installer_info = configdata[configdata["installer"]["macos"]]

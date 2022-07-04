@@ -70,24 +70,6 @@ def BuildDependencyGNU(outpath):
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
   iutl.RunCommand(["make", "install", "-s"], env=buildenv)
-  # Patch rpath to allow protoc to run when protobuf.zip is extracted to any arbitrary folder
-  if utl.GetCurrentOS() == "macos":
-    dylibs_to_patch = ["libprotoc.32.dylib", "libprotobuf.32.dylib"]
-    for dylib_name in dylibs_to_patch:
-      change_lib_from = "{}/lib/{}".format(outpath, dylib_name)
-      # Ensure the lib actually exists (i.e. we have the correct name). install_name_tool with the -change
-      # option will not error out if we pass it an invalid path.
-      if not os.path.exists(change_lib_from):
-        raise IOError("Fixing rpath: cannot find file \"{}\"".format(change_lib_from))
-      change_lib_to = "@executable_path/../lib/{}".format(dylib_name)
-      msg.Info("Fixing rpath: {} to {} for {}/bin/protoc".format(change_lib_from, change_lib_to, outpath))
-      iutl.RunCommand(["install_name_tool", "-change", change_lib_from, change_lib_to, "{}/bin/protoc".format(outpath)])
-    msg.Info("Fixing rpath for {}/lib/libprotoc.32.dylib".format(change_lib_from, change_lib_to, outpath))
-    iutl.RunCommand(["install_name_tool", "-change", "{}/lib/libprotobuf.32.dylib".format(outpath),
-                     "@executable_path/../lib/libprotobuf.32.dylib", "{}/lib/libprotoc.32.dylib".format(outpath)])
-  else:
-    iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/bin/protoc".format(outpath)])
-    iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/lib/libprotoc.so".format(outpath)])
 
 
 def InstallDependency():
