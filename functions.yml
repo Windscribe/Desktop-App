@@ -192,6 +192,11 @@
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL
       "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_STUNNEL}"
+.download_gtest_mac:
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_GTEST}"
 
 # download from nexus (linux)
 .download_cares_linux:
