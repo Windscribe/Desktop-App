@@ -33,7 +33,7 @@ extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;
 
 MainWindow::MainWindow(bool isLegacyOS) : instalButton_(NULL), closeButton_(NULL), minimizeButton_(NULL), settingsButton_(NULL),
-	eulaButton_(NULL), pathControl_(NULL), desktopShortcutControl_(NULL), escButton_(NULL),
+	eulaButton_(NULL), pathControl_(NULL), desktopShortcutControl_(NULL), factoryResetControl_(NULL), escButton_(NULL),
 	backgroundBitmap_(NULL), captionItem_(NULL), bMouseLeftButtonPressed_(false),
 	curBackgroundOpacity_(1.0), installerLastState_(STATE_INIT), isLegacyOS_(isLegacyOS)
 {
@@ -59,6 +59,7 @@ MainWindow::~MainWindow()
 	SAFE_DELETE(eulaButton_);
 	SAFE_DELETE(pathControl_);
 	SAFE_DELETE(desktopShortcutControl_);
+	SAFE_DELETE(factoryResetControl_);
 	SAFE_DELETE(escButton_);
 	SAFE_DELETE(backgroundBitmap_);
 }
@@ -74,6 +75,9 @@ bool MainWindow::create(int windowCenterX, int windowCenterY)
 	pathControl_ = new PathControl(this);
 	desktopShortcutControl_ = new DesktopShortcutControl(this);
 	desktopShortcutControl_->setChecked(g_application->getSettings().getCreateShortcut());
+	factoryResetControl_ = new FactoryResetControl(this);
+	factoryResetControl_->setChecked(g_application->getSettings().getFactoryReset());
+
 	escButton_ = new EscButton(this);
 
 	const int width_window = WINDOW_WIDTH;
@@ -345,26 +349,44 @@ LRESULT MainWindow::onCreate(HWND hwnd)
 		return -1;
 	}
 
-    if (settingsButton_) {
-        int wSettings = settingsButton_->getRecommendedWidth();
-        int hSettings = settingsButton_->getRecommendedHeight();
-        int xSettings = (clientRect.right - wSettings) / 2;
-        int ySettings = clientRect.bottom - hSettings - BIG_MARGIN * SCALE_FACTOR;
+	if (settingsButton_) {
+		int wSettings = settingsButton_->getRecommendedWidth();
+		int hSettings = settingsButton_->getRecommendedHeight();
+		int xSettings = (clientRect.right - wSettings) / 2;
+		int ySettings = clientRect.bottom - hSettings - BIG_MARGIN * SCALE_FACTOR;
 
-        if (!settingsButton_->create(xSettings, yEula - hSettings - SMALL_MARGIN * SCALE_FACTOR,
-                                     wSettings, hSettings))
-        {
-            return -1;
-        }
-    }
+		if (!settingsButton_->create(xSettings, yEula - hSettings - SMALL_MARGIN * SCALE_FACTOR,
+									 wSettings, hSettings))
+		{
+			return -1;
+		}
+	}
 
 	int settingsOffs = 16 * SCALE_FACTOR;
-	if (!pathControl_->create(settingsOffs, yInstall - 7 * SCALE_FACTOR, clientRect.right - settingsOffs, pathControl_->getRecommendedHeight(), g_application->getSettings().getPath()))
+	if (!pathControl_->create(settingsOffs,
+							  yInstall - 49 * SCALE_FACTOR,
+							  clientRect.right - settingsOffs,
+							  pathControl_->getRecommendedHeight(),
+							  g_application->getSettings().getPath()))
 	{
 		return -1;
 	}
 
-	if (!desktopShortcutControl_->create(settingsOffs, yInstall - 7 * SCALE_FACTOR + pathControl_->getRecommendedHeight(), clientRect.right - settingsOffs, desktopShortcutControl_->getRecommendedHeight()))
+	if (!desktopShortcutControl_->create(settingsOffs,
+										 yInstall - 49 * SCALE_FACTOR
+											 + pathControl_->getRecommendedHeight(),
+										 clientRect.right - settingsOffs,
+										desktopShortcutControl_->getRecommendedHeight()))
+	{
+		return -1;
+	}
+
+	if (!factoryResetControl_->create(settingsOffs,
+									  yInstall - 49 * SCALE_FACTOR
+										  + pathControl_->getRecommendedHeight()
+										  + desktopShortcutControl_->getRecommendedHeight(),
+									  clientRect.right - settingsOffs,
+									  factoryResetControl_->getRecommendedHeight()))
 	{
 		return -1;
 	}
@@ -479,10 +501,12 @@ void MainWindow::resetControls()
 
     ShowWindow(pathControl_->getHwnd(), SW_HIDE);
     ShowWindow(desktopShortcutControl_->getHwnd(), SW_HIDE);
+    ShowWindow(factoryResetControl_->getHwnd(), SW_HIDE);
     ShowWindow(escButton_->getHwnd(), SW_HIDE);
 
     instalButton_->setState(InstallButton::INSTALL_TITLE);
     captionItem_->changeText(strInstallButtonText_.c_str());
+    topOffsTitle_ += 42 * SCALE_FACTOR;
     redraw();
 }
 
@@ -514,6 +538,7 @@ void MainWindow::onInstallClick(bool isUpdating)
 
 	g_application->getSettings().setPath(pathControl_->path());
 	g_application->getSettings().setCreateShortcut(desktopShortcutControl_->getChecked());
+	g_application->getSettings().setFactoryReset(factoryResetControl_->getChecked());
 
 	g_application->getInstaller()->start(hwnd_, g_application->getSettings());
 }
@@ -530,8 +555,10 @@ void MainWindow::onSettingsClick()
 
 	ShowWindow(pathControl_->getHwnd(), SW_SHOW);
 	ShowWindow(desktopShortcutControl_->getHwnd(), SW_SHOW);
+	ShowWindow(factoryResetControl_->getHwnd(), SW_SHOW);
 	ShowWindow(escButton_->getHwnd(), SW_SHOW);
 
+	topOffsTitle_ -= 42 * SCALE_FACTOR;
 	captionItem_->changeText(L"Install Settings");
 	redraw();
 }
@@ -550,9 +577,6 @@ void MainWindow::onEscapeClick()
 			return;
 		}
 	}
-
-	
-
 
 	incBackgroundOpacity_ = true;
 	SetTimer(hwnd_, OPACITY_TIMER_ID, 10, NULL);
@@ -665,6 +689,7 @@ void MainWindow::onOpacityAnimationTimer()
 	redraw();
 	SendMessage(pathControl_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
 	SendMessage(desktopShortcutControl_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
+	SendMessage(factoryResetControl_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
 	SendMessage(instalButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
     if (settingsButton_)
         SendMessage(settingsButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);

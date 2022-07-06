@@ -23,7 +23,7 @@ private:
         
     void chmodRecursively(const char *name, uid_t user, gid_t group);
     void chmodIfNeed(const char *name, uid_t user, gid_t group);
-
+    bool isKextLoaded() const;
 };
 
 #endif /* KextMonitor_h */

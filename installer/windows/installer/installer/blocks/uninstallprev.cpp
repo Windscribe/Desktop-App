@@ -7,9 +7,9 @@
 const std::wstring wmActivateGui = L"WindscribeAppActivate";
 
 
-UninstallPrev::UninstallPrev(double weight) : IInstallBlock(weight, L"UninstallPrev"), state_(0)
+UninstallPrev::UninstallPrev(bool isFactoryReset, double weight) : IInstallBlock(weight, L"UninstallPrev"),
+	state_(0), isFactoryReset_(isFactoryReset)
 {
-
 }
 
 int UninstallPrev::executeStep()
@@ -56,11 +56,17 @@ int UninstallPrev::executeStep()
         std::wstring uninstallString = getUninstallString();
         if (!uninstallString.empty())
         {
-            // prevent uninstaller from causing browser "uninstall" popup
-            Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe", L"userId", L"");
-            Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"userId", L"");
-
-            uninstallOldVersion(uninstallString);
+			if (isFactoryReset_)
+			{
+				doFactoryReset();
+			}
+			else
+			{
+				// prevent uninstaller from causing browser "uninstall" popup
+				Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe", L"userId", L"");
+				Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"userId", L"");
+			}
+			uninstallOldVersion(uninstallString);
         }
         return 100;
     }
@@ -140,4 +146,43 @@ std::wstring UninstallPrev::removeQuotes(const std::wstring &str)
     return str1;
 }
 
+void UninstallPrev::doFactoryReset()
+{
+	// Delete preferences
+	Registry::RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe");
+	Registry::RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2");
 
+	// Delete logs and other data
+	// NB: Does not delete any files in use, such as the uninstaller log
+	wchar_t* localAppData = nullptr;
+
+	if (SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &localAppData) == S_OK)
+	{
+		std::wstring deletePath(localAppData);
+		deletePath.append(L"\\windscribe_extra.conf");
+		DeleteFile(deletePath.c_str());
+
+		deletePath = localAppData;
+		CoTaskMemFree(static_cast<void*>(localAppData));
+		deletePath.append(L"\\Windscribe\\Windscribe2\\*");
+
+		HANDLE hFind = INVALID_HANDLE_VALUE;
+		WIN32_FIND_DATA ffd;
+
+		hFind = FindFirstFile(deletePath.c_str(), &ffd);
+		if (hFind != INVALID_HANDLE_VALUE)
+		{
+			do
+			{
+				std::wstring fullPath(deletePath);
+				fullPath.erase(fullPath.size()-1); // erase '*'
+				fullPath.append(ffd.cFileName);
+				DeleteFile(fullPath.c_str());
+			}
+			while (FindNextFile(hFind, &ffd) != 0);
+			FindClose(hFind);
+		}
+
+		DeleteFile(deletePath.c_str());
+	}
+}

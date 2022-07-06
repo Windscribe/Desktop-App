@@ -1202,7 +1202,15 @@ void ConnectionManager::restoreConnectionAfterWakeUp()
 
 void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAddress)
 {
-    if (!bSuccess)
+    bool hasAttempts = false;
+    int attempts = ExtraConfig::instance().getTunnelTestAttempts(hasAttempts);
+    bool noError = ExtraConfig::instance().getIsTunnelTestNoError();
+
+    if ((hasAttempts && attempts == 0) || (noError && !bSuccess))
+    {
+        Q_EMIT testTunnelResult(bSuccess, "");
+    }
+    else if (!bSuccess)
     {
         if (connSettingsPolicy_->isAutomaticMode())
         {

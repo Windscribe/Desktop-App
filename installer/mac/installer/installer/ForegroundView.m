@@ -43,13 +43,16 @@
     rc = CGRectMake(xLogo, yLogo, imgSize.width, imgSize.height);
     [imageResources_.badgeIcon.NSImage drawInRect:rc];
             
-    // draw divider on settings screen only
+    // draw dividers on settings screen only
     if (isInstallScreen_ == NO)
     {
         NSColor *dividerColor = [NSColor colorWithCalibratedRed: 1.0f green: 1.0f blue: 1.0f alpha: 0.275f];
         [dividerColor set];
         NSRect dividerRect = NSMakeRect(28, 135, clientRect.size.width - 28, 2);
         NSBezierPath *rectPath = [NSBezierPath bezierPathWithRect:dividerRect];
+        [rectPath fill];
+        dividerRect = NSMakeRect(28, 85, clientRect.size.width - 28, 2);
+        rectPath = [NSBezierPath bezierPathWithRect:dividerRect];
         [rectPath fill];
     }
     

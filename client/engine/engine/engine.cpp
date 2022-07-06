@@ -641,7 +641,7 @@ void Engine::initPart2()
     networkAccessManager_ = new NetworkAccessManager(this);
     connect(networkAccessManager_, SIGNAL(whitelistIpsChanged(QSet<QString>)), SLOT(onWhitelistedIPsChanged(QSet<QString>)));
 
-    serverAPI_ = new ServerAPI(this);
+    serverAPI_ = new ServerAPI(this, connectStateController_);
     connect(serverAPI_, &ServerAPI::sessionAnswer, this, &Engine::onSessionAnswer, Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(checkUpdateAnswer(apiinfo::CheckUpdate,bool,uint)),
                         SLOT(onCheckUpdateAnswer(apiinfo::CheckUpdate,bool,uint)), Qt::QueuedConnection);
@@ -2138,7 +2138,10 @@ void Engine::onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &
 void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ipAddress)
 {
     Q_EMIT testTunnelResult(success); // stops protocol/port flashing
-    Q_EMIT myIpUpdated(ipAddress, success, false); // sends IP address to UI // test should only occur in connected state
+    if (!ipAddress.isEmpty())
+    {
+        Q_EMIT myIpUpdated(ipAddress, success, false); // sends IP address to UI // test should only occur in connected state
+    }
 }
 
 void Engine::onConnectionManagerWireGuardAtKeyLimit()

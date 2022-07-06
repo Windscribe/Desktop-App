@@ -184,28 +184,37 @@ void TestVPNTunnel::startTestImpl()
 {
     timeouts_.clear();
 
-    int timeout = ExtraConfig::instance().getTunnelTestTimeout(doCustomTunnelTest_);
+    bool advParamExists;
 
-    if (doCustomTunnelTest_)
-    {
-        bool advParamExists;
-        int attempts = ExtraConfig::instance().getTunnelTestAttempts(advParamExists);
-        if (!advParamExists || attempts == 0) {
-            attempts = 3;
-        }
+    int attempts = ExtraConfig::instance().getTunnelTestAttempts(advParamExists);
+    if (!advParamExists) {
+        attempts = 3;
+    } else {
+        doCustomTunnelTest_ = true;
+    }
+    if (attempts == 0) {
+        // Do not emit result directly here, callers may not be ready for callback before startTests() returns.
+        QTimer::singleShot(1, this, &TestVPNTunnel::onTestsSkipped);
+        return;
+    }
 
-        testRetryDelay_ = ExtraConfig::instance().getTunnelTestRetryDelay(advParamExists);
-        if (!advParamExists) {
-            testRetryDelay_ = 0;
-        }
-
-        qCDebug(LOG_CONNECTION) << "Running custom tunnel test with" << attempts << "attempts, timeout of" << timeout << "ms, and retry delay of" << testRetryDelay_ << "ms";
-
+    int timeout = ExtraConfig::instance().getTunnelTestTimeout(advParamExists);
+    if (!advParamExists) {
+        timeouts_ << PING_TEST_TIMEOUT_1 << PING_TEST_TIMEOUT_2 << PING_TEST_TIMEOUT_3;
+    } else {
+        doCustomTunnelTest_ = true;
         timeouts_.fill(timeout, attempts);
     }
-    else
-    {
-        timeouts_ << PING_TEST_TIMEOUT_1 << PING_TEST_TIMEOUT_2 << PING_TEST_TIMEOUT_3;
+
+    testRetryDelay_ = ExtraConfig::instance().getTunnelTestRetryDelay(advParamExists);
+    if (!advParamExists) {
+        testRetryDelay_ = 0;
+    } else {
+        doCustomTunnelTest_ = true;
+    }
+
+    if (doCustomTunnelTest_) {
+        qCDebug(LOG_CONNECTION) << "Running custom tunnel test with" << attempts << "attempts, timeout of" << timeout << "ms, and retry delay of" << testRetryDelay_ << "ms";
     }
 
     // start first test
@@ -521,3 +530,10 @@ void TestVPNTunnel::onWin32DnsQueryTimeout()
 }
 
 #endif
+
+void TestVPNTunnel::onTestsSkipped()
+{
+    qCDebug(LOG_CONNECTION) << "Tunnel tests disabled";
+    emit testsFinished(true, "");
+}
+

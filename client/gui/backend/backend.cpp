@@ -719,7 +719,7 @@ void Backend::abortInitialization()
 }
 
 // Assumes that duplicate network filtering occurs on Engine side
-void Backend::handleNetworkChange(ProtoTypes::NetworkInterface networkInterface)
+void Backend::handleNetworkChange(ProtoTypes::NetworkInterface networkInterface, bool manual)
 {
     bool newNetwork = true;
 
@@ -774,7 +774,9 @@ void Backend::handleNetworkChange(ProtoTypes::NetworkInterface networkInterface)
             }
         }
 
-        if (!Utils::sameNetworkInterface(networkInterface, currentNetworkInterface_)) // actual network change -- prevents brief/rare network loss during CONNECTING from triggering network change
+        if (!Utils::sameNetworkInterface(networkInterface, currentNetworkInterface_) || manual)
+            // actual network change or explicit trigger from preference change
+            // prevents brief/rare network loss during CONNECTING from triggering network change
         {
             // disconnect VPN on an unsecured network -- connect VPN on a secured network if auto-connect is on
             if (foundInterface.trust_type() == ProtoTypes::NETWORK_UNSECURED)
@@ -812,6 +814,11 @@ void Backend::handleNetworkChange(ProtoTypes::NetworkInterface networkInterface)
         // inform UI no network
         Q_EMIT networkChanged(networkInterface);
     }
+}
+
+ProtoTypes::NetworkInterface Backend::getCurrentNetworkInterface()
+{
+    return currentNetworkInterface_;
 }
 
 void Backend::cycleMacAddress()

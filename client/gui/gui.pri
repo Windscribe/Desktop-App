@@ -20,7 +20,7 @@ HEADERS += $$PWD/multipleaccountdetection/multipleaccountdetection_win.h \
 
 macx {
 
-SOURCES += $$PWD/multipleaccountdetection/multipleaccountdetection_mac.cpp
+SOURCES += $$PWD/multipleaccountdetection/multipleaccountdetection_posix.cpp
 
 OBJECTIVE_SOURCES += \
                 $$PWD/application/checkrunningapp/checkrunningapp_mac.mm \
@@ -29,7 +29,7 @@ OBJECTIVE_SOURCES += \
                 $$PWD/utils/authchecker_mac.mm
 
 HEADERS += \
-           $$PWD/multipleaccountdetection/multipleaccountdetection_mac.h \
+           $$PWD/multipleaccountdetection/multipleaccountdetection_posix.h \
            $$PWD/application/checkrunningapp/checkrunningapp_mac.h \
            $$PWD/launchonstartup/launchonstartup_mac.h \
            $$PWD/utils/authchecker_mac.h \
@@ -42,13 +42,13 @@ RESOURCES += \
 linux {
 
 SOURCES += \
-    $$PWD/multipleaccountdetection/multipleaccountdetection_linux.cpp \
+    $$PWD/multipleaccountdetection/multipleaccountdetection_posix.cpp \
     $$PWD/launchonstartup/launchonstartup_linux.cpp \
     $$PWD/utils/interfaceutils_linux.cpp \
     $$PWD/utils/authchecker_linux.cpp
 
 HEADERS += \
-    $$PWD/multipleaccountdetection/multipleaccountdetection_linux.h \
+    $$PWD/multipleaccountdetection/multipleaccountdetection_posix.h \
     $$PWD/launchonstartup/launchonstartup_linux.h \
     $$PWD/utils/authchecker_linux.h
 

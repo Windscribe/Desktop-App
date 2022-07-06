@@ -36,7 +36,7 @@ void Installer::startImpl(HWND hwnd, const Settings &settings)
 {
     installPath_ = settings.getPath();
 #ifdef _WIN32
-    blocks_.push_back(new UninstallPrev(10));
+    blocks_.push_back(new UninstallPrev(settings.getFactoryReset(), 10));
     blocks_.push_back(new Files(installPath_, 40));
     blocks_.push_back(new Service(installPath_, 5));
     if (settings.getInstallDrivers())

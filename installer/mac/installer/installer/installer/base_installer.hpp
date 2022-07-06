@@ -21,6 +21,7 @@ enum INSTALLER_CURRENT_STATE { STATE_INIT, STATE_EXTRACTING, STATE_CANCELED, STA
 
 @property(atomic, assign) enum INSTALLER_CURRENT_STATE currentState;
 @property(atomic, assign) int progress;
+@property(atomic, assign) bool factoryReset;
 @property(atomic, strong) NSString *path;
 @property(atomic, strong) NSString *lastError;
 

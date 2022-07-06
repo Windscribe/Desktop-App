@@ -45,16 +45,30 @@ bool Settings::getAutoStart() const
 	return isAutoStart_;
 }
 
+void Settings::setFactoryReset(bool erase)
+{
+	isFactoryReset_ = erase;
+}
+
+bool Settings::getFactoryReset() const
+{
+	return isFactoryReset_;
+}
+
 bool Settings::readFromRegistry()
 {
-	bool bRet1 = false;
-	bool bRet2 = false;
+	bool bRet = true;
 	std::wstring tempStr;
+
 	if (Registry::RegQueryStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"applicationPath", tempStr))
 	{
 		path_ = tempStr;
-		bRet1 = true;
 	}
+	else
+	{
+		bRet = false;
+	}
+
 	if (Registry::RegQueryStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"isCreateShortcut", tempStr))
 	{
 		if (!tempStr.empty())
@@ -65,14 +79,28 @@ bool Settings::readFromRegistry()
 		{
 			isCreateShortcut_ = true;
 		}
-		bRet2 = true;
 	}
-	return bRet1 && bRet2;
+	else
+	{
+		bRet = false;
+	}
+
+	if (Registry::RegQueryStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"isFactoryReset", tempStr))
+	{
+		isFactoryReset_ = true;
+	}
+	else
+	{
+		bRet = false;
+	}
+
+	return bRet;
 }
 
 void Settings::writeToRegistry() const
 {
 	Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"applicationPath", path_.c_str());
 	Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"isCreateShortcut", isCreateShortcut_ ? L"1" : L"0");
+	Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"isFactoryReset", isFactoryReset_ ? L"1" : L"0");
 }
 

@@ -47,6 +47,9 @@ public:
     void setHostname(const QString &hostname);
     QString getHostname() const;
 
+    void setFromDisconnectedVPNState(bool bFromDisconnectedVpnState);
+    bool isFromDisconnectedVPNState() const;
+
     void setIps(const QStringList &ips);
     QString getNextIp();
     bool isHasNextIp() const;
@@ -64,6 +67,7 @@ private:
     QVector<CURLSH *> curlShareHandles_;
     QString hostname_;
     QQueue<QString> ips_;
+    bool bFromDisconnectedVpnState_;
 };
 
 #endif // CURLREQUEST_H

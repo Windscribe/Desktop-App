@@ -1,15 +1,15 @@
-#ifndef MULTIPLEACCOUNTDETECTION_MAC_H
-#define MULTIPLEACCOUNTDETECTION_MAC_H
+#ifndef MULTIPLEACCOUNTDETECTION_POSIX_H
+#define MULTIPLEACCOUNTDETECTION_POSIX_H
 
 #include <QString>
 #include <QDate>
 #include "utils/simplecrypt.h"
 #include "imultipleaccountdetection.h"
 
-class MultipleAccountDetection_mac : public IMultipleAccountDetection
+class MultipleAccountDetection_posix : public IMultipleAccountDetection
 {
 public:
-    MultipleAccountDetection_mac();
+    MultipleAccountDetection_posix();
 
     void userBecomeExpired(const QString &username) override;
     bool entryIsPresent(QString &username) override;
@@ -29,4 +29,4 @@ private:
     SimpleCrypt crypt_;
 };
 
-#endif // MULTIPLEACCOUNTDETECTION_MAC_H
+#endif // MULTIPLEACCOUNTDETECTION_POSIX_H

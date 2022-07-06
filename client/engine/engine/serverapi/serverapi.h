@@ -15,6 +15,7 @@
 #include <list>
 
 class INetworkStateManager;
+class IConnectStateController;
 
 // access to API endpoint with custom DNS-resolution
 class ServerAPI : public QObject
@@ -23,7 +24,7 @@ class ServerAPI : public QObject
 public:
     class BaseRequest;
 
-    explicit ServerAPI(QObject *parent);
+    explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController);
     virtual ~ServerAPI();
 
     uint getAvailableUserRole();
@@ -199,6 +200,7 @@ private:
     void handleWebSessionCurl(BaseRequest *rd, bool success);
 
     CurlNetworkManager curlNetworkManager_;
+    IConnectStateController *connectStateController_;
 
     QString lastLocationsLanguage_;
 
