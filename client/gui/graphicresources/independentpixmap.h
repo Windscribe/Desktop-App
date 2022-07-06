@@ -22,6 +22,7 @@ public:
 
     void draw(int x, int y, QPainter *painter);
     void draw(int x, int y, int w, int h, QPainter *painter);
+    void draw(int x, int y, int w, int h, QPainter *painter, QColor color);
     void draw(int x, int y, QPainter *painter, int x1, int y1, int w, int h);
     void draw(const QRect &rect, QPainter *painter);
 

@@ -158,12 +158,12 @@ QVector<types::NetworkInterface> NetworkUtils_mac::currentNetworkInterfaces(bool
         {
             networkInterface.interfaceType = NETWORK_INTERFACE_WIFI;
             QString ssid = ssidOfInterface(interfaceName);
-            networkInterface.networkOrSSid = ssid;
+            networkInterface.networkOrSsid = ssid;
         }
         else // Eth
         {
             networkInterface.interfaceType = NETWORK_INTERFACE_ETH;
-            networkInterface.networkOrSSid = macAddress;
+            networkInterface.networkOrSsid = macAddress;
         }
 
         networkInterface.active = isAdapterActive(interfaceName);

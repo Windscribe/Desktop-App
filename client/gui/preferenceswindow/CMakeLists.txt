@@ -1,128 +1,115 @@
 target_sources(gui PRIVATE
+    aboutwindow/aboutwindowitem.cpp
+    aboutwindow/aboutwindowitem.h
+    accountwindow/accountdataitem.cpp
+    accountwindow/accountdataitem.h
     accountwindow/accountwindowitem.cpp
     accountwindow/accountwindowitem.h
     accountwindow/emailitem.cpp
     accountwindow/emailitem.h
-    accountwindow/expiredateitem.cpp
-    accountwindow/expiredateitem.h
     accountwindow/planitem.cpp
     accountwindow/planitem.h
-    accountwindow/usernameitem.cpp
-    accountwindow/usernameitem.h
-    baseitem.cpp
-    baseitem.h
-    basepage.cpp
-    basepage.h
-    bottomresizeitem.cpp
-    bottomresizeitem.h
+    advancedwindow/advancedparametersitem.cpp
+    advancedwindow/advancedparametersitem.h
+    advancedwindow/advancedparameterswindowitem.cpp
+    advancedwindow/advancedparameterswindowitem.h
+    advancedwindow/advancedwindowitem.cpp
+    advancedwindow/advancedwindowitem.h
+    advancedwindow/apiresolutiongroup.cpp
+    advancedwindow/apiresolutiongroup.h
     checkboxitem.cpp
     checkboxitem.h
     comboboxitem.cpp
     comboboxitem.h
-    connectionwindow/automanualswitchitem.cpp
-    connectionwindow/automanualswitchitem.h
-    connectionwindow/autorotatemacitem.cpp
-    connectionwindow/autorotatemacitem.h
-    connectionwindow/connectionmodeitem.cpp
-    connectionwindow/connectionmodeitem.h
+    connectionwindow/connecteddnsgroup.cpp
+    connectionwindow/connecteddnsgroup.h
     connectionwindow/connectionwindowitem.cpp
     connectionwindow/connectionwindowitem.h
-    connectionwindow/dnswhileconnecteditem.cpp
-    connectionwindow/dnswhileconnecteditem.h
-    connectionwindow/firewallmodeitem.cpp
-    connectionwindow/firewallmodeitem.h
+    connectionwindow/firewallgroup.cpp
+    connectionwindow/firewallgroup.h
     connectionwindow/macaddressitem.cpp
     connectionwindow/macaddressitem.h
-    connectionwindow/macspoofingitem.cpp
-    connectionwindow/macspoofingitem.h
+    connectionwindow/macspoofinggroup.cpp
+    connectionwindow/macspoofinggroup.h
     connectionwindow/packetsizeeditboxitem.cpp
     connectionwindow/packetsizeeditboxitem.h
-    connectionwindow/packetsizeitem.cpp
-    connectionwindow/packetsizeitem.h
-    connectionwindow/subpageitem.cpp
-    connectionwindow/subpageitem.h
-    debugwindow//debugwindowitem.cpp
-    debugwindow/advancedparametersitem.cpp
-    debugwindow/advancedparametersitem.h
-    debugwindow/advancedparameterswindowitem.cpp
-    debugwindow/advancedparameterswindowitem.h
-    debugwindow/apiresolutionitem.cpp
-    debugwindow/apiresolutionitem.h
-    debugwindow/debugwindowitem.h
-    debugwindow/viewlogitem.cpp
-    debugwindow/viewlogitem.h
+    connectionwindow/packetsizegroup.cpp
+    connectionwindow/packetsizegroup.h
+    connectionwindow/proxygatewaygroup.cpp
+    connectionwindow/proxygatewaygroup.h
+    connectionwindow/proxyipaddressitem.cpp
+    connectionwindow/proxyipaddressitem.h
+    connectionwindow/securehotspotgroup.cpp
+    connectionwindow/securehotspotgroup.h
     dividerline.cpp
     dividerline.h
     editboxitem.cpp
     editboxitem.h
-    escapebutton.cpp
-    escapebutton.h
-    generalwindow/backgroundsettingsitem.cpp
-    generalwindow/backgroundsettingsitem.h
+    generalwindow/backgroundsettingsgroup.cpp
+    generalwindow/backgroundsettingsgroup.h
     generalwindow/generalwindowitem.cpp
     generalwindow/generalwindowitem.h
     generalwindow/selectimageitem.cpp
     generalwindow/selectimageitem.h
     generalwindow/versioninfoitem.cpp
     generalwindow/versioninfoitem.h
+    helpwindow/helpwindowitem.cpp
+    helpwindow/helpwindowitem.h
     ipreferenceswindow.h
-    networkwhitelistwindow/currentnetworkitem.cpp
-    networkwhitelistwindow/currentnetworkitem.h
-    networkwhitelistwindow/networklistitem.cpp
-    networkwhitelistwindow/networklistitem.h
-    networkwhitelistwindow/networkwhitelistshared.cpp
-    networkwhitelistwindow/networkwhitelistshared.h
-    networkwhitelistwindow/networkwhitelistwindowitem.cpp
-    networkwhitelistwindow/networkwhitelistwindowitem.h
-    openurlitem.cpp
-    openurlitem.h
+    linkitem.cpp
+    linkitem.h
+    networkoptionswindow/networklistgroup.cpp
+    networkoptionswindow/networklistgroup.h
+    networkoptionswindow/networkoptionsnetworkwindowitem.cpp
+    networkoptionswindow/networkoptionsnetworkwindowitem.h
+    networkoptionswindow/networkoptionsshared.cpp
+    networkoptionswindow/networkoptionsshared.h
+    networkoptionswindow/networkoptionswindowitem.cpp
+    networkoptionswindow/networkoptionswindowitem.h
     preferencestab/ipreferencestabcontrol.h
     preferencestab/preferencestabcontrolitem.cpp
     preferencestab/preferencestabcontrolitem.h
+    preferencestab/tabbutton.cpp
+    preferencestab/tabbutton.h
+    preferencegroup.cpp
+    preferencegroup.h
+    preferencesconst.h
     preferenceswindowitem.cpp
     preferenceswindowitem.h
-    proxysettingswindow/proxysettingsitem.cpp
-    proxysettingswindow/proxysettingsitem.h
+    protocolgroup.cpp
+    protocolgroup.h
+    proxysettingswindow/proxysettingsgroup.cpp
+    proxysettingswindow/proxysettingsgroup.h
     proxysettingswindow/proxysettingswindowitem.cpp
     proxysettingswindow/proxysettingswindowitem.h
-    scrollareaitem.cpp
-    scrollareaitem.h
-    sharewindow/proxygatewayitem.cpp
-    sharewindow/proxygatewayitem.h
-    sharewindow/proxyipaddressitem.cpp
-    sharewindow/proxyipaddressitem.h
-    sharewindow/securehotspotitem.cpp
-    sharewindow/securehotspotitem.h
-    sharewindow/sharewindowitem.cpp
-    sharewindow/sharewindowitem.h
+    robertwindow/robertitem.cpp
+    robertwindow/robertitem.h
+    robertwindow/robertwindowitem.cpp
+    robertwindow/robertwindowitem.h
+    splittunnelingwindow/addressitem.cpp
+    splittunnelingwindow/addressitem.h
     splittunnelingwindow/appincludeditem.cpp
     splittunnelingwindow/appincludeditem.h
     splittunnelingwindow/appsearchitem.cpp
     splittunnelingwindow/appsearchitem.h
-    splittunnelingwindow/iporhostnameitem.cpp
-    splittunnelingwindow/iporhostnameitem.h
-    splittunnelingwindow/newiporhostnameitem.cpp
-    splittunnelingwindow/newiporhostnameitem.h
+    splittunnelingwindow/newaddressitem.cpp
+    splittunnelingwindow/newaddressitem.h
     splittunnelingwindow/searchlineedititem.cpp
     splittunnelingwindow/searchlineedititem.h
+    splittunnelingwindow/splittunnelingaddressesgroup.cpp
+    splittunnelingwindow/splittunnelingaddressesgroup.h
+    splittunnelingwindow/splittunnelingaddresseswindowitem.cpp
+    splittunnelingwindow/splittunnelingaddresseswindowitem.h
+    splittunnelingwindow/splittunnelingappsgroup.cpp
+    splittunnelingwindow/splittunnelingappsgroup.h
     splittunnelingwindow/splittunnelingappsitem.cpp
     splittunnelingwindow/splittunnelingappsitem.h
-    splittunnelingwindow/splittunnelingappssearchitem.cpp
-    splittunnelingwindow/splittunnelingappssearchitem.h
-    splittunnelingwindow/splittunnelingappssearchwindowitem.cpp
-    splittunnelingwindow/splittunnelingappssearchwindowitem.h
     splittunnelingwindow/splittunnelingappswindowitem.cpp
     splittunnelingwindow/splittunnelingappswindowitem.h
-    splittunnelingwindow/splittunnelingiphostnamewindowitem.cpp
-    splittunnelingwindow/splittunnelingiphostnamewindowitem.h
-    splittunnelingwindow/splittunnelingipsandhostnamesitem.cpp
-    splittunnelingwindow/splittunnelingipsandhostnamesitem.h
-    splittunnelingwindow/splittunnelingitem.cpp
-    splittunnelingwindow/splittunnelingitem.h
-    splittunnelingwindow/splittunnelingswitchitem.cpp
-    splittunnelingwindow/splittunnelingswitchitem.h
+    splittunnelingwindow/splittunnelinggroup.cpp
+    splittunnelingwindow/splittunnelinggroup.h
     splittunnelingwindow/splittunnelingwindowitem.cpp
     splittunnelingwindow/splittunnelingwindowitem.h
-    textitem.cpp
-    textitem.h
+    titleitem.cpp
+    titleitem.h
 )

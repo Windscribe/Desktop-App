@@ -48,7 +48,7 @@ QVector<types::Notification> NotificationsController::messages() const
         notification.id = 0;
         notification.title = QT_TR_NOOP("WELCOME TO WINDSCRIBE");
         notification.message = QT_TR_NOOP("You will find announcements and general Windscribe related news here. "
-                                          "Perhaps even delicious cake, Everyone loves cake!");
+                                          "Perhaps even delicious cake, everyone loves cake!");
         arr << notification;
         return arr;
     }
@@ -77,7 +77,7 @@ void NotificationsController::updateNotifications(const QVector<types::Notificat
     checkForUnreadPopup();
 }
 
-void NotificationsController::setNotificationReaded(qint64 notificationId)
+void NotificationsController::setNotificationRead(qint64 notificationId)
 {
     idOfShownNotifications_.insert(notificationId);
     updateState();

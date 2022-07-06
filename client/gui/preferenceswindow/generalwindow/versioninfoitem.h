@@ -1,12 +1,12 @@
 #ifndef VERSIONINFOITEM_H
 #define VERSIONINFOITEM_H
 
-#include "../baseitem.h"
+#include "commongraphics/baseitem.h"
 #include <QMenu>
 
 namespace PreferencesWindow {
 
-class VersionInfoItem : public BaseItem
+class VersionInfoItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:

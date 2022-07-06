@@ -55,7 +55,7 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     connectionManager_(nullptr),
     connectStateController_(nullptr),
     serverApiUserRole_(0),
-    serverApiEditAccountDetailsUserRole_(0),
+    serverApiManageAccountUserRole_(0),
     serverApiAddEmailUserRole_(0),
     getMyIPController_(nullptr),
     vpnShareController_(nullptr),
@@ -651,17 +651,19 @@ void Engine::initPart2()
     connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<types::Location>,QStringList, uint)),
                         SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<types::Location>,QStringList, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(sendUserWarning(USER_WARNING_TYPE)), SIGNAL(sendUserWarning(USER_WARNING_TYPE)));
+    connect(serverAPI_, &ServerAPI::getRobertFiltersAnswer, this, &Engine::onGetRobertFiltersAnswer);
+    connect(serverAPI_, &ServerAPI::setRobertFilterAnswer, this, &Engine::onSetRobertFilterAnswer);
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
-    serverApiEditAccountDetailsUserRole_ = serverAPI_->getAvailableUserRole();
+    serverApiManageAccountUserRole_ = serverAPI_->getAvailableUserRole();
     serverApiAddEmailUserRole_ = serverAPI_->getAvailableUserRole();
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
     connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
     connectionManager_->setPacketSize(packetSize_);
-    connectionManager_->setDnsWhileConnectedInfo(engineSettings_.dnsWhileConnectedInfo());
+    connectionManager_->setConnectedDnsInfo(engineSettings_.connectedDnsInfo());
     connect(connectionManager_, SIGNAL(connected()), SLOT(onConnectionManagerConnected()));
     connect(connectionManager_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onConnectionManagerDisconnected(DISCONNECT_REASON)));
     connect(connectionManager_, SIGNAL(reconnecting()), SLOT(onConnectionManagerReconnecting()));
@@ -722,7 +724,7 @@ void Engine::initPart2()
 #ifdef Q_OS_WIN
     measurementCpuUsage_ = new MeasurementCpuUsage(this, helper_, connectStateController_);
     connect(measurementCpuUsage_, SIGNAL(detectionCpuUsageAfterConnected(QStringList)), SIGNAL(detectionCpuUsageAfterConnected(QStringList)));
-    measurementCpuUsage_->setEnabled(engineSettings_.isCloseTcpSockets());
+    measurementCpuUsage_->setEnabled(engineSettings_.isTerminateSockets());
 #endif
 
     updateProxySettings();
@@ -761,7 +763,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 #endif
 
     // turn off split tunneling (for case the state remains from the last launch)
-    helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), PROTOCOL());
+    helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), PROTOCOL());
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 
@@ -863,7 +865,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     // turn off split tunneling
     if (helper_)
     {
-        helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), PROTOCOL());
+        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), PROTOCOL());
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
     }
 
@@ -1129,8 +1131,15 @@ void Engine::sendDebugLogImpl()
 
 void Engine::getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose)
 {
-    uint userRole = serverApiEditAccountDetailsUserRole_;
-    if (purpose == WEB_SESSION_PURPOSE_ADD_EMAIL) userRole = serverApiAddEmailUserRole_;
+    uint userRole = serverApiManageAccountUserRole_;
+    if (purpose == WEB_SESSION_PURPOSE_ADD_EMAIL)
+    {
+        userRole = serverApiAddEmailUserRole_;
+    }
+    else if (purpose == WEB_SESSION_PURPOSE_MANAGE_ROBERT_RULES)
+    {
+        userRole = serverApiManageRobertRulesRole_;
+    }
     serverAPI_->webSession(apiInfo_->getAuthHash(), userRole, true);
 }
 
@@ -1275,12 +1284,12 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isUpdateChannelChanged = engineSettings_.updateChannel() != engineSettings.updateChannel();
     bool isLanguageChanged = engineSettings_.language() != engineSettings.language();
     bool isProtocolChanged = engineSettings_.connectionSettings().protocol != engineSettings.connectionSettings().protocol;
-    bool isCloseTcpSocketsChanged = engineSettings_.isCloseTcpSockets() != engineSettings.isCloseTcpSockets();
+    bool isTerminateSocketsChanged = engineSettings_.isTerminateSockets() != engineSettings.isTerminateSockets();
     bool isDnsPolicyChanged = engineSettings_.dnsPolicy() != engineSettings.dnsPolicy();
     bool isCustomOvpnConfigsPathChanged = engineSettings_.customOvpnConfigsPath() != engineSettings.customOvpnConfigsPath();
     bool isMACSpoofingChanged = engineSettings_.macAddrSpoofing() != engineSettings.macAddrSpoofing();
     bool isPacketSizeChanged =  engineSettings_.packetSize() != engineSettings.packetSize();
-    bool isDnsWhileConnectedChanged = engineSettings_.dnsWhileConnectedInfo() != engineSettings.dnsWhileConnectedInfo();
+    bool isDnsWhileConnectedChanged = engineSettings_.connectedDnsInfo() != engineSettings.connectedDnsInfo();
     engineSettings_ = engineSettings;
 
 #ifdef Q_OS_LINUX
@@ -1299,7 +1308,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     if (isDnsWhileConnectedChanged)
     {
         // tell connection manager about new settings (it will use them onConnect)
-        connectionManager_->setDnsWhileConnectedInfo(engineSettings.dnsWhileConnectedInfo());
+        connectionManager_->setConnectedDnsInfo(engineSettings.connectedDnsInfo());
     }
 
     if (isAllowLanTrafficChanged || isDnsPolicyChanged)
@@ -1350,10 +1359,10 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
         }
     }
 
-    if (isCloseTcpSocketsChanged)
+    if (isTerminateSocketsChanged)
     {
     #ifdef Q_OS_WIN
-        measurementCpuUsage_->setEnabled(engineSettings_.isCloseTcpSockets());
+        measurementCpuUsage_->setEnabled(engineSettings_.isTerminateSockets());
     #endif
     }
 
@@ -1680,14 +1689,34 @@ void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &toke
 {
     if (retCode == SERVER_RETURN_SUCCESS)
     {
-        if (userRole == serverApiEditAccountDetailsUserRole_)
+        if (userRole == serverApiManageAccountUserRole_)
         {
-            Q_EMIT webSessionToken(WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS, token);
+            Q_EMIT webSessionToken(WEB_SESSION_PURPOSE_MANAGE_ACCOUNT, token);
         }
-        if (userRole == serverApiAddEmailUserRole_)
+        else if (userRole == serverApiAddEmailUserRole_)
         {
             Q_EMIT webSessionToken(WEB_SESSION_PURPOSE_ADD_EMAIL, token);
         }
+        else if (userRole == serverApiManageRobertRulesRole_)
+        {
+            Q_EMIT webSessionToken(WEB_SESSION_PURPOSE_MANAGE_ROBERT_RULES, token);
+        }
+    }
+}
+
+void Engine::onGetRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &filters, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        Q_EMIT robertFiltersUpdated(retCode == SERVER_RETURN_SUCCESS, filters);
+    }
+}
+
+void Engine::onSetRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        Q_EMIT setRobertFilterFinished(retCode == SERVER_RETURN_SUCCESS);
     }
 }
 
@@ -1785,7 +1814,7 @@ void Engine::onConnectionManagerConnected()
         }
     }
 
-    helper_->sendConnectStatus(true, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(),
+    helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
                                connectionManager_->getDefaultAdapterInfo(), connectionManager_->getCustomDnsAdapterGatewayInfo().adapterInfo,
                                connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
 
@@ -1794,11 +1823,11 @@ void Engine::onConnectionManagerConnected()
         firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic());
     }
 
-    if (connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.type() == DNS_WHILE_CONNECTED_TYPE_CUSTOM)
+    if (connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.type() == CONNECTED_DNS_TYPE_CUSTOM)
     {
          if (!helper_->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),
                                                   connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                  connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.ipAddress()))
+                                                  connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.ipAddress()))
          {
              qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
          }
@@ -1879,7 +1908,7 @@ void Engine::onConnectionManagerConnected()
         startLoginController(loginSettings_, true);
     }
 
-    if (engineSettings_.isCloseTcpSockets())
+    if (engineSettings_.isTerminateSockets())
     {
 #ifdef Q_OS_WIN
         Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
@@ -2454,6 +2483,16 @@ void Engine::getNewNotifications()
     serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
+void Engine::getRobertFilters()
+{
+    serverAPI_->getRobertFilters(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+}
+
+void Engine::setRobertFilter(const types::RobertFilter &filter)
+{
+    serverAPI_->setRobertFilter(apiInfo_->getAuthHash(), serverApiUserRole_, true, filter);
+}
+
 void Engine::onCustomConfigsChanged()
 {
     qCDebug(LOG_BASIC) << "Custom configs changed";
@@ -2939,7 +2978,7 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     {
         if (state != CONNECT_STATE_CONNECTED)
         {
-            helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), PROTOCOL());
+            helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), PROTOCOL());
         }
     }
 }

@@ -21,6 +21,7 @@ public:
     qint32 rebill_;
     qint32 billing_plan_id_;
     QString premium_expire_date_;
+    QString last_reset_date_;
     qint64 traffic_used_;
     qint64 traffic_max_;
     QString username_;
@@ -58,6 +59,7 @@ public:
     qint32 getRebill() const;
     qint32 getBillingPlanId() const;
     QString getPremiumExpireDate() const;
+    QString getLastResetDate() const;
     qint32 getStatus() const;
     qint64 getTrafficUsed() const;
     qint64 getTrafficMax() const;

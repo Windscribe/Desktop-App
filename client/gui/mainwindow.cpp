@@ -133,69 +133,67 @@ MainWindow::MainWindow() :
 
     multipleAccountDetection_ = QSharedPointer<IMultipleAccountDetection>(MultipleAccountDetectionFactory::create());
     freeTrafficNotificationController_ = new FreeTrafficNotificationController(this);
-    connect(freeTrafficNotificationController_, SIGNAL(freeTrafficNotification(QString)), SLOT(onFreeTrafficNotification(QString)));
+    connect(freeTrafficNotificationController_, &FreeTrafficNotificationController::freeTrafficNotification, this, &MainWindow::onFreeTrafficNotification);
 
     unsigned long guiPid = Utils::getCurrentPid();
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
 
-    connect(backend_, SIGNAL(initFinished(INIT_STATE)), SLOT(onBackendInitFinished(INIT_STATE)));
-    connect(backend_, SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));
-
-    connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
-    connect(backend_, &Backend::loginStepMessage, this, &MainWindow::onBackendLoginStepMessage);
-    connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
-
-    connect(backend_, SIGNAL(signOutFinished()), SLOT(onBackendSignOutFinished()));
-
-    connect(backend_, SIGNAL(sessionStatusChanged(types::SessionStatus)), SLOT(onBackendSessionStatusChanged(types::SessionStatus)));
-    connect(backend_, SIGNAL(checkUpdateChanged(types::CheckUpdate)), SLOT(onBackendCheckUpdateChanged(types::CheckUpdate)));
-    connect(backend_, SIGNAL(myIpChanged(QString, bool)), SLOT(onBackendMyIpChanged(QString, bool)));
-    connect(backend_, SIGNAL(connectStateChanged(types::ConnectState)), SLOT(onBackendConnectStateChanged(types::ConnectState)));
-    connect(backend_, SIGNAL(emergencyConnectStateChanged(types::ConnectState)), SLOT(onBackendEmergencyConnectStateChanged(types::ConnectState)));
-    connect(backend_, SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
-    connect(backend_, SIGNAL(confirmEmailResult(bool)), SLOT(onBackendConfirmEmailResult(bool)));
-    connect(backend_, SIGNAL(debugLogResult(bool)), SLOT(onBackendDebugLogResult(bool)));
-    connect(backend_, SIGNAL(networkChanged(types::NetworkInterface)), SLOT(onNetworkChanged(types::NetworkInterface)));
-    connect(backend_, SIGNAL(splitTunnelingStateChanged(bool)), SLOT(onSplitTunnelingStateChanged(bool)));
-    connect(backend_, SIGNAL(statisticsUpdated(quint64, quint64, bool)), SLOT(onBackendStatisticsUpdated(quint64, quint64, bool)));
-    connect(backend_, SIGNAL(requestCustomOvpnConfigCredentials()), SLOT(onBackendRequestCustomOvpnConfigCredentials()));
-    notificationsController_.connect(backend_,SIGNAL(notificationsChanged(QVector<types::Notification>)), SLOT(updateNotifications(QVector<types::Notification>)));
-
 #ifdef Q_OS_MAC
     WidgetUtils_mac::allowMinimizeForFramelessWindow(this);
 #endif
 
-    connect(backend_, SIGNAL(proxySharingInfoChanged(types::ProxySharingInfo)), SLOT(onBackendProxySharingInfoChanged(types::ProxySharingInfo)));
-    connect(backend_, SIGNAL(wifiSharingInfoChanged(types::WifiSharingInfo)), SLOT(onBackendWifiSharingInfoChanged(types::WifiSharingInfo)));
-    connect(backend_, SIGNAL(cleanupFinished()), SLOT(onBackendCleanupFinished()));
-    connect(backend_, SIGNAL(gotoCustomOvpnConfigModeFinished()), SLOT(onBackendGotoCustomOvpnConfigModeFinished()));
-    connect(backend_, SIGNAL(sessionDeleted()), SLOT(onBackendSessionDeleted()));
-    connect(backend_, SIGNAL(testTunnelResult(bool)), SLOT(onBackendTestTunnelResult(bool)));
-    connect(backend_, SIGNAL(lostConnectionToHelper()), SLOT(onBackendLostConnectionToHelper()));
-    connect(backend_, SIGNAL(highCpuUsage(QStringList)), SLOT(onBackendHighCpuUsage(QStringList)));
-    connect(backend_, SIGNAL(userWarning(USER_WARNING_TYPE)), SLOT(onBackendUserWarning(USER_WARNING_TYPE)));
-    connect(backend_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
-    connect(backend_, SIGNAL(protocolPortChanged(PROTOCOL, uint)), SLOT(onBackendProtocolPortChanged(PROTOCOL, uint)));
-    connect(backend_, SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
-    connect(backend_, SIGNAL(updateVersionChanged(uint, UPDATE_VERSION_STATE, UPDATE_VERSION_ERROR)),
-            SLOT(onBackendUpdateVersionChanged(uint, UPDATE_VERSION_STATE, UPDATE_VERSION_ERROR)));
-    connect(backend_, SIGNAL(webSessionTokenForEditAccountDetails(QString)), SLOT(onBackendWebSessionTokenForEditAccountDetails(QString)));
-    connect(backend_, SIGNAL(webSessionTokenForAddEmail(QString)), SLOT(onBackendWebSessionTokenForAddEmail(QString)));
-    connect(backend_, SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
-    connect(backend_, SIGNAL(locationsUpdated()), SLOT(onBackendLocationsUpdated()));
+    connect(backend_, &Backend::initFinished, this, &MainWindow::onBackendInitFinished);
+    connect(backend_, &Backend::initTooLong, this, &MainWindow::onBackendInitTooLong);
+    connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
+    connect(backend_, &Backend::loginStepMessage, this, &MainWindow::onBackendLoginStepMessage);
+    connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
+    connect(backend_, &Backend::signOutFinished, this, &MainWindow::onBackendSignOutFinished);
+    connect(backend_, &Backend::sessionStatusChanged, this, &MainWindow::onBackendSessionStatusChanged);
+    connect(backend_, &Backend::checkUpdateChanged, this, &MainWindow::onBackendCheckUpdateChanged);
+    connect(backend_, &Backend::myIpChanged, this, &MainWindow::onBackendMyIpChanged);
+    connect(backend_, &Backend::connectStateChanged, this, &MainWindow::onBackendConnectStateChanged);
+    connect(backend_, &Backend::emergencyConnectStateChanged, this, &MainWindow::onBackendEmergencyConnectStateChanged);
+    connect(backend_, &Backend::firewallStateChanged, this, &MainWindow::onBackendFirewallStateChanged);
+    connect(backend_, &Backend::confirmEmailResult, this, &MainWindow::onBackendConfirmEmailResult);
+    connect(backend_, &Backend::debugLogResult, this, &MainWindow::onBackendDebugLogResult);
+    connect(backend_, &Backend::networkChanged, this, &MainWindow::onNetworkChanged);
+    connect(backend_, &Backend::splitTunnelingStateChanged, this, &MainWindow::onSplitTunnelingStateChanged);
+    connect(backend_, &Backend::statisticsUpdated, this, &MainWindow::onBackendStatisticsUpdated);
+    connect(backend_, &Backend::requestCustomOvpnConfigCredentials, this, &MainWindow::onBackendRequestCustomOvpnConfigCredentials);
+    connect(backend_, &Backend::proxySharingInfoChanged, this, &MainWindow::onBackendProxySharingInfoChanged);
+    connect(backend_, &Backend::wifiSharingInfoChanged, this, &MainWindow::onBackendWifiSharingInfoChanged);
+    connect(backend_, &Backend::cleanupFinished, this, &MainWindow::onBackendCleanupFinished);
+    connect(backend_, &Backend::gotoCustomOvpnConfigModeFinished, this, &MainWindow::onBackendGotoCustomOvpnConfigModeFinished);
+    connect(backend_, &Backend::sessionDeleted, this, &MainWindow::onBackendSessionDeleted);
+    connect(backend_, &Backend::testTunnelResult, this, &MainWindow::onBackendTestTunnelResult);
+    connect(backend_, &Backend::lostConnectionToHelper, this, &MainWindow::onBackendLostConnectionToHelper);
+    connect(backend_, &Backend::highCpuUsage, this, &MainWindow::onBackendHighCpuUsage);
+    connect(backend_, &Backend::userWarning, this, &MainWindow::onBackendUserWarning);
+    connect(backend_, &Backend::internetConnectivityChanged, this, &MainWindow::onBackendInternetConnectivityChanged);
+    connect(backend_, &Backend::protocolPortChanged, this, &MainWindow::onBackendProtocolPortChanged);
+    connect(backend_, &Backend::packetSizeDetectionStateChanged, this, &MainWindow::onBackendPacketSizeDetectionStateChanged);
+    connect(backend_, &Backend::updateVersionChanged, this, &MainWindow::onBackendUpdateVersionChanged);
+    connect(backend_, &Backend::webSessionTokenForManageAccount, this, &MainWindow::onBackendWebSessionTokenForManageAccount);
+    connect(backend_, &Backend::webSessionTokenForAddEmail, this, &MainWindow::onBackendWebSessionTokenForAddEmail);
+    connect(backend_, &Backend::webSessionTokenForManageRobertRules, this, &MainWindow::onBackendWebSessionTokenForManageRobertRules);
+    connect(backend_, &Backend::engineCrash, this, &MainWindow::onBackendEngineCrash);
+    connect(backend_, &Backend::locationsUpdated, this, &MainWindow::onBackendLocationsUpdated);
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainWindow::onWireGuardAtKeyLimit);
+    connect(backend_, &Backend::robertFiltersChanged, this, &MainWindow::onBackendRobertFiltersChanged);
+    connect(backend_, &Backend::setRobertFilterResult, this, &MainWindow::onBackendSetRobertFilterResult);
+    notificationsController_.connect(backend_, &Backend::notificationsChanged, &notificationsController_, &NotificationsController::updateNotifications);
     connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
     locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
-    connect(locationsWindow_, SIGNAL(selected(LocationID)), SLOT(onLocationSelected(LocationID)));
-    connect(locationsWindow_, SIGNAL(clickedOnPremiumStarCity()), SLOT(onClickedOnPremiumStarCity()));
-    connect(locationsWindow_, SIGNAL(switchFavorite(LocationID,bool)), SLOT(onLocationSwitchFavorite(LocationID,bool)));
-    connect(locationsWindow_, SIGNAL(addStaticIpClicked()), SLOT(onLocationsAddStaticIpClicked()));
-    connect(locationsWindow_, SIGNAL(clearCustomConfigClicked()), SLOT(onLocationsClearCustomConfigClicked()));
-    connect(locationsWindow_, SIGNAL(addCustomConfigClicked()), SLOT(onLocationsAddCustomConfigClicked()));
+    connect(locationsWindow_, &LocationsWindow::selected, this, &MainWindow::onLocationSelected);
+    connect(locationsWindow_, &LocationsWindow::clickedOnPremiumStarCity, this, &MainWindow::onClickedOnPremiumStarCity);
+    connect(locationsWindow_, &LocationsWindow::switchFavorite, this, &MainWindow::onLocationSwitchFavorite);
+    connect(locationsWindow_, &LocationsWindow::addStaticIpClicked, this, &MainWindow::onLocationsAddStaticIpClicked);
+    connect(locationsWindow_, &LocationsWindow::clearCustomConfigClicked, this, &MainWindow::onLocationsClearCustomConfigClicked);
+    connect(locationsWindow_, &LocationsWindow::addCustomConfigClicked, this, &MainWindow::onLocationsAddCustomConfigClicked);
     locationsWindow_->setLatencyDisplay(backend_->getPreferences()->latencyDisplay());
-    locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(LATENCY_DISPLAY_TYPE)), SLOT(setLatencyDisplay(LATENCY_DISPLAY_TYPE)) );
+    locationsWindow_->connect(backend_->getPreferences(), &Preferences::latencyDisplayChanged, locationsWindow_, &LocationsWindow::setLatencyDisplay);
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
     connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainWindow::onAutoConnectUpdated);
@@ -213,13 +211,12 @@ MainWindow::MainWindow() :
     dynamic_cast<QObject*>(mainWindowController_->getConnectWindow())->connect(
         backend_->getLocationsModel(), SIGNAL(locationSpeedChanged(LocationID, PingTime)),
         SLOT(updateLocationSpeed(LocationID, PingTime)));
-    connect(&notificationsController_, SIGNAL(newPopupMessage(int)), SLOT(onNotificationControllerNewPopupMessage(int)));
+    connect(&notificationsController_, &NotificationsController::newPopupMessage, this, &MainWindow::onNotificationControllerNewPopupMessage);
 
-    connect(backend_->getLocationsModel(), SIGNAL(bestLocationChanged(LocationID)), SLOT(onBestLocationChanged(LocationID)));
+    connect(backend_->getLocationsModel(), &LocationsModel::bestLocationChanged, this, &MainWindow::onBestLocationChanged);
 
-    connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(escClick()), SLOT(onEscapeNotificationsClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(messageReaded(qint64)),
-            &notificationsController_, SLOT(setNotificationReaded(qint64)));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(messageRead(qint64)),
+            &notificationsController_, SLOT(setNotificationRead(qint64)));
     mainWindowController_->getNewsFeedWindow()->setMessages(
         notificationsController_.messages(), notificationsController_.shownIds());
 
@@ -253,13 +250,10 @@ MainWindow::MainWindow() :
 
     // news feed window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(escClick()), SLOT(onEscapeNotificationsClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(closeClick()), SLOT(onCloseClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(minimizeClick()), SLOT(onMinimizeClick()));
 
     // preferences window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(quitAppClick()), SLOT(onPreferencesQuitAppClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(escape()), SLOT(onPreferencesEscapeClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(helpClick()), SLOT(onPreferencesHelpClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(signOutClick()), SLOT(onPreferencesSignOutClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(loginClick()), SLOT(onPreferencesLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(viewLogClick()), SLOT(onPreferencesViewLogClick()));
@@ -267,11 +261,14 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(types::NetworkInterface)), SLOT(onCurrentNetworkUpdated(types::NetworkInterface)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(editAccountDetailsClick()), SLOT(onPreferencesEditAccountDetailsClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(manageAccountClick()), SLOT(onPreferencesManageAccountClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(addEmailButtonClick()), SLOT(onPreferencesAddEmailButtonClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(noAccountLoginClick()), SLOT(onPreferencesNoAccountLoginClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(manageRobertRulesClick()), SLOT(onPreferencesManageRobertRulesClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(accountLoginClick()), SLOT(onPreferencesAccountLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(cycleMacAddressClick()), SLOT(onPreferencesCycleMacAddressClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(detectAppropriatePacketSizeButtonClicked()), SLOT(onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(detectPacketSizeClick()), SLOT(onPreferencesWindowDetectPacketSizeClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(getRobertFilters()), SLOT(onPreferencesGetRobertFilters()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(setRobertFilter(types::RobertFilter)), SLOT(onPreferencesSetRobertFilter(types::RobertFilter)));
 #ifdef Q_OS_WIN
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(setIpv6StateInOS(bool, bool)), SLOT(onPreferencesSetIpv6StateInOS(bool, bool)));
 #endif
@@ -322,55 +319,53 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getExitWindow()), SIGNAL(acceptClick()), SLOT(onExitWindowAccept()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getExitWindow()), SIGNAL(rejectClick()), SLOT(onExitWindowReject()));
 
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(nativeInfoErrorMessage(QString,QString)), SLOT(onNativeInfoErrorMessage(QString, QString)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(splitTunnelingAppsAddButtonClick()), SLOT(onSplitTunnelingAppsAddButtonClick()));
 
-    connect(mainWindowController_, SIGNAL(sendServerRatingUp()), SLOT(onMainWindowControllerSendServerRatingUp()));
-    connect(mainWindowController_, SIGNAL(sendServerRatingDown()), SLOT(onMainWindowControllerSendServerRatingDown()));
-    connect(mainWindowController_, SIGNAL(preferencesCollapsed()), SLOT(onPreferencesCollapsed()));
+    connect(mainWindowController_, &MainWindowController::sendServerRatingUp, this, &MainWindow::onMainWindowControllerSendServerRatingUp);
+    connect(mainWindowController_, &MainWindowController::sendServerRatingDown, this, &MainWindow::onMainWindowControllerSendServerRatingDown);
+    connect(mainWindowController_, &MainWindowController::preferencesCollapsed, this, &MainWindow::onPreferencesCollapsed);
 
     // preferences changes signals
-    connect(backend_->getPreferences(), SIGNAL(firewallSettingsChanged(types::FirewallSettings)), SLOT(onPreferencesFirewallSettingsChanged(types::FirewallSettings)));
-    connect(backend_->getPreferences(), SIGNAL(shareProxyGatewayChanged(types::ShareProxyGateway)), SLOT(onPreferencesShareProxyGatewayChanged(types::ShareProxyGateway)));
-    connect(backend_->getPreferences(), SIGNAL(shareSecureHotspotChanged(types::ShareSecureHotspot)), SLOT(onPreferencesShareSecureHotspotChanged(types::ShareSecureHotspot)));
-    connect(backend_->getPreferences(), SIGNAL(locationOrderChanged(ORDER_LOCATION_TYPE)), SLOT(onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE)));
-    connect(backend_->getPreferences(), SIGNAL(splitTunnelingChanged(types::SplitTunneling)), SLOT(onPreferencesSplitTunnelingChanged(types::SplitTunneling)));
-    connect(backend_->getPreferences(), SIGNAL(updateEngineSettings()), SLOT(onPreferencesUpdateEngineSettings()));
-    connect(backend_->getPreferences(), SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onPreferencesLaunchOnStartupChanged(bool)));
-    connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(types::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(types::ConnectionSettings)));
-    connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
-    connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(UPDATE_CHANNEL)), SLOT(onPreferencesUpdateChannelChanged(UPDATE_CHANNEL)));
-    connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(onPreferencesCustomConfigsPathChanged(QString)));
-    connect(backend_->getPreferences(), SIGNAL(debugAdvancedParametersChanged(QString)), SLOT(onPreferencesdebugAdvancedParametersChanged(QString)));
-
-
-    connect(backend_->getPreferences(), SIGNAL(reportErrorToUser(QString,QString)), SLOT(onPreferencesReportErrorToUser(QString,QString)));
+    connect(backend_->getPreferences(), &Preferences::firewallSettingsChanged, this, &MainWindow::onPreferencesFirewallSettingsChanged);
+    connect(backend_->getPreferences(), &Preferences::shareProxyGatewayChanged, this, &MainWindow::onPreferencesShareProxyGatewayChanged);
+    connect(backend_->getPreferences(), &Preferences::shareSecureHotspotChanged, this, &MainWindow::onPreferencesShareSecureHotspotChanged);
+    connect(backend_->getPreferences(), &Preferences::locationOrderChanged, this, &MainWindow::onPreferencesLocationOrderChanged);
+    connect(backend_->getPreferences(), &Preferences::splitTunnelingChanged, this, &MainWindow::onPreferencesSplitTunnelingChanged);
+    connect(backend_->getPreferences(), &Preferences::updateEngineSettings, this, &MainWindow::onPreferencesUpdateEngineSettings);
+    connect(backend_->getPreferences(), &Preferences::isLaunchOnStartupChanged, this, &MainWindow::onPreferencesLaunchOnStartupChanged);
+    connect(backend_->getPreferences(), &Preferences::connectionSettingsChanged, this, &MainWindow::onPreferencesConnectionSettingsChanged);
+    connect(backend_->getPreferences(), &Preferences::isDockedToTrayChanged, this, &MainWindow::onPreferencesIsDockedToTrayChanged);
+    connect(backend_->getPreferences(), &Preferences::updateChannelChanged, this, &MainWindow::onPreferencesUpdateChannelChanged);
+    connect(backend_->getPreferences(), &Preferences::customConfigsPathChanged, this, &MainWindow::onPreferencesCustomConfigsPathChanged);
+    connect(backend_->getPreferences(), &Preferences::debugAdvancedParametersChanged, this, &MainWindow::onPreferencesdebugAdvancedParametersChanged);
+    connect(backend_->getPreferences(), &Preferences::reportErrorToUser, this, &MainWindow::onPreferencesReportErrorToUser);
 #ifdef Q_OS_MAC
-    connect(backend_->getPreferences(), SIGNAL(hideFromDockChanged(bool)), SLOT(onPreferencesHideFromDockChanged(bool)));
+    connect(backend_->getPreferences(), &Preferences::hideFromDockChanged, this, &MainWindow::onPreferencesHideFromDockChanged);
 #endif
 
     // WindscribeApplication signals
     WindscribeApplication * app = WindscribeApplication::instance();
-    connect(app, SIGNAL(clickOnDock()), SLOT(toggleVisibilityIfDocked()));
-    connect(app, SIGNAL(activateFromAnotherInstance()), SLOT(onAppActivateFromAnotherInstance()));
-    connect(app, SIGNAL(shouldTerminate_mac()), SLOT(onAppShouldTerminate_mac()));
-    connect(app, SIGNAL(focusWindowChanged(QWindow*)), SLOT(onFocusWindowChanged(QWindow*)));
-    connect(app, SIGNAL(applicationCloseRequest()), SLOT(onAppCloseRequest()));
+    connect(app, &WindscribeApplication::clickOnDock, this, &MainWindow::toggleVisibilityIfDocked);
+    connect(app, &WindscribeApplication::activateFromAnotherInstance, this, &MainWindow::onAppActivateFromAnotherInstance);
+    connect(app, &WindscribeApplication::shouldTerminate_mac, this, &MainWindow::onAppShouldTerminate_mac);
+    connect(app, &WindscribeApplication::focusWindowChanged, this, &MainWindow::onFocusWindowChanged);
+    connect(app, &WindscribeApplication::applicationCloseRequest, this, &MainWindow::onAppCloseRequest);
 #if defined(Q_OS_WIN)
-    connect(app, SIGNAL(winIniChanged()), SLOT(onAppWinIniChanged()));
+    connect(app, &WindscribeApplication::winIniChanged, this, &MainWindow::onAppWinIniChanged);
 #endif
-    /*connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged())); */
+    /*connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &MainWindow::onLanguageChanged); */
 
     mainWindowController_->getViewport()->installEventFilter(this);
     connect(mainWindowController_, SIGNAL(shadowUpdated()), SLOT(update()));
     connect(mainWindowController_, SIGNAL(revealConnectWindowStateChanged(bool)), this, SLOT(onRevealConnectStateChanged(bool)));
+    connect(mainWindowController_, &MainWindowController::revealConnectWindowStateChanged, this, &MainWindow::onRevealConnectStateChanged);
 
     setupTrayIcon();
 
     backend_->getLocationsModel()->setOrderLocationsType(backend_->getPreferences()->locationOrder());
 
-    connect(&DpiScaleManager::instance(), SIGNAL(scaleChanged(double)), SLOT(onScaleChanged()));
-    connect(&DpiScaleManager::instance(), SIGNAL(newScreen(QScreen*)), SLOT(onDpiScaleManagerNewScreen(QScreen*)));
+    connect(&DpiScaleManager::instance(), &DpiScaleManager::scaleChanged, this, &MainWindow::onScaleChanged);
+    connect(&DpiScaleManager::instance(), &DpiScaleManager::newScreen, this, &MainWindow::onDpiScaleManagerNewScreen);
 
     backend_->init();
 
@@ -390,7 +385,7 @@ MainWindow::MainWindow() :
     });
 #endif
     deactivationTimer_.setSingleShot(true);
-    connect(&deactivationTimer_, SIGNAL(timeout()), SLOT(onWindowDeactivateAndHideImpl()));
+    connect(&deactivationTimer_, &QTimer::timeout, this, &MainWindow::onWindowDeactivateAndHideImpl);
 
     QTimer::singleShot(0, this, SLOT(setWindowToDpiScaleManager()));
 }
@@ -489,13 +484,13 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     LaunchOnStartup::instance().setLaunchOnStartup(backend_->getPreferences()->isLaunchOnStartup());
 
     backend_->cleanup(WindscribeApplication::instance()->isExitWithRestart(), PersistentState::instance().isFirewallOn(),
-                      backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
+                      backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
                       backend_->getPreferences()->isLaunchOnStartup());
 
     // Backend handles setting firewall state after app closes
     // This block handles initializing the firewall state on next run
     if (PersistentState::instance().isFirewallOn()  &&
-        backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_AUTOMATIC)
+        backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC)
     {
         if (WindscribeApplication::instance()->isExitWithRestart())
         {
@@ -725,7 +720,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         {
             mainWindowController_->getNewsFeedWindow()->setMessages(
                 notificationsController_.messages(), notificationsController_.shownIds());
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_NOTIFICATIONS);
+            mainWindowController_->expandNewsFeed();
         }
         else if (event->key() == Qt::Key_V)
         {
@@ -990,7 +985,7 @@ void MainWindow::onLoginFirewallTurnOffClick()
 void MainWindow::onConnectWindowNetworkButtonClick()
 {
     mainWindowController_->expandPreferences();
-    mainWindowController_->getPreferencesWindow()->setCurrentTab(TAB_CONNECTION, CONNECTION_SCREEN_NETWORK_WHITELIST);
+    mainWindowController_->getPreferencesWindow()->setCurrentTab(TAB_CONNECTION, CONNECTION_SCREEN_NETWORK_OPTIONS);
 }
 
 void MainWindow::onConnectWindowLocationsClick()
@@ -1016,7 +1011,7 @@ void MainWindow::onConnectWindowNotificationsClick()
 {
     mainWindowController_->getNewsFeedWindow()->setMessages(
         notificationsController_.messages(), notificationsController_.shownIds());
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_NOTIFICATIONS);
+    mainWindowController_->expandNewsFeed();
 }
 
 void MainWindow::onConnectWindowSplitTunnelingClick()
@@ -1027,7 +1022,7 @@ void MainWindow::onConnectWindowSplitTunnelingClick()
 
 void MainWindow::onEscapeNotificationsClick()
 {
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+    mainWindowController_->collapseNewsFeed();
 }
 
 void MainWindow::onPreferencesEscapeClick()
@@ -1048,11 +1043,6 @@ void MainWindow::onPreferencesLoginClick()
 {
     collapsePreferences();
     backend_->sendEngineSettingsIfChanged();
-}
-
-void MainWindow::onPreferencesHelpClick()
-{
-    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void MainWindow::cleanupLogViewerWindow()
@@ -1113,9 +1103,9 @@ void MainWindow::onPreferencesSendDebugLogClick()
     backend_->sendDebugLog();
 }
 
-void MainWindow::onPreferencesEditAccountDetailsClick()
+void MainWindow::onPreferencesManageAccountClick()
 {
-    backend_->getWebSessionTokenForEditAccountDetails();
+    backend_->getWebSessionTokenForManageAccount();
 }
 
 void MainWindow::onPreferencesAddEmailButtonClick()
@@ -1123,12 +1113,17 @@ void MainWindow::onPreferencesAddEmailButtonClick()
     backend_->getWebSessionTokenForAddEmail();
 }
 
+void MainWindow::onPreferencesManageRobertRulesClick()
+{
+    backend_->getWebSessionTokenForManageRobertRules();
+}
+
 void MainWindow::onPreferencesQuitAppClick()
 {
     gotoExitWindow();
 }
 
-void MainWindow::onPreferencesNoAccountLoginClick()
+void MainWindow::onPreferencesAccountLoginClick()
 {
     collapsePreferences();
     mainWindowController_->getLoginWindow()->resetState();
@@ -1163,7 +1158,7 @@ void MainWindow::onPreferencesCycleMacAddressClick()
     }
 }
 
-void MainWindow::onPreferencesWindowDetectAppropriatePacketSizeButtonClicked()
+void MainWindow::onPreferencesWindowDetectPacketSizeClick()
 {
     if (!backend_->isDisconnected())
     {
@@ -1201,8 +1196,8 @@ void MainWindow::onPreferencesAdvancedParametersClicked()
 
     advParametersWindow_ = new AdvancedParametersDialog(this);
     advParametersWindow_->setAdvancedParameters(backend_->getPreferences()->debugAdvancedParameters());
-    connect(advParametersWindow_, SIGNAL(okClick()), SLOT(onAdvancedParametersOkClick()));
-    connect(advParametersWindow_, SIGNAL(cancelClick()), SLOT(onAdvancedParametersCancelClick()));
+    connect(advParametersWindow_, &AdvancedParametersDialog::okClick, this, &MainWindow::onAdvancedParametersOkClick);
+    connect(advParametersWindow_, &AdvancedParametersDialog::cancelClick, this, &MainWindow::onAdvancedParametersCancelClick);
     advParametersWindow_->show();
 }
 
@@ -1301,7 +1296,7 @@ void MainWindow::onBottomWindowExternalConfigLoginClick()
 void MainWindow::onBottomWindowSharingFeaturesClick()
 {
     onConnectWindowPreferencesClick();
-    mainWindowController_->getPreferencesWindow()->setCurrentTab(TAB_SHARE);
+    mainWindowController_->getPreferencesWindow()->setCurrentTab(TAB_CONNECTION);
 }
 
 void MainWindow::onUpdateAppItemClick()
@@ -1578,7 +1573,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
     mainWindowController_->getTwoFactorAuthWindow()->clearCurrentCredentials();
 
-    if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
+    if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON)
     {
         backend_->firewallOn();
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
@@ -2024,7 +2019,7 @@ void MainWindow::onNetworkChanged(types::NetworkInterface network)
 {
     qCDebug(LOG_BASIC) << "Network Changed: "
                        << "Index: " << network.interfaceIndex
-                       << ", Network/SSID: " << network.networkOrSSid
+                       << ", Network/SSID: " << network.networkOrSsid
                        << ", MAC: " << network.physicalAddress
                        << ", device name: " << network.deviceName
                        << " friendly: " << network.friendlyName;
@@ -2091,7 +2086,7 @@ void MainWindow::onBackendCleanupFinished()
 
 void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
 {
-    if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
+    if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON)
     {
         backend_->firewallOn();
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
@@ -2135,7 +2130,7 @@ void MainWindow::onBackendConfirmEmailResult(bool bSuccess)
 
 void MainWindow::onBackendDebugLogResult(bool bSuccess)
 {
-    mainWindowController_->getPreferencesWindow()->setDebugLogResult(bSuccess);
+    mainWindowController_->getPreferencesWindow()->setSendLogResult(bSuccess);
 }
 
 void MainWindow::onBackendStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
@@ -2317,6 +2312,36 @@ void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on, bool isError)
     }
 }
 
+void MainWindow::onPreferencesGetRobertFilters()
+{
+    qCDebug(LOG_USER) << "Requesting ROBERT filters from server";
+    backend_->getRobertFilters();
+}
+
+void MainWindow::onBackendRobertFiltersChanged(bool success, const QVector<types::RobertFilter> &filters)
+{
+    qCDebug(LOG_USER) << "Get ROBERT filters response: " << success;
+    if (success)
+    {
+        mainWindowController_->getPreferencesWindow()->setRobertFilters(filters);
+    }
+    else
+    {
+        mainWindowController_->getPreferencesWindow()->setRobertFiltersError();
+    }
+}
+
+void MainWindow::onPreferencesSetRobertFilter(const types::RobertFilter &filter)
+{
+    qCDebug(LOG_USER) << "Set ROBERT filter: " << filter.id << ", " << filter.status;
+    backend_->setRobertFilter(filter);
+}
+
+void MainWindow::onBackendSetRobertFilterResult(bool success)
+{
+    qCDebug(LOG_BASIC) << "Set ROBERT filter response:" << success;
+}
+
 void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error)
 {
     // qDebug() << "Mainwindow::onBackendUpdateVersionChanged: " << progressPercent << ", " << state;
@@ -2428,11 +2453,10 @@ void MainWindow::openBrowserToMyAccountWithToken(const QString &tempSessionToken
     QString getUrl = QString("https://%1/myaccount?temp_session=%2")
                         .arg(HardcodedSettings::instance().serverUrl())
                         .arg(tempSessionToken);
-    // qCDebug(LOG_BASIC) << "Opening external link: " << getUrl;
     QDesktopServices::openUrl(QUrl(getUrl));
 }
 
-void MainWindow::onBackendWebSessionTokenForEditAccountDetails(const QString &tempSessionToken)
+void MainWindow::onBackendWebSessionTokenForManageAccount(const QString &tempSessionToken)
 {
     openBrowserToMyAccountWithToken(tempSessionToken);
 }
@@ -2440,6 +2464,14 @@ void MainWindow::onBackendWebSessionTokenForEditAccountDetails(const QString &te
 void MainWindow::onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken)
 {
     openBrowserToMyAccountWithToken(tempSessionToken);
+}
+
+void MainWindow::onBackendWebSessionTokenForManageRobertRules(const QString &tempSessionToken)
+{
+    QString getUrl = QString("https://%1/myaccount?temp_session=%2#robertrules")
+                        .arg(HardcodedSettings::instance().serverUrl())
+                        .arg(tempSessionToken);
+    QDesktopServices::openUrl(QUrl(getUrl));
 }
 
 void MainWindow::onBackendEngineCrash()
@@ -2468,7 +2500,7 @@ void MainWindow::onNotificationControllerNewPopupMessage(int messageId)
 {
     mainWindowController_->getNewsFeedWindow()->setMessagesWithCurrentOverride(
         notificationsController_.messages(), notificationsController_.shownIds(), messageId);
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_NOTIFICATIONS);
+    mainWindowController_->expandNewsFeed();
 }
 
 void MainWindow::onBestLocationChanged(const LocationID &bestLocation)
@@ -3326,7 +3358,7 @@ void MainWindow::setupTrayIcon()
     updateTrayTooltip(tr("Disconnected") + "\n" + PersistentState::instance().lastExternalIp());
 
     trayIcon_.setContextMenu(&trayMenu_);
-    connect(&trayMenu_, SIGNAL(aboutToShow()), SLOT(onTrayMenuAboutToShow()));
+    connect(&trayMenu_, &QMenu::aboutToShow, this, &MainWindow::onTrayMenuAboutToShow);
 
 #ifndef Q_OS_LINUX
     const QString kLocationTrayMenuNames[] = {
@@ -3341,8 +3373,7 @@ void MainWindow::setupTrayIcon()
 #if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
         locationsMenu_[i].setMenuType(static_cast<LocationsTrayMenuType>(i));
         locationsMenu_[i].setLocationsModel(backend_->getLocationsModel());
-        connect(&locationsMenu_[i], SIGNAL(locationSelected(int, QString, int)),
-            SLOT(onLocationsTrayMenuLocationSelected(int, QString, int)));
+        connect(&locationsMenu_[i], &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
 #else  // USE_LOCATIONS_TRAY_MENU_NATIVE
         locationsTrayMenuWidget_[i] = new LocationsTrayMenuWidget(
             static_cast<LocationsTrayMenuType>(i), &locationsMenu_[i]);
@@ -3350,8 +3381,7 @@ void MainWindow::setupTrayIcon()
         listWidgetAction_[i] = new QWidgetAction(&locationsMenu_[i]);
         listWidgetAction_[i]->setDefaultWidget(locationsTrayMenuWidget_[i]);
         locationsMenu_[i].addAction(listWidgetAction_[i]);
-        connect(locationsTrayMenuWidget_[i], SIGNAL(locationSelected(int, QString, int)),
-            SLOT(onLocationsTrayMenuLocationSelected(int, QString, int)));
+        connect(locationsTrayMenuWidget_[i], &LocationsTrayMenuWidget::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
 #endif  // USE_LOCATIONS_TRAY_MENU_NATIVE
     }
 
@@ -3361,8 +3391,7 @@ void MainWindow::setupTrayIcon()
     updateTrayIconType(AppIconType::DISCONNECTED);
     trayIcon_.show();
 
-    connect(&trayIcon_, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-            SLOT( onTrayActivated(QSystemTrayIcon::ActivationReason) ));
+    connect(&trayIcon_, &QSystemTrayIcon::activated, this, &MainWindow::onTrayActivated);
 }
 
 QString MainWindow::getConnectionTime()
@@ -3398,14 +3427,14 @@ void MainWindow::setInitialFirewallState()
     if (bFirewallStateOn)
     {
         backend_->firewallOn();
-        if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
+        if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON)
         {
             mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
         }
     }
     else
     {
-        if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
+        if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON)
         {
             backend_->firewallOn();
             mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);

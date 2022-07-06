@@ -867,9 +867,9 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		splitTunnelling.setConnectStatus(cmdConnectStatus);
 		g_SplitTunnelingPars.isVpnConnected = cmdConnectStatus.isConnected;
 	}
-	else if (cmdId == AA_COMMAND_DNS_WHILE_CONNECTED)
+	else if (cmdId == AA_COMMAND_CONNECTED_DNS)
 	{
-		CMD_DNS_WHILE_CONNECTED cmdDnsWhileConnected;
+		CMD_CONNECTED_DNS cmdDnsWhileConnected;
 		ia >> cmdDnsWhileConnected;
 
 		wchar_t szBuf[1024];
@@ -880,7 +880,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		mpr = ExecuteCmd::instance().executeBlockingCmd(szBuf);
 
 		wchar_t logBuf[1024];
-		wcscpy(logBuf, L"AA_COMMAND_DNS_WHILE_CONNECTED: ");
+		wcscpy(logBuf, L"AA_COMMAND_CONNECTED_DNS: ");
 		wcscat(logBuf, szBuf);
 		wcscat(logBuf, L" ");
 		wcscat(logBuf, mpr.success ? L"Success" : L"Failure");

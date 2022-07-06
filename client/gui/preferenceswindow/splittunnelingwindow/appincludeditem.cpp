@@ -3,28 +3,23 @@
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "preferenceswindow/preferencesconst.h"
 #include "utils/widgetutils.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
-AppIncludedItem::AppIncludedItem(types::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent) : BaseItem (parent, 50)
-    , appIcon_(iconPath), app_(app)
+AppIncludedItem::AppIncludedItem(types::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), appIcon_(iconPath), app_(app)
 {
-    deleteButton_ = new IconButton(16, 16, "preferences/DELETE_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
+    setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
+
+    deleteButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/DELETE_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
     deleteButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     deleteButton_->setHoverOpacity(OPACITY_FULL);
-    connect(deleteButton_, SIGNAL(clicked()), SIGNAL(deleteClicked()));
-    connect(deleteButton_, SIGNAL(hoverEnter()), SLOT(onDeleteButtonHoverEnter()));
-    connect(deleteButton_, SIGNAL(hoverLeave()), SIGNAL(hoverLeave()));
+    connect(deleteButton_, &IconButton::clicked, this, &AppIncludedItem::deleteClicked);
 
-    line_ = new DividerLine(this, 276);
     updatePositions();
-}
-
-AppIncludedItem::~AppIncludedItem()
-{
-    delete line_;
 }
 
 void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -37,29 +32,27 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     // app icon
     painter->save();
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(appIcon_);
-    if (p)
+    if (!p)
     {
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-        int size = 18*G_SCALE;
-#elif defined Q_OS_MAC
-        int size = p->originalPixmapSize().width();
-#endif
-        QPixmap drawingPixmap = p->getScaledPixmap(size, size);
-        painter->drawPixmap(16*G_SCALE, 12*G_SCALE, drawingPixmap);
+        p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
     }
-    else
-    {
-        QSharedPointer<IndependentPixmap> ip = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
-        ip->draw(16*G_SCALE, 12*G_SCALE, painter);
-    }
+    p->draw(PREFERENCES_MARGIN*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE, painter);
     painter->restore();
 
     // app name
     painter->setOpacity(OPACITY_FULL * initOpacity);
     painter->setPen(Qt::white);
-    painter->setFont(*FontManager::instance().getFont(12, false));
-    QRect textRect(40*G_SCALE, 13*G_SCALE, 200*G_SCALE, 50*G_SCALE);
-    painter->drawText(textRect, app_.name);
+    QFont *font = FontManager::instance().getFont(12, false);
+    painter->setFont(*font);
+    QFontMetrics fm(*font);
+    QString elidedName = fm.elidedText(app_.name,
+                                       Qt::TextElideMode::ElideRight,
+                                       boundingRect().width() - (3*PREFERENCES_MARGIN + APP_ICON_MARGIN_X + APP_ICON_WIDTH + ICON_WIDTH)*G_SCALE);
+    painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN + APP_ICON_WIDTH + APP_ICON_MARGIN_X)*G_SCALE,
+                                              PREFERENCES_MARGIN*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
+                                              -PREFERENCES_MARGIN*G_SCALE),
+                      elidedName);
 }
 
 QString AppIncludedItem::getName()
@@ -82,23 +75,18 @@ void AppIncludedItem::setSelected(bool selected)
 void AppIncludedItem::updateScaling()
 {
     BaseItem::updateScaling();
-    setHeight(50*G_SCALE);
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
     updatePositions();
-}
-
-void AppIncludedItem::onDeleteButtonHoverEnter()
-{
-    if (!selected_)
-    {
-        selected_ = true;
-        emit selectionChanged(true);
-    }
 }
 
 void AppIncludedItem::updatePositions()
 {
-    deleteButton_->setPos(boundingRect().width() - 32*G_SCALE, 50/2*G_SCALE - 14*G_SCALE);
-    line_->setPos(24*G_SCALE, 43*G_SCALE);
+    deleteButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
+}
+
+void AppIncludedItem::setClickable(bool clickable)
+{
+    deleteButton_->setClickable(clickable);
 }
 
 }

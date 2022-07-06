@@ -1,4 +1,5 @@
 #include "independentpixmap.h"
+#include <QGraphicsPixmapItem>
 #include <QIcon>
 #include <QPixmap>
 
@@ -32,6 +33,14 @@ void IndependentPixmap::draw(int x, int y, QPainter *painter)
 
 void IndependentPixmap::draw(int x, int y, int w, int h, QPainter *painter)
 {
+    painter->drawPixmap(x, y, w, h, pixmap_);
+}
+
+void IndependentPixmap::draw(int x, int y, int w, int h, QPainter *painter, QColor color)
+{
+    QPainter p(&pixmap_);
+    p.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    p.fillRect(pixmap_.rect(), color);
     painter->drawPixmap(x, y, w, h, pixmap_);
 }
 

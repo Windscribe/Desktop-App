@@ -1,17 +1,18 @@
 #ifndef GENERALWINDOWITEM_H
 #define GENERALWINDOWITEM_H
 
-#include "../basepage.h"
-#include "../checkboxitem.h"
-#include "../comboboxitem.h"
-#include "versioninfoitem.h"
-#include "backgroundsettingsitem.h"
+#include "commongraphics/basepage.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/preferences.h"
+#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/comboboxitem.h"
+#include "preferenceswindow/preferencegroup.h"
+#include "backgroundsettingsgroup.h"
+#include "versioninfoitem.h"
 
 namespace PreferencesWindow {
 
-class GeneralWindowItem : public BasePage
+class GeneralWindowItem : public CommonGraphics::BasePage
 {
     Q_OBJECT
 public:
@@ -76,25 +77,38 @@ protected:
 private:
     Preferences *preferences_;
 
+    PreferenceGroup *launchOnStartGroup_;
     CheckBoxItem *checkBoxLaunchOnStart_;
+    PreferenceGroup *autoConnectGroup_;
     CheckBoxItem *checkBoxAutoConnect_;
+    PreferenceGroup *showNotificationsGroup_;
     CheckBoxItem *checkBoxShowNotifications_;
-    BackgroundSettingsItem *backgroundSettingsItem_;
+    BackgroundSettingsGroup *backgroundSettingsGroup_;
+    PreferenceGroup *dockedGroup_;
     CheckBoxItem *checkBoxDockedToTray_;
+    PreferenceGroup *startMinimizedGroup_;
     CheckBoxItem *checkBoxStartMinimized_;
+    PreferenceGroup *showLocationLoadGroup_;
     CheckBoxItem *checkBoxShowLocationLoad_;
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    PreferenceGroup *closeToTrayGroup_;
     CheckBoxItem *checkBoxMinimizeAndCloseToTray_;
 #elif defined Q_OS_MAC
+    PreferenceGroup *hideFromDockGroup_;
     CheckBoxItem *checkBoxHideFromDock_;
 #endif
 
+    PreferenceGroup *languageGroup_;
     ComboBoxItem *comboBoxLanguage_;
+    PreferenceGroup *locationOrderGroup_;
     ComboBoxItem *comboBoxLocationOrder_;
+    PreferenceGroup *latencyDisplayGroup_;
     ComboBoxItem *comboBoxLatencyDisplay_;
+    PreferenceGroup *updateChannelGroup_;
     ComboBoxItem *comboBoxUpdateChannel_;
 
+    PreferenceGroup *versionGroup_;
     VersionInfoItem *versionInfoItem_;
 };
 

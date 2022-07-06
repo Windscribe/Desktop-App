@@ -1,4 +1,4 @@
-#include "hardcodedsettings.h"
+#include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "version/appversion.h"

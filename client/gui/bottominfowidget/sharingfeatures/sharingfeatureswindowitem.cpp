@@ -27,8 +27,8 @@ SharingFeaturesWindowItem::SharingFeaturesWindowItem(ScalableGraphicsObject *par
     connect(hotspotFeature_, SIGNAL(clicked()), SIGNAL(clickedHotSpot()));
     connect(proxyFeature_, SIGNAL(clicked()), SIGNAL(clickedProxy()));
 
-    dividerLine_ = new PreferencesWindow::DividerLine(this, WIDTH);
-    dividerLine2_ = new PreferencesWindow::DividerLine(this, WIDTH);
+    dividerLine_ = new PreferencesWindow::DividerLine(this);
+    dividerLine2_ = new PreferencesWindow::DividerLine(this);
     updateScaling();
 }
 

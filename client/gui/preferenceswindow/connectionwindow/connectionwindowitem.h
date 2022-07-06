@@ -1,25 +1,28 @@
 #ifndef CONNECTIONWINDOWITEM_H
 #define CONNECTIONWINDOWITEM_H
 
-#include "../basepage.h"
-#include "subpageitem.h"
+#include "preferenceswindow/preferencegroup.h"
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
-#include "firewallmodeitem.h"
-#include "connectionmodeitem.h"
-#include "packetsizeitem.h"
-#include "../checkboxitem.h"
-#include "macspoofingitem.h"
-#include "dnswhileconnecteditem.h"
+#include "commongraphics/basepage.h"
+#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/linkitem.h"
+#include "preferenceswindow/protocolgroup.h"
+#include "connecteddnsgroup.h"
+#include "firewallgroup.h"
+#include "macspoofinggroup.h"
+#include "packetsizegroup.h"
+#include "proxygatewaygroup.h"
+#include "securehotspotgroup.h"
 
 enum CONNECTION_SCREEN_TYPE { CONNECTION_SCREEN_HOME,
-                              CONNECTION_SCREEN_NETWORK_WHITELIST,
+                              CONNECTION_SCREEN_NETWORK_OPTIONS,
                               CONNECTION_SCREEN_SPLIT_TUNNELING,
                               CONNECTION_SCREEN_PROXY_SETTINGS };
 
 namespace PreferencesWindow {
 
-class ConnectionWindowItem : public BasePage
+class ConnectionWindowItem : public CommonGraphics::BasePage
 {
     Q_OBJECT
 public:
@@ -35,39 +38,42 @@ public:
     void showPacketSizeDetectionError(const QString &title, const QString &message);
 
 signals:
-    void networkWhitelistPageClick();
+    void networkOptionsPageClick();
     void splitTunnelingPageClick();
     void proxySettingsPageClick();
     void cycleMacAddressClick();
-    void detectAppropriatePacketSizeButtonClicked();
+    void detectPacketSize();
 
 private slots:
-    void onFirewallModeChanged(const types::FirewallSettings &fm);
-    void onFirewallModeHoverEnter();
-    void onFirewallModeHoverLeave();
-    void onConnectionModeChanged(const types::ConnectionSettings &cm);
-    void onConnectionModeHoverEnter(ConnectionModeItem::ButtonType type);
-    void onConnectionModeHoverLeave(ConnectionModeItem::ButtonType type);
-    void onPacketSizeChanged(const types::PacketSize &ps);
-    void onMacAddrSpoofingChanged(const types::MacAddrSpoofing &mas);
-    void onIsAllowLanTrafficClicked(bool b);
-    void onAllowLanTrafficButtonHoverLeave();
-    void onDnsWhileConnectedItemChanged(types::DnsWhileConnectedInfo dns);
-
-    void onFirewallModePreferencesChanged(const types::FirewallSettings &fm);
+    // slots for preference changes
+    void onSplitTunnelingPreferencesChanged(const types::SplitTunneling &st);
+    void onFirewallPreferencesChanged(const types::FirewallSettings &fm);
     void onConnectionModePreferencesChanged(const types::ConnectionSettings &cm);
     void onPacketSizePreferencesChanged(const types::PacketSize &ps);
     void onMacAddrSpoofingPreferencesChanged(const types::MacAddrSpoofing &mas);
-    void onIsAllowLanTrafficPreferencedChanged(bool b);
+    void onIsAllowLanTrafficPreferencesChanged(bool b);
+    void onAllowLanTrafficButtonHoverLeave();
+    void onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns);
+    void onSecureHotspotPreferencesChanged(const types::ShareSecureHotspot &ss);
+    void onConnectionSettingsPreferencesChanged(const types::ConnectionSettings &cs);
+    void onProxyGatewayAddressChanged(const QString &address);
+    void onProxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp);
+    void onPreferencesHelperWifiSharingSupportedChanged(bool bSupported);
     void onInvalidLanAddressNotification(QString address);
     void onIsFirewallBlockedChanged(bool bFirewallBlocked);
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    void onKillTcpSocketsPreferencesChanged(bool b);
-    void onKillTcpSocketsStateChanged(bool isChecked);
-#endif
+    void onTerminateSocketsPreferencesChanged(bool b);
 
-    void onDnsWhileConnectedPreferencesChanged(const types::DnsWhileConnectedInfo &dns);
+    // slots for changes made by user
+    void onFirewallPreferencesChangedByUser(const types::FirewallSettings &fm);
+    void onConnectionModePreferencesChangedByUser(const types::ConnectionSettings &cm);
+    void onPacketSizePreferencesChangedByUser(const types::PacketSize &ps);
+    void onMacAddrSpoofingPreferencesChangedByUser(const types::MacAddrSpoofing &mas);
+    void onConnectedDnsPreferencesChangedByUser(const types::ConnectedDnsInfo &dns);
+    void onIsAllowLanTrafficPreferencesChangedByUser(bool b);
+    void onSecureHotspotPreferencesChangedByUser(const types::ShareSecureHotspot &ss);
+    void onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp);
+    void onTerminateSocketsPreferencesChangedByUser(bool isChecked);
 
     void onLanguageChanged();
 
@@ -75,20 +81,27 @@ protected:
     void hideOpenPopups() override;
 
 private:
-    Preferences *preferences_{ nullptr };
-    PreferencesHelper *preferencesHelper_{ nullptr };
-    SubPageItem *networkWhitelistItem_{ nullptr };
-    SubPageItem *splitTunnelingItem_{ nullptr };
-    SubPageItem *proxySettingsItem_{ nullptr };
-    FirewallModeItem *firewallModeItem_{ nullptr };
-    ConnectionModeItem *connectionModeItem_{ nullptr };
-    PacketSizeItem *packetSizeItem_{ nullptr };
-    MacSpoofingItem *macSpoofingItem_{ nullptr };
-    CheckBoxItem *checkBoxAllowLanTraffic_{ nullptr };
-    DnsWhileConnectedItem *dnsWhileConnectedItem_{ nullptr };
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    CheckBoxItem *cbKillTcp_;
-#endif
+    Preferences *preferences_;
+    PreferencesHelper *preferencesHelper_;
+    PreferenceGroup *subpagesGroup_;
+    LinkItem *networkOptionsItem_;
+    LinkItem *splitTunnelingItem_;
+    LinkItem *proxySettingsItem_;
+    FirewallGroup *firewallGroup_;
+    ProtocolGroup *connectionModeGroup_;
+    PacketSizeGroup *packetSizeGroup_;
+    MacSpoofingGroup *macSpoofingGroup_;
+    PreferenceGroup *allowLanTrafficGroup_;
+    CheckBoxItem *checkBoxAllowLanTraffic_;
+    ConnectedDnsGroup *connectedDnsGroup_;
+    PreferenceGroup *terminateSocketsGroup_;
+    CheckBoxItem *terminateSocketsItem_;
+    SecureHotspotGroup *secureHotspotGroup_;
+    ProxyGatewayGroup *proxyGatewayGroup_;
+
+    bool isWifiSharingSupported_;
+    bool isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const;
+    void updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic);
 
     CONNECTION_SCREEN_TYPE currentScreen_;
 };

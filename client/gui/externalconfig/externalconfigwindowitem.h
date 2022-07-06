@@ -5,9 +5,9 @@
 #include <QVariantAnimation>
 #include "../backend/backend.h"
 #include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
 #include "externalconfig/iexternalconfigwindow.h"
-#include "preferenceswindow/escapebutton.h"
 
 namespace ExternalConfigWindow {
 
@@ -48,7 +48,7 @@ private slots:
     void onDockedModeChanged(bool bIsDockedToTray);
 
 private:
-    PreferencesWindow::EscapeButton *escButton_;
+    CommonGraphics::EscapeButton *escButton_;
     CommonGraphics::BubbleButtonDark *okButton_;
 
     IconButton *closeButton_;

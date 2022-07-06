@@ -89,7 +89,7 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
     out.d->language = es->language;
     if (es->has_update_channel) out.d->updateChannel = (UPDATE_CHANNEL)es->update_channel;
     if (es->has_is_ignore_ssl_errors) out.d->isIgnoreSslErrors = es->is_ignore_ssl_errors;
-    if (es->has_is_close_tcp_sockets) out.d->isCloseTcpSockets = es->is_close_tcp_sockets;
+    if (es->has_is_close_tcp_sockets) out.d->isTerminateSockets = es->is_close_tcp_sockets;
     if (es->has_is_allow_lan_traffic) out.d->isAllowLanTraffic = es->is_allow_lan_traffic;
 
     if (es->firewall_settings)
@@ -141,7 +141,7 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
             }
             out.d->macAddrSpoofing.selectedNetworkInterface.interfaceName = es->mac_addr_spoofing->selected_network_interface->interface_name;
             out.d->macAddrSpoofing.selectedNetworkInterface.interfaceGuid = es->mac_addr_spoofing->selected_network_interface->interface_guid;
-            out.d->macAddrSpoofing.selectedNetworkInterface.networkOrSSid = es->mac_addr_spoofing->selected_network_interface->network_or_ssid;
+            out.d->macAddrSpoofing.selectedNetworkInterface.networkOrSsid = es->mac_addr_spoofing->selected_network_interface->network_or_ssid;
             if (es->mac_addr_spoofing->selected_network_interface->has_interface_type) {
                 out.d->macAddrSpoofing.selectedNetworkInterface.interfaceType = (NETWORK_INTERACE_TYPE)es->mac_addr_spoofing->selected_network_interface->interface_type;
             }
@@ -190,7 +190,7 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
                 }
                 networkInterface.interfaceName = ni->interface_name;
                 networkInterface.interfaceGuid = ni->interface_guid;
-                networkInterface.networkOrSSid = ni->network_or_ssid;
+                networkInterface.networkOrSsid = ni->network_or_ssid;
                 if (ni->has_interface_type) {
                     networkInterface.interfaceType = (NETWORK_INTERACE_TYPE)ni->interface_type;
                 }
@@ -237,8 +237,8 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
 
     if (es->dns_while_connected_info)
     {
-        if (es->dns_while_connected_info->has_type) out.d->dnsWhileConnectedInfo.setType((DNS_WHILE_CONNECTED_TYPE)es->dns_while_connected_info->type);
-        out.d->dnsWhileConnectedInfo.setIpAddress(es->dns_while_connected_info->ip_address);
+        if (es->dns_while_connected_info->has_type) out.d->connectedDnsInfo.setType((CONNECTED_DNS_TYPE)es->dns_while_connected_info->type);
+        out.d->connectedDnsInfo.setIpAddress(es->dns_while_connected_info->ip_address);
     }
 
     if (es->has_dns_manager) out.d->dnsManager = (DNS_MANAGER_TYPE)es->dns_manager;
@@ -277,7 +277,7 @@ bool LegacyProtobufSupport::loadGuiPersistentState(const QByteArray &arr, types:
                 }
                 networkInterface.interfaceName = ni->interface_name;
                 networkInterface.interfaceGuid = ni->interface_guid;
-                networkInterface.networkOrSSid = ni->network_or_ssid;
+                networkInterface.networkOrSsid = ni->network_or_ssid;
                 if (ni->has_interface_type) {
                     networkInterface.interfaceType = (NETWORK_INTERACE_TYPE)ni->interface_type;
                 }

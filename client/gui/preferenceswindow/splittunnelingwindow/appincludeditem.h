@@ -1,20 +1,18 @@
 #ifndef APPINCLUDEDITEM_H
 #define APPINCLUDEDITEM_H
 
-#include "../baseitem.h"
-#include "../dividerline.h"
+#include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
 #include "commongraphics/iconbutton.h"
 #include "types/splittunneling.h"
 
 namespace PreferencesWindow {
 
-class AppIncludedItem : public BaseItem
+class AppIncludedItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
     explicit AppIncludedItem(types::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent);
-    ~AppIncludedItem();
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
 
     QString getName();
@@ -23,18 +21,16 @@ public:
     void setSelected(bool selected) override;
     void updateScaling() override;
 
-signals:
-    void deleteClicked();
+    void setClickable(bool clickable) override;
 
-private slots:
-    void onDeleteButtonHoverEnter();
+signals:
+    void selectionChanged(bool selected);
+    void deleteClicked();
 
 private:
     QString appIcon_;
     types::SplitTunnelingApp app_;
     IconButton *deleteButton_;
-
-    DividerLine *line_;
 
     void updatePositions();
 };

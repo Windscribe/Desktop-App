@@ -2,7 +2,7 @@
 #define PREFERENCES_H
 
 #include <QObject>
-#include "types/dnswhileconnectedinfo.h"
+#include "types/connecteddnsinfo.h"
 #include "types/enginesettings.h"
 #include "types/guisettings.h"
 
@@ -60,7 +60,10 @@ public:
     const types::ProxySettings &proxySettings() const;
     void setProxySettings(const types::ProxySettings &ps);
 
-    const types::FirewallSettings &firewalSettings() const;
+    bool isAutoSecureNetworks();
+    void setAutoSecureNetworks(bool b);
+
+    const types::FirewallSettings &firewallSettings() const;
     void setFirewallSettings(const types::FirewallSettings &fs);
 
     const types::ConnectionSettings &connectionSettings() const;
@@ -79,8 +82,8 @@ public:
     void setIgnoreSslErrors(bool b);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    bool isKillTcpSockets() const;
-    void setKillTcpSockets(bool b);
+    bool isTerminateSockets() const;
+    void setTerminateSockets(bool b);
 #endif
 
     const types::ShareSecureHotspot &shareSecureHotspot() const;
@@ -104,9 +107,8 @@ public:
     void setDnsManager(DNS_MANAGER_TYPE d);
 #endif
 
-
-    types::DnsWhileConnectedInfo dnsWhileConnectedInfo() const;
-    void setDnsWhileConnectedInfo(types::DnsWhileConnectedInfo d);
+    types::ConnectedDnsInfo connectedDnsInfo() const;
+    void setConnectedDnsInfo(types::ConnectedDnsInfo d);
 
     bool keepAlive() const;
     void setKeepAlive(bool bEnabled);
@@ -157,25 +159,18 @@ signals:
     void invalidLanAddressNotification(QString address);
     void customConfigsPathChanged(QString path);
     void showLocationLoadChanged(bool b);
-
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    void isAutoSecureNetworksChanged(bool b);
     void minimizeAndCloseToTrayChanged(bool b);
-    void isKillTcpSocketsChanged(bool b);
+    void isTerminateSocketsChanged(bool b);
     void tapAdapterChanged(TAP_ADAPTER_TYPE tapAdapter);
-#elif defined Q_OS_MAC
     void hideFromDockChanged(bool b);
-#endif
-
     void shareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
     void shareProxyGatewayChanged(const types::ShareProxyGateway &sp);
     void debugAdvancedParametersChanged(const QString &pars);
     void dnsPolicyChanged(DNS_POLICY_TYPE d);
-
-#if defined(Q_OS_LINUX)
     void dnsManagerChanged(DNS_MANAGER_TYPE d);
-#endif
 
-    void dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo dnsWcInfo);
+    void connectedDnsInfoChanged(types::ConnectedDnsInfo dnsWcInfo);
     void networkWhiteListChanged(QVector<types::NetworkInterface> l);
     void splitTunnelingChanged(types::SplitTunneling st);
     void keepAliveChanged(bool b);

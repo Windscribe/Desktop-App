@@ -385,12 +385,12 @@ QDataStream& operator >>(QDataStream &stream, PROTOCOL &o)
     return stream;
 }
 
-QString DNS_WHILE_CONNECTED_TYPE_toString(DNS_WHILE_CONNECTED_TYPE t)
+QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t)
 {
-    if (t == DNS_WHILE_CONNECTED_TYPE_ROBERT) {
+    if (t == CONNECTED_DNS_TYPE_ROBERT) {
         return "R.O.B.E.R.T.";
     }
-    else if (t == DNS_WHILE_CONNECTED_TYPE_CUSTOM) {
+    else if (t == CONNECTED_DNS_TYPE_CUSTOM) {
         return "Custom";
     }
     else {

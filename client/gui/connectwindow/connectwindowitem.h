@@ -9,7 +9,6 @@
 #include "connectstateprotocolport/connectstateprotocolport.h"
 #include "locationsbutton.h"
 #include "serverratingindicator.h"
-#include "wifiname.h"
 #include "middleitem.h"
 #include "firewallbutton.h"
 #include "iconnectwindow.h"

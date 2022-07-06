@@ -38,7 +38,7 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     disconnectButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
     connect(disconnectButton_, SIGNAL(clicked()), SLOT(onDisconnectClicked()));
 
-    escButton_ = new PreferencesWindow::EscapeButton(this);
+    escButton_ = new CommonGraphics::EscapeButton(this);
     connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
 
 #ifdef Q_OS_WIN

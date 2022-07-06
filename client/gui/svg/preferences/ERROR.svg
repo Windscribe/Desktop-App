@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>erroricon</title>
+    <g id="Split-Tunneling" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(-3204.000000, -233.000000)" fill="#FF3B3B" id="erroricon">
+            <path d="M3212,233 C3216.41828,233 3220,236.581722 3220,241 C3220,245.418278 3216.41828,249 3212,249 C3207.58172,249 3204,245.418278 3204,241 C3204,236.581722 3207.58172,233 3212,233 Z M3213,244 L3211,244 L3211,246 L3213,246 L3213,244 Z M3213,236 L3211,236 L3211,243 L3213,243 L3213,236 Z"></path>
+        </g>
+    </g>
+</svg>

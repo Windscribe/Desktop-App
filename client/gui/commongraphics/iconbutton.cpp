@@ -18,9 +18,9 @@ IconButton::IconButton(int width, int height, const QString &imagePath, const QS
         imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowPath_));
     }
 
-    connect(&imageOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onImageHoverOpacityChanged(QVariant)));
-    connect(this, SIGNAL(hoverEnter()), SLOT(onHoverEnter()));
-    connect(this, SIGNAL(hoverLeave()), SLOT(onHoverLeave()));
+    connect(&imageOpacityAnimation_, &QVariantAnimation::valueChanged, this, &IconButton::onImageHoverOpacityChanged);
+    connect(this, &IconButton::hoverEnter, this, &IconButton::onHoverEnter);
+    connect(this, &IconButton::hoverLeave, this, &IconButton::onHoverLeave);
 
     setClickable(true);
 }

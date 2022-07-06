@@ -1,29 +1,20 @@
 #include "macaddressitem.h"
 
 #include <QPainter>
-#include "../basepage.h"
-#include "graphicresources/fontmanager.h"
 #include <time.h>
+#include "graphicresources/fontmanager.h"
+#include "preferenceswindow/preferencesconst.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
-MacAddressItem::MacAddressItem(ScalableGraphicsObject *parent, const QString &caption) :
-    ScalableGraphicsObject(parent),
-    caption_(caption),
-    isEditMode_(false)
+MacAddressItem::MacAddressItem(ScalableGraphicsObject *parent, const QString &caption)
+ : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), caption_(caption), isEditMode_(false)
 {
-    dividerLine_ = new DividerLine(this, 264);
-
-    btnUpdate_ = new IconButton(16, 16, "preferences/REFRESH_ICON", "", this);
-    connect(btnUpdate_, SIGNAL(clicked()), SLOT(onUpdateClick()));
+    updateButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/REFRESH_ICON", "", this);
+    connect(updateButton_, &IconButton::clicked, this, &MacAddressItem::onUpdateClick);
     updatePositions();
-}
-
-QRectF MacAddressItem::boundingRect() const
-{
-    return QRectF(0, 0, PAGE_WIDTH*G_SCALE, 43*G_SCALE);
 }
 
 void MacAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -31,16 +22,17 @@ void MacAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    qreal initOpacity = painter->opacity();
-
-    painter->fillRect(boundingRect().adjusted(24*G_SCALE, 0, 0, 0), QBrush(QColor(16, 22, 40)));
-
-    QFont *font = FontManager::instance().getFont(12, true);
+    QFont *font = FontManager::instance().getFont(12, false);
     painter->setFont(*font);
-    painter->setPen(QColor(255, 255, 255));
-    painter->drawText(boundingRect().adjusted((24 + 16)*G_SCALE, 0, 0, -3*G_SCALE), Qt::AlignVCenter, tr(caption_.toStdString().c_str()));
+    painter->setPen(Qt::white);
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
+                                              PREFERENCES_MARGIN*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
+                                              -PREFERENCES_MARGIN*G_SCALE),
+                      Qt::AlignLeft,
+                      tr(caption_.toStdString().c_str()));
 
-    painter->setOpacity(0.5 * initOpacity);
+    painter->setOpacity(OPACITY_HALF);
     QString t;
     if (!text_.isEmpty())
     {
@@ -50,8 +42,13 @@ void MacAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     {
         t = "--";
     }
-    int rightOffs = -48*G_SCALE;
-    painter->drawText(boundingRect().adjusted((24 + 16)*G_SCALE, 0, rightOffs, -3*G_SCALE), Qt::AlignRight | Qt::AlignVCenter, t);
+
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
+                                              PREFERENCES_MARGIN*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
+                                              -PREFERENCES_MARGIN*G_SCALE),
+                      Qt::AlignRight,
+                      t);
 }
 
 void MacAddressItem::setMacAddress(const QString &macAddress)
@@ -73,9 +70,7 @@ void MacAddressItem::onUpdateClick()
 
 void MacAddressItem::updatePositions()
 {
-    dividerLine_->setPos(24*G_SCALE, 40*G_SCALE);
-    btnUpdate_->setPos(boundingRect().width() - btnUpdate_->boundingRect().width() - 16*G_SCALE,
-                       (boundingRect().height() - dividerLine_->boundingRect().height() - btnUpdate_->boundingRect().height()) / 2);
+    updateButton_->setPos(boundingRect().width() - (PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
 }
 
 } // namespace PreferencesWindow

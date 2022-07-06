@@ -129,12 +129,12 @@ void SplitTunneling::updateState()
 	}
 
 	// close TCP sockets if state changed
-	if (isSplitTunnelActive != prevIsSplitTunnelActive_ && connectStatus_.isCloseTcpSocket)
+	if (isSplitTunnelActive != prevIsSplitTunnelActive_ && connectStatus_.isTerminateSocket)
 	{
 		Logger::instance().out(L"SplitTunneling::threadFunc() close TCP sockets, exclude non VPN apps");
 		CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket, isExclude_, apps_);
 	}
-	else if (isSplitTunnelActive && isExclude_ != prevIsExclude_ && connectStatus_.isCloseTcpSocket)
+	else if (isSplitTunnelActive && isExclude_ != prevIsExclude_ && connectStatus_.isTerminateSocket)
 	{
 		Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
 		CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket);

@@ -21,7 +21,7 @@ Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
 {
 #if defined(Q_OS_LINUX)
-    // ProtoTypes::ConnectionSettings has IKEv2 as default protocol in default instance.
+    // types::ConnectionSettings has IKEv2 as default protocol in default instance.
     // But Linux doesn't support IKEv2. It is necessary to change with UDP.
     auto settings = engineSettings_.connectionSettings();
     settings.protocol = PROTOCOL::OPENVPN_UDP;
@@ -251,6 +251,21 @@ void Preferences::setNetworkWhiteList(const QVector<types::NetworkInterface> &l)
     }
 }
 
+bool Preferences::isAutoSecureNetworks()
+{
+    return guiSettings_.isAutoSecureNetworks;
+}
+
+void Preferences::setAutoSecureNetworks(bool b)
+{
+    if (guiSettings_.isAutoSecureNetworks != b)
+    {
+        guiSettings_.isAutoSecureNetworks = b;
+        emit isAutoSecureNetworksChanged(guiSettings_.isAutoSecureNetworks);
+        saveGuiSettings();
+    }
+}
+
 const types::ProxySettings &Preferences::proxySettings() const
 {
     return engineSettings_.proxySettings();
@@ -266,7 +281,7 @@ void Preferences::setProxySettings(const types::ProxySettings &ps)
     }
 }
 
-const types::FirewallSettings &Preferences::firewalSettings() const
+const types::FirewallSettings &Preferences::firewallSettings() const
 {
     return engineSettings_.firewallSettings();
 }
@@ -356,17 +371,17 @@ void Preferences::setIgnoreSslErrors(bool b)
 }
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-bool Preferences::isKillTcpSockets() const
+bool Preferences::isTerminateSockets() const
 {
-    return engineSettings_.isCloseTcpSockets();
+    return engineSettings_.isTerminateSockets();
 }
 
-void Preferences::setKillTcpSockets(bool b)
+void Preferences::setTerminateSockets(bool b)
 {
-    if (engineSettings_.isCloseTcpSockets() != b)
+    if (engineSettings_.isTerminateSockets() != b)
     {
-        engineSettings_.setIsCloseTcpSockets(b);
-        emit isKillTcpSocketsChanged(engineSettings_.isCloseTcpSockets());
+        engineSettings_.setIsTerminateSockets(b);
+        emit isTerminateSocketsChanged(engineSettings_.isTerminateSockets());
         emit updateEngineSettings();
     }
 }
@@ -461,17 +476,17 @@ void Preferences::setDnsManager(DNS_MANAGER_TYPE d)
 }
 #endif
 
-types::DnsWhileConnectedInfo Preferences::dnsWhileConnectedInfo() const
+types::ConnectedDnsInfo Preferences::connectedDnsInfo() const
 {
-   return engineSettings_.dnsWhileConnectedInfo();
+   return engineSettings_.connectedDnsInfo();
 }
 
-void Preferences::setDnsWhileConnectedInfo(types::DnsWhileConnectedInfo d)
+void Preferences::setConnectedDnsInfo(types::ConnectedDnsInfo d)
 {
-    if (engineSettings_.dnsWhileConnectedInfo() != d)
+    if (engineSettings_.connectedDnsInfo() != d)
     {
-        engineSettings_.setDnsWhileConnectedInfo(d);
-        emit dnsWhileConnectedInfoChanged(d);
+        engineSettings_.setConnectedDnsInfo(d);
+        emit connectedDnsInfoChanged(d);
         emit updateEngineSettings();
     }
 }
@@ -562,7 +577,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
     setUpdateChannel(es.updateChannel());
     setIgnoreSslErrors(es.isIgnoreSslErrors());
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    setKillTcpSockets(es.isCloseTcpSockets());
+    setTerminateSockets(es.isTerminateSockets());
 #endif
 #if defined(Q_OS_WIN)
     setTapAdapter(es.tapAdapter());
@@ -577,7 +592,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
     setDnsPolicy(es.dnsPolicy());
     setKeepAlive(es.isKeepAliveEnabled());
     setCustomOvpnConfigsPath(es.customOvpnConfigsPath());
-    setDnsWhileConnectedInfo(es.dnsWhileConnectedInfo());
+    setConnectedDnsInfo(es.connectedDnsInfo());
 #ifdef Q_OS_LINUX
     setDnsManager(es.dnsManager());
 #endif
@@ -664,14 +679,14 @@ void Preferences::validateAndUpdateIfNeeded()
         is_update_needed = true;
     }
 
-    if (engineSettings_.dnsWhileConnectedInfo().type() == DNS_WHILE_CONNECTED_TYPE_CUSTOM &&
-            !IpValidation::instance().isIp(engineSettings_.dnsWhileConnectedInfo().ipAddress()))
+    if (engineSettings_.connectedDnsInfo().type() == CONNECTED_DNS_TYPE_CUSTOM &&
+            !IpValidation::instance().isIp(engineSettings_.connectedDnsInfo().ipAddress()))
     {
-        types::DnsWhileConnectedInfo dns;
-        dns.setType(DNS_WHILE_CONNECTED_TYPE_ROBERT);
+        types::ConnectedDnsInfo dns;
+        dns.setType(CONNECTED_DNS_TYPE_ROBERT);
         dns.setIpAddress("");
-        engineSettings_.setDnsWhileConnectedInfo(dns);
-        emit dnsWhileConnectedInfoChanged(engineSettings_.dnsWhileConnectedInfo());
+        engineSettings_.setConnectedDnsInfo(dns);
+        emit connectedDnsInfoChanged(engineSettings_.connectedDnsInfo());
         emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
         is_update_needed = true;
     }

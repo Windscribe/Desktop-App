@@ -24,10 +24,10 @@ void EngineSettings::saveToSettings()
         QDataStream ds(&arr, QIODevice::WriteOnly);
         ds << magic_;
         ds << versionForSerialization_;
-        ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isCloseTcpSockets << d->isAllowLanTraffic <<
+        ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isTerminateSockets << d->isAllowLanTraffic <<
               d->firewallSettings << d->connectionSettings << d->dnsResolutionSettings << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
-              d->dnsWhileConnectedInfo << d->dnsManager;
+              d->connectedDnsInfo << d->dnsManager;
     }
 
     QSettings settings;
@@ -55,10 +55,10 @@ void EngineSettings::loadFromSettings()
             ds >> version;
             if (version <= versionForSerialization_)
             {
-                ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isCloseTcpSockets >> d->isAllowLanTraffic >>
+                ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isTerminateSockets >> d->isAllowLanTraffic >>
                       d->firewallSettings >> d->connectionSettings >> d->dnsResolutionSettings >> d->proxySettings >> d->packetSize >>
                       d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
-                      d->dnsWhileConnectedInfo >> d->dnsManager;
+                      d->connectedDnsInfo >> d->dnsManager;
                 if (ds.status() == QDataStream::Ok)
                 {
                     bLoaded = true;
@@ -110,14 +110,14 @@ void EngineSettings::setIsIgnoreSslErrors(bool ignore)
     d->isIgnoreSslErrors = ignore;
 }
 
-bool EngineSettings::isCloseTcpSockets() const
+bool EngineSettings::isTerminateSockets() const
 {
-    return d->isCloseTcpSockets;
+    return d->isTerminateSockets;
 }
 
-void EngineSettings::setIsCloseTcpSockets(bool close)
+void EngineSettings::setIsTerminateSockets(bool close)
 {
-    d->isCloseTcpSockets = close;
+    d->isTerminateSockets = close;
 }
 
 bool EngineSettings::isAllowLanTraffic() const
@@ -210,14 +210,14 @@ void EngineSettings::setUpdateChannel(UPDATE_CHANNEL channel)
     d->updateChannel = channel;
 }
 
-const types::DnsWhileConnectedInfo &EngineSettings::dnsWhileConnectedInfo() const
+const types::ConnectedDnsInfo &EngineSettings::connectedDnsInfo() const
 {
-    return d->dnsWhileConnectedInfo;
+    return d->connectedDnsInfo;
 }
 
-void EngineSettings::setDnsWhileConnectedInfo(const DnsWhileConnectedInfo &info)
+void EngineSettings::setConnectedDnsInfo(const ConnectedDnsInfo &info)
 {
-    d->dnsWhileConnectedInfo = info;
+    d->connectedDnsInfo = info;
 }
 
 bool EngineSettings::isUseWintun() const
@@ -270,7 +270,7 @@ bool EngineSettings::operator==(const EngineSettings &other) const
     return  other.d->language == d->language &&
             other.d->updateChannel == d->updateChannel &&
             other.d->isIgnoreSslErrors == d->isIgnoreSslErrors &&
-            other.d->isCloseTcpSockets == d->isCloseTcpSockets &&
+            other.d->isTerminateSockets == d->isTerminateSockets &&
             other.d->isAllowLanTraffic == d->isAllowLanTraffic &&
             other.d->firewallSettings == d->firewallSettings &&
             other.d->connectionSettings == d->connectionSettings &&
@@ -282,7 +282,7 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->tapAdapter == d->tapAdapter &&
             other.d->customOvpnConfigsPath == d->customOvpnConfigsPath &&
             other.d->isKeepAliveEnabled == d->isKeepAliveEnabled &&
-            other.d->dnsWhileConnectedInfo == d->dnsWhileConnectedInfo &&
+            other.d->connectedDnsInfo == d->connectedDnsInfo &&
             other.d->dnsManager == d->dnsManager;
 }
 
@@ -298,7 +298,7 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
     dbg << "{language:" << es.d->language << "; ";
     dbg << "updateChannel:" << UPDATE_CHANNEL_toString(es.d->updateChannel) << "; ";
     dbg << "isIgnoreSslErrors:" << es.d->isIgnoreSslErrors << "; ";
-    dbg << "isCloseTcpSockets:" << es.d->isCloseTcpSockets << "; ";
+    dbg << "isTerminateSockets:" << es.d->isTerminateSockets << "; ";
     dbg << "isAllowLanTraffic:" << es.d->isAllowLanTraffic << "; ";
     dbg << "firewallSettings: " << es.d->firewallSettings << "; ";
     dbg << "connectionSettings: " << es.d->connectionSettings << "; ";
@@ -312,7 +312,7 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
 #endif
     dbg << "customOvpnConfigsPath: " << (es.d->customOvpnConfigsPath.isEmpty() ? "empty" : "settled") << "; ";
     dbg << "isKeepAliveEnabled:" << es.d->isKeepAliveEnabled << "; ";
-    dbg << "dnsWhileConnectedInfo:" << es.d->dnsWhileConnectedInfo << "; ";
+    dbg << "connectedDnsInfo:" << es.d->connectedDnsInfo << "; ";
     dbg << "dnsManager:" << DNS_MANAGER_TYPE_toString(es.d->dnsManager) << "}";
 
     return dbg;

@@ -4,6 +4,7 @@
 #include <QGraphicsObject>
 #include "preferenceswindow/preferencestab/ipreferencestabcontrol.h"
 #include "connectionwindow/connectionwindowitem.h"
+#include "types/robertfilter.h"
 
 // abstract interface for preferences window
 class IPreferencesWindow
@@ -22,21 +23,22 @@ public:
 
     virtual void setLoggedIn(bool loggedIn) = 0;
     virtual void setConfirmEmailResult(bool bSuccess) = 0;
-    virtual void setDebugLogResult(bool bSuccess) = 0;
+    virtual void setSendLogResult(bool bSuccess) = 0;
 
     virtual void updateNetworkState(types::NetworkInterface network) = 0;
 
     virtual void addApplicationManually(QString filename) = 0;
 
     virtual void updateScaling() = 0;
-    virtual void updatePageSpecific() = 0;
 
     virtual void setPacketSizeDetectionState(bool on) = 0;
     virtual void showPacketSizeDetectionError(const QString &title, const QString &message) = 0;
 
+    virtual void setRobertFilters(const QVector<types::RobertFilter> &filters) = 0;
+    virtual void setRobertFiltersError() = 0;
+
 signals:
     virtual void escape() = 0;
-    virtual void helpClick() = 0;
     virtual void signOutClick() = 0;
     virtual void loginClick() = 0;
     virtual void quitAppClick() = 0;
@@ -46,9 +48,10 @@ signals:
     virtual void viewLogClick() = 0;
     virtual void sendConfirmEmailClick() = 0;
     virtual void sendDebugLogClick() = 0;
-    virtual void noAccountLoginClick() = 0;
-    virtual void editAccountDetailsClick() = 0;
+    virtual void accountLoginClick() = 0;
+    virtual void manageAccountClick() = 0;
     virtual void addEmailButtonClick() = 0;
+    virtual void manageRobertRulesClick() = 0;
 
     virtual void currentNetworkUpdated(types::NetworkInterface) = 0;
 

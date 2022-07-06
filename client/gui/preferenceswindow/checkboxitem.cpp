@@ -6,19 +6,18 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
+#include "preferencesconst.h"
 
 namespace PreferencesWindow {
 
-CheckBoxItem::CheckBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip) : BaseItem(parent, 50*G_SCALE),
-    strCaption_(caption), strTooltip_(tooltip)
+CheckBoxItem::CheckBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
+    captionFont_(12, true), icon_(nullptr)
 {
     checkBoxButton_ = new CheckBoxButton(this);
-    connect(checkBoxButton_, SIGNAL(stateChanged(bool)), SIGNAL(stateChanged(bool)));
-    connect(checkBoxButton_, SIGNAL(hoverEnter()), SIGNAL(buttonHoverEnter()));
-    connect(checkBoxButton_, SIGNAL(hoverLeave()), SIGNAL(buttonHoverLeave()));
-
-    line_ = new DividerLine(this, 276);
-    line_->setPos(24*G_SCALE, (50 - 3)*G_SCALE);
+    connect(checkBoxButton_, &CheckBoxButton::stateChanged, this, &CheckBoxItem::stateChanged);
+    connect(checkBoxButton_, &CheckBoxButton::hoverEnter, this, &CheckBoxItem::buttonHoverEnter);
+    connect(checkBoxButton_, &CheckBoxButton::hoverLeave, this, &CheckBoxItem::buttonHoverLeave);
 
     updateScaling();
 }
@@ -28,11 +27,28 @@ void CheckBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    //painter->fillRect(boundingRect(), QBrush(QColor(0, 0, 255)));
-    QFont *font = FontManager::instance().getFont(12, true);
+    QFont *font = FontManager::instance().getFont(captionFont_);
     painter->setFont(*font);
-    painter->setPen(QColor(255, 255, 255));
-    painter->drawText(boundingRect().adjusted(16*G_SCALE, 0, 0, -3*G_SCALE), Qt::AlignVCenter, tr(strCaption_.toStdString().c_str()));
+    painter->setPen(Qt::white);
+
+    int xOffset = PREFERENCES_MARGIN*G_SCALE;
+    if (icon_)
+    {
+        xOffset = (2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE;
+        icon_->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+    }
+    painter->drawText(boundingRect().adjusted(xOffset,
+                                              PREFERENCES_MARGIN*G_SCALE,
+                                              -PREFERENCES_MARGIN*G_SCALE,
+                                              -PREFERENCES_MARGIN*G_SCALE),
+                      Qt::AlignLeft,
+                      strCaption_);
+}
+
+void CheckBoxItem::setEnabled(bool enabled)
+{
+    BaseItem::setEnabled(enabled);
+    checkBoxButton_->setEnabled(enabled);
 }
 
 void CheckBoxItem::setState(bool isChecked)
@@ -45,18 +61,6 @@ bool CheckBoxItem::isChecked() const
     return checkBoxButton_->isChecked();
 }
 
-void CheckBoxItem::setLineVisible(bool visible)
-{
-    if (visible)
-    {
-        line_->show();
-    }
-    else
-    {
-        line_->hide();
-    }
-}
-
 QPointF CheckBoxItem::getButtonScenePos() const
 {
     return checkBoxButton_->scenePos();
@@ -65,10 +69,19 @@ QPointF CheckBoxItem::getButtonScenePos() const
 void CheckBoxItem::updateScaling()
 {
     BaseItem::updateScaling();
-    setHeight(50*G_SCALE);
-    checkBoxButton_->setPos(boundingRect().width() - checkBoxButton_->boundingRect().width() - 16*G_SCALE, (boundingRect().height() - checkBoxButton_->boundingRect().height()) / 2);
-    line_->setPos(24*G_SCALE, (50 - 3)*G_SCALE);
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
+    checkBoxButton_->setPos(boundingRect().width() - checkBoxButton_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE,
+                            CHECKBOX_MARGIN_Y*G_SCALE);
 }
 
+void CheckBoxItem::setIcon(QSharedPointer<IndependentPixmap> icon)
+{
+    icon_ = icon;
+}
+
+void CheckBoxItem::setCaptionFont(const FontDescr &fontDescr)
+{
+    captionFont_ = fontDescr;
+}
 
 } // namespace PreferencesWindow
