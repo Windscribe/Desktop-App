@@ -1,3 +1,5 @@
+#include <shlobj_core.h>
+#include <windows.h>
 #include "uninstallprev.h"
 #include "../../../Utils/applicationinfo.h"
 #include "../../../Utils/registry.h"
