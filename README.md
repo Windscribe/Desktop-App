@@ -63,8 +63,8 @@ You will find the application logs in C:/Users/USER/AppData/Local/Windscribe/Win
 ## Mac
 ### Prerequisites
 
-- MacOS Big Sur or MacOS Monterey (We recommend building/developing only on a native machine. VM setups are not well tested)
-- Install Xcode 13.2.1
+- macOS Big Sur or macOS Monterey
+- Install Xcode 13.2.1 (If on Monterey, you may use a newer version of Xcode 13, but 13.2.1 is the last version to support Big Sur. Our CI machines are running Big Sur)
     - Note: these downloads will require you to first login to your Apple account.
     - https://download.developer.apple.com/Developer_Tools/Xcode_13.2.1/Xcode_13.2.1.xip
 - Install brew (brew.sh)
@@ -159,6 +159,7 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
   - sudo apt-get install fakeroot
 
 - Install Qt platform plugin dependencies (https://doc.qt.io/qt-6/linux-requirements.html#platform-plugin-dependencies):
+  - Note: this step is not currently required, as we no longer build Qt from source.
   - sudo apt-get install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
 
 - Clone the repository.
