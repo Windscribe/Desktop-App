@@ -7,12 +7,10 @@
 
 import os
 
-import utils as utl
-import messages as msg
-import process as proc
-import pathhelper
-import arghelper
-
+import base.utils as utl
+import base.process as proc
+import base.messages as msg
+from base import pathhelper
 
 def download_apps_team_file_from_1password(filename, download_filename, session_token):
     get_1p_file_cmd = ["op", "get", "document", filename, "--vault", "Apps Team", "--session", session_token]

@@ -2,8 +2,21 @@
 # This file will be overwritten by rpm specific script which is passed to fpm in build script
 # So if multi-platform change is needed remember to change that file as well
 set -e
+
+# Determine is system uses systemd as init system
+if [ -d "/run/systemd/system" ]
+then
 systemctl enable windscribe-helper
 systemctl start windscribe-helper
+elif [ -d "/run/openrc" ]
+then
+rc-update add windscribe-helper default
+rc-service windscribe-helper start
+else
+echo "Unable to determine init system"
+exit 1
+fi
+
 ln -s /usr/local/windscribe/windscribe-cli /usr/local/bin/windscribe-cli
 
 echo linux_deb_x64 > ../etc/windscribe/platform # debian-specific

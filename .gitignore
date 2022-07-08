@@ -26,3 +26,7 @@ common/keys/linux/key.pub
 common/keys/linux/key_pub.txt
 installer/windows/signing/code_signing.pfx
 backend/mac/provisioning_profile/
+
+# IDEs / Editors
+.vscode/
+.idea/
