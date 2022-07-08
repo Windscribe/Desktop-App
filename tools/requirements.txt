@@ -1,3 +1,2 @@
 colorama
-glob2
 pyyaml

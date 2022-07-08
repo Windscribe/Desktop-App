@@ -1,6 +1,18 @@
 #!/bin/bash
 set -e
+
+# Determine is system uses systemd as init system
+if [ -d "/run/systemd/system" ]
+then
 systemctl stop windscribe-helper
 systemctl disable windscribe-helper
+elif [ -d "/run/openrc" ]
+then
+rc-service windscribe-helper stop
+rc-update del windscribe-helper default
+else
+echo "Unable to determine init system"
+exit 1
+fi
 
 rm /usr/local/bin/windscribe-cli

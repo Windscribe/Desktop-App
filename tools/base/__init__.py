@@ -9,4 +9,4 @@ import colorama
 
 # Initialize colorama module for Win32 ANSI color support.
 if os.getenv("TERM") is None:
-  colorama.init()
+	colorama.init()

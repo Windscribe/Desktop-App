@@ -44,7 +44,7 @@ except ImportError:
                     b"abcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~")
 
     def b85decode(b):
-        _b85dec = [None] * 256
+        _b85dec = [] * 256
         for i, c in enumerate(iterbytes(_b85alphabet)):
             _b85dec[c] = i
 

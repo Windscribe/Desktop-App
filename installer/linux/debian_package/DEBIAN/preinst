@@ -4,27 +4,46 @@ end=$((SECONDS+10))
 
 while :
 do
-  if [ -z "$(ps -eo args | grep WindscribeEngine | grep -v grep)" ]; then
+  if [ -z "$(ps -eo args | grep WindscribeEngine | grep -v grep)" ]
+  then
     break
   fi
   
-  if [ $SECONDS -gt $end ]; then
+  if [ $SECONDS -gt $end ]
+  then
     echo 'Error during Windscribe installation. WindscribeEngine is running. Please re-launch Windscribe. And try to update again.'
     exit 1
   fi
 done
 
+# Determine is system uses systemd as init system
+if [ -d "/run/systemd/system" ]
+then
 systemctl stop windscribe-helper > /dev/null 2>&1
 systemctl disable windscribe-helper > /dev/null 2>&1
+elif [ -d "/run/openrc" ]
+then
+rc-service windscribe-helper stop > /dev/null 2>&1
+rc-update del windscribe-helper > /dev/null 2>&1
+else
+echo "Unable to determine init system"
+exit 1
+fi
 
 # Stop and disable firewalld service if it is active, otherwise it will conflict with iptables on OS reboot
 # Relevant for Fedora distributions
-systemctl is-active --quiet firewalld
-if [ $? -eq 0 ] 
+if [ -f "/usr/sbin/firewalld" ]
 then
-   echo "Firewalld service is running. It will be stopped and disabled to avoid conflicts with the Windscribe iptables firewall."
-   sudo systemctl stop firewalld
-   sudo systemctl disable firewalld
+  echo "Firewalld service is installed. It will be stopped and disabled to avoid conflicts with the Windscribe iptables firewall."
+  if [ -d "/run/systemd/system" ]
+  then
+    systemctl stop firewalld > /dev/null 2>&1
+    systemctl disable firewalld > /dev/null 2>&1
+  elif [ -d "/run/openrc" ]
+  then
+    rc-service firewalld stop > /dev/null 2>&1
+    rc-update del firewalld > /dev/null 2>&1
+  fi
 fi
 
 echo "Finish pre-install script"

@@ -12,12 +12,10 @@
 #       this should only be done if possible to succeed at building second script if first script fails
 #       (assuming they are independent)
 
-import glob2
 import os
 import re
 import sys
 import time
-import zipfile
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(TOOLS_DIR)
@@ -155,7 +153,7 @@ if __name__ == "__main__":
   start_time = time.time()
   current_os = utl.GetCurrentOS()
   if current_os not in BUILD_OS_LIST:
-    msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
+    msg.Print("{} is not supported on {}, skipping.".format(BUILD_TITLE, current_os))
     sys.exit(0)
   try:
     msg.Print("Building {}...".format(BUILD_TITLE))
