@@ -70,7 +70,7 @@ public:
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
 
     void wgConfigsInit(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey);
-    void wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName);
+    void wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
 
     void setIgnoreSslErrors(bool bIgnore);
 

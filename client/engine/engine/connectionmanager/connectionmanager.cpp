@@ -11,6 +11,7 @@
 #include "engine/types/connectionsettings.h"
 #include "engine/apiinfo/apiinfo.h"
 #include "engine/serverapi/serverapi.h"
+#include "engine/engine/getdeviceid.h"
 
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "utils/extraconfig.h"
@@ -968,7 +969,8 @@ void ConnectionManager::doConnectPart2()
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
             qCDebug(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
-            getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, false);
+            QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
+            getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, false, deviceId);
             return;
         }
     }
@@ -1327,7 +1329,8 @@ void ConnectionManager::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
 {
     if (deleteOldestKey)
     {
-        getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, true);
+        QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
+        getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, true, deviceId);
     }
     else
     {

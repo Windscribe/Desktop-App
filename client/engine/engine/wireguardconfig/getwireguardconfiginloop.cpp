@@ -8,11 +8,12 @@ GetWireGuardConfigInLoop::GetWireGuardConfigInLoop(QObject *parent, ServerAPI *s
     connect(fetchWireguardConfigTimer_, SIGNAL(timeout()), SLOT(onFetchWireGuardConfig()));
 }
 
-void GetWireGuardConfigInLoop::getWireGuardConfig(const QString &serverName, bool deleteOldestKey)
+void GetWireGuardConfigInLoop::getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId)
 {
     stop();
     serverName_ = serverName;
     deleteOldestKey_ = deleteOldestKey;
+    deviceId_ = deviceId;
 
     getConfig_ = new GetWireGuardConfig(this, serverAPI_, serverApiUserRole_);
     connect(getConfig_, &GetWireGuardConfig::getWireGuardConfigAnswer, this, &GetWireGuardConfigInLoop::onGetWireGuardConfigAnswer);
@@ -41,5 +42,5 @@ void GetWireGuardConfigInLoop::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE re
 
 void GetWireGuardConfigInLoop::onFetchWireGuardConfig()
 {
-    getConfig_->getWireGuardConfig(serverName_, deleteOldestKey_);
+    getConfig_->getWireGuardConfig(serverName_, deleteOldestKey_, deviceId_);
 }

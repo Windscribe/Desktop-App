@@ -15,7 +15,7 @@ class GetWireGuardConfigInLoop : public QObject
 public:
     GetWireGuardConfigInLoop(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole);
 
-    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey);
+    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId);
     void stop();
 
 signals:
@@ -33,6 +33,7 @@ private:
     QTimer *fetchWireguardConfigTimer_;
     QString serverName_;
     bool deleteOldestKey_;
+    QString deviceId_;
 };
 
 #endif // GETWIREGUARDCONFIGINLOOP_H
