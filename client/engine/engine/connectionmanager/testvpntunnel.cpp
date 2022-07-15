@@ -119,7 +119,7 @@ QStringList DnsQueryContext::ips() const
 TestVPNTunnel::TestVPNTunnel(QObject *parent, ServerAPI *serverAPI) : QObject(parent),
     serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0), doCustomTunnelTest_(false), doWin32TunnelTest_(false)
 {
-    #if defined(Q_OS_WINDOWS)
+#if defined(Q_OS_WINDOWS)
     dllHandle_ = NULL;
     DnsQueryEx_f = NULL;
     DnsCancelQuery_f = NULL;
@@ -127,7 +127,9 @@ TestVPNTunnel::TestVPNTunnel(QObject *parent, ServerAPI *serverAPI) : QObject(pa
     dnsQueryTimeout_.setSingleShot(true);
     dnsQueryTimeout_.setInterval(PING_TEST_TIMEOUT_1 + PING_TEST_TIMEOUT_2 + PING_TEST_TIMEOUT_3);
     connect(&dnsQueryTimeout_, &QTimer::timeout, this, &TestVPNTunnel::onWin32DnsQueryTimeout);
-    #endif
+
+#endif
+    connect(serverAPI_, &ServerAPI::pingTestAnswer, this, &TestVPNTunnel::onPingTestAnswer, Qt::QueuedConnection);
 }
 
 TestVPNTunnel::~TestVPNTunnel()
@@ -144,8 +146,6 @@ void TestVPNTunnel::startTests(const ProtocolType &protocol)
     qCDebug(LOG_CONNECTION) << "TestVPNTunnel::startTests()";
 
     stopTests();
-
-    connect(serverAPI_, &ServerAPI::pingTestAnswer, this, &TestVPNTunnel::onPingTestAnswer, Qt::QueuedConnection);
 
     protocol_ = protocol;
 
@@ -200,7 +200,15 @@ void TestVPNTunnel::startTestImpl()
 
     int timeout = ExtraConfig::instance().getTunnelTestTimeout(advParamExists);
     if (!advParamExists) {
-        timeouts_ << PING_TEST_TIMEOUT_1 << PING_TEST_TIMEOUT_2 << PING_TEST_TIMEOUT_3;
+        int timeout = PING_TEST_TIMEOUT_1;
+        for (int i = 0; i < attempts; i++)
+        {
+            timeouts_ << timeout;
+            if (timeout < PING_TEST_TIMEOUT_3)
+            {
+                timeout *= 2;
+            }
+        }
     } else {
         doCustomTunnelTest_ = true;
         timeouts_.fill(timeout, attempts);
