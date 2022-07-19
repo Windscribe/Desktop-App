@@ -23,7 +23,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2021 Windscribe Limited. All rights reserved.</string>
+	<string>Copyright © 2022 Windscribe Limited. All rights reserved.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
@@ -37,7 +37,7 @@
 	<key>SMPrivilegedExecutables</key>
 	<dict>
 		<key>com.windscribe.helper.macos</key>
-        <string>anchor apple generic and identifier &quot;com.windscribe.helper.macos&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = $(DEVELOPMENT_TEAM))</string>
+		<string>anchor apple generic and identifier &quot;com.windscribe.helper.macos&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = $(DEVELOPMENT_TEAM))</string>
 	</dict>
 </dict>
 </plist>

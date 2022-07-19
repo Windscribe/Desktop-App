@@ -1,7 +1,6 @@
 #ifndef DNSUTILS_H
 #define DNSUTILS_H
 
-#include <QStringList>
 #include <string>
 #include <vector>
 

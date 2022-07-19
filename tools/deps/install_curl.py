@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs CUrl library.
 import os
@@ -31,8 +31,7 @@ def BuildDependencyMSVC(openssl_root, zlib_root):
   buildenv.update(iutl.GetVisualStudioEnvironment())
   # Build and install.
   os.chdir("winbuild")
-  build_cmd = ["nmake", "/F", "Makefile.vc", "mode=dll", "MACHINE=x86", "WITH_SSL=dll",
-               "WITH_ZLIB=dll"]
+  build_cmd = ["nmake", "/F", "Makefile.vc", "mode=dll", "MACHINE=x64", "WITH_SSL=dll", "WITH_ZLIB=dll"]
   build_cmd.append("SSL_PATH={}".format(openssl_root))
   build_cmd.append("ZLIB_PATH={}".format(zlib_root))
   iutl.RunCommand(build_cmd, env=buildenv, shell=True)
@@ -42,7 +41,7 @@ def BuildDependencyGNU(openssl_root, outpath):
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
   if utl.GetCurrentOS() == "macos":
-    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
+    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.14 -arch x86_64 -arch arm64"})
   # Configure.
   configure_cmd = ["./configure"]
   configure_cmd.append("--prefix={}".format(outpath))
@@ -86,6 +85,8 @@ def InstallDependency():
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+  # Clean the output folder to ensure no conflicts when we're updating to a newer curl version.
+  utl.RemoveDirectory(outpath)
   with utl.PushDir(os.path.join(temp_dir, archivetitle)):
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
     if utl.GetCurrentOS() == "win32":
@@ -102,7 +103,7 @@ def InstallDependency():
   artifacts_dir = outpath
   install_dir = None
   if utl.GetCurrentOS() == "win32":
-    artifacts_dir = os.path.join(temp_dir, archivetitle, "builds", "libcurl-vc-x86-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
+    artifacts_dir = os.path.join(temp_dir, archivetitle, "builds", "libcurl-vc-x64-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
     install_dir = outpath
   aflist = iutl.InstallArtifacts(artifacts_dir, DEP_FILE_MASK, install_dir, installzipname)
   for af in aflist:

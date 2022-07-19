@@ -1,5 +1,7 @@
-#include "measurementcpuusage.h"
 #include <QElapsedTimer>
+#include <QVariant>
+
+#include "measurementcpuusage.h"
 #include "Utils/logger.h"
 
 MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController) : QObject(parent),

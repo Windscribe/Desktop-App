@@ -79,178 +79,178 @@
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_JOM
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_JOM}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_JOM}"
 .download_cares_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_CARES
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_CARES}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_CARES}"
 .download_lzo_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_LZO
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_LZO}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_LZO}"
 .download_boost_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_BOOST
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_BOOST}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_BOOST}"
 .download_wireguard_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_WIREGUARD
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_WIREGUARD}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_WIREGUARD}"
 .download_openssl_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENSSL}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_OPENSSL}"
 .download_zlib_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_ZLIB
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_ZLIB}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_ZLIB}"
 .download_curl_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_CURL
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_CURL}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_CURL}"
 .download_openvpn_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_OPENVPN}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_OPENVPN}"
 .download_protobuf_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_PROTOBUF}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_PROTOBUF}"
 .download_qt_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_QT
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_QT}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_QT}"
 .download_stunnel_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_STUNNEL}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_STUNNEL}"
 .download_gtest_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/${ARTIFACT_GTEST}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_GTEST}"
 
 # download from nexus (mac)
 .download_cares_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_CARES
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_CARES}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_CARES}"
 .download_lzo_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_LZO
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_LZO}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_LZO}"
 .download_boost_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_BOOST
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_BOOST}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_BOOST}"
 .download_wireguard_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_WIREGUARD
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_WIREGUARD}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_WIREGUARD}"
 .download_openssl_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENSSL}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_OPENSSL}"
 .download_curl_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_CURL
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_CURL}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_CURL}"
 .download_openvpn_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_OPENVPN}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_OPENVPN}"
 .download_protobuf_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_PROTOBUF}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_PROTOBUF}"
 .download_qt_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_QT
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_QT}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_QT}"
 .download_stunnel_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_STUNNEL}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_STUNNEL}"
 .download_gtest_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/${ARTIFACT_GTEST}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_GTEST}"
 
 # download from nexus (linux)
 .download_cares_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_CARES
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_CARES}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_CARES}"
 .download_lzo_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_LZO
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_LZO}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_LZO}"
 .download_boost_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_BOOST
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_BOOST}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_BOOST}"
 .download_wireguard_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_WIREGUARD
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_WIREGUARD}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_WIREGUARD}"
 .download_openssl_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_OPENSSL
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_OPENSSL}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_OPENSSL}"
 .download_curl_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_CURL
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_CURL}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_CURL}"
 .download_openvpn_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_OPENVPN}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_OPENVPN}"
 .download_protobuf_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_PROTOBUF}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_PROTOBUF}"
 .download_qt_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_QT
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_QT}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_QT}"
 .download_stunnel_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_STUNNEL}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_STUNNEL}"
 .download_gtest_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}${NEXUS_PATH_DEPS_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/${ARTIFACT_GTEST}"
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_GTEST}"

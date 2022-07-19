@@ -17,7 +17,7 @@ QPixmap WidgetUtils_win::extractProgramIcon(QString filePath)
     icon = ExtractIconA(instance, (LPSTR)filePath.toLocal8Bit().constData(), 0);
 
     QPixmap p;
-    if (icon != NULL && (int) icon != 1)
+    if (icon != NULL && (__int64)icon != 1)
     {
         p = QPixmap(qt_pixmapFromWinHICON(icon));
     }
@@ -52,15 +52,15 @@ QPixmap WidgetUtils_win::extractWindowsAppProgramIcon(QString filePath)
         {
             if (rXml.isStartElement())
             {
-                if (rXml.name() == "Package")
+                if (rXml.name() == QStringLiteral("Package"))
                 {
                     rXml.readNext();
                 }
-                else if (rXml.name() == "Properties")
+                else if (rXml.name() == QStringLiteral("Properties"))
                 {
                     while (!rXml.atEnd())
                     {
-                        if (rXml.name() == "Logo")
+                        if (rXml.name() == QStringLiteral("Logo"))
                         {
                             logoLocation = rXml.readElementText();
                             logoLocation = logoLocation.replace("\\", "/");

@@ -434,7 +434,7 @@ void ItemWidgetCity::paintEvent(QPaintEvent *event)
     }
 }
 
-void ItemWidgetCity::enterEvent(QEvent *event)
+void ItemWidgetCity::enterEvent(QEnterEvent *event)
 {
     Q_UNUSED(event)
     emit hoverEnter();

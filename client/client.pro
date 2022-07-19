@@ -1,4 +1,4 @@
-QT       += core gui network svg
+QT += core gui network svg core5compat
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -56,8 +56,8 @@ win32 {
     INCLUDEPATH += "$$BUILD_LIBS_PATH/curl/include"
     LIBS += -L"$$BUILD_LIBS_PATH/curl/lib" -llibcurl
 
-    INCLUDEPATH += "$$BUILD_LIBS_PATH/cares/dll_x32/include"
-    LIBS += -L"$$BUILD_LIBS_PATH/cares/dll_x32/lib" -lcares
+    INCLUDEPATH += "$$BUILD_LIBS_PATH/cares/dll_x64/include"
+    LIBS += -L"$$BUILD_LIBS_PATH/cares/dll_x64/lib" -lcares
 
     INCLUDEPATH += "$$BUILD_LIBS_PATH/openssl/include"
     LIBS += -L"$$BUILD_LIBS_PATH/openssl/lib" -llibeay32 -lssleay32
@@ -65,8 +65,10 @@ win32 {
 
     RC_FILE = client.rc
 
-    # Supress protobuf linker warnings
+    # Suppress protobuf linker warnings
     QMAKE_LFLAGS += /IGNORE:4099
+
+    QMAKE_CXXFLAGS += /wd"4267"
 
     QMAKE_CXXFLAGS_RELEASE -= -Zc:strictStrings
     QMAKE_CFLAGS_RELEASE -= -Zc:strictStrings
@@ -113,11 +115,16 @@ INCLUDEPATH += $$BUILD_LIBS_PATH/cares/include
 LIBS += -L$$BUILD_LIBS_PATH/cares/lib -lcares
 
 #remove unused and deprecated parameter warnings
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Wno-deprecated-declarations
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Wno-deprecated-declarations -Wno-range-loop-construct -Wno-deprecated-copy
 
-QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.14
 ICON = windscribe.icns
 QMAKE_INFO_PLIST = info.plist
+
+# Save compile time in debug builds.  Only create a universal binary in release builds.
+CONFIG(release, debug|release){
+    QMAKE_APPLE_DEVICE_ARCHS = arm64 x86_64
+}
 
 #postbuild copy commands
 make_login_items.commands = $(MKDIR) $$OUT_PWD/Windscribe.app/Contents/Library/LoginItems

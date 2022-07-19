@@ -13,7 +13,7 @@ EditBoxItem::EditBoxItem(ScalableGraphicsObject *parent, const QString &caption,
     ScalableGraphicsObject(parent),
     caption_(caption),
     isEditMode_(false),
-    maskingChar_(0)
+    maskingChar_('\0')
 {
     line_ = new DividerLine(this, isDrawFullBottomDivider ? 276 : 264);
 
@@ -69,7 +69,7 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
         QString t;
         if (text_.isEmpty())
             t = "--";
-        else if (maskingChar_ != 0)
+        else if (!maskingChar_.isNull())
             t = QString(text_.size(), maskingChar_);
         else
             t = text_;
@@ -86,7 +86,7 @@ void EditBoxItem::setText(const QString &text)
     update();
 }
 
-void EditBoxItem::setValidator(QRegExpValidator *validator)
+void EditBoxItem::setValidator(QRegularExpressionValidator *validator)
 {
     lineEdit_->setValidator(validator);
 }
@@ -106,12 +106,11 @@ void EditBoxItem::setMasked(bool masked)
 {
     if (masked) {
         QStyleOptionFrame opt;
-        opt.init(lineEdit_);
-        maskingChar_ =
-            lineEdit_->style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, lineEdit_);
+        opt.initFrom(lineEdit_);
+        maskingChar_ = QChar(lineEdit_->style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, lineEdit_));
         lineEdit_->setEchoMode(QLineEdit::Password);
     } else {
-        maskingChar_ = 0;
+        maskingChar_ = '\0';
         lineEdit_->setEchoMode(QLineEdit::Normal);
     }
     update();

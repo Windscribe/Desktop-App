@@ -21,7 +21,7 @@ bool InstallHelper_mac::installHelper()
         NSString*       installedBundleVersion  = [installedInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       installedVersion        = [installedBundleVersion integerValue];
 
-        //qCDebug(LOG_BASIC) << "installed helper version: " << (long)installedVersion;
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - installed helper version: %li", (long)installedVersion]];
 
         NSBundle*       appBundle       = [NSBundle mainBundle];
         NSURL*          appBundleURL    = [appBundle bundleURL];
@@ -31,7 +31,7 @@ bool InstallHelper_mac::installHelper()
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];
 
-        //qCDebug(LOG_BASIC) << "current helper version: " << (long)currentVersion;
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - current helper version: %li", (long)currentVersion]];
 
         if (installedVersion >= currentVersion)
         {
@@ -40,7 +40,7 @@ bool InstallHelper_mac::installHelper()
     }
     else
     {
-        //qCDebug(LOG_BASIC) << "Not installed helper";
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - helper not installed"]];
     }
 
     AuthorizationItem authItem		= { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
@@ -56,7 +56,7 @@ bool InstallHelper_mac::installHelper()
     OSStatus status = AuthorizationCreate(&authRights, kAuthorizationEmptyEnvironment, flags, &authRef);
     if (status != errAuthorizationSuccess)
     {
-        //qCDebug(LOG_BASIC) << "Failed to create AuthorizationRef. Error code:" << (int)status;
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - failed to create AuthorizationRef. Error code: %i", (int)status]];
     }
     else
     {
@@ -67,15 +67,22 @@ bool InstallHelper_mac::installHelper()
         //
         CFErrorRef outError = NULL;
         result = SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel, authRef, &outError);
-        if (outError)
+        if (!result)
         {
-            //NSError *error = (__bridge NSError *)outError;
-            //qCDebug(LOG_BASIC) << QString::fromCFString((CFStringRef)[error localizedDescription]);
-            CFRelease(outError);
+            if (outError)
+            {
+                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - SMJobBless failed. Error code: %li", CFErrorGetCode(outError)]];
+                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Description: %@", CFErrorCopyDescription(outError)]];
+                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Reason: %@", CFErrorCopyFailureReason(outError)]];
+                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Recovery: %@", CFErrorCopyRecoverySuggestion(outError)]];
+                CFRelease(outError);
+            }
+            else
+            {
+                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - SMJobBless failed. No error info available."]];
+            }
         }
     }
 
     return result == YES;
 }
-
-

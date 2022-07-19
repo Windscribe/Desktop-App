@@ -1,6 +1,5 @@
 #include "iconmanager.h"
 #include <QApplication>
-#include <QDesktopWidget>
 #include "dpiscalemanager.h"
 
 #ifdef Q_OS_MAC

@@ -32,9 +32,9 @@ QString HardcodedSettings::generateDomain(const QString &prefix)
     int randomNum = Utils::generateIntegerRandom(1, 3); // random number from 1 to 3
     QDateTime dt = QDateTime::currentDateTime();
     QByteArray str = passwordForRandomDomain_;
-    str += QString::number(randomNum);
-    str += QString::number(dt.date().month());
-    str += QString::number(dt.date().year());
+    str += QByteArray::number(randomNum);
+    str += QByteArray::number(dt.date().month());
+    str += QByteArray::number(dt.date().year());
     QByteArray code = QCryptographicHash::hash(str, QCryptographicHash::Sha1);
     QString result = prefix + code.toHex() + ".com";
     return result;

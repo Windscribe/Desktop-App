@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <tchar.h>
+#include <versionhelpers.h>
 
 #include <algorithm>
 
@@ -91,6 +92,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+
+    if (!IsWindows8Point1OrGreater())
+    {
+        WSMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+            _T("The Windscribe app can only be installed on Windows 8.1 or newer."));
+        return 0;
+    }
 
     if (CheckCommandLineArgument(L"-help"))
     {

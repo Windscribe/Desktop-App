@@ -14,7 +14,7 @@ ScrollAreaWidget::ScrollAreaWidget(int width, int height, QWidget *parent) : QWi
     , centralWidget_(nullptr)
 {   
     hLayout_ = new QHBoxLayout(this);
-    hLayout_->setMargin(0);
+    hLayout_->setContentsMargins(0, 0, 0, 0);
     hLayout_->setSpacing(0);
 
     const int kMinimumScrollBarWidth = 5;

@@ -46,7 +46,7 @@ void IconWidget::paintEvent(QPaintEvent *event)
     p->draw(0,0,&painter);
 }
 
-void IconWidget::enterEvent(QEvent *event)
+void IconWidget::enterEvent(QEnterEvent *event)
 {
     Q_UNUSED(event)
     emit hoverEnter();

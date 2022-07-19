@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_BOOST: '1.77.0'
+  VERSION_BOOST: '1.79.0'
   BUILDROOT_BOOST: 'build-libs/boost'
   ARTIFACT_BOOST: 'boost.zip'

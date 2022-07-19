@@ -39,7 +39,7 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     //font_ = *FontManager::instance().getFont(12*g_pixelRatio, false);
 
     layout_ = new QVBoxLayout();
-    layout_->setMargin(0);
+    layout_->setContentsMargins(0, 0, 0, 0);
     layout_->setSpacing(0);
     layout_->setSizeConstraint(QLayout::SetFixedSize);
 

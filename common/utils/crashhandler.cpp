@@ -91,7 +91,7 @@ std::wstring GetOutputLocation()
     strBuffer = strBuffer.substr(0, strBuffer.find_last_of(L"\\/"));
     return strBuffer + TEXT("/");
 #else
-    return QString("%1/").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+    return QString("%1/").arg(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation))
                          .toStdWString();
 #endif
 }
@@ -264,7 +264,7 @@ bool CrashHandler::bindToThread()
     thread_handlers->sigIllHandler = signal(SIGILL, SignalHandler_Ill);
     thread_handlers->sigSegvHandler = signal(SIGSEGV, SignalHandler_Segv);
     thread_handlers->termHandler = std::set_terminate(TerminateHandler);
-    thread_handlers->unexpectedHandler = std::set_unexpected(UnexpectedHandler);
+    thread_handlers->unexpectedHandler = ::set_unexpected(UnexpectedHandler);
     oldThreadHandlers_.emplace(thread_id, thread_handlers);
     return true;
 }
@@ -288,7 +288,7 @@ void CrashHandler::unbindFromThread()
         if (oh->termHandler)
             std::set_terminate(oh->termHandler);
         if (oh->unexpectedHandler)
-            std::set_unexpected(oh->unexpectedHandler);
+            ::set_unexpected(oh->unexpectedHandler);
     }
     oldThreadHandlers_.erase(it);
 }

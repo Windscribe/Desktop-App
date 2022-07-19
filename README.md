@@ -1,29 +1,27 @@
 # Windscribe 2.0 Desktop Application
-This repo contains the complete source code for the Windscribe 2.0 app. This includes installer, service/helper, backend process and GUI. 
+This repo contains the complete source code for the Windscribe 2.0 app. This includes installer, service/helper, and GUI. 
 
 ## Windows
 ### Prerequisites
 
-- Windows 10.
+- Windows 10/11.
 - Install git (https://git-scm.com/downloads). When installing Git, you can stick with all the default options presented to you by the installer.
 - Clone the repository.
-- Visual Studio Community 2017 (run install_vs.bat with admin rights from /common/prepare_build_environment/windows).
-- Python 2.7x (run install_python.bat with admin rights from common/prepare_build_environment/windows).
+- Visual Studio Community Edition 2019 (run install_vs.bat from /common/prepare_build_environment/windows).
+- Python 2.7.18 (run install_python.bat from common/prepare_build_environment/windows).
 - Active Perl (install from https://www.activestate.com/products/perl/downloads/ or execute this code snippet).
     - powershell -Command "& $([scriptblock]::Create((New-Object Net.WebClient).DownloadString('https://platform.activestate.com/dl/cli/w20598w01/install.ps1'))) -activate-default ActiveState/Perl-5.32"
     - Alternately, you can install Strawberry Perl from https://strawberryperl.com/
-- CMake (run install_cmake.bat from common/prepare_build_environment/windows).
-- CppCheck (run install_cppcheck.bat with admin rights from common/prepare_build_environment/windows).
+- CMake v3.23.x (run install_cmake.bat from common/prepare_build_environment/windows).
 - Verify the following entries are in your System PATH environment variable. If they are not, add them to the System PATH environment variable.  Reboot.
     - C:\Python27
     - C:\Python27\Scripts
     - C:\Perl64\site\bin (or equivalent Strawberry Perl site\bin folder)
     - C:\Perl64\bin (or equivalent Strawberry Perl bin folder)
     - C:\Program Files\Git\cmd
-    - C:\Program Files\Cppcheck
 
 ### Install build script dependencies
-- On Windows 10, you will have to go to 'Manage App Execution Aliases' in System Settings and disable app installer for python.exe and python3.exe
+- You will have to go to 'Manage App Execution Aliases' in System Settings and disable app installer for python.exe and python3.exe
 - python tools/bin/get-pip.py
 - python -m pip install -r tools/requirements.txt
 
@@ -51,7 +49,7 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 - install_protobuf
 
 #### Notes
-- Some libraries depends on others. Jom is installed first and speeds up further builds. Almost all of the libraries depends on openssl. Openvpn depends on LZO. Curl depends on openssl and zlib.
+- Some libraries depends on others. Jom is installed first and speeds up further builds. Almost all of the libraries depend on openssl. Openvpn depends on LZO. Curl depends on openssl and zlib.
 - If you notice install or build scripts fail for seemingly no reason, try running each script from a fresh shell instance (CMD or gitbash). It appears to have something to do with a character limit on PATH or ENV variables.
 
 ### Build the Windscribe 2.0 app
@@ -65,14 +63,12 @@ You will find the application logs in C:/Users/USER/AppData/Local/Windscribe/Win
 ## Mac
 ### Prerequisites
 
-- MacOS Catalina or MacOS Big Sur (We recommend building/developing only on a native machine. VM setups are not well tested)
+- macOS Big Sur or macOS Monterey
+- Install Xcode 13.2.1 (If on Monterey, you may use a newer version of Xcode 13, but 13.2.1 is the last version to support Big Sur. Our CI machines are running Big Sur)
+    - Note: these downloads will require you to first login to your Apple account.
+    - https://download.developer.apple.com/Developer_Tools/Xcode_13.2.1/Xcode_13.2.1.xip
 - Install brew (brew.sh)
     - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-- Install Xcode 11.3.1 if using MacOS Catalina, or Xcode 11.7 if using Big Sur
-    - Note: these downloads will require you to first login to your Apple account.
-    - https://download.developer.apple.com/Developer_Tools/Xcode_11.7/Xcode_11.7.xip
-    - https://download.developer.apple.com/Developer_Tools/Xcode_11.3.1/Xcode_11.3.1.xip
-    - The brew install step above will have installed the Xcode command-line tools.  Make sure to run Xcode after installing it, and set the Command Line Tools in Preferences->Locations to the version of Xcode you installed.
 - git (https://git-scm.com/downloads). This step is optional, as git is bundled with Xcode.
     - brew install git
 - Clone the repository.
@@ -81,10 +77,9 @@ You will find the application logs in C:/Users/USER/AppData/Local/Windscribe/Win
     - brew install automake
     - brew install p7zip
 - Install Wireguard build tools (brew install go)
-- Install CppCheck (brew install cppcheck)
 - Install dmgbuild:
     - python -m pip install dmgbuild
-- Install cmake from: https://cmake.org/download/ 
+- Install cmake v3.23.x from: https://cmake.org/download/
 - Install python deps:
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt
@@ -107,7 +102,6 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 - install_wireguard
 - install_stunnel
 - install_protobuf
-- install_gtest
 
 ### Notes on building libraries:
     - Some libraries depends on others. Almost all of the libraries depends on openssl. Openvpn depends on LZO.
@@ -127,10 +121,10 @@ You will find the application logs in ~/Library/Application Support/Windscribe/W
 ## Linux
 ### Prerequisites
 
-Build process tested on Ubuntu 16.04 (gcc 5.4.0) and Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
+Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
 
 - Install build tools:
-  - sudo apt install build-essential
+  - sudo apt install build-essential software-properties-common libgl1-mesa-dev
 
 - Install git:
   - sudo apt install git
@@ -142,7 +136,7 @@ Build process tested on Ubuntu 16.04 (gcc 5.4.0) and Ubuntu 20.04/ZorinOS 16 (gc
   - sudo apt install patchelf
 
 - Install fpm (for making an .rpm package):
-  - sudo apt-get install ruby-dev build-essential rpm && sudo gem i fpm -f
+  - sudo apt-get install ruby-dev rpm && sudo gem i fpm -f
 
 - Install libpam (required for building openvpn):
   - sudo apt-get install libpam0g-dev
@@ -158,14 +152,15 @@ Build process tested on Ubuntu 16.04 (gcc 5.4.0) and Ubuntu 20.04/ZorinOS 16 (gc
 - Install libtool (required for building protobuf):
   - sudo apt-get install libtool
 
-- Install cmake (required for building gtests):
+- Install cmake (default build system generator for Qt 6):
   - sudo apt-get install cmake
 
 - Install fakeroot:
   - sudo apt-get install fakeroot
 
-- Install Qt platform plugin dependencies (https://doc.qt.io/qt-5/linux-requirements.html#platform-plugin-dependencies):
-  - sudo apt-get install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxkbcommon-dev libxkbcommon-x11-dev
+- Install Qt platform plugin dependencies (https://doc.qt.io/qt-6/linux-requirements.html#platform-plugin-dependencies):
+  - Note: this step is not currently required, as we no longer build Qt from source.
+  - sudo apt-get install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
 
 - Clone the repository.
 
@@ -190,7 +185,6 @@ Go to subfolder tools/deps and run the following scripts in order. Libraries wil
 - install_wireguard
 - install_stunnel
 - install_protobuf
-- install_gtest
 
 ### Build the Windscribe 2.0 app
 

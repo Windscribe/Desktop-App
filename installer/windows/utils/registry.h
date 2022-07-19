@@ -3,20 +3,18 @@
 
 #include <windows.h>
 #include <vector>
+#include <string>
 
 #include "reg_view.h"
 
 
 class Registry
 {
- 
  public:
     static bool InternalRegQueryStringValue(HKEY H, const wchar_t *Name, std::wstring &ResultStr, DWORD Type1, DWORD Type2);
 	static bool RegQueryStringValue(HKEY H,const wchar_t *SubKeyName,std::wstring ValueName, std::wstring &ResultStr);
 	static bool RegQueryStringValue1(HKEY H, const wchar_t *Name, std::wstring &ResultStr);
 
-
-	static void CrackCodeRootKey(HKEY CodeRootKey, TRegView &RegView, HKEY &RootKey);
 	static bool RegWriteStringValue(HKEY H, std::wstring SubKeyName, std::wstring ValueName, std::wstring ValueData);
 
 	static LSTATUS RegCreateKeyExView(const TRegView &RegView, HKEY &hKey, LPCWSTR lpSubKey,
@@ -38,7 +36,6 @@ class Registry
 	static std::vector<std::wstring> regGetSubkeyChildNames(HKEY h, const wchar_t *subkeyName);
 	static bool regDeleteProperty(HKEY h, const wchar_t *subkeyName, std::wstring valueName);
 	static bool regHasSubkeyProperty(HKEY h, const wchar_t *subkeyName, std::wstring valueName);
-
 };
 
 #endif // REGISTRY_H

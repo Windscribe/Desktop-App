@@ -19,7 +19,7 @@ signals:
 protected:
     virtual void paintEvent(QPaintEvent *event);
 
-    void enterEvent(QEvent *event);
+    void enterEvent(QEnterEvent *event);
     void leaveEvent(QEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);

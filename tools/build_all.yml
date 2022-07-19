@@ -17,39 +17,19 @@ cli:
   target:   windscribe-cli.exe
   symbols:  windscribe-cli.pdb
 
-service32:
+service:
   name:     Service
   project:  windscribe_service.vcxproj
   subdir:   backend/windows/windscribe_service
   target:   WindscribeService.exe
   symbols:  WindscribeService.pdb
-  outdir:   x32
 
-service64:
-  name:     Service
-  project:  windscribe_service.vcxproj
-  subdir:   backend/windows/windscribe_service
-  target:   WindscribeService.exe
-  symbols:  WindscribeService.pdb
-  outdir:   x64
-  is64bit:  yes
-
-changeics32:
+changeics:
   name:     ChangeICS
   project:  changeics.vcxproj
   subdir:   backend/windows/changeics
   target:   ChangeIcs.exe
   symbols:  ChangeIcs.pdb
-  outdir:   x32
-
-changeics64:
-  name:     ChangeICS
-  project:  changeics.vcxproj
-  subdir:   backend/windows/changeics
-  target:   ChangeIcs.exe
-  symbols:  ChangeIcs.pdb
-  outdir:   x64
-  is64bit:  yes
 
 authhelper_com:
   name: ws_com
@@ -110,6 +90,8 @@ helper:
   xcflags:
     - OTHER_CODE_SIGN_FLAGS=--timestamp
     - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+    - "-destination"
+    - generic/platform=macOS
 
 helper_linux:
   name:     Helper
@@ -124,6 +106,9 @@ launcher_mac:
   target:   WindscribeLauncher.app
   scheme:   WindscribeLauncher
   outdir:   launcher
+  xcflags:
+    - "-destination"
+    - generic/platform=macOS
 
 installer_mac:
   name:     Installer
@@ -135,6 +120,8 @@ installer_mac:
   xcflags:
     - OTHER_CODE_SIGN_FLAGS=--timestamp
     - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+    - "-destination"
+    - generic/platform=macOS
 
 installer_linux:
   name:     Installer
@@ -145,21 +132,18 @@ wireguardservice:
   subdir:   backend/windows/wireguard_service
   target:   WireguardService.exe
   symbols:  WireguardService.pdb
-  is64bit:  yes
 
 
 targets:
   win32:
-    - client
     - cli
-    - service32
-    - service64
-    - changeics32
-    - changeics64
+    - service
+    - changeics
     - installhelper
     - launcher_win
     - uninstaller
     - wireguardservice
+    - client
   macos:
     - helper
     - launcher_mac
@@ -168,8 +152,8 @@ targets:
   linux:
     - helper_linux
     - cli
-    - client
     - authhelper_linux
+    - client
   authhelper_win:
     - authhelper_com
     - authhelper_com_server
@@ -186,47 +170,47 @@ windows_signing_cert:
   timestamp: http://timestamp.digicert.com
 
 qt_files:
-  - bin/libEGL.dll
-  - bin/libGLESV2.dll
-  - bin/Qt5Core.dll
-  - bin/Qt5Gui.dll
-  - bin/Qt5Network.dll
-  - bin/Qt5Svg.dll
-  - bin/Qt5Widgets.dll
-  - plugins/platforms/qwindows.dll
+  - bin/Qt6Core.dll
+  - bin/Qt6Core5Compat.dll
+  - bin/Qt6Gui.dll
+  - bin/Qt6Network.dll
+  - bin/Qt6Svg.dll
+  - bin/Qt6Widgets.dll
   - plugins/imageformats/qgif.dll
   - plugins/imageformats/qico.dll
   - plugins/imageformats/qsvg.dll
   - plugins/imageformats/qjpeg.dll
-
-qt_files_linux:
-  - lib/libQt5Core.so.5
-  - lib/libQt5Network.so.5
-  - lib/libQt5Svg.so.5
-  - lib/libQt5Widgets.so.5
-  - lib/libQt5Gui.so.5
-  - lib/libQt5XcbQpa.so.5
-  - lib/libQt5DBus.so.5
+  - plugins/networkinformation/qnetworklistmanager.dll
+  - plugins/platforms/qwindows.dll
+  - plugins/styles/qwindowsvistastyle.dll
+  - plugins/tls/qopensslbackend.dll
+  - plugins/tls/qschannelbackend.dll
 
 lib_files_linux:
   qt:
-    - lib/libQt5Core.so.5 -> lib/libQt5Core.so.5 
-    - lib/libQt5Network.so.5 -> lib/libQt5Network.so.5
-    - lib/libQt5Svg.so.5 -> lib/libQt5Svg.so.5
-    - lib/libQt5Widgets.so.5 -> lib/libQt5Widgets.so.5
-    - lib/libQt5Gui.so.5 -> lib/libQt5Gui.so.5
-    - lib/libQt5XcbQpa.so.5 -> lib/libQt5XcbQpa.so.5
-    - lib/libQt5DBus.so.5 -> lib/libQt5DBus.so.5
-    - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
+    - lib/libicui18n.so.56 -> lib/libicui18n.so.56
+    - lib/libicuuc.so.56 -> lib/libicuuc.so.56
+    - lib/libicudata.so.56 -> lib/libicudata.so.56
+    - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
+    - lib/libQt6Core5Compat.so.6 -> lib/libQt6Core5Compat.so.6
+    - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
+    - lib/libQt6Gui.so.6 -> lib/libQt6Gui.so.6
+    - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
+    - lib/libQt6OpenGL.so.6 -> lib/libQt6OpenGL.so.6
+    - lib/libQt6Svg.so.6 -> lib/libQt6Svg.so.6
+    - lib/libQt6Widgets.so.6 -> lib/libQt6Widgets.so.6
+    - lib/libQt6XcbQpa.so.6 -> lib/libQt6XcbQpa.so.6
     - plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so -> plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
     - plugins/platforminputcontexts/libibusplatforminputcontextplugin.so -> plugins/platforminputcontexts/libibusplatforminputcontextplugin.so
     - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
     - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
     - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
     - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
-    - plugins/bearer/libqconnmanbearer.so -> plugins/bearer/libqconnmanbearer.so
-    - plugins/bearer/libqgenericbearer.so -> plugins/bearer/libqgenericbearer.so
-    - plugins/bearer/libqnmbearer.so -> plugins/bearer/libqnmbearer.so
+    - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
+    - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
+    - plugins/tls/libqopensslbackend.so -> plugins/tls/libqopensslbackend.so
+    - plugins/xcbglintegrations/libqxcb-egl-integration.so -> plugins/xcbglintegrations/libqxcb-egl-integration.so
+    - plugins/xcbglintegrations/libqxcb-glx-integration.so -> plugins/xcbglintegrations/libqxcb-glx-integration.so
 
   cares:
     - lib/libcares.so.2 -> lib/libcares.so.2
@@ -236,7 +220,7 @@ lib_files_linux:
     - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
     - lib/libssl.so.1.1 -> lib/libssl.so.1.1
   protobuf:
-    - lib/libprotobuf.so.28 -> lib/libprotobuf.so.28
+    - lib/libprotobuf.so.32 -> lib/libprotobuf.so.32
   openvpn:
     - openvpn -> windscribeopenvpn
   stunnel:
@@ -245,9 +229,9 @@ lib_files_linux:
     - windscribewireguard -> windscribewireguard
 
 files_fix_rpath_linux:
-  - lib/libQt5Network.so.5 -> $ORIGIN
-  - lib/libQt5XcbQpa.so.5 -> $ORIGIN
-  - lib/libQt5DBus.so.5 -> $ORIGIN
+  - lib/libQt6Network.so.6 -> $ORIGIN
+  - lib/libQt6XcbQpa.so.6 -> $ORIGIN
+  - lib/libQt6DBus.so.6 -> $ORIGIN
   - lib/libcurl.so.4 -> $ORIGIN
   - lib/libssl.so.1.1 -> $ORIGIN
   - windscribestunnel -> $ORIGIN/lib
@@ -265,11 +249,24 @@ files_codesign_linux:
   - windscribewireguard 
   - Windscribe
 
+files_codesign_windows:
+  - cares.dll
+  - libcrypto-1_1-x64.dll
+  - libcurl.dll
+  - libssl-1_1-x64.dll
+  - tunnel.dll
+  - ws_com.dll
+  - ws_proxy_stub.dll
+  - zlib1.dll
+
 msvc_files:
   - concrt140.dll
   - msvcp140.dll
+  - msvcp140_1.dll
+  - msvcp140_2.dll
   - vccorlib140.dll
   - vcruntime140.dll
+  - vcruntime140_1.dll
 
 additional_files:
   - tap6/
@@ -283,12 +280,12 @@ license_files:
 
 lib_files:
   cares:
-    - dll_x32/lib/cares.dll -> cares.dll
+    - dll_x64/lib/cares.dll -> cares.dll
   curl:
     - bin/libcurl.dll -> libcurl.dll
   openssl: 
-    - bin/libcrypto-1_1.dll -> libcrypto-1_1.dll
-    - bin/libssl-1_1.dll -> libssl-1_1.dll
+    - bin/libcrypto-1_1-x64.dll -> libcrypto-1_1-x64.dll
+    - bin/libssl-1_1-x64.dll -> libssl-1_1-x64.dll
   stunnel:
     - tstunnel.exe -> tstunnel.exe
   zlib:
@@ -319,7 +316,7 @@ macdeployfixes:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
       Contents/MacOS/windscribe-cli:
         protobuf:
-          - lib/libprotobuf.28.dylib -> ../Frameworks/libprotobuf.28.dylib
+          - lib/libprotobuf.32.dylib -> ../Frameworks/libprotobuf.32.dylib
     entitlements:
       entitlements_binary: Contents/MacOS/Windscribe
       entitlements_file: client/engine/mac/windscribe_engine.entitlements
@@ -327,3 +324,21 @@ macdeployfixes:
       # Remove unused Qt frameworks.
       - Contents/Frameworks/QtQml.framework
       - Contents/Frameworks/QtQuick.framework
+
+files_fix_rpath_macos:
+    # openssl must be patched before curl since curl depends on it.
+    openssl:
+      - lib/libcrypto.1.1.dylib
+      - lib/libssl.1.1.dylib
+    cares:
+      - lib/libcares.2.dylib
+    curl:
+      - lib/libcurl.4.dylib
+    protobuf:
+      - bin/protoc
+      - lib/libprotoc.32.dylib
+      - lib/libprotobuf.32.dylib
+    openvpn:
+      - openvpn
+    stunnel:
+      - stunnel

@@ -12,6 +12,7 @@
 #include <unistd.h>
 #endif
 
+#include <functional>    // std::function
 #include <thread>        // std::thread
 #include <mutex>         // std::mutex
 

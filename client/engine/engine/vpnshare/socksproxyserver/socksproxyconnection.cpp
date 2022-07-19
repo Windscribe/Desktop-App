@@ -104,10 +104,10 @@ void SocksProxyConnection::onSocketReadyRead()
                 Q_ASSERT(socketExternal_ == NULL);
                 socketExternal_ = new QTcpSocket(this);
 
-                connect(socketExternal_, SIGNAL(connected()), SLOT(onExternalSocketConnected()));
-                connect(socketExternal_, SIGNAL(disconnected()), SLOT(onExternalSocketDisconnected()));
-                connect(socketExternal_, SIGNAL(readyRead()), SLOT(onExternalSocketReadyRead()));
-                connect(socketExternal_, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(onExternalSocketError(QAbstractSocket::SocketError)));
+                connect(socketExternal_, &QTcpSocket::connected, this, &SocksProxyConnection::onExternalSocketConnected);
+                connect(socketExternal_, &QTcpSocket::disconnected, this, &SocksProxyConnection::onExternalSocketDisconnected);
+                connect(socketExternal_, &QTcpSocket::readyRead, this, &SocksProxyConnection::onExternalSocketReadyRead);
+                connect(socketExternal_, &QTcpSocket::errorOccurred, this, &SocksProxyConnection::onExternalSocketError);
 
                 writeAllSocketExternal_ = new SocketWriteAll(this, socketExternal_);
                 state_ = CONNECT_TO_HOST;

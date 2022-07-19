@@ -291,12 +291,9 @@ void RemoveDirectory1::RestartDeleteDir(const bool DisableFsRedir, wstring Dir)
 bool RemoveDirectory1::ListContainsPathOrSubdir(std::list<wstring> *List,  const wstring Path)
 {
 //{ Returns true if List contains Path or a subdirectory of Path }
-  wstring SlashPath;
-  unsigned int SlashPathLen;
- // bool Result = false;
 
-  SlashPath = path.AddBackslash(Path);
-  SlashPathLen = SlashPath.length();
+  wstring SlashPath = path.AddBackslash(Path);
+  size_t SlashPathLen = SlashPath.length();
   if (SlashPathLen > 0)
    {
   //{ ...sanity check }
@@ -306,36 +303,11 @@ bool RemoveDirectory1::ListContainsPathOrSubdir(std::list<wstring> *List,  const
       {
        return true;
       }
-      if (((*it).length() > SlashPathLen) && CompareMem(reinterpret_cast<const void *>((*it).c_str()), reinterpret_cast<const void*>(SlashPath.c_str())))
+      if (((*it).length() > SlashPathLen) && (_wcsnicmp((*it).c_str(), SlashPath.c_str(), SlashPathLen) == 0))
        {
         return true;
        }
      }
    }
  return false;
-}
-
-
-bool RemoveDirectory1::CompareMem(const void *P1, const void *P2)
-{
-    __asm
-     {
-        PUSH    ESI
-        PUSH    EDI
-        MOV     ESI,P1
-        MOV     EDI,P2
-        MOV     EDX,ECX
-        XOR     EAX,EAX
-        AND     EDX,3
-        SHR     ECX,1
-        SHR     ECX,1
-        REPE    CMPSD
-        JNE     B
-        MOV     ECX,EDX
-        REPE    CMPSB
-        JNE     B
-        INC     EAX
-  B:    POP     EDI
-        POP     ESI
-    }
 }

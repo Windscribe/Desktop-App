@@ -48,7 +48,7 @@ void Logger::install(const QString &name, bool consoleOutput, bool recoveryMode)
 {
     //QLoggingCategory::setFilterRules("basic=false\nipc=false\nserver_api=false");
 
-    QString logFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString logFilePath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     QDir dir(logFilePath);
     dir.mkpath(logFilePath);
     prevLogPath_ = logFilePath + "/prev_log_" + name + ".txt";
