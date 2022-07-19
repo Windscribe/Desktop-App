@@ -8,6 +8,7 @@
 import os
 import re
 import pathhelper
+import sys
 
 
 class Extractor:
@@ -93,5 +94,7 @@ class Extractor:
 # allows shell to directly call this module to get the version
 if __name__ == "__main__":
     extractor = Extractor()
-    # build_all.py is using True, so must use True here as well so .gitlab-ci.yml retrieves the proper version string.
-    print extractor.app_version(True)
+    # build_all.py is using True when it calls app_version(), so default to True here as well
+    # so .gitlab-ci.yml retrieves the proper version string.
+    include_beta_suffix = False if "--no-suffix" in sys.argv else True
+    print extractor.app_version(include_beta_suffix)

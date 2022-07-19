@@ -186,12 +186,7 @@ testing:mac:runtestgui:
     - if: $BUILD_MAC == "y" && $TEST_MAC == "y"
 
 # Build and Upload Installer
-build:win:installer:
-  <<: *template_win10_build
-  stage: Build
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+.build_win_installer_common:
   script:
     # download the libs
     - !reference [.download_jom_win, script]
@@ -226,25 +221,46 @@ build:win:installer:
     - Set-Variable -name VERSION -value $(python tools/base/extract.py)
     # build
     - tools/build_all -zip --ci-mode --sign
+
+build:win:installer:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_win_installer_common, script]
     # upload installer and symbols to nexus
     - !reference [.upload_installer_to_nexus_commit_win, script ]
     - !reference [.upload_symbols_to_nexus_commit_win, script ]
     - !reference [.upload_installer_to_nexus_latest_win, script ]
     - !reference [.upload_symbols_to_nexus_latest_win, script ]
   rules:
-    - if: $BUILD_WIN == "y"
+    - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null
 
-# build mac installer (manual button)
-# couldn't figure out how to add manual button without interfering with "rules" -- duplicated the job :\
-manual:build:mac:installer:
-  <<: *template_mac_build
+build:win:installer:tagged:
+  <<: *template_win10_build
   stage: Build
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
+    - !reference [.build_win_installer_common, script]
+    # upload installer and symbols to nexus
+    - Set-Variable -name VERSION_NO_SUFFIX -value $(python tools/base/extract.py --no-suffix)
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_$VERSION.exe
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe"
+    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/WindscribeSymbols_$VERSION.zip
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/WindscribeSymbols_$VERSION.zip"
+  rules:
+    - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG != null
+
+.build_mac_installer_common:
+  script:
     # download the libs
-    - !reference [.download_cares_mac, script ]
+    - !reference [.download_cares_mac, script]
     - !reference [.download_lzo_mac, script]
     - !reference [.download_boost_mac, script]
     - !reference [.download_wireguard_mac, script]
@@ -254,12 +270,12 @@ manual:build:mac:installer:
     - !reference [.download_protobuf_mac, script]
     - !reference [.download_qt_mac, script]
     - !reference [.download_stunnel_mac, script]
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
+    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
     # extractions
-    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
-      --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
+    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
       $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
     # get the secrets JSON and put in VAULT_RESPONSE_JSON
+    # Note: the single quotes MUST be used here or we'll get a syntax error
     - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
     # parse the secrets
     - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
@@ -271,11 +287,21 @@ manual:build:mac:installer:
     - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
     - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
     - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
-    # build the application/installer
     - VERSION=$(python tools/base/extract.py)
-    - tools/build_all -zip --ci-mode --notarize --sign
+
+# build mac installer (manual button)
+# couldn't figure out how to add manual button without interfering with "rules" -- duplicated the job :\
+manual:build:mac:installer:
+  <<: *template_mac_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_mac_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
     # upload dmg to nexus
-    - !reference [.upload_dmg_to_nexus_commit_mac, script ]
+    - !reference [.upload_dmg_to_nexus_commit_mac, script]
     - !reference [.upload_dmg_to_nexus_latest_mac, script]
   when: manual
   rules:
@@ -288,51 +314,34 @@ build:mac:installer:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
-    # download the libs
-    - !reference [.download_cares_mac, script ]
-    - !reference [.download_lzo_mac, script]
-    - !reference [.download_boost_mac, script]
-    - !reference [.download_wireguard_mac, script]
-    - !reference [.download_openssl_mac, script]
-    - !reference [.download_curl_mac, script]
-    - !reference [.download_openvpn_mac, script]
-    - !reference [.download_protobuf_mac, script]
-    - !reference [.download_qt_mac, script]
-    - !reference [.download_stunnel_mac, script]
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
-    # extractions
-    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
-      --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
-      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
-    # get the secrets JSON and put in VAULT_RESPONSE_JSON
-    - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
-    # parse the secrets
-    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
-    - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-mac-provision-profile)
-    - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
-    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
-    # use echo -e to print \n as newlines
-    - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
-    - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
-    - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
-    - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
+    - !reference [.build_mac_installer_common, script]
     # build the application/installer
-    - VERSION=$(python tools/base/extract.py)
-    # JDRM enable notarization again
-    #- tools/build_all -zip --ci-mode --notarize --sign
     - tools/build_all -zip --ci-mode --sign
     # upload dmg to nexus
-    - !reference [.upload_dmg_to_nexus_commit_mac, script ]
+    - !reference [.upload_dmg_to_nexus_commit_mac, script]
     - !reference [.upload_dmg_to_nexus_latest_mac, script]
   rules:
-    - if: $BUILD_MAC == "y"
+    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null
 
-build:linux:installer:
-  <<: *template_linux_build
+build:mac:installer:tagged:
+  <<: *template_mac_build
   stage: Build
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_mac_installer_common, script]
+    # Only tagged builds are notarized
+    - tools/build_all -zip --ci-mode --notarize --sign
+    # upload dmg to nexus
+    - VERSION_NO_SUFFIX=$(python tools/base/extract.py --no-suffix)
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_$VERSION.dmg
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg"
+  rules:
+    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG != null
+
+.build_linux_installer_common:
   script:
     # download the libs
     - !reference [.download_cares_linux, script ]
@@ -351,6 +360,7 @@ build:linux:installer:
       --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
       $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
     # get the secrets JSON and put in VAULT_RESPONSE_JSON
+    # Note: the single quotes MUST be used here or we'll get a syntax error
     - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
     # parse the secrets
     - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
@@ -365,13 +375,41 @@ build:linux:installer:
     # build the application/installer
     - VERSION=$(python tools/base/extract.py)
     - tools/build_all -zip --ci-mode --sign
+
+build:linux:installer:
+  <<: *template_linux_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_linux_installer_common, script]
     # upload deb and rpm packages to nexus
     - !reference [.upload_deb_to_nexus_commit_linux, script ]
     - !reference [.upload_deb_to_nexus_latest_linux, script ]
     - !reference [.upload_rpm_to_nexus_commit_linux, script ]
     - !reference [.upload_rpm_to_nexus_latest_linux, script ]
   rules:
-    - if: $BUILD_LINUX == "y"
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null
+
+build:linux:installer:tagged:
+  <<: *template_linux_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_linux_installer_common, script]
+    # upload deb and rpm packages to nexus
+    - VERSION_NO_SUFFIX=$(python tools/base/extract.py --no-suffix)
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm"
+  rules:
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
 
 build:artifact:links:
   tags: [win10qty6]
@@ -382,3 +420,18 @@ build:artifact:links:
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_x86_64.rpm
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe
+  rules:
+    - if: $CI_COMMIT_TAG == null
+
+build:artifact:links:tagged:
+  tags: [win10qty6]
+  stage: Artifact Links
+  script:
+    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
+    - Set-Variable -name VERSION_NO_SUFFIX -value $(python tools/base/extract.py --no-suffix)
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe
+  rules:
+    - if: $CI_COMMIT_TAG != null
